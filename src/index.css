@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #eff6ff;
+  --color-primary-500: #646cff;
+  --color-primary-600: #535bf2;
+  --color-secondary-500: #61dafb;
+}
+
+@layer base {
+  :root {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-gray-900 text-white min-h-screen font-sans;
+  }
+
+  a {
+    @apply font-medium text-primary-500 no-underline hover:text-primary-600 transition-colors;
+  }
+}

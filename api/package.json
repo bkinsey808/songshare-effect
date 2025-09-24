@@ -1,0 +1,22 @@
+{
+  "name": "songshare-effect-api",
+  "version": "1.0.0",
+  "description": "Hono API server for Cloudflare Workers",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "tsc",
+    "start": "wrangler dev"
+  },
+  "dependencies": {
+    "hono": "^4.9.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250924.0",
+    "concurrently": "^9.2.1",
+    "typescript": "^5.9.2",
+    "wrangler": "^3.114.14"
+  },
+  "packageManager": "pnpm@10.13.1"
+}
