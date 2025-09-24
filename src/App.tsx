@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import OptimizedCounter from './components/OptimizedCounter'
+import UseHookDemo from './components/UseHookDemo'
 
 // Simple Suspense demo without complex Tailwind classes
 function SuspenseDemo() {
@@ -105,6 +106,10 @@ function App() {
       <main>
         <OptimizedCounter />
         <SuspenseDemo />
+        
+        <Suspense fallback={<div style={{ padding: '20px', textAlign: 'center' }}>Loading Use Hook Demo...</div>}>
+          <UseHookDemo />
+        </Suspense>
         
         <div style={{ textAlign: 'center' }}>
           <button style={{ 
