@@ -1,0 +1,5 @@
+{
+  "compilationMode": "infer",
+  "panicThreshold": "all_errors",
+  "sources": ["src/**"]
+}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import OptimizedCounter from './components/OptimizedCounter'
 
 interface Song {
   id: number
@@ -12,31 +13,30 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchSongs()
-  }, [])
-
   const fetchSongs = async () => {
-    try {
-      setLoading(true)
-      // In development, you'll need to start the API server separately
-      const response = await fetch('http://localhost:8787/api/songs')
-      if (!response.ok) {
-        throw new Error('Failed to fetch songs')
-      }
-      const data = await response.json()
-      setSongs(data)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+    setLoading(true)
+    
+    // React Compiler doesn't support try/catch/finally yet, so we'll use .catch()
+    const response = await fetch('http://localhost:8787/api/songs').catch(() => null)
+    
+    if (!response || !response.ok) {
+      setError('Failed to fetch songs')
       // Fallback to mock data for demonstration
       setSongs([
         { id: 1, title: 'Sample Song', artist: 'Sample Artist', duration: 180 },
         { id: 2, title: 'Another Song', artist: 'Another Artist', duration: 210 }
       ])
-    } finally {
-      setLoading(false)
+    } else {
+      const data = await response.json().catch(() => [])
+      setSongs(data)
     }
+    
+    setLoading(false)
   }
+
+  useEffect(() => {
+    fetchSongs()
+  }, [])
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -54,6 +54,8 @@ function App() {
       </header>
 
       <main>
+        <OptimizedCounter />
+        
         {loading && <p className="text-center text-gray-400">Loading songs...</p>}
         {error && (
           <p className="text-red-400 bg-red-400/10 p-4 rounded-lg mb-8 text-center">
