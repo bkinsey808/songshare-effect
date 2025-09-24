@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #eff6ff;
-  --color-primary-500: #646cff;
-  --color-primary-600: #535bf2;
-  --color-secondary-500: #61dafb;
+	--color-primary-50: #eff6ff;
+	--color-primary-500: #646cff;
+	--color-primary-600: #535bf2;
+	--color-secondary-500: #61dafb;
 }
 
 @layer base {
-  :root {
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+	:root {
+		font-synthesis: none;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
 
-  body {
-    @apply bg-gray-900 text-white min-h-screen font-sans;
-  }
+	body {
+		@apply min-h-screen bg-gray-900 font-sans text-white;
+	}
 
-  a {
-    @apply font-medium text-primary-500 no-underline hover:text-primary-600 transition-colors;
-  }
+	a {
+		@apply text-primary-500 hover:text-primary-600 font-medium no-underline transition-colors;
+	}
 }

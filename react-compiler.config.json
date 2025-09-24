@@ -1,5 +1,5 @@
 {
-  "compilationMode": "infer",
-  "panicThreshold": "all_errors",
-  "sources": ["src/**"]
+	"compilationMode": "infer",
+	"panicThreshold": "all_errors",
+	"sources": ["src/**"]
 }

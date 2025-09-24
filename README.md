@@ -20,11 +20,13 @@ A modern song sharing platform built with React, Vite, and Hono for Cloudflare d
 ### Installation
 
 1. Install frontend dependencies:
+
 ```bash
 pnpm install
 ```
 
 2. Install API dependencies:
+
 ```bash
 cd api
 pnpm install
@@ -33,6 +35,7 @@ pnpm install
 ### Development
 
 1. Start the API server:
+
 ```bash
 cd api
 pnpm dev
@@ -40,6 +43,7 @@ pnpm dev
 ```
 
 2. Start the frontend (in a new terminal):
+
 ```bash
 pnpm dev
 # Frontend will be available at http://localhost:5173
@@ -50,12 +54,14 @@ pnpm dev
 ### API (Cloudflare Workers)
 
 1. Configure Wrangler:
+
 ```bash
 cd api
 npx wrangler login
 ```
 
 2. Deploy:
+
 ```bash
 cd api
 pnpm deploy
@@ -64,6 +70,7 @@ pnpm deploy
 ### Frontend (Cloudflare Pages)
 
 1. Build the frontend:
+
 ```bash
 pnpm build
 ```
@@ -114,11 +121,13 @@ songshare-effect/
 ## Environment Variables
 
 ### API (.env)
+
 ```
 ENVIRONMENT=development
 ```
 
 ### Frontend (.env.local)
+
 ```
 VITE_API_URL=http://localhost:8787
 ```
