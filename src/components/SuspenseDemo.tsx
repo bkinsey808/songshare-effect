@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { type ReactElement, Suspense } from "react";
 
 // Simple cache to store promises and their results
 const promiseCache = new Map<string, Promise<unknown> | unknown>();
@@ -36,7 +36,7 @@ function suspendingFetch<T>(key: string, fetcher: () => Promise<T>): T {
 }
 
 // Component that fetches user data and suspends
-function UserProfile({ userId }: { userId: number }) {
+function UserProfile({ userId }: { userId: number }): ReactElement {
 	const user = suspendingFetch(`user-${userId}`, async () => {
 		// Simulate API delay
 		await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -60,7 +60,7 @@ function UserProfile({ userId }: { userId: number }) {
 }
 
 // Component that fetches posts and suspends
-function UserPosts({ userId }: { userId: number }) {
+function UserPosts({ userId }: { userId: number }): ReactElement {
 	const posts = suspendingFetch(`posts-${userId}`, async () => {
 		// Simulate API delay
 		await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -101,7 +101,7 @@ function UserPosts({ userId }: { userId: number }) {
 }
 
 // Loading fallback components
-function ProfileSkeleton() {
+function ProfileSkeleton(): ReactElement {
 	return (
 		<div className="animate-pulse rounded-xl border border-white/10 bg-white/5 p-6">
 			<div className="mb-3 h-6 rounded bg-gray-600"></div>
@@ -111,7 +111,7 @@ function ProfileSkeleton() {
 	);
 }
 
-function PostsSkeleton() {
+function PostsSkeleton(): ReactElement {
 	return (
 		<div className="space-y-4">
 			{[1, 2, 3].map((i) => (
@@ -128,8 +128,8 @@ function PostsSkeleton() {
 }
 
 // Main demo component
-export default function SuspenseDemo() {
-	const clearCache = () => {
+export default function SuspenseDemo(): ReactElement {
+	const clearCache = (): void => {
 		promiseCache.clear();
 		// Force re-render by updating a key or state if needed
 		window.location.reload();

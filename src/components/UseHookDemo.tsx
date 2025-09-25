@@ -1,4 +1,4 @@
-import { createContext, use, useState } from "react";
+import { type ReactElement, createContext, use, useState } from "react";
 
 // Create a context for theme
 const ThemeContext = createContext<"light" | "dark">("light");
@@ -7,7 +7,13 @@ const ThemeContext = createContext<"light" | "dark">("light");
 const promiseCache = new Map<string, Promise<unknown>>();
 
 // Simulate API calls
-const fetchUserData = async (userId: number) => {
+const fetchUserData = async (
+	userId: number,
+): Promise<{
+	id: number;
+	name: string;
+	songs: string[];
+}> => {
 	await new Promise((resolve) => setTimeout(resolve, 1000));
 	return {
 		id: userId,
@@ -16,7 +22,14 @@ const fetchUserData = async (userId: number) => {
 	};
 };
 
-const fetchSongDetails = async (songName: string) => {
+const fetchSongDetails = async (
+	songName: string,
+): Promise<{
+	title: string;
+	artist: string;
+	duration: string;
+	genre: string;
+}> => {
 	await new Promise((resolve) => setTimeout(resolve, 800));
 	return {
 		title: songName,
@@ -50,7 +63,7 @@ function getCachedPromise<T>(
 }
 
 // Component that uses the 'use' hook with promises
-function UserProfile({ userId }: { userId: number }) {
+function UserProfile({ userId }: { userId: number }): ReactElement {
 	// Using the 'use' hook to read the promise directly
 	const userPromise = getCachedPromise(`user-${userId}`, () =>
 		fetchUserData(userId),
@@ -90,7 +103,7 @@ function UserProfile({ userId }: { userId: number }) {
 }
 
 // Component that demonstrates using 'use' hook with dynamic promises
-function SongDetails({ songName }: { songName: string }) {
+function SongDetails({ songName }: { songName: string }): ReactElement {
 	// Create a promise dynamically and use the 'use' hook
 	const songPromise = getCachedPromise(`song-${songName}`, () =>
 		fetchSongDetails(songName),
@@ -122,9 +135,11 @@ function SongDetails({ songName }: { songName: string }) {
 }
 
 // Main demo component
-function UseHookDemo() {
+function UseHookDemo(): ReactElement {
 	const [userId, setUserId] = useState(1);
-	const [selectedSong, setSelectedSong] = useState<string | null>(null);
+	const [selectedSong, setSelectedSong] = useState<string | undefined>(
+		undefined,
+	);
 	const [theme, setTheme] = useState<"light" | "dark">("light");
 
 	return (
@@ -190,7 +205,9 @@ function UseHookDemo() {
 						))}
 					</div>
 
-					{selectedSong && <SongDetails songName={selectedSong} />}
+					{selectedSong !== undefined && (
+						<SongDetails songName={selectedSong} />
+					)}
 				</div>
 
 				<div

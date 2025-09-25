@@ -1,4 +1,4 @@
-import { Suspense, use, useState } from "react";
+import { type ReactElement, Suspense, use, useState } from "react";
 
 import ErrorBoundary from "../components/ErrorBoundary";
 
@@ -6,7 +6,16 @@ import ErrorBoundary from "../components/ErrorBoundary";
 const promiseCache = new Map<string, Promise<unknown>>();
 
 // Simulate API calls with different loading times
-const fetchAlbumData = async (albumId: number) => {
+const fetchAlbumData = async (
+	albumId: number,
+): Promise<{
+	id: number;
+	title: string;
+	artist: string;
+	year: number;
+	tracks: string[];
+	coverUrl: string;
+}> => {
 	await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay
 
 	// Simulate occasional errors for album ID 99
@@ -24,7 +33,15 @@ const fetchAlbumData = async (albumId: number) => {
 	};
 };
 
-const fetchArtistData = async (artistId: number) => {
+const fetchArtistData = async (
+	artistId: number,
+): Promise<{
+	id: number;
+	name: string;
+	genre: string;
+	albums: string[];
+	bio: string;
+}> => {
 	await new Promise((resolve) => setTimeout(resolve, 1500)); // 1.5 second delay
 
 	// Simulate occasional errors for artist ID 99
@@ -35,13 +52,22 @@ const fetchArtistData = async (artistId: number) => {
 	return {
 		id: artistId,
 		name: `Artist ${artistId}`,
-		genre: ["Pop", "Rock", "Jazz", "Classical"][artistId % 4],
+		genre: ["Pop", "Rock", "Jazz", "Classical"][artistId % 4] ?? "Unknown",
 		albums: Array.from({ length: 5 }, (_, i) => `Album ${i + 1}`),
 		bio: `This is the biography of Artist ${artistId}. They are known for their incredible music and have been performing for many years.`,
 	};
 };
 
-const fetchPlaylistData = async (playlistId: number) => {
+const fetchPlaylistData = async (
+	playlistId: number,
+): Promise<{
+	id: number;
+	name: string;
+	description: string;
+	songCount: number;
+	duration: string;
+	songs: string[];
+}> => {
 	await new Promise((resolve) => setTimeout(resolve, 3000)); // 3 second delay
 
 	// Simulate occasional errors for playlist ID 99
@@ -84,7 +110,7 @@ function getCachedPromise<T>(
 }
 
 // Loading components for different sections
-function LoadingSpinner({ message }: { message: string }) {
+function LoadingSpinner({ message }: { message: string }): ReactElement {
 	return (
 		<div className="flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8">
 			<div className="text-center">
@@ -96,7 +122,7 @@ function LoadingSpinner({ message }: { message: string }) {
 }
 
 // Component that uses 'use' hook to fetch album data
-function AlbumCard({ albumId }: { albumId: number }) {
+function AlbumCard({ albumId }: { albumId: number }): ReactElement {
 	const albumPromise = getCachedPromise(`album-${albumId}`, () =>
 		fetchAlbumData(albumId),
 	);
@@ -137,7 +163,7 @@ function AlbumCard({ albumId }: { albumId: number }) {
 }
 
 // Component that uses 'use' hook to fetch artist data
-function ArtistProfile({ artistId }: { artistId: number }) {
+function ArtistProfile({ artistId }: { artistId: number }): ReactElement {
 	const artistPromise = getCachedPromise(`artist-${artistId}`, () =>
 		fetchArtistData(artistId),
 	);
@@ -166,7 +192,7 @@ function ArtistProfile({ artistId }: { artistId: number }) {
 }
 
 // Component that uses 'use' hook to fetch playlist data
-function PlaylistDetails({ playlistId }: { playlistId: number }) {
+function PlaylistDetails({ playlistId }: { playlistId: number }): ReactElement {
 	const playlistPromise = getCachedPromise(`playlist-${playlistId}`, () =>
 		fetchPlaylistData(playlistId),
 	);
@@ -210,17 +236,22 @@ function PlaylistDetails({ playlistId }: { playlistId: number }) {
 }
 
 // Main page component
-function SuspenseUsePage() {
-	const [activeAlbum, setActiveAlbum] = useState<number | null>(null);
-	const [activeArtist, setActiveArtist] = useState<number | null>(null);
-	const [activePlaylist, setActivePlaylist] = useState<number | null>(null);
+// eslint-disable-next-line max-lines-per-function
+function SuspenseUsePage(): ReactElement {
+	const [activeAlbum, setActiveAlbum] = useState<number | undefined>(undefined);
+	const [activeArtist, setActiveArtist] = useState<number | undefined>(
+		undefined,
+	);
+	const [activePlaylist, setActivePlaylist] = useState<number | undefined>(
+		undefined,
+	);
 
-	const clearCache = () => {
+	const clearCache = (): void => {
 		promiseCache.clear();
 		// Force re-render by resetting states
-		setActiveAlbum(null);
-		setActiveArtist(null);
-		setActivePlaylist(null);
+		setActiveAlbum(undefined);
+		setActiveArtist(undefined);
+		setActivePlaylist(undefined);
 	};
 
 	return (
@@ -243,21 +274,21 @@ function SuspenseUsePage() {
 						onClick={() => setActiveAlbum(activeAlbum === 1 ? 2 : 1)}
 						className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
 					>
-						🎵 Load Album ({activeAlbum || "None"})
+						🎵 Load Album ({activeAlbum ?? "None"})
 					</button>
 
 					<button
 						onClick={() => setActiveArtist(activeArtist === 1 ? 2 : 1)}
 						className="rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-700"
 					>
-						🎤 Load Artist ({activeArtist || "None"})
+						🎤 Load Artist ({activeArtist ?? "None"})
 					</button>
 
 					<button
 						onClick={() => setActivePlaylist(activePlaylist === 1 ? 2 : 1)}
 						className="rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700"
 					>
-						📝 Load Playlist ({activePlaylist || "None"})
+						📝 Load Playlist ({activePlaylist ?? "None"})
 					</button>
 
 					<button
@@ -301,7 +332,7 @@ function SuspenseUsePage() {
 					<h2 className="text-xl font-semibold text-gray-800">
 						Albums (2s load time)
 					</h2>
-					{activeAlbum ? (
+					{activeAlbum !== undefined ? (
 						<ErrorBoundary>
 							<Suspense
 								fallback={<LoadingSpinner message="Loading album details..." />}
@@ -323,7 +354,7 @@ function SuspenseUsePage() {
 					<h2 className="text-xl font-semibold text-gray-800">
 						Artists (1.5s load time)
 					</h2>
-					{activeArtist ? (
+					{activeArtist !== undefined ? (
 						<ErrorBoundary>
 							<Suspense
 								fallback={
@@ -347,7 +378,7 @@ function SuspenseUsePage() {
 					<h2 className="text-xl font-semibold text-gray-800">
 						Playlists (3s load time)
 					</h2>
-					{activePlaylist ? (
+					{activePlaylist !== undefined ? (
 						<ErrorBoundary>
 							<Suspense
 								fallback={

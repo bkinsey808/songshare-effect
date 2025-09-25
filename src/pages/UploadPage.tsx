@@ -1,7 +1,20 @@
-import { useState } from "react";
+import { type ReactElement, useState } from "react";
 
-function UploadPage() {
-	const [formData, setFormData] = useState({
+type FormData = {
+	title: string;
+	artist: string;
+	album: string;
+	year: string;
+	genre: string;
+	description: string;
+};
+
+/**
+ * Upload page component for submitting song information
+ * @returns The upload page JSX element
+ */
+function UploadPage(): ReactElement {
+	const [formData, setFormData] = useState<FormData>({
 		title: "",
 		artist: "",
 		album: "",
@@ -16,19 +29,19 @@ function UploadPage() {
 		e: React.ChangeEvent<
 			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 		>,
-	) => {
+	): void => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleSubmit = async (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent): Promise<void> => {
 		e.preventDefault();
 		setIsSubmitting(true);
 
 		// Simulate API call
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 
-		alert("Song uploaded successfully!");
+		// In a real app, you'd show a success message or redirect
 		setFormData({
 			title: "",
 			artist: "",
