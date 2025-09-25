@@ -1,4 +1,4 @@
-import { type ReactElement, useState } from "react";
+import { useState } from "react";
 
 type FormData = {
 	title: string;

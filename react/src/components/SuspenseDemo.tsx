@@ -1,4 +1,4 @@
-import { type ReactElement, Suspense } from "react";
+import { Suspense } from "react";
 
 // Simple cache to store promises and their results
 const promiseCache = new Map<string, Promise<unknown> | unknown>();

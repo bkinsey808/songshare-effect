@@ -1,18 +1,15 @@
-import React from "react";
+import { Component, type ErrorInfo, type ReactNode } from "react";
 
-interface ErrorBoundaryState {
+type ErrorBoundaryState = {
 	hasError: boolean;
 	error?: Error;
-}
+};
 
-interface ErrorBoundaryProps {
-	children: React.ReactNode;
-}
+type ErrorBoundaryProps = {
+	children: ReactNode;
+};
 
-class ErrorBoundary extends React.Component<
-	ErrorBoundaryProps,
-	ErrorBoundaryState
-> {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	constructor(props: ErrorBoundaryProps) {
 		super(props);
 		this.state = { hasError: false };
@@ -22,11 +19,11 @@ class ErrorBoundary extends React.Component<
 		return { hasError: true, error };
 	}
 
-	componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+	override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
 		console.error("Error Boundary caught an error:", error, errorInfo);
 	}
 
-	render() {
+	override render(): ReactNode {
 		if (this.state.hasError) {
 			return (
 				<div className="m-5 rounded-lg border border-red-400 bg-red-100 p-10 text-center">

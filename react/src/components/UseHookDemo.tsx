@@ -1,4 +1,4 @@
-import { type ReactElement, createContext, use, useState } from "react";
+import { createContext, use, useState } from "react";
 
 // Create a context for theme
 const ThemeContext = createContext<"light" | "dark">("light");

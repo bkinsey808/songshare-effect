@@ -1,4 +1,4 @@
-import { type ReactElement, Suspense, use, useState } from "react";
+import { Suspense, use, useState } from "react";
 
 import ErrorBoundary from "../components/ErrorBoundary";
 

@@ -45,7 +45,7 @@ as the final step.
 
 const tsCheck = spawnSync(
 	"npx",
-	["typescript-file-checker", "--pretty", "--project", "tsconfig.json"],
+	["tsc", "--noEmit", "--pretty", "--project", "tsconfig.json"],
 	{ stdio: ["ignore", "pipe", "pipe"] },
 );
 
@@ -62,10 +62,222 @@ function filterNpmWarnings(output: Buffer | string | undefined): string {
 
 const combinedTsCheck = tsCheck.stdout.toString() + tsCheck.stderr.toString();
 const filteredTsCheck = filterNpmWarnings(combinedTsCheck);
-spawnSync("bun", [require.resolve("./filterTsErrors.ts"), file], {
-	input: filteredTsCheck,
-	stdio: ["pipe", "inherit", "inherit"],
-});
+const filterResult = spawnSync(
+	"bun",
+	[require.resolve("./filterTsErrors.ts"), file],
+	{
+		input: filteredTsCheck,
+		stdio: ["pipe", "pipe", "pipe"],
+	},
+);
+
+const filteredOutput = filterResult.stdout.toString();
+if (filteredOutput.trim().length > 0) {
+	// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+	console.log("\n--- Project-level TypeScript errors for this file ---");
+	// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+	console.log(filteredOutput);
+} else {
+	// eslint-disable-next-line no-console -- This is a CLI script that needs to output information
+	console.log("\n--- Project-level TypeScript check passed for this file ---");
+}
+
+// Run individual TypeScript check only for non-JSX files to catch configuration issues
+// JSX files require project configuration and will always fail individual checks with new JSX transform
+const isJsxFile = file.endsWith(".tsx") || file.endsWith(".jsx");
+let individualTsCheck: ReturnType<typeof spawnSync>;
+let filteredIndividualTsCheck = "";
+
+if (!isJsxFile) {
+	individualTsCheck = spawnSync("npx", ["tsc", "--noEmit", "--pretty", file], {
+		stdio: ["ignore", "pipe", "pipe"],
+	});
+
+	const combinedIndividualTsCheck =
+		individualTsCheck.stdout.toString() + individualTsCheck.stderr.toString();
+	filteredIndividualTsCheck = filterNpmWarnings(combinedIndividualTsCheck);
+
+	// Filter out errors from other files - only show errors for the target file
+	const lines = filteredIndividualTsCheck.split("\n");
+	const fileParts = file.split("/");
+	const targetFileName =
+		fileParts.length > 0 ? fileParts[fileParts.length - 1] : "";
+	const targetErrorSections: string[] = [];
+
+	// Find all error sections for the target file
+	for (let i = 0; i < lines.length; i++) {
+		// Safe array access - i is bounded by lines.length
+		// eslint-disable-next-line security/detect-object-injection
+		const line = lines[i] || "";
+
+		// Skip summary sections
+		if (
+			line.match(/^Found \d+ errors? in \d+ files?\./) ||
+			line.match(/^Errors\s+Files/) ||
+			line.match(/^\s*\d+\s+.*\.tsx?:\d+/)
+		) {
+			continue;
+		}
+
+		// Check if this line contains an error for our target file
+		const isTargetErrorLine =
+			line.includes("error") &&
+			(line.includes(file) || line.includes(targetFileName));
+
+		if (isTargetErrorLine) {
+			// Add this error line
+			targetErrorSections.push(line);
+
+			// Add all continuation lines until we hit another error or empty section
+			for (let j = i + 1; j < lines.length; j++) {
+				// Safe array access - j is bounded by lines.length
+				// eslint-disable-next-line security/detect-object-injection
+				const nextLine = lines[j] || "";
+
+				// Stop if we hit another error line
+				if (nextLine.includes("error") && nextLine.includes(".ts")) {
+					break;
+				}
+
+				// Stop if we hit summary section
+				if (
+					nextLine.match(/^Found \d+ errors? in \d+ files?\./) ||
+					nextLine.match(/^Errors\s+Files/)
+				) {
+					break;
+				}
+
+				// Add continuation lines (including empty lines for formatting)
+				targetErrorSections.push(nextLine);
+
+				// If we hit two consecutive empty lines, this error section is done
+				if (
+					nextLine.trim() === "" &&
+					j + 1 < lines.length &&
+					// Safe array access - j+1 is bounded by lines.length check
+					// eslint-disable-next-line security/detect-object-injection
+					(lines[j + 1] || "").trim() === ""
+				) {
+					break;
+				}
+			}
+		}
+	}
+
+	const filteredIndividualTsCheckClean = targetErrorSections.join("\n").trim();
+
+	if (
+		filteredIndividualTsCheckClean &&
+		filteredIndividualTsCheckClean.length > 0
+	) {
+		// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+		console.log(
+			"\n--- Individual file TypeScript check (without project config) ---",
+		);
+		// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+		console.log(filteredIndividualTsCheckClean);
+	} else {
+		// eslint-disable-next-line no-console -- This is a CLI script that needs to output information
+		console.log("\n--- Individual file TypeScript check passed ---");
+	}
+} else {
+	// For JSX files, try TypeScript check with JSX flag
+	individualTsCheck = spawnSync(
+		"npx",
+		["tsc", "--noEmit", "--pretty", "--jsx", "react-jsx", file],
+		{
+			stdio: ["ignore", "pipe", "pipe"],
+		},
+	);
+
+	const combinedIndividualTsCheck =
+		individualTsCheck.stdout.toString() + individualTsCheck.stderr.toString();
+	filteredIndividualTsCheck = filterNpmWarnings(combinedIndividualTsCheck);
+
+	// Filter out errors from other files and node_modules - only show errors for the target file
+	const lines = filteredIndividualTsCheck.split("\n");
+	const fileParts = file.split("/");
+	const targetFileName =
+		fileParts.length > 0 ? fileParts[fileParts.length - 1] : "";
+	const targetErrorSections: string[] = [];
+
+	// Find all error sections for the target file
+	for (let i = 0; i < lines.length; i++) {
+		// Safe array access - i is bounded by lines.length
+		// eslint-disable-next-line security/detect-object-injection
+		const line = lines[i] || "";
+
+		// Skip summary sections
+		if (
+			line.match(/^Found \d+ errors? in \d+ files?\./) ||
+			line.match(/^Errors\s+Files/) ||
+			line.match(/^\s*\d+\s+.*\.tsx?:\d+/)
+		) {
+			continue;
+		}
+
+		// Check if this line contains an error for our target file
+		const isTargetErrorLine =
+			line.includes("error") &&
+			(line.includes(file) || line.includes(targetFileName));
+
+		if (isTargetErrorLine) {
+			// Add this error line
+			targetErrorSections.push(line);
+
+			// Add all continuation lines until we hit another error or empty section
+			for (let j = i + 1; j < lines.length; j++) {
+				// Safe array access - j is bounded by lines.length
+				// eslint-disable-next-line security/detect-object-injection
+				const nextLine = lines[j] || "";
+
+				// Stop if we hit another error line
+				if (nextLine.includes("error") && nextLine.includes(".tsx")) {
+					break;
+				}
+
+				// Stop if we hit summary section
+				if (
+					nextLine.match(/^Found \d+ errors? in \d+ files?\./) ||
+					nextLine.match(/^Errors\s+Files/)
+				) {
+					break;
+				}
+
+				// Add continuation lines (including empty lines for formatting)
+				targetErrorSections.push(nextLine);
+
+				// If we hit two consecutive empty lines, this error section is done
+				if (
+					nextLine.trim() === "" &&
+					j + 1 < lines.length &&
+					// Safe array access - j+1 is bounded by lines.length check
+					// eslint-disable-next-line security/detect-object-injection
+					(lines[j + 1] || "").trim() === ""
+				) {
+					break;
+				}
+			}
+		}
+	}
+
+	const filteredIndividualTsCheckClean = targetErrorSections.join("\n").trim();
+
+	if (
+		filteredIndividualTsCheckClean &&
+		filteredIndividualTsCheckClean.length > 0
+	) {
+		// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+		console.log(
+			"\n--- Individual JSX file TypeScript check (with JSX flag) ---",
+		);
+		// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+		console.log(filteredIndividualTsCheckClean);
+	} else {
+		// eslint-disable-next-line no-console -- This is a CLI script that needs to output information
+		console.log("\n--- Individual JSX file TypeScript check passed ---");
+	}
+}
 
 const eslintResult = spawnSync(
 	"eslint",
@@ -100,7 +312,8 @@ function hasTypeErrorsForFile(tsOutput: string, filePath: string): boolean {
 }
 
 const typeErrorForFile = hasTypeErrorsForFile(filteredTsCheck, file);
+const individualTypeError = individualTsCheck.status !== 0;
 const eslintFailed = eslintResult.status !== 0;
-if (typeErrorForFile || eslintFailed) {
+if (typeErrorForFile || individualTypeError || eslintFailed) {
 	process.exit(1);
 }

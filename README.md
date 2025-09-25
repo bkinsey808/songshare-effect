@@ -91,13 +91,25 @@ songshare-effect/
 │   ├── wrangler.toml      # Cloudflare Workers config
 │   ├── package.json
 │   └── tsconfig.json
-├── src/                   # React frontend
-│   ├── App.tsx           # Main app component
-│   ├── App.css           # App styles
-│   └── main.tsx          # App entry point
+├── shared/                 # Shared code between API and frontend
+│   ├── types/             # TypeScript interfaces and types
+│   ├── utils/             # Utility functions and constants
+│   └── index.ts           # Main exports
+├── react/                 # React frontend
+│   └── src/               # React source code
+│       ├── App.tsx        # Main app component
+│       ├── App.css        # App styles
+│       └── main.tsx       # App entry point
 ├── package.json          # Frontend dependencies
-└── vite.config.ts        # Vite configuration
+├── vite.config.ts        # Vite configuration
+└── SHARED_CODE_GUIDE.md  # Documentation for shared code
 ```
+
+### Shared Code
+
+The `shared/` directory contains TypeScript interfaces, utilities, and constants that are used by both the frontend and API. This ensures type safety and code consistency across the entire application.
+
+See [SHARED_CODE_GUIDE.md](./SHARED_CODE_GUIDE.md) for detailed information about the shared code structure.
 
 ## API Endpoints
 

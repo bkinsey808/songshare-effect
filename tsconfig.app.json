@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"composite": true,
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 		"target": "ES2022",
 		"useDefineForClassFields": true,
@@ -20,9 +21,7 @@
 		"strict": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"erasableSyntaxOnly": true,
 		"noFallthroughCasesInSwitch": true,
-		"noUncheckedSideEffectImports": true,
 		"noImplicitOverride": true,
 		"noPropertyAccessFromIndexSignature": true,
 		"allowUnusedLabels": false,
@@ -33,5 +32,5 @@
 		"noImplicitReturns": true,
 		"noUncheckedIndexedAccess": true
 	},
-	"include": ["src"]
+	"include": ["react/src", "shared"]
 }

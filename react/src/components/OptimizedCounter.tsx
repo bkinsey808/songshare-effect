@@ -2,14 +2,14 @@ import { useState } from "react";
 
 // This component will benefit from React Compiler optimizations
 // React Compiler should automatically memoize expensive computations based on dependencies
-function OptimizedCounter() {
+function OptimizedCounter(): ReactElement {
 	const [count, setCount] = useState(0);
 	const [name, setName] = useState("");
 
 	// This expensive computation should be automatically memoized by React Compiler
 	// and should only run when 'count' changes, not when 'name' changes
-	const expensiveComputation = (value: number) => {
-		console.log("Running expensive computation for count:", value);
+	const expensiveComputation = (value: number): number => {
+		console.warn("Running expensive computation for count:", value);
 		let result = 0;
 		for (let i = 0; i < 1000000; i++) {
 			result += i * value;
@@ -25,8 +25,14 @@ function OptimizedCounter() {
 			<h2 className="mb-4 text-2xl font-bold">React Compiler Test</h2>
 			<div className="space-y-4">
 				<div>
-					<label className="mb-2 block text-sm font-medium">Name:</label>
+					<label
+						htmlFor="name-input"
+						className="mb-2 block text-sm font-medium"
+					>
+						Name:
+					</label>
 					<input
+						id="name-input"
 						type="text"
 						value={name}
 						onChange={(e) => setName(e.target.value)}
@@ -36,7 +42,7 @@ function OptimizedCounter() {
 				</div>
 
 				<div>
-					<label className="mb-2 block text-sm font-medium">Counter:</label>
+					<div className="mb-2 block text-sm font-medium">Counter:</div>
 					<div className="flex items-center gap-4">
 						<button
 							onClick={() => setCount(count - 1)}

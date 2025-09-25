@@ -1,6 +1,14 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 
+import {
+	type ApiResponse,
+	HTTP_STATUS,
+	type Song,
+	generateId,
+	validateSongData,
+} from "../../shared/index.js";
+
 type Bindings = {
 	BUCKET: R2Bucket;
 	ENVIRONMENT: string;
@@ -32,36 +40,73 @@ app.get("/health", (c) => {
 	});
 });
 
+// Mock data store (replace with actual database)
+const songs: Song[] = [];
+
 // Songs API routes
 app.get("/api/songs", async (c) => {
-	// TODO: Implement song listing
-	return c.json([
-		{ id: 1, title: "Sample Song", artist: "Sample Artist", duration: 180 },
-		{ id: 2, title: "Another Song", artist: "Another Artist", duration: 210 },
-	]);
+	const response: ApiResponse<Song[]> = {
+		success: true,
+		data: songs,
+	};
+	return c.json(response);
 });
 
 app.post("/api/songs", async (c) => {
-	// TODO: Implement song creation
-	const body = await c.req.json();
-	return c.json(
-		{
-			message: "Song created",
-			song: { id: Date.now(), ...body },
-		},
-		201,
-	);
+	try {
+		const body = (await c.req.json()) as unknown;
+
+		if (!validateSongData(body)) {
+			const errorResponse: ApiResponse = {
+				success: false,
+				error: "Invalid song data",
+			};
+			return c.json(errorResponse, HTTP_STATUS.BAD_REQUEST);
+		}
+
+		const newSong: Song = {
+			id: generateId(),
+			...body,
+			fileUrl: "", // Would be set after file upload
+			uploadedAt: new Date(),
+			userId: "user123", // Would come from auth
+		};
+
+		songs.push(newSong);
+
+		const response: ApiResponse<Song> = {
+			success: true,
+			data: newSong,
+			message: "Song created successfully",
+		};
+
+		return c.json(response, HTTP_STATUS.CREATED);
+	} catch (_error) {
+		const errorResponse: ApiResponse = {
+			success: false,
+			error: "Failed to create song",
+		};
+		return c.json(errorResponse, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+	}
 });
 
 app.get("/api/songs/:id", async (c) => {
 	const id = c.req.param("id");
-	// TODO: Implement individual song retrieval
-	return c.json({
-		id: parseInt(id),
-		title: "Sample Song",
-		artist: "Sample Artist",
-		duration: 180,
-	});
+	const song = songs.find((s) => s.id === id);
+
+	if (!song) {
+		const errorResponse: ApiResponse = {
+			success: false,
+			error: "Song not found",
+		};
+		return c.json(errorResponse, HTTP_STATUS.NOT_FOUND);
+	}
+
+	const response: ApiResponse<Song> = {
+		success: true,
+		data: song,
+	};
+	return c.json(response);
 });
 
 // File upload endpoint

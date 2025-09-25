@@ -5,7 +5,7 @@ import {
 	type ApiResponse,
 	type Song,
 	formatDuration,
-} from "../../shared/index.js";
+} from "../../../shared/index.js";
 
 function SongsPage() {
 	"use no memo";
