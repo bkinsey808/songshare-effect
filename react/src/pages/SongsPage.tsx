@@ -5,9 +5,9 @@ import {
 	type ApiResponse,
 	type Song,
 	formatDuration,
-} from "../../../shared/index.js";
+} from "@/shared/index";
 
-function SongsPage() {
+function SongsPage(): ReactElement {
 	"use no memo";
 	const [songs, setSongs] = useState<Song[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -20,13 +20,34 @@ function SongsPage() {
 				const response = await fetch(
 					`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SONGS}`,
 				);
-				const data: ApiResponse<Song[]> =
-					(await response.json()) as ApiResponse<Song[]>;
+				const data = (await response.json()) as unknown;
 
-				if (data.success && data.data) {
-					setSongs(data.data);
+				// Type guard function to validate ApiResponse structure
+				const isApiResponse = (obj: unknown): obj is ApiResponse<Song[]> => {
+					if (typeof obj !== "object" || obj === null) {
+						return false;
+					}
+					const candidate = obj as Record<string, unknown>;
+
+					return (
+						typeof candidate["success"] === "boolean" &&
+						(candidate["success"] === false ||
+							Array.isArray(candidate["data"])) &&
+						(candidate["error"] === undefined ||
+							typeof candidate["error"] === "string") &&
+						(candidate["message"] === undefined ||
+							typeof candidate["message"] === "string")
+					);
+				};
+
+				if (isApiResponse(data)) {
+					if (data.success === true && data.data) {
+						setSongs(data.data);
+					} else {
+						setError(data.error ?? "Failed to load songs");
+					}
 				} else {
-					setError(data.error ?? "Failed to load songs");
+					setError("Invalid response format");
 				}
 			} catch (err) {
 				setError("Failed to connect to API");
@@ -63,7 +84,7 @@ function SongsPage() {
 				<div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
 					{songs.map((song) => (
 						<div
-							key={song.id}
+							key={String(song.id)}
 							className="hover:shadow-primary-500/20 cursor-pointer rounded-lg border border-gray-600 bg-gray-800 p-5 transition-shadow duration-200 hover:shadow-lg"
 						>
 							<h3 className="m-0 mb-3 text-xl font-semibold text-white">
@@ -77,11 +98,11 @@ function SongsPage() {
 								<span>{new Date(song.uploadedAt).toLocaleDateString()}</span>
 								<span>{song.genre ?? "Unknown"}</span>
 							</div>
-							{song.tags && song.tags.length > 0 && (
+							{Array.isArray(song.tags) && song.tags.length > 0 && (
 								<div className="mt-2 flex flex-wrap gap-1">
 									{song.tags.map((tag, index) => (
 										<span
-											key={index}
+											key={String(index)}
 											className="rounded bg-blue-600 px-2 py-1 text-xs text-white"
 										>
 											{tag}

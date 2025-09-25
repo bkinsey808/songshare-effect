@@ -155,7 +155,6 @@ if (!isJsxFile) {
 					nextLine.trim() === "" &&
 					j + 1 < lines.length &&
 					// Safe array access - j+1 is bounded by lines.length check
-					// eslint-disable-next-line security/detect-object-injection
 					(lines[j + 1] || "").trim() === ""
 				) {
 					break;
@@ -252,7 +251,6 @@ if (!isJsxFile) {
 					nextLine.trim() === "" &&
 					j + 1 < lines.length &&
 					// Safe array access - j+1 is bounded by lines.length check
-					// eslint-disable-next-line security/detect-object-injection
 					(lines[j + 1] || "").trim() === ""
 				) {
 					break;
@@ -280,8 +278,8 @@ if (!isJsxFile) {
 }
 
 const eslintResult = spawnSync(
-	"eslint",
-	["--color", "--no-ignore", "--fix", file],
+	"npx",
+	["eslint", "--color", "--no-ignore", "--fix", file],
 	{
 		stdio: ["ignore", "pipe", "pipe"],
 	},

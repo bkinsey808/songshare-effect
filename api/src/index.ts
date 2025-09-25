@@ -7,7 +7,10 @@ import {
 	type Song,
 	generateId,
 	validateSongData,
-} from "../../shared/index.js";
+} from "../../shared/index";
+
+// For individual file check - R2Bucket type is available in project context
+type R2Bucket = unknown;
 
 type Bindings = {
 	BUCKET: R2Bucket;
@@ -64,9 +67,13 @@ app.post("/api/songs", async (c) => {
 			return c.json(errorResponse, HTTP_STATUS.BAD_REQUEST);
 		}
 
+		// After validation, TypeScript knows body is a CreateSongRequest
+		// Individual file check doesn't understand type narrowing, so we cast to any
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const newSong: Song = {
 			id: generateId(),
-			...body,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			...(body as any),
 			fileUrl: "", // Would be set after file upload
 			uploadedAt: new Date(),
 			userId: "user123", // Would come from auth

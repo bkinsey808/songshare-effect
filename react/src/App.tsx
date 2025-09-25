@@ -9,7 +9,7 @@ import SuspenseUsePage from "./pages/SuspenseUsePage";
 import UploadPage from "./pages/UploadPage";
 
 // Layout component that includes the common layout elements
-function Layout() {
+function Layout(): ReactElement {
 	return (
 		<ErrorBoundary>
 			<div className="mx-auto max-w-6xl p-5 font-sans">
@@ -60,7 +60,7 @@ const router = createBrowserRouter([
 	},
 ]);
 
-function App() {
+function App(): ReactElement {
 	return <RouterProvider router={router} />;
 }
 

@@ -2,8 +2,8 @@
 // Usage: bun scripts/filterTsErrors.ts <filename> < input.txt
 // Utility script to filter TypeScript error output for easier parsing and reporting.
 // Intended for use in CI or local scripts to extract relevant error lines.
-import path from "node:path";
-import readline from "node:readline";
+import * as path from "node:path";
+import * as readline from "node:readline";
 
 /** The normalized relative path of the target file provided as a CLI argument. */
 const targetFileRel = process.argv[2]
@@ -11,8 +11,9 @@ const targetFileRel = process.argv[2]
 	: undefined;
 
 /** The base filename of the target file, used for comparison with error output. */
-const targetFileBase = targetFileRel ? path.basename(targetFileRel) : undefined;
-if (!targetFileRel) {
+const targetFileBase =
+	targetFileRel !== undefined ? path.basename(targetFileRel) : undefined;
+if (targetFileRel === undefined || targetFileBase === undefined) {
 	console.error("Usage: bun scripts/filterTsErrors.ts <filename> < input.txt");
 	process.exit(1);
 }
@@ -28,6 +29,7 @@ const rl = readline.createInterface({ input: process.stdin, terminal: false });
 
 /** Remove ANSI color codes for clean matching */
 function stripAnsi(str: string): string {
+	// eslint-disable-next-line no-control-regex -- ANSI escape sequences require control characters
 	return str.replace(/\x1b\[[0-9;]*m/g, "");
 }
 
@@ -43,6 +45,7 @@ rl.on("line", (line: string) => {
 		if (currentFileBase === targetFileBase) {
 			// If the error is for the target file, start printing
 			printing = true;
+			// eslint-disable-next-line no-console -- This script needs to output filtered results to stdout
 			console.log(line); // Print the error header line immediately (with color)
 		} else {
 			// Otherwise, stop printing until the next relevant error
@@ -52,6 +55,7 @@ rl.on("line", (line: string) => {
 	}
 	// If currently printing, output the line (error details)
 	if (printing) {
+		// eslint-disable-next-line no-console -- This script needs to output filtered results to stdout
 		console.log(line);
 	}
 });

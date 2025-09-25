@@ -4,7 +4,7 @@ import OptimizedCounter from "../components/OptimizedCounter";
 import SuspenseDemo from "../components/SuspenseDemo";
 import UseHookDemo from "../components/UseHookDemo";
 
-function HomePage() {
+function HomePage(): ReactElement {
 	return (
 		<div>
 			<div className="mb-10 text-center">

@@ -1,3 +1,3 @@
-export * from "./song.js";
-export * from "./user.js";
-export * from "./api.js";
+export * from "./song";
+export * from "./user";
+export * from "./api";
