@@ -15,7 +15,7 @@
       No specific extensions required for this project type.
 
 - [x] ✅ Compile the Project
-      Dependencies installed with pnpm, no compilation errors found.
+      Dependencies installed with npm, no compilation errors found.
 
 - [x] ✅ Create and Run Task
       Created VS Code tasks for frontend dev server, API dev server, build, and deploy.
