@@ -1,0 +1,203 @@
+// Generated Effect-TS schemas from Supabase types
+// This file was auto-generated from your database schema
+// Last generated: 2025-09-27T14:16:16.294Z
+import { Schema } from "@effect/schema";
+
+// Common validation schemas
+export const NonEmptyStringSchema = Schema.NonEmptyString;
+export const EmailSchema = Schema.String.pipe(
+	Schema.nonEmptyString(),
+	Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+);
+export const UUIDSchema = Schema.UUID;
+export const PositiveNumberSchema = Schema.Positive;
+export const NonNegativeNumberSchema = Schema.NonNegative;
+
+// song table schemas
+export const SongSchema = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	private_notes: Schema.NonEmptyString,
+	song_id: Schema.UUID,
+	updated_at: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+});
+
+export type Song = Schema.Schema.Type<typeof SongSchema>;
+
+export const SongInsertSchema = Schema.Struct({
+	private_notes: Schema.optional(Schema.NonEmptyString),
+	song_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type SongInsert = Schema.Schema.Type<typeof SongInsertSchema>;
+
+export const SongUpdateSchema = Schema.Struct({
+	private_notes: Schema.optional(Schema.NonEmptyString),
+	song_id: Schema.optional(Schema.UUID),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type SongUpdate = Schema.Schema.Type<typeof SongUpdateSchema>;
+
+// song_public table schemas
+export const SongPublicSchema = Schema.Struct({
+	created_at: Schema.optional(Schema.String),
+	fields: Schema.NonEmptyString,
+	key: Schema.optional(Schema.String),
+	long_credit: Schema.optional(Schema.String),
+	public_notes: Schema.optional(Schema.String),
+	scale: Schema.optional(Schema.String),
+	short_credit: Schema.optional(Schema.String),
+	slide_order: Schema.NonEmptyString,
+	slides: Schema.Unknown,
+	song_id: Schema.UUID,
+	song_name: Schema.NonEmptyString,
+	song_slug: Schema.NonEmptyString,
+	updated_at: Schema.optional(Schema.String),
+	user_id: Schema.UUID,
+});
+
+export type SongPublic = Schema.Schema.Type<typeof SongPublicSchema>;
+
+export const SongPublicInsertSchema = Schema.Struct({
+	fields: Schema.optional(Schema.NonEmptyString),
+	key: Schema.optional(Schema.String),
+	long_credit: Schema.optional(Schema.String),
+	public_notes: Schema.optional(Schema.String),
+	scale: Schema.optional(Schema.String),
+	short_credit: Schema.optional(Schema.String),
+	slide_order: Schema.optional(Schema.NonEmptyString),
+	slides: Schema.optional(Schema.Unknown),
+	song_id: Schema.UUID,
+	song_name: Schema.optional(Schema.NonEmptyString),
+	song_slug: Schema.optional(Schema.NonEmptyString),
+	user_id: Schema.UUID,
+});
+
+export type SongPublicInsert = Schema.Schema.Type<
+	typeof SongPublicInsertSchema
+>;
+
+export const SongPublicUpdateSchema = Schema.Struct({
+	fields: Schema.optional(Schema.NonEmptyString),
+	key: Schema.optional(Schema.String),
+	long_credit: Schema.optional(Schema.String),
+	public_notes: Schema.optional(Schema.String),
+	scale: Schema.optional(Schema.String),
+	short_credit: Schema.optional(Schema.String),
+	slide_order: Schema.optional(Schema.NonEmptyString),
+	slides: Schema.optional(Schema.Unknown),
+	song_id: Schema.optional(Schema.UUID),
+	song_name: Schema.optional(Schema.NonEmptyString),
+	song_slug: Schema.optional(Schema.NonEmptyString),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type SongPublicUpdate = Schema.Schema.Type<
+	typeof SongPublicUpdateSchema
+>;
+
+// user table schemas
+export const UserSchema = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	email: EmailSchema,
+	google_calendar_access: Schema.NonEmptyString,
+	google_calendar_refresh_token: Schema.optional(Schema.String),
+	linked_providers: Schema.NonEmptyString,
+	name: Schema.NonEmptyString,
+	role: Schema.NonEmptyString,
+	role_expires_at: Schema.optional(Schema.String),
+	sub: Schema.optional(Schema.String),
+	updated_at: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+});
+
+export type User = Schema.Schema.Type<typeof UserSchema>;
+
+export const UserInsertSchema = Schema.Struct({
+	email: EmailSchema,
+	google_calendar_access: Schema.optional(Schema.NonEmptyString),
+	google_calendar_refresh_token: Schema.optional(Schema.String),
+	linked_providers: Schema.optional(Schema.NonEmptyString),
+	name: Schema.NonEmptyString,
+	role: Schema.optional(Schema.NonEmptyString),
+	role_expires_at: Schema.optional(Schema.String),
+	sub: Schema.optional(Schema.String),
+	user_id: Schema.UUID,
+});
+
+export type UserInsert = Schema.Schema.Type<typeof UserInsertSchema>;
+
+export const UserUpdateSchema = Schema.Struct({
+	email: Schema.optional(EmailSchema),
+	google_calendar_access: Schema.optional(Schema.NonEmptyString),
+	google_calendar_refresh_token: Schema.optional(Schema.String),
+	linked_providers: Schema.optional(Schema.NonEmptyString),
+	name: Schema.optional(Schema.NonEmptyString),
+	role: Schema.optional(Schema.NonEmptyString),
+	role_expires_at: Schema.optional(Schema.String),
+	sub: Schema.optional(Schema.String),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type UserUpdate = Schema.Schema.Type<typeof UserUpdateSchema>;
+
+// user_public table schemas
+export const UserPublicSchema = Schema.Struct({
+	user_id: Schema.UUID,
+	username: Schema.NonEmptyString,
+});
+
+export type UserPublic = Schema.Schema.Type<typeof UserPublicSchema>;
+
+export const UserPublicInsertSchema = Schema.Struct({
+	user_id: Schema.UUID,
+	username: Schema.optional(Schema.NonEmptyString),
+});
+
+export type UserPublicInsert = Schema.Schema.Type<
+	typeof UserPublicInsertSchema
+>;
+
+export const UserPublicUpdateSchema = Schema.Struct({
+	user_id: Schema.optional(Schema.UUID),
+	username: Schema.optional(Schema.NonEmptyString),
+});
+
+export type UserPublicUpdate = Schema.Schema.Type<
+	typeof UserPublicUpdateSchema
+>;
+
+// API Response schemas
+export const ApiSuccessResponseSchema = <A, I, R>(
+	dataSchema: Schema.Schema<A, I, R>,
+): Schema.Struct<{
+	success: Schema.Literal<[true]>;
+	data: Schema.optional<Schema.Schema<A, I, R>>;
+	message: Schema.optional<typeof Schema.String>;
+}> =>
+	Schema.Struct({
+		success: Schema.Literal(true),
+		data: Schema.optional(dataSchema),
+		message: Schema.optional(Schema.String),
+	});
+
+export const ApiErrorResponseSchema = Schema.Struct({
+	success: Schema.Literal(false),
+	error: Schema.String,
+	message: Schema.optional(Schema.String),
+});
+
+export const ApiResponseSchema = <A, I, R>(
+	dataSchema: Schema.Schema<A, I, R>,
+): Schema.Union<
+	[
+		ReturnType<typeof ApiSuccessResponseSchema<A, I, R>>,
+		typeof ApiErrorResponseSchema,
+	]
+> => Schema.Union(ApiSuccessResponseSchema(dataSchema), ApiErrorResponseSchema);
+
+export type ApiResponse<T> =
+	| { success: true; data?: T; message?: string }
+	| { success: false; error: string; message?: string };

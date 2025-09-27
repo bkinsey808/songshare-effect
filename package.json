@@ -16,9 +16,13 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"preview": "vite preview",
-		"file:check": "bun run scripts/fileCheck.ts"
+		"file:check": "bun run scripts/fileCheck.ts",
+		"supabase:generate": "./scripts/generate-effect-schemas.sh",
+		"supabase:keep-alive": "bun run scripts/keepAlive.ts",
+		"supabase:export": "dotenv -e .env -- pg_dump --schema=public --schema-only --no-owner --no-privileges --format=plain > shared/generated/schema.sql"
 	},
 	"dependencies": {
+		"@effect/schema": "^0.75.5",
 		"react": "^19.1.1",
 		"react-compiler-runtime": "19.1.0-rc.3",
 		"react-dom": "^19.1.1",
@@ -27,6 +31,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "^7.28.4",
+		"@cloudflare/workers-types": "^4.20250924.0",
 		"@cspell/eslint-plugin": "^8.15.4",
 		"@eslint/js": "^9.36.0",
 		"@tailwindcss/postcss": "^4.1.13",
@@ -35,11 +40,11 @@
 		"@types/react": "^19.1.13",
 		"@types/react-dom": "^19.1.9",
 		"@vitejs/plugin-react": "^5.0.3",
-		"@cloudflare/workers-types": "^4.20250924.0",
 		"autoprefixer": "^10.4.21",
 		"babel-plugin-react-compiler": "19.1.0-rc.3",
 		"concurrently": "^9.2.1",
 		"cspell": "^9.2.1",
+		"dotenv-cli": "^10.0.0",
 		"eslint": "^9.36.0",
 		"eslint-plugin-import": "^2.31.0",
 		"eslint-plugin-jsdoc": "^50.5.0",
@@ -58,6 +63,7 @@
 		"prettier": "^3.6.2",
 		"prettier-plugin-tailwindcss": "^0.6.14",
 		"react-compiler-healthcheck": "19.1.0-rc.3",
+		"supabase": "^2.45.5",
 		"tailwindcss": "^4.1.13",
 		"typescript": "~5.9.2",
 		"typescript-eslint": "^8.44.0",

@@ -3,7 +3,21 @@
 	"ignorePaths": [],
 	"dictionaryDefinitions": [],
 	"dictionaries": [],
-	"words": ["healthcheck", "songshare", "trivago"],
+	"words": [
+		"btrim",
+		"bytea",
+		"fkey",
+		"healthcheck",
+		"pgdg",
+		"pkey",
+		"plpgsql",
+		"Postgrest",
+		"songshare",
+		"Supabase",
+		"timestamptz",
+		"trivago",
+		"xmloption"
+	],
 	"ignoreWords": [],
 	"import": []
 }
