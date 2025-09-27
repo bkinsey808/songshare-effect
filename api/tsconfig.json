@@ -16,7 +16,6 @@
 		/* Path mapping */
 		"baseUrl": "..",
 		"paths": {
-			"@/*": ["./*"],
 			"@/shared/*": ["./shared/*"],
 			"@/react/*": ["./react/src/*"],
 			"@/api/*": ["./api/src/*"]

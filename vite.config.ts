@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+	root: ".",
 	plugins: [
 		react({
 			babel: {
@@ -24,9 +25,8 @@ export default defineConfig({
 	],
 	resolve: {
 		alias: {
-			"@": path.resolve(__dirname, "."),
-			"@/shared": path.resolve(__dirname, "./shared"),
 			"@/react": path.resolve(__dirname, "./react/src"),
+			"@/shared": path.resolve(__dirname, "./shared"),
 			"@/api": path.resolve(__dirname, "./api/src"),
 		},
 	},

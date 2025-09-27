@@ -1,13 +1,11 @@
-import { Hono } from "hono";
+import { Effect, Schema } from "effect";
+import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
 
-import {
-	type ApiResponse,
-	HTTP_STATUS,
-	type Song,
-	generateId,
-	validateSongData,
-} from "../../shared/index";
+import { type AppError, ValidationError } from "./errors";
+import { handleHttpEndpoint } from "./http-utils";
+import { CreateSongRequestSchema, type Song } from "./schemas";
+import { InMemorySongServiceLive, SongService } from "./services.js";
 
 // For individual file check - R2Bucket type is available in project context
 type R2Bucket = unknown;
@@ -43,82 +41,85 @@ app.get("/health", (c) => {
 	});
 });
 
-// Mock data store (replace with actual database)
-const songs: Song[] = [];
+// Song endpoints using Effect-TS
+app.get(
+	"/api/songs",
+	handleHttpEndpoint(() =>
+		Effect.gen(function* () {
+			const songService = yield* Effect.provide(
+				SongService,
+				InMemorySongServiceLive,
+			);
+			return yield* songService.getAll;
+		}),
+	),
+);
 
-// Songs API routes
-app.get("/api/songs", async (c) => {
-	const response: ApiResponse<Song[]> = {
-		success: true,
-		data: songs,
-	};
-	return c.json(response);
-});
+// Helper functions for better composition
+const parseJsonBody = (c: Context): Effect.Effect<unknown, ValidationError> =>
+	Effect.tryPromise({
+		try: () => c.req.json(),
+		catch: () =>
+			new ValidationError({ message: "Invalid JSON in request body" }),
+	});
 
-app.post("/api/songs", async (c) => {
-	try {
-		const body = (await c.req.json()) as unknown;
+const validateCreateSongRequest = (
+	body: unknown,
+): Effect.Effect<
+	Schema.Schema.Type<typeof CreateSongRequestSchema>,
+	ValidationError
+> =>
+	Schema.decodeUnknown(CreateSongRequestSchema)(body).pipe(
+		Effect.mapError(
+			(error) =>
+				new ValidationError({
+					message: `Validation failed: ${error.message ?? "Unknown validation error"}`,
+				}),
+		),
+	);
 
-		if (!validateSongData(body)) {
-			const errorResponse: ApiResponse = {
-				success: false,
-				error: "Invalid song data",
-			};
-			return c.json(errorResponse, HTTP_STATUS.BAD_REQUEST);
-		}
+const createSongFactory = (c: Context): Effect.Effect<Song, AppError> =>
+	Effect.gen(function* () {
+		// Parse request body
+		const body = yield* parseJsonBody(c);
 
-		// After validation, TypeScript knows body is a CreateSongRequest
-		// Individual file check doesn't understand type narrowing, so we cast to any
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		const newSong: Song = {
-			id: generateId(),
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			...(body as any),
+		// Validate request data
+		const validatedData = yield* validateCreateSongRequest(body);
+
+		// Create song using service
+		const songService = yield* Effect.provide(
+			SongService,
+			InMemorySongServiceLive,
+		);
+		const newSong = yield* songService.create({
+			...validatedData,
 			fileUrl: "", // Would be set after file upload
 			uploadedAt: new Date(),
 			userId: "user123", // Would come from auth
-		};
+		});
 
-		songs.push(newSong);
+		return newSong;
+	});
 
-		const response: ApiResponse<Song> = {
-			success: true,
-			data: newSong,
-			message: "Song created successfully",
-		};
+app.post("/api/songs", handleHttpEndpoint(createSongFactory));
 
-		return c.json(response, HTTP_STATUS.CREATED);
-	} catch (_error) {
-		const errorResponse: ApiResponse = {
-			success: false,
-			error: "Failed to create song",
-		};
-		return c.json(errorResponse, HTTP_STATUS.INTERNAL_SERVER_ERROR);
-	}
-});
-
-app.get("/api/songs/:id", async (c) => {
-	const id = c.req.param("id");
-	const song = songs.find((s) => s.id === id);
-
-	if (!song) {
-		const errorResponse: ApiResponse = {
-			success: false,
-			error: "Song not found",
-		};
-		return c.json(errorResponse, HTTP_STATUS.NOT_FOUND);
-	}
-
-	const response: ApiResponse<Song> = {
-		success: true,
-		data: song,
-	};
-	return c.json(response);
-});
+app.get(
+	"/api/songs/:id",
+	handleHttpEndpoint((c) =>
+		Effect.gen(function* () {
+			const id = c.req.param("id");
+			const songService = yield* Effect.provide(
+				SongService,
+				InMemorySongServiceLive,
+			);
+			return yield* songService.getById(id);
+		}),
+	),
+);
 
 // File upload endpoint
 app.post("/api/upload", async (c) => {
-	// TODO: Implement file upload to R2
+	// TODO: Implement file upload to R2 using Effect
 	return c.json({ message: "Upload endpoint - to be implemented" });
 });
 

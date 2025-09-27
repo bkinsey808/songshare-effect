@@ -20,9 +20,6 @@
 		/* Path mapping */
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./*"],
-			"@/shared": ["./shared/index"],
-			"@/shared/index": ["./shared/index"],
 			"@/shared/*": ["./shared/*"],
 			"@/react/*": ["./react/src/*"],
 			"@/api/*": ["./api/src/*"]
