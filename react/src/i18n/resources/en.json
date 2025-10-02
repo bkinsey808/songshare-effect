@@ -1,0 +1,23 @@
+{
+	"navigation": {
+		"home": "Home",
+		"songs": "Songs",
+		"upload": "Upload",
+		"about": "About",
+		"suspenseUse": "Suspense Use",
+		"userSubscription": "User Subscription",
+		"switchLanguage": "Switch Language"
+	},
+	"pages": {
+		"home": {
+			"title": "Welcome to SongShare",
+			"subtitle": "Share your music with the world"
+		}
+	},
+	"common": {
+		"loading": "Loading...",
+		"error": "Error",
+		"cancel": "Cancel",
+		"save": "Save"
+	}
+}

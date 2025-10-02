@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 
-import {
-	API_CONFIG,
-	type ApiResponse,
-	type Song,
-	formatDuration,
-} from "@/shared/index";
+import type { ApiResponse } from "@/shared/types/api";
+import type { Song } from "@/shared/types/song";
+import { API_CONFIG } from "@/shared/utils/constants";
+import { formatDuration } from "@/shared/utils/helpers";
 
 function SongsPage(): ReactElement {
 	"use no memo";

@@ -6,9 +6,10 @@ import * as path from "node:path";
 import * as readline from "node:readline";
 
 /** The normalized relative path of the target file provided as a CLI argument. */
-const targetFileRel = process.argv[2]
-	? path.normalize(process.argv[2].replace(/^\./, ""))
-	: undefined;
+const targetFileRel =
+	process.argv[2] !== undefined && process.argv[2] !== ""
+		? path.normalize(process.argv[2].replace(/^\./, ""))
+		: undefined;
 
 /** The base filename of the target file, used for comparison with error output. */
 const targetFileBase =
@@ -39,7 +40,7 @@ rl.on("line", (line: string) => {
 	const cleanLine: string = stripAnsi(line);
 	// Check if the line is an error header for a TypeScript file
 	const match: RegExpMatchArray | null = cleanLine.match(fileRegex);
-	if (match) {
+	if (match && match[1] !== undefined) {
 		// Extract the filename from the error header
 		const currentFileBase: string = path.basename(match[1]);
 		if (currentFileBase === targetFileBase) {

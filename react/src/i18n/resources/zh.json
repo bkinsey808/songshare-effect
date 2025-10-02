@@ -1,0 +1,23 @@
+{
+	"navigation": {
+		"home": "首页",
+		"songs": "歌曲",
+		"upload": "上传",
+		"about": "关于",
+		"suspenseUse": "使用悬挂",
+		"userSubscription": "用户订阅",
+		"switchLanguage": "切换语言"
+	},
+	"pages": {
+		"home": {
+			"title": "欢迎来到 SongShare",
+			"subtitle": "与世界分享您的音乐"
+		}
+	},
+	"common": {
+		"loading": "加载中...",
+		"error": "错误",
+		"cancel": "取消",
+		"save": "保存"
+	}
+}

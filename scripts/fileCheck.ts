@@ -4,7 +4,7 @@ import { spawnSync } from "child_process";
 
 const file = process.argv[2];
 
-if (!file) {
+if (file === undefined || file === "") {
 	console.error("Usage: bun src/features/scripts/fileCheck.ts <file>");
 	process.exit(1);
 }
@@ -101,14 +101,14 @@ if (!isJsxFile) {
 	const lines = filteredIndividualTsCheck.split("\n");
 	const fileParts = file.split("/");
 	const targetFileName =
-		fileParts.length > 0 ? fileParts[fileParts.length - 1] : "";
+		fileParts.length > 0 ? (fileParts[fileParts.length - 1] ?? "") : "";
 	const targetErrorSections: string[] = [];
 
 	// Find all error sections for the target file
 	for (let i = 0; i < lines.length; i++) {
 		// Safe array access - i is bounded by lines.length
 		// eslint-disable-next-line security/detect-object-injection
-		const line = lines[i] || "";
+		const line = lines[i] ?? "";
 
 		// Skip summary sections
 		if (
@@ -132,7 +132,7 @@ if (!isJsxFile) {
 			for (let j = i + 1; j < lines.length; j++) {
 				// Safe array access - j is bounded by lines.length
 				// eslint-disable-next-line security/detect-object-injection
-				const nextLine = lines[j] || "";
+				const nextLine = lines[j] ?? "";
 
 				// Stop if we hit another error line
 				if (nextLine.includes("error") && nextLine.includes(".ts")) {
@@ -155,7 +155,7 @@ if (!isJsxFile) {
 					nextLine.trim() === "" &&
 					j + 1 < lines.length &&
 					// Safe array access - j+1 is bounded by lines.length check
-					(lines[j + 1] || "").trim() === ""
+					(lines[j + 1] ?? "").trim() === ""
 				) {
 					break;
 				}
@@ -197,14 +197,14 @@ if (!isJsxFile) {
 	const lines = filteredIndividualTsCheck.split("\n");
 	const fileParts = file.split("/");
 	const targetFileName =
-		fileParts.length > 0 ? fileParts[fileParts.length - 1] : "";
+		fileParts.length > 0 ? (fileParts[fileParts.length - 1] ?? "") : "";
 	const targetErrorSections: string[] = [];
 
 	// Find all error sections for the target file
 	for (let i = 0; i < lines.length; i++) {
 		// Safe array access - i is bounded by lines.length
 		// eslint-disable-next-line security/detect-object-injection
-		const line = lines[i] || "";
+		const line = lines[i] ?? "";
 
 		// Skip summary sections
 		if (
@@ -228,7 +228,7 @@ if (!isJsxFile) {
 			for (let j = i + 1; j < lines.length; j++) {
 				// Safe array access - j is bounded by lines.length
 				// eslint-disable-next-line security/detect-object-injection
-				const nextLine = lines[j] || "";
+				const nextLine = lines[j] ?? "";
 
 				// Stop if we hit another error line
 				if (nextLine.includes("error") && nextLine.includes(".tsx")) {
@@ -251,7 +251,7 @@ if (!isJsxFile) {
 					nextLine.trim() === "" &&
 					j + 1 < lines.length &&
 					// Safe array access - j+1 is bounded by lines.length check
-					(lines[j + 1] || "").trim() === ""
+					(lines[j + 1] ?? "").trim() === ""
 				) {
 					break;
 				}

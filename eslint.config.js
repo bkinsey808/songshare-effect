@@ -162,6 +162,8 @@ export default [
 			".vite/**",
 			"build/**",
 			"**/*.min.js",
+			"**/*.d.ts",
+			"**/*.js",
 			"coverage/**",
 			".next/**",
 			"out/**",

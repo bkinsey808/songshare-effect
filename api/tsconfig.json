@@ -1,18 +1,18 @@
 {
 	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
-		/* Composite project for workspace integration */
-		"composite": true,
-		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.api.tsbuildinfo",
-
-		/* Override for Cloudflare Workers build requirements */
-		"target": "ES2022",
-		"lib": ["ES2022"],
-		"types": ["@cloudflare/workers-types"],
-		"allowJs": true,
-		"esModuleInterop": true,
+		/* Override base config for Cloudflare Workers compilation */
 		"noEmit": false,
 		"outDir": "./dist",
+		"allowJs": true,
+		"esModuleInterop": true,
+		"isolatedDeclarations": false,
+		"noPropertyAccessFromIndexSignature": false,
+		"types": ["@cloudflare/workers-types"],
+
+		/* Remove extensions that are incompatible with emit */
+		"allowImportingTsExtensions": false,
+		"verbatimModuleSyntax": false,
 
 		/* Path mapping relative to API directory */
 		"baseUrl": "..",
@@ -22,6 +22,6 @@
 			"@/api/*": ["./api/src/*"]
 		}
 	},
-	"include": ["src/**/*", "../shared/**/*"],
+	"include": ["src/**/*"],
 	"exclude": ["node_modules", "dist"]
 }

@@ -24,6 +24,7 @@
 		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
 		"resolveJsonModule": true,
+		"noUncheckedSideEffectImports": true,
 
 		/* Emit */
 		"noEmit": true,
@@ -32,6 +33,7 @@
 
 		/* Interop Constraints */
 		"forceConsistentCasingInFileNames": true,
+		"isolatedDeclarations": true,
 		"skipLibCheck": true,
 
 		/* Path Mapping */

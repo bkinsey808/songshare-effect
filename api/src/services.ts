@@ -69,8 +69,19 @@ const createInMemorySongService = (): SongService => ({
 			}
 			// Safe array access - songIndex is guaranteed to exist
 			// eslint-disable-next-line security/detect-object-injection
-			const existingSong = songs[songIndex];
-			const updatedSong: Song = { ...existingSong, ...updates };
+			const existingSong = songs[songIndex]!; // Non-null assertion since we verified the index exists
+			const updatedSong: Song = {
+				...existingSong,
+				...updates,
+				// Ensure required fields are preserved from existing song
+				id: existingSong.id,
+				title: updates.title ?? existingSong.title,
+				artist: updates.artist ?? existingSong.artist,
+				duration: updates.duration ?? existingSong.duration,
+				fileUrl: updates.fileUrl ?? existingSong.fileUrl,
+				uploadedAt: updates.uploadedAt ?? existingSong.uploadedAt,
+				userId: updates.userId ?? existingSong.userId,
+			};
 			// eslint-disable-next-line security/detect-object-injection
 			songs[songIndex] = updatedSong;
 			return updatedSong;

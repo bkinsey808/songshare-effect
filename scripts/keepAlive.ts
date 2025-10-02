@@ -1,14 +1,25 @@
 #!/usr/bin/env bun
 /* eslint-disable no-console */
+import { safeGet } from "@/shared/utils/safe";
+
+/**
+ * Gets an environment variable value safely, returning undefined if not found.
+ * @param envVar - The environment variable name
+ * @returns The environment variable value as a string, or undefined if not found/empty
+ */
+const getEnvValueSafe = (envVar: string): string | undefined => {
+	const value = safeGet(process.env, envVar) as string | undefined;
+	return typeof value === "string" && value.trim() !== "" ? value : undefined;
+};
+
 /**
  * Keep-alive script to prevent Supabase project from pausing
  * This script makes a simple API call to keep the project active
  */
-
 const keepAlive = async (): Promise<void> => {
 	try {
-		const supabaseUrl = process.env.VITE_SUPABASE_URL;
-		const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+		const supabaseUrl = getEnvValueSafe("VITE_SUPABASE_URL");
+		const supabaseKey = getEnvValueSafe("VITE_SUPABASE_ANON_KEY");
 
 		if (
 			supabaseUrl?.trim() === "" ||

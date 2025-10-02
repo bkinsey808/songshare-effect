@@ -1,6 +1,8 @@
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import ErrorBoundary from "./components/ErrorBoundary";
+import LanguageDetector from "./components/LanguageDetector";
+import LanguageProvider from "./components/LanguageProvider";
 import Navigation from "./components/Navigation";
 import AboutPage from "./pages/AboutPage";
 import HomePage from "./pages/HomePage";
@@ -31,35 +33,45 @@ function Layout(): ReactElement {
 	);
 }
 
-// Create the router with the new v7 API
+// Create the router with language support
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <Layout />,
+		element: <LanguageDetector />, // NEW: Handles root redirects
+	},
+	{
+		path: "/:lang", // NEW: Language-prefixed routes
+		element: <LanguageProvider />, // NEW: Language context + Suspense
 		children: [
 			{
-				index: true,
-				element: <HomePage />,
-			},
-			{
-				path: "songs",
-				element: <SongsPage />,
-			},
-			{
-				path: "upload",
-				element: <UploadPage />,
-			},
-			{
-				path: "suspense-use",
-				element: <SuspenseUsePage />,
-			},
-			{
-				path: "about",
-				element: <AboutPage />,
-			},
-			{
-				path: "user-subscription",
-				element: <UserPublicSubscriptionPage />,
+				path: "",
+				element: <Layout />, // MOVED: Under language route
+				children: [
+					{
+						index: true,
+						element: <HomePage />, // NOW: /:lang/
+					},
+					{
+						path: "songs",
+						element: <SongsPage />, // NOW: /:lang/songs
+					},
+					{
+						path: "upload",
+						element: <UploadPage />, // NOW: /:lang/upload
+					},
+					{
+						path: "suspense-use",
+						element: <SuspenseUsePage />, // NOW: /:lang/suspense-use
+					},
+					{
+						path: "about",
+						element: <AboutPage />, // NOW: /:lang/about
+					},
+					{
+						path: "user-subscription",
+						element: <UserPublicSubscriptionPage />, // NOW: /:lang/user-subscription
+					},
+				],
 			},
 		],
 	},

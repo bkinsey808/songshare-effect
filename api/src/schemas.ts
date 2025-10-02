@@ -1,9 +1,14 @@
 import { Schema } from "effect";
 
+import {
+	ApiErrorResponseSchema,
+	type ApiResponse,
+	ApiResponseSchema,
+} from "../../shared/generated/supabaseSchemas.js";
 import { MUSIC_GENRES } from "../../shared/utils/constants.js";
 
-// Schema for song creation request validation
-export const CreateSongRequestSchema = Schema.Struct({
+// Define the schemas first
+const _CreateSongRequestSchema = Schema.Struct({
 	title: Schema.NonEmptyString.pipe(Schema.trimmed()),
 	artist: Schema.NonEmptyString.pipe(Schema.trimmed()),
 	duration: Schema.Number.pipe(Schema.positive()),
@@ -11,12 +16,7 @@ export const CreateSongRequestSchema = Schema.Struct({
 	tags: Schema.optional(Schema.Array(Schema.NonEmptyString)),
 });
 
-export type CreateSongRequest = Schema.Schema.Type<
-	typeof CreateSongRequestSchema
->;
-
-// Schema for song response
-export const SongSchema = Schema.Struct({
+const _SongSchema = Schema.Struct({
 	id: Schema.NonEmptyString,
 	title: Schema.NonEmptyString,
 	artist: Schema.NonEmptyString,
@@ -28,50 +28,25 @@ export const SongSchema = Schema.Struct({
 	tags: Schema.optional(Schema.Array(Schema.NonEmptyString)),
 });
 
+// Schema for song creation request validation
+export const CreateSongRequestSchema: Schema.Schema<
+	Schema.Schema.Type<typeof _CreateSongRequestSchema>,
+	Schema.Schema.Encoded<typeof _CreateSongRequestSchema>,
+	Schema.Schema.Context<typeof _CreateSongRequestSchema>
+> = _CreateSongRequestSchema;
+
+export type CreateSongRequest = Schema.Schema.Type<
+	typeof CreateSongRequestSchema
+>;
+
+// Schema for song response
+export const SongSchema: Schema.Schema<
+	Schema.Schema.Type<typeof _SongSchema>,
+	Schema.Schema.Encoded<typeof _SongSchema>,
+	Schema.Schema.Context<typeof _SongSchema>
+> = _SongSchema;
+
 export type Song = Schema.Schema.Type<typeof SongSchema>;
 
-// Schema for API responses
-export const ApiResponseSchema = <A, I, R>(
-	dataSchema: Schema.Schema<A, I, R>,
-): Schema.Schema<
-	{
-		readonly success: true;
-		readonly data?: A;
-		readonly message?: string;
-	},
-	{
-		readonly success: true;
-		readonly data?: I;
-		readonly message?: string;
-	},
-	R
-> =>
-	Schema.Struct({
-		success: Schema.Literal(true),
-		data: Schema.optional(dataSchema),
-		message: Schema.optional(Schema.String),
-	});
-
-export const ApiErrorResponseSchema = Schema.Struct({
-	success: Schema.Literal(false),
-	error: Schema.String,
-	message: Schema.optional(Schema.String),
-});
-
-// Combined API response schema
-export const ApiResponseUnionSchema = <A, I, R>(
-	dataSchema: Schema.Schema<A, I, R>,
-): Schema.Schema.Any =>
-	Schema.Union(ApiResponseSchema(dataSchema), ApiErrorResponseSchema);
-
-export type ApiResponse<T> =
-	| {
-			success: true;
-			data?: T;
-			message?: string;
-	  }
-	| {
-			success: false;
-			error: string;
-			message?: string;
-	  };
+// Re-export the imported types and schemas for convenience
+export { ApiResponseSchema, ApiErrorResponseSchema, type ApiResponse };

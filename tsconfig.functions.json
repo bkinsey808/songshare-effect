@@ -3,7 +3,13 @@
 	"compilerOptions": {
 		"composite": true,
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.functions.tsbuildinfo",
-		"types": ["@cloudflare/workers-types"]
+		"types": ["@cloudflare/workers-types", "node"],
+		"lib": ["ES2022", "WebWorker"]
 	},
-	"include": ["functions/**/*"]
+	"include": [
+		"functions/**/*",
+		"shared/types/**/*",
+		"shared/utils/languageUtils.ts",
+		"shared/supportedLanguages.ts"
+	]
 }

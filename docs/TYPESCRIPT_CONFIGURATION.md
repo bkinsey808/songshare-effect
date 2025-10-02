@@ -49,6 +49,7 @@ The project uses **TypeScript Project References** with a shared base configurat
 		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
 		"resolveJsonModule": true,
+		"noUncheckedSideEffectImports": true,
 
 		/* Emit */
 		"noEmit": true,
@@ -57,6 +58,7 @@ The project uses **TypeScript Project References** with a shared base configurat
 
 		/* Interop Constraints */
 		"forceConsistentCasingInFileNames": true,
+		"isolatedDeclarations": true,
 		"skipLibCheck": true,
 
 		/* Path Mapping */
@@ -74,9 +76,12 @@ The project uses **TypeScript Project References** with a shared base configurat
 
 - **Modern ES2022 target** for current browser/runtime support
 - **Bundler module resolution** optimized for Vite/modern tooling
-- **Strict type checking** with all recommended safety flags
+- **Strict type checking** with all recommended safety flags (including latest additions)
 - **Path mapping** for clean imports across the monorepo
 - **JSON module support** for importing JSON files
+- **Advanced import control** with `verbatimModuleSyntax` and `allowImportingTsExtensions`
+- **Side-effect import validation** with `noUncheckedSideEffectImports` to catch import typos
+- **Isolated declarations** with `isolatedDeclarations` for faster tooling and explicit type annotations
 
 ### 2. Workspace Orchestration (`tsconfig.json`)
 
@@ -139,7 +144,7 @@ The project uses **TypeScript Project References** with a shared base configurat
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
 		"types": ["node"]
 	},
-	"include": ["vite.config.ts", "scripts/**/*"]
+	"include": ["vite.config.ts", "scripts/**/*", "shared/**/*"]
 }
 ```
 
@@ -147,6 +152,7 @@ The project uses **TypeScript Project References** with a shared base configurat
 
 - **Node.js types** for server-side APIs
 - **Build tools** (Vite config, scripts)
+- **Shared utilities** access for build scripts
 - **No DOM types** (server environment)
 
 ### 5. Cloudflare Pages Functions (`tsconfig.functions.json`)
@@ -159,16 +165,24 @@ The project uses **TypeScript Project References** with a shared base configurat
 	"compilerOptions": {
 		"composite": true,
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.functions.tsbuildinfo",
-		"types": ["@cloudflare/workers-types"]
+		"types": ["@cloudflare/workers-types", "node"],
+		"lib": ["ES2022", "WebWorker"]
 	},
-	"include": ["functions/**/*"]
+	"include": [
+		"functions/**/*",
+		"shared/types/**/*",
+		"shared/utils/languageUtils.ts",
+		"shared/supportedLanguages.ts"
+	]
 }
 ```
 
 **Specific Features**:
 
 - **Cloudflare Workers types** for Pages Functions APIs
-- **Edge runtime** environment (no DOM/Node)
+- **Node types** for server-side utilities
+- **WebWorker lib** for edge runtime APIs
+- **Selective shared includes** for needed utilities
 - **Inherits all path mappings** from base
 
 ### 6. API Configuration (`api/tsconfig.json`)
@@ -209,6 +223,8 @@ The project uses **TypeScript Project References** with a shared base configurat
 - **Output directory** for built files
 - **Cloudflare Workers types** for runtime APIs
 - **JavaScript support** for gradual migration
+- **Relaxed strict options** (`noPropertyAccessFromIndexSignature: false`, `isolatedDeclarations: false`) for Workers compatibility
+- **Module syntax compatibility** (disables `allowImportingTsExtensions` and `verbatimModuleSyntax` for emit)
 
 ## Design Principles
 
@@ -364,6 +380,34 @@ npx tsc -b
 - Enable "TypeScript and JavaScript Language Features"
 - Set up proper project detection for monorepo
 
+## TypeScript 5.x Features & Considerations
+
+### Current Version
+
+This project uses **TypeScript 5.9.2**, which includes several modern features enabled in our configuration:
+
+### Modern Features in Use
+
+- **`verbatimModuleSyntax`**: Ensures predictable import/export behavior
+- **`allowImportingTsExtensions`**: Allows importing `.ts` files directly (with `noEmit`)
+- **`bundler` module resolution**: Optimal for modern bundlers like Vite
+- **`moduleDetection: "force"`**: Ensures consistent module detection
+
+### Modern Features in Active Use
+
+- **`noUncheckedSideEffectImports`** (5.6+): Catches typos in side-effect imports like CSS or polyfills
+- **`isolatedDeclarations`** (5.5+): Enables faster declaration generation with explicit type annotations
+- **`verbatimModuleSyntax`**: Ensures predictable import/export behavior
+- **`allowImportingTsExtensions`**: Allows importing `.ts` files directly (with `noEmit`)
+- **`bundler` module resolution**: Optimal for modern bundlers like Vite
+- **`moduleDetection: "force"`**: Ensures consistent module detection
+
+### Optional Newer Features to Consider
+
+For future TypeScript versions, consider adding:
+
+- **`rewriteRelativeImportExtensions`** (5.7+): Automatically rewrites `.ts` to `.js` in output
+
 ## Migration Notes
 
 When upgrading TypeScript or changing configurations:
@@ -372,5 +416,6 @@ When upgrading TypeScript or changing configurations:
 2. **Test incrementally** - build each project separately
 3. **Check tool compatibility** - ensure Vite, ESLint, etc. work with changes
 4. **Update CI/CD** - modify build commands if needed
+5. **Review new compiler options** - consider enabling newer strict flags
 
 This architecture provides a robust, maintainable TypeScript setup that scales with the project while maintaining consistency and performance across all environments.

@@ -1,10 +1,7 @@
-import type {
-	CreateSongRequest,
-	CreateUserRequest,
-	LoginRequest,
-} from "../types/index.js";
-import { MUSIC_GENRES, UPLOAD_CONFIG } from "./constants.js";
-import { isValidEmail } from "./helpers.js";
+import type { CreateSongRequest } from "../types/song";
+import type { CreateUserRequest, LoginRequest } from "../types/user";
+import { MUSIC_GENRES, UPLOAD_CONFIG } from "./constants";
+import { isValidEmail } from "./helpers";
 
 /**
  * Validate song creation data

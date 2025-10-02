@@ -1,0 +1,23 @@
+{
+	"navigation": {
+		"home": "Inicio",
+		"songs": "Canciones",
+		"upload": "Subir",
+		"about": "Acerca de",
+		"suspenseUse": "Usar Suspense",
+		"userSubscription": "Suscripción de Usuario",
+		"switchLanguage": "Cambiar idioma"
+	},
+	"pages": {
+		"home": {
+			"title": "Bienvenido a SongShare",
+			"subtitle": "Comparte tu música con el mundo"
+		}
+	},
+	"common": {
+		"loading": "Cargando...",
+		"error": "Error",
+		"cancel": "Cancelar",
+		"save": "Guardar"
+	}
+}
