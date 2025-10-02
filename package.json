@@ -23,6 +23,7 @@
 	},
 	"dependencies": {
 		"@effect/schema": "^0.75.5",
+		"@supabase/supabase-js": "^2.58.0",
 		"react": "^19.1.1",
 		"react-compiler-runtime": "19.1.0-rc.3",
 		"react-dom": "^19.1.1",

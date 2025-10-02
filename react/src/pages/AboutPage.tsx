@@ -1,4 +1,4 @@
-function AboutPage() {
+function AboutPage(): ReactElement {
 	return (
 		<div>
 			<div className="mb-10 text-center">

@@ -7,6 +7,7 @@ import HomePage from "./pages/HomePage";
 import SongsPage from "./pages/SongsPage";
 import SuspenseUsePage from "./pages/SuspenseUsePage";
 import UploadPage from "./pages/UploadPage";
+import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
 
 // Layout component that includes the common layout elements
 function Layout(): ReactElement {
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
 			{
 				path: "about",
 				element: <AboutPage />,
+			},
+			{
+				path: "user-subscription",
+				element: <UserPublicSubscriptionPage />,
 			},
 		],
 	},

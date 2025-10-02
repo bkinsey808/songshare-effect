@@ -166,8 +166,11 @@ See documentation:
 - [SHARED_CODE_GUIDE.md](./docs/SHARED_CODE_GUIDE.md) - Shared code structure
 - [EFFECT_IMPLEMENTATION.md](./docs/EFFECT_IMPLEMENTATION.md) - Effect-TS implementation details
 - [SUPABASE_EFFECT_SCHEMAS.md](./docs/SUPABASE_EFFECT_SCHEMAS.md) - Database schema integration
+- [AUTHENTICATION_SYSTEM.md](./docs/AUTHENTICATION_SYSTEM.md) - Complete authentication guide
 
 ## API Endpoints
+
+### Core Endpoints
 
 - `GET /health` - Health check
 - `GET /api/songs` - List all songs
@@ -175,12 +178,20 @@ See documentation:
 - `GET /api/songs/:id` - Get song by ID
 - `POST /api/upload` - Upload song file
 
+### Authentication Endpoints
+
+- `GET /api/auth/visitor` - Get visitor token for anonymous access
+- `POST /api/auth/user` - Authenticate user and get user token
+
 ## Features
 
 - ✅ Song listing and display with API integration
 - ✅ Effect-TS powered API with structured error handling
 - ✅ Schema validation using Effect Schema
-- ✅ Supabase database integration
+- ✅ Supabase database integration with RLS
+- ✅ Dual authentication system (visitor + user tokens)
+- ✅ JWT-based authentication with automatic token switching
+- ✅ Row Level Security (RLS) for data access control
 - ✅ React Router v7 with nested routing
 - ✅ React Compiler integration for optimized rendering
 - ✅ Tailwind CSS for styling
@@ -190,7 +201,6 @@ See documentation:
 - ✅ Shared type definitions across frontend/backend
 - 🚧 File upload functionality to Cloudflare R2
 - 🚧 Song playback
-- 🚧 User authentication
 - 🚧 Song metadata editing
 
 ## Environment Variables
@@ -203,6 +213,13 @@ VITE_SUPABASE_URL=your-supabase-project-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_PROJECT_REF=your-project-ref
 SUPABASE_SERVICE_KEY=your-service-key
+
+# Visitor Authentication (for shared anonymous access)
+SUPABASE_VISITOR_EMAIL=visitor@yourdomain.com
+SUPABASE_VISITOR_PASSWORD=your-visitor-password
+
+# Frontend Configuration
+API_BASE_URL=http://localhost:8787  # For development
 
 # Database Connection (for schema generation)
 PGHOST=your-db-host

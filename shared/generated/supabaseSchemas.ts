@@ -1,6 +1,6 @@
 // Generated Effect-TS schemas from Supabase types
 // This file was auto-generated from your database schema
-// Last generated: 2025-09-27T14:16:16.294Z
+// Last generated: 2025-10-02T12:35:16.329Z
 import { Schema } from "@effect/schema";
 
 // Common validation schemas

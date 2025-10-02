@@ -1,20 +1,20 @@
-export interface ApiResponse<T = unknown> {
+export type ApiResponse<T = unknown> = {
 	success: boolean;
 	data?: T;
 	error?: string;
 	message?: string;
-}
+};
 
-export interface PaginationParams {
+export type PaginationParams = {
 	page?: number;
 	limit?: number;
-}
+};
 
-export interface ApiError {
+export type ApiError = {
 	code: string;
 	message: string;
 	details?: unknown;
-}
+};
 
 // HTTP Status Codes
 export const HTTP_STATUS = {

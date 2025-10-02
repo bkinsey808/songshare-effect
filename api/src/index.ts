@@ -6,6 +6,10 @@ import { type AppError, ValidationError } from "./errors";
 import { handleHttpEndpoint } from "./http-utils";
 import { CreateSongRequestSchema, type Song } from "./schemas";
 import { InMemorySongServiceLive, SongService } from "./services.js";
+import {
+	getSupabaseClientToken,
+	getSupabaseUserToken,
+} from "./supabaseClientToken.js";
 
 // For individual file check - R2Bucket type is available in project context
 type R2Bucket = unknown;
@@ -39,6 +43,62 @@ app.get("/health", (c) => {
 		environment: c.env.ENVIRONMENT,
 		timestamp: new Date().toISOString(),
 	});
+});
+
+// Supabase client token endpoint - provides a JWT for client-side Supabase operations
+app.get("/api/auth/visitor", async (c) => {
+	try {
+		const env = c.env as unknown as {
+			VITE_SUPABASE_URL: string;
+			SUPABASE_SERVICE_KEY: string;
+			SUPABASE_VISITOR_EMAIL: string;
+			SUPABASE_VISITOR_PASSWORD: string;
+		};
+
+		const supabaseClientToken = await getSupabaseClientToken(env);
+
+		return c.json({
+			access_token: supabaseClientToken,
+			token_type: "bearer",
+			expires_in: 3600, // 1 hour
+		});
+	} catch (error) {
+		console.error("Failed to generate Supabase client token:", error);
+		return c.json({ error: "Failed to generate Supabase client token" }, 500);
+	}
+});
+
+// User authentication endpoint - provides a JWT for authenticated user operations
+app.post("/api/auth/user", async (c) => {
+	try {
+		const body = (await c.req.json()) as { email: string; password: string };
+
+		if (!body.email || !body.password) {
+			return c.json({ error: "Email and password are required" }, 400);
+		}
+
+		const env = c.env as unknown as {
+			VITE_SUPABASE_URL: string;
+			SUPABASE_SERVICE_KEY: string;
+			SUPABASE_VISITOR_EMAIL: string;
+			SUPABASE_VISITOR_PASSWORD: string;
+		};
+
+		const userToken = await getSupabaseUserToken(
+			env,
+			body.email,
+			body.password,
+		);
+
+		return c.json({
+			access_token: userToken,
+			token_type: "bearer",
+			expires_in: 3600, // 1 hour
+		});
+	} catch (error) {
+		console.error("Failed to authenticate user:", error);
+		return c.json({ error: "Authentication failed" }, 401);
+	}
 });
 
 // Song endpoints using Effect-TS

@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 
-function Navigation() {
+function Navigation(): ReactElement {
 	const navItems = [
 		{ path: "/", label: "Home", icon: "🏠" },
 		{ path: "/songs", label: "Songs", icon: "🎵" },
 		{ path: "/upload", label: "Upload", icon: "📤" },
 		{ path: "/suspense-use", label: "Suspense + Use", icon: "🔄" },
+		{ path: "/user-subscription", label: "User Subscription", icon: "👥" },
 		{ path: "/about", label: "About", icon: "ℹ️" },
 	];
 

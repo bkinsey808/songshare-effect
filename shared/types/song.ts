@@ -1,4 +1,4 @@
-export interface Song {
+export type Song = {
 	id: string;
 	title: string;
 	artist: string;
@@ -8,26 +8,26 @@ export interface Song {
 	userId: string;
 	genre?: string;
 	tags?: string[];
-}
+};
 
-export interface CreateSongRequest {
+export type CreateSongRequest = {
 	title: string;
 	artist: string;
 	duration: number;
 	genre?: string;
 	tags?: string[];
-}
+};
 
-export interface UpdateSongRequest {
+export type UpdateSongRequest = {
 	title?: string;
 	artist?: string;
 	genre?: string;
 	tags?: string[];
-}
+};
 
-export interface SongListResponse {
+export type SongListResponse = {
 	songs: Song[];
 	total: number;
 	page: number;
 	limit: number;
-}
+};
