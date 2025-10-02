@@ -1,0 +1,9 @@
+{
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"composite": true,
+		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.functions.tsbuildinfo",
+		"types": ["@cloudflare/workers-types"]
+	},
+	"include": ["functions/**/*"]
+}

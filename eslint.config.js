@@ -194,6 +194,7 @@ export default [
 					"./tsconfig.json",
 					"./tsconfig.app.json",
 					"./tsconfig.node.json",
+					"./tsconfig.functions.json",
 				],
 				tsconfigRootDir: __dirname,
 			},
@@ -281,6 +282,45 @@ export default [
 
 			// API-specific module restrictions (more restrictive than frontend)
 			"no-restricted-modules": ["error", "fs", "cluster", "child_process"],
+		},
+	},
+	// Cloudflare Pages Functions configuration
+	{
+		files: ["functions/**/*.{ts,js}"],
+		languageOptions: {
+			globals: {
+				...globals.worker,
+				...globals.es2020,
+			},
+			parserOptions: {
+				project: "./tsconfig.functions.json",
+				tsconfigRootDir: __dirname,
+			},
+		},
+		plugins: {
+			...sharedPlugins,
+		},
+		rules: {
+			...sharedRules,
+
+			// Pages Functions specific rules (similar to Workers but lighter)
+			"no-restricted-globals": [
+				"error",
+				{
+					name: "window",
+					message: "window is not available in Pages Functions",
+				},
+				{
+					name: "document",
+					message: "document is not available in Pages Functions",
+				},
+			],
+
+			// Pages Functions module restrictions
+			"no-restricted-modules": ["error", "fs", "cluster", "child_process"],
+
+			// Allow shorter functions for middleware
+			"max-lines-per-function": ["warn", 50],
 		},
 	},
 ];

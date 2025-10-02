@@ -1,0 +1,45 @@
+{
+	"compilerOptions": {
+		/* Language and Environment */
+		"target": "ES2022",
+		"lib": ["ES2022"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"moduleDetection": "force",
+
+		/* Type Checking */
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"exactOptionalPropertyTypes": true,
+		"allowUnusedLabels": false,
+		"allowUnreachableCode": false,
+
+		/* Modules */
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": true,
+		"resolveJsonModule": true,
+
+		/* Emit */
+		"noEmit": true,
+		"noErrorTruncation": true,
+		"preserveWatchOutput": true,
+
+		/* Interop Constraints */
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true,
+
+		/* Path Mapping */
+		"baseUrl": ".",
+		"paths": {
+			"@/shared/*": ["./shared/*"],
+			"@/react/*": ["./react/src/*"],
+			"@/api/*": ["./api/src/*"]
+		}
+	}
+}

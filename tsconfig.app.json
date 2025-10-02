@@ -1,44 +1,12 @@
 {
+	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
 		"composite": true,
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-		"target": "ES2022",
 		"useDefineForClassFields": true,
 		"lib": ["ES2022", "DOM", "DOM.Iterable"],
-		"module": "ESNext",
 		"types": ["vite/client"],
-		"skipLibCheck": true,
-
-		/* Bundler mode */
-		"moduleResolution": "bundler",
-		"allowImportingTsExtensions": true,
-		"verbatimModuleSyntax": true,
-		"moduleDetection": "force",
-		"noEmit": true,
-		"jsx": "react-jsx",
-
-		/* Path mapping */
-		"baseUrl": ".",
-		"paths": {
-			"@/shared/*": ["./shared/*"],
-			"@/react/*": ["./react/src/*"],
-			"@/api/*": ["./api/src/*"]
-		},
-
-		/* Linting */
-		"strict": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noFallthroughCasesInSwitch": true,
-		"noImplicitOverride": true,
-		"noPropertyAccessFromIndexSignature": true,
-		"allowUnusedLabels": false,
-		"allowUnreachableCode": false,
-		"noErrorTruncation": true,
-		"preserveWatchOutput": true,
-		"exactOptionalPropertyTypes": true,
-		"noImplicitReturns": true,
-		"noUncheckedIndexedAccess": true
+		"jsx": "react-jsx"
 	},
 	"include": ["react/src", "shared"]
 }
