@@ -1,17 +1,18 @@
 import { Suspense } from "react";
+import { useTranslation } from "react-i18next";
 
 import OptimizedCounter from "../components/OptimizedCounter";
 import SuspenseDemo from "../components/SuspenseDemo";
 import UseHookDemo from "../components/UseHookDemo";
 
 function HomePage(): ReactElement {
+	const { t } = useTranslation();
+
 	return (
 		<div>
 			<div className="mb-10 text-center">
-				<h2 className="mb-4 text-3xl font-bold">🏠 Welcome to SongShare</h2>
-				<p className="text-gray-400">
-					Discover and share your favorite music with the community
-				</p>
+				<h2 className="mb-4 text-3xl font-bold">🏠 {t("pages.home.title")}</h2>
+				<p className="text-gray-400">{t("pages.home.subtitle")}</p>
 			</div>
 
 			<OptimizedCounter />

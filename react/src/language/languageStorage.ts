@@ -1,16 +1,15 @@
+import { preferredLanguageCookieName } from "@/shared/cookies";
 import {
 	SUPPORTED_LANGUAGES,
 	type SupportedLanguage,
-} from "@/shared/supportedLanguages";
-
-export const LANGUAGE_COOKIE_NAME = "preferred-language";
+} from "@/shared/language/supportedLanguages";
 
 export const setStoredLanguage = (language: SupportedLanguage): void => {
 	if (typeof document !== "undefined") {
 		const expires = new Date();
 		expires.setDate(expires.getDate() + 365);
 		const secure = location.protocol === "https:" ? "; Secure" : "";
-		document.cookie = `${LANGUAGE_COOKIE_NAME}=${language}; expires=${expires.toUTCString()}; path=/; SameSite=Lax${secure}`;
+		document.cookie = `${preferredLanguageCookieName}=${language}; expires=${expires.toUTCString()}; path=/; SameSite=Lax${secure}`;
 	}
 	if (typeof window !== "undefined") {
 		localStorage.setItem("preferred-language", language);
@@ -53,7 +52,9 @@ export const parseLanguageCookie = (
 	}
 	const match = cookieHeader
 		.split(";")
-		.find((cookie) => cookie.trim().startsWith(`${LANGUAGE_COOKIE_NAME}=`));
+		.find((cookie) =>
+			cookie.trim().startsWith(`${preferredLanguageCookieName}=`),
+		);
 	if (match !== undefined && match !== null && match.includes("=")) {
 		const lang = match.split("=")[1]?.trim();
 		return SUPPORTED_LANGUAGES.includes(lang as SupportedLanguage)

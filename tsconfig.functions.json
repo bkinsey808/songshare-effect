@@ -6,10 +6,5 @@
 		"types": ["@cloudflare/workers-types", "node"],
 		"lib": ["ES2022", "WebWorker"]
 	},
-	"include": [
-		"functions/**/*",
-		"shared/types/**/*",
-		"shared/utils/languageUtils.ts",
-		"shared/supportedLanguages.ts"
-	]
+	"include": ["functions/**/*", "shared/**/*", "react/src/songDemo/types.ts"]
 }

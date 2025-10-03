@@ -1,4 +1,4 @@
-export type Song = {
+export type SongDemo = {
 	id: string;
 	title: string;
 	artist: string;
@@ -10,7 +10,7 @@ export type Song = {
 	tags?: string[];
 };
 
-export type CreateSongRequest = {
+export type CreateSongDemoRequest = {
 	title: string;
 	artist: string;
 	duration: number;
@@ -18,15 +18,15 @@ export type CreateSongRequest = {
 	tags?: string[];
 };
 
-export type UpdateSongRequest = {
+export type UpdateSongDemoRequest = {
 	title?: string;
 	artist?: string;
 	genre?: string;
 	tags?: string[];
 };
 
-export type SongListResponse = {
-	songs: Song[];
+export type SongListDemoResponse = {
+	songs: SongDemo[];
 	total: number;
 	page: number;
 	limit: number;

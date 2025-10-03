@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate (or ./scripts/generate-effect-schemas.sh)
  *
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2025-10-02T16:41:01.619Z
+ * Last generated: 2025-10-03T16:01:47.250Z
  *
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -16,17 +16,26 @@
 import { Schema } from "@effect/schema";
 
 // Common validation schemas
-export const NonEmptyStringSchema = Schema.NonEmptyString;
-export const EmailSchema = Schema.String.pipe(
-	Schema.nonEmptyString(),
-	Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
-);
-export const UUIDSchema = Schema.UUID;
-export const PositiveNumberSchema = Schema.Positive;
-export const NonNegativeNumberSchema = Schema.NonNegative;
+export const NonEmptyStringSchema: typeof Schema.NonEmptyString =
+	Schema.NonEmptyString;
+export const EmailSchema: Schema.Schema<string, string, never> =
+	Schema.String.pipe(
+		Schema.nonEmptyString(),
+		Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+	);
+export const UUIDSchema: typeof Schema.UUID = Schema.UUID;
+export const PositiveNumberSchema: typeof Schema.Positive = Schema.Positive;
+export const NonNegativeNumberSchema: typeof Schema.NonNegative =
+	Schema.NonNegative;
 
 // song table schemas
-export const SongSchema = Schema.Struct({
+export const SongSchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	private_notes: typeof Schema.NonEmptyString;
+	song_id: typeof Schema.UUID;
+	updated_at: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
 	created_at: Schema.NonEmptyString,
 	private_notes: Schema.NonEmptyString,
 	song_id: Schema.UUID,
@@ -36,15 +45,23 @@ export const SongSchema = Schema.Struct({
 
 export type Song = Schema.Schema.Type<typeof SongSchema>;
 
-export const SongInsertSchema = Schema.Struct({
-	private_notes: Schema.optional(Schema.NonEmptyString),
-	song_id: Schema.UUID,
-	user_id: Schema.UUID,
+export const SongInsertSchema: Schema.Struct<{
+	private_notes: typeof Schema.NonEmptyString;
+	song_id: Schema.optional<typeof Schema.UUID>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	private_notes: Schema.NonEmptyString,
+	song_id: Schema.optional(Schema.UUID),
+	user_id: Schema.optional(Schema.UUID),
 });
 
 export type SongInsert = Schema.Schema.Type<typeof SongInsertSchema>;
 
-export const SongUpdateSchema = Schema.Struct({
+export const SongUpdateSchema: Schema.Struct<{
+	private_notes: Schema.optional<typeof Schema.NonEmptyString>;
+	song_id: Schema.optional<typeof Schema.UUID>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
 	private_notes: Schema.optional(Schema.NonEmptyString),
 	song_id: Schema.optional(Schema.UUID),
 	user_id: Schema.optional(Schema.UUID),
@@ -53,7 +70,22 @@ export const SongUpdateSchema = Schema.Struct({
 export type SongUpdate = Schema.Schema.Type<typeof SongUpdateSchema>;
 
 // song_public table schemas
-export const SongPublicSchema = Schema.Struct({
+export const SongPublicSchema: Schema.Struct<{
+	created_at: Schema.optional<typeof Schema.String>;
+	fields: typeof Schema.NonEmptyString;
+	key: Schema.optional<typeof Schema.String>;
+	long_credit: Schema.optional<typeof Schema.String>;
+	public_notes: Schema.optional<typeof Schema.String>;
+	scale: Schema.optional<typeof Schema.String>;
+	short_credit: Schema.optional<typeof Schema.String>;
+	slide_order: typeof Schema.NonEmptyString;
+	slides: typeof Schema.Unknown;
+	song_id: typeof Schema.UUID;
+	song_name: typeof Schema.NonEmptyString;
+	song_slug: typeof Schema.NonEmptyString;
+	updated_at: Schema.optional<typeof Schema.String>;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
 	created_at: Schema.optional(Schema.String),
 	fields: Schema.NonEmptyString,
 	key: Schema.optional(Schema.String),
@@ -72,18 +104,31 @@ export const SongPublicSchema = Schema.Struct({
 
 export type SongPublic = Schema.Schema.Type<typeof SongPublicSchema>;
 
-export const SongPublicInsertSchema = Schema.Struct({
-	fields: Schema.optional(Schema.NonEmptyString),
+export const SongPublicInsertSchema: Schema.Struct<{
+	fields: typeof Schema.NonEmptyString;
+	key: Schema.optional<typeof Schema.String>;
+	long_credit: Schema.optional<typeof Schema.String>;
+	public_notes: Schema.optional<typeof Schema.String>;
+	scale: Schema.optional<typeof Schema.String>;
+	short_credit: Schema.optional<typeof Schema.String>;
+	slide_order: typeof Schema.NonEmptyString;
+	slides: typeof Schema.Unknown;
+	song_id: typeof Schema.UUID;
+	song_name: typeof Schema.NonEmptyString;
+	song_slug: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	fields: Schema.NonEmptyString,
 	key: Schema.optional(Schema.String),
 	long_credit: Schema.optional(Schema.String),
 	public_notes: Schema.optional(Schema.String),
 	scale: Schema.optional(Schema.String),
 	short_credit: Schema.optional(Schema.String),
-	slide_order: Schema.optional(Schema.NonEmptyString),
-	slides: Schema.optional(Schema.Unknown),
+	slide_order: Schema.NonEmptyString,
+	slides: Schema.Unknown,
 	song_id: Schema.UUID,
-	song_name: Schema.optional(Schema.NonEmptyString),
-	song_slug: Schema.optional(Schema.NonEmptyString),
+	song_name: Schema.NonEmptyString,
+	song_slug: Schema.NonEmptyString,
 	user_id: Schema.UUID,
 });
 
@@ -91,7 +136,20 @@ export type SongPublicInsert = Schema.Schema.Type<
 	typeof SongPublicInsertSchema
 >;
 
-export const SongPublicUpdateSchema = Schema.Struct({
+export const SongPublicUpdateSchema: Schema.Struct<{
+	fields: Schema.optional<typeof Schema.NonEmptyString>;
+	key: Schema.optional<typeof Schema.String>;
+	long_credit: Schema.optional<typeof Schema.String>;
+	public_notes: Schema.optional<typeof Schema.String>;
+	scale: Schema.optional<typeof Schema.String>;
+	short_credit: Schema.optional<typeof Schema.String>;
+	slide_order: Schema.optional<typeof Schema.NonEmptyString>;
+	slides: Schema.optional<typeof Schema.Unknown>;
+	song_id: Schema.optional<typeof Schema.UUID>;
+	song_name: Schema.optional<typeof Schema.NonEmptyString>;
+	song_slug: Schema.optional<typeof Schema.NonEmptyString>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
 	fields: Schema.optional(Schema.NonEmptyString),
 	key: Schema.optional(Schema.String),
 	long_credit: Schema.optional(Schema.String),
@@ -111,7 +169,19 @@ export type SongPublicUpdate = Schema.Schema.Type<
 >;
 
 // user table schemas
-export const UserSchema = Schema.Struct({
+export const UserSchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	email: typeof EmailSchema;
+	google_calendar_access: typeof Schema.NonEmptyString;
+	google_calendar_refresh_token: Schema.optional<typeof Schema.String>;
+	linked_providers: typeof Schema.NonEmptyString;
+	name: typeof Schema.NonEmptyString;
+	role: typeof Schema.NonEmptyString;
+	role_expires_at: Schema.optional<typeof Schema.String>;
+	sub: Schema.optional<typeof Schema.String>;
+	updated_at: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
 	created_at: Schema.NonEmptyString,
 	email: EmailSchema,
 	google_calendar_access: Schema.NonEmptyString,
@@ -127,7 +197,17 @@ export const UserSchema = Schema.Struct({
 
 export type User = Schema.Schema.Type<typeof UserSchema>;
 
-export const UserInsertSchema = Schema.Struct({
+export const UserInsertSchema: Schema.Struct<{
+	email: typeof EmailSchema;
+	google_calendar_access: Schema.optional<typeof Schema.NonEmptyString>;
+	google_calendar_refresh_token: Schema.optional<typeof Schema.String>;
+	linked_providers: Schema.optional<typeof Schema.NonEmptyString>;
+	name: typeof Schema.NonEmptyString;
+	role: Schema.optional<typeof Schema.NonEmptyString>;
+	role_expires_at: Schema.optional<typeof Schema.String>;
+	sub: Schema.optional<typeof Schema.String>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
 	email: EmailSchema,
 	google_calendar_access: Schema.optional(Schema.NonEmptyString),
 	google_calendar_refresh_token: Schema.optional(Schema.String),
@@ -136,12 +216,22 @@ export const UserInsertSchema = Schema.Struct({
 	role: Schema.optional(Schema.NonEmptyString),
 	role_expires_at: Schema.optional(Schema.String),
 	sub: Schema.optional(Schema.String),
-	user_id: Schema.UUID,
+	user_id: Schema.optional(Schema.UUID),
 });
 
 export type UserInsert = Schema.Schema.Type<typeof UserInsertSchema>;
 
-export const UserUpdateSchema = Schema.Struct({
+export const UserUpdateSchema: Schema.Struct<{
+	email: Schema.optional<typeof EmailSchema>;
+	google_calendar_access: Schema.optional<typeof Schema.NonEmptyString>;
+	google_calendar_refresh_token: Schema.optional<typeof Schema.String>;
+	linked_providers: Schema.optional<typeof Schema.NonEmptyString>;
+	name: Schema.optional<typeof Schema.NonEmptyString>;
+	role: Schema.optional<typeof Schema.NonEmptyString>;
+	role_expires_at: Schema.optional<typeof Schema.String>;
+	sub: Schema.optional<typeof Schema.String>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
 	email: Schema.optional(EmailSchema),
 	google_calendar_access: Schema.optional(Schema.NonEmptyString),
 	google_calendar_refresh_token: Schema.optional(Schema.String),
@@ -156,23 +246,32 @@ export const UserUpdateSchema = Schema.Struct({
 export type UserUpdate = Schema.Schema.Type<typeof UserUpdateSchema>;
 
 // user_public table schemas
-export const UserPublicSchema = Schema.Struct({
+export const UserPublicSchema: Schema.Struct<{
+	user_id: typeof Schema.UUID;
+	username: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
 	user_id: Schema.UUID,
 	username: Schema.NonEmptyString,
 });
 
 export type UserPublic = Schema.Schema.Type<typeof UserPublicSchema>;
 
-export const UserPublicInsertSchema = Schema.Struct({
+export const UserPublicInsertSchema: Schema.Struct<{
+	user_id: typeof Schema.UUID;
+	username: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
 	user_id: Schema.UUID,
-	username: Schema.optional(Schema.NonEmptyString),
+	username: Schema.NonEmptyString,
 });
 
 export type UserPublicInsert = Schema.Schema.Type<
 	typeof UserPublicInsertSchema
 >;
 
-export const UserPublicUpdateSchema = Schema.Struct({
+export const UserPublicUpdateSchema: Schema.Struct<{
+	user_id: Schema.optional<typeof Schema.UUID>;
+	username: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
 	user_id: Schema.optional(Schema.UUID),
 	username: Schema.optional(Schema.NonEmptyString),
 });

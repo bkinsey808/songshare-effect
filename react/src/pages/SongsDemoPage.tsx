@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 
+import type { SongDemo } from "@/react/songDemo/types";
 import type { ApiResponse } from "@/shared/types/api";
-import type { Song } from "@/shared/types/song";
 import { API_CONFIG } from "@/shared/utils/constants";
 import { formatDuration } from "@/shared/utils/helpers";
 
-function SongsPage(): ReactElement {
+function SongsDemoPage(): ReactElement {
 	"use no memo";
-	const [songs, setSongs] = useState<Song[]>([]);
+	const [songs, setSongs] = useState<SongDemo[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | undefined>(undefined);
 
@@ -21,7 +21,9 @@ function SongsPage(): ReactElement {
 				const data = (await response.json()) as unknown;
 
 				// Type guard function to validate ApiResponse structure
-				const isApiResponse = (obj: unknown): obj is ApiResponse<Song[]> => {
+				const isApiResponse = (
+					obj: unknown,
+				): obj is ApiResponse<SongDemo[]> => {
 					if (typeof obj !== "object" || obj === null) {
 						return false;
 					}
@@ -123,4 +125,4 @@ function SongsPage(): ReactElement {
 	);
 }
 
-export default SongsPage;
+export default SongsDemoPage;

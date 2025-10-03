@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import LanguageSwitcher from "./LanguageSwitcher";
-import type { SupportedLanguage } from "@/shared/supportedLanguages";
+import LanguageSwitcher from "../language/LanguageSwitcher";
+import type { SupportedLanguage } from "@/shared/language/supportedLanguages";
 
 function Navigation(): ReactElement {
 	const { t, i18n } = useTranslation();

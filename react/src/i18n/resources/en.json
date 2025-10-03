@@ -1,4 +1,8 @@
 {
+	"app": {
+		"title": "SongShare Effect",
+		"subtitle": "Share your favorite songs with the world"
+	},
 	"navigation": {
 		"home": "Home",
 		"songs": "Songs",

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import type { SupportedLanguage } from "@/shared/supportedLanguages";
+import type { SupportedLanguage } from "@/shared/language/supportedLanguages";
 
 export function useLanguage(): {
 	currentLanguage: SupportedLanguage;

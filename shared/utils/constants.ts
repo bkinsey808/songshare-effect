@@ -15,7 +15,7 @@ export const API_CONFIG = {
 
 // File Upload Constants
 export const UPLOAD_CONFIG = {
-	MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
+	MAX_FILE_SIZE: (10 * 1024 * 1024) as number, // 10MB
 	ALLOWED_AUDIO_TYPES: [
 		"audio/mpeg",
 		"audio/mp3",

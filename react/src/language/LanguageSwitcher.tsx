@@ -1,11 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { setStoredLanguage } from "../utils/languageStorage";
+import { setStoredLanguage } from "./languageStorage";
 import {
 	SUPPORTED_LANGUAGES,
 	type SupportedLanguage,
-} from "@/shared/supportedLanguages";
+} from "@/shared/language/supportedLanguages";
 
 const LANGUAGE_NAMES: Record<SupportedLanguage, string> = {
 	en: "English",

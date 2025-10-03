@@ -1,11 +1,12 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
+import { detectInitialLanguage } from "../language/detectInitialLanguage";
 // Import translation resources
 import en from "./resources/en.json";
 import es from "./resources/es.json";
 import zh from "./resources/zh.json";
-import type { SupportedLanguage } from "@/shared/supportedLanguages";
+import type { SupportedLanguage } from "@/shared/language/supportedLanguages";
 
 const resources: Record<
 	SupportedLanguage,
@@ -16,11 +17,13 @@ const resources: Record<
 	zh: { translation: zh },
 } as const;
 
+const initialLanguage = detectInitialLanguage();
+
 void i18n.use(initReactI18next).init({
 	resources,
-	lng: "en", // Default - overridden by LanguageProvider
+	lng: initialLanguage, // Set initial language from URL
 	fallbackLng: "en",
-	debug: import.meta.env.DEV === true,
+	debug: import.meta.env.DEV === true, // Enable debug in development only
 
 	// Disable automatic detection - handled by middleware
 	detection: { order: [] },
@@ -29,7 +32,7 @@ void i18n.use(initReactI18next).init({
 		escapeValue: false, // React already escapes values
 	},
 
-	// Enable Suspense for loading states
+	// Enable Suspense for smooth loading transitions
 	react: {
 		useSuspense: true,
 	},

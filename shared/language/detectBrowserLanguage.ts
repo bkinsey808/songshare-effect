@@ -1,31 +1,7 @@
 import {
 	SUPPORTED_LANGUAGES,
 	type SupportedLanguage,
-} from "@/shared/supportedLanguages";
-
-export const LANGUAGE_COOKIE_NAME = "preferred-language";
-
-export const parseLanguageCookie = (
-	cookieHeader: string | null,
-): SupportedLanguage | undefined => {
-	if (
-		cookieHeader === null ||
-		cookieHeader === undefined ||
-		cookieHeader.trim() === ""
-	) {
-		return undefined;
-	}
-	const match = cookieHeader
-		.split(";")
-		.find((cookie) => cookie.trim().startsWith(`${LANGUAGE_COOKIE_NAME}=`));
-	if (match !== undefined && match !== null && match.includes("=")) {
-		const lang = match.split("=")[1]?.trim();
-		return SUPPORTED_LANGUAGES.includes(lang as SupportedLanguage)
-			? (lang as SupportedLanguage)
-			: undefined;
-	}
-	return undefined;
-};
+} from "@/shared/language/supportedLanguages";
 
 export function detectBrowserLanguage(
 	acceptLanguage?: string,

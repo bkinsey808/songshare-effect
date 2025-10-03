@@ -14,6 +14,7 @@ type ColumnDefinition = {
 	isPrimaryKey?: boolean;
 	isForeignKey?: boolean;
 	referencedTable?: string;
+	isRequiredForInsert?: boolean;
 };
 
 type TableDefinition = {
@@ -63,25 +64,29 @@ function parseSupabaseTypes(filePath: string): TableDefinition[] {
 	try {
 		// Parse the Database interface structure
 		// Look for patterns like:
-		// Tables: {
-		//   table_name: {
-		//     Row: { field: type | null }
-		//   }
+		// table_name: {
+		//   Row: { field: type | null }
+		//   Insert: { field?: type | null, requiredField: type }
 		// }
 
-		// Extract table definitions using regex (simplified approach)
-		const tableMatches = content.matchAll(/(\w+):\s*{\s*Row:\s*{([^}]+)}/gs);
+		// Extract table definitions using regex to capture Row and Insert types
+		const tableMatches = content.matchAll(
+			/(\w+):\s*{\s*Row:\s*{([^}]+)}\s*Insert:\s*{([^}]+)}/gs,
+		);
 
 		for (const match of tableMatches) {
 			const tableName = match[1];
 			const rowContent = match[2];
+			const insertContent = match[3];
 
 			if (
 				tableName === "Tables" ||
 				tableName === undefined ||
 				tableName === "" ||
 				rowContent === undefined ||
-				rowContent === ""
+				rowContent === "" ||
+				insertContent === undefined ||
+				insertContent === ""
 			) {
 				continue; // Skip the Tables wrapper or invalid matches
 			}
@@ -90,7 +95,22 @@ function parseSupabaseTypes(filePath: string): TableDefinition[] {
 
 			const columns: ColumnDefinition[] = [];
 
-			// Extract field definitions
+			// Parse Insert type to determine which fields are required for inserts
+			const insertRequiredFields = new Set<string>();
+			const insertFieldMatches = insertContent.matchAll(
+				/(\w+)(\?)?:\s*([^;\n]+)/g,
+			);
+
+			for (const insertMatch of insertFieldMatches) {
+				const fieldName = insertMatch[1]?.trim();
+				const isOptional = insertMatch[2] === "?";
+
+				if (fieldName !== undefined && fieldName !== "" && !isOptional) {
+					insertRequiredFields.add(fieldName);
+				}
+			}
+
+			// Extract field definitions from Row type
 			const fieldMatches = rowContent.matchAll(/(\w+):\s*([^;\n]+)/g);
 
 			for (const fieldMatch of fieldMatches) {
@@ -130,6 +150,7 @@ function parseSupabaseTypes(filePath: string): TableDefinition[] {
 					nullable: isNullable,
 					isPrimaryKey: fieldName === "id",
 					isForeignKey: fieldName.endsWith("_id") && fieldName !== "id",
+					isRequiredForInsert: insertRequiredFields.has(fieldName),
 				});
 			}
 
@@ -259,14 +280,43 @@ function getEffectType(column: ColumnDefinition): string {
 	return effectType;
 }
 
+function getTypeAnnotation(effectType: string): string {
+	// Convert runtime Effect types to type annotations
+	if (effectType === "Schema.Array(Schema.String)") {
+		return "Schema.Array$<typeof Schema.String>";
+	}
+
+	// For most types, the type annotation is "typeof " + the type
+	if (effectType.startsWith("Schema.optional(")) {
+		const innerType = effectType.slice(16, -1); // Remove "Schema.optional(" and ")"
+		return `Schema.optional<${getTypeAnnotation(innerType)}>`;
+	}
+
+	return `typeof ${effectType}`;
+}
+
 function generateEffectSchema(table: TableDefinition): string {
 	const schemaName = toPascalCase(table.name) + "Schema";
 	const typeName = toPascalCase(table.name);
 
 	let output = `// ${table.name} table schemas\n`;
 
-	// Main table schema
-	output += `export const ${schemaName} = Schema.Struct({\n`;
+	// Main table schema with explicit type annotation
+	output += `export const ${schemaName}: Schema.Struct<{\n`;
+
+	table.columns.forEach((column) => {
+		let fieldSchema = getEffectType(column);
+		let typeAnnotation = getTypeAnnotation(fieldSchema);
+
+		if (column.nullable) {
+			fieldSchema = `Schema.optional(${fieldSchema})`;
+			typeAnnotation = `Schema.optional<${getTypeAnnotation(getEffectType(column))}>`;
+		}
+
+		output += `\t${column.name}: ${typeAnnotation};\n`;
+	});
+
+	output += "}> = Schema.Struct({\n";
 
 	table.columns.forEach((column) => {
 		let fieldSchema = getEffectType(column);
@@ -289,22 +339,28 @@ function generateEffectSchema(table: TableDefinition): string {
 
 	if (insertColumns.length > 0) {
 		const insertSchemaName = `${typeName}InsertSchema`;
-		output += `export const ${insertSchemaName} = Schema.Struct({\n`;
+		output += `export const ${insertSchemaName}: Schema.Struct<{\n`;
+
+		insertColumns.forEach((column) => {
+			let fieldSchema = getEffectType(column);
+			let typeAnnotation = getTypeAnnotation(fieldSchema);
+
+			// Use database-driven approach: field is optional if not required for insert OR nullable
+			if (column.isRequiredForInsert !== true || column.nullable) {
+				fieldSchema = `Schema.optional(${fieldSchema})`;
+				typeAnnotation = `Schema.optional<${getTypeAnnotation(getEffectType(column))}>`;
+			}
+
+			output += `\t${column.name}: ${typeAnnotation};\n`;
+		});
+
+		output += "}> = Schema.Struct({\n";
 
 		insertColumns.forEach((column) => {
 			let fieldSchema = getEffectType(column);
 
-			// Make most fields optional for inserts, except required business logic fields
-			const requiredFields = [
-				"title",
-				"artist",
-				"email",
-				"name",
-				"user_id",
-				"playlist_id",
-				"song_id",
-			];
-			if (!requiredFields.includes(column.name) || column.nullable) {
+			// Use database-driven approach: field is optional if not required for insert OR nullable
+			if (column.isRequiredForInsert !== true || column.nullable) {
 				fieldSchema = `Schema.optional(${fieldSchema})`;
 			}
 
@@ -322,7 +378,25 @@ function generateEffectSchema(table: TableDefinition): string {
 
 	// Update schema (all fields optional except id)
 	const updateSchemaName = `${typeName}UpdateSchema`;
-	output += `export const ${updateSchemaName} = Schema.Struct({\n`;
+	output += `export const ${updateSchemaName}: Schema.Struct<{\n`;
+
+	table.columns.forEach((column, _index) => {
+		if (autoGeneratedFields.includes(column.name) && column.name !== "id") {
+			return; // Skip auto-generated fields except id
+		}
+
+		let fieldSchema = getEffectType(column);
+		let typeAnnotation = getTypeAnnotation(fieldSchema);
+
+		if (column.name !== "id") {
+			fieldSchema = `Schema.optional(${fieldSchema})`;
+			typeAnnotation = `Schema.optional<${getTypeAnnotation(getEffectType(column))}>`;
+		}
+
+		output += `\t${column.name}: ${typeAnnotation};\n`;
+	});
+
+	output += "}> = Schema.Struct({\n";
 
 	table.columns.forEach((column, _index) => {
 		if (autoGeneratedFields.includes(column.name) && column.name !== "id") {
@@ -360,8 +434,7 @@ function generateEffectSchemasFile(
 	tables: TableDefinition[],
 	outputPath: string,
 ): void {
-	let fileContent = `/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/**
+	let fileContent = `/**
  * ⚠️  GENERATED FILE - DO NOT EDIT DIRECTLY
  * 
  * This file was automatically generated by:
@@ -382,14 +455,16 @@ import { Schema } from "@effect/schema";
 	// Add common helper schemas
 	fileContent += `
 // Common validation schemas
-export const NonEmptyStringSchema = Schema.NonEmptyString;
-export const EmailSchema = Schema.String.pipe(
+export const NonEmptyStringSchema: typeof Schema.NonEmptyString =
+	Schema.NonEmptyString;
+export const EmailSchema: Schema.Schema<string, string, never> = Schema.String.pipe(
 	Schema.nonEmptyString(),
 	Schema.pattern(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/),
 );
-export const UUIDSchema = Schema.UUID;
-export const PositiveNumberSchema = Schema.Positive;
-export const NonNegativeNumberSchema = Schema.NonNegative;
+export const UUIDSchema: typeof Schema.UUID = Schema.UUID;
+export const PositiveNumberSchema: typeof Schema.Positive = Schema.Positive;
+export const NonNegativeNumberSchema: typeof Schema.NonNegative =
+	Schema.NonNegative;
 
 `;
 
