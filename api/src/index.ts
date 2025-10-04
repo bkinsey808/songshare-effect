@@ -5,11 +5,11 @@ import { cors } from "hono/cors";
 import { type AppError, ValidationError } from "./errors";
 import { handleHttpEndpoint } from "./http-utils";
 import { CreateSongRequestSchema, type Song } from "./schemas";
-import { InMemorySongServiceLive, SongService } from "./services.js";
+import { InMemorySongServiceLive, SongService } from "./services";
 import {
 	getSupabaseClientToken,
 	getSupabaseUserToken,
-} from "./supabaseClientToken.js";
+} from "./supabaseClientToken";
 
 // For individual file check - R2Bucket type is available in project context
 type R2Bucket = unknown;

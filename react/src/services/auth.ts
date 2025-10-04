@@ -164,7 +164,7 @@ export async function signInUser(
 /**
  * Gets the current authentication token - user token if signed in, otherwise visitor token
  */
-export async function getCurrentAuthToken(): Promise<string> {
+export async function getSupabaseAuthToken(): Promise<string> {
 	// First, try to get user token if signed in
 	const userToken = getCachedUserToken();
 	if (userToken !== undefined) {

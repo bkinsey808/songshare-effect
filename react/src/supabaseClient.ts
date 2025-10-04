@@ -1,7 +1,7 @@
 // src/features/supabase/supabaseClient.ts
 import { type SupabaseClient, createClient } from "@supabase/supabase-js";
 
-import { getCurrentAuthToken } from "./services/auth";
+import { getSupabaseAuthToken } from "./services/auth";
 import { getEnvValueSafe } from "./utils/env";
 import type { Database } from "@/shared/generated/supabaseTypes";
 
@@ -83,7 +83,7 @@ export async function getSupabaseClientWithAuth(
 ): Promise<SupabaseClient<Database> | undefined> {
 	for (let attempt = 1; attempt <= retries; attempt++) {
 		try {
-			const supabaseClientToken = await getCurrentAuthToken();
+			const supabaseClientToken = await getSupabaseAuthToken();
 
 			if (!supabaseClientToken) {
 				throw new Error("No auth token received");

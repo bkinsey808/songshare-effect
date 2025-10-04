@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -7,25 +6,32 @@ import LanguageDetector from "./language/LanguageDetector";
 import LanguageProvider from "./language/LanguageProvider";
 import AboutPage from "./pages/AboutPage";
 import HomePage from "./pages/HomePage";
+import OptimizedCounterPage from "./pages/OptimizedCounterPage";
+import ReactFeaturesDemoPage from "./pages/ReactFeaturesDemoPage";
 import SongsDemoPage from "./pages/SongsDemoPage";
+import SuspenseDemoPage from "./pages/SuspenseDemoPage";
 import SuspenseUsePage from "./pages/SuspenseUsePage";
 import UploadPage from "./pages/UploadPage";
+import UseHookDemoPage from "./pages/UseHookDemoPage";
 import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
+import {
+	aboutPath,
+	hookDemoPath,
+	optimizedCounterPath,
+	reactFeaturesPath,
+	songsDemoPath,
+	suspenseDemoPath,
+	suspenseUseDemoPath,
+	uploadDemoPath,
+	userSubscriptionDemoPath,
+} from "@/shared/paths";
 
 // Layout component that includes the common layout elements
 function Layout(): ReactElement {
-	const { t } = useTranslation();
-
 	return (
 		<ErrorBoundary>
-			<div className="mx-auto max-w-6xl p-5 font-sans">
-				<header className="mb-10 text-center">
-					<h1 className="mb-2 text-4xl font-bold">🎵 {t("app.title")}</h1>
-					<p className="text-gray-400">{t("app.subtitle")}</p>
-				</header>
-
-				<Navigation />
-
+			<Navigation />
+			<div className="mx-auto max-w-6xl p-5 pt-[200px] font-sans">
 				<main>
 					<Outlet />
 				</main>
@@ -53,23 +59,39 @@ const router = createBrowserRouter([
 						element: <HomePage />,
 					},
 					{
-						path: "songs",
+						path: songsDemoPath,
 						element: <SongsDemoPage />,
 					},
 					{
-						path: "upload",
+						path: uploadDemoPath,
 						element: <UploadPage />,
 					},
 					{
-						path: "suspense-use",
+						path: suspenseUseDemoPath,
 						element: <SuspenseUsePage />,
 					},
 					{
-						path: "about",
+						path: suspenseDemoPath,
+						element: <SuspenseDemoPage />,
+					},
+					{
+						path: hookDemoPath,
+						element: <UseHookDemoPage />,
+					},
+					{
+						path: optimizedCounterPath,
+						element: <OptimizedCounterPage />,
+					},
+					{
+						path: reactFeaturesPath,
+						element: <ReactFeaturesDemoPage />,
+					},
+					{
+						path: aboutPath,
 						element: <AboutPage />,
 					},
 					{
-						path: "user-subscription",
+						path: userSubscriptionDemoPath,
 						element: <UserPublicSubscriptionPage />,
 					},
 				],

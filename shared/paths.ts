@@ -1,0 +1,9 @@
+export const songsDemoPath = "songs-demo";
+export const uploadDemoPath = "upload-demo";
+export const suspenseUseDemoPath = "suspense-use-demo";
+export const suspenseDemoPath = "suspense-demo";
+export const hookDemoPath = "use-hook-demo";
+export const optimizedCounterPath = "optimized-counter";
+export const reactFeaturesPath = "react-features";
+export const aboutPath = "about";
+export const userSubscriptionDemoPath = "user-subscription-demo";
