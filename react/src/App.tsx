@@ -15,6 +15,7 @@ import SuspenseUsePage from "./pages/SuspenseUsePage";
 import UploadPage from "./pages/UploadPage";
 import UseHookDemoPage from "./pages/UseHookDemoPage";
 import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
+import { useAppStoreHydrated } from "./zustand/useAppStore";
 import {
 	aboutPath,
 	hookDemoPath,
@@ -28,8 +29,22 @@ import {
 	userSubscriptionDemoPath,
 } from "@/shared/paths";
 
-// Layout component that includes the common layout elements
-function Layout(): ReactElement {
+// Component that waits for store hydration
+function HydratedLayout(): ReactElement {
+	const { isHydrated } = useAppStoreHydrated();
+
+	// Show loading screen until store is hydrated
+	if (!isHydrated) {
+		return (
+			<div className="flex min-h-screen items-center justify-center bg-gray-900">
+				<div className="text-center">
+					<div className="border-primary-500 mb-4 h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+					<p className="text-gray-300">Loading app...</p>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<ErrorBoundary>
 			<Navigation />
@@ -40,6 +55,11 @@ function Layout(): ReactElement {
 			</div>
 		</ErrorBoundary>
 	);
+}
+
+// Layout component - simple conditional rendering
+function Layout(): ReactElement {
+	return <HydratedLayout />;
 }
 
 // Create the router with language support

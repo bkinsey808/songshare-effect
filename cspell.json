@@ -1,8 +1,6 @@
 {
 	"version": "0.2",
-	"ignorePaths": [
-		"**/*.example"
-	],
+	"ignorePaths": ["**/*.example"],
 	"dictionaryDefinitions": [],
 	"dictionaries": [],
 	"words": [
@@ -14,6 +12,7 @@
 		"healthcheck",
 		"Hono",
 		"hoverable",
+		"partialize",
 		"PGDATABASE",
 		"pgdg",
 		"PGHOST",
