@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 
-import {
-	API_CONFIG,
-	type ApiResponse,
-	type Song,
-	formatDuration,
-} from "../../shared/index.js";
+import type { SongDemo } from "@/react/songDemo/types";
+import type { ApiResponse } from "@/shared/types/api";
+import { API_CONFIG } from "@/shared/utils/constants";
+import { formatDuration } from "@/shared/utils/helpers";
 
-function SongsPage() {
+function SongsPage(): ReactElement {
 	"use no memo";
-	const [songs, setSongs] = useState<Song[]>([]);
+	const [songs, setSongs] = useState<SongDemo[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | undefined>(undefined);
 
@@ -20,8 +18,8 @@ function SongsPage() {
 				const response = await fetch(
 					`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SONGS}`,
 				);
-				const data: ApiResponse<Song[]> =
-					(await response.json()) as ApiResponse<Song[]>;
+				const data: ApiResponse<SongDemo[]> =
+					(await response.json()) as ApiResponse<SongDemo[]>;
 
 				if (data.success && data.data) {
 					setSongs(data.data);
@@ -74,12 +72,12 @@ function SongsPage() {
 								Duration: {formatDuration(song.duration)}
 							</p>
 							<div className="mt-4 flex justify-between text-xs text-gray-500">
-								<span>{new Date(song.uploadedAt).toLocaleDateString()}</span>
+								<span>{song.uploadedAt.toLocaleDateString()}</span>
 								<span>{song.genre ?? "Unknown"}</span>
 							</div>
 							{song.tags && song.tags.length > 0 && (
 								<div className="mt-2 flex flex-wrap gap-1">
-									{song.tags.map((tag, index) => (
+									{song.tags.map((tag: string, index: number) => (
 										<span
 											key={index}
 											className="rounded bg-blue-600 px-2 py-1 text-xs text-white"

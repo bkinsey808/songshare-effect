@@ -52,7 +52,7 @@ function getCachedUserToken(): string | undefined {
  * Gets a Supabase client token, checking memory cache first, then fetching from API if needed.
  * The Supabase client token is a real Supabase JWT that allows access to RLS-protected data.
  */
-async function getSupabaseClientToken(): Promise<string> {
+export async function getSupabaseClientToken(): Promise<string> {
 	// First, try to get token from memory cache
 	const cachedToken = getCachedSupabaseClientToken();
 	if (cachedToken !== undefined) {
@@ -93,7 +93,7 @@ async function fetchSupabaseClientTokenFromAPI(): Promise<string> {
 /**
  * Clears the Supabase client token from memory (useful for testing or manual refresh)
  */
-function clearSupabaseClientToken(): void {
+export function clearSupabaseClientToken(): void {
 	cachedSupabaseClientToken = undefined;
 	tokenExpirationTime = undefined;
 }
@@ -107,6 +107,57 @@ function cacheUserToken(token: string, expiryTime: number): void {
 
 	// Clear visitor token when user signs in
 	clearSupabaseClientToken();
+}
+
+/**
+ * Authenticates a user and returns their Supabase JWT token
+ */
+export async function signInUser(
+	email: string,
+	password: string,
+): Promise<string> {
+	const apiBaseUrl = getEnvValue("API_BASE_URL");
+
+	try {
+		const response = await fetch(`${apiBaseUrl}/api/auth/user`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ email, password }),
+		});
+
+		if (!response.ok) {
+			throw new Error(`Authentication failed: ${response.status}`);
+		}
+
+		const data = (await response.json()) as TokenResponse;
+
+		// Cache the user token in memory
+		const expiryTime = Date.now() + data.expires_in * 1000;
+		cacheUserToken(data.access_token, expiryTime);
+
+		return data.access_token;
+	} catch (error) {
+		console.error("Error signing in user:", error);
+		throw new Error("Unable to authenticate user");
+	}
+}
+
+/**
+ * Signs out the current user and clears all tokens
+ */
+export function signOutUser(): void {
+	cachedUserToken = undefined;
+	userTokenExpirationTime = undefined;
+	clearSupabaseClientToken();
+}
+
+/**
+ * Checks if a user is currently signed in
+ */
+export function isUserSignedIn(): boolean {
+	return getCachedUserToken() !== undefined;
 }
 
 /**
