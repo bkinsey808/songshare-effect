@@ -11,6 +11,7 @@ import PopoverDemoPage from "./pages/PopoverDemoPage";
 import ReactFeaturesDemoPage from "./pages/ReactFeaturesDemoPage";
 import SongsDemoPage from "./pages/SongsDemoPage";
 import SuspenseDemoPage from "./pages/SuspenseDemoPage";
+import SuspenseProblemDemoPage from "./pages/SuspenseProblemDemoPage";
 import SuspenseUsePage from "./pages/SuspenseUsePage";
 import UploadPage from "./pages/UploadPage";
 import UseHookDemoPage from "./pages/UseHookDemoPage";
@@ -24,6 +25,7 @@ import {
 	reactFeaturesPath,
 	songsDemoPath,
 	suspenseDemoPath,
+	suspenseProblemDemoPath,
 	suspenseUseDemoPath,
 	uploadDemoPath,
 	userSubscriptionDemoPath,
@@ -95,6 +97,10 @@ const router = createBrowserRouter([
 					{
 						path: suspenseDemoPath,
 						element: <SuspenseDemoPage />,
+					},
+					{
+						path: suspenseProblemDemoPath,
+						element: <SuspenseProblemDemoPage />,
 					},
 					{
 						path: hookDemoPath,
