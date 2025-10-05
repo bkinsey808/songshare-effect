@@ -7,6 +7,7 @@ import LanguageProvider from "./language/LanguageProvider";
 import AboutPage from "./pages/AboutPage";
 import HomePage from "./pages/HomePage";
 import OptimizedCounterPage from "./pages/OptimizedCounterPage";
+import PopoverDemoPage from "./pages/PopoverDemoPage";
 import ReactFeaturesDemoPage from "./pages/ReactFeaturesDemoPage";
 import SongsDemoPage from "./pages/SongsDemoPage";
 import SuspenseDemoPage from "./pages/SuspenseDemoPage";
@@ -18,6 +19,7 @@ import {
 	aboutPath,
 	hookDemoPath,
 	optimizedCounterPath,
+	popoverDemoPath,
 	reactFeaturesPath,
 	songsDemoPath,
 	suspenseDemoPath,
@@ -93,6 +95,10 @@ const router = createBrowserRouter([
 					{
 						path: userSubscriptionDemoPath,
 						element: <UserPublicSubscriptionPage />,
+					},
+					{
+						path: popoverDemoPath,
+						element: <PopoverDemoPage />,
 					},
 				],
 			},

@@ -6,6 +6,7 @@ import type { SupportedLanguage } from "@/shared/language/supportedLanguages";
 import {
 	hookDemoPath,
 	optimizedCounterPath,
+	popoverDemoPath,
 	suspenseDemoPath,
 	suspenseUseDemoPath,
 	uploadDemoPath,
@@ -107,6 +108,21 @@ function ReactFeaturesDemoPage(): ReactElement {
 						<Link
 							to={`/${currentLang}/${uploadDemoPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-indigo-500 px-6 py-3 text-white transition-colors hover:bg-indigo-600"
+						>
+							View Demo
+						</Link>
+					</div>
+
+					<div className="rounded-lg border border-white/10 bg-white/5 p-6 text-center">
+						<div className="mb-4 text-4xl">💬</div>
+						<h3 className="mb-3 text-xl font-semibold">Popover Demo</h3>
+						<p className="mb-4 text-gray-400">
+							Modern web UI popovers including native Popover API and custom
+							implementations
+						</p>
+						<Link
+							to={`/${currentLang}/${popoverDemoPath}`}
+							className="inline-block cursor-pointer rounded-lg border-none bg-teal-500 px-6 py-3 text-white transition-colors hover:bg-teal-600"
 						>
 							View Demo
 						</Link>

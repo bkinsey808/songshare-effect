@@ -1,6 +1,8 @@
 {
 	"version": "0.2",
-	"ignorePaths": ["**/*.example"],
+	"ignorePaths": [
+		"**/*.example"
+	],
 	"dictionaryDefinitions": [],
 	"dictionaries": [],
 	"words": [
@@ -11,6 +13,7 @@
 		"fkey",
 		"healthcheck",
 		"Hono",
+		"hoverable",
 		"PGDATABASE",
 		"pgdg",
 		"PGHOST",
@@ -24,7 +27,9 @@
 		"Supabase",
 		"timestamptz",
 		"trivago",
+		"viewports",
 		"Vite",
+		"WCAG",
 		"xmloption"
 	],
 	"ignoreWords": [],

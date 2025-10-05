@@ -7,3 +7,4 @@ export const optimizedCounterPath = "optimized-counter";
 export const reactFeaturesPath = "react-features";
 export const aboutPath = "about";
 export const userSubscriptionDemoPath = "user-subscription-demo";
+export const popoverDemoPath = "popover-demo";
