@@ -8,6 +8,7 @@ import AboutPage from "./pages/AboutPage";
 import HomePage from "./pages/HomePage";
 import OptimizedCounterPage from "./pages/OptimizedCounterPage";
 import PopoverDemoPage from "./pages/PopoverDemoPage";
+import ReactCompilerErrorsDemoPage from "./pages/ReactCompilerErrorsDemoPage";
 import ReactFeaturesDemoPage from "./pages/ReactFeaturesDemoPage";
 import SongsDemoPage from "./pages/SongsDemoPage";
 import SuspenseDemoPage from "./pages/SuspenseDemoPage";
@@ -22,6 +23,7 @@ import {
 	hookDemoPath,
 	optimizedCounterPath,
 	popoverDemoPath,
+	reactCompilerErrorsPath,
 	reactFeaturesPath,
 	songsDemoPath,
 	suspenseDemoPath,
@@ -101,6 +103,10 @@ const router = createBrowserRouter([
 					{
 						path: suspenseProblemDemoPath,
 						element: <SuspenseProblemDemoPage />,
+					},
+					{
+						path: reactCompilerErrorsPath,
+						element: <ReactCompilerErrorsDemoPage />,
 					},
 					{
 						path: hookDemoPath,
