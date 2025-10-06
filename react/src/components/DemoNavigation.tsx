@@ -8,7 +8,6 @@ import {
 	reactFeaturesPath,
 	songsDemoPath,
 	suspenseDemoPath,
-	suspenseProblemDemoPath,
 	suspenseUseDemoPath,
 	uploadDemoPath,
 	userSubscriptionDemoPath,
@@ -33,18 +32,13 @@ function DemoNavigation(): ReactElement {
 		},
 		{
 			path: suspenseDemoPath,
-			labelKey: "navigation.suspenseDemo",
-			icon: "🔄",
-		},
-		{
-			path: suspenseProblemDemoPath,
-			labelKey: "navigation.suspenseProblemDemo",
-			icon: "⚠️",
+			labelKey: "navigation.suspense",
+			icon: "⏳",
 		},
 		{
 			path: hookDemoPath,
-			labelKey: "navigation.useHookDemo",
-			icon: "🔀",
+			labelKey: "navigation.useHook",
+			icon: "🪝",
 		},
 		{
 			path: suspenseUseDemoPath,

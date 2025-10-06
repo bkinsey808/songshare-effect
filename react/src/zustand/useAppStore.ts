@@ -25,10 +25,20 @@ let store: UseBoundStore<StoreApi<AppSlice>> | undefined;
 const hydrationState = {
 	isHydrated: false,
 	listeners: new Set<() => void>(),
+	// The ideal solution: provide a direct promise
+	promise: undefined as Promise<void> | undefined,
+	resolvePromise: undefined as (() => void) | undefined,
 };
 
 export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 	if (store === undefined) {
+		// Create the hydration promise before creating the store
+		if (!hydrationState.promise) {
+			hydrationState.promise = new Promise<void>((resolve) => {
+				hydrationState.resolvePromise = resolve;
+			});
+		}
+
 		store = create<AppSlice>()(
 			devtools(
 				persist(
@@ -49,6 +59,11 @@ export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 						onRehydrateStorage: () => () => {
 							// Update external hydration state
 							hydrationState.isHydrated = true;
+							// Resolve the hydration promise (ideal solution!)
+							if (hydrationState.resolvePromise) {
+								hydrationState.resolvePromise();
+								hydrationState.resolvePromise = undefined;
+							}
 							// Notify all listeners
 							hydrationState.listeners.forEach((listener) => listener());
 						},
@@ -99,4 +114,18 @@ export function useAppStoreHydrated(): {
 		store: appStore,
 		isHydrated,
 	};
+}
+
+// ✅ IDEAL SOLUTION: Hook that returns the hydration promise directly
+export function useAppStoreHydrationPromise(): Promise<void> {
+	// Ensure store is created (which creates the promise)
+	useAppStore();
+
+	// If already hydrated, return resolved promise
+	if (hydrationState.isHydrated) {
+		return Promise.resolve();
+	}
+
+	// Return the hydration promise
+	return hydrationState.promise || Promise.resolve();
 }

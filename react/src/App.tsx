@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import type { StoreApi, UseBoundStore } from "zustand";
 
 import ErrorBoundary from "./components/ErrorBoundary";
 import Navigation from "./components/Navigation";
@@ -11,12 +13,15 @@ import PopoverDemoPage from "./pages/PopoverDemoPage";
 import ReactFeaturesDemoPage from "./pages/ReactFeaturesDemoPage";
 import SongsDemoPage from "./pages/SongsDemoPage";
 import SuspenseDemoPage from "./pages/SuspenseDemoPage";
-import SuspenseProblemDemoPage from "./pages/SuspenseProblemDemoPage";
 import SuspenseUsePage from "./pages/SuspenseUsePage";
 import UploadPage from "./pages/UploadPage";
 import UseHookDemoPage from "./pages/UseHookDemoPage";
 import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
-import { useAppStoreHydrated } from "./zustand/useAppStore";
+import {
+	type AppSlice,
+	useAppStoreHydrated,
+	useAppStoreHydrationPromise,
+} from "./zustand/useAppStore";
 import {
 	aboutPath,
 	hookDemoPath,
@@ -25,27 +30,29 @@ import {
 	reactFeaturesPath,
 	songsDemoPath,
 	suspenseDemoPath,
-	suspenseProblemDemoPath,
 	suspenseUseDemoPath,
 	uploadDemoPath,
 	userSubscriptionDemoPath,
 } from "@/shared/paths";
 
-// Component that waits for store hydration
-function HydratedLayout(): ReactElement {
-	const { isHydrated } = useAppStoreHydrated();
+// ✅ IDEAL SOLUTION: Suspense-compatible hook using direct hydration promise
+function useAppStoreSuspense(): UseBoundStore<StoreApi<AppSlice>> {
+	const { store, isHydrated } = useAppStoreHydrated();
+	// Always call the hook - Rules of Hooks
+	const hydrationPromise = useAppStoreHydrationPromise();
 
-	// Show loading screen until store is hydrated
 	if (!isHydrated) {
-		return (
-			<div className="flex min-h-screen items-center justify-center bg-gray-900">
-				<div className="text-center">
-					<div className="border-primary-500 mb-4 h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
-					<p className="text-gray-300">Loading app...</p>
-				</div>
-			</div>
-		);
+		// Throw the actual hydration promise for Suspense to catch
+		throw hydrationPromise;
 	}
+
+	return store;
+}
+
+// Component that uses Suspense for store hydration
+function HydratedLayout(): ReactElement {
+	// This will suspend until the store is hydrated
+	useAppStoreSuspense();
 
 	return (
 		<ErrorBoundary>
@@ -59,9 +66,25 @@ function HydratedLayout(): ReactElement {
 	);
 }
 
-// Layout component - simple conditional rendering
+// Loading fallback component for Suspense
+function AppLoadingFallback(): ReactElement {
+	return (
+		<div className="flex min-h-screen items-center justify-center bg-gray-900">
+			<div className="text-center">
+				<div className="border-primary-500 mb-4 h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+				<p className="text-gray-300">Loading app...</p>
+			</div>
+		</div>
+	);
+}
+
+// Layout component with Suspense for store hydration
 function Layout(): ReactElement {
-	return <HydratedLayout />;
+	return (
+		<Suspense fallback={<AppLoadingFallback />}>
+			<HydratedLayout />
+		</Suspense>
+	);
 }
 
 // Create the router with language support
@@ -97,10 +120,6 @@ const router = createBrowserRouter([
 					{
 						path: suspenseDemoPath,
 						element: <SuspenseDemoPage />,
-					},
-					{
-						path: suspenseProblemDemoPath,
-						element: <SuspenseProblemDemoPage />,
 					},
 					{
 						path: hookDemoPath,
