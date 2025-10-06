@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
-import DemoNavigation from "../components/DemoNavigation";
-import OptimizedCounter from "../components/OptimizedCounter";
+import DemoNavigation from "../demo/DemoNavigation";
+import OptimizedCounter from "../demo/OptimizedCounter";
 
 function OptimizedCounterPage(): ReactElement {
 	const { t } = useTranslation();

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import DemoNavigation from "../components/DemoNavigation";
+import DemoNavigation from "../demo/DemoNavigation";
 import type { SupportedLanguage } from "@/shared/language/supportedLanguages";
 import {
 	activityDemoPath,

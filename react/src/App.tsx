@@ -2,8 +2,8 @@ import { Suspense } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import type { StoreApi, UseBoundStore } from "zustand";
 
-import ErrorBoundary from "./components/ErrorBoundary";
-import Navigation from "./components/Navigation";
+import Navigation from "./Navigation";
+import ErrorBoundary from "./demo/ErrorBoundary";
 import LanguageDetector from "./language/LanguageDetector";
 import LanguageProvider from "./language/LanguageProvider";
 import AboutPage from "./pages/AboutPage";

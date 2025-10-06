@@ -1,8 +1,8 @@
 // src/features/supabase/supabaseClient.ts
 import { type SupabaseClient, createClient } from "@supabase/supabase-js";
 
-import { getSupabaseAuthToken } from "./supabase/getSupabaseAuthToken";
-import { getEnvValueSafe } from "./utils/env";
+import { getEnvValueSafe } from "../utils/env";
+import { getSupabaseAuthToken } from "./getSupabaseAuthToken";
 import type { Database } from "@/shared/generated/supabaseTypes";
 
 // Cache Supabase clients per visitor token

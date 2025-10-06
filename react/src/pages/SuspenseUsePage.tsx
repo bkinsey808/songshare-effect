@@ -1,6 +1,6 @@
 import { Suspense, use, useState } from "react";
 
-import ErrorBoundary from "../components/ErrorBoundary";
+import ErrorBoundary from "../demo/ErrorBoundary";
 
 // Cache for promises to prevent recreation on every render
 const promiseCache = new Map<string, Promise<unknown>>();

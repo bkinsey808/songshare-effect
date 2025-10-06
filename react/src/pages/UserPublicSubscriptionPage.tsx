@@ -4,7 +4,7 @@ import type {
 } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 
-import { getSupabaseClientWithAuth } from "../supabaseClient";
+import { getSupabaseClientWithAuth } from "../supabase/supabaseClient";
 import type { Tables } from "@/shared/generated/supabaseTypes";
 
 type UserPublic = Tables<"user_public">;

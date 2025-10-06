@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
-import LanguageSwitcher from "../language/LanguageSwitcher";
+import LanguageSwitcher from "./language/LanguageSwitcher";
 import type { SupportedLanguage } from "@/shared/language/supportedLanguages";
 import { aboutPath } from "@/shared/paths";
 

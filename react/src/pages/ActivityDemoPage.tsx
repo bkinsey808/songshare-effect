@@ -1,7 +1,7 @@
 import { Activity, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import DemoNavigation from "../components/DemoNavigation";
+import DemoNavigation from "../demo/DemoNavigation";
 
 // Simulated heavy component that takes time to render
 function HeavyComponent({
