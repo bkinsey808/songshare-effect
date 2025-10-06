@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { setStoredLanguage } from "../language/languageStorage";
-import type { SupportedLanguage } from "@/shared/language/supportedLanguages";
+import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 
 export default function LanguageTest(): ReactElement {
 	const { t, i18n } = useTranslation();
@@ -17,7 +17,7 @@ export default function LanguageTest(): ReactElement {
 		}
 	};
 
-	const switchLanguage = (newLang: SupportedLanguage): void => {
+	const switchLanguage = (newLang: SupportedLanguageType): void => {
 		// Update stored preference (like real language switcher)
 		setStoredLanguage(newLang);
 

@@ -4,8 +4,9 @@ import { Navigate, Outlet, useParams } from "react-router-dom";
 
 import { getStoredLanguage, setStoredLanguage } from "./languageStorage";
 import {
-	SUPPORTED_LANGUAGES,
-	type SupportedLanguage,
+	type SupportedLanguageType,
+	defaultLanguage,
+	isSupportedLanguage,
 } from "@/shared/language/supportedLanguages";
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -14,16 +15,12 @@ function LanguageProviderInner() {
 	const { i18n } = useTranslation();
 
 	// Validate language parameter first
-	const isValidLang = Boolean(
-		lang !== undefined &&
-			lang !== null &&
-			SUPPORTED_LANGUAGES.includes(lang as SupportedLanguage),
-	);
+	const isValidLang = isSupportedLanguage(lang);
 
 	// Handle language changes and preference management
 	useEffect(() => {
 		if (isValidLang === true) {
-			const currentLang = lang as SupportedLanguage;
+			const currentLang = lang as SupportedLanguageType;
 			const storedPreference = getStoredLanguage();
 
 			// Check if user has a different stored preference
@@ -48,7 +45,7 @@ function LanguageProviderInner() {
 
 	// Early return after hooks
 	if (isValidLang === false) {
-		return <Navigate to="/en/" replace />;
+		return <Navigate to={`/${defaultLanguage}/`} replace />;
 	}
 
 	// With Suspense enabled, useTranslation will automatically suspend

@@ -1,11 +1,12 @@
 import {
-	SUPPORTED_LANGUAGES,
-	type SupportedLanguage,
+	type SupportedLanguageType,
+	defaultLanguage,
+	isSupportedLanguage,
 } from "@/shared/language/supportedLanguages";
 
 export function detectBrowserLanguage(
 	acceptLanguage?: string,
-): SupportedLanguage {
+): SupportedLanguageType {
 	if (
 		acceptLanguage === undefined ||
 		acceptLanguage === null ||
@@ -29,9 +30,9 @@ export function detectBrowserLanguage(
 		.filter((lang) => lang !== "");
 
 	for (const lang of languages) {
-		if (SUPPORTED_LANGUAGES.includes(lang as SupportedLanguage)) {
-			return lang as SupportedLanguage;
+		if (isSupportedLanguage(lang)) {
+			return lang as SupportedLanguageType;
 		}
 	}
-	return "en";
+	return defaultLanguage;
 }

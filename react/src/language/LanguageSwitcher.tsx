@@ -3,15 +3,13 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { setStoredLanguage } from "./languageStorage";
 import {
-	SUPPORTED_LANGUAGES,
-	type SupportedLanguage,
+	SupportedLanguage,
+	type SupportedLanguageType,
+	defaultLanguage,
+	isSupportedLanguage,
+	languageNames,
 } from "@/shared/language/supportedLanguages";
-
-const LANGUAGE_NAMES: Record<SupportedLanguage, string> = {
-	en: "English",
-	es: "Español",
-	zh: "中文",
-};
+import { safeGet } from "@/shared/utils/safe";
 
 export default function LanguageSwitcher(): ReactElement {
 	const { t } = useTranslation();
@@ -21,13 +19,13 @@ export default function LanguageSwitcher(): ReactElement {
 
 	// Get current language from URL params, with fallback to 'en'
 	const currentLang = (
-		SUPPORTED_LANGUAGES.includes(lang as SupportedLanguage) ? lang : "en"
-	) as SupportedLanguage;
+		isSupportedLanguage(lang) ? lang : defaultLanguage
+	) as SupportedLanguageType;
 
 	// Extract the path without the language prefix
 	const currentPath = location.pathname.substring(3) || "/";
 
-	const handleLanguageChange = (newLang: SupportedLanguage): void => {
+	const handleLanguageChange = (newLang: SupportedLanguageType): void => {
 		if (newLang !== currentLang) {
 			// Store the language preference
 			setStoredLanguage(newLang);
@@ -40,15 +38,14 @@ export default function LanguageSwitcher(): ReactElement {
 		<select
 			value={currentLang}
 			onChange={(e) =>
-				handleLanguageChange(e.target.value as SupportedLanguage)
+				handleLanguageChange(e.target.value as SupportedLanguageType)
 			}
 			className="rounded-md border border-gray-300 bg-white px-3 py-1 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
 			aria-label={t("navigation.switchLanguage")}
 		>
-			{SUPPORTED_LANGUAGES.map((language) => (
+			{Object.values(SupportedLanguage).map((language) => (
 				<option key={language} value={language}>
-					{/* eslint-disable-next-line security/detect-object-injection */}
-					{LANGUAGE_NAMES[language]}
+					{safeGet(languageNames, language)}
 				</option>
 			))}
 		</select>

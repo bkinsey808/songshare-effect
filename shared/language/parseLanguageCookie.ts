@@ -1,12 +1,12 @@
 import { preferredLanguageCookieName } from "../cookies";
 import {
-	SUPPORTED_LANGUAGES,
-	type SupportedLanguage,
+	type SupportedLanguageType,
+	isSupportedLanguage,
 } from "./supportedLanguages";
 
 export const parseLanguageCookie = (
 	cookieHeader: string | null,
-): SupportedLanguage | undefined => {
+): SupportedLanguageType | undefined => {
 	if (
 		cookieHeader === null ||
 		cookieHeader === undefined ||
@@ -21,8 +21,8 @@ export const parseLanguageCookie = (
 		);
 	if (match !== undefined && match !== null && match.includes("=")) {
 		const lang = match.split("=")[1]?.trim();
-		return SUPPORTED_LANGUAGES.includes(lang as SupportedLanguage)
-			? (lang as SupportedLanguage)
+		return isSupportedLanguage(lang)
+			? (lang as SupportedLanguageType)
 			: undefined;
 	}
 	return undefined;

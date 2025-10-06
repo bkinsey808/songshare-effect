@@ -1,10 +1,11 @@
 import { preferredLanguageCookieName } from "@/shared/cookies";
 import {
-	SUPPORTED_LANGUAGES,
-	type SupportedLanguage,
+	type SupportedLanguageType,
+	defaultLanguage,
+	isSupportedLanguage,
 } from "@/shared/language/supportedLanguages";
 
-export const setStoredLanguage = (language: SupportedLanguage): void => {
+export const setStoredLanguage = (language: SupportedLanguageType): void => {
 	if (typeof document !== "undefined") {
 		const expires = new Date();
 		expires.setDate(expires.getDate() + 365);
@@ -16,16 +17,12 @@ export const setStoredLanguage = (language: SupportedLanguage): void => {
 	}
 };
 
-export const getStoredLanguage = (): SupportedLanguage | undefined => {
+export const getStoredLanguage = (): SupportedLanguageType | undefined => {
 	// First try to get from localStorage (client-side)
 	if (typeof window !== "undefined") {
 		const stored = localStorage.getItem("preferred-language");
-		if (
-			stored !== null &&
-			stored !== "" &&
-			SUPPORTED_LANGUAGES.includes(stored as SupportedLanguage)
-		) {
-			return stored as SupportedLanguage;
+		if (isSupportedLanguage(stored)) {
+			return stored as SupportedLanguageType;
 		}
 	}
 
@@ -42,7 +39,7 @@ export const getStoredLanguage = (): SupportedLanguage | undefined => {
 
 export const parseLanguageCookie = (
 	cookieHeader: string | null,
-): SupportedLanguage | undefined => {
+): SupportedLanguageType | undefined => {
 	if (
 		cookieHeader === null ||
 		cookieHeader === undefined ||
@@ -57,8 +54,8 @@ export const parseLanguageCookie = (
 		);
 	if (match !== undefined && match !== null && match.includes("=")) {
 		const lang = match.split("=")[1]?.trim();
-		return SUPPORTED_LANGUAGES.includes(lang as SupportedLanguage)
-			? (lang as SupportedLanguage)
+		return isSupportedLanguage(lang)
+			? (lang as SupportedLanguageType)
 			: undefined;
 	}
 	return undefined;
@@ -66,13 +63,13 @@ export const parseLanguageCookie = (
 
 export function detectBrowserLanguage(
 	acceptLanguage?: string,
-): SupportedLanguage {
+): SupportedLanguageType {
 	if (
 		acceptLanguage === undefined ||
 		acceptLanguage === null ||
 		acceptLanguage.trim() === ""
 	) {
-		return "en";
+		return defaultLanguage;
 	}
 	const languages = acceptLanguage
 		.split(",")
@@ -90,9 +87,9 @@ export function detectBrowserLanguage(
 		.filter((lang) => lang !== "");
 
 	for (const lang of languages) {
-		if (SUPPORTED_LANGUAGES.includes(lang as SupportedLanguage)) {
-			return lang as SupportedLanguage;
+		if (isSupportedLanguage(lang)) {
+			return lang as SupportedLanguageType;
 		}
 	}
-	return "en";
+	return defaultLanguage;
 }

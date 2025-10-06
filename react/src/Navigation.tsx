@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
 import LanguageSwitcher from "./language/LanguageSwitcher";
-import type { SupportedLanguage } from "@/shared/language/supportedLanguages";
+import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 import { aboutPath } from "@/shared/paths";
 
 function Navigation(): ReactElement {
 	const { t, i18n } = useTranslation();
-	const currentLang = i18n.language as SupportedLanguage;
+	const currentLang = i18n.language as SupportedLanguageType;
 	const location = useLocation();
 	const [isScrolled, setIsScrolled] = useState(false);
 

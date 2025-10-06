@@ -1,19 +1,20 @@
 import { detectBrowserLanguage } from "@/shared/language/detectBrowserLanguage";
 import { parseLanguageCookie } from "@/shared/language/parseLanguageCookie";
 import {
-	SUPPORTED_LANGUAGES,
-	type SupportedLanguage,
+	type SupportedLanguageType,
+	defaultLanguage,
+	isSupportedLanguage,
 } from "@/shared/language/supportedLanguages";
 
 // Detect initial language with priority order
-export const detectInitialLanguage = (): SupportedLanguage => {
+export const detectInitialLanguage = (): SupportedLanguageType => {
 	// 1. Check URL parameter (highest priority for explicit navigation)
 	const path = window.location.pathname;
 	const langMatch = path.match(/^\/([a-z]{2})\//);
 	if (langMatch !== null && langMatch[1] !== undefined && langMatch[1] !== "") {
 		const urlLang = langMatch[1];
-		if (SUPPORTED_LANGUAGES.includes(urlLang as SupportedLanguage)) {
-			return urlLang as SupportedLanguage;
+		if (isSupportedLanguage(urlLang)) {
+			return urlLang as SupportedLanguageType;
 		}
 	}
 
@@ -21,8 +22,8 @@ export const detectInitialLanguage = (): SupportedLanguage => {
 	if (typeof window !== "undefined") {
 		const stored = localStorage.getItem("preferred-language");
 		if (stored !== null && stored !== "") {
-			if (SUPPORTED_LANGUAGES.includes(stored as SupportedLanguage)) {
-				return stored as SupportedLanguage;
+			if (isSupportedLanguage(stored)) {
+				return stored as SupportedLanguageType;
 			}
 		}
 	}
@@ -41,5 +42,5 @@ export const detectInitialLanguage = (): SupportedLanguage => {
 	}
 
 	// 5. Default fallback
-	return "en";
+	return defaultLanguage;
 };

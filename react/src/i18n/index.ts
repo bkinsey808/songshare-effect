@@ -6,10 +6,10 @@ import { detectInitialLanguage } from "../language/detectInitialLanguage";
 import en from "./resources/en.json";
 import es from "./resources/es.json";
 import zh from "./resources/zh.json";
-import type { SupportedLanguage } from "@/shared/language/supportedLanguages";
+import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 
 const resources: Record<
-	SupportedLanguage,
+	SupportedLanguageType,
 	{ translation: Record<string, unknown> }
 > = {
 	en: { translation: en },
