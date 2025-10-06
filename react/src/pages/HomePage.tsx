@@ -2,11 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 import type { SupportedLanguage } from "@/shared/language/supportedLanguages";
-import {
-	reactCompilerErrorsPath,
-	reactFeaturesPath,
-	uploadDemoPath,
-} from "@/shared/paths";
+import { reactFeaturesPath, uploadDemoPath } from "@/shared/paths";
 
 function HomePage(): ReactElement {
 	const { t, i18n } = useTranslation();
@@ -34,21 +30,6 @@ function HomePage(): ReactElement {
 							className="inline-block cursor-pointer rounded-lg border-none bg-gradient-to-r from-blue-500 to-purple-500 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:from-blue-600 hover:to-purple-600 hover:shadow-lg"
 						>
 							Explore React Features
-						</Link>
-					</div>
-
-					<div className="rounded-xl border border-white/10 bg-gradient-to-br from-red-500/10 to-orange-500/10 p-8 text-center">
-						<div className="mb-6 text-6xl">🚨</div>
-						<h3 className="mb-4 text-2xl font-bold">React Compiler Errors</h3>
-						<p className="mb-6 text-gray-300">
-							Understand what breaks React Compiler with real error examples:
-							Promise throwing, side effects, external mutations, and more
-						</p>
-						<Link
-							to={`/${currentLang}/${reactCompilerErrorsPath}`}
-							className="inline-block cursor-pointer rounded-lg border-none bg-gradient-to-r from-red-500 to-orange-500 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:from-red-600 hover:to-orange-600 hover:shadow-lg"
-						>
-							See Error Examples
 						</Link>
 					</div>
 

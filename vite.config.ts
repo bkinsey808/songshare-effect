@@ -2,10 +2,10 @@ import tailwindcss from "@tailwindcss/postcss";
 import react from "@vitejs/plugin-react";
 import autoprefixer from "autoprefixer";
 import path from "path";
-import { defineConfig } from "vite";
+import { type UserConfig, defineConfig } from "vite";
 
 // https://vite.dev/config/
-export default defineConfig({
+const config: UserConfig = defineConfig({
 	root: ".",
 	plugins: [
 		react({
@@ -36,3 +36,5 @@ export default defineConfig({
 		},
 	},
 });
+
+export default config;
