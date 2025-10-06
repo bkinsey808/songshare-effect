@@ -7,6 +7,7 @@ import Navigation from "./components/Navigation";
 import LanguageDetector from "./language/LanguageDetector";
 import LanguageProvider from "./language/LanguageProvider";
 import AboutPage from "./pages/AboutPage";
+import ActivityDemoPage from "./pages/ActivityDemoPage";
 import HomePage from "./pages/HomePage";
 import OptimizedCounterPage from "./pages/OptimizedCounterPage";
 import PopoverDemoPage from "./pages/PopoverDemoPage";
@@ -24,6 +25,7 @@ import {
 } from "./zustand/useAppStore";
 import {
 	aboutPath,
+	activityDemoPath,
 	hookDemoPath,
 	optimizedCounterPath,
 	popoverDemoPath,
@@ -144,6 +146,10 @@ const router = createBrowserRouter([
 					{
 						path: popoverDemoPath,
 						element: <PopoverDemoPage />,
+					},
+					{
+						path: activityDemoPath,
+						element: <ActivityDemoPage />,
 					},
 				],
 			},

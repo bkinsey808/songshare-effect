@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import type { SupportedLanguage } from "@/shared/language/supportedLanguages";
 import {
+	activityDemoPath,
 	hookDemoPath,
 	optimizedCounterPath,
 	reactFeaturesPath,
@@ -49,6 +50,11 @@ function DemoNavigation(): ReactElement {
 			path: userSubscriptionDemoPath,
 			labelKey: "navigation.userSubscription",
 			icon: "👥",
+		},
+		{
+			path: activityDemoPath,
+			labelKey: "navigation.activity",
+			icon: "⚡",
 		},
 	];
 

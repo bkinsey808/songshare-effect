@@ -1,7 +1,7 @@
 // src/features/supabase/supabaseClient.ts
 import { type SupabaseClient, createClient } from "@supabase/supabase-js";
 
-import { getSupabaseAuthToken } from "./services/auth";
+import { getSupabaseAuthToken } from "./supabase/getSupabaseAuthToken";
 import { getEnvValueSafe } from "./utils/env";
 import type { Database } from "@/shared/generated/supabaseTypes";
 
