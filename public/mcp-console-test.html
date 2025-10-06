@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>MCP Console Log Test</title>
+		<style>
+			body {
+				font-family:
+					-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 2rem;
+				background: #0f0f23;
+				color: #cccccc;
+			}
+
+			.container {
+				background: #1a1a2e;
+				border-radius: 8px;
+				padding: 2rem;
+				border: 1px solid #333;
+			}
+
+			h1 {
+				color: #00ff88;
+				text-align: center;
+				margin-bottom: 2rem;
+			}
+
+			.test-section {
+				margin: 2rem 0;
+				padding: 1rem;
+				background: #16213e;
+				border-radius: 4px;
+				border-left: 4px solid #00ff88;
+			}
+
+			button {
+				background: #0066cc;
+				color: white;
+				border: none;
+				padding: 0.8rem 1.5rem;
+				border-radius: 4px;
+				cursor: pointer;
+				margin: 0.5rem;
+				font-size: 14px;
+				transition: background 0.2s;
+			}
+
+			button:hover {
+				background: #0088ff;
+			}
+
+			.warning {
+				border-left-color: #ffaa00;
+			}
+			.error {
+				border-left-color: #ff4444;
+			}
+			.info {
+				border-left-color: #00aaff;
+			}
+
+			pre {
+				background: #0a0a0a;
+				padding: 1rem;
+				border-radius: 4px;
+				overflow-x: auto;
+				font-family: "Courier New", monospace;
+				border: 1px solid #333;
+			}
+
+			.status {
+				padding: 1rem;
+				margin: 1rem 0;
+				border-radius: 4px;
+				text-align: center;
+				font-weight: bold;
+			}
+
+			.status.success {
+				background: #004400;
+				color: #00ff88;
+			}
+			.status.info {
+				background: #000044;
+				color: #00aaff;
+			}
+			.status.warning {
+				background: #442200;
+				color: #ffaa00;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>🧪 MCP Console Log Test</h1>
+
+			<div class="status info">
+				<p>This page tests whether MCP can read browser console logs.</p>
+				<p>
+					Open Chrome DevTools Console to see the messages, and your MCP should
+					capture them too!
+				</p>
+			</div>
+
+			<div class="test-section">
+				<h3>📝 Basic Console Tests</h3>
+				<p>These buttons will generate different types of console messages:</p>
+
+				<button onclick="testBasicLog()">console.log() Test</button>
+				<button onclick="testWarning()">console.warn() Test</button>
+				<button onclick="testError()">console.error() Test</button>
+				<button onclick="testInfo()">console.info() Test</button>
+			</div>
+
+			<div class="test-section warning">
+				<h3>🔒 Authentication State Test</h3>
+				<p>Test MCP's ability to read authentication-related console output:</p>
+
+				<button onclick="testAuthState()">Check Auth State</button>
+				<button onclick="testLocalStorage()">Check Local Storage</button>
+			</div>
+
+			<div class="test-section error">
+				<h3>🚨 Error Simulation</h3>
+				<p>Test MCP's ability to capture JavaScript errors:</p>
+
+				<button onclick="testJSError()">Throw JS Error</button>
+				<button onclick="testNetworkError()">Simulate Network Error</button>
+			</div>
+
+			<div class="test-section info">
+				<h3>⚡ Performance Monitoring</h3>
+				<p>Test MCP's ability to monitor performance metrics:</p>
+
+				<button onclick="testPerformance()">Log Performance Timing</button>
+				<button onclick="testMemoryUsage()">Log Memory Usage</button>
+			</div>
+
+			<div class="test-section">
+				<h3>🔄 Continuous Logging</h3>
+				<p>Start/stop continuous logging to test real-time monitoring:</p>
+
+				<button onclick="startContinuousLogging()">
+					Start Continuous Logging
+				</button>
+				<button onclick="stopContinuousLogging()">
+					Stop Continuous Logging
+				</button>
+			</div>
+
+			<div class="test-section">
+				<h3>📊 Expected MCP Capabilities</h3>
+				<pre>
+✅ Should capture:
+• console.log() messages
+• console.warn() warnings  
+• console.error() errors
+• console.info() information
+• JavaScript exceptions
+• Network errors
+• Performance timing data
+• Real-time message streaming</pre
+				>
+			</div>
+
+			<div id="status" class="status info">
+				Ready to test! Click any button above and check your MCP console log
+				reader.
+			</div>
+		</div>
+
+		<script>
+			let continuousInterval;
+			let logCounter = 0;
+
+			function updateStatus(message, type = "info") {
+				const statusEl = document.getElementById("status");
+				statusEl.textContent = message;
+				statusEl.className = `status ${type}`;
+			}
+
+			function testBasicLog() {
+				console.log(
+					"🎯 MCP Test: Basic console.log() message at",
+					new Date().toISOString(),
+				);
+				console.log("🎯 MCP Test: Multiple", "arguments", "in", "console.log", {
+					data: "object",
+				});
+				updateStatus(
+					"✅ Basic console.log() messages sent! Check MCP console reader.",
+					"success",
+				);
+			}
+
+			function testWarning() {
+				console.warn("⚠️ MCP Test: This is a warning message");
+				console.warn("⚠️ MCP Test: Warning with object:", {
+					warning: true,
+					level: "warn",
+				});
+				updateStatus(
+					"⚠️ Warning messages sent! MCP should capture these.",
+					"warning",
+				);
+			}
+
+			function testError() {
+				console.error("❌ MCP Test: This is an error message");
+				console.error(
+					"❌ MCP Test: Error with stack trace:",
+					new Error("Test error for MCP"),
+				);
+				updateStatus(
+					"❌ Error messages sent! MCP should capture these.",
+					"warning",
+				);
+			}
+
+			function testInfo() {
+				console.info("ℹ️ MCP Test: Info message");
+				console.info("ℹ️ MCP Test: System info:", {
+					userAgent: navigator.userAgent.substring(0, 50) + "...",
+					timestamp: Date.now(),
+					url: window.location.href,
+				});
+				updateStatus(
+					"ℹ️ Info messages sent! MCP should capture these.",
+					"info",
+				);
+			}
+
+			function testAuthState() {
+				console.log("🔒 MCP Test: Checking authentication state...");
+				console.log(
+					"🔒 Auth Token:",
+					localStorage.getItem("auth-token") || "Not found",
+				);
+				console.log(
+					"🔒 User Data:",
+					localStorage.getItem("user-data") || "Not found",
+				);
+				console.log(
+					"🔒 Language:",
+					localStorage.getItem("language") || "Not set",
+				);
+				console.log("🔒 Session Storage:", Object.keys(sessionStorage));
+				updateStatus(
+					"🔒 Authentication state logged! MCP can monitor auth flow.",
+					"success",
+				);
+			}
+
+			function testLocalStorage() {
+				// Set some test data
+				localStorage.setItem("mcp-test-token", "test-jwt-token-123");
+				localStorage.setItem(
+					"mcp-test-user",
+					JSON.stringify({ id: 1, name: "Test User" }),
+				);
+
+				console.log("💾 MCP Test: LocalStorage contents:");
+				for (let i = 0; i < localStorage.length; i++) {
+					const key = localStorage.key(i);
+					console.log(`💾   ${key}: ${localStorage.getItem(key)}`);
+				}
+				updateStatus(
+					"💾 Local storage data logged! MCP can monitor storage changes.",
+					"success",
+				);
+			}
+
+			function testJSError() {
+				try {
+					// This will throw an error
+					nonExistentFunction();
+				} catch (error) {
+					console.error("🚨 MCP Test: Caught JavaScript error:", error);
+					throw new Error("🚨 MCP Test: Intentional error for MCP testing");
+				}
+			}
+
+			function testNetworkError() {
+				console.log("🌐 MCP Test: Attempting network request...");
+
+				fetch("http://localhost:9999/nonexistent")
+					.then((response) => response.json())
+					.catch((error) => {
+						console.error("🌐 MCP Test: Network error caught:", error.message);
+						console.error("🌐 Full error object:", error);
+					});
+
+				updateStatus(
+					"🌐 Network error simulated! MCP should capture the failure.",
+					"warning",
+				);
+			}
+
+			function testPerformance() {
+				console.log("⚡ MCP Test: Performance timing data:");
+				console.log("⚡ Performance now:", performance.now());
+
+				const perfEntries = performance.getEntriesByType("navigation");
+				if (perfEntries.length > 0) {
+					console.log("⚡ Navigation timing:", perfEntries[0]);
+				}
+
+				const paintEntries = performance.getEntriesByType("paint");
+				paintEntries.forEach((entry) => {
+					console.log(`⚡ ${entry.name}:`, entry.startTime + "ms");
+				});
+
+				updateStatus(
+					"⚡ Performance metrics logged! MCP can monitor page performance.",
+					"success",
+				);
+			}
+
+			function testMemoryUsage() {
+				if (performance.memory) {
+					console.log("💾 MCP Test: Memory usage:", {
+						used:
+							Math.round(performance.memory.usedJSHeapSize / 1024 / 1024) +
+							"MB",
+						total:
+							Math.round(performance.memory.totalJSHeapSize / 1024 / 1024) +
+							"MB",
+						limit:
+							Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024) +
+							"MB",
+					});
+					updateStatus(
+						"💾 Memory usage logged! MCP can monitor memory consumption.",
+						"success",
+					);
+				} else {
+					console.warn("💾 MCP Test: Memory API not available in this browser");
+					updateStatus(
+						"💾 Memory API not available, but MCP captured the warning!",
+						"warning",
+					);
+				}
+			}
+
+			function startContinuousLogging() {
+				if (continuousInterval) {
+					clearInterval(continuousInterval);
+				}
+
+				console.log("🔄 MCP Test: Starting continuous logging...");
+
+				continuousInterval = setInterval(() => {
+					logCounter++;
+					console.log(`🔄 MCP Continuous Log #${logCounter}:`, {
+						timestamp: new Date().toISOString(),
+						random: Math.random(),
+						counter: logCounter,
+					});
+
+					// Occasionally log different types
+					if (logCounter % 5 === 0) {
+						console.warn(`🔄 MCP Continuous Warning #${logCounter}`);
+					}
+					if (logCounter % 10 === 0) {
+						console.info(`🔄 MCP Continuous Info #${logCounter}`);
+					}
+				}, 2000);
+
+				updateStatus(
+					"🔄 Continuous logging started! MCP should see real-time messages.",
+					"success",
+				);
+			}
+
+			function stopContinuousLogging() {
+				if (continuousInterval) {
+					clearInterval(continuousInterval);
+					continuousInterval = null;
+					console.log(
+						"🔄 MCP Test: Continuous logging stopped at counter:",
+						logCounter,
+					);
+					updateStatus(
+						"🔄 Continuous logging stopped! Final messages sent to MCP.",
+						"info",
+					);
+				} else {
+					console.warn("🔄 MCP Test: No continuous logging to stop");
+					updateStatus("🔄 No continuous logging was running.", "warning");
+				}
+			}
+
+			// Initial test message
+			console.log("🎯 MCP Console Test Page Loaded!");
+			console.log("🎯 MCP should be able to read this initialization message");
+			console.log("🎯 Timestamp:", new Date().toISOString());
+			console.log("🎯 User Agent:", navigator.userAgent);
+			console.log("🎯 URL:", window.location.href);
+		</script>
+	</body>
+</html>

@@ -1,12 +1,15 @@
 {
 	"version": "0.2",
-	"ignorePaths": ["**/*.example"],
+	"ignorePaths": [
+		"**/*.example"
+	],
 	"dictionaryDefinitions": [],
 	"dictionaries": [],
 	"words": [
 		"btrim",
 		"bytea",
 		"combinators",
+		"DISTRO",
 		"Español",
 		"fkey",
 		"healthcheck",
