@@ -12,6 +12,8 @@
 		"chrome:debug:secure": "./scripts/start-chrome-debug-secure.sh",
 		"chrome:test": "./scripts/test-chrome-mcp.sh",
 		"chrome:test:console": "./scripts/test-console-logs.sh",
+		"supabase:mcp": "./scripts/start-supabase-mcp.sh",
+		"supabase:mcp:setup": "./scripts/setup-supabase-mcp.sh",
 		"chrome:demo:console": "./scripts/demo-console-logs.sh",
 		"dev:debug": "npx concurrently \"npm run dev:all\" \"npm run chrome:debug:secure\" --names \"servers,chrome\" --prefix-colors \"cyan,yellow\"",
 		"dev:debug:insecure": "npx concurrently \"npm run dev:all\" \"npm run chrome:debug\" --names \"servers,chrome\" --prefix-colors \"cyan,yellow\"",
