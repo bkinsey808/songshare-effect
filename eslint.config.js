@@ -1,5 +1,6 @@
 import cspellPlugin from "@cspell/eslint-plugin";
 import js from "@eslint/js";
+import boundariesPlugin from "eslint-plugin-boundaries";
 import importPlugin from "eslint-plugin-import";
 import jsdocPlugin from "eslint-plugin-jsdoc";
 import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
@@ -21,6 +22,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const sharedPlugins = {
 	"@typescript-eslint": tseslint.plugin,
 	import: importPlugin,
+	boundaries: boundariesPlugin,
 	security: securityPlugin,
 	unicorn: unicornPlugin,
 	promise: promisePlugin,
@@ -30,6 +32,18 @@ const sharedPlugins = {
 };
 
 const sharedRules = {
+	// boundaries rules
+	"boundaries/element-types": [
+		"error",
+		{
+			default: "disallow",
+			rules: [
+				{ from: "api", allow: ["shared"] },
+				{ from: "react", allow: ["shared"] },
+				{ from: "shared", allow: [] },
+			],
+		},
+	],
 	// TypeScript ESLint rules
 	"@typescript-eslint/consistent-type-imports": [
 		"error",
@@ -152,6 +166,14 @@ const sharedRules = {
 	"no-duplicate-imports": "error",
 };
 
+export const settings = {
+	"boundaries/elements": [
+		{ type: "shared", pattern: "shared/**/*" },
+		{ type: "api", pattern: "api/**/*" },
+		{ type: "react", pattern: "react/**/*" },
+	],
+};
+
 export default [
 	{
 		ignores: [
@@ -168,6 +190,15 @@ export default [
 			".next/**",
 			"out/**",
 		],
+	},
+	{
+		settings: {
+			"boundaries/elements": [
+				{ type: "shared", pattern: "shared/**/*" },
+				{ type: "api", pattern: "api/**/*" },
+				{ type: "react", pattern: "react/**/*" },
+			],
+		},
 	},
 	js.configs.recommended,
 	...tseslint.configs.recommended,

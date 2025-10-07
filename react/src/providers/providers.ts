@@ -16,8 +16,6 @@ export const Provider = {
 type ProviderType = (typeof Provider)[keyof typeof Provider];
 export const providers: ProviderType[] = Object.values(Provider);
 
-// Effect schema for provider validation
-// This creates a union of all provider values without repeating the strings
 const ProviderSchema: Schema.Schema<ProviderType> = Schema.Union(
 	...providers.map((provider) => Schema.Literal(provider)),
 );
@@ -92,7 +90,7 @@ export function getProviderData<T extends ProviderType>(
 	return superSafeGet(providerData, provider);
 }
 
-const guardAsProvider = (value: unknown): ProviderType => {
+export const guardAsProvider = (value: unknown): ProviderType => {
 	return Schema.decodeUnknownSync(ProviderSchema)(value);
 };
 
