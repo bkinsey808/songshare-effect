@@ -5,6 +5,7 @@ import { devtools, persist } from "zustand/middleware";
 
 export const sliceResetFns: Set<() => void> = new Set<() => void>();
 export const resetAllSlices = (): void => {
+	// eslint-disable-next-line sonarjs/no-empty-collection
 	sliceResetFns.forEach((resetFn) => {
 		resetFn();
 	});
@@ -51,6 +52,7 @@ export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 						partialize: (state: AppSlice) => {
 							return Object.fromEntries(
 								Object.entries(state).filter(
+									// eslint-disable-next-line sonarjs/no-empty-collection
 									([key]) => !omittedKeys.includes(key as keyof AppSlice),
 								),
 							) as AppSlice;

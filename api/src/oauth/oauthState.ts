@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-commented-code */
 // import { type InferOutput, object, optional, parse, string } from "valibot";
 
 // import { langSchema } from "@/features/i18n/supportedLangs";

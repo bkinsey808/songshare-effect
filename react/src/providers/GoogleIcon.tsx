@@ -1,6 +1,8 @@
 import React from "react";
 
-export function GoogleIcon(props: React.SVGProps<SVGSVGElement>): ReactElement {
+export function GoogleIcon(
+	props: Readonly<React.SVGProps<SVGSVGElement>>,
+): ReactElement {
 	return (
 		<svg
 			width="20"

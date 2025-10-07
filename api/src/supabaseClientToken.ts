@@ -63,6 +63,7 @@ export async function getSupabaseClientToken(env: Env): Promise<string> {
 		throw new Error(`Failed to sign in visitor (initial): ${error.message}`);
 	}
 
+	// eslint-disable-next-line sonarjs/different-types-comparison
 	if (data.session === null || data.user === null) {
 		throw new Error("Missing session or user on initial visitor sign-in.");
 	}
@@ -94,6 +95,7 @@ export async function getSupabaseClientToken(env: Env): Promise<string> {
 			password: env.SUPABASE_VISITOR_PASSWORD,
 		});
 
+		// eslint-disable-next-line sonarjs/different-types-comparison
 		if (signInResponse.error || signInResponse.data.session === null) {
 			throw new Error(
 				`Failed to sign in visitor (after update): ${
@@ -158,6 +160,7 @@ export async function getSupabaseUserToken(
 		throw new Error(`Failed to sign in user: ${error.message}`);
 	}
 
+	// eslint-disable-next-line sonarjs/different-types-comparison
 	if (data.session === null || data.user === null) {
 		throw new Error("Missing session or user on user sign-in.");
 	}
@@ -189,6 +192,7 @@ export async function getSupabaseUserToken(
 			password,
 		});
 
+		// eslint-disable-next-line sonarjs/different-types-comparison
 		if (signInResponse.error || signInResponse.data.session === null) {
 			throw new Error(
 				`Failed to sign in user (after update): ${

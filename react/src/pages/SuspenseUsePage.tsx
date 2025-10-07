@@ -110,7 +110,9 @@ function getCachedPromise<T>(
 }
 
 // Loading components for different sections
-function LoadingSpinner({ message }: { message: string }): ReactElement {
+function LoadingSpinner({
+	message,
+}: Readonly<{ message: string }>): ReactElement {
 	return (
 		<div className="flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8">
 			<div className="text-center">
@@ -122,7 +124,7 @@ function LoadingSpinner({ message }: { message: string }): ReactElement {
 }
 
 // Component that uses 'use' hook to fetch album data
-function AlbumCard({ albumId }: { albumId: number }): ReactElement {
+function AlbumCard({ albumId }: Readonly<{ albumId: number }>): ReactElement {
 	const albumPromise = getCachedPromise(`album-${albumId}`, () =>
 		fetchAlbumData(albumId),
 	);
@@ -163,7 +165,9 @@ function AlbumCard({ albumId }: { albumId: number }): ReactElement {
 }
 
 // Component that uses 'use' hook to fetch artist data
-function ArtistProfile({ artistId }: { artistId: number }): ReactElement {
+function ArtistProfile({
+	artistId,
+}: Readonly<{ artistId: number }>): ReactElement {
 	const artistPromise = getCachedPromise(`artist-${artistId}`, () =>
 		fetchArtistData(artistId),
 	);
@@ -192,7 +196,9 @@ function ArtistProfile({ artistId }: { artistId: number }): ReactElement {
 }
 
 // Component that uses 'use' hook to fetch playlist data
-function PlaylistDetails({ playlistId }: { playlistId: number }): ReactElement {
+function PlaylistDetails({
+	playlistId,
+}: Readonly<{ playlistId: number }>): ReactElement {
 	const playlistPromise = getCachedPromise(`playlist-${playlistId}`, () =>
 		fetchPlaylistData(playlistId),
 	);

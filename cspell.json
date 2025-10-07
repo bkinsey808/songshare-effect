@@ -25,6 +25,7 @@
 		"pkey",
 		"plpgsql",
 		"Postgrest",
+		"sonarjs",
 		"songshare",
 		"Supabase",
 		"timestamptz",

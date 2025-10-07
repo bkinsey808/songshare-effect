@@ -44,6 +44,7 @@ as the final step.
 (17) Make sure to run this file-check command as the final step before considering a prompt to be complete.`);
 
 const tsCheck = spawnSync(
+	// eslint-disable-next-line sonarjs/no-os-command-from-path
 	"npx",
 	["tsc", "--noEmit", "--pretty", "--project", "tsconfig.json"],
 	{ stdio: ["ignore", "pipe", "pipe"] },
@@ -63,6 +64,7 @@ function filterNpmWarnings(output: Buffer | string | undefined): string {
 const combinedTsCheck = tsCheck.stdout.toString() + tsCheck.stderr.toString();
 const filteredTsCheck = filterNpmWarnings(combinedTsCheck);
 const filterResult = spawnSync(
+	// eslint-disable-next-line sonarjs/no-os-command-from-path
 	"bun",
 	[require.resolve("./filterTsErrors.ts"), file],
 	{
@@ -89,6 +91,7 @@ let individualTsCheck: ReturnType<typeof spawnSync>;
 let filteredIndividualTsCheck = "";
 
 if (!isJsxFile) {
+	// eslint-disable-next-line sonarjs/no-os-command-from-path
 	individualTsCheck = spawnSync("npx", ["tsc", "--noEmit", "--pretty", file], {
 		stdio: ["ignore", "pipe", "pipe"],
 	});
@@ -111,10 +114,14 @@ if (!isJsxFile) {
 		const line = lines[i] ?? "";
 
 		// Skip summary sections
+		const foundErrorsRegExp = /^Found \d+ errors? in \d+ files?\./;
+		const errorsFilesRegExp = /^Errors\s+Files/;
+		// eslint-disable-next-line sonarjs/slow-regex
+		const fileLineRegExp = /^\s*\d+\s+.*\.tsx?:\d+/;
 		if (
-			line.match(/^Found \d+ errors? in \d+ files?\./) ||
-			line.match(/^Errors\s+Files/) ||
-			line.match(/^\s*\d+\s+.*\.tsx?:\d+/)
+			foundErrorsRegExp.exec(line) ||
+			errorsFilesRegExp.exec(line) ||
+			fileLineRegExp.exec(line)
 		) {
 			continue;
 		}
@@ -140,9 +147,11 @@ if (!isJsxFile) {
 				}
 
 				// Stop if we hit summary section
+				const foundErrorsRegExpInner = /^Found \d+ errors? in \d+ files?\./;
+				const errorsFilesRegExpInner = /^Errors\s+Files/;
 				if (
-					nextLine.match(/^Found \d+ errors? in \d+ files?\./) ||
-					nextLine.match(/^Errors\s+Files/)
+					foundErrorsRegExpInner.exec(nextLine) ||
+					errorsFilesRegExpInner.exec(nextLine)
 				) {
 					break;
 				}
@@ -182,6 +191,7 @@ if (!isJsxFile) {
 } else {
 	// For JSX files, try TypeScript check with JSX flag
 	individualTsCheck = spawnSync(
+		// eslint-disable-next-line sonarjs/no-os-command-from-path
 		"npx",
 		["tsc", "--noEmit", "--pretty", "--jsx", "react-jsx", file],
 		{
@@ -207,10 +217,14 @@ if (!isJsxFile) {
 		const line = lines[i] ?? "";
 
 		// Skip summary sections
+		const foundErrorsRegExp = /^Found \d+ errors? in \d+ files?\./;
+		const errorsFilesRegExp = /^Errors\s+Files/;
+		// Optimized regex: avoid super-linear backtracking by limiting .* usage
+		const fileLineRegExp = /^\s*\d+\s+[^\s]+\.tsx?:\d+/;
 		if (
-			line.match(/^Found \d+ errors? in \d+ files?\./) ||
-			line.match(/^Errors\s+Files/) ||
-			line.match(/^\s*\d+\s+.*\.tsx?:\d+/)
+			foundErrorsRegExp.exec(line) ||
+			errorsFilesRegExp.exec(line) ||
+			fileLineRegExp.exec(line)
 		) {
 			continue;
 		}
@@ -236,9 +250,11 @@ if (!isJsxFile) {
 				}
 
 				// Stop if we hit summary section
+				const foundErrorsRegExpInner = /^Found \d+ errors? in \d+ files?\./;
+				const errorsFilesRegExpInner = /^Errors\s+Files/;
 				if (
-					nextLine.match(/^Found \d+ errors? in \d+ files?\./) ||
-					nextLine.match(/^Errors\s+Files/)
+					foundErrorsRegExpInner.exec(nextLine) ||
+					errorsFilesRegExpInner.exec(nextLine)
 				) {
 					break;
 				}
@@ -278,6 +294,7 @@ if (!isJsxFile) {
 }
 
 const eslintResult = spawnSync(
+	// eslint-disable-next-line sonarjs/no-os-command-from-path
 	"npx",
 	["eslint", "--color", "--no-ignore", "--fix", file],
 	{

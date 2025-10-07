@@ -2,7 +2,7 @@ import { getArrowClasses } from "./getArrowClasses";
 import type { PlacementOption, TriggerMode } from "./types";
 import { useNativePopover } from "./useNativePopover";
 
-export type NativePopoverProps = {
+export type NativePopoverProps = Readonly<{
 	/** The trigger element content */
 	children: React.ReactNode;
 	/** The popover content to display */
@@ -15,7 +15,7 @@ export type NativePopoverProps = {
 	closeOnTriggerClick?: boolean;
 	/** Custom tabIndex for the trigger element. Defaults to 0 for keyboard accessibility */
 	tabIndex?: number;
-};
+}>;
 
 /**
  * Native HTML Popover API component with dual-mode support (hover/click)

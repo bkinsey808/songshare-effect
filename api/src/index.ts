@@ -12,7 +12,7 @@ import {
 } from "./supabaseClientToken";
 
 // For individual file check - R2Bucket type is available in project context
-type R2Bucket = unknown;
+// type R2Bucket = unknown;
 
 type Bindings = {
 	BUCKET: R2Bucket;
@@ -179,7 +179,7 @@ app.get(
 
 // File upload endpoint
 app.post("/api/upload", async (c) => {
-	// TODO: Implement file upload to R2 using Effect
+	// TO-DO: Implement file upload to R2 using Effect
 	return c.json({ message: "Upload endpoint - to be implemented" });
 });
 

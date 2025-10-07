@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-commented-code */
 // import type { StateCreator } from "zustand";
 
 // import { type SessionData } from "./sessionData";

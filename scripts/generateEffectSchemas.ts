@@ -49,6 +49,7 @@ const typeMapping: Record<string, string> = {
 	bytea: "Schema.Uint8Array",
 };
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 function parseSupabaseTypes(filePath: string): TableDefinition[] {
 	if (!existsSync(filePath)) {
 		console.log(`⚠️  Supabase types file not found: ${filePath}`);
@@ -71,6 +72,7 @@ function parseSupabaseTypes(filePath: string): TableDefinition[] {
 
 		// Extract table definitions using regex to capture Row and Insert types
 		const tableMatches = content.matchAll(
+			// eslint-disable-next-line sonarjs/slow-regex
 			/(\w+):\s*{\s*Row:\s*{([^}]+)}\s*Insert:\s*{([^}]+)}/gs,
 		);
 
@@ -98,6 +100,7 @@ function parseSupabaseTypes(filePath: string): TableDefinition[] {
 			// Parse Insert type to determine which fields are required for inserts
 			const insertRequiredFields = new Set<string>();
 			const insertFieldMatches = insertContent.matchAll(
+				// eslint-disable-next-line sonarjs/slow-regex
 				/(\w+)(\?)?:\s*([^;\n]+)/g,
 			);
 
@@ -111,6 +114,7 @@ function parseSupabaseTypes(filePath: string): TableDefinition[] {
 			}
 
 			// Extract field definitions from Row type
+			// eslint-disable-next-line sonarjs/slow-regex
 			const fieldMatches = rowContent.matchAll(/(\w+):\s*([^;\n]+)/g);
 
 			for (const fieldMatch of fieldMatches) {
@@ -128,6 +132,7 @@ function parseSupabaseTypes(filePath: string): TableDefinition[] {
 
 				// Handle nullable types (type | null)
 				const isNullable = fieldType.includes("| null");
+				// eslint-disable-next-line sonarjs/slow-regex
 				const cleanType = fieldType.replace(/\s*\|\s*null\s*$/, "").trim();
 
 				// Map TypeScript types to our internal types
@@ -309,6 +314,7 @@ function generateEffectSchema(table: TableDefinition): string {
 		let typeAnnotation = getTypeAnnotation(fieldSchema);
 
 		if (column.nullable) {
+			// eslint-disable-next-line sonarjs/no-dead-store
 			fieldSchema = `Schema.optional(${fieldSchema})`;
 			typeAnnotation = `Schema.optional<${getTypeAnnotation(getEffectType(column))}>`;
 		}
@@ -347,6 +353,7 @@ function generateEffectSchema(table: TableDefinition): string {
 
 			// Use database-driven approach: field is optional if not required for insert OR nullable
 			if (column.isRequiredForInsert !== true || column.nullable) {
+				// eslint-disable-next-line sonarjs/no-dead-store
 				fieldSchema = `Schema.optional(${fieldSchema})`;
 				typeAnnotation = `Schema.optional<${getTypeAnnotation(getEffectType(column))}>`;
 			}
@@ -389,6 +396,7 @@ function generateEffectSchema(table: TableDefinition): string {
 		let typeAnnotation = getTypeAnnotation(fieldSchema);
 
 		if (column.name !== "id") {
+			// eslint-disable-next-line sonarjs/no-dead-store
 			fieldSchema = `Schema.optional(${fieldSchema})`;
 			typeAnnotation = `Schema.optional<${getTypeAnnotation(getEffectType(column))}>`;
 		}

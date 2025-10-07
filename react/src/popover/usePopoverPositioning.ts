@@ -104,6 +104,7 @@ export function usePopoverPositioning(
 	}, [preferredPlacement, hidePopover, popoverRef, triggerRef]);
 
 	// Create updatePosition function for external use
+	// eslint-disable-next-line sonarjs/no-identical-functions
 	const updatePositionExternal = (): void => {
 		if (triggerRef.current !== null && popoverRef.current !== null) {
 			const triggerRect = triggerRef.current.getBoundingClientRect();

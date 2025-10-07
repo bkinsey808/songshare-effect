@@ -56,6 +56,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 		setUsers((prevUsers) => {
 			switch (eventType) {
 				case "INSERT": {
+					// eslint-disable-next-line sonarjs/different-types-comparison
 					if (payload.new !== undefined) {
 						const newUser = payload.new as UserPublic;
 						return [...prevUsers, newUser].sort((a, b) =>
@@ -65,6 +66,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 					break;
 				}
 				case "UPDATE": {
+					// eslint-disable-next-line sonarjs/different-types-comparison
 					if (payload.new !== undefined) {
 						const updatedUser = payload.new as UserPublic;
 						return prevUsers
@@ -76,6 +78,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 					break;
 				}
 				case "DELETE": {
+					// eslint-disable-next-line sonarjs/different-types-comparison
 					if (payload.old !== undefined) {
 						const deletedUser = payload.old as UserPublic;
 						return prevUsers.filter(

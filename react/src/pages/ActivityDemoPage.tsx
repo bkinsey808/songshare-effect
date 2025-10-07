@@ -7,10 +7,10 @@ import DemoNavigation from "../demo/DemoNavigation";
 function HeavyComponent({
 	name,
 	color,
-}: {
+}: Readonly<{
 	name: string;
 	color: string;
-}): ReactElement {
+}>): ReactElement {
 	const [renderTime, setRenderTime] = useState<number>(0);
 
 	useEffect(() => {
@@ -18,6 +18,7 @@ function HeavyComponent({
 		// Simulate some heavy computation
 		let _result = 0;
 		for (let i = 0; i < 1000000; i++) {
+			// eslint-disable-next-line sonarjs/pseudo-random
 			_result += Math.random();
 		}
 		const end = performance.now();
@@ -43,7 +44,9 @@ function HeavyComponent({
 }
 
 // Component with input to demonstrate state preservation
-function InteractiveComponent({ title }: { title: string }): ReactElement {
+function InteractiveComponent({
+	title,
+}: Readonly<{ title: string }>): ReactElement {
 	const [inputValue, setInputValue] = useState("");
 	const [count, setCount] = useState(0);
 

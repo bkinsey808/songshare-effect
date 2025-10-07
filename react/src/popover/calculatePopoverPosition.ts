@@ -10,6 +10,7 @@ type PlacementConfig = {
  * Calculates optimal popover position relative to trigger element
  * Uses smart fallback algorithm when preferred placement doesn't fit
  */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export default function calculatePopoverPosition(
 	triggerRect: DOMRect,
 	popoverWidth: number,
@@ -121,7 +122,7 @@ export default function calculatePopoverPosition(
 		}
 
 		return currentSpace > bestSpace ? current : best;
-	});
+	}, {} as PlacementConfig);
 
 	let position = { ...bestFitPlacement.position };
 

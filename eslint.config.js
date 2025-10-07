@@ -10,6 +10,7 @@ import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import reactRefreshPlugin from "eslint-plugin-react-refresh";
 import securityPlugin from "eslint-plugin-security";
+import sonarjsPlugin from "eslint-plugin-sonarjs";
 import storybookPlugin from "eslint-plugin-storybook";
 import unicornPlugin from "eslint-plugin-unicorn";
 import globals from "globals";
@@ -29,6 +30,7 @@ const sharedPlugins = {
 	prettier: prettierPlugin,
 	cspell: cspellPlugin,
 	jsdoc: jsdocPlugin,
+	sonarjs: sonarjsPlugin,
 };
 
 const sharedRules = {
@@ -71,6 +73,12 @@ const sharedRules = {
 	// Import rules
 	"import/no-named-as-default": "error",
 	"import/newline-after-import": ["error", { count: 1 }],
+
+	// SonarJS rules
+	...sonarjsPlugin.configs.recommended.rules,
+	"sonarjs/function-return-type": "off",
+	"sonarjs/no-use-of-void": "off",
+	"sonarjs/void-use": "off",
 
 	// Security rules
 	"security/detect-object-injection": "error",

@@ -1,7 +1,7 @@
 import React from "react";
 
 export function MicrosoftIcon(
-	props: React.SVGProps<SVGSVGElement>,
+	props: Readonly<React.SVGProps<SVGSVGElement>>,
 ): ReactElement {
 	return (
 		<svg

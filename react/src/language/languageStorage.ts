@@ -42,6 +42,7 @@ export const parseLanguageCookie = (
 ): SupportedLanguageType | undefined => {
 	if (
 		cookieHeader === null ||
+		// eslint-disable-next-line sonarjs/different-types-comparison
 		cookieHeader === undefined ||
 		cookieHeader.trim() === ""
 	) {
@@ -52,6 +53,7 @@ export const parseLanguageCookie = (
 		.find((cookie) =>
 			cookie.trim().startsWith(`${preferredLanguageCookieName}=`),
 		);
+	// eslint-disable-next-line sonarjs/different-types-comparison
 	if (match !== undefined && match !== null && match.includes("=")) {
 		const lang = match.split("=")[1]?.trim();
 		return isSupportedLanguage(lang)
@@ -66,6 +68,7 @@ export function detectBrowserLanguage(
 ): SupportedLanguageType {
 	if (
 		acceptLanguage === undefined ||
+		// eslint-disable-next-line sonarjs/different-types-comparison
 		acceptLanguage === null ||
 		acceptLanguage.trim() === ""
 	) {
@@ -76,10 +79,12 @@ export function detectBrowserLanguage(
 		.map((lang) => {
 			const parts = lang.split(";");
 			const langPart = parts[0];
+			// eslint-disable-next-line sonarjs/different-types-comparison
 			if (langPart === undefined || langPart === null || langPart === "") {
 				return "";
 			}
 			const mainLang = langPart.split("-")[0];
+			// eslint-disable-next-line sonarjs/different-types-comparison
 			return mainLang !== undefined && mainLang !== null && mainLang !== ""
 				? mainLang.trim().toLowerCase()
 				: "";

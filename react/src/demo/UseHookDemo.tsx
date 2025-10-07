@@ -63,7 +63,7 @@ function getCachedPromise<T>(
 }
 
 // Component that uses the 'use' hook with promises
-function UserProfile({ userId }: { userId: number }): ReactElement {
+function UserProfile({ userId }: Readonly<{ userId: number }>): ReactElement {
 	// Using the 'use' hook to read the promise directly
 	const userPromise = getCachedPromise(`user-${userId}`, () =>
 		fetchUserData(userId),
@@ -103,7 +103,9 @@ function UserProfile({ userId }: { userId: number }): ReactElement {
 }
 
 // Component that demonstrates using 'use' hook with dynamic promises
-function SongDetails({ songName }: { songName: string }): ReactElement {
+function SongDetails({
+	songName,
+}: Readonly<{ songName: string }>): ReactElement {
 	// Create a promise dynamically and use the 'use' hook
 	const songPromise = getCachedPromise(`song-${songName}`, () =>
 		fetchSongDetails(songName),

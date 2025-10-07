@@ -20,7 +20,7 @@ if (targetFileRel === undefined || targetFileBase === undefined) {
 }
 
 /** Regex to match TypeScript error header lines (filename:line:col - error) */
-const fileRegex = /^([^\s:]+\.ts[x]?):\d+:\d+\s*-\s*error/;
+const fileRegex = /^([^\s:]+\.tsx?):\d+:\d+\s*-\s*error/;
 
 /** Flag to indicate if we are currently printing error details for the target file */
 let printing = false;
@@ -30,7 +30,7 @@ const rl = readline.createInterface({ input: process.stdin, terminal: false });
 
 /** Remove ANSI color codes for clean matching */
 function stripAnsi(str: string): string {
-	// eslint-disable-next-line no-control-regex -- ANSI escape sequences require control characters
+	// eslint-disable-next-line no-control-regex, sonarjs/no-control-regex -- ANSI escape sequences require control characters
 	return str.replace(/\x1b\[[0-9;]*m/g, "");
 }
 
@@ -39,7 +39,7 @@ rl.on("line", (line: string) => {
 	// Strip color codes for matching
 	const cleanLine: string = stripAnsi(line);
 	// Check if the line is an error header for a TypeScript file
-	const match: RegExpMatchArray | null = cleanLine.match(fileRegex);
+	const match: RegExpMatchArray | null = fileRegex.exec(cleanLine);
 	if (match && match[1] !== undefined) {
 		// Extract the filename from the error header
 		const currentFileBase: string = path.basename(match[1]);

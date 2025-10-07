@@ -10,7 +10,8 @@ import {
 export const detectInitialLanguage = (): SupportedLanguageType => {
 	// 1. Check URL parameter (highest priority for explicit navigation)
 	const path = window.location.pathname;
-	const langMatch = path.match(/^\/([a-z]{2})\//);
+	const langRegExp = /^\/([a-z]{2})\//;
+	const langMatch = langRegExp.exec(path);
 	if (langMatch !== null && langMatch[1] !== undefined && langMatch[1] !== "") {
 		const urlLang = langMatch[1];
 		if (isSupportedLanguage(urlLang)) {

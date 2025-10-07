@@ -21,6 +21,7 @@ export const NonEmptyStringSchema: typeof Schema.NonEmptyString =
 export const EmailSchema: Schema.Schema<string, string, never> =
 	Schema.String.pipe(
 		Schema.nonEmptyString(),
+		// eslint-disable-next-line sonarjs/slow-regex
 		Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
 	);
 export const UUIDSchema: typeof Schema.UUID = Schema.UUID;

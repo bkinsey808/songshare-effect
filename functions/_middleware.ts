@@ -1,9 +1,6 @@
 import { detectBrowserLanguage } from "@/shared/language/detectBrowserLanguage";
 import { parseLanguageCookie } from "@/shared/language/parseLanguageCookie";
-import {
-	type SupportedLanguageType,
-	defaultLanguage,
-} from "@/shared/language/supportedLanguages";
+import { defaultLanguage } from "@/shared/language/supportedLanguages";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type Env = {};
@@ -12,7 +9,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 	const url = new URL(context.request.url);
 
 	if (url.pathname === "/") {
-		let detectedLang: SupportedLanguageType = defaultLanguage;
+		// eslint-disable-next-line sonarjs/no-dead-store
+		let detectedLang = defaultLanguage;
 
 		// Check cookie first
 		const cookieHeader = context.request.headers.get("Cookie");

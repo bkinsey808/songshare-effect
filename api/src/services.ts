@@ -43,6 +43,7 @@ const createInMemorySongService = (): SongService => ({
 	create: (songData: Omit<Song, "id">): Effect.Effect<Song> =>
 		Effect.sync(() => {
 			const id =
+				// eslint-disable-next-line sonarjs/pseudo-random
 				Math.random().toString(36).substring(2) + Date.now().toString(36);
 			const newSong: Song = {
 				id,
