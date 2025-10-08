@@ -32,7 +32,8 @@ function suspendingFetch<T>(key: string, fetcher: () => Promise<T>): T {
 	);
 
 	promiseCache.set(key, promise);
-	throw promise; // Suspend until the promise resolves
+	// Suspend until the promise resolves
+	throw promise;
 }
 
 // Component that fetches user data and suspends

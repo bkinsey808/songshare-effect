@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import tailwindcss from "@tailwindcss/postcss";
 import react from "@vitejs/plugin-react";
 import autoprefixer from "autoprefixer";

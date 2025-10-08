@@ -10,13 +10,13 @@ type ErrorBoundaryProps = {
 };
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+	static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+		return { hasError: true, error };
+	}
+
 	constructor(props: ErrorBoundaryProps) {
 		super(props);
 		this.state = { hasError: false };
-	}
-
-	static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-		return { hasError: true, error };
 	}
 
 	override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {

@@ -32,11 +32,16 @@ type ProviderData = {
 	clientSecretEnvVar: string;
 	userInfoUrl: string;
 	authBaseUrl: string;
-	brandColor: string; // main bg color
-	textColor: string; // text color
-	hoverColor: string; // hover bg color
-	borderColor: string; // optional border color
-	iconBgColor: string; // optional icon bg color
+	// main bg color
+	brandColor: string;
+	// text color
+	textColor: string;
+	// hover bg color
+	hoverColor: string;
+	// optional border color
+	borderColor: string;
+	// optional icon bg color
+	iconBgColor: string;
 	Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 };
 
@@ -47,9 +52,12 @@ const providerData: Record<ProviderType, ProviderData> = {
 		clientIdEnvVar: "GOOGLE_CLIENT_ID",
 		clientSecretEnvVar: "GOOGLE_CLIENT_SECRET",
 		authBaseUrl: "https://accounts.google.com/o/oauth2/v2/auth",
-		brandColor: "#fff", // white background
-		textColor: "#3c4043", // Google gray
-		hoverColor: "#f7f7f7", // Google hover
+		// white background
+		brandColor: "#fff",
+		// Google gray
+		textColor: "#3c4043",
+		// Google hover
+		hoverColor: "#f7f7f7",
 		borderColor: "#dadce0",
 		iconBgColor: "#fff",
 		Icon: GoogleIcon,
@@ -62,7 +70,8 @@ const providerData: Record<ProviderType, ProviderData> = {
 		clientSecretEnvVar: "MS_CLIENT_SECRET",
 		authBaseUrl:
 			"https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-		brandColor: "#2F2F2F", // Microsoft dark
+		// Microsoft dark
+		brandColor: "#2F2F2F",
 		textColor: "#fff",
 		hoverColor: "#444",
 		borderColor: "#444",
@@ -75,8 +84,10 @@ const providerData: Record<ProviderType, ProviderData> = {
 		clientIdEnvVar: "AMAZON_CLIENT_ID",
 		clientSecretEnvVar: "AMAZON_CLIENT_SECRET",
 		authBaseUrl: "https://www.amazon.com/ap/oa",
-		brandColor: "#FF9900", // Amazon orange
-		textColor: "#232F3E", // Amazon dark blue
+		// Amazon orange
+		brandColor: "#FF9900",
+		// Amazon dark blue
+		textColor: "#232F3E",
 		hoverColor: "#e48f00",
 		borderColor: "#e48f00",
 		iconBgColor: "#fff",

@@ -68,7 +68,9 @@ export default function calculatePopoverPosition(
 	];
 
 	// Try preferred placement first
-	const preferredOption = placements.find((p) => p.name === preferredPlacement);
+	const preferredOption = placements.find(
+		(pl) => pl.name === preferredPlacement,
+	);
 	if (preferredOption?.hasSpace === true) {
 		const position = { ...preferredOption.position };
 
@@ -87,7 +89,7 @@ export default function calculatePopoverPosition(
 	}
 
 	// Fallback to any placement with enough space
-	const availableOption = placements.find((p) => p.hasSpace);
+	const availableOption = placements.find((pl) => pl.hasSpace);
 	if (availableOption) {
 		const position = { ...availableOption.position };
 

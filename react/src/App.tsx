@@ -93,15 +93,19 @@ function Layout(): ReactElement {
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <LanguageDetector />, // handle root redirects
+		// handle root redirects
+		element: <LanguageDetector />,
 	},
 	{
-		path: "/:lang", // language-prefixed routes
-		element: <LanguageProvider />, // language context + Suspense
+		// language-prefixed routes
+		path: "/:lang",
+		// language context + Suspense
+		element: <LanguageProvider />,
 		children: [
 			{
 				path: "",
-				element: <Layout />, // under language route
+				// under language route
+				element: <Layout />,
 				children: [
 					{
 						index: true,

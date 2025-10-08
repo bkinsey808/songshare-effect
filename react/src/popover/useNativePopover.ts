@@ -123,9 +123,9 @@ export function useNativePopover({
 		}
 	};
 
-	const handleKeyDown = (e: React.KeyboardEvent): void => {
-		if (e.key === "Enter" || e.key === " ") {
-			e.preventDefault();
+	const handleKeyDown = (ev: React.KeyboardEvent): void => {
+		if (ev.key === "Enter" || ev.key === " ") {
+			ev.preventDefault();
 			handleTriggerClick();
 		}
 	};

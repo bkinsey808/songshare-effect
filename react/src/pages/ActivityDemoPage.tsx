@@ -1,3 +1,4 @@
+/* eslint-disable line-comment-position */
 import { Activity, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -73,7 +74,7 @@ function InteractiveComponent({
 						id={`input-${title}`}
 						type="text"
 						value={inputValue}
-						onChange={(e) => setInputValue(e.target.value)}
+						onChange={(ev) => setInputValue(ev.target.value)}
 						placeholder="Type something..."
 						className="w-full rounded-lg border border-gray-600 bg-gray-800 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
 					/>
@@ -83,7 +84,7 @@ function InteractiveComponent({
 						Counter: {count}
 					</div>
 					<button
-						onClick={() => setCount((c) => c + 1)}
+						onClick={() => setCount((cnt) => cnt + 1)}
 						className="rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
 					>
 						Increment

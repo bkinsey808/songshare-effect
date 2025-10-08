@@ -16,7 +16,8 @@ const fetchAlbumData = async (
 	tracks: string[];
 	coverUrl: string;
 }> => {
-	await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay
+	// 2 second delay
+	await new Promise((resolve) => setTimeout(resolve, 2000));
 
 	// Simulate occasional errors for album ID 99
 	if (albumId === 99) {
@@ -42,7 +43,8 @@ const fetchArtistData = async (
 	albums: string[];
 	bio: string;
 }> => {
-	await new Promise((resolve) => setTimeout(resolve, 1500)); // 1.5 second delay
+	// 1.5 second delay
+	await new Promise((resolve) => setTimeout(resolve, 1500));
 
 	// Simulate occasional errors for artist ID 99
 	if (artistId === 99) {
@@ -68,7 +70,8 @@ const fetchPlaylistData = async (
 	duration: string;
 	songs: string[];
 }> => {
-	await new Promise((resolve) => setTimeout(resolve, 3000)); // 3 second delay
+	// 3 second delay
+	await new Promise((resolve) => setTimeout(resolve, 3000));
 
 	// Simulate occasional errors for playlist ID 99
 	if (playlistId === 99) {
@@ -338,21 +341,26 @@ function SuspenseUsePage(): ReactElement {
 					<h2 className="text-xl font-semibold text-gray-800">
 						Albums (2s load time)
 					</h2>
-					{activeAlbum !== undefined ? (
-						<ErrorBoundary>
-							<Suspense
-								fallback={<LoadingSpinner message="Loading album details..." />}
-							>
-								<AlbumCard albumId={activeAlbum} />
-							</Suspense>
-						</ErrorBoundary>
-					) : (
-						<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-							<p className="text-gray-500">
-								Click "Load Album" to see Suspense in action
-							</p>
-						</div>
-					)}
+					{
+						// eslint-disable-next-line no-negated-condition
+						activeAlbum !== undefined ? (
+							<ErrorBoundary>
+								<Suspense
+									fallback={
+										<LoadingSpinner message="Loading album details..." />
+									}
+								>
+									<AlbumCard albumId={activeAlbum} />
+								</Suspense>
+							</ErrorBoundary>
+						) : (
+							<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+								<p className="text-gray-500">
+									Click "Load Album" to see Suspense in action
+								</p>
+							</div>
+						)
+					}
 				</div>
 
 				{/* Artist Section */}
@@ -360,23 +368,26 @@ function SuspenseUsePage(): ReactElement {
 					<h2 className="text-xl font-semibold text-gray-800">
 						Artists (1.5s load time)
 					</h2>
-					{activeArtist !== undefined ? (
-						<ErrorBoundary>
-							<Suspense
-								fallback={
-									<LoadingSpinner message="Loading artist profile..." />
-								}
-							>
-								<ArtistProfile artistId={activeArtist} />
-							</Suspense>
-						</ErrorBoundary>
-					) : (
-						<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-							<p className="text-gray-500">
-								Click "Load Artist" to see Suspense in action
-							</p>
-						</div>
-					)}
+					{
+						// eslint-disable-next-line no-negated-condition
+						activeArtist !== undefined ? (
+							<ErrorBoundary>
+								<Suspense
+									fallback={
+										<LoadingSpinner message="Loading artist profile..." />
+									}
+								>
+									<ArtistProfile artistId={activeArtist} />
+								</Suspense>
+							</ErrorBoundary>
+						) : (
+							<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+								<p className="text-gray-500">
+									Click "Load Artist" to see Suspense in action
+								</p>
+							</div>
+						)
+					}
 				</div>
 
 				{/* Playlist Section */}
@@ -384,23 +395,26 @@ function SuspenseUsePage(): ReactElement {
 					<h2 className="text-xl font-semibold text-gray-800">
 						Playlists (3s load time)
 					</h2>
-					{activePlaylist !== undefined ? (
-						<ErrorBoundary>
-							<Suspense
-								fallback={
-									<LoadingSpinner message="Loading playlist details..." />
-								}
-							>
-								<PlaylistDetails playlistId={activePlaylist} />
-							</Suspense>
-						</ErrorBoundary>
-					) : (
-						<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-							<p className="text-gray-500">
-								Click "Load Playlist" to see Suspense in action
-							</p>
-						</div>
-					)}
+					{
+						// eslint-disable-next-line no-negated-condition
+						activePlaylist !== undefined ? (
+							<ErrorBoundary>
+								<Suspense
+									fallback={
+										<LoadingSpinner message="Loading playlist details..." />
+									}
+								>
+									<PlaylistDetails playlistId={activePlaylist} />
+								</Suspense>
+							</ErrorBoundary>
+						) : (
+							<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+								<p className="text-gray-500">
+									Click "Load Playlist" to see Suspense in action
+								</p>
+							</div>
+						)
+					}
 				</div>
 			</div>
 

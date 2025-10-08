@@ -18,7 +18,6 @@ type RealtimeEvent = {
 
 // eslint-disable-next-line max-lines-per-function
 function UserPublicSubscriptionPage(): ReactElement {
-	"use no memo";
 	const [users, setUsers] = useState<UserPublic[]>([]);
 	const [events, setEvents] = useState<RealtimeEvent[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -59,8 +58,8 @@ function UserPublicSubscriptionPage(): ReactElement {
 					// eslint-disable-next-line sonarjs/different-types-comparison
 					if (payload.new !== undefined) {
 						const newUser = payload.new as UserPublic;
-						return [...prevUsers, newUser].sort((a, b) =>
-							a.username.localeCompare(b.username),
+						return [...prevUsers, newUser].sort((userA, userB) =>
+							userA.username.localeCompare(userB.username),
 						);
 					}
 					break;
@@ -73,7 +72,9 @@ function UserPublicSubscriptionPage(): ReactElement {
 							.map((user) =>
 								user.user_id === updatedUser.user_id ? updatedUser : user,
 							)
-							.sort((a, b) => a.username.localeCompare(b.username));
+							.sort((userA, userB) =>
+								userA.username.localeCompare(userB.username),
+							);
 					}
 					break;
 				}
@@ -95,36 +96,61 @@ function UserPublicSubscriptionPage(): ReactElement {
 	};
 
 	useEffect(() => {
-		let channel: RealtimeChannel | undefined = undefined;
+		let channel: RealtimeChannel | undefined;
 
 		const setupSubscription = async (): Promise<void> => {
+			let supabase;
+
+			// 1) Initialize Supabase client
 			try {
-				const supabase = await getSupabaseClientWithAuth();
+				supabase = await getSupabaseClientWithAuth();
 				if (!supabase) {
 					setError("Failed to initialize Supabase client");
 					setLoading(false);
 					return;
 				}
+			} catch (err) {
+				setError(
+					`Setup error: ${err instanceof Error ? err.message : "Unknown"}`,
+				);
+				setLoading(false);
+				return;
+			}
 
-				// Initial fetch - be explicit about columns
+			// 2) Initial fetch - be explicit about columns and keep parsing separate
+			let fetchedData: UserPublic[] | null | undefined;
+			try {
 				const { data, error: fetchError } = await supabase
 					.from("user_public")
 					.select("user_id, username")
 					.order("username");
 
 				if (fetchError) {
-					setError("Failed to fetch users: " + fetchError.message);
+					setError(`Failed to fetch users: ${fetchError.message}`);
 					setLoading(false);
 					return;
 				}
-
-				setUsers(data ?? []);
+				fetchedData = data;
+			} catch (err) {
+				setError("Failed to fetch users");
+				console.error(err);
 				setLoading(false);
+				return;
+			}
 
-				// Give a small delay to ensure the client is fully initialized
-				await new Promise((resolve) => setTimeout(resolve, 100));
+			// Set users using explicit checks (outside the fetch try/catch)
+			if (Array.isArray(fetchedData)) {
+				setUsers(fetchedData);
+			} else {
+				setUsers([]);
+			}
+			setLoading(false);
 
-				// Set up real-time subscription with comprehensive error handling
+			// Give a small delay to ensure the client is fully initialized
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			// 3) Set up real-time subscription with comprehensive error handling
+			try {
 				console.warn("Setting up real-time subscription...");
 
 				channel = supabase
@@ -224,7 +250,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 					});
 			} catch (err) {
 				setError(
-					"Setup error: " + (err instanceof Error ? err.message : "Unknown"),
+					`Setup error: ${err instanceof Error ? err.message : "Unknown"}`,
 				);
 				setLoading(false);
 			}

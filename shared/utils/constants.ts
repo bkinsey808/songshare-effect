@@ -1,6 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
-	BASE_URL: "http://localhost:8787", // Default to dev, override in production
+	// Default to dev, override in production
+	BASE_URL: "http://localhost:8787",
 	ENDPOINTS: {
 		SONGS: "/api/songs",
 		USERS: "/api/users",
@@ -15,7 +16,8 @@ export const API_CONFIG = {
 
 // File Upload Constants
 export const UPLOAD_CONFIG = {
-	MAX_FILE_SIZE: (10 * 1024 * 1024) as number, // 10MB
+	// 10MB
+	MAX_FILE_SIZE: (10 * 1024 * 1024) as number,
 	ALLOWED_AUDIO_TYPES: [
 		"audio/mpeg",
 		"audio/mp3",

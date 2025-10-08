@@ -1,7 +1,11 @@
 import cspellPlugin from "@cspell/eslint-plugin";
 import js from "@eslint/js";
+import shopifyPlugin from "@shopify/eslint-plugin";
+import shopifyTsConfig from "@shopify/eslint-plugin/lib/config/typescript.js";
 import boundariesPlugin from "eslint-plugin-boundaries";
+import eslintCommentsPlugin from "eslint-plugin-eslint-comments";
 import importPlugin from "eslint-plugin-import";
+import importXPlugin from "eslint-plugin-import-x";
 import jsdocPlugin from "eslint-plugin-jsdoc";
 import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
 import prettierPlugin from "eslint-plugin-prettier";
@@ -21,6 +25,7 @@ import tseslint from "typescript-eslint";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const sharedPlugins = {
+	"import-x": importXPlugin,
 	"@typescript-eslint": tseslint.plugin,
 	import: importPlugin,
 	boundaries: boundariesPlugin,
@@ -31,9 +36,27 @@ const sharedPlugins = {
 	cspell: cspellPlugin,
 	jsdoc: jsdocPlugin,
 	sonarjs: sonarjsPlugin,
+	shopify: shopifyPlugin,
+	"@shopify": shopifyPlugin,
+	"eslint-comments": eslintCommentsPlugin,
 };
 
 const sharedRules = {
+	// Shopify strict rules (from typescript config)
+	...(Array.isArray(shopifyTsConfig) ? shopifyTsConfig : []).reduce(
+		(acc, cfg) => ({
+			...acc,
+			...(cfg.rules || {}),
+		}),
+		{},
+	),
+	// Disable @shopify/binary-assignment-parens rule
+	"@shopify/binary-assignment-parens": "off",
+
+	// import-x rules
+	"import-x/order": "off",
+	"import-x/no-extraneous-dependencies": "off",
+
 	// boundaries rules
 	"boundaries/element-types": [
 		"error",
@@ -46,6 +69,7 @@ const sharedRules = {
 			],
 		},
 	],
+
 	// TypeScript ESLint rules
 	"@typescript-eslint/consistent-type-imports": [
 		"error",
@@ -69,6 +93,16 @@ const sharedRules = {
 	"@typescript-eslint/no-unsafe-assignment": "error",
 	"@typescript-eslint/no-explicit-any": "error",
 	"@typescript-eslint/no-dynamic-delete": "error",
+	// Allow snake_case for property names
+	"@typescript-eslint/naming-convention": [
+		"error",
+		{
+			selector: "property",
+			format: ["camelCase", "PascalCase", "UPPER_CASE", "snake_case"],
+			leadingUnderscore: "allow",
+			trailingUnderscore: "allow",
+		},
+	],
 
 	// Import rules
 	"import/no-named-as-default": "error",
@@ -128,6 +162,7 @@ const sharedRules = {
 	],
 
 	// Core ESLint rules
+	"dot-notation": "off",
 	"logical-assignment-operators": ["error", "always"],
 	"no-case-declarations": "off",
 	"no-cond-assign": ["error", "always"],
@@ -138,6 +173,7 @@ const sharedRules = {
 		"error",
 		{ boolean: false, number: true, string: true },
 	],
+	"consistent-return": "off",
 	"no-implicit-globals": "error",
 	"no-invalid-this": "error",
 	"no-nested-ternary": "error",
@@ -172,6 +208,8 @@ const sharedRules = {
 	"no-console": ["warn", { allow: ["warn", "error"] }],
 	"max-lines-per-function": ["warn", 200],
 	"no-duplicate-imports": "error",
+	// Allow void as a statement (for fire-and-forget calls)
+	"no-void": ["error", { allowAsStatement: true }],
 };
 
 export const settings = {
@@ -197,6 +235,7 @@ export default [
 			"coverage/**",
 			".next/**",
 			"out/**",
+			"shared/generated/**",
 		],
 	},
 	{
@@ -244,6 +283,8 @@ export default [
 			...reactHooksPlugin.configs.recommended.rules,
 			...jsxA11yPlugin.configs.recommended.rules,
 			...sharedRules,
+
+			"import-x/no-extraneous-dependencies": "error",
 
 			// React-specific rules
 			"react-hooks/rules-of-hooks": "error",

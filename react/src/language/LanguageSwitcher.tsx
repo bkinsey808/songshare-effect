@@ -37,8 +37,8 @@ export default function LanguageSwitcher(): ReactElement {
 	return (
 		<select
 			value={currentLang}
-			onChange={(e) =>
-				handleLanguageChange(e.target.value as SupportedLanguageType)
+			onChange={(ev) =>
+				handleLanguageChange(ev.target.value as SupportedLanguageType)
 			}
 			className="rounded-md border border-gray-300 bg-white px-3 py-1 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
 			aria-label={t("navigation.switchLanguage")}

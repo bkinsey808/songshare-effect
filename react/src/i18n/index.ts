@@ -19,17 +19,21 @@ const resources: Record<
 
 const initialLanguage = detectInitialLanguage();
 
+// eslint-disable-next-line import-x/no-named-as-default-member
 void i18n.use(initReactI18next).init({
 	resources,
-	lng: initialLanguage, // Set initial language from URL
+	// Set initial language from URL
+	lng: initialLanguage,
 	fallbackLng: "en",
-	debug: import.meta.env.DEV === true, // Enable debug in development only
+	// Enable debug in development only
+	debug: import.meta.env.DEV === true,
 
 	// Disable automatic detection - handled by middleware
 	detection: { order: [] },
 
 	interpolation: {
-		escapeValue: false, // React already escapes values
+		// React already escapes values
+		escapeValue: false,
 	},
 
 	// Enable Suspense for smooth loading transitions

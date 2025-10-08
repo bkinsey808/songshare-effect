@@ -16,6 +16,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 		const cookieHeader = context.request.headers.get("Cookie");
 		const cookieLang = parseLanguageCookie(cookieHeader);
 
+		// eslint-disable-next-line no-negated-condition
 		if (cookieLang !== undefined) {
 			detectedLang = cookieLang;
 		} else {

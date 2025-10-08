@@ -21,7 +21,7 @@ export function formatFileSize(bytes: number): string {
 	// Safe array access - sizeIndex is bounded by array length
 	// eslint-disable-next-line security/detect-object-injection
 	const sizeUnit = sizes[sizeIndex];
-	return `${Math.round((bytes / Math.pow(1024, sizeIndex)) * 100) / 100} ${sizeUnit}`;
+	return `${Math.round((bytes / 1024 ** sizeIndex) * 100) / 100} ${sizeUnit}`;
 }
 
 /**

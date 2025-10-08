@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 
-import { NotFoundError } from "./errors.js";
-import type { Song } from "./schemas.js";
+import { NotFoundError } from "./errors";
+import type { Song } from "./schemas";
 
 // Song service interface
 export type SongService = {
@@ -27,7 +27,7 @@ const createInMemorySongService = (): SongService => ({
 
 	getById: (id: string): Effect.Effect<Song, NotFoundError> =>
 		Effect.gen(function* () {
-			const song = songs.find((s) => s.id === id);
+			const song = songs.find((sng) => sng.id === id);
 			if (!song) {
 				return yield* Effect.fail(
 					new NotFoundError({
@@ -58,7 +58,7 @@ const createInMemorySongService = (): SongService => ({
 		updates: Partial<Song>,
 	): Effect.Effect<Song, NotFoundError> =>
 		Effect.gen(function* () {
-			const songIndex = songs.findIndex((s) => s.id === id);
+			const songIndex = songs.findIndex((sng) => sng.id === id);
 			if (songIndex === -1) {
 				return yield* Effect.fail(
 					new NotFoundError({
@@ -69,8 +69,9 @@ const createInMemorySongService = (): SongService => ({
 				);
 			}
 			// Safe array access - songIndex is guaranteed to exist
+			// Non-null assertion since we verified the index exists
 			// eslint-disable-next-line security/detect-object-injection
-			const existingSong = songs[songIndex]!; // Non-null assertion since we verified the index exists
+			const existingSong = songs[songIndex]!;
 			const updatedSong: Song = {
 				...existingSong,
 				...updates,
@@ -90,7 +91,7 @@ const createInMemorySongService = (): SongService => ({
 
 	delete: (id: string): Effect.Effect<void, NotFoundError> =>
 		Effect.gen(function* () {
-			const songIndex = songs.findIndex((s) => s.id === id);
+			const songIndex = songs.findIndex((sng) => sng.id === id);
 			if (songIndex === -1) {
 				return yield* Effect.fail(
 					new NotFoundError({

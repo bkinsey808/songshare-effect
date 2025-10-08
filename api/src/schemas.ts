@@ -4,8 +4,8 @@ import {
 	ApiErrorResponseSchema,
 	type ApiResponse,
 	ApiResponseSchema,
-} from "../../shared/generated/supabaseSchemas.js";
-import { MUSIC_GENRES } from "../../shared/utils/constants.js";
+} from "../../shared/generated/supabaseSchemas";
+import { MUSIC_GENRES } from "../../shared/utils/constants";
 
 // Define the schemas first
 const _CreateSongRequestSchema = Schema.Struct({

@@ -8,6 +8,7 @@ import { safeGet } from "@/shared/utils/safe";
  * @returns The environment variable value as a string, or undefined if not found/empty
  */
 const getEnvValueSafe = (envVar: string): string | undefined => {
+	// eslint-disable-next-line no-process-env
 	const value = safeGet(process.env, envVar) as string | undefined;
 	return typeof value === "string" && value.trim() !== "" ? value : undefined;
 };

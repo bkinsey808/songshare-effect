@@ -25,7 +25,7 @@ export async function getSupabaseAuthToken(): Promise<string> {
 	}
 
 	// Fall back to visitor token
-	return await getSupabaseClientToken();
+	return getSupabaseClientToken();
 }
 
 /**
@@ -60,7 +60,7 @@ export async function getSupabaseClientToken(): Promise<string> {
 	}
 
 	// If no valid cached token, fetch from API
-	return await fetchSupabaseClientTokenFromAPI();
+	return fetchSupabaseClientTokenFromAPI();
 }
 
 /**
@@ -122,6 +122,7 @@ export async function signInUser(
 		const response = await fetch(`${apiBaseUrl}/api/auth/user`, {
 			method: "POST",
 			headers: {
+				// eslint-disable-next-line @typescript-eslint/naming-convention
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({ email, password }),

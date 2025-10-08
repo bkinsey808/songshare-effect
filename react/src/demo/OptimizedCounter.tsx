@@ -35,7 +35,7 @@ function OptimizedCounter(): ReactElement {
 						id="name-input"
 						type="text"
 						value={name}
-						onChange={(e) => setName(e.target.value)}
+						onChange={(ev) => setName(ev.target.value)}
 						className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white"
 						placeholder="Enter your name"
 					/>

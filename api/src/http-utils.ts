@@ -1,8 +1,8 @@
 import { Effect } from "effect";
 import { type Context } from "hono";
 
-import { HTTP_STATUS } from "../../shared/types/api.js";
-import type { AppError } from "./errors.js";
+import { HTTP_STATUS } from "../../shared/types/api";
+import type { AppError } from "./errors";
 
 /**
  * Convert AppError to appropriate HTTP response
@@ -74,17 +74,17 @@ export const handleHttpEndpoint =
 		effectFactory: (c: Context) => Effect.Effect<A, E>,
 		onSuccess?: (data: A) => object,
 	) =>
-	async (c: Context): Promise<Response> => {
-		const effect = Effect.match(effectFactory(c), {
+	async (ctx: Context): Promise<Response> => {
+		const effect = Effect.match(effectFactory(ctx), {
 			onFailure: (error) => {
 				const { status, body } = errorToHttpResponse(error);
-				return c.json(body, status as Parameters<typeof c.json>[1]);
+				return ctx.json(body, status as Parameters<typeof ctx.json>[1]);
 			},
 			onSuccess: (data) => {
 				const successBody = onSuccess
 					? onSuccess(data)
 					: { success: true, data };
-				return c.json(successBody);
+				return ctx.json(successBody);
 			},
 		});
 

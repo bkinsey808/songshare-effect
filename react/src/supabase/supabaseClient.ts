@@ -79,7 +79,7 @@ export function getSupabaseClient(
  * @returns Promise that resolves to a Supabase client or undefined if setup fails
  */
 export async function getSupabaseClientWithAuth(
-	retries: number = 3,
+	retries = 3,
 ): Promise<SupabaseClient<Database> | undefined> {
 	for (let attempt = 1; attempt <= retries; attempt++) {
 		try {
@@ -108,7 +108,7 @@ export async function getSupabaseClientWithAuth(
 			}
 
 			// Wait before retrying (exponential backoff)
-			const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+			const delay = Math.min(1000 * 2 ** (attempt - 1), 5000);
 			await new Promise((resolve) => setTimeout(resolve, delay));
 		}
 	}

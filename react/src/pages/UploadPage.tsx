@@ -26,16 +26,16 @@ function UploadPage(): ReactElement {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleChange = (
-		e: React.ChangeEvent<
+		ev: React.ChangeEvent<
 			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 		>,
 	): void => {
-		const { name, value } = e.target;
+		const { name, value } = ev.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-		e.preventDefault();
+	const handleSubmit = async (ev: React.FormEvent): Promise<void> => {
+		ev.preventDefault();
 		setIsSubmitting(true);
 
 		// Simulate API call

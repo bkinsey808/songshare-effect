@@ -6,7 +6,6 @@ import { API_CONFIG } from "@/shared/utils/constants";
 import { formatDuration } from "@/shared/utils/helpers";
 
 function SongsDemoPage(): ReactElement {
-	"use no memo";
 	const [songs, setSongs] = useState<SongDemo[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | undefined>(undefined);
@@ -14,49 +13,57 @@ function SongsDemoPage(): ReactElement {
 	// Fetch songs from API
 	useEffect(() => {
 		const fetchSongs = async (): Promise<void> => {
+			// Type guard function to validate ApiResponse structure
+			const isApiResponse = (obj: unknown): obj is ApiResponse<SongDemo[]> => {
+				if (typeof obj !== "object" || obj === null) {
+					return false;
+				}
+				const candidate = obj as Record<string, unknown>;
+
+				return (
+					typeof candidate["success"] === "boolean" &&
+					(candidate["success"] === false ||
+						Array.isArray(candidate["data"])) &&
+					(candidate["error"] === undefined ||
+						typeof candidate["error"] === "string") &&
+					(candidate["message"] === undefined ||
+						typeof candidate["message"] === "string")
+				);
+			};
+
+			// Fetch + parse inside try/catch, but do NOT perform value-block checks here
+			let parsedData: unknown;
 			try {
 				const response = await fetch(
 					`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SONGS}`,
 				);
-				const data = (await response.json()) as unknown;
-
-				// Type guard function to validate ApiResponse structure
-				const isApiResponse = (
-					obj: unknown,
-				): obj is ApiResponse<SongDemo[]> => {
-					if (typeof obj !== "object" || obj === null) {
-						return false;
-					}
-					const candidate = obj as Record<string, unknown>;
-
-					return (
-						typeof candidate["success"] === "boolean" &&
-						(candidate["success"] === false ||
-							Array.isArray(candidate["data"])) &&
-						(candidate["error"] === undefined ||
-							typeof candidate["error"] === "string") &&
-						(candidate["message"] === undefined ||
-							typeof candidate["message"] === "string")
-					);
-				};
-
-				if (isApiResponse(data)) {
-					if (data.success === true && data.data) {
-						setSongs(data.data);
-					} else {
-						setError(data.error ?? "Failed to load songs");
-					}
-				} else {
-					setError("Invalid response format");
-				}
+				parsedData = (await response.json()) as unknown;
 			} catch (err) {
 				setError("Failed to connect to API");
 				console.error("Error fetching songs:", err);
+				setLoading(false);
+				return;
 			}
+
+			// All conditional/value logic happens AFTER the try/catch
+			if (isApiResponse(parsedData)) {
+				const api = parsedData as ApiResponse<SongDemo[]>;
+				const successIsTrue = api.success === true;
+				const hasDataArray = Array.isArray(api.data);
+
+				if (successIsTrue && hasDataArray) {
+					setSongs(api.data as SongDemo[]);
+				} else {
+					setError(api.error ?? "Failed to load songs");
+				}
+			} else {
+				setError("Invalid response format");
+			}
+
 			setLoading(false);
 		};
 
-		fetchSongs().catch(console.error);
+		fetchSongs().catch((err) => console.error("fetchSongs error:", err));
 	}, []);
 
 	if (loading) {

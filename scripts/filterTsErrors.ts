@@ -13,6 +13,7 @@ const targetFileRel =
 
 /** The base filename of the target file, used for comparison with error output. */
 const targetFileBase =
+	// eslint-disable-next-line no-negated-condition
 	targetFileRel !== undefined ? path.basename(targetFileRel) : undefined;
 if (targetFileRel === undefined || targetFileBase === undefined) {
 	console.error("Usage: bun scripts/filterTsErrors.ts <filename> < input.txt");
@@ -46,13 +47,17 @@ rl.on("line", (line: string) => {
 		if (currentFileBase === targetFileBase) {
 			// If the error is for the target file, start printing
 			printing = true;
+
+			// Print the error header line immediately (with color)
 			// eslint-disable-next-line no-console -- This script needs to output filtered results to stdout
-			console.log(line); // Print the error header line immediately (with color)
+			console.log(line);
 		} else {
 			// Otherwise, stop printing until the next relevant error
 			printing = false;
 		}
-		return; // Always return after an error header
+
+		// Always return after an error header
+		return;
 	}
 	// If currently printing, output the line (error details)
 	if (printing) {

@@ -90,6 +90,7 @@ const isJsxFile = file.endsWith(".tsx") || file.endsWith(".jsx");
 let individualTsCheck: ReturnType<typeof spawnSync>;
 let filteredIndividualTsCheck = "";
 
+// eslint-disable-next-line no-negated-condition
 if (!isJsxFile) {
 	// eslint-disable-next-line sonarjs/no-os-command-from-path
 	individualTsCheck = spawnSync("npx", ["tsc", "--noEmit", "--pretty", file], {
@@ -313,8 +314,10 @@ if (filteredEslint && filteredEslint.trim().length > 0) {
 /** Only exit non-zero if type errors are found for the specific file */
 function hasTypeErrorsForFile(tsOutput: string, filePath: string): boolean {
 	// Normalize file path for matching (absolute or relative)
+	// eslint-disable-next-line prefer-template
 	const relFile: string = filePath.startsWith(process.cwd() + "/")
-		? filePath.replace(process.cwd() + "/", "")
+		? // eslint-disable-next-line prefer-template
+			filePath.replace(process.cwd() + "/", "")
 		: filePath;
 	const absFile: string = filePath;
 	// Match lines that reference the file and have error

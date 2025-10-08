@@ -37,18 +37,18 @@ app.use(
 );
 
 // Health check endpoint
-app.get("/health", (c) => {
-	return c.json({
+app.get("/health", (ctx) => {
+	return ctx.json({
 		status: "ok",
-		environment: c.env.ENVIRONMENT,
+		environment: ctx.env.ENVIRONMENT,
 		timestamp: new Date().toISOString(),
 	});
 });
 
 // Supabase client token endpoint - provides a JWT for client-side Supabase operations
-app.get("/api/auth/visitor", async (c) => {
+app.get("/api/auth/visitor", async (ctx) => {
 	try {
-		const env = c.env as unknown as {
+		const env = ctx.env as unknown as {
 			VITE_SUPABASE_URL: string;
 			SUPABASE_SERVICE_KEY: string;
 			SUPABASE_VISITOR_EMAIL: string;
@@ -57,27 +57,28 @@ app.get("/api/auth/visitor", async (c) => {
 
 		const supabaseClientToken = await getSupabaseClientToken(env);
 
-		return c.json({
+		return ctx.json({
 			access_token: supabaseClientToken,
 			token_type: "bearer",
-			expires_in: 3600, // 1 hour
+			// 1 hour
+			expires_in: 3600,
 		});
 	} catch (error) {
 		console.error("Failed to generate Supabase client token:", error);
-		return c.json({ error: "Failed to generate Supabase client token" }, 500);
+		return ctx.json({ error: "Failed to generate Supabase client token" }, 500);
 	}
 });
 
 // User authentication endpoint - provides a JWT for authenticated user operations
-app.post("/api/auth/user", async (c) => {
+app.post("/api/auth/user", async (ctx) => {
 	try {
-		const body = (await c.req.json()) as { email: string; password: string };
+		const body = (await ctx.req.json()) as { email: string; password: string };
 
 		if (!body.email || !body.password) {
-			return c.json({ error: "Email and password are required" }, 400);
+			return ctx.json({ error: "Email and password are required" }, 400);
 		}
 
-		const env = c.env as unknown as {
+		const env = ctx.env as unknown as {
 			VITE_SUPABASE_URL: string;
 			SUPABASE_SERVICE_KEY: string;
 			SUPABASE_VISITOR_EMAIL: string;
@@ -90,14 +91,15 @@ app.post("/api/auth/user", async (c) => {
 			body.password,
 		);
 
-		return c.json({
+		return ctx.json({
 			access_token: userToken,
 			token_type: "bearer",
-			expires_in: 3600, // 1 hour
+			// 1 hour
+			expires_in: 3600,
 		});
 	} catch (error) {
 		console.error("Failed to authenticate user:", error);
-		return c.json({ error: "Authentication failed" }, 401);
+		return ctx.json({ error: "Authentication failed" }, 401);
 	}
 });
 
@@ -116,9 +118,9 @@ app.get(
 );
 
 // Helper functions for better composition
-const parseJsonBody = (c: Context): Effect.Effect<unknown, ValidationError> =>
+const parseJsonBody = (ctx: Context): Effect.Effect<unknown, ValidationError> =>
 	Effect.tryPromise({
-		try: () => c.req.json(),
+		try: () => ctx.req.json(),
 		catch: () =>
 			new ValidationError({ message: "Invalid JSON in request body" }),
 	});
@@ -138,10 +140,10 @@ const validateCreateSongRequest = (
 		),
 	);
 
-const createSongFactory = (c: Context): Effect.Effect<Song, AppError> =>
+const createSongFactory = (ctx: Context): Effect.Effect<Song, AppError> =>
 	Effect.gen(function* () {
 		// Parse request body
-		const body = yield* parseJsonBody(c);
+		const body = yield* parseJsonBody(ctx);
 
 		// Validate request data
 		const validatedData = yield* validateCreateSongRequest(body);
@@ -153,9 +155,11 @@ const createSongFactory = (c: Context): Effect.Effect<Song, AppError> =>
 		);
 		const newSong = yield* songService.create({
 			...validatedData,
-			fileUrl: "", // Would be set after file upload
+			// Would be set after file upload
+			fileUrl: "",
 			uploadedAt: new Date(),
-			userId: "user123", // Would come from auth
+			// Would come from auth
+			userId: "user123",
 		});
 
 		return newSong;
@@ -165,9 +169,9 @@ app.post("/api/songs", handleHttpEndpoint(createSongFactory));
 
 app.get(
 	"/api/songs/:id",
-	handleHttpEndpoint((c) =>
+	handleHttpEndpoint((ctx) =>
 		Effect.gen(function* () {
-			const id = c.req.param("id");
+			const id = ctx.req.param("id");
 			const songService = yield* Effect.provide(
 				SongService,
 				InMemorySongServiceLive,
@@ -178,9 +182,9 @@ app.get(
 );
 
 // File upload endpoint
-app.post("/api/upload", async (c) => {
+app.post("/api/upload", async (ctx) => {
 	// TO-DO: Implement file upload to R2 using Effect
-	return c.json({ message: "Upload endpoint - to be implemented" });
+	return ctx.json({ message: "Upload endpoint - to be implemented" });
 });
 
 export default app;

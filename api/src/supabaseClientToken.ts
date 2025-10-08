@@ -108,16 +108,22 @@ export async function getSupabaseClientToken(env: Env): Promise<string> {
 		console.warn("Successfully updated visitor user and re-authenticated.");
 	}
 
+	// eslint-disable-next-line require-atomic-updates
 	cachedSupabaseClientToken = data.session.access_token;
 
 	// Ensure expires_at is a number and fallback if missing
 	const expiresAtRaw = data.session.expires_at;
 	if (typeof expiresAtRaw === "number") {
+		// eslint-disable-next-line require-atomic-updates
 		tokenExpiry = expiresAtRaw;
 	} else if (typeof expiresAtRaw === "string") {
-		tokenExpiry = parseInt(expiresAtRaw, 10) || now + 3600; // fallback 1h
+		// fallback 1h
+		// eslint-disable-next-line require-atomic-updates
+		tokenExpiry = parseInt(expiresAtRaw, 10) || now + 3600;
 	} else {
-		tokenExpiry = now + 3600; // fallback 1h
+		// fallback 1h
+		// eslint-disable-next-line require-atomic-updates
+		tokenExpiry = now + 3600;
 	}
 
 	return cachedSupabaseClientToken;
@@ -211,9 +217,11 @@ export async function getSupabaseUserToken(
 	if (typeof expiresAtRaw === "number") {
 		expiry = expiresAtRaw;
 	} else if (typeof expiresAtRaw === "string") {
-		expiry = parseInt(expiresAtRaw, 10) || now + 3600; // fallback 1h
+		// fallback 1h
+		expiry = parseInt(expiresAtRaw, 10) || now + 3600;
 	} else {
-		expiry = now + 3600; // fallback 1h
+		// fallback 1h
+		expiry = now + 3600;
 	}
 
 	// Cache the token
