@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
+import { SignInButtons } from "@/react/auth/SignInButtons";
 import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 import { reactFeaturesPath, uploadDemoPath } from "@/shared/paths";
 
@@ -14,7 +15,7 @@ function HomePage(): ReactElement {
 				<h2 className="mb-4 text-3xl font-bold">🏠 {t("pages.home.title")}</h2>
 				<p className="text-gray-400">{t("pages.home.subtitle")}</p>
 			</div>
-
+			<SignInButtons />
 			<div className="my-12 space-y-8">
 				<div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
 					<div className="rounded-xl border border-white/10 bg-gradient-to-br from-blue-500/10 to-purple-500/10 p-8 text-center">

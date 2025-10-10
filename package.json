@@ -18,7 +18,7 @@
 		"dev:debug": "npx concurrently \"npm run dev:all\" \"npm run chrome:debug:secure\" --names \"servers,chrome\" --prefix-colors \"cyan,yellow\"",
 		"dev:debug:insecure": "npx concurrently \"npm run dev:all\" \"npm run chrome:debug\" --names \"servers,chrome\" --prefix-colors \"cyan,yellow\"",
 		"build:client": "tsc -b && vite build",
-		"build:api": "cd api && tsc",
+		"build:api": "tsc -p api/tsconfig.json",
 		"build": "npm run build:client && npm run build:api",
 		"build:all": "npm run build",
 		"deploy:api": "cd api && wrangler deploy",

@@ -1,38 +1,21 @@
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
 
 import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
+import {
+	defaultLanguage,
+	isSupportedLanguage,
+} from "@/shared/language/supportedLanguages";
 
-export function useLanguage(): {
-	currentLanguage: SupportedLanguageType;
-	switchLanguage: (newLang: SupportedLanguageType) => void;
-	getLocalizedPath: (path: string, lang?: SupportedLanguageType) => string;
-} {
+/**
+ * Minimal hook that returns the current language as a type-safe SupportedLanguageType.
+ * Falls back to defaultLanguage when the detected language is not supported.
+ */
+export const useLanguage = (): SupportedLanguageType => {
 	const { i18n } = useTranslation();
-	const navigate = useNavigate();
-	const location = useLocation();
+	const raw = i18n?.language ?? defaultLanguage;
+	return isSupportedLanguage(raw)
+		? (raw as SupportedLanguageType)
+		: defaultLanguage;
+};
 
-	const currentLanguage = i18n.language as SupportedLanguageType;
-	const currentPath = location.pathname.substring(3) || "/";
-
-	const switchLanguage = (newLang: SupportedLanguageType): void => {
-		if (newLang !== currentLanguage) {
-			void navigate(`/${newLang}${currentPath}`);
-		}
-	};
-
-	const getLocalizedPath = (
-		path: string,
-		lang?: SupportedLanguageType,
-	): string => {
-		const targetLang = lang || currentLanguage;
-		const cleanPath = path.startsWith("/") ? path : `/${path}`;
-		return `/${targetLang}${cleanPath}`;
-	};
-
-	return {
-		currentLanguage,
-		switchLanguage,
-		getLocalizedPath,
-	};
-}
+export default useLanguage;

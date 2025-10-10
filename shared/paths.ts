@@ -9,3 +9,6 @@ export const aboutPath = "about";
 export const userSubscriptionDemoPath = "user-subscription-demo";
 export const popoverDemoPath = "popover-demo";
 export const activityDemoPath = "activity-demo";
+
+export const apiOauthSignInPath = "/api/oauth/sign-in";
+export const apiOauthCallbackPath = "/api/oauth/callback";

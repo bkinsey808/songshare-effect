@@ -3,6 +3,10 @@
 		"title": "SongShare Effect",
 		"subtitle": "Share your favorite songs with the world"
 	},
+	"auth": {
+		"signInWithProvider": "Sign in with {{provider}}"
+	},
+
 	"navigation": {
 		"home": "Home",
 		"songs": "Songs",

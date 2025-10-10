@@ -361,6 +361,42 @@ npx tsc -b --verbose
 npx tsc -b --force
 ```
 
+## Why we don't need a `jsconfig.json` (and how we made alias imports reliable)
+
+Short answer: you don't need a `jsconfig.json` as long as each project in the workspace uses a correct `tsconfig.*` with consistent `baseUrl`/`paths` and the shared code emits type declarations other projects can consume.
+
+What we changed to make this work reliably
+
+- `shared/tsconfig.json` is now a composite project that emits declaration files into `shared/dist` (it sets `composite: true`, `emitDeclarationOnly: true`, `outDir: ./dist`, and writes `.d.ts` files). This gives a single, stable surface for other projects to consume types without depending on the implementation output.
+- `api/tsconfig.json` paths were adjusted to prefer those emitted declarations: `"@/shared/*": ["../shared/dist/*", "./shared/*"]`. That lets the API (and the editor when using the API project) resolve imports to `@/shared/*` to the generated `.d.ts` files first.
+- We removed temporary ambient/module shim declaration files that were used during debugging so there's no conflicting or permissive `declare module "@/shared/*"` lying around.
+- We made sure files that belong to the `api` project (for example `api/providers.ts`) are included by the `api/tsconfig.json` (we added `"*.ts"` to the include) so tsserver assigns them to the right project.
+
+Why that is better than keeping a `jsconfig.json`
+
+- `jsconfig.json` is an editor-only fallback; it doesn't affect builds or CI. It can be useful for quick editor fixes, but it often hides real configuration problems.
+- Making `shared` a proper composite project with emitted declaration files means CLI builds (`npx tsc -b`) and editor resolution use the same authoritative types. This reduces surprises between CLI and IDE.
+
+Editor steps (what contributors should do if they still see red squiggles)
+
+1. Build declarations at least once (CI or locally) so `shared/dist/*.d.ts` exist:
+
+```bash
+npx tsc -b
+```
+
+2. In VS Code choose the workspace TypeScript version (status bar → TypeScript version → "Use Workspace Version").
+3. Restart the TypeScript server: Command Palette → "TypeScript: Restart TS Server".
+4. If there are still stale diagnostics, reload the window (Command Palette → "Developer: Reload Window") or fully close and reopen VS Code.
+
+If you'd rather keep `jsconfig.json` for convenience, add a comment in the file explaining it's an editor-only fallback and point to this docs page.
+
+Quick checklist (for maintainers)
+
+- [ ] Ensure `shared/tsconfig.json` emits `.d.ts` files into `shared/dist` in CI builds (or add a CI step that runs `npx tsc -b`).
+- [ ] Keep `api/tsconfig.json` paths pointing to `../shared/dist/*` first.
+- [ ] Avoid permissive ambient `declare module "@/shared/*"` files in the repo — they mask missing types.
+
 ## Configuration Validation
 
 ### Pre-commit Checks
@@ -379,6 +415,49 @@ npx tsc -b
 - Configure to use workspace TypeScript version
 - Enable "TypeScript and JavaScript Language Features"
 - Set up proper project detection for monorepo
+
+### Editor fallback: why we sometimes add a `jsconfig.json`
+
+In a perfect world the editor loads the right `tsconfig.json` for every project and honors the `paths` + `baseUrl` mappings in `tsconfig.base.json`.
+
+However, editors and some language plugins occasionally fail to pick up complex multi-`tsconfig` workspaces (project references, non-standard `baseUrl` per project, or when the editor is using a global/older TypeScript). When that happens the editor will show "Cannot find module '@/...'/" errors even though `tsc` and your bundler are configured correctly.
+
+To make the developer experience smooth we include an optional `jsconfig.json` at the repo root as an editor-only fallback. It provides the minimal `baseUrl` + `paths` mappings so VS Code (tsserver) and some import-resolvers can resolve `@/shared/*`, `@/react/*`, etc., even when the editor doesn't load the full TypeScript project configuration.
+
+When to keep `jsconfig.json`
+
+- You are seeing editor-only resolution errors (intellisense or red underlines) but `npx tsc -p <project>` passes.
+- You prefer a fast, non-invasive editor fix instead of changing IDE settings for all contributors.
+
+When to remove `jsconfig.json`
+
+- Your editor is correctly using the workspace TypeScript version and loads the `tsconfig.*` projects. In that case `tsconfig.*` is the single source of truth and `jsconfig.json` becomes redundant and confusing.
+
+Recommended workflow
+
+- Prefer fixing the editor to "Use Workspace Version" (VS Code → Command Palette → "TypeScript: Select TypeScript Version..." → "Use Workspace Version") and restart the TS server.
+- If contributors still hit editor resolution problems, keep `jsconfig.json` as a documented, editor-only fallback and add a short note in this file explaining why it exists.
+- If you keep `jsconfig.json`, add an `exclude` (e.g. `["node_modules","dist"]`) to reduce noise.
+
+Examples
+
+- `jsconfig.json` (editor fallback only):
+
+```json
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@/shared/*": ["shared/*"],
+			"@/react/*": ["react/src/*"],
+			"@/api/*": ["api/src/*"]
+		}
+	},
+	"exclude": ["node_modules", "dist"]
+}
+```
+
+This file does not affect `tsc` builds or runtime bundling. Keep `tsconfig.base.json` and per-project `tsconfig.*` as the authoritative configs.
 
 ## TypeScript 5.x Features & Considerations
 

@@ -17,11 +17,11 @@
 		/* Path mapping relative to API directory */
 		"baseUrl": "..",
 		"paths": {
-			"@/shared/*": ["./shared/*"],
+			"@/shared/*": ["../shared/dist/*", "./shared/*"],
 			"@/react/*": ["./react/src/*"],
 			"@/api/*": ["./api/src/*"]
 		}
 	},
-	"include": ["src/**/*"],
+	"include": ["src/**/*", "*.ts"],
 	"exclude": ["node_modules", "dist"]
 }
