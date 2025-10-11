@@ -1,11 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-export type Env = {
-	VITE_SUPABASE_URL: string;
-	SUPABASE_SERVICE_KEY: string;
-	SUPABASE_VISITOR_EMAIL: string;
-	SUPABASE_VISITOR_PASSWORD: string;
-};
+import { type Env } from "@/api/env";
 
 let cachedSupabaseClientToken: string | undefined;
 let tokenExpiry: number | undefined;

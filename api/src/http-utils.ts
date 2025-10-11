@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import { type Context } from "hono";
 
 import type { AppError } from "./errors";
-import { HTTP_STATUS } from "@/shared/types/api";
+import { HTTP_STATUS } from "@/shared/demo/api";
 
 /**
  * Convert AppError to appropriate HTTP response

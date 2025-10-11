@@ -1,0 +1,6 @@
+export type Env = {
+	VITE_SUPABASE_URL: string;
+	SUPABASE_SERVICE_KEY: string;
+	SUPABASE_VISITOR_EMAIL: string;
+	SUPABASE_VISITOR_PASSWORD: string;
+};

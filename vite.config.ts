@@ -27,7 +27,7 @@ const config: UserConfig = defineConfig({
 	resolve: {
 		alias: {
 			"@/react": path.resolve(__dirname, "./react/src"),
-			"@/shared": path.resolve(__dirname, "./shared"),
+			"@/shared": path.resolve(__dirname, "./shared/src"),
 			"@/api": path.resolve(__dirname, "./api/src"),
 		},
 	},

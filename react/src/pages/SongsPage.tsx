@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import type { SongDemo } from "@/react/demo/songDemo/types";
-import type { ApiResponse } from "@/shared/types/api";
+import type { ApiResponse } from "@/shared/demo/api";
 import { API_CONFIG } from "@/shared/utils/constants";
 import { formatDuration } from "@/shared/utils/helpers";
 

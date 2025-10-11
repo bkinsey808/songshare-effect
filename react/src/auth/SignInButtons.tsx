@@ -1,4 +1,3 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { useIsOnline } from "@/react/hooks/useIsOnline";
@@ -9,7 +8,7 @@ import { toTitleCase } from "@/react/utils/stringUtils";
 import { apiOauthSignInPath } from "@/shared/paths";
 import { activeProviders } from "@/shared/providers";
 
-export const SignInButtons = (): React.ReactElement => {
+export const SignInButtons = (): ReactElement => {
 	const isOnline = useIsOnline();
 	const { t } = useTranslation();
 	const isSignedIn = false;

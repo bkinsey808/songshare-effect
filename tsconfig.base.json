@@ -39,7 +39,7 @@
 		/* Path Mapping */
 		"baseUrl": ".",
 		"paths": {
-			"@/shared/*": ["./shared/*"],
+			"@/shared/*": ["./shared/src/*"],
 			"@/react/*": ["./react/src/*"],
 			"@/api/*": ["./api/src/*"]
 		}

@@ -18,7 +18,7 @@
 		/* Path mapping relative to API directory */
 		"baseUrl": "..",
 		"paths": {
-			"@/shared/*": ["shared/*", "shared/dist/*"],
+			"@/shared/*": ["shared/src/*"],
 			"@/react/*": ["./react/src/*"],
 			"@/api/*": ["./api/src/*"]
 		}
