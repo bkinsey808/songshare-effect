@@ -4,11 +4,23 @@ import {
 	ApiErrorResponseSchema,
 	type ApiResponse,
 	ApiResponseSchema,
-} from "../../shared/generated/supabaseSchemas";
-import { MUSIC_GENRES } from "../../shared/utils/constants";
+} from "@/shared/generated/supabaseSchemas";
+import { MUSIC_GENRES } from "@/shared/utils/constants";
 
 // Define the schemas first
-const _CreateSongRequestSchema = Schema.Struct({
+export type CreateSongRequest = {
+	readonly title: string;
+	readonly artist: string;
+	readonly duration: number;
+	readonly genre?: (typeof MUSIC_GENRES)[number] | undefined;
+	readonly tags?: ReadonlyArray<string> | undefined;
+};
+
+export const CreateSongRequestSchema: Schema.Schema<
+	CreateSongRequest,
+	CreateSongRequest,
+	never
+> = Schema.Struct({
 	title: Schema.NonEmptyString.pipe(Schema.trimmed()),
 	artist: Schema.NonEmptyString.pipe(Schema.trimmed()),
 	duration: Schema.Number.pipe(Schema.positive()),
@@ -16,7 +28,19 @@ const _CreateSongRequestSchema = Schema.Struct({
 	tags: Schema.optional(Schema.Array(Schema.NonEmptyString)),
 });
 
-const _SongSchema = Schema.Struct({
+export type Song = {
+	readonly id: string;
+	readonly title: string;
+	readonly artist: string;
+	readonly duration: number;
+	readonly fileUrl: string;
+	readonly uploadedAt: Date;
+	readonly userId: string;
+	readonly genre?: (typeof MUSIC_GENRES)[number] | undefined;
+	readonly tags?: ReadonlyArray<string> | undefined;
+};
+
+export const SongSchema: Schema.Schema<Song, Song, never> = Schema.Struct({
 	id: Schema.NonEmptyString,
 	title: Schema.NonEmptyString,
 	artist: Schema.NonEmptyString,
@@ -28,25 +52,8 @@ const _SongSchema = Schema.Struct({
 	tags: Schema.optional(Schema.Array(Schema.NonEmptyString)),
 });
 
-// Schema for song creation request validation
-export const CreateSongRequestSchema: Schema.Schema<
-	Schema.Schema.Type<typeof _CreateSongRequestSchema>,
-	Schema.Schema.Encoded<typeof _CreateSongRequestSchema>,
-	Schema.Schema.Context<typeof _CreateSongRequestSchema>
-> = _CreateSongRequestSchema;
-
-export type CreateSongRequest = Schema.Schema.Type<
-	typeof CreateSongRequestSchema
->;
-
-// Schema for song response
-export const SongSchema: Schema.Schema<
-	Schema.Schema.Type<typeof _SongSchema>,
-	Schema.Schema.Encoded<typeof _SongSchema>,
-	Schema.Schema.Context<typeof _SongSchema>
-> = _SongSchema;
-
-export type Song = Schema.Schema.Type<typeof SongSchema>;
+// Export types inferred from the schemas
+// (Types `CreateSongRequest` and `Song` are exported above)
 
 // Re-export the imported types and schemas for convenience
 export { ApiResponseSchema, ApiErrorResponseSchema, type ApiResponse };

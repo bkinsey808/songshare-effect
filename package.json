@@ -33,7 +33,6 @@
 		"supabase:export": "dotenv -e .env -- pg_dump --schema=public --schema-only --no-owner --no-privileges --format=plain > shared/generated/schema.sql"
 	},
 	"dependencies": {
-		"@effect/schema": "^0.75.5",
 		"@supabase/supabase-js": "^2.58.0",
 		"effect": "^3.18.4",
 		"i18next": "^23.16.8",

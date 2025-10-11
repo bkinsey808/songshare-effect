@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
-import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 import {
+	type SupportedLanguageType,
 	defaultLanguage,
 	isSupportedLanguage,
 } from "@/shared/language/supportedLanguages";

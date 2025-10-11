@@ -13,7 +13,7 @@
  *
  * Any manual changes to this file will be overwritten on next generation.
  */
-import { Schema } from "@effect/schema";
+import { Schema } from "effect";
 
 // Common validation schemas
 export const NonEmptyStringSchema: typeof Schema.NonEmptyString =

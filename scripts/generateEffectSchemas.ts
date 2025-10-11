@@ -466,7 +466,7 @@ function generateEffectSchemasFile(
  * 
  * Any manual changes to this file will be overwritten on next generation.
  */
-import { Schema } from "@effect/schema";
+import { Schema } from "effect";
 `;
 
 	// Add common helper schemas

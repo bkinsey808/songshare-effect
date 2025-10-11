@@ -6,7 +6,6 @@ import { API_CONFIG } from "@/shared/utils/constants";
 import { formatDuration } from "@/shared/utils/helpers";
 
 function SongsPage(): ReactElement {
-	"use no memo";
 	const [songs, setSongs] = useState<SongDemo[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | undefined>(undefined);

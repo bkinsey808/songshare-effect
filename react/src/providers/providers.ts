@@ -1,6 +1,6 @@
-import { AmazonIcon } from "./providers/AmazonIcon";
-import { GoogleIcon } from "./providers/GoogleIcon";
-import { MicrosoftIcon } from "./providers/MicrosoftIcon";
+import { AmazonIcon } from "./AmazonIcon";
+import { GoogleIcon } from "./GoogleIcon";
+import { MicrosoftIcon } from "./MicrosoftIcon";
 import { Provider, type ProviderType } from "@/shared/providers";
 import { superSafeGet } from "@/shared/utils/safe";
 

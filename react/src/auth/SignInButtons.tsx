@@ -1,23 +1,27 @@
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { useLanguage } from "@/react/language/useLanguage";
-import { getFrontEndProviderData } from "@/react/providers";
+import { getFrontEndProviderData } from "@/react/providers/providers";
 import { cssVars } from "@/react/utils/cssVars";
 import { toTitleCase } from "@/react/utils/stringUtils";
 import { useIsOnline } from "@/react/utils/useIsOnline";
 import { apiOauthSignInPath } from "@/shared/paths";
 import { activeProviders } from "@/shared/providers";
 
-export const SignInButtons = (): ReactElement => {
+export const SignInButtons = (): React.ReactElement => {
 	const isOnline = useIsOnline();
 	const { t } = useTranslation();
 	const isSignedIn = false;
 	const lang = useLanguage();
 
-	const redirectPort =
-		typeof window !== "undefined"
-			? String(window.location.port || 5173)
-			: "5173";
+	const redirectPort = (() => {
+		if (typeof window === "undefined") {
+			return "5173";
+		}
+
+		return String(window.location.port || 5173);
+	})();
 
 	return (
 		<div className="flex flex-col items-center justify-center gap-6">
@@ -47,11 +51,11 @@ export const SignInButtons = (): ReactElement => {
 						<div key={provider}>
 							<a
 								style={cssVars({
-									"brand-color": brandColor,
-									"hover-color": hoverColor,
-									"icon-bg-color": iconBgColor,
-									"text-color": textColor,
-									"border-color": borderColor,
+									brandColor,
+									hoverColor,
+									iconBgColor,
+									textColor,
+									borderColor,
 								})}
 								href={`${apiOauthSignInPath}/${provider}?lang=${lang}&redirect_port=${redirectPort}`}
 								className="flex items-center gap-2 rounded border border-[var(--border-color)] bg-[var(--brand-color)] px-6 py-3 text-[var(--text-color)] shadow transition hover:bg-[var(--hover-color)]"

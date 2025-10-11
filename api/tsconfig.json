@@ -4,10 +4,11 @@
 		/* Override base config for Cloudflare Workers compilation */
 		"noEmit": false,
 		"outDir": "./dist",
-		"allowJs": true,
+		"allowJs": false,
 		"esModuleInterop": true,
-		"isolatedDeclarations": false,
+		"isolatedDeclarations": true,
 		"noPropertyAccessFromIndexSignature": false,
+		"declaration": true,
 		"types": ["@cloudflare/workers-types"],
 
 		/* Remove extensions that are incompatible with emit */
@@ -17,11 +18,11 @@
 		/* Path mapping relative to API directory */
 		"baseUrl": "..",
 		"paths": {
-			"@/shared/*": ["../shared/dist/*", "./shared/*"],
+			"@/shared/*": ["shared/*", "shared/dist/*"],
 			"@/react/*": ["./react/src/*"],
 			"@/api/*": ["./api/src/*"]
 		}
 	},
-	"include": ["src/**/*", "*.ts"],
+	"include": ["src/**/*", "../shared/**/*", "*.ts"],
 	"exclude": ["node_modules", "dist"]
 }

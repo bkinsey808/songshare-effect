@@ -17,10 +17,13 @@ export const languageNames: Record<SupportedLanguageType, string> = {
 export type SupportedLanguageType =
 	(typeof SupportedLanguage)[keyof typeof SupportedLanguage];
 
-export const SupportedLanguageSchema: Schema.Schema<SupportedLanguageType> =
-	Schema.Union(
-		...Object.values(SupportedLanguage).map((lang) => Schema.Literal(lang)),
-	);
+export const SupportedLanguageSchema: Schema.Schema<
+	SupportedLanguageType,
+	SupportedLanguageType,
+	never
+> = Schema.Union(
+	...Object.values(SupportedLanguage).map((lang) => Schema.Literal(lang)),
+);
 
 // throws if not valid
 export const guardAsSupportedLanguage = (

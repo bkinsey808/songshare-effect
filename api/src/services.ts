@@ -5,30 +5,33 @@ import type { Song } from "./schemas";
 
 // Song service interface
 export type SongService = {
-	readonly getAll: Effect.Effect<Song[]>;
-	readonly getById: (id: string) => Effect.Effect<Song, NotFoundError>;
-	readonly create: (song: Omit<Song, "id">) => Effect.Effect<Song>;
+	readonly getAll: Effect.Effect<Song[], never, never>;
+	readonly getById: (id: string) => Effect.Effect<Song, NotFoundError, never>;
+	readonly create: (
+		song: Omit<Song, "id">,
+	) => Effect.Effect<Song, never, never>;
 	readonly update: (
 		id: string,
 		updates: Partial<Song>,
-	) => Effect.Effect<Song, NotFoundError>;
-	readonly delete: (id: string) => Effect.Effect<void, NotFoundError>;
+	) => Effect.Effect<Song, NotFoundError, never>;
+	readonly delete: (id: string) => Effect.Effect<void, NotFoundError, never>;
 };
 
 // Tag for dependency injection
-export const SongService = Context.GenericTag<SongService>("SongService");
+export const SongService: ReturnType<typeof Context.GenericTag<SongService>> =
+	Context.GenericTag<SongService>("SongService");
 
 // In-memory storage
 const songs: Song[] = [];
 
 // In-memory implementation (replace with actual database later)
-const createInMemorySongService = (): SongService => ({
+export const createInMemorySongService = (): SongService => ({
 	getAll: Effect.succeed(songs),
 
 	getById: (id: string): Effect.Effect<Song, NotFoundError> =>
 		Effect.gen(function* () {
-			const song = songs.find((sng) => sng.id === id);
-			if (!song) {
+			const song = songs.find((sng) => sng.id === id) as Song | undefined;
+			if (song === undefined) {
 				return yield* Effect.fail(
 					new NotFoundError({
 						message: `Song with id ${id} not found`,
@@ -58,7 +61,7 @@ const createInMemorySongService = (): SongService => ({
 		updates: Partial<Song>,
 	): Effect.Effect<Song, NotFoundError> =>
 		Effect.gen(function* () {
-			const songIndex = songs.findIndex((sng) => sng.id === id);
+			const songIndex: number = songs.findIndex((sng) => sng.id === id);
 			if (songIndex === -1) {
 				return yield* Effect.fail(
 					new NotFoundError({
@@ -71,11 +74,9 @@ const createInMemorySongService = (): SongService => ({
 			// Safe array access - songIndex is guaranteed to exist
 			// Non-null assertion since we verified the index exists
 			// eslint-disable-next-line security/detect-object-injection
-			const existingSong = songs[songIndex]!;
+			const existingSong = songs[songIndex] as Song;
 			const updatedSong: Song = {
-				...existingSong,
-				...updates,
-				// Ensure required fields are preserved from existing song
+				// Start with the existing song and explicitly override allowed fields
 				id: existingSong.id,
 				title: updates.title ?? existingSong.title,
 				artist: updates.artist ?? existingSong.artist,
@@ -85,7 +86,7 @@ const createInMemorySongService = (): SongService => ({
 				userId: updates.userId ?? existingSong.userId,
 			};
 			// eslint-disable-next-line security/detect-object-injection
-			songs[songIndex] = updatedSong;
+			songs[songIndex] = updatedSong as Song;
 			return updatedSong;
 		}),
 
@@ -105,8 +106,6 @@ const createInMemorySongService = (): SongService => ({
 		}),
 });
 
-// Layer for providing the song service
-export const InMemorySongServiceLive = Layer.succeed(
-	SongService,
-	createInMemorySongService(),
-);
+// Layer for providing the song service (kept for compatibility)
+export const InMemorySongServiceLive: Layer.Layer<SongService, never, never> =
+	Layer.succeed(SongService, createInMemorySongService());

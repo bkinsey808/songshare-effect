@@ -98,13 +98,7 @@ const sharedRules = {
 		"error",
 		{
 			selector: "property",
-			format: [
-				"camelCase",
-				"PascalCase",
-				"UPPER_CASE",
-				"snake_case",
-				"kebab-case",
-			],
+			format: ["camelCase", "PascalCase", "UPPER_CASE", "snake_case"],
 			leadingUnderscore: "allow",
 			trailingUnderscore: "allow",
 		},
