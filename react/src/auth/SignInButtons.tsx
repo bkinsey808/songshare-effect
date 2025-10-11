@@ -1,11 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
+import { useIsOnline } from "@/react/hooks/useIsOnline";
 import { useLanguage } from "@/react/language/useLanguage";
 import { getFrontEndProviderData } from "@/react/providers/providers";
 import { cssVars } from "@/react/utils/cssVars";
 import { toTitleCase } from "@/react/utils/stringUtils";
-import { useIsOnline } from "@/react/utils/useIsOnline";
 import { apiOauthSignInPath } from "@/shared/paths";
 import { activeProviders } from "@/shared/providers";
 

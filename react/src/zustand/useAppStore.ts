@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { type StoreApi, type UseBoundStore, create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
+import useSchedule from "../hooks/useSchedule";
+
 export const sliceResetFns: Set<() => void> = new Set<() => void>();
 export const resetAllSlices = (): void => {
 	// eslint-disable-next-line sonarjs/no-empty-collection
@@ -90,18 +92,21 @@ export function useAppStoreHydrated(): {
 	isHydrated: boolean;
 } {
 	const appStore = useAppStore();
+	// Hook to schedule async state updates (microtask) and avoid
+	// updating after unmount.
+	const schedule = useSchedule();
 	const [isHydrated, setIsHydrated] = useState(hydrationState.isHydrated);
 
 	useEffect(() => {
-		// If already hydrated, set state immediately
+		// If already hydrated, schedule setting state asynchronously
 		if (hydrationState.isHydrated) {
-			setIsHydrated(true);
+			schedule(() => setIsHydrated(true));
 			return;
 		}
 
 		// Listen for hydration completion
 		const listener = (): void => {
-			setIsHydrated(true);
+			schedule(() => setIsHydrated(true));
 		};
 
 		hydrationState.listeners.add(listener);
@@ -110,7 +115,7 @@ export function useAppStoreHydrated(): {
 		return (): void => {
 			hydrationState.listeners.delete(listener);
 		};
-	}, []);
+	}, [schedule]);
 
 	return {
 		store: appStore,

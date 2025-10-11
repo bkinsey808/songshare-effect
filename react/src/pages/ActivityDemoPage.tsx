@@ -3,6 +3,7 @@ import { Activity, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import DemoNavigation from "../demo/DemoNavigation";
+import useSchedule from "../hooks/useSchedule";
 
 // Simulated heavy component that takes time to render
 function HeavyComponent({
@@ -14,6 +15,9 @@ function HeavyComponent({
 }>): ReactElement {
 	const [renderTime, setRenderTime] = useState<number>(0);
 
+	// Call hooks at top-level
+	const schedule = useSchedule();
+
 	useEffect(() => {
 		const start = performance.now();
 		// Simulate some heavy computation
@@ -23,8 +27,11 @@ function HeavyComponent({
 			_result += Math.random();
 		}
 		const end = performance.now();
-		setRenderTime(end - start);
-	}, []);
+
+		// Schedule the state update to avoid synchronous setState inside
+		// useEffect and to prevent updates after unmount.
+		schedule(() => setRenderTime(end - start));
+	}, [schedule]);
 
 	return (
 		<div className={`rounded-lg border p-6 ${color}`}>
