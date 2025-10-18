@@ -16,10 +16,14 @@ export const SignInButtons = (): ReactElement => {
 
 	const redirectPort = (() => {
 		if (typeof window === "undefined") {
+			// Server-side rendering: no runtime port available — use a safe dev default
 			return "5173";
 		}
 
-		return String(window.location.port || 5173);
+		// Client-side: use the actual port the app is served on at runtime.
+		// window.location.port is an empty string when using default ports (80/443),
+	// so fall back to 5173 as the dev default.
+	return String(window.location.port || "5173");
 	})();
 
 	return (

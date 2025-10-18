@@ -1,0 +1,562 @@
+// src/features/server-utils/oauthCallback.ts
+/* eslint-disable no-console, max-lines-per-function */
+import { type SupabaseClient, createClient } from "@supabase/supabase-js";
+import { Effect, Schema } from "effect";
+import { type Context } from "hono";
+import { getCookie } from "hono/cookie";
+import { sign, verify } from "hono/jwt";
+
+import { registerCookieName, userSessionCookieName } from "@/api/cookie";
+import type { Env } from "@/api/env";
+import {
+	type AppError,
+	DatabaseError,
+	ServerError,
+	ValidationError,
+} from "@/api/errors";
+import { getIpAddress } from "@/api/getIpAddress";
+import { handleHttpEndpoint } from "@/api/http-utils";
+import { getUserByEmail } from "@/api/oauth/getUserByEmail";
+import { fetchAndParseOauthUserData } from "@/api/oauth/oauthUserData";
+import { getBackEndProviderData as getProviderData } from "@/api/providers";
+import rateLimit from "@/api/rateLimit";
+import { dashboardPath, registerPath } from "@/api/utils/paths";
+import { oauthCsrfCookieName } from "@/shared/cookies";
+import {
+	UserPublicSchema,
+	type UserSchema,
+} from "@/shared/generated/supabaseSchemas";
+import { defaultLanguage } from "@/shared/language/supportedLanguages";
+import { type OauthState, OauthStateSchema } from "@/shared/oauth/oauthState";
+import { type OauthUserData } from "@/shared/oauth/oauthUserData";
+import { apiOauthCallbackPath } from "@/shared/paths";
+import type { ProviderType } from "@/shared/providers";
+import { SigninErrorToken } from "@/shared/signinTokens";
+import {
+	type UserSessionData as SessionData,
+	UserSessionDataSchema as sessionDataSchema,
+} from "@/shared/userSessionData";
+import { superSafeGet } from "@/shared/utils/safe";
+
+// Local RegisterData type (kept here to avoid module-resolution issues in the
+// typechecker while preserving the project's preferred import ordering)
+type RegisterData = {
+	readonly oauthUserData: OauthUserData;
+	readonly oauthState: OauthState;
+};
+
+// Helper: exchange code for oauth user data
+function exchangeOauthUserData(params: {
+	accessTokenUrl: string;
+	redirectUri: string;
+	code: string;
+	clientId: string | undefined;
+	clientSecret: string | undefined;
+	userInfoUrl: string;
+}): Effect.Effect<OauthUserData, DatabaseError> {
+	return Effect.tryPromise<OauthUserData, DatabaseError>({
+		try: () =>
+			fetchAndParseOauthUserData({
+				accessTokenUrl: params.accessTokenUrl,
+				redirectUri: params.redirectUri,
+				code: params.code,
+				clientId: params.clientId,
+				clientSecret: params.clientSecret,
+				userInfoUrl: params.userInfoUrl,
+			}),
+		catch: (err) => new DatabaseError({ message: String(err) }),
+	});
+}
+
+// Helper: resolve username from user_public
+function resolveUsername(
+	supabase: SupabaseClient,
+	existingUser: { user_id: string; name: string },
+): Effect.Effect<string | undefined, DatabaseError> {
+	return Effect.tryPromise<string | undefined, DatabaseError>({
+		try: async () => {
+			const upRes = await supabase
+				.from("user_public")
+				.select("username")
+				.eq("user_id", existingUser.user_id)
+				.maybeSingle();
+			if (upRes.error) {
+				throw upRes.error;
+			}
+			if ((upRes as unknown as { data?: unknown }).data === undefined) {
+				return undefined;
+			}
+			const validated = Schema.decodeUnknownSync(UserPublicSchema)(
+				upRes.data as unknown,
+			);
+			return validated.username;
+		},
+		catch: (err) => new DatabaseError({ message: String(err) }),
+	});
+}
+
+// Helper: create JWT (wrap sign)
+function createJwt<T>(
+	payload: T,
+	secret: string,
+): Effect.Effect<string, DatabaseError> {
+	// Cast payload to a simple object shape for the JWT library
+	return Effect.tryPromise<string, DatabaseError>({
+		try: () => sign(payload as unknown as Record<string, unknown>, secret),
+		catch: (err) => new DatabaseError({ message: String(err) }),
+	});
+}
+
+// No custom HMAC helpers here; state is verified via `hono/jwt.verify`.
+
+// Helper: exchange code and prepare supabase + existing user
+function fetchAndPrepareUser(
+	ctx: Context<{ Bindings: Env }>,
+	code: string,
+	provider: ProviderType,
+): Effect.Effect<
+	{
+		supabase: SupabaseClient;
+		oauthUserData: OauthUserData;
+		existingUser: Schema.Schema.Type<typeof UserSchema> | undefined;
+	},
+	DatabaseError
+> {
+	return Effect.gen(function* ($) {
+		// Build redirectUri for token exchange. Prefer configured OAUTH_REDIRECT_ORIGIN
+		// otherwise derive origin from the incoming request so it matches the
+		// redirect_uri used in oauthSignIn.
+		const requestUrl = new URL(ctx.req.url);
+		const envRedirectOrigin = (ctx.env.OAUTH_REDIRECT_ORIGIN ?? "").toString();
+		const originForRedirect =
+			typeof envRedirectOrigin === "string" && envRedirectOrigin !== ""
+				? envRedirectOrigin.replace(/\/$/, "")
+				: `${requestUrl.protocol}//${requestUrl.host}`;
+		const redirectUri = `${originForRedirect}${ctx.env.OAUTH_REDIRECT_PATH ?? apiOauthCallbackPath}`;
+		yield* $(
+			Effect.sync(() =>
+				console.log("[fetchAndPrepareUser] Using redirectUri:", redirectUri),
+			),
+		);
+		const { accessTokenUrl, clientIdEnvVar, clientSecretEnvVar, userInfoUrl } =
+			getProviderData(provider);
+		const clientId = superSafeGet(
+			ctx.env as unknown as Record<string, string | undefined>,
+			clientIdEnvVar,
+		);
+		const clientSecret = superSafeGet(
+			ctx.env as unknown as Record<string, string | undefined>,
+			clientSecretEnvVar,
+		);
+
+		const oauthUserData = yield* $(
+			exchangeOauthUserData({
+				accessTokenUrl,
+				redirectUri,
+				code,
+				clientId,
+				clientSecret,
+				userInfoUrl,
+			}),
+		);
+
+		const supabase = createClient(
+			ctx.env.VITE_SUPABASE_URL,
+			ctx.env.SUPABASE_SERVICE_KEY,
+		);
+
+		const existingUser = yield* $(
+			Effect.tryPromise({
+				try: () => getUserByEmail(supabase, oauthUserData.email),
+				catch: (err) => new DatabaseError({ message: String(err) }),
+			}),
+		);
+
+		return { supabase, oauthUserData, existingUser };
+	});
+}
+
+// Helper: when redirect_port is present, validate it and build an absolute dashboard URL
+function computeDashboardRedirectWithPort(
+	ctx: Context<{ Bindings: Env }>,
+	url: URL,
+	redirectPortStr: string,
+	lang: string,
+	dashboardPathLocal: string,
+): string | undefined {
+	const portNum = Number(redirectPortStr);
+	if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
+		console.log("[oauthCallback] Invalid redirect_port, ignoring");
+		return undefined;
+	}
+
+	const envRec = ctx.env as unknown as Record<string, string | undefined>;
+	const allowedOriginsRaw = envRec.ALLOWED_ORIGINS ?? "";
+	const allowedOrigins = allowedOriginsRaw
+		.split(",")
+		.map((origin) => origin.trim())
+		.filter(Boolean);
+
+	const headerProto = ctx.req.header("x-forwarded-proto") ?? "";
+	let redirectProto = url.protocol.replace(":", "");
+	if (headerProto.length > 0) {
+		redirectProto = headerProto;
+	}
+	const forwardedHost = ctx.req.header("x-forwarded-host") ?? "";
+	const hostNoPort = forwardedHost.length > 0 ? forwardedHost : url.hostname;
+	const candidateOrigin = `${redirectProto}://${hostNoPort.replace(/:\d+$/, "")}:${portNum}`;
+
+	if (allowedOrigins.length > 0) {
+		if (allowedOrigins.includes(candidateOrigin)) {
+			return `${redirectProto}://${hostNoPort.replace(/:\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
+		}
+		console.log(
+			"[oauthCallback] Candidate origin not in ALLOWED_ORIGINS, ignoring redirect_port",
+			candidateOrigin,
+		);
+		return undefined;
+	}
+
+	// No ALLOWED_ORIGINS configured. In non-production allow the redirect for
+	// developer convenience (but log a warning). In production ALLOWED_ORIGINS
+	// should be set and we will not allow arbitrary origins.
+	if ((envRec.ENVIRONMENT ?? "") !== "production") {
+		console.warn(
+			"[oauthCallback] ALLOWED_ORIGINS not set; allowing redirect_port candidate in non-production:",
+			candidateOrigin,
+		);
+		return `${redirectProto}://${hostNoPort.replace(/:\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
+	}
+
+	console.log(
+		"[oauthCallback] ALLOWED_ORIGINS not set and environment is production — ignoring redirect_port",
+		candidateOrigin,
+	);
+	return undefined;
+}
+function oauthCallbackFactory(
+	ctx: Context<{ Bindings: Env }>,
+): Effect.Effect<Response, AppError> {
+	return Effect.gen(function* ($) {
+		// Rate limit by IP
+		const allowed = yield* $(
+			Effect.tryPromise({
+				try: () => rateLimit(ctx, "oauthCallback"),
+				catch: () => new DatabaseError({ message: "Rate limit failed" }),
+			}),
+		);
+		if (!allowed) {
+			console.log("[oauthCallback] Rate limit exceeded, not allowed.");
+			// Redirect to home with rateLimit token so SPA can show a localized message
+			return ctx.redirect(
+				`/${defaultLanguage}/?signinError=${SigninErrorToken.rateLimit}`,
+				303,
+			) as unknown as Response;
+		}
+
+		const url = new URL(ctx.req.url);
+		const code = url.searchParams.get("code");
+		const oauthStateParamsString = url.searchParams.get("state");
+		if (code === null || oauthStateParamsString === null) {
+			console.log("[oauthCallback] Missing code or state");
+			return new Response(undefined, {
+				status: 303,
+				headers: {
+					Location: `/${defaultLanguage}/?signinError=${SigninErrorToken.missingData}`,
+				},
+			});
+		}
+
+		// Verify and decode signed state using Effect pipelines so failures map
+		// to typed AppError values and we avoid mixing try/catch with Effect.gen.
+		const envRecord = ctx.env as unknown as Record<string, string | undefined>;
+		const stateSecret = envRecord.STATE_HMAC_SECRET ?? envRecord.JWT_SECRET;
+		if (typeof stateSecret !== "string" || stateSecret === "") {
+			yield* $(
+				Effect.sync(() =>
+					console.error(
+						"[oauthCallback] Missing STATE_HMAC_SECRET or JWT_SECRET for verifying state",
+					),
+				),
+			);
+			return yield* $(
+				Effect.fail(
+					new ServerError({
+						message:
+							"Server misconfiguration: missing state verification secret",
+					}),
+				),
+			);
+		}
+
+		const verified = yield* $(
+			Effect.tryPromise({
+				try: () => verify(oauthStateParamsString, stateSecret as string),
+				catch: (err) => new ServerError({ message: String(err) }),
+			}),
+		);
+
+		const oauthState = yield* $(
+			Schema.decodeUnknown(OauthStateSchema)(verified as unknown).pipe(
+				Effect.mapError(
+					() => new ValidationError({ message: "Invalid state" }),
+				),
+			),
+		);
+
+		// Destructure language and provider early so we can reference `lang`
+		// in error redirect branches below.
+		const { lang = defaultLanguage, provider } = oauthState;
+
+		// CSRF validation
+		const csrfCookie = getCookie(ctx, oauthCsrfCookieName);
+		if (csrfCookie === undefined || csrfCookie !== oauthState.csrf) {
+			yield* $(
+				Effect.sync(() =>
+					console.log("[oauthCallback] CSRF validation failed"),
+				),
+			);
+			// Redirect to home with a generic security token so SPA shows a safe message
+			return yield* $(
+				Effect.sync(
+					() =>
+						new Response(undefined, {
+							status: 303,
+							headers: {
+								Location: `/${lang}/?signinError=${SigninErrorToken.securityFailed}`,
+							},
+						}),
+				),
+			);
+		}
+
+		// Build redirectUri used for token exchange. Prefer OAUTH_REDIRECT_ORIGIN when
+		// configured (production), otherwise derive origin from the incoming request
+		// so the redirect_uri matches what was sent to the provider during sign-in.
+		const requestUrl = new URL(ctx.req.url);
+		const envRedirectOrigin = (ctx.env.OAUTH_REDIRECT_ORIGIN ?? "").toString();
+		const originForRedirect =
+			typeof envRedirectOrigin === "string" && envRedirectOrigin !== ""
+				? envRedirectOrigin.replace(/\/$/, "")
+				: `${requestUrl.protocol}//${requestUrl.host}`;
+
+		const redirectUri = `${originForRedirect}${ctx.env.OAUTH_REDIRECT_PATH ?? apiOauthCallbackPath}`;
+		yield* $(
+			Effect.sync(() =>
+				console.log(
+					"[oauthCallback] redirectUri for token exchange:",
+					redirectUri,
+				),
+			),
+		);
+
+		const { supabase, oauthUserData, existingUser } = yield* $(
+			fetchAndPrepareUser(ctx, code, provider),
+		);
+
+		// Determine Secure flag using environment (avoid relying on process)
+		// reuse envRecord declared earlier
+		const isProd = envRecord.ENVIRONMENT === "production";
+		const redirectOrigin = envRecord.OAUTH_REDIRECT_ORIGIN ?? "";
+		const secureFlag =
+			isProd || redirectOrigin.startsWith("https://") ? "Secure;" : "";
+
+		// dashboardRedirectUrl is not assigned yet, will log after assignment below
+		if (!existingUser) {
+			// User needs registration
+			const registerData: RegisterData = { oauthUserData, oauthState };
+			const jwtSecret = ctx.env.JWT_SECRET;
+			if (typeof jwtSecret !== "string" || jwtSecret === "") {
+				yield* $(
+					Effect.sync(() =>
+						console.error("[oauthCallback] Missing JWT_SECRET"),
+					),
+				);
+				return yield* $(
+					Effect.fail(
+						new ServerError({
+							message: "Server misconfiguration: missing JWT_SECRET",
+						}),
+					),
+				);
+			}
+			const registerJwt = yield* $(
+				createJwt(registerData, jwtSecret as string),
+			);
+			yield* $(
+				Effect.sync(() =>
+					ctx.header(
+						"Set-Cookie",
+						`${registerCookieName}=${registerJwt}; HttpOnly; Path=/; SameSite=Lax; Max-Age=604800; ${secureFlag}`,
+					),
+				),
+			);
+			yield* $(
+				Effect.sync(() =>
+					console.log(
+						"[oauthCallback] Setting register cookie:",
+						registerCookieName,
+					),
+				),
+			);
+			yield* $(
+				Effect.sync(() =>
+					console.log(
+						"[oauthCallback] Redirecting to register page:",
+						`/${lang}/${registerPath}`,
+					),
+				),
+			);
+			// Redirect to register page (303 See Other)
+			return yield* $(
+				Effect.sync(
+					() =>
+						new Response(undefined, {
+							status: 303,
+							headers: { Location: `/${lang}/${registerPath}` },
+						}),
+				),
+			);
+		}
+
+		if (!existingUser.linked_providers.includes(provider)) {
+			const prov = encodeURIComponent(provider);
+			yield* $(
+				Effect.sync(() =>
+					console.log(
+						"[oauthCallback] Provider mismatch, redirecting to signInFailure:",
+						provider,
+					),
+				),
+			);
+			// Redirect to home with a signinError marker so the SPA can show
+			// an inline error banner. Use 303 See Other to force a GET.
+			return yield* $(
+				Effect.sync(
+					() =>
+						new Response(undefined, {
+							status: 303,
+							headers: {
+								Location: `/${lang}/?signinError=${SigninErrorToken.providerMismatch}&provider=${prov}`,
+							},
+						}),
+				),
+			);
+		}
+
+		const ip = getIpAddress(ctx);
+
+		// Resolve username from user_public table (source of truth for username)
+		const username = yield* $(resolveUsername(supabase, existingUser));
+		const finalUsername = username ?? existingUser.name;
+
+		// Create user session JWT
+		const sessionData: SessionData = {
+			user: existingUser,
+			userPublic: {
+				user_id: existingUser.user_id,
+				username: finalUsername,
+			},
+			oauthUserData,
+			oauthState,
+			ip,
+		};
+		// Validate using Effect Schema (throws if invalid)
+		yield* $(
+			Schema.decodeUnknown(sessionDataSchema)(sessionData).pipe(
+				Effect.mapError(
+					(err) =>
+						new ValidationError({
+							message: String(err?.message ?? "Invalid session"),
+						}),
+				),
+			),
+		);
+
+		const jwtSecretFinal = ctx.env.JWT_SECRET;
+		if (typeof jwtSecretFinal !== "string" || jwtSecretFinal === "") {
+			yield* $(
+				Effect.sync(() => console.error("[oauthCallback] Missing JWT_SECRET")),
+			);
+			return yield* $(
+				Effect.fail(
+					new ServerError({
+						message: "Server misconfiguration: missing JWT_SECRET",
+					}),
+				),
+			);
+		}
+		const sessionJwt = yield* $(
+			createJwt(sessionData, jwtSecretFinal as string),
+		);
+		yield* $(
+			Effect.sync(() =>
+				ctx.header(
+					"Set-Cookie",
+					`${userSessionCookieName}=${sessionJwt}; HttpOnly; Path=/; SameSite=Lax; Max-Age=604800; ${secureFlag}`,
+				),
+			),
+		);
+		yield* $(
+			Effect.sync(() =>
+				console.log(
+					"[oauthCallback] Setting session cookie:",
+					userSessionCookieName,
+				),
+			),
+		);
+
+		// Client-side redirect to dashboard to ensure cookie is sent before SSR
+		const buildDashboardRedirectUrl = (): string => {
+			let dashboardRedirectUrl = `/${lang}/${dashboardPath}`;
+			if (
+				oauthState.redirect_port !== undefined &&
+				oauthState.redirect_port !== ""
+			) {
+				const candidate = computeDashboardRedirectWithPort(
+					ctx,
+					url,
+					oauthState.redirect_port,
+					lang,
+					dashboardPath,
+				);
+				if (candidate !== undefined) {
+					dashboardRedirectUrl = candidate;
+				}
+			}
+			return dashboardRedirectUrl;
+		};
+
+		let dashboardRedirectUrl = buildDashboardRedirectUrl();
+		// Append a marker so the front-end can detect this came from the OAuth
+		// callback and optionally force a fresh /api/me check.
+		const hasQuery = dashboardRedirectUrl.includes("?");
+		dashboardRedirectUrl = `${dashboardRedirectUrl}${hasQuery ? "&" : "?"}justSignedIn=1`;
+		yield* $(
+			Effect.sync(() =>
+				console.log(
+					"[oauthCallback] Redirecting to dashboard:",
+					dashboardRedirectUrl,
+				),
+			),
+		);
+		// Use 303 See Other to instruct clients to perform a GET on the Location
+		return yield* $(
+			Effect.sync(
+				() =>
+					new Response(undefined, {
+						status: 303,
+						headers: { Location: dashboardRedirectUrl },
+					}),
+			),
+		);
+	});
+}
+
+export function oauthCallbackHandler(
+	ctx: Context<{ Bindings: Env }>,
+): Promise<Response> {
+	return handleHttpEndpoint((context) => oauthCallbackFactory(context))(ctx);
+}
+
+export default oauthCallbackHandler;

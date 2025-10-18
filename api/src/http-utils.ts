@@ -76,7 +76,7 @@ export const errorToHttpResponse = (
 // HTTP endpoint handler utility
 export function handleHttpEndpoint<A, E extends AppError>(
 	effectFactory: (c: Context) => Effect.Effect<A, E>,
-	onSuccess?: (data: A) => object,
+	userOnSuccess?: (data: A) => object | Response,
 ) {
 	return async function (ctx: Context): Promise<Response> {
 		const effect = Effect.match(effectFactory(ctx), {
@@ -86,10 +86,21 @@ export function handleHttpEndpoint<A, E extends AppError>(
 				return ctx.json(body, status as Parameters<typeof ctx.json>[1]);
 			},
 			onSuccess: (data) => {
-				const successBody = onSuccess
-					? onSuccess(data)
+				// If the effect itself produced a Response (for redirects or custom headers), return it directly.
+				if (data instanceof Response) {
+					return data;
+				}
+
+				const result = userOnSuccess
+					? userOnSuccess(data)
 					: { success: true, data };
-				return ctx.json(successBody);
+
+				// If the onSuccess handler returned a Response, return it directly.
+				if (result instanceof Response) {
+					return result;
+				}
+
+				return ctx.json(result as object);
 			},
 		});
 

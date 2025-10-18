@@ -1,16 +1,80 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { SignInButtons } from "@/react/auth/SignInButtons";
+import { getStoreApi } from "@/react/zustand/useAppStore";
 import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
-import { reactFeaturesPath, uploadDemoPath } from "@/shared/paths";
+import {
+	dashboardPath,
+	reactFeaturesPath,
+	uploadDemoPath,
+} from "@/shared/paths";
+import { SigninErrorToken } from "@/shared/signinTokens";
 
 function HomePage(): ReactElement {
 	const { t, i18n } = useTranslation();
 	const currentLang = i18n.language as SupportedLanguageType;
+	const navigate = useNavigate();
+	// Read sign-in state from the store API via subscription instead of
+	// calling the Zustand hook here. This keeps the hook call order in
+	// this component stable across renders and avoids conditional hook
+	// differences that can arise from child components.
+	const [isSignedIn, setIsSignedIn] = useState<boolean | undefined>(
+		() => getStoreApi()?.getState().isSignedIn,
+	);
+
+	useEffect(() => {
+		const api = getStoreApi();
+		if (!api) {
+			return;
+		}
+		// subscribe returns an unsubscribe function
+		const unsubscribe = api.subscribe((state) => {
+			setIsSignedIn(state.isSignedIn);
+		});
+		return unsubscribe;
+	}, []);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const signinError = searchParams.get("signinError");
+	const [dismissed, setDismissed] = useState(false);
+
+	// Redirect to dashboard when signed in
+	useEffect(() => {
+		if (isSignedIn === true) {
+			void navigate(`/${currentLang}/${dashboardPath}`);
+		}
+	}, [isSignedIn, navigate, currentLang]);
 
 	return (
 		<div>
+			{signinError !== null && !dismissed ? (
+				<div className="mb-6 rounded-md bg-red-600/10 p-4 text-center">
+					<div className="mx-auto max-w-3xl">
+						<strong className="block text-red-300">
+							{signinError === SigninErrorToken.providerMismatch
+								? t("errors.signin.providerMismatch")
+								: t("errors.signin.unknown")}
+						</strong>
+						<div className="mt-2">
+							<button
+								type="button"
+								className="rounded px-3 py-1 text-sm text-white/90"
+								onClick={() => {
+									setDismissed(true);
+									// Remove the query param so it doesn't persist on refresh
+									searchParams.delete("signinError");
+									searchParams.delete("provider");
+									setSearchParams(searchParams, { replace: true });
+								}}
+							>
+								{t("actions.dismiss")}
+							</button>
+						</div>
+					</div>
+				</div>
+			) : undefined}
+
 			<div className="mb-10 text-center">
 				<h2 className="mb-4 text-3xl font-bold">🏠 {t("pages.home.title")}</h2>
 				<p className="text-gray-400">{t("pages.home.subtitle")}</p>

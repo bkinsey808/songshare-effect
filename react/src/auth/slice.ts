@@ -1,44 +1,50 @@
-/* eslint-disable sonarjs/no-commented-code */
-// import type { StateCreator } from "zustand";
+import type { StateCreator } from "zustand";
 
-// import { type SessionData } from "./sessionData";
-// import { sliceResetFns } from "@/react/zustand/useAppStore";
+import { sliceResetFns } from "@/react/zustand/useAppStore";
+import type { UserSessionData } from "@/shared/userSessionData";
 
-// export type AuthSlice = {
-// 	isSignedIn: boolean;
-// 	sessionData: SessionData | undefined;
-// 	sessionChecked: boolean;
-// 	setSessionChecked: (checked: boolean) => void;
-// 	signIn: (sessionData: SessionData, userToken: string | undefined) => void;
-// 	signOut: () => void;
-// };
+type AuthState = {
+	isSignedIn: boolean | undefined;
+	userSessionData: UserSessionData | undefined;
+};
 
-// const initialState = {
-// 	isSignedIn: false,
-// 	sessionData: undefined as SessionData | undefined,
-// 	sessionChecked: false,
-// };
+export type AuthSlice = AuthState & {
+	setIsSignedIn: (isSignedIn: boolean | undefined) => void;
+	signIn: (userSessionData: UserSessionData) => void;
+	signOut: () => void;
+};
 
-// export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (
-// 	set,
-// ) => {
-// 	sliceResetFns.add(() => {
-// 		set(initialState);
-// 	});
+const initialState: AuthState = {
+	isSignedIn: undefined,
+	userSessionData: undefined as UserSessionData | undefined,
+};
 
-// 	return {
-// 		...initialState,
-// 		setSessionChecked: (checked: boolean) => {
-// 			if (typeof window !== "undefined") {
-// 				console.warn("[zustand slice] setSessionChecked called with:", checked);
-// 			}
-// 			set({ sessionChecked: checked });
-// 		},
-// 		signIn: (sessionData: SessionData) => {
-// 			set({ isSignedIn: true, sessionData, sessionChecked: true });
-// 		},
-// 		signOut: () => {
-// 			set({ isSignedIn: false, sessionData: undefined, sessionChecked: true });
-// 		},
-// 	};
-// };
+export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (
+	set,
+) => {
+	sliceResetFns.add(() => {
+		set(initialState);
+	});
+
+	return {
+		...initialState,
+		setIsSignedIn: (isSignedIn: boolean | undefined) => {
+			if (typeof window !== "undefined") {
+				console.warn("[auth slice] setIsSignedIn called with:", isSignedIn);
+			}
+			set({ isSignedIn });
+		},
+		signIn: (userSessionData: UserSessionData) => {
+			set({
+				isSignedIn: true,
+				userSessionData,
+			});
+		},
+		signOut: () => {
+			set({
+				isSignedIn: false,
+				userSessionData: undefined,
+			});
+		},
+	};
+};

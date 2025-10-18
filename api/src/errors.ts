@@ -48,6 +48,19 @@ export class DatabaseError extends Error {
 	}
 }
 
+export class ServerError extends Error {
+	readonly _tag = "ServerError" as const;
+	override readonly message: string;
+	override readonly cause: unknown | undefined;
+
+	constructor(args: { readonly message: string; readonly cause?: unknown }) {
+		super(args.message);
+		this.message = args.message;
+		this.cause = args.cause;
+		Object.setPrototypeOf(this, ServerError.prototype);
+	}
+}
+
 export class FileUploadError extends Error {
 	readonly _tag = "FileUploadError" as const;
 	override readonly message: string;
@@ -96,6 +109,7 @@ export type AppError =
 	| ValidationError
 	| NotFoundError
 	| DatabaseError
+	| ServerError
 	| FileUploadError
 	| AuthenticationError
 	| AuthorizationError;

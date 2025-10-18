@@ -235,7 +235,7 @@ export default [
 			"coverage/**",
 			".next/**",
 			"out/**",
-			"shared/generated/**",
+			"shared/src/generated/**",
 		],
 	},
 	{

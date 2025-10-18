@@ -27,5 +27,20 @@
 		"error": "Error",
 		"cancel": "Cancel",
 		"save": "Save"
+	},
+	"errors": {
+		"signin": {
+			"providerMismatch": "The account is not linked to that provider.",
+			"unknown": "An unknown sign-in error occurred.",
+			"serverError": "Server error during sign-in. Please try again.",
+			"providerUnavailable": "Sign-in provider is currently unavailable.",
+			"securityFailed": "Security check failed. Please try again.",
+			"missingData": "Missing sign-in data. Please try again.",
+			"rateLimit": "Too many sign-in attempts. Please wait and try again.",
+			"cookiesDisabled": "Cookies appear to be disabled. Please enable cookies to sign in."
+		}
+	},
+	"actions": {
+		"dismiss": "Dismiss"
 	}
 }

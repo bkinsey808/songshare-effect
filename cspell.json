@@ -21,6 +21,7 @@
 		"PGHOST",
 		"PGPASSWORD",
 		"PGPORT",
+		"PGRST",
 		"PGUSER",
 		"pkey",
 		"plpgsql",

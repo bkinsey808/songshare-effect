@@ -3,11 +3,14 @@ import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import type { StoreApi, UseBoundStore } from "zustand";
 
 import Navigation from "./Navigation";
+import ProtectedLayout from "./auth/ProtectedLayout";
+import useEnsureSignedIn from "./auth/useEnsureSignedIn";
 import ErrorBoundary from "./demo/ErrorBoundary";
 import LanguageDetector from "./language/LanguageDetector";
 import LanguageProvider from "./language/LanguageProvider";
 import AboutPage from "./pages/AboutPage";
 import ActivityDemoPage from "./pages/ActivityDemoPage";
+import DashboardPage from "./pages/DashboardPage";
 import HomePage from "./pages/HomePage";
 import OptimizedCounterPage from "./pages/OptimizedCounterPage";
 import PopoverDemoPage from "./pages/PopoverDemoPage";
@@ -23,9 +26,11 @@ import {
 	useAppStoreHydrated,
 	useAppStoreHydrationPromise,
 } from "./zustand/useAppStore";
+// debug tracer removed
 import {
 	aboutPath,
 	activityDemoPath,
+	dashboardPath,
 	hookDemoPath,
 	optimizedCounterPath,
 	popoverDemoPath,
@@ -52,7 +57,11 @@ function useAppStoreSuspense(): UseBoundStore<StoreApi<AppSlice>> {
 }
 
 // Component that uses Suspense for store hydration
-function HydratedLayout(): ReactElement {
+function HydratedLayout(): React.ReactElement {
+	// Initialize auth state first so the order of Hooks is stable even
+	// when the component suspends during hydration.
+	useEnsureSignedIn();
+
 	// This will suspend until the store is hydrated
 	useAppStoreSuspense();
 
@@ -69,7 +78,7 @@ function HydratedLayout(): ReactElement {
 }
 
 // Loading fallback component for Suspense
-function AppLoadingFallback(): ReactElement {
+function AppLoadingFallback(): React.ReactElement {
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-gray-900">
 			<div className="text-center">
@@ -81,7 +90,7 @@ function AppLoadingFallback(): ReactElement {
 }
 
 // Layout component with Suspense for store hydration
-function Layout(): ReactElement {
+function Layout(): React.ReactElement {
 	return (
 		<Suspense fallback={<AppLoadingFallback />}>
 			<HydratedLayout />
@@ -110,6 +119,16 @@ const router = createBrowserRouter([
 					{
 						index: true,
 						element: <HomePage />,
+					},
+					{
+						path: dashboardPath,
+						element: <ProtectedLayout />,
+						children: [
+							{
+								index: true,
+								element: <DashboardPage />,
+							},
+						],
 					},
 					{
 						path: songsDemoPath,
@@ -161,7 +180,7 @@ const router = createBrowserRouter([
 	},
 ]);
 
-function App(): ReactElement {
+function App(): React.ReactElement {
 	return <RouterProvider router={router} />;
 }
 

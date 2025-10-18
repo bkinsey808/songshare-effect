@@ -4,6 +4,7 @@ import { type StoreApi, type UseBoundStore, create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
 import useSchedule from "../hooks/useSchedule";
+import { type AuthSlice, createAuthSlice } from "@/react/auth/slice";
 
 export const sliceResetFns: Set<() => void> = new Set<() => void>();
 export const resetAllSlices = (): void => {
@@ -17,8 +18,7 @@ export const resetAllSlices = (): void => {
 // export type AppSlice = AuthSlice & UserSubscribeSlice & SongSubscribeSlice & SupabaseSlice;
 
 // For now, empty object until slices are implemented
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export type AppSlice = {};
+export type AppSlice = AuthSlice;
 
 const omittedKeys: (keyof AppSlice)[] = [];
 
@@ -45,9 +45,8 @@ export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 		store = create<AppSlice>()(
 			devtools(
 				persist(
-					(): AppSlice => ({
-						// Initialize your actual app state here
-						// No hasHydrated needed
+					(set, get, api): AppSlice => ({
+						...createAuthSlice(set, get, api),
 					}),
 					{
 						name: "app-store",
@@ -83,6 +82,14 @@ export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 			),
 		);
 	}
+	return store;
+}
+
+// Non-hook accessor for the bound store API. Returns the underlying
+// bound store instance if it exists; otherwise returns undefined. This
+// avoids calling hooks from non-hook code and lets callers read the
+// store API safely when the store has been created.
+export function getStoreApi(): UseBoundStore<StoreApi<AppSlice>> | undefined {
 	return store;
 }
 
@@ -125,14 +132,20 @@ export function useAppStoreHydrated(): {
 
 // ✅ IDEAL SOLUTION: Hook that returns the hydration promise directly
 export function useAppStoreHydrationPromise(): Promise<void> {
-	// Ensure store is created (which creates the promise)
-	useAppStore();
-
-	// If already hydrated, return resolved promise
+	// Avoid calling any React hooks here to keep hook call order stable
+	// during Suspense. Ensure the hydration promise exists so callers can
+	// throw it for Suspense to catch. The actual store creation (which
+	// may also create the promise) happens in useAppStore(), but we can
+	// lazily create the promise here if it doesn't exist yet.
 	if (hydrationState.isHydrated) {
 		return Promise.resolve();
 	}
 
-	// Return the hydration promise
-	return hydrationState.promise || Promise.resolve();
+	if (!hydrationState.promise) {
+		hydrationState.promise = new Promise<void>((resolve) => {
+			hydrationState.resolvePromise = resolve;
+		});
+	}
+
+	return hydrationState.promise;
 }

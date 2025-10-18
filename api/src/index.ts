@@ -1,41 +1,84 @@
 import { Effect, Schema } from "effect";
 import { type Context, Hono } from "hono";
-import { cors } from "hono/cors";
 
+// Dynamic CORS implemented below; no need to import the static helper
+
+import type { Bindings } from "./env";
 import { type AppError, ValidationError } from "./errors";
 import { handleHttpEndpoint } from "./http-utils";
+import { me } from "./me";
+import oauthCallbackHandler from "./oauth/oauthCallback";
+import oauthSignInHandler from "./oauth/oauthSignIn";
 import { CreateSongRequestSchema, type Song } from "./schemas";
 import { SongService, createInMemorySongService } from "./services";
 import {
 	getSupabaseClientToken,
 	getSupabaseUserToken,
 } from "./supabaseClientToken";
+import {
+	apiMePath,
+	apiOauthCallbackPath,
+	apiOauthSignInPath,
+} from "@/shared/paths";
 import { MUSIC_GENRES } from "@/shared/utils/constants";
 
 // For individual file check - R2Bucket type is available in project context
 // type R2Bucket = unknown;
 
-type Bindings = {
-	BUCKET: R2Bucket;
-	ENVIRONMENT: string;
-};
-
 const app: Hono<{ Bindings: Bindings }> = new Hono<{ Bindings: Bindings }>();
 
-// CORS middleware
-app.use(
-	"*",
-	cors({
-		origin: [
-			"http://localhost:5173",
-			"http://localhost:5174",
-			"http://localhost:3000",
-			"https://your-pages-domain.pages.dev",
-		],
-		allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-		allowHeaders: ["Content-Type", "Authorization"],
-	}),
-);
+// Dynamic CORS middleware (Cloudflare Workers friendly)
+// Reads comma-separated ALLOWED_ORIGINS from bindings (ctx.env.ALLOWED_ORIGINS)
+// Falls back to local dev origins when not provided.
+app.use("*", async (ctx, next) => {
+	const originHeader = ctx.req.header("Origin");
+
+	// Bindings may provide a comma-separated list of allowed origins. Example:
+	// ALLOWED_ORIGINS="https://app.example.com,https://admin.example.com"
+	const allowedOriginsEnv = (ctx.env as unknown as { ALLOWED_ORIGINS?: string })
+		.ALLOWED_ORIGINS;
+
+	const defaultDevOrigins = [
+		"http://localhost:5173",
+		"http://localhost:5174",
+		"http://localhost:3000",
+		"https://your-pages-domain.pages.dev",
+	];
+
+	const allowedOrigins =
+		typeof allowedOriginsEnv === "string" && allowedOriginsEnv.length > 0
+			? allowedOriginsEnv
+					.split(",")
+					.map((rawOrigin) => rawOrigin.trim())
+					.filter(Boolean)
+			: defaultDevOrigins;
+
+	if (
+		typeof originHeader === "string" &&
+		originHeader.length > 0 &&
+		allowedOrigins.includes(originHeader)
+	) {
+		// Only allow the specific origin (do NOT echo '*' when credentials are used)
+		ctx.header("Access-Control-Allow-Origin", originHeader);
+		ctx.header(
+			"Access-Control-Allow-Methods",
+			"GET, POST, PUT, DELETE, OPTIONS",
+		);
+		ctx.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+		// Allow cookies to be sent from the allowed origin
+		ctx.header("Access-Control-Allow-Credentials", "true");
+	}
+
+	// Preflight
+	if (ctx.req.method === "OPTIONS") {
+		// If origin wasn't allowed above, respond with 204 but without CORS headers.
+		return new Response(undefined, { status: 204 });
+	}
+
+	await next();
+
+	return undefined;
+});
 
 // Health check endpoint
 app.get("/health", (ctx) => {
@@ -227,5 +270,15 @@ app.post("/api/upload", async (ctx) => {
 	// TO-DO: Implement file upload to R2 using Effect
 	return ctx.json({ message: "Upload endpoint - to be implemented" });
 });
+
+// Current user/session endpoint
+app.get(
+	apiMePath,
+	handleHttpEndpoint((ctx) => me(ctx)),
+);
+
+// OAuth sign-in (provider path param) and callback
+app.get(`${apiOauthSignInPath}/:provider`, oauthSignInHandler);
+app.get(apiOauthCallbackPath, oauthCallbackHandler);
 
 export default app;

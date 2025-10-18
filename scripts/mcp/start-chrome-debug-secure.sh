@@ -9,21 +9,19 @@ set -e
 CHROME_DEBUG_PORT=9222
 CHROME_USER_DATA_DIR="$HOME/.chrome-debug-profile-secure"
 SECURITY_MODE="${CHROME_MCP_SECURITY:-strict}"
+DEV_SERVER_PORT="${DEV_SERVER_PORT:-5173}"
 
-# Security-aware Chrome flags
 if [[ "$SECURITY_MODE" == "strict" ]]; then
     CHROME_FLAGS=(
         "--remote-debugging-port=$CHROME_DEBUG_PORT"
-        "--remote-debugging-address=127.0.0.1"  # Only localhost, not 0.0.0.0
+        "--remote-debugging-address=127.0.0.1"
         "--user-data-dir=$CHROME_USER_DATA_DIR"
         "--no-first-run"
         "--no-default-browser-check"
         "--disable-features=VizDisplayCompositor"
         "--auto-open-devtools-for-tabs"
-        # Remove --disable-web-security for better security
     )
 else
-    # Development mode (less secure but more permissive)
     CHROME_FLAGS=(
         "--remote-debugging-port=$CHROME_DEBUG_PORT"
         "--remote-debugging-address=127.0.0.1"
@@ -36,32 +34,26 @@ else
     )
 fi
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 echo -e "${BLUE}🔒 Secure Chrome Dev Tools MCP Setup${NC}"
 echo -e "${BLUE}====================================${NC}"
 
-# Security warning
 echo -e "${YELLOW}⚠️  SECURITY NOTICE:${NC}"
 echo -e "${YELLOW}   This opens Chrome with debug capabilities enabled.${NC}"
 echo -e "${YELLOW}   Only use in trusted development environments.${NC}"
 echo -e "${YELLOW}   Security mode: $SECURITY_MODE${NC}"
 echo -e "${BLUE}====================================${NC}"
 
-# Check if running in production-like environment
 if [[ -n "$PRODUCTION" || -n "$STAGING" || "$NODE_ENV" == "production" ]]; then
     echo -e "${RED}❌ SECURITY ERROR: Chrome debug mode detected in production environment!${NC}"
-    echo -e "${RED}   Environment variables: PRODUCTION=$PRODUCTION, STAGING=$STAGING, NODE_ENV=$NODE_ENV${NC}"
-    echo -e "${RED}   Chrome debug mode should NEVER be used in production.${NC}"
     exit 1
 fi
 
-# Check for suspicious network interfaces
 if command -v ip &> /dev/null; then
     PUBLIC_IPS=$(ip route get 8.8.8.8 2>/dev/null | grep -oP 'src \K\S+' || echo "")
     if [[ -n "$PUBLIC_IPS" && "$PUBLIC_IPS" != "127.0.0.1" ]]; then
@@ -70,11 +62,9 @@ if command -v ip &> /dev/null; then
     fi
 fi
 
-# Check if running in WSL2
 if [[ -n "$WSL_DISTRO_NAME" ]]; then
     echo -e "${GREEN}✓ Detected WSL2 environment: $WSL_DISTRO_NAME${NC}"
     
-    # Check for Windows Chrome
     CHROME_WIN="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
     CHROME_WIN_LOCAL="/mnt/c/Users/$USER/AppData/Local/Google/Chrome/Application/chrome.exe"
     
@@ -87,7 +77,6 @@ if [[ -n "$WSL_DISTRO_NAME" ]]; then
     else
         echo -e "${YELLOW}⚠ Windows Chrome not found, checking for Linux Chrome...${NC}"
         
-        # Check for Linux Chrome in WSL2
         if command -v google-chrome &> /dev/null; then
             CHROME_PATH="google-chrome"
             echo -e "${GREEN}✓ Found Linux Chrome in WSL2${NC}"
@@ -114,11 +103,17 @@ else
     fi
 fi
 
-# Create secure user data directory with restricted permissions
 mkdir -p "$CHROME_USER_DATA_DIR"
-chmod 700 "$CHROME_USER_DATA_DIR"  # Only owner can read/write/execute
+chmod 700 "$CHROME_USER_DATA_DIR"
 
-# Check if Chrome is already running on debug port
+# PID file for the chrome instance started by this script
+PID_DIR="$HOME/.local/share/songshare-effect"
+mkdir -p "$PID_DIR"
+CHROME_PIDFILE="$PID_DIR/chrome.pid"
+CHROME_LOGFILE="$PID_DIR/chrome.log"
+touch "$CHROME_LOGFILE" || true
+chmod 600 "$CHROME_LOGFILE" || true
+
 if curl -s "http://127.0.0.1:$CHROME_DEBUG_PORT/json/version" > /dev/null 2>&1; then
     echo -e "${YELLOW}⚠ Chrome is already running with debug port $CHROME_DEBUG_PORT${NC}"
     echo -e "${BLUE}Debug endpoint: http://127.0.0.1:$CHROME_DEBUG_PORT${NC}"
@@ -130,30 +125,27 @@ echo -e "${BLUE}Debug port: $CHROME_DEBUG_PORT (localhost only)${NC}"
 echo -e "${BLUE}User data dir: $CHROME_USER_DATA_DIR${NC}"
 echo -e "${BLUE}Security mode: $SECURITY_MODE${NC}"
 
-# Start Chrome
+DEV_SERVER_URL=${DEV_SERVER_URL:-http://localhost:${DEV_SERVER_PORT}}
+
 if [[ "$CHROME_PATH" == *".exe" ]]; then
-    # Windows Chrome from WSL2
-    "$CHROME_PATH" "${CHROME_FLAGS[@]}" "http://localhost:5173" &
+    "$CHROME_PATH" "${CHROME_FLAGS[@]}" "$DEV_SERVER_URL" >> "$CHROME_LOGFILE" 2>&1 &
 else
-    # Linux Chrome
-    "$CHROME_PATH" "${CHROME_FLAGS[@]}" "http://localhost:5173" &
+    "$CHROME_PATH" "${CHROME_FLAGS[@]}" "$DEV_SERVER_URL" >> "$CHROME_LOGFILE" 2>&1 &
 fi
 
 CHROME_PID=$!
+echo "$CHROME_PID" > "$CHROME_PIDFILE"
 
 echo -e "${GREEN}✓ Chrome started with PID: $CHROME_PID${NC}"
 echo -e "${BLUE}Debug endpoint: http://127.0.0.1:$CHROME_DEBUG_PORT${NC}"
-echo -e "${BLUE}Your app will open at: http://localhost:5173${NC}"
+echo -e "${BLUE}Your app will open at: ${DEV_SERVER_URL}${NC}"
 
-# Wait a moment for Chrome to start
 sleep 3
 
-# Test debug connection
 if curl -s "http://127.0.0.1:$CHROME_DEBUG_PORT/json/version" > /dev/null; then
     echo -e "${GREEN}✓ Chrome debug interface is accessible${NC}"
     echo -e "${BLUE}🔗 MCP can now connect to: ws://127.0.0.1:$CHROME_DEBUG_PORT${NC}"
     
-    # Security validation
     echo -e "${BLUE}🔒 Security validation:${NC}"
     if netstat -an 2>/dev/null | grep -q ":$CHROME_DEBUG_PORT.*127.0.0.1"; then
         echo -e "${GREEN}✓ Debug port is bound to localhost only${NC}"
@@ -168,15 +160,12 @@ echo -e "${BLUE}====================================${NC}"
 echo -e "${GREEN}✅ Secure Chrome Dev Tools MCP is ready!${NC}"
 echo -e "${BLUE}Use Ctrl+C to stop this script and close Chrome${NC}"
 
-# Security reminder
-echo -e "\n${YELLOW}🔒 SECURITY REMINDERS:${NC}"
-echo -e "${YELLOW}   • This Chrome instance has debug capabilities enabled${NC}"
-echo -e "${YELLOW}   • Only use in trusted development environments${NC}"
-echo -e "${YELLOW}   • Debug port is only accessible from localhost${NC}"
-echo -e "${YELLOW}   • Close Chrome when done developing${NC}"
-
-# Keep script running and handle cleanup
 trap 'echo -e "\n${YELLOW}🛑 Stopping Chrome and cleaning up...${NC}"; kill $CHROME_PID 2>/dev/null || true; exit 0' INT TERM
+trap 'echo -e "\n${YELLOW}🛑 Stopping Chrome and cleaning up...${NC}"; kill $CHROME_PID 2>/dev/null || true; rm -f "$CHROME_PIDFILE" || true; exit 0' INT TERM
 
-# Wait for Chrome process
+# Ensure pidfile removed on exit
+cleanup() {
+    rm -f "$CHROME_PIDFILE" || true
+}
+trap cleanup EXIT
 wait $CHROME_PID 2>/dev/null || true

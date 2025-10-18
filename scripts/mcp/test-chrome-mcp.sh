@@ -13,6 +13,8 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 CHROME_DEBUG_PORT=9222
+DEV_SERVER_PORT=${DEV_SERVER_PORT:-5173}
+DEV_SERVER_URL=${DEV_SERVER_URL:-http://localhost:${DEV_SERVER_PORT}}
 
 echo -e "${BLUE}🧪 Testing Chrome Dev Tools MCP Connection${NC}"
 echo -e "${BLUE}===========================================${NC}"
@@ -38,7 +40,7 @@ TAB_COUNT=$(echo "$TABS" | grep -o '"id"' | wc -l)
 echo -e "${GREEN}✓ Found $TAB_COUNT open tab(s)${NC}"
 
 # Check if our app is open
-if echo "$TABS" | grep -q "localhost:5173"; then
+if echo "$TABS" | grep -q "${DEV_SERVER_URL}"; then
     echo -e "${GREEN}✓ songshare-effect app is open in Chrome${NC}"
 else
     echo -e "${YELLOW}⚠ songshare-effect app not found in tabs${NC}"
@@ -105,7 +107,7 @@ echo -e "${GREEN}✅ Chrome Dev Tools MCP connection test complete!${NC}"
 echo -e "\n${BLUE}📋 Connection Summary:${NC}"
 echo -e "${BLUE}  Debug Endpoint: http://localhost:$CHROME_DEBUG_PORT${NC}"
 echo -e "${BLUE}  WebSocket: ws://localhost:$CHROME_DEBUG_PORT${NC}"
-echo -e "${BLUE}  Your App: http://localhost:5173${NC}"
+echo -e "${BLUE}  Your App: ${DEV_SERVER_URL}${NC}"
 
 echo -e "\n${BLUE}🚀 Next Steps:${NC}"
 echo -e "${BLUE}  1. Connect your MCP client to: ws://localhost:$CHROME_DEBUG_PORT${NC}"

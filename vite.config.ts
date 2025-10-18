@@ -36,6 +36,22 @@ const config: UserConfig = defineConfig({
 			plugins: [tailwindcss, autoprefixer],
 		},
 	},
+
+	// Development server proxy to forward API requests to the
+	// local API dev server (wrangler). This keeps client code using
+	// absolute paths like `/api/me` and avoids CORS during local dev.
+	server: {
+		// Force a stable dev server port so OAuth redirect URIs remain constant
+		host: "localhost",
+		port: 5173,
+		proxy: {
+			"/api": {
+				target: "http://localhost:8787",
+				changeOrigin: true,
+				secure: false,
+			},
+		},
+	},
 });
 
 export default config;

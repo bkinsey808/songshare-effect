@@ -11,6 +11,10 @@ VITE_SUPABASE_URL = "https://[something].supabase.co"
 SUPABASE_SERVICE_KEY = "[your_service_key]"
 SUPABASE_VISITOR_EMAIL = "[your_visitor_email]"
 SUPABASE_VISITOR_PASSWORD = "[your_visitor_password]"
+OAUTH_REDIRECT_ORIGIN = "http://localhost:5173"
+# The API callback path is defined in the repository as the constant
+# `apiOauthCallbackPath` in `shared/src/paths.ts` (value: "/api/oauth/callback").
+# To change the callback path, update that constant instead of this file.
 
 [[r2_buckets]]
 binding = "BUCKET"
@@ -19,3 +23,8 @@ preview_bucket_name = "[your_preview_bucket_name]"
 
 [env.production.vars]
 ENVIRONMENT = "production"
+OAUTH_REDIRECT_ORIGIN = "https://mysongshare.com"
+
+# NOTE: Add your provider client IDs as environment variables. Example:
+# GOOGLE_CLIENT_ID = "..."
+# MICROSOFT_CLIENT_ID = "..."

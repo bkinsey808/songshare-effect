@@ -23,5 +23,20 @@
 		"error": "错误",
 		"cancel": "取消",
 		"save": "保存"
+	},
+	"errors": {
+		"signin": {
+			"providerMismatch": "帐户未关联该认证提供商。",
+			"unknown": "发生未知的登录错误。",
+			"serverError": "登录时服务器出现错误。请稍后再试。",
+			"providerUnavailable": "登录提供商当前不可用。",
+			"securityFailed": "安全检查失败。请重试。",
+			"missingData": "缺少登录数据。请重试。",
+			"rateLimit": "登录尝试过多。请稍候再试。",
+			"cookiesDisabled": "检测到 cookie 被禁用。请启用 cookie 以登录。"
+		}
+	},
+	"actions": {
+		"dismiss": "关闭"
 	}
 }

@@ -23,5 +23,20 @@
 		"error": "Error",
 		"cancel": "Cancelar",
 		"save": "Guardar"
+	},
+	"errors": {
+		"signin": {
+			"providerMismatch": "La cuenta no está vinculada a ese proveedor.",
+			"unknown": "Ocurrió un error desconocido al iniciar sesión.",
+			"serverError": "Error del servidor durante el inicio de sesión. Por favor, inténtalo de nuevo.",
+			"providerUnavailable": "El proveedor de inicio de sesión no está disponible en este momento.",
+			"securityFailed": "La comprobación de seguridad falló. Por favor, inténtalo de nuevo.",
+			"missingData": "Faltan datos de inicio de sesión. Por favor, inténtalo de nuevo.",
+			"rateLimit": "Demasiados intentos de inicio de sesión. Por favor espera e inténtalo de nuevo.",
+			"cookiesDisabled": "Parece que las cookies están deshabilitadas. Habilita las cookies para iniciar sesión."
+		}
+	},
+	"actions": {
+		"dismiss": "Cerrar"
 	}
 }
