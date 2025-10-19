@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict jW7wybHw1HDUeXX2M45LcLGkdL7a54ygWulKcKu9K3yTdV2gnZhoDJeivQYxaxG
+\restrict VQ0xDILI2ODJou7qUs483dJVRIuMMzlRhaNHbqJtZph109H9DsngatXbqU2a5er
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.6 (Ubuntu 17.6-1.pgdg22.04+1)
@@ -97,13 +97,13 @@ CREATE TABLE public."user" (
     name text NOT NULL,
     sub text,
     email text NOT NULL,
-    linked_providers text[] DEFAULT '{}'::text[] NOT NULL,
     google_calendar_access text DEFAULT 'none'::text NOT NULL,
     google_calendar_refresh_token text,
     role text DEFAULT 'free'::text NOT NULL,
     role_expires_at timestamp with time zone,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    linked_providers text[],
     CONSTRAINT user_role_check CHECK ((role = ANY (ARRAY['free'::text, 'patron'::text, 'admin'::text])))
 );
 
@@ -271,5 +271,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict jW7wybHw1HDUeXX2M45LcLGkdL7a54ygWulKcKu9K3yTdV2gnZhoDJeivQYxaxG
+\unrestrict VQ0xDILI2ODJou7qUs483dJVRIuMMzlRhaNHbqJtZph109H9DsngatXbqU2a5er
 

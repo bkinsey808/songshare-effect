@@ -74,7 +74,20 @@ const oauthSignInFactory = (
 		// If OAUTH_REDIRECT_ORIGIN is not configured, derive origin from incoming
 		// request so redirect_uri is an absolute URL that matches what the
 		// provider will call back to (scheme + host + port).
-		const requestOrigin = (() => {
+		// Prefer the browser-supplied Origin header (or Referer) when available --
+		// this lets us build a redirect_uri that matches the front-end origin even
+		// when the dev proxy forwards an HTTP request to the API. Falling back to
+		// the request URL preserves behavior when no headers are present.
+		const headerOrigin = ctx.req.header("origin") ?? "";
+		const headerReferer = ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
+		const derivedFromReferer = (() => {
+			try {
+				return headerReferer ? new URL(headerReferer).origin : "";
+			} catch {
+				return "";
+			}
+		})();
+		const requestOrigin = headerOrigin || derivedFromReferer || (() => {
 			try {
 				return new URL(String(ctx.req.url)).origin;
 			} catch {
@@ -109,21 +122,15 @@ const oauthSignInFactory = (
 		);
 		yield* $(Effect.sync(() => console.log("[oauthSignIn] Language:", lang)));
 
-		// Encode state, include redirect_port if present
-		const redirectPort = ctx.req.query("redirect_port");
-		yield* $(
-			Effect.sync(() =>
-				console.log("[oauthSignIn] redirect_port param:", redirectPort),
-			),
-		);
-		const oauthState: OauthState = {
-			csrf: csrfState,
-			lang,
-			provider,
-			...(redirectPort !== undefined && redirectPort !== ""
-				? { redirect_port: redirectPort }
-				: {}),
-		};
+			// Encode state, include redirect_port if present (we'll read the query
+			// param again later when constructing redirect_uri so avoid variable
+			// redeclaration issues in the generator scope).
+			const oauthState: OauthState = {
+				csrf: csrfState,
+				lang,
+				provider,
+				// Note: redirect_port appended later when reading query param again
+			};
 		yield* $(
 			Effect.sync(() => console.log("[oauthSignIn] oauthState:", oauthState)),
 		);
@@ -159,15 +166,31 @@ const oauthSignInFactory = (
 			}),
 		);
 
-		// Build redirect URI using apiOauthCallbackPath for local and production.
-		// Normalize origin to avoid accidental double slashes.
-		// Ensure redirect_uri is absolute (origin + path). If redirectOrigin is
-		// empty for some reason fall back to the path-only value, but prefer
-		// the absolute origin we derived above.
-		const trimmedOrigin = (redirectOrigin ?? "").replace(/\/$/, "");
-		const redirect_uri = trimmedOrigin
-			? `${trimmedOrigin}${apiOauthCallbackPath ?? ""}`
-			: `${apiOauthCallbackPath ?? ""}`;
+			// Build redirect URI using apiOauthCallbackPath for local and production.
+			// Normalize origin to avoid accidental double slashes. When a redirect_port
+			// is provided for developer flows and the origin points at localhost we
+			// prefer HTTPS so the provider will redirect back to the HTTPS dev server
+			// (mkcert + Vite). This avoids mixed-scheme redirects that can prevent
+			// Secure/SameSite=None cookies from being accepted by the browser.
+			const trimmedOrigin = (redirectOrigin ?? "").replace(/\/$/, "");
+			let redirect_uri = trimmedOrigin
+				? `${trimmedOrigin}${apiOauthCallbackPath ?? ""}`
+				: `${apiOauthCallbackPath ?? ""}`;
+
+				// If a developer-supplied redirect_port is present and the request targets
+				// localhost, force the redirect_uri to https://localhost:PORT so the OAuth
+				// provider will redirect back to the HTTPS dev server (mkcert + Vite).
+				// This ensures the subsequent Set-Cookie includes Secure when required by
+				// browsers for SameSite=None cookies.
+				const redirectPortQuery = ctx.req.query("redirect_port");
+					if (redirectPortQuery && redirectPortQuery !== "") {
+						// Developer convenience: when a redirect_port is provided prefer HTTPS
+						// for localhost. Skip this in production — OAUTH_REDIRECT_ORIGIN should
+						// be configured there.
+						if ((envRecord.ENVIRONMENT ?? "") !== "production") {
+							redirect_uri = `https://localhost:${redirectPortQuery}${apiOauthCallbackPath ?? ""}`;
+						}
+					}
 		yield* $(
 			Effect.sync(() =>
 				console.log("[oauthSignIn] redirect_uri:", redirect_uri),

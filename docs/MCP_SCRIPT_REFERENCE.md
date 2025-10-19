@@ -124,6 +124,86 @@ Example snippets and workflows are useful to copy into MCP-driven automation or 
 - The start scripts detect Chrome on Windows (`/mnt/c/.../chrome.exe`) and on Linux (`google-chrome` / `chromium-browser`).
 - If you run Chrome inside WSL2 you may need an X11/display setup.
 
+### WSL gotchas: Chrome's remote-debugging port may not be reachable from WSL
+
+Observed problem
+
+- When launching Windows Chrome from inside WSL (for example the binary under `/mnt/c/.../chrome.exe`), Chrome sometimes binds the DevTools remote-debugging port to the Windows loopback in a way that's not reachable from the WSL network namespace. The start script may print a DevTools websocket URL (for example `ws://127.0.0.1:9222/...`) while `curl http://127.0.0.1:9222/json/version` executed in WSL still fails with "Connection refused".
+
+Why this matters
+
+- The capture helpers (for example `scripts/mcp/capture-cdp.sh`) run from WSL and query the local debug HTTP endpoint (`/json` and `/json/version`) to locate the webSocketDebuggerUrl. If the endpoint is unreachable from WSL, captures will produce no network events and report "No tabs found" or save an empty capture file.
+
+What I changed and the recommended workflows
+
+1. Optional helper flag (lightweight, non-breaking)
+
+  - I added support for `USE_LINUX_CHROME=1` in the `scripts/mcp/start-chrome-debug.sh` script. When set, the script will prefer running a Linux Chrome/Chromium binary installed inside WSL (if available) instead of a Windows Chrome binary. Launching the Linux browser from WSL ensures the debug port is bound in the WSL network namespace and is reachable by the capture scripts.
+
+2. Recommended ways to launch Chrome so MCP can reliably capture CDP events
+
+  - Preferred (use this when you have a Linux Chrome/Chromium in WSL and X/WSLg available):
+
+    ```bash
+    # ensure helper scripts are executable (one-time)
+    chmod +x ./scripts/mcp/start-chrome-debug.sh ./scripts/mcp/capture-cdp.sh
+
+    # prefer the Linux browser so the debug port binds to WSL
+    USE_LINUX_CHROME=1 nohup ./scripts/mcp/start-chrome-debug.sh > /tmp/chrome-debug.log 2>&1 &
+
+    # wait for the debug endpoint (poll)
+    for i in {1..15}; do curl -sS http://127.0.0.1:9222/json/version && break || sleep 1; done
+
+    # when ready, run a short capture (duration in ms)
+    DEV_SERVER_PORT=5173 ./scripts/mcp/capture-cdp.sh 30000 > /tmp/cdp-capture.json
+    ```
+
+  - Alternate (if you prefer Windows Chrome):
+
+    - Launch Chrome from native Windows (outside WSL) with `--remote-debugging-port=9222` so the debug port is reachable from Windows tools. If you still want to run capture from WSL, you may need to connect to the Windows host IP that exposes the debug endpoint (this approach is more fragile).
+
+3. If the start script appears to "hang"
+
+  - This is expected behavior for the helper: `start-chrome-debug.sh` launches Chrome and then `wait`s for the Chrome PID so it can clean up the pidfile/logs on exit. Run it in a background job (or use the VS Code background task that's included in this repo) if you need your shell back.
+
+  - Examples:
+
+    ```bash
+    # background the script and write its output to a logfile
+    nohup ./scripts/mcp/start-chrome-debug.sh > /tmp/chrome-debug.log 2>&1 &
+
+    # or use the workspace VS Code task (preferred for interactive flows)
+    # - Start Chrome Debug (background task)
+    ```
+
+4. Permissions and binaries
+
+  - Make sure the scripts are executable: `chmod +x ./scripts/mcp/*.sh`.
+  - Verify a Linux Chrome/Chromium exists in WSL: `command -v google-chrome || command -v chromium-browser`.
+  - If you use WSLg (graphical support) ensure `DISPLAY` or Wayland variables are present (the start script will open a visible browser when a Linux binary is chosen).
+
+5. If a capture shows console messages but zero network events
+
+  - Confirm Chrome's `Network` domain is enabled by the capture script. The repository capture helper explicitly enables `Network` via CDP; if you still see zero network entries, the helper may have connected to the wrong CDP websocket (for example, a DevTools frontend page instead of your app tab). Set `DEV_SERVER_PORT` / `DEV_SERVER_URL` to the port your dev server actually uses so the script matches the correct tab.
+
+Useful quick checks
+
+```bash
+# check debug endpoint
+curl http://127.0.0.1:9222/json/version
+
+# list tabs and ws urls
+curl http://127.0.0.1:9222/json
+
+# check which port your frontend landed on
+ss -ltnp | egrep ':(5173|5174|5175) '
+
+# run a 30s capture (override port if needed)
+DEV_SERVER_PORT=5175 ./scripts/mcp/capture-cdp.sh 30000 > /tmp/cdp-capture.json
+```
+
+If you'd like, I can also add a short example `npm` alias or a VS Code task that runs the recommended `USE_LINUX_CHROME=1` flow so you don't have to remember the flags.
+
 ## Troubleshooting
 
 - Chrome won't start: kill existing Chrome processes and clear the debug user-data dir used by the start scripts.

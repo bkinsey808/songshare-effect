@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
@@ -36,8 +37,26 @@ function HomePage(): ReactElement {
 		return unsubscribe;
 	}, []);
 	const [searchParams, setSearchParams] = useSearchParams();
-	const signinError = searchParams.get("signinError");
+	// We will read the signinError on mount and store it in state. Doing the
+	// read-and-cleanup inside an effect lets us avoid disabling ESLint rules
+	// and keeps React Compiler optimizations intact.
+	const [signinError, setSigninError] = useState<string | null>(null);
 	const [dismissed, setDismissed] = useState(false);
+
+	// Run once on mount: capture the param into state and remove it from the
+	// URL so it doesn't persist. This uses proper effect dependencies and
+	// doesn't disable lint rules.
+	useEffect(() => {
+		const param = searchParams.get("signinError");
+		if (param !== null) {
+			setSigninError(param);
+			searchParams.delete("signinError");
+			searchParams.delete("provider");
+			setSearchParams(searchParams, { replace: true });
+		}
+		// Only run on mount; searchParams and setSearchParams are stable from
+		// react-router, but including them is safe and satisfies lint.
+	}, [searchParams, setSearchParams]);
 
 	// Redirect to dashboard when signed in
 	useEffect(() => {

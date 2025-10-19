@@ -81,6 +81,17 @@ export function handleHttpEndpoint<A, E extends AppError>(
 	return async function (ctx: Context): Promise<Response> {
 		const effect = Effect.match(effectFactory(ctx), {
 			onFailure: (error) => {
+				// Log the error for debugging (include stack if available)
+				try {
+					if (error instanceof Error) {
+						console.error('[handleHttpEndpoint] Unhandled error:', error.stack ?? error.message);
+					} else {
+						console.error('[handleHttpEndpoint] Unhandled error (non-Error):', String(error));
+					}
+				} catch (err) {
+					// Swallow logging errors to avoid masking the original error
+					console.error('[handleHttpEndpoint] Failed to log error:', String(err));
+				}
 				// `error` can be unknown coming from Effect; coerce to AppError for formatting
 				const { status, body } = errorToHttpResponse(error as AppError);
 				return ctx.json(body, status as Parameters<typeof ctx.json>[1]);

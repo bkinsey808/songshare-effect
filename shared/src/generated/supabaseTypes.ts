@@ -118,7 +118,7 @@ export type Database = {
 					email: string;
 					google_calendar_access: string;
 					google_calendar_refresh_token: string | null;
-					linked_providers: string[];
+					linked_providers: string[] | null;
 					name: string;
 					role: string;
 					role_expires_at: string | null;
@@ -131,7 +131,7 @@ export type Database = {
 					email: string;
 					google_calendar_access?: string;
 					google_calendar_refresh_token?: string | null;
-					linked_providers?: string[];
+					linked_providers?: string[] | null;
 					name: string;
 					role?: string;
 					role_expires_at?: string | null;
@@ -144,7 +144,7 @@ export type Database = {
 					email?: string;
 					google_calendar_access?: string;
 					google_calendar_refresh_token?: string | null;
-					linked_providers?: string[];
+					linked_providers?: string[] | null;
 					name?: string;
 					role?: string;
 					role_expires_at?: string | null;

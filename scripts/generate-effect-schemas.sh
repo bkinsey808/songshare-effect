@@ -43,19 +43,33 @@ bun run scripts/generateEffectSchemas.ts
 
 if [ -f temp-supabase-types.ts ]; then
     echo "📁 Moving Supabase types to shared/generated directory..."
-    mv temp-supabase-types.ts shared/generated/supabaseTypes.ts
+    # ensure the src/generated path exists under shared so tools that expect shared/src/generated can find it
+    mkdir -p shared/src/generated
+    mv temp-supabase-types.ts shared/src/generated/supabaseTypes.ts
+
+    echo "🔧 Running ESLint fix on generated types (shared/src/generated)..."
+    npx eslint shared/src/generated/supabaseTypes.ts --fix || true
+
+    echo "  • shared/src/generated/supabaseTypes.ts (Raw Supabase types)"
     
-    echo "🔧 Running ESLint fix on generated types..."
-    npx eslint shared/generated/supabaseTypes.ts --fix
-    
-    echo "  • shared/generated/supabaseTypes.ts (Raw Supabase types)"
+    # Format generated files with Prettier to ensure consistent styling (non-fatal)
+    if command -v npx >/dev/null 2>&1; then
+        echo "🔧 Running Prettier on generated files..."
+        # ensure final destination exists and move schemas into the same src/generated dir
+        mkdir -p shared/src/generated
+        if [ -f shared/generated/supabaseSchemas.ts ]; then
+            mv shared/generated/supabaseSchemas.ts shared/src/generated/supabaseSchemas.ts
+        fi
+
+        npx prettier --write shared/src/generated/supabaseSchemas.ts shared/src/generated/supabaseTypes.ts || true
+    fi
 else
     echo "📁 No types file to move (using fallback schemas)"
 fi
 
 echo "✅ Effect-TS schemas generated successfully!"
 echo "📁 Generated files:"
-echo "  • shared/generated/supabaseSchemas.ts (Effect schemas)"
+echo "  • shared/src/generated/supabaseSchemas.ts (Effect schemas)"
 echo ""
 echo "Next steps:"
 echo "  1. Review and adjust the generated schemas"

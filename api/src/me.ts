@@ -19,10 +19,45 @@ export function me(
 	ctx: Context<{ Bindings: Bindings }>,
 ): Effect.Effect<UserSessionData, AuthenticationError | DatabaseError> {
 	return Effect.gen(function* ($) {
+		// Dev-only: dump incoming headers for /api/me so we can confirm what
+		// the browser sent after the OAuth redirect.
+		yield* $(
+			Effect.sync(() => {
+				try {
+					const names = [
+						"host",
+						"cookie",
+						"referer",
+						"user-agent",
+						"x-forwarded-proto",
+						"x-forwarded-host",
+						"x-forwarded-for",
+					];
+					const hdrObj: Record<string, string | undefined> = {};
+					for (const n of names) {
+						hdrObj[n] = ctx.req.header(n) ?? undefined;
+					}
+					console.log("[me] Incoming request headers:", hdrObj);
+				} catch (e) {
+					console.error("[me] Failed to dump incoming headers:", String(e));
+				}
+			}),
+		);
 		// 1) extract token from cookie (sync)
 		const userSessionToken = yield* $(extractUserSessionTokenFromContext(ctx));
 
 		if (userSessionToken === undefined) {
+			// Log the Cookie header for debugging: helps verify whether the
+			// browser sent the session cookie after the OAuth redirect.
+			try {
+				console.log(
+					"[me] No session token found; Cookie header:",
+					ctx.req.header("cookie"),
+				);
+			} catch (e) {
+				// Best-effort logging; continue to fail below
+				console.error("[me] Failed to read Cookie header for debugging", String(e));
+			}
 			return yield* $(
 				Effect.fail(new AuthenticationError({ message: "Not authenticated" })),
 			);

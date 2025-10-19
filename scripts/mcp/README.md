@@ -125,3 +125,92 @@ If you want, I can also:
 - add a short usage README alongside each script with examples;
 - prepare a single `npm run mcp:all` orchestration that starts MCP and Chrome
 	with sensible defaults.
+
+Copilot / automation instructions
+-------------------------------
+
+This section is intended for automation or Copilot-style tools that will be
+managing the MCP/dev debugging flow. Below are concrete package.json scripts
+and shell commands the assistant (or a human) should run for common tasks.
+
+Core package.json scripts (preferred)
+
+- `npm run dev:mcp` — Start Chrome (debug mode), MCP server, and dev servers.
+	- Backgrounds the dev servers and starts a background monitor that writes
+		combined logs to `/tmp/monitor.log` and records its PID at
+		`/tmp/dev-mcp-monitor.pid`.
+
+- `npm run dev:mcp:stop` — Stop MCP/Chrome and dev servers (best-effort).
+
+- `npm run dev:mcp:clear-log` — Truncate `/tmp/monitor.log` without stopping
+	the monitor. Useful to get a clean log before reproducing a bug.
+
+- `npm run dev:monitor:tail` — Tail the combined monitor interactively:
+	`tail -n 200 -f /tmp/monitor.log`.
+
+- `npm run dev:monitor:status` — Print monitor PID and process info.
+
+- `npm run dev:mcp:restart` — Convenience: stop then start the full flow.
+
+Recommended Copilot workflow (one-liner style)
+
+1. Stop existing dev flow and ensure a clean log:
+
+	 npm run dev:mcp:stop && npm run dev:mcp:clear-log
+
+2. Start the full dev flow (Chrome, MCP, dev servers and background monitor):
+
+	 npm run dev:mcp
+
+3. While the user reproduces an issue, stream the monitor and call out
+	 relevant lines (Set-Cookie headers, /api/me requests and responses, 401/200):
+
+	 npm run dev:monitor:tail
+
+4. If the log gets noisy, truncate it during the session without stopping
+	 the monitor:
+
+	 npm run dev:mcp:clear-log
+
+Notes and automation hints
+-------------------------
+
+- Always prefer the `npm run` scripts above to custom ad-hoc shell lines so
+	that behavior stays consistent across environments.
+
+- The monitor is a simple `tail -F` background job; it will continue running
+	across `dev:mcp` restarts unless its pidfile is removed. Use
+	`npm run dev:monitor:status` to check and `kill $(cat /tmp/dev-mcp-monitor.pid)`
+	to stop it if needed.
+
+- For auth/cookie debugging specifically: the assistant should watch for
+	`Set-Cookie` lines in the monitor and confirm the following during a
+	sign-in reproduction:
+	- The OAuth callback response includes a `Set-Cookie: userSession=...` line.
+	- A subsequent request to `/api/me` includes `Cookie: userSession=...`.
+	- If `/api/me` logs `No session token found`, the cookie was not sent by
+		the browser and you should try the Vite proxy or adjust cookie attributes
+		only for local dev.
+
+- If a port conflict is reported (e.g. ports 5173 or 8787 already in use),
+	prefer to stop the running dev process via `npm run dev:mcp:stop` before
+	trying to start again. If that doesn't work, `lsof -i :5173` / `lsof -i :8787`
+	can help identify owners; the assistant should avoid force-killing unrelated
+	user processes unless explicitly asked.
+
+Troubleshooting checklist (short)
+
+1. Monitor PID missing or stale: `rm -f /tmp/dev-mcp-monitor.pid` and then
+	 `npm run dev:mcp` will recreate it.
+2. No `userSession` cookie present after OAuth callback:
+	 - Ensure the frontend makes requests with credentials: the code uses
+		 `fetch('/api/me', { credentials: 'include' })`.
+	 - Use the Vite proxy (already configured) so both client and API are
+		 same-origin during dev. If `dev:mcp` was started before the proxy was
+		 added, restart with `npm run dev:mcp:restart`.
+3. If MCP logs show `Permission denied` for `mcp-npx-wrapper.sh`, ensure the
+	 wrapper is executable: `chmod +x scripts/mcp/mcp-npx-wrapper.sh`.
+
+If you want, I can also generate a small checklist script that automates the
+above verification steps (e.g., check monitor PID, tail for Set-Cookie, run
+curl /api/me) and print a compact summary.

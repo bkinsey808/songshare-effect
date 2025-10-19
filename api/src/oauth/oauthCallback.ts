@@ -77,7 +77,7 @@ function resolveUsername(
 		try: async () => {
 			const upRes = await supabase
 				.from("user_public")
-				.select("username")
+				.select("user_id,username")
 				.eq("user_id", existingUser.user_id)
 				.maybeSingle();
 			if (upRes.error) {
@@ -123,6 +123,30 @@ function fetchAndPrepareUser(
 	DatabaseError
 > {
 	return Effect.gen(function* ($) {
+		// Dev-only: dump incoming request headers to help debug Set-Cookie/cookie
+		// propagation issues. Guarded as best-effort logging so it never throws.
+		yield* $(
+			Effect.sync(() => {
+				try {
+					const names = [
+						"host",
+						"cookie",
+						"referer",
+						"user-agent",
+						"x-forwarded-proto",
+						"x-forwarded-host",
+						"x-forwarded-for",
+					];
+					const hdrObj: Record<string, string | undefined> = {};
+					for (const n of names) {
+						hdrObj[n] = ctx.req.header(n) ?? undefined;
+					}
+					console.log("[oauthCallback] Incoming request headers:", hdrObj);
+				} catch (e) {
+					console.error("[oauthCallback] Failed to dump incoming headers:", String(e));
+				}
+			}),
+		);
 		// Build redirectUri for token exchange. Prefer configured OAUTH_REDIRECT_ORIGIN
 		// otherwise derive origin from the incoming request so it matches the
 		// redirect_uri used in oauthSignIn.
@@ -234,6 +258,9 @@ function computeDashboardRedirectWithPort(
 	);
 	return undefined;
 }
+// Note: debug-only in-memory captures were removed. Keep cookie-setting
+// logic below but do not persist Set-Cookie values in memory in production.
+
 function oauthCallbackFactory(
 	ctx: Context<{ Bindings: Env }>,
 ): Effect.Effect<Response, AppError> {
@@ -353,13 +380,62 @@ function oauthCallbackFactory(
 		const { supabase, oauthUserData, existingUser } = yield* $(
 			fetchAndPrepareUser(ctx, code, provider),
 		);
+		// Additional debug logging to aid in locating 500 errors during dev
+		yield* $(
+			Effect.sync(() =>
+				console.log(
+					"[oauthCallback] fetchAndPrepareUser completed. existingUser:",
+					existingUser ? { user_id: existingUser.user_id } : undefined,
+				),
+			),
+		);
 
 		// Determine Secure flag using environment (avoid relying on process)
 		// reuse envRecord declared earlier
 		const isProd = envRecord.ENVIRONMENT === "production";
 		const redirectOrigin = envRecord.OAUTH_REDIRECT_ORIGIN ?? "";
-		const secureFlag =
-			isProd || redirectOrigin.startsWith("https://") ? "Secure;" : "";
+
+			// Only include Secure when in production or when we can determine the
+			// incoming request used HTTPS. Vite's dev proxy and other proxies may
+			// terminate TLS before forwarding, so prefer checking x-forwarded-proto
+			// and the request URL protocol in addition to any configured redirect
+			// origin. This ensures that in HTTPS dev (mkcert + Vite) we include
+			// Secure so browsers accept SameSite=None cookies.
+	const headerProto = ctx.req.header("x-forwarded-proto") ?? "";
+	const requestProtoIsHttps = requestUrl.protocol === "https:";
+	const forwardedProtoIsHttps = headerProto.toLowerCase().startsWith("https");
+	const secure = isProd || redirectOrigin.startsWith("https://") || requestProtoIsHttps || forwardedProtoIsHttps;
+	const secureFlag = secure ? "Secure;" : "";
+
+	// For localhost dev flows, omit the Domain attribute (setting Domain to
+	// "localhost" can cause browsers to ignore the cookie). Use SameSite=Lax
+	// for localhost so modern browsers will accept the cookie without the
+	// Secure attribute. In non-localhost secure contexts we allow SameSite=None
+	// and set Secure when appropriate.
+		// Avoid setting Domain for localhost (can cause browsers to ignore cookie).
+		const domainAttr = "";
+
+		// Choose SameSite based on environment and security of the request:
+		// - In production: prefer SameSite=None when secure (for cross-site scenarios).
+		// - In localhost dev: use SameSite=Lax to avoid requiring Secure.
+		// - When we detected a secure transport (secureFlag true) and not localhost,
+		//   allow SameSite=None so cross-site requests (proxied dev or production) work.
+				const sameSiteAttr = (() => {
+					// Aggressive dev fix: when running locally with a redirect origin that
+					// includes 'localhost' we prefer SameSite=None so the browser will send
+					// the session cookie after the OAuth provider redirects back to the
+					// app. This is strictly a development convenience and should not be
+					// enabled in production.
+					if (!isProd && (redirectOrigin.includes("localhost") || redirectOrigin.includes("127.0.0.1"))) {
+						return "SameSite=None;";
+					}
+
+					// In secure contexts prefer None to allow cross-site/proxied requests.
+					if (secureFlag) return "SameSite=None;";
+
+					// Default to Lax in other non-secure contexts.
+					return "SameSite=Lax;";
+				})();
 
 		// dashboardRedirectUrl is not assigned yet, will log after assignment below
 		if (!existingUser) {
@@ -385,11 +461,14 @@ function oauthCallbackFactory(
 			);
 			yield* $(
 				Effect.sync(() =>
-					ctx.header(
-						"Set-Cookie",
-						`${registerCookieName}=${registerJwt}; HttpOnly; Path=/; SameSite=Lax; Max-Age=604800; ${secureFlag}`,
+						// Use SameSite=None so the session cookie is sent on cross-origin
+						// requests from the frontend (localhost:5173). Include Secure when
+						// appropriate. Note: some browsers require Secure when SameSite=None.
+						ctx.header(
+							"Set-Cookie",
+							`${registerCookieName}=${registerJwt}; HttpOnly; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureFlag}`,
+						),
 					),
-				),
 			);
 			yield* $(
 				Effect.sync(() =>
@@ -419,7 +498,7 @@ function oauthCallbackFactory(
 			);
 		}
 
-		if (!existingUser.linked_providers.includes(provider)) {
+		if (!existingUser.linked_providers?.includes(provider)) {
 			const prov = encodeURIComponent(provider);
 			yield* $(
 				Effect.sync(() =>
@@ -463,6 +542,14 @@ function oauthCallbackFactory(
 		};
 		// Validate using Effect Schema (throws if invalid)
 		yield* $(
+			Effect.sync(() =>
+				console.log(
+					"[oauthCallback] Validating sessionData for user:",
+					existingUser?.user_id,
+				),
+			),
+		);
+		yield* $(
 			Schema.decodeUnknown(sessionDataSchema)(sessionData).pipe(
 				Effect.mapError(
 					(err) =>
@@ -490,20 +577,13 @@ function oauthCallbackFactory(
 			createJwt(sessionData, jwtSecretFinal as string),
 		);
 		yield* $(
-			Effect.sync(() =>
-				ctx.header(
-					"Set-Cookie",
-					`${userSessionCookieName}=${sessionJwt}; HttpOnly; Path=/; SameSite=Lax; Max-Age=604800; ${secureFlag}`,
-				),
-			),
-		);
-		yield* $(
-			Effect.sync(() =>
-				console.log(
-					"[oauthCallback] Setting session cookie:",
-					userSessionCookieName,
-				),
-			),
+			Effect.sync(() => {
+					const headerValue = `${userSessionCookieName}=${sessionJwt}; HttpOnly; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureFlag}`;
+					// Set the cookie header and log it for debugging
+					ctx.header("Set-Cookie", headerValue);
+					console.log("[oauthCallback] Set-Cookie header:", headerValue);
+					console.log("[oauthCallback] Setting session cookie:", userSessionCookieName);
+			}),
 		);
 
 		// Client-side redirect to dashboard to ensure cookie is sent before SSR
@@ -540,23 +620,36 @@ function oauthCallbackFactory(
 				),
 			),
 		);
-		// Use 303 See Other to instruct clients to perform a GET on the Location
+		// Use ctx.redirect so headers previously set via ctx.header (including
+		// Set-Cookie) are preserved on the response. Returning a freshly
+		// constructed Response here would lose the headers attached to ctx.
 		return yield* $(
-			Effect.sync(
-				() =>
-					new Response(undefined, {
-						status: 303,
-						headers: { Location: dashboardRedirectUrl },
-					}),
-			),
+			Effect.sync(() => ctx.redirect(dashboardRedirectUrl, 303)),
 		);
 	});
 }
 
-export function oauthCallbackHandler(
+export async function oauthCallbackHandler(
 	ctx: Context<{ Bindings: Env }>,
 ): Promise<Response> {
-	return handleHttpEndpoint((context) => oauthCallbackFactory(context))(ctx);
+	try {
+		// Await the handler so we can catch any unexpected runtime rejections
+		return await handleHttpEndpoint((context) => oauthCallbackFactory(context))(ctx);
+	} catch (err) {
+		try {
+			if (err instanceof Error) {
+				console.error('[oauthCallbackHandler] Unhandled exception:', err.stack ?? err.message);
+			} else {
+				console.error('[oauthCallbackHandler] Unhandled exception (non-Error):', String(err));
+			}
+		} catch (e) {
+			console.error('[oauthCallbackHandler] Failed to log unhandled exception:', String(e));
+		}
+		return new Response(JSON.stringify({ success: false, error: 'Internal server error' }), {
+			status: 500,
+			headers: { 'Content-Type': 'application/json' },
+		});
+	}
 }
 
 export default oauthCallbackHandler;

@@ -19,6 +19,10 @@ CHROME_FLAGS=(
     "--disable-features=VizDisplayCompositor"
     "--auto-open-devtools-for-tabs"
 )
+# By default do NOT auto-open the browser window. Set AUTO_OPEN_CHROME=1 to
+# opt in to launching the app URL in the browser when the debug instance is
+# started. This avoids unexpectedly opening Windows Chrome in WSL environments.
+AUTO_OPEN_CHROME="${AUTO_OPEN_CHROME:-0}"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -34,8 +38,29 @@ if [[ -n "$WSL_DISTRO_NAME" ]]; then
     
     CHROME_WIN="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
     CHROME_WIN_LOCAL="/mnt/c/Users/$USER/AppData/Local/Google/Chrome/Application/chrome.exe"
-    
-    if [[ -f "$CHROME_WIN" ]]; then
+
+    # Allow overriding to prefer Linux Chrome inside WSL if desired. Some users
+    # prefer launching the Linux binary so remote debugging binds inside the
+    # WSL network namespace and is reachable from WSL tools (curl, etc.). Set
+    # USE_LINUX_CHROME=1 to prefer the Linux binary when available.
+    if [[ -n "${USE_LINUX_CHROME:-}" ]]; then
+        echo -e "${YELLOW}⚠ USE_LINUX_CHROME set; preferring Linux Chrome if available${NC}"
+        if command -v google-chrome &> /dev/null; then
+            CHROME_PATH="google-chrome"
+            echo -e "${GREEN}✓ Found Linux Chrome in WSL2: $CHROME_PATH${NC}"
+        elif command -v chromium-browser &> /dev/null; then
+            CHROME_PATH="chromium-browser"
+            echo -e "${GREEN}✓ Found Chromium in WSL2: $CHROME_PATH${NC}"
+        else
+            echo -e "${YELLOW}⚠ USE_LINUX_CHROME requested but no Linux Chrome found; falling back to Windows Chrome detection${NC}"
+        fi
+    fi
+
+    # If CHROME_PATH was already set above (for example via USE_LINUX_CHROME),
+    # prefer that and do not override with Windows Chrome paths.
+    if [[ -n "${CHROME_PATH:-}" ]]; then
+        echo -e "${GREEN}✓ Using preferred Chrome binary: $CHROME_PATH${NC}"
+    elif [[ -f "$CHROME_WIN" ]]; then
         CHROME_PATH="$CHROME_WIN"
         echo -e "${GREEN}✓ Found Windows Chrome: $CHROME_PATH${NC}"
     elif [[ -f "$CHROME_WIN_LOCAL" ]]; then
@@ -90,10 +115,24 @@ echo -e "${BLUE}🚀 Starting Chrome with debug flags...${NC}"
 echo -e "${BLUE}Debug port: $CHROME_DEBUG_PORT${NC}"
 echo -e "${BLUE}User data dir: $CHROME_USER_DATA_DIR${NC}"
 
-if [[ "$CHROME_PATH" == *".exe" ]]; then
-    "$CHROME_PATH" "${CHROME_FLAGS[@]}" "http://localhost:$DEV_SERVER_PORT" >> "$CHROME_LOGFILE" 2>&1 &
+# Launch Chrome. Only open the app URL if AUTO_OPEN_CHROME is enabled.
+if [[ "$AUTO_OPEN_CHROME" == "1" ]]; then
+    if [[ "$CHROME_PATH" == *".exe" ]]; then
+        "$CHROME_PATH" "${CHROME_FLAGS[@]}" "http://localhost:$DEV_SERVER_PORT" >> "$CHROME_LOGFILE" 2>&1 &
+    else
+        "$CHROME_PATH" "${CHROME_FLAGS[@]}" "http://localhost:$DEV_SERVER_PORT" >> "$CHROME_LOGFILE" 2>&1 &
+    fi
 else
-    "$CHROME_PATH" "${CHROME_FLAGS[@]}" "http://localhost:$DEV_SERVER_PORT" >> "$CHROME_LOGFILE" 2>&1 &
+    # Start Chrome without opening the app URL. This still enables the remote
+    # debugging port so MCP and other tools can connect, but will not create a
+    # visible tab for the app. To open the app manually set AUTO_OPEN_CHROME=1.
+    if [[ "$CHROME_PATH" == *".exe" ]]; then
+        "$CHROME_PATH" "${CHROME_FLAGS[@]}" >> "$CHROME_LOGFILE" 2>&1 &
+    else
+        "$CHROME_PATH" "${CHROME_FLAGS[@]}" >> "$CHROME_LOGFILE" 2>&1 &
+    fi
+    echo -e "${YELLOW}Note: AUTO_OPEN_CHROME not set; Chrome started without opening the app URL.${NC}"
+    echo -e "${BLUE}To auto-open the app, run: AUTO_OPEN_CHROME=1 ./scripts/mcp/start-chrome-debug.sh${NC}"
 fi
 
 CHROME_PID=$!

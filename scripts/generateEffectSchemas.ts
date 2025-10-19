@@ -138,11 +138,19 @@ function parseSupabaseTypes(filePath: string): TableDefinition[] {
 				// eslint-disable-next-line sonarjs/slow-regex
 				const cleanType = fieldType.replace(/\s*\|\s*null\s*$/, "").trim();
 
-				// Map TypeScript types to our internal types
+				// Preserve array types (e.g., string[] or number[]) so downstream mapping
+				// can produce Schema.Array(...) instead of falling back to plain string.
+				const isArrayType = /\[\]$/.test(cleanType);
+
+				// Map TypeScript types to our internal types. Keep array suffix if present.
 				// default
 				let mappedType = "string";
 
-				if (cleanType.includes("number")) {
+				if (isArrayType) {
+					// Keep the array marker (e.g. "string[]") so getEffectType can
+					// generate Schema.Array(...) appropriately.
+					mappedType = cleanType; // e.g. "string[]"
+				} else if (cleanType.includes("number")) {
 					mappedType = "number";
 				} else if (cleanType.includes("boolean")) {
 					mappedType = "boolean";
@@ -266,7 +274,16 @@ function createExampleSchemas(): TableDefinition[] {
 function getEffectType(column: ColumnDefinition): string {
 	let effectType = typeMapping[column.type];
 	if (effectType === undefined) {
-		effectType = "Schema.String";
+		// If the column.type retains an array marker (e.g. "string[]"), map
+		// the element type and wrap it in Schema.Array(...)
+		if (/\[\]$/.test(column.type)) {
+			const elemType = column.type.replace(/\[\]$/, "");
+			let mappedElem = typeMapping[elemType] ?? "Schema.String";
+			// If mapping returned a bare name like "Schema.String", keep it.
+			effectType = `Schema.Array(${mappedElem})`;
+		} else {
+			effectType = "Schema.String";
+		}
 	}
 
 	// Special handling for arrays stored as JSON
@@ -292,8 +309,10 @@ function getEffectType(column: ColumnDefinition): string {
 
 function getTypeAnnotation(effectType: string): string {
 	// Convert runtime Effect types to type annotations
-	if (effectType === "Schema.Array(Schema.String)") {
-		return "Schema.Array$<typeof Schema.String>";
+	if (effectType.startsWith("Schema.Array(")) {
+		// Extract inner representation and recursively compute its annotation
+		const inner = effectType.slice("Schema.Array(".length, -1);
+		return `Schema.Array$<${getTypeAnnotation(inner)}>`;
 	}
 
 	// For most types, the type annotation is "typeof " + the type
