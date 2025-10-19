@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 
 import { useAppStore } from "@/react/zustand/useAppStore";
 import { SupportedLanguage } from "@/shared/language/supportedLanguages";
+
 // Avoid runtime react-router hooks in this component to prevent runtime
 // errors in some dev toolchains. Use window.location as a robust fallback.
 
@@ -13,11 +14,12 @@ function DashboardPage(): ReactElement {
 	const user = store((state) => state.userSessionData);
 	const signOut = store((state) => state.signOut);
 	// Derive current language from the path as a robust fallback
-	const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
-	const maybeLang = pathname.split("/")[1];
-	const currentLang = maybeLang && maybeLang.length > 0 ? maybeLang : SupportedLanguage.en;
+	const pathname =
+		typeof window === "undefined" ? "/" : window.location.pathname;
+	const maybeLang = pathname.split("/")[1] ?? "";
+	const currentLang = maybeLang.length > 0 ? maybeLang : SupportedLanguage.en;
 
-	if (!isSignedIn) {
+	if (isSignedIn === false) {
 		return (
 			<div className="text-center text-gray-300">
 				<h2 className="text-2xl font-bold">
@@ -36,14 +38,17 @@ function DashboardPage(): ReactElement {
 			</p>
 			<div className="mt-4">
 				<button
-					className="px-3 py-1 rounded bg-red-600 text-white"
+					className="rounded bg-red-600 px-3 py-1 text-white"
 					onClick={async () => {
 						// Attempt sign-out on the server; do not rely on it for client-side
 						// state cleanup. Log any error but always clear client state.
 						try {
-							await fetch(`/api/auth/signout`, { method: "POST", credentials: "include" });
-						} catch (e) {
-							console.error("Sign-out API failed:", e);
+							await fetch(`/api/auth/signout`, {
+								method: "POST",
+								credentials: "include",
+							});
+						} catch (err) {
+							console.error("Sign-out API failed:", err);
 						}
 						// Always clear client state and navigate home
 						signOut();

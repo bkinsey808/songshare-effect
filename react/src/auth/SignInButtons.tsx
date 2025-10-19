@@ -22,13 +22,13 @@ export const SignInButtons = (): ReactElement => {
 
 		// Client-side: use the actual port the app is served on at runtime.
 		// window.location.port is an empty string when using default ports (80/443),
-	// so fall back to 5173 as the dev default.
-	return String(window.location.port || "5173");
+		// so fall back to 5173 as the dev default.
+		return String(window.location.port || "5173");
 	})();
 
 	return (
 		<div className="flex flex-col items-center justify-center gap-6">
-			{!isSignedIn && (
+			{isSignedIn === false && (
 				<div className="mb-4 text-lg text-gray-700">
 					<p>{t("auth.signedOutMessage", "You are not signed in.")}</p>
 					<p>

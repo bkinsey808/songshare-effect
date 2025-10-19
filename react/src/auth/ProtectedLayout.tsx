@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import {
 	Navigate,
 	Outlet,
@@ -15,7 +15,7 @@ import { apiMePath } from "@/shared/paths";
 import { SigninErrorToken } from "@/shared/signinTokens";
 
 // Layout that protects child routes and redirects unauthenticated users.
-export default function ProtectedLayout(): React.ReactElement {
+export default function ProtectedLayout(): ReactElement {
 	// Detect whether we were redirected here from the OAuth callback.
 	const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
@@ -38,9 +38,9 @@ export default function ProtectedLayout(): React.ReactElement {
 		const next = new URLSearchParams(searchParamsString);
 		next.delete("justSignedIn");
 
-	// Always use the proxied API path so Vite's dev proxy handles requests
-	// to the API during local development (keeps frontend on :5173).
-	const meUrl = apiMePath;
+		// Always use the proxied API path so Vite's dev proxy handles requests
+		// to the API during local development (keeps frontend on :5173).
+		const meUrl = apiMePath;
 
 		const fetchEffect = Effect.tryPromise<Response, unknown>({
 			try: () =>
@@ -62,8 +62,10 @@ export default function ProtectedLayout(): React.ReactElement {
 				// DOMException name may be 'AbortError' in browsers; in some runtimes
 				// the thrown error can be a simple object/string. Be defensive.
 				const isAbort =
-					err && typeof err === "object" &&
-					("name" in err ? (err as any).name === "AbortError" : false);
+					typeof err === "object" &&
+					err !== null &&
+					"name" in err &&
+					(err as { name?: unknown }).name === "AbortError";
 				if (isAbort) {
 					// No-op on abort during cleanup.
 					return Effect.succeed(undefined as void);
@@ -95,29 +97,40 @@ export default function ProtectedLayout(): React.ReactElement {
 
 		// Synchronously capture the returned value; it may be a fiber handle
 		// with interrupt(), or a thenable that resolves to such a handle.
-		const maybeFiber = runtimeFiber as EffectFiberHandle | Promise<unknown> | undefined;
+		const maybeFiber = runtimeFiber as
+			| EffectFiberHandle
+			| Promise<unknown>
+			| undefined;
 
 		return () => {
 			controller.abort();
 
 			try {
-				if (!maybeFiber) return;
+				if (!maybeFiber) {
+					return;
+				}
 
-						// If the returned value already exposes interrupt(), call it.
-						// Avoid optional chaining inside try/catch (react-compiler issue)
-						// and avoid the non-null assertion operator. Use a type guard so
-						// TypeScript understands interrupt() is present.
-						function hasInterrupt(
-							f: EffectFiberHandle | Promise<unknown> | undefined,
-						): f is EffectFiberHandle & { interrupt: () => Promise<unknown> } {
-							return !!f && typeof (f as any).interrupt === "function";
-						}
+				// If the returned value already exposes interrupt(), call it.
+				// Avoid optional chaining inside try/catch (react-compiler issue)
+				// and avoid the non-null assertion operator. Use a type guard so
+				// TypeScript understands interrupt() is present.
+				function hasInterrupt(
+					fiberCandidate: EffectFiberHandle | Promise<unknown> | undefined,
+				): fiberCandidate is EffectFiberHandle & {
+					interrupt: () => Promise<unknown>;
+				} {
+					return (
+						Boolean(fiberCandidate) &&
+						typeof (fiberCandidate as Partial<EffectFiberHandle>).interrupt ===
+							"function"
+					);
+				}
 
-						if (hasInterrupt(maybeFiber)) {
-							// maybeFiber is now narrowed to a shape with interrupt()
-							void maybeFiber.interrupt();
-							return;
-						}
+				if (hasInterrupt(maybeFiber)) {
+					// maybeFiber is now narrowed to a shape with interrupt()
+					void maybeFiber.interrupt();
+					return;
+				}
 
 				// If it's thenable, wait for the resolved fiber and call its
 				// interrupt() if present. Fire-and-forget; cleanup may be
@@ -127,23 +140,22 @@ export default function ProtectedLayout(): React.ReactElement {
 						.then((resolved: unknown) => {
 							// Narrow resolved to a shape with optional interrupt()
 							type ResolvedFiber = { interrupt?: () => Promise<unknown> };
-							if (resolved && typeof (resolved as ResolvedFiber).interrupt === "function") {
-								const resolvedFiber = resolved as ResolvedFiber;
-								const interruptFn = resolvedFiber.interrupt;
-								if (typeof interruptFn === "function") {
-									void interruptFn();
+							if (resolved !== null && typeof resolved === "object") {
+								const maybeResolved = resolved as ResolvedFiber;
+								if (typeof maybeResolved.interrupt === "function") {
+									void maybeResolved.interrupt();
 								}
 							}
+							return undefined;
 						})
 						.catch(() => {
 							/* ignore errors during cleanup */
 						});
 				}
-			} catch (e) {
+			} catch (err) {
 				// Defensive: don't let cleanup throw during React unmount.
 				// Log for visibility in dev only.
-				// eslint-disable-next-line no-console
-				console.error("[ProtectedLayout] error interrupting fiber", e);
+				console.error("[ProtectedLayout] error interrupting fiber", err);
 			}
 		};
 	}, [justSignedIn, navigate, searchParamsString, setSearchParams]);
@@ -157,7 +169,7 @@ export default function ProtectedLayout(): React.ReactElement {
 		return <div />;
 	}
 
-	if (!isSignedIn) {
+	if (isSignedIn === false) {
 		// Redirect to language-prefixed home (you can change target as needed)
 		return <Navigate to={`/${lang}`} replace />;
 	}

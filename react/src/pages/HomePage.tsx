@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
@@ -40,23 +39,27 @@ function HomePage(): ReactElement {
 	// We will read the signinError on mount and store it in state. Doing the
 	// read-and-cleanup inside an effect lets us avoid disabling ESLint rules
 	// and keeps React Compiler optimizations intact.
-	const [signinError, setSigninError] = useState<string | null>(null);
+	// Initialize signinError from URL params to avoid calling setState
+	// synchronously inside an effect (react-hooks/set-state-in-effect).
+	const initialSigninError = searchParams.get("signinError") ?? undefined;
+	const [signinError, setSigninError] = useState<string | undefined>(
+		initialSigninError,
+	);
 	const [dismissed, setDismissed] = useState(false);
 
 	// Run once on mount: capture the param into state and remove it from the
 	// URL so it doesn't persist. This uses proper effect dependencies and
 	// doesn't disable lint rules.
 	useEffect(() => {
-		const param = searchParams.get("signinError");
-		if (param !== null) {
-			setSigninError(param);
-			searchParams.delete("signinError");
-			searchParams.delete("provider");
-			setSearchParams(searchParams, { replace: true });
+		// Clean up query params on mount if needed. searchParams and
+		// setSearchParams are stable from react-router and safe to include.
+		if (initialSigninError !== undefined) {
+			const next = new URLSearchParams(searchParams);
+			next.delete("signinError");
+			next.delete("provider");
+			setSearchParams(next, { replace: true });
 		}
-		// Only run on mount; searchParams and setSearchParams are stable from
-		// react-router, but including them is safe and satisfies lint.
-	}, [searchParams, setSearchParams]);
+	}, [initialSigninError, searchParams, setSearchParams]);
 
 	// Redirect to dashboard when signed in
 	useEffect(() => {
@@ -67,7 +70,7 @@ function HomePage(): ReactElement {
 
 	return (
 		<div>
-			{signinError !== null && !dismissed ? (
+			{signinError !== undefined && !dismissed ? (
 				<div className="mb-6 rounded-md bg-red-600/10 p-4 text-center">
 					<div className="mx-auto max-w-3xl">
 						<strong className="block text-red-300">
@@ -81,6 +84,8 @@ function HomePage(): ReactElement {
 								className="rounded px-3 py-1 text-sm text-white/90"
 								onClick={() => {
 									setDismissed(true);
+									// Also clear the local signinError state so the banner is removed
+									setSigninError(undefined);
 									// Remove the query param so it doesn't persist on refresh
 									searchParams.delete("signinError");
 									searchParams.delete("provider");
