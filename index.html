@@ -7,6 +7,11 @@
 		<title>songshare-effect</title>
 	</head>
 	<body style="background-color: #111827; color: white; margin: 0; padding: 0">
+		<!-- Hide the app root by default to prevent a flash of homepage content
+		     while the client determines whether an OAuth sign-in redirect is in
+		     progress. main.tsx will synchronously remove this style if no
+		     sign-in is pending. -->
+		<style id="songshare-signin-hide">#root{visibility:hidden !important;}</style>
 		<div id="root"></div>
 		<script type="module" src="/react/src/main.tsx"></script>
 	</body>

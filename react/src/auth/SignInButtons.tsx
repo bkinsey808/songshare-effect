@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 
+import { setSigninPending } from "@/react/auth/signinPending";
 import { useIsOnline } from "@/react/hooks/useIsOnline";
 import { useLanguage } from "@/react/language/useLanguage";
 import { getFrontEndProviderData } from "@/react/providers/providers";
@@ -53,6 +54,11 @@ export const SignInButtons = (): ReactElement => {
 					return (
 						<div key={provider}>
 							<a
+								// Mark that a sign-in flow has started so the app can hide the
+								// homepage immediately and avoid a flash when the OAuth redirect
+								// returns to the app. Use sessionStorage so the flag survives the
+								// full-page navigation to the provider and back.
+								onClick={() => setSigninPending()}
 								style={cssVars({
 									brandColor,
 									hoverColor,

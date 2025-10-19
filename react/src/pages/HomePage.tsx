@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { SignInButtons } from "@/react/auth/SignInButtons";
+import { clearSigninPending } from "@/react/auth/signinPending";
 import { getStoreApi } from "@/react/zustand/useAppStore";
 import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 import {
@@ -12,6 +13,7 @@ import {
 } from "@/shared/paths";
 import { SigninErrorToken } from "@/shared/signinTokens";
 
+// eslint-disable-next-line max-lines-per-function
 function HomePage(): ReactElement {
 	const { t, i18n } = useTranslation();
 	const currentLang = i18n.language as SupportedLanguageType;
@@ -45,6 +47,67 @@ function HomePage(): ReactElement {
 	const [signinError, setSigninError] = useState<string | undefined>(
 		initialSigninError,
 	);
+
+	// If the user initiated an OAuth sign-in, a flag is set in sessionStorage
+	// so we can hide the homepage content immediately to avoid a flash while
+	// the app processes the redirect back from the provider.
+	const [signinPending, setSigninPending] = useState<boolean>(() => {
+		try {
+			return sessionStorage.getItem("songshare:signinPending") === "1";
+		} catch {
+			return false;
+		}
+	});
+
+	// Clear the signinPending flag when we know the sign-in finished (success)
+	// or when there is a signin error. Also set a fallback timeout to avoid a
+	// permanent blank page in case of unexpected hangs.
+	useEffect(() => {
+		let timeout: number | undefined;
+		// If we are signed in, clear the pending flag and sessionStorage. Defer
+		// the state update to avoid synchronous setState-in-effect warnings.
+		if (isSignedIn === true && signinPending) {
+			setTimeout(() => {
+				setSigninPending(false);
+				try {
+					// Centralized cleanup
+					clearSigninPending();
+				} catch {
+					// ignore
+				}
+			}, 0);
+		}
+
+		// If there's a signin error present on the page, clear the pending flag.
+		if (signinError !== undefined && signinPending) {
+			setTimeout(() => {
+				setSigninPending(false);
+				try {
+					clearSigninPending();
+				} catch {
+					// ignore
+				}
+			}, 0);
+		}
+
+		// Fallback: clear pending after 1s to avoid permanent blank page.
+		if (signinPending) {
+			timeout = window.setTimeout(() => {
+				setSigninPending(false);
+				try {
+					clearSigninPending();
+				} catch {
+					// ignore
+				}
+			}, 1000);
+		}
+
+		return () => {
+			if (timeout !== undefined) {
+				clearTimeout(timeout);
+			}
+		};
+	}, [isSignedIn, signinError, signinPending]);
 	const [dismissed, setDismissed] = useState(false);
 
 	// Run once on mount: capture the param into state and remove it from the
@@ -67,6 +130,13 @@ function HomePage(): ReactElement {
 			void navigate(`/${currentLang}/${dashboardPath}`);
 		}
 	}, [isSignedIn, navigate, currentLang]);
+
+	// If sign-in was initiated and no signin error is present yet, render
+	// a blank page to avoid flashing the homepage content while the app
+	// processes the OAuth redirect back from the provider.
+	if (signinPending && signinError === undefined) {
+		return <div />;
+	}
 
 	return (
 		<div>

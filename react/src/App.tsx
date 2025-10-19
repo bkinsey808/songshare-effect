@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import type { StoreApi, UseBoundStore } from "zustand";
 
@@ -64,6 +64,22 @@ function HydratedLayout(): React.ReactElement {
 
 	// This will suspend until the store is hydrated
 	useAppStoreSuspense();
+
+	// Remove the initial hide style injected by index.html now that the app
+	// has hydrated and initial auth checks have been run. This ensures we
+	// only unhide the UI when React is ready to render the correct route
+	// (prevents flashing the wrong page during OAuth redirects).
+	// Run in an effect so it's safe to mutate the DOM here.
+	useEffect(() => {
+		try {
+			const el = document.getElementById("songshare-signin-hide");
+			if (el) {
+				el.remove();
+			}
+		} catch {
+			// ignore
+		}
+	}, []);
 
 	return (
 		<ErrorBoundary>
