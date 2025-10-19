@@ -28,6 +28,7 @@
 		"pkey",
 		"plpgsql",
 		"Postgrest",
+		"prehydrate",
 		"sonarjs",
 		"songshare",
 		"Supabase",
