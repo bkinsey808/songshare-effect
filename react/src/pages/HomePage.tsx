@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 
 import { SignInButtons } from "@/react/auth/SignInButtons";
 import { clearSigninPending } from "@/react/auth/signinPending";
@@ -17,7 +17,6 @@ import { SigninErrorToken } from "@/shared/signinTokens";
 function HomePage(): ReactElement {
 	const { t, i18n } = useTranslation();
 	const currentLang = i18n.language as SupportedLanguageType;
-	const navigate = useNavigate();
 	// Read sign-in state from the store API via subscription instead of
 	// calling the Zustand hook here. This keeps the hook call order in
 	// this component stable across renders and avoids conditional hook
@@ -48,16 +47,27 @@ function HomePage(): ReactElement {
 		initialSigninError,
 	);
 
-	// If the user initiated an OAuth sign-in, a flag is set in sessionStorage
+	// If the user initiated an OAuth sign-in, a flag is set in sessionStorage or cookie
 	// so we can hide the homepage content immediately to avoid a flash while
 	// the app processes the redirect back from the provider.
-	const [signinPending, setSigninPending] = useState<boolean>(() => {
+	function getSigninPending(): boolean {
 		try {
-			return sessionStorage.getItem("songshare:signinPending") === "1";
+			if (sessionStorage.getItem("songshare:signinPending") === "1") {
+				return true;
+			}
 		} catch {
-			return false;
+			// ignore
 		}
-	});
+		try {
+			if (document.cookie.indexOf("songshare_signin_pending=") !== -1) {
+				return true;
+			}
+		} catch {
+			// ignore
+		}
+		return false;
+	}
+	const [signinPending, setSigninPending] = useState<boolean>(getSigninPending);
 
 	// Clear the signinPending flag when we know the sign-in finished (success)
 	// or when there is a signin error. Also set a fallback timeout to avoid a
@@ -124,17 +134,14 @@ function HomePage(): ReactElement {
 		}
 	}, [initialSigninError, searchParams, setSearchParams]);
 
-	// Redirect to dashboard when signed in
-	useEffect(() => {
-		if (isSignedIn === true) {
-			void navigate(`/${currentLang}/${dashboardPath}`);
-		}
-	}, [isSignedIn, navigate, currentLang]);
+	// Synchronously redirect to dashboard when signed in
+	if (isSignedIn === true) {
+		return <Navigate to={`/${currentLang}/${dashboardPath}`} replace />;
+	}
 
-	// If sign-in was initiated and no signin error is present yet, render
-	// a blank page to avoid flashing the homepage content while the app
-	// processes the OAuth redirect back from the provider.
-	if (signinPending && signinError === undefined) {
+	// If sign-in was initiated (via sessionStorage or cookie) and no signin error is present yet, render
+	// a blank page to avoid flashing the homepage content while the app processes the OAuth redirect back from the provider.
+	if (getSigninPending() && signinError === undefined) {
 		return <div />;
 	}
 

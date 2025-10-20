@@ -1,6 +1,5 @@
 import { Suspense, useEffect } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
-import type { StoreApi, UseBoundStore } from "zustand";
 
 import Navigation from "./Navigation";
 import ProtectedLayout from "./auth/ProtectedLayout";
@@ -22,12 +21,6 @@ import UploadPage from "./pages/UploadPage";
 import UseHookDemoPage from "./pages/UseHookDemoPage";
 import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
 import {
-	type AppSlice,
-	useAppStoreHydrated,
-	useAppStoreHydrationPromise,
-} from "./zustand/useAppStore";
-// debug tracer removed
-import {
 	aboutPath,
 	activityDemoPath,
 	dashboardPath,
@@ -42,28 +35,11 @@ import {
 	userSubscriptionDemoPath,
 } from "@/shared/paths";
 
-// ✅ IDEAL SOLUTION: Suspense-compatible hook using direct hydration promise
-function useAppStoreSuspense(): UseBoundStore<StoreApi<AppSlice>> {
-	const { store, isHydrated } = useAppStoreHydrated();
-	// Always call the hook - Rules of Hooks
-	const hydrationPromise = useAppStoreHydrationPromise();
-
-	if (!isHydrated) {
-		// Throw the actual hydration promise for Suspense to catch
-		throw hydrationPromise;
-	}
-
-	return store;
-}
-
 // Component that uses Suspense for store hydration
 function HydratedLayout(): React.ReactElement {
 	// Initialize auth state first so the order of Hooks is stable even
 	// when the component suspends during hydration.
 	useEnsureSignedIn();
-
-	// This will suspend until the store is hydrated
-	useAppStoreSuspense();
 
 	// Remove the initial hide style injected by index.html now that the app
 	// has hydrated and initial auth checks have been run. This ensures we
