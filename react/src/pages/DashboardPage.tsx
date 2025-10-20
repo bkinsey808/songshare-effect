@@ -1,13 +1,14 @@
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 import { useAppStore } from "@/react/zustand/useAppStore";
 import { SupportedLanguage } from "@/shared/language/supportedLanguages";
 
-// Avoid runtime react-router hooks in this component to prevent runtime
-// errors in some dev toolchains. Use window.location as a robust fallback.
+// Use react-router's navigate for sign-out to avoid browser-specific hard navigation issues.
 
 function DashboardPage(): ReactElement {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 
 	const store = useAppStore();
 	const isSignedIn = store((state) => state.isSignedIn);
@@ -52,9 +53,9 @@ function DashboardPage(): ReactElement {
 						}
 						// Always clear client state and navigate home
 						signOut();
-						// Use a hard navigation to the localized root instead of react-router's
-						// navigate() to avoid relying on runtime hooks here.
-						window.location.assign(`/${currentLang}`);
+						// Use soft navigation to the localized root instead of hard navigation
+						// to avoid browser-specific reload issues.
+						void navigate(`/${currentLang}`, { replace: true });
 					}}
 				>
 					{t("pages.dashboard.signOut")}
