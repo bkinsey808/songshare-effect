@@ -10,6 +10,10 @@ function DashboardPage(): ReactElement {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 
+	// useAppStore() returns a bound store function. Call it to obtain the
+	// selector-style hook to avoid calling hooks indirectly or from event
+	// handlers. This keeps hook call order stable and avoids invalid hook
+	// call errors.
 	const store = useAppStore();
 	const isSignedIn = store((state) => state.isSignedIn);
 	const user = store((state) => state.userSessionData);

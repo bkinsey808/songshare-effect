@@ -2,9 +2,9 @@
 import tailwindcss from "@tailwindcss/postcss";
 import react from "@vitejs/plugin-react";
 import autoprefixer from "autoprefixer";
-import path from "path";
-import { type UserConfig, defineConfig } from "vite";
 import fs from "fs";
+import path from "path";
+import { type ServerOptions, type UserConfig, defineConfig } from "vite";
 
 // https://vite.dev/config/
 const config: UserConfig = defineConfig({
@@ -43,40 +43,54 @@ const config: UserConfig = defineConfig({
 	// absolute paths like `/api/me` and avoids CORS during local dev.
 	server: (() => {
 		// Base local server config
-		const base = {
+		const base: ServerOptions = {
 			host: "localhost",
 			port: 5173,
 			strictPort: true,
 			proxy: {
 				"/api": {
 					target: "http://localhost:8787",
-					changeOrigin: true,
+					// Important: preserve the browser "Origin" header so the API sees the
+					// front-end origin (https://localhost:5173). When changeOrigin is
+					// true proxies often rewrite the Origin/Host to the target which can
+					// cause OAuth redirect_uri to be built using the backend port (e.g.
+					// http://localhost:8787) and lead to redirect_uri_mismatch errors.
+					changeOrigin: false,
 					secure: false,
 					// Ensure Set-Cookie headers from the backend are forwarded to the
 					// browser in development. Many dev proxies rewrite or drop cookie
 					// domains; cookieDomainRewrite forces cookies to be usable on
 					// localhost during local testing.
 					cookieDomainRewrite: {
-						"localhost": "localhost",
+						localhost: "localhost",
 						"127.0.0.1": "localhost",
-					}, 
+					},
 					// Keep verbose proxy logs in dev to help debugging captured traffic
-					logLevel: "debug",
+					// (Note: `logLevel` is not part of Vite's typed ProxyOptions and
+					// was removed to satisfy the TypeScript config. Use runtime
+					// logging or the proxy server's own logs for verbose output.)
 				},
 			},
-		} as any;
+		};
 
 		// Enable HTTPS if mkcert-generated certs are present in .certs/
 		try {
 			const certPath = path.resolve(__dirname, ".certs/localhost.pem");
 			const keyPath = path.resolve(__dirname, ".certs/localhost-key.pem");
 			if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
-				return { ...base, https: { cert: fs.readFileSync(certPath), key: fs.readFileSync(keyPath) } };
+				return {
+					...base,
+					https: {
+						cert: fs.readFileSync(certPath),
+						key: fs.readFileSync(keyPath),
+					},
+				};
 			}
 		} catch (err) {
 			// If anything fails, fall back to non-https dev server.
 			// We intentionally swallow errors here to avoid blocking dev startup.
-			console.warn("Could not enable HTTPS for Vite dev server:", err && (err as Error).message);
+			const msg = err instanceof Error ? err.message : String(err);
+			console.warn("Could not enable HTTPS for Vite dev server:", msg);
 		}
 
 		return base;
