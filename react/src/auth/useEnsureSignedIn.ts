@@ -18,7 +18,9 @@ function parsePayload(payload: unknown): UserSessionData | undefined {
 	const isSuccessWrapper = (
 		value: unknown,
 	): value is { success: true; data: unknown } => {
-		if (typeof value !== "object" || value === null) return false;
+		if (typeof value !== "object" || value === null) {
+			return false;
+		}
 		const obj = value as Record<string, unknown>;
 		return (
 			Object.prototype.hasOwnProperty.call(obj, "data") &&
@@ -27,17 +29,23 @@ function parsePayload(payload: unknown): UserSessionData | undefined {
 	};
 
 	const isUserSessionData = (value: unknown): value is UserSessionData => {
-		if (typeof value !== "object" || value === null) return false;
+		if (typeof value !== "object" || value === null) {
+			return false;
+		}
 		const obj = value as Record<string, unknown>;
 		return Object.prototype.hasOwnProperty.call(obj, "user");
 	};
 
 	if (isSuccessWrapper(payload)) {
 		const data = (payload as { data: unknown }).data;
-		if (isUserSessionData(data)) return data;
+		if (isUserSessionData(data)) {
+			return data;
+		}
 	}
 
-	if (isUserSessionData(payload)) return payload;
+	if (isUserSessionData(payload)) {
+		return payload;
+	}
 	return undefined;
 }
 
@@ -134,7 +142,12 @@ export async function ensureSignedIn(options?: {
 				return undefined;
 			}
 
-			if (data !== undefined) {
+			if (data === undefined) {
+				// Debug: no data parsed
+				console.debug(
+					"[ensureSignedIn] parsed no userSessionData from payload",
+				);
+			} else {
 				// Debug: indicate we're about to apply sign-in
 				console.debug(
 					"[ensureSignedIn] applying signIn, user=",
@@ -148,11 +161,6 @@ export async function ensureSignedIn(options?: {
 				} catch (err) {
 					console.error("apply signIn failed:", err);
 				}
-			} else {
-				// Debug: no data parsed
-				console.debug(
-					"[ensureSignedIn] parsed no userSessionData from payload",
-				);
 			}
 
 			return data;

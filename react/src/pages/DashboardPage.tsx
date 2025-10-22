@@ -8,8 +8,7 @@ import type { UserSessionData } from "@/shared/userSessionData";
 
 // Use react-router's navigate for sign-out to avoid browser-specific hard navigation issues.
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types -- explicit return type
-function DashboardPage(): React.ReactElement {
+function DashboardPage(): ReactElement {
 	// Disable react-i18next suspense here to avoid suspending during render.
 	// If useTranslation were to throw a promise (suspense) it could
 	// interrupt hook ordering and lead to "rendered fewer hooks than

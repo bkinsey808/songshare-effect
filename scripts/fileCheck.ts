@@ -37,7 +37,7 @@ when invoking a component.
 \`export default function App(): ReactElement {\`
 is better than
 \`export default function App(_props: Record<string, unknown>): ReactElement {\`
-(14) Prefer ReactElement (which is an ambient type over React.ReactElement)
+(14) Prefer ReactElement (which is an ambient type over ReactElement)
 (15) If you run into an issue where a type null is required, you can use a disable lint comment
 as the final step.
 (16) Make sure there are no useless new code comments like \`// ...existing code..\`.

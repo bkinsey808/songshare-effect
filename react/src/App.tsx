@@ -36,7 +36,7 @@ import {
 } from "@/shared/paths";
 
 // Component that uses Suspense for store hydration
-function HydratedLayout(): React.ReactElement {
+function HydratedLayout(): ReactElement {
 	// Initialize auth state first so the order of Hooks is stable even
 	// when the component suspends during hydration.
 	useEnsureSignedIn();
@@ -70,7 +70,7 @@ function HydratedLayout(): React.ReactElement {
 }
 
 // Loading fallback component for Suspense
-function AppLoadingFallback(): React.ReactElement {
+function AppLoadingFallback(): ReactElement {
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-gray-900">
 			<div className="text-center">
@@ -82,7 +82,7 @@ function AppLoadingFallback(): React.ReactElement {
 }
 
 // Layout component with Suspense for store hydration
-function Layout(): React.ReactElement {
+function Layout(): ReactElement {
 	return (
 		<Suspense fallback={<AppLoadingFallback />}>
 			<HydratedLayout />
@@ -172,7 +172,7 @@ const router = createBrowserRouter([
 	},
 ]);
 
-function App(): React.ReactElement {
+function App(): ReactElement {
 	return <RouterProvider router={router} />;
 }
 

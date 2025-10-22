@@ -2,7 +2,7 @@ import React from "react";
 
 import { traceHook } from "@/react/hooks/hookTracer";
 
-const DebugHomeMinimal = (): React.ReactElement => {
+const DebugHomeMinimal = (): ReactElement => {
 	traceHook("DebugHomeMinimal:render");
 
 	return (
