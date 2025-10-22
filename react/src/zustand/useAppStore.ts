@@ -34,6 +34,15 @@ const hydrationState = {
 };
 
 export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
+	return ensureAppStore();
+}
+
+// Non-hook factory that ensures the store exists and returns it. This can be
+// safely called from non-React code (unlike functions named `use*` which are
+// treated as hooks by linting rules). It mirrors the creation logic in
+// `useAppStore()` but isn't named like a hook so it can be used in plain
+// functions (for example, `ensureSignedIn`).
+export function ensureAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 	if (store === undefined) {
 		// Create the hydration promise before creating the store
 		if (!hydrationState.promise) {
@@ -82,7 +91,7 @@ export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 			),
 		);
 	}
-	return store;
+	return store as UseBoundStore<StoreApi<AppSlice>>;
 }
 
 // Non-hook accessor for the bound store API. Returns the underlying
@@ -107,6 +116,11 @@ export function useAppStoreHydrated(): {
 	useEffect(() => {
 		// If already hydrated, schedule setting state asynchronously
 		if (hydrationState.isHydrated) {
+			// Debug
+			// eslint-disable-next-line no-console
+			console.debug(
+				"[useAppStoreHydrated] already hydrated, scheduling setIsHydrated(true)",
+			);
 			schedule(() => setIsHydrated(true));
 			return;
 		}
@@ -117,6 +131,12 @@ export function useAppStoreHydrated(): {
 		};
 
 		hydrationState.listeners.add(listener);
+		// Debug
+		// eslint-disable-next-line no-console
+		console.debug(
+			"[useAppStoreHydrated] added hydration listener; current isHydrated=",
+			hydrationState.isHydrated,
+		);
 
 		// Cleanup listener on unmount
 		return (): void => {

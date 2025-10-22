@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev:client": "vite",
 		"dev:api": "cd api && wrangler dev --no-enable-containers --env dev",
-		"dev": "npx concurrently \"npm run dev:client\" \"npm run dev:api\" --names \"frontend,api\" --prefix-colors \"blue,green\"",
+		"dev": "npx kill-port 8787 5173 && npx concurrently \"npm run dev:client\" \"npm run dev:api\" --names \"frontend,api\" --prefix-colors \"blue,green\"",
 		"dev:all": "npm run dev",
 		"dev:debug": "npx concurrently \"npm run dev:all\" \"bash -lc 'if [ \"${AUTO_OPEN_CHROME:-0}\" = \"1\" ]; then npm run chrome:debug:secure; else echo \"Skipping chrome (AUTO_OPEN_CHROME not set)\"; fi'\" --names \"servers,chrome\" --prefix-colors \"cyan,yellow\"",
 		"dev:debug:linux": "bash -lc 'nohup npm run dev:all > /tmp/dev-servers.log 2>&1 & DEV_PID=$!; sleep 1; if [ \"${AUTO_OPEN_CHROME:-0}\" = \"1\" ]; then nohup env USE_LINUX_CHROME=1 ./scripts/mcp/start-chrome-debug.sh > /tmp/chrome-debug.log 2>&1 & CH_PID=$!; else echo \"Skipping chrome start (AUTO_OPEN_CHROME not set)\"; CH_PID=0; fi; echo dev:$DEV_PID chrome:$CH_PID'",
