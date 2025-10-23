@@ -143,7 +143,10 @@ function fetchAndPrepareUser(
 					}
 					console.log("[oauthCallback] Incoming request headers:", hdrObj);
 				} catch (e) {
-					console.error("[oauthCallback] Failed to dump incoming headers:", String(e));
+					console.error(
+						"[oauthCallback] Failed to dump incoming headers:",
+						String(e),
+					);
 				}
 			}),
 		);
@@ -395,23 +398,27 @@ function oauthCallbackFactory(
 		const isProd = envRecord.ENVIRONMENT === "production";
 		const redirectOrigin = envRecord.OAUTH_REDIRECT_ORIGIN ?? "";
 
-			// Only include Secure when in production or when we can determine the
-			// incoming request used HTTPS. Vite's dev proxy and other proxies may
-			// terminate TLS before forwarding, so prefer checking x-forwarded-proto
-			// and the request URL protocol in addition to any configured redirect
-			// origin. This ensures that in HTTPS dev (mkcert + Vite) we include
-			// Secure so browsers accept SameSite=None cookies.
-	const headerProto = ctx.req.header("x-forwarded-proto") ?? "";
-	const requestProtoIsHttps = requestUrl.protocol === "https:";
-	const forwardedProtoIsHttps = headerProto.toLowerCase().startsWith("https");
-	const secure = isProd || redirectOrigin.startsWith("https://") || requestProtoIsHttps || forwardedProtoIsHttps;
-	const secureFlag = secure ? "Secure;" : "";
+		// Only include Secure when in production or when we can determine the
+		// incoming request used HTTPS. Vite's dev proxy and other proxies may
+		// terminate TLS before forwarding, so prefer checking x-forwarded-proto
+		// and the request URL protocol in addition to any configured redirect
+		// origin. This ensures that in HTTPS dev (mkcert + Vite) we include
+		// Secure so browsers accept SameSite=None cookies.
+		const headerProto = ctx.req.header("x-forwarded-proto") ?? "";
+		const requestProtoIsHttps = requestUrl.protocol === "https:";
+		const forwardedProtoIsHttps = headerProto.toLowerCase().startsWith("https");
+		const secure =
+			isProd ||
+			redirectOrigin.startsWith("https://") ||
+			requestProtoIsHttps ||
+			forwardedProtoIsHttps;
+		const secureFlag = secure ? "Secure;" : "";
 
-	// For localhost dev flows, omit the Domain attribute (setting Domain to
-	// "localhost" can cause browsers to ignore the cookie). Use SameSite=Lax
-	// for localhost so modern browsers will accept the cookie without the
-	// Secure attribute. In non-localhost secure contexts we allow SameSite=None
-	// and set Secure when appropriate.
+		// For localhost dev flows, omit the Domain attribute (setting Domain to
+		// "localhost" can cause browsers to ignore the cookie). Use SameSite=Lax
+		// for localhost so modern browsers will accept the cookie without the
+		// Secure attribute. In non-localhost secure contexts we allow SameSite=None
+		// and set Secure when appropriate.
 		// Avoid setting Domain for localhost (can cause browsers to ignore cookie).
 		const domainAttr = "";
 
@@ -420,22 +427,28 @@ function oauthCallbackFactory(
 		// - In localhost dev: use SameSite=Lax to avoid requiring Secure.
 		// - When we detected a secure transport (secureFlag true) and not localhost,
 		//   allow SameSite=None so cross-site requests (proxied dev or production) work.
-				const sameSiteAttr = (() => {
-					// Aggressive dev fix: when running locally with a redirect origin that
-					// includes 'localhost' we prefer SameSite=None so the browser will send
-					// the session cookie after the OAuth provider redirects back to the
-					// app. This is strictly a development convenience and should not be
-					// enabled in production.
-					if (!isProd && (redirectOrigin.includes("localhost") || redirectOrigin.includes("127.0.0.1"))) {
-						return "SameSite=None;";
-					}
+		const sameSiteAttr = (() => {
+			// Aggressive dev fix: when running locally with a redirect origin that
+			// includes 'localhost' we prefer SameSite=None so the browser will send
+			// the session cookie after the OAuth provider redirects back to the
+			// app. This is strictly a development convenience and should not be
+			// enabled in production.
+			if (
+				!isProd &&
+				(redirectOrigin.includes("localhost") ||
+					redirectOrigin.includes("127.0.0.1"))
+			) {
+				return "SameSite=None;";
+			}
 
-					// In secure contexts prefer None to allow cross-site/proxied requests.
-					if (secureFlag) return "SameSite=None;";
+			// In secure contexts prefer None to allow cross-site/proxied requests.
+			if (secureFlag) {
+				return "SameSite=None;";
+			}
 
-					// Default to Lax in other non-secure contexts.
-					return "SameSite=Lax;";
-				})();
+			// Default to Lax in other non-secure contexts.
+			return "SameSite=Lax;";
+		})();
 
 		// dashboardRedirectUrl is not assigned yet, will log after assignment below
 		if (!existingUser) {
@@ -461,14 +474,14 @@ function oauthCallbackFactory(
 			);
 			yield* $(
 				Effect.sync(() =>
-						// Use SameSite=None so the session cookie is sent on cross-origin
-						// requests from the frontend (localhost:5173). Include Secure when
-						// appropriate. Note: some browsers require Secure when SameSite=None.
-						ctx.header(
-							"Set-Cookie",
-							`${registerCookieName}=${registerJwt}; HttpOnly; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureFlag}`,
-						),
+					// Use SameSite=None so the session cookie is sent on cross-origin
+					// requests from the frontend (localhost:5173). Include Secure when
+					// appropriate. Note: some browsers require Secure when SameSite=None.
+					ctx.header(
+						"Set-Cookie",
+						`${registerCookieName}=${registerJwt}; HttpOnly; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureFlag}`,
 					),
+				),
 			);
 			yield* $(
 				Effect.sync(() =>
@@ -578,11 +591,14 @@ function oauthCallbackFactory(
 		);
 		yield* $(
 			Effect.sync(() => {
-					const headerValue = `${userSessionCookieName}=${sessionJwt}; HttpOnly; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureFlag}`;
-					// Set the cookie header and log it for debugging
-					ctx.header("Set-Cookie", headerValue);
-					console.log("[oauthCallback] Set-Cookie header:", headerValue);
-					console.log("[oauthCallback] Setting session cookie:", userSessionCookieName);
+				const headerValue = `${userSessionCookieName}=${sessionJwt}; HttpOnly; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureFlag}`;
+				// Set the cookie header and log it for debugging
+				ctx.header("Set-Cookie", headerValue);
+				console.log("[oauthCallback] Set-Cookie header:", headerValue);
+				console.log(
+					"[oauthCallback] Setting session cookie:",
+					userSessionCookieName,
+				);
 			}),
 		);
 
@@ -623,9 +639,7 @@ function oauthCallbackFactory(
 		// Use ctx.redirect so headers previously set via ctx.header (including
 		// Set-Cookie) are preserved on the response. Returning a freshly
 		// constructed Response here would lose the headers attached to ctx.
-		return yield* $(
-			Effect.sync(() => ctx.redirect(dashboardRedirectUrl, 303)),
-		);
+		return yield* $(Effect.sync(() => ctx.redirect(dashboardRedirectUrl, 303)));
 	});
 }
 
@@ -634,21 +648,35 @@ export async function oauthCallbackHandler(
 ): Promise<Response> {
 	try {
 		// Await the handler so we can catch any unexpected runtime rejections
-		return await handleHttpEndpoint((context) => oauthCallbackFactory(context))(ctx);
+		return await handleHttpEndpoint((context) => oauthCallbackFactory(context))(
+			ctx,
+		);
 	} catch (err) {
 		try {
 			if (err instanceof Error) {
-				console.error('[oauthCallbackHandler] Unhandled exception:', err.stack ?? err.message);
+				console.error(
+					"[oauthCallbackHandler] Unhandled exception:",
+					err.stack ?? err.message,
+				);
 			} else {
-				console.error('[oauthCallbackHandler] Unhandled exception (non-Error):', String(err));
+				console.error(
+					"[oauthCallbackHandler] Unhandled exception (non-Error):",
+					String(err),
+				);
 			}
 		} catch (e) {
-			console.error('[oauthCallbackHandler] Failed to log unhandled exception:', String(e));
+			console.error(
+				"[oauthCallbackHandler] Failed to log unhandled exception:",
+				String(e),
+			);
 		}
-		return new Response(JSON.stringify({ success: false, error: 'Internal server error' }), {
-			status: 500,
-			headers: { 'Content-Type': 'application/json' },
-		});
+		return new Response(
+			JSON.stringify({ success: false, error: "Internal server error" }),
+			{
+				status: 500,
+				headers: { "Content-Type": "application/json" },
+			},
+		);
 	}
 }
 

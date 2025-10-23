@@ -56,7 +56,10 @@ export function me(
 				);
 			} catch (e) {
 				// Best-effort logging; continue to fail below
-				console.error("[me] Failed to read Cookie header for debugging", String(e));
+				console.error(
+					"[me] Failed to read Cookie header for debugging",
+					String(e),
+				);
 			}
 			return yield* $(
 				Effect.fail(new AuthenticationError({ message: "Not authenticated" })),

@@ -1,5 +1,3 @@
-import React from "react";
-
 import { traceHook } from "@/react/hooks/hookTracer";
 
 const DebugHomeMinimal = (): ReactElement => {

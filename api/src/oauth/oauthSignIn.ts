@@ -26,9 +26,11 @@ import { safeGet } from "@/shared/utils/safe";
  * Effect-based handler for OAuth sign-in initiation.
  * Produces a redirect Response and sets a CSRF cookie.
  */
+// eslint-disable-next-line max-lines-per-function
 const oauthSignInFactory = (
 	ctx: Context<{ Bindings: Env }>,
 ): Effect.Effect<Response, AppError> =>
+	// eslint-disable-next-line max-lines-per-function
 	Effect.gen(function* ($) {
 		// Parse provider param using Effect Schema decoder (as an Effect)
 		// Parse provider param synchronously and redirect on invalid provider.
@@ -79,7 +81,8 @@ const oauthSignInFactory = (
 		// when the dev proxy forwards an HTTP request to the API. Falling back to
 		// the request URL preserves behavior when no headers are present.
 		const headerOrigin = ctx.req.header("origin") ?? "";
-		const headerReferer = ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
+		const headerReferer =
+			ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
 		const derivedFromReferer = (() => {
 			try {
 				return headerReferer ? new URL(headerReferer).origin : "";
@@ -87,13 +90,16 @@ const oauthSignInFactory = (
 				return "";
 			}
 		})();
-		const requestOrigin = headerOrigin || derivedFromReferer || (() => {
-			try {
-				return new URL(String(ctx.req.url)).origin;
-			} catch {
-				return "";
-			}
-		})();
+		const requestOrigin =
+			headerOrigin ||
+			derivedFromReferer ||
+			(() => {
+				try {
+					return new URL(String(ctx.req.url)).origin;
+				} catch {
+					return "";
+				}
+			})();
 		const redirectOrigin = redirectOriginEnv || requestOrigin;
 		const originIsHttps = redirectOrigin.startsWith("https://");
 		const secureAttr = isProd || originIsHttps ? "; Secure" : "";
@@ -122,15 +128,15 @@ const oauthSignInFactory = (
 		);
 		yield* $(Effect.sync(() => console.log("[oauthSignIn] Language:", lang)));
 
-			// Encode state, include redirect_port if present (we'll read the query
-			// param again later when constructing redirect_uri so avoid variable
-			// redeclaration issues in the generator scope).
-			const oauthState: OauthState = {
-				csrf: csrfState,
-				lang,
-				provider,
-				// Note: redirect_port appended later when reading query param again
-			};
+		// Encode state, include redirect_port if present (we'll read the query
+		// param again later when constructing redirect_uri so avoid variable
+		// redeclaration issues in the generator scope).
+		const oauthState: OauthState = {
+			csrf: csrfState,
+			lang,
+			provider,
+			// Note: redirect_port appended later when reading query param again
+		};
 		yield* $(
 			Effect.sync(() => console.log("[oauthSignIn] oauthState:", oauthState)),
 		);
@@ -166,31 +172,32 @@ const oauthSignInFactory = (
 			}),
 		);
 
-			// Build redirect URI using apiOauthCallbackPath for local and production.
-			// Normalize origin to avoid accidental double slashes. When a redirect_port
-			// is provided for developer flows and the origin points at localhost we
-			// prefer HTTPS so the provider will redirect back to the HTTPS dev server
-			// (mkcert + Vite). This avoids mixed-scheme redirects that can prevent
-			// Secure/SameSite=None cookies from being accepted by the browser.
-			const trimmedOrigin = (redirectOrigin ?? "").replace(/\/$/, "");
-			let redirect_uri = trimmedOrigin
-				? `${trimmedOrigin}${apiOauthCallbackPath ?? ""}`
-				: `${apiOauthCallbackPath ?? ""}`;
+		// Build redirect URI using apiOauthCallbackPath for local and production.
+		// Normalize origin to avoid accidental double slashes. When a redirect_port
+		// is provided for developer flows and the origin points at localhost we
+		// prefer HTTPS so the provider will redirect back to the HTTPS dev server
+		// (mkcert + Vite). This avoids mixed-scheme redirects that can prevent
+		// Secure/SameSite=None cookies from being accepted by the browser.
+		const trimmedOrigin = (redirectOrigin ?? "").replace(/\/$/, "");
+		let redirect_uri = trimmedOrigin
+			? `${trimmedOrigin}${apiOauthCallbackPath ?? ""}`
+			: `${apiOauthCallbackPath ?? ""}`;
 
-				// If a developer-supplied redirect_port is present and the request targets
-				// localhost, force the redirect_uri to https://localhost:PORT so the OAuth
-				// provider will redirect back to the HTTPS dev server (mkcert + Vite).
-				// This ensures the subsequent Set-Cookie includes Secure when required by
-				// browsers for SameSite=None cookies.
-				const redirectPortQuery = ctx.req.query("redirect_port");
-					if (redirectPortQuery && redirectPortQuery !== "") {
-						// Developer convenience: when a redirect_port is provided prefer HTTPS
-						// for localhost. Skip this in production — OAUTH_REDIRECT_ORIGIN should
-						// be configured there.
-						if ((envRecord.ENVIRONMENT ?? "") !== "production") {
-							redirect_uri = `https://localhost:${redirectPortQuery}${apiOauthCallbackPath ?? ""}`;
-						}
-					}
+		// If a developer-supplied redirect_port is present and the request targets
+		// localhost, force the redirect_uri to https://localhost:PORT so the OAuth
+		// provider will redirect back to the HTTPS dev server (mkcert + Vite).
+		// This ensures the subsequent Set-Cookie includes Secure when required by
+		// browsers for SameSite=None cookies.
+		const redirectPortQuery = ctx.req.query("redirect_port");
+		// Ensure we only treat a defined, non-empty string as a port value.
+		if (typeof redirectPortQuery === "string" && redirectPortQuery !== "") {
+			// Developer convenience: when a redirect_port is provided prefer HTTPS
+			// for localhost. Skip this in production — OAUTH_REDIRECT_ORIGIN should
+			// be configured there.
+			if ((envRecord.ENVIRONMENT ?? "") !== "production") {
+				redirect_uri = `https://localhost:${redirectPortQuery}${apiOauthCallbackPath ?? ""}`;
+			}
+		}
 		yield* $(
 			Effect.sync(() =>
 				console.log("[oauthSignIn] redirect_uri:", redirect_uri),

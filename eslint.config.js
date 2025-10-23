@@ -10,7 +10,6 @@ import jsdocPlugin from "eslint-plugin-jsdoc";
 import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
 import prettierPlugin from "eslint-plugin-prettier";
 import promisePlugin from "eslint-plugin-promise";
-import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import reactRefreshPlugin from "eslint-plugin-react-refresh";
 import securityPlugin from "eslint-plugin-security";
@@ -260,7 +259,6 @@ export default [
 			...sharedPlugins,
 			"react-hooks": reactHooksPlugin,
 			"react-refresh": reactRefreshPlugin,
-			"react-compiler": reactCompiler,
 			"jsx-a11y": jsxA11yPlugin,
 		},
 		languageOptions: {
@@ -293,7 +291,6 @@ export default [
 				"warn",
 				{ allowConstantExport: true },
 			],
-			"react-compiler/react-compiler": "error",
 
 			// Prevent importing ambient React types and restrict certain type usage
 			"no-restricted-imports": [

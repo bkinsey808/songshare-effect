@@ -105,7 +105,9 @@ export async function getUserByEmail(
 	try {
 		const lpRaw = (validated as any).linked_providers;
 		if (Array.isArray(lpRaw)) {
-			runtimeUser.linked_providers = lpRaw.map((x: unknown) => (x === null ? "" : String(x))).filter(Boolean);
+			runtimeUser.linked_providers = lpRaw
+				.map((x: unknown) => (x === null ? "" : String(x)))
+				.filter(Boolean);
 		} else if (typeof lpRaw === "string") {
 			// still handle legacy case where a CSV string might be present
 			runtimeUser.linked_providers = lpRaw
@@ -116,7 +118,10 @@ export async function getUserByEmail(
 			runtimeUser.linked_providers = [];
 		}
 	} catch (err) {
-		console.log("[getUserByEmail] Failed to normalize linked_providers at runtime:", String(err));
+		console.log(
+			"[getUserByEmail] Failed to normalize linked_providers at runtime:",
+			String(err),
+		);
 		runtimeUser.linked_providers = [];
 	}
 
