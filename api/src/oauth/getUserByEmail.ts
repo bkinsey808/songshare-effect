@@ -4,6 +4,44 @@ import { Schema } from "effect";
 
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
 
+// Top-level helper: recursively convert SQL-null `null` values to `undefined`.
+function normalizeNullsTopLevel(input: unknown): unknown {
+	const normalize = (value: unknown): unknown => {
+		if (value === null) {
+			return undefined;
+		}
+		if (Array.isArray(value)) {
+			return value.map((item) => normalize(item));
+		}
+		if (typeof value === "object") {
+			const obj = value as Record<string, unknown>;
+			const entries = Object.entries(obj).map(
+				([key, val]) => [key, normalize(val)] as const,
+			);
+			return Object.fromEntries(entries) as Record<string, unknown>;
+		}
+		return value;
+	};
+	return normalize(input);
+}
+
+// Top-level helper: normalize `linked_providers` from validated data into string[].
+function normalizeLinkedProviders(validated: unknown): string[] {
+	const lpRaw: unknown = (
+		validated as unknown as { linked_providers?: unknown }
+	).linked_providers;
+	if (Array.isArray(lpRaw)) {
+		return lpRaw.map((x) => (x === null ? "" : String(x))).filter(Boolean);
+	}
+	if (typeof lpRaw === "string") {
+		return lpRaw
+			.split(",")
+			.map((str) => str.trim())
+			.filter(Boolean);
+	}
+	return [];
+}
+
 // Lookup a user by email using a Supabase client. Returns the validated user
 // object or undefined if not found. Throws on unexpected errors so callers can map to 500.
 export async function getUserByEmail(
@@ -76,21 +114,7 @@ export async function getUserByEmail(
 	// returns `null` for SQL NULL which will fail the Effect Schema validation
 	// when the schema expects `string | undefined`. Convert null -> undefined
 	// recursively so optional nested fields are handled too.
-	const normalizeNulls = (v: unknown): unknown => {
-		if (v === null) return undefined;
-		if (Array.isArray(v)) return v.map(normalizeNulls);
-		if (typeof v === "object" && v !== null) {
-			const obj = v as Record<string, unknown>;
-			const out: Record<string, unknown> = {};
-			for (const k of Object.keys(obj)) {
-				out[k] = normalizeNulls(obj[k]);
-			}
-			return out;
-		}
-		return v;
-	};
-
-	const sanitized = normalizeNulls(res.data);
+	const sanitized = normalizeNullsTopLevel(res.data);
 
 	// Validate the returned row against the generated UserSchema so callers
 	// receive the exact shape expected by session creation. The generator now
@@ -99,24 +123,11 @@ export async function getUserByEmail(
 	const validated = Schema.decodeUnknownSync(UserSchema)(sanitized as unknown);
 
 	// Normalize `linked_providers` into a runtime string[] for easier usage
-	// across the app. If the validated value is a string, split on commas.
-	// If it's already an array-like value (unexpected), coerce to strings.
+	// across the app. Use helper to encapsulate the parsing logic and reduce
+	// cognitive complexity of the main function.
 	const runtimeUser = { ...validated } as Record<string, unknown>;
 	try {
-		const lpRaw = (validated as any).linked_providers;
-		if (Array.isArray(lpRaw)) {
-			runtimeUser.linked_providers = lpRaw
-				.map((x: unknown) => (x === null ? "" : String(x)))
-				.filter(Boolean);
-		} else if (typeof lpRaw === "string") {
-			// still handle legacy case where a CSV string might be present
-			runtimeUser.linked_providers = lpRaw
-				.split(",")
-				.map((s) => s.trim())
-				.filter(Boolean);
-		} else {
-			runtimeUser.linked_providers = [];
-		}
+		runtimeUser.linked_providers = normalizeLinkedProviders(validated);
 	} catch (err) {
 		console.log(
 			"[getUserByEmail] Failed to normalize linked_providers at runtime:",

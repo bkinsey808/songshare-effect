@@ -13,6 +13,7 @@ import {
 	type UserSessionData,
 	UserSessionDataSchema,
 } from "@/shared/userSessionData";
+import { safeSet } from "@/shared/utils/safe";
 
 /** Effect-based handler for /api/me */
 export function me(
@@ -34,12 +35,13 @@ export function me(
 						"x-forwarded-for",
 					];
 					const hdrObj: Record<string, string | undefined> = {};
-					for (const n of names) {
-						hdrObj[n] = ctx.req.header(n) ?? undefined;
+					for (const nm of names) {
+						safeSet(hdrObj, nm, ctx.req.header(nm) ?? undefined);
 					}
+					// eslint-disable-next-line no-console
 					console.log("[me] Incoming request headers:", hdrObj);
-				} catch (e) {
-					console.error("[me] Failed to dump incoming headers:", String(e));
+				} catch (err) {
+					console.error("[me] Failed to dump incoming headers:", String(err));
 				}
 			}),
 		);
@@ -50,15 +52,16 @@ export function me(
 			// Log the Cookie header for debugging: helps verify whether the
 			// browser sent the session cookie after the OAuth redirect.
 			try {
+				// eslint-disable-next-line no-console
 				console.log(
 					"[me] No session token found; Cookie header:",
 					ctx.req.header("cookie"),
 				);
-			} catch (e) {
+			} catch (err) {
 				// Best-effort logging; continue to fail below
 				console.error(
 					"[me] Failed to read Cookie header for debugging",
-					String(e),
+					String(err),
 				);
 			}
 			return yield* $(
