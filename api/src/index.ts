@@ -7,7 +7,6 @@ import type { Bindings } from "./env";
 import { type AppError, ValidationError } from "./errors";
 import { handleHttpEndpoint } from "./http-utils";
 import { me } from "./me";
-import oauthCallbackHandler from "./oauth/oauthCallback";
 import oauthSignInHandler from "./oauth/oauthSignIn";
 import { CreateSongRequestSchema, type Song } from "./schemas";
 import { SongService, createInMemorySongService } from "./services";
@@ -15,6 +14,7 @@ import {
 	getSupabaseClientToken,
 	getSupabaseUserToken,
 } from "./supabaseClientToken";
+import oauthCallbackHandler from "@/api/oauth/oauthCallbackHandler";
 import {
 	apiMePath,
 	apiOauthCallbackPath,
@@ -57,7 +57,9 @@ app.use("*", async (ctx, next) => {
 		// In production we strictly validate against allowedOrigins.
 		// In non-production (local dev) be more permissive but still echo the
 		// Origin header so credentialed requests work without exposing '*'.
-		const isProd = (ctx.env as unknown as { ENVIRONMENT?: string }).ENVIRONMENT === "production";
+		const isProd =
+			(ctx.env as unknown as { ENVIRONMENT?: string }).ENVIRONMENT ===
+			"production";
 		const originAllowed = isProd ? allowedOrigins.includes(originHeader) : true;
 
 		if (originAllowed) {
@@ -286,17 +288,17 @@ app.get(
 );
 
 // Sign-out endpoint: clears the user session cookie and returns success.
-app.post('/api/auth/signout', async (ctx) => {
+app.post("/api/auth/signout", async (ctx) => {
 	try {
 		// Clear the userSession cookie by setting an expired cookie on the response
 		// Mirror attributes used when setting the cookie so the browser will accept
 		// the removal. Do not include Domain here to match how the cookie is set in dev.
 		const cookieValue = `${"userSession"}=; HttpOnly; Path=/; Max-Age=0;`;
-		ctx.header('Set-Cookie', cookieValue);
+		ctx.header("Set-Cookie", cookieValue);
 		return ctx.json({ success: true });
-	} catch (e) {
-		console.error('Failed to sign out', e);
-		return ctx.json({ error: 'failed' }, 500);
+	} catch (err) {
+		console.error("Failed to sign out", err);
+		return ctx.json({ error: "failed" }, 500);
 	}
 });
 

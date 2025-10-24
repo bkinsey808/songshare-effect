@@ -2,48 +2,54 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Schema } from "effect";
 
+import { normalizeLinkedProviders } from "./normalizeLinkedProviders";
+import { normalizeNullsTopLevel } from "./normalizeNullsTopLevel";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
 
-// Top-level helper: recursively convert SQL-null `null` values to `undefined`.
-function normalizeNullsTopLevel(input: unknown): unknown {
-	const normalize = (value: unknown): unknown => {
-		if (value === null) {
-			return undefined;
-		}
-		if (Array.isArray(value)) {
-			return value.map((item) => normalize(item));
-		}
-		if (typeof value === "object") {
-			const obj = value as Record<string, unknown>;
-			const entries = Object.entries(obj).map(
-				([key, val]) => [key, normalize(val)] as const,
-			);
-			return Object.fromEntries(entries) as Record<string, unknown>;
-		}
-		return value;
-	};
-	return normalize(input);
-}
-
-// Top-level helper: normalize `linked_providers` from validated data into string[].
-function normalizeLinkedProviders(validated: unknown): string[] {
-	const lpRaw: unknown = (
-		validated as unknown as { linked_providers?: unknown }
-	).linked_providers;
-	if (Array.isArray(lpRaw)) {
-		return lpRaw.map((x) => (x === null ? "" : String(x))).filter(Boolean);
-	}
-	if (typeof lpRaw === "string") {
-		return lpRaw
-			.split(",")
-			.map((str) => str.trim())
-			.filter(Boolean);
-	}
-	return [];
-}
-
-// Lookup a user by email using a Supabase client. Returns the validated user
-// object or undefined if not found. Throws on unexpected errors so callers can map to 500.
+/**
+ * Lookup a user by email using a Supabase client and return a validated user
+ * object suitable for session creation.
+ *
+ * This function performs several responsibilities:
+ * - Queries the `user` table for a single row matching the provided email.
+ * - Treats certain PostgREST errors (notably `PGRST205`, which indicates the
+ *   table is missing in preview environments) as "not found" and returns
+ *   `undefined` so callers can continue to registration flows instead of
+ *   returning HTTP 500.
+ * - Normalizes SQL NULLs (Supabase returns SQL NULL as `null`) to `undefined`
+ *   for top-level optional fields so the value validates against the
+ *   generated Effect `UserSchema` (which expects `string | undefined`).
+ * - Validates the sanitized row against `UserSchema` and performs a runtime
+ *   normalization of `linked_providers` into a `string[]` for easier use by
+ *   callers (e.g. `Array.includes`). If runtime normalization fails, an
+ *   empty array is used and a debug message is logged.
+ *
+ * Notes:
+ * - The function logs debug information about the Supabase response to aid
+ *   diagnosing environment differences (preview vs production).
+ * - On unexpected Supabase/PostgREST errors (other than the handled
+ *   `PGRST205` case) the original error is re-thrown so upstream callers
+ *   can map it to an HTTP 500.
+ *
+ * Example:
+ * ```ts
+ * const user = await getUserByEmail(supabaseClient, 'alice@example.com');
+ * if (!user) {
+ *   // continue to registration flow
+ * }
+ * // `user.linked_providers` will be a runtime `string[]` (or `[]` on error)
+ * ```
+ *
+ * @param supabase - An instantiated Supabase client used to query the DB.
+ * @param email - Email address to look up (case and normalization should be
+ * handled by the caller if necessary).
+ * @returns A promise that resolves to the validated user object (with
+ * runtime-normalized `linked_providers: string[]`) or `undefined` when no
+ * matching user exists or when the user table is absent in preview.
+ * @throws Will re-throw unexpected Supabase/PostgREST errors so callers can
+ * map them to an HTTP 500. The `PGRST205` PostgREST error is treated as
+ * "not found" and does not throw.
+ */
 export async function getUserByEmail(
 	supabase: SupabaseClient,
 	email: string,

@@ -1,4 +1,4 @@
-// src/features/server-utils/oauthCallback.ts
+// src/features/server-utils/oauthCallbackFactory.ts
 /* eslint-disable no-console, max-lines-per-function */
 import { type SupabaseClient, createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
@@ -15,9 +15,8 @@ import {
 	ValidationError,
 } from "@/api/errors";
 import { getIpAddress } from "@/api/getIpAddress";
-import { handleHttpEndpoint } from "@/api/http-utils";
+import { fetchAndParseOauthUserData } from "@/api/oauth/fetchAndParseOauthUserData";
 import { getUserByEmail } from "@/api/oauth/getUserByEmail";
-import { fetchAndParseOauthUserData } from "@/api/oauth/oauthUserData";
 import { getBackEndProviderData as getProviderData } from "@/api/providers";
 import rateLimit from "@/api/rateLimit";
 import { dashboardPath, registerPath } from "@/api/utils/paths";
@@ -44,29 +43,6 @@ type RegisterData = {
 	readonly oauthUserData: OauthUserData;
 	readonly oauthState: OauthState;
 };
-
-// Helper: exchange code for oauth user data
-function exchangeOauthUserData(params: {
-	accessTokenUrl: string;
-	redirectUri: string;
-	code: string;
-	clientId: string | undefined;
-	clientSecret: string | undefined;
-	userInfoUrl: string;
-}): Effect.Effect<OauthUserData, DatabaseError> {
-	return Effect.tryPromise<OauthUserData, DatabaseError>({
-		try: () =>
-			fetchAndParseOauthUserData({
-				accessTokenUrl: params.accessTokenUrl,
-				redirectUri: params.redirectUri,
-				code: params.code,
-				clientId: params.clientId,
-				clientSecret: params.clientSecret,
-				userInfoUrl: params.userInfoUrl,
-			}),
-		catch: (err) => new DatabaseError({ message: String(err) }),
-	});
-}
 
 // Helper: resolve username from user_public
 function resolveUsername(
@@ -120,7 +96,7 @@ function fetchAndPrepareUser(
 		oauthUserData: OauthUserData;
 		existingUser: Schema.Schema.Type<typeof UserSchema> | undefined;
 	},
-	DatabaseError
+	ValidationError | DatabaseError
 > {
 	return Effect.gen(function* ($) {
 		// Dev-only: dump incoming request headers to help debug Set-Cookie/cookie
@@ -177,14 +153,20 @@ function fetchAndPrepareUser(
 		);
 
 		const oauthUserData = yield* $(
-			exchangeOauthUserData({
+			fetchAndParseOauthUserData({
 				accessTokenUrl,
 				redirectUri,
 				code,
 				clientId,
 				clientSecret,
 				userInfoUrl,
-			}),
+			}).pipe(
+				Effect.mapError((err) =>
+					err instanceof ValidationError
+						? err
+						: new DatabaseError({ message: String(err) }),
+				),
+			),
 		);
 
 		const supabase = createClient(
@@ -231,11 +213,11 @@ function computeDashboardRedirectWithPort(
 	}
 	const forwardedHost = ctx.req.header("x-forwarded-host") ?? "";
 	const hostNoPort = forwardedHost.length > 0 ? forwardedHost : url.hostname;
-	const candidateOrigin = `${redirectProto}://${hostNoPort.replace(/:\d+$/, "")}:${portNum}`;
+	const candidateOrigin = `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}`;
 
 	if (allowedOrigins.length > 0) {
 		if (allowedOrigins.includes(candidateOrigin)) {
-			return `${redirectProto}://${hostNoPort.replace(/:\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
+			return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
 		}
 		console.log(
 			"[oauthCallback] Candidate origin not in ALLOWED_ORIGINS, ignoring redirect_port",
@@ -252,7 +234,7 @@ function computeDashboardRedirectWithPort(
 			"[oauthCallback] ALLOWED_ORIGINS not set; allowing redirect_port candidate in non-production:",
 			candidateOrigin,
 		);
-		return `${redirectProto}://${hostNoPort.replace(/:\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
+		return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
 	}
 
 	console.log(
@@ -264,7 +246,7 @@ function computeDashboardRedirectWithPort(
 // Note: debug-only in-memory captures were removed. Keep cookie-setting
 // logic below but do not persist Set-Cookie values in memory in production.
 
-function oauthCallbackFactory(
+export function oauthCallbackFactory(
 	ctx: Context<{ Bindings: Env }>,
 ): Effect.Effect<Response, AppError> {
 	return Effect.gen(function* ($) {
@@ -645,42 +627,3 @@ function oauthCallbackFactory(
 		return yield* $(Effect.sync(() => ctx.redirect(dashboardRedirectUrl, 303)));
 	});
 }
-
-export async function oauthCallbackHandler(
-	ctx: Context<{ Bindings: Env }>,
-): Promise<Response> {
-	try {
-		// Await the handler so we can catch any unexpected runtime rejections
-		return await handleHttpEndpoint((context) => oauthCallbackFactory(context))(
-			ctx,
-		);
-	} catch (err) {
-		try {
-			if (err instanceof Error) {
-				console.error(
-					"[oauthCallbackHandler] Unhandled exception:",
-					err.stack ?? err.message,
-				);
-			} else {
-				console.error(
-					"[oauthCallbackHandler] Unhandled exception (non-Error):",
-					String(err),
-				);
-			}
-		} catch (innerErr) {
-			console.error(
-				"[oauthCallbackHandler] Failed to log unhandled exception:",
-				String(innerErr),
-			);
-		}
-		return new Response(
-			JSON.stringify({ success: false, error: "Internal server error" }),
-			{
-				status: 500,
-				headers: { "Content-Type": "application/json" },
-			},
-		);
-	}
-}
-
-export default oauthCallbackHandler;
