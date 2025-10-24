@@ -36,7 +36,7 @@ import {
 	type UserSessionData as SessionData,
 	UserSessionDataSchema as sessionDataSchema,
 } from "@/shared/userSessionData";
-import { superSafeGet } from "@/shared/utils/safe";
+import { safeSet, superSafeGet } from "@/shared/utils/safe";
 
 // Local RegisterData type (kept here to avoid module-resolution issues in the
 // typechecker while preserving the project's preferred import ordering)
@@ -138,14 +138,14 @@ function fetchAndPrepareUser(
 						"x-forwarded-for",
 					];
 					const hdrObj: Record<string, string | undefined> = {};
-					for (const n of names) {
-						hdrObj[n] = ctx.req.header(n) ?? undefined;
+					for (const nm of names) {
+						safeSet(hdrObj, nm, ctx.req.header(nm) ?? undefined);
 					}
 					console.log("[oauthCallback] Incoming request headers:", hdrObj);
-				} catch (e) {
+				} catch (err) {
 					console.error(
 						"[oauthCallback] Failed to dump incoming headers:",
-						String(e),
+						String(err),
 					);
 				}
 			}),
@@ -511,7 +511,10 @@ function oauthCallbackFactory(
 			);
 		}
 
-		if (!existingUser.linked_providers?.includes(provider)) {
+		if (
+			!Array.isArray(existingUser.linked_providers) ||
+			!existingUser.linked_providers.includes(provider)
+		) {
 			const prov = encodeURIComponent(provider);
 			yield* $(
 				Effect.sync(() =>
@@ -664,10 +667,10 @@ export async function oauthCallbackHandler(
 					String(err),
 				);
 			}
-		} catch (e) {
+		} catch (innerErr) {
 			console.error(
 				"[oauthCallbackHandler] Failed to log unhandled exception:",
-				String(e),
+				String(innerErr),
 			);
 		}
 		return new Response(

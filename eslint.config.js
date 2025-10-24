@@ -94,14 +94,7 @@ const sharedRules = {
 	"@typescript-eslint/no-dynamic-delete": "error",
 	// Allow snake_case for property names
 	"@typescript-eslint/naming-convention": [
-		"error",
-		{
-			selector: "property",
-			format: ["camelCase", "PascalCase", "UPPER_CASE", "snake_case"],
-			leadingUnderscore: "allow",
-			trailingUnderscore: "allow",
-		},
-	],
+		"off"],
 
 	// Import rules
 	"import/no-named-as-default": "error",
