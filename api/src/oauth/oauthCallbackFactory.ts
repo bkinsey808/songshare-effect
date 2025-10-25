@@ -1,41 +1,30 @@
 // src/features/server-utils/oauthCallbackFactory.ts
 /* eslint-disable no-console, max-lines-per-function */
-import { type SupabaseClient, createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 import { type Context } from "hono";
 import { getCookie } from "hono/cookie";
-import { sign, verify } from "hono/jwt";
+import { verify } from "hono/jwt";
 
 import { registerCookieName, userSessionCookieName } from "@/api/cookie";
 import type { Env } from "@/api/env";
-import {
-	type AppError,
-	DatabaseError,
-	ServerError,
-	ValidationError,
-} from "@/api/errors";
+import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
 import { getIpAddress } from "@/api/getIpAddress";
-import { fetchAndParseOauthUserData } from "@/api/oauth/fetchAndParseOauthUserData";
-import { getUserByEmail } from "@/api/oauth/getUserByEmail";
-import { getBackEndProviderData as getProviderData } from "@/api/providers";
+import { computeDashboardRedirectWithPort } from "@/api/oauth/computeDashboardRedirectWithPort";
+import { createJwt } from "@/api/oauth/createJwt";
+import { fetchAndPrepareUser } from "@/api/oauth/fetchAndPrepareUser";
+import { resolveUsername } from "@/api/oauth/resolveUsername";
 import rateLimit from "@/api/rateLimit";
 import { dashboardPath, registerPath } from "@/api/utils/paths";
 import { oauthCsrfCookieName } from "@/shared/cookies";
-import {
-	UserPublicSchema,
-	type UserSchema,
-} from "@/shared/generated/supabaseSchemas";
 import { defaultLanguage } from "@/shared/language/supportedLanguages";
 import { type OauthState, OauthStateSchema } from "@/shared/oauth/oauthState";
 import { type OauthUserData } from "@/shared/oauth/oauthUserData";
 import { apiOauthCallbackPath } from "@/shared/paths";
-import type { ProviderType } from "@/shared/providers";
 import { SigninErrorToken } from "@/shared/signinTokens";
 import {
 	type UserSessionData as SessionData,
 	UserSessionDataSchema as sessionDataSchema,
 } from "@/shared/userSessionData";
-import { safeSet, superSafeGet } from "@/shared/utils/safe";
 
 // Local RegisterData type (kept here to avoid module-resolution issues in the
 // typechecker while preserving the project's preferred import ordering)
@@ -44,211 +33,37 @@ type RegisterData = {
 	readonly oauthState: OauthState;
 };
 
-// Helper: resolve username from user_public
-function resolveUsername(
-	supabase: SupabaseClient,
-	existingUser: { user_id: string; name: string },
-): Effect.Effect<string | undefined, DatabaseError> {
-	return Effect.tryPromise<string | undefined, DatabaseError>({
-		try: async () => {
-			const upRes = await supabase
-				.from("user_public")
-				.select("user_id,username")
-				.eq("user_id", existingUser.user_id)
-				.maybeSingle();
-			if (upRes.error) {
-				throw upRes.error;
-			}
-			if ((upRes as unknown as { data?: unknown }).data === undefined) {
-				return undefined;
-			}
-			const validated = Schema.decodeUnknownSync(UserPublicSchema)(
-				upRes.data as unknown,
-			);
-			return validated.username;
-		},
-		catch: (err) => new DatabaseError({ message: String(err) }),
-	});
-}
-
-// Helper: create JWT (wrap sign)
-function createJwt<T>(
-	payload: T,
-	secret: string,
-): Effect.Effect<string, DatabaseError> {
-	// Cast payload to a simple object shape for the JWT library
-	return Effect.tryPromise<string, DatabaseError>({
-		try: () => sign(payload as unknown as Record<string, unknown>, secret),
-		catch: (err) => new DatabaseError({ message: String(err) }),
-	});
-}
-
-// No custom HMAC helpers here; state is verified via `hono/jwt.verify`.
-
-// Helper: exchange code and prepare supabase + existing user
-function fetchAndPrepareUser(
-	ctx: Context<{ Bindings: Env }>,
-	code: string,
-	provider: ProviderType,
-): Effect.Effect<
-	{
-		supabase: SupabaseClient;
-		oauthUserData: OauthUserData;
-		existingUser: Schema.Schema.Type<typeof UserSchema> | undefined;
-	},
-	ValidationError | DatabaseError
-> {
-	return Effect.gen(function* ($) {
-		// Dev-only: dump incoming request headers to help debug Set-Cookie/cookie
-		// propagation issues. Guarded as best-effort logging so it never throws.
-		yield* $(
-			Effect.sync(() => {
-				try {
-					const names = [
-						"host",
-						"cookie",
-						"referer",
-						"user-agent",
-						"x-forwarded-proto",
-						"x-forwarded-host",
-						"x-forwarded-for",
-					];
-					const hdrObj: Record<string, string | undefined> = {};
-					for (const nm of names) {
-						safeSet(hdrObj, nm, ctx.req.header(nm) ?? undefined);
-					}
-					console.log("[oauthCallback] Incoming request headers:", hdrObj);
-				} catch (err) {
-					console.error(
-						"[oauthCallback] Failed to dump incoming headers:",
-						String(err),
-					);
-				}
-			}),
-		);
-		// Build redirectUri for token exchange. Prefer configured OAUTH_REDIRECT_ORIGIN
-		// otherwise derive origin from the incoming request so it matches the
-		// redirect_uri used in oauthSignIn.
-		const requestUrl = new URL(ctx.req.url);
-		const envRedirectOrigin = (ctx.env.OAUTH_REDIRECT_ORIGIN ?? "").toString();
-		const originForRedirect =
-			typeof envRedirectOrigin === "string" && envRedirectOrigin !== ""
-				? envRedirectOrigin.replace(/\/$/, "")
-				: `${requestUrl.protocol}//${requestUrl.host}`;
-		const redirectUri = `${originForRedirect}${ctx.env.OAUTH_REDIRECT_PATH ?? apiOauthCallbackPath}`;
-		yield* $(
-			Effect.sync(() =>
-				console.log("[fetchAndPrepareUser] Using redirectUri:", redirectUri),
-			),
-		);
-		const { accessTokenUrl, clientIdEnvVar, clientSecretEnvVar, userInfoUrl } =
-			getProviderData(provider);
-		const clientId = superSafeGet(
-			ctx.env as unknown as Record<string, string | undefined>,
-			clientIdEnvVar,
-		);
-		const clientSecret = superSafeGet(
-			ctx.env as unknown as Record<string, string | undefined>,
-			clientSecretEnvVar,
-		);
-
-		const oauthUserData = yield* $(
-			fetchAndParseOauthUserData({
-				accessTokenUrl,
-				redirectUri,
-				code,
-				clientId,
-				clientSecret,
-				userInfoUrl,
-			}).pipe(
-				Effect.mapError((err) =>
-					err instanceof ValidationError
-						? err
-						: new DatabaseError({ message: String(err) }),
-				),
-			),
-		);
-
-		const supabase = createClient(
-			ctx.env.VITE_SUPABASE_URL,
-			ctx.env.SUPABASE_SERVICE_KEY,
-		);
-
-		const existingUser = yield* $(
-			Effect.tryPromise({
-				try: () => getUserByEmail(supabase, oauthUserData.email),
-				catch: (err) => new DatabaseError({ message: String(err) }),
-			}),
-		);
-
-		return { supabase, oauthUserData, existingUser };
-	});
-}
-
-// Helper: when redirect_port is present, validate it and build an absolute dashboard URL
-function computeDashboardRedirectWithPort(
-	ctx: Context<{ Bindings: Env }>,
-	url: URL,
-	redirectPortStr: string,
-	lang: string,
-	dashboardPathLocal: string,
-): string | undefined {
-	const portNum = Number(redirectPortStr);
-	if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
-		console.log("[oauthCallback] Invalid redirect_port, ignoring");
-		return undefined;
-	}
-
-	const envRec = ctx.env as unknown as Record<string, string | undefined>;
-	const allowedOriginsRaw = envRec.ALLOWED_ORIGINS ?? "";
-	const allowedOrigins = allowedOriginsRaw
-		.split(",")
-		.map((origin) => origin.trim())
-		.filter(Boolean);
-
-	const headerProto = ctx.req.header("x-forwarded-proto") ?? "";
-	let redirectProto = url.protocol.replace(":", "");
-	if (headerProto.length > 0) {
-		redirectProto = headerProto;
-	}
-	const forwardedHost = ctx.req.header("x-forwarded-host") ?? "";
-	const hostNoPort = forwardedHost.length > 0 ? forwardedHost : url.hostname;
-	const candidateOrigin = `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}`;
-
-	if (allowedOrigins.length > 0) {
-		if (allowedOrigins.includes(candidateOrigin)) {
-			return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
-		}
-		console.log(
-			"[oauthCallback] Candidate origin not in ALLOWED_ORIGINS, ignoring redirect_port",
-			candidateOrigin,
-		);
-		return undefined;
-	}
-
-	// No ALLOWED_ORIGINS configured. In non-production allow the redirect for
-	// developer convenience (but log a warning). In production ALLOWED_ORIGINS
-	// should be set and we will not allow arbitrary origins.
-	if ((envRec.ENVIRONMENT ?? "") !== "production") {
-		console.warn(
-			"[oauthCallback] ALLOWED_ORIGINS not set; allowing redirect_port candidate in non-production:",
-			candidateOrigin,
-		);
-		return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
-	}
-
-	console.log(
-		"[oauthCallback] ALLOWED_ORIGINS not set and environment is production — ignoring redirect_port",
-		candidateOrigin,
-	);
-	return undefined;
-}
-// Note: debug-only in-memory captures were removed. Keep cookie-setting
-// logic below but do not persist Set-Cookie values in memory in production.
-
+/**
+ * Handle the OAuth callback flow.
+ *
+ * This function performs the full server-side OAuth callback processing:
+ * - Rate-limits the incoming request
+ * - Verifies the signed OAuth state
+ * - Exchanges the provider code for user info and prepares a Supabase client
+ * - Looks up or creates a session for the user, issuing a JWT session cookie
+ * - Redirects the user to the appropriate post-login URL (dashboard or register)
+ *
+ * Errors produced by the returned Effect are intentionally narrow and typed:
+ * - DatabaseError: failures interacting with DB-backed helpers or rate-limit checks
+ *   (e.g. Supabase queries, rateLimit failures)
+ * - ServerError: server-side misconfiguration and JWT signing/verification
+ *   failures
+ * - ValidationError: when decoded state or validated session data does not
+ *   conform to expected schemas
+ *
+ * Notes:
+ * - The function has side-effects (setting Set-Cookie headers on the Hono
+ *   context and performing redirects) but these are all wrapped in Effects.
+ * - Callers receive an Effect that, when executed, yields a Response or one
+ *   of the typed errors above.
+ *
+ * @param ctx Hono request context with bound environment variables (`Env`)
+ * @returns An Effect that yields a `Response` on success or a typed error on
+ * failure.
+ */
 export function oauthCallbackFactory(
 	ctx: Context<{ Bindings: Env }>,
-): Effect.Effect<Response, AppError> {
+): Effect.Effect<Response, DatabaseError | ServerError | ValidationError> {
 	return Effect.gen(function* ($) {
 		// Rate limit by IP
 		const allowed = yield* $(
