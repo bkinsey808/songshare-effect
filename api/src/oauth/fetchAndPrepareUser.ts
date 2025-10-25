@@ -106,6 +106,15 @@ export function fetchAndPrepareUser(
 		const existingUser: Schema.Schema.Type<typeof UserSchema> | undefined =
 			yield* $(getUserByEmail(supabase, oauthUserData.email));
 
+		// Additional debug logging to aid in locating 500 errors during dev
+		yield* $(
+			Effect.sync(() =>
+				console.log(
+					"[oauthCallback] fetchAndPrepareUser completed. existingUser:",
+					existingUser ? { user_id: existingUser.user_id } : undefined,
+				),
+			),
+		);
 		return { supabase, oauthUserData, existingUser };
 	});
 }
