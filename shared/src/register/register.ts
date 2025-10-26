@@ -3,10 +3,10 @@ import { Schema } from "effect";
 // Define a unique symbol for custom error annotations
 export const i18nMessageKey: unique symbol = Symbol.for("i18nMessage");
 
-export interface I18nMessage {
+export type I18nMessage = {
 	readonly key: string;
-	readonly [param: string]: any;
-}
+	readonly [param: string]: unknown;
+};
 
 export type RegisterForm = {
 	readonly username: string;
@@ -18,23 +18,31 @@ export const RegisterFormSchema: Schema.Schema<
 	never
 > = Schema.Struct({
 	username: Schema.String.pipe(
-		Schema.minLength(1, { message: () => "register.usernameRequired" }),
+		Schema.minLength(1, { message: () => "field.required" }),
 		Schema.annotations({
-			[i18nMessageKey]: { key: "register.usernameRequired" },
+			[i18nMessageKey]: { key: "field.required", field: "username" },
 		}),
-		Schema.minLength(3, { message: () => "register.usernameTooShort" }),
+		Schema.minLength(3, { message: () => "field.tooShort" }),
 		Schema.annotations({
-			[i18nMessageKey]: { key: "register.usernameTooShort" },
+			[i18nMessageKey]: {
+				key: "field.tooShort",
+				field: "username",
+				minLength: 3,
+			},
 		}),
-		Schema.maxLength(30, { message: () => "register.usernameTooLong" }),
+		Schema.maxLength(30, { message: () => "field.tooLong" }),
 		Schema.annotations({
-			[i18nMessageKey]: { key: "register.usernameTooLong", maxLength: 30 },
+			[i18nMessageKey]: {
+				key: "field.tooLong",
+				field: "username",
+				maxLength: 30,
+			},
 		}),
 		Schema.pattern(/^[a-zA-Z0-9_-]+$/, {
-			message: () => "register.usernameInvalid",
+			message: () => "field.invalid",
 		}),
 		Schema.annotations({
-			[i18nMessageKey]: { key: "register.usernameInvalid" },
+			[i18nMessageKey]: { key: "field.invalid", field: "username" },
 		}),
 	),
 });

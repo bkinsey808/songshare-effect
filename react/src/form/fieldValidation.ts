@@ -1,6 +1,5 @@
 import { type Schema } from "effect";
 
-import { type I18nMessage, i18nMessageKey } from "@/shared/register/register";
 import type { ValidationError } from "@/shared/validation/types";
 import { validateForm } from "@/shared/validation/validateForm";
 
@@ -9,11 +8,13 @@ import { validateForm } from "@/shared/validation/validateForm";
  */
 export const createFieldBlurHandler = <
 	FormValues extends Record<string, unknown>,
+	I18nMessageType extends { key: string; [key: string]: unknown },
 >(
 	schema: Schema.Schema<FormValues, FormValues, never>,
 	formData: Partial<FormValues>,
 	currentErrors: ValidationError[],
 	setValidationErrors: (errors: ValidationError[]) => void,
+	i18nMessageKey: symbol | string,
 ) => {
 	return <K extends keyof FormValues>(field: K, value: string): void => {
 		console.log(`🔍 Field blur validation for ${String(field)}:`, value);
@@ -22,7 +23,7 @@ export const createFieldBlurHandler = <
 			[field]: value,
 		});
 
-		const validation = validateForm<FormValues, I18nMessage>(
+		const validation = validateForm<FormValues, I18nMessageType>(
 			schema,
 			{
 				...formData,

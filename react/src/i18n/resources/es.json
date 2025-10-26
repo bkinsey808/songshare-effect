@@ -3,6 +3,12 @@
 		"title": "SongShare Effect",
 		"subtitle": "Comparte tus canciones favoritas con el mundo"
 	},
+	"field": {
+		"required": "{{field}} es obligatorio",
+		"tooShort": "{{field}} debe tener al menos {{minLength}} caracteres",
+		"tooLong": "{{field}} no puede exceder {{maxLength}} caracteres",
+		"invalid": "{{field}} contiene caracteres inválidos"
+	},
 	"navigation": {
 		"home": "Inicio",
 		"songs": "Canciones",

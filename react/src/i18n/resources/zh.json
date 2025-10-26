@@ -3,6 +3,12 @@
 		"title": "SongShare Effect",
 		"subtitle": "与世界分享您最喜爱的歌曲"
 	},
+	"field": {
+		"required": "{{field}} 是必需的",
+		"tooShort": "{{field}} 至少需要 {{minLength}} 个字符",
+		"tooLong": "{{field}} 不能超过 {{maxLength}} 个字符",
+		"invalid": "{{field}} 包含无效字符"
+	},
 	"navigation": {
 		"home": "首页",
 		"songs": "歌曲",

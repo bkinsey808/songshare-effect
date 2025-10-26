@@ -6,6 +6,12 @@
 	"auth": {
 		"signInWithProvider": "Sign in with {{provider}}"
 	},
+	"field": {
+		"required": "{{field}} is required",
+		"tooShort": "{{field}} must be at least {{minLength}} characters",
+		"tooLong": "{{field}} cannot exceed {{maxLength}} characters",
+		"invalid": "{{field}} contains invalid characters"
+	},
 
 	"navigation": {
 		"home": "Home",

@@ -1,7 +1,9 @@
 {
 	"version": "0.2",
 	"ignorePaths": [
-		"**/*.example"
+		"**/*.example",
+		"**/i18n/resources/es.json",
+		"**/i18n/resources/zh.json"
 	],
 	"dictionaryDefinitions": [],
 	"dictionaries": [],
@@ -25,6 +27,7 @@
 		"PGPORT",
 		"PGRST",
 		"PGUSER",
+		"pidfile",
 		"pkey",
 		"plpgsql",
 		"Postgrest",

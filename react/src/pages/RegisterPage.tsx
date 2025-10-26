@@ -10,6 +10,7 @@ import {
 	type RegisterForm,
 	RegisterFormSchema,
 } from "@/shared/register/register";
+import { safeSet } from "@/shared/utils/safe";
 
 export default function RegisterPage(): ReactElement {
 	const { t, i18n } = useTranslation();
@@ -94,7 +95,15 @@ export default function RegisterPage(): ReactElement {
 		console.log("📝 Form submit triggered", event);
 		event.preventDefault();
 		console.log("🔄 Calling handleSubmit with onSubmit");
-		await Effect.runPromise(handleSubmit(onSubmit));
+
+		// Read form data
+		const formDataObj = new FormData(formRef.current || undefined);
+		const currentFormData: Record<string, unknown> = {};
+		for (const [key, value] of formDataObj.entries()) {
+			safeSet(currentFormData, key, value.toString());
+		}
+
+		await Effect.runPromise(handleSubmit(currentFormData, onSubmit));
 	};
 
 	return (
