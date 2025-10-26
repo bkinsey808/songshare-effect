@@ -18,6 +18,34 @@
 			"subtitle": "与世界分享您的音乐"
 		}
 	},
+	"register": {
+		"title": "完成注册",
+		"username": "用户名",
+		"usernamePlaceholder": "输入您的用户名",
+		"usernameRequired": "用户名是必需的",
+		"usernameTooShort": "用户名至少需要 3 个字符",
+		"usernameTooLong": "用户名不能超过 30 个字符",
+		"usernameInvalid": "用户名只能包含字母、数字、下划线和连字符",
+		"submit": "创建账户",
+		"submitting": "正在创建账户...",
+		"reset": "重置表单",
+		"errors": {
+			"registrationFailed": "注册失败",
+			"networkError": "网络错误"
+		}
+	},
+	"validation": {
+		"required": "{{field}} 是必需的",
+		"minLength": "{{field}} 至少需要 {{min}} 个字符",
+		"maxLength": "{{field}} 不能超过 {{max}} 个字符",
+		"pattern": "{{field}} 包含无效字符",
+		"username": {
+			"required": "用户名是必需的",
+			"minLength": "用户名至少需要 {{min}} 个字符",
+			"maxLength": "用户名不能超过 {{max}} 个字符",
+			"pattern": "用户名只能包含字母、数字、下划线和连字符"
+		}
+	},
 	"common": {
 		"loading": "加载中...",
 		"error": "错误",

@@ -6,6 +6,7 @@
  */
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import { safeGet } from "shared/dist/src/utils/safe";
 
 type ColumnDefinition = {
 	name: string;
@@ -36,7 +37,6 @@ const typeMapping: Record<string, string> = {
 	decimal: "Schema.Number",
 	numeric: "Schema.Number",
 	real: "Schema.Number",
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	"double precision": "Schema.Number",
 	boolean: "Schema.Boolean",
 	Date: "Schema.DateFromSelf",
@@ -149,7 +149,8 @@ function parseSupabaseTypes(filePath: string): TableDefinition[] {
 				if (isArrayType) {
 					// Keep the array marker (e.g. "string[]") so getEffectType can
 					// generate Schema.Array(...) appropriately.
-					mappedType = cleanType; // e.g. "string[]"
+					// e.g. "string[]"
+					mappedType = cleanType;
 				} else if (cleanType.includes("number")) {
 					mappedType = "number";
 				} else if (cleanType.includes("boolean")) {
@@ -278,7 +279,7 @@ function getEffectType(column: ColumnDefinition): string {
 		// the element type and wrap it in Schema.Array(...)
 		if (/\[\]$/.test(column.type)) {
 			const elemType = column.type.replace(/\[\]$/, "");
-			let mappedElem = typeMapping[elemType] ?? "Schema.String";
+			const mappedElem = safeGet(typeMapping, elemType) ?? "Schema.String";
 			// If mapping returned a bare name like "Schema.String", keep it.
 			effectType = `Schema.Array(${mappedElem})`;
 		} else {

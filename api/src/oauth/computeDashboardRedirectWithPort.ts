@@ -40,6 +40,7 @@ export function computeDashboardRedirectWithPort(
 		if (allowedOrigins.includes(candidateOrigin)) {
 			return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
 		}
+		// eslint-disable-next-line no-console
 		console.log(
 			"[oauthCallback] Candidate origin not in ALLOWED_ORIGINS, ignoring redirect_port",
 			candidateOrigin,
@@ -58,6 +59,7 @@ export function computeDashboardRedirectWithPort(
 		return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
 	}
 
+	// eslint-disable-next-line no-console
 	console.log(
 		"[oauthCallback] ALLOWED_ORIGINS not set and environment is production — ignoring redirect_port",
 		candidateOrigin,

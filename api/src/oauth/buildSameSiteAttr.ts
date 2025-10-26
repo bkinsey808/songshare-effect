@@ -1,6 +1,7 @@
 /**
  * Determines the SameSite attribute for cookies based on environment and security.
  *
+ * @param params
  * @param params.isProd - Whether the environment is production
  * @param params.redirectOrigin - The redirect origin string
  * @param params.secureFlag - Whether the request is considered secure

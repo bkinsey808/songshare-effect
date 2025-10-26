@@ -122,7 +122,6 @@ export async function signInUser(
 		const response = await fetch(`${apiBaseUrl}/api/auth/user`, {
 			method: "POST",
 			headers: {
-				// eslint-disable-next-line @typescript-eslint/naming-convention
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({ email, password }),

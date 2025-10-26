@@ -1,6 +1,7 @@
 import { Effect, Schema } from "effect";
 import { type Context, Hono } from "hono";
 
+import accountRegister from "./accountRegister";
 // Dynamic CORS implemented below; no need to import the static helper
 
 import type { Bindings } from "./env";
@@ -305,5 +306,8 @@ app.post("/api/auth/signout", async (ctx) => {
 // OAuth sign-in (provider path param) and callback
 app.get(`${apiOauthSignInPath}/:provider`, oauthSignInHandler);
 app.get(apiOauthCallbackPath, oauthCallbackHandler);
+
+// Account registration
+app.post("/api/account/register", handleHttpEndpoint(accountRegister));
 
 export default app;

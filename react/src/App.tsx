@@ -2,24 +2,25 @@ import { Suspense, useEffect } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import Navigation from "./Navigation";
-import ProtectedLayout from "./auth/ProtectedLayout";
 import useEnsureSignedIn from "./auth/useEnsureSignedIn";
 import ErrorBoundary from "./demo/ErrorBoundary";
 import LanguageDetector from "./language/LanguageDetector";
 import LanguageProvider from "./language/LanguageProvider";
 import AboutPage from "./pages/AboutPage";
 import ActivityDemoPage from "./pages/ActivityDemoPage";
-import DashboardPage from "./pages/DashboardPage";
 import HomePage from "./pages/HomePage";
 import OptimizedCounterPage from "./pages/OptimizedCounterPage";
 import PopoverDemoPage from "./pages/PopoverDemoPage";
 import ReactFeaturesDemoPage from "./pages/ReactFeaturesDemoPage";
+import RegisterPage from "./pages/RegisterPage";
 import SongsDemoPage from "./pages/SongsDemoPage";
 import SuspenseDemoPage from "./pages/SuspenseDemoPage";
 import SuspenseUsePage from "./pages/SuspenseUsePage";
 import UploadPage from "./pages/UploadPage";
 import UseHookDemoPage from "./pages/UseHookDemoPage";
 import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
+import ProtectedLayout from "@/react/auth/ProtectedLayout";
+import DashboardPage from "@/react/pages/DashboardPage";
 import {
 	aboutPath,
 	activityDemoPath,
@@ -28,6 +29,7 @@ import {
 	optimizedCounterPath,
 	popoverDemoPath,
 	reactFeaturesPath,
+	registerPath,
 	songsDemoPath,
 	suspenseDemoPath,
 	suspenseUseDemoPath,
@@ -113,14 +115,8 @@ const router = createBrowserRouter([
 						element: <HomePage />,
 					},
 					{
-						path: dashboardPath,
-						element: <ProtectedLayout />,
-						children: [
-							{
-								index: true,
-								element: <DashboardPage />,
-							},
-						],
+						path: registerPath,
+						element: <RegisterPage />,
 					},
 					{
 						path: songsDemoPath,
@@ -145,6 +141,16 @@ const router = createBrowserRouter([
 					{
 						path: optimizedCounterPath,
 						element: <OptimizedCounterPage />,
+					},
+					{
+						path: dashboardPath,
+						element: <ProtectedLayout />,
+						children: [
+							{
+								index: true,
+								element: <DashboardPage />,
+							},
+						],
 					},
 					{
 						path: reactFeaturesPath,

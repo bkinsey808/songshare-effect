@@ -22,6 +22,34 @@
 			"subtitle": "Share your music with the world"
 		}
 	},
+	"register": {
+		"title": "Complete Registration",
+		"username": "Username",
+		"usernamePlaceholder": "Enter your username",
+		"usernameRequired": "Username is required",
+		"usernameTooShort": "Username must be at least 3 characters",
+		"usernameTooLong": "Username cannot exceed {{maxLength}} characters",
+		"usernameInvalid": "Username can only contain letters, numbers, underscores, and hyphens",
+		"submit": "Create Account",
+		"submitting": "Creating account...",
+		"reset": "Reset Form",
+		"errors": {
+			"registrationFailed": "Registration failed",
+			"networkError": "Network error occurred"
+		}
+	},
+	"validation": {
+		"required": "{{field}} is required",
+		"minLength": "{{field}} must be at least {{min}} characters",
+		"maxLength": "{{field}} cannot exceed {{max}} characters",
+		"pattern": "{{field}} contains invalid characters",
+		"username": {
+			"required": "Username is required",
+			"minLength": "Username must be at least {{min}} characters",
+			"maxLength": "Username cannot exceed {{max}} characters",
+			"pattern": "Username can only contain letters, numbers, underscores, and hyphens"
+		}
+	},
 	"common": {
 		"loading": "Loading...",
 		"error": "Error",

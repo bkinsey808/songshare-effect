@@ -49,6 +49,7 @@ const sharedRules = {
 		}),
 		{},
 	),
+	...tseslint.configs.strictTypeChecked.rules,
 	// Disable @shopify/binary-assignment-parens rule
 	"@shopify/binary-assignment-parens": "off",
 
@@ -95,6 +96,7 @@ const sharedRules = {
 	// Allow snake_case for property names
 	"@typescript-eslint/naming-convention": [
 		"off"],
+	"@typescript-eslint/no-non-null-assertion": "error",
 
 	// Import rules
 	"import/no-named-as-default": "error",

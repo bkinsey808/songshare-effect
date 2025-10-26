@@ -1,9 +1,20 @@
-import type { OauthState } from "@/shared/oauth/oauthState";
-import type { OauthUserData } from "@/shared/oauth/oauthUserData";
+import { Schema } from "effect";
+
+import { OauthStateSchema } from "@/shared/oauth/oauthState";
+import { OauthUserDataSchema } from "@/shared/oauth/oauthUserData";
 
 export type RegisterData = {
-	readonly oauthUserData: OauthUserData;
-	readonly oauthState: OauthState;
+	readonly oauthUserData: Schema.Schema.Type<typeof OauthUserDataSchema>;
+	readonly oauthState: Schema.Schema.Type<typeof OauthStateSchema>;
 };
+
+export const RegisterDataSchema: Schema.Schema<
+	RegisterData,
+	RegisterData,
+	never
+> = Schema.Struct({
+	oauthUserData: OauthUserDataSchema,
+	oauthState: OauthStateSchema,
+});
 
 export { RegisterData as type };
