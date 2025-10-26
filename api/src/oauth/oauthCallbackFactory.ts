@@ -14,10 +14,16 @@ import { buildSameSiteAttr } from "@/api/oauth/buildSameSiteAttr";
 import { buildUserSessionJwt } from "@/api/oauth/buildUserSessionJwt";
 import { fetchAndPrepareUser } from "@/api/oauth/fetchAndPrepareUser";
 import rateLimit from "@/api/rateLimit";
-import { dashboardPath, registerPath } from "@/api/utils/paths";
 import { oauthCsrfCookieName } from "@/shared/cookies";
 import { defaultLanguage } from "@/shared/language/supportedLanguages";
 import { OauthStateSchema } from "@/shared/oauth/oauthState";
+import { dashboardPath, registerPath } from "@/shared/paths";
+import {
+	codeQueryParam,
+	providerQueryParam,
+	signinErrorQueryParam,
+	stateQueryParam,
+} from "@/shared/queryParams";
 import { SigninErrorToken } from "@/shared/signinTokens";
 
 // Local RegisterData type (kept here to avoid module-resolution issues in the
@@ -66,7 +72,7 @@ export function oauthCallbackFactory(
 			console.log("[oauthCallback] Rate limit exceeded, not allowed.");
 			// Redirect to home with rateLimit token so SPA can show a localized message
 			return ctx.redirect(
-				`/${defaultLanguage}/?signinError=${SigninErrorToken.rateLimit}`,
+				`/${defaultLanguage}/?${signinErrorQueryParam}=${SigninErrorToken.rateLimit}`,
 				303,
 			);
 		}
@@ -85,14 +91,14 @@ export function oauthCallbackFactory(
 				),
 			),
 		);
-		const code = requestUrl.searchParams.get("code");
-		const oauthStateParamsString = requestUrl.searchParams.get("state");
+		const code = requestUrl.searchParams.get(codeQueryParam);
+		const oauthStateParamsString = requestUrl.searchParams.get(stateQueryParam);
 		if (code === null || oauthStateParamsString === null) {
 			console.log("[oauthCallback] Missing code or state");
 			return new Response(undefined, {
 				status: 303,
 				headers: {
-					Location: `/${defaultLanguage}/?signinError=${SigninErrorToken.missingData}`,
+					Location: `/${defaultLanguage}/?${signinErrorQueryParam}=${SigninErrorToken.missingData}`,
 				},
 			});
 		}
@@ -153,7 +159,7 @@ export function oauthCallbackFactory(
 						new Response(undefined, {
 							status: 303,
 							headers: {
-								Location: `/${lang}/?signinError=${SigninErrorToken.securityFailed}`,
+								Location: `/${lang}/?${signinErrorQueryParam}=${SigninErrorToken.securityFailed}`,
 							},
 						}),
 				),
@@ -296,7 +302,7 @@ export function oauthCallbackFactory(
 						new Response(undefined, {
 							status: 303,
 							headers: {
-								Location: `/${lang}/?signinError=${SigninErrorToken.providerMismatch}&provider=${prov}`,
+								Location: `/${lang}/?${signinErrorQueryParam}=${SigninErrorToken.providerMismatch}&${providerQueryParam}=${prov}`,
 							},
 						}),
 				),

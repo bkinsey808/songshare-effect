@@ -4,7 +4,7 @@ import type { StoreApi } from "zustand";
 
 import {
 	type AppSlice,
-	ensureAppStore,
+	getOrCreateAppStore,
 	getStoreApi,
 } from "@/react/zustand/useAppStore";
 import { apiMePath } from "@/shared/paths";
@@ -62,7 +62,7 @@ export async function ensureSignedIn(options?: {
 	// Ensure store exists and get API
 	let api = getStoreApi();
 	if (!api) {
-		api = ensureAppStore();
+		api = getOrCreateAppStore();
 	}
 
 	const currentIsSignedIn = api.getState().isSignedIn;

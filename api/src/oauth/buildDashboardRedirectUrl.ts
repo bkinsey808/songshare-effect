@@ -1,5 +1,7 @@
 import type { Context } from "hono";
 
+import { justSignedInQueryParam } from "@/shared/queryParams";
+
 /**
  * Computes the dashboard redirect URL after OAuth sign-in, including support for custom redirect ports.
  *
@@ -33,6 +35,6 @@ export function buildDashboardRedirectUrl(
 	}
 	// Always append justSignedIn=1 marker for SPA detection
 	const hasQuery = dashboardRedirectUrl.includes("?");
-	dashboardRedirectUrl = `${dashboardRedirectUrl}${hasQuery ? "&" : "?"}justSignedIn=1`;
+	dashboardRedirectUrl = `${dashboardRedirectUrl}${hasQuery ? "&" : "?"}${justSignedInQueryParam}=1`;
 	return dashboardRedirectUrl;
 }

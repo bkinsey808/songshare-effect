@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import DemoNavigation from "../demo/DemoNavigation";
+import DemoNavigation from "../../demo/DemoNavigation";
 import { NativePopover } from "@/react/popover/NativePopover";
 
 function NativePopoverSection(): ReactElement {

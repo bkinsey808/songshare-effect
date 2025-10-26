@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Effect } from "effect";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -5,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useAppForm } from "@/react/form/useAppForm";
 import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 import { apiAccountRegisterPath, dashboardPath } from "@/shared/paths";
+import { justSignedInQueryParam } from "@/shared/queryParams";
 import {
 	type RegisterForm,
 	RegisterFormSchema,
@@ -55,7 +57,7 @@ export default function RegisterPage(): ReactElement {
 		// registration. Without this param, a persisted signed-out state can
 		// cause the client to skip the `/api/me` check and immediately
 		// redirect back to the localized home page.
-		window.location.href = `/${currentLang}/${dashboardPath}?justSignedIn=1`;
+		window.location.href = `/${currentLang}/${dashboardPath}?${justSignedInQueryParam}=1`;
 	};
 
 	const onSubmit = async (data: RegisterForm): Promise<void> => {

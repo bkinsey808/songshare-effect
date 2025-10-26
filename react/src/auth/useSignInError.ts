@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { clearSigninPending } from "@/react/auth/signinPending";
+import {
+	providerQueryParam,
+	signinErrorQueryParam,
+} from "@/shared/queryParams";
 import { isSigninErrorToken } from "@/shared/signinTokens";
 
 type UseSignInErrorReturn = {
@@ -15,9 +19,10 @@ export default function useSignInError(): UseSignInErrorReturn {
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	// capture initial params once on first render
-	const initialToken = (() => searchParams.get("signinError") ?? undefined)();
+	const initialToken = (() =>
+		searchParams.get(signinErrorQueryParam) ?? undefined)();
 	const [provider] = useState<string | undefined>(
-		() => searchParams.get("provider") ?? undefined,
+		() => searchParams.get(providerQueryParam) ?? undefined,
 	);
 
 	// Map the incoming token (e.g. 'providerMismatch') to a translation key
@@ -41,8 +46,8 @@ export default function useSignInError(): UseSignInErrorReturn {
 	useEffect(() => {
 		if (initialToken !== undefined) {
 			const next = new URLSearchParams(window.location.search);
-			next.delete("signinError");
-			next.delete("provider");
+			next.delete(signinErrorQueryParam);
+			next.delete(providerQueryParam);
 			setSearchParams(next, { replace: true });
 		}
 	}, [initialToken, setSearchParams]);
@@ -56,8 +61,8 @@ export default function useSignInError(): UseSignInErrorReturn {
 		}
 		try {
 			const next = new URLSearchParams(window.location.search);
-			next.delete("signinError");
-			next.delete("provider");
+			next.delete(signinErrorQueryParam);
+			next.delete(providerQueryParam);
 			setSearchParams(next, { replace: true });
 		} catch {
 			// ignore

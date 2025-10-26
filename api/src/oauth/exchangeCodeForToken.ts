@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 
 import type { FetchOpts } from "./fetchOpts";
+import { codeQueryParam } from "@/shared/queryParams";
 
 export function exchangeCodeForToken(opts: FetchOpts): Effect.Effect<
 	{
@@ -14,7 +15,7 @@ export function exchangeCodeForToken(opts: FetchOpts): Effect.Effect<
 		try: async () => {
 			const body = new URLSearchParams();
 			body.set("grant_type", "authorization_code");
-			body.set("code", opts.code);
+			body.set(codeQueryParam, opts.code);
 			body.set("redirect_uri", opts.redirectUri);
 			if (opts.clientId !== undefined) {
 				body.set("client_id", opts.clientId);

@@ -8,6 +8,7 @@ import { cssVars } from "@/react/utils/cssVars";
 import { toTitleCase } from "@/react/utils/stringUtils";
 import { apiOauthSignInPath } from "@/shared/paths";
 import { activeProviders } from "@/shared/providers";
+import { langQueryParam, redirectPortQueryParam } from "@/shared/queryParams";
 
 export const SignInButtons = (): ReactElement => {
 	const isOnline = useIsOnline();
@@ -65,9 +66,9 @@ export const SignInButtons = (): ReactElement => {
 					} = getFrontEndProviderData(provider);
 
 					// build href and include redirect_port only when present
-					const signInBase = `${apiOauthSignInPath}/${provider}?lang=${lang}`;
+					const signInBase = `${apiOauthSignInPath}/${provider}?${langQueryParam}=${lang}`;
 					const signInHref = redirectPort
-						? `${signInBase}&redirect_port=${redirectPort}`
+						? `${signInBase}&${redirectPortQueryParam}=${redirectPort}`
 						: signInBase;
 
 					return (

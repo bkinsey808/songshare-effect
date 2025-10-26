@@ -4,7 +4,7 @@ import { type StoreApi, type UseBoundStore, create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
 import useSchedule from "../hooks/useSchedule";
-import { type AuthSlice, createAuthSlice } from "@/react/auth/slice";
+import { type AuthSlice, createAuthSlice } from "@/react/auth/authSlice";
 
 export const sliceResetFns: Set<() => void> = new Set<() => void>();
 export const resetAllSlices = (): void => {
@@ -20,7 +20,10 @@ export const resetAllSlices = (): void => {
 // For now, empty object until slices are implemented
 export type AppSlice = AuthSlice;
 
-const omittedKeys: (keyof AppSlice)[] = [];
+// Keys that should NOT be persisted to storage. Keep transient UI flags
+// (like `showSignedInAlert`) out of persisted state so rehydration does
+// not overwrite short-lived values set during navigation flows.
+const omittedKeys: (keyof AppSlice)[] = ["showSignedInAlert"];
 
 let store: UseBoundStore<StoreApi<AppSlice>> | undefined;
 
@@ -34,15 +37,19 @@ const hydrationState = {
 };
 
 export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
-	return ensureAppStore();
+	return getOrCreateAppStore();
 }
 
-// Non-hook factory that ensures the store exists and returns it. This can be
-// safely called from non-React code (unlike functions named `use*` which are
-// treated as hooks by linting rules). It mirrors the creation logic in
-// `useAppStore()` but isn't named like a hook so it can be used in plain
-// functions (for example, `ensureSignedIn`).
-export function ensureAppStore(): UseBoundStore<StoreApi<AppSlice>> {
+/**
+ * Return the singleton app store, creating it if necessary.
+ *
+ * This is a non-hook accessor (its name does not start with `use`), so it
+ * is safe to call from non-React or plain functions — linters won't treat
+ * it as a React hook. Inside React components prefer `useAppStore()`.
+ *
+ * @returns The bound Zustand store for application state.
+ */
+export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 	if (store === undefined) {
 		// Create the hydration promise before creating the store
 		if (!hydrationState.promise) {
@@ -62,7 +69,6 @@ export function ensureAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 						partialize: (state: AppSlice) => {
 							return Object.fromEntries(
 								Object.entries(state).filter(
-									// eslint-disable-next-line sonarjs/no-empty-collection
 									([key]) => !omittedKeys.includes(key as keyof AppSlice),
 								),
 							) as AppSlice;
@@ -93,6 +99,10 @@ export function ensureAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 	}
 	return store as UseBoundStore<StoreApi<AppSlice>>;
 }
+
+// Backwards-compatible alias for callers that still import `ensureAppStore`.
+// Prefer `getOrCreateAppStore` for new code.
+export const ensureAppStore: typeof getOrCreateAppStore = getOrCreateAppStore;
 
 // Non-hook accessor for the bound store API. Returns the underlying
 // bound store instance if it exists; otherwise returns undefined. This

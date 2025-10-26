@@ -9,7 +9,7 @@ type Props = {
 	readonly className?: string;
 };
 
-export function DismissibleAlert({
+export default function DismissibleAlert({
 	visible,
 	onDismiss,
 	title,
@@ -52,5 +52,3 @@ export function DismissibleAlert({
 		</div>
 	);
 }
-
-export default DismissibleAlert;

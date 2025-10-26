@@ -12,15 +12,22 @@ import useEnsureSignedIn, {
 } from "@/react/auth/useEnsureSignedIn";
 import { useAppStore } from "@/react/zustand/useAppStore";
 import { defaultLanguage } from "@/shared/language/supportedLanguages";
-// (no direct api path required here)
+import {
+	justSignedInQueryParam,
+	signinErrorQueryParam,
+} from "@/shared/queryParams";
 import { SigninErrorToken } from "@/shared/signinTokens";
+
+// NOTE: This layout used to set a transient zustand flag for the
+// "justSignedIn" redirect flow. To avoid hydration timing races we
+// now use sessionStorage for the one-time redirect signal instead.
 
 // Layout that protects child routes and redirects unauthenticated users.
 export default function ProtectedLayout(): ReactElement {
 	// Detect whether we were redirected here from the OAuth callback.
 	const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
-	const justSignedIn = searchParams.get("justSignedIn") === "1";
+	const justSignedIn = searchParams.get(justSignedInQueryParam) === "1";
 
 	// Ensure auth is initialized. For the OAuth redirect case we'll trigger
 	// a forced check inside the effect below so we can remove the query
@@ -33,6 +40,9 @@ export default function ProtectedLayout(): ReactElement {
 	// identity.
 	const searchParamsString = searchParams.toString();
 
+	// Keep using the app store for auth state (isSignedIn) but the
+	// transient just-signed-in signal is handled via sessionStorage.
+
 	useEffect(() => {
 		if (!justSignedIn) {
 			return;
@@ -40,7 +50,7 @@ export default function ProtectedLayout(): ReactElement {
 
 		const controller = new AbortController();
 		const next = new URLSearchParams(searchParamsString);
-		next.delete("justSignedIn");
+		next.delete(justSignedInQueryParam);
 
 		// Always use the proxied API path so Vite's dev proxy handles requests
 		// to the API during local development (keeps frontend on :5173).
@@ -50,10 +60,25 @@ export default function ProtectedLayout(): ReactElement {
 		// client can see the HttpOnly cookie set by the server and update
 		// the Zustand store. After the check we remove the `justSignedIn`
 		// param from the URL and navigate with replace.
-		void (async () => {
+		async function handleJustSignedIn() {
 			try {
 				// Force-refresh the session and update the store.
 				await ensureSignedIn({ force: true });
+
+				// On success, set a one-time signal in sessionStorage so
+				// the client UI (Dashboard) can show a one-time success
+				// alert after the redirect. sessionStorage is durable for
+				// the same-tab redirect and avoids hydration races.
+				try {
+					if (typeof window !== "undefined") {
+						sessionStorage.setItem(justSignedInQueryParam, "1");
+						console.warn(
+							"[ProtectedLayout] wrote sessionStorage justSignedIn=1",
+						);
+					}
+				} catch {
+					// ignore storage errors
+				}
 			} catch (err) {
 				const isAbort =
 					typeof err === "object" &&
@@ -64,7 +89,7 @@ export default function ProtectedLayout(): ReactElement {
 					console.error(`[ProtectedLayout] ensureSignedIn failed`, err);
 					// If the check fails we conservatively set a server error
 					// token so the UI can show an appropriate message.
-					next.set("signinError", SigninErrorToken.serverError);
+					next.set(signinErrorQueryParam, SigninErrorToken.serverError);
 				}
 			}
 
@@ -75,13 +100,14 @@ export default function ProtectedLayout(): ReactElement {
 					(next.toString() ? `?${next.toString()}` : ""),
 				{ replace: true },
 			);
-		})();
+		}
+
+		void handleJustSignedIn();
 
 		return () => {
 			controller.abort();
 		};
 	}, [justSignedIn, navigate, searchParamsString, setSearchParams]);
-
 	const store = useAppStore();
 	const isSignedIn = store((state) => state.isSignedIn);
 	const { lang = defaultLanguage } = useParams();

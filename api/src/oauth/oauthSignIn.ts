@@ -17,6 +17,11 @@ import {
 import type { OauthState } from "@/shared/oauth/oauthState";
 import { apiOauthCallbackPath } from "@/shared/paths";
 import { ProviderSchema, type ProviderType } from "@/shared/providers";
+import {
+	langQueryParam,
+	redirectPortQueryParam,
+	signinErrorQueryParam,
+} from "@/shared/queryParams";
 import { SigninErrorToken } from "@/shared/signinTokens";
 import { safeGet } from "@/shared/utils/safe";
 
@@ -52,7 +57,7 @@ const oauthSignInFactory = (
 						new Response(undefined, {
 							status: 303,
 							headers: {
-								Location: `/${defaultLanguage}/?signinError=${SigninErrorToken.providerUnavailable}`,
+								Location: `/${defaultLanguage}/?${signinErrorQueryParam}=${SigninErrorToken.providerUnavailable}`,
 							},
 						}),
 				),
@@ -114,7 +119,9 @@ const oauthSignInFactory = (
 
 		// Determine language (fallback to defaultLanguage) via Effect schema
 		const lang = yield* $(
-			Schema.decodeUnknown(SupportedLanguageSchema)(ctx.req.query("lang"))
+			Schema.decodeUnknown(SupportedLanguageSchema)(
+				ctx.req.query(langQueryParam),
+			)
 				.pipe(
 					Effect.mapError(
 						() => new ValidationError({ message: "Invalid language" }),
@@ -158,7 +165,7 @@ const oauthSignInFactory = (
 						new Response(undefined, {
 							status: 303,
 							headers: {
-								Location: `/${defaultLanguage}/?signinError=${SigninErrorToken.serverError}`,
+								Location: `/${defaultLanguage}/?${signinErrorQueryParam}=${SigninErrorToken.serverError}`,
 							},
 						}),
 				),
@@ -188,7 +195,7 @@ const oauthSignInFactory = (
 		// provider will redirect back to the HTTPS dev server (mkcert + Vite).
 		// This ensures the subsequent Set-Cookie includes Secure when required by
 		// browsers for SameSite=None cookies.
-		const redirectPortQuery = ctx.req.query("redirect_port");
+		const redirectPortQuery = ctx.req.query(redirectPortQueryParam);
 		// Ensure we only treat a defined, non-empty string as a port value.
 		if (typeof redirectPortQuery === "string" && redirectPortQuery !== "") {
 			// Developer convenience: when a redirect_port is provided prefer HTTPS
@@ -224,7 +231,7 @@ const oauthSignInFactory = (
 						new Response(undefined, {
 							status: 303,
 							headers: {
-								Location: `/${lang ?? defaultLanguage}/?signinError=${SigninErrorToken.providerUnavailable}`,
+								Location: `/${lang ?? defaultLanguage}/?${signinErrorQueryParam}=${SigninErrorToken.providerUnavailable}`,
 							},
 						}),
 				),
