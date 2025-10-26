@@ -72,6 +72,19 @@ export function oauthCallbackFactory(
 		}
 
 		const requestUrl = new URL(ctx.req.url);
+		// Debug: log full request URL so we can see the hostname the API sees
+		yield* $(
+			Effect.sync(() =>
+				console.log(
+					"[oauthCallback] ctx.req.url:",
+					ctx.req.url,
+					"requestUrl.href:",
+					requestUrl.href,
+					"requestUrl.hostname:",
+					requestUrl.hostname,
+				),
+			),
+		);
 		const code = requestUrl.searchParams.get("code");
 		const oauthStateParamsString = requestUrl.searchParams.get("state");
 		if (code === null || oauthStateParamsString === null) {
@@ -211,15 +224,38 @@ export function oauthCallbackFactory(
 			);
 
 			yield* $(
-				Effect.sync(() =>
+				Effect.sync(() => {
+					console.log("[oauthCallback] Protocol/secure diagnostics:", {
+						requestUrlProtocol: requestUrl.protocol,
+						headerProto,
+						requestProtoIsHttps,
+						forwardedProtoIsHttps,
+						secureFlag,
+						redirectOrigin,
+						isProd,
+					});
+
 					// Use SameSite=None so the session cookie is sent on cross-origin
 					// requests from the frontend (localhost:5173). Include Secure when
 					// appropriate. Note: some browsers require Secure when SameSite=None.
-					ctx.header(
-						"Set-Cookie",
-						`${registerCookieName}=${registerJwt}; HttpOnly; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureString}`,
-					),
-				),
+					const baseHeaderValue = `${registerCookieName}=${registerJwt}; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureString}`;
+					// Allow a temporary debug mode to set a non-HttpOnly register cookie so
+					// it can be inspected from client-side JS (document.cookie). Only use
+					// this in development via the REGISTER_COOKIE_CLIENT_DEBUG env var.
+					const clientDebug =
+						(ctx.env as unknown as Record<string, string | undefined>)
+							.REGISTER_COOKIE_CLIENT_DEBUG === "true";
+					const headerValue = clientDebug
+						? baseHeaderValue
+						: `${registerCookieName}=${registerJwt}; HttpOnly; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureString}`;
+					ctx.header("Set-Cookie", headerValue);
+					console.log(
+						"[oauthCallback] Set-Cookie header (register):",
+						headerValue,
+						"clientDebug=",
+						clientDebug,
+					);
+				}),
 			);
 
 			yield* $(
@@ -231,15 +267,11 @@ export function oauthCallbackFactory(
 				),
 			);
 
-			// Redirect to register page (303 See Other)
+			// Redirect to register page (303 See Other) using ctx.redirect so
+			// previously-set headers (including Set-Cookie) are preserved on the
+			// response. Returning a new Response would drop headers attached to ctx.
 			return yield* $(
-				Effect.sync(
-					() =>
-						new Response(undefined, {
-							status: 303,
-							headers: { Location: `/${lang}/${registerPath}` },
-						}),
-				),
+				Effect.sync(() => ctx.redirect(`/${lang}/${registerPath}`, 303)),
 			);
 		}
 

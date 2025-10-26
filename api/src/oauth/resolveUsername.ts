@@ -22,11 +22,15 @@ export function resolveUsername(
 			if (upRes.error) {
 				throw upRes.error;
 			}
-			if ((upRes as unknown as { data?: unknown }).data === undefined) {
+			// Supabase `maybeSingle()` returns `data: null` when no row is found.
+			// Treat both `undefined` and `null` as "not found".
+			const upData = (upRes as unknown as { data?: unknown }).data;
+			if (upData === undefined || upData === null) {
 				return undefined;
 			}
+
 			const validated = Schema.decodeUnknownSync(UserPublicSchema)(
-				upRes.data as unknown,
+				upData as unknown,
 			);
 			return validated.username;
 		},

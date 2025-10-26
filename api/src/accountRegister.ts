@@ -44,7 +44,34 @@ export default function accountRegister(
 
 		const { username } = registerForm;
 
-		// Parse register data from cookie
+		// Debug: log incoming Cookie header and request headers so we can
+		// diagnose why the register cookie might be missing when the client
+		// posts the registration form.
+		yield* $(
+			Effect.sync(() =>
+				console.log(
+					"[accountRegister] ctx.req.url:",
+					ctx.req.url,
+					"Request Cookie header:",
+					ctx.req.header("Cookie"),
+				),
+			),
+		);
+		yield* $(
+			Effect.sync(() =>
+				// Log a few useful headers instead of relying on a raw headers object
+				console.log("[accountRegister] Request headers:", {
+					Host: ctx.req.header("Host"),
+					Origin: ctx.req.header("Origin"),
+					Referer: ctx.req.header("Referer"),
+					Cookie: ctx.req.header("Cookie"),
+					xForwardedProto: ctx.req.header("x-forwarded-proto"),
+				}),
+			),
+		);
+
+		// Parse register data from cookie. Enable debug so parseDataFromCookie
+		// prints the raw cookie and JWT verification details to the server log.
 		const registerData = yield* $(
 			Effect.tryPromise({
 				try: () =>
@@ -56,6 +83,7 @@ export default function accountRegister(
 							never
 						>,
 						cookieName: registerCookieName,
+						debug: true,
 					}),
 				catch: () =>
 					new ValidationError({ message: "Invalid register cookie" }),
@@ -134,13 +162,35 @@ export default function accountRegister(
 			);
 		}
 
-		const newUser = yield* $(
-			Schema.decodeUnknown(UserSchema)(userInsertResult.data[0]).pipe(
-				Effect.mapError(
-					() =>
-						new DatabaseError({ message: "Invalid user data from database" }),
+		// Debug: log raw insert result to help diagnose schema validation failures
+		yield* $(
+			Effect.sync(() =>
+				console.log(
+					"[accountRegister] userInsertResult:",
+					JSON.stringify(userInsertResult, null, 2),
 				),
 			),
+		);
+
+		const newUser = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					Promise.resolve(
+						Schema.decodeUnknownSync(UserSchema)(userInsertResult.data[0]),
+					),
+				catch: (err) => {
+					// Log the raw DB row to help debugging
+					console.error(
+						"[accountRegister] Failed to decode user row:",
+						JSON.stringify(userInsertResult.data[0], null, 2),
+						"error:",
+						String(err),
+					);
+					return new DatabaseError({
+						message: "Invalid user data from database",
+					});
+				},
+			}),
 		);
 
 		const newUserId = newUser.user_id;
