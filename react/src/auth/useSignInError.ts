@@ -1,0 +1,72 @@
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+
+import { clearSigninPending } from "@/react/auth/signinPending";
+import { isSigninErrorToken } from "@/shared/signinTokens";
+
+type UseSignInErrorReturn = {
+	// translation key for the sign-in error, e.g. 'errors.signin.providerMismatch'
+	signinError: string | undefined;
+	provider: string | undefined;
+	dismissError: () => void;
+};
+
+export default function useSignInError(): UseSignInErrorReturn {
+	const [searchParams, setSearchParams] = useSearchParams();
+
+	// capture initial params once on first render
+	const initialToken = (() => searchParams.get("signinError") ?? undefined)();
+	const [provider] = useState<string | undefined>(
+		() => searchParams.get("provider") ?? undefined,
+	);
+
+	// Map the incoming token (e.g. 'providerMismatch') to a translation key
+	const tokenToKey = (token: string | undefined): string | undefined => {
+		if (token === undefined) {
+			return undefined;
+		}
+		if (isSigninErrorToken(token)) {
+			return `errors.signin.${token}`;
+		}
+		return undefined;
+	};
+
+	const [signinError, setSigninError] = useState<string | undefined>(() =>
+		tokenToKey(initialToken),
+	);
+
+	// Remove the raw signinError/provider query params when we see an
+	// initial token. We include the initialToken and setSearchParams in the
+	// dependency list so the effect is lint-friendly and deterministic.
+	useEffect(() => {
+		if (initialToken !== undefined) {
+			const next = new URLSearchParams(window.location.search);
+			next.delete("signinError");
+			next.delete("provider");
+			setSearchParams(next, { replace: true });
+		}
+	}, [initialToken, setSearchParams]);
+
+	function dismissError(): void {
+		setSigninError(undefined);
+		try {
+			clearSigninPending();
+		} catch {
+			// ignore
+		}
+		try {
+			const next = new URLSearchParams(window.location.search);
+			next.delete("signinError");
+			next.delete("provider");
+			setSearchParams(next, { replace: true });
+		} catch {
+			// ignore
+		}
+	}
+
+	return {
+		signinError,
+		provider,
+		dismissError,
+	};
+}
