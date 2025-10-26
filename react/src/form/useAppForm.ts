@@ -4,29 +4,28 @@ import { useState } from "react";
 
 import { createApiResponseHandler } from "./apiResponse";
 import { createFieldBlurHandler } from "./fieldValidation";
+import { type I18nMessage, i18nMessageKey } from "@/shared/register/register";
 import { safeSet } from "@/shared/utils/safe";
-import {
-	type ValidationError,
-	validateFormEffect,
-} from "@/shared/utils/validation";
+import type { ValidationError } from "@/shared/validation/types";
+import { validateFormEffect } from "@/shared/validation/validateFormEffect";
 
-type UseAppFormProps<T> = {
-	schema: Schema.Schema<T, T, never>;
+type UseAppFormProps<FormValues> = {
+	schema: Schema.Schema<FormValues, FormValues, never>;
 	formRef: React.RefObject<HTMLFormElement | null>;
 	defaultErrorMessage?: string;
-	initialValues?: Partial<T>;
+	initialValues?: Partial<FormValues>;
 };
 
-type UseAppFormReturn<T> = {
+type UseAppFormReturn<FormValues> = {
 	validationErrors: ValidationError[];
 	isSubmitting: boolean;
-	handleFieldBlur: <K extends keyof T>(
+	handleFieldBlur: <K extends keyof FormValues>(
 		field: K,
 		ref: React.RefObject<HTMLInputElement | null>,
 	) => void;
-	getFieldError: (field: keyof T) => ValidationError | undefined;
+	getFieldError: (field: keyof FormValues) => ValidationError | undefined;
 	handleSubmit: (
-		onSubmit: (data: T) => Promise<void> | void,
+		onSubmit: (data: FormValues) => Promise<void> | void,
 	) => Effect.Effect<void, never, never>;
 	handleApiResponse: (
 		response: Response,
@@ -39,12 +38,12 @@ type UseAppFormReturn<T> = {
 /**
  * Hook for managing form state and validation with Effect schemas
  */
-export const useAppForm = <T extends Record<string, unknown>>({
+export const useAppForm = <FormValues extends Record<string, unknown>>({
 	schema,
 	formRef,
 	initialValues,
 	defaultErrorMessage,
-}: UseAppFormProps<T>): UseAppFormReturn<T> => {
+}: UseAppFormProps<FormValues>): UseAppFormReturn<FormValues> => {
 	const [validationErrors, setValidationErrors] = useState<ValidationError[]>(
 		[],
 	);
@@ -53,7 +52,7 @@ export const useAppForm = <T extends Record<string, unknown>>({
 	/**
 	 * Handle field blur validation
 	 */
-	const handleFieldBlur = <K extends keyof T>(
+	const handleFieldBlur = <K extends keyof FormValues>(
 		field: K,
 		ref: React.RefObject<HTMLInputElement | null>,
 	): void => {
@@ -71,7 +70,7 @@ export const useAppForm = <T extends Record<string, unknown>>({
 
 		const fieldBlurHandler = createFieldBlurHandler(
 			schema,
-			currentFormData as Partial<T>,
+			currentFormData as Partial<FormValues>,
 			validationErrors,
 			setValidationErrors,
 		);
@@ -80,12 +79,14 @@ export const useAppForm = <T extends Record<string, unknown>>({
 	/**
 	 * Get field error
 	 */
-	const getFieldError = (field: keyof T): ValidationError | undefined => {
+	const getFieldError = (
+		field: keyof FormValues,
+	): ValidationError | undefined => {
 		return validationErrors.find((err) => err.field === String(field));
 	};
 
 	const handleSubmit = (
-		onSubmit: (data: T) => Promise<void> | void,
+		onSubmit: (data: FormValues) => Promise<void> | void,
 	): Effect.Effect<void, never, never> => {
 		return Effect.sync(() => {
 			console.log("� useAppForm.handleSubmit called");
@@ -108,7 +109,11 @@ export const useAppForm = <T extends Record<string, unknown>>({
 				// Run validation effect synchronously
 				console.log("⚡ Running schema validation");
 				const validatedData = Effect.runSync(
-					validateFormEffect(schema, currentFormData),
+					validateFormEffect<FormValues, I18nMessage>(
+						schema,
+						currentFormData,
+						i18nMessageKey,
+					),
 				);
 				console.log("✅ Validation successful, validated data:", validatedData);
 

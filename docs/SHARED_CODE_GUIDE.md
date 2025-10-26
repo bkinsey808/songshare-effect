@@ -14,8 +14,12 @@ shared/
 ├── utils/
 │   ├── index.ts          # Re-exports all utilities
 │   ├── constants.ts      # Configuration constants
-│   ├── helpers.ts        # Utility functions
-│   └── validation.ts     # Data validation functions
+│   └── helpers.ts        # Utility functions
+├── validation/
+│   ├── types.ts          # Validation types
+│   ├── extractI18nMessages.ts # Extract i18n messages from errors
+│   ├── validateFormEffect.ts  # Effect-based validation
+│   └── validateForm.ts        # Synchronous validation
 └── index.ts              # Main entry point
 ```
 
@@ -24,13 +28,11 @@ shared/
 ### In the API (Hono Server)
 
 ```typescript
-import {
-  type Song,
-  type ApiResponse,
-  HTTP_STATUS,
-  validateSongData,
-  generateId
-} from "../../shared/index.js";
+import type { Song } from "../../shared/types/song.js";
+import type { ApiResponse } from "../../shared/types/api.js";
+import { HTTP_STATUS } from "../../shared/utils/constants.js";
+import { validateSongData } from "../../shared/utils/validation.js";
+import { generateId } from "../../shared/utils/helpers.js";
 
 // Use shared types for consistent API responses
 const response: ApiResponse<Song> = {
@@ -48,12 +50,10 @@ if (!validateSongData(body)) {
 ### In the React App
 
 ```typescript
-import {
-  type Song,
-  type ApiResponse,
-  API_CONFIG,
-  formatDuration
-} from "../../shared/index.js";
+import type { Song } from "../../shared/types/song.js";
+import type { ApiResponse } from "../../shared/types/api.js";
+import { API_CONFIG } from "../../shared/utils/constants.js";
+import { formatDuration } from "../../shared/utils/helpers.js";
 
 // Use shared types for state management
 const [songs, setSongs] = useState<Song[]>([]);
