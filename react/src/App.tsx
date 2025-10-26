@@ -21,10 +21,12 @@ import UseHookDemoPage from "./pages/UseHookDemoPage";
 import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
 import ProtectedLayout from "@/react/auth/ProtectedLayout";
 import DashboardPage from "@/react/pages/DashboardPage";
+import DeleteAccountConfirmPage from "@/react/pages/DeleteAccountConfirmPage";
 import {
 	aboutPath,
 	activityDemoPath,
 	dashboardPath,
+	deleteAccountPath,
 	hookDemoPath,
 	optimizedCounterPath,
 	popoverDemoPath,
@@ -149,6 +151,10 @@ const router = createBrowserRouter([
 							{
 								index: true,
 								element: <DashboardPage />,
+							},
+							{
+								path: deleteAccountPath,
+								element: <DeleteAccountConfirmPage />,
 							},
 						],
 					},

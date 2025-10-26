@@ -1,5 +1,4 @@
 import { Effect } from "effect";
-import type { ReactElement } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -50,8 +49,13 @@ export default function RegisterPage(): ReactElement {
 	};
 
 	const onSubmitSuccess = (): void => {
-		// Redirect to dashboard on success
-		window.location.href = `/${currentLang}/${dashboardPath}`;
+		// Redirect to dashboard on success. Add `justSignedIn=1` so the
+		// ProtectedLayout knows to force-refresh `/api/me` and pick up the
+		// HttpOnly session cookie that was set by the server during
+		// registration. Without this param, a persisted signed-out state can
+		// cause the client to skip the `/api/me` check and immediately
+		// redirect back to the localized home page.
+		window.location.href = `/${currentLang}/${dashboardPath}?justSignedIn=1`;
 	};
 
 	const onSubmit = async (data: RegisterForm): Promise<void> => {

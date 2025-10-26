@@ -1,6 +1,7 @@
 import { Effect, Schema } from "effect";
 import { type Context, Hono } from "hono";
 
+import accountDelete from "./accountDelete";
 import accountRegister from "./accountRegister";
 // Dynamic CORS implemented below; no need to import the static helper
 
@@ -309,5 +310,7 @@ app.get(apiOauthCallbackPath, oauthCallbackHandler);
 
 // Account registration
 app.post("/api/account/register", handleHttpEndpoint(accountRegister));
+// Account deletion
+app.post("/api/account/delete", handleHttpEndpoint(accountDelete));
 
 export default app;

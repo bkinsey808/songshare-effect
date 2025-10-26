@@ -31,7 +31,6 @@
 		"build:api": "tsc -p api/tsconfig.json",
 		"build": "npm run build:client && npm run build:api",
 		"build:all": "npm run build",
-		"deploy:api": "cd api && wrangler deploy",
 		"lint": "NODE_OPTIONS=--max_old_space_size=4096 eslint react/src && eslint api/src && eslint shared/src && eslint scripts",
 		"lint:fix": "eslint . --fix",
 		"format": "prettier --write .",
@@ -50,8 +49,8 @@
 		"dev:monitor:tail": "bash -lc 'tail -n 200 -f /tmp/monitor.log'",
 		"dev:monitor:status": "bash -lc 'if [ -f /tmp/dev-mcp-monitor.pid ]; then echo \"Monitor pid: $(cat /tmp/dev-mcp-monitor.pid)\"; ps -fp $(cat /tmp/dev-mcp-monitor.pid) || true; else echo \"No monitor pidfile\"; fi'",
 		"deploy:pages": "npm run build:client && node ./scripts/prepare-functions.mjs && dotenv -e .env -- bash -lc 'cd dist && npx wrangler pages deploy . --project-name=\"$CLOUDFLARE_PROJECT\" --branch=main --commit-dirty=true'",
-		"deploy:worker": "npm run build:api && cd api && npx wrangler deploy",
-		"deploy": "npm run deploy:pages && npm run deploy:worker"
+		"deploy:api": "npm run build:api && cd api && npx wrangler deploy --env production",
+		"deploy": "npm run deploy:pages && npm run deploy:api"
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.58.0",

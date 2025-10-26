@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getStoreApi, useAppStoreHydrated } from "@/react/zustand/useAppStore";
 import { SupportedLanguage } from "@/shared/language/supportedLanguages";
+import { dashboardPath, deleteAccountPath } from "@/shared/paths";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 // Use react-router's navigate for sign-out to avoid browser-specific hard navigation issues.
@@ -184,6 +185,16 @@ function DashboardPage(): ReactElement {
 					}}
 				>
 					{t("pages.dashboard.signOut")}
+				</button>
+
+				{/* Delete account navigates to a confirmation page */}
+				<button
+					className="ml-3 rounded border border-red-600 bg-transparent px-3 py-1 text-red-600 hover:bg-red-50/5"
+					onClick={() =>
+						navigate(`/${currentLang}/${dashboardPath}/${deleteAccountPath}`)
+					}
+				>
+					{t("pages.dashboard.deleteAccount", "Delete Account")}
 				</button>
 			</div>
 		</div>

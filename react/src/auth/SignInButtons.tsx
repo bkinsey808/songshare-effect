@@ -15,16 +15,29 @@ export const SignInButtons = (): ReactElement => {
 	const isSignedIn = false;
 	const lang = useLanguage();
 
+	// compute redirectPort: only include when useful (dev/localhost or explicit non-default port)
 	const redirectPort = (() => {
 		if (typeof window === "undefined") {
-			// Server-side rendering: no runtime port available — use a safe dev default
-			return "5173";
+			// SSR: omit port
+			return "";
+		}
+		const port = String(window.location.port || "");
+		const hostname = window.location.hostname || "";
+
+		// Only include redirect_port for local/dev hosts, or when an explicit port is set.
+		if (
+			// explicit port
+			port !== "" ||
+			hostname === "localhost" ||
+			hostname === "127.0.0.1" ||
+			hostname.endsWith(".local")
+		) {
+			// fall back to dev default for localhost when port missing
+			return port || "5173";
 		}
 
-		// Client-side: use the actual port the app is served on at runtime.
-		// window.location.port is an empty string when using default ports (80/443),
-		// so fall back to 5173 as the dev default.
-		return String(window.location.port || "5173");
+		// production / no explicit port -> omit param
+		return "";
 	})();
 
 	return (
@@ -51,6 +64,12 @@ export const SignInButtons = (): ReactElement => {
 						borderColor,
 					} = getFrontEndProviderData(provider);
 
+					// build href and include redirect_port only when present
+					const signInBase = `${apiOauthSignInPath}/${provider}?lang=${lang}`;
+					const signInHref = redirectPort
+						? `${signInBase}&redirect_port=${redirectPort}`
+						: signInBase;
+
 					return (
 						<div key={provider}>
 							<a
@@ -66,7 +85,7 @@ export const SignInButtons = (): ReactElement => {
 									textColor,
 									borderColor,
 								})}
-								href={`${apiOauthSignInPath}/${provider}?lang=${lang}&redirect_port=${redirectPort}`}
+								href={signInHref}
 								className="flex items-center gap-2 rounded border border-[var(--border-color)] bg-[var(--brand-color)] px-6 py-3 text-[var(--text-color)] shadow transition hover:bg-[var(--hover-color)]"
 							>
 								<span className="mr-2 flex h-8 w-8 items-center justify-center rounded bg-[var(--icon-bg-color)] p-1">

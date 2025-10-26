@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 import { type Context } from "hono";
@@ -16,6 +17,7 @@ import {
 } from "@/shared/generated/supabaseSchemas";
 import type { Database } from "@/shared/generated/supabaseTypes";
 import { UserSessionDataSchema } from "@/shared/userSessionData";
+import { safeGet, safeSet } from "@/shared/utils/safe";
 
 /**
  * Handle account registration after OAuth callback
@@ -167,21 +169,44 @@ export default function accountRegister(
 			Effect.sync(() =>
 				console.log(
 					"[accountRegister] userInsertResult:",
+					// eslint-disable-next-line unicorn/no-null
 					JSON.stringify(userInsertResult, null, 2),
 				),
 			),
 		);
 
+		// Normalize DB row: Supabase returns `null` for nullable fields whereas
+		// our Effect schemas expect `undefined` for optional fields. Convert
+		// any null values to undefined before running schema decoding so that
+		// optional fields validate correctly.
+		const normalizeNulls = <T extends Record<string, unknown>>(obj: T): T => {
+			// Use safeGet/safeSet to satisfy lint/security rules and avoid
+			// prototype pollution while normalizing null -> undefined.
+			const copy: Record<string, unknown> = { ...obj };
+			for (const key of Object.keys(obj)) {
+				const value = safeGet(obj as Record<string, unknown>, key as string);
+				if (value === null) {
+					safeSet(copy, key, undefined);
+				} else {
+					safeSet(copy, key, value);
+				}
+			}
+			return copy as T;
+		};
+
+		const normalizedRow = normalizeNulls(
+			userInsertResult.data[0] as Record<string, unknown>,
+		);
+
 		const newUser = yield* $(
 			Effect.tryPromise({
 				try: () =>
-					Promise.resolve(
-						Schema.decodeUnknownSync(UserSchema)(userInsertResult.data[0]),
-					),
+					Promise.resolve(Schema.decodeUnknownSync(UserSchema)(normalizedRow)),
 				catch: (err) => {
 					// Log the raw DB row to help debugging
 					console.error(
 						"[accountRegister] Failed to decode user row:",
+						// eslint-disable-next-line unicorn/no-null
 						JSON.stringify(userInsertResult.data[0], null, 2),
 						"error:",
 						String(err),
