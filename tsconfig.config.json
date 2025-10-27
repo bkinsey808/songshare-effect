@@ -1,0 +1,17 @@
+{
+	"extends": "./tsconfig.base.json",
+	"include": [
+		"*.config.ts",
+		"*.config.js",
+		"*.cjs",
+		"*.mjs",
+		"*.cts",
+		"*.mts",
+		"scripts/**/*.ts",
+		"scripts/**/*.js",
+		"api/**/*.ts",
+		"react/**/*.ts",
+		"react/**/*.tsx"
+	],
+	"exclude": ["node_modules", "dist", "build", "shared/generated"]
+}

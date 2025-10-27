@@ -60,7 +60,7 @@ export default function ProtectedLayout(): ReactElement {
 		// client can see the HttpOnly cookie set by the server and update
 		// the Zustand store. After the check we remove the `justSignedIn`
 		// param from the URL and navigate with replace.
-		async function handleJustSignedIn() {
+		async function handleJustSignedIn(): Promise<void> {
 			try {
 				// Force-refresh the session and update the store.
 				await ensureSignedIn({ force: true });

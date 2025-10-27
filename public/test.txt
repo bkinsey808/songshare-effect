@@ -1,0 +1,2 @@
+This is a test file used by the E2E cache-invalidation tests.
+It ensures the test can request a static asset at /test.txt.

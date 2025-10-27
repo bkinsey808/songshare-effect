@@ -101,6 +101,11 @@ app.get("/health", (ctx) => {
 	});
 });
 
+// Lightweight hello endpoint used by some E2E tests
+app.get("/api/hello", (ctx) => {
+	return ctx.json({ message: "Hello from custom API endpoint!" });
+});
+
 // Supabase client token endpoint - provides a JWT for client-side Supabase operations
 app.get("/api/auth/visitor", async (ctx) => {
 	try {

@@ -243,10 +243,20 @@ export default [
 	},
 	js.configs.recommended,
 	...tseslint.configs.recommended,
+	// Allow process.env by default in non-project-specific files. Individual
+	// file-scoped configs below (react/shared/api) will explicitly disable
+	// this global where process.env should remain disallowed.
+	{
+		languageOptions: {
+			globals: {
+				process: "readonly",
+			},
+		},
+	},
 	{
 		files: [
 			"react/src/**/*.{ts,tsx}",
-			"shared/**/*.{ts,tsx}",
+			"shared/src/**/*.{ts,tsx}",
 			"scripts/**/*.{ts,tsx}",
 			"*.{ts,tsx}",
 		],
@@ -258,7 +268,12 @@ export default [
 		},
 		languageOptions: {
 			ecmaVersion: 2020,
-			globals: globals.browser,
+			// Explicitly disable `process` in react/shared files so that
+			// `process.env` usage remains disallowed here per project policy.
+			globals: {
+				...globals.browser,
+				process: false,
+			},
 			parserOptions: {
 				ecmaFeatures: {
 					jsx: true,
@@ -268,6 +283,7 @@ export default [
 					"./tsconfig.app.json",
 					"./tsconfig.node.json",
 					"./tsconfig.functions.json",
+                "./tsconfig.config.json",
 				],
 				tsconfigRootDir: __dirname,
 			},
@@ -326,9 +342,12 @@ export default [
 	{
 		files: ["api/src/**/*.{ts,js}"],
 		languageOptions: {
+			// Disable `process` in Cloudflare Workers (api/src) so
+			// process.env usage is not allowed there.
 			globals: {
 				...globals.worker,
 				...globals.es2020,
+				process: false,
 			},
 			parserOptions: {
 				project: "./api/tsconfig.json",
@@ -395,6 +414,34 @@ export default [
 
 			// Allow shorter functions for middleware
 			"max-lines-per-function": ["warn", 50],
+		},
+	},
+	// Config/scripts files: disable restricted globals/modules rules
+	{
+		files: [
+			"*.config.{js,ts}",
+			"*.cjs",
+			"*.mjs",
+			"*.cts",
+			"*.mts",
+			"scripts/**/*.{js,ts}",
+		],
+		languageOptions: {
+			// Config files run in Node context — allow Node globals including
+			// `process` (readonly to prevent assignments).
+			globals: {
+				...globals.node,
+				process: "readonly",
+			},
+		},
+		rules: {
+			"no-restricted-globals": "off",
+			"no-restricted-modules": "off",
+			// Allow use of `process.env` in config and script files (playwright,
+			// build scripts, etc.). Also relax strict-boolean-expressions for
+			// these files so checks like `process.env.CI ? 2 : 0` aren't flagged.
+			"no-process-env": "off",
+			"@typescript-eslint/strict-boolean-expressions": "off",
 		},
 	},
 ];
