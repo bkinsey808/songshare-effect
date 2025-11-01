@@ -25,8 +25,12 @@ void i18n.use(initReactI18next).init({
 	// Set initial language from URL
 	lng: initialLanguage,
 	fallbackLng: "en",
-	// Enable debug in development only
-	debug: import.meta.env.DEV === true,
+	// Enable debug only when explicitly requested. This keeps dev-time
+	// i18next noise quiet for Playwright/dev runs unless you set
+	// VITE_I18NEXT_DEBUG=true (or "1").
+	debug:
+		import.meta.env["VITE_I18NEXT_DEBUG"] === "1" ||
+		import.meta.env["VITE_I18NEXT_DEBUG"] === "true",
 
 	// Disable automatic detection - handled by middleware
 	detection: { order: [] },

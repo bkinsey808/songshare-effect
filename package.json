@@ -45,6 +45,7 @@
 		"dev:mcp:stop": "./scripts/mcp/stop-dev-mcp.sh",
 		"dev:mcp:clear-log": "bash -lc ': > /tmp/monitor.log && echo \"Cleared /tmp/monitor.log\"; if [ -f /tmp/dev-mcp-monitor.pid ]; then PID=$(cat /tmp/dev-mcp-monitor.pid 2>/dev/null || echo \"\"); if [ -n \"$PID\" ] && ! kill -0 $PID 2>/dev/null; then rm -f /tmp/dev-mcp-monitor.pid && echo \"Removed stale monitor pidfile: /tmp/dev-mcp-monitor.pid\"; else echo \"Monitor pidfile present (pid: $PID)\"; fi; fi'",
 		"dev:servers:bg": "bash -lc '\n  nohup npm run dev:all > /tmp/dev-servers.log 2>&1 & echo $!\n'",
+		"dev:servers:detached": "bash -lc 'setsid npm run dev:all > /tmp/dev-servers.log 2>&1 < /dev/null & echo $!'",
 		"dev:mcp:restart": "npm run dev:mcp:stop && sleep 1 && npm run dev:mcp",
 		"dev:monitor:tail": "bash -lc 'tail -n 200 -f /tmp/monitor.log'",
 		"dev:monitor:status": "bash -lc 'if [ -f /tmp/dev-mcp-monitor.pid ]; then echo \"Monitor pid: $(cat /tmp/dev-mcp-monitor.pid)\"; ps -fp $(cat /tmp/dev-mcp-monitor.pid) || true; else echo \"No monitor pidfile\"; fi'",
@@ -53,7 +54,8 @@
 		"deploy": "npm run deploy:pages && npm run deploy:api"
 		,
 		"test:e2e:dev": "npx playwright test",
-		"test:e2e:prod": "PLAYWRIGHT_BASE_URL=https://effect.bardoshare.com npx playwright test"
+		"test:e2e:prod": "PLAYWRIGHT_BASE_URL=https://effect.bardoshare.com npx playwright test",
+		"test:e2e:dev:once": "./scripts/playwright-run-and-test.sh"
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.58.0",

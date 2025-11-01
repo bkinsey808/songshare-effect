@@ -44,7 +44,10 @@ const config: UserConfig = defineConfig({
 	server: (() => {
 		// Base local server config
 		const base: ServerOptions = {
-			host: "localhost",
+			// Bind explicitly to IPv4 localhost to avoid test probes resolving
+			// to IPv6 (::1) on some systems which can cause connection refused
+			// races when Playwright probes 127.0.0.1.
+			host: "127.0.0.1",
 			port: 5173,
 			strictPort: true,
 			proxy: {

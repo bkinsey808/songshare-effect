@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-	testDir: "./specs",
+	testDir: "./e2e",
 	testMatch: ["**/*.e2e.ts", "**/*.e2e.tsx"],
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
@@ -11,7 +11,11 @@ export default defineConfig({
 	// Increased to 60 seconds for service worker tests
 	timeout: 60000,
 	use: {
-		baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:5173",
+		// Tests target a deployed URL when PLAYWRIGHT_BASE_URL is set.
+		// For local dev we need to use HTTPS (Vite serves HTTPS by default),
+		// and ignore self-signed TLS errors in the browser.
+		baseURL: process.env.PLAYWRIGHT_BASE_URL || "https://localhost:5173",
+		ignoreHTTPSErrors: true,
 		trace: "on-first-retry",
 		// Reduced from 15 seconds
 		actionTimeout: 10000,
@@ -78,22 +82,27 @@ export default defineConfig({
 	// Automatically start dev server for E2E tests
 	// For preview server tests, use: PLAYWRIGHT_BASE_URL=http://localhost:8787 playwright test
 	// For deployed tests, use: PLAYWRIGHT_BASE_URL=https://your-domain.com playwright test
-	// Auto-start the local dev server when PLAYWRIGHT_BASE_URL is not set.
-	// If PLAYWRIGHT_BASE_URL is provided we assume tests target a deployed URL
-	// and therefore do not start a local server.
+	// Auto-start disabled: prefer explicit server start to avoid flaky
+	// environment-dependent behavior when Playwright attempts to manage
+	// backgrounded dev servers. When running tests locally, start the dev
+	// servers first (see README or package.json scripts) and then set
+	// PLAYWRIGHT_BASE_URL to point at the running server.
+	// Automatically start dev server for E2E tests when PLAYWRIGHT_BASE_URL
+	// is not set. We use the foreground `npm run dev:all` command so Playwright
+	// spawns the dev servers directly (no backgrounding/nohup). This keeps the
+	// processes in the same process tree Playwright controls and avoids races
+	// caused by detached background processes.
 	webServer:
 		process.env?.["PLAYWRIGHT_BASE_URL"] === undefined
 			? {
-				// Use a small wrapper so Playwright can start both frontend + API
-				// in a non-interactive way. The wrapper will background the
-				// underlying processes and wait on them.
-				command: "./scripts/playwright-start-dev.sh",
-				url: "http://localhost:5173",
-				reuseExistingServer: !process.env.CI,
-				// 2 minutes for server startup
-				timeout: 120000,
-				stdout: "pipe",
-				stderr: "pipe",
-			}
+					command: "npm run dev:all",
+					// Use 127.0.0.1 to avoid hostname/IPv6 resolution differences
+					url: "https://127.0.0.1:5173",
+					reuseExistingServer: !process.env.CI,
+					// Allow longer startup on slower machines
+					timeout: 180000,
+					stdout: "pipe",
+					stderr: "pipe",
+				}
 			: undefined,
 });

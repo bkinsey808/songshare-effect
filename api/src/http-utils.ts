@@ -2,6 +2,7 @@ import { Effect } from "effect";
 import { type Context } from "hono";
 
 import type { AppError } from "./errors";
+import { AuthenticationError } from "./errors";
 import { HTTP_STATUS } from "@/shared/demo/api";
 
 /**
@@ -81,9 +82,17 @@ export function handleHttpEndpoint<A, E extends AppError>(
 	return async function (ctx: Context): Promise<Response> {
 		const effect = Effect.match(effectFactory(ctx), {
 			onFailure: (error) => {
-				// Log the error for debugging (include stack if available)
+				// Log the error for debugging. For expected authentication errors
+				// (401) we keep logging minimal to avoid noisy stack traces for
+				// unauthenticated visitors during normal app usage.
 				try {
-					if (error instanceof Error) {
+					// If this is an AuthenticationError, log a concise message only
+					if (error instanceof AuthenticationError) {
+						console.debug(
+							"[handleHttpEndpoint] AuthenticationError:",
+							String(error.message),
+						);
+					} else if (error instanceof Error) {
 						console.error(
 							"[handleHttpEndpoint] Unhandled error:",
 							error.stack ?? error.message,

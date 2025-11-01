@@ -88,10 +88,20 @@ export async function ensureSignedIn(options?: {
 				signal: controller.signal,
 			});
 
+			// Treat common unauthenticated responses as "not signed in" quietly
+			if (res.status === 401 || res.status === 204 || res.status === 404) {
+				api.getState().setIsSignedIn(false);
+				return undefined;
+			}
+
 			console.debug("[ensureSignedIn] /api/me response status=", res.status);
 
 			if (!res.ok) {
-				// mark signed out when server indicates no session
+				// For other non-OK statuses (server errors), log for debugging
+				console.error(
+					"[ensureSignedIn] unexpected non-OK /api/me status:",
+					res.status,
+				);
 				api.getState().setIsSignedIn(false);
 				return undefined;
 			}
