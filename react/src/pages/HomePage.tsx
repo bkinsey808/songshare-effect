@@ -15,18 +15,14 @@ export default function HomePage(): ReactElement {
 	const { t, i18n } = useTranslation();
 	const currentLang = i18n.language as SupportedLanguageType;
 
-	const { isSignedIn, signinPending, signinError, dismissError } = useSignIn();
+	const { isSignedIn, signinError, dismissError } = useSignIn();
 
 	// Synchronously redirect to dashboard when signed in
 	if (isSignedIn === true) {
 		return <Navigate to={`/${currentLang}/${dashboardPath}`} replace />;
 	}
 
-	// If sign-in was initiated (via sessionStorage or cookie) and no signin error is present yet, render
-	// a blank page to avoid flashing the homepage content while the app processes the OAuth redirect back from the provider.
-	if (signinPending && signinError === undefined) {
-		return <div />;
-	}
+	// Note: signin-pending helpers removed; rely on ProtectedLayout to avoid flashes.
 
 	return (
 		<div>

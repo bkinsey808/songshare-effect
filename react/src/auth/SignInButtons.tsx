@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 
-import { setSigninPending } from "@/react/auth/signinPending";
 import { useIsOnline } from "@/react/hooks/useIsOnline";
 import { useLanguage } from "@/react/language/useLanguage";
 import { getFrontEndProviderData } from "@/react/providers/providers";
@@ -74,11 +73,6 @@ export const SignInButtons = (): ReactElement => {
 					return (
 						<div key={provider}>
 							<a
-								// Mark that a sign-in flow has started so the app can hide the
-								// homepage immediately and avoid a flash when the OAuth redirect
-								// returns to the app. Use sessionStorage so the flag survives the
-								// full-page navigation to the provider and back.
-								onClick={() => setSigninPending()}
 								style={cssVars({
 									brandColor,
 									hoverColor,
@@ -87,9 +81,9 @@ export const SignInButtons = (): ReactElement => {
 									borderColor,
 								})}
 								href={signInHref}
-								className="flex items-center gap-2 rounded border border-[var(--border-color)] bg-[var(--brand-color)] px-6 py-3 text-[var(--text-color)] shadow transition hover:bg-[var(--hover-color)]"
+								className="flex items-center gap-2 rounded border border-(--border-color) bg-(--brand-color) px-6 py-3 text-(--text-color) shadow transition hover:bg-(--hover-color)"
 							>
-								<span className="mr-2 flex h-8 w-8 items-center justify-center rounded bg-[var(--icon-bg-color)] p-1">
+								<span className="mr-2 flex h-8 w-8 items-center justify-center rounded bg-(--icon-bg-color) p-1">
 									<Icon />
 								</span>
 								{t("auth.signInWithProvider", {

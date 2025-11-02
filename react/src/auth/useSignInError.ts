@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { clearSigninPending } from "@/react/auth/signinPending";
 import {
 	providerQueryParam,
 	signinErrorQueryParam,
@@ -54,11 +53,7 @@ export default function useSignInError(): UseSignInErrorReturn {
 
 	function dismissError(): void {
 		setSigninError(undefined);
-		try {
-			clearSigninPending();
-		} catch {
-			// ignore
-		}
+
 		try {
 			const next = new URLSearchParams(window.location.search);
 			next.delete(signinErrorQueryParam);
