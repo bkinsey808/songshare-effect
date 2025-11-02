@@ -70,7 +70,7 @@ done
 # to this script which will be forwarded to playwright. Use HTTPS base URL.
 export PLAYWRIGHT_BASE_URL=${PLAYWRIGHT_BASE_URL:-https://localhost:5173}
 set +e
-npx playwright test "$@"
+npx playwright test "$@" --reporter=list
 EXIT_CODE=$?
 set -e
 

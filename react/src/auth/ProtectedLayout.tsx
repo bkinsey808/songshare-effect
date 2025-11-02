@@ -117,7 +117,16 @@ export default function ProtectedLayout(): ReactElement {
 		return <div />;
 	}
 
+	// If the user is explicitly coming from the OAuth redirect flow
+	// (we carry `justSignedIn=1` in the query), avoid immediately
+	// redirecting to home while the `ensureSignedIn` effect is still
+	// verifying the session. Return a neutral placeholder so the
+	// effect can complete and update the store.
 	if (isSignedIn === false) {
+		if (justSignedIn) {
+			return <div />;
+		}
+
 		// Redirect to language-prefixed home (you can change target as needed)
 		return <Navigate to={`/${lang}`} replace />;
 	}

@@ -16,6 +16,14 @@ type UseSignInReturn = {
 	dismissError: () => void;
 };
 
+// Runtime debug flag (set in DevTools: window.__SONGSHARE_DEBUG__ = true)
+const runtimeSongshareDebug = Boolean(
+	typeof globalThis !== "undefined" &&
+		(globalThis as unknown as Record<string, unknown>)[
+			"__SONGSHARE_DEBUG__"
+		] === true,
+);
+
 export default function useSignIn(): UseSignInReturn {
 	const { signinError, provider, dismissError } = useSignInError();
 
@@ -40,6 +48,13 @@ export default function useSignIn(): UseSignInReturn {
 		}
 		const unsubscribe = api.subscribe((state) => {
 			setIsSignedIn(state.isSignedIn);
+			if (runtimeSongshareDebug) {
+				// eslint-disable-next-line no-console
+				console.log("[songshare-debug] store isSignedIn changed", {
+					t: performance.now(),
+					isSignedIn: state.isSignedIn,
+				});
+			}
 		});
 		return unsubscribe;
 	}, []);
@@ -56,6 +71,15 @@ export default function useSignIn(): UseSignInReturn {
 					// ignore
 				}
 			}, 0);
+			if (runtimeSongshareDebug) {
+				// eslint-disable-next-line no-console
+				console.log(
+					"[songshare-debug] isSignedIn true, clearing local signinPending",
+					{
+						t: performance.now(),
+					},
+				);
+			}
 		}
 
 		if (signinError !== undefined && signinPending) {
@@ -78,6 +102,15 @@ export default function useSignIn(): UseSignInReturn {
 					// ignore
 				}
 			}, 1000);
+			if (runtimeSongshareDebug) {
+				// eslint-disable-next-line no-console
+				console.log(
+					"[songshare-debug] signinPending true, started fallback timeout",
+					{
+						t: performance.now(),
+					},
+				);
+			}
 		}
 
 		return () => {

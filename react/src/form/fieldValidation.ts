@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { type Schema } from "effect";
 
 import type { ValidationError } from "@/shared/validation/types";

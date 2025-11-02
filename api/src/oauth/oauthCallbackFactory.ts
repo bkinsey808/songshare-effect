@@ -319,10 +319,14 @@ export function oauthCallbackFactory(
 			),
 		);
 
+		// Capture the Set-Cookie header value so we can include it on the
+		// explicit HTML response below. Also attach it to ctx (preserves
+		// previous behavior when other middleware inspects ctx.headers).
+		let sessionCookieHeaderValue = "";
 		yield* $(
 			Effect.sync(() => {
 				const headerValue = `${userSessionCookieName}=${sessionJwt}; HttpOnly; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureString}`;
-				// Set the cookie header and log it for debugging
+				sessionCookieHeaderValue = headerValue;
 				ctx.header("Set-Cookie", headerValue);
 				console.log("[oauthCallback] Set-Cookie header:", headerValue);
 				console.log(
@@ -332,9 +336,11 @@ export function oauthCallbackFactory(
 			}),
 		);
 
-		// Client-side redirect to dashboard to ensure cookie is sent before SSR
-		// Compute dashboard redirect URL using extracted helper
-		// (handles custom port logic and allowed origins)
+		// Compute dashboard redirect URL using extracted helper. We'll return a
+		// small confirmation HTML page that polls /api/me (with credentials)
+		// until the session is visible, then performs a final client-side
+		// redirect. This avoids the SPA seeing an unauthenticated state when the
+		// browser hasn't applied the server-set cookie yet.
 		const dashboardRedirectUrl = buildDashboardRedirectUrl(
 			ctx,
 			requestUrl,
@@ -346,15 +352,80 @@ export function oauthCallbackFactory(
 		yield* $(
 			Effect.sync(() =>
 				console.log(
-					"[oauthCallback] Redirecting to dashboard:",
+					"[oauthCallback] Returning confirmation HTML that will redirect to:",
 					dashboardRedirectUrl,
 				),
 			),
 		);
 
-		// Use ctx.redirect so headers previously set via ctx.header (including
-		// Set-Cookie) are preserved on the response. Returning a freshly
-		// constructed Response here would lose the headers attached to ctx.
-		return yield* $(Effect.sync(() => ctx.redirect(dashboardRedirectUrl, 303)));
+		// Small, conservative client-side poller HTML. It will attempt to fetch
+		// /api/me (credentials included) for up to 4s before falling back to a
+		// redirect. The response explicitly includes the Set-Cookie header so
+		// the browser receives it along with this HTML document.
+		const html = `<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Signing you in…</title>
+				
+	</head>
+	<body>
+		<div class="msg">
+			<h1>Signing you in…</h1>
+			<p>If you are not redirected automatically, please wait a moment.</p>
+		</div>
+		<script>
+			(function(){
+				const redirect = ${JSON.stringify(dashboardRedirectUrl)};
+				const maxMs = 4000;
+				const interval = 250;
+				let elapsed = 0;
+
+				function check(){
+					fetch('/api/me', { credentials: 'include', cache: 'no-store' })
+						.then(res => {
+							if(res.ok){
+								window.location.replace(redirect);
+							} else {
+								tick();
+							}
+						})
+						.catch(() => tick());
+				}
+
+				function tick(){
+					elapsed += interval;
+					if(elapsed >= maxMs){
+						// Fallback: redirect anyway after the timeout so the user is not
+						// stuck on this page. In most cases the cookie will be visible and
+						// the redirect above will run, avoiding any flash in the SPA.
+						window.location.replace(redirect);
+					} else {
+						setTimeout(check, interval);
+					}
+				}
+
+				// Start immediately
+				check();
+			})();
+		</script>
+	</body>
+</html>`;
+
+		return yield* $(
+			Effect.sync(
+				() =>
+					new Response(html, {
+						status: 200,
+						headers: {
+							"Content-Type": "text/html; charset=utf-8",
+							// Include the session Set-Cookie so the browser
+							// receives it along with this HTML response.
+							"Set-Cookie": sessionCookieHeaderValue,
+						},
+					}),
+			),
+		);
 	});
 }

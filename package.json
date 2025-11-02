@@ -54,7 +54,7 @@
 		"deploy": "npm run deploy:pages && npm run deploy:api"
 		,
 		"test:e2e:dev": "npx playwright test",
-		"test:e2e:prod": "PLAYWRIGHT_BASE_URL=https://effect.bardoshare.com npx playwright test",
+		"test:e2e:prod": "PLAYWRIGHT_BASE_URL=https://effect.bardoshare.com npx playwright test --reporter=list",
 		"test:e2e:dev:once": "./scripts/playwright-run-and-test.sh"
 	},
 	"dependencies": {
