@@ -6,7 +6,7 @@ import type { Env } from "@/api/env";
 import { type DatabaseError, ServerError, ValidationError } from "@/api/errors";
 import { getIpAddress } from "@/api/getIpAddress";
 import { createJwt } from "@/api/oauth/createJwt";
-import { resolveUsername } from "@/api/oauth/resolveUsername";
+import { resolveUsername } from "@/api/user/resolveUsername";
 import type { User } from "@/shared/generated/supabaseSchemas";
 import type { OauthState } from "@/shared/oauth/oauthState";
 import type { OauthUserData } from "@/shared/oauth/oauthUserData";

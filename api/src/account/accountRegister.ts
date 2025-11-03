@@ -5,14 +5,14 @@ import { type Context } from "hono";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
-import { RegisterFormSchema } from "../../shared/src/register/register";
-import { registerCookieName, userSessionCookieName } from "./cookie";
-import { buildSessionCookie } from "./cookieUtils";
-import type { Env } from "./env";
-import { DatabaseError, ServerError, ValidationError } from "./errors";
-import { RegisterDataSchema } from "./features/register/registerData";
-import { getIpAddress } from "./getIpAddress";
-import { parseDataFromCookie } from "./parseDataFromCookie";
+import { RegisterFormSchema } from "../../../shared/src/register/register";
+import { buildSessionCookie } from "../cookie/buildSessionCookie";
+import { registerCookieName, userSessionCookieName } from "../cookie/cookie";
+import { parseDataFromCookie } from "../cookie/parseDataFromCookie";
+import type { Env } from "../env";
+import { DatabaseError, ServerError, ValidationError } from "../errors";
+import { getIpAddress } from "../getIpAddress";
+import { RegisterDataSchema } from "../register/registerData";
 import { csrfTokenCookieName } from "@/shared/cookies";
 import {
 	UserPublicSchema,

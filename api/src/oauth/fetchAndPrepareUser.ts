@@ -6,8 +6,8 @@ import type { Context } from "hono";
 import type { Env } from "@/api/env";
 import { DatabaseError, ValidationError } from "@/api/errors";
 import { fetchAndParseOauthUserData } from "@/api/oauth/fetchAndParseOauthUserData";
-import { getUserByEmail } from "@/api/oauth/getUserByEmail";
-import { getBackEndProviderData as getProviderData } from "@/api/providers";
+import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
+import { getUserByEmail } from "@/api/user/getUserByEmail";
 import type { UserSchema } from "@/shared/generated/supabaseSchemas";
 import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 import { apiOauthCallbackPath } from "@/shared/paths";
@@ -71,7 +71,7 @@ export function fetchAndPrepareUser(
 			),
 		);
 		const { accessTokenUrl, clientIdEnvVar, clientSecretEnvVar, userInfoUrl } =
-			getProviderData(provider);
+			getBackEndProviderData(provider);
 		const clientId = superSafeGet(
 			ctx.env as unknown as Record<string, string | undefined>,
 			clientIdEnvVar,

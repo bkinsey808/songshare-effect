@@ -2,10 +2,10 @@ import { Effect } from "effect";
 import type { Context } from "hono";
 
 import type { Bindings } from "./env";
-import { AuthenticationError, DatabaseError } from "./errors";
+import { AuthenticationError, type DatabaseError } from "./errors";
 // getErrorMessage was previously used for logging; not needed in the effect-based flow
 import { getIpAddress } from "./getIpAddress";
-import { getVerifiedUserSession } from "./getVerifiedSession";
+import { getVerifiedUserSession } from "./userSession/getVerifiedSession";
 import { type UserSessionData } from "@/shared/userSessionData";
 import { safeSet } from "@/shared/utils/safe";
 

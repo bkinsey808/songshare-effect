@@ -1,12 +1,13 @@
 import { Effect, Schema } from "effect";
 import { type Context, Hono } from "hono";
 
-import accountDelete from "./accountDelete";
-import accountRegister from "./accountRegister";
-import { userSessionCookieName } from "./cookie";
-import { clearSessionCookie } from "./cookieUtils";
-import { getAllowedOrigins, getOriginToCheck } from "./corsUtils";
-import { verifySameOriginOrThrow } from "./csrf";
+import accountDelete from "./account/accountDelete";
+import accountRegister from "./account/accountRegister";
+import { buildClearCookieHeader } from "./cookie/buildClearCookieHeader";
+import { userSessionCookieName } from "./cookie/cookie";
+import { getAllowedOrigins } from "./cors/getAllowedOrigins";
+import { getOriginToCheck } from "./cors/getOriginToCheck";
+import { verifySameOriginOrThrow } from "./csrf/verifySameOriginOrThrow";
 // Dynamic CORS implemented below; no need to import the static helper
 
 import type { Bindings } from "./env";
@@ -51,7 +52,7 @@ app.use("*", async (ctx, next) => {
 		(ctx.env as unknown as { ENVIRONMENT?: string }).ENVIRONMENT ===
 		"production";
 	const originAllowed =
-		originToCheck &&
+		Boolean(originToCheck) &&
 		(isProd ? allowedOrigins.includes(originToCheck) : Boolean(originHeader));
 
 	if (originAllowed && originToCheck) {
@@ -303,7 +304,7 @@ app.post("/api/auth/signout", async (ctx) => {
 		// Clear the userSession cookie by setting an expired cookie on the response
 		// Use the cookie helper so attributes (SameSite/Secure/Domain) match how
 		// the cookie was originally set in the OAuth callback.
-		const cookieValue = clearSessionCookie(ctx, userSessionCookieName);
+		const cookieValue = buildClearCookieHeader(ctx, userSessionCookieName);
 		ctx.res.headers.append("Set-Cookie", cookieValue);
 		return ctx.json({ success: true });
 	} catch (err) {

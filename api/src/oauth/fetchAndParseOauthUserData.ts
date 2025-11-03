@@ -1,8 +1,8 @@
 import { Effect, Schema } from "effect";
 
+import { fetchUserInfo } from "../user/fetchUserInfo";
 import { exchangeCodeForToken } from "./exchangeCodeForToken";
 import type { FetchOpts } from "./fetchOpts";
-import { fetchUserInfo } from "./fetchUserInfo";
 import { ProviderError, ValidationError } from "@/api/errors";
 import {
 	type OauthUserData,

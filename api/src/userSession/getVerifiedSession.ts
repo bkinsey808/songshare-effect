@@ -1,8 +1,8 @@
 import { Effect, Schema } from "effect";
 import type { Context } from "hono";
 
-import type { Bindings } from "./env";
-import { AuthenticationError, DatabaseError } from "./errors";
+import type { Bindings } from "../env";
+import { AuthenticationError, DatabaseError } from "../errors";
 import {
 	extractUserSessionTokenFromContext,
 	verifyUserSessionToken,

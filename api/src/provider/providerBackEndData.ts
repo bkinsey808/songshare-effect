@@ -1,11 +1,6 @@
-import {
-	Provider,
-	type ProviderType,
-	guardAsProvider,
-} from "@/shared/providers";
-import { superSafeGet } from "@/shared/utils/safe";
+import { Provider, type ProviderType } from "@/shared/providers";
 
-type ProviderBackEndData = {
+export type ProviderBackEndData = {
 	accessTokenUrl: string;
 	clientIdEnvVar: string;
 	clientSecretEnvVar: string;
@@ -13,7 +8,7 @@ type ProviderBackEndData = {
 	authBaseUrl: string;
 };
 
-const providerBackEndData: Record<ProviderType, ProviderBackEndData> = {
+export const providerBackEndData: Record<ProviderType, ProviderBackEndData> = {
 	[Provider.google]: {
 		accessTokenUrl: "https://oauth2.googleapis.com/token",
 		userInfoUrl: "https://openidconnect.googleapis.com/v1/userinfo",
@@ -37,19 +32,4 @@ const providerBackEndData: Record<ProviderType, ProviderBackEndData> = {
 		clientSecretEnvVar: "AMAZON_CLIENT_SECRET",
 		authBaseUrl: "https://www.amazon.com/ap/oa",
 	},
-};
-
-export function getBackEndProviderData<T extends ProviderType>(
-	provider: T,
-): (typeof providerBackEndData)[T] {
-	return superSafeGet(providerBackEndData, provider);
-}
-
-export const isProvider = (value: unknown): value is ProviderType => {
-	try {
-		guardAsProvider(value);
-		return true;
-	} catch {
-		return false;
-	}
 };

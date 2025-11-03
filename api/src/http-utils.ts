@@ -1,8 +1,7 @@
 import { Effect } from "effect";
 import { type Context } from "hono";
 
-import type { AppError } from "./errors";
-import { AuthenticationError } from "./errors";
+import { type AppError, AuthenticationError } from "./errors";
 import { HTTP_STATUS } from "@/shared/demo/api";
 
 /**
@@ -88,7 +87,7 @@ export function handleHttpEndpoint<A, E extends AppError>(
 				try {
 					// If this is an AuthenticationError, log a concise message only
 					if (error instanceof AuthenticationError) {
-						console.debug(
+						console.warn(
 							"[handleHttpEndpoint] AuthenticationError:",
 							String(error.message),
 						);

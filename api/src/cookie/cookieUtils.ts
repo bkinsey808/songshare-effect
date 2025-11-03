@@ -1,6 +1,6 @@
 import { type Context } from "hono";
 
-import { buildSameSiteAttr } from "@/api/oauth/buildSameSiteAttr";
+import { buildSameSiteAttr } from "@/api/cookie/buildSameSiteAttr";
 
 type EnvLike = Record<string, string | undefined>;
 

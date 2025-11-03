@@ -2,12 +2,13 @@ import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 import type { Context } from "hono";
 
-import { userSessionCookieName } from "./cookie";
-import { clearSessionCookie } from "./cookieUtils";
-import { verifyDoubleSubmitOrThrow, verifySameOriginOrThrow } from "./csrf";
-import type { Bindings } from "./env";
-import { AuthenticationError, DatabaseError } from "./errors";
-import { getVerifiedUserSession } from "./getVerifiedSession";
+import { buildClearCookieHeader } from "../cookie/buildClearCookieHeader";
+import { userSessionCookieName } from "../cookie/cookie";
+import { verifyDoubleSubmitOrThrow } from "../csrf/verifyDoubleSubmitOrThrow";
+import { verifySameOriginOrThrow } from "../csrf/verifySameOriginOrThrow";
+import type { Bindings } from "../env";
+import { AuthenticationError, DatabaseError } from "../errors";
+import { getVerifiedUserSession } from "../userSession/getVerifiedSession";
 import type { Database } from "@/shared/generated/supabaseTypes";
 
 /**
@@ -61,7 +62,7 @@ export default function accountDelete(
 
 		// Clear the user session cookie so the browser is signed out
 		try {
-			const headerValue = clearSessionCookie(ctx, userSessionCookieName);
+			const headerValue = buildClearCookieHeader(ctx, userSessionCookieName);
 			ctx.res.headers.append("Set-Cookie", headerValue);
 		} catch (err) {
 			console.error("Failed to set removal cookie header", err);

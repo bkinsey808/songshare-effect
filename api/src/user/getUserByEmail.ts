@@ -2,8 +2,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
-import { normalizeLinkedProviders } from "./normalizeLinkedProviders";
-import { normalizeNullsTopLevel } from "./normalizeNullsTopLevel";
+import { normalizeNullsTopLevel } from "../oauth/normalizeNullsTopLevel";
+import { normalizeLinkedProviders } from "../provider/normalizeLinkedProviders";
 import { DatabaseError } from "@/api/errors";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
 
