@@ -26,6 +26,16 @@
 		"home": {
 			"title": "Welcome to SongShare",
 			"subtitle": "Share your music with the world"
+		},
+		"dashboard": {
+			"createdAccountSuccess": "You have successfully created an account.",
+			"signedInSuccess": "You have successfully signed in.",
+			"title": "Your Dashboard",
+			"welcome": "Welcome back, {{name}}",
+			"signedOutTitle": "Not signed in",
+			"signedOutBody": "You are not signed in. Please sign in to access your dashboard.",
+			"signOut": "Sign Out",
+			"deleteAccount": "Delete Account"
 		}
 	},
 	"register": {

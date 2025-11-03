@@ -57,6 +57,17 @@ export default function RegisterPage(): ReactElement {
 		// registration. Without this param, a persisted signed-out state can
 		// cause the client to skip the `/api/me` check and immediately
 		// redirect back to the localized home page.
+		try {
+			// Set a one-time registration signal so the dashboard can show a
+			// different success message when the user has just created an
+			// account (instead of a generic "signed in" message).
+			if (typeof window !== "undefined") {
+				sessionStorage.setItem("justRegistered", "1");
+			}
+		} catch {
+			// ignore storage errors
+		}
+
 		window.location.href = `/${currentLang}/${dashboardPath}?${justSignedInQueryParam}=1`;
 	};
 

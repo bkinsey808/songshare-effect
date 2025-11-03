@@ -30,6 +30,8 @@ function DashboardPage(): ReactElement {
 	);
 	const signOutRef = useRef<() => void>(() => snapshot?.signOut ?? (() => {}));
 	const [showSignedInAlert, setShowSignedInAlert] = useState<boolean>(false);
+	const [showRegisteredAlert, setShowRegisteredAlert] =
+		useState<boolean>(false);
 
 	// showSignedInAlert comes directly from the zustand selector above.
 
@@ -47,13 +49,18 @@ function DashboardPage(): ReactElement {
 			return;
 		}
 		try {
-			const item = sessionStorage.getItem(justSignedInQueryParam);
-			if (item === "1") {
+			const justSigned = sessionStorage.getItem(justSignedInQueryParam);
+			const justRegistered = sessionStorage.getItem("justRegistered");
+			if (justRegistered === "1") {
+				console.warn(
+					"[DashboardPage] consumed justRegistered from sessionStorage",
+				);
+				queueMicrotask(() => setShowRegisteredAlert(true));
+				sessionStorage.removeItem("justRegistered");
+			} else if (justSigned === "1") {
 				console.warn(
 					"[DashboardPage] consumed justSignedIn from sessionStorage",
 				);
-				// Schedule state update to avoid synchronous setState during
-				// effect execution which some linters warn about.
 				queueMicrotask(() => setShowSignedInAlert(true));
 				sessionStorage.removeItem(justSignedInQueryParam);
 			}
@@ -97,16 +104,24 @@ function DashboardPage(): ReactElement {
 
 	return (
 		<div>
-			{/* One-time success alert after signing in */}
+			{/* One-time success alerts after signing in or registering */}
 			<DismissibleAlert
-				visible={Boolean(showSignedInAlert)}
-				onDismiss={() => setShowSignedInAlert(false)}
+				visible={Boolean(showSignedInAlert || showRegisteredAlert)}
+				onDismiss={() => {
+					setShowSignedInAlert(false);
+					setShowRegisteredAlert(false);
+				}}
 				variant="success"
 			>
-				{t(
-					"pages.dashboard.signedInSuccess",
-					"You have successfully signed in.",
-				)}
+				{showRegisteredAlert
+					? t(
+							"pages.dashboard.createdAccountSuccess",
+							"You have successfully created an account.",
+						)
+					: t(
+							"pages.dashboard.signedInSuccess",
+							"You have successfully signed in.",
+						)}
 			</DismissibleAlert>
 			<h2 className="mb-4 text-3xl font-bold">{t("pages.dashboard.title")}</h2>
 			<p className="text-gray-300">

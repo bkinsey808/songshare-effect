@@ -3,6 +3,8 @@ import { Effect } from "effect";
 import type { Context } from "hono";
 
 import { userSessionCookieName } from "./cookie";
+import { clearSessionCookie } from "./cookieUtils";
+import { verifyDoubleSubmitOrThrow, verifySameOriginOrThrow } from "./csrf";
 import type { Bindings } from "./env";
 import { AuthenticationError, DatabaseError } from "./errors";
 import { getVerifiedUserSession } from "./getVerifiedSession";
@@ -15,6 +17,23 @@ export default function accountDelete(
 	ctx: Context<{ Bindings: Bindings }>,
 ): Effect.Effect<Response, AuthenticationError | DatabaseError> {
 	return Effect.gen(function* ($) {
+		// Basic CSRF checks: ensure the request originated from an allowed origin
+		// and that the client provided a valid double-submit CSRF token.
+		try {
+			verifySameOriginOrThrow(ctx);
+			verifyDoubleSubmitOrThrow(ctx);
+		} catch (err) {
+			// Map authentication-related errors to a 403 response so the API
+			// surface is clearer instead of returning a 500 internal server error.
+			if (err instanceof AuthenticationError) {
+				console.warn(
+					"CSRF/authentication failure on account delete:",
+					err.message,
+				);
+				return ctx.json({ error: err.message }, 403);
+			}
+			throw err;
+		}
 		// Verify session and get decoded session data
 		const userSessionData = yield* $(getVerifiedUserSession(ctx));
 		const userId = userSessionData.user.user_id;
@@ -42,10 +61,8 @@ export default function accountDelete(
 
 		// Clear the user session cookie so the browser is signed out
 		try {
-			ctx.header(
-				"Set-Cookie",
-				`${userSessionCookieName}=; HttpOnly; Path=/; Max-Age=0;`,
-			);
+			const headerValue = clearSessionCookie(ctx, userSessionCookieName);
+			ctx.res.headers.append("Set-Cookie", headerValue);
 		} catch (err) {
 			console.error("Failed to set removal cookie header", err);
 		}

@@ -22,6 +22,16 @@
 		"home": {
 			"title": "Bienvenido a SongShare",
 			"subtitle": "Comparte tu música con el mundo"
+		},
+		"dashboard": {
+			"createdAccountSuccess": "Has creado una cuenta correctamente.",
+			"signedInSuccess": "Has iniciado sesión correctamente.",
+			"title": "Tu Panel",
+			"welcome": "Bienvenido de nuevo, {{name}}",
+			"signedOutTitle": "No has iniciado sesión",
+			"signedOutBody": "No has iniciado sesión. Por favor, inicia sesión para acceder a tu panel.",
+			"signOut": "Cerrar sesión",
+			"deleteAccount": "Eliminar cuenta"
 		}
 	},
 	"register": {

@@ -4,8 +4,10 @@ import { Effect, Schema } from "effect";
 import { type Context } from "hono";
 import { getCookie } from "hono/cookie";
 import { verify } from "hono/jwt";
+import { nanoid } from "nanoid";
 
 import { registerCookieName, userSessionCookieName } from "@/api/cookie";
+import { buildSessionCookie } from "@/api/cookieUtils";
 import type { Env } from "@/api/env";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
 import { buildDashboardRedirectUrl } from "@/api/oauth/buildDashboardRedirectUrl";
@@ -14,7 +16,7 @@ import { buildSameSiteAttr } from "@/api/oauth/buildSameSiteAttr";
 import { buildUserSessionJwt } from "@/api/oauth/buildUserSessionJwt";
 import { fetchAndPrepareUser } from "@/api/oauth/fetchAndPrepareUser";
 import rateLimit from "@/api/rateLimit";
-import { oauthCsrfCookieName } from "@/shared/cookies";
+import { csrfTokenCookieName, oauthCsrfCookieName } from "@/shared/cookies";
 import { defaultLanguage } from "@/shared/language/supportedLanguages";
 import { OauthStateSchema } from "@/shared/oauth/oauthState";
 import { dashboardPath, registerPath } from "@/shared/paths";
@@ -241,20 +243,18 @@ export function oauthCallbackFactory(
 						isProd,
 					});
 
-					// Use SameSite=None so the session cookie is sent on cross-origin
-					// requests from the frontend (localhost:5173). Include Secure when
-					// appropriate. Note: some browsers require Secure when SameSite=None.
-					const baseHeaderValue = `${registerCookieName}=${registerJwt}; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureString}`;
-					// Allow a temporary debug mode to set a non-HttpOnly register cookie so
-					// it can be inspected from client-side JS (document.cookie). Only use
-					// this in development via the REGISTER_COOKIE_CLIENT_DEBUG env var.
+					// Use helper to build cookie header so attributes match sign-out
+					// and other cookie operations across the codebase.
 					const clientDebug =
 						(ctx.env as unknown as Record<string, string | undefined>)
 							.REGISTER_COOKIE_CLIENT_DEBUG === "true";
 					const headerValue = clientDebug
-						? baseHeaderValue
-						: `${registerCookieName}=${registerJwt}; HttpOnly; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureString}`;
-					ctx.header("Set-Cookie", headerValue);
+						? `${registerCookieName}=${registerJwt}; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureString}`
+						: buildSessionCookie(ctx, registerCookieName, registerJwt, {
+								maxAge: 604800,
+								httpOnly: true,
+							});
+					ctx.res.headers.append("Set-Cookie", headerValue);
 					console.log(
 						"[oauthCallback] Set-Cookie header (register):",
 						headerValue,
@@ -326,9 +326,39 @@ export function oauthCallbackFactory(
 		// via ctx.header).
 		yield* $(
 			Effect.sync(() => {
-				const headerValue = `${userSessionCookieName}=${sessionJwt}; HttpOnly; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureString}`;
-				ctx.header("Set-Cookie", headerValue);
+				const headerValue = buildSessionCookie(
+					ctx,
+					userSessionCookieName,
+					sessionJwt,
+					{
+						maxAge: 604800,
+						httpOnly: true,
+					},
+				);
+				ctx.res.headers.append("Set-Cookie", headerValue);
 				console.log("[oauthCallback] Set-Cookie header:", headerValue);
+			}),
+		);
+
+		// Generate a double-submit CSRF token and set it as a readable cookie
+		// so the frontend can include it as `X-CSRF-Token` for protected requests.
+		yield* $(
+			Effect.sync(() => {
+				const csrfToken = nanoid();
+				const csrfHeader = buildSessionCookie(
+					ctx,
+					csrfTokenCookieName,
+					csrfToken,
+					{
+						maxAge: 604800,
+						httpOnly: false,
+					},
+				);
+				ctx.res.headers.append("Set-Cookie", csrfHeader);
+				console.log(
+					"[oauthCallback] Set-Cookie header (csrf-token):",
+					csrfHeader,
+				);
 			}),
 		);
 

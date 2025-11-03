@@ -3,14 +3,17 @@ import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 import { type Context } from "hono";
 import { sign } from "hono/jwt";
+import { nanoid } from "nanoid";
 
 import { RegisterFormSchema } from "../../shared/src/register/register";
 import { registerCookieName, userSessionCookieName } from "./cookie";
+import { buildSessionCookie } from "./cookieUtils";
 import type { Env } from "./env";
 import { DatabaseError, ServerError, ValidationError } from "./errors";
 import { RegisterDataSchema } from "./features/register/registerData";
 import { getIpAddress } from "./getIpAddress";
 import { parseDataFromCookie } from "./parseDataFromCookie";
+import { csrfTokenCookieName } from "@/shared/cookies";
 import {
 	UserPublicSchema,
 	UserSchema,
@@ -293,11 +296,26 @@ export default function accountRegister(
 			}),
 		);
 
-		// Set session cookie
-		ctx.header(
-			"Set-Cookie",
-			`${userSessionCookieName}=${sessionJwt}; HttpOnly; Path=/; Secure; SameSite=Lax; Max-Age=604800`,
+		// Set session cookie using the shared helper so attributes match
+		// those used by the OAuth callback and sign-out clearing logic.
+		const cookieHeader = buildSessionCookie(
+			ctx,
+			userSessionCookieName,
+			sessionJwt,
+			{
+				maxAge: 604800,
+				httpOnly: true,
+			},
 		);
+		ctx.res.headers.append("Set-Cookie", cookieHeader);
+
+		// Also set a readable double-submit CSRF token cookie for frontend use
+		const csrfToken = nanoid();
+		const csrfHeader = buildSessionCookie(ctx, csrfTokenCookieName, csrfToken, {
+			maxAge: 604800,
+			httpOnly: false,
+		});
+		ctx.res.headers.append("Set-Cookie", csrfHeader);
 
 		return ctx.json({ success: true });
 	});

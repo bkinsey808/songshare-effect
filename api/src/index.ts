@@ -3,6 +3,9 @@ import { type Context, Hono } from "hono";
 
 import accountDelete from "./accountDelete";
 import accountRegister from "./accountRegister";
+import { userSessionCookieName } from "./cookie";
+import { clearSessionCookie } from "./cookieUtils";
+import { verifySameOriginOrThrow } from "./csrf";
 // Dynamic CORS implemented below; no need to import the static helper
 
 import type { Bindings } from "./env";
@@ -297,11 +300,13 @@ app.get(
 // Sign-out endpoint: clears the user session cookie and returns success.
 app.post("/api/auth/signout", async (ctx) => {
 	try {
+		// CSRF check: ensure sign-out requests originate from an allowed origin
+		verifySameOriginOrThrow(ctx);
 		// Clear the userSession cookie by setting an expired cookie on the response
-		// Mirror attributes used when setting the cookie so the browser will accept
-		// the removal. Do not include Domain here to match how the cookie is set in dev.
-		const cookieValue = `${"userSession"}=; HttpOnly; Path=/; Max-Age=0;`;
-		ctx.header("Set-Cookie", cookieValue);
+		// Use the cookie helper so attributes (SameSite/Secure/Domain) match how
+		// the cookie was originally set in the OAuth callback.
+		const cookieValue = clearSessionCookie(ctx, userSessionCookieName);
+		ctx.res.headers.append("Set-Cookie", cookieValue);
 		return ctx.json({ success: true });
 	} catch (err) {
 		console.error("Failed to sign out", err);

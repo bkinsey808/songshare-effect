@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import { getCookie } from "@/react/utils/cookie";
 import { getStoreApi } from "@/react/zustand/useAppStore";
 import { SupportedLanguage } from "@/shared/language/supportedLanguages";
 import { apiAccountDeletePath, dashboardPath } from "@/shared/paths";
@@ -28,12 +29,21 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 		// Perform network fetch and handle network errors separately so the
 		// compiler plugin doesn't need to reason about complex control flow
 		// inside try/catch blocks.
+		const csrf = getCookie("csrf-token");
+		let headers: HeadersInit | undefined;
+		if (typeof csrf === "string" && csrf.length > 0) {
+			headers = { "X-CSRF-Token": csrf };
+		}
+
 		let res: Response;
 		try {
-			res = await fetch(apiAccountDeletePath, {
+			const init = {
 				method: "POST",
 				credentials: "include",
-			});
+				headers,
+			} as RequestInit;
+
+			res = await fetch(apiAccountDeletePath, init);
 		} catch (err) {
 			setError(String(err));
 			setLoading(false);
