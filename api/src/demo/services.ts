@@ -1,6 +1,6 @@
 import { Context, Effect, Layer } from "effect";
 
-import { NotFoundError } from "./errors";
+import { NotFoundError } from "../errors";
 import type { Song } from "./schemas";
 
 // Song service interface

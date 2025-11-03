@@ -8,19 +8,17 @@ import { userSessionCookieName } from "./cookie/cookie";
 import { getAllowedOrigins } from "./cors/getAllowedOrigins";
 import { getOriginToCheck } from "./cors/getOriginToCheck";
 import { verifySameOriginOrThrow } from "./csrf/verifySameOriginOrThrow";
+import { CreateSongRequestSchema, type Song } from "./demo/schemas";
+import { SongService, createInMemorySongService } from "./demo/services";
 // Dynamic CORS implemented below; no need to import the static helper
 
 import type { Bindings } from "./env";
 import { type AppError, ValidationError } from "./errors";
-import { handleHttpEndpoint } from "./http-utils";
+import { handleHttpEndpoint } from "./http/http-utils";
 import { me } from "./me";
 import oauthSignInHandler from "./oauth/oauthSignIn";
-import { CreateSongRequestSchema, type Song } from "./schemas";
-import { SongService, createInMemorySongService } from "./services";
-import {
-	getSupabaseClientToken,
-	getSupabaseUserToken,
-} from "./supabaseClientToken";
+import { getSupabaseClientToken } from "./supabase/getSupabaseClientToken";
+import { getSupabaseUserToken } from "./supabase/getSupabaseUserToken";
 import oauthCallbackHandler from "@/api/oauth/oauthCallbackHandler";
 import {
 	apiMePath,

@@ -1,5 +1,5 @@
 // @react-compiler ignore
-import { Effect, type Schema } from "effect";
+import { type Effect, type Schema } from "effect";
 import { useState } from "react";
 
 import { createApiResponseHandler } from "./apiResponse";
@@ -58,6 +58,7 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 		ref: React.RefObject<HTMLInputElement | null>,
 	): void => {
 		const value = ref.current?.value ?? "";
+		// eslint-disable-next-line no-console
 		console.log(`👆 handleFieldBlur called for ${String(field)}:`, value);
 
 		// Read current form data from the form
@@ -67,6 +68,7 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 			safeSet(currentFormData, key, val.toString());
 		}
 
+		// eslint-disable-next-line no-console
 		console.log("📋 Current form data on blur:", currentFormData);
 
 		const fieldBlurHandler = createFieldBlurHandler(

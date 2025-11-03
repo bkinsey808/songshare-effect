@@ -6,7 +6,7 @@ import { nanoid } from "nanoid";
 
 import type { Env } from "@/api/env";
 import { type AppError, ServerError, ValidationError } from "@/api/errors";
-import { handleHttpEndpoint } from "@/api/http-utils";
+import { handleHttpEndpoint } from "@/api/http/http-utils";
 import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
 import { oauthCsrfCookieName } from "@/shared/cookies";
 import {

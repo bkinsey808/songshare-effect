@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Effect, type Schema } from "effect";
 
 import { type I18nMessage, i18nMessageKey } from "@/shared/register/register";

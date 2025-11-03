@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { type Context } from "hono";
 
-import { type AppError, AuthenticationError } from "./errors";
+import { type AppError, AuthenticationError } from "../errors";
 import { HTTP_STATUS } from "@/shared/demo/api";
 
 /**
