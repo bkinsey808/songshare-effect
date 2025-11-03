@@ -5,6 +5,7 @@ import accountDelete from "./accountDelete";
 import accountRegister from "./accountRegister";
 import { userSessionCookieName } from "./cookie";
 import { clearSessionCookie } from "./cookieUtils";
+import { getAllowedOrigins, getOriginToCheck } from "./corsUtils";
 import { verifySameOriginOrThrow } from "./csrf";
 // Dynamic CORS implemented below; no need to import the static helper
 
@@ -38,55 +39,52 @@ const app: Hono<{ Bindings: Bindings }> = new Hono<{ Bindings: Bindings }>();
 app.use("*", async (ctx, next) => {
 	const originHeader = ctx.req.header("Origin");
 
-	// Bindings may provide a comma-separated list of allowed origins. Example:
-	// ALLOWED_ORIGINS="https://app.example.com,https://admin.example.com"
-	const allowedOriginsEnv = (ctx.env as unknown as { ALLOWED_ORIGINS?: string })
-		.ALLOWED_ORIGINS;
+	const allowedOrigins = getAllowedOrigins(
+		ctx.env as unknown as Record<string, string | undefined>,
+	);
+	const originToCheck = getOriginToCheck(ctx);
 
-	const defaultDevOrigins = [
-		"http://localhost:5173",
-		"http://localhost:5174",
-		"http://localhost:3000",
-		"https://your-pages-domain.pages.dev",
-	];
+	const allowedMethods = "GET, POST, PUT, DELETE, OPTIONS";
+	const allowedHeaders = "Content-Type, Authorization, X-CSRF-Token";
 
-	const allowedOrigins =
-		typeof allowedOriginsEnv === "string" && allowedOriginsEnv.length > 0
-			? allowedOriginsEnv
-					.split(",")
-					.map((rawOrigin) => rawOrigin.trim())
-					.filter(Boolean)
-			: defaultDevOrigins;
+	const isProd =
+		(ctx.env as unknown as { ENVIRONMENT?: string }).ENVIRONMENT ===
+		"production";
+	const originAllowed =
+		originToCheck &&
+		(isProd ? allowedOrigins.includes(originToCheck) : Boolean(originHeader));
 
-	if (typeof originHeader === "string" && originHeader.length > 0) {
-		// In production we strictly validate against allowedOrigins.
-		// In non-production (local dev) be more permissive but still echo the
-		// Origin header so credentialed requests work without exposing '*'.
-		const isProd =
-			(ctx.env as unknown as { ENVIRONMENT?: string }).ENVIRONMENT ===
-			"production";
-		const originAllowed = isProd ? allowedOrigins.includes(originHeader) : true;
-
-		if (originAllowed) {
-			// Only allow the specific origin (do NOT echo '*' when credentials are used)
-			ctx.header("Access-Control-Allow-Origin", originHeader);
-			ctx.header(
-				"Access-Control-Allow-Methods",
-				"GET, POST, PUT, DELETE, OPTIONS",
-			);
-			// Allow common headers including CSRF header if present in front-end
-			ctx.header(
-				"Access-Control-Allow-Headers",
-				"Content-Type, Authorization, X-CSRF-Token",
-			);
-			// Allow cookies to be sent from the allowed origin
-			ctx.header("Access-Control-Allow-Credentials", "true");
-		}
+	if (originAllowed && originToCheck) {
+		// Only allow the specific origin (do NOT echo '*' when credentials are used)
+		ctx.header("Access-Control-Allow-Origin", originToCheck);
+		ctx.header("Access-Control-Allow-Methods", allowedMethods);
+		ctx.header("Access-Control-Allow-Headers", allowedHeaders);
+		// Allow cookies to be sent from the allowed origin
+		ctx.header("Access-Control-Allow-Credentials", "true");
+		// Inform caches that responses vary by Origin
+		ctx.header("Vary", "Origin");
 	}
 
 	// Preflight
 	if (ctx.req.method === "OPTIONS") {
-		// If origin wasn't allowed above, respond with 204 but without CORS headers.
+		if (originAllowed && typeof originHeader === "string") {
+			// Return a preflight response that includes the CORS headers we set
+			// above. We build an explicit headers object to avoid relying on
+			// framework internals when returning early.
+			const headers = new Headers();
+			headers.set("Access-Control-Allow-Origin", originHeader);
+			headers.set("Access-Control-Allow-Methods", allowedMethods);
+			headers.set("Access-Control-Allow-Headers", allowedHeaders);
+			headers.set("Access-Control-Allow-Credentials", "true");
+			headers.set("Vary", "Origin");
+			// Cache preflight responses for a short time to reduce repeated preflight requests
+			headers.set("Access-Control-Max-Age", "600");
+			return new Response(undefined, { status: 204, headers });
+		}
+
+		// Origin wasn't allowed — respond without CORS headers so browsers
+		// will treat the preflight as failed. Also log for diagnostics.
+		console.warn("CORS preflight rejected for origin:", originHeader);
 		return new Response(undefined, { status: 204 });
 	}
 

@@ -1,6 +1,7 @@
 import { type Context } from "hono";
 import { getCookie } from "hono/cookie";
 
+import { getAllowedOrigins, getOriginToCheck } from "./corsUtils";
 import { AuthenticationError } from "./errors";
 import { csrfTokenCookieName } from "@/shared/cookies";
 
@@ -16,42 +17,8 @@ type EnvLike = Record<string, string | undefined>;
  */
 export function verifySameOriginOrThrow(ctx: Context): void {
 	const envRecord = ctx.env as unknown as EnvLike;
-	const allowedOriginsEnv = envRecord.ALLOWED_ORIGINS;
-
-	const defaultDevOrigins = [
-		"http://localhost:5173",
-		"http://localhost:5174",
-		"https://localhost:5173",
-		"https://localhost:5174",
-		"http://localhost:3000",
-		"https://your-pages-domain.pages.dev",
-	];
-
-	const allowedOrigins =
-		typeof allowedOriginsEnv === "string" && allowedOriginsEnv.length > 0
-			? allowedOriginsEnv
-					.split(",")
-					.map((rawOrigin) => rawOrigin.trim())
-					.filter(Boolean)
-			: defaultDevOrigins;
-
-	const originHeader = ctx.req.header("Origin");
-	const refererHeader = ctx.req.header("Referer");
-
-	const originToCheck = (() => {
-		if (typeof originHeader === "string" && originHeader.length > 0) {
-			return originHeader;
-		}
-		if (typeof refererHeader === "string" && refererHeader.length > 0) {
-			try {
-				const parsed = new URL(refererHeader);
-				return parsed.origin;
-			} catch {
-				return "";
-			}
-		}
-		return "";
-	})();
+	const allowedOrigins = getAllowedOrigins(envRecord);
+	const originToCheck = getOriginToCheck(ctx);
 
 	if (!originToCheck) {
 		console.error(
