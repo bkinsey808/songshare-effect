@@ -25,7 +25,7 @@ export default function RegisterPage(): ReactElement {
 		getFieldError,
 		handleSubmit,
 		isSubmitting,
-		handleApiResponse,
+		handleApiResponseEffect: handleApiResponse,
 		reset,
 		validationErrors,
 		setValidationErrors,

@@ -1,10 +1,9 @@
-// @react-compiler ignore
 import { type Effect, type Schema } from "effect";
 import { useState } from "react";
 
-import { createApiResponseHandler } from "./apiResponse";
-import { createFieldBlurHandler } from "./fieldValidation";
-import { createFormSubmitHandler } from "./formSubmitHandler";
+import { createApiResponseHandlerEffect } from "./createApiResponseHandlerEffect";
+import { createFieldBlurHandler } from "./createFieldBlurHandler";
+import { createFormSubmitHandler } from "./createFormSubmitHandler";
 import { i18nMessageKey } from "@/shared/register/register";
 import { safeSet } from "@/shared/utils/safe";
 import type { ValidationError } from "@/shared/validation/types";
@@ -28,7 +27,7 @@ type UseAppFormReturn<FormValues> = {
 		formData: Record<string, unknown>,
 		onSubmit: (data: FormValues) => Promise<void> | void,
 	) => Effect.Effect<void, never, never>;
-	handleApiResponse: (
+	handleApiResponseEffect: (
 		response: Response,
 		setSubmitError: (error: string) => void,
 	) => Effect.Effect<boolean, never, never>;
@@ -80,6 +79,7 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 		);
 		fieldBlurHandler(field, value);
 	};
+
 	/**
 	 * Get field error
 	 */
@@ -98,11 +98,11 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 	/**
 	 * Handle API response using pure Effect - returns Effect that performs side effects and returns success boolean
 	 */
-	const handleApiResponse = (
+	const handleApiResponseEffect = (
 		response: Response,
 		setSubmitError: (error: string) => void,
 	): Effect.Effect<boolean, never, never> => {
-		return createApiResponseHandler(
+		return createApiResponseHandlerEffect(
 			response,
 			setValidationErrors,
 			setSubmitError,
@@ -137,7 +137,7 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 		handleFieldBlur,
 		getFieldError,
 		handleSubmit,
-		handleApiResponse,
+		handleApiResponseEffect,
 		reset,
 		setValidationErrors,
 	};

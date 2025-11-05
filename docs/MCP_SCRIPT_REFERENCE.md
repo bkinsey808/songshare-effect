@@ -2,8 +2,7 @@
 
 This page documents all MCP (Chrome DevTools Model Context Protocol) related scripts in this repo and the npm scripts that wrap them. Use this as a quick reference when debugging with DevTools / MCP.
 
-Table of contents
------------------
+## Table of contents
 
 - Quickstart (minimal)
 - Guide / How-to
@@ -13,31 +12,29 @@ Table of contents
 - Examples
 - Troubleshooting
 
+## Quickstart (minimal)
 
-Quickstart (minimal)
---------------------
-
-1) Start the MCP server (backgrounded) and wait until ready:
+1. Start the MCP server (backgrounded) and wait until ready:
 
 ```bash
 npm run mcp:start
 npm run mcp:wait
 ```
 
-2) Start secure Chrome (opens the app URL):
+2. Start secure Chrome (opens the app URL):
 
 ```bash
 npm run chrome:debug:secure
 ```
 
-3) Run console capture or tracing tests:
+3. Run console capture or tracing tests:
 
 ```bash
 npm run chrome:test:console
 npm run debug:cdp-capture -- 30000
 ```
 
-4) Stop MCP and Chrome when done:
+4. Stop MCP and Chrome when done:
 
 ```bash
 npm run mcp:stop        # accepts -- --kill-chrome when using npm to forward args
@@ -45,8 +42,7 @@ npm run mcp:stop        # accepts -- --kill-chrome when using npm to forward arg
 
 This quickstart is a compact copy of the longer guide. The full guide and reference are on this page.
 
-Guide / How-to
----------------
+## Guide / How-to
 
 # Chrome Dev Tools MCP — Guide
 
@@ -86,12 +82,12 @@ If you use Claude Desktop, Gemini CLI or other MCP-aware tools, add an MCP serve
 
 ```json
 {
-  "mcpServers": {
-    "chrome-devtools": {
-      "command": "chrome-devtools-mcp",
-      "args": ["--port", "9222"]
-    }
-  }
+	"mcpServers": {
+		"chrome-devtools": {
+			"command": "chrome-devtools-mcp",
+			"args": ["--port", "9222"]
+		}
+	}
 }
 ```
 
@@ -138,53 +134,52 @@ What I changed and the recommended workflows
 
 1. Optional helper flag (lightweight, non-breaking)
 
-  - I added support for `USE_LINUX_CHROME=1` in the `scripts/mcp/start-chrome-debug.sh` script. When set, the script will prefer running a Linux Chrome/Chromium binary installed inside WSL (if available) instead of a Windows Chrome binary. Launching the Linux browser from WSL ensures the debug port is bound in the WSL network namespace and is reachable by the capture scripts.
+- I added support for `USE_LINUX_CHROME=1` in the `scripts/mcp/start-chrome-debug.sh` script. When set, the script will prefer running a Linux Chrome/Chromium binary installed inside WSL (if available) instead of a Windows Chrome binary. Launching the Linux browser from WSL ensures the debug port is bound in the WSL network namespace and is reachable by the capture scripts.
 
 2. Recommended ways to launch Chrome so MCP can reliably capture CDP events
 
-  - Preferred (use this when you have a Linux Chrome/Chromium in WSL and X/WSLg available):
+- Preferred (use this when you have a Linux Chrome/Chromium in WSL and X/WSLg available):
 
-    ```bash
-    # ensure helper scripts are executable (one-time)
-    chmod +x ./scripts/mcp/start-chrome-debug.sh ./scripts/mcp/capture-cdp.sh
+  ```bash
+  # ensure helper scripts are executable (one-time)
+  chmod +x ./scripts/mcp/start-chrome-debug.sh ./scripts/mcp/capture-cdp.sh
 
-    # prefer the Linux browser so the debug port binds to WSL
-    USE_LINUX_CHROME=1 nohup ./scripts/mcp/start-chrome-debug.sh > /tmp/chrome-debug.log 2>&1 &
+  # prefer the Linux browser so the debug port binds to WSL
+  USE_LINUX_CHROME=1 nohup ./scripts/mcp/start-chrome-debug.sh > /tmp/chrome-debug.log 2>&1 &
 
-    # wait for the debug endpoint (poll)
-    for i in {1..15}; do curl -sS http://127.0.0.1:9222/json/version && break || sleep 1; done
+  # wait for the debug endpoint (poll)
+  for i in {1..15}; do curl -sS http://127.0.0.1:9222/json/version && break || sleep 1; done
 
-    # when ready, run a short capture (duration in ms)
-    DEV_SERVER_PORT=5173 ./scripts/mcp/capture-cdp.sh 30000 > /tmp/cdp-capture.json
-    ```
+  # when ready, run a short capture (duration in ms)
+  DEV_SERVER_PORT=5173 ./scripts/mcp/capture-cdp.sh 30000 > /tmp/cdp-capture.json
+  ```
 
-  - Alternate (if you prefer Windows Chrome):
-
-    - Launch Chrome from native Windows (outside WSL) with `--remote-debugging-port=9222` so the debug port is reachable from Windows tools. If you still want to run capture from WSL, you may need to connect to the Windows host IP that exposes the debug endpoint (this approach is more fragile).
+- Alternate (if you prefer Windows Chrome):
+  - Launch Chrome from native Windows (outside WSL) with `--remote-debugging-port=9222` so the debug port is reachable from Windows tools. If you still want to run capture from WSL, you may need to connect to the Windows host IP that exposes the debug endpoint (this approach is more fragile).
 
 3. If the start script appears to "hang"
 
-  - This is expected behavior for the helper: `start-chrome-debug.sh` launches Chrome and then `wait`s for the Chrome PID so it can clean up the pidfile/logs on exit. Run it in a background job (or use the VS Code background task that's included in this repo) if you need your shell back.
+- This is expected behavior for the helper: `start-chrome-debug.sh` launches Chrome and then `wait`s for the Chrome PID so it can clean up the pidfile/logs on exit. Run it in a background job (or use the VS Code background task that's included in this repo) if you need your shell back.
 
-  - Examples:
+- Examples:
 
-    ```bash
-    # background the script and write its output to a logfile
-    nohup ./scripts/mcp/start-chrome-debug.sh > /tmp/chrome-debug.log 2>&1 &
+  ```bash
+  # background the script and write its output to a logfile
+  nohup ./scripts/mcp/start-chrome-debug.sh > /tmp/chrome-debug.log 2>&1 &
 
-    # or use the workspace VS Code task (preferred for interactive flows)
-    # - Start Chrome Debug (background task)
-    ```
+  # or use the workspace VS Code task (preferred for interactive flows)
+  # - Start Chrome Debug (background task)
+  ```
 
 4. Permissions and binaries
 
-  - Make sure the scripts are executable: `chmod +x ./scripts/mcp/*.sh`.
-  - Verify a Linux Chrome/Chromium exists in WSL: `command -v google-chrome || command -v chromium-browser`.
-  - If you use WSLg (graphical support) ensure `DISPLAY` or Wayland variables are present (the start script will open a visible browser when a Linux binary is chosen).
+- Make sure the scripts are executable: `chmod +x ./scripts/mcp/*.sh`.
+- Verify a Linux Chrome/Chromium exists in WSL: `command -v google-chrome || command -v chromium-browser`.
+- If you use WSLg (graphical support) ensure `DISPLAY` or Wayland variables are present (the start script will open a visible browser when a Linux binary is chosen).
 
 5. If a capture shows console messages but zero network events
 
-  - Confirm Chrome's `Network` domain is enabled by the capture script. The repository capture helper explicitly enables `Network` via CDP; if you still see zero network entries, the helper may have connected to the wrong CDP websocket (for example, a DevTools frontend page instead of your app tab). Set `DEV_SERVER_PORT` / `DEV_SERVER_URL` to the port your dev server actually uses so the script matches the correct tab.
+- Confirm Chrome's `Network` domain is enabled by the capture script. The repository capture helper explicitly enables `Network` via CDP; if you still see zero network entries, the helper may have connected to the wrong CDP websocket (for example, a DevTools frontend page instead of your app tab). Set `DEV_SERVER_PORT` / `DEV_SERVER_URL` to the port your dev server actually uses so the script matches the correct tab.
 
 Useful quick checks
 
@@ -388,11 +383,11 @@ Prefer the npm aliases added to this repo that manage pidfiles and logs:
 
 ```json
 {
-  "scripts": {
-    "mcp:start": "./scripts/mcp/start-mcp.sh",
-    "mcp:stop": "./scripts/mcp/stop-mcp.sh",
-    "chrome:debug:secure": "./scripts/mcp/start-chrome-debug-secure.sh"
-  }
+	"scripts": {
+		"mcp:start": "./scripts/mcp/start-mcp.sh",
+		"mcp:stop": "./scripts/mcp/stop-mcp.sh",
+		"chrome:debug:secure": "./scripts/mcp/start-chrome-debug-secure.sh"
+	}
 }
 ```
 
@@ -410,6 +405,7 @@ This section describes how to use Chrome DevTools + MCP (Model Context Protocol)
 to inspect and debug the `songshare-effect` app during development.
 
 Goals
+
 - Start the frontend and API dev servers
 - Launch Chrome with remote debugging enabled
 - Start the MCP server (`chrome-devtools-mcp`) so MCP-aware clients (or tools) can connect
@@ -449,86 +445,101 @@ npm run debug:cdp-capture -- 15000
 ```
 
 What the tools do
+
 - `chrome:debug:secure` — launches Chrome with safe flags and binds the remote debugging port to `127.0.0.1:9222`.
 - `mcp:start` — runs `chrome-devtools-mcp` to expose the Chrome instance to MCP clients (note: this tool can be interactive; prefer running it in a terminal you monitor).
 - `chrome:test:console` — small test harness that connects directly to Chrome's CDP WebSocket for your app tab, injects console statements, and prints captured messages.
 - `debug:cdp-capture` — convenience wrapper around a Node CDP capture script that streams Console and Network events for a short period.
 
 WSL / Windows notes
+
 - If you develop inside WSL, ensure the browser you launch exposes the DevTools port to the WSL network stack:
   - Option A: Launch Chrome on Windows with `--remote-debugging-port=9222` (recommended if you use Windows Chrome).
   - Option B: Install a Linux Chromium inside WSL (requires `systemd` + `snapd`); see docs and script notes earlier in this repo.
 
 Security
+
 - The MCP server and Chrome DevTools expose a lot of browser internals. Only run these tools in trusted development environments.
 - Never enable remote debugging on a public interface or in production.
 
 Troubleshooting
+
 - If `curl http://127.0.0.1:9222/json` shows no data, Chrome's remote-debugging port is not listening. Ensure Chrome was launched with the `--remote-debugging-port` flag.
 - If `mcp:start` prints a banner and exits, run it in a dedicated terminal (it may expect an interactive session) or use `nohup`/`tmux` to keep it alive.
 - If the CDP capture prints `No tabs found`, ensure the dev server is running and that the app URL matches the URL looked for by the helper scripts (default is `http://localhost:5173`). Set `DEV_SERVER_PORT` or `DEV_SERVER_URL` environment variables to override.
 
 Automating in CI
+
 - For CI-friendly tests, prefer headless Playwright/Puppeteer-based tests that download their own browser binary and use CDP directly. This repo includes `puppeteer` as a dev dependency and could be wired into automated tests.
 
 Cleanup and maintenance
-- Temporary capture scripts used during local debugging were consolidated into `scripts/capture-cdp.cjs` and an npm script `debug:cdp-capture` was added to make ad-hoc capture simple.
+
+- Temporary capture scripts used during local debugging were consolidated into `scripts/capture-cdp.js` and an npm script `debug:cdp-capture` was added to make ad-hoc capture simple.
 
 If you want, I can:
+
 - Add a VS Code launch configuration that attaches an MCP client to chrome-devtools-mcp.
 - Add a Playwright-based CI test that validates console/network flows without depending on host Chrome.
 
 End of guide section.
 
 Top-level notes
+
 - Default Dev server URL used by scripts: `http://localhost:5173` (override with `DEV_SERVER_PORT` or `DEV_SERVER_URL`).
 - Chrome DevTools remote-debugging port used: `9222` (override with `CHROME_DEBUG_PORT`).
 - Always run these tools in a trusted development environment; MCP exposes browser internals.
-
 
 Files and scripts
 
 All MCP-related helper scripts live under `scripts/mcp/`.
 
 `scripts/mcp/mcp-npx-wrapper.sh`
+
 - Purpose: Robust wrapper to locate a usable `npx` and exec commands through it.
 - Usage: called by npm scripts to run `chrome-devtools-mcp` without requiring a global install.
 - Example: `./scripts/mcp/mcp-npx-wrapper.sh --no-install chrome-devtools-mcp serve --port 9222 --address localhost`
 
 `scripts/mcp/start-chrome-debug.sh`
+
 - Purpose: Launches Chrome (Windows or Linux) with remote debugging flags (less strict) and opens the app URL.
 - Key env: `DEV_SERVER_PORT` (default `5173`), `CHROME_DEBUG_PORT` (default `9222`).
 - Usage: `./scripts/mcp/start-chrome-debug.sh` or npm `npm run chrome:debug`.
 
 `scripts/mcp/start-chrome-debug-secure.sh`
+
 - Purpose: Launches Chrome with a more secure flag set (binds debug to localhost only) and restricted user-data dir.
 - Use this in multi-user or sensitive environments.
 - Usage: `./scripts/mcp/start-chrome-debug-secure.sh` or npm `npm run chrome:debug:secure`.
 
 `scripts/mcp/test-chrome-mcp.sh`
+
 - Purpose: Quick checks for the Chrome debug endpoint and available tabs. Also includes a small CDP test when Node is available.
 - It does not launch the MCP server itself — it's a connectivity/health check for DevTools.
 - Usage: `./scripts/mcp/test-chrome-mcp.sh` or npm `npm run chrome:test`.
 
 `scripts/mcp/test-console-logs.sh`
+
 - Purpose: Injection-based console capture test. Connects to the app tab via CDP, enables Console and Runtime, injects `console.log/warn/error/info`, and prints captured messages.
 - Requires `jq` for robust tab selection and Node (the script falls back to a curl-based injection if Node isn't available).
 - Usage: `./scripts/mcp/test-console-logs.sh` or npm `npm run chrome:test:console`.
 
 Auxiliary utilities
+
 - `scripts/mcp/read-chrome-console.js`, `scripts/mcp/read-console-logs.sh`, `scripts/mcp/simple-console-reader.sh` — auxiliary utilities for reading console logs and interacting with the DevTools endpoint.
 
 Capture tools
-- `scripts/mcp/capture-cdp.cjs` — Node script that connects directly to a CDP websocket and streams Console + Network events for a configurable duration.
-  - Usage: `node scripts/mcp/capture-cdp.cjs <webSocketDebuggerUrl> [durationMs]`.
-- `scripts/mcp/capture-cdp.sh` — wrapper which automatically finds the app tab's `webSocketDebuggerUrl` (looking for `DEV_SERVER_URL`) and runs `capture-cdp.cjs`.
+
+- `scripts/mcp/capture-cdp.js` — Node script that connects directly to a CDP websocket and streams Console + Network events for a configurable duration.
+  - Usage: `node scripts/mcp/capture-cdp.js <webSocketDebuggerUrl> [durationMs]`.
+- `scripts/mcp/capture-cdp.sh` — wrapper which automatically finds the app tab's `webSocketDebuggerUrl` (looking for `DEV_SERVER_URL`) and runs `capture-cdp.js`.
   - Usage: `./scripts/mcp/capture-cdp.sh [durationMs]` or via npm `npm run debug:cdp-capture -- 30000`.
 
 `scripts/mcp/demo-console-logs.sh`
+
 - Purpose: Example/demo script used to produce console outputs for demonstration or quick visual checks.
 
-
 npm scripts (package.json)
+
 - `npm run mcp:start` — start MCP in background and write `scripts/mcp/mcp.pid` + `scripts/mcp/mcp.log`.
 - `npm run mcp:stop` — stop MCP; prefers PID-file shutdown (`scripts/mcp/mcp.pid`) and supports `--kill-chrome` to also stop the browser started by the paired start scripts.
 - `npm run mcp:restart` — stop then start (quick restart helper).
@@ -543,59 +554,66 @@ npm scripts (package.json)
 - `npm run chrome:test` — runs `scripts/mcp/test-chrome-mcp.sh` (connectivity test).
 - `npm run debug:cdp-capture` — convenience script (calls `./scripts/mcp/capture-cdp.sh`) to stream Console+Network events.
 
-
 Which scripts to keep
+
 - Keep (recommended):
   - `scripts/mcp/start-chrome-debug-secure.sh`, `scripts/mcp/start-chrome-debug.sh` (Chrome launchers)
   - `scripts/mcp/mcp-npx-wrapper.sh` (robust npx wrapper)
   - `scripts/mcp/test-console-logs.sh`, `scripts/mcp/test-chrome-mcp.sh` (tests)
-  - `scripts/mcp/capture-cdp.cjs`, `scripts/mcp/capture-cdp.sh` (capture tools)
+  - `scripts/mcp/capture-cdp.js`, `scripts/mcp/capture-cdp.sh` (capture tools)
   - `mcp:start`, `mcp:stop`, `mcp:wait` npm scripts for managed flows
 
 - Optional/remove: helper/read-only scripts you do not use daily (review before deleting):
   - `scripts/mcp/read-console-logs.sh`, `scripts/mcp/simple-console-reader.sh`, `scripts/mcp/capture-console.js`, `scripts/mcp/capture-network-debug.js` — keep if they are useful for ad-hoc tasks; otherwise you may archive them.
 
-
 PID & logs
+
 - MCP PID: `scripts/mcp/mcp.pid` (created by `mcp:start`).
 - MCP log: `scripts/mcp/mcp.log`.
 - Chrome PID: `~/.local/share/songshare-effect/chrome.pid` (created by `start-chrome-debug*.sh`).
- - Chrome log: `~/.local/share/songshare-effect/chrome.log` (stdout/stderr from the Chrome process started by the scripts).
+- Chrome log: `~/.local/share/songshare-effect/chrome.log` (stdout/stderr from the Chrome process started by the scripts).
 
 Environment variables
+
 - DEV_SERVER_PORT — default 5173 used to find the app URL in scripts.
 - DEV_SERVER_URL — override full dev URL (e.g., `http://localhost:5173`).
 - CHROME_DEBUG_PORT — default 9222.
 
-
 Examples (recommended)
+
 - Start MCP (backgrounded) and wait for it to be ready:
+
 ```bash
 npm run mcp:start
 npm run mcp:wait
 ```
 
 - Start secure Chrome and open the app (dev server should already be running):
+
 ```bash
 npm run chrome:debug:secure
 ```
 
 - Run console injection test:
+
 ```bash
 npm run chrome:test:console
 ```
 
 - Stream Console+Network for 30s:
+
 ```bash
 npm run debug:cdp-capture -- 30000
 ```
 
 Quick managed dev (simple):
+
 ```bash
 # start MCP, wait, then run the dev servers (safer than concurrently when order matters)
 npm run mcp:start && npm run mcp:wait && npm run dev
 ```
 
 If you want, I can also:
+
 - Add a short `scripts/README.md` in the `scripts/` folder that includes a one-line summary for each script (I can do that next).
 - Remove/archivize optional helper scripts you don't want to keep. Provide a list and I'll remove them.

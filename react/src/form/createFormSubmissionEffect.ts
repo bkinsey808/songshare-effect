@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import { createApiResponseHandler } from "./apiResponse";
+import { createApiResponseHandlerEffect } from "./createApiResponseHandlerEffect";
 
 /**
  * Create an Effect that handles form submission with API response processing
@@ -21,7 +21,7 @@ export const createFormSubmissionEffect = (
 		);
 
 		// Handle the response
-		const success = yield* createApiResponseHandler(
+		const success = yield* createApiResponseHandlerEffect(
 			response,
 			setValidationErrors,
 			setSubmitError,

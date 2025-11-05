@@ -49,7 +49,7 @@ const sharedRules = {
 		}),
 		{},
 	),
-	...tseslint.configs.strictTypeChecked.rules,
+
 	// Disable @shopify/binary-assignment-parens rule
 	"@shopify/binary-assignment-parens": "off",
 
@@ -71,6 +71,7 @@ const sharedRules = {
 	],
 
 	// TypeScript ESLint rules
+	...tseslint.configs.strictTypeChecked.rules,
 	"@typescript-eslint/consistent-type-imports": [
 		"error",
 		{ prefer: "type-imports" },
@@ -94,8 +95,7 @@ const sharedRules = {
 	"@typescript-eslint/no-explicit-any": "error",
 	"@typescript-eslint/no-dynamic-delete": "error",
 	// Allow snake_case for property names
-	"@typescript-eslint/naming-convention": [
-		"off"],
+	"@typescript-eslint/naming-convention": ["off"],
 	"@typescript-eslint/no-non-null-assertion": "error",
 
 	// Import rules
@@ -283,7 +283,7 @@ export default [
 					"./tsconfig.app.json",
 					"./tsconfig.node.json",
 					"./tsconfig.functions.json",
-                "./tsconfig.config.json",
+					"./tsconfig.config.json",
 				],
 				tsconfigRootDir: __dirname,
 			},

@@ -6,6 +6,8 @@ import {
 	type Refinement,
 } from "effect/ParseResult";
 
+import { safeGet, safeSet } from "@/shared/utils/safe";
+
 /**
  * Extract i18n messages from a ParseError by traversing the error tree
  */
@@ -16,21 +18,24 @@ export function extractI18nMessages<I18nMessageType>(
 	const fieldErrors: Record<string, I18nMessageType> = {};
 
 	function traverseIssue(issue: ParseIssue, path: string[] = []): void {
-		if (!issue || typeof issue !== "object") return;
-
+		// issue is guaranteed to be a ParseIssue object
 		const fieldName = path.join(".");
 
 		// Check if this is a leaf issue (actual validation failure)
 		if (
 			issue._tag === "Refinement" &&
-			(issue as Refinement).kind === "Predicate" &&
-			(issue as Refinement).ast?.annotations?.[i18nMessageKey]
+			(issue as Refinement).kind === "Predicate"
 		) {
-			const messageObject = (issue as Refinement).ast.annotations[
-				i18nMessageKey
-			] as I18nMessageType;
-			fieldErrors[fieldName] = messageObject;
-			return; // Stop traversing deeper for this path
+			const refinementIssue = issue as Refinement;
+			const messageObject = safeGet(
+				refinementIssue.ast?.annotations,
+				i18nMessageKey,
+			) as I18nMessageType | undefined;
+			if (messageObject !== undefined) {
+				safeSet(fieldErrors, fieldName, messageObject);
+				// Stop traversing deeper for this path
+				return;
+			}
 		}
 
 		// Traverse nested issues
@@ -53,13 +58,16 @@ export function extractI18nMessages<I18nMessageType>(
 			}
 		}
 
-		if ("issue" in issue && issue.issue) {
-			traverseIssue(issue.issue, path);
+		if ("issue" in issue && Boolean(issue.issue)) {
+			traverseIssue(issue.issue as ParseIssue, path);
 		}
 	}
 
-	if (error.issue) {
-		traverseIssue(error.issue);
+	const nullableError = error as Omit<ParseError, "issue"> & {
+		issue: ParseIssue | null;
+	};
+	if (nullableError.issue !== null) {
+		traverseIssue(nullableError.issue);
 	}
 
 	return fieldErrors;

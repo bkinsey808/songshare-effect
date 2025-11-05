@@ -1,4 +1,4 @@
-import { Effect, Schema } from "effect";
+import { Effect, type Schema } from "effect";
 
 import type { ValidationError, ValidationResult } from "./types";
 import { validateFormEffect } from "./validateFormEffect";
@@ -34,14 +34,14 @@ export function validateForm<
 		) {
 			try {
 				// Try to parse the error message as JSON
-				const parsed = JSON.parse(error.message);
+				const parsed = JSON.parse(error.message) as unknown;
 				if (Array.isArray(parsed)) {
 					return {
 						success: false,
 						errors: parsed as ValidationError[],
 					};
 				}
-			} catch (parseError) {
+			} catch {
 				// Fall through to fallback
 			}
 		}

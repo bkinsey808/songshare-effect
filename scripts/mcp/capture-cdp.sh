@@ -28,4 +28,4 @@ fi
 echo "Using devtools websocket: $WS_URL" >&2
 
 DURATION_MS=${1:-15000}
-node scripts/mcp/capture-cdp.cjs "$WS_URL" "$DURATION_MS"
+node scripts/mcp/capture-cdp.js "$WS_URL" "$DURATION_MS"

@@ -3,6 +3,7 @@ import { ArrayFormatter, type ArrayFormatterIssue } from "effect/ParseResult";
 
 import { extractI18nMessages } from "./extractI18nMessages";
 import type { ValidationError } from "./types";
+import { safeGet } from "@/shared/utils/safe";
 
 /**
  * Validate form data using Effect schema - returns an Effect
@@ -35,7 +36,7 @@ export function validateFormEffect<
 					const fieldName = err.path.join(".");
 
 					// Check if we have i18n messages for this field
-					const messageObject = i18nMessages[fieldName];
+					const messageObject = safeGet(i18nMessages, fieldName);
 					if (messageObject) {
 						const { key, ...params } = messageObject;
 						return {
@@ -50,7 +51,7 @@ export function validateFormEffect<
 					if (typeof message === "string") {
 						// Try to parse as JSON first (for backward compatibility)
 						try {
-							const parsed = JSON.parse(message);
+							const parsed = JSON.parse(message) as unknown;
 							if (
 								typeof parsed === "object" &&
 								parsed !== null &&
