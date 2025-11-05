@@ -1,10 +1,10 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate } from "react-router-dom";
 
 import { SignInButtons } from "@/react/auth/SignInButtons";
 import useSignIn from "@/react/auth/useSignIn";
 import DismissibleAlert from "@/react/components/DismissibleAlert/DismissibleAlert";
-import useHomePage from "@/react/pages/home/useHomePage";
 import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 import {
 	dashboardPath,
@@ -17,7 +17,59 @@ export default function HomePage(): ReactElement {
 	const currentLang = i18n.language as SupportedLanguageType;
 	const { isSignedIn } = useSignIn();
 
-	const { alertState, dismissAlert } = useHomePage();
+	// Initializer reads sessionStorage synchronously on first render (SPA only)
+	function getInitialAlertState(): {
+		visible: boolean;
+		type: string;
+	} {
+		const displayedKey = "alertDisplayed";
+		const typeKey = "alertType";
+
+		try {
+			// If we've already displayed an alert for this navigation, return it.
+			const alreadyDisplayed = sessionStorage.getItem(displayedKey);
+			if (alreadyDisplayed === "1") {
+				const storedType = sessionStorage.getItem(typeKey);
+				if (storedType !== null) {
+					if (storedType !== "") {
+						return { visible: true, type: storedType };
+					}
+				}
+				return { visible: false, type: "" };
+			}
+
+			// Otherwise, check the transient flags set by the sign-out / delete flows.
+			const justDeletedAccount = sessionStorage.getItem("justDeletedAccount");
+			const justSignedOut = sessionStorage.getItem("justSignedOut");
+
+			let foundType = "";
+			if (justDeletedAccount === "1") {
+				foundType = "deleteSuccess";
+			}
+			if (justSignedOut === "1") {
+				foundType = "signOutSuccess";
+			}
+
+			if (foundType !== "") {
+				// Persist marker immediately so StrictMode remounts rehydrate the same
+				// UI. Also clear the transient flags.
+				sessionStorage.setItem(displayedKey, "1");
+				sessionStorage.setItem(typeKey, foundType);
+				sessionStorage.removeItem("justDeletedAccount");
+				sessionStorage.removeItem("justSignedOut");
+				return { visible: true, type: foundType };
+			}
+		} catch (error) {
+			console.error(
+				"Error reading sessionStorage in getInitialAlertState:",
+				error,
+			);
+		}
+
+		return { visible: false, type: "" };
+	}
+
+	const [alertState, setAlertState] = useState(getInitialAlertState);
 
 	if (isSignedIn === true) {
 		return <Navigate to={`/${currentLang}/${dashboardPath}`} replace />;
@@ -27,7 +79,14 @@ export default function HomePage(): ReactElement {
 		<div>
 			<DismissibleAlert
 				visible={alertState.visible}
-				onDismiss={dismissAlert}
+				onDismiss={() => {
+					// Clear persisted/session flags when the user dismisses the alert
+					setAlertState({ visible: false, type: "" });
+					sessionStorage.removeItem("alertDisplayed");
+					sessionStorage.removeItem("alertType");
+					sessionStorage.removeItem("justDeletedAccount");
+					sessionStorage.removeItem("justSignedOut");
+				}}
 				title={
 					alertState.type === "deleteSuccess"
 						? t("pages.dashboard.accountDeleted.title")

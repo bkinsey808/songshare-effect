@@ -73,8 +73,18 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 			}
 		}
 
-		// Redirect to localized home
-		void navigate(`/${currentLang}`, { replace: true });
+		// Set a flag in sessionStorage to indicate account was just deleted.
+		// Home will read this and display the one-time alert.
+		try {
+			sessionStorage.setItem("justDeletedAccount", "1");
+		} catch {
+			// ignore sessionStorage errors
+		}
+
+		// Redirect to localized home (no query param)
+		void navigate(`/${currentLang}`, {
+			replace: true,
+		});
 	};
 
 	return (

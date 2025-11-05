@@ -13,11 +13,29 @@ import { useAppStore } from "@/react/zustand/useAppStore";
 import { defaultLanguage } from "@/shared/language/supportedLanguages";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 
-// NOTE: This layout used to set a transient zustand flag for the
-// "justSignedIn" redirect flow. To avoid hydration timing races we
-// now use sessionStorage for the one-time redirect signal instead.
-
-// Layout that protects child routes and redirects unauthenticated users.
+/**
+ * ProtectedLayout
+ *
+ * Top-level layout component used for routes that require an authenticated session.
+ * Responsibilities:
+ * - Ensure auth state is initialized (via `useEnsureSignedIn`).
+ * - Detect the OAuth callback flow (presence of `justSignedIn=1` in the query string)
+ *   and delegate to `handleJustSignedIn` which refreshes the session and writes a one-time
+ *   sessionStorage marker.
+ * - When the user is unauthenticated, decide whether to render a neutral placeholder
+ *   (while the OAuth redirect handling completes), allow navigation to continue to
+ *   child routes, or redirect to the localized home page.
+ *
+ * Notes:
+ * - `justSignedIn` is read from the query params and handled specially to avoid
+ *   hydration/timing races during OAuth redirects.
+ * - Other one-time signals such as `justSignedOut` and `justDeletedAccount` are
+ *   handled via sessionStorage and consumed by the Home page; this layout intentionally
+ *   does not remove those keys.
+ *
+ * @returns ReactElement — either an <Outlet /> for nested routes, a placeholder
+ *   <div /> while checking auth, or a <Navigate /> to the localized home when appropriate.
+ */
 export default function ProtectedLayout(): ReactElement {
 	// Detect whether we were redirected here from the OAuth callback.
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -51,6 +69,7 @@ export default function ProtectedLayout(): ReactElement {
 		// sessionStorage marker, and navigates with replace.
 		void handleJustSignedIn(next, setSearchParams, navigate);
 	}, [justSignedIn, navigate, searchParamsString, setSearchParams]);
+
 	const store = useAppStore();
 	const isSignedIn = store((state) => state.isSignedIn);
 	const { lang = defaultLanguage } = useParams();

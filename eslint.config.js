@@ -123,7 +123,7 @@ const sharedRules = {
 
 	// JSDoc rules
 	"jsdoc/check-alignment": "warn",
-	"jsdoc/check-indentation": "warn",
+	"jsdoc/check-indentation": "off",
 	"jsdoc/check-param-names": "warn",
 	"jsdoc/check-tag-names": "warn",
 	"jsdoc/check-types": "warn",

@@ -26,12 +26,20 @@
 		"dashboard": {
 			"createdAccountSuccess": "您已成功创建账户。",
 			"signedInSuccess": "您已成功登录。",
+			"signedOutSuccess": {
+				"title": "已登出",
+				"message": "您已成功登出。"
+			},
 			"title": "您的控制面板",
 			"welcome": "欢迎回来，{{name}}",
 			"signedOutTitle": "未登录",
 			"signedOutBody": "您尚未登录。请登录以访问控制面板。",
 			"signOut": "登出",
-			"deleteAccount": "删除账户"
+			"deleteAccount": "删除账户",
+			"accountDeleted": {
+				"title": "账户已删除",
+				"message": "您的账户已成功删除。"
+			}
 		}
 	},
 	"register": {

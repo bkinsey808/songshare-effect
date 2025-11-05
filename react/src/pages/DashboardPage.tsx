@@ -123,6 +123,7 @@ function DashboardPage(): ReactElement {
 							"You have successfully signed in.",
 						)}
 			</DismissibleAlert>
+
 			<h2 className="mb-4 text-3xl font-bold">{t("pages.dashboard.title")}</h2>
 			<p className="text-gray-300">
 				{t("pages.dashboard.welcome", { name: localUser?.user?.name ?? "" })}
@@ -156,16 +157,25 @@ function DashboardPage(): ReactElement {
 
 						// Explicitly set client-side signed-out state after server call.
 						try {
-							const _storeApi = getStoreApi();
-							if (_storeApi) {
-								_storeApi.getState().setIsSignedIn(false);
+							const storeApi = getStoreApi();
+							if (storeApi) {
+								storeApi.getState().setIsSignedIn(false);
 							}
 						} catch (err) {
 							console.error("explicit setIsSignedIn(false) failed:", err);
 						}
 
-						// Soft navigate to localized root.
-						void navigate(`/${currentLang}`, { replace: true });
+						// Soft navigate to localized root. Use sessionStorage-only
+						// as a one-time signal for the home page alert.
+						try {
+							sessionStorage.setItem("justSignedOut", "1");
+						} catch {
+							/* ignore storage errors */
+						}
+
+						void navigate(`/${currentLang}`, {
+							replace: true,
+						});
 					}}
 				>
 					{t("pages.dashboard.signOut")}
