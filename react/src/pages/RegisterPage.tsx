@@ -11,6 +11,7 @@ import {
 	type RegisterForm,
 	RegisterFormSchema,
 } from "@/shared/register/register";
+import { justRegisteredKey } from "@/shared/sessionStorageKeys";
 import { safeSet } from "@/shared/utils/safe";
 
 export default function RegisterPage(): ReactElement {
@@ -62,7 +63,7 @@ export default function RegisterPage(): ReactElement {
 			// different success message when the user has just created an
 			// account (instead of a generic "signed in" message).
 			if (typeof window !== "undefined") {
-				sessionStorage.setItem("justRegistered", "1");
+				sessionStorage.setItem(justRegisteredKey, "1");
 			}
 		} catch {
 			// ignore storage errors

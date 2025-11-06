@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { justDeletedAccountKey } from "@/shared/sessionStorageKeys";
+
 const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] || "";
 
 // Choose base URL: if PLAYWRIGHT_BASE_URL is set we treat this as a deployed run
@@ -71,7 +73,7 @@ test.describe("Render smoke", () => {
 		await page.goto(BASE_URL, { waitUntil: "networkidle" });
 		await page.evaluate(() => {
 			try {
-				sessionStorage.setItem("justDeletedAccount", "1");
+				sessionStorage.setItem(justDeletedAccountKey, "1");
 			} catch {
 				// ignore
 			}

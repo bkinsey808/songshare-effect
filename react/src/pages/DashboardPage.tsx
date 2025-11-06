@@ -7,6 +7,7 @@ import { getStoreApi, useAppStoreHydrated } from "@/react/zustand/useAppStore";
 import { SupportedLanguage } from "@/shared/language/supportedLanguages";
 import { dashboardPath, deleteAccountPath } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
+import { justSignedOutKey } from "@/shared/sessionStorageKeys";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 function DashboardPage(): ReactElement {
@@ -168,7 +169,7 @@ function DashboardPage(): ReactElement {
 						// Soft navigate to localized root. Use sessionStorage-only
 						// as a one-time signal for the home page alert.
 						try {
-							sessionStorage.setItem("justSignedOut", "1");
+							sessionStorage.setItem(justSignedOutKey, "1");
 						} catch {
 							/* ignore storage errors */
 						}

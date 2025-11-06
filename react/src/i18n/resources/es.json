@@ -21,7 +21,14 @@
 	"pages": {
 		"home": {
 			"title": "Bienvenido a SongShare",
-			"subtitle": "Comparte tu música con el mundo"
+			"subtitle": "Comparte tu música con el mundo",
+			"paragraphs": [
+				"{{appName}} ayuda a los músicos a compartir canciones con sus comunidades. Los líderes de canciones pueden compartir información sobre la música que están interpretando en tiempo real con las personas que siguen la aplicación, incluyendo letras, traducciones, créditos y más. Los seguidores reciben cambios de canciones en tiempo real en sus propias aplicaciones durante un set en vivo y así pueden apreciar más profundamente la música.",
+				"Además, los miembros de la comunidad pueden crear una biblioteca de canciones propia a la que pueden consultar después de que termine el set e incluso cuando están sin conexión. Y los seguidores pueden usar la aplicación para convertirse en líderes de canciones por su cuenta si así lo desean.",
+				"Además, esta aplicación ayuda a un músico a registrar su práctica y a buscar y organizar su biblioteca de canciones en listas de reproducción. Las listas de reproducción categorizan las canciones y también registran un orden si eso importa. Las listas de reproducción pueden compartirse con la comunidad o mantenerse privadas para fines organizativos.",
+				"De esta manera, {{appName}} satisface las necesidades de los músicos y sus comunidades. Simplifica enormemente el proceso de ayudar a la comunidad a aprender las letras de las canciones. Ahorra árboles porque ya no hacen falta folletos impresos con letras. Y la mayoría de la gente lleva un teléfono inteligente hoy en día.",
+				"{{appName}} podría usarse no solo para compartir canciones con una comunidad, sino también oraciones, meditaciones y muchas otras cosas. Está destinada a servir a las necesidades de todas las religiones y tradiciones espirituales."
+			]
 		},
 		"dashboard": {
 			"createdAccountSuccess": "Has creado una cuenta correctamente.",
