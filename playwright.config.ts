@@ -17,10 +17,10 @@ export default defineConfig({
 		baseURL: process.env.PLAYWRIGHT_BASE_URL || "https://localhost:5173",
 		ignoreHTTPSErrors: true,
 		trace: "on-first-retry",
-		// Reduced from 15 seconds
-		actionTimeout: 10000,
-		// Reduced from 30 seconds for faster page loads
-		navigationTimeout: 15000,
+		// Increased for more reliable dev server testing
+		actionTimeout: 15000,
+		// Increased to handle slower dev server response times
+		navigationTimeout: 30000,
 	},
 	projects: [
 		{

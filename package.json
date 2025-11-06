@@ -51,9 +51,8 @@
 		"dev:monitor:status": "bash -lc 'if [ -f /tmp/dev-mcp-monitor.pid ]; then echo \"Monitor pid: $(cat /tmp/dev-mcp-monitor.pid)\"; ps -fp $(cat /tmp/dev-mcp-monitor.pid) || true; else echo \"No monitor pidfile\"; fi'",
 		"deploy:pages": "npm run build:client && node ./scripts/prepare-functions.mjs && dotenv -e .env -- bash -lc 'cd dist && npx wrangler pages deploy . --project-name=\"$CLOUDFLARE_PROJECT\" --branch=main --commit-dirty=true'",
 		"deploy:api": "npm run build:api && cd api && npx wrangler deploy --env production",
-		"deploy": "npm run deploy:pages && npm run deploy:api"
-		,
-		"test:e2e:dev": "npx playwright test",
+		"deploy": "npm run deploy:pages && npm run deploy:api",
+		"test:e2e:dev": "PLAYWRIGHT_BASE_URL=https://localhost:5173 timeout 180 bun ./scripts/playwright-run-and-test.ts --reporter=list --retries=0 --workers=3 --forbid-only --timeout=20000",
 		"test:e2e:prod": "PLAYWRIGHT_BASE_URL=https://effect.bardoshare.com npx playwright test --reporter=list",
 		"test:e2e:dev:once": "./scripts/playwright-run-and-test.sh"
 	},
@@ -112,6 +111,7 @@
 		"react-compiler-healthcheck": "19.1.0-rc.3",
 		"supabase": "^2.45.5",
 		"tailwindcss": "^4.1.13",
+		"ts-node": "^10.9.2",
 		"typescript": "~5.9.2",
 		"typescript-eslint": "^8.44.0",
 		"typescript-file-checker": "^0.1.3",

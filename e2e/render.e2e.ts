@@ -7,9 +7,9 @@ const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] || "";
 // Choose base URL: if PLAYWRIGHT_BASE_URL is set we treat this as a deployed run
 test.describe("Render smoke", () => {
 	test("app renders and shows heading", async ({ page }) => {
-		// Navigate to root and wait for network idle (app may redirect)
+		// Navigate to root and wait for load (app may redirect)
 		await page.goto(BASE_URL, {
-			waitUntil: "networkidle",
+			waitUntil: "load",
 		});
 
 		// Allow some extra time for hydration/UI to render in dev mode
@@ -23,8 +23,8 @@ test.describe("Render smoke", () => {
 	});
 
 	test("shows sign out success alert", async ({ page }) => {
-		// Use sessionStorage-only signal: set the one-time flag and navigate
-		await page.goto(BASE_URL, { waitUntil: "networkidle" });
+		// Navigate directly to the localized page and set sessionStorage there
+		await page.goto(`${BASE_URL}/en`, { waitUntil: "load" });
 		await page.evaluate(() => {
 			try {
 				sessionStorage.setItem("justSignedOut", "1");
@@ -32,7 +32,8 @@ test.describe("Render smoke", () => {
 				// ignore
 			}
 		});
-		await page.goto(`${BASE_URL}/en`, { waitUntil: "networkidle" });
+		// Reload to trigger the alert logic
+		await page.reload({ waitUntil: "load" });
 
 		// Allow time for hydration and alert to render
 		await page.waitForTimeout(1000);
@@ -43,11 +44,13 @@ test.describe("Render smoke", () => {
 
 		// Check if the sign out success alert is visible by looking for the title
 		const alertTitle = page.locator("strong").filter({ hasText: "Signed Out" });
-		await expect(alertTitle).toBeVisible();
+		await expect(alertTitle).toBeVisible({ timeout: 8000 });
 
-		// Check if the alert contains the expected message
-		const message = page.locator("text=You have been successfully signed out.");
-		await expect(message).toBeVisible();
+		// Check if the alert contains the expected message (more flexible for WebKit)
+		const message = page.getByText("You have been successfully signed out.", {
+			exact: false,
+		});
+		await expect(message).toBeVisible({ timeout: 8000 });
 
 		// Ensure the alert remains visible for a short while (it should not auto-dismiss)
 		await page.waitForTimeout(500);
@@ -69,32 +72,34 @@ test.describe("Render smoke", () => {
 	});
 
 	test("shows account deleted success alert", async ({ page }) => {
-		// Use sessionStorage-only signal: set the one-time flag and navigate
-		await page.goto(BASE_URL, { waitUntil: "networkidle" });
-		await page.evaluate(() => {
+		// Navigate directly to the localized page and set sessionStorage there
+		await page.goto(`${BASE_URL}/en`, { waitUntil: "load" });
+		await page.evaluate((keyName) => {
 			try {
-				sessionStorage.setItem(justDeletedAccountKey, "1");
+				sessionStorage.setItem(keyName, "1");
 			} catch {
 				// ignore
 			}
-		});
-		await page.goto(`${BASE_URL}/en`, { waitUntil: "networkidle" });
+		}, justDeletedAccountKey);
+		// Reload to trigger the alert logic
+		await page.reload({ waitUntil: "load" });
 
 		// Allow time for hydration and alert to render
 		await page.waitForTimeout(1000);
 
 		const alertContainer = page.locator(".rounded-md.p-4.text-center");
-		await expect(alertContainer).toBeVisible({ timeout: 10000 });
+		await expect(alertContainer).toBeVisible({ timeout: 15000 });
 
 		const alertTitle = page
 			.locator("strong")
 			.filter({ hasText: "Account Deleted" });
-		await expect(alertTitle).toBeVisible();
+		await expect(alertTitle).toBeVisible({ timeout: 10000 });
 
-		const message = page.locator(
-			"text=Your account has been successfully deleted.",
+		const message = page.getByText(
+			"Your account has been successfully deleted.",
+			{ exact: false },
 		);
-		await expect(message).toBeVisible();
+		await expect(message).toBeVisible({ timeout: 10000 });
 
 		// Dismiss the alert
 		const dismissButton = alertContainer

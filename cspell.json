@@ -37,6 +37,7 @@
 		"Postgrest",
 		"Prefs",
 		"prehydrate",
+		"setsid",
 		"sonarjs",
 		"songshare",
 		"Supabase",
