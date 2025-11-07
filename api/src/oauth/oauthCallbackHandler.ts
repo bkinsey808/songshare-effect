@@ -1,8 +1,8 @@
 import { type Context } from "hono";
 
-import { oauthCallbackFactory } from "./oauthCallbackFactory";
 import type { Env } from "@/api/env";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
+import { oauthCallbackFactory } from "@/api/oauth/oauthCallbackFactory";
 
 export default async function oauthCallbackHandler(
 	ctx: Context<{ Bindings: Env }>,

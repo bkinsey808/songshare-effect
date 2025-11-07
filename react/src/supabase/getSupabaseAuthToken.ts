@@ -1,4 +1,4 @@
-import { getEnvValue } from "../utils/env";
+import { getEnvValue } from "@/react/utils/env";
 
 type TokenResponse = {
 	access_token: string;

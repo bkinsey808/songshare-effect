@@ -2,9 +2,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
-import { normalizeNullsTopLevel } from "../oauth/normalizeNullsTopLevel";
-import { normalizeLinkedProviders } from "../provider/normalizeLinkedProviders";
 import { DatabaseError } from "@/api/errors";
+import { normalizeNullsTopLevel } from "@/api/oauth/normalizeNullsTopLevel";
+import { normalizeLinkedProviders } from "@/api/provider/normalizeLinkedProviders";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
 
 type SupabaseMaybeSingleRes = {

@@ -1,9 +1,9 @@
 import { Effect, Schema } from "effect";
 
-import { fetchUserInfo } from "../user/fetchUserInfo";
-import { exchangeCodeForToken } from "./exchangeCodeForToken";
-import type { FetchOpts } from "./fetchOpts";
 import { ProviderError, ValidationError } from "@/api/errors";
+import { exchangeCodeForToken } from "@/api/oauth/exchangeCodeForToken";
+import type { FetchOpts } from "@/api/oauth/fetchOpts";
+import { fetchUserInfo } from "@/api/user/fetchUserInfo";
 import {
 	type OauthUserData,
 	OauthUserDataSchema,
@@ -57,7 +57,7 @@ export function fetchAndParseOauthUserData(
 				: {};
 
 		const getStr = (key: string): string | undefined => {
-			const val = safeGet(infoObj, key as keyof typeof infoObj);
+			const val: unknown = safeGet(infoObj, key as keyof typeof infoObj);
 			return typeof val === "string" ? String(val) : undefined;
 		};
 

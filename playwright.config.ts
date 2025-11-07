@@ -89,7 +89,7 @@ export default defineConfig({
 	// PLAYWRIGHT_BASE_URL to point at the running server.
 	// Automatically start dev server for E2E tests when PLAYWRIGHT_BASE_URL
 	// is not set. We use the foreground `npm run dev:all` command so Playwright
-	// spawns the dev servers directly (no backgrounding/nohup). This keeps the
+	// spawns the dev servers directly (no background processes/nohup). This keeps the
 	// processes in the same process tree Playwright controls and avoids races
 	// caused by detached background processes.
 	webServer:

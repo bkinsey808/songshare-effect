@@ -1,6 +1,6 @@
-import { getSupabaseServerClient } from "./getSupabaseServerClient";
-import { userTokenCache } from "./tokenCache";
 import { type Env } from "@/api/env";
+import { getSupabaseServerClient } from "@/api/supabase/getSupabaseServerClient";
+import { userTokenCache } from "@/api/supabase/tokenCache";
 
 /**
  * Returns a valid JWT token for a specific user to use in Supabase clients.

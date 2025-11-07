@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 
-import { normalizeOrigin } from "./normalizeOrigin";
+import { normalizeOrigin } from "@/api/cors/normalizeOrigin";
 
 export function getOriginToCheck(ctx: Context): string {
 	const originHeader = ctx.req.header("Origin");

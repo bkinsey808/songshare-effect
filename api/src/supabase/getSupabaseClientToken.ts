@@ -1,6 +1,9 @@
-import { getSupabaseServerClient } from "./getSupabaseServerClient";
-import { getCachedClientToken, setCachedClientToken } from "./tokenCache";
 import { type Env } from "@/api/env";
+import { getSupabaseServerClient } from "@/api/supabase/getSupabaseServerClient";
+import {
+	getCachedClientToken,
+	setCachedClientToken,
+} from "@/api/supabase/tokenCache";
 
 /**
  * Returns a valid JWT token for the shared visitor user to use in Supabase clients.

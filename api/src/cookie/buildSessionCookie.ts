@@ -1,6 +1,6 @@
 import { type Context } from "hono";
 
-import { buildSetCookieHeader } from "./buildSetCookieHeader";
+import { buildSetCookieHeader } from "@/api/cookie/buildSetCookieHeader";
 
 export const buildSessionCookie = (
 	ctx: Context,

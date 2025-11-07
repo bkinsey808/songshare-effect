@@ -2,13 +2,13 @@ import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 import type { Context } from "hono";
 
-import { buildClearCookieHeader } from "../cookie/buildClearCookieHeader";
-import { userSessionCookieName } from "../cookie/cookie";
-import { verifyDoubleSubmitOrThrow } from "../csrf/verifyDoubleSubmitOrThrow";
-import { verifySameOriginOrThrow } from "../csrf/verifySameOriginOrThrow";
-import type { Bindings } from "../env";
-import { AuthenticationError, DatabaseError } from "../errors";
-import { getVerifiedUserSession } from "../userSession/getVerifiedSession";
+import { buildClearCookieHeader } from "@/api/cookie/buildClearCookieHeader";
+import { userSessionCookieName } from "@/api/cookie/cookie";
+import { verifyDoubleSubmitOrThrow } from "@/api/csrf/verifyDoubleSubmitOrThrow";
+import { verifySameOriginOrThrow } from "@/api/csrf/verifySameOriginOrThrow";
+import type { Bindings } from "@/api/env";
+import { AuthenticationError, DatabaseError } from "@/api/errors";
+import { getVerifiedUserSession } from "@/api/userSession/getVerifiedSession";
 import type { Database } from "@/shared/generated/supabaseTypes";
 
 /**

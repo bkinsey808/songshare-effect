@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
-import DemoNavigation from "../../demo/DemoNavigation";
-import SuspenseDemo from "../../demo/SuspenseDemo";
+import DemoNavigation from "@/react/demo/DemoNavigation";
+import SuspenseDemo from "@/react/demo/SuspenseDemo";
 
 function SuspenseDemoPage(): ReactElement {
 	const { t } = useTranslation();

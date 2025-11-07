@@ -1,4 +1,4 @@
-import { providerBackEndData } from "./providerBackEndData";
+import { providerBackEndData } from "@/api/provider/providerBackEndData";
 import type { ProviderType } from "@/shared/providers";
 import { superSafeGet } from "@/shared/utils/safe";
 

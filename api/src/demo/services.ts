@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 
-import { NotFoundError } from "../errors";
-import type { Song } from "./schemas";
+import type { Song } from "@/api/demo/schemas";
+import { NotFoundError } from "@/api/errors";
 
 // Song service interface
 export type SongService = {

@@ -1,11 +1,11 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-import { detectInitialLanguage } from "../language/detectInitialLanguage";
 // Import translation resources
 import en from "./resources/en.json";
 import es from "./resources/es.json";
 import zh from "./resources/zh.json";
+import { detectInitialLanguage } from "@/react/language/detectInitialLanguage";
 import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 
 const resources: Record<

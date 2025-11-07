@@ -1,8 +1,8 @@
 import { type Context } from "hono";
 
-import { getAllowedOrigins } from "../cors/getAllowedOrigins";
-import { getOriginToCheck } from "../cors/getOriginToCheck";
-import { AuthenticationError } from "../errors";
+import { getAllowedOrigins } from "@/api/cors/getAllowedOrigins";
+import { getOriginToCheck } from "@/api/cors/getOriginToCheck";
+import { AuthenticationError } from "@/api/errors";
 
 type EnvLike = Record<string, string | undefined>;
 

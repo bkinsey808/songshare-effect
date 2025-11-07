@@ -1,5 +1,5 @@
-import { DEFAULT_DEV_ORIGINS } from "./defaultDevOrigins";
-import { normalizeOrigin } from "./normalizeOrigin";
+import { DEFAULT_DEV_ORIGINS } from "@/api/cors/defaultDevOrigins";
+import { normalizeOrigin } from "@/api/cors/normalizeOrigin";
 
 export function getAllowedOrigins(
 	envLike: Record<string, string | undefined>,

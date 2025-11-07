@@ -2,9 +2,9 @@ import { Effect } from "effect";
 import type { Context } from "hono";
 import { verify } from "hono/jwt";
 
-import { sessionCookieName } from "../cookie/cookie";
-import type { Bindings } from "../env";
-import { AuthenticationError } from "../errors";
+import { sessionCookieName } from "@/api/cookie/cookie";
+import type { Bindings } from "@/api/env";
+import { AuthenticationError } from "@/api/errors";
 
 /**
  * Pure helper - extract the raw token string from a Cookie header value.

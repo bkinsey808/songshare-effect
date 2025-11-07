@@ -4,9 +4,10 @@
  * Enhanced script to generate Effect-TS schemas from Supabase generated types
  * This version includes a proper TypeScript AST parser to extract table definitions
  */
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
-import { safeGet } from "shared/dist/src/utils/safe";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { dirname, join } from "path";
+
+import { safeGet } from "@/shared/utils/safe";
 
 type ColumnDefinition = {
 	name: string;
@@ -568,6 +569,12 @@ export type ApiResponse<T> =
 	| { success: true; data?: T; message?: string }
 	| { success: false; error: string; message?: string };
 `;
+
+	// Ensure the output directory exists
+	const outputDir = dirname(outputPath);
+	if (!existsSync(outputDir)) {
+		mkdirSync(outputDir, { recursive: true });
+	}
 
 	writeFileSync(outputPath, fileContent, "utf-8");
 	console.log(`✅ Generated Effect schemas at: ${outputPath}`);

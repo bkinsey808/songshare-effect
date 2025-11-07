@@ -1,5 +1,5 @@
-import { getAllowedOrigins } from "./getAllowedOrigins";
-import { normalizeOrigin } from "./normalizeOrigin";
+import { getAllowedOrigins } from "@/api/cors/getAllowedOrigins";
+import { normalizeOrigin } from "@/api/cors/normalizeOrigin";
 
 export function isOriginAllowed(
 	origin: string | null | undefined,

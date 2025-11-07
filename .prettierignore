@@ -18,7 +18,6 @@ build/
 .env*
 
 # IDE files
-.vscode/
 .idea/
 
 # Git

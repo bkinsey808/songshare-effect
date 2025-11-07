@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { setStoredLanguage } from "../language/languageStorage";
+import { setStoredLanguage } from "@/react/language/languageStorage";
 import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 
 export default function LanguageTest(): ReactElement {

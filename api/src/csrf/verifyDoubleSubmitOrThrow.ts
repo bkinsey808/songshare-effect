@@ -1,7 +1,7 @@
 import { type Context } from "hono";
 import { getCookie } from "hono/cookie";
 
-import { AuthenticationError } from "../errors";
+import { AuthenticationError } from "@/api/errors";
 import { csrfTokenCookieName } from "@/shared/cookies";
 
 export function verifyDoubleSubmitOrThrow(ctx: Context): void {

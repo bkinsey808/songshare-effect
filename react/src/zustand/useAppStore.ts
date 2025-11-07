@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { type StoreApi, type UseBoundStore, create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
-import useSchedule from "../hooks/useSchedule";
 import { type AuthSlice, createAuthSlice } from "@/react/auth/authSlice";
+import useSchedule from "@/react/hooks/useSchedule";
 
 export const sliceResetFns: Set<() => void> = new Set<() => void>();
 export const resetAllSlices = (): void => {
