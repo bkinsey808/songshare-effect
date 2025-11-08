@@ -9,7 +9,7 @@ Reviewed files (server & client)
   - `api/src/oauth/buildUserSessionJwt.ts`
   - `api/src/getVerifiedSession.ts`
   - `api/src/me.ts`
-  - `api/src/index.ts` (signout endpoint)
+  - `api/src/server.ts` (signout endpoint)
 - Client
   - `react/src/auth/ensureSignedIn.ts`
   - `react/src/auth/useEnsureSignedIn.ts`
@@ -46,7 +46,7 @@ Issues found and concrete recommendations
 
 2. Factor cookie-attribute assembly into a single server helper
 
-- Rationale: `oauthCallbackFactory` currently composes cookie strings in-place in multiple branches (register vs session), and `index.ts` uses a hard-coded clearing string. This causes duplication and potential mismatch. Centralize.
+- Rationale: `oauthCallbackFactory` currently composes cookie strings in-place in multiple branches (register vs session), and `server.ts` uses a hard-coded clearing string. This causes duplication and potential mismatch. Centralize.
 - Recommendation: add `api/src/cookieUtils.ts` with helpers:
   - `buildSessionCookie(name, value, opts)`
   - `clearSessionCookie(name, opts)` (or call `buildSessionCookie(name, '', {..., maxAge:0, expires})`)
@@ -75,7 +75,7 @@ Quick implementation checklist for the sign-out fix
 
 - [x] Add `api/src/cookieUtils.ts` with helpers to build cookie headers.
 - [x] Replace cookie-building code in `api/src/oauth/oauthCallbackFactory.ts` and any register-cookie code to use helper.
-- [x] Update sign-out handler in `api/src/index.ts` to call helper to clear cookie with `Max-Age=0` and `Expires`.
+- [x] Update sign-out handler in `api/src/server.ts` to call helper to clear cookie with `Max-Age=0` and `Expires`.
 - [ ] Run a quick integration test: set cookie via callback flow or manual JWT, hit `/api/me` (expect success), call sign-out, then `/api/me` returns unauthenticated.
 
 Changes made
@@ -83,7 +83,7 @@ Changes made
 - `api/src/cookieUtils.ts` — added and exposes `buildSessionCookie` / `clearSessionCookie` (thin aliases) and the lower-level builders. Handles SameSite, Secure, Domain and includes `Expires` when `maxAge === 0`.
 - `api/src/oauth/oauthCallbackFactory.ts` — switched to `buildSessionCookie(...)` so cookie attributes are built centrally.
 - `api/src/accountRegister.ts` — now uses `buildSessionCookie(...)` when creating a session after registration.
-- `api/src/index.ts` (sign-out) — now uses `clearSessionCookie(...)` to remove the cookie with matching attributes.
+- `api/src/server.ts` (sign-out) — now uses `clearSessionCookie(...)` to remove the cookie with matching attributes.
 - `api/src/accountDelete.ts` — now uses `clearSessionCookie(...)` when removing a user account.
 
 Validation

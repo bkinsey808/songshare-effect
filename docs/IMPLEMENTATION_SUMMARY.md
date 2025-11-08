@@ -16,7 +16,7 @@ This document summarizes all the changes made to implement the dual authenticati
 - ✅ **Implemented**: Automatic metadata correction for RLS policies
 - ✅ **Added**: Per-user token caching with expiration handling
 
-#### **`api/src/index.ts`**
+#### **`api/src/server.ts`**
 
 - ✅ **Added**: `POST /api/auth/user` endpoint for user authentication
 - ✅ **Updated**: Import statements to use new function names

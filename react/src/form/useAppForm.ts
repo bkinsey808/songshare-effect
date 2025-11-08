@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createApiResponseHandlerEffect } from "./createApiResponseHandlerEffect";
 import { createFieldBlurHandler } from "./createFieldBlurHandler";
 import { createFormSubmitHandler } from "./createFormSubmitHandler";
-import { i18nMessageKey } from "@/shared/register/register";
+import { registerMessageKey } from "@/shared/register/register";
 import { safeSet } from "@/shared/utils/safe";
 import type { ValidationError } from "@/shared/validation/types";
 
@@ -75,7 +75,7 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 			currentFormData as Partial<FormValues>,
 			validationErrors,
 			setValidationErrors,
-			i18nMessageKey,
+			registerMessageKey,
 		);
 		fieldBlurHandler(field, value);
 	};

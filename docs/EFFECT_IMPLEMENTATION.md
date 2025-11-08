@@ -31,7 +31,7 @@ We have successfully migrated the SongShare API from basic error handling to a c
 - Proper status code mapping for different error types
 - Centralized error-to-HTTP conversion logic
 
-### 5. **Main API Implementation** (`api/src/index.ts`)
+### 5. **Main API Implementation** (`api/src/server.ts`)
 
 - Rewrote all endpoints to use Effect-TS
 - Replaced try-catch blocks with Effect error handling

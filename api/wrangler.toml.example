@@ -1,5 +1,5 @@
 name = "songshare-effect-api"
-main = "src/index.ts"
+main = "src/server.ts"
 compatibility_date = "2024-09-23"
 
 [dev]

@@ -12,6 +12,7 @@ export const activityDemoPath = "activity-demo";
 
 export const dashboardPath = "dashboard";
 export const registerPath = "register";
+export const songEditPath = "song-edit";
 
 export const apiOauthSignInPath = "/api/oauth/sign-in";
 export const apiOauthCallbackPath = "/api/oauth/callback";

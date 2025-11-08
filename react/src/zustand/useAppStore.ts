@@ -5,6 +5,10 @@ import { devtools, persist } from "zustand/middleware";
 
 import { type AuthSlice, createAuthSlice } from "@/react/auth/authSlice";
 import useSchedule from "@/react/hooks/useSchedule";
+import {
+	type SongSubscribeSlice,
+	createSongSubscribeSlice,
+} from "@/react/song/song-view/songSlice";
 
 export const sliceResetFns: Set<() => void> = new Set<() => void>();
 export const resetAllSlices = (): void => {
@@ -17,13 +21,17 @@ export const resetAllSlices = (): void => {
 // When ready, replace with slice composition pattern:
 // export type AppSlice = AuthSlice & UserSubscribeSlice & SongSubscribeSlice & SupabaseSlice;
 
-// For now, empty object until slices are implemented
-export type AppSlice = AuthSlice;
+// For now, include AuthSlice and SongSubscribeSlice
+export type AppSlice = AuthSlice & SongSubscribeSlice;
 
 // Keys that should NOT be persisted to storage. Keep transient UI flags
 // (like `showSignedInAlert`) out of persisted state so rehydration does
 // not overwrite short-lived values set during navigation flows.
-const omittedKeys: (keyof AppSlice)[] = ["showSignedInAlert"];
+const omittedKeys: (keyof AppSlice)[] = [
+	"showSignedInAlert",
+	"activePrivateSongsUnsubscribe",
+	"activePublicSongsUnsubscribe",
+];
 
 let store: UseBoundStore<StoreApi<AppSlice>> | undefined;
 
@@ -63,6 +71,7 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 				persist(
 					(set, get, api): AppSlice => ({
 						...createAuthSlice(set, get, api),
+						...createSongSubscribeSlice(set, get, api),
 					}),
 					{
 						name: "app-store",

@@ -119,7 +119,7 @@ npm run build:all
 songshare-effect/
 ├── api/                    # Hono API server with Effect-TS
 │   ├── src/
-│   │   ├── index.ts       # API routes and handlers
+│   │   ├── server.ts       # API routes and handlers
 │   │   ├── errors.ts      # Effect-TS error definitions
 │   │   ├── http-utils.ts  # HTTP utilities for Effect
 │   │   ├── schemas.ts     # Effect Schema definitions

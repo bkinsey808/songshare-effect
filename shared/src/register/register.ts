@@ -1,7 +1,7 @@
 import { Schema } from "effect";
 
 // Define a unique symbol for custom error annotations
-export const i18nMessageKey: unique symbol = Symbol.for("i18nMessage");
+export const registerMessageKey: unique symbol = Symbol.for("i18nMessage");
 
 export type I18nMessage = {
 	readonly key: string;
@@ -20,11 +20,11 @@ export const RegisterFormSchema: Schema.Schema<
 	username: Schema.String.pipe(
 		Schema.minLength(1, { message: () => "field.required" }),
 		Schema.annotations({
-			[i18nMessageKey]: { key: "field.required", field: "username" },
+			[registerMessageKey]: { key: "field.required", field: "username" },
 		}),
 		Schema.minLength(3, { message: () => "field.tooShort" }),
 		Schema.annotations({
-			[i18nMessageKey]: {
+			[registerMessageKey]: {
 				key: "field.tooShort",
 				field: "username",
 				minLength: 3,
@@ -32,7 +32,7 @@ export const RegisterFormSchema: Schema.Schema<
 		}),
 		Schema.maxLength(30, { message: () => "field.tooLong" }),
 		Schema.annotations({
-			[i18nMessageKey]: {
+			[registerMessageKey]: {
 				key: "field.tooLong",
 				field: "username",
 				maxLength: 30,
@@ -42,7 +42,7 @@ export const RegisterFormSchema: Schema.Schema<
 			message: () => "field.invalid",
 		}),
 		Schema.annotations({
-			[i18nMessageKey]: { key: "field.invalid", field: "username" },
+			[registerMessageKey]: { key: "field.invalid", field: "username" },
 		}),
 	),
 });

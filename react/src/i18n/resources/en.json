@@ -47,10 +47,20 @@
 			"signedOutBody": "You are not signed in. Please sign in to access your dashboard.",
 			"signOut": "Sign Out",
 			"deleteAccount": "Delete Account",
+			"songManagement": "Song Management",
+			"createSong": "Create New Song",
+			"manageSongs": "Manage Songs",
 			"accountDeleted": {
 				"title": "Account Deleted",
-				"message": "Your account has been successfully deleted."
+				"message": "Your account has been permanently deleted.",
+				"help": "If you change your mind, you'll need to create a new account."
 			}
+		},
+		"songEdit": {
+			"createTitle": "Create New Song",
+			"editTitle": "Edit Song",
+			"createDescription": "Create a new song with lyrics, slides, and metadata.",
+			"editDescription": "Make changes to your song and save when ready."
 		}
 	},
 	"register": {

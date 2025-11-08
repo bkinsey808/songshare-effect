@@ -15,13 +15,13 @@ import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
 import ActivityDemoPage from "./pages/demo/ActivityDemoPage";
 import PopoverDemoPage from "./pages/demo/PopoverDemoPage";
 import ReactFeaturesDemoPage from "./pages/demo/ReactFeaturesDemoPage";
-import SongsDemoPage from "./pages/demo/SongsDemoPage";
 import SuspenseDemoPage from "./pages/demo/SuspenseDemoPage";
 import UseHookDemoPage from "./pages/demo/UseHookDemoPage";
 import HomePage from "./pages/home/HomePage";
 import ProtectedLayout from "@/react/auth/ProtectedLayout";
 import DashboardPage from "@/react/pages/DashboardPage";
 import DeleteAccountConfirmPage from "@/react/pages/DeleteAccountConfirmPage";
+import SongEditPage from "@/react/pages/SongEditPage";
 import {
 	aboutPath,
 	activityDemoPath,
@@ -32,7 +32,7 @@ import {
 	popoverDemoPath,
 	reactFeaturesPath,
 	registerPath,
-	songsDemoPath,
+	songEditPath,
 	suspenseDemoPath,
 	suspenseUseDemoPath,
 	uploadDemoPath,
@@ -105,10 +105,6 @@ const router = createBrowserRouter([
 						element: <RegisterPage />,
 					},
 					{
-						path: songsDemoPath,
-						element: <SongsDemoPage />,
-					},
-					{
 						path: uploadDemoPath,
 						element: <UploadPage />,
 					},
@@ -139,6 +135,14 @@ const router = createBrowserRouter([
 							{
 								path: deleteAccountPath,
 								element: <DeleteAccountConfirmPage />,
+							},
+							{
+								path: songEditPath,
+								element: <SongEditPage />,
+							},
+							{
+								path: `${songEditPath}/:song_id`,
+								element: <SongEditPage />,
 							},
 						],
 					},

@@ -2,7 +2,10 @@
 import { Effect, type Schema } from "effect";
 
 import { extractValidationErrors } from "./extractValidationErrors";
-import { type I18nMessage, i18nMessageKey } from "@/shared/register/register";
+import {
+	type I18nMessage,
+	registerMessageKey,
+} from "@/shared/register/register";
 import type { ValidationError } from "@/shared/validation/types";
 import { validateFormEffect } from "@/shared/validation/validateFormEffect";
 
@@ -44,7 +47,7 @@ export const createFormSubmitHandler = <
 					validateFormEffect<FormValues, I18nMessage>(
 						schema,
 						currentFormData,
-						i18nMessageKey,
+						registerMessageKey,
 					),
 				);
 				console.log("✅ Validation successful, validated data:", validatedData);

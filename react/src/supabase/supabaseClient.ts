@@ -15,7 +15,7 @@ const clients = new Map<string, SupabaseClient<Database>>();
  * - A specific authenticated user (after sign-in)
  */
 export function getSupabaseClient(
-	supabaseClientToken: string,
+	supabaseClientToken?: string | undefined,
 ): SupabaseClient<Database> | undefined {
 	const supabaseUrl = getEnvValueSafe("SUPABASE_URL");
 	const supabaseKey = getEnvValueSafe("SUPABASE_ANON_KEY");
@@ -23,6 +23,7 @@ export function getSupabaseClient(
 	if (
 		supabaseUrl === undefined ||
 		supabaseKey === undefined ||
+		supabaseClientToken === undefined ||
 		supabaseClientToken === ""
 	) {
 		return undefined;
@@ -62,6 +63,7 @@ export function getSupabaseClient(
 	void client.realtime.setAuth(supabaseClientToken);
 
 	// Cache client for this token
+	// supabaseClientToken is defined here (checked above)
 	clients.set(supabaseClientToken, client);
 
 	// Remove the cached client after token expiration

@@ -31,7 +31,7 @@ The system automatically selects the appropriate token:
 ```
 ├── api/src/
 │   ├── supabaseClientToken.ts     # Server-side token generation
-│   └── index.ts                   # Authentication API endpoints
+│   └── server.ts                   # Authentication API endpoints
 ├── react/src/
 │   ├── supabaseClient.ts          # Client creation with authentication
 │   ├── services/auth.ts           # Client-side authentication service
@@ -68,7 +68,7 @@ export async function getSupabaseUserToken(
 - **Expiration handling**: Respects token expiry times
 - **Error handling**: Graceful failure with detailed error messages
 
-#### **API Endpoints (`api/src/index.ts`)**
+#### **API Endpoints (`api/src/server.ts`)**
 
 ```typescript
 // Visitor token endpoint

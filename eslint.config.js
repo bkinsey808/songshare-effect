@@ -204,6 +204,8 @@ const sharedRules = {
 	"no-duplicate-imports": "error",
 	// Allow void as a statement (for fire-and-forget calls)
 	"no-void": ["error", { allowAsStatement: true }],
+
+	"max-params": ["error", { max: 2 }],
 };
 
 export const settings = {

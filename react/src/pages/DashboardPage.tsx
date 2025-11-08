@@ -5,10 +5,46 @@ import { useNavigate } from "react-router-dom";
 import DismissibleAlert from "@/react/components/DismissibleAlert/DismissibleAlert";
 import { getStoreApi, useAppStoreHydrated } from "@/react/zustand/useAppStore";
 import { SupportedLanguage } from "@/shared/language/supportedLanguages";
-import { dashboardPath, deleteAccountPath } from "@/shared/paths";
+import { dashboardPath, deleteAccountPath, songEditPath } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 import { justSignedOutKey } from "@/shared/sessionStorageKeys";
 import type { UserSessionData } from "@/shared/userSessionData";
+
+function SongManagementSection({
+	t,
+	navigate,
+	currentLang,
+}: Readonly<{
+	t: (key: string, fallback: string) => string;
+	navigate: (path: string, options?: { replace?: boolean }) => void;
+	currentLang: string;
+}>): ReactElement {
+	return (
+		<div className="mt-6 rounded-lg border border-gray-600 bg-gray-800 p-4">
+			<h3 className="mb-3 text-lg font-semibold">
+				{t("pages.dashboard.songManagement", "Song Management")}
+			</h3>
+			<div className="flex flex-wrap gap-3">
+				<button
+					className="rounded bg-blue-600 px-4 py-2 text-white transition-colors duration-150 hover:bg-blue-700"
+					onClick={() =>
+						navigate(`/${currentLang}/${dashboardPath}/${songEditPath}`)
+					}
+				>
+					{t("pages.dashboard.createSong", "Create New Song")}
+				</button>
+				<button
+					className="rounded border border-blue-600 bg-transparent px-4 py-2 text-blue-600 transition-colors duration-150 hover:bg-blue-50/5"
+					onClick={() => {
+						// Navigate to songs library - placeholder for future implementation
+					}}
+				>
+					{t("pages.dashboard.manageSongs", "Manage Songs")}
+				</button>
+			</div>
+		</div>
+	);
+}
 
 function DashboardPage(): ReactElement {
 	// Disable react-i18next suspense here to avoid suspending during render.
@@ -129,6 +165,13 @@ function DashboardPage(): ReactElement {
 			<p className="text-gray-300">
 				{t("pages.dashboard.welcome", { name: localUser?.user?.name ?? "" })}
 			</p>
+
+			<SongManagementSection
+				t={(key: string, fallback: string) => t(key, fallback)}
+				navigate={navigate}
+				currentLang={currentLang}
+			/>
+
 			<div className="mt-4">
 				<button
 					className="rounded bg-red-600 px-3 py-1 text-white"
