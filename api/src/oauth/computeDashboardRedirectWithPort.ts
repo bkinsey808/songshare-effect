@@ -6,13 +6,19 @@ import type { Env } from "@/api/env";
  * Validate redirect_port and build an absolute dashboard URL when allowed.
  * Kept as a small pure-ish helper that still consults `ctx.env` and headers.
  */
-export function computeDashboardRedirectWithPort(
-	ctx: Context<{ Bindings: Env }>,
-	url: URL,
-	redirectPortStr: string,
-	lang: string,
-	dashboardPathLocal: string,
-): string | undefined {
+export function computeDashboardRedirectWithPort({
+	ctx,
+	url,
+	redirectPortStr,
+	lang,
+	dashboardPathLocal,
+}: {
+	ctx: Context<{ Bindings: Env }>;
+	url: URL;
+	redirectPortStr: string;
+	lang: string;
+	dashboardPathLocal: string;
+}): string | undefined {
 	const portNum = Number(redirectPortStr);
 	if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
 		// eslint-disable-next-line no-console

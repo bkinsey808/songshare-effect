@@ -18,19 +18,24 @@ import { safeArrayGet } from "@/shared/utils/safe";
  * so downstream UI can show a one-time success message, and finally
  * removes the `justSignedIn` query param and navigates with `replace`.
  *
- * @param next - A URLSearchParams instance describing the next search params (the function will remove the `justSignedIn` param).
- * @param setSearchParams - Setter returned by React Router's `useSearchParams` used to update the URL.
- * @param navigate - React Router's `navigate` function used to perform the final replace navigation.
+ * @param params - Parameters object containing next, setSearchParams, and navigate
+ * @param params.next - A URLSearchParams instance describing the next search params (the function will remove the `justSignedIn` param).
+ * @param params.setSearchParams - Setter returned by React Router's `useSearchParams` used to update the URL.
+ * @param params.navigate - React Router's `navigate` function used to perform the final replace navigation.
  * @returns A promise that resolves once navigation has been triggered.
  */
-export default async function handleJustSignedIn(
-	next: URLSearchParams,
+export default async function handleJustSignedIn({
+	next,
+	setSearchParams,
+	navigate,
+}: {
+	next: URLSearchParams;
 	setSearchParams: (
 		next: URLSearchParams,
 		options?: { replace?: boolean },
-	) => void,
-	navigate: NavigateFunction,
-): Promise<void> {
+	) => void;
+	navigate: NavigateFunction;
+}): Promise<void> {
 	// Retry the ensureSignedIn call a few times with backoff because some
 	// browsers may not have attached the HttpOnly cookie by the time the
 	// first forced `/api/me` call runs. This reduces flakes on the OAuth

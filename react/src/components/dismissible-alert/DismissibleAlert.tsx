@@ -9,6 +9,8 @@ type Props = {
 	readonly children?: ReactNode;
 	readonly variant?: "error" | "info" | "success";
 	readonly className?: string;
+	// e.g., "deleteSuccess", "signOutSuccess"
+	readonly alertType?: string;
 };
 
 export default function DismissibleAlert({
@@ -18,6 +20,7 @@ export default function DismissibleAlert({
 	children,
 	variant: data_variant = "error",
 	className = "",
+	alertType,
 }: Readonly<Props>): ReactElement | undefined {
 	// Internal closing state so we can play an exit animation before
 	// calling onDismiss (parent will then clear state). Keep the element
@@ -66,17 +69,24 @@ export default function DismissibleAlert({
 		<div
 			data-variant={data_variant}
 			className={`${base} ${animClass} ${className}`}
+			data-testid="dismissible-alert"
+			data-alert-type={alertType}
 		>
 			<div className="mx-auto max-w-3xl">
 				{title === undefined ? undefined : (
-					<strong className="block">{title}</strong>
+					<strong className="block" data-testid="alert-title">
+						{title}
+					</strong>
 				)}
 				<div className="mt-2">
-					<div className="mb-2">{children}</div>
+					<div className="mb-2" data-testid="alert-message">
+						{children}
+					</div>
 					<button
 						type="button"
 						className="rounded px-3 py-1 text-sm text-white/90"
 						onClick={handleClick}
+						data-testid="alert-dismiss-button"
 					>
 						Dismiss
 					</button>

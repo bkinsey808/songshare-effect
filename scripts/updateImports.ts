@@ -43,7 +43,12 @@ function convertApiImports(filePath: string, content: string): string {
 	// Pattern for ../something -> @/api/something
 	updatedContent = updatedContent.replace(
 		/import\s+([^'"]*)\s+from\s+["']\.\.\/([^'"]*?)["'];?/g,
-		(match, importPart, relativePath) => {
+		(...args) => {
+			const [match, importPart, relativePath] = args as [
+				string,
+				string,
+				string,
+			];
 			// Don't convert if it's already an alias or going to shared
 			if (
 				relativePath.includes("shared/src") ||
@@ -61,7 +66,12 @@ function convertApiImports(filePath: string, content: string): string {
 	if (currentDir) {
 		updatedContent = updatedContent.replace(
 			/import\s+([^'"]*)\s+from\s+["']\.\/([^'"]*?)["'];?/g,
-			(match, importPart, relativePath) => {
+			(...args) => {
+				const [match, importPart, relativePath] = args as [
+					string,
+					string,
+					string,
+				];
 				if (relativePath.startsWith("@/")) {
 					return match;
 				}
@@ -83,7 +93,13 @@ function convertReactImports(filePath: string, content: string): string {
 	// Convert ../.. patterns in React files to @/react
 	updatedContent = updatedContent.replace(
 		/import\s+([^'"]*)\s+from\s+["'](\.\.\/)+([^'"]*?)["'];?/g,
-		(match, importPart, _dots, relativePath) => {
+		(...args) => {
+			const [match, importPart, , relativePath] = args as [
+				string,
+				string,
+				string,
+				string,
+			];
 			// Skip if already using aliases
 			if (relativePath.startsWith("@/")) {
 				return match;

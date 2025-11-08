@@ -9,18 +9,22 @@ import { validateFormEffect } from "./validateFormEffect";
 export function validateForm<
 	FormValues,
 	I18nMessageType extends { key: string; [key: string]: unknown },
->(
-	schema: Schema.Schema<FormValues, FormValues, never>,
-	data: unknown,
-	i18nMessageKey: symbol | string,
-): ValidationResult<FormValues> {
+>({
+	schema,
+	data,
+	i18nMessageKey,
+}: {
+	schema: Schema.Schema<FormValues, FormValues, never>;
+	data: unknown;
+	i18nMessageKey: symbol | string;
+}): ValidationResult<FormValues> {
 	try {
 		const result = Effect.runSync(
-			validateFormEffect<FormValues, I18nMessageType>(
+			validateFormEffect<FormValues, I18nMessageType>({
 				schema,
 				data,
 				i18nMessageKey,
-			),
+			}),
 		);
 		return {
 			success: true,

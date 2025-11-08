@@ -11,11 +11,15 @@ import { safeGet } from "@/shared/utils/safe";
 export function validateFormEffect<
 	FormValues,
 	I18nMessageType extends { key: string; [key: string]: unknown },
->(
-	schema: Schema.Schema<FormValues, FormValues, never>,
-	data: unknown,
-	i18nMessageKey: symbol | string,
-): Effect.Effect<FormValues, ValidationError[]> {
+>({
+	schema,
+	data,
+	i18nMessageKey,
+}: {
+	schema: Schema.Schema<FormValues, FormValues, never>;
+	data: unknown;
+	i18nMessageKey: symbol | string;
+}): Effect.Effect<FormValues, ValidationError[]> {
 	return Effect.gen(function* () {
 		// Use decodeUnknownEither to get structured error information
 		const result = Schema.decodeUnknownEither(schema)(data);

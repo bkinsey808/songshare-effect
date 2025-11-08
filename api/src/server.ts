@@ -137,11 +137,11 @@ app.post("/api/auth/user", async (ctx) => {
 			SUPABASE_VISITOR_PASSWORD: string;
 		};
 
-		const userToken = await getSupabaseUserToken(
+		const userToken = await getSupabaseUserToken({
 			env,
-			body.email,
-			body.password,
-		);
+			email: body.email,
+			password: body.password,
+		});
 
 		return ctx.json({
 			access_token: userToken,

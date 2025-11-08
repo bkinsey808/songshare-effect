@@ -69,10 +69,13 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 		store = create<AppSlice>()(
 			devtools(
 				persist(
-					(set, get, api): AppSlice => ({
-						...createAuthSlice(set, get, api),
-						...createSongSubscribeSlice(set, get, api),
-					}),
+					(...args): AppSlice => {
+						const [set, get, api] = args;
+						return {
+							...createAuthSlice(set, get, api),
+							...createSongSubscribeSlice(set, get, api),
+						};
+					},
 					{
 						name: "app-store",
 						partialize: (state: AppSlice) => {

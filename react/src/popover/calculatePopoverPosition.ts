@@ -7,17 +7,163 @@ type PlacementConfig = {
 };
 
 /**
+ * Ensures horizontal centering doesn't push popover outside viewport
+ */
+function adjustHorizontalPosition({
+	position,
+	popoverWidth,
+	viewportWidth,
+}: {
+	position: PopoverPosition;
+	popoverWidth: number;
+	viewportWidth: number;
+}): PopoverPosition {
+	if (
+		position.transform === "translateX(-50%)" &&
+		position.left !== undefined
+	) {
+		const halfWidth = popoverWidth / 2;
+		const minLeft = halfWidth + 8;
+		const maxLeft = viewportWidth - halfWidth - 8;
+		return {
+			...position,
+			left: Math.max(minLeft, Math.min(maxLeft, position.left)),
+		};
+	}
+	return position;
+}
+
+/**
+ * Adjusts position for top/bottom placements to fit within viewport
+ */
+function adjustTopBottomPosition({
+	placement,
+	position,
+	popoverWidth,
+	popoverHeight,
+	viewportWidth,
+	viewportHeight,
+}: {
+	placement: PlacementConfig;
+	position: PopoverPosition;
+	popoverWidth: number;
+	popoverHeight: number;
+	viewportWidth: number;
+	viewportHeight: number;
+}): PopoverPosition {
+	let adjustedPosition = { ...position };
+
+	// Adjust horizontal position
+	if (adjustedPosition.left !== undefined) {
+		if (adjustedPosition.transform === "translateX(-50%)") {
+			const halfWidth = popoverWidth / 2;
+			const minLeft = halfWidth + 8;
+			const maxLeft = viewportWidth - halfWidth - 8;
+			adjustedPosition = {
+				...adjustedPosition,
+				left: Math.max(minLeft, Math.min(maxLeft, adjustedPosition.left)),
+			};
+		} else {
+			const minLeft = 8;
+			const maxLeft = viewportWidth - popoverWidth - 8;
+			adjustedPosition = {
+				...adjustedPosition,
+				left: Math.max(minLeft, Math.min(maxLeft, adjustedPosition.left)),
+			};
+		}
+	}
+
+	// Adjust vertical position if still overflowing
+	if (placement.name === "bottom" && adjustedPosition.top !== undefined) {
+		const maxTop = viewportHeight - popoverHeight - 8;
+		adjustedPosition = {
+			...adjustedPosition,
+			top: Math.min(adjustedPosition.top, maxTop),
+		};
+	} else if (placement.name === "top" && adjustedPosition.top !== undefined) {
+		adjustedPosition = {
+			...adjustedPosition,
+			top: Math.max(8, adjustedPosition.top),
+		};
+	}
+
+	return adjustedPosition;
+}
+
+/**
+ * Adjusts position for left/right placements to fit within viewport
+ */
+function adjustLeftRightPosition({
+	placement,
+	position,
+	popoverWidth,
+	popoverHeight,
+	viewportWidth,
+	viewportHeight,
+}: {
+	placement: PlacementConfig;
+	position: PopoverPosition;
+	popoverWidth: number;
+	popoverHeight: number;
+	viewportWidth: number;
+	viewportHeight: number;
+}): PopoverPosition {
+	let adjustedPosition = { ...position };
+
+	// Adjust vertical position
+	if (adjustedPosition.top !== undefined) {
+		if (adjustedPosition.transform === "translateY(-50%)") {
+			const halfHeight = popoverHeight / 2;
+			const minTop = halfHeight + 8;
+			const maxTop = viewportHeight - halfHeight - 8;
+			adjustedPosition = {
+				...adjustedPosition,
+				top: Math.max(minTop, Math.min(maxTop, adjustedPosition.top)),
+			};
+		} else {
+			const minTop = 8;
+			const maxTop = viewportHeight - popoverHeight - 8;
+			adjustedPosition = {
+				...adjustedPosition,
+				top: Math.max(minTop, Math.min(maxTop, adjustedPosition.top)),
+			};
+		}
+	}
+
+	// Adjust horizontal position if still overflowing
+	if (placement.name === "right" && adjustedPosition.left !== undefined) {
+		const maxLeft = viewportWidth - popoverWidth - 8;
+		adjustedPosition = {
+			...adjustedPosition,
+			left: Math.min(adjustedPosition.left, maxLeft),
+		};
+	} else if (placement.name === "left" && adjustedPosition.left !== undefined) {
+		adjustedPosition = {
+			...adjustedPosition,
+			left: Math.max(8, adjustedPosition.left),
+		};
+	}
+
+	return adjustedPosition;
+}
+
+/**
  * Calculates optimal popover position relative to trigger element
  * Uses smart fallback algorithm when preferred placement doesn't fit
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity
-export default function calculatePopoverPosition(
-	triggerRect: DOMRect,
-	popoverWidth: number,
-	popoverHeight: number,
-	preferredPlacement: PlacementOption = "bottom",
+export default function calculatePopoverPosition({
+	triggerRect,
+	popoverWidth,
+	popoverHeight,
+	preferredPlacement = "bottom",
 	gap = 8,
-): { position: PopoverPosition; placement: PlacementOption } {
+}: {
+	triggerRect: DOMRect;
+	popoverWidth: number;
+	popoverHeight: number;
+	preferredPlacement?: PlacementOption;
+	gap?: number;
+}): { position: PopoverPosition; placement: PlacementOption } {
 	const viewportWidth = window.innerWidth;
 	const viewportHeight = window.innerHeight;
 
@@ -72,18 +218,11 @@ export default function calculatePopoverPosition(
 		(pl) => pl.name === preferredPlacement,
 	);
 	if (preferredOption?.hasSpace === true) {
-		const position = { ...preferredOption.position };
-
-		// Ensure horizontal centering doesn't push popover outside viewport
-		if (
-			position.transform === "translateX(-50%)" &&
-			position.left !== undefined
-		) {
-			const halfWidth = popoverWidth / 2;
-			const minLeft = halfWidth + 8;
-			const maxLeft = viewportWidth - halfWidth - 8;
-			position.left = Math.max(minLeft, Math.min(maxLeft, position.left));
-		}
+		const position = adjustHorizontalPosition({
+			position: preferredOption.position,
+			popoverWidth,
+			viewportWidth,
+		});
 
 		return { position, placement: preferredOption.name };
 	}
@@ -91,18 +230,11 @@ export default function calculatePopoverPosition(
 	// Fallback to any placement with enough space
 	const availableOption = placements.find((pl) => pl.hasSpace);
 	if (availableOption) {
-		const position = { ...availableOption.position };
-
-		// Ensure horizontal centering doesn't push popover outside viewport
-		if (
-			position.transform === "translateX(-50%)" &&
-			position.left !== undefined
-		) {
-			const halfWidth = popoverWidth / 2;
-			const minLeft = halfWidth + 8;
-			const maxLeft = viewportWidth - halfWidth - 8;
-			position.left = Math.max(minLeft, Math.min(maxLeft, position.left));
-		}
+		const position = adjustHorizontalPosition({
+			position: availableOption.position,
+			popoverWidth,
+			viewportWidth,
+		});
 
 		return { position, placement: availableOption.name };
 	}
@@ -130,76 +262,23 @@ export default function calculatePopoverPosition(
 
 	// Adjust position to fit within viewport bounds
 	if (bestFitPlacement.name === "top" || bestFitPlacement.name === "bottom") {
-		// For top/bottom placements, adjust horizontal position
-		if (position.left !== undefined) {
-			if (position.transform === "translateX(-50%)") {
-				const halfWidth = popoverWidth / 2;
-				const minLeft = halfWidth + 8;
-				const maxLeft = viewportWidth - halfWidth - 8;
-				position = {
-					...position,
-					left: Math.max(minLeft, Math.min(maxLeft, position.left)),
-				};
-			} else {
-				const minLeft = 8;
-				const maxLeft = viewportWidth - popoverWidth - 8;
-				position = {
-					...position,
-					left: Math.max(minLeft, Math.min(maxLeft, position.left)),
-				};
-			}
-		}
-
-		// Adjust vertical position if still overflowing
-		if (bestFitPlacement.name === "bottom" && position.top !== undefined) {
-			const maxTop = viewportHeight - popoverHeight - 8;
-			position = {
-				...position,
-				top: Math.min(position.top, maxTop),
-			};
-		} else if (bestFitPlacement.name === "top" && position.top !== undefined) {
-			position = {
-				...position,
-				top: Math.max(8, position.top),
-			};
-		}
+		position = adjustTopBottomPosition({
+			placement: bestFitPlacement,
+			position,
+			popoverWidth,
+			popoverHeight,
+			viewportWidth,
+			viewportHeight,
+		});
 	} else {
-		// For left/right placements, adjust vertical position
-		if (position.top !== undefined) {
-			if (position.transform === "translateY(-50%)") {
-				const halfHeight = popoverHeight / 2;
-				const minTop = halfHeight + 8;
-				const maxTop = viewportHeight - halfHeight - 8;
-				position = {
-					...position,
-					top: Math.max(minTop, Math.min(maxTop, position.top)),
-				};
-			} else {
-				const minTop = 8;
-				const maxTop = viewportHeight - popoverHeight - 8;
-				position = {
-					...position,
-					top: Math.max(minTop, Math.min(maxTop, position.top)),
-				};
-			}
-		}
-
-		// Adjust horizontal position if still overflowing
-		if (bestFitPlacement.name === "right" && position.left !== undefined) {
-			const maxLeft = viewportWidth - popoverWidth - 8;
-			position = {
-				...position,
-				left: Math.min(position.left, maxLeft),
-			};
-		} else if (
-			bestFitPlacement.name === "left" &&
-			position.left !== undefined
-		) {
-			position = {
-				...position,
-				left: Math.max(8, position.left),
-			};
-		}
+		position = adjustLeftRightPosition({
+			placement: bestFitPlacement,
+			position,
+			popoverWidth,
+			popoverHeight,
+			viewportWidth,
+			viewportHeight,
+		});
 	}
 
 	return {

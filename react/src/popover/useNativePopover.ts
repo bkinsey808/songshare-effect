@@ -57,12 +57,12 @@ export function useNativePopover({
 		popoverPosition,
 		placement,
 		updatePosition: updatePositionExternal,
-	} = usePopoverPositioning(
+	} = usePopoverPositioning({
 		triggerRef,
 		popoverRef,
 		preferredPlacement,
 		hidePopover,
-	);
+	});
 
 	// Listen for native popover toggle events to sync our state
 	useEffect(() => {

@@ -63,7 +63,11 @@ export function songSave(
 
 		// Validate form payload - directly use the schema without casting
 		const validated: SongFormData = yield* $(
-			validateFormEffect(SongFormSchema, body, "SONG_FORM").pipe(
+			validateFormEffect({
+				schema: SongFormSchema,
+				data: body,
+				i18nMessageKey: "SONG_FORM",
+			}).pipe(
 				Effect.mapError((errs) => {
 					// Pick first error to return a structured ValidationError
 					const first =

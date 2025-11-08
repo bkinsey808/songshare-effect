@@ -7,12 +7,17 @@ import { createApiResponseEffect } from "./createApiResponseEffect";
 /**
  * Create an Effect that handles API response with side effect callbacks
  */
-export const createApiResponseHandlerEffect = (
-	response: Response,
-	setValidationErrors: (errors: { field: string; message: string }[]) => void,
-	setSubmitError: (error: string) => void,
-	defaultErrorMessage?: string,
-): Effect.Effect<boolean, never, never> => {
+export const createApiResponseHandlerEffect = ({
+	response,
+	setValidationErrors,
+	setSubmitError,
+	defaultErrorMessage,
+}: {
+	response: Response;
+	setValidationErrors: (errors: { field: string; message: string }[]) => void;
+	setSubmitError: (error: string) => void;
+	defaultErrorMessage?: string;
+}): Effect.Effect<boolean, never, never> => {
 	return createApiResponseEffect(response).pipe(
 		Effect.matchEffect({
 			onSuccess: () => {

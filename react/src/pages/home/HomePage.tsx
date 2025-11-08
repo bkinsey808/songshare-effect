@@ -4,7 +4,7 @@ import { Link, Navigate } from "react-router-dom";
 
 import { SignInButtons } from "@/react/auth/SignInButtons";
 import useSignIn from "@/react/auth/useSignIn";
-import DismissibleAlert from "@/react/components/DismissibleAlert/DismissibleAlert";
+import DismissibleAlert from "@/react/components/dismissible-alert/DismissibleAlert";
 import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 import {
 	dashboardPath,
@@ -54,8 +54,8 @@ export default function HomePage(): ReactElement {
 			}
 
 			// Otherwise, check the transient flags set by the sign-out / delete flows.
-			const justDeletedAccount = sessionStorage.getItem("justDeletedAccount");
-			const justSignedOut = sessionStorage.getItem("justSignedOut");
+			const justDeletedAccount = sessionStorage.getItem(justDeletedAccountKey);
+			const justSignedOut = sessionStorage.getItem(justSignedOutKey);
 
 			let foundType = "";
 			if (justDeletedAccount === "1") {
@@ -113,6 +113,7 @@ export default function HomePage(): ReactElement {
 						: t("pages.dashboard.signedOutSuccess.message")
 				}
 				variant="success"
+				alertType={alertState.type}
 			/>
 
 			<div className="mb-10 text-center">

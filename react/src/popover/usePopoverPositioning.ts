@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import calculatePopoverPosition from "./calculatePopoverPosition";
 import type { PlacementOption, PopoverPosition } from "./types";
@@ -7,12 +7,17 @@ import type { PlacementOption, PopoverPosition } from "./types";
  * Custom hook to handle popover positioning and scroll tracking
  * Automatically positions popover relative to trigger and handles scroll events
  */
-export function usePopoverPositioning(
-	triggerRef: React.RefObject<HTMLDivElement | null>,
-	popoverRef: React.RefObject<HTMLDivElement | null>,
-	preferredPlacement: PlacementOption,
-	hidePopover: () => void,
-): {
+export function usePopoverPositioning({
+	triggerRef,
+	popoverRef,
+	preferredPlacement,
+	hidePopover,
+}: {
+	triggerRef: React.RefObject<HTMLDivElement | null>;
+	popoverRef: React.RefObject<HTMLDivElement | null>;
+	preferredPlacement: PlacementOption;
+	hidePopover: () => void;
+}): {
 	popoverPosition: PopoverPosition;
 	placement: PlacementOption;
 	updatePosition: () => void;
@@ -20,27 +25,28 @@ export function usePopoverPositioning(
 	const [popoverPosition, setPopoverPosition] = useState<PopoverPosition>({});
 	const [placement, setPlacement] = useState<PlacementOption>("bottom");
 
+	// Common position update logic
+	const updatePosition = useCallback((): void => {
+		if (triggerRef.current !== null && popoverRef.current !== null) {
+			const triggerRect = triggerRef.current.getBoundingClientRect();
+			const popoverRect = popoverRef.current.getBoundingClientRect();
+
+			const { position, placement: calculatedPlacement } =
+				calculatePopoverPosition({
+					triggerRect,
+					popoverWidth: popoverRect.width || 256,
+					popoverHeight: popoverRect.height || 200,
+					preferredPlacement,
+				});
+
+			setPopoverPosition(position);
+			setPlacement(calculatedPlacement);
+		}
+	}, [triggerRef, popoverRef, preferredPlacement]);
+
 	// Handle scroll events to keep popover positioned relative to trigger
 	useEffect(() => {
 		let rafId: number | undefined;
-
-		const updatePosition = (): void => {
-			if (triggerRef.current !== null && popoverRef.current !== null) {
-				const triggerRect = triggerRef.current.getBoundingClientRect();
-				const popoverRect = popoverRef.current.getBoundingClientRect();
-
-				const { position, placement: calculatedPlacement } =
-					calculatePopoverPosition(
-						triggerRect,
-						popoverRect.width || 256,
-						popoverRect.height || 200,
-						preferredPlacement,
-					);
-
-				setPopoverPosition(position);
-				setPlacement(calculatedPlacement);
-			}
-		};
 
 		const handleScrollAndResize = (): void => {
 			// Use requestAnimationFrame to throttle updates
@@ -101,27 +107,7 @@ export function usePopoverPositioning(
 			window.removeEventListener("resize", handleScrollAndResize);
 			document.removeEventListener("scroll", handleScrollAndResize);
 		};
-	}, [preferredPlacement, hidePopover, popoverRef, triggerRef]);
+	}, [hidePopover, popoverRef, triggerRef, updatePosition]);
 
-	// Create updatePosition function for external use
-	// eslint-disable-next-line sonarjs/no-identical-functions
-	const updatePositionExternal = (): void => {
-		if (triggerRef.current !== null && popoverRef.current !== null) {
-			const triggerRect = triggerRef.current.getBoundingClientRect();
-			const popoverRect = popoverRef.current.getBoundingClientRect();
-
-			const { position, placement: calculatedPlacement } =
-				calculatePopoverPosition(
-					triggerRect,
-					popoverRect.width || 256,
-					popoverRect.height || 200,
-					preferredPlacement,
-				);
-
-			setPopoverPosition(position);
-			setPlacement(calculatedPlacement);
-		}
-	};
-
-	return { popoverPosition, placement, updatePosition: updatePositionExternal };
+	return { popoverPosition, placement, updatePosition };
 }

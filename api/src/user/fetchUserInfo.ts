@@ -1,10 +1,14 @@
 import { Effect } from "effect";
 
-export function fetchUserInfo(
-	userInfoUrl: string,
-	accessToken?: string,
-	idToken?: string,
-): Effect.Effect<unknown, unknown> {
+export function fetchUserInfo({
+	userInfoUrl,
+	accessToken,
+	idToken,
+}: {
+	userInfoUrl: string;
+	accessToken?: string;
+	idToken?: string;
+}): Effect.Effect<unknown, unknown> {
 	return Effect.tryPromise({
 		try: async () => {
 			const headers = new Headers();

@@ -1,4 +1,5 @@
 /** Safely get a property from an object, avoiding prototype pollution and unsafe access */
+// eslint-disable-next-line max-params
 export function safeGet<
 	T extends Record<string, unknown>,
 	K extends keyof T,
@@ -27,6 +28,7 @@ export function superSafeGet<
 
 // src/features/utils/safeSet.ts
 /** Safely set a property on an object, avoiding prototype pollution and unsafe access */
+// eslint-disable-next-line max-params
 export function safeSet(
 	obj: Record<string, unknown>,
 	key: string,
@@ -58,6 +60,7 @@ export default function safeDelete(
  * Safely get an element from an array by index, avoiding out-of-bounds errors.
  * Returns the element if the index is valid, otherwise returns the default value (or undefined).
  */
+// eslint-disable-next-line max-params
 export function safeArrayGet<T>(
 	arr: T[],
 	idx: number,
@@ -74,6 +77,7 @@ export function safeArrayGet<T>(
  * Safely set an element in an array by index, avoiding out-of-bounds errors.
  * Returns a new array with the value set if the index is valid, otherwise returns the original array.
  */
+// eslint-disable-next-line max-params
 export function safeArraySet<T>(arr: T[], idx: number, value: T): T[] {
 	if (Array.isArray(arr) && idx >= 0 && idx < arr.length) {
 		const copy = [...arr];

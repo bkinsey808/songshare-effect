@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import DismissibleAlert from "@/react/components/DismissibleAlert/DismissibleAlert";
+import DismissibleAlert from "@/react/components/dismissible-alert/DismissibleAlert";
 import { getStoreApi, useAppStoreHydrated } from "@/react/zustand/useAppStore";
 import { SupportedLanguage } from "@/shared/language/supportedLanguages";
 import { dashboardPath, deleteAccountPath, songEditPath } from "@/shared/paths";
@@ -149,6 +149,9 @@ function DashboardPage(): ReactElement {
 					setShowRegisteredAlert(false);
 				}}
 				variant="success"
+				alertType={
+					showRegisteredAlert ? "registeredSuccess" : "signedInSuccess"
+				}
 			>
 				{showRegisteredAlert
 					? t(

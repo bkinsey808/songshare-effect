@@ -5,20 +5,27 @@ import { justSignedInQueryParam } from "@/shared/queryParams";
 /**
  * Computes the dashboard redirect URL after OAuth sign-in, including support for custom redirect ports.
  *
- * @param ctx - Hono context (for env and request info)
- * @param url - The current request URL (as a URL object)
- * @param redirectPort - Optional port string from OAuth state
- * @param lang - Language code for the dashboard path
- * @param dashboardPath - The dashboard path (e.g. 'dashboard')
+ * @param params - Parameters object
+ * @param params.ctx - Hono context (for env and request info)
+ * @param params.url - The current request URL (as a URL object)
+ * @param params.redirectPort - Optional port string from OAuth state
+ * @param params.lang - Language code for the dashboard path
+ * @param params.dashboardPath - The dashboard path (e.g. 'dashboard')
  * @returns The computed dashboard redirect URL
  */
-export function buildDashboardRedirectUrl(
-	ctx: Context,
-	url: URL,
-	redirectPort: string | undefined,
-	lang: string,
-	dashboardPath: string,
-): string {
+export function buildDashboardRedirectUrl({
+	ctx,
+	url,
+	redirectPort,
+	lang,
+	dashboardPath,
+}: {
+	ctx: Context;
+	url: URL;
+	redirectPort: string | undefined;
+	lang: string;
+	dashboardPath: string;
+}): string {
 	let dashboardRedirectUrl = `/${lang}/${dashboardPath}`;
 	if (redirectPort !== undefined && redirectPort !== "") {
 		// Only allow redirect to a port if it matches the allowed origins

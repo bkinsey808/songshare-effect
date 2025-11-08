@@ -169,7 +169,7 @@ export function oauthCallbackFactory(
 		}
 
 		const { supabase, oauthUserData, existingUser } = yield* $(
-			fetchAndPrepareUser(ctx, code, provider),
+			fetchAndPrepareUser({ ctx, code, provider }),
 		);
 
 		// Determine Secure flag using environment (avoid relying on process)
@@ -219,7 +219,7 @@ export function oauthCallbackFactory(
 		if (!existingUser) {
 			// User needs registration
 			const registerJwt = yield* $(
-				buildRegisterJwt(ctx, oauthUserData, oauthState),
+				buildRegisterJwt({ ctx, oauthUserData, oauthState }),
 			);
 
 			yield* $(
@@ -250,9 +250,14 @@ export function oauthCallbackFactory(
 							.REGISTER_COOKIE_CLIENT_DEBUG === "true";
 					const headerValue = clientDebug
 						? `${registerCookieName}=${registerJwt}; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureString}`
-						: buildSessionCookie(ctx, registerCookieName, registerJwt, {
-								maxAge: 604800,
-								httpOnly: true,
+						: buildSessionCookie({
+								ctx,
+								name: registerCookieName,
+								value: registerJwt,
+								opts: {
+									maxAge: 604800,
+									httpOnly: true,
+								},
 							});
 					ctx.res.headers.append("Set-Cookie", headerValue);
 					console.log(
@@ -310,13 +315,13 @@ export function oauthCallbackFactory(
 		}
 
 		const sessionJwt = yield* $(
-			buildUserSessionJwt(
+			buildUserSessionJwt({
 				ctx,
 				supabase,
 				existingUser,
 				oauthUserData,
 				oauthState,
-			),
+			}),
 		);
 
 		// Set session cookie header like before and redirect to the dashboard.
@@ -326,15 +331,15 @@ export function oauthCallbackFactory(
 		// via ctx.header).
 		yield* $(
 			Effect.sync(() => {
-				const headerValue = buildSessionCookie(
+				const headerValue = buildSessionCookie({
 					ctx,
-					userSessionCookieName,
-					sessionJwt,
-					{
+					name: userSessionCookieName,
+					value: sessionJwt,
+					opts: {
 						maxAge: 604800,
 						httpOnly: true,
 					},
-				);
+				});
 				ctx.res.headers.append("Set-Cookie", headerValue);
 				console.log("[oauthCallback] Set-Cookie header:", headerValue);
 			}),
@@ -345,15 +350,15 @@ export function oauthCallbackFactory(
 		yield* $(
 			Effect.sync(() => {
 				const csrfToken = nanoid();
-				const csrfHeader = buildSessionCookie(
+				const csrfHeader = buildSessionCookie({
 					ctx,
-					csrfTokenCookieName,
-					csrfToken,
-					{
+					name: csrfTokenCookieName,
+					value: csrfToken,
+					opts: {
 						maxAge: 604800,
 						httpOnly: false,
 					},
-				);
+				});
 				ctx.res.headers.append("Set-Cookie", csrfHeader);
 				console.log(
 					"[oauthCallback] Set-Cookie header (csrf-token):",
@@ -362,13 +367,13 @@ export function oauthCallbackFactory(
 			}),
 		);
 
-		const dashboardRedirectUrl = buildDashboardRedirectUrl(
+		const dashboardRedirectUrl = buildDashboardRedirectUrl({
 			ctx,
-			requestUrl,
-			oauthState.redirect_port,
+			url: requestUrl,
+			redirectPort: oauthState.redirect_port,
 			lang,
 			dashboardPath,
-		);
+		});
 
 		return yield* $(Effect.sync(() => ctx.redirect(dashboardRedirectUrl, 303)));
 	});

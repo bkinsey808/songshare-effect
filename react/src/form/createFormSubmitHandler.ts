@@ -44,11 +44,11 @@ export const createFormSubmitHandler = <
 				// Run validation effect synchronously
 				console.log("⚡ Running schema validation");
 				const validatedData = Effect.runSync(
-					validateFormEffect<FormValues, I18nMessage>(
+					validateFormEffect<FormValues, I18nMessage>({
 						schema,
-						currentFormData,
-						registerMessageKey,
-					),
+						data: currentFormData,
+						i18nMessageKey: registerMessageKey,
+					}),
 				);
 				console.log("✅ Validation successful, validated data:", validatedData);
 

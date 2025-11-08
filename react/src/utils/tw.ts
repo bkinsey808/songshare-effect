@@ -5,6 +5,10 @@ export const tw = (
 ): string => {
 	// Combine the strings and values into one final string
 	return strings.reduce(
-		(result, str, i) => result + (values[i - 1] ?? "") + str,
-	);
+		({ result, i }: { result: string; i: number }, str: string) => ({
+			result: result + (values[i - 1] ?? "") + str,
+			i: i + 1,
+		}),
+		{ result: "", i: 0 },
+	).result;
 };

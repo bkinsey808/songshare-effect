@@ -5,12 +5,17 @@ import { createApiResponseHandlerEffect } from "./createApiResponseHandlerEffect
 /**
  * Create an Effect that handles form submission with API response processing
  */
-export const createFormSubmissionEffect = (
-	formData: FormData,
-	apiEndpoint: string,
-	setValidationErrors: (errors: { field: string; message: string }[]) => void,
-	setSubmitError: (error: string) => void,
-): Effect.Effect<boolean, never, never> => {
+export const createFormSubmissionEffect = ({
+	formData,
+	apiEndpoint,
+	setValidationErrors,
+	setSubmitError,
+}: {
+	formData: FormData;
+	apiEndpoint: string;
+	setValidationErrors: (errors: { field: string; message: string }[]) => void;
+	setSubmitError: (error: string) => void;
+}): Effect.Effect<boolean, never, never> => {
 	return Effect.gen(function* () {
 		// Make the API request
 		const response = yield* Effect.promise(() =>
@@ -21,11 +26,11 @@ export const createFormSubmissionEffect = (
 		);
 
 		// Handle the response
-		const success = yield* createApiResponseHandlerEffect(
+		const success = yield* createApiResponseHandlerEffect({
 			response,
 			setValidationErrors,
 			setSubmitError,
-		);
+		});
 
 		return success;
 	});

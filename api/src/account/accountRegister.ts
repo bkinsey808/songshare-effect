@@ -298,22 +298,27 @@ export default function accountRegister(
 
 		// Set session cookie using the shared helper so attributes match
 		// those used by the OAuth callback and sign-out clearing logic.
-		const cookieHeader = buildSessionCookie(
+		const cookieHeader = buildSessionCookie({
 			ctx,
-			userSessionCookieName,
-			sessionJwt,
-			{
+			name: userSessionCookieName,
+			value: sessionJwt,
+			opts: {
 				maxAge: 604800,
 				httpOnly: true,
 			},
-		);
+		});
 		ctx.res.headers.append("Set-Cookie", cookieHeader);
 
 		// Also set a readable double-submit CSRF token cookie for frontend use
 		const csrfToken = nanoid();
-		const csrfHeader = buildSessionCookie(ctx, csrfTokenCookieName, csrfToken, {
-			maxAge: 604800,
-			httpOnly: false,
+		const csrfHeader = buildSessionCookie({
+			ctx,
+			name: csrfTokenCookieName,
+			value: csrfToken,
+			opts: {
+				maxAge: 604800,
+				httpOnly: false,
+			},
 		});
 		ctx.res.headers.append("Set-Cookie", csrfHeader);
 

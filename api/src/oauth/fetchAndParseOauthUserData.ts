@@ -44,7 +44,11 @@ export function fetchAndParseOauthUserData(
 		);
 
 		const infoRaw = yield* $(
-			fetchUserInfo(opts.userInfoUrl, accessToken, idToken).pipe(
+			fetchUserInfo({
+				userInfoUrl: opts.userInfoUrl,
+				...(accessToken !== undefined && { accessToken }),
+				...(idToken !== undefined && { idToken }),
+			}).pipe(
 				Effect.mapError(
 					(err) =>
 						new ProviderError({ message: "Userinfo fetch failed", cause: err }),

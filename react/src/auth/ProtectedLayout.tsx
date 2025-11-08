@@ -67,7 +67,7 @@ export default function ProtectedLayout(): ReactElement {
 		// Delegate the OAuth redirect handling to the extracted helper which
 		// performs the forced `/api/me` refresh, writes the one-time
 		// sessionStorage marker, and navigates with replace.
-		void handleJustSignedIn(next, setSearchParams, navigate);
+		void handleJustSignedIn({ next, setSearchParams, navigate });
 	}, [justSignedIn, navigate, searchParamsString, setSearchParams]);
 
 	const store = useAppStore();

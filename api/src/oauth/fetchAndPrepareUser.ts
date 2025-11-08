@@ -15,11 +15,15 @@ import type { ProviderType } from "@/shared/providers";
 import { safeSet, superSafeGet } from "@/shared/utils/safe";
 
 // Helper: exchange code and prepare supabase + existing user
-export function fetchAndPrepareUser(
-	ctx: Context<{ Bindings: Env }>,
-	code: string,
-	provider: ProviderType,
-): Effect.Effect<
+export function fetchAndPrepareUser({
+	ctx,
+	code,
+	provider,
+}: {
+	ctx: Context<{ Bindings: Env }>;
+	code: string;
+	provider: ProviderType;
+}): Effect.Effect<
 	{
 		supabase: SupabaseClient;
 		oauthUserData: OauthUserData;

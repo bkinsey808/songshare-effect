@@ -4,12 +4,17 @@ import { buildSameSiteAttr } from "@/api/cookie/buildSameSiteAttr";
 
 type EnvLike = Record<string, string | undefined>;
 
-export function buildSetCookieHeader(
-	ctx: Context,
-	name: string,
-	value: string,
-	opts?: { maxAge?: number; httpOnly?: boolean },
-): string {
+export function buildSetCookieHeader({
+	ctx,
+	name,
+	value,
+	opts,
+}: {
+	ctx: Context;
+	name: string;
+	value: string;
+	opts?: { maxAge?: number; httpOnly?: boolean };
+}): string {
 	const envRecord = ctx.env as unknown as EnvLike;
 	const isProd = envRecord.ENVIRONMENT === "production";
 	const redirectOrigin = envRecord.OAUTH_REDIRECT_ORIGIN ?? "";

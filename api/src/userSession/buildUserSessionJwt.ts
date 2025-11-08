@@ -20,20 +20,27 @@ import { UserSessionDataSchema as sessionDataSchema } from "@/shared/userSession
  * - Validates the session data using Effect Schema
  * - Signs and returns the JWT
  *
- * @param ctx Hono context (for env and request info)
- * @param supabase Supabase client instance
- * @param existingUser The authenticated user object
- * @param oauthUserData OAuth user data
- * @param oauthState OAuth state
+ * @param params Parameters object
+ * @param params.ctx Hono context (for env and request info)
+ * @param params.supabase Supabase client instance
+ * @param params.existingUser The authenticated user object
+ * @param params.oauthUserData OAuth user data
+ * @param params.oauthState OAuth state
  * @returns Effect yielding the session JWT string
  */
-export function buildUserSessionJwt(
-	ctx: Context<{ Bindings: Env }>,
-	supabase: SupabaseClient,
-	existingUser: User,
-	oauthUserData: OauthUserData,
-	oauthState: OauthState,
-): Effect.Effect<string, ValidationError | ServerError | DatabaseError> {
+export function buildUserSessionJwt({
+	ctx,
+	supabase,
+	existingUser,
+	oauthUserData,
+	oauthState,
+}: {
+	ctx: Context<{ Bindings: Env }>;
+	supabase: SupabaseClient;
+	existingUser: User;
+	oauthUserData: OauthUserData;
+	oauthState: OauthState;
+}): Effect.Effect<string, ValidationError | ServerError | DatabaseError> {
 	return Effect.gen(function* ($) {
 		const ip = getIpAddress(ctx);
 		// Resolve username from user_public table (source of truth for username)

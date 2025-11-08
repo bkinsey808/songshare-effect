@@ -70,13 +70,13 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 		// eslint-disable-next-line no-console
 		console.log("📋 Current form data on blur:", currentFormData);
 
-		const fieldBlurHandler = createFieldBlurHandler(
+		const fieldBlurHandler = createFieldBlurHandler({
 			schema,
-			currentFormData as Partial<FormValues>,
-			validationErrors,
+			formData: currentFormData as Partial<FormValues>,
+			currentErrors: validationErrors,
 			setValidationErrors,
-			registerMessageKey,
-		);
+			i18nMessageKey: registerMessageKey,
+		});
 		fieldBlurHandler(field, value);
 	};
 
@@ -102,12 +102,12 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 		response: Response,
 		setSubmitError: (error: string) => void,
 	): Effect.Effect<boolean, never, never> => {
-		return createApiResponseHandlerEffect(
+		return createApiResponseHandlerEffect({
 			response,
 			setValidationErrors,
 			setSubmitError,
-			defaultErrorMessage,
-		);
+			...(defaultErrorMessage !== undefined && { defaultErrorMessage }),
+		});
 	};
 
 	/**

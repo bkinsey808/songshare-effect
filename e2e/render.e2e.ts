@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 
+import { ALERT_TYPES } from "./utils/translation-helpers";
 import { justDeletedAccountKey } from "@/shared/sessionStorageKeys";
 
 const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] || "";
@@ -38,28 +39,33 @@ test.describe("Render smoke", () => {
 		// Allow time for hydration and alert to render
 		await page.waitForTimeout(1000);
 
-		// Check if any alert is visible by looking for the alert container
-		const alertContainer = page.locator(".rounded-md.p-4.text-center");
+		// Test using data-testid and data attributes instead of text content
+		const alertContainer = page.getByTestId("dismissible-alert");
 		await expect(alertContainer).toBeVisible({ timeout: 10000 });
 
-		// Check if the sign out success alert is visible by looking for the title
-		const alertTitle = page.locator("strong").filter({ hasText: "Signed Out" });
+		// Verify this is specifically the sign out alert
+		await expect(alertContainer).toHaveAttribute(
+			"data-alert-type",
+			ALERT_TYPES.SIGN_OUT_SUCCESS,
+		);
+
+		// Check that the alert has the success variant
+		await expect(alertContainer).toHaveAttribute("data-variant", "success");
+
+		// Check that the alert title is present
+		const alertTitle = page.getByTestId("alert-title");
 		await expect(alertTitle).toBeVisible({ timeout: 8000 });
 
-		// Check if the alert contains the expected message (more flexible for WebKit)
-		const message = page.getByText("You have been successfully signed out.", {
-			exact: false,
-		});
-		await expect(message).toBeVisible({ timeout: 8000 });
+		// Check that the alert message is present
+		const alertMessage = page.getByTestId("alert-message");
+		await expect(alertMessage).toBeVisible({ timeout: 8000 });
 
 		// Ensure the alert remains visible for a short while (it should not auto-dismiss)
 		await page.waitForTimeout(500);
 		await expect(alertContainer).toBeVisible();
 
 		// Dismiss the alert and verify it disappears and the URL is clean
-		const dismissButton = alertContainer
-			.locator('button:has-text("Dismiss")')
-			.first();
+		const dismissButton = page.getByTestId("alert-dismiss-button");
 		await expect(dismissButton).toBeVisible({ timeout: 5000 });
 		await dismissButton.click();
 
@@ -87,24 +93,29 @@ test.describe("Render smoke", () => {
 		// Allow time for hydration and alert to render
 		await page.waitForTimeout(1000);
 
-		const alertContainer = page.locator(".rounded-md.p-4.text-center");
+		// Test using data-testid and data attributes instead of text content
+		const alertContainer = page.getByTestId("dismissible-alert");
 		await expect(alertContainer).toBeVisible({ timeout: 15000 });
 
-		const alertTitle = page
-			.locator("strong")
-			.filter({ hasText: "Account Deleted" });
+		// Verify this is specifically the account deleted alert
+		await expect(alertContainer).toHaveAttribute(
+			"data-alert-type",
+			ALERT_TYPES.DELETE_SUCCESS,
+		);
+
+		// Check that the alert has the success variant
+		await expect(alertContainer).toHaveAttribute("data-variant", "success");
+
+		// Check that the alert title is present
+		const alertTitle = page.getByTestId("alert-title");
 		await expect(alertTitle).toBeVisible({ timeout: 10000 });
 
-		const message = page.getByText(
-			"Your account has been successfully deleted.",
-			{ exact: false },
-		);
-		await expect(message).toBeVisible({ timeout: 10000 });
+		// Check that the alert message is present
+		const alertMessage = page.getByTestId("alert-message");
+		await expect(alertMessage).toBeVisible({ timeout: 10000 });
 
 		// Dismiss the alert
-		const dismissButton = alertContainer
-			.locator('button:has-text("Dismiss")')
-			.first();
+		const dismissButton = page.getByTestId("alert-dismiss-button");
 		await expect(dismissButton).toBeVisible({ timeout: 5000 });
 		await dismissButton.click();
 		await expect(alertContainer).toBeHidden({ timeout: 5000 });

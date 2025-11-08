@@ -7,11 +7,15 @@ import { userTokenCache } from "@/api/supabase/tokenCache";
  * Will reuse cached token until it expires.
  * Ensures the token has app_metadata.user.user_id structure for RLS policies.
  */
-export async function getSupabaseUserToken(
-	env: Env,
-	email: string,
-	password: string,
-): Promise<string> {
+export async function getSupabaseUserToken({
+	env,
+	email,
+	password,
+}: {
+	env: Env;
+	email: string;
+	password: string;
+}): Promise<string> {
 	const now = Math.floor(Date.now() / 1000);
 	const cacheKey = email;
 
