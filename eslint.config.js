@@ -171,8 +171,6 @@ const sharedRules = {
 				{ from: "file", name: "Partial" },
 				// Allow Effect types
 				{ from: "file", name: "Schema" },
-				// Allow component props types
-				{ from: "file", name: "NativePopoverProps" },
 				// Allow common number/string types
 				{ from: "file", name: "number" },
 				{ from: "file", name: "string" },

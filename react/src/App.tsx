@@ -48,7 +48,7 @@ function HydratedLayout(): ReactElement {
 	return (
 		<ErrorBoundary>
 			<Navigation />
-			<div className="mx-auto max-w-6xl p-5 pt-[200px] font-sans">
+			<div className="mx-auto max-w-screen-2xl p-5 pt-[200px] pb-24 font-sans">
 				<main>
 					<Outlet />
 				</main>

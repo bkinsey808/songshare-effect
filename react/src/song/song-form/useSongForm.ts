@@ -58,6 +58,7 @@ type UseSongFormReturn = {
 	toggleField: (field: string, checked: boolean) => void;
 	handleFormSubmit: (event: React.FormEvent) => Promise<void>;
 	formRef: React.RefObject<HTMLFormElement | null>;
+	resetForm: () => void;
 };
 
 export default function useSongForm(): UseSongFormReturn {
@@ -183,6 +184,31 @@ export default function useSongForm(): UseSongFormReturn {
 		});
 	}, []);
 
+	// Reset form to initial state
+	const resetForm = useCallback(() => {
+		// Generate a new first slide ID
+		const newFirstId =
+			typeof crypto !== "undefined" && "randomUUID" in crypto
+				? crypto.randomUUID().slice(0, 11)
+				: // eslint-disable-next-line sonarjs/pseudo-random -- Safe for non-cryptographic ID generation
+					Math.random().toString(36).slice(2, 11);
+
+		// Reset all state to initial values
+		setSlideOrder([newFirstId]);
+		setSlides({
+			[newFirstId]: {
+				slide_name: "Slide 1",
+				field_data: {},
+			},
+		});
+		setFields(["lyrics"]);
+
+		// Reset the HTML form as well
+		if (formRef.current) {
+			formRef.current.reset();
+		}
+	}, []);
+
 	return {
 		handleFieldBlur,
 		getFieldError,
@@ -199,5 +225,6 @@ export default function useSongForm(): UseSongFormReturn {
 		toggleField,
 		handleFormSubmit,
 		formRef,
+		resetForm,
 	};
 }

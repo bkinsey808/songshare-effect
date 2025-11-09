@@ -1,15 +1,29 @@
 // src/features/song-form/SongForm.tsx
-import { useRef } from "react";
-import { useTranslation } from "react-i18next";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { songFields } from "../song-schema";
-import SlidesViewManager from "./SlidesViewManager";
+import CollapsibleSection from "./CollapsibleSection";
+import SongFormFields from "./SongFormFields";
+import SlidesGridView from "./grid-editor/SlidesGridView";
+import SlidesEditor from "./slides-editor/SlidesEditor";
 import useSongForm from "./useSongForm";
 
-export function SongForm(): ReactElement {
+type SongFormProps = Readonly<{
+	onGetFormRef?: (formRef: React.RefObject<HTMLFormElement | null>) => void;
+	onGetFormSubmit?: (
+		handleFormSubmit: (event: React.FormEvent) => Promise<void>,
+	) => void;
+	onGetSubmissionState?: (isSubmitting: boolean) => void;
+	onGetResetForm?: (resetForm: () => void) => void;
+}>;
+
+export function SongForm({
+	onGetFormRef,
+	onGetFormSubmit,
+	onGetSubmissionState,
+	onGetResetForm,
+}: SongFormProps): ReactElement {
 	const songId = useParams<{ song_id?: string }>().song_id;
-	const { t } = useTranslation();
 
 	// Use only ONE instance of useSongForm
 	const {
@@ -24,12 +38,41 @@ export function SongForm(): ReactElement {
 		toggleField,
 		handleFormSubmit,
 		formRef,
+		resetForm,
 	} = useSongForm();
+
+	// Expose form data to parent component using useEffect to avoid accessing refs during render
+	useEffect(() => {
+		if (onGetFormRef) {
+			onGetFormRef(formRef);
+		}
+	}, [onGetFormRef, formRef]);
+
+	useEffect(() => {
+		if (onGetFormSubmit) {
+			onGetFormSubmit(handleFormSubmit);
+		}
+	}, [onGetFormSubmit, handleFormSubmit]);
+
+	useEffect(() => {
+		if (onGetSubmissionState) {
+			onGetSubmissionState(isSubmitting);
+		}
+	}, [onGetSubmissionState, isSubmitting]);
+
+	useEffect(() => {
+		if (onGetResetForm) {
+			onGetResetForm(resetForm);
+		}
+	}, [onGetResetForm, resetForm]);
 
 	// Create refs for form fields
 	const songNameRef = useRef<HTMLInputElement>(null);
 	const songSlugRef = useRef<HTMLInputElement>(null);
-	const shortCreditRef = useRef<HTMLInputElement>(null);
+
+	// Local state for collapsible sections
+	const [isSlidesExpanded, setIsSlidesExpanded] = useState(true);
+	const [isGridExpanded, setIsGridExpanded] = useState(true);
 
 	const handleSongNameBlur = (): void => {
 		const name = songNameRef.current?.value?.trim();
@@ -52,140 +95,60 @@ export function SongForm(): ReactElement {
 	return (
 		<div className="w-full">
 			<h1>{(songId?.length ?? 0) > 0 ? "Edit" : "Create"} Song Form</h1>
+
 			<form
 				ref={formRef}
 				className="flex w-full flex-col gap-4"
 				onSubmit={handleFormSubmit}
 			>
-				<label className="flex flex-col gap-1">
-					{t("song.songName", "Song Name")}
-					<input
-						ref={songNameRef}
-						type="text"
-						name="song_name"
-						className="w-full rounded border px-2 py-1"
-						onBlur={handleSongNameBlur}
-					/>
-					{(() => {
-						const songNameError = getFieldError("song_name");
-						return (
-							songNameError && (
-								<span className="text-sm text-red-600">
-									{t(songNameError.message, {
-										...songNameError.params,
-										defaultValue: songNameError.message,
-									})}
-								</span>
-							)
-						);
-					})()}
-				</label>
+				{/* Row 1: Song Form Fields (left) + Slides Editor (right) on desktop, stacked on mobile */}
+				<div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
+					{/* Left Column - Song Form Fields */}
+					<div className="lg:flex-1">
+						<SongFormFields
+							getFieldError={getFieldError}
+							fields={fields}
+							toggleField={toggleField}
+							onSongNameBlur={handleSongNameBlur}
+						/>
+					</div>
 
-				<label className="flex flex-col gap-1">
-					{t("song.songSlug", "Song Slug")}
-					<input
-						ref={songSlugRef}
-						type="text"
-						name="song_slug"
-						className="w-full rounded border px-2 py-1"
-					/>
-					{(() => {
-						const songSlugError = getFieldError("song_slug");
-						return (
-							songSlugError && (
-								<span className="text-sm text-red-600">
-									{t(songSlugError.message, {
-										...songSlugError.params,
-										defaultValue: songSlugError.message,
-									})}
-								</span>
-							)
-						);
-					})()}
-				</label>
-
-				<label className="flex flex-col gap-1">
-					{t("song.shortCredit", "Short Credit")}
-					<input
-						ref={shortCreditRef}
-						type="text"
-						name="short_credit"
-						className="w-full rounded border px-2 py-1"
-					/>
-					{(() => {
-						const shortCreditError = getFieldError("short_credit");
-						return (
-							shortCreditError && (
-								<span className="text-sm text-red-600">
-									{t(shortCreditError.message, {
-										...shortCreditError.params,
-										defaultValue: shortCreditError.message,
-									})}
-								</span>
-							)
-						);
-					})()}
-				</label>
-
-				<label className="flex flex-col gap-1">
-					{t("song.longCredit", "Long Credit")}
-					<textarea
-						rows={4}
-						name="long_credit"
-						className="w-full rounded border px-2 py-1"
-					/>
-				</label>
-
-				<fieldset className="flex flex-col gap-2">
-					<legend className="font-semibold">Fields</legend>
-					{songFields.map((field) => (
-						<label key={field} className="flex items-center gap-2">
-							<input
-								type="checkbox"
-								checked={fields.includes(field)}
-								onChange={(event) => toggleField(field, event.target.checked)}
+					{/* Right Column - Slides Editor */}
+					<div className="lg:flex-1">
+						<CollapsibleSection
+							title="Slides Editor"
+							icon="📄"
+							isExpanded={isSlidesExpanded}
+							onToggle={() => setIsSlidesExpanded(!isSlidesExpanded)}
+						>
+							<SlidesEditor
+								fields={fields}
+								slideOrder={slideOrder}
+								setSlideOrder={setSlideOrder}
+								slides={slides}
+								setSlides={setSlides}
 							/>
-							{t(`song.${field}`, field)}
-						</label>
-					))}
-				</fieldset>
+						</CollapsibleSection>
+					</div>
+				</div>
 
-				{/* Pass selected fields and slide state to SlidesViewManager */}
-				<SlidesViewManager
-					fields={fields}
-					slideOrder={slideOrder}
-					setSlideOrder={setSlideOrder}
-					slides={slides}
-					setSlides={setSlides}
-				/>
-
-				<label className="flex flex-col gap-1">
-					{t("song.publicNotes", "Public Notes")}
-					<textarea
-						rows={4}
-						name="public_notes"
-						className="w-full rounded border px-2 py-1"
-					/>
-				</label>
-
-				<label className="flex flex-col gap-1">
-					{t("song.privateNotes", "Private Notes")}
-					<textarea
-						rows={4}
-						name="private_notes"
-						className="w-full rounded border px-2 py-1"
-					/>
-				</label>
-
-				<button
-					type="submit"
-					className="w-full rounded bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
-					disabled={isSubmitting}
-				>
-					{(songId?.length ?? 0) > 0
-						? t("song.updateSong", "Update Song")
-						: t("song.createSong", "Create Song")}
-				</button>
+				{/* Row 2: Grid View spanning full width */}
+				<div className="w-full">
+					<CollapsibleSection
+						title="Grid View"
+						icon="📊"
+						isExpanded={isGridExpanded}
+						onToggle={() => setIsGridExpanded(!isGridExpanded)}
+					>
+						<SlidesGridView
+							fields={fields}
+							slideOrder={slideOrder}
+							setSlideOrder={setSlideOrder}
+							slides={slides}
+							setSlides={setSlides}
+						/>
+					</CollapsibleSection>
+				</div>
 			</form>
 		</div>
 	);

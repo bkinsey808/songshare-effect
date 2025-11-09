@@ -23,9 +23,9 @@ export default function SlidesViewManager({
 	const [isGridExpanded, setIsGridExpanded] = useState(true);
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-4 lg:flex lg:gap-4 lg:space-y-0">
 			{/* Slides View Section */}
-			<div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+			<div className="rounded-lg border border-gray-200 bg-white shadow-sm lg:flex-1">
 				<button
 					type="button"
 					onClick={() => {
@@ -67,7 +67,7 @@ export default function SlidesViewManager({
 			</div>
 
 			{/* Grid View Section */}
-			<div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+			<div className="rounded-lg border border-gray-200 bg-white shadow-sm lg:flex-1">
 				<button
 					type="button"
 					onClick={() => {

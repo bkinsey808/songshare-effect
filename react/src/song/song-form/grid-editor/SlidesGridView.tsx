@@ -54,7 +54,7 @@ export default function SlidesGridView({
 	const { getColumnWidth, isResizing, startResize, totalWidth } =
 		useColumnResize({
 			fields,
-			defaultFieldWidth: 200,
+			defaultFieldWidth: 300,
 			slideNameWidth: 144,
 		});
 
