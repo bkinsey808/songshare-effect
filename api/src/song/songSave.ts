@@ -1,7 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 import type { Context } from "hono";
-import { nanoid } from "nanoid";
 
 import type { Bindings } from "../env";
 import {
@@ -85,8 +84,8 @@ export function songSave(
 			ctx.env.SUPABASE_SERVICE_KEY,
 		);
 
-		// Create a new song id
-		const songId = nanoid();
+		// Create a new song id using crypto.randomUUID() to match database UUID type
+		const songId = crypto.randomUUID();
 
 		// Insert private song data first
 		const privateInsert = yield* $(

@@ -1,10 +1,14 @@
 // src/features/song-form/useSongForm.ts
 import { Effect, type Schema } from "effect";
-import { useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useRef } from "react";
+import { useParams } from "react-router-dom";
 
 import { songFormSchema } from "./songSchema";
-import { type Slide } from "./songTypes";
+import type { Slide } from "./songTypes";
+import { useCollapsibleSections } from "./useCollapsibleSections";
+import { useFormState } from "./useFormState";
+import { useFormSubmission } from "./useFormSubmission";
+import { generateSlug } from "./utils/generateSlug";
 import { useAppForm } from "@/react/form/useAppForm";
 import { safeSet } from "@/shared/utils/safe";
 
@@ -22,33 +26,15 @@ type SongFormData = {
 	slides: Record<string, Slide>;
 };
 
-type HandleFieldBlur = <K extends keyof SongFormData>(
-	field: K,
-	ref: React.RefObject<HTMLInputElement | null>,
-) => void;
-
 type GetFieldError = (
 	field: keyof SongFormData,
 ) =>
 	| { field: string; message: string; params?: Record<string, unknown> }
 	| undefined;
 
-type HandleSubmit = (
-	formData: Readonly<Record<string, unknown>>,
-	onSubmit: (data: Readonly<SongFormData>) => Promise<void> | void,
-) => Effect.Effect<void, never, never>;
-
 type UseSongFormReturn = {
-	handleFieldBlur: HandleFieldBlur;
 	getFieldError: GetFieldError;
-	handleSubmit: HandleSubmit;
-	validationErrors: ReadonlyArray<{
-		field: string;
-		message: string;
-		params?: Record<string, unknown>;
-	}>;
 	isSubmitting: boolean;
-	onSubmit: (data: Readonly<SongFormData>) => Promise<void> | void;
 	slideOrder: ReadonlyArray<string>;
 	slides: Record<string, Slide>;
 	fields: string[];
@@ -58,9 +44,11 @@ type UseSongFormReturn = {
 	handleFormSubmit: (event: React.FormEvent) => Promise<void>;
 	formRef: React.RefObject<HTMLFormElement | null>;
 	resetForm: () => void;
+
 	// Form field refs
 	songNameRef: React.RefObject<HTMLInputElement | null>;
 	songSlugRef: React.RefObject<HTMLInputElement | null>;
+
 	// Collapsible section state
 	isFormFieldsExpanded: boolean;
 	setIsFormFieldsExpanded: (expanded: boolean) => void;
@@ -68,6 +56,7 @@ type UseSongFormReturn = {
 	setIsSlidesExpanded: (expanded: boolean) => void;
 	isGridExpanded: boolean;
 	setIsGridExpanded: (expanded: boolean) => void;
+
 	// Handlers
 	handleSongNameBlur: () => void;
 	handleSave: () => Promise<void>;
@@ -76,39 +65,32 @@ type UseSongFormReturn = {
 
 export default function useSongForm(): UseSongFormReturn {
 	const songId = useParams<{ song_id?: string }>().song_id;
-	const navigate = useNavigate();
 	const formRef = useRef<HTMLFormElement>(null);
 
 	// Form field refs
 	const songNameRef = useRef<HTMLInputElement>(null);
 	const songSlugRef = useRef<HTMLInputElement>(null);
 
-	// Local state for collapsible sections
-	const [isFormFieldsExpanded, setIsFormFieldsExpanded] = useState(true);
-	const [isSlidesExpanded, setIsSlidesExpanded] = useState(true);
-	const [isGridExpanded, setIsGridExpanded] = useState(true);
+	// Use extracted hooks
+	const {
+		slideOrder,
+		slides,
+		fields,
+		setSlideOrder,
+		setSlides,
+		toggleField,
+		resetFormState,
+		initialSlideId,
+	} = useFormState();
 
-	// Initialize slides state with a unique ID
-	const [firstId] = useState(() => {
-		// Use crypto.randomUUID if available, fallback to Math.random for dev
-		if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-			return crypto.randomUUID().slice(0, 11);
-		}
-		// eslint-disable-next-line sonarjs/pseudo-random -- Safe for non-cryptographic ID generation
-		return Math.random().toString(36).slice(2, 11);
-	});
-
-	const [slideOrder, setSlideOrder] = useState<ReadonlyArray<string>>([
-		firstId,
-	]);
-	const [slides, setSlides] = useState<Record<string, Slide>>({
-		[firstId]: {
-			slide_name: "Slide 1",
-			field_data: {},
-		},
-	});
-	// Made fields stateful
-	const [fields, setFields] = useState<string[]>(["lyrics"]);
+	const {
+		isFormFieldsExpanded,
+		setIsFormFieldsExpanded,
+		isSlidesExpanded,
+		setIsSlidesExpanded,
+		isGridExpanded,
+		setIsGridExpanded,
+	} = useCollapsibleSections();
 
 	const initialValues: Partial<SongFormData> = {
 		song_id: songId,
@@ -119,50 +101,30 @@ export default function useSongForm(): UseSongFormReturn {
 		private_notes: "",
 		public_notes: "",
 		fields: ["lyrics"],
-		slide_order: [firstId],
+		slide_order: [initialSlideId],
 		slides: {
-			[firstId]: {
+			[initialSlideId]: {
 				slide_name: "Slide 1",
 				field_data: {},
 			},
 		},
 	};
 
-	const {
-		handleFieldBlur,
-		getFieldError,
-		handleSubmit,
-		isSubmitting,
-		validationErrors,
+	const { getFieldError, handleSubmit, isSubmitting, handleApiResponseEffect } =
+		useAppForm({
+			schema: songFormSchema as Schema.Schema<
+				SongFormData,
+				SongFormData,
+				never
+			>,
+			formRef,
+			initialValues,
+		});
+
+	const { onSubmit, handleCancel } = useFormSubmission({
 		handleApiResponseEffect,
-	} = useAppForm({
-		schema: songFormSchema as Schema.Schema<SongFormData, SongFormData, never>,
-		formRef,
-		initialValues,
+		resetFormState,
 	});
-
-	const onSubmit = async (rawData: Readonly<SongFormData>): Promise<void> => {
-		try {
-			const response = await fetch("/api/songs/save", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(rawData),
-				credentials: "include",
-			});
-
-			const isSuccess = await Effect.runPromise(
-				handleApiResponseEffect(response, () => {
-					// Handle API errors through the form system
-				}),
-			);
-
-			if (isSuccess) {
-				// Success - optionally redirect or show success message
-			}
-		} catch (error) {
-			console.error("Network error:", error);
-		}
-	};
 
 	// Handle form submission with data collection
 	const handleFormSubmit = async (event: React.FormEvent): Promise<void> => {
@@ -180,55 +142,20 @@ export default function useSongForm(): UseSongFormReturn {
 		currentFormData["slide_order"] = slideOrder;
 		currentFormData["slides"] = slides;
 
-		await handleSubmit(currentFormData, onSubmit);
+		try {
+			await Effect.runPromise(handleSubmit(currentFormData, onSubmit));
+		} catch (error) {
+			console.error("❌ handleSubmit failed:", error);
+		}
 	};
 
 	// Update internal state when form data changes
-	const updateSlideOrder = (newOrder: ReadonlyArray<string>) => {
+	const updateSlideOrder = (newOrder: ReadonlyArray<string>): void => {
 		setSlideOrder(newOrder);
 	};
 
-	const updateSlides = (newSlides: Record<string, Slide>) => {
+	const updateSlides = (newSlides: Record<string, Slide>): void => {
 		setSlides(newSlides);
-	};
-
-	// Handle field checkbox changes
-	const toggleField = (field: string, checked: boolean) => {
-		setFields((currentFields) => {
-			if (checked) {
-				// Add field if not already present
-				return currentFields.includes(field)
-					? currentFields
-					: [...currentFields, field];
-			}
-			// Remove field
-			return currentFields.filter((fieldName) => fieldName !== field);
-		});
-	};
-
-	// Reset form to initial state
-	const resetForm = () => {
-		// Generate a new first slide ID
-		const newFirstId =
-			typeof crypto !== "undefined" && "randomUUID" in crypto
-				? crypto.randomUUID().slice(0, 11)
-				: // eslint-disable-next-line sonarjs/pseudo-random -- Safe for non-cryptographic ID generation
-					Math.random().toString(36).slice(2, 11);
-
-		// Reset all state to initial values
-		setSlideOrder([newFirstId]);
-		setSlides({
-			[newFirstId]: {
-				slide_name: "Slide 1",
-				field_data: {},
-			},
-		});
-		setFields(["lyrics"]);
-
-		// Reset the HTML form as well
-		if (formRef.current) {
-			formRef.current.reset();
-		}
 	};
 
 	// Handle song name blur to generate slug
@@ -236,15 +163,7 @@ export default function useSongForm(): UseSongFormReturn {
 		const name = songNameRef.current?.value?.trim();
 		const currentSlug = songSlugRef.current?.value?.trim();
 		if ((name?.length ?? 0) > 0 && (currentSlug?.length ?? 0) === 0) {
-			// Simple slugify: lowercase, replace spaces with dashes, remove non-alphanumeric except dashes
-			const generatedSlug = (name ?? "")
-				.toLowerCase()
-				.replace(/[^a-z0-9\s-]/g, "")
-				.replace(/\s+/g, "-")
-				.replace(/-+/g, "-")
-				.replace(/^-/, "")
-				.replace(/-$/, "");
-
+			const generatedSlug = generateSlug(name ?? "");
 			if (songSlugRef.current) {
 				songSlugRef.current.value = generatedSlug;
 			}
@@ -263,18 +182,9 @@ export default function useSongForm(): UseSongFormReturn {
 		}
 	};
 
-	// Handle cancel button click
-	const handleCancel = (): void => {
-		void navigate("..");
-	};
-
 	return {
-		handleFieldBlur,
 		getFieldError,
-		handleSubmit,
-		validationErrors,
 		isSubmitting,
-		onSubmit,
 		slideOrder,
 		slides,
 		fields,
@@ -283,10 +193,12 @@ export default function useSongForm(): UseSongFormReturn {
 		toggleField,
 		handleFormSubmit,
 		formRef,
-		resetForm,
+		resetForm: resetFormState,
+
 		// Form field refs
 		songNameRef,
 		songSlugRef,
+
 		// Collapsible section state
 		isFormFieldsExpanded,
 		setIsFormFieldsExpanded,
@@ -294,6 +206,7 @@ export default function useSongForm(): UseSongFormReturn {
 		setIsSlidesExpanded,
 		isGridExpanded,
 		setIsGridExpanded,
+
 		// Handlers
 		handleSongNameBlur,
 		handleSave,

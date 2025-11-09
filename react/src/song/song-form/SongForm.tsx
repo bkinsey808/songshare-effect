@@ -14,7 +14,6 @@ export function SongForm(): ReactElement {
 
 	const isEditing = Boolean(song_id?.trim()?.length);
 
-	// Use only ONE instance of useSongForm
 	const {
 		getFieldError,
 		isSubmitting,
@@ -27,9 +26,11 @@ export function SongForm(): ReactElement {
 		handleFormSubmit,
 		formRef,
 		resetForm,
+
 		// Form field refs
 		songNameRef,
 		songSlugRef,
+
 		// Collapsible section state
 		isFormFieldsExpanded,
 		setIsFormFieldsExpanded,
@@ -37,6 +38,7 @@ export function SongForm(): ReactElement {
 		setIsSlidesExpanded,
 		isGridExpanded,
 		setIsGridExpanded,
+
 		// Handlers
 		handleSongNameBlur,
 		handleSave,
@@ -142,6 +144,7 @@ export function SongForm(): ReactElement {
 							onClick={handleSave}
 							className="rounded bg-blue-600 px-6 py-3 text-white transition hover:bg-blue-700 disabled:opacity-50"
 							disabled={isSubmitting}
+							data-testid="create-song-button"
 						>
 							{isEditing
 								? t("song.updateSong", "Update Song")
@@ -152,6 +155,7 @@ export function SongForm(): ReactElement {
 							onClick={resetForm}
 							className="rounded bg-gray-600 px-6 py-3 text-white transition hover:bg-gray-700 disabled:opacity-50"
 							disabled={isSubmitting}
+							data-testid="reset-song-button"
 						>
 							{t("song.reset", "Reset")}
 						</button>
@@ -160,6 +164,7 @@ export function SongForm(): ReactElement {
 							onClick={handleCancel}
 							className="rounded bg-red-600 px-6 py-3 text-white transition hover:bg-red-700 disabled:opacity-50"
 							disabled={isSubmitting}
+							data-testid="cancel-song-button"
 						>
 							{t("song.cancel", "Cancel")}
 						</button>
