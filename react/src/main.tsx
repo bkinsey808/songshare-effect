@@ -5,6 +5,10 @@ import App from "@/react/App";
 // Removed unused imports after moving hide style logic to React
 import "@/react/i18n/i18n";
 import "@/react/index.css";
+import { initCacheManagement } from "@/react/utils/cacheManagement";
+
+// Initialize cache management
+initCacheManagement();
 
 // The root will be unhidden by React after hydration and auth checks (see HydratedLayout)
 

@@ -1,15 +1,16 @@
 // src/features/song-form/SlidesEditor.tsx
-import { DndContext, closestCenter } from "@dnd-kit/core";
-import { SortableContext } from "@dnd-kit/sortable";
+import { useTranslation } from "react-i18next";
 
 import AutoExpandingTextarea from "../../../components/AutoExpandingTextarea";
+import FormField from "../../../components/form/FormField";
+import { songFields } from "../../song-schema";
 import { type Slide } from "../songTypes";
-import SortableSlideOrderItem from "./SortableSlideOrderItem";
 import useSlidesEditor from "./useSlidesEditor";
 import { safeGet } from "@/shared/utils/safe";
 
 type SlidesEditorProps = Readonly<{
 	fields: string[];
+	toggleField: (field: string, checked: boolean) => void;
 	// Array of slide IDs
 	slideOrder: ReadonlyArray<string>;
 	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
@@ -20,82 +21,56 @@ type SlidesEditorProps = Readonly<{
 
 export default function SlidesEditor({
 	fields,
+	toggleField,
 	slideOrder,
 	setSlideOrder,
 	slides,
 	setSlides,
 }: SlidesEditorProps): ReactElement {
-	const {
-		addSlide,
-		deleteSlide,
-		editFieldValue,
-		editSlideName,
-		safeGetField,
-		duplicateSlideOrder,
-		removeSlideOrder,
-		sensors,
-		handleDragEnd,
-		sortableItems,
-	} = useSlidesEditor({
-		slideOrder,
-		setSlideOrder,
-		slides,
-		setSlides,
-	});
+	const { addSlide, deleteSlide, editFieldValue, editSlideName, safeGetField } =
+		useSlidesEditor({
+			slideOrder,
+			setSlideOrder,
+			slides,
+			setSlides,
+		});
+
+	const { t } = useTranslation();
 
 	return (
-		<div className="w-full">
-			{/* Debug output for slideOrder array */}
-			<details className="mb-4 text-xs text-gray-500">
-				<summary>Debug: slideOrder array</summary>
-				<pre className="mt-2 rounded bg-gray-100 p-2">
-					{
-						// eslint-disable-next-line unicorn/no-null
-						JSON.stringify(slideOrder, null, 2)
-					}
-				</pre>
-			</details>
-			<h2 className="mb-4 text-xl font-bold">Slides Order</h2>
-			<DndContext
-				sensors={sensors}
-				collisionDetection={closestCenter}
-				onDragEnd={handleDragEnd}
-			>
-				<SortableContext items={sortableItems}>
-					<ul className="mb-6">
-						{slideOrder.map((slideId, idx) => {
-							const slide = safeGet(slides, slideId);
-							if (!slide) {
-								return <></>;
-							}
-							const sortableId = `${slideId}-${String(idx)}`;
-							return (
-								<SortableSlideOrderItem
-									key={sortableId}
-									slideId={slideId}
-									sortableId={sortableId}
-									slide={slide}
-									duplicateSlideOrder={duplicateSlideOrder}
-									removeSlideOrder={({
-										slideId: id,
-									}: Readonly<{ slideId: string }>) => {
-										removeSlideOrder({ slideId: id, index: idx });
-									}}
-									slideOrder={slideOrder}
+		<div className="@container w-full">
+			{/* Header with Fields and Add Button */}
+			<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+				{/* Fields Selection */}
+				<fieldset className="flex flex-col gap-2">
+					<legend className="text-sm font-bold text-gray-300">
+						{t("song.fields", "Fields")}
+					</legend>
+					<div className="mt-2 flex flex-col gap-2">
+						{songFields.map((field) => (
+							<label key={field} className="flex items-center gap-2">
+								<input
+									type="checkbox"
+									checked={fields.includes(field)}
+									onChange={(event) => toggleField(field, event.target.checked)}
 								/>
-							);
-						})}
-					</ul>
-				</SortableContext>
-			</DndContext>
-			<button
-				type="button"
-				onClick={addSlide}
-				className="mb-8 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-			>
-				Add New Slide to Presentation
-			</button>
-			<h2 className="mb-4 text-xl font-bold">Slides</h2>
+								{t(`song.${field}`, field)}
+							</label>
+						))}
+					</div>
+				</fieldset>
+
+				{/* Add New Slide Button */}
+				<button
+					type="button"
+					onClick={addSlide}
+					className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 sm:shrink-0"
+				>
+					Add New Slide
+				</button>
+			</div>
+
+			<h2 className="mb-2 text-sm font-bold text-gray-300">Slides</h2>
 			{
 				// Show all slides based on keys in the slides object
 				Object.keys(slides).map((slideId, idx) => {
@@ -106,47 +81,37 @@ export default function SlidesEditor({
 					return (
 						<div
 							key={`${slideId}-detail-${String(idx)}`}
-							className="mb-6 rounded-lg border border-gray-300 bg-gray-50 p-4"
+							className="mb-6 rounded-lg border border-gray-600 p-4"
 						>
-							<div className="mb-2 flex w-full flex-col gap-2 sm:flex-row sm:items-center">
-								<input
-									type="text"
-									value={slide.slide_name}
-									onChange={(event) => {
-										editSlideName({ slideId, newName: event.target.value });
-									}}
-									className="h-[38px] min-w-0 flex-1 rounded border border-gray-300 px-2 py-1 text-base"
-									placeholder="Slide name"
-								/>
-								<div className="flex shrink-0 flex-wrap gap-2">
-									<button
-										className="remove-slide-btn focus:ring-opacity-50 inline-block h-[38px] rounded bg-red-600 px-4 py-1 text-base font-semibold whitespace-nowrap text-white shadow transition-colors duration-150 hover:bg-red-700 focus:ring-4 focus:outline-none"
-										onClick={() => {
-											deleteSlide(slideId);
-										}}
-										aria-label={`Remove slide ${String(idx + 1)}`}
-									>
-										Delete&nbsp;Slide
-									</button>
-									<button
-										className="add-slide-btn inline-block h-[38px] rounded bg-blue-600 px-4 py-1 text-base font-semibold whitespace-nowrap text-white shadow transition-colors duration-150 hover:bg-blue-700 focus:ring-4 focus:outline-none"
-										type="button"
-										onClick={(event) => {
-											event.preventDefault();
-											event.stopPropagation();
-											setSlideOrder([...slideOrder, slideId]);
-										}}
-									>
-										Add&nbsp;This&nbsp;Slide&nbsp;to&nbsp;Presentation
-									</button>
-								</div>
+							<div className="mb-6">
+								<FormField label={t("song.slideName", "Slide Name")}>
+									<div className="mt-1 flex gap-2">
+										<input
+											type="text"
+											value={slide.slide_name}
+											onChange={(event) => {
+												editSlideName({ slideId, newName: event.target.value });
+											}}
+											className="flex-1 rounded border px-4 py-1"
+											placeholder="Slide name"
+										/>
+										<button
+											className="remove-slide-btn rounded border border-transparent bg-red-600 px-4 py-1 text-base font-semibold whitespace-nowrap text-white shadow transition-colors duration-150 hover:bg-red-700 focus:ring-4 focus:outline-none"
+											onClick={() => {
+												deleteSlide(slideId);
+											}}
+											aria-label={`Remove slide ${String(idx + 1)}`}
+										>
+											Delete&nbsp;Slide
+										</button>
+									</div>
+								</FormField>
 							</div>
 
 							{/* Only show text areas for currently selected fields */}
 							{fields.map((field) => (
-								<div key={field} className="mb-4">
-									<label className="mb-1 block font-medium">
-										{field}
+								<div key={field} className="mb-6">
+									<FormField label={t(`song.${field}`, field)}>
 										<AutoExpandingTextarea
 											value={safeGetField({
 												slides,
@@ -160,11 +125,11 @@ export default function SlidesEditor({
 													value: event.target.value,
 												});
 											}}
-											className="mt-1 w-full rounded border border-gray-300 px-2 py-1"
+											className="mt-1 w-full rounded border px-2 py-1"
 											minRows={3}
 											maxRows={10}
 										/>
-									</label>
+									</FormField>
 								</div>
 							))}
 							{/* Debug info - remove this in production */}

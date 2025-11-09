@@ -36,6 +36,21 @@ const config: UserConfig = defineConfig({
 			plugins: [tailwindcss, autoprefixer],
 		},
 	},
+	build: {
+		// Ensure proper cache busting with content-based hashing
+		rollupOptions: {
+			output: {
+				// Use content-based hashes for all assets
+				entryFileNames: "assets/[name].[hash].js",
+				chunkFileNames: "assets/[name].[hash].js",
+				assetFileNames: "assets/[name].[hash].[ext]",
+			},
+		},
+		// Generate source maps for better debugging in production
+		sourcemap: true,
+		// Ensure assets are properly fingerprinted
+		assetsInlineLimit: 0,
+	},
 
 	// Development server proxy to forward API requests to the
 	// local API dev server (wrangler). This keeps client code using

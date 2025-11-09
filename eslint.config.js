@@ -389,7 +389,7 @@ export default [
 				{ allowConstantExport: true },
 			],
 
-			// Prevent importing ambient React types and restrict certain type usage
+			// React Compiler optimizations - discourage manual memoization
 			"no-restricted-imports": [
 				"error",
 				{
@@ -405,6 +405,24 @@ export default [
 							importNames: ["JSX", "FC", "FunctionComponent"],
 							message:
 								"Use ReactElement for function component return types. JSX, FC, and FunctionComponent are not allowed in this project.",
+						},
+						{
+							name: "react",
+							importNames: ["useCallback"],
+							message:
+								"useCallback is not needed in React Compiler projects. The compiler will automatically optimize functions when beneficial.",
+						},
+						{
+							name: "react",
+							importNames: ["useMemo"],
+							message:
+								"useMemo is not needed in React Compiler projects. The compiler will automatically optimize expensive computations when beneficial.",
+						},
+						{
+							name: "react",
+							importNames: ["memo"],
+							message:
+								"memo is not needed in React Compiler projects. The compiler will automatically optimize component re-renders when beneficial.",
 						},
 					],
 				},

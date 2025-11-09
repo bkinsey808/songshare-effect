@@ -1,6 +1,9 @@
 import { useTranslation } from "react-i18next";
 
-import { songFields } from "../song-schema";
+import FormField from "../../components/form/FormField";
+import FormInput from "../../components/form/FormInput";
+import FormSection from "../../components/form/FormSection";
+import FormTextarea from "../../components/form/FormTextarea";
 
 type SongFormFieldsProps = Readonly<{
 	getFieldError: (
@@ -11,128 +14,89 @@ type SongFormFieldsProps = Readonly<{
 			long_credit?: string;
 		},
 	) => { message: string; params?: Record<string, unknown> } | undefined;
-	fields: string[];
-	toggleField: (field: string, checked: boolean) => void;
 	onSongNameBlur: () => void;
+	songNameRef: React.RefObject<HTMLInputElement | null>;
+	songSlugRef: React.RefObject<HTMLInputElement | null>;
 }>;
 
 export default function SongFormFields({
 	getFieldError,
-	fields,
-	toggleField,
 	onSongNameBlur,
+	songNameRef,
+	songSlugRef,
 }: SongFormFieldsProps): ReactElement {
 	const { t } = useTranslation();
 
 	return (
-		<>
-			<label className="flex flex-col gap-1">
-				{t("song.songName", "Song Name")}
-				<input
-					type="text"
-					name="song_name"
-					className="w-full rounded border px-2 py-1"
-					onBlur={onSongNameBlur}
-				/>
-				{(() => {
+		<FormSection>
+			<FormField
+				label={t("song.songName", "Song Name")}
+				error={(() => {
 					const songNameError = getFieldError("song_name");
-					return (
-						songNameError && (
-							<span className="text-sm text-red-600">
-								{t(songNameError.message, {
-									...songNameError.params,
-									defaultValue: songNameError.message,
-								})}
-							</span>
-						)
-					);
+					return songNameError
+						? t(songNameError.message, {
+								...songNameError.params,
+								defaultValue: songNameError.message,
+							})
+						: undefined;
 				})()}
-			</label>
+			>
+				<FormInput ref={songNameRef} name="song_name" onBlur={onSongNameBlur} />
+			</FormField>
 
-			<label className="flex flex-col gap-1">
-				{t("song.songSlug", "Song Slug")}
-				<input
-					type="text"
-					name="song_slug"
-					className="w-full rounded border px-2 py-1"
-				/>
-				{(() => {
+			<FormField
+				label={t("song.songSlug", "Song Slug")}
+				error={(() => {
 					const songSlugError = getFieldError("song_slug");
-					return (
-						songSlugError && (
-							<span className="text-sm text-red-600">
-								{t(songSlugError.message, {
-									...songSlugError.params,
-									defaultValue: songSlugError.message,
-								})}
-							</span>
-						)
-					);
+					return songSlugError
+						? t(songSlugError.message, {
+								...songSlugError.params,
+								defaultValue: songSlugError.message,
+							})
+						: undefined;
 				})()}
-			</label>
+			>
+				<FormInput ref={songSlugRef} name="song_slug" />
+			</FormField>
 
-			<label className="flex flex-col gap-1">
-				{t("song.shortCredit", "Short Credit")}
-				<input
-					type="text"
-					name="short_credit"
-					className="w-full rounded border px-2 py-1"
-				/>
-				{(() => {
+			<FormField
+				label={t("song.shortCredit", "Short Credit")}
+				error={(() => {
 					const shortCreditError = getFieldError("short_credit");
-					return (
-						shortCreditError && (
-							<span className="text-sm text-red-600">
-								{t(shortCreditError.message, {
-									...shortCreditError.params,
-									defaultValue: shortCreditError.message,
-								})}
-							</span>
-						)
-					);
+					return shortCreditError
+						? t(shortCreditError.message, {
+								...shortCreditError.params,
+								defaultValue: shortCreditError.message,
+							})
+						: undefined;
 				})()}
-			</label>
+			>
+				<FormInput name="short_credit" />
+			</FormField>
 
-			<label className="flex flex-col gap-1">
-				{t("song.longCredit", "Long Credit")}
-				<textarea
-					rows={4}
+			<FormField label={t("song.longCredit", "Long Credit")}>
+				<FormTextarea
 					name="long_credit"
-					className="w-full rounded border px-2 py-1"
+					placeholder="Enter long credit..."
+					autoExpand={true}
 				/>
-			</label>
+			</FormField>
 
-			<fieldset className="flex flex-col gap-2">
-				<legend className="font-semibold">Fields</legend>
-				{songFields.map((field) => (
-					<label key={field} className="flex items-center gap-2">
-						<input
-							type="checkbox"
-							checked={fields.includes(field)}
-							onChange={(event) => toggleField(field, event.target.checked)}
-						/>
-						{t(`song.${field}`, field)}
-					</label>
-				))}
-			</fieldset>
-
-			<label className="flex flex-col gap-1">
-				{t("song.publicNotes", "Public Notes")}
-				<textarea
-					rows={4}
+			<FormField label={t("song.publicNotes", "Public Notes")}>
+				<FormTextarea
 					name="public_notes"
-					className="w-full rounded border px-2 py-1"
+					placeholder="Enter public notes..."
+					autoExpand={true}
 				/>
-			</label>
+			</FormField>
 
-			<label className="flex flex-col gap-1">
-				{t("song.privateNotes", "Private Notes")}
-				<textarea
-					rows={4}
+			<FormField label={t("song.privateNotes", "Private Notes")}>
+				<FormTextarea
 					name="private_notes"
-					className="w-full rounded border px-2 py-1"
+					placeholder="Enter private notes..."
+					autoExpand={true}
 				/>
-			</label>
-		</>
+			</FormField>
+		</FormSection>
 	);
 }

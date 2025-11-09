@@ -1,7 +1,7 @@
 // src/features/song-form/useSongForm.ts
 import { Effect, type Schema } from "effect";
-import { useCallback, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { songFormSchema } from "./songSchema";
 import { type Slide } from "./songTypes";
@@ -52,18 +52,41 @@ type UseSongFormReturn = {
 	slideOrder: ReadonlyArray<string>;
 	slides: Record<string, Slide>;
 	fields: string[];
-	slug: string;
 	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
 	setSlides: (newSlides: Record<string, Slide>) => void;
 	toggleField: (field: string, checked: boolean) => void;
 	handleFormSubmit: (event: React.FormEvent) => Promise<void>;
 	formRef: React.RefObject<HTMLFormElement | null>;
 	resetForm: () => void;
+	// Form field refs
+	songNameRef: React.RefObject<HTMLInputElement | null>;
+	songSlugRef: React.RefObject<HTMLInputElement | null>;
+	// Collapsible section state
+	isFormFieldsExpanded: boolean;
+	setIsFormFieldsExpanded: (expanded: boolean) => void;
+	isSlidesExpanded: boolean;
+	setIsSlidesExpanded: (expanded: boolean) => void;
+	isGridExpanded: boolean;
+	setIsGridExpanded: (expanded: boolean) => void;
+	// Handlers
+	handleSongNameBlur: () => void;
+	handleSave: () => Promise<void>;
+	handleCancel: () => void;
 };
 
 export default function useSongForm(): UseSongFormReturn {
 	const songId = useParams<{ song_id?: string }>().song_id;
+	const navigate = useNavigate();
 	const formRef = useRef<HTMLFormElement>(null);
+
+	// Form field refs
+	const songNameRef = useRef<HTMLInputElement>(null);
+	const songSlugRef = useRef<HTMLInputElement>(null);
+
+	// Local state for collapsible sections
+	const [isFormFieldsExpanded, setIsFormFieldsExpanded] = useState(true);
+	const [isSlidesExpanded, setIsSlidesExpanded] = useState(true);
+	const [isGridExpanded, setIsGridExpanded] = useState(true);
 
 	// Initialize slides state with a unique ID
 	const [firstId] = useState(() => {
@@ -86,7 +109,6 @@ export default function useSongForm(): UseSongFormReturn {
 	});
 	// Made fields stateful
 	const [fields, setFields] = useState<string[]>(["lyrics"]);
-	const [slug] = useState<string>("");
 
 	const initialValues: Partial<SongFormData> = {
 		song_id: songId,
@@ -162,16 +184,16 @@ export default function useSongForm(): UseSongFormReturn {
 	};
 
 	// Update internal state when form data changes
-	const updateSlideOrder = useCallback((newOrder: ReadonlyArray<string>) => {
+	const updateSlideOrder = (newOrder: ReadonlyArray<string>) => {
 		setSlideOrder(newOrder);
-	}, []);
+	};
 
-	const updateSlides = useCallback((newSlides: Record<string, Slide>) => {
+	const updateSlides = (newSlides: Record<string, Slide>) => {
 		setSlides(newSlides);
-	}, []);
+	};
 
 	// Handle field checkbox changes
-	const toggleField = useCallback((field: string, checked: boolean) => {
+	const toggleField = (field: string, checked: boolean) => {
 		setFields((currentFields) => {
 			if (checked) {
 				// Add field if not already present
@@ -182,10 +204,10 @@ export default function useSongForm(): UseSongFormReturn {
 			// Remove field
 			return currentFields.filter((fieldName) => fieldName !== field);
 		});
-	}, []);
+	};
 
 	// Reset form to initial state
-	const resetForm = useCallback(() => {
+	const resetForm = () => {
 		// Generate a new first slide ID
 		const newFirstId =
 			typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -207,7 +229,44 @@ export default function useSongForm(): UseSongFormReturn {
 		if (formRef.current) {
 			formRef.current.reset();
 		}
-	}, []);
+	};
+
+	// Handle song name blur to generate slug
+	const handleSongNameBlur = (): void => {
+		const name = songNameRef.current?.value?.trim();
+		const currentSlug = songSlugRef.current?.value?.trim();
+		if ((name?.length ?? 0) > 0 && (currentSlug?.length ?? 0) === 0) {
+			// Simple slugify: lowercase, replace spaces with dashes, remove non-alphanumeric except dashes
+			const generatedSlug = (name ?? "")
+				.toLowerCase()
+				.replace(/[^a-z0-9\s-]/g, "")
+				.replace(/\s+/g, "-")
+				.replace(/-+/g, "-")
+				.replace(/^-/, "")
+				.replace(/-$/, "");
+
+			if (songSlugRef.current) {
+				songSlugRef.current.value = generatedSlug;
+			}
+		}
+	};
+
+	// Handle save button click
+	const handleSave = async (): Promise<void> => {
+		if (formRef.current) {
+			// Create a synthetic form event
+			const syntheticEvent = new Event("submit", {
+				bubbles: true,
+				cancelable: true,
+			}) as unknown as React.FormEvent;
+			await handleFormSubmit(syntheticEvent);
+		}
+	};
+
+	// Handle cancel button click
+	const handleCancel = (): void => {
+		void navigate("..");
+	};
 
 	return {
 		handleFieldBlur,
@@ -219,12 +278,25 @@ export default function useSongForm(): UseSongFormReturn {
 		slideOrder,
 		slides,
 		fields,
-		slug,
 		setSlideOrder: updateSlideOrder,
 		setSlides: updateSlides,
 		toggleField,
 		handleFormSubmit,
 		formRef,
 		resetForm,
+		// Form field refs
+		songNameRef,
+		songSlugRef,
+		// Collapsible section state
+		isFormFieldsExpanded,
+		setIsFormFieldsExpanded,
+		isSlidesExpanded,
+		setIsSlidesExpanded,
+		isGridExpanded,
+		setIsGridExpanded,
+		// Handlers
+		handleSongNameBlur,
+		handleSave,
+		handleCancel,
 	};
 }

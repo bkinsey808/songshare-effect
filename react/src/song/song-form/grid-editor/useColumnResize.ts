@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 type UseColumnResizeProps = Readonly<{
 	fields: string[];
@@ -35,7 +35,7 @@ export function useColumnResize({
 
 	const cleanup = useRef<() => void>(() => {});
 
-	const handleMouseMove = useCallback((event: MouseEvent) => {
+	const handleMouseMove = (event: MouseEvent) => {
 		if (resizingField.current === undefined) {
 			return;
 		}
@@ -50,41 +50,35 @@ export function useColumnResize({
 			newMap.set(currentField, newWidth);
 			return newMap;
 		});
-	}, []);
+	};
 
-	const handleMouseUp = useCallback(() => {
+	const handleMouseUp = () => {
 		setIsResizing(false);
 		resizingField.current = undefined;
 		cleanup.current();
-	}, []);
+	};
 
-	const startResize = useCallback(
-		(field: string, clientX: number) => {
-			setIsResizing(true);
-			resizingField.current = field;
-			startX.current = clientX;
+	const startResize = (field: string, clientX: number) => {
+		setIsResizing(true);
+		resizingField.current = field;
+		startX.current = clientX;
 
-			const fieldWidth = columnWidths.get(field);
-			startWidth.current = fieldWidth ?? defaultFieldWidth;
+		const fieldWidth = columnWidths.get(field);
+		startWidth.current = fieldWidth ?? defaultFieldWidth;
 
-			document.addEventListener("mousemove", handleMouseMove);
-			document.addEventListener("mouseup", handleMouseUp);
+		document.addEventListener("mousemove", handleMouseMove);
+		document.addEventListener("mouseup", handleMouseUp);
 
-			cleanup.current = () => {
-				document.removeEventListener("mousemove", handleMouseMove);
-				document.removeEventListener("mouseup", handleMouseUp);
-			};
-		},
-		[columnWidths, defaultFieldWidth, handleMouseMove, handleMouseUp],
-	);
+		cleanup.current = () => {
+			document.removeEventListener("mousemove", handleMouseMove);
+			document.removeEventListener("mouseup", handleMouseUp);
+		};
+	};
 
-	const getColumnWidth = useCallback(
-		(field: string): number => {
-			const fieldWidth = columnWidths.get(field);
-			return fieldWidth ?? defaultFieldWidth;
-		},
-		[columnWidths, defaultFieldWidth],
-	);
+	const getColumnWidth = (field: string): number => {
+		const fieldWidth = columnWidths.get(field);
+		return fieldWidth ?? defaultFieldWidth;
+	};
 
 	// Calculate total width including slide name column
 	const totalWidth =

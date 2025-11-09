@@ -97,5 +97,18 @@
 	},
 	"actions": {
 		"dismiss": "关闭"
+	},
+	"song": {
+		"songName": "歌曲名称",
+		"songSlug": "歌曲链接",
+		"shortCredit": "简短署名",
+		"longCredit": "详细署名",
+		"publicNotes": "公开备注",
+		"privateNotes": "私人备注",
+		"slideName": "幻灯片名称",
+		"fields": "字段",
+		"lyrics": "歌词",
+		"script": "脚本",
+		"enTranslation": "英文翻译"
 	}
 }

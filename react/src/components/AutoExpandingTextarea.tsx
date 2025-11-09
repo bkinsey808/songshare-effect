@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 type AutoExpandingTextareaProps = Readonly<{
 	value: string;
@@ -19,7 +19,7 @@ export default function AutoExpandingTextarea({
 }: AutoExpandingTextareaProps): ReactElement {
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-	const adjustHeight = useCallback(() => {
+	const adjustHeight = () => {
 		const textarea = textareaRef.current;
 		if (!textarea) {
 			return;
@@ -46,17 +46,17 @@ export default function AutoExpandingTextarea({
 		// Show scrollbar if content exceeds maxRows
 		textarea.style.overflowY =
 			textarea.scrollHeight > maxHeight ? "auto" : "hidden";
-	}, [minRows, maxRows]);
+	};
 
 	// Adjust height when value changes
 	useEffect(() => {
 		adjustHeight();
-	}, [value, adjustHeight]);
+	}, [value, minRows, maxRows]);
 
 	// Adjust height on mount
 	useEffect(() => {
 		adjustHeight();
-	}, [adjustHeight]);
+	}, []);
 
 	return (
 		<textarea

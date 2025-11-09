@@ -1,5 +1,3 @@
-import { useCallback } from "react";
-
 type ResizeHandleProps = Readonly<{
 	field: string;
 	onStartResize: (field: string, clientX: number) => void;
@@ -11,21 +9,18 @@ export default function ResizeHandle({
 	onStartResize,
 	isResizing,
 }: ResizeHandleProps): ReactElement {
-	const handleMouseDown = useCallback(
-		(event: React.MouseEvent) => {
-			event.preventDefault();
-			onStartResize(field, event.clientX);
-		},
-		[field, onStartResize],
-	);
+	const handleMouseDown = (event: React.MouseEvent): void => {
+		event.preventDefault();
+		onStartResize(field, event.clientX);
+	};
 
-	const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+	const handleKeyDown = (event: React.KeyboardEvent): void => {
 		if (event.key === "Enter" || event.key === " ") {
 			event.preventDefault();
 			// For keyboard users, we could implement arrow key resizing here
 			// For now, just prevent default to avoid unintended actions
 		}
-	}, []);
+	};
 
 	return (
 		<button

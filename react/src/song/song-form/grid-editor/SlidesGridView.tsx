@@ -1,5 +1,6 @@
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
+import { useTranslation } from "react-i18next";
 
 import useSlidesEditor from "../slides-editor/useSlidesEditor";
 import { type Slide } from "../songTypes";
@@ -24,6 +25,8 @@ export default function SlidesGridView({
 	slides,
 	setSlides,
 }: SlidesGridViewProps): ReactElement {
+	const { t } = useTranslation();
+
 	const {
 		addSlide,
 		deleteSlide,
@@ -115,7 +118,7 @@ export default function SlidesGridView({
 											maxWidth: `${getColumnWidth(field)}px`,
 										}}
 									>
-										{field}
+										{t(`song.${field}`, field)}
 										{/* Resize Handle */}
 										<ResizeHandle
 											field={field}

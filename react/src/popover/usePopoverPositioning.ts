@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import calculatePopoverPosition from "./calculatePopoverPosition";
 import type { PlacementOption, PopoverPosition } from "./types";
@@ -30,7 +30,7 @@ export function usePopoverPositioning({
 	const [placement, setPlacement] = useState<PlacementOption>("bottom");
 
 	// Common position update logic
-	const updatePosition = useCallback((): void => {
+	const updatePosition = (): void => {
 		if (triggerRef.current !== null && popoverRef.current !== null) {
 			const triggerRect = triggerRef.current.getBoundingClientRect();
 			const popoverRect = popoverRef.current.getBoundingClientRect();
@@ -46,7 +46,7 @@ export function usePopoverPositioning({
 			setPopoverPosition(position);
 			setPlacement(calculatedPlacement);
 		}
-	}, [triggerRef, popoverRef, preferredPlacement]);
+	};
 
 	// Handle scroll events to keep popover positioned relative to trigger
 	useEffect(() => {
@@ -111,7 +111,7 @@ export function usePopoverPositioning({
 			window.removeEventListener("resize", handleScrollAndResize);
 			document.removeEventListener("scroll", handleScrollAndResize);
 		};
-	}, [hidePopover, popoverRef, triggerRef, updatePosition]);
+	}, [hidePopover, popoverRef, triggerRef, preferredPlacement]);
 
 	return { popoverPosition, placement, updatePosition };
 }

@@ -97,5 +97,18 @@
 	},
 	"actions": {
 		"dismiss": "Cerrar"
+	},
+	"song": {
+		"songName": "Nombre de la Canción",
+		"songSlug": "URL de la Canción",
+		"shortCredit": "Crédito Corto",
+		"longCredit": "Crédito Largo",
+		"publicNotes": "Notas Públicas",
+		"privateNotes": "Notas Privadas",
+		"slideName": "Nombre de la Diapositiva",
+		"fields": "Campos",
+		"lyrics": "Letras",
+		"script": "Guión",
+		"enTranslation": "Traducción al Inglés"
 	}
 }

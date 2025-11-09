@@ -1,0 +1,33 @@
+# Cache control headers for Cloudflare Pages
+# https://developers.cloudflare.com/pages/platform/headers/
+
+# HTML files - short cache with revalidation
+/*.html
+  Cache-Control: public, max-age=300, must-revalidate
+  
+# Root HTML files (language paths)
+/*/
+  Cache-Control: public, max-age=300, must-revalidate
+
+# JavaScript and CSS bundles with hash - long cache
+/assets/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# Source maps - shorter cache for debugging
+/assets/*.js.map
+  Cache-Control: public, max-age=86400
+
+# Static assets - medium cache
+/public/*
+  Cache-Control: public, max-age=86400
+
+# Service Worker (if you add one) - no cache
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# API routes - no cache for dynamic content
+/api/*
+  Cache-Control: no-store, no-cache, must-revalidate

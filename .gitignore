@@ -22,6 +22,9 @@ dist-ssr
 # Wrangler (Cloudflare Workers)
 .wrangler
 
+# Generated files
+public/manifest.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

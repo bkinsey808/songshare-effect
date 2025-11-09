@@ -52,6 +52,8 @@
 		"deploy:pages": "npm run build:client && node ./scripts/prepare-functions.mjs && dotenv -e .env -- bash -lc 'cd dist && npx wrangler pages deploy . --project-name=\"$CLOUDFLARE_PROJECT\" --branch=main --commit-dirty=true'",
 		"deploy:api": "npm run build:api && cd api && npx wrangler deploy --env production",
 		"deploy": "npm run deploy:pages && npm run deploy:api",
+		"deploy:full": "npm run deploy && echo '🔄 Purging cache...' && ./scripts/purge-cache.sh",
+		"cache:purge": "./scripts/purge-cache.sh",
 		"test:e2e:dev": "PLAYWRIGHT_BASE_URL=https://localhost:5173 timeout 180 bun ./scripts/playwright-run-and-test.ts --reporter=list --retries=0 --workers=3 --forbid-only --timeout=20000",
 		"test:e2e:prod": "PLAYWRIGHT_BASE_URL=https://effect.bardoshare.com npx playwright test --reporter=list",
 		"test:e2e:dev:once": "./scripts/playwright-run-and-test.sh"

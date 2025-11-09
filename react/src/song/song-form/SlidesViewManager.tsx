@@ -6,6 +6,7 @@ import { type Slide } from "./songTypes";
 
 type SlidesViewManagerProps = Readonly<{
 	fields: string[];
+	toggleField: (field: string, checked: boolean) => void;
 	slideOrder: ReadonlyArray<string>;
 	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
 	slides: Record<string, Slide>;
@@ -14,6 +15,7 @@ type SlidesViewManagerProps = Readonly<{
 
 export default function SlidesViewManager({
 	fields,
+	toggleField,
 	slideOrder,
 	setSlideOrder,
 	slides,
@@ -57,6 +59,7 @@ export default function SlidesViewManager({
 					<div className="border-t border-gray-200 p-4">
 						<SlidesEditor
 							fields={fields}
+							toggleField={toggleField}
 							slideOrder={slideOrder}
 							setSlideOrder={setSlideOrder}
 							slides={slides}

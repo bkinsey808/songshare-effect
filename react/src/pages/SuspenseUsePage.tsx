@@ -185,7 +185,7 @@ function ArtistProfile({ artistId }: ArtistProfileParams): ReactElement {
 	const artist = use(artistPromise);
 
 	return (
-		<div className="rounded-lg border border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50 p-6">
+		<div className="rounded-lg border border-purple-200 bg-linear-to-r from-purple-50 to-blue-50 p-6">
 			<h3 className="mb-2 text-xl font-bold text-gray-900">🎤 {artist.name}</h3>
 			<p className="mb-3 font-medium text-purple-600">Genre: {artist.genre}</p>
 			<p className="mb-4 text-sm leading-relaxed text-gray-700">{artist.bio}</p>

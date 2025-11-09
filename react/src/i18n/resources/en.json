@@ -111,5 +111,18 @@
 	},
 	"actions": {
 		"dismiss": "Dismiss"
+	},
+	"song": {
+		"songName": "Song Name",
+		"songSlug": "Song Slug",
+		"shortCredit": "Short Credit",
+		"longCredit": "Long Credit",
+		"publicNotes": "Public Notes",
+		"privateNotes": "Private Notes",
+		"slideName": "Slide Name",
+		"fields": "Fields",
+		"lyrics": "Lyrics",
+		"script": "Script",
+		"enTranslation": "English Translation"
 	}
 }

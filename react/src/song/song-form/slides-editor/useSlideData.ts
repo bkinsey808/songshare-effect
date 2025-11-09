@@ -41,7 +41,7 @@ export function useSlideData({
 				field_data: {
 					lyrics: "",
 					script: "",
-					englishTranslation: "",
+					enTranslation: "",
 					// Add any other possible fields here
 				},
 			},

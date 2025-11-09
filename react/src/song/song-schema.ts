@@ -6,7 +6,7 @@ export const songMessageKey: unique symbol = Symbol.for(
 	"@songshare/song-message-key",
 );
 
-export const songFields = ["lyrics", "script", "englishTranslation"] as const;
+export const songFields = ["lyrics", "script", "enTranslation"] as const;
 
 export const songFieldSchema: Schema.Literal<typeof songFields> =
 	Schema.Literal(...songFields);
