@@ -4,13 +4,13 @@ import SlidesGridView from "./grid-editor/SlidesGridView";
 import SlidesEditor from "./slides-editor/SlidesEditor";
 import { type Slide } from "./songTypes";
 
-type SlidesViewManagerProps = {
-	readonly fields: string[];
-	readonly slideOrder: string[];
-	readonly setSlideOrder: (newOrder: string[]) => void;
-	readonly slides: Record<string, Slide>;
-	readonly setSlides: (newSlides: Record<string, Slide>) => void;
-};
+type SlidesViewManagerProps = Readonly<{
+	fields: string[];
+	slideOrder: ReadonlyArray<string>;
+	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+	slides: Record<string, Slide>;
+	setSlides: (newSlides: Record<string, Slide>) => void;
+}>;
 
 export default function SlidesViewManager({
 	fields,

@@ -19,13 +19,13 @@ export function buildDashboardRedirectUrl({
 	redirectPort,
 	lang,
 	dashboardPath,
-}: {
+}: Readonly<{
 	ctx: Context;
 	url: URL;
 	redirectPort: string | undefined;
 	lang: string;
 	dashboardPath: string;
-}): string {
+}>): string {
 	let dashboardRedirectUrl = `/${lang}/${dashboardPath}`;
 	if (redirectPort !== undefined && redirectPort !== "") {
 		// Only allow redirect to a port if it matches the allowed origins

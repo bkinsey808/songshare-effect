@@ -11,17 +11,21 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
-export function useSlideDragAndDrop({
-	slideOrder,
-	setSlideOrder,
-}: {
-	slideOrder: string[];
-	setSlideOrder: (newOrder: string[]) => void;
-}): {
+type UseSlideDragAndDropParams = Readonly<{
+	slideOrder: ReadonlyArray<string>;
+	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+}>;
+
+type UseSlideDragAndDropReturn = {
 	sensors: SensorDescriptor<SensorOptions>[];
 	handleDragEnd: (event: DragEndEvent) => void;
 	sortableItems: string[];
-} {
+};
+
+export function useSlideDragAndDrop({
+	slideOrder,
+	setSlideOrder,
+}: UseSlideDragAndDropParams): UseSlideDragAndDropReturn {
 	// Create unique sortable IDs for each position in the array
 	const sortableItems = slideOrder.map(
 		(slideId, index) => `${slideId}-${String(index)}`,
@@ -46,7 +50,8 @@ export function useSlideDragAndDrop({
 			const overIndex = sortableItems.findIndex((id) => id === over.id);
 
 			if (activeIndex !== -1 && overIndex !== -1) {
-				setSlideOrder(arrayMove(slideOrder, activeIndex, overIndex));
+				const mutableSlideOrder = [...slideOrder];
+				setSlideOrder(arrayMove(mutableSlideOrder, activeIndex, overIndex));
 			}
 		}
 	};

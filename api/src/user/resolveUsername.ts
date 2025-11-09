@@ -9,8 +9,9 @@ import { UserPublicSchema } from "@/shared/generated/supabaseSchemas";
  * Returns the username string or undefined when not found.
  */
 export function resolveUsername(
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- SupabaseClient is complex external type
 	supabase: SupabaseClient,
-	existingUser: { user_id: string; name: string },
+	existingUser: Readonly<{ user_id: string; name: string }>,
 ): Effect.Effect<string | undefined, DatabaseError> {
 	return Effect.tryPromise<string | undefined, DatabaseError>({
 		try: async () => {

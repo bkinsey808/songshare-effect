@@ -3,33 +3,32 @@ import { useSortable } from "@dnd-kit/sortable";
 
 import { type Slide } from "../songTypes";
 
+type RemoveSlideOrder = ({
+	slideId,
+	index,
+}: Readonly<{
+	slideId: string;
+	index?: number;
+}>) => void;
+
 // Sortable item for slide order
-type SortableSlideOrderItemProps = {
+type SortableSlideOrderItemProps = Readonly<{
 	slideId: string;
 	sortableId: string;
 	slide: Slide;
 	duplicateSlideOrder: (id: string) => void;
-	removeSlideOrder: ({
-		slideId,
-		index,
-	}: {
-		slideId: string;
-		index?: number;
-	}) => void;
-	slideOrder: string[];
-};
+	removeSlideOrder: RemoveSlideOrder;
+	slideOrder: ReadonlyArray<string>;
+}>;
 
-export default function SortableSlideOrderItem(
-	props: Readonly<SortableSlideOrderItemProps>,
-): ReactElement {
-	const {
-		slideId,
-		sortableId,
-		slide,
-		duplicateSlideOrder,
-		removeSlideOrder,
-		slideOrder,
-	} = props;
+export default function SortableSlideOrderItem({
+	slideId,
+	sortableId,
+	slide,
+	duplicateSlideOrder,
+	removeSlideOrder,
+	slideOrder,
+}: SortableSlideOrderItemProps): ReactElement {
 	const {
 		attributes,
 		listeners,

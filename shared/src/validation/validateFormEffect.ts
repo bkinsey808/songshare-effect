@@ -15,11 +15,11 @@ export function validateFormEffect<
 	schema,
 	data,
 	i18nMessageKey,
-}: {
+}: Readonly<{
 	schema: Schema.Schema<FormValues, FormValues, never>;
 	data: unknown;
 	i18nMessageKey: symbol | string;
-}): Effect.Effect<FormValues, ValidationError[]> {
+}>): Effect.Effect<FormValues, ValidationError[]> {
 	return Effect.gen(function* () {
 		// Use decodeUnknownEither to get structured error information
 		const result = Schema.decodeUnknownEither(schema)(data);

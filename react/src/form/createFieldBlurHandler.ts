@@ -4,25 +4,35 @@ import { type Schema } from "effect";
 import type { ValidationError } from "@/shared/validation/types";
 import { validateForm } from "@/shared/validation/validateForm";
 
+type CreateFieldBlurHandlerParams<
+	FormValues extends Record<string, unknown>,
+	_I18nMessageType extends { key: string; [key: string]: unknown },
+> = {
+	readonly schema: Schema.Schema<FormValues, FormValues, never>;
+	readonly formData: Partial<FormValues>;
+	readonly currentErrors: ReadonlyArray<ValidationError>;
+	readonly setValidationErrors: (
+		errors: ReadonlyArray<ValidationError>,
+	) => void;
+	readonly i18nMessageKey: symbol | string;
+};
+
 /**
  * Create a field blur handler that validates the field and updates errors
  */
 export const createFieldBlurHandler = <
 	FormValues extends Record<string, unknown>,
 	I18nMessageType extends { key: string; [key: string]: unknown },
->({
-	schema,
-	formData,
-	currentErrors,
-	setValidationErrors,
-	i18nMessageKey,
-}: {
-	schema: Schema.Schema<FormValues, FormValues, never>;
-	formData: Partial<FormValues>;
-	currentErrors: ValidationError[];
-	setValidationErrors: (errors: ValidationError[]) => void;
-	i18nMessageKey: symbol | string;
-}) => {
+>(
+	params: CreateFieldBlurHandlerParams<FormValues, I18nMessageType>,
+) => {
+	const {
+		schema,
+		formData,
+		currentErrors,
+		setValidationErrors,
+		i18nMessageKey,
+	} = params;
 	return <K extends keyof FormValues>(field: K, value: string): void => {
 		console.log(`🔍 Field blur validation for ${String(field)}:`, value);
 		console.log("📋 Form data for validation:", {

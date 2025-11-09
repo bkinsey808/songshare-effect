@@ -12,11 +12,11 @@ export default function addActivePublicSongSlugs(
 	set: (
 		partial:
 			| Partial<SongSubscribeSlice>
-			| ((state: SongSubscribeSlice) => Partial<SongSubscribeSlice>),
+			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
 	) => void,
 	get: () => SongSubscribeSlice,
 ) {
-	return async (songSlugs: string[]): Promise<void> => {
+	return async (songSlugs: ReadonlyArray<string>): Promise<void> => {
 		const state = get() as SongSubscribeSlice & AppSlice;
 
 		// Find missing song slugs that are not already being subscribed to
@@ -52,7 +52,7 @@ export default function addActivePublicSongSlugs(
 
 		// Fetch songs from Supabase
 		const { data, error } = await fetchPublicSongsBySlugs(
-			supabase,
+			supabase as unknown as Parameters<typeof fetchPublicSongsBySlugs>[0],
 			missingSongSlugs,
 		);
 

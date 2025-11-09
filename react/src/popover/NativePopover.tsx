@@ -21,14 +21,17 @@ export type NativePopoverProps = Readonly<{
  * Native HTML Popover API component with dual-mode support (hover/click)
  * Features smart positioning, scroll tracking, and auto-close functionality
  */
-export function NativePopover({
-	children,
-	content,
-	preferredPlacement = "bottom",
-	trigger = "hover",
-	closeOnTriggerClick = false,
-	tabIndex = 0,
-}: NativePopoverProps): ReactElement {
+export function NativePopover(
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- React component props with ReactNode children require this pattern
+	{
+		children,
+		content,
+		preferredPlacement = "bottom",
+		trigger = "hover",
+		closeOnTriggerClick = false,
+		tabIndex = 0,
+	}: NativePopoverProps,
+): ReactElement {
 	// Use custom hook that encapsulates all popover logic
 	const {
 		triggerRef,

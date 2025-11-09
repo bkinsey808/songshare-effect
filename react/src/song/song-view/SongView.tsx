@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useAppStore } from "@/react/zustand/useAppStore";
 
 type SongMethods = {
-	addActivePublicSongSlugs: (slugs: string[]) => Promise<void>;
+	addActivePublicSongSlugs: (slugs: ReadonlyArray<string>) => Promise<void>;
 	getSongBySlug: (
 		slug: string,
 	) => { song: unknown; songPublic: unknown } | undefined;
@@ -12,12 +12,12 @@ type SongMethods = {
 export default function SongView(): ReactElement {
 	const { song_slug: songSlug } = useParams<{ song_slug?: string }>();
 	const store = useAppStore() as unknown as (
-		selector: (state: SongMethods) => unknown,
+		selector: (state: Readonly<SongMethods>) => unknown,
 	) => unknown;
 
 	const addActivePublicSongSlugs = store(
-		(state: SongMethods) => state.addActivePublicSongSlugs,
-	) as (slugs: string[]) => Promise<void>;
+		(state: Readonly<SongMethods>) => state.addActivePublicSongSlugs,
+	) as (slugs: ReadonlyArray<string>) => Promise<void>;
 
 	if (songSlug !== undefined && songSlug.trim() !== "") {
 		void addActivePublicSongSlugs([songSlug]);
@@ -26,7 +26,9 @@ export default function SongView(): ReactElement {
 	const songData =
 		songSlug === undefined
 			? undefined
-			: (store((state: SongMethods) => state.getSongBySlug(songSlug)) as
+			: (store((state: Readonly<SongMethods>) =>
+					state.getSongBySlug(songSlug),
+				) as
 					| {
 							song: unknown;
 							songPublic: { song_slug?: string } | undefined;

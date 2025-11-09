@@ -19,7 +19,7 @@ const handleSongDeletion = (
 	set: (
 		partial:
 			| Partial<SongSubscribeSlice>
-			| ((state: SongSubscribeSlice) => Partial<SongSubscribeSlice>),
+			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
 	) => void,
 ): void => {
 	set((state) => {
@@ -39,7 +39,7 @@ export default function subscribeToActivePublicSongs(
 	set: (
 		partial:
 			| Partial<SongSubscribeSlice>
-			| ((state: SongSubscribeSlice) => Partial<SongSubscribeSlice>),
+			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
 	) => void,
 	get: () => SongSubscribeSlice,
 ) {
@@ -85,7 +85,7 @@ export default function subscribeToActivePublicSongs(
 							table: "song_public",
 							filter,
 						},
-						(payload: SongPublicRealtimePayload) => {
+						(payload: Readonly<SongPublicRealtimePayload>) => {
 							switch (payload.eventType) {
 								case "INSERT":
 								case "UPDATE": {

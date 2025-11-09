@@ -38,6 +38,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 	};
 
 	const handleRealtimeEvent = (
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- RealtimePostgresChangesPayload from Supabase is mutable
 		payload: RealtimePostgresChangesPayload<UserPublic>,
 		eventType: "INSERT" | "UPDATE" | "DELETE",
 	): void => {

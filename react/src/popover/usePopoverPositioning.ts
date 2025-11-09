@@ -3,6 +3,19 @@ import { useCallback, useEffect, useState } from "react";
 import calculatePopoverPosition from "./calculatePopoverPosition";
 import type { PlacementOption, PopoverPosition } from "./types";
 
+type UsePopoverPositioningParams = Readonly<{
+	triggerRef: React.RefObject<HTMLDivElement | null>;
+	popoverRef: React.RefObject<HTMLDivElement | null>;
+	preferredPlacement: PlacementOption;
+	hidePopover: () => void;
+}>;
+
+type UsePopoverPositioningReturn = {
+	popoverPosition: PopoverPosition;
+	placement: PlacementOption;
+	updatePosition: () => void;
+};
+
 /**
  * Custom hook to handle popover positioning and scroll tracking
  * Automatically positions popover relative to trigger and handles scroll events
@@ -12,16 +25,7 @@ export function usePopoverPositioning({
 	popoverRef,
 	preferredPlacement,
 	hidePopover,
-}: {
-	triggerRef: React.RefObject<HTMLDivElement | null>;
-	popoverRef: React.RefObject<HTMLDivElement | null>;
-	preferredPlacement: PlacementOption;
-	hidePopover: () => void;
-}): {
-	popoverPosition: PopoverPosition;
-	placement: PlacementOption;
-	updatePosition: () => void;
-} {
+}: UsePopoverPositioningParams): UsePopoverPositioningReturn {
 	const [popoverPosition, setPopoverPosition] = useState<PopoverPosition>({});
 	const [placement, setPlacement] = useState<PlacementOption>("bottom");
 

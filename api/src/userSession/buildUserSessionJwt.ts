@@ -28,19 +28,20 @@ import { UserSessionDataSchema as sessionDataSchema } from "@/shared/userSession
  * @param params.oauthState OAuth state
  * @returns Effect yielding the session JWT string
  */
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- SupabaseClient complex external type
 export function buildUserSessionJwt({
 	ctx,
 	supabase,
 	existingUser,
 	oauthUserData,
 	oauthState,
-}: {
+}: Readonly<{
 	ctx: Context<{ Bindings: Env }>;
 	supabase: SupabaseClient;
 	existingUser: User;
 	oauthUserData: OauthUserData;
 	oauthState: OauthState;
-}): Effect.Effect<string, ValidationError | ServerError | DatabaseError> {
+}>): Effect.Effect<string, ValidationError | ServerError | DatabaseError> {
 	return Effect.gen(function* ($) {
 		const ip = getIpAddress(ctx);
 		// Resolve username from user_public table (source of truth for username)

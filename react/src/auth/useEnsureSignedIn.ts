@@ -5,7 +5,9 @@ import type { StoreApi } from "zustand";
 import { ensureSignedIn } from "@/react/auth/ensureSignedIn";
 import { type AppSlice, getStoreApi } from "@/react/zustand/useAppStore";
 
-export default function useEnsureSignedIn(options?: { force?: boolean }): void {
+export default function useEnsureSignedIn(options?: {
+	readonly force?: boolean;
+}): void {
 	const force = options?.force ?? false;
 	const storeApiRef = useRef<StoreApi<AppSlice> | undefined>(undefined);
 

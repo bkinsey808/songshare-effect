@@ -4,39 +4,47 @@ import { CSS } from "@dnd-kit/utilities";
 import AutoExpandingTextarea from "../../../components/AutoExpandingTextarea";
 import { type Slide } from "../songTypes";
 
-type SortableGridRowProps = {
+type EditSlideName = ({
+	slideId,
+	newName,
+}: Readonly<{
+	slideId: string;
+	newName: string;
+}>) => void;
+
+type EditFieldValue = ({
+	slideId,
+	field,
+	value,
+}: Readonly<{
+	slideId: string;
+	field: string;
+	value: string;
+}>) => void;
+
+type SafeSetGetField = (
+	params: Readonly<{
+		slides: Readonly<Record<string, Slide>>;
+		slideId: string;
+		field: string;
+	}>,
+) => string;
+
+type SortableGridRowProps = Readonly<{
 	slideId: string;
 	slide: Slide;
-	fields: string[];
-	editSlideName: ({
-		slideId,
-		newName,
-	}: {
-		slideId: string;
-		newName: string;
-	}) => void;
-	editFieldValue: ({
-		slideId,
-		field,
-		value,
-	}: {
-		slideId: string;
-		field: string;
-		value: string;
-	}) => void;
-	safeGetField: (params: {
-		slides: Record<string, Slide>;
-		slideId: string;
-		field: string;
-	}) => string;
-	setSlideOrder: (newOrder: string[]) => void;
-	slideOrder: string[];
+	fields: ReadonlyArray<string>;
+	editSlideName: EditSlideName;
+	editFieldValue: EditFieldValue;
+	safeGetField: SafeSetGetField;
+	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+	slideOrder: ReadonlyArray<string>;
 	duplicateSlide: (slideId: string) => void;
 	deleteSlide: (slideId: string) => void;
-	slides: Record<string, Slide>;
+	slides: Readonly<Record<string, Slide>>;
 	idx: number;
 	getColumnWidth: (field: string) => number;
-};
+}>;
 
 export default function SortableGridRow({
 	slideId,
@@ -52,7 +60,7 @@ export default function SortableGridRow({
 	slides,
 	idx,
 	getColumnWidth,
-}: Readonly<SortableGridRowProps>): ReactElement {
+}: SortableGridRowProps): ReactElement {
 	const {
 		attributes,
 		listeners,

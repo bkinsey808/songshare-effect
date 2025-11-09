@@ -8,18 +8,20 @@ export function updateStoreWithPublicSongs({
 	publicSongsToAdd,
 	state,
 	set,
-}: {
-	publicSongsToAdd: Record<string, SongPublic>;
-	state: SongSubscribeSlice & {
-		subscribeToActivePublicSongs: () => (() => void) | undefined;
-		activePublicSongsUnsubscribe?: () => void;
-	};
+}: Readonly<{
+	publicSongsToAdd: Readonly<Record<string, SongPublic>>;
+	state: Readonly<
+		SongSubscribeSlice & {
+			subscribeToActivePublicSongs: () => (() => void) | undefined;
+			activePublicSongsUnsubscribe?: () => void;
+		}
+	>;
 	set: (
 		partial:
 			| Partial<SongSubscribeSlice>
-			| ((state: SongSubscribeSlice) => Partial<SongSubscribeSlice>),
+			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
 	) => void;
-}): {
+}>): {
 	newActivePublicSongIds: string[];
 	activePublicSongsUnsubscribe: () => void;
 } {

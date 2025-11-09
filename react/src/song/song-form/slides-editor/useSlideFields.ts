@@ -4,58 +4,70 @@
 import { type Slide } from "../songTypes";
 import { safeGet } from "@/shared/utils/safe";
 
+type EditFieldValue = ({
+	slideId,
+	field,
+	value,
+}: Readonly<{
+	slideId: string;
+	field: string;
+	value: string;
+}>) => void;
+
+type EditSlideName = ({
+	slideId,
+	newName,
+}: Readonly<{
+	slideId: string;
+	newName: string;
+}>) => void;
+
+type SafeGetField = (
+	params: Readonly<{
+		slides: Readonly<Record<string, Slide>>;
+		slideId: string;
+		field: string;
+	}>,
+) => string;
+
+type UseSlideFieldsParams = Readonly<{
+	slides: Readonly<Record<string, Slide>>;
+	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
+}>;
+
+type UseSlideFieldsReturn = {
+	editFieldValue: EditFieldValue;
+	editSlideName: EditSlideName;
+	safeGetField: SafeGetField;
+};
+
 export function useSlideFields({
 	slides,
 	setSlides,
-}: {
-	slides: Record<string, Slide>;
-	setSlides: (newSlides: Record<string, Slide>) => void;
-}): {
-	editFieldValue: ({
+}: UseSlideFieldsParams): UseSlideFieldsReturn {
+	// Edit field value - preserve all existing field data
+	const safeGetField: SafeGetField = ({
+		slides: innerSlides,
 		slideId,
 		field,
-		value,
-	}: {
-		slideId: string;
-		field: string;
-		value: string;
-	}) => void;
-	editSlideName: ({
-		slideId,
-		newName,
-	}: {
-		slideId: string;
-		newName: string;
-	}) => void;
-	safeGetField: (params: {
-		slides: Record<string, Slide>;
-		slideId: string;
-		field: string;
-	}) => string;
-} {
-	// Edit field value - preserve all existing field data
-	const safeGetField = (params: {
-		slides: Record<string, Slide>;
-		slideId: string;
-		field: string;
-	}): string => {
-		const slide = safeGet(params.slides, params.slideId);
+	}) => {
+		const slide = safeGet(innerSlides, slideId);
 		if (!slide) {
 			return "";
 		}
 		// Return the field value or empty string if it doesn't exist
-		return safeGet(slide.field_data, params.field) || "";
+		return safeGet(slide.field_data, field) || "";
 	};
 
 	const editFieldValue = ({
 		slideId,
 		field,
 		value,
-	}: {
+	}: Readonly<{
 		slideId: string;
 		field: string;
 		value: string;
-	}): void => {
+	}>): void => {
 		const currentSlide = safeGet(slides, slideId);
 		if (!currentSlide) {
 			return;
@@ -78,10 +90,10 @@ export function useSlideFields({
 	const editSlideName = ({
 		slideId,
 		newName,
-	}: {
+	}: Readonly<{
 		slideId: string;
 		newName: string;
-	}): void => {
+	}>): void => {
 		const currentSlide = safeGet(slides, slideId);
 		if (!currentSlide) {
 			return;

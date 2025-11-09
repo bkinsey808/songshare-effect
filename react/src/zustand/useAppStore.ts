@@ -18,10 +18,7 @@ export const resetAllSlices = (): void => {
 	});
 };
 
-// When ready, replace with slice composition pattern:
-// export type AppSlice = AuthSlice & UserSubscribeSlice & SongSubscribeSlice & SupabaseSlice;
-
-// For now, include AuthSlice and SongSubscribeSlice
+// Compose new slices here
 export type AppSlice = AuthSlice & SongSubscribeSlice;
 
 // Keys that should NOT be persisted to storage. Keep transient UI flags
@@ -78,7 +75,7 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 					},
 					{
 						name: "app-store",
-						partialize: (state: AppSlice) => {
+						partialize: (state: Readonly<AppSlice>) => {
 							return Object.fromEntries(
 								Object.entries(state).filter(
 									([key]) => !omittedKeys.includes(key as keyof AppSlice),

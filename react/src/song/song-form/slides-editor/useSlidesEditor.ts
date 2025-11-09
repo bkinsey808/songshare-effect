@@ -15,12 +15,12 @@ export default function useSlidesEditor({
 	setSlideOrder,
 	slides,
 	setSlides,
-}: {
-	slideOrder: string[];
-	setSlideOrder: (newOrder: string[]) => void;
-	slides: Record<string, Slide>;
-	setSlides: (newSlides: Record<string, Slide>) => void;
-}): {
+}: Readonly<{
+	slideOrder: ReadonlyArray<string>;
+	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+	slides: Readonly<Record<string, Slide>>;
+	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
+}>): {
 	addSlide: () => void;
 	deleteSlide: (slideId: string) => void;
 	duplicateSlide: (slideId: string) => void;
@@ -28,31 +28,33 @@ export default function useSlidesEditor({
 		slideId,
 		field,
 		value,
-	}: {
+	}: Readonly<{
 		slideId: string;
 		field: string;
 		value: string;
-	}) => void;
+	}>) => void;
 	editSlideName: ({
 		slideId,
 		newName,
-	}: {
+	}: Readonly<{
 		slideId: string;
 		newName: string;
-	}) => void;
-	safeGetField: (params: {
-		slides: Record<string, Slide>;
-		slideId: string;
-		field: string;
-	}) => string;
+	}>) => void;
+	safeGetField: (
+		params: Readonly<{
+			slides: Readonly<Record<string, Slide>>;
+			slideId: string;
+			field: string;
+		}>,
+	) => string;
 	duplicateSlideOrder: (slideId: string) => void;
 	removeSlideOrder: ({
 		slideId,
 		index,
-	}: {
+	}: Readonly<{
 		slideId: string;
 		index?: number;
-	}) => void;
+	}>) => void;
 	sensors: SensorDescriptor<SensorOptions>[];
 	handleDragEnd: (event: DragEndEvent) => void;
 	sortableItems: string[];

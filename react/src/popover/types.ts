@@ -1,10 +1,10 @@
 /** CSS positioning properties for popover element */
 export type PopoverPosition = {
-	top?: number;
-	bottom?: number;
-	left?: number;
-	right?: number;
-	transform?: string;
+	readonly top?: number;
+	readonly bottom?: number;
+	readonly left?: number;
+	readonly right?: number;
+	readonly transform?: string;
 };
 
 /** Available placement options relative to trigger element */
@@ -15,6 +15,6 @@ export type TriggerMode = "hover" | "click";
 
 /** Type-safe definition for native HTML popover elements */
 export type PopoverElement = HTMLElement & {
-	showPopover?: () => void;
-	hidePopover?: () => void;
+	readonly showPopover?: () => void;
+	readonly hidePopover?: () => void;
 };

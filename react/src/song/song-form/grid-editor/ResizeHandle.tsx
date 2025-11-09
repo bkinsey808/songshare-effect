@@ -1,16 +1,16 @@
 import { useCallback } from "react";
 
-type ResizeHandleProps = {
+type ResizeHandleProps = Readonly<{
 	field: string;
 	onStartResize: (field: string, clientX: number) => void;
 	isResizing: boolean;
-};
+}>;
 
 export default function ResizeHandle({
 	field,
 	onStartResize,
 	isResizing,
-}: Readonly<ResizeHandleProps>): ReactElement {
+}: ResizeHandleProps): ReactElement {
 	const handleMouseDown = useCallback(
 		(event: React.MouseEvent) => {
 			event.preventDefault();

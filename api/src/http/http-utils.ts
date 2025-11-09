@@ -8,7 +8,7 @@ import { HTTP_STATUS } from "@/shared/demo/api";
  * Convert AppError to appropriate HTTP response
  */
 export const errorToHttpResponse = (
-	error: AppError,
+	error: Readonly<AppError>,
 ): { status: number; body: object } => {
 	switch (error._tag) {
 		case "ValidationError": {
@@ -76,7 +76,7 @@ export const errorToHttpResponse = (
 // HTTP endpoint handler utility
 export function handleHttpEndpoint<A, E extends AppError>(
 	effectFactory: (c: Context) => Effect.Effect<A, E>,
-	userOnSuccess?: (data: A) => object | Response,
+	userOnSuccess?: (data: Readonly<A>) => object | Response,
 ) {
 	return async function (ctx: Context): Promise<Response> {
 		const effect = Effect.match(effectFactory(ctx), {

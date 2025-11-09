@@ -12,7 +12,7 @@ import { safeGet, safeSet } from "@/shared/utils/safe";
  * Extract i18n messages from a ParseError by traversing the error tree
  */
 export function extractI18nMessages<I18nMessageType>(
-	error: ParseError,
+	error: Readonly<ParseError>,
 	i18nMessageKey: symbol | string,
 ): Record<string, I18nMessageType> {
 	const fieldErrors: Record<string, I18nMessageType> = {};

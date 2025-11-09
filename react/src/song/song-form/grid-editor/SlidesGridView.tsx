@@ -9,13 +9,13 @@ import { useColumnResize } from "./useColumnResize";
 import { useGridDragAndDrop } from "./useGridDragAndDrop";
 import { safeGet } from "@/shared/utils/safe";
 
-type SlidesGridViewProps = {
+type SlidesGridViewProps = Readonly<{
 	readonly fields: string[];
-	readonly slideOrder: string[];
-	readonly setSlideOrder: (newOrder: string[]) => void;
-	readonly slides: Record<string, Slide>;
-	readonly setSlides: (newSlides: Record<string, Slide>) => void;
-};
+	readonly slideOrder: ReadonlyArray<string>;
+	readonly setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+	slides: Record<string, Slide>;
+	setSlides: (newSlides: Record<string, Slide>) => void;
+}>;
 
 export default function SlidesGridView({
 	fields,

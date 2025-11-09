@@ -11,11 +11,11 @@ export async function getSupabaseUserToken({
 	env,
 	email,
 	password,
-}: {
+}: Readonly<{
 	env: Env;
 	email: string;
 	password: string;
-}): Promise<string> {
+}>): Promise<string> {
 	const now = Math.floor(Date.now() / 1000);
 	const cacheKey = email;
 

@@ -1,14 +1,17 @@
-import React from "react";
+type IconProps = Readonly<{
+	className?: string;
+	width?: string;
+	height?: string;
+}>;
 
-export function AmazonIcon(
-	props: Readonly<React.SVGProps<SVGSVGElement>>,
-): ReactElement {
+export function AmazonIcon(props: IconProps): ReactElement {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
-			width="20"
-			height="20"
+			width={props.width ?? "20"}
+			height={props.height ?? "20"}
 			viewBox="0 0 32 32"
+			className={props.className}
 			fillRule="evenodd"
 			{...props}
 		>

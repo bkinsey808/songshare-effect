@@ -1,5 +1,5 @@
 // src/features/song-form/types.ts
-export type Slide = {
+export type Slide = Readonly<{
 	slide_name: string;
-	field_data: Record<string, string>;
-};
+	field_data: Readonly<Record<string, string>>;
+}>;

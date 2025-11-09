@@ -15,7 +15,7 @@ type SongPrivateRealtimePayload = {
 
 // Helper function to update state after song deletion
 const createDeleteUpdateFunction = (deletedPrivateSongId: string) => {
-	return (state: SongSubscribeSlice): Partial<SongSubscribeSlice> => {
+	return (state: Readonly<SongSubscribeSlice>): Partial<SongSubscribeSlice> => {
 		// Create new object without the deleted song
 		const newPrivateSongs = Object.fromEntries(
 			Object.entries(state.privateSongs).filter(
@@ -36,7 +36,7 @@ export default function subscribeToActivePrivateSongs(
 	set: (
 		partial:
 			| Partial<SongSubscribeSlice>
-			| ((state: SongSubscribeSlice) => Partial<SongSubscribeSlice>),
+			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
 	) => void,
 	get: () => SongSubscribeSlice,
 ): () => (() => void) | undefined {
@@ -77,7 +77,7 @@ export default function subscribeToActivePrivateSongs(
 							table: "song_private",
 							filter,
 						},
-						(payload: SongPrivateRealtimePayload) => {
+						(payload: Readonly<SongPrivateRealtimePayload>) => {
 							switch (payload.eventType) {
 								case "INSERT":
 								case "UPDATE":

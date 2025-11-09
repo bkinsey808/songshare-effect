@@ -22,37 +22,45 @@ type SongFormData = {
 	slides: Record<string, Slide>;
 };
 
-export default function useSongForm(): {
-	handleFieldBlur: <K extends keyof SongFormData>(
-		field: K,
-		ref: React.RefObject<HTMLInputElement | null>,
-	) => void;
-	getFieldError: (
-		field: keyof SongFormData,
-	) =>
-		| { field: string; message: string; params?: Record<string, unknown> }
-		| undefined;
-	handleSubmit: (
-		formData: Record<string, unknown>,
-		onSubmit: (data: SongFormData) => Promise<void> | void,
-	) => Effect.Effect<void, never, never>;
-	validationErrors: {
+type HandleFieldBlur = <K extends keyof SongFormData>(
+	field: K,
+	ref: React.RefObject<HTMLInputElement | null>,
+) => void;
+
+type GetFieldError = (
+	field: keyof SongFormData,
+) =>
+	| { field: string; message: string; params?: Record<string, unknown> }
+	| undefined;
+
+type HandleSubmit = (
+	formData: Readonly<Record<string, unknown>>,
+	onSubmit: (data: Readonly<SongFormData>) => Promise<void> | void,
+) => Effect.Effect<void, never, never>;
+
+type UseSongFormReturn = {
+	handleFieldBlur: HandleFieldBlur;
+	getFieldError: GetFieldError;
+	handleSubmit: HandleSubmit;
+	validationErrors: ReadonlyArray<{
 		field: string;
 		message: string;
 		params?: Record<string, unknown>;
-	}[];
+	}>;
 	isSubmitting: boolean;
-	onSubmit: (data: SongFormData) => Promise<void>;
-	slideOrder: string[];
+	onSubmit: (data: Readonly<SongFormData>) => Promise<void> | void;
+	slideOrder: ReadonlyArray<string>;
 	slides: Record<string, Slide>;
 	fields: string[];
 	slug: string;
-	setSlideOrder: (newOrder: string[]) => void;
+	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
 	setSlides: (newSlides: Record<string, Slide>) => void;
 	toggleField: (field: string, checked: boolean) => void;
 	handleFormSubmit: (event: React.FormEvent) => Promise<void>;
 	formRef: React.RefObject<HTMLFormElement | null>;
-} {
+};
+
+export default function useSongForm(): UseSongFormReturn {
 	const songId = useParams<{ song_id?: string }>().song_id;
 	const formRef = useRef<HTMLFormElement>(null);
 
@@ -66,7 +74,9 @@ export default function useSongForm(): {
 		return Math.random().toString(36).slice(2, 11);
 	});
 
-	const [slideOrder, setSlideOrder] = useState<string[]>([firstId]);
+	const [slideOrder, setSlideOrder] = useState<ReadonlyArray<string>>([
+		firstId,
+	]);
 	const [slides, setSlides] = useState<Record<string, Slide>>({
 		[firstId]: {
 			slide_name: "Slide 1",
@@ -108,7 +118,7 @@ export default function useSongForm(): {
 		initialValues,
 	});
 
-	const onSubmit = async (rawData: SongFormData): Promise<void> => {
+	const onSubmit = async (rawData: Readonly<SongFormData>): Promise<void> => {
 		try {
 			const response = await fetch("/api/songs/save", {
 				method: "POST",
@@ -151,7 +161,7 @@ export default function useSongForm(): {
 	};
 
 	// Update internal state when form data changes
-	const updateSlideOrder = useCallback((newOrder: string[]) => {
+	const updateSlideOrder = useCallback((newOrder: ReadonlyArray<string>) => {
 		setSlideOrder(newOrder);
 	}, []);
 

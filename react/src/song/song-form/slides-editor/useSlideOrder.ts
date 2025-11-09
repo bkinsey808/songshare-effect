@@ -5,18 +5,18 @@
 export function useSlideOrder({
 	slideOrder,
 	setSlideOrder,
-}: {
-	slideOrder: string[];
-	setSlideOrder: (newOrder: string[]) => void;
-}): {
+}: Readonly<{
+	slideOrder: ReadonlyArray<string>;
+	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+}>): {
 	duplicateSlideOrder: (slideId: string) => void;
 	removeSlideOrder: ({
 		slideId,
 		index,
-	}: {
+	}: Readonly<{
 		slideId: string;
 		index?: number;
-	}) => void;
+	}>) => void;
 } {
 	// Duplicate a slide in the order array (can appear multiple times)
 	const duplicateSlideOrder = (slideId: string): void => {
@@ -27,10 +27,10 @@ export function useSlideOrder({
 	const removeSlideOrder = ({
 		slideId,
 		index,
-	}: {
+	}: Readonly<{
 		slideId: string;
 		index?: number;
-	}): void => {
+	}>): void => {
 		if (slideOrder.length === 1) {
 			return;
 		}

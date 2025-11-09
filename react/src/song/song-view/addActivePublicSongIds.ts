@@ -10,11 +10,11 @@ export default function addActivePublicSongIds(
 	set: (
 		partial:
 			| Partial<SongSubscribeSlice>
-			| ((state: SongSubscribeSlice) => Partial<SongSubscribeSlice>),
+			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
 	) => void,
 	get: () => SongSubscribeSlice,
 ) {
-	return (songIds: string[]): void => {
+	return (songIds: ReadonlyArray<string>): void => {
 		const state = get() as SongSubscribeSlice & AppSlice;
 		// Always fetch all activeSongIds (union of previous and new)
 		const newActivePublicSongIds = Array.from(

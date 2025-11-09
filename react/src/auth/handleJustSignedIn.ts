@@ -29,12 +29,12 @@ export default async function handleJustSignedIn({
 	setSearchParams,
 	navigate,
 }: {
-	next: URLSearchParams;
-	setSearchParams: (
+	readonly next: URLSearchParams;
+	readonly setSearchParams: (
 		next: URLSearchParams,
-		options?: { replace?: boolean },
+		options?: { readonly replace?: boolean },
 	) => void;
-	navigate: NavigateFunction;
+	readonly navigate: NavigateFunction;
 }): Promise<void> {
 	// Retry the ensureSignedIn call a few times with backoff because some
 	// browsers may not have attached the HttpOnly cookie by the time the

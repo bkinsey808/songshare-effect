@@ -273,7 +273,7 @@ function createExampleSchemas(): TableDefinition[] {
 	];
 }
 
-function getEffectType(column: ColumnDefinition): string {
+function getEffectType(column: Readonly<ColumnDefinition>): string {
 	let effectType = typeMapping[column.type];
 	if (effectType === undefined) {
 		// If the column.type retains an array marker (e.g. "string[]"), map
@@ -327,7 +327,7 @@ function getTypeAnnotation(effectType: string): string {
 	return `typeof ${effectType}`;
 }
 
-function generateEffectSchema(table: TableDefinition): string {
+function generateEffectSchema(table: Readonly<TableDefinition>): string {
 	// eslint-disable-next-line prefer-template
 	const schemaName = toPascalCase(table.name) + "Schema";
 	const typeName = toPascalCase(table.name);

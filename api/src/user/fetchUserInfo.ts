@@ -4,11 +4,11 @@ export function fetchUserInfo({
 	userInfoUrl,
 	accessToken,
 	idToken,
-}: {
+}: Readonly<{
 	userInfoUrl: string;
 	accessToken?: string;
 	idToken?: string;
-}): Effect.Effect<unknown, unknown> {
+}>): Effect.Effect<unknown, unknown> {
 	return Effect.tryPromise({
 		try: async () => {
 			const headers = new Headers();

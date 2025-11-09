@@ -50,7 +50,9 @@ const tsCheck = spawnSync(
 	{ stdio: ["ignore", "pipe", "pipe"] },
 );
 
-function filterNpmWarnings(output: Buffer | string | undefined): string {
+function filterNpmWarnings(
+	output: Readonly<Buffer | string | undefined>,
+): string {
 	if (output === undefined) {
 		return "";
 	}

@@ -3,11 +3,11 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { PlacementOption, PopoverElement, TriggerMode } from "./types";
 import { usePopoverPositioning } from "./usePopoverPositioning";
 
-export type UseNativePopoverProps = {
+export type UseNativePopoverProps = Readonly<{
 	preferredPlacement: PlacementOption;
 	trigger: TriggerMode;
 	closeOnTriggerClick: boolean;
-};
+}>;
 
 export type UseNativePopoverReturn = {
 	// Refs for DOM elements
@@ -71,8 +71,8 @@ export function useNativePopover({
 			return;
 		}
 
-		const handleToggle = (event: Event): void => {
-			const toggleEvent = event as Event & { newState: string };
+		const handleToggle = (event: Readonly<Event>): void => {
+			const toggleEvent = event as Readonly<Event> & { newState: string };
 			setIsOpen(toggleEvent.newState === "open");
 		};
 

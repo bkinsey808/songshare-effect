@@ -8,15 +8,15 @@ import SortableSlideOrderItem from "./SortableSlideOrderItem";
 import useSlidesEditor from "./useSlidesEditor";
 import { safeGet } from "@/shared/utils/safe";
 
-type SlidesEditorProps = {
-	readonly fields: string[];
+type SlidesEditorProps = Readonly<{
+	fields: string[];
 	// Array of slide IDs
-	readonly slideOrder: string[];
-	readonly setSlideOrder: (newOrder: string[]) => void;
+	slideOrder: ReadonlyArray<string>;
+	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
 	// ID -> Slide mapping
-	readonly slides: Record<string, Slide>;
-	readonly setSlides: (newSlides: Record<string, Slide>) => void;
-};
+	slides: Record<string, Slide>;
+	setSlides: (newSlides: Record<string, Slide>) => void;
+}>;
 
 export default function SlidesEditor({
 	fields,
@@ -76,7 +76,9 @@ export default function SlidesEditor({
 									sortableId={sortableId}
 									slide={slide}
 									duplicateSlideOrder={duplicateSlideOrder}
-									removeSlideOrder={({ slideId: id }: { slideId: string }) => {
+									removeSlideOrder={({
+										slideId: id,
+									}: Readonly<{ slideId: string }>) => {
 										removeSlideOrder({ slideId: id, index: idx });
 									}}
 									slideOrder={slideOrder}

@@ -1,11 +1,11 @@
 import { useCallback, useRef, useState } from "react";
 
-type UseColumnResizeProps = {
+type UseColumnResizeProps = Readonly<{
 	fields: string[];
 	defaultFieldWidth?: number;
 	// w-36 = 144px
 	slideNameWidth?: number;
-};
+}>;
 
 type UseColumnResizeReturn = {
 	getColumnWidth: (field: string) => number;

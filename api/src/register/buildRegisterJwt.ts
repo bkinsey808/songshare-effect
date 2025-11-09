@@ -20,11 +20,11 @@ export function buildRegisterJwt({
 	ctx,
 	oauthUserData,
 	oauthState,
-}: {
+}: Readonly<{
 	ctx: Context<{ Bindings: Env }>;
 	oauthUserData: OauthUserData;
 	oauthState: OauthState;
-}): Effect.Effect<string, ServerError> {
+}>): Effect.Effect<string, ServerError> {
 	return Effect.gen(function* ($) {
 		const registerData = { oauthUserData, oauthState };
 		const jwtSecret = ctx.env.JWT_SECRET;

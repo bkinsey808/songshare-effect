@@ -1,25 +1,29 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 
 type ErrorBoundaryState = {
-	hasError: boolean;
-	error?: Error;
+	readonly hasError: boolean;
+	readonly error?: Error;
 };
 
-type ErrorBoundaryProps = {
+type ErrorBoundaryProps = Readonly<{
 	children: ReactNode;
-};
+}>;
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-	static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+	static getDerivedStateFromError(error: Readonly<Error>): ErrorBoundaryState {
 		return { hasError: true, error };
 	}
 
-	constructor(props: ErrorBoundaryProps) {
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	constructor(override readonly props: ErrorBoundaryProps) {
 		super(props);
 		this.state = { hasError: false };
 	}
 
-	override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+	override componentDidCatch(
+		error: Readonly<Error>,
+		errorInfo: Readonly<ErrorInfo>,
+	): void {
 		console.error("Error Boundary caught an error:", error, errorInfo);
 	}
 

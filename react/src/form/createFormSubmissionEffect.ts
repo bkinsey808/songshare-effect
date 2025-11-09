@@ -11,10 +11,12 @@ export const createFormSubmissionEffect = ({
 	setValidationErrors,
 	setSubmitError,
 }: {
-	formData: FormData;
-	apiEndpoint: string;
-	setValidationErrors: (errors: { field: string; message: string }[]) => void;
-	setSubmitError: (error: string) => void;
+	readonly formData: FormData;
+	readonly apiEndpoint: string;
+	readonly setValidationErrors: (
+		errors: ReadonlyArray<{ readonly field: string; readonly message: string }>,
+	) => void;
+	readonly setSubmitError: (error: string) => void;
 }): Effect.Effect<boolean, never, never> => {
 	return Effect.gen(function* () {
 		// Make the API request

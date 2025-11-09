@@ -97,6 +97,92 @@ const sharedRules = {
 	// Allow snake_case for property names
 	"@typescript-eslint/naming-convention": ["off"],
 	"@typescript-eslint/no-non-null-assertion": "error",
+	// Enforce readonly parameter types for better immutability
+	"@typescript-eslint/prefer-readonly-parameter-types": [
+		"error",
+		{
+			checkParameterProperties: true,
+			ignoreInferredTypes: true,
+			treatMethodsAsReadonly: true,
+			allow: [
+				// Allow React event types which are inherently mutable
+				{ from: "file", name: "MouseEvent" },
+				{ from: "file", name: "KeyboardEvent" },
+				{ from: "file", name: "FormEvent" },
+				{ from: "file", name: "ChangeEvent" },
+				// Allow React Node types
+				{ from: "file", name: "ReactNode" },
+				{ from: "file", name: "ReactElement" },
+				{ from: "package", name: "ReactNode", package: "react" },
+				{ from: "package", name: "ReactElement", package: "react" },
+				// Allow React RefObject types
+				{ from: "file", name: "RefObject" },
+				// Allow DOM types
+				{ from: "file", name: "DOMRect" },
+				{ from: "file", name: "HTMLElement" },
+				{ from: "file", name: "Element" },
+				{ from: "file", name: "Response" },
+				{ from: "file", name: "URL" },
+				{ from: "file", name: "Headers" },
+				// Allow Supabase types
+				{
+					from: "package",
+					name: "RealtimePostgresChangesPayload",
+					package: "@supabase/supabase-js",
+				},
+				{
+					from: "package",
+					name: "RealtimeChannel",
+					package: "@supabase/supabase-js",
+				},
+				{
+					from: "package",
+					name: "SupabaseClient",
+					package: "@supabase/supabase-js",
+				},
+				// Allow React types from package
+				{ from: "package", name: "RefObject", package: "react" },
+				{ from: "package", name: "Dispatch", package: "react" },
+				{ from: "package", name: "SetStateAction", package: "react" },
+				{ from: "package", name: "SVGProps", package: "react" },
+				{ from: "package", name: "ComponentProps", package: "react" },
+				{ from: "package", name: "HTMLProps", package: "react" },
+				// Allow HTML element types
+				{ from: "package", name: "HTMLInputElement", package: "@types/react" },
+				{ from: "package", name: "HTMLFormElement", package: "@types/react" },
+				// Allow dnd-kit types
+				{ from: "package", name: "DragEndEvent", package: "@dnd-kit/core" },
+				// Allow Hono types
+				{ from: "package", name: "Context", package: "hono" },
+				// Allow Cloudflare Workers types
+				{ from: "file", name: "Bindings" },
+				// Allow Effect-TS types
+				{ from: "package", name: "Schema", package: "effect" },
+				// Allow custom API types
+				{ from: "file", name: "FetchOpts" },
+				{ from: "file", name: "Env" },
+				{ from: "file", name: "User" },
+				{ from: "file", name: "OauthUserData" },
+				{ from: "file", name: "OauthState" },
+				// Allow hono JWT verify types
+				{ from: "package", name: "verify", package: "hono/jwt" },
+				// Allow common utility types
+				{ from: "file", name: "Record" },
+				{ from: "file", name: "Partial" },
+				// Allow Effect types
+				{ from: "file", name: "Schema" },
+				// Allow component props types
+				{ from: "file", name: "NativePopoverProps" },
+				// Allow common number/string types
+				{ from: "file", name: "number" },
+				{ from: "file", name: "string" },
+				{ from: "file", name: "boolean" },
+				// Allow array types
+				{ from: "file", name: "Array" },
+				{ from: "file", name: "ReadonlyArray" },
+			],
+		},
+	],
 
 	// Import rules
 	"import/no-named-as-default": "error",

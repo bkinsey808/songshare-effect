@@ -15,7 +15,11 @@ type ProviderFrontEndData = {
 	borderColor: string;
 	// optional icon bg color
 	iconBgColor: string;
-	Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+	Icon: React.ComponentType<{
+		className?: string;
+		width?: string;
+		height?: string;
+	}>;
 };
 
 const providerFrontEndData: Record<ProviderType, ProviderFrontEndData> = {

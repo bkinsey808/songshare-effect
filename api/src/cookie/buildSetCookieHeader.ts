@@ -9,12 +9,12 @@ export function buildSetCookieHeader({
 	name,
 	value,
 	opts,
-}: {
+}: Readonly<{
 	ctx: Context;
 	name: string;
 	value: string;
-	opts?: { maxAge?: number; httpOnly?: boolean };
-}): string {
+	opts?: Readonly<{ maxAge?: number; httpOnly?: boolean }>;
+}>): string {
 	const envRecord = ctx.env as unknown as EnvLike;
 	const isProd = envRecord.ENVIRONMENT === "production";
 	const redirectOrigin = envRecord.OAUTH_REDIRECT_ORIGIN ?? "";

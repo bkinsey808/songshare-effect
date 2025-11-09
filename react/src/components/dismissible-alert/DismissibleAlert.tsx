@@ -1,17 +1,16 @@
-import { type ReactNode, useState } from "react";
+import { useState } from "react";
 
 import { tw } from "@/react/utils/tw";
 
-type Props = {
-	readonly visible: boolean;
-	readonly onDismiss: () => void;
-	readonly title?: ReactNode;
-	readonly children?: ReactNode;
-	readonly variant?: "error" | "info" | "success";
-	readonly className?: string;
-	// e.g., "deleteSuccess", "signOutSuccess"
-	readonly alertType?: string;
-};
+type DismissibleAlertProps = Readonly<{
+	visible: boolean;
+	onDismiss: () => void;
+	title?: string | null;
+	children?: string | null;
+	variant?: "error" | "info" | "success";
+	className?: string;
+	alertType?: string;
+}>;
 
 export default function DismissibleAlert({
 	visible,
@@ -21,7 +20,7 @@ export default function DismissibleAlert({
 	variant: data_variant = "error",
 	className = "",
 	alertType,
-}: Readonly<Props>): ReactElement | undefined {
+}: DismissibleAlertProps): ReactElement | undefined {
 	// Internal closing state so we can play an exit animation before
 	// calling onDismiss (parent will then clear state). Keep the element
 	// mounted while isClosing is true.

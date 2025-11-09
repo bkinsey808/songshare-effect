@@ -1,15 +1,15 @@
 export type ValidationError = {
-	field: string;
-	message: string;
-	params?: Record<string, unknown>;
+	readonly field: string;
+	readonly message: string;
+	readonly params?: Record<string, unknown>;
 };
 
 export type ValidationResult<T> =
 	| {
-			success: true;
-			data: T;
+			readonly success: true;
+			readonly data: T;
 	  }
 	| {
-			success: false;
-			errors: ValidationError[];
+			readonly success: false;
+			readonly errors: ReadonlyArray<ValidationError>;
 	  };

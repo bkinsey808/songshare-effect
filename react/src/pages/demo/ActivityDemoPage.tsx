@@ -5,14 +5,13 @@ import { useTranslation } from "react-i18next";
 import DemoNavigation from "@/react/demo/DemoNavigation";
 import useSchedule from "@/react/hooks/useSchedule";
 
-// Simulated heavy component that takes time to render
-function HeavyComponent({
-	name,
-	color,
-}: Readonly<{
+type HeavyComponentParams = Readonly<{
 	name: string;
 	color: string;
-}>): ReactElement {
+}>;
+
+// Simulated heavy component that takes time to render
+function HeavyComponent({ name, color }: HeavyComponentParams): ReactElement {
 	const [renderTime, setRenderTime] = useState<number>(0);
 
 	// Call hooks at top-level
@@ -51,10 +50,14 @@ function HeavyComponent({
 	);
 }
 
+type InteractiveComponentParams = Readonly<{
+	title: string;
+}>;
+
 // Component with input to demonstrate state preservation
 function InteractiveComponent({
 	title,
-}: Readonly<{ title: string }>): ReactElement {
+}: InteractiveComponentParams): ReactElement {
 	const [inputValue, setInputValue] = useState("");
 	const [count, setCount] = useState(0);
 

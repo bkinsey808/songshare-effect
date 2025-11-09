@@ -162,11 +162,11 @@ function CustomPopover() {
 **Parameters:**
 
 ```typescript
-type UseNativePopoverProps = {
+type UseNativePopoverProps = Readonly<{
 	preferredPlacement: PlacementOption;
 	trigger: TriggerMode;
 	closeOnTriggerClick: boolean;
-};
+}>;
 ```
 
 **Returns:**
@@ -209,13 +209,13 @@ export type PopoverPosition = {
 };
 
 // Main component props
-export type NativePopoverProps = {
+export type NativePopoverProps = Readonly<{
 	children: React.ReactNode;
 	content: React.ReactNode;
 	preferredPlacement?: "top" | "bottom" | "left" | "right";
 	trigger?: "hover" | "click";
 	closeOnTriggerClick?: boolean;
-};
+}>;
 ```
 
 ### Utility Functions

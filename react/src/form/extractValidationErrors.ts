@@ -6,7 +6,9 @@ import type { ValidationError } from "@/shared/validation/types";
  * Extract ValidationError[] from various error shapes used in the codebase.
  * Keeps the extraction logic in one place to reduce cognitive complexity.
  */
-export const extractValidationErrors = (error: unknown): ValidationError[] => {
+export const extractValidationErrors = (
+	error: unknown,
+): ReadonlyArray<ValidationError> => {
 	// Direct array
 	if (Array.isArray(error)) {
 		return error as ValidationError[];

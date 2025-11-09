@@ -12,13 +12,13 @@ export function computeDashboardRedirectWithPort({
 	redirectPortStr,
 	lang,
 	dashboardPathLocal,
-}: {
+}: Readonly<{
 	ctx: Context<{ Bindings: Env }>;
 	url: URL;
 	redirectPortStr: string;
 	lang: string;
 	dashboardPathLocal: string;
-}): string | undefined {
+}>): string | undefined {
 	const portNum = Number(redirectPortStr);
 	if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
 		// eslint-disable-next-line no-console

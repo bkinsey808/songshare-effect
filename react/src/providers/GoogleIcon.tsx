@@ -1,16 +1,18 @@
-import React from "react";
+type IconProps = Readonly<{
+	className?: string;
+	width?: string;
+	height?: string;
+}>;
 
-export function GoogleIcon(
-	props: Readonly<React.SVGProps<SVGSVGElement>>,
-): ReactElement {
+export function GoogleIcon(props: IconProps): ReactElement {
 	return (
 		<svg
-			width="20"
-			height="20"
+			width={props.width ?? "20"}
+			height={props.height ?? "20"}
 			viewBox="-0.5 0 48 48"
 			version="1.1"
 			xmlns="http://www.w3.org/2000/svg"
-			{...props}
+			className={props.className}
 		>
 			<title>Google-color</title>
 			<desc>Created with Sketch.</desc>

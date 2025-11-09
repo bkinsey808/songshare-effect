@@ -10,15 +10,17 @@ import { justSignedInQueryParam } from "@/shared/queryParams";
 import { justSignedOutKey } from "@/shared/sessionStorageKeys";
 import type { UserSessionData } from "@/shared/userSessionData";
 
+type SongManagementSectionProps = Readonly<{
+	t: (key: string, fallback: string) => string;
+	navigate: (path: string, options?: { readonly replace?: boolean }) => void;
+	currentLang: string;
+}>;
+
 function SongManagementSection({
 	t,
 	navigate,
 	currentLang,
-}: Readonly<{
-	t: (key: string, fallback: string) => string;
-	navigate: (path: string, options?: { replace?: boolean }) => void;
-	currentLang: string;
-}>): ReactElement {
+}: SongManagementSectionProps): ReactElement {
 	return (
 		<div className="mt-6 rounded-lg border border-gray-600 bg-gray-800 p-4">
 			<h3 className="mb-3 text-lg font-semibold">

@@ -13,10 +13,12 @@ export const createApiResponseHandlerEffect = ({
 	setSubmitError,
 	defaultErrorMessage,
 }: {
-	response: Response;
-	setValidationErrors: (errors: { field: string; message: string }[]) => void;
-	setSubmitError: (error: string) => void;
-	defaultErrorMessage?: string;
+	readonly response: Response;
+	readonly setValidationErrors: (
+		errors: ReadonlyArray<{ readonly field: string; readonly message: string }>,
+	) => void;
+	readonly setSubmitError: (error: string) => void;
+	readonly defaultErrorMessage?: string;
 }): Effect.Effect<boolean, never, never> => {
 	return createApiResponseEffect(response).pipe(
 		Effect.matchEffect({
@@ -24,7 +26,7 @@ export const createApiResponseHandlerEffect = ({
 				console.log("🎯 API response success");
 				return Effect.succeed(true);
 			},
-			onFailure: (action: ApiResponseAction) => {
+			onFailure: (action: Readonly<ApiResponseAction>) => {
 				console.log("💥 API response failure action:", action);
 				if (action.type === "setFieldError") {
 					console.log("📝 Setting field error:", action.field, action.message);

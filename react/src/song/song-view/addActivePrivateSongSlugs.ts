@@ -9,11 +9,11 @@ export default function addActivePrivateSongSlugs(
 	set: (
 		partial:
 			| Partial<SongSubscribeSlice>
-			| ((state: SongSubscribeSlice) => Partial<SongSubscribeSlice>),
+			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
 	) => void,
 	get: () => SongSubscribeSlice,
 ) {
-	return async (songSlugs: string[]): Promise<void> => {
+	return async (songSlugs: ReadonlyArray<string>): Promise<void> => {
 		const state = get() as SongSubscribeSlice & AppSlice;
 
 		const currentPublicSongs = state.publicSongs;

@@ -1,4 +1,13 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+type ReadonlySupabaseClient = Readonly<{
+	from: (table: string) => {
+		select: (query: string) => {
+			in: (
+				column: string,
+				values: ReadonlyArray<string>,
+			) => Promise<{ data: unknown[] | null; error: unknown | null }>;
+		};
+	};
+}>;
 
 /**
  * Fetches public songs from Supabase by their slugs.
@@ -7,8 +16,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * @returns Promise containing the fetched data and any error
  */
 export async function fetchPublicSongsBySlugs(
-	supabase: SupabaseClient,
-	songSlugs: string[],
+	supabase: ReadonlySupabaseClient,
+	songSlugs: ReadonlyArray<string>,
 ): Promise<{ data: unknown[] | undefined; error: unknown | undefined }> {
 	try {
 		const { data, error } = await supabase
@@ -22,7 +31,7 @@ export async function fetchPublicSongsBySlugs(
 		}
 
 		console.warn("[fetchPublicSongsBySlugs] Fetched data:", data);
-		return { data, error: undefined };
+		return { data: data ?? undefined, error: undefined };
 	} catch (err) {
 		console.error("[fetchPublicSongsBySlugs] Unexpected fetch error:", err);
 		return { data: undefined, error: err };

@@ -53,7 +53,7 @@ function parsePayload(payload: unknown): UserSessionData | undefined {
  * force a refresh when needed.
  */
 export async function ensureSignedIn(options?: {
-	force?: boolean;
+	readonly force?: boolean;
 }): Promise<UserSessionData | undefined> {
 	const force = options?.force ?? false;
 	console.debug("[ensureSignedIn] called, force=", force);

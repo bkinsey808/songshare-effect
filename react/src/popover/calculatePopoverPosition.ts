@@ -1,9 +1,9 @@
 import type { PlacementOption, PopoverPosition } from "./types";
 
 type PlacementConfig = {
-	name: PlacementOption;
-	hasSpace: boolean;
-	position: PopoverPosition;
+	readonly name: PlacementOption;
+	readonly hasSpace: boolean;
+	readonly position: PopoverPosition;
 };
 
 /**
@@ -14,9 +14,9 @@ function adjustHorizontalPosition({
 	popoverWidth,
 	viewportWidth,
 }: {
-	position: PopoverPosition;
-	popoverWidth: number;
-	viewportWidth: number;
+	readonly position: PopoverPosition;
+	readonly popoverWidth: number;
+	readonly viewportWidth: number;
 }): PopoverPosition {
 	if (
 		position.transform === "translateX(-50%)" &&
@@ -44,12 +44,12 @@ function adjustTopBottomPosition({
 	viewportWidth,
 	viewportHeight,
 }: {
-	placement: PlacementConfig;
-	position: PopoverPosition;
-	popoverWidth: number;
-	popoverHeight: number;
-	viewportWidth: number;
-	viewportHeight: number;
+	readonly placement: PlacementConfig;
+	readonly position: PopoverPosition;
+	readonly popoverWidth: number;
+	readonly popoverHeight: number;
+	readonly viewportWidth: number;
+	readonly viewportHeight: number;
 }): PopoverPosition {
 	let adjustedPosition = { ...position };
 
@@ -101,12 +101,12 @@ function adjustLeftRightPosition({
 	viewportWidth,
 	viewportHeight,
 }: {
-	placement: PlacementConfig;
-	position: PopoverPosition;
-	popoverWidth: number;
-	popoverHeight: number;
-	viewportWidth: number;
-	viewportHeight: number;
+	readonly placement: PlacementConfig;
+	readonly position: PopoverPosition;
+	readonly popoverWidth: number;
+	readonly popoverHeight: number;
+	readonly viewportWidth: number;
+	readonly viewportHeight: number;
 }): PopoverPosition {
 	let adjustedPosition = { ...position };
 
@@ -158,11 +158,11 @@ export default function calculatePopoverPosition({
 	preferredPlacement = "bottom",
 	gap = 8,
 }: {
-	triggerRect: DOMRect;
-	popoverWidth: number;
-	popoverHeight: number;
-	preferredPlacement?: PlacementOption;
-	gap?: number;
+	readonly triggerRect: DOMRect;
+	readonly popoverWidth: number;
+	readonly popoverHeight: number;
+	readonly preferredPlacement?: PlacementOption;
+	readonly gap?: number;
 }): { position: PopoverPosition; placement: PlacementOption } {
 	const viewportWidth = window.innerWidth;
 	const viewportHeight = window.innerHeight;

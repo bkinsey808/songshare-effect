@@ -13,11 +13,11 @@ export function validateForm<
 	schema,
 	data,
 	i18nMessageKey,
-}: {
+}: Readonly<{
 	schema: Schema.Schema<FormValues, FormValues, never>;
 	data: unknown;
 	i18nMessageKey: symbol | string;
-}): ValidationResult<FormValues> {
+}>): ValidationResult<FormValues> {
 	try {
 		const result = Effect.runSync(
 			validateFormEffect<FormValues, I18nMessageType>({

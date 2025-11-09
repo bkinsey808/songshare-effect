@@ -11,11 +11,11 @@ export function buildSameSiteAttr({
 	isProd,
 	redirectOrigin,
 	secureFlag,
-}: {
+}: Readonly<{
 	isProd: boolean;
 	redirectOrigin: string;
 	secureFlag: boolean;
-}): string {
+}>): string {
 	// Aggressive dev fix: when running locally with a redirect origin that
 	// includes 'localhost' we prefer SameSite=None so the browser will send
 	// the session cookie after the OAuth provider redirects back to the

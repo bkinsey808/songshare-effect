@@ -36,8 +36,12 @@ function suspendingFetch<T>(key: string, fetcher: () => Promise<T>): T {
 	throw promise;
 }
 
+type UserProfileParams = Readonly<{
+	userId: number;
+}>;
+
 // Component that fetches user data and suspends
-function UserProfile({ userId }: Readonly<{ userId: number }>): ReactElement {
+function UserProfile({ userId }: UserProfileParams): ReactElement {
 	const user = suspendingFetch(`user-${userId}`, async () => {
 		// Simulate API delay
 		await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -60,8 +64,12 @@ function UserProfile({ userId }: Readonly<{ userId: number }>): ReactElement {
 	);
 }
 
+type UserPostParams = Readonly<{
+	userId: number;
+}>;
+
 // Component that fetches posts and suspends
-function UserPosts({ userId }: Readonly<{ userId: number }>): ReactElement {
+function UserPosts({ userId }: UserPostParams): ReactElement {
 	const posts = suspendingFetch(`posts-${userId}`, async () => {
 		// Simulate API delay
 		await new Promise((resolve) => setTimeout(resolve, 1500));

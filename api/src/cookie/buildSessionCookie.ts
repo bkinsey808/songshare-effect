@@ -7,12 +7,12 @@ export const buildSessionCookie = ({
 	name,
 	value,
 	opts,
-}: {
+}: Readonly<{
 	ctx: Context;
 	name: string;
 	value: string;
-	opts?: { maxAge?: number; httpOnly?: boolean };
-}): string => {
+	opts?: Readonly<{ maxAge?: number; httpOnly?: boolean }>;
+}>): string => {
 	return buildSetCookieHeader({
 		ctx,
 		name,

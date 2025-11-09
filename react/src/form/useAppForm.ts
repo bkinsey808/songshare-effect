@@ -9,30 +9,34 @@ import { safeSet } from "@/shared/utils/safe";
 import type { ValidationError } from "@/shared/validation/types";
 
 type UseAppFormProps<FormValues> = {
-	schema: Schema.Schema<FormValues, FormValues, never>;
-	formRef: React.RefObject<HTMLFormElement | null>;
-	defaultErrorMessage?: string;
-	initialValues?: Partial<FormValues>;
+	readonly schema: Schema.Schema<FormValues, FormValues, never>;
+	readonly formRef: React.RefObject<HTMLFormElement | null>;
+	readonly defaultErrorMessage?: string;
+	readonly initialValues?: Partial<FormValues>;
 };
 
 type UseAppFormReturn<FormValues> = {
-	validationErrors: ValidationError[];
-	isSubmitting: boolean;
-	handleFieldBlur: <K extends keyof FormValues>(
+	readonly validationErrors: ReadonlyArray<ValidationError>;
+	readonly isSubmitting: boolean;
+	readonly handleFieldBlur: <K extends keyof FormValues>(
 		field: K,
 		ref: React.RefObject<HTMLInputElement | null>,
 	) => void;
-	getFieldError: (field: keyof FormValues) => ValidationError | undefined;
-	handleSubmit: (
-		formData: Record<string, unknown>,
+	readonly getFieldError: (
+		field: keyof FormValues,
+	) => ValidationError | undefined;
+	readonly handleSubmit: (
+		formData: Readonly<Record<string, unknown>>,
 		onSubmit: (data: FormValues) => Promise<void> | void,
 	) => Effect.Effect<void, never, never>;
-	handleApiResponseEffect: (
+	readonly handleApiResponseEffect: (
 		response: Response,
 		setSubmitError: (error: string) => void,
 	) => Effect.Effect<boolean, never, never>;
-	reset: () => void;
-	setValidationErrors: React.Dispatch<React.SetStateAction<ValidationError[]>>;
+	readonly reset: () => void;
+	readonly setValidationErrors: React.Dispatch<
+		React.SetStateAction<ReadonlyArray<ValidationError>>
+	>;
 };
 
 /**
@@ -44,9 +48,9 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 	initialValues,
 	defaultErrorMessage,
 }: UseAppFormProps<FormValues>): UseAppFormReturn<FormValues> => {
-	const [validationErrors, setValidationErrors] = useState<ValidationError[]>(
-		[],
-	);
+	const [validationErrors, setValidationErrors] = useState<
+		ReadonlyArray<ValidationError>
+	>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	/**

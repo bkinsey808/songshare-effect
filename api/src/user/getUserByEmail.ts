@@ -58,6 +58,7 @@ type SupabaseMaybeSingleRes = {
  * "not found" and does not throw.
  */
 export function getUserByEmail(
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- SupabaseClient is complex external type
 	supabase: SupabaseClient,
 	email: string,
 ): Effect.Effect<

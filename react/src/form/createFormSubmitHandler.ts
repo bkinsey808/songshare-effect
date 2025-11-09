@@ -10,9 +10,11 @@ import type { ValidationError } from "@/shared/validation/types";
 import { validateFormEffect } from "@/shared/validation/validateFormEffect";
 
 type FormSubmitHandlerParams<FormValues> = {
-	schema: Schema.Schema<FormValues, FormValues, never>;
-	setValidationErrors: React.Dispatch<React.SetStateAction<ValidationError[]>>;
-	setIsSubmitting: (isSubmitting: boolean) => void;
+	readonly schema: Schema.Schema<FormValues, FormValues, never>;
+	readonly setValidationErrors: React.Dispatch<
+		React.SetStateAction<ReadonlyArray<ValidationError>>
+	>;
+	readonly setIsSubmitting: (isSubmitting: boolean) => void;
 };
 
 /**
@@ -25,7 +27,7 @@ export const createFormSubmitHandler = <
 ) => {
 	const { schema, setValidationErrors, setIsSubmitting } = params;
 	return (
-		formData: Record<string, unknown>,
+		formData: Readonly<Record<string, unknown>>,
 		onSubmit: (data: FormValues) => Promise<void> | void,
 	): Effect.Effect<void, never, never> => {
 		return Effect.sync(() => {

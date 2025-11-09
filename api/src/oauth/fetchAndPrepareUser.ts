@@ -19,11 +19,11 @@ export function fetchAndPrepareUser({
 	ctx,
 	code,
 	provider,
-}: {
+}: Readonly<{
 	ctx: Context<{ Bindings: Env }>;
 	code: string;
 	provider: ProviderType;
-}): Effect.Effect<
+}>): Effect.Effect<
 	{
 		supabase: SupabaseClient;
 		oauthUserData: OauthUserData;

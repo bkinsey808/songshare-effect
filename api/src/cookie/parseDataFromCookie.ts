@@ -19,13 +19,13 @@ export async function parseDataFromCookie<
 	schema,
 	debug = false,
 	allowMissing = false,
-}: {
+}: Readonly<{
 	ctx?: Context<{ Bindings: Env }>;
 	cookieName: string;
 	schema: Schema.Schema<T, unknown, never>;
 	debug?: boolean;
 	allowMissing?: A;
-}): Promise<ParseCookieResult<T, A>> {
+}>): Promise<ParseCookieResult<T, A>> {
 	if (!ctx) {
 		throw new Error("Missing context when parsing data from cookie");
 	}

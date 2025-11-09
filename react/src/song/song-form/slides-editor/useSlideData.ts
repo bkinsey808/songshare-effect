@@ -9,21 +9,25 @@ import {
 } from "./slideUtils";
 import { safeGet } from "@/shared/utils/safe";
 
+type UseSlideDataParams = Readonly<{
+	slideOrder: ReadonlyArray<string>;
+	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+	slides: Readonly<Record<string, Slide>>;
+	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
+}>;
+
+type UseSlideDataReturn = {
+	addSlide: () => void;
+	deleteSlide: (slideId: string) => void;
+	duplicateSlide: (slideId: string) => void;
+};
+
 export function useSlideData({
 	slideOrder,
 	setSlideOrder,
 	slides,
 	setSlides,
-}: {
-	slideOrder: string[];
-	setSlideOrder: (newOrder: string[]) => void;
-	slides: Record<string, Slide>;
-	setSlides: (newSlides: Record<string, Slide>) => void;
-}): {
-	addSlide: () => void;
-	deleteSlide: (slideId: string) => void;
-	duplicateSlide: (slideId: string) => void;
-} {
+}: UseSlideDataParams): UseSlideDataReturn {
 	const addSlide = (): void => {
 		const id = randomId();
 		const newSlideName = getNextSlideName(slides, slideOrder.length);

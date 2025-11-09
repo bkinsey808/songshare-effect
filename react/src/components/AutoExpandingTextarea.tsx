@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef } from "react";
 
-type AutoExpandingTextareaProps = {
-	readonly value: string;
-	readonly onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
-	readonly placeholder?: string;
-	readonly className?: string;
-	readonly minRows?: number;
-	readonly maxRows?: number;
-};
+type AutoExpandingTextareaProps = Readonly<{
+	value: string;
+	onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+	placeholder?: string;
+	className?: string;
+	minRows?: number;
+	maxRows?: number;
+}>;
 
 export default function AutoExpandingTextarea({
 	value,
