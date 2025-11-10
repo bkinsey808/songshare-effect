@@ -35,7 +35,7 @@ export function useColumnResize({
 
 	const cleanup = useRef<() => void>(() => {});
 
-	const handleMouseMove = (event: MouseEvent) => {
+	const handleMouseMove = (event: MouseEvent): void => {
 		if (resizingField.current === undefined) {
 			return;
 		}
@@ -52,13 +52,13 @@ export function useColumnResize({
 		});
 	};
 
-	const handleMouseUp = () => {
+	const handleMouseUp = (): void => {
 		setIsResizing(false);
 		resizingField.current = undefined;
 		cleanup.current();
 	};
 
-	const startResize = (field: string, clientX: number) => {
+	const startResize = (field: string, clientX: number): void => {
 		setIsResizing(true);
 		resizingField.current = field;
 		startX.current = clientX;

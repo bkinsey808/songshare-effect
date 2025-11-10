@@ -1,3 +1,17 @@
+/**
+ * Cloudflare Pages Functions Middleware
+ *
+ * The underscore prefix (_middleware.ts) is a Cloudflare Pages convention for special files:
+ * - Files starting with _ are configuration/system files, not regular content
+ * - _middleware.ts runs as edge middleware before serving static content
+ * - _headers defines HTTP caching rules globally
+ * - _redirects would define URL redirects (if present)
+ *
+ * This middleware runs at Cloudflare's edge locations (200+ globally) and handles:
+ * - Language detection and routing optimization
+ * - HTML page caching with ETag validation
+ * - HTTP 304 responses for unchanged content
+ */
 import { detectBrowserLanguage } from "@/shared/language/detectBrowserLanguage";
 import { parseLanguageCookie } from "@/shared/language/parseLanguageCookie";
 import { defaultLanguage } from "@/shared/language/supportedLanguages";
@@ -5,6 +19,7 @@ import { defaultLanguage } from "@/shared/language/supportedLanguages";
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type Env = {};
 
+// eslint-disable-next-line max-lines-per-function
 export const onRequest: PagesFunction<Env> = async (context) => {
 	const url = new URL(context.request.url);
 	const response = await (async () => {
@@ -55,6 +70,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 		// Check if client has a matching ETag
 		const ifNoneMatch = context.request.headers.get("If-None-Match");
 		if (ifNoneMatch === etag) {
+			// eslint-disable-next-line unicorn/no-null
 			return new Response(null, { status: 304 });
 		}
 	}

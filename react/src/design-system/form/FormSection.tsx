@@ -1,11 +1,14 @@
+import type { ReactNode } from "react";
+
 type FormSectionProps = Readonly<{
-	children: React.ReactNode;
+	children: ReactNode;
 	className?: string;
 }>;
 
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export default function FormSection({
 	children,
 	className = "",
-}: FormSectionProps): ReactElement {
+}: Readonly<FormSectionProps>): ReactElement {
 	return <div className={`flex flex-col gap-6 ${className}`}>{children}</div>;
 }

@@ -17,6 +17,39 @@ type UsePopoverPositioningReturn = {
 };
 
 /**
+ * Shared position calculation logic
+ */
+function calculateAndUpdatePosition({
+	triggerRef,
+	popoverRef,
+	preferredPlacement,
+	setPopoverPosition,
+	setPlacement,
+}: Readonly<{
+	triggerRef: React.RefObject<HTMLDivElement | null>;
+	popoverRef: React.RefObject<HTMLDivElement | null>;
+	preferredPlacement: PlacementOption;
+	setPopoverPosition: (position: PopoverPosition) => void;
+	setPlacement: (placement: PlacementOption) => void;
+}>): void {
+	if (triggerRef.current !== null && popoverRef.current !== null) {
+		const triggerRect = triggerRef.current.getBoundingClientRect();
+		const popoverRect = popoverRef.current.getBoundingClientRect();
+
+		const { position, placement: calculatedPlacement } =
+			calculatePopoverPosition({
+				triggerRect,
+				popoverWidth: popoverRect.width || 256,
+				popoverHeight: popoverRect.height || 200,
+				preferredPlacement,
+			});
+
+		setPopoverPosition(position);
+		setPlacement(calculatedPlacement);
+	}
+}
+
+/**
  * Custom hook to handle popover positioning and scroll tracking
  * Automatically positions popover relative to trigger and handles scroll events
  */
@@ -28,25 +61,6 @@ export function usePopoverPositioning({
 }: UsePopoverPositioningParams): UsePopoverPositioningReturn {
 	const [popoverPosition, setPopoverPosition] = useState<PopoverPosition>({});
 	const [placement, setPlacement] = useState<PlacementOption>("bottom");
-
-	// Common position update logic
-	const updatePosition = (): void => {
-		if (triggerRef.current !== null && popoverRef.current !== null) {
-			const triggerRect = triggerRef.current.getBoundingClientRect();
-			const popoverRect = popoverRef.current.getBoundingClientRect();
-
-			const { position, placement: calculatedPlacement } =
-				calculatePopoverPosition({
-					triggerRect,
-					popoverWidth: popoverRect.width || 256,
-					popoverHeight: popoverRect.height || 200,
-					preferredPlacement,
-				});
-
-			setPopoverPosition(position);
-			setPlacement(calculatedPlacement);
-		}
-	};
 
 	// Handle scroll events to keep popover positioned relative to trigger
 	useEffect(() => {
@@ -85,7 +99,13 @@ export function usePopoverPositioning({
 					if (isOffScreen) {
 						hidePopover();
 					} else {
-						updatePosition();
+						calculateAndUpdatePosition({
+							triggerRef,
+							popoverRef,
+							preferredPlacement,
+							setPopoverPosition,
+							setPlacement,
+						});
 					}
 				}
 			});
@@ -112,6 +132,17 @@ export function usePopoverPositioning({
 			document.removeEventListener("scroll", handleScrollAndResize);
 		};
 	}, [hidePopover, popoverRef, triggerRef, preferredPlacement]);
+
+	// Public API function for external position updates
+	const updatePosition = (): void => {
+		calculateAndUpdatePosition({
+			triggerRef,
+			popoverRef,
+			preferredPlacement,
+			setPopoverPosition,
+			setPlacement,
+		});
+	};
 
 	return { popoverPosition, placement, updatePosition };
 }

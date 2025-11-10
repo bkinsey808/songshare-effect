@@ -19,9 +19,10 @@ export default function AutoExpandingTextarea({
 }: AutoExpandingTextareaProps): ReactElement {
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-	const adjustHeight = () => {
+	// Adjust height when value changes or on mount
+	useEffect(() => {
 		const textarea = textareaRef.current;
-		if (!textarea) {
+		if (textarea === null) {
 			return;
 		}
 
@@ -30,7 +31,37 @@ export default function AutoExpandingTextarea({
 
 		// Calculate the line height
 		const style = window.getComputedStyle(textarea);
-		const lineHeight = parseInt(style.lineHeight, 10) || 20;
+		const lineHeight = Number.parseInt(style.lineHeight, 10) || 20;
+
+		// Calculate min and max heights
+		const minHeight = lineHeight * minRows;
+		const maxHeight = lineHeight * maxRows;
+
+		// Set the height based on content, but within min/max bounds
+		const newHeight = Math.min(
+			Math.max(textarea.scrollHeight, minHeight),
+			maxHeight,
+		);
+		textarea.style.height = `${newHeight}px`;
+
+		// Show scrollbar if content exceeds maxRows
+		textarea.style.overflowY =
+			textarea.scrollHeight > maxHeight ? "auto" : "hidden";
+	}, [value, minRows, maxRows]);
+
+	// Handle input events to adjust height in real-time
+	const handleInput = (): void => {
+		const textarea = textareaRef.current;
+		if (textarea === null) {
+			return;
+		}
+
+		// Reset height to auto to get the correct scrollHeight
+		textarea.style.height = "auto";
+
+		// Calculate the line height
+		const style = window.getComputedStyle(textarea);
+		const lineHeight = Number.parseInt(style.lineHeight, 10) || 20;
 
 		// Calculate min and max heights
 		const minHeight = lineHeight * minRows;
@@ -48,16 +79,6 @@ export default function AutoExpandingTextarea({
 			textarea.scrollHeight > maxHeight ? "auto" : "hidden";
 	};
 
-	// Adjust height when value changes
-	useEffect(() => {
-		adjustHeight();
-	}, [value, minRows, maxRows]);
-
-	// Adjust height on mount
-	useEffect(() => {
-		adjustHeight();
-	}, []);
-
 	return (
 		<textarea
 			ref={textareaRef}
@@ -70,7 +91,7 @@ export default function AutoExpandingTextarea({
 				// fallback if line height calculation fails
 				minHeight: `${minRows * 20}px`,
 			}}
-			onInput={adjustHeight}
+			onInput={handleInput}
 		/>
 	);
 }

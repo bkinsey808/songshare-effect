@@ -1,8 +1,8 @@
 // src/features/song-form/SlidesEditor.tsx
 import { useTranslation } from "react-i18next";
 
-import AutoExpandingTextarea from "../../../components/AutoExpandingTextarea";
-import FormField from "../../../components/form/FormField";
+import AutoExpandingTextarea from "../../../design-system/AutoExpandingTextarea";
+import FormField from "../../../design-system/form/FormField";
 import { songFields } from "../../song-schema";
 import { type Slide } from "../songTypes";
 import useSlidesEditor from "./useSlidesEditor";

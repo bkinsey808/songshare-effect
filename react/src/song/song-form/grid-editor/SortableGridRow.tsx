@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import AutoExpandingTextarea from "../../../components/AutoExpandingTextarea";
+import AutoExpandingTextarea from "../../../design-system/AutoExpandingTextarea";
 import { type Slide } from "../songTypes";
 
 type EditSlideName = ({

@@ -2,7 +2,7 @@
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 
-import AutoExpandingTextarea from "../../components/AutoExpandingTextarea";
+import AutoExpandingTextarea from "../../design-system/AutoExpandingTextarea";
 import SortableSlideOrderItem from "./slides-editor/SortableSlideOrderItem";
 import useSlidesEditor from "./slides-editor/useSlidesEditor";
 import { type Slide } from "./songTypes";

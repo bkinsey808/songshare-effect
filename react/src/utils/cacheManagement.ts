@@ -14,7 +14,7 @@ export function checkAppVersion(): void {
 	const storedVersion = localStorage.getItem(VERSION_KEY);
 
 	if (storedVersion !== APP_VERSION) {
-		console.log(
+		console.warn(
 			`App version changed from ${storedVersion} to ${APP_VERSION}, clearing cache`,
 		);
 		clearAppCache();
@@ -29,7 +29,7 @@ export function clearAppCache(): void {
 	// Clear localStorage (keep auth tokens if needed)
 	const authTokens = localStorage.getItem("auth_tokens");
 	localStorage.clear();
-	if (authTokens) {
+	if (authTokens !== null) {
 		localStorage.setItem("auth_tokens", authTokens);
 	}
 
@@ -56,36 +56,41 @@ export function clearAppCache(): void {
  */
 export function hardRefresh(): void {
 	// Use location.reload(true) equivalent
-	window.location.href = window.location.href;
+	window.location.reload();
 }
 
 /**
  * Check if page should be reloaded due to new version
  */
 export function checkForUpdates(): Promise<boolean> {
-	return fetch("/manifest.json?" + Date.now(), {
+	return fetch(`/manifest.json?${Date.now()}`, {
 		cache: "no-store",
 	})
 		.then((response) => {
-			if (!response.ok) return false;
+			if (!response.ok) {
+				return false;
+			}
 			return response.json();
 		})
-		.then((manifest) => {
-			const currentVersion = manifest?.version || "unknown";
+		.then((manifest: Readonly<{ version?: string }>) => {
+			const currentVersion = manifest?.version ?? "unknown";
 			const storedVersion = localStorage.getItem("app_manifest_version");
 
-			if (storedVersion && storedVersion !== currentVersion) {
+			if (storedVersion !== null && storedVersion !== currentVersion) {
 				localStorage.setItem("app_manifest_version", currentVersion);
-				return true; // New version available
+				// New version available
+				return true;
 			}
 
-			if (!storedVersion) {
+			if (storedVersion === null) {
 				localStorage.setItem("app_manifest_version", currentVersion);
 			}
 
 			return false;
 		})
-		.catch(() => false);
+		.catch(() => {
+			return false;
+		});
 }
 
 /**
@@ -97,15 +102,17 @@ export function initCacheManagement(): void {
 	// Check for updates every 5 minutes
 	setInterval(
 		() => {
-			checkForUpdates()
+			void checkForUpdates()
 				.then((hasUpdate) => {
 					if (hasUpdate) {
-						console.log("New version available, consider reloading");
+						console.warn("New version available, consider reloading");
 						// You could show a notification to user here
 					}
+					return hasUpdate;
 				})
 				.catch((error) => {
 					console.warn("Failed to check for updates:", error);
+					return false;
 				});
 		},
 		5 * 60 * 1000,
