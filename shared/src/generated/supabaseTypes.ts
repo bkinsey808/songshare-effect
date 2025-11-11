@@ -46,6 +46,49 @@ export type Database = {
 					},
 				];
 			};
+			song_library: {
+				Row: {
+					created_at: string;
+					song_id: string;
+					song_owner_id: string;
+					user_id: string;
+				};
+				Insert: {
+					created_at?: string;
+					song_id: string;
+					song_owner_id: string;
+					user_id: string;
+				};
+				Update: {
+					created_at?: string;
+					song_id?: string;
+					song_owner_id?: string;
+					user_id?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "song_library_song_id_fkey";
+						columns: ["song_id"];
+						isOneToOne: false;
+						referencedRelation: "song";
+						referencedColumns: ["song_id"];
+					},
+					{
+						foreignKeyName: "song_library_song_owner_id_fkey";
+						columns: ["song_owner_id"];
+						isOneToOne: false;
+						referencedRelation: "user";
+						referencedColumns: ["user_id"];
+					},
+					{
+						foreignKeyName: "song_library_user_id_fkey";
+						columns: ["user_id"];
+						isOneToOne: false;
+						referencedRelation: "user";
+						referencedColumns: ["user_id"];
+					},
+				];
+			};
 			song_public: {
 				Row: {
 					created_at: string | null;

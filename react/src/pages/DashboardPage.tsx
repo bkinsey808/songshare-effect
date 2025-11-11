@@ -5,7 +5,12 @@ import { useNavigate } from "react-router-dom";
 import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
 import { getStoreApi, useAppStoreHydrated } from "@/react/zustand/useAppStore";
 import { SupportedLanguage } from "@/shared/language/supportedLanguages";
-import { dashboardPath, deleteAccountPath, songEditPath } from "@/shared/paths";
+import {
+	dashboardPath,
+	deleteAccountPath,
+	songEditPath,
+	songLibraryPath,
+} from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 import { justSignedOutKey } from "@/shared/sessionStorageKeys";
 import type { UserSessionData } from "@/shared/userSessionData";
@@ -37,11 +42,19 @@ function SongManagementSection({
 				</button>
 				<button
 					className="rounded border border-blue-600 bg-transparent px-4 py-2 text-blue-600 transition-colors duration-150 hover:bg-blue-50/5"
-					onClick={() => {
-						// Navigate to songs library - placeholder for future implementation
-					}}
+					onClick={() =>
+						navigate(`/${currentLang}/${dashboardPath}/${songLibraryPath}`)
+					}
 				>
 					{t("pages.dashboard.manageSongs", "Manage Songs")}
+				</button>
+				<button
+					className="rounded border border-green-600 bg-transparent px-4 py-2 text-green-600 transition-colors duration-150 hover:bg-green-50/5"
+					onClick={() =>
+						navigate(`/${currentLang}/${dashboardPath}/${songLibraryPath}`)
+					}
+				>
+					{t("pages.dashboard.songLibrary", "Song Library")}
 				</button>
 			</div>
 		</div>

@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate (or ./scripts/generate-effect-schemas.sh)
  *
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2025-11-09T18:29:07.273Z
+ * Last generated: 2025-11-10T03:11:00.227Z
  *
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -68,6 +68,49 @@ export const SongUpdateSchema: Schema.Struct<{
 });
 
 export type SongUpdate = Schema.Schema.Type<typeof SongUpdateSchema>;
+
+// song_library table schemas
+export const SongLibrarySchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	song_id: typeof Schema.UUID;
+	song_owner_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	song_id: Schema.UUID,
+	song_owner_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type SongLibrary = Schema.Schema.Type<typeof SongLibrarySchema>;
+
+export const SongLibraryInsertSchema: Schema.Struct<{
+	song_id: typeof Schema.UUID;
+	song_owner_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	song_id: Schema.UUID,
+	song_owner_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type SongLibraryInsert = Schema.Schema.Type<
+	typeof SongLibraryInsertSchema
+>;
+
+export const SongLibraryUpdateSchema: Schema.Struct<{
+	song_id: Schema.optional<typeof Schema.UUID>;
+	song_owner_id: Schema.optional<typeof Schema.UUID>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	song_id: Schema.optional(Schema.UUID),
+	song_owner_id: Schema.optional(Schema.UUID),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type SongLibraryUpdate = Schema.Schema.Type<
+	typeof SongLibraryUpdateSchema
+>;
 
 // song_public table schemas
 export const SongPublicSchema: Schema.Struct<{

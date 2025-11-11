@@ -22,6 +22,7 @@ import ProtectedLayout from "@/react/auth/ProtectedLayout";
 import DashboardPage from "@/react/pages/DashboardPage";
 import DeleteAccountConfirmPage from "@/react/pages/DeleteAccountConfirmPage";
 import SongEditPage from "@/react/pages/SongEditPage";
+import SongLibraryPage from "@/react/pages/SongLibraryPage";
 import {
 	aboutPath,
 	activityDemoPath,
@@ -33,6 +34,7 @@ import {
 	reactFeaturesPath,
 	registerPath,
 	songEditPath,
+	songLibraryPath,
 	suspenseDemoPath,
 	suspenseUseDemoPath,
 	uploadDemoPath,
@@ -143,6 +145,10 @@ const router = createBrowserRouter([
 							{
 								path: `${songEditPath}/:song_id`,
 								element: <SongEditPage />,
+							},
+							{
+								path: songLibraryPath,
+								element: <SongLibraryPage />,
 							},
 						],
 					},
