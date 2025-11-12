@@ -368,7 +368,7 @@ npm run build:all     # Both in parallel
 
 ```bash
 # package.json - Optimized deployment scripts
-"deploy:pages": "npm run build:client && node ./scripts/prepare-functions.mjs && dotenv -e .env -- bash -lc 'cd dist && npx wrangler pages deploy . --project-name=\"$CLOUDFLARE_PROJECT\" --branch=main --commit-dirty=true'",
+"deploy:pages": "npm run build:client && bun run scripts/build/prepare-functions.ts && dotenv -e .env -- bash -lc 'cd dist && npx wrangler pages deploy . --project-name=\"$CLOUDFLARE_PROJECT\" --branch=main --commit-dirty=true'",
 "deploy:api": "npm run build:api && cd api && npx wrangler deploy --env production",
 "deploy:full": "npm run deploy && npm run cache:purge"
 ```

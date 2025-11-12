@@ -4,8 +4,16 @@
  * Enhanced script to generate Effect-TS schemas from Supabase generated types
  * This version includes a proper TypeScript AST parser to extract table definitions
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { dirname, join } from "path";
+import { execFileSync } from "child_process";
+import {
+	existsSync,
+	mkdirSync,
+	readFileSync,
+	renameSync,
+	rmSync,
+	writeFileSync,
+} from "fs";
+import { dirname, join, relative } from "path";
 
 import { safeGet } from "@/shared/utils/safe";
 
@@ -23,6 +31,228 @@ type TableDefinition = {
 	name: string;
 	columns: ColumnDefinition[];
 };
+
+function loadEnvVariables(envFilePath: string): Record<string, string> {
+	const envEntries = new Map<string, string>();
+	const content = readFileSync(envFilePath, "utf8");
+	const lines = content.split(/\r?\n/);
+	for (const rawLine of lines) {
+		const line = rawLine.trim();
+		if (line === "" || line.startsWith("#")) {
+			continue;
+		}
+
+		const normalized = line.startsWith("export ")
+			? line.slice("export ".length)
+			: line;
+		const equalsIndex = normalized.indexOf("=");
+		if (equalsIndex === -1) {
+			continue;
+		}
+
+		const key = normalized.slice(0, equalsIndex).trim();
+		if (key === "") {
+			continue;
+		}
+
+		let value = normalized.slice(equalsIndex + 1).trim();
+		if (
+			(value.startsWith("\"") && value.endsWith("\"")) ||
+			(value.startsWith("'") && value.endsWith("'"))
+		) {
+			value = value.slice(1, -1);
+		}
+		if (!/^[A-Z0-9_]+$/u.test(key)) {
+			continue;
+		}
+
+		envEntries.set(key, value);
+	}
+
+	return Object.fromEntries(envEntries.entries());
+}
+
+function assertPathExists(params: Readonly<{ path: string; errorMessage: string }>): void {
+	if (!existsSync(params.path)) {
+		console.error(params.errorMessage);
+		process.exit(1);
+	}
+}
+
+type SupabaseGenerationConfig = {
+	cliPath: string;
+	projectRoot: string;
+	tempTypesPath: string;
+	env: NodeJS.ProcessEnv;
+	projectRef: string;
+};
+
+type MoveSupabaseTypesConfig = {
+	tempPath: string;
+	destinationPath: string;
+	generated: boolean;
+};
+
+// The config includes NodeJS.ProcessEnv which isn't readonly, so lint rule is disabled.
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+function generateSupabaseTypes(config: Readonly<SupabaseGenerationConfig>): boolean {
+	console.log("📥 Generating Supabase TypeScript types...");
+	if (existsSync(config.tempTypesPath)) {
+		rmSync(config.tempTypesPath);
+	}
+
+	if (config.projectRef === "") {
+		console.warn(
+			"⚠️  SUPABASE_PROJECT_REF not set. Skipping remote Supabase type generation.",
+		);
+		return false;
+	}
+
+	try {
+		const supabaseOutput = execFileSync(
+			config.cliPath,
+			[
+				"gen",
+				"types",
+				"typescript",
+				"--project-id",
+				config.projectRef,
+				"--schema",
+				"public",
+			],
+			{
+				cwd: config.projectRoot,
+				env: config.env,
+				encoding: "utf8",
+			},
+		);
+
+		if (supabaseOutput.trim().length > 0) {
+			writeFileSync(config.tempTypesPath, supabaseOutput, "utf8");
+			console.log("✅ Successfully generated Supabase types");
+			return true;
+		}
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.error("❌ Error generating Supabase types:", message);
+	}
+
+	console.log("⚠️  Failed to generate Supabase types from remote database");
+	console.log("This could be due to:");
+	console.log("  • Temporary Supabase API issues");
+	console.log("  • Project not found or no public schema");
+	console.log("  • Network connectivity issues");
+	console.log("");
+	console.log("🔧 Falling back to example schemas...");
+	if (existsSync(config.tempTypesPath)) {
+		rmSync(config.tempTypesPath);
+	}
+	return false;
+}
+
+function moveSupabaseTypes(config: Readonly<MoveSupabaseTypesConfig>): string | undefined {
+	if (!config.generated || !existsSync(config.tempPath)) {
+		console.log("📁 No types file to move (using fallback schemas)");
+		return undefined;
+	}
+
+	console.log("📁 Moving Supabase types to shared/src/generated directory...");
+	try {
+		mkdirSync(dirname(config.destinationPath), { recursive: true });
+		renameSync(config.tempPath, config.destinationPath);
+		return config.destinationPath;
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.warn("Warning: could not move Supabase types:", message);
+		if (existsSync(config.tempPath)) {
+			rmSync(config.tempPath);
+		}
+		return undefined;
+	}
+}
+
+function logGeneratedTables(tables: ReadonlyArray<TableDefinition>): void {
+	console.log(`📊 Generated schemas for ${tables.length} tables:`);
+	tables.forEach((table) => {
+		console.log(`  - ${table.name} (${table.columns.length} columns)`);
+	});
+}
+
+function runEslintFix(
+	params: Readonly<{
+		projectRoot: string;
+		files: ReadonlyArray<string>;
+		cliPath: string;
+	}>,
+): void {
+	if (params.files.length === 0) {
+		return;
+	}
+
+	console.log("🔧 Running ESLint fix on generated files...");
+	try {
+		execFileSync(
+			params.cliPath,
+			["--no-warn-ignored", ...params.files, "--fix"],
+			{
+				cwd: params.projectRoot,
+				stdio: "pipe",
+			},
+		);
+		console.log("✅ ESLint fix completed on generated schemas");
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.warn("⚠️  ESLint fix failed:", message);
+	}
+}
+
+function runPrettierWrite(
+	params: Readonly<{
+		projectRoot: string;
+		files: ReadonlyArray<string>;
+		cliPath: string;
+	}>,
+): void {
+	if (params.files.length === 0) {
+		return;
+	}
+
+	console.log("🔧 Running Prettier on generated files...");
+	try {
+		execFileSync(params.cliPath, ["--write", ...params.files], {
+			cwd: params.projectRoot,
+			stdio: "inherit",
+		});
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.warn("⚠️  Prettier format failed:", message);
+	}
+}
+
+function logFinalSummary(
+	params: Readonly<{
+		projectRoot: string;
+		schemasPath: string;
+		supabaseTypesPath?: string;
+	}>,
+): void {
+	console.log("✅ Effect-TS schemas generated successfully!");
+	console.log("📁 Generated files:");
+	console.log(
+		`  • ${relative(params.projectRoot, params.schemasPath)} (Effect schemas)`,
+	);
+	if (params.supabaseTypesPath !== undefined) {
+		console.log(
+			`  • ${relative(params.projectRoot, params.supabaseTypesPath)} (Raw Supabase types)`,
+		);
+	}
+
+	console.log("");
+	console.log("Next steps:");
+	console.log("  1. Review and adjust the generated schemas");
+	console.log("  2. Import them in your API and frontend code");
+	console.log("  3. Replace manual schema definitions where appropriate");
+}
 
 // Enhanced type mapping from PostgreSQL/Supabase types to Effect Schema types
 const typeMapping: Record<string, string> = {
@@ -476,8 +706,8 @@ function generateEffectSchemasFile(
  * ⚠️  GENERATED FILE - DO NOT EDIT DIRECTLY
  * 
  * This file was automatically generated by:
- * File: scripts/generateEffectSchemas.ts
- * Command: npm run supabase:generate (or ./scripts/generate-effect-schemas.sh)
+ * File: scripts/build/generateEffectSchemas.ts
+* Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
  * Last generated: ${new Date().toISOString()}
@@ -583,58 +813,93 @@ export type ApiResponse<T> =
 // Main execution
 async function main(): Promise<void> {
 	const projectRoot = process.cwd();
-	const supabaseTypesPath = join(projectRoot, "temp-supabase-types.ts");
-	const outputPath = join(
+	const tempSupabaseTypesPath = join(projectRoot, "temp-supabase-types.ts");
+	const sharedGeneratedDir = join(projectRoot, "shared", "src", "generated");
+	const supabaseTypesDestination = join(sharedGeneratedDir, "supabaseTypes.ts");
+	const schemasOutputPath = join(sharedGeneratedDir, "supabaseSchemas.ts");
+
+	console.log("🚀 Generating Effect-TS schemas from Supabase...");
+
+	const envPath = join(projectRoot, ".env");
+	assertPathExists({
+		path: envPath,
+		errorMessage: "❌ .env file not found. Please create one with SUPABASE_PROJECT_REF",
+	});
+
+	const supabaseCliPath = join(projectRoot, "node_modules", ".bin", "supabase");
+	assertPathExists({
+		path: supabaseCliPath,
+		errorMessage: "❌ Supabase CLI not found. Install it with: npm install -D supabase",
+	});
+
+	const eslintCliPath = join(projectRoot, "node_modules", ".bin", "eslint");
+	assertPathExists({
+		path: eslintCliPath,
+		errorMessage: "❌ ESLint binary not found. Install it with: npm install -D eslint",
+	});
+
+	const prettierCliPath = join(projectRoot, "node_modules", ".bin", "prettier");
+	assertPathExists({
+		path: prettierCliPath,
+		errorMessage: "❌ Prettier binary not found. Install it with: npm install -D prettier",
+	});
+
+	const envFromFile = loadEnvVariables(envPath);
+	const mergedEnv = { ...process.env, ...envFromFile } as NodeJS.ProcessEnv;
+	const projectRef = mergedEnv["SUPABASE_PROJECT_REF"] ?? "";
+
+	const supabaseTypesGenerated = generateSupabaseTypes({
+		cliPath: supabaseCliPath,
 		projectRoot,
-		"shared",
-		"generated",
-		"supabaseSchemas.ts",
-	);
+		tempTypesPath: tempSupabaseTypesPath,
+		env: mergedEnv,
+		projectRef,
+	});
 
-	try {
-		console.log("🔄 Parsing Supabase types...");
-		const tables = parseSupabaseTypes(supabaseTypesPath);
+	console.log("⚡ Converting to Effect-TS schemas...");
+	console.log("🔄 Parsing Supabase types...");
+	const tables = parseSupabaseTypes(tempSupabaseTypesPath);
+	logGeneratedTables(tables);
 
-		console.log(`📊 Generated schemas for ${tables.length} tables:`);
-		tables.forEach((table) => {
-			console.log(`  - ${table.name} (${table.columns.length} columns)`);
-		});
+	console.log("⚡ Generating Effect schemas...");
+	generateEffectSchemasFile(tables, schemasOutputPath);
 
-		console.log("⚡ Generating Effect schemas...");
-		generateEffectSchemasFile(tables, outputPath);
+	const supabaseTypesFinalPath = moveSupabaseTypes({
+		tempPath: tempSupabaseTypesPath,
+		destinationPath: supabaseTypesDestination,
+		generated: supabaseTypesGenerated,
+	});
 
-		// Run ESLint fix on generated files
-		console.log("🔧 Running ESLint fix on generated files...");
-		try {
-			const { execSync } = await import("child_process");
-			execSync(`npx eslint "${outputPath}" --fix`, {
-				stdio: "pipe",
-				cwd: projectRoot,
-			});
-			console.log("✅ ESLint fix completed on generated schemas");
-		} catch (eslintError) {
-			console.warn("⚠️  ESLint fix failed:", eslintError);
-		}
+	const lintTargets: ReadonlyArray<string> =
+		supabaseTypesFinalPath === undefined
+			? [schemasOutputPath]
+			: [schemasOutputPath, supabaseTypesFinalPath];
 
-		console.log("🎉 Done! Generated schemas include:");
-		console.log("  • Base schemas for each table");
-		console.log("  • Insert schemas (excluding auto-generated fields)");
-		console.log("  • Update schemas (all fields optional except ID)");
-		console.log("  • API response wrapper schemas");
-		console.log("");
-		console.log("📝 Next steps:");
-		console.log(
-			"  1. Review the generated schemas in shared/generated/supabaseSchemas.ts",
-		);
-		console.log("  2. Adjust validation rules as needed");
-		console.log(
-			"  3. Import and use schemas in your API endpoints and frontend",
-		);
-		console.log("  4. Consider adding custom business logic validations");
-	} catch (error) {
-		console.error("❌ Error generating schemas:", error);
-		process.exit(1);
+	runEslintFix({
+		projectRoot,
+		files: lintTargets,
+		cliPath: eslintCliPath,
+	});
+	runPrettierWrite({
+		projectRoot,
+		files: lintTargets,
+		cliPath: prettierCliPath,
+	});
+
+	if (supabaseTypesFinalPath === undefined && existsSync(tempSupabaseTypesPath)) {
+		rmSync(tempSupabaseTypesPath);
 	}
+
+	const summaryConfig =
+		supabaseTypesFinalPath === undefined
+			? { projectRoot, schemasPath: schemasOutputPath }
+			: {
+				projectRoot,
+				schemasPath: schemasOutputPath,
+				supabaseTypesPath: supabaseTypesFinalPath,
+			};
+
+	logFinalSummary(summaryConfig);
 }
 
 if (import.meta.main) {

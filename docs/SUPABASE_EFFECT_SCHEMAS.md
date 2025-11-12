@@ -34,7 +34,7 @@ This will:
 dotenv -e .env -- sh -c 'npx supabase gen types typescript --project-id $SUPABASE_PROJECT_REF --schema public > temp-supabase-types.ts'
 
 # 2. Generate Effect schemas
-bun run scripts/generateEffectSchemas.ts
+bun run scripts/build/generateEffectSchemas.ts
 
 # 3. Clean up
 rm temp-supabase-types.ts
@@ -211,7 +211,7 @@ npm install -g supabase dotenv-cli
 
 ### "Permission denied"
 
-- Make the script executable: `chmod +x scripts/generate-effect-schemas.sh`
+- Run the generator with Bun: `bun run scripts/build/generateEffectSchemas.ts`
 
 ### Custom Types Not Recognized
 
