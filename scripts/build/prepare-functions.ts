@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 type FileCallback = (filePath: string) => Promise<void>;
 
+// Prepares the Cloudflare functions bundle by copying shared code into dist and fixing import paths.
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "../..");

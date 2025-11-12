@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync } from "fs";
 function findAllTsFiles(pattern: string): string[] {
 	try {
 		const output = execSync(`find . -name "${pattern}" -type f`, {
-			encoding: "utf-8",
+			encoding: "utf8",
 			cwd: process.cwd(),
 		});
 		return output
@@ -90,7 +90,7 @@ function convertReactImports(filePath: string, content: string): string {
 
 	let updatedContent = content;
 
-	// Convert ../.. patterns in React files to @/react
+	// Convert ../../ patterns in React files to @/react
 	updatedContent = updatedContent.replace(
 		/import\s+([^'"]*)\s+from\s+["'](\.\.\/)+([^'"]*?)["'];?/g,
 		(...args) => {
@@ -130,7 +130,7 @@ function convertSharedImports(content: string): string {
 
 function updateFileImports(filePath: string): boolean {
 	try {
-		const content = readFileSync(filePath, "utf-8");
+		const content = readFileSync(filePath, "utf8");
 		let updatedContent = content;
 
 		// Apply conversions
@@ -140,7 +140,7 @@ function updateFileImports(filePath: string): boolean {
 
 		// Only write if content changed
 		if (updatedContent !== content) {
-			writeFileSync(filePath, updatedContent, "utf-8");
+			writeFileSync(filePath, updatedContent, "utf8");
 			console.log(`✅ Updated: ${filePath}`);
 			return true;
 		}

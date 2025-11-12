@@ -37,7 +37,7 @@
 		"format:check": "prettier --check .",
 		"preview": "vite preview",
 		"file:check": "bun run scripts/fileCheck.ts",
-		"supabase:generate": "bun run scripts/build/generateEffectSchemas.ts",
+		"supabase:generate": "bun run scripts/build/generate-effect-schemas.ts",
 		"supabase:migrate": "./scripts/run-migrations.sh",
 		"supabase:migrate:ts": "bun run scripts/migrate.ts",
 		"supabase:migrate:single": "dotenv -e .env -- sh -c 'psql -h \"$PGHOST\" -U \"$PGUSER\" -d \"$PGDATABASE\" -f \"$1\"' --",
