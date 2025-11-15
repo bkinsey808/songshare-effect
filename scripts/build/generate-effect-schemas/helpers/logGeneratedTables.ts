@@ -1,0 +1,9 @@
+/* eslint-disable no-console */
+import type { TableDefinition } from "./generate-effect-schemas-types";
+
+export function logGeneratedTables(tables: ReadonlyArray<TableDefinition>): void {
+	console.log(`📊 Generated schemas for ${tables.length} tables:`);
+	tables.forEach((table) => {
+		console.log(`  - ${table.name} (${table.columns.length} columns)`);
+	});
+}

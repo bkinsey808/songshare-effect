@@ -12,6 +12,7 @@
 		"btrim",
 		"bytea",
 		"callback",
+		"Colocating",
 		"combinators",
 		"Contentful",
 		"DISTRO",
@@ -51,6 +52,7 @@
 		"trivago",
 		"viewports",
 		"Vite",
+		"Vitest",
 		"WCAG",
 		"xmloption"
 	],
