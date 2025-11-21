@@ -10,7 +10,7 @@ import {
 import handleJustSignedIn from "@/react/auth/handleJustSignedIn";
 import useEnsureSignedIn from "@/react/auth/useEnsureSignedIn";
 import { useAppStore } from "@/react/zustand/useAppStore";
-import { defaultLanguage } from "@/shared/language/supportedLanguages";
+import { defaultLanguage } from "@/shared/language/supported-languages";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 
 /**

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
 import LanguageSwitcher from "./language/LanguageSwitcher";
-import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import { aboutPath } from "@/shared/paths";
 
 function Navigation(): ReactElement {

@@ -2,8 +2,8 @@ import { preferredLanguageCookieName } from "@/shared/cookies";
 import {
 	type SupportedLanguageType,
 	defaultLanguage,
-	isSupportedLanguage,
-} from "@/shared/language/supportedLanguages";
+} from "@/shared/language/supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
 export const setStoredLanguage = (language: SupportedLanguageType): void => {
 	if (typeof document !== "undefined") {

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAppForm } from "@/react/form/useAppForm";
-import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import { apiAccountRegisterPath, dashboardPath } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 import {

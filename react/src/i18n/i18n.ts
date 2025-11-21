@@ -6,7 +6,7 @@ import es from "./resources/es.json";
 import zh from "./resources/zh.json";
 // Import translation resources
 import { detectInitialLanguage } from "@/react/language/detectInitialLanguage";
-import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
 const resources: Record<
 	SupportedLanguageType,

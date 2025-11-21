@@ -1,8 +1,6 @@
 import { preferredLanguageCookieName } from "../cookies";
-import {
-	type SupportedLanguageType,
-	isSupportedLanguage,
-} from "./supportedLanguages";
+import { type SupportedLanguageType } from "./supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
 export const parseLanguageCookie = (
 	cookieHeader: string | null,

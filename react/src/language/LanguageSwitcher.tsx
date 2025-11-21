@@ -6,9 +6,9 @@ import {
 	SupportedLanguage,
 	type SupportedLanguageType,
 	defaultLanguage,
-	isSupportedLanguage,
 	languageNames,
-} from "@/shared/language/supportedLanguages";
+} from "@/shared/language/supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { safeGet } from "@/shared/utils/safe";
 
 export default function LanguageSwitcher(): ReactElement {

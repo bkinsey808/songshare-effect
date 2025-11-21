@@ -6,8 +6,8 @@ import { getStoredLanguage, setStoredLanguage } from "./languageStorage";
 import {
 	type SupportedLanguageType,
 	defaultLanguage,
-	isSupportedLanguage,
-} from "@/shared/language/supportedLanguages";
+} from "@/shared/language/supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function LanguageProviderInner() {

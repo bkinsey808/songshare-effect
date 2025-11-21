@@ -454,6 +454,10 @@ export default [
 			// Disable the one rule that prohibits direct use of process.env
 			// in scripts; scripts often read env vars for local tooling.
 			"no-process-env": "off",
+
+			// Allow console.log in scripts without ESLint warnings. Scripts
+			// are tooling helpers and frequently rely on console output.
+			"no-console": "off",
 		},
 	},
 	// Allow top-level config files to use `process.env` (Playwright,

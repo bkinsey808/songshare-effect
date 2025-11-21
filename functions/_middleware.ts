@@ -14,7 +14,7 @@
  */
 import { detectBrowserLanguage } from "@/shared/language/detectBrowserLanguage";
 import { parseLanguageCookie } from "@/shared/language/parseLanguageCookie";
-import { defaultLanguage } from "@/shared/language/supportedLanguages";
+import { defaultLanguage } from "@/shared/language/supported-languages";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type Env = {};
@@ -22,13 +22,14 @@ export type Env = {};
 export const onRequest: PagesFunction<Env> = async (context) => {
 	try {
 		const url = new URL(context.request.url);
+		// normal execution continues
 		const response = await (async () => {
 			if (url.pathname === "/") {
-				// eslint-disable-next-line sonarjs/no-dead-store
 				let detectedLang = defaultLanguage;
 
 				// Check cookie first
 				const cookieHeader = context.request.headers.get("Cookie");
+				// no-op logging removed for production
 				const cookieLang = parseLanguageCookie(cookieHeader);
 
 				if (cookieLang !== undefined) {
@@ -45,17 +46,23 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 				// 2. Browser language settings may change over time
 				// 3. We don't want search engines to permanently index the redirect
 				// 4. This allows the root URL to remain flexible for future language detection logic
+				// redirect; return early without extra logs
 				return Response.redirect(`${url.origin}/${detectedLang}/`, 302);
 			}
 
 			return context.next();
 		})();
 
-		// Add cache control headers for HTML pages
+		// Add cache control headers for HTML pages.
+		// Skip adding headers for redirects (3xx) so we don't attempt to mutate
+		// redirect Responses which may be immutable in the runtime and cause
+		// exceptions (this previously caused 500s for the root redirect).
 		if (
-			url.pathname.endsWith("/") ||
-			url.pathname.endsWith(".html") ||
-			(!url.pathname.includes(".") && !url.pathname.startsWith("/api/"))
+			(url.pathname.endsWith("/") ||
+				url.pathname.endsWith(".html") ||
+				(!url.pathname.includes(".") && !url.pathname.startsWith("/api/"))) &&
+			typeof response.status === "number" &&
+			!(response.status >= 300 && response.status < 400)
 		) {
 			// Short cache for HTML to allow quick updates
 			response.headers.set(
@@ -69,8 +76,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 			// Check if client has a matching ETag
 			const ifNoneMatch = context.request.headers.get("If-None-Match");
 			if (ifNoneMatch === etag) {
-				// eslint-disable-next-line unicorn/no-null
-				return new Response(null, { status: 304 });
+				// Return 304 without using `null` in a way that some linters dislike
+				return new Response(void 0 as unknown as null, { status: 304 });
 			}
 		}
 

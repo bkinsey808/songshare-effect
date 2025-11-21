@@ -2,20 +2,10 @@ import { Schema } from "effect";
 import type { Either } from "effect/Either";
 import type { ParseError } from "effect/ParseResult";
 
-export const SupportedLanguage = {
-	en: "en",
-	es: "es",
-	zh: "zh",
-} as const;
-
-export const languageNames: Record<SupportedLanguageType, string> = {
-	en: "English",
-	es: "Español",
-	zh: "中文",
-};
-
-export type SupportedLanguageType =
-	(typeof SupportedLanguage)[keyof typeof SupportedLanguage];
+import {
+	SupportedLanguage,
+	type SupportedLanguageType,
+} from "@/shared/language/supported-languages";
 
 export const SupportedLanguageSchema: Schema.Schema<
 	SupportedLanguageType,
@@ -49,5 +39,3 @@ export const isSupportedLanguage = (
 		return false;
 	}
 };
-
-export const defaultLanguage: SupportedLanguageType = SupportedLanguage.en;

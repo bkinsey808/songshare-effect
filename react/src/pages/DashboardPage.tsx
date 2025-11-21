@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
 import { getStoreApi, useAppStoreHydrated } from "@/react/zustand/useAppStore";
-import { SupportedLanguage } from "@/shared/language/supportedLanguages";
+import { SupportedLanguage } from "@/shared/language/supported-languages";
 import {
 	dashboardPath,
 	deleteAccountPath,

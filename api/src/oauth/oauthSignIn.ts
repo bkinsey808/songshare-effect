@@ -12,10 +12,10 @@ import { handleHttpEndpoint } from "@/api/http/http-utils";
 import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
 import { oauthCsrfCookieName } from "@/shared/cookies";
 import {
-	SupportedLanguageSchema,
 	type SupportedLanguageType,
 	defaultLanguage,
-} from "@/shared/language/supportedLanguages";
+} from "@/shared/language/supported-languages";
+import { SupportedLanguageSchema } from "@/shared/language/supported-languages-effect";
 import type { OauthState } from "@/shared/oauth/oauthState";
 import { apiOauthCallbackPath } from "@/shared/paths";
 import { ProviderSchema, type ProviderType } from "@/shared/providers";

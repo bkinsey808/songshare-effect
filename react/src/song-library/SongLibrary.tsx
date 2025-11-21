@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import type { SongLibraryEntry } from "./song-library-schema";
 import { useAppStore } from "@/react/zustand/useAppStore";
-import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 type SongLibraryMethods = {

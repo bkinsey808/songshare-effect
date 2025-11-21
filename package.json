@@ -53,7 +53,9 @@
 		"dev:mcp:restart": "npm run dev:mcp:stop && sleep 1 && npm run dev:mcp",
 		"dev:monitor:tail": "bash -lc 'tail -n 200 -f /tmp/monitor.log'",
 		"dev:monitor:status": "bash -lc 'if [ -f /tmp/dev-mcp-monitor.pid ]; then echo \"Monitor pid: $(cat /tmp/dev-mcp-monitor.pid)\"; ps -fp $(cat /tmp/dev-mcp-monitor.pid) || true; else echo \"No monitor pidfile\"; fi'",
-		"deploy:pages": "npm run build:client && bun run scripts/build/prepare-functions/prepare-functions.ts && dotenv -e .env -- bash -lc 'cd dist && npx wrangler pages deploy . --project-name=\"$CLOUDFLARE_PROJECT\" --branch=main --commit-dirty=true'",
+		"deploy:pages": "npm run build:client && bun run scripts/build/prepare-functions/prepare-functions.ts && npm run check:functions-dist-imports && dotenv -e .env -- bash -lc 'cd dist && npx wrangler pages deploy . --project-name=\"$CLOUDFLARE_PROJECT\" --branch=main --commit-dirty=true'",
+		"check:functions-dist-imports": "bun ./scripts/check-dist-functions-imports.ts dist/functions",
+		"test:functions-dist": "bun run scripts/build/prepare-functions/prepare-functions.ts && npm run check:functions-dist-imports",
 		"deploy:api": "npm run build:api && cd api && npx wrangler deploy --env production",
 		"deploy": "npm run deploy:pages && npm run deploy:api",
 		"deploy:full": "npm run deploy && echo '🔄 Purging cache...' && ./scripts/purge-cache.sh",
@@ -86,6 +88,7 @@
 		"zustand": "^5.0.8"
 	},
 	"devDependencies": {
+		"esbuild": "^0.18.20",
 		"@axe-core/playwright": "^4.11.0",
 		"@babel/core": "^7.28.4",
 		"@cloudflare/workers-types": "^4.20250924.0",

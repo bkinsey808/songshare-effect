@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getCookie } from "@/react/utils/cookie";
 import { getStoreApi } from "@/react/zustand/useAppStore";
-import { SupportedLanguage } from "@/shared/language/supportedLanguages";
+import { SupportedLanguage } from "@/shared/language/supported-languages";
 import { apiAccountDeletePath, dashboardPath } from "@/shared/paths";
 
 export default function DeleteAccountConfirmPage(): ReactElement {

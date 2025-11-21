@@ -18,7 +18,7 @@ import rateLimit from "@/api/rateLimit";
 import { buildRegisterJwt } from "@/api/register/buildRegisterJwt";
 import { buildUserSessionJwt } from "@/api/user-session/buildUserSessionJwt";
 import { csrfTokenCookieName, oauthCsrfCookieName } from "@/shared/cookies";
-import { defaultLanguage } from "@/shared/language/supportedLanguages";
+import { defaultLanguage } from "@/shared/language/supported-languages";
 import { OauthStateSchema } from "@/shared/oauth/oauthState";
 import { dashboardPath, registerPath } from "@/shared/paths";
 import {

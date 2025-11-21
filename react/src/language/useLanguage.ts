@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import {
 	type SupportedLanguageType,
 	defaultLanguage,
-	isSupportedLanguage,
-} from "@/shared/language/supportedLanguages";
+} from "@/shared/language/supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
 /**
  * Minimal hook that returns the current language as a type-safe SupportedLanguageType.
