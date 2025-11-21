@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create reports directory
+        run: mkdir -p reports
+
       - name: Lint
         run: npm run lint
 
