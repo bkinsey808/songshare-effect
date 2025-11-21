@@ -3,7 +3,11 @@ import react from "@vitejs/plugin-react";
 import autoprefixer from "autoprefixer";
 import fs from "fs";
 import path from "path";
+// Fix __dirname for ESM context
+import { fileURLToPath } from "url";
 import { type ServerOptions, type UserConfig, defineConfig } from "vite";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vite.dev/config/
 const config: UserConfig = defineConfig({
@@ -61,7 +65,7 @@ const config: UserConfig = defineConfig({
 			// Bind explicitly to IPv4 localhost to avoid test probes resolving
 			// to IPv6 (::1) on some systems which can cause connection refused
 			// races when Playwright probes 127.0.0.1.
-			host: "127.0.0.1",
+			host: "localhost",
 			port: 5173,
 			strictPort: true,
 			proxy: {
