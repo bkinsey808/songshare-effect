@@ -50,9 +50,11 @@ jobs:
 
       - name: Publish JUnit test report to GitHub Checks
         if: always()
-        uses: actions/upload-test-report@v1
+        uses: dorny/test-reporter@v1
         with:
-          file: reports/unit-junit.xml
+          name: Unit Tests Results
+          path: reports/unit-junit.xml
+          reporter: java-junit
 
       - name: Upload coverage report
         if: always()
