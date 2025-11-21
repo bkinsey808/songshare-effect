@@ -5,6 +5,7 @@ import { type Song } from "../song-schema";
 import { type SongSubscribeSlice } from "./songSlice";
 import { getSupabaseAuthToken } from "@/react/supabase/getSupabaseAuthToken";
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 // Supabase realtime payload type for song
 type SongPrivateRealtimePayload = {
@@ -15,7 +16,9 @@ type SongPrivateRealtimePayload = {
 
 // Helper function to update state after song deletion
 const createDeleteUpdateFunction = (deletedPrivateSongId: string) => {
-	return (state: Readonly<SongSubscribeSlice>): Partial<SongSubscribeSlice> => {
+	return (
+		state: ReadonlyDeep<SongSubscribeSlice>,
+	): Partial<ReadonlyDeep<SongSubscribeSlice>> => {
 		// Create new object without the deleted song
 		const newPrivateSongs = Object.fromEntries(
 			Object.entries(state.privateSongs).filter(
@@ -35,8 +38,10 @@ const createDeleteUpdateFunction = (deletedPrivateSongId: string) => {
 export default function subscribeToActivePrivateSongs(
 	set: (
 		partial:
-			| Partial<SongSubscribeSlice>
-			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
+			| Partial<ReadonlyDeep<SongSubscribeSlice>>
+			| ((
+					state: ReadonlyDeep<SongSubscribeSlice>,
+			  ) => Partial<SongSubscribeSlice>),
 	) => void,
 	get: () => SongSubscribeSlice,
 ): () => (() => void) | undefined {

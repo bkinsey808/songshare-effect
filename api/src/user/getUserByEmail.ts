@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
 import { DatabaseError } from "@/api/errors";
 import { normalizeNullsTopLevel } from "@/api/oauth/normalizeNullsTopLevel";
 import { normalizeLinkedProviders } from "@/api/provider/normalizeLinkedProviders";
+import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
 
 type SupabaseMaybeSingleRes = {
@@ -12,6 +12,11 @@ type SupabaseMaybeSingleRes = {
 	error?: unknown;
 	status?: number;
 };
+
+type GetUserByEmailParams = Readonly<{
+	supabase: Readonly<ReadonlySupabaseClient>;
+	email: string;
+}>;
 
 /**
  * Lookup a user by email using a Supabase client and return a validated user
@@ -47,8 +52,9 @@ type SupabaseMaybeSingleRes = {
  * // `user.linked_providers` will be a runtime `string[]` (or `[]` on error)
  * ```
  *
- * @param supabase - An instantiated Supabase client used to query the DB.
- * @param email - Email address to look up (case and normalization should be
+ * @param params - The parameters for the function.
+ * @param params.supabase - An instantiated Supabase client used to query the DB.
+ * @param params.email - Email address to look up (case and normalization should be
  * handled by the caller if necessary).
  * @returns A promise that resolves to the validated user object (with
  * runtime-normalized `linked_providers: string[]`) or `undefined` when no
@@ -57,11 +63,11 @@ type SupabaseMaybeSingleRes = {
  * map them to an HTTP 500. The `PGRST205` PostgREST error is treated as
  * "not found" and does not throw.
  */
-export function getUserByEmail(
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- SupabaseClient is complex external type
-	supabase: SupabaseClient,
-	email: string,
-): Effect.Effect<
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+export function getUserByEmail({
+	supabase,
+	email,
+}: GetUserByEmailParams): Effect.Effect<
 	Schema.Schema.Type<typeof UserSchema> | undefined,
 	DatabaseError
 > {

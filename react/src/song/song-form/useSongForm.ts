@@ -39,8 +39,9 @@ type UseSongFormReturn = {
 	slides: Record<string, Slide>;
 	fields: string[];
 	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
-	setSlides: (newSlides: Record<string, Slide>) => void;
+	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 	toggleField: (field: string, checked: boolean) => void;
+
 	handleFormSubmit: (event: React.FormEvent) => Promise<void>;
 	formRef: React.RefObject<HTMLFormElement | null>;
 	resetForm: () => void;
@@ -127,11 +128,13 @@ export default function useSongForm(): UseSongFormReturn {
 	});
 
 	// Handle form submission with data collection
+
 	const handleFormSubmit = async (event: React.FormEvent): Promise<void> => {
 		event.preventDefault();
 
 		// Read form data
-		const formDataObj = new FormData(formRef.current || undefined);
+		// Keep typing clean — use nullish coalescing instead of `|| undefined`.
+		const formDataObj = new FormData(formRef.current ?? undefined);
 		const currentFormData: Record<string, unknown> = {};
 		for (const [key, value] of formDataObj.entries()) {
 			safeSet(currentFormData, key, value.toString());
@@ -154,7 +157,7 @@ export default function useSongForm(): UseSongFormReturn {
 		setSlideOrder(newOrder);
 	};
 
-	const updateSlides = (newSlides: Record<string, Slide>): void => {
+	const updateSlides = (newSlides: Readonly<Record<string, Slide>>): void => {
 		setSlides(newSlides);
 	};
 

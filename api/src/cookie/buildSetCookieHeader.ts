@@ -1,20 +1,22 @@
-import { type Context } from "hono";
-
 import { buildSameSiteAttr } from "@/api/cookie/buildSameSiteAttr";
+import { type ReadonlyContext } from "@/api/hono/hono-context";
 
 type EnvLike = Record<string, string | undefined>;
 
+type BuildSetCookieHeaderParams = Readonly<{
+	ctx: ReadonlyContext;
+	name: string;
+	value: string;
+	opts?: Readonly<{ maxAge?: number; httpOnly?: boolean }>;
+}>;
+
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function buildSetCookieHeader({
 	ctx,
 	name,
 	value,
 	opts,
-}: Readonly<{
-	ctx: Context;
-	name: string;
-	value: string;
-	opts?: Readonly<{ maxAge?: number; httpOnly?: boolean }>;
-}>): string {
+}: BuildSetCookieHeaderParams): string {
 	const envRecord = ctx.env as unknown as EnvLike;
 	const isProd = envRecord.ENVIRONMENT === "production";
 	const redirectOrigin = envRecord.OAUTH_REDIRECT_ORIGIN ?? "";

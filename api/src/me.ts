@@ -1,17 +1,16 @@
 import { Effect } from "effect";
-import type { Context } from "hono";
 
-import type { Bindings } from "./env";
 import { AuthenticationError, type DatabaseError } from "./errors";
-// getErrorMessage was previously used for logging; not needed in the effect-based flow
 import { getIpAddress } from "./getIpAddress";
-import { getVerifiedUserSession } from "./userSession/getVerifiedSession";
+import { getVerifiedUserSession } from "./user-session/getVerifiedSession";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 import { type UserSessionData } from "@/shared/userSessionData";
 import { safeSet } from "@/shared/utils/safe";
 
 /** Effect-based handler for /api/me */
 export function me(
-	ctx: Context<{ Bindings: Bindings }>,
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	ctx: ReadonlyContext,
 ): Effect.Effect<UserSessionData, AuthenticationError | DatabaseError> {
 	return Effect.gen(function* ($) {
 		// Optional incoming headers dump. This was previously always-on to help

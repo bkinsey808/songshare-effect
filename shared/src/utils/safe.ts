@@ -30,14 +30,14 @@ export function superSafeGet<
 /** Safely set a property on an object, avoiding prototype pollution and unsafe access */
 // eslint-disable-next-line max-params
 export function safeSet(
-	obj: Record<string, unknown>,
+	obj: Readonly<Record<string, unknown>>,
 	key: string,
 	value: unknown,
 ): void {
 	if (key !== "__proto__" && key !== "constructor" && key !== "prototype") {
 		// Only set if not polluting prototype
 		// eslint-disable-next-line security/detect-object-injection, no-param-reassign
-		obj[key] = value;
+		(obj as Record<string, unknown>)[key] = value;
 	}
 }
 
@@ -46,12 +46,12 @@ export function safeSet(
  * Returns true if the property was deleted, false otherwise.
  */
 export default function safeDelete(
-	obj: Record<string, unknown>,
+	obj: Readonly<Record<string, unknown>>,
 	key: string,
 ): boolean {
 	if (Object.hasOwn(obj, key)) {
 		// eslint-disable-next-line security/detect-object-injection, no-param-reassign, @typescript-eslint/no-dynamic-delete
-		return delete obj[key];
+		return delete (obj as Record<string, unknown>)[key];
 	}
 	return false;
 }
@@ -62,7 +62,7 @@ export default function safeDelete(
  */
 // eslint-disable-next-line max-params
 export function safeArrayGet<T>(
-	arr: T[],
+	arr: ReadonlyArray<T>,
 	idx: number,
 	defaultValue?: T,
 ): T | undefined {
@@ -78,9 +78,16 @@ export function safeArrayGet<T>(
  * Returns a new array with the value set if the index is valid, otherwise returns the original array.
  */
 // eslint-disable-next-line max-params
-export function safeArraySet<T>(arr: T[], idx: number, value: T): T[] {
+export function safeArraySet<T>(
+	arr: ReadonlyArray<T>,
+	idx: number,
+	value: T,
+): ReadonlyArray<T> {
 	if (Array.isArray(arr) && idx >= 0 && idx < arr.length) {
-		const copy = [...arr];
+		// Use `slice()` to return a new mutable array from a ReadonlyArray<T>.
+		// This avoids spreading an `any` (or unknown) value and satisfies
+		// `@typescript-eslint/no-unsafe-assignment` while producing a typed T[].
+		const copy = arr.slice();
 		// eslint-disable-next-line security/detect-object-injection
 		copy[idx] = value;
 		return copy;

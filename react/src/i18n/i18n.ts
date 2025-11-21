@@ -1,10 +1,10 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-// Import translation resources
 import en from "./resources/en.json";
 import es from "./resources/es.json";
 import zh from "./resources/zh.json";
+// Import translation resources
 import { detectInitialLanguage } from "@/react/language/detectInitialLanguage";
 import type { SupportedLanguageType } from "@/shared/language/supportedLanguages";
 
@@ -42,7 +42,7 @@ void i18n.use(initReactI18next).init({
 
 	// Enable Suspense for smooth loading transitions
 	react: {
-		useSuspense: true,
+		useSuspense: false,
 	},
 });
 

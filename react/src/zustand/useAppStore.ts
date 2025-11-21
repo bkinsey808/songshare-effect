@@ -81,6 +81,7 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 					},
 					{
 						name: "app-store",
+
 						partialize: (state: Readonly<AppSlice>) => {
 							return Object.fromEntries(
 								Object.entries(state).filter(

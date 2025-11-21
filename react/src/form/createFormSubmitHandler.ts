@@ -51,7 +51,7 @@ export const createFormSubmitHandler = <
 						data: currentFormData,
 						i18nMessageKey: registerMessageKey,
 					}),
-				);
+				) as FormValues;
 				console.log("✅ Validation successful, validated data:", validatedData);
 
 				const result = onSubmit(validatedData);

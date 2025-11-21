@@ -1,9 +1,11 @@
 import type { SongPublic } from "../../song-schema";
 import type { SongSubscribeSlice } from "../songSlice";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 /**
  * Updates the store with new public songs and manages subscriptions.
  */
+
 export function updateStoreWithPublicSongs({
 	publicSongsToAdd,
 	state,
@@ -18,11 +20,13 @@ export function updateStoreWithPublicSongs({
 	>;
 	set: (
 		partial:
-			| Partial<SongSubscribeSlice>
-			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
+			| Partial<ReadonlyDeep<SongSubscribeSlice>>
+			| ((
+					state: ReadonlyDeep<SongSubscribeSlice>,
+			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void;
 }>): {
-	newActivePublicSongIds: string[];
+	newActivePublicSongIds: ReadonlyArray<string>;
 	activePublicSongsUnsubscribe: () => void;
 } {
 	console.warn(
@@ -34,7 +38,7 @@ export function updateStoreWithPublicSongs({
 	state.addOrUpdatePublicSongs(publicSongsToAdd);
 
 	// Update activePublicSongIds to include newly fetched songs
-	const newActivePublicSongIds = [
+	const newActivePublicSongIds: ReadonlyArray<string> = [
 		...new Set([
 			...state.activePublicSongIds,
 			...Object.keys(publicSongsToAdd),

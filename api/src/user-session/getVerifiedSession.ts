@@ -1,12 +1,12 @@
 import { Effect, Schema } from "effect";
-import type { Context } from "hono";
 
-import type { Bindings } from "@/api/env";
+import { type Bindings, type Env } from "../env";
 import { AuthenticationError, DatabaseError } from "@/api/errors";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 import {
 	extractUserSessionTokenFromContext,
 	verifyUserSessionToken,
-} from "@/api/userSession/userSession";
+} from "@/api/user-session/userSession";
 import {
 	type UserSessionData,
 	UserSessionDataSchema,
@@ -17,7 +17,8 @@ import {
  * Reusable helper for API handlers that need an authenticated user.
  */
 export const getVerifiedUserSession = (
-	ctx: Context<{ Bindings: Bindings }>,
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	ctx: ReadonlyContext<{ Bindings: Env }>,
 ): Effect.Effect<UserSessionData, AuthenticationError | DatabaseError> =>
 	Effect.gen(function* ($) {
 		// 1) extract token from cookie
@@ -42,7 +43,7 @@ export const getVerifiedUserSession = (
 
 		// 3) verify token
 		const verified = yield* $(
-			verifyUserSessionToken(userSessionToken as string, ctx.env),
+			verifyUserSessionToken(userSessionToken as string, ctx.env as Bindings),
 		);
 
 		// 4) decode/validate using schema

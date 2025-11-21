@@ -15,7 +15,7 @@ High-level plan
 1. Inventory and prep (this repo)
 2. DNS and Cloudflare domain setup
 3. Configure and deploy Cloudflare Pages (frontend)
-4. Configure and deploy Cloudflare Worker (API) with route /api/*
+4. Configure and deploy Cloudflare Worker (API) with route /api/\*
 5. Set secrets/environment variables
 6. Test (staging -> production)
 7. Monitor and document rollback
@@ -59,7 +59,7 @@ Files of interest in this repo
   type = "webpack" # or 'javascript' depending on build
 
 - Add a route in `wrangler.toml` or in Cloudflare Dashboard:
-  - route = "mysongshare.com/api/*"
+  - route = "mysongshare.com/api/\*"
 
 - If using Cloudflare Pages Functions for server-side endpoints, ensure those are configured. In this repo the API lives in `api/` and should be published with `wrangler publish`.
 
@@ -178,7 +178,7 @@ Completion checklist
 - [ ] Domain added and verified in Cloudflare Pages
 - [ ] DNS CNAME/A configured and propagated
 - [ ] Frontend deployed to Pages and serving at mysongshare.com
-- [ ] Worker published and routes configured for /api/*
+- [ ] Worker published and routes configured for /api/\*
 - [ ] All required secrets set in Pages & Workers
 - [ ] Smoke tests passed
 - [ ] Monitoring configured
@@ -189,8 +189,8 @@ If you want, I can next:
 - Draft GitHub Actions workflows for automatic deploys to Pages and Workers.
 
 -- end
-
 ```
+
 ## Deploying the SongShare Effect app to mysongshare.com
 
 This document outlines the step-by-step actions required to deploy the frontend (React Vite / Cloudflare Pages) and API (Hono on Cloudflare Workers) from this repository to the custom domain `mysongshare.com`.

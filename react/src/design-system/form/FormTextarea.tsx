@@ -4,6 +4,7 @@ type FormTextareaProps = Readonly<{
 	name?: string;
 	placeholder?: string;
 	value?: string;
+
 	onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 	rows?: number;
 	autoExpand?: boolean;

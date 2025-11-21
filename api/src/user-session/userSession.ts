@@ -1,10 +1,10 @@
 import { Effect } from "effect";
-import type { Context } from "hono";
 import { verify } from "hono/jwt";
 
 import { sessionCookieName } from "@/api/cookie/cookie";
 import type { Bindings } from "@/api/env";
 import { AuthenticationError } from "@/api/errors";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 
 /**
  * Pure helper - extract the raw token string from a Cookie header value.
@@ -27,7 +27,8 @@ export function extractUserSessionTokenFromCookieHeader(
  * Returns an Effect that succeeds with string | undefined.
  */
 export const extractUserSessionTokenFromContext = (
-	ctx: Context<{ Bindings: Bindings }>,
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	ctx: ReadonlyContext,
 ): Effect.Effect<string | undefined, never> =>
 	Effect.sync(() =>
 		extractUserSessionTokenFromCookieHeader(ctx.req.header("Cookie")),

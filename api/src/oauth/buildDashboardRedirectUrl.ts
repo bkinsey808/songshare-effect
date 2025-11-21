@@ -1,6 +1,14 @@
-import type { Context } from "hono";
-
+import { type Env } from "../env";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 import { justSignedInQueryParam } from "@/shared/queryParams";
+
+type BuildDashboardRedirectUrlParams = Readonly<{
+	ctx: ReadonlyContext<{ Bindings: Env }>;
+	url: URL;
+	redirectPort: string | undefined;
+	lang: string;
+	dashboardPath: string;
+}>;
 
 /**
  * Computes the dashboard redirect URL after OAuth sign-in, including support for custom redirect ports.
@@ -13,19 +21,14 @@ import { justSignedInQueryParam } from "@/shared/queryParams";
  * @param params.dashboardPath - The dashboard path (e.g. 'dashboard')
  * @returns The computed dashboard redirect URL
  */
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function buildDashboardRedirectUrl({
 	ctx,
 	url,
 	redirectPort,
 	lang,
 	dashboardPath,
-}: Readonly<{
-	ctx: Context;
-	url: URL;
-	redirectPort: string | undefined;
-	lang: string;
-	dashboardPath: string;
-}>): string {
+}: BuildDashboardRedirectUrlParams): string {
 	let dashboardRedirectUrl = `/${lang}/${dashboardPath}`;
 	if (redirectPort !== undefined && redirectPort !== "") {
 		// Only allow redirect to a port if it matches the allowed origins

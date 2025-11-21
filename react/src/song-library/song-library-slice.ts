@@ -11,6 +11,7 @@ import {
 import { type SongLibrarySliceBase } from "./song-library-types";
 import { subscribeToLibrary as subscribeToLibraryFn } from "./subscribeToLibrary";
 import { sliceResetFns } from "@/react/zustand/useAppStore";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 export type SongLibrarySlice = SongLibrarySliceBase & {
 	/** Add a song to the user's library */
@@ -30,7 +31,9 @@ export type SongLibrarySlice = SongLibrarySliceBase & {
 	libraryUnsubscribe?: () => void;
 
 	/** Internal actions for updating state from subscriptions */
-	setLibraryEntries: (entries: Record<string, SongLibraryEntry>) => void;
+	setLibraryEntries: (
+		entries: ReadonlyDeep<Record<string, SongLibraryEntry>>,
+	) => void;
 	setLibraryLoading: (loading: boolean) => void;
 };
 
@@ -192,7 +195,9 @@ export const createSongLibrarySlice: StateCreator<
 		subscribeToLibrary: () => subscribeToLibraryFn(get),
 
 		// Internal state management methods
-		setLibraryEntries: (entries: Record<string, SongLibraryEntry>) => {
+		setLibraryEntries: (
+			entries: ReadonlyDeep<Record<string, SongLibraryEntry>>,
+		) => {
 			set({ libraryEntries: entries });
 		},
 

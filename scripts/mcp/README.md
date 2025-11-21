@@ -118,6 +118,10 @@ in this directory. If you add/remove scripts, please keep this README in sync.
 If you want, I can also:
 
 - convert these helpers into a small Node CLI for consistency;
+- prefer `*.bun.ts` scripts and run them using `bun` when possible. Many of the
+  modern scripts in this repository use Bun TypeScript files (`*.bun.ts`) for
+  faster startup and better compatibility with BI/kit. Node-based scripts are
+  still available but may be removed in the future in favor of Bun scripts.
 - add a short usage README alongside each script with examples;
 - prepare a single `npm run mcp:all` orchestration that starts MCP and Chrome
   with sensible defaults.

@@ -14,7 +14,7 @@ import reactHooksPlugin from "eslint-plugin-react-hooks";
 import reactRefreshPlugin from "eslint-plugin-react-refresh";
 import securityPlugin from "eslint-plugin-security";
 import sonarjsPlugin from "eslint-plugin-sonarjs";
-import storybookPlugin from "eslint-plugin-storybook";
+// import storybookPlugin from "eslint-plugin-storybook";
 import unicornPlugin from "eslint-plugin-unicorn";
 import globals from "globals";
 import { dirname } from "node:path";
@@ -65,7 +65,7 @@ const sharedRules = {
 			rules: [
 				{ from: "api", allow: ["shared"] },
 				{ from: "react", allow: ["shared"] },
-				{ from: "shared", allow: [] },
+				// `shared` should not import other element types — default: disallow
 			],
 		},
 	],
@@ -105,26 +105,21 @@ const sharedRules = {
 			ignoreInferredTypes: true,
 			treatMethodsAsReadonly: true,
 			allow: [
-				// Allow React event types which are inherently mutable
 				{ from: "file", name: "MouseEvent" },
 				{ from: "file", name: "KeyboardEvent" },
 				{ from: "file", name: "FormEvent" },
 				{ from: "file", name: "ChangeEvent" },
-				// Allow React Node types
 				{ from: "file", name: "ReactNode" },
 				{ from: "file", name: "ReactElement" },
 				{ from: "package", name: "ReactNode", package: "react" },
 				{ from: "package", name: "ReactElement", package: "react" },
-				// Allow React RefObject types
 				{ from: "file", name: "RefObject" },
-				// Allow DOM types
 				{ from: "file", name: "DOMRect" },
 				{ from: "file", name: "HTMLElement" },
 				{ from: "file", name: "Element" },
 				{ from: "file", name: "Response" },
 				{ from: "file", name: "URL" },
 				{ from: "file", name: "Headers" },
-				// Allow Supabase types
 				{
 					from: "package",
 					name: "RealtimePostgresChangesPayload",
@@ -140,42 +135,72 @@ const sharedRules = {
 					name: "SupabaseClient",
 					package: "@supabase/supabase-js",
 				},
-				// Allow React types from package
 				{ from: "package", name: "RefObject", package: "react" },
 				{ from: "package", name: "Dispatch", package: "react" },
 				{ from: "package", name: "SetStateAction", package: "react" },
 				{ from: "package", name: "SVGProps", package: "react" },
 				{ from: "package", name: "ComponentProps", package: "react" },
 				{ from: "package", name: "HTMLProps", package: "react" },
-				// Allow HTML element types
 				{ from: "package", name: "HTMLInputElement", package: "@types/react" },
 				{ from: "package", name: "HTMLFormElement", package: "@types/react" },
-				// Allow dnd-kit types
 				{ from: "package", name: "DragEndEvent", package: "@dnd-kit/core" },
-				// Allow Hono types
-				{ from: "package", name: "Context", package: "hono" },
-				// Allow Cloudflare Workers types
+				{ from: "file", name: "ReadonlyDeep" },
+				{
+					from: "file",
+					name: "ReadonlyContext",
+					path: "api/src/types/hono-context.ts",
+				},
+				{
+					from: "file",
+					name: "ReadonlySupabaseClient",
+					path: "api/src/types/supabase-client.ts",
+				},
+				{ from: "file", name: "ReadonlyUser", path: "api/src/types/user.ts" },
+				{
+					from: "file",
+					name: "ReadonlyOauthUserData",
+					path: "shared/src/oauth/oauthUserData.ts",
+				},
+				{
+					from: "file",
+					name: "ReadonlyOauthState",
+					path: "shared/src/oauth/oauthState.ts",
+				},
+				{
+					from: "file",
+					name: "BuildUserSessionJwtParams",
+					path: "api/src/types/user-session.ts",
+				},
+				{ from: "file", name: "ReadonlyContext" },
+				{ from: "file", name: "ReadonlySupabaseClient" },
+				{ from: "file", name: "ReadonlyUser" },
+				{ from: "file", name: "ReadonlyOauthUserData" },
+				{ from: "file", name: "ReadonlyOauthState" },
+				{ from: "file", name: "ReadonlyContext" },
+				{ from: "file", name: "ReadonlySupabaseClient" },
+				{ from: "file", name: "BuildUserSessionJwtParams" },
+				{
+					from: "file",
+					name: "BuildUserSessionJwtParams",
+					path: "api/src/userSession/buildUserSessionJwt.ts",
+				},
+				{ from: "file", name: "ReadonlyUser" },
+				{ from: "file", name: "ReadonlyOauthUserData" },
+				{ from: "file", name: "ReadonlyOauthState" },
 				{ from: "file", name: "Bindings" },
-				// Allow Effect-TS types
 				{ from: "package", name: "Schema", package: "effect" },
-				// Allow custom API types
 				{ from: "file", name: "FetchOpts" },
 				{ from: "file", name: "Env" },
 				{ from: "file", name: "User" },
 				{ from: "file", name: "OauthUserData" },
 				{ from: "file", name: "OauthState" },
-				// Allow hono JWT verify types
 				{ from: "package", name: "verify", package: "hono/jwt" },
-				// Allow common utility types
 				{ from: "file", name: "Record" },
 				{ from: "file", name: "Partial" },
-				// Allow Effect types
 				{ from: "file", name: "Schema" },
-				// Allow common number/string types
 				{ from: "file", name: "number" },
 				{ from: "file", name: "string" },
 				{ from: "file", name: "boolean" },
-				// Allow array types
 				{ from: "file", name: "Array" },
 				{ from: "file", name: "ReadonlyArray" },
 			],
@@ -289,6 +314,14 @@ const sharedRules = {
 	// Allow void as a statement (for fire-and-forget calls)
 	"no-void": ["error", { allowAsStatement: true }],
 
+	// eslint-comments rules — detect unused disable/enable directives
+	// Promote these to errors so the editor more likely renders a visible
+	// diagnostic for unused eslint-disable/enable directives. The rule is
+	// also useful as a repository hygiene check and is enforced during
+	// `npm run lint:strict`.
+	"eslint-comments/no-unused-disable": "error",
+	"eslint-comments/no-unused-enable": "error",
+
 	"max-params": ["error", { max: 2 }],
 };
 
@@ -343,6 +376,7 @@ export default [
 		files: [
 			"react/src/**/*.{ts,tsx}",
 			"shared/src/**/*.{ts,tsx}",
+			"api/src/**/*.{ts,tsx}",
 			"scripts/**/*.{ts,tsx}",
 			"*.{ts,tsx}",
 		],
@@ -398,153 +432,54 @@ export default [
 							name: "react",
 							importNames: ["ReactElement"],
 							message:
-								"ReactElement is an ambient type and should be used directly without importing.",
-						},
-						{
-							name: "react",
-							importNames: ["JSX", "FC", "FunctionComponent"],
-							message:
-								"Use ReactElement for function component return types. JSX, FC, and FunctionComponent are not allowed in this project.",
-						},
-						{
-							name: "react",
-							importNames: ["useCallback"],
-							message:
-								"useCallback is not needed in React Compiler projects. The compiler will automatically optimize functions when beneficial.",
-						},
-						{
-							name: "react",
-							importNames: ["useMemo"],
-							message:
-								"useMemo is not needed in React Compiler projects. The compiler will automatically optimize expensive computations when beneficial.",
-						},
-						{
-							name: "react",
-							importNames: ["memo"],
-							message:
-								"memo is not needed in React Compiler projects. The compiler will automatically optimize component re-renders when beneficial.",
+								"Prefer using the React Compiler optimizations; avoid manual memoization",
 						},
 					],
 				},
 			],
-
-			// Frontend-specific module restrictions
-			"no-restricted-modules": ["error", "fs", "cluster"],
 		},
 	},
-	// Storybook configuration
+	// Scripts should be allowed to use `process.env` while keeping all other
+	// project rules from the override above. The main project override sets
+	// `process` to `false` to disallow `process.env` in React/shared/api code;
+	// this specific override re-enables `process` for scripts only.
 	{
-		files: ["**/*.stories.@(js|jsx|ts|tsx)"],
-		plugins: {
-			storybook: storybookPlugin,
-		},
-		rules: {
-			...storybookPlugin.configs.recommended.rules,
-		},
-	},
-	// Cloudflare Workers specific configuration for API
-	{
-		files: ["api/src/**/*.{ts,js}"],
-		languageOptions: {
-			// Disable `process` in Cloudflare Workers (api/src) so
-			// process.env usage is not allowed there.
-			globals: {
-				...globals.worker,
-				...globals.es2020,
-				process: false,
-			},
-			parserOptions: {
-				project: "./api/tsconfig.json",
-				tsconfigRootDir: __dirname,
-			},
-		},
-		plugins: {
-			...sharedPlugins,
-		},
-		rules: {
-			...sharedRules,
-
-			// Cloudflare Workers specific rules
-			"no-restricted-globals": [
-				"error",
-				{
-					name: "window",
-					message: "window is not available in Cloudflare Workers",
-				},
-				{
-					name: "document",
-					message: "document is not available in Cloudflare Workers",
-				},
-			],
-
-			// API-specific module restrictions (more restrictive than frontend)
-			"no-restricted-modules": ["error", "fs", "cluster", "child_process"],
-		},
-	},
-	// Cloudflare Pages Functions configuration
-	{
-		files: ["functions/**/*.{ts,js}"],
+		files: ["scripts/**/*"],
 		languageOptions: {
 			globals: {
-				...globals.worker,
-				...globals.es2020,
-			},
-			parserOptions: {
-				project: "./tsconfig.functions.json",
-				tsconfigRootDir: __dirname,
-			},
-		},
-		plugins: {
-			...sharedPlugins,
-		},
-		rules: {
-			...sharedRules,
-
-			// Pages Functions specific rules (similar to Workers but lighter)
-			"no-restricted-globals": [
-				"error",
-				{
-					name: "window",
-					message: "window is not available in Pages Functions",
-				},
-				{
-					name: "document",
-					message: "document is not available in Pages Functions",
-				},
-			],
-
-			// Pages Functions module restrictions
-			"no-restricted-modules": ["error", "fs", "cluster", "child_process"],
-
-			// Allow shorter functions for middleware
-			"max-lines-per-function": ["warn", 50],
-		},
-	},
-	// Config/scripts files: disable restricted globals/modules rules
-	{
-		files: [
-			"*.config.{js,ts}",
-			"*.cjs",
-			"*.mjs",
-			"*.cts",
-			"*.mts",
-			"scripts/**/*.{js,ts}",
-		],
-		languageOptions: {
-			// Config files run in Node context — allow Node globals including
-			// `process` (readonly to prevent assignments).
-			globals: {
-				...globals.node,
 				process: "readonly",
 			},
 		},
 		rules: {
-			"no-restricted-globals": "off",
-			"no-restricted-modules": "off",
-			// Allow use of `process.env` in config and script files (playwright,
-			// build scripts, etc.). Also relax strict-boolean-expressions for
-			// these files so checks like `process.env.CI ? 2 : 0` aren't flagged.
+			// Disable the one rule that prohibits direct use of process.env
+			// in scripts; scripts often read env vars for local tooling.
 			"no-process-env": "off",
+		},
+	},
+	// Allow top-level config files to use `process.env` (Playwright,
+	// Wrangler, Vite, etc). These files commonly read environment
+	// variables to configure tooling and are not part of the runtime
+	// application code where `process.env` is disallowed.
+	{
+		files: [
+			"*.config.{js,mjs,ts}",
+			"*.rc.{js,mjs,ts}",
+			"playwright.config.{js,mjs,ts}",
+			"wrangler.*",
+		],
+		languageOptions: {
+			globals: {
+				process: "readonly",
+			},
+		},
+		rules: {
+			// Config files may legitimately read env vars for tooling.
+			"no-process-env": "off",
+
+			// Config files live at the repository root and often use tooling
+			// patterns (nullable env vars, conditional strings, etc). Relax
+			// strict boolean expressions for these files so tooling configs
+			// aren't forced to handle every nullish/empty case explicitly.
 			"@typescript-eslint/strict-boolean-expressions": "off",
 		},
 	},

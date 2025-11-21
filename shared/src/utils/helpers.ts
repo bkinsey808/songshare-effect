@@ -44,7 +44,7 @@ export function generateId(): string {
 /**
  * Debounce function
  */
-export function debounce<T extends (...args: unknown[]) => void>(
+export function debounce<T extends (...args: ReadonlyArray<unknown>) => void>(
 	func: T,
 	delayMs: number,
 ): (...args: Parameters<T>) => void {

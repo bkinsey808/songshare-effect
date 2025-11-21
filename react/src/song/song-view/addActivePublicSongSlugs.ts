@@ -7,12 +7,15 @@ import { updateStoreWithPublicSongs } from "./utils/updateStoreWithPublicSongs";
 import { validateVisitorToken } from "./utils/validateVisitorToken";
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
 import type { AppSlice } from "@/react/zustand/useAppStore";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 export default function addActivePublicSongSlugs(
 	set: (
 		partial:
-			| Partial<SongSubscribeSlice>
-			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
+			| Partial<ReadonlyDeep<SongSubscribeSlice>>
+			| ((
+					state: ReadonlyDeep<SongSubscribeSlice>,
+			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
 	get: () => SongSubscribeSlice,
 ) {

@@ -84,20 +84,20 @@ Determines the initial language using this priority order:
 import { SUPPORTED_LANGUAGES } from "@/shared/language/supportedLanguages";
 
 export const detectInitialLanguage = (): SupportedLanguage => {
-  // 1. Check URL parameter (highest priority for explicit navigation)
-  const path = window.location.pathname;
-  const langMatch = path.match(/^\/([a-z]{2})\//);
-  if (langMatch !== null && langMatch[1] !== undefined && langMatch[1] !== "") {
-    const urlLang = langMatch[1];
-    if (SUPPORTED_LANGUAGES.includes(urlLang as SupportedLanguage)) {
-      return urlLang as SupportedLanguage;
-    }
-  }
+	// 1. Check URL parameter (highest priority for explicit navigation)
+	const path = window.location.pathname;
+	const langMatch = path.match(/^\/([a-z]{2})\//);
+	if (langMatch !== null && langMatch[1] !== undefined && langMatch[1] !== "") {
+		const urlLang = langMatch[1];
+		if (SUPPORTED_LANGUAGES.includes(urlLang as SupportedLanguage)) {
+			return urlLang as SupportedLanguage;
+		}
+	}
 
-  // 2. Check stored preference in localStorage
-  // 3. Check stored preference in cookies
-  // 4. Detect from browser language
-  // 5. Default fallback to "en"
+	// 2. Check stored preference in localStorage
+	// 3. Check stored preference in cookies
+	// 4. Detect from browser language
+	// 5. Default fallback to "en"
 };
 ```
 
@@ -208,8 +208,8 @@ Dropdown component for manual language switching:
 
 ```typescript
 const handleLanguageChange = (newLang: SupportedLanguage) => {
-  setStoredLanguage(newLang); // Update preference
-  navigate(`/${newLang}${currentPath}`); // Navigate with same path
+	setStoredLanguage(newLang); // Update preference
+	navigate(`/${newLang}${currentPath}`); // Navigate with same path
 };
 ```
 
@@ -297,12 +297,12 @@ function MyComponent() {
 ```typescript
 // types.ts defines the translation structure
 interface TranslationResources {
-  pages: {
-    home: {
-      title: string;
-      subtitle: string;
-    };
-  };
+	pages: {
+		home: {
+			title: string;
+			subtitle: string;
+		};
+	};
 }
 
 // Provides autocomplete and type checking
@@ -335,21 +335,21 @@ function LanguageAwareLink() {
 import { detectInitialLanguage } from "../language/detectInitialLanguage";
 
 i18n.use(initReactI18next).init({
-  resources,
-  lng: detectInitialLanguage(), // Import from dedicated module
-  fallbackLng: "en",
-  debug: import.meta.env.DEV === true, // Debug only in development
+	resources,
+	lng: detectInitialLanguage(), // Import from dedicated module
+	fallbackLng: "en",
+	debug: import.meta.env.DEV === true, // Debug only in development
 
-  // Disable automatic detection (we handle it manually)
-  detection: { order: [] },
+	// Disable automatic detection (we handle it manually)
+	detection: { order: [] },
 
-  interpolation: {
-    escapeValue: false, // React already escapes
-  },
+	interpolation: {
+		escapeValue: false, // React already escapes
+	},
 
-  react: {
-    useSuspense: true, // Enable Suspense boundaries
-  },
+	react: {
+		useSuspense: true, // Enable Suspense boundaries
+	},
 });
 ```
 
@@ -433,11 +433,11 @@ export const SUPPORTED_LANGUAGES = ["en", "es", "zh", "fr"] as const;
 ```json
 // react/src/i18n/resources/fr.json
 {
-  "app": {
-    "title": "SongShare Effect",
-    "subtitle": "Partagez vos chansons préférées avec le monde"
-  }
-  // ... complete translation structure
+	"app": {
+		"title": "SongShare Effect",
+		"subtitle": "Partagez vos chansons préférées avec le monde"
+	}
+	// ... complete translation structure
 }
 ```
 
@@ -448,10 +448,10 @@ export const SUPPORTED_LANGUAGES = ["en", "es", "zh", "fr"] as const;
 import fr from "./resources/fr.json";
 
 const resources = {
-  en: { translation: en },
-  es: { translation: es },
-  zh: { translation: zh },
-  fr: { translation: fr }, // Add new language
+	en: { translation: en },
+	es: { translation: es },
+	zh: { translation: zh },
+	fr: { translation: fr }, // Add new language
 };
 ```
 
@@ -462,10 +462,10 @@ const resources = {
 ```typescript
 // react/src/language/LanguageSwitcher.tsx
 const LANGUAGE_NAMES: Record<SupportedLanguage, string> = {
-  en: "English",
-  es: "Español",
-  zh: "中文",
-  fr: "Français", // Add display name
+	en: "English",
+	es: "Español",
+	zh: "中文",
+	fr: "Français", // Add display name
 };
 ```
 
@@ -561,4 +561,7 @@ View in browser console:
 
 This internationalization system provides a robust foundation for multilingual support with excellent user experience, performance, and maintainability. The architecture is designed to scale with additional languages and features while maintaining simplicity for developers.
 
-````markdown
+```markdown
+
+```
+````

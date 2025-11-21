@@ -367,5 +367,4 @@ client.auth.onAuthStateChange((event, session) => {
 ---
 
 This authentication system provides a secure, scalable foundation for user management while maintaining the simplicity of anonymous browsing through the visitor token system.
-
 ````

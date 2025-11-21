@@ -71,15 +71,15 @@ We have successfully migrated the SongShare API from basic error handling to a c
 
 ```typescript
 app.post("/api/songs", async (c) => {
-  try {
-    const body = await c.req.json();
-    if (!validateSongData(body)) {
-      return c.json({ success: false, error: "Invalid data" }, 400);
-    }
-    // ... more error-prone code
-  } catch (error) {
-    return c.json({ success: false, error: "Something went wrong" }, 500);
-  }
+	try {
+		const body = await c.req.json();
+		if (!validateSongData(body)) {
+			return c.json({ success: false, error: "Invalid data" }, 400);
+		}
+		// ... more error-prone code
+	} catch (error) {
+		return c.json({ success: false, error: "Something went wrong" }, 500);
+	}
 });
 ```
 
@@ -87,25 +87,25 @@ app.post("/api/songs", async (c) => {
 
 ```typescript
 app.post("/api/songs", async (c) => {
-  const createSongEffect = Effect.gen(function* () {
-    const body = yield* Effect.tryPromise({
-      try: () => c.req.json(),
-      catch: () => new ValidationError({ message: "Invalid JSON" }),
-    });
+	const createSongEffect = Effect.gen(function* () {
+		const body = yield* Effect.tryPromise({
+			try: () => c.req.json(),
+			catch: () => new ValidationError({ message: "Invalid JSON" }),
+		});
 
-    const validatedData = yield* Schema.decodeUnknown(CreateSongRequestSchema)(
-      body,
-    ).pipe(
-      Effect.mapError(
-        (error) => new ValidationError({ message: error.message }),
-      ),
-    );
+		const validatedData = yield* Schema.decodeUnknown(CreateSongRequestSchema)(
+			body,
+		).pipe(
+			Effect.mapError(
+				(error) => new ValidationError({ message: error.message }),
+			),
+		);
 
-    const songService = yield* SongService;
-    return yield* songService.create({ ...validatedData /* ... */ });
-  }).pipe(Effect.provide(InMemorySongServiceLive));
+		const songService = yield* SongService;
+		return yield* songService.create({ ...validatedData /* ... */ });
+	}).pipe(Effect.provide(InMemorySongServiceLive));
 
-  return executeEffect(createSongEffect, c);
+	return executeEffect(createSongEffect, c);
 });
 ```
 
@@ -136,4 +136,7 @@ app.post("/api/songs", async (c) => {
 
 The API now serves as a solid foundation for further Effect-TS adoption throughout the application!
 
-````markdown
+```markdown
+
+```
+````

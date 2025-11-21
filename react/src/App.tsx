@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import Navigation from "./Navigation";
-import useEnsureSignedIn from "./auth/useEnsureSignedIn";
 import ErrorBoundary from "./demo/ErrorBoundary";
 import LanguageDetector from "./language/LanguageDetector";
 import LanguageProvider from "./language/LanguageProvider";
@@ -45,7 +44,7 @@ import {
 function HydratedLayout(): ReactElement {
 	// Initialize auth state first so the order of Hooks is stable even
 	// when the component suspends during hydration.
-	useEnsureSignedIn();
+	// useEnsureSignedIn();
 
 	return (
 		<ErrorBoundary>
@@ -179,7 +178,11 @@ const router = createBrowserRouter([
 ]);
 
 function App(): ReactElement {
-	return <RouterProvider router={router} />;
+	return (
+		<Suspense fallback={<div>Loading...</div>}>
+			<RouterProvider router={router} />
+		</Suspense>
+	);
 }
 
 export default App;

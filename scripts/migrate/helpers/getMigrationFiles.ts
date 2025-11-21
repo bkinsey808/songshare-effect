@@ -1,5 +1,6 @@
 import { existsSync, readdirSync } from "fs";
 import { join } from "path";
+
 import type { MigrationFile } from "./types";
 
 /**
@@ -14,26 +15,26 @@ import type { MigrationFile } from "./types";
  * @throws If the migration directory does not exist.
  */
 export function getMigrationFiles(migrationDir: string): MigrationFile[] {
-  if (!existsSync(migrationDir)) {
-    throw new Error(`Migration directory not found: ${migrationDir}`);
-  }
+	if (!existsSync(migrationDir)) {
+		throw new Error(`Migration directory not found: ${migrationDir}`);
+	}
 
-  const files = readdirSync(migrationDir)
-    .filter((file) => file.endsWith(".sql"))
-    .map((filename) => {
-      const path = join(migrationDir, filename);
-      // Extract timestamp from filename (format: YYYYMMDDHHMMSS_name.sql)
-      const timestampRegex = /^(\d{14})_/;
-      const timestampMatch = timestampRegex.exec(filename);
-      const timestamp = timestampMatch ? timestampMatch[1] : "00000000000000";
+	const files = readdirSync(migrationDir)
+		.filter((file) => file.endsWith(".sql"))
+		.map((filename) => {
+			const path = join(migrationDir, filename);
+			// Extract timestamp from filename (format: YYYYMMDDHHMMSS_name.sql)
+			const timestampRegex = /^(\d{14})_/;
+			const timestampMatch = timestampRegex.exec(filename);
+			const timestamp = timestampMatch ? timestampMatch[1] : "00000000000000";
 
-      return {
-        path,
-        filename,
-        timestamp,
-      } as MigrationFile;
-    })
-    .sort((fileA, fileB) => fileA.timestamp.localeCompare(fileB.timestamp));
+			return {
+				path,
+				filename,
+				timestamp,
+			} as MigrationFile;
+		})
+		.sort((fileA, fileB) => fileA.timestamp.localeCompare(fileB.timestamp));
 
-  return files;
+	return files;
 }

@@ -1,14 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
-import type { Context } from "hono";
 
-import type { Bindings } from "../env";
 import {
 	type AuthenticationError,
 	DatabaseError,
 	ValidationError,
 } from "../errors";
-import { getVerifiedUserSession } from "../userSession/getVerifiedSession";
+import { getVerifiedUserSession } from "../user-session/getVerifiedSession";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 import type { Database, Json } from "@/shared/generated/supabaseTypes";
 import { validateFormEffect } from "@/shared/validation/validateFormEffect";
 
@@ -42,7 +41,8 @@ type SongFormData = Schema.Schema.Type<typeof SongFormSchema>;
  * Effect-based handler used by handleHttpEndpoint. Returns the created public song data.
  */
 export function songSave(
-	ctx: Context<{ Bindings: Bindings }>,
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	ctx: ReadonlyContext,
 ): Effect.Effect<
 	unknown,
 	ValidationError | DatabaseError | AuthenticationError

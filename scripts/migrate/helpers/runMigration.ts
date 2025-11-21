@@ -1,5 +1,17 @@
+/* eslint-disable no-console */
 import { execSync } from "child_process";
+
 import type { MigrationFile } from "./types";
+
+/**
+ * Get a string representation of an error.
+ */
+function getErrorMessage(error: unknown): string {
+	if (error instanceof Error) {
+		return error.message;
+	}
+	return String(error);
+}
 
 /**
  * Execute a single SQL migration using the `psql` CLI.
@@ -14,38 +26,47 @@ import type { MigrationFile } from "./types";
  * @throws If required environment variables are missing or the command fails.
  */
 export async function runMigration(
-  migration: MigrationFile,
-  env: Record<string, string | undefined>,
+	migration: Readonly<MigrationFile>,
+	env: Readonly<Record<string, string | undefined>>,
 ): Promise<void> {
-  console.log(`📄 Running migration: ${migration.filename}`);
+	console.log(`📄 Running migration: ${migration.filename}`);
 
-  const { PGHOST, PGUSER, PGPASSWORD, PGDATABASE } = env;
+	const { PGHOST, PGUSER, PGPASSWORD, PGDATABASE } = env;
 
-  if (!PGHOST || !PGUSER || !PGPASSWORD || !PGDATABASE) {
-    throw new Error(
-      "Missing required PostgreSQL environment variables: PGHOST, PGUSER, PGPASSWORD, PGDATABASE",
-    );
-  }
+	function isEmpty(value: string | undefined): boolean {
+		return value === undefined || value.trim() === "";
+	}
 
-  try {
-    // cspell:disable-next-line
-    const command = `psql -h "${PGHOST}" -U "${PGUSER}" -d "${PGDATABASE}" -f "${migration.path}"`;
+	if (
+		isEmpty(PGHOST) ||
+		isEmpty(PGUSER) ||
+		isEmpty(PGPASSWORD) ||
+		isEmpty(PGDATABASE)
+	) {
+		throw new Error(
+			"Missing required PostgreSQL environment variables: PGHOST, PGUSER, PGPASSWORD, PGDATABASE",
+		);
+	}
 
-    // This is a controlled script execution - command is constructed from validated env vars
-    // and migration file path. The script is only run by developers for database migrations.
-    // eslint-disable-next-line sonarjs/os-command -- migration command uses validated env vars and audited file paths
-    execSync(command, {
-      stdio: "inherit",
-      env: {
-        ...process.env,
-        PGPASSWORD,
-      },
-    });
+	try {
+		// cspell:disable-next-line
+		const command = `psql -h "${PGHOST}" -U "${PGUSER}" -d "${PGDATABASE}" -f "${migration.path}"`;
 
-    console.log(`✅ Migration successful: ${migration.filename}`);
-  } catch (error) {
-    console.error(`❌ Migration failed: ${migration.filename}`);
-    console.error(error);
-    throw error;
-  }
+		// This is a controlled script execution - command is constructed from validated env vars
+		// and migration file path. The script is only run by developers for database migrations.
+		// eslint-disable-next-line sonarjs/os-command -- migration command uses validated env vars and audited file paths
+		execSync(command, {
+			stdio: "inherit",
+			env: {
+				...process.env,
+				PGPASSWORD,
+			},
+		});
+
+		console.log(`✅ Migration successful: ${migration.filename}`);
+	} catch (error: unknown) {
+		console.error(`❌ Migration failed: ${migration.filename}`);
+		console.error(getErrorMessage(error));
+		throw error;
+	}
 }

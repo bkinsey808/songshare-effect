@@ -33,5 +33,7 @@ export async function rewriteSharedImports(destShared: string): Promise<void> {
 		}
 	});
 
-	console.log(`Rewrote ${replacements} '@/shared/*' imports inside ${destShared}`);
+	console.warn(
+		`Rewrote ${replacements} '@/shared/*' imports inside ${destShared}`,
+	);
 }

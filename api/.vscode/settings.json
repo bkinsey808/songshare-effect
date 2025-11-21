@@ -1,0 +1,24 @@
+{
+	// Use the api folder as the ESLint working directory to ensure type-aware rules
+	// (like @typescript-eslint/prefer-readonly-parameter-types) load with the
+	// `api/tsconfig.json` parser services. This mirrors the repo root config but
+	// explicitly ensures the extension uses `api` when editing API files.
+	"eslint.workingDirectories": [{ "directory": ".", "changeProcessCWD": true }],
+
+	// Newer ESLint extension uses `eslint.useFlatConfig` — keep this set so the
+	// server recognizes the JS flat config at the repo root. Keep it here to
+	// make the setting explicit to anyone opening `api/` alone.
+	"eslint.useFlatConfig": true,
+	"eslint.experimental.useFlatConfig": true,
+
+	// Ensure the ESLint extension reports unused `eslint-disable` directives
+	// when linting files inside `api/` too - use the eslint v9 format which
+	// expects `overrideConfig.linterOptions.reportUnusedDisableDirectives`.
+	"eslint.options": {
+		"overrideConfig": {
+			"linterOptions": {
+				"reportUnusedDisableDirectives": "warn"
+			}
+		}
+	}
+}

@@ -1,0 +1,26 @@
+name: Validate commit messages
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  commitlint:
+    name: Commitlint
+    if: ${{ github.event.pull_request.commits > 0 }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Validate commit messages in PR
+        run: |
+          # compare base..head for commits introduced by the PR
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          npx --no-install -- commitlint --from="$BASE_SHA" --to="$HEAD_SHA"

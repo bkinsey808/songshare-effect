@@ -1,18 +1,22 @@
 import { useRef, useState } from "react";
 
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
 type UseColumnResizeProps = Readonly<{
-	fields: string[];
+	fields: ReadonlyArray<string>;
 	defaultFieldWidth?: number;
 	// w-36 = 144px
 	slideNameWidth?: number;
 }>;
 
-type UseColumnResizeReturn = {
-	getColumnWidth: (field: string) => number;
-	isResizing: boolean;
-	startResize: (field: string, startX: number) => void;
-	totalWidth: number;
-};
+type UseColumnResizeReturn = Readonly<
+	ReadonlyDeep<{
+		getColumnWidth: (field: Readonly<string>) => number;
+		isResizing: boolean;
+		startResize: (field: Readonly<string>, startX: number) => void;
+		totalWidth: number;
+	}>
+>;
 
 export function useColumnResize({
 	fields,

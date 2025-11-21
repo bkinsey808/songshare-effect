@@ -22,7 +22,7 @@ export function updateFileImports(filePath: string): boolean {
 		// Only write if content changed
 		if (updatedContent !== content) {
 			writeFileSync(filePath, updatedContent, "utf8");
-			console.log(`✅ Updated: ${filePath}`);
+			console.warn(`✅ Updated: ${filePath}`);
 			return true;
 		}
 

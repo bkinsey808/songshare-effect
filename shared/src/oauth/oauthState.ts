@@ -1,5 +1,6 @@
 import { Schema } from "effect";
 
+import type { ReadonlyDeep } from "../types/deep-readonly";
 import {
 	SupportedLanguageSchema,
 	type SupportedLanguageType,
@@ -12,6 +13,8 @@ export type OauthState = {
 	readonly provider: ProviderType;
 	readonly redirect_port?: string | undefined;
 };
+
+export type ReadonlyOauthState = ReadonlyDeep<OauthState>;
 
 export const OauthStateSchema: Schema.Schema<OauthState, OauthState, never> =
 	Schema.Struct({

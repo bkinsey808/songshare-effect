@@ -236,4 +236,7 @@ API_BASE_URL=http://localhost:8787  # Frontend config
 
 The authentication system is now complete and ready for production use!
 
-````markdown
+```markdown
+
+```
+````

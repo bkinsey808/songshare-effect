@@ -1,8 +1,8 @@
-import type { Context } from "hono";
-
 import { normalizeOrigin } from "@/api/cors/normalizeOrigin";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 
-export function getOriginToCheck(ctx: Context): string {
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+export function getOriginToCheck(ctx: ReadonlyContext): string {
 	const originHeader = ctx.req.header("Origin");
 	const refererHeader = ctx.req.header("Referer");
 

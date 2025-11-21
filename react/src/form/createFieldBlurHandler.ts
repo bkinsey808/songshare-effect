@@ -54,23 +54,18 @@ export const createFieldBlurHandler = <
 		if (validation.success) {
 			console.log(`✅ Field ${String(field)} is valid, removing errors`);
 			setValidationErrors(
-				currentErrors.filter(
-					(error: ValidationError) => error.field !== String(field),
-				),
+				currentErrors.filter((error) => error.field !== String(field)),
 			);
 		} else {
-			console.log(`❌ Field ${String(field)} has errors:`, validation.errors);
-			const fieldErrors = validation.errors.filter(
-				(error: ValidationError) => error.field === String(field),
-			);
+			const errs = validation.errors;
+			console.log(`❌ Field ${String(field)} has errors:`, errs);
+			const fieldErrors = errs.filter((error) => error.field === String(field));
 			console.log(
 				`🎯 Filtered field errors for ${String(field)}:`,
 				fieldErrors,
 			);
 			setValidationErrors([
-				...currentErrors.filter(
-					(error: ValidationError) => error.field !== String(field),
-				),
+				...currentErrors.filter((error) => error.field !== String(field)),
 				...fieldErrors,
 			]);
 		}

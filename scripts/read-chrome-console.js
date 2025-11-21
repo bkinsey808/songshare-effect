@@ -3,7 +3,8 @@ import fs from "fs";
 import WebSocket from "ws";
 
 const DEFAULT_PORT = process.env.DEV_SERVER_PORT || "5173";
-const DEFAULT_URL = process.env.DEV_SERVER_URL || `http://localhost:${DEFAULT_PORT}`;
+const DEFAULT_URL =
+	process.env.DEV_SERVER_URL || `http://localhost:${DEFAULT_PORT}`;
 const APP_URL = process.argv[2] || DEFAULT_URL;
 const DEBUG_ENDPOINT =
 	process.argv[3] ||

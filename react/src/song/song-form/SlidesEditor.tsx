@@ -6,17 +6,20 @@ import AutoExpandingTextarea from "../../design-system/AutoExpandingTextarea";
 import SortableSlideOrderItem from "./slides-editor/SortableSlideOrderItem";
 import useSlidesEditor from "./slides-editor/useSlidesEditor";
 import { type Slide } from "./songTypes";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
-type SlidesEditorProps = Readonly<{
-	fields: string[];
-	// Array of slide IDs
-	slideOrder: ReadonlyArray<string>;
-	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
-	// ID -> Slide mapping
-	slides: Record<string, Slide>;
-	setSlides: (newSlides: Record<string, Slide>) => void;
-}>;
+type SlidesEditorProps = Readonly<
+	ReadonlyDeep<{
+		fields: string[];
+		// Array of slide IDs
+		slideOrder: ReadonlyArray<string>;
+		setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+		// ID -> Slide mapping
+		slides: Readonly<Record<string, Slide>>;
+		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
+	}>
+>;
 
 export default function SlidesEditor({
 	fields,

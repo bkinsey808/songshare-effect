@@ -4,6 +4,7 @@ import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 import { type SongPublic } from "../song-schema";
 import { type SongSubscribeSlice } from "./songSlice";
 import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 // Supabase realtime payload type for song_public
 type SongPublicRealtimePayload = {
@@ -18,8 +19,10 @@ const handleSongDeletion = (
 	deletedPublicSongId: string,
 	set: (
 		partial:
-			| Partial<SongSubscribeSlice>
-			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
+			| Partial<ReadonlyDeep<SongSubscribeSlice>>
+			| ((
+					state: ReadonlyDeep<SongSubscribeSlice>,
+			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
 ): void => {
 	set((state) => {
@@ -38,8 +41,10 @@ const handleSongDeletion = (
 export default function subscribeToActivePublicSongs(
 	set: (
 		partial:
-			| Partial<SongSubscribeSlice>
-			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
+			| Partial<ReadonlyDeep<SongSubscribeSlice>>
+			| ((
+					state: ReadonlyDeep<SongSubscribeSlice>,
+			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
 	get: () => SongSubscribeSlice,
 ) {
@@ -85,7 +90,7 @@ export default function subscribeToActivePublicSongs(
 							table: "song_public",
 							filter,
 						},
-						(payload: Readonly<SongPublicRealtimePayload>) => {
+						(payload: ReadonlyDeep<SongPublicRealtimePayload>) => {
 							switch (payload.eventType) {
 								case "INSERT":
 								case "UPDATE": {

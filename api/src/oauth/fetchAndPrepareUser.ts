@@ -1,12 +1,15 @@
 /* eslint-disable no-console */
-import { type SupabaseClient, createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import { Effect, type Schema } from "effect";
-import type { Context } from "hono";
+
+// Prefer to keep the top-level handler type `Context` — helpers may use ReadonlyContext
 
 import type { Env } from "@/api/env";
 import { DatabaseError, ValidationError } from "@/api/errors";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 import { fetchAndParseOauthUserData } from "@/api/oauth/fetchAndParseOauthUserData";
 import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
+import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import { getUserByEmail } from "@/api/user/getUserByEmail";
 import type { UserSchema } from "@/shared/generated/supabaseSchemas";
 import type { OauthUserData } from "@/shared/oauth/oauthUserData";
@@ -14,18 +17,21 @@ import { apiOauthCallbackPath } from "@/shared/paths";
 import type { ProviderType } from "@/shared/providers";
 import { safeSet, superSafeGet } from "@/shared/utils/safe";
 
+type FetchAndPrepareUserParams = Readonly<{
+	ctx: ReadonlyContext<{ Bindings: Env }>;
+	code: string;
+	provider: ProviderType;
+}>;
+
 // Helper: exchange code and prepare supabase + existing user
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function fetchAndPrepareUser({
 	ctx,
 	code,
 	provider,
-}: Readonly<{
-	ctx: Context<{ Bindings: Env }>;
-	code: string;
-	provider: ProviderType;
-}>): Effect.Effect<
+}: FetchAndPrepareUserParams): Effect.Effect<
 	{
-		supabase: SupabaseClient;
+		supabase: ReadonlySupabaseClient;
 		oauthUserData: OauthUserData;
 		existingUser: Schema.Schema.Type<typeof UserSchema> | undefined;
 	},
@@ -50,7 +56,6 @@ export function fetchAndPrepareUser({
 					for (const nm of names) {
 						safeSet(hdrObj, nm, ctx.req.header(nm) ?? undefined);
 					}
-					console.log("[oauthCallback] Incoming request headers:", hdrObj);
 				} catch (err) {
 					console.error(
 						"[oauthCallback] Failed to dump incoming headers:",
@@ -108,7 +113,7 @@ export function fetchAndPrepareUser({
 		);
 
 		const existingUser: Schema.Schema.Type<typeof UserSchema> | undefined =
-			yield* $(getUserByEmail(supabase, oauthUserData.email));
+			yield* $(getUserByEmail({ supabase, email: oauthUserData.email }));
 
 		// Additional debug logging to aid in locating 500 errors during dev
 		yield* $(

@@ -14,19 +14,21 @@ import { safeGet } from "@/shared/utils/safe";
 export type SongSubscribeSlice = {
 	privateSongs: Record<string, Song>;
 	publicSongs: Record<string, SongPublic>;
-	activePrivateSongIds: string[];
-	activePublicSongIds: string[];
+	activePrivateSongIds: ReadonlyArray<string>;
+	activePublicSongIds: ReadonlyArray<string>;
 	/** Add or update song records. Never removes any songs from the store. */
-	addOrUpdatePrivateSongs: (songs: Record<string, Song>) => void;
-	addOrUpdatePublicSongs: (songs: Record<string, SongPublic>) => void;
+	addOrUpdatePrivateSongs: (songs: Readonly<Record<string, Song>>) => void;
+	addOrUpdatePublicSongs: (songs: Readonly<Record<string, SongPublic>>) => void;
 	/** Add songIds to the set of active songs. Never removes any songs from the store. */
-	addActivePrivateSongIds: (songIds: string[]) => void;
-	addActivePublicSongIds: (songIds: string[]) => void;
-	addActivePrivateSongSlugs: (songSlugs: string[]) => Promise<void>;
-	addActivePublicSongSlugs: (songSlugs: string[]) => Promise<void>;
+	addActivePrivateSongIds: (songIds: ReadonlyArray<string>) => void;
+	addActivePublicSongIds: (songIds: ReadonlyArray<string>) => void;
+	addActivePrivateSongSlugs: (
+		songSlugs: ReadonlyArray<string>,
+	) => Promise<void>;
+	addActivePublicSongSlugs: (songSlugs: ReadonlyArray<string>) => Promise<void>;
 	/** Remove songIds from the set of active songs. Never removes any songs from the store. */
-	removeActivePrivateSongIds: (songIds: string[]) => void;
-	removeActivePublicSongIds: (songIds: string[]) => void;
+	removeActivePrivateSongIds: (songIds: ReadonlyArray<string>) => void;
+	removeActivePublicSongIds: (songIds: ReadonlyArray<string>) => void;
 	/** Subscribes to realtime updates for the current activeSongIds. Returns an unsubscribe function. */
 	subscribeToActivePrivateSongs: () => (() => void) | undefined;
 	subscribeToActivePublicSongs: () => (() => void) | undefined;
@@ -44,8 +46,8 @@ export type SongSubscribeSlice = {
 const initialState = {
 	privateSongs: {} as Record<string, Song>,
 	publicSongs: {} as Record<string, SongPublic>,
-	activePrivateSongIds: [],
-	activePublicSongIds: [],
+	activePrivateSongIds: [] as ReadonlyArray<string>,
+	activePublicSongIds: [] as ReadonlyArray<string>,
 };
 
 export const createSongSubscribeSlice: StateCreator<
@@ -60,12 +62,14 @@ export const createSongSubscribeSlice: StateCreator<
 
 	return {
 		...initialState,
-		addOrUpdatePrivateSongs: (songs: Record<string, Song>) => {
+		addOrUpdatePrivateSongs: (songs: Readonly<Record<string, Song>>) => {
 			set((state) => ({
 				privateSongs: { ...state.privateSongs, ...songs },
 			}));
 		},
-		addOrUpdatePublicSongs: (publicSongs: Record<string, SongPublic>) => {
+		addOrUpdatePublicSongs: (
+			publicSongs: Readonly<Record<string, SongPublic>>,
+		) => {
 			set((state) => ({
 				publicSongs: { ...state.publicSongs, ...publicSongs },
 			}));
@@ -76,16 +80,15 @@ export const createSongSubscribeSlice: StateCreator<
 		addActivePrivateSongSlugs: addActivePrivateSongSlugs(set, get),
 		addActivePublicSongSlugs: addActivePublicSongSlugs(set, get),
 
-		removeActivePrivateSongIds: (songIds: string[]) => {
+		removeActivePrivateSongIds: (songIds: ReadonlyArray<string>) => {
 			set((state) => {
 				// Unsubscribe from previous subscription if exists
 				if (state.activePrivateSongsUnsubscribe) {
 					state.activePrivateSongsUnsubscribe();
 				}
 				// Update activeSongIds
-				const newActivePrivateSongIds = state.activePrivateSongIds.filter(
-					(id) => !songIds.includes(id),
-				);
+				const newActivePrivateSongIds: ReadonlyArray<string> =
+					state.activePrivateSongIds.filter((id) => !songIds.includes(id));
 				// Subscribe to new set
 				const activePrivateSongsUnsubscribe = subscribeToActivePrivateSongs(
 					set,
@@ -97,16 +100,15 @@ export const createSongSubscribeSlice: StateCreator<
 				};
 			});
 		},
-		removeActivePublicSongIds: (songIds: string[]) => {
+		removeActivePublicSongIds: (songIds: ReadonlyArray<string>) => {
 			set((state) => {
 				// Unsubscribe from previous subscription if exists
 				if (state.activePublicSongsUnsubscribe) {
 					state.activePublicSongsUnsubscribe();
 				}
 				// Update activeSongIds
-				const newActivePublicSongIds = state.activePublicSongIds.filter(
-					(id) => !songIds.includes(id),
-				);
+				const newActivePublicSongIds: ReadonlyArray<string> =
+					state.activePublicSongIds.filter((id) => !songIds.includes(id));
 				// Subscribe to new set
 				const activePublicSongsUnsubscribe = subscribeToActivePublicSongs(
 					set,

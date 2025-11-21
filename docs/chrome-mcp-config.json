@@ -1,4 +1,3 @@
-```json
 {
 	"name": "Chrome Dev Tools MCP Configuration",
 	"description": "Configuration for connecting MCP to Chrome Dev Tools for the songshare-effect project",
@@ -79,5 +78,3 @@
 		}
 	}
 }
-
-```
