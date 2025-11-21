@@ -87,15 +87,20 @@ export function buildUserSessionJwt({
 
 		yield* $(
 			Schema.decodeUnknown(sessionDataSchema)(sessionData).pipe(
-				Effect.mapError(
-					(err) =>
-						new ValidationError({
-							message:
-								typeof err === "object" && "message" in err
-									? String((err as { message?: unknown }).message)
-									: "Invalid session",
-						}),
-				),
+				Effect.mapError((err: unknown) => {
+					let message = "Invalid session";
+					if (err instanceof Error && typeof err.message === "string") {
+						message = err.message;
+					} else if (
+						typeof err === "object" &&
+						err !== null &&
+						"message" in err &&
+						typeof (err as Record<string, unknown>).message === "string"
+					) {
+						message = (err as Record<string, unknown>).message as string;
+					}
+					return new ValidationError({ message });
+				}),
 			),
 		);
 

@@ -8,7 +8,7 @@ import { spawn } from "child_process";
 
 async function runInstaller(): Promise<void> {
 	if (process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "1") {
-		// eslint-disable-next-line no-console
+		// Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1
 		console.log(
 			"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1",
 		);
@@ -16,7 +16,7 @@ async function runInstaller(): Promise<void> {
 	}
 
 	try {
-		// eslint-disable-next-line no-console
+		// Ensuring Playwright browsers are installed (bun script postinstall)
 		console.log(
 			"Ensuring Playwright browsers are installed (bun script postinstall). This may take a minute...",
 		);

@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-/* eslint-disable no-console, sonarjs/no-os-command-from-path, sonarjs/no-ignored-exceptions */
+/* eslint-disable sonarjs/no-os-command-from-path, sonarjs/no-ignored-exceptions */
 /**
  * Script to convert relative imports to path aliases
  * - @/shared -> shared/src
