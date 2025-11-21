@@ -3,6 +3,7 @@ type FormInputProps = Readonly<{
 	name?: string;
 	placeholder?: string;
 	value?: string;
+
 	onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	onBlur?: () => void;
 	className?: string;

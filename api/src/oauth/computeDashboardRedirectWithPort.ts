@@ -1,24 +1,29 @@
-import type { Context } from "hono";
-
 import type { Env } from "@/api/env";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
+import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+type ComputeDashboardRedirectWithPortParams = ReadonlyDeep<{
+	// Mark each top-level property as `readonly` so the prefer-readonly rule
+	// recognizes this as an immutable param type.
+	readonly ctx: ReadonlyContext<{ Bindings: Env }>;
+	readonly url: URL;
+	readonly redirectPortStr: string;
+	readonly lang: string;
+	readonly dashboardPathLocal: string;
+}>;
 
 /**
  * Validate redirect_port and build an absolute dashboard URL when allowed.
  * Kept as a small pure-ish helper that still consults `ctx.env` and headers.
  */
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function computeDashboardRedirectWithPort({
 	ctx,
 	url,
 	redirectPortStr,
 	lang,
 	dashboardPathLocal,
-}: Readonly<{
-	ctx: Context<{ Bindings: Env }>;
-	url: URL;
-	redirectPortStr: string;
-	lang: string;
-	dashboardPathLocal: string;
-}>): string | undefined {
+}: ComputeDashboardRedirectWithPortParams): string | undefined {
 	const portNum = Number(redirectPortStr);
 	if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
 		// eslint-disable-next-line no-console

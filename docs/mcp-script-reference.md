@@ -1,4 +1,4 @@
-```markdown
+````markdown
 # MCP Script Reference
 
 This page documents all MCP (Chrome DevTools Model Context Protocol) related scripts in this repo and the npm scripts that wrap them. Use this as a quick reference when debugging with DevTools / MCP.
@@ -11,6 +11,7 @@ This page documents all MCP (Chrome DevTools Model Context Protocol) related scr
 npm run mcp:start
 npm run mcp:wait
 ```
+````
 
 2. Start secure Chrome (opens the app URL):
 
@@ -73,12 +74,12 @@ If you use Claude Desktop, Gemini CLI or other MCP-aware tools, add an MCP serve
 
 ```json
 {
-  "mcpServers": {
-    "chrome-devtools": {
-      "command": "chrome-devtools-mcp",
-      "args": ["--port", "9222"]
-    }
-  }
+	"mcpServers": {
+		"chrome-devtools": {
+			"command": "chrome-devtools-mcp",
+			"args": ["--port", "9222"]
+		}
+	}
 }
 ```
 
@@ -328,11 +329,11 @@ Prefer the npm aliases added to this repo that manage pidfiles and logs:
 
 ```json
 {
-  "scripts": {
-    "mcp:start": "./scripts/mcp/start-mcp.sh",
-    "mcp:stop": "./scripts/mcp/stop-mcp.sh",
-    "chrome:debug:secure": "./scripts/mcp/start-chrome-debug-secure.sh"
-  }
+	"scripts": {
+		"mcp:start": "./scripts/mcp/start-mcp.sh",
+		"mcp:stop": "./scripts/mcp/stop-mcp.sh",
+		"chrome:debug:secure": "./scripts/mcp/start-chrome-debug-secure.sh"
+	}
 }
 ```
 
@@ -341,4 +342,7 @@ Prefer the npm aliases added to this repo that manage pidfiles and logs:
 - Install an MCP client, write automation scenarios, and use MCP to automate testing and performance monitoring.
 
 ---
+
+```
+
 ```

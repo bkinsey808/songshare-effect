@@ -3,13 +3,16 @@ import { type Song } from "../song-schema";
 import { type SongSubscribeSlice } from "./songSlice";
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
 import type { AppSlice } from "@/react/zustand/useAppStore";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
 export default function addActivePrivateSongSlugs(
 	set: (
 		partial:
-			| Partial<SongSubscribeSlice>
-			| ((state: Readonly<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
+			| Partial<ReadonlyDeep<SongSubscribeSlice>>
+			| ((
+					state: ReadonlyDeep<SongSubscribeSlice>,
+			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
 	get: () => SongSubscribeSlice,
 ) {
@@ -94,7 +97,7 @@ export default function addActivePrivateSongSlugs(
 				state.addOrUpdatePrivateSongs(privateSongsToAdd);
 
 				// Update activePrivateSongIds to include newly fetched songs
-				const newActivePrivateSongIds = [
+				const newActivePrivateSongIds: ReadonlyArray<string> = [
 					...new Set([
 						...state.activePrivateSongIds,
 						...Object.keys(privateSongsToAdd),

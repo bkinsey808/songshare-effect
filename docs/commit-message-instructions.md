@@ -27,7 +27,7 @@ Use this template for each commit:
 - `type`: one of the keywords in the emoji legend below (lowercase). Example: `feat`, `fix`, `docs`, `chore`. 🔤
 - `scope`: optional; short area of the codebase (e.g., `api`, `react`, `scripts`). 🧩
 - `short summary`: concise (preferably <= 50 chars) — imperative mood (e.g., "Add", "Fix"). 🗣️
-- `body`: explain *what* and *why* (not *how*) when needed. Use multiple paragraphs if helpful. 📝
+- `body`: explain _what_ and _why_ (not _how_) when needed. Use multiple paragraphs if helpful. 📝
 - `footer`: link issues with `#123`, note `BREAKING CHANGE:` if applicable, or add `Co-authored-by:` lines. 🔗
 
 ---
@@ -53,11 +53,13 @@ Tip: You can prepend the emoji in the subject for readability, e.g. `feat: ✨ a
 ## ✅ Examples
 
 - Simple feature:
+
 ```
 feat(supabase): add anonymous visitor token exchange
 ```
 
 - Bug fix with body:
+
 ```
 fix(api/session): prevent null pointer when no cookies present
 
@@ -69,11 +71,13 @@ Fixes: #812
 ```
 
 - Docs update:
+
 ```
 docs: ✨ update README with local dev steps
 ```
 
 - Breaking change with footer:
+
 ```
 refactor(auth): drop legacy visitor token format
 
@@ -98,6 +102,7 @@ BREAKING CHANGE: visitor token v1 removed, replace with v2
 ## 🧷 Templates you can copy
 
 - Feature
+
 ```
 feat(<scope>): <short summary>
 
@@ -107,6 +112,7 @@ Closes: #<issue>
 ```
 
 - Bug fix
+
 ```
 fix(<scope>): <short summary>
 
@@ -116,6 +122,7 @@ Fixes: #<issue>
 ```
 
 - Chore
+
 ```
 chore: <short summary>
 
@@ -127,7 +134,7 @@ chore: <short summary>
 ## 💡 Small checklist before committing
 
 - [ ] Subject is short and imperative
-- [ ] Body explains *why* if not obvious
+- [ ] Body explains _why_ if not obvious
 - [ ] Relevant issues noted in footer
 - [ ] No unrelated files bundled into the same commit
 

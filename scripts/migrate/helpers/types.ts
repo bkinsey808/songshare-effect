@@ -1,5 +1,5 @@
 export type MigrationFile = {
-  path: string;
-  filename: string;
-  timestamp: string;
+	path: string;
+	filename: string;
+	timestamp: string;
 };

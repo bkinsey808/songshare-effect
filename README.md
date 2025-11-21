@@ -249,10 +249,11 @@ ENVIRONMENT=development
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Read `CONTRIBUTING.md` for commit message guidelines, pre-commit hooks, and local setup steps (Husky / Commitlint / Commitizen).
+3. Create a feature branch
+4. Make your changes
+5. Add tests if applicable
+6. Submit a pull request
 
 ## License
 

@@ -1,21 +1,22 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
-import type { Context } from "hono";
 
+import { type ReadonlyContext } from "../hono/hono-context";
 import { buildClearCookieHeader } from "@/api/cookie/buildClearCookieHeader";
 import { userSessionCookieName } from "@/api/cookie/cookie";
 import { verifyDoubleSubmitOrThrow } from "@/api/csrf/verifyDoubleSubmitOrThrow";
 import { verifySameOriginOrThrow } from "@/api/csrf/verifySameOriginOrThrow";
-import type { Bindings } from "@/api/env";
+import type { Env } from "@/api/env";
 import { AuthenticationError, DatabaseError } from "@/api/errors";
-import { getVerifiedUserSession } from "@/api/userSession/getVerifiedSession";
+import { getVerifiedUserSession } from "@/api/user-session/getVerifiedSession";
 import type { Database } from "@/shared/generated/supabaseTypes";
 
 /**
  * Delete an authenticated user's account and clear the session cookie.
  */
 export default function accountDelete(
-	ctx: Context<{ Bindings: Bindings }>,
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	ctx: ReadonlyContext<{ Bindings: Env }>,
 ): Effect.Effect<Response, AuthenticationError | DatabaseError> {
 	return Effect.gen(function* ($) {
 		// Basic CSRF checks: ensure the request originated from an allowed origin

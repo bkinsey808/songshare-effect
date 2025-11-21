@@ -11,11 +11,12 @@ import { buildSessionCookie } from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import type { Env } from "@/api/env";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 import { buildDashboardRedirectUrl } from "@/api/oauth/buildDashboardRedirectUrl";
 import { fetchAndPrepareUser } from "@/api/oauth/fetchAndPrepareUser";
 import rateLimit from "@/api/rateLimit";
 import { buildRegisterJwt } from "@/api/register/buildRegisterJwt";
-import { buildUserSessionJwt } from "@/api/userSession/buildUserSessionJwt";
+import { buildUserSessionJwt } from "@/api/user-session/buildUserSessionJwt";
 import { csrfTokenCookieName, oauthCsrfCookieName } from "@/shared/cookies";
 import { defaultLanguage } from "@/shared/language/supportedLanguages";
 import { OauthStateSchema } from "@/shared/oauth/oauthState";
@@ -55,12 +56,16 @@ import { SigninErrorToken } from "@/shared/signinTokens";
  * - Callers receive an Effect that, when executed, yields a Response or one
  * of the typed errors above.
  *
- * @param ctx Hono request context with bound environment variables (`Env`)
+			return ctx.redirect(
+				`/${defaultLanguage}/?${signinErrorQueryParam}=${SigninErrorToken.rateLimit}`,
+				303,
+			);
  * @returns An Effect that yields a `Response` on success or a typed error on
  * failure.
  */
 export function oauthCallbackFactory(
-	ctx: Context<{ Bindings: Env }>,
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	ctx: ReadonlyContext<{ Bindings: Env }>,
 ): Effect.Effect<Response, DatabaseError | ServerError | ValidationError> {
 	return Effect.gen(function* ($) {
 		// Rate limit by IP
@@ -147,7 +152,12 @@ export function oauthCallbackFactory(
 		const { lang = defaultLanguage, provider } = oauthState;
 
 		// CSRF validation
-		const csrfCookie = getCookie(ctx, oauthCsrfCookieName);
+		const csrfCookie = getCookie(
+			ctx as Context<{
+				Bindings: Env;
+			}>,
+			oauthCsrfCookieName,
+		);
 		if (csrfCookie === undefined || csrfCookie !== oauthState.csrf) {
 			yield* $(
 				Effect.sync(() =>

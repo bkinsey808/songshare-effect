@@ -3,6 +3,7 @@ import { normalizeOrigin } from "@/api/cors/normalizeOrigin";
 
 export function isOriginAllowed(
 	origin: string | null | undefined,
+
 	envLike: Record<string, string | undefined>,
 ): boolean {
 	if (typeof origin !== "string" || origin.length === 0) {

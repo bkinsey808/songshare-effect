@@ -1,4 +1,5 @@
 import type { PlacementOption, PopoverPosition } from "./types";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 type PlacementConfig = {
 	readonly name: PlacementOption;
@@ -157,13 +158,13 @@ export default function calculatePopoverPosition({
 	popoverHeight,
 	preferredPlacement = "bottom",
 	gap = 8,
-}: {
+}: ReadonlyDeep<{
 	readonly triggerRect: DOMRect;
 	readonly popoverWidth: number;
 	readonly popoverHeight: number;
 	readonly preferredPlacement?: PlacementOption;
 	readonly gap?: number;
-}): { position: PopoverPosition; placement: PlacementOption } {
+}>): { position: PopoverPosition; placement: PlacementOption } {
 	const viewportWidth = window.innerWidth;
 	const viewportHeight = window.innerHeight;
 

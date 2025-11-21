@@ -3,15 +3,18 @@ import { useState } from "react";
 import SlidesGridView from "./grid-editor/SlidesGridView";
 import SlidesEditor from "./slides-editor/SlidesEditor";
 import { type Slide } from "./songTypes";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
-type SlidesViewManagerProps = Readonly<{
-	fields: string[];
-	toggleField: (field: string, checked: boolean) => void;
-	slideOrder: ReadonlyArray<string>;
-	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
-	slides: Record<string, Slide>;
-	setSlides: (newSlides: Record<string, Slide>) => void;
-}>;
+type SlidesViewManagerProps = Readonly<
+	ReadonlyDeep<{
+		fields: string[];
+		toggleField: (field: string, checked: boolean) => void;
+		slideOrder: ReadonlyArray<string>;
+		setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+		slides: Readonly<Record<string, Slide>>;
+		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
+	}>
+>;
 
 export default function SlidesViewManager({
 	fields,

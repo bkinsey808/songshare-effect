@@ -8,7 +8,7 @@ type UseFormStateReturn = {
 	slides: Record<string, Slide>;
 	fields: string[];
 	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
-	setSlides: (newSlides: Record<string, Slide>) => void;
+	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 	toggleField: (field: string, checked: boolean) => void;
 	resetFormState: () => void;
 	initialSlideId: string;

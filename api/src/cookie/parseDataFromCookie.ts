@@ -1,9 +1,18 @@
 // src/features/server-utils/parseDataFromCookie.ts
 import { Schema } from "effect";
-import type { Context } from "hono";
+// parseDataFromCookie is a helper that accepts a mutable Context; keep types the same
 import { verify } from "hono/jwt";
 
 import type { Env } from "@/api/env";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
+
+type ParseDataFromCookieParams<T, A extends boolean | undefined> = Readonly<{
+	ctx?: ReadonlyContext<{ Bindings: Env }>;
+	cookieName: string;
+	schema: Schema.Schema<T, unknown, never>;
+	debug?: boolean;
+	allowMissing?: A;
+}>;
 
 // Conditional type for return value
 type ParseCookieResult<T, A extends boolean | undefined> = A extends true
@@ -13,19 +22,14 @@ type ParseCookieResult<T, A extends boolean | undefined> = A extends true
 export async function parseDataFromCookie<
 	T,
 	A extends boolean | undefined = false,
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 >({
 	ctx,
 	cookieName,
 	schema,
 	debug = false,
 	allowMissing = false,
-}: Readonly<{
-	ctx?: Context<{ Bindings: Env }>;
-	cookieName: string;
-	schema: Schema.Schema<T, unknown, never>;
-	debug?: boolean;
-	allowMissing?: A;
-}>): Promise<ParseCookieResult<T, A>> {
+}: ParseDataFromCookieParams<T, A>): Promise<ParseCookieResult<T, A>> {
 	if (!ctx) {
 		throw new Error("Missing context when parsing data from cookie");
 	}

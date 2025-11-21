@@ -15,7 +15,7 @@ export function randomId(): string {
  * Generate the next available slide name
  */
 export function getNextSlideName(
-	slides: Record<string, Slide>,
+	slides: Readonly<Record<string, Slide>>,
 	slideOrderLength: number,
 ): string {
 	let idx = 1;
@@ -35,7 +35,7 @@ export function getNextSlideName(
  */
 export function getDuplicateSlideName(
 	originalSlideName: string,
-	slides: Record<string, Slide>,
+	slides: Readonly<Record<string, Slide>>,
 ): string {
 	const existingNames = Object.values(slides).map((slide) => slide.slide_name);
 

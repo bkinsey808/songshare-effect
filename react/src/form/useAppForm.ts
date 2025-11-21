@@ -93,7 +93,7 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 		return validationErrors.find((err) => err.field === String(field));
 	};
 
-	const handleSubmit = createFormSubmitHandler({
+	const handleSubmit = createFormSubmitHandler<FormValues>({
 		schema,
 		setValidationErrors,
 		setIsSubmitting,

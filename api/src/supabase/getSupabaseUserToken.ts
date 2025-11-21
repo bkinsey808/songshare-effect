@@ -1,6 +1,13 @@
-import { type Env } from "@/api/env";
 import { getSupabaseServerClient } from "@/api/supabase/getSupabaseServerClient";
 import { userTokenCache } from "@/api/supabase/tokenCache";
+
+// Narrow env shape for functions that only need Supabase credentials.
+type SupabaseClientEnv = Readonly<{
+	VITE_SUPABASE_URL: string;
+	SUPABASE_SERVICE_KEY: string;
+	SUPABASE_VISITOR_EMAIL: string;
+	SUPABASE_VISITOR_PASSWORD: string;
+}>;
 
 /**
  * Returns a valid JWT token for a specific user to use in Supabase clients.
@@ -12,7 +19,7 @@ export async function getSupabaseUserToken({
 	email,
 	password,
 }: Readonly<{
-	env: Env;
+	env: SupabaseClientEnv;
 	email: string;
 	password: string;
 }>): Promise<string> {

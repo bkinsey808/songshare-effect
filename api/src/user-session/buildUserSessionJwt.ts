@@ -1,16 +1,30 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+// SupabaseClient is not used directly here; use ReadonlySupabaseClient alias below
 import { Effect, Schema } from "effect";
-import type { Context } from "hono";
 
-import type { Env } from "@/api/env";
+import { type Env } from "../env";
+import { type ReadonlyContext } from "../hono/hono-context";
+import { type ReadonlySupabaseClient } from "../supabase/supabase-client";
+import { type ReadonlyUser } from "../user/user";
+// Types now live in `api/src/types/user-session.ts`
 import { type DatabaseError, ServerError, ValidationError } from "@/api/errors";
 import { getIpAddress } from "@/api/getIpAddress";
 import { createJwt } from "@/api/oauth/createJwt";
 import { resolveUsername } from "@/api/user/resolveUsername";
-import type { User } from "@/shared/generated/supabaseSchemas";
-import type { OauthState } from "@/shared/oauth/oauthState";
-import type { OauthUserData } from "@/shared/oauth/oauthUserData";
+import { type ReadonlyOauthState } from "@/shared/oauth/oauthState";
+import { type ReadonlyOauthUserData } from "@/shared/oauth/oauthUserData";
+import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { UserSessionDataSchema as sessionDataSchema } from "@/shared/userSessionData";
+
+// The `ctx` parameter is intentionally not wrapped by `ReadonlyDeep`
+// because converting all nested `Context` fields to readonly can lead to
+// incompatible shapes (e.g. readonly arrays vs mutable arrays) when the
+// context is passed to other helpers like `getIpAddress`.
+export type BuildUserSessionJwtParams = ReadonlyDeep<{
+	readonly supabase: ReadonlySupabaseClient;
+	readonly existingUser: ReadonlyUser;
+	readonly oauthUserData: ReadonlyOauthUserData;
+	readonly oauthState: ReadonlyOauthState;
+}> & { readonly ctx: ReadonlyContext<{ Bindings: Env }> };
 
 /**
  * Builds a user session JWT for an authenticated user.
@@ -28,20 +42,16 @@ import { UserSessionDataSchema as sessionDataSchema } from "@/shared/userSession
  * @param params.oauthState OAuth state
  * @returns Effect yielding the session JWT string
  */
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- SupabaseClient complex external type
 export function buildUserSessionJwt({
 	ctx,
 	supabase,
 	existingUser,
 	oauthUserData,
 	oauthState,
-}: Readonly<{
-	ctx: Context<{ Bindings: Env }>;
-	supabase: SupabaseClient;
-	existingUser: User;
-	oauthUserData: OauthUserData;
-	oauthState: OauthState;
-}>): Effect.Effect<string, ValidationError | ServerError | DatabaseError> {
+}: BuildUserSessionJwtParams): Effect.Effect<
+	string,
+	ValidationError | ServerError | DatabaseError
+> {
 	return Effect.gen(function* ($) {
 		const ip = getIpAddress(ctx);
 		// Resolve username from user_public table (source of truth for username)

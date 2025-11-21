@@ -102,6 +102,7 @@ npm run deploy:full
    - Copy Zone ID from the sidebar
 
 3. **Add to Environment**
+
 ```bash
 # Add to your .env file
 CLOUDFLARE_API_TOKEN=your_api_token
@@ -173,4 +174,7 @@ Consider implementing:
 - **Progressive Enhancement**: Graceful degradation for cache failures
 - **A/B Testing**: Gradual rollout of new versions
 
-````markdown
+```markdown
+
+```
+````

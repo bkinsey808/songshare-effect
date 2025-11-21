@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/os-command */
 import { execSync } from "child_process";
 
 /**
@@ -16,7 +17,7 @@ export function findAllTsFiles(pattern: string): string[] {
 			.split("\n")
 			.filter(
 				(file) =>
-					file &&
+					file !== "" &&
 					!file.includes("node_modules") &&
 					!file.includes("dist") &&
 					!file.includes(".git") &&

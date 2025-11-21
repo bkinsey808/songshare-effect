@@ -1,7 +1,8 @@
 import { Effect } from "effect";
-import { type Context } from "hono";
 
+import type { Env } from "@/api/env";
 import { type AppError, AuthenticationError } from "@/api/errors";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 import { HTTP_STATUS } from "@/shared/demo/api";
 
 /**
@@ -74,12 +75,21 @@ export const errorToHttpResponse = (
 };
 
 // HTTP endpoint handler utility
+// We need to accept a function that takes a Hono `Context`—it's difficult to
+// express as `readonly` inside nested function signatures, so disable the
+// prefer-readonly-parameter-types rule for this function.
 export function handleHttpEndpoint<A, E extends AppError>(
-	effectFactory: (c: Context) => Effect.Effect<A, E>,
+	// Mark the incoming function reference as `Readonly<>` so the linter
+	// `prefer-readonly-parameter-types` rule recognizes it as immutable.
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	effectFactory: (c: ReadonlyContext) => Effect.Effect<A, E>,
 	userOnSuccess?: (data: Readonly<A>) => object | Response,
 ) {
-	return async function (ctx: Context): Promise<Response> {
-		const effect = Effect.match(effectFactory(ctx), {
+	return async function (
+		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+		ctx: ReadonlyContext<{ Bindings: Env }>,
+	): Promise<Response> {
+		const effect = Effect.match(effectFactory(ctx) as Effect.Effect<A, E>, {
 			onFailure: (error) => {
 				// Log the error for debugging. For expected authentication errors
 				// (401) we keep logging minimal to avoid noisy stack traces for

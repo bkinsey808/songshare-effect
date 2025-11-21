@@ -1,10 +1,12 @@
 /* eslint-disable no-console */
 import { Effect, Schema } from "effect";
-import type { Context } from "hono";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
-import type { Env } from "@/api/env";
+import { type ReadonlyContext } from "../hono/hono-context";
+// `ReadonlyContext` wraps Hono's `Context` to satisfy lint rules; `Context`
+// and `Env` imports are not required here because `DeepReadonly` preserves
+// function signatures (for example `ctx.header`/`ctx.redirect`).
 import { type AppError, ServerError, ValidationError } from "@/api/errors";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
 import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
@@ -33,7 +35,8 @@ import { safeGet } from "@/shared/utils/safe";
  */
 // eslint-disable-next-line max-lines-per-function
 const oauthSignInFactory = (
-	ctx: Context<{ Bindings: Env }>,
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	ctx: ReadonlyContext,
 ): Effect.Effect<Response, AppError> =>
 	// eslint-disable-next-line max-lines-per-function
 	Effect.gen(function* ($) {
@@ -255,10 +258,10 @@ const oauthSignInFactory = (
 		return yield* $(Effect.sync(() => ctx.redirect(authUrl)));
 	});
 
-export function oauthSignInHandler(
-	ctx: Context<{ Bindings: Env }>,
-): Promise<Response> {
-	return handleHttpEndpoint((ctxInner: Context<{ Bindings: Env }>) =>
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+export function oauthSignInHandler(ctx: ReadonlyContext): Promise<Response> {
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	return handleHttpEndpoint((ctxInner: ReadonlyContext) =>
 		oauthSignInFactory(ctxInner),
 	)(ctx);
 }

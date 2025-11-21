@@ -1,11 +1,14 @@
-import { type Context } from "hono";
-
 import type { Env } from "@/api/env";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
 import { oauthCallbackFactory } from "@/api/oauth/oauthCallbackFactory";
 
-export default async function oauthCallbackHandler(
-	ctx: Context<{ Bindings: Env }>,
+// Keep exported wrapper typed as `Context` for Hono compatibility. The
+// implementation below uses `ReadonlyContext` so helpers can declare
+// read-only parameters without lint issues.
+async function oauthCallbackHandlerReadonly(
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	ctx: ReadonlyContext<{ Bindings: Env }>,
 ): Promise<Response> {
 	try {
 		// Await the handler so we can catch any unexpected runtime rejections
@@ -39,4 +42,12 @@ export default async function oauthCallbackHandler(
 			},
 		);
 	}
+}
+
+export default async function oauthCallbackHandler(
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	ctx: ReadonlyContext,
+): Promise<Response> {
+	// Adapter wrapper - convert to ReadonlyContext for the inner implementation
+	return oauthCallbackHandlerReadonly(ctx);
 }

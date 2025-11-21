@@ -6,18 +6,21 @@ import FormField from "../../../design-system/form/FormField";
 import { songFields } from "../../song-schema";
 import { type Slide } from "../songTypes";
 import useSlidesEditor from "./useSlidesEditor";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
-type SlidesEditorProps = Readonly<{
-	fields: string[];
-	toggleField: (field: string, checked: boolean) => void;
-	// Array of slide IDs
-	slideOrder: ReadonlyArray<string>;
-	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
-	// ID -> Slide mapping
-	slides: Record<string, Slide>;
-	setSlides: (newSlides: Record<string, Slide>) => void;
-}>;
+type SlidesEditorProps = Readonly<
+	ReadonlyDeep<{
+		fields: string[];
+		toggleField: (field: string, checked: boolean) => void;
+		// Array of slide IDs
+		slideOrder: ReadonlyArray<string>;
+		setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+		// ID -> Slide mapping
+		slides: Readonly<Record<string, Slide>>;
+		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
+	}>
+>;
 
 export default function SlidesEditor({
 	fields,

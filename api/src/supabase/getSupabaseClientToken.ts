@@ -1,16 +1,27 @@
-import { type Env } from "@/api/env";
 import { getSupabaseServerClient } from "@/api/supabase/getSupabaseServerClient";
 import {
 	getCachedClientToken,
 	setCachedClientToken,
 } from "@/api/supabase/tokenCache";
 
+// This module only needs the Supabase-related env keys. Use a narrow type
+// so callers that don't have platform bindings (BUCKET/ENVIRONMENT) don't
+// need to provide them.
+type SupabaseClientEnv = Readonly<{
+	VITE_SUPABASE_URL: string;
+	SUPABASE_SERVICE_KEY: string;
+	SUPABASE_VISITOR_EMAIL: string;
+	SUPABASE_VISITOR_PASSWORD: string;
+}>;
+
 /**
  * Returns a valid JWT token for the shared visitor user to use in Supabase clients.
  * Will reuse cached token until it expires.
  * On first run, will ensure the visitor user has the `visitor_id` claim.
  */
-export async function getSupabaseClientToken(env: Env): Promise<string> {
+export async function getSupabaseClientToken(
+	env: SupabaseClientEnv,
+): Promise<string> {
 	const now = Math.floor(Date.now() / 1000);
 
 	// Reuse cached token if still valid

@@ -6,6 +6,13 @@ export type Env = {
 	JWT_SECRET?: string;
 	OAUTH_REDIRECT_ORIGIN?: string;
 	OAUTH_REDIRECT_PATH?: string;
+	ALLOWED_REDIRECT_ORIGINS?: string;
+	// Optional platform bindings to make Env compatible with full worker
+	// `Bindings` used at runtime. These are optional here so that a
+	// `Bindings = Env & { BUCKET: R2Bucket; ENVIRONMENT: string }` type
+	// remains assignable to `Env` in strict TypeScript modes.
+	BUCKET: R2Bucket;
+	ENVIRONMENT: string;
 };
 
 // Full worker bindings available in the Hono Context. Compose Env with

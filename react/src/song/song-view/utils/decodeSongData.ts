@@ -4,10 +4,12 @@ import { type SongPublic, songPublicSchema } from "../../song-schema";
 
 /**
  * Decodes and validates song data using Effect schema.
- * @param data - Raw song data array from Supabase
+ * @param data - Raw song data array from Supabase (read-only)
  * @returns Record of validated songs indexed by song_id
  */
-export function decodeSongData(data: unknown[]): Record<string, SongPublic> {
+export function decodeSongData(
+	data: ReadonlyArray<unknown>,
+): Record<string, SongPublic> {
 	if (!Array.isArray(data)) {
 		console.error("[decodeSongData] Invalid data format:", data);
 		return {};

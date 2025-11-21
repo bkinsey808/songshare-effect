@@ -1,11 +1,17 @@
 import { Effect } from "effect";
-import type { Context } from "hono";
 
 import type { Env } from "@/api/env";
 import { ServerError } from "@/api/errors";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 import { createJwt } from "@/api/oauth/createJwt";
 import type { OauthState } from "@/shared/oauth/oauthState";
 import type { OauthUserData } from "@/shared/oauth/oauthUserData";
+
+type BuildRegisterJwtParams = Readonly<{
+	ctx: ReadonlyContext<{ Bindings: Env }>;
+	oauthUserData: OauthUserData;
+	oauthState: OauthState;
+}>;
 
 /**
  * Builds a registration JWT for a new user registration flow.
@@ -16,15 +22,12 @@ import type { OauthUserData } from "@/shared/oauth/oauthUserData";
  * @param params.oauthState The decoded OAuth state object used during the flow
  * @returns Effect yielding the registration JWT string
  */
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function buildRegisterJwt({
 	ctx,
 	oauthUserData,
 	oauthState,
-}: Readonly<{
-	ctx: Context<{ Bindings: Env }>;
-	oauthUserData: OauthUserData;
-	oauthState: OauthState;
-}>): Effect.Effect<string, ServerError> {
+}: BuildRegisterJwtParams): Effect.Effect<string, ServerError> {
 	return Effect.gen(function* ($) {
 		const registerData = { oauthUserData, oauthState };
 		const jwtSecret = ctx.env.JWT_SECRET;

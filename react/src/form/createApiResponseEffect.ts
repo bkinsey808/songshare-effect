@@ -8,7 +8,7 @@ import type { ApiResponseAction } from "./apiResponseTypes";
  */
 export const createApiResponseEffect = (
 	response: Response,
-): Effect.Effect<{ type: "success" }, ApiResponseAction> => {
+): Effect.Effect<unknown, ApiResponseAction, never> => {
 	return Effect.gen(function* () {
 		console.log("🔍 Processing API response, status:", response.status);
 		// Success case

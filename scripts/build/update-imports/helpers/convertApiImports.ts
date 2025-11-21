@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/slow-regex */
 /**
  * Rewrites relative imports inside the API package to use the `@/api` alias.
  * @param filePath - Absolute or relative path to the file being transformed.
@@ -34,8 +35,8 @@ export function convertApiImports(filePath: string, content: string): string {
 
 	// Pattern for ./something -> @/api/currentDir/something
 	const currentDir =
-		filePath.split("api/src/")[1]?.split("/").slice(0, -1).join("/") || "";
-	if (currentDir) {
+		filePath.split("api/src/")[1]?.split("/").slice(0, -1).join("/") ?? "";
+	if (currentDir !== "") {
 		updatedContent = updatedContent.replace(
 			/import\s+([^'"]*)\s+from\s+["']\.\/([^'"]*?)["'];?/g,
 			(...args) => {

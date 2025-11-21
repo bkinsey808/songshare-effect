@@ -1,12 +1,19 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const CI = typeof process.env.CI === "string" && process.env.CI !== "";
+const PLAYWRIGHT_BASE_URL =
+	typeof process.env.PLAYWRIGHT_BASE_URL === "string" &&
+	process.env.PLAYWRIGHT_BASE_URL !== ""
+		? process.env.PLAYWRIGHT_BASE_URL
+		: undefined;
+
 export default defineConfig({
 	testDir: "./e2e",
 	testMatch: ["**/*.e2e.ts", "**/*.e2e.tsx"],
 	fullyParallel: true,
-	forbidOnly: !!process.env.CI,
-	retries: process.env.CI ? 2 : 0,
-	workers: process.env.CI ? 1 : undefined,
+	forbidOnly: CI,
+	retries: CI ? 2 : 0,
+	workers: CI ? 1 : undefined,
 	reporter: "html",
 	// Increased to 60 seconds for service worker tests
 	timeout: 60000,
@@ -14,7 +21,7 @@ export default defineConfig({
 		// Tests target a deployed URL when PLAYWRIGHT_BASE_URL is set.
 		// For local dev we need to use HTTPS (Vite serves HTTPS by default),
 		// and ignore self-signed TLS errors in the browser.
-		baseURL: process.env.PLAYWRIGHT_BASE_URL || "https://localhost:5173",
+		baseURL: PLAYWRIGHT_BASE_URL ?? "https://localhost:5173",
 		ignoreHTTPSErrors: true,
 		trace: "on-first-retry",
 		// Increased for more reliable dev server testing
@@ -27,6 +34,7 @@ export default defineConfig({
 			name: "chromium",
 			use: {
 				...devices["Desktop Chrome"],
+				ignoreHTTPSErrors: true,
 				// Minimal browser launch options for faster startup
 				launchOptions: {
 					args: [
@@ -51,6 +59,7 @@ export default defineConfig({
 			name: "firefox",
 			use: {
 				...devices["Desktop Firefox"],
+				ignoreHTTPSErrors: true,
 				// Firefox-specific launch options for better reliability
 				launchOptions: {
 					firefoxUserPrefs: {
@@ -93,7 +102,7 @@ export default defineConfig({
 	// processes in the same process tree Playwright controls and avoids races
 	// caused by detached background processes.
 	webServer:
-		process.env?.["PLAYWRIGHT_BASE_URL"] === undefined
+		PLAYWRIGHT_BASE_URL === undefined
 			? {
 					command: "npm run dev:all",
 					// Use 127.0.0.1 to avoid hostname/IPv6 resolution differences

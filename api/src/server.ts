@@ -199,4 +199,27 @@ app.post("/api/account/register", handleHttpEndpoint(accountRegister));
 // Account deletion
 app.post("/api/account/delete", handleHttpEndpoint(accountDelete));
 
+// Global error handler: catch any uncaught exceptions in route handlers
+// and log them to Cloudflare Logs so we can diagnose production failures
+app.onError((err, ctx) => {
+	try {
+		if (err instanceof Error) {
+			console.error(
+				"[app.onError] Unhandled exception:",
+				err.stack ?? err.message,
+			);
+		} else {
+			console.error(
+				"[app.onError] Unhandled exception (non-Error):",
+				String(err),
+			);
+		}
+	} catch (logErr) {
+		console.error("[app.onError] Failed to log error:", String(logErr));
+	}
+
+	// Return a generic 500 response without leaking internals to clients
+	return ctx.json({ success: false, error: "Internal server error" }, 500);
+});
+
 export default app;

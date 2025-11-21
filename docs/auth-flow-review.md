@@ -107,5 +107,4 @@ Suggested next steps I can perform for you
 - Add the Playwright e2e test skeleton and (if you want) wire it to use existing `scripts/*` helpers for storageState.
 
 If you want me to proceed, say “Do it” and I will implement the sign-out cookie fix (helper + signout endpoint change) and run a quick typecheck/build.
-
 ```

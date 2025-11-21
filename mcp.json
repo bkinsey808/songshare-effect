@@ -1,8 +1,8 @@
 {
 	"servers": {
-			"chromeDevTools": {
-				"type": "stdio",
-				"command": "./scripts/mcp/mcp-npx-wrapper.sh",
+		"chromeDevTools": {
+			"type": "stdio",
+			"command": "./scripts/mcp/mcp-npx-wrapper.sh",
 			"args": [
 				"--no-install",
 				"chrome-devtools-mcp",

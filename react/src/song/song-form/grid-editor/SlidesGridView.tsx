@@ -8,15 +8,18 @@ import ResizeHandle from "./ResizeHandle";
 import SortableGridRow from "./SortableGridRow";
 import { useColumnResize } from "./useColumnResize";
 import { useGridDragAndDrop } from "./useGridDragAndDrop";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
-type SlidesGridViewProps = Readonly<{
-	readonly fields: string[];
-	readonly slideOrder: ReadonlyArray<string>;
-	readonly setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
-	slides: Record<string, Slide>;
-	setSlides: (newSlides: Record<string, Slide>) => void;
-}>;
+type SlidesGridViewProps = Readonly<
+	ReadonlyDeep<{
+		readonly fields: string[];
+		readonly slideOrder: ReadonlyArray<string>;
+		readonly setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+		slides: Readonly<Record<string, Slide>>;
+		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
+	}>
+>;
 
 export default function SlidesGridView({
 	fields,

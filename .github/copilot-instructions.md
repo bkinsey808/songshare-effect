@@ -1,4 +1,4 @@
-```instructions
+````instructions
 <!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
 
 - [x] ✅ Verify that the copilot-instructions.md file in the .github directory is created.
@@ -41,6 +41,8 @@
 - ✅ **Explicit Imports**: Prefer explicit named imports over default exports when possible
 - ✅ **File Naming**: Use descriptive filenames that clearly indicate the module's purpose
 
+- ✅ **Docs filenames**: Use kebab-case for files under the `docs/` directory (for example, `commit-message-instructions.md` not `commitMessageInstructions.md`).
+
 ### **React Development Standards**
 
 - ✅ **React Compiler Ready**: No manual memoization (useCallback, useMemo, memo) - let React Compiler optimize
@@ -58,7 +60,7 @@ import type { PopoverProps } from './popover/types';
 
 // ❌ AVOID - Barrel file imports
 import { NativePopover, calculatePosition, PopoverProps } from './popover';
-```
+````
 
 ### **Type Safety**
 
@@ -94,8 +96,14 @@ Please follow these conventions when adding tests. Copilot and other assistants 
 - **Read-only git commands are allowed:** Copilot may run or suggest read-only git commands for inspection and diagnostics (for example: `git status`, `git grep`, `git log`, `git show`, `git diff` without applying patches). These commands are safe for gathering information.
 - **Propose before changing:** When a change requires git actions, Copilot will propose the exact commands and wait for a human to run them (or to approve/execute them manually).
 
-``` 
+- **Config file format:** This repository standardizes on ECMAScript modules (ESM) for JS configuration files. Use `.js` or `.mjs` with `export`/`export default` rather than `.cjs`/`module.exports`. Examples: `commitlint.config.js`, `vite.config.js`, etc. Do not add `.cjs` files.
+- **Config file format:** This repository standardizes on ECMAScript modules (ESM) for JS configuration files. Use `.js` or `.mjs` with `export`/`export default` rather than `.cjs`/`module.exports`. Examples: `commitlint.config.js`, `vite.config.js`, etc. Do not add `.cjs` files.
+- **Bun scripts:** When writing repository scripts intended to be run under Bun, prefer a Bun TypeScript script with the `.bun.ts` extension (for example `scripts/postinstall-playwright.bun.ts`). If `.bun.ts` cannot be used due to environment constraints, prefer `.mjs` in ESM format.
+
 ```
+
+```
+
 <!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
 
 - [x] ✅ Verify that the copilot-instructions.md file in the .github directory is created.

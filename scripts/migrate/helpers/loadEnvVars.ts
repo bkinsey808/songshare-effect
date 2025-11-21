@@ -9,26 +9,27 @@ import { existsSync, readFileSync } from "fs";
  * @returns An object mapping environment variable names to their values.
  */
 export function loadEnvVars(): Record<string, string | undefined> {
-  const env: Record<string, string | undefined> = {};
+	const env: Record<string, string | undefined> = {};
 
-  try {
-    const envFile = ".env";
-    if (existsSync(envFile)) {
-      const content = readFileSync(envFile, "utf-8");
-      content.split("\n").forEach((line: string) => {
-        const trimmed = line.trim();
-        if (trimmed && !trimmed.startsWith("#")) {
-          const [key, ...valueParts] = trimmed.split("=");
-          if (key && valueParts.length > 0) {
-            env[key.trim()] = valueParts.join("=").trim();
-          }
-        }
-      });
-    }
-  } catch (error) {
-    console.error("❌ Error loading .env file:", error);
-    process.exit(1);
-  }
+	try {
+		const envFile = ".env";
+		if (existsSync(envFile)) {
+			const content = readFileSync(envFile, "utf-8");
+			content.split("\n").forEach((line: string) => {
+				const trimmed = line.trim();
+				if (trimmed !== "" && !trimmed.startsWith("#")) {
+					const [key, ...valueParts] = trimmed.split("=");
+					const keyStr = key ?? "";
+					if (keyStr !== "" && valueParts.length > 0) {
+						env[keyStr.trim()] = valueParts.join("=").trim();
+					}
+				}
+			});
+		}
+	} catch (error) {
+		console.error("❌ Error loading .env file:", error);
+		process.exit(1);
+	}
 
-  return env;
+	return env;
 }

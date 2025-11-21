@@ -1,12 +1,12 @@
-import { type Context } from "hono";
-
+import { type ReadonlyContext } from "../hono/hono-context";
 import { getAllowedOrigins } from "@/api/cors/getAllowedOrigins";
 import { getOriginToCheck } from "@/api/cors/getOriginToCheck";
 import { AuthenticationError } from "@/api/errors";
 
 type EnvLike = Record<string, string | undefined>;
 
-export function verifySameOriginOrThrow(ctx: Context): void {
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+export function verifySameOriginOrThrow(ctx: ReadonlyContext): void {
 	const envRecord = ctx.env as unknown as EnvLike;
 	const allowedOrigins = getAllowedOrigins(envRecord);
 	const originToCheck = getOriginToCheck(ctx);

@@ -29,6 +29,7 @@ export type UseNativePopoverReturn = {
 	handleMouseEnter: () => void;
 	handleMouseLeave: () => void;
 	handleTriggerClick: () => void;
+
 	handleKeyDown: (e: React.KeyboardEvent) => void;
 };
 

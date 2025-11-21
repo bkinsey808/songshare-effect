@@ -30,7 +30,7 @@ export default function RegisterPage(): ReactElement {
 		reset,
 		validationErrors,
 		setValidationErrors,
-	} = useAppForm({
+	} = useAppForm<RegisterForm>({
 		schema: RegisterFormSchema,
 		formRef,
 	});
@@ -115,7 +115,8 @@ export default function RegisterPage(): ReactElement {
 		console.log("🔄 Calling handleSubmit with onSubmit");
 
 		// Read form data
-		const formDataObj = new FormData(formRef.current || undefined);
+		// Use nullish coalescing for clearer typing
+		const formDataObj = new FormData(formRef.current ?? undefined);
 		const currentFormData: Record<string, unknown> = {};
 		for (const [key, value] of formDataObj.entries()) {
 			safeSet(currentFormData, key, value.toString());

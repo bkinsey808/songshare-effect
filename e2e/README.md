@@ -169,3 +169,64 @@ await expect(page.getByText(expectedText)).toBeVisible();
 **Cons**: Requires adding data attributes to components
 
 The chosen approach strikes the best balance between robustness, maintainability, and semantic clarity.
+
+## Running tests locally ⚠️
+
+If you see errors like "Executable doesn't exist" when running Playwright tests, it means the Playwright browser binaries are not installed yet. To download Playwright's browsers run:
+
+```bash
+npx playwright install
+```
+
+The dev script will also attempt to automatically install browsers for you before starting tests. If you prefer to skip automatic installation (CI or offline environments) set:
+
+```bash
+PLAYWRIGHT_SKIP_BROWSER_INSTALL=1
+```
+
+If installation fails, run `npx playwright install` manually and then rerun the tests.
+
+You can also run the repository npm script which wraps the Playwright installer:
+
+```bash
+npm run playwright:install
+```
+
+On machines using Bun or when you need the repo's postinstall to run automatically, we include a Bun TypeScript `postinstall` script. This will execute after `npm install` and run the installer unless you set `PLAYWRIGHT_SKIP_BROWSER_INSTALL=1`.
+
+This repo also includes a small cross-platform wrapper that prefers Bun (so the existing Bun TypeScript `postinstall` continues to work when `bun` is available) and falls back to `npx playwright install --with-deps` when `bun` isn't present in PATH. The intended consumer behavior is unchanged — browsers will be installed automatically — but contributors without Bun still get the same installer behavior.
+
+## Caching Playwright browser downloads in CI (recommended)
+
+Browsers are large and repeatedly downloading them in CI is slow — caching them reduces runtime. There are two good approaches in GitHub Actions:
+
+1. Cache the Playwright cache directory (default):
+
+```yaml
+- name: Cache Playwright browser cache
+	uses: actions/cache@v4
+	with:
+		path: |
+			~/.cache/ms-playwright
+		key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+		restore-keys: ${{ runner.os }}-playwright-
+```
+
+2. Use a repo-local cache (portable): set `PLAYWRIGHT_BROWSERS_PATH` to a repo folder and cache that. This keeps binaries inside the workspace which simplifies caching across OSes:
+
+```yaml
+# top-level job envs
+env:
+	PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.playwright-browsers
+
+- name: Cache repo-local Playwright browsers
+	uses: actions/cache@v4
+	with:
+		path: .playwright-browsers
+		key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+		restore-keys: ${{ runner.os }}-playwright-
+```
+
+We update the workflow job to set `PLAYWRIGHT_BROWSERS_PATH` and cache `.playwright-browsers` — then `npm run playwright:install` will fast-path installations using the cache.
+
+Tip: Use the lockfile hash (package-lock.json) in the cache key to automatically invalidate the cache when dependencies change.

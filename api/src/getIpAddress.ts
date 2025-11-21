@@ -1,5 +1,5 @@
-// src/features/server-utils/getIpAddress.ts
-import { type Context } from "hono";
+import type { Env } from "./env";
+import type { ReadonlyContext } from "@/api/hono/hono-context";
 
 /**
  * Gets the IP address of the requestor.
@@ -15,23 +15,33 @@ import { type Context } from "hono";
  * @param ctx The Hono context object.
  * @returns The determined IP address or a default for local development.
  */
-export function getIpAddress(ctx: Context): string {
+// Accept a readonly context wrapper used across the project. This keeps
+// the function compatible with both `Context` and `ReadonlyContext` call
+// sites because a plain `Context` is structurally assignable to the
+// readonly wrapper.
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+export function getIpAddress(ctx: ReadonlyContext<{ Bindings: Env }>): string {
 	// headers.get can return string | null. Read each header explicitly
 	// and prefer `cf-connecting-ip` when present. For `x-forwarded-for`
 	// the header can contain a comma-separated list of IPs; take the
 	// first non-empty entry.
 
-	const cfIp = ctx.req.raw.headers.get("cf-connecting-ip");
-	if (cfIp !== null && cfIp.trim() !== "") {
-		return cfIp.trim();
+	// `headers.get(...)` may return `string | null`, but some types can be
+	// treated as unknown depending on lib/ambient types. Use an explicit
+	// type guard so `@typescript-eslint/no-unsafe-assignment` is satisfied.
+	// Use Hono's `ctx.req.header(name)` helper which is well-typed in project
+	// code and returns `string | undefined`.
+	const cfIpHeader = ctx.req.header("cf-connecting-ip");
+	if (typeof cfIpHeader === "string" && cfIpHeader.trim() !== "") {
+		return cfIpHeader.trim();
 	}
 
-	const xff = ctx.req.raw.headers.get("x-forwarded-for");
-	if (xff !== null && xff.trim() !== "") {
-		const first = xff
+	const xffHeader = ctx.req.header("x-forwarded-for");
+	if (typeof xffHeader === "string" && xffHeader.trim() !== "") {
+		const first = xffHeader
 			.split(",")
-			.map((segment) => segment.trim())
-			.find((segment) => segment !== "");
+			.map((segment: string) => segment.trim())
+			.find((segment: string) => segment !== "");
 
 		if (typeof first === "string" && first.length > 0) {
 			return first;
