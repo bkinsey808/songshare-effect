@@ -1,4 +1,4 @@
-name: PR Checks (lint & unit)
+name: PR Checks (lint, unit, functions-dist, smoke-e2e)
 
 # Test workflow trigger - added for testing
 # Avoid duplicate work for rapid pushes against the same PR branch
