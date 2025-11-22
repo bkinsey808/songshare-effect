@@ -38,10 +38,27 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: "1.x"
+      - name: Install Bun (installer with retries)
+        run: |
+          set -euxo pipefail
+
+          for i in 1 2 3; do
+            echo "bun installer attempt $i"
+            if curl -fsSL https://bun.sh/install | bash -s -- -y; then
+              export BUN_INSTALL="${HOME}/.bun"
+              export PATH="${BUN_INSTALL}/bin:${PATH}"
+              echo "bun installed: $(bun --version)"
+              break
+            else
+              echo "installer attempt $i failed; retrying in 3s"
+              sleep 3
+            fi
+          done
+
+          if ! command -v bun >/dev/null 2>&1; then
+            echo "bun is still not available after retries" >&2
+            exit 1
+          fi
 
       - name: Install dependencies
         run: npm ci
