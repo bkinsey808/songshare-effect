@@ -115,6 +115,7 @@ jobs:
         continue-on-error: true
 
       - name: Ensure bun available (fallback installer with retries)
+        if: always()
         run: |
           set -euxo pipefail
           if command -v bun >/dev/null 2>&1; then
