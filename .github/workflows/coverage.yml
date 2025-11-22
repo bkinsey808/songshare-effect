@@ -24,13 +24,17 @@ jobs:
 
       - name: Set run display title
         if: always()
-        run: |
-          DISPLAY_TITLE="${{ github.workflow }} — ${{ github.event.pull_request.title || github.head_ref || github.ref_name || github.sha }}"
-          curl -s -X PATCH \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            -d "{\"display_title\":\"${DISPLAY_TITLE}\"}"
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const runId = parseInt(process.env.GITHUB_RUN_ID, 10)
+            const title = `${github.workflow} — ${github.event?.pull_request?.title || github.head_ref || github.ref_name || github.sha}`
+            await github.rest.actions.updateWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId,
+              display_title: title
+            })
 
       - uses: actions/setup-node@v4
         with:
