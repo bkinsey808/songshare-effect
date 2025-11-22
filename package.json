@@ -88,7 +88,6 @@
 		"zustand": "^5.0.8"
 	},
 	"devDependencies": {
-		"esbuild": "^0.25.12",
 		"@axe-core/playwright": "^4.11.0",
 		"@babel/core": "^7.28.4",
 		"@cloudflare/workers-types": "^4.20250924.0",
