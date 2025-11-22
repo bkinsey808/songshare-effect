@@ -27,6 +27,7 @@ jobs:
         if: always()
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.ACTIONS_RUN_TITLE_TOKEN || github.token }}
           script: |
             const runId = parseInt(process.env.GITHUB_RUN_ID, 10)
             const title = `${github.workflow} — ${github.event?.pull_request?.title || github.head_ref || github.ref_name || github.sha}`
