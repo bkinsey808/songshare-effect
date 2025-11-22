@@ -1,5 +1,4 @@
 #!/usr/bin/env bun
-/* eslint-disable no-console */
 /**
  * Programmatic migration runner using Node.js
  * Provides detailed logging and error handling

@@ -52,4 +52,11 @@ scripts/mcp/mcp.pid
 
 supabase/.temp/*
 
-.cache/
+# Test coverage output
+coverage/
+
+# Test reports (JUnit, other CI test outputs)
+reports/
+
+.cache
+artifacts/
