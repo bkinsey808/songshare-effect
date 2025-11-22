@@ -8,8 +8,10 @@ If you want a quick interactive look at runs, install the GitHub Actions extensi
 
 - Added concurrency to expensive/long-running workflows so duplicate runs for the same ref are canceled (e2e, PR checks, functions-dist).
 - Standardized the Bun installation strategy across workflows — we now use the official bun installer directly with retries and explicit PATH/BUN_INSTALL exports (this avoids flaky third-party action failures and ensures the binary is discoverable immediately in later steps).
+- Added `wait-on` as a devDependency and updated Playwright preview checks to try `localhost` first, then `127.0.0.1` with an increased timeout — this stabilizes PR-level smoke tests that previously timed out when Vite bound to `localhost` only.
 - Removed `|| true` usage that was swallowing build failures in the _full_ E2E workflow and consolidated functions/dist validation. Note: the _PR-level_ Playwright smoke job intentionally uses a non-blocking Playwright invocation (it may run tests with `|| true` on purpose so small smoke regressions don't block PRs) — the full E2E job run on `main` will fail on test errors.
 - Added least-privilege `permissions: contents: read` to workflows so the default token scope is limited.
+- Removed an experimental dynamic run title update (which required elevated `actions: write` permissions). The run-title experiment was reverted to keep workflows simple and avoid permission escalations; workflows now use least-privilege tokens.
 - Added a path filter to `check-functions-dist.yml` so function-dist checks only run for PRs that modify relevant code/scripts.
 - Added workflow status badges to the top of the README for quick CI visibility.
 - Added unit test coverage (Vitest) + JUnit reporting and coverage artifacts in PR checks and set a baseline coverage threshold so CI will fail if coverage drops below the baseline.
@@ -23,12 +25,12 @@ If you want a quick interactive look at runs, install the GitHub Actions extensi
 
 There are five workflow files in `.github/workflows/` used by this project. Below is a short description of each and why it exists.
 
-- `pr-checks.yml` (PR Checks)
-  - Trigger: `pull_request` (opened, synchronize, reopened)
-  - Jobs:
-    - `lint-and-unit`: runs linting and unit tests (Node 20, npm ci, `npm run lint`, `npm run test:unit`).
-    - `check-functions-dist`: depends on `lint-and-unit`. Builds function artifacts via a `prepare-functions` script and validates the built `dist/functions` imports.
-  - Purpose: catch issues early in PRs (style, failing tests, function bundle problems) before merging.
+- `pr-checks.yml` (PR Checks: lint, unit, functions-dist, smoke-e2e)
+- Trigger: `pull_request` (opened, synchronize, reopened)
+- Jobs:
+  - `lint-and-unit`: runs linting and unit tests (Node 20, npm ci, `npm run lint`, `npm run test:unit`).
+  - `check-functions-dist`: depends on `lint-and-unit`. Builds function artifacts via a `prepare-functions` script and validates the built `dist/functions` imports.
+- Purpose: catch issues early in PRs (style, failing tests, function bundle problems, and a quick smoke E2E check) before merging.
 
 - `commitlint.yml` (Validate commit messages on PR)
   - Trigger: `pull_request` (types: opened, synchronize, reopened)
@@ -63,7 +65,7 @@ There are five workflow files in `.github/workflows/` used by this project. Belo
 
 ## Why these workflows are useful for this repo
 
-- PR checks (lint + unit + bundle checks) protect `main` from regressions and enforce maintainability.
+- PR checks (lint + unit + bundle checks + PR-level smoke E2E) protect `main` from regressions and enforce maintainability.
 - Commitlint keeps commit history consistent, which helps readability and release automation.
 - Nightly & push e2e tests help catch regressions that unit tests miss (interaction, UI, integrations). Artifacts make diagnosis straightforward.
 - Bundle checks for `dist/functions` ensure that serverless functions will have valid import semantics at runtime.

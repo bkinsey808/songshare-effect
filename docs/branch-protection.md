@@ -5,7 +5,7 @@ Set up GitHub branch protection rules for `main` (or your release branch) to enf
 Recommended checks
 
 - Require status checks to pass before merging:
-  - `PR Checks (lint & unit)` (the workflow we added)
+  - `PR Checks (lint, unit, functions-dist, smoke-e2e)` (the workflow we added)
   - `Validate commit messages` (commitlint workflow)
   - Optionally: `E2E Tests (Playwright)` (if you want to block merges until e2e pass)
 - Require pull request reviews before merging (1 or 2 reviewers depending on team size).
