@@ -1,6 +1,7 @@
 // src/features/react/song-subscribe/subscribeToActiveSongs.ts
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
+import escapeForPostgresLiteral from "../../supabase/escapeForPostgresLiteral";
 import { type SongPublic } from "../song-schema";
 import { type SongSubscribeSlice } from "./songSlice";
 import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
@@ -75,7 +76,7 @@ export default function subscribeToActivePublicSongs(
 
 				// Quote string ids for postgres IN syntax: in.('id1','id2')
 				const quoted = activePublicSongIds
-					.map((id) => String(id).replace(/'/g, "\\'"))
+					.map((id) => escapeForPostgresLiteral(id))
 					.map((id) => `'${id}'`)
 					.join(",");
 				const filter = `song_id=in.(${quoted})`;
