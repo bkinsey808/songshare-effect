@@ -7,27 +7,28 @@ import { spawn } from "child_process";
 // browsers unless you opt out by setting PLAYWRIGHT_SKIP_BROWSER_INSTALL=1.
 
 async function runInstaller(): Promise<void> {
-	// Respect PLAYWRIGHT_SKIP_BROWSER_INSTALL in CI or build environments
-	// and also skip automatically when running inside CI (safe default).
-	if (
-		process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "1" ||
-		process.env["CI"] === "true"
-	) {
-		// Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1
+	if (process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "1") {
 		console.log(
-			"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 or CI=true",
+			"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1",
 		);
 		return;
 	}
 
 	try {
-		// Ensuring Playwright browsers are installed (bun script postinstall)
 		console.log(
 			"Ensuring Playwright browsers are installed (bun script postinstall). This may take a minute...",
 		);
 		// `npx playwright install` is idempotent and will no-op if already installed.
 		await new Promise<void>((resolve, reject) => {
-			const installer = spawn("npx", ["playwright", "install", "--with-deps"], {
+			// Avoid attempting to install OS packages in CI or GitHub Actions.
+			const isCI =
+				(typeof process.env["CI"] === "string" && process.env["CI"] !== "") ||
+				(typeof process.env["GITHUB_ACTIONS"] === "string" &&
+					process.env["GITHUB_ACTIONS"] !== "");
+			const args = isCI
+				? ["playwright", "install"]
+				: ["playwright", "install", "--with-deps"];
+			const installer = spawn("npx", args, {
 				shell: true,
 				stdio: "inherit",
 				env: process.env,

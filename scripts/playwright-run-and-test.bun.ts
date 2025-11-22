@@ -40,6 +40,7 @@ function startPlaywrightIfReady(): void {
 		return;
 	}
 	startedPlaywright = true;
+
 	// Dev servers ready — starting Playwright tests
 	console.log("Dev servers ready — starting Playwright tests");
 
@@ -62,15 +63,22 @@ function startPlaywrightIfReady(): void {
 			);
 			// `npx playwright install` is idempotent and will no-op if already installed.
 			await new Promise<void>((resolve, reject) => {
-				const installer = spawn(
-					"npx",
-					["playwright", "install", "--with-deps"],
-					{
-						shell: true,
-						stdio: "inherit",
-						env: { ...process.env },
-					},
-				);
+				// Avoid installing OS packages when running in CI (GitHub Actions
+				// or other CI environments) — not all distributions are supported
+				// by Playwright's install-deps path and it caused apt failures on
+				// Ubuntu 'noble'. Only install browsers in CI.
+				const isCI =
+					(typeof process.env["CI"] === "string" && process.env["CI"] !== "") ||
+					(typeof process.env["GITHUB_ACTIONS"] === "string" &&
+						process.env["GITHUB_ACTIONS"] !== "");
+				const args = isCI
+					? ["playwright", "install"]
+					: ["playwright", "install", "--with-deps"];
+				const installer = spawn("npx", args, {
+					shell: true,
+					stdio: "inherit",
+					env: { ...process.env },
+				});
 				installer.on("exit", (code) => {
 					if (code === 0) {
 						return resolve();
@@ -130,12 +138,14 @@ function handleLine(raw: string): void {
 		)
 	) {
 		frontendReady = true;
+
 		// Detected frontend ready -> output
 		console.log("Detected frontend ready ->", line);
 	}
 
 	if (!apiReady && /Ready on .*:8787/.test(line)) {
 		apiReady = true;
+
 		// Detected API ready -> output
 		console.log("Detected API ready ->", line);
 	}
