@@ -40,7 +40,7 @@ function startPlaywrightIfReady(): void {
 		return;
 	}
 	startedPlaywright = true;
-	// eslint-disable-next-line no-console
+
 	console.log("Dev servers ready — starting Playwright tests");
 
 	// Ensure Playwright browsers are installed before running tests. If you
@@ -62,15 +62,22 @@ function startPlaywrightIfReady(): void {
 			);
 			// `npx playwright install` is idempotent and will no-op if already installed.
 			await new Promise<void>((resolve, reject) => {
-				const installer = spawn(
-					"npx",
-					["playwright", "install", "--with-deps"],
-					{
-						shell: true,
-						stdio: "inherit",
-						env: { ...process.env },
-					},
-				);
+				// Avoid installing OS packages when running in CI (GitHub Actions
+				// or other CI environments) — not all distributions are supported
+				// by Playwright's install-deps path and it caused apt failures on
+				// Ubuntu 'noble'. Only install browsers in CI.
+				const isCI =
+					(typeof process.env["CI"] === "string" && process.env["CI"] !== "") ||
+					(typeof process.env["GITHUB_ACTIONS"] === "string" &&
+						process.env["GITHUB_ACTIONS"] !== "");
+				const args = isCI
+					? ["playwright", "install"]
+					: ["playwright", "install", "--with-deps"];
+				const installer = spawn("npx", args, {
+					shell: true,
+					stdio: "inherit",
+					env: { ...process.env },
+				});
 				installer.on("exit", (code) => {
 					if (code === 0) {
 						return resolve();
@@ -130,13 +137,13 @@ function handleLine(raw: string): void {
 		)
 	) {
 		frontendReady = true;
-		// eslint-disable-next-line no-console
+
 		console.log("Detected frontend ready ->", line);
 	}
 
 	if (!apiReady && /Ready on .*:8787/.test(line)) {
 		apiReady = true;
-		// eslint-disable-next-line no-console
+
 		console.log("Detected API ready ->", line);
 	}
 
@@ -224,5 +231,4 @@ function shutdown(): void {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
-// eslint-disable-next-line no-console
 console.log(`Playwright dev+test: logs -> ${CLIENT_LOG}, ${API_LOG}`);

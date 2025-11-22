@@ -62,7 +62,7 @@
 		"cache:purge": "./scripts/purge-cache.sh",
 		"test:unit": "vitest run",
 		"test:e2e:dev": "PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 bun ./scripts/run-playwright-with-timeout.bun.ts --reporter=list --retries=0 --workers=3 --forbid-only --timeout=20000",
-		"playwright:install": "npx playwright install --with-deps",
+		"playwright:install": "npx playwright install",
 		"postinstall": "node ./scripts/postinstall-playwright-wrapper.mjs",
 		"test:e2e:prod": "PLAYWRIGHT_BASE_URL=https://effect.bardoshare.com npx playwright test --reporter=list",
 		"test:e2e:dev:once": "bun ./scripts/playwright-run-and-test.bun.ts",

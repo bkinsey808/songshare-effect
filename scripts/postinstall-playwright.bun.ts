@@ -8,7 +8,6 @@ import { spawn } from "child_process";
 
 async function runInstaller(): Promise<void> {
 	if (process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "1") {
-		// eslint-disable-next-line no-console
 		console.log(
 			"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1",
 		);
@@ -16,13 +15,20 @@ async function runInstaller(): Promise<void> {
 	}
 
 	try {
-		// eslint-disable-next-line no-console
 		console.log(
 			"Ensuring Playwright browsers are installed (bun script postinstall). This may take a minute...",
 		);
 		// `npx playwright install` is idempotent and will no-op if already installed.
 		await new Promise<void>((resolve, reject) => {
-			const installer = spawn("npx", ["playwright", "install", "--with-deps"], {
+			// Avoid attempting to install OS packages in CI or GitHub Actions.
+			const isCI =
+				(typeof process.env["CI"] === "string" && process.env["CI"] !== "") ||
+				(typeof process.env["GITHUB_ACTIONS"] === "string" &&
+					process.env["GITHUB_ACTIONS"] !== "");
+			const args = isCI
+				? ["playwright", "install"]
+				: ["playwright", "install", "--with-deps"];
+			const installer = spawn("npx", args, {
 				shell: true,
 				stdio: "inherit",
 				env: process.env,
