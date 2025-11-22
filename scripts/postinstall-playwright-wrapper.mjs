@@ -19,6 +19,23 @@ function run(cmd, args) {
 }
 
 try {
+	// If an explicit opt-out is set, or running inside CI, skip the browser install.
+	// This small guard prevents the fallback `npx` path from attempting a
+	// system-level install on CI or in Cloudflare's build environment where
+	// privilege escalation is disallowed.
+	if (
+		process.env.PLAYWRIGHT_SKIP_BROWSER_INSTALL === "1" ||
+		process.env.CI === "true"
+	) {
+		console.log(
+			"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 or CI=true",
+		);
+		process.exit(0);
+	}
+	// Delegator wrapper: prefer Bun if present, otherwise fall back to `npx`.
+	// The canonical logic (including any CI / PLAYWRIGHT_SKIP_BROWSER_INSTALL
+	// handling) lives in `postinstall-playwright.bun.ts` so we keep this file
+	// intentionally small and cross-platform.
 	// Detect bun presence; if available, use bun to execute the existing Bun TS script.
 	if (run("bun", ["-v"]) === 0) {
 		process.exit(run("bun", ["./scripts/postinstall-playwright.bun.ts"]));
