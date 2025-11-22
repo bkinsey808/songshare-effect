@@ -5,6 +5,8 @@ on:
     branches: [main]
 
 concurrency:
+  # Concurrency per ref prevents multiple coverage runs for the same branch
+  # (for example, if multiple commits are pushed in quick succession).
   group: coverage-${{ github.ref }}
   cancel-in-progress: true
 
@@ -19,6 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # Full clone is needed so coverage tooling / test runners have access
+          # to repository history and artifacts; shallow clones can be missing
+          # information (tags/refs/commit metadata) that tooling sometimes expects.
           fetch-depth: 0
 
       # display-title update removed
@@ -26,6 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          # Speed up npm installs across runs by reusing the Node action's cache
           cache: "npm"
 
       - name: Install dependencies
