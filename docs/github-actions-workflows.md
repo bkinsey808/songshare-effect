@@ -12,7 +12,8 @@ If you want a quick interactive look at runs, install the GitHub Actions extensi
 - Removed `|| true` usage that was swallowing build failures in the _full_ E2E workflow and consolidated functions/dist validation. Note: the _PR-level_ Playwright smoke job intentionally uses a non-blocking Playwright invocation (it may run tests with `|| true` on purpose so small smoke regressions don't block PRs) — the full E2E job run on `main` will fail on test errors.
 - Added least-privilege `permissions: contents: read` to workflows so the default token scope is limited.
 - Removed an experimental dynamic run title update (which required elevated `actions: write` permissions). The run-title experiment was reverted to keep workflows simple and avoid permission escalations; workflows now use least-privilege tokens.
-- Added a path filter to `check-functions-dist.yml` so function-dist checks only run for PRs that modify relevant code/scripts.
+- Consolidated functions-dist validation into `pr-checks.yml`. (Previously the repo also contained
+  `check-functions-dist.yml` with a path-filtered trigger; that workflow is now DEPRECATED.)
 - Added workflow status badges to the top of the README for quick CI visibility.
 - Added unit test coverage (Vitest) + JUnit reporting and coverage artifacts in PR checks and set a baseline coverage threshold so CI will fail if coverage drops below the baseline.
 - Added a GitHub-only coverage workflow `coverage.yml` (runs on push to `main`) that uploads coverage artifacts and provides a workflow badge in the README so you can track latest coverage runs without an external coverage service.
@@ -42,10 +43,10 @@ There are five workflow files in `.github/workflows/` used by this project. Belo
   - Steps include: checkout, install Node, install dependencies, build frontend & API, start a preview server bound to IPv4 localhost (`--host 127.0.0.1`), wait for it to become ready (we check `localhost` then `127.0.0.1` with a timeout), cache Playwright browser binaries, ensure browsers are installed, run Playwright tests, and upload test reports and logs as artifacts.
   - Purpose: validate end-to-end user flows across the whole app regularly and after changes.
 
-- `check-functions-dist.yml` (validate functions bundle)
-  - Trigger: `push` to `main` and `pull_request` targeting `main` (pull requests run only when files that affect function packaging change).
-  - Prepares the functions bundle and validates that the compiled `dist/functions` doesn't contain illegal import styles (e.g. non-relative imports that could break in runtime or packaging).
-  - Purpose: ensure serverless function bundles are valid and safe to deploy.
+- `check-functions-dist.yml` (DEPRECATED — validation consolidated into PR Checks)
+  - The functions bundle validation previously ran here; this validation is now handled by
+    `pr-checks.yml` so PRs get function dist validation as part of the PR checks.
+  - The original file in the repo has been left but disabled; it no longer runs automatically.
 
 ---
 

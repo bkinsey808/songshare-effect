@@ -4,7 +4,6 @@ A modern song sharing platform built with React, Vite, and Hono for Cloudflare d
 
 [![PR Checks (lint, unit, functions-dist, smoke-e2e)](https://github.com/bkinsey808/songshare-effect/actions/workflows/pr-checks.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/pr-checks.yml)
 [![E2E Tests](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml)
-[![Validate functions dist](https://github.com/bkinsey808/songshare-effect/actions/workflows/check-functions-dist.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/check-functions-dist.yml)
 [![Coverage (GitHub)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml)
 
 ## Architecture
