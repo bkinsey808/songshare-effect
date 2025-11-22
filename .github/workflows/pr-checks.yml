@@ -56,6 +56,16 @@ jobs:
           npm run lint 2>&1 | tee reports/lint.log || true
           echo "Lint completed (errors, if any, captured in reports/lint.log)"
 
+      - name: Upload lint diagnostics (ESLint config + lint log)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-diagnostics
+          path: |
+            reports/eslint-config.json
+            reports/lint.log
+          if-no-files-found: warn
+
       - name: Unit tests (with coverage)
         run: npm run test:unit -- --coverage
 
