@@ -181,18 +181,25 @@ jobs:
           # try http first, then https. whichever responds first will be used as the base URL
           # Add a timeout to wait-on so we don't hang indefinitely if the preview fails to start.
           WAIT_ON_TIMEOUT_MS=180000
-          # Check localhost first since Vite prints Local: http://localhost:5173/
           if npx wait-on -t "$WAIT_ON_TIMEOUT_MS" http://localhost:5173; then
+            echo "PREVIEW_URL=http://localhost:5173" >> $GITHUB_ENV
             echo "preview available at http://localhost:5173"
-            PLAYWRIGHT_BASE_URL=http://localhost:5173 npx playwright test e2e/render.e2e.ts --project=chromium --reporter=list,junit --workers=1 --timeout=30000 || true
           elif npx wait-on -t "$WAIT_ON_TIMEOUT_MS" http://127.0.0.1:5173; then
+            echo "PREVIEW_URL=http://127.0.0.1:5173" >> $GITHUB_ENV
             echo "preview available at http://127.0.0.1:5173"
-            PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 npx playwright test e2e/render.e2e.ts --project=chromium --reporter=list,junit --workers=1 --timeout=30000 || true
+          elif npx wait-on -t "$WAIT_ON_TIMEOUT_MS" https://localhost:5173; then
+            echo "PREVIEW_URL=https://localhost:5173" >> $GITHUB_ENV
+            echo "preview available at https://localhost:5173"
+          elif npx wait-on -t "$WAIT_ON_TIMEOUT_MS" https://127.0.0.1:5173; then
+            echo "PREVIEW_URL=https://127.0.0.1:5173" >> $GITHUB_ENV
+            echo "preview available at https://127.0.0.1:5173"
           else
-            echo "Preview did not become available (neither http://localhost:5173 nor http://127.0.0.1:5173) after ${WAIT_ON_TIMEOUT_MS}ms" >&2
             echo "Preview did not become available after ${WAIT_ON_TIMEOUT_MS}ms" >&2
             exit 1
           fi
+
+          echo "Using preview url: $PREVIEW_URL"
+          PLAYWRIGHT_BASE_URL="$PREVIEW_URL" npx playwright test e2e/render.e2e.ts --project=chromium --reporter=list,junit --workers=1 --timeout=30000 || true
 
       - name: Upload Playwright report (smoke)
         if: always()

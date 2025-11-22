@@ -8,6 +8,7 @@ import type { Env } from "@/api/env";
 import { DatabaseError, ValidationError } from "@/api/errors";
 import type { ReadonlyContext } from "@/api/hono/hono-context";
 import { fetchAndParseOauthUserData } from "@/api/oauth/fetchAndParseOauthUserData";
+import { resolveRedirectOrigin } from "@/api/oauth/resolveRedirectOrigin";
 import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
 import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import { getUserByEmail } from "@/api/user/getUserByEmail";
@@ -21,6 +22,7 @@ type FetchAndPrepareUserParams = Readonly<{
 	ctx: ReadonlyContext<{ Bindings: Env }>;
 	code: string;
 	provider: ProviderType;
+	redirectUri?: string | undefined;
 }>;
 
 // Helper: exchange code and prepare supabase + existing user
@@ -29,6 +31,7 @@ export function fetchAndPrepareUser({
 	ctx,
 	code,
 	provider,
+	redirectUri: redirectUriFromCaller,
 }: FetchAndPrepareUserParams): Effect.Effect<
 	{
 		supabase: ReadonlySupabaseClient;
@@ -64,16 +67,50 @@ export function fetchAndPrepareUser({
 				}
 			}),
 		);
-		// Build redirectUri for token exchange. Prefer configured OAUTH_REDIRECT_ORIGIN
-		// otherwise derive origin from the incoming request so it matches the
-		// redirect_uri used in oauthSignIn.
+		// Build redirectUri for token exchange. If the caller provided an exact
+		// redirectUri (from the signed OAuth state), prefer that — this ensures
+		// we use the identical redirect_uri that was sent to the provider. If
+		// not provided, fall back to deriving one from env or incoming request.
 		const requestUrl = new URL(ctx.req.url);
-		const envRedirectOrigin = (ctx.env.OAUTH_REDIRECT_ORIGIN ?? "").toString();
-		const originForRedirect =
-			typeof envRedirectOrigin === "string" && envRedirectOrigin !== ""
-				? envRedirectOrigin.replace(/\/$/, "")
-				: `${requestUrl.protocol}//${requestUrl.host}`;
-		const redirectUri = `${originForRedirect}${ctx.env.OAUTH_REDIRECT_PATH ?? apiOauthCallbackPath}`;
+
+		// Prefer the browser-supplied Origin or Referer headers when available so
+		// the redirect URI used for token exchange matches the one the provider
+		// redirected back to (this is important when the dev proxy terminates TLS
+		// and forwards HTTP to the API). Fall back to the request URL origin.
+		const headerOrigin = ctx.req.header("origin") ?? "";
+		const headerReferer =
+			ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
+		const derivedFromReferer = (() => {
+			try {
+				return headerReferer ? new URL(headerReferer).origin : "";
+			} catch {
+				return "";
+			}
+		})();
+		const requestOrigin =
+			headerOrigin ||
+			derivedFromReferer ||
+			`${requestUrl.protocol}//${requestUrl.host}`;
+
+		let redirectUri: string;
+		if (
+			typeof redirectUriFromCaller === "string" &&
+			redirectUriFromCaller !== ""
+		) {
+			redirectUri = redirectUriFromCaller;
+		} else {
+			const envRedirectOrigin = (
+				ctx.env.OAUTH_REDIRECT_ORIGIN ?? ""
+			).toString();
+			const originForRedirect = resolveRedirectOrigin(
+				envRedirectOrigin || undefined,
+				{
+					requestOrigin: requestOrigin || undefined,
+					isProd: (ctx.env.ENVIRONMENT ?? "") === "production",
+				},
+			);
+			redirectUri = `${originForRedirect}${ctx.env.OAUTH_REDIRECT_PATH ?? apiOauthCallbackPath}`;
+		}
 		yield* $(
 			Effect.sync(() =>
 				console.log("[fetchAndPrepareUser] Using redirectUri:", redirectUri),

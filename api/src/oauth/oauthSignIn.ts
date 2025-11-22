@@ -9,6 +9,7 @@ import { type ReadonlyContext } from "../hono/hono-context";
 // function signatures (for example `ctx.header`/`ctx.redirect`).
 import { type AppError, ServerError, ValidationError } from "@/api/errors";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
+import { resolveRedirectOrigin } from "@/api/oauth/resolveRedirectOrigin";
 import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
 import { oauthCsrfCookieName } from "@/shared/cookies";
 import {
@@ -108,7 +109,16 @@ const oauthSignInFactory = (
 					return "";
 				}
 			})();
-		const redirectOrigin = redirectOriginEnv || requestOrigin;
+		// Prefer the configured redirect origin, but for localhost in non-
+		// production prefer the incoming request origin (so dev can run over
+		// either http or https without changing OAUTH_REDIRECT_ORIGIN).
+		const redirectOrigin = resolveRedirectOrigin(
+			redirectOriginEnv || undefined,
+			{
+				requestOrigin: requestOrigin || undefined,
+				isProd: (envRecord.ENVIRONMENT ?? "") === "production",
+			},
+		);
 		const originIsHttps = redirectOrigin.startsWith("https://");
 		const secureAttr = isProd || originIsHttps ? "; Secure" : "";
 		yield* $(
@@ -138,14 +148,47 @@ const oauthSignInFactory = (
 		);
 		yield* $(Effect.sync(() => console.log("[oauthSignIn] Language:", lang)));
 
-		// Encode state, include redirect_port if present (we'll read the query
-		// param again later when constructing redirect_uri so avoid variable
-		// redeclaration issues in the generator scope).
+		// Build redirect URI using apiOauthCallbackPath for local and production.
+		// Normalize origin to avoid accidental double slashes. When a redirect_port
+		// is provided for developer flows and the origin points at localhost we
+		// prefer HTTPS so the provider will redirect back to the HTTPS dev server
+		// (mkcert + Vite). This avoids mixed-scheme redirects that can prevent
+		// Secure/SameSite=None cookies from being accepted by the browser.
+		const trimmedOrigin = (redirectOrigin ?? "").replace(/\/$/, "");
+		let redirect_uri = trimmedOrigin
+			? `${trimmedOrigin}${apiOauthCallbackPath ?? ""}`
+			: `${apiOauthCallbackPath ?? ""}`;
+
+		// If a developer-supplied redirect_port is present and the request targets
+		// localhost, force the redirect_uri to https://localhost:PORT so the OAuth
+		// provider will redirect back to the HTTPS dev server (mkcert + Vite).
+		// This ensures the subsequent Set-Cookie includes Secure when required by
+		// browsers for SameSite=None cookies.
+		const redirectPortQuery = ctx.req.query(redirectPortQueryParam);
+		// Ensure we only treat a defined, non-empty string as a port value.
+		if (typeof redirectPortQuery === "string" && redirectPortQuery !== "") {
+			// Developer convenience: when a redirect_port is provided prefer HTTPS
+			// for localhost. Skip this in production — OAUTH_REDIRECT_ORIGIN should
+			// be configured there.
+			if ((envRecord.ENVIRONMENT ?? "") !== "production") {
+				redirect_uri = `https://localhost:${redirectPortQuery}${apiOauthCallbackPath ?? ""}`;
+			}
+		}
+
+		// Encode state, include redirect_port and redirect_origin so the callback
+		// handler can reconstruct the exact redirect_uri used during the initial
+		// sign-in request. Having this in the signed state prevents relying on
+		// request headers (which during provider redirects contain the provider
+		// origin like accounts.google.com) and avoids redirect_uri_mismatch.
 		const oauthState: OauthState = {
 			csrf: csrfState,
 			lang,
 			provider,
-			// Note: redirect_port appended later when reading query param again
+			redirect_port:
+				typeof redirectPortQuery === "string" && redirectPortQuery !== ""
+					? redirectPortQuery
+					: undefined,
+			redirect_origin: trimmedOrigin || undefined,
 		};
 		yield* $(
 			Effect.sync(() => console.log("[oauthSignIn] oauthState:", oauthState)),
@@ -182,32 +225,6 @@ const oauthSignInFactory = (
 			}),
 		);
 
-		// Build redirect URI using apiOauthCallbackPath for local and production.
-		// Normalize origin to avoid accidental double slashes. When a redirect_port
-		// is provided for developer flows and the origin points at localhost we
-		// prefer HTTPS so the provider will redirect back to the HTTPS dev server
-		// (mkcert + Vite). This avoids mixed-scheme redirects that can prevent
-		// Secure/SameSite=None cookies from being accepted by the browser.
-		const trimmedOrigin = (redirectOrigin ?? "").replace(/\/$/, "");
-		let redirect_uri = trimmedOrigin
-			? `${trimmedOrigin}${apiOauthCallbackPath ?? ""}`
-			: `${apiOauthCallbackPath ?? ""}`;
-
-		// If a developer-supplied redirect_port is present and the request targets
-		// localhost, force the redirect_uri to https://localhost:PORT so the OAuth
-		// provider will redirect back to the HTTPS dev server (mkcert + Vite).
-		// This ensures the subsequent Set-Cookie includes Secure when required by
-		// browsers for SameSite=None cookies.
-		const redirectPortQuery = ctx.req.query(redirectPortQueryParam);
-		// Ensure we only treat a defined, non-empty string as a port value.
-		if (typeof redirectPortQuery === "string" && redirectPortQuery !== "") {
-			// Developer convenience: when a redirect_port is provided prefer HTTPS
-			// for localhost. Skip this in production — OAUTH_REDIRECT_ORIGIN should
-			// be configured there.
-			if ((envRecord.ENVIRONMENT ?? "") !== "production") {
-				redirect_uri = `https://localhost:${redirectPortQuery}${apiOauthCallbackPath ?? ""}`;
-			}
-		}
 		yield* $(
 			Effect.sync(() =>
 				console.log("[oauthSignIn] redirect_uri:", redirect_uri),

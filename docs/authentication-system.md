@@ -270,6 +270,21 @@ SUPABASE_VISITOR_PASSWORD=secure-visitor-password
 API_BASE_URL=http://localhost:8787  # Development API URL
 ```
 
+### Local development: Google OAuth redirect URIs
+
+When developing locally the application can run over either http or https (for example, Vite served with mkcert for HTTPS or a plain HTTP dev server). To support OAuth sign-ins from Google in either case:
+
+- Register both redirect URIs in the Google Cloud Console (if using the same port for http/https):
+  - http://localhost:5173/api/oauth/callback
+  - https://localhost:5173/api/oauth/callback
+- The API prefers the incoming request's scheme when OAUTH_REDIRECT_ORIGIN points at `localhost` and ENVIRONMENT is not `production`. This means you can keep a single OAUTH_REDIRECT_ORIGIN value (even if it contains https) and the API will use the request's actual scheme while running locally.
+
+Note: for non-localhost origins Google requires HTTPS; keep that in mind for staging/production.
+
+CI/workflows compatibility
+
+The repository CI workflows already run a preview server (Vite preview) and Playwright tests. They now accept either http or https for the preview server during CI runs — the workflows will probe http://localhost:5173 and http://127.0.0.1:5173 first, then fall back to https://localhost:5173 and https://127.0.0.1:5173 as needed. No further configuration is required for GitHub Actions to run E2E or smoke tests whether your dev machine uses mkcert (HTTPS) or plain HTTP.
+
 ### **Supabase Setup**
 
 1. **Create visitor user account** in Supabase Auth dashboard
