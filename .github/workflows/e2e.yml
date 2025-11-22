@@ -42,12 +42,17 @@ jobs:
           script: |
             const runId = parseInt(process.env.GITHUB_RUN_ID, 10)
             const title = `${github.workflow} — ${github.event?.pull_request?.title || github.head_ref || github.ref_name || github.sha}`
-            await github.rest.actions.updateWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: runId,
-              display_title: title
-            })
+            try {
+              const res = await github.rest.actions.updateWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+                display_title: title
+              })
+              console.log('update display_title response:', res.status)
+            } catch (err) {
+              console.error('failed to update display_title', err)
+            }
 
       - uses: actions/setup-node@v4
         with:
