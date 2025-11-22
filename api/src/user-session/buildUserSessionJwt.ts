@@ -85,17 +85,14 @@ export function buildUserSessionJwt({
 			),
 		);
 
+		// The decode may produce an error value typed as unknown; map to a
+		// ValidationError. We intentionally discard the original error shape.
 		yield* $(
 			Schema.decodeUnknown(sessionDataSchema)(sessionData).pipe(
-				Effect.mapError(
-					(err) =>
-						new ValidationError({
-							message:
-								typeof err === "object" && "message" in err
-									? String((err as { message?: unknown }).message)
-									: "Invalid session",
-						}),
-				),
+				Effect.mapError((_err: unknown) => {
+					void _err;
+					return new ValidationError({ message: "Invalid session" });
+				}),
 			),
 		);
 

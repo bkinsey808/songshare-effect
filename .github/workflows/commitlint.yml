@@ -4,11 +4,20 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+concurrency:
+  group: commitlint-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   commitlint:
     name: Commitlint
     if: ${{ github.event.pull_request.commits > 0 }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:

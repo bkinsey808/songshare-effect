@@ -5,11 +5,29 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    # Restrict PR runs to changes which affect functions/packaging or build scripts.
+    paths:
+      - "api/**"
+      - "shared/**"
+      - "scripts/build/prepare-functions/**"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+
+concurrency:
+  group: functions-dist-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   check-functions-dist:
     name: Prepare & validate functions bundle
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -18,9 +36,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Install Bun
-        uses: oven-sh/setup-bun@v3
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.x"
 
