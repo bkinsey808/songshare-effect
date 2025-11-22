@@ -1,4 +1,4 @@
-name: ${{ github.event_name == 'pull_request' && format('%s — %s', github.workflow, github.event.pull_request.title) || format('%s — %s', github.workflow, github.head_ref || github.ref_name || github.sha) }}
+name: ${{ github.event_name == 'pull_request' && format('%s — %s', github.workflow, github.event.pull_request.title) || format('%s — %s', github.workflow, replace(github.ref, 'refs/heads/', '')) }}
 
 # Test workflow trigger - added for testing
 # Avoid duplicate work for rapid pushes against the same PR branch
