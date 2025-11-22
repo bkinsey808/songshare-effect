@@ -53,7 +53,7 @@ function createErrorResponse(
 				JSON.stringify({
 					success: false,
 					error: "Internal server error",
-					details: { message: msg, stack },
+					details: { message: msg },
 				}),
 				{
 					status: 500,
