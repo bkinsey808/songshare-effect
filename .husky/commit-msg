@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-# Use explicit config path so commitlint loads the ESM .mjs file
-npx --no -- commitlint --config commitlint.config.mjs --edit "$1"
+# Use explicit config path so commitlint loads the ESM .js file
+npx --no -- commitlint --config commitlint.config.js --edit "$1"

@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+
 import { relative } from "path";
 
 export function logFinalSummary(

@@ -7,16 +7,21 @@ import { spawn } from "child_process";
 // browsers unless you opt out by setting PLAYWRIGHT_SKIP_BROWSER_INSTALL=1.
 
 async function runInstaller(): Promise<void> {
-	if (process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "1") {
-		// eslint-disable-next-line no-console
+	// Respect PLAYWRIGHT_SKIP_BROWSER_INSTALL in CI or build environments
+	// and also skip automatically when running inside CI (safe default).
+	if (
+		process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "1" ||
+		process.env["CI"] === "true"
+	) {
+		// Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1
 		console.log(
-			"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1",
+			"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 or CI=true",
 		);
 		return;
 	}
 
 	try {
-		// eslint-disable-next-line no-console
+		// Ensuring Playwright browsers are installed (bun script postinstall)
 		console.log(
 			"Ensuring Playwright browsers are installed (bun script postinstall). This may take a minute...",
 		);

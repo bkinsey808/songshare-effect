@@ -4,23 +4,38 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+concurrency:
+  group: commitlint-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   commitlint:
     name: Commitlint
     if: ${{ github.event.pull_request.commits > 0 }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      # display-title update removed
+      - name: Setup Node (for commitlint)
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
-      - run: npm ci
+
+      - name: Install commitlint (no full repo install)
+        run: |
+          # Install commitlint CLI and the conventional config without installing repo deps
+          npm install --no-audit --no-fund --no-save @commitlint/cli @commitlint/config-conventional
+
       - name: Validate commit messages in PR
         run: |
-          # compare base..head for commits introduced by the PR
+          # Compare base..head for commits introduced by the PR and validate with commitlint
           BASE_SHA=${{ github.event.pull_request.base.sha }}
           HEAD_SHA=${{ github.event.pull_request.head.sha }}
-          npx --no-install -- commitlint --from="$BASE_SHA" --to="$HEAD_SHA"
+          npx --no-install commitlint --from="$BASE_SHA" --to="$HEAD_SHA"
