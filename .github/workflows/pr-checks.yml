@@ -105,37 +105,25 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install Bun runtime (try action, fallback to installer)
-        # Some runner environments occasionally fail to download the installer.
-        # First try the official action (non-fatal); if it's not available, fall back to
-        # the direct installer with a short retry loop so CI is resilient to transient 400s.
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: "1.x"
-        continue-on-error: true
-
-      - name: Ensure bun available (fallback installer with retries)
-        if: always()
+      - name: Install Bun runtime (installer with retries)
         run: |
           set -euxo pipefail
-          if command -v bun >/dev/null 2>&1; then
-            echo "bun already installed: $(bun --version)"
-            exit 0
-          fi
 
-          echo "oven-sh/setup-bun either failed or did not provide bun; attempting fallback installer"
+          # Use bun's official installer directly and retry a few times to guard against
+          # transient CDN / HTTP failures that previously caused the job to fail.
           for i in 1 2 3; do
-            echo "installer attempt $i"
+            echo "bun installer attempt $i"
             if curl -fsSL https://bun.sh/install | bash -s -- -y; then
               export BUN_INSTALL="${HOME}/.bun"
               export PATH="${BUN_INSTALL}/bin:${PATH}"
               echo "bun installed: $(bun --version)"
               break
             else
-              echo "installer attempt $i failed; retrying after sleep"
+              echo "installer attempt $i failed; retrying in 3s"
               sleep 3
             fi
           done
+
           if ! command -v bun >/dev/null 2>&1; then
             echo "bun is still not available after retries" >&2
             exit 1
