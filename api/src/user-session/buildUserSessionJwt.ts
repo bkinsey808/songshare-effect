@@ -89,9 +89,10 @@ export function buildUserSessionJwt({
 		// ValidationError. We intentionally discard the original error shape.
 		yield* $(
 			Schema.decodeUnknown(sessionDataSchema)(sessionData).pipe(
-				Effect.mapError(
-					() => new ValidationError({ message: "Invalid session" }),
-				),
+				Effect.mapError((_err: unknown) => {
+					void _err;
+					return new ValidationError({ message: "Invalid session" });
+				}),
 			),
 		);
 
