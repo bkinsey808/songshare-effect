@@ -114,8 +114,9 @@ jobs:
           for i in 1 2 3; do
             echo "bun installer attempt $i"
             if curl -fsSL https://bun.sh/install | bash -s --; then
-              export BUN_INSTALL="${HOME}/.bun"
-              export PATH="${BUN_INSTALL}/bin:${PATH}"
+              BUN_INSTALL="${HOME}/.bun"
+              echo "BUN_INSTALL=${BUN_INSTALL}" >> $GITHUB_ENV
+              echo "PATH=${BUN_INSTALL}/bin:${PATH}" >> $GITHUB_ENV
               echo "bun installed: $(bun --version)"
               break
             else
