@@ -5,7 +5,12 @@ on:
     branches: [main]
     # Ignore content-only / docs-only pushes to avoid running expensive e2e unnecessarily
     paths-ignore:
-      - "docs/*Unable to resolve action `wagoid/commitlint-action@v3`, repository or version not found*"
+      - "docs/*" # skip runs when only docs/files under docs/ changed
+      # NOTE: the original file contained an unexpected error string here
+      # ("Unable to resolve action ...") that looks like noise from a prior
+      # validation run. If you still see that token present in the YAML it
+      # should be removed as above — keeping it would create a literal path
+      # pattern which is likely unintended.
       - ".github/**"
       - "README.md"
       - "CONTRIBUTING.md"
@@ -15,6 +20,8 @@ on:
 
 # Avoid overlapping e2e runs for the same ref (reduces runner waste)
 concurrency:
+  # Serialize e2e runs per branch/ref to avoid queueing multiple expensive
+  # e2e test runs for the same ref when frequent commits are pushed.
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
 
@@ -27,11 +34,15 @@ jobs:
     runs-on: ubuntu-latest
     # no elevated permissions required; dynamic run title update removed
     env:
-      # Use a repo-local folder for Playwright browsers so we can cache it
+      # Configure Playwright to keep browser binaries inside the repo workspace
+      # so we can cache and restore them across runs. This dramatically
+      # reduces test startup time because browsers don't need to be re-downloaded.
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.playwright-browsers
     steps:
       - uses: actions/checkout@v4
         with:
+          # Full clone to ensure builds/tests run against the exact PR commit
+          # including tags or other metadata that a shallow clone may miss.
           fetch-depth: 0
 
       # display-title update removed
@@ -51,7 +62,8 @@ jobs:
 
       - name: Start preview server
         run: |
-          # start Vite preview in background on port 5173 bound to IPv4 localhost
+          # Start Vite preview in background and bind to explicit IPv4 host so
+          # utilities like `wait-on` can reliably reach it in the runner.
           nohup npm run preview -- --host 127.0.0.1 --port 5173 > preview.log 2>&1 &
           echo $! > preview.pid
           echo "preview started (background)"
@@ -64,9 +76,11 @@ jobs:
           elif npx wait-on -t "$WAIT_ON_TIMEOUT_MS" http://127.0.0.1:5173; then
             echo "preview available at http://127.0.0.1:5173"
           else
+            # If preview doesn't start we fail the job. (There's an extra
+            # duplicate `exit 1` in the original workflow — it's harmless but
+            # redundant; we retain the behavior and one exit here is sufficient.)
             echo "Preview did not become available (neither http://localhost:5173 nor http://127.0.0.1:5173) after ${WAIT_ON_TIMEOUT_MS}ms" >&2
             echo "Preview did not become available after ${WAIT_ON_TIMEOUT_MS}ms" >&2
-            exit 1
             exit 1
           fi
 
@@ -76,6 +90,9 @@ jobs:
           path: |
             .playwright-browsers
             ~/.cache/ms-playwright
+          # Cache key is branch-agnostic but will change when package-lock.json
+          # changes. Using `hashFiles('**/package-lock.json')` ensures cache
+          # invalidation when dependencies change.
           key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-playwright-
@@ -99,6 +116,8 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: http://localhost:5173
         run: |
+          # Run the full Playwright test suite and emit both list and junit
+          # reporters — junit allows CI tools to ingest the test result XML.
           npx playwright test --reporter=list,junit
 
       - name: Upload Playwright report
