@@ -80,17 +80,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-playwright-
 
-      - name: Ensure Playwright browsers (npm)
-        run: npm run playwright:install
-
-      - name: Setup Playwright (install browsers & deps + caching)
-        uses: microsoft/playwright-github-action@v1
-        with:
-          browsers: chromium,firefox,webkit
-          install-deps: true
-          cache: true
-
-      - name: Ensure Playwright browsers (npm)
+      - name: Ensure Playwright browsers
+        # Use Playwright CLI to fetch browsers. We intentionally avoid the
+        # deprecated microsoft/playwright-github-action and skip automatic
+        # 'install-deps' to prevent distro-specific apt failures on certain
+        # GitHub runners (eg. 'noble' / Ubuntu 24.04). System deps are usually
+        # already present on GitHub-hosted runners; if needed add explicit
+        # package installation steps in the future.
         run: npm run playwright:install
 
       - name: Run Playwright tests

@@ -54,8 +54,6 @@ supabase/.temp/*
 
 # Test coverage output
 coverage/
-lcov.info
-coverage-final.json
 
 # Test reports (JUnit, other CI test outputs)
 reports/
