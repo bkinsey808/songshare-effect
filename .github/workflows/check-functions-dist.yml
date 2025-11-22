@@ -46,6 +46,9 @@ jobs:
             echo "bun installer attempt $i"
             if curl -fsSL https://bun.sh/install | bash -s --; then
               BUN_INSTALL="${HOME}/.bun"
+              # Make bun available in the current shell and in later steps
+              export BUN_INSTALL
+              export PATH="${BUN_INSTALL}/bin:${PATH}"
               echo "BUN_INSTALL=${BUN_INSTALL}" >> $GITHUB_ENV
               echo "PATH=${BUN_INSTALL}/bin:${PATH}" >> $GITHUB_ENV
               echo "bun installed: $(bun --version)"
