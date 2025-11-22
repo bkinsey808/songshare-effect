@@ -34,14 +34,47 @@ async function oauthCallbackHandlerReadonly(
 				String(innerErr),
 			);
 		}
-		return new Response(
-			JSON.stringify({ success: false, error: "Internal server error" }),
-			{
-				status: 500,
-				headers: { "Content-Type": "application/json" },
-			},
+		return createErrorResponse(ctx as ReadonlyContext<{ Bindings: Env }>, err);
+	}
+}
+
+function createErrorResponse(
+	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+	ctx: ReadonlyContext<{ Bindings: Env }>,
+	err: unknown,
+): Response {
+	try {
+		const env = (ctx.env as unknown as Record<string, string | undefined>)
+			.ENVIRONMENT;
+		if (env !== "production") {
+			const msg = err instanceof Error ? err.message : String(err);
+			const stack = err instanceof Error ? err.stack : undefined;
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: "Internal server error",
+					details: { message: msg, stack },
+				}),
+				{
+					status: 500,
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+		}
+	} catch (ex) {
+		console.error(
+			"[oauthCallbackHandler] Failed to generate debug response:",
+			String(ex),
 		);
 	}
+
+	return new Response(
+		JSON.stringify({ success: false, error: "Internal server error" }),
+		{
+			status: 500,
+			headers: { "Content-Type": "application/json" },
+		},
+	);
 }
 
 export default async function oauthCallbackHandler(

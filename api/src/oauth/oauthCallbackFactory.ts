@@ -20,7 +20,11 @@ import { buildUserSessionJwt } from "@/api/user-session/buildUserSessionJwt";
 import { csrfTokenCookieName, oauthCsrfCookieName } from "@/shared/cookies";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { OauthStateSchema } from "@/shared/oauth/oauthState";
-import { dashboardPath, registerPath } from "@/shared/paths";
+import {
+	apiOauthCallbackPath,
+	dashboardPath,
+	registerPath,
+} from "@/shared/paths";
 import {
 	codeQueryParam,
 	providerQueryParam,
@@ -178,8 +182,34 @@ export function oauthCallbackFactory(
 			);
 		}
 
+		// Reconstruct the exact redirect_uri used during sign-in from the
+		// signed state so the token exchange uses the same value the provider
+		// accepted. This avoids relying on incoming request headers which will
+		// contain the provider's origin during the callback (e.g. accounts.google.com).
+		const stateRedirectPort = oauthState.redirect_port;
+		const stateRedirectOrigin = oauthState.redirect_origin ?? "";
+		const computedStateRedirectUri = (() => {
+			const trimmed = (stateRedirectOrigin ?? "").replace(/\/$/, "");
+			let computedRedirectUri = trimmed
+				? `${trimmed}${apiOauthCallbackPath ?? ""}`
+				: `${apiOauthCallbackPath ?? ""}`;
+			if (
+				typeof stateRedirectPort === "string" &&
+				stateRedirectPort !== "" &&
+				(envRecord.ENVIRONMENT ?? "") !== "production"
+			) {
+				computedRedirectUri = `https://localhost:${stateRedirectPort}${apiOauthCallbackPath ?? ""}`;
+			}
+			return computedRedirectUri;
+		})();
+
 		const { supabase, oauthUserData, existingUser } = yield* $(
-			fetchAndPrepareUser({ ctx, code, provider }),
+			fetchAndPrepareUser({
+				ctx,
+				code,
+				provider,
+				redirectUri: computedStateRedirectUri,
+			}),
 		);
 
 		// Determine Secure flag using environment (avoid relying on process)

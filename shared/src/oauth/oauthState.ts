@@ -10,6 +10,7 @@ export type OauthState = {
 	readonly lang: SupportedLanguageType;
 	readonly provider: ProviderType;
 	readonly redirect_port?: string | undefined;
+	readonly redirect_origin?: string | undefined;
 };
 
 export type ReadonlyOauthState = ReadonlyDeep<OauthState>;
@@ -20,6 +21,7 @@ export const OauthStateSchema: Schema.Schema<OauthState, OauthState, never> =
 		lang: Schema.suspend(() => SupportedLanguageSchema),
 		provider: Schema.suspend(() => ProviderSchema),
 		redirect_port: Schema.optional(Schema.String),
+		redirect_origin: Schema.optional(Schema.String),
 	});
 
 export function parseOauthState(oauthStateParamsString: string): OauthState {

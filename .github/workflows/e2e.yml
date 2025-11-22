@@ -55,18 +55,25 @@ jobs:
           nohup npm run preview -- --host 127.0.0.1 --port 5173 > preview.log 2>&1 &
           echo $! > preview.pid
           echo "preview started (background)"
-      - name: Wait for preview
+      - name: Wait for preview (accept http or https)
         run: |
           WAIT_ON_TIMEOUT_MS=180000
-          # check localhost first since Vite prints Local: http://localhost:5173/
+          # Try a conservative list of possible preview URLs. Prefer http first
+          # then fall back to https so local mkcert-based previews are accepted.
           if npx wait-on -t "$WAIT_ON_TIMEOUT_MS" http://localhost:5173; then
+            echo "PREVIEW_URL=http://localhost:5173" >> $GITHUB_ENV
             echo "preview available at http://localhost:5173"
           elif npx wait-on -t "$WAIT_ON_TIMEOUT_MS" http://127.0.0.1:5173; then
+            echo "PREVIEW_URL=http://127.0.0.1:5173" >> $GITHUB_ENV
             echo "preview available at http://127.0.0.1:5173"
+          elif npx wait-on -t "$WAIT_ON_TIMEOUT_MS" https://localhost:5173; then
+            echo "PREVIEW_URL=https://localhost:5173" >> $GITHUB_ENV
+            echo "preview available at https://localhost:5173"
+          elif npx wait-on -t "$WAIT_ON_TIMEOUT_MS" https://127.0.0.1:5173; then
+            echo "PREVIEW_URL=https://127.0.0.1:5173" >> $GITHUB_ENV
+            echo "preview available at https://127.0.0.1:5173"
           else
-            echo "Preview did not become available (neither http://localhost:5173 nor http://127.0.0.1:5173) after ${WAIT_ON_TIMEOUT_MS}ms" >&2
             echo "Preview did not become available after ${WAIT_ON_TIMEOUT_MS}ms" >&2
-            exit 1
             exit 1
           fi
 
@@ -96,10 +103,9 @@ jobs:
         run: npm run playwright:install
 
       - name: Run Playwright tests
-        env:
-          PLAYWRIGHT_BASE_URL: http://localhost:5173
         run: |
-          npx playwright test --reporter=list,junit
+          echo "Using preview url: $PREVIEW_URL"
+          PLAYWRIGHT_BASE_URL="$PREVIEW_URL" npx playwright test --reporter=list,junit
 
       - name: Upload Playwright report
         if: always()
