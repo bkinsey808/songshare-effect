@@ -1,4 +1,4 @@
-name: ${{ github.event_name == 'pull_request' && format('%s — %s', github.workflow, github.event.pull_request.title) || format('%s — %s', github.workflow, replace(github.ref, 'refs/heads/', '')) }}
+name: Validate commit messages
 
 on:
   pull_request:
