@@ -100,9 +100,27 @@ Please follow these conventions when adding tests. Copilot and other assistants 
 - **Config file format:** This repository standardizes on ECMAScript modules (ESM) for JS configuration files. Use `.js` or `.mjs` with `export`/`export default` rather than `.cjs`/`module.exports`. Examples: `commitlint.config.js`, `vite.config.js`, etc. Do not add `.cjs` files.
 - **Bun scripts:** When writing repository scripts intended to be run under Bun, prefer a Bun TypeScript script with the `.bun.ts` extension (for example `scripts/postinstall-playwright.bun.ts`). If `.bun.ts` cannot be used due to environment constraints, prefer `.mjs` in ESM format.
 
-```
+### Commit message constraints (linting / commitlint)
 
-```
+We use commitlint and Commitizen to keep commit messages consistent. Copilot should follow these repository rules when suggesting or drafting commit messages:
+
+- **Header length:** the full commit header (scope + subject + punctuation) must not be longer than 100 characters. Example failing header (104 chars):
+
+      fix(song): extract safe escaping helper for Postgres literals and use it in song subscription; add tests
+
+      Example corrected header (<= 100 chars):
+
+      fix(song): extract safe escaping helper for Postgres literals and use in subscription
+
+- **Subject length:** the subject line (after type/scope) must not be longer than 72 characters. Keep the subject concise and informative. Example failing subject:
+
+      extract safe escaping helper for Postgres literals and use it in song subscription; add tests
+
+      Example corrected subject (<= 72 chars):
+
+      extract safe escaping helper and use in subscription
+
+If Copilot drafts commit messages it should ensure these constraints are met and prefer shorter, clearer subject lines. If a change requires a long rationale, use the body of the commit message for extended explanation.
 
 <!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
 
