@@ -22,7 +22,6 @@ jobs:
         node: [20]
     permissions:
       contents: read
-      actions: write
       checks: write
     steps:
       - uses: actions/checkout@v4
@@ -31,28 +30,7 @@ jobs:
 
       # one Set run display title step kept above
 
-      - name: Set run display title
-        if: always()
-        uses: actions/github-script@v6
-        with:
-          # Prefer a repository secret (`ACTIONS_RUN_TITLE_TOKEN`) when available
-          # for reliable rights to update workflow runs. Falls back to the runner
-          # token (${{ github.token }}) if the secret is not set.
-          github-token: ${{ secrets.ACTIONS_RUN_TITLE_TOKEN || github.token }}
-          script: |
-            const runId = parseInt(process.env.GITHUB_RUN_ID, 10)
-            const title = `${github.workflow} — ${github.event?.pull_request?.title || github.head_ref || github.ref_name || github.sha}`
-            try {
-              const res = await github.rest.actions.updateWorkflowRun({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                run_id: runId,
-                display_title: title
-              })
-              console.log('update display_title response:', res.status)
-            } catch (err) {
-              console.error('failed to update display_title', err)
-            }
+      # Set run display title removed — no dynamic renaming
 
       - uses: actions/setup-node@v4
         with:
@@ -108,31 +86,12 @@ jobs:
     needs: lint-and-unit
     permissions:
       contents: read
-      actions: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set run display title
-        if: always()
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.ACTIONS_RUN_TITLE_TOKEN || github.token }}
-          script: |
-            const runId = parseInt(process.env.GITHUB_RUN_ID, 10)
-            const title = `${github.workflow} — ${github.event?.pull_request?.title || github.head_ref || github.ref_name || github.sha}`
-            try {
-              const res = await github.rest.actions.updateWorkflowRun({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                run_id: runId,
-                display_title: title
-              })
-              console.log('update display_title response:', res.status)
-            } catch (err) {
-              console.error('failed to update display_title', err)
-            }
+      # Set run display title removed — no dynamic renaming
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -188,7 +147,6 @@ jobs:
     needs: lint-and-unit
     permissions:
       contents: read
-      actions: write
     concurrency:
       group: smoke-pr-${{ github.event.pull_request.number }}
       cancel-in-progress: true
@@ -197,25 +155,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set run display title
-        if: always()
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.ACTIONS_RUN_TITLE_TOKEN || github.token }}
-          script: |
-            const runId = parseInt(process.env.GITHUB_RUN_ID, 10)
-            const title = `${github.workflow} — ${github.event?.pull_request?.title || github.head_ref || github.ref_name || github.sha}`
-            try {
-              const res = await github.rest.actions.updateWorkflowRun({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                run_id: runId,
-                display_title: title
-              })
-              console.log('update display_title response:', res.status)
-            } catch (err) {
-              console.error('failed to update display_title', err)
-            }
+      # Set run display title removed — no dynamic renaming
 
       - uses: actions/setup-node@v4
         with:

@@ -25,8 +25,7 @@ jobs:
   e2e:
     name: End-to-end tests
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
+    # no elevated permissions required; dynamic run title update removed
     env:
       # Use a repo-local folder for Playwright browsers so we can cache it
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.playwright-browsers
@@ -35,25 +34,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set run display title
-        if: always()
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.ACTIONS_RUN_TITLE_TOKEN || github.token }}
-          script: |
-            const runId = parseInt(process.env.GITHUB_RUN_ID, 10)
-            const title = `${github.workflow} — ${github.event?.pull_request?.title || github.head_ref || github.ref_name || github.sha}`
-            try {
-              const res = await github.rest.actions.updateWorkflowRun({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                run_id: runId,
-                display_title: title
-              })
-              console.log('update display_title response:', res.status)
-            } catch (err) {
-              console.error('failed to update display_title', err)
-            }
+      # display-title update removed
 
       - uses: actions/setup-node@v4
         with:
