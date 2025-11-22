@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+
 import type { TableDefinition } from "./generate-effect-schemas-types";
 
 export function logGeneratedTables(tables: ReadonlyArray<TableDefinition>): void {

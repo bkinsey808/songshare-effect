@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+
 import { existsSync, readFileSync } from "fs";
 import type { ColumnDefinition, TableDefinition } from "./generate-effect-schemas-types";
 import { createExampleSchemas } from "./createExampleSchemas";

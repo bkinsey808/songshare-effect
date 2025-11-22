@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+
 import { execFileSync } from "child_process";
 
 export function runEslintFix(
