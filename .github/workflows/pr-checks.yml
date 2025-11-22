@@ -39,25 +39,12 @@ jobs:
       - name: Create reports directory
         run: mkdir -p reports
 
-      - name: Lint (diagnostic, non-blocking)
+      - name: Lint
         run: |
-          echo "=== Node / npm / npx versions ==="
-          node -v || true
-          npm -v || true
-          npx -v || true
-          echo "=== ESLint version ==="
-          npx eslint -v || true
-          echo "=== TypeScript version ==="
-          npx tsc -v || true
-          echo "=== Print ESLint config for the file (api/src/user-session/buildUserSessionJwt.ts) ==="
-          npx eslint --print-config api/src/user-session/buildUserSessionJwt.ts > reports/eslint-config.json || true
-          echo "Wrote ESLint config to reports/eslint-config.json"
-          echo "=== Run lint (capture but do not fail) ==="
-          # Run the project's lint command but do not fail the job here; capture output for debugging.
-          npm run lint 2>&1 | tee reports/lint.log || true
-          echo "Lint completed (errors, if any, captured in reports/lint.log)"
+          # Run the project's lint script and fail the job if lint errors are present.
+          npm run lint
 
-      # NOTE: temporary diagnostic artifact upload removed — revert-lint-diagnostics.patch
+      # Lint diagnostics removed; workflow cleaned up
 
       - name: Unit tests (with coverage)
         run: npm run test:unit -- --coverage
@@ -115,12 +102,18 @@ jobs:
             echo "bun installer attempt $i"
             if curl -fsSL https://bun.sh/install | bash -s --; then
               BUN_INSTALL="${HOME}/.bun"
-              # Make bun available in the current shell and in later steps
+              # Make bun available in the current shell and in later steps. The
+              # installer appends PATH to ~/.bash_profile; export it now and
+              # source the profile so bun is usable immediately.
               export BUN_INSTALL
               export PATH="${BUN_INSTALL}/bin:${PATH}"
+              if [ -f "${HOME}/.bash_profile" ]; then
+                # shellcheck disable=SC1090
+                source "${HOME}/.bash_profile" || true
+              fi
               echo "BUN_INSTALL=${BUN_INSTALL}" >> $GITHUB_ENV
               echo "PATH=${BUN_INSTALL}/bin:${PATH}" >> $GITHUB_ENV
-              echo "bun installed: $(bun --version)"
+              echo "bun installed: $(command -v bun || true) $(bun --version 2>/dev/null || true)"
               break
             else
               echo "installer attempt $i failed; retrying in 3s"
