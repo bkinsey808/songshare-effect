@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+
 import { existsSync, mkdirSync, renameSync, rmSync } from "fs";
 import { dirname } from "path";
 

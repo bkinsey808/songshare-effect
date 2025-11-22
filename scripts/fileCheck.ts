@@ -9,10 +9,10 @@ if (file === undefined || file === "") {
 	process.exit(1);
 }
 
-// eslint-disable-next-line no-console -- This is a CLI script that needs to output information
+// This is a CLI script that needs to output information
 console.log(`Running TypeScript and ESLint checks on file: ${file} .\n`);
 
-// eslint-disable-next-line no-console -- This is a CLI script that needs to output reminders
+// This is a CLI script that needs to output reminders
 console.log(`Reminders:
 (1) Run this command iteratively on this file until no errors are reported.
 (2) Don't ask a question like: "Would you like me to fix all of these issues now?",
@@ -77,12 +77,12 @@ const filterResult = spawnSync(
 
 const filteredOutput = filterResult.stdout.toString();
 if (filteredOutput.trim().length > 0) {
-	// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+	// This is a CLI script that needs to output TypeScript results
 	console.log("\n--- Project-level TypeScript errors for this file ---");
-	// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+	// This is a CLI script that needs to output TypeScript results
 	console.log(filteredOutput);
 } else {
-	// eslint-disable-next-line no-console -- This is a CLI script that needs to output information
+	// This is a CLI script that needs to output information
 	console.log("\n--- Project-level TypeScript check passed for this file ---");
 }
 
@@ -181,14 +181,14 @@ if (!isJsxFile) {
 		filteredIndividualTsCheckClean &&
 		filteredIndividualTsCheckClean.length > 0
 	) {
-		// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+		// This is a CLI script that needs to output TypeScript results
 		console.log(
 			"\n--- Individual file TypeScript check (without project config) ---",
 		);
-		// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+		// This is a CLI script that needs to output TypeScript results
 		console.log(filteredIndividualTsCheckClean);
 	} else {
-		// eslint-disable-next-line no-console -- This is a CLI script that needs to output information
+		// This is a CLI script that needs to output information
 		console.log("\n--- Individual file TypeScript check passed ---");
 	}
 } else {
@@ -284,14 +284,14 @@ if (!isJsxFile) {
 		filteredIndividualTsCheckClean &&
 		filteredIndividualTsCheckClean.length > 0
 	) {
-		// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+		// This is a CLI script that needs to output TypeScript results
 		console.log(
 			"\n--- Individual JSX file TypeScript check (with JSX flag) ---",
 		);
-		// eslint-disable-next-line no-console -- This is a CLI script that needs to output TypeScript results
+		// This is a CLI script that needs to output TypeScript results
 		console.log(filteredIndividualTsCheckClean);
 	} else {
-		// eslint-disable-next-line no-console -- This is a CLI script that needs to output information
+		// This is a CLI script that needs to output information
 		console.log("\n--- Individual JSX file TypeScript check passed ---");
 	}
 }
@@ -309,7 +309,7 @@ const combinedEslint =
 const filteredEslint = filterNpmWarnings(combinedEslint);
 
 if (filteredEslint && filteredEslint.trim().length > 0) {
-	// eslint-disable-next-line no-console -- This is a CLI script that needs to output ESLint results
+	// This is a CLI script that needs to output ESLint results
 	console.log(filteredEslint);
 }
 

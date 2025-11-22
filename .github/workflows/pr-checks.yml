@@ -1,5 +1,14 @@
 name: PR Checks (lint & unit)
 
+# Test workflow trigger - added for testing
+# Avoid duplicate work for rapid pushes against the same PR branch
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions: # least privilege by default
+  contents: read
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -11,6 +20,8 @@ jobs:
     strategy:
       matrix:
         node: [20]
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,16 +35,44 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create reports directory
+        run: mkdir -p reports
+
       - name: Lint
         run: npm run lint
 
-      - name: Unit tests
-        run: npm run test:unit
+      - name: Unit tests (with coverage)
+        run: npm run test:unit -- --coverage
+
+      - name: Upload unit test results (JUnit)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-junit
+          path: reports/unit-junit.xml
+
+      - name: Publish JUnit test report to GitHub Checks
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit Tests Results
+          path: reports/unit-junit.xml
+          reporter: java-junit
+          fail-on-empty: false
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
 
   check-functions-dist:
     name: Prepare & check functions dist
     runs-on: ubuntu-latest
     needs: lint-and-unit
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,7 +84,7 @@ jobs:
           node-version: "20"
 
       - name: Install Bun runtime
-        uses: oven-sh/setup-bun@v3
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.x"
 
@@ -57,3 +96,61 @@ jobs:
 
       - name: Validate dist/functions imports
         run: npm run check:functions-dist-imports
+
+  smoke-e2e:
+    name: PR smoke end-to-end (Playwright)
+    runs-on: ubuntu-latest
+    needs: lint-and-unit
+    permissions:
+      contents: read
+    concurrency:
+      group: smoke-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend (client only for fast smoke)
+        run: npm run build:client
+
+      - name: Start preview server
+        run: |
+          nohup npm run preview -- --port 5173 > preview.log 2>&1 &
+          echo $! > preview.pid
+
+      - name: Run smoke Playwright tests (http or https)
+        run: |
+          # try http first, then https. whichever responds first will be used as the base URL
+          if npx wait-on http://127.0.0.1:5173; then
+            echo "preview available at http://127.0.0.1:5173"
+            PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 npx playwright test e2e/render.e2e.ts --project=chromium --reporter=list,junit --workers=1 --timeout=30000 || true
+          elif npx wait-on https://127.0.0.1:5173; then
+            echo "preview available at https://127.0.0.1:5173"
+            PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 npx playwright test e2e/render.e2e.ts --project=chromium --reporter=list,junit --workers=1 --timeout=30000 || true
+          else
+            echo "Preview did not become available (neither http nor https)" >&2
+            exit 1
+          fi
+
+      - name: Upload Playwright report (smoke)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-smoke-report
+          path: playwright-report
+
+      - name: Upload preview log (smoke)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-log-smoke
+          path: preview.log

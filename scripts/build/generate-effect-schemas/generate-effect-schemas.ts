@@ -1,5 +1,4 @@
 #!/usr/bin/env bun
-/* eslint-disable no-console */
 /**
  * Enhanced script to generate Effect-TS schemas from Supabase generated types
  * This version includes a proper TypeScript AST parser to extract table definitions

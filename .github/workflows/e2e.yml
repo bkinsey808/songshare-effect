@@ -3,9 +3,23 @@ name: E2E Tests (Playwright)
 on:
   push:
     branches: [main]
+    # Ignore content-only / docs-only pushes to avoid running expensive e2e unnecessarily
+    paths-ignore:
+      - "docs/**"
+      - ".github/**"
+      - "README.md"
+      - "CONTRIBUTING.md"
   schedule:
     - cron: "0 3 * * *" # nightly UTC 03:00
   workflow_dispatch: {}
+
+# Avoid overlapping e2e runs for the same ref (reduces runner waste)
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   e2e:
@@ -30,7 +44,7 @@ jobs:
       - name: Build frontend and api
         run: |
           npm run build:client
-          npm run build:api || true
+          npm run build:api
 
       - name: Start preview server
         run: |

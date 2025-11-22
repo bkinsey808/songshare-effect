@@ -2,6 +2,11 @@
 
 A modern song sharing platform built with React, Vite, and Hono for Cloudflare deployment.
 
+[![PR Checks](https://github.com/bkinsey808/songshare-effect/actions/workflows/pr-checks.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/pr-checks.yml)
+[![E2E Tests](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml)
+[![Validate functions dist](https://github.com/bkinsey808/songshare-effect/actions/workflows/check-functions-dist.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/check-functions-dist.yml)
+[![Coverage (GitHub)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml)
+
 ## Architecture
 
 - **Frontend**: React + TypeScript + Vite with React Compiler (deployed to Cloudflare Pages)
@@ -167,6 +172,7 @@ See documentation:
 - [EFFECT_IMPLEMENTATION.md](./docs/EFFECT_IMPLEMENTATION.md) - Effect-TS implementation details
 - [SUPABASE_EFFECT_SCHEMAS.md](./docs/SUPABASE_EFFECT_SCHEMAS.md) - Database schema integration
 - [AUTHENTICATION_SYSTEM.md](./docs/AUTHENTICATION_SYSTEM.md) - Complete authentication guide
+- [GITHUB_ACTIONS_WORKFLOWS.md](./docs/github-actions-workflows.md) - CI workflows, Playwright e2e, and debugging with the GitHub Actions extension
 
 ## API Endpoints
 
