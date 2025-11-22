@@ -7,12 +7,11 @@ If you want a quick interactive look at runs, install the GitHub Actions extensi
 ## Recent improvements (applied)
 
 - Added concurrency to expensive/long-running workflows so duplicate runs for the same ref are canceled (e2e, PR checks, functions-dist).
-- Standardized the Bun setup action to `oven-sh/setup-bun@v3` across workflows.
-- Removed `|| true` usage that was swallowing build failures in E2E and consolidated functions/dist validation.
+- Standardized the Bun installation strategy across workflows — we now use the official bun installer directly with retries and explicit PATH/BUN_INSTALL exports (this avoids flaky third-party action failures and ensures the binary is discoverable immediately in later steps).
+- Removed `|| true` usage that was swallowing build failures in the _full_ E2E workflow and consolidated functions/dist validation. Note: the _PR-level_ Playwright smoke job intentionally uses a non-blocking Playwright invocation (it may run tests with `|| true` on purpose so small smoke regressions don't block PRs) — the full E2E job run on `main` will fail on test errors.
 - Added least-privilege `permissions: contents: read` to workflows so the default token scope is limited.
 - Added a path filter to `check-functions-dist.yml` so function-dist checks only run for PRs that modify relevant code/scripts.
 - Added workflow status badges to the top of the README for quick CI visibility.
-- Added unit test coverage (Vitest) + JUnit reporting and coverage artifacts in PR checks and set a baseline coverage threshold so CI will fail if coverage drops below the baseline.
 - Added unit test coverage (Vitest) + JUnit reporting and coverage artifacts in PR checks and set a baseline coverage threshold so CI will fail if coverage drops below the baseline.
 - Added a GitHub-only coverage workflow `coverage.yml` (runs on push to `main`) that uploads coverage artifacts and provides a workflow badge in the README so you can track latest coverage runs without an external coverage service.
 - Added GitHub Checks integration for unit tests: PR checks now publish the JUnit report (`reports/unit-junit.xml`) to GitHub Checks so failing tests and details are visible inline in the Checks UI.
@@ -22,7 +21,7 @@ If you want a quick interactive look at runs, install the GitHub Actions extensi
 
 ## Workflows in this repository (summary)
 
-There are four workflow files in `.github/workflows/` used by this project. Below is a short description of each and why it exists.
+There are five workflow files in `.github/workflows/` used by this project. Below is a short description of each and why it exists.
 
 - `pr-checks.yml` (PR Checks)
   - Trigger: `pull_request` (opened, synchronize, reopened)
@@ -38,7 +37,7 @@ There are four workflow files in `.github/workflows/` used by this project. Belo
 
 - `e2e.yml` (End-to-end tests using Playwright)
   - Trigger: `push` to `main`, `schedule` (nightly cron), and `workflow_dispatch` for manual execution.
-  - Steps include: checkout, install Node, install dependencies, build frontend & API, start a preview server, wait for it to become ready, cache Playwright browser binaries, ensure browsers are installed, run Playwright tests, and upload test reports and logs as artifacts.
+  - Steps include: checkout, install Node, install dependencies, build frontend & API, start a preview server bound to IPv4 localhost (`--host 127.0.0.1`), wait for it to become ready (we check `localhost` then `127.0.0.1` with a timeout), cache Playwright browser binaries, ensure browsers are installed, run Playwright tests, and upload test reports and logs as artifacts.
   - Purpose: validate end-to-end user flows across the whole app regularly and after changes.
 
 - `check-functions-dist.yml` (validate functions bundle)

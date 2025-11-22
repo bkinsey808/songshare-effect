@@ -1,4 +1,4 @@
-name: PR Checks (lint & unit)
+name: "${{ github.workflow }} — ${{ github.event.pull_request.title || github.head_ref || github.ref_name || github.sha }}"
 
 # Test workflow trigger - added for testing
 # Avoid duplicate work for rapid pushes against the same PR branch
@@ -165,14 +165,8 @@ jobs:
           # Bind the preview server explicitly to IPv4 localhost so wait-on can reach it
           nohup npm run preview -- --host 127.0.0.1 --port 5173 > preview.log 2>&1 &
           echo $! > preview.pid
-          # quick health info to help diagnostics if server doesn't show up
-          sleep 1
-          echo "--- preview.log (first 50 lines) ---"
-          head -n 50 preview.log || true
-          echo "--- network listeners (port 5173) ---"
-          ss -lntp | rg 5173 || true
-          echo "--- vite / preview processes ---"
-          ps aux | rg -i vite || true
+          # start in background and save pid
+          echo "preview started (background)"
 
       - name: Run smoke Playwright tests (http or https)
         run: |
@@ -188,12 +182,7 @@ jobs:
             PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 npx playwright test e2e/render.e2e.ts --project=chromium --reporter=list,junit --workers=1 --timeout=30000 || true
           else
             echo "Preview did not become available (neither http://localhost:5173 nor http://127.0.0.1:5173) after ${WAIT_ON_TIMEOUT_MS}ms" >&2
-            echo "----- preview.log (last 200 lines) -----"
-            tail -n 200 preview.log || true
-            echo "--- network listeners (port 5173) ---"
-            ss -lntp | rg 5173 || true
-            echo "--- vite / preview processes ---"
-            ps aux | rg -i vite || true
+            echo "Preview did not become available after ${WAIT_ON_TIMEOUT_MS}ms" >&2
             exit 1
           fi
 

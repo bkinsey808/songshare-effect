@@ -1,4 +1,4 @@
-name: Validate commit messages
+name: "${{ github.workflow }} — ${{ github.event.pull_request.title || github.head_ref || github.ref_name || github.sha }}"
 
 on:
   pull_request:
