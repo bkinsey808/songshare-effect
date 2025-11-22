@@ -31,7 +31,7 @@ export default async function handleJustSignedIn({
 }: {
 	readonly next: URLSearchParams;
 	readonly setSearchParams: (
-		next: URLSearchParams,
+		innerNext: URLSearchParams,
 		options?: { readonly replace?: boolean },
 	) => void;
 	readonly navigate: NavigateFunction;

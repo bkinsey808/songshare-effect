@@ -10,7 +10,7 @@ export function updateStoreWithPublicSongs({
 	publicSongsToAdd,
 	state,
 	set,
-}: Readonly<{
+}: ReadonlyDeep<{
 	publicSongsToAdd: Readonly<Record<string, SongPublic>>;
 	state: Readonly<
 		SongSubscribeSlice & {

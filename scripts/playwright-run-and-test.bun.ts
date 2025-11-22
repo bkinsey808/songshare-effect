@@ -41,6 +41,7 @@ function startPlaywrightIfReady(): void {
 	}
 	startedPlaywright = true;
 
+	// Dev servers ready — starting Playwright tests
 	console.log("Dev servers ready — starting Playwright tests");
 
 	// Ensure Playwright browsers are installed before running tests. If you
@@ -138,12 +139,14 @@ function handleLine(raw: string): void {
 	) {
 		frontendReady = true;
 
+		// Detected frontend ready -> output
 		console.log("Detected frontend ready ->", line);
 	}
 
 	if (!apiReady && /Ready on .*:8787/.test(line)) {
 		apiReady = true;
 
+		// Detected API ready -> output
 		console.log("Detected API ready ->", line);
 	}
 
@@ -231,4 +234,5 @@ function shutdown(): void {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
+// Playwright dev+test: logs -> output
 console.log(`Playwright dev+test: logs -> ${CLIENT_LOG}, ${API_LOG}`);
