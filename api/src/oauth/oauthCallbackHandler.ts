@@ -48,7 +48,6 @@ function createErrorResponse(
 			.ENVIRONMENT;
 		if (env !== "production") {
 			const msg = err instanceof Error ? err.message : String(err);
-			const stack = err instanceof Error ? err.stack : undefined;
 			return new Response(
 				JSON.stringify({
 					success: false,
