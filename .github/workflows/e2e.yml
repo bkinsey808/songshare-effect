@@ -80,13 +80,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-playwright-
 
+      - name: Install Playwright system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo npx playwright install-deps
+
       - name: Ensure Playwright browsers
         # Use Playwright CLI to fetch browsers. We intentionally avoid the
         # deprecated microsoft/playwright-github-action and skip automatic
-        # 'install-deps' to prevent distro-specific apt failures on certain
-        # GitHub runners (eg. 'noble' / Ubuntu 24.04). System deps are usually
-        # already present on GitHub-hosted runners; if needed add explicit
-        # package installation steps in the future.
+        # 'install-deps' historically to prevent distro-specific apt failures on certain
+        # GitHub runners (eg. 'noble' / Ubuntu 24.04), however WebKit now requires GTK4
+        # and other libraries on some Ubuntu images; above step installs them.
         run: npm run playwright:install
 
       - name: Run Playwright tests
