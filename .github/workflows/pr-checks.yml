@@ -22,11 +22,25 @@ jobs:
         node: [20]
     permissions:
       contents: read
+      actions: write
       checks: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # one Set run display title step kept above
+
+      - name: Set run display title
+        if: always()
+        run: |
+          DISPLAY_TITLE="${{ github.workflow }} — ${{ github.event.pull_request.title || github.head_ref || github.ref_name || github.sha }}"
+          echo "Setting run display title: $DISPLAY_TITLE"
+          curl -s -X PATCH \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "{\"display_title\":\"${DISPLAY_TITLE}\"}"
 
       - uses: actions/setup-node@v4
         with:
@@ -82,10 +96,21 @@ jobs:
     needs: lint-and-unit
     permissions:
       contents: read
+      actions: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Set run display title
+        if: always()
+        run: |
+          DISPLAY_TITLE="${{ github.workflow }} — ${{ github.event.pull_request.title || github.head_ref || github.ref_name || github.sha }}"
+          curl -s -X PATCH \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "{\"display_title\":\"${DISPLAY_TITLE}\"}"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -141,6 +166,7 @@ jobs:
     needs: lint-and-unit
     permissions:
       contents: read
+      actions: write
     concurrency:
       group: smoke-pr-${{ github.event.pull_request.number }}
       cancel-in-progress: true
@@ -148,6 +174,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Set run display title
+        if: always()
+        run: |
+          DISPLAY_TITLE="${{ github.workflow }} — ${{ github.event.pull_request.title || github.head_ref || github.ref_name || github.sha }}"
+          curl -s -X PATCH \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "{\"display_title\":\"${DISPLAY_TITLE}\"}"
 
       - uses: actions/setup-node@v4
         with:
