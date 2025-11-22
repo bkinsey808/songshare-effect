@@ -3,6 +3,9 @@ name: PR Checks (lint, unit, functions-dist, smoke-e2e)
 # Test workflow trigger - added for testing
 # Avoid duplicate work for rapid pushes against the same PR branch
 concurrency:
+  # Group and cancel-in-progress are used so only the most recent run for a
+  # particular PR number executes. This keeps CI compute efficient and avoids
+  # multiple overlapping runs when contributors push multiple updates.
   group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
@@ -26,6 +29,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # We rely on `fetch-depth: 0` (full clone) because some checks may need
+          # the complete git history or to compare exact SHAs / ranges. Using a
+          # shallow clone could cause tools that inspect commit history to fail.
           fetch-depth: 0
 
       # one Set run display title step kept above
@@ -35,6 +41,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+          # Enable the built-in Node action's npm cache to speed up installs
+          # between workflow runs when package-lock.json hasn't significantly changed.
           cache: "npm"
 
       - name: Install dependencies
@@ -89,6 +97,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # Full clone again — prepare- and build-steps often require access to
+          # submodules, tags, or deeper history that a shallow clone doesn't include.
           fetch-depth: 0
 
       # Set run display title removed — no dynamic renaming
@@ -102,8 +112,11 @@ jobs:
         run: |
           set -euxo pipefail
 
-          # Use bun's official installer directly and retry a few times to guard against
-          # transient CDN / HTTP failures that previously caused the job to fail.
+          # Download and run bun's official installer. We add a retry loop to
+          # make the step robust against transient network/CDN failures. The
+          # installer appends PATH modifications to `~/.bash_profile`, which may
+          # not be immediately visible to the current shell. We export PATH and
+          # source the profile so subsequent steps can use `bun` right away.
           for i in 1 2 3; do
             echo "bun installer attempt $i"
             if curl -fsSL https://bun.sh/install | bash -s --; then
@@ -117,6 +130,8 @@ jobs:
                 # shellcheck disable=SC1090
                 source "${HOME}/.bash_profile" || true
               fi
+              # Persist the install path and PATH updates into GITHUB_ENV so
+              # all later steps in the job inherit the updated PATH.
               echo "BUN_INSTALL=${BUN_INSTALL}" >> $GITHUB_ENV
               echo "PATH=${BUN_INSTALL}/bin:${PATH}" >> $GITHUB_ENV
               echo "bun installed: $(command -v bun || true) $(bun --version 2>/dev/null || true)"
@@ -148,11 +163,15 @@ jobs:
     permissions:
       contents: read
     concurrency:
+      # Separate concurrency group for smoke-e2e to avoid cancelling unrelated
+      # jobs that run as part of the same PR (e.g. lint-and-unit). This keeps
+      # PR-specific e2e runs serialized while not interfering with other jobs.
       group: smoke-pr-${{ github.event.pull_request.number }}
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
         with:
+          # Full checkout so we can run a build matching the exact PR code.
           fetch-depth: 0
 
       # Set run display title removed — no dynamic renaming
@@ -170,7 +189,10 @@ jobs:
 
       - name: Start preview server
         run: |
-          # Bind the preview server explicitly to IPv4 localhost so wait-on can reach it
+          # Start the preview in the background and bind explicitly to IPv4
+          # localhost to avoid environments where `localhost` resolves to IPv6
+          # or other interfaces. Save the background PID so we can debug or
+          # terminate it if needed.
           nohup npm run preview -- --host 127.0.0.1 --port 5173 > preview.log 2>&1 &
           echo $! > preview.pid
           # start in background and save pid
@@ -178,12 +200,17 @@ jobs:
 
       - name: Run smoke Playwright tests (http or https)
         run: |
-          # try http first, then https. whichever responds first will be used as the base URL
+          # The smoke job attempts HTTP first (fast) and then falls back to the
+          # 127.0.0.1 IP if needed. We guard with a timeout (WAIT_ON_TIMEOUT_MS)
+          # so the job fails fast when the preview fails to start.
           # Add a timeout to wait-on so we don't hang indefinitely if the preview fails to start.
           WAIT_ON_TIMEOUT_MS=180000
           # Check localhost first since Vite prints Local: http://localhost:5173/
           if npx wait-on -t "$WAIT_ON_TIMEOUT_MS" http://localhost:5173; then
             echo "preview available at http://localhost:5173"
+            # We intentionally allow the playwright step to fail without failing
+            # the entire workflow (`|| true`) because this is a smoke test for
+            # PRs — failures will still produce artifacts and logs for debugging.
             PLAYWRIGHT_BASE_URL=http://localhost:5173 npx playwright test e2e/render.e2e.ts --project=chromium --reporter=list,junit --workers=1 --timeout=30000 || true
           elif npx wait-on -t "$WAIT_ON_TIMEOUT_MS" http://127.0.0.1:5173; then
             echo "preview available at http://127.0.0.1:5173"

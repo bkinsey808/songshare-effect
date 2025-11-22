@@ -5,6 +5,9 @@ on:
     types: [opened, synchronize, reopened]
 
 concurrency:
+  # Group concurrency by PR number so multiple runs for the same PR are
+  # serialized. This prevents duplicate jobs running for the same PR when
+  # multiple updates (pushes) occur — the older run will be cancelled.
   group: commitlint-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
@@ -21,6 +24,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # We need the full git history (no shallow clone) so commitlint can
+          # compare exact base..head SHAs and access all commits in the PR.
+          # Using fetch-depth: 0 ensures all commits and refs are retrieved.
           fetch-depth: 0
       # display-title update removed
       - name: Setup Node (for commitlint)
@@ -30,12 +36,23 @@ jobs:
 
       - name: Install commitlint (no full repo install)
         run: |
-          # Install commitlint CLI and the conventional config without installing repo deps
+          # Install only the required commitlint CLI + conventional config.
+          # --no-audit and --no-fund keep the log quieter and faster.
+          # --no-save ensures package.json is not modified in the action runner.
+          # We avoid a full `npm ci` or installing repo dependencies since we
+          # only need the commitlint binary for validation.
           npm install --no-audit --no-fund --no-save @commitlint/cli @commitlint/config-conventional
 
       - name: Validate commit messages in PR
         run: |
-          # Compare base..head for commits introduced by the PR and validate with commitlint
+          # Derive the base and head commit SHAs for this PR. We validate only
+          # commits introduced by the PR (base..head) so we don't re-check
+          # unrelated history or the main branch.
           BASE_SHA=${{ github.event.pull_request.base.sha }}
           HEAD_SHA=${{ github.event.pull_request.head.sha }}
+
+          # Use `npx --no-install` to run the locally-installed commitlint CLI
+          # from the previous npm install step. --no-install prevents npx from
+          # attempting to fetch packages from the network if the binary is
+          # missing (we installed it above), keeping CI deterministic.
           npx --no-install commitlint --from="$BASE_SHA" --to="$HEAD_SHA"
