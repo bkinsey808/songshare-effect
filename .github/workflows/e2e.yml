@@ -5,7 +5,7 @@ on:
     branches: [main]
     # Ignore content-only / docs-only pushes to avoid running expensive e2e unnecessarily
     paths-ignore:
-      - "docs/**"
+      - "docs/*Unable to resolve action `wagoid/commitlint-action@v3`, repository or version not found*"
       - ".github/**"
       - "README.md"
       - "CONTRIBUTING.md"
