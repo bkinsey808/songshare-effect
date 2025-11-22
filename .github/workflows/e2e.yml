@@ -1,4 +1,4 @@
-name: E2E Tests (Playwright)
+name: "${{ github.workflow }} — ${{ github.event.pull_request.title || github.head_ref || github.ref_name || github.sha }}"
 
 on:
   push:
@@ -48,11 +48,24 @@ jobs:
 
       - name: Start preview server
         run: |
-          # start Vite preview in background on port 5173
-          nohup npm run preview -- --port 5173 > preview.log 2>&1 &
+          # start Vite preview in background on port 5173 bound to IPv4 localhost
+          nohup npm run preview -- --host 127.0.0.1 --port 5173 > preview.log 2>&1 &
           echo $! > preview.pid
+          echo "preview started (background)"
       - name: Wait for preview
-        run: npx wait-on http://localhost:5173
+        run: |
+          WAIT_ON_TIMEOUT_MS=180000
+          # check localhost first since Vite prints Local: http://localhost:5173/
+          if npx wait-on -t "$WAIT_ON_TIMEOUT_MS" http://localhost:5173; then
+            echo "preview available at http://localhost:5173"
+          elif npx wait-on -t "$WAIT_ON_TIMEOUT_MS" http://127.0.0.1:5173; then
+            echo "preview available at http://127.0.0.1:5173"
+          else
+            echo "Preview did not become available (neither http://localhost:5173 nor http://127.0.0.1:5173) after ${WAIT_ON_TIMEOUT_MS}ms" >&2
+            echo "Preview did not become available after ${WAIT_ON_TIMEOUT_MS}ms" >&2
+            exit 1
+            exit 1
+          fi
 
       - name: Cache repo-local Playwright browser binaries
         uses: actions/cache@v4
