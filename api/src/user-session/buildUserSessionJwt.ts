@@ -85,6 +85,8 @@ export function buildUserSessionJwt({
 			),
 		);
 
+		// The decode may produce an error value typed as unknown; map to a
+		// ValidationError. We intentionally discard the original error shape.
 		yield* $(
 			Schema.decodeUnknown(sessionDataSchema)(sessionData).pipe(
 				Effect.mapError(

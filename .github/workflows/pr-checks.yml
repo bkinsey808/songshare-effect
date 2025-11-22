@@ -58,6 +58,7 @@ jobs:
           name: Unit Tests Results
           path: reports/unit-junit.xml
           reporter: java-junit
+          fail-on-empty: false
 
       - name: Upload coverage report
         if: always()
@@ -83,7 +84,7 @@ jobs:
           node-version: "20"
 
       - name: Install Bun runtime
-        uses: oven-sh/setup-bun@v3
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.x"
 

@@ -1,0 +1,53 @@
+name: Coverage (GitHub workflow)
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: coverage-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: Run unit tests and upload coverage artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests (coverage)
+        run: npm run test:unit -- --coverage
+
+      - name: Upload coverage folder
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      - name: Upload LCOV
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lcov
+          path: coverage/lcov.info
+
+      - name: Upload unit test JUnit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-junit
+          path: reports/unit-junit.xml
