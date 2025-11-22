@@ -1,19 +1,24 @@
-# SongShare Effect
+# SongShare Effect — modern architecture, built for scale and developer happiness
 
-A modern song sharing platform built with React, Vite, and Hono for Cloudflare deployment.
+SongShare Effect is an opinionated, full-stack demo showcasing a modern frontend backed by a typed, functional API. It’s designed as a showcase of fast developer experience and production-grade patterns:
 
-[![PR Checks (lint, unit, functions-dist, smoke-e2e)](https://github.com/bkinsey808/songshare-effect/actions/workflows/pr-checks.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/pr-checks.yml)
-[![E2E Tests](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml)
-[![Coverage (GitHub)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml)
+- Modern frontend (React 19 + React Compiler + Vite) with strict TypeScript typings
+- An Effect-TS + Hono-based API running on Cloudflare Workers
+- Single source of truth: shared schemas and generated types from Supabase
+- Real-world features: dual auth (visitor + user), Row Level Security (RLS), Playwright end-to-end tests, CI, and Cloudflare Pages/Workers deployment
 
-## Architecture
+[![E2E Tests](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml) [![Coverage (GitHub)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml)
 
-- **Frontend**: React + TypeScript + Vite with React Compiler (deployed to Cloudflare Pages)
-- **Backend**: Hono API server with Effect-TS (deployed to Cloudflare Workers)
-- **Database**: Supabase PostgreSQL
-- **Storage**: Cloudflare R2 for file uploads
-- **Styling**: Tailwind CSS
-- **Package Manager**: npm
+## Architecture & technical highlights
+
+This project demonstrates a modern, pragmatic stack that focuses on type-safety, composability, and fast iteration:
+
+- Frontend: React 19 + TypeScript + Vite + React Compiler for performance-aware builds and better runtime behavior.
+- Backend: Hono + Effect-TS on Cloudflare Workers — functional, composable business logic and a small, fast edge runtime.
+- Schema-driven: Shared types and Effect Schema objects get generated from Supabase so the frontend and API remain strongly typed and consistent.
+- Database: Supabase-managed PostgreSQL with Row Level Security for policy-driven access controls.
+- Testing & CI: Playwright-driven e2e tests, Vitest unit tests, GitHub Actions workflows for CI and coverage reporting.
+- Tools & DX: Husky + Commitizen + Commitlint, ESLint+Prettier, Bun helpers for developer scripts, and extensive example scripts for debugging in the repo.
 
 ## Development Setup
 
@@ -25,7 +30,7 @@ A modern song sharing platform built with React, Vite, and Hono for Cloudflare d
 - Supabase account (for database)
 - Cloudflare account (for deployment)
 
-### Installation
+### Quick developer setup
 
 1. Install PostgreSQL client tools (required for database schema export):
 
@@ -40,186 +45,101 @@ sudo apt-get install postgresql-client
 # Download and install from https://www.postgresql.org/download/windows/
 ```
 
-2. Install frontend dependencies:
+2. Install repo dependencies and get started.
 
 ```bash
-npm install
-```
-
-3. Install API dependencies:
-
-```bash
-cd api
 npm install
 ```
 
 ### Development
 
-#### Start both servers at once (recommended):
+#### Start in development (both servers)
+
+Run both frontend and API dev servers together (recommended):
 
 ```bash
-npm run dev:all
-# Frontend will be available at http://localhost:5173
-# API will be available at http://localhost:8787
+npm run dev
+# Frontend: http://localhost:5173
+# API:      http://localhost:8787 (wrangler dev)
 ```
 
 #### Or start them individually:
 
-1. Start the API server:
-
-```bash
-npm run dev:api
-# API will be available at http://localhost:8787
-```
-
-2. Start the frontend (in a new terminal):
+1. Start the frontend and backend
 
 ```bash
 npm run dev
 # Frontend will be available at http://localhost:5173
 ```
 
-## Deployment
+## Deployment & hosting
 
-### API (Cloudflare Workers)
+This project targets Cloudflare as its production platform:
 
-1. Configure Wrangler:
+- The frontend can be built and published to Cloudflare Pages (`npm run deploy:pages`).
+- The API is built and deployed to Cloudflare Workers using Wrangler (`npm run deploy:api`).
 
-```bash
-cd api
-npx wrangler login
-```
+See `wrangler.toml.example` and the `api/` folder for example configuration that wire environment bindings, Supabase keys, and R2 buckets.
 
-2. Deploy:
+## Project structure (high level)
 
-```bash
-cd api
-npm run deploy
-```
+This repository is organized around a full-stack, type-first app split into clear, focused pieces. Below are the top-level folders and their purpose — we deliberately avoid listing every file so this stays future-proof and easier to skim.
 
-### Frontend (Cloudflare Pages)
+- `react/` — React frontend (React Compiler + Vite). Contains the client app, components, pages, and frontend-specific tooling and tests.
+- `api/` — Hono-based API server implemented with Effect-TS and prepared for Cloudflare Workers (wrangler). Contains server code, service layers, and server-side build configuration.
+- `shared/` — Shared TypeScript code (generated Supabase types, schemas, types and utilities) used by both client and server to keep contracts exact.
+- `supabase/` — Supabase project artifacts and schema-related tooling (migrations, schema generation helpers).
+- `functions/` — prepared serverless/edge functions and helpers used by Cloudflare Pages / workers builds.
+- `scripts/` — Build, developer tooling, and helper scripts (playwright helpers, schema generation, debug tooling).
+- `docs/` — Documentation, design notes, and guides (Effect-TS integration, authentication system, CI workflows, etc.).
+- `.github/workflows/` — CI and test workflows (PR checks, E2E, coverage, and related automation).
+- `public/`, `vite.config.ts`, `package.json`, `tsconfig.*` — standard frontend tooling and config at the repo root.
 
-1. Build the frontend:
+For more details about specific subsystems, see the docs in `docs/` or the README files that live next to the related code in `react/`, `api/`, and `supabase/`.
 
-```bash
-npm run build:client
-```
+### Shared code & Effect-TS integration
 
-2. Build everything:
+Shared code is central to the developer experience — `shared/` holds the generated Supabase schemas and shared utilities so both client and server share the same types.
 
-```bash
-npm run build:all
-```
+The API uses Effect-TS to give you:
 
-3. Deploy to Cloudflare Pages:
-   - Connect your Git repository to Cloudflare Pages
-   - Set build command: `npm run build:client`
-   - Set build output directory: `dist`
-   - Set environment variables if needed
+- Structured, typed errors and composable, testable effects
+- Runtime schema validation (Effect Schema) and central schema generation from Supabase
+- Dependency injection via Effect's Context so services are composable and testable
+- Clear separation of concerns and safe IO boundaries that work extremely well on a Cloudflare Workers runtime
 
-## Project Structure
+## API snapshot — what’s here
 
-```
-songshare-effect/
-├── api/                    # Hono API server with Effect-TS
-│   ├── src/
-│   │   ├── server.ts       # API routes and handlers
-│   │   ├── errors.ts      # Effect-TS error definitions
-│   │   ├── http-utils.ts  # HTTP utilities for Effect
-│   │   ├── schemas.ts     # Effect Schema definitions
-│   │   └── services.ts    # Service layer with dependency injection
-│   ├── wrangler.toml      # Cloudflare Workers config
-│   ├── package.json       # API dependencies (Effect, Hono)
-│   └── tsconfig.json
-├── shared/                 # Shared code between API and frontend
-│   ├── types/             # TypeScript interfaces and types
-│   ├── utils/             # Utility functions and constants
-│   ├── schemas/           # Shared schema definitions
-│   ├── generated/         # Generated Supabase types and schemas
-│   └── index.ts           # Main exports
-├── react/                 # React frontend with React Compiler
-│   └── src/               # React source code
-│       ├── App.tsx        # Main app component with routing
-│       ├── main.tsx       # App entry point
-│       ├── components/    # Reusable React components
-│       └── pages/         # Page components
-├── docs/                  # Project documentation
-│   ├── EFFECT_IMPLEMENTATION.md    # Effect-TS implementation guide
-│   ├── SHARED_CODE_GUIDE.md       # Shared code documentation
-│   └── SUPABASE_EFFECT_SCHEMAS.md # Supabase schema documentation
-├── scripts/               # Build and utility scripts
-├── supabase/             # Supabase configuration
-├── package.json          # Main dependencies and scripts
-├── vite.config.ts        # Vite configuration with aliases
-└── tailwind.config.js    # Tailwind CSS configuration
-```
+Core endpoints include health checks, song listing and CRUD routes, and authentication helpers. Highlights:
 
-### Shared Code & Effect-TS Integration
+- Authentication: a dual-token system (visitor + user) with endpoints to create short-lived client tokens for Supabase access.
+- Supabase integration: server-side helpers to mint client tokens and a secure user token flow.
+- Uploads: designed to leverage Cloudflare R2 (implementation notes in the code indicate R2 support / TODOs where relevant).
 
-The `shared/` directory contains TypeScript interfaces, utilities, schemas, and generated types that are used by both the frontend and API. This ensures type safety and code consistency across the entire application.
+See `api/src` and `/docs` for full endpoint descriptions and authentication details.
 
-The API is built with **Effect-TS** for functional programming, providing:
+## Why this project is interesting (TL;DR — the tech that makes it shine)
 
-- Structured error handling with typed errors
-- Schema validation using Effect Schema
-- Dependency injection with Effect's Context system
-- Composable operations with Effect combinators
+- Type-first, full-stack dev experience: generated Supabase types + shared code keeps client/server contracts exact.
+- Functional backend: Effect-TS gives clean composition, typed errors and a highly-testable service layer.
+- Modern frontend stack: React 19 + React Compiler and Vite for fast iteration and optimized builds.
+- Edge platform ready: Hono + Wrangler means the API runs at the edge with minimal cold start and great global performance.
+- Testing & quality: Playwright for deterministic e2e tests, Vitest for unit tests, and CI workflows keep the quality bar high.
 
-See documentation:
+If you’re looking for a modern reference implementation of building with Effect-TS + React under a Cloudflare deployment model — this project is a great starting point.
 
-- [SHARED_CODE_GUIDE.md](./docs/SHARED_CODE_GUIDE.md) - Shared code structure
-- [EFFECT_IMPLEMENTATION.md](./docs/EFFECT_IMPLEMENTATION.md) - Effect-TS implementation details
-- [SUPABASE_EFFECT_SCHEMAS.md](./docs/SUPABASE_EFFECT_SCHEMAS.md) - Database schema integration
-- [AUTHENTICATION_SYSTEM.md](./docs/AUTHENTICATION_SYSTEM.md) - Complete authentication guide
-- [GITHUB_ACTIONS_WORKFLOWS.md](./docs/github-actions-workflows.md) - CI workflows, Playwright e2e, and debugging with the GitHub Actions extension
+## Environment variables
 
-## API Endpoints
-
-### Core Endpoints
-
-- `GET /health` - Health check
-- `GET /api/songs` - List all songs
-- `POST /api/songs` - Create a new song
-- `GET /api/songs/:id` - Get song by ID
-- `POST /api/upload` - Upload song file
-
-### Authentication Endpoints
-
-- `GET /api/auth/visitor` - Get visitor token for anonymous access
-- `POST /api/auth/user` - Authenticate user and get user token
-
-## Features
-
-- ✅ Song listing and display with API integration
-- ✅ Effect-TS powered API with structured error handling
-- ✅ Schema validation using Effect Schema
-- ✅ Supabase database integration with RLS
-- ✅ Dual authentication system (visitor + user tokens)
-- ✅ JWT-based authentication with automatic token switching
-- ✅ Row Level Security (RLS) for data access control
-- ✅ React Router v7 with nested routing
-- ✅ React Compiler integration for optimized rendering
-- ✅ Tailwind CSS for styling
-- ✅ Responsive design
-- ✅ TypeScript support with strict configuration
-- ✅ ESLint + Prettier configuration
-- ✅ Shared type definitions across frontend/backend
-- 🚧 File upload functionality to Cloudflare R2
-- 🚧 Song playback
-- 🚧 Song metadata editing
-
-## Environment Variables
-
-### Root (.env)
+### Root (.env) (development examples)
 
 ```
-# Supabase Configuration
+# Supabase configuration (do not commit real keys)
 VITE_SUPABASE_URL=your-supabase-project-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_PROJECT_REF=your-project-ref
 SUPABASE_SERVICE_KEY=your-service-key
 
-# Visitor Authentication (for shared anonymous access)
+# Visitor authentication (dev/shared anonymous user)
 SUPABASE_VISITOR_EMAIL=visitor@yourdomain.com
 SUPABASE_VISITOR_PASSWORD=your-visitor-password
 
@@ -234,24 +154,20 @@ PGPASSWORD=your-db-password
 PGDATABASE=postgres
 ```
 
-### API Environment Variables (via wrangler.toml)
+### API environment configuration
 
-```
-ENVIRONMENT=development
-```
+The API uses `wrangler.toml` (see `api/wrangler.toml.example`) for Cloudflare bindings (Supabase keys, R2 buckets and environment settings).
 
-### Available Scripts
+### Useful scripts
 
-- `npm run dev` - Start frontend development server
-- `npm run dev:api` - Start API development server
-- `npm run dev:all` - Start both servers concurrently
-- `npm run build:client` - Build frontend for production
-- `npm run build:api` - Build API for production
-- `npm run build:all` - Build everything
-- `npm run deploy:api` - Deploy API to Cloudflare Workers
-- `npm run supabase:generate` - Generate Effect schemas from Supabase
+Common tasks:
 
-## Contributing
+- `npm run dev` — start the frontend and the API (concurrently)
+- `npm run build` — build client and api for production
+- `npm run deploy` — build + deploy frontend and backend Cloudflare
+- `npm run supabase:generate` — generate typed Effect Schema artifacts from Supabase
+
+## Contributing / code quality
 
 1. Fork the repository
 2. Read `CONTRIBUTING.md` for commit message guidelines, pre-commit hooks, and local setup steps (Husky / Commitlint / Commitizen).
@@ -260,6 +176,6 @@ ENVIRONMENT=development
 5. Add tests if applicable
 6. Submit a pull request
 
-## License
+We follow a strict developer tooling setup — Husky for pre-commit hooks, Commitizen + conventional commits, ESLint + Prettier, plus unit and e2e tests to keep the quality high.
 
-MIT
+Contributions welcome — fork, read `CONTRIBUTING.md`, and send PRs.
