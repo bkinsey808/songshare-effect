@@ -51,3 +51,5 @@ scripts/mcp/mcp.pid
 .certs/
 
 supabase/.temp/*
+
+.cache/
