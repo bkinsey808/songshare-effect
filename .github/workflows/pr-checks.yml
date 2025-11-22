@@ -35,6 +35,10 @@ jobs:
         if: always()
         uses: actions/github-script@v6
         with:
+          # Prefer a repository secret (`ACTIONS_RUN_TITLE_TOKEN`) when available
+          # for reliable rights to update workflow runs. Falls back to the runner
+          # token (${{ github.token }}) if the secret is not set.
+          github-token: ${{ secrets.ACTIONS_RUN_TITLE_TOKEN || github.token }}
           script: |
             const runId = parseInt(process.env.GITHUB_RUN_ID, 10)
             const title = `${github.workflow} — ${github.event?.pull_request?.title || github.head_ref || github.ref_name || github.sha}`
@@ -114,6 +118,7 @@ jobs:
         if: always()
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.ACTIONS_RUN_TITLE_TOKEN || github.token }}
           script: |
             const runId = parseInt(process.env.GITHUB_RUN_ID, 10)
             const title = `${github.workflow} — ${github.event?.pull_request?.title || github.head_ref || github.ref_name || github.sha}`
@@ -196,6 +201,7 @@ jobs:
         if: always()
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.ACTIONS_RUN_TITLE_TOKEN || github.token }}
           script: |
             const runId = parseInt(process.env.GITHUB_RUN_ID, 10)
             const title = `${github.workflow} — ${github.event?.pull_request?.title || github.head_ref || github.ref_name || github.sha}`
