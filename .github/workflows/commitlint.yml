@@ -1,4 +1,4 @@
-name: "${{ github.workflow }} — ${{ github.event.pull_request.title || github.head_ref || github.ref_name || github.sha }}"
+name: ${{ github.event_name == 'pull_request' && format('%s — %s', github.workflow, github.event.pull_request.title) || format('%s — %s', github.workflow, github.head_ref || github.ref_name || github.sha) }}
 
 on:
   pull_request:
