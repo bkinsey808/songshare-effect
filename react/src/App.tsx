@@ -1,22 +1,6 @@
 import { Suspense } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
-import Navigation from "./Navigation";
-import ErrorBoundary from "./demo/ErrorBoundary";
-import LanguageDetector from "./language/LanguageDetector";
-import LanguageProvider from "./language/LanguageProvider";
-import AboutPage from "./pages/AboutPage";
-import OptimizedCounterPage from "./pages/OptimizedCounterPage";
-import RegisterPage from "./pages/RegisterPage";
-import SuspenseUsePage from "./pages/SuspenseUsePage";
-import UploadPage from "./pages/UploadPage";
-import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
-import ActivityDemoPage from "./pages/demo/ActivityDemoPage";
-import PopoverDemoPage from "./pages/demo/PopoverDemoPage";
-import ReactFeaturesDemoPage from "./pages/demo/ReactFeaturesDemoPage";
-import SuspenseDemoPage from "./pages/demo/SuspenseDemoPage";
-import UseHookDemoPage from "./pages/demo/UseHookDemoPage";
-import HomePage from "./pages/home/HomePage";
 import ProtectedLayout from "@/react/auth/ProtectedLayout";
 import DashboardPage from "@/react/pages/DashboardPage";
 import DeleteAccountConfirmPage from "@/react/pages/DeleteAccountConfirmPage";
@@ -39,6 +23,23 @@ import {
 	uploadDemoPath,
 	userSubscriptionDemoPath,
 } from "@/shared/paths";
+
+import ErrorBoundary from "./demo/ErrorBoundary";
+import LanguageDetector from "./language/LanguageDetector";
+import LanguageProvider from "./language/LanguageProvider";
+import Navigation from "./Navigation";
+import AboutPage from "./pages/AboutPage";
+import ActivityDemoPage from "./pages/demo/ActivityDemoPage";
+import PopoverDemoPage from "./pages/demo/PopoverDemoPage";
+import ReactFeaturesDemoPage from "./pages/demo/ReactFeaturesDemoPage";
+import SuspenseDemoPage from "./pages/demo/SuspenseDemoPage";
+import UseHookDemoPage from "./pages/demo/UseHookDemoPage";
+import HomePage from "./pages/home/HomePage";
+import OptimizedCounterPage from "./pages/OptimizedCounterPage";
+import RegisterPage from "./pages/RegisterPage";
+import SuspenseUsePage from "./pages/SuspenseUsePage";
+import UploadPage from "./pages/UploadPage";
+import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
 
 // Component that uses Suspense for store hydration
 function HydratedLayout(): ReactElement {

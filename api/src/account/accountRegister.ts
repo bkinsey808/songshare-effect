@@ -1,14 +1,13 @@
-/* eslint-disable no-console */
-import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
-import { type ReadonlyContext } from "../hono/hono-context";
+import type { Env } from "@/api/env";
+import type { Database } from "@/shared/generated/supabaseTypes";
+
 import { buildSessionCookie } from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
-import type { Env } from "@/api/env";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
 import { getIpAddress } from "@/api/getIpAddress";
 import { RegisterDataSchema } from "@/api/register/registerData";
@@ -17,10 +16,13 @@ import {
 	UserPublicSchema,
 	UserSchema,
 } from "@/shared/generated/supabaseSchemas";
-import type { Database } from "@/shared/generated/supabaseTypes";
 import { RegisterFormSchema } from "@/shared/register/register";
 import { UserSessionDataSchema } from "@/shared/userSessionData";
 import { safeGet, safeSet } from "@/shared/utils/safe";
+/* eslint-disable no-console */
+import { createClient } from "@supabase/supabase-js";
+
+import { type ReadonlyContext } from "../hono/hono-context";
 
 /**
  * Handle account registration after OAuth callback

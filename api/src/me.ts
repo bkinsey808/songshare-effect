@@ -1,11 +1,13 @@
 import { Effect } from "effect";
 
+import type { ReadonlyContext } from "@/api/hono/hono-context";
+
+import { type UserSessionData } from "@/shared/userSessionData";
+import { safeSet } from "@/shared/utils/safe";
+
 import { AuthenticationError, type DatabaseError } from "./errors";
 import { getIpAddress } from "./getIpAddress";
 import { getVerifiedUserSession } from "./user-session/getVerifiedSession";
-import type { ReadonlyContext } from "@/api/hono/hono-context";
-import { type UserSessionData } from "@/shared/userSessionData";
-import { safeSet } from "@/shared/utils/safe";
 
 /** Effect-based handler for /api/me */
 export function me(

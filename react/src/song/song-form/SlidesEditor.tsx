@@ -1,3 +1,6 @@
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+import { safeGet } from "@/shared/utils/safe";
 // src/features/song-form/SlidesEditor.tsx
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
@@ -6,8 +9,6 @@ import AutoExpandingTextarea from "../../design-system/AutoExpandingTextarea";
 import SortableSlideOrderItem from "./slides-editor/SortableSlideOrderItem";
 import useSlidesEditor from "./slides-editor/useSlidesEditor";
 import { type Slide } from "./songTypes";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
-import { safeGet } from "@/shared/utils/safe";
 
 type SlidesEditorProps = Readonly<
 	ReadonlyDeep<{

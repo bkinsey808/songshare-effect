@@ -1,13 +1,15 @@
 /* eslint-disable no-console */
 import { Effect, type Schema } from "effect";
 
-import { extractValidationErrors } from "./extractValidationErrors";
+import type { ValidationError } from "@/shared/validation/types";
+
 import {
 	type I18nMessage,
 	registerMessageKey,
 } from "@/shared/register/register";
-import type { ValidationError } from "@/shared/validation/types";
 import { validateFormEffect } from "@/shared/validation/validateFormEffect";
+
+import { extractValidationErrors } from "./extractValidationErrors";
 
 type FormSubmitHandlerParams<FormValues> = {
 	readonly schema: Schema.Schema<FormValues, FormValues, never>;

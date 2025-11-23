@@ -1,5 +1,6 @@
-import type { SongPublic } from "../../song-schema";
 import { safeGet } from "@/shared/utils/safe";
+
+import type { SongPublic } from "../../song-schema";
 
 type FindMissingSongsSlugsParams = Readonly<{
 	songSlugs: ReadonlyArray<string>;

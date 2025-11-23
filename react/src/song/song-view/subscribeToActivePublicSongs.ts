@@ -1,10 +1,11 @@
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
 // src/features/react/song-subscribe/subscribeToActiveSongs.ts
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
 import { type SongPublic } from "../song-schema";
 import { type SongSubscribeSlice } from "./songSlice";
-import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 // Supabase realtime payload type for song_public
 type SongPublicRealtimePayload = {

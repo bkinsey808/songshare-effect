@@ -1,8 +1,9 @@
+import { Provider, type ProviderType } from "@/shared/providers";
+import { superSafeGet } from "@/shared/utils/safe";
+
 import { AmazonIcon } from "./AmazonIcon";
 import { GoogleIcon } from "./GoogleIcon";
 import { MicrosoftIcon } from "./MicrosoftIcon";
-import { Provider, type ProviderType } from "@/shared/providers";
-import { superSafeGet } from "@/shared/utils/safe";
 
 type ProviderFrontEndData = {
 	// main bg color

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import type { UserSessionData } from "@/shared/userSessionData";
+
 import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
 import { getStoreApi, useAppStoreHydrated } from "@/react/zustand/useAppStore";
 import { SupportedLanguage } from "@/shared/language/supported-languages";
@@ -13,7 +15,6 @@ import {
 } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 import { justSignedOutKey } from "@/shared/sessionStorageKeys";
-import type { UserSessionData } from "@/shared/userSessionData";
 
 type SongManagementSectionProps = Readonly<{
 	t: (key: string, fallback: string) => string;

@@ -1,15 +1,17 @@
-import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
-import { type ReadonlyContext } from "../hono/hono-context";
+import type { Env } from "@/api/env";
+import type { Database } from "@/shared/generated/supabaseTypes";
+
 import { buildClearCookieHeader } from "@/api/cookie/buildClearCookieHeader";
 import { userSessionCookieName } from "@/api/cookie/cookie";
 import { verifyDoubleSubmitOrThrow } from "@/api/csrf/verifyDoubleSubmitOrThrow";
 import { verifySameOriginOrThrow } from "@/api/csrf/verifySameOriginOrThrow";
-import type { Env } from "@/api/env";
 import { AuthenticationError, DatabaseError } from "@/api/errors";
 import { getVerifiedUserSession } from "@/api/user-session/getVerifiedSession";
-import type { Database } from "@/shared/generated/supabaseTypes";
+import { createClient } from "@supabase/supabase-js";
+
+import { type ReadonlyContext } from "../hono/hono-context";
 
 /**
  * Delete an authenticated user's account and clear the session cookie.

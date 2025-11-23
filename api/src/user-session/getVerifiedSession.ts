@@ -1,8 +1,8 @@
 import { Effect, Schema } from "effect";
 
-import { type Bindings, type Env } from "../env";
-import { AuthenticationError, DatabaseError } from "@/api/errors";
 import type { ReadonlyContext } from "@/api/hono/hono-context";
+
+import { AuthenticationError, DatabaseError } from "@/api/errors";
 import {
 	extractUserSessionTokenFromContext,
 	verifyUserSessionToken,
@@ -11,6 +11,8 @@ import {
 	type UserSessionData,
 	UserSessionDataSchema,
 } from "@/shared/userSessionData";
+
+import { type Bindings, type Env } from "../env";
 
 /**
  * Verify user session JWT and return decoded `UserSessionData`.

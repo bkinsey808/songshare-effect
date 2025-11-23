@@ -9,15 +9,12 @@ export function subscribeToLibrary(
 	// Get authentication token asynchronously
 	void (async () => {
 		try {
-			const { getSupabaseAuthToken } = await import(
-				"@/react/supabase/getSupabaseAuthToken"
-			);
-			const { getSupabaseClient } = await import(
-				"@/react/supabase/supabaseClient"
-			);
-			const { REALTIME_SUBSCRIBE_STATES } = await import(
-				"@supabase/supabase-js"
-			);
+			const { getSupabaseAuthToken } =
+				await import("@/react/supabase/getSupabaseAuthToken");
+			const { getSupabaseClient } =
+				await import("@/react/supabase/supabaseClient");
+			const { REALTIME_SUBSCRIBE_STATES } =
+				await import("@supabase/supabase-js");
 
 			const userToken = await getSupabaseAuthToken();
 			const client = getSupabaseClient(userToken);

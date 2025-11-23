@@ -69,7 +69,7 @@ async function attachViaBrowserWebSocket() {
 	let content = "";
 	try {
 		content = fs.readFileSync(logPath, "utf8");
-	} catch (e) {
+	} catch {
 		// ignore
 	}
 
@@ -100,7 +100,7 @@ async function attachViaBrowserWebSocket() {
 		let msg;
 		try {
 			msg = JSON.parse(data.toString());
-		} catch (e) {
+		} catch {
 			console.log("[raw]", data.toString());
 			return;
 		}
@@ -146,7 +146,7 @@ async function attachViaBrowserWebSocket() {
 			let inner;
 			try {
 				inner = JSON.parse(msg.params.message);
-			} catch (e) {
+			} catch {
 				return;
 			}
 			handleMessage(JSON.stringify(inner));
@@ -173,7 +173,7 @@ function handleMessage(raw) {
 	let msg;
 	try {
 		msg = JSON.parse(raw);
-	} catch (e) {
+	} catch {
 		return;
 	}
 

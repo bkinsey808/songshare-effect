@@ -1,5 +1,6 @@
-import { safeJsonParse } from "./safeJsonParse";
 import type { ValidationError } from "@/shared/validation/types";
+
+import { safeJsonParse } from "./safeJsonParse";
 
 /**
  * Extract ValidationError[] from FiberFailure objects.

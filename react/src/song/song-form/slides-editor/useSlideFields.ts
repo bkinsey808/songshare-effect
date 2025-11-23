@@ -1,8 +1,9 @@
 /**
  * Custom hook for managing slide field operations
  */
-import { type Slide } from "../songTypes";
 import { safeGet } from "@/shared/utils/safe";
+
+import { type Slide } from "../songTypes";
 
 type EditFieldValue = ({
 	slideId,

@@ -1,8 +1,9 @@
 // supabase client type imported below via ReadonlySupabaseClient alias
 import { Effect, Schema } from "effect";
 
-import { DatabaseError } from "@/api/errors";
 import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
+
+import { DatabaseError } from "@/api/errors";
 import { UserPublicSchema } from "@/shared/generated/supabaseSchemas";
 
 /**

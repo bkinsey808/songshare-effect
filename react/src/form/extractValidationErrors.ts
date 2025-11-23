@@ -1,6 +1,7 @@
+import type { ValidationError } from "@/shared/validation/types";
+
 import { extractFromFiberFailure } from "./extractFromFiberFailure";
 import { safeJsonParse } from "./safeJsonParse";
-import type { ValidationError } from "@/shared/validation/types";
 
 /**
  * Extract ValidationError[] from various error shapes used in the codebase.

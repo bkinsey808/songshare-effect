@@ -1,6 +1,10 @@
 // Song Library Zustand slice with subscription functionality
 import type { StateCreator } from "zustand";
 
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+import { sliceResetFns } from "@/react/zustand/useAppStore";
+
 import { addSongToLibrary } from "./addSongToLibrary";
 import { removeSongFromLibrary } from "./removeSongFromLibrary";
 import {
@@ -10,8 +14,6 @@ import {
 } from "./song-library-schema";
 import { type SongLibrarySliceBase } from "./song-library-types";
 import { subscribeToLibrary as subscribeToLibraryFn } from "./subscribeToLibrary";
-import { sliceResetFns } from "@/react/zustand/useAppStore";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 export type SongLibrarySlice = SongLibrarySliceBase & {
 	/** Add a song to the user's library */
@@ -106,12 +108,10 @@ export const createSongLibrarySlice: StateCreator<
 				set({ isLibraryLoading: true, libraryError: undefined });
 
 				// Import here to avoid circular dependencies
-				const { getSupabaseAuthToken } = await import(
-					"@/react/supabase/getSupabaseAuthToken"
-				);
-				const { getSupabaseClient } = await import(
-					"@/react/supabase/supabaseClient"
-				);
+				const { getSupabaseAuthToken } =
+					await import("@/react/supabase/getSupabaseAuthToken");
+				const { getSupabaseClient } =
+					await import("@/react/supabase/supabaseClient");
 				const userToken = await getSupabaseAuthToken();
 				const client = getSupabaseClient(userToken);
 

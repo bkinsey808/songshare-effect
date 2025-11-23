@@ -1,3 +1,8 @@
+import type { AppSlice } from "@/react/zustand/useAppStore";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+
 // src/features/react/song-subscribe/addActiveSongIds.ts
 import { type SongSubscribeSlice } from "./songSlice";
 import { decodeSongData } from "./utils/decodeSongData";
@@ -5,9 +10,6 @@ import { fetchPublicSongsBySlugs } from "./utils/fetchPublicSongsBySlugs";
 import { findMissingSongSlugs } from "./utils/findMissingSongSlugs";
 import { updateStoreWithPublicSongs } from "./utils/updateStoreWithPublicSongs";
 import { validateVisitorToken } from "./utils/validateVisitorToken";
-import { getSupabaseClient } from "@/react/supabase/supabaseClient";
-import type { AppSlice } from "@/react/zustand/useAppStore";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 export default function addActivePublicSongSlugs(
 	set: (

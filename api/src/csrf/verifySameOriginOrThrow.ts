@@ -1,7 +1,8 @@
-import { type ReadonlyContext } from "../hono/hono-context";
 import { getAllowedOrigins } from "@/api/cors/getAllowedOrigins";
 import { getOriginToCheck } from "@/api/cors/getOriginToCheck";
 import { AuthenticationError } from "@/api/errors";
+
+import { type ReadonlyContext } from "../hono/hono-context";
 
 type EnvLike = Record<string, string | undefined>;
 

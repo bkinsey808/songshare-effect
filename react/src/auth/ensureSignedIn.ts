@@ -1,13 +1,14 @@
 /* eslint-disable no-console */
 import type { StoreApi } from "zustand";
 
+import type { UserSessionData } from "@/shared/userSessionData";
+
 import {
 	type AppSlice,
 	getOrCreateAppStore,
 	getStoreApi,
 } from "@/react/zustand/useAppStore";
 import { apiMePath } from "@/shared/paths";
-import type { UserSessionData } from "@/shared/userSessionData";
 
 // Module-level in-flight promise to dedupe concurrent requests.
 let globalInFlight: Promise<UserSessionData | undefined> | undefined;

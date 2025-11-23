@@ -1,7 +1,8 @@
 import type { StateCreator } from "zustand";
 
-import { sliceResetFns } from "@/react/zustand/useAppStore";
 import type { UserSessionData } from "@/shared/userSessionData";
+
+import { sliceResetFns } from "@/react/zustand/useAppStore";
 
 type AuthState = {
 	isSignedIn: boolean | undefined;

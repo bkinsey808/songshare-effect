@@ -1,5 +1,6 @@
-import type { PlacementOption, PopoverPosition } from "./types";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+import type { PlacementOption, PopoverPosition } from "./types";
 
 type PlacementConfig = {
 	readonly name: PlacementOption;

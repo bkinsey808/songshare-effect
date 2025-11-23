@@ -1,6 +1,10 @@
+import { useTranslation } from "react-i18next";
+
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+import { safeGet } from "@/shared/utils/safe";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
-import { useTranslation } from "react-i18next";
 
 import useSlidesEditor from "../slides-editor/useSlidesEditor";
 import { type Slide } from "../songTypes";
@@ -8,8 +12,6 @@ import ResizeHandle from "./ResizeHandle";
 import SortableGridRow from "./SortableGridRow";
 import { useColumnResize } from "./useColumnResize";
 import { useGridDragAndDrop } from "./useGridDragAndDrop";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
-import { safeGet } from "@/shared/utils/safe";
 
 type SlidesGridViewProps = Readonly<
 	ReadonlyDeep<{

@@ -1,6 +1,7 @@
+import type { StoreApi } from "zustand";
+
 /* eslint-disable no-console */
 import { useEffect, useRef } from "react";
-import type { StoreApi } from "zustand";
 
 import { ensureSignedIn } from "@/react/auth/ensureSignedIn";
 import { type AppSlice, getStoreApi } from "@/react/zustand/useAppStore";

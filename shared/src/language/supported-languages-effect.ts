@@ -1,6 +1,7 @@
-import { Schema } from "effect";
 import type { Either } from "effect/Either";
 import type { ParseError } from "effect/ParseResult";
+
+import { Schema } from "effect";
 
 import {
 	SupportedLanguage,

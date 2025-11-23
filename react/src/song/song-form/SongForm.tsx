@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 import CollapsibleSection from "./CollapsibleSection";
-import SongFormFields from "./SongFormFields";
 import SlidesGridView from "./grid-editor/SlidesGridView";
 import SlidesEditor from "./slides-editor/SlidesEditor";
+import SongFormFields from "./SongFormFields";
 import useSongForm from "./useSongForm";
 
 export function SongForm(): ReactElement {

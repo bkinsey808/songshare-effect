@@ -117,12 +117,12 @@ function flushAndExit(code = 0) {
 		if (jsonMode && parsedMessages) {
 			process.stdout.write(JSON.stringify(parsedMessages, null, 2));
 		}
-	} catch (e) {
+	} catch {
 		// ignore
 	}
 	try {
 		ws.close();
-	} catch (e) {}
+	} catch {}
 	process.exit(code);
 }
 
@@ -249,7 +249,7 @@ ws.on("message", (data) => {
 			handleConsoleEvent(method, params);
 			handleNetworkEvent(method, params);
 		}
-	} catch (err) {
+	} catch {
 		// ignore parse errors
 	}
 });
