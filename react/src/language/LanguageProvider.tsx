@@ -2,12 +2,13 @@ import { Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate, Outlet, useParams } from "react-router-dom";
 
-import { getStoredLanguage, setStoredLanguage } from "./languageStorage";
 import {
 	type SupportedLanguageType,
 	defaultLanguage,
 } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
+
+import { getStoredLanguage, setStoredLanguage } from "./languageStorage";
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function LanguageProviderInner() {

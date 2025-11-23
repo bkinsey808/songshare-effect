@@ -1,11 +1,12 @@
+import { useEffect, useState } from "react";
+
+import type { Tables } from "@/shared/generated/supabaseTypes";
 import type {
 	RealtimeChannel,
 	RealtimePostgresChangesPayload,
 } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
 
 import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
-import type { Tables } from "@/shared/generated/supabaseTypes";
 
 type UserPublic = Tables<"user_public">;
 

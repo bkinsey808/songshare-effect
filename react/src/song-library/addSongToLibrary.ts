@@ -20,9 +20,8 @@ export async function addSongToLibrary(
 	}
 
 	// Import here to avoid circular dependencies
-	const { getSupabaseAuthToken } = await import(
-		"@/react/supabase/getSupabaseAuthToken"
-	);
+	const { getSupabaseAuthToken } =
+		await import("@/react/supabase/getSupabaseAuthToken");
 	const { getSupabaseClient } = await import("@/react/supabase/supabaseClient");
 	const userToken = await getSupabaseAuthToken();
 	const client = getSupabaseClient(userToken);

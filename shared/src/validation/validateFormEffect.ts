@@ -1,9 +1,11 @@
 import { Effect, Either, Schema } from "effect";
 import { ArrayFormatter, type ArrayFormatterIssue } from "effect/ParseResult";
 
-import { extractI18nMessages } from "./extractI18nMessages";
-import type { ValidationError } from "./types";
 import { safeGet } from "@/shared/utils/safe";
+
+import type { ValidationError } from "./types";
+
+import { extractI18nMessages } from "./extractI18nMessages";
 
 /**
  * Validate form data using Effect schema - returns an Effect

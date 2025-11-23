@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
 import { Effect, Schema } from "effect";
 
+import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
+
 import { DatabaseError } from "@/api/errors";
 import { normalizeNullsTopLevel } from "@/api/oauth/normalizeNullsTopLevel";
 import { normalizeLinkedProviders } from "@/api/provider/normalizeLinkedProviders";
-import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
 
 type SupabaseMaybeSingleRes = {

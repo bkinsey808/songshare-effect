@@ -10,7 +10,6 @@ console.log("Language:", localStorage.getItem("language"));
 // 2. INSPECT REACT COMPONENT STATE
 if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
 	console.log("=== React Components ===");
-	const reactFiber = document.querySelector("#root")._reactInternalFiber;
 	console.log(
 		"React version:",
 		window.React?.version || "Not directly available",

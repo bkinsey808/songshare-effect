@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 
-import calculatePopoverPosition from "./calculatePopoverPosition";
 import type { PlacementOption, PopoverPosition } from "./types";
+
+import calculatePopoverPosition from "./calculatePopoverPosition";
 
 type UsePopoverPositioningParams = Readonly<{
 	triggerRef: React.RefObject<HTMLDivElement | null>;

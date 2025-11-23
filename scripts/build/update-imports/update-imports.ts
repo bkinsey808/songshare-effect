@@ -43,7 +43,7 @@ async function main(): Promise<void> {
 	try {
 		execSync("npm run build", { stdio: "inherit", cwd: process.cwd() });
 		console.log("✅ Build successful! All imports converted correctly.");
-	} catch (_error) {
+	} catch {
 		console.error("❌ Build failed. Please check the imports manually.");
 		process.exit(1);
 	}

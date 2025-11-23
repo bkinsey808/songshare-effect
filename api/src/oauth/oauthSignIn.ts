@@ -3,7 +3,8 @@ import { Effect, Schema } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
-import { type ReadonlyContext } from "../hono/hono-context";
+import type { OauthState } from "@/shared/oauth/oauthState";
+
 // `ReadonlyContext` wraps Hono's `Context` to satisfy lint rules; `Context`
 // and `Env` imports are not required here because `DeepReadonly` preserves
 // function signatures (for example `ctx.header`/`ctx.redirect`).
@@ -17,7 +18,6 @@ import {
 	defaultLanguage,
 } from "@/shared/language/supported-languages";
 import { SupportedLanguageSchema } from "@/shared/language/supported-languages-effect";
-import type { OauthState } from "@/shared/oauth/oauthState";
 import { apiOauthCallbackPath } from "@/shared/paths";
 import { ProviderSchema, type ProviderType } from "@/shared/providers";
 import {
@@ -27,6 +27,8 @@ import {
 } from "@/shared/queryParams";
 import { SigninErrorToken } from "@/shared/signinTokens";
 import { safeGet } from "@/shared/utils/safe";
+
+import { type ReadonlyContext } from "../hono/hono-context";
 
 // Note: state signing is performed using `hono/jwt.sign` below.
 

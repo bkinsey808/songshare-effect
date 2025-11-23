@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-/* eslint-disable no-undef */
-import { chromium } from "@playwright/test";
 import fs from "node:fs";
 import { resolve } from "node:path";
 import readline from "node:readline";
+
+/* eslint-disable no-undef */
+import { chromium } from "@playwright/test";
 
 // Usage:
 // PROFILE_DIR="/mnt/c/Users/you/path/to/repo/tmp-chrome-profile" node scripts/save-storage-state-wsl.mjs

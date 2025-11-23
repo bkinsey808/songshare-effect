@@ -1,9 +1,10 @@
+import type { Database } from "@/shared/generated/supabaseTypes";
+
+import { getEnvValueSafe } from "@/react/utils/env";
 // src/features/supabase/supabaseClient.ts
 import { type SupabaseClient, createClient } from "@supabase/supabase-js";
 
 import { getSupabaseAuthToken } from "./getSupabaseAuthToken";
-import { getEnvValueSafe } from "@/react/utils/env";
-import type { Database } from "@/shared/generated/supabaseTypes";
 
 // Cache Supabase clients per visitor token
 const clients = new Map<string, SupabaseClient<Database>>();

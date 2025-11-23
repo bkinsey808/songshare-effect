@@ -1,10 +1,6 @@
 // SupabaseClient is not used directly here; use ReadonlySupabaseClient alias below
 import { Effect, Schema } from "effect";
 
-import { type Env } from "../env";
-import { type ReadonlyContext } from "../hono/hono-context";
-import { type ReadonlySupabaseClient } from "../supabase/supabase-client";
-import { type ReadonlyUser } from "../user/user";
 // Types now live in `api/src/types/user-session.ts`
 import { type DatabaseError, ServerError, ValidationError } from "@/api/errors";
 import { getIpAddress } from "@/api/getIpAddress";
@@ -14,6 +10,11 @@ import { type ReadonlyOauthState } from "@/shared/oauth/oauthState";
 import { type ReadonlyOauthUserData } from "@/shared/oauth/oauthUserData";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { UserSessionDataSchema as sessionDataSchema } from "@/shared/userSessionData";
+
+import { type Env } from "../env";
+import { type ReadonlyContext } from "../hono/hono-context";
+import { type ReadonlySupabaseClient } from "../supabase/supabase-client";
+import { type ReadonlyUser } from "../user/user";
 
 // The `ctx` parameter is intentionally not wrapped by `ReadonlyDeep`
 // because converting all nested `Context` fields to readonly can lead to

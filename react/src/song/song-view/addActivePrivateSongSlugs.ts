@@ -1,10 +1,12 @@
+import type { AppSlice } from "@/react/zustand/useAppStore";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { safeGet } from "@/shared/utils/safe";
+
 // src/features/react/song-subscribe/addActiveSongIds.ts
 import { type Song } from "../song-schema";
 import { type SongSubscribeSlice } from "./songSlice";
-import { getSupabaseClient } from "@/react/supabase/supabaseClient";
-import type { AppSlice } from "@/react/zustand/useAppStore";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
-import { safeGet } from "@/shared/utils/safe";
 
 export default function addActivePrivateSongSlugs(
 	set: (

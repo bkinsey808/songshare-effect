@@ -1,13 +1,15 @@
 // src/features/song-form/SlidesEditor.tsx
 import { useTranslation } from "react-i18next";
 
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+import { safeGet } from "@/shared/utils/safe";
+
 import AutoExpandingTextarea from "../../../design-system/AutoExpandingTextarea";
 import FormField from "../../../design-system/form/FormField";
 import { songFields } from "../../song-schema";
 import { type Slide } from "../songTypes";
 import useSlidesEditor from "./useSlidesEditor";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
-import { safeGet } from "@/shared/utils/safe";
 
 type SlidesEditorProps = Readonly<
 	ReadonlyDeep<{

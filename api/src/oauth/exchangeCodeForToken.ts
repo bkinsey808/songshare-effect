@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 
 import type { FetchOpts } from "@/api/oauth/fetchOpts";
+
 import { codeQueryParam } from "@/shared/queryParams";
 
 export function exchangeCodeForToken(opts: FetchOpts): Effect.Effect<

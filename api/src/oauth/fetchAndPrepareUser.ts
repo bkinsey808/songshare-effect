@@ -1,22 +1,23 @@
-/* eslint-disable no-console */
-import { createClient } from "@supabase/supabase-js";
 import { Effect, type Schema } from "effect";
 
 // Prefer to keep the top-level handler type `Context` — helpers may use ReadonlyContext
 
 import type { Env } from "@/api/env";
-import { DatabaseError, ValidationError } from "@/api/errors";
 import type { ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
+import type { UserSchema } from "@/shared/generated/supabaseSchemas";
+import type { OauthUserData } from "@/shared/oauth/oauthUserData";
+import type { ProviderType } from "@/shared/providers";
+
+import { DatabaseError, ValidationError } from "@/api/errors";
 import { fetchAndParseOauthUserData } from "@/api/oauth/fetchAndParseOauthUserData";
 import { resolveRedirectOrigin } from "@/api/oauth/resolveRedirectOrigin";
 import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
-import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import { getUserByEmail } from "@/api/user/getUserByEmail";
-import type { UserSchema } from "@/shared/generated/supabaseSchemas";
-import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 import { apiOauthCallbackPath } from "@/shared/paths";
-import type { ProviderType } from "@/shared/providers";
 import { safeSet, superSafeGet } from "@/shared/utils/safe";
+/* eslint-disable no-console */
+import { createClient } from "@supabase/supabase-js";
 
 type FetchAndPrepareUserParams = Readonly<{
 	ctx: ReadonlyContext<{ Bindings: Env }>;

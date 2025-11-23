@@ -1,4 +1,5 @@
 import { safeGet } from "@/shared/utils/safe";
+
 import type { ColumnDefinition } from "./generate-effect-schemas-types";
 
 const typeMapping: Record<string, string> = {
@@ -30,7 +31,7 @@ const typeMapping: Record<string, string> = {
 export function getEffectType(column: Readonly<ColumnDefinition>): string {
 	let effectType = typeMapping[column.type];
 	if (effectType === undefined) {
-		if (/\[\]$/.test(column.type)) {
+		if (column.type.endsWith("[]")) {
 			const elemType = column.type.replace(/\[\]$/, "");
 			const mappedElem = safeGet(typeMapping, elemType) ?? "Schema.String";
 			effectType = `Schema.Array(${mappedElem})`;

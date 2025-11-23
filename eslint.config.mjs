@@ -1,7 +1,3 @@
-import cspellPlugin from "@cspell/eslint-plugin";
-import js from "@eslint/js";
-import shopifyPlugin from "@shopify/eslint-plugin";
-import shopifyTsConfig from "@shopify/eslint-plugin/lib/config/typescript.js";
 import boundariesPlugin from "eslint-plugin-boundaries";
 import eslintCommentsPlugin from "eslint-plugin-eslint-comments";
 import importPlugin from "eslint-plugin-import";
@@ -20,6 +16,11 @@ import globals from "globals";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import tseslint from "typescript-eslint";
+
+import cspellPlugin from "@cspell/eslint-plugin";
+import js from "@eslint/js";
+import shopifyPlugin from "@shopify/eslint-plugin";
+import shopifyTsConfig from "@shopify/eslint-plugin/lib/config/typescript.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -45,7 +46,7 @@ const sharedRules = {
 	...(Array.isArray(shopifyTsConfig) ? shopifyTsConfig : []).reduce(
 		(acc, cfg) => ({
 			...acc,
-			...(cfg.rules || {}),
+			...cfg.rules,
 		}),
 		{},
 	),

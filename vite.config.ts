@@ -1,11 +1,12 @@
-import tailwindcss from "@tailwindcss/postcss";
-import react from "@vitejs/plugin-react";
 import autoprefixer from "autoprefixer";
 import fs from "fs";
 import path from "path";
 // Fix __dirname for ESM context
 import { fileURLToPath } from "url";
 import { type ServerOptions, type UserConfig, defineConfig } from "vite";
+
+import tailwindcss from "@tailwindcss/postcss";
+import react from "@vitejs/plugin-react";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

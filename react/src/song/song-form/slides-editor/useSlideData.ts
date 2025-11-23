@@ -1,13 +1,14 @@
 /**
  * Custom hook for managing slide data CRUD operations
  */
+import { safeGet } from "@/shared/utils/safe";
+
 import { type Slide } from "../songTypes";
 import {
 	getDuplicateSlideName,
 	getNextSlideName,
 	randomId,
 } from "./slideUtils";
-import { safeGet } from "@/shared/utils/safe";
 
 type UseSlideDataParams = Readonly<{
 	slideOrder: ReadonlyArray<string>;

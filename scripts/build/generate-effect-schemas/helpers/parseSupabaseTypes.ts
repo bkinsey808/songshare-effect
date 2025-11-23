@@ -1,6 +1,10 @@
-
 import { existsSync, readFileSync } from "fs";
-import type { ColumnDefinition, TableDefinition } from "./generate-effect-schemas-types";
+
+import type {
+	ColumnDefinition,
+	TableDefinition,
+} from "./generate-effect-schemas-types";
+
 import { createExampleSchemas } from "./createExampleSchemas";
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -81,7 +85,7 @@ export function parseSupabaseTypes(filePath: string): TableDefinition[] {
 					// eslint-disable-next-line sonarjs/slow-regex
 					.replace(/\s*\|\s*null\s*$/, "")
 					.trim();
-				const isArrayType = /\[\]$/.test(cleanType);
+				const isArrayType = cleanType.endsWith("[]");
 
 				let mappedType = "string";
 

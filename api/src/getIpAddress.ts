@@ -1,5 +1,6 @@
-import type { Env } from "./env";
 import type { ReadonlyContext } from "@/api/hono/hono-context";
+
+import type { Env } from "./env";
 
 /**
  * Gets the IP address of the requestor.

@@ -3,14 +3,16 @@ import { Effect, type Schema } from "effect";
 import { useRef } from "react";
 import { useParams } from "react-router-dom";
 
-import { songFormSchema } from "./songSchema";
+import { useAppForm } from "@/react/form/useAppForm";
+import { safeSet } from "@/shared/utils/safe";
+
 import type { Slide } from "./songTypes";
+
+import { songFormSchema } from "./songSchema";
 import { useCollapsibleSections } from "./useCollapsibleSections";
 import { useFormState } from "./useFormState";
 import { useFormSubmission } from "./useFormSubmission";
 import { generateSlug } from "./utils/generateSlug";
-import { useAppForm } from "@/react/form/useAppForm";
-import { safeSet } from "@/shared/utils/safe";
 
 // Define the form values type manually since schema is unknown
 type SongFormData = {

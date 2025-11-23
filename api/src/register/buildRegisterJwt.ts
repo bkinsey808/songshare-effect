@@ -1,11 +1,12 @@
 import { Effect } from "effect";
 
 import type { Env } from "@/api/env";
-import { ServerError } from "@/api/errors";
 import type { ReadonlyContext } from "@/api/hono/hono-context";
-import { createJwt } from "@/api/oauth/createJwt";
 import type { OauthState } from "@/shared/oauth/oauthState";
 import type { OauthUserData } from "@/shared/oauth/oauthUserData";
+
+import { ServerError } from "@/api/errors";
+import { createJwt } from "@/api/oauth/createJwt";
 
 type BuildRegisterJwtParams = Readonly<{
 	ctx: ReadonlyContext<{ Bindings: Env }>;

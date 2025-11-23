@@ -1,5 +1,6 @@
-import { getArrowClasses } from "./getArrowClasses";
 import type { PlacementOption, TriggerMode } from "./types";
+
+import { getArrowClasses } from "./getArrowClasses";
 import { useNativePopover } from "./useNativePopover";
 
 export type NativePopoverProps = Readonly<{

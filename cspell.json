@@ -9,6 +9,7 @@
 	"dictionaries": [],
 	"words": [
 		"backgrounded",
+		"behaviour",
 		"btrim",
 		"bytea",
 		"callability",
@@ -35,6 +36,8 @@
 		"njsproj",
 		"nohup",
 		"ntvs",
+		"oxfmt",
+		"oxlint",
 		"parseable",
 		"partialize",
 		"PGDATABASE",

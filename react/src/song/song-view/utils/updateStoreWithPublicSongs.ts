@@ -1,6 +1,7 @@
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
 import type { SongPublic } from "../../song-schema";
 import type { SongSubscribeSlice } from "../songSlice";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 /**
  * Updates the store with new public songs and manages subscriptions.

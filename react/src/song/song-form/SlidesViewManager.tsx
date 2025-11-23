@@ -1,9 +1,10 @@
 import { useState } from "react";
 
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
 import SlidesGridView from "./grid-editor/SlidesGridView";
 import SlidesEditor from "./slides-editor/SlidesEditor";
 import { type Slide } from "./songTypes";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 type SlidesViewManagerProps = Readonly<
 	ReadonlyDeep<{
