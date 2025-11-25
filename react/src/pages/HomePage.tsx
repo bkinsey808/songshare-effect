@@ -1,12 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { Link, Navigate } from "react-router-dom";
 
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
 import { SignInButtons } from "@/react/auth/SignInButtons";
 import useSignIn from "@/react/auth/useSignIn";
 import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
 import useHomePage from "@/react/pages/home/useHomePage";
+import { defaultLanguage } from "@/shared/language/supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import {
 	dashboardPath,
 	reactFeaturesPath,
@@ -15,7 +15,9 @@ import {
 
 export default function HomePage(): ReactElement {
 	const { t, i18n } = useTranslation();
-	const currentLang = i18n.language as SupportedLanguageType;
+	const currentLang = isSupportedLanguage(i18n.language)
+		? i18n.language
+		: defaultLanguage;
 	const { isSignedIn } = useSignIn();
 
 	const { alertState, dismissAlert } = useHomePage();

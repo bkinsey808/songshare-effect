@@ -35,25 +35,25 @@ function SongManagementSection({
 			<div className="flex flex-wrap gap-3">
 				<button
 					className="rounded bg-blue-600 px-4 py-2 text-white transition-colors duration-150 hover:bg-blue-700"
-					onClick={() =>
-						navigate(`/${currentLang}/${dashboardPath}/${songEditPath}`)
-					}
+					onClick={() => {
+						navigate(`/${currentLang}/${dashboardPath}/${songEditPath}`);
+					}}
 				>
 					{t("pages.dashboard.createSong", "Create New Song")}
 				</button>
 				<button
 					className="rounded border border-blue-600 bg-transparent px-4 py-2 text-blue-600 transition-colors duration-150 hover:bg-blue-50/5"
-					onClick={() =>
-						navigate(`/${currentLang}/${dashboardPath}/${songLibraryPath}`)
-					}
+					onClick={() => {
+						navigate(`/${currentLang}/${dashboardPath}/${songLibraryPath}`);
+					}}
 				>
 					{t("pages.dashboard.manageSongs", "Manage Songs")}
 				</button>
 				<button
 					className="rounded border border-green-600 bg-transparent px-4 py-2 text-green-600 transition-colors duration-150 hover:bg-green-50/5"
-					onClick={() =>
-						navigate(`/${currentLang}/${dashboardPath}/${songLibraryPath}`)
-					}
+					onClick={() => {
+						navigate(`/${currentLang}/${dashboardPath}/${songLibraryPath}`);
+					}}
 				>
 					{t("pages.dashboard.songLibrary", "Song Library")}
 				</button>
@@ -108,13 +108,17 @@ function DashboardPage(): ReactElement {
 				console.warn(
 					"[DashboardPage] consumed justRegistered from sessionStorage",
 				);
-				queueMicrotask(() => setShowRegisteredAlert(true));
+				queueMicrotask(() => {
+					setShowRegisteredAlert(true);
+				});
 				sessionStorage.removeItem("justRegistered");
 			} else if (justSigned === "1") {
 				console.warn(
 					"[DashboardPage] consumed justSignedIn from sessionStorage",
 				);
-				queueMicrotask(() => setShowSignedInAlert(true));
+				queueMicrotask(() => {
+					setShowSignedInAlert(true);
+				});
 				sessionStorage.removeItem(justSignedInQueryParam);
 			}
 		} catch {
@@ -135,7 +139,9 @@ function DashboardPage(): ReactElement {
 			signOutRef.current = state.signOut;
 		});
 
-		return () => unsubscribe();
+		return () => {
+			unsubscribe();
+		};
 	}, []);
 
 	// If we haven't finished hydration, render a neutral placeholder to
@@ -187,46 +193,49 @@ function DashboardPage(): ReactElement {
 
 			<SongManagementSection
 				t={(key: string, fallback: string) => t(key, fallback)}
-				navigate={navigate}
+				navigate={(path: string, options?: { readonly replace?: boolean }) => {
+					void navigate(path, options);
+				}}
 				currentLang={currentLang}
 			/>
 
 			<div className="mt-4">
 				<button
 					className="rounded bg-red-600 px-3 py-1 text-white"
-					onClick={async () => {
-						// Immediately clear client-side auth state so UI reflects
-						// sign-out without waiting on network roundtrips. This
-						// avoids the appearance of "nothing happened" when the
-						// network is slow or the backend cookie take time to clear.
-						try {
-							// Perform client-side sign-out immediately.
-							signOutRef.current();
-						} catch (err) {
-							console.error("signOut failed:", err);
-						}
-
-						// Attempt sign-out on the server to clear the HttpOnly cookie.
-						try {
-							const res = await fetch(`/api/auth/signout`, {
-								method: "POST",
-								credentials: "include",
-							});
-							// eslint-disable-next-line no-console
-							console.debug("/api/auth/signout status=", res.status);
-						} catch (err) {
-							console.error("Sign-out API failed:", err);
-						}
-
-						// Explicitly set client-side signed-out state after server call.
-						try {
-							const storeApi = getStoreApi();
-							if (storeApi) {
-								storeApi.getState().setIsSignedIn(false);
+					onClick={() => {
+						void (async () => {
+							// Immediately clear client-side auth state so UI reflects
+							// sign-out without waiting on network roundtrips. This
+							// avoids the appearance of "nothing happened" when the
+							// network is slow or the backend cookie take time to clear.
+							try {
+								// Perform client-side sign-out immediately.
+								signOutRef.current();
+							} catch (err) {
+								console.error("signOut failed:", err);
 							}
-						} catch (err) {
-							console.error("explicit setIsSignedIn(false) failed:", err);
-						}
+
+							// Attempt sign-out on the server to clear the HttpOnly cookie.
+							try {
+								const res = await fetch(`/api/auth/signout`, {
+									method: "POST",
+									credentials: "include",
+								});
+								console.debug("/api/auth/signout status=", res.status);
+							} catch (err) {
+								console.error("Sign-out API failed:", err);
+							}
+
+							// Explicitly set client-side signed-out state after server call.
+							try {
+								const storeApi = getStoreApi();
+								if (storeApi) {
+									storeApi.getState().setIsSignedIn(false);
+								}
+							} catch (err) {
+								console.error("explicit setIsSignedIn(false) failed:", err);
+							}
+						})();
 
 						// Soft navigate to localized root. Use sessionStorage-only
 						// as a one-time signal for the home page alert.
@@ -247,9 +256,11 @@ function DashboardPage(): ReactElement {
 				{/* Delete account navigates to a confirmation page */}
 				<button
 					className="ml-3 rounded border border-red-600 bg-transparent px-3 py-1 text-red-600 hover:bg-red-50/5"
-					onClick={() =>
-						navigate(`/${currentLang}/${dashboardPath}/${deleteAccountPath}`)
-					}
+					onClick={() => {
+						void navigate(
+							`/${currentLang}/${dashboardPath}/${deleteAccountPath}`,
+						);
+					}}
 				>
 					{t("pages.dashboard.deleteAccount", "Delete Account")}
 				</button>

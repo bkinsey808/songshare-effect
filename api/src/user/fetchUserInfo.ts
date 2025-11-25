@@ -30,7 +30,7 @@ export function fetchUserInfo({
 				throw new Error(`Userinfo fetch failed: ${res.status} ${t}`);
 			}
 
-			const jsonRaw = (await res.json().catch(() => undefined)) as unknown;
+			const jsonRaw: unknown = await res.json().catch(() => undefined);
 			if (jsonRaw === undefined) {
 				throw new Error("Userinfo returned invalid JSON");
 			}

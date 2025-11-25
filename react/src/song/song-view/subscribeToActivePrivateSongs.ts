@@ -1,7 +1,9 @@
+import type { AppSlice } from "@/react/zustand/useAppStore";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { getSupabaseAuthToken } from "@/react/supabase/getSupabaseAuthToken";
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { isRecord } from "@/shared/utils/typeGuards";
 // src/features/react/song-subscribe/subscribeToActiveSongs.ts
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
@@ -13,6 +15,22 @@ type SongPrivateRealtimePayload = {
 	eventType: "INSERT" | "UPDATE" | "DELETE";
 	new?: Song & { song_id: string };
 	old?: Song & { song_id: string };
+};
+
+// Minimal local typings for the subset of Supabase realtime API used here.
+type RealtimeChannel = {
+	on: (
+		event: "postgres_changes",
+		opts: { event: string; schema: string; table: string; filter: string },
+		handler: (payload: Readonly<SongPrivateRealtimePayload>) => void,
+	) => RealtimeChannel;
+
+	subscribe: (cb?: (status: string, err: unknown) => void) => void;
+};
+
+type SupabaseRealtimeClientLike = {
+	channel: (name: string) => RealtimeChannel;
+	removeChannel: (c: RealtimeChannel) => void;
 };
 
 // Helper function to update state after song deletion
@@ -44,7 +62,7 @@ export default function subscribeToActivePrivateSongs(
 					state: ReadonlyDeep<SongSubscribeSlice>,
 			  ) => Partial<SongSubscribeSlice>),
 	) => void,
-	get: () => SongSubscribeSlice,
+	get: () => SongSubscribeSlice & AppSlice,
 ): () => (() => void) | undefined {
 	return (): (() => void) | undefined => {
 		let unsubscribeFn: (() => void) | undefined;
@@ -73,70 +91,92 @@ export default function subscribeToActivePrivateSongs(
 
 				const filter = `song_id=in.(${activePrivateSongIds.join(",")})`;
 
-				const channel = client
-					.channel("song_private_changes")
-					.on(
-						"postgres_changes" as "system",
-						{
-							event: "*",
-							schema: "private",
-							table: "song_private",
-							filter,
-						},
-						(payload: Readonly<SongPrivateRealtimePayload>) => {
-							switch (payload.eventType) {
-								case "INSERT":
-								case "UPDATE":
-									if (payload.new && payload.new.song_id) {
-										addOrUpdatePrivateSongs({
-											[payload.new.song_id]: payload.new,
-										});
-									}
-									break;
-								case "DELETE": {
-									const deletedPrivateSongId = payload.old?.song_id;
-									if (
-										deletedPrivateSongId !== undefined &&
-										deletedPrivateSongId !== ""
-									) {
-										// Use helper function to reduce nesting
-										const updateFunction =
-											createDeleteUpdateFunction(deletedPrivateSongId);
-										set(updateFunction);
-									}
-									break;
+				// Narrow the supabase client to a minimal, well-typed shape we use here.
+				function isSupabaseRealtimeClientLike(
+					x: unknown,
+				): x is SupabaseRealtimeClientLike {
+					if (!isRecord(x)) return false;
+					const rec = x;
+					return (
+						typeof rec["channel"] === "function" &&
+						typeof rec["removeChannel"] === "function"
+					);
+				}
+
+				if (!isSupabaseRealtimeClientLike(client)) {
+					console.warn(
+						"[subscribeToActivePrivateSongs] Supabase client missing realtime API",
+					);
+					return undefined;
+				}
+
+				const supClient = client as SupabaseRealtimeClientLike;
+
+				const channel = supClient.channel("song_private_changes").on(
+					"postgres_changes",
+					{
+						event: "*",
+						schema: "private",
+						table: "song_private",
+						filter,
+					},
+					(payload: Readonly<SongPrivateRealtimePayload>) => {
+						switch (payload.eventType) {
+							case "INSERT":
+							case "UPDATE":
+								if (payload.new && payload.new.song_id) {
+									addOrUpdatePrivateSongs({
+										[payload.new.song_id]: payload.new,
+									});
 								}
-								default:
-									break;
+								break;
+							case "DELETE": {
+								const deletedPrivateSongId = payload.old?.song_id;
+								if (
+									deletedPrivateSongId !== undefined &&
+									deletedPrivateSongId !== ""
+								) {
+									// Use helper function to reduce nesting
+									const updateFunction =
+										createDeleteUpdateFunction(deletedPrivateSongId);
+									set(updateFunction);
+								}
+								break;
 							}
-						},
-					)
-					.subscribe((status: string, err: unknown) => {
-						// Log channel status for debugging
-						// eslint-disable-next-line no-console
-						console.log(
-							`[subscribeToActivePrivateSongs] Channel status: ${status}`,
-							err ?? "",
-						);
-						if (status === REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
-							// eslint-disable-next-line no-console
-							console.log(
-								"[subscribeToActivePrivateSongs] Successfully subscribed!",
-							);
-						} else if (status === REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR) {
-							console.error(
-								"[subscribeToActivePrivateSongs] Channel error:",
-								err,
-							);
-						} else if (status === REALTIME_SUBSCRIBE_STATES.TIMED_OUT) {
-							console.warn(
-								"[subscribeToActivePrivateSongs] Subscription timed out",
-							);
+							// No default branch needed — all event types are handled above.
 						}
-					});
+					},
+				);
+
+				// subscribe is separate to keep types explicit
+				channel.subscribe((status: string, err: unknown) => {
+					// Log channel status for debugging
+					console.log(
+						`[subscribeToActivePrivateSongs] Channel status: ${status}`,
+						err ?? "",
+					);
+					if (String(status) === String(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)) {
+						console.log(
+							"[subscribeToActivePrivateSongs] Successfully subscribed!",
+						);
+					} else if (
+						String(status) === String(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR)
+					) {
+						console.error(
+							"[subscribeToActivePrivateSongs] Channel error:",
+							err,
+						);
+					} else if (
+						String(status) === String(REALTIME_SUBSCRIBE_STATES.TIMED_OUT)
+					) {
+						console.warn(
+							"[subscribeToActivePrivateSongs] Subscription timed out",
+						);
+					}
+				});
 
 				unsubscribeFn = () => {
-					void client.removeChannel(channel);
+					supClient.removeChannel(channel);
 				};
 				return undefined;
 			})

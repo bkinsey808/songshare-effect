@@ -1,4 +1,6 @@
 // Top-level helper: recursively convert SQL-null `null` values to `undefined`.
+import { isRecord } from "@/shared/utils/typeGuards";
+
 export function normalizeNullsTopLevel(input: unknown): unknown {
 	const normalize = (value: unknown): unknown => {
 		if (value === null) {
@@ -7,12 +9,11 @@ export function normalizeNullsTopLevel(input: unknown): unknown {
 		if (Array.isArray(value)) {
 			return value.map((item) => normalize(item));
 		}
-		if (typeof value === "object") {
-			const obj = value as Record<string, unknown>;
-			const entries = Object.entries(obj).map(
+		if (isRecord(value)) {
+			const entries = Object.entries(value).map(
 				([key, val]) => [key, normalize(val)] as const,
 			);
-			return Object.fromEntries(entries) as Record<string, unknown>;
+			return Object.fromEntries(entries);
 		}
 		return value;
 	};

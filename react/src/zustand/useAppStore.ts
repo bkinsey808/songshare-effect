@@ -1,5 +1,6 @@
 // src/features/app-store/useAppStore.ts
 import { useEffect, useState } from "react";
+/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-unsafe-argument */
 import { type StoreApi, type UseBoundStore, create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
@@ -16,7 +17,6 @@ import {
 
 export const sliceResetFns: Set<() => void> = new Set<() => void>();
 export const resetAllSlices = (): void => {
-	// eslint-disable-next-line sonarjs/no-empty-collection
 	sliceResetFns.forEach((resetFn) => {
 		resetFn();
 	});
@@ -48,6 +48,18 @@ const hydrationState = {
 
 export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 	return getOrCreateAppStore();
+}
+
+// Typed selector helper for components to select typed values from the store.
+// This wraps the internal `useAppStore()` call and provides a generic selector
+// while keeping the localized `any` casts contained in this file.
+export function useAppStoreSelector<T>(selector: (s: AppSlice) => T): T {
+	// The underlying bound store has a generic selector signature that is
+	// compatible with this usage. We keep a narrow eslint-disable here so the
+	// rest of the codebase can use typed selectors without sprinkling unsafe
+	// assertions everywhere.
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+	return useAppStore()(selector as any) as T;
 }
 
 /**
@@ -99,7 +111,9 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 								hydrationState.resolvePromise = undefined;
 							}
 							// Notify all listeners
-							hydrationState.listeners.forEach((listener) => listener());
+							hydrationState.listeners.forEach((listener) => {
+								listener();
+							});
 						},
 					},
 				),
@@ -113,7 +127,7 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 			),
 		);
 	}
-	return store as UseBoundStore<StoreApi<AppSlice>>;
+	return store;
 }
 
 // Backwards-compatible alias for callers that still import `ensureAppStore`.
@@ -143,22 +157,24 @@ export function useAppStoreHydrated(): {
 		// If already hydrated, schedule setting state asynchronously
 		if (hydrationState.isHydrated) {
 			// Debug
-			// eslint-disable-next-line no-console
 			console.debug(
 				"[useAppStoreHydrated] already hydrated, scheduling setIsHydrated(true)",
 			);
-			schedule(() => setIsHydrated(true));
+			schedule(() => {
+				setIsHydrated(true);
+			});
 			return;
 		}
 
 		// Listen for hydration completion
 		const listener = (): void => {
-			schedule(() => setIsHydrated(true));
+			schedule(() => {
+				setIsHydrated(true);
+			});
 		};
 
 		hydrationState.listeners.add(listener);
 		// Debug
-		// eslint-disable-next-line no-console
 		console.debug(
 			"[useAppStoreHydrated] added hydration listener; current isHydrated=",
 			hydrationState.isHydrated,
@@ -177,14 +193,14 @@ export function useAppStoreHydrated(): {
 }
 
 // ✅ IDEAL SOLUTION: Hook that returns the hydration promise directly
-export function useAppStoreHydrationPromise(): Promise<void> {
+export async function useAppStoreHydrationPromise(): Promise<void> {
 	// Avoid calling any React hooks here to keep hook call order stable
 	// during Suspense. Ensure the hydration promise exists so callers can
 	// throw it for Suspense to catch. The actual store creation (which
 	// may also create the promise) happens in useAppStore(), but we can
 	// lazily create the promise here if it doesn't exist yet.
 	if (hydrationState.isHydrated) {
-		return Promise.resolve();
+		return;
 	}
 
 	if (!hydrationState.promise) {

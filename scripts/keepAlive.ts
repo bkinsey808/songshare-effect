@@ -7,7 +7,7 @@ import { safeGet } from "@/shared/utils/safe";
  * @returns The environment variable value as a string, or undefined if not found/empty
  */
 const getEnvValueSafe = (envVar: string): string | undefined => {
-	const value = safeGet(process.env, envVar) as string | undefined;
+	const value = safeGet(process.env, envVar);
 	return typeof value === "string" && value.trim() !== "" ? value : undefined;
 };
 

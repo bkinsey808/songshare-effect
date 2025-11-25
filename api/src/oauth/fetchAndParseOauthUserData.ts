@@ -1,4 +1,4 @@
-import { Effect, Schema } from "effect";
+import { Effect } from "effect";
 
 import type { FetchOpts } from "@/api/oauth/fetchOpts";
 
@@ -9,7 +9,8 @@ import {
 	type OauthUserData,
 	OauthUserDataSchema,
 } from "@/shared/oauth/oauthUserData";
-import { safeGet } from "@/shared/utils/safe";
+import { isRecord } from "@/shared/utils/typeGuards";
+import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
 
 /**
  * Exchange an authorization code for tokens, fetch the provider's userinfo
@@ -56,13 +57,11 @@ export function fetchAndParseOauthUserData(
 				),
 			),
 		);
-		const infoObj =
-			typeof infoRaw === "object" && infoRaw !== null
-				? (infoRaw as Record<string, unknown>)
-				: {};
+		const infoObj: Record<string, unknown> = isRecord(infoRaw) ? infoRaw : {};
 
 		const getStr = (key: string): string | undefined => {
-			const val: unknown = safeGet(infoObj, key as keyof typeof infoObj);
+			if (!Object.hasOwn(infoObj, key)) return undefined;
+			const val = infoObj[key];
 			return typeof val === "string" ? String(val) : undefined;
 		};
 
@@ -74,10 +73,10 @@ export function fetchAndParseOauthUserData(
 		};
 
 		const validated = yield* $(
-			Schema.decodeUnknown(OauthUserDataSchema)(candidate as unknown).pipe(
-				Effect.mapError(
-					() => new ValidationError({ message: "Invalid oauth user data" }),
-				),
+			decodeUnknownEffectOrMap(
+				OauthUserDataSchema,
+				candidate,
+				() => new ValidationError({ message: "Invalid oauth user data" }),
 			),
 		);
 		return validated;

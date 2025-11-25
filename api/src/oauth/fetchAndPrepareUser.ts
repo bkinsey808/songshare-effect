@@ -2,7 +2,7 @@ import { Effect, type Schema } from "effect";
 
 // Prefer to keep the top-level handler type `Context` — helpers may use ReadonlyContext
 
-import type { Env } from "@/api/env";
+// Env type is not required here — use ReadonlyContext default instead
 import type { ReadonlyContext } from "@/api/hono/hono-context";
 import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import type { UserSchema } from "@/shared/generated/supabaseSchemas";
@@ -10,24 +10,25 @@ import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 import type { ProviderType } from "@/shared/providers";
 
 import { DatabaseError, ValidationError } from "@/api/errors";
+import { getErrorMessage } from "@/api/getErrorMessage";
 import { fetchAndParseOauthUserData } from "@/api/oauth/fetchAndParseOauthUserData";
 import { resolveRedirectOrigin } from "@/api/oauth/resolveRedirectOrigin";
 import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
 import { getUserByEmail } from "@/api/user/getUserByEmail";
+import { getEnvString } from "@/shared/env/getEnv";
 import { apiOauthCallbackPath } from "@/shared/paths";
-import { safeSet, superSafeGet } from "@/shared/utils/safe";
+import { safeSet } from "@/shared/utils/safe";
 /* eslint-disable no-console */
 import { createClient } from "@supabase/supabase-js";
 
 type FetchAndPrepareUserParams = Readonly<{
-	ctx: ReadonlyContext<{ Bindings: Env }>;
+	ctx: ReadonlyContext;
 	code: string;
 	provider: ProviderType;
 	redirectUri?: string | undefined;
 }>;
 
 // Helper: exchange code and prepare supabase + existing user
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function fetchAndPrepareUser({
 	ctx,
 	code,
@@ -63,7 +64,7 @@ export function fetchAndPrepareUser({
 				} catch (err) {
 					console.error(
 						"[oauthCallback] Failed to dump incoming headers:",
-						String(err),
+						getErrorMessage(err),
 					);
 				}
 			}),
@@ -100,33 +101,29 @@ export function fetchAndPrepareUser({
 		) {
 			redirectUri = redirectUriFromCaller;
 		} else {
-			const envRedirectOrigin = (
-				ctx.env.OAUTH_REDIRECT_ORIGIN ?? ""
-			).toString();
+			const envRedirectOrigin =
+				getEnvString(ctx.env, "OAUTH_REDIRECT_ORIGIN") ?? "";
+			const isProdFlag =
+				(getEnvString(ctx.env, "ENVIRONMENT") ?? "") === "production";
+			const opts = requestOrigin
+				? { requestOrigin, isProd: isProdFlag }
+				: { isProd: isProdFlag };
 			const originForRedirect = resolveRedirectOrigin(
 				envRedirectOrigin || undefined,
-				{
-					requestOrigin: requestOrigin || undefined,
-					isProd: (ctx.env.ENVIRONMENT ?? "") === "production",
-				},
+				opts,
 			);
-			redirectUri = `${originForRedirect}${ctx.env.OAUTH_REDIRECT_PATH ?? apiOauthCallbackPath}`;
+			redirectUri = `${originForRedirect}${getEnvString(ctx.env, "OAUTH_REDIRECT_PATH") ?? apiOauthCallbackPath}`;
 		}
 		yield* $(
-			Effect.sync(() =>
-				console.log("[fetchAndPrepareUser] Using redirectUri:", redirectUri),
-			),
+			Effect.sync(() => {
+				console.log("[fetchAndPrepareUser] Using redirectUri:", redirectUri);
+			}),
 		);
 		const { accessTokenUrl, clientIdEnvVar, clientSecretEnvVar, userInfoUrl } =
 			getBackEndProviderData(provider);
-		const clientId = superSafeGet(
-			ctx.env as unknown as Record<string, string | undefined>,
-			clientIdEnvVar,
-		);
-		const clientSecret = superSafeGet(
-			ctx.env as unknown as Record<string, string | undefined>,
-			clientSecretEnvVar,
-		);
+		// Read env vars via the safe helper (no call-site casting necessary).
+		const clientId = getEnvString(ctx.env, clientIdEnvVar) ?? undefined;
+		const clientSecret = getEnvString(ctx.env, clientSecretEnvVar) ?? undefined;
 
 		const oauthUserData = yield* $(
 			fetchAndParseOauthUserData({
@@ -140,14 +137,14 @@ export function fetchAndPrepareUser({
 				Effect.mapError((err) =>
 					err instanceof ValidationError
 						? err
-						: new DatabaseError({ message: String(err) }),
+						: new DatabaseError({ message: getErrorMessage(err) }),
 				),
 			),
 		);
 
 		const supabase = createClient(
-			ctx.env.VITE_SUPABASE_URL,
-			ctx.env.SUPABASE_SERVICE_KEY,
+			getEnvString(ctx.env, "VITE_SUPABASE_URL") ?? "",
+			getEnvString(ctx.env, "SUPABASE_SERVICE_KEY") ?? "",
 		);
 
 		const existingUser: Schema.Schema.Type<typeof UserSchema> | undefined =
@@ -155,12 +152,12 @@ export function fetchAndPrepareUser({
 
 		// Additional debug logging to aid in locating 500 errors during dev
 		yield* $(
-			Effect.sync(() =>
+			Effect.sync(() => {
 				console.log(
 					"[oauthCallback] fetchAndPrepareUser completed. existingUser:",
 					existingUser ? { user_id: existingUser.user_id } : undefined,
-				),
-			),
+				);
+			}),
 		);
 		return { supabase, oauthUserData, existingUser };
 	});

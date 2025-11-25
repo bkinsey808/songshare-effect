@@ -1,7 +1,8 @@
-
 import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { dirname } from "path";
+
 import type { TableDefinition } from "./generate-effect-schemas-types";
+
 import { generateEffectSchema } from "./generateEffectSchema";
 
 export function generateEffectSchemasFile(
@@ -28,9 +29,8 @@ import { Schema } from "effect";
 
 	fileContent += `
 // Common validation schemas
-export const NonEmptyStringSchema: typeof Schema.NonEmptyString =
-	Schema.NonEmptyString;
-export const EmailSchema: Schema.Schema<string, string, never> = Schema.String.pipe(
+export const NonEmptyStringSchema: typeof Schema.NonEmptyString = Schema.NonEmptyString;
+export const EmailSchema: Schema.Schema<string> = Schema.String.pipe(
 	Schema.nonEmptyString(),
 	Schema.pattern(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/),
 );

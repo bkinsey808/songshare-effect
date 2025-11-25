@@ -1,11 +1,12 @@
 // src/features/song-form/useSongForm.ts
-import { Effect, type Schema } from "effect";
+import { Effect } from "effect";
 import { useRef } from "react";
 import { useParams } from "react-router-dom";
 
 import { useAppForm } from "@/react/form/useAppForm";
 import { safeSet } from "@/shared/utils/safe";
 
+import type { SongFormValuesFromSchema as SongFormData } from "./songSchema";
 import type { Slide } from "./songTypes";
 
 import { songFormSchema } from "./songSchema";
@@ -14,19 +15,7 @@ import { useFormState } from "./useFormState";
 import { useFormSubmission } from "./useFormSubmission";
 import { generateSlug } from "./utils/generateSlug";
 
-// Define the form values type manually since schema is unknown
-type SongFormData = {
-	song_id?: string | undefined;
-	song_name: string;
-	song_slug: string;
-	short_credit?: string | undefined;
-	long_credit?: string | undefined;
-	private_notes?: string | undefined;
-	public_notes?: string | undefined;
-	fields: string[];
-	slide_order: string[];
-	slides: Record<string, Slide>;
-};
+// Use the concrete type derived from the schema
 
 type GetFieldError = (
 	field: keyof SongFormData,
@@ -114,12 +103,8 @@ export default function useSongForm(): UseSongFormReturn {
 	};
 
 	const { getFieldError, handleSubmit, isSubmitting, handleApiResponseEffect } =
-		useAppForm({
-			schema: songFormSchema as Schema.Schema<
-				SongFormData,
-				SongFormData,
-				never
-			>,
+		useAppForm<SongFormData>({
+			schema: songFormSchema,
 			formRef,
 			initialValues,
 		});
@@ -139,12 +124,21 @@ export default function useSongForm(): UseSongFormReturn {
 		const formDataObj = new FormData(formRef.current ?? undefined);
 		const currentFormData: Record<string, unknown> = {};
 		for (const [key, value] of formDataObj.entries()) {
-			safeSet(currentFormData, key, value.toString());
+			if (typeof value === "string") {
+				safeSet(currentFormData, key, value);
+			} else if (value instanceof File) {
+				safeSet(currentFormData, key, value.name);
+			} else {
+				safeSet(currentFormData, key, String(value));
+			}
 		}
 
 		// Add controlled state values that aren't captured by FormData
-		currentFormData["fields"] = fields;
-		currentFormData["slide_order"] = slideOrder;
+		// Convert readonly arrays to mutable arrays expected by the schema
+		currentFormData["fields"] = Array.isArray(fields) ? fields.slice() : [];
+		currentFormData["slide_order"] = Array.isArray(slideOrder)
+			? Array.from(slideOrder)
+			: [];
 		currentFormData["slides"] = slides;
 
 		try {
@@ -179,6 +173,8 @@ export default function useSongForm(): UseSongFormReturn {
 	const handleSave = async (): Promise<void> => {
 		if (formRef.current) {
 			// Create a synthetic form event
+			// Narrow, localized assertion: synthetic DOM Event wrapped as React.FormEvent
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 			const syntheticEvent = new Event("submit", {
 				bubbles: true,
 				cancelable: true,

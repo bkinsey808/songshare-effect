@@ -6,7 +6,6 @@ type FormFieldProps = Readonly<{
 	children: ReactNode;
 }>;
 
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export default function FormField({
 	label,
 	error,

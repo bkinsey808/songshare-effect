@@ -1,13 +1,13 @@
+import type { AppSlice } from "@/react/zustand/useAppStore";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
-// src/features/react/song-subscribe/subscribeToActiveSongs.ts
+import { isRecord } from "@/shared/utils/typeGuards";
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
 import { type SongPublic } from "../song-schema";
 import { type SongSubscribeSlice } from "./songSlice";
 
-// Supabase realtime payload type for song_public
 type SongPublicRealtimePayload = {
 	eventType: "INSERT" | "UPDATE" | "DELETE";
 	new?: SongPublic | Record<string, unknown>;
@@ -15,7 +15,20 @@ type SongPublicRealtimePayload = {
 	errors?: unknown;
 };
 
-// Helper function to handle song deletion
+type RealtimeChannel = {
+	on: (
+		event: "postgres_changes",
+		opts: { event: string; schema: string; table: string; filter: string },
+		handler: (payload: Readonly<SongPublicRealtimePayload>) => void,
+	) => RealtimeChannel;
+	subscribe: (cb?: (status: string, err: unknown) => void) => void;
+};
+
+type SupabaseRealtimeClientLike = {
+	channel: (name: string) => RealtimeChannel;
+	removeChannel: (c: RealtimeChannel) => void;
+};
+
 const handleSongDeletion = (
 	deletedPublicSongId: string,
 	set: (
@@ -25,11 +38,10 @@ const handleSongDeletion = (
 					state: ReadonlyDeep<SongSubscribeSlice>,
 			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
-): void => {
+) => {
 	set((state) => {
-		const { [deletedPublicSongId]: deletedSong, ...rest } = state.publicSongs;
-		// deletedSong is intentionally unused - we just need to remove it
-		void deletedSong;
+		const { [deletedPublicSongId]: _deleted, ...rest } = state.publicSongs;
+		void _deleted;
 		return {
 			publicSongs: rest,
 			activePublicSongIds: state.activePublicSongIds.filter(
@@ -47,12 +59,11 @@ export default function subscribeToActivePublicSongs(
 					state: ReadonlyDeep<SongSubscribeSlice>,
 			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
-	get: () => SongSubscribeSlice,
+	get: () => SongSubscribeSlice & AppSlice,
 ) {
 	return (): (() => void) | undefined => {
 		let unsubscribeFn: (() => void) | undefined;
 
-		// Get Supabase client with automatic authentication
 		void getSupabaseClientWithAuth()
 			.then((client) => {
 				if (!client) {
@@ -74,81 +85,97 @@ export default function subscribeToActivePublicSongs(
 					return undefined;
 				}
 
-				// Quote string ids for postgres IN syntax: in.('id1','id2')
 				const quoted = activePublicSongIds
 					.map((id) => String(id).replace(/'/g, "\\'"))
 					.map((id) => `'${id}'`)
 					.join(",");
 				const filter = `song_id=in.(${quoted})`;
 
-				const channel = client
+				function isSupabaseRealtimeClientLike(
+					x: unknown,
+				): x is SupabaseRealtimeClientLike {
+					if (!isRecord(x)) return false;
+					const rec = x;
+					return (
+						typeof rec["channel"] === "function" &&
+						typeof rec["removeChannel"] === "function"
+					);
+				}
+
+				function isSongPublic(x: unknown): x is SongPublic {
+					if (!isRecord(x)) return false;
+					const rec = x;
+					return (
+						Object.prototype.hasOwnProperty.call(rec, "song_id") &&
+						typeof rec["song_id"] === "string" &&
+						Object.prototype.hasOwnProperty.call(rec, "song_slug") &&
+						typeof rec["song_slug"] === "string"
+					);
+				}
+
+				if (!isSupabaseRealtimeClientLike(client)) {
+					console.warn(
+						"[subscribeToActivePublicSongs] Supabase client missing realtime API",
+					);
+					return undefined;
+				}
+
+				const supClient = client as SupabaseRealtimeClientLike;
+
+				const channel = supClient
 					.channel("song_public_changes")
 					.on(
 						"postgres_changes",
-						{
-							event: "*",
-							schema: "public",
-							table: "song_public",
-							filter,
-						},
-						(payload: ReadonlyDeep<SongPublicRealtimePayload>) => {
+						{ event: "*", schema: "public", table: "song_public", filter },
+						(payload: Readonly<SongPublicRealtimePayload>) => {
 							switch (payload.eventType) {
 								case "INSERT":
 								case "UPDATE": {
 									const newSong = payload.new;
-									if (
-										newSong !== undefined &&
-										typeof newSong === "object" &&
-										"song_id" in newSong &&
-										typeof newSong.song_id === "string"
-									) {
-										addOrUpdatePublicSongs({
-											[newSong.song_id]: newSong as SongPublic,
-										});
+									if (newSong !== undefined && isSongPublic(newSong)) {
+										const id = String(newSong.song_id);
+										addOrUpdatePublicSongs({ [id]: newSong });
 									}
 									break;
 								}
 								case "DELETE": {
 									const oldSong = payload.old;
-									if (
-										oldSong !== undefined &&
-										typeof oldSong === "object" &&
-										"song_id" in oldSong &&
-										typeof oldSong.song_id === "string"
-									) {
-										handleSongDeletion(oldSong.song_id, set);
+									if (oldSong !== undefined && isSongPublic(oldSong)) {
+										handleSongDeletion(String(oldSong.song_id), set);
 									}
 									break;
 								}
 							}
 						},
-					)
-					.subscribe((status: string, err?: unknown) => {
-						console.warn(
-							`[subscribeToActivePublicSongs] Channel status: ${status}`,
-							err ?? "",
+					);
+
+				channel.subscribe((status: string, err: unknown) => {
+					console.log(
+						`[subscribeToActivePublicSongs] Channel status: ${status}`,
+						err ?? "",
+					);
+					if (String(status) === String(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)) {
+						console.log(
+							"[subscribeToActivePublicSongs] Successfully subscribed!",
 						);
-						if (status === REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
-							console.warn(
-								"[subscribeToActivePublicSongs] Successfully subscribed!",
-							);
-						} else if (status === REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR) {
-							console.error(
-								"[subscribeToActivePublicSongs] Channel error:",
-								err,
-							);
-						} else if (status === REALTIME_SUBSCRIBE_STATES.TIMED_OUT) {
-							console.warn(
-								"[subscribeToActivePublicSongs] Subscription timed out",
-							);
-						}
-					});
+					} else if (
+						String(status) === String(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR)
+					) {
+						console.error("[subscribeToActivePublicSongs] Channel error:", err);
+					} else if (
+						String(status) === String(REALTIME_SUBSCRIBE_STATES.TIMED_OUT)
+					) {
+						console.warn(
+							"[subscribeToActivePublicSongs] Subscription timed out",
+						);
+					}
+				});
 
 				unsubscribeFn = () => {
-					void client.removeChannel(channel);
+					supClient.removeChannel(channel);
 				};
 
-				return channel;
+				return undefined;
 			})
 			.catch((error: unknown) => {
 				console.error(
@@ -157,7 +184,6 @@ export default function subscribeToActivePublicSongs(
 				);
 			});
 
-		// Return a function that calls the unsubscribe function when available
 		return (): void => {
 			if (unsubscribeFn) {
 				unsubscribeFn();

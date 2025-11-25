@@ -11,8 +11,8 @@ type SongFormData = {
 	long_credit?: string | undefined;
 	private_notes?: string | undefined;
 	public_notes?: string | undefined;
-	fields: string[];
-	slide_order: string[];
+	fields: readonly string[];
+	slide_order: readonly string[];
 	slides: Record<string, Slide>;
 };
 
@@ -20,7 +20,7 @@ type UseFormSubmissionOptions = {
 	readonly handleApiResponseEffect: (
 		response: Response,
 		onError: () => void,
-	) => Effect.Effect<boolean, never, never>;
+	) => Effect.Effect<boolean>;
 	readonly resetFormState: () => void;
 };
 

@@ -21,7 +21,6 @@ const resources: Record<
 
 const initialLanguage = detectInitialLanguage();
 
-// eslint-disable-next-line import-x/no-named-as-default-member
 void i18n.use(initReactI18next).init({
 	resources,
 	// Set initial language from URL

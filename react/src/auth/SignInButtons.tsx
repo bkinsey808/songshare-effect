@@ -42,7 +42,7 @@ export const SignInButtons = (): ReactElement => {
 
 	return (
 		<div className="flex flex-col items-center justify-center gap-6">
-			{isSignedIn === false && (
+			{!isSignedIn && (
 				<div className="mb-4 text-lg text-gray-700">
 					<p>{t("auth.signedOutMessage", "You are not signed in.")}</p>
 					<p>

@@ -2,10 +2,10 @@ import type { ReadonlyContext } from "@/api/hono/hono-context";
 
 import { justSignedInQueryParam } from "@/shared/queryParams";
 
-import { type Env } from "../env";
+// Env type is not required when using ReadonlyContext's default param
 
 type BuildDashboardRedirectUrlParams = Readonly<{
-	ctx: ReadonlyContext<{ Bindings: Env }>;
+	ctx: ReadonlyContext;
 	url: URL;
 	redirectPort: string | undefined;
 	lang: string;
@@ -23,7 +23,6 @@ type BuildDashboardRedirectUrlParams = Readonly<{
  * @param params.dashboardPath - The dashboard path (e.g. 'dashboard')
  * @returns The computed dashboard redirect URL
  */
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function buildDashboardRedirectUrl({
 	ctx,
 	url,
@@ -34,7 +33,7 @@ export function buildDashboardRedirectUrl({
 	let dashboardRedirectUrl = `/${lang}/${dashboardPath}`;
 	if (redirectPort !== undefined && redirectPort !== "") {
 		// Only allow redirect to a port if it matches the allowed origins
-		const allowedOrigins = ((ctx.env.ALLOWED_REDIRECT_ORIGINS ?? "") as string)
+		const allowedOrigins = String(ctx.env.ALLOWED_REDIRECT_ORIGINS ?? "")
 			.split(",")
 			.map((origin) => String(origin).trim())
 			.filter((origin) => origin.length > 0);

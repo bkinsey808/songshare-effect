@@ -44,8 +44,10 @@ export function useGridDragAndDrop({
 		const { active, over } = event;
 		if (over && active.id !== over.id) {
 			const slidesArray = [...slideIds];
-			const activeIndex = slidesArray.indexOf(active.id as string);
-			const overIndex = slidesArray.indexOf(over.id as string);
+			const activeIdStr = String(active.id);
+			const overIdStr = String(over.id);
+			const activeIndex = slidesArray.indexOf(activeIdStr);
+			const overIndex = slidesArray.indexOf(overIdStr);
 
 			if (activeIndex !== -1 && overIndex !== -1) {
 				const newOrder = arrayMove(slidesArray, activeIndex, overIndex);

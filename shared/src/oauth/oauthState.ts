@@ -16,14 +16,13 @@ export type OauthState = {
 
 export type ReadonlyOauthState = ReadonlyDeep<OauthState>;
 
-export const OauthStateSchema: Schema.Schema<OauthState, OauthState, never> =
-	Schema.Struct({
-		csrf: Schema.String,
-		lang: Schema.suspend(() => SupportedLanguageSchema),
-		provider: Schema.suspend(() => ProviderSchema),
-		redirect_port: Schema.optional(Schema.String),
-		redirect_origin: Schema.optional(Schema.String),
-	});
+export const OauthStateSchema: Schema.Schema<OauthState> = Schema.Struct({
+	csrf: Schema.String,
+	lang: Schema.suspend(() => SupportedLanguageSchema),
+	provider: Schema.suspend(() => ProviderSchema),
+	redirect_port: Schema.optional(Schema.String),
+	redirect_origin: Schema.optional(Schema.String),
+});
 
 export function parseOauthState(oauthStateParamsString: string): OauthState {
 	// Throws if decodeURIComponent or JSON.parse fails (invalid URI or JSON)

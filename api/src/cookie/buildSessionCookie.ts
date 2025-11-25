@@ -8,7 +8,6 @@ type BuildSessionCookieParams = Readonly<{
 	opts?: Readonly<{ maxAge?: number; httpOnly?: boolean }>;
 }>;
 
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export const buildSessionCookie = ({
 	ctx,
 	name,

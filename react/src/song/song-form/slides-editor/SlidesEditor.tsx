@@ -57,7 +57,9 @@ export default function SlidesEditor({
 								<input
 									type="checkbox"
 									checked={fields.includes(field)}
-									onChange={(event) => toggleField(field, event.target.checked)}
+									onChange={(event) => {
+										toggleField(field, event.target.checked);
+									}}
 								/>
 								{t(`song.${field}`, field)}
 							</label>
@@ -141,10 +143,7 @@ export default function SlidesEditor({
 							<details className="mt-4 text-xs text-gray-500">
 								<summary>Debug: All field data for this slide</summary>
 								<pre className="mt-2 rounded bg-gray-100 p-2">
-									{
-										// eslint-disable-next-line unicorn/no-null
-										JSON.stringify(slide.field_data, null, 2)
-									}
+									{JSON.stringify(slide.field_data, null, 2)}
 								</pre>
 							</details>
 						</div>

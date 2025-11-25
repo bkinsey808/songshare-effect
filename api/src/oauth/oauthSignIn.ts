@@ -9,24 +9,26 @@ import type { OauthState } from "@/shared/oauth/oauthState";
 // and `Env` imports are not required here because `DeepReadonly` preserves
 // function signatures (for example `ctx.header`/`ctx.redirect`).
 import { type AppError, ServerError, ValidationError } from "@/api/errors";
+import { getErrorMessage } from "@/api/getErrorMessage";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
 import { resolveRedirectOrigin } from "@/api/oauth/resolveRedirectOrigin";
 import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
 import { oauthCsrfCookieName } from "@/shared/cookies";
-import {
-	type SupportedLanguageType,
-	defaultLanguage,
-} from "@/shared/language/supported-languages";
+import { defaultLanguage } from "@/shared/language/supported-languages";
 import { SupportedLanguageSchema } from "@/shared/language/supported-languages-effect";
 import { apiOauthCallbackPath } from "@/shared/paths";
-import { ProviderSchema, type ProviderType } from "@/shared/providers";
+import { ProviderSchema } from "@/shared/providers";
 import {
 	langQueryParam,
 	redirectPortQueryParam,
 	signinErrorQueryParam,
 } from "@/shared/queryParams";
 import { SigninErrorToken } from "@/shared/signinTokens";
-import { safeGet } from "@/shared/utils/safe";
+import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
+
+import type { Env } from "../env";
+
+// Removed unused safeGet import
 
 import { type ReadonlyContext } from "../hono/hono-context";
 
@@ -36,12 +38,9 @@ import { type ReadonlyContext } from "../hono/hono-context";
  * Effect-based handler for OAuth sign-in initiation.
  * Produces a redirect Response and sets a CSRF cookie.
  */
-// eslint-disable-next-line max-lines-per-function
 const oauthSignInFactory = (
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	ctx: ReadonlyContext,
 ): Effect.Effect<Response, AppError> =>
-	// eslint-disable-next-line max-lines-per-function
 	Effect.gen(function* ($) {
 		// Parse provider param using Effect Schema decoder (as an Effect)
 		// Parse provider param synchronously and redirect on invalid provider.
@@ -70,18 +69,22 @@ const oauthSignInFactory = (
 			);
 		}
 
-		const provider = prov as unknown as ProviderType;
+		// ProviderSchema already validates type, so no assertion needed
+		const provider = prov;
 
 		// Generate CSRF state and set cookie (wrapped in Effect.sync)
 		const csrfState = nanoid();
 		yield* $(
-			Effect.sync(() =>
-				console.log("[oauthSignIn] Generated CSRF state:", csrfState),
-			),
+			Effect.sync(() => {
+				console.log("[oauthSignIn] Generated CSRF state:", csrfState);
+			}),
 		);
 
 		// Determine whether to set the Secure attribute on the cookie.
-		const envRecord = ctx.env as unknown as Record<string, string | undefined>;
+		// Use a type guard for envRecord to avoid unsafe assertion
+		// Use the Env type for environment variables
+		// Use Env type for environment variables, no assertion needed
+		const envRecord: Env = ctx.env;
 		const isProd = envRecord.ENVIRONMENT === "production";
 		const redirectOriginEnv = envRecord.OAUTH_REDIRECT_ORIGIN ?? "";
 		// If OAUTH_REDIRECT_ORIGIN is not configured, derive origin from incoming
@@ -114,41 +117,38 @@ const oauthSignInFactory = (
 		// Prefer the configured redirect origin, but for localhost in non-
 		// production prefer the incoming request origin (so dev can run over
 		// either http or https without changing OAUTH_REDIRECT_ORIGIN).
+		const isProdFlag = envRecord.ENVIRONMENT === "production";
+		const opts = requestOrigin
+			? { requestOrigin, isProd: isProdFlag }
+			: { isProd: isProdFlag };
 		const redirectOrigin = resolveRedirectOrigin(
 			redirectOriginEnv || undefined,
-			{
-				requestOrigin: requestOrigin || undefined,
-				isProd: (envRecord.ENVIRONMENT ?? "") === "production",
-			},
+			opts,
 		);
 		const originIsHttps = redirectOrigin.startsWith("https://");
 		const secureAttr = isProd || originIsHttps ? "; Secure" : "";
 		yield* $(
-			Effect.sync(() =>
+			Effect.sync(() => {
 				ctx.header(
 					"Set-Cookie",
 					`${oauthCsrfCookieName}=${csrfState}; HttpOnly; Path=/${secureAttr}; SameSite=Lax`,
-				),
-			),
+				);
+			}),
 		);
 
 		// Determine language (fallback to defaultLanguage) via Effect schema
 		const lang = yield* $(
-			Schema.decodeUnknown(SupportedLanguageSchema)(
+			decodeUnknownEffectOrMap(
+				SupportedLanguageSchema,
 				ctx.req.query(langQueryParam),
-			)
-				.pipe(
-					Effect.mapError(
-						() => new ValidationError({ message: "Invalid language" }),
-					),
-				)
-				.pipe(
-					Effect.orElse(() =>
-						Effect.succeed(defaultLanguage as SupportedLanguageType),
-					),
-				),
+				() => new ValidationError({ message: "Invalid language" }),
+			).pipe(Effect.orElse(() => Effect.succeed(defaultLanguage))),
 		);
-		yield* $(Effect.sync(() => console.log("[oauthSignIn] Language:", lang)));
+		yield* $(
+			Effect.sync(() => {
+				console.log("[oauthSignIn] Language:", lang);
+			}),
+		);
 
 		// Build redirect URI using apiOauthCallbackPath for local and production.
 		// Normalize origin to avoid accidental double slashes. When a redirect_port
@@ -158,8 +158,8 @@ const oauthSignInFactory = (
 		// Secure/SameSite=None cookies from being accepted by the browser.
 		const trimmedOrigin = (redirectOrigin ?? "").replace(/\/$/, "");
 		let redirect_uri = trimmedOrigin
-			? `${trimmedOrigin}${apiOauthCallbackPath ?? ""}`
-			: `${apiOauthCallbackPath ?? ""}`;
+			? trimmedOrigin + (apiOauthCallbackPath ?? "")
+			: (apiOauthCallbackPath ?? "");
 
 		// If a developer-supplied redirect_port is present and the request targets
 		// localhost, force the redirect_uri to https://localhost:PORT so the OAuth
@@ -172,8 +172,11 @@ const oauthSignInFactory = (
 			// Developer convenience: when a redirect_port is provided prefer HTTPS
 			// for localhost. Skip this in production — OAUTH_REDIRECT_ORIGIN should
 			// be configured there.
-			if ((envRecord.ENVIRONMENT ?? "") !== "production") {
-				redirect_uri = `https://localhost:${redirectPortQuery}${apiOauthCallbackPath ?? ""}`;
+			if (envRecord.ENVIRONMENT !== "production") {
+				redirect_uri =
+					"https://localhost:" +
+					redirectPortQuery +
+					(apiOauthCallbackPath ?? "");
 			}
 		}
 
@@ -193,19 +196,25 @@ const oauthSignInFactory = (
 			redirect_origin: trimmedOrigin || undefined,
 		};
 		yield* $(
-			Effect.sync(() => console.log("[oauthSignIn] oauthState:", oauthState)),
+			Effect.sync(() => {
+				console.log("[oauthSignIn] oauthState:", oauthState);
+			}),
 		);
 
 		// Sign the state using JWT-style sign. Prefer STATE_HMAC_SECRET, fall back to JWT_SECRET.
 		const stateSecret = envRecord.STATE_HMAC_SECRET ?? envRecord.JWT_SECRET;
-		if (typeof stateSecret !== "string" || stateSecret === "") {
+		if (
+			stateSecret === undefined ||
+			stateSecret === null ||
+			stateSecret === ""
+		) {
 			// Log and redirect with a generic serverError token
 			yield* $(
-				Effect.sync(() =>
+				Effect.sync(() => {
 					console.error(
 						"[oauthSignIn] Missing STATE_HMAC_SECRET or JWT_SECRET for signing state",
-					),
-				),
+					);
+				}),
 			);
 			return yield* $(
 				Effect.sync(
@@ -222,29 +231,37 @@ const oauthSignInFactory = (
 
 		const signedStateParam = yield* $(
 			Effect.tryPromise<string, ServerError>({
-				try: () => sign(oauthState, stateSecret as string),
-				catch: (err) => new ServerError({ message: String(err) }),
+				try: async () => sign(oauthState, stateSecret),
+				catch: (err) => new ServerError({ message: getErrorMessage(err) }),
 			}),
 		);
 
 		yield* $(
-			Effect.sync(() =>
-				console.log("[oauthSignIn] redirect_uri:", redirect_uri),
-			),
+			Effect.sync(() => {
+				console.log("[oauthSignIn] redirect_uri:", redirect_uri);
+			}),
 		);
 
 		// Build OAuth URL
 		const providerData = getBackEndProviderData(provider);
 		const authBaseUrl = providerData.authBaseUrl;
 		const clientIdEnvVar = providerData.clientIdEnvVar;
-		const client_id = safeGet(envRecord, clientIdEnvVar) ?? "";
+		// Only allow string values for client_id
+		// Use a runtime check to ensure clientIdEnvVar is a valid key
+		let client_id = "";
+		if (typeof clientIdEnvVar === "string" && clientIdEnvVar in envRecord) {
+			const val = (envRecord as Record<string, unknown>)[clientIdEnvVar];
+			if (typeof val === "string") {
+				client_id = val;
+			}
+		}
 		if (client_id === "") {
 			yield* $(
-				Effect.sync(() =>
+				Effect.sync(() => {
 					console.error(
 						`[oauthSignIn] Missing client_id for provider ${provider}`,
-					),
-				),
+					);
+				}),
 			);
 			// Redirect user to home with providerUnavailable token
 			return yield* $(
@@ -260,26 +277,36 @@ const oauthSignInFactory = (
 			);
 		}
 		yield* $(
-			Effect.sync(() => console.log("[oauthSignIn] client_id:", client_id)),
+			Effect.sync(() => {
+				console.log("[oauthSignIn] client_id:", client_id);
+			}),
 		);
 		const params = new URLSearchParams({
-			client_id,
-			redirect_uri,
+			client_id: String(client_id),
+			redirect_uri: String(redirect_uri),
 			response_type: "code",
 			scope: "openid email profile",
-			state: signedStateParam,
-			hl: lang,
+			state: String(signedStateParam),
+			hl: String(lang),
 		}).toString();
 		const authUrl = `${authBaseUrl}?${params}`;
-		yield* $(Effect.sync(() => console.log("[oauthSignIn] authUrl:", authUrl)));
+		yield* $(
+			Effect.sync(() => {
+				console.log("[oauthSignIn] authUrl:", authUrl);
+			}),
+		);
 
 		// Return redirect Response (wrapped in Effect.sync)
-		return yield* $(Effect.sync(() => ctx.redirect(authUrl)));
+		return yield* $(
+			Effect.sync(() => {
+				return ctx.redirect(authUrl);
+			}),
+		);
 	});
 
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-export function oauthSignInHandler(ctx: ReadonlyContext): Promise<Response> {
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+export async function oauthSignInHandler(
+	ctx: ReadonlyContext,
+): Promise<Response> {
 	return handleHttpEndpoint((ctxInner: ReadonlyContext) =>
 		oauthSignInFactory(ctxInner),
 	)(ctx);

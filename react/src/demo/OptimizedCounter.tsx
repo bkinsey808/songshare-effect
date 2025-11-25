@@ -35,7 +35,9 @@ function OptimizedCounter(): ReactElement {
 						id="name-input"
 						type="text"
 						value={name}
-						onChange={(ev) => setName(ev.target.value)}
+						onChange={(ev) => {
+							setName(ev.target.value);
+						}}
 						className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white"
 						placeholder="Enter your name"
 					/>
@@ -45,14 +47,18 @@ function OptimizedCounter(): ReactElement {
 					<div className="mb-2 block text-sm font-medium">Counter:</div>
 					<div className="flex items-center gap-4">
 						<button
-							onClick={() => setCount(count - 1)}
+							onClick={() => {
+								setCount(count - 1);
+							}}
 							className="rounded-lg bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600"
 						>
 							-
 						</button>
 						<span className="text-2xl font-bold">{count}</span>
 						<button
-							onClick={() => setCount(count + 1)}
+							onClick={() => {
+								setCount(count + 1);
+							}}
 							className="rounded-lg bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600"
 						>
 							+

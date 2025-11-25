@@ -1,7 +1,6 @@
 import { Effect } from "effect";
 import { verify } from "hono/jwt";
 
-import type { Bindings } from "@/api/env";
 import type { ReadonlyContext } from "@/api/hono/hono-context";
 
 import { sessionCookieName } from "@/api/cookie/cookie";
@@ -15,7 +14,6 @@ export function extractUserSessionTokenFromCookieHeader(
 	cookieHeader: string | undefined,
 ): string | undefined {
 	const cookie = typeof cookieHeader === "string" ? cookieHeader : "";
-	// eslint-disable-next-line security/detect-non-literal-regexp
 	const re = new RegExp(`${sessionCookieName}=([^;]+)`);
 	const match = re.exec(cookie);
 	return match && typeof match[1] === "string" && match[1] !== ""
@@ -28,9 +26,8 @@ export function extractUserSessionTokenFromCookieHeader(
  * Returns an Effect that succeeds with string | undefined.
  */
 export const extractUserSessionTokenFromContext = (
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	ctx: ReadonlyContext,
-): Effect.Effect<string | undefined, never> =>
+): Effect.Effect<string | undefined> =>
 	Effect.sync(() =>
 		extractUserSessionTokenFromCookieHeader(ctx.req.header("Cookie")),
 	);
@@ -39,14 +36,22 @@ export const extractUserSessionTokenFromContext = (
  * Verify a JWT token using the provided Bindings for secret lookup.
  * Returns an Effect that yields the verified payload or fails with AuthenticationError.
  */
+import { getErrorMessage } from "@/api/getErrorMessage";
+import { getEnvString } from "@/shared/env/getEnv";
+
 export const verifyUserSessionToken = (
 	userSessionToken: string,
-	env: Bindings,
+	envLike: unknown,
 ): Effect.Effect<unknown, AuthenticationError> =>
 	Effect.tryPromise({
-		try: () => verify(userSessionToken, env.JWT_SECRET as string),
+		try: async () => {
+			const jwtSecret = getEnvString(envLike, "JWT_SECRET");
+			if (jwtSecret === undefined || jwtSecret === "")
+				throw new Error("Missing JWT_SECRET");
+			return verify(userSessionToken, jwtSecret);
+		},
 		catch: (err: unknown) =>
 			new AuthenticationError({
-				message: String(err ?? "Invalid token"),
+				message: getErrorMessage(err ?? "Invalid token"),
 			}),
 	});

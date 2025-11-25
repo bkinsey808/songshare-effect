@@ -1,5 +1,5 @@
 // SupabaseClient is not used directly here; use ReadonlySupabaseClient alias below
-import { Effect, Schema } from "effect";
+import { Effect } from "effect";
 
 // Types now live in `api/src/types/user-session.ts`
 import { type DatabaseError, ServerError, ValidationError } from "@/api/errors";
@@ -10,8 +10,9 @@ import { type ReadonlyOauthState } from "@/shared/oauth/oauthState";
 import { type ReadonlyOauthUserData } from "@/shared/oauth/oauthUserData";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { UserSessionDataSchema as sessionDataSchema } from "@/shared/userSessionData";
+import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
 
-import { type Env } from "../env";
+// Env type not required — ReadonlyContext default covers Bindings
 import { type ReadonlyContext } from "../hono/hono-context";
 import { type ReadonlySupabaseClient } from "../supabase/supabase-client";
 import { type ReadonlyUser } from "../user/user";
@@ -25,7 +26,7 @@ export type BuildUserSessionJwtParams = ReadonlyDeep<{
 	readonly existingUser: ReadonlyUser;
 	readonly oauthUserData: ReadonlyOauthUserData;
 	readonly oauthState: ReadonlyOauthState;
-}> & { readonly ctx: ReadonlyContext<{ Bindings: Env }> };
+}> & { readonly ctx: ReadonlyContext };
 
 /**
  * Builds a user session JWT for an authenticated user.
@@ -78,21 +79,21 @@ export function buildUserSessionJwt({
 
 		// Validate using Effect Schema (throws if invalid)
 		yield* $(
-			Effect.sync(() =>
+			Effect.sync(() => {
 				console.warn(
 					"[buildUserSessionJwt] Validating sessionData for user:",
 					existingUser?.user_id,
-				),
-			),
+				);
+			}),
 		);
 
 		// The decode may produce an error value typed as unknown; map to a
 		// ValidationError. We intentionally discard the original error shape.
 		yield* $(
-			Schema.decodeUnknown(sessionDataSchema)(sessionData).pipe(
-				Effect.mapError(
-					() => new ValidationError({ message: "Invalid session" }),
-				),
+			decodeUnknownEffectOrMap(
+				sessionDataSchema,
+				sessionData,
+				() => new ValidationError({ message: "Invalid session" }),
 			),
 		);
 
@@ -100,9 +101,9 @@ export function buildUserSessionJwt({
 
 		if (typeof jwtSecretFinal !== "string" || jwtSecretFinal === "") {
 			yield* $(
-				Effect.sync(() =>
-					console.error("[buildUserSessionJwt] Missing JWT_SECRET"),
-				),
+				Effect.sync(() => {
+					console.error("[buildUserSessionJwt] Missing JWT_SECRET");
+				}),
 			);
 			return yield* $(
 				Effect.fail(
@@ -113,9 +114,7 @@ export function buildUserSessionJwt({
 			);
 		}
 
-		const sessionJwt = yield* $(
-			createJwt(sessionData, jwtSecretFinal as string),
-		);
+		const sessionJwt = yield* $(createJwt(sessionData, jwtSecretFinal));
 		return sessionJwt;
 	});
 }

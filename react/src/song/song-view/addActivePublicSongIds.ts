@@ -1,10 +1,11 @@
 // src/features/react/song-subscribe/addActiveSongIds.ts
 import { Schema } from "effect";
 
-import type { AppSlice } from "@/react/zustand/useAppStore";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { getStoreApi } from "@/react/zustand/useAppStore";
+import { isRecord } from "@/shared/utils/typeGuards";
 
 import { type SongPublic, songPublicSchema } from "../song-schema";
 import { type SongSubscribeSlice } from "./songSlice";
@@ -20,10 +21,20 @@ export default function addActivePublicSongIds(
 	get: () => SongSubscribeSlice,
 ) {
 	return (songIds: ReadonlyArray<string>): void => {
-		const state = get() as SongSubscribeSlice & AppSlice;
-		// Always fetch all activeSongIds (union of previous and new)
+		// Prefer the global store API when available so we can read the full
+		// `AppSlice` shape without unsafe assertions. Fall back to the local
+		// `get()` accessor when the store API is not yet available.
+		const storeApi = getStoreApi();
+		const appState = storeApi ? storeApi.getState() : undefined;
+		const sliceState = get();
+
+		// Compute the previous active IDs from whichever state we have.
+		const prevActiveIds: ReadonlyArray<string> = appState
+			? appState.activePublicSongIds
+			: sliceState.activePublicSongIds;
+
 		const newActivePublicSongIds: ReadonlyArray<string> = Array.from(
-			new Set([...state.activePublicSongIds, ...songIds]),
+			new Set([...prevActiveIds, ...songIds]),
 		);
 
 		// Update activeSongIds and resubscribe.
@@ -36,7 +47,9 @@ export default function addActivePublicSongIds(
 
 		// Subscribe after activeSongIds is updated in Zustand
 		set(() => {
-			const activePublicSongsUnsubscribe = state.subscribeToActivePublicSongs();
+			const storeForOps = appState ?? sliceState;
+			const activePublicSongsUnsubscribe =
+				storeForOps.subscribeToActivePublicSongs();
 			return {
 				activePublicSongsUnsubscribe:
 					activePublicSongsUnsubscribe ?? (() => {}),
@@ -44,13 +57,22 @@ export default function addActivePublicSongIds(
 		});
 
 		if (newActivePublicSongIds.length === 0) {
-			// eslint-disable-next-line no-console
 			console.log("[addActivePublicSongIds] No active songs to fetch.");
 			return;
 		}
 
-		const visitorToken = (state as unknown as { visitorToken?: string })
-			.visitorToken;
+		// Read optional visitorToken via the app-level state when available.
+		let visitorToken: string | undefined;
+		if (appState) {
+			const appStateUnknown: unknown = appState;
+			if (
+				isRecord(appStateUnknown) &&
+				typeof appStateUnknown["visitorToken"] === "string"
+			) {
+				visitorToken = appStateUnknown["visitorToken"];
+			}
+		}
+
 		if (typeof visitorToken !== "string") {
 			console.warn(
 				"[addActivePublicSongIds] No visitor token found. Cannot fetch songs.",
@@ -66,7 +88,6 @@ export default function addActivePublicSongIds(
 
 		// Fire-and-forget async function to fetch all active song data
 		void (async () => {
-			// eslint-disable-next-line no-console
 			console.log(
 				"[addActivePublicSongIds] Fetching active songs:",
 				newActivePublicSongIds,
@@ -117,7 +138,8 @@ export default function addActivePublicSongIds(
 						"[addActiveSongIds] Updating store with songs:",
 						publicSongsToAdd,
 					);
-					state.addOrUpdatePublicSongs(publicSongsToAdd);
+					const storeForOps = appState ?? sliceState;
+					storeForOps.addOrUpdatePublicSongs(publicSongsToAdd);
 				} else {
 					console.error("[addActivePublicSongIds] Invalid data format:", data);
 				}

@@ -28,7 +28,6 @@ assume the answer is yes.
 after all other errors and warnings have been addressed.
 (9) If you have a question about prioritization, run this command again and follow instructions.
 (10) It is acceptable to ask to if you can use a disable lint rule comment like this:
-// eslint-disable-next-line unicorn/no-null as a temporary workaround,
 to move forward, but make sure to add a code comment explaining exactly why it is needed.
 (11) Be very careful not to change any logic, make sure to ask before adding any new props
 when invoking a component.
@@ -44,7 +43,6 @@ as the final step.
 (17) Make sure to run this file-check command as the final step before considering a prompt to be complete.`);
 
 const tsCheck = spawnSync(
-	// eslint-disable-next-line sonarjs/no-os-command-from-path
 	"npx",
 	["tsc", "--noEmit", "--pretty", "--project", "tsconfig.json"],
 	{ stdio: ["ignore", "pipe", "pipe"] },
@@ -66,7 +64,6 @@ function filterNpmWarnings(
 const combinedTsCheck = tsCheck.stdout.toString() + tsCheck.stderr.toString();
 const filteredTsCheck = filterNpmWarnings(combinedTsCheck);
 const filterResult = spawnSync(
-	// eslint-disable-next-line sonarjs/no-os-command-from-path
 	"bun",
 	[require.resolve("./filterTsErrors.ts"), file],
 	{
@@ -92,9 +89,7 @@ const isJsxFile = file.endsWith(".tsx") || file.endsWith(".jsx");
 let individualTsCheck: ReturnType<typeof spawnSync>;
 let filteredIndividualTsCheck = "";
 
-// eslint-disable-next-line no-negated-condition
 if (!isJsxFile) {
-	// eslint-disable-next-line sonarjs/no-os-command-from-path
 	individualTsCheck = spawnSync("npx", ["tsc", "--noEmit", "--pretty", file], {
 		stdio: ["ignore", "pipe", "pipe"],
 	});
@@ -113,13 +108,11 @@ if (!isJsxFile) {
 	// Find all error sections for the target file
 	for (let i = 0; i < lines.length; i++) {
 		// Safe array access - i is bounded by lines.length
-		// eslint-disable-next-line security/detect-object-injection
 		const line = lines[i] ?? "";
 
 		// Skip summary sections
 		const foundErrorsRegExp = /^Found \d+ errors? in \d+ files?\./;
 		const errorsFilesRegExp = /^Errors\s+Files/;
-		// eslint-disable-next-line sonarjs/slow-regex
 		const fileLineRegExp = /^\s*\d+\s+.*\.tsx?:\d+/;
 		if (
 			foundErrorsRegExp.exec(line) ||
@@ -141,7 +134,6 @@ if (!isJsxFile) {
 			// Add all continuation lines until we hit another error or empty section
 			for (let j = i + 1; j < lines.length; j++) {
 				// Safe array access - j is bounded by lines.length
-				// eslint-disable-next-line security/detect-object-injection
 				const nextLine = lines[j] ?? "";
 
 				// Stop if we hit another error line
@@ -194,7 +186,6 @@ if (!isJsxFile) {
 } else {
 	// For JSX files, try TypeScript check with JSX flag
 	individualTsCheck = spawnSync(
-		// eslint-disable-next-line sonarjs/no-os-command-from-path
 		"npx",
 		["tsc", "--noEmit", "--pretty", "--jsx", "react-jsx", file],
 		{
@@ -216,7 +207,6 @@ if (!isJsxFile) {
 	// Find all error sections for the target file
 	for (let i = 0; i < lines.length; i++) {
 		// Safe array access - i is bounded by lines.length
-		// eslint-disable-next-line security/detect-object-injection
 		const line = lines[i] ?? "";
 
 		// Skip summary sections
@@ -244,7 +234,6 @@ if (!isJsxFile) {
 			// Add all continuation lines until we hit another error or empty section
 			for (let j = i + 1; j < lines.length; j++) {
 				// Safe array access - j is bounded by lines.length
-				// eslint-disable-next-line security/detect-object-injection
 				const nextLine = lines[j] ?? "";
 
 				// Stop if we hit another error line
@@ -297,7 +286,6 @@ if (!isJsxFile) {
 }
 
 const eslintResult = spawnSync(
-	// eslint-disable-next-line sonarjs/no-os-command-from-path
 	"npx",
 	["eslint", "--color", "--no-ignore", "--fix", file],
 	{
@@ -316,14 +304,11 @@ if (filteredEslint && filteredEslint.trim().length > 0) {
 /** Only exit non-zero if type errors are found for the specific file */
 function hasTypeErrorsForFile(tsOutput: string, filePath: string): boolean {
 	// Normalize file path for matching (absolute or relative)
-	// eslint-disable-next-line prefer-template
 	const relFile: string = filePath.startsWith(process.cwd() + "/")
-		? // eslint-disable-next-line prefer-template
-			filePath.replace(process.cwd() + "/", "")
+		? filePath.replace(process.cwd() + "/", "")
 		: filePath;
 	const absFile: string = filePath;
 	// Match lines that reference the file and have error
-	// eslint-disable-next-line security/detect-non-literal-regexp
 	const errorRegex = new RegExp(
 		`^(?:${relFile.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}|${absFile.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})\\:(\\d+)\\:(\\d+) - error`,
 		"m",

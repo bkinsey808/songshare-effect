@@ -16,7 +16,7 @@ const clients = new Map<string, SupabaseClient<Database>>();
  * - A specific authenticated user (after sign-in)
  */
 export function getSupabaseClient(
-	supabaseClientToken?: string | undefined,
+	supabaseClientToken?: string,
 ): SupabaseClient<Database> | undefined {
 	const supabaseUrl = getEnvValueSafe("SUPABASE_URL");
 	const supabaseKey = getEnvValueSafe("SUPABASE_ANON_KEY");

@@ -20,9 +20,22 @@ export function findMissingSongSlugs({
 		activePublicSongIds
 			.map((id) => {
 				const song = safeGet(publicSongs, id) as unknown;
-				return typeof song === "object" && song !== null && "song_slug" in song
-					? (song as { song_slug?: string }).song_slug
-					: undefined;
+
+				function getSongSlug(x: unknown): string | undefined {
+					if (typeof x !== "object" || x === null) return undefined;
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-type-assertion
+					const obj = x as Record<string, unknown>;
+					if (
+						Object.prototype.hasOwnProperty.call(obj, "song_slug") &&
+						typeof obj["song_slug"] === "string"
+					) {
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+						return obj["song_slug"];
+					}
+					return undefined;
+				}
+
+				return getSongSlug(song);
 			})
 			.filter((slug): slug is string => typeof slug === "string"),
 	);

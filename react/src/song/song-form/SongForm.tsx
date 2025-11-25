@@ -71,7 +71,10 @@ export function SongForm(): ReactElement {
 					<form
 						ref={formRef}
 						className="flex w-full flex-col gap-4"
-						onSubmit={handleFormSubmit}
+						onSubmit={(e) => {
+							// Handle async submit without passing a promise directly to the DOM event
+							void handleFormSubmit(e);
+						}}
 					>
 						{/* Row 1: Song Form Fields (left) + Slides Editor (right) on desktop, stacked on mobile */}
 						<div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
@@ -81,9 +84,10 @@ export function SongForm(): ReactElement {
 									title="Song Details"
 									icon="🎵"
 									isExpanded={isFormFieldsExpanded}
-									onToggle={() =>
-										setIsFormFieldsExpanded(!isFormFieldsExpanded)
-									}
+									onToggle={() => {
+										// avoid implicit void-return shorthand
+										setIsFormFieldsExpanded(!isFormFieldsExpanded);
+									}}
 								>
 									<SongFormFields
 										getFieldError={getFieldError}
@@ -100,7 +104,9 @@ export function SongForm(): ReactElement {
 									title="Slides Editor"
 									icon="📄"
 									isExpanded={isSlidesExpanded}
-									onToggle={() => setIsSlidesExpanded(!isSlidesExpanded)}
+									onToggle={() => {
+										setIsSlidesExpanded(!isSlidesExpanded);
+									}}
 								>
 									<SlidesEditor
 										fields={fields}
@@ -120,7 +126,9 @@ export function SongForm(): ReactElement {
 								title="Grid View"
 								icon="📊"
 								isExpanded={isGridExpanded}
-								onToggle={() => setIsGridExpanded(!isGridExpanded)}
+								onToggle={() => {
+									setIsGridExpanded(!isGridExpanded);
+								}}
 							>
 								<SlidesGridView
 									fields={fields}
@@ -141,7 +149,10 @@ export function SongForm(): ReactElement {
 					<div className="flex justify-start gap-4 pl-4">
 						<button
 							type="button"
-							onClick={handleSave}
+							onClick={() => {
+								// call async handler explicitly so the onClick doesn't receive a Promise
+								void handleSave();
+							}}
 							className="rounded bg-blue-600 px-6 py-3 text-white transition hover:bg-blue-700 disabled:opacity-50"
 							disabled={isSubmitting}
 							data-testid="create-song-button"

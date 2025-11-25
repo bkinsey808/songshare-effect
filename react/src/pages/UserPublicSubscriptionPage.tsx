@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 
 import type { Tables } from "@/shared/generated/supabaseTypes";
-import type {
-	RealtimeChannel,
-	RealtimePostgresChangesPayload,
-} from "@supabase/supabase-js";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
 
@@ -17,7 +14,17 @@ type RealtimeEvent = {
 	timestamp: string;
 };
 
-// eslint-disable-next-line max-lines-per-function
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion */
+function isUserPublic(value: unknown): value is UserPublic {
+	return (
+		typeof value === "object" &&
+		value !== null &&
+		typeof (value as any).user_id === "string" &&
+		typeof (value as any).username === "string"
+	);
+}
+/* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion */
+
 function UserPublicSubscriptionPage(): ReactElement {
 	const [users, setUsers] = useState<UserPublic[]>([]);
 	const [events, setEvents] = useState<RealtimeEvent[]>([]);
@@ -39,14 +46,17 @@ function UserPublicSubscriptionPage(): ReactElement {
 	};
 
 	const handleRealtimeEvent = (
-		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- RealtimePostgresChangesPayload from Supabase is mutable
-		payload: RealtimePostgresChangesPayload<UserPublic>,
+		payload: unknown,
 		eventType: "INSERT" | "UPDATE" | "DELETE",
 	): void => {
+		/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion */
+		const newRaw = (payload as any)?.new;
+		/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion */
+		const oldRaw = (payload as any)?.old;
 		const realtimeEvent: RealtimeEvent = {
 			eventType,
-			new: payload.new as UserPublic | undefined,
-			old: payload.old as UserPublic | undefined,
+			new: isUserPublic(newRaw) ? newRaw : undefined,
+			old: isUserPublic(oldRaw) ? oldRaw : undefined,
 			timestamp: new Date().toISOString(),
 		};
 
@@ -57,9 +67,8 @@ function UserPublicSubscriptionPage(): ReactElement {
 		setUsers((prevUsers) => {
 			switch (eventType) {
 				case "INSERT": {
-					// eslint-disable-next-line sonarjs/different-types-comparison
-					if (payload.new !== undefined) {
-						const newUser = payload.new as UserPublic;
+					if (realtimeEvent.new !== undefined) {
+						const newUser = realtimeEvent.new;
 						return [...prevUsers, newUser].sort((userA, userB) =>
 							userA.username.localeCompare(userB.username),
 						);
@@ -67,9 +76,8 @@ function UserPublicSubscriptionPage(): ReactElement {
 					break;
 				}
 				case "UPDATE": {
-					// eslint-disable-next-line sonarjs/different-types-comparison
-					if (payload.new !== undefined) {
-						const updatedUser = payload.new as UserPublic;
+					if (realtimeEvent.new !== undefined) {
+						const updatedUser = realtimeEvent.new;
 						return prevUsers
 							.map((user) =>
 								user.user_id === updatedUser.user_id ? updatedUser : user,
@@ -81,17 +89,14 @@ function UserPublicSubscriptionPage(): ReactElement {
 					break;
 				}
 				case "DELETE": {
-					// eslint-disable-next-line sonarjs/different-types-comparison
-					if (payload.old !== undefined) {
-						const deletedUser = payload.old as UserPublic;
+					if (realtimeEvent.old !== undefined) {
+						const deletedUser = realtimeEvent.old;
 						return prevUsers.filter(
 							(user) => user.user_id !== deletedUser.user_id,
 						);
 					}
 					break;
 				}
-				default:
-					break;
 			}
 			return prevUsers;
 		});
@@ -173,10 +178,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 								table: payload.table,
 							});
 							try {
-								handleRealtimeEvent(
-									payload as RealtimePostgresChangesPayload<UserPublic>,
-									"INSERT",
-								);
+								handleRealtimeEvent(payload, "INSERT");
 							} catch (insertError) {
 								console.error("Error handling INSERT event:", insertError);
 							}
@@ -198,10 +200,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 								table: payload.table,
 							});
 							try {
-								handleRealtimeEvent(
-									payload as RealtimePostgresChangesPayload<UserPublic>,
-									"UPDATE",
-								);
+								handleRealtimeEvent(payload, "UPDATE");
 							} catch (updateError) {
 								console.error("Error handling UPDATE event:", updateError);
 							}
@@ -223,10 +222,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 								table: payload.table,
 							});
 							try {
-								handleRealtimeEvent(
-									payload as RealtimePostgresChangesPayload<UserPublic>,
-									"DELETE",
-								);
+								handleRealtimeEvent(payload, "DELETE");
 							} catch (deleteError) {
 								console.error("Error handling DELETE event:", deleteError);
 							}

@@ -20,7 +20,7 @@ import { runMigration } from "./helpers/runMigration";
  *
  * @returns Resolves when all migrations and post-migration tasks complete.
  */
-async function main(): Promise<void> {
+function main(): void {
 	console.log("🚀 Starting programmatic migration runner...");
 
 	try {
@@ -45,7 +45,7 @@ async function main(): Promise<void> {
 
 		// Run each migration
 		for (const migration of migrations) {
-			await runMigration(migration, env);
+			runMigration(migration, env);
 		}
 
 		console.log("");
@@ -55,7 +55,6 @@ async function main(): Promise<void> {
 		console.log("🔄 Regenerating TypeScript schemas...");
 		try {
 			// This is a safe npm script execution for schema generation
-			// eslint-disable-next-line sonarjs/no-os-command-from-path -- trusted npm script invocation after migrations
 			execSync("npm run supabase:generate", { stdio: "inherit" });
 			console.log("✅ Schema generation completed");
 		} catch (error) {
@@ -71,5 +70,5 @@ async function main(): Promise<void> {
 
 // Run if this file is executed directly
 if (import.meta.main) {
-	void main();
+	main();
 }

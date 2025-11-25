@@ -18,11 +18,10 @@ import { Schema } from "effect";
 // Common validation schemas
 export const NonEmptyStringSchema: typeof Schema.NonEmptyString =
 	Schema.NonEmptyString;
-export const EmailSchema: Schema.Schema<string, string, never> =
-	Schema.String.pipe(
-		Schema.nonEmptyString(),
-		Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
-	);
+export const EmailSchema: Schema.Schema<string, string> = Schema.String.pipe(
+	Schema.nonEmptyString(),
+	Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+);
 export const UUIDSchema: typeof Schema.UUID = Schema.UUID;
 export const PositiveNumberSchema: typeof Schema.Positive = Schema.Positive;
 export const NonNegativeNumberSchema: typeof Schema.NonNegative =
@@ -361,8 +360,7 @@ export const ApiSuccessResponseSchema = <A, I, R>(
 
 export const ApiErrorResponseSchema: Schema.Schema<
 	Schema.Schema.Type<typeof _ApiErrorResponseSchemaImpl>,
-	Schema.Schema.Encoded<typeof _ApiErrorResponseSchemaImpl>,
-	Schema.Schema.Context<typeof _ApiErrorResponseSchemaImpl>
+	Schema.Schema.Encoded<typeof _ApiErrorResponseSchemaImpl>
 > = _ApiErrorResponseSchemaImpl;
 
 export const ApiResponseSchema = <A, I, R>(
@@ -376,10 +374,9 @@ export const ApiResponseSchema = <A, I, R>(
 			ReturnType<typeof _ApiSuccessResponseSchemaImpl<A, I, R>>
 	  >
 	| Schema.Schema.Encoded<typeof _ApiErrorResponseSchemaImpl>,
-	| Schema.Schema.Context<
-			ReturnType<typeof _ApiSuccessResponseSchemaImpl<A, I, R>>
-	  >
-	| Schema.Schema.Context<typeof _ApiErrorResponseSchemaImpl>
+	Schema.Schema.Context<
+		ReturnType<typeof _ApiSuccessResponseSchemaImpl<A, I, R>>
+	>
 > => Schema.Union(ApiSuccessResponseSchema(dataSchema), ApiErrorResponseSchema);
 
 export type ApiResponse<T> =

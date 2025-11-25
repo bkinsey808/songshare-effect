@@ -8,7 +8,6 @@ export const parseLanguageCookie = (
 ): SupportedLanguageType | undefined => {
 	if (
 		cookieHeader === null ||
-		// eslint-disable-next-line sonarjs/different-types-comparison
 		cookieHeader === undefined ||
 		cookieHeader.trim() === ""
 	) {
@@ -19,12 +18,9 @@ export const parseLanguageCookie = (
 		.find((cookie) =>
 			cookie.trim().startsWith(`${preferredLanguageCookieName}=`),
 		);
-	// eslint-disable-next-line sonarjs/different-types-comparison
 	if (match !== undefined && match !== null && match.includes("=")) {
 		const lang = match.split("=")[1]?.trim();
-		return isSupportedLanguage(lang)
-			? (lang as SupportedLanguageType)
-			: undefined;
+		return isSupportedLanguage(lang) ? lang : undefined;
 	}
 	return undefined;
 };

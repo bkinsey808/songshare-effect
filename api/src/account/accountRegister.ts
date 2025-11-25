@@ -2,16 +2,18 @@ import { Effect, Schema } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
-import type { Env } from "@/api/env";
 import type { Database } from "@/shared/generated/supabaseTypes";
 
 import { buildSessionCookie } from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
+import { getErrorMessage } from "@/api/getErrorMessage";
 import { getIpAddress } from "@/api/getIpAddress";
 import { RegisterDataSchema } from "@/api/register/registerData";
+import { parseMaybeSingle } from "@/api/supabase/parseMaybeSingle";
 import { csrfTokenCookieName } from "@/shared/cookies";
+import { getEnvString } from "@/shared/env/getEnv";
 import {
 	UserPublicSchema,
 	UserSchema,
@@ -19,6 +21,8 @@ import {
 import { RegisterFormSchema } from "@/shared/register/register";
 import { UserSessionDataSchema } from "@/shared/userSessionData";
 import { safeGet, safeSet } from "@/shared/utils/safe";
+import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
+import { decodeUnknownSyncOrThrow } from "@/shared/validation/decode-or-throw";
 /* eslint-disable no-console */
 import { createClient } from "@supabase/supabase-js";
 
@@ -30,23 +34,28 @@ import { type ReadonlyContext } from "../hono/hono-context";
 // eslint-disable-next-line max-lines-per-function
 export default function accountRegister(
 	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-	ctx: ReadonlyContext<{ Bindings: Env }>,
+	ctx: ReadonlyContext,
 ): Effect.Effect<Response, DatabaseError | ServerError | ValidationError> {
 	// eslint-disable-next-line max-lines-per-function
 	return Effect.gen(function* ($) {
 		// Parse and validate the request body
 		const body: unknown = yield* $(
 			Effect.tryPromise({
-				try: () => ctx.req.json(),
+				// Await inside the async factory so we don't return `Promise<any>`
+				// directly (avoids unsafe-return lint warnings).
+				try: async (): Promise<unknown> => {
+					const parsed = (await ctx.req.json()) as unknown;
+					return parsed;
+				},
 				catch: () => new ValidationError({ message: "Invalid JSON body" }),
 			}),
 		);
 
 		const registerForm = yield* $(
-			Schema.decodeUnknown(RegisterFormSchema)(body).pipe(
-				Effect.mapError(
-					() => new ValidationError({ message: "Invalid registration data" }),
-				),
+			decodeUnknownEffectOrMap(
+				RegisterFormSchema,
+				body,
+				() => new ValidationError({ message: "Invalid registration data" }),
 			),
 		);
 
@@ -56,17 +65,17 @@ export default function accountRegister(
 		// diagnose why the register cookie might be missing when the client
 		// posts the registration form.
 		yield* $(
-			Effect.sync(() =>
+			Effect.sync(() => {
 				console.log(
 					"[accountRegister] ctx.req.url:",
 					ctx.req.url,
 					"Request Cookie header:",
 					ctx.req.header("Cookie"),
-				),
-			),
+				);
+			}),
 		);
 		yield* $(
-			Effect.sync(() =>
+			Effect.sync(() => {
 				// Log a few useful headers instead of relying on a raw headers object
 				console.log("[accountRegister] Request headers:", {
 					Host: ctx.req.header("Host"),
@@ -74,25 +83,34 @@ export default function accountRegister(
 					Referer: ctx.req.header("Referer"),
 					Cookie: ctx.req.header("Cookie"),
 					xForwardedProto: ctx.req.header("x-forwarded-proto"),
-				}),
-			),
+				});
+			}),
 		);
 
 		// Parse register data from cookie. Enable debug so parseDataFromCookie
 		// prints the raw cookie and JWT verification details to the server log.
 		const registerData = yield* $(
 			Effect.tryPromise({
-				try: () =>
-					parseDataFromCookie({
+				try: async () => {
+					const parsed = await parseDataFromCookie({
 						ctx,
-						schema: RegisterDataSchema as Schema.Schema<
+						// RegisterDataSchema is a Schema<RegisterData, RegisterData,
+						// never>. We need to present it as a Schema whose input
+						// type is `unknown` for decodeUnknownSync usage below.
+						// The register schema comes from generated types and needs
+						// to be widened to accept `unknown` input. This cast is
+						// safe at runtime but narrows types in TS; suppress the
+						// ESLint rule for this specific line.
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+						schema: RegisterDataSchema as unknown as Schema.Schema<
 							Schema.Schema.Type<typeof RegisterDataSchema>,
-							unknown,
-							never
+							unknown
 						>,
 						cookieName: registerCookieName,
 						debug: true,
-					}),
+					});
+					return parsed;
+				},
 				catch: () =>
 					new ValidationError({ message: "Invalid register cookie" }),
 			}),
@@ -104,7 +122,7 @@ export default function accountRegister(
 		const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey);
 
 		// Check if username already exists
-		const usernameResponse = yield* $(
+		const rawUsernameRes = yield* $(
 			Effect.tryPromise({
 				try: () =>
 					supabase
@@ -119,7 +137,12 @@ export default function accountRegister(
 			}),
 		);
 
-		if (usernameResponse.error) {
+		const usernameResponse = parseMaybeSingle(rawUsernameRes);
+
+		if (
+			usernameResponse.error !== undefined &&
+			usernameResponse.error !== null
+		) {
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({ message: "Database error checking username" }),
@@ -127,7 +150,7 @@ export default function accountRegister(
 			);
 		}
 
-		if (usernameResponse.data) {
+		if (usernameResponse.data !== undefined && usernameResponse.data !== null) {
 			return yield* $(
 				Effect.fail(
 					new ValidationError({
@@ -172,42 +195,53 @@ export default function accountRegister(
 
 		// Debug: log raw insert result to help diagnose schema validation failures
 		yield* $(
-			Effect.sync(() =>
+			Effect.sync(() => {
 				console.log(
 					"[accountRegister] userInsertResult:",
 					// eslint-disable-next-line unicorn/no-null
 					JSON.stringify(userInsertResult, null, 2),
-				),
-			),
+				);
+			}),
 		);
 
 		// Normalize DB row: Supabase returns `null` for nullable fields whereas
 		// our Effect schemas expect `undefined` for optional fields. Convert
 		// any null values to undefined before running schema decoding so that
 		// optional fields validate correctly.
-		const normalizeNulls = <T extends Record<string, unknown>>(obj: T): T => {
+		const isPlainRecord = (v: unknown): v is Record<string, unknown> =>
+			v !== null && typeof v === "object" && !Array.isArray(v);
+
+		const normalizeNulls = (obj: unknown): Record<string, unknown> => {
 			// Use safeGet/safeSet to satisfy lint/security rules and avoid
 			// prototype pollution while normalizing null -> undefined.
-			const copy: Record<string, unknown> = { ...obj };
-			for (const key of Object.keys(obj)) {
-				const value = safeGet(obj as Record<string, unknown>, key as string);
+			if (!isPlainRecord(obj)) {
+				// Not a plain record — return an empty normalized map
+				return {};
+			}
+
+			// `isPlainRecord` narrowed the type, so `obj` is a Record<string, unknown>
+			const src = obj;
+			const copy: Record<string, unknown> = { ...src };
+			for (const key of Object.keys(src)) {
+				const value = safeGet(src, key);
 				if (value === null) {
 					safeSet(copy, key, undefined);
 				} else {
 					safeSet(copy, key, value);
 				}
 			}
-			return copy as T;
+			return copy;
 		};
 
-		const normalizedRow = normalizeNulls(
-			userInsertResult.data[0] as Record<string, unknown>,
-		);
+		const normalizedRow = normalizeNulls(userInsertResult.data[0]);
 
 		const newUser = yield* $(
 			Effect.tryPromise({
-				try: () =>
-					Promise.resolve(Schema.decodeUnknownSync(UserSchema)(normalizedRow)),
+				try: async () => {
+					const decoded = decodeUnknownSyncOrThrow(UserSchema, normalizedRow);
+					const resolved = await Promise.resolve(decoded);
+					return resolved;
+				},
 				catch: (err) => {
 					// Log the raw DB row to help debugging
 					console.error(
@@ -215,7 +249,7 @@ export default function accountRegister(
 						// eslint-disable-next-line unicorn/no-null
 						JSON.stringify(userInsertResult.data[0], null, 2),
 						"error:",
-						String(err),
+						getErrorMessage(err),
 					);
 					return new DatabaseError({
 						message: "Invalid user data from database",
@@ -250,15 +284,13 @@ export default function accountRegister(
 		}
 
 		const newUserPublic = yield* $(
-			Schema.decodeUnknown(UserPublicSchema)(
+			decodeUnknownEffectOrMap(
+				UserPublicSchema,
 				userPublicInsertResult.data[0],
-			).pipe(
-				Effect.mapError(
-					() =>
-						new DatabaseError({
-							message: "Invalid user profile data from database",
-						}),
-				),
+				() =>
+					new DatabaseError({
+						message: "Invalid user profile data from database",
+					}),
 			),
 		);
 
@@ -272,16 +304,16 @@ export default function accountRegister(
 		};
 
 		const validatedSessionData = yield* $(
-			Schema.decodeUnknown(UserSessionDataSchema)(sessionData).pipe(
-				Effect.mapError(
-					() => new ServerError({ message: "Invalid session data" }),
-				),
+			decodeUnknownEffectOrMap(
+				UserSessionDataSchema,
+				sessionData,
+				() => new ServerError({ message: "Invalid session data" }),
 			),
 		);
 
 		// Sign session JWT
-		const jwtSecret = ctx.env.JWT_SECRET;
-		if (typeof jwtSecret !== "string" || jwtSecret.length === 0) {
+		const jwtSecret = getEnvString(ctx.env, "JWT_SECRET");
+		if (jwtSecret === undefined || jwtSecret.length === 0) {
 			return yield* $(
 				Effect.fail(
 					new ServerError({
@@ -293,7 +325,10 @@ export default function accountRegister(
 
 		const sessionJwt = yield* $(
 			Effect.tryPromise({
-				try: () => sign(validatedSessionData, jwtSecret),
+				try: async () => {
+					const token = await sign(validatedSessionData, jwtSecret);
+					return token;
+				},
 				catch: () =>
 					new ServerError({ message: "Failed to sign session token" }),
 			}),

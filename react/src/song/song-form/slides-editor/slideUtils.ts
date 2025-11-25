@@ -7,7 +7,6 @@ import { type Slide } from "../songTypes";
  * Generate a random ID for slides
  */
 export function randomId(): string {
-	// eslint-disable-next-line sonarjs/pseudo-random -- Safe for non-cryptographic ID generation
 	return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
 

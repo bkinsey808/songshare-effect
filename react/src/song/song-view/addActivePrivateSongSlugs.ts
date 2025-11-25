@@ -1,8 +1,9 @@
-import type { AppSlice } from "@/react/zustand/useAppStore";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { getStoreApi } from "@/react/zustand/useAppStore";
 import { safeGet } from "@/shared/utils/safe";
+import { isRecord } from "@/shared/utils/typeGuards";
 
 // src/features/react/song-subscribe/addActiveSongIds.ts
 import { type Song } from "../song-schema";
@@ -19,19 +20,25 @@ export default function addActivePrivateSongSlugs(
 	get: () => SongSubscribeSlice,
 ) {
 	return async (songSlugs: ReadonlyArray<string>): Promise<void> => {
-		const state = get() as SongSubscribeSlice & AppSlice;
+		const storeApi = getStoreApi();
+		const appState = storeApi ? storeApi.getState() : undefined;
+		const sliceState = get();
 
-		const currentPublicSongs = state.publicSongs;
+		const currentPublicSongs = (appState ?? sliceState).publicSongs;
 
 		// Find missing song slugs that are not already being subscribed to.
 		const activePrivateSongSlugs = new Set(
-			state.activePrivateSongIds
+			(appState ?? sliceState).activePrivateSongIds
 				.map((id) => {
 					const song = safeGet(currentPublicSongs, id) as unknown;
-					return typeof song === "object" &&
-						song !== null &&
-						"song_slug" in song
-						? (song as { song_slug?: string }).song_slug
+					function isRecordStringUnknown(
+						x: unknown,
+					): x is Record<string, unknown> {
+						return typeof x === "object" && x !== null;
+					}
+					return isRecordStringUnknown(song) &&
+						typeof song["song_slug"] === "string"
+						? song["song_slug"]
 						: undefined;
 				})
 				.filter((slug): slug is string => typeof slug === "string"),
@@ -40,14 +47,23 @@ export default function addActivePrivateSongSlugs(
 			(slug) => !activePrivateSongSlugs.has(slug),
 		);
 		if (missingSongSlugs.length === 0) {
-			// eslint-disable-next-line no-console
 			console.log(
 				"[addActivePrivateSongSlugs] All song slugs already active, nothing to do.",
 			);
 			return;
 		}
 
-		const userToken = (state as unknown as { userToken?: string }).userToken;
+		// Read optional userToken via the app-level state when available.
+		let userToken: string | undefined;
+		if (appState) {
+			const appStateUnknown: unknown = appState;
+			if (
+				isRecord(appStateUnknown) &&
+				typeof appStateUnknown["userToken"] === "string"
+			) {
+				userToken = appStateUnknown["userToken"];
+			}
+		}
 		if (typeof userToken !== "string") {
 			console.warn(
 				"[addActivePrivateSongSlugs] No user token found. Cannot fetch songs.",
@@ -96,24 +112,25 @@ export default function addActivePrivateSongSlugs(
 					"[addActivePrivateSongSlugs] Updating store with songs:",
 					privateSongsToAdd,
 				);
-				state.addOrUpdatePrivateSongs(privateSongsToAdd);
+				const storeForOps = appState ?? sliceState;
+				storeForOps.addOrUpdatePrivateSongs(privateSongsToAdd);
 
 				// Update activePrivateSongIds to include newly fetched songs
 				const newActivePrivateSongIds: ReadonlyArray<string> = [
 					...new Set([
-						...state.activePrivateSongIds,
+						...storeForOps.activePrivateSongIds,
 						...Object.keys(privateSongsToAdd),
 					]),
 				];
 
 				// unsubscribe from previous subscription if exists
-				if (typeof state.activePrivateSongsUnsubscribe === "function") {
-					state.activePrivateSongsUnsubscribe();
+				if (typeof storeForOps.activePrivateSongsUnsubscribe === "function") {
+					storeForOps.activePrivateSongsUnsubscribe();
 				}
 
 				// subscribe to new set
 				const activePrivateSongsUnsubscribe =
-					state.subscribeToActivePrivateSongs();
+					storeForOps.subscribeToActivePrivateSongs();
 
 				set(() => ({
 					activePrivateSongsUnsubscribe:

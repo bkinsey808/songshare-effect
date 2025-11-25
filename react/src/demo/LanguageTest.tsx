@@ -55,19 +55,25 @@ export default function LanguageTest(): ReactElement {
 				<div className="mt-4">
 					<button
 						className="mr-2 rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
-						onClick={() => switchLanguage("en")}
+						onClick={() => {
+							switchLanguage("en");
+						}}
 					>
 						Switch to EN (Updates Preference)
 					</button>
 					<button
 						className="mr-2 rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
-						onClick={() => switchLanguage("zh")}
+						onClick={() => {
+							switchLanguage("zh");
+						}}
 					>
 						Switch to ZH (Updates Preference)
 					</button>
 					<button
 						className="rounded bg-green-600 px-3 py-1 text-white hover:bg-green-700"
-						onClick={() => switchLanguage("es")}
+						onClick={() => {
+							switchLanguage("es");
+						}}
 					>
 						Switch to ES (Updates Preference)
 					</button>

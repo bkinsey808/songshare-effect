@@ -3,9 +3,9 @@ import { Effect } from "effect";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
 import { useAppForm } from "@/react/form/useAppForm";
+import { defaultLanguage } from "@/shared/language/supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { apiAccountRegisterPath, dashboardPath } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 import {
@@ -17,7 +17,9 @@ import { safeSet } from "@/shared/utils/safe";
 
 export default function RegisterPage(): ReactElement {
 	const { t, i18n } = useTranslation();
-	const currentLang = i18n.language as SupportedLanguageType;
+	const currentLang = isSupportedLanguage(i18n.language)
+		? i18n.language
+		: defaultLanguage;
 	const usernameRef = useRef<HTMLInputElement>(null);
 	const formRef = useRef<HTMLFormElement>(null);
 	const [submitError, setSubmitError] = useState<string | undefined>(undefined);
@@ -120,7 +122,13 @@ export default function RegisterPage(): ReactElement {
 		const formDataObj = new FormData(formRef.current ?? undefined);
 		const currentFormData: Record<string, unknown> = {};
 		for (const [key, value] of formDataObj.entries()) {
-			safeSet(currentFormData, key, value.toString());
+			if (typeof value === "string") {
+				safeSet(currentFormData, key, value);
+			} else if (value instanceof File) {
+				safeSet(currentFormData, key, value.name);
+			} else {
+				safeSet(currentFormData, key, String(value));
+			}
 		}
 
 		await Effect.runPromise(handleSubmit(currentFormData, onSubmit));
@@ -132,7 +140,13 @@ export default function RegisterPage(): ReactElement {
 				{t("register.title", "Complete Registration")}
 			</h1>
 
-			<form ref={formRef} onSubmit={handleFormSubmit} className="space-y-6">
+			<form
+				ref={formRef}
+				onSubmit={(e) => {
+					void handleFormSubmit(e);
+				}}
+				className="space-y-6"
+			>
 				<div>
 					<label
 						htmlFor="username"
@@ -189,7 +203,9 @@ export default function RegisterPage(): ReactElement {
 						type="submit"
 						disabled={isSubmitting}
 						className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
-						onClick={() => console.log("🖱️ Create Account button clicked")}
+						onClick={() => {
+							console.log("🖱️ Create Account button clicked");
+						}}
 					>
 						{isSubmitting
 							? t("register.submitting", "Creating account...")

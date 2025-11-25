@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 
-import type { PlacementOption, PopoverElement, TriggerMode } from "./types";
+import type { PlacementOption, TriggerMode } from "./types";
 
 import { usePopoverPositioning } from "./usePopoverPositioning";
 
@@ -50,7 +50,13 @@ export function useNativePopover({
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 
 	const hidePopover = (): void => {
-		(popoverRef.current as PopoverElement)?.hidePopover();
+		const popover = popoverRef.current;
+		if (popover) {
+			const maybeHide = Reflect.get(popover, "hidePopover");
+			if (typeof maybeHide === "function") {
+				(maybeHide as Function).call(popover);
+			}
+		}
 		setIsOpen(false);
 	};
 
@@ -73,9 +79,9 @@ export function useNativePopover({
 			return;
 		}
 
-		const handleToggle = (event: Readonly<Event>): void => {
-			const toggleEvent = event as Readonly<Event> & { newState: string };
-			setIsOpen(toggleEvent.newState === "open");
+		const handleToggle = (event: Event): void => {
+			const newState: unknown = Reflect.get(event, "newState");
+			setIsOpen(newState === "open");
 		};
 
 		popover.addEventListener("toggle", handleToggle);
@@ -85,8 +91,13 @@ export function useNativePopover({
 	}, []);
 
 	const showPopover = (): void => {
-		const popover = popoverRef.current as PopoverElement;
-		popover?.showPopover();
+		const popover = popoverRef.current;
+		if (popover) {
+			const maybeShow = Reflect.get(popover, "showPopover");
+			if (typeof maybeShow === "function") {
+				(maybeShow as Function).call(popover);
+			}
+		}
 		setIsOpen(true);
 		// Update position after popover is shown
 		setTimeout(updatePositionExternal, 0);

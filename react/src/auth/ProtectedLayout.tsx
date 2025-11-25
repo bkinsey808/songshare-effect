@@ -84,7 +84,7 @@ export default function ProtectedLayout(): ReactElement {
 	// redirecting to home while the `ensureSignedIn` effect is still
 	// verifying the session. Return a neutral placeholder so the
 	// effect can complete and update the store.
-	if (isSignedIn === false) {
+	if (!isSignedIn) {
 		if (justSignedIn) {
 			return <div />;
 		}

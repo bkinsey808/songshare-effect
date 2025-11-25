@@ -59,9 +59,7 @@ export default function useSlidesEditor({
 	handleDragEnd: (event: DragEndEvent) => void;
 	sortableItems: string[];
 } {
-	// eslint-disable-next-line no-console
 	console.log("slideOrder", slideOrder);
-	// eslint-disable-next-line no-console
 	console.log("slides", slides);
 
 	// Use specialized hooks for different concerns

@@ -12,8 +12,9 @@ export const Provider = {
 export type ProviderType = (typeof Provider)[keyof typeof Provider];
 export const providers: ProviderType[] = Object.values(Provider);
 
-export const ProviderSchema: Schema.Schema<ProviderType, ProviderType, never> =
-	Schema.Union(...providers.map((provider) => Schema.Literal(provider)));
+export const ProviderSchema: Schema.Schema<ProviderType> = Schema.Union(
+	...providers.map((provider) => Schema.Literal(provider)),
+);
 
 /** these are the providers sign in currently works with */
 export const activeProviders: ProviderType[] = [

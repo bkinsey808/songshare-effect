@@ -52,7 +52,6 @@ export async function getSupabaseClientToken(
 		throw new Error(`Failed to sign in visitor (initial): ${error.message}`);
 	}
 
-	// eslint-disable-next-line sonarjs/different-types-comparison
 	if (data.session === null || data.user === null) {
 		throw new Error("Missing session or user on initial visitor sign-in.");
 	}
@@ -82,7 +81,6 @@ export async function getSupabaseClientToken(
 			password: env.SUPABASE_VISITOR_PASSWORD,
 		});
 
-		// eslint-disable-next-line sonarjs/different-types-comparison
 		if (signInResponse.error || signInResponse.data.session === null) {
 			throw new Error(
 				`Failed to sign in visitor (after update): ${signInResponse.error?.message ?? "No session"}`,

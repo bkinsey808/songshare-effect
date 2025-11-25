@@ -7,7 +7,10 @@ import {
 	defaultLanguage,
 	languageNames,
 } from "@/shared/language/supported-languages";
-import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
+import {
+	guardAsSupportedLanguage,
+	isSupportedLanguage,
+} from "@/shared/language/supported-languages-effect";
 import { safeGet } from "@/shared/utils/safe";
 
 import { setStoredLanguage } from "./languageStorage";
@@ -19,9 +22,7 @@ export default function LanguageSwitcher(): ReactElement {
 	const { lang } = useParams<{ lang: string }>();
 
 	// Get current language from URL params, with fallback to 'en'
-	const currentLang = (
-		isSupportedLanguage(lang) ? lang : defaultLanguage
-	) as SupportedLanguageType;
+	const currentLang = isSupportedLanguage(lang) ? lang : defaultLanguage;
 
 	// Extract the path without the language prefix
 	const currentPath = location.pathname.substring(3) || "/";
@@ -38,9 +39,11 @@ export default function LanguageSwitcher(): ReactElement {
 	return (
 		<select
 			value={currentLang}
-			onChange={(ev) =>
-				handleLanguageChange(ev.target.value as SupportedLanguageType)
-			}
+			onChange={(ev) => {
+				handleLanguageChange(
+					guardAsSupportedLanguage(ev.target.value as unknown),
+				);
+			}}
 			className="rounded-md border border-gray-300 bg-white px-3 py-1 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
 			aria-label={t("navigation.switchLanguage")}
 		>

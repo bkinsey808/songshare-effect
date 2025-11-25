@@ -1,6 +1,6 @@
 export function resolveRedirectOrigin(
-	envRedirectOrigin?: string | undefined,
-	opts?: Readonly<{ requestOrigin?: string | undefined; isProd?: boolean }>,
+	envRedirectOrigin?: string,
+	opts?: Readonly<{ requestOrigin?: string; isProd?: boolean }>,
 ): string {
 	const envVal = (envRedirectOrigin ?? "").toString();
 	const reqVal = (opts?.requestOrigin ?? "").toString();

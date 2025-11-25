@@ -1,15 +1,16 @@
-import type { Env } from "@/api/env";
+// Env type not required for these wrapper helpers
 import type { ReadonlyContext } from "@/api/hono/hono-context";
 
+import { getErrorMessage } from "@/api/getErrorMessage";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
 import { oauthCallbackFactory } from "@/api/oauth/oauthCallbackFactory";
+import { getEnvString } from "@/shared/env/getEnv";
 
 // Keep exported wrapper typed as `Context` for Hono compatibility. The
 // implementation below uses `ReadonlyContext` so helpers can declare
 // read-only parameters without lint issues.
 async function oauthCallbackHandlerReadonly(
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-	ctx: ReadonlyContext<{ Bindings: Env }>,
+	ctx: ReadonlyContext,
 ): Promise<Response> {
 	try {
 		// Await the handler so we can catch any unexpected runtime rejections
@@ -26,29 +27,25 @@ async function oauthCallbackHandlerReadonly(
 			} else {
 				console.error(
 					"[oauthCallbackHandler] Unhandled exception (non-Error):",
-					String(err),
+					getErrorMessage(err),
 				);
 			}
 		} catch (innerErr) {
 			console.error(
 				"[oauthCallbackHandler] Failed to log unhandled exception:",
-				String(innerErr),
+				getErrorMessage(innerErr),
 			);
 		}
-		return createErrorResponse(ctx as ReadonlyContext<{ Bindings: Env }>, err);
+		return createErrorResponse(ctx, err);
 	}
 }
 
-function createErrorResponse(
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-	ctx: ReadonlyContext<{ Bindings: Env }>,
-	err: unknown,
-): Response {
+function createErrorResponse(ctx: ReadonlyContext, err: unknown): Response {
 	try {
-		const env = (ctx.env as unknown as Record<string, string | undefined>)
-			.ENVIRONMENT;
+		// Read ENVIRONMENT via small helper and avoid call-site cast
+		const env = getEnvString(ctx.env, "ENVIRONMENT");
 		if (env !== "production") {
-			const msg = err instanceof Error ? err.message : String(err);
+			const msg = err instanceof Error ? err.message : getErrorMessage(err);
 			return new Response(
 				JSON.stringify({
 					success: false,
@@ -64,7 +61,7 @@ function createErrorResponse(
 	} catch (ex) {
 		console.error(
 			"[oauthCallbackHandler] Failed to generate debug response:",
-			String(ex),
+			getErrorMessage(ex),
 		);
 	}
 
@@ -78,7 +75,6 @@ function createErrorResponse(
 }
 
 export default async function oauthCallbackHandler(
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	ctx: ReadonlyContext,
 ): Promise<Response> {
 	// Adapter wrapper - convert to ReadonlyContext for the inner implementation

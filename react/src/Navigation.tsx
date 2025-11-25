@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
-import { type SupportedLanguageType } from "@/shared/language/supported-languages";
+import { defaultLanguage } from "@/shared/language/supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { aboutPath } from "@/shared/paths";
 
 import LanguageSwitcher from "./language/LanguageSwitcher";
 
 function Navigation(): ReactElement {
 	const { t, i18n } = useTranslation();
-	const currentLang = i18n.language as SupportedLanguageType;
+	const currentLang = isSupportedLanguage(i18n.language)
+		? i18n.language
+		: defaultLanguage;
 	const location = useLocation();
 	const [isScrolled, setIsScrolled] = useState(false);
 
@@ -21,7 +24,9 @@ function Navigation(): ReactElement {
 		};
 
 		window.addEventListener("scroll", handleScroll);
-		return () => window.removeEventListener("scroll", handleScroll);
+		return () => {
+			window.removeEventListener("scroll", handleScroll);
+		};
 	}, []);
 
 	const navItems = [
@@ -52,9 +57,7 @@ function Navigation(): ReactElement {
 		>
 			{/* App Title and Subtitle */}
 			<div
-				className={`text-center transition-all duration-300 ${
-					isScrolled ? "mb-2" : "mb-6"
-				}`}
+				className={`text-center transition-all duration-300 ${isScrolled ? "mb-2" : "mb-6"}`}
 			>
 				<h1
 					className={`font-bold text-white transition-all duration-300 ${

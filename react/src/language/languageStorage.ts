@@ -22,7 +22,7 @@ export const getStoredLanguage = (): SupportedLanguageType | undefined => {
 	if (typeof window !== "undefined") {
 		const stored = localStorage.getItem("preferred-language");
 		if (isSupportedLanguage(stored)) {
-			return stored as SupportedLanguageType;
+			return stored;
 		}
 	}
 
@@ -42,7 +42,6 @@ export const parseLanguageCookie = (
 ): SupportedLanguageType | undefined => {
 	if (
 		cookieHeader === null ||
-		// eslint-disable-next-line sonarjs/different-types-comparison
 		cookieHeader === undefined ||
 		cookieHeader.trim() === ""
 	) {
@@ -53,12 +52,9 @@ export const parseLanguageCookie = (
 		.find((cookie) =>
 			cookie.trim().startsWith(`${preferredLanguageCookieName}=`),
 		);
-	// eslint-disable-next-line sonarjs/different-types-comparison
 	if (match !== undefined && match !== null && match.includes("=")) {
 		const lang = match.split("=")[1]?.trim();
-		return isSupportedLanguage(lang)
-			? (lang as SupportedLanguageType)
-			: undefined;
+		return isSupportedLanguage(lang) ? lang : undefined;
 	}
 	return undefined;
 };
@@ -68,7 +64,6 @@ export function detectBrowserLanguage(
 ): SupportedLanguageType {
 	if (
 		acceptLanguage === undefined ||
-		// eslint-disable-next-line sonarjs/different-types-comparison
 		acceptLanguage === null ||
 		acceptLanguage.trim() === ""
 	) {
@@ -79,12 +74,10 @@ export function detectBrowserLanguage(
 		.map((lang) => {
 			const parts = lang.split(";");
 			const langPart = parts[0];
-			// eslint-disable-next-line sonarjs/different-types-comparison
 			if (langPart === undefined || langPart === null || langPart === "") {
 				return "";
 			}
 			const mainLang = langPart.split("-")[0];
-			// eslint-disable-next-line sonarjs/different-types-comparison
 			return mainLang !== undefined && mainLang !== null && mainLang !== ""
 				? mainLang.trim().toLowerCase()
 				: "";
@@ -93,7 +86,7 @@ export function detectBrowserLanguage(
 
 	for (const lang of languages) {
 		if (isSupportedLanguage(lang)) {
-			return lang as SupportedLanguageType;
+			return lang;
 		}
 	}
 	return defaultLanguage;

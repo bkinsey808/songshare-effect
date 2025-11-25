@@ -10,17 +10,14 @@
 		"noPropertyAccessFromIndexSignature": false,
 		"declaration": true,
 		"types": ["@cloudflare/workers-types"],
-
 		/* Remove extensions that are incompatible with emit */
 		"allowImportingTsExtensions": false,
 		"verbatimModuleSyntax": false,
-
 		/* Path mapping relative to API directory */
-		"baseUrl": "..",
 		"paths": {
-			"@/shared/*": ["shared/src/*"],
-			"@/react/*": ["./react/src/*"],
-			"@/api/*": ["./api/src/*"]
+			"@/shared/*": ["../shared/src/*"],
+			"@/react/*": ["../react/src/*"],
+			"@/api/*": ["./src/*"]
 		}
 	},
 	"include": ["src/**/*", "../shared/**/*", "*.ts"],

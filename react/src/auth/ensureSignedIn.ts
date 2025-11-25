@@ -9,6 +9,7 @@ import {
 	getStoreApi,
 } from "@/react/zustand/useAppStore";
 import { apiMePath } from "@/shared/paths";
+import { isRecord } from "@/shared/utils/typeGuards";
 
 // Module-level in-flight promise to dedupe concurrent requests.
 let globalInFlight: Promise<UserSessionData | undefined> | undefined;
@@ -18,22 +19,16 @@ function parsePayload(payload: unknown): UserSessionData | undefined {
 	const isSuccessWrapper = (
 		value: unknown,
 	): value is { success: true; data: unknown } => {
-		if (typeof value !== "object" || value === null) {
-			return false;
-		}
-		const obj = value as Record<string, unknown>;
+		if (!isRecord(value)) return false;
 		return (
-			Object.prototype.hasOwnProperty.call(obj, "data") &&
-			obj["data"] !== undefined
+			Object.prototype.hasOwnProperty.call(value, "data") &&
+			value["data"] !== undefined
 		);
 	};
 
 	const isUserSessionData = (value: unknown): value is UserSessionData => {
-		if (typeof value !== "object" || value === null) {
-			return false;
-		}
-		const obj = value as Record<string, unknown>;
-		return Object.prototype.hasOwnProperty.call(obj, "user");
+		if (!isRecord(value)) return false;
+		return Object.prototype.hasOwnProperty.call(value, "user");
 	};
 
 	if (isSuccessWrapper(payload)) {
@@ -106,7 +101,7 @@ export async function ensureSignedIn(options?: {
 				return undefined;
 			}
 
-			const payload: unknown = await res.json().catch((err) => {
+			const payload: unknown = await res.json().catch((err: unknown) => {
 				console.error("useEnsureSignedIn json error", err);
 				return undefined;
 			});

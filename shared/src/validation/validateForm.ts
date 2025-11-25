@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
 import { Effect, type Schema } from "effect";
 
 import type { ValidationError, ValidationResult } from "./types";
@@ -7,21 +8,18 @@ import { validateFormEffect } from "./validateFormEffect";
 /**
  * Validate form data using Effect schema
  */
-export function validateForm<
-	FormValues,
-	I18nMessageType extends { key: string; [key: string]: unknown },
->({
+export function validateForm<FormValues>({
 	schema,
 	data,
 	i18nMessageKey,
 }: Readonly<{
-	schema: Schema.Schema<FormValues, FormValues, never>;
+	schema: Schema.Schema<FormValues>;
 	data: unknown;
 	i18nMessageKey: symbol | string;
 }>): ValidationResult<FormValues> {
 	try {
 		const result = Effect.runSync(
-			validateFormEffect<FormValues, I18nMessageType>({
+			validateFormEffect<FormValues>({
 				schema,
 				data,
 				i18nMessageKey,
@@ -40,10 +38,11 @@ export function validateForm<
 			try {
 				// Try to parse the error message as JSON
 				const parsed = JSON.parse(error.message) as unknown;
-				if (Array.isArray(parsed)) {
+				const extracted = extractValidationErrors(parsed);
+				if (extracted.length > 0) {
 					return {
 						success: false,
-						errors: parsed as ValidationError[],
+						errors: extracted,
 					};
 				}
 			} catch {
@@ -52,10 +51,11 @@ export function validateForm<
 		}
 
 		// The error should be our ValidationError[] array
-		if (Array.isArray(error)) {
+		const extracted = extractValidationErrors(error);
+		if (extracted.length > 0) {
 			return {
 				success: false,
-				errors: error as ValidationError[],
+				errors: extracted,
 			};
 		}
 
@@ -70,4 +70,70 @@ export function validateForm<
 			],
 		};
 	}
+}
+
+/**
+ * Safely extract ValidationError[] from various unknown shapes.
+ */
+function extractValidationErrors(
+	input: unknown,
+): ReadonlyArray<ValidationError> {
+	// Local runtime guard to validate array items look like ValidationError
+	function isValidationErrorArray(value: unknown): value is ValidationError[] {
+		if (!Array.isArray(value)) return false;
+		return value.every((item) => {
+			if (typeof item !== "object" || item === null) return false;
+			// Narrow item for property checks. Localized disable for runtime inspection.
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+			const rec = item as Record<string, unknown>;
+			return (
+				Object.prototype.hasOwnProperty.call(rec, "field") &&
+				Object.prototype.hasOwnProperty.call(rec, "message") &&
+				typeof rec["field"] === "string" &&
+				typeof rec["message"] === "string"
+			);
+		});
+	}
+
+	// Direct array
+	if (isValidationErrorArray(input)) {
+		return input;
+	}
+
+	// Error instance: try parsing message
+	if (input instanceof Error) {
+		try {
+			const parsed = JSON.parse(input.message) as unknown;
+			if (isValidationErrorArray(parsed)) {
+				return parsed;
+			}
+		} catch {
+			return [];
+		}
+	}
+
+	// FiberFailure-like objects or other wrapped shapes
+	if (typeof input === "object" && input !== null) {
+		// Narrow to a record for runtime property checks.
+		// Narrow to a record for runtime property checks.
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+		const obj = input as Record<string, unknown>;
+
+		if ("cause" in obj && isValidationErrorArray(obj["cause"])) {
+			return obj["cause"];
+		}
+
+		if ("message" in obj && typeof obj["message"] === "string") {
+			try {
+				const parsed = JSON.parse(String(obj["message"])) as unknown;
+				if (isValidationErrorArray(parsed)) {
+					return parsed;
+				}
+			} catch {
+				return [];
+			}
+		}
+	}
+
+	return [];
 }

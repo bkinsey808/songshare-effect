@@ -14,9 +14,20 @@ const SongFormField = {
 	slides: "slides",
 } as const;
 
-export const songFormFields = Object.keys(
-	SongFormField,
-) as (keyof typeof SongFormField)[];
+export const songFormFields = [
+	"song_id",
+	"song_name",
+	"song_slug",
+	"short_credit",
+	"long_credit",
+	"private_notes",
+	"public_notes",
+	"fields",
+	"slide_order",
+	"slides",
+] as const;
+
+export type SongFormFieldKey = (typeof songFormFields)[number];
 
 export const songFormFieldSchema: unknown = Schema.Literal(
 	"song_id",
@@ -32,7 +43,12 @@ export const songFormFieldSchema: unknown = Schema.Literal(
 );
 
 // Define the slide schema locally
-export const slideSchema: unknown = Schema.Struct({
+export type SlideShape = {
+	slide_name: string;
+	field_data: Record<string, string>;
+};
+
+export const slideSchema: Schema.Schema<SlideShape> = Schema.Struct({
 	slide_name: Schema.String,
 	field_data: Schema.Record({
 		key: Schema.String,
@@ -40,12 +56,26 @@ export const slideSchema: unknown = Schema.Struct({
 	}),
 });
 
-export const slidesSchema: unknown = Schema.Record({
-	key: Schema.String,
-	value: slideSchema as Schema.Schema<unknown>,
-});
+export const slidesSchema: Schema.Schema<Record<string, SlideShape>> =
+	Schema.Record({
+		key: Schema.String,
+		value: slideSchema,
+	});
 
-export const songFormSchema: unknown = Schema.Struct({
+export type SongFormValues = {
+	song_id?: string | undefined;
+	song_name: string;
+	song_slug: string;
+	short_credit?: string | undefined;
+	long_credit?: string | undefined;
+	private_notes?: string | undefined;
+	public_notes?: string | undefined;
+	fields: readonly string[];
+	slide_order: readonly string[];
+	slides: Record<string, SlideShape>;
+};
+
+export const songFormSchema: Schema.Schema<SongFormValues> = Schema.Struct({
 	[SongFormField.song_id]: Schema.optional(Schema.String),
 	[SongFormField.song_name]: Schema.String,
 	[SongFormField.song_slug]: Schema.String,
@@ -55,7 +85,9 @@ export const songFormSchema: unknown = Schema.Struct({
 	[SongFormField.public_notes]: Schema.optional(Schema.String),
 	[SongFormField.fields]: Schema.Array(Schema.String),
 	[SongFormField.slide_order]: Schema.Array(Schema.String),
-	[SongFormField.slides]: slidesSchema as Schema.Schema<unknown>,
+	[SongFormField.slides]: slidesSchema,
 });
 
-export type SongFormValues = Schema.Schema.Type<typeof songFormSchema>;
+export type SongFormValuesFromSchema = Schema.Schema.Type<
+	typeof songFormSchema
+>;

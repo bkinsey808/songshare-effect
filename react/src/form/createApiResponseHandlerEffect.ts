@@ -20,7 +20,7 @@ export const createApiResponseHandlerEffect = ({
 	) => void;
 	readonly setSubmitError: (error: string) => void;
 	readonly defaultErrorMessage?: string;
-}): Effect.Effect<boolean, never, never> => {
+}): Effect.Effect<boolean> => {
 	return createApiResponseEffect(response).pipe(
 		Effect.matchEffect({
 			onSuccess: () => {

@@ -258,7 +258,7 @@ export default function calculatePopoverPosition({
 		}
 
 		return currentSpace > bestSpace ? current : best;
-	}, {} as PlacementConfig);
+	}, placements[0]!);
 
 	let position = { ...bestFitPlacement.position };
 

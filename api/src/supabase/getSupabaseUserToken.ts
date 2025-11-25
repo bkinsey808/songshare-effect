@@ -50,7 +50,6 @@ export async function getSupabaseUserToken({
 		throw new Error(`Failed to sign in user: ${error.message}`);
 	}
 
-	// eslint-disable-next-line sonarjs/different-types-comparison
 	if (data.session === null || data.user === null) {
 		throw new Error("Missing session or user on user sign-in.");
 	}
@@ -63,13 +62,26 @@ export async function getSupabaseUserToken({
 	};
 
 	// Check if we need to update the user's metadata
-	const currentUserData = data.user.app_metadata?.user?.user_id as
-		| string
-		| undefined;
+	const getUserIdFromAppMetadata = (meta: unknown): string | undefined => {
+		if (typeof meta !== "object" || meta === null) return undefined;
+		// Narrow to a record for runtime checks. Localized disable keeps this
+		// check safe and contained to this helper.
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion
+		const rec = meta as Record<string, unknown>;
+		const user = rec["user"];
+		if (typeof user !== "object" || user === null) return undefined;
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion
+		const uid = (user as Record<string, unknown>)["user_id"];
+		return typeof uid === "string" ? uid : undefined;
+	};
+
+	const currentUserData = getUserIdFromAppMetadata(data.user.app_metadata);
 	if (currentUserData !== data.user.id) {
 		const { error: updateError } = await client.auth.admin.updateUserById(
 			data.user.id,
-			{ app_metadata: expectedMetadata },
+			{
+				app_metadata: expectedMetadata,
+			},
 		);
 
 		if (updateError) {
@@ -82,7 +94,6 @@ export async function getSupabaseUserToken({
 			password,
 		});
 
-		// eslint-disable-next-line sonarjs/different-types-comparison
 		if (signInResponse.error || signInResponse.data.session === null) {
 			throw new Error(
 				`Failed to sign in user (after update): ${signInResponse.error?.message ?? "No session"}`,

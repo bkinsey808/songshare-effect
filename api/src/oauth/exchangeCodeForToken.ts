@@ -3,6 +3,7 @@ import { Effect } from "effect";
 import type { FetchOpts } from "@/api/oauth/fetchOpts";
 
 import { codeQueryParam } from "@/shared/queryParams";
+import { isRecord } from "@/shared/utils/typeGuards";
 
 export function exchangeCodeForToken(opts: FetchOpts): Effect.Effect<
 	{
@@ -45,15 +46,12 @@ export function exchangeCodeForToken(opts: FetchOpts): Effect.Effect<
 				throw new Error(`Token exchange failed: ${res.status} ${text}`);
 			}
 
-			const jsonRaw = (await res.json().catch(() => undefined)) as unknown;
+			const jsonRaw: unknown = await res.json().catch(() => undefined);
 			if (jsonRaw === undefined) {
 				throw new Error("Token exchange returned invalid JSON");
 			}
 
-			const asRecord =
-				typeof jsonRaw === "object" && jsonRaw !== null
-					? (jsonRaw as Record<string, unknown>)
-					: {};
+			const asRecord = isRecord(jsonRaw) ? jsonRaw : {};
 			const accessToken =
 				typeof asRecord["access_token"] === "string"
 					? String(asRecord["access_token"])

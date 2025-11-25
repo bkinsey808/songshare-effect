@@ -2,54 +2,36 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
-
-import { useAppStore } from "@/react/zustand/useAppStore";
+import { useAppStoreSelector } from "@/react/zustand/useAppStore";
+import { defaultLanguage } from "@/shared/language/supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
 import type { SongLibraryEntry } from "./song-library-schema";
-
-type SongLibraryMethods = {
-	libraryEntries: Record<string, SongLibraryEntry>;
-	isLibraryLoading: boolean;
-	libraryError?: string;
-	fetchLibrary: () => Promise<void>;
-	subscribeToLibrary: () => (() => void) | undefined;
-	removeFromLibrary: (request: Readonly<{ song_id: string }>) => Promise<void>;
-};
 
 export default function SongLibrary(): ReactElement {
 	const { t, i18n } = useTranslation();
 	const navigate = useNavigate();
-	const currentLang = i18n.language as SupportedLanguageType;
+	const rawLang: unknown = i18n.language;
+	const currentLang = isSupportedLanguage(rawLang) ? rawLang : defaultLanguage;
 
-	const store = useAppStore() as unknown as (
-		selector: (state: ReadonlyDeep<SongLibraryMethods>) => unknown,
-	) => unknown;
-
-	const libraryEntries = store(
-		(state: ReadonlyDeep<SongLibraryMethods>) => state.libraryEntries,
-	) as Record<string, SongLibraryEntry>;
-
-	const isLoading = store(
-		(state: ReadonlyDeep<SongLibraryMethods>) => state.isLibraryLoading,
-	) as boolean;
-
-	const error = store(
-		(state: ReadonlyDeep<SongLibraryMethods>) => state.libraryError,
-	) as string | undefined;
-
-	const fetchLibrary = store(
-		(state: ReadonlyDeep<SongLibraryMethods>) => state.fetchLibrary,
-	) as () => Promise<void>;
-
-	const subscribeToLibrary = store(
-		(state: ReadonlyDeep<SongLibraryMethods>) => state.subscribeToLibrary,
-	) as () => (() => void) | undefined;
-
-	const removeFromLibrary = store(
-		(state: ReadonlyDeep<SongLibraryMethods>) => state.removeFromLibrary,
-	) as (request: Readonly<{ song_id: string }>) => Promise<void>;
+	const libraryEntries = useAppStoreSelector<Record<string, SongLibraryEntry>>(
+		(state) => state.libraryEntries,
+	);
+	const isLoading = useAppStoreSelector<boolean>(
+		(state) => state.isLibraryLoading,
+	);
+	const error = useAppStoreSelector<string | undefined>(
+		(state) => state.libraryError,
+	);
+	const fetchLibrary = useAppStoreSelector<() => Promise<void>>(
+		(state) => state.fetchLibrary,
+	);
+	const subscribeToLibrary = useAppStoreSelector<
+		() => (() => void) | undefined
+	>((state) => state.subscribeToLibrary);
+	const removeFromLibrary = useAppStoreSelector<
+		(request: Readonly<{ song_id: string }>) => Promise<void>
+	>((state) => state.removeFromLibrary);
 
 	// Initialize library data and subscription
 	useEffect(() => {

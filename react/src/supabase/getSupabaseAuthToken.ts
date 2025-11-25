@@ -5,6 +5,7 @@ type TokenResponse = {
 	token_type: string;
 	expires_in: number;
 };
+import { isRecord } from "@/shared/utils/typeGuards";
 
 // In-memory token storage (more secure than client-accessible cookies)
 let cachedSupabaseClientToken: string | undefined;
@@ -77,7 +78,27 @@ async function fetchSupabaseClientTokenFromAPI(): Promise<string> {
 			throw new Error(`Failed to fetch visitor token: ${response.status}`);
 		}
 
-		const data = (await response.json()) as TokenResponse;
+		const jsonRaw: unknown = await response.json().catch(() => undefined);
+
+		function isTokenResponse(x: unknown): x is TokenResponse {
+			if (!isRecord(x)) return false;
+			const rec = x;
+			return (
+				Object.prototype.hasOwnProperty.call(rec, "access_token") &&
+				Object.prototype.hasOwnProperty.call(rec, "token_type") &&
+				Object.prototype.hasOwnProperty.call(rec, "expires_in") &&
+				typeof rec["access_token"] === "string" &&
+				typeof rec["token_type"] === "string" &&
+				typeof rec["expires_in"] === "number"
+			);
+		}
+
+		if (!isTokenResponse(jsonRaw)) {
+			console.error("Invalid token response from visitor endpoint:", jsonRaw);
+			throw new Error("Unable to authenticate as visitor");
+		}
+
+		const data = jsonRaw;
 
 		// Cache the token in memory (more secure than cookies)
 		const expiryTime = Date.now() + data.expires_in * 1000;
@@ -131,7 +152,27 @@ export async function signInUser(
 			throw new Error(`Authentication failed: ${response.status}`);
 		}
 
-		const data = (await response.json()) as TokenResponse;
+		const jsonRaw: unknown = await response.json().catch(() => undefined);
+
+		function isTokenResponse(x: unknown): x is TokenResponse {
+			if (!isRecord(x)) return false;
+			const rec = x;
+			return (
+				Object.prototype.hasOwnProperty.call(rec, "access_token") &&
+				Object.prototype.hasOwnProperty.call(rec, "token_type") &&
+				Object.prototype.hasOwnProperty.call(rec, "expires_in") &&
+				typeof rec["access_token"] === "string" &&
+				typeof rec["token_type"] === "string" &&
+				typeof rec["expires_in"] === "number"
+			);
+		}
+
+		if (!isTokenResponse(jsonRaw)) {
+			console.error("Invalid token response from user auth endpoint:", jsonRaw);
+			throw new Error("Unable to authenticate user");
+		}
+
+		const data = jsonRaw;
 
 		// Cache the user token in memory
 		const expiryTime = Date.now() + data.expires_in * 1000;

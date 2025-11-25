@@ -1,4 +1,3 @@
-
 import { execFileSync } from "child_process";
 import { existsSync, rmSync, writeFileSync } from "fs";
 
@@ -11,8 +10,9 @@ export type SupabaseGenerationConfig = {
 };
 
 // The config includes NodeJS.ProcessEnv which isn't readonly, so lint rule is disabled.
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-export function generateSupabaseTypes(config: Readonly<SupabaseGenerationConfig>): boolean {
+export function generateSupabaseTypes(
+	config: Readonly<SupabaseGenerationConfig>,
+): boolean {
 	console.log("📥 Generating Supabase TypeScript types...");
 	if (existsSync(config.tempTypesPath)) {
 		rmSync(config.tempTypesPath);

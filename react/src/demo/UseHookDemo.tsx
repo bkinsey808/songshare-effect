@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { createContext, use, useState } from "react";
 
 // Create a context for theme
@@ -40,7 +42,7 @@ const fetchSongDetails = async (
 };
 
 // Helper function to get or create cached promises
-function getCachedPromise<T>(
+async function getCachedPromise<T>(
 	key: string,
 	fetcher: () => Promise<T>,
 ): Promise<T> {
@@ -51,7 +53,7 @@ function getCachedPromise<T>(
 				promiseCache.set(key, Promise.resolve(result));
 				return result;
 			},
-			(error) => {
+			(error: unknown) => {
 				// Remove failed promises from cache so they can be retried
 				promiseCache.delete(key);
 				throw error;
@@ -59,6 +61,10 @@ function getCachedPromise<T>(
 		);
 		promiseCache.set(key, promise);
 	}
+
+	// The cache holds Promises of unknown; at the API boundary we assert
+	// the return type for callers. Keep this assertion narrowly scoped.
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 	return promiseCache.get(key) as Promise<T>;
 }
 
@@ -69,7 +75,7 @@ type UserProfileParams = Readonly<{
 // Component that uses the 'use' hook with promises
 function UserProfile({ userId }: UserProfileParams): ReactElement {
 	// Using the 'use' hook to read the promise directly
-	const userPromise = getCachedPromise(`user-${userId}`, () =>
+	const userPromise = getCachedPromise(`user-${userId}`, async () =>
 		fetchUserData(userId),
 	);
 	const user = use(userPromise);
@@ -113,7 +119,7 @@ type SongDetailsParams = Readonly<{
 // Component that demonstrates using 'use' hook with dynamic promises
 function SongDetails({ songName }: SongDetailsParams): ReactElement {
 	// Create a promise dynamically and use the 'use' hook
-	const songPromise = getCachedPromise(`song-${songName}`, () =>
+	const songPromise = getCachedPromise(`song-${songName}`, async () =>
 		fetchSongDetails(songName),
 	);
 	const song = use(songPromise);
@@ -166,7 +172,9 @@ function UseHookDemo(): ReactElement {
 
 				<div className="mb-5 space-x-3">
 					<button
-						onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+						onClick={() => {
+							setTheme(theme === "light" ? "dark" : "light");
+						}}
 						className={`cursor-pointer rounded border-none px-4 py-2 font-medium text-white transition-colors ${
 							theme === "dark"
 								? "bg-gray-600 hover:bg-gray-700"
@@ -177,7 +185,9 @@ function UseHookDemo(): ReactElement {
 					</button>
 
 					<button
-						onClick={() => setUserId(userId === 1 ? 2 : 1)}
+						onClick={() => {
+							setUserId(userId === 1 ? 2 : 1);
+						}}
 						className="cursor-pointer rounded border-none bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700"
 					>
 						🔄 Switch User ({userId})
@@ -201,7 +211,9 @@ function UseHookDemo(): ReactElement {
 						{["Song 1A", "Song 1B", "Song 2A", "Song 2B"].map((song) => (
 							<button
 								key={song}
-								onClick={() => setSelectedSong(song)}
+								onClick={() => {
+									setSelectedSong(song);
+								}}
 								className={`cursor-pointer rounded border-none px-3 py-2 font-medium transition-colors ${
 									selectedSong === song
 										? "bg-yellow-400 text-black hover:bg-yellow-500"

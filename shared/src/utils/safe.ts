@@ -1,16 +1,22 @@
 /** Safely get a property from an object, avoiding prototype pollution and unsafe access */
-// eslint-disable-next-line max-params
+export function safeGet<T extends Record<string, unknown>, K extends keyof T>(
+	obj: T,
+	key: K,
+): T[K] | undefined;
 export function safeGet<
 	T extends Record<string, unknown>,
 	K extends keyof T,
-	V = T[K] | undefined,
->(obj: T, key: K, defaultValue?: V): T[K] | V {
+	V,
+>(obj: T, key: K, defaultValue: V): T[K] | V;
+export function safeGet<
+	T extends Record<string, unknown>,
+	K extends keyof T,
+	V,
+>(obj: T, key: K, defaultValue?: V): T[K] | V | undefined {
 	if (Object.hasOwn(obj, key)) {
-		// eslint-disable-next-line security/detect-object-injection
 		return obj[key];
 	}
-	// TypeScript knows defaultValue is V, so this is safe
-	return defaultValue as V;
+	return defaultValue;
 }
 
 /**
@@ -23,12 +29,14 @@ export function superSafeGet<
 	T extends Record<string, unknown>,
 	K extends keyof T,
 >(obj: T, key: K): T[K] {
-	return safeGet(obj, key);
+	if (!Object.hasOwn(obj, key)) {
+		throw new Error(`superSafeGet: missing key ${String(key)}`);
+	}
+	return obj[key];
 }
 
 // src/features/utils/safeSet.ts
 /** Safely set a property on an object, avoiding prototype pollution and unsafe access */
-// eslint-disable-next-line max-params
 export function safeSet(
 	obj: Readonly<Record<string, unknown>>,
 	key: string,
@@ -36,7 +44,6 @@ export function safeSet(
 ): void {
 	if (key !== "__proto__" && key !== "constructor" && key !== "prototype") {
 		// Only set if not polluting prototype
-		// eslint-disable-next-line security/detect-object-injection, no-param-reassign
 		(obj as Record<string, unknown>)[key] = value;
 	}
 }
@@ -50,7 +57,6 @@ export default function safeDelete(
 	key: string,
 ): boolean {
 	if (Object.hasOwn(obj, key)) {
-		// eslint-disable-next-line security/detect-object-injection, no-param-reassign, @typescript-eslint/no-dynamic-delete
 		return delete (obj as Record<string, unknown>)[key];
 	}
 	return false;
@@ -60,14 +66,13 @@ export default function safeDelete(
  * Safely get an element from an array by index, avoiding out-of-bounds errors.
  * Returns the element if the index is valid, otherwise returns the default value (or undefined).
  */
-// eslint-disable-next-line max-params
 export function safeArrayGet<T>(
 	arr: ReadonlyArray<T>,
 	idx: number,
 	defaultValue?: T,
 ): T | undefined {
 	if (Array.isArray(arr) && idx >= 0 && idx < arr.length) {
-		// eslint-disable-next-line security/detect-object-injection
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return arr[idx];
 	}
 	return defaultValue;
@@ -77,19 +82,17 @@ export function safeArrayGet<T>(
  * Safely set an element in an array by index, avoiding out-of-bounds errors.
  * Returns a new array with the value set if the index is valid, otherwise returns the original array.
  */
-// eslint-disable-next-line max-params
 export function safeArraySet<T>(
 	arr: ReadonlyArray<T>,
 	idx: number,
 	value: T,
 ): ReadonlyArray<T> {
 	if (Array.isArray(arr) && idx >= 0 && idx < arr.length) {
-		// Use `slice()` to return a new mutable array from a ReadonlyArray<T>.
-		// This avoids spreading an `any` (or unknown) value and satisfies
-		// `@typescript-eslint/no-unsafe-assignment` while producing a typed T[].
-		const copy = arr.slice();
-		// eslint-disable-next-line security/detect-object-injection
+		// Use spread to produce a mutable copy from a ReadonlyArray<T>.
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-spread, typescript/no-unsafe-spread, @typescript-eslint/no-unsafe-assignment
+		const copy = [...arr];
 		copy[idx] = value;
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return copy;
 	}
 	return arr;

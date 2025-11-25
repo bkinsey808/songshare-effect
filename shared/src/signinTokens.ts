@@ -21,6 +21,8 @@ export function isSigninErrorToken(
 ): value is SigninErrorTokenType {
 	return (
 		typeof value === "string" &&
-		Object.values(SigninErrorToken).includes(value as SigninErrorTokenType)
+		// Avoid unsafe type assertions by performing a direct equality
+		// comparison against the runtime values.
+		Object.values(SigninErrorToken).some((v) => v === value)
 	);
 }

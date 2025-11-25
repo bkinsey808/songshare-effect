@@ -1,4 +1,4 @@
-import { safeGet } from "@/shared/utils/safe";
+// safeGet not needed here — read from import.meta.env directly
 
 /**
  * Gets a Vite environment variable value and ensures it's a string.
@@ -8,15 +8,20 @@ import { safeGet } from "@/shared/utils/safe";
  */
 export function getEnvValue(envVar: string): string {
 	const fullEnvVar = `VITE_${envVar}`;
-	const value = safeGet(import.meta.env, fullEnvVar) as string | undefined;
+	// Read the env value as unknown and validate at runtime to avoid unsafe assertions
+	// Cast is unavoidable because `import.meta.env` has a specialized type.
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-type-assertion
+	const raw: unknown = (import.meta.env as unknown as Record<string, unknown>)[
+		fullEnvVar
+	];
 
-	if (typeof value !== "string" || value === "") {
+	if (typeof raw !== "string" || raw === "") {
 		throw new Error(
 			`Environment variable ${fullEnvVar} is not defined or empty`,
 		);
 	}
 
-	return value;
+	return raw;
 }
 
 /**

@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -37,11 +39,11 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 
 		let res: Response;
 		try {
-			const init = {
+			const init: RequestInit = {
 				method: "POST",
 				credentials: "include",
-				headers,
-			} as RequestInit;
+			};
+			if (headers) init.headers = headers;
 
 			res = await fetch(apiAccountDeletePath, init);
 		} catch (err) {
@@ -119,7 +121,9 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 				<button
 					type="button"
 					disabled={loading}
-					onClick={onConfirm}
+					onClick={() => {
+						void onConfirm();
+					}}
 					className="flex-1 rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
 				>
 					{loading

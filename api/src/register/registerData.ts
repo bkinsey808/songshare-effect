@@ -8,11 +8,7 @@ export type RegisterData = {
 	readonly oauthState: Schema.Schema.Type<typeof OauthStateSchema>;
 };
 
-export const RegisterDataSchema: Schema.Schema<
-	RegisterData,
-	RegisterData,
-	never
-> = Schema.Struct({
+export const RegisterDataSchema: Schema.Schema<RegisterData> = Schema.Struct({
 	oauthUserData: OauthUserDataSchema,
 	oauthState: OauthStateSchema,
 });

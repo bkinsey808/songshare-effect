@@ -63,7 +63,11 @@ function UploadPage(): ReactElement {
 			</div>
 
 			<div className="mx-auto max-w-2xl">
-				<form onSubmit={handleSubmit}>
+				<form
+					onSubmit={(e) => {
+						void handleSubmit(e);
+					}}
+				>
 					<div className="mb-5">
 						<label htmlFor="title" className="mb-2 block font-bold text-white">
 							Song Title *

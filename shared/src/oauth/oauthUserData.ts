@@ -11,11 +11,7 @@ export type OauthUserData = {
 
 export type ReadonlyOauthUserData = ReadonlyDeep<OauthUserData>;
 
-export const OauthUserDataSchema: Schema.Schema<
-	OauthUserData,
-	OauthUserData,
-	never
-> = Schema.Struct({
+export const OauthUserDataSchema: Schema.Schema<OauthUserData> = Schema.Struct({
 	sub: Schema.optional(Schema.String),
 	id: Schema.optional(Schema.String),
 	email: Schema.String,

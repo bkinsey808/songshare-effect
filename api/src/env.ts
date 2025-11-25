@@ -4,6 +4,12 @@ export type Env = {
 	SUPABASE_VISITOR_EMAIL: string;
 	SUPABASE_VISITOR_PASSWORD: string;
 	JWT_SECRET?: string;
+	// HMAC secret used for state verification in OAuth callback flows
+	STATE_HMAC_SECRET?: string;
+	// Optional debug flag used by cookie helpers to output client-side cookie
+	// header values instead of setting an HttpOnly cookie. This is only used
+	// in development and controlled via env var when testing cookie behavior.
+	REGISTER_COOKIE_CLIENT_DEBUG?: string;
 	OAUTH_REDIRECT_ORIGIN?: string;
 	OAUTH_REDIRECT_PATH?: string;
 	ALLOWED_REDIRECT_ORIGINS?: string;

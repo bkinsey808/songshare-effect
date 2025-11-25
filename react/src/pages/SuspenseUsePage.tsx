@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 import { Suspense, use, useState } from "react";
 
 import ErrorBoundary from "@/react/demo/ErrorBoundary";
@@ -92,7 +94,7 @@ const fetchPlaylistData = async (
 };
 
 // Helper function to get or create cached promises
-function getCachedPromise<T>(
+async function getCachedPromise<T>(
 	key: string,
 	fetcher: () => Promise<T>,
 ): Promise<T> {
@@ -102,13 +104,16 @@ function getCachedPromise<T>(
 				promiseCache.set(key, Promise.resolve(result));
 				return result;
 			},
-			(error) => {
+			(error: unknown) => {
 				promiseCache.delete(key);
 				throw error;
 			},
 		);
 		promiseCache.set(key, promise);
 	}
+
+	// Narrow the unsafe assertion to this single line at the API boundary.
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 	return promiseCache.get(key) as Promise<T>;
 }
 
@@ -134,7 +139,7 @@ type AlbumCardParams = Readonly<{
 
 // Component that uses 'use' hook to fetch album data
 function AlbumCard({ albumId }: AlbumCardParams): ReactElement {
-	const albumPromise = getCachedPromise(`album-${albumId}`, () =>
+	const albumPromise = getCachedPromise(`album-${albumId}`, async () =>
 		fetchAlbumData(albumId),
 	);
 	const album = use(albumPromise);
@@ -179,7 +184,7 @@ type ArtistProfileParams = Readonly<{
 
 // Component that uses 'use' hook to fetch artist data
 function ArtistProfile({ artistId }: ArtistProfileParams): ReactElement {
-	const artistPromise = getCachedPromise(`artist-${artistId}`, () =>
+	const artistPromise = getCachedPromise(`artist-${artistId}`, async () =>
 		fetchArtistData(artistId),
 	);
 	const artist = use(artistPromise);
@@ -212,7 +217,7 @@ type PlaylistDetailsParams = Readonly<{
 
 // Component that uses 'use' hook to fetch playlist data
 function PlaylistDetails({ playlistId }: PlaylistDetailsParams): ReactElement {
-	const playlistPromise = getCachedPromise(`playlist-${playlistId}`, () =>
+	const playlistPromise = getCachedPromise(`playlist-${playlistId}`, async () =>
 		fetchPlaylistData(playlistId),
 	);
 	const playlist = use(playlistPromise);
@@ -255,7 +260,6 @@ function PlaylistDetails({ playlistId }: PlaylistDetailsParams): ReactElement {
 }
 
 // Main page component
-// eslint-disable-next-line max-lines-per-function
 function SuspenseUsePage(): ReactElement {
 	const [activeAlbum, setActiveAlbum] = useState<number | undefined>(undefined);
 	const [activeArtist, setActiveArtist] = useState<number | undefined>(
@@ -290,21 +294,27 @@ function SuspenseUsePage(): ReactElement {
 
 				<div className="mb-4 flex flex-wrap gap-3">
 					<button
-						onClick={() => setActiveAlbum(activeAlbum === 1 ? 2 : 1)}
+						onClick={() => {
+							setActiveAlbum(activeAlbum === 1 ? 2 : 1);
+						}}
 						className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
 					>
 						🎵 Load Album ({activeAlbum ?? "None"})
 					</button>
 
 					<button
-						onClick={() => setActiveArtist(activeArtist === 1 ? 2 : 1)}
+						onClick={() => {
+							setActiveArtist(activeArtist === 1 ? 2 : 1);
+						}}
 						className="rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-700"
 					>
 						🎤 Load Artist ({activeArtist ?? "None"})
 					</button>
 
 					<button
-						onClick={() => setActivePlaylist(activePlaylist === 1 ? 2 : 1)}
+						onClick={() => {
+							setActivePlaylist(activePlaylist === 1 ? 2 : 1);
+						}}
 						className="rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700"
 					>
 						📝 Load Playlist ({activePlaylist ?? "None"})
@@ -323,21 +333,27 @@ function SuspenseUsePage(): ReactElement {
 						Test Error Handling:
 					</span>
 					<button
-						onClick={() => setActiveAlbum(99)}
+						onClick={() => {
+							setActiveAlbum(99);
+						}}
 						className="rounded-md bg-orange-500 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-orange-600"
 					>
 						⚠️ Trigger Album Error
 					</button>
 
 					<button
-						onClick={() => setActiveArtist(99)}
+						onClick={() => {
+							setActiveArtist(99);
+						}}
 						className="rounded-md bg-orange-500 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-orange-600"
 					>
 						⚠️ Trigger Artist Error
 					</button>
 
 					<button
-						onClick={() => setActivePlaylist(99)}
+						onClick={() => {
+							setActivePlaylist(99);
+						}}
 						className="rounded-md bg-orange-500 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-orange-600"
 					>
 						⚠️ Trigger Playlist Error
@@ -351,26 +367,21 @@ function SuspenseUsePage(): ReactElement {
 					<h2 className="text-xl font-semibold text-gray-800">
 						Albums (2s load time)
 					</h2>
-					{
-						// eslint-disable-next-line no-negated-condition
-						activeAlbum !== undefined ? (
-							<ErrorBoundary>
-								<Suspense
-									fallback={
-										<LoadingSpinner message="Loading album details..." />
-									}
-								>
-									<AlbumCard albumId={activeAlbum} />
-								</Suspense>
-							</ErrorBoundary>
-						) : (
-							<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-								<p className="text-gray-500">
-									Click "Load Album" to see Suspense in action
-								</p>
-							</div>
-						)
-					}
+					{activeAlbum !== undefined ? (
+						<ErrorBoundary>
+							<Suspense
+								fallback={<LoadingSpinner message="Loading album details..." />}
+							>
+								<AlbumCard albumId={activeAlbum} />
+							</Suspense>
+						</ErrorBoundary>
+					) : (
+						<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+							<p className="text-gray-500">
+								Click "Load Album" to see Suspense in action
+							</p>
+						</div>
+					)}
 				</div>
 
 				{/* Artist Section */}
@@ -378,26 +389,23 @@ function SuspenseUsePage(): ReactElement {
 					<h2 className="text-xl font-semibold text-gray-800">
 						Artists (1.5s load time)
 					</h2>
-					{
-						// eslint-disable-next-line no-negated-condition
-						activeArtist !== undefined ? (
-							<ErrorBoundary>
-								<Suspense
-									fallback={
-										<LoadingSpinner message="Loading artist profile..." />
-									}
-								>
-									<ArtistProfile artistId={activeArtist} />
-								</Suspense>
-							</ErrorBoundary>
-						) : (
-							<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-								<p className="text-gray-500">
-									Click "Load Artist" to see Suspense in action
-								</p>
-							</div>
-						)
-					}
+					{activeArtist !== undefined ? (
+						<ErrorBoundary>
+							<Suspense
+								fallback={
+									<LoadingSpinner message="Loading artist profile..." />
+								}
+							>
+								<ArtistProfile artistId={activeArtist} />
+							</Suspense>
+						</ErrorBoundary>
+					) : (
+						<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+							<p className="text-gray-500">
+								Click "Load Artist" to see Suspense in action
+							</p>
+						</div>
+					)}
 				</div>
 
 				{/* Playlist Section */}
@@ -405,26 +413,23 @@ function SuspenseUsePage(): ReactElement {
 					<h2 className="text-xl font-semibold text-gray-800">
 						Playlists (3s load time)
 					</h2>
-					{
-						// eslint-disable-next-line no-negated-condition
-						activePlaylist !== undefined ? (
-							<ErrorBoundary>
-								<Suspense
-									fallback={
-										<LoadingSpinner message="Loading playlist details..." />
-									}
-								>
-									<PlaylistDetails playlistId={activePlaylist} />
-								</Suspense>
-							</ErrorBoundary>
-						) : (
-							<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-								<p className="text-gray-500">
-									Click "Load Playlist" to see Suspense in action
-								</p>
-							</div>
-						)
-					}
+					{activePlaylist !== undefined ? (
+						<ErrorBoundary>
+							<Suspense
+								fallback={
+									<LoadingSpinner message="Loading playlist details..." />
+								}
+							>
+								<PlaylistDetails playlistId={activePlaylist} />
+							</Suspense>
+						</ErrorBoundary>
+					) : (
+						<div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+							<p className="text-gray-500">
+								Click "Load Playlist" to see Suspense in action
+							</p>
+						</div>
+					)}
 				</div>
 			</div>
 

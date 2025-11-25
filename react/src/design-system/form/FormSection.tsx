@@ -5,7 +5,6 @@ type FormSectionProps = Readonly<{
 	className?: string;
 }>;
 
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export default function FormSection({
 	children,
 	className = "",

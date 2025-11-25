@@ -201,7 +201,6 @@ export const createSongLibrarySlice: StateCreator<
 			set({ libraryEntries: entries });
 		},
 
-		// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 		addLibraryEntry: (entry: SongLibraryEntry) => {
 			set((state) => ({
 				libraryEntries: {

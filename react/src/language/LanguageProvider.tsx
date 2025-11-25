@@ -2,15 +2,11 @@ import { Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate, Outlet, useParams } from "react-router-dom";
 
-import {
-	type SupportedLanguageType,
-	defaultLanguage,
-} from "@/shared/language/supported-languages";
+import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
 import { getStoredLanguage, setStoredLanguage } from "./languageStorage";
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function LanguageProviderInner() {
 	const { lang } = useParams<{ lang: string }>();
 	const { i18n } = useTranslation();
@@ -20,8 +16,8 @@ function LanguageProviderInner() {
 
 	// Handle language changes and preference management
 	useEffect(() => {
-		if (isValidLang === true) {
-			const currentLang = lang as SupportedLanguageType;
+		if (isSupportedLanguage(lang)) {
+			const currentLang = lang;
 			const storedPreference = getStoredLanguage();
 
 			// Check if user has a different stored preference
@@ -45,7 +41,7 @@ function LanguageProviderInner() {
 	}, [lang, i18n, isValidLang]);
 
 	// Early return after hooks
-	if (isValidLang === false) {
+	if (!isSupportedLanguage(lang)) {
 		return <Navigate to={`/${defaultLanguage}/`} replace />;
 	}
 

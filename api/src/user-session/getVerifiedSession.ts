@@ -1,8 +1,9 @@
-import { Effect, Schema } from "effect";
+import { Effect } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/hono-context";
 
 import { AuthenticationError, DatabaseError } from "@/api/errors";
+import { getErrorMessage } from "@/api/getErrorMessage";
 import {
 	extractUserSessionTokenFromContext,
 	verifyUserSessionToken,
@@ -11,22 +12,20 @@ import {
 	type UserSessionData,
 	UserSessionDataSchema,
 } from "@/shared/userSessionData";
-
-import { type Bindings, type Env } from "../env";
+import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
 
 /**
  * Verify user session JWT and return decoded `UserSessionData`.
  * Reusable helper for API handlers that need an authenticated user.
  */
 export const getVerifiedUserSession = (
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-	ctx: ReadonlyContext<{ Bindings: Env }>,
+	ctx: ReadonlyContext,
 ): Effect.Effect<UserSessionData, AuthenticationError | DatabaseError> =>
 	Effect.gen(function* ($) {
 		// 1) extract token from cookie
 		const userSessionToken = yield* $(extractUserSessionTokenFromContext(ctx));
 
-		if (userSessionToken === undefined) {
+		if (typeof userSessionToken !== "string" || userSessionToken === "") {
 			return yield* $(
 				Effect.fail(new AuthenticationError({ message: "Not authenticated" })),
 			);
@@ -45,18 +44,18 @@ export const getVerifiedUserSession = (
 
 		// 3) verify token
 		const verified = yield* $(
-			verifyUserSessionToken(userSessionToken as string, ctx.env as Bindings),
+			verifyUserSessionToken(userSessionToken, ctx.env),
 		);
 
 		// 4) decode/validate using schema
 		const userSessionData = yield* $(
-			Schema.decodeUnknown(UserSessionDataSchema)(verified as unknown).pipe(
-				Effect.mapError(
-					(err) =>
-						new AuthenticationError({
-							message: String(err?.message ?? "Invalid session"),
-						}),
-				),
+			decodeUnknownEffectOrMap(
+				UserSessionDataSchema,
+				verified,
+				(err) =>
+					new AuthenticationError({
+						message: getErrorMessage(err ?? "Invalid session"),
+					}),
 			),
 		);
 

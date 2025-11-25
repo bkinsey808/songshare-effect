@@ -1,10 +1,17 @@
 import { DEFAULT_DEV_ORIGINS } from "@/api/cors/defaultDevOrigins";
 import { normalizeOrigin } from "@/api/cors/normalizeOrigin";
+import { isRecord } from "@/shared/utils/typeGuards";
 
-export function getAllowedOrigins(
-	envLike: Record<string, string | undefined>,
-): string[] {
-	const allowedOriginsEnv = envLike.ALLOWED_ORIGINS;
+export function getAllowedOrigins(envLike: unknown): string[] {
+	// Accept an unknown runtime env object and safely extract the
+	// ALLOWED_ORIGINS binding if present and a string. This keeps callers
+	// free from unsafe narrowing casts like `as unknown as Record<...>`.
+	const allowedOriginsEnv =
+		isRecord(envLike) &&
+		Object.prototype.hasOwnProperty.call(envLike, "ALLOWED_ORIGINS") &&
+		typeof envLike["ALLOWED_ORIGINS"] === "string"
+			? envLike["ALLOWED_ORIGINS"]
+			: undefined;
 
 	if (typeof allowedOriginsEnv === "string" && allowedOriginsEnv.length > 0) {
 		const list = allowedOriginsEnv

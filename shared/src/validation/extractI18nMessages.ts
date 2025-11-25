@@ -1,74 +1,89 @@
-import {
-	type Composite,
-	type ParseError,
-	type ParseIssue,
-	type Pointer,
-	type Refinement,
-} from "effect/ParseResult";
+import { type ParseError } from "effect/ParseResult";
 
-import { safeGet, safeSet } from "@/shared/utils/safe";
+import { safeSet } from "@/shared/utils/safe";
+import { isRecord, isString } from "@/shared/utils/typeGuards";
 
 /**
- * Extract i18n messages from a ParseError by traversing the error tree
+ * Extract i18n messages from a ParseError by traversing the error tree.
+ *
+ * This implementation avoids unsafe compile-time assertions and uses
+ * runtime guards to satisfy the project's strict lint rules.
  */
-export function extractI18nMessages<I18nMessageType>(
+export function extractI18nMessages(
 	error: Readonly<ParseError>,
 	i18nMessageKey: symbol | string,
-): Record<string, I18nMessageType> {
-	const fieldErrors: Record<string, I18nMessageType> = {};
+): Record<string, unknown> {
+	const fieldErrorsRaw: Record<string, unknown> = {};
 
-	function traverseIssue(issue: ParseIssue, path: string[] = []): void {
-		// issue is guaranteed to be a ParseIssue object
+	function traverseIssue(issue: unknown, path: string[] = []): void {
+		if (issue === null || typeof issue !== "object") return;
+
+		const maybe = issue as Record<PropertyKey, unknown>;
+		const tag = maybe["_tag"];
 		const fieldName = path.join(".");
 
-		// Check if this is a leaf issue (actual validation failure)
 		if (
-			issue._tag === "Refinement" &&
-			(issue as Refinement).kind === "Predicate"
+			typeof tag === "string" &&
+			tag === "Refinement" &&
+			maybe["kind"] === "Predicate"
 		) {
-			const refinementIssue = issue as Refinement;
-			const messageObject = safeGet(
-				refinementIssue.ast?.annotations,
-				i18nMessageKey,
-			) as I18nMessageType | undefined;
-			if (messageObject !== undefined) {
-				safeSet(fieldErrors, fieldName, messageObject);
-				// Stop traversing deeper for this path
-				return;
+			const ast = maybe["ast"];
+			if (isRecord(ast)) {
+				const annotations = ast["annotations"];
+				if (isRecord(annotations)) {
+					for (const k of Reflect.ownKeys(annotations)) {
+						if (k === i18nMessageKey) {
+							const msgRaw = Reflect.get(
+								annotations as object,
+								k as PropertyKey,
+							);
+							if (isRecord(msgRaw)) {
+								const keyVal = msgRaw["key"];
+								if (isString(keyVal)) {
+									safeSet(fieldErrorsRaw, fieldName, msgRaw);
+									return;
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 
-		// Traverse nested issues
-		if (issue._tag === "Pointer") {
-			// This is a Pointer issue
-			traverseIssue((issue as Pointer).issue, [
-				...path,
-				String((issue as Pointer).path),
-			]);
-		} else if (issue._tag === "Composite") {
-			// Handle SingleOrNonEmpty<ParseIssue>
-			const compositeIssues = (issue as Composite).issues;
+		if (typeof tag === "string" && tag === "Pointer") {
+			traverseIssue(maybe["issue"], [...path, String(maybe["path"])]);
+			return;
+		}
+
+		if (typeof tag === "string" && tag === "Composite") {
+			const compositeIssues = maybe["issues"];
 			if (Array.isArray(compositeIssues)) {
-				compositeIssues.forEach((subIssue: ParseIssue) =>
-					traverseIssue(subIssue, path),
-				);
-			} else {
-				// Single issue
-				traverseIssue(compositeIssues as ParseIssue, path);
+				for (const subIssue of compositeIssues) {
+					traverseIssue(subIssue, path);
+				}
+			} else if (compositeIssues !== undefined && compositeIssues !== null) {
+				traverseIssue(compositeIssues, path);
 			}
+			return;
 		}
 
-		if ("issue" in issue && Boolean(issue.issue)) {
-			traverseIssue(issue.issue as ParseIssue, path);
+		const nested = maybe["issue"];
+		if (nested !== undefined && nested !== null) {
+			traverseIssue(nested, path);
 		}
 	}
 
-	const nullableError = error as Omit<ParseError, "issue"> & {
-		issue: ParseIssue | null;
-	};
-	if (nullableError.issue !== null) {
-		traverseIssue(nullableError.issue);
+	const maybeError = error as unknown;
+	if (
+		typeof maybeError === "object" &&
+		maybeError !== null &&
+		"issue" in (maybeError as Record<PropertyKey, unknown>)
+	) {
+		const root = (maybeError as Record<PropertyKey, unknown>)["issue"];
+		if (root !== undefined && root !== null) {
+			traverseIssue(root);
+		}
 	}
 
-	return fieldErrors;
+	return fieldErrorsRaw;
 }

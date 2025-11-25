@@ -1,13 +1,15 @@
-type ReadonlySupabaseClient = Readonly<{
-	from: (table: string) => {
-		select: (query: string) => {
-			in: (
+import { isRecord } from "@/shared/utils/typeGuards";
+
+interface SupabaseLikeClient {
+	from(table: string): {
+		select(query: string): {
+			in(
 				column: string,
 				values: ReadonlyArray<string>,
-			) => Promise<{ data: unknown[] | null; error: unknown | null }>;
+			): Promise<{ data: unknown[]; error: unknown }>;
 		};
 	};
-}>;
+}
 
 /**
  * Fetches public songs from Supabase by their slugs.
@@ -16,9 +18,23 @@ type ReadonlySupabaseClient = Readonly<{
  * @returns Promise containing the fetched data and any error
  */
 export async function fetchPublicSongsBySlugs(
-	supabase: ReadonlySupabaseClient,
+	supabase: unknown,
 	songSlugs: ReadonlyArray<string>,
-): Promise<{ data: unknown[] | undefined; error: unknown | undefined }> {
+): Promise<{ data: unknown[] | undefined; error: unknown }> {
+	// Narrow the incoming supabase client at runtime without using `any`.
+	function asSupabaseLike(x: unknown): x is SupabaseLikeClient {
+		if (!isRecord(x)) return false;
+		// `isRecord` has already narrowed `x` to `Record<string, unknown>` here
+		const maybe = x;
+		return typeof maybe["from"] === "function";
+	}
+
+	if (!asSupabaseLike(supabase)) {
+		console.error(
+			"[fetchPublicSongsBySlugs] Supabase client does not match expected shape",
+		);
+		return { data: undefined, error: new Error("Invalid Supabase client") };
+	}
 	try {
 		const { data, error } = await supabase
 			.from("song_public")

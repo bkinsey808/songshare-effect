@@ -1,7 +1,6 @@
 import { buildSameSiteAttr } from "@/api/cookie/buildSameSiteAttr";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
-
-type EnvLike = Record<string, string | undefined>;
+import { getEnvString } from "@/shared/env/getEnv";
 
 type BuildSetCookieHeaderParams = Readonly<{
 	ctx: ReadonlyContext;
@@ -10,16 +9,15 @@ type BuildSetCookieHeaderParams = Readonly<{
 	opts?: Readonly<{ maxAge?: number; httpOnly?: boolean }>;
 }>;
 
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function buildSetCookieHeader({
 	ctx,
 	name,
 	value,
 	opts,
 }: BuildSetCookieHeaderParams): string {
-	const envRecord = ctx.env as unknown as EnvLike;
-	const isProd = envRecord.ENVIRONMENT === "production";
-	const redirectOrigin = envRecord.OAUTH_REDIRECT_ORIGIN ?? "";
+	// Read env bindings via small helper (avoids call-site casts)
+	const isProd = getEnvString(ctx.env, "ENVIRONMENT") === "production";
+	const redirectOrigin = getEnvString(ctx.env, "OAUTH_REDIRECT_ORIGIN") ?? "";
 
 	const headerProto = ctx.req.header("x-forwarded-proto") ?? "";
 	const requestUrl = new URL(ctx.req.url);

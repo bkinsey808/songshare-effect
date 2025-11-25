@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 
+import { getErrorMessage } from "@/api/getErrorMessage";
 import oauthCallbackHandler from "@/api/oauth/oauthCallbackHandler";
 import {
 	apiMePath,
@@ -31,17 +32,13 @@ const app: Hono<{ Bindings: Bindings }> = new Hono<{ Bindings: Bindings }>();
 app.use("*", async (ctx, next) => {
 	const originHeader = ctx.req.header("Origin");
 
-	const allowedOrigins = getAllowedOrigins(
-		ctx.env as unknown as Record<string, string | undefined>,
-	);
+	const allowedOrigins = getAllowedOrigins(ctx.env);
 	const originToCheck = getOriginToCheck(ctx);
 
 	const allowedMethods = "GET, POST, PUT, DELETE, OPTIONS";
 	const allowedHeaders = "Content-Type, Authorization, X-CSRF-Token";
 
-	const isProd =
-		(ctx.env as unknown as { ENVIRONMENT?: string }).ENVIRONMENT ===
-		"production";
+	const isProd = ctx.env.ENVIRONMENT === "production";
 	const originAllowed =
 		Boolean(originToCheck) &&
 		(isProd ? allowedOrigins.includes(originToCheck) : Boolean(originHeader));
@@ -102,11 +99,17 @@ app.get("/api/hello", (ctx) => {
 // Supabase client token endpoint - provides a JWT for client-side Supabase operations
 app.get("/api/auth/visitor", async (ctx) => {
 	try {
-		const env = ctx.env as unknown as {
-			VITE_SUPABASE_URL: string;
-			SUPABASE_SERVICE_KEY: string;
-			SUPABASE_VISITOR_EMAIL: string;
-			SUPABASE_VISITOR_PASSWORD: string;
+		const {
+			VITE_SUPABASE_URL,
+			SUPABASE_SERVICE_KEY,
+			SUPABASE_VISITOR_EMAIL,
+			SUPABASE_VISITOR_PASSWORD,
+		} = ctx.env;
+		const env = {
+			VITE_SUPABASE_URL,
+			SUPABASE_SERVICE_KEY,
+			SUPABASE_VISITOR_EMAIL,
+			SUPABASE_VISITOR_PASSWORD,
 		};
 
 		const supabaseClientToken = await getSupabaseClientToken(env);
@@ -118,7 +121,10 @@ app.get("/api/auth/visitor", async (ctx) => {
 			expires_in: 3600,
 		});
 	} catch (error) {
-		console.error("Failed to generate Supabase client token:", error);
+		console.error(
+			"Failed to generate Supabase client token:",
+			getErrorMessage(error),
+		);
 		return ctx.json({ error: "Failed to generate Supabase client token" }, 500);
 	}
 });
@@ -126,17 +132,29 @@ app.get("/api/auth/visitor", async (ctx) => {
 // User authentication endpoint - provides a JWT for authenticated user operations
 app.post("/api/auth/user", async (ctx) => {
 	try {
-		const body = (await ctx.req.json()) as { email: string; password: string };
+		const rawBody = (await ctx.req.json()) as unknown;
 
-		if (!body.email || !body.password) {
+		if (typeof rawBody !== "object" || rawBody === null) {
 			return ctx.json({ error: "Email and password are required" }, 400);
 		}
 
-		const env = ctx.env as unknown as {
-			VITE_SUPABASE_URL: string;
-			SUPABASE_SERVICE_KEY: string;
-			SUPABASE_VISITOR_EMAIL: string;
-			SUPABASE_VISITOR_PASSWORD: string;
+		const body = rawBody as { email?: unknown; password?: unknown };
+
+		if (typeof body.email !== "string" || typeof body.password !== "string") {
+			return ctx.json({ error: "Email and password are required" }, 400);
+		}
+
+		const {
+			VITE_SUPABASE_URL,
+			SUPABASE_SERVICE_KEY,
+			SUPABASE_VISITOR_EMAIL,
+			SUPABASE_VISITOR_PASSWORD,
+		} = ctx.env;
+		const env = {
+			VITE_SUPABASE_URL,
+			SUPABASE_SERVICE_KEY,
+			SUPABASE_VISITOR_EMAIL,
+			SUPABASE_VISITOR_PASSWORD,
 		};
 
 		const userToken = await getSupabaseUserToken({
@@ -152,7 +170,7 @@ app.post("/api/auth/user", async (ctx) => {
 			expires_in: 3600,
 		});
 	} catch (error) {
-		console.error("Failed to authenticate user:", error);
+		console.error("Failed to authenticate user:", getErrorMessage(error));
 		return ctx.json({ error: "Authentication failed" }, 401);
 	}
 });
@@ -164,7 +182,7 @@ app.post(
 );
 
 // File upload endpoint
-app.post("/api/upload", async (ctx) => {
+app.post("/api/upload", (ctx) => {
 	// TO-DO: Implement file upload to R2 using Effect
 	return ctx.json({ message: "Upload endpoint - to be implemented" });
 });
@@ -176,7 +194,7 @@ app.get(
 );
 
 // Sign-out endpoint: clears the user session cookie and returns success.
-app.post("/api/auth/signout", async (ctx) => {
+app.post("/api/auth/signout", (ctx) => {
 	try {
 		// CSRF check: ensure sign-out requests originate from an allowed origin
 		verifySameOriginOrThrow(ctx);
@@ -187,7 +205,7 @@ app.post("/api/auth/signout", async (ctx) => {
 		ctx.res.headers.append("Set-Cookie", cookieValue);
 		return ctx.json({ success: true });
 	} catch (err) {
-		console.error("Failed to sign out", err);
+		console.error("Failed to sign out", getErrorMessage(err));
 		return ctx.json({ error: "failed" }, 500);
 	}
 });
@@ -213,11 +231,14 @@ app.onError((err, ctx) => {
 		} else {
 			console.error(
 				"[app.onError] Unhandled exception (non-Error):",
-				String(err),
+				getErrorMessage(err),
 			);
 		}
 	} catch (logErr) {
-		console.error("[app.onError] Failed to log error:", String(logErr));
+		console.error(
+			"[app.onError] Failed to log error:",
+			getErrorMessage(logErr),
+		);
 	}
 
 	// Return a generic 500 response without leaking internals to clients

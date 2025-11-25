@@ -13,9 +13,7 @@ import { isSupportedLanguage } from "@/shared/language/supported-languages-effec
 export const useLanguage = (): SupportedLanguageType => {
 	const { i18n } = useTranslation();
 	const raw = i18n?.language ?? defaultLanguage;
-	return isSupportedLanguage(raw)
-		? (raw as SupportedLanguageType)
-		: defaultLanguage;
+	return isSupportedLanguage(raw) ? raw : defaultLanguage;
 };
 
 export default useLanguage;

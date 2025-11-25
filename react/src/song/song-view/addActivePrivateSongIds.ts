@@ -1,7 +1,8 @@
-import type { AppSlice } from "@/react/zustand/useAppStore";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { getStoreApi } from "@/react/zustand/useAppStore";
+import { isRecord } from "@/shared/utils/typeGuards";
 
 // src/features/react/song-subscribe/addActiveSongIds.ts
 import { type Song } from "../song-schema";
@@ -18,10 +19,17 @@ export default function addActivePrivateSongIds(
 	get: () => SongSubscribeSlice,
 ) {
 	return (songIds: ReadonlyArray<string>): void => {
-		const state = get() as SongSubscribeSlice & AppSlice;
-		// Always fetch all activeSongIds (union of previous and new)
+		const storeApi = getStoreApi();
+		const appState = storeApi ? storeApi.getState() : undefined;
+		const sliceState = get();
+
+		// Compute the previous active IDs from whichever state we have.
+		const prevActiveIds: ReadonlyArray<string> = appState
+			? appState.activePrivateSongIds
+			: sliceState.activePrivateSongIds;
+
 		const newActivePrivateSongIds: ReadonlyArray<string> = Array.from(
-			new Set([...state.activePrivateSongIds, ...songIds]),
+			new Set([...prevActiveIds, ...songIds]),
 		);
 
 		// Update activeSongIds and resubscribe.
@@ -34,8 +42,9 @@ export default function addActivePrivateSongIds(
 
 		// Subscribe after activeSongIds is updated in Zustand
 		set(() => {
+			const storeForOps = appState ?? sliceState;
 			const activePrivateSongsUnsubscribe =
-				state.subscribeToActivePrivateSongs();
+				storeForOps.subscribeToActivePrivateSongs();
 			return {
 				activePrivateSongsUnsubscribe:
 					activePrivateSongsUnsubscribe ?? (() => {}),
@@ -43,13 +52,22 @@ export default function addActivePrivateSongIds(
 		});
 
 		if (newActivePrivateSongIds.length === 0) {
-			// eslint-disable-next-line no-console
 			console.log("[addActivePrivateSongIds] No active songs to fetch.");
 			return;
 		}
 
-		const visitorToken = (state as unknown as { visitorToken?: string })
-			.visitorToken;
+		// Read optional visitorToken via the app-level state when available.
+		let visitorToken: string | undefined;
+		if (appState) {
+			const appStateUnknown: unknown = appState;
+			if (
+				isRecord(appStateUnknown) &&
+				typeof appStateUnknown["visitorToken"] === "string"
+			) {
+				visitorToken = appStateUnknown["visitorToken"];
+			}
+		}
+
 		if (typeof visitorToken !== "string") {
 			console.warn(
 				"[addActivePrivateSongIds] No visitor token found. Cannot fetch songs.",
@@ -67,7 +85,6 @@ export default function addActivePrivateSongIds(
 
 		// Fire-and-forget async function to fetch all active song data
 		void (async () => {
-			// eslint-disable-next-line no-console
 			console.log(
 				"[addActivePrivateSongIds] Fetching active songs:",
 				newActivePrivateSongIds,
@@ -105,7 +122,8 @@ export default function addActivePrivateSongIds(
 						"[addActiveSongIds] Updating store with songs:",
 						privateSongsToAdd,
 					);
-					state.addOrUpdatePrivateSongs(privateSongsToAdd);
+					const storeForOps = appState ?? sliceState;
+					storeForOps.addOrUpdatePrivateSongs(privateSongsToAdd);
 				} else {
 					console.error("[addActivePrivateSongIds] Invalid data format:", data);
 				}

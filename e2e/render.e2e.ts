@@ -1,7 +1,7 @@
 import { justDeletedAccountKey } from "@/shared/sessionStorageKeys";
 import { expect, test } from "@playwright/test";
 
-const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] || "";
+const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] ?? "";
 
 // Choose base URL: if PLAYWRIGHT_BASE_URL is set we treat this as a deployed run
 test.describe("Render smoke", () => {

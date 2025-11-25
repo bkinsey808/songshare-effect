@@ -57,7 +57,7 @@ export function useSlideFields({
 			return "";
 		}
 		// Return the field value or empty string if it doesn't exist
-		return safeGet(slide.field_data, field) || "";
+		return safeGet(slide.field_data, field) ?? "";
 	};
 
 	const editFieldValue = ({

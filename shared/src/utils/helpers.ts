@@ -19,7 +19,6 @@ export function formatFileSize(bytes: number): string {
 	const i = Math.floor(Math.log(bytes) / Math.log(1024));
 	const sizeIndex = Math.min(i, sizes.length - 1);
 	// Safe array access - sizeIndex is bounded by array length
-	// eslint-disable-next-line security/detect-object-injection
 	const sizeUnit = sizes[sizeIndex];
 	return `${Math.round((bytes / 1024 ** sizeIndex) * 100) / 100} ${sizeUnit}`;
 }
@@ -28,7 +27,6 @@ export function formatFileSize(bytes: number): string {
  * Validate email format
  */
 export function isValidEmail(email: string): boolean {
-	// eslint-disable-next-line sonarjs/slow-regex
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	return emailRegex.test(email);
 }
@@ -37,7 +35,6 @@ export function isValidEmail(email: string): boolean {
  * Generate a random ID
  */
 export function generateId(): string {
-	// eslint-disable-next-line sonarjs/pseudo-random
 	return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
@@ -53,13 +50,15 @@ export function debounce<T extends (...args: ReadonlyArray<unknown>) => void>(
 		if (timeoutId !== undefined) {
 			clearTimeout(timeoutId);
 		}
-		timeoutId = setTimeout(() => func(...args), delayMs);
+		timeoutId = setTimeout(() => {
+			func(...args);
+		}, delayMs);
 	};
 }
 
 /**
  * Create a delay promise
  */
-export function delay(ms: number): Promise<void> {
-	return new Promise((resolve) => setTimeout(resolve, ms));
+export async function delay(ms: number): Promise<void> {
+	await new Promise((resolve) => setTimeout(resolve, ms));
 }

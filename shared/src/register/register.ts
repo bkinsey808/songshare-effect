@@ -12,11 +12,7 @@ export type RegisterForm = {
 	readonly username: string;
 };
 
-export const RegisterFormSchema: Schema.Schema<
-	RegisterForm,
-	RegisterForm,
-	never
-> = Schema.Struct({
+export const RegisterFormSchema: Schema.Schema<RegisterForm> = Schema.Struct({
 	username: Schema.String.pipe(
 		Schema.minLength(1, { message: () => "field.required" }),
 		Schema.annotations({
@@ -51,8 +47,5 @@ export const RegisterFormFields = ["username"] as const;
 
 export type RegisterFormField = (typeof RegisterFormFields)[number];
 
-export const RegisterFormFieldSchema: Schema.Schema<
-	RegisterFormField,
-	RegisterFormField,
-	never
-> = Schema.Literal(...RegisterFormFields);
+export const RegisterFormFieldSchema: Schema.Schema<RegisterFormField> =
+	Schema.Literal(...RegisterFormFields);

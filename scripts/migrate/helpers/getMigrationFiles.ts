@@ -21,18 +21,21 @@ export function getMigrationFiles(migrationDir: string): MigrationFile[] {
 
 	const files = readdirSync(migrationDir)
 		.filter((file) => file.endsWith(".sql"))
-		.map((filename) => {
+		.map((filename): MigrationFile => {
 			const path = join(migrationDir, filename);
 			// Extract timestamp from filename (format: YYYYMMDDHHMMSS_name.sql)
 			const timestampRegex = /^(\d{14})_/;
 			const timestampMatch = timestampRegex.exec(filename);
-			const timestamp = timestampMatch ? timestampMatch[1] : "00000000000000";
-
+			const timestampRaw = timestampMatch?.[1];
+			const timestamp =
+				typeof timestampRaw === "string" && timestampRaw !== ""
+					? timestampRaw
+					: "00000000000000";
 			return {
 				path,
 				filename,
 				timestamp,
-			} as MigrationFile;
+			};
 		})
 		.sort((fileA, fileB) => fileA.timestamp.localeCompare(fileB.timestamp));
 

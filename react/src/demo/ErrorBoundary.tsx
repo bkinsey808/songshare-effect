@@ -14,7 +14,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 		return { hasError: true, error };
 	}
 
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	constructor(override readonly props: ErrorBoundaryProps) {
 		super(props);
 		this.state = { hasError: false };
@@ -39,7 +38,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 						or contact support if the problem persists.
 					</p>
 					<button
-						onClick={() => window.location.reload()}
+						onClick={() => {
+							window.location.reload();
+						}}
 						className="bg-primary-500 hover:bg-primary-600 cursor-pointer rounded-md border-none px-6 py-3 text-base text-white transition-colors"
 					>
 						🔄 Reload Page

@@ -14,7 +14,6 @@ export function getArrowClasses(placement: PlacementOption): string {
 			return "top-1/2 -left-1 -translate-y-1/2";
 		case "left":
 			return "top-1/2 -right-1 -translate-y-1/2";
-		default:
-			return "-top-1 left-1/2 -translate-x-1/2";
+		// Switch is exhaustive for `PlacementOption`; no default needed
 	}
 }

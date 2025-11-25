@@ -68,7 +68,9 @@ export default async function handleJustSignedIn({
 
 			const delay = safeArrayGet<number>(delays, i, 100) ?? 100;
 			await new Promise<void>(function _resolve(resolve) {
-				setTimeout(() => resolve(undefined), delay);
+				setTimeout(() => {
+					resolve(undefined);
+				}, delay);
 			});
 		}
 		return false;

@@ -10,8 +10,7 @@ import {
 
 export const SupportedLanguageSchema: Schema.Schema<
 	SupportedLanguageType,
-	SupportedLanguageType,
-	never
+	SupportedLanguageType
 > = Schema.Union(
 	...Object.values(SupportedLanguage).map((lang) => Schema.Literal(lang)),
 );

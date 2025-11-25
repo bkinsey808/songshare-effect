@@ -19,7 +19,6 @@ export function useLogHookTrace(): void {
 		if (buffer.length > 0) {
 			// Print a concise trace; React's console will show it with other logs
 			// and our Puppeteer capture will pick it up.
-			// eslint-disable-next-line no-console
 			console.debug("HOOK TRACE:", buffer.join(" -> "));
 		}
 		// Clear after logging so subsequent commits start fresh.

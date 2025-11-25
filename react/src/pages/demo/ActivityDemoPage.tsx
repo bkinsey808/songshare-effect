@@ -22,14 +22,15 @@ function HeavyComponent({ name, color }: HeavyComponentParams): ReactElement {
 		// Simulate some heavy computation
 		let _result = 0;
 		for (let i = 0; i < 1000000; i++) {
-			// eslint-disable-next-line sonarjs/pseudo-random
 			_result += Math.random();
 		}
 		const end = performance.now();
 
 		// Schedule the state update to avoid synchronous setState inside
 		// useEffect and to prevent updates after unmount.
-		schedule(() => setRenderTime(end - start));
+		schedule(() => {
+			setRenderTime(end - start);
+		});
 	}, [schedule]);
 
 	return (
@@ -84,7 +85,9 @@ function InteractiveComponent({
 						id={`input-${title}`}
 						type="text"
 						value={inputValue}
-						onChange={(ev) => setInputValue(ev.target.value)}
+						onChange={(ev) => {
+							setInputValue(ev.target.value);
+						}}
 						placeholder="Type something..."
 						className="w-full rounded-lg border border-gray-600 bg-gray-800 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-purple-500"
 					/>
@@ -94,7 +97,9 @@ function InteractiveComponent({
 						Counter: {count}
 					</div>
 					<button
-						onClick={() => setCount((cnt) => cnt + 1)}
+						onClick={() => {
+							setCount((cnt) => cnt + 1);
+						}}
 						className="rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
 					>
 						Increment
@@ -144,7 +149,9 @@ function NavigationExample(): ReactElement {
 					{pages.map((page) => (
 						<button
 							key={page.id}
-							onClick={() => setCurrentPage(page.id)}
+							onClick={() => {
+								setCurrentPage(page.id);
+							}}
 							className={`rounded-lg px-6 py-2 font-medium transition-all ${
 								currentPage === page.id
 									? "bg-white text-black"
@@ -199,7 +206,9 @@ function PerformanceComparison(): ReactElement {
 
 				<div className="mb-6 flex flex-wrap gap-4">
 					<button
-						onClick={() => setShowHeavyComponents(!showHeavyComponents)}
+						onClick={() => {
+							setShowHeavyComponents(!showHeavyComponents);
+						}}
 						className={`rounded-lg px-6 py-2 font-medium transition-colors ${
 							showHeavyComponents
 								? "bg-green-600 text-white"
@@ -210,7 +219,9 @@ function PerformanceComparison(): ReactElement {
 					</button>
 
 					<button
-						onClick={() => setUseActivity(!useActivity)}
+						onClick={() => {
+							setUseActivity(!useActivity);
+						}}
 						className={`rounded-lg px-6 py-2 font-medium transition-colors ${
 							useActivity
 								? "bg-purple-600 text-white"

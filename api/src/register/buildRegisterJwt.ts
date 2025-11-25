@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import type { Env } from "@/api/env";
+// Env type not required — ReadonlyContext default covers the Bindings type
 import type { ReadonlyContext } from "@/api/hono/hono-context";
 import type { OauthState } from "@/shared/oauth/oauthState";
 import type { OauthUserData } from "@/shared/oauth/oauthUserData";
@@ -9,7 +9,7 @@ import { ServerError } from "@/api/errors";
 import { createJwt } from "@/api/oauth/createJwt";
 
 type BuildRegisterJwtParams = Readonly<{
-	ctx: ReadonlyContext<{ Bindings: Env }>;
+	ctx: ReadonlyContext;
 	oauthUserData: OauthUserData;
 	oauthState: OauthState;
 }>;
@@ -23,7 +23,6 @@ type BuildRegisterJwtParams = Readonly<{
  * @param params.oauthState The decoded OAuth state object used during the flow
  * @returns Effect yielding the registration JWT string
  */
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function buildRegisterJwt({
 	ctx,
 	oauthUserData,
@@ -34,9 +33,9 @@ export function buildRegisterJwt({
 		const jwtSecret = ctx.env.JWT_SECRET;
 		if (typeof jwtSecret !== "string" || jwtSecret === "") {
 			yield* $(
-				Effect.sync(() =>
-					console.error("[buildRegisterJwt] Missing JWT_SECRET"),
-				),
+				Effect.sync(() => {
+					console.error("[buildRegisterJwt] Missing JWT_SECRET");
+				}),
 			);
 			return yield* $(
 				Effect.fail(
@@ -46,7 +45,7 @@ export function buildRegisterJwt({
 				),
 			);
 		}
-		const registerJwt = yield* $(createJwt(registerData, jwtSecret as string));
+		const registerJwt = yield* $(createJwt(registerData, jwtSecret));
 		return registerJwt;
 	});
 }

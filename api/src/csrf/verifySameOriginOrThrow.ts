@@ -4,12 +4,10 @@ import { AuthenticationError } from "@/api/errors";
 
 import { type ReadonlyContext } from "../hono/hono-context";
 
-type EnvLike = Record<string, string | undefined>;
-
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function verifySameOriginOrThrow(ctx: ReadonlyContext): void {
-	const envRecord = ctx.env as unknown as EnvLike;
-	const allowedOrigins = getAllowedOrigins(envRecord);
+	// Use getAllowedOrigins which accepts `unknown` so callers don't need to
+	// perform unsafe casts on `ctx.env`.
+	const allowedOrigins = getAllowedOrigins(ctx.env);
 	const originToCheck = getOriginToCheck(ctx);
 
 	if (typeof originToCheck !== "string" || originToCheck.length === 0) {

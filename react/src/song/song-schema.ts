@@ -14,61 +14,59 @@ export const songFieldsSchema: Schema.Array$<
 	Schema.Literal<typeof songFields>
 > = Schema.Array(songFieldSchema);
 
-export const songNameSchema: Schema.Schema<string, string, never> =
-	Schema.String.pipe(
-		Schema.filter((value) => value.trim() === value, {
-			message: () => "song.validation.noLeadingTrailingSpaces",
-		}),
-		Schema.annotations({
-			[songMessageKey]: { key: "song.validation.noLeadingTrailingSpaces" },
-		}),
-		Schema.filter((value) => value.length >= 2 && value.length <= 100, {
-			message: () => "song.validation.nameLength",
-		}),
-		Schema.annotations({
-			[songMessageKey]: {
-				key: "song.validation.nameLength",
-				minLength: 2,
-				maxLength: 100,
-			},
-		}),
-		Schema.filter((value) => !/\s{2}/.test(value), {
-			message: () => "song.validation.noConsecutiveSpaces",
-		}),
-		Schema.annotations({
-			[songMessageKey]: { key: "song.validation.noConsecutiveSpaces" },
-		}),
-	);
+export const songNameSchema: Schema.Schema<string> = Schema.String.pipe(
+	Schema.filter((value) => value.trim() === value, {
+		message: () => "song.validation.noLeadingTrailingSpaces",
+	}),
+	Schema.annotations({
+		[songMessageKey]: { key: "song.validation.noLeadingTrailingSpaces" },
+	}),
+	Schema.filter((value) => value.length >= 2 && value.length <= 100, {
+		message: () => "song.validation.nameLength",
+	}),
+	Schema.annotations({
+		[songMessageKey]: {
+			key: "song.validation.nameLength",
+			minLength: 2,
+			maxLength: 100,
+		},
+	}),
+	Schema.filter((value) => !/\s{2}/.test(value), {
+		message: () => "song.validation.noConsecutiveSpaces",
+	}),
+	Schema.annotations({
+		[songMessageKey]: { key: "song.validation.noConsecutiveSpaces" },
+	}),
+);
 
-export const songSlugSchema: Schema.Schema<string, string, never> =
-	Schema.String.pipe(
-		Schema.filter(
-			(value) => {
-				// only lowercase letters, numbers, and dashes
-				if (!/^[a-z0-9-]+$/.test(value)) {
-					return false;
-				}
+export const songSlugSchema: Schema.Schema<string> = Schema.String.pipe(
+	Schema.filter(
+		(value) => {
+			// only lowercase letters, numbers, and dashes
+			if (!/^[a-z0-9-]+$/.test(value)) {
+				return false;
+			}
 
-				// cannot start or end with dash
-				if (value.startsWith("-") || value.endsWith("-")) {
-					return false;
-				}
+			// cannot start or end with dash
+			if (value.startsWith("-") || value.endsWith("-")) {
+				return false;
+			}
 
-				// no consecutive dashes
-				if (value.includes("--")) {
-					return false;
-				}
+			// no consecutive dashes
+			if (value.includes("--")) {
+				return false;
+			}
 
-				return true;
-			},
-			{
-				message: () => "song.validation.invalidSlugFormat",
-			},
-		),
-		Schema.annotations({
-			[songMessageKey]: { key: "song.validation.invalidSlugFormat" },
-		}),
-	);
+			return true;
+		},
+		{
+			message: () => "song.validation.invalidSlugFormat",
+		},
+	),
+	Schema.annotations({
+		[songMessageKey]: { key: "song.validation.invalidSlugFormat" },
+	}),
+);
 
 export const slidesOrderSchema: Schema.Array$<typeof Schema.String> =
 	Schema.Array(Schema.String);
@@ -131,9 +129,7 @@ const baseSongPublicSchema: Schema.Struct<{
 });
 
 export const songPublicSchema: Schema.Schema<
-	Schema.Schema.Type<typeof baseSongPublicSchema>,
-	Schema.Schema.Type<typeof baseSongPublicSchema>,
-	never
+	Schema.Schema.Type<typeof baseSongPublicSchema>
 > = baseSongPublicSchema.pipe(
 	// Rule 1: all slide keys must be included in slideOrder
 	Schema.filter(
@@ -152,12 +148,14 @@ export const songPublicSchema: Schema.Schema<
 	// Rule 2: all field_data keys must exist in fields
 	Schema.filter(
 		(input: Schema.Schema.Type<typeof baseSongPublicSchema>) => {
-			const allowedFields = new Set(input.fields);
+			// Normalize allowed field names to `string` so we can safely
+			// compare against dynamic object keys without unsafe assertions.
+			const allowedFields = new Set<string>(input.fields.map(String));
 			return Object.values(input.slides).every(
 				(slide: Schema.Schema.Type<typeof slideSchema>) =>
-					(
-						Object.keys(slide.field_data) as (typeof songFields)[number][]
-					).every((field) => allowedFields.has(field)),
+					Object.keys(slide.field_data).every((field) =>
+						allowedFields.has(field),
+					),
 			);
 		},
 		{

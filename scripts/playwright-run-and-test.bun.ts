@@ -81,11 +81,14 @@ function startPlaywrightIfReady(): void {
 				});
 				installer.on("exit", (code) => {
 					if (code === 0) {
-						return resolve();
+						resolve();
+						return;
 					}
 					reject(new Error(`playwright install failed with code ${code}`));
 				});
-				installer.on("error", (err) => reject(err));
+				installer.on("error", (err) => {
+					reject(err);
+				});
 			});
 		} catch (err) {
 			console.error("Playwright browser install failed:", err);

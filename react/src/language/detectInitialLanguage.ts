@@ -15,7 +15,7 @@ export const detectInitialLanguage = (): SupportedLanguageType => {
 	if (langMatch !== null && langMatch[1] !== undefined && langMatch[1] !== "") {
 		const urlLang = langMatch[1];
 		if (isSupportedLanguage(urlLang)) {
-			return urlLang as SupportedLanguageType;
+			return urlLang;
 		}
 	}
 
@@ -24,7 +24,7 @@ export const detectInitialLanguage = (): SupportedLanguageType => {
 		const stored = localStorage.getItem("preferred-language");
 		if (stored !== null && stored !== "") {
 			if (isSupportedLanguage(stored)) {
-				return stored as SupportedLanguageType;
+				return stored;
 			}
 		}
 	}

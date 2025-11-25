@@ -11,7 +11,7 @@ import { createFieldBlurHandler } from "./createFieldBlurHandler";
 import { createFormSubmitHandler } from "./createFormSubmitHandler";
 
 type UseAppFormProps<FormValues> = {
-	readonly schema: Schema.Schema<FormValues, FormValues, never>;
+	readonly schema: Schema.Schema<FormValues>;
 	readonly formRef: React.RefObject<HTMLFormElement | null>;
 	readonly defaultErrorMessage?: string;
 	readonly initialValues?: Partial<FormValues>;
@@ -29,12 +29,12 @@ type UseAppFormReturn<FormValues> = {
 	) => ValidationError | undefined;
 	readonly handleSubmit: (
 		formData: Readonly<Record<string, unknown>>,
-		onSubmit: (data: FormValues) => Promise<void> | void,
-	) => Effect.Effect<void, never, never>;
+		onSubmit: (data: Readonly<FormValues>) => Promise<void> | void,
+	) => Effect.Effect<void>;
 	readonly handleApiResponseEffect: (
 		response: Response,
 		setSubmitError: (error: string) => void,
-	) => Effect.Effect<boolean, never, never>;
+	) => Effect.Effect<boolean>;
 	readonly reset: () => void;
 	readonly setValidationErrors: React.Dispatch<
 		React.SetStateAction<ReadonlyArray<ValidationError>>
@@ -63,22 +63,27 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 		ref: React.RefObject<HTMLInputElement | null>,
 	): void => {
 		const value = ref.current?.value ?? "";
-		// eslint-disable-next-line no-console
 		console.log(`👆 handleFieldBlur called for ${String(field)}:`, value);
 
 		// Read current form data from the form
 		const formDataObj = new FormData(formRef.current || undefined);
 		const currentFormData: Record<string, string> = {};
 		for (const [key, val] of formDataObj.entries()) {
-			safeSet(currentFormData, key, val.toString());
+			if (typeof val === "string") {
+				safeSet(currentFormData, key, val);
+			} else if (val instanceof File) {
+				// Store filename for file inputs
+				safeSet(currentFormData, key, val.name);
+			} else {
+				safeSet(currentFormData, key, String(val));
+			}
 		}
 
-		// eslint-disable-next-line no-console
 		console.log("📋 Current form data on blur:", currentFormData);
 
 		const fieldBlurHandler = createFieldBlurHandler({
 			schema,
-			formData: currentFormData as Partial<FormValues>,
+			formData: currentFormData,
 			currentErrors: validationErrors,
 			setValidationErrors,
 			i18nMessageKey: registerMessageKey,
@@ -107,7 +112,7 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 	const handleApiResponseEffect = (
 		response: Response,
 		setSubmitError: (error: string) => void,
-	): Effect.Effect<boolean, never, never> => {
+	): Effect.Effect<boolean> => {
 		return createApiResponseHandlerEffect({
 			response,
 			setValidationErrors,
@@ -124,8 +129,12 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 			const form = formRef.current;
 			// Reset all form elements to their initial values
 			for (const [key, value] of Object.entries(initialValues)) {
-				const element = form.elements.namedItem(key) as HTMLInputElement | null;
-				if (element && "value" in element) {
+				const element = form.elements.namedItem(key);
+				if (
+					element instanceof HTMLInputElement ||
+					element instanceof HTMLTextAreaElement ||
+					element instanceof HTMLSelectElement
+				) {
 					element.value = String(value);
 				}
 			}

@@ -2,6 +2,8 @@ import { Effect } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/hono-context";
 
+import { getErrorMessage } from "@/api/getErrorMessage";
+import { getEnvString } from "@/shared/env/getEnv";
 import { type UserSessionData } from "@/shared/userSessionData";
 import { safeSet } from "@/shared/utils/safe";
 
@@ -11,7 +13,6 @@ import { getVerifiedUserSession } from "./user-session/getVerifiedSession";
 
 /** Effect-based handler for /api/me */
 export function me(
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	ctx: ReadonlyContext,
 ): Effect.Effect<UserSessionData, AuthenticationError | DatabaseError> {
 	return Effect.gen(function* ($) {
@@ -19,8 +20,8 @@ export function me(
 		// debug cookie propagation after OAuth. To avoid noisy logs during
 		// normal local browsing, make it opt-in via the DEBUG_API_HEADERS
 		// binding. Set DEBUG_API_HEADERS=1 in your environment to enable.
-		const debugHeaders = (ctx.env as unknown as { DEBUG_API_HEADERS?: string })
-			.DEBUG_API_HEADERS;
+		// Read optional DEBUG_API_HEADERS binding via helper
+		const debugHeaders = getEnvString(ctx.env, "DEBUG_API_HEADERS");
 		if (debugHeaders === "1") {
 			yield* $(
 				Effect.sync(() => {
@@ -38,10 +39,12 @@ export function me(
 						for (const nm of names) {
 							safeSet(hdrObj, nm, ctx.req.header(nm) ?? undefined);
 						}
-						// eslint-disable-next-line no-console
 						console.log("[me] Incoming request headers:", hdrObj);
 					} catch (err) {
-						console.error("[me] Failed to dump incoming headers:", String(err));
+						console.error(
+							"[me] Failed to dump incoming headers:",
+							getErrorMessage(err),
+						);
 					}
 				}),
 			);

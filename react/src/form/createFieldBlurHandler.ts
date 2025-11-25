@@ -5,27 +5,24 @@ import type { ValidationError } from "@/shared/validation/types";
 
 import { validateForm } from "@/shared/validation/validateForm";
 
-type CreateFieldBlurHandlerParams<
-	FormValues extends Record<string, unknown>,
-	_I18nMessageType extends { key: string; [key: string]: unknown },
-> = {
-	readonly schema: Schema.Schema<FormValues, FormValues, never>;
-	readonly formData: Partial<FormValues>;
-	readonly currentErrors: ReadonlyArray<ValidationError>;
-	readonly setValidationErrors: (
-		errors: ReadonlyArray<ValidationError>,
-	) => void;
-	readonly i18nMessageKey: symbol | string;
-};
+type CreateFieldBlurHandlerParams<FormValues extends Record<string, unknown>> =
+	{
+		readonly schema: Schema.Schema<FormValues>;
+		readonly formData: Readonly<Record<string, unknown>>;
+		readonly currentErrors: ReadonlyArray<ValidationError>;
+		readonly setValidationErrors: (
+			errors: ReadonlyArray<ValidationError>,
+		) => void;
+		readonly i18nMessageKey: symbol | string;
+	};
 
 /**
  * Create a field blur handler that validates the field and updates errors
  */
 export const createFieldBlurHandler = <
 	FormValues extends Record<string, unknown>,
-	I18nMessageType extends { key: string; [key: string]: unknown },
 >(
-	params: CreateFieldBlurHandlerParams<FormValues, I18nMessageType>,
+	params: CreateFieldBlurHandlerParams<FormValues>,
 ) => {
 	const {
 		schema,
@@ -41,12 +38,12 @@ export const createFieldBlurHandler = <
 			[field]: value,
 		});
 
-		const validation = validateForm<FormValues, I18nMessageType>({
+		const validation = validateForm<FormValues>({
 			schema,
 			data: {
 				...formData,
 				[field]: value,
-			} as Partial<FormValues>,
+			},
 			i18nMessageKey,
 		});
 

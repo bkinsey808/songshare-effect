@@ -3,16 +3,13 @@ import { Effect, type Schema } from "effect";
 
 import type { ValidationError } from "@/shared/validation/types";
 
-import {
-	type I18nMessage,
-	registerMessageKey,
-} from "@/shared/register/register";
+import { registerMessageKey } from "@/shared/register/register";
 import { validateFormEffect } from "@/shared/validation/validateFormEffect";
 
 import { extractValidationErrors } from "./extractValidationErrors";
 
 type FormSubmitHandlerParams<FormValues> = {
-	readonly schema: Schema.Schema<FormValues, FormValues, never>;
+	readonly schema: Schema.Schema<FormValues>;
 	readonly setValidationErrors: React.Dispatch<
 		React.SetStateAction<ReadonlyArray<ValidationError>>
 	>;
@@ -30,8 +27,8 @@ export const createFormSubmitHandler = <
 	const { schema, setValidationErrors, setIsSubmitting } = params;
 	return (
 		formData: Readonly<Record<string, unknown>>,
-		onSubmit: (data: FormValues) => Promise<void> | void,
-	): Effect.Effect<void, never, never> => {
+		onSubmit: (data: Readonly<FormValues>) => Promise<void> | void,
+	): Effect.Effect<void> => {
 		return Effect.sync(() => {
 			console.log("🚀 useAppForm.handleSubmit called");
 			console.log("🔍 Starting form submission validation");
@@ -48,12 +45,12 @@ export const createFormSubmitHandler = <
 				// Run validation effect synchronously
 				console.log("⚡ Running schema validation");
 				const validatedData = Effect.runSync(
-					validateFormEffect<FormValues, I18nMessage>({
+					validateFormEffect<FormValues>({
 						schema,
 						data: currentFormData,
 						i18nMessageKey: registerMessageKey,
 					}),
-				) as FormValues;
+				);
 				console.log("✅ Validation successful, validated data:", validatedData);
 
 				const result = onSubmit(validatedData);

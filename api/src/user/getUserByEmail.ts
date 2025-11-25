@@ -4,15 +4,18 @@ import { Effect, Schema } from "effect";
 import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 
 import { DatabaseError } from "@/api/errors";
+import { getErrorMessage } from "@/api/getErrorMessage";
 import { normalizeNullsTopLevel } from "@/api/oauth/normalizeNullsTopLevel";
 import { normalizeLinkedProviders } from "@/api/provider/normalizeLinkedProviders";
+import { parseMaybeSingle } from "@/api/supabase/parseMaybeSingle";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
+import { decodeUnknownSyncOrThrow } from "@/shared/validation/decode-or-throw";
 
-type SupabaseMaybeSingleRes = {
-	data?: unknown;
-	error?: unknown;
-	status?: number;
-};
+function isRecordStringUnknown(x: unknown): x is Record<string, unknown> {
+	return typeof x === "object" && x !== null;
+}
+
+// Supabase response shape handled via `parseMaybeSingle`
 
 type GetUserByEmailParams = Readonly<{
 	supabase: Readonly<ReadonlySupabaseClient>;
@@ -64,7 +67,6 @@ type GetUserByEmailParams = Readonly<{
  * map them to an HTTP 500. The `PGRST205` PostgREST error is treated as
  * "not found" and does not throw.
  */
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function getUserByEmail({
 	supabase,
 	email,
@@ -75,13 +77,13 @@ export function getUserByEmail({
 	return Effect.gen(function* ($) {
 		// Best-effort debug logging (synchronous)
 		yield* $(
-			Effect.sync(() =>
-				console.log("[getUserByEmail] Looking up user by email:", email),
-			),
+			Effect.sync(() => {
+				console.log("[getUserByEmail] Looking up user by email:", email);
+			}),
 		);
 
 		// Perform the Supabase query as a Promise and map any thrown error to DatabaseError
-		const res: SupabaseMaybeSingleRes = yield* $(
+		const rawRes: unknown = yield* $(
 			Effect.tryPromise<
 				{
 					data: unknown;
@@ -89,68 +91,71 @@ export function getUserByEmail({
 				},
 				unknown
 			>({
-				try: () =>
+				try: async () =>
 					supabase.from("user").select("*").eq("email", email).maybeSingle(),
 				catch: (err) => err,
 			}).pipe(
-				Effect.mapError((err) => new DatabaseError({ message: String(err) })),
+				Effect.mapError(
+					(err) => new DatabaseError({ message: getErrorMessage(err) }),
+				),
 			),
 		);
 
+		const res = parseMaybeSingle(rawRes);
+
 		// Debug: log the raw Supabase response data
 		yield* $(
-			Effect.sync(() =>
-				console.log("[getUserByEmail] Raw Supabase data:", res.data),
-			),
+			Effect.sync(() => {
+				console.log("[getUserByEmail] Raw Supabase data:", res.data);
+			}),
 		);
 
 		// Debug output to aid diagnosing preview vs production differences
 		try {
 			yield* $(
-				Effect.sync(() =>
+				Effect.sync(() => {
+					const errInfo = (() => {
+						const e = res.error;
+						if (e === null || e === undefined) return undefined;
+						if (isRecordStringUnknown(e)) {
+							const code =
+								typeof e["code"] === "string" ? e["code"] : undefined;
+							const message =
+								typeof e["message"] === "string"
+									? e["message"]
+									: getErrorMessage(e["message"]);
+							return { code, message };
+						}
+						return { message: getErrorMessage(e) };
+					})();
 					console.log("[getUserByEmail] Supabase response:", {
 						status: res.status,
-						error: (() => {
-							const errVal = res.error as unknown;
-							if (errVal === null) {
-								return undefined;
-							}
-							if (typeof errVal !== "object") {
-								return { message: String(errVal) };
-							}
-							const obj = errVal as Record<string, unknown>;
-							const code = typeof obj.code === "string" ? obj.code : undefined;
-							let message: string | undefined;
-							if (typeof obj.message === "string") {
-								message = obj.message;
-							} else if (obj.message !== undefined) {
-								message = String(obj.message);
-							}
-							return { code, message };
-						})(),
+						error: errInfo,
 						hasData: res.data !== undefined,
-					}),
-				),
+					});
+				}),
 			);
 		} catch (err) {
 			// don't fail the effect because logging failed
 			yield* $(
-				Effect.sync(() =>
+				Effect.sync(() => {
 					console.log(
 						"[getUserByEmail] Failed to stringify Supabase response",
-						String(err),
-					),
-				),
+						getErrorMessage(err),
+					);
+				}),
 			);
 		}
 
 		// Handle PostgREST table-not-exists (e.g. PGRST205) as "not found"
 		if (res.error !== undefined && res.error !== null) {
 			try {
-				const maybeErr = res.error as unknown;
-				if (maybeErr !== null && typeof maybeErr === "object") {
-					const obj = maybeErr as Record<string, unknown>;
-					if (typeof obj.code === "string" && obj.code === "PGRST205") {
+				const maybeErr = res.error;
+				if (isRecordStringUnknown(maybeErr)) {
+					if (
+						typeof maybeErr["code"] === "string" &&
+						maybeErr["code"] === "PGRST205"
+					) {
 						return undefined;
 					}
 				}
@@ -159,7 +164,7 @@ export function getUserByEmail({
 			}
 			// Map to DatabaseError
 			return yield* $(
-				Effect.fail(new DatabaseError({ message: String(res.error) })),
+				Effect.fail(new DatabaseError({ message: getErrorMessage(res.error) })),
 			);
 		}
 
@@ -170,32 +175,48 @@ export function getUserByEmail({
 		// Normalize nulls -> undefined for optional top-level fields
 		const sanitized = normalizeNullsTopLevel(res.data);
 
-		// Validate against generated schema (may throw) and map failures
+		// Validate against generated schema (may throw) and map failures.
+		// Use a small shared helper to centralize the decode call so we don't
+		// repeat ad-hoc unsafe assertions in many files.
 		let validated: Schema.Schema.Type<typeof UserSchema>;
 		try {
-			validated = Schema.decodeUnknownSync(UserSchema)(sanitized as unknown);
+			validated = decodeUnknownSyncOrThrow(UserSchema, sanitized);
 		} catch (err) {
-			return yield* $(Effect.fail(new DatabaseError({ message: String(err) })));
+			return yield* $(
+				Effect.fail(new DatabaseError({ message: getErrorMessage(err) })),
+			);
 		}
 
-		// Ensure linked_providers is a runtime string[] for ease of use
-		const runtimeUser = {
-			...(validated as unknown as Record<string, unknown>),
-		} as Record<string, unknown>;
+		// Normalize linked_providers at runtime; failures fall back to [] and
+		// are logged for debugging.
+		let normalizedProviders: string[] = [];
 		try {
-			runtimeUser.linked_providers = normalizeLinkedProviders(validated);
+			normalizedProviders = normalizeLinkedProviders(validated);
 		} catch (err) {
 			yield* $(
-				Effect.sync(() =>
+				Effect.sync(() => {
 					console.log(
 						"[getUserByEmail] Failed to normalize linked_providers at runtime:",
-						String(err),
-					),
-				),
+						getErrorMessage(err),
+					);
+				}),
 			);
-			runtimeUser.linked_providers = [];
+			normalizedProviders = [];
 		}
 
-		return runtimeUser as unknown as Schema.Schema.Type<typeof UserSchema>;
+		// Merge the runtime-normalized providers onto the validated user and
+		// return. We perform a single, localized assertion at the return site
+		// to match the function's declared Effect type.
+		const merged = { ...validated, linked_providers: normalizedProviders };
+		let finalUser: Schema.Schema.Type<typeof UserSchema>;
+		try {
+			finalUser = decodeUnknownSyncOrThrow(UserSchema, merged);
+		} catch (err) {
+			return yield* $(
+				Effect.fail(new DatabaseError({ message: getErrorMessage(err) })),
+			);
+		}
+
+		return finalUser;
 	});
 }

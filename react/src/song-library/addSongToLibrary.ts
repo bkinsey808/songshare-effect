@@ -36,18 +36,35 @@ export async function addSongToLibrary(
 		error: userError,
 	} = await client.auth.getUser();
 
-	if (
-		userError !== null ||
-		!user?.app_metadata ||
-		user.app_metadata["user"] === null ||
-		user.app_metadata["user"] === undefined ||
-		typeof user.app_metadata["user"] !== "object" ||
-		(user.app_metadata["user"] as { user_id?: unknown }).user_id === undefined
-	) {
+	function isAuthUser(
+		x: unknown,
+	): x is { app_metadata: { user?: { user_id?: string } } } {
+		if (typeof x !== "object" || x === null) return false;
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const obj = x as Record<string, unknown>;
+		if (!Object.prototype.hasOwnProperty.call(obj, "app_metadata"))
+			return false;
+		const meta = obj["app_metadata"];
+		if (typeof meta !== "object" || meta === null) return false;
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const metaObj = meta as Record<string, unknown>;
+		if (!Object.prototype.hasOwnProperty.call(metaObj, "user")) return false;
+		const inner = metaObj["user"];
+		if (typeof inner !== "object" || inner === null) return false;
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const innerObj = inner as Record<string, unknown>;
+		return (
+			Object.prototype.hasOwnProperty.call(innerObj, "user_id") &&
+			typeof innerObj["user_id"] === "string"
+		);
+	}
+
+	if (userError !== null || !isAuthUser(user)) {
 		throw new Error("No authenticated user found");
 	}
 
-	const userId = (user.app_metadata["user"] as { user_id: string }).user_id;
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	const userId = (user.app_metadata.user as { user_id: string }).user_id;
 
 	// Insert the new library entry
 	const { data, error } = await client
@@ -73,16 +90,56 @@ export async function addSongToLibrary(
 			.single();
 
 		// Add to local state immediately (optimistic update) with owner username if available
-		if (ownerError || !ownerData?.username) {
-			// Add without username
-			addLibraryEntry(data as SongLibraryEntry);
+		function isSongLibraryEntry(x: unknown): x is SongLibraryEntry {
+			if (typeof x !== "object" || x === null) return false;
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+			const obj = x as Record<string, unknown>;
+			return (
+				Object.prototype.hasOwnProperty.call(obj, "user_id") &&
+				typeof obj["user_id"] === "string" &&
+				Object.prototype.hasOwnProperty.call(obj, "song_id") &&
+				typeof obj["song_id"] === "string"
+			);
+		}
+
+		function isOwnerData(x: unknown): x is { username?: string } {
+			if (typeof x !== "object" || x === null) return false;
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+			const obj = x as Record<string, unknown>;
+			return (
+				Object.prototype.hasOwnProperty.call(obj, "username") &&
+				typeof obj["username"] === "string"
+			);
+		}
+
+		if (ownerError || !isOwnerData(ownerData)) {
+			if (isSongLibraryEntry(data)) {
+				addLibraryEntry(data);
+			} else {
+				// Fallback: attempt to coerce minimal shape
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+				addLibraryEntry({
+					user_id: userId,
+					song_id: request.song_id,
+					song_owner_id: request.song_owner_id,
+				} as SongLibraryEntry);
+			}
 		} else {
-			// Add with username
-			const libraryEntryWithUsername: SongLibraryEntry = {
-				...(data as SongLibraryEntry),
-				owner_username: ownerData.username,
-			};
-			addLibraryEntry(libraryEntryWithUsername);
+			if (isSongLibraryEntry(data)) {
+				const libraryEntryWithUsername: SongLibraryEntry = {
+					...data,
+					owner_username: ownerData.username,
+				};
+				addLibraryEntry(libraryEntryWithUsername);
+			} else {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+				addLibraryEntry({
+					user_id: userId,
+					song_id: request.song_id,
+					song_owner_id: request.song_owner_id,
+					owner_username: ownerData.username,
+				} as SongLibraryEntry);
+			}
 		}
 	} catch (userFetchError) {
 		console.warn(

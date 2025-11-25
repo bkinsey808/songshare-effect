@@ -17,10 +17,10 @@ export const createFormSubmissionEffect = ({
 		errors: ReadonlyArray<{ readonly field: string; readonly message: string }>,
 	) => void;
 	readonly setSubmitError: (error: string) => void;
-}): Effect.Effect<boolean, never, never> => {
+}): Effect.Effect<boolean> => {
 	return Effect.gen(function* () {
 		// Make the API request
-		const response = yield* Effect.promise(() =>
+		const response = yield* Effect.promise(async () =>
 			fetch(apiEndpoint, {
 				method: "POST",
 				body: formData,

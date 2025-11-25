@@ -19,10 +19,10 @@ export default function addActivePublicSongSlugs(
 					state: ReadonlyDeep<SongSubscribeSlice>,
 			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
-	get: () => SongSubscribeSlice,
+	get: () => SongSubscribeSlice & AppSlice,
 ) {
 	return async (songSlugs: ReadonlyArray<string>): Promise<void> => {
-		const state = get() as SongSubscribeSlice & AppSlice;
+		const state = get();
 
 		// Find missing song slugs that are not already being subscribed to
 		const missingSongSlugs = findMissingSongSlugs({
@@ -32,7 +32,6 @@ export default function addActivePublicSongSlugs(
 		});
 
 		if (missingSongSlugs.length === 0) {
-			// eslint-disable-next-line no-console
 			console.log(
 				"[addActivePublicSongSlugs] All song slugs already active, nothing to do.",
 			);
@@ -40,8 +39,8 @@ export default function addActivePublicSongSlugs(
 		}
 
 		// Validate visitor token
-		const visitorToken = (state as unknown as { visitorToken?: string })
-			.visitorToken;
+		const visitorToken =
+			"visitorToken" in state ? state.visitorToken : undefined;
 		if (!validateVisitorToken(visitorToken)) {
 			return;
 		}
@@ -57,7 +56,7 @@ export default function addActivePublicSongSlugs(
 
 		// Fetch songs from Supabase
 		const { data, error } = await fetchPublicSongsBySlugs(
-			supabase as unknown as Parameters<typeof fetchPublicSongsBySlugs>[0],
+			supabase,
 			missingSongSlugs,
 		);
 

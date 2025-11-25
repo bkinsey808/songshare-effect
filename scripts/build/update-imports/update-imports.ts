@@ -15,7 +15,7 @@ import { updateFileImports } from "./helpers/updateFileImports";
  * Orchestrates the import rewrite process and triggers a validation build.
  * @returns Resolves when the script completes or exits on failure.
  */
-async function main(): Promise<void> {
+function main(): void {
 	console.log("🔄 Finding TypeScript and React files...");
 
 	const patterns = ["*.ts", "*.tsx"];
@@ -50,5 +50,5 @@ async function main(): Promise<void> {
 }
 
 if (import.meta.main) {
-	void main();
+	main();
 }

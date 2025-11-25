@@ -1,6 +1,6 @@
 // src/features/server-utils/oauthCallbackFactory.ts
 /* eslint-disable no-console, max-lines-per-function */
-import { Effect, Schema } from "effect";
+import { Effect } from "effect";
 import { type Context } from "hono";
 import { getCookie } from "hono/cookie";
 import { verify } from "hono/jwt";
@@ -13,6 +13,7 @@ import { buildSameSiteAttr } from "@/api/cookie/buildSameSiteAttr";
 import { buildSessionCookie } from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
+import { getErrorMessage } from "@/api/getErrorMessage";
 import { buildDashboardRedirectUrl } from "@/api/oauth/buildDashboardRedirectUrl";
 import { fetchAndPrepareUser } from "@/api/oauth/fetchAndPrepareUser";
 import rateLimit from "@/api/rateLimit";
@@ -33,6 +34,7 @@ import {
 	stateQueryParam,
 } from "@/shared/queryParams";
 import { SigninErrorToken } from "@/shared/signinTokens";
+import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
 
 // Local RegisterData type (kept here to avoid module-resolution issues in the
 // typechecker while preserving the project's preferred import ordering)
@@ -69,14 +71,13 @@ import { SigninErrorToken } from "@/shared/signinTokens";
  * failure.
  */
 export function oauthCallbackFactory(
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-	ctx: ReadonlyContext<{ Bindings: Env }>,
+	ctx: ReadonlyContext,
 ): Effect.Effect<Response, DatabaseError | ServerError | ValidationError> {
 	return Effect.gen(function* ($) {
 		// Rate limit by IP
 		const allowed = yield* $(
 			Effect.tryPromise({
-				try: () => rateLimit(ctx, "oauthCallback"),
+				try: async () => rateLimit(ctx, "oauthCallback"),
 				catch: () => new DatabaseError({ message: "Rate limit failed" }),
 			}),
 		);
@@ -92,7 +93,7 @@ export function oauthCallbackFactory(
 		const requestUrl = new URL(ctx.req.url);
 		// Debug: log full request URL so we can see the hostname the API sees
 		yield* $(
-			Effect.sync(() =>
+			Effect.sync(() => {
 				console.log(
 					"[oauthCallback] ctx.req.url:",
 					ctx.req.url,
@@ -100,8 +101,8 @@ export function oauthCallbackFactory(
 					requestUrl.href,
 					"requestUrl.hostname:",
 					requestUrl.hostname,
-				),
-			),
+				);
+			}),
 		);
 		const code = requestUrl.searchParams.get(codeQueryParam);
 		const oauthStateParamsString = requestUrl.searchParams.get(stateQueryParam);
@@ -117,15 +118,23 @@ export function oauthCallbackFactory(
 
 		// Verify and decode signed state using Effect pipelines so failures map
 		// to typed AppError values and we avoid mixing try/catch with Effect.gen.
-		const envRecord = ctx.env as unknown as Record<string, string | undefined>;
+		// `Env` describes the known environment bindings for this service.
+		// Cast to `Env` here rather than `unknown` to avoid unsafe wide assertions
+		// elsewhere in the function and to make subsequent reads explicit.
+		// Use Env type for environment variables
+		const envRecord: Env = ctx.env;
 		const stateSecret = envRecord.STATE_HMAC_SECRET ?? envRecord.JWT_SECRET;
-		if (typeof stateSecret !== "string" || stateSecret === "") {
+		if (
+			stateSecret === undefined ||
+			stateSecret === null ||
+			stateSecret === ""
+		) {
 			yield* $(
-				Effect.sync(() =>
+				Effect.sync(() => {
 					console.error(
 						"[oauthCallback] Missing STATE_HMAC_SECRET or JWT_SECRET for verifying state",
-					),
-				),
+					);
+				}),
 			);
 			return yield* $(
 				Effect.fail(
@@ -139,16 +148,16 @@ export function oauthCallbackFactory(
 
 		const verified = yield* $(
 			Effect.tryPromise({
-				try: () => verify(oauthStateParamsString, stateSecret as string),
-				catch: (err) => new ServerError({ message: String(err) }),
+				try: async () => verify(oauthStateParamsString, stateSecret),
+				catch: (err) => new ServerError({ message: getErrorMessage(err) }),
 			}),
 		);
 
 		const oauthState = yield* $(
-			Schema.decodeUnknown(OauthStateSchema)(verified as unknown).pipe(
-				Effect.mapError(
-					() => new ValidationError({ message: "Invalid state" }),
-				),
+			decodeUnknownEffectOrMap(
+				OauthStateSchema,
+				verified,
+				() => new ValidationError({ message: "Invalid state" }),
 			),
 		);
 
@@ -165,9 +174,9 @@ export function oauthCallbackFactory(
 		);
 		if (csrfCookie === undefined || csrfCookie !== oauthState.csrf) {
 			yield* $(
-				Effect.sync(() =>
-					console.log("[oauthCallback] CSRF validation failed"),
-				),
+				Effect.sync(() => {
+					console.log("[oauthCallback] CSRF validation failed");
+				}),
 			);
 			// Redirect to home with a generic security token so SPA shows a safe message
 			return yield* $(
@@ -192,14 +201,17 @@ export function oauthCallbackFactory(
 		const computedStateRedirectUri = (() => {
 			const trimmed = (stateRedirectOrigin ?? "").replace(/\/$/, "");
 			let computedRedirectUri = trimmed
-				? `${trimmed}${apiOauthCallbackPath ?? ""}`
-				: `${apiOauthCallbackPath ?? ""}`;
+				? trimmed + (apiOauthCallbackPath ?? "")
+				: (apiOauthCallbackPath ?? "");
 			if (
 				typeof stateRedirectPort === "string" &&
 				stateRedirectPort !== "" &&
-				(envRecord.ENVIRONMENT ?? "") !== "production"
+				envRecord.ENVIRONMENT !== "production"
 			) {
-				computedRedirectUri = `https://localhost:${stateRedirectPort}${apiOauthCallbackPath ?? ""}`;
+				computedRedirectUri =
+					"https://localhost:" +
+					stateRedirectPort +
+					(apiOauthCallbackPath ?? "");
 			}
 			return computedRedirectUri;
 		})();
@@ -264,12 +276,12 @@ export function oauthCallbackFactory(
 			);
 
 			yield* $(
-				Effect.sync(() =>
+				Effect.sync(() => {
 					console.log(
 						"[oauthCallback] Setting register cookie:",
 						registerCookieName,
-					),
-				),
+					);
+				}),
 			);
 
 			yield* $(
@@ -286,9 +298,7 @@ export function oauthCallbackFactory(
 
 					// Use helper to build cookie header so attributes match sign-out
 					// and other cookie operations across the codebase.
-					const clientDebug =
-						(ctx.env as unknown as Record<string, string | undefined>)
-							.REGISTER_COOKIE_CLIENT_DEBUG === "true";
+					const clientDebug = envRecord.REGISTER_COOKIE_CLIENT_DEBUG === "true";
 					const headerValue = clientDebug
 						? `${registerCookieName}=${registerJwt}; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureString}`
 						: buildSessionCookie({
@@ -311,12 +321,12 @@ export function oauthCallbackFactory(
 			);
 
 			yield* $(
-				Effect.sync(() =>
+				Effect.sync(() => {
 					console.log(
 						"[oauthCallback] Redirecting to register page:",
 						`/${lang}/${registerPath}`,
-					),
-				),
+					);
+				}),
 			);
 
 			// Redirect to register page (303 See Other) using ctx.redirect so
@@ -333,12 +343,12 @@ export function oauthCallbackFactory(
 		) {
 			const prov = encodeURIComponent(provider);
 			yield* $(
-				Effect.sync(() =>
+				Effect.sync(() => {
 					console.log(
 						"[oauthCallback] Provider mismatch, redirecting to signInFailure:",
 						provider,
-					),
-				),
+					);
+				}),
 			);
 			// Redirect to home with a signinError marker so the SPA can show
 			// an inline error banner. Use 303 See Other to force a GET.

@@ -1,4 +1,4 @@
-import type { Env } from "@/api/env";
+// Env type not required here — ReadonlyContext default is fine
 import type { ReadonlyContext } from "@/api/hono/hono-context";
 import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import type { ReadonlyOauthState } from "@/shared/oauth/oauthState";
@@ -17,4 +17,4 @@ export type BuildUserSessionJwtParams = ReadonlyDeep<{
 	readonly existingUser: ReadonlyUser;
 	readonly oauthUserData: ReadonlyOauthUserData;
 	readonly oauthState: ReadonlyOauthState;
-}> & { readonly ctx: ReadonlyContext<{ Bindings: Env }> };
+}> & { readonly ctx: ReadonlyContext };

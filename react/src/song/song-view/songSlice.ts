@@ -1,8 +1,11 @@
 // src/features/react/song-subscribe/slice.ts
 import type { StateCreator } from "zustand";
 
+import type { AppSlice } from "@/react/zustand/useAppStore";
+
 import { sliceResetFns } from "@/react/zustand/useAppStore";
 import { safeGet } from "@/shared/utils/safe";
+import { isRecord } from "@/shared/utils/typeGuards";
 
 import { type Song, type SongPublic } from "../song-schema";
 import addActivePrivateSongIds from "./addActivePrivateSongIds";
@@ -52,11 +55,13 @@ const initialState = {
 };
 
 export const createSongSubscribeSlice: StateCreator<
-	SongSubscribeSlice,
+	SongSubscribeSlice & AppSlice,
 	[["zustand/devtools", never]],
 	[],
 	SongSubscribeSlice
 > = (set, get) => {
+	// `set` and `get` are typed to include `AppSlice` via the StateCreator generic above,
+	// so we can pass them directly to helper factories without unsafe assertions.
 	sliceResetFns.add(() => {
 		set(initialState);
 	});
@@ -130,19 +135,24 @@ export const createSongSubscribeSlice: StateCreator<
 
 			for (const songId of Object.keys(allPublicSongs)) {
 				const songPublic = safeGet(allPublicSongs, songId) as unknown;
+
+				function isSongPublic(x: unknown): x is SongPublic {
+					if (!isRecord(x)) return false;
+					const rec = x;
+					return (
+						Object.prototype.hasOwnProperty.call(rec, "song_slug") &&
+						typeof rec["song_slug"] === "string" &&
+						Object.prototype.hasOwnProperty.call(rec, "song_id") &&
+						typeof rec["song_id"] === "string"
+					);
+				}
+
 				if (
-					typeof songPublic === "object" &&
-					songPublic !== null &&
-					"song_slug" in songPublic &&
-					"song_id" in songPublic &&
-					songPublic.song_slug === slug
+					isSongPublic(songPublic) &&
+					(songPublic as Record<string, unknown>)["song_slug"] === slug
 				) {
-					// Extract the song_id safely
-					const songIdValue = (songPublic as { song_id: string }).song_id;
-					const song = safeGet(get().privateSongs, songIdValue) as
-						| Song
-						| undefined;
-					return { song, songPublic: songPublic as SongPublic };
+					const song = safeGet(get().privateSongs, songPublic.song_id);
+					return { song, songPublic };
 				}
 			}
 

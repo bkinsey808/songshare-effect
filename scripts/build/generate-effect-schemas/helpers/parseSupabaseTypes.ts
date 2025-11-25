@@ -7,7 +7,6 @@ import type {
 
 import { createExampleSchemas } from "./createExampleSchemas";
 
-// eslint-disable-next-line sonarjs/cognitive-complexity
 export function parseSupabaseTypes(filePath: string): TableDefinition[] {
 	if (!existsSync(filePath)) {
 		console.log(`⚠️  Supabase types file not found: ${filePath}`);
@@ -22,7 +21,6 @@ export function parseSupabaseTypes(filePath: string): TableDefinition[] {
 
 	try {
 		const tableMatches = content.matchAll(
-			// eslint-disable-next-line sonarjs/slow-regex
 			/(\w+):\s*{\s*Row:\s*{([^}]+)}\s*Insert:\s*{([^}]+)}/gs,
 		);
 
@@ -49,7 +47,6 @@ export function parseSupabaseTypes(filePath: string): TableDefinition[] {
 
 			const insertRequiredFields = new Set<string>();
 			const insertFieldMatches = insertContent.matchAll(
-				// eslint-disable-next-line sonarjs/slow-regex
 				/(\w+)(\?)?:\s*([^;\n]+)/g,
 			);
 
@@ -62,10 +59,7 @@ export function parseSupabaseTypes(filePath: string): TableDefinition[] {
 				}
 			}
 
-			const fieldMatches = rowContent.matchAll(
-				// eslint-disable-next-line sonarjs/slow-regex
-				/(\w+):\s*([^;\n]+)/g,
-			);
+			const fieldMatches = rowContent.matchAll(/(\w+):\s*([^;\n]+)/g);
 
 			for (const fieldMatch of fieldMatches) {
 				const fieldName = fieldMatch[1]?.trim();
@@ -81,10 +75,7 @@ export function parseSupabaseTypes(filePath: string): TableDefinition[] {
 				}
 
 				const isNullable = fieldType.includes("| null");
-				const cleanType = fieldType
-					// eslint-disable-next-line sonarjs/slow-regex
-					.replace(/\s*\|\s*null\s*$/, "")
-					.trim();
+				const cleanType = fieldType.replace(/\s*\|\s*null\s*$/, "").trim();
 				const isArrayType = cleanType.endsWith("[]");
 
 				let mappedType = "string";

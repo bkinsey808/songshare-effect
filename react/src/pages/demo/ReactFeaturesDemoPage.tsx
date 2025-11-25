@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
 import DemoNavigation from "@/react/demo/DemoNavigation";
+import { defaultLanguage } from "@/shared/language/supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import {
 	activityDemoPath,
 	hookDemoPath,
@@ -16,7 +16,9 @@ import {
 
 function ReactFeaturesDemoPage(): ReactElement {
 	const { t, i18n } = useTranslation();
-	const currentLang = i18n.language as SupportedLanguageType;
+	const currentLang = isSupportedLanguage(i18n.language)
+		? i18n.language
+		: defaultLanguage;
 
 	return (
 		<div>

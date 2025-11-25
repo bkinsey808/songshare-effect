@@ -16,7 +16,6 @@ import { detectBrowserLanguage } from "@/shared/language/detectBrowserLanguage";
 import { parseLanguageCookie } from "@/shared/language/parseLanguageCookie";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type Env = {};
 
 export const onRequest: PagesFunction<Env> = async (context) => {
@@ -76,8 +75,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 			// Check if client has a matching ETag
 			const ifNoneMatch = context.request.headers.get("If-None-Match");
 			if (ifNoneMatch === etag) {
-				// Return 304 without using `null` in a way that some linters dislike
-				return new Response(void 0 as unknown as null, { status: 304 });
+				return new Response(null, { status: 304 });
 			}
 		}
 

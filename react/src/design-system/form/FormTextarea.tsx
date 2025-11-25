@@ -1,4 +1,5 @@
 import type React from "react";
+import type { ReactElement } from "react";
 
 type FormTextareaProps = Readonly<{
 	name?: string;
@@ -19,7 +20,7 @@ export default function FormTextarea({
 }: FormTextareaProps): ReactElement {
 	const handleInput = autoExpand
 		? (formEvent: React.FormEvent<HTMLTextAreaElement>) => {
-				const target = formEvent.target as HTMLTextAreaElement;
+				const target = formEvent.currentTarget;
 				target.style.height = "auto";
 				target.style.height = `${target.scrollHeight}px`;
 			}

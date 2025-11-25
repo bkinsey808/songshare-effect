@@ -107,7 +107,7 @@ export default defineConfig({
 					command: "npm run dev:all",
 					// Use 127.0.0.1 to avoid hostname/IPv6 resolution differences
 					url: "https://127.0.0.1:5173",
-					reuseExistingServer: !process.env.CI,
+					reuseExistingServer: !CI,
 					// Allow longer startup on slower machines
 					timeout: 180000,
 					stdout: "pipe",

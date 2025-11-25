@@ -3,6 +3,7 @@ import { Effect, Schema } from "effect";
 import type { ReadonlyContext } from "@/api/hono/hono-context";
 import type { Database, Json } from "@/shared/generated/supabaseTypes";
 
+import { getErrorMessage } from "@/api/getErrorMessage";
 import { validateFormEffect } from "@/shared/validation/validateFormEffect";
 import { createClient } from "@supabase/supabase-js";
 
@@ -43,7 +44,6 @@ type SongFormData = Schema.Schema.Type<typeof SongFormSchema>;
  * Effect-based handler used by handleHttpEndpoint. Returns the created public song data.
  */
 export function songSave(
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	ctx: ReadonlyContext,
 ): Effect.Effect<
 	unknown,
@@ -57,7 +57,10 @@ export function songSave(
 		// Parse JSON body
 		const body: unknown = yield* $(
 			Effect.tryPromise({
-				try: () => ctx.req.json(),
+				try: async () => {
+					const parsed: unknown = await ctx.req.json();
+					return parsed;
+				},
 				catch: () => new ValidationError({ message: "Invalid JSON body" }),
 			}),
 		);
@@ -80,6 +83,26 @@ export function songSave(
 			),
 		);
 
+		// Build strongly-typed values for DB insertion to avoid unsafe assertions.
+		// Use runtime checks and safe coercions so ESLint/TS won't require `as` casts.
+		const fieldsForDb: string[] = Array.isArray(validated.fields)
+			? validated.fields.map((f) => String(f))
+			: [];
+		const slideOrderForDb: string[] = Array.isArray(validated.slide_order)
+			? validated.slide_order.map((s) => String(s))
+			: [];
+		let slidesForDb: Json = {} as Json;
+		try {
+			// Serialize/deserialize to ensure the structure is JSON-safe.
+			// This assignment is a controlled conversion from validated input to a
+			// JSON-serializable value; keep the disable narrow and local.
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
+			slidesForDb = JSON.parse(JSON.stringify(validated.slides ?? {})) as Json;
+		} catch {
+			// Fallback to an empty object if serialization fails
+			slidesForDb = {} as Json;
+		}
+
 		// Create Supabase client with service role key to bypass RLS for writes
 		const supabase = createClient<Database>(
 			ctx.env.VITE_SUPABASE_URL,
@@ -92,7 +115,7 @@ export function songSave(
 		// Insert private song data first
 		const privateInsert = yield* $(
 			Effect.tryPromise({
-				try: () =>
+				try: async () =>
 					supabase
 						.from("song")
 						.insert([
@@ -106,7 +129,7 @@ export function songSave(
 						.single(),
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to create private song: ${String(err)}`,
+						message: `Failed to create private song: ${getErrorMessage(err)}`,
 					}),
 			}),
 		);
@@ -124,7 +147,7 @@ export function songSave(
 		// Insert into public table (song_public) — fields that are safe for sharing
 		const publicInsert = yield* $(
 			Effect.tryPromise({
-				try: () =>
+				try: async () =>
 					supabase
 						.from("song_public")
 						.insert([
@@ -133,14 +156,11 @@ export function songSave(
 								user_id: userId,
 								song_name: validated.song_name,
 								song_slug: validated.song_slug,
-								fields: validated.fields as string[],
-								slide_order: validated.slide_order as string[],
-								slides: validated.slides as unknown as Json,
-								// eslint-disable-next-line unicorn/no-null
+								fields: fieldsForDb,
+								slide_order: slideOrderForDb,
+								slides: slidesForDb,
 								short_credit: validated.short_credit ?? null,
-								// eslint-disable-next-line unicorn/no-null
 								long_credit: validated.long_credit ?? null,
-								// eslint-disable-next-line unicorn/no-null
 								public_notes: validated.public_notes ?? null,
 							},
 						])
@@ -148,7 +168,7 @@ export function songSave(
 						.single(),
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to create public song: ${String(err)}`,
+						message: `Failed to create public song: ${getErrorMessage(err)}`,
 					}),
 			}),
 		);
@@ -158,7 +178,8 @@ export function songSave(
 			try {
 				void Effect.runPromise(
 					Effect.tryPromise({
-						try: () => supabase.from("song").delete().eq("song_id", songId),
+						try: async () =>
+							supabase.from("song").delete().eq("song_id", songId),
 						catch: () => undefined,
 					}),
 				);

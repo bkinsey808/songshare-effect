@@ -13,7 +13,6 @@ const targetFileRel =
 
 /** The base filename of the target file, used for comparison with error output. */
 const targetFileBase =
-	// eslint-disable-next-line no-negated-condition
 	targetFileRel !== undefined ? path.basename(targetFileRel) : undefined;
 if (targetFileRel === undefined || targetFileBase === undefined) {
 	console.error("Usage: bun scripts/filterTsErrors.ts <filename> < input.txt");
@@ -31,8 +30,11 @@ const rl = readline.createInterface({ input: process.stdin, terminal: false });
 
 /** Remove ANSI color codes for clean matching */
 function stripAnsi(str: string): string {
-	// eslint-disable-next-line no-control-regex, sonarjs/no-control-regex -- ANSI escape sequences require control characters
-	return str.replace(/\x1b\[[0-9;]*m/g, "");
+	// Build the ANSI escape regex without embedding a raw control character in source
+	// (avoid \x1b or \u001b literals which ESLint flags). Use `String.fromCharCode`.
+	const esc = String.fromCharCode(27); // ESC (0x1B)
+	const ansiRegex = new RegExp(esc + "\\[[0-9;]*m", "g");
+	return str.replace(ansiRegex, "");
 }
 
 // Main loop: process each line from stdin

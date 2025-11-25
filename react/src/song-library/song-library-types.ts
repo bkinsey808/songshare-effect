@@ -10,7 +10,6 @@ export type SongLibrarySliceBase = {
 	// State management methods
 	setLibraryError: (error: string | undefined) => void;
 	isInLibrary: (songId: string) => boolean;
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	addLibraryEntry: (entry: SongLibraryEntry) => void;
 	removeLibraryEntry: (songId: string) => void;
 };

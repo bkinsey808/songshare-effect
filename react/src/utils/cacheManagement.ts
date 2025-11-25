@@ -40,12 +40,12 @@ export function clearAppCache(): void {
 	if ("caches" in window) {
 		caches
 			.keys()
-			.then((cacheNames) => {
-				return Promise.all(
-					cacheNames.map((cacheName) => caches.delete(cacheName)),
+			.then(async (cacheNames) => {
+				await Promise.all(
+					cacheNames.map(async (cacheName) => caches.delete(cacheName)),
 				);
 			})
-			.catch((error) => {
+			.catch((error: unknown) => {
 				console.warn("Failed to clear caches:", error);
 			});
 	}
@@ -62,35 +62,40 @@ export function hardRefresh(): void {
 /**
  * Check if page should be reloaded due to new version
  */
-export function checkForUpdates(): Promise<boolean> {
-	return fetch(`/manifest.json?${Date.now()}`, {
-		cache: "no-store",
-	})
-		.then((response) => {
-			if (!response.ok) {
-				return false;
-			}
-			return response.json();
-		})
-		.then((manifest: Readonly<{ version?: string }>) => {
-			const currentVersion = manifest?.version ?? "unknown";
-			const storedVersion = localStorage.getItem("app_manifest_version");
-
-			if (storedVersion !== null && storedVersion !== currentVersion) {
-				localStorage.setItem("app_manifest_version", currentVersion);
-				// New version available
-				return true;
-			}
-
-			if (storedVersion === null) {
-				localStorage.setItem("app_manifest_version", currentVersion);
-			}
-
-			return false;
-		})
-		.catch(() => {
-			return false;
+export async function checkForUpdates(): Promise<boolean> {
+	try {
+		const response = await fetch(`/manifest.json?${Date.now()}`, {
+			cache: "no-store",
 		});
+
+		if (!response.ok) {
+			return false;
+		}
+
+		const manifestRaw: unknown = await response.json();
+		let currentVersion = "unknown";
+		if (typeof manifestRaw === "object" && manifestRaw !== null) {
+			const maybeVersion = (manifestRaw as { version?: unknown }).version;
+			if (typeof maybeVersion === "string") {
+				currentVersion = maybeVersion;
+			}
+		}
+		const storedVersion = localStorage.getItem("app_manifest_version");
+
+		if (storedVersion !== null && storedVersion !== currentVersion) {
+			localStorage.setItem("app_manifest_version", currentVersion);
+			// New version available
+			return true;
+		}
+
+		if (storedVersion === null) {
+			localStorage.setItem("app_manifest_version", currentVersion);
+		}
+
+		return false;
+	} catch {
+		return false;
+	}
 }
 
 /**
@@ -110,7 +115,7 @@ export function initCacheManagement(): void {
 					}
 					return hasUpdate;
 				})
-				.catch((error) => {
+				.catch((error: unknown) => {
 					console.warn("Failed to check for updates:", error);
 					return false;
 				});

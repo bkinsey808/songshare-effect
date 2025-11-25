@@ -1,12 +1,13 @@
-import type { Env } from "@/api/env";
+// Env type is not required here — ReadonlyContext default covers the Bindings type
 import type { ReadonlyContext } from "@/api/hono/hono-context";
 
+import { getEnvString } from "@/shared/env/getEnv";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 type ComputeDashboardRedirectWithPortParams = ReadonlyDeep<{
 	// Mark each top-level property as `readonly` so the prefer-readonly rule
 	// recognizes this as an immutable param type.
-	readonly ctx: ReadonlyContext<{ Bindings: Env }>;
+	readonly ctx: ReadonlyContext;
 	readonly url: URL;
 	readonly redirectPortStr: string;
 	readonly lang: string;
@@ -17,7 +18,6 @@ type ComputeDashboardRedirectWithPortParams = ReadonlyDeep<{
  * Validate redirect_port and build an absolute dashboard URL when allowed.
  * Kept as a small pure-ish helper that still consults `ctx.env` and headers.
  */
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function computeDashboardRedirectWithPort({
 	ctx,
 	url,
@@ -27,13 +27,14 @@ export function computeDashboardRedirectWithPort({
 }: ComputeDashboardRedirectWithPortParams): string | undefined {
 	const portNum = Number(redirectPortStr);
 	if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
-		// eslint-disable-next-line no-console
 		console.log("[oauthCallback] Invalid redirect_port, ignoring");
 		return undefined;
 	}
 
-	const envRec = ctx.env as unknown as Record<string, string | undefined>;
-	const allowedOriginsRaw = envRec.ALLOWED_ORIGINS ?? "";
+	// Read ALLOWED_ORIGINS string via helper to avoid unsafe casts at call
+	// sites. Keep behavior identical to the previous implementation: treat
+	// missing/empty ALLOWED_ORIGINS as no configured origins.
+	const allowedOriginsRaw = getEnvString(ctx.env, "ALLOWED_ORIGINS") ?? "";
 	const allowedOrigins = allowedOriginsRaw
 		.split(",")
 		.map((origin) => origin.trim())
@@ -52,7 +53,6 @@ export function computeDashboardRedirectWithPort({
 		if (allowedOrigins.includes(candidateOrigin)) {
 			return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
 		}
-		// eslint-disable-next-line no-console
 		console.log(
 			"[oauthCallback] Candidate origin not in ALLOWED_ORIGINS, ignoring redirect_port",
 			candidateOrigin,
@@ -63,7 +63,7 @@ export function computeDashboardRedirectWithPort({
 	// No ALLOWED_ORIGINS configured. In non-production allow the redirect for
 	// developer convenience (but log a warning). In production ALLOWED_ORIGINS
 	// should be set and we will not allow arbitrary origins.
-	if ((envRec.ENVIRONMENT ?? "") !== "production") {
+	if ((getEnvString(ctx.env, "ENVIRONMENT") ?? "") !== "production") {
 		console.warn(
 			"[oauthCallback] ALLOWED_ORIGINS not set; allowing redirect_port candidate in non-production:",
 			candidateOrigin,
@@ -71,7 +71,6 @@ export function computeDashboardRedirectWithPort({
 		return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
 	}
 
-	// eslint-disable-next-line no-console
 	console.log(
 		"[oauthCallback] ALLOWED_ORIGINS not set and environment is production — ignoring redirect_port",
 		candidateOrigin,

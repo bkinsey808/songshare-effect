@@ -8,7 +8,14 @@ import { spawnSync } from "child_process";
 
 // (This script prints status for contributors)
 
+/**
+ * Run a command and return the exit status (0 == success)
+ * @param {string} cmd
+ * @param {string[]=} args
+ * @returns {number}
+ */
 function run(cmd, args) {
+	/** @type {import('child_process').SpawnSyncOptions} */
 	const opts = {
 		stdio: "inherit",
 		env: process.env,
@@ -45,7 +52,15 @@ try {
 	// Playwright's installer may not recognise newer distro names (eg 'noble').
 	// Use plain `playwright install` in CI and only include `--with-deps`
 	// for local developer environments.
-	const isCI = Boolean(process.env.CI || process.env.GITHUB_ACTIONS);
+	// Explicitly handle nullish and empty string env values so the
+	// strict-boolean-expressions rule is satisfied and we don't accidentally
+	// treat an empty/undefined env var as truthy.
+	const ciFlag = process.env.CI ?? process.env.GITHUB_ACTIONS;
+	const isCI =
+		ciFlag !== null &&
+		ciFlag !== undefined &&
+		ciFlag !== "" &&
+		["1", "true"].includes(ciFlag.toLowerCase());
 	const args = isCI
 		? ["playwright", "install"]
 		: ["playwright", "install", "--with-deps"];

@@ -4,7 +4,7 @@
 // to preserve Error semantics.
 
 export class ValidationError extends Error {
-	readonly _tag = "ValidationError" as const;
+	readonly _tag = "ValidationError";
 	override readonly message: string;
 	readonly field: string | undefined;
 
@@ -17,7 +17,7 @@ export class ValidationError extends Error {
 }
 
 export class NotFoundError extends Error {
-	readonly _tag = "NotFoundError" as const;
+	readonly _tag = "NotFoundError";
 	override readonly message: string;
 	readonly resource: string;
 	readonly id: string | undefined;
@@ -36,9 +36,9 @@ export class NotFoundError extends Error {
 }
 
 export class DatabaseError extends Error {
-	readonly _tag = "DatabaseError" as const;
+	readonly _tag = "DatabaseError";
 	override readonly message: string;
-	override readonly cause: unknown | undefined;
+	override readonly cause?: unknown;
 
 	constructor(args: { readonly message: string; readonly cause?: unknown }) {
 		super(args.message);
@@ -49,9 +49,9 @@ export class DatabaseError extends Error {
 }
 
 export class ServerError extends Error {
-	readonly _tag = "ServerError" as const;
+	readonly _tag = "ServerError";
 	override readonly message: string;
-	override readonly cause: unknown | undefined;
+	override readonly cause?: unknown;
 
 	constructor(args: { readonly message: string; readonly cause?: unknown }) {
 		super(args.message);
@@ -62,9 +62,9 @@ export class ServerError extends Error {
 }
 
 export class ProviderError extends Error {
-	readonly _tag = "ProviderError" as const;
+	readonly _tag = "ProviderError";
 	override readonly message: string;
-	override readonly cause: unknown | undefined;
+	override readonly cause?: unknown;
 
 	constructor(args: { readonly message: string; readonly cause?: unknown }) {
 		super(args.message);
@@ -75,10 +75,10 @@ export class ProviderError extends Error {
 }
 
 export class FileUploadError extends Error {
-	readonly _tag = "FileUploadError" as const;
+	readonly _tag = "FileUploadError";
 	override readonly message: string;
 	readonly filename: string | undefined;
-	override readonly cause: unknown | undefined;
+	override readonly cause?: unknown;
 
 	constructor(args: {
 		readonly message: string;
@@ -94,7 +94,7 @@ export class FileUploadError extends Error {
 }
 
 export class AuthenticationError extends Error {
-	readonly _tag = "AuthenticationError" as const;
+	readonly _tag = "AuthenticationError";
 	override readonly message: string;
 
 	constructor(args: { readonly message: string }) {
@@ -105,7 +105,7 @@ export class AuthenticationError extends Error {
 }
 
 export class AuthorizationError extends Error {
-	readonly _tag = "AuthorizationError" as const;
+	readonly _tag = "AuthorizationError";
 	override readonly message: string;
 	readonly resource: string | undefined;
 

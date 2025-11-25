@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import type { Env } from "@/api/env";
+// Env type not required for handler's readonly context parameter
 import type { Database } from "@/shared/generated/supabaseTypes";
 
 import { buildClearCookieHeader } from "@/api/cookie/buildClearCookieHeader";
@@ -17,8 +17,7 @@ import { type ReadonlyContext } from "../hono/hono-context";
  * Delete an authenticated user's account and clear the session cookie.
  */
 export default function accountDelete(
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
-	ctx: ReadonlyContext<{ Bindings: Env }>,
+	ctx: ReadonlyContext,
 ): Effect.Effect<Response, AuthenticationError | DatabaseError> {
 	return Effect.gen(function* ($) {
 		// Basic CSRF checks: ensure the request originated from an allowed origin
@@ -50,7 +49,7 @@ export default function accountDelete(
 		// Delete the user row. Other related rows will be removed by ON DELETE CASCADE
 		const delUser = yield* $(
 			Effect.tryPromise({
-				try: () => supabase.from("user").delete().eq("user_id", userId),
+				try: async () => supabase.from("user").delete().eq("user_id", userId),
 				catch: () => new DatabaseError({ message: "Failed to delete user" }),
 			}),
 		);

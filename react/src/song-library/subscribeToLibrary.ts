@@ -29,29 +29,67 @@ export function subscribeToLibrary(
 			const channel = client
 				.channel("song_library_changes")
 				.on(
-					"postgres_changes" as "system",
+					"postgres_changes",
 					{
 						event: "*",
 						schema: "public",
 						table: "song_library",
 					},
-					async (payload: unknown) => {
-						const { addLibraryEntry, removeLibraryEntry } = get();
-						const typedPayload = payload as {
-							eventType: "INSERT" | "UPDATE" | "DELETE";
-							new?: SongLibraryEntry;
-							old?: SongLibraryEntry;
-						};
+					(payload: unknown) => {
+						// Use an async IIFE to avoid passing an async function where a
+						// synchronous callback is expected (prevents no-misused-promises).
+						void (async () => {
+							const { addLibraryEntry, removeLibraryEntry } = get();
 
-						switch (typedPayload.eventType) {
-							case "INSERT":
-							case "UPDATE": {
-								if (typedPayload.new !== undefined) {
-									// For new/updated entries, fetch the owner's username
-									const songLibraryEntry = typedPayload.new;
+							function isLibraryPayload(x: unknown): x is {
+								eventType: "INSERT" | "UPDATE" | "DELETE";
+								new?: unknown;
+								old?: unknown;
+							} {
+								if (typeof x !== "object" || x === null) return false;
+								// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+								const obj = x as Record<string, unknown>;
+								return (
+									Object.prototype.hasOwnProperty.call(obj, "eventType") &&
+									typeof obj["eventType"] === "string"
+								);
+							}
+
+							function isSongLibraryEntry(x: unknown): x is SongLibraryEntry {
+								if (typeof x !== "object" || x === null) return false;
+								// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+								const obj = x as Record<string, unknown>;
+								return (
+									Object.prototype.hasOwnProperty.call(obj, "song_id") &&
+									typeof obj["song_id"] === "string" &&
+									Object.prototype.hasOwnProperty.call(obj, "user_id") &&
+									typeof obj["user_id"] === "string"
+								);
+							}
+
+							if (!isLibraryPayload(payload)) return;
+
+							// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+							const eventTypeRaw = (payload as Record<string, unknown>)[
+								"eventType"
+							];
+							if (typeof eventTypeRaw !== "string") return;
+							const eventType = eventTypeRaw;
+
+							switch (eventType) {
+								case "INSERT":
+								case "UPDATE": {
+									const newEntry = (payload as Record<string, unknown>)["new"];
+									if (newEntry === undefined) break;
+
+									if (!isSongLibraryEntry(newEntry)) {
+										// Can't work with malformed payload; skip
+										break;
+									}
+
+									const songLibraryEntry = newEntry;
 
 									try {
-										// Fetch the owner's username from user_public table
 										const { data: userData, error: userError } = await client
 											.from("user_public")
 											.select("username")
@@ -63,43 +101,56 @@ export function subscribeToLibrary(
 												"[subscribeToLibrary] Could not fetch owner username:",
 												userError,
 											);
-											// Still add the entry without username
 											addLibraryEntry(songLibraryEntry);
 										} else {
-											// Add the entry with owner username
 											addLibraryEntry({
 												...songLibraryEntry,
 												owner_username: userData.username,
 											});
 										}
-									} catch (error) {
+									} catch (error_) {
 										console.warn(
 											"[subscribeToLibrary] Error fetching owner username:",
-											error,
+											error_,
 										);
-										// Still add the entry without username
 										addLibraryEntry(songLibraryEntry);
 									}
+
+									break;
 								}
-								break;
-							}
-							case "DELETE": {
-								if (typedPayload.old?.song_id !== undefined) {
-									removeLibraryEntry(typedPayload.old.song_id);
+								case "DELETE": {
+									// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+									const oldEntry = (payload as Record<string, unknown>)["old"];
+									// Safely extract song_id if present
+									try {
+										// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-type-assertion
+										const idRaw = (oldEntry as Record<string, unknown>)?.[
+											"song_id"
+										];
+										if (typeof idRaw === "string") {
+											removeLibraryEntry(idRaw);
+										}
+									} catch {
+										// ignore malformed old entry
+									}
+									break;
 								}
-								break;
 							}
-							default:
-								break;
-						}
+						})().catch((e: unknown) => {
+							console.warn("[subscribeToLibrary] handler error:", e);
+						});
 					},
 				)
 				.subscribe((status: string, err: unknown) => {
-					if (status === REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
+					if (String(status) === String(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)) {
 						// Subscription successful - no logging needed in production
-					} else if (status === REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR) {
+					} else if (
+						String(status) === String(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR)
+					) {
 						console.error("[subscribeToLibrary] Channel error:", err);
-					} else if (status === REALTIME_SUBSCRIBE_STATES.TIMED_OUT) {
+					} else if (
+						String(status) === String(REALTIME_SUBSCRIBE_STATES.TIMED_OUT)
+					) {
 						console.warn("[subscribeToLibrary] Subscription timed out");
 					}
 				});

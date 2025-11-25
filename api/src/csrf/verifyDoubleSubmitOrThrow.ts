@@ -7,7 +7,6 @@ import { csrfTokenCookieName } from "@/shared/cookies";
 import { type Env } from "../env";
 import { type ReadonlyContext } from "../hono/hono-context";
 
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function verifyDoubleSubmitOrThrow(ctx: ReadonlyContext): void {
 	const headerToken = ctx.req.header("X-CSRF-Token");
 	const cookieToken = getCookie(

@@ -17,11 +17,9 @@ export function convertApiImports(filePath: string, content: string): string {
 	updatedContent = updatedContent.replace(
 		/import\s+([^'"]*)\s+from\s+["']\.\.\/([^'"]*?)["'];?/g,
 		(...args) => {
-			const [match, importPart, relativePath] = args as [
-				string,
-				string,
-				string,
-			];
+			const match = String(args[0] ?? "");
+			const importPart = String(args[1] ?? "");
+			const relativePath = String(args[2] ?? "");
 			// Don't convert if it's already an alias or going to shared
 			if (
 				relativePath.includes("shared/src") ||
@@ -40,11 +38,9 @@ export function convertApiImports(filePath: string, content: string): string {
 		updatedContent = updatedContent.replace(
 			/import\s+([^'"]*)\s+from\s+["']\.\/([^'"]*?)["'];?/g,
 			(...args) => {
-				const [match, importPart, relativePath] = args as [
-					string,
-					string,
-					string,
-				];
+				const match = String(args[0] ?? "");
+				const importPart = String(args[1] ?? "");
+				const relativePath = String(args[2] ?? "");
 				if (relativePath.startsWith("@/")) {
 					return match;
 				}

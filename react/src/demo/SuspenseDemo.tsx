@@ -1,7 +1,9 @@
+import type { ReactElement } from "react";
+
 import { Suspense } from "react";
 
 // Simple cache to store promises and their results
-const promiseCache = new Map<string, Promise<unknown> | unknown>();
+const promiseCache = new Map<string, unknown>();
 
 // Utility function to create a suspending fetch
 function suspendingFetch<T>(key: string, fetcher: () => Promise<T>): T {
@@ -10,10 +12,14 @@ function suspendingFetch<T>(key: string, fetcher: () => Promise<T>): T {
 
 		// If it's still a promise, throw it to suspend
 		if (cached instanceof Promise) {
+			// eslint-disable-next-line @typescript-eslint/only-throw-error, only-throw-error
 			throw cached;
 		}
 
-		// Return the resolved value (type assertion since we know the type from the cache key pattern)
+		// Return the resolved value. This local assertion is safe because
+		// the cache is written by the typed fetcher above. Keep the disable
+		// very narrow to satisfy the project's lint rules.
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 		return cached as T;
 	}
 
@@ -24,15 +30,17 @@ function suspendingFetch<T>(key: string, fetcher: () => Promise<T>): T {
 			promiseCache.set(key, result);
 			return result;
 		},
-		(error) => {
+		(error: unknown) => {
 			// Remove from cache on error so it can be retried
 			promiseCache.delete(key);
+			// re-throw the error (allow ErrorBoundary to handle it)
 			throw error;
 		},
 	);
 
 	promiseCache.set(key, promise);
 	// Suspend until the promise resolves
+	// eslint-disable-next-line @typescript-eslint/only-throw-error, only-throw-error
 	throw promise;
 }
 

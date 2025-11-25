@@ -8,7 +8,7 @@ import type { ApiResponseAction } from "./apiResponseTypes";
  */
 export const createApiResponseEffect = (
 	response: Response,
-): Effect.Effect<unknown, ApiResponseAction, never> => {
+): Effect.Effect<unknown, ApiResponseAction> => {
 	return Effect.gen(function* () {
 		console.log("🔍 Processing API response, status:", response.status);
 		// Success case
@@ -19,11 +19,19 @@ export const createApiResponseEffect = (
 
 		console.log("❌ Response not OK, parsing error");
 		// Parse JSON with error handling
-		let errorData: { error?: string; field?: string };
+		let errorData: { error?: string | undefined; field?: string | undefined };
 		try {
-			errorData = yield* Effect.promise(
-				() => response.json() as Promise<{ error?: string; field?: string }>,
-			);
+			errorData = yield* Effect.promise(async () => {
+				const raw: unknown = await response.json();
+				if (typeof raw === "object" && raw !== null) {
+					const obj = raw as { error?: unknown; field?: unknown };
+					return {
+						error: typeof obj.error === "string" ? obj.error : undefined,
+						field: typeof obj.field === "string" ? obj.field : undefined,
+					};
+				}
+				return { error: undefined, field: undefined };
+			});
 			console.log("📄 Parsed error data:", errorData);
 		} catch {
 			console.log("💥 Failed to parse JSON response");

@@ -24,10 +24,10 @@ function getErrorMessage(error: unknown): string {
  * @returns Resolves when the migration completes successfully.
  * @throws If required environment variables are missing or the command fails.
  */
-export async function runMigration(
+export function runMigration(
 	migration: Readonly<MigrationFile>,
 	env: Readonly<Record<string, string | undefined>>,
-): Promise<void> {
+): void {
 	console.log(`📄 Running migration: ${migration.filename}`);
 
 	const { PGHOST, PGUSER, PGPASSWORD, PGDATABASE } = env;
@@ -53,7 +53,6 @@ export async function runMigration(
 
 		// This is a controlled script execution - command is constructed from validated env vars
 		// and migration file path. The script is only run by developers for database migrations.
-		// eslint-disable-next-line sonarjs/os-command -- migration command uses validated env vars and audited file paths
 		execSync(command, {
 			stdio: "inherit",
 			env: {

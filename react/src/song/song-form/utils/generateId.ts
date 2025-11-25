@@ -7,6 +7,5 @@ export function generateId(): string {
 	if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
 		return crypto.randomUUID().slice(0, 11);
 	}
-	// eslint-disable-next-line sonarjs/pseudo-random -- Safe for non-cryptographic ID generation
 	return Math.random().toString(36).slice(2, 11);
 }
