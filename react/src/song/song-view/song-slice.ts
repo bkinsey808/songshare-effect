@@ -1,7 +1,4 @@
-// src/features/react/song-subscribe/slice.ts
-import type { StateCreator } from "zustand";
-
-import type { AppSlice } from "@/react/zustand/useAppStore";
+import type { Set, Get, Api } from "@/react/zustand/slice-utils";
 
 import { sliceResetFns } from "@/react/zustand/useAppStore";
 import { safeGet } from "@/shared/utils/safe";
@@ -15,11 +12,14 @@ import addActivePublicSongSlugs from "./addActivePublicSongSlugs";
 import subscribeToActivePrivateSongs from "./subscribeToActivePrivateSongs";
 import subscribeToActivePublicSongs from "./subscribeToActivePublicSongs";
 
-export type SongSubscribeSlice = {
+type SongSubscribeState = {
 	privateSongs: Record<string, Song>;
 	publicSongs: Record<string, SongPublic>;
 	activePrivateSongIds: ReadonlyArray<string>;
 	activePublicSongIds: ReadonlyArray<string>;
+};
+
+export type SongSubscribeSlice = SongSubscribeState & {
 	/** Add or update song records. Never removes any songs from the store. */
 	addOrUpdatePrivateSongs: (songs: Readonly<Record<string, Song>>) => void;
 	addOrUpdatePublicSongs: (songs: Readonly<Record<string, SongPublic>>) => void;
@@ -47,19 +47,22 @@ export type SongSubscribeSlice = {
 		| undefined;
 };
 
-const initialState = {
+const initialState: SongSubscribeState = {
 	privateSongs: {} as Record<string, Song>,
 	publicSongs: {} as Record<string, SongPublic>,
 	activePrivateSongIds: [] as ReadonlyArray<string>,
 	activePublicSongIds: [] as ReadonlyArray<string>,
 };
 
-export const createSongSubscribeSlice: StateCreator<
-	SongSubscribeSlice & AppSlice,
-	[["zustand/devtools", never]],
-	[],
-	SongSubscribeSlice
-> = (set, get) => {
+export function createSongSubscribeSlice(
+	set: Set<SongSubscribeSlice>,
+	get: Get<SongSubscribeSlice>,
+	api: Api<SongSubscribeSlice>,
+): SongSubscribeSlice {
+	// Keep the `api` parameter in the signature so callers can pass the Zustand
+	// StoreApi (middleware may supply it). Mark it used to avoid unused param
+	// compile errors when the slice implementation doesn't need it.
+	void api;
 	// `set` and `get` are typed to include `AppSlice` via the StateCreator generic above,
 	// so we can pass them directly to helper factories without unsafe assertions.
 	sliceResetFns.add(() => {
@@ -136,13 +139,15 @@ export const createSongSubscribeSlice: StateCreator<
 			for (const songId of Object.keys(allPublicSongs)) {
 				const songPublic = safeGet(allPublicSongs, songId) as unknown;
 
-				function isSongPublic(x: unknown): x is SongPublic {
-					if (!isRecord(x)) return false;
-					const rec = x;
+				function isSongPublic(value: unknown): value is SongPublic {
+					if (!isRecord(value)) {
+						return false;
+					}
+					const rec = value;
 					return (
-						Object.prototype.hasOwnProperty.call(rec, "song_slug") &&
+						Object.hasOwn(rec, "song_slug") &&
 						typeof rec["song_slug"] === "string" &&
-						Object.prototype.hasOwnProperty.call(rec, "song_id") &&
+						Object.hasOwn(rec, "song_id") &&
 						typeof rec["song_id"] === "string"
 					);
 				}
@@ -159,4 +164,4 @@ export const createSongSubscribeSlice: StateCreator<
 			return undefined;
 		},
 	};
-};
+}

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAppForm } from "@/react/form/useAppForm";
+import { JUST_REGISTERED_SIGNAL } from "@/shared/constants/http";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { apiAccountRegisterPath, dashboardPath } from "@/shared/paths";
@@ -43,18 +44,18 @@ export default function RegisterPage(): ReactElement {
 		console.log("🔄 validationErrors changed:", validationErrors);
 	}, [validationErrors]);
 
-	const handleUsernameBlur = (): void => {
+	function handleUsernameBlur(): void {
 		handleFieldBlur("username", usernameRef);
-	};
+	}
 
-	const handleUsernameChange = (): void => {
+	function handleUsernameChange(): void {
 		// Clear validation errors for this field when user starts typing
 		setValidationErrors((currentErrors) =>
 			currentErrors.filter((error) => error.field !== "username"),
 		);
-	};
+	}
 
-	const onSubmitSuccess = (): void => {
+	function onSubmitSuccess(): void {
 		// Redirect to dashboard on success. Add `justSignedIn=1` so the
 		// ProtectedLayout knows to force-refresh `/api/me` and pick up the
 		// HttpOnly session cookie that was set by the server during
@@ -66,16 +67,16 @@ export default function RegisterPage(): ReactElement {
 			// different success message when the user has just created an
 			// account (instead of a generic "signed in" message).
 			if (typeof window !== "undefined") {
-				sessionStorage.setItem(justRegisteredKey, "1");
+				sessionStorage.setItem(justRegisteredKey, JUST_REGISTERED_SIGNAL);
 			}
 		} catch {
 			// ignore storage errors
 		}
 
-		window.location.href = `/${currentLang}/${dashboardPath}?${justSignedInQueryParam}=1`;
-	};
+		window.location.href = `/${currentLang}/${dashboardPath}?${justSignedInQueryParam}=${JUST_REGISTERED_SIGNAL}`;
+	}
 
-	const onSubmit = async (data: RegisterForm): Promise<void> => {
+	async function onSubmit(data: RegisterForm): Promise<void> {
 		console.log("🔥 onSubmit called with data:", data);
 		setSubmitError(undefined);
 
@@ -110,9 +111,9 @@ export default function RegisterPage(): ReactElement {
 			console.error("💥 Network error:", error);
 			setSubmitError(t("register.errors.networkError"));
 		}
-	};
+	}
 
-	const handleFormSubmit = async (event: React.FormEvent): Promise<void> => {
+	async function handleFormSubmit(event: React.FormEvent): Promise<void> {
 		console.log("📝 Form submit triggered", event);
 		event.preventDefault();
 		console.log("🔄 Calling handleSubmit with onSubmit");
@@ -132,7 +133,7 @@ export default function RegisterPage(): ReactElement {
 		}
 
 		await Effect.runPromise(handleSubmit(currentFormData, onSubmit));
-	};
+	}
 
 	return (
 		<div className="mx-auto max-w-md">
@@ -142,8 +143,8 @@ export default function RegisterPage(): ReactElement {
 
 			<form
 				ref={formRef}
-				onSubmit={(e) => {
-					void handleFormSubmit(e);
+				onSubmit={(event) => {
+					void handleFormSubmit(event);
 				}}
 				className="space-y-6"
 			>
@@ -184,7 +185,7 @@ export default function RegisterPage(): ReactElement {
 					})()}
 				</div>
 
-				{typeof submitError === "string" && submitError.length > 0 && (
+				{typeof submitError === "string" && submitError !== "" && (
 					<div className="rounded-md bg-red-900/50 p-4">
 						<p className="text-sm text-red-400">{submitError}</p>
 					</div>

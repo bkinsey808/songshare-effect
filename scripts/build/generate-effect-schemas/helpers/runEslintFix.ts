@@ -1,4 +1,3 @@
-
 import { execFileSync } from "child_process";
 
 export function runEslintFix(
@@ -8,11 +7,12 @@ export function runEslintFix(
 		cliPath: string;
 	}>,
 ): void {
-	if (params.files.length === 0) {
+	const NO_FILES = 0;
+	if (params.files.length === NO_FILES) {
 		return;
 	}
 
-	console.log("🔧 Running ESLint fix on generated files...");
+	console.warn("🔧 Running ESLint fix on generated files...");
 	try {
 		execFileSync(
 			params.cliPath,
@@ -22,7 +22,7 @@ export function runEslintFix(
 				stdio: "pipe",
 			},
 		);
-		console.log("✅ ESLint fix completed on generated schemas");
+		console.warn("✅ ESLint fix completed on generated schemas");
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error);
 		console.warn("⚠️  ESLint fix failed:", message);

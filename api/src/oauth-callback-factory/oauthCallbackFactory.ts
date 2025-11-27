@@ -1,5 +1,5 @@
 // src/features/server-utils/oauthCallbackFactory.ts
-/* eslint-disable no-console, max-lines-per-function */
+/* eslint-disable no-console */
 import { Effect } from "effect";
 import { type Context } from "hono";
 import { getCookie } from "hono/cookie";
@@ -14,9 +14,9 @@ import { buildSessionCookie } from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
 import { getErrorMessage } from "@/api/getErrorMessage";
+import rateLimit from "@/api/oauth-callback-factory/rateLimit";
 import { buildDashboardRedirectUrl } from "@/api/oauth/buildDashboardRedirectUrl";
 import { fetchAndPrepareUser } from "@/api/oauth/fetchAndPrepareUser";
-import rateLimit from "@/api/rateLimit";
 import { buildRegisterJwt } from "@/api/register/buildRegisterJwt";
 import { buildUserSessionJwt } from "@/api/user-session/buildUserSessionJwt";
 import { csrfTokenCookieName, oauthCsrfCookieName } from "@/shared/cookies";
@@ -36,8 +36,8 @@ import {
 import { SigninErrorToken } from "@/shared/signinTokens";
 import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
 
-// Local RegisterData type (kept here to avoid module-resolution issues in the
-// typechecker while preserving the project's preferred import ordering)
+// HTTP status codes used in redirects
+const SEE_OTHER = 303;
 
 /**
  * Handle the OAuth callback flow.
@@ -73,7 +73,7 @@ import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
 export function oauthCallbackFactory(
 	ctx: ReadonlyContext,
 ): Effect.Effect<Response, DatabaseError | ServerError | ValidationError> {
-	return Effect.gen(function* ($) {
+	return Effect.gen(function* rateLimitFn($) {
 		// Rate limit by IP
 		const allowed = yield* $(
 			Effect.tryPromise({
@@ -86,7 +86,7 @@ export function oauthCallbackFactory(
 			// Redirect to home with rateLimit token so SPA can show a localized message
 			return ctx.redirect(
 				`/${defaultLanguage}/?${signinErrorQueryParam}=${SigninErrorToken.rateLimit}`,
-				303,
+				SEE_OTHER,
 			);
 		}
 
@@ -109,7 +109,7 @@ export function oauthCallbackFactory(
 		if (code === null || oauthStateParamsString === null) {
 			console.log("[oauthCallback] Missing code or state");
 			return new Response(undefined, {
-				status: 303,
+				status: SEE_OTHER,
 				headers: {
 					Location: `/${defaultLanguage}/?${signinErrorQueryParam}=${SigninErrorToken.missingData}`,
 				},
@@ -183,7 +183,7 @@ export function oauthCallbackFactory(
 				Effect.sync(
 					() =>
 						new Response(undefined, {
-							status: 303,
+							status: SEE_OTHER,
 							headers: {
 								Location: `/${lang}/?${signinErrorQueryParam}=${SigninErrorToken.securityFailed}`,
 							},
@@ -198,23 +198,26 @@ export function oauthCallbackFactory(
 		// contain the provider's origin during the callback (e.g. accounts.google.com).
 		const stateRedirectPort = oauthState.redirect_port;
 		const stateRedirectOrigin = oauthState.redirect_origin ?? "";
-		const computedStateRedirectUri = (() => {
-			const trimmed = (stateRedirectOrigin ?? "").replace(/\/$/, "");
+
+		function computeStateRedirectUri(origin: string, port: unknown) {
+			const trimmed = (origin ?? "").replace(/\/$/, "");
 			let computedRedirectUri = trimmed
 				? trimmed + (apiOauthCallbackPath ?? "")
 				: (apiOauthCallbackPath ?? "");
 			if (
-				typeof stateRedirectPort === "string" &&
-				stateRedirectPort !== "" &&
+				typeof port === "string" &&
+				port !== "" &&
 				envRecord.ENVIRONMENT !== "production"
 			) {
-				computedRedirectUri =
-					"https://localhost:" +
-					stateRedirectPort +
-					(apiOauthCallbackPath ?? "");
+				computedRedirectUri = `https://localhost:${port}${apiOauthCallbackPath ?? ""}`;
 			}
 			return computedRedirectUri;
-		})();
+		}
+
+		const computedStateRedirectUri = computeStateRedirectUri(
+			stateRedirectOrigin,
+			stateRedirectPort,
+		);
 
 		const { supabase, oauthUserData, existingUser } = yield* $(
 			fetchAndPrepareUser({
@@ -333,7 +336,7 @@ export function oauthCallbackFactory(
 			// previously-set headers (including Set-Cookie) are preserved on the
 			// response. Returning a new Response would drop headers attached to ctx.
 			return yield* $(
-				Effect.sync(() => ctx.redirect(`/${lang}/${registerPath}`, 303)),
+				Effect.sync(() => ctx.redirect(`/${lang}/${registerPath}`, SEE_OTHER)),
 			);
 		}
 
@@ -356,7 +359,7 @@ export function oauthCallbackFactory(
 				Effect.sync(
 					() =>
 						new Response(undefined, {
-							status: 303,
+							status: SEE_OTHER,
 							headers: {
 								Location: `/${lang}/?${signinErrorQueryParam}=${SigninErrorToken.providerMismatch}&${providerQueryParam}=${prov}`,
 							},
@@ -426,6 +429,8 @@ export function oauthCallbackFactory(
 			dashboardPath,
 		});
 
-		return yield* $(Effect.sync(() => ctx.redirect(dashboardRedirectUrl, 303)));
+		return yield* $(
+			Effect.sync(() => ctx.redirect(dashboardRedirectUrl, SEE_OTHER)),
+		);
 	});
 }

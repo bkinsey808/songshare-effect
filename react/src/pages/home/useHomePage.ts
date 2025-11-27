@@ -11,7 +11,7 @@ export default function useHomePage(): {
 	const [alertState, setAlertState] =
 		useState<AlertState>(getInitialAlertState);
 
-	const dismissAlert = (): void => {
+	function dismissAlert(): void {
 		setAlertState({ visible: false, type: "" });
 		try {
 			sessionStorage.removeItem("alertDisplayed");
@@ -21,7 +21,7 @@ export default function useHomePage(): {
 		} catch {
 			// ignore storage errors
 		}
-	};
+	}
 
 	return { alertState, dismissAlert };
 }

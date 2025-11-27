@@ -10,16 +10,17 @@ import { HTTP_STATUS } from "@/shared/demo/api";
 /**
  * Convert AppError to appropriate HTTP response
  */
-export const errorToHttpResponse = (
-	error: Readonly<AppError>,
-): { status: number; body: object } => {
+export function errorToHttpResponse(error: Readonly<AppError>): {
+	status: number;
+	body: object;
+} {
 	if (error._tag === "ValidationError") {
 		const body: Record<string, unknown> = {
 			success: false,
 			error: getErrorMessage(error.message),
 		};
 
-		if (error.field !== undefined && error.field.length > 0) {
+		if (error.field !== undefined && error.field !== "") {
 			body.field = error.field;
 		}
 
@@ -33,7 +34,7 @@ export const errorToHttpResponse = (
 			resource: error.resource,
 		};
 
-		if (error.id !== undefined && error.id.length > 0) {
+		if (error.id !== undefined && error.id !== "") {
 			body.id = error.id;
 		}
 
@@ -56,7 +57,7 @@ export const errorToHttpResponse = (
 			error: getErrorMessage(error.message),
 		};
 
-		if (error.resource !== undefined && error.resource.length > 0) {
+		if (error.resource !== undefined && error.resource !== "") {
 			body.resource = error.resource;
 		}
 
@@ -81,19 +82,23 @@ export const errorToHttpResponse = (
 			error: "Internal server error",
 		},
 	};
-};
+}
 
 // HTTP endpoint handler utility
 // We need to accept a function that takes a Hono `Context`—it's difficult to
 // express as `readonly` inside nested function signatures, so disable the
 // prefer-readonly-parameter-types rule for this function.
-export function handleHttpEndpoint<A, E extends AppError>(
+export function handleHttpEndpoint<SuccessData, ErrorType extends AppError>(
 	// Mark the incoming function reference as `Readonly<>` so the linter
 	// `prefer-readonly-parameter-types` rule recognizes it as immutable.
-	effectFactory: (c: ReadonlyContext) => Effect.Effect<A, E>,
-	userOnSuccess?: (data: Readonly<A>) => object | Response,
+	effectFactory: (
+		ctxArg: ReadonlyContext,
+	) => Effect.Effect<SuccessData, ErrorType>,
+	userOnSuccess?: (data: Readonly<SuccessData>) => object | Response,
 ) {
-	return async function (ctx: ReadonlyContext): Promise<Response> {
+	return async function handleHttpEndpointRequest(
+		ctx: ReadonlyContext,
+	): Promise<Response> {
 		const effect = Effect.match(effectFactory(ctx), {
 			onFailure: (error) => {
 				// Log the error for debugging. For expected authentication errors

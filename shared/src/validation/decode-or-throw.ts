@@ -5,10 +5,10 @@ import { Schema } from "effect";
  * typed result or re-throw the schema validation error. Centralizing this
  * call reduces scattered unsafe assertions across the codebase.
  */
-export function decodeUnknownSyncOrThrow<T, I = unknown>(
-	schema: Schema.Schema<T, I>,
+export function decodeUnknownSyncOrThrow<TDecoded, TInput = unknown>(
+	schema: Schema.Schema<TDecoded, TInput>,
 	value: unknown,
-): T {
+): TDecoded {
 	// Schema.decodeUnknownSync expects an unknown input and will throw on
 	// validation failure. Keep the call simple and let calling code handle
 	// mapping or wrapping the thrown error to their domain error type.

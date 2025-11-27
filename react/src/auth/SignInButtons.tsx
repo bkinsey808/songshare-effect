@@ -9,14 +9,14 @@ import { apiOauthSignInPath } from "@/shared/paths";
 import { activeProviders } from "@/shared/providers";
 import { langQueryParam, redirectPortQueryParam } from "@/shared/queryParams";
 
-export const SignInButtons = (): ReactElement => {
+export function SignInButtons(): ReactElement {
 	const isOnline = useIsOnline();
 	const { t } = useTranslation();
 	const isSignedIn = false;
 	const lang = useLanguage();
 
 	// compute redirectPort: only include when useful (dev/localhost or explicit non-default port)
-	const redirectPort = (() => {
+	function computeRedirectPort(): string {
 		if (typeof window === "undefined") {
 			// SSR: omit port
 			return "";
@@ -38,7 +38,9 @@ export const SignInButtons = (): ReactElement => {
 
 		// production / no explicit port -> omit param
 		return "";
-	})();
+	}
+
+	const redirectPort = computeRedirectPort();
 
 	return (
 		<div className="flex flex-col items-center justify-center gap-6">
@@ -95,4 +97,4 @@ export const SignInButtons = (): ReactElement => {
 				})}
 		</div>
 	);
-};
+}

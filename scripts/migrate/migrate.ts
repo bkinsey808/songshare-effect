@@ -21,7 +21,10 @@ import { runMigration } from "./helpers/runMigration";
  * @returns Resolves when all migrations and post-migration tasks complete.
  */
 function main(): void {
-	console.log("🚀 Starting programmatic migration runner...");
+	const ZERO = 0;
+	const EXIT_NON_ZERO = 1;
+
+	console.warn("🚀 Starting programmatic migration runner...");
 
 	try {
 		// Load environment variables
@@ -31,40 +34,40 @@ function main(): void {
 		const migrationDir = "supabase/migrations";
 		const migrations = getMigrationFiles(migrationDir);
 
-		if (migrations.length === 0) {
-			console.log("ℹ️  No migration files found");
+		if (migrations.length === ZERO) {
+			console.warn("ℹ️  No migration files found");
 			return;
 		}
 
-		console.log("📋 Found migrations:");
+		console.warn("📋 Found migrations:");
 		migrations.forEach((migration) => {
 			const stats = statSync(migration.path);
-			console.log(`  - ${migration.filename} (${stats.size} bytes)`);
+			console.warn(`  - ${migration.filename} (${stats.size} bytes)`);
 		});
-		console.log("");
+		console.warn("");
 
 		// Run each migration
 		for (const migration of migrations) {
 			runMigration(migration, env);
 		}
 
-		console.log("");
-		console.log("🎉 All migrations completed successfully!");
+		console.warn("");
+		console.warn("🎉 All migrations completed successfully!");
 
 		// Regenerate schemas
-		console.log("🔄 Regenerating TypeScript schemas...");
+		console.warn("🔄 Regenerating TypeScript schemas...");
 		try {
 			// This is a safe npm script execution for schema generation
 			execSync("npm run supabase:generate", { stdio: "inherit" });
-			console.log("✅ Schema generation completed");
+			console.warn("✅ Schema generation completed");
 		} catch (error) {
 			console.warn("⚠️  Schema generation failed:", error);
 		}
 
-		console.log("✅ Migration process complete!");
+		console.warn("✅ Migration process complete!");
 	} catch (error) {
 		console.error("❌ Migration process failed:", error);
-		process.exit(1);
+		process.exit(EXIT_NON_ZERO);
 	}
 }
 

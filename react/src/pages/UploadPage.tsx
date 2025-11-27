@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { UPLOAD_SUBMIT_DELAY_MS, YEAR_MIN } from "@/shared/constants/http";
+
 type FormData = {
 	title: string;
 	artist: string;
@@ -25,21 +27,21 @@ function UploadPage(): ReactElement {
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const handleChange = (
+	function handleChange(
 		ev: React.ChangeEvent<
 			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 		>,
-	): void => {
+	): void {
 		const { name, value } = ev.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
-	};
+	}
 
-	const handleSubmit = async (ev: React.FormEvent): Promise<void> => {
+	async function handleSubmit(ev: React.FormEvent): Promise<void> {
 		ev.preventDefault();
 		setIsSubmitting(true);
 
 		// Simulate API call
-		await new Promise((resolve) => setTimeout(resolve, 2000));
+		await new Promise((resolve) => setTimeout(resolve, UPLOAD_SUBMIT_DELAY_MS));
 
 		// In a real app, you'd show a success message or redirect
 		setFormData({
@@ -51,7 +53,7 @@ function UploadPage(): ReactElement {
 			description: "",
 		});
 		setIsSubmitting(false);
-	};
+	}
 
 	return (
 		<div>
@@ -64,8 +66,8 @@ function UploadPage(): ReactElement {
 
 			<div className="mx-auto max-w-2xl">
 				<form
-					onSubmit={(e) => {
-						void handleSubmit(e);
+					onSubmit={(event) => {
+						void handleSubmit(event);
 					}}
 				>
 					<div className="mb-5">
@@ -130,7 +132,7 @@ function UploadPage(): ReactElement {
 								onChange={handleChange}
 								className="focus:border-primary-500 w-full rounded-md border border-gray-600 bg-gray-800 p-3 text-base text-white placeholder-gray-400 focus:outline-none"
 								placeholder="Release year"
-								min="1900"
+								min={YEAR_MIN}
 								max={new Date().getFullYear()}
 							/>
 						</div>

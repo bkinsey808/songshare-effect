@@ -1,8 +1,8 @@
 // Lightweight in-memory cache for Supabase tokens used by server-side code.
 
 // Cached shared visitor token
-let cachedSupabaseClientToken: string | undefined;
-let tokenExpiry: number | undefined;
+let cachedSupabaseClientToken: string | undefined = undefined;
+let tokenExpiry: number | undefined = undefined;
 
 // Cache for user-specific tokens
 export const userTokenCache: Map<string, { token: string; expiry: number }> =

@@ -1,21 +1,23 @@
 #!/usr/bin/env bun
 import { safeGet } from "@/shared/utils/safe";
 
+const EXIT_NON_ZERO = 1;
+
 /**
  * Gets an environment variable value safely, returning undefined if not found.
  * @param envVar - The environment variable name
  * @returns The environment variable value as a string, or undefined if not found/empty
  */
-const getEnvValueSafe = (envVar: string): string | undefined => {
+function getEnvValueSafe(envVar: string): string | undefined {
 	const value = safeGet(process.env, envVar);
 	return typeof value === "string" && value.trim() !== "" ? value : undefined;
-};
+}
 
 /**
  * Keep-alive script to prevent Supabase project from pausing
  * This script makes a simple API call to keep the project active
  */
-const keepAlive = async (): Promise<void> => {
+async function keepAlive(): Promise<void> {
 	try {
 		const supabaseUrl = getEnvValueSafe("VITE_SUPABASE_URL");
 		const supabaseKey = getEnvValueSafe("VITE_SUPABASE_ANON_KEY");
@@ -27,10 +29,10 @@ const keepAlive = async (): Promise<void> => {
 			supabaseKey === undefined
 		) {
 			console.error("❌ Missing Supabase credentials in environment");
-			process.exit(1);
+			process.exit(EXIT_NON_ZERO);
 		}
 
-		console.log("🏓 Pinging Supabase to keep project active...");
+		console.warn("🏓 Pinging Supabase to keep project active...");
 
 		// Simple REST API health check
 		const response = await fetch(`${supabaseUrl}/rest/v1/`, {
@@ -42,15 +44,15 @@ const keepAlive = async (): Promise<void> => {
 		});
 
 		if (response.ok) {
-			console.log("✅ Supabase project is active");
+			console.warn("✅ Supabase project is active");
 		} else {
-			console.log(`⚠️  Supabase responded with status: ${response.status}`);
+			console.warn(`⚠️  Supabase responded with status: ${response.status}`);
 		}
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error);
 		console.error("❌ Failed to ping Supabase:", errorMessage);
 	}
-};
+}
 
 if (import.meta.main) {
 	void keepAlive();

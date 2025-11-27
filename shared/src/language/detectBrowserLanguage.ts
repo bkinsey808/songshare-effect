@@ -17,15 +17,12 @@ export function detectBrowserLanguage(
 	const languages = acceptLanguage
 		.split(",")
 		.map((lang) => {
-			const parts = lang.split(";");
-			const langPart = parts[0];
-			if (langPart === undefined || langPart === null || langPart === "") {
+			const [langPart = ""] = lang.split(";");
+			if (!langPart) {
 				return "";
 			}
-			const mainLang = langPart.split("-")[0];
-			return mainLang !== undefined && mainLang !== null && mainLang !== ""
-				? mainLang.trim().toLowerCase()
-				: "";
+			const [mainLang = ""] = langPart.split("-");
+			return mainLang ? mainLang.trim().toLowerCase() : "";
 		})
 		.filter((lang) => lang !== "");
 

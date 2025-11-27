@@ -41,6 +41,10 @@ export default function SlidesEditor({
 		});
 
 	const { t } = useTranslation();
+	const ONE = 1;
+	const JSON_INDENT = 2;
+	const TEXTAREA_MIN_ROWS = 3;
+	const TEXTAREA_MAX_ROWS = 10;
 
 	return (
 		<div className="@container w-full">
@@ -83,7 +87,7 @@ export default function SlidesEditor({
 				Object.keys(slides).map((slideId, idx) => {
 					const slide = safeGet(slides, slideId);
 					if (!slide) {
-						return <></>;
+						return null;
 					}
 					return (
 						<div
@@ -107,7 +111,7 @@ export default function SlidesEditor({
 											onClick={() => {
 												deleteSlide(slideId);
 											}}
-											aria-label={`Remove slide ${String(idx + 1)}`}
+											aria-label={`Remove slide ${String(idx + ONE)}`}
 										>
 											Delete&nbsp;Slide
 										</button>
@@ -133,8 +137,8 @@ export default function SlidesEditor({
 												});
 											}}
 											className="mt-1 w-full rounded border px-2 py-1"
-											minRows={3}
-											maxRows={10}
+											minRows={TEXTAREA_MIN_ROWS}
+											maxRows={TEXTAREA_MAX_ROWS}
 										/>
 									</FormField>
 								</div>
@@ -143,7 +147,7 @@ export default function SlidesEditor({
 							<details className="mt-4 text-xs text-gray-500">
 								<summary>Debug: All field data for this slide</summary>
 								<pre className="mt-2 rounded bg-gray-100 p-2">
-									{JSON.stringify(slide.field_data, null, 2)}
+									{JSON.stringify(slide.field_data, null, JSON_INDENT)}
 								</pre>
 							</details>
 						</div>

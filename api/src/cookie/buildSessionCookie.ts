@@ -8,16 +8,16 @@ type BuildSessionCookieParams = Readonly<{
 	opts?: Readonly<{ maxAge?: number; httpOnly?: boolean }>;
 }>;
 
-export const buildSessionCookie = ({
+export function buildSessionCookie({
 	ctx,
 	name,
 	value,
 	opts,
-}: BuildSessionCookieParams): string => {
+}: BuildSessionCookieParams): string {
 	return buildSetCookieHeader({
 		ctx,
 		name,
 		value,
 		...(opts !== undefined && { opts }),
 	});
-};
+}

@@ -19,7 +19,7 @@ export function validateFormEffect<FormValues>({
 	data: unknown;
 	i18nMessageKey: symbol | string;
 }>): Effect.Effect<FormValues, ValidationError[]> {
-	return Effect.gen(function* () {
+	return Effect.gen(function* validateFormGen() {
 		// Use decodeUnknownEither to get structured error information
 		const result = Schema.decodeUnknownEither(schema)(data);
 
@@ -44,9 +44,10 @@ export function validateFormEffect<FormValues>({
 						const keyVal = rawMsg["key"];
 						if (isString(keyVal)) {
 							const params: Record<string, unknown> = {};
-							for (const [k, v] of Object.entries(rawMsg)) {
-								if (k === "key") continue;
-								params[k] = v;
+							for (const [key, val] of Object.entries(rawMsg)) {
+								if (key !== "key") {
+									params[key] = val;
+								}
 							}
 							return {
 								field: fieldName,
@@ -57,7 +58,7 @@ export function validateFormEffect<FormValues>({
 					}
 
 					// Fallback to the message string
-					const message = err.message;
+					const { message } = err;
 					if (typeof message === "string") {
 						// Try to parse as JSON first (for backward compatibility)
 						try {
@@ -67,9 +68,10 @@ export function validateFormEffect<FormValues>({
 								const keyVal = rec["key"];
 								if (isString(keyVal)) {
 									const params: Record<string, unknown> = {};
-									for (const [k, v] of Object.entries(rec)) {
-										if (k === "key") continue;
-										params[k] = v;
+									for (const [key, val] of Object.entries(rec)) {
+										if (key !== "key") {
+											params[key] = val;
+										}
 									}
 									return {
 										field: err.path.join("."),
@@ -92,9 +94,10 @@ export function validateFormEffect<FormValues>({
 						const keyVal = rec["key"];
 						if (isString(keyVal)) {
 							const params: Record<string, unknown> = {};
-							for (const [k, v] of Object.entries(rec)) {
-								if (k === "key") continue;
-								params[k] = v;
+							for (const [key, val] of Object.entries(rec)) {
+								if (key !== "key") {
+									params[key] = val;
+								}
 							}
 							return {
 								field: err.path.join("."),

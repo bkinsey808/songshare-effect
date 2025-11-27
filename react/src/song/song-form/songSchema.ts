@@ -29,6 +29,9 @@ export const songFormFields = [
 
 export type SongFormFieldKey = (typeof songFormFields)[number];
 
+// Schema.* factory names are constructor-style PascalCase by the effect library
+// and intentionally trigger the `new-cap` rule. Disable that rule locally.
+// eslint-disable-next-line new-cap
 export const songFormFieldSchema: unknown = Schema.Literal(
 	"song_id",
 	"song_name",
@@ -48,15 +51,19 @@ export type SlideShape = {
 	field_data: Record<string, string>;
 };
 
+// eslint-disable-next-line new-cap
 export const slideSchema: Schema.Schema<SlideShape> = Schema.Struct({
 	slide_name: Schema.String,
-	field_data: Schema.Record({
-		key: Schema.String,
-		value: Schema.String,
-	}),
+	field_data: // eslint-disable-next-line new-cap
+		Schema.Record({
+			key: Schema.String,
+			value: Schema.String,
+		}),
 });
 
+// eslint-disable-next-line new-cap
 export const slidesSchema: Schema.Schema<Record<string, SlideShape>> =
+	// eslint-disable-next-line new-cap
 	Schema.Record({
 		key: Schema.String,
 		value: slideSchema,
@@ -75,6 +82,7 @@ export type SongFormValues = {
 	slides: Record<string, SlideShape>;
 };
 
+// eslint-disable-next-line new-cap
 export const songFormSchema: Schema.Schema<SongFormValues> = Schema.Struct({
 	[SongFormField.song_id]: Schema.optional(Schema.String),
 	[SongFormField.song_name]: Schema.String,

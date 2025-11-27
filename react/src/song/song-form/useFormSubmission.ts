@@ -35,7 +35,7 @@ export function useFormSubmission({
 }: UseFormSubmissionOptions): UseFormSubmissionReturn {
 	const navigate = useNavigate();
 
-	const onSubmit = async (rawData: Readonly<SongFormData>): Promise<void> => {
+	async function onSubmit(rawData: Readonly<SongFormData>): Promise<void> {
 		try {
 			const response = await fetch("/api/songs/save", {
 				method: "POST",
@@ -57,12 +57,12 @@ export function useFormSubmission({
 		} catch (error) {
 			console.error("❌ Network error in onSubmit:", error);
 		}
-	};
+	}
 
 	// Handle cancel button click
-	const handleCancel = (): void => {
+	function handleCancel(): void {
 		void navigate("..");
-	};
+	}
 
 	return {
 		onSubmit,

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
+import { SCROLL_THRESHOLD } from "@/shared/constants/http";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { aboutPath } from "@/shared/paths";
@@ -18,10 +19,10 @@ function Navigation(): ReactElement {
 
 	// Listen for scroll events to compress navigation
 	useEffect(() => {
-		const handleScroll = (): void => {
+		function handleScroll(): void {
 			const scrollTop = window.scrollY;
-			setIsScrolled(scrollTop > 50);
-		};
+			setIsScrolled(scrollTop > SCROLL_THRESHOLD);
+		}
 
 		window.addEventListener("scroll", handleScroll);
 		return () => {
@@ -35,7 +36,7 @@ function Navigation(): ReactElement {
 	];
 
 	// Function to check if a navigation item is active
-	const isActive = (itemPath: string): boolean => {
+	function isActive(itemPath: string): boolean {
 		const currentPath = location.pathname;
 		// Remove language prefix to get the actual route
 		const routeWithoutLang = currentPath.replace(`/${currentLang}`, "") || "/";
@@ -47,7 +48,7 @@ function Navigation(): ReactElement {
 
 		// For other pages, check if the path starts with the item path
 		return routeWithoutLang.startsWith(`/${itemPath}`);
-	};
+	}
 
 	return (
 		<nav

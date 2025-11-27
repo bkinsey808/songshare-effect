@@ -2,20 +2,27 @@ import { useState } from "react";
 
 // This component will benefit from React Compiler optimizations
 // React Compiler should automatically memoize expensive computations based on dependencies
+
 function OptimizedCounter(): ReactElement {
-	const [count, setCount] = useState(0);
+	const ZERO = 0;
+	const ONE = 1;
+	const [count, setCount] = useState(ZERO);
 	const [name, setName] = useState("");
+
+	// File-local constants
+	const LARGE_ITERATIONS = 1_000_000;
+	const STEP = ONE;
 
 	// This expensive computation should be automatically memoized by React Compiler
 	// and should only run when 'count' changes, not when 'name' changes
-	const expensiveComputation = (value: number): number => {
+	function expensiveComputation(value: number): number {
 		console.warn("Running expensive computation for count:", value);
 		let result = 0;
-		for (let i = 0; i < 1000000; i++) {
+		for (let i = 0; i < LARGE_ITERATIONS; i += ONE) {
 			result += i * value;
 		}
 		return result;
-	};
+	}
 
 	// React Compiler should detect that this only depends on 'count'
 	const computedValue = expensiveComputation(count);
@@ -48,7 +55,7 @@ function OptimizedCounter(): ReactElement {
 					<div className="flex items-center gap-4">
 						<button
 							onClick={() => {
-								setCount(count - 1);
+								setCount((currentCount) => currentCount - STEP);
 							}}
 							className="rounded-lg bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600"
 						>
@@ -57,7 +64,7 @@ function OptimizedCounter(): ReactElement {
 						<span className="text-2xl font-bold">{count}</span>
 						<button
 							onClick={() => {
-								setCount(count + 1);
+								setCount((currentCount) => currentCount + STEP);
 							}}
 							className="rounded-lg bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600"
 						>

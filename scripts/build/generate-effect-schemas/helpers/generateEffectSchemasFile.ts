@@ -41,8 +41,9 @@ export const NonNegativeNumberSchema: typeof Schema.NonNegative =
 
 `;
 
+	const START_INDEX = 0;
 	tables.forEach((table, index) => {
-		if (index > 0) {
+		if (index > START_INDEX) {
 			fileContent += "\n";
 		}
 		fileContent += generateEffectSchema(table);
@@ -109,5 +110,5 @@ export type ApiResponse<T> =
 	}
 
 	writeFileSync(outputPath, fileContent, "utf-8");
-	console.log(`✅ Generated Effect schemas at: ${outputPath}`);
+	console.warn(`✅ Generated Effect schemas at: ${outputPath}`);
 }

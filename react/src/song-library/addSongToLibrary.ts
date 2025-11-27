@@ -37,24 +37,33 @@ export async function addSongToLibrary(
 	} = await client.auth.getUser();
 
 	function isAuthUser(
-		x: unknown,
-	): x is { app_metadata: { user?: { user_id?: string } } } {
-		if (typeof x !== "object" || x === null) return false;
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		const obj = x as Record<string, unknown>;
-		if (!Object.prototype.hasOwnProperty.call(obj, "app_metadata"))
+		value: unknown,
+	): value is { app_metadata: { user?: { user_id?: string } } } {
+		if (typeof value !== "object" || value === null) {
 			return false;
+		}
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const obj = value as Record<string, unknown>;
+		if (!Object.hasOwn(obj, "app_metadata")) {
+			return false;
+		}
 		const meta = obj["app_metadata"];
-		if (typeof meta !== "object" || meta === null) return false;
+		if (typeof meta !== "object" || meta === null) {
+			return false;
+		}
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 		const metaObj = meta as Record<string, unknown>;
-		if (!Object.prototype.hasOwnProperty.call(metaObj, "user")) return false;
+		if (!Object.hasOwn(metaObj, "user")) {
+			return false;
+		}
 		const inner = metaObj["user"];
-		if (typeof inner !== "object" || inner === null) return false;
+		if (typeof inner !== "object" || inner === null) {
+			return false;
+		}
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 		const innerObj = inner as Record<string, unknown>;
 		return (
-			Object.prototype.hasOwnProperty.call(innerObj, "user_id") &&
+			Object.hasOwn(innerObj, "user_id") &&
 			typeof innerObj["user_id"] === "string"
 		);
 	}
@@ -67,7 +76,7 @@ export async function addSongToLibrary(
 	const userId = (user.app_metadata.user as { user_id: string }).user_id;
 
 	// Insert the new library entry
-	const { data, error } = await client
+	const insertResult = await client
 		.from("song_library")
 		.insert({
 			user_id: userId,
@@ -76,6 +85,9 @@ export async function addSongToLibrary(
 		})
 		.select()
 		.single();
+
+	const { data: rawData, error } = insertResult;
+	const data: unknown = rawData as unknown;
 
 	if (error) {
 		throw error;
@@ -90,25 +102,28 @@ export async function addSongToLibrary(
 			.single();
 
 		// Add to local state immediately (optimistic update) with owner username if available
-		function isSongLibraryEntry(x: unknown): x is SongLibraryEntry {
-			if (typeof x !== "object" || x === null) return false;
+		function isSongLibraryEntry(value: unknown): value is SongLibraryEntry {
+			if (typeof value !== "object" || value === null) {
+				return false;
+			}
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-			const obj = x as Record<string, unknown>;
+			const obj = value as Record<string, unknown>;
 			return (
-				Object.prototype.hasOwnProperty.call(obj, "user_id") &&
+				Object.hasOwn(obj, "user_id") &&
 				typeof obj["user_id"] === "string" &&
-				Object.prototype.hasOwnProperty.call(obj, "song_id") &&
+				Object.hasOwn(obj, "song_id") &&
 				typeof obj["song_id"] === "string"
 			);
 		}
 
-		function isOwnerData(x: unknown): x is { username?: string } {
-			if (typeof x !== "object" || x === null) return false;
+		function isOwnerData(value: unknown): value is { username?: string } {
+			if (typeof value !== "object" || value === null) {
+				return false;
+			}
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-			const obj = x as Record<string, unknown>;
+			const obj = value as Record<string, unknown>;
 			return (
-				Object.prototype.hasOwnProperty.call(obj, "username") &&
-				typeof obj["username"] === "string"
+				Object.hasOwn(obj, "username") && typeof obj["username"] === "string"
 			);
 		}
 
@@ -117,12 +132,14 @@ export async function addSongToLibrary(
 				addLibraryEntry(data);
 			} else {
 				// Fallback: attempt to coerce minimal shape
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-				addLibraryEntry({
+				const fallbackEntry: SongLibraryEntry = {
 					user_id: userId,
 					song_id: request.song_id,
 					song_owner_id: request.song_owner_id,
-				} as SongLibraryEntry);
+					// created_at is required by the generated SongLibrary type
+					created_at: new Date().toISOString(),
+				};
+				addLibraryEntry(fallbackEntry);
 			}
 		} else {
 			if (isSongLibraryEntry(data)) {
@@ -132,13 +149,15 @@ export async function addSongToLibrary(
 				};
 				addLibraryEntry(libraryEntryWithUsername);
 			} else {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-				addLibraryEntry({
+				const fallbackEntryWithUsername: SongLibraryEntry = {
 					user_id: userId,
 					song_id: request.song_id,
 					song_owner_id: request.song_owner_id,
 					owner_username: ownerData.username,
-				} as SongLibraryEntry);
+					// created_at is required by the generated SongLibrary type
+					created_at: new Date().toISOString(),
+				};
+				addLibraryEntry(fallbackEntryWithUsername);
 			}
 		}
 	} catch (userFetchError) {
@@ -146,7 +165,14 @@ export async function addSongToLibrary(
 			"[addToLibrary] Could not fetch owner username:",
 			userFetchError,
 		);
-		// Still add the entry without username
-		addLibraryEntry(data as SongLibraryEntry);
+		// Still add the entry without username — use a typed fallback
+		const fallbackEntry: SongLibraryEntry = {
+			user_id: userId,
+			song_id: request.song_id,
+			song_owner_id: request.song_owner_id,
+			// created_at is required by the generated SongLibrary type
+			created_at: new Date().toISOString(),
+		};
+		addLibraryEntry(fallbackEntry);
 	}
 }

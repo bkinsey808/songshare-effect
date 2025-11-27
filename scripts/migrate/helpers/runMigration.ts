@@ -28,7 +28,7 @@ export function runMigration(
 	migration: Readonly<MigrationFile>,
 	env: Readonly<Record<string, string | undefined>>,
 ): void {
-	console.log(`📄 Running migration: ${migration.filename}`);
+	console.warn(`📄 Running migration: ${migration.filename}`);
 
 	const { PGHOST, PGUSER, PGPASSWORD, PGDATABASE } = env;
 
@@ -61,7 +61,7 @@ export function runMigration(
 			},
 		});
 
-		console.log(`✅ Migration successful: ${migration.filename}`);
+		console.warn(`✅ Migration successful: ${migration.filename}`);
 	} catch (error: unknown) {
 		console.error(`❌ Migration failed: ${migration.filename}`);
 		console.error(getErrorMessage(error));

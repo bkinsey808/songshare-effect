@@ -9,13 +9,17 @@ type AutoExpandingTextareaProps = Readonly<{
 	maxRows?: number;
 }>;
 
+const DEFAULT_MIN_ROWS = 2;
+const DEFAULT_MAX_ROWS = 10;
+const FALLBACK_LINE_HEIGHT = 20;
+
 export default function AutoExpandingTextarea({
 	value,
 	onChange,
 	placeholder,
 	className = "",
-	minRows = 2,
-	maxRows = 10,
+	minRows = DEFAULT_MIN_ROWS,
+	maxRows = DEFAULT_MAX_ROWS,
 }: AutoExpandingTextareaProps): ReactElement {
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -31,7 +35,8 @@ export default function AutoExpandingTextarea({
 
 		// Calculate the line height
 		const style = window.getComputedStyle(textarea);
-		const lineHeight = Number.parseInt(style.lineHeight, 10) || 20;
+		const lineHeight =
+			Number.parseInt(style.lineHeight, 10) || FALLBACK_LINE_HEIGHT;
 
 		// Calculate min and max heights
 		const minHeight = lineHeight * minRows;
@@ -50,7 +55,7 @@ export default function AutoExpandingTextarea({
 	}, [value, minRows, maxRows]);
 
 	// Handle input events to adjust height in real-time
-	const handleInput = (): void => {
+	function handleInput(): void {
 		const textarea = textareaRef.current;
 		if (textarea === null) {
 			return;
@@ -61,7 +66,8 @@ export default function AutoExpandingTextarea({
 
 		// Calculate the line height
 		const style = window.getComputedStyle(textarea);
-		const lineHeight = Number.parseInt(style.lineHeight, 10) || 20;
+		const lineHeight =
+			Number.parseInt(style.lineHeight, 10) || FALLBACK_LINE_HEIGHT;
 
 		// Calculate min and max heights
 		const minHeight = lineHeight * minRows;
@@ -77,7 +83,7 @@ export default function AutoExpandingTextarea({
 		// Show scrollbar if content exceeds maxRows
 		textarea.style.overflowY =
 			textarea.scrollHeight > maxHeight ? "auto" : "hidden";
-	};
+	}
 
 	return (
 		<textarea
@@ -89,7 +95,7 @@ export default function AutoExpandingTextarea({
 			style={{
 				resize: "none",
 				// fallback if line height calculation fails
-				minHeight: `${minRows * 20}px`,
+				minHeight: `${minRows * FALLBACK_LINE_HEIGHT}px`,
 			}}
 			onInput={handleInput}
 		/>

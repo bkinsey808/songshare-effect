@@ -32,7 +32,7 @@ export function useFormState(): UseFormStateReturn {
 	const [fields, setFields] = useState<string[]>(["lyrics"]);
 
 	// Handle field checkbox changes
-	const toggleField = (field: string, checked: boolean): void => {
+	function toggleField(field: string, checked: boolean): void {
 		setFields((currentFields) => {
 			if (checked) {
 				// Add field if not already present
@@ -43,10 +43,10 @@ export function useFormState(): UseFormStateReturn {
 			// Remove field
 			return currentFields.filter((fieldName) => fieldName !== field);
 		});
-	};
+	}
 
 	// Reset form state to initial values
-	const resetFormState = (): void => {
+	function resetFormState(): void {
 		// Generate a new first slide ID
 		const newFirstId = generateId();
 
@@ -59,7 +59,7 @@ export function useFormState(): UseFormStateReturn {
 			},
 		});
 		setFields(["lyrics"]);
-	};
+	}
 
 	return {
 		slideOrder,

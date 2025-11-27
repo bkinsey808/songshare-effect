@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 /**
  * Format duration from seconds to MM:SS format
  */
@@ -16,8 +17,8 @@ export function formatFileSize(bytes: number): string {
 		return "0 Bytes";
 	}
 
-	const i = Math.floor(Math.log(bytes) / Math.log(1024));
-	const sizeIndex = Math.min(i, sizes.length - 1);
+	const index = Math.floor(Math.log(bytes) / Math.log(1024));
+	const sizeIndex = Math.min(index, sizes.length - 1);
 	// Safe array access - sizeIndex is bounded by array length
 	const sizeUnit = sizes[sizeIndex];
 	return `${Math.round((bytes / 1024 ** sizeIndex) * 100) / 100} ${sizeUnit}`;
@@ -41,12 +42,11 @@ export function generateId(): string {
 /**
  * Debounce function
  */
-export function debounce<T extends (...args: ReadonlyArray<unknown>) => void>(
-	func: T,
-	delayMs: number,
-): (...args: Parameters<T>) => void {
-	let timeoutId: ReturnType<typeof setTimeout> | undefined;
-	return (...args: Parameters<T>) => {
+export function debounce<
+	TFunc extends (...args: ReadonlyArray<unknown>) => void,
+>(func: TFunc, delayMs: number): (...args: Parameters<TFunc>) => void {
+	let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+	return (...args: Parameters<TFunc>) => {
 		if (timeoutId !== undefined) {
 			clearTimeout(timeoutId);
 		}

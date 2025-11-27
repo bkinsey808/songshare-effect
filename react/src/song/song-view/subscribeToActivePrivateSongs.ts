@@ -8,7 +8,7 @@ import { isRecord } from "@/shared/utils/typeGuards";
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
 import { type Song } from "../song-schema";
-import { type SongSubscribeSlice } from "./songSlice";
+import { type SongSubscribeSlice } from "./song-slice";
 
 // Supabase realtime payload type for song
 type SongPrivateRealtimePayload = {
@@ -30,11 +30,11 @@ type RealtimeChannel = {
 
 type SupabaseRealtimeClientLike = {
 	channel: (name: string) => RealtimeChannel;
-	removeChannel: (c: RealtimeChannel) => void;
+	removeChannel: (channel: RealtimeChannel) => void;
 };
 
 // Helper function to update state after song deletion
-const createDeleteUpdateFunction = (deletedPrivateSongId: string) => {
+function createDeleteUpdateFunction(deletedPrivateSongId: string) {
 	return (
 		state: ReadonlyDeep<SongSubscribeSlice>,
 	): Partial<ReadonlyDeep<SongSubscribeSlice>> => {
@@ -52,7 +52,7 @@ const createDeleteUpdateFunction = (deletedPrivateSongId: string) => {
 			activePrivateSongIds: newActiveIds,
 		};
 	};
-};
+}
 
 export default function subscribeToActivePrivateSongs(
 	set: (
@@ -65,7 +65,7 @@ export default function subscribeToActivePrivateSongs(
 	get: () => SongSubscribeSlice & AppSlice,
 ): () => (() => void) | undefined {
 	return (): (() => void) | undefined => {
-		let unsubscribeFn: (() => void) | undefined;
+		let unsubscribeFn: (() => void) | undefined = undefined;
 
 		// Get authentication token asynchronously
 		void getSupabaseAuthToken()
@@ -79,9 +79,11 @@ export default function subscribeToActivePrivateSongs(
 
 				const { activePrivateSongIds, addOrUpdatePrivateSongs } = get();
 
+				const NO_ACTIVE_IDS = 0;
+
 				if (
 					!Array.isArray(activePrivateSongIds) ||
-					activePrivateSongIds.length === 0
+					activePrivateSongIds.length === NO_ACTIVE_IDS
 				) {
 					console.warn(
 						"[subscribeToActivePrivateSongs] No activeSongIds, skipping subscription",
@@ -93,10 +95,12 @@ export default function subscribeToActivePrivateSongs(
 
 				// Narrow the supabase client to a minimal, well-typed shape we use here.
 				function isSupabaseRealtimeClientLike(
-					x: unknown,
-				): x is SupabaseRealtimeClientLike {
-					if (!isRecord(x)) return false;
-					const rec = x;
+					value: unknown,
+				): value is SupabaseRealtimeClientLike {
+					if (!isRecord(value)) {
+						return false;
+					}
+					const rec = value;
 					return (
 						typeof rec["channel"] === "function" &&
 						typeof rec["removeChannel"] === "function"
@@ -151,12 +155,12 @@ export default function subscribeToActivePrivateSongs(
 				// subscribe is separate to keep types explicit
 				channel.subscribe((status: string, err: unknown) => {
 					// Log channel status for debugging
-					console.log(
+					console.warn(
 						`[subscribeToActivePrivateSongs] Channel status: ${status}`,
 						err ?? "",
 					);
 					if (String(status) === String(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)) {
-						console.log(
+						console.warn(
 							"[subscribeToActivePrivateSongs] Successfully subscribed!",
 						);
 					} else if (

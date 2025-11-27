@@ -8,12 +8,17 @@ type TokenResponse = {
 import { isRecord } from "@/shared/utils/typeGuards";
 
 // In-memory token storage (more secure than client-accessible cookies)
-let cachedSupabaseClientToken: string | undefined;
-let tokenExpirationTime: number | undefined;
+let cachedSupabaseClientToken: string | undefined = undefined;
+let tokenExpirationTime: number | undefined = undefined;
 
 // Separate cache for user tokens
-let cachedUserToken: string | undefined;
-let userTokenExpirationTime: number | undefined;
+let cachedUserToken: string | undefined = undefined;
+let userTokenExpirationTime: number | undefined = undefined;
+
+// Time constants
+const TOKEN_EXPIRY_BUFFER_MINUTES = 5;
+const SECONDS_IN_MINUTE = 60;
+const MS_IN_SECOND = 1000;
 
 /**
  * Gets the current authentication token - user token if signed in, otherwise visitor token
@@ -39,8 +44,12 @@ function getCachedUserToken(): string | undefined {
 
 	const now = Date.now();
 
-	// If token has expired or will expire in the next 5 minutes, return undefined
-	if (now >= userTokenExpirationTime - 5 * 60 * 1000) {
+	// If token has expired or will expire within the buffer window, return undefined
+	if (
+		now >=
+		userTokenExpirationTime -
+			TOKEN_EXPIRY_BUFFER_MINUTES * SECONDS_IN_MINUTE * MS_IN_SECOND
+	) {
 		cachedUserToken = undefined;
 		userTokenExpirationTime = undefined;
 		return undefined;
@@ -80,13 +89,15 @@ async function fetchSupabaseClientTokenFromAPI(): Promise<string> {
 
 		const jsonRaw: unknown = await response.json().catch(() => undefined);
 
-		function isTokenResponse(x: unknown): x is TokenResponse {
-			if (!isRecord(x)) return false;
-			const rec = x;
+		function isTokenResponse(value: unknown): value is TokenResponse {
+			if (!isRecord(value)) {
+				return false;
+			}
+			const rec = value;
 			return (
-				Object.prototype.hasOwnProperty.call(rec, "access_token") &&
-				Object.prototype.hasOwnProperty.call(rec, "token_type") &&
-				Object.prototype.hasOwnProperty.call(rec, "expires_in") &&
+				Object.hasOwn(rec, "access_token") &&
+				Object.hasOwn(rec, "token_type") &&
+				Object.hasOwn(rec, "expires_in") &&
 				typeof rec["access_token"] === "string" &&
 				typeof rec["token_type"] === "string" &&
 				typeof rec["expires_in"] === "number"
@@ -101,13 +112,13 @@ async function fetchSupabaseClientTokenFromAPI(): Promise<string> {
 		const data = jsonRaw;
 
 		// Cache the token in memory (more secure than cookies)
-		const expiryTime = Date.now() + data.expires_in * 1000;
+		const expiryTime = Date.now() + data.expires_in * MS_IN_SECOND;
 		cacheSupabaseClientToken(data.access_token, expiryTime);
 
 		return data.access_token;
 	} catch (error) {
 		console.error("Error fetching visitor token:", error);
-		throw new Error("Unable to authenticate as visitor");
+		throw new Error("Unable to authenticate as visitor", { cause: error });
 	}
 }
 
@@ -154,13 +165,15 @@ export async function signInUser(
 
 		const jsonRaw: unknown = await response.json().catch(() => undefined);
 
-		function isTokenResponse(x: unknown): x is TokenResponse {
-			if (!isRecord(x)) return false;
-			const rec = x;
+		function isTokenResponse(value: unknown): value is TokenResponse {
+			if (!isRecord(value)) {
+				return false;
+			}
+			const rec = value;
 			return (
-				Object.prototype.hasOwnProperty.call(rec, "access_token") &&
-				Object.prototype.hasOwnProperty.call(rec, "token_type") &&
-				Object.prototype.hasOwnProperty.call(rec, "expires_in") &&
+				Object.hasOwn(rec, "access_token") &&
+				Object.hasOwn(rec, "token_type") &&
+				Object.hasOwn(rec, "expires_in") &&
 				typeof rec["access_token"] === "string" &&
 				typeof rec["token_type"] === "string" &&
 				typeof rec["expires_in"] === "number"
@@ -175,13 +188,13 @@ export async function signInUser(
 		const data = jsonRaw;
 
 		// Cache the user token in memory
-		const expiryTime = Date.now() + data.expires_in * 1000;
+		const expiryTime = Date.now() + data.expires_in * MS_IN_SECOND;
 		cacheUserToken(data.access_token, expiryTime);
 
 		return data.access_token;
 	} catch (error) {
 		console.error("Error signing in user:", error);
-		throw new Error("Unable to authenticate user");
+		throw new Error("Unable to authenticate user", { cause: error });
 	}
 }
 
@@ -222,8 +235,12 @@ function getCachedSupabaseClientToken(): string | undefined {
 
 	const now = Date.now();
 
-	// If token has expired or will expire in the next 5 minutes, return undefined
-	if (now >= tokenExpirationTime - 5 * 60 * 1000) {
+	// If token has expired or will expire within the buffer window, return undefined
+	if (
+		now >=
+		tokenExpirationTime -
+			TOKEN_EXPIRY_BUFFER_MINUTES * SECONDS_IN_MINUTE * MS_IN_SECOND
+	) {
 		cachedSupabaseClientToken = undefined;
 		tokenExpirationTime = undefined;
 		return undefined;

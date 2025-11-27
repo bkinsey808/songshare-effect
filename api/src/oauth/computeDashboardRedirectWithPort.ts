@@ -26,7 +26,11 @@ export function computeDashboardRedirectWithPort({
 	dashboardPathLocal,
 }: ComputeDashboardRedirectWithPortParams): string | undefined {
 	const portNum = Number(redirectPortStr);
-	if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
+	const MIN_PORT = 1;
+	const MAX_PORT = 65535;
+
+	if (!Number.isInteger(portNum) || portNum < MIN_PORT || portNum > MAX_PORT) {
+		// oxlint-disable-next-line no-console
 		console.log("[oauthCallback] Invalid redirect_port, ignoring");
 		return undefined;
 	}
@@ -42,17 +46,18 @@ export function computeDashboardRedirectWithPort({
 
 	const headerProto = ctx.req.header("x-forwarded-proto") ?? "";
 	let redirectProto = url.protocol.replace(":", "");
-	if (headerProto.length > 0) {
+	if (headerProto) {
 		redirectProto = headerProto;
 	}
 	const forwardedHost = ctx.req.header("x-forwarded-host") ?? "";
-	const hostNoPort = forwardedHost.length > 0 ? forwardedHost : url.hostname;
+	const hostNoPort = forwardedHost ? forwardedHost : url.hostname;
 	const candidateOrigin = `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}`;
 
-	if (allowedOrigins.length > 0) {
+	if (allowedOrigins.length) {
 		if (allowedOrigins.includes(candidateOrigin)) {
 			return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
 		}
+		// oxlint-disable-next-line no-console
 		console.log(
 			"[oauthCallback] Candidate origin not in ALLOWED_ORIGINS, ignoring redirect_port",
 			candidateOrigin,
@@ -71,6 +76,7 @@ export function computeDashboardRedirectWithPort({
 		return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
 	}
 
+	// oxlint-disable-next-line no-console
 	console.log(
 		"[oauthCallback] ALLOWED_ORIGINS not set and environment is production — ignoring redirect_port",
 		candidateOrigin,

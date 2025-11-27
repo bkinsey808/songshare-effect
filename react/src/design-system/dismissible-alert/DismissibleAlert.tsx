@@ -47,7 +47,9 @@ export default function DismissibleAlert({
 		? tw`opacity-0 -translate-y-2`
 		: tw`opacity-100 translate-y-0`;
 
-	const handleClick = (): void => {
+	const ANIMATION_DURATION_MS = 200;
+
+	function handleClick(): void {
 		// Start exit animation, then notify parent after animation finishes.
 		setIsClosing(true);
 		// Match the duration in CSS above (200ms). Use a timeout to call onDismiss
@@ -61,8 +63,8 @@ export default function DismissibleAlert({
 			}
 			// reset local state in case component remains mounted via props
 			setIsClosing(false);
-		}, 200);
-	};
+		}, ANIMATION_DURATION_MS);
+	}
 
 	return (
 		<div

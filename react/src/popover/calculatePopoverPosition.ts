@@ -8,6 +8,12 @@ type PlacementConfig = {
 	readonly position: PopoverPosition;
 };
 
+// File-local numeric constants to avoid magic numbers in layout calculations
+const MIN_MARGIN = 8;
+const GAP_DEFAULT = 8;
+const CENTER_DIVISOR = 2;
+const FIRST_INDEX = 0;
+
 /**
  * Ensures horizontal centering doesn't push popover outside viewport
  */
@@ -24,9 +30,9 @@ function adjustHorizontalPosition({
 		position.transform === "translateX(-50%)" &&
 		position.left !== undefined
 	) {
-		const halfWidth = popoverWidth / 2;
-		const minLeft = halfWidth + 8;
-		const maxLeft = viewportWidth - halfWidth - 8;
+		const halfWidth = popoverWidth / CENTER_DIVISOR;
+		const minLeft = halfWidth + MIN_MARGIN;
+		const maxLeft = viewportWidth - halfWidth - MIN_MARGIN;
 		return {
 			...position,
 			left: Math.max(minLeft, Math.min(maxLeft, position.left)),
@@ -58,16 +64,16 @@ function adjustTopBottomPosition({
 	// Adjust horizontal position
 	if (adjustedPosition.left !== undefined) {
 		if (adjustedPosition.transform === "translateX(-50%)") {
-			const halfWidth = popoverWidth / 2;
-			const minLeft = halfWidth + 8;
-			const maxLeft = viewportWidth - halfWidth - 8;
+			const halfWidth = popoverWidth / CENTER_DIVISOR;
+			const minLeft = halfWidth + MIN_MARGIN;
+			const maxLeft = viewportWidth - halfWidth - MIN_MARGIN;
 			adjustedPosition = {
 				...adjustedPosition,
 				left: Math.max(minLeft, Math.min(maxLeft, adjustedPosition.left)),
 			};
 		} else {
-			const minLeft = 8;
-			const maxLeft = viewportWidth - popoverWidth - 8;
+			const minLeft = MIN_MARGIN;
+			const maxLeft = viewportWidth - popoverWidth - MIN_MARGIN;
 			adjustedPosition = {
 				...adjustedPosition,
 				left: Math.max(minLeft, Math.min(maxLeft, adjustedPosition.left)),
@@ -77,7 +83,7 @@ function adjustTopBottomPosition({
 
 	// Adjust vertical position if still overflowing
 	if (placement.name === "bottom" && adjustedPosition.top !== undefined) {
-		const maxTop = viewportHeight - popoverHeight - 8;
+		const maxTop = viewportHeight - popoverHeight - MIN_MARGIN;
 		adjustedPosition = {
 			...adjustedPosition,
 			top: Math.min(adjustedPosition.top, maxTop),
@@ -85,7 +91,7 @@ function adjustTopBottomPosition({
 	} else if (placement.name === "top" && adjustedPosition.top !== undefined) {
 		adjustedPosition = {
 			...adjustedPosition,
-			top: Math.max(8, adjustedPosition.top),
+			top: Math.max(MIN_MARGIN, adjustedPosition.top),
 		};
 	}
 
@@ -115,16 +121,16 @@ function adjustLeftRightPosition({
 	// Adjust vertical position
 	if (adjustedPosition.top !== undefined) {
 		if (adjustedPosition.transform === "translateY(-50%)") {
-			const halfHeight = popoverHeight / 2;
-			const minTop = halfHeight + 8;
-			const maxTop = viewportHeight - halfHeight - 8;
+			const halfHeight = popoverHeight / CENTER_DIVISOR;
+			const minTop = halfHeight + MIN_MARGIN;
+			const maxTop = viewportHeight - halfHeight - MIN_MARGIN;
 			adjustedPosition = {
 				...adjustedPosition,
 				top: Math.max(minTop, Math.min(maxTop, adjustedPosition.top)),
 			};
 		} else {
-			const minTop = 8;
-			const maxTop = viewportHeight - popoverHeight - 8;
+			const minTop = MIN_MARGIN;
+			const maxTop = viewportHeight - popoverHeight - MIN_MARGIN;
 			adjustedPosition = {
 				...adjustedPosition,
 				top: Math.max(minTop, Math.min(maxTop, adjustedPosition.top)),
@@ -134,7 +140,7 @@ function adjustLeftRightPosition({
 
 	// Adjust horizontal position if still overflowing
 	if (placement.name === "right" && adjustedPosition.left !== undefined) {
-		const maxLeft = viewportWidth - popoverWidth - 8;
+		const maxLeft = viewportWidth - popoverWidth - MIN_MARGIN;
 		adjustedPosition = {
 			...adjustedPosition,
 			left: Math.min(adjustedPosition.left, maxLeft),
@@ -142,7 +148,7 @@ function adjustLeftRightPosition({
 	} else if (placement.name === "left" && adjustedPosition.left !== undefined) {
 		adjustedPosition = {
 			...adjustedPosition,
-			left: Math.max(8, adjustedPosition.left),
+			left: Math.max(MIN_MARGIN, adjustedPosition.left),
 		};
 	}
 
@@ -158,7 +164,7 @@ export default function calculatePopoverPosition({
 	popoverWidth,
 	popoverHeight,
 	preferredPlacement = "bottom",
-	gap = 8,
+	gap = GAP_DEFAULT,
 }: ReadonlyDeep<{
 	readonly triggerRect: DOMRect;
 	readonly popoverWidth: number;
@@ -182,7 +188,7 @@ export default function calculatePopoverPosition({
 			hasSpace: spaceBelow >= popoverHeight + gap,
 			position: {
 				top: triggerRect.bottom + gap,
-				left: triggerRect.left + triggerRect.width / 2,
+				left: triggerRect.left + triggerRect.width / CENTER_DIVISOR,
 				transform: "translateX(-50%)",
 			},
 		},
@@ -191,7 +197,7 @@ export default function calculatePopoverPosition({
 			hasSpace: spaceAbove >= popoverHeight + gap,
 			position: {
 				top: triggerRect.top - popoverHeight - gap,
-				left: triggerRect.left + triggerRect.width / 2,
+				left: triggerRect.left + triggerRect.width / CENTER_DIVISOR,
 				transform: "translateX(-50%)",
 			},
 		},
@@ -199,7 +205,7 @@ export default function calculatePopoverPosition({
 			name: "right",
 			hasSpace: spaceRight >= popoverWidth + gap,
 			position: {
-				top: triggerRect.top + triggerRect.height / 2,
+				top: triggerRect.top + triggerRect.height / CENTER_DIVISOR,
 				left: triggerRect.right + gap,
 				transform: "translateY(-50%)",
 			},
@@ -208,7 +214,7 @@ export default function calculatePopoverPosition({
 			name: "left",
 			hasSpace: spaceLeft >= popoverWidth + gap,
 			position: {
-				top: triggerRect.top + triggerRect.height / 2,
+				top: triggerRect.top + triggerRect.height / CENTER_DIVISOR,
 				left: triggerRect.left - popoverWidth - gap,
 				transform: "translateY(-50%)",
 			},
@@ -243,14 +249,14 @@ export default function calculatePopoverPosition({
 
 	// If no space available, use the placement with the most space
 	const bestFitPlacement = placements.reduce((best, current) => {
-		let currentSpace: number;
+		let currentSpace = 0;
 		if (current.name === "top" || current.name === "bottom") {
 			currentSpace = current.name === "top" ? spaceAbove : spaceBelow;
 		} else {
 			currentSpace = current.name === "left" ? spaceLeft : spaceRight;
 		}
 
-		let bestSpace: number;
+		let bestSpace = 0;
 		if (best.name === "top" || best.name === "bottom") {
 			bestSpace = best.name === "top" ? spaceAbove : spaceBelow;
 		} else {
@@ -258,7 +264,7 @@ export default function calculatePopoverPosition({
 		}
 
 		return currentSpace > bestSpace ? current : best;
-	}, placements[0]!);
+	}, placements[FIRST_INDEX]!);
 
 	let position = { ...bestFitPlacement.position };
 

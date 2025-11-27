@@ -6,6 +6,9 @@
 */
 import { spawnSync } from "child_process";
 
+const EXIT_SUCCESS = 0;
+const EXIT_FAILURE = 1;
+
 // (This script prints status for contributors)
 
 /**
@@ -22,7 +25,7 @@ function run(cmd, args) {
 		shell: process.platform === "win32",
 	};
 	const res = spawnSync(cmd, args, opts);
-	return typeof res.status === "number" ? res.status : 1;
+	return typeof res.status === "number" ? res.status : EXIT_FAILURE;
 }
 
 try {
@@ -30,21 +33,18 @@ try {
 	// This small guard prevents the fallback `npx` path from attempting a
 	// system-level install on CI or in Cloudflare's build environment where
 	// privilege escalation is disallowed.
-	if (
-		process.env.PLAYWRIGHT_SKIP_BROWSER_INSTALL === "1" ||
-		process.env.CI === "true"
-	) {
-		console.log(
+	if (process.env.PLAYWRIGHT_SKIP_BROWSER_INSTALL === "1" || process.env.CI === "true") {
+		console.warn(
 			"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 or CI=true",
 		);
-		process.exit(0);
+		process.exit(EXIT_SUCCESS);
 	}
 	// Delegator wrapper: prefer Bun if present, otherwise fall back to `npx`.
 	// The canonical logic (including any CI / PLAYWRIGHT_SKIP_BROWSER_INSTALL
 	// handling) lives in `postinstall-playwright.bun.ts` so we keep this file
 	// intentionally small and cross-platform.
 	// Detect bun presence; if available, use bun to execute the existing Bun TS script.
-	if (run("bun", ["-v"]) === 0) {
+	if (run("bun", ["-v"]) === EXIT_SUCCESS) {
 		process.exit(run("bun", ["./scripts/postinstall-playwright.bun.ts"]));
 	}
 	// Otherwise fall back to npx Playwright installer which is available with node/npm
@@ -61,11 +61,9 @@ try {
 		ciFlag !== undefined &&
 		ciFlag !== "" &&
 		["1", "true"].includes(ciFlag.toLowerCase());
-	const args = isCI
-		? ["playwright", "install"]
-		: ["playwright", "install", "--with-deps"];
+	const args = isCI ? ["playwright", "install"] : ["playwright", "install", "--with-deps"];
 	process.exit(run("npx", args));
 } catch (err) {
 	console.error("postinstall wrapper failed:", err);
-	process.exit(1);
+	process.exit(EXIT_FAILURE);
 }

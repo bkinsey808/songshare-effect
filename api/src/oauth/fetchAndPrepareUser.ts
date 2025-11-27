@@ -42,7 +42,7 @@ export function fetchAndPrepareUser({
 	},
 	ValidationError | DatabaseError
 > {
-	return Effect.gen(function* ($) {
+	return Effect.gen(function* fetchAndPrepareUserGen($) {
 		// Dev-only: dump incoming request headers to help debug Set-Cookie/cookie
 		// propagation issues. Guarded as best-effort logging so it never throws.
 		yield* $(
@@ -82,19 +82,22 @@ export function fetchAndPrepareUser({
 		const headerOrigin = ctx.req.header("origin") ?? "";
 		const headerReferer =
 			ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
-		const derivedFromReferer = (() => {
+
+		function computeDerivedFromReferer(referer: string): string {
 			try {
-				return headerReferer ? new URL(headerReferer).origin : "";
+				return referer ? new URL(referer).origin : "";
 			} catch {
 				return "";
 			}
-		})();
+		}
+
+		const derivedFromReferer = computeDerivedFromReferer(headerReferer);
 		const requestOrigin =
 			headerOrigin ||
 			derivedFromReferer ||
 			`${requestUrl.protocol}//${requestUrl.host}`;
 
-		let redirectUri: string;
+		let redirectUri: string = "";
 		if (
 			typeof redirectUriFromCaller === "string" &&
 			redirectUriFromCaller !== ""

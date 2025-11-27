@@ -8,8 +8,14 @@ export async function walkFiles(dir: string, cb: FileCallback): Promise<void> {
 	for (const entry of entries) {
 		const entryPath = path.join(dir, entry.name);
 		if (entry.isDirectory()) {
+			// Intentionally await here to iterate directories sequentially and avoid spawning
+			// too many concurrent callbacks which could overwhelm upstream operations.
+			// eslint-disable-next-line no-await-in-loop
 			await walkFiles(entryPath, cb);
 		} else if (entry.isFile()) {
+			// Callbacks are awaited sequentially by design to simplify ordering and resource
+			// usage during the preparation step.
+			// eslint-disable-next-line no-await-in-loop
 			await cb(entryPath);
 		}
 	}

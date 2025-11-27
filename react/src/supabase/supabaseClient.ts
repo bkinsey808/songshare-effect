@@ -9,6 +9,17 @@ import { getSupabaseAuthToken } from "./getSupabaseAuthToken";
 // Cache Supabase clients per visitor token
 const clients = new Map<string, SupabaseClient<Database>>();
 
+// Time and retry constants
+const DEFAULT_RETRIES = 3;
+const MS_IN_SECOND = 1000;
+const SECONDS_IN_MINUTE = 60;
+const MINUTES_IN_HOUR = 60;
+const MAX_BACKOFF_MS = 5000;
+const BACKOFF_BASE = 2;
+const FIRST_ATTEMPT = 1;
+const BACKOFF_EXPONENT_OFFSET = 1;
+const INCREMENT = 1;
+
 /**
  * Returns a Supabase client authenticated with a Supabase client token.
  * The supabaseClientToken can be from either:
@@ -34,18 +45,6 @@ export function getSupabaseClient(
 	if (clients.has(supabaseClientToken)) {
 		return clients.get(supabaseClientToken);
 	}
-
-	/**
-	 * Create Supabase client with anon key, then authenticate with visitor JWT.
-	 * We need the anon key to initialize the client, then we override with the JWT.
-	 *
-	 * Note: The type assertion is necessary due to a conflict between our strict
-	 * TypeScript configuration (exactOptionalPropertyTypes: true, etc.) and
-	 * Supabase's internal type definitions. This is safe because:
-	 * 1. We've validated the URL and keys are strings above
-	 * 2. createClient always returns a SupabaseClient
-	 * 3. The Database type matches our schema
-	 */
 	const client = createClient(supabaseUrl, supabaseKey, {
 		auth: {
 			persistSession: false,
@@ -67,8 +66,11 @@ export function getSupabaseClient(
 	// supabaseClientToken is defined here (checked above)
 	clients.set(supabaseClientToken, client);
 
-	// Remove the cached client after token expiration
-	setTimeout(() => clients.delete(supabaseClientToken), 60 * 60 * 1000);
+	// Remove the cached client after token expiration (1 hour)
+	setTimeout(
+		() => clients.delete(supabaseClientToken),
+		MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MS_IN_SECOND,
+	);
 
 	return client;
 }
@@ -82,10 +84,12 @@ export function getSupabaseClient(
  * @returns Promise that resolves to a Supabase client or undefined if setup fails
  */
 export async function getSupabaseClientWithAuth(
-	retries = 3,
+	retries: number = DEFAULT_RETRIES,
 ): Promise<SupabaseClient<Database> | undefined> {
-	for (let attempt = 1; attempt <= retries; attempt++) {
+	for (let attempt = FIRST_ATTEMPT; attempt <= retries; attempt += INCREMENT) {
 		try {
+			// getSupabaseAuthToken can reasonably be awaited in the retry loop
+			// eslint-disable-next-line no-await-in-loop
 			const supabaseClientToken = await getSupabaseAuthToken();
 
 			if (!supabaseClientToken) {
@@ -111,7 +115,11 @@ export async function getSupabaseClientWithAuth(
 			}
 
 			// Wait before retrying (exponential backoff)
-			const delay = Math.min(1000 * 2 ** (attempt - 1), 5000);
+			const delay = Math.min(
+				MS_IN_SECOND * BACKOFF_BASE ** (attempt - BACKOFF_EXPONENT_OFFSET),
+				MAX_BACKOFF_MS,
+			);
+			// eslint-disable-next-line no-await-in-loop
 			await new Promise((resolve) => setTimeout(resolve, delay));
 		}
 	}

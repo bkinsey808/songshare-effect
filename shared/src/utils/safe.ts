@@ -1,18 +1,23 @@
+/* eslint-disable no-magic-numbers */
 /** Safely get a property from an object, avoiding prototype pollution and unsafe access */
-export function safeGet<T extends Record<string, unknown>, K extends keyof T>(
-	obj: T,
-	key: K,
-): T[K] | undefined;
 export function safeGet<
-	T extends Record<string, unknown>,
-	K extends keyof T,
-	V,
->(obj: T, key: K, defaultValue: V): T[K] | V;
+	TValue extends Record<string, unknown>,
+	Key extends keyof TValue,
+>(obj: TValue, key: Key): TValue[Key] | undefined;
 export function safeGet<
-	T extends Record<string, unknown>,
-	K extends keyof T,
-	V,
->(obj: T, key: K, defaultValue?: V): T[K] | V | undefined {
+	TValue extends Record<string, unknown>,
+	Key extends keyof TValue,
+	Value,
+>(obj: TValue, key: Key, defaultValue: Value): TValue[Key] | Value;
+export function safeGet<
+	TValue extends Record<string, unknown>,
+	Key extends keyof TValue,
+	Value,
+>(
+	obj: TValue,
+	key: Key,
+	defaultValue?: Value,
+): TValue[Key] | Value | undefined {
 	if (Object.hasOwn(obj, key)) {
 		return obj[key];
 	}
@@ -26,9 +31,9 @@ export function safeGet<
  * Prefer superSafeGet for cases where the key is guaranteed valid at compile time for stricter type safety and cleaner code.
  */
 export function superSafeGet<
-	T extends Record<string, unknown>,
-	K extends keyof T,
->(obj: T, key: K): T[K] {
+	TValue extends Record<string, unknown>,
+	Key extends keyof TValue,
+>(obj: TValue, key: Key): TValue[Key] {
 	if (!Object.hasOwn(obj, key)) {
 		throw new Error(`superSafeGet: missing key ${String(key)}`);
 	}
@@ -66,11 +71,11 @@ export default function safeDelete(
  * Safely get an element from an array by index, avoiding out-of-bounds errors.
  * Returns the element if the index is valid, otherwise returns the default value (or undefined).
  */
-export function safeArrayGet<T>(
-	arr: ReadonlyArray<T>,
+export function safeArrayGet<TItem>(
+	arr: ReadonlyArray<TItem>,
 	idx: number,
-	defaultValue?: T,
-): T | undefined {
+	defaultValue?: TItem,
+): TItem | undefined {
 	if (Array.isArray(arr) && idx >= 0 && idx < arr.length) {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return arr[idx];
@@ -82,11 +87,11 @@ export function safeArrayGet<T>(
  * Safely set an element in an array by index, avoiding out-of-bounds errors.
  * Returns a new array with the value set if the index is valid, otherwise returns the original array.
  */
-export function safeArraySet<T>(
-	arr: ReadonlyArray<T>,
+export function safeArraySet<TItem>(
+	arr: ReadonlyArray<TItem>,
 	idx: number,
-	value: T,
-): ReadonlyArray<T> {
+	value: TItem,
+): ReadonlyArray<TItem> {
 	if (Array.isArray(arr) && idx >= 0 && idx < arr.length) {
 		// Use spread to produce a mutable copy from a ReadonlyArray<T>.
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-spread, typescript/no-unsafe-spread, @typescript-eslint/no-unsafe-assignment

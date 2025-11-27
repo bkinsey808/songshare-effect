@@ -37,7 +37,7 @@ export default function accountRegister(
 	ctx: ReadonlyContext,
 ): Effect.Effect<Response, DatabaseError | ServerError | ValidationError> {
 	// eslint-disable-next-line max-lines-per-function
-	return Effect.gen(function* ($) {
+	return Effect.gen(function* accountRegisterGen($) {
 		// Parse and validate the request body
 		const body: unknown = yield* $(
 			Effect.tryPromise({
@@ -185,7 +185,9 @@ export default function accountRegister(
 			);
 		}
 
-		if (userInsertResult.data.length === 0) {
+		// Destructure the inserted row to avoid numeric indices (no magic numbers)
+		const [rawInsertedUser] = userInsertResult.data;
+		if (!rawInsertedUser) {
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({ message: "Failed to insert user record" }),
@@ -194,12 +196,13 @@ export default function accountRegister(
 		}
 
 		// Debug: log raw insert result to help diagnose schema validation failures
+		const JSON_INDENT = 2;
 		yield* $(
 			Effect.sync(() => {
 				console.log(
 					"[accountRegister] userInsertResult:",
 					// eslint-disable-next-line unicorn/no-null
-					JSON.stringify(userInsertResult, null, 2),
+					JSON.stringify(rawInsertedUser, null, JSON_INDENT),
 				);
 			}),
 		);
@@ -208,10 +211,17 @@ export default function accountRegister(
 		// our Effect schemas expect `undefined` for optional fields. Convert
 		// any null values to undefined before running schema decoding so that
 		// optional fields validate correctly.
-		const isPlainRecord = (v: unknown): v is Record<string, unknown> =>
-			v !== null && typeof v === "object" && !Array.isArray(v);
+		function isPlainRecord(
+			maybePlainRecord: unknown,
+		): maybePlainRecord is Record<string, unknown> {
+			return (
+				maybePlainRecord !== null &&
+				typeof maybePlainRecord === "object" &&
+				!Array.isArray(maybePlainRecord)
+			);
+		}
 
-		const normalizeNulls = (obj: unknown): Record<string, unknown> => {
+		function normalizeNulls(obj: unknown): Record<string, unknown> {
 			// Use safeGet/safeSet to satisfy lint/security rules and avoid
 			// prototype pollution while normalizing null -> undefined.
 			if (!isPlainRecord(obj)) {
@@ -231,9 +241,9 @@ export default function accountRegister(
 				}
 			}
 			return copy;
-		};
+		}
 
-		const normalizedRow = normalizeNulls(userInsertResult.data[0]);
+		const normalizedRow = normalizeNulls(rawInsertedUser);
 
 		const newUser = yield* $(
 			Effect.tryPromise({
@@ -247,7 +257,7 @@ export default function accountRegister(
 					console.error(
 						"[accountRegister] Failed to decode user row:",
 						// eslint-disable-next-line unicorn/no-null
-						JSON.stringify(userInsertResult.data[0], null, 2),
+						JSON.stringify(rawInsertedUser, null, JSON_INDENT),
 						"error:",
 						getErrorMessage(err),
 					);
@@ -283,10 +293,20 @@ export default function accountRegister(
 			);
 		}
 
+		// Destructure the inserted public row to avoid numeric indices
+		const [rawUserPublic] = userPublicInsertResult.data;
+		if (!rawUserPublic) {
+			return yield* $(
+				Effect.fail(
+					new DatabaseError({ message: "Failed to insert user profile" }),
+				),
+			);
+		}
+
 		const newUserPublic = yield* $(
 			decodeUnknownEffectOrMap(
 				UserPublicSchema,
-				userPublicInsertResult.data[0],
+				rawUserPublic,
 				() =>
 					new DatabaseError({
 						message: "Invalid user profile data from database",
@@ -313,7 +333,7 @@ export default function accountRegister(
 
 		// Sign session JWT
 		const jwtSecret = getEnvString(ctx.env, "JWT_SECRET");
-		if (jwtSecret === undefined || jwtSecret.length === 0) {
+		if (jwtSecret === undefined || jwtSecret === "") {
 			return yield* $(
 				Effect.fail(
 					new ServerError({

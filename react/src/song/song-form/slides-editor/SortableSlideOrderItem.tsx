@@ -29,6 +29,9 @@ export default function SortableSlideOrderItem({
 	removeSlideOrder,
 	slideOrder,
 }: SortableSlideOrderItemProps): ReactElement {
+	const ONE = 1;
+	const OPACITY_DRAGGING = 0.5;
+	const OPACITY_DEFAULT = 1;
 	const {
 		attributes,
 		listeners,
@@ -36,14 +39,16 @@ export default function SortableSlideOrderItem({
 		isDragging,
 		transform,
 		transition,
-	} = useSortable({ id: sortableId });
+	} = useSortable({
+		id: sortableId,
+	});
 
 	return (
 		<li
 			ref={setNodeRef}
 			style={{
 				cursor: "grab",
-				opacity: isDragging ? 0.5 : 1,
+				opacity: isDragging ? OPACITY_DRAGGING : OPACITY_DEFAULT,
 				transform: transform
 					? `translate(${String(transform.x)}px, ${String(transform.y)}px)`
 					: undefined,
@@ -75,7 +80,7 @@ export default function SortableSlideOrderItem({
 				onClick={() => {
 					removeSlideOrder({ slideId });
 				}}
-				disabled={slideOrder.length === 1}
+				disabled={slideOrder.length === ONE}
 			>
 				Remove
 			</button>

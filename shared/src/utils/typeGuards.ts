@@ -1,11 +1,13 @@
-export const isRecord = (value: unknown): value is Record<string, unknown> => {
+export function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
-};
+}
 
-export const isString = (value: unknown): value is string => {
+export function isString(value: unknown): value is string {
 	return typeof value === "string";
-};
+}
 
-export const isStringArray = (value: unknown): value is string[] => {
-	return Array.isArray(value) && value.every((v) => typeof v === "string");
-};
+export function isStringArray(value: unknown): value is string[] {
+	return (
+		Array.isArray(value) && value.every((item) => typeof item === "string")
+	);
+}

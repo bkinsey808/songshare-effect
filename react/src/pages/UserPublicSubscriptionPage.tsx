@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import type { Tables } from "@/shared/generated/supabaseTypes";
-import type { RealtimeChannel } from "@supabase/supabase-js";
+import type { Tables, Database } from "@/shared/generated/supabaseTypes";
+import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 
 import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
 
@@ -32,7 +32,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 	const [error, setError] = useState<string | undefined>(undefined);
 	const [connectionStatus, setConnectionStatus] = useState("Disconnected");
 
-	const getConnectionStatusClass = (status: string): string => {
+	function getConnectionStatusClass(status: string): string {
 		switch (status) {
 			case "SUBSCRIBED":
 				return "text-green-500";
@@ -43,12 +43,17 @@ function UserPublicSubscriptionPage(): ReactElement {
 			default:
 				return "text-yellow-500";
 		}
-	};
+	}
 
-	const handleRealtimeEvent = (
+	// File-local constants
+	const EVENTS_MAX = 10;
+	const INIT_CLIENT_DELAY_MS = 100;
+	const ZERO = 0;
+
+	function handleRealtimeEvent(
 		payload: unknown,
 		eventType: "INSERT" | "UPDATE" | "DELETE",
-	): void => {
+	): void {
 		/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion */
 		const newRaw = (payload as any)?.new;
 		/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion */
@@ -61,7 +66,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 		};
 
 		// Add to events log
-		setEvents((prev) => [realtimeEvent, ...prev].slice(0, 10));
+		setEvents((prev) => [realtimeEvent, ...prev].slice(ZERO, EVENTS_MAX));
 
 		// Update users list
 		setUsers((prevUsers) => {
@@ -100,13 +105,13 @@ function UserPublicSubscriptionPage(): ReactElement {
 			}
 			return prevUsers;
 		});
-	};
+	}
 
 	useEffect(() => {
-		let channel: RealtimeChannel | undefined;
+		let channel: RealtimeChannel | undefined = undefined;
 
-		const setupSubscription = async (): Promise<void> => {
-			let supabase;
+		async function setupSubscription(): Promise<void> {
+			let supabase: SupabaseClient<Database> | undefined = undefined;
 
 			// 1) Initialize Supabase client
 			try {
@@ -125,7 +130,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 			}
 
 			// 2) Initial fetch - be explicit about columns and keep parsing separate
-			let fetchedData: UserPublic[] | null | undefined;
+			let fetchedData: UserPublic[] | null | undefined = undefined;
 			try {
 				const { data, error: fetchError } = await supabase
 					.from("user_public")
@@ -154,7 +159,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 			setLoading(false);
 
 			// Give a small delay to ensure the client is fully initialized
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, INIT_CLIENT_DELAY_MS));
 
 			// 3) Set up real-time subscription with comprehensive error handling
 			try {
@@ -252,7 +257,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 				);
 				setLoading(false);
 			}
-		};
+		}
 
 		setupSubscription().catch(console.error);
 
@@ -267,7 +272,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 		return <div className="text-center">Loading...</div>;
 	}
 
-	if (error !== undefined && error.length > 0) {
+	if (typeof error === "string" && error !== "") {
 		return <div className="text-center text-red-500">{error}</div>;
 	}
 
@@ -299,7 +304,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 			<div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
 				<div>
 					<h3 className="mb-4 text-xl font-semibold">Users ({users.length})</h3>
-					{users.length === 0 ? (
+					{users.length === ZERO ? (
 						<div className="rounded-lg border border-gray-600 bg-gray-800 p-4 text-center text-gray-400">
 							No users found in user_public table
 						</div>
@@ -326,7 +331,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 
 				<div>
 					<h3 className="mb-4 text-xl font-semibold">Real-time Events</h3>
-					{events.length === 0 ? (
+					{events.length === ZERO ? (
 						<div className="rounded-lg border border-gray-600 bg-gray-800 p-4 text-center text-gray-400">
 							No events yet. Try modifying the user_public table.
 						</div>

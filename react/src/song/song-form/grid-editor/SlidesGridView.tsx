@@ -46,6 +46,9 @@ export default function SlidesGridView({
 		setSlides,
 	});
 
+	const EMPTY_COUNT = 0;
+	const INDEX_OFFSET = 1;
+
 	// Use slideOrder to maintain the same order as Slides View, including duplicates
 	const gridSlideOrder = slideOrder;
 
@@ -58,12 +61,16 @@ export default function SlidesGridView({
 		},
 	});
 
+	const DEFAULT_FIELD_WIDTH = 300;
+	const SLIDE_NAME_WIDTH = 144;
+	const HORIZONTAL_SCROLL_THRESHOLD = 1000;
+
 	// Column resizing functionality
 	const { getColumnWidth, isResizing, startResize, totalWidth } =
 		useColumnResize({
 			fields,
-			defaultFieldWidth: 300,
-			slideNameWidth: 144,
+			defaultFieldWidth: DEFAULT_FIELD_WIDTH,
+			slideNameWidth: SLIDE_NAME_WIDTH,
 		});
 
 	return (
@@ -87,7 +94,8 @@ export default function SlidesGridView({
 				className="overflow-x-auto"
 				style={{
 					maxWidth: "100%",
-					overflowX: totalWidth > 1000 ? "scroll" : "auto",
+					overflowX:
+						totalWidth > HORIZONTAL_SCROLL_THRESHOLD ? "scroll" : "auto",
 				}}
 			>
 				<DndContext
@@ -105,9 +113,9 @@ export default function SlidesGridView({
 								<th
 									className="relative border border-gray-300 px-4 py-2 text-left font-semibold"
 									style={{
-										width: "144px",
-										minWidth: "144px",
-										maxWidth: "144px",
+										width: `${SLIDE_NAME_WIDTH}px`,
+										minWidth: `${SLIDE_NAME_WIDTH}px`,
+										maxWidth: `${SLIDE_NAME_WIDTH}px`,
 									}}
 								>
 									Slide Name
@@ -166,7 +174,7 @@ export default function SlidesGridView({
 					</table>
 				</DndContext>
 
-				{gridSlideOrder.length === 0 && (
+				{gridSlideOrder.length === EMPTY_COUNT && (
 					<div className="mt-8 text-center text-gray-500">
 						<p>No slides yet. Click "Add New Slide" to get started.</p>
 					</div>
@@ -174,7 +182,7 @@ export default function SlidesGridView({
 			</div>
 
 			{/* Presentation Order Info */}
-			{slideOrder.length > 0 && (
+			{slideOrder.length > EMPTY_COUNT && (
 				<div className="mt-6 rounded-lg bg-blue-50 p-4">
 					<h3 className="mb-2 font-semibold text-blue-900">
 						Current Presentation Order:
@@ -187,7 +195,7 @@ export default function SlidesGridView({
 									key={`order-${slideId}-${String(idx)}`}
 									className="rounded bg-blue-200 px-2 py-1 text-sm text-blue-800"
 								>
-									{idx + 1}. {slide?.slide_name ?? "Unknown Slide"}
+									{idx + INDEX_OFFSET}. {slide?.slide_name ?? "Unknown Slide"}
 								</span>
 							);
 						})}

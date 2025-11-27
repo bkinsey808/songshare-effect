@@ -1,6 +1,11 @@
-import type { ReactElement } from "react";
-
 import { createContext, use, useState } from "react";
+
+import {
+	DEMO_FETCH_USER_DELAY_MS,
+	DEMO_FETCH_SONG_DELAY_MS,
+	DEMO_DEFAULT_USER_ID,
+	DEMO_ALT_USER_ID,
+} from "@/shared/constants/http";
 
 // Create a context for theme
 const ThemeContext = createContext<"light" | "dark">("light");
@@ -9,43 +14,43 @@ const ThemeContext = createContext<"light" | "dark">("light");
 const promiseCache = new Map<string, Promise<unknown>>();
 
 // Simulate API calls
-const fetchUserData = async (
-	userId: number,
-): Promise<{
+async function fetchUserData(userId: number): Promise<{
 	id: number;
 	name: string;
 	songs: string[];
-}> => {
-	await new Promise((resolve) => setTimeout(resolve, 1000));
+}> {
+	await new Promise<void>((resolve) =>
+		setTimeout(resolve, DEMO_FETCH_USER_DELAY_MS),
+	);
 	return {
 		id: userId,
 		name: `User ${userId}`,
 		songs: [`Song ${userId}A`, `Song ${userId}B`, `Song ${userId}C`],
 	};
-};
+}
 
-const fetchSongDetails = async (
-	songName: string,
-): Promise<{
+async function fetchSongDetails(songName: string): Promise<{
 	title: string;
 	artist: string;
 	duration: string;
 	genre: string;
-}> => {
-	await new Promise((resolve) => setTimeout(resolve, 800));
+}> {
+	await new Promise<void>((resolve) =>
+		setTimeout(resolve, DEMO_FETCH_SONG_DELAY_MS),
+	);
 	return {
 		title: songName,
 		artist: `Artist of ${songName}`,
 		duration: "3:45",
 		genre: "Pop",
 	};
-};
+}
 
 // Helper function to get or create cached promises
-async function getCachedPromise<T>(
+async function getCachedPromise<ResultType>(
 	key: string,
-	fetcher: () => Promise<T>,
-): Promise<T> {
+	fetcher: () => Promise<ResultType>,
+): Promise<ResultType> {
 	if (!promiseCache.has(key)) {
 		const promise = fetcher().then(
 			(result) => {
@@ -65,7 +70,7 @@ async function getCachedPromise<T>(
 	// The cache holds Promises of unknown; at the API boundary we assert
 	// the return type for callers. Keep this assertion narrowly scoped.
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	return promiseCache.get(key) as Promise<T>;
+	return promiseCache.get(key) as Promise<ResultType>;
 }
 
 type UserProfileParams = Readonly<{
@@ -101,8 +106,8 @@ function UserProfile({ userId }: UserProfileParams): ReactElement {
 			<div>
 				<h4 className="mb-2 text-base font-medium">🎵 Songs:</h4>
 				<ul className="list-inside list-disc space-y-1">
-					{user.songs.map((song: string, index: number) => (
-						<li key={index} className="text-sm">
+					{user.songs.map((song: string) => (
+						<li key={song} className="text-sm">
 							{song}
 						</li>
 					))}
@@ -150,7 +155,7 @@ function SongDetails({ songName }: SongDetailsParams): ReactElement {
 
 // Main demo component
 function UseHookDemo(): ReactElement {
-	const [userId, setUserId] = useState(1);
+	const [userId, setUserId] = useState(DEMO_DEFAULT_USER_ID);
 	const [selectedSong, setSelectedSong] = useState<string | undefined>(
 		undefined,
 	);
@@ -186,7 +191,11 @@ function UseHookDemo(): ReactElement {
 
 					<button
 						onClick={() => {
-							setUserId(userId === 1 ? 2 : 1);
+							setUserId(
+								userId === DEMO_DEFAULT_USER_ID
+									? DEMO_ALT_USER_ID
+									: DEMO_DEFAULT_USER_ID,
+							);
 						}}
 						className="cursor-pointer rounded border-none bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700"
 					>

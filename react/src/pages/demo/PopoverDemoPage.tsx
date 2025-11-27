@@ -280,19 +280,27 @@ function ScrollTestSection(): ReactElement {
 
 			{/* Add some content to make the page scrollable */}
 			<div className="space-y-4">
-				{Array.from({ length: 10 }, (_, i) => (
-					<div key={i} className="rounded bg-gray-800/50 p-4">
-						<h4 className="mb-2 font-semibold text-gray-200">
-							Scroll Content Block {i + 1}
-						</h4>
-						<p className="text-sm text-gray-400">
-							This content makes the page scrollable so you can test popover
-							behavior during scroll events. Each block represents additional
-							page content that would cause native popovers to become
-							disconnected from their trigger elements without proper handling.
-						</p>
-					</div>
-				))}
+				{(() => {
+					const SCROLL_BLOCK_COUNT = 10;
+					const START_INDEX = 1;
+					return Array.from(
+						{ length: SCROLL_BLOCK_COUNT },
+						(_unusedVal, index) => (
+							<div key={index} className="rounded bg-gray-800/50 p-4">
+								<h4 className="mb-2 font-semibold text-gray-200">
+									Scroll Content Block {index + START_INDEX}
+								</h4>
+								<p className="text-sm text-gray-400">
+									This content makes the page scrollable so you can test popover
+									behavior during scroll events. Each block represents
+									additional page content that would cause native popovers to
+									become disconnected from their trigger elements without proper
+									handling.
+								</p>
+							</div>
+						),
+					);
+				})()}
 			</div>
 		</section>
 	);

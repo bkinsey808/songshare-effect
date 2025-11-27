@@ -10,9 +10,16 @@ type HeavyComponentParams = Readonly<{
 	color: string;
 }>;
 
+// File-local constants to avoid magic-number warnings in the demo
+const LARGE_ITERATIONS = 1_000_000;
+const RENDER_TIME_PRECISION = 2;
+const INITIAL_RENDER_TIME = 0;
+const INITIAL_COUNT = 0;
+const INCREMENT = 1;
+
 // Simulated heavy component that takes time to render
 function HeavyComponent({ name, color }: HeavyComponentParams): ReactElement {
-	const [renderTime, setRenderTime] = useState<number>(0);
+	const [renderTime, setRenderTime] = useState<number>(INITIAL_RENDER_TIME);
 
 	// Call hooks at top-level
 	const schedule = useSchedule();
@@ -21,7 +28,7 @@ function HeavyComponent({ name, color }: HeavyComponentParams): ReactElement {
 		const start = performance.now();
 		// Simulate some heavy computation
 		let _result = 0;
-		for (let i = 0; i < 1000000; i++) {
+		for (let i = 0; i < LARGE_ITERATIONS; i += INCREMENT) {
 			_result += Math.random();
 		}
 		const end = performance.now();
@@ -40,7 +47,7 @@ function HeavyComponent({ name, color }: HeavyComponentParams): ReactElement {
 				This component simulates heavy computation and rendering.
 			</p>
 			<div className="text-sm text-gray-400">
-				Render time: {renderTime.toFixed(2)}ms
+				Render time: {renderTime.toFixed(RENDER_TIME_PRECISION)}ms
 			</div>
 			<div className="mt-4 space-y-2">
 				<div className="h-4 animate-pulse rounded bg-gray-600"></div>
@@ -60,15 +67,16 @@ function InteractiveComponent({
 	title,
 }: InteractiveComponentParams): ReactElement {
 	const [inputValue, setInputValue] = useState("");
-	const [count, setCount] = useState(0);
+	const [count, setCount] = useState(INITIAL_COUNT);
 
-	useEffect(() => {
-		// Mount/unmount logging would normally be useful for debugging
-		// but we'll skip console.log due to linting rules
-		return () => {
+	// Mount/unmount logging would normally be useful for debugging
+	// but we'll skip console.log due to linting rules
+	useEffect(
+		() => () => {
 			// Cleanup if needed
-		};
-	}, [title]);
+		},
+		[title],
+	);
 
 	return (
 		<div className="rounded-lg border border-purple-500/20 bg-purple-500/10 p-6">
@@ -98,7 +106,7 @@ function InteractiveComponent({
 					</div>
 					<button
 						onClick={() => {
-							setCount((cnt) => cnt + 1);
+							setCount((cnt) => cnt + INCREMENT);
 						}}
 						className="rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
 					>
@@ -141,8 +149,8 @@ function NavigationExample(): ReactElement {
 					Navigation with Activity Pre-rendering
 				</h3>
 				<p className="mb-6 text-gray-400">
-					Pages you&apos;re not viewing are pre-rendered in the background using{" "}
-					Activity (hidden mode). This makes navigation instant while preserving{" "}
+					Pages you&apos;re not viewing are pre-rendered in the background using
+					Activity (hidden mode). This makes navigation instant while preserving
 					state.
 				</p>
 				<div className="flex justify-center space-x-4">
@@ -199,8 +207,8 @@ function PerformanceComparison(): ReactElement {
 			<div>
 				<h3 className="mb-4 text-xl font-semibold">Performance Comparison</h3>
 				<p className="mb-6 text-gray-400">
-					Compare rendering with Activity (deferred updates) vs traditional{" "}
-					conditional rendering. With Activity, heavy components are{" "}
+					Compare rendering with Activity (deferred updates) vs traditional
+					conditional rendering. With Activity, heavy components are
 					pre-rendered without blocking the UI.
 				</p>
 

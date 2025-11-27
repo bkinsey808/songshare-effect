@@ -7,7 +7,7 @@ import { isRecord } from "@/shared/utils/typeGuards";
 
 // src/features/react/song-subscribe/addActiveSongIds.ts
 import { type Song } from "../song-schema";
-import { type SongSubscribeSlice } from "./songSlice";
+import { type SongSubscribeSlice } from "./song-slice";
 
 export default function addActivePrivateSongSlugs(
 	set: (
@@ -32,9 +32,9 @@ export default function addActivePrivateSongSlugs(
 				.map((id) => {
 					const song = safeGet(currentPublicSongs, id) as unknown;
 					function isRecordStringUnknown(
-						x: unknown,
-					): x is Record<string, unknown> {
-						return typeof x === "object" && x !== null;
+						value: unknown,
+					): value is Record<string, unknown> {
+						return typeof value === "object" && value !== null;
 					}
 					return isRecordStringUnknown(song) &&
 						typeof song["song_slug"] === "string"
@@ -46,22 +46,24 @@ export default function addActivePrivateSongSlugs(
 		const missingSongSlugs = songSlugs.filter(
 			(slug) => !activePrivateSongSlugs.has(slug),
 		);
-		if (missingSongSlugs.length === 0) {
-			console.log(
+		const NO_MISSING_SONGS = 0;
+
+		if (missingSongSlugs.length === NO_MISSING_SONGS) {
+			console.warn(
 				"[addActivePrivateSongSlugs] All song slugs already active, nothing to do.",
 			);
 			return;
 		}
 
 		// Read optional userToken via the app-level state when available.
-		let userToken: string | undefined;
+		let userToken: string | undefined = undefined;
 		if (appState) {
 			const appStateUnknown: unknown = appState;
-			if (
-				isRecord(appStateUnknown) &&
-				typeof appStateUnknown["userToken"] === "string"
-			) {
-				userToken = appStateUnknown["userToken"];
+			if (isRecord(appStateUnknown)) {
+				const { userToken: ut } = appStateUnknown;
+				if (typeof ut === "string") {
+					userToken = ut;
+				}
 			}
 		}
 		if (typeof userToken !== "string") {
@@ -134,14 +136,14 @@ export default function addActivePrivateSongSlugs(
 
 				set(() => ({
 					activePrivateSongsUnsubscribe:
-						activePrivateSongsUnsubscribe ?? (() => {}),
+						activePrivateSongsUnsubscribe ?? (() => undefined),
 					activePrivateSongIds: newActivePrivateSongIds,
 				}));
 			} else {
 				console.error("[addActivePrivateSongSlugs] Invalid data format:", data);
 			}
 		} catch (err) {
-			console.error("[addActivePrivateSongIds] Unexpected fetch error:", err);
+			console.error("[addActivePrivateSongSlugs] Unexpected fetch error:", err);
 		}
 	};
 }

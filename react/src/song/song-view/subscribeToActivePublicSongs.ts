@@ -6,7 +6,7 @@ import { isRecord } from "@/shared/utils/typeGuards";
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
 import { type SongPublic } from "../song-schema";
-import { type SongSubscribeSlice } from "./songSlice";
+import { type SongSubscribeSlice } from "./song-slice";
 
 type SongPublicRealtimePayload = {
 	eventType: "INSERT" | "UPDATE" | "DELETE";
@@ -26,10 +26,10 @@ type RealtimeChannel = {
 
 type SupabaseRealtimeClientLike = {
 	channel: (name: string) => RealtimeChannel;
-	removeChannel: (c: RealtimeChannel) => void;
+	removeChannel: (channel: RealtimeChannel) => void;
 };
 
-const handleSongDeletion = (
+function handleSongDeletion(
 	deletedPublicSongId: string,
 	set: (
 		partial:
@@ -38,7 +38,7 @@ const handleSongDeletion = (
 					state: ReadonlyDeep<SongSubscribeSlice>,
 			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
-) => {
+): void {
 	set((state) => {
 		const { [deletedPublicSongId]: _deleted, ...rest } = state.publicSongs;
 		void _deleted;
@@ -49,7 +49,7 @@ const handleSongDeletion = (
 			),
 		};
 	});
-};
+}
 
 export default function subscribeToActivePublicSongs(
 	set: (
@@ -62,7 +62,7 @@ export default function subscribeToActivePublicSongs(
 	get: () => SongSubscribeSlice & AppSlice,
 ) {
 	return (): (() => void) | undefined => {
-		let unsubscribeFn: (() => void) | undefined;
+		let unsubscribeFn: (() => void) | undefined = undefined;
 
 		void getSupabaseClientWithAuth()
 			.then((client) => {
@@ -75,9 +75,11 @@ export default function subscribeToActivePublicSongs(
 
 				const { activePublicSongIds, addOrUpdatePublicSongs } = get();
 
+				const NO_ACTIVE_IDS = 0;
+
 				if (
 					!Array.isArray(activePublicSongIds) ||
-					activePublicSongIds.length === 0
+					activePublicSongIds.length === NO_ACTIVE_IDS
 				) {
 					console.warn(
 						"[subscribeToActivePublicSongs] No activeSongIds, skipping subscription",
@@ -92,23 +94,27 @@ export default function subscribeToActivePublicSongs(
 				const filter = `song_id=in.(${quoted})`;
 
 				function isSupabaseRealtimeClientLike(
-					x: unknown,
-				): x is SupabaseRealtimeClientLike {
-					if (!isRecord(x)) return false;
-					const rec = x;
+					value: unknown,
+				): value is SupabaseRealtimeClientLike {
+					if (!isRecord(value)) {
+						return false;
+					}
+					const rec = value;
 					return (
 						typeof rec["channel"] === "function" &&
 						typeof rec["removeChannel"] === "function"
 					);
 				}
 
-				function isSongPublic(x: unknown): x is SongPublic {
-					if (!isRecord(x)) return false;
-					const rec = x;
+				function isSongPublic(value: unknown): value is SongPublic {
+					if (!isRecord(value)) {
+						return false;
+					}
+					const rec = value;
 					return (
-						Object.prototype.hasOwnProperty.call(rec, "song_id") &&
+						Object.hasOwn(rec, "song_id") &&
 						typeof rec["song_id"] === "string" &&
-						Object.prototype.hasOwnProperty.call(rec, "song_slug") &&
+						Object.hasOwn(rec, "song_slug") &&
 						typeof rec["song_slug"] === "string"
 					);
 				}
@@ -150,12 +156,12 @@ export default function subscribeToActivePublicSongs(
 					);
 
 				channel.subscribe((status: string, err: unknown) => {
-					console.log(
+					console.warn(
 						`[subscribeToActivePublicSongs] Channel status: ${status}`,
 						err ?? "",
 					);
 					if (String(status) === String(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)) {
-						console.log(
+						console.warn(
 							"[subscribeToActivePublicSongs] Successfully subscribed!",
 						);
 					} else if (

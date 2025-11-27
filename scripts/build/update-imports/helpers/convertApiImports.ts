@@ -14,12 +14,15 @@ export function convertApiImports(filePath: string, content: string): string {
 	let updatedContent = content;
 
 	// Pattern for ../something -> @/api/something
+	const MATCH_INDEX = 0;
+	const IMPORT_PART_INDEX = 1;
+	const RELATIVE_PATH_INDEX = 2;
 	updatedContent = updatedContent.replace(
 		/import\s+([^'"]*)\s+from\s+["']\.\.\/([^'"]*?)["'];?/g,
 		(...args) => {
-			const match = String(args[0] ?? "");
-			const importPart = String(args[1] ?? "");
-			const relativePath = String(args[2] ?? "");
+			const match = String(args[MATCH_INDEX] ?? "");
+			const importPart = String(args[IMPORT_PART_INDEX] ?? "");
+			const relativePath = String(args[RELATIVE_PATH_INDEX] ?? "");
 			// Don't convert if it's already an alias or going to shared
 			if (
 				relativePath.includes("shared/src") ||
@@ -32,15 +35,24 @@ export function convertApiImports(filePath: string, content: string): string {
 	);
 
 	// Pattern for ./something -> @/api/currentDir/something
-	const currentDir =
-		filePath.split("api/src/")[1]?.split("/").slice(0, -1).join("/") ?? "";
+	const marker = "api/src/";
+	const NOT_FOUND = -1;
+	const markerIndex = filePath.indexOf(marker);
+	const afterApi =
+		markerIndex === NOT_FOUND
+			? ""
+			: filePath.slice(markerIndex + marker.length);
+	const parts = afterApi.split("/");
+	// remove the file name segment
+	parts.pop();
+	const currentDir = parts.filter(Boolean).join("/") ?? "";
 	if (currentDir !== "") {
 		updatedContent = updatedContent.replace(
 			/import\s+([^'"]*)\s+from\s+["']\.\/([^'"]*?)["'];?/g,
 			(...args) => {
-				const match = String(args[0] ?? "");
-				const importPart = String(args[1] ?? "");
-				const relativePath = String(args[2] ?? "");
+				const match = String(args[MATCH_INDEX] ?? "");
+				const importPart = String(args[IMPORT_PART_INDEX] ?? "");
+				const relativePath = String(args[RELATIVE_PATH_INDEX] ?? "");
 				if (relativePath.startsWith("@/")) {
 					return match;
 				}

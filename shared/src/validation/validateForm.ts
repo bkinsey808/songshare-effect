@@ -39,7 +39,7 @@ export function validateForm<FormValues>({
 				// Try to parse the error message as JSON
 				const parsed = JSON.parse(error.message) as unknown;
 				const extracted = extractValidationErrors(parsed);
-				if (extracted.length > 0) {
+				if (extracted.length) {
 					return {
 						success: false,
 						errors: extracted,
@@ -52,7 +52,7 @@ export function validateForm<FormValues>({
 
 		// The error should be our ValidationError[] array
 		const extracted = extractValidationErrors(error);
-		if (extracted.length > 0) {
+		if (extracted.length) {
 			return {
 				success: false,
 				errors: extracted,
@@ -80,15 +80,19 @@ function extractValidationErrors(
 ): ReadonlyArray<ValidationError> {
 	// Local runtime guard to validate array items look like ValidationError
 	function isValidationErrorArray(value: unknown): value is ValidationError[] {
-		if (!Array.isArray(value)) return false;
+		if (!Array.isArray(value)) {
+			return false;
+		}
 		return value.every((item) => {
-			if (typeof item !== "object" || item === null) return false;
+			if (typeof item !== "object" || item === null) {
+				return false;
+			}
 			// Narrow item for property checks. Localized disable for runtime inspection.
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 			const rec = item as Record<string, unknown>;
 			return (
-				Object.prototype.hasOwnProperty.call(rec, "field") &&
-				Object.prototype.hasOwnProperty.call(rec, "message") &&
+				Object.hasOwn(rec, "field") &&
+				Object.hasOwn(rec, "message") &&
 				typeof rec["field"] === "string" &&
 				typeof rec["message"] === "string"
 			);

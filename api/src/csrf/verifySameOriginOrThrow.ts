@@ -10,7 +10,7 @@ export function verifySameOriginOrThrow(ctx: ReadonlyContext): void {
 	const allowedOrigins = getAllowedOrigins(ctx.env);
 	const originToCheck = getOriginToCheck(ctx);
 
-	if (typeof originToCheck !== "string" || originToCheck.length === 0) {
+	if (typeof originToCheck !== "string" || originToCheck === "") {
 		console.error(
 			"CSRF rejection: missing Origin/Referer. allowedOrigins=",
 			allowedOrigins,

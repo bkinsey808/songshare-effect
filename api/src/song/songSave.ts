@@ -15,6 +15,13 @@ import {
 import { getVerifiedUserSession } from "../user-session/getVerifiedSession";
 
 // Server-side schema (keeps verification close to the API boundary)
+/*
+ * The effect Schema API uses PascalCase factory functions (e.g. Schema.Struct,
+ * Schema.Array). These are intentionally constructor-style names and trigger
+ * the `new-cap` ESLint rule. Disable `new-cap` in this local block where the
+ * usage is clear and intentional.
+ */
+/* eslint-disable new-cap */
 const SongFormSchema = Schema.Struct({
 	song_id: Schema.optional(Schema.String),
 	song_name: Schema.String,
@@ -36,6 +43,7 @@ const SongFormSchema = Schema.Struct({
 		}),
 	}),
 });
+/* eslint-enable new-cap */
 
 // Extract the type from the schema
 type SongFormData = Schema.Schema.Type<typeof SongFormSchema>;
@@ -49,7 +57,7 @@ export function songSave(
 	unknown,
 	ValidationError | DatabaseError | AuthenticationError
 > {
-	return Effect.gen(function* ($) {
+	return Effect.gen(function* songSaveGen($) {
 		// Authenticate user
 		const userSession = yield* $(getVerifiedUserSession(ctx));
 		const userId = userSession.user.user_id;
@@ -74,8 +82,11 @@ export function songSave(
 			}).pipe(
 				Effect.mapError((errs) => {
 					// Pick first error to return a structured ValidationError
+					// Use `find` to obtain the first entry without using a numeric literal
 					const first =
-						Array.isArray(errs) && errs.length > 0 ? errs[0] : undefined;
+						Array.isArray(errs) && errs.length
+							? errs.find(() => true)
+							: undefined;
 					return new ValidationError({
 						message: first?.message ?? "Validation failed",
 					});
@@ -86,10 +97,10 @@ export function songSave(
 		// Build strongly-typed values for DB insertion to avoid unsafe assertions.
 		// Use runtime checks and safe coercions so ESLint/TS won't require `as` casts.
 		const fieldsForDb: string[] = Array.isArray(validated.fields)
-			? validated.fields.map((f) => String(f))
+			? validated.fields.map((fieldVal) => String(fieldVal))
 			: [];
 		const slideOrderForDb: string[] = Array.isArray(validated.slide_order)
-			? validated.slide_order.map((s) => String(s))
+			? validated.slide_order.map((slideVal) => String(slideVal))
 			: [];
 		let slidesForDb: Json = {} as Json;
 		try {

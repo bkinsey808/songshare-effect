@@ -13,7 +13,8 @@ export type SupabaseGenerationConfig = {
 export function generateSupabaseTypes(
 	config: Readonly<SupabaseGenerationConfig>,
 ): boolean {
-	console.log("📥 Generating Supabase TypeScript types...");
+	console.warn("📥 Generating Supabase TypeScript types...");
+	const NO_LENGTH = 0;
 	if (existsSync(config.tempTypesPath)) {
 		rmSync(config.tempTypesPath);
 	}
@@ -44,9 +45,9 @@ export function generateSupabaseTypes(
 			},
 		);
 
-		if (supabaseOutput.trim().length > 0) {
+		if (supabaseOutput.trim().length > NO_LENGTH) {
 			writeFileSync(config.tempTypesPath, supabaseOutput, "utf8");
-			console.log("✅ Successfully generated Supabase types");
+			console.warn("✅ Successfully generated Supabase types");
 			return true;
 		}
 	} catch (error: unknown) {
@@ -54,13 +55,13 @@ export function generateSupabaseTypes(
 		console.error("❌ Error generating Supabase types:", message);
 	}
 
-	console.log("⚠️  Failed to generate Supabase types from remote database");
-	console.log("This could be due to:");
-	console.log("  • Temporary Supabase API issues");
-	console.log("  • Project not found or no public schema");
-	console.log("  • Network connectivity issues");
-	console.log("");
-	console.log("🔧 Falling back to example schemas...");
+	console.warn("⚠️  Failed to generate Supabase types from remote database");
+	console.warn("This could be due to:");
+	console.warn("  • Temporary Supabase API issues");
+	console.warn("  • Project not found or no public schema");
+	console.warn("  • Network connectivity issues");
+	console.warn("");
+	console.warn("🔧 Falling back to example schemas...");
 	if (existsSync(config.tempTypesPath)) {
 		rmSync(config.tempTypesPath);
 	}

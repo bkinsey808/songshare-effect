@@ -7,15 +7,17 @@ import { spawn } from "child_process";
 // browsers unless you opt out by setting PLAYWRIGHT_SKIP_BROWSER_INSTALL=1.
 
 async function runInstaller(): Promise<void> {
+	const ZERO = 0;
+	const EXIT_NON_ZERO = 1;
 	if (process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "1") {
-		console.log(
+		console.warn(
 			"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1",
 		);
 		return;
 	}
 
 	try {
-		console.log(
+		console.warn(
 			"Ensuring Playwright browsers are installed (bun script postinstall). This may take a minute...",
 		);
 		// `npx playwright install` is idempotent and will no-op if already installed.
@@ -34,7 +36,7 @@ async function runInstaller(): Promise<void> {
 				env: process.env,
 			});
 			installer.on("exit", (code) => {
-				if (code === 0) {
+				if (code === ZERO) {
 					resolve();
 					return;
 				}
@@ -49,7 +51,7 @@ async function runInstaller(): Promise<void> {
 		console.error(
 			"If the installer fails, run `npx playwright install` manually or set PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 to opt out.",
 		);
-		process.exit(1);
+		process.exit(EXIT_NON_ZERO);
 	}
 }
 

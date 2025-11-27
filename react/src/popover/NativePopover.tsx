@@ -1,13 +1,18 @@
+import type { ReactElement, ReactNode } from "react";
+
 import type { PlacementOption, TriggerMode } from "./types";
 
 import { getArrowClasses } from "./getArrowClasses";
 import { useNativePopover } from "./useNativePopover";
 
+// File-local default to avoid magic-number literal for tabIndex
+const DEFAULT_TAB_INDEX = 0;
+
 export type NativePopoverProps = Readonly<{
 	/** The trigger element content */
-	children: React.ReactNode;
+	children: ReactNode;
 	/** The popover content to display */
-	content: React.ReactNode;
+	content: ReactNode;
 	/** Preferred placement relative to trigger element */
 	preferredPlacement?: PlacementOption;
 	/** How the popover is triggered - hover or click */
@@ -28,7 +33,7 @@ export function NativePopover({
 	preferredPlacement = "bottom",
 	trigger = "hover",
 	closeOnTriggerClick = false,
-	tabIndex = 0,
+	tabIndex = DEFAULT_TAB_INDEX,
 }: NativePopoverProps): ReactElement {
 	// Use custom hook that encapsulates all popover logic
 	const {
@@ -54,21 +59,28 @@ export function NativePopover({
 
 	return (
 		<div className="relative inline-block">
-			<div
-				ref={triggerRef}
+			<button
+				ref={(el) => {
+					// Assign the button element to the hook-provided ref.
+					// triggerRef.current has type `HTMLElement | null`, so assigning
+					// an `HTMLButtonElement | null` is valid without casts.
+					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+					// @ts-ignore -- TS sometimes complains about readonly RefObject, but assignment is intentional here
+					triggerRef.current = el;
+				}}
+				type="button"
 				id={trigger === "click" ? `${popoverId}-trigger` : undefined}
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
 				onClick={handleTriggerClick}
 				onKeyDown={handleKeyDown}
-				role="button"
 				tabIndex={tabIndex}
 				aria-describedby={isOpen ? popoverId : undefined}
 				aria-expanded={trigger === "click" ? isOpen : undefined}
 				className="cursor-pointer"
 			>
 				{children}
-			</div>
+			</button>
 
 			<div
 				ref={popoverRef}

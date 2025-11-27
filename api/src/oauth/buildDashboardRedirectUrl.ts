@@ -36,7 +36,7 @@ export function buildDashboardRedirectUrl({
 		const allowedOrigins = String(ctx.env.ALLOWED_REDIRECT_ORIGINS ?? "")
 			.split(",")
 			.map((origin) => String(origin).trim())
-			.filter((origin) => origin.length > 0);
+			.filter((origin) => origin !== "");
 		const proto = url.protocol.replace(":", "");
 		const host = url.hostname;
 		const candidate = `${proto}://${host}:${redirectPort}/${lang}/${dashboardPath}`;

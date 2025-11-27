@@ -1,7 +1,7 @@
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import type { SongPublic } from "../../song-schema";
-import type { SongSubscribeSlice } from "../songSlice";
+import type { SongSubscribeSlice } from "../song-slice";
 
 /**
  * Updates the store with new public songs and manages subscriptions.
@@ -56,12 +56,14 @@ export function updateStoreWithPublicSongs({
 
 	// Update store state
 	set(() => ({
-		activePublicSongsUnsubscribe: activePublicSongsUnsubscribe ?? (() => {}),
+		activePublicSongsUnsubscribe:
+			activePublicSongsUnsubscribe ?? (() => undefined),
 		activePublicSongIds: newActivePublicSongIds,
 	}));
 
 	return {
 		newActivePublicSongIds,
-		activePublicSongsUnsubscribe: activePublicSongsUnsubscribe ?? (() => {}),
+		activePublicSongsUnsubscribe:
+			activePublicSongsUnsubscribe ?? (() => undefined),
 	};
 }

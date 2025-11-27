@@ -12,26 +12,30 @@ export type RegisterForm = {
 	readonly username: string;
 };
 
+const MIN_REQUIRED = 1;
+const MIN_USERNAME_LENGTH = 3;
+const MAX_USERNAME_LENGTH = 30;
+
 export const RegisterFormSchema: Schema.Schema<RegisterForm> = Schema.Struct({
 	username: Schema.String.pipe(
-		Schema.minLength(1, { message: () => "field.required" }),
+		Schema.minLength(MIN_REQUIRED, { message: () => "field.required" }),
 		Schema.annotations({
 			[registerMessageKey]: { key: "field.required", field: "username" },
 		}),
-		Schema.minLength(3, { message: () => "field.tooShort" }),
+		Schema.minLength(MIN_USERNAME_LENGTH, { message: () => "field.tooShort" }),
 		Schema.annotations({
 			[registerMessageKey]: {
 				key: "field.tooShort",
 				field: "username",
-				minLength: 3,
+				minLength: MIN_USERNAME_LENGTH,
 			},
 		}),
-		Schema.maxLength(30, { message: () => "field.tooLong" }),
+		Schema.maxLength(MAX_USERNAME_LENGTH, { message: () => "field.tooLong" }),
 		Schema.annotations({
 			[registerMessageKey]: {
 				key: "field.tooLong",
 				field: "username",
-				maxLength: 30,
+				maxLength: MAX_USERNAME_LENGTH,
 			},
 		}),
 		Schema.pattern(/^[a-zA-Z0-9_-]+$/, {

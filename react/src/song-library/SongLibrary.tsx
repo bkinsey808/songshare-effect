@@ -13,6 +13,7 @@ export default function SongLibrary(): ReactElement {
 	const navigate = useNavigate();
 	const rawLang: unknown = i18n.language;
 	const currentLang = isSupportedLanguage(rawLang) ? rawLang : defaultLanguage;
+	const ZERO = 0;
 
 	const libraryEntries = useAppStoreSelector<Record<string, SongLibraryEntry>>(
 		(state) => state.libraryEntries,
@@ -64,7 +65,7 @@ export default function SongLibrary(): ReactElement {
 		);
 	}
 
-	if (error !== undefined && error.length > 0) {
+	if (typeof error === "string" && error !== "") {
 		return (
 			<div className="rounded-lg border border-red-600 bg-red-900/20 p-4">
 				<div className="flex items-center space-x-2">
@@ -80,7 +81,7 @@ export default function SongLibrary(): ReactElement {
 		);
 	}
 
-	if (songEntries.length === 0) {
+	if (songEntries.length === ZERO) {
 		return (
 			<div className="py-12 text-center">
 				<div className="mb-4 text-6xl">📚</div>
@@ -134,8 +135,8 @@ export default function SongLibrary(): ReactElement {
 							<div className="flex items-center space-x-1 text-sm text-gray-400">
 								<span>👤</span>
 								<span>
-									{entry.owner_username !== undefined &&
-									entry.owner_username.length > 0
+									{typeof entry.owner_username === "string" &&
+									entry.owner_username !== ""
 										? entry.owner_username
 										: t("songLibrary.unknownOwner", "Unknown User")}
 								</span>
@@ -154,15 +155,12 @@ export default function SongLibrary(): ReactElement {
 							<button
 								className="text-sm text-blue-400 transition-colors hover:text-blue-300"
 								onClick={() => {
-									if (
-										entry.song_slug !== undefined &&
-										entry.song_slug.length > 0
-									) {
+									if (entry.song_slug !== undefined && entry.song_slug !== "") {
 										void navigate(`/${currentLang}/songs/${entry.song_slug}`);
 									}
 								}}
 								disabled={
-									entry.song_slug === undefined || entry.song_slug.length === 0
+									entry.song_slug === undefined || entry.song_slug === ""
 								}
 							>
 								{t("songLibrary.viewSong", "View Song")}

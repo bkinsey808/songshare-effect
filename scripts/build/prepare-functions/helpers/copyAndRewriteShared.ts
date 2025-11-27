@@ -5,22 +5,25 @@ import { rewriteSharedImports } from "./rewriteSharedImports";
  * Copy shared sources into destination and attempt to rewrite imports there.
  * Errors are logged but non-fatal so the prepare script can continue.
  */
-export async function copyAndRewriteShared(sourceDir: string, destDir: string): Promise<void> {
-    try {
-        await copyDir(sourceDir, destDir);
-        console.log("Copied shared/src ->", destDir);
-    } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.warn("Warning: could not copy shared/src:", message);
-    }
+export async function copyAndRewriteShared(
+	sourceDir: string,
+	destDir: string,
+): Promise<void> {
+	try {
+		await copyDir(sourceDir, destDir);
+		console.warn("Copied shared/src ->", destDir);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.warn("Warning: could not copy shared/src:", message);
+	}
 
-    try {
-        await rewriteSharedImports(destDir);
-    } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.warn(
-            "Warning: could not rewrite imports in copied shared files:",
-            message,
-        );
-    }
+	try {
+		await rewriteSharedImports(destDir);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.warn(
+			"Warning: could not rewrite imports in copied shared files:",
+			message,
+		);
+	}
 }

@@ -60,3 +60,5 @@ reports/
 
 .cache
 artifacts/
+
+tmp/

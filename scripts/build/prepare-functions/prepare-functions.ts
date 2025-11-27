@@ -3,10 +3,10 @@ import { readFile, writeFile, unlink } from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { ensureDir } from "./helpers/ensureDir";
-import { listFilesRecursively } from "./helpers/listFilesRecursively";
 import { bundleTopLevelFunctions } from "./helpers/bundleTopLevelFunctions";
 import { copyAndRewriteShared } from "./helpers/copyAndRewriteShared";
+import { ensureDir } from "./helpers/ensureDir";
+import { listFilesRecursively } from "./helpers/listFilesRecursively";
 
 // Prepares the Cloudflare functions bundle by copying shared code into dist and fixing import paths.
 const __filename = fileURLToPath(import.meta.url);
@@ -45,18 +45,23 @@ async function prepare(): Promise<void> {
 		const allowedExternalPackages = new Set(["effect"]);
 
 		for (const filePath of allFiles) {
+			// Intentionally await in this loop to read files sequentially and avoid
+			// opening too many file handles at once during the preparation step.
+			// eslint-disable-next-line no-await-in-loop
 			const contents = await readFile(filePath, "utf8");
 
 			// Find all non-relative imports / requires and capture the package
 			// name (the first path segment) so we can decide whether it's
 			// allowed. Example matches: "effect", "effect/Either", "vitest".
-			const externalImportRegex = /(?:from|require\()\s*["'](?!\.\/?|\.\.\/)([^"'/]+)(?:["'/])/ig;
+			const externalImportRegex =
+				/(?:from|require\()\s*["'](?!\.\/?|\.\.\/)([^"'/]+)(?:["'/])/gi;
 			let shouldPrune = false;
 
 			for (const matchItem of contents.matchAll(externalImportRegex)) {
-				const packageName = (matchItem[1] ?? "").toString();
-				const allowed = Array.from(allowedExternalPackages).some((pkg) =>
-					packageName === pkg || packageName.startsWith(`${pkg}/`),
+				const [, rawPackageName] = matchItem;
+				const packageName = (rawPackageName ?? "").toString();
+				const allowed = Array.from(allowedExternalPackages).some(
+					(pkg) => packageName === pkg || packageName.startsWith(`${pkg}/`),
 				);
 				if (!allowed) {
 					shouldPrune = true;
@@ -70,8 +75,14 @@ async function prepare(): Promise<void> {
 		}
 
 		for (const filePath of toRemove) {
+			// Remove files sequentially so we don't trigger too many concurrent
+			// filesystem operations at once.
+			// eslint-disable-next-line no-await-in-loop
 			await unlink(filePath);
-			console.log("Removed unsupported shared file from functions bundle ->", filePath);
+			console.warn(
+				"Removed unsupported shared file from functions bundle ->",
+				filePath,
+			);
 		}
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
@@ -84,7 +95,7 @@ async function prepare(): Promise<void> {
 		const content = await readFile(middlewareSrc, "utf8");
 		const rewritten = content.replace(/@\/shared\//g, "./shared/");
 		await writeFile(middlewareDest, rewritten, "utf8");
-		console.log("Prepared middleware ->", middlewareDest);
+		console.warn("Prepared middleware ->", middlewareDest);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
 		console.warn("Warning: could not prepare middleware:", message);

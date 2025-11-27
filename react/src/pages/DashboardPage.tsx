@@ -6,6 +6,11 @@ import type { UserSessionData } from "@/shared/userSessionData";
 
 import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
 import { getStoreApi, useAppStoreHydrated } from "@/react/zustand/useAppStore";
+import {
+	LANG_PATH_SEGMENT_INDEX,
+	EMPTY_STRING,
+	SIGNAL_ONE,
+} from "@/shared/constants/http";
 import { SupportedLanguage } from "@/shared/language/supported-languages";
 import {
 	dashboardPath,
@@ -14,7 +19,10 @@ import {
 	songLibraryPath,
 } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
-import { justSignedOutKey } from "@/shared/sessionStorageKeys";
+import {
+	justRegisteredKey,
+	justSignedOutKey,
+} from "@/shared/sessionStorageKeys";
 
 type SongManagementSectionProps = Readonly<{
 	t: (key: string, fallback: string) => string;
@@ -81,7 +89,9 @@ function DashboardPage(): ReactElement {
 	const [localUser, setLocalUser] = useState<UserSessionData | undefined>(
 		() => snapshot?.userSessionData,
 	);
-	const signOutRef = useRef<() => void>(() => snapshot?.signOut ?? (() => {}));
+	const signOutRef = useRef<() => void>(
+		() => snapshot?.signOut ?? (() => undefined),
+	);
 	const [showSignedInAlert, setShowSignedInAlert] = useState<boolean>(false);
 	const [showRegisteredAlert, setShowRegisteredAlert] =
 		useState<boolean>(false);
@@ -92,8 +102,9 @@ function DashboardPage(): ReactElement {
 	// Derive current language from the path as a robust fallback
 	const pathname =
 		typeof window === "undefined" ? "/" : window.location.pathname;
-	const maybeLang = pathname.split("/")[1] ?? "";
-	const currentLang = maybeLang.length > 0 ? maybeLang : SupportedLanguage.en;
+	const maybeLang =
+		pathname.split("/")[LANG_PATH_SEGMENT_INDEX] ?? EMPTY_STRING;
+	const currentLang = maybeLang ? maybeLang : SupportedLanguage.en;
 
 	// Check sessionStorage for the one-time justSignedIn signal set by the
 	// redirect flow. If present, show the alert and consume the key.
@@ -102,17 +113,17 @@ function DashboardPage(): ReactElement {
 			return;
 		}
 		try {
+			const justRegistered = sessionStorage.getItem(justRegisteredKey);
 			const justSigned = sessionStorage.getItem(justSignedInQueryParam);
-			const justRegistered = sessionStorage.getItem("justRegistered");
-			if (justRegistered === "1") {
+			if (justRegistered === SIGNAL_ONE) {
 				console.warn(
 					"[DashboardPage] consumed justRegistered from sessionStorage",
 				);
 				queueMicrotask(() => {
 					setShowRegisteredAlert(true);
 				});
-				sessionStorage.removeItem("justRegistered");
-			} else if (justSigned === "1") {
+				sessionStorage.removeItem(justRegisteredKey);
+			} else if (justSigned === SIGNAL_ONE) {
 				console.warn(
 					"[DashboardPage] consumed justSignedIn from sessionStorage",
 				);
@@ -192,7 +203,7 @@ function DashboardPage(): ReactElement {
 			</p>
 
 			<SongManagementSection
-				t={(key: string, fallback: string) => t(key, fallback)}
+				t={t}
 				navigate={(path: string, options?: { readonly replace?: boolean }) => {
 					void navigate(path, options);
 				}}
@@ -221,6 +232,7 @@ function DashboardPage(): ReactElement {
 									method: "POST",
 									credentials: "include",
 								});
+								// oxlint-disable-next-line no-console
 								console.debug("/api/auth/signout status=", res.status);
 							} catch (err) {
 								console.error("Sign-out API failed:", err);
@@ -240,7 +252,7 @@ function DashboardPage(): ReactElement {
 						// Soft navigate to localized root. Use sessionStorage-only
 						// as a one-time signal for the home page alert.
 						try {
-							sessionStorage.setItem(justSignedOutKey, "1");
+							sessionStorage.setItem(justSignedOutKey, SIGNAL_ONE);
 						} catch {
 							/* ignore storage errors */
 						}

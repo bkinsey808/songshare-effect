@@ -2,7 +2,7 @@
 import { isRecord } from "@/shared/utils/typeGuards";
 
 export function normalizeNullsTopLevel(input: unknown): unknown {
-	const normalize = (value: unknown): unknown => {
+	function normalize(value: unknown): unknown {
 		if (value === null) {
 			return undefined;
 		}
@@ -16,6 +16,6 @@ export function normalizeNullsTopLevel(input: unknown): unknown {
 			return Object.fromEntries(entries);
 		}
 		return value;
-	};
+	}
 	return normalize(input);
 }

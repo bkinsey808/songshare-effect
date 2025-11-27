@@ -5,7 +5,7 @@ import { createApiResponseHandlerEffect } from "./createApiResponseHandlerEffect
 /**
  * Create an Effect that handles form submission with API response processing
  */
-export const createFormSubmissionEffect = ({
+export function createFormSubmissionEffect({
 	formData,
 	apiEndpoint,
 	setValidationErrors,
@@ -17,8 +17,8 @@ export const createFormSubmissionEffect = ({
 		errors: ReadonlyArray<{ readonly field: string; readonly message: string }>,
 	) => void;
 	readonly setSubmitError: (error: string) => void;
-}): Effect.Effect<boolean> => {
-	return Effect.gen(function* () {
+}): Effect.Effect<boolean> {
+	return Effect.gen(function* createFormSubmissionEffect() {
 		// Make the API request
 		const response = yield* Effect.promise(async () =>
 			fetch(apiEndpoint, {
@@ -36,4 +36,4 @@ export const createFormSubmissionEffect = ({
 
 		return success;
 	});
-};
+}

@@ -8,31 +8,39 @@ import {
 	getOrCreateAppStore,
 	getStoreApi,
 } from "@/react/zustand/useAppStore";
+import {
+	HTTP_UNAUTHORIZED,
+	HTTP_NO_CONTENT,
+	HTTP_NOT_FOUND,
+} from "@/shared/constants/http";
 import { apiMePath } from "@/shared/paths";
 import { isRecord } from "@/shared/utils/typeGuards";
 
 // Module-level in-flight promise to dedupe concurrent requests.
-let globalInFlight: Promise<UserSessionData | undefined> | undefined;
+// Initialized to undefined to satisfy init-declarations lint rule
+let globalInFlight: Promise<UserSessionData | undefined> | undefined =
+	undefined;
 
 // Validate payload shape and return UserSessionData if valid, otherwise undefined
 function parsePayload(payload: unknown): UserSessionData | undefined {
-	const isSuccessWrapper = (
+	function isSuccessWrapper(
 		value: unknown,
-	): value is { success: true; data: unknown } => {
-		if (!isRecord(value)) return false;
-		return (
-			Object.prototype.hasOwnProperty.call(value, "data") &&
-			value["data"] !== undefined
-		);
-	};
+	): value is { success: true; data: unknown } {
+		if (!isRecord(value)) {
+			return false;
+		}
+		return Object.hasOwn(value, "data") && value["data"] !== undefined;
+	}
 
-	const isUserSessionData = (value: unknown): value is UserSessionData => {
-		if (!isRecord(value)) return false;
-		return Object.prototype.hasOwnProperty.call(value, "user");
-	};
+	function isUserSessionData(value: unknown): value is UserSessionData {
+		if (!isRecord(value)) {
+			return false;
+		}
+		return Object.hasOwn(value, "user");
+	}
 
 	if (isSuccessWrapper(payload)) {
-		const data = (payload as { data: unknown }).data;
+		const { data } = payload as { data: unknown };
 		if (isUserSessionData(data)) {
 			return data;
 		}
@@ -84,7 +92,11 @@ export async function ensureSignedIn(options?: {
 			});
 
 			// Treat common unauthenticated responses as "not signed in" quietly
-			if (res.status === 401 || res.status === 204 || res.status === 404) {
+			if (
+				res.status === HTTP_UNAUTHORIZED ||
+				res.status === HTTP_NO_CONTENT ||
+				res.status === HTTP_NOT_FOUND
+			) {
 				api.getState().setIsSignedIn(false);
 				return undefined;
 			}

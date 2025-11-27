@@ -9,7 +9,9 @@ export function normalizeLinkedProviders(validated: unknown): string[] {
 
 	const lpRaw = safeGet(validated, "linked_providers");
 	if (Array.isArray(lpRaw)) {
-		return lpRaw.map((x) => (x === null ? "" : String(x))).filter(Boolean);
+		return lpRaw
+			.map((rawVal) => (rawVal === null ? "" : String(rawVal)))
+			.filter(Boolean);
 	}
 	if (typeof lpRaw === "string") {
 		return lpRaw

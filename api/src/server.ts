@@ -3,6 +3,14 @@ import { Hono } from "hono";
 import { getErrorMessage } from "@/api/getErrorMessage";
 import oauthCallbackHandler from "@/api/oauth/oauthCallbackHandler";
 import {
+	ACCESS_CONTROL_MAX_AGE_SEC,
+	HTTP_NO_CONTENT,
+	HTTP_INTERNAL,
+	HTTP_BAD_REQUEST,
+	HTTP_UNAUTHORIZED,
+	ONE_HOUR_SECONDS,
+} from "@/shared/constants/http";
+import {
 	apiMePath,
 	apiOauthCallbackPath,
 	apiOauthSignInPath,
@@ -67,34 +75,33 @@ app.use("*", async (ctx, next) => {
 			headers.set("Access-Control-Allow-Credentials", "true");
 			headers.set("Vary", "Origin");
 			// Cache preflight responses for a short time to reduce repeated preflight requests
-			headers.set("Access-Control-Max-Age", "600");
-			return new Response(undefined, { status: 204, headers });
+			headers.set("Access-Control-Max-Age", String(ACCESS_CONTROL_MAX_AGE_SEC));
+			return new Response(undefined, { status: HTTP_NO_CONTENT, headers });
 		}
 
 		// Origin wasn't allowed — respond without CORS headers so browsers
 		// will treat the preflight as failed. Also log for diagnostics.
 		console.warn("CORS preflight rejected for origin:", originHeader);
-		return new Response(undefined, { status: 204 });
+		return new Response(undefined, { status: HTTP_NO_CONTENT });
 	}
-
 	await next();
 
 	return undefined;
 });
 
 // Health check endpoint
-app.get("/health", (ctx) => {
-	return ctx.json({
+app.get("/health", (ctx) =>
+	ctx.json({
 		status: "ok",
 		environment: ctx.env.ENVIRONMENT,
 		timestamp: new Date().toISOString(),
-	});
-});
+	}),
+);
 
 // Lightweight hello endpoint used by some E2E tests
-app.get("/api/hello", (ctx) => {
-	return ctx.json({ message: "Hello from custom API endpoint!" });
-});
+app.get("/api/hello", (ctx) =>
+	ctx.json({ message: "Hello from custom API endpoint!" }),
+);
 
 // Supabase client token endpoint - provides a JWT for client-side Supabase operations
 app.get("/api/auth/visitor", async (ctx) => {
@@ -118,14 +125,20 @@ app.get("/api/auth/visitor", async (ctx) => {
 			access_token: supabaseClientToken,
 			token_type: "bearer",
 			// 1 hour
-			expires_in: 3600,
+			expires_in: ONE_HOUR_SECONDS,
 		});
 	} catch (error) {
 		console.error(
 			"Failed to generate Supabase client token:",
 			getErrorMessage(error),
 		);
-		return ctx.json({ error: "Failed to generate Supabase client token" }, 500);
+		return new Response(
+			JSON.stringify({ error: "Failed to generate Supabase client token" }),
+			{
+				status: HTTP_INTERNAL,
+				headers: { "Content-Type": "application/json" },
+			},
+		);
 	}
 });
 
@@ -135,13 +148,25 @@ app.post("/api/auth/user", async (ctx) => {
 		const rawBody = (await ctx.req.json()) as unknown;
 
 		if (typeof rawBody !== "object" || rawBody === null) {
-			return ctx.json({ error: "Email and password are required" }, 400);
+			return new Response(
+				JSON.stringify({ error: "Email and password are required" }),
+				{
+					status: HTTP_BAD_REQUEST,
+					headers: { "Content-Type": "application/json" },
+				},
+			);
 		}
 
 		const body = rawBody as { email?: unknown; password?: unknown };
 
 		if (typeof body.email !== "string" || typeof body.password !== "string") {
-			return ctx.json({ error: "Email and password are required" }, 400);
+			return new Response(
+				JSON.stringify({ error: "Email and password are required" }),
+				{
+					status: HTTP_BAD_REQUEST,
+					headers: { "Content-Type": "application/json" },
+				},
+			);
 		}
 
 		const {
@@ -167,11 +192,14 @@ app.post("/api/auth/user", async (ctx) => {
 			access_token: userToken,
 			token_type: "bearer",
 			// 1 hour
-			expires_in: 3600,
+			expires_in: ONE_HOUR_SECONDS,
 		});
 	} catch (error) {
 		console.error("Failed to authenticate user:", getErrorMessage(error));
-		return ctx.json({ error: "Authentication failed" }, 401);
+		return new Response(JSON.stringify({ error: "Authentication failed" }), {
+			status: HTTP_UNAUTHORIZED,
+			headers: { "Content-Type": "application/json" },
+		});
 	}
 });
 
@@ -182,10 +210,9 @@ app.post(
 );
 
 // File upload endpoint
-app.post("/api/upload", (ctx) => {
-	// TO-DO: Implement file upload to R2 using Effect
-	return ctx.json({ message: "Upload endpoint - to be implemented" });
-});
+app.post("/api/upload", (ctx) =>
+	ctx.json({ message: "Upload endpoint - to be implemented" }),
+);
 
 // Current user/session endpoint
 app.get(
@@ -206,7 +233,10 @@ app.post("/api/auth/signout", (ctx) => {
 		return ctx.json({ success: true });
 	} catch (err) {
 		console.error("Failed to sign out", getErrorMessage(err));
-		return ctx.json({ error: "failed" }, 500);
+		return new Response(JSON.stringify({ error: "failed" }), {
+			status: HTTP_INTERNAL,
+			headers: { "Content-Type": "application/json" },
+		});
 	}
 });
 
@@ -221,7 +251,7 @@ app.post("/api/account/delete", handleHttpEndpoint(accountDelete));
 
 // Global error handler: catch any uncaught exceptions in route handlers
 // and log them to Cloudflare Logs so we can diagnose production failures
-app.onError((err, ctx) => {
+app.onError((err, _ctx) => {
 	try {
 		if (err instanceof Error) {
 			console.error(
@@ -242,7 +272,13 @@ app.onError((err, ctx) => {
 	}
 
 	// Return a generic 500 response without leaking internals to clients
-	return ctx.json({ success: false, error: "Internal server error" }, 500);
+	return new Response(
+		JSON.stringify({ success: false, error: "Internal server error" }),
+		{
+			status: HTTP_INTERNAL,
+			headers: { "Content-Type": "application/json" },
+		},
+	);
 });
 
 export default app;

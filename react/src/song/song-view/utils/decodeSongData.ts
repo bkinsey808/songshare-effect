@@ -23,20 +23,22 @@ export function decodeSongData(
 			// Localized: runtime-checked index access; avoid unsafe member access lint.
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion
 			const maybeSongId = (song as Record<string, unknown>)["song_id"];
-			if (typeof maybeSongId !== "string") continue;
 
-			// Use Effect schema to safely decode the song data
-			const decodeResult = Schema.decodeUnknownEither(songPublicSchema)(song);
+			// Only proceed if song_id is a string
+			if (typeof maybeSongId === "string") {
+				// Use Effect schema to safely decode the song data
+				const decodeResult = Schema.decodeUnknownEither(songPublicSchema)(song);
 
-			if (decodeResult._tag === "Right") {
-				// Successfully decoded
-				publicSongsToAdd[maybeSongId] = decodeResult.right;
-			} else {
-				// Failed to decode, log the error and skip this song
-				console.warn(
-					`[decodeSongData] Failed to decode song ${maybeSongId}:`,
-					decodeResult.left,
-				);
+				if (decodeResult._tag === "Right") {
+					// Successfully decoded
+					publicSongsToAdd[maybeSongId] = decodeResult.right;
+				} else {
+					// Failed to decode, log the error and skip this song
+					console.warn(
+						`[decodeSongData] Failed to decode song ${maybeSongId}:`,
+						decodeResult.left,
+					);
+				}
 			}
 		}
 	}

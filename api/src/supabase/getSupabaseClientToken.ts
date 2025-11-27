@@ -3,6 +3,11 @@ import {
 	getCachedClientToken,
 	setCachedClientToken,
 } from "@/api/supabase/tokenCache";
+import {
+	MS_PER_SECOND,
+	ONE_HOUR_SECONDS,
+	TOKEN_CACHE_SKEW_SECONDS,
+} from "@/shared/constants/http";
 
 // This module only needs the Supabase-related env keys. Use a narrow type
 // so callers that don't have platform bindings (BUCKET/ENVIRONMENT) don't
@@ -22,14 +27,14 @@ type SupabaseClientEnv = Readonly<{
 export async function getSupabaseClientToken(
 	env: SupabaseClientEnv,
 ): Promise<string> {
-	const now = Math.floor(Date.now() / 1000);
+	const now = Math.floor(Date.now() / MS_PER_SECOND);
 
 	// Reuse cached token if still valid
 	const cached = getCachedClientToken();
 	if (
 		cached.token !== undefined &&
 		cached.expiry !== undefined &&
-		now < cached.expiry - 10
+		now < cached.expiry - TOKEN_CACHE_SKEW_SECONDS
 	) {
 		return cached.token;
 	}
@@ -45,8 +50,7 @@ export async function getSupabaseClientToken(
 		password: env.SUPABASE_VISITOR_PASSWORD,
 	});
 
-	let { data } = response;
-	const { error } = response;
+	let { data, error } = response;
 
 	if (error) {
 		throw new Error(`Failed to sign in visitor (initial): ${error.message}`);
@@ -66,7 +70,9 @@ export async function getSupabaseClientToken(
 		);
 		const { error: updateError } = await client.auth.admin.updateUserById(
 			data.user.id,
-			{ app_metadata: { ...data.user.app_metadata, visitor_id: data.user.id } },
+			{
+				app_metadata: { ...data.user.app_metadata, visitor_id: data.user.id },
+			},
 		);
 
 		if (updateError) {
@@ -86,8 +92,9 @@ export async function getSupabaseClientToken(
 				`Failed to sign in visitor (after update): ${signInResponse.error?.message ?? "No session"}`,
 			);
 		}
-		// Use the new, correct data for the rest of the function
-		data = signInResponse.data;
+		// Use the new, correct data for the rest of the function (via destructuring)
+		const { data: newData } = signInResponse;
+		data = newData;
 		console.warn("Successfully updated visitor user and re-authenticated.");
 	}
 
@@ -95,15 +102,16 @@ export async function getSupabaseClientToken(
 
 	// Ensure expires_at is a number and fallback if missing
 	const expiresAtRaw = data.session.expires_at;
-	let expiry: number;
+	// Initialize with a conservative fallback to satisfy `init-declarations`.
+	let expiry: number = now + ONE_HOUR_SECONDS;
 	if (typeof expiresAtRaw === "number") {
 		expiry = expiresAtRaw;
 	} else if (typeof expiresAtRaw === "string") {
 		// fallback 1h
-		expiry = parseInt(expiresAtRaw, 10) || now + 3600;
+		expiry = parseInt(expiresAtRaw, 10) || now + ONE_HOUR_SECONDS;
 	} else {
 		// fallback 1h
-		expiry = now + 3600;
+		expiry = now + ONE_HOUR_SECONDS;
 	}
 
 	setCachedClientToken(accessToken, expiry);

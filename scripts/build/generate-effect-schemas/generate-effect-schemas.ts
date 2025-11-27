@@ -25,6 +25,7 @@ function main(): void {
 	const supabaseTypesDestination = join(sharedGeneratedDir, "supabaseTypes.ts");
 	const schemasOutputPath = join(sharedGeneratedDir, "supabaseSchemas.ts");
 
+	// oxlint-disable-next-line no-console
 	console.log("🚀 Generating Effect-TS schemas from Supabase...");
 
 	const envPath = join(projectRoot, ".env");
@@ -67,11 +68,14 @@ function main(): void {
 		projectRef,
 	});
 
+	// oxlint-disable-next-line no-console
 	console.log("⚡ Converting to Effect-TS schemas...");
+	// oxlint-disable-next-line no-console
 	console.log("🔄 Parsing Supabase types...");
 	const tables = parseSupabaseTypes(tempSupabaseTypesPath);
 	logGeneratedTables(tables);
 
+	// oxlint-disable-next-line no-console
 	console.log("⚡ Generating Effect schemas...");
 	generateEffectSchemasFile(tables, schemasOutputPath);
 

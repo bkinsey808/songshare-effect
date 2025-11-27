@@ -2,6 +2,10 @@ import type { NavigateFunction } from "react-router-dom";
 
 import { ensureSignedIn } from "@/react/auth/ensureSignedIn";
 import {
+	SIGNIN_RETRY_DELAYS_MS,
+	SIGNIN_DEFAULT_DELAY_MS,
+} from "@/shared/constants/http";
+import {
 	justSignedInQueryParam,
 	signinErrorQueryParam,
 } from "@/shared/queryParams";
@@ -40,12 +44,14 @@ export default async function handleJustSignedIn({
 	// browsers may not have attached the HttpOnly cookie by the time the
 	// first forced `/api/me` call runs. This reduces flakes on the OAuth
 	// redirect flow.
-	const delays = [100, 300, 600];
-	let lastErr: unknown;
+	const delays: number[] = SIGNIN_RETRY_DELAYS_MS;
+	let lastErr: unknown = undefined;
 
 	async function tryEnsureSignedInWithRetries(): Promise<boolean> {
-		for (let i = 0; i < delays.length; i++) {
+		for (const [i] of delays.entries()) {
 			try {
+				// allow awaiting inside retry loop by design
+				// eslint-disable-next-line no-await-in-loop
 				const data = await ensureSignedIn({ force: true });
 				if (data !== undefined) {
 					return true;
@@ -66,12 +72,12 @@ export default async function handleJustSignedIn({
 				);
 			}
 
-			const delay = safeArrayGet<number>(delays, i, 100) ?? 100;
-			await new Promise<void>(function _resolve(resolve) {
-				setTimeout(() => {
-					resolve(undefined);
-				}, delay);
-			});
+			const delay =
+				safeArrayGet<number>(delays, i, SIGNIN_DEFAULT_DELAY_MS) ??
+				SIGNIN_DEFAULT_DELAY_MS;
+			// intentional sequential backoff — awaiting a timer here is expected
+			// eslint-disable-next-line no-await-in-loop
+			await new Promise<void>((resolve) => setTimeout(resolve, delay));
 		}
 		return false;
 	}
@@ -106,6 +112,8 @@ export default async function handleJustSignedIn({
 	setSearchParams(next, { replace: true });
 	void navigate(
 		window.location.pathname + (next.toString() ? `?${next.toString()}` : ""),
-		{ replace: true },
+		{
+			replace: true,
+		},
 	);
 }

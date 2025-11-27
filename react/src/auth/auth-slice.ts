@@ -1,5 +1,4 @@
-import type { StateCreator } from "zustand";
-
+import type { Set, Get, Api } from "@/react/zustand/slice-utils";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import { sliceResetFns } from "@/react/zustand/useAppStore";
@@ -15,7 +14,7 @@ export type AuthSlice = AuthState & {
 	setIsSignedIn: (isSignedIn: boolean | undefined) => void;
 	signIn: (userSessionData: UserSessionData) => void;
 	signOut: () => void;
-	setShowSignedInAlert: (v: boolean) => void;
+	setShowSignedInAlert: (value: boolean) => void;
 };
 
 const initialState: AuthState = {
@@ -24,9 +23,16 @@ const initialState: AuthState = {
 	showSignedInAlert: false,
 };
 
-export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (
-	set,
-) => {
+// Arrow-style factory is the preferred pattern for these slice creators.
+// Suppress the `func-style` rule here.
+export function createAuthSlice(
+	set: Set<AuthSlice>,
+	get: Get<AuthSlice>,
+	api: Api<AuthSlice>,
+): AuthSlice {
+	// Silence unused param warnings for slices that don't need get/api
+	void get;
+	void api;
 	sliceResetFns.add(() => {
 		set(initialState);
 	});
@@ -58,4 +64,4 @@ export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (
 			set({ showSignedInAlert: value });
 		},
 	};
-};
+}

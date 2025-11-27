@@ -6,10 +6,10 @@ import type { ApiResponseAction } from "./apiResponseTypes";
 /**
  * Create an Effect that handles API response parsing and returns structured actions
  */
-export const createApiResponseEffect = (
+export function createApiResponseEffect(
 	response: Response,
-): Effect.Effect<unknown, ApiResponseAction> => {
-	return Effect.gen(function* () {
+): Effect.Effect<unknown, ApiResponseAction> {
+	return Effect.gen(function* createApiResponseEffect() {
 		console.log("🔍 Processing API response, status:", response.status);
 		// Success case
 		if (response.ok) {
@@ -19,7 +19,11 @@ export const createApiResponseEffect = (
 
 		console.log("❌ Response not OK, parsing error");
 		// Parse JSON with error handling
-		let errorData: { error?: string | undefined; field?: string | undefined };
+		let errorData: { error?: string | undefined; field?: string | undefined } =
+			{
+				error: undefined,
+				field: undefined,
+			};
 		try {
 			errorData = yield* Effect.promise(async () => {
 				const raw: unknown = await response.json();
@@ -41,9 +45,9 @@ export const createApiResponseEffect = (
 		// Field-specific error
 		if (
 			typeof errorData.field === "string" &&
-			errorData.field.length > 0 &&
+			errorData.field !== "" &&
 			typeof errorData.error === "string" &&
-			errorData.error.length > 0
+			errorData.error !== ""
 		) {
 			console.log("🎯 Field-specific error detected");
 			return yield* Effect.fail({
@@ -60,4 +64,4 @@ export const createApiResponseEffect = (
 			message: errorData.error ?? "An error occurred",
 		} as const);
 	});
-};
+}

@@ -9,6 +9,8 @@ import { existsSync, readFileSync } from "fs";
  * @returns An object mapping environment variable names to their values.
  */
 export function loadEnvVars(): Record<string, string | undefined> {
+	const ZERO = 0;
+	const EXIT_NON_ZERO = 1;
 	const env: Record<string, string | undefined> = {};
 
 	try {
@@ -20,7 +22,7 @@ export function loadEnvVars(): Record<string, string | undefined> {
 				if (trimmed !== "" && !trimmed.startsWith("#")) {
 					const [key, ...valueParts] = trimmed.split("=");
 					const keyStr = key ?? "";
-					if (keyStr !== "" && valueParts.length > 0) {
+					if (keyStr !== "" && valueParts.length > ZERO) {
 						env[keyStr.trim()] = valueParts.join("=").trim();
 					}
 				}
@@ -28,7 +30,7 @@ export function loadEnvVars(): Record<string, string | undefined> {
 		}
 	} catch (error) {
 		console.error("❌ Error loading .env file:", error);
-		process.exit(1);
+		process.exit(EXIT_NON_ZERO);
 	}
 
 	return env;

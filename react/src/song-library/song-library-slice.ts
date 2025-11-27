@@ -1,6 +1,7 @@
 // Song Library Zustand slice with subscription functionality
-import type { StateCreator } from "zustand";
+// Zustand StateCreator type is not required here — slices are declared as named functions.
 
+import type { Set, Get, Api } from "@/react/zustand/slice-utils";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { sliceResetFns } from "@/react/zustand/useAppStore";
@@ -45,12 +46,16 @@ const initialState = {
 	libraryError: undefined as string | undefined,
 };
 
-export const createSongLibrarySlice: StateCreator<
-	SongLibrarySlice,
-	[["zustand/devtools", never]],
-	[],
-	SongLibrarySlice
-> = (set, get) => {
+// The slice factory uses an arrow-style function which matches the project's
+// preferred pattern for Zustand slice creators. Suppress the func-style rule
+// for this declaration specifically.
+export function createSongLibrarySlice(
+	set: Set<SongLibrarySlice>,
+	get: Get<SongLibrarySlice>,
+	api: Api<SongLibrarySlice>,
+): SongLibrarySlice {
+	// silence unused param warnings
+	void api;
 	sliceResetFns.add(() => {
 		// Unsubscribe before resetting state
 		const { libraryUnsubscribe } = get();
@@ -227,4 +232,4 @@ export const createSongLibrarySlice: StateCreator<
 			set({ libraryError: error });
 		},
 	};
-};
+}

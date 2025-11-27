@@ -12,10 +12,12 @@ type FormTextareaProps = Readonly<{
 	className?: string;
 }>;
 
+const DEFAULT_ROWS = 2;
+
 export default function FormTextarea({
 	autoExpand = false,
 	className = "",
-	rows = 2,
+	rows = DEFAULT_ROWS,
 	...props
 }: FormTextareaProps): ReactElement {
 	const handleInput = autoExpand

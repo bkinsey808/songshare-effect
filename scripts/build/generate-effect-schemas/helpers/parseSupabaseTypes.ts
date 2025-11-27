@@ -7,110 +7,107 @@ import type {
 
 import { createExampleSchemas } from "./createExampleSchemas";
 
+/**
+ * Parse Supabase generated TypeScript types and return simplified table/column metadata.
+ */
 export function parseSupabaseTypes(filePath: string): TableDefinition[] {
 	if (!existsSync(filePath)) {
-		console.log(`⚠️  Supabase types file not found: ${filePath}`);
-		console.log(
+		console.warn(`⚠️  Supabase types file not found: ${filePath}`);
+		console.warn(
 			"🔧 Creating example schemas based on your existing codebase...",
 		);
 		return createExampleSchemas();
 	}
 
-	const content = readFileSync(filePath, "utf-8");
-	const tables: TableDefinition[] = [];
+	const file = readFileSync(filePath, "utf-8");
 
 	try {
-		const tableMatches = content.matchAll(
-			/(\w+):\s*{\s*Row:\s*{([^}]+)}\s*Insert:\s*{([^}]+)}/gs,
-		);
+		const tableRegex = /(\w+):\s*{\s*Row:\s*{([^}]+)}\s*Insert:\s*{([^}]+)}/gs;
 
-		for (const match of tableMatches) {
-			const tableName = match[1];
-			const rowContent = match[2];
-			const insertContent = match[3];
+		const tables: TableDefinition[] = [];
+		const NO_COLUMNS = 0;
+
+		for (const match of file.matchAll(tableRegex)) {
+			// match[0] is the full match, groups start at index 1
+			const [, tableName, rowContent, insertContent] = match;
 
 			if (
-				tableName === "Tables" ||
 				tableName === undefined ||
 				tableName === "" ||
+				tableName === "Tables" ||
 				rowContent === undefined ||
 				rowContent === "" ||
 				insertContent === undefined ||
 				insertContent === ""
 			) {
-				continue;
-			}
+				// malformed match — skip
+			} else {
+				console.warn(`📋 Processing table: ${tableName}`);
 
-			console.log(`📋 Processing table: ${tableName}`);
-
-			const columns: ColumnDefinition[] = [];
-
-			const insertRequiredFields = new Set<string>();
-			const insertFieldMatches = insertContent.matchAll(
-				/(\w+)(\?)?:\s*([^;\n]+)/g,
-			);
-
-			for (const insertMatch of insertFieldMatches) {
-				const fieldName = insertMatch[1]?.trim();
-				const isOptional = insertMatch[2] === "?";
-
-				if (fieldName !== undefined && fieldName !== "" && !isOptional) {
-					insertRequiredFields.add(fieldName);
-				}
-			}
-
-			const fieldMatches = rowContent.matchAll(/(\w+):\s*([^;\n]+)/g);
-
-			for (const fieldMatch of fieldMatches) {
-				const fieldName = fieldMatch[1]?.trim();
-				const fieldType = fieldMatch[2]?.trim();
-
-				if (
-					fieldName === undefined ||
-					fieldName === "" ||
-					fieldType === undefined ||
-					fieldType === ""
-				) {
-					continue;
+				// required insert fields
+				const insertRequiredFields = new Set<string>();
+				for (const im of insertContent.matchAll(/(\w+)(\?)?:\s*([^;\n]+)/g)) {
+					const [, rawName, optional] = im;
+					const field = rawName?.trim();
+					const isOptional = optional === "?";
+					if (field !== undefined && field !== "" && !isOptional) {
+						insertRequiredFields.add(field);
+					}
 				}
 
-				const isNullable = fieldType.includes("| null");
-				const cleanType = fieldType.replace(/\s*\|\s*null\s*$/, "").trim();
-				const isArrayType = cleanType.endsWith("[]");
+				const columns: ColumnDefinition[] = [];
+				for (const fm of rowContent.matchAll(/(\w+):\s*([^;\n]+)/g)) {
+					const [, rawFieldName, rawFieldType] = fm;
+					const fieldName = rawFieldName?.trim();
+					const fieldType = rawFieldType?.trim();
 
-				let mappedType = "string";
+					if (
+						fieldName === undefined ||
+						fieldName === "" ||
+						fieldType === undefined ||
+						fieldType === ""
+					) {
+						// skip invalid rows
+					} else {
+						const isNullable = fieldType.includes("| null");
+						const cleanType = fieldType.replace(/\s*\|\s*null\s*$/, "").trim();
+						const isArrayType = cleanType.endsWith("[]");
 
-				if (isArrayType) {
-					mappedType = cleanType;
-				} else if (cleanType.includes("number")) {
-					mappedType = "number";
-				} else if (cleanType.includes("boolean")) {
-					mappedType = "boolean";
-				} else if (cleanType.includes("Date")) {
-					mappedType = "Date";
-				} else if (cleanType.includes("Json")) {
-					mappedType = "Json";
-				} else if (fieldName.includes("id") && cleanType === "string") {
-					mappedType = "uuid";
+						let mappedType = "string";
+						if (isArrayType) {
+							mappedType = cleanType;
+						} else if (cleanType.includes("number")) {
+							mappedType = "number";
+						} else if (cleanType.includes("boolean")) {
+							mappedType = "boolean";
+						} else if (cleanType.includes("Date")) {
+							mappedType = "Date";
+						} else if (cleanType.includes("Json")) {
+							mappedType = "Json";
+						} else if (fieldName.includes("id") && cleanType === "string") {
+							mappedType = "uuid";
+						}
+
+						columns.push({
+							name: fieldName,
+							type: mappedType,
+							nullable: isNullable,
+							isPrimaryKey: fieldName === "id",
+							isForeignKey: fieldName.endsWith("_id") && fieldName !== "id",
+							isRequiredForInsert: insertRequiredFields.has(fieldName),
+						});
+					}
+
+					if (columns.length > NO_COLUMNS) {
+						tables.push({ name: tableName, columns });
+					}
 				}
-
-				columns.push({
-					name: fieldName,
-					type: mappedType,
-					nullable: isNullable,
-					isPrimaryKey: fieldName === "id",
-					isForeignKey: fieldName.endsWith("_id") && fieldName !== "id",
-					isRequiredForInsert: insertRequiredFields.has(fieldName),
-				});
-			}
-
-			if (columns.length > 0) {
-				tables.push({ name: tableName, columns });
 			}
 		}
 
-		if (tables.length === 0) {
-			console.log(
+		const NO_TABLES = 0;
+		if (tables.length === NO_TABLES) {
+			console.warn(
 				"⚠️  No tables found in Supabase types. Using example schemas...",
 			);
 			return createExampleSchemas();
@@ -119,7 +116,7 @@ export function parseSupabaseTypes(filePath: string): TableDefinition[] {
 		return tables;
 	} catch (error) {
 		console.error("❌ Error parsing Supabase types:", error);
-		console.log("🔧 Falling back to example schemas...");
+		console.warn("🔧 Falling back to example schemas...");
 		return createExampleSchemas();
 	}
 }

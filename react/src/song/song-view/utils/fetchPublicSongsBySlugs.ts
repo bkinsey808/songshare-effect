@@ -22,10 +22,12 @@ export async function fetchPublicSongsBySlugs(
 	songSlugs: ReadonlyArray<string>,
 ): Promise<{ data: unknown[] | undefined; error: unknown }> {
 	// Narrow the incoming supabase client at runtime without using `any`.
-	function asSupabaseLike(x: unknown): x is SupabaseLikeClient {
-		if (!isRecord(x)) return false;
-		// `isRecord` has already narrowed `x` to `Record<string, unknown>` here
-		const maybe = x;
+	function asSupabaseLike(value: unknown): value is SupabaseLikeClient {
+		if (!isRecord(value)) {
+			return false;
+		}
+		// `isRecord` has already narrowed `value` to `Record<string, unknown>` here
+		const maybe = value;
 		return typeof maybe["from"] === "function";
 	}
 

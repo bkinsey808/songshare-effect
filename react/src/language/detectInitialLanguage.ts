@@ -7,15 +7,18 @@ import {
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
 // Detect initial language with priority order
-export const detectInitialLanguage = (): SupportedLanguageType => {
+export function detectInitialLanguage(): SupportedLanguageType {
 	// 1. Check URL parameter (highest priority for explicit navigation)
 	const path = window.location.pathname;
-	const langRegExp = /^\/([a-z]{2})\//;
+	const LANG_CODE_LENGTH = 2; // two-letter language codes (e.g. en, fr)
+	const langRegExp = new RegExp(`^\\/([a-z]{${LANG_CODE_LENGTH}})\\/`);
 	const langMatch = langRegExp.exec(path);
-	if (langMatch !== null && langMatch[1] !== undefined && langMatch[1] !== "") {
-		const urlLang = langMatch[1];
-		if (isSupportedLanguage(urlLang)) {
-			return urlLang;
+	if (langMatch !== null) {
+		const [, urlLang] = langMatch;
+		if (urlLang !== undefined && urlLang !== "") {
+			if (isSupportedLanguage(urlLang)) {
+				return urlLang;
+			}
 		}
 	}
 
@@ -44,4 +47,4 @@ export const detectInitialLanguage = (): SupportedLanguageType => {
 
 	// 5. Default fallback
 	return defaultLanguage;
-};
+}

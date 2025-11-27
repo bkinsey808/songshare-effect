@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { type StoreApi, type UseBoundStore, create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
-import { type AuthSlice, createAuthSlice } from "@/react/auth/authSlice";
+import { type AuthSlice, createAuthSlice } from "@/react/auth/auth-slice";
 import useSchedule from "@/react/hooks/useSchedule";
 import {
 	type SongLibrarySlice,
@@ -13,14 +13,14 @@ import {
 import {
 	type SongSubscribeSlice,
 	createSongSubscribeSlice,
-} from "@/react/song/song-view/songSlice";
+} from "@/react/song/song-view/song-slice";
 
 export const sliceResetFns: Set<() => void> = new Set<() => void>();
-export const resetAllSlices = (): void => {
+export function resetAllSlices(): void {
 	sliceResetFns.forEach((resetFn) => {
 		resetFn();
 	});
-};
+}
 
 // Compose new slices here
 export type AppSlice = AuthSlice & SongSubscribeSlice & SongLibrarySlice;
@@ -35,7 +35,7 @@ const omittedKeys: (keyof AppSlice)[] = [
 	"libraryUnsubscribe",
 ];
 
-let store: UseBoundStore<StoreApi<AppSlice>> | undefined;
+let store: UseBoundStore<StoreApi<AppSlice>> | undefined = undefined;
 
 // Track hydration state externally (not polluting business state)
 const hydrationState = {
@@ -53,13 +53,15 @@ export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 // Typed selector helper for components to select typed values from the store.
 // This wraps the internal `useAppStore()` call and provides a generic selector
 // while keeping the localized `any` casts contained in this file.
-export function useAppStoreSelector<T>(selector: (s: AppSlice) => T): T {
+export function useAppStoreSelector<Selected>(
+	selector: (slice: AppSlice) => Selected,
+): Selected {
 	// The underlying bound store has a generic selector signature that is
 	// compatible with this usage. We keep a narrow eslint-disable here so the
 	// rest of the codebase can use typed selectors without sprinkling unsafe
 	// assertions everywhere.
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-	return useAppStore()(selector as any) as T;
+	return useAppStore()(selector as any) as Selected;
 }
 
 /**
@@ -94,13 +96,12 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 					{
 						name: "app-store",
 
-						partialize: (state: Readonly<AppSlice>) => {
-							return Object.fromEntries(
+						partialize: (state: Readonly<AppSlice>) =>
+							Object.fromEntries(
 								Object.entries(state).filter(
 									([key]) => !omittedKeys.includes(key as keyof AppSlice),
 								),
-							) as AppSlice;
-						},
+							) as AppSlice,
 						// Clean hydration callback that doesn't pollute business state
 						onRehydrateStorage: () => () => {
 							// Update external hydration state
@@ -157,7 +158,7 @@ export function useAppStoreHydrated(): {
 		// If already hydrated, schedule setting state asynchronously
 		if (hydrationState.isHydrated) {
 			// Debug
-			console.debug(
+			console.warn(
 				"[useAppStoreHydrated] already hydrated, scheduling setIsHydrated(true)",
 			);
 			schedule(() => {
@@ -167,15 +168,15 @@ export function useAppStoreHydrated(): {
 		}
 
 		// Listen for hydration completion
-		const listener = (): void => {
+		function listener(): void {
 			schedule(() => {
 				setIsHydrated(true);
 			});
-		};
+		}
 
 		hydrationState.listeners.add(listener);
 		// Debug
-		console.debug(
+		console.warn(
 			"[useAppStoreHydrated] added hydration listener; current isHydrated=",
 			hydrationState.isHydrated,
 		);

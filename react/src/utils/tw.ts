@@ -1,14 +1,17 @@
 /** noop. use where necessary to get tailwind intellisense */
-export const tw = (
+export function tw(
 	strings: TemplateStringsArray,
 	...values: ReadonlyArray<string | number>
-): string => {
+): string {
 	// Combine the strings and values into one final string
-	return strings.reduce(
-		({ result, i }: Readonly<{ result: string; i: number }>, str: string) => ({
-			result: result + (values[i - 1] ?? "") + str,
-			i: i + 1,
-		}),
-		{ result: "", i: 0 },
-	).result;
-};
+	const START_INDEX = 0;
+	const INCREMENT = 1;
+
+	let result = strings[START_INDEX] ?? "";
+
+	for (let i = START_INDEX; i < values.length; i += INCREMENT) {
+		result += String(values[i]) + (strings[i + INCREMENT] ?? "");
+	}
+
+	return result;
+}

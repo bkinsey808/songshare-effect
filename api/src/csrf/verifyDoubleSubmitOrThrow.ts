@@ -14,11 +14,11 @@ export function verifyDoubleSubmitOrThrow(ctx: ReadonlyContext): void {
 		csrfTokenCookieName,
 	);
 
-	if (typeof headerToken !== "string" || headerToken.length === 0) {
+	if (typeof headerToken !== "string" || headerToken === "") {
 		throw new AuthenticationError({ message: "Missing X-CSRF-Token header" });
 	}
 
-	if (typeof cookieToken !== "string" || cookieToken.length === 0) {
+	if (typeof cookieToken !== "string" || cookieToken === "") {
 		throw new AuthenticationError({ message: "Missing CSRF token cookie" });
 	}
 

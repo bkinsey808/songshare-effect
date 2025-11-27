@@ -4,15 +4,20 @@ import type { ValidationError } from "@/shared/validation/types";
 import { safeJsonParse } from "./safeJsonParse";
 
 function isValidationErrorArray(value: unknown): value is ValidationError[] {
-	if (!Array.isArray(value)) return false;
+	if (!Array.isArray(value)) {
+		return false;
+	}
 	return value.every((item) => {
+		if (typeof item !== "object" || item === null) {
+			return false;
+		}
+		const record = item as Record<string, unknown>;
+		const { field, message } = record;
 		return (
-			typeof item === "object" &&
-			item !== null &&
-			Object.prototype.hasOwnProperty.call(item, "field") &&
-			Object.prototype.hasOwnProperty.call(item, "message") &&
-			typeof (item as Record<string, unknown>)["field"] === "string" &&
-			typeof (item as Record<string, unknown>)["message"] === "string"
+			Object.hasOwn(record, "field") &&
+			Object.hasOwn(record, "message") &&
+			typeof field === "string" &&
+			typeof message === "string"
 		);
 	});
 }
@@ -20,12 +25,12 @@ function isValidationErrorArray(value: unknown): value is ValidationError[] {
 /**
  * Extract ValidationError[] from FiberFailure objects.
  */
-export const extractFromFiberFailure = (
+export function extractFromFiberFailure(
 	obj: Readonly<Record<string, unknown>>,
-): ReadonlyArray<ValidationError> => {
+): ReadonlyArray<ValidationError> {
 	// cause may directly be the array
 	if ("cause" in obj) {
-		const cause = obj["cause"];
+		const { cause } = obj;
 		if (isValidationErrorArray(cause)) {
 			return cause;
 		}
@@ -33,11 +38,12 @@ export const extractFromFiberFailure = (
 
 	// message may be a JSON-encoded array
 	if ("message" in obj) {
-		const parsed = safeJsonParse(obj["message"]);
+		const { message } = obj;
+		const parsed = safeJsonParse(message);
 		if (isValidationErrorArray(parsed)) {
 			return parsed;
 		}
 	}
 
 	return [];
-};
+}

@@ -1,6 +1,6 @@
 import { traceHook } from "@/react/hooks/hookTracer";
 
-const DebugHomeMinimal = (): ReactElement => {
+function DebugHomeMinimal(): ReactElement {
 	traceHook("DebugHomeMinimal:render");
 
 	return (
@@ -9,6 +9,6 @@ const DebugHomeMinimal = (): ReactElement => {
 			<p>This page is used temporarily to isolate hook-order issues.</p>
 		</div>
 	);
-};
+}
 
 export default DebugHomeMinimal;

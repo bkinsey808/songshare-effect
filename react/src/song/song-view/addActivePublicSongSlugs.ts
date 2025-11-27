@@ -4,7 +4,7 @@ import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
 
 // src/features/react/song-subscribe/addActiveSongIds.ts
-import { type SongSubscribeSlice } from "./songSlice";
+import { type SongSubscribeSlice } from "./song-slice";
 import { decodeSongData } from "./utils/decodeSongData";
 import { fetchPublicSongsBySlugs } from "./utils/fetchPublicSongsBySlugs";
 import { findMissingSongSlugs } from "./utils/findMissingSongSlugs";
@@ -31,8 +31,10 @@ export default function addActivePublicSongSlugs(
 			publicSongs: state.publicSongs,
 		});
 
-		if (missingSongSlugs.length === 0) {
-			console.log(
+		const NO_MISSING_SONGS = 0;
+
+		if (missingSongSlugs.length === NO_MISSING_SONGS) {
+			console.warn(
 				"[addActivePublicSongSlugs] All song slugs already active, nothing to do.",
 			);
 			return;

@@ -1,3 +1,4 @@
+// ReactElement is an ambient type provided by the project (global.d.ts)
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 

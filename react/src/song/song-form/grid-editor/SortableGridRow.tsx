@@ -61,6 +61,12 @@ export default function SortableGridRow({
 	idx,
 	getColumnWidth,
 }: SortableGridRowProps): ReactElement {
+	const SLIDE_NAME_WIDTH = 144;
+	const DRAG_OPACITY = 0.5;
+	const NORMAL_OPACITY = 1;
+	const REMOVE_COUNT = 1;
+	const EMPTY_COUNT = 0;
+	const SINGLE_INSTANCE = 1;
 	const {
 		attributes,
 		listeners,
@@ -68,12 +74,14 @@ export default function SortableGridRow({
 		transform,
 		transition,
 		isDragging,
-	} = useSortable({ id: slideId });
+	} = useSortable({
+		id: slideId,
+	});
 
 	const style = {
 		transform: CSS.Transform.toString(transform),
 		transition,
-		opacity: isDragging ? 0.5 : 1,
+		opacity: isDragging ? DRAG_OPACITY : NORMAL_OPACITY,
 	};
 
 	return (
@@ -87,9 +95,9 @@ export default function SortableGridRow({
 			<td
 				className="border border-gray-300 px-2 py-2"
 				style={{
-					width: "144px",
-					minWidth: "144px",
-					maxWidth: "144px",
+					width: `${SLIDE_NAME_WIDTH}px`,
+					minWidth: `${SLIDE_NAME_WIDTH}px`,
+					maxWidth: `${SLIDE_NAME_WIDTH}px`,
 				}}
 			>
 				<div className="space-y-2">
@@ -151,24 +159,26 @@ export default function SortableGridRow({
 							onClick={() => {
 								// Remove this instance from slideOrder
 								const newSlideOrder = [...slideOrder];
-								newSlideOrder.splice(idx, 1);
+								newSlideOrder.splice(idx, REMOVE_COUNT);
 								setSlideOrder(newSlideOrder);
 
 								// If this was the last instance of this slideId, delete the actual slide
 								const remainingInstances = newSlideOrder.filter(
 									(id) => id === slideId,
 								);
-								if (remainingInstances.length === 0) {
+								if (remainingInstances.length === EMPTY_COUNT) {
 									deleteSlide(slideId);
 								}
 							}}
 							title={
-								slideOrder.filter((id) => id === slideId).length === 1
+								slideOrder.filter((id) => id === slideId).length ===
+								SINGLE_INSTANCE
 									? "Delete Slide"
 									: "Remove from Presentation"
 							}
 							aria-label={
-								slideOrder.filter((id) => id === slideId).length === 1
+								slideOrder.filter((id) => id === slideId).length ===
+								SINGLE_INSTANCE
 									? "Delete Slide"
 									: "Remove from Presentation"
 							}

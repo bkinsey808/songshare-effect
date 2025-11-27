@@ -47,20 +47,24 @@ export function useSlideFields({
 	setSlides,
 }: UseSlideFieldsParams): UseSlideFieldsReturn {
 	// Edit field value - preserve all existing field data
-	const safeGetField: SafeGetField = ({
+	function safeGetField({
 		slides: innerSlides,
 		slideId,
 		field,
-	}) => {
+	}: Readonly<{
+		slides: Readonly<Record<string, Slide>>;
+		slideId: string;
+		field: string;
+	}>): string {
 		const slide = safeGet(innerSlides, slideId);
 		if (!slide) {
 			return "";
 		}
 		// Return the field value or empty string if it doesn't exist
 		return safeGet(slide.field_data, field) ?? "";
-	};
+	}
 
-	const editFieldValue = ({
+	function editFieldValue({
 		slideId,
 		field,
 		value,
@@ -68,7 +72,7 @@ export function useSlideFields({
 		slideId: string;
 		field: string;
 		value: string;
-	}>): void => {
+	}>): void {
 		const currentSlide = safeGet(slides, slideId);
 		if (!currentSlide) {
 			return;
@@ -85,16 +89,16 @@ export function useSlideFields({
 				},
 			},
 		});
-	};
+	}
 
 	// Edit slide name inside the slide
-	const editSlideName = ({
+	function editSlideName({
 		slideId,
 		newName,
 	}: Readonly<{
 		slideId: string;
 		newName: string;
-	}>): void => {
+	}>): void {
 		const currentSlide = safeGet(slides, slideId);
 		if (!currentSlide) {
 			return;
@@ -107,7 +111,7 @@ export function useSlideFields({
 				slide_name: newName,
 			},
 		});
-	};
+	}
 
 	return {
 		editFieldValue,

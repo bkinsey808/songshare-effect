@@ -1,7 +1,8 @@
+import type { ReactElement } from "react";
+
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { safeGet } from "@/shared/utils/safe";
-// src/features/song-form/SlidesEditor.tsx
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 
@@ -47,13 +48,16 @@ export default function SlidesEditor({
 		setSlides,
 	});
 
+	const INDENT_SPACES = 2;
+	const INDEX_OFFSET = 1;
+
 	return (
 		<div className="w-full">
 			{/* Debug output for slideOrder array */}
 			<details className="mb-4 text-xs text-gray-500">
 				<summary>Debug: slideOrder array</summary>
 				<pre className="mt-2 rounded bg-gray-100 p-2">
-					{JSON.stringify(slideOrder, null, 2)}
+					{JSON.stringify(slideOrder, null, INDENT_SPACES)}
 				</pre>
 			</details>
 			<h2 className="mb-4 text-xl font-bold">Slides Order</h2>
@@ -67,14 +71,14 @@ export default function SlidesEditor({
 						{slideOrder.map((slideId, idx) => {
 							const slide = safeGet(slides, slideId);
 							if (!slide) {
-								return <></>;
+								return null;
 							}
 							const sortableId = `${slideId}-${String(idx)}`;
 							return (
 								<SortableSlideOrderItem
 									key={sortableId}
-									slideId={slideId}
 									sortableId={sortableId}
+									slideId={slideId}
 									slide={slide}
 									duplicateSlideOrder={duplicateSlideOrder}
 									removeSlideOrder={({
@@ -104,7 +108,7 @@ export default function SlidesEditor({
 				Object.keys(slides).map((slideId, idx) => {
 					const slide = safeGet(slides, slideId);
 					if (!slide) {
-						return <></>;
+						return null;
 					}
 					return (
 						<div
@@ -127,7 +131,7 @@ export default function SlidesEditor({
 										onClick={() => {
 											deleteSlide(slideId);
 										}}
-										aria-label={`Remove slide ${String(idx + 1)}`}
+										aria-label={`Remove slide ${String(idx + INDEX_OFFSET)}`}
 									>
 										Delete&nbsp;Slide
 									</button>
@@ -174,7 +178,7 @@ export default function SlidesEditor({
 							<details className="mt-4 text-xs text-gray-500">
 								<summary>Debug: All field data for this slide</summary>
 								<pre className="mt-2 rounded bg-gray-100 p-2">
-									{JSON.stringify(slide.field_data, null, 2)}
+									{JSON.stringify(slide.field_data, null, INDENT_SPACES)}
 								</pre>
 							</details>
 						</div>

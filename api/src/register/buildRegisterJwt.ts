@@ -28,7 +28,7 @@ export function buildRegisterJwt({
 	oauthUserData,
 	oauthState,
 }: BuildRegisterJwtParams): Effect.Effect<string, ServerError> {
-	return Effect.gen(function* ($) {
+	return Effect.gen(function* buildRegisterJwtGen($) {
 		const registerData = { oauthUserData, oauthState };
 		const jwtSecret = ctx.env.JWT_SECRET;
 		if (typeof jwtSecret !== "string" || jwtSecret === "") {

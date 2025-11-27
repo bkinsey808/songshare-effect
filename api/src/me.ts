@@ -15,7 +15,7 @@ import { getVerifiedUserSession } from "./user-session/getVerifiedSession";
 export function me(
 	ctx: ReadonlyContext,
 ): Effect.Effect<UserSessionData, AuthenticationError | DatabaseError> {
-	return Effect.gen(function* ($) {
+	return Effect.gen(function* meGen($) {
 		// Optional incoming headers dump. This was previously always-on to help
 		// debug cookie propagation after OAuth. To avoid noisy logs during
 		// normal local browsing, make it opt-in via the DEBUG_API_HEADERS
@@ -39,6 +39,7 @@ export function me(
 						for (const nm of names) {
 							safeSet(hdrObj, nm, ctx.req.header(nm) ?? undefined);
 						}
+						// oxlint-disable-next-line no-console
 						console.log("[me] Incoming request headers:", hdrObj);
 					} catch (err) {
 						console.error(

@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 // Utility type: DeepReadonly
 // Recursively marks all nested properties as readonly while preserving
 // function signatures unmodified.
@@ -15,21 +16,29 @@
 // in complex ambient types such as `Context` from `hono`.
 type _Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-type DeepReadonly<T, D extends number = 5> = D extends 0
-	? T
-	: T extends (...args: infer _A) => infer _R
-		? T
-		: T extends { req: unknown; res: unknown }
-			? T
-			: T extends ReadonlyArray<infer U>
-				? ReadonlyArray<DeepReadonly<U, _Prev[D]>>
-				: T extends Map<infer K, infer V>
-					? ReadonlyMap<DeepReadonly<K, _Prev[D]>, DeepReadonly<V, _Prev[D]>>
-					: T extends Set<infer U>
-						? ReadonlySet<DeepReadonly<U, _Prev[D]>>
-						: T extends object
-							? { readonly [P in keyof T]: DeepReadonly<T[P], _Prev[D]> }
-							: T;
+type DeepReadonly<TValue, Depth extends number = 5> = Depth extends 0
+	? TValue
+	: TValue extends (...args: infer _Args) => infer _Return
+		? TValue
+		: TValue extends { req: unknown; res: unknown }
+			? TValue
+			: TValue extends ReadonlyArray<infer Item>
+				? ReadonlyArray<DeepReadonly<Item, _Prev[Depth]>>
+				: TValue extends Map<infer Key, infer Value>
+					? ReadonlyMap<
+							DeepReadonly<Key, _Prev[Depth]>,
+							DeepReadonly<Value, _Prev[Depth]>
+						>
+					: TValue extends Set<infer Item>
+						? ReadonlySet<DeepReadonly<Item, _Prev[Depth]>>
+						: TValue extends object
+							? {
+									readonly [Prop in keyof TValue]: DeepReadonly<
+										TValue[Prop],
+										_Prev[Depth]
+									>;
+								}
+							: TValue;
 
 // Alias with a friendlier name for callers
-export type ReadonlyDeep<T> = DeepReadonly<Readonly<T>>;
+export type ReadonlyDeep<TValue> = DeepReadonly<Readonly<TValue>>;

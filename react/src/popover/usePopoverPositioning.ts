@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 
+import {
+	POPOVER_DEFAULT_WIDTH,
+	POPOVER_DEFAULT_HEIGHT,
+} from "@/shared/constants/http";
+
 import type { PlacementOption, PopoverPosition } from "./types";
 
 import calculatePopoverPosition from "./calculatePopoverPosition";
 
 type UsePopoverPositioningParams = Readonly<{
-	triggerRef: React.RefObject<HTMLDivElement | null>;
+	triggerRef: React.RefObject<HTMLElement | null>;
 	popoverRef: React.RefObject<HTMLDivElement | null>;
 	preferredPlacement: PlacementOption;
 	hidePopover: () => void;
@@ -27,7 +32,7 @@ function calculateAndUpdatePosition({
 	setPopoverPosition,
 	setPlacement,
 }: Readonly<{
-	triggerRef: React.RefObject<HTMLDivElement | null>;
+	triggerRef: React.RefObject<HTMLElement | null>;
 	popoverRef: React.RefObject<HTMLDivElement | null>;
 	preferredPlacement: PlacementOption;
 	setPopoverPosition: (position: PopoverPosition) => void;
@@ -40,8 +45,8 @@ function calculateAndUpdatePosition({
 		const { position, placement: calculatedPlacement } =
 			calculatePopoverPosition({
 				triggerRect,
-				popoverWidth: popoverRect.width || 256,
-				popoverHeight: popoverRect.height || 200,
+				popoverWidth: popoverRect.width || POPOVER_DEFAULT_WIDTH,
+				popoverHeight: popoverRect.height || POPOVER_DEFAULT_HEIGHT,
 				preferredPlacement,
 			});
 
@@ -63,11 +68,14 @@ export function usePopoverPositioning({
 	const [popoverPosition, setPopoverPosition] = useState<PopoverPosition>({});
 	const [placement, setPlacement] = useState<PlacementOption>("bottom");
 
+	// File-level/local constants to avoid magic numbers
+	const ZERO = 0;
+
 	// Handle scroll events to keep popover positioned relative to trigger
 	useEffect(() => {
-		let rafId: number | undefined;
+		let rafId: number | undefined = undefined;
 
-		const handleScrollAndResize = (): void => {
+		function handleScrollAndResize(): void {
 			// Use requestAnimationFrame to throttle updates
 			if (rafId !== undefined) {
 				return;
@@ -92,9 +100,9 @@ export function usePopoverPositioning({
 
 					// Close popover if trigger is completely off-screen
 					const isOffScreen =
-						triggerRect.bottom < 0 ||
+						triggerRect.bottom < ZERO ||
 						triggerRect.top > viewportHeight ||
-						triggerRect.right < 0 ||
+						triggerRect.right < ZERO ||
 						triggerRect.left > viewportWidth;
 
 					if (isOffScreen) {
@@ -110,7 +118,7 @@ export function usePopoverPositioning({
 					}
 				}
 			});
-		};
+		}
 
 		// Add event listeners for scroll and resize
 		window.addEventListener("scroll", handleScrollAndResize, {
@@ -135,7 +143,7 @@ export function usePopoverPositioning({
 	}, [hidePopover, popoverRef, triggerRef, preferredPlacement]);
 
 	// Public API function for external position updates
-	const updatePosition = (): void => {
+	function updatePosition(): void {
 		calculateAndUpdatePosition({
 			triggerRef,
 			popoverRef,
@@ -143,7 +151,7 @@ export function usePopoverPositioning({
 			setPopoverPosition,
 			setPlacement,
 		});
-	};
+	}
 
 	return { popoverPosition, placement, updatePosition };
 }

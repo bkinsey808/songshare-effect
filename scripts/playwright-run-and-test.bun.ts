@@ -26,10 +26,19 @@ const apiStream = fs.createWriteStream(API_LOG, { flags: "a" });
 let frontendReady = false;
 let apiReady = false;
 let startedPlaywright = false;
-let playwrightProcess: ChildProcess | undefined;
+let playwrightProcess: ChildProcess | undefined = undefined;
 
 const startTime = Date.now();
-const TIMEOUT = Number(process.env["PLAYWRIGHT_DEV_TIMEOUT"] ?? 120_000);
+const DEFAULT_TIMEOUT = 120_000;
+const ZERO = 0;
+const ONE = 1;
+const ARGV_FILE_INDEX = 2;
+const EXIT_NON_ZERO = 1;
+const INTERVAL_MS = 500;
+
+const TIMEOUT = Number(
+	process.env["PLAYWRIGHT_DEV_TIMEOUT"] ?? DEFAULT_TIMEOUT,
+);
 
 function stripAnsi(input: string): string {
 	return input.replace(/\u001b\[[0-9;]*m/g, "");
@@ -42,12 +51,12 @@ function startPlaywrightIfReady(): void {
 	startedPlaywright = true;
 
 	// Dev servers ready — starting Playwright tests
-	console.log("Dev servers ready — starting Playwright tests");
+	console.warn("Dev servers ready — starting Playwright tests");
 
 	// Ensure Playwright browsers are installed before running tests. If you
 	// want to skip automatic installation (for CI or offline environments),
 	// set PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 in the environment.
-	const installBrowsers = async (): Promise<void> => {
+	async function installBrowsers(): Promise<void> {
 		const skipInstall =
 			typeof process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "string" &&
 			process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] !== "";
@@ -80,7 +89,7 @@ function startPlaywrightIfReady(): void {
 					env: { ...process.env },
 				});
 				installer.on("exit", (code) => {
-					if (code === 0) {
+					if (code === ZERO) {
 						resolve();
 						return;
 					}
@@ -95,11 +104,11 @@ function startPlaywrightIfReady(): void {
 			console.error(
 				"Run `npx playwright install` manually to download browsers or set PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 to opt out.",
 			);
-			process.exit(1);
+			process.exit(EXIT_NON_ZERO);
 		}
-	};
+	}
 
-	const args = ["playwright", "test", ...process.argv.slice(2)];
+	const args = ["playwright", "test", ...process.argv.slice(ARGV_FILE_INDEX)];
 	void (async () => {
 		await installBrowsers();
 		const proc = spawn("npx", args, {
@@ -117,13 +126,13 @@ function startPlaywrightIfReady(): void {
 			} catch {
 				// Ignore kill errors
 			}
-			let exitCode: number;
+			let exitCode: number = 0;
 			if (code === null) {
-				exitCode = signal ? 1 : 0;
+				exitCode = signal ? ONE : ZERO;
 			} else {
 				exitCode = code;
 			}
-			const finalCode = exitCode ?? 0;
+			const finalCode = exitCode ?? ZERO;
 			process.exit(finalCode);
 		});
 	})();
@@ -143,14 +152,14 @@ function handleLine(raw: string): void {
 		frontendReady = true;
 
 		// Detected frontend ready -> output
-		console.log("Detected frontend ready ->", line);
+		console.warn("Detected frontend ready ->", line);
 	}
 
 	if (!apiReady && /Ready on .*:8787/.test(line)) {
 		apiReady = true;
 
 		// Detected API ready -> output
-		console.log("Detected API ready ->", line);
+		console.warn("Detected API ready ->", line);
 	}
 
 	startPlaywrightIfReady();
@@ -190,7 +199,7 @@ dev.on("exit", () => {
 			CLIENT_LOG,
 			API_LOG,
 		);
-		process.exit(1);
+		process.exit(EXIT_NON_ZERO);
 	}
 });
 
@@ -212,9 +221,9 @@ const interval = setInterval(() => {
 		} catch {
 			// Ignore kill errors
 		}
-		process.exit(1);
+		process.exit(EXIT_NON_ZERO);
 	}
-}, 500);
+}, INTERVAL_MS);
 
 function shutdown(): void {
 	try {
@@ -231,11 +240,11 @@ function shutdown(): void {
 	} catch {
 		// Ignore kill errors
 	}
-	process.exit(1);
+	process.exit(EXIT_NON_ZERO);
 }
 
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
 // Playwright dev+test: logs -> output
-console.log(`Playwright dev+test: logs -> ${CLIENT_LOG}, ${API_LOG}`);
+console.warn(`Playwright dev+test: logs -> ${CLIENT_LOG}, ${API_LOG}`);

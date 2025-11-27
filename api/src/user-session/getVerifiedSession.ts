@@ -18,10 +18,10 @@ import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
  * Verify user session JWT and return decoded `UserSessionData`.
  * Reusable helper for API handlers that need an authenticated user.
  */
-export const getVerifiedUserSession = (
+export function getVerifiedUserSession(
 	ctx: ReadonlyContext,
-): Effect.Effect<UserSessionData, AuthenticationError | DatabaseError> =>
-	Effect.gen(function* ($) {
+): Effect.Effect<UserSessionData, AuthenticationError | DatabaseError> {
+	return Effect.gen(function* getVerifiedUserSession($) {
 		// 1) extract token from cookie
 		const userSessionToken = yield* $(extractUserSessionTokenFromContext(ctx));
 
@@ -61,3 +61,4 @@ export const getVerifiedUserSession = (
 
 		return userSessionData;
 	});
+}

@@ -4,7 +4,7 @@ import type { SongLibrarySlice } from "./song-library-slice";
 export function subscribeToLibrary(
 	get: () => SongLibrarySlice,
 ): (() => void) | undefined {
-	let unsubscribeFn: (() => void) | undefined;
+	let unsubscribeFn: (() => void) | undefined = undefined;
 
 	// Get authentication token asynchronously
 	void (async () => {
@@ -41,46 +41,58 @@ export function subscribeToLibrary(
 						void (async () => {
 							const { addLibraryEntry, removeLibraryEntry } = get();
 
-							function isLibraryPayload(x: unknown): x is {
+							function isLibraryPayload(value: unknown): value is {
 								eventType: "INSERT" | "UPDATE" | "DELETE";
 								new?: unknown;
 								old?: unknown;
 							} {
-								if (typeof x !== "object" || x === null) return false;
+								if (typeof value !== "object" || value === null) {
+									return false;
+								}
 								// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-								const obj = x as Record<string, unknown>;
+								const obj = value as Record<string, unknown>;
 								return (
-									Object.prototype.hasOwnProperty.call(obj, "eventType") &&
+									Object.hasOwn(obj, "eventType") &&
 									typeof obj["eventType"] === "string"
 								);
 							}
 
-							function isSongLibraryEntry(x: unknown): x is SongLibraryEntry {
-								if (typeof x !== "object" || x === null) return false;
+							function isSongLibraryEntry(
+								value: unknown,
+							): value is SongLibraryEntry {
+								if (typeof value !== "object" || value === null) {
+									return false;
+								}
 								// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-								const obj = x as Record<string, unknown>;
+								const obj = value as Record<string, unknown>;
 								return (
-									Object.prototype.hasOwnProperty.call(obj, "song_id") &&
+									Object.hasOwn(obj, "song_id") &&
 									typeof obj["song_id"] === "string" &&
-									Object.prototype.hasOwnProperty.call(obj, "user_id") &&
+									Object.hasOwn(obj, "user_id") &&
 									typeof obj["user_id"] === "string"
 								);
 							}
 
-							if (!isLibraryPayload(payload)) return;
+							if (!isLibraryPayload(payload)) {
+								return;
+							}
 
 							// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 							const eventTypeRaw = (payload as Record<string, unknown>)[
 								"eventType"
 							];
-							if (typeof eventTypeRaw !== "string") return;
+							if (typeof eventTypeRaw !== "string") {
+								return;
+							}
 							const eventType = eventTypeRaw;
 
 							switch (eventType) {
 								case "INSERT":
 								case "UPDATE": {
 									const newEntry = (payload as Record<string, unknown>)["new"];
-									if (newEntry === undefined) break;
+									if (newEntry === undefined) {
+										break;
+									}
 
 									if (!isSongLibraryEntry(newEntry)) {
 										// Can't work with malformed payload; skip
@@ -136,8 +148,8 @@ export function subscribeToLibrary(
 									break;
 								}
 							}
-						})().catch((e: unknown) => {
-							console.warn("[subscribeToLibrary] handler error:", e);
+						})().catch((err: unknown) => {
+							console.warn("[subscribeToLibrary] handler error:", err);
 						});
 					},
 				)

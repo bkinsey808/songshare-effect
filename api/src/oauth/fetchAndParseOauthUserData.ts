@@ -35,7 +35,7 @@ import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
 export function fetchAndParseOauthUserData(
 	opts: FetchOpts,
 ): Effect.Effect<OauthUserData, ValidationError | ProviderError> {
-	return Effect.gen(function* ($) {
+	return Effect.gen(function* fetchAndParseOauthUserDataGen($) {
 		const { accessToken, idToken } = yield* $(
 			exchangeCodeForToken(opts).pipe(
 				Effect.mapError(
@@ -59,11 +59,13 @@ export function fetchAndParseOauthUserData(
 		);
 		const infoObj: Record<string, unknown> = isRecord(infoRaw) ? infoRaw : {};
 
-		const getStr = (key: string): string | undefined => {
-			if (!Object.hasOwn(infoObj, key)) return undefined;
+		function getStr(key: string): string | undefined {
+			if (!Object.hasOwn(infoObj, key)) {
+				return undefined;
+			}
 			const val = infoObj[key];
 			return typeof val === "string" ? String(val) : undefined;
-		};
+		}
 
 		const candidate: Partial<OauthUserData> = {
 			email: getStr("email") ?? getStr("email_address") ?? "",

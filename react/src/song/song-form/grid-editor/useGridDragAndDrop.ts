@@ -30,17 +30,20 @@ export function useGridDragAndDrop({
 	const sortableItems = [...slideIds];
 
 	// Drag and drop sensors - add activationConstraint to prevent accidental drags
+	const DISTANCE = 8;
 	const sensors = useSensors(
 		useSensor(PointerSensor, {
 			activationConstraint: {
-				// Require 8px movement before drag starts
-				distance: 8,
+				// Require DISTANCE px movement before drag starts
+				distance: DISTANCE,
 			},
 		}),
 	);
 
 	// Handle drag end for slide order in grid
-	const handleDragEnd = (event: DragEndEvent): void => {
+	const NOT_FOUND = -1;
+
+	function handleDragEnd(event: DragEndEvent): void {
 		const { active, over } = event;
 		if (over && active.id !== over.id) {
 			const slidesArray = [...slideIds];
@@ -49,12 +52,12 @@ export function useGridDragAndDrop({
 			const activeIndex = slidesArray.indexOf(activeIdStr);
 			const overIndex = slidesArray.indexOf(overIdStr);
 
-			if (activeIndex !== -1 && overIndex !== -1) {
+			if (activeIndex !== NOT_FOUND && overIndex !== NOT_FOUND) {
 				const newOrder = arrayMove(slidesArray, activeIndex, overIndex);
 				setSlidesOrder(newOrder);
 			}
 		}
-	};
+	}
 
 	return {
 		sensors,

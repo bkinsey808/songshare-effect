@@ -1,28 +1,50 @@
-import type { ReactElement } from "react";
-
-import { Suspense, use, useState } from "react";
+import React, { Suspense, use, useState } from "react";
+type ReactElement = React.ReactElement;
 
 import ErrorBoundary from "@/react/demo/ErrorBoundary";
+import {
+	DEMO_DEFAULT_USER_ID,
+	DEMO_ALT_USER_ID,
+	SUSPENSE_ALBUM_DELAY_MS,
+	SUSPENSE_ARTIST_DELAY_MS,
+	SUSPENSE_PLAYLIST_DELAY_MS,
+	SUSPENSE_ALBUM_TRACKS,
+	SUSPENSE_ALBUM_TRACKS_DISPLAY,
+	SUSPENSE_ARTIST_ALBUMS,
+	SUSPENSE_PLAYLIST_SONGS,
+	SUSPENSE_PLAYLIST_DISPLAY,
+	SUSPENSE_PLAYLIST_BASE_SONGS,
+	SUSPENSE_PLAYLIST_INCREMENT,
+	SUSPENSE_ERROR_ID,
+} from "@/shared/constants/http";
 
 // Cache for promises to prevent recreation on every render
 const promiseCache = new Map<string, Promise<unknown>>();
 
+// File-local constants to avoid magic numbers specific to this demo page
+const BASE_YEAR = 2020;
+const DURATION_BASE_HOUR = 2;
+const DURATION_BASE_MINUTES = 30;
+const GENRES = ["Pop", "Rock", "Jazz", "Classical"];
+const ZERO = 0;
+const ONE = 1;
+
 // Simulate API calls with different loading times
-const fetchAlbumData = async (
-	albumId: number,
-): Promise<{
+async function fetchAlbumData(albumId: number): Promise<{
 	id: number;
 	title: string;
 	artist: string;
 	year: number;
 	tracks: string[];
 	coverUrl: string;
-}> => {
+}> {
 	// 2 second delay
-	await new Promise((resolve) => setTimeout(resolve, 2000));
+	await new Promise<void>((resolve) =>
+		setTimeout(resolve, SUSPENSE_ALBUM_DELAY_MS),
+	);
 
 	// Simulate occasional errors for album ID 99
-	if (albumId === 99) {
+	if (albumId === SUSPENSE_ERROR_ID) {
 		throw new Error("Album not found - simulated API error");
 	}
 
@@ -30,53 +52,59 @@ const fetchAlbumData = async (
 		id: albumId,
 		title: `Album ${albumId}`,
 		artist: `Artist ${albumId}`,
-		year: 2020 + albumId,
-		tracks: Array.from({ length: 8 }, (_, i) => `Track ${i + 1}`),
+		year: BASE_YEAR + albumId,
+		tracks: Array.from(
+			{ length: SUSPENSE_ALBUM_TRACKS },
+			(_unusedVal, index) => `Track ${index + ONE}`,
+		),
 		coverUrl: `https://picsum.photos/200/200?random=${albumId}`,
 	};
-};
+}
 
-const fetchArtistData = async (
-	artistId: number,
-): Promise<{
+async function fetchArtistData(artistId: number): Promise<{
 	id: number;
 	name: string;
 	genre: string;
 	albums: string[];
 	bio: string;
-}> => {
+}> {
 	// 1.5 second delay
-	await new Promise((resolve) => setTimeout(resolve, 1500));
+	await new Promise<void>((resolve) =>
+		setTimeout(resolve, SUSPENSE_ARTIST_DELAY_MS),
+	);
 
 	// Simulate occasional errors for artist ID 99
-	if (artistId === 99) {
+	if (artistId === SUSPENSE_ERROR_ID) {
 		throw new Error("Artist profile unavailable - network timeout");
 	}
 
 	return {
 		id: artistId,
 		name: `Artist ${artistId}`,
-		genre: ["Pop", "Rock", "Jazz", "Classical"][artistId % 4] ?? "Unknown",
-		albums: Array.from({ length: 5 }, (_, i) => `Album ${i + 1}`),
+		genre: GENRES[artistId % GENRES.length] ?? "Unknown",
+		albums: Array.from(
+			{ length: SUSPENSE_ARTIST_ALBUMS },
+			(_unusedVal, index) => `Album ${index + ONE}`,
+		),
 		bio: `This is the biography of Artist ${artistId}. They are known for their incredible music and have been performing for many years.`,
 	};
-};
+}
 
-const fetchPlaylistData = async (
-	playlistId: number,
-): Promise<{
+async function fetchPlaylistData(playlistId: number): Promise<{
 	id: number;
 	name: string;
 	description: string;
 	songCount: number;
 	duration: string;
 	songs: string[];
-}> => {
+}> {
 	// 3 second delay
-	await new Promise((resolve) => setTimeout(resolve, 3000));
+	await new Promise<void>((resolve) =>
+		setTimeout(resolve, SUSPENSE_PLAYLIST_DELAY_MS),
+	);
 
 	// Simulate occasional errors for playlist ID 99
-	if (playlistId === 99) {
+	if (playlistId === SUSPENSE_ERROR_ID) {
 		throw new Error("Playlist is private or has been deleted");
 	}
 
@@ -84,20 +112,21 @@ const fetchPlaylistData = async (
 		id: playlistId,
 		name: `Playlist ${playlistId}`,
 		description: `A curated playlist of amazing songs - Playlist ${playlistId}`,
-		songCount: 25 + playlistId * 5,
-		duration: `${2 + playlistId}:${30 + playlistId * 15}:00`,
+		songCount:
+			SUSPENSE_PLAYLIST_BASE_SONGS + playlistId * SUSPENSE_PLAYLIST_INCREMENT,
+		duration: `${DURATION_BASE_HOUR + playlistId}:${DURATION_BASE_MINUTES + playlistId * SUSPENSE_PLAYLIST_INCREMENT}:00`,
 		songs: Array.from(
-			{ length: 10 },
-			(_, i) => `Song ${i + 1} in Playlist ${playlistId}`,
+			{ length: SUSPENSE_PLAYLIST_SONGS },
+			(_unusedVal, index) => `Song ${index + ONE} in Playlist ${playlistId}`,
 		),
 	};
-};
+}
 
 // Helper function to get or create cached promises
-async function getCachedPromise<T>(
+async function getCachedPromise<TValue>(
 	key: string,
-	fetcher: () => Promise<T>,
-): Promise<T> {
+	fetcher: () => Promise<TValue>,
+): Promise<TValue> {
 	if (!promiseCache.has(key)) {
 		const promise = fetcher().then(
 			(result) => {
@@ -114,7 +143,7 @@ async function getCachedPromise<T>(
 
 	// Narrow the unsafe assertion to this single line at the API boundary.
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	return promiseCache.get(key) as Promise<T>;
+	return promiseCache.get(key) as Promise<TValue>;
 }
 
 type LoadingSpinnerProps = Readonly<{
@@ -162,12 +191,15 @@ function AlbumCard({ albumId }: AlbumCardParams): ReactElement {
 					<div>
 						<h4 className="mb-1 text-sm font-medium text-gray-700">Tracks:</h4>
 						<ul className="space-y-1 text-sm text-gray-600">
-							{album.tracks.slice(0, 4).map((track, index) => (
-								<li key={index}>• {track}</li>
-							))}
-							{album.tracks.length > 4 && (
+							{album.tracks
+								.slice(ZERO, SUSPENSE_ALBUM_TRACKS_DISPLAY)
+								.map((track, index) => (
+									<li key={index}>• {track}</li>
+								))}
+							{album.tracks.length > SUSPENSE_ALBUM_TRACKS_DISPLAY && (
 								<li className="text-gray-400">
-									... and {album.tracks.length - 4} more
+									... and {album.tracks.length - SUSPENSE_ALBUM_TRACKS_DISPLAY}{" "}
+									more
 								</li>
 							)}
 						</ul>
@@ -247,12 +279,14 @@ function PlaylistDetails({ playlistId }: PlaylistDetailsParams): ReactElement {
 					Sample Songs:
 				</h4>
 				<ul className="space-y-1 text-sm text-gray-600">
-					{playlist.songs.slice(0, 5).map((song, index) => (
-						<li key={index} className="flex items-center gap-2">
-							<span className="text-green-500">♪</span>
-							{song}
-						</li>
-					))}
+					{playlist.songs
+						.slice(ZERO, SUSPENSE_PLAYLIST_DISPLAY)
+						.map((song, index) => (
+							<li key={index} className="flex items-center gap-2">
+								<span className="text-green-500">♪</span>
+								{song}
+							</li>
+						))}
 				</ul>
 			</div>
 		</div>
@@ -269,13 +303,13 @@ function SuspenseUsePage(): ReactElement {
 		undefined,
 	);
 
-	const clearCache = (): void => {
+	function clearCache(): void {
 		promiseCache.clear();
 		// Force re-render by resetting states
 		setActiveAlbum(undefined);
 		setActiveArtist(undefined);
 		setActivePlaylist(undefined);
-	};
+	}
 
 	return (
 		<div className="mx-auto max-w-6xl p-6">
@@ -295,7 +329,11 @@ function SuspenseUsePage(): ReactElement {
 				<div className="mb-4 flex flex-wrap gap-3">
 					<button
 						onClick={() => {
-							setActiveAlbum(activeAlbum === 1 ? 2 : 1);
+							setActiveAlbum(
+								activeAlbum === DEMO_DEFAULT_USER_ID
+									? DEMO_ALT_USER_ID
+									: DEMO_DEFAULT_USER_ID,
+							);
 						}}
 						className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
 					>
@@ -304,7 +342,11 @@ function SuspenseUsePage(): ReactElement {
 
 					<button
 						onClick={() => {
-							setActiveArtist(activeArtist === 1 ? 2 : 1);
+							setActiveArtist(
+								activeArtist === DEMO_DEFAULT_USER_ID
+									? DEMO_ALT_USER_ID
+									: DEMO_DEFAULT_USER_ID,
+							);
 						}}
 						className="rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-700"
 					>
@@ -313,7 +355,11 @@ function SuspenseUsePage(): ReactElement {
 
 					<button
 						onClick={() => {
-							setActivePlaylist(activePlaylist === 1 ? 2 : 1);
+							setActivePlaylist(
+								activePlaylist === DEMO_DEFAULT_USER_ID
+									? DEMO_ALT_USER_ID
+									: DEMO_DEFAULT_USER_ID,
+							);
 						}}
 						className="rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700"
 					>
@@ -334,7 +380,7 @@ function SuspenseUsePage(): ReactElement {
 					</span>
 					<button
 						onClick={() => {
-							setActiveAlbum(99);
+							setActiveAlbum(SUSPENSE_ERROR_ID);
 						}}
 						className="rounded-md bg-orange-500 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-orange-600"
 					>
@@ -343,7 +389,7 @@ function SuspenseUsePage(): ReactElement {
 
 					<button
 						onClick={() => {
-							setActiveArtist(99);
+							setActiveArtist(SUSPENSE_ERROR_ID);
 						}}
 						className="rounded-md bg-orange-500 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-orange-600"
 					>
@@ -352,7 +398,7 @@ function SuspenseUsePage(): ReactElement {
 
 					<button
 						onClick={() => {
-							setActivePlaylist(99);
+							setActivePlaylist(SUSPENSE_ERROR_ID);
 						}}
 						className="rounded-md bg-orange-500 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-orange-600"
 					>

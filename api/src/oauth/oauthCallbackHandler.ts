@@ -3,7 +3,7 @@ import type { ReadonlyContext } from "@/api/hono/hono-context";
 
 import { getErrorMessage } from "@/api/getErrorMessage";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
-import { oauthCallbackFactory } from "@/api/oauth/oauthCallbackFactory";
+import { oauthCallbackFactory } from "@/api/oauth-callback-factory/oauthCallbackFactory";
 import { getEnvString } from "@/shared/env/getEnv";
 
 // Keep exported wrapper typed as `Context` for Hono compatibility. The

@@ -12,7 +12,7 @@ export type UseNativePopoverProps = Readonly<{
 
 export type UseNativePopoverReturn = {
 	// Refs for DOM elements
-	triggerRef: React.RefObject<HTMLDivElement | null>;
+	triggerRef: React.RefObject<HTMLElement | null>;
 	popoverRef: React.RefObject<HTMLDivElement | null>;
 	popoverId: string;
 
@@ -31,7 +31,7 @@ export type UseNativePopoverReturn = {
 	handleMouseLeave: () => void;
 	handleTriggerClick: () => void;
 
-	handleKeyDown: (e: React.KeyboardEvent) => void;
+	handleKeyDown: (ev: React.KeyboardEvent) => void;
 };
 
 /**
@@ -44,12 +44,12 @@ export function useNativePopover({
 	closeOnTriggerClick,
 }: UseNativePopoverProps): UseNativePopoverReturn {
 	// Refs needed to access DOM elements for positioning calculations and native popover API
-	const triggerRef = useRef<HTMLDivElement>(null);
+	const triggerRef = useRef<HTMLElement>(null);
 	const popoverRef = useRef<HTMLDivElement>(null);
 	const popoverId = useId();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 
-	const hidePopover = (): void => {
+	function hidePopover(): void {
 		const popover = popoverRef.current;
 		if (popover) {
 			const maybeHide = Reflect.get(popover, "hidePopover");
@@ -58,7 +58,7 @@ export function useNativePopover({
 			}
 		}
 		setIsOpen(false);
-	};
+	}
 
 	// Use custom positioning hook
 	const {
@@ -79,10 +79,10 @@ export function useNativePopover({
 			return;
 		}
 
-		const handleToggle = (event: Event): void => {
+		function handleToggle(event: Event): void {
 			const newState: unknown = Reflect.get(event, "newState");
 			setIsOpen(newState === "open");
-		};
+		}
 
 		popover.addEventListener("toggle", handleToggle);
 		return () => {
@@ -90,7 +90,7 @@ export function useNativePopover({
 		};
 	}, []);
 
-	const showPopover = (): void => {
+	function showPopover(): void {
 		const popover = popoverRef.current;
 		if (popover) {
 			const maybeShow = Reflect.get(popover, "showPopover");
@@ -99,31 +99,32 @@ export function useNativePopover({
 			}
 		}
 		setIsOpen(true);
-		// Update position after popover is shown
-		setTimeout(updatePositionExternal, 0);
-	};
+		// Update position after popover is shown — requestAnimationFrame avoids a magic-number delay
+		// Recalculate position on next frame so layout has settled.
+		requestAnimationFrame(updatePositionExternal as FrameRequestCallback);
+	}
 
-	const togglePopover = (): void => {
+	function togglePopover(): void {
 		if (isOpen) {
 			hidePopover();
 		} else {
 			showPopover();
 		}
-	};
+	}
 
-	const handleMouseEnter = (): void => {
+	function handleMouseEnter(): void {
 		if (trigger === "hover") {
 			showPopover();
 		}
-	};
+	}
 
-	const handleMouseLeave = (): void => {
+	function handleMouseLeave(): void {
 		if (trigger === "hover") {
 			hidePopover();
 		}
-	};
+	}
 
-	const handleTriggerClick = (): void => {
+	function handleTriggerClick(): void {
 		if (trigger === "click") {
 			togglePopover();
 		} else if (trigger === "hover") {
@@ -134,14 +135,14 @@ export function useNativePopover({
 				hidePopover();
 			}
 		}
-	};
+	}
 
-	const handleKeyDown = (ev: React.KeyboardEvent): void => {
+	function handleKeyDown(ev: React.KeyboardEvent): void {
 		if (ev.key === "Enter" || ev.key === " ") {
 			ev.preventDefault();
 			handleTriggerClick();
 		}
-	};
+	}
 
 	return {
 		// Refs for DOM elements

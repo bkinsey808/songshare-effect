@@ -9,18 +9,18 @@ export default function ResizeHandle({
 	onStartResize,
 	isResizing,
 }: ResizeHandleProps): ReactElement {
-	const handleMouseDown = (event: React.MouseEvent): void => {
+	function handleMouseDown(event: React.MouseEvent): void {
 		event.preventDefault();
 		onStartResize(field, event.clientX);
-	};
+	}
 
-	const handleKeyDown = (event: React.KeyboardEvent): void => {
+	function handleKeyDown(event: React.KeyboardEvent): void {
 		if (event.key === "Enter" || event.key === " ") {
 			event.preventDefault();
 			// For keyboard users, we could implement arrow key resizing here
 			// For now, just prevent default to avoid unintended actions
 		}
-	};
+	}
 
 	return (
 		<button

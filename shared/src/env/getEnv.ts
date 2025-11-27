@@ -6,15 +6,23 @@ export function getEnvString(
 	envLike: unknown,
 	key: string,
 ): string | undefined {
-	if (envLike === undefined || envLike === null) return undefined;
-	if (typeof envLike !== "object") return undefined;
+	if (envLike === undefined || envLike === null) {
+		return undefined;
+	}
+	if (typeof envLike !== "object") {
+		return undefined;
+	}
 	// Narrow once at this small trusted boundary. This avoids unsafe casts at
 	// every call site while keeping the runtime check in one place.
-	function isRecordStringUnknown(x: unknown): x is Record<string, unknown> {
-		return typeof x === "object" && x !== null;
+	function isRecordStringUnknown(
+		value: unknown,
+	): value is Record<string, unknown> {
+		return typeof value === "object" && value !== null;
 	}
 
-	if (!isRecordStringUnknown(envLike)) return undefined;
+	if (!isRecordStringUnknown(envLike)) {
+		return undefined;
+	}
 	// `envLike` is narrowed by the guard above so we can treat it as a record.
 	const rec = envLike;
 	const val: unknown = rec[key];
@@ -26,6 +34,6 @@ export function getEnvStringOrDefault(
 	key: string,
 	def: string,
 ): string {
-	const v = getEnvString(envLike, key);
-	return v === undefined ? def : v;
+	const val = getEnvString(envLike, key);
+	return val === undefined ? def : val;
 }

@@ -11,8 +11,10 @@ import { parseMaybeSingle } from "@/api/supabase/parseMaybeSingle";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
 import { decodeUnknownSyncOrThrow } from "@/shared/validation/decode-or-throw";
 
-function isRecordStringUnknown(x: unknown): x is Record<string, unknown> {
-	return typeof x === "object" && x !== null;
+function isRecordStringUnknown(
+	value: unknown,
+): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null;
 }
 
 // Supabase response shape handled via `parseMaybeSingle`
@@ -74,7 +76,7 @@ export function getUserByEmail({
 	Schema.Schema.Type<typeof UserSchema> | undefined,
 	DatabaseError
 > {
-	return Effect.gen(function* ($) {
+	return Effect.gen(function* getUserByEmailGen($) {
 		// Best-effort debug logging (synchronous)
 		yield* $(
 			Effect.sync(() => {
@@ -114,20 +116,25 @@ export function getUserByEmail({
 		try {
 			yield* $(
 				Effect.sync(() => {
-					const errInfo = (() => {
-						const e = res.error;
-						if (e === null || e === undefined) return undefined;
-						if (isRecordStringUnknown(e)) {
+					function computeErrInfo(maybeErr: unknown) {
+						if (maybeErr === null || maybeErr === undefined) {
+							return undefined;
+						}
+						if (isRecordStringUnknown(maybeErr)) {
 							const code =
-								typeof e["code"] === "string" ? e["code"] : undefined;
+								typeof maybeErr["code"] === "string"
+									? maybeErr["code"]
+									: undefined;
 							const message =
-								typeof e["message"] === "string"
-									? e["message"]
-									: getErrorMessage(e["message"]);
+								typeof maybeErr["message"] === "string"
+									? maybeErr["message"]
+									: getErrorMessage(maybeErr["message"]);
 							return { code, message };
 						}
-						return { message: getErrorMessage(e) };
-					})();
+						return { message: getErrorMessage(maybeErr) };
+					}
+
+					const errInfo = computeErrInfo(res.error);
 					console.log("[getUserByEmail] Supabase response:", {
 						status: res.status,
 						error: errInfo,
@@ -176,47 +183,42 @@ export function getUserByEmail({
 		const sanitized = normalizeNullsTopLevel(res.data);
 
 		// Validate against generated schema (may throw) and map failures.
-		// Use a small shared helper to centralize the decode call so we don't
-		// repeat ad-hoc unsafe assertions in many files.
-		let validated: Schema.Schema.Type<typeof UserSchema>;
+		// Perform decoding and normalization in a single try/catch so we can
+		// return a DatabaseError on any validation problem while avoiding
+		// uninitialized declarations.
 		try {
-			validated = decodeUnknownSyncOrThrow(UserSchema, sanitized);
+			const validatedLocal: Schema.Schema.Type<typeof UserSchema> =
+				decodeUnknownSyncOrThrow(UserSchema, sanitized);
+
+			// Normalize linked_providers at runtime; failures fall back to [] and
+			// are logged for debugging.
+			let normalizedProviders: string[] = [];
+			try {
+				normalizedProviders = normalizeLinkedProviders(validatedLocal);
+			} catch (err) {
+				yield* $(
+					Effect.sync(() => {
+						console.log(
+							"[getUserByEmail] Failed to normalize linked_providers at runtime:",
+							getErrorMessage(err),
+						);
+					}),
+				);
+				normalizedProviders = [];
+			}
+
+			// Merge the runtime-normalized providers onto the validated user
+			// and validate the merged result before returning.
+			const merged = {
+				...validatedLocal,
+				linked_providers: normalizedProviders,
+			};
+			const finalUserLocal = decodeUnknownSyncOrThrow(UserSchema, merged);
+			return finalUserLocal;
 		} catch (err) {
 			return yield* $(
 				Effect.fail(new DatabaseError({ message: getErrorMessage(err) })),
 			);
 		}
-
-		// Normalize linked_providers at runtime; failures fall back to [] and
-		// are logged for debugging.
-		let normalizedProviders: string[] = [];
-		try {
-			normalizedProviders = normalizeLinkedProviders(validated);
-		} catch (err) {
-			yield* $(
-				Effect.sync(() => {
-					console.log(
-						"[getUserByEmail] Failed to normalize linked_providers at runtime:",
-						getErrorMessage(err),
-					);
-				}),
-			);
-			normalizedProviders = [];
-		}
-
-		// Merge the runtime-normalized providers onto the validated user and
-		// return. We perform a single, localized assertion at the return site
-		// to match the function's declared Effect type.
-		const merged = { ...validated, linked_providers: normalizedProviders };
-		let finalUser: Schema.Schema.Type<typeof UserSchema>;
-		try {
-			finalUser = decodeUnknownSyncOrThrow(UserSchema, merged);
-		} catch (err) {
-			return yield* $(
-				Effect.fail(new DatabaseError({ message: getErrorMessage(err) })),
-			);
-		}
-
-		return finalUser;
 	});
 }

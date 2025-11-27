@@ -26,7 +26,7 @@ export function getMigrationFiles(migrationDir: string): MigrationFile[] {
 			// Extract timestamp from filename (format: YYYYMMDDHHMMSS_name.sql)
 			const timestampRegex = /^(\d{14})_/;
 			const timestampMatch = timestampRegex.exec(filename);
-			const timestampRaw = timestampMatch?.[1];
+			const [, timestampRaw] = timestampMatch ?? [];
 			const timestamp =
 				typeof timestampRaw === "string" && timestampRaw !== ""
 					? timestampRaw

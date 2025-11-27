@@ -12,13 +12,24 @@
  * - HTML page caching with ETag validation
  * - HTTP 304 responses for unchanged content
  */
+import {
+	HTTP_TEMP_REDIRECT,
+	HTTP_INTERNAL,
+	HTTP_NOT_MODIFIED,
+	CACHE_MAX_AGE_HTML_SEC,
+	ETAG_INTERVAL_MS,
+	HTTP_REDIRECT_LOWER,
+	HTTP_REDIRECT_UPPER,
+} from "@/shared/constants/http";
 import { detectBrowserLanguage } from "@/shared/language/detectBrowserLanguage";
 import { parseLanguageCookie } from "@/shared/language/parseLanguageCookie";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 
 export type Env = {};
 
-export const onRequest: PagesFunction<Env> = async (context) => {
+export async function onRequest(
+	context: Parameters<PagesFunction<Env>>[number],
+): Promise<Response> {
 	try {
 		const url = new URL(context.request.url);
 		// normal execution continues
@@ -35,8 +46,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 					detectedLang = cookieLang;
 				} else {
 					// Fallback to browser language
-					const acceptLanguageHeader =
-						context.request.headers.get("Accept-Language");
+					const acceptLanguageHeader = context.request.headers.get("Accept-Language");
 					detectedLang = detectBrowserLanguage(acceptLanguageHeader ?? "");
 				}
 
@@ -46,7 +56,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 				// 3. We don't want search engines to permanently index the redirect
 				// 4. This allows the root URL to remain flexible for future language detection logic
 				// redirect; return early without extra logs
-				return Response.redirect(`${url.origin}/${detectedLang}/`, 302);
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+				return Response.redirect(`${url.origin}/${detectedLang}/`, HTTP_TEMP_REDIRECT);
 			}
 
 			return context.next();
@@ -61,21 +72,22 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 				url.pathname.endsWith(".html") ||
 				(!url.pathname.includes(".") && !url.pathname.startsWith("/api/"))) &&
 			typeof response.status === "number" &&
-			!(response.status >= 300 && response.status < 400)
+			!(response.status >= HTTP_REDIRECT_LOWER && response.status < HTTP_REDIRECT_UPPER)
 		) {
 			// Short cache for HTML to allow quick updates
 			response.headers.set(
 				"Cache-Control",
-				"public, max-age=300, must-revalidate",
+				`public, max-age=${CACHE_MAX_AGE_HTML_SEC}, must-revalidate`,
 			);
 			// Help with cache invalidation by adding ETag based on timestamp
-			const etag = `"${Math.floor(Date.now() / 300000)}"`;
+			const etag = `"${Math.floor(Date.now() / ETAG_INTERVAL_MS)}"`;
 			response.headers.set("ETag", etag);
 
 			// Check if client has a matching ETag
 			const ifNoneMatch = context.request.headers.get("If-None-Match");
 			if (ifNoneMatch === etag) {
-				return new Response(null, { status: 304 });
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				return new Response(null, { status: HTTP_NOT_MODIFIED });
 			}
 		}
 
@@ -91,6 +103,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 			console.error("[pages/_middleware] Failed to log error:", String(logErr));
 		}
 
-		return new Response("Internal Server Error", { status: 500 });
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		return new Response("Internal Server Error", { status: HTTP_INTERNAL });
 	}
-};
+}

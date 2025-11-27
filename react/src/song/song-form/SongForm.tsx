@@ -71,9 +71,9 @@ export function SongForm(): ReactElement {
 					<form
 						ref={formRef}
 						className="flex w-full flex-col gap-4"
-						onSubmit={(e) => {
+						onSubmit={(event) => {
 							// Handle async submit without passing a promise directly to the DOM event
-							void handleFormSubmit(e);
+							void handleFormSubmit(event);
 						}}
 					>
 						{/* Row 1: Song Form Fields (left) + Slides Editor (right) on desktop, stacked on mobile */}

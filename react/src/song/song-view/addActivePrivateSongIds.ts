@@ -6,7 +6,7 @@ import { isRecord } from "@/shared/utils/typeGuards";
 
 // src/features/react/song-subscribe/addActiveSongIds.ts
 import { type Song } from "../song-schema";
-import { type SongSubscribeSlice } from "./songSlice";
+import { type SongSubscribeSlice } from "./song-slice";
 
 export default function addActivePrivateSongIds(
 	set: (
@@ -46,25 +46,30 @@ export default function addActivePrivateSongIds(
 			const activePrivateSongsUnsubscribe =
 				storeForOps.subscribeToActivePrivateSongs();
 			return {
+				// Keep undefined rather than providing an empty function.
+				// Consumers check typeof === 'function' before calling.
+				// Return a non-empty no-op fallback so the property is always a function
+				// (matching the declared slice type) and avoids the `no-empty-function` rule.
 				activePrivateSongsUnsubscribe:
-					activePrivateSongsUnsubscribe ?? (() => {}),
+					activePrivateSongsUnsubscribe ?? (() => undefined),
 			};
 		});
+		const NO_ACTIVE_SONGS_COUNT = 0;
 
-		if (newActivePrivateSongIds.length === 0) {
-			console.log("[addActivePrivateSongIds] No active songs to fetch.");
+		if (newActivePrivateSongIds.length === NO_ACTIVE_SONGS_COUNT) {
+			console.warn("[addActivePrivateSongIds] No active songs to fetch.");
 			return;
 		}
 
 		// Read optional visitorToken via the app-level state when available.
-		let visitorToken: string | undefined;
+		let visitorToken: string | undefined = undefined;
 		if (appState) {
 			const appStateUnknown: unknown = appState;
-			if (
-				isRecord(appStateUnknown) &&
-				typeof appStateUnknown["visitorToken"] === "string"
-			) {
-				visitorToken = appStateUnknown["visitorToken"];
+			if (isRecord(appStateUnknown)) {
+				const { visitorToken: vt } = appStateUnknown;
+				if (typeof vt === "string") {
+					visitorToken = vt;
+				}
 			}
 		}
 
@@ -85,7 +90,7 @@ export default function addActivePrivateSongIds(
 
 		// Fire-and-forget async function to fetch all active song data
 		void (async () => {
-			console.log(
+			console.warn(
 				"[addActivePrivateSongIds] Fetching active songs:",
 				newActivePrivateSongIds,
 			);

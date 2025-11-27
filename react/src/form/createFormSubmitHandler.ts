@@ -19,17 +19,15 @@ type FormSubmitHandlerParams<FormValues> = {
 /**
  * Create a form submission handler that validates form data and handles submission
  */
-export const createFormSubmitHandler = <
+export function createFormSubmitHandler<
 	FormValues extends Record<string, unknown>,
->(
-	params: FormSubmitHandlerParams<FormValues>,
-) => {
+>(params: FormSubmitHandlerParams<FormValues>) {
 	const { schema, setValidationErrors, setIsSubmitting } = params;
 	return (
 		formData: Readonly<Record<string, unknown>>,
 		onSubmit: (data: Readonly<FormValues>) => Promise<void> | void,
-	): Effect.Effect<void> => {
-		return Effect.sync(() => {
+	): Effect.Effect<void> =>
+		Effect.sync(() => {
 			console.log("🚀 useAppForm.handleSubmit called");
 			console.log("🔍 Starting form submission validation");
 
@@ -72,7 +70,7 @@ export const createFormSubmitHandler = <
 
 				// Delegate extraction to the helper to reduce complexity here
 				const errorArray = extractValidationErrors(error);
-				if (errorArray.length > 0) {
+				if (errorArray.length) {
 					console.log("📝 Final error array to set:", errorArray);
 					console.log("🔄 Setting validation errors:", errorArray);
 					setValidationErrors(errorArray);
@@ -84,5 +82,4 @@ export const createFormSubmitHandler = <
 				setIsSubmitting(false);
 			}
 		});
-	};
-};
+}

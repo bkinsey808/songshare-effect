@@ -13,13 +13,13 @@ export default function useSchedule(): (fn: () => void) => void {
 		};
 	}, []);
 
-	const schedule = (fn: () => void): void => {
-		const wrapper = (): void => {
+	function schedule(fn: () => void): void {
+		function wrapper(): void {
 			if (!mounted.current) {
 				return;
 			}
 			fn();
-		};
+		}
 
 		if (typeof queueMicrotask === "function") {
 			queueMicrotask(wrapper);
@@ -27,7 +27,7 @@ export default function useSchedule(): (fn: () => void) => void {
 			// Explicitly ignore the returned promise to satisfy lint rules
 			void Promise.resolve().then(wrapper);
 		}
-	};
+	}
 
 	return schedule;
 }

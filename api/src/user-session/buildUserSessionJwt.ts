@@ -54,7 +54,7 @@ export function buildUserSessionJwt({
 	string,
 	ValidationError | ServerError | DatabaseError
 > {
-	return Effect.gen(function* ($) {
+	return Effect.gen(function* buildUserSessionJwtGen($) {
 		const ip = getIpAddress(ctx);
 		// Resolve username from user_public table (source of truth for username)
 		const username = yield* $(

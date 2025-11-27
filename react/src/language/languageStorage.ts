@@ -5,19 +5,20 @@ import {
 } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
-export const setStoredLanguage = (language: SupportedLanguageType): void => {
+export function setStoredLanguage(language: SupportedLanguageType): void {
 	if (typeof document !== "undefined") {
 		const expires = new Date();
-		expires.setDate(expires.getDate() + 365);
+		const DAYS_IN_YEAR = 365;
+		expires.setDate(expires.getDate() + DAYS_IN_YEAR);
 		const secure = location.protocol === "https:" ? "; Secure" : "";
 		document.cookie = `${preferredLanguageCookieName}=${language}; expires=${expires.toUTCString()}; path=/; SameSite=Lax${secure}`;
 	}
 	if (typeof window !== "undefined") {
 		localStorage.setItem("preferred-language", language);
 	}
-};
+}
 
-export const getStoredLanguage = (): SupportedLanguageType | undefined => {
+export function getStoredLanguage(): SupportedLanguageType | undefined {
 	// First try to get from localStorage (client-side)
 	if (typeof window !== "undefined") {
 		const stored = localStorage.getItem("preferred-language");
@@ -35,11 +36,11 @@ export const getStoredLanguage = (): SupportedLanguageType | undefined => {
 	}
 
 	return undefined;
-};
+}
 
-export const parseLanguageCookie = (
+export function parseLanguageCookie(
 	cookieHeader: string | null,
-): SupportedLanguageType | undefined => {
+): SupportedLanguageType | undefined {
 	if (
 		cookieHeader === null ||
 		cookieHeader === undefined ||
@@ -52,12 +53,13 @@ export const parseLanguageCookie = (
 		.find((cookie) =>
 			cookie.trim().startsWith(`${preferredLanguageCookieName}=`),
 		);
-	if (match !== undefined && match !== null && match.includes("=")) {
-		const lang = match.split("=")[1]?.trim();
+	if (typeof match === "string" && match !== "" && match.includes("=")) {
+		const [, rawLang] = match.split("=");
+		const lang = rawLang?.trim();
 		return isSupportedLanguage(lang) ? lang : undefined;
 	}
 	return undefined;
-};
+}
 
 export function detectBrowserLanguage(
 	acceptLanguage?: string,
@@ -72,15 +74,15 @@ export function detectBrowserLanguage(
 	const languages = acceptLanguage
 		.split(",")
 		.map((lang) => {
-			const parts = lang.split(";");
-			const langPart = parts[0];
+			const [langPart] = lang.split(";");
 			if (langPart === undefined || langPart === null || langPart === "") {
 				return "";
 			}
-			const mainLang = langPart.split("-")[0];
-			return mainLang !== undefined && mainLang !== null && mainLang !== ""
-				? mainLang.trim().toLowerCase()
-				: "";
+			const [mainLang] = langPart.split("-");
+			if (mainLang === undefined || mainLang === null || mainLang === "") {
+				return "";
+			}
+			return mainLang.trim().toLowerCase();
 		})
 		.filter((lang) => lang !== "");
 

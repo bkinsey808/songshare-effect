@@ -18,7 +18,11 @@ function isNonRelativeImport(line: string): boolean {
 		return false;
 	}
 
-	const pkg = String((match[1] ?? "").toString().split("/")[0]);
+	const [, raw] = match;
+	const rawStr = raw ?? "";
+	const segments = rawStr.toString().split("/");
+	const [firstSegment] = segments;
+	const pkg = String(firstSegment ?? "");
 	const allowed = new Set(["effect"]);
 	return !allowed.has(pkg);
 }
@@ -26,35 +30,39 @@ function isNonRelativeImport(line: string): boolean {
 async function scanDir(
 	dir: string,
 ): Promise<{ file: string; line: number; code: string }[]> {
+	const LINE_INDEX_INCREMENT = 1;
+	const LINE_NUMBER_OFFSET = 1;
 	const results: { file: string; line: number; code: string }[] = [];
 	const entries = await readdir(dir, { withFileTypes: true });
 
 	for (const entry of entries) {
 		const full = path.join(dir, entry.name);
 		if (entry.isDirectory()) {
+			// Intentionally await here — scanDir is recursive and we want to
+			// process directories sequentially to avoid too many concurrent
+			// filesystem operations.
+			// eslint-disable-next-line no-await-in-loop
 			results.push(...(await scanDir(full)));
-			continue;
-		}
-		if (!entry.isFile()) {
-			continue;
-		}
-		// Only check TypeScript sources copied into the functions dist directory.
-		// The bundling step emits minified JS bundles which contain many string
-		// literals that look like non-relative imports and cause false positives.
-		// We only need to validate .ts files (shared sources) here.
-		if (!entry.name.endsWith(".ts")) {
-			continue;
-		}
+		} else if (entry.isFile() && entry.name.endsWith(".ts")) {
+			// Only check TypeScript sources copied into the functions dist directory.
+			// The bundling step emits minified JS bundles which contain many string
+			// literals that look like non-relative imports and cause false positives.
+			// We only need to validate .ts files (shared sources) here.
 
-		const content = readFileSync(full, "utf8");
-		const lines = content.split(/\r?\n/);
-		for (let i = 0; i < lines.length; i++) {
-			// lines[i] can be undefined in TypeScript's type system if index is out-of-bounds;
-			// coerce to empty string to keep types simple and avoid errors while scanning.
-			const rawLine = safeArrayGet(lines, i) ?? "";
-			const line = String(rawLine);
-			if (isNonRelativeImport(line)) {
-				results.push({ file: full, line: i + 1, code: line.trim() });
+			const content = readFileSync(full, "utf8");
+			const lines = content.split(/\r?\n/);
+			for (let i = 0; i < lines.length; i += LINE_INDEX_INCREMENT) {
+				// lines[i] can be undefined in TypeScript's type system if index is out-of-bounds;
+				// coerce to empty string to keep types simple and avoid errors while scanning.
+				const rawLine = safeArrayGet(lines, i) ?? "";
+				const line = String(rawLine);
+				if (isNonRelativeImport(line)) {
+					results.push({
+						file: full,
+						line: i + LINE_NUMBER_OFFSET,
+						code: line.trim(),
+					});
+				}
 			}
 		}
 	}
@@ -63,16 +71,23 @@ async function scanDir(
 }
 
 async function main(): Promise<number> {
-	const target = process.argv[2] ?? "dist/functions";
+	const ARGV_TARGET_INDEX = 2;
+	const EXIT_NOT_FOUND = 2;
+	const EXIT_ISSUES = 1;
+	const EXIT_SUCCESS = 0;
+
+	const target = process.argv[ARGV_TARGET_INDEX] ?? "dist/functions";
 	if (!existsSync(target)) {
 		console.error("Target path does not exist:", target);
-		return 2;
+		return EXIT_NOT_FOUND;
 	}
 
 	const matches = await scanDir(target);
-	if (matches.length === 0) {
-		console.log("No non-relative imports found in", target);
-		return 0;
+	const NO_MATCHES = 0;
+
+	if (matches.length === NO_MATCHES) {
+		console.warn("No non-relative imports found in", target);
+		return EXIT_SUCCESS;
 	}
 
 	console.error("ERROR: Found non-relative imports in", target);
@@ -80,7 +95,7 @@ async function main(): Promise<number> {
 		console.error(`${match.file}:${match.line}  ${match.code}`);
 	}
 
-	return 1;
+	return EXIT_ISSUES;
 }
 
 void main().then((code) => process.exit(code));

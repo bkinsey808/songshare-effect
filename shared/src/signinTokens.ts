@@ -23,6 +23,6 @@ export function isSigninErrorToken(
 		typeof value === "string" &&
 		// Avoid unsafe type assertions by performing a direct equality
 		// comparison against the runtime values.
-		Object.values(SigninErrorToken).some((v) => v === value)
+		Object.values(SigninErrorToken).some((token) => token === value)
 	);
 }

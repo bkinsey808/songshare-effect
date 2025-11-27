@@ -8,43 +8,53 @@ import type { ReadonlyContext } from "@/api/hono/hono-context";
 
 import { decodeUnknownSyncOrThrow } from "@/shared/validation/decode-or-throw";
 
-type ParseDataFromCookieParams<T, A extends boolean | undefined> = Readonly<{
+type ParseDataFromCookieParams<
+	Data,
+	AllowMissing extends boolean | undefined,
+> = Readonly<{
 	ctx?: ReadonlyContext;
 	cookieName: string;
-	schema: Schema.Schema<T, unknown>;
+	schema: Schema.Schema<Data, unknown>;
 	debug?: boolean;
-	allowMissing?: A;
+	allowMissing?: AllowMissing;
 }>;
 
 // Conditional type for return value
-type ParseCookieResult<T, A extends boolean | undefined> = A extends true
-	? T | undefined
-	: T;
+type ParseCookieResult<
+	Data,
+	AllowMissing extends boolean | undefined,
+> = AllowMissing extends true ? Data | undefined : Data;
 
 export async function parseDataFromCookie<
-	T,
-	A extends boolean | undefined = false,
+	Data,
+	AllowMissing extends boolean | undefined = false,
 >({
 	ctx,
 	cookieName,
 	schema,
 	debug = false,
 	allowMissing = false,
-}: ParseDataFromCookieParams<T, A>): Promise<ParseCookieResult<T, A>> {
+}: ParseDataFromCookieParams<Data, AllowMissing>): Promise<
+	ParseCookieResult<Data, AllowMissing>
+> {
 	if (!ctx) {
 		throw new Error("Missing context when parsing data from cookie");
 	}
 	const cookieHeader = ctx.req.header("Cookie");
 	const cookie = typeof cookieHeader === "string" ? cookieHeader : "";
 	if (debug) {
+		// oxlint-disable-next-line no-console
 		console.log("[parseDataFromCookie] Raw cookie:", cookie);
 	}
 
 	const re = new RegExp(`${cookieName}=([^;]+)`);
 	const match = re.exec(cookie);
+	const CAPTURE_GROUP_ONE = 1;
 	const token =
-		match && typeof match[1] === "string" && match[1] !== ""
-			? match[1]
+		match &&
+		typeof match[CAPTURE_GROUP_ONE] === "string" &&
+		match[CAPTURE_GROUP_ONE] !== ""
+			? match[CAPTURE_GROUP_ONE]
 			: undefined;
 
 	if (token === undefined || token === "") {
@@ -54,7 +64,7 @@ export async function parseDataFromCookie<
 			// Narrow, localized disable: returning `undefined` for the conditional generic
 			// return type. This is a safe behavior at the API boundary.
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion
-			return undefined as ParseCookieResult<T, A>;
+			return undefined as ParseCookieResult<Data, AllowMissing>;
 		}
 		throw new Error("Failed to extract token from cookie");
 	}
@@ -67,6 +77,7 @@ export async function parseDataFromCookie<
 
 		const verified = await verify(token, jwtSecret);
 		if (debug) {
+			// oxlint-disable-next-line no-console
 			console.log("[parseDataFromCookie] Verified JWT payload:", verified);
 		}
 
@@ -75,7 +86,7 @@ export async function parseDataFromCookie<
 
 		// If the decoded value is a record we can safely return it; otherwise it's a schema match
 		// and the decode helper will have thrown. Keep TS happy by returning the decoded value.
-		return decoded as ParseCookieResult<T, A>;
+		return decoded as ParseCookieResult<Data, AllowMissing>;
 	} catch (err) {
 		console.error(
 			"[parseDataFromCookie] JWT verification or parsing error:",
@@ -84,8 +95,8 @@ export async function parseDataFromCookie<
 		if (allowMissing) {
 			// Narrow, localized disable for the same conditional-return pattern.
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion
-			return undefined as ParseCookieResult<T, A>;
+			return undefined as ParseCookieResult<Data, AllowMissing>;
 		}
-		throw new Error("Failed to parse data from cookie");
+		throw new Error("Failed to parse data from cookie", { cause: err });
 	}
 }

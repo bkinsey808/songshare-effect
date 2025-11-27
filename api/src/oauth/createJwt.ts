@@ -5,13 +5,15 @@ import { ServerError } from "@/api/errors";
 import { getErrorMessage } from "@/api/getErrorMessage";
 
 // Helper: create JWT (wrap sign)
-export function createJwt<T>(
-	payload: T,
+export function createJwt<PayloadType>(
+	payload: PayloadType,
 	secret: string,
 ): Effect.Effect<string, ServerError> {
 	// Helper guard for runtime-checked plain objects
-	function isRecordStringUnknown(x: unknown): x is Record<string, unknown> {
-		return typeof x === "object" && x !== null;
+	function isRecordStringUnknown(
+		value: unknown,
+	): value is Record<string, unknown> {
+		return typeof value === "object" && value !== null;
 	}
 
 	// Serialize the payload to a plain object suitable for JWT signing.
@@ -19,15 +21,21 @@ export function createJwt<T>(
 	// and fall back to a `{ payload: string }` record on failure.
 	return Effect.tryPromise<string, ServerError>({
 		try: async () => {
-			const toSign: Record<string, unknown> = (() => {
+			function computeToSign(
+				payloadCandidate: PayloadType,
+			): Record<string, unknown> {
 				try {
-					const parsed: unknown = JSON.parse(JSON.stringify(payload));
-					if (isRecordStringUnknown(parsed)) return parsed;
-					return { payload: getErrorMessage(payload) };
+					const parsed: unknown = JSON.parse(JSON.stringify(payloadCandidate));
+					if (isRecordStringUnknown(parsed)) {
+						return parsed;
+					}
+					return { payload: getErrorMessage(payloadCandidate) };
 				} catch {
-					return { payload: getErrorMessage(payload) };
+					return { payload: getErrorMessage(payloadCandidate) };
 				}
-			})();
+			}
+
+			const toSign: Record<string, unknown> = computeToSign(payload);
 
 			return sign(toSign, secret);
 		},

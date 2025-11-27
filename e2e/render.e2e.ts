@@ -2,6 +2,8 @@ import { justDeletedAccountKey } from "@/shared/sessionStorageKeys";
 import { expect, test } from "@playwright/test";
 
 const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] ?? "";
+// Test timing constants
+const HYDRATION_WAIT_MS: number = 2000;
 
 // Choose base URL: if PLAYWRIGHT_BASE_URL is set we treat this as a deployed run
 test.describe("Render smoke", () => {
@@ -22,7 +24,7 @@ test.describe("Render smoke", () => {
 		});
 
 		// Allow some extra time for hydration/UI to render in dev mode
-		await page.waitForTimeout(2000);
+		await page.waitForTimeout(HYDRATION_WAIT_MS);
 
 		// Expect the page title to be correct
 		await expect(page).toHaveTitle("songshare-effect");
@@ -41,7 +43,7 @@ test.describe("Render smoke", () => {
 		await page.reload({ waitUntil: "load" });
 
 		// Allow time for hydration and alert to render
-		await page.waitForTimeout(2000);
+		await page.waitForTimeout(HYDRATION_WAIT_MS);
 
 		// Expect the page title to be correct
 		await expect(page).toHaveTitle("songshare-effect");
@@ -61,7 +63,7 @@ test.describe("Render smoke", () => {
 		await page.reload({ waitUntil: "load" });
 
 		// Allow time for hydration and alert to render
-		await page.waitForTimeout(2000);
+		await page.waitForTimeout(HYDRATION_WAIT_MS);
 
 		// Expect the page title to be correct
 		await expect(page).toHaveTitle("songshare-effect");

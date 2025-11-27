@@ -1,4 +1,3 @@
-
 import { existsSync, mkdirSync, renameSync, rmSync } from "fs";
 import { dirname } from "path";
 
@@ -8,13 +7,15 @@ export type MoveSupabaseTypesConfig = {
 	generated: boolean;
 };
 
-export function moveSupabaseTypes(config: Readonly<MoveSupabaseTypesConfig>): string | undefined {
+export function moveSupabaseTypes(
+	config: Readonly<MoveSupabaseTypesConfig>,
+): string | undefined {
 	if (!config.generated || !existsSync(config.tempPath)) {
-		console.log("📁 No types file to move (using fallback schemas)");
+		console.warn("📁 No types file to move (using fallback schemas)");
 		return undefined;
 	}
 
-	console.log("📁 Moving Supabase types to shared/src/generated directory...");
+	console.warn("📁 Moving Supabase types to shared/src/generated directory...");
 	try {
 		mkdirSync(dirname(config.destinationPath), { recursive: true });
 		renameSync(config.tempPath, config.destinationPath);

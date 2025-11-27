@@ -14,6 +14,9 @@ export const songFieldsSchema: Schema.Array$<
 	Schema.Literal<typeof songFields>
 > = Schema.Array(songFieldSchema);
 
+const NAME_MIN_LENGTH = 2;
+const NAME_MAX_LENGTH = 100;
+
 export const songNameSchema: Schema.Schema<string> = Schema.String.pipe(
 	Schema.filter((value) => value.trim() === value, {
 		message: () => "song.validation.noLeadingTrailingSpaces",
@@ -21,14 +24,18 @@ export const songNameSchema: Schema.Schema<string> = Schema.String.pipe(
 	Schema.annotations({
 		[songMessageKey]: { key: "song.validation.noLeadingTrailingSpaces" },
 	}),
-	Schema.filter((value) => value.length >= 2 && value.length <= 100, {
-		message: () => "song.validation.nameLength",
-	}),
+	Schema.filter(
+		(value) =>
+			value.length >= NAME_MIN_LENGTH && value.length <= NAME_MAX_LENGTH,
+		{
+			message: () => "song.validation.nameLength",
+		},
+	),
 	Schema.annotations({
 		[songMessageKey]: {
 			key: "song.validation.nameLength",
-			minLength: 2,
-			maxLength: 100,
+			minLength: NAME_MIN_LENGTH,
+			maxLength: NAME_MAX_LENGTH,
 		},
 	}),
 	Schema.filter((value) => !/\s{2}/.test(value), {

@@ -59,7 +59,9 @@ export default function useSlidesEditor({
 	handleDragEnd: (event: DragEndEvent) => void;
 	sortableItems: string[];
 } {
+	// oxlint-disable-next-line no-console
 	console.log("slideOrder", slideOrder);
+	// oxlint-disable-next-line no-console
 	console.log("slides", slides);
 
 	// Use specialized hooks for different concerns

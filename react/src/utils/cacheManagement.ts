@@ -7,6 +7,11 @@
 const APP_VERSION = "1.0.0";
 const VERSION_KEY = "app_version";
 
+// Timing constants
+const UPDATE_CHECK_INTERVAL_MINUTES = 5;
+const MS_IN_SECOND = 1000;
+const SECONDS_IN_MINUTE = 60;
+
 /**
  * Check if the app version has changed and clear cache if needed
  */
@@ -104,7 +109,7 @@ export async function checkForUpdates(): Promise<boolean> {
 export function initCacheManagement(): void {
 	checkAppVersion();
 
-	// Check for updates every 5 minutes
+	// Check for updates every UPDATE_CHECK_INTERVAL_MINUTES minutes
 	setInterval(
 		() => {
 			void checkForUpdates()
@@ -120,6 +125,6 @@ export function initCacheManagement(): void {
 					return false;
 				});
 		},
-		5 * 60 * 1000,
+		UPDATE_CHECK_INTERVAL_MINUTES * SECONDS_IN_MINUTE * MS_IN_SECOND,
 	);
 }

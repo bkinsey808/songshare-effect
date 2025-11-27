@@ -1,4 +1,3 @@
-
 import { execFileSync } from "child_process";
 
 export function runPrettierWrite(
@@ -8,11 +7,12 @@ export function runPrettierWrite(
 		cliPath: string;
 	}>,
 ): void {
-	if (params.files.length === 0) {
+	const NO_FILES = 0;
+	if (params.files.length === NO_FILES) {
 		return;
 	}
 
-	console.log("🔧 Running Prettier on generated files...");
+	console.warn("🔧 Running Prettier on generated files...");
 	try {
 		execFileSync(params.cliPath, ["--write", ...params.files], {
 			cwd: params.projectRoot,

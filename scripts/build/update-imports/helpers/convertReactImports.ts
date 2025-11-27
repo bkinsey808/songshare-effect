@@ -13,12 +13,15 @@ export function convertReactImports(filePath: string, content: string): string {
 	let updatedContent = content;
 
 	// Convert ../../ patterns in React files to @/react
+	const MATCH_INDEX = 0;
+	const IMPORT_PART_INDEX = 1;
+	const RELATIVE_PATH_INDEX = 3;
 	updatedContent = updatedContent.replace(
 		/import\s+([^'"]*)\s+from\s+['"](\.\.\/)+([^'"]*?)['"]?;?/g,
 		(...args) => {
-			const match = String(args[0] ?? "");
-			const importPart = String(args[1] ?? "");
-			const relativePath = String(args[3] ?? "");
+			const match = String(args[MATCH_INDEX] ?? "");
+			const importPart = String(args[IMPORT_PART_INDEX] ?? "");
+			const relativePath = String(args[RELATIVE_PATH_INDEX] ?? "");
 			// Skip if already using aliases
 			if (relativePath.startsWith("@/")) {
 				return match;

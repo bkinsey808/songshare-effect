@@ -18,6 +18,7 @@ import { defaultLanguage } from "@/shared/language/supported-languages";
 import { SupportedLanguageSchema } from "@/shared/language/supported-languages-effect";
 import { apiOauthCallbackPath } from "@/shared/paths";
 import { ProviderSchema } from "@/shared/providers";
+type ProviderType = import("@/shared/providers").ProviderType;
 import {
 	langQueryParam,
 	redirectPortQueryParam,
@@ -38,13 +39,13 @@ import { type ReadonlyContext } from "../hono/hono-context";
  * Effect-based handler for OAuth sign-in initiation.
  * Produces a redirect Response and sets a CSRF cookie.
  */
-const oauthSignInFactory = (
+function oauthSignInFactory(
 	ctx: ReadonlyContext,
-): Effect.Effect<Response, AppError> =>
-	Effect.gen(function* ($) {
+): Effect.Effect<Response, AppError> {
+	return Effect.gen(function* oauthSignInGen($) {
 		// Parse provider param using Effect Schema decoder (as an Effect)
 		// Parse provider param synchronously and redirect on invalid provider.
-		const prov = (() => {
+		function computeProv(): unknown {
 			try {
 				return Schema.decodeUnknownSync(ProviderSchema)(
 					ctx.req.param("provider"),
@@ -52,7 +53,8 @@ const oauthSignInFactory = (
 			} catch {
 				return undefined;
 			}
-		})();
+		}
+		const prov = computeProv();
 
 		if (prov === undefined) {
 			// Invalid provider param: redirect to home with providerUnavailable token
@@ -69,8 +71,10 @@ const oauthSignInFactory = (
 			);
 		}
 
-		// ProviderSchema already validates type, so no assertion needed
-		const provider = prov;
+		// ProviderSchema already validates type, so narrow to `ProviderType` here
+		// Localized assertion: prov is the decoded value from ProviderSchema
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		const provider = prov as unknown as ProviderType;
 
 		// Generate CSRF state and set cookie (wrapped in Effect.sync)
 		const csrfState = nanoid();
@@ -97,23 +101,26 @@ const oauthSignInFactory = (
 		const headerOrigin = ctx.req.header("origin") ?? "";
 		const headerReferer =
 			ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
-		const derivedFromReferer = (() => {
+		function computeDerivedFromReferer(): string {
 			try {
 				return headerReferer ? new URL(headerReferer).origin : "";
 			} catch {
 				return "";
 			}
-		})();
+		}
+		const derivedFromReferer = computeDerivedFromReferer();
+		function computeRequestOrigin(reqUrl: string): string {
+			try {
+				return new URL(reqUrl).origin;
+			} catch {
+				return "";
+			}
+		}
+
 		const requestOrigin =
 			headerOrigin ||
 			derivedFromReferer ||
-			(() => {
-				try {
-					return new URL(String(ctx.req.url)).origin;
-				} catch {
-					return "";
-				}
-			})();
+			computeRequestOrigin(String(ctx.req.url));
 		// Prefer the configured redirect origin, but for localhost in non-
 		// production prefer the incoming request origin (so dev can run over
 		// either http or https without changing OAUTH_REDIRECT_ORIGIN).
@@ -158,7 +165,7 @@ const oauthSignInFactory = (
 		// Secure/SameSite=None cookies from being accepted by the browser.
 		const trimmedOrigin = (redirectOrigin ?? "").replace(/\/$/, "");
 		let redirect_uri = trimmedOrigin
-			? trimmedOrigin + (apiOauthCallbackPath ?? "")
+			? `${trimmedOrigin}${apiOauthCallbackPath ?? ""}`
 			: (apiOauthCallbackPath ?? "");
 
 		// If a developer-supplied redirect_port is present and the request targets
@@ -173,10 +180,7 @@ const oauthSignInFactory = (
 			// for localhost. Skip this in production — OAUTH_REDIRECT_ORIGIN should
 			// be configured there.
 			if (envRecord.ENVIRONMENT !== "production") {
-				redirect_uri =
-					"https://localhost:" +
-					redirectPortQuery +
-					(apiOauthCallbackPath ?? "");
+				redirect_uri = `https://localhost:${redirectPortQuery}${apiOauthCallbackPath ?? ""}`;
 			}
 		}
 
@@ -244,8 +248,7 @@ const oauthSignInFactory = (
 
 		// Build OAuth URL
 		const providerData = getBackEndProviderData(provider);
-		const authBaseUrl = providerData.authBaseUrl;
-		const clientIdEnvVar = providerData.clientIdEnvVar;
+		const { authBaseUrl, clientIdEnvVar } = providerData;
 		// Only allow string values for client_id
 		// Use a runtime check to ensure clientIdEnvVar is a valid key
 		let client_id = "";
@@ -297,12 +300,9 @@ const oauthSignInFactory = (
 		);
 
 		// Return redirect Response (wrapped in Effect.sync)
-		return yield* $(
-			Effect.sync(() => {
-				return ctx.redirect(authUrl);
-			}),
-		);
+		return yield* $(Effect.sync(() => ctx.redirect(authUrl)));
 	});
+}
 
 export async function oauthSignInHandler(
 	ctx: ReadonlyContext,

@@ -20,33 +20,40 @@ type UseColumnResizeReturn = Readonly<
 
 export function useColumnResize({
 	fields,
-	defaultFieldWidth = 200,
-	slideNameWidth = 144,
+	defaultFieldWidth,
+	slideNameWidth,
 }: UseColumnResizeProps): UseColumnResizeReturn {
+	const ZERO = 0;
+	const DEFAULT_FIELD_WIDTH_VALUE = 200;
+	const DEFAULT_SLIDE_NAME_WIDTH_VALUE = 144;
+	const MIN_COLUMN_WIDTH = 80;
+	const DEFAULT_FIELD_WIDTH = defaultFieldWidth ?? DEFAULT_FIELD_WIDTH_VALUE;
+	const DEFAULT_SLIDE_NAME_WIDTH =
+		slideNameWidth ?? DEFAULT_SLIDE_NAME_WIDTH_VALUE;
 	// Use Map for safer key handling
 	const [columnWidths, setColumnWidths] = useState<Map<string, number>>(() => {
 		const widthsMap = new Map<string, number>();
 		for (const field of fields) {
-			widthsMap.set(field, defaultFieldWidth);
+			widthsMap.set(field, DEFAULT_FIELD_WIDTH);
 		}
 		return widthsMap;
 	});
 
 	const [isResizing, setIsResizing] = useState(false);
 	const resizingField = useRef<string | undefined>(undefined);
-	const startX = useRef<number>(0);
-	const startWidth = useRef<number>(0);
+	const startX = useRef<number>(ZERO);
+	const startWidth = useRef<number>(ZERO);
 
-	const cleanup = useRef<() => void>(() => {});
+	const cleanup = useRef<() => void>(() => void ZERO);
 
-	const handleMouseMove = (event: MouseEvent): void => {
+	function handleMouseMove(event: MouseEvent): void {
 		if (resizingField.current === undefined) {
 			return;
 		}
 
 		const deltaX = event.clientX - startX.current;
-		// Minimum width of 80px
-		const newWidth = Math.max(80, startWidth.current + deltaX);
+		// Minimum width for a column
+		const newWidth = Math.max(MIN_COLUMN_WIDTH, startWidth.current + deltaX);
 		const currentField = resizingField.current;
 
 		setColumnWidths((prev) => {
@@ -54,21 +61,21 @@ export function useColumnResize({
 			newMap.set(currentField, newWidth);
 			return newMap;
 		});
-	};
+	}
 
-	const handleMouseUp = (): void => {
+	function handleMouseUp(): void {
 		setIsResizing(false);
 		resizingField.current = undefined;
 		cleanup.current();
-	};
+	}
 
-	const startResize = (field: string, clientX: number): void => {
+	function startResize(field: string, clientX: number): void {
 		setIsResizing(true);
 		resizingField.current = field;
 		startX.current = clientX;
 
 		const fieldWidth = columnWidths.get(field);
-		startWidth.current = fieldWidth ?? defaultFieldWidth;
+		startWidth.current = fieldWidth ?? DEFAULT_FIELD_WIDTH;
 
 		document.addEventListener("mousemove", handleMouseMove);
 		document.addEventListener("mouseup", handleMouseUp);
@@ -77,17 +84,17 @@ export function useColumnResize({
 			document.removeEventListener("mousemove", handleMouseMove);
 			document.removeEventListener("mouseup", handleMouseUp);
 		};
-	};
+	}
 
-	const getColumnWidth = (field: string): number => {
+	function getColumnWidth(field: string): number {
 		const fieldWidth = columnWidths.get(field);
-		return fieldWidth ?? defaultFieldWidth;
-	};
+		return fieldWidth ?? DEFAULT_FIELD_WIDTH;
+	}
 
 	// Calculate total width including slide name column
 	const totalWidth =
-		slideNameWidth +
-		Array.from(columnWidths.values()).reduce((sum, width) => sum + width, 0);
+		DEFAULT_SLIDE_NAME_WIDTH +
+		Array.from(columnWidths.values()).reduce((sum, width) => sum + width, ZERO);
 
 	return {
 		getColumnWidth,

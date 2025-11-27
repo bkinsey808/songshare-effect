@@ -20,8 +20,8 @@ type UseAppFormProps<FormValues> = {
 type UseAppFormReturn<FormValues> = {
 	readonly validationErrors: ReadonlyArray<ValidationError>;
 	readonly isSubmitting: boolean;
-	readonly handleFieldBlur: <K extends keyof FormValues>(
-		field: K,
+	readonly handleFieldBlur: <FieldKey extends keyof FormValues>(
+		field: FieldKey,
 		ref: React.RefObject<HTMLInputElement | null>,
 	) => void;
 	readonly getFieldError: (
@@ -44,12 +44,12 @@ type UseAppFormReturn<FormValues> = {
 /**
  * Hook for managing form state and validation with Effect schemas
  */
-export const useAppForm = <FormValues extends Record<string, unknown>>({
+export function useAppForm<FormValues extends Record<string, unknown>>({
 	schema,
 	formRef,
 	initialValues,
 	defaultErrorMessage,
-}: UseAppFormProps<FormValues>): UseAppFormReturn<FormValues> => {
+}: UseAppFormProps<FormValues>): UseAppFormReturn<FormValues> {
 	const [validationErrors, setValidationErrors] = useState<
 		ReadonlyArray<ValidationError>
 	>([]);
@@ -58,12 +58,15 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 	/**
 	 * Handle field blur validation
 	 */
-	const handleFieldBlur = <Field extends keyof FormValues>(
+	function handleFieldBlur<Field extends keyof FormValues>(
 		field: Field,
 		ref: React.RefObject<HTMLInputElement | null>,
-	): void => {
+	): void {
 		const value = ref.current?.value ?? "";
+		/* oxlint-disable no-console */
+		// oxlint-disable-next-line no-console
 		console.log(`👆 handleFieldBlur called for ${String(field)}:`, value);
+		/* oxlint-enable no-console */
 
 		// Read current form data from the form
 		const formDataObj = new FormData(formRef.current || undefined);
@@ -79,7 +82,10 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 			}
 		}
 
+		/* oxlint-disable no-console */
+		// oxlint-disable-next-line no-console
 		console.log("📋 Current form data on blur:", currentFormData);
+		/* oxlint-enable no-console */
 
 		const fieldBlurHandler = createFieldBlurHandler({
 			schema,
@@ -89,16 +95,14 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 			i18nMessageKey: registerMessageKey,
 		});
 		fieldBlurHandler(field, value);
-	};
+	}
 
 	/**
 	 * Get field error
 	 */
-	const getFieldError = (
-		field: keyof FormValues,
-	): ValidationError | undefined => {
+	function getFieldError(field: keyof FormValues): ValidationError | undefined {
 		return validationErrors.find((err) => err.field === String(field));
-	};
+	}
 
 	const handleSubmit = createFormSubmitHandler<FormValues>({
 		schema,
@@ -109,22 +113,22 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 	/**
 	 * Handle API response using pure Effect - returns Effect that performs side effects and returns success boolean
 	 */
-	const handleApiResponseEffect = (
+	function handleApiResponseEffect(
 		response: Response,
 		setSubmitError: (error: string) => void,
-	): Effect.Effect<boolean> => {
+	): Effect.Effect<boolean> {
 		return createApiResponseHandlerEffect({
 			response,
 			setValidationErrors,
 			setSubmitError,
 			...(defaultErrorMessage !== undefined && { defaultErrorMessage }),
 		});
-	};
+	}
 
 	/**
 	 * Reset form to initial values
 	 */
-	const reset = (): void => {
+	function reset(): void {
 		if (formRef.current && initialValues) {
 			const form = formRef.current;
 			// Reset all form elements to their initial values
@@ -141,7 +145,7 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 		}
 		setValidationErrors([]);
 		setIsSubmitting(false);
-	};
+	}
 
 	return {
 		// State
@@ -156,4 +160,4 @@ export const useAppForm = <FormValues extends Record<string, unknown>>({
 		reset,
 		setValidationErrors,
 	};
-};
+}

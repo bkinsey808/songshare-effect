@@ -3,9 +3,9 @@ import { isSupportedLanguage } from "@/shared/language/supported-languages-effec
 import { preferredLanguageCookieName } from "../cookies";
 import { type SupportedLanguageType } from "./supported-languages";
 
-export const parseLanguageCookie = (
+export function parseLanguageCookie(
 	cookieHeader: string | null,
-): SupportedLanguageType | undefined => {
+): SupportedLanguageType | undefined {
 	if (
 		cookieHeader === null ||
 		cookieHeader === undefined ||
@@ -19,8 +19,9 @@ export const parseLanguageCookie = (
 			cookie.trim().startsWith(`${preferredLanguageCookieName}=`),
 		);
 	if (match !== undefined && match !== null && match.includes("=")) {
-		const lang = match.split("=")[1]?.trim();
+		const [, raw] = match.split("=");
+		const lang = raw?.trim();
 		return isSupportedLanguage(lang) ? lang : undefined;
 	}
 	return undefined;
-};
+}

@@ -29,7 +29,8 @@ export function useSlideData({
 	slides,
 	setSlides,
 }: UseSlideDataParams): UseSlideDataReturn {
-	const addSlide = (): void => {
+	const ONE = 1;
+	function addSlide(): void {
 		const id = randomId();
 		const newSlideName = getNextSlideName(slides, slideOrder.length);
 		setSlideOrder([...slideOrder, id]);
@@ -47,10 +48,10 @@ export function useSlideData({
 				},
 			},
 		});
-	};
+	}
 
 	// Duplicate a slide (creates a new slide with copied data)
-	const duplicateSlide = (slideId: string): void => {
+	function duplicateSlide(slideId: string): void {
 		const originalSlide = safeGet(slides, slideId);
 		if (!originalSlide) {
 			console.error("Original slide not found for ID:", slideId);
@@ -85,11 +86,11 @@ export function useSlideData({
 
 		// Add the new slide to the presentation order
 		setSlideOrder([...slideOrder, newId]);
-	};
+	}
 
 	// Remove a slide
-	const deleteSlide = (slideId: string): void => {
-		if (slideOrder.length === 1) {
+	function deleteSlide(slideId: string): void {
+		if (slideOrder.length === ONE) {
 			return;
 		}
 		const newOrder = slideOrder.filter((id) => id !== slideId);
@@ -98,7 +99,7 @@ export function useSlideData({
 		);
 		setSlideOrder(newOrder);
 		setSlides(newSlides);
-	};
+	}
 
 	return {
 		addSlide,

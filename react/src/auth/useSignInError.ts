@@ -18,14 +18,17 @@ export default function useSignInError(): UseSignInErrorReturn {
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	// capture initial params once on first render
-	const initialToken = (() =>
-		searchParams.get(signinErrorQueryParam) ?? undefined)();
+	function computeInitialToken(): string | undefined {
+		return searchParams.get(signinErrorQueryParam) ?? undefined;
+	}
+
+	const initialToken = computeInitialToken();
 	const [provider] = useState<string | undefined>(
 		() => searchParams.get(providerQueryParam) ?? undefined,
 	);
 
 	// Map the incoming token (e.g. 'providerMismatch') to a translation key
-	const tokenToKey = (token: string | undefined): string | undefined => {
+	function tokenToKey(token: string | undefined): string | undefined {
 		if (token === undefined) {
 			return undefined;
 		}
@@ -33,7 +36,7 @@ export default function useSignInError(): UseSignInErrorReturn {
 			return `errors.signin.${token}`;
 		}
 		return undefined;
-	};
+	}
 
 	const [signinError, setSigninError] = useState<string | undefined>(() =>
 		tokenToKey(initialToken),

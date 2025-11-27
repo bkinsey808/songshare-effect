@@ -21,13 +21,13 @@ export function fetchUserInfo({
 
 			const res = await fetch(userInfoUrl, { headers });
 			if (!res.ok) {
-				const t = await res.text().catch(() => "<non-text response>");
+				const text = await res.text().catch(() => "<non-text response>");
 				console.error(
 					"[oauthUserData] Userinfo fetch non-OK response:",
 					res.status,
-					t,
+					text,
 				);
-				throw new Error(`Userinfo fetch failed: ${res.status} ${t}`);
+				throw new Error(`Userinfo fetch failed: ${res.status} ${text}`);
 			}
 
 			const jsonRaw: unknown = await res.json().catch(() => undefined);

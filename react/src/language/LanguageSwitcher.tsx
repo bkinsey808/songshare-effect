@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
+import { LANG_PREFIX_LENGTH } from "@/shared/constants/http";
 import {
 	SupportedLanguage,
 	type SupportedLanguageType,
@@ -25,16 +26,16 @@ export default function LanguageSwitcher(): ReactElement {
 	const currentLang = isSupportedLanguage(lang) ? lang : defaultLanguage;
 
 	// Extract the path without the language prefix
-	const currentPath = location.pathname.substring(3) || "/";
+	const currentPath = location.pathname.substring(LANG_PREFIX_LENGTH) || "/";
 
-	const handleLanguageChange = (newLang: SupportedLanguageType): void => {
+	function handleLanguageChange(newLang: SupportedLanguageType): void {
 		if (newLang !== currentLang) {
 			// Store the language preference
 			setStoredLanguage(newLang);
 
 			void navigate(`/${newLang}${currentPath}`);
 		}
-	};
+	}
 
 	return (
 		<select

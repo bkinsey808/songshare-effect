@@ -6,12 +6,12 @@ export function useIsOnline(): boolean {
 	);
 
 	useEffect(() => {
-		const handleOnline = (): void => {
+		function handleOnline(): void {
 			setIsOnline(true);
-		};
-		const handleOffline = (): void => {
+		}
+		function handleOffline(): void {
 			setIsOnline(false);
-		};
+		}
 		window.addEventListener("online", handleOnline);
 		window.addEventListener("offline", handleOffline);
 		return () => {

@@ -40,12 +40,17 @@ export function buildSetCookieHeader({
 		secureFlag,
 	});
 
+	const DEFAULT_MAX_AGE_SECONDS = 604800; // 7 days
+	const ZERO = 0;
+
 	const maxAge =
-		typeof opts?.maxAge === "number" ? String(opts?.maxAge) : "604800";
+		typeof opts?.maxAge === "number"
+			? String(opts?.maxAge)
+			: String(DEFAULT_MAX_AGE_SECONDS);
 	const httpOnly = opts?.httpOnly !== false;
 
 	const expires =
-		opts?.maxAge === 0 ? `Expires=${new Date(0).toUTCString()}; ` : "";
+		opts?.maxAge === ZERO ? `Expires=${new Date(ZERO).toUTCString()}; ` : "";
 
 	const httpOnlyPart = httpOnly ? "HttpOnly; " : "";
 	const headerValue =

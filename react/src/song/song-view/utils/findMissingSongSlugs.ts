@@ -21,12 +21,14 @@ export function findMissingSongSlugs({
 			.map((id) => {
 				const song = safeGet(publicSongs, id) as unknown;
 
-				function getSongSlug(x: unknown): string | undefined {
-					if (typeof x !== "object" || x === null) return undefined;
+				function getSongSlug(value: unknown): string | undefined {
+					if (typeof value !== "object" || value === null) {
+						return undefined;
+					}
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-type-assertion
-					const obj = x as Record<string, unknown>;
+					const obj = value as Record<string, unknown>;
 					if (
-						Object.prototype.hasOwnProperty.call(obj, "song_slug") &&
+						Object.hasOwn(obj, "song_slug") &&
 						typeof obj["song_slug"] === "string"
 					) {
 						// eslint-disable-next-line @typescript-eslint/no-unsafe-return

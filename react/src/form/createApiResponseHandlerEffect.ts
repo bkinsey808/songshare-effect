@@ -8,7 +8,7 @@ import { createApiResponseEffect } from "./createApiResponseEffect";
 /**
  * Create an Effect that handles API response with side effect callbacks
  */
-export const createApiResponseHandlerEffect = ({
+export function createApiResponseHandlerEffect({
 	response,
 	setValidationErrors,
 	setSubmitError,
@@ -20,7 +20,7 @@ export const createApiResponseHandlerEffect = ({
 	) => void;
 	readonly setSubmitError: (error: string) => void;
 	readonly defaultErrorMessage?: string;
-}): Effect.Effect<boolean> => {
+}): Effect.Effect<boolean> {
 	return createApiResponseEffect(response).pipe(
 		Effect.matchEffect({
 			onSuccess: () => {
@@ -51,4 +51,4 @@ export const createApiResponseHandlerEffect = ({
 			},
 		}),
 	);
-};
+}

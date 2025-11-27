@@ -9,6 +9,7 @@ import { verifyDoubleSubmitOrThrow } from "@/api/csrf/verifyDoubleSubmitOrThrow"
 import { verifySameOriginOrThrow } from "@/api/csrf/verifySameOriginOrThrow";
 import { AuthenticationError, DatabaseError } from "@/api/errors";
 import { getVerifiedUserSession } from "@/api/user-session/getVerifiedSession";
+import { HTTP_FORBIDDEN } from "@/shared/constants/http";
 import { createClient } from "@supabase/supabase-js";
 
 import { type ReadonlyContext } from "../hono/hono-context";
@@ -19,7 +20,7 @@ import { type ReadonlyContext } from "../hono/hono-context";
 export default function accountDelete(
 	ctx: ReadonlyContext,
 ): Effect.Effect<Response, AuthenticationError | DatabaseError> {
-	return Effect.gen(function* ($) {
+	return Effect.gen(function* accountDeleteGen($) {
 		// Basic CSRF checks: ensure the request originated from an allowed origin
 		// and that the client provided a valid double-submit CSRF token.
 		try {
@@ -33,7 +34,11 @@ export default function accountDelete(
 					"CSRF/authentication failure on account delete:",
 					err.message,
 				);
-				return ctx.json({ error: err.message }, 403);
+				// Use shared HTTP constant instead of magic number
+				return new Response(JSON.stringify({ error: err.message }), {
+					status: HTTP_FORBIDDEN,
+					headers: { "Content-Type": "application/json" },
+				});
 			}
 			throw err;
 		}

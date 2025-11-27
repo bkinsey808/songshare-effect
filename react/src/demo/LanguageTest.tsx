@@ -4,30 +4,31 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
 import { setStoredLanguage } from "@/react/language/languageStorage";
+import { LANG_PREFIX_LENGTH } from "@/shared/constants/http";
 
 export default function LanguageTest(): ReactElement {
 	const { t, i18n } = useTranslation();
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	const testTranslation = (key: string): string => {
+	function testTranslation(key: string): string {
 		try {
 			return t(key);
 		} catch (error) {
 			return `Error: ${String(error)}`;
 		}
-	};
+	}
 
-	const switchLanguage = (newLang: SupportedLanguageType): void => {
+	function switchLanguage(newLang: SupportedLanguageType): void {
 		// Update stored preference (like real language switcher)
 		setStoredLanguage(newLang);
 
 		// Extract the path without the language prefix
-		const currentPath = location.pathname.substring(3) || "/";
+		const currentPath = location.pathname.substring(LANG_PREFIX_LENGTH) || "/";
 
 		// Navigate to the new language URL
 		void navigate(`/${newLang}${currentPath}`);
-	};
+	}
 
 	return (
 		<div className="rounded-lg bg-gray-800 p-4 text-white">

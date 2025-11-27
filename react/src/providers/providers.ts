@@ -56,8 +56,8 @@ const providerFrontEndData: Record<ProviderType, ProviderFrontEndData> = {
 	},
 } as const satisfies Record<ProviderType, ProviderFrontEndData>;
 
-export function getFrontEndProviderData<T extends ProviderType>(
-	provider: T,
-): (typeof providerFrontEndData)[T] {
+export function getFrontEndProviderData<ProviderKey extends ProviderType>(
+	provider: ProviderKey,
+): (typeof providerFrontEndData)[ProviderKey] {
 	return superSafeGet(providerFrontEndData, provider);
 }

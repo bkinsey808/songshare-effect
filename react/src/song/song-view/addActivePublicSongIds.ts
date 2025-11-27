@@ -8,7 +8,7 @@ import { getStoreApi } from "@/react/zustand/useAppStore";
 import { isRecord } from "@/shared/utils/typeGuards";
 
 import { type SongPublic, songPublicSchema } from "../song-schema";
-import { type SongSubscribeSlice } from "./songSlice";
+import { type SongSubscribeSlice } from "./song-slice";
 
 export default function addActivePublicSongIds(
 	set: (
@@ -52,24 +52,26 @@ export default function addActivePublicSongIds(
 				storeForOps.subscribeToActivePublicSongs();
 			return {
 				activePublicSongsUnsubscribe:
-					activePublicSongsUnsubscribe ?? (() => {}),
+					activePublicSongsUnsubscribe ?? (() => undefined),
 			};
 		});
 
-		if (newActivePublicSongIds.length === 0) {
-			console.log("[addActivePublicSongIds] No active songs to fetch.");
+		const NO_ACTIVE_SONGS = 0;
+
+		if (newActivePublicSongIds.length === NO_ACTIVE_SONGS) {
+			console.warn("[addActivePublicSongIds] No active songs to fetch.");
 			return;
 		}
 
 		// Read optional visitorToken via the app-level state when available.
-		let visitorToken: string | undefined;
+		let visitorToken: string | undefined = undefined;
 		if (appState) {
 			const appStateUnknown: unknown = appState;
-			if (
-				isRecord(appStateUnknown) &&
-				typeof appStateUnknown["visitorToken"] === "string"
-			) {
-				visitorToken = appStateUnknown["visitorToken"];
+			if (isRecord(appStateUnknown)) {
+				const { visitorToken: vt } = appStateUnknown;
+				if (typeof vt === "string") {
+					visitorToken = vt;
+				}
 			}
 		}
 
@@ -88,7 +90,7 @@ export default function addActivePublicSongIds(
 
 		// Fire-and-forget async function to fetch all active song data
 		void (async () => {
-			console.log(
+			console.warn(
 				"[addActivePublicSongIds] Fetching active songs:",
 				newActivePublicSongIds,
 			);

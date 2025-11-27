@@ -6,10 +6,12 @@ import { useParams } from "react-router-dom";
 import { useAppForm } from "@/react/form/useAppForm";
 import { safeSet } from "@/shared/utils/safe";
 
-import type { SongFormValuesFromSchema as SongFormData } from "./songSchema";
 import type { Slide } from "./songTypes";
 
-import { songFormSchema } from "./songSchema";
+import {
+	songFormSchema,
+	type SongFormValuesFromSchema as SongFormData,
+} from "./songSchema";
 import { useCollapsibleSections } from "./useCollapsibleSections";
 import { useFormState } from "./useFormState";
 import { useFormSubmission } from "./useFormSubmission";
@@ -116,7 +118,7 @@ export default function useSongForm(): UseSongFormReturn {
 
 	// Handle form submission with data collection
 
-	const handleFormSubmit = async (event: React.FormEvent): Promise<void> => {
+	async function handleFormSubmit(event: React.FormEvent): Promise<void> {
 		event.preventDefault();
 
 		// Read form data
@@ -146,31 +148,35 @@ export default function useSongForm(): UseSongFormReturn {
 		} catch (error) {
 			console.error("❌ handleSubmit failed:", error);
 		}
-	};
+	}
 
 	// Update internal state when form data changes
-	const updateSlideOrder = (newOrder: ReadonlyArray<string>): void => {
+	function updateSlideOrder(newOrder: ReadonlyArray<string>): void {
 		setSlideOrder(newOrder);
-	};
+	}
 
-	const updateSlides = (newSlides: Readonly<Record<string, Slide>>): void => {
+	function updateSlides(newSlides: Readonly<Record<string, Slide>>): void {
 		setSlides(newSlides);
-	};
+	}
 
 	// Handle song name blur to generate slug
-	const handleSongNameBlur = (): void => {
+	function handleSongNameBlur(): void {
 		const name = songNameRef.current?.value?.trim();
 		const currentSlug = songSlugRef.current?.value?.trim();
-		if ((name?.length ?? 0) > 0 && (currentSlug?.length ?? 0) === 0) {
+		if (
+			typeof name === "string" &&
+			name !== "" &&
+			(typeof currentSlug !== "string" || currentSlug === "")
+		) {
 			const generatedSlug = generateSlug(name ?? "");
 			if (songSlugRef.current) {
 				songSlugRef.current.value = generatedSlug;
 			}
 		}
-	};
+	}
 
 	// Handle save button click
-	const handleSave = async (): Promise<void> => {
+	async function handleSave(): Promise<void> {
 		if (formRef.current) {
 			// Create a synthetic form event
 			// Narrow, localized assertion: synthetic DOM Event wrapped as React.FormEvent
@@ -181,7 +187,7 @@ export default function useSongForm(): UseSongFormReturn {
 			}) as unknown as React.FormEvent;
 			await handleFormSubmit(syntheticEvent);
 		}
-	};
+	}
 
 	return {
 		getFieldError,

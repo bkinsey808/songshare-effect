@@ -16,9 +16,11 @@ export function traceHook(name: string): void {
 
 export function useLogHookTrace(): void {
 	useEffect(() => {
-		if (buffer.length > 0) {
+		if (buffer.length) {
 			// Print a concise trace; React's console will show it with other logs
 			// and our Puppeteer capture will pick it up.
+			// Debug-only trace output — allowed for dev tooling.
+			// oxlint-disable-next-line no-console
 			console.debug("HOOK TRACE:", buffer.join(" -> "));
 		}
 		// Clear after logging so subsequent commits start fresh.

@@ -1,5 +1,3 @@
-import type { ReactElement } from "react";
-
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate } from "react-router-dom";
@@ -114,14 +112,13 @@ export default function HomePage(): ReactElement {
 						? t("pages.dashboard.accountDeleted.title")
 						: t("pages.dashboard.signedOutSuccess.title")
 				}
-				children={
-					alertState.type === "deleteSuccess"
-						? t("pages.dashboard.accountDeleted.message")
-						: t("pages.dashboard.signedOutSuccess.message")
-				}
 				variant="success"
 				alertType={alertState.type}
-			/>
+			>
+				{alertState.type === "deleteSuccess"
+					? t("pages.dashboard.accountDeleted.message")
+					: t("pages.dashboard.signedOutSuccess.message")}
+			</DismissibleAlert>
 
 			<div className="mb-10 text-center">
 				<h2 className="mb-4 text-3xl font-bold">🏠 {t("pages.home.title")}</h2>

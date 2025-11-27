@@ -1,12 +1,24 @@
-import type { ReactElement } from "react";
-
 import { Suspense } from "react";
+
+import {
+	DEMO_PROFILE_DELAY_MS,
+	DEMO_POSTS_DELAY_MS,
+	DEMO_POSTS_COUNT,
+} from "@/shared/constants/http";
 
 // Simple cache to store promises and their results
 const promiseCache = new Map<string, unknown>();
 
+// File-local constants to avoid magic-number literals in this demo
+const POST_SAMPLE_COUNT = 3;
+const ZERO = 0;
+const ONE = 1;
+
 // Utility function to create a suspending fetch
-function suspendingFetch<T>(key: string, fetcher: () => Promise<T>): T {
+function suspendingFetch<ResultType>(
+	key: string,
+	fetcher: () => Promise<ResultType>,
+): ResultType {
 	if (promiseCache.has(key)) {
 		const cached = promiseCache.get(key);
 
@@ -20,7 +32,7 @@ function suspendingFetch<T>(key: string, fetcher: () => Promise<T>): T {
 		// the cache is written by the typed fetcher above. Keep the disable
 		// very narrow to satisfy the project's lint rules.
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return cached as T;
+		return cached as ResultType;
 	}
 
 	// Create and cache the promise
@@ -52,7 +64,9 @@ type UserProfileParams = Readonly<{
 function UserProfile({ userId }: UserProfileParams): ReactElement {
 	const user = suspendingFetch(`user-${userId}`, async () => {
 		// Simulate API delay
-		await new Promise((resolve) => setTimeout(resolve, 2000));
+		await new Promise<void>((resolve) =>
+			setTimeout(resolve, DEMO_PROFILE_DELAY_MS),
+		);
 
 		// Mock user data
 		return {
@@ -80,26 +94,32 @@ type UserPostParams = Readonly<{
 function UserPosts({ userId }: UserPostParams): ReactElement {
 	const posts = suspendingFetch(`posts-${userId}`, async () => {
 		// Simulate API delay
-		await new Promise((resolve) => setTimeout(resolve, 1500));
+		await new Promise<void>((resolve) =>
+			setTimeout(resolve, DEMO_POSTS_DELAY_MS),
+		);
 
-		// Mock posts data
-		return [
-			{
-				id: 1,
-				title: "My Favorite Song",
-				content: "Just discovered this amazing track!",
+		// Mock posts data (generated to avoid magic number literals)
+		return Array.from({ length: POST_SAMPLE_COUNT }).map(
+			(_unusedVal, index) => {
+				const id = index + ONE;
+
+				let title = "New Playlist";
+				if (index === ZERO) {
+					title = "My Favorite Song";
+				} else if (index === ONE) {
+					title = "Concert Review";
+				}
+
+				let content = "Created a new playlist for working out.";
+				if (index === ZERO) {
+					content = "Just discovered this amazing track!";
+				} else if (index === ONE) {
+					content = "Went to see my favorite band last night.";
+				}
+
+				return { id, title, content };
 			},
-			{
-				id: 2,
-				title: "Concert Review",
-				content: "Went to see my favorite band last night.",
-			},
-			{
-				id: 3,
-				title: "New Playlist",
-				content: "Created a new playlist for working out.",
-			},
-		];
+		);
 	});
 
 	return (
@@ -131,9 +151,9 @@ function ProfileSkeleton(): ReactElement {
 function PostsSkeleton(): ReactElement {
 	return (
 		<div className="space-y-4">
-			{[1, 2, 3].map((i) => (
+			{Array.from({ length: DEMO_POSTS_COUNT }).map((_unusedVal, idx) => (
 				<div
-					key={i}
+					key={idx}
 					className="animate-pulse rounded-lg border border-white/10 bg-white/5 p-4"
 				>
 					<div className="mb-2 h-5 rounded bg-gray-600"></div>
@@ -146,11 +166,11 @@ function PostsSkeleton(): ReactElement {
 
 // Main demo component
 export default function SuspenseDemo(): ReactElement {
-	const clearCache = (): void => {
+	function clearCache(): void {
 		promiseCache.clear();
 		// Force re-render by updating a key or state if needed
 		window.location.reload();
-	};
+	}
 
 	return (
 		<div className="mb-12">

@@ -4,10 +4,10 @@ export type ValidationError = {
 	readonly params?: Record<string, unknown>;
 };
 
-export type ValidationResult<T> =
+export type ValidationResult<TValue> =
 	| {
 			readonly success: true;
-			readonly data: T;
+			readonly data: TValue;
 	  }
 	| {
 			readonly success: false;

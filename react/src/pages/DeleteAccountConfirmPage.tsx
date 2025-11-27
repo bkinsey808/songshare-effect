@@ -1,13 +1,17 @@
-import type { ReactElement } from "react";
-
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { getCookie } from "@/react/utils/cookie";
 import { getStoreApi } from "@/react/zustand/useAppStore";
+import {
+	JUST_DELETED_ACCOUNT_SIGNAL,
+	LANG_PATH_SEGMENT_INDEX,
+	EMPTY_STRING,
+} from "@/shared/constants/http";
 import { SupportedLanguage } from "@/shared/language/supported-languages";
 import { apiAccountDeletePath, dashboardPath } from "@/shared/paths";
+import { justDeletedAccountKey } from "@/shared/sessionStorageKeys";
 
 export default function DeleteAccountConfirmPage(): ReactElement {
 	const { t } = useTranslation();
@@ -17,14 +21,17 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 
 	const pathname =
 		typeof window === "undefined" ? "/" : window.location.pathname;
-	const maybeLang = pathname.split("/")[1] ?? "";
-	const currentLang = maybeLang.length > 0 ? maybeLang : SupportedLanguage.en;
+	const maybeLang =
+		pathname.split("/")[LANG_PATH_SEGMENT_INDEX] ?? EMPTY_STRING;
+	const currentLang = maybeLang ? maybeLang : SupportedLanguage.en;
 
-	const onCancel = (): void => {
+	function onCancel(): void {
 		void navigate(`/${currentLang}/${dashboardPath}`, { replace: true });
-	};
+	}
 
-	const onConfirm = async (): Promise<void> => {
+	const ZERO = 0;
+
+	async function onConfirm(): Promise<void> {
 		setError(undefined);
 		setLoading(true);
 
@@ -32,18 +39,20 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 		// compiler plugin doesn't need to reason about complex control flow
 		// inside try/catch blocks.
 		const csrf = getCookie("csrf-token");
-		let headers: HeadersInit | undefined;
-		if (typeof csrf === "string" && csrf.length > 0) {
+		let headers: HeadersInit | undefined = undefined;
+		if (typeof csrf === "string" && csrf.length > ZERO) {
 			headers = { "X-CSRF-Token": csrf };
 		}
 
-		let res: Response;
+		let res: Response | undefined = undefined;
 		try {
 			const init: RequestInit = {
 				method: "POST",
 				credentials: "include",
 			};
-			if (headers) init.headers = headers;
+			if (headers) {
+				init.headers = headers;
+			}
 
 			res = await fetch(apiAccountDeletePath, init);
 		} catch (err) {
@@ -52,13 +61,13 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 			return;
 		}
 
-		if (!res.ok) {
-			const text = await res.text();
-			let errMsg: string;
-			if (typeof text === "string" && text.length > 0) {
+		if (!res?.ok) {
+			const text = await (res?.text() ?? "");
+			let errMsg = "";
+			if (typeof text === "string" && text.length > ZERO) {
 				errMsg = text;
 			} else {
-				errMsg = `Failed to delete account (status ${res.status})`;
+				errMsg = `Failed to delete account (status ${res?.status ?? "no-response"})`;
 			}
 			setError(errMsg);
 			setLoading(false);
@@ -78,7 +87,10 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 		// Set a flag in sessionStorage to indicate account was just deleted.
 		// Home will read this and display the one-time alert.
 		try {
-			sessionStorage.setItem("justDeletedAccount", "1");
+			sessionStorage.setItem(
+				justDeletedAccountKey,
+				JUST_DELETED_ACCOUNT_SIGNAL,
+			);
 		} catch {
 			// ignore sessionStorage errors
 		}
@@ -87,7 +99,7 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 		void navigate(`/${currentLang}`, {
 			replace: true,
 		});
-	};
+	}
 
 	return (
 		<div className="mx-auto max-w-md">
@@ -102,7 +114,7 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 				)}
 			</p>
 
-			{typeof error === "string" && error.length > 0 && (
+			{typeof error === "string" && error.length > ZERO && (
 				<div className="mb-4 rounded-md bg-red-900/50 p-4">
 					<p className="text-sm text-red-400">{error}</p>
 				</div>

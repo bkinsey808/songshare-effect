@@ -41,7 +41,7 @@ export function getIpAddress(ctx: ReadonlyContext): string {
 			.map((segment: string) => segment.trim())
 			.find((segment: string) => segment !== "");
 
-		if (typeof first === "string" && first.length > 0) {
+		if (typeof first === "string" && first !== "") {
 			return first;
 		}
 	}

@@ -19,11 +19,11 @@ type CreateFieldBlurHandlerParams<FormValues extends Record<string, unknown>> =
 /**
  * Create a field blur handler that validates the field and updates errors
  */
-export const createFieldBlurHandler = <
+export function createFieldBlurHandler<
 	FormValues extends Record<string, unknown>,
 >(
 	params: CreateFieldBlurHandlerParams<FormValues>,
-) => {
+): (field: keyof FormValues, value: string) => void {
 	const {
 		schema,
 		formData,
@@ -31,7 +31,11 @@ export const createFieldBlurHandler = <
 		setValidationErrors,
 		i18nMessageKey,
 	} = params;
-	return <K extends keyof FormValues>(field: K, value: string): void => {
+
+	return function handleFieldBlur<FieldKey extends keyof FormValues>(
+		field: FieldKey,
+		value: string,
+	): void {
 		console.log(`🔍 Field blur validation for ${String(field)}:`, value);
 		console.log("📋 Form data for validation:", {
 			...formData,
@@ -68,4 +72,4 @@ export const createFieldBlurHandler = <
 			]);
 		}
 	};
-};
+}
