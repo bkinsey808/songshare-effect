@@ -56,7 +56,6 @@ const ONE = 1;
 // This function returns a Promise by delegating to the typed shared cache. We deliberately keep
 // it synchronous (returns Promise) and disable the rule that requires promise-returning
 // functions to be declared async — callers still get a fully typed Promise.
-// eslint-disable-next-line @typescript-eslint/promise-function-async
 // helper for readability - delegates to the typed per-resource caches
 async function getCachedPromise<TValue>(
 	cache: ReturnType<typeof createTypedCache<TValue>>,

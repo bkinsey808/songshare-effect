@@ -3,6 +3,8 @@
 // Keep per-site inline disables rather than a broad, file-scope rule disable.
 import { Effect, type Schema } from "effect";
 
+import { isRecord } from "@/shared/utils/typeGuards";
+
 import { type ValidationError, type ValidationResult } from "./types";
 import { validateFormEffect } from "./validateFormEffect";
 
@@ -85,12 +87,10 @@ function extractValidationErrors(
 			return false;
 		}
 		return value.every((item) => {
-			if (typeof item !== "object" || item === null) {
+			if (!isRecord(item)) {
 				return false;
 			}
-			// Narrow item for property checks. Localized disable for runtime inspection.
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion
-			const rec = item as Record<string, unknown>;
+			const rec = item;
 			return (
 				Object.hasOwn(rec, "field") &&
 				Object.hasOwn(rec, "message") &&
@@ -118,11 +118,8 @@ function extractValidationErrors(
 	}
 
 	// FiberFailure-like objects or other wrapped shapes
-	if (typeof input === "object" && input !== null) {
-		// Narrow to a record for runtime property checks.
-		// Narrow to a record for runtime property checks.
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion
-		const obj = input as Record<string, unknown>;
+	if (isRecord(input)) {
+		const obj = input;
 
 		if ("cause" in obj && isValidationErrorArray(obj["cause"])) {
 			return obj["cause"];

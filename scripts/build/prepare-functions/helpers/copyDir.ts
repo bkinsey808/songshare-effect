@@ -13,11 +13,11 @@ export async function copyDir(srcDir: string, destDir: string): Promise<void> {
 		if (entry.isDirectory()) {
 			// Intentionally await here to perform copying sequentially and avoid overwhelming
 			// the filesystem with too many concurrent operations.
-			// eslint-disable-next-line no-await-in-loop
+			// oxlint-disable-next-line no-await-in-loop
 			await copyDir(srcPath, destPath);
 		} else if (entry.isFile()) {
 			// Intentionally await here for the same reason as above.
-			// eslint-disable-next-line no-await-in-loop
+			// oxlint-disable-next-line no-await-in-loop
 			await copyFileSafe(srcPath, destPath);
 		}
 	}

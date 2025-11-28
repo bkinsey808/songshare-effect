@@ -1,4 +1,4 @@
-/* eslint-disable no-magic-numbers */
+/* oxlint-disable no-magic-numbers */
 import { describe, expect, it } from "vitest";
 
 import { safeArrayGet, safeArraySet } from "@/shared/utils/safe";

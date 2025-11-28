@@ -1,3 +1,6 @@
+import { getSupabaseAuthToken } from "@/react/supabase/getSupabaseAuthToken";
+import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { clientWarn } from "@/react/utils/clientLogger";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
 import {
@@ -17,14 +20,11 @@ export async function addSongToLibrary(
 
 	// Check if already in library
 	if (isInLibrary(request.song_id)) {
-		console.warn("[addToLibrary] Song already in library:", request.song_id);
+		clientWarn("[addToLibrary] Song already in library:", request.song_id);
 		return;
 	}
 
-	// Import here to avoid circular dependencies
-	const { getSupabaseAuthToken } =
-		await import("@/react/supabase/getSupabaseAuthToken");
-	const { getSupabaseClient } = await import("@/react/supabase/supabaseClient");
+	// Obtain supabase auth token & client
 	const userToken = await getSupabaseAuthToken();
 	const client = getSupabaseClient(userToken);
 
@@ -130,27 +130,25 @@ export async function addSongToLibrary(
 				};
 				addLibraryEntry(fallbackEntry);
 			}
+		} else if (isSongLibraryEntry(data)) {
+			const libraryEntryWithUsername: SongLibraryEntry = {
+				...data,
+				owner_username: ownerData.username,
+			};
+			addLibraryEntry(libraryEntryWithUsername);
 		} else {
-			if (isSongLibraryEntry(data)) {
-				const libraryEntryWithUsername: SongLibraryEntry = {
-					...data,
-					owner_username: ownerData.username,
-				};
-				addLibraryEntry(libraryEntryWithUsername);
-			} else {
-				const fallbackEntryWithUsername: SongLibraryEntry = {
-					user_id: userId,
-					song_id: request.song_id,
-					song_owner_id: request.song_owner_id,
-					owner_username: ownerData.username,
-					// created_at is required by the generated SongLibrary type
-					created_at: new Date().toISOString(),
-				};
-				addLibraryEntry(fallbackEntryWithUsername);
-			}
+			const fallbackEntryWithUsername: SongLibraryEntry = {
+				user_id: userId,
+				song_id: request.song_id,
+				song_owner_id: request.song_owner_id,
+				owner_username: ownerData.username,
+				// created_at is required by the generated SongLibrary type
+				created_at: new Date().toISOString(),
+			};
+			addLibraryEntry(fallbackEntryWithUsername);
 		}
 	} catch (userFetchError) {
-		console.warn(
+		clientWarn(
 			"[addToLibrary] Could not fetch owner username:",
 			userFetchError,
 		);

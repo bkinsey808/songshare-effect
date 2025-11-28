@@ -3,6 +3,7 @@ import { readFile, writeFile, unlink } from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { warn as sWarn } from "../../utils/scriptLogger";
 import { bundleTopLevelFunctions } from "./helpers/bundleTopLevelFunctions";
 import { copyAndRewriteShared } from "./helpers/copyAndRewriteShared";
 import { ensureDir } from "./helpers/ensureDir";
@@ -47,7 +48,7 @@ async function prepare(): Promise<void> {
 		for (const filePath of allFiles) {
 			// Intentionally await in this loop to read files sequentially and avoid
 			// opening too many file handles at once during the preparation step.
-			// eslint-disable-next-line no-await-in-loop
+			// oxlint-disable-next-line no-await-in-loop
 			const contents = await readFile(filePath, "utf8");
 
 			// Find all non-relative imports / requires and capture the package
@@ -77,16 +78,16 @@ async function prepare(): Promise<void> {
 		for (const filePath of toRemove) {
 			// Remove files sequentially so we don't trigger too many concurrent
 			// filesystem operations at once.
-			// eslint-disable-next-line no-await-in-loop
+			// oxlint-disable-next-line no-await-in-loop
 			await unlink(filePath);
-			console.warn(
+			sWarn(
 				"Removed unsupported shared file from functions bundle ->",
 				filePath,
 			);
 		}
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		console.warn("Warning: could not prune shared files:", message);
+		sWarn("Warning: could not prune shared files:", message);
 	}
 
 	const middlewareSrc = path.join(srcFunctionsDir, "_middleware.ts");
@@ -95,10 +96,10 @@ async function prepare(): Promise<void> {
 		const content = await readFile(middlewareSrc, "utf8");
 		const rewritten = content.replace(/@\/shared\//g, "./shared/");
 		await writeFile(middlewareDest, rewritten, "utf8");
-		console.warn("Prepared middleware ->", middlewareDest);
+		sWarn("Prepared middleware ->", middlewareDest);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		console.warn("Warning: could not prepare middleware:", message);
+		sWarn("Warning: could not prepare middleware:", message);
 	}
 
 	// Bundle top-level functions via helper so prepare() keeps simple

@@ -1,13 +1,13 @@
 /* oxlint-disable no-console */
-// Centralized server-side logger used to keep debug/error calls in one place.
-// Keep a single, file-scoped disable here so other files don't need per-line
-// eslint-disable comments for console usage.
+// Centralized script logger for scripts in the `scripts/` directory.
+// Use this module to avoid sprinkling `console.*` calls throughout many script files
+// and to centralize any script-specific formatting/behavior later.
+
 export function log(...args: unknown[]): void {
 	console.log(...args);
 }
 
 export function debug(...args: unknown[]): void {
-	// Use console.debug for lower-priority logs
 	console.debug(...args);
 }
 
@@ -19,13 +19,13 @@ export function error(...args: unknown[]): void {
 	console.error(...args);
 }
 
-type Logger = {
+type ScriptLogger = {
 	readonly log: (...args: unknown[]) => void;
 	readonly debug: (...args: unknown[]) => void;
 	readonly warn: (...args: unknown[]) => void;
 	readonly error: (...args: unknown[]) => void;
 };
 
-const logger: Logger = { log, debug, warn, error };
+const scriptLogger: ScriptLogger = { log, debug, warn, error };
 
-export default logger;
+export default scriptLogger;

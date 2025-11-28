@@ -6,6 +6,7 @@
 import { existsSync, rmSync } from "fs";
 import { join } from "path";
 
+import { log as sLog } from "../../utils/scriptLogger";
 import { assertPathExists } from "./helpers/assertPathExists";
 import { generateEffectSchemasFile } from "./helpers/generateEffectSchemasFile";
 import { generateSupabaseTypes } from "./helpers/generateSupabaseTypes";
@@ -25,8 +26,7 @@ function main(): void {
 	const supabaseTypesDestination = join(sharedGeneratedDir, "supabaseTypes.ts");
 	const schemasOutputPath = join(sharedGeneratedDir, "supabaseSchemas.ts");
 
-	// oxlint-disable-next-line no-console
-	console.log("🚀 Generating Effect-TS schemas from Supabase...");
+	sLog("🚀 Generating Effect-TS schemas from Supabase...");
 
 	const envPath = join(projectRoot, ".env");
 	assertPathExists({
@@ -68,15 +68,12 @@ function main(): void {
 		projectRef,
 	});
 
-	// oxlint-disable-next-line no-console
-	console.log("⚡ Converting to Effect-TS schemas...");
-	// oxlint-disable-next-line no-console
-	console.log("🔄 Parsing Supabase types...");
+	sLog("⚡ Converting to Effect-TS schemas...");
+	sLog("🔄 Parsing Supabase types...");
 	const tables = parseSupabaseTypes(tempSupabaseTypesPath);
 	logGeneratedTables(tables);
 
-	// oxlint-disable-next-line no-console
-	console.log("⚡ Generating Effect schemas...");
+	sLog("⚡ Generating Effect schemas...");
 	generateEffectSchemasFile(tables, schemasOutputPath);
 
 	const supabaseTypesFinalPath = moveSupabaseTypes({

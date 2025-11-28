@@ -13,6 +13,7 @@ import {
 	type SongSubscribeSlice,
 	createSongSubscribeSlice,
 } from "@/react/song/song-view/song-slice";
+import { clientWarn } from "@/react/utils/clientLogger";
 
 export const sliceResetFns: Set<() => void> = new Set<() => void>();
 export function resetAllSlices(): void {
@@ -55,11 +56,11 @@ export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 export function useAppStoreSelector<Selected>(
 	selector: (slice: AppSlice) => Selected,
 ): Selected {
-	// The bound store accepts a selector function. Narrow the unsafe cast to a
-	// single line so the rest of the module can remain lint-clean.
-	// Narrow the unsafe cast to the selector argument only.
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-type-assertion
-	return useAppStore()(selector as unknown as (state: AppSlice) => Selected);
+	// The bound store accepts a selector function with the same shape
+	// as the `selector` parameter. We can pass the selector directly and
+	// let TypeScript validate the types — this avoids the previous unsafe
+	// cast and the need for an eslint exception.
+	return useAppStore()(selector);
 }
 
 /**
@@ -95,15 +96,45 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 						// persistence. Narrow the assertion to `Partial<AppSlice>`
 						// and keep the unsafe cast localized to the check where
 						// we compare string keys to the typed `omittedKeys`.
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
-						partialize: (state: Readonly<AppSlice>) =>
-							Object.fromEntries(
-								Object.entries(state).filter(
-									// Localized: cast string keys to `keyof AppSlice` for the includes check.
-									// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-									([key]) => !omittedKeys.includes(key as keyof AppSlice),
-								),
-							) as Partial<AppSlice>,
+						// Create a small, typed partialization routine that
+						// avoids blanket `Object.entries(... ) as ...` assertions
+						// and doesn't rely on inline unsafe type assertions.
+						partialize: (state: Readonly<AppSlice>): Partial<AppSlice> => {
+							const out: Partial<AppSlice> = {};
+							// Use `for-in` so keys are strings but we can narrow them
+							// to `keyof AppSlice` for the runtime `omittedKeys` check.
+							// Iterate over the object's own keys and narrow them to
+							// `keyof AppSlice` in one place. This avoids repeating
+							// unsafe assertions per-iteration and keeps the logic
+							// straightforward for the TypeScript compiler.
+							// Casting Object.keys to `Array<keyof AppSlice>` is safe
+							// because `state` has the `AppSlice` type at compile
+							// time, and we only operate on own properties.
+							const keys = Object.keys(state);
+							// Typed helper for safe assignment
+							function assignKey<TObj, TKey extends keyof TObj>(
+								obj: Partial<TObj>,
+								keyArg: TKey,
+								val: TObj[TKey],
+							): void {
+								obj[keyArg] = val;
+							}
+
+							for (const keyStr of keys) {
+								if (!Object.hasOwn(state, keyStr)) {
+									// skip inherited properties
+								} else {
+									// Narrow the runtime string key to keyof AppSlice.
+									// Narrow the runtime string key to keyof AppSlice.
+									// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+									const key = keyStr as keyof AppSlice;
+									if (!omittedKeys.includes(key)) {
+										assignKey<AppSlice, typeof key>(out, key, state[key]);
+									}
+								}
+							}
+							return out;
+						},
 						// Clean hydration callback that doesn't pollute business state
 						onRehydrateStorage: () => () => {
 							// Update external hydration state
@@ -160,7 +191,7 @@ export function useAppStoreHydrated(): {
 		// If already hydrated, schedule setting state asynchronously
 		if (hydrationState.isHydrated) {
 			// Debug
-			console.warn(
+			clientWarn(
 				"[useAppStoreHydrated] already hydrated, scheduling setIsHydrated(true)",
 			);
 			schedule(() => {
@@ -178,7 +209,7 @@ export function useAppStoreHydrated(): {
 
 		hydrationState.listeners.add(listener);
 		// Debug
-		console.warn(
+		clientWarn(
 			"[useAppStoreHydrated] added hydration listener; current isHydrated=",
 			hydrationState.isHydrated,
 		);

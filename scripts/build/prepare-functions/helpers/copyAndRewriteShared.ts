@@ -1,3 +1,4 @@
+import { warn as sWarn } from "../../../utils/scriptLogger";
 import { copyDir } from "./copyDir";
 import { rewriteSharedImports } from "./rewriteSharedImports";
 
@@ -11,17 +12,17 @@ export async function copyAndRewriteShared(
 ): Promise<void> {
 	try {
 		await copyDir(sourceDir, destDir);
-		console.warn("Copied shared/src ->", destDir);
+		sWarn("Copied shared/src ->", destDir);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		console.warn("Warning: could not copy shared/src:", message);
+		sWarn("Warning: could not copy shared/src:", message);
 	}
 
 	try {
 		await rewriteSharedImports(destDir);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		console.warn(
+		sWarn(
 			"Warning: could not rewrite imports in copied shared files:",
 			message,
 		);

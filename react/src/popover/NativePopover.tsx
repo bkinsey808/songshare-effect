@@ -36,7 +36,7 @@ export function NativePopover({
 }: NativePopoverProps): ReactElement {
 	// Use custom hook that encapsulates all popover logic
 	const {
-		triggerRef,
+		setTriggerRef,
 		popoverRef,
 		popoverId,
 		isOpen,
@@ -60,12 +60,7 @@ export function NativePopover({
 		<div className="relative inline-block">
 			<button
 				ref={(el) => {
-					// Assign the button element to the hook-provided ref.
-					// triggerRef.current has type `HTMLElement | null`, so assigning
-					// an `HTMLButtonElement | null` is valid without casts.
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					// @ts-ignore -- TS sometimes complains about readonly RefObject, but assignment is intentional here
-					triggerRef.current = el;
+					setTriggerRef(el);
 				}}
 				type="button"
 				id={trigger === "click" ? `${popoverId}-trigger` : undefined}

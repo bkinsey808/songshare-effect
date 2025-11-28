@@ -1,5 +1,7 @@
 import { execFileSync } from "child_process";
 
+import { warn as sWarn } from "../../../utils/scriptLogger";
+
 export function runPrettierWrite(
 	params: Readonly<{
 		projectRoot: string;
@@ -12,7 +14,7 @@ export function runPrettierWrite(
 		return;
 	}
 
-	console.warn("🔧 Running Prettier on generated files...");
+	sWarn("🔧 Running Prettier on generated files...");
 	try {
 		execFileSync(params.cliPath, ["--write", ...params.files], {
 			cwd: params.projectRoot,
@@ -20,6 +22,6 @@ export function runPrettierWrite(
 		});
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error);
-		console.warn("⚠️  Prettier format failed:", message);
+		sWarn("⚠️  Prettier format failed:", message);
 	}
 }

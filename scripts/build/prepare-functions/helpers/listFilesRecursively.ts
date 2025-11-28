@@ -9,7 +9,7 @@ export async function listFilesRecursively(dir: string): Promise<string[]> {
 		if (entry.isDirectory()) {
 			// We intentionally await here to traverse directories sequentially to avoid
 			// flooding the filesystem with many concurrent reads.
-			// eslint-disable-next-line no-await-in-loop
+			// oxlint-disable-next-line no-await-in-loop
 			files.push(...(await listFilesRecursively(entryPath)));
 		} else if (entry.isFile()) {
 			files.push(entryPath);

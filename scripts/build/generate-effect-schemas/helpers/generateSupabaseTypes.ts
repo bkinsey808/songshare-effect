@@ -1,6 +1,8 @@
 import { execFileSync } from "child_process";
 import { existsSync, rmSync, writeFileSync } from "fs";
 
+import { warn as sWarn, error as sError } from "../../../utils/scriptLogger";
+
 export type SupabaseGenerationConfig = {
 	cliPath: string;
 	projectRoot: string;
@@ -13,14 +15,14 @@ export type SupabaseGenerationConfig = {
 export function generateSupabaseTypes(
 	config: Readonly<SupabaseGenerationConfig>,
 ): boolean {
-	console.warn("📥 Generating Supabase TypeScript types...");
+	sWarn("📥 Generating Supabase TypeScript types...");
 	const NO_LENGTH = 0;
 	if (existsSync(config.tempTypesPath)) {
 		rmSync(config.tempTypesPath);
 	}
 
 	if (config.projectRef === "") {
-		console.warn(
+		sWarn(
 			"⚠️  SUPABASE_PROJECT_REF not set. Skipping remote Supabase type generation.",
 		);
 		return false;
@@ -47,21 +49,21 @@ export function generateSupabaseTypes(
 
 		if (supabaseOutput.trim().length > NO_LENGTH) {
 			writeFileSync(config.tempTypesPath, supabaseOutput, "utf8");
-			console.warn("✅ Successfully generated Supabase types");
+			sWarn("✅ Successfully generated Supabase types");
 			return true;
 		}
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error);
-		console.error("❌ Error generating Supabase types:", message);
+		sError("❌ Error generating Supabase types:", message);
 	}
 
-	console.warn("⚠️  Failed to generate Supabase types from remote database");
-	console.warn("This could be due to:");
-	console.warn("  • Temporary Supabase API issues");
-	console.warn("  • Project not found or no public schema");
-	console.warn("  • Network connectivity issues");
-	console.warn("");
-	console.warn("🔧 Falling back to example schemas...");
+	sWarn("⚠️  Failed to generate Supabase types from remote database");
+	sWarn("This could be due to:");
+	sWarn("  • Temporary Supabase API issues");
+	sWarn("  • Project not found or no public schema");
+	sWarn("  • Network connectivity issues");
+	sWarn("");
+	sWarn("🔧 Falling back to example schemas...");
 	if (existsSync(config.tempTypesPath)) {
 		rmSync(config.tempTypesPath);
 	}

@@ -1,8 +1,10 @@
 #!/usr/bin/env bun
-/* eslint-disable sonarjs/no-os-command-from-path, sonarjs/no-control-regex, no-control-regex */
+/* oxlint-disable sonarjs/no-os-command-from-path, sonarjs/no-control-regex, no-control-regex */
 import { type ChildProcess, spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
+
+import { warn as sWarn, error as sError } from "./utils/scriptLogger";
 
 const LOG_DIR =
 	typeof process.env["LOG_DIR"] === "string" && process.env["LOG_DIR"] !== ""
@@ -51,7 +53,7 @@ function startPlaywrightIfReady(): void {
 	startedPlaywright = true;
 
 	// Dev servers ready — starting Playwright tests
-	console.warn("Dev servers ready — starting Playwright tests");
+	sWarn("Dev servers ready — starting Playwright tests");
 
 	// Ensure Playwright browsers are installed before running tests. If you
 	// want to skip automatic installation (for CI or offline environments),
@@ -61,13 +63,13 @@ function startPlaywrightIfReady(): void {
 			typeof process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "string" &&
 			process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] !== "";
 		if (skipInstall) {
-			console.warn(
+			sWarn(
 				"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1",
 			);
 			return;
 		}
 		try {
-			console.warn(
+			sWarn(
 				"Ensuring Playwright browsers are installed. This may take a minute (or longer the first time)...",
 			);
 			// `npx playwright install` is idempotent and will no-op if already installed.
@@ -100,8 +102,8 @@ function startPlaywrightIfReady(): void {
 				});
 			});
 		} catch (err) {
-			console.error("Playwright browser install failed:", err);
-			console.error(
+			sError("Playwright browser install failed:", err);
+			sError(
 				"Run `npx playwright install` manually to download browsers or set PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 to opt out.",
 			);
 			process.exit(EXIT_NON_ZERO);
@@ -152,14 +154,14 @@ function handleLine(raw: string): void {
 		frontendReady = true;
 
 		// Detected frontend ready -> output
-		console.warn("Detected frontend ready ->", line);
+		sWarn("Detected frontend ready ->", line);
 	}
 
 	if (!apiReady && /Ready on .*:8787/.test(line)) {
 		apiReady = true;
 
 		// Detected API ready -> output
-		console.warn("Detected API ready ->", line);
+		sWarn("Detected API ready ->", line);
 	}
 
 	startPlaywrightIfReady();
@@ -192,9 +194,9 @@ if (dev.stderr) {
 }
 
 dev.on("exit", () => {
-	console.error("Dev process exited");
+	sError("Dev process exited");
 	if (!startedPlaywright) {
-		console.error(
+		sError(
 			"Dev servers exited before Playwright started. Check logs:",
 			CLIENT_LOG,
 			API_LOG,
@@ -209,11 +211,8 @@ const interval = setInterval(() => {
 		return;
 	}
 	if (Date.now() - startTime > TIMEOUT) {
-		console.error(
-			"Timed out waiting for dev servers to become ready (ms):",
-			TIMEOUT,
-		);
-		console.error("Last output written to:", CLIENT_LOG, API_LOG);
+		sError("Timed out waiting for dev servers to become ready (ms):", TIMEOUT);
+		sError("Last output written to:", CLIENT_LOG, API_LOG);
 		try {
 			if (!dev.killed) {
 				dev.kill();
@@ -247,4 +246,4 @@ process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
 // Playwright dev+test: logs -> output
-console.warn(`Playwright dev+test: logs -> ${CLIENT_LOG}, ${API_LOG}`);
+sWarn(`Playwright dev+test: logs -> ${CLIENT_LOG}, ${API_LOG}`);

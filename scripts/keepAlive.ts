@@ -1,6 +1,8 @@
 #!/usr/bin/env bun
 import { safeGet } from "@/shared/utils/safe";
 
+import { error as sError, warn as sWarn } from "./utils/scriptLogger";
+
 const EXIT_NON_ZERO = 1;
 
 /**
@@ -28,11 +30,11 @@ async function keepAlive(): Promise<void> {
 			supabaseKey?.trim() === "" ||
 			supabaseKey === undefined
 		) {
-			console.error("❌ Missing Supabase credentials in environment");
+			sError("❌ Missing Supabase credentials in environment");
 			process.exit(EXIT_NON_ZERO);
 		}
 
-		console.warn("🏓 Pinging Supabase to keep project active...");
+		sWarn("🏓 Pinging Supabase to keep project active...");
 
 		// Simple REST API health check
 		const response = await fetch(`${supabaseUrl}/rest/v1/`, {
@@ -44,13 +46,13 @@ async function keepAlive(): Promise<void> {
 		});
 
 		if (response.ok) {
-			console.warn("✅ Supabase project is active");
+			sWarn("✅ Supabase project is active");
 		} else {
-			console.warn(`⚠️  Supabase responded with status: ${response.status}`);
+			sWarn(`⚠️  Supabase responded with status: ${response.status}`);
 		}
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error);
-		console.error("❌ Failed to ping Supabase:", errorMessage);
+		sError("❌ Failed to ping Supabase:", errorMessage);
 	}
 }
 

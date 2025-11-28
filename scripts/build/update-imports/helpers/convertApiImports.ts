@@ -1,4 +1,4 @@
-/* eslint-disable sonarjs/slow-regex */
+/* oxlint-disable sonarjs/slow-regex */
 /**
  * Rewrites relative imports inside the API package to use the `@/api` alias.
  * @param filePath - Absolute or relative path to the file being transformed.

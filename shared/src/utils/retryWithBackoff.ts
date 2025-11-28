@@ -24,7 +24,7 @@ export async function retryWithBackoff<TValue>(
 	for (const [attempt] of delays.entries()) {
 		try {
 			// awaiting inside the retry loop is intentional — retries are sequential
-			// eslint-disable-next-line no-await-in-loop
+			// oxlint-disable-next-line no-await-in-loop
 			const data = await fn();
 			if (data !== undefined) {
 				return {
@@ -47,7 +47,7 @@ export async function retryWithBackoff<TValue>(
 		const delay = delays[attempt] ?? defaultDelayMs;
 		if (delay > DEFAULT_DELAY_MS) {
 			// sequential backoff by design
-			// eslint-disable-next-line no-await-in-loop
+			// oxlint-disable-next-line no-await-in-loop
 			await new Promise<void>((resolve) => setTimeout(resolve, delay));
 		}
 	}

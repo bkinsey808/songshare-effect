@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* oxlint-disable no-console */
 // Minimal client-side logger wrapper. Keep a single, small file exempt from
 // `no-console` so other modules can call `clientDebug` / `clientWarn` without
 // sprinkling inline eslint-disable comments everywhere.

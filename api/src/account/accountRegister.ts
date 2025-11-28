@@ -106,6 +106,9 @@ export default function accountRegister(
 						cookieName: registerCookieName,
 						debug: true,
 					});
+					if (parsed === undefined) {
+						throw new Error("Missing register cookie");
+					}
 					return parsed;
 				},
 				catch: () =>

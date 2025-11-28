@@ -77,14 +77,12 @@ export default async function handleJustSignedIn({
 		} catch {
 			// ignore storage errors
 		}
-	} else {
-		if (!aborted) {
-			console.error(
-				`[ProtectedLayout] ensureSignedIn ultimately failed`,
-				lastError,
-			);
-			next.set(signinErrorQueryParam, SigninErrorToken.serverError);
-		}
+	} else if (!aborted) {
+		console.error(
+			`[ProtectedLayout] ensureSignedIn ultimately failed`,
+			lastError,
+		);
+		next.set(signinErrorQueryParam, SigninErrorToken.serverError);
 	}
 
 	// Cleanup the query param and navigate.

@@ -3,6 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
+import {
+	clientDebug,
+	clientError,
+	clientWarn,
+} from "@/react/utils/clientLogger";
 import { getStoreApi, useAppStoreHydrated } from "@/react/zustand/useAppStore";
 import {
 	LANG_PATH_SEGMENT_INDEX,
@@ -115,7 +120,7 @@ function DashboardPage(): ReactElement {
 			const justRegistered = sessionStorage.getItem(justRegisteredKey);
 			const justSigned = sessionStorage.getItem(justSignedInQueryParam);
 			if (justRegistered === SIGNAL_ONE) {
-				console.warn(
+				clientWarn(
 					"[DashboardPage] consumed justRegistered from sessionStorage",
 				);
 				queueMicrotask(() => {
@@ -123,9 +128,7 @@ function DashboardPage(): ReactElement {
 				});
 				sessionStorage.removeItem(justRegisteredKey);
 			} else if (justSigned === SIGNAL_ONE) {
-				console.warn(
-					"[DashboardPage] consumed justSignedIn from sessionStorage",
-				);
+				clientWarn("[DashboardPage] consumed justSignedIn from sessionStorage");
 				queueMicrotask(() => {
 					setShowSignedInAlert(true);
 				});
@@ -222,7 +225,7 @@ function DashboardPage(): ReactElement {
 								// Perform client-side sign-out immediately.
 								signOutRef.current();
 							} catch (err) {
-								console.error("signOut failed:", err);
+								clientError("signOut failed:", err);
 							}
 
 							// Attempt sign-out on the server to clear the HttpOnly cookie.
@@ -231,10 +234,9 @@ function DashboardPage(): ReactElement {
 									method: "POST",
 									credentials: "include",
 								});
-								// oxlint-disable-next-line no-console
-								console.debug("/api/auth/signout status=", res.status);
+								clientDebug("/api/auth/signout status=", res.status);
 							} catch (err) {
-								console.error("Sign-out API failed:", err);
+								clientError("Sign-out API failed:", err);
 							}
 
 							// Explicitly set client-side signed-out state after server call.
@@ -244,7 +246,7 @@ function DashboardPage(): ReactElement {
 									storeApi.getState().setIsSignedIn(false);
 								}
 							} catch (err) {
-								console.error("explicit setIsSignedIn(false) failed:", err);
+								clientError("explicit setIsSignedIn(false) failed:", err);
 							}
 						})();
 

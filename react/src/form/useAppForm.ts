@@ -1,6 +1,7 @@
 import { type Effect, type Schema } from "effect";
 import { useState } from "react";
 
+import { clientDebug } from "@/react/utils/clientLogger";
 import { registerMessageKey } from "@/shared/register/register";
 import { safeSet } from "@/shared/utils/safe";
 import { type ValidationError } from "@/shared/validation/types";
@@ -62,10 +63,7 @@ export function useAppForm<FormValues extends Record<string, unknown>>({
 		ref: React.RefObject<HTMLInputElement | null>,
 	): void {
 		const value = ref.current?.value ?? "";
-		/* oxlint-disable no-console */
-		// oxlint-disable-next-line no-console
-		console.log(`👆 handleFieldBlur called for ${String(field)}:`, value);
-		/* oxlint-enable no-console */
+		clientDebug(`👆 handleFieldBlur called for ${String(field)}:`, value);
 
 		// Read current form data from the form
 		const formDataObj = new FormData(formRef.current || undefined);
@@ -81,10 +79,7 @@ export function useAppForm<FormValues extends Record<string, unknown>>({
 			}
 		}
 
-		/* oxlint-disable no-console */
-		// oxlint-disable-next-line no-console
-		console.log("📋 Current form data on blur:", currentFormData);
-		/* oxlint-enable no-console */
+		clientDebug("📋 Current form data on blur:", currentFormData);
 
 		const fieldBlurHandler = createFieldBlurHandler({
 			schema,

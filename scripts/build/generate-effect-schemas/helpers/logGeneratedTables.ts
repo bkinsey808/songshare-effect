@@ -1,12 +1,11 @@
+import { log as sLog } from "../../../utils/scriptLogger";
 import { type TableDefinition } from "./generate-effect-schemas-types";
 
 export function logGeneratedTables(
 	tables: ReadonlyArray<TableDefinition>,
 ): void {
-	// oxlint-disable-next-line no-console
-	console.log(`📊 Generated schemas for ${tables.length} tables:`);
+	sLog(`📊 Generated schemas for ${tables.length} tables:`);
 	tables.forEach((table) => {
-		// oxlint-disable-next-line no-console
-		console.log(`  - ${table.name} (${table.columns.length} columns)`);
+		sLog(`  - ${table.name} (${table.columns.length} columns)`);
 	});
 }

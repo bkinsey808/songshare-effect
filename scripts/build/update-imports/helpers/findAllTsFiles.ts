@@ -1,5 +1,7 @@
-/* eslint-disable sonarjs/os-command */
+/* oxlint-disable sonarjs/os-command */
 import { execSync } from "child_process";
+
+import { error as sError } from "../../../utils/scriptLogger";
 
 /**
  * Finds files matching the provided glob pattern while ignoring build artifacts.
@@ -24,7 +26,7 @@ export function findAllTsFiles(pattern: string): string[] {
 					!file.includes("temp-"),
 			);
 	} catch (_error) {
-		console.error(`Error finding files with pattern ${pattern}:`, _error);
+		sError(`Error finding files with pattern ${pattern}:`, _error);
 		return [];
 	}
 }

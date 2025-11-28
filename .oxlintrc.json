@@ -236,6 +236,7 @@
 		"eslint/prefer-rest-params": "error",
 		"eslint/prefer-spread": "error",
 		"eslint/vars-on-top": "error",
+		"eslint/no-lonely-if": "error",
 		// import rules
 		"import/default": "error",
 		"import/namespace": "error",

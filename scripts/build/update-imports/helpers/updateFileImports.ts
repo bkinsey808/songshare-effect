@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from "fs";
 
+import { warn as sWarn, error as sError } from "../../../utils/scriptLogger";
 import { convertApiImports } from "./convertApiImports";
 import { convertReactImports } from "./convertReactImports";
 import { convertSharedImports } from "./convertSharedImports";
@@ -22,13 +23,13 @@ export function updateFileImports(filePath: string): boolean {
 		// Only write if content changed
 		if (updatedContent !== content) {
 			writeFileSync(filePath, updatedContent, "utf8");
-			console.warn(`✅ Updated: ${filePath}`);
+			sWarn(`✅ Updated: ${filePath}`);
 			return true;
 		}
 
 		return false;
 	} catch (_error) {
-		console.error(`❌ Error updating ${filePath}:`, _error);
+		sError(`❌ Error updating ${filePath}:`, _error);
 		return false;
 	}
 }

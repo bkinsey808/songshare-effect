@@ -1,3 +1,4 @@
+/* oxlint-disable no-console */
 // Small module that silences console.debug and console.timeStamp in dev.
 // Keep this file minimal and use safe runtime checks instead of broad
 // eslint-disable blocks so it can be linted normally.
@@ -11,18 +12,16 @@ try {
 		// Not an object-shaped global object — bail early
 	} else {
 		// Save original console.debug if present
-		// oxlint-disable-next-line no-console
 		if (typeof console.debug === "function") {
 			// Save the original debug function on the global object so it can be restored by dev tooling
-			// oxlint-disable-next-line no-console
+
 			globalObj["__origConsoleDebug"] = console.debug.bind(console);
 		}
 
 		// Make debug a no-op
-		// oxlint-disable-next-line no-console
 		if (typeof console.debug === "function") {
 			// Replace debug with a no-op so dev logs don't spam during demos
-			// oxlint-disable-next-line no-console
+
 			console.debug = () => {
 				/* no-op */
 			};

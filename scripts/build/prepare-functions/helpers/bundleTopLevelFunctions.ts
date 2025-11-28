@@ -1,6 +1,8 @@
 import { readdir, unlink } from "node:fs/promises";
 import * as path from "node:path";
 
+import { warn as sWarn } from "../../../utils/scriptLogger";
+
 export async function bundleTopLevelFunctions(outDir: string): Promise<void> {
 	try {
 		// dynamic import so script still works if esbuild isn't available
@@ -14,9 +16,9 @@ export async function bundleTopLevelFunctions(outDir: string): Promise<void> {
 			} else {
 				const entryPath = path.join(outDir, entry.name);
 				const out = path.join(outDir, entry.name.replace(/\.ts$/, ".js"));
-				console.warn("Bundling function ->", entryPath, "->", out);
+				sWarn("Bundling function ->", entryPath, "->", out);
 				// build runs sequentially for simplicity — awaiting inside a loop is intentional
-				// eslint-disable-next-line no-await-in-loop
+				// oxlint-disable-next-line no-await-in-loop
 				await build({
 					entryPoints: [entryPath],
 					bundle: true,
@@ -29,9 +31,9 @@ export async function bundleTopLevelFunctions(outDir: string): Promise<void> {
 
 				// remove the original .ts file so Pages deploy uses the bundled .js
 				try {
-					// eslint-disable-next-line no-await-in-loop
+					// oxlint-disable-next-line no-await-in-loop
 					await unlink(entryPath);
-					console.warn("Removed source function file ->", entryPath);
+					sWarn("Removed source function file ->", entryPath);
 				} catch {
 					// non-fatal
 				}
@@ -39,6 +41,6 @@ export async function bundleTopLevelFunctions(outDir: string): Promise<void> {
 		}
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		console.warn("Warning: could not bundle functions with esbuild:", message);
+		sWarn("Warning: could not bundle functions with esbuild:", message);
 	}
 }

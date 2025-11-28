@@ -1,5 +1,7 @@
 import { relative } from "path";
 
+import { log as sLog } from "../../../utils/scriptLogger";
+
 export function logFinalSummary(
 	params: Readonly<{
 		projectRoot: string;
@@ -7,29 +9,19 @@ export function logFinalSummary(
 		supabaseTypesPath?: string;
 	}>,
 ): void {
-	// oxlint-disable-next-line no-console
-	console.log("✅ Effect-TS schemas generated successfully!");
-	// oxlint-disable-next-line no-console
-	console.log("📁 Generated files:");
-	// oxlint-disable-next-line no-console
-	console.log(
+	sLog("✅ Effect-TS schemas generated successfully!");
+	sLog("📁 Generated files:");
+	sLog(
 		`  • ${relative(params.projectRoot, params.schemasPath)} (Effect schemas)`,
 	);
 	if (params.supabaseTypesPath !== undefined) {
-		// oxlint-disable-next-line no-console
-		console.log(
+		sLog(
 			`  • ${relative(params.projectRoot, params.supabaseTypesPath)} (Raw Supabase types)`,
 		);
 	}
-
-	// oxlint-disable-next-line no-console
-	console.log("");
-	// oxlint-disable-next-line no-console
-	console.log("Next steps:");
-	// oxlint-disable-next-line no-console
-	console.log("  1. Review and adjust the generated schemas");
-	// oxlint-disable-next-line no-console
-	console.log("  2. Import them in your API and frontend code");
-	// oxlint-disable-next-line no-console
-	console.log("  3. Replace manual schema definitions where appropriate");
+	sLog("");
+	sLog("Next steps:");
+	sLog("  1. Review and adjust the generated schemas");
+	sLog("  2. Import them in your API and frontend code");
+	sLog("  3. Replace manual schema definitions where appropriate");
 }

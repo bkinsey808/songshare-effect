@@ -3,6 +3,7 @@ import type { Schema } from "effect";
 import { verify } from "hono/jwt";
 
 import { type ReadonlyContext } from "@/api/hono/hono-context";
+import { log as serverLog, error as serverError } from "@/api/logger";
 import { decodeUnknownSyncOrThrow } from "@/shared/validation/decodeUnknownSyncOrThrow";
 
 type ParseDataFromCookieParams<
@@ -22,26 +23,34 @@ type ParseCookieResult<
 	AllowMissing extends boolean | undefined,
 > = AllowMissing extends true ? Data | undefined : Data;
 
+// Overloads: when allowMissing is true the return includes undefined
+export async function parseDataFromCookie<Data>(
+	params: ParseDataFromCookieParams<Data, true>,
+): Promise<Data | undefined>;
+export async function parseDataFromCookie<Data>(
+	params: ParseDataFromCookieParams<Data, false>,
+): Promise<Data>;
+
 export async function parseDataFromCookie<
 	Data,
 	AllowMissing extends boolean | undefined = false,
->({
-	ctx,
-	cookieName,
-	schema,
-	debug = false,
-	allowMissing = false,
-}: ParseDataFromCookieParams<Data, AllowMissing>): Promise<
-	ParseCookieResult<Data, AllowMissing>
-> {
+>(
+	params: ParseDataFromCookieParams<Data, AllowMissing>,
+): Promise<Data | undefined> {
+	const {
+		ctx,
+		cookieName,
+		schema,
+		debug = false,
+		allowMissing = false,
+	} = params;
 	if (!ctx) {
 		throw new Error("Missing context when parsing data from cookie");
 	}
 	const cookieHeader = ctx.req.header("Cookie");
 	const cookie = typeof cookieHeader === "string" ? cookieHeader : "";
 	if (debug) {
-		// oxlint-disable-next-line no-console
-		console.log("[parseDataFromCookie] Raw cookie:", cookie);
+		serverLog("[parseDataFromCookie] Raw cookie:", cookie);
 	}
 
 	const re = new RegExp(`${cookieName}=([^;]+)`);
@@ -56,12 +65,10 @@ export async function parseDataFromCookie<
 
 	if (token === undefined || token === "") {
 		if (allowMissing) {
-			// Narrow, localized disable: returning `undefined` for the conditional generic
-			// return type. This is a safe behavior at the API boundary.
-			// Narrow, localized disable: returning `undefined` for the conditional generic
-			// return type. This is a safe behavior at the API boundary.
-			// oxlint-disable-next-line no-unsafe-return, no-unsafe-type-assertion
-			return undefined as ParseCookieResult<Data, AllowMissing>;
+			// When allowMissing is true the overload above ensures the
+			// return type includes `undefined`, so we can return it directly
+			// without needing an unsafe assertion.
+			return undefined;
 		}
 		throw new Error("Failed to extract token from cookie");
 	}
@@ -74,8 +81,7 @@ export async function parseDataFromCookie<
 
 		const verified = await verify(token, jwtSecret);
 		if (debug) {
-			// oxlint-disable-next-line no-console
-			console.log("[parseDataFromCookie] Verified JWT payload:", verified);
+			serverLog("[parseDataFromCookie] Verified JWT payload:", verified);
 		}
 
 		// Use the shared decode helper which throws on validation failure.
@@ -85,14 +91,15 @@ export async function parseDataFromCookie<
 		// and the decode helper will have thrown. Keep TS happy by returning the decoded value.
 		return decoded as ParseCookieResult<Data, AllowMissing>;
 	} catch (err) {
-		console.error(
+		serverError(
 			"[parseDataFromCookie] JWT verification or parsing error:",
 			err,
 		);
 		if (allowMissing) {
-			// Narrow, localized disable for the same conditional-return pattern.
-			// oxlint-disable-next-line no-unsafe-return, no-unsafe-type-assertion
-			return undefined as ParseCookieResult<Data, AllowMissing>;
+			// When decoding fails, allowMissing enables returning undefined
+			// per the overloads defined above. Keep the return typed via
+			// assertion to satisfy the implementation signature.
+			return undefined;
 		}
 		throw new Error("Failed to parse data from cookie", { cause: err });
 	}

@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "fs";
 
+import { warn as sWarn, error as sError } from "../../../utils/scriptLogger";
 import { createExampleSchemas } from "./createExampleSchemas";
 import {
 	type ColumnDefinition,
@@ -11,10 +12,8 @@ import {
  */
 export function parseSupabaseTypes(filePath: string): TableDefinition[] {
 	if (!existsSync(filePath)) {
-		console.warn(`⚠️  Supabase types file not found: ${filePath}`);
-		console.warn(
-			"🔧 Creating example schemas based on your existing codebase...",
-		);
+		sWarn(`⚠️  Supabase types file not found: ${filePath}`);
+		sWarn("🔧 Creating example schemas based on your existing codebase...");
 		return createExampleSchemas();
 	}
 
@@ -41,7 +40,7 @@ export function parseSupabaseTypes(filePath: string): TableDefinition[] {
 			) {
 				// malformed match — skip
 			} else {
-				console.warn(`📋 Processing table: ${tableName}`);
+				sWarn(`📋 Processing table: ${tableName}`);
 
 				// required insert fields
 				const insertRequiredFields = new Set<string>();
@@ -106,16 +105,14 @@ export function parseSupabaseTypes(filePath: string): TableDefinition[] {
 
 		const NO_TABLES = 0;
 		if (tables.length === NO_TABLES) {
-			console.warn(
-				"⚠️  No tables found in Supabase types. Using example schemas...",
-			);
+			sWarn("⚠️  No tables found in Supabase types. Using example schemas...");
 			return createExampleSchemas();
 		}
 
 		return tables;
 	} catch (error) {
-		console.error("❌ Error parsing Supabase types:", error);
-		console.warn("🔧 Falling back to example schemas...");
+		sError("❌ Error parsing Supabase types:", error);
+		sWarn("🔧 Falling back to example schemas...");
 		return createExampleSchemas();
 	}
 }

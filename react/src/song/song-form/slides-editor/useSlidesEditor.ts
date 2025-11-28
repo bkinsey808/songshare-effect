@@ -1,3 +1,4 @@
+import { clientDebug } from "@/react/utils/clientLogger";
 import {
 	type DragEndEvent,
 	type SensorDescriptor,
@@ -59,10 +60,8 @@ export default function useSlidesEditor({
 	handleDragEnd: (event: DragEndEvent) => void;
 	sortableItems: string[];
 } {
-	// oxlint-disable-next-line no-console
-	console.log("slideOrder", slideOrder);
-	// oxlint-disable-next-line no-console
-	console.log("slides", slides);
+	clientDebug("slideOrder", slideOrder);
+	clientDebug("slides", slides);
 
 	// Use specialized hooks for different concerns
 	const { sensors, handleDragEnd, sortableItems } = useSlideDragAndDrop({

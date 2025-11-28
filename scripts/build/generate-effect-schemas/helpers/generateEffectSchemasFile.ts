@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { dirname } from "path";
 
+import { warn as sWarn } from "../../../utils/scriptLogger";
 import { type TableDefinition } from "./generate-effect-schemas-types";
 import { generateEffectSchema } from "./generateEffectSchema";
 
@@ -109,5 +110,5 @@ export type ApiResponse<T> =
 	}
 
 	writeFileSync(outputPath, fileContent, "utf-8");
-	console.warn(`✅ Generated Effect schemas at: ${outputPath}`);
+	sWarn(`✅ Generated Effect schemas at: ${outputPath}`);
 }

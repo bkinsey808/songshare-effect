@@ -1,9 +1,12 @@
 #!/usr/bin/env bun
+
 // Usage: bun scripts/filterTsErrors.ts <filename> < input.txt
 // Utility script to filter TypeScript error output for easier parsing and reporting.
 // Intended for use in CI or local scripts to extract relevant error lines.
 import * as path from "node:path";
 import * as readline from "node:readline";
+
+import { log as sLog, error as sError } from "./utils/scriptLogger";
 
 /** CLI numeric helpers */
 const ARGV_FILE_INDEX = 2;
@@ -20,8 +23,7 @@ const targetFileRel =
 const targetFileBase =
 	targetFileRel !== undefined ? path.basename(targetFileRel) : undefined;
 if (targetFileRel === undefined || targetFileBase === undefined) {
-	// oxlint-disable-next-line no-console
-	console.error("Usage: bun scripts/filterTsErrors.ts <filename> < input.txt");
+	sError("Usage: bun scripts/filterTsErrors.ts <filename> < input.txt");
 	process.exit(EXIT_USAGE);
 }
 
@@ -63,8 +65,7 @@ rl.on("line", (line: string) => {
 
 			// Print the error header line immediately (with color)
 			// This script needs to output filtered results to stdout
-			// oxlint-disable-next-line no-console
-			console.log(line);
+			sLog(line);
 		} else {
 			// Otherwise, stop printing until the next relevant error
 			printing = false;
@@ -76,7 +77,6 @@ rl.on("line", (line: string) => {
 	// If currently printing, output the line (error details)
 	if (printing) {
 		// This script needs to output filtered results to stdout
-		// oxlint-disable-next-line no-console
-		console.log(line);
+		sLog(line);
 	}
 });

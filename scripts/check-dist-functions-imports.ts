@@ -5,6 +5,8 @@ import path from "node:path";
 
 import { safeArrayGet } from "@/shared/utils/safe";
 
+import { error as sError, warn as sWarn } from "./utils/scriptLogger";
+
 function isNonRelativeImport(line: string): boolean {
 	// Matches "from 'pkg'", "from "pkg"", and `require('pkg')` but ignores
 	// relative imports starting with './' or '../'. Case-insensitive.
@@ -41,7 +43,7 @@ async function scanDir(
 			// Intentionally await here — scanDir is recursive and we want to
 			// process directories sequentially to avoid too many concurrent
 			// filesystem operations.
-			// eslint-disable-next-line no-await-in-loop
+			// oxlint-disable-next-line no-await-in-loop
 			results.push(...(await scanDir(full)));
 		} else if (entry.isFile() && entry.name.endsWith(".ts")) {
 			// Only check TypeScript sources copied into the functions dist directory.
@@ -78,7 +80,7 @@ async function main(): Promise<number> {
 
 	const target = process.argv[ARGV_TARGET_INDEX] ?? "dist/functions";
 	if (!existsSync(target)) {
-		console.error("Target path does not exist:", target);
+		sError("Target path does not exist:", target);
 		return EXIT_NOT_FOUND;
 	}
 
@@ -86,13 +88,13 @@ async function main(): Promise<number> {
 	const NO_MATCHES = 0;
 
 	if (matches.length === NO_MATCHES) {
-		console.warn("No non-relative imports found in", target);
+		sWarn("No non-relative imports found in", target);
 		return EXIT_SUCCESS;
 	}
 
-	console.error("ERROR: Found non-relative imports in", target);
+	sError("ERROR: Found non-relative imports in", target);
 	for (const match of matches) {
-		console.error(`${match.file}:${match.line}  ${match.code}`);
+		sError(`${match.file}:${match.line}  ${match.code}`);
 	}
 
 	return EXIT_ISSUES;

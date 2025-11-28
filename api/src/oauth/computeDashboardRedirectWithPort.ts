@@ -1,4 +1,5 @@
 import { type ReadonlyContext } from "@/api/hono/hono-context";
+import { log as serverLog, warn as serverWarn } from "@/api/logger";
 import { getEnvString } from "@/shared/env/getEnv";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
@@ -28,8 +29,7 @@ export function computeDashboardRedirectWithPort({
 	const MAX_PORT = 65535;
 
 	if (!Number.isInteger(portNum) || portNum < MIN_PORT || portNum > MAX_PORT) {
-		// oxlint-disable-next-line no-console
-		console.log("[oauthCallback] Invalid redirect_port, ignoring");
+		serverLog("[oauthCallback] Invalid redirect_port, ignoring");
 		return undefined;
 	}
 
@@ -55,8 +55,7 @@ export function computeDashboardRedirectWithPort({
 		if (allowedOrigins.includes(candidateOrigin)) {
 			return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
 		}
-		// oxlint-disable-next-line no-console
-		console.log(
+		serverLog(
 			"[oauthCallback] Candidate origin not in ALLOWED_ORIGINS, ignoring redirect_port",
 			candidateOrigin,
 		);
@@ -67,15 +66,14 @@ export function computeDashboardRedirectWithPort({
 	// developer convenience (but log a warning). In production ALLOWED_ORIGINS
 	// should be set and we will not allow arbitrary origins.
 	if ((getEnvString(ctx.env, "ENVIRONMENT") ?? "") !== "production") {
-		console.warn(
+		serverWarn(
 			"[oauthCallback] ALLOWED_ORIGINS not set; allowing redirect_port candidate in non-production:",
 			candidateOrigin,
 		);
 		return `${redirectProto}://${hostNoPort.replace(/:\\d+$/, "")}:${portNum}/${lang}/${dashboardPathLocal}`;
 	}
 
-	// oxlint-disable-next-line no-console
-	console.log(
+	serverLog(
 		"[oauthCallback] ALLOWED_ORIGINS not set and environment is production — ignoring redirect_port",
 		candidateOrigin,
 	);

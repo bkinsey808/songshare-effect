@@ -1,5 +1,6 @@
 import { execSync } from "child_process";
 
+import { warn as sWarn, error as sError } from "../../utils/scriptLogger";
 import { type MigrationFile } from "./types";
 
 /**
@@ -28,7 +29,7 @@ export function runMigration(
 	migration: Readonly<MigrationFile>,
 	env: Readonly<Record<string, string | undefined>>,
 ): void {
-	console.warn(`📄 Running migration: ${migration.filename}`);
+	sWarn(`📄 Running migration: ${migration.filename}`);
 
 	const { PGHOST, PGUSER, PGPASSWORD, PGDATABASE } = env;
 
@@ -61,10 +62,10 @@ export function runMigration(
 			},
 		});
 
-		console.warn(`✅ Migration successful: ${migration.filename}`);
+		sWarn(`✅ Migration successful: ${migration.filename}`);
 	} catch (error: unknown) {
-		console.error(`❌ Migration failed: ${migration.filename}`);
-		console.error(getErrorMessage(error));
+		sError(`❌ Migration failed: ${migration.filename}`);
+		sError(getErrorMessage(error));
 		throw error;
 	}
 }

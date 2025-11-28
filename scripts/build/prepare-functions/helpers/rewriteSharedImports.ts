@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 
+import { warn as sWarn } from "../../../utils/scriptLogger";
 import { walkFiles } from "./walkFiles";
 
 export async function rewriteSharedImports(destShared: string): Promise<void> {
@@ -38,7 +39,5 @@ export async function rewriteSharedImports(destShared: string): Promise<void> {
 		}
 	});
 
-	console.warn(
-		`Rewrote ${replacements} '@/shared/*' imports inside ${destShared}`,
-	);
+	sWarn(`Rewrote ${replacements} '@/shared/*' imports inside ${destShared}`);
 }

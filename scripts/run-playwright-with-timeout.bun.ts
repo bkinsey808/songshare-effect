@@ -1,6 +1,8 @@
-/* eslint-disable sonarjs/no-os-command-from-path */
+/* oxlint-disable sonarjs/no-os-command-from-path */
 import { spawn } from "child_process";
 import path from "path";
+
+import { warn as sWarn, error as sError } from "./utils/scriptLogger";
 
 // Cross-platform timeout wrapper for running bun Playwright test script.
 // Usage: PLAYWRIGHT_BASE_URL=https://localhost:5173 bun ./scripts/run-playwright-with-timeout.bun.ts [bun args]
@@ -30,8 +32,8 @@ if (!(process.env["PLAYWRIGHT_BASE_URL"] ?? "").length) {
 	process.env["PLAYWRIGHT_BASE_URL"] = "https://localhost:5173";
 }
 
-console.warn(`Starting Playwright tests with a ${timeoutSeconds}s timeout`);
-console.warn(`Running: bun ${bunArgs.join(" ")}`);
+sWarn(`Starting Playwright tests with a ${timeoutSeconds}s timeout`);
+sWarn(`Running: bun ${bunArgs.join(" ")}`);
 
 const child = spawn("bun", bunArgs, {
 	stdio: "inherit",
@@ -42,7 +44,7 @@ const child = spawn("bun", bunArgs, {
 let killed = false;
 const killTimer = setTimeout(() => {
 	killed = true;
-	console.error(`Timeout reached (${timeoutSeconds}s) — terminating test run`);
+	sError(`Timeout reached (${timeoutSeconds}s) — terminating test run`);
 	// Send SIGTERM to give tests a chance to clean up
 	child.kill("SIGTERM");
 	// If still alive after KILL_GRACE_MS, force kill
@@ -52,7 +54,7 @@ const killTimer = setTimeout(() => {
 child.on("exit", (code, signal) => {
 	clearTimeout(killTimer);
 	if (killed && signal) {
-		console.error(`Test run killed after timeout (signal: ${signal}).`);
+		sError(`Test run killed after timeout (signal: ${signal}).`);
 		// common UNIX code for timeout
 		process.exit(EXIT_TIMEOUT_CODE);
 	}
@@ -61,6 +63,6 @@ child.on("exit", (code, signal) => {
 
 child.on("error", (err) => {
 	clearTimeout(killTimer);
-	console.error("Failed to start Playwright runner:", err);
+	sError("Failed to start Playwright runner:", err);
 	process.exit(EXIT_FAILURE);
 });

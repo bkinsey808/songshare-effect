@@ -88,7 +88,7 @@ export async function getSupabaseClientWithAuth(
 	for (let attempt = FIRST_ATTEMPT; attempt <= retries; attempt += INCREMENT) {
 		try {
 			// getSupabaseAuthToken can reasonably be awaited in the retry loop
-			// eslint-disable-next-line no-await-in-loop
+			// oxlint-disable-next-line no-await-in-loop
 			const supabaseClientToken = await getSupabaseAuthToken();
 
 			if (!supabaseClientToken) {
@@ -118,7 +118,7 @@ export async function getSupabaseClientWithAuth(
 				MS_IN_SECOND * BACKOFF_BASE ** (attempt - BACKOFF_EXPONENT_OFFSET),
 				MAX_BACKOFF_MS,
 			);
-			// eslint-disable-next-line no-await-in-loop
+			// oxlint-disable-next-line no-await-in-loop
 			await new Promise((resolve) => setTimeout(resolve, delay));
 		}
 	}

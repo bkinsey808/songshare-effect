@@ -43,15 +43,19 @@ export function extractI18nMessages(
 						...Object.getOwnPropertyNames(annotations),
 						...Object.getOwnPropertySymbols(annotations),
 					] as Array<string | symbol>;
-					const annotationsMap = annotations as Record<PropertyKey, unknown>;
+					// Use Reflect.get instead of casting `annotations` to a specific
+					// Record type — access via Reflect reduces the need for unsafe
+					// assertions and will be validated below with runtime guards.
 					for (const key of ownKeys) {
 						if (key === i18nMessageKey) {
 							// Narrowing here is safe because `ownKeys` derives from the
 							// actual own property names/symbols of `annotations`.
-							// The linter rules are strict — allow a single-line disable
-							// to avoid an unsafe-assertion complaint.
-							// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-type-assertion
-							const msgRaw = annotationsMap[key as unknown as PropertyKey];
+							// Use Reflect.get to access property by key without unsafe
+							// assertions and then validate with runtime guards.
+							const msgRaw: unknown = Reflect.get(
+								annotations,
+								key as PropertyKey,
+							);
 							if (isRecord(msgRaw)) {
 								const keyVal = msgRaw["key"];
 								if (isString(keyVal)) {

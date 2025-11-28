@@ -2,6 +2,8 @@
 // Usage: bun src/features/scripts/fileCheck.ts src/App.tsx
 import { spawnSync } from "child_process";
 
+import { warn as sWarn, error as sError } from "./utils/scriptLogger";
+
 // Numeric helpers — small, explicit names to avoid magic-number lint warnings
 const ARGV_FILE_INDEX = 2;
 const EXIT_USAGE = 1;
@@ -12,12 +14,12 @@ const INDEX_INCREMENT = 1;
 
 const file = process.argv[ARGV_FILE_INDEX];
 if (file === undefined || file === "") {
-	console.error("Usage: bun src/features/scripts/fileCheck.ts <file>");
+	sError("Usage: bun src/features/scripts/fileCheck.ts <file>");
 	process.exit(EXIT_USAGE);
 }
 
-console.warn(`Running TypeScript and ESLint checks on file: ${file} .`);
-console.warn("Reminders: run iteratively; fix type errors first, then ESLint.");
+sWarn(`Running TypeScript and ESLint checks on file: ${file} .`);
+sWarn("Reminders: run iteratively; fix type errors first, then ESLint.");
 
 const tsCheck = spawnSync(
 	"npx",
@@ -53,10 +55,10 @@ const filterResult = spawnSync(
 
 const filteredOutput = filterResult.stdout.toString();
 if (filteredOutput.trim().length > ZERO) {
-	console.warn("\n--- Project-level TypeScript errors for this file ---");
-	console.warn(filteredOutput);
+	sWarn("\n--- Project-level TypeScript errors for this file ---");
+	sWarn(filteredOutput);
 } else {
-	console.warn("\n--- Project-level TypeScript check passed for this file ---");
+	sWarn("\n--- Project-level TypeScript check passed for this file ---");
 }
 
 const isJsxFile = file.endsWith(".tsx") || file.endsWith(".jsx");
@@ -124,12 +126,12 @@ if (!isJsxFile) {
 		filteredIndividualTsCheckClean &&
 		filteredIndividualTsCheckClean.length > ZERO
 	) {
-		console.warn(
+		sWarn(
 			"\n--- Individual file TypeScript check (without project config) ---",
 		);
-		console.warn(filteredIndividualTsCheckClean);
+		sWarn(filteredIndividualTsCheckClean);
 	} else {
-		console.warn("\n--- Individual file TypeScript check passed ---");
+		sWarn("\n--- Individual file TypeScript check passed ---");
 	}
 } else {
 	individualTsCheck = spawnSync(
@@ -150,12 +152,10 @@ if (!isJsxFile) {
 		filteredIndividualTsCheckClean &&
 		filteredIndividualTsCheckClean.length > ZERO
 	) {
-		console.warn(
-			"\n--- Individual JSX file TypeScript check (with JSX flag) ---",
-		);
-		console.warn(filteredIndividualTsCheckClean);
+		sWarn("\n--- Individual JSX file TypeScript check (with JSX flag) ---");
+		sWarn(filteredIndividualTsCheckClean);
 	} else {
-		console.warn("\n--- Individual JSX file TypeScript check passed ---");
+		sWarn("\n--- Individual JSX file TypeScript check passed ---");
 	}
 }
 
@@ -171,7 +171,7 @@ const combinedEslint =
 const filteredEslint = filterNpmWarnings(combinedEslint);
 
 if (filteredEslint && filteredEslint.trim().length > ZERO) {
-	console.warn(filteredEslint);
+	sWarn(filteredEslint);
 }
 
 function hasTypeErrorsForFile(tsOutput: string, filePath: string): boolean {

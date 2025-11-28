@@ -1,4 +1,4 @@
-/* eslint-disable no-magic-numbers, id-length */
+/* oxlint-disable no-magic-numbers, id-length */
 import { describe, expect, it } from "vitest";
 
 import { createTypedCache } from "./typedPromiseCache";

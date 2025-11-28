@@ -117,7 +117,9 @@ export default function useSongForm(): UseSongFormReturn {
 
 	// Handle form submission with data collection
 
-	async function handleFormSubmit(event: React.FormEvent): Promise<void> {
+	async function handleFormSubmit(
+		event: Event | React.FormEvent,
+	): Promise<void> {
 		event.preventDefault();
 
 		// Read form data
@@ -179,11 +181,13 @@ export default function useSongForm(): UseSongFormReturn {
 		if (formRef.current) {
 			// Create a synthetic form event
 			// Narrow, localized assertion: synthetic DOM Event wrapped as React.FormEvent
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+			// Create a DOM Event and pass it directly — handleFormSubmit now
+			// accepts either a DOM Event or a React.FormEvent so no unsafe cast
+			// is required.
 			const syntheticEvent = new Event("submit", {
 				bubbles: true,
 				cancelable: true,
-			}) as unknown as React.FormEvent;
+			});
 			await handleFormSubmit(syntheticEvent);
 		}
 	}

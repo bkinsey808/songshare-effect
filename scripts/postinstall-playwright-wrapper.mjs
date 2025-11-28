@@ -1,10 +1,12 @@
 #!/usr/bin/env node
-/* eslint-disable no-undef */
+/* oxlint-disable no-undef */
 /*
  A small cross-platform wrapper script used as `postinstall` in package.json.
  Prefers Bun if available; otherwise falls back to `npx playwright install --with-deps`.
 */
 import { spawnSync } from "child_process";
+
+import { warn as sWarn, error as sError } from "./utils/scriptLogger.mjs";
 
 const EXIT_SUCCESS = 0;
 const EXIT_FAILURE = 1;
@@ -34,7 +36,7 @@ try {
 	// system-level install on CI or in Cloudflare's build environment where
 	// privilege escalation is disallowed.
 	if (process.env.PLAYWRIGHT_SKIP_BROWSER_INSTALL === "1" || process.env.CI === "true") {
-		console.warn(
+		sWarn(
 			"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 or CI=true",
 		);
 		process.exit(EXIT_SUCCESS);
@@ -64,6 +66,6 @@ try {
 	const args = isCI ? ["playwright", "install"] : ["playwright", "install", "--with-deps"];
 	process.exit(run("npx", args));
 } catch (err) {
-	console.error("postinstall wrapper failed:", err);
+	sError("postinstall wrapper failed:", err);
 	process.exit(EXIT_FAILURE);
 }

@@ -1,5 +1,7 @@
 import { existsSync, readFileSync } from "fs";
 
+import { error as sError } from "../../utils/scriptLogger";
+
 /**
  * Load environment variables from a `.env` file in the current working directory.
  *
@@ -29,7 +31,7 @@ export function loadEnvVars(): Record<string, string | undefined> {
 			});
 		}
 	} catch (error) {
-		console.error("❌ Error loading .env file:", error);
+		sError("❌ Error loading .env file:", error);
 		process.exit(EXIT_NON_ZERO);
 	}
 

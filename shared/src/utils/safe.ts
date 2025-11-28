@@ -78,7 +78,9 @@ export function safeArrayGet<TItem>(
 	defaultValue?: TItem,
 ): TItem | undefined {
 	if (Array.isArray(arr) && idx >= ZERO && idx < arr.length) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		// Narrow, localized return where the generic TItem may be `any` in some
+		// call sites — keep the disable narrowly scoped to this return.
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-return
 		return arr[idx];
 	}
 	return defaultValue;
@@ -94,11 +96,10 @@ export function safeArraySet<TItem>(
 	value: TItem,
 ): ReadonlyArray<TItem> {
 	if (Array.isArray(arr) && idx >= ZERO && idx < arr.length) {
-		// Use spread to produce a mutable copy from a ReadonlyArray<T>.
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-spread, typescript/no-unsafe-spread, @typescript-eslint/no-unsafe-assignment
-		const copy = [...arr];
+		// Use Array.from to produce a mutable copy from a ReadonlyArray<T>.
+		const copy = Array.from(arr);
 		copy[idx] = value;
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-return
 		return copy;
 	}
 	return arr;

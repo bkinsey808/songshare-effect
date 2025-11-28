@@ -58,7 +58,10 @@ export function createTypedCache<TValue>(prefix?: string): TypedCache<TValue> {
 					},
 					(err: unknown) => {
 						internal.delete(cacheKey.id);
-						throw err;
+						if (err instanceof Error) {
+							throw err;
+						}
+						throw new Error(String(err));
 					},
 				);
 				internal.set(cacheKey.id, promise);
@@ -71,11 +74,9 @@ export function createTypedCache<TValue>(prefix?: string): TypedCache<TValue> {
 
 export type SuspenseCache<TValue> = Readonly<{
 	key(id: string): CacheKey<TValue>;
-	// getOrThrow: either returns a resolved TValue or throws a pending Promise for Suspense
-	getOrThrow(
-		id: string,
-		fetcher: () => Promise<TValue>,
-	): TValue | Promise<TValue>;
+	// getOrThrow: either returns a resolved TValue or throws a thenable Error
+	// for Suspense while pending — it does NOT return a Promise.
+	getOrThrow(id: string, fetcher: () => Promise<TValue>): TValue;
 	has(id: string): boolean;
 	delete(id: string): boolean;
 	clear(): void;
@@ -86,6 +87,48 @@ export function createSuspenseCache<TValue>(
 ): SuspenseCache<TValue> {
 	const keyFactory = createCacheKeyFactory<TValue>(prefix);
 	const internal = new Map<symbol, Promise<TValue> | TValue>();
+
+	// A thenable `Error` wrapper — satisfies `only-throw-error` lint rule
+	// while remaining thenable so React's Suspense (which checks for
+	// thenables) still recognizes and awaits it.
+	/* The thenable pattern is intentionally required so React Suspense will accept
+		 thrown values. Keep just the specific rule disabled for this localized class. */
+	/* oxlint-disable-next-line unicorn/no-thenable */
+	class ThenableError<TValue> extends Error implements PromiseLike<TValue> {
+		constructor(private readonly promise: Promise<TValue>) {
+			super("SuspenseThenable");
+			// Maintain prototype chain for instanceof checks
+			Object.setPrototypeOf(this, new.target.prototype);
+		}
+		// (constructor finished) — then method follows
+
+		// `then` must be available so React's Suspense (thenable detection)
+		// recognizes this thrown object as suspendable. This method delegates
+		// to the wrapped promise. We disable the `promise-function-async` rule
+		// for this method because it needs to mirror PromiseLike semantics.
+		// The method is intentionally non-async and mirrors PromiseLike.then
+		// oxlint-disable-next-line promise-function-async, no-thenable
+		public then<TResult1 = TValue, TResult2 = never>(
+			onfulfilled?:
+				| ((value: TValue) => TResult1 | PromiseLike<TResult1>)
+				| null,
+			onrejected?:
+				| ((reason: unknown) => TResult2 | PromiseLike<TResult2>)
+				| null,
+		): Promise<TResult1 | TResult2> {
+			// Delegate to the inner promise — forward callbacks without unsafe
+			// casts. If there is no rejection handler, forward only the
+			// fulfillment handler; otherwise wrap the rejection to ensure the
+			// types line up safely.
+			if (onrejected === undefined || onrejected === null) {
+				return this.promise.then(onfulfilled);
+			}
+
+			return this.promise.then(onfulfilled, (reason: unknown) =>
+				onrejected(reason),
+			);
+		}
+	}
 
 	return {
 		key(id: string) {
@@ -107,9 +150,10 @@ export function createSuspenseCache<TValue>(
 			if (internal.has(cacheKey.id)) {
 				const cached = internal.get(cacheKey.id)!;
 				if (cached instanceof Promise) {
-					// still pending — throw to suspend (intentional)
-					// eslint-disable-next-line @typescript-eslint/only-throw-error
-					throw cached;
+					// still pending — throw a thenable Error wrapper. React's
+					// Suspense will treat thenables as suspendable; throwing an
+					// Error subclass keeps the code compliant with lint rules.
+					throw new ThenableError<TValue>(cached);
 				}
 
 				return cached as TValue;
@@ -122,13 +166,18 @@ export function createSuspenseCache<TValue>(
 				},
 				(err: unknown) => {
 					internal.delete(cacheKey.id);
-					throw err;
+					// Ensure we always throw an Error instance
+					if (err instanceof Error) {
+						throw err;
+					}
+					throw new Error(String(err));
 				},
 			);
 
 			internal.set(cacheKey.id, promise);
-			// eslint-disable-next-line @typescript-eslint/only-throw-error
-			throw promise;
+			// Throw a thenable Error wrapper (see above) so the thrown value
+			// satisfies lint rules and remains usable by Suspense.
+			throw new ThenableError<TValue>(promise);
 		},
 	} as const;
 }

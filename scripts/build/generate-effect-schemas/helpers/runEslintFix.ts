@@ -1,5 +1,7 @@
 import { execFileSync } from "child_process";
 
+import { warn as sWarn } from "../../../utils/scriptLogger";
+
 export function runEslintFix(
 	params: Readonly<{
 		projectRoot: string;
@@ -12,7 +14,7 @@ export function runEslintFix(
 		return;
 	}
 
-	console.warn("🔧 Running ESLint fix on generated files...");
+	sWarn("🔧 Running ESLint fix on generated files...");
 	try {
 		execFileSync(
 			params.cliPath,
@@ -22,9 +24,9 @@ export function runEslintFix(
 				stdio: "pipe",
 			},
 		);
-		console.warn("✅ ESLint fix completed on generated schemas");
+		sWarn("✅ ESLint fix completed on generated schemas");
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error);
-		console.warn("⚠️  ESLint fix failed:", message);
+		sWarn("⚠️  ESLint fix failed:", message);
 	}
 }

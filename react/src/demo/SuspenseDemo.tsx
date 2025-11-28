@@ -31,14 +31,10 @@ function suspendingFetch<ResultType>(
 	key: string,
 	fetcher: () => Promise<ResultType>,
 ): ResultType {
-	const maybe = cache.getOrThrow(key, fetcher);
-	if (maybe instanceof Promise) {
-		// suspend by throwing the pending promise (intentionally throwing non-Error)
-		// eslint-disable-next-line @typescript-eslint/only-throw-error
-		throw maybe;
-	}
-
-	return maybe;
+	// `createSuspenseCache.getOrThrow` will either return the resolved value
+	// (TValue) or throw a thenable Error wrapper that Suspense will handle.
+	// We can therefore safely delegate to it and return the value here.
+	return cache.getOrThrow(key, fetcher);
 }
 
 type UserProfileParams = Readonly<{

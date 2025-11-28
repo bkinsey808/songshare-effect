@@ -2,6 +2,7 @@ import { Effect } from "effect";
 
 import { getErrorMessage } from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
+import { log as serverLog, error as serverError } from "@/api/logger";
 import { getEnvString } from "@/shared/env/getEnv";
 import { type UserSessionData } from "@/shared/userSessionData";
 import { safeSet } from "@/shared/utils/safe";
@@ -38,10 +39,9 @@ export function me(
 						for (const nm of names) {
 							safeSet(hdrObj, nm, ctx.req.header(nm) ?? undefined);
 						}
-						// oxlint-disable-next-line no-console
-						console.log("[me] Incoming request headers:", hdrObj);
+						serverLog("[me] Incoming request headers:", hdrObj);
 					} catch (err) {
-						console.error(
+						serverError(
 							"[me] Failed to dump incoming headers:",
 							getErrorMessage(err),
 						);

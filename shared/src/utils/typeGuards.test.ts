@@ -1,4 +1,4 @@
-/* eslint-disable id-length, no-magic-numbers */
+/* oxlint-disable id-length, no-magic-numbers */
 import { describe, expect, it } from "vitest";
 
 import { isRecord, isString, isStringArray } from "./typeGuards";

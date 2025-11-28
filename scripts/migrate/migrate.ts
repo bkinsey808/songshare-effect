@@ -6,6 +6,7 @@
 import { execSync } from "child_process";
 import { statSync } from "fs";
 
+import { warn as sWarn, error as sError } from "../utils/scriptLogger";
 import { getMigrationFiles } from "./helpers/getMigrationFiles";
 import { loadEnvVars } from "./helpers/loadEnvVars";
 import { runMigration } from "./helpers/runMigration";
@@ -24,7 +25,7 @@ function main(): void {
 	const ZERO = 0;
 	const EXIT_NON_ZERO = 1;
 
-	console.warn("🚀 Starting programmatic migration runner...");
+	sWarn("🚀 Starting programmatic migration runner...");
 
 	try {
 		// Load environment variables
@@ -35,38 +36,38 @@ function main(): void {
 		const migrations = getMigrationFiles(migrationDir);
 
 		if (migrations.length === ZERO) {
-			console.warn("ℹ️  No migration files found");
+			sWarn("ℹ️  No migration files found");
 			return;
 		}
 
-		console.warn("📋 Found migrations:");
+		sWarn("📋 Found migrations:");
 		migrations.forEach((migration) => {
 			const stats = statSync(migration.path);
-			console.warn(`  - ${migration.filename} (${stats.size} bytes)`);
+			sWarn(`  - ${migration.filename} (${stats.size} bytes)`);
 		});
-		console.warn("");
+		sWarn("");
 
 		// Run each migration
 		for (const migration of migrations) {
 			runMigration(migration, env);
 		}
 
-		console.warn("");
-		console.warn("🎉 All migrations completed successfully!");
+		sWarn("");
+		sWarn("🎉 All migrations completed successfully!");
 
 		// Regenerate schemas
-		console.warn("🔄 Regenerating TypeScript schemas...");
+		sWarn("🔄 Regenerating TypeScript schemas...");
 		try {
 			// This is a safe npm script execution for schema generation
 			execSync("npm run supabase:generate", { stdio: "inherit" });
-			console.warn("✅ Schema generation completed");
+			sWarn("✅ Schema generation completed");
 		} catch (error) {
-			console.warn("⚠️  Schema generation failed:", error);
+			sWarn("⚠️  Schema generation failed:", error);
 		}
 
-		console.warn("✅ Migration process complete!");
+		sWarn("✅ Migration process complete!");
 	} catch (error) {
-		console.error("❌ Migration process failed:", error);
+		sError("❌ Migration process failed:", error);
 		process.exit(EXIT_NON_ZERO);
 	}
 }

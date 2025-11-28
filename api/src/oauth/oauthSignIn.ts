@@ -40,8 +40,11 @@ function oauthSignInFactory(
 	return Effect.gen(function* oauthSignInGen($) {
 		// Parse provider param using Effect Schema decoder (as an Effect)
 		// Parse provider param synchronously and redirect on invalid provider.
-		function computeProv(): unknown {
+		function computeProv(): ProviderType | undefined {
 			try {
+				// decodeUnknownSync will return a ProviderType or throw on
+				// invalid input. We intentionally catch and return undefined
+				// to handle invalid provider params gracefully.
 				return Schema.decodeUnknownSync(ProviderSchema)(
 					ctx.req.param("provider"),
 				);
@@ -49,6 +52,7 @@ function oauthSignInFactory(
 				return undefined;
 			}
 		}
+
 		const prov = computeProv();
 
 		if (prov === undefined) {
@@ -66,10 +70,10 @@ function oauthSignInFactory(
 			);
 		}
 
-		// ProviderSchema already validates type, so narrow to `ProviderType` here
-		// Localized assertion: prov is the decoded value from ProviderSchema
-		// oxlint-disable-next-line no-unsafe-type-assertion
-		const provider = prov as unknown as ProviderType;
+		// ProviderSchema already validates type via computeProv, so prov
+		// is typed as `ProviderType | undefined` and we can narrow to
+		// ProviderType here without unsafe assertions.
+		const provider = prov;
 
 		// Generate CSRF state and set cookie (wrapped in Effect.sync)
 		const csrfState = nanoid();
