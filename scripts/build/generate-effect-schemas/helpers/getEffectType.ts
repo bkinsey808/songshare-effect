@@ -1,6 +1,6 @@
 import { safeGet } from "@/shared/utils/safe";
 
-import type { ColumnDefinition } from "./generate-effect-schemas-types";
+import { type ColumnDefinition } from "./generate-effect-schemas-types";
 
 const typeMapping: Record<string, string> = {
 	string: "Schema.String",

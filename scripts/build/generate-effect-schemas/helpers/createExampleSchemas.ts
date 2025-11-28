@@ -1,4 +1,4 @@
-import type { TableDefinition } from "./generate-effect-schemas-types";
+import { type TableDefinition } from "./generate-effect-schemas-types";
 
 export function createExampleSchemas(): TableDefinition[] {
 	return [

@@ -7,9 +7,6 @@ export type RegisterForm = {
 const USERNAME_MIN_LENGTH = 3;
 const USERNAME_MAX_LENGTH = 30;
 
-// Schema.Struct uses a PascalCase API; suppress the `new-cap` rule for
-// intentional constructor-style naming used by the effect Schema API.
-// eslint-disable-next-line new-cap
 export const RegisterFormSchema: Schema.Schema<RegisterForm> = Schema.Struct({
 	username: Schema.NonEmptyString.pipe(
 		Schema.minLength(USERNAME_MIN_LENGTH, {
@@ -28,6 +25,5 @@ export const RegisterFormFields = ["username"] as const;
 
 export type RegisterFormField = (typeof RegisterFormFields)[number];
 
-// eslint-disable-next-line new-cap
 export const RegisterFormFieldSchema: Schema.Schema<RegisterFormField> =
 	Schema.Literal(...RegisterFormFields);

@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
-
+import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";

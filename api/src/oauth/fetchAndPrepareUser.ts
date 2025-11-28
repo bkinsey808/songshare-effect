@@ -1,24 +1,20 @@
 import { Effect, type Schema } from "effect";
 
-// Prefer to keep the top-level handler type `Context` — helpers may use ReadonlyContext
-
-// Env type is not required here — use ReadonlyContext default instead
-import type { ReadonlyContext } from "@/api/hono/hono-context";
-import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
-import type { UserSchema } from "@/shared/generated/supabaseSchemas";
-import type { OauthUserData } from "@/shared/oauth/oauthUserData";
-import type { ProviderType } from "@/shared/providers";
-
 import { DatabaseError, ValidationError } from "@/api/errors";
 import { getErrorMessage } from "@/api/getErrorMessage";
+import { type ReadonlyContext } from "@/api/hono/hono-context";
+import { debug as serverDebug, error as serverError } from "@/api/logger";
 import { fetchAndParseOauthUserData } from "@/api/oauth/fetchAndParseOauthUserData";
 import { resolveRedirectOrigin } from "@/api/oauth/resolveRedirectOrigin";
 import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
+import { type ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import { getUserByEmail } from "@/api/user/getUserByEmail";
 import { getEnvString } from "@/shared/env/getEnv";
+import { type UserSchema } from "@/shared/generated/supabaseSchemas";
+import { type OauthUserData } from "@/shared/oauth/oauthUserData";
 import { apiOauthCallbackPath } from "@/shared/paths";
+import { type ProviderType } from "@/shared/providers";
 import { safeSet } from "@/shared/utils/safe";
-/* eslint-disable no-console */
 import { createClient } from "@supabase/supabase-js";
 
 type FetchAndPrepareUserParams = Readonly<{
@@ -62,7 +58,8 @@ export function fetchAndPrepareUser({
 						safeSet(hdrObj, nm, ctx.req.header(nm) ?? undefined);
 					}
 				} catch (err) {
-					console.error(
+					// Localized: server-side error log
+					serverError(
 						"[oauthCallback] Failed to dump incoming headers:",
 						getErrorMessage(err),
 					);
@@ -119,7 +116,8 @@ export function fetchAndPrepareUser({
 		}
 		yield* $(
 			Effect.sync(() => {
-				console.log("[fetchAndPrepareUser] Using redirectUri:", redirectUri);
+				// Localized: debug-only server-side log
+				serverDebug("[fetchAndPrepareUser] Using redirectUri:", redirectUri);
 			}),
 		);
 		const { accessTokenUrl, clientIdEnvVar, clientSecretEnvVar, userInfoUrl } =
@@ -156,7 +154,8 @@ export function fetchAndPrepareUser({
 		// Additional debug logging to aid in locating 500 errors during dev
 		yield* $(
 			Effect.sync(() => {
-				console.log(
+				// Localized: debug-only server-side log
+				serverDebug(
 					"[oauthCallback] fetchAndPrepareUser completed. existingUser:",
 					existingUser ? { user_id: existingUser.user_id } : undefined,
 				);

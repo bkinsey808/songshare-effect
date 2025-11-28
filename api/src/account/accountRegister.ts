@@ -1,8 +1,6 @@
-import { Effect, Schema } from "effect";
+import { type Schema, Effect } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
-
-import type { Database } from "@/shared/generated/supabaseTypes";
 
 import { buildSessionCookie } from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
@@ -10,6 +8,7 @@ import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
 import { getErrorMessage } from "@/api/getErrorMessage";
 import { getIpAddress } from "@/api/getIpAddress";
+import { debug as serverDebug, error as serverError } from "@/api/logger";
 import { RegisterDataSchema } from "@/api/register/registerData";
 import { parseMaybeSingle } from "@/api/supabase/parseMaybeSingle";
 import { csrfTokenCookieName } from "@/shared/cookies";
@@ -18,12 +17,12 @@ import {
 	UserPublicSchema,
 	UserSchema,
 } from "@/shared/generated/supabaseSchemas";
+import { type Database } from "@/shared/generated/supabaseTypes";
 import { RegisterFormSchema } from "@/shared/register/register";
 import { UserSessionDataSchema } from "@/shared/userSessionData";
 import { safeGet, safeSet } from "@/shared/utils/safe";
 import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
-import { decodeUnknownSyncOrThrow } from "@/shared/validation/decode-or-throw";
-/* eslint-disable no-console */
+import { decodeUnknownSyncOrThrow } from "@/shared/validation/decodeUnknownSyncOrThrow";
 import { createClient } from "@supabase/supabase-js";
 
 import { type ReadonlyContext } from "../hono/hono-context";
@@ -31,12 +30,9 @@ import { type ReadonlyContext } from "../hono/hono-context";
 /**
  * Handle account registration after OAuth callback
  */
-// eslint-disable-next-line max-lines-per-function
 export default function accountRegister(
-	// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 	ctx: ReadonlyContext,
 ): Effect.Effect<Response, DatabaseError | ServerError | ValidationError> {
-	// eslint-disable-next-line max-lines-per-function
 	return Effect.gen(function* accountRegisterGen($) {
 		// Parse and validate the request body
 		const body: unknown = yield* $(
@@ -66,7 +62,8 @@ export default function accountRegister(
 		// posts the registration form.
 		yield* $(
 			Effect.sync(() => {
-				console.log(
+				// Localized: debug-only server-side log
+				serverDebug(
 					"[accountRegister] ctx.req.url:",
 					ctx.req.url,
 					"Request Cookie header:",
@@ -76,8 +73,8 @@ export default function accountRegister(
 		);
 		yield* $(
 			Effect.sync(() => {
-				// Log a few useful headers instead of relying on a raw headers object
-				console.log("[accountRegister] Request headers:", {
+				// Localized: debug-only server-side log
+				serverDebug("[accountRegister] Request headers:", {
 					Host: ctx.req.header("Host"),
 					Origin: ctx.req.header("Origin"),
 					Referer: ctx.req.header("Referer"),
@@ -101,7 +98,7 @@ export default function accountRegister(
 						// to be widened to accept `unknown` input. This cast is
 						// safe at runtime but narrows types in TS; suppress the
 						// ESLint rule for this specific line.
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+						// oxlint-disable-next-line no-unsafe-type-assertion
 						schema: RegisterDataSchema as unknown as Schema.Schema<
 							Schema.Schema.Type<typeof RegisterDataSchema>,
 							unknown
@@ -199,9 +196,9 @@ export default function accountRegister(
 		const JSON_INDENT = 2;
 		yield* $(
 			Effect.sync(() => {
-				console.log(
+				// Localized: debug-only server-side log
+				serverDebug(
 					"[accountRegister] userInsertResult:",
-					// eslint-disable-next-line unicorn/no-null
 					JSON.stringify(rawInsertedUser, null, JSON_INDENT),
 				);
 			}),
@@ -254,9 +251,9 @@ export default function accountRegister(
 				},
 				catch: (err) => {
 					// Log the raw DB row to help debugging
-					console.error(
+					// Localized: server-side error logging
+					serverError(
 						"[accountRegister] Failed to decode user row:",
-						// eslint-disable-next-line unicorn/no-null
 						JSON.stringify(rawInsertedUser, null, JSON_INDENT),
 						"error:",
 						getErrorMessage(err),

@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
-
-import type { Tables, Database } from "@/shared/generated/supabaseTypes";
-import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
+import { useEffect, useState, type ReactElement } from "react";
 
 import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
+import { type Tables, type Database } from "@/shared/generated/supabaseTypes";
+import { isRecord, isString } from "@/shared/utils/typeGuards";
+import {
+	type RealtimeChannel,
+	type SupabaseClient,
+} from "@supabase/supabase-js";
 
 type UserPublic = Tables<"user_public">;
 
@@ -14,16 +17,14 @@ type RealtimeEvent = {
 	timestamp: string;
 };
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion */
 function isUserPublic(value: unknown): value is UserPublic {
-	return (
-		typeof value === "object" &&
-		value !== null &&
-		typeof (value as any).user_id === "string" &&
-		typeof (value as any).username === "string"
-	);
+	if (!isRecord(value)) {
+		return false;
+	}
+
+	const { user_id: userId, username } = value;
+	return isString(userId) && isString(username);
 }
-/* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion */
 
 function UserPublicSubscriptionPage(): ReactElement {
 	const [users, setUsers] = useState<UserPublic[]>([]);
@@ -50,14 +51,21 @@ function UserPublicSubscriptionPage(): ReactElement {
 	const INIT_CLIENT_DELAY_MS = 100;
 	const ZERO = 0;
 
+	// Use shared isRecord/isString guards (imported at top) for runtime narrowing
+
 	function handleRealtimeEvent(
 		payload: unknown,
 		eventType: "INSERT" | "UPDATE" | "DELETE",
 	): void {
-		/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion */
-		const newRaw = (payload as any)?.new;
-		/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion */
-		const oldRaw = (payload as any)?.old;
+		// The Supabase realtime payload is untyped here, so treat it as unknown and
+		// guard before reading the `new` and `old` fields.
+		let newRaw: unknown = undefined;
+		let oldRaw: unknown = undefined;
+
+		if (isRecord(payload)) {
+			newRaw = payload["new"];
+			oldRaw = payload["old"];
+		}
 		const realtimeEvent: RealtimeEvent = {
 			eventType,
 			new: isUserPublic(newRaw) ? newRaw : undefined,

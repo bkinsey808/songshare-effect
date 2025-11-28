@@ -1,6 +1,4 @@
-// Env type is not required here — ReadonlyContext default covers the Bindings type
-import type { ReadonlyContext } from "@/api/hono/hono-context";
-
+import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { getEnvString } from "@/shared/env/getEnv";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 

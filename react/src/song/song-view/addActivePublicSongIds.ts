@@ -1,10 +1,9 @@
 // src/features/react/song-subscribe/addActiveSongIds.ts
 import { Schema } from "effect";
 
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
-
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
 import { getStoreApi } from "@/react/zustand/useAppStore";
+import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";
 
 import { type SongPublic, songPublicSchema } from "../song-schema";

@@ -1,12 +1,9 @@
-// src/features/server-utils/parseDataFromCookie.ts
-import { Schema } from "effect";
-// parseDataFromCookie is a helper that accepts a mutable Context; keep types the same
+import type { Schema } from "effect";
+
 import { verify } from "hono/jwt";
 
-// Env type not required when ctx is optional — ReadonlyContext default is sufficient
-import type { ReadonlyContext } from "@/api/hono/hono-context";
-
-import { decodeUnknownSyncOrThrow } from "@/shared/validation/decode-or-throw";
+import { type ReadonlyContext } from "@/api/hono/hono-context";
+import { decodeUnknownSyncOrThrow } from "@/shared/validation/decodeUnknownSyncOrThrow";
 
 type ParseDataFromCookieParams<
 	Data,
@@ -63,7 +60,7 @@ export async function parseDataFromCookie<
 			// return type. This is a safe behavior at the API boundary.
 			// Narrow, localized disable: returning `undefined` for the conditional generic
 			// return type. This is a safe behavior at the API boundary.
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion
+			// oxlint-disable-next-line no-unsafe-return, no-unsafe-type-assertion
 			return undefined as ParseCookieResult<Data, AllowMissing>;
 		}
 		throw new Error("Failed to extract token from cookie");
@@ -94,7 +91,7 @@ export async function parseDataFromCookie<
 		);
 		if (allowMissing) {
 			// Narrow, localized disable for the same conditional-return pattern.
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion
+			// oxlint-disable-next-line no-unsafe-return, no-unsafe-type-assertion
 			return undefined as ParseCookieResult<Data, AllowMissing>;
 		}
 		throw new Error("Failed to parse data from cookie", { cause: err });

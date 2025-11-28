@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from "fs";
 import { join } from "path";
 
-import type { MigrationFile } from "./types";
+import { type MigrationFile } from "./types";
 
 /**
  * Read and return migration files from the specified directory.

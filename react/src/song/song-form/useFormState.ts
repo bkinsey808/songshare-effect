@@ -1,7 +1,6 @@
 import { useState } from "react";
 
-import type { Slide } from "./songTypes";
-
+import { type Slide } from "./songTypes";
 import { generateId } from "./utils/generateId";
 
 type UseFormStateReturn = {

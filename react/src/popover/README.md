@@ -716,7 +716,7 @@ console.log("Calculated position:", { position, placement });
 // ✅ Good - Direct imports
 import { NativePopover } from "./popover/NativePopover";
 import { useNativePopover } from "./popover/useNativePopover";
-import type { PopoverPosition } from "./popover/types";
+import { type PopoverPosition } from "./popover/types";
 
 // ❌ Avoid - Barrel imports
 import { NativePopover, useNativePopover, PopoverPosition } from "./popover";

@@ -1,12 +1,11 @@
 import { Effect } from "effect";
 
-// Env type not required — ReadonlyContext default covers the Bindings type
-import type { ReadonlyContext } from "@/api/hono/hono-context";
-import type { OauthState } from "@/shared/oauth/oauthState";
-import type { OauthUserData } from "@/shared/oauth/oauthUserData";
-
 import { ServerError } from "@/api/errors";
+// Env type not required — ReadonlyContext default covers the Bindings type
+import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { createJwt } from "@/api/oauth/createJwt";
+import { type OauthState } from "@/shared/oauth/oauthState";
+import { type OauthUserData } from "@/shared/oauth/oauthUserData";
 
 type BuildRegisterJwtParams = Readonly<{
 	ctx: ReadonlyContext;

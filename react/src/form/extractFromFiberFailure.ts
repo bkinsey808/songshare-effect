@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion */
-import type { ValidationError } from "@/shared/validation/types";
+import { isRecord, isString } from "@/shared/utils/typeGuards";
+import { type ValidationError } from "@/shared/validation/types";
 
 import { safeJsonParse } from "./safeJsonParse";
 
@@ -8,17 +8,11 @@ function isValidationErrorArray(value: unknown): value is ValidationError[] {
 		return false;
 	}
 	return value.every((item) => {
-		if (typeof item !== "object" || item === null) {
+		if (!isRecord(item)) {
 			return false;
 		}
-		const record = item as Record<string, unknown>;
-		const { field, message } = record;
-		return (
-			Object.hasOwn(record, "field") &&
-			Object.hasOwn(record, "message") &&
-			typeof field === "string" &&
-			typeof message === "string"
-		);
+		const { field, message } = item;
+		return isString(field) && isString(message);
 	});
 }
 

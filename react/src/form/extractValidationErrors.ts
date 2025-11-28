@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion */
-import type { ValidationError } from "@/shared/validation/types";
+import { isRecord } from "@/shared/utils/typeGuards";
+import { type ValidationError } from "@/shared/validation/types";
 
 import { extractFromFiberFailure } from "./extractFromFiberFailure";
 import { safeJsonParse } from "./safeJsonParse";
@@ -12,16 +12,15 @@ function isValidationErrorArray(value: unknown): value is ValidationError[] {
 		if (typeof item !== "object" || item === null) {
 			return false;
 		}
-		// Use bracket access and narrow with runtime checks. These localized
-		// disables acknowledge we need to inspect unknown shapes safely.
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-		const maybe = item as Record<string, unknown>;
-		if (!("field" in maybe) || !("message" in maybe)) {
+		// Use a runtime guard to narrow unknown -> Record<string, unknown>
+		if (!isRecord(item)) {
 			return false;
 		}
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		return (
-			typeof maybe["field"] === "string" && typeof maybe["message"] === "string"
+			Object.hasOwn(item, "field") &&
+			Object.hasOwn(item, "message") &&
+			typeof item["field"] === "string" &&
+			typeof item["message"] === "string"
 		);
 	});
 }
@@ -49,11 +48,17 @@ export function extractValidationErrors(
 
 	// Object shapes (FiberFailure, wrapped errors, etc.)
 	if (typeof error === "object" && error !== null) {
-		// Narrow to a record for property checks; localized disable is safe.
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		const obj = error as Record<string, unknown>;
+		// Narrow to a record for runtime property checks using our guard
+		if (!isRecord(error)) {
+			return [];
+		}
+		const obj = error;
 
-		if ("_tag" in obj && obj["_tag"] === "FiberFailure") {
+		if (
+			Object.hasOwn(obj, "_tag") &&
+			typeof obj["_tag"] === "string" &&
+			obj["_tag"] === "FiberFailure"
+		) {
 			return extractFromFiberFailure(obj);
 		}
 

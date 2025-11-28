@@ -1,8 +1,7 @@
-/* eslint-disable no-console */
-import type { StoreApi } from "zustand";
+// Prefer per-line console exceptions
+import { type StoreApi } from "zustand";
 
-import type { UserSessionData } from "@/shared/userSessionData";
-
+import { clientDebug, clientError } from "@/react/utils/clientLogger";
 import {
 	type AppSlice,
 	getOrCreateAppStore,
@@ -14,6 +13,7 @@ import {
 	HTTP_NOT_FOUND,
 } from "@/shared/constants/http";
 import { apiMePath } from "@/shared/paths";
+import { type UserSessionData } from "@/shared/userSessionData";
 import { isRecord } from "@/shared/utils/typeGuards";
 
 // Module-level in-flight promise to dedupe concurrent requests.
@@ -60,7 +60,8 @@ export async function ensureSignedIn(options?: {
 	readonly force?: boolean;
 }): Promise<UserSessionData | undefined> {
 	const force = options?.force ?? false;
-	console.debug("[ensureSignedIn] called, force=", force);
+	// Localized debug-only log
+	clientDebug("[ensureSignedIn] called, force=", force);
 
 	// Ensure store exists and get API
 	let api: StoreApi<AppSlice> | undefined = getStoreApi();
@@ -76,7 +77,8 @@ export async function ensureSignedIn(options?: {
 	}
 
 	if (globalInFlight) {
-		console.debug("[ensureSignedIn] using globalInFlight promise");
+		// Localized debug-only log
+		clientDebug("[ensureSignedIn] using globalInFlight promise");
 		return globalInFlight;
 	}
 
@@ -101,11 +103,13 @@ export async function ensureSignedIn(options?: {
 				return undefined;
 			}
 
-			console.debug("[ensureSignedIn] /api/me response status=", res.status);
+			// Localized debug-only log
+			clientDebug("[ensureSignedIn] /api/me response status=", res.status);
 
 			if (!res.ok) {
 				// For other non-OK statuses (server errors), log for debugging
-				console.error(
+				// Localized: server-side error log
+				clientError(
 					"[ensureSignedIn] unexpected non-OK /api/me status:",
 					res.status,
 				);
@@ -114,12 +118,14 @@ export async function ensureSignedIn(options?: {
 			}
 
 			const payload: unknown = await res.json().catch((err: unknown) => {
-				console.error("useEnsureSignedIn json error", err);
+				// Localized: error parsing response
+				clientError("useEnsureSignedIn json error", err);
 				return undefined;
 			});
 
 			// Debug: log the raw payload for troubleshooting OAuth redirect cases
-			console.debug("[ensureSignedIn] payload=", payload);
+			// Localized debug-only log
+			clientDebug("[ensureSignedIn] payload=", payload);
 
 			const data = parsePayload(payload);
 			return data;
@@ -132,7 +138,8 @@ export async function ensureSignedIn(options?: {
 			if (isAbort) {
 				return undefined;
 			}
-			console.error("ensureSignedIn error", err);
+			// Localized: report unexpected error
+			clientError("ensureSignedIn error", err);
 			return undefined;
 		} finally {
 			globalInFlight = undefined;
@@ -161,12 +168,10 @@ export async function ensureSignedIn(options?: {
 
 			if (data === undefined) {
 				// Debug: no data parsed
-				console.debug(
-					"[ensureSignedIn] parsed no userSessionData from payload",
-				);
+				clientDebug("[ensureSignedIn] parsed no userSessionData from payload");
 			} else {
 				// Debug: indicate we're about to apply sign-in
-				console.debug(
+				clientDebug(
 					"[ensureSignedIn] applying signIn, user=",
 					data.user?.user_id ?? "<unknown>",
 				);
@@ -176,13 +181,15 @@ export async function ensureSignedIn(options?: {
 					signInFn?.(data);
 					setIsSignedInFn?.(true);
 				} catch (err) {
-					console.error("apply signIn failed:", err);
+					// Localized: report error applying sign-in
+					clientError("apply signIn failed:", err);
 				}
 			}
 
 			return data;
 		} catch (err) {
-			console.error("post-process ensureSignedIn error", err);
+			// Localized: report post-process error
+			clientError("post-process ensureSignedIn error", err);
 			return data;
 		}
 	})();

@@ -1,8 +1,7 @@
 import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { dirname } from "path";
 
-import type { TableDefinition } from "./generate-effect-schemas-types";
-
+import { type TableDefinition } from "./generate-effect-schemas-types";
 import { generateEffectSchema } from "./generateEffectSchema";
 
 export function generateEffectSchemasFile(

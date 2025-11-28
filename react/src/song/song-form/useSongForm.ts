@@ -6,12 +6,11 @@ import { useParams } from "react-router-dom";
 import { useAppForm } from "@/react/form/useAppForm";
 import { safeSet } from "@/shared/utils/safe";
 
-import type { Slide } from "./songTypes";
-
 import {
 	songFormSchema,
 	type SongFormValuesFromSchema as SongFormData,
 } from "./songSchema";
+import { type Slide } from "./songTypes";
 import { useCollapsibleSections } from "./useCollapsibleSections";
 import { useFormState } from "./useFormState";
 import { useFormSubmission } from "./useFormSubmission";

@@ -1,5 +1,4 @@
-import type { TableDefinition } from "./generate-effect-schemas-types";
-
+import { type TableDefinition } from "./generate-effect-schemas-types";
 import { getEffectType } from "./getEffectType";
 import { getTypeAnnotation } from "./getTypeAnnotation";
 import { toPascalCase } from "./toPascalCase";

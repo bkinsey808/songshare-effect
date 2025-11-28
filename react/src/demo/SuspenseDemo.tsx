@@ -5,9 +5,20 @@ import {
 	DEMO_POSTS_DELAY_MS,
 	DEMO_POSTS_COUNT,
 } from "@/shared/constants/http";
+import { createSuspenseCache } from "@/shared/utils/typedPromiseCache";
 
-// Simple cache to store promises and their results
-const promiseCache = new Map<string, unknown>();
+// Suspense-friendly typed caches to store Promise<T> while pending and T when resolved
+// Use separate caches per data-type so we keep strong typing and avoid unsafe assertions.
+type DemoUser = Readonly<{
+	id: number;
+	name: string;
+	email: string;
+	bio: string;
+}>;
+type DemoPost = Readonly<{ id: number; title: string; content: string }>;
+
+const userCache = createSuspenseCache<DemoUser>("demo:user");
+const postsCache = createSuspenseCache<DemoPost[]>("demo:posts");
 
 // File-local constants to avoid magic-number literals in this demo
 const POST_SAMPLE_COUNT = 3;
@@ -16,44 +27,18 @@ const ONE = 1;
 
 // Utility function to create a suspending fetch
 function suspendingFetch<ResultType>(
+	cache: ReturnType<typeof createSuspenseCache<ResultType>>,
 	key: string,
 	fetcher: () => Promise<ResultType>,
 ): ResultType {
-	if (promiseCache.has(key)) {
-		const cached = promiseCache.get(key);
-
-		// If it's still a promise, throw it to suspend
-		if (cached instanceof Promise) {
-			// eslint-disable-next-line @typescript-eslint/only-throw-error, only-throw-error
-			throw cached;
-		}
-
-		// Return the resolved value. This local assertion is safe because
-		// the cache is written by the typed fetcher above. Keep the disable
-		// very narrow to satisfy the project's lint rules.
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return cached as ResultType;
+	const maybe = cache.getOrThrow(key, fetcher);
+	if (maybe instanceof Promise) {
+		// suspend by throwing the pending promise (intentionally throwing non-Error)
+		// eslint-disable-next-line @typescript-eslint/only-throw-error
+		throw maybe;
 	}
 
-	// Create and cache the promise
-	const promise = fetcher().then(
-		(result) => {
-			// Cache the resolved value
-			promiseCache.set(key, result);
-			return result;
-		},
-		(error: unknown) => {
-			// Remove from cache on error so it can be retried
-			promiseCache.delete(key);
-			// re-throw the error (allow ErrorBoundary to handle it)
-			throw error;
-		},
-	);
-
-	promiseCache.set(key, promise);
-	// Suspend until the promise resolves
-	// eslint-disable-next-line @typescript-eslint/only-throw-error, only-throw-error
-	throw promise;
+	return maybe;
 }
 
 type UserProfileParams = Readonly<{
@@ -62,7 +47,7 @@ type UserProfileParams = Readonly<{
 
 // Component that fetches user data and suspends
 function UserProfile({ userId }: UserProfileParams): ReactElement {
-	const user = suspendingFetch(`user-${userId}`, async () => {
+	const user = suspendingFetch(userCache, `user-${userId}`, async () => {
 		// Simulate API delay
 		await new Promise<void>((resolve) =>
 			setTimeout(resolve, DEMO_PROFILE_DELAY_MS),
@@ -92,7 +77,7 @@ type UserPostParams = Readonly<{
 
 // Component that fetches posts and suspends
 function UserPosts({ userId }: UserPostParams): ReactElement {
-	const posts = suspendingFetch(`posts-${userId}`, async () => {
+	const posts = suspendingFetch(postsCache, `posts-${userId}`, async () => {
 		// Simulate API delay
 		await new Promise<void>((resolve) =>
 			setTimeout(resolve, DEMO_POSTS_DELAY_MS),
@@ -167,7 +152,9 @@ function PostsSkeleton(): ReactElement {
 // Main demo component
 export default function SuspenseDemo(): ReactElement {
 	function clearCache(): void {
-		promiseCache.clear();
+		// clear both type-specific caches used in this demo
+		userCache.clear();
+		postsCache.clear();
 		// Force re-render by updating a key or state if needed
 		window.location.reload();
 	}

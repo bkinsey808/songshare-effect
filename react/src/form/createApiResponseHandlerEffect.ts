@@ -1,8 +1,9 @@
-/* eslint-disable no-console */
+// Prefer per-line console exceptions
 import { Effect } from "effect";
 
-import type { ApiResponseAction } from "./apiResponseTypes";
+import { clientDebug } from "@/react/utils/clientLogger";
 
+import { type ApiResponseAction } from "./apiResponseTypes";
 import { createApiResponseEffect } from "./createApiResponseEffect";
 
 /**
@@ -24,13 +25,16 @@ export function createApiResponseHandlerEffect({
 	return createApiResponseEffect(response).pipe(
 		Effect.matchEffect({
 			onSuccess: () => {
-				console.log("🎯 API response success");
+				// Localized debug-only log
+				clientDebug("🎯 API response success");
 				return Effect.succeed(true);
 			},
 			onFailure: (action: Readonly<ApiResponseAction>) => {
-				console.log("💥 API response failure action:", action);
+				// Localized debug-only log
+				clientDebug("💥 API response failure action:", action);
 				if (action.type === "setFieldError") {
-					console.log("📝 Setting field error:", action.field, action.message);
+					// Localized debug-only log
+					clientDebug("📝 Setting field error:", action.field, action.message);
 					setValidationErrors([
 						{
 							field: action.field,
@@ -44,7 +48,8 @@ export function createApiResponseHandlerEffect({
 						defaultErrorMessage !== undefined
 							? defaultErrorMessage
 							: action.message;
-					console.log("🚨 Setting submit error:", errorMessage);
+					// Localized debug-only log
+					clientDebug("🚨 Setting submit error:", errorMessage);
 					setSubmitError(errorMessage);
 				}
 				return Effect.succeed(false);

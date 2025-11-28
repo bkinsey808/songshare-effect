@@ -1,6 +1,5 @@
-import type { Database } from "@/shared/generated/supabaseTypes";
-
 import { getEnvValueSafe } from "@/react/utils/env";
+import { type Database } from "@/shared/generated/supabaseTypes";
 // src/features/supabase/supabaseClient.ts
 import { type SupabaseClient, createClient } from "@supabase/supabase-js";
 

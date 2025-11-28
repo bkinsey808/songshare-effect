@@ -1,8 +1,6 @@
-/* eslint-disable new-cap */
-import type { Either } from "effect/Either";
-import type { ParseError } from "effect/ParseResult";
-
 import { Schema } from "effect";
+import { type Either } from "effect/Either";
+import { type ParseError } from "effect/ParseResult";
 
 export const Provider = {
 	google: "google",
@@ -13,7 +11,7 @@ export const Provider = {
 export type ProviderType = (typeof Provider)[keyof typeof Provider];
 export const providers: ProviderType[] = Object.values(Provider);
 
-export const ProviderSchema: Schema.Schema<ProviderType> = Schema["Union"](
+export const ProviderSchema: Schema.Schema<ProviderType> = Schema.Union(
 	...providers.map((provider) => Schema.Literal(provider)),
 );
 

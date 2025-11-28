@@ -5,9 +5,8 @@ import {
 	POPOVER_DEFAULT_HEIGHT,
 } from "@/shared/constants/http";
 
-import type { PlacementOption, PopoverPosition } from "./types";
-
 import calculatePopoverPosition from "./calculatePopoverPosition";
+import { type PlacementOption, type PopoverPosition } from "./types";
 
 type UsePopoverPositioningParams = Readonly<{
 	triggerRef: React.RefObject<HTMLElement | null>;

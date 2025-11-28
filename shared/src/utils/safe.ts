@@ -1,4 +1,5 @@
-/* eslint-disable no-magic-numbers */
+// Small numeric helpers used to avoid magic-number complaints from lint.
+const ZERO = 0;
 /** Safely get a property from an object, avoiding prototype pollution and unsafe access */
 export function safeGet<
 	TValue extends Record<string, unknown>,
@@ -76,7 +77,7 @@ export function safeArrayGet<TItem>(
 	idx: number,
 	defaultValue?: TItem,
 ): TItem | undefined {
-	if (Array.isArray(arr) && idx >= 0 && idx < arr.length) {
+	if (Array.isArray(arr) && idx >= ZERO && idx < arr.length) {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return arr[idx];
 	}
@@ -92,7 +93,7 @@ export function safeArraySet<TItem>(
 	idx: number,
 	value: TItem,
 ): ReadonlyArray<TItem> {
-	if (Array.isArray(arr) && idx >= 0 && idx < arr.length) {
+	if (Array.isArray(arr) && idx >= ZERO && idx < arr.length) {
 		// Use spread to produce a mutable copy from a ReadonlyArray<T>.
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-spread, typescript/no-unsafe-spread, @typescript-eslint/no-unsafe-assignment
 		const copy = [...arr];

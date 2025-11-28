@@ -5,6 +5,7 @@ import {
 	ONE_HOUR_SECONDS,
 	TOKEN_CACHE_SKEW_SECONDS,
 } from "@/shared/constants/http";
+import { isRecord, isString } from "@/shared/utils/typeGuards";
 
 // Narrow env shape for functions that only need Supabase credentials.
 type SupabaseClientEnv = Readonly<{
@@ -66,21 +67,19 @@ export async function getSupabaseUserToken({
 	};
 
 	// Check if we need to update the user's metadata
+
 	function getUserIdFromAppMetadata(meta: unknown): string | undefined {
-		if (typeof meta !== "object" || meta === null) {
+		if (!isRecord(meta)) {
 			return undefined;
 		}
-		// Narrow to a record for runtime checks. Localized disables keep this
-		// check safe and contained to this helper.
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion
-		const rec = meta as Record<string, unknown>;
-		const { user } = rec;
-		if (typeof user !== "object" || user === null) {
+
+		const { user } = meta;
+		if (!isRecord(user)) {
 			return undefined;
 		}
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion
-		const { user_id: uid } = user as Record<string, unknown>;
-		return typeof uid === "string" ? uid : undefined;
+
+		const { user_id: uid } = user;
+		return isString(uid) ? uid : undefined;
 	}
 
 	const currentUserData = getUserIdFromAppMetadata(data.user.app_metadata);

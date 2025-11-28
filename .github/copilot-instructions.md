@@ -56,7 +56,7 @@
 // ✅ PREFERRED - Direct imports
 import { NativePopover } from './popover/NativePopover';
 import { calculatePosition } from './popover/calculatePopoverPosition';
-import type { PopoverProps } from './popover/types';
+import { type PopoverProps } from './popover/types';
 
 // ❌ AVOID - Barrel file imports
 import { NativePopover, calculatePosition, PopoverProps } from './popover';
@@ -169,7 +169,7 @@ Please follow these conventions when adding tests. Copilot and other assistants 
 // ✅ PREFERRED - Direct imports
 import { NativePopover } from './popover/NativePopover';
 import { calculatePosition } from './popover/calculatePopoverPosition';
-import type { PopoverProps } from './popover/types';
+import { type PopoverProps } from './popover/types';
 
 // ❌ AVOID - Barrel file imports
 import { NativePopover, calculatePosition, PopoverProps } from './popover';

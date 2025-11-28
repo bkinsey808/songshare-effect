@@ -1,10 +1,9 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
 // Import translation resources
 import { detectInitialLanguage } from "@/react/language/detectInitialLanguage";
+import { type SupportedLanguageType } from "@/shared/language/supported-languages";
 
 import en from "./resources/en.json";
 import es from "./resources/es.json";

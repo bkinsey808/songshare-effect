@@ -1,13 +1,12 @@
 // supabase client type imported below via ReadonlySupabaseClient alias
 import { Effect } from "effect";
 
-import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
-
 import { DatabaseError } from "@/api/errors";
 import { getErrorMessage } from "@/api/getErrorMessage";
 import { parseMaybeSingle } from "@/api/supabase/parseMaybeSingle";
+import { type ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import { UserPublicSchema } from "@/shared/generated/supabaseSchemas";
-import { decodeUnknownSyncOrThrow } from "@/shared/validation/decode-or-throw";
+import { decodeUnknownSyncOrThrow } from "@/shared/validation/decodeUnknownSyncOrThrow";
 
 /**
  * Resolve username from `user_public` table for a given user_id.

@@ -1,5 +1,7 @@
 import { Schema } from "effect";
 
+import { isRecord, isString } from "@/shared/utils/typeGuards";
+
 import { type SongPublic, songPublicSchema } from "../../song-schema";
 
 /**
@@ -18,14 +20,12 @@ export function decodeSongData(
 	const publicSongsToAdd: Record<string, SongPublic> = {};
 
 	for (const song of data) {
-		if (typeof song === "object" && song !== null) {
-			// Read the song_id via an index access and guard its runtime type
-			// Localized: runtime-checked index access; avoid unsafe member access lint.
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion
-			const maybeSongId = (song as Record<string, unknown>)["song_id"];
+		if (isRecord(song)) {
+			// Safely extract song_id using runtime guards
+			const { song_id: maybeSongId } = song;
 
 			// Only proceed if song_id is a string
-			if (typeof maybeSongId === "string") {
+			if (isString(maybeSongId)) {
 				// Use Effect schema to safely decode the song data
 				const decodeResult = Schema.decodeUnknownEither(songPublicSchema)(song);
 

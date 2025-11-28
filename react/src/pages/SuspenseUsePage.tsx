@@ -17,48 +17,53 @@ import {
 	SUSPENSE_PLAYLIST_INCREMENT,
 	SUSPENSE_ERROR_ID,
 } from "@/shared/constants/http";
+import { createTypedCache } from "@/shared/utils/typedPromiseCache";
 
-// Cache for promises to prevent recreation on every render
-const promiseCache = new Map<string, Promise<unknown>>();
-
-// File-local constants to avoid magic numbers specific to this demo page
-const BASE_YEAR = 2020;
-const DURATION_BASE_HOUR = 2;
-const DURATION_BASE_MINUTES = 30;
-const GENRES = ["Pop", "Rock", "Jazz", "Classical"];
-const ZERO = 0;
-const ONE = 1;
-
-// Simulate API calls with different loading times
-async function fetchAlbumData(albumId: number): Promise<{
+const albumCache = createTypedCache<{
 	id: number;
 	title: string;
 	artist: string;
 	year: number;
 	tracks: string[];
 	coverUrl: string;
-}> {
-	// 2 second delay
-	await new Promise<void>((resolve) =>
-		setTimeout(resolve, SUSPENSE_ALBUM_DELAY_MS),
-	);
+}>("album");
 
-	// Simulate occasional errors for album ID 99
-	if (albumId === SUSPENSE_ERROR_ID) {
-		throw new Error("Album not found - simulated API error");
-	}
+const artistCache = createTypedCache<{
+	id: number;
+	name: string;
+	genre: string;
+	albums: string[];
+	bio: string;
+}>("artist");
 
-	return {
-		id: albumId,
-		title: `Album ${albumId}`,
-		artist: `Artist ${albumId}`,
-		year: BASE_YEAR + albumId,
-		tracks: Array.from(
-			{ length: SUSPENSE_ALBUM_TRACKS },
-			(_unusedVal, index) => `Track ${index + ONE}`,
-		),
-		coverUrl: `https://picsum.photos/200/200?random=${albumId}`,
-	};
+const playlistCache = createTypedCache<{
+	id: number;
+	name: string;
+	description: string;
+	songCount: number;
+	duration: string;
+	songs: string[];
+}>("playlist");
+
+// File-local constants to avoid magic numbers specific to this demo page
+const BASE_YEAR = 2020;
+const DURATION_BASE_HOUR = 2;
+const DURATION_BASE_MINUTES = 30;
+const GENRES: readonly string[] = ["Pop", "Rock", "Jazz", "Classical"];
+const ZERO = 0;
+const ONE = 1;
+
+// This function returns a Promise by delegating to the typed shared cache. We deliberately keep
+// it synchronous (returns Promise) and disable the rule that requires promise-returning
+// functions to be declared async — callers still get a fully typed Promise.
+// eslint-disable-next-line @typescript-eslint/promise-function-async
+// helper for readability - delegates to the typed per-resource caches
+async function getCachedPromise<TValue>(
+	cache: ReturnType<typeof createTypedCache<TValue>>,
+	id: string,
+	fetcher: () => Promise<TValue>,
+): Promise<TValue> {
+	return cache.get(id, fetcher);
 }
 
 async function fetchArtistData(artistId: number): Promise<{
@@ -122,28 +127,38 @@ async function fetchPlaylistData(playlistId: number): Promise<{
 	};
 }
 
-// Helper function to get or create cached promises
-async function getCachedPromise<TValue>(
-	key: string,
-	fetcher: () => Promise<TValue>,
-): Promise<TValue> {
-	if (!promiseCache.has(key)) {
-		const promise = fetcher().then(
-			(result) => {
-				promiseCache.set(key, Promise.resolve(result));
-				return result;
-			},
-			(error: unknown) => {
-				promiseCache.delete(key);
-				throw error;
-			},
-		);
-		promiseCache.set(key, promise);
+// (no local type aliases required; inference is sufficient)
+
+// Fetch album data (was previously accidentally duplicated elsewhere)
+async function fetchAlbumData(albumId: number): Promise<{
+	id: number;
+	title: string;
+	artist: string;
+	year: number;
+	tracks: string[];
+	coverUrl: string;
+}> {
+	// 2 second delay
+	await new Promise<void>((resolve) =>
+		setTimeout(resolve, SUSPENSE_ALBUM_DELAY_MS),
+	);
+
+	// Simulate occasional errors for album ID 99
+	if (albumId === SUSPENSE_ERROR_ID) {
+		throw new Error("Album not found - simulated API error");
 	}
 
-	// Narrow the unsafe assertion to this single line at the API boundary.
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	return promiseCache.get(key) as Promise<TValue>;
+	return {
+		id: albumId,
+		title: `Album ${albumId}`,
+		artist: `Artist ${albumId}`,
+		year: BASE_YEAR + albumId,
+		tracks: Array.from(
+			{ length: SUSPENSE_ALBUM_TRACKS },
+			(_unusedVal, index) => `Track ${index + ONE}`,
+		),
+		coverUrl: `https://picsum.photos/200/200?random=${albumId}`,
+	};
 }
 
 type LoadingSpinnerProps = Readonly<{
@@ -168,7 +183,7 @@ type AlbumCardParams = Readonly<{
 
 // Component that uses 'use' hook to fetch album data
 function AlbumCard({ albumId }: AlbumCardParams): ReactElement {
-	const albumPromise = getCachedPromise(`album-${albumId}`, async () =>
+	const albumPromise = getCachedPromise(albumCache, String(albumId), async () =>
 		fetchAlbumData(albumId),
 	);
 	const album = use(albumPromise);
@@ -216,8 +231,10 @@ type ArtistProfileParams = Readonly<{
 
 // Component that uses 'use' hook to fetch artist data
 function ArtistProfile({ artistId }: ArtistProfileParams): ReactElement {
-	const artistPromise = getCachedPromise(`artist-${artistId}`, async () =>
-		fetchArtistData(artistId),
+	const artistPromise = getCachedPromise(
+		artistCache,
+		String(artistId),
+		async () => fetchArtistData(artistId),
 	);
 	const artist = use(artistPromise);
 
@@ -249,8 +266,10 @@ type PlaylistDetailsParams = Readonly<{
 
 // Component that uses 'use' hook to fetch playlist data
 function PlaylistDetails({ playlistId }: PlaylistDetailsParams): ReactElement {
-	const playlistPromise = getCachedPromise(`playlist-${playlistId}`, async () =>
-		fetchPlaylistData(playlistId),
+	const playlistPromise = getCachedPromise(
+		playlistCache,
+		String(playlistId),
+		async () => fetchPlaylistData(playlistId),
 	);
 	const playlist = use(playlistPromise);
 
@@ -304,7 +323,9 @@ function SuspenseUsePage(): ReactElement {
 	);
 
 	function clearCache(): void {
-		promiseCache.clear();
+		albumCache.clear();
+		artistCache.clear();
+		playlistCache.clear();
 		// Force re-render by resetting states
 		setActiveAlbum(undefined);
 		setActiveArtist(undefined);

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 
 type CollapsibleSectionProps = Readonly<{
 	title: string;
@@ -27,9 +27,7 @@ export default function CollapsibleSection({
 					<h2 className="text-lg font-semibold text-gray-900">{title}</h2>
 				</div>
 				<svg
-					className={`h-5 w-5 transform transition-transform ${
-						isExpanded ? "rotate-180" : ""
-					}`}
+					className={`h-5 w-5 transform transition-transform ${isExpanded ? "rotate-180" : ""}`}
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke="currentColor"

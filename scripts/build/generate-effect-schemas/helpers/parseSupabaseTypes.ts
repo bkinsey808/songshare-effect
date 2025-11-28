@@ -1,11 +1,10 @@
 import { existsSync, readFileSync } from "fs";
 
-import type {
-	ColumnDefinition,
-	TableDefinition,
-} from "./generate-effect-schemas-types";
-
 import { createExampleSchemas } from "./createExampleSchemas";
+import {
+	type ColumnDefinition,
+	type TableDefinition,
+} from "./generate-effect-schemas-types";
 
 /**
  * Parse Supabase generated TypeScript types and return simplified table/column metadata.

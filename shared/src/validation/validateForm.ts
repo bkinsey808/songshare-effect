@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+// This file performs runtime inspection of unknown values coming from Effect
+// execution and therefore contains a few intentionally-localized unsafe casts.
+// Keep per-site inline disables rather than a broad, file-scope rule disable.
 import { Effect, type Schema } from "effect";
 
-import type { ValidationError, ValidationResult } from "./types";
-
+import { type ValidationError, type ValidationResult } from "./types";
 import { validateFormEffect } from "./validateFormEffect";
 
 /**
@@ -88,7 +89,7 @@ function extractValidationErrors(
 				return false;
 			}
 			// Narrow item for property checks. Localized disable for runtime inspection.
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion
 			const rec = item as Record<string, unknown>;
 			return (
 				Object.hasOwn(rec, "field") &&
@@ -120,7 +121,7 @@ function extractValidationErrors(
 	if (typeof input === "object" && input !== null) {
 		// Narrow to a record for runtime property checks.
 		// Narrow to a record for runtime property checks.
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion
 		const obj = input as Record<string, unknown>;
 
 		if ("cause" in obj && isValidationErrorArray(obj["cause"])) {

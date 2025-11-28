@@ -1,19 +1,18 @@
-// src/features/server-utils/oauthCallbackFactory.ts
-/* eslint-disable no-console */
+// Localized console usage — prefer per-line exceptions.
 import { Effect } from "effect";
 import { type Context } from "hono";
 import { getCookie } from "hono/cookie";
 import { verify } from "hono/jwt";
 import { nanoid } from "nanoid";
 
-import type { Env } from "@/api/env";
-import type { ReadonlyContext } from "@/api/hono/hono-context";
-
 import { buildSameSiteAttr } from "@/api/cookie/buildSameSiteAttr";
 import { buildSessionCookie } from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
+import { type Env } from "@/api/env";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
 import { getErrorMessage } from "@/api/getErrorMessage";
+import { type ReadonlyContext } from "@/api/hono/hono-context";
+import { debug as serverDebug, error as serverError } from "@/api/logger";
 import rateLimit from "@/api/oauth-callback-factory/rateLimit";
 import { buildDashboardRedirectUrl } from "@/api/oauth/buildDashboardRedirectUrl";
 import { fetchAndPrepareUser } from "@/api/oauth/fetchAndPrepareUser";
@@ -82,7 +81,8 @@ export function oauthCallbackFactory(
 			}),
 		);
 		if (!allowed) {
-			console.log("[oauthCallback] Rate limit exceeded, not allowed.");
+			// Localized: server-side debug log for rate limiting
+			serverDebug("[oauthCallback] Rate limit exceeded, not allowed.");
 			// Redirect to home with rateLimit token so SPA can show a localized message
 			return ctx.redirect(
 				`/${defaultLanguage}/?${signinErrorQueryParam}=${SigninErrorToken.rateLimit}`,
@@ -94,7 +94,8 @@ export function oauthCallbackFactory(
 		// Debug: log full request URL so we can see the hostname the API sees
 		yield* $(
 			Effect.sync(() => {
-				console.log(
+				// Localized: debug-only server-side log
+				serverDebug(
 					"[oauthCallback] ctx.req.url:",
 					ctx.req.url,
 					"requestUrl.href:",
@@ -107,7 +108,8 @@ export function oauthCallbackFactory(
 		const code = requestUrl.searchParams.get(codeQueryParam);
 		const oauthStateParamsString = requestUrl.searchParams.get(stateQueryParam);
 		if (code === null || oauthStateParamsString === null) {
-			console.log("[oauthCallback] Missing code or state");
+			// Localized: debug-only server-side log
+			serverDebug("[oauthCallback] Missing code or state");
 			return new Response(undefined, {
 				status: SEE_OTHER,
 				headers: {
@@ -131,7 +133,8 @@ export function oauthCallbackFactory(
 		) {
 			yield* $(
 				Effect.sync(() => {
-					console.error(
+					// Localized: server-side error log
+					serverError(
 						"[oauthCallback] Missing STATE_HMAC_SECRET or JWT_SECRET for verifying state",
 					);
 				}),
@@ -175,7 +178,8 @@ export function oauthCallbackFactory(
 		if (csrfCookie === undefined || csrfCookie !== oauthState.csrf) {
 			yield* $(
 				Effect.sync(() => {
-					console.log("[oauthCallback] CSRF validation failed");
+					// Localized: debug-only server-side log
+					serverDebug("[oauthCallback] CSRF validation failed");
 				}),
 			);
 			// Redirect to home with a generic security token so SPA shows a safe message
@@ -280,7 +284,8 @@ export function oauthCallbackFactory(
 
 			yield* $(
 				Effect.sync(() => {
-					console.log(
+					// Localized: debug-only server-side log
+					serverDebug(
 						"[oauthCallback] Setting register cookie:",
 						registerCookieName,
 					);
@@ -289,7 +294,8 @@ export function oauthCallbackFactory(
 
 			yield* $(
 				Effect.sync(() => {
-					console.log("[oauthCallback] Protocol/secure diagnostics:", {
+					// Localized: debug-only server-side log
+					serverDebug("[oauthCallback] Protocol/secure diagnostics:", {
 						requestUrlProtocol: requestUrl.protocol,
 						headerProto,
 						requestProtoIsHttps,
@@ -314,7 +320,8 @@ export function oauthCallbackFactory(
 								},
 							});
 					ctx.res.headers.append("Set-Cookie", headerValue);
-					console.log(
+					// Localized: debug-only server-side log
+					serverDebug(
 						"[oauthCallback] Set-Cookie header (register):",
 						headerValue,
 						"clientDebug=",
@@ -325,7 +332,8 @@ export function oauthCallbackFactory(
 
 			yield* $(
 				Effect.sync(() => {
-					console.log(
+					// Localized: debug-only server-side log
+					serverDebug(
 						"[oauthCallback] Redirecting to register page:",
 						`/${lang}/${registerPath}`,
 					);
@@ -347,7 +355,8 @@ export function oauthCallbackFactory(
 			const prov = encodeURIComponent(provider);
 			yield* $(
 				Effect.sync(() => {
-					console.log(
+					// Localized: debug-only server-side log
+					serverDebug(
 						"[oauthCallback] Provider mismatch, redirecting to signInFailure:",
 						provider,
 					);
@@ -395,7 +404,8 @@ export function oauthCallbackFactory(
 					},
 				});
 				ctx.res.headers.append("Set-Cookie", headerValue);
-				console.log("[oauthCallback] Set-Cookie header:", headerValue);
+				// Localized: debug-only server-side log
+				serverDebug("[oauthCallback] Set-Cookie header:", headerValue);
 			}),
 		);
 
@@ -414,7 +424,8 @@ export function oauthCallbackFactory(
 					},
 				});
 				ctx.res.headers.append("Set-Cookie", csrfHeader);
-				console.log(
+				// Localized: debug-only server-side log
+				serverDebug(
 					"[oauthCallback] Set-Cookie header (csrf-token):",
 					csrfHeader,
 				);

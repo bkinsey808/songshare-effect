@@ -1,7 +1,6 @@
 import { useState } from "react";
 
-import type { AlertState } from "@/react/pages/home/alertState";
-
+import { type AlertState } from "@/react/pages/home/alertState";
 import getInitialAlertState from "@/react/pages/home/getInitialAlertState";
 
 export default function useHomePage(): {

@@ -1,7 +1,9 @@
-/* eslint-disable no-console */
+// Prefer per-line console exceptions
 import { Effect } from "effect";
 
-import type { ApiResponseAction } from "./apiResponseTypes";
+import { clientDebug } from "@/react/utils/clientLogger";
+
+import { type ApiResponseAction } from "./apiResponseTypes";
 
 /**
  * Create an Effect that handles API response parsing and returns structured actions
@@ -10,14 +12,17 @@ export function createApiResponseEffect(
 	response: Response,
 ): Effect.Effect<unknown, ApiResponseAction> {
 	return Effect.gen(function* createApiResponseEffect() {
-		console.log("🔍 Processing API response, status:", response.status);
+		// Localized debug-only log
+		clientDebug("🔍 Processing API response, status:", response.status);
 		// Success case
 		if (response.ok) {
-			console.log("✅ Response is OK");
+			// Localized debug-only log
+			clientDebug("✅ Response is OK");
 			return { type: "success" } as const;
 		}
 
-		console.log("❌ Response not OK, parsing error");
+		// Localized debug-only log
+		clientDebug("❌ Response not OK, parsing error");
 		// Parse JSON with error handling
 		let errorData: { error?: string | undefined; field?: string | undefined } =
 			{
@@ -36,9 +41,11 @@ export function createApiResponseEffect(
 				}
 				return { error: undefined, field: undefined };
 			});
-			console.log("📄 Parsed error data:", errorData);
+			// Localized debug-only log
+			clientDebug("📄 Parsed error data:", errorData);
 		} catch {
-			console.log("💥 Failed to parse JSON response");
+			// Localized debug-only log
+			clientDebug("💥 Failed to parse JSON response");
 			errorData = { error: "Invalid response from server" };
 		}
 
@@ -49,7 +56,8 @@ export function createApiResponseEffect(
 			typeof errorData.error === "string" &&
 			errorData.error !== ""
 		) {
-			console.log("🎯 Field-specific error detected");
+			// Localized debug-only log
+			clientDebug("🎯 Field-specific error detected");
 			return yield* Effect.fail({
 				type: "setFieldError",
 				field: errorData.field,
@@ -58,7 +66,8 @@ export function createApiResponseEffect(
 		}
 
 		// General error
-		console.log("🚨 General error detected");
+		// Localized debug-only log
+		clientDebug("🚨 General error detected");
 		return yield* Effect.fail({
 			type: "setGeneralError",
 			message: errorData.error ?? "An error occurred",

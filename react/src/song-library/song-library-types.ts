@@ -1,5 +1,5 @@
 // Types for Song Library functionality to avoid circular imports
-import type { SongLibraryEntry } from "./song-library-schema";
+import { type SongLibraryEntry } from "./song-library-schema";
 
 // Base slice interface for the song library state
 export type SongLibrarySliceBase = {

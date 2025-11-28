@@ -1,5 +1,4 @@
-import type { ReactElement } from "react";
-
+import { type ReactElement } from "react";
 import { useParams } from "react-router-dom";
 
 import { useAppStoreSelector } from "@/react/zustand/useAppStore";

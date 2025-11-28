@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 type UseColumnResizeProps = Readonly<{
 	fields: ReadonlyArray<string>;

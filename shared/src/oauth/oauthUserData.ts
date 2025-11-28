@@ -1,6 +1,6 @@
 import { Schema } from "effect";
 
-import type { ReadonlyDeep } from "../types/deep-readonly";
+import { type ReadonlyDeep } from "../types/deep-readonly";
 
 export type OauthUserData = {
 	readonly sub?: string | undefined;

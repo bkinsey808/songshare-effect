@@ -1,4 +1,6 @@
-/* eslint-disable line-comment-position */
+// Demo page contains many inline comments — prefer local fixes rather than
+// a broad file-level eslint-disable. We'll keep comments but avoid "end-of-line"
+// inline comments where the `line-comment-position` rule would complain.
 import { Activity, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 

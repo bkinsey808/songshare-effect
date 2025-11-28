@@ -1,7 +1,5 @@
-// Env type not required for these wrapper helpers
-import type { ReadonlyContext } from "@/api/hono/hono-context";
-
 import { getErrorMessage } from "@/api/getErrorMessage";
+import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
 import { oauthCallbackFactory } from "@/api/oauth-callback-factory/oauthCallbackFactory";
 import { getEnvString } from "@/shared/env/getEnv";

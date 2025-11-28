@@ -1,9 +1,14 @@
-/* eslint-disable no-console */
+// Prefer localized console exceptions instead of module-level disables
 import { Effect } from "effect";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useAppForm } from "@/react/form/useAppForm";
+import {
+	clientDebug,
+	clientLog,
+	clientError,
+} from "@/react/utils/clientLogger";
 import { JUST_REGISTERED_SIGNAL } from "@/shared/constants/http";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
@@ -41,7 +46,8 @@ export default function RegisterPage(): ReactElement {
 
 	// Debug validation errors changes
 	useEffect(() => {
-		console.log("🔄 validationErrors changed:", validationErrors);
+		// Localized debug-only log
+		clientDebug("🔄 validationErrors changed:", validationErrors);
 	}, [validationErrors]);
 
 	function handleUsernameBlur(): void {
@@ -77,11 +83,13 @@ export default function RegisterPage(): ReactElement {
 	}
 
 	async function onSubmit(data: RegisterForm): Promise<void> {
-		console.log("🔥 onSubmit called with data:", data);
+		// Localized debug-only log
+		clientDebug("🔥 onSubmit called with data:", data);
 		setSubmitError(undefined);
 
 		try {
-			console.log("🌐 Making API request to:", apiAccountRegisterPath);
+			// Localized debug-only log
+			clientDebug("🌐 Making API request to:", apiAccountRegisterPath);
 			const response = await fetch(apiAccountRegisterPath, {
 				method: "POST",
 				headers: {
@@ -91,7 +99,8 @@ export default function RegisterPage(): ReactElement {
 				credentials: "include",
 			});
 
-			console.log("📡 API response received:", {
+			// Localized debug-only log
+			clientDebug("📡 API response received:", {
 				status: response.status,
 				statusText: response.statusText,
 				headers: Object.fromEntries(response.headers.entries()),
@@ -100,23 +109,29 @@ export default function RegisterPage(): ReactElement {
 			const isSuccess = await Effect.runPromise(
 				handleApiResponse(response, setSubmitError),
 			);
-			console.log("✅ API response handled, success:", isSuccess);
+			// Localized debug-only log
+			clientDebug("✅ API response handled, success:", isSuccess);
 			if (isSuccess) {
-				console.log("🎉 Registration successful, redirecting to dashboard");
+				// Localized debug-only log
+				clientLog("🎉 Registration successful, redirecting to dashboard");
 				onSubmitSuccess();
 			} else {
-				console.log("❌ Registration failed");
+				// Localized debug-only log
+				clientLog("❌ Registration failed");
 			}
 		} catch (error) {
-			console.error("💥 Network error:", error);
+			// Localized: report network error
+			clientError("💥 Network error:", error);
 			setSubmitError(t("register.errors.networkError"));
 		}
 	}
 
 	async function handleFormSubmit(event: React.FormEvent): Promise<void> {
-		console.log("📝 Form submit triggered", event);
+		// Localized debug-only log
+		clientDebug("📝 Form submit triggered", event);
 		event.preventDefault();
-		console.log("🔄 Calling handleSubmit with onSubmit");
+		// Localized debug-only log
+		clientDebug("🔄 Calling handleSubmit with onSubmit");
 
 		// Read form data
 		// Use nullish coalescing for clearer typing
@@ -170,8 +185,9 @@ export default function RegisterPage(): ReactElement {
 					/>
 					{(() => {
 						const usernameError = getFieldError("username");
-						console.log("🔍 Username error from getFieldError:", usernameError);
-						console.log("🔍 All validation errors:", validationErrors);
+						// Localized debug-only logs
+						clientDebug("🔍 Username error from getFieldError:", usernameError);
+						clientDebug("🔍 All validation errors:", validationErrors);
 						return (
 							usernameError && (
 								<p className="mt-1 text-sm text-red-400">
@@ -205,7 +221,8 @@ export default function RegisterPage(): ReactElement {
 						disabled={isSubmitting}
 						className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
 						onClick={() => {
-							console.log("🖱️ Create Account button clicked");
+							// Localized debug-only log
+							clientDebug("🖱️ Create Account button clicked");
 						}}
 					>
 						{isSubmitting

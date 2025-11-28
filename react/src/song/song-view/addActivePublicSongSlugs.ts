@@ -1,7 +1,6 @@
-import type { AppSlice } from "@/react/zustand/useAppStore";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
-
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { type AppSlice } from "@/react/zustand/useAppStore";
+import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 // src/features/react/song-subscribe/addActiveSongIds.ts
 import { type SongSubscribeSlice } from "./song-slice";

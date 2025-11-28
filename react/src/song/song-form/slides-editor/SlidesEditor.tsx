@@ -1,8 +1,7 @@
 // src/features/song-form/SlidesEditor.tsx
 import { useTranslation } from "react-i18next";
 
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
-
+import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
 import AutoExpandingTextarea from "../../../design-system/AutoExpandingTextarea";

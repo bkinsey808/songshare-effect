@@ -1,5 +1,4 @@
-import type React from "react";
-import type { ReactElement } from "react";
+import React from "react";
 
 type FormTextareaProps = Readonly<{
 	name?: string;

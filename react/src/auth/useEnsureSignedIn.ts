@@ -1,9 +1,9 @@
-import type { StoreApi } from "zustand";
-
-/* eslint-disable no-console */
+// Prefer per-line console exceptions
 import { useEffect, useRef } from "react";
+import { type StoreApi } from "zustand";
 
 import { ensureSignedIn } from "@/react/auth/ensureSignedIn";
+import { clientDebug } from "@/react/utils/clientLogger";
 import { type AppSlice, getStoreApi } from "@/react/zustand/useAppStore";
 
 export default function useEnsureSignedIn(options?: {
@@ -16,7 +16,8 @@ export default function useEnsureSignedIn(options?: {
 		if (!storeApiRef.current) {
 			storeApiRef.current = getStoreApi();
 		}
-		console.debug("[useEnsureSignedIn] effect mounted, force=", force);
+		// Localized debug-only log
+		clientDebug("[useEnsureSignedIn] effect mounted, force=", force);
 		void ensureSignedIn({ force });
 	}, [force]);
 }

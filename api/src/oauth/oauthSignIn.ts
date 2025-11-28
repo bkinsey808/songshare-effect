@@ -1,24 +1,20 @@
-/* eslint-disable no-console */
 import { Effect, Schema } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
-import type { OauthState } from "@/shared/oauth/oauthState";
-
-// `ReadonlyContext` wraps Hono's `Context` to satisfy lint rules; `Context`
-// and `Env` imports are not required here because `DeepReadonly` preserves
-// function signatures (for example `ctx.header`/`ctx.redirect`).
 import { type AppError, ServerError, ValidationError } from "@/api/errors";
 import { getErrorMessage } from "@/api/getErrorMessage";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
+import { debug as serverDebug, error as serverError } from "@/api/logger";
 import { resolveRedirectOrigin } from "@/api/oauth/resolveRedirectOrigin";
 import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
 import { oauthCsrfCookieName } from "@/shared/cookies";
+import { getEnvString } from "@/shared/env/getEnv";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { SupportedLanguageSchema } from "@/shared/language/supported-languages-effect";
+import { type OauthState } from "@/shared/oauth/oauthState";
 import { apiOauthCallbackPath } from "@/shared/paths";
-import { ProviderSchema } from "@/shared/providers";
-type ProviderType = import("@/shared/providers").ProviderType;
+import { ProviderSchema, type ProviderType } from "@/shared/providers";
 import {
 	langQueryParam,
 	redirectPortQueryParam,
@@ -27,8 +23,7 @@ import {
 import { SigninErrorToken } from "@/shared/signinTokens";
 import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
 
-import type { Env } from "../env";
-
+import { type Env } from "../env";
 // Removed unused safeGet import
 
 import { type ReadonlyContext } from "../hono/hono-context";
@@ -73,14 +68,15 @@ function oauthSignInFactory(
 
 		// ProviderSchema already validates type, so narrow to `ProviderType` here
 		// Localized assertion: prov is the decoded value from ProviderSchema
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		// oxlint-disable-next-line no-unsafe-type-assertion
 		const provider = prov as unknown as ProviderType;
 
 		// Generate CSRF state and set cookie (wrapped in Effect.sync)
 		const csrfState = nanoid();
 		yield* $(
 			Effect.sync(() => {
-				console.log("[oauthSignIn] Generated CSRF state:", csrfState);
+				// Localized: debug-only server-side log
+				serverDebug("[oauthSignIn] Generated CSRF state:", csrfState);
 			}),
 		);
 
@@ -153,7 +149,8 @@ function oauthSignInFactory(
 		);
 		yield* $(
 			Effect.sync(() => {
-				console.log("[oauthSignIn] Language:", lang);
+				// Localized: debug-only server-side log
+				serverDebug("[oauthSignIn] Language:", lang);
 			}),
 		);
 
@@ -201,7 +198,8 @@ function oauthSignInFactory(
 		};
 		yield* $(
 			Effect.sync(() => {
-				console.log("[oauthSignIn] oauthState:", oauthState);
+				// Localized: debug-only server-side log
+				serverDebug("[oauthSignIn] oauthState:", oauthState);
 			}),
 		);
 
@@ -215,7 +213,8 @@ function oauthSignInFactory(
 			// Log and redirect with a generic serverError token
 			yield* $(
 				Effect.sync(() => {
-					console.error(
+					// Localized: server-side error log
+					serverError(
 						"[oauthSignIn] Missing STATE_HMAC_SECRET or JWT_SECRET for signing state",
 					);
 				}),
@@ -242,7 +241,8 @@ function oauthSignInFactory(
 
 		yield* $(
 			Effect.sync(() => {
-				console.log("[oauthSignIn] redirect_uri:", redirect_uri);
+				// Localized: debug-only server-side log
+				serverDebug("[oauthSignIn] redirect_uri:", redirect_uri);
 			}),
 		);
 
@@ -252,8 +252,8 @@ function oauthSignInFactory(
 		// Only allow string values for client_id
 		// Use a runtime check to ensure clientIdEnvVar is a valid key
 		let client_id = "";
-		if (typeof clientIdEnvVar === "string" && clientIdEnvVar in envRecord) {
-			const val = (envRecord as Record<string, unknown>)[clientIdEnvVar];
+		if (typeof clientIdEnvVar === "string") {
+			const val = getEnvString(envRecord, clientIdEnvVar);
 			if (typeof val === "string") {
 				client_id = val;
 			}
@@ -261,7 +261,8 @@ function oauthSignInFactory(
 		if (client_id === "") {
 			yield* $(
 				Effect.sync(() => {
-					console.error(
+					// Localized: server-side error log
+					serverError(
 						`[oauthSignIn] Missing client_id for provider ${provider}`,
 					);
 				}),
@@ -281,7 +282,8 @@ function oauthSignInFactory(
 		}
 		yield* $(
 			Effect.sync(() => {
-				console.log("[oauthSignIn] client_id:", client_id);
+				// Localized: debug-only server-side log
+				serverDebug("[oauthSignIn] client_id:", client_id);
 			}),
 		);
 		const params = new URLSearchParams({
@@ -295,7 +297,8 @@ function oauthSignInFactory(
 		const authUrl = `${authBaseUrl}?${params}`;
 		yield* $(
 			Effect.sync(() => {
-				console.log("[oauthSignIn] authUrl:", authUrl);
+				// Localized: debug-only server-side log
+				serverDebug("[oauthSignIn] authUrl:", authUrl);
 			}),
 		);
 

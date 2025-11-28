@@ -1,7 +1,6 @@
-import type { AppSlice } from "@/react/zustand/useAppStore";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
-
 import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
+import { type AppSlice } from "@/react/zustand/useAppStore";
+import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 

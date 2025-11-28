@@ -1,4 +1,4 @@
-import type { PlacementOption } from "./types";
+import { type PlacementOption } from "./types";
 
 /**
  * Returns Tailwind CSS classes for positioning the popover arrow

@@ -1,5 +1,4 @@
-import type { Set, Get, Api } from "@/react/zustand/slice-utils";
-
+import { type Set, type Get, type Api } from "@/react/zustand/slice-utils";
 import { sliceResetFns } from "@/react/zustand/useAppStore";
 import { safeGet } from "@/shared/utils/safe";
 import { isRecord } from "@/shared/utils/typeGuards";
@@ -152,10 +151,7 @@ export function createSongSubscribeSlice(
 					);
 				}
 
-				if (
-					isSongPublic(songPublic) &&
-					(songPublic as Record<string, unknown>)["song_slug"] === slug
-				) {
+				if (isSongPublic(songPublic) && songPublic.song_slug === slug) {
 					const song = safeGet(get().privateSongs, songPublic.song_id);
 					return { song, songPublic };
 				}

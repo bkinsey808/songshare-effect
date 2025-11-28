@@ -1,10 +1,8 @@
 import { Effect } from "effect";
 
-// Env type not required for this helper — ReadonlyContext default is enough
-import type { ReadonlyContext } from "@/api/hono/hono-context";
-
 import { type AppError, AuthenticationError } from "@/api/errors";
 import { getErrorMessage } from "@/api/getErrorMessage";
+import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { HTTP_STATUS } from "@/shared/demo/api";
 
 /**

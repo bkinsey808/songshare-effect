@@ -1,8 +1,7 @@
-import type { ReactElement, ReactNode } from "react";
-
-import type { PlacementOption, TriggerMode } from "./types";
+import { type ReactElement, type ReactNode } from "react";
 
 import { getArrowClasses } from "./getArrowClasses";
+import { type PlacementOption, type TriggerMode } from "./types";
 import { useNativePopover } from "./useNativePopover";
 
 // File-local default to avoid magic-number literal for tabIndex

@@ -1,21 +1,16 @@
-/* eslint-disable new-cap */
-import type { Either } from "effect/Either";
-import type { ParseError } from "effect/ParseResult";
-
 import { Schema } from "effect";
+import { type Either } from "effect/Either";
+import { type ParseError } from "effect/ParseResult";
 
 import {
 	SupportedLanguage,
 	type SupportedLanguageType,
 } from "@/shared/language/supported-languages";
 
-// `Schema.Union` is a Named export in the Effect library; telling ESLint to
-// relax its `new-cap` rule here because the API intentionally uses PascalCase.
-/* eslint-disable-next-line new-cap */
 export const SupportedLanguageSchema: Schema.Schema<
 	SupportedLanguageType,
 	SupportedLanguageType
-> = Schema["Union"](
+> = Schema.Union(
 	...Object.values(SupportedLanguage).map((lang) => Schema.Literal(lang)),
 );
 

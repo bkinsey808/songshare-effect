@@ -19,9 +19,8 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 		this.state = { hasError: false };
 	}
 
-	// React lifecycle methods are instance methods by design; they don't always
-	// reference `this` which triggers `class-methods-use-this`.  It's fine here.
-	// eslint-disable-next-line class-methods-use-this
+	// lifecycle method intentionally doesn't use `this` (handled via getDerivedStateFromError)
+	// oxlint-disable-next-line class-methods-use-this
 	override componentDidCatch(
 		error: Readonly<Error>,
 		errorInfo: Readonly<ErrorInfo>,

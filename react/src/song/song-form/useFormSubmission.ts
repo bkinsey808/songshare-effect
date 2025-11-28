@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { useNavigate } from "react-router-dom";
 
-import type { Slide } from "./songTypes";
+import { type Slide } from "./songTypes";
 
 type SongFormData = {
 	song_id?: string | undefined;

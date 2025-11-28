@@ -16,8 +16,6 @@ import {
 	apiOauthSignInPath,
 } from "@/shared/paths";
 
-import type { Bindings } from "./env";
-
 import accountDelete from "./account/accountDelete";
 import accountRegister from "./account/accountRegister";
 import { buildClearCookieHeader } from "./cookie/buildClearCookieHeader";
@@ -25,6 +23,7 @@ import { userSessionCookieName } from "./cookie/cookie";
 import { getAllowedOrigins } from "./cors/getAllowedOrigins";
 import { getOriginToCheck } from "./cors/getOriginToCheck";
 import { verifySameOriginOrThrow } from "./csrf/verifySameOriginOrThrow";
+import { type Bindings } from "./env";
 import { handleHttpEndpoint } from "./http/http-utils";
 import { me } from "./me";
 import oauthSignInHandler from "./oauth/oauthSignIn";

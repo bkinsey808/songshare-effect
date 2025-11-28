@@ -1,7 +1,6 @@
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
-
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
 import { getStoreApi } from "@/react/zustand/useAppStore";
+import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 import { isRecord } from "@/shared/utils/typeGuards";
 

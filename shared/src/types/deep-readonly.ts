@@ -1,4 +1,6 @@
-/* eslint-disable no-magic-numbers */
+// This file intentionally uses numeric literal recursion bounds in types.
+// Keep the noisy `no-magic-numbers` rule disabled only where it's necessary
+// (the recursive length tuple) rather than the entire file.
 // Utility type: DeepReadonly
 // Recursively marks all nested properties as readonly while preserving
 // function signatures unmodified.
@@ -14,8 +16,13 @@
 // callable type without using the global `Function` type nor `any`.
 // Limit recursion depth to prevent excessive type-instantiation errors
 // in complex ambient types such as `Context` from `hono`.
+// eslint-disable-next-line no-magic-numbers
 type _Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
+// The default recursion depth and the comparison against zero are type-level
+// numeric literals that are meaningful in this algorithmic type. Keep the
+// rule disabled just for the declaration below.
+// eslint-disable-next-line no-magic-numbers
 type DeepReadonly<TValue, Depth extends number = 5> = Depth extends 0
 	? TValue
 	: TValue extends (...args: infer _Args) => infer _Return

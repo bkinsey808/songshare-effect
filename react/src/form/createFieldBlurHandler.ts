@@ -1,8 +1,8 @@
-/* eslint-disable no-console */
+// Prefer per-line console exceptions
 import { type Schema } from "effect";
 
-import type { ValidationError } from "@/shared/validation/types";
-
+import { clientDebug } from "@/react/utils/clientLogger";
+import { type ValidationError } from "@/shared/validation/types";
 import { validateForm } from "@/shared/validation/validateForm";
 
 type CreateFieldBlurHandlerParams<FormValues extends Record<string, unknown>> =
@@ -36,8 +36,9 @@ export function createFieldBlurHandler<
 		field: FieldKey,
 		value: string,
 	): void {
-		console.log(`🔍 Field blur validation for ${String(field)}:`, value);
-		console.log("📋 Form data for validation:", {
+		// Localized debug-only logs
+		clientDebug(`🔍 Field blur validation for ${String(field)}:`, value);
+		clientDebug("📋 Form data for validation:", {
 			...formData,
 			[field]: value,
 		});
@@ -51,18 +52,22 @@ export function createFieldBlurHandler<
 			i18nMessageKey,
 		});
 
-		console.log("📊 Field validation result:", validation);
+		// Localized debug-only log
+		clientDebug("📊 Field validation result:", validation);
 
 		if (validation.success) {
-			console.log(`✅ Field ${String(field)} is valid, removing errors`);
+			// Localized debug-only log
+			clientDebug(`✅ Field ${String(field)} is valid, removing errors`);
 			setValidationErrors(
 				currentErrors.filter((error) => error.field !== String(field)),
 			);
 		} else {
 			const errs = validation.errors;
-			console.log(`❌ Field ${String(field)} has errors:`, errs);
+			// Localized debug-only log
+			clientDebug(`❌ Field ${String(field)} has errors:`, errs);
 			const fieldErrors = errs.filter((error) => error.field === String(field));
-			console.log(
+			// Localized debug-only log
+			clientDebug(
 				`🎯 Filtered field errors for ${String(field)}:`,
 				fieldErrors,
 			);

@@ -1,7 +1,6 @@
-import type { Set, Get, Api } from "@/react/zustand/slice-utils";
-import type { UserSessionData } from "@/shared/userSessionData";
-
+import { type Set, type Get, type Api } from "@/react/zustand/slice-utils";
 import { sliceResetFns } from "@/react/zustand/useAppStore";
+import { type UserSessionData } from "@/shared/userSessionData";
 
 type AuthState = {
 	isSignedIn: boolean | undefined;

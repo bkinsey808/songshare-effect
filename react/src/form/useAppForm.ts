@@ -1,10 +1,9 @@
 import { type Effect, type Schema } from "effect";
 import { useState } from "react";
 
-import type { ValidationError } from "@/shared/validation/types";
-
 import { registerMessageKey } from "@/shared/register/register";
 import { safeSet } from "@/shared/utils/safe";
+import { type ValidationError } from "@/shared/validation/types";
 
 import { createApiResponseHandlerEffect } from "./createApiResponseHandlerEffect";
 import { createFieldBlurHandler } from "./createFieldBlurHandler";

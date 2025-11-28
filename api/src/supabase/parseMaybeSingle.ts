@@ -8,15 +8,18 @@ export function parseMaybeSingle(res: unknown): {
 	error?: unknown;
 	status?: number;
 } {
-	if (res === undefined || res === null) {
+	// Narrow using a type-guard so TypeScript understands `res` is an
+	// object with string keys. This avoids unsafe assertions and keeps
+	// the runtime checks below intact.
+	function isRecord(value: unknown): value is Record<string, unknown> {
+		return value !== null && typeof value === "object";
+	}
+
+	if (!isRecord(res)) {
 		return {};
 	}
-	if (typeof res !== "object") {
-		return {};
-	}
-	// Narrow using a typed Record so eslint is happier about member access.
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any
-	const record = res as Record<string, any>;
+
+	const record = res; // narrowed by the type-guard above
 	const out: { data?: unknown; error?: unknown; status?: number } = {};
 	if (Object.hasOwn(record, "data")) {
 		out.data = record["data"];

@@ -1,7 +1,7 @@
-import type { Context } from "hono";
+import { type Context } from "hono";
 
-import type { Env } from "@/api/env";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+import { type Env } from "@/api/env";
+import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 /**
  * Readonly wrapper for Hono `Context` specialized to this project's `Bindings`.

@@ -1,6 +1,5 @@
 // src/features/app-store/useAppStore.ts
 import { useEffect, useState } from "react";
-/* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-unsafe-argument */
 import { type StoreApi, type UseBoundStore, create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
@@ -56,12 +55,11 @@ export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 export function useAppStoreSelector<Selected>(
 	selector: (slice: AppSlice) => Selected,
 ): Selected {
-	// The underlying bound store has a generic selector signature that is
-	// compatible with this usage. We keep a narrow eslint-disable here so the
-	// rest of the codebase can use typed selectors without sprinkling unsafe
-	// assertions everywhere.
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-	return useAppStore()(selector as any) as Selected;
+	// The bound store accepts a selector function. Narrow the unsafe cast to a
+	// single line so the rest of the module can remain lint-clean.
+	// Narrow the unsafe cast to the selector argument only.
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-type-assertion
+	return useAppStore()(selector as unknown as (state: AppSlice) => Selected);
 }
 
 /**
@@ -85,23 +83,27 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 		store = create<AppSlice>()(
 			devtools(
 				persist(
-					(...args): AppSlice => {
-						const [set, get, api] = args;
-						return {
-							...createAuthSlice(set, get, api),
-							...createSongSubscribeSlice(set, get, api),
-							...createSongLibrarySlice(set, get, api),
-						};
-					},
+					(set, get, api): AppSlice => ({
+						...createAuthSlice(set, get, api),
+						...createSongSubscribeSlice(set, get, api),
+						...createSongLibrarySlice(set, get, api),
+					}),
 					{
 						name: "app-store",
 
+						// The partialize step extracts a subset of state for
+						// persistence. Narrow the assertion to `Partial<AppSlice>`
+						// and keep the unsafe cast localized to the check where
+						// we compare string keys to the typed `omittedKeys`.
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
 						partialize: (state: Readonly<AppSlice>) =>
 							Object.fromEntries(
 								Object.entries(state).filter(
+									// Localized: cast string keys to `keyof AppSlice` for the includes check.
+									// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 									([key]) => !omittedKeys.includes(key as keyof AppSlice),
 								),
-							) as AppSlice,
+							) as Partial<AppSlice>,
 						// Clean hydration callback that doesn't pollute business state
 						onRehydrateStorage: () => () => {
 							// Update external hydration state

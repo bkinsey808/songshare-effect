@@ -1,6 +1,7 @@
 import { safeGet } from "@/shared/utils/safe";
+import { isRecord, isString } from "@/shared/utils/typeGuards";
 
-import type { SongPublic } from "../../song-schema";
+import { type SongPublic } from "../../song-schema";
 
 type FindMissingSongsSlugsParams = Readonly<{
 	songSlugs: ReadonlyArray<string>;
@@ -19,22 +20,14 @@ export function findMissingSongSlugs({
 	const activePublicSongSlugs = new Set(
 		activePublicSongIds
 			.map((id) => {
-				const song = safeGet(publicSongs, id) as unknown;
+				const song = safeGet(publicSongs, id);
 
 				function getSongSlug(value: unknown): string | undefined {
-					if (typeof value !== "object" || value === null) {
+					if (!isRecord(value)) {
 						return undefined;
 					}
-					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-type-assertion
-					const obj = value as Record<string, unknown>;
-					if (
-						Object.hasOwn(obj, "song_slug") &&
-						typeof obj["song_slug"] === "string"
-					) {
-						// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-						return obj["song_slug"];
-					}
-					return undefined;
+					const { song_slug } = value;
+					return isString(song_slug) ? song_slug : undefined;
 				}
 
 				return getSongSlug(song);

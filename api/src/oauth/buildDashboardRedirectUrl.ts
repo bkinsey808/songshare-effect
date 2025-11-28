@@ -1,5 +1,4 @@
-import type { ReadonlyContext } from "@/api/hono/hono-context";
-
+import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 
 // Env type is not required when using ReadonlyContext's default param

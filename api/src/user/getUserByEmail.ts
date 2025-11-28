@@ -1,15 +1,14 @@
-/* eslint-disable no-console */
-import { Effect, Schema } from "effect";
-
-import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
+import { type Schema, Effect } from "effect";
 
 import { DatabaseError } from "@/api/errors";
 import { getErrorMessage } from "@/api/getErrorMessage";
+import { debug as serverDebug } from "@/api/logger";
 import { normalizeNullsTopLevel } from "@/api/oauth/normalizeNullsTopLevel";
 import { normalizeLinkedProviders } from "@/api/provider/normalizeLinkedProviders";
 import { parseMaybeSingle } from "@/api/supabase/parseMaybeSingle";
+import { type ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
-import { decodeUnknownSyncOrThrow } from "@/shared/validation/decode-or-throw";
+import { decodeUnknownSyncOrThrow } from "@/shared/validation/decodeUnknownSyncOrThrow";
 
 function isRecordStringUnknown(
 	value: unknown,
@@ -80,7 +79,8 @@ export function getUserByEmail({
 		// Best-effort debug logging (synchronous)
 		yield* $(
 			Effect.sync(() => {
-				console.log("[getUserByEmail] Looking up user by email:", email);
+				// Localized: debug-only server-side log
+				serverDebug("[getUserByEmail] Looking up user by email:", email);
 			}),
 		);
 
@@ -108,7 +108,8 @@ export function getUserByEmail({
 		// Debug: log the raw Supabase response data
 		yield* $(
 			Effect.sync(() => {
-				console.log("[getUserByEmail] Raw Supabase data:", res.data);
+				// Localized: debug-only server-side log
+				serverDebug("[getUserByEmail] Raw Supabase data:", res.data);
 			}),
 		);
 
@@ -135,7 +136,8 @@ export function getUserByEmail({
 					}
 
 					const errInfo = computeErrInfo(res.error);
-					console.log("[getUserByEmail] Supabase response:", {
+					// Localized: debug-only server-side log
+					serverDebug("[getUserByEmail] Supabase response:", {
 						status: res.status,
 						error: errInfo,
 						hasData: res.data !== undefined,
@@ -146,7 +148,8 @@ export function getUserByEmail({
 			// don't fail the effect because logging failed
 			yield* $(
 				Effect.sync(() => {
-					console.log(
+					// Localized: debug-only server-side log
+					serverDebug(
 						"[getUserByEmail] Failed to stringify Supabase response",
 						getErrorMessage(err),
 					);
@@ -198,7 +201,8 @@ export function getUserByEmail({
 			} catch (err) {
 				yield* $(
 					Effect.sync(() => {
-						console.log(
+						// Localized: debug-only server-side log
+						serverDebug(
 							"[getUserByEmail] Failed to normalize linked_providers at runtime:",
 							getErrorMessage(err),
 						);

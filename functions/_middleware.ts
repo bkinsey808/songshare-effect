@@ -56,7 +56,6 @@ export async function onRequest(
 				// 3. We don't want search engines to permanently index the redirect
 				// 4. This allows the root URL to remain flexible for future language detection logic
 				// redirect; return early without extra logs
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 				return Response.redirect(`${url.origin}/${detectedLang}/`, HTTP_TEMP_REDIRECT);
 			}
 
@@ -86,7 +85,6 @@ export async function onRequest(
 			// Check if client has a matching ETag
 			const ifNoneMatch = context.request.headers.get("If-None-Match");
 			if (ifNoneMatch === etag) {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 				return new Response(null, { status: HTTP_NOT_MODIFIED });
 			}
 		}
@@ -103,7 +101,6 @@ export async function onRequest(
 			console.error("[pages/_middleware] Failed to log error:", String(logErr));
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		return new Response("Internal Server Error", { status: HTTP_INTERNAL });
 	}
 }

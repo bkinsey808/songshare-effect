@@ -1,6 +1,6 @@
 import { execSync } from "child_process";
 
-import type { MigrationFile } from "./types";
+import { type MigrationFile } from "./types";
 
 /**
  * Get a string representation of an error.

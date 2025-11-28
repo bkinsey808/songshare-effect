@@ -10,8 +10,20 @@ import {
 // Create a context for theme
 const ThemeContext = createContext<"light" | "dark">("light");
 
-// Cache for promises to prevent recreation on every render
-const promiseCache = new Map<string, Promise<unknown>>();
+// Per-type caches for demo data
+import { createTypedCache } from "@/shared/utils/typedPromiseCache";
+
+const userCache = createTypedCache<{
+	id: number;
+	name: string;
+	songs: string[];
+}>("demo-user");
+const songCache = createTypedCache<{
+	title: string;
+	artist: string;
+	duration: string;
+	genre: string;
+}>("demo-song");
 
 // Simulate API calls
 async function fetchUserData(userId: number): Promise<{
@@ -48,29 +60,11 @@ async function fetchSongDetails(songName: string): Promise<{
 
 // Helper function to get or create cached promises
 async function getCachedPromise<ResultType>(
-	key: string,
+	cache: ReturnType<typeof createTypedCache<ResultType>>,
+	id: string,
 	fetcher: () => Promise<ResultType>,
 ): Promise<ResultType> {
-	if (!promiseCache.has(key)) {
-		const promise = fetcher().then(
-			(result) => {
-				// Keep the resolved value in cache
-				promiseCache.set(key, Promise.resolve(result));
-				return result;
-			},
-			(error: unknown) => {
-				// Remove failed promises from cache so they can be retried
-				promiseCache.delete(key);
-				throw error;
-			},
-		);
-		promiseCache.set(key, promise);
-	}
-
-	// The cache holds Promises of unknown; at the API boundary we assert
-	// the return type for callers. Keep this assertion narrowly scoped.
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	return promiseCache.get(key) as Promise<ResultType>;
+	return cache.get(id, fetcher);
 }
 
 type UserProfileParams = Readonly<{
@@ -80,7 +74,7 @@ type UserProfileParams = Readonly<{
 // Component that uses the 'use' hook with promises
 function UserProfile({ userId }: UserProfileParams): ReactElement {
 	// Using the 'use' hook to read the promise directly
-	const userPromise = getCachedPromise(`user-${userId}`, async () =>
+	const userPromise = getCachedPromise(userCache, `user-${userId}`, async () =>
 		fetchUserData(userId),
 	);
 	const user = use(userPromise);
@@ -124,8 +118,10 @@ type SongDetailsParams = Readonly<{
 // Component that demonstrates using 'use' hook with dynamic promises
 function SongDetails({ songName }: SongDetailsParams): ReactElement {
 	// Create a promise dynamically and use the 'use' hook
-	const songPromise = getCachedPromise(`song-${songName}`, async () =>
-		fetchSongDetails(songName),
+	const songPromise = getCachedPromise(
+		songCache,
+		`song-${songName}`,
+		async () => fetchSongDetails(songName),
 	);
 	const song = use(songPromise);
 

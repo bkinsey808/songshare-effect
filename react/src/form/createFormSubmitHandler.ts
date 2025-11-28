@@ -1,9 +1,9 @@
-/* eslint-disable no-console */
+// Prefer per-line console exceptions instead of module-wide disabling
 import { Effect, type Schema } from "effect";
 
-import type { ValidationError } from "@/shared/validation/types";
-
+import { clientDebug } from "@/react/utils/clientLogger";
 import { registerMessageKey } from "@/shared/register/register";
+import { type ValidationError } from "@/shared/validation/types";
 import { validateFormEffect } from "@/shared/validation/validateFormEffect";
 
 import { extractValidationErrors } from "./extractValidationErrors";
@@ -28,20 +28,23 @@ export function createFormSubmitHandler<
 		onSubmit: (data: Readonly<FormValues>) => Promise<void> | void,
 	): Effect.Effect<void> =>
 		Effect.sync(() => {
-			console.log("🚀 useAppForm.handleSubmit called");
-			console.log("🔍 Starting form submission validation");
+			// Localized debug-only logs
+			clientDebug("🚀 useAppForm.handleSubmit called");
+			clientDebug("🔍 Starting form submission validation");
 
 			// Read form data from the form element
 			const currentFormData = formData;
 
-			console.log("📋 Form data read from DOM:", currentFormData);
+			// Localized debug-only log
+			clientDebug("📋 Form data read from DOM:", currentFormData);
 
 			setIsSubmitting(true);
 			setValidationErrors([]);
 
 			try {
 				// Run validation effect synchronously
-				console.log("⚡ Running schema validation");
+				// Localized debug-only log
+				clientDebug("⚡ Running schema validation");
 				const validatedData = Effect.runSync(
 					validateFormEffect<FormValues>({
 						schema,
@@ -49,34 +52,41 @@ export function createFormSubmitHandler<
 						i18nMessageKey: registerMessageKey,
 					}),
 				);
-				console.log("✅ Validation successful, validated data:", validatedData);
+				// Localized debug-only log
+				clientDebug("✅ Validation successful, validated data:", validatedData);
 
 				const result = onSubmit(validatedData);
 				if (result instanceof Promise) {
 					// For async submission, we need to handle it differently
 					void result.finally(() => {
-						console.log("🏁 Async submission completed");
+						// Localized debug-only log
+						clientDebug("🏁 Async submission completed");
 						setIsSubmitting(false);
 					});
 				} else {
-					console.log("🏁 Sync submission completed");
+					// Localized debug-only log
+					clientDebug("🏁 Sync submission completed");
 					setIsSubmitting(false);
 				}
 			} catch (error) {
-				console.log("❌ Validation failed:", error);
-				console.log("🔍 Error instanceof Error:", error instanceof Error);
-				console.log("🔍 Error type:", typeof error);
-				console.log("🔍 Error constructor:", error?.constructor?.name);
+				// Localized debug-only logs
+				clientDebug("❌ Validation failed:", error);
+				clientDebug("🔍 Error instanceof Error:", error instanceof Error);
+				clientDebug("🔍 Error type:", typeof error);
+				clientDebug("🔍 Error constructor:", error?.constructor?.name);
 
 				// Delegate extraction to the helper to reduce complexity here
 				const errorArray = extractValidationErrors(error);
 				if (errorArray.length) {
-					console.log("📝 Final error array to set:", errorArray);
-					console.log("🔄 Setting validation errors:", errorArray);
+					// Localized debug-only logs
+					clientDebug("📝 Final error array to set:", errorArray);
+					clientDebug("🔄 Setting validation errors:", errorArray);
 					setValidationErrors(errorArray);
-					console.log("✅ Validation errors set, current state should update");
+					// Localized debug-only log
+					clientDebug("✅ Validation errors set, current state should update");
 				} else {
-					console.log("� No validation errors extracted from error");
+					// Localized debug-only log
+					clientDebug("� No validation errors extracted from error");
 				}
 
 				setIsSubmitting(false);

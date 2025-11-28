@@ -1,5 +1,5 @@
-import type { RemoveFromLibraryRequest } from "./song-library-schema";
-import type { SongLibrarySlice } from "./song-library-slice";
+import { type RemoveFromLibraryRequest } from "./song-library-schema";
+import { type SongLibrarySlice } from "./song-library-slice";
 
 export async function removeSongFromLibrary(
 	request: Readonly<RemoveFromLibraryRequest>,

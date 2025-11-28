@@ -4,9 +4,9 @@
  * so we avoid contravariance issues with middleware-wrapped StateCreator
  * signatures (devtools / persist wrappers sometimes change API types).
  */
-import type { StoreApi } from "zustand";
+import { type StoreApi } from "zustand";
 
-import type { AppSlice } from "@/react/zustand/useAppStore";
+import { type AppSlice } from "@/react/zustand/useAppStore";
 
 /**
  * Simple, slice-scoped convenience types for use in slice factory signatures.

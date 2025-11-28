@@ -3,9 +3,8 @@ import { ArrayFormatter, type ArrayFormatterIssue } from "effect/ParseResult";
 
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
-import type { ValidationError } from "./types";
-
 import { extractI18nMessages } from "./extractI18nMessages";
+import { type ValidationError } from "./types";
 
 /**
  * Validate form data using Effect schema - returns an Effect

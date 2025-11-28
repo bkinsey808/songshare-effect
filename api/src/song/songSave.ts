@@ -1,9 +1,9 @@
 import { Effect, Schema } from "effect";
 
-import type { ReadonlyContext } from "@/api/hono/hono-context";
-import type { Database, Json } from "@/shared/generated/supabaseTypes";
-
 import { getErrorMessage } from "@/api/getErrorMessage";
+import { type ReadonlyContext } from "@/api/hono/hono-context";
+import { type Database, type Json } from "@/shared/generated/supabaseTypes";
+import { isRecord, isString } from "@/shared/utils/typeGuards";
 import { validateFormEffect } from "@/shared/validation/validateFormEffect";
 import { createClient } from "@supabase/supabase-js";
 
@@ -14,14 +14,9 @@ import {
 } from "../errors";
 import { getVerifiedUserSession } from "../user-session/getVerifiedSession";
 
-// Server-side schema (keeps verification close to the API boundary)
-/*
- * The effect Schema API uses PascalCase factory functions (e.g. Schema.Struct,
- * Schema.Array). These are intentionally constructor-style names and trigger
- * the `new-cap` ESLint rule. Disable `new-cap` in this local block where the
- * usage is clear and intentional.
+/**
+ * Server-side schema (keeps verification close to the API boundary)
  */
-/* eslint-disable new-cap */
 const SongFormSchema = Schema.Struct({
 	song_id: Schema.optional(Schema.String),
 	song_name: Schema.String,
@@ -43,7 +38,6 @@ const SongFormSchema = Schema.Struct({
 		}),
 	}),
 });
-/* eslint-enable new-cap */
 
 // Extract the type from the schema
 type SongFormData = Schema.Schema.Type<typeof SongFormSchema>;
@@ -102,16 +96,43 @@ export function songSave(
 		const slideOrderForDb: string[] = Array.isArray(validated.slide_order)
 			? validated.slide_order.map((slideVal) => String(slideVal))
 			: [];
-		let slidesForDb: Json = {} as Json;
-		try {
-			// Serialize/deserialize to ensure the structure is JSON-safe.
-			// This assignment is a controlled conversion from validated input to a
-			// JSON-serializable value; keep the disable narrow and local.
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
-			slidesForDb = JSON.parse(JSON.stringify(validated.slides ?? {})) as Json;
-		} catch {
-			// Fallback to an empty object if serialization fails
-			slidesForDb = {} as Json;
+		let slidesForDb: Json = {};
+
+		// Sanitize slides into a JSON-serializable structure using runtime
+		// guards. This avoids unsafe 'as' assertions and ensures only plain
+		// objects + strings are persisted.
+		if (isRecord(validated.slides)) {
+			const sanitized: Record<
+				string,
+				{ slide_name: string; field_data: Record<string, string> }
+			> = {};
+
+			for (const [slideKey, slideVal] of Object.entries(validated.slides)) {
+				if (!isRecord(slideVal)) {
+					// skip invalid slide entries
+				} else {
+					const slideNameRaw = slideVal["slide_name"];
+					const slideName = isString(slideNameRaw) ? slideNameRaw : "";
+
+					const fieldDataRaw = slideVal["field_data"];
+					const fieldData: Record<string, string> = {};
+
+					if (isRecord(fieldDataRaw)) {
+						for (const [fk, fv] of Object.entries(fieldDataRaw)) {
+							fieldData[String(fk)] = isString(fv) ? fv : "";
+						}
+					}
+
+					sanitized[String(slideKey)] = {
+						slide_name: slideName,
+						field_data: fieldData,
+					};
+				}
+			}
+
+			slidesForDb = sanitized;
+		} else {
+			slidesForDb = {};
 		}
 
 		// Create Supabase client with service role key to bypass RLS for writes

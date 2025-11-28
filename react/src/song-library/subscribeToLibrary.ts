@@ -1,5 +1,7 @@
-import type { SongLibraryEntry } from "./song-library-schema";
-import type { SongLibrarySlice } from "./song-library-slice";
+import { isRecord, isString } from "@/shared/utils/typeGuards";
+
+import { type SongLibraryEntry } from "./song-library-schema";
+import { type SongLibrarySlice } from "./song-library-slice";
 
 export function subscribeToLibrary(
 	get: () => SongLibrarySlice,
@@ -46,50 +48,33 @@ export function subscribeToLibrary(
 								new?: unknown;
 								old?: unknown;
 							} {
-								if (typeof value !== "object" || value === null) {
+								if (!isRecord(value)) {
 									return false;
 								}
-								// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-								const obj = value as Record<string, unknown>;
-								return (
-									Object.hasOwn(obj, "eventType") &&
-									typeof obj["eventType"] === "string"
-								);
+								const { eventType } = value;
+								return isString(eventType);
 							}
 
 							function isSongLibraryEntry(
 								value: unknown,
 							): value is SongLibraryEntry {
-								if (typeof value !== "object" || value === null) {
+								if (!isRecord(value)) {
 									return false;
 								}
-								// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-								const obj = value as Record<string, unknown>;
-								return (
-									Object.hasOwn(obj, "song_id") &&
-									typeof obj["song_id"] === "string" &&
-									Object.hasOwn(obj, "user_id") &&
-									typeof obj["user_id"] === "string"
-								);
+								const { song_id, song_owner_id } = value;
+								return isString(song_id) && isString(song_owner_id);
 							}
 
 							if (!isLibraryPayload(payload)) {
 								return;
 							}
 
-							// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-							const eventTypeRaw = (payload as Record<string, unknown>)[
-								"eventType"
-							];
-							if (typeof eventTypeRaw !== "string") {
-								return;
-							}
-							const eventType = eventTypeRaw;
+							const { eventType } = payload;
 
 							switch (eventType) {
 								case "INSERT":
 								case "UPDATE": {
-									const newEntry = (payload as Record<string, unknown>)["new"];
+									const newEntry = payload.new;
 									if (newEntry === undefined) {
 										break;
 									}
@@ -131,15 +116,13 @@ export function subscribeToLibrary(
 									break;
 								}
 								case "DELETE": {
-									// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-									const oldEntry = (payload as Record<string, unknown>)["old"];
+									const oldEntry = payload.old;
 									// Safely extract song_id if present
 									try {
-										// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-type-assertion
-										const idRaw = (oldEntry as Record<string, unknown>)?.[
-											"song_id"
-										];
-										if (typeof idRaw === "string") {
+										const idRaw = isRecord(oldEntry)
+											? oldEntry["song_id"]
+											: undefined;
+										if (isString(idRaw)) {
 											removeLibraryEntry(idRaw);
 										}
 									} catch {

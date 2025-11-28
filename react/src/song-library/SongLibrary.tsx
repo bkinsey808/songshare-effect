@@ -6,7 +6,7 @@ import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
-import type { SongLibraryEntry } from "./song-library-schema";
+import { type SongLibraryEntry } from "./song-library-schema";
 
 export default function SongLibrary(): ReactElement {
 	const { t, i18n } = useTranslation();

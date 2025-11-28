@@ -1,25 +1,41 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion, no-console */
 // Small module that silences console.debug and console.timeStamp in dev.
-// This file intentionally uses eslint disables so main.tsx stays clean.
+// Keep this file minimal and use safe runtime checks instead of broad
+// eslint-disable blocks so it can be linted normally.
 
-const win = window as Window & { __origConsoleDebug?: typeof console.debug };
+import { isRecord } from "@/shared/utils/typeGuards";
+
 try {
-	// Save original debug if present
-	win.__origConsoleDebug = console.debug?.bind(console);
+	// Narrow globalThis before mutating it (avoid unsafe casts)
+	const globalObj: unknown = globalThis;
+	if (!isRecord(globalObj)) {
+		// Not an object-shaped global object — bail early
+	} else {
+		// Save original console.debug if present
+		// oxlint-disable-next-line no-console
+		if (typeof console.debug === "function") {
+			// Save the original debug function on the global object so it can be restored by dev tooling
+			// oxlint-disable-next-line no-console
+			globalObj["__origConsoleDebug"] = console.debug.bind(console);
+		}
 
-	// silence debug-level logs
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	(console as any)["debug"] = () => {
-		/* no-op */
-	};
+		// Make debug a no-op
+		// oxlint-disable-next-line no-console
+		if (typeof console.debug === "function") {
+			// Replace debug with a no-op so dev logs don't spam during demos
+			// oxlint-disable-next-line no-console
+			console.debug = () => {
+				/* no-op */
+			};
+		}
 
-	// silence timeStamp if present
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	if (typeof (console as any)["timeStamp"] === "function") {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(console as any)["timeStamp"] = () => {
-			/* no-op */
-		};
+		// If timeStamp is available, silence it as well
+		// Use Reflect to access potentially non-standard console APIs without unsafe assertions
+		const maybeTimeStamp = Reflect.get(console, "timeStamp") as unknown;
+		if (typeof maybeTimeStamp === "function") {
+			Reflect.set(console, "timeStamp", () => {
+				/* no-op */
+			});
+		}
 	}
 } catch {
 	// ignore errors during bootstrap
