@@ -7,36 +7,39 @@ import { log as serverLog, error as serverError } from "@/api/logger";
 import { decodeUnknownSyncOrThrow } from "@/shared/validation/decodeUnknownSyncOrThrow";
 
 type ParseDataFromCookieParams<
-	Data,
+	SchemaT extends Schema.Schema.AnyNoContext,
 	AllowMissing extends boolean | undefined,
 > = Readonly<{
 	ctx?: ReadonlyContext;
 	cookieName: string;
-	schema: Schema.Schema<Data, unknown>;
+	// Accept any Effect Schema and let the generic `SchemaT` carry the type info.
+	schema: SchemaT;
 	debug?: boolean;
 	allowMissing?: AllowMissing;
 }>;
 
 // Conditional type for return value
-type ParseCookieResult<
-	Data,
-	AllowMissing extends boolean | undefined,
-> = AllowMissing extends true ? Data | undefined : Data;
+// ParseCookieResult is no longer needed since we derive return types from
+// the Schema generic parameter `SchemaT`.
 
 // Overloads: when allowMissing is true the return includes undefined
-export async function parseDataFromCookie<Data>(
-	params: ParseDataFromCookieParams<Data, true>,
-): Promise<Data | undefined>;
-export async function parseDataFromCookie<Data>(
-	params: ParseDataFromCookieParams<Data, false>,
-): Promise<Data>;
+export async function parseDataFromCookie<
+	SchemaT extends Schema.Schema.AnyNoContext,
+>(
+	params: ParseDataFromCookieParams<SchemaT, true>,
+): Promise<Schema.Schema.Type<SchemaT> | undefined>;
+export async function parseDataFromCookie<
+	SchemaT extends Schema.Schema.AnyNoContext,
+>(
+	params: ParseDataFromCookieParams<SchemaT, false>,
+): Promise<Schema.Schema.Type<SchemaT>>;
 
 export async function parseDataFromCookie<
-	Data,
+	SchemaT extends Schema.Schema.AnyNoContext,
 	AllowMissing extends boolean | undefined = false,
 >(
-	params: ParseDataFromCookieParams<Data, AllowMissing>,
-): Promise<Data | undefined> {
+	params: ParseDataFromCookieParams<SchemaT, AllowMissing>,
+): Promise<Schema.Schema.Type<SchemaT> | undefined> {
 	const {
 		ctx,
 		cookieName,
@@ -85,11 +88,20 @@ export async function parseDataFromCookie<
 		}
 
 		// Use the shared decode helper which throws on validation failure.
+		// The decode helper returns the typed schema result but the analyzer
+		// may still treat this as `any` in complex generic scenarios. Keep a
+		// narrow, localized exception for the assignment.
+		// oxlint-disable-next-line typescript/no-unsafe-assignment
 		const decoded = decodeUnknownSyncOrThrow(schema, verified);
 
 		// If the decoded value is a record we can safely return it; otherwise it's a schema match
 		// and the decode helper will have thrown. Keep TS happy by returning the decoded value.
-		return decoded as ParseCookieResult<Data, AllowMissing>;
+		// The `decoded` value is typed by the schema but may be treated as
+		// `any` by some rules — narrow the exception here for the return.
+		// The `decoded` value is typed by the schema but may be treated as
+		// `any` by some rules — narrow the exception here for the return.
+		// oxlint-disable-next-line typescript/no-unsafe-return, typescript/no-unsafe-type-assertion
+		return decoded as Schema.Schema.Type<SchemaT>;
 	} catch (err) {
 		serverError(
 			"[parseDataFromCookie] JWT verification or parsing error:",

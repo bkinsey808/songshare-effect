@@ -1,4 +1,4 @@
-import { type Schema, Effect } from "effect";
+import { Effect } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
@@ -89,7 +89,7 @@ export default function accountRegister(
 		const registerData = yield* $(
 			Effect.tryPromise({
 				try: async () => {
-					const parsed = await parseDataFromCookie({
+					const parsed = await parseDataFromCookie<typeof RegisterDataSchema>({
 						ctx,
 						// RegisterDataSchema is a Schema<RegisterData, RegisterData,
 						// never>. We need to present it as a Schema whose input
@@ -98,11 +98,7 @@ export default function accountRegister(
 						// to be widened to accept `unknown` input. This cast is
 						// safe at runtime but narrows types in TS; suppress the
 						// ESLint rule for this specific line.
-						// oxlint-disable-next-line no-unsafe-type-assertion
-						schema: RegisterDataSchema as unknown as Schema.Schema<
-							Schema.Schema.Type<typeof RegisterDataSchema>,
-							unknown
-						>,
+						schema: RegisterDataSchema,
 						cookieName: registerCookieName,
 						debug: true,
 					});

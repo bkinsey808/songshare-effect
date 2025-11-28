@@ -76,11 +76,23 @@ export function safeArrayGet<TItem>(
 	arr: ReadonlyArray<TItem>,
 	idx: number,
 	defaultValue?: TItem,
-): TItem | undefined {
+): TItem | undefined;
+export function safeArrayGet(
+	arr: ReadonlyArray<unknown>,
+	idx: number,
+	defaultValue?: unknown,
+): unknown;
+export function safeArrayGet(
+	arr: ReadonlyArray<unknown>,
+	idx: number,
+	defaultValue?: unknown,
+): unknown {
 	if (Array.isArray(arr) && idx >= ZERO && idx < arr.length) {
-		// Narrow, localized return where the generic TItem may be `any` in some
-		// call sites — keep the disable narrowly scoped to this return.
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-return
+		// Implementation uses `unknown` to avoid returning `any` in the
+		// generic implementation body which could be flagged by the
+		// `no-unsafe-return` rule. The typed overload above ensures callers
+		// still get the correct inferred item type when they pass typed
+		// arrays.
 		return arr[idx];
 	}
 	return defaultValue;
@@ -94,12 +106,23 @@ export function safeArraySet<TItem>(
 	arr: ReadonlyArray<TItem>,
 	idx: number,
 	value: TItem,
-): ReadonlyArray<TItem> {
+): ReadonlyArray<TItem>;
+export function safeArraySet(
+	arr: ReadonlyArray<unknown>,
+	idx: number,
+	value: unknown,
+): ReadonlyArray<unknown>;
+export function safeArraySet(
+	arr: ReadonlyArray<unknown>,
+	idx: number,
+	value: unknown,
+): ReadonlyArray<unknown> {
 	if (Array.isArray(arr) && idx >= ZERO && idx < arr.length) {
 		// Use Array.from to produce a mutable copy from a ReadonlyArray<T>.
 		const copy = Array.from(arr);
-		copy[idx] = value;
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-return
+		// Assigning a value of unknown is safe in this implementation; callers
+		// get the correct typed overload when they pass a typed array.
+		(copy as unknown[])[idx] = value;
 		return copy;
 	}
 	return arr;

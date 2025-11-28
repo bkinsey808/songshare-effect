@@ -52,9 +52,16 @@ export const SCROLL_THRESHOLD: number = 50;
 
 // Sign-in retry/delay constants (used by client-side auth retry helpers)
 // These values are intentionally numeric constants for retry timing
-/* oxlint-disable-next-line eslint/no-magic-numbers */
-export const SIGNIN_RETRY_DELAYS_MS: number[] = [100, 300, 600];
-export const SIGNIN_DEFAULT_DELAY_MS: number = 100;
+// Use named constants so rules like `no-magic-numbers` don't need to be disabled.
+export const SIGNIN_RETRY_DELAY_FIRST_MS: number = 100;
+export const SIGNIN_RETRY_DELAY_SECOND_MS: number = 300;
+export const SIGNIN_RETRY_DELAY_THIRD_MS: number = 600;
+export const SIGNIN_RETRY_DELAYS_MS: number[] = [
+	SIGNIN_RETRY_DELAY_FIRST_MS,
+	SIGNIN_RETRY_DELAY_SECOND_MS,
+	SIGNIN_RETRY_DELAY_THIRD_MS,
+];
+export const SIGNIN_DEFAULT_DELAY_MS: number = SIGNIN_RETRY_DELAY_FIRST_MS;
 
 // Language path helpers
 export const LANG_PATH_SEGMENT_INDEX: number = 1;

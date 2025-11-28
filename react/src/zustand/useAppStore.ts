@@ -100,7 +100,10 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 						// avoids blanket `Object.entries(... ) as ...` assertions
 						// and doesn't rely on inline unsafe type assertions.
 						partialize: (state: Readonly<AppSlice>): Partial<AppSlice> => {
-							const out: Partial<AppSlice> = {};
+							// Shallow copy the state then remove keys we don't want
+							// persisted. Spreading copies only own enumerable
+							// properties so we don't need to narrow runtime keys.
+							const out: Partial<AppSlice> = { ...state };
 							// Use `for-in` so keys are strings but we can narrow them
 							// to `keyof AppSlice` for the runtime `omittedKeys` check.
 							// Iterate over the object's own keys and narrow them to
@@ -110,27 +113,11 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 							// Casting Object.keys to `Array<keyof AppSlice>` is safe
 							// because `state` has the `AppSlice` type at compile
 							// time, and we only operate on own properties.
-							const keys = Object.keys(state);
-							// Typed helper for safe assignment
-							function assignKey<TObj, TKey extends keyof TObj>(
-								obj: Partial<TObj>,
-								keyArg: TKey,
-								val: TObj[TKey],
-							): void {
-								obj[keyArg] = val;
-							}
+							// No helper required after we shallow-copy and remove omitted keys
 
-							for (const keyStr of keys) {
-								if (!Object.hasOwn(state, keyStr)) {
-									// skip inherited properties
-								} else {
-									// Narrow the runtime string key to keyof AppSlice.
-									// Narrow the runtime string key to keyof AppSlice.
-									// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-									const key = keyStr as keyof AppSlice;
-									if (!omittedKeys.includes(key)) {
-										assignKey<AppSlice, typeof key>(out, key, state[key]);
-									}
+							for (const keyToRemove of omittedKeys) {
+								if (Object.hasOwn(state, keyToRemove as string)) {
+									delete out[keyToRemove];
 								}
 							}
 							return out;
