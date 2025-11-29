@@ -1,7 +1,6 @@
 import { type Set, type Get, type Api } from "@/react/zustand/slice-utils";
 import { sliceResetFns } from "@/react/zustand/useAppStore";
 import { safeGet } from "@/shared/utils/safe";
-import { isRecord } from "@/shared/utils/typeGuards";
 
 import { type Song, type SongPublic } from "../song-schema";
 import addActivePrivateSongIds from "./addActivePrivateSongIds";
@@ -136,22 +135,17 @@ export function createSongSubscribeSlice(
 			const allPublicSongs = get().publicSongs;
 
 			for (const songId of Object.keys(allPublicSongs)) {
-				const songPublic = safeGet(allPublicSongs, songId) as unknown;
-
-				function isSongPublic(value: unknown): value is SongPublic {
-					if (!isRecord(value)) {
-						return false;
-					}
-					const rec = value;
-					return (
-						Object.hasOwn(rec, "song_slug") &&
-						typeof rec["song_slug"] === "string" &&
-						Object.hasOwn(rec, "song_id") &&
-						typeof rec["song_id"] === "string"
-					);
-				}
-
-				if (isSongPublic(songPublic) && songPublic.song_slug === slug) {
+				const songPublic = safeGet(allPublicSongs, songId);
+				if (
+					songPublic &&
+					typeof songPublic === "object" &&
+					songPublic !== null &&
+					Object.hasOwn(songPublic, "song_slug") &&
+					typeof songPublic["song_slug"] === "string" &&
+					Object.hasOwn(songPublic, "song_id") &&
+					typeof songPublic["song_id"] === "string" &&
+					songPublic.song_slug === slug
+				) {
 					const song = safeGet(get().privateSongs, songPublic.song_id);
 					return { song, songPublic };
 				}

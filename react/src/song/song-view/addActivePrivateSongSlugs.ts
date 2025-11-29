@@ -2,7 +2,6 @@ import { getSupabaseClient } from "@/react/supabase/supabaseClient";
 import { getStoreApi } from "@/react/zustand/useAppStore";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
-import { isRecord } from "@/shared/utils/typeGuards";
 
 // src/features/react/song-subscribe/addActiveSongIds.ts
 import { type Song } from "../song-schema";
@@ -29,16 +28,16 @@ export default function addActivePrivateSongSlugs(
 		const activePrivateSongSlugs = new Set(
 			(appState ?? sliceState).activePrivateSongIds
 				.map((id) => {
-					const song = safeGet(currentPublicSongs, id) as unknown;
-					function isRecordStringUnknown(
-						value: unknown,
-					): value is Record<string, unknown> {
-						return typeof value === "object" && value !== null;
-					}
-					return isRecordStringUnknown(song) &&
+					const song = safeGet(currentPublicSongs, id);
+					if (
+						song &&
+						typeof song === "object" &&
+						song !== null &&
 						typeof song["song_slug"] === "string"
-						? song["song_slug"]
-						: undefined;
+					) {
+						return song["song_slug"];
+					}
+					return undefined;
 				})
 				.filter((slug): slug is string => typeof slug === "string"),
 		);
@@ -56,16 +55,22 @@ export default function addActivePrivateSongSlugs(
 
 		// Read optional userToken via the app-level state when available.
 		let userToken: string | undefined = undefined;
-		if (appState) {
-			const appStateUnknown: unknown = appState;
-			if (isRecord(appStateUnknown)) {
-				const { userToken: ut } = appStateUnknown;
-				if (typeof ut === "string") {
-					userToken = ut;
-				}
+		if (
+			appState &&
+			typeof appState === "object" &&
+			appState !== null &&
+			"userToken" in appState
+		) {
+			const ut = (appState as { userToken?: unknown }).userToken;
+			if (typeof ut === "string") {
+				userToken = ut;
 			}
 		}
-		if (typeof userToken !== "string") {
+		if (
+			userToken === undefined ||
+			userToken === null ||
+			userToken.trim() === ""
+		) {
 			console.warn(
 				"[addActivePrivateSongSlugs] No user token found. Cannot fetch songs.",
 			);

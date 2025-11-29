@@ -178,6 +178,7 @@
 		"eslint/default-case-last": "error",
 		"eslint/default-param-last": "error",
 		"eslint/func-names": "error",
+		"eslint/eqeqeq": "error",
 		"eslint/func-style": ["error", "declaration"],
 		"eslint/guard-for-in": "error",
 		"eslint/new-cap": [
