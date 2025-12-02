@@ -188,6 +188,8 @@ export function SongList({ userId }: SongListProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchSongs() {
       try {
         setLoading(true);
@@ -195,7 +197,7 @@ export function SongList({ userId }: SongListProps) {
           ? `/api/songs?userId=${userId}`
           : '/api/songs';
 
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: controller.signal });
 
         if (!response.ok) {
           throw new Error('Failed to fetch songs');
@@ -211,6 +213,9 @@ export function SongList({ userId }: SongListProps) {
     }
 
     fetchSongs();
+
+    // Cleanup: abort any in-flight fetch when component unmounts
+    return () => controller.abort();
   }, [userId]);
 
   if (loading) {
@@ -315,7 +320,7 @@ export function LabeledInput({
 ### Compound Component Pattern
 
 ```typescript
-import { type ReactNode, createContext, useContext } from 'react';
+import { type ReactNode, createContext, useContext, useState } from 'react';
 
 // Context for sharing state between compound components
 interface TabsContextValue {
@@ -561,6 +566,15 @@ function Component({ onClick }) {
 }
 ```
 
+#### When manual memoization is OK
+
+Although the project prefers to let the React Compiler handle memoization, there are valid exceptions:
+- When profiling shows a clear bottleneck and memoization reduces rendering work in a measurable way.
+- When integrating with third-party libraries that rely on stable callback references (but prefer alternatives like stable handlers in the library API first).
+- In isolated demo pages or performance experiments where the cost/benefit is explicit.
+
+If you add manual memoization (useMemo/useCallback/memo), include a short comment explaining why this is necessary and link to the performance trace or test.
+
 ### ❌ Don't Use Barrel Files
 
 ```typescript
@@ -593,6 +607,14 @@ function handleData(data: Song) {
 	// ...
 }
 ```
+
+#### Allowed `any` exceptions
+
+The repo tries to avoid `any`, but there are a few legitimate cases where constrained use is acceptable:
+- Interacting with poorly typed third-party libraries (localize casts; keep them tiny and contained).
+- Complex runtime decoding paths or schema-handling utilities where narrowing to `unknown` then validating is preferable; when `any` is unavoidable, contain it inside a small utility and add a comment describing the narrowing strategy.
+
+Prefer `unknown` and runtime checks over `any` where possible.
 
 ## References
 
