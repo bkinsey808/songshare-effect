@@ -1,3 +1,8 @@
+import isRecordStringUnknown from "@/shared/utils/isRecordStringUnknown";
+
+// Narrow once at this small trusted boundary. This avoids unsafe casts at
+// every call site while keeping the runtime check in one place.
+
 /**
  * Small helpers for safely reading environment-like bindings (e.g. `ctx.env`).
  * These avoid casting `ctx.env as unknown as Record<string, ...>` at call sites.
@@ -11,13 +16,6 @@ export function getEnvString(
 	}
 	if (typeof envLike !== "object") {
 		return undefined;
-	}
-	// Narrow once at this small trusted boundary. This avoids unsafe casts at
-	// every call site while keeping the runtime check in one place.
-	function isRecordStringUnknown(
-		value: unknown,
-	): value is Record<string, unknown> {
-		return typeof value === "object" && value !== null;
 	}
 
 	if (!isRecordStringUnknown(envLike)) {

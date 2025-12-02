@@ -1,18 +1,20 @@
 /* oxlint-disable no-console, @typescript-eslint/no-unsafe-argument */
-export function log(...args) {
+function log(...args) {
 	console.log(...args);
 }
 
-export function debug(...args) {
+function debug(...args) {
 	console.debug(...args);
 }
 
-export function warn(...args) {
+function warn(...args) {
 	console.warn(...args);
 }
 
-export function error(...args) {
+function error(...args) {
 	console.error(...args);
 }
 
-export default { log, debug, warn, error };
+const logger = { log, debug, warn, error };
+export { log, debug, warn, error };
+export default logger;

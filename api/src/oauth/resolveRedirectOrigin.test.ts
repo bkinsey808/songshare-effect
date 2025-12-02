@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveRedirectOrigin } from "./resolveRedirectOrigin";
+import resolveRedirectOrigin from "./resolveRedirectOrigin";
 
 describe("resolveRedirectOrigin", () => {
 	it("prefers incoming request scheme for localhost in non-production", () => {

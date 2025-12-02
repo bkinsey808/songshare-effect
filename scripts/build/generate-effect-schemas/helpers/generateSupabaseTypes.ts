@@ -1,7 +1,7 @@
-import { execFileSync } from "child_process";
-import { existsSync, rmSync, writeFileSync } from "fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, rmSync, writeFileSync } from "node:fs";
 
-import { warn as sWarn, error as sError } from "../../../utils/scriptLogger";
+import { warn as sWarn, error as sError } from "@/scripts/utils/scriptLogger";
 
 export type SupabaseGenerationConfig = {
 	cliPath: string;

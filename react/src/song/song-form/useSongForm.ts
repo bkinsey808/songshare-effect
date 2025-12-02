@@ -3,38 +3,34 @@ import { Effect } from "effect";
 import { useRef } from "react";
 import { useParams } from "react-router-dom";
 
-import { useAppForm } from "@/react/form/useAppForm";
+import useAppForm from "@/react/form/useAppForm";
 import { safeSet } from "@/shared/utils/safe";
 
-import {
-	songFormSchema,
-	type SongFormValuesFromSchema as SongFormData,
-} from "./songSchema";
+import { songFormSchema, type SongFormValuesFromSchema as SongFormData } from "./songSchema";
 import { type Slide } from "./songTypes";
-import { useCollapsibleSections } from "./useCollapsibleSections";
-import { useFormState } from "./useFormState";
-import { useFormSubmission } from "./useFormSubmission";
-import { generateSlug } from "./utils/generateSlug";
+import toStringArray from "./toStringArray";
+import useCollapsibleSections from "./useCollapsibleSections";
+import useFormState from "./useFormState";
+import useFormSubmission from "./useFormSubmission";
+import generateSlug from "./utils/generateSlug";
 
 // Use the concrete type derived from the schema
 
 type GetFieldError = (
 	field: keyof SongFormData,
-) =>
-	| { field: string; message: string; params?: Record<string, unknown> }
-	| undefined;
+) => { field: string; message: string; params?: Record<string, unknown> } | undefined;
 
 type UseSongFormReturn = {
 	getFieldError: GetFieldError;
 	isSubmitting: boolean;
-	slideOrder: ReadonlyArray<string>;
+	slideOrder: readonly string[];
 	slides: Record<string, Slide>;
-	fields: string[];
-	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+	fields: readonly string[];
+	setSlideOrder: (newOrder: readonly string[]) => void;
 	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 	toggleField: (field: string, checked: boolean) => void;
 
-	handleFormSubmit: (event: React.FormEvent) => Promise<void>;
+	handleFormSubmit: (event: Event | React.FormEvent) => Promise<void>;
 	formRef: React.RefObject<HTMLFormElement | null>;
 	resetForm: () => void;
 
@@ -58,11 +54,11 @@ type UseSongFormReturn = {
 
 export default function useSongForm(): UseSongFormReturn {
 	const songId = useParams<{ song_id?: string }>().song_id;
-	const formRef = useRef<HTMLFormElement>(null);
+	const formRef = useRef<HTMLFormElement | null>(null);
 
 	// Form field refs
-	const songNameRef = useRef<HTMLInputElement>(null);
-	const songSlugRef = useRef<HTMLInputElement>(null);
+	const songNameRef = useRef<HTMLInputElement | null>(null);
+	const songSlugRef = useRef<HTMLInputElement | null>(null);
 
 	// Use extracted hooks
 	const {
@@ -117,9 +113,7 @@ export default function useSongForm(): UseSongFormReturn {
 
 	// Handle form submission with data collection
 
-	async function handleFormSubmit(
-		event: Event | React.FormEvent,
-	): Promise<void> {
+	async function handleFormSubmit(event: Event | React.FormEvent): Promise<void> {
 		event.preventDefault();
 
 		// Read form data
@@ -138,10 +132,9 @@ export default function useSongForm(): UseSongFormReturn {
 
 		// Add controlled state values that aren't captured by FormData
 		// Convert readonly arrays to mutable arrays expected by the schema
-		currentFormData["fields"] = Array.isArray(fields) ? fields.slice() : [];
-		currentFormData["slide_order"] = Array.isArray(slideOrder)
-			? Array.from(slideOrder)
-			: [];
+		// Map/convert each value to a string to avoid unsafe spread of unknown/any values
+		currentFormData["fields"] = toStringArray(fields);
+		currentFormData["slide_order"] = toStringArray(slideOrder);
 		currentFormData["slides"] = slides;
 
 		try {
@@ -152,7 +145,7 @@ export default function useSongForm(): UseSongFormReturn {
 	}
 
 	// Update internal state when form data changes
-	function updateSlideOrder(newOrder: ReadonlyArray<string>): void {
+	function updateSlideOrder(newOrder: readonly string[]): void {
 		setSlideOrder(newOrder);
 	}
 

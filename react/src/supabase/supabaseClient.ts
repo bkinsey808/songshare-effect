@@ -1,8 +1,9 @@
-import { getEnvValueSafe } from "@/react/utils/env";
-import { type Database } from "@/shared/generated/supabaseTypes";
 // src/features/supabase/supabaseClient.ts
 import { type SupabaseClient, createClient } from "@supabase/supabase-js";
 
+import { type Database } from "../../../shared/src/generated/supabaseTypes";
+import { delay } from "../../../shared/src/utils/helpers";
+import { getEnvValueSafe } from "../utils/env";
 import { getSupabaseAuthToken } from "./getSupabaseAuthToken";
 
 // Cache Supabase clients per visitor token
@@ -91,7 +92,8 @@ export async function getSupabaseClientWithAuth(
 			// oxlint-disable-next-line no-await-in-loop
 			const supabaseClientToken = await getSupabaseAuthToken();
 
-			if (!supabaseClientToken) {
+			// explicitly check both undefined and empty string to satisfy strict-boolean-expressions
+			if (supabaseClientToken === undefined || supabaseClientToken === "") {
 				throw new Error("No auth token received");
 			}
 
@@ -103,10 +105,7 @@ export async function getSupabaseClientWithAuth(
 
 			return client;
 		} catch (error) {
-			console.error(
-				`Failed to get Supabase client (attempt ${attempt}/${retries}):`,
-				error,
-			);
+			console.error(`Failed to get Supabase client (attempt ${attempt}/${retries}):`, error);
 
 			if (attempt === retries) {
 				console.error("All retry attempts failed");
@@ -114,12 +113,13 @@ export async function getSupabaseClientWithAuth(
 			}
 
 			// Wait before retrying (exponential backoff)
-			const delay = Math.min(
+			const waitMs = Math.min(
 				MS_IN_SECOND * BACKOFF_BASE ** (attempt - BACKOFF_EXPONENT_OFFSET),
 				MAX_BACKOFF_MS,
 			);
+			// use shared delay helper (keeps lint rule happy for promise creation)
 			// oxlint-disable-next-line no-await-in-loop
-			await new Promise((resolve) => setTimeout(resolve, delay));
+			await delay(waitMs);
 		}
 	}
 
@@ -131,9 +131,7 @@ export async function getSupabaseClientWithAuth(
  * This uses the ANON_KEY and provides no authentication.
  * Only useful for completely public data that doesn't require RLS.
  */
-export function getPublicSupabaseClient():
-	| SupabaseClient<Database>
-	| undefined {
+export function getPublicSupabaseClient(): SupabaseClient<Database> | undefined {
 	const supabaseUrl = getEnvValueSafe("SUPABASE_URL");
 	const supabaseKey = getEnvValueSafe("SUPABASE_ANON_KEY");
 

@@ -3,29 +3,20 @@ import { Effect } from "effect";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useAppForm } from "@/react/form/useAppForm";
-import {
-	clientDebug,
-	clientLog,
-	clientError,
-} from "@/react/utils/clientLogger";
+import useAppForm from "@/react/form/useAppForm";
+import { clientDebug, clientLog, clientError } from "@/react/utils/clientLogger";
 import { JUST_REGISTERED_SIGNAL } from "@/shared/constants/http";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { apiAccountRegisterPath, dashboardPath } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
-import {
-	type RegisterForm,
-	RegisterFormSchema,
-} from "@/shared/register/register";
+import { type RegisterForm, RegisterFormSchema } from "@/shared/register/register";
 import { justRegisteredKey } from "@/shared/sessionStorageKeys";
 import { safeSet } from "@/shared/utils/safe";
 
 export default function RegisterPage(): ReactElement {
 	const { t, i18n } = useTranslation();
-	const currentLang = isSupportedLanguage(i18n.language)
-		? i18n.language
-		: defaultLanguage;
+	const currentLang = isSupportedLanguage(i18n.language) ? i18n.language : defaultLanguage;
 	const usernameRef = useRef<HTMLInputElement>(null);
 	const formRef = useRef<HTMLFormElement>(null);
 	const [submitError, setSubmitError] = useState<string | undefined>(undefined);
@@ -72,14 +63,14 @@ export default function RegisterPage(): ReactElement {
 			// Set a one-time registration signal so the dashboard can show a
 			// different success message when the user has just created an
 			// account (instead of a generic "signed in" message).
-			if (typeof window !== "undefined") {
+			if (typeof globalThis !== "undefined") {
 				sessionStorage.setItem(justRegisteredKey, JUST_REGISTERED_SIGNAL);
 			}
 		} catch {
 			// ignore storage errors
 		}
 
-		window.location.href = `/${currentLang}/${dashboardPath}?${justSignedInQueryParam}=${JUST_REGISTERED_SIGNAL}`;
+		globalThis.location.href = `/${currentLang}/${dashboardPath}?${justSignedInQueryParam}=${JUST_REGISTERED_SIGNAL}`;
 	}
 
 	async function onSubmit(data: RegisterForm): Promise<void> {
@@ -106,9 +97,7 @@ export default function RegisterPage(): ReactElement {
 				headers: Object.fromEntries(response.headers.entries()),
 			});
 
-			const isSuccess = await Effect.runPromise(
-				handleApiResponse(response, setSubmitError),
-			);
+			const isSuccess = await Effect.runPromise(handleApiResponse(response, setSubmitError));
 			// Localized debug-only log
 			clientDebug("✅ API response handled, success:", isSuccess);
 			if (isSuccess) {
@@ -164,10 +153,7 @@ export default function RegisterPage(): ReactElement {
 				className="space-y-6"
 			>
 				<div>
-					<label
-						htmlFor="username"
-						className="block text-sm font-medium text-gray-300"
-					>
+					<label htmlFor="username" className="block text-sm font-medium text-gray-300">
 						{t("register.username", "Username")}
 					</label>
 					<input
@@ -176,10 +162,7 @@ export default function RegisterPage(): ReactElement {
 						id="username"
 						name="username"
 						className="mt-1 block w-full rounded-md border border-gray-600 bg-gray-800 px-3 py-2 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-						placeholder={t(
-							"register.usernamePlaceholder",
-							"Enter your username",
-						)}
+						placeholder={t("register.usernamePlaceholder", "Enter your username")}
 						onBlur={handleUsernameBlur}
 						onChange={handleUsernameChange}
 					/>

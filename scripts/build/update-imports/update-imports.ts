@@ -6,11 +6,11 @@
  * - @/react -> react/src
  * - @/api -> api/src
  */
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
 
 import { log as sLog, error as sError } from "../../utils/scriptLogger";
 import { findAllTsFiles } from "./helpers/findAllTsFiles";
-import { updateFileImports } from "./helpers/updateFileImports";
+import updateFileImports from "./helpers/updateFileImports";
 
 /**
  * Orchestrates the import rewrite process and triggers a validation build.

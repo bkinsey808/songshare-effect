@@ -1,3 +1,4 @@
+/* oxlint-disable max-classes-per-file */
 // Lightweight typed error classes used across the API.
 // These provide a typed `_tag` (used by http-utils) and explicit properties
 // without relying on `any` or casting. They intentionally extend `Error`
@@ -22,11 +23,7 @@ export class NotFoundError extends Error {
 	readonly resource: string;
 	readonly id: string | undefined;
 
-	constructor(args: {
-		readonly message: string;
-		readonly resource: string;
-		readonly id?: string;
-	}) {
+	constructor(args: { readonly message: string; readonly resource: string; readonly id?: string }) {
 		super(args.message);
 		this.message = args.message;
 		this.resource = args.resource;

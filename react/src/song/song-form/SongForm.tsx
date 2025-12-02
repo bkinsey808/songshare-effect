@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 // src/features/song-form/SongForm.tsx
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -8,11 +10,12 @@ import SlidesEditor from "./slides-editor/SlidesEditor";
 import SongFormFields from "./SongFormFields";
 import useSongForm from "./useSongForm";
 
-export function SongForm(): ReactElement {
+export default function SongForm(): ReactElement {
 	const { t } = useTranslation();
 	const { song_id } = useParams<{ song_id?: string }>();
 
-	const isEditing = Boolean(song_id?.trim()?.length);
+	// treat a trimmed empty string as not-editing without using numeric literals
+	const isEditing = (song_id?.trim() ?? "") !== "";
 
 	const {
 		getFieldError,

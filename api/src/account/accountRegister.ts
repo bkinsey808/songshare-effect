@@ -2,30 +2,39 @@ import { Effect } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
-import { buildSessionCookie } from "@/api/cookie/buildSessionCookie";
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
-import { getErrorMessage } from "@/api/getErrorMessage";
-import { getIpAddress } from "@/api/getIpAddress";
+import getErrorMessage from "@/api/getErrorMessage";
+import getIpAddress from "@/api/getIpAddress";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
 import { RegisterDataSchema } from "@/api/register/registerData";
-import { parseMaybeSingle } from "@/api/supabase/parseMaybeSingle";
+import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
 import { csrfTokenCookieName } from "@/shared/cookies";
 import { getEnvString } from "@/shared/env/getEnv";
-import {
-	UserPublicSchema,
-	UserSchema,
-} from "@/shared/generated/supabaseSchemas";
+import { UserPublicSchema, UserSchema } from "@/shared/generated/supabaseSchemas";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import { RegisterFormSchema } from "@/shared/register/register";
 import { UserSessionDataSchema } from "@/shared/userSessionData";
 import { safeGet, safeSet } from "@/shared/utils/safe";
-import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
-import { decodeUnknownSyncOrThrow } from "@/shared/validation/decodeUnknownSyncOrThrow";
+import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
+import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 import { createClient } from "@supabase/supabase-js";
 
 import { type ReadonlyContext } from "../hono/hono-context";
+
+// Normalize DB row: Supabase returns `null` for nullable fields whereas
+// our Effect schemas expect `undefined` for optional fields. Convert
+// any null values to undefined before running schema decoding so that
+// optional fields validate correctly.
+function isPlainRecord(maybePlainRecord: unknown): maybePlainRecord is Record<string, unknown> {
+	return (
+		maybePlainRecord !== null &&
+		typeof maybePlainRecord === "object" &&
+		!Array.isArray(maybePlainRecord)
+	);
+}
 
 /**
  * Handle account registration after OAuth callback
@@ -107,8 +116,7 @@ export default function accountRegister(
 					}
 					return parsed;
 				},
-				catch: () =>
-					new ValidationError({ message: "Invalid register cookie" }),
+				catch: () => new ValidationError({ message: "Invalid register cookie" }),
 			}),
 		);
 
@@ -121,11 +129,7 @@ export default function accountRegister(
 		const rawUsernameRes = yield* $(
 			Effect.tryPromise({
 				try: () =>
-					supabase
-						.from("user_public")
-						.select("user_id")
-						.eq("username", username)
-						.maybeSingle(),
+					supabase.from("user_public").select("user_id").eq("username", username).maybeSingle(),
 				catch: () =>
 					new DatabaseError({
 						message: "Failed to check username availability",
@@ -135,14 +139,9 @@ export default function accountRegister(
 
 		const usernameResponse = parseMaybeSingle(rawUsernameRes);
 
-		if (
-			usernameResponse.error !== undefined &&
-			usernameResponse.error !== null
-		) {
+		if (usernameResponse.error !== undefined && usernameResponse.error !== null) {
 			return yield* $(
-				Effect.fail(
-					new DatabaseError({ message: "Database error checking username" }),
-				),
+				Effect.fail(new DatabaseError({ message: "Database error checking username" })),
 			);
 		}
 
@@ -168,27 +167,18 @@ export default function accountRegister(
 		const userInsertResult = yield* $(
 			Effect.tryPromise({
 				try: () => supabase.from("user").insert([userToInsert]).select(),
-				catch: () =>
-					new DatabaseError({ message: "Failed to create user account" }),
+				catch: () => new DatabaseError({ message: "Failed to create user account" }),
 			}),
 		);
 
 		if (userInsertResult.error) {
-			return yield* $(
-				Effect.fail(
-					new DatabaseError({ message: "Failed to insert user record" }),
-				),
-			);
+			return yield* $(Effect.fail(new DatabaseError({ message: "Failed to insert user record" })));
 		}
 
 		// Destructure the inserted row to avoid numeric indices (no magic numbers)
 		const [rawInsertedUser] = userInsertResult.data;
 		if (!rawInsertedUser) {
-			return yield* $(
-				Effect.fail(
-					new DatabaseError({ message: "Failed to insert user record" }),
-				),
-			);
+			return yield* $(Effect.fail(new DatabaseError({ message: "Failed to insert user record" })));
 		}
 
 		// Debug: log raw insert result to help diagnose schema validation failures
@@ -198,24 +188,11 @@ export default function accountRegister(
 				// Localized: debug-only server-side log
 				serverDebug(
 					"[accountRegister] userInsertResult:",
+					// oxlint-disable-next-line no-null
 					JSON.stringify(rawInsertedUser, null, JSON_INDENT),
 				);
 			}),
 		);
-
-		// Normalize DB row: Supabase returns `null` for nullable fields whereas
-		// our Effect schemas expect `undefined` for optional fields. Convert
-		// any null values to undefined before running schema decoding so that
-		// optional fields validate correctly.
-		function isPlainRecord(
-			maybePlainRecord: unknown,
-		): maybePlainRecord is Record<string, unknown> {
-			return (
-				maybePlainRecord !== null &&
-				typeof maybePlainRecord === "object" &&
-				!Array.isArray(maybePlainRecord)
-			);
-		}
 
 		function normalizeNulls(obj: unknown): Record<string, unknown> {
 			// Use safeGet/safeSet to satisfy lint/security rules and avoid
@@ -227,14 +204,11 @@ export default function accountRegister(
 
 			// `isPlainRecord` narrowed the type, so `obj` is a Record<string, unknown>
 			const src = obj;
-			const copy: Record<string, unknown> = { ...src };
+			const copy: Record<string, unknown> = {};
 			for (const key of Object.keys(src)) {
 				const value = safeGet(src, key);
-				if (value === null) {
-					safeSet(copy, key, undefined);
-				} else {
-					safeSet(copy, key, value);
-				}
+				// Normalize explicit `null` to `undefined`, otherwise copy value as-is
+				safeSet(copy, key, value === null ? undefined : value);
 			}
 			return copy;
 		}
@@ -253,6 +227,7 @@ export default function accountRegister(
 					// Localized: server-side error logging
 					serverError(
 						"[accountRegister] Failed to decode user row:",
+						// oxlint-disable-next-line no-null
 						JSON.stringify(rawInsertedUser, null, JSON_INDENT),
 						"error:",
 						getErrorMessage(err),
@@ -274,29 +249,19 @@ export default function accountRegister(
 
 		const userPublicInsertResult = yield* $(
 			Effect.tryPromise({
-				try: () =>
-					supabase.from("user_public").insert([userPublicToInsert]).select(),
-				catch: () =>
-					new DatabaseError({ message: "Failed to create user profile" }),
+				try: () => supabase.from("user_public").insert([userPublicToInsert]).select(),
+				catch: () => new DatabaseError({ message: "Failed to create user profile" }),
 			}),
 		);
 
 		if (userPublicInsertResult.error) {
-			return yield* $(
-				Effect.fail(
-					new DatabaseError({ message: "Failed to insert user profile" }),
-				),
-			);
+			return yield* $(Effect.fail(new DatabaseError({ message: "Failed to insert user profile" })));
 		}
 
 		// Destructure the inserted public row to avoid numeric indices
 		const [rawUserPublic] = userPublicInsertResult.data;
 		if (!rawUserPublic) {
-			return yield* $(
-				Effect.fail(
-					new DatabaseError({ message: "Failed to insert user profile" }),
-				),
-			);
+			return yield* $(Effect.fail(new DatabaseError({ message: "Failed to insert user profile" })));
 		}
 
 		const newUserPublic = yield* $(
@@ -345,8 +310,7 @@ export default function accountRegister(
 					const token = await sign(validatedSessionData, jwtSecret);
 					return token;
 				},
-				catch: () =>
-					new ServerError({ message: "Failed to sign session token" }),
+				catch: () => new ServerError({ message: "Failed to sign session token" }),
 			}),
 		);
 
@@ -357,7 +321,7 @@ export default function accountRegister(
 			name: userSessionCookieName,
 			value: sessionJwt,
 			opts: {
-				maxAge: 604800,
+				maxAge: 604_800,
 				httpOnly: true,
 			},
 		});
@@ -370,7 +334,7 @@ export default function accountRegister(
 			name: csrfTokenCookieName,
 			value: csrfToken,
 			opts: {
-				maxAge: 604800,
+				maxAge: 604_800,
 				httpOnly: false,
 			},
 		});

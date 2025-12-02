@@ -1,6 +1,6 @@
 import { type TableDefinition } from "./generate-effect-schemas-types";
 
-export function createExampleSchemas(): TableDefinition[] {
+export default function createExampleSchemas(): TableDefinition[] {
 	return [
 		{
 			name: "users",

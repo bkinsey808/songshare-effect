@@ -5,6 +5,7 @@ import {
 	DEMO_POSTS_DELAY_MS,
 	DEMO_POSTS_COUNT,
 } from "@/shared/constants/http";
+import { delay } from "@/shared/utils/helpers";
 import { createSuspenseCache } from "@/shared/utils/typedPromiseCache";
 
 // Suspense-friendly typed caches to store Promise<T> while pending and T when resolved
@@ -45,9 +46,7 @@ type UserProfileParams = Readonly<{
 function UserProfile({ userId }: UserProfileParams): ReactElement {
 	const user = suspendingFetch(userCache, `user-${userId}`, async () => {
 		// Simulate API delay
-		await new Promise<void>((resolve) =>
-			setTimeout(resolve, DEMO_PROFILE_DELAY_MS),
-		);
+		await delay(DEMO_PROFILE_DELAY_MS);
 
 		// Mock user data
 		return {
@@ -75,41 +74,34 @@ type UserPostParams = Readonly<{
 function UserPosts({ userId }: UserPostParams): ReactElement {
 	const posts = suspendingFetch(postsCache, `posts-${userId}`, async () => {
 		// Simulate API delay
-		await new Promise<void>((resolve) =>
-			setTimeout(resolve, DEMO_POSTS_DELAY_MS),
-		);
+		await delay(DEMO_POSTS_DELAY_MS);
 
 		// Mock posts data (generated to avoid magic number literals)
-		return Array.from({ length: POST_SAMPLE_COUNT }).map(
-			(_unusedVal, index) => {
-				const id = index + ONE;
+		return Array.from({ length: POST_SAMPLE_COUNT }).map((_unusedVal, index) => {
+			const id = index + ONE;
 
-				let title = "New Playlist";
-				if (index === ZERO) {
-					title = "My Favorite Song";
-				} else if (index === ONE) {
-					title = "Concert Review";
-				}
+			let title = "New Playlist";
+			if (index === ZERO) {
+				title = "My Favorite Song";
+			} else if (index === ONE) {
+				title = "Concert Review";
+			}
 
-				let content = "Created a new playlist for working out.";
-				if (index === ZERO) {
-					content = "Just discovered this amazing track!";
-				} else if (index === ONE) {
-					content = "Went to see my favorite band last night.";
-				}
+			let content = "Created a new playlist for working out.";
+			if (index === ZERO) {
+				content = "Just discovered this amazing track!";
+			} else if (index === ONE) {
+				content = "Went to see my favorite band last night.";
+			}
 
-				return { id, title, content };
-			},
-		);
+			return { id, title, content };
+		});
 	});
 
 	return (
 		<div className="space-y-4">
 			{posts.map((post) => (
-				<div
-					key={post.id}
-					className="rounded-lg border border-white/10 bg-white/5 p-4"
-				>
+				<div key={post.id} className="rounded-lg border border-white/10 bg-white/5 p-4">
 					<h4 className="mb-2 font-semibold text-white">{post.title}</h4>
 					<p className="text-sm text-gray-300">{post.content}</p>
 				</div>
@@ -122,9 +114,9 @@ function UserPosts({ userId }: UserPostParams): ReactElement {
 function ProfileSkeleton(): ReactElement {
 	return (
 		<div className="animate-pulse rounded-xl border border-white/10 bg-white/5 p-6">
-			<div className="mb-3 h-6 rounded bg-gray-600"></div>
-			<div className="mb-2 h-4 w-3/4 rounded bg-gray-600"></div>
-			<div className="h-4 w-1/2 rounded bg-gray-600"></div>
+			<div className="mb-3 h-6 rounded bg-gray-600" />
+			<div className="mb-2 h-4 w-3/4 rounded bg-gray-600" />
+			<div className="h-4 w-1/2 rounded bg-gray-600" />
 		</div>
 	);
 }
@@ -132,15 +124,14 @@ function ProfileSkeleton(): ReactElement {
 function PostsSkeleton(): ReactElement {
 	return (
 		<div className="space-y-4">
-			{Array.from({ length: DEMO_POSTS_COUNT }).map((_unusedVal, idx) => (
-				<div
-					key={idx}
-					className="animate-pulse rounded-lg border border-white/10 bg-white/5 p-4"
-				>
-					<div className="mb-2 h-5 rounded bg-gray-600"></div>
-					<div className="h-4 w-4/5 rounded bg-gray-600"></div>
-				</div>
-			))}
+			{Array.from({ length: DEMO_POSTS_COUNT })
+				.map((_unused, idx) => `post-skeleton-${idx + ONE}`)
+				.map((key) => (
+					<div key={key} className="animate-pulse rounded-lg border border-white/10 bg-white/5 p-4">
+						<div className="mb-2 h-5 rounded bg-gray-600" />
+						<div className="h-4 w-4/5 rounded bg-gray-600" />
+					</div>
+				))}
 		</div>
 	);
 }
@@ -152,7 +143,7 @@ export default function SuspenseDemo(): ReactElement {
 		userCache.clear();
 		postsCache.clear();
 		// Force re-render by updating a key or state if needed
-		window.location.reload();
+		globalThis.location.reload();
 	}
 
 	return (
@@ -160,6 +151,7 @@ export default function SuspenseDemo(): ReactElement {
 			<div className="mb-6 flex items-center justify-between">
 				<h2 className="text-2xl font-bold text-white">🔄 Suspense Demo</h2>
 				<button
+					type="button"
 					onClick={clearCache}
 					className="rounded-lg bg-red-500 px-4 py-2 text-sm text-white transition-colors hover:bg-red-600"
 				>
@@ -168,16 +160,13 @@ export default function SuspenseDemo(): ReactElement {
 			</div>
 
 			<p className="mb-6 text-gray-400">
-				This demo shows React Suspense working with promises. The components
-				below will suspend while fetching data, showing loading states until the
-				promises resolve.
+				This demo shows React Suspense working with promises. The components below will suspend
+				while fetching data, showing loading states until the promises resolve.
 			</p>
 
 			<div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
 				<div>
-					<h3 className="mb-4 text-lg font-semibold text-white">
-						User Profile
-					</h3>
+					<h3 className="mb-4 text-lg font-semibold text-white">User Profile</h3>
 					<Suspense fallback={<ProfileSkeleton />}>
 						<UserProfile userId={1} />
 					</Suspense>

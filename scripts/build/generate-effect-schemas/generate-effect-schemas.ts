@@ -3,20 +3,20 @@
  * Enhanced script to generate Effect-TS schemas from Supabase generated types
  * This version includes a proper TypeScript AST parser to extract table definitions
  */
-import { existsSync, rmSync } from "fs";
-import { join } from "path";
+import { existsSync, rmSync } from "node:fs";
+import { join } from "node:path";
 
 import { log as sLog } from "../../utils/scriptLogger";
-import { assertPathExists } from "./helpers/assertPathExists";
-import { generateEffectSchemasFile } from "./helpers/generateEffectSchemasFile";
+import assertPathExists from "./helpers/assertPathExists";
+import generateEffectSchemasFile from "./helpers/generateEffectSchemasFile";
 import { generateSupabaseTypes } from "./helpers/generateSupabaseTypes";
-import { loadEnvVariables } from "./helpers/loadEnvVariables";
-import { logFinalSummary } from "./helpers/logFinalSummary";
-import { logGeneratedTables } from "./helpers/logGeneratedTables";
+import  loadEnvVariables from "./helpers/loadEnvVariables";
+import logFinalSummary from "./helpers/logFinalSummary";
+import logGeneratedTables from "./helpers/logGeneratedTables";
 import { moveSupabaseTypes } from "./helpers/moveSupabaseTypes";
-import { parseSupabaseTypes } from "./helpers/parseSupabaseTypes";
-import { runEslintFix } from "./helpers/runEslintFix";
-import { runPrettierWrite } from "./helpers/runPrettierWrite";
+import parseSupabaseTypes from "./helpers/parseSupabaseTypes";
+import runEslintFix from "./helpers/runLintFix";
+import runFormatterWrite from "./helpers/runFormatterWrite";
 
 // Main execution
 function main(): void {
@@ -82,7 +82,7 @@ function main(): void {
 		generated: supabaseTypesGenerated,
 	});
 
-	const lintTargets: ReadonlyArray<string> =
+	const lintTargets: readonly string[] =
 		supabaseTypesFinalPath === undefined
 			? [schemasOutputPath]
 			: [schemasOutputPath, supabaseTypesFinalPath];
@@ -92,7 +92,7 @@ function main(): void {
 		files: lintTargets,
 		cliPath: eslintCliPath,
 	});
-	runPrettierWrite({
+	runFormatterWrite({
 		projectRoot,
 		files: lintTargets,
 		cliPath: prettierCliPath,
@@ -117,6 +117,7 @@ function main(): void {
 	logFinalSummary(summaryConfig);
 }
 
-if (import.meta.main) {
+const _importMetaMain = (import.meta as { main?: boolean | undefined }).main;
+if (_importMetaMain === true) {
 	main();
 }

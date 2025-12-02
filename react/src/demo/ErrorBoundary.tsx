@@ -21,10 +21,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
 	// lifecycle method intentionally doesn't use `this` (handled via getDerivedStateFromError)
 	// oxlint-disable-next-line class-methods-use-this
-	override componentDidCatch(
-		error: Readonly<Error>,
-		errorInfo: Readonly<ErrorInfo>,
-	): void {
+	override componentDidCatch(error: Readonly<Error>, errorInfo: Readonly<ErrorInfo>): void {
 		console.error("Error Boundary caught an error:", error, errorInfo);
 	}
 
@@ -32,16 +29,15 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 		if (this.state.hasError) {
 			return (
 				<div className="m-5 rounded-lg border border-red-400 bg-red-100 p-10 text-center">
-					<h2 className="mb-5 text-2xl font-bold text-red-700">
-						🚨 Something went wrong
-					</h2>
+					<h2 className="mb-5 text-2xl font-bold text-red-700">🚨 Something went wrong</h2>
 					<p className="mb-5 text-gray-600">
-						We encountered an unexpected error. Please try refreshing the page
-						or contact support if the problem persists.
+						We encountered an unexpected error. Please try refreshing the page or contact support if
+						the problem persists.
 					</p>
 					<button
+						type="button"
 						onClick={() => {
-							window.location.reload();
+							globalThis.location.reload();
 						}}
 						className="bg-primary-500 hover:bg-primary-600 cursor-pointer rounded-md border-none px-6 py-3 text-base text-white transition-colors"
 					>
@@ -49,9 +45,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 					</button>
 					{this.state.error && (
 						<details className="mt-5 text-left">
-							<summary className="cursor-pointer text-gray-600">
-								Error Details
-							</summary>
+							<summary className="cursor-pointer text-gray-600">Error Details</summary>
 							<pre className="mt-2 overflow-auto rounded bg-gray-100 p-3 text-xs text-gray-800">
 								{this.state.error.stack}
 							</pre>

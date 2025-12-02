@@ -1,12 +1,7 @@
-import { type Provider, guardAsProvider } from "@/shared/providers";
+export { isProvider } from "@/shared/providers";
 
-export function isProvider(
-	value: unknown,
-): value is (typeof Provider)[keyof typeof Provider] {
-	try {
-		guardAsProvider(value);
-		return true;
-	} catch {
-		return false;
-	}
-}
+// The API layer previously had its own copy of `isProvider`.
+// Keep a re-exporting thin wrapper here to ensure any existing
+// imports continue to work while standardizing on the shared implementation.
+
+export { isProvider as default } from "@/shared/providers";

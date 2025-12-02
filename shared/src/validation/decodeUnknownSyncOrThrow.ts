@@ -5,7 +5,7 @@ import { Schema } from "effect";
  * typed result or re-throw the schema validation error. Centralizing this
  * call reduces scattered unsafe assertions across the codebase.
  */
-export function decodeUnknownSyncOrThrow<TDecoded, TInput = unknown>(
+export default function decodeUnknownSyncOrThrow<TDecoded, TInput = unknown>(
 	schema: Schema.Schema<TDecoded, TInput>,
 	value: unknown,
 ): TDecoded {

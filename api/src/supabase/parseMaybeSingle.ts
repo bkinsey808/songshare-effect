@@ -1,19 +1,18 @@
+import { isRecord } from "@/shared/utils/typeGuards";
+
 /**
  * Small runtime helper to safely extract `.data`, `.error`, and `.status`
  * from a Supabase `maybeSingle()` response. This centralizes the single
  * narrow castsite and avoids repeating `as unknown as` throughout the code.
  */
-export function parseMaybeSingle(res: unknown): {
+export default function parseMaybeSingle(res: unknown): {
 	data?: unknown;
 	error?: unknown;
 	status?: number;
 } {
-	// Narrow using a type-guard so TypeScript understands `res` is an
+	// Use shared `isRecord` type-guard so TypeScript understands `res` is an
 	// object with string keys. This avoids unsafe assertions and keeps
 	// the runtime checks below intact.
-	function isRecord(value: unknown): value is Record<string, unknown> {
-		return value !== null && typeof value === "object";
-	}
 
 	if (!isRecord(res)) {
 		return {};

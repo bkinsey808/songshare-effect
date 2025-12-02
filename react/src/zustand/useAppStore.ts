@@ -15,25 +15,29 @@ import {
 } from "@/react/song/song-view/song-slice";
 import { clientWarn } from "@/react/utils/clientLogger";
 
-export const sliceResetFns: Set<() => void> = new Set<() => void>();
-export function resetAllSlices(): void {
-	sliceResetFns.forEach((resetFn) => {
-		resetFn();
-	});
-}
+import { sliceResetFns, resetAllSlices } from "./slice-reset-fns";
+
+// sliceResetFns & resetAllSlices live in a dedicated module to avoid
+// circular imports between slices and the root store.
+
+// NOTE: exports are added at the end of the file.
 
 // Compose new slices here
-export type AppSlice = AuthSlice & SongSubscribeSlice & SongLibrarySlice;
+type AppSlice = AuthSlice & SongSubscribeSlice & SongLibrarySlice;
 
 // Keys that should NOT be persisted to storage. Keep transient UI flags
 // (like `showSignedInAlert`) out of persisted state so rehydration does
 // not overwrite short-lived values set during navigation flows.
-const omittedKeys: (keyof AppSlice)[] = [
+//
+// Use a runtime `Set<string>` here so persistence filtering can compare
+// the string keys returned by `Object.entries` without needing unsafe
+// type assertions. The set's values intentionally mirror the AppSlice keys.
+const omittedKeys: Set<string> = new Set<string>([
 	"showSignedInAlert",
 	"activePrivateSongsUnsubscribe",
 	"activePublicSongsUnsubscribe",
 	"libraryUnsubscribe",
-];
+]);
 
 let store: UseBoundStore<StoreApi<AppSlice>> | undefined = undefined;
 
@@ -46,16 +50,14 @@ const hydrationState = {
 	resolvePromise: undefined as (() => void) | undefined,
 };
 
-export function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
+function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 	return getOrCreateAppStore();
 }
 
 // Typed selector helper for components to select typed values from the store.
 // This wraps the internal `useAppStore()` call and provides a generic selector
 // while keeping the localized `any` casts contained in this file.
-export function useAppStoreSelector<Selected>(
-	selector: (slice: AppSlice) => Selected,
-): Selected {
+function useAppStoreSelector<Selected>(selector: (slice: AppSlice) => Selected): Selected {
 	// The bound store accepts a selector function with the same shape
 	// as the `selector` parameter. We can pass the selector directly and
 	// let TypeScript validate the types — this avoids the previous unsafe
@@ -72,10 +74,13 @@ export function useAppStoreSelector<Selected>(
  *
  * @returns The bound Zustand store for application state.
  */
-export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
+function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 	if (store === undefined) {
 		// Create the hydration promise before creating the store
 		if (!hydrationState.promise) {
+			// The deferred promise is intentional here — callers will await hydration.
+			// oxlint-disable-next-line no-new-promises
+			// oxlint-disable-next-line promise/avoid-new
 			hydrationState.promise = new Promise<void>((resolve) => {
 				hydrationState.resolvePromise = resolve;
 			});
@@ -99,31 +104,18 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 						// Create a small, typed partialization routine that
 						// avoids blanket `Object.entries(... ) as ...` assertions
 						// and doesn't rely on inline unsafe type assertions.
-						partialize: (state: Readonly<AppSlice>): Partial<AppSlice> => {
-							// Shallow copy the state then remove keys we don't want
-							// persisted. Spreading copies only own enumerable
-							// properties so we don't need to narrow runtime keys.
-							const out: Partial<AppSlice> = { ...state };
-							// Use `for-in` so keys are strings but we can narrow them
-							// to `keyof AppSlice` for the runtime `omittedKeys` check.
-							// Iterate over the object's own keys and narrow them to
-							// `keyof AppSlice` in one place. This avoids repeating
-							// unsafe assertions per-iteration and keeps the logic
-							// straightforward for the TypeScript compiler.
-							// Casting Object.keys to `Array<keyof AppSlice>` is safe
-							// because `state` has the `AppSlice` type at compile
-							// time, and we only operate on own properties.
-							// No helper required after we shallow-copy and remove omitted keys
-
-							for (const keyToRemove of omittedKeys) {
-								if (Object.hasOwn(state, keyToRemove as string)) {
-									delete out[keyToRemove];
-								}
-							}
-							return out;
-						},
+						// Return state entries excluding `omittedKeys` as a Partial<AppSlice>
+						// Build a plain object from the current state and exclude
+						// the transient keys we don't want persisted. We avoid
+						// casting string keys to `keyof AppSlice` and therefore
+						// prevent unsafe assertions in the filter step.
+						partialize: (state: Readonly<AppSlice>): Partial<AppSlice> =>
+							// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
+							Object.fromEntries(
+								Object.entries(state).filter(([key]) => !omittedKeys.has(key)),
+							) as Partial<AppSlice>,
 						// Clean hydration callback that doesn't pollute business state
-						onRehydrateStorage: () => () => {
+						onRehydrateStorage: (): (() => void) => () => {
 							// Update external hydration state
 							hydrationState.isHydrated = true;
 							// Resolve the hydration promise (ideal solution!)
@@ -132,16 +124,16 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 								hydrationState.resolvePromise = undefined;
 							}
 							// Notify all listeners
-							hydrationState.listeners.forEach((listener) => {
+							for (const listener of hydrationState.listeners) {
 								listener();
-							});
+							}
 						},
 					},
 				),
 				{
 					enabled:
-						typeof import.meta !== "undefined" &&
-						typeof import.meta.env !== "undefined" &&
+						import.meta !== undefined &&
+						import.meta.env !== undefined &&
 						Boolean(import.meta.env["VITE_DEVTOOLS"]),
 					name: "AppStore",
 				},
@@ -153,18 +145,18 @@ export function getOrCreateAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 
 // Backwards-compatible alias for callers that still import `ensureAppStore`.
 // Prefer `getOrCreateAppStore` for new code.
-export const ensureAppStore: typeof getOrCreateAppStore = getOrCreateAppStore;
+const ensureAppStore: typeof getOrCreateAppStore = getOrCreateAppStore;
 
 // Non-hook accessor for the bound store API. Returns the underlying
 // bound store instance if it exists; otherwise returns undefined. This
 // avoids calling hooks from non-hook code and lets callers read the
 // store API safely when the store has been created.
-export function getStoreApi(): UseBoundStore<StoreApi<AppSlice>> | undefined {
+function getStoreApi(): UseBoundStore<StoreApi<AppSlice>> | undefined {
 	return store;
 }
 
 // React Compiler compatible hydration hook - clean approach
-export function useAppStoreHydrated(): {
+function useAppStoreHydrated(): {
 	store: UseBoundStore<StoreApi<AppSlice>>;
 	isHydrated: boolean;
 } {
@@ -178,9 +170,7 @@ export function useAppStoreHydrated(): {
 		// If already hydrated, schedule setting state asynchronously
 		if (hydrationState.isHydrated) {
 			// Debug
-			clientWarn(
-				"[useAppStoreHydrated] already hydrated, scheduling setIsHydrated(true)",
-			);
+			clientWarn("[useAppStoreHydrated] already hydrated, scheduling setIsHydrated(true)");
 			schedule(() => {
 				setIsHydrated(true);
 			});
@@ -214,17 +204,19 @@ export function useAppStoreHydrated(): {
 }
 
 // ✅ IDEAL SOLUTION: Hook that returns the hydration promise directly
-export async function useAppStoreHydrationPromise(): Promise<void> {
+function useAppStoreHydrationPromise(): Promise<void> {
 	// Avoid calling any React hooks here to keep hook call order stable
 	// during Suspense. Ensure the hydration promise exists so callers can
 	// throw it for Suspense to catch. The actual store creation (which
 	// may also create the promise) happens in useAppStore(), but we can
 	// lazily create the promise here if it doesn't exist yet.
 	if (hydrationState.isHydrated) {
-		return;
+		return Promise.resolve();
 	}
 
 	if (!hydrationState.promise) {
+		// oxlint-disable-next-line no-new-promises
+		// oxlint-disable-next-line promise/avoid-new
 		hydrationState.promise = new Promise<void>((resolve) => {
 			hydrationState.resolvePromise = resolve;
 		});
@@ -232,3 +224,18 @@ export async function useAppStoreHydrationPromise(): Promise<void> {
 
 	return hydrationState.promise;
 }
+
+// Re-export public API at end of file to satisfy export ordering lint rule
+export {
+	sliceResetFns,
+	resetAllSlices,
+	useAppStore,
+	useAppStoreSelector,
+	getOrCreateAppStore,
+	ensureAppStore,
+	getStoreApi,
+	useAppStoreHydrated,
+	useAppStoreHydrationPromise,
+};
+
+export type { AppSlice };

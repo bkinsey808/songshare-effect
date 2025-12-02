@@ -1,0 +1,21 @@
+// Backup of vitest.config.ts (created automatically)
+
+// Backup of the current vitest.config.ts (created automatically)
+
+// Top portion of the file saved here as a reference — any future revert can
+// copy-paste from this location.
+
+// Import local augmentation to ensure the editor / tsserver picks up the
+// additional coverage option for the v8 provider without using a triple-slash
+// reference (which our linter forbids). See `types/vitest-coverage-augment.ts`.
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vitest/config";
+
+import react from "@vitejs/plugin-react";
+
+import { VITEST_COVERAGE_AUGMENT } from "./types/vitest-coverage-augment";
+// Touch the imported symbol so it counts as used and keeps ESLint from complaining
+// about unassigned/unused imports.
+void VITEST_COVERAGE_AUGMENT;
+

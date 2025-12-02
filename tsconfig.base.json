@@ -1,8 +1,10 @@
 {
 	"compilerOptions": {
 		/* Language and Environment */
-		"target": "ES2022",
-		"lib": ["ES2022"],
+		"target": "ES2023",
+		"lib": [
+			"ES2023"
+		],
 		"module": "ESNext",
 		"moduleResolution": "bundler",
 		"moduleDetection": "force",
@@ -29,13 +31,30 @@
 		"preserveWatchOutput": true,
 		/* Interop Constraints */
 		"forceConsistentCasingInFileNames": true,
-		"isolatedDeclarations": true,
 		"skipLibCheck": true,
 		/* Path Mapping */
 		"paths": {
-			"@/shared/*": ["./shared/src/*"],
-			"@/react/*": ["./react/src/*"],
-			"@/api/*": ["./api/src/*"]
-		}
+			"@/shared/*": [
+				"./shared/src/*"
+			],
+			"@/react/*": [
+				"./react/src/*"
+			],
+			"@/api/*": [
+				"./api/src/*"
+			],
+			"@/scripts/*": [
+				"./scripts/*"
+			]
+		},
+		"types": [
+			"bun"
+		],
+		// allow the compiler to resolve types from project `types`/ and
+		// from packages that ship their own declarations (e.g. `vite`,
+		// `@cloudflare/workers-types`) by omitting an explicit `typeRoots`.
+		// (Specifying `typeRoots` prevents TypeScript from looking in
+		// other package locations, which caused failures resolving
+		// `vite/client` and `@cloudflare/workers-types`.)
 	}
 }

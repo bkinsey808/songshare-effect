@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { createTypedCache } from "./typedPromiseCache";
 
-describe("TypedPromiseCache", () => {
+describe("typedPromiseCache", () => {
 	it("stores and returns typed values", async () => {
 		const cache = createTypedCache<number>("test");
 		const keyId = "one";
@@ -34,7 +34,7 @@ describe("TypedPromiseCache", () => {
 		await expect(
 			cache.get(keyId, async () => {
 				await Promise.resolve(0);
-				return Promise.reject(new Error("fail"));
+				throw new Error("fail");
 			}),
 		).rejects.toThrow("fail");
 

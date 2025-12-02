@@ -6,7 +6,9 @@
  */
 import { type StoreApi } from "zustand";
 
-import { type AppSlice } from "@/react/zustand/useAppStore";
+// Avoid importing AppSlice here to prevent a circular dependency with the
+// store implementation. Default Root to `unknown` so slice factories can opt
+// into the full application type when needed.
 
 /**
  * Simple, slice-scoped convenience types for use in slice factory signatures.
@@ -16,12 +18,8 @@ import { type AppSlice } from "@/react/zustand/useAppStore";
 
 // Default the Root generic to AppSlice so slices don't need to pass the
 // combined store type explicitly when they want full store-aware set/get.
-export type Set<StoreSlice, Root = AppSlice> = StoreApi<
-	StoreSlice & Root
->["setState"];
+export type Set<StoreSlice, Root = unknown> = StoreApi<StoreSlice & Root>["setState"];
 
-export type Get<StoreSlice, Root = AppSlice> = StoreApi<
-	StoreSlice & Root
->["getState"];
+export type Get<StoreSlice, Root = unknown> = StoreApi<StoreSlice & Root>["getState"];
 
-export type Api<StoreSlice, Root = AppSlice> = StoreApi<StoreSlice & Root>;
+export type Api<StoreSlice, Root = unknown> = StoreApi<StoreSlice & Root>;

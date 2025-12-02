@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 
-import { getErrorMessage } from "@/api/getErrorMessage";
+import getErrorMessage from "@/api/getErrorMessage";
 import oauthCallbackHandler from "@/api/oauth/oauthCallbackHandler";
 import {
 	ACCESS_CONTROL_MAX_AGE_SEC,
@@ -10,26 +10,22 @@ import {
 	HTTP_UNAUTHORIZED,
 	ONE_HOUR_SECONDS,
 } from "@/shared/constants/http";
-import {
-	apiMePath,
-	apiOauthCallbackPath,
-	apiOauthSignInPath,
-} from "@/shared/paths";
+import { apiMePath, apiOauthCallbackPath, apiOauthSignInPath } from "@/shared/paths";
 
 import accountDelete from "./account/accountDelete";
 import accountRegister from "./account/accountRegister";
-import { buildClearCookieHeader } from "./cookie/buildClearCookieHeader";
+import buildClearCookieHeader from "./cookie/buildClearCookieHeader";
 import { userSessionCookieName } from "./cookie/cookie";
-import { getAllowedOrigins } from "./cors/getAllowedOrigins";
-import { getOriginToCheck } from "./cors/getOriginToCheck";
-import { verifySameOriginOrThrow } from "./csrf/verifySameOriginOrThrow";
+import getAllowedOrigins from "./cors/getAllowedOrigins";
+import getOriginToCheck from "./cors/getOriginToCheck";
+import verifySameOriginOrThrow from "./csrf/verifySameOriginOrThrow";
 import { type Bindings } from "./env";
 import { handleHttpEndpoint } from "./http/http-utils";
-import { me } from "./me";
-import oauthSignInHandler from "./oauth/oauthSignIn";
+import me from "./me";
+import oauthSignInDefault from "./oauth/oauthSignIn";
 import { songSave } from "./song/songSave";
-import { getSupabaseClientToken } from "./supabase/getSupabaseClientToken";
-import { getSupabaseUserToken } from "./supabase/getSupabaseUserToken";
+import getSupabaseClientToken from "./supabase/getSupabaseClientToken";
+import getSupabaseUserToken from "./supabase/getSupabaseUserToken";
 
 const app: Hono<{ Bindings: Bindings }> = new Hono<{ Bindings: Bindings }>();
 
@@ -98,9 +94,7 @@ app.get("/health", (ctx) =>
 );
 
 // Lightweight hello endpoint used by some E2E tests
-app.get("/api/hello", (ctx) =>
-	ctx.json({ message: "Hello from custom API endpoint!" }),
-);
+app.get("/api/hello", (ctx) => ctx.json({ message: "Hello from custom API endpoint!" }));
 
 // Supabase client token endpoint - provides a JWT for client-side Supabase operations
 app.get("/api/auth/visitor", async (ctx) => {
@@ -127,12 +121,9 @@ app.get("/api/auth/visitor", async (ctx) => {
 			expires_in: ONE_HOUR_SECONDS,
 		});
 	} catch (error) {
-		console.error(
-			"Failed to generate Supabase client token:",
-			getErrorMessage(error),
-		);
-		return new Response(
-			JSON.stringify({ error: "Failed to generate Supabase client token" }),
+		console.error("Failed to generate Supabase client token:", getErrorMessage(error));
+		return Response.json(
+			{ error: "Failed to generate Supabase client token" },
 			{
 				status: HTTP_INTERNAL,
 				headers: { "Content-Type": "application/json" },
@@ -147,8 +138,8 @@ app.post("/api/auth/user", async (ctx) => {
 		const rawBody = (await ctx.req.json()) as unknown;
 
 		if (typeof rawBody !== "object" || rawBody === null) {
-			return new Response(
-				JSON.stringify({ error: "Email and password are required" }),
+			return Response.json(
+				{ error: "Email and password are required" },
 				{
 					status: HTTP_BAD_REQUEST,
 					headers: { "Content-Type": "application/json" },
@@ -159,8 +150,8 @@ app.post("/api/auth/user", async (ctx) => {
 		const body = rawBody as { email?: unknown; password?: unknown };
 
 		if (typeof body.email !== "string" || typeof body.password !== "string") {
-			return new Response(
-				JSON.stringify({ error: "Email and password are required" }),
+			return Response.json(
+				{ error: "Email and password are required" },
 				{
 					status: HTTP_BAD_REQUEST,
 					headers: { "Content-Type": "application/json" },
@@ -195,10 +186,13 @@ app.post("/api/auth/user", async (ctx) => {
 		});
 	} catch (error) {
 		console.error("Failed to authenticate user:", getErrorMessage(error));
-		return new Response(JSON.stringify({ error: "Authentication failed" }), {
-			status: HTTP_UNAUTHORIZED,
-			headers: { "Content-Type": "application/json" },
-		});
+		return Response.json(
+			{ error: "Authentication failed" },
+			{
+				status: HTTP_UNAUTHORIZED,
+				headers: { "Content-Type": "application/json" },
+			},
+		);
 	}
 });
 
@@ -209,9 +203,7 @@ app.post(
 );
 
 // File upload endpoint
-app.post("/api/upload", (ctx) =>
-	ctx.json({ message: "Upload endpoint - to be implemented" }),
-);
+app.post("/api/upload", (ctx) => ctx.json({ message: "Upload endpoint - to be implemented" }));
 
 // Current user/session endpoint
 app.get(
@@ -230,17 +222,20 @@ app.post("/api/auth/signout", (ctx) => {
 		const cookieValue = buildClearCookieHeader(ctx, userSessionCookieName);
 		ctx.res.headers.append("Set-Cookie", cookieValue);
 		return ctx.json({ success: true });
-	} catch (err) {
-		console.error("Failed to sign out", getErrorMessage(err));
-		return new Response(JSON.stringify({ error: "failed" }), {
-			status: HTTP_INTERNAL,
-			headers: { "Content-Type": "application/json" },
-		});
+	} catch (error) {
+		console.error("Failed to sign out", getErrorMessage(error));
+		return Response.json(
+			{ error: "failed" },
+			{
+				status: HTTP_INTERNAL,
+				headers: { "Content-Type": "application/json" },
+			},
+		);
 	}
 });
 
 // OAuth sign-in (provider path param) and callback
-app.get(`${apiOauthSignInPath}/:provider`, oauthSignInHandler);
+app.get(`${apiOauthSignInPath}/:provider`, oauthSignInDefault);
 app.get(apiOauthCallbackPath, oauthCallbackHandler);
 
 // Account registration
@@ -250,34 +245,31 @@ app.post("/api/account/delete", handleHttpEndpoint(accountDelete));
 
 // Global error handler: catch any uncaught exceptions in route handlers
 // and log them to Cloudflare Logs so we can diagnose production failures
-app.onError((err, _ctx) => {
+// The onError handler intentionally uses a callback-style handler. Disable
+// specific rules that would force converting this to a different async
+// pattern; the handler must synchronously return a Response (or a Promise)
+// and we prefer an explicit implementation here.
+function handleAppError(err: unknown, _ctx: unknown): Response {
 	try {
 		if (err instanceof Error) {
-			console.error(
-				"[app.onError] Unhandled exception:",
-				err.stack ?? err.message,
-			);
+			console.error("[app.onError] Unhandled exception:", err.stack ?? err.message);
 		} else {
-			console.error(
-				"[app.onError] Unhandled exception (non-Error):",
-				getErrorMessage(err),
-			);
+			console.error("[app.onError] Unhandled exception (non-Error):", getErrorMessage(err));
 		}
-	} catch (logErr) {
-		console.error(
-			"[app.onError] Failed to log error:",
-			getErrorMessage(logErr),
-		);
+	} catch (error) {
+		console.error("[app.onError] Failed to log error:", getErrorMessage(error));
 	}
 
 	// Return a generic 500 response without leaking internals to clients
-	return new Response(
-		JSON.stringify({ success: false, error: "Internal server error" }),
+	return Response.json(
+		{ success: false, error: "Internal server error" },
 		{
 			status: HTTP_INTERNAL,
 			headers: { "Content-Type": "application/json" },
 		},
 	);
-});
+}
+
+app.onError(handleAppError);
 
 export default app;

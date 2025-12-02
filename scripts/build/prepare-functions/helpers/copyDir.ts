@@ -1,10 +1,10 @@
 import { readdir } from "node:fs/promises";
-import * as path from "node:path";
+import path from "node:path";
 
-import { copyFileSafe } from "./copyFileSafe";
-import { ensureDir } from "./ensureDir";
+import copyFileSafe from "./copyFileSafe";
+import ensureDir from "./ensureDir";
 
-export async function copyDir(srcDir: string, destDir: string): Promise<void> {
+export default async function copyDir(srcDir: string, destDir: string): Promise<void> {
 	await ensureDir(destDir);
 	const entries = await readdir(srcDir, { withFileTypes: true });
 	for (const entry of entries) {

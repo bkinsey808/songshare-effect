@@ -3,7 +3,7 @@ import { Effect } from "effect";
 import { ServerError } from "@/api/errors";
 // Env type not required — ReadonlyContext default covers the Bindings type
 import { type ReadonlyContext } from "@/api/hono/hono-context";
-import { createJwt } from "@/api/oauth/createJwt";
+import createJwt from "@/api/oauth/createJwt";
 import { type OauthState } from "@/shared/oauth/oauthState";
 import { type OauthUserData } from "@/shared/oauth/oauthUserData";
 
@@ -22,7 +22,7 @@ type BuildRegisterJwtParams = Readonly<{
  * @param params.oauthState The decoded OAuth state object used during the flow
  * @returns Effect yielding the registration JWT string
  */
-export function buildRegisterJwt({
+export default function buildRegisterJwt({
 	ctx,
 	oauthUserData,
 	oauthState,

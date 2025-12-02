@@ -1,7 +1,9 @@
+import { getSupabaseAuthToken } from "../supabase/getSupabaseAuthToken";
+import { getSupabaseClient } from "../supabase/supabaseClient";
 import { type RemoveFromLibraryRequest } from "./song-library-schema";
 import { type SongLibrarySlice } from "./song-library-slice";
 
-export async function removeSongFromLibrary(
+export default async function removeSongFromLibrary(
 	request: Readonly<RemoveFromLibraryRequest>,
 	get: () => SongLibrarySlice,
 ): Promise<void> {
@@ -16,10 +18,6 @@ export async function removeSongFromLibrary(
 		return;
 	}
 
-	// Import here to avoid circular dependencies
-	const { getSupabaseAuthToken } =
-		await import("@/react/supabase/getSupabaseAuthToken");
-	const { getSupabaseClient } = await import("@/react/supabase/supabaseClient");
 	const userToken = await getSupabaseAuthToken();
 	const client = getSupabaseClient(userToken);
 
@@ -29,10 +27,7 @@ export async function removeSongFromLibrary(
 
 	// Delete the library entry
 	// RLS policies ensure the user can only delete their own entries
-	const { error } = await client
-		.from("song_library")
-		.delete()
-		.eq("song_id", request.song_id);
+	const { error } = await client.from("song_library").delete().eq("song_id", request.song_id);
 
 	if (error) {
 		throw error;

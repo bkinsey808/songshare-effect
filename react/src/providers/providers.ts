@@ -1,9 +1,9 @@
 import { Provider, type ProviderType } from "@/shared/providers";
 import { superSafeGet } from "@/shared/utils/safe";
 
-import { AmazonIcon } from "./AmazonIcon";
-import { GoogleIcon } from "./GoogleIcon";
-import { MicrosoftIcon } from "./MicrosoftIcon";
+import AmazonIcon from "./AmazonIcon";
+import GoogleIcon from "./GoogleIcon";
+import MicrosoftIcon from "./MicrosoftIcon";
 
 type ProviderFrontEndData = {
 	// main bg color
@@ -56,7 +56,7 @@ const providerFrontEndData: Record<ProviderType, ProviderFrontEndData> = {
 	},
 } as const satisfies Record<ProviderType, ProviderFrontEndData>;
 
-export function getFrontEndProviderData<ProviderKey extends ProviderType>(
+export default function getFrontEndProviderData<ProviderKey extends ProviderType>(
 	provider: ProviderKey,
 ): (typeof providerFrontEndData)[ProviderKey] {
 	return superSafeGet(providerFrontEndData, provider);

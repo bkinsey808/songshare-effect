@@ -3,14 +3,14 @@ import { Effect } from "effect";
 
 // Types now live in `api/src/types/user-session.ts`
 import { type DatabaseError, ServerError, ValidationError } from "@/api/errors";
-import { getIpAddress } from "@/api/getIpAddress";
-import { createJwt } from "@/api/oauth/createJwt";
-import { resolveUsername } from "@/api/user/resolveUsername";
+import getIpAddress from "@/api/getIpAddress";
+import createJwt from "@/api/oauth/createJwt";
+import resolveUsername from "@/api/user/resolveUsername";
 import { type ReadonlyOauthState } from "@/shared/oauth/oauthState";
 import { type ReadonlyOauthUserData } from "@/shared/oauth/oauthUserData";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { UserSessionDataSchema as sessionDataSchema } from "@/shared/userSessionData";
-import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
+import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 
 // Env type not required — ReadonlyContext default covers Bindings
 import { type ReadonlyContext } from "../hono/hono-context";

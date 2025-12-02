@@ -2,14 +2,14 @@ import { useRef, useState } from "react";
 
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
-type UseColumnResizeProps = Readonly<{
-	fields: ReadonlyArray<string>;
+export type UseColumnResizeProps = Readonly<{
+	fields: readonly string[];
 	defaultFieldWidth?: number;
 	// w-36 = 144px
 	slideNameWidth?: number;
 }>;
 
-type UseColumnResizeReturn = Readonly<
+export type UseColumnResizeReturn = Readonly<
 	ReadonlyDeep<{
 		getColumnWidth: (field: Readonly<string>) => number;
 		isResizing: boolean;
@@ -28,8 +28,7 @@ export function useColumnResize({
 	const DEFAULT_SLIDE_NAME_WIDTH_VALUE = 144;
 	const MIN_COLUMN_WIDTH = 80;
 	const DEFAULT_FIELD_WIDTH = defaultFieldWidth ?? DEFAULT_FIELD_WIDTH_VALUE;
-	const DEFAULT_SLIDE_NAME_WIDTH =
-		slideNameWidth ?? DEFAULT_SLIDE_NAME_WIDTH_VALUE;
+	const DEFAULT_SLIDE_NAME_WIDTH = slideNameWidth ?? DEFAULT_SLIDE_NAME_WIDTH_VALUE;
 	// Use Map for safer key handling
 	const [columnWidths, setColumnWidths] = useState<Map<string, number>>(() => {
 		const widthsMap = new Map<string, number>();
@@ -80,7 +79,7 @@ export function useColumnResize({
 		document.addEventListener("mousemove", handleMouseMove);
 		document.addEventListener("mouseup", handleMouseUp);
 
-		cleanup.current = () => {
+		cleanup.current = (): void => {
 			document.removeEventListener("mousemove", handleMouseMove);
 			document.removeEventListener("mouseup", handleMouseUp);
 		};
@@ -93,8 +92,7 @@ export function useColumnResize({
 
 	// Calculate total width including slide name column
 	const totalWidth =
-		DEFAULT_SLIDE_NAME_WIDTH +
-		Array.from(columnWidths.values()).reduce((sum, width) => sum + width, ZERO);
+		DEFAULT_SLIDE_NAME_WIDTH + [...columnWidths.values()].reduce((sum, width) => sum + width, ZERO);
 
 	return {
 		getColumnWidth,
@@ -103,3 +101,6 @@ export function useColumnResize({
 		totalWidth,
 	};
 }
+
+// Keep default export for backwards compatibility
+export default useColumnResize;

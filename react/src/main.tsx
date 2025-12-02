@@ -1,4 +1,5 @@
 import { StrictMode } from "react";
+/* eslint-disable import/no-unassigned-import */
 import { createRoot } from "react-dom/client";
 
 import App from "@/react/App";
@@ -18,10 +19,7 @@ initCacheManagement();
 // "1" or "true" to keep the original console.debug/timeStamp behavior.
 if (
 	import.meta.env.DEV &&
-	!(
-		import.meta.env["VITE_CLIENT_DEBUG"] === "1" ||
-		import.meta.env["VITE_CLIENT_DEBUG"] === "true"
-	)
+	!(import.meta.env["VITE_CLIENT_DEBUG"] === "1" || import.meta.env["VITE_CLIENT_DEBUG"] === "true")
 ) {
 	// dynamically import a small module that silences debug/timeStamp.
 	// Keep the actual console mutations in a dedicated file so we can
@@ -29,8 +27,8 @@ if (
 	void import("./quiet-client");
 }
 
-const rootElement = document.getElementById("root");
-if (!rootElement) {
+const rootElement = document.querySelector("#root");
+if (!(rootElement instanceof HTMLElement)) {
 	throw new Error("Root element not found");
 }
 

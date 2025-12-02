@@ -1,14 +1,8 @@
 import { type NavigateFunction } from "react-router-dom";
 
-import { ensureSignedIn } from "@/react/auth/ensureSignedIn";
-import {
-	SIGNIN_RETRY_DELAYS_MS,
-	SIGNIN_DEFAULT_DELAY_MS,
-} from "@/shared/constants/http";
-import {
-	justSignedInQueryParam,
-	signinErrorQueryParam,
-} from "@/shared/queryParams";
+import ensureSignedIn from "@/react/auth/ensureSignedIn";
+import { SIGNIN_RETRY_DELAYS_MS, SIGNIN_DEFAULT_DELAY_MS } from "@/shared/constants/http";
+import { justSignedInQueryParam, signinErrorQueryParam } from "@/shared/queryParams";
 import { SigninErrorToken } from "@/shared/signinTokens";
 import { retryWithBackoff } from "@/shared/utils/retryWithBackoff";
 
@@ -59,10 +53,7 @@ export default async function handleJustSignedIn({
 				"name" in err &&
 				(err as { name?: unknown }).name === "AbortError",
 			onError: (err, attempt) => {
-				console.error(
-					`[ProtectedLayout] ensureSignedIn attempt ${attempt} failed`,
-					err,
-				);
+				console.error(`[ProtectedLayout] ensureSignedIn attempt ${attempt} failed`, err);
 			},
 			defaultDelayMs: SIGNIN_DEFAULT_DELAY_MS,
 		},
@@ -70,7 +61,7 @@ export default async function handleJustSignedIn({
 
 	if (succeeded) {
 		try {
-			if (typeof window !== "undefined") {
+			if (typeof globalThis !== "undefined") {
 				sessionStorage.setItem(justSignedInQueryParam, "1");
 				console.warn("[ProtectedLayout] wrote sessionStorage justSignedIn=1");
 			}
@@ -78,19 +69,13 @@ export default async function handleJustSignedIn({
 			// ignore storage errors
 		}
 	} else if (!aborted) {
-		console.error(
-			`[ProtectedLayout] ensureSignedIn ultimately failed`,
-			lastError,
-		);
+		console.error(`[ProtectedLayout] ensureSignedIn ultimately failed`, lastError);
 		next.set(signinErrorQueryParam, SigninErrorToken.serverError);
 	}
 
 	// Cleanup the query param and navigate.
 	setSearchParams(next, { replace: true });
-	void navigate(
-		window.location.pathname + (next.toString() ? `?${next.toString()}` : ""),
-		{
-			replace: true,
-		},
-	);
+	void navigate(globalThis.location.pathname + (next.toString() ? `?${next.toString()}` : ""), {
+		replace: true,
+	});
 }

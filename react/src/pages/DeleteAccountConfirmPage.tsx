@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import { getCookie } from "@/react/utils/cookie";
+import getCookie from "@/react/utils/cookie";
 import { getStoreApi } from "@/react/zustand/useAppStore";
 import {
 	JUST_DELETED_ACCOUNT_SIGNAL,
@@ -19,11 +19,9 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | undefined>(undefined);
 
-	const pathname =
-		typeof window === "undefined" ? "/" : window.location.pathname;
-	const maybeLang =
-		pathname.split("/")[LANG_PATH_SEGMENT_INDEX] ?? EMPTY_STRING;
-	const currentLang = maybeLang ? maybeLang : SupportedLanguage.en;
+	const pathname = typeof globalThis === "undefined" ? "/" : globalThis.location.pathname;
+	const maybeLang = pathname.split("/")[LANG_PATH_SEGMENT_INDEX] ?? EMPTY_STRING;
+	const currentLang = maybeLang || SupportedLanguage.en;
 
 	function onCancel(): void {
 		void navigate(`/${currentLang}/${dashboardPath}`, { replace: true });
@@ -55,8 +53,8 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 			}
 
 			res = await fetch(apiAccountDeletePath, init);
-		} catch (err) {
-			setError(String(err));
+		} catch (error) {
+			setError(String(error));
 			setLoading(false);
 			return;
 		}
@@ -87,10 +85,7 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 		// Set a flag in sessionStorage to indicate account was just deleted.
 		// Home will read this and display the one-time alert.
 		try {
-			sessionStorage.setItem(
-				justDeletedAccountKey,
-				JUST_DELETED_ACCOUNT_SIGNAL,
-			);
+			sessionStorage.setItem(justDeletedAccountKey, JUST_DELETED_ACCOUNT_SIGNAL);
 		} catch {
 			// ignore sessionStorage errors
 		}

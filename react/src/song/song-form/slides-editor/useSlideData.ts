@@ -4,15 +4,11 @@
 import { safeGet } from "@/shared/utils/safe";
 
 import { type Slide } from "../songTypes";
-import {
-	getDuplicateSlideName,
-	getNextSlideName,
-	randomId,
-} from "./slideUtils";
+import { getDuplicateSlideName, getNextSlideName, randomId } from "./slideUtils";
 
 type UseSlideDataParams = Readonly<{
-	slideOrder: ReadonlyArray<string>;
-	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+	slideOrder: readonly string[];
+	setSlideOrder: (newOrder: readonly string[]) => void;
 	slides: Readonly<Record<string, Slide>>;
 	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 }>;
@@ -23,7 +19,7 @@ type UseSlideDataReturn = {
 	duplicateSlide: (slideId: string) => void;
 };
 
-export function useSlideData({
+export default function useSlideData({
 	slideOrder,
 	setSlideOrder,
 	slides,
@@ -65,10 +61,7 @@ export function useSlideData({
 		);
 
 		const newId = randomId();
-		const newSlideName = getDuplicateSlideName(
-			originalSlide.slide_name,
-			slides,
-		);
+		const newSlideName = getDuplicateSlideName(originalSlide.slide_name, slides);
 
 		console.warn("Generated new slide name:", newSlideName);
 
@@ -94,9 +87,7 @@ export function useSlideData({
 			return;
 		}
 		const newOrder = slideOrder.filter((id) => id !== slideId);
-		const newSlides = Object.fromEntries(
-			Object.entries(slides).filter(([id]) => id !== slideId),
-		);
+		const newSlides = Object.fromEntries(Object.entries(slides).filter(([id]) => id !== slideId));
 		setSlideOrder(newOrder);
 		setSlides(newSlides);
 	}

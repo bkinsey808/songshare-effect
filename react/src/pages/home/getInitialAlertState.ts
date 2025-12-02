@@ -11,10 +11,8 @@ export default function getInitialAlertState(): AlertState {
 		const alreadyDisplayed = sessionStorage.getItem(displayedKey);
 		if (alreadyDisplayed === "1") {
 			const storedType = sessionStorage.getItem(typeKey);
-			if (storedType !== null) {
-				if (storedType !== "") {
-					return { visible: true, type: storedType };
-				}
+			if (storedType !== null && storedType !== "") {
+				return { visible: true, type: storedType };
 			}
 			return { visible: false, type: "" };
 		}
@@ -39,10 +37,7 @@ export default function getInitialAlertState(): AlertState {
 		}
 	} catch (error) {
 		// swallow storage errors and default to no alert
-		console.error(
-			"Error reading sessionStorage in getInitialAlertState:",
-			error,
-		);
+		console.error("Error reading sessionStorage in getInitialAlertState:", error);
 	}
 
 	return { visible: false, type: "" };

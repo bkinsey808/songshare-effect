@@ -1,36 +1,28 @@
-// src/features/song/schema.ts
 import { Schema } from "effect";
-
-// Define our own message key for song validation
-export const songMessageKey: unique symbol = Symbol.for(
-	"@songshare/song-message-key",
-);
-
-export const songFields = ["lyrics", "script", "enTranslation"] as const;
-
-export const songFieldSchema: Schema.Literal<typeof songFields> =
-	Schema.Literal(...songFields);
-export const songFieldsSchema: Schema.Array$<
-	Schema.Literal<typeof songFields>
-> = Schema.Array(songFieldSchema);
+/* eslint-disable import/exports-last, unicorn/no-array-method-this-argument */
 
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 100;
 
+// Our message key used in Schema.annotations for i18n-friendly messages
+export const songMessageKey: unique symbol = Symbol.for("@songshare/song-message-key");
+
+export const songFields = ["lyrics", "script", "enTranslation"] as const;
+
+export const songFieldSchema: Schema.Literal<typeof songFields> = Schema.Literal(...songFields);
+export const songFieldsSchema: Schema.Array$<Schema.Literal<typeof songFields>> =
+	Schema.Array(songFieldSchema);
+
 export const songNameSchema: Schema.Schema<string> = Schema.String.pipe(
+	// eslint-disable-next-line unicorn/no-array-method-this-argument
 	Schema.filter((value) => value.trim() === value, {
 		message: () => "song.validation.noLeadingTrailingSpaces",
 	}),
-	Schema.annotations({
-		[songMessageKey]: { key: "song.validation.noLeadingTrailingSpaces" },
+	Schema.annotations({ [songMessageKey]: { key: "song.validation.noLeadingTrailingSpaces" } }),
+	// eslint-disable-next-line unicorn/no-array-method-this-argument
+	Schema.filter((value) => value.length >= NAME_MIN_LENGTH && value.length <= NAME_MAX_LENGTH, {
+		message: () => "song.validation.nameLength",
 	}),
-	Schema.filter(
-		(value) =>
-			value.length >= NAME_MIN_LENGTH && value.length <= NAME_MAX_LENGTH,
-		{
-			message: () => "song.validation.nameLength",
-		},
-	),
 	Schema.annotations({
 		[songMessageKey]: {
 			key: "song.validation.nameLength",
@@ -38,68 +30,47 @@ export const songNameSchema: Schema.Schema<string> = Schema.String.pipe(
 			maxLength: NAME_MAX_LENGTH,
 		},
 	}),
+	// eslint-disable-next-line unicorn/no-array-method-this-argument
 	Schema.filter((value) => !/\s{2}/.test(value), {
 		message: () => "song.validation.noConsecutiveSpaces",
 	}),
-	Schema.annotations({
-		[songMessageKey]: { key: "song.validation.noConsecutiveSpaces" },
-	}),
+	Schema.annotations({ [songMessageKey]: { key: "song.validation.noConsecutiveSpaces" } }),
 );
 
 export const songSlugSchema: Schema.Schema<string> = Schema.String.pipe(
+	// eslint-disable-next-line unicorn/no-array-method-this-argument
 	Schema.filter(
 		(value) => {
-			// only lowercase letters, numbers, and dashes
 			if (!/^[a-z0-9-]+$/.test(value)) {
 				return false;
-			}
-
-			// cannot start or end with dash
+			} // only lowercase letters, numbers and dashes
 			if (value.startsWith("-") || value.endsWith("-")) {
 				return false;
-			}
-
-			// no consecutive dashes
+			} // cannot start/end with dash
 			if (value.includes("--")) {
 				return false;
-			}
-
+			} // no consecutive dashes
 			return true;
 		},
-		{
-			message: () => "song.validation.invalidSlugFormat",
-		},
+		{ message: () => "song.validation.invalidSlugFormat" },
 	),
-	Schema.annotations({
-		[songMessageKey]: { key: "song.validation.invalidSlugFormat" },
-	}),
+	Schema.annotations({ [songMessageKey]: { key: "song.validation.invalidSlugFormat" } }),
 );
 
-export const slidesOrderSchema: Schema.Array$<typeof Schema.String> =
-	Schema.Array(Schema.String);
+export const slidesOrderSchema: Schema.Array$<typeof Schema.String> = Schema.Array(Schema.String);
 
-// Define slide structure first
+// Define slide structure
 export const slideSchema: Schema.Struct<{
 	slide_name: typeof Schema.String;
-	field_data: Schema.Record$<
-		Schema.Literal<typeof songFields>,
-		typeof Schema.String
-	>;
+	field_data: Schema.Record$<Schema.Literal<typeof songFields>, typeof Schema.String>;
 }> = Schema.Struct({
 	slide_name: Schema.String,
-	field_data: Schema.Record({
-		key: songFieldSchema,
-		value: Schema.String,
-	}),
+	field_data: Schema.Record({ key: songFieldSchema, value: Schema.String }),
 });
 
-export const slidesSchema: Schema.Record$<
-	typeof Schema.String,
-	typeof slideSchema
-> = Schema.Record({
-	key: Schema.String,
-	value: slideSchema,
-});
+export const slidesSchema: Schema.Record$<typeof Schema.String, typeof slideSchema> = Schema.Record(
+	{ key: Schema.String, value: slideSchema },
+);
 
 export type Slide = Schema.Schema.Type<typeof slideSchema>;
 
@@ -135,44 +106,42 @@ const baseSongPublicSchema: Schema.Struct<{
 	updated_at: Schema.String,
 });
 
-export const songPublicSchema: Schema.Schema<
-	Schema.Schema.Type<typeof baseSongPublicSchema>
-> = baseSongPublicSchema.pipe(
-	// Rule 1: all slide keys must be included in slideOrder
-	Schema.filter(
-		(input: Schema.Schema.Type<typeof baseSongPublicSchema>) => {
-			const slideKeys = Object.keys(input.slides);
-			return slideKeys.every((key) => Boolean(input.slide_order.includes(key)));
-		},
-		{
-			message: () => "song.validation.slideKeysInOrder",
-		},
-	),
-	Schema.annotations({
-		[songMessageKey]: { key: "song.validation.slideKeysInOrder" },
-	}),
+export const songPublicSchema: Schema.Schema<Schema.Schema.Type<typeof baseSongPublicSchema>> =
+	baseSongPublicSchema.pipe(
+		// Rule 1: all slide keys must be included in slideOrder
+		// eslint-disable-next-line unicorn/no-array-method-this-argument
+		Schema.filter(
+			(input: Schema.Schema.Type<typeof baseSongPublicSchema>) => {
+				const slideKeys = Object.keys(input.slides);
+				return slideKeys.every((key) => Boolean(input.slide_order.includes(key)));
+			},
+			{
+				message: () => "song.validation.slideKeysInOrder",
+			},
+		),
+		Schema.annotations({
+			[songMessageKey]: { key: "song.validation.slideKeysInOrder" },
+		}),
 
-	// Rule 2: all field_data keys must exist in fields
-	Schema.filter(
-		(input: Schema.Schema.Type<typeof baseSongPublicSchema>) => {
-			// Normalize allowed field names to `string` so we can safely
-			// compare against dynamic object keys without unsafe assertions.
-			const allowedFields = new Set<string>(input.fields.map(String));
-			return Object.values(input.slides).every(
-				(slide: Schema.Schema.Type<typeof slideSchema>) =>
-					Object.keys(slide.field_data).every((field) =>
-						allowedFields.has(field),
-					),
-			);
-		},
-		{
-			message: () => "song.validation.fieldDataInFields",
-		},
-	),
-	Schema.annotations({
-		[songMessageKey]: { key: "song.validation.fieldDataInFields" },
-	}),
-);
+		// Rule 2: all field_data keys must exist in fields
+		// eslint-disable-next-line unicorn/no-array-method-this-argument
+		Schema.filter(
+			(input: Schema.Schema.Type<typeof baseSongPublicSchema>) => {
+				// Normalize allowed field names to `string` so we can safely
+				// compare against dynamic object keys without unsafe assertions.
+				const allowedFields = new Set<string>(input.fields.map(String));
+				return Object.values(input.slides).every((slide: Schema.Schema.Type<typeof slideSchema>) =>
+					Object.keys(slide.field_data).every((field) => allowedFields.has(field)),
+				);
+			},
+			{
+				message: () => "song.validation.fieldDataInFields",
+			},
+		),
+		Schema.annotations({
+			[songMessageKey]: { key: "song.validation.fieldDataInFields" },
+		}),
+	);
 export type SongPublic = Schema.Schema.Type<typeof songPublicSchema>;
 
 export const songSchema: Schema.Struct<{

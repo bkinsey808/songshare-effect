@@ -1,20 +1,15 @@
 import { type Schema, Effect } from "effect";
 
 import { DatabaseError } from "@/api/errors";
-import { getErrorMessage } from "@/api/getErrorMessage";
+import getErrorMessage from "@/api/getErrorMessage";
 import { debug as serverDebug } from "@/api/logger";
-import { normalizeNullsTopLevel } from "@/api/oauth/normalizeNullsTopLevel";
-import { normalizeLinkedProviders } from "@/api/provider/normalizeLinkedProviders";
-import { parseMaybeSingle } from "@/api/supabase/parseMaybeSingle";
+import normalizeNullsTopLevel from "@/api/oauth/normalizeNullsTopLevel";
+import normalizeLinkedProviders from "@/api/provider/normalizeLinkedProviders";
+import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
 import { type ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
-import { decodeUnknownSyncOrThrow } from "@/shared/validation/decodeUnknownSyncOrThrow";
-
-function isRecordStringUnknown(
-	value: unknown,
-): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null;
-}
+import isRecordStringUnknown from "@/shared/utils/isRecordStringUnknown";
+import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 
 // Supabase response shape handled via `parseMaybeSingle`
 
@@ -68,7 +63,7 @@ type GetUserByEmailParams = Readonly<{
  * map them to an HTTP 500. The `PGRST205` PostgREST error is treated as
  * "not found" and does not throw.
  */
-export function getUserByEmail({
+export default function getUserByEmail({
 	supabase,
 	email,
 }: GetUserByEmailParams): Effect.Effect<
@@ -93,14 +88,9 @@ export function getUserByEmail({
 				},
 				unknown
 			>({
-				try: async () =>
-					supabase.from("user").select("*").eq("email", email).maybeSingle(),
+				try: () => supabase.from("user").select("*").eq("email", email).maybeSingle(),
 				catch: (err) => err,
-			}).pipe(
-				Effect.mapError(
-					(err) => new DatabaseError({ message: getErrorMessage(err) }),
-				),
-			),
+			}).pipe(Effect.mapError((err) => new DatabaseError({ message: getErrorMessage(err) }))),
 		);
 
 		const res = parseMaybeSingle(rawRes);
@@ -117,22 +107,21 @@ export function getUserByEmail({
 		try {
 			yield* $(
 				Effect.sync(() => {
-					function computeErrInfo(maybeErr: unknown) {
+					function computeErrInfo(
+						maybeErr: unknown,
+					): { code: string | undefined; message: string | undefined } | undefined {
 						if (maybeErr === null || maybeErr === undefined) {
 							return undefined;
 						}
 						if (isRecordStringUnknown(maybeErr)) {
-							const code =
-								typeof maybeErr["code"] === "string"
-									? maybeErr["code"]
-									: undefined;
+							const code = typeof maybeErr["code"] === "string" ? maybeErr["code"] : undefined;
 							const message =
 								typeof maybeErr["message"] === "string"
 									? maybeErr["message"]
 									: getErrorMessage(maybeErr["message"]);
 							return { code, message };
 						}
-						return { message: getErrorMessage(maybeErr) };
+						return { code: undefined, message: getErrorMessage(maybeErr) };
 					}
 
 					const errInfo = computeErrInfo(res.error);
@@ -144,14 +133,14 @@ export function getUserByEmail({
 					});
 				}),
 			);
-		} catch (err) {
+		} catch (error) {
 			// don't fail the effect because logging failed
 			yield* $(
 				Effect.sync(() => {
 					// Localized: debug-only server-side log
 					serverDebug(
 						"[getUserByEmail] Failed to stringify Supabase response",
-						getErrorMessage(err),
+						getErrorMessage(error),
 					);
 				}),
 			);
@@ -161,21 +150,18 @@ export function getUserByEmail({
 		if (res.error !== undefined && res.error !== null) {
 			try {
 				const maybeErr = res.error;
-				if (isRecordStringUnknown(maybeErr)) {
-					if (
-						typeof maybeErr["code"] === "string" &&
-						maybeErr["code"] === "PGRST205"
-					) {
-						return undefined;
-					}
+				if (
+					isRecordStringUnknown(maybeErr) &&
+					typeof maybeErr["code"] === "string" &&
+					maybeErr["code"] === "PGRST205"
+				) {
+					return undefined;
 				}
 			} catch {
 				// fall through to throw below
 			}
 			// Map to DatabaseError
-			return yield* $(
-				Effect.fail(new DatabaseError({ message: getErrorMessage(res.error) })),
-			);
+			return yield* $(Effect.fail(new DatabaseError({ message: getErrorMessage(res.error) })));
 		}
 
 		if (res.data === undefined || res.data === null) {
@@ -190,21 +176,23 @@ export function getUserByEmail({
 		// return a DatabaseError on any validation problem while avoiding
 		// uninitialized declarations.
 		try {
-			const validatedLocal: Schema.Schema.Type<typeof UserSchema> =
-				decodeUnknownSyncOrThrow(UserSchema, sanitized);
+			const validatedLocal: Schema.Schema.Type<typeof UserSchema> = decodeUnknownSyncOrThrow(
+				UserSchema,
+				sanitized,
+			);
 
 			// Normalize linked_providers at runtime; failures fall back to [] and
 			// are logged for debugging.
 			let normalizedProviders: string[] = [];
 			try {
 				normalizedProviders = normalizeLinkedProviders(validatedLocal);
-			} catch (err) {
+			} catch (error) {
 				yield* $(
 					Effect.sync(() => {
 						// Localized: debug-only server-side log
 						serverDebug(
 							"[getUserByEmail] Failed to normalize linked_providers at runtime:",
-							getErrorMessage(err),
+							getErrorMessage(error),
 						);
 					}),
 				);
@@ -212,17 +200,16 @@ export function getUserByEmail({
 			}
 
 			// Merge the runtime-normalized providers onto the validated user
-			// and validate the merged result before returning.
-			const merged = {
-				...validatedLocal,
-				linked_providers: normalizedProviders,
-			};
-			const finalUserLocal = decodeUnknownSyncOrThrow(UserSchema, merged);
+			// into a fresh, typed record and validate the merged result before returning.
+			const mergedRecord: Record<string, unknown> = {};
+			for (const key of Object.keys(validatedLocal as Record<string, unknown>)) {
+				mergedRecord[key] = (validatedLocal as Record<string, unknown>)[key];
+			}
+			mergedRecord.linked_providers = normalizedProviders;
+			const finalUserLocal = decodeUnknownSyncOrThrow(UserSchema, mergedRecord as unknown);
 			return finalUserLocal;
-		} catch (err) {
-			return yield* $(
-				Effect.fail(new DatabaseError({ message: getErrorMessage(err) })),
-			);
+		} catch (error) {
+			return yield* $(Effect.fail(new DatabaseError({ message: getErrorMessage(error) })));
 		}
 	});
 }

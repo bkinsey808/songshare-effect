@@ -8,9 +8,7 @@ import { isRecord } from "@/shared/utils/typeGuards";
 try {
 	// Narrow globalThis before mutating it (avoid unsafe casts)
 	const globalObj: unknown = globalThis;
-	if (!isRecord(globalObj)) {
-		// Not an object-shaped global object — bail early
-	} else {
+	if (isRecord(globalObj)) {
 		// Save original console.debug if present
 		if (typeof console.debug === "function") {
 			// Save the original debug function on the global object so it can be restored by dev tooling
@@ -22,7 +20,7 @@ try {
 		if (typeof console.debug === "function") {
 			// Replace debug with a no-op so dev logs don't spam during demos
 
-			console.debug = () => {
+			console.debug = (): void => {
 				/* no-op */
 			};
 		}
@@ -31,13 +29,15 @@ try {
 		// Use Reflect to access potentially non-standard console APIs without unsafe assertions
 		const maybeTimeStamp = Reflect.get(console, "timeStamp") as unknown;
 		if (typeof maybeTimeStamp === "function") {
-			Reflect.set(console, "timeStamp", () => {
+			Reflect.set(console, "timeStamp", (): void => {
 				/* no-op */
 			});
 		}
+	} else {
+		// Not an object-shaped global object — bail early
 	}
 } catch {
 	// ignore errors during bootstrap
 }
 
-export {};
+// Module contains runtime-only side effects; no exports required

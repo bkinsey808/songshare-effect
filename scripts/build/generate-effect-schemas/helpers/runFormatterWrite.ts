@@ -1,11 +1,11 @@
-import { execFileSync } from "child_process";
+import { execFileSync } from "node:child_process";
 
-import { warn as sWarn } from "../../../utils/scriptLogger";
+import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 
-export function runPrettierWrite(
+export default function runFormatterWrite(
 	params: Readonly<{
 		projectRoot: string;
-		files: ReadonlyArray<string>;
+		files: readonly string[];
 		cliPath: string;
 	}>,
 ): void {
@@ -14,7 +14,6 @@ export function runPrettierWrite(
 		return;
 	}
 
-	sWarn("🔧 Running Prettier on generated files...");
 	try {
 		execFileSync(params.cliPath, ["--write", ...params.files], {
 			cwd: params.projectRoot,

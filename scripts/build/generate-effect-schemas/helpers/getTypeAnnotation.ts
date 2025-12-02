@@ -1,4 +1,4 @@
-export function getTypeAnnotation(effectType: string): string {
+export default function getTypeAnnotation(effectType: string): string {
 	const END_INDEX_OFFSET = 1; // skip trailing closing parenthesis
 	const ARRAY_PREFIX_LENGTH = "Schema.Array(".length;
 	const OPTIONAL_PREFIX_LENGTH = "Schema.optional(".length;

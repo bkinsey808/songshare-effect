@@ -1,4 +1,6 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
+import computeEnvValue from "./computeEnvValue";
+
 
 /**
  * Loads environment variables from an .env file into a plain object.
@@ -7,7 +9,7 @@ import { readFileSync } from "fs";
  * @param envFilePath - Absolute path to the environment file to parse.
  * @returns Key-value pairs representing the parsed environment variables.
  */
-export function loadEnvVariables(envFilePath: string): Record<string, string> {
+export default function loadEnvVariables(envFilePath: string): Record<string, string> {
 	const envEntries = new Map<string, string>();
 	const content = readFileSync(envFilePath, "utf8");
 	const lines = content.split(/\r?\n/);
@@ -15,7 +17,7 @@ export function loadEnvVariables(envFilePath: string): Record<string, string> {
 	const NO_INDEX = -1;
 	const EXPORT_PREFIX = "export ";
 	const EMPTY = "";
-	const SLICE_OFFSET = 1;
+
 
 	for (const rawLine of lines) {
 		const line = rawLine.trim();
@@ -34,22 +36,11 @@ export function loadEnvVariables(envFilePath: string): Record<string, string> {
 				const START_INDEX = 0;
 				const key = normalized.slice(START_INDEX, equalsIndex).trim();
 
-				if (key === EMPTY) {
-					// invalid key — skip
+				if (key === EMPTY || !/^[A-Z0-9_]+$/u.test(key)) {
+					// invalid or malformed key — skip
 				} else {
-					let value = normalized.slice(equalsIndex + SLICE_OFFSET).trim();
-					if (
-						(value.startsWith('"') && value.endsWith('"')) ||
-						(value.startsWith("'") && value.endsWith("'"))
-					) {
-						value = value.slice(SLICE_OFFSET, value.length - SLICE_OFFSET);
-					}
-
-					if (!/^[A-Z0-9_]+$/u.test(key)) {
-						// invalid key characters — skip
-					} else {
-						envEntries.set(key, value);
-					}
+					const value = computeEnvValue(normalized, equalsIndex);
+					envEntries.set(key, value);
 				}
 			}
 		}

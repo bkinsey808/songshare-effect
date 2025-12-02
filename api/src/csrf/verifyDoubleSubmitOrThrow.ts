@@ -7,12 +7,9 @@ import { csrfTokenCookieName } from "@/shared/cookies";
 import { type Env } from "../env";
 import { type ReadonlyContext } from "../hono/hono-context";
 
-export function verifyDoubleSubmitOrThrow(ctx: ReadonlyContext): void {
+export default function verifyDoubleSubmitOrThrow(ctx: ReadonlyContext): void {
 	const headerToken = ctx.req.header("X-CSRF-Token");
-	const cookieToken = getCookie(
-		ctx as Context<{ Bindings: Env }>,
-		csrfTokenCookieName,
-	);
+	const cookieToken = getCookie(ctx as Context<{ Bindings: Env }>, csrfTokenCookieName);
 
 	if (typeof headerToken !== "string" || headerToken === "") {
 		throw new AuthenticationError({ message: "Missing X-CSRF-Token header" });

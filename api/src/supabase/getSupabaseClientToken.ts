@@ -1,13 +1,6 @@
-import { getSupabaseServerClient } from "@/api/supabase/getSupabaseServerClient";
-import {
-	getCachedClientToken,
-	setCachedClientToken,
-} from "@/api/supabase/tokenCache";
-import {
-	MS_PER_SECOND,
-	ONE_HOUR_SECONDS,
-	TOKEN_CACHE_SKEW_SECONDS,
-} from "@/shared/constants/http";
+import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
+import { getCachedClientToken, setCachedClientToken } from "@/api/supabase/tokenCache";
+import { MS_PER_SECOND, ONE_HOUR_SECONDS, TOKEN_CACHE_SKEW_SECONDS } from "@/shared/constants/http";
 
 // This module only needs the Supabase-related env keys. Use a narrow type
 // so callers that don't have platform bindings (BUCKET/ENVIRONMENT) don't
@@ -24,9 +17,7 @@ type SupabaseClientEnv = Readonly<{
  * Will reuse cached token until it expires.
  * On first run, will ensure the visitor user has the `visitor_id` claim.
  */
-export async function getSupabaseClientToken(
-	env: SupabaseClientEnv,
-): Promise<string> {
+export default async function getSupabaseClientToken(env: SupabaseClientEnv): Promise<string> {
 	const now = Math.floor(Date.now() / MS_PER_SECOND);
 
 	// Reuse cached token if still valid
@@ -39,10 +30,7 @@ export async function getSupabaseClientToken(
 		return cached.token;
 	}
 
-	const client = getSupabaseServerClient(
-		env.VITE_SUPABASE_URL,
-		env.SUPABASE_SERVICE_KEY,
-	);
+	const client = getSupabaseServerClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_KEY);
 
 	// --- Sign in the existing visitor user ---
 	const response = await client.auth.signInWithPassword({
@@ -65,20 +53,26 @@ export async function getSupabaseClientToken(
 		data.user.app_metadata?.visitor_id === undefined ||
 		data.user.app_metadata?.visitor_id === null
 	) {
-		console.warn(
-			"Visitor user missing `visitor_id` claim. Updating user metadata...",
-		);
-		const { error: updateError } = await client.auth.admin.updateUserById(
-			data.user.id,
-			{
-				app_metadata: { ...data.user.app_metadata, visitor_id: data.user.id },
-			},
-		);
+		console.warn("Visitor user missing `visitor_id` claim. Updating user metadata...");
+		// Merge existing app metadata into a fresh object in a type-safe way,
+		// then add the `visitor_id` claim. Avoid using `Object.assign({}, ...)`
+		// or object spread to satisfy lint rules and preserve typing.
+		const newAppMetadata: Record<string, unknown> = {};
+		const existingMetadata = data.user.app_metadata;
+		if (typeof existingMetadata === "object" && existingMetadata !== null) {
+			const asRecord = existingMetadata as Record<string, unknown>;
+			for (const key of Object.keys(asRecord)) {
+				newAppMetadata[key] = asRecord[key];
+			}
+		}
+		newAppMetadata.visitor_id = data.user.id;
+
+		const { error: updateError } = await client.auth.admin.updateUserById(data.user.id, {
+			app_metadata: newAppMetadata,
+		});
 
 		if (updateError) {
-			throw new Error(
-				`Failed to update visitor user metadata: ${updateError.message}`,
-			);
+			throw new Error(`Failed to update visitor user metadata: ${updateError.message}`);
 		}
 
 		// --- Sign in again to get a fresh token with the new claim ---
@@ -108,7 +102,7 @@ export async function getSupabaseClientToken(
 		expiry = expiresAtRaw;
 	} else if (typeof expiresAtRaw === "string") {
 		// fallback 1h
-		expiry = parseInt(expiresAtRaw, 10) || now + ONE_HOUR_SECONDS;
+		expiry = Number.parseInt(expiresAtRaw, 10) || now + ONE_HOUR_SECONDS;
 	} else {
 		// fallback 1h
 		expiry = now + ONE_HOUR_SECONDS;

@@ -1,6 +1,6 @@
-/* oxlint-disable sonarjs/no-os-command-from-path */
-import { spawn } from "child_process";
-import path from "path";
+/* oxlint-disable sonarjs/no-os-command-from-path, jest/require-hook, unicorn/no-process-exit */
+import { spawn } from "node:child_process";
+import path from "node:path";
 
 import { warn as sWarn, error as sError } from "./utils/scriptLogger";
 
@@ -15,8 +15,7 @@ const EXIT_TIMEOUT_CODE = 124;
 const EXIT_FAILURE = 1;
 const ZERO = 0;
 
-const rawTimeout =
-	process.env["PLAYWRIGHT_RUN_TIMEOUT"] ?? process.env["RUN_TIMEOUT"];
+const rawTimeout = process.env["PLAYWRIGHT_RUN_TIMEOUT"] ?? process.env["RUN_TIMEOUT"];
 const timeoutSeconds = Number(
 	rawTimeout !== undefined && rawTimeout.length > ZERO
 		? rawTimeout
@@ -28,7 +27,7 @@ const bunScriptPath = path.join("scripts", "playwright-run-and-test.bun.ts");
 const bunArgs = [bunScriptPath, ...process.argv.slice(ARGV_FILE_INDEX)];
 
 // Ensure PLAYWRIGHT_BASE_URL has a sensible default for convenience
-if (!(process.env["PLAYWRIGHT_BASE_URL"] ?? "").length) {
+if ((process.env["PLAYWRIGHT_BASE_URL"] ?? "").length === ZERO) {
 	process.env["PLAYWRIGHT_BASE_URL"] = "https://localhost:5173";
 }
 
@@ -61,8 +60,8 @@ child.on("exit", (code, signal) => {
 	process.exit(code ?? ZERO);
 });
 
-child.on("error", (err) => {
+child.on("error", (error) => {
 	clearTimeout(killTimer);
-	sError("Failed to start Playwright runner:", err);
+	sError("Failed to start Playwright runner:", error);
 	process.exit(EXIT_FAILURE);
 });

@@ -6,9 +6,9 @@ import { useEffect, useRef } from "react";
 export default function useSchedule(): (fn: () => void) => void {
 	const mounted = useRef(true);
 
-	useEffect(() => {
+	useEffect((): (() => void) | void => {
 		mounted.current = true;
-		return () => {
+		return (): void => {
 			mounted.current = false;
 		};
 	}, []);
@@ -24,8 +24,13 @@ export default function useSchedule(): (fn: () => void) => void {
 		if (typeof queueMicrotask === "function") {
 			queueMicrotask(wrapper);
 		} else {
-			// Explicitly ignore the returned promise to satisfy lint rules
-			void Promise.resolve().then(wrapper);
+			// Use an async IIFE and await the already-resolved promise so we don't
+			// use `.then()` while still scheduling a microtask when queueMicrotask
+			// isn't available. The returned promise is intentionally ignored.
+			void (async (): Promise<void> => {
+				await Promise.resolve();
+				wrapper();
+			})();
 		}
 	}
 

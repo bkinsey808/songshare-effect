@@ -1,7 +1,7 @@
-import { buildSetCookieHeader } from "@/api/cookie/buildSetCookieHeader";
+import buildSetCookieHeader from "@/api/cookie/buildSetCookieHeader";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 
-export function buildClearCookieHeader(
+export default function buildClearCookieHeader(
 	ctx: ReadonlyContext,
 	name: string,
 ): string {

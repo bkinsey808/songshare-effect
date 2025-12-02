@@ -1,5 +1,5 @@
 import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
-import { type AppSlice } from "@/react/zustand/useAppStore";
+import { type Get } from "@/react/zustand/slice-utils";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
@@ -33,9 +33,7 @@ function handleSongDeletion(
 	set: (
 		partial:
 			| Partial<ReadonlyDeep<SongSubscribeSlice>>
-			| ((
-					state: ReadonlyDeep<SongSubscribeSlice>,
-			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
+			| ((state: ReadonlyDeep<SongSubscribeSlice>) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
 ): void {
 	set((state) => {
@@ -54,21 +52,40 @@ export default function subscribeToActivePublicSongs(
 	set: (
 		partial:
 			| Partial<ReadonlyDeep<SongSubscribeSlice>>
-			| ((
-					state: ReadonlyDeep<SongSubscribeSlice>,
-			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
+			| ((state: ReadonlyDeep<SongSubscribeSlice>) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
-	get: () => SongSubscribeSlice & AppSlice,
+	get: Get<SongSubscribeSlice>,
 ) {
 	return (): (() => void) | undefined => {
 		let unsubscribeFn: (() => void) | undefined = undefined;
 
-		void getSupabaseClientWithAuth()
-			.then((client) => {
+		// Type guards moved to the enclosing scope to avoid nested function declarations
+		function isSupabaseRealtimeClientLike(value: unknown): value is SupabaseRealtimeClientLike {
+			if (!isRecord(value)) {
+				return false;
+			}
+			const rec = value;
+			return typeof rec["channel"] === "function" && typeof rec["removeChannel"] === "function";
+		}
+
+		function isSongPublic(value: unknown): value is SongPublic {
+			if (!isRecord(value)) {
+				return false;
+			}
+			const rec = value;
+			return (
+				Object.hasOwn(rec, "song_id") &&
+				typeof rec["song_id"] === "string" &&
+				Object.hasOwn(rec, "song_slug") &&
+				typeof rec["song_slug"] === "string"
+			);
+		}
+
+		void (async (): Promise<void> => {
+			try {
+				const client = await getSupabaseClientWithAuth();
 				if (!client) {
-					console.warn(
-						"[subscribeToActivePublicSongs] No Supabase client available",
-					);
+					console.warn("[subscribeToActivePublicSongs] No Supabase client available");
 					return undefined;
 				}
 
@@ -76,52 +93,19 @@ export default function subscribeToActivePublicSongs(
 
 				const NO_ACTIVE_IDS = 0;
 
-				if (
-					!Array.isArray(activePublicSongIds) ||
-					activePublicSongIds.length === NO_ACTIVE_IDS
-				) {
-					console.warn(
-						"[subscribeToActivePublicSongs] No activeSongIds, skipping subscription",
-					);
+				if (!Array.isArray(activePublicSongIds) || activePublicSongIds.length === NO_ACTIVE_IDS) {
+					console.warn("[subscribeToActivePublicSongs] No activeSongIds, skipping subscription");
 					return undefined;
 				}
 
 				const quoted = activePublicSongIds
-					.map((id) => String(id).replace(/'/g, "\\'"))
+					.map((id) => String(id).replaceAll("'", String.raw`\'`))
 					.map((id) => `'${id}'`)
 					.join(",");
 				const filter = `song_id=in.(${quoted})`;
 
-				function isSupabaseRealtimeClientLike(
-					value: unknown,
-				): value is SupabaseRealtimeClientLike {
-					if (!isRecord(value)) {
-						return false;
-					}
-					const rec = value;
-					return (
-						typeof rec["channel"] === "function" &&
-						typeof rec["removeChannel"] === "function"
-					);
-				}
-
-				function isSongPublic(value: unknown): value is SongPublic {
-					if (!isRecord(value)) {
-						return false;
-					}
-					const rec = value;
-					return (
-						Object.hasOwn(rec, "song_id") &&
-						typeof rec["song_id"] === "string" &&
-						Object.hasOwn(rec, "song_slug") &&
-						typeof rec["song_slug"] === "string"
-					);
-				}
-
 				if (!isSupabaseRealtimeClientLike(client)) {
-					console.warn(
-						"[subscribeToActivePublicSongs] Supabase client missing realtime API",
-					);
+					console.warn("[subscribeToActivePublicSongs] Supabase client missing realtime API");
 					return undefined;
 				}
 
@@ -155,39 +139,25 @@ export default function subscribeToActivePublicSongs(
 					);
 
 				channel.subscribe((status: string, err: unknown) => {
-					console.warn(
-						`[subscribeToActivePublicSongs] Channel status: ${status}`,
-						err ?? "",
-					);
+					console.warn(`[subscribeToActivePublicSongs] Channel status: ${status}`, err ?? "");
 					if (String(status) === String(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)) {
-						console.warn(
-							"[subscribeToActivePublicSongs] Successfully subscribed!",
-						);
-					} else if (
-						String(status) === String(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR)
-					) {
+						console.warn("[subscribeToActivePublicSongs] Successfully subscribed!");
+					} else if (String(status) === String(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR)) {
 						console.error("[subscribeToActivePublicSongs] Channel error:", err);
-					} else if (
-						String(status) === String(REALTIME_SUBSCRIBE_STATES.TIMED_OUT)
-					) {
-						console.warn(
-							"[subscribeToActivePublicSongs] Subscription timed out",
-						);
+					} else if (String(status) === String(REALTIME_SUBSCRIBE_STATES.TIMED_OUT)) {
+						console.warn("[subscribeToActivePublicSongs] Subscription timed out");
 					}
 				});
 
-				unsubscribeFn = () => {
+				unsubscribeFn = (): void => {
 					supClient.removeChannel(channel);
 				};
 
 				return undefined;
-			})
-			.catch((error: unknown) => {
-				console.error(
-					"[subscribeToActivePublicSongs] Failed to get Supabase client:",
-					error,
-				);
-			});
+			} catch (error: unknown) {
+				console.error("[subscribeToActivePublicSongs] Failed to get Supabase client:", error);
+			}
+		})();
 
 		return (): void => {
 			if (unsubscribeFn) {

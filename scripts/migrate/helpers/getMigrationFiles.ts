@@ -1,5 +1,5 @@
-import { existsSync, readdirSync } from "fs";
-import { join } from "path";
+import { existsSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 
 import { type MigrationFile } from "./types";
 
@@ -14,7 +14,7 @@ import { type MigrationFile } from "./types";
  * @returns Array of migration metadata objects sorted by timestamp.
  * @throws If the migration directory does not exist.
  */
-export function getMigrationFiles(migrationDir: string): MigrationFile[] {
+export default function getMigrationFiles(migrationDir: string): MigrationFile[] {
 	if (!existsSync(migrationDir)) {
 		throw new Error(`Migration directory not found: ${migrationDir}`);
 	}
@@ -28,16 +28,14 @@ export function getMigrationFiles(migrationDir: string): MigrationFile[] {
 			const timestampMatch = timestampRegex.exec(filename);
 			const [, timestampRaw] = timestampMatch ?? [];
 			const timestamp =
-				typeof timestampRaw === "string" && timestampRaw !== ""
-					? timestampRaw
-					: "00000000000000";
+				typeof timestampRaw === "string" && timestampRaw !== "" ? timestampRaw : "00000000000000";
 			return {
 				path,
 				filename,
 				timestamp,
 			};
 		})
-		.sort((fileA, fileB) => fileA.timestamp.localeCompare(fileB.timestamp));
+		.toSorted((fileA, fileB) => fileA.timestamp.localeCompare(fileB.timestamp));
 
 	return files;
 }

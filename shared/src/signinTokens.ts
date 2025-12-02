@@ -13,12 +13,9 @@ export const SigninErrorToken = {
 	unknown: "unknown",
 } as const;
 
-export type SigninErrorTokenType =
-	(typeof SigninErrorToken)[keyof typeof SigninErrorToken];
+export type SigninErrorTokenType = (typeof SigninErrorToken)[keyof typeof SigninErrorToken];
 
-export function isSigninErrorToken(
-	value: unknown,
-): value is SigninErrorTokenType {
+export function isSigninErrorToken(value: unknown): value is SigninErrorTokenType {
 	return (
 		typeof value === "string" &&
 		// Avoid unsafe type assertions by performing a direct equality

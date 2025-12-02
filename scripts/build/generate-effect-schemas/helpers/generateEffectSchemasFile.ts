@@ -1,11 +1,11 @@
-import { existsSync, mkdirSync, writeFileSync } from "fs";
-import { dirname } from "path";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 
-import { warn as sWarn } from "../../../utils/scriptLogger";
+import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 import { type TableDefinition } from "./generate-effect-schemas-types";
-import { generateEffectSchema } from "./generateEffectSchema";
+import generateEffectSchema from "./generateEffectSchema";
 
-export function generateEffectSchemasFile(
+export default function generateEffectSchemasFile(
 	tables: TableDefinition[],
 	outputPath: string,
 ): void {
@@ -42,12 +42,20 @@ export const NonNegativeNumberSchema: typeof Schema.NonNegative =
 `;
 
 	const START_INDEX = 0;
-	tables.forEach((table, index) => {
-		if (index > START_INDEX) {
-			fileContent += "\n";
+	for (let index = 0; index < tables.length; index++) {
+		const table = tables[index];
+		// Some TypeScript configs enable `noUncheckedIndexedAccess` which makes
+		// `tables[index]` possibly undefined. We guard at runtime instead of
+		// using the non-null assertion operator so the value is safely handled.
+		if (table) {
+			// Defensive: skip any undefined holes (shouldn't occur) rather than
+			// asserting with `!` which you asked to avoid.
+			if (index > START_INDEX) {
+				fileContent += "\n";
+			}
+			fileContent += generateEffectSchema(table);
 		}
-		fileContent += generateEffectSchema(table);
-	});
+	}
 
 	fileContent += `
 // API Response schemas
@@ -109,6 +117,6 @@ export type ApiResponse<T> =
 		mkdirSync(outputDir, { recursive: true });
 	}
 
-	writeFileSync(outputPath, fileContent, "utf-8");
+	writeFileSync(outputPath, fileContent, "utf8");
 	sWarn(`✅ Generated Effect schemas at: ${outputPath}`);
 }

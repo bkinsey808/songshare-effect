@@ -8,7 +8,7 @@ type SongFormFooterProps = Readonly<{
 	onCancel: () => void;
 }>;
 
-export function SongFormFooter({
+export default function SongFormFooter({
 	isSubmitting,
 	isEditing,
 	onSave,
@@ -27,9 +27,7 @@ export function SongFormFooter({
 						className="rounded bg-blue-600 px-6 py-3 text-white transition hover:bg-blue-700 disabled:opacity-50"
 						disabled={isSubmitting}
 					>
-						{isEditing
-							? t("song.updateSong", "Update Song")
-							: t("song.createSong", "Create Song")}
+						{isEditing ? t("song.updateSong", "Update Song") : t("song.createSong", "Create Song")}
 					</button>
 					<button
 						type="button"

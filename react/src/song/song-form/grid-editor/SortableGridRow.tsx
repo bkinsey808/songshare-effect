@@ -33,12 +33,12 @@ type SafeSetGetField = (
 type SortableGridRowProps = Readonly<{
 	slideId: string;
 	slide: Slide;
-	fields: ReadonlyArray<string>;
+	fields: readonly string[];
 	editSlideName: EditSlideName;
 	editFieldValue: EditFieldValue;
 	safeGetField: SafeSetGetField;
-	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
-	slideOrder: ReadonlyArray<string>;
+	setSlideOrder: (newOrder: readonly string[]) => void;
+	slideOrder: readonly string[];
 	duplicateSlide: (slideId: string) => void;
 	deleteSlide: (slideId: string) => void;
 	slides: Readonly<Record<string, Slide>>;
@@ -67,14 +67,7 @@ export default function SortableGridRow({
 	const REMOVE_COUNT = 1;
 	const EMPTY_COUNT = 0;
 	const SINGLE_INSTANCE = 1;
-	const {
-		attributes,
-		listeners,
-		setNodeRef,
-		transform,
-		transition,
-		isDragging,
-	} = useSortable({
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: slideId,
 	});
 
@@ -155,6 +148,7 @@ export default function SortableGridRow({
 							<span className="text-sm">📋</span>
 						</button>
 						<button
+							type="button"
 							className="flex h-8 w-8 items-center justify-center rounded bg-red-600 text-white hover:bg-red-700"
 							onClick={() => {
 								// Remove this instance from slideOrder
@@ -163,22 +157,18 @@ export default function SortableGridRow({
 								setSlideOrder(newSlideOrder);
 
 								// If this was the last instance of this slideId, delete the actual slide
-								const remainingInstances = newSlideOrder.filter(
-									(id) => id === slideId,
-								);
+								const remainingInstances = newSlideOrder.filter((id) => id === slideId);
 								if (remainingInstances.length === EMPTY_COUNT) {
 									deleteSlide(slideId);
 								}
 							}}
 							title={
-								slideOrder.filter((id) => id === slideId).length ===
-								SINGLE_INSTANCE
+								slideOrder.filter((id) => id === slideId).length === SINGLE_INSTANCE
 									? "Delete Slide"
 									: "Remove from Presentation"
 							}
 							aria-label={
-								slideOrder.filter((id) => id === slideId).length ===
-								SINGLE_INSTANCE
+								slideOrder.filter((id) => id === slideId).length === SINGLE_INSTANCE
 									? "Delete Slide"
 									: "Remove from Presentation"
 							}

@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises";
-import * as path from "node:path";
+import path from "node:path";
 
-export async function listFilesRecursively(dir: string): Promise<string[]> {
+export default async function listFilesRecursively(dir: string): Promise<string[]> {
 	const entries = await readdir(dir, { withFileTypes: true });
 	const files: string[] = [];
 	for (const entry of entries) {

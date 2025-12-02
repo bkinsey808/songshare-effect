@@ -1,6 +1,6 @@
 import { getSupabaseAuthToken } from "@/react/supabase/getSupabaseAuthToken";
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
-import { type AppSlice } from "@/react/zustand/useAppStore";
+import { type Get } from "@/react/zustand/slice-utils";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";
 // src/features/react/song-subscribe/subscribeToActiveSongs.ts
@@ -34,14 +34,10 @@ type SupabaseRealtimeClientLike = {
 
 // Helper function to update state after song deletion
 function createDeleteUpdateFunction(deletedPrivateSongId: string) {
-	return (
-		state: ReadonlyDeep<SongSubscribeSlice>,
-	): Partial<ReadonlyDeep<SongSubscribeSlice>> => {
+	return (state: ReadonlyDeep<SongSubscribeSlice>): Partial<ReadonlyDeep<SongSubscribeSlice>> => {
 		// Create new object without the deleted song
 		const newPrivateSongs = Object.fromEntries(
-			Object.entries(state.privateSongs).filter(
-				([songId]) => songId !== deletedPrivateSongId,
-			),
+			Object.entries(state.privateSongs).filter(([songId]) => songId !== deletedPrivateSongId),
 		);
 		const newActiveIds = state.activePrivateSongIds.filter(
 			(songId) => songId !== deletedPrivateSongId,
@@ -57,18 +53,27 @@ export default function subscribeToActivePrivateSongs(
 	set: (
 		partial:
 			| Partial<ReadonlyDeep<SongSubscribeSlice>>
-			| ((
-					state: ReadonlyDeep<SongSubscribeSlice>,
-			  ) => Partial<SongSubscribeSlice>),
+			| ((state: ReadonlyDeep<SongSubscribeSlice>) => Partial<SongSubscribeSlice>),
 	) => void,
-	get: () => SongSubscribeSlice & AppSlice,
+	get: Get<SongSubscribeSlice>,
 ): () => (() => void) | undefined {
 	return (): (() => void) | undefined => {
 		let unsubscribeFn: (() => void) | undefined = undefined;
 
+		// Helper type guard moved to enclosing scope to avoid nested function declarations
+		function isSupabaseRealtimeClientLike(value: unknown): value is SupabaseRealtimeClientLike {
+			if (!isRecord(value)) {
+				return false;
+			}
+			const rec = value;
+			return typeof rec["channel"] === "function" && typeof rec["removeChannel"] === "function";
+		}
+
 		// Get authentication token asynchronously
-		void getSupabaseAuthToken()
-			.then((userToken) => {
+		void (async (): Promise<void> => {
+			try {
+				const userToken = await getSupabaseAuthToken();
+
 				const client = getSupabaseClient(userToken);
 
 				if (client === undefined) {
@@ -80,36 +85,17 @@ export default function subscribeToActivePrivateSongs(
 
 				const NO_ACTIVE_IDS = 0;
 
-				if (
-					!Array.isArray(activePrivateSongIds) ||
-					activePrivateSongIds.length === NO_ACTIVE_IDS
-				) {
-					console.warn(
-						"[subscribeToActivePrivateSongs] No activeSongIds, skipping subscription",
-					);
+				if (!Array.isArray(activePrivateSongIds) || activePrivateSongIds.length === NO_ACTIVE_IDS) {
+					console.warn("[subscribeToActivePrivateSongs] No activeSongIds, skipping subscription");
 					return undefined;
 				}
 
 				const filter = `song_id=in.(${activePrivateSongIds.join(",")})`;
 
 				// Narrow the supabase client to a minimal, well-typed shape we use here.
-				function isSupabaseRealtimeClientLike(
-					value: unknown,
-				): value is SupabaseRealtimeClientLike {
-					if (!isRecord(value)) {
-						return false;
-					}
-					const rec = value;
-					return (
-						typeof rec["channel"] === "function" &&
-						typeof rec["removeChannel"] === "function"
-					);
-				}
 
 				if (!isSupabaseRealtimeClientLike(client)) {
-					console.warn(
-						"[subscribeToActivePrivateSongs] Supabase client missing realtime API",
-					);
+					console.warn("[subscribeToActivePrivateSongs] Supabase client missing realtime API");
 					return undefined;
 				}
 
@@ -126,22 +112,19 @@ export default function subscribeToActivePrivateSongs(
 					(payload: Readonly<SongPrivateRealtimePayload>) => {
 						switch (payload.eventType) {
 							case "INSERT":
-							case "UPDATE":
+							case "UPDATE": {
 								if (payload.new && payload.new.song_id) {
 									addOrUpdatePrivateSongs({
 										[payload.new.song_id]: payload.new,
 									});
 								}
 								break;
+							}
 							case "DELETE": {
 								const deletedPrivateSongId = payload.old?.song_id;
-								if (
-									deletedPrivateSongId !== undefined &&
-									deletedPrivateSongId !== ""
-								) {
+								if (deletedPrivateSongId !== undefined && deletedPrivateSongId !== "") {
 									// Use helper function to reduce nesting
-									const updateFunction =
-										createDeleteUpdateFunction(deletedPrivateSongId);
+									const updateFunction = createDeleteUpdateFunction(deletedPrivateSongId);
 									set(updateFunction);
 								}
 								break;
@@ -154,41 +137,24 @@ export default function subscribeToActivePrivateSongs(
 				// subscribe is separate to keep types explicit
 				channel.subscribe((status: string, err: unknown) => {
 					// Log channel status for debugging
-					console.warn(
-						`[subscribeToActivePrivateSongs] Channel status: ${status}`,
-						err ?? "",
-					);
+					console.warn(`[subscribeToActivePrivateSongs] Channel status: ${status}`, err ?? "");
 					if (String(status) === String(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)) {
-						console.warn(
-							"[subscribeToActivePrivateSongs] Successfully subscribed!",
-						);
-					} else if (
-						String(status) === String(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR)
-					) {
-						console.error(
-							"[subscribeToActivePrivateSongs] Channel error:",
-							err,
-						);
-					} else if (
-						String(status) === String(REALTIME_SUBSCRIBE_STATES.TIMED_OUT)
-					) {
-						console.warn(
-							"[subscribeToActivePrivateSongs] Subscription timed out",
-						);
+						console.warn("[subscribeToActivePrivateSongs] Successfully subscribed!");
+					} else if (String(status) === String(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR)) {
+						console.error("[subscribeToActivePrivateSongs] Channel error:", err);
+					} else if (String(status) === String(REALTIME_SUBSCRIBE_STATES.TIMED_OUT)) {
+						console.warn("[subscribeToActivePrivateSongs] Subscription timed out");
 					}
 				});
 
-				unsubscribeFn = () => {
+				unsubscribeFn = (): void => {
 					supClient.removeChannel(channel);
 				};
 				return undefined;
-			})
-			.catch((error: unknown) => {
-				console.error(
-					"[subscribeToActivePrivateSongs] Failed to get auth token:",
-					error,
-				);
-			});
+			} catch (error: unknown) {
+				console.error("[subscribeToActivePrivateSongs] Failed to get auth token:", error);
+			}
+		})();
 
 		// Return a function that calls the unsubscribe function when available
 		return (): void => {

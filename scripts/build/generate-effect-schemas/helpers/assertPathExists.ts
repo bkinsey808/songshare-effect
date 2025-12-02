@@ -1,13 +1,13 @@
-import { existsSync } from "fs";
+import { existsSync } from "node:fs";
 
-import { error as sError } from "../../../utils/scriptLogger";
+import { error as sError } from "@/scripts/utils/scriptLogger";
 
-export function assertPathExists(
+export default function assertPathExists(
 	params: Readonly<{ path: string; errorMessage: string }>,
 ): void {
 	if (!existsSync(params.path)) {
 		sError(params.errorMessage);
-		const EXIT_FAILURE = 1;
-		process.exit(EXIT_FAILURE);
+		// Throw an error instead of exiting the process so callers can handle failures.
+		throw new Error(params.errorMessage);
 	}
 }

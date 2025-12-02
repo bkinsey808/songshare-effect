@@ -1,6 +1,6 @@
-import { type ReactElement, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
-import { getArrowClasses } from "./getArrowClasses";
+import getArrowClasses from "./getArrowClasses";
 import { type PlacementOption, type TriggerMode } from "./types";
 import { useNativePopover } from "./useNativePopover";
 
@@ -85,14 +85,10 @@ export function NativePopover({
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
 				role={trigger === "hover" ? "tooltip" : "dialog"}
-				aria-labelledby={
-					trigger === "click" ? `${popoverId}-trigger` : undefined
-				}
+				aria-labelledby={trigger === "click" ? `${popoverId}-trigger` : undefined}
 			>
 				{/* Arrow indicator */}
-				<div
-					className={`absolute h-2 w-2 rotate-45 bg-gray-800 ${getArrowClasses(placement)}`}
-				/>
+				<div className={`absolute h-2 w-2 rotate-45 bg-gray-800 ${getArrowClasses(placement)}`} />
 				{content}
 			</div>
 		</div>

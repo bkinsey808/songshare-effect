@@ -11,5 +11,5 @@ export type ValidationResult<TValue> =
 	  }
 	| {
 			readonly success: false;
-			readonly errors: ReadonlyArray<ValidationError>;
+			readonly errors: readonly ValidationError[];
 	  };

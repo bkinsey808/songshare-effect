@@ -19,10 +19,8 @@ export function checkAppVersion(): void {
 	const storedVersion = localStorage.getItem(VERSION_KEY);
 
 	if (storedVersion !== APP_VERSION) {
-		console.warn(
-			`App version changed from ${storedVersion} to ${APP_VERSION}, clearing cache`,
-		);
-		clearAppCache();
+		console.warn(`App version changed from ${storedVersion} to ${APP_VERSION}, clearing cache`);
+		void clearAppCache();
 		localStorage.setItem(VERSION_KEY, APP_VERSION);
 	}
 }
@@ -30,7 +28,7 @@ export function checkAppVersion(): void {
 /**
  * Clear all app-related cache
  */
-export function clearAppCache(): void {
+export async function clearAppCache(): Promise<void> {
 	// Clear localStorage (keep auth tokens if needed)
 	const authTokens = localStorage.getItem("auth_tokens");
 	localStorage.clear();
@@ -42,17 +40,13 @@ export function clearAppCache(): void {
 	sessionStorage.clear();
 
 	// Clear any caches if available
-	if ("caches" in window) {
-		caches
-			.keys()
-			.then(async (cacheNames) => {
-				await Promise.all(
-					cacheNames.map(async (cacheName) => caches.delete(cacheName)),
-				);
-			})
-			.catch((error: unknown) => {
-				console.warn("Failed to clear caches:", error);
-			});
+	if ("caches" in globalThis) {
+		try {
+			const cacheNames = await caches.keys();
+			await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
+		} catch (error: unknown) {
+			console.warn("Failed to clear caches:", error);
+		}
 	}
 }
 
@@ -61,7 +55,7 @@ export function clearAppCache(): void {
  */
 export function hardRefresh(): void {
 	// Use location.reload(true) equivalent
-	window.location.reload();
+	globalThis.location.reload();
 }
 
 /**
@@ -112,18 +106,19 @@ export function initCacheManagement(): void {
 	// Check for updates every UPDATE_CHECK_INTERVAL_MINUTES minutes
 	setInterval(
 		() => {
-			void checkForUpdates()
-				.then((hasUpdate) => {
+			void (async () => {
+				try {
+					const hasUpdate = await checkForUpdates();
 					if (hasUpdate) {
 						console.warn("New version available, consider reloading");
 						// You could show a notification to user here
 					}
 					return hasUpdate;
-				})
-				.catch((error: unknown) => {
+				} catch (error: unknown) {
 					console.warn("Failed to check for updates:", error);
 					return false;
-				});
+				}
+			})();
 		},
 		UPDATE_CHECK_INTERVAL_MINUTES * SECONDS_IN_MINUTE * MS_IN_SECOND,
 	);

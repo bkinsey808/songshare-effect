@@ -4,7 +4,7 @@ import { type FetchOpts } from "@/api/oauth/fetchOpts";
 import { codeQueryParam } from "@/shared/queryParams";
 import { isRecord } from "@/shared/utils/typeGuards";
 
-export function exchangeCodeForToken(opts: FetchOpts): Effect.Effect<
+export default function exchangeCodeForToken(opts: FetchOpts): Effect.Effect<
 	{
 		accessToken: string | undefined;
 		idToken: string | undefined;
@@ -37,11 +37,7 @@ export function exchangeCodeForToken(opts: FetchOpts): Effect.Effect<
 
 			if (!res.ok) {
 				const text = await res.text().catch(() => "<non-text response>");
-				console.error(
-					"[oauthUserData] Token exchange non-OK response:",
-					res.status,
-					text,
-				);
+				console.error("[oauthUserData] Token exchange non-OK response:", res.status, text);
 				throw new Error(`Token exchange failed: ${res.status} ${text}`);
 			}
 
@@ -52,13 +48,9 @@ export function exchangeCodeForToken(opts: FetchOpts): Effect.Effect<
 
 			const asRecord = isRecord(jsonRaw) ? jsonRaw : {};
 			const accessToken =
-				typeof asRecord["access_token"] === "string"
-					? String(asRecord["access_token"])
-					: undefined;
+				typeof asRecord["access_token"] === "string" ? String(asRecord["access_token"]) : undefined;
 			const idToken =
-				typeof asRecord["id_token"] === "string"
-					? String(asRecord["id_token"])
-					: undefined;
+				typeof asRecord["id_token"] === "string" ? String(asRecord["id_token"]) : undefined;
 			return { accessToken, idToken, raw: jsonRaw };
 		},
 		catch: (err) => err,

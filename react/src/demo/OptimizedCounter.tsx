@@ -32,10 +32,7 @@ function OptimizedCounter(): ReactElement {
 			<h2 className="mb-4 text-2xl font-bold">React Compiler Test</h2>
 			<div className="space-y-4">
 				<div>
-					<label
-						htmlFor="name-input"
-						className="mb-2 block text-sm font-medium"
-					>
+					<label htmlFor="name-input" className="mb-2 block text-sm font-medium">
 						Name:
 					</label>
 					<input
@@ -54,6 +51,7 @@ function OptimizedCounter(): ReactElement {
 					<div className="mb-2 block text-sm font-medium">Counter:</div>
 					<div className="flex items-center gap-4">
 						<button
+							type="button"
 							onClick={() => {
 								setCount((currentCount) => currentCount - STEP);
 							}}
@@ -63,6 +61,7 @@ function OptimizedCounter(): ReactElement {
 						</button>
 						<span className="text-2xl font-bold">{count}</span>
 						<button
+							type="button"
 							onClick={() => {
 								setCount((currentCount) => currentCount + STEP);
 							}}
@@ -75,12 +74,11 @@ function OptimizedCounter(): ReactElement {
 
 				<div className="mt-4 rounded-lg bg-blue-500/10 p-4">
 					<p className="text-sm">
-						Hello {name || "Anonymous"}! Computed value:{" "}
-						{computedValue.toLocaleString()}
+						Hello {name || "Anonymous"}! Computed value: {computedValue.toLocaleString()}
 					</p>
 					<p className="mt-2 text-xs text-gray-400">
-						Check the console - React Compiler should prevent unnecessary
-						recalculations when only the name changes (not the counter).
+						Check the console - React Compiler should prevent unnecessary recalculations when only
+						the name changes (not the counter).
 					</p>
 				</div>
 			</div>

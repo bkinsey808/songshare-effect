@@ -4,19 +4,19 @@ import { isRecord, isString } from "@/shared/utils/typeGuards";
 import { type SongPublic } from "../../song-schema";
 
 type FindMissingSongsSlugsParams = Readonly<{
-	songSlugs: ReadonlyArray<string>;
-	activePublicSongIds: ReadonlyArray<string>;
+	songSlugs: readonly string[];
+	activePublicSongIds: readonly string[];
 	publicSongs: Readonly<Record<string, SongPublic>>;
 }>;
 
 /**
  * Finds song slugs that are not already active in the current state.
  */
-export function findMissingSongSlugs({
+export default function findMissingSongSlugs({
 	songSlugs,
 	activePublicSongIds,
 	publicSongs,
-}: FindMissingSongsSlugsParams): ReadonlyArray<string> {
+}: FindMissingSongsSlugsParams): readonly string[] {
 	const activePublicSongSlugs = new Set(
 		activePublicSongIds
 			.map((id) => {

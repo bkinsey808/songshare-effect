@@ -29,7 +29,7 @@ type UseFormSubmissionReturn = {
 	handleCancel: () => void;
 };
 
-export function useFormSubmission({
+export default function useFormSubmission({
 	handleApiResponseEffect,
 	resetFormState,
 }: UseFormSubmissionOptions): UseFormSubmissionReturn {

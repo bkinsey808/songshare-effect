@@ -1,5 +1,5 @@
 // Default allowed origins used when ALLOWED_ORIGINS is not provided.
-export const DEFAULT_DEV_ORIGINS: string[] = [
+const DEFAULT_DEV_ORIGINS: string[] = [
 	"http://localhost:5173",
 	"https://localhost:5173",
 	"http://localhost:5174",
@@ -8,3 +8,5 @@ export const DEFAULT_DEV_ORIGINS: string[] = [
 	"https://localhost:3000",
 	"https://your-pages-domain.pages.dev",
 ];
+
+export default DEFAULT_DEV_ORIGINS;

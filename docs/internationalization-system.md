@@ -85,7 +85,7 @@ import { SUPPORTED_LANGUAGES } from "@/shared/language/supportedLanguages";
 
 export const detectInitialLanguage = (): SupportedLanguage => {
 	// 1. Check URL parameter (highest priority for explicit navigation)
-	const path = window.location.pathname;
+	const path = globalThis.location.pathname;
 	const langMatch = path.match(/^\/([a-z]{2})\//);
 	if (langMatch !== null && langMatch[1] !== undefined && langMatch[1] !== "") {
 		const urlLang = langMatch[1];
@@ -332,7 +332,7 @@ function LanguageAwareLink() {
 ### i18next Configuration (`/react/src/i18n/index.ts`)
 
 ```typescript
-import { detectInitialLanguage } from "../language/detectInitialLanguage";
+import detectInitialLanguage from "../language/detectInitialLanguage";
 
 i18n.use(initReactI18next).init({
 	resources,

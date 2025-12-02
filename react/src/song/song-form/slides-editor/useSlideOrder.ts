@@ -2,12 +2,12 @@
  * Custom hook for managing slide order operations
  */
 
-export function useSlideOrder({
+export default function useSlideOrder({
 	slideOrder,
 	setSlideOrder,
 }: Readonly<{
-	slideOrder: ReadonlyArray<string>;
-	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+	slideOrder: readonly string[];
+	setSlideOrder: (newOrder: readonly string[]) => void;
 }>): {
 	duplicateSlideOrder: (slideId: string) => void;
 	removeSlideOrder: ({

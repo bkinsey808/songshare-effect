@@ -1,5 +1,9 @@
 import { Schema } from "effect";
 
+const MIN_REQUIRED = 1;
+const MIN_USERNAME_LENGTH = 3;
+const MAX_USERNAME_LENGTH = 30;
+
 // Define a unique symbol for custom error annotations
 export const registerMessageKey: unique symbol = Symbol.for("i18nMessage");
 
@@ -11,10 +15,6 @@ export type I18nMessage = {
 export type RegisterForm = {
 	readonly username: string;
 };
-
-const MIN_REQUIRED = 1;
-const MIN_USERNAME_LENGTH = 3;
-const MAX_USERNAME_LENGTH = 30;
 
 export const RegisterFormSchema: Schema.Schema<RegisterForm> = Schema.Struct({
 	username: Schema.String.pipe(
@@ -51,5 +51,6 @@ export const RegisterFormFields = ["username"] as const;
 
 export type RegisterFormField = (typeof RegisterFormFields)[number];
 
-export const RegisterFormFieldSchema: Schema.Schema<RegisterFormField> =
-	Schema.Literal(...RegisterFormFields);
+export const RegisterFormFieldSchema: Schema.Schema<RegisterFormField> = Schema.Literal(
+	...RegisterFormFields,
+);

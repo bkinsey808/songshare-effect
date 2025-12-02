@@ -3,13 +3,36 @@ import { ArrayFormatter, type ArrayFormatterIssue } from "effect/ParseResult";
 
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
-import { extractI18nMessages } from "./extractI18nMessages";
-import { type ValidationError } from "./types";
+import computeParams from "./computeParams";
+import extractI18nMessages from "./extractI18nMessages";
+import { type ValidationError } from "./validate-types";
 
 /**
- * Validate form data using Effect schema - returns an Effect
+ * Extract a shallow params object from a record used for i18n message
+ * interpolation. The input `rec` is expected to contain a reserved `key`
+ * property and zero or more other properties which are treated as params.
+ *
+ * The function returns a new object that contains all properties from
+ * `rec` except the `key` property.
+ *
+ * @param rec - Record that may contain a `key` and additional params.
+ * @returns A plain object with all entries from `rec` except `key`.
  */
-export function validateFormEffect<FormValues>({
+
+/**
+ * Validate form data using an Effect schema and normalize parse errors into
+ * the project's `ValidationError` shape.
+ *
+ * @template FormValues
+ * @param options - Validation options object.
+ * @param options.schema - The Effect `Schema` used to validate `data`.
+ * @param options.data - The unknown input to validate against the schema.
+ * @param options.i18nMessageKey - Symbol or string used to locate i18n messages
+ *   within parse errors produced by Effect.
+ * @returns An `Effect` which fails with an array of `ValidationError` on
+ *   validation errors, or yields the validated `FormValues` on success.
+ */
+export default function validateFormEffect<FormValues>({
 	schema,
 	data,
 	i18nMessageKey,
@@ -42,16 +65,10 @@ export function validateFormEffect<FormValues>({
 					if (isRecord(rawMsg)) {
 						const keyVal = rawMsg["key"];
 						if (isString(keyVal)) {
-							const params: Record<string, unknown> = {};
-							for (const [key, val] of Object.entries(rawMsg)) {
-								if (key !== "key") {
-									params[key] = val;
-								}
-							}
 							return {
 								field: fieldName,
 								message: keyVal,
-								params,
+								params: computeParams(rawMsg),
 							};
 						}
 					}
@@ -66,16 +83,10 @@ export function validateFormEffect<FormValues>({
 								const rec = parsed;
 								const keyVal = rec["key"];
 								if (isString(keyVal)) {
-									const params: Record<string, unknown> = {};
-									for (const [key, val] of Object.entries(rec)) {
-										if (key !== "key") {
-											params[key] = val;
-										}
-									}
 									return {
 										field: err.path.join("."),
 										message: keyVal,
-										params,
+										params: computeParams(rec),
 									};
 								}
 							}
@@ -92,24 +103,16 @@ export function validateFormEffect<FormValues>({
 						const rec = message;
 						const keyVal = rec["key"];
 						if (isString(keyVal)) {
-							const params: Record<string, unknown> = {};
-							for (const [key, val] of Object.entries(rec)) {
-								if (key !== "key") {
-									params[key] = val;
-								}
-							}
 							return {
 								field: err.path.join("."),
 								message: keyVal,
-								params,
+								params: computeParams(rec),
 							};
 						}
 					}
 					// Fallback: ensure message is a string
 					const finalMessage =
-						typeof message === "string"
-							? message
-							: String(message ?? "Unknown validation error");
+						typeof message === "string" ? message : String(message ?? "Unknown validation error");
 					return {
 						field: err.path.join("."),
 						message: finalMessage,

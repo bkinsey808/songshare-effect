@@ -1,10 +1,11 @@
 #!/usr/bin/env bun
-/* oxlint-disable sonarjs/no-os-command-from-path, sonarjs/no-control-regex, no-control-regex */
-import { type ChildProcess, spawn } from "child_process";
-import * as fs from "fs";
-import * as path from "path";
+/* eslint-disable jest/require-hook */
+import { spawn } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 
 import { warn as sWarn, error as sError } from "./utils/scriptLogger";
+import { stripAnsi } from "./utils/stripAnsi";
 
 const LOG_DIR =
 	typeof process.env["LOG_DIR"] === "string" && process.env["LOG_DIR"] !== ""
@@ -21,14 +22,14 @@ try {
 	// Ignore log file creation errors
 }
 
-const dev: ChildProcess = spawn("npm", ["run", "dev"], { shell: true });
+const dev = spawn("npm", ["run", "dev"], { shell: true });
 const clientStream = fs.createWriteStream(CLIENT_LOG, { flags: "a" });
 const apiStream = fs.createWriteStream(API_LOG, { flags: "a" });
 
 let frontendReady = false;
 let apiReady = false;
 let startedPlaywright = false;
-let playwrightProcess: ChildProcess | undefined = undefined;
+let playwrightProcess: ReturnType<typeof spawn> | undefined = undefined;
 
 const startTime = Date.now();
 const DEFAULT_TIMEOUT = 120_000;
@@ -38,13 +39,9 @@ const ARGV_FILE_INDEX = 2;
 const EXIT_NON_ZERO = 1;
 const INTERVAL_MS = 500;
 
-const TIMEOUT = Number(
-	process.env["PLAYWRIGHT_DEV_TIMEOUT"] ?? DEFAULT_TIMEOUT,
-);
+const TIMEOUT = Number(process.env["PLAYWRIGHT_DEV_TIMEOUT"] ?? DEFAULT_TIMEOUT);
 
-function stripAnsi(input: string): string {
-	return input.replace(/\u001b\[[0-9;]*m/g, "");
-}
+// ANSI stripping is handled by `scripts/utils/stripAnsi.ts`
 
 function startPlaywrightIfReady(): void {
 	if (!frontendReady || !apiReady || startedPlaywright) {
@@ -63,9 +60,7 @@ function startPlaywrightIfReady(): void {
 			typeof process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "string" &&
 			process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] !== "";
 		if (skipInstall) {
-			sWarn(
-				"Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1",
-			);
+			sWarn("Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1");
 			return;
 		}
 		try {
@@ -73,6 +68,7 @@ function startPlaywrightIfReady(): void {
 				"Ensuring Playwright browsers are installed. This may take a minute (or longer the first time)...",
 			);
 			// `npx playwright install` is idempotent and will no-op if already installed.
+			// eslint-disable-next-line promise/avoid-new
 			await new Promise<void>((resolve, reject) => {
 				// Avoid installing OS packages when running in CI (GitHub Actions
 				// or other CI environments) — not all distributions are supported
@@ -82,9 +78,7 @@ function startPlaywrightIfReady(): void {
 					(typeof process.env["CI"] === "string" && process.env["CI"] !== "") ||
 					(typeof process.env["GITHUB_ACTIONS"] === "string" &&
 						process.env["GITHUB_ACTIONS"] !== "");
-				const args = isCI
-					? ["playwright", "install"]
-					: ["playwright", "install", "--with-deps"];
+				const args = isCI ? ["playwright", "install"] : ["playwright", "install", "--with-deps"];
 				const installer = spawn("npx", args, {
 					shell: true,
 					stdio: "inherit",
@@ -101,8 +95,8 @@ function startPlaywrightIfReady(): void {
 					reject(err);
 				});
 			});
-		} catch (err) {
-			sError("Playwright browser install failed:", err);
+		} catch (error) {
+			sError("Playwright browser install failed:", error);
 			sError(
 				"Run `npx playwright install` manually to download browsers or set PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 to opt out.",
 			);
@@ -111,7 +105,7 @@ function startPlaywrightIfReady(): void {
 	}
 
 	const args = ["playwright", "test", ...process.argv.slice(ARGV_FILE_INDEX)];
-	void (async () => {
+	void (async (): Promise<void> => {
 		await installBrowsers();
 		const proc = spawn("npx", args, {
 			shell: true,
@@ -128,7 +122,7 @@ function startPlaywrightIfReady(): void {
 			} catch {
 				// Ignore kill errors
 			}
-			let exitCode: number = 0;
+			let exitCode = 0;
 			if (code === null) {
 				exitCode = signal ? ONE : ZERO;
 			} else {
@@ -147,9 +141,7 @@ function handleLine(raw: string): void {
 
 	if (
 		!frontendReady &&
-		/(Local:.*5173|https?:\/\/127\.0\.0\.1:5173|https?:\/\/localhost:5173)/.test(
-			line,
-		)
+		/(Local:.*5173|https?:\/\/127\.0\.0\.1:5173|https?:\/\/localhost:5173)/.test(line)
 	) {
 		frontendReady = true;
 
@@ -167,7 +159,7 @@ function handleLine(raw: string): void {
 	startPlaywrightIfReady();
 }
 
-if (dev.stdout) {
+if (dev.stdout !== undefined) {
 	dev.stdout.setEncoding("utf8");
 	let buf = "";
 	dev.stdout.on("data", (chunk: string) => {
@@ -180,7 +172,7 @@ if (dev.stdout) {
 	});
 }
 
-if (dev.stderr) {
+if (dev.stderr !== undefined) {
 	dev.stderr.setEncoding("utf8");
 	let buf2 = "";
 	dev.stderr.on("data", (chunk: string) => {
@@ -196,11 +188,7 @@ if (dev.stderr) {
 dev.on("exit", () => {
 	sError("Dev process exited");
 	if (!startedPlaywright) {
-		sError(
-			"Dev servers exited before Playwright started. Check logs:",
-			CLIENT_LOG,
-			API_LOG,
-		);
+		sError("Dev servers exited before Playwright started. Check logs:", CLIENT_LOG, API_LOG);
 		process.exit(EXIT_NON_ZERO);
 	}
 });

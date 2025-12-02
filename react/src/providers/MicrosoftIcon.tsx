@@ -4,7 +4,7 @@ type IconProps = Readonly<{
 	height?: string;
 }>;
 
-export function MicrosoftIcon(props: IconProps): ReactElement {
+export default function MicrosoftIcon(props: IconProps): ReactElement {
 	return (
 		<svg
 			width={props.width ?? "20"}

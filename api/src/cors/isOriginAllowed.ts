@@ -1,7 +1,7 @@
-import { getAllowedOrigins } from "@/api/cors/getAllowedOrigins";
-import { normalizeOrigin } from "@/api/cors/normalizeOrigin";
+import getAllowedOrigins from "@/api/cors/getAllowedOrigins";
+import normalizeOrigin from "@/api/cors/normalizeOrigin";
 
-export function isOriginAllowed(
+export default function isOriginAllowed(
 	origin: string | null | undefined,
 
 	envLike: Record<string, string | undefined>,

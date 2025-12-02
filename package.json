@@ -16,8 +16,8 @@
 		"format": "npx oxfmt .",
 		"format:check": "npx oxfmt --check .",
 		"format:list-different": "npx oxfmt --list-different .",
-		"lint": "npx oxlint --type-aware .",
-		"lint:fix": "npx oxlint --type-aware  --fix .",
+		"lint": "npx oxlint --config .oxlintrc.json --type-aware .",
+		"lint:fix": "npx oxlint --config .oxlintrc.json --type-aware --fix .",
 		"lint:list-files": "npx oxlint --format=unix . | awk -F: '{print $1}' | sort -u | sed '/^$/d'",
 		"preview": "vite preview",
 		"file:check": "bun run scripts/fileCheck.ts",
@@ -48,6 +48,12 @@
 		"commitlint:range": "commitlint --from=origin/main --to=HEAD",
 		"commitlint:edit": "commitlint --edit"
 	},
+	"lint-staged": {
+		"*.{js,ts,jsx,tsx}": [
+			"npx oxfmt \"{,**/}*.{js,ts,jsx,tsx}\"",
+			"git add"
+		]
+	},
 	"dependencies": {
 		"@dnd-kit/core": "^6.3.1",
 		"@dnd-kit/sortable": "^10.0.0",
@@ -75,6 +81,7 @@
 		"@shopify/eslint-plugin": "^50.0.0",
 		"@tailwindcss/postcss": "^4.1.17",
 		"@trivago/prettier-plugin-sort-imports": "^5.2.2",
+		"@types/bun": "^1.3.3",
 		"@types/node": "^24.10.1",
 		"@types/react": "^19.2.0",
 		"@types/react-dom": "^19.2.0",

@@ -1,8 +1,8 @@
-import { DEFAULT_DEV_ORIGINS } from "@/api/cors/defaultDevOrigins";
-import { normalizeOrigin } from "@/api/cors/normalizeOrigin";
+import DEFAULT_DEV_ORIGINS from "@/api/cors/defaultDevOrigins";
+import normalizeOrigin from "@/api/cors/normalizeOrigin";
 import { isRecord } from "@/shared/utils/typeGuards";
 
-export function getAllowedOrigins(envLike: unknown): string[] {
+export default function getAllowedOrigins(envLike: unknown): string[] {
 	const ZERO = 0;
 	// Accept an unknown runtime env object and safely extract the
 	// ALLOWED_ORIGINS binding if present and a string. This keeps callers

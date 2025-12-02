@@ -364,7 +364,7 @@ export function deleteSong(ctx: Context<{ Bindings: Bindings }>) {
 ### With Authentication
 
 ```typescript
-import { getSupabaseUserToken } from "@/api/supabase/getSupabaseUserToken";
+import getSupabaseUserToken from "@/api/supabase/getSupabaseUserToken";
 
 export function protectedEndpoint(ctx: Context<{ Bindings: Bindings }>) {
 	return Effect.gen(function* () {

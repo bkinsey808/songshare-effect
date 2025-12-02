@@ -6,12 +6,11 @@ import {
 	DEMO_DEFAULT_USER_ID,
 	DEMO_ALT_USER_ID,
 } from "@/shared/constants/http";
+import { delay } from "@/shared/utils/helpers";
+import { createTypedCache } from "@/shared/utils/typedPromiseCache";
 
 // Create a context for theme
 const ThemeContext = createContext<"light" | "dark">("light");
-
-// Per-type caches for demo data
-import { createTypedCache } from "@/shared/utils/typedPromiseCache";
 
 const userCache = createTypedCache<{
 	id: number;
@@ -31,9 +30,7 @@ async function fetchUserData(userId: number): Promise<{
 	name: string;
 	songs: string[];
 }> {
-	await new Promise<void>((resolve) =>
-		setTimeout(resolve, DEMO_FETCH_USER_DELAY_MS),
-	);
+	await delay(DEMO_FETCH_USER_DELAY_MS);
 	return {
 		id: userId,
 		name: `User ${userId}`,
@@ -47,9 +44,7 @@ async function fetchSongDetails(songName: string): Promise<{
 	duration: string;
 	genre: string;
 }> {
-	await new Promise<void>((resolve) =>
-		setTimeout(resolve, DEMO_FETCH_SONG_DELAY_MS),
-	);
+	await delay(DEMO_FETCH_SONG_DELAY_MS);
 	return {
 		title: songName,
 		artist: `Artist of ${songName}`,
@@ -59,7 +54,7 @@ async function fetchSongDetails(songName: string): Promise<{
 }
 
 // Helper function to get or create cached promises
-async function getCachedPromise<ResultType>(
+function getCachedPromise<ResultType>(
 	cache: ReturnType<typeof createTypedCache<ResultType>>,
 	id: string,
 	fetcher: () => Promise<ResultType>,
@@ -74,9 +69,7 @@ type UserProfileParams = Readonly<{
 // Component that uses the 'use' hook with promises
 function UserProfile({ userId }: UserProfileParams): ReactElement {
 	// Using the 'use' hook to read the promise directly
-	const userPromise = getCachedPromise(userCache, `user-${userId}`, async () =>
-		fetchUserData(userId),
-	);
+	const userPromise = getCachedPromise(userCache, `user-${userId}`, () => fetchUserData(userId));
 	const user = use(userPromise);
 
 	// Using the 'use' hook to read context
@@ -118,10 +111,8 @@ type SongDetailsParams = Readonly<{
 // Component that demonstrates using 'use' hook with dynamic promises
 function SongDetails({ songName }: SongDetailsParams): ReactElement {
 	// Create a promise dynamically and use the 'use' hook
-	const songPromise = getCachedPromise(
-		songCache,
-		`song-${songName}`,
-		async () => fetchSongDetails(songName),
+	const songPromise = getCachedPromise(songCache, `song-${songName}`, () =>
+		fetchSongDetails(songName),
 	);
 	const song = use(songPromise);
 
@@ -152,9 +143,7 @@ function SongDetails({ songName }: SongDetailsParams): ReactElement {
 // Main demo component
 function UseHookDemo(): ReactElement {
 	const [userId, setUserId] = useState(DEMO_DEFAULT_USER_ID);
-	const [selectedSong, setSelectedSong] = useState<string | undefined>(
-		undefined,
-	);
+	const [selectedSong, setSelectedSong] = useState<string | undefined>(undefined);
 	const [theme, setTheme] = useState<"light" | "dark">("light");
 
 	return (
@@ -167,31 +156,27 @@ function UseHookDemo(): ReactElement {
 				<h2 className="mb-3 text-2xl font-bold">🔀 Use Hook Demo</h2>
 				<p className="mb-5">
 					This demonstrates the new React{" "}
-					<code className="rounded bg-gray-200 px-1 dark:bg-gray-700">use</code>{" "}
-					hook for reading promises and context.
+					<code className="rounded bg-gray-200 px-1 dark:bg-gray-700">use</code> hook for reading
+					promises and context.
 				</p>
 
 				<div className="mb-5 space-x-3">
 					<button
+						type="button"
 						onClick={() => {
 							setTheme(theme === "light" ? "dark" : "light");
 						}}
 						className={`cursor-pointer rounded border-none px-4 py-2 font-medium text-white transition-colors ${
-							theme === "dark"
-								? "bg-gray-600 hover:bg-gray-700"
-								: "bg-blue-600 hover:bg-blue-700"
+							theme === "dark" ? "bg-gray-600 hover:bg-gray-700" : "bg-blue-600 hover:bg-blue-700"
 						}`}
 					>
 						🌓 Toggle Theme ({theme})
 					</button>
 
 					<button
+						type="button"
 						onClick={() => {
-							setUserId(
-								userId === DEMO_DEFAULT_USER_ID
-									? DEMO_ALT_USER_ID
-									: DEMO_DEFAULT_USER_ID,
-							);
+							setUserId(userId === DEMO_DEFAULT_USER_ID ? DEMO_ALT_USER_ID : DEMO_DEFAULT_USER_ID);
 						}}
 						className="cursor-pointer rounded border-none bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700"
 					>
@@ -201,20 +186,19 @@ function UseHookDemo(): ReactElement {
 
 				{/* User Profile using 'use' hook with promises */}
 				<div className="mb-6">
-					<h3 className="mb-3 text-xl font-semibold">
-						User Profile (using 'use' hook with Promise)
-					</h3>
+					<h3 className="mb-3 text-xl font-semibold">User Profile (using use hook with Promise)</h3>
 					<UserProfile userId={userId} />
 				</div>
 
 				{/* Song selection */}
 				<div className="mb-6">
 					<h3 className="mb-3 text-xl font-semibold">
-						Song Details (using 'use' hook with dynamic Promise)
+						Song Details (using use hook with dynamic Promise)
 					</h3>
 					<div className="mb-4 flex flex-wrap gap-2">
 						{["Song 1A", "Song 1B", "Song 2A", "Song 2B"].map((song) => (
 							<button
+								type="button"
 								key={song}
 								onClick={() => {
 									setSelectedSong(song);
@@ -230,41 +214,35 @@ function UseHookDemo(): ReactElement {
 						))}
 					</div>
 
-					{selectedSong !== undefined && (
-						<SongDetails songName={selectedSong} />
-					)}
+					{selectedSong !== undefined && <SongDetails songName={selectedSong} />}
 				</div>
 
 				<div
 					className={`mt-5 rounded-md p-4 text-sm ${
-						theme === "dark"
-							? "bg-gray-800 text-gray-300"
-							: "bg-gray-200 text-gray-700"
+						theme === "dark" ? "bg-gray-800 text-gray-300" : "bg-gray-200 text-gray-700"
 					}`}
 				>
-					<h4 className="mb-3 text-base font-semibold">
-						💡 Key Features of the 'use' hook:
-					</h4>
+					<h4 className="mb-3 text-base font-semibold">💡 Key Features of the use hook:</h4>
 					<ul className="list-inside list-disc space-y-2">
 						<li>
-							<span className="font-medium">Promise Reading:</span> Directly
-							read promise values without manually managing loading states
+							<span className="font-medium">Promise Reading:</span> Directly read promise values
+							without manually managing loading states
 						</li>
 						<li>
-							<span className="font-medium">Context Reading:</span> Read context
-							values outside of JSX (like in event handlers)
+							<span className="font-medium">Context Reading:</span> Read context values outside of
+							JSX (like in event handlers)
 						</li>
 						<li>
-							<span className="font-medium">Suspense Integration:</span>{" "}
-							Automatically suspends components when promises are pending
+							<span className="font-medium">Suspense Integration:</span> Automatically suspends
+							components when promises are pending
 						</li>
 						<li>
-							<span className="font-medium">Error Boundaries:</span>{" "}
-							Automatically throws errors that can be caught by error boundaries
+							<span className="font-medium">Error Boundaries:</span> Automatically throws errors
+							that can be caught by error boundaries
 						</li>
 						<li>
-							<span className="font-medium">Re-rendering:</span> Automatically
-							re-renders when promise resolves or context changes
+							<span className="font-medium">Re-rendering:</span> Automatically re-renders when
+							promise resolves or context changes
 						</li>
 					</ul>
 				</div>

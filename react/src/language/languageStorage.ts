@@ -1,8 +1,6 @@
+/* oxlint-disable unicorn/no-document-cookie */
 import { preferredLanguageCookieName } from "@/shared/cookies";
-import {
-	type SupportedLanguageType,
-	defaultLanguage,
-} from "@/shared/language/supported-languages";
+import { type SupportedLanguageType, defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
 export function setStoredLanguage(language: SupportedLanguageType): void {
@@ -13,14 +11,14 @@ export function setStoredLanguage(language: SupportedLanguageType): void {
 		const secure = location.protocol === "https:" ? "; Secure" : "";
 		document.cookie = `${preferredLanguageCookieName}=${language}; expires=${expires.toUTCString()}; path=/; SameSite=Lax${secure}`;
 	}
-	if (typeof window !== "undefined") {
+	if (typeof globalThis !== "undefined") {
 		localStorage.setItem("preferred-language", language);
 	}
 }
 
 export function getStoredLanguage(): SupportedLanguageType | undefined {
 	// First try to get from localStorage (client-side)
-	if (typeof window !== "undefined") {
+	if (typeof globalThis !== "undefined") {
 		const stored = localStorage.getItem("preferred-language");
 		if (isSupportedLanguage(stored)) {
 			return stored;
@@ -41,18 +39,12 @@ export function getStoredLanguage(): SupportedLanguageType | undefined {
 export function parseLanguageCookie(
 	cookieHeader: string | null,
 ): SupportedLanguageType | undefined {
-	if (
-		cookieHeader === null ||
-		cookieHeader === undefined ||
-		cookieHeader.trim() === ""
-	) {
+	if (cookieHeader === null || cookieHeader === undefined || cookieHeader.trim() === "") {
 		return undefined;
 	}
 	const match = cookieHeader
 		.split(";")
-		.find((cookie) =>
-			cookie.trim().startsWith(`${preferredLanguageCookieName}=`),
-		);
+		.find((cookie) => cookie.trim().startsWith(`${preferredLanguageCookieName}=`));
 	if (typeof match === "string" && match !== "" && match.includes("=")) {
 		const [, rawLang] = match.split("=");
 		const lang = rawLang?.trim();
@@ -61,14 +53,8 @@ export function parseLanguageCookie(
 	return undefined;
 }
 
-export function detectBrowserLanguage(
-	acceptLanguage?: string,
-): SupportedLanguageType {
-	if (
-		acceptLanguage === undefined ||
-		acceptLanguage === null ||
-		acceptLanguage.trim() === ""
-	) {
+export function detectBrowserLanguage(acceptLanguage?: string): SupportedLanguageType {
+	if (acceptLanguage === undefined || acceptLanguage === null || acceptLanguage.trim() === "") {
 		return defaultLanguage;
 	}
 	const languages = acceptLanguage

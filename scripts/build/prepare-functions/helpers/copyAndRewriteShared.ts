@@ -1,12 +1,12 @@
 import { warn as sWarn } from "../../../utils/scriptLogger";
-import { copyDir } from "./copyDir";
-import { rewriteSharedImports } from "./rewriteSharedImports";
+import copyDir from "./copyDir";
+import rewriteSharedImports from "./rewriteSharedImports";
 
 /**
  * Copy shared sources into destination and attempt to rewrite imports there.
  * Errors are logged but non-fatal so the prepare script can continue.
  */
-export async function copyAndRewriteShared(
+export default async function copyAndRewriteShared(
 	sourceDir: string,
 	destDir: string,
 ): Promise<void> {

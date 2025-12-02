@@ -7,7 +7,7 @@ import { isSupportedLanguage } from "@/shared/language/supported-languages-effec
 
 import { getStoredLanguage, setStoredLanguage } from "./languageStorage";
 
-function LanguageProviderInner() {
+function LanguageProviderInner(): ReactElement {
 	const { lang } = useParams<{ lang: string }>();
 	const { i18n } = useTranslation();
 
@@ -53,11 +53,7 @@ function LanguageProviderInner() {
 export default function LanguageProvider(): ReactElement {
 	return (
 		<Suspense
-			fallback={
-				<div className="flex min-h-screen items-center justify-center">
-					Loading...
-				</div>
-			}
+			fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}
 		>
 			<LanguageProviderInner />
 		</Suspense>

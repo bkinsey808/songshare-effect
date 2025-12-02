@@ -17,9 +17,7 @@ import {
 
 function ReactFeaturesDemoPage(): ReactElement {
 	const { t, i18n } = useTranslation();
-	const currentLang = isSupportedLanguage(i18n.language)
-		? i18n.language
-		: defaultLanguage;
+	const currentLang = isSupportedLanguage(i18n.language) ? i18n.language : defaultLanguage;
 
 	return (
 		<div>
@@ -38,17 +36,14 @@ function ReactFeaturesDemoPage(): ReactElement {
 			<DemoNavigation />
 
 			<div className="my-12 space-y-6">
-				<h2 className="text-center text-2xl font-bold">
-					Interactive Demonstrations
-				</h2>
+				<h2 className="text-center text-2xl font-bold">Interactive Demonstrations</h2>
 
 				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					<div className="rounded-lg border border-white/10 bg-white/5 p-6 text-center">
 						<div className="mb-4 text-4xl">⚡</div>
 						<h3 className="mb-3 text-xl font-semibold">Optimized Counter</h3>
 						<p className="mb-4 text-gray-400">
-							Performance optimization techniques with React.memo, useCallback,
-							and useMemo
+							Performance optimization techniques with React.memo, useCallback, and useMemo
 						</p>
 						<Link
 							to={`/${currentLang}/${optimizedCounterPath}`}
@@ -62,8 +57,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 						<div className="mb-4 text-4xl">🔄</div>
 						<h3 className="mb-3 text-xl font-semibold">Suspense Demo</h3>
 						<p className="mb-4 text-gray-400">
-							Interactive demonstration of React Suspense with promise-based
-							data fetching
+							Interactive demonstration of React Suspense with promise-based data fetching
 						</p>
 						<Link
 							to={`/${currentLang}/${suspenseDemoPath}`}
@@ -77,8 +71,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 						<div className="mb-4 text-4xl">🔀</div>
 						<h3 className="mb-3 text-xl font-semibold">Use Hook Demo</h3>
 						<p className="mb-4 text-gray-400">
-							Explore the new React 'use' hook for reading promises and context
-							values
+							Explore the new React &apos;use&apos; hook for reading promises and context values
 						</p>
 						<Link
 							to={`/${currentLang}/${hookDemoPath}`}
@@ -92,8 +85,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 						<div className="mb-4 text-4xl">⚡</div>
 						<h3 className="mb-3 text-xl font-semibold">Advanced Suspense</h3>
 						<p className="mb-4 text-gray-400">
-							Complex Suspense patterns with error boundaries and concurrent
-							features
+							Complex Suspense patterns with error boundaries and concurrent features
 						</p>
 						<Link
 							to={`/${currentLang}/${suspenseUseDemoPath}`}
@@ -107,8 +99,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 						<div className="mb-4 text-4xl">📁</div>
 						<h3 className="mb-3 text-xl font-semibold">Upload Demo</h3>
 						<p className="mb-4 text-gray-400">
-							File upload functionality with progress tracking and error
-							handling
+							File upload functionality with progress tracking and error handling
 						</p>
 						<Link
 							to={`/${currentLang}/${uploadDemoPath}`}
@@ -122,8 +113,8 @@ function ReactFeaturesDemoPage(): ReactElement {
 						<div className="mb-4 text-4xl">⚡</div>
 						<h3 className="mb-3 text-xl font-semibold">Activity Component</h3>
 						<p className="mb-4 text-gray-400">
-							React 19.2&apos;s new Activity component for controlling
-							visibility and rendering priority
+							React 19.2&apos;s new Activity component for controlling visibility and rendering
+							priority
 						</p>
 						<Link
 							to={`/${currentLang}/${activityDemoPath}`}
@@ -137,8 +128,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 						<div className="mb-4 text-4xl">💬</div>
 						<h3 className="mb-3 text-xl font-semibold">Popover Demo</h3>
 						<p className="mb-4 text-gray-400">
-							Modern web UI popovers including native Popover API and custom
-							implementations
+							Modern web UI popovers including native Popover API and custom implementations
 						</p>
 						<Link
 							to={`/${currentLang}/${popoverDemoPath}`}
@@ -151,9 +141,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 			</div>
 
 			<div className="mt-12 rounded-lg border border-blue-500/20 bg-blue-500/10 p-6">
-				<h3 className="mb-4 text-lg font-semibold text-blue-300">
-					💡 What You'll Learn:
-				</h3>
+				<h3 className="mb-4 text-lg font-semibold text-blue-300">💡 What You&apos;ll Learn:</h3>
 				<div className="grid grid-cols-1 gap-4 text-sm text-blue-200 md:grid-cols-2">
 					<div>
 						<h4 className="mb-2 font-semibold">Performance Optimization:</h4>
@@ -169,7 +157,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 						<ul className="list-inside list-disc space-y-1">
 							<li>Suspense for data fetching</li>
 							<li>Error boundaries for fault tolerance</li>
-							<li>The new 'use' hook</li>
+							<li>The new &apos;use&apos; hook</li>
 							<li>Concurrent rendering features</li>
 						</ul>
 					</div>

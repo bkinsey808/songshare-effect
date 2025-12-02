@@ -20,7 +20,7 @@ export default function FormTextarea({
 	...props
 }: FormTextareaProps): ReactElement {
 	const handleInput = autoExpand
-		? (formEvent: React.FormEvent<HTMLTextAreaElement>) => {
+		? (formEvent: React.FormEvent<HTMLTextAreaElement>): void => {
 				const target = formEvent.currentTarget;
 				target.style.height = "auto";
 				target.style.height = `${target.scrollHeight}px`;

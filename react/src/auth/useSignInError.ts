@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import {
-	providerQueryParam,
-	signinErrorQueryParam,
-} from "@/shared/queryParams";
+import { providerQueryParam, signinErrorQueryParam } from "@/shared/queryParams";
 import { isSigninErrorToken } from "@/shared/signinTokens";
 
 type UseSignInErrorReturn = {
@@ -47,7 +44,7 @@ export default function useSignInError(): UseSignInErrorReturn {
 	// dependency list so the effect is lint-friendly and deterministic.
 	useEffect(() => {
 		if (initialToken !== undefined) {
-			const next = new URLSearchParams(window.location.search);
+			const next = new URLSearchParams(globalThis.location.search);
 			next.delete(signinErrorQueryParam);
 			next.delete(providerQueryParam);
 			setSearchParams(next, { replace: true });
@@ -58,7 +55,7 @@ export default function useSignInError(): UseSignInErrorReturn {
 		setSigninError(undefined);
 
 		try {
-			const next = new URLSearchParams(window.location.search);
+			const next = new URLSearchParams(globalThis.location.search);
 			next.delete(signinErrorQueryParam);
 			next.delete(providerQueryParam);
 			setSearchParams(next, { replace: true });

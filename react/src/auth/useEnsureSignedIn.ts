@@ -2,13 +2,11 @@
 import { useEffect, useRef } from "react";
 import { type StoreApi } from "zustand";
 
-import { ensureSignedIn } from "@/react/auth/ensureSignedIn";
+import ensureSignedIn from "@/react/auth/ensureSignedIn";
 import { clientDebug } from "@/react/utils/clientLogger";
 import { type AppSlice, getStoreApi } from "@/react/zustand/useAppStore";
 
-export default function useEnsureSignedIn(options?: {
-	readonly force?: boolean;
-}): void {
+export default function useEnsureSignedIn(options?: { readonly force?: boolean }): void {
 	const force = options?.force ?? false;
 	const storeApiRef = useRef<StoreApi<AppSlice> | undefined>(undefined);
 

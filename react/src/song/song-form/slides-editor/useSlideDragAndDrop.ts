@@ -12,8 +12,8 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 
 type UseSlideDragAndDropParams = Readonly<{
-	slideOrder: ReadonlyArray<string>;
-	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+	slideOrder: readonly string[];
+	setSlideOrder: (newOrder: readonly string[]) => void;
 }>;
 
 type UseSlideDragAndDropReturn = {
@@ -22,16 +22,14 @@ type UseSlideDragAndDropReturn = {
 	sortableItems: string[];
 };
 
-export function useSlideDragAndDrop({
+export default function useSlideDragAndDrop({
 	slideOrder,
 	setSlideOrder,
 }: UseSlideDragAndDropParams): UseSlideDragAndDropReturn {
 	const DISTANCE = 8;
 	const NOT_FOUND = -1;
 	// Create unique sortable IDs for each position in the array
-	const sortableItems = slideOrder.map(
-		(slideId, index) => `${slideId}-${String(index)}`,
-	);
+	const sortableItems = slideOrder.map((slideId, index) => `${slideId}-${String(index)}`);
 
 	// Drag and drop sensors - add activationConstraint to prevent accidental drags
 	const sensors = useSensors(
@@ -48,8 +46,10 @@ export function useSlideDragAndDrop({
 		const { active, over } = event;
 		if (over && active.id !== over.id) {
 			// Extract indices from the composite IDs
-			const activeIndex = sortableItems.findIndex((id) => id === active.id);
-			const overIndex = sortableItems.findIndex((id) => id === over.id);
+			const activeId = String(active.id);
+			const overId = String(over.id);
+			const activeIndex = sortableItems.indexOf(activeId);
+			const overIndex = sortableItems.indexOf(overId);
 
 			if (activeIndex !== NOT_FOUND && overIndex !== NOT_FOUND) {
 				const mutableSlideOrder = [...slideOrder];

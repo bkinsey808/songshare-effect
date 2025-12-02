@@ -13,9 +13,7 @@ function isNonRelativeImport(line: string): boolean {
 	// Allow a whitelist of packages that are safe to include in Pages
 	// Functions — e.g. `effect` — by returning false when they are the package
 	// being imported.
-	const match = /(?:from|require\()\s*["'](?!\.\/?|\.\.\/)([^"']+)["']/i.exec(
-		line,
-	);
+	const match = /(?:from|require\()\s*["'](?!\.\/?|\.\.\/)([^"']+)["']/i.exec(line);
 	if (!match) {
 		return false;
 	}
@@ -29,9 +27,7 @@ function isNonRelativeImport(line: string): boolean {
 	return !allowed.has(pkg);
 }
 
-async function scanDir(
-	dir: string,
-): Promise<{ file: string; line: number; code: string }[]> {
+async function scanDir(dir: string): Promise<{ file: string; line: number; code: string }[]> {
 	const LINE_INDEX_INCREMENT = 1;
 	const LINE_NUMBER_OFFSET = 1;
 	const results: { file: string; line: number; code: string }[] = [];
@@ -100,4 +96,7 @@ async function main(): Promise<number> {
 	return EXIT_ISSUES;
 }
 
-void main().then((code) => process.exit(code));
+// Prefer top-level await for readability and to satisfy lint rules.
+// Using top-level await in this script is acceptable since it's executed in Node modern environments.
+const exitCode = await main();
+process.exit(exitCode);

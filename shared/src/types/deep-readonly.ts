@@ -29,21 +29,15 @@ type DeepReadonly<TValue, Depth extends number = 5> = Depth extends 0
 		? TValue
 		: TValue extends { req: unknown; res: unknown }
 			? TValue
-			: TValue extends ReadonlyArray<infer Item>
-				? ReadonlyArray<DeepReadonly<Item, _Prev[Depth]>>
+			: TValue extends readonly (infer Item)[]
+				? readonly DeepReadonly<Item, _Prev[Depth]>[]
 				: TValue extends Map<infer Key, infer Value>
-					? ReadonlyMap<
-							DeepReadonly<Key, _Prev[Depth]>,
-							DeepReadonly<Value, _Prev[Depth]>
-						>
+					? ReadonlyMap<DeepReadonly<Key, _Prev[Depth]>, DeepReadonly<Value, _Prev[Depth]>>
 					: TValue extends Set<infer Item>
 						? ReadonlySet<DeepReadonly<Item, _Prev[Depth]>>
 						: TValue extends object
 							? {
-									readonly [Prop in keyof TValue]: DeepReadonly<
-										TValue[Prop],
-										_Prev[Depth]
-									>;
+									readonly [Prop in keyof TValue]: DeepReadonly<TValue[Prop], _Prev[Depth]>;
 								}
 							: TValue;
 

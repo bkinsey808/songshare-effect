@@ -1,5 +1,4 @@
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
-import { getStoreApi } from "@/react/zustand/useAppStore";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";
 
@@ -11,25 +10,16 @@ export default function addActivePrivateSongIds(
 	set: (
 		partial:
 			| Partial<ReadonlyDeep<SongSubscribeSlice>>
-			| ((
-					state: ReadonlyDeep<SongSubscribeSlice>,
-			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
+			| ((state: ReadonlyDeep<SongSubscribeSlice>) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
 	get: () => SongSubscribeSlice,
 ) {
-	return (songIds: ReadonlyArray<string>): void => {
-		const storeApi = getStoreApi();
-		const appState = storeApi ? storeApi.getState() : undefined;
+	return (songIds: readonly string[]): void => {
+		// Prefer the slice state for previous active IDs (avoids cross-module dependency).
 		const sliceState = get();
+		const prevActiveIds: readonly string[] = sliceState.activePrivateSongIds;
 
-		// Compute the previous active IDs from whichever state we have.
-		const prevActiveIds: ReadonlyArray<string> = appState
-			? appState.activePrivateSongIds
-			: sliceState.activePrivateSongIds;
-
-		const newActivePrivateSongIds: ReadonlyArray<string> = Array.from(
-			new Set([...prevActiveIds, ...songIds]),
-		);
+		const newActivePrivateSongIds: readonly string[] = [...new Set([...prevActiveIds, ...songIds])];
 
 		// Update activeSongIds and resubscribe.
 		set((prev) => {
@@ -41,16 +31,14 @@ export default function addActivePrivateSongIds(
 
 		// Subscribe after activeSongIds is updated in Zustand
 		set(() => {
-			const storeForOps = appState ?? sliceState;
-			const activePrivateSongsUnsubscribe =
-				storeForOps.subscribeToActivePrivateSongs();
+			const storeForOps = sliceState;
+			const activePrivateSongsUnsubscribe = storeForOps.subscribeToActivePrivateSongs();
 			return {
 				// Keep undefined rather than providing an empty function.
 				// Consumers check typeof === 'function' before calling.
 				// Return a non-empty no-op fallback so the property is always a function
 				// (matching the declared slice type) and avoids the `no-empty-function` rule.
-				activePrivateSongsUnsubscribe:
-					activePrivateSongsUnsubscribe ?? (() => undefined),
+				activePrivateSongsUnsubscribe: activePrivateSongsUnsubscribe ?? ((): void => undefined),
 			};
 		});
 		const NO_ACTIVE_SONGS_COUNT = 0;
@@ -60,39 +48,30 @@ export default function addActivePrivateSongIds(
 			return;
 		}
 
-		// Read optional visitorToken via the app-level state when available.
+		// Read optional visitorToken from the slice state when available.
 		let visitorToken: string | undefined = undefined;
-		if (appState) {
-			const appStateUnknown: unknown = appState;
-			if (isRecord(appStateUnknown)) {
-				const { visitorToken: vt } = appStateUnknown;
-				if (typeof vt === "string") {
-					visitorToken = vt;
-				}
+		const sliceStateUnknown: unknown = sliceState;
+		if (isRecord(sliceStateUnknown)) {
+			const { visitorToken: vt } = sliceStateUnknown as { visitorToken?: unknown };
+			if (typeof vt === "string") {
+				visitorToken = vt;
 			}
 		}
 
 		if (typeof visitorToken !== "string") {
-			console.warn(
-				"[addActivePrivateSongIds] No visitor token found. Cannot fetch songs.",
-			);
+			console.warn("[addActivePrivateSongIds] No visitor token found. Cannot fetch songs.");
 			return;
 		}
 
 		const supabase = getSupabaseClient(visitorToken);
 		if (supabase === undefined) {
-			console.warn(
-				"[addActivePrivateSongIds] Supabase client not initialized.",
-			);
+			console.warn("[addActivePrivateSongIds] Supabase client not initialized.");
 			return;
 		}
 
 		// Fire-and-forget async function to fetch all active song data
-		void (async () => {
-			console.warn(
-				"[addActivePrivateSongIds] Fetching active songs:",
-				newActivePrivateSongIds,
-			);
+		void (async (): Promise<void> => {
+			console.warn("[addActivePrivateSongIds] Fetching active songs:", newActivePrivateSongIds);
 			try {
 				const { data, error } = await supabase
 					.from("song")
@@ -100,10 +79,7 @@ export default function addActivePrivateSongIds(
 					.in("song_id", newActivePrivateSongIds);
 
 				if (error !== null) {
-					console.error(
-						"[addActivePrivateSongIds] Supabase fetch error:",
-						error,
-					);
+					console.error("[addActivePrivateSongIds] Supabase fetch error:", error);
 					return;
 				}
 
@@ -114,25 +90,18 @@ export default function addActivePrivateSongIds(
 					const privateSongsToAdd: Record<string, Song> = {};
 
 					for (const song of data) {
-						if (
-							typeof song === "object" &&
-							"song_id" in song &&
-							typeof song.song_id === "string"
-						) {
+						if (typeof song === "object" && "song_id" in song && typeof song.song_id === "string") {
 							privateSongsToAdd[song.song_id] = song as Song;
 						}
 					}
-					console.warn(
-						"[addActiveSongIds] Updating store with songs:",
-						privateSongsToAdd,
-					);
-					const storeForOps = appState ?? sliceState;
+					console.warn("[addActiveSongIds] Updating store with songs:", privateSongsToAdd);
+					const storeForOps = sliceState;
 					storeForOps.addOrUpdatePrivateSongs(privateSongsToAdd);
 				} else {
 					console.error("[addActivePrivateSongIds] Invalid data format:", data);
 				}
-			} catch (err) {
-				console.error("[addActivePrivateSongIds] Unexpected fetch error:", err);
+			} catch (error) {
+				console.error("[addActivePrivateSongIds] Unexpected fetch error:", error);
 			}
 		})();
 	};

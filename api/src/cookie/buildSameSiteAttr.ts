@@ -7,7 +7,7 @@
  * @param params.secureFlag - Whether the request is considered secure
  * @returns The SameSite attribute string for the Set-Cookie header
  */
-export function buildSameSiteAttr({
+export default function buildSameSiteAttr({
 	isProd,
 	redirectOrigin,
 	secureFlag,

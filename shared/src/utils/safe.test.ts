@@ -12,11 +12,11 @@ describe("safe utils: arrays", () => {
 	it("safeArrayGet returns defaultValue if index is invalid", () => {
 		const arr = [1, 2, 3];
 		expect(safeArrayGet(arr, 5, 42)).toBe(42);
-		expect(safeArrayGet(arr, -1)).toBe(undefined);
+		expect(safeArrayGet(arr, -1)).toBeUndefined();
 	});
 
 	it("safeArraySet returns a new array with replaced value when index is valid", () => {
-		const arr = [1, 2, 3] as ReadonlyArray<number>;
+		const arr = [1, 2, 3] as readonly number[];
 		const result = safeArraySet(arr, 1, 99);
 
 		// new array
@@ -27,7 +27,7 @@ describe("safe utils: arrays", () => {
 	});
 
 	it("safeArraySet returns the original array if index is invalid", () => {
-		const arr = ["x"] as ReadonlyArray<string>;
+		const arr = ["x"] as readonly string[];
 		const result = safeArraySet(arr, 10, "y");
 
 		expect(result).toBe(arr);

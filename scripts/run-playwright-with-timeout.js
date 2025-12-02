@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 // Compatibility shim: redirect node-based call to the bun wrapper script.
-const { spawn } = require("child_process");
-const { error: sError } = require("./utils/scriptLogger.cjs");
+import { spawn } from "node:child_process";
+
+import { error as sError } from "./utils/scriptLogger.mjs";
 const ARGV_FILE_INDEX = 2;
 const EXIT_FAILURE = 1;
 const ZERO = 0;

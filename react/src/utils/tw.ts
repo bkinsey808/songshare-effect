@@ -1,7 +1,7 @@
 /** noop. use where necessary to get tailwind intellisense */
-export function tw(
+export default function tw(
 	strings: TemplateStringsArray,
-	...values: ReadonlyArray<string | number>
+	...values: readonly (string | number)[]
 ): string {
 	// Combine the strings and values into one final string
 	const START_INDEX = 0;

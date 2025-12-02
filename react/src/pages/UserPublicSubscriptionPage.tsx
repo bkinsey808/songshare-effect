@@ -1,12 +1,10 @@
-import { useEffect, useState, type ReactElement } from "react";
+import { type RealtimeChannel, type SupabaseClient } from "@supabase/supabase-js";
+/* eslint-disable max-lines */
+import { useEffect, useState } from "react";
 
 import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
 import { type Tables, type Database } from "@/shared/generated/supabaseTypes";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
-import {
-	type RealtimeChannel,
-	type SupabaseClient,
-} from "@supabase/supabase-js";
 
 type UserPublic = Tables<"user_public">;
 
@@ -26,94 +24,112 @@ function isUserPublic(value: unknown): value is UserPublic {
 	return isString(userId) && isString(username);
 }
 
-function UserPublicSubscriptionPage(): ReactElement {
+// File-local constants used by the component and helpers below
+const EVENTS_MAX = 10;
+const INIT_CLIENT_DELAY_MS = 100;
+const ZERO = 0;
+
+function getConnectionStatusClass(status: string): string {
+	switch (status) {
+		case "SUBSCRIBED": {
+			return "text-green-500";
+		}
+		case "CHANNEL_ERROR": {
+			return "text-red-500";
+		}
+		case "CLOSED": {
+			return "text-red-400";
+		}
+		default: {
+			return "text-yellow-500";
+		}
+	}
+}
+
+type SetEvents = React.Dispatch<React.SetStateAction<RealtimeEvent[]>>;
+type SetUsers = React.Dispatch<React.SetStateAction<UserPublic[]>>;
+
+/**
+ * Top-level helper so the main component function stays under the max-lines
+ * limit enforced by the linter.
+ */
+function handleRealtimeEvent({
+	payload,
+	eventType,
+	setEvents,
+	setUsers,
+}: {
+	payload: unknown;
+	eventType: "INSERT" | "UPDATE" | "DELETE";
+	setEvents: SetEvents;
+	setUsers: SetUsers;
+}): void {
+	// The Supabase realtime payload is untyped here, so treat it as unknown and
+	// guard before reading the `new` and `old` fields.
+	let newRaw: unknown = undefined;
+	let oldRaw: unknown = undefined;
+
+	if (isRecord(payload)) {
+		newRaw = payload["new"];
+		oldRaw = payload["old"];
+	}
+	const realtimeEvent: RealtimeEvent = {
+		eventType,
+		new: isUserPublic(newRaw) ? newRaw : undefined,
+		old: isUserPublic(oldRaw) ? oldRaw : undefined,
+		timestamp: new Date().toISOString(),
+	};
+
+	// Add to events log
+	setEvents((prev) => [realtimeEvent, ...prev].slice(ZERO, EVENTS_MAX));
+
+	// Update users list
+	setUsers((prevUsers) => {
+		switch (eventType) {
+			case "INSERT": {
+				if (realtimeEvent.new !== undefined) {
+					const newUser = realtimeEvent.new;
+					// oxlint-disable-next-line unicorn/no-array-sort
+					return [...prevUsers, newUser].sort((userA, userB) =>
+						userA.username.localeCompare(userB.username),
+					);
+				}
+				break;
+			}
+			case "UPDATE": {
+				if (realtimeEvent.new !== undefined) {
+					const updatedUser = realtimeEvent.new;
+					return (
+						prevUsers
+							.map((user) => (user.user_id === updatedUser.user_id ? updatedUser : user))
+							// oxlint-disable-next-line unicorn/no-array-sort
+							.sort((userA, userB) => userA.username.localeCompare(userB.username))
+					);
+				}
+				break;
+			}
+			case "DELETE": {
+				if (realtimeEvent.old !== undefined) {
+					const deletedUser = realtimeEvent.old;
+					return prevUsers.filter((user) => user.user_id !== deletedUser.user_id);
+				}
+				break;
+			}
+		}
+		return prevUsers;
+	});
+}
+
+export default function UserPublicSubscriptionPage(): ReactElement {
 	const [users, setUsers] = useState<UserPublic[]>([]);
 	const [events, setEvents] = useState<RealtimeEvent[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | undefined>(undefined);
 	const [connectionStatus, setConnectionStatus] = useState("Disconnected");
 
-	function getConnectionStatusClass(status: string): string {
-		switch (status) {
-			case "SUBSCRIBED":
-				return "text-green-500";
-			case "CHANNEL_ERROR":
-				return "text-red-500";
-			case "CLOSED":
-				return "text-red-400";
-			default:
-				return "text-yellow-500";
-		}
-	}
-
-	// File-local constants
-	const EVENTS_MAX = 10;
-	const INIT_CLIENT_DELAY_MS = 100;
-	const ZERO = 0;
+	// NOTE: constants and helper `handleRealtimeEvent` are defined at module scope
 
 	// Use shared isRecord/isString guards (imported at top) for runtime narrowing
-
-	function handleRealtimeEvent(
-		payload: unknown,
-		eventType: "INSERT" | "UPDATE" | "DELETE",
-	): void {
-		// The Supabase realtime payload is untyped here, so treat it as unknown and
-		// guard before reading the `new` and `old` fields.
-		let newRaw: unknown = undefined;
-		let oldRaw: unknown = undefined;
-
-		if (isRecord(payload)) {
-			newRaw = payload["new"];
-			oldRaw = payload["old"];
-		}
-		const realtimeEvent: RealtimeEvent = {
-			eventType,
-			new: isUserPublic(newRaw) ? newRaw : undefined,
-			old: isUserPublic(oldRaw) ? oldRaw : undefined,
-			timestamp: new Date().toISOString(),
-		};
-
-		// Add to events log
-		setEvents((prev) => [realtimeEvent, ...prev].slice(ZERO, EVENTS_MAX));
-
-		// Update users list
-		setUsers((prevUsers) => {
-			switch (eventType) {
-				case "INSERT": {
-					if (realtimeEvent.new !== undefined) {
-						const newUser = realtimeEvent.new;
-						return [...prevUsers, newUser].sort((userA, userB) =>
-							userA.username.localeCompare(userB.username),
-						);
-					}
-					break;
-				}
-				case "UPDATE": {
-					if (realtimeEvent.new !== undefined) {
-						const updatedUser = realtimeEvent.new;
-						return prevUsers
-							.map((user) =>
-								user.user_id === updatedUser.user_id ? updatedUser : user,
-							)
-							.sort((userA, userB) =>
-								userA.username.localeCompare(userB.username),
-							);
-					}
-					break;
-				}
-				case "DELETE": {
-					if (realtimeEvent.old !== undefined) {
-						const deletedUser = realtimeEvent.old;
-						return prevUsers.filter(
-							(user) => user.user_id !== deletedUser.user_id,
-						);
-					}
-					break;
-				}
-			}
-			return prevUsers;
-		});
-	}
 
 	useEffect(() => {
 		let channel: RealtimeChannel | undefined = undefined;
@@ -129,10 +145,8 @@ function UserPublicSubscriptionPage(): ReactElement {
 					setLoading(false);
 					return;
 				}
-			} catch (err) {
-				setError(
-					`Setup error: ${err instanceof Error ? err.message : "Unknown"}`,
-				);
+			} catch (error) {
+				setError(`Setup error: ${error instanceof Error ? error.message : "Unknown"}`);
 				setLoading(false);
 				return;
 			}
@@ -151,9 +165,9 @@ function UserPublicSubscriptionPage(): ReactElement {
 					return;
 				}
 				fetchedData = data;
-			} catch (err) {
+			} catch (error) {
 				setError("Failed to fetch users");
-				console.error(err);
+				console.error(error);
 				setLoading(false);
 				return;
 			}
@@ -167,6 +181,7 @@ function UserPublicSubscriptionPage(): ReactElement {
 			setLoading(false);
 
 			// Give a small delay to ensure the client is fully initialized
+			// oxlint-disable-next-line promise/avoid-new
 			await new Promise((resolve) => setTimeout(resolve, INIT_CLIENT_DELAY_MS));
 
 			// 3) Set up real-time subscription with comprehensive error handling
@@ -191,9 +206,9 @@ function UserPublicSubscriptionPage(): ReactElement {
 								table: payload.table,
 							});
 							try {
-								handleRealtimeEvent(payload, "INSERT");
-							} catch (insertError) {
-								console.error("Error handling INSERT event:", insertError);
+								handleRealtimeEvent({ payload, eventType: "INSERT", setEvents, setUsers });
+							} catch (error) {
+								console.error("Error handling INSERT event:", error);
 							}
 						},
 					)
@@ -213,9 +228,9 @@ function UserPublicSubscriptionPage(): ReactElement {
 								table: payload.table,
 							});
 							try {
-								handleRealtimeEvent(payload, "UPDATE");
-							} catch (updateError) {
-								console.error("Error handling UPDATE event:", updateError);
+								handleRealtimeEvent({ payload, eventType: "UPDATE", setEvents, setUsers });
+							} catch (error) {
+								console.error("Error handling UPDATE event:", error);
 							}
 						},
 					)
@@ -235,9 +250,9 @@ function UserPublicSubscriptionPage(): ReactElement {
 								table: payload.table,
 							});
 							try {
-								handleRealtimeEvent(payload, "DELETE");
-							} catch (deleteError) {
-								console.error("Error handling DELETE event:", deleteError);
+								handleRealtimeEvent({ payload, eventType: "DELETE", setEvents, setUsers });
+							} catch (error) {
+								console.error("Error handling DELETE event:", error);
 							}
 						},
 					)
@@ -259,19 +274,29 @@ function UserPublicSubscriptionPage(): ReactElement {
 							);
 						}
 					});
-			} catch (err) {
-				setError(
-					`Setup error: ${err instanceof Error ? err.message : "Unknown"}`,
-				);
+			} catch (error) {
+				setError(`Setup error: ${error instanceof Error ? error.message : "Unknown"}`);
 				setLoading(false);
 			}
 		}
 
-		setupSubscription().catch(console.error);
+		void (async (): Promise<void> => {
+			try {
+				await setupSubscription();
+			} catch (error) {
+				console.error(error);
+			}
+		})();
 
-		return () => {
+		return (): void => {
 			if (channel) {
-				channel.unsubscribe().catch(console.error);
+				void (async (): Promise<void> => {
+					try {
+						await channel.unsubscribe();
+					} catch (error) {
+						console.error(error);
+					}
+				})();
 			}
 		};
 	}, []);
@@ -287,23 +312,16 @@ function UserPublicSubscriptionPage(): ReactElement {
 	return (
 		<div>
 			<div className="mb-10 text-center">
-				<h2 className="mb-4 text-3xl font-bold">
-					👥 User Public Subscription Demo
-				</h2>
-				<p className="text-gray-400">
-					Real-time subscription to user_public table
-				</p>
+				<h2 className="mb-4 text-3xl font-bold">👥 User Public Subscription Demo</h2>
+				<p className="text-gray-400">Real-time subscription to user_public table</p>
 				<div className="mt-4">
 					<span className="text-sm text-gray-500">Connection: </span>
-					<span
-						className={`font-bold ${getConnectionStatusClass(connectionStatus)}`}
-					>
+					<span className={`font-bold ${getConnectionStatusClass(connectionStatus)}`}>
 						{connectionStatus}
 					</span>
 					{connectionStatus === "CHANNEL_ERROR" && (
 						<div className="mt-2 text-xs text-red-400">
-							⚠️ Real-time connection failed. Check if the table has replication
-							enabled.
+							⚠️ Real-time connection failed. Check if the table has replication enabled.
 						</div>
 					)}
 				</div>
@@ -324,12 +342,8 @@ function UserPublicSubscriptionPage(): ReactElement {
 									className="rounded-lg border border-gray-600 bg-gray-800 p-4"
 								>
 									<div className="flex items-center justify-between">
-										<span className="font-semibold text-white">
-											{user.username}
-										</span>
-										<span className="text-xs text-gray-500">
-											{user.user_id}
-										</span>
+										<span className="font-semibold text-white">{user.username}</span>
+										<span className="text-xs text-gray-500">{user.user_id}</span>
 									</div>
 								</div>
 							))}
@@ -347,13 +361,11 @@ function UserPublicSubscriptionPage(): ReactElement {
 						<div className="max-h-96 space-y-3 overflow-y-auto">
 							{events.map((event, index) => (
 								<div
-									key={index}
+									key={`${event.timestamp}-${event.eventType}-${event.new?.user_id ?? event.old?.user_id ?? index}`}
 									className="rounded-lg border border-gray-600 bg-gray-800 p-4"
 								>
 									<div className="mb-2 flex items-center justify-between">
-										<span className="font-semibold text-white">
-											{event.eventType}
-										</span>
+										<span className="font-semibold text-white">{event.eventType}</span>
 										<span className="text-xs text-gray-500">
 											{new Date(event.timestamp).toLocaleTimeString()}
 										</span>
@@ -383,11 +395,8 @@ function UserPublicSubscriptionPage(): ReactElement {
 					<p>To see real-time updates:</p>
 					<ol className="ml-4 list-decimal space-y-1">
 						<li>Open your Supabase Dashboard → Database → Replication</li>
-						<li>Enable replication for the "user_public" table</li>
-						<li>
-							Use the SQL Editor or your database tool to modify the user_public
-							table
-						</li>
+						<li>Enable replication for the &quot;user_public&quot; table</li>
+						<li>Use the SQL Editor or your database tool to modify the user_public table</li>
 						<li>Changes will appear instantly here!</li>
 					</ol>
 				</div>
@@ -400,8 +409,8 @@ function UserPublicSubscriptionPage(): ReactElement {
 					</h3>
 					<div className="space-y-3 text-sm text-red-200">
 						<p>
-							<strong>Most likely cause:</strong> Real-time replication is not
-							enabled for the user_public table.
+							<strong>Most likely cause:</strong> Real-time replication is not enabled for the
+							user_public table.
 						</p>
 						<p>
 							<strong>To fix:</strong>
@@ -409,13 +418,12 @@ function UserPublicSubscriptionPage(): ReactElement {
 						<ol className="ml-4 list-decimal space-y-1">
 							<li>Go to your Supabase Dashboard</li>
 							<li>Navigate to Database → Replication</li>
-							<li>Find the "user_public" table</li>
+							<li>Find the &quot;user_public&quot; table</li>
 							<li>Toggle replication ON for this table</li>
 							<li>Refresh this page</li>
 						</ol>
 						<p className="mt-3 text-xs">
-							<strong>Alternative:</strong> Run this SQL command in your
-							database:
+							<strong>Alternative:</strong> Run this SQL command in your database:
 							<code className="ml-2 rounded bg-red-800 px-2 py-1">
 								ALTER TABLE user_public REPLICA IDENTITY FULL;
 							</code>
@@ -426,5 +434,3 @@ function UserPublicSubscriptionPage(): ReactElement {
 		</div>
 	);
 }
-
-export default UserPublicSubscriptionPage;

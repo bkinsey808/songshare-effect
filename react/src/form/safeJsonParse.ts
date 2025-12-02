@@ -1,7 +1,7 @@
 /**
  * Safely parse JSON and return `unknown` or `undefined` if parsing fails.
  */
-export function safeJsonParse(input: unknown): unknown {
+export default function safeJsonParse(input: unknown): unknown {
 	try {
 		// Prefer parsing strings directly, but coerce other values to string as a fallback
 		if (typeof input === "string") {

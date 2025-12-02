@@ -9,7 +9,7 @@ type UseCollapsibleSectionsReturn = {
 	setIsGridExpanded: (expanded: boolean) => void;
 };
 
-export function useCollapsibleSections(): UseCollapsibleSectionsReturn {
+export default function useCollapsibleSections(): UseCollapsibleSectionsReturn {
 	// Local state for collapsible sections
 	const [isFormFieldsExpanded, setIsFormFieldsExpanded] = useState(true);
 	const [isSlidesExpanded, setIsSlidesExpanded] = useState(true);

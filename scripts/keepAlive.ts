@@ -57,5 +57,6 @@ async function keepAlive(): Promise<void> {
 }
 
 if (import.meta.main) {
-	void keepAlive();
+	// prefer-top-level-await: use top-level `await` here so async errors are propagated
+	await keepAlive();
 }

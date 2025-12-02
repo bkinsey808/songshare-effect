@@ -1,7 +1,7 @@
 const RULE_SEVERITY = 2;
 const SUBJECT_MAX_LENGTH = 72;
 
-export default {
+const config = {
 	extends: ["@commitlint/config-conventional"],
 	rules: {
 		"subject-max-length": [RULE_SEVERITY, "always", SUBJECT_MAX_LENGTH],
@@ -24,3 +24,5 @@ export default {
 		],
 	},
 };
+
+export default config;

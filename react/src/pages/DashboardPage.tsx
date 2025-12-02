@@ -3,29 +3,13 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
-import {
-	clientDebug,
-	clientError,
-	clientWarn,
-} from "@/react/utils/clientLogger";
+import { clientDebug, clientError, clientWarn } from "@/react/utils/clientLogger";
 import { getStoreApi, useAppStoreHydrated } from "@/react/zustand/useAppStore";
-import {
-	LANG_PATH_SEGMENT_INDEX,
-	EMPTY_STRING,
-	SIGNAL_ONE,
-} from "@/shared/constants/http";
+import { LANG_PATH_SEGMENT_INDEX, EMPTY_STRING, SIGNAL_ONE } from "@/shared/constants/http";
 import { SupportedLanguage } from "@/shared/language/supported-languages";
-import {
-	dashboardPath,
-	deleteAccountPath,
-	songEditPath,
-	songLibraryPath,
-} from "@/shared/paths";
+import { dashboardPath, deleteAccountPath, songEditPath, songLibraryPath } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
-import {
-	justRegisteredKey,
-	justSignedOutKey,
-} from "@/shared/sessionStorageKeys";
+import { justRegisteredKey, justSignedOutKey } from "@/shared/sessionStorageKeys";
 import { type UserSessionData } from "@/shared/userSessionData";
 
 type SongManagementSectionProps = Readonly<{
@@ -46,6 +30,7 @@ function SongManagementSection({
 			</h3>
 			<div className="flex flex-wrap gap-3">
 				<button
+					type="button"
 					className="rounded bg-blue-600 px-4 py-2 text-white transition-colors duration-150 hover:bg-blue-700"
 					onClick={() => {
 						navigate(`/${currentLang}/${dashboardPath}/${songEditPath}`);
@@ -54,6 +39,7 @@ function SongManagementSection({
 					{t("pages.dashboard.createSong", "Create New Song")}
 				</button>
 				<button
+					type="button"
 					className="rounded border border-blue-600 bg-transparent px-4 py-2 text-blue-600 transition-colors duration-150 hover:bg-blue-50/5"
 					onClick={() => {
 						navigate(`/${currentLang}/${dashboardPath}/${songLibraryPath}`);
@@ -62,6 +48,7 @@ function SongManagementSection({
 					{t("pages.dashboard.manageSongs", "Manage Songs")}
 				</button>
 				<button
+					type="button"
 					className="rounded border border-green-600 bg-transparent px-4 py-2 text-green-600 transition-colors duration-150 hover:bg-green-50/5"
 					onClick={() => {
 						navigate(`/${currentLang}/${dashboardPath}/${songLibraryPath}`);
@@ -93,36 +80,29 @@ function DashboardPage(): ReactElement {
 	const [localUser, setLocalUser] = useState<UserSessionData | undefined>(
 		() => snapshot?.userSessionData,
 	);
-	const signOutRef = useRef<() => void>(
-		() => snapshot?.signOut ?? (() => undefined),
-	);
+	const signOutRef = useRef<() => void>(() => snapshot?.signOut ?? ((): undefined => undefined));
 	const [showSignedInAlert, setShowSignedInAlert] = useState<boolean>(false);
-	const [showRegisteredAlert, setShowRegisteredAlert] =
-		useState<boolean>(false);
+	const [showRegisteredAlert, setShowRegisteredAlert] = useState<boolean>(false);
 
 	// showSignedInAlert comes directly from the zustand selector above.
 
 	// (debug trace removed)
 	// Derive current language from the path as a robust fallback
-	const pathname =
-		typeof window === "undefined" ? "/" : window.location.pathname;
-	const maybeLang =
-		pathname.split("/")[LANG_PATH_SEGMENT_INDEX] ?? EMPTY_STRING;
-	const currentLang = maybeLang ? maybeLang : SupportedLanguage.en;
+	const pathname = typeof globalThis === "undefined" ? "/" : globalThis.location.pathname;
+	const maybeLang = pathname.split("/")[LANG_PATH_SEGMENT_INDEX] ?? EMPTY_STRING;
+	const currentLang = maybeLang || SupportedLanguage.en;
 
 	// Check sessionStorage for the one-time justSignedIn signal set by the
 	// redirect flow. If present, show the alert and consume the key.
 	useEffect(() => {
-		if (typeof window === "undefined") {
+		if (typeof globalThis === "undefined") {
 			return;
 		}
 		try {
 			const justRegistered = sessionStorage.getItem(justRegisteredKey);
 			const justSigned = sessionStorage.getItem(justSignedInQueryParam);
 			if (justRegistered === SIGNAL_ONE) {
-				clientWarn(
-					"[DashboardPage] consumed justRegistered from sessionStorage",
-				);
+				clientWarn("[DashboardPage] consumed justRegistered from sessionStorage");
 				queueMicrotask(() => {
 					setShowRegisteredAlert(true);
 				});
@@ -152,7 +132,7 @@ function DashboardPage(): ReactElement {
 			signOutRef.current = state.signOut;
 		});
 
-		return () => {
+		return (): void => {
 			unsubscribe();
 		};
 	}, []);
@@ -166,9 +146,7 @@ function DashboardPage(): ReactElement {
 	if (localIsSignedIn === false) {
 		return (
 			<div className="text-center text-gray-300">
-				<h2 className="text-2xl font-bold">
-					{t("pages.dashboard.signedOutTitle")}
-				</h2>
+				<h2 className="text-2xl font-bold">{t("pages.dashboard.signedOutTitle")}</h2>
 				<p className="mt-2">{t("pages.dashboard.signedOutBody")}</p>
 			</div>
 		);
@@ -184,19 +162,11 @@ function DashboardPage(): ReactElement {
 					setShowRegisteredAlert(false);
 				}}
 				variant="success"
-				alertType={
-					showRegisteredAlert ? "registeredSuccess" : "signedInSuccess"
-				}
+				alertType={showRegisteredAlert ? "registeredSuccess" : "signedInSuccess"}
 			>
 				{showRegisteredAlert
-					? t(
-							"pages.dashboard.createdAccountSuccess",
-							"You have successfully created an account.",
-						)
-					: t(
-							"pages.dashboard.signedInSuccess",
-							"You have successfully signed in.",
-						)}
+					? t("pages.dashboard.createdAccountSuccess", "You have successfully created an account.")
+					: t("pages.dashboard.signedInSuccess", "You have successfully signed in.")}
 			</DismissibleAlert>
 
 			<h2 className="mb-4 text-3xl font-bold">{t("pages.dashboard.title")}</h2>
@@ -214,9 +184,10 @@ function DashboardPage(): ReactElement {
 
 			<div className="mt-4">
 				<button
+					type="button"
 					className="rounded bg-red-600 px-3 py-1 text-white"
 					onClick={() => {
-						void (async () => {
+						void (async (): Promise<void> => {
 							// Immediately clear client-side auth state so UI reflects
 							// sign-out without waiting on network roundtrips. This
 							// avoids the appearance of "nothing happened" when the
@@ -224,8 +195,8 @@ function DashboardPage(): ReactElement {
 							try {
 								// Perform client-side sign-out immediately.
 								signOutRef.current();
-							} catch (err) {
-								clientError("signOut failed:", err);
+							} catch (error) {
+								clientError("signOut failed:", error);
 							}
 
 							// Attempt sign-out on the server to clear the HttpOnly cookie.
@@ -235,8 +206,8 @@ function DashboardPage(): ReactElement {
 									credentials: "include",
 								});
 								clientDebug("/api/auth/signout status=", res.status);
-							} catch (err) {
-								clientError("Sign-out API failed:", err);
+							} catch (error) {
+								clientError("Sign-out API failed:", error);
 							}
 
 							// Explicitly set client-side signed-out state after server call.
@@ -245,8 +216,8 @@ function DashboardPage(): ReactElement {
 								if (storeApi) {
 									storeApi.getState().setIsSignedIn(false);
 								}
-							} catch (err) {
-								clientError("explicit setIsSignedIn(false) failed:", err);
+							} catch (error) {
+								clientError("explicit setIsSignedIn(false) failed:", error);
 							}
 						})();
 
@@ -268,11 +239,10 @@ function DashboardPage(): ReactElement {
 
 				{/* Delete account navigates to a confirmation page */}
 				<button
+					type="button"
 					className="ml-3 rounded border border-red-600 bg-transparent px-3 py-1 text-red-600 hover:bg-red-50/5"
 					onClick={() => {
-						void navigate(
-							`/${currentLang}/${dashboardPath}/${deleteAccountPath}`,
-						);
+						void navigate(`/${currentLang}/${dashboardPath}/${deleteAccountPath}`);
 					}}
 				>
 					{t("pages.dashboard.deleteAccount", "Delete Account")}

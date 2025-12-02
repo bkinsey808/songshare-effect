@@ -1,23 +1,17 @@
+import { getSupabaseAuthToken } from "@/react/supabase/getSupabaseAuthToken";
+import { getSupabaseClient } from "@/react/supabase/supabaseClient";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
+import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
 import { type SongLibraryEntry } from "./song-library-schema";
 import { type SongLibrarySlice } from "./song-library-slice";
 
-export function subscribeToLibrary(
-	get: () => SongLibrarySlice,
-): (() => void) | undefined {
+export default function subscribeToLibrary(get: () => SongLibrarySlice): (() => void) | undefined {
 	let unsubscribeFn: (() => void) | undefined = undefined;
 
 	// Get authentication token asynchronously
-	void (async () => {
+	void (async (): Promise<void> => {
 		try {
-			const { getSupabaseAuthToken } =
-				await import("@/react/supabase/getSupabaseAuthToken");
-			const { getSupabaseClient } =
-				await import("@/react/supabase/supabaseClient");
-			const { REALTIME_SUBSCRIBE_STATES } =
-				await import("@supabase/supabase-js");
-
 			const userToken = await getSupabaseAuthToken();
 			const client = getSupabaseClient(userToken);
 
@@ -40,7 +34,7 @@ export function subscribeToLibrary(
 					(payload: unknown) => {
 						// Use an async IIFE to avoid passing an async function where a
 						// synchronous callback is expected (prevents no-misused-promises).
-						void (async () => {
+						void (async (): Promise<void> => {
 							const { addLibraryEntry, removeLibraryEntry } = get();
 
 							function isLibraryPayload(value: unknown): value is {
@@ -55,9 +49,7 @@ export function subscribeToLibrary(
 								return isString(eventType);
 							}
 
-							function isSongLibraryEntry(
-								value: unknown,
-							): value is SongLibraryEntry {
+							function isSongLibraryEntry(value: unknown): value is SongLibraryEntry {
 								if (!isRecord(value)) {
 									return false;
 								}
@@ -105,11 +97,8 @@ export function subscribeToLibrary(
 												owner_username: userData.username,
 											});
 										}
-									} catch (error_) {
-										console.warn(
-											"[subscribeToLibrary] Error fetching owner username:",
-											error_,
-										);
+									} catch (error) {
+										console.warn("[subscribeToLibrary] Error fetching owner username:", error);
 										addLibraryEntry(songLibraryEntry);
 									}
 
@@ -119,9 +108,7 @@ export function subscribeToLibrary(
 									const oldEntry = payload.old;
 									// Safely extract song_id if present
 									try {
-										const idRaw = isRecord(oldEntry)
-											? oldEntry["song_id"]
-											: undefined;
+										const idRaw = isRecord(oldEntry) ? oldEntry["song_id"] : undefined;
 										if (isString(idRaw)) {
 											removeLibraryEntry(idRaw);
 										}
@@ -131,26 +118,20 @@ export function subscribeToLibrary(
 									break;
 								}
 							}
-						})().catch((err: unknown) => {
-							console.warn("[subscribeToLibrary] handler error:", err);
-						});
+						})();
 					},
 				)
 				.subscribe((status: string, err: unknown) => {
 					if (String(status) === String(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)) {
 						// Subscription successful - no logging needed in production
-					} else if (
-						String(status) === String(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR)
-					) {
+					} else if (String(status) === String(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR)) {
 						console.error("[subscribeToLibrary] Channel error:", err);
-					} else if (
-						String(status) === String(REALTIME_SUBSCRIBE_STATES.TIMED_OUT)
-					) {
+					} else if (String(status) === String(REALTIME_SUBSCRIBE_STATES.TIMED_OUT)) {
 						console.warn("[subscribeToLibrary] Subscription timed out");
 					}
 				});
 
-			unsubscribeFn = () => {
+			unsubscribeFn = (): void => {
 				void client.removeChannel(channel);
 			};
 		} catch (error) {

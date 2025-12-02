@@ -1,4 +1,4 @@
-import { SongForm } from "@/react/song/song-form/SongForm";
+import SongForm from "@/react/song/song-form/SongForm";
 
 function SongEditPage(): ReactElement {
 	return <SongForm />;

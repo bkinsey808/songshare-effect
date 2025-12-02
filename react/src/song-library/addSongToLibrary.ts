@@ -3,13 +3,27 @@ import { getSupabaseClient } from "@/react/supabase/supabaseClient";
 import { clientWarn } from "@/react/utils/clientLogger";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
-import {
-	type AddToLibraryRequest,
-	type SongLibraryEntry,
-} from "./song-library-schema";
+import { type AddToLibraryRequest, type SongLibraryEntry } from "./song-library-schema";
 import { type SongLibrarySlice } from "./song-library-slice";
 
-export async function addSongToLibrary(
+// Add to local state immediately (optimistic update) with owner username if available
+function isSongLibraryEntry(value: unknown): value is SongLibraryEntry {
+	if (!isRecord(value)) {
+		return false;
+	}
+	const { user_id, song_id } = value;
+	return isString(user_id) && isString(song_id);
+}
+
+function isOwnerData(value: unknown): value is { username?: string } {
+	if (!isRecord(value)) {
+		return false;
+	}
+	const { username } = value;
+	return isString(username);
+}
+
+export default async function addSongToLibrary(
 	request: Readonly<AddToLibraryRequest>,
 	get: () => SongLibrarySlice,
 ): Promise<void> {
@@ -38,9 +52,7 @@ export async function addSongToLibrary(
 		error: userError,
 	} = await client.auth.getUser();
 
-	function isAuthUser(
-		value: unknown,
-	): value is { app_metadata: { user?: { user_id?: string } } } {
+	function isAuthUser(value: unknown): value is { app_metadata: { user?: { user_id?: string } } } {
 		if (!isRecord(value)) {
 			return false;
 		}
@@ -60,11 +72,7 @@ export async function addSongToLibrary(
 		throw new Error("No authenticated user found");
 	}
 
-	if (
-		!isRecord(user) ||
-		!isRecord(user.app_metadata) ||
-		!isRecord(user.app_metadata.user)
-	) {
+	if (!isRecord(user) || !isRecord(user.app_metadata) || !isRecord(user.app_metadata.user)) {
 		throw new Error("No authenticated user found");
 	}
 	const userIdRaw = user.app_metadata.user.user_id;
@@ -99,23 +107,6 @@ export async function addSongToLibrary(
 			.eq("user_id", request.song_owner_id)
 			.single();
 
-		// Add to local state immediately (optimistic update) with owner username if available
-		function isSongLibraryEntry(value: unknown): value is SongLibraryEntry {
-			if (!isRecord(value)) {
-				return false;
-			}
-			const { user_id, song_id } = value;
-			return isString(user_id) && isString(song_id);
-		}
-
-		function isOwnerData(value: unknown): value is { username?: string } {
-			if (!isRecord(value)) {
-				return false;
-			}
-			const { username } = value;
-			return isString(username);
-		}
-
 		if (ownerError || !isOwnerData(ownerData)) {
 			if (isSongLibraryEntry(data)) {
 				addLibraryEntry(data);
@@ -147,11 +138,8 @@ export async function addSongToLibrary(
 			};
 			addLibraryEntry(fallbackEntryWithUsername);
 		}
-	} catch (userFetchError) {
-		clientWarn(
-			"[addToLibrary] Could not fetch owner username:",
-			userFetchError,
-		);
+	} catch (error) {
+		clientWarn("[addToLibrary] Could not fetch owner username:", error);
 		// Still add the entry without username — use a typed fallback
 		const fallbackEntry: SongLibraryEntry = {
 			user_id: userId,

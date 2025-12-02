@@ -7,7 +7,7 @@ import { type SongSubscribeSlice } from "../song-slice";
  * Updates the store with new public songs and manages subscriptions.
  */
 
-export function updateStoreWithPublicSongs({
+export default function updateStoreWithPublicSongs({
 	publicSongsToAdd,
 	state,
 	set,
@@ -22,28 +22,20 @@ export function updateStoreWithPublicSongs({
 	set: (
 		partial:
 			| Partial<ReadonlyDeep<SongSubscribeSlice>>
-			| ((
-					state: ReadonlyDeep<SongSubscribeSlice>,
-			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
+			| ((state: ReadonlyDeep<SongSubscribeSlice>) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void;
 }>): {
-	newActivePublicSongIds: ReadonlyArray<string>;
+	newActivePublicSongIds: readonly string[];
 	activePublicSongsUnsubscribe: () => void;
 } {
-	console.warn(
-		"[updateStoreWithPublicSongs] Updating store with songs:",
-		publicSongsToAdd,
-	);
+	console.warn("[updateStoreWithPublicSongs] Updating store with songs:", publicSongsToAdd);
 
 	// Add songs to store
 	state.addOrUpdatePublicSongs(publicSongsToAdd);
 
 	// Update activePublicSongIds to include newly fetched songs
-	const newActivePublicSongIds: ReadonlyArray<string> = [
-		...new Set([
-			...state.activePublicSongIds,
-			...Object.keys(publicSongsToAdd),
-		]),
+	const newActivePublicSongIds: readonly string[] = [
+		...new Set([...state.activePublicSongIds, ...Object.keys(publicSongsToAdd)]),
 	];
 
 	// Unsubscribe from previous subscription if exists
@@ -56,14 +48,12 @@ export function updateStoreWithPublicSongs({
 
 	// Update store state
 	set(() => ({
-		activePublicSongsUnsubscribe:
-			activePublicSongsUnsubscribe ?? (() => undefined),
+		activePublicSongsUnsubscribe: activePublicSongsUnsubscribe ?? ((): undefined => undefined),
 		activePublicSongIds: newActivePublicSongIds,
 	}));
 
 	return {
 		newActivePublicSongIds,
-		activePublicSongsUnsubscribe:
-			activePublicSongsUnsubscribe ?? (() => undefined),
+		activePublicSongsUnsubscribe: activePublicSongsUnsubscribe ?? (() => undefined),
 	};
 }

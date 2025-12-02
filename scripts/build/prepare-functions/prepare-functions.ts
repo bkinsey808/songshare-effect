@@ -1,13 +1,13 @@
 #!/usr/bin/env bun
 import { readFile, writeFile, unlink } from "node:fs/promises";
-import * as path from "node:path";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { warn as sWarn } from "../../utils/scriptLogger";
-import { bundleTopLevelFunctions } from "./helpers/bundleTopLevelFunctions";
-import { copyAndRewriteShared } from "./helpers/copyAndRewriteShared";
-import { ensureDir } from "./helpers/ensureDir";
-import { listFilesRecursively } from "./helpers/listFilesRecursively";
+import bundleTopLevelFunctions from "./helpers/bundleTopLevelFunctions";
+import copyAndRewriteShared from "./helpers/copyAndRewriteShared";
+import ensureDir from "./helpers/ensureDir";
+import listFilesRecursively from "./helpers/listFilesRecursively";
 
 // Prepares the Cloudflare functions bundle by copying shared code into dist and fixing import paths.
 const __filename = fileURLToPath(import.meta.url);
@@ -61,7 +61,13 @@ async function prepare(): Promise<void> {
 			for (const matchItem of contents.matchAll(externalImportRegex)) {
 				const [, rawPackageName] = matchItem;
 				const packageName = (rawPackageName ?? "").toString();
-				const allowed = Array.from(allowedExternalPackages).some(
+				// Convert the `Set` to a temporary array so we can use
+				// `Array.prototype.some`. `Set` doesn't implement `.some()`, and
+				// using the spread here is a concise way to perform the
+				// equality / `startsWith` checks. Alternatives would be a
+				// one-time precomputed array outside the loop or an explicit
+				// `for...of` iteration to avoid the small allocation.
+				const allowed = [...allowedExternalPackages].some(
 					(pkg) => packageName === pkg || packageName.startsWith(`${pkg}/`),
 				);
 				if (!allowed) {
@@ -85,8 +91,8 @@ async function prepare(): Promise<void> {
 				filePath,
 			);
 		}
-	} catch (err) {
-		const message = err instanceof Error ? err.message : String(err);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
 		sWarn("Warning: could not prune shared files:", message);
 	}
 
@@ -94,7 +100,7 @@ async function prepare(): Promise<void> {
 	const middlewareDest = path.join(distFunctionsDir, "_middleware.ts");
 	try {
 		const content = await readFile(middlewareSrc, "utf8");
-		const rewritten = content.replace(/@\/shared\//g, "./shared/");
+		const rewritten = content.replaceAll("@/shared/", "./shared/");
 		await writeFile(middlewareDest, rewritten, "utf8");
 		sWarn("Prepared middleware ->", middlewareDest);
 	} catch (error) {

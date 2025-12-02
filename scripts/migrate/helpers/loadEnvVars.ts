@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync } from "node:fs";
 
 import { error as sError } from "../../utils/scriptLogger";
 
@@ -10,30 +10,41 @@ import { error as sError } from "../../utils/scriptLogger";
  *
  * @returns An object mapping environment variable names to their values.
  */
-export function loadEnvVars(): Record<string, string | undefined> {
+export default function loadEnvVars(): Record<string, string | undefined> {
 	const ZERO = 0;
-	const EXIT_NON_ZERO = 1;
 	const env: Record<string, string | undefined> = {};
 
 	try {
 		const envFile = ".env";
-		if (existsSync(envFile)) {
-			const content = readFileSync(envFile, "utf-8");
-			content.split("\n").forEach((line: string) => {
-				const trimmed = line.trim();
-				if (trimmed !== "" && !trimmed.startsWith("#")) {
-					const [key, ...valueParts] = trimmed.split("=");
-					const keyStr = key ?? "";
-					if (keyStr !== "" && valueParts.length > ZERO) {
-						env[keyStr.trim()] = valueParts.join("=").trim();
-					}
+		if (!existsSync(envFile)) {
+			return env;
+		}
+
+		const content = readFileSync(envFile, "utf8");
+		const lines = content.split("\n");
+		for (const line of lines) {
+			const trimmed = line.trim();
+			if (trimmed === "" || trimmed.startsWith("#")) {
+				// skip blank lines and comment lines
+			} else {
+				const [key, ...valueParts] = trimmed.split("=");
+				const keyStr = key ?? "";
+				if (keyStr !== "" && valueParts.length > ZERO) {
+					env[keyStr.trim()] = valueParts.join("=").trim();
 				}
-			});
+			}
 		}
 	} catch (error) {
 		sError("❌ Error loading .env file:", error);
-		process.exit(EXIT_NON_ZERO);
+		if (error instanceof Error) {
+			throw error;
+		}
+		// Preserve the original error as the cause to retain original context.
+		throw new Error("Non-Error thrown while loading .env", { cause: error });
 	}
 
 	return env;
 }
+
+// Named alias for compatibility
+export { loadEnvVars };

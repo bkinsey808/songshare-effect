@@ -2,17 +2,14 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
 // Import translation resources
-import { detectInitialLanguage } from "@/react/language/detectInitialLanguage";
+import detectInitialLanguage from "@/react/language/detectInitialLanguage";
 import { type SupportedLanguageType } from "@/shared/language/supported-languages";
 
 import en from "./resources/en.json";
 import es from "./resources/es.json";
 import zh from "./resources/zh.json";
 
-const resources: Record<
-	SupportedLanguageType,
-	{ translation: Record<string, unknown> }
-> = {
+const resources: Record<SupportedLanguageType, { translation: Record<string, unknown> }> = {
 	en: { translation: en },
 	es: { translation: es },
 	zh: { translation: zh },
@@ -20,6 +17,7 @@ const resources: Record<
 
 const initialLanguage = detectInitialLanguage();
 
+// oxlint-disable-next-line no-named-as-default-member
 void i18n.use(initReactI18next).init({
 	resources,
 	// Set initial language from URL

@@ -1,10 +1,10 @@
 import { readFile, writeFile } from "node:fs/promises";
-import * as path from "node:path";
+import path from "node:path";
 
-import { warn as sWarn } from "../../../utils/scriptLogger";
+import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 import { walkFiles } from "./walkFiles";
 
-export async function rewriteSharedImports(destShared: string): Promise<void> {
+export default async function rewriteSharedImports(destShared: string): Promise<void> {
 	const NO_REPLACEMENTS = 0;
 	const REPLACEMENT_INCREMENT = 1;
 	let replacements = NO_REPLACEMENTS;
@@ -28,10 +28,9 @@ export async function rewriteSharedImports(destShared: string): Promise<void> {
 
 				nextContent = nextContent.replaceAll(fullMatch, relPath);
 				replacements += REPLACEMENT_INCREMENT;
-				match = importPattern.exec(content);
-			} else {
-				match = importPattern.exec(content);
 			}
+
+			match = importPattern.exec(content);
 		}
 
 		if (replacements !== NO_REPLACEMENTS && nextContent !== content) {

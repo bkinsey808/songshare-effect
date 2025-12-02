@@ -2,30 +2,19 @@
 import { type StoreApi } from "zustand";
 
 import { clientDebug, clientError } from "@/react/utils/clientLogger";
-import {
-	type AppSlice,
-	getOrCreateAppStore,
-	getStoreApi,
-} from "@/react/zustand/useAppStore";
-import {
-	HTTP_UNAUTHORIZED,
-	HTTP_NO_CONTENT,
-	HTTP_NOT_FOUND,
-} from "@/shared/constants/http";
+import { type AppSlice, getOrCreateAppStore, getStoreApi } from "@/react/zustand/useAppStore";
+import { HTTP_UNAUTHORIZED, HTTP_NO_CONTENT, HTTP_NOT_FOUND } from "@/shared/constants/http";
 import { apiMePath } from "@/shared/paths";
 import { type UserSessionData } from "@/shared/userSessionData";
 import { isRecord } from "@/shared/utils/typeGuards";
 
 // Module-level in-flight promise to dedupe concurrent requests.
 // Initialized to undefined to satisfy init-declarations lint rule
-let globalInFlight: Promise<UserSessionData | undefined> | undefined =
-	undefined;
+let globalInFlight: Promise<UserSessionData | undefined> | undefined = undefined;
 
 // Validate payload shape and return UserSessionData if valid, otherwise undefined
 function parsePayload(payload: unknown): UserSessionData | undefined {
-	function isSuccessWrapper(
-		value: unknown,
-	): value is { success: true; data: unknown } {
+	function isSuccessWrapper(value: unknown): value is { success: true; data: unknown } {
 		if (!isRecord(value)) {
 			return false;
 		}
@@ -56,7 +45,7 @@ function parsePayload(payload: unknown): UserSessionData | undefined {
  * Ensure signed-in state by calling /api/me. Exported so non-hook code can
  * force a refresh when needed.
  */
-export async function ensureSignedIn(options?: {
+export default function ensureSignedIn(options?: {
 	readonly force?: boolean;
 }): Promise<UserSessionData | undefined> {
 	const force = options?.force ?? false;
@@ -73,7 +62,8 @@ export async function ensureSignedIn(options?: {
 
 	// If not forced and we already know the sign-in state, skip network call
 	if (!force && currentIsSignedIn !== undefined) {
-		return undefined;
+		// callers expect a Promise<UserSessionData | undefined>
+		return Promise.resolve(undefined);
 	}
 
 	if (globalInFlight) {
@@ -109,17 +99,14 @@ export async function ensureSignedIn(options?: {
 			if (!res.ok) {
 				// For other non-OK statuses (server errors), log for debugging
 				// Localized: server-side error log
-				clientError(
-					"[ensureSignedIn] unexpected non-OK /api/me status:",
-					res.status,
-				);
+				clientError("[ensureSignedIn] unexpected non-OK /api/me status:", res.status);
 				api.getState().setIsSignedIn(false);
 				return undefined;
 			}
 
-			const payload: unknown = await res.json().catch((err: unknown) => {
+			const payload: unknown = await res.json().catch((error: unknown) => {
 				// Localized: error parsing response
-				clientError("useEnsureSignedIn json error", err);
+				clientError("useEnsureSignedIn json error", error);
 				return undefined;
 			});
 
@@ -129,17 +116,16 @@ export async function ensureSignedIn(options?: {
 
 			const data = parsePayload(payload);
 			return data;
-		} catch (err) {
+		} catch (error) {
 			const isAbort =
-				typeof err === "object" &&
-				err !== null &&
-				"name" in err &&
-				(err as { name?: unknown }).name === "AbortError";
+				typeof error === "object" &&
+				error !== null &&
+				(error as { name?: unknown }).name === "AbortError";
 			if (isAbort) {
 				return undefined;
 			}
 			// Localized: report unexpected error
-			clientError("ensureSignedIn error", err);
+			clientError("ensureSignedIn error", error);
 			return undefined;
 		} finally {
 			globalInFlight = undefined;
@@ -171,25 +157,22 @@ export async function ensureSignedIn(options?: {
 				clientDebug("[ensureSignedIn] parsed no userSessionData from payload");
 			} else {
 				// Debug: indicate we're about to apply sign-in
-				clientDebug(
-					"[ensureSignedIn] applying signIn, user=",
-					data.user?.user_id ?? "<unknown>",
-				);
+				clientDebug("[ensureSignedIn] applying signIn, user=", data.user?.user_id ?? "<unknown>");
 				const signInFn = storeApi.getState().signIn;
 				const setIsSignedInFn = storeApi.getState().setIsSignedIn;
 				try {
 					signInFn?.(data);
 					setIsSignedInFn?.(true);
-				} catch (err) {
+				} catch (error) {
 					// Localized: report error applying sign-in
-					clientError("apply signIn failed:", err);
+					clientError("apply signIn failed:", error);
 				}
 			}
 
 			return data;
-		} catch (err) {
+		} catch (error) {
 			// Localized: report post-process error
-			clientError("post-process ensureSignedIn error", err);
+			clientError("post-process ensureSignedIn error", error);
 			return data;
 		}
 	})();

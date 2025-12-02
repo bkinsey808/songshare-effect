@@ -26,7 +26,7 @@ export default function LanguageSwitcher(): ReactElement {
 	const currentLang = isSupportedLanguage(lang) ? lang : defaultLanguage;
 
 	// Extract the path without the language prefix
-	const currentPath = location.pathname.substring(LANG_PREFIX_LENGTH) || "/";
+	const currentPath = location.pathname.slice(LANG_PREFIX_LENGTH) || "/";
 
 	function handleLanguageChange(newLang: SupportedLanguageType): void {
 		if (newLang !== currentLang) {
@@ -41,9 +41,7 @@ export default function LanguageSwitcher(): ReactElement {
 		<select
 			value={currentLang}
 			onChange={(ev) => {
-				handleLanguageChange(
-					guardAsSupportedLanguage(ev.target.value as unknown),
-				);
+				handleLanguageChange(guardAsSupportedLanguage(ev.target.value as unknown));
 			}}
 			className="rounded-md border border-gray-300 bg-white px-3 py-1 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
 			aria-label={t("navigation.switchLanguage")}

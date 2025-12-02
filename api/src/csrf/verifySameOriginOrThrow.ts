@@ -1,10 +1,10 @@
-import { getAllowedOrigins } from "@/api/cors/getAllowedOrigins";
-import { getOriginToCheck } from "@/api/cors/getOriginToCheck";
+import getAllowedOrigins from "@/api/cors/getAllowedOrigins";
+import getOriginToCheck from "@/api/cors/getOriginToCheck";
 import { AuthenticationError } from "@/api/errors";
 
 import { type ReadonlyContext } from "../hono/hono-context";
 
-export function verifySameOriginOrThrow(ctx: ReadonlyContext): void {
+export default function verifySameOriginOrThrow(ctx: ReadonlyContext): void {
 	// Use getAllowedOrigins which accepts `unknown` so callers don't need to
 	// perform unsafe casts on `ctx.env`.
 	const allowedOrigins = getAllowedOrigins(ctx.env);

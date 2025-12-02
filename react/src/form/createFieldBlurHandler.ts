@@ -2,35 +2,24 @@
 import { type Schema } from "effect";
 
 import { clientDebug } from "@/react/utils/clientLogger";
-import { type ValidationError } from "@/shared/validation/types";
-import { validateForm } from "@/shared/validation/validateForm";
+import { type ValidationError } from "@/shared/validation/validate-types";
+import validateForm from "@/shared/validation/validateForm";
 
-type CreateFieldBlurHandlerParams<FormValues extends Record<string, unknown>> =
-	{
-		readonly schema: Schema.Schema<FormValues>;
-		readonly formData: Readonly<Record<string, unknown>>;
-		readonly currentErrors: ReadonlyArray<ValidationError>;
-		readonly setValidationErrors: (
-			errors: ReadonlyArray<ValidationError>,
-		) => void;
-		readonly i18nMessageKey: symbol | string;
-	};
+type CreateFieldBlurHandlerParams<FormValues extends Record<string, unknown>> = {
+	readonly schema: Schema.Schema<FormValues>;
+	readonly formData: Readonly<Record<string, unknown>>;
+	readonly currentErrors: readonly ValidationError[];
+	readonly setValidationErrors: (errors: readonly ValidationError[]) => void;
+	readonly i18nMessageKey: symbol | string;
+};
 
 /**
  * Create a field blur handler that validates the field and updates errors
  */
-export function createFieldBlurHandler<
-	FormValues extends Record<string, unknown>,
->(
+export default function createFieldBlurHandler<FormValues extends Record<string, unknown>>(
 	params: CreateFieldBlurHandlerParams<FormValues>,
 ): (field: keyof FormValues, value: string) => void {
-	const {
-		schema,
-		formData,
-		currentErrors,
-		setValidationErrors,
-		i18nMessageKey,
-	} = params;
+	const { schema, formData, currentErrors, setValidationErrors, i18nMessageKey } = params;
 
 	return function handleFieldBlur<FieldKey extends keyof FormValues>(
 		field: FieldKey,
@@ -58,19 +47,14 @@ export function createFieldBlurHandler<
 		if (validation.success) {
 			// Localized debug-only log
 			clientDebug(`✅ Field ${String(field)} is valid, removing errors`);
-			setValidationErrors(
-				currentErrors.filter((error) => error.field !== String(field)),
-			);
+			setValidationErrors(currentErrors.filter((error) => error.field !== String(field)));
 		} else {
 			const errs = validation.errors;
 			// Localized debug-only log
 			clientDebug(`❌ Field ${String(field)} has errors:`, errs);
 			const fieldErrors = errs.filter((error) => error.field === String(field));
 			// Localized debug-only log
-			clientDebug(
-				`🎯 Filtered field errors for ${String(field)}:`,
-				fieldErrors,
-			);
+			clientDebug(`🎯 Filtered field errors for ${String(field)}:`, fieldErrors);
 			setValidationErrors([
 				...currentErrors.filter((error) => error.field !== String(field)),
 				...fieldErrors,

@@ -18,24 +18,18 @@ export default function SongLibrary(): ReactElement {
 	const libraryEntries = useAppStoreSelector<Record<string, SongLibraryEntry>>(
 		(state) => state.libraryEntries,
 	);
-	const isLoading = useAppStoreSelector<boolean>(
-		(state) => state.isLibraryLoading,
+	const isLoading = useAppStoreSelector<boolean>((state) => state.isLibraryLoading);
+	const error = useAppStoreSelector<string | undefined>((state) => state.libraryError);
+	const fetchLibrary = useAppStoreSelector<() => Promise<void>>((state) => state.fetchLibrary);
+	const subscribeToLibrary = useAppStoreSelector<() => (() => void) | undefined>(
+		(state) => state.subscribeToLibrary,
 	);
-	const error = useAppStoreSelector<string | undefined>(
-		(state) => state.libraryError,
-	);
-	const fetchLibrary = useAppStoreSelector<() => Promise<void>>(
-		(state) => state.fetchLibrary,
-	);
-	const subscribeToLibrary = useAppStoreSelector<
-		() => (() => void) | undefined
-	>((state) => state.subscribeToLibrary);
 	const removeFromLibrary = useAppStoreSelector<
 		(request: Readonly<{ song_id: string }>) => Promise<void>
 	>((state) => state.removeFromLibrary);
 
 	// Initialize library data and subscription
-	useEffect(() => {
+	useEffect((): (() => void) | void => {
 		// Fetch initial data
 		void fetchLibrary();
 
@@ -43,7 +37,7 @@ export default function SongLibrary(): ReactElement {
 		const unsubscribe = subscribeToLibrary();
 
 		// Cleanup function
-		return () => {
+		return (): void => {
 			if (unsubscribe) {
 				unsubscribe();
 			}
@@ -56,10 +50,8 @@ export default function SongLibrary(): ReactElement {
 		return (
 			<div className="flex items-center justify-center py-12">
 				<div className="flex items-center space-x-2 text-gray-400">
-					<div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-					<span>
-						{t("songLibrary.loading", "Loading your song library...")}
-					</span>
+					<div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+					<span>{t("songLibrary.loading", "Loading your song library...")}</span>
 				</div>
 			</div>
 		);
@@ -126,17 +118,14 @@ export default function SongLibrary(): ReactElement {
 						className="group hover:bg-gray-750 rounded-lg border border-gray-700 bg-gray-800 p-4 transition-colors hover:border-gray-600"
 					>
 						{/* Song Title */}
-						<h3 className="mb-2 line-clamp-2 font-semibold text-white">
-							{entry.song_name}
-						</h3>
+						<h3 className="mb-2 line-clamp-2 font-semibold text-white">{entry.song_name}</h3>
 
 						{/* Owner Info */}
 						<div className="mb-3 flex items-center space-x-2">
 							<div className="flex items-center space-x-1 text-sm text-gray-400">
 								<span>👤</span>
 								<span>
-									{typeof entry.owner_username === "string" &&
-									entry.owner_username !== ""
+									{typeof entry.owner_username === "string" && entry.owner_username !== ""
 										? entry.owner_username
 										: t("songLibrary.unknownOwner", "Unknown User")}
 								</span>
@@ -153,19 +142,19 @@ export default function SongLibrary(): ReactElement {
 						{/* Action Buttons */}
 						<div className="flex items-center justify-between">
 							<button
+								type="button"
 								className="text-sm text-blue-400 transition-colors hover:text-blue-300"
 								onClick={() => {
 									if (entry.song_slug !== undefined && entry.song_slug !== "") {
 										void navigate(`/${currentLang}/songs/${entry.song_slug}`);
 									}
 								}}
-								disabled={
-									entry.song_slug === undefined || entry.song_slug === ""
-								}
+								disabled={entry.song_slug === undefined || entry.song_slug === ""}
 							>
 								{t("songLibrary.viewSong", "View Song")}
 							</button>
 							<button
+								type="button"
 								className="text-sm text-red-400 transition-colors hover:text-red-300"
 								onClick={() => {
 									void removeFromLibrary({ song_id: entry.song_id });

@@ -1,3 +1,5 @@
+/* eslint-disable promise/avoid-new */
+// oxlint-disable-next-line promise/avoid-new
 // Small, well-named constants replace magic numbers and keep lint rules happy.
 const SECONDS_PER_MINUTE = 60;
 const PAD_WIDTH = 2;
@@ -45,7 +47,7 @@ export function isValidEmail(email: string): boolean {
  */
 export function generateId(): string {
 	return (
-		Math.random().toString(STRING_RADIX_BASE36).substring(ID_SUBSTRING_FROM) +
+		Math.random().toString(STRING_RADIX_BASE36).slice(ID_SUBSTRING_FROM) +
 		Date.now().toString(STRING_RADIX_BASE36)
 	);
 }
@@ -53,9 +55,10 @@ export function generateId(): string {
 /**
  * Debounce function
  */
-export function debounce<
-	TFunc extends (...args: ReadonlyArray<unknown>) => void,
->(func: TFunc, delayMs: number): (...args: Parameters<TFunc>) => void {
+export function debounce<TFunc extends (...args: readonly unknown[]) => void>(
+	func: TFunc,
+	delayMs: number,
+): (...args: Parameters<TFunc>) => void {
 	let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
 	return (...args: Parameters<TFunc>) => {
 		if (timeoutId !== undefined) {
@@ -70,6 +73,18 @@ export function debounce<
 /**
  * Create a delay promise
  */
-export async function delay(ms: number): Promise<void> {
-	await new Promise((resolve) => setTimeout(resolve, ms));
+// oxlint-disable-next-line unicorn/no-new-promises
+// oxlint-disable-next-line no-new-promises
+// eslint-disable-next-line promise/avoid-new
+// oxlint-disable-next-line promise/avoid-new
+export function delay(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Check whether a string is empty, undefined, or only whitespace.
+ * Useful across small scripts and services.
+ */
+export function isEmpty(value: string | undefined): boolean {
+	return value === undefined || value.trim() === "";
 }

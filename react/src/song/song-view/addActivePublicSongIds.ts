@@ -2,7 +2,6 @@
 import { Schema } from "effect";
 
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
-import { getStoreApi } from "@/react/zustand/useAppStore";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";
 
@@ -13,28 +12,20 @@ export default function addActivePublicSongIds(
 	set: (
 		partial:
 			| Partial<ReadonlyDeep<SongSubscribeSlice>>
-			| ((
-					state: ReadonlyDeep<SongSubscribeSlice>,
-			  ) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
+			| ((state: ReadonlyDeep<SongSubscribeSlice>) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
 	) => void,
 	get: () => SongSubscribeSlice,
 ) {
-	return (songIds: ReadonlyArray<string>): void => {
+	return (songIds: readonly string[]): void => {
 		// Prefer the global store API when available so we can read the full
 		// `AppSlice` shape without unsafe assertions. Fall back to the local
 		// `get()` accessor when the store API is not yet available.
-		const storeApi = getStoreApi();
-		const appState = storeApi ? storeApi.getState() : undefined;
 		const sliceState = get();
 
-		// Compute the previous active IDs from whichever state we have.
-		const prevActiveIds: ReadonlyArray<string> = appState
-			? appState.activePublicSongIds
-			: sliceState.activePublicSongIds;
+		// Compute the previous active IDs from the slice state.
+		const prevActiveIds: readonly string[] = sliceState.activePublicSongIds;
 
-		const newActivePublicSongIds: ReadonlyArray<string> = Array.from(
-			new Set([...prevActiveIds, ...songIds]),
-		);
+		const newActivePublicSongIds: readonly string[] = [...new Set([...prevActiveIds, ...songIds])];
 
 		// Update activeSongIds and resubscribe.
 		set((prev) => {
@@ -45,39 +36,27 @@ export default function addActivePublicSongIds(
 		});
 
 		// Subscribe after activeSongIds is updated in Zustand
-		set(() => {
-			const storeForOps = appState ?? sliceState;
-			const activePublicSongsUnsubscribe =
-				storeForOps.subscribeToActivePublicSongs();
+		set((): Partial<ReadonlyDeep<SongSubscribeSlice>> => {
+			const storeForOps = sliceState;
+			const activePublicSongsUnsubscribe = storeForOps.subscribeToActivePublicSongs();
 			return {
-				activePublicSongsUnsubscribe:
-					activePublicSongsUnsubscribe ?? (() => undefined),
+				activePublicSongsUnsubscribe: activePublicSongsUnsubscribe ?? (() => undefined),
 			};
 		});
 
-		const NO_ACTIVE_SONGS = 0;
-
-		if (newActivePublicSongIds.length === NO_ACTIVE_SONGS) {
-			console.warn("[addActivePublicSongIds] No active songs to fetch.");
-			return;
-		}
-
-		// Read optional visitorToken via the app-level state when available.
+		// Prefer slice-local token reading — converting to unknown and validating
+		// gives us runtime safety without requiring the full `AppSlice` shape.
 		let visitorToken: string | undefined = undefined;
-		if (appState) {
-			const appStateUnknown: unknown = appState;
-			if (isRecord(appStateUnknown)) {
-				const { visitorToken: vt } = appStateUnknown;
-				if (typeof vt === "string") {
-					visitorToken = vt;
-				}
+		const sliceStateUnknown: unknown = sliceState;
+		if (isRecord(sliceStateUnknown)) {
+			const { visitorToken: vt } = sliceStateUnknown as { visitorToken?: unknown };
+			if (typeof vt === "string") {
+				visitorToken = vt;
 			}
 		}
 
 		if (typeof visitorToken !== "string") {
-			console.warn(
-				"[addActivePublicSongIds] No visitor token found. Cannot fetch songs.",
-			);
+			console.warn("[addActivePublicSongIds] No visitor token found. Cannot fetch songs.");
 			return;
 		}
 
@@ -88,11 +67,31 @@ export default function addActivePublicSongIds(
 		}
 
 		// Fire-and-forget async function to fetch all active song data
-		void (async () => {
-			console.warn(
-				"[addActivePublicSongIds] Fetching active songs:",
-				newActivePublicSongIds,
-			);
+		void (async (): Promise<void> => {
+			console.warn("[addActivePublicSongIds] Fetching active songs:", newActivePublicSongIds);
+
+			// helper function lives at the IIFE body root to avoid nested declaration rules
+			function processSong(song: unknown, out: Record<string, SongPublic>): void {
+				if (!isRecord(song)) {
+					return;
+				}
+
+				const id = song["song_id"];
+
+				if (typeof id !== "string") {
+					return;
+				}
+
+				const decodeResult = Schema.decodeUnknownEither(songPublicSchema)(song);
+
+				if (decodeResult._tag !== "Right") {
+					console.warn(`[addActivePublicSongIds] Failed to decode song ${id}:`, decodeResult.left);
+					return;
+				}
+
+				out[id] = decodeResult.right;
+			}
+
 			try {
 				const { data, error } = await supabase
 					.from("song_public")
@@ -100,10 +99,7 @@ export default function addActivePublicSongIds(
 					.in("song_id", newActivePublicSongIds);
 
 				if (error !== null) {
-					console.error(
-						"[addActivePublicSongIds] Supabase fetch error:",
-						error,
-					);
+					console.error("[addActivePublicSongIds] Supabase fetch error:", error);
 					return;
 				}
 
@@ -114,38 +110,17 @@ export default function addActivePublicSongIds(
 					const publicSongsToAdd: Record<string, SongPublic> = {};
 
 					for (const song of data) {
-						if (
-							typeof song === "object" &&
-							"song_id" in song &&
-							typeof song.song_id === "string"
-						) {
-							// Use Effect schema to safely decode the song data
-							const decodeResult =
-								Schema.decodeUnknownEither(songPublicSchema)(song);
-
-							if (decodeResult._tag === "Right") {
-								// Successfully decoded
-								publicSongsToAdd[song.song_id] = decodeResult.right;
-							} else {
-								// Failed to decode, log the error and skip this song
-								console.warn(
-									`[addActivePublicSongIds] Failed to decode song ${song.song_id}:`,
-									decodeResult.left,
-								);
-							}
-						}
+						processSong(song, publicSongsToAdd);
 					}
-					console.warn(
-						"[addActiveSongIds] Updating store with songs:",
-						publicSongsToAdd,
-					);
-					const storeForOps = appState ?? sliceState;
+
+					console.warn("[addActiveSongIds] Updating store with songs:", publicSongsToAdd);
+					const storeForOps = sliceState;
 					storeForOps.addOrUpdatePublicSongs(publicSongsToAdd);
 				} else {
 					console.error("[addActivePublicSongIds] Invalid data format:", data);
 				}
-			} catch (err) {
-				console.error("[addActivePublicSongIds] Unexpected fetch error:", err);
+			} catch (error) {
+				console.error("[addActivePublicSongIds] Unexpected fetch error:", error);
 			}
 		})();
 	};

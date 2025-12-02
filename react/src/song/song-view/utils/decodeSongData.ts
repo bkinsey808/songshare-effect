@@ -9,9 +9,7 @@ import { type SongPublic, songPublicSchema } from "../../song-schema";
  * @param data - Raw song data array from Supabase (read-only)
  * @returns Record of validated songs indexed by song_id
  */
-export function decodeSongData(
-	data: ReadonlyArray<unknown>,
-): Record<string, SongPublic> {
+export default function decodeSongData(data: readonly unknown[]): Record<string, SongPublic> {
 	if (!Array.isArray(data)) {
 		console.error("[decodeSongData] Invalid data format:", data);
 		return {};
@@ -34,10 +32,7 @@ export function decodeSongData(
 					publicSongsToAdd[maybeSongId] = decodeResult.right;
 				} else {
 					// Failed to decode, log the error and skip this song
-					console.warn(
-						`[decodeSongData] Failed to decode song ${maybeSongId}:`,
-						decodeResult.left,
-					);
+					console.warn(`[decodeSongData] Failed to decode song ${maybeSongId}:`, decodeResult.left);
 				}
 			}
 		}

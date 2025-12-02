@@ -18,7 +18,7 @@ type SortableSlideOrderItemProps = Readonly<{
 	slide: Slide;
 	duplicateSlideOrder: (id: string) => void;
 	removeSlideOrder: RemoveSlideOrder;
-	slideOrder: ReadonlyArray<string>;
+	slideOrder: readonly string[];
 }>;
 
 export default function SortableSlideOrderItem({
@@ -32,14 +32,7 @@ export default function SortableSlideOrderItem({
 	const ONE = 1;
 	const OPACITY_DRAGGING = 0.5;
 	const OPACITY_DEFAULT = 1;
-	const {
-		attributes,
-		listeners,
-		setNodeRef,
-		isDragging,
-		transform,
-		transition,
-	} = useSortable({
+	const { attributes, listeners, setNodeRef, isDragging, transform, transition } = useSortable({
 		id: sortableId,
 	});
 

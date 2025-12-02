@@ -2,17 +2,17 @@
 import { Effect } from "effect";
 
 import { DatabaseError } from "@/api/errors";
-import { getErrorMessage } from "@/api/getErrorMessage";
-import { parseMaybeSingle } from "@/api/supabase/parseMaybeSingle";
+import getErrorMessage from "@/api/getErrorMessage";
+import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
 import { type ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import { UserPublicSchema } from "@/shared/generated/supabaseSchemas";
-import { decodeUnknownSyncOrThrow } from "@/shared/validation/decodeUnknownSyncOrThrow";
+import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 
 /**
  * Resolve username from `user_public` table for a given user_id.
  * Returns the username string or undefined when not found.
  */
-export function resolveUsername(
+export default function resolveUsername(
 	supabase: ReadonlySupabaseClient,
 	existingUser: Readonly<{ user_id: string; name: string }>,
 ): Effect.Effect<string | undefined, DatabaseError> {

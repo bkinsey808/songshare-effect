@@ -1,3 +1,4 @@
+/* oxlint-disable max-lines */
 // Localized console usage — prefer per-line exceptions.
 import { Effect } from "effect";
 import { type Context } from "hono";
@@ -5,27 +6,23 @@ import { getCookie } from "hono/cookie";
 import { verify } from "hono/jwt";
 import { nanoid } from "nanoid";
 
-import { buildSameSiteAttr } from "@/api/cookie/buildSameSiteAttr";
-import { buildSessionCookie } from "@/api/cookie/buildSessionCookie";
+import buildSameSiteAttr from "@/api/cookie/buildSameSiteAttr";
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import { type Env } from "@/api/env";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
-import { getErrorMessage } from "@/api/getErrorMessage";
+import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
 import rateLimit from "@/api/oauth-callback-factory/rateLimit";
-import { buildDashboardRedirectUrl } from "@/api/oauth/buildDashboardRedirectUrl";
-import { fetchAndPrepareUser } from "@/api/oauth/fetchAndPrepareUser";
-import { buildRegisterJwt } from "@/api/register/buildRegisterJwt";
+import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
+import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
+import buildRegisterJwt from "@/api/register/buildRegisterJwt";
 import { buildUserSessionJwt } from "@/api/user-session/buildUserSessionJwt";
 import { csrfTokenCookieName, oauthCsrfCookieName } from "@/shared/cookies";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { OauthStateSchema } from "@/shared/oauth/oauthState";
-import {
-	apiOauthCallbackPath,
-	dashboardPath,
-	registerPath,
-} from "@/shared/paths";
+import { apiOauthCallbackPath, dashboardPath, registerPath } from "@/shared/paths";
 import {
 	codeQueryParam,
 	providerQueryParam,
@@ -33,7 +30,7 @@ import {
 	stateQueryParam,
 } from "@/shared/queryParams";
 import { SigninErrorToken } from "@/shared/signinTokens";
-import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
+import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 
 // HTTP status codes used in redirects
 const SEE_OTHER = 303;
@@ -62,21 +59,17 @@ const SEE_OTHER = 303;
  * - Callers receive an Effect that, when executed, yields a Response or one
  * of the typed errors above.
  *
-			return ctx.redirect(
-				`/${defaultLanguage}/?${signinErrorQueryParam}=${SigninErrorToken.rateLimit}`,
-				303,
-			);
  * @returns An Effect that yields a `Response` on success or a typed error on
  * failure.
  */
-export function oauthCallbackFactory(
+export default function oauthCallbackFactory(
 	ctx: ReadonlyContext,
 ): Effect.Effect<Response, DatabaseError | ServerError | ValidationError> {
 	return Effect.gen(function* rateLimitFn($) {
 		// Rate limit by IP
 		const allowed = yield* $(
 			Effect.tryPromise({
-				try: async () => rateLimit(ctx, "oauthCallback"),
+				try: () => rateLimit(ctx, "oauthCallback"),
 				catch: () => new DatabaseError({ message: "Rate limit failed" }),
 			}),
 		);
@@ -126,11 +119,7 @@ export function oauthCallbackFactory(
 		// Use Env type for environment variables
 		const envRecord: Env = ctx.env;
 		const stateSecret = envRecord.STATE_HMAC_SECRET ?? envRecord.JWT_SECRET;
-		if (
-			stateSecret === undefined ||
-			stateSecret === null ||
-			stateSecret === ""
-		) {
+		if (stateSecret === undefined || stateSecret === null || stateSecret === "") {
 			yield* $(
 				Effect.sync(() => {
 					// Localized: server-side error log
@@ -142,8 +131,7 @@ export function oauthCallbackFactory(
 			return yield* $(
 				Effect.fail(
 					new ServerError({
-						message:
-							"Server misconfiguration: missing state verification secret",
+						message: "Server misconfiguration: missing state verification secret",
 					}),
 				),
 			);
@@ -151,7 +139,7 @@ export function oauthCallbackFactory(
 
 		const verified = yield* $(
 			Effect.tryPromise({
-				try: async () => verify(oauthStateParamsString, stateSecret),
+				try: () => verify(oauthStateParamsString, stateSecret),
 				catch: (err) => new ServerError({ message: getErrorMessage(err) }),
 			}),
 		);
@@ -203,16 +191,12 @@ export function oauthCallbackFactory(
 		const stateRedirectPort = oauthState.redirect_port;
 		const stateRedirectOrigin = oauthState.redirect_origin ?? "";
 
-		function computeStateRedirectUri(origin: string, port: unknown) {
+		function computeStateRedirectUri(origin: string, port: unknown): string {
 			const trimmed = (origin ?? "").replace(/\/$/, "");
 			let computedRedirectUri = trimmed
 				? trimmed + (apiOauthCallbackPath ?? "")
 				: (apiOauthCallbackPath ?? "");
-			if (
-				typeof port === "string" &&
-				port !== "" &&
-				envRecord.ENVIRONMENT !== "production"
-			) {
+			if (typeof port === "string" && port !== "" && envRecord.ENVIRONMENT !== "production") {
 				computedRedirectUri = `https://localhost:${port}${apiOauthCallbackPath ?? ""}`;
 			}
 			return computedRedirectUri;
@@ -278,17 +262,12 @@ export function oauthCallbackFactory(
 		// dashboardRedirectUrl is not assigned yet, will log after assignment below
 		if (!existingUser) {
 			// User needs registration
-			const registerJwt = yield* $(
-				buildRegisterJwt({ ctx, oauthUserData, oauthState }),
-			);
+			const registerJwt = yield* $(buildRegisterJwt({ ctx, oauthUserData, oauthState }));
 
 			yield* $(
 				Effect.sync(() => {
 					// Localized: debug-only server-side log
-					serverDebug(
-						"[oauthCallback] Setting register cookie:",
-						registerCookieName,
-					);
+					serverDebug("[oauthCallback] Setting register cookie:", registerCookieName);
 				}),
 			);
 
@@ -315,7 +294,7 @@ export function oauthCallbackFactory(
 								name: registerCookieName,
 								value: registerJwt,
 								opts: {
-									maxAge: 604800,
+									maxAge: 604_800,
 									httpOnly: true,
 								},
 							});
@@ -333,19 +312,14 @@ export function oauthCallbackFactory(
 			yield* $(
 				Effect.sync(() => {
 					// Localized: debug-only server-side log
-					serverDebug(
-						"[oauthCallback] Redirecting to register page:",
-						`/${lang}/${registerPath}`,
-					);
+					serverDebug("[oauthCallback] Redirecting to register page:", `/${lang}/${registerPath}`);
 				}),
 			);
 
 			// Redirect to register page (303 See Other) using ctx.redirect so
 			// previously-set headers (including Set-Cookie) are preserved on the
 			// response. Returning a new Response would drop headers attached to ctx.
-			return yield* $(
-				Effect.sync(() => ctx.redirect(`/${lang}/${registerPath}`, SEE_OTHER)),
-			);
+			return yield* $(Effect.sync(() => ctx.redirect(`/${lang}/${registerPath}`, SEE_OTHER)));
 		}
 
 		if (
@@ -356,10 +330,7 @@ export function oauthCallbackFactory(
 			yield* $(
 				Effect.sync(() => {
 					// Localized: debug-only server-side log
-					serverDebug(
-						"[oauthCallback] Provider mismatch, redirecting to signInFailure:",
-						provider,
-					);
+					serverDebug("[oauthCallback] Provider mismatch, redirecting to signInFailure:", provider);
 				}),
 			);
 			// Redirect to home with a signinError marker so the SPA can show
@@ -399,7 +370,7 @@ export function oauthCallbackFactory(
 					name: userSessionCookieName,
 					value: sessionJwt,
 					opts: {
-						maxAge: 604800,
+						maxAge: 604_800,
 						httpOnly: true,
 					},
 				});
@@ -419,16 +390,13 @@ export function oauthCallbackFactory(
 					name: csrfTokenCookieName,
 					value: csrfToken,
 					opts: {
-						maxAge: 604800,
+						maxAge: 604_800,
 						httpOnly: false,
 					},
 				});
 				ctx.res.headers.append("Set-Cookie", csrfHeader);
 				// Localized: debug-only server-side log
-				serverDebug(
-					"[oauthCallback] Set-Cookie header (csrf-token):",
-					csrfHeader,
-				);
+				serverDebug("[oauthCallback] Set-Cookie header (csrf-token):", csrfHeader);
 			}),
 		);
 
@@ -440,8 +408,6 @@ export function oauthCallbackFactory(
 			dashboardPath,
 		});
 
-		return yield* $(
-			Effect.sync(() => ctx.redirect(dashboardRedirectUrl, SEE_OTHER)),
-		);
+		return yield* $(Effect.sync(() => ctx.redirect(dashboardRedirectUrl, SEE_OTHER)));
 	});
 }

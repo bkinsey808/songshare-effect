@@ -4,7 +4,7 @@
  A small cross-platform wrapper script used as `postinstall` in package.json.
  Prefers Bun if available; otherwise falls back to `npx playwright install --with-deps`.
 */
-import { spawnSync } from "child_process";
+import { spawnSync } from "node:child_process";
 
 import { warn as sWarn, error as sError } from "./utils/scriptLogger.mjs";
 
@@ -65,7 +65,7 @@ try {
 		["1", "true"].includes(ciFlag.toLowerCase());
 	const args = isCI ? ["playwright", "install"] : ["playwright", "install", "--with-deps"];
 	process.exit(run("npx", args));
-} catch (err) {
-	sError("postinstall wrapper failed:", err);
+} catch (error) {
+	sError("postinstall wrapper failed:", error);
 	process.exit(EXIT_FAILURE);
 }

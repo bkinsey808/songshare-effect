@@ -1,8 +1,8 @@
 import { isRecord } from "@/shared/utils/typeGuards";
-import { type ValidationError } from "@/shared/validation/types";
+import { type ValidationError } from "@/shared/validation/validate-types";
 
-import { extractFromFiberFailure } from "./extractFromFiberFailure";
-import { safeJsonParse } from "./safeJsonParse";
+import extractFromFiberFailure from "./extractFromFiberFailure";
+import safeJsonParse from "./safeJsonParse";
 
 function isValidationErrorArray(value: unknown): value is ValidationError[] {
 	if (!Array.isArray(value)) {
@@ -29,9 +29,7 @@ function isValidationErrorArray(value: unknown): value is ValidationError[] {
  * Extract ValidationError[] from various error shapes used in the codebase.
  * Keeps the extraction logic in one place to reduce cognitive complexity.
  */
-export function extractValidationErrors(
-	error: unknown,
-): ReadonlyArray<ValidationError> {
+export default function extractValidationErrors(error: unknown): readonly ValidationError[] {
 	// Direct array
 	if (isValidationErrorArray(error)) {
 		return error;

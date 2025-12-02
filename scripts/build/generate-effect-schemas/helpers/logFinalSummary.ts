@@ -1,8 +1,8 @@
-import { relative } from "path";
+import { relative } from "node:path";
 
-import { log as sLog } from "../../../utils/scriptLogger";
+import { log as sLog } from "@/scripts/utils/scriptLogger";
 
-export function logFinalSummary(
+export default function logFinalSummary(
 	params: Readonly<{
 		projectRoot: string;
 		schemasPath: string;

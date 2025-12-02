@@ -3,21 +3,15 @@ import { isSupportedLanguage } from "@/shared/language/supported-languages-effec
 import { preferredLanguageCookieName } from "../cookies";
 import { type SupportedLanguageType } from "./supported-languages";
 
-export function parseLanguageCookie(
+export default function parseLanguageCookie(
 	cookieHeader: string | null,
 ): SupportedLanguageType | undefined {
-	if (
-		cookieHeader === null ||
-		cookieHeader === undefined ||
-		cookieHeader.trim() === ""
-	) {
+	if (cookieHeader === null || cookieHeader === undefined || cookieHeader.trim() === "") {
 		return undefined;
 	}
 	const match = cookieHeader
 		.split(";")
-		.find((cookie) =>
-			cookie.trim().startsWith(`${preferredLanguageCookieName}=`),
-		);
+		.find((cookie) => cookie.trim().startsWith(`${preferredLanguageCookieName}=`));
 	if (match !== undefined && match !== null && match.includes("=")) {
 		const [, raw] = match.split("=");
 		const lang = raw?.trim();

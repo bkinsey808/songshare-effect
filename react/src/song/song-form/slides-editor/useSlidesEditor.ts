@@ -1,15 +1,11 @@
 import { clientDebug } from "@/react/utils/clientLogger";
-import {
-	type DragEndEvent,
-	type SensorDescriptor,
-	type SensorOptions,
-} from "@dnd-kit/core";
+import { type DragEndEvent, type SensorDescriptor, type SensorOptions } from "@dnd-kit/core";
 
 import { type Slide } from "../songTypes";
-import { useSlideData } from "./useSlideData";
-import { useSlideDragAndDrop } from "./useSlideDragAndDrop";
-import { useSlideFields } from "./useSlideFields";
-import { useSlideOrder } from "./useSlideOrder";
+import useSlideData from "./useSlideData";
+import useSlideDragAndDrop from "./useSlideDragAndDrop";
+import useSlideFields from "./useSlideFields";
+import useSlideOrder from "./useSlideOrder";
 
 export default function useSlidesEditor({
 	slideOrder,
@@ -17,8 +13,8 @@ export default function useSlidesEditor({
 	slides,
 	setSlides,
 }: Readonly<{
-	slideOrder: ReadonlyArray<string>;
-	setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+	slideOrder: readonly string[];
+	setSlideOrder: (newOrder: readonly string[]) => void;
 	slides: Readonly<Record<string, Slide>>;
 	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 }>): {

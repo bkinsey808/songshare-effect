@@ -1,4 +1,4 @@
-import { buildSameSiteAttr } from "@/api/cookie/buildSameSiteAttr";
+import buildSameSiteAttr from "@/api/cookie/buildSameSiteAttr";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { getEnvString } from "@/shared/env/getEnv";
 
@@ -6,10 +6,14 @@ type BuildSetCookieHeaderParams = Readonly<{
 	ctx: ReadonlyContext;
 	name: string;
 	value: string;
-	opts?: Readonly<{ maxAge?: number; httpOnly?: boolean }>;
+	// With `exactOptionalPropertyTypes` enabled an optional property does not
+	// implicitly include `undefined` in its type. Call sites may pass an
+	// explicit `undefined` value, so include `| undefined` to accept that
+	// form while still allowing callers to omit the property entirely.
+	opts?: Readonly<{ maxAge?: number; httpOnly?: boolean }> | undefined;
 }>;
 
-export function buildSetCookieHeader({
+export default function buildSetCookieHeader({
 	ctx,
 	name,
 	value,
@@ -40,22 +44,26 @@ export function buildSetCookieHeader({
 		secureFlag,
 	});
 
-	const DEFAULT_MAX_AGE_SECONDS = 604800; // 7 days
+	const DEFAULT_MAX_AGE_SECONDS = 604_800; // 7 days
 	const ZERO = 0;
 
-	const maxAge =
-		typeof opts?.maxAge === "number"
-			? String(opts?.maxAge)
-			: String(DEFAULT_MAX_AGE_SECONDS);
-	const httpOnly = opts?.httpOnly !== false;
+	let maxAge = String(DEFAULT_MAX_AGE_SECONDS);
+	if (opts !== undefined && typeof opts.maxAge === "number") {
+		maxAge = String(opts.maxAge);
+	}
+
+	const httpOnly = !(opts !== undefined && opts.httpOnly === false);
 
 	const expires =
-		opts?.maxAge === ZERO ? `Expires=${new Date(ZERO).toUTCString()}; ` : "";
+		opts !== undefined && opts.maxAge === ZERO
+			? `Expires=${new Date(ZERO).toUTCString()}; `
+			: "";
 
 	const httpOnlyPart = httpOnly ? "HttpOnly; " : "";
 	const headerValue =
 		`${name}=${value}; ${httpOnlyPart}Path=/; ${domainAttr}${sameSiteAttr} Max-Age=${maxAge}; ${expires}${secureString}`
-			.replace(/\s+/g, " ")
+			.split(/\s+/)
+			.join(" ")
 			.trim();
 
 	return headerValue;

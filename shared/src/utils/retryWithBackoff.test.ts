@@ -2,17 +2,31 @@ import { describe, expect, it, vi } from "vitest";
 
 import { retryWithBackoff } from "@/shared/utils/retryWithBackoff";
 
+const ZERO = 0;
+const ONE = 1;
+const TWO = 2;
+
+// simple base function used by the first test
+async function base(): Promise<string> {
+	// Keep an await to avoid `require-await` warnings while still being trivial
+	await Promise.resolve();
+	return "ok";
+}
+
+// Return a rejected promise to simulate an aborting error. Kept at module scope
+// so the test body remains free of conditionals and function-scoping warnings.
+function abortingFn(): Promise<never> {
+	const errObj = new Error("abort");
+	errObj.name = "AbortError";
+	return Promise.reject(errObj);
+}
+
+function isAbortError(err: unknown): boolean {
+	return err instanceof Error && err.name === "AbortError";
+}
+
 describe("retryWithBackoff", () => {
-	const ZERO = 0;
-	const ONE = 1;
-	const TWO = 2;
-
 	it("succeeds immediately when fn returns a value", async () => {
-		async function base(): Promise<string> {
-			await Promise.resolve();
-			return "ok";
-		}
-
 		const fn = vi.fn(base);
 		const res = await retryWithBackoff(fn, [ZERO]);
 		expect(res.succeeded).toBe(true);
@@ -21,41 +35,22 @@ describe("retryWithBackoff", () => {
 	});
 
 	it("retries after an error then succeeds", async () => {
-		let calls = 0;
+		// Simulate first call failing then subsequent calls succeeding
+		const fn = vi.fn().mockRejectedValueOnce(new Error("boom")).mockResolvedValue("ok");
 
-		async function fn(): Promise<string> {
-			calls += ONE;
-			if (calls === ONE) {
-				// make this throw asynchronously
-				await Promise.reject(new Error("boom"));
-			}
-			await Promise.resolve();
-			return "ok";
-		}
-
-		const res = await retryWithBackoff(fn, [ZERO, ZERO], {
-			onError: () => undefined,
-		});
+		const res = await retryWithBackoff(fn, [ZERO, ZERO], { onError: () => undefined });
 
 		expect(res.succeeded).toBe(true);
 		expect(res.value).toBe("ok");
-		expect(calls).toBe(TWO);
+		expect(fn).toHaveBeenCalledTimes(TWO);
 	});
 
 	it("returns aborted when shouldAbort signals an abort", async () => {
-		async function fn(): Promise<never> {
-			const errObj = new Error("abort");
-			errObj.name = "AbortError";
-			await Promise.reject(errObj);
-			throw errObj; // unreachable but satisfies types
-		}
+		const fn = abortingFn;
 
 		const res = await retryWithBackoff(fn, [ZERO, ZERO], {
-			shouldAbort: (err) =>
-				typeof err === "object" &&
-				err !== null &&
-				"name" in err &&
-				(err as { name?: unknown }).name === "AbortError",
+			// `shouldAbort` should return true when the error indicates an abort.
+			shouldAbort: isAbortError,
 		});
 
 		expect(res.aborted).toBe(true);

@@ -42,7 +42,7 @@ type UseSlideFieldsReturn = {
 	safeGetField: SafeGetField;
 };
 
-export function useSlideFields({
+export default function useSlideFields({
 	slides,
 	setSlides,
 }: UseSlideFieldsParams): UseSlideFieldsReturn {

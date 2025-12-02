@@ -3,11 +3,11 @@ import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
 import { type AppError, ServerError, ValidationError } from "@/api/errors";
-import { getErrorMessage } from "@/api/getErrorMessage";
+import getErrorMessage from "@/api/getErrorMessage";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
-import { resolveRedirectOrigin } from "@/api/oauth/resolveRedirectOrigin";
-import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
+import resolveRedirectOrigin from "@/api/oauth/resolveRedirectOrigin";
+import getBackEndProviderData from "@/api/provider/getBackEndProviderData";
 import { oauthCsrfCookieName } from "@/shared/cookies";
 import { getEnvString } from "@/shared/env/getEnv";
 import { defaultLanguage } from "@/shared/language/supported-languages";
@@ -21,22 +21,26 @@ import {
 	signinErrorQueryParam,
 } from "@/shared/queryParams";
 import { SigninErrorToken } from "@/shared/signinTokens";
-import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
+import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 
 import { type Env } from "../env";
 // Removed unused safeGet import
 
 import { type ReadonlyContext } from "../hono/hono-context";
 
-// Note: state signing is performed using `hono/jwt.sign` below.
+function computeRequestOrigin(reqUrl: string): string {
+	try {
+		return new URL(reqUrl).origin;
+	} catch {
+		return "";
+	}
+}
 
 /**
  * Effect-based handler for OAuth sign-in initiation.
  * Produces a redirect Response and sets a CSRF cookie.
  */
-function oauthSignInFactory(
-	ctx: ReadonlyContext,
-): Effect.Effect<Response, AppError> {
+function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppError> {
 	return Effect.gen(function* oauthSignInGen($) {
 		// Parse provider param using Effect Schema decoder (as an Effect)
 		// Parse provider param synchronously and redirect on invalid provider.
@@ -45,9 +49,7 @@ function oauthSignInFactory(
 				// decodeUnknownSync will return a ProviderType or throw on
 				// invalid input. We intentionally catch and return undefined
 				// to handle invalid provider params gracefully.
-				return Schema.decodeUnknownSync(ProviderSchema)(
-					ctx.req.param("provider"),
-				);
+				return Schema.decodeUnknownSync(ProviderSchema)(ctx.req.param("provider"));
 			} catch {
 				return undefined;
 			}
@@ -99,8 +101,7 @@ function oauthSignInFactory(
 		// when the dev proxy forwards an HTTP request to the API. Falling back to
 		// the request URL preserves behavior when no headers are present.
 		const headerOrigin = ctx.req.header("origin") ?? "";
-		const headerReferer =
-			ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
+		const headerReferer = ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
 		function computeDerivedFromReferer(): string {
 			try {
 				return headerReferer ? new URL(headerReferer).origin : "";
@@ -109,29 +110,15 @@ function oauthSignInFactory(
 			}
 		}
 		const derivedFromReferer = computeDerivedFromReferer();
-		function computeRequestOrigin(reqUrl: string): string {
-			try {
-				return new URL(reqUrl).origin;
-			} catch {
-				return "";
-			}
-		}
 
 		const requestOrigin =
-			headerOrigin ||
-			derivedFromReferer ||
-			computeRequestOrigin(String(ctx.req.url));
+			headerOrigin || derivedFromReferer || computeRequestOrigin(String(ctx.req.url));
 		// Prefer the configured redirect origin, but for localhost in non-
 		// production prefer the incoming request origin (so dev can run over
 		// either http or https without changing OAUTH_REDIRECT_ORIGIN).
 		const isProdFlag = envRecord.ENVIRONMENT === "production";
-		const opts = requestOrigin
-			? { requestOrigin, isProd: isProdFlag }
-			: { isProd: isProdFlag };
-		const redirectOrigin = resolveRedirectOrigin(
-			redirectOriginEnv || undefined,
-			opts,
-		);
+		const opts = requestOrigin ? { requestOrigin, isProd: isProdFlag } : { isProd: isProdFlag };
+		const redirectOrigin = resolveRedirectOrigin(redirectOriginEnv || undefined, opts);
 		const originIsHttps = redirectOrigin.startsWith("https://");
 		const secureAttr = isProd || originIsHttps ? "; Secure" : "";
 		yield* $(
@@ -175,14 +162,16 @@ function oauthSignInFactory(
 		// This ensures the subsequent Set-Cookie includes Secure when required by
 		// browsers for SameSite=None cookies.
 		const redirectPortQuery = ctx.req.query(redirectPortQueryParam);
-		// Ensure we only treat a defined, non-empty string as a port value.
-		if (typeof redirectPortQuery === "string" && redirectPortQuery !== "") {
-			// Developer convenience: when a redirect_port is provided prefer HTTPS
-			// for localhost. Skip this in production — OAUTH_REDIRECT_ORIGIN should
-			// be configured there.
-			if (envRecord.ENVIRONMENT !== "production") {
-				redirect_uri = `https://localhost:${redirectPortQuery}${apiOauthCallbackPath ?? ""}`;
-			}
+		// Ensure we only treat a defined, non-empty string as a port value and
+		// skip this override in production. When a redirect_port is provided
+		// prefer HTTPS for localhost in non-production so the provider will
+		// redirect back to the HTTPS dev server (mkcert + Vite).
+		if (
+			typeof redirectPortQuery === "string" &&
+			redirectPortQuery !== "" &&
+			envRecord.ENVIRONMENT !== "production"
+		) {
+			redirect_uri = `https://localhost:${redirectPortQuery}${apiOauthCallbackPath ?? ""}`;
 		}
 
 		// Encode state, include redirect_port and redirect_origin so the callback
@@ -209,18 +198,12 @@ function oauthSignInFactory(
 
 		// Sign the state using JWT-style sign. Prefer STATE_HMAC_SECRET, fall back to JWT_SECRET.
 		const stateSecret = envRecord.STATE_HMAC_SECRET ?? envRecord.JWT_SECRET;
-		if (
-			stateSecret === undefined ||
-			stateSecret === null ||
-			stateSecret === ""
-		) {
+		if (stateSecret === undefined || stateSecret === null || stateSecret === "") {
 			// Log and redirect with a generic serverError token
 			yield* $(
 				Effect.sync(() => {
 					// Localized: server-side error log
-					serverError(
-						"[oauthSignIn] Missing STATE_HMAC_SECRET or JWT_SECRET for signing state",
-					);
+					serverError("[oauthSignIn] Missing STATE_HMAC_SECRET or JWT_SECRET for signing state");
 				}),
 			);
 			return yield* $(
@@ -238,7 +221,7 @@ function oauthSignInFactory(
 
 		const signedStateParam = yield* $(
 			Effect.tryPromise<string, ServerError>({
-				try: async () => sign(oauthState, stateSecret),
+				try: () => sign(oauthState, stateSecret),
 				catch: (err) => new ServerError({ message: getErrorMessage(err) }),
 			}),
 		);
@@ -262,13 +245,12 @@ function oauthSignInFactory(
 				client_id = val;
 			}
 		}
+
 		if (client_id === "") {
 			yield* $(
 				Effect.sync(() => {
 					// Localized: server-side error log
-					serverError(
-						`[oauthSignIn] Missing client_id for provider ${provider}`,
-					);
+					serverError(`[oauthSignIn] Missing client_id for provider ${provider}`);
 				}),
 			);
 			// Redirect user to home with providerUnavailable token
@@ -284,6 +266,7 @@ function oauthSignInFactory(
 				),
 			);
 		}
+
 		yield* $(
 			Effect.sync(() => {
 				// Localized: debug-only server-side log
@@ -311,12 +294,8 @@ function oauthSignInFactory(
 	});
 }
 
-export async function oauthSignInHandler(
-	ctx: ReadonlyContext,
-): Promise<Response> {
-	return handleHttpEndpoint((ctxInner: ReadonlyContext) =>
-		oauthSignInFactory(ctxInner),
-	)(ctx);
+export function oauthSignInHandler(ctx: ReadonlyContext): Promise<Response> {
+	return handleHttpEndpoint((ctxInner: ReadonlyContext) => oauthSignInFactory(ctxInner))(ctx);
 }
 
 export default oauthSignInHandler;

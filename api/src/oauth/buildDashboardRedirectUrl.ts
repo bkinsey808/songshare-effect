@@ -22,7 +22,7 @@ type BuildDashboardRedirectUrlParams = Readonly<{
  * @param params.dashboardPath - The dashboard path (e.g. 'dashboard')
  * @returns The computed dashboard redirect URL
  */
-export function buildDashboardRedirectUrl({
+export default function buildDashboardRedirectUrl({
 	ctx,
 	url,
 	redirectPort,

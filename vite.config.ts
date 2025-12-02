@@ -1,12 +1,13 @@
-import autoprefixer from "autoprefixer";
-import fs from "fs";
-import path from "path";
-// Fix __dirname for ESM context
-import { fileURLToPath } from "url";
-import { type ServerOptions, type UserConfig, defineConfig } from "vite";
-
-import tailwindcss from "@tailwindcss/postcss";
+// Use the Tailwind PostCSS plugin package rather than importing Tailwind's
+// runtime directly. Tailwind's PostCSS plugin was moved to a separate
+// package (`@tailwindcss/postcss`) so import that here for PostCSS usage.
+import tailwindPostcss from "@tailwindcss/postcss";
 import react from "@vitejs/plugin-react";
+import autoprefixer from "autoprefixer";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { type ServerOptions, type UserConfig, defineConfig } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -38,7 +39,7 @@ const config: UserConfig = defineConfig({
 	},
 	css: {
 		postcss: {
-			plugins: [tailwindcss, autoprefixer],
+			plugins: [tailwindPostcss, autoprefixer],
 		},
 	},
 	build: {
@@ -108,10 +109,10 @@ const config: UserConfig = defineConfig({
 					},
 				};
 			}
-		} catch (err) {
+		} catch (error) {
 			// If anything fails, fall back to non-https dev server.
 			// We intentionally swallow errors here to avoid blocking dev startup.
-			const msg = err instanceof Error ? err.message : String(err);
+			const msg = error instanceof Error ? error.message : String(error);
 			console.warn("Could not enable HTTPS for Vite dev server:", msg);
 		}
 

@@ -7,18 +7,18 @@ export type CacheKey<TValue> = Readonly<{
 	__type?: TValue;
 }>;
 
-export function createCacheKeyFactory<TValue>(
-	prefix?: string,
-): (id: string) => CacheKey<TValue> {
+export function createCacheKeyFactory<TValue>(prefix?: string): (id: string) => CacheKey<TValue> {
 	const map = new Map<string, symbol>();
 	return (id: string): CacheKey<TValue> => {
 		const hasPrefix = typeof prefix === "string" && prefix !== "";
-		if (!map.has(id)) {
+		let sym = map.get(id);
+		if (!sym) {
 			const symbolName = hasPrefix ? `${prefix}:${id}` : id;
-			map.set(id, Symbol(symbolName));
+			sym = Symbol(symbolName);
+			map.set(id, sym);
 		}
 
-		return { id: map.get(id)!, hint: hasPrefix ? `${prefix}:${id}` : id };
+		return { id: sym, hint: hasPrefix ? `${prefix}:${id}` : id };
 	};
 }
 
@@ -31,8 +31,7 @@ export type TypedCache<TValue> = Readonly<{
 }>;
 
 export function createTypedCache<TValue>(prefix?: string): TypedCache<TValue> {
-	const keyFactory: (id: string) => CacheKey<TValue> =
-		createCacheKeyFactory<TValue>(prefix);
+	const keyFactory: (id: string) => CacheKey<TValue> = createCacheKeyFactory<TValue>(prefix);
 	const internal = new Map<symbol, Promise<TValue>>();
 
 	return {
@@ -50,24 +49,31 @@ export function createTypedCache<TValue>(prefix?: string): TypedCache<TValue> {
 		},
 		async get(id: string, fetcher: () => Promise<TValue>): Promise<TValue> {
 			const cacheKey = keyFactory(id);
-			if (!internal.has(cacheKey.id)) {
-				const promise = fetcher().then(
-					(result) => {
-						internal.set(cacheKey.id, Promise.resolve(result));
-						return result;
-					},
-					(err: unknown) => {
-						internal.delete(cacheKey.id);
-						if (err instanceof Error) {
-							throw err;
-						}
-						throw new Error(String(err));
-					},
-				);
-				internal.set(cacheKey.id, promise);
+
+			const existing = internal.get(cacheKey.id);
+			if (existing) {
+				return existing;
 			}
 
-			return internal.get(cacheKey.id)!;
+			// Install the pending promise early, so concurrent callers share it.
+			const pendingPromise = fetcher();
+			internal.set(cacheKey.id, pendingPromise);
+
+			try {
+				const result = await pendingPromise;
+				// store a resolved Promise for future callers
+				// eslint-plugin-promise prefers await over then()/Promise.resolve in some contexts — disable here
+				// oxlint-disable-next-line promise/prefer-await-to-then
+				internal.set(cacheKey.id, Promise.resolve(result));
+				return result;
+			} catch (error: unknown) {
+				internal.delete(cacheKey.id);
+				if (error instanceof Error) {
+					throw error;
+				}
+				// preserve cause for better diagnostics
+				throw new Error(String(error), { cause: error });
+			}
 		},
 	} as const;
 }
@@ -82,9 +88,7 @@ export type SuspenseCache<TValue> = Readonly<{
 	clear(): void;
 }>;
 
-export function createSuspenseCache<TValue>(
-	prefix?: string,
-): SuspenseCache<TValue> {
+export function createSuspenseCache<TValue>(prefix?: string): SuspenseCache<TValue> {
 	const keyFactory = createCacheKeyFactory<TValue>(prefix);
 	const internal = new Map<symbol, Promise<TValue> | TValue>();
 
@@ -107,14 +111,10 @@ export function createSuspenseCache<TValue>(
 		// to the wrapped promise. We disable the `promise-function-async` rule
 		// for this method because it needs to mirror PromiseLike semantics.
 		// The method is intentionally non-async and mirrors PromiseLike.then
-		// oxlint-disable-next-line promise-function-async, no-thenable
+		// oxlint-disable-next-line promise-function-async, no-thenable, promise/prefer-await-to-callbacks
 		public then<TResult1 = TValue, TResult2 = never>(
-			onfulfilled?:
-				| ((value: TValue) => TResult1 | PromiseLike<TResult1>)
-				| null,
-			onrejected?:
-				| ((reason: unknown) => TResult2 | PromiseLike<TResult2>)
-				| null,
+			onfulfilled?: ((value: TValue) => TResult1 | PromiseLike<TResult1>) | null,
+			onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
 		): Promise<TResult1 | TResult2> {
 			// Delegate to the inner promise — forward callbacks without unsafe
 			// casts. If there is no rejection handler, forward only the
@@ -123,10 +123,10 @@ export function createSuspenseCache<TValue>(
 			if (onrejected === undefined || onrejected === null) {
 				return this.promise.then(onfulfilled);
 			}
-
-			return this.promise.then(onfulfilled, (reason: unknown) =>
-				onrejected(reason),
-			);
+			// This must use callbacks in order to satisfy PromiseLike semantics
+			// and cannot be converted to async/await. Disable the rule locally.
+			// oxlint-disable-next-line promise/prefer-await-to-callbacks
+			return this.promise.then(onfulfilled, (error: unknown) => onrejected(error));
 		}
 	}
 
@@ -148,7 +148,7 @@ export function createSuspenseCache<TValue>(
 		getOrThrow(id: string, fetcher: () => Promise<TValue>) {
 			const cacheKey = keyFactory(id);
 			if (internal.has(cacheKey.id)) {
-				const cached = internal.get(cacheKey.id)!;
+				const cached = internal.get(cacheKey.id);
 				if (cached instanceof Promise) {
 					// still pending — throw a thenable Error wrapper. React's
 					// Suspense will treat thenables as suspendable; throwing an
@@ -156,23 +156,28 @@ export function createSuspenseCache<TValue>(
 					throw new ThenableError<TValue>(cached);
 				}
 
-				return cached as TValue;
+				if (cached === undefined) {
+					// Shouldn't happen given the earlier `has` check but guard for type safety
+					throw new Error("missing cache value");
+				}
+
+				return cached;
 			}
 
-			const promise = fetcher().then(
-				(result) => {
+			const promise = (async () => {
+				try {
+					const result = await fetcher();
 					internal.set(cacheKey.id, result);
 					return result;
-				},
-				(err: unknown) => {
+				} catch (error: unknown) {
 					internal.delete(cacheKey.id);
-					// Ensure we always throw an Error instance
-					if (err instanceof Error) {
-						throw err;
+					if (error instanceof Error) {
+						throw error;
 					}
-					throw new Error(String(err));
-				},
-			);
+					// preserve cause
+					throw new Error(String(error), { cause: error });
+				}
+			})();
 
 			internal.set(cacheKey.id, promise);
 			// Throw a thenable Error wrapper (see above) so the thrown value

@@ -1,34 +1,27 @@
-import { detectBrowserLanguage } from "@/shared/language/detectBrowserLanguage";
-import { parseLanguageCookie } from "@/shared/language/parseLanguageCookie";
-import {
-	type SupportedLanguageType,
-	defaultLanguage,
-} from "@/shared/language/supported-languages";
+import detectBrowserLanguage from "@/shared/language/detectBrowserLanguage";
+import parseLanguageCookie from "@/shared/language/parseLanguageCookie";
+import { type SupportedLanguageType, defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
 // Detect initial language with priority order
-export function detectInitialLanguage(): SupportedLanguageType {
+export default function detectInitialLanguage(): SupportedLanguageType {
 	// 1. Check URL parameter (highest priority for explicit navigation)
-	const path = window.location.pathname;
+	const path = globalThis.location.pathname;
 	const LANG_CODE_LENGTH = 2; // two-letter language codes (e.g. en, fr)
 	const langRegExp = new RegExp(`^\\/([a-z]{${LANG_CODE_LENGTH}})\\/`);
 	const langMatch = langRegExp.exec(path);
 	if (langMatch !== null) {
 		const [, urlLang] = langMatch;
-		if (urlLang !== undefined && urlLang !== "") {
-			if (isSupportedLanguage(urlLang)) {
-				return urlLang;
-			}
+		if (urlLang !== undefined && urlLang !== "" && isSupportedLanguage(urlLang)) {
+			return urlLang;
 		}
 	}
 
 	// 2. Check stored preference in localStorage
-	if (typeof window !== "undefined") {
+	if (typeof globalThis !== "undefined") {
 		const stored = localStorage.getItem("preferred-language");
-		if (stored !== null && stored !== "") {
-			if (isSupportedLanguage(stored)) {
-				return stored;
-			}
+		if (stored !== null && stored !== "" && isSupportedLanguage(stored)) {
+			return stored;
 		}
 	}
 

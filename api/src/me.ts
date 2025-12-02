@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import { getErrorMessage } from "@/api/getErrorMessage";
+import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { log as serverLog, error as serverError } from "@/api/logger";
 import { getEnvString } from "@/shared/env/getEnv";
@@ -8,11 +8,11 @@ import { type UserSessionData } from "@/shared/userSessionData";
 import { safeSet } from "@/shared/utils/safe";
 
 import { AuthenticationError, type DatabaseError } from "./errors";
-import { getIpAddress } from "./getIpAddress";
-import { getVerifiedUserSession } from "./user-session/getVerifiedSession";
+import getIpAddress from "./getIpAddress";
+import getVerifiedUserSession from "./user-session/getVerifiedSession";
 
 /** Effect-based handler for /api/me */
-export function me(
+export default function me(
 	ctx: ReadonlyContext,
 ): Effect.Effect<UserSessionData, AuthenticationError | DatabaseError> {
 	return Effect.gen(function* meGen($) {
@@ -40,11 +40,8 @@ export function me(
 							safeSet(hdrObj, nm, ctx.req.header(nm) ?? undefined);
 						}
 						serverLog("[me] Incoming request headers:", hdrObj);
-					} catch (err) {
-						serverError(
-							"[me] Failed to dump incoming headers:",
-							getErrorMessage(err),
-						);
+					} catch (error) {
+						serverError("[me] Failed to dump incoming headers:", getErrorMessage(error));
 					}
 				}),
 			);

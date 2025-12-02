@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 /**
  * Gets a Supabase server client with service key for admin operations
  */
-export function getSupabaseServerClient(
+export default function getSupabaseServerClient(
 	url: string,
 	serviceKey: string,
 ): ReturnType<typeof createClient> {

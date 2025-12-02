@@ -23,7 +23,7 @@ export default function LanguageTest(): ReactElement {
 		setStoredLanguage(newLang);
 
 		// Extract the path without the language prefix
-		const currentPath = location.pathname.substring(LANG_PREFIX_LENGTH) || "/";
+		const currentPath = location.pathname.slice(LANG_PREFIX_LENGTH) || "/";
 
 		// Navigate to the new language URL
 		void navigate(`/${newLang}${currentPath}`);
@@ -37,23 +37,21 @@ export default function LanguageTest(): ReactElement {
 					<strong>Current Language:</strong> {i18n.language}
 				</p>
 				<p>
-					<strong>Available Languages:</strong>{" "}
-					{Object.keys(i18n.store.data).join(", ")}
+					<strong>Available Languages:</strong> {i18n.languages?.join(", ") ?? "-"}
 				</p>
 				<p>
-					<strong>Test Translation (pages.home.title):</strong> "
-					{testTranslation("pages.home.title")}"
+					<strong>Test Translation (pages.home.title):</strong>{" "}
+					{testTranslation("pages.home.title")}
 				</p>
 				<p>
-					<strong>Test Translation (app.title):</strong> "
-					{testTranslation("app.title")}"
+					<strong>Test Translation (app.title):</strong> {testTranslation("app.title")}
 				</p>
 				<p>
-					<strong>Test Translation (navigation.home):</strong> "
-					{testTranslation("navigation.home")}"
+					<strong>Test Translation (navigation.home):</strong> {testTranslation("navigation.home")}
 				</p>
 				<div className="mt-4">
 					<button
+						type="button"
 						className="mr-2 rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
 						onClick={() => {
 							switchLanguage("en");
@@ -62,6 +60,7 @@ export default function LanguageTest(): ReactElement {
 						Switch to EN (Updates Preference)
 					</button>
 					<button
+						type="button"
 						className="mr-2 rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
 						onClick={() => {
 							switchLanguage("zh");
@@ -70,6 +69,7 @@ export default function LanguageTest(): ReactElement {
 						Switch to ZH (Updates Preference)
 					</button>
 					<button
+						type="button"
 						className="rounded bg-green-600 px-3 py-1 text-white hover:bg-green-700"
 						onClick={() => {
 							switchLanguage("es");

@@ -12,7 +12,6 @@ type PlacementConfig = {
 const MIN_MARGIN = 8;
 const GAP_DEFAULT = 8;
 const CENTER_DIVISOR = 2;
-const FIRST_INDEX = 0;
 
 /**
  * Ensures horizontal centering doesn't push popover outside viewport
@@ -26,10 +25,7 @@ function adjustHorizontalPosition({
 	readonly popoverWidth: number;
 	readonly viewportWidth: number;
 }): PopoverPosition {
-	if (
-		position.transform === "translateX(-50%)" &&
-		position.left !== undefined
-	) {
+	if (position.transform === "translateX(-50%)" && position.left !== undefined) {
 		const halfWidth = popoverWidth / CENTER_DIVISOR;
 		const minLeft = halfWidth + MIN_MARGIN;
 		const maxLeft = viewportWidth - halfWidth - MIN_MARGIN;
@@ -63,22 +59,20 @@ function adjustTopBottomPosition({
 
 	// Adjust horizontal position
 	if (adjustedPosition.left !== undefined) {
+		let minLeft: number = MIN_MARGIN;
+		let maxLeft: number = viewportWidth - popoverWidth - MIN_MARGIN;
 		if (adjustedPosition.transform === "translateX(-50%)") {
 			const halfWidth = popoverWidth / CENTER_DIVISOR;
-			const minLeft = halfWidth + MIN_MARGIN;
-			const maxLeft = viewportWidth - halfWidth - MIN_MARGIN;
-			adjustedPosition = {
-				...adjustedPosition,
-				left: Math.max(minLeft, Math.min(maxLeft, adjustedPosition.left)),
-			};
+			minLeft = halfWidth + MIN_MARGIN;
+			maxLeft = viewportWidth - halfWidth - MIN_MARGIN;
 		} else {
-			const minLeft = MIN_MARGIN;
-			const maxLeft = viewportWidth - popoverWidth - MIN_MARGIN;
-			adjustedPosition = {
-				...adjustedPosition,
-				left: Math.max(minLeft, Math.min(maxLeft, adjustedPosition.left)),
-			};
+			minLeft = MIN_MARGIN;
+			maxLeft = viewportWidth - popoverWidth - MIN_MARGIN;
 		}
+		adjustedPosition = {
+			...adjustedPosition,
+			left: Math.max(minLeft, Math.min(maxLeft, adjustedPosition.left)),
+		};
 	}
 
 	// Adjust vertical position if still overflowing
@@ -120,22 +114,20 @@ function adjustLeftRightPosition({
 
 	// Adjust vertical position
 	if (adjustedPosition.top !== undefined) {
+		let minTop: number = MIN_MARGIN;
+		let maxTop: number = viewportHeight - popoverHeight - MIN_MARGIN;
 		if (adjustedPosition.transform === "translateY(-50%)") {
 			const halfHeight = popoverHeight / CENTER_DIVISOR;
-			const minTop = halfHeight + MIN_MARGIN;
-			const maxTop = viewportHeight - halfHeight - MIN_MARGIN;
-			adjustedPosition = {
-				...adjustedPosition,
-				top: Math.max(minTop, Math.min(maxTop, adjustedPosition.top)),
-			};
+			minTop = halfHeight + MIN_MARGIN;
+			maxTop = viewportHeight - halfHeight - MIN_MARGIN;
 		} else {
-			const minTop = MIN_MARGIN;
-			const maxTop = viewportHeight - popoverHeight - MIN_MARGIN;
-			adjustedPosition = {
-				...adjustedPosition,
-				top: Math.max(minTop, Math.min(maxTop, adjustedPosition.top)),
-			};
+			minTop = MIN_MARGIN;
+			maxTop = viewportHeight - popoverHeight - MIN_MARGIN;
 		}
+		adjustedPosition = {
+			...adjustedPosition,
+			top: Math.max(minTop, Math.min(maxTop, adjustedPosition.top)),
+		};
 	}
 
 	// Adjust horizontal position if still overflowing
@@ -172,8 +164,8 @@ export default function calculatePopoverPosition({
 	readonly preferredPlacement?: PlacementOption;
 	readonly gap?: number;
 }>): { position: PopoverPosition; placement: PlacementOption } {
-	const viewportWidth = window.innerWidth;
-	const viewportHeight = window.innerHeight;
+	const viewportWidth = globalThis.innerWidth;
+	const viewportHeight = globalThis.innerHeight;
 
 	// Calculate available space in each direction from the viewport edge
 	const spaceAbove = triggerRect.top;
@@ -222,9 +214,7 @@ export default function calculatePopoverPosition({
 	];
 
 	// Try preferred placement first
-	const preferredOption = placements.find(
-		(pl) => pl.name === preferredPlacement,
-	);
+	const preferredOption = placements.find((pl) => pl.name === preferredPlacement);
 	if (preferredOption?.hasSpace === true) {
 		const position = adjustHorizontalPosition({
 			position: preferredOption.position,
@@ -248,7 +238,14 @@ export default function calculatePopoverPosition({
 	}
 
 	// If no space available, use the placement with the most space
-	const bestFitPlacement = placements.reduce((best, current) => {
+
+	const [firstPlacement, ...restPlacements] = placements;
+	if (firstPlacement === undefined) {
+		throw new Error("No placements available");
+	}
+	let bestFitPlacement: PlacementConfig = firstPlacement;
+
+	for (const current of restPlacements) {
 		let currentSpace = 0;
 		if (current.name === "top" || current.name === "bottom") {
 			currentSpace = current.name === "top" ? spaceAbove : spaceBelow;
@@ -257,14 +254,16 @@ export default function calculatePopoverPosition({
 		}
 
 		let bestSpace = 0;
-		if (best.name === "top" || best.name === "bottom") {
-			bestSpace = best.name === "top" ? spaceAbove : spaceBelow;
+		if (bestFitPlacement.name === "top" || bestFitPlacement.name === "bottom") {
+			bestSpace = bestFitPlacement.name === "top" ? spaceAbove : spaceBelow;
 		} else {
-			bestSpace = best.name === "left" ? spaceLeft : spaceRight;
+			bestSpace = bestFitPlacement.name === "left" ? spaceLeft : spaceRight;
 		}
 
-		return currentSpace > bestSpace ? current : best;
-	}, placements[FIRST_INDEX]!);
+		if (currentSpace > bestSpace) {
+			bestFitPlacement = current;
+		}
+	}
 
 	let position = { ...bestFitPlacement.position };
 

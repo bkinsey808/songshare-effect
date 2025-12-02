@@ -1,20 +1,16 @@
 // Small numeric helpers used to avoid magic-number complaints from lint.
 const ZERO = 0;
 /** Safely get a property from an object, avoiding prototype pollution and unsafe access */
-export function safeGet<
-	TValue extends Record<string, unknown>,
-	Key extends keyof TValue,
->(obj: TValue, key: Key): TValue[Key] | undefined;
-export function safeGet<
-	TValue extends Record<string, unknown>,
-	Key extends keyof TValue,
-	Value,
->(obj: TValue, key: Key, defaultValue: Value): TValue[Key] | Value;
-export function safeGet<
-	TValue extends Record<string, unknown>,
-	Key extends keyof TValue,
-	Value,
->(
+export function safeGet<TValue extends Record<string, unknown>, Key extends keyof TValue>(
+	obj: TValue,
+	key: Key,
+): TValue[Key] | undefined;
+export function safeGet<TValue extends Record<string, unknown>, Key extends keyof TValue, Value>(
+	obj: TValue,
+	key: Key,
+	defaultValue: Value,
+): TValue[Key] | Value;
+export function safeGet<TValue extends Record<string, unknown>, Key extends keyof TValue, Value>(
 	obj: TValue,
 	key: Key,
 	defaultValue?: Value,
@@ -31,10 +27,10 @@ export function safeGet<
  * Unlike safeGet, this will not return undefined and does not require a default value or optional chaining.
  * Prefer superSafeGet for cases where the key is guaranteed valid at compile time for stricter type safety and cleaner code.
  */
-export function superSafeGet<
-	TValue extends Record<string, unknown>,
-	Key extends keyof TValue,
->(obj: TValue, key: Key): TValue[Key] {
+export function superSafeGet<TValue extends Record<string, unknown>, Key extends keyof TValue>(
+	obj: TValue,
+	key: Key,
+): TValue[Key] {
 	if (!Object.hasOwn(obj, key)) {
 		throw new Error(`superSafeGet: missing key ${String(key)}`);
 	}
@@ -43,11 +39,7 @@ export function superSafeGet<
 
 // src/features/utils/safeSet.ts
 /** Safely set a property on an object, avoiding prototype pollution and unsafe access */
-export function safeSet(
-	obj: Readonly<Record<string, unknown>>,
-	key: string,
-	value: unknown,
-): void {
+export function safeSet(obj: Readonly<Record<string, unknown>>, key: string, value: unknown): void {
 	if (key !== "__proto__" && key !== "constructor" && key !== "prototype") {
 		// Only set if not polluting prototype
 		(obj as Record<string, unknown>)[key] = value;
@@ -58,12 +50,10 @@ export function safeSet(
  * Safely delete a property from an object, avoiding prototype pollution and unsafe access.
  * Returns true if the property was deleted, false otherwise.
  */
-export default function safeDelete(
-	obj: Readonly<Record<string, unknown>>,
-	key: string,
-): boolean {
+export default function safeDelete(obj: Readonly<Record<string, unknown>>, key: string): boolean {
 	if (Object.hasOwn(obj, key)) {
-		return delete (obj as Record<string, unknown>)[key];
+		// Use Reflect.deleteProperty to avoid using a dynamic `delete` expression
+		return Reflect.deleteProperty(obj as Record<string, unknown>, key);
 	}
 	return false;
 }
@@ -73,17 +63,13 @@ export default function safeDelete(
  * Returns the element if the index is valid, otherwise returns the default value (or undefined).
  */
 export function safeArrayGet<TItem>(
-	arr: ReadonlyArray<TItem>,
+	arr: readonly TItem[],
 	idx: number,
 	defaultValue?: TItem,
 ): TItem | undefined;
+export function safeArrayGet(arr: readonly unknown[], idx: number, defaultValue?: unknown): unknown;
 export function safeArrayGet(
-	arr: ReadonlyArray<unknown>,
-	idx: number,
-	defaultValue?: unknown,
-): unknown;
-export function safeArrayGet(
-	arr: ReadonlyArray<unknown>,
+	arr: readonly unknown[],
 	idx: number,
 	defaultValue?: unknown,
 ): unknown {
@@ -103,26 +89,26 @@ export function safeArrayGet(
  * Returns a new array with the value set if the index is valid, otherwise returns the original array.
  */
 export function safeArraySet<TItem>(
-	arr: ReadonlyArray<TItem>,
+	arr: readonly TItem[],
 	idx: number,
 	value: TItem,
-): ReadonlyArray<TItem>;
+): readonly TItem[];
 export function safeArraySet(
-	arr: ReadonlyArray<unknown>,
+	arr: readonly unknown[],
 	idx: number,
 	value: unknown,
-): ReadonlyArray<unknown>;
+): readonly unknown[];
 export function safeArraySet(
-	arr: ReadonlyArray<unknown>,
+	arr: readonly unknown[],
 	idx: number,
 	value: unknown,
-): ReadonlyArray<unknown> {
+): readonly unknown[] {
 	if (Array.isArray(arr) && idx >= ZERO && idx < arr.length) {
-		// Use Array.from to produce a mutable copy from a ReadonlyArray<T>.
-		const copy = Array.from(arr);
+		// Use spread (with a cast) to produce a mutable copy from a readonly array while keeping types safe.
+		const copy = [...(arr as unknown[])] as unknown[];
 		// Assigning a value of unknown is safe in this implementation; callers
 		// get the correct typed overload when they pass a typed array.
-		(copy as unknown[])[idx] = value;
+		copy[idx] = value;
 		return copy;
 	}
 	return arr;

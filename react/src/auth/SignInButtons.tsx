@@ -1,45 +1,22 @@
 import { useTranslation } from "react-i18next";
 
-import { useIsOnline } from "@/react/hooks/useIsOnline";
-import { useLanguage } from "@/react/language/useLanguage";
-import { getFrontEndProviderData } from "@/react/providers/providers";
-import { cssVars } from "@/react/utils/cssVars";
-import { toTitleCase } from "@/react/utils/stringUtils";
+import useIsOnline from "@/react/hooks/useIsOnline";
+import useLanguage from "@/react/language/useLanguage";
+import getFrontEndProviderData from "@/react/providers/providers";
+import computeRedirectPort from "@/react/utils/computeRedirectPort";
+import cssVars from "@/react/utils/cssVars";
+import toTitleCase from "@/react/utils/stringUtils";
 import { apiOauthSignInPath } from "@/shared/paths";
 import { activeProviders } from "@/shared/providers";
 import { langQueryParam, redirectPortQueryParam } from "@/shared/queryParams";
 
-export function SignInButtons(): ReactElement {
+export default function SignInButtons(): ReactElement {
 	const isOnline = useIsOnline();
 	const { t } = useTranslation();
 	const isSignedIn = false;
 	const lang = useLanguage();
 
-	// compute redirectPort: only include when useful (dev/localhost or explicit non-default port)
-	function computeRedirectPort(): string {
-		if (typeof window === "undefined") {
-			// SSR: omit port
-			return "";
-		}
-		const port = String(window.location.port || "");
-		const hostname = window.location.hostname || "";
-
-		// Only include redirect_port for local/dev hosts, or when an explicit port is set.
-		if (
-			// explicit port
-			port !== "" ||
-			hostname === "localhost" ||
-			hostname === "127.0.0.1" ||
-			hostname.endsWith(".local")
-		) {
-			// fall back to dev default for localhost when port missing
-			return port || "5173";
-		}
-
-		// production / no explicit port -> omit param
-		return "";
-	}
-
+	// use helper to compute redirect port (keeps SSR safe and easier to test)
 	const redirectPort = computeRedirectPort();
 
 	return (
@@ -47,24 +24,13 @@ export function SignInButtons(): ReactElement {
 			{!isSignedIn && (
 				<div className="mb-4 text-lg text-gray-700">
 					<p>{t("auth.signedOutMessage", "You are not signed in.")}</p>
-					<p>
-						{t(
-							"auth.signInPrompt",
-							"Please sign in to access your dashboard and features.",
-						)}
-					</p>
+					<p>{t("auth.signInPrompt", "Please sign in to access your dashboard and features.")}</p>
 				</div>
 			)}
 			{isOnline &&
 				activeProviders.map((provider) => {
-					const {
-						Icon,
-						brandColor,
-						hoverColor,
-						iconBgColor,
-						textColor,
-						borderColor,
-					} = getFrontEndProviderData(provider);
+					const { Icon, brandColor, hoverColor, iconBgColor, textColor, borderColor } =
+						getFrontEndProviderData(provider);
 
 					// build href and include redirect_port only when present
 					const signInBase = `${apiOauthSignInPath}/${provider}?${langQueryParam}=${lang}`;

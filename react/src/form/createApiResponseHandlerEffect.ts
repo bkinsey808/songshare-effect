@@ -4,12 +4,12 @@ import { Effect } from "effect";
 import { clientDebug } from "@/react/utils/clientLogger";
 
 import { type ApiResponseAction } from "./apiResponseTypes";
-import { createApiResponseEffect } from "./createApiResponseEffect";
+import createApiResponseEffect from "./createApiResponseEffect";
 
 /**
  * Create an Effect that handles API response with side effect callbacks
  */
-export function createApiResponseHandlerEffect({
+export default function createApiResponseHandlerEffect({
 	response,
 	setValidationErrors,
 	setSubmitError,
@@ -17,7 +17,7 @@ export function createApiResponseHandlerEffect({
 }: {
 	readonly response: Response;
 	readonly setValidationErrors: (
-		errors: ReadonlyArray<{ readonly field: string; readonly message: string }>,
+		errors: readonly { readonly field: string; readonly message: string }[],
 	) => void;
 	readonly setSubmitError: (error: string) => void;
 	readonly defaultErrorMessage?: string;
@@ -44,8 +44,7 @@ export function createApiResponseHandlerEffect({
 				} else {
 					// Use default error message if the action message is the generic fallback and a default is provided
 					const errorMessage =
-						action.message === "An error occurred" &&
-						defaultErrorMessage !== undefined
+						action.message === "An error occurred" && defaultErrorMessage !== undefined
 							? defaultErrorMessage
 							: action.message;
 					// Localized debug-only log

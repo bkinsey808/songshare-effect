@@ -1,0 +1,30 @@
+// Backup of vitest-coverage-augment.d.ts (created automatically)
+
+// Augment Vitest's types so the v8 coverage provider accepts `all` (runtime option)
+// Vitest's shipped types don't include `all` on the V8 coverage options but the
+// runtime accepts it; adding this augmentation avoids editor/TS errors.
+declare module "vitest" {
+    // Existing CoverageV8Options extends BaseCoverageOptions, we add `all` here
+    // so `coverage: { provider: 'v8', all: true }` is accepted by the TS server.
+    // oxlint-disable-next-line consistent-type-definitions
+    interface CoverageV8Options {
+        /**
+         * Include all files (even those not imported by tests) in coverage reports
+         * (same runtime behavior as Vitest's `all` option for coverage).
+         */
+        all?: boolean;
+    }
+}
+
+// Also augment the `vitest/config` entry which `defineConfig` imports from.
+declare module "vitest/config" {
+    // Repeat the same addition so that config-specific imports pick it up too.
+    // oxlint-disable-next-line consistent-type-definitions
+    interface CoverageV8Options {
+        /** Include all files in coverage reports */
+        all?: boolean;
+    }
+}
+
+// oxlint-disable-next-line require-module-specifiers
+export {};

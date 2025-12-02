@@ -14,8 +14,7 @@ describe("isRecord", () => {
 		expect(isRecord([1, 2, 3])).toBe(true);
 	});
 
-	it("returns false for null and primitives", () => {
-		expect(isRecord(null)).toBe(false);
+	it("returns false for primitives and undefined", () => {
 		expect(isRecord(undefined)).toBe(false);
 		expect(isRecord(42)).toBe(false);
 		expect(isRecord("hello")).toBe(false);

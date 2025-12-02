@@ -3,25 +3,28 @@ import { Effect, type Schema } from "effect";
 
 import { clientDebug } from "@/react/utils/clientLogger";
 import { registerMessageKey } from "@/shared/register/register";
-import { type ValidationError } from "@/shared/validation/types";
-import { validateFormEffect } from "@/shared/validation/validateFormEffect";
+import { type ValidationError } from "@/shared/validation/validate-types";
+import validateFormEffect from "@/shared/validation/validateFormEffect";
 
-import { extractValidationErrors } from "./extractValidationErrors";
+import extractValidationErrors from "./extractValidationErrors";
+
+const ZERO = 0;
 
 type FormSubmitHandlerParams<FormValues> = {
 	readonly schema: Schema.Schema<FormValues>;
-	readonly setValidationErrors: React.Dispatch<
-		React.SetStateAction<ReadonlyArray<ValidationError>>
-	>;
+	readonly setValidationErrors: React.Dispatch<React.SetStateAction<readonly ValidationError[]>>;
 	readonly setIsSubmitting: (isSubmitting: boolean) => void;
 };
 
 /**
  * Create a form submission handler that validates form data and handles submission
  */
-export function createFormSubmitHandler<
-	FormValues extends Record<string, unknown>,
->(params: FormSubmitHandlerParams<FormValues>) {
+export default function createFormSubmitHandler<FormValues extends Record<string, unknown>>(
+	params: FormSubmitHandlerParams<FormValues>,
+): (
+	formData: Readonly<Record<string, unknown>>,
+	onSubmit: (data: Readonly<FormValues>) => Promise<void> | void,
+) => Effect.Effect<void> {
 	const { schema, setValidationErrors, setIsSubmitting } = params;
 	return (
 		formData: Readonly<Record<string, unknown>>,
@@ -57,12 +60,18 @@ export function createFormSubmitHandler<
 
 				const result = onSubmit(validatedData);
 				if (result instanceof Promise) {
-					// For async submission, we need to handle it differently
-					void result.finally(() => {
-						// Localized debug-only log
-						clientDebug("🏁 Async submission completed");
-						setIsSubmitting(false);
-					});
+					// For async submission, prefer `await` over `.then/.catch/.finally`.
+					// Use an async IIFE so we can await the promise and ensure
+					// `setIsSubmitting(false)` runs in a `finally` block.
+					void (async (): Promise<void> => {
+						try {
+							await result;
+							// Localized debug-only log
+							clientDebug("🏁 Async submission completed");
+						} finally {
+							setIsSubmitting(false);
+						}
+					})();
 				} else {
 					// Localized debug-only log
 					clientDebug("🏁 Sync submission completed");
@@ -77,7 +86,7 @@ export function createFormSubmitHandler<
 
 				// Delegate extraction to the helper to reduce complexity here
 				const errorArray = extractValidationErrors(error);
-				if (errorArray.length) {
+				if (errorArray.length > ZERO) {
 					// Localized debug-only logs
 					clientDebug("📝 Final error array to set:", errorArray);
 					clientDebug("🔄 Setting validation errors:", errorArray);

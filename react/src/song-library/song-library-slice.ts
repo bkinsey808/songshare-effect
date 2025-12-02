@@ -1,27 +1,33 @@
+import { getSupabaseAuthToken } from "@/react/supabase/getSupabaseAuthToken";
+import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
 // Song Library Zustand slice with subscription functionality
 // Zustand StateCreator type is not required here — slices are declared as named functions.
 
 import { type Set, type Get, type Api } from "@/react/zustand/slice-utils";
-import { sliceResetFns } from "@/react/zustand/useAppStore";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
-import { addSongToLibrary } from "./addSongToLibrary";
-import { removeSongFromLibrary } from "./removeSongFromLibrary";
+import addSongToLibrary from "./addSongToLibrary";
+import removeSongFromLibrary from "./removeSongFromLibrary";
 import {
 	type AddToLibraryRequest,
 	type RemoveFromLibraryRequest,
 	type SongLibraryEntry,
 } from "./song-library-schema";
-import { type SongLibrarySliceBase } from "./song-library-types";
-import { subscribeToLibrary as subscribeToLibraryFn } from "./subscribeToLibrary";
+import { type SongLibrarySliceBase, type SongLibraryState } from "./song-library-types";
+import subscribeToLibraryFn from "./subscribeToLibrary";
+
+const initialState: SongLibraryState = {
+	libraryEntries: {} as Record<string, SongLibraryEntry>,
+	isLibraryLoading: false,
+	libraryError: undefined as string | undefined,
+};
 
 export type SongLibrarySlice = SongLibrarySliceBase & {
 	/** Add a song to the user's library */
 	addToLibrary: (request: Readonly<AddToLibraryRequest>) => Promise<void>;
 	/** Remove a song from the user's library */
-	removeFromLibrary: (
-		request: Readonly<RemoveFromLibraryRequest>,
-	) => Promise<void>;
+	removeFromLibrary: (request: Readonly<RemoveFromLibraryRequest>) => Promise<void>;
 	/** Get all song IDs in the user's library */
 	getLibrarySongIds: () => string[];
 	/** Fetch the user's complete library from the server */
@@ -33,16 +39,8 @@ export type SongLibrarySlice = SongLibrarySliceBase & {
 	libraryUnsubscribe?: () => void;
 
 	/** Internal actions for updating state from subscriptions */
-	setLibraryEntries: (
-		entries: ReadonlyDeep<Record<string, SongLibraryEntry>>,
-	) => void;
+	setLibraryEntries: (entries: ReadonlyDeep<Record<string, SongLibraryEntry>>) => void;
 	setLibraryLoading: (loading: boolean) => void;
-};
-
-const initialState = {
-	libraryEntries: {} as Record<string, SongLibraryEntry>,
-	isLibraryLoading: false,
-	libraryError: undefined as string | undefined,
 };
 
 // The slice factory uses an arrow-style function which matches the project's
@@ -73,9 +71,7 @@ export function createSongLibrarySlice(
 				await addSongToLibrary(request, get);
 			} catch (error) {
 				const errorMessage =
-					error instanceof Error
-						? error.message
-						: "Failed to add song to library";
+					error instanceof Error ? error.message : "Failed to add song to library";
 				const { setLibraryError } = get();
 				setLibraryError(errorMessage);
 				console.error("[addToLibrary] Error:", error);
@@ -87,9 +83,7 @@ export function createSongLibrarySlice(
 				await removeSongFromLibrary(request, get);
 			} catch (error) {
 				const errorMessage =
-					error instanceof Error
-						? error.message
-						: "Failed to remove song from library";
+					error instanceof Error ? error.message : "Failed to remove song from library";
 				const { setLibraryError } = get();
 				setLibraryError(errorMessage);
 				console.error("[removeFromLibrary] Error:", error);
@@ -111,11 +105,7 @@ export function createSongLibrarySlice(
 			try {
 				set({ isLibraryLoading: true, libraryError: undefined });
 
-				// Import here to avoid circular dependencies
-				const { getSupabaseAuthToken } =
-					await import("@/react/supabase/getSupabaseAuthToken");
-				const { getSupabaseClient } =
-					await import("@/react/supabase/supabaseClient");
+				// Supabase utilities (statically imported)
 				const userToken = await getSupabaseAuthToken();
 				const client = getSupabaseClient(userToken);
 
@@ -130,9 +120,7 @@ export function createSongLibrarySlice(
 				}
 
 				// Fetch song details for all entries
-				const songIds = [
-					...new Set((data ?? []).map((entry) => entry.song_id)),
-				];
+				const songIds = [...new Set((data ?? []).map((entry) => entry.song_id))];
 				const { data: songData } = await client
 					.from("song_public")
 					.select("song_id, song_name, song_slug")
@@ -147,38 +135,37 @@ export function createSongLibrarySlice(
 				);
 
 				// Fetch owner usernames for all entries
-				const ownerIds = [
-					...new Set((data ?? []).map((entry) => entry.song_owner_id)),
-				];
+				const ownerIds = [...new Set((data ?? []).map((entry) => entry.song_owner_id))];
 				const { data: ownerData } = await client
 					.from("user_public")
 					.select("user_id, username")
 					.in("user_id", ownerIds);
 
 				// Create a map of owner_id to username
-				const ownerMap = new Map(
-					(ownerData ?? []).map((owner) => [owner.user_id, owner.username]),
-				);
+				const ownerMap = new Map((ownerData ?? []).map((owner) => [owner.user_id, owner.username]));
 
 				// Convert array to object indexed by song_id and include owner username and song details
-				const entriesRecord = (data ?? []).reduce<
-					Record<string, SongLibraryEntry>
-				>((acc, entry) => {
-					const ownerUsername = ownerMap.get(entry.song_owner_id);
-					const songDetails = songMap.get(entry.song_id);
+				const entriesRecord = (data ?? []).reduce<Record<string, SongLibraryEntry>>(
+					(acc, entry) => {
+						const ownerUsername = ownerMap.get(entry.song_owner_id);
+						const songDetails = songMap.get(entry.song_id);
 
-					const libraryEntry: SongLibraryEntry = {
-						...entry,
-						...(ownerUsername !== undefined && {
-							owner_username: ownerUsername,
-						}),
-						...(songDetails !== undefined && {
-							song_name: songDetails.song_name,
-							song_slug: songDetails.song_slug,
-						}),
-					};
-					return { ...acc, [entry.song_id]: libraryEntry };
-				}, {});
+						const libraryEntry: SongLibraryEntry = {
+							...entry,
+							...(ownerUsername !== undefined && {
+								owner_username: ownerUsername,
+							}),
+							...(songDetails !== undefined && {
+								song_name: songDetails.song_name,
+								song_slug: songDetails.song_slug,
+							}),
+						};
+
+						acc[entry.song_id] = libraryEntry;
+						return acc;
+					},
+					{},
+				);
 
 				set({
 					libraryEntries: entriesRecord,
@@ -186,8 +173,7 @@ export function createSongLibrarySlice(
 					libraryError: undefined,
 				});
 			} catch (error) {
-				const errorMessage =
-					error instanceof Error ? error.message : "Failed to fetch library";
+				const errorMessage = error instanceof Error ? error.message : "Failed to fetch library";
 				set({
 					isLibraryLoading: false,
 					libraryError: errorMessage,
@@ -199,9 +185,7 @@ export function createSongLibrarySlice(
 		subscribeToLibrary: () => subscribeToLibraryFn(get),
 
 		// Internal state management methods
-		setLibraryEntries: (
-			entries: ReadonlyDeep<Record<string, SongLibraryEntry>>,
-		) => {
+		setLibraryEntries: (entries: ReadonlyDeep<Record<string, SongLibraryEntry>>) => {
 			set({ libraryEntries: entries });
 		},
 

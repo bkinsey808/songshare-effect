@@ -1,72 +1,28 @@
 import { getEnvValue } from "@/react/utils/env";
 
-type TokenResponse = {
-	access_token: string;
-	token_type: string;
-	expires_in: number;
-};
-import { isRecord } from "@/shared/utils/typeGuards";
+import {
+	getCachedSupabaseClientToken,
+	cacheSupabaseClientToken,
+	cacheUserToken,
+	getCachedUserToken,
+	clearSupabaseClientToken as clearClientTokenCache,
+	clearUserToken,
+	isUserSignedIn as isUserSignedInCache,
+} from "./tokenCache";
+import { isTokenResponse } from "./validateTokenResponse";
 
-// In-memory token storage (more secure than client-accessible cookies)
-let cachedSupabaseClientToken: string | undefined = undefined;
-let tokenExpirationTime: number | undefined = undefined;
-
-// Separate cache for user tokens
-let cachedUserToken: string | undefined = undefined;
-let userTokenExpirationTime: number | undefined = undefined;
-
-// Time constants
-const TOKEN_EXPIRY_BUFFER_MINUTES = 5;
-const SECONDS_IN_MINUTE = 60;
+// Time constants used locally
 const MS_IN_SECOND = 1000;
-
-/**
- * Gets the current authentication token - user token if signed in, otherwise visitor token
- */
-export async function getSupabaseAuthToken(): Promise<string> {
-	// First, try to get user token if signed in
-	const userToken = getCachedUserToken();
-	if (userToken !== undefined) {
-		return userToken;
-	}
-
-	// Fall back to visitor token
-	return getSupabaseClientToken();
-}
-
-/**
- * Gets the user token from memory if it exists and hasn't expired
- */
-function getCachedUserToken(): string | undefined {
-	if (cachedUserToken === undefined || userTokenExpirationTime === undefined) {
-		return undefined;
-	}
-
-	const now = Date.now();
-
-	// If token has expired or will expire within the buffer window, return undefined
-	if (
-		now >=
-		userTokenExpirationTime -
-			TOKEN_EXPIRY_BUFFER_MINUTES * SECONDS_IN_MINUTE * MS_IN_SECOND
-	) {
-		cachedUserToken = undefined;
-		userTokenExpirationTime = undefined;
-		return undefined;
-	}
-
-	return cachedUserToken;
-}
 
 /**
  * Gets a Supabase client token, checking memory cache first, then fetching from API if needed.
  * The Supabase client token is a real Supabase JWT that allows access to RLS-protected data.
  */
-export async function getSupabaseClientToken(): Promise<string> {
+function getSupabaseClientToken(): Promise<string> {
 	// First, try to get token from memory cache
 	const cachedToken = getCachedSupabaseClientToken();
 	if (cachedToken !== undefined) {
-		return cachedToken;
+		return Promise.resolve(cachedToken);
 	}
 
 	// If no valid cached token, fetch from API
@@ -89,21 +45,6 @@ async function fetchSupabaseClientTokenFromAPI(): Promise<string> {
 
 		const jsonRaw: unknown = await response.json().catch(() => undefined);
 
-		function isTokenResponse(value: unknown): value is TokenResponse {
-			if (!isRecord(value)) {
-				return false;
-			}
-			const rec = value;
-			return (
-				Object.hasOwn(rec, "access_token") &&
-				Object.hasOwn(rec, "token_type") &&
-				Object.hasOwn(rec, "expires_in") &&
-				typeof rec["access_token"] === "string" &&
-				typeof rec["token_type"] === "string" &&
-				typeof rec["expires_in"] === "number"
-			);
-		}
-
 		if (!isTokenResponse(jsonRaw)) {
 			console.error("Invalid token response from visitor endpoint:", jsonRaw);
 			throw new Error("Unable to authenticate as visitor");
@@ -125,29 +66,16 @@ async function fetchSupabaseClientTokenFromAPI(): Promise<string> {
 /**
  * Clears the Supabase client token from memory (useful for testing or manual refresh)
  */
-export function clearSupabaseClientToken(): void {
-	cachedSupabaseClientToken = undefined;
-	tokenExpirationTime = undefined;
+function clearSupabaseClientToken(): void {
+	clearClientTokenCache();
 }
 
-/**
- * Stores the user token in memory with expiration time
- */
-function cacheUserToken(token: string, expiryTime: number): void {
-	cachedUserToken = token;
-	userTokenExpirationTime = expiryTime;
-
-	// Clear visitor token when user signs in
-	clearSupabaseClientToken();
-}
+// cacheUserToken now lives in tokenCache
 
 /**
  * Authenticates a user and returns their Supabase JWT token
  */
-export async function signInUser(
-	email: string,
-	password: string,
-): Promise<string> {
+async function signInUser(email: string, password: string): Promise<string> {
 	const apiBaseUrl = getEnvValue("API_BASE_URL");
 
 	try {
@@ -164,21 +92,6 @@ export async function signInUser(
 		}
 
 		const jsonRaw: unknown = await response.json().catch(() => undefined);
-
-		function isTokenResponse(value: unknown): value is TokenResponse {
-			if (!isRecord(value)) {
-				return false;
-			}
-			const rec = value;
-			return (
-				Object.hasOwn(rec, "access_token") &&
-				Object.hasOwn(rec, "token_type") &&
-				Object.hasOwn(rec, "expires_in") &&
-				typeof rec["access_token"] === "string" &&
-				typeof rec["token_type"] === "string" &&
-				typeof rec["expires_in"] === "number"
-			);
-		}
 
 		if (!isTokenResponse(jsonRaw)) {
 			console.error("Invalid token response from user auth endpoint:", jsonRaw);
@@ -201,50 +114,41 @@ export async function signInUser(
 /**
  * Signs out the current user and clears all tokens
  */
-export function signOutUser(): void {
-	cachedUserToken = undefined;
-	userTokenExpirationTime = undefined;
-	clearSupabaseClientToken();
+function signOutUser(): void {
+	// clear both user and visitor tokens from tokenCache
+	clearUserToken();
+	clearClientTokenCache();
 }
 
 /**
  * Checks if a user is currently signed in
  */
-export function isUserSignedIn(): boolean {
-	return getCachedUserToken() !== undefined;
+function isUserSignedIn(): boolean {
+	return isUserSignedInCache();
 }
+
+// Supabase client token helpers are in tokenCache
 
 /**
- * Stores the Supabase client token in memory with expiration time
+ * Returns a current auth token appropriate for creating a Supabase client.
+ * - If a user token is present and valid, return that (string)
+ * - Otherwise return a Supabase visitor client token (fetched/cached)
  */
-function cacheSupabaseClientToken(token: string, expiryTime: number): void {
-	cachedSupabaseClientToken = token;
-	tokenExpirationTime = expiryTime;
-}
-
-/**
- * Gets the Supabase client token from memory if it exists and hasn't expired
- */
-function getCachedSupabaseClientToken(): string | undefined {
-	if (
-		cachedSupabaseClientToken === undefined ||
-		tokenExpirationTime === undefined
-	) {
-		return undefined;
+function getSupabaseAuthToken(): Promise<string | undefined> {
+	const userToken = getCachedUserToken();
+	if (userToken !== undefined) {
+		return Promise.resolve(userToken);
 	}
 
-	const now = Date.now();
-
-	// If token has expired or will expire within the buffer window, return undefined
-	if (
-		now >=
-		tokenExpirationTime -
-			TOKEN_EXPIRY_BUFFER_MINUTES * SECONDS_IN_MINUTE * MS_IN_SECOND
-	) {
-		cachedSupabaseClientToken = undefined;
-		tokenExpirationTime = undefined;
-		return undefined;
-	}
-
-	return cachedSupabaseClientToken;
+	// Fall back to the visitor client token
+	return getSupabaseClientToken();
 }
+
+export {
+	getSupabaseClientToken,
+	clearSupabaseClientToken,
+	signInUser,
+	signOutUser,
+	isUserSignedIn,
+	getSupabaseAuthToken,
+};

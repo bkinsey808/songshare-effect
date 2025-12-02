@@ -1,11 +1,13 @@
-export type RetryResult<TValue> = {
+import { delay as wait } from "./helpers";
+
+const DEFAULT_DELAY_MS = 0;
+
+type RetryResultInternal<TValue> = {
 	readonly value?: TValue;
 	readonly lastError?: unknown;
 	readonly aborted: boolean;
 	readonly succeeded: boolean;
 };
-
-const DEFAULT_DELAY_MS = 0;
 
 export async function retryWithBackoff<TValue>(
 	fn: () => Promise<TValue | undefined>,
@@ -34,13 +36,13 @@ export async function retryWithBackoff<TValue>(
 					succeeded: true,
 				};
 			}
-		} catch (err) {
-			lastErr = err;
-			onError?.(err, attempt);
-			if (shouldAbort?.(err) ?? false) {
+		} catch (error) {
+			lastErr = error;
+			onError?.(error, attempt);
+			if (shouldAbort?.(error) ?? false) {
 				// omit `value` when there is no successful value. With
 				// exactOptionalPropertyTypes enabled we must not set value: undefined
-				return { lastError: err, aborted: true, succeeded: false };
+				return { lastError: error, aborted: true, succeeded: false };
 			}
 		}
 
@@ -48,7 +50,7 @@ export async function retryWithBackoff<TValue>(
 		if (delay > DEFAULT_DELAY_MS) {
 			// sequential backoff by design
 			// oxlint-disable-next-line no-await-in-loop
-			await new Promise<void>((resolve) => setTimeout(resolve, delay));
+			await wait(delay);
 		}
 	}
 
@@ -56,3 +58,5 @@ export async function retryWithBackoff<TValue>(
 	// property rules.
 	return { lastError: lastErr, aborted: false, succeeded: false };
 }
+
+export type RetryResult<TValue> = RetryResultInternal<TValue>;

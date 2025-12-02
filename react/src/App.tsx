@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, type ReactElement } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import ProtectedLayout from "@/react/auth/ProtectedLayout";
@@ -64,7 +64,7 @@ function AppLoadingFallback(): ReactElement {
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-gray-900">
 			<div className="text-center">
-				<div className="border-primary-500 mb-4 h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+				<div className="border-primary-500 mb-4 h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
 				<p className="text-gray-300">Loading app...</p>
 			</div>
 		</div>

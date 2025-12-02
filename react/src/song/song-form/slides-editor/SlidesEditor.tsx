@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 // src/features/song-form/SlidesEditor.tsx
 import { useTranslation } from "react-i18next";
 
@@ -12,11 +14,11 @@ import useSlidesEditor from "./useSlidesEditor";
 
 type SlidesEditorProps = Readonly<
 	ReadonlyDeep<{
-		fields: string[];
+		fields: readonly string[];
 		toggleField: (field: string, checked: boolean) => void;
 		// Array of slide IDs
-		slideOrder: ReadonlyArray<string>;
-		setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+		slideOrder: readonly string[];
+		setSlideOrder: (newOrder: readonly string[]) => void;
 		// ID -> Slide mapping
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
@@ -31,13 +33,12 @@ export default function SlidesEditor({
 	slides,
 	setSlides,
 }: SlidesEditorProps): ReactElement {
-	const { addSlide, deleteSlide, editFieldValue, editSlideName, safeGetField } =
-		useSlidesEditor({
-			slideOrder,
-			setSlideOrder,
-			slides,
-			setSlides,
-		});
+	const { addSlide, deleteSlide, editFieldValue, editSlideName, safeGetField } = useSlidesEditor({
+		slideOrder,
+		setSlideOrder,
+		slides,
+		setSlides,
+	});
 
 	const { t } = useTranslation();
 	const ONE = 1;
@@ -51,9 +52,7 @@ export default function SlidesEditor({
 			<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 				{/* Fields Selection */}
 				<fieldset className="flex flex-col gap-2">
-					<legend className="text-sm font-bold text-gray-300">
-						{t("song.fields", "Fields")}
-					</legend>
+					<legend className="text-sm font-bold text-gray-300">{t("song.fields", "Fields")}</legend>
 					<div className="mt-2 flex flex-col gap-2">
 						{songFields.map((field) => (
 							<label key={field} className="flex items-center gap-2">
@@ -86,7 +85,7 @@ export default function SlidesEditor({
 				Object.keys(slides).map((slideId, idx) => {
 					const slide = safeGet(slides, slideId);
 					if (!slide) {
-						return null;
+						return undefined;
 					}
 					return (
 						<div
@@ -106,6 +105,7 @@ export default function SlidesEditor({
 											placeholder="Slide name"
 										/>
 										<button
+											type="button"
 											className="remove-slide-btn rounded border border-transparent bg-red-600 px-4 py-1 text-base font-semibold whitespace-nowrap text-white shadow transition-colors duration-150 hover:bg-red-700 focus:ring-4 focus:outline-none"
 											onClick={() => {
 												deleteSlide(slideId);
@@ -146,7 +146,7 @@ export default function SlidesEditor({
 							<details className="mt-4 text-xs text-gray-500">
 								<summary>Debug: All field data for this slide</summary>
 								<pre className="mt-2 rounded bg-gray-100 p-2">
-									{JSON.stringify(slide.field_data, null, JSON_INDENT)}
+									{JSON.stringify(slide.field_data, undefined, JSON_INDENT)}
 								</pre>
 							</details>
 						</div>

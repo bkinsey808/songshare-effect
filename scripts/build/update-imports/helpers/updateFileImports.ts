@@ -1,16 +1,16 @@
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
-import { warn as sWarn, error as sError } from "../../../utils/scriptLogger";
-import { convertApiImports } from "./convertApiImports";
-import { convertReactImports } from "./convertReactImports";
-import { convertSharedImports } from "./convertSharedImports";
+import { warn as sWarn, error as sError } from "@/scripts/utils/scriptLogger";
+import convertApiImports from "./convertApiImports";
+import convertReactImports from "./convertReactImports";
+import convertSharedImports from "./convertSharedImports";
 
 /**
  * Applies import transformations for a single file and writes changes to disk.
  * @param filePath - Path to the file that should be updated.
  * @returns Whether the file required modifications.
  */
-export function updateFileImports(filePath: string): boolean {
+export default function updateFileImports(filePath: string): boolean {
 	try {
 		const content = readFileSync(filePath, "utf8");
 		let updatedContent = content;
@@ -28,8 +28,8 @@ export function updateFileImports(filePath: string): boolean {
 		}
 
 		return false;
-	} catch (_error) {
-		sError(`❌ Error updating ${filePath}:`, _error);
+	} catch (error) {
+		sError(`❌ Error updating ${filePath}:`, error);
 		return false;
 	}
 }

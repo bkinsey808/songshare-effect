@@ -4,11 +4,11 @@ import { useState } from "react";
 import { clientDebug } from "@/react/utils/clientLogger";
 import { registerMessageKey } from "@/shared/register/register";
 import { safeSet } from "@/shared/utils/safe";
-import { type ValidationError } from "@/shared/validation/types";
+import { type ValidationError } from "@/shared/validation/validate-types";
 
-import { createApiResponseHandlerEffect } from "./createApiResponseHandlerEffect";
-import { createFieldBlurHandler } from "./createFieldBlurHandler";
-import { createFormSubmitHandler } from "./createFormSubmitHandler";
+import createApiResponseHandlerEffect from "./createApiResponseHandlerEffect";
+import createFieldBlurHandler from "./createFieldBlurHandler";
+import createFormSubmitHandler from "./createFormSubmitHandler";
 
 type UseAppFormProps<FormValues> = {
 	readonly schema: Schema.Schema<FormValues>;
@@ -18,15 +18,13 @@ type UseAppFormProps<FormValues> = {
 };
 
 type UseAppFormReturn<FormValues> = {
-	readonly validationErrors: ReadonlyArray<ValidationError>;
+	readonly validationErrors: readonly ValidationError[];
 	readonly isSubmitting: boolean;
 	readonly handleFieldBlur: <FieldKey extends keyof FormValues>(
 		field: FieldKey,
 		ref: React.RefObject<HTMLInputElement | null>,
 	) => void;
-	readonly getFieldError: (
-		field: keyof FormValues,
-	) => ValidationError | undefined;
+	readonly getFieldError: (field: keyof FormValues) => ValidationError | undefined;
 	readonly handleSubmit: (
 		formData: Readonly<Record<string, unknown>>,
 		onSubmit: (data: Readonly<FormValues>) => Promise<void> | void,
@@ -36,23 +34,19 @@ type UseAppFormReturn<FormValues> = {
 		setSubmitError: (error: string) => void,
 	) => Effect.Effect<boolean>;
 	readonly reset: () => void;
-	readonly setValidationErrors: React.Dispatch<
-		React.SetStateAction<ReadonlyArray<ValidationError>>
-	>;
+	readonly setValidationErrors: React.Dispatch<React.SetStateAction<readonly ValidationError[]>>;
 };
 
 /**
  * Hook for managing form state and validation with Effect schemas
  */
-export function useAppForm<FormValues extends Record<string, unknown>>({
+export default function useAppForm<FormValues extends Record<string, unknown>>({
 	schema,
 	formRef,
 	initialValues,
 	defaultErrorMessage,
 }: UseAppFormProps<FormValues>): UseAppFormReturn<FormValues> {
-	const [validationErrors, setValidationErrors] = useState<
-		ReadonlyArray<ValidationError>
-	>([]);
+	const [validationErrors, setValidationErrors] = useState<readonly ValidationError[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	/**

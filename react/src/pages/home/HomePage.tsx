@@ -2,20 +2,17 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate } from "react-router-dom";
 
-import { SignInButtons } from "@/react/auth/SignInButtons";
+import SignInButtons from "@/react/auth/SignInButtons";
 import useSignIn from "@/react/auth/useSignIn";
 import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
+import {
+	normalizeTranslationParagraphs,
+	isParagraph,
+	type Paragraph,
+} from "@/react/i18n/normalizeTranslationParagraphs";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
-import {
-	dashboardPath,
-	reactFeaturesPath,
-	uploadDemoPath,
-} from "@/shared/paths";
-import {
-	justDeletedAccountKey,
-	justSignedOutKey,
-} from "@/shared/sessionStorageKeys";
+import { dashboardPath, reactFeaturesPath, uploadDemoPath } from "@/shared/paths";
 
 export default function HomePage(): ReactElement {
 	const { t, i18n } = useTranslation();
@@ -30,21 +27,19 @@ export default function HomePage(): ReactElement {
 			: undefined;
 	const appName = appNameEnv ?? t("app.title") ?? "SongShare";
 
-	// Read paragraphs array from translations. We pass appName so the translations can
-	// interpolate the application name ({{appName}}).
-	const homeParagraphs = t("pages.home.paragraphs", {
-		returnObjects: true,
-		appName,
-	});
+	// Read paragraphs array from translations. We pass appName so the translations can interpolate the application name ({{appName}}).
+	const translationConfig = { returnObjects: true, appName };
+	const homeParagraphsRaw = t("pages.home.paragraphs", translationConfig);
+	const homeParagraphs: Paragraph[] = normalizeTranslationParagraphs(homeParagraphsRaw);
+
+	// Alert state keys
+	const displayedKey = "alertDisplayed";
+	const typeKey = "alertType";
+	const deletedKey = "justDeletedAccount";
+	const signedOutKey = "justSignedOut";
 
 	// Initializer reads sessionStorage synchronously on first render (SPA only)
-	function getInitialAlertState(): {
-		visible: boolean;
-		type: string;
-	} {
-		const displayedKey = "alertDisplayed";
-		const typeKey = "alertType";
-
+	function getInitialAlertState(): { visible: boolean; type: string } {
 		try {
 			// If we've already displayed an alert for this navigation, return it.
 			const alreadyDisplayed = sessionStorage.getItem(displayedKey);
@@ -54,13 +49,14 @@ export default function HomePage(): ReactElement {
 					if (storedType !== "") {
 						return { visible: true, type: storedType };
 					}
+					return { visible: false, type: "" };
 				}
 				return { visible: false, type: "" };
 			}
 
 			// Otherwise, check the transient flags set by the sign-out / delete flows.
-			const justDeletedAccount = sessionStorage.getItem(justDeletedAccountKey);
-			const justSignedOut = sessionStorage.getItem(justSignedOutKey);
+			const justDeletedAccount = sessionStorage.getItem(deletedKey);
+			const justSignedOut = sessionStorage.getItem(signedOutKey);
 
 			let foundType = "";
 			if (justDeletedAccount === "1") {
@@ -71,21 +67,16 @@ export default function HomePage(): ReactElement {
 			}
 
 			if (foundType !== "") {
-				// Persist marker immediately so StrictMode remounts rehydrate the same
-				// UI. Also clear the transient flags.
+				// Persist marker immediately so StrictMode remounts rehydrate the same UI. Also clear the transient flags.
 				sessionStorage.setItem(displayedKey, "1");
 				sessionStorage.setItem(typeKey, foundType);
-				sessionStorage.removeItem(justDeletedAccountKey);
-				sessionStorage.removeItem(justSignedOutKey);
+				sessionStorage.removeItem(deletedKey);
+				sessionStorage.removeItem(signedOutKey);
 				return { visible: true, type: foundType };
 			}
 		} catch (error) {
-			console.error(
-				"Error reading sessionStorage in getInitialAlertState:",
-				error,
-			);
+			console.error("Error reading sessionStorage in getInitialAlertState:", error);
 		}
-
 		return { visible: false, type: "" };
 	}
 
@@ -102,10 +93,10 @@ export default function HomePage(): ReactElement {
 				onDismiss={() => {
 					// Clear persisted/session flags when the user dismisses the alert
 					setAlertState({ visible: false, type: "" });
-					sessionStorage.removeItem("alertDisplayed");
-					sessionStorage.removeItem("alertType");
-					sessionStorage.removeItem("justDeletedAccount");
-					sessionStorage.removeItem("justSignedOut");
+					sessionStorage.removeItem(displayedKey);
+					sessionStorage.removeItem(typeKey);
+					sessionStorage.removeItem(deletedKey);
+					sessionStorage.removeItem(signedOutKey);
 				}}
 				title={
 					alertState.type === "deleteSuccess"
@@ -128,12 +119,13 @@ export default function HomePage(): ReactElement {
 
 			{/* Render translated paragraph array (pages.home.paragraphs) */}
 			<div className="mx-auto mt-8 max-w-3xl space-y-4 text-left">
-				{Array.isArray(homeParagraphs) &&
-					homeParagraphs.map((paragraph, idx) => (
-						<p key={idx} className="text-gray-300">
-							{paragraph}
+				{homeParagraphs.map((paragraph) =>
+					isParagraph(paragraph) ? (
+						<p key={paragraph.id} className="text-gray-300">
+							{paragraph.text}
 						</p>
-					))}
+					) : undefined,
+				)}
 			</div>
 			<div className="my-12 space-y-8">
 				<div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -141,9 +133,8 @@ export default function HomePage(): ReactElement {
 						<div className="mb-6 text-6xl">🚀</div>
 						<h3 className="mb-4 text-2xl font-bold">React Features Demo</h3>
 						<p className="mb-6 text-gray-300">
-							Explore interactive demonstrations of modern React features
-							including Suspense, the new 'use' hook, performance optimizations,
-							and more
+							Explore interactive demonstrations of modern React features including Suspense, the
+							new &apos;use&apos; hook, performance optimizations, and more
 						</p>
 						<Link
 							to={`/${currentLang}/${reactFeaturesPath}`}
@@ -157,8 +148,8 @@ export default function HomePage(): ReactElement {
 						<div className="mb-6 text-6xl">📤</div>
 						<h3 className="mb-4 text-2xl font-bold">Upload Demo</h3>
 						<p className="mb-6 text-gray-300">
-							Experience file upload functionality with progress tracking, error
-							handling, and real-time feedback
+							Experience file upload functionality with progress tracking, error handling, and
+							real-time feedback
 						</p>
 						<Link
 							to={`/${currentLang}/${uploadDemoPath}`}
@@ -170,13 +161,10 @@ export default function HomePage(): ReactElement {
 				</div>
 
 				<div className="mt-12 rounded-lg border border-blue-500/20 bg-blue-500/10 p-6 text-center">
-					<h4 className="mb-3 text-lg font-semibold text-blue-300">
-						💡 What's Inside
-					</h4>
+					<h4 className="mb-3 text-lg font-semibold text-blue-300">💡 What&apos;s Inside</h4>
 					<p className="text-sm text-blue-200">
-						Discover cutting-edge React patterns, performance optimization
-						techniques, and modern development practices through hands-on
-						examples
+						Discover cutting-edge React patterns, performance optimization techniques, and modern
+						development practices through hands-on examples
 					</p>
 				</div>
 			</div>

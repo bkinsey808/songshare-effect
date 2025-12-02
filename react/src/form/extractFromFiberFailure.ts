@@ -1,7 +1,7 @@
 import { isRecord, isString } from "@/shared/utils/typeGuards";
-import { type ValidationError } from "@/shared/validation/types";
+import { type ValidationError } from "@/shared/validation/validate-types";
 
-import { safeJsonParse } from "./safeJsonParse";
+import safeJsonParse from "./safeJsonParse";
 
 function isValidationErrorArray(value: unknown): value is ValidationError[] {
 	if (!Array.isArray(value)) {
@@ -19,9 +19,9 @@ function isValidationErrorArray(value: unknown): value is ValidationError[] {
 /**
  * Extract ValidationError[] from FiberFailure objects.
  */
-export function extractFromFiberFailure(
+export default function extractFromFiberFailure(
 	obj: Readonly<Record<string, unknown>>,
-): ReadonlyArray<ValidationError> {
+): readonly ValidationError[] {
 	// cause may directly be the array
 	if ("cause" in obj) {
 		const { cause } = obj;

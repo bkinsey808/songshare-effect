@@ -1,10 +1,6 @@
-import { getSupabaseServerClient } from "@/api/supabase/getSupabaseServerClient";
+import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import { userTokenCache } from "@/api/supabase/tokenCache";
-import {
-	MS_PER_SECOND,
-	ONE_HOUR_SECONDS,
-	TOKEN_CACHE_SKEW_SECONDS,
-} from "@/shared/constants/http";
+import { MS_PER_SECOND, ONE_HOUR_SECONDS, TOKEN_CACHE_SKEW_SECONDS } from "@/shared/constants/http";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
 // Narrow env shape for functions that only need Supabase credentials.
@@ -20,7 +16,7 @@ type SupabaseClientEnv = Readonly<{
  * Will reuse cached token until it expires.
  * Ensures the token has app_metadata.user.user_id structure for RLS policies.
  */
-export async function getSupabaseUserToken({
+export default async function getSupabaseUserToken({
 	env,
 	email,
 	password,
@@ -38,10 +34,7 @@ export async function getSupabaseUserToken({
 		return cached.token;
 	}
 
-	const client = getSupabaseServerClient(
-		env.VITE_SUPABASE_URL,
-		env.SUPABASE_SERVICE_KEY,
-	);
+	const client = getSupabaseServerClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_KEY);
 
 	// Sign in the user
 	const response = await client.auth.signInWithPassword({
@@ -84,12 +77,9 @@ export async function getSupabaseUserToken({
 
 	const currentUserData = getUserIdFromAppMetadata(data.user.app_metadata);
 	if (currentUserData !== data.user.id) {
-		const { error: updateError } = await client.auth.admin.updateUserById(
-			data.user.id,
-			{
-				app_metadata: expectedMetadata,
-			},
-		);
+		const { error: updateError } = await client.auth.admin.updateUserById(data.user.id, {
+			app_metadata: expectedMetadata,
+		});
 
 		if (updateError) {
 			throw new Error(`Failed to update user metadata: ${updateError.message}`);
@@ -120,7 +110,7 @@ export async function getSupabaseUserToken({
 		expiry = expiresAtRaw;
 	} else if (typeof expiresAtRaw === "string") {
 		// fallback 1h
-		expiry = parseInt(expiresAtRaw, 10) || now + ONE_HOUR_SECONDS;
+		expiry = Number.parseInt(expiresAtRaw, 10) || now + ONE_HOUR_SECONDS;
 	} else {
 		// fallback 1h
 		expiry = now + ONE_HOUR_SECONDS;

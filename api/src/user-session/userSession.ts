@@ -3,7 +3,9 @@ import { verify } from "hono/jwt";
 
 import { sessionCookieName } from "@/api/cookie/cookie";
 import { AuthenticationError } from "@/api/errors";
+import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
+import { getEnvString } from "@/shared/env/getEnv";
 
 /**
  * Pure helper - extract the raw token string from a Cookie header value.
@@ -27,24 +29,15 @@ export function extractUserSessionTokenFromCookieHeader(
 export function extractUserSessionTokenFromContext(
 	ctx: ReadonlyContext,
 ): Effect.Effect<string | undefined> {
-	return Effect.sync(() =>
-		extractUserSessionTokenFromCookieHeader(ctx.req.header("Cookie")),
-	);
+	return Effect.sync(() => extractUserSessionTokenFromCookieHeader(ctx.req.header("Cookie")));
 }
-
-/**
- * Verify a JWT token using the provided Bindings for secret lookup.
- * Returns an Effect that yields the verified payload or fails with AuthenticationError.
- */
-import { getErrorMessage } from "@/api/getErrorMessage";
-import { getEnvString } from "@/shared/env/getEnv";
 
 export function verifyUserSessionToken(
 	userSessionToken: string,
 	envLike: unknown,
 ): Effect.Effect<unknown, AuthenticationError> {
 	return Effect.tryPromise({
-		try: async () => {
+		try: () => {
 			const jwtSecret = getEnvString(envLike, "JWT_SECRET");
 			if (jwtSecret === undefined || jwtSecret === "") {
 				throw new Error("Missing JWT_SECRET");

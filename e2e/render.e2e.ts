@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 
 const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] ?? "";
 // Test timing constants
-const HYDRATION_WAIT_MS: number = 2000;
+const HYDRATION_WAIT_MS = 2000;
 
 // Choose base URL: if PLAYWRIGHT_BASE_URL is set we treat this as a deployed run
 test.describe("Render smoke", () => {

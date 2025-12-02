@@ -3,15 +3,16 @@
 // Keep per-site inline disables rather than a broad, file-scope rule disable.
 import { Effect, type Schema } from "effect";
 
-import { isRecord } from "@/shared/utils/typeGuards";
+import extractValidationErrors from "./extractValidationErrors";
+import { type ValidationResult } from "./validate-types";
+import validateFormEffect from "./validateFormEffect";
 
-import { type ValidationError, type ValidationResult } from "./types";
-import { validateFormEffect } from "./validateFormEffect";
+const ZERO = 0;
 
 /**
  * Validate form data using Effect schema
  */
-export function validateForm<FormValues>({
+export default function validateForm<FormValues>({
 	schema,
 	data,
 	i18nMessageKey,
@@ -34,15 +35,12 @@ export function validateForm<FormValues>({
 		};
 	} catch (error) {
 		// Handle FiberFailure from Effect.runSync
-		if (
-			error instanceof Error &&
-			error.constructor.name === "FiberFailureImpl"
-		) {
+		if (error instanceof Error && error.constructor.name === "FiberFailureImpl") {
 			try {
 				// Try to parse the error message as JSON
 				const parsed = JSON.parse(error.message) as unknown;
 				const extracted = extractValidationErrors(parsed);
-				if (extracted.length) {
+				if (extracted.length > ZERO) {
 					return {
 						success: false,
 						errors: extracted,
@@ -55,7 +53,7 @@ export function validateForm<FormValues>({
 
 		// The error should be our ValidationError[] array
 		const extracted = extractValidationErrors(error);
-		if (extracted.length) {
+		if (extracted.length > ZERO) {
 			return {
 				success: false,
 				errors: extracted,
@@ -73,69 +71,4 @@ export function validateForm<FormValues>({
 			],
 		};
 	}
-}
-
-/**
- * Safely extract ValidationError[] from various unknown shapes.
- */
-function extractValidationErrors(
-	input: unknown,
-): ReadonlyArray<ValidationError> {
-	// Local runtime guard to validate array items look like ValidationError
-	function isValidationErrorArray(value: unknown): value is ValidationError[] {
-		if (!Array.isArray(value)) {
-			return false;
-		}
-		return value.every((item) => {
-			if (!isRecord(item)) {
-				return false;
-			}
-			const rec = item;
-			return (
-				Object.hasOwn(rec, "field") &&
-				Object.hasOwn(rec, "message") &&
-				typeof rec["field"] === "string" &&
-				typeof rec["message"] === "string"
-			);
-		});
-	}
-
-	// Direct array
-	if (isValidationErrorArray(input)) {
-		return input;
-	}
-
-	// Error instance: try parsing message
-	if (input instanceof Error) {
-		try {
-			const parsed = JSON.parse(input.message) as unknown;
-			if (isValidationErrorArray(parsed)) {
-				return parsed;
-			}
-		} catch {
-			return [];
-		}
-	}
-
-	// FiberFailure-like objects or other wrapped shapes
-	if (isRecord(input)) {
-		const obj = input;
-
-		if ("cause" in obj && isValidationErrorArray(obj["cause"])) {
-			return obj["cause"];
-		}
-
-		if ("message" in obj && typeof obj["message"] === "string") {
-			try {
-				const parsed = JSON.parse(String(obj["message"])) as unknown;
-				if (isValidationErrorArray(parsed)) {
-					return parsed;
-				}
-			} catch {
-				return [];
-			}
-		}
-	}
-
-	return [];
 }

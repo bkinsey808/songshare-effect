@@ -1,5 +1,7 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-# Run lint-staged to fix and stage files before committing
-npx --no -- lint-staged
+# Run the global lint command so pre-commit matches `npm run lint`
+# NOTE: this runs oxlint across the working tree and will fail the commit if lint errors are present
+# (this intentionally mirrors `npm run lint` so behavior is identical when committing vs manual lint)
+npm run lint

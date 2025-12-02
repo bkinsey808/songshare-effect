@@ -11,22 +11,20 @@ import LanguageSwitcher from "./language/LanguageSwitcher";
 
 function Navigation(): ReactElement {
 	const { t, i18n } = useTranslation();
-	const currentLang = isSupportedLanguage(i18n.language)
-		? i18n.language
-		: defaultLanguage;
+	const currentLang = isSupportedLanguage(i18n.language) ? i18n.language : defaultLanguage;
 	const location = useLocation();
 	const [isScrolled, setIsScrolled] = useState(false);
 
 	// Listen for scroll events to compress navigation
 	useEffect(() => {
 		function handleScroll(): void {
-			const scrollTop = window.scrollY;
+			const scrollTop = globalThis.scrollY;
 			setIsScrolled(scrollTop > SCROLL_THRESHOLD);
 		}
 
-		window.addEventListener("scroll", handleScroll);
-		return () => {
-			window.removeEventListener("scroll", handleScroll);
+		globalThis.addEventListener("scroll", handleScroll);
+		return (): void => {
+			globalThis.removeEventListener("scroll", handleScroll);
 		};
 	}, []);
 
@@ -57,9 +55,7 @@ function Navigation(): ReactElement {
 			}`}
 		>
 			{/* App Title and Subtitle */}
-			<div
-				className={`text-center transition-all duration-300 ${isScrolled ? "mb-2" : "mb-6"}`}
-			>
+			<div className={`text-center transition-all duration-300 ${isScrolled ? "mb-2" : "mb-6"}`}>
 				<h1
 					className={`font-bold text-white transition-all duration-300 ${
 						isScrolled ? "mb-0 text-2xl" : "mb-2 text-4xl"
@@ -68,9 +64,7 @@ function Navigation(): ReactElement {
 					🎵 {t("app.title")}
 				</h1>
 				{!isScrolled && (
-					<p className="text-gray-400 transition-opacity duration-300">
-						{t("app.subtitle")}
-					</p>
+					<p className="text-gray-400 transition-opacity duration-300">{t("app.subtitle")}</p>
 				)}
 			</div>
 

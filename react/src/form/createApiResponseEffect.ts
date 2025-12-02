@@ -8,7 +8,7 @@ import { type ApiResponseAction } from "./apiResponseTypes";
 /**
  * Create an Effect that handles API response parsing and returns structured actions
  */
-export function createApiResponseEffect(
+export default function createApiResponseEffect(
 	response: Response,
 ): Effect.Effect<unknown, ApiResponseAction> {
 	return Effect.gen(function* createApiResponseEffect() {
@@ -24,11 +24,10 @@ export function createApiResponseEffect(
 		// Localized debug-only log
 		clientDebug("❌ Response not OK, parsing error");
 		// Parse JSON with error handling
-		let errorData: { error?: string | undefined; field?: string | undefined } =
-			{
-				error: undefined,
-				field: undefined,
-			};
+		let errorData: { error?: string | undefined; field?: string | undefined } = {
+			error: undefined,
+			field: undefined,
+		};
 		try {
 			errorData = yield* Effect.promise(async () => {
 				const raw: unknown = await response.json();

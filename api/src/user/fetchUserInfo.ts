@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-export function fetchUserInfo({
+export default function fetchUserInfo({
 	userInfoUrl,
 	accessToken,
 	idToken,

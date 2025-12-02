@@ -28,7 +28,7 @@ const typeMapping: Record<string, string> = {
 	bytea: "Schema.Uint8Array",
 };
 
-export function getEffectType(column: Readonly<ColumnDefinition>): string {
+export default function getEffectType(column: Readonly<ColumnDefinition>): string {
 	let effectType = typeMapping[column.type];
 	if (effectType === undefined) {
 		if (column.type.endsWith("[]")) {

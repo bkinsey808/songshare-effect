@@ -3,4 +3,5 @@ declare global {
 	type ReactElement = React.ReactNode;
 }
 
-export {};
+const __global_types_marker = true as const;
+export default __global_types_marker;

@@ -1,19 +1,15 @@
 import { readdir, unlink } from "node:fs/promises";
-import * as path from "node:path";
+import path from "node:path";
 
-import { warn as sWarn } from "../../../utils/scriptLogger";
+import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 
-export async function bundleTopLevelFunctions(outDir: string): Promise<void> {
+export default async function bundleTopLevelFunctions(outDir: string): Promise<void> {
 	try {
 		// dynamic import so script still works if esbuild isn't available
 		const { build } = await import("esbuild");
 		const entries = await readdir(outDir, { withFileTypes: true });
 		for (const entry of entries) {
-			if (!entry.isFile()) {
-				// skip non-files
-			} else if (!entry.name.endsWith(".ts")) {
-				// skip non-TypeScript files
-			} else {
+			if (entry.isFile() && entry.name.endsWith(".ts")) {
 				const entryPath = path.join(outDir, entry.name);
 				const out = path.join(outDir, entry.name.replace(/\.ts$/, ".js"));
 				sWarn("Bundling function ->", entryPath, "->", out);
@@ -37,10 +33,12 @@ export async function bundleTopLevelFunctions(outDir: string): Promise<void> {
 				} catch {
 					// non-fatal
 				}
-			}
+			} else {
+				// skip non-TypeScript files
+			 }
 		}
-	} catch (err) {
-		const message = err instanceof Error ? err.message : String(err);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
 		sWarn("Warning: could not bundle functions with esbuild:", message);
 	}
 }

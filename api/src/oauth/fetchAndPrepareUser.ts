@@ -1,14 +1,14 @@
 import { Effect, type Schema } from "effect";
 
 import { DatabaseError, ValidationError } from "@/api/errors";
-import { getErrorMessage } from "@/api/getErrorMessage";
+import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
-import { fetchAndParseOauthUserData } from "@/api/oauth/fetchAndParseOauthUserData";
-import { resolveRedirectOrigin } from "@/api/oauth/resolveRedirectOrigin";
-import { getBackEndProviderData } from "@/api/provider/getBackEndProviderData";
+import fetchAndParseOauthUserData from "@/api/oauth/fetchAndParseOauthUserData";
+import resolveRedirectOrigin from "@/api/oauth/resolveRedirectOrigin";
+import getBackEndProviderData from "@/api/provider/getBackEndProviderData";
 import { type ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
-import { getUserByEmail } from "@/api/user/getUserByEmail";
+import getUserByEmail from "@/api/user/getUserByEmail";
 import { getEnvString } from "@/shared/env/getEnv";
 import { type UserSchema } from "@/shared/generated/supabaseSchemas";
 import { type OauthUserData } from "@/shared/oauth/oauthUserData";
@@ -16,6 +16,14 @@ import { apiOauthCallbackPath } from "@/shared/paths";
 import { type ProviderType } from "@/shared/providers";
 import { safeSet } from "@/shared/utils/safe";
 import { createClient } from "@supabase/supabase-js";
+
+function computeDerivedFromReferer(referer: string): string {
+	try {
+		return referer ? new URL(referer).origin : "";
+	} catch {
+		return "";
+	}
+}
 
 type FetchAndPrepareUserParams = Readonly<{
 	ctx: ReadonlyContext;
@@ -25,7 +33,7 @@ type FetchAndPrepareUserParams = Readonly<{
 }>;
 
 // Helper: exchange code and prepare supabase + existing user
-export function fetchAndPrepareUser({
+export default function fetchAndPrepareUser({
 	ctx,
 	code,
 	provider,
@@ -57,12 +65,9 @@ export function fetchAndPrepareUser({
 					for (const nm of names) {
 						safeSet(hdrObj, nm, ctx.req.header(nm) ?? undefined);
 					}
-				} catch (err) {
+				} catch (error) {
 					// Localized: server-side error log
-					serverError(
-						"[oauthCallback] Failed to dump incoming headers:",
-						getErrorMessage(err),
-					);
+					serverError("[oauthCallback] Failed to dump incoming headers:", getErrorMessage(error));
 				}
 			}),
 		);
@@ -77,41 +82,20 @@ export function fetchAndPrepareUser({
 		// redirected back to (this is important when the dev proxy terminates TLS
 		// and forwards HTTP to the API). Fall back to the request URL origin.
 		const headerOrigin = ctx.req.header("origin") ?? "";
-		const headerReferer =
-			ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
-
-		function computeDerivedFromReferer(referer: string): string {
-			try {
-				return referer ? new URL(referer).origin : "";
-			} catch {
-				return "";
-			}
-		}
+		const headerReferer = ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
 
 		const derivedFromReferer = computeDerivedFromReferer(headerReferer);
 		const requestOrigin =
-			headerOrigin ||
-			derivedFromReferer ||
-			`${requestUrl.protocol}//${requestUrl.host}`;
+			headerOrigin || derivedFromReferer || `${requestUrl.protocol}//${requestUrl.host}`;
 
-		let redirectUri: string = "";
-		if (
-			typeof redirectUriFromCaller === "string" &&
-			redirectUriFromCaller !== ""
-		) {
+		let redirectUri = "";
+		if (typeof redirectUriFromCaller === "string" && redirectUriFromCaller !== "") {
 			redirectUri = redirectUriFromCaller;
 		} else {
-			const envRedirectOrigin =
-				getEnvString(ctx.env, "OAUTH_REDIRECT_ORIGIN") ?? "";
-			const isProdFlag =
-				(getEnvString(ctx.env, "ENVIRONMENT") ?? "") === "production";
-			const opts = requestOrigin
-				? { requestOrigin, isProd: isProdFlag }
-				: { isProd: isProdFlag };
-			const originForRedirect = resolveRedirectOrigin(
-				envRedirectOrigin || undefined,
-				opts,
-			);
+			const envRedirectOrigin = getEnvString(ctx.env, "OAUTH_REDIRECT_ORIGIN") ?? "";
+			const isProdFlag = (getEnvString(ctx.env, "ENVIRONMENT") ?? "") === "production";
+			const opts = requestOrigin ? { requestOrigin, isProd: isProdFlag } : { isProd: isProdFlag };
+			const originForRedirect = resolveRedirectOrigin(envRedirectOrigin || undefined, opts);
 			redirectUri = `${originForRedirect}${getEnvString(ctx.env, "OAUTH_REDIRECT_PATH") ?? apiOauthCallbackPath}`;
 		}
 		yield* $(
@@ -148,8 +132,9 @@ export function fetchAndPrepareUser({
 			getEnvString(ctx.env, "SUPABASE_SERVICE_KEY") ?? "",
 		);
 
-		const existingUser: Schema.Schema.Type<typeof UserSchema> | undefined =
-			yield* $(getUserByEmail({ supabase, email: oauthUserData.email }));
+		const existingUser: Schema.Schema.Type<typeof UserSchema> | undefined = yield* $(
+			getUserByEmail({ supabase, email: oauthUserData.email }),
+		);
 
 		// Additional debug logging to aid in locating 500 errors during dev
 		yield* $(

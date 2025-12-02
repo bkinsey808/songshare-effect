@@ -10,12 +10,12 @@ const PLAYWRIGHT_BASE_URL =
 const CI_RETRIES = 2;
 const CI_WORKERS = 1;
 const NO_RETRIES = 0;
-const DEFAULT_TIMEOUT_MS = 60000;
-const DEFAULT_ACTION_TIMEOUT_MS = 15000;
-const DEFAULT_NAVIGATION_TIMEOUT_MS = 30000;
+const DEFAULT_TIMEOUT_MS = 60_000;
+const DEFAULT_ACTION_TIMEOUT_MS = 15_000;
+const DEFAULT_NAVIGATION_TIMEOUT_MS = 30_000;
 const FIREFOX_MAX_CONNECTIONS = 100;
 const FIREFOX_MAX_CONNECTIONS_PER_SERVER = 10;
-const WEBSERVER_TIMEOUT_MS = 180000;
+const WEBSERVER_TIMEOUT_MS = 180_000;
 
 export default defineConfig({
 	testDir: "./e2e",
@@ -86,7 +86,7 @@ export default defineConfig({
 				},
 				// Increased timeouts for Firefox
 				// 1. More generous timeout for Firefox
-				actionTimeout: 25000,
+				actionTimeout: 25_000,
 				// 2. More generous timeout for Firefox
 				navigationTimeout: DEFAULT_NAVIGATION_TIMEOUT_MS,
 			},

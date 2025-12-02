@@ -1,14 +1,12 @@
-import { type ReactElement } from "react";
+// ReactElement is ambient — do not import explicit type in components
 import { useParams } from "react-router-dom";
 
 import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
 type SongMethods = {
-	addActivePublicSongSlugs: (slugs: ReadonlyArray<string>) => Promise<void>;
-	getSongBySlug: (
-		slug: string,
-	) => { song: unknown; songPublic: unknown } | undefined;
+	addActivePublicSongSlugs: (slugs: readonly string[]) => Promise<void>;
+	getSongBySlug: (slug: string) => { song: unknown; songPublic: unknown } | undefined;
 };
 
 export default function SongView(): ReactElement {
@@ -21,9 +19,7 @@ export default function SongView(): ReactElement {
 		void addActivePublicSongSlugs([songSlug]);
 	}
 
-	const getSongBySlug = useAppStoreSelector(
-		(state: Readonly<SongMethods>) => state.getSongBySlug,
-	);
+	const getSongBySlug = useAppStoreSelector((state: Readonly<SongMethods>) => state.getSongBySlug);
 
 	const songData = songSlug === undefined ? undefined : getSongBySlug(songSlug);
 

@@ -3,13 +3,13 @@
  * Programmatic migration runner using Node.js
  * Provides detailed logging and error handling
  */
-import { execSync } from "child_process";
-import { statSync } from "fs";
+import { execSync } from "node:child_process";
+import { statSync } from "node:fs";
 
 import { warn as sWarn, error as sError } from "../utils/scriptLogger";
-import { getMigrationFiles } from "./helpers/getMigrationFiles";
+import getMigrationFiles from "./helpers/getMigrationFiles";
 import { loadEnvVars } from "./helpers/loadEnvVars";
-import { runMigration } from "./helpers/runMigration";
+import runMigration from "./helpers/runMigration";
 
 /**
  * Main entrypoint for the programmatic migration runner.
@@ -41,10 +41,10 @@ function main(): void {
 		}
 
 		sWarn("📋 Found migrations:");
-		migrations.forEach((migration) => {
+		for (const migration of migrations) {
 			const stats = statSync(migration.path);
 			sWarn(`  - ${migration.filename} (${stats.size} bytes)`);
-		});
+		}
 		sWarn("");
 
 		// Run each migration
@@ -62,17 +62,16 @@ function main(): void {
 			execSync("npm run supabase:generate", { stdio: "inherit" });
 			sWarn("✅ Schema generation completed");
 		} catch (error) {
-			sWarn("⚠️  Schema generation failed:", error);
+			sWarn("⚠️  Schema generation failed:", String(error));
 		}
 
 		sWarn("✅ Migration process complete!");
 	} catch (error) {
-		sError("❌ Migration process failed:", error);
+		sError("❌ Migration process failed:", String(error));
 		process.exit(EXIT_NON_ZERO);
 	}
 }
 
 // Run if this file is executed directly
-if (import.meta.main) {
-	main();
-}
+// When executed directly, run the migrations.
+main();

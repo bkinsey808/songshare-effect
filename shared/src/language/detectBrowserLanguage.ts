@@ -1,17 +1,8 @@
-import {
-	type SupportedLanguageType,
-	defaultLanguage,
-} from "@/shared/language/supported-languages";
+import { type SupportedLanguageType, defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
-export function detectBrowserLanguage(
-	acceptLanguage?: string,
-): SupportedLanguageType {
-	if (
-		acceptLanguage === undefined ||
-		acceptLanguage === null ||
-		acceptLanguage.trim() === ""
-	) {
+export default function detectBrowserLanguage(acceptLanguage?: string): SupportedLanguageType {
+	if (acceptLanguage === undefined || acceptLanguage === null || acceptLanguage.trim() === "") {
 		return "en";
 	}
 	const languages = acceptLanguage

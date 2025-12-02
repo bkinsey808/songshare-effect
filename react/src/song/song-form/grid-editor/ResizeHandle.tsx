@@ -4,6 +4,15 @@ type ResizeHandleProps = Readonly<{
 	isResizing: boolean;
 }>;
 
+// top-level handler doesn't capture outer-scope values
+function handleKeyDown(event: React.KeyboardEvent): void {
+	if (event.key === "Enter" || event.key === " ") {
+		event.preventDefault();
+		// For keyboard users, we could implement arrow key resizing here
+		// For now, just prevent default to avoid unintended actions
+	}
+}
+
 export default function ResizeHandle({
 	field,
 	onStartResize,
@@ -12,14 +21,6 @@ export default function ResizeHandle({
 	function handleMouseDown(event: React.MouseEvent): void {
 		event.preventDefault();
 		onStartResize(field, event.clientX);
-	}
-
-	function handleKeyDown(event: React.KeyboardEvent): void {
-		if (event.key === "Enter" || event.key === " ") {
-			event.preventDefault();
-			// For keyboard users, we could implement arrow key resizing here
-			// For now, just prevent default to avoid unintended actions
-		}
 	}
 
 	return (

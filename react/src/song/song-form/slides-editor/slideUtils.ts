@@ -17,8 +17,7 @@ export function randomId(): string {
 	const ID_SLICE_END = 10;
 
 	return (
-		Math.random().toString(RADIX).slice(ID_SLICE_START, ID_SLICE_END) +
-		Date.now().toString(RADIX)
+		Math.random().toString(RADIX).slice(ID_SLICE_START, ID_SLICE_END) + Date.now().toString(RADIX)
 	);
 }
 
@@ -31,8 +30,8 @@ export function getNextSlideName(
 ): string {
 	let idx = ONE;
 	let newSlideName = `Slide ${String(slideOrderLength + ONE)}`;
-	const names = Object.values(slides).map((slide) => slide.slide_name);
-	while (names.includes(newSlideName)) {
+	const names = new Set(Object.values(slides).map((slide) => slide.slide_name));
+	while (names.has(newSlideName)) {
 		idx += ONE;
 		newSlideName = `Slide ${String(slideOrderLength + idx)}`;
 	}
@@ -48,24 +47,21 @@ export function getDuplicateSlideName(
 	originalSlideName: string,
 	slides: Readonly<Record<string, Slide>>,
 ): string {
-	const existingNames = Object.values(slides).map((slide) => slide.slide_name);
+	const existingNames = new Set(Object.values(slides).map((slide) => slide.slide_name));
 
 	// Check if the original name follows "Slide N" pattern
 	const slideNumberRegex = /^Slide (\d+)$/;
 	const slideNumberMatch = slideNumberRegex.exec(originalSlideName);
 
-	if (
-		slideNumberMatch !== null &&
-		slideNumberMatch[SLIDE_NUMBER_CAPTURE_INDEX] !== undefined
-	) {
-		const originalNumber = parseInt(
+	if (slideNumberMatch !== null && slideNumberMatch[SLIDE_NUMBER_CAPTURE_INDEX] !== undefined) {
+		const originalNumber = Number.parseInt(
 			slideNumberMatch[SLIDE_NUMBER_CAPTURE_INDEX],
 			PARSE_RADIX,
 		);
 		const nextSequentialName = `Slide ${originalNumber + ONE}`;
 
 		// If the next sequential name doesn't exist, use it
-		if (!existingNames.includes(nextSequentialName)) {
+		if (!existingNames.has(nextSequentialName)) {
 			return nextSequentialName;
 		}
 	}
@@ -75,7 +71,7 @@ export function getDuplicateSlideName(
 	let copyIndex = COPY_INDEX_START;
 
 	// If "(Copy)" already exists, try "(Copy 2)", "(Copy 3)", etc.
-	while (existingNames.includes(copyName)) {
+	while (existingNames.has(copyName)) {
 		copyName = `${originalSlideName} (Copy ${copyIndex})`;
 		copyIndex += ONE;
 	}

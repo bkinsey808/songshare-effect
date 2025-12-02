@@ -1,15 +1,12 @@
 import { Effect } from "effect";
 
 import { ProviderError, ValidationError } from "@/api/errors";
-import { exchangeCodeForToken } from "@/api/oauth/exchangeCodeForToken";
+import exchangeCodeForToken from "@/api/oauth/exchangeCodeForToken";
 import { type FetchOpts } from "@/api/oauth/fetchOpts";
-import { fetchUserInfo } from "@/api/user/fetchUserInfo";
-import {
-	type OauthUserData,
-	OauthUserDataSchema,
-} from "@/shared/oauth/oauthUserData";
+import fetchUserInfo from "@/api/user/fetchUserInfo";
+import { type OauthUserData, OauthUserDataSchema } from "@/shared/oauth/oauthUserData";
 import { isRecord } from "@/shared/utils/typeGuards";
-import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
+import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 
 /**
  * Exchange an authorization code for tokens, fetch the provider's userinfo
@@ -31,28 +28,34 @@ import { decodeUnknownEffectOrMap } from "@/shared/validation/decode-effect";
  * @param opts - Fetch options including urls, redirectUri, code, and optional client credentials
  * @returns a validated `OauthUserData` object
  */
-export function fetchAndParseOauthUserData(
+export default function fetchAndParseOauthUserData(
 	opts: FetchOpts,
 ): Effect.Effect<OauthUserData, ValidationError | ProviderError> {
 	return Effect.gen(function* fetchAndParseOauthUserDataGen($) {
 		const { accessToken, idToken } = yield* $(
 			exchangeCodeForToken(opts).pipe(
 				Effect.mapError(
-					(err) =>
-						new ProviderError({ message: "Token exchange failed", cause: err }),
+					(err) => new ProviderError({ message: "Token exchange failed", cause: err }),
 				),
 			),
 		);
 
+		const userInfoRequest: {
+			userInfoUrl: string;
+			accessToken?: string;
+			idToken?: string;
+		} = { userInfoUrl: opts.userInfoUrl };
+		if (accessToken !== undefined) {
+			userInfoRequest.accessToken = accessToken;
+		}
+		if (idToken !== undefined) {
+			userInfoRequest.idToken = idToken;
+		}
+
 		const infoRaw = yield* $(
-			fetchUserInfo({
-				userInfoUrl: opts.userInfoUrl,
-				...(accessToken !== undefined && { accessToken }),
-				...(idToken !== undefined && { idToken }),
-			}).pipe(
+			fetchUserInfo(userInfoRequest).pipe(
 				Effect.mapError(
-					(err) =>
-						new ProviderError({ message: "Userinfo fetch failed", cause: err }),
+					(err) => new ProviderError({ message: "Userinfo fetch failed", cause: err }),
 				),
 			),
 		);

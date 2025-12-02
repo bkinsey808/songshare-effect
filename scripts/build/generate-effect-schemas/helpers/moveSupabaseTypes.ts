@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, renameSync, rmSync } from "fs";
-import { dirname } from "path";
+import { existsSync, mkdirSync, renameSync, rmSync } from "node:fs";
+import { dirname } from "node:path";
 
-import { warn as sWarn } from "../../../utils/scriptLogger";
+import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 
 export type MoveSupabaseTypesConfig = {
 	tempPath: string;

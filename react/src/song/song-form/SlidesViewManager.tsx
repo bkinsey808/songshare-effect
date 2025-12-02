@@ -8,10 +8,10 @@ import { type Slide } from "./songTypes";
 
 type SlidesViewManagerProps = Readonly<
 	ReadonlyDeep<{
-		fields: string[];
+		fields: readonly string[];
 		toggleField: (field: string, checked: boolean) => void;
-		slideOrder: ReadonlyArray<string>;
-		setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+		slideOrder: readonly string[];
+		setSlideOrder: (newOrder: readonly string[]) => void;
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 	}>
@@ -51,12 +51,7 @@ export default function SlidesViewManager({
 						viewBox="0 0 24 24"
 						stroke="currentColor"
 					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M19 9l-7 7-7-7"
-						/>
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 					</svg>
 				</button>
 				{isSlidesExpanded && (
@@ -94,12 +89,7 @@ export default function SlidesViewManager({
 						viewBox="0 0 24 24"
 						stroke="currentColor"
 					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M19 9l-7 7-7-7"
-						/>
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 					</svg>
 				</button>
 				{isGridExpanded && (

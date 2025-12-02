@@ -4,7 +4,7 @@ type IconProps = Readonly<{
 	height?: string;
 }>;
 
-export function AmazonIcon(props: IconProps): ReactElement {
+export default function AmazonIcon(props: IconProps): ReactElement {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"

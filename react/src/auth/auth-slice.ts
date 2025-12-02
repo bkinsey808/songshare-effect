@@ -1,5 +1,5 @@
+import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
 import { type Set, type Get, type Api } from "@/react/zustand/slice-utils";
-import { sliceResetFns } from "@/react/zustand/useAppStore";
 import { type UserSessionData } from "@/shared/userSessionData";
 
 type AuthState = {
@@ -9,7 +9,7 @@ type AuthState = {
 	showSignedInAlert: boolean;
 };
 
-export type AuthSlice = AuthState & {
+type AuthSlice = AuthState & {
 	setIsSignedIn: (isSignedIn: boolean | undefined) => void;
 	signIn: (userSessionData: UserSessionData) => void;
 	signOut: () => void;
@@ -39,7 +39,7 @@ export function createAuthSlice(
 	return {
 		...initialState,
 		setIsSignedIn: (isSignedIn: boolean | undefined) => {
-			if (typeof window !== "undefined") {
+			if (typeof globalThis !== "undefined") {
 				console.warn("[authSlice] setIsSignedIn called with:", isSignedIn);
 			}
 			set({ isSignedIn });
@@ -57,10 +57,12 @@ export function createAuthSlice(
 			});
 		},
 		setShowSignedInAlert: (value: boolean) => {
-			if (typeof window !== "undefined") {
+			if (typeof globalThis !== "undefined") {
 				console.warn("[authSlice] setShowSignedInAlert:", value);
 			}
 			set({ showSignedInAlert: value });
 		},
 	};
 }
+
+export type { AuthSlice };

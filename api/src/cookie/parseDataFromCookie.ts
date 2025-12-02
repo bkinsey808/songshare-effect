@@ -4,7 +4,7 @@ import { verify } from "hono/jwt";
 
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { log as serverLog, error as serverError } from "@/api/logger";
-import { decodeUnknownSyncOrThrow } from "@/shared/validation/decodeUnknownSyncOrThrow";
+import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 
 type ParseDataFromCookieParams<
 	SchemaT extends Schema.Schema.AnyNoContext,
@@ -23,14 +23,10 @@ type ParseDataFromCookieParams<
 // the Schema generic parameter `SchemaT`.
 
 // Overloads: when allowMissing is true the return includes undefined
-export async function parseDataFromCookie<
-	SchemaT extends Schema.Schema.AnyNoContext,
->(
+export async function parseDataFromCookie<SchemaT extends Schema.Schema.AnyNoContext>(
 	params: ParseDataFromCookieParams<SchemaT, true>,
 ): Promise<Schema.Schema.Type<SchemaT> | undefined>;
-export async function parseDataFromCookie<
-	SchemaT extends Schema.Schema.AnyNoContext,
->(
+export async function parseDataFromCookie<SchemaT extends Schema.Schema.AnyNoContext>(
 	params: ParseDataFromCookieParams<SchemaT, false>,
 ): Promise<Schema.Schema.Type<SchemaT>>;
 
@@ -40,13 +36,7 @@ export async function parseDataFromCookie<
 >(
 	params: ParseDataFromCookieParams<SchemaT, AllowMissing>,
 ): Promise<Schema.Schema.Type<SchemaT> | undefined> {
-	const {
-		ctx,
-		cookieName,
-		schema,
-		debug = false,
-		allowMissing = false,
-	} = params;
+	const { ctx, cookieName, schema, debug = false, allowMissing = false } = params;
 	if (!ctx) {
 		throw new Error("Missing context when parsing data from cookie");
 	}
@@ -60,9 +50,7 @@ export async function parseDataFromCookie<
 	const match = re.exec(cookie);
 	const CAPTURE_GROUP_ONE = 1;
 	const token =
-		match &&
-		typeof match[CAPTURE_GROUP_ONE] === "string" &&
-		match[CAPTURE_GROUP_ONE] !== ""
+		match && typeof match[CAPTURE_GROUP_ONE] === "string" && match[CAPTURE_GROUP_ONE] !== ""
 			? match[CAPTURE_GROUP_ONE]
 			: undefined;
 
@@ -102,17 +90,14 @@ export async function parseDataFromCookie<
 		// `any` by some rules — narrow the exception here for the return.
 		// oxlint-disable-next-line typescript/no-unsafe-return, typescript/no-unsafe-type-assertion
 		return decoded as Schema.Schema.Type<SchemaT>;
-	} catch (err) {
-		serverError(
-			"[parseDataFromCookie] JWT verification or parsing error:",
-			err,
-		);
+	} catch (error) {
+		serverError("[parseDataFromCookie] JWT verification or parsing error:", error);
 		if (allowMissing) {
 			// When decoding fails, allowMissing enables returning undefined
 			// per the overloads defined above. Keep the return typed via
 			// assertion to satisfy the implementation signature.
 			return undefined;
 		}
-		throw new Error("Failed to parse data from cookie", { cause: err });
+		throw new Error("Failed to parse data from cookie", { cause: error });
 	}
 }

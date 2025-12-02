@@ -18,7 +18,7 @@ import { type ReadonlyContext } from "@/api/hono/hono-context";
 // the function compatible with both `Context` and `ReadonlyContext` call
 // sites because a plain `Context` is structurally assignable to the
 // readonly wrapper.
-export function getIpAddress(ctx: ReadonlyContext): string {
+export default function getIpAddress(ctx: ReadonlyContext): string {
 	// headers.get can return string | null. Read each header explicitly
 	// and prefer `cf-connecting-ip` when present. For `x-forwarded-for`
 	// the header can contain a comma-separated list of IPs; take the

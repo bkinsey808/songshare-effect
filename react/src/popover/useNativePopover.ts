@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 
 import { type PlacementOption, type TriggerMode } from "./types";
-import { usePopoverPositioning } from "./usePopoverPositioning";
+import usePopoverPositioning from "./usePopoverPositioning";
 
 export type UseNativePopoverProps = Readonly<{
 	preferredPlacement: PlacementOption;
@@ -51,7 +51,7 @@ export function useNativePopover({
 	function setTriggerRef(el: HTMLElement | null): void {
 		triggerRef.current = el;
 	}
-	const popoverRef = useRef<HTMLDivElement>(null);
+	const popoverRef = useRef<HTMLDivElement | null>(null);
 	const popoverId = useId();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -60,7 +60,9 @@ export function useNativePopover({
 		if (popover) {
 			const maybeHide = Reflect.get(popover, "hidePopover");
 			if (typeof maybeHide === "function") {
-				(maybeHide as Function).call(popover);
+				// Provide a concrete function signature instead of the banned `Function` type.
+				// The method is invoked with `popover` as `this`.
+				(maybeHide as (this: HTMLDivElement) => void).call(popover);
 			}
 		}
 		setIsOpen(false);
@@ -91,7 +93,7 @@ export function useNativePopover({
 		}
 
 		popover.addEventListener("toggle", handleToggle);
-		return () => {
+		return (): void => {
 			popover.removeEventListener("toggle", handleToggle);
 		};
 	}, []);
@@ -101,7 +103,8 @@ export function useNativePopover({
 		if (popover) {
 			const maybeShow = Reflect.get(popover, "showPopover");
 			if (typeof maybeShow === "function") {
-				(maybeShow as Function).call(popover);
+				// Provide an explicit signature for the callable instead of the generic `Function` type.
+				(maybeShow as (this: HTMLDivElement) => void).call(popover);
 			}
 		}
 		setIsOpen(true);

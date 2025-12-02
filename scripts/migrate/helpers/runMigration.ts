@@ -1,4 +1,6 @@
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
+
+import { isEmpty } from "@/shared/utils/helpers";
 
 import { warn as sWarn, error as sError } from "../../utils/scriptLogger";
 import { type MigrationFile } from "./types";
@@ -25,7 +27,7 @@ function getErrorMessage(error: unknown): string {
  * @returns Resolves when the migration completes successfully.
  * @throws If required environment variables are missing or the command fails.
  */
-export function runMigration(
+export default function runMigration(
 	migration: Readonly<MigrationFile>,
 	env: Readonly<Record<string, string | undefined>>,
 ): void {
@@ -33,16 +35,7 @@ export function runMigration(
 
 	const { PGHOST, PGUSER, PGPASSWORD, PGDATABASE } = env;
 
-	function isEmpty(value: string | undefined): boolean {
-		return value === undefined || value.trim() === "";
-	}
-
-	if (
-		isEmpty(PGHOST) ||
-		isEmpty(PGUSER) ||
-		isEmpty(PGPASSWORD) ||
-		isEmpty(PGDATABASE)
-	) {
+	if (isEmpty(PGHOST) || isEmpty(PGUSER) || isEmpty(PGPASSWORD) || isEmpty(PGDATABASE)) {
 		throw new Error(
 			"Missing required PostgreSQL environment variables: PGHOST, PGUSER, PGPASSWORD, PGDATABASE",
 		);
@@ -69,3 +62,6 @@ export function runMigration(
 		throw error;
 	}
 }
+
+// This helper intentionally uses a default export. Callers should import
+// the default export: `import runMigration from "./helpers/runMigration"`.

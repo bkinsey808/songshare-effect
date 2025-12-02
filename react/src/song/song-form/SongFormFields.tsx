@@ -75,27 +75,15 @@ export default function SongFormFields({
 			</FormField>
 
 			<FormField label={t("song.longCredit", "Long Credit")}>
-				<FormTextarea
-					name="long_credit"
-					placeholder="Enter long credit..."
-					autoExpand={true}
-				/>
+				<FormTextarea name="long_credit" placeholder="Enter long credit..." autoExpand />
 			</FormField>
 
 			<FormField label={t("song.publicNotes", "Public Notes")}>
-				<FormTextarea
-					name="public_notes"
-					placeholder="Enter public notes..."
-					autoExpand={true}
-				/>
+				<FormTextarea name="public_notes" placeholder="Enter public notes..." autoExpand />
 			</FormField>
 
 			<FormField label={t("song.privateNotes", "Private Notes")}>
-				<FormTextarea
-					name="private_notes"
-					placeholder="Enter private notes..."
-					autoExpand={true}
-				/>
+				<FormTextarea name="private_notes" placeholder="Enter private notes..." autoExpand />
 			</FormField>
 		</FormSection>
 	);

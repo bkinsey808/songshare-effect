@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 
 import { type AppError, AuthenticationError } from "@/api/errors";
-import { getErrorMessage } from "@/api/getErrorMessage";
+import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { HTTP_STATUS } from "@/shared/demo/api";
 
@@ -94,7 +94,7 @@ export function handleHttpEndpoint<SuccessData, ErrorType extends AppError>(
 	) => Effect.Effect<SuccessData, ErrorType>,
 	userOnSuccess?: (data: Readonly<SuccessData>) => object | Response,
 ) {
-	return async function handleHttpEndpointRequest(
+	return function handleHttpEndpointRequest(
 		ctx: ReadonlyContext,
 	): Promise<Response> {
 		const effect = Effect.match(effectFactory(ctx), {
@@ -120,16 +120,16 @@ export function handleHttpEndpoint<SuccessData, ErrorType extends AppError>(
 							getErrorMessage(error),
 						);
 					}
-				} catch (err) {
+				} catch (error) {
 					// Swallow logging errors to avoid masking the original error
 					console.error(
 						"[handleHttpEndpoint] Failed to log error:",
-						getErrorMessage(err),
+						getErrorMessage(error),
 					);
 				}
 				// `error` can be unknown coming from Effect; format it with our helper
 				const { status, body } = errorToHttpResponse(error);
-				return new Response(JSON.stringify(body), {
+				return Response.json(body, {
 					status,
 					headers: { "Content-Type": "application/json" },
 				});

@@ -28,9 +28,7 @@ function UploadPage(): ReactElement {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	function handleChange(
-		ev: React.ChangeEvent<
-			HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-		>,
+		ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
 	): void {
 		const { name, value } = ev.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
@@ -41,6 +39,7 @@ function UploadPage(): ReactElement {
 		setIsSubmitting(true);
 
 		// Simulate API call
+		// oxlint-disable-next-line promise/avoid-new
 		await new Promise((resolve) => setTimeout(resolve, UPLOAD_SUBMIT_DELAY_MS));
 
 		// In a real app, you'd show a success message or redirect
@@ -59,9 +58,7 @@ function UploadPage(): ReactElement {
 		<div>
 			<div className="mb-10 text-center">
 				<h2 className="mb-4 text-3xl font-bold">📤 Upload Song</h2>
-				<p className="text-gray-400">
-					Share your favorite music with the community
-				</p>
+				<p className="text-gray-400">Share your favorite music with the community</p>
 			</div>
 
 			<div className="mx-auto max-w-2xl">
@@ -104,10 +101,7 @@ function UploadPage(): ReactElement {
 
 					<div className="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
 						<div>
-							<label
-								htmlFor="album"
-								className="mb-2 block font-bold text-white"
-							>
+							<label htmlFor="album" className="mb-2 block font-bold text-white">
 								Album
 							</label>
 							<input
@@ -164,10 +158,7 @@ function UploadPage(): ReactElement {
 					</div>
 
 					<div className="mb-8">
-						<label
-							htmlFor="description"
-							className="mb-2 block font-bold text-white"
-						>
+						<label htmlFor="description" className="mb-2 block font-bold text-white">
 							Description
 						</label>
 						<textarea

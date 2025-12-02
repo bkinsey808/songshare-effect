@@ -10,13 +10,13 @@ import { type Slide } from "../songTypes";
 import ResizeHandle from "./ResizeHandle";
 import SortableGridRow from "./SortableGridRow";
 import { useColumnResize } from "./useColumnResize";
-import { useGridDragAndDrop } from "./useGridDragAndDrop";
+import useGridDragAndDrop from "./useGridDragAndDrop";
 
 type SlidesGridViewProps = Readonly<
 	ReadonlyDeep<{
-		readonly fields: string[];
-		readonly slideOrder: ReadonlyArray<string>;
-		readonly setSlideOrder: (newOrder: ReadonlyArray<string>) => void;
+		readonly fields: readonly string[];
+		readonly slideOrder: readonly string[];
+		readonly setSlideOrder: (newOrder: readonly string[]) => void;
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 	}>
@@ -31,19 +31,13 @@ export default function SlidesGridView({
 }: SlidesGridViewProps): ReactElement {
 	const { t } = useTranslation();
 
-	const {
-		addSlide,
-		deleteSlide,
-		duplicateSlide,
-		editFieldValue,
-		editSlideName,
-		safeGetField,
-	} = useSlidesEditor({
-		slideOrder,
-		setSlideOrder,
-		slides,
-		setSlides,
-	});
+	const { addSlide, deleteSlide, duplicateSlide, editFieldValue, editSlideName, safeGetField } =
+		useSlidesEditor({
+			slideOrder,
+			setSlideOrder,
+			slides,
+			setSlides,
+		});
 
 	const EMPTY_COUNT = 0;
 	const INDEX_OFFSET = 1;
@@ -65,12 +59,11 @@ export default function SlidesGridView({
 	const HORIZONTAL_SCROLL_THRESHOLD = 1000;
 
 	// Column resizing functionality
-	const { getColumnWidth, isResizing, startResize, totalWidth } =
-		useColumnResize({
-			fields,
-			defaultFieldWidth: DEFAULT_FIELD_WIDTH,
-			slideNameWidth: SLIDE_NAME_WIDTH,
-		});
+	const { getColumnWidth, isResizing, startResize, totalWidth } = useColumnResize({
+		fields,
+		defaultFieldWidth: DEFAULT_FIELD_WIDTH,
+		slideNameWidth: SLIDE_NAME_WIDTH,
+	});
 
 	return (
 		<div className="w-full">
@@ -93,15 +86,10 @@ export default function SlidesGridView({
 				className="overflow-x-auto"
 				style={{
 					maxWidth: "100%",
-					overflowX:
-						totalWidth > HORIZONTAL_SCROLL_THRESHOLD ? "scroll" : "auto",
+					overflowX: totalWidth > HORIZONTAL_SCROLL_THRESHOLD ? "scroll" : "auto",
 				}}
 			>
-				<DndContext
-					sensors={sensors}
-					collisionDetection={closestCenter}
-					onDragEnd={handleDragEnd}
-				>
+				<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
 					<table
 						className="min-w-full border-collapse border border-gray-300"
 						style={{ minWidth: `${totalWidth}px` }}
@@ -175,7 +163,7 @@ export default function SlidesGridView({
 
 				{gridSlideOrder.length === EMPTY_COUNT && (
 					<div className="mt-8 text-center text-gray-500">
-						<p>No slides yet. Click "Add New Slide" to get started.</p>
+						<p>No slides yet. Click &quot;Add New Slide&quot; to get started.</p>
 					</div>
 				)}
 			</div>
@@ -183,9 +171,7 @@ export default function SlidesGridView({
 			{/* Presentation Order Info */}
 			{slideOrder.length > EMPTY_COUNT && (
 				<div className="mt-6 rounded-lg bg-blue-50 p-4">
-					<h3 className="mb-2 font-semibold text-blue-900">
-						Current Presentation Order:
-					</h3>
+					<h3 className="mb-2 font-semibold text-blue-900">Current Presentation Order:</h3>
 					<div className="flex flex-wrap gap-2">
 						{slideOrder.map((slideId, idx) => {
 							const slide = safeGet(slides, slideId);
