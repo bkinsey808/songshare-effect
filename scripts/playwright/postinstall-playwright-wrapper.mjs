@@ -6,7 +6,7 @@
 */
 import { spawnSync } from "node:child_process";
 
-import { warn as sWarn, error as sError } from "./utils/scriptLogger.mjs";
+import { warn as sWarn, error as sError } from "../utils/scriptLogger.mjs";
 
 const EXIT_SUCCESS = 0;
 const EXIT_FAILURE = 1;
@@ -47,7 +47,7 @@ try {
 	// intentionally small and cross-platform.
 	// Detect bun presence; if available, use bun to execute the existing Bun TS script.
 	if (run("bun", ["-v"]) === EXIT_SUCCESS) {
-		process.exit(run("bun", ["./scripts/postinstall-playwright.bun.ts"]));
+		process.exit(run("bun", ["./scripts/playwright/postinstall-playwright.bun.ts"]));
 	}
 	// Otherwise fall back to npx Playwright installer which is available with node/npm
 	// Avoid installing OS packages in CI / GitHub Actions runners because

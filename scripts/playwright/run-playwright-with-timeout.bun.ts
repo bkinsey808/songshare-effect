@@ -2,10 +2,10 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 
-import { warn as sWarn, error as sError } from "./utils/scriptLogger";
+import { warn as sWarn, error as sError } from "../utils/scriptLogger";
 
 // Cross-platform timeout wrapper for running bun Playwright test script.
-// Usage: PLAYWRIGHT_BASE_URL=https://localhost:5173 bun ./scripts/run-playwright-with-timeout.bun.ts [bun args]
+// Usage: PLAYWRIGHT_BASE_URL=https://localhost:5173 bun ./scripts/playwright/run-playwright-with-timeout.bun.ts [bun args]
 
 const DEFAULT_TIMEOUT_SECONDS = 180;
 const ARGV_FILE_INDEX = 2;
@@ -23,7 +23,7 @@ const timeoutSeconds = Number(
 );
 const cwd = process.cwd();
 
-const bunScriptPath = path.join("scripts", "playwright-run-and-test.bun.ts");
+const bunScriptPath = path.join("scripts", "playwright", "playwright-run-and-test.bun.ts");
 const bunArgs = [bunScriptPath, ...process.argv.slice(ARGV_FILE_INDEX)];
 
 // Ensure PLAYWRIGHT_BASE_URL has a sensible default for convenience

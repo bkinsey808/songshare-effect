@@ -17,6 +17,41 @@ const FIREFOX_MAX_CONNECTIONS = 100;
 const FIREFOX_MAX_CONNECTIONS_PER_SERVER = 10;
 const WEBSERVER_TIMEOUT_MS = 180_000;
 
+/* Compute a typed webServer config to satisfy lint rules. */
+type PlaywrightWebServer = {
+	command: string;
+	url: string;
+	reuseExistingServer?: boolean;
+	timeout?: number;
+	// Playwright's TestConfigWebServer expects stdout/stderr to be 'pipe' | 'ignore'
+	stdout?: "pipe" | "ignore";
+	stderr?: "pipe" | "ignore";
+};
+
+const computedWebServer: PlaywrightWebServer | undefined = (() => {
+	if (PLAYWRIGHT_BASE_URL !== undefined) {
+		return undefined;
+	}
+	if (CI) {
+		return {
+			command: "bun ./scripts/playwright/playwright-start-dev.bun.ts",
+			url: "http://127.0.0.1:5173",
+			reuseExistingServer: false,
+			timeout: WEBSERVER_TIMEOUT_MS,
+			stdout: "pipe",
+			stderr: "pipe",
+		} as PlaywrightWebServer;
+	}
+	return {
+		command: "npm run dev:all",
+		url: "https://127.0.0.1:5173",
+		reuseExistingServer: !CI,
+		timeout: WEBSERVER_TIMEOUT_MS,
+		stdout: "pipe",
+		stderr: "pipe",
+	} as PlaywrightWebServer;
+})();
+
 export default defineConfig({
 	testDir: "./e2e",
 	testMatch: ["**/*.e2e.ts", "**/*.e2e.tsx"],
@@ -31,7 +66,9 @@ export default defineConfig({
 		// Tests target a deployed URL when PLAYWRIGHT_BASE_URL is set.
 		// For local dev we need to use HTTPS (Vite serves HTTPS by default),
 		// and ignore self-signed TLS errors in the browser.
-		baseURL: PLAYWRIGHT_BASE_URL ?? "https://localhost:5173",
+		// When CI runs the webServer it prefers HTTP loopback, otherwise default
+		// to HTTPS for local development where mkcert is commonly used.
+		baseURL: PLAYWRIGHT_BASE_URL ?? (CI ? "http://127.0.0.1:5173" : "https://localhost:5173"),
 		ignoreHTTPSErrors: true,
 		trace: "on-first-retry",
 		// Increased for more reliable dev server testing
@@ -111,17 +148,12 @@ export default defineConfig({
 	// spawns the dev servers directly (no background processes/nohup). This keeps the
 	// processes in the same process tree Playwright controls and avoids races
 	// caused by detached background processes.
-	webServer:
-		PLAYWRIGHT_BASE_URL === undefined
-			? {
-					command: "npm run dev:all",
-					// Use 127.0.0.1 to avoid hostname/IPv6 resolution differences
-					url: "https://127.0.0.1:5173",
-					reuseExistingServer: !CI,
-					// Allow longer startup on slower machines
-					timeout: WEBSERVER_TIMEOUT_MS,
-					stdout: "pipe",
-					stderr: "pipe",
-				}
-			: undefined,
+	// Prefer a non-interactive, logging-friendly wrapper when running in CI.
+	// Local development keeps using `npm run dev:all` (foreground) which works
+	// well with dev certificates and local HTTPS flows.
+	// Choose a webServer config below. We compute it in a typed variable
+	// before passing to defineConfig so ESLint/TS rules are satisfied.
+	webServer: computedWebServer,
 });
+
+// (webServer set above via computedWebServer)

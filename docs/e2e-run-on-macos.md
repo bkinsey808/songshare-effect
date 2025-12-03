@@ -6,7 +6,7 @@ Two recommended approaches to run `npm run test:e2e:dev` on macOS:
 
 1. Preferred — use the repository's cross-platform wrapper
 
-- We include `scripts/run-playwright-with-timeout.bun.ts` which will spawn the `bun` Playwright runner and ensure a timeout is enforced across platforms.
+- We include `scripts/playwright/run-playwright-with-timeout.bun.ts` which will spawn the `bun` Playwright runner and ensure a timeout is enforced across platforms.
 - Example:
 
 ```bash
@@ -24,7 +24,7 @@ brew install coreutils
 - This will provide `gtimeout` which acts like `timeout`:
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://localhost:5173 gtimeout 180 bun ./scripts/playwright-run-and-test.bun.ts --reporter=list --retries=0 --workers=3 --forbid-only --timeout=20000
+PLAYWRIGHT_BASE_URL=https://localhost:5173 gtimeout 180 bun ./scripts/playwright/playwright-run-and-test.bun.ts --reporter=list --retries=0 --workers=3 --forbid-only --timeout=20000
 ```
 
 Notes:

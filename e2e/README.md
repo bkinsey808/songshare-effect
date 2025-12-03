@@ -178,7 +178,7 @@ If you see errors like "Executable doesn't exist" when running Playwright tests,
 npx playwright install
 ```
 
-The dev script will also attempt to automatically install browsers for you before starting tests. If you prefer to skip automatic installation (CI or offline environments) set:
+The dev script will also attempt to automatically install browsers for you before starting tests. The runner now checks whether Playwright browser binaries are already present (repo-local cache or user cache) and will skip the installer if they are found — this prevents spurious prompts for system package installation. If you prefer to skip automatic installation entirely (CI or offline environments) set:
 
 ```bash
 PLAYWRIGHT_SKIP_BROWSER_INSTALL=1

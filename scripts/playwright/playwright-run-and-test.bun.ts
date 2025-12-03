@@ -1,18 +1,19 @@
 #!/usr/bin/env bun
 /* eslint-disable jest/require-hook */
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
-import { warn as sWarn, error as sError } from "./utils/scriptLogger";
-import { stripAnsi } from "./utils/stripAnsi";
+import { warn as sWarn, error as sError } from "../utils/scriptLogger";
+import { stripAnsi } from "../utils/stripAnsi";
+import browsersAlreadyInstalled from "./helpers/browsersAlreadyInstalled";
+import findBrowserExecutable from "./helpers/findBrowserExecutable";
+import libsMissingForExecutable from "./helpers/libsMissingForExecutable";
+import { CLIENT_LOG, API_LOG } from "./helpers/logPaths";
+import maybePromptInstallDeps from "./helpers/maybePromptInstallDeps";
 
-const LOG_DIR =
-	typeof process.env["LOG_DIR"] === "string" && process.env["LOG_DIR"] !== ""
-		? process.env["LOG_DIR"]
-		: "/tmp";
-const CLIENT_LOG = path.join(LOG_DIR, "playwright-dev-client.log");
-const API_LOG = path.join(LOG_DIR, "playwright-dev-api.log");
+// LOG_DIR, CLIENT_LOG, API_LOG are provided by shared helpers
 
 // Truncate/create logs
 try {
@@ -41,7 +42,76 @@ const INTERVAL_MS = 500;
 
 const TIMEOUT = Number(process.env["PLAYWRIGHT_DEV_TIMEOUT"] ?? DEFAULT_TIMEOUT);
 
-// ANSI stripping is handled by `scripts/utils/stripAnsi.ts`
+// Module-scope helpers for Playwright browser detection and system lib checks
+// browser detection helpers and LOG constants are imported from ./helpers
+
+async function installBrowsers(): Promise<void> {
+	const skipInstall =
+		typeof process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "string" &&
+		process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] !== "";
+	if (skipInstall) {
+		sWarn("Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1");
+		return;
+	}
+
+	// Avoid running installer when browsers already exist.
+	if (browsersAlreadyInstalled()) {
+		sWarn("Playwright browsers already present in cache — skipping installer.");
+		return;
+	}
+	try {
+		sWarn(
+			"Ensuring Playwright browsers are installed. This may take a minute (or longer the first time)...",
+		);
+		// `npx playwright install` is idempotent and will no-op if already installed.
+		// Use spawnSync to avoid creating a new Promise (keep the script simple and synchronous here).
+		const isCI =
+			(typeof process.env["CI"] === "string" && process.env["CI"] !== "") ||
+			(typeof process.env["GITHUB_ACTIONS"] === "string" && process.env["GITHUB_ACTIONS"] !== "");
+		// Run the installer synchronously so we can proceed only when it completes.
+		const installArgs = ["playwright", "install"];
+		const installerResult = spawnSync("npx", installArgs, {
+			shell: true,
+			stdio: "inherit",
+			env: { ...process.env },
+		});
+		if (installerResult.status !== ZERO) {
+			throw new Error(`playwright install failed with code ${String(installerResult.status)}`);
+		}
+
+		// After the installer finishes, check whether system libs are missing
+		// and prompt the user (interactive) to install them.
+		const repoPathCandidate: string | undefined =
+			typeof process.env["PLAYWRIGHT_BROWSERS_PATH"] === "string" &&
+			process.env["PLAYWRIGHT_BROWSERS_PATH"] !== ""
+				? process.env["PLAYWRIGHT_BROWSERS_PATH"]
+				: undefined;
+		const xdgAfter = process.env["XDG_CACHE_HOME"] ?? path.join(os.homedir(), ".cache");
+		const candidatesAfter: string[] = [path.join(xdgAfter, "ms-playwright")];
+		if (repoPathCandidate !== undefined && repoPathCandidate !== "") {
+			candidatesAfter.unshift(repoPathCandidate);
+		}
+
+		let exe: string | undefined = undefined;
+		for (const cacheCandidate of candidatesAfter) {
+			exe = findBrowserExecutable(cacheCandidate);
+			if (exe !== undefined && exe !== "") {
+				break;
+			}
+		}
+
+		if (exe !== undefined && libsMissingForExecutable(exe)) {
+			sWarn("Playwright has missing system libraries required to run browsers (detected via ldd).");
+			await maybePromptInstallDeps(isCI, exe);
+		}
+	} catch (error) {
+		sError("Playwright browser install failed:", error);
+		sError(
+			"Run `npx playwright install` manually to download browsers or set PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 to opt out.",
+		);
+		process.exit(EXIT_NON_ZERO);
+	}
+}
 
 function startPlaywrightIfReady(): void {
 	if (!frontendReady || !apiReady || startedPlaywright) {
@@ -52,59 +122,9 @@ function startPlaywrightIfReady(): void {
 	// Dev servers ready — starting Playwright tests
 	sWarn("Dev servers ready — starting Playwright tests");
 
-	// Ensure Playwright browsers are installed before running tests. If you
-	// want to skip automatic installation (for CI or offline environments),
-	// set PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 in the environment.
-	async function installBrowsers(): Promise<void> {
-		const skipInstall =
-			typeof process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] === "string" &&
-			process.env["PLAYWRIGHT_SKIP_BROWSER_INSTALL"] !== "";
-		if (skipInstall) {
-			sWarn("Skipping Playwright browser install because PLAYWRIGHT_SKIP_BROWSER_INSTALL=1");
-			return;
-		}
-		try {
-			sWarn(
-				"Ensuring Playwright browsers are installed. This may take a minute (or longer the first time)...",
-			);
-			// `npx playwright install` is idempotent and will no-op if already installed.
-			// eslint-disable-next-line promise/avoid-new
-			await new Promise<void>((resolve, reject) => {
-				// Avoid installing OS packages when running in CI (GitHub Actions
-				// or other CI environments) — not all distributions are supported
-				// by Playwright's install-deps path and it caused apt failures on
-				// Ubuntu 'noble'. Only install browsers in CI.
-				const isCI =
-					(typeof process.env["CI"] === "string" && process.env["CI"] !== "") ||
-					(typeof process.env["GITHUB_ACTIONS"] === "string" &&
-						process.env["GITHUB_ACTIONS"] !== "");
-				const args = isCI ? ["playwright", "install"] : ["playwright", "install", "--with-deps"];
-				const installer = spawn("npx", args, {
-					shell: true,
-					stdio: "inherit",
-					env: { ...process.env },
-				});
-				installer.on("exit", (code) => {
-					if (code === ZERO) {
-						resolve();
-						return;
-					}
-					reject(new Error(`playwright install failed with code ${code}`));
-				});
-				installer.on("error", (err) => {
-					reject(err);
-				});
-			});
-		} catch (error) {
-			sError("Playwright browser install failed:", error);
-			sError(
-				"Run `npx playwright install` manually to download browsers or set PLAYWRIGHT_SKIP_BROWSER_INSTALL=1 to opt out.",
-			);
-			process.exit(EXIT_NON_ZERO);
-		}
-	}
-
 	const args = ["playwright", "test", ...process.argv.slice(ARGV_FILE_INDEX)];
+
+	// Start the Playwright process after ensuring browsers are installed
 	void (async (): Promise<void> => {
 		await installBrowsers();
 		const proc = spawn("npx", args, {
@@ -112,8 +132,7 @@ function startPlaywrightIfReady(): void {
 			stdio: "inherit",
 		});
 		playwrightProcess = proc;
-		// Playwright process exit handler — ensure we kill dev servers and
-		// then exit with the same exit code.
+
 		proc.on("exit", (code: number | null, signal: NodeJS.Signals | null) => {
 			try {
 				if (!dev.killed) {

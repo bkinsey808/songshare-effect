@@ -108,7 +108,7 @@ scripts/
 │   └── prepare-functions/                   # Cloudflare Functions bundler
 ├── migrate/                                  # Database migration scripts (5 files)
 ├── dev/                                      # Development utilities
-├── playwright-start-dev.sh                   # E2E test dev server orchestration
+├── playwright/playwright-start-dev.bun.ts    # E2E test dev server orchestration (Bun TypeScript)
 ├── playwright-run-and-test.bun.ts           # Run dev + E2E tests
 ├── purge-cache.sh                           # Cloudflare cache purging
 └── run-migrations.sh                        # Database migration runner
