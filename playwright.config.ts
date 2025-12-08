@@ -54,7 +54,7 @@ const computedWebServer: PlaywrightWebServer | undefined = (() => {
 
 export default defineConfig({
 	testDir: "./e2e",
-	testMatch: ["**/*.e2e.ts", "**/*.e2e.tsx"],
+	testMatch: ["**/*.e2e.ts", "**/*.e2e.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
 	fullyParallel: true,
 	forbidOnly: CI,
 	retries: CI ? CI_RETRIES : NO_RETRIES,

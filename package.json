@@ -48,7 +48,8 @@
 		"commit": "git-cz",
 		"commitlint": "commitlint",
 		"commitlint:range": "commitlint --from=origin/main --to=HEAD",
-		"commitlint:edit": "commitlint --edit"
+		"commitlint:edit": "commitlint --edit",
+		"test:auth-bypass": "npx bun e2e/test-auth-bypass.bun.ts"
 	},
 	"lint-staged": {
 		"*.{js,ts,jsx,tsx}": [

@@ -75,11 +75,6 @@ export async function getSupabaseUserToken(
 // Visitor token endpoint
 GET /api/auth/visitor
 Response: { access_token, token_type: "bearer", expires_in: 3600 }
-
-// User authentication endpoint
-POST /api/auth/user
-Request: { email: string, password: string }
-Response: { access_token, token_type: "bearer", expires_in: 3600 }
 ```
 
 ### **Client-Side (React)**

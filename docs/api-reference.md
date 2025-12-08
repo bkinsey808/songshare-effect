@@ -33,39 +33,6 @@ For unauthenticated users with read-only access.
 curl http://localhost:8787/api/auth/visitor
 ```
 
-### User Token (Authenticated Access)
-
-For authenticated users with full access.
-
-**Endpoint**: `POST /api/auth/user`
-
-**Request**:
-
-```json
-{
-	"email": "user@example.com",
-	"password": "password"
-}
-```
-
-**Response**:
-
-```json
-{
-	"access_token": "eyJhbGc...",
-	"token_type": "bearer",
-	"expires_in": 3600
-}
-```
-
-**Usage**:
-
-```bash
-curl -X POST http://localhost:8787/api/auth/user \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"password"}'
-```
-
 ### Using Tokens
 
 Include the token in the `Authorization` header:

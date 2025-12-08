@@ -689,6 +689,17 @@
 	"overrides": [
 		{
 			"files": [
+				"**/*.test.ts",
+				"**/*.test.tsx",
+				"**/*.spec.ts",
+				"**/*.spec.tsx"
+			],
+			"rules": {
+				"eslint/max-lines": "off"
+			}
+		},
+		{
+			"files": [
 				"react/src/**"
 			],
 			"rules": {

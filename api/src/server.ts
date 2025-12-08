@@ -6,8 +6,6 @@ import {
 	ACCESS_CONTROL_MAX_AGE_SEC,
 	HTTP_NO_CONTENT,
 	HTTP_INTERNAL,
-	HTTP_BAD_REQUEST,
-	HTTP_UNAUTHORIZED,
 	ONE_HOUR_SECONDS,
 } from "@/shared/constants/http";
 import { apiMePath, apiOauthCallbackPath, apiOauthSignInPath } from "@/shared/paths";
@@ -25,7 +23,6 @@ import me from "./me";
 import oauthSignInDefault from "./oauth/oauthSignIn";
 import { songSave } from "./song/songSave";
 import getSupabaseClientToken from "./supabase/getSupabaseClientToken";
-import getSupabaseUserToken from "./supabase/getSupabaseUserToken";
 
 const app: Hono<{ Bindings: Bindings }> = new Hono<{ Bindings: Bindings }>();
 
@@ -126,70 +123,6 @@ app.get("/api/auth/visitor", async (ctx) => {
 			{ error: "Failed to generate Supabase client token" },
 			{
 				status: HTTP_INTERNAL,
-				headers: { "Content-Type": "application/json" },
-			},
-		);
-	}
-});
-
-// User authentication endpoint - provides a JWT for authenticated user operations
-app.post("/api/auth/user", async (ctx) => {
-	try {
-		const rawBody = (await ctx.req.json()) as unknown;
-
-		if (typeof rawBody !== "object" || rawBody === null) {
-			return Response.json(
-				{ error: "Email and password are required" },
-				{
-					status: HTTP_BAD_REQUEST,
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-		}
-
-		const body = rawBody as { email?: unknown; password?: unknown };
-
-		if (typeof body.email !== "string" || typeof body.password !== "string") {
-			return Response.json(
-				{ error: "Email and password are required" },
-				{
-					status: HTTP_BAD_REQUEST,
-					headers: { "Content-Type": "application/json" },
-				},
-			);
-		}
-
-		const {
-			VITE_SUPABASE_URL,
-			SUPABASE_SERVICE_KEY,
-			SUPABASE_VISITOR_EMAIL,
-			SUPABASE_VISITOR_PASSWORD,
-		} = ctx.env;
-		const env = {
-			VITE_SUPABASE_URL,
-			SUPABASE_SERVICE_KEY,
-			SUPABASE_VISITOR_EMAIL,
-			SUPABASE_VISITOR_PASSWORD,
-		};
-
-		const userToken = await getSupabaseUserToken({
-			env,
-			email: body.email,
-			password: body.password,
-		});
-
-		return ctx.json({
-			access_token: userToken,
-			token_type: "bearer",
-			// 1 hour
-			expires_in: ONE_HOUR_SECONDS,
-		});
-	} catch (error) {
-		console.error("Failed to authenticate user:", getErrorMessage(error));
-		return Response.json(
-			{ error: "Authentication failed" },
-			{
-				status: HTTP_UNAUTHORIZED,
 				headers: { "Content-Type": "application/json" },
 			},
 		);
