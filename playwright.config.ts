@@ -34,7 +34,11 @@ const computedWebServer: PlaywrightWebServer | undefined = (() => {
 	}
 	if (CI) {
 		return {
-			command: "bun ./scripts/playwright/playwright-start-dev.bun.ts",
+			// Ensure PLAYWRIGHT_BASE_URL is exported when Playwright spawns the
+			// dev servers so the tests and any helper code reading
+			// process.env.PLAYWRIGHT_BASE_URL will see the HTTP base URL and
+			// not default back to the HTTPS fallback.
+			command: "bash -lc 'PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 bun ./scripts/playwright/playwright-start-dev.bun.ts'",
 			url: "http://127.0.0.1:5173",
 			reuseExistingServer: false,
 			timeout: WEBSERVER_TIMEOUT_MS,
@@ -42,15 +46,46 @@ const computedWebServer: PlaywrightWebServer | undefined = (() => {
 			stderr: "pipe",
 		} as PlaywrightWebServer;
 	}
+	// When Playwright auto-starts local dev servers we prefer to run the
+	// frontend over plain HTTP so the Node readiness probe does not fail on
+	// self-signed certs. We set PLAYWRIGHT_DISABLE_HTTPS=1 in the command so
+	// Vite serves over HTTP and the webServer.url uses http://127.0.0.1:5173
+	// which is a stable loopback address Playwright can probe reliably.
 	return {
-		command: "npm run dev:all",
-		url: "https://127.0.0.1:5173",
+		// Export PLAYWRIGHT_BASE_URL when starting the dev servers so the
+		// test code (which looks at process.env.PLAYWRIGHT_BASE_URL) will
+		// use the same HTTP URL the auto-started server uses.
+		command: "bash -lc 'PLAYWRIGHT_DISABLE_HTTPS=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 npm run dev:all'",
+		url: "http://127.0.0.1:5173",
 		reuseExistingServer: !CI,
 		timeout: WEBSERVER_TIMEOUT_MS,
 		stdout: "pipe",
 		stderr: "pipe",
 	} as PlaywrightWebServer;
 })();
+
+const computedBaseURL: string = (() => {
+	if (PLAYWRIGHT_BASE_URL !== undefined) {
+		return PLAYWRIGHT_BASE_URL;
+	}
+	if (CI) {
+		return "http://127.0.0.1:5173";
+	}
+	// When computedWebServer is defined Playwright will auto-start local
+	// dev servers and we prefer a plain HTTP base URL so node probes succeed
+	// against a non-HTTPS server.
+	if (computedWebServer) {
+		return "http://127.0.0.1:5173";
+	}
+	return "https://localhost:5173";
+})();
+
+// Ensure the Playwright test runner process sees the computed base URL so
+// tests that read process.env.PLAYWRIGHT_BASE_URL (our test helpers) will
+// use the same URL the webServer will start at (HTTP when auto-starting).
+if (process.env.PLAYWRIGHT_BASE_URL === undefined) {
+	process.env.PLAYWRIGHT_BASE_URL = computedBaseURL;
+}
 
 export default defineConfig({
 	testDir: "./e2e",
@@ -64,11 +99,13 @@ export default defineConfig({
 	timeout: DEFAULT_TIMEOUT_MS,
 	use: {
 		// Tests target a deployed URL when PLAYWRIGHT_BASE_URL is set.
-		// For local dev we need to use HTTPS (Vite serves HTTPS by default),
-		// and ignore self-signed TLS errors in the browser.
-		// When CI runs the webServer it prefers HTTP loopback, otherwise default
-		// to HTTPS for local development where mkcert is commonly used.
-		baseURL: PLAYWRIGHT_BASE_URL ?? (CI ? "http://127.0.0.1:5173" : "https://localhost:5173"),
+		// For local dev we usually use HTTPS (Vite serves HTTPS by default),
+		// and ignore self-signed TLS errors in the browser. However when
+		// Playwright auto-starts the dev servers (webServer configured) it will
+		// run the frontend over HTTP so the Node reachability probe succeeds
+		// (self-signed certs are rejected by Node). Use the HTTP baseURL in
+		// that case to keep browser navigation in sync with the launched server.
+		baseURL: computedBaseURL,
 		ignoreHTTPSErrors: true,
 		trace: "on-first-retry",
 		// Increased for more reliable dev server testing

@@ -96,10 +96,37 @@ const config: UserConfig = defineConfig({
 			},
 		};
 
+		// Allow opt-out of HTTPS when Playwright attempts to start our dev
+		// server automatically. Playwright's webServer readiness check uses
+		// Node's HTTP client and will not ignore self-signed certificates.
+		// To make auto-start reliable we support honoring the
+		// `PLAYWRIGHT_DISABLE_HTTPS` env var which forces the dev server to
+		// run over plain HTTP when set. This keeps the default HTTPS dev
+		// experience for manual local dev where mkcert certs are present.
+		//
+		// When Playwright starts the server it will set PLAYWRIGHT_DISABLE_HTTPS=1
+		// so the dev server comes up on http://127.0.0.1:5173 and Playwright can
+		// probe it successfully.
 		// Enable HTTPS if mkcert-generated certs are present in .certs/
 		try {
 			const certPath = path.resolve(__dirname, ".certs/localhost.pem");
 			const keyPath = path.resolve(__dirname, ".certs/localhost-key.pem");
+			// If PLAYWRIGHT_DISABLE_HTTPS is truthy we intentionally skip
+			// enabling HTTPS so external probes (Playwright's webServer) can
+			// use plain HTTP when validating readiness.
+			// Respect string values ('1' or 'true') and avoid treating an
+			// empty string or undefined as truthy. This satisfies the
+			// strict-boolean-expressions lint rule.
+			const playwrightDisableHttpsEnv = process.env["PLAYWRIGHT_DISABLE_HTTPS"];
+			const playwrightDisableHttps =
+				typeof playwrightDisableHttpsEnv === "string" &&
+				playwrightDisableHttpsEnv !== "" &&
+				["1", "true"].includes(playwrightDisableHttpsEnv.toLowerCase());
+
+			if (playwrightDisableHttps) {
+				return base;
+			}
+
 			if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
 				return {
 					...base,
