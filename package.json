@@ -22,6 +22,8 @@
 		"preview": "vite preview",
 		"file:check": "bun run scripts/fileCheck.ts",
 		"supabase:generate": "bun run scripts/build/generate-effect-schemas/generate-effect-schemas.ts",
+		"api:openapi:generate": "bun ./scripts/generate-openapi-from-schemas.bun.ts",
+		"openapi:types:generate": "npx -y openapi-typescript shared/src/generated/openapi.json --output shared/src/generated/openapi-types.ts",
 		"supabase:migrate": "./scripts/run-migrations.sh",
 		"supabase:migrate:ts": "bun run scripts/migrate/migrate.ts",
 		"supabase:migrate:single": "dotenv -e .env -- sh -c 'psql -h \"$PGHOST\" -U \"$PGUSER\" -d \"$PGDATABASE\" -f \"$1\"' --",

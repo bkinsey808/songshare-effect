@@ -1,4 +1,4 @@
-import { Effect, Schema } from "effect";
+import { Effect } from "effect";
 import { createClient } from "@supabase/supabase-js";
 
 import getErrorMessage from "@/api/getErrorMessage";
@@ -10,30 +10,11 @@ import { type AuthenticationError, DatabaseError, ValidationError } from "../err
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 import sanitizeSlidesForDb from "./sanitizeSlidesForDb";
 
+import { SongFormSchema, type SongFormData } from "@/shared/song/songFormSchema";
+
 /**
  * Server-side schema (keeps verification close to the API boundary)
  */
-const SongFormSchema = Schema.Struct({
-	song_id: Schema.optional(Schema.String),
-	song_name: Schema.String,
-	song_slug: Schema.String,
-	short_credit: Schema.optional(Schema.String),
-	long_credit: Schema.optional(Schema.String),
-	private_notes: Schema.optional(Schema.String),
-	public_notes: Schema.optional(Schema.String),
-	fields: Schema.Array(Schema.String),
-	slide_order: Schema.Array(Schema.String),
-	slides: Schema.Record({
-		key: Schema.String,
-		value: Schema.Struct({
-			slide_name: Schema.String,
-			field_data: Schema.Record({
-				key: Schema.String,
-				value: Schema.String,
-			}),
-		}),
-	}),
-});
 
 // Avoid using magic numbers like `0` in multiple places — prefer a named
 // constant for clarity and to satisfy the project's lint rules.
@@ -41,7 +22,8 @@ const ZERO = 0;
 
 // Extract the type from the schema
 
-type SongFormData = Schema.Schema.Type<typeof SongFormSchema>;
+// Reuse shared type exported by shared SongFormSchema module
+// (SongFormData imported above)
 
 /**
  * Sanitize an incoming `slides` value into a JSON-serializable structure
@@ -137,7 +119,7 @@ export default function songSave(
 							{
 								song_id: songId,
 								user_id: userId,
-								private_notes: validated.private_notes ?? "",
+								private_notes: String(validated.private_notes ?? ""),
 							},
 						])
 						.select()
@@ -169,17 +151,17 @@ export default function songSave(
 							{
 								song_id: songId,
 								user_id: userId,
-								song_name: validated.song_name,
-								song_slug: validated.song_slug,
+								song_name: String(validated.song_name),
+								song_slug: String(validated.song_slug),
 								fields: fieldsForDb,
 								slide_order: slideOrderForDb,
 								slides: slidesForDb,
 								/* eslint-disable-next-line unicorn/no-null */
-								short_credit: validated.short_credit ?? null,
+								short_credit: validated.short_credit === undefined ? null : String(validated.short_credit),
 								/* eslint-disable-next-line unicorn/no-null */
-								long_credit: validated.long_credit ?? null,
+								long_credit: validated.long_credit === undefined ? null : String(validated.long_credit),
 								/* eslint-disable-next-line unicorn/no-null */
-								public_notes: validated.public_notes ?? null,
+								public_notes: validated.public_notes === undefined ? null : String(validated.public_notes),
 							},
 						])
 						.select()

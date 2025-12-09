@@ -84,6 +84,43 @@ jobs:
     name: Prepare & check functions dist
     runs-on: ubuntu-latest
     needs: lint-and-unit
+  contract-check:
+    name: API contract check
+    runs-on: ubuntu-latest
+    needs: lint-and-unit
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build API (tsc)
+        run: npx -y tsc -b
+
+      - name: Generate OpenAPI contract (from Effect schemas)
+        run: npm run api:openapi:generate
+
+      - name: Generate TypeScript client types (from generated contract)
+        run: npm run openapi:types:generate
+
+      - name: Fail if generated contract or client types differ
+        run: |
+          git --no-pager status --porcelain=1 || true
+          if ! git diff --exit-code shared/src/generated/openapi.json || ! git diff --exit-code shared/src/generated/openapi-types.ts; then
+            echo "Generated API contract or client types are out of date. Run 'npm run api:openapi:generate' and 'npm run openapi:types:generate' and commit the generated files under shared/src/generated/." >&2
+            git --no-pager diff -- shared/src/generated/openapi.json || true
+            git --no-pager diff -- shared/src/generated/openapi-types.ts || true
+            exit 1
+          fi
     permissions:
       contents: read
     steps:

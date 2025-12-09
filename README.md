@@ -146,6 +146,7 @@ songshare-effect/
 ├── docs/                  # Project documentation
 │   ├── EFFECT_IMPLEMENTATION.md    # Effect-TS implementation guide
 │   ├── SHARED_CODE_GUIDE.md       # Shared code documentation
+   ├── architecture-recommendations.md # Architecture review and prioritized recommendations
 │   └── SUPABASE_EFFECT_SCHEMAS.md # Supabase schema documentation
 ├── scripts/               # Build and utility scripts
 ├── supabase/             # Supabase configuration

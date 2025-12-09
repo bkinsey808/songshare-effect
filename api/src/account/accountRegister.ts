@@ -9,7 +9,7 @@ import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
 import getErrorMessage from "@/api/getErrorMessage";
 import getIpAddress from "@/api/getIpAddress";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
-import { RegisterDataSchema } from "@/api/register/registerData";
+import { RegisterDataSchema } from "@/shared/register/registerData";
 import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
 import { csrfTokenCookieName } from "@/shared/cookies";
 import { getEnvString } from "@/shared/env/getEnv";

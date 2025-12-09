@@ -1,0 +1,745 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "SongShare Effect — generated contract (Effect schemas AST)",
+    "version": "0.0.0",
+    "description": "This generated file is produced from Effect-TS schemas. The Effect schema AST is embedded under components.effectSchemas.\nUse this as a deterministic contract and for experimentation — the next step is to map Effect AST -> JSON Schema."
+  },
+  "paths": {
+    "/api/songs/save": {
+      "post": {
+        "summary": "Create or update a public song record (server validates via Effect schemas)",
+        "requestSchema": {
+          "type": "object",
+          "properties": {
+            "song_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "song_name": {
+              "type": "string"
+            },
+            "song_slug": {
+              "type": "string"
+            },
+            "short_credit": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "long_credit": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "private_notes": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "public_notes": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "slide_order": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "slides": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "slide_name": {
+                    "type": "string"
+                  },
+                  "field_data": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "slide_name",
+                  "field_data"
+                ]
+              }
+            }
+          },
+          "required": [
+            "song_name",
+            "song_slug",
+            "fields",
+            "slide_order",
+            "slides"
+          ]
+        },
+        "responseSchema": {
+          "type": "object",
+          "properties": {
+            "created_at": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "key": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "long_credit": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "public_notes": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "scale": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "short_credit": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "slide_order": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "slides": {},
+            "song_id": {
+              "type": "string"
+            },
+            "song_name": {
+              "type": "string"
+            },
+            "song_slug": {
+              "type": "string"
+            },
+            "updated_at": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "user_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "fields",
+            "slide_order",
+            "slides",
+            "song_id",
+            "song_name",
+            "song_slug",
+            "user_id"
+          ]
+        }
+      }
+    },
+    "/api/account/register": {
+      "post": {
+        "summary": "Register a new account after OAuth flow",
+        "requestSchema": {
+          "type": "object",
+          "properties": {
+            "oauthUserData": {
+              "type": "object",
+              "properties": {
+                "sub": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "email": {
+                  "type": "string"
+                },
+                "name": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "email"
+              ]
+            },
+            "oauthState": {
+              "type": "object",
+              "properties": {
+                "csrf": {
+                  "type": "string"
+                },
+                "lang": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false,
+                  "x_effect_ast": {
+                    "_tag": "Suspend",
+                    "ast": {
+                      "_tag": "Union",
+                      "types": [
+                        {
+                          "_tag": "Literal",
+                          "literal": "en",
+                          "annotations": {}
+                        },
+                        {
+                          "_tag": "Literal",
+                          "literal": "es",
+                          "annotations": {}
+                        },
+                        {
+                          "_tag": "Literal",
+                          "literal": "zh",
+                          "annotations": {}
+                        }
+                      ],
+                      "annotations": {}
+                    },
+                    "annotations": {}
+                  }
+                },
+                "provider": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false,
+                  "x_effect_ast": {
+                    "_tag": "Suspend",
+                    "ast": {
+                      "_tag": "Union",
+                      "types": [
+                        {
+                          "_tag": "Literal",
+                          "literal": "google",
+                          "annotations": {}
+                        },
+                        {
+                          "_tag": "Literal",
+                          "literal": "microsoft",
+                          "annotations": {}
+                        },
+                        {
+                          "_tag": "Literal",
+                          "literal": "amazon",
+                          "annotations": {}
+                        }
+                      ],
+                      "annotations": {}
+                    },
+                    "annotations": {}
+                  }
+                },
+                "redirect_port": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "redirect_origin": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "csrf",
+                "lang",
+                "provider"
+              ]
+            }
+          },
+          "required": [
+            "oauthUserData",
+            "oauthState"
+          ]
+        }
+      }
+    },
+    "/api/auth/visitor": {
+      "get": {
+        "summary": "Return a visitor token for client-side Supabase access"
+      }
+    },
+    "/api/me": {
+      "get": {
+        "summary": "Return current user (if signed in)"
+      }
+    }
+  },
+  "components": {
+    "effectSchemas": {
+      "Request__api_songs_save_post_request": {
+        "type": "object",
+        "properties": {
+          "song_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "song_name": {
+            "type": "string"
+          },
+          "song_slug": {
+            "type": "string"
+          },
+          "short_credit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "long_credit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "private_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "public_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "slide_order": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "slides": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "slide_name": {
+                  "type": "string"
+                },
+                "field_data": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "slide_name",
+                "field_data"
+              ]
+            }
+          }
+        },
+        "required": [
+          "song_name",
+          "song_slug",
+          "fields",
+          "slide_order",
+          "slides"
+        ]
+      },
+      "Response__api_songs_save_post_response": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "long_credit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "public_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "short_credit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "slide_order": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "slides": {},
+          "song_id": {
+            "type": "string"
+          },
+          "song_name": {
+            "type": "string"
+          },
+          "song_slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fields",
+          "slide_order",
+          "slides",
+          "song_id",
+          "song_name",
+          "song_slug",
+          "user_id"
+        ]
+      },
+      "Request__api_account_register_post_request": {
+        "type": "object",
+        "properties": {
+          "oauthUserData": {
+            "type": "object",
+            "properties": {
+              "sub": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "email": {
+                "type": "string"
+              },
+              "name": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "email"
+            ]
+          },
+          "oauthState": {
+            "type": "object",
+            "properties": {
+              "csrf": {
+                "type": "string"
+              },
+              "lang": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false,
+                "x_effect_ast": {
+                  "_tag": "Suspend",
+                  "ast": {
+                    "_tag": "Union",
+                    "types": [
+                      {
+                        "_tag": "Literal",
+                        "literal": "en",
+                        "annotations": {}
+                      },
+                      {
+                        "_tag": "Literal",
+                        "literal": "es",
+                        "annotations": {}
+                      },
+                      {
+                        "_tag": "Literal",
+                        "literal": "zh",
+                        "annotations": {}
+                      }
+                    ],
+                    "annotations": {}
+                  },
+                  "annotations": {}
+                }
+              },
+              "provider": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false,
+                "x_effect_ast": {
+                  "_tag": "Suspend",
+                  "ast": {
+                    "_tag": "Union",
+                    "types": [
+                      {
+                        "_tag": "Literal",
+                        "literal": "google",
+                        "annotations": {}
+                      },
+                      {
+                        "_tag": "Literal",
+                        "literal": "microsoft",
+                        "annotations": {}
+                      },
+                      {
+                        "_tag": "Literal",
+                        "literal": "amazon",
+                        "annotations": {}
+                      }
+                    ],
+                    "annotations": {}
+                  },
+                  "annotations": {}
+                }
+              },
+              "redirect_port": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "redirect_origin": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "csrf",
+              "lang",
+              "provider"
+            ]
+          }
+        },
+        "required": [
+          "oauthUserData",
+          "oauthState"
+        ]
+      }
+    }
+  },
+  "generatedAt": "2025-12-09T05:06:40.346Z"
+}
