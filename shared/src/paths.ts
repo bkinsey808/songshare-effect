@@ -9,6 +9,7 @@ export const aboutPath = "about";
 export const userSubscriptionDemoPath = "user-subscription-demo";
 export const popoverDemoPath = "popover-demo";
 export const activityDemoPath = "activity-demo";
+export const butterchurnDemoPath = "butterchurn-demo";
 
 export const dashboardPath = "dashboard";
 export const registerPath = "register";

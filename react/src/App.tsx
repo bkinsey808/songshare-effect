@@ -9,6 +9,7 @@ import SongLibraryPage from "@/react/pages/SongLibraryPage";
 import {
 	aboutPath,
 	activityDemoPath,
+	butterchurnDemoPath,
 	dashboardPath,
 	deleteAccountPath,
 	hookDemoPath,
@@ -34,6 +35,7 @@ import PopoverDemoPage from "./pages/demo/PopoverDemoPage";
 import ReactFeaturesDemoPage from "./pages/demo/ReactFeaturesDemoPage";
 import SuspenseDemoPage from "./pages/demo/SuspenseDemoPage";
 import UseHookDemoPage from "./pages/demo/UseHookDemoPage";
+import ButterchurnDemoPage from "./pages/demo/ButterchurnDemoPage";
 import HomePage from "./pages/home/HomePage";
 import OptimizedCounterPage from "./pages/OptimizedCounterPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -171,6 +173,10 @@ const router = createBrowserRouter([
 					{
 						path: activityDemoPath,
 						element: <ActivityDemoPage />,
+					},
+					{
+						path: butterchurnDemoPath,
+						element: <ButterchurnDemoPage />,
 					},
 				],
 			},

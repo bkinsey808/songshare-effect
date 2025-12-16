@@ -1,0 +1,2 @@
+# Ignore duplicate/legacy test file that triggers filename-case rule
+/e2e/butterchurn-getDisplayMedia.spec.ts

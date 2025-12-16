@@ -1,128 +1,148 @@
 {
-	"app": {
-		"title": "SongShare Effect",
-		"subtitle": "Share your favorite songs with the world"
-	},
-	"auth": {
-		"signInWithProvider": "Sign in with {{provider}}"
-	},
-	"field": {
-		"required": "{{field}} is required",
-		"tooShort": "{{field}} must be at least {{minLength}} characters",
-		"tooLong": "{{field}} cannot exceed {{maxLength}} characters",
-		"invalid": "{{field}} contains invalid characters"
-	},
+  "app": {
+    "title": "SongShare Effect",
+    "subtitle": "Share your favorite songs with the world"
+  },
+  "auth": {
+    "signInWithProvider": "Sign in with {{provider}}"
+  },
+  "field": {
+    "required": "{{field}} is required",
+    "tooShort": "{{field}} must be at least {{minLength}} characters",
+    "tooLong": "{{field}} cannot exceed {{maxLength}} characters",
+    "invalid": "{{field}} contains invalid characters"
+  },
 
-	"navigation": {
-		"home": "Home",
-		"songs": "Songs",
-		"upload": "Upload",
-		"about": "About",
-		"suspenseUse": "Suspense Use",
-		"userSubscription": "User Subscription",
-		"switchLanguage": "Switch Language"
-	},
-	"pages": {
-		"home": {
-			"title": "Welcome to SongShare",
-			"subtitle": "Share your music with the world",
-			"paragraphs": [
-				{ "id": "community", "text": "{{appName}} helps musicians share songs with their communities. Song leaders can share information about the music they are playing in real time with people following along on the app, including lyrics, translations, credits, and more. Followers receive song changes in real time on their own apps, during a live set and thus can gain a deeper appreciation of the music." },
-				{ "id": "library", "text": "Additionally, community members can build up a song library of their own which they can reference after the set is over and even when they are offline. And followers can use the app to become song leaders of their own if they so choose." },
-				{ "id": "playlists", "text": "Additionally, this app helps a musician log their practice and search and organize their song library into playlists. Playlists categorize the songs and also track an ordering if that matters. Playlists can be shared with the community or kept private for organizational purposes." },
-				{ "id": "benefits", "text": "In this way, {{appName}} serves the needs of musicians and their communities. It vastly simplifies the process of helping the community learn lyrics to songs. It saves trees because printed handouts of lyrics are no longer needed. And most everybody carries around a smart phone nowadays." },
-				{ "id": "spiritual", "text": "{{appName}} could be used not just for sharing songs with a community, but also prayers, meditations, and many other things. It is intended to serve the needs of all faiths and spiritual traditions." }
-			]
-		},
-		"dashboard": {
-			"createdAccountSuccess": "You have successfully created an account.",
-			"signedInSuccess": "You have successfully signed in.",
-			"signedOutSuccess": {
-				"title": "Signed Out",
-				"message": "You have been successfully signed out."
-			},
-			"title": "Your Dashboard",
-			"welcome": "Welcome back, {{name}}",
-			"signedOutTitle": "Not signed in",
-			"signedOutBody": "You are not signed in. Please sign in to access your dashboard.",
-			"signOut": "Sign Out",
-			"deleteAccount": "Delete Account",
-			"songManagement": "Song Management",
-			"createSong": "Create New Song",
-			"manageSongs": "Manage Songs",
-			"accountDeleted": {
-				"title": "Account Deleted",
-				"message": "Your account has been permanently deleted.",
-				"help": "If you change your mind, you'll need to create a new account."
-			}
-		},
-		"songEdit": {
-			"createTitle": "Create New Song",
-			"editTitle": "Edit Song",
-			"createDescription": "Create a new song with lyrics, slides, and metadata.",
-			"editDescription": "Make changes to your song and save when ready."
-		}
-	},
-	"register": {
-		"title": "Complete Registration",
-		"username": "Username",
-		"usernamePlaceholder": "Enter your username",
-		"usernameRequired": "Username is required",
-		"usernameTooShort": "Username must be at least 3 characters",
-		"usernameTooLong": "Username cannot exceed {{maxLength}} characters",
-		"usernameInvalid": "Username can only contain letters, numbers, underscores, and hyphens",
-		"submit": "Create Account",
-		"submitting": "Creating account...",
-		"reset": "Reset Form",
-		"errors": {
-			"registrationFailed": "Registration failed",
-			"networkError": "Network error occurred"
-		}
-	},
-	"validation": {
-		"required": "{{field}} is required",
-		"minLength": "{{field}} must be at least {{min}} characters",
-		"maxLength": "{{field}} cannot exceed {{max}} characters",
-		"pattern": "{{field}} contains invalid characters",
-		"username": {
-			"required": "Username is required",
-			"minLength": "Username must be at least {{min}} characters",
-			"maxLength": "Username cannot exceed {{max}} characters",
-			"pattern": "Username can only contain letters, numbers, underscores, and hyphens"
-		}
-	},
-	"common": {
-		"loading": "Loading...",
-		"error": "Error",
-		"cancel": "Cancel",
-		"save": "Save"
-	},
-	"errors": {
-		"signin": {
-			"providerMismatch": "The account is not linked to that provider.",
-			"unknown": "An unknown sign-in error occurred.",
-			"serverError": "Server error during sign-in. Please try again.",
-			"providerUnavailable": "Sign-in provider is currently unavailable.",
-			"securityFailed": "Security check failed. Please try again.",
-			"missingData": "Missing sign-in data. Please try again.",
-			"rateLimit": "Too many sign-in attempts. Please wait and try again.",
-			"cookiesDisabled": "Cookies appear to be disabled. Please enable cookies to sign in."
-		}
-	},
-	"actions": {
-		"dismiss": "Dismiss"
-	},
-	"song": {
-		"songName": "Song Name",
-		"songSlug": "Song Slug",
-		"shortCredit": "Short Credit",
-		"longCredit": "Long Credit",
-		"publicNotes": "Public Notes",
-		"privateNotes": "Private Notes",
-		"slideName": "Slide Name",
-		"fields": "Fields",
-		"lyrics": "Lyrics",
-		"script": "Script",
-		"enTranslation": "English Translation"
-	}
+  "navigation": {
+    "home": "Home",
+    "songs": "Songs",
+    "upload": "Upload",
+    "about": "About",
+    "suspenseUse": "Suspense Use",
+    "userSubscription": "User Subscription",
+    "switchLanguage": "Switch Language",
+    "butterchurn": "Butterchurn Visualizer",
+    "demoSection": "Demo Navigation",
+    "demoDescription": "Quick access to all demonstrations"
+  },
+  "pages": {
+    "home": {
+      "title": "Welcome to SongShare",
+      "subtitle": "Share your music with the world",
+      "paragraphs": [
+        {
+          "id": "community",
+          "text": "{{appName}} helps musicians share songs with their communities. Song leaders can share information about the music they are playing in real time with people following along on the app, including lyrics, translations, credits, and more. Followers receive song changes in real time on their own apps, during a live set and thus can gain a deeper appreciation of the music."
+        },
+        {
+          "id": "library",
+          "text": "Additionally, community members can build up a song library of their own which they can reference after the set is over and even when they are offline. And followers can use the app to become song leaders of their own if they so choose."
+        },
+        {
+          "id": "playlists",
+          "text": "Additionally, this app helps a musician log their practice and search and organize their song library into playlists. Playlists categorize the songs and also track an ordering if that matters. Playlists can be shared with the community or kept private for organizational purposes."
+        },
+        {
+          "id": "benefits",
+          "text": "In this way, {{appName}} serves the needs of musicians and their communities. It vastly simplifies the process of helping the community learn lyrics to songs. It saves trees because printed handouts of lyrics are no longer needed. And most everybody carries around a smart phone nowadays."
+        },
+        {
+          "id": "spiritual",
+          "text": "{{appName}} could be used not just for sharing songs with a community, but also prayers, meditations, and many other things. It is intended to serve the needs of all faiths and spiritual traditions."
+        }
+      ]
+    },
+    "dashboard": {
+      "createdAccountSuccess": "You have successfully created an account.",
+      "signedInSuccess": "You have successfully signed in.",
+      "signedOutSuccess": {
+        "title": "Signed Out",
+        "message": "You have been successfully signed out."
+      },
+      "title": "Your Dashboard",
+      "welcome": "Welcome back, {{name}}",
+      "signedOutTitle": "Not signed in",
+      "signedOutBody": "You are not signed in. Please sign in to access your dashboard.",
+      "signOut": "Sign Out",
+      "deleteAccount": "Delete Account",
+      "songManagement": "Song Management",
+      "createSong": "Create New Song",
+      "manageSongs": "Manage Songs",
+      "accountDeleted": {
+        "title": "Account Deleted",
+        "message": "Your account has been permanently deleted.",
+        "help": "If you change your mind, you'll need to create a new account."
+      },
+      "songLibrary": "Song Library",
+      "visualizations": "Visualizations"
+    },
+    "songEdit": {
+      "createTitle": "Create New Song",
+      "editTitle": "Edit Song",
+      "createDescription": "Create a new song with lyrics, slides, and metadata.",
+      "editDescription": "Make changes to your song and save when ready."
+    }
+  },
+  "register": {
+    "title": "Complete Registration",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "usernameRequired": "Username is required",
+    "usernameTooShort": "Username must be at least 3 characters",
+    "usernameTooLong": "Username cannot exceed {{maxLength}} characters",
+    "usernameInvalid": "Username can only contain letters, numbers, underscores, and hyphens",
+    "submit": "Create Account",
+    "submitting": "Creating account...",
+    "reset": "Reset Form",
+    "errors": {
+      "registrationFailed": "Registration failed",
+      "networkError": "Network error occurred"
+    }
+  },
+  "validation": {
+    "required": "{{field}} is required",
+    "minLength": "{{field}} must be at least {{min}} characters",
+    "maxLength": "{{field}} cannot exceed {{max}} characters",
+    "pattern": "{{field}} contains invalid characters",
+    "username": {
+      "required": "Username is required",
+      "minLength": "Username must be at least {{min}} characters",
+      "maxLength": "Username cannot exceed {{max}} characters",
+      "pattern": "Username can only contain letters, numbers, underscores, and hyphens"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "errors": {
+    "signin": {
+      "providerMismatch": "The account is not linked to that provider.",
+      "unknown": "An unknown sign-in error occurred.",
+      "serverError": "Server error during sign-in. Please try again.",
+      "providerUnavailable": "Sign-in provider is currently unavailable.",
+      "securityFailed": "Security check failed. Please try again.",
+      "missingData": "Missing sign-in data. Please try again.",
+      "rateLimit": "Too many sign-in attempts. Please wait and try again.",
+      "cookiesDisabled": "Cookies appear to be disabled. Please enable cookies to sign in."
+    }
+  },
+  "actions": {
+    "dismiss": "Dismiss"
+  },
+  "song": {
+    "songName": "Song Name",
+    "songSlug": "Song Slug",
+    "shortCredit": "Short Credit",
+    "longCredit": "Long Credit",
+    "publicNotes": "Public Notes",
+    "privateNotes": "Private Notes",
+    "slideName": "Slide Name",
+    "fields": "Fields",
+    "lyrics": "Lyrics",
+    "script": "Script",
+    "enTranslation": "English Translation"
+  }
 }

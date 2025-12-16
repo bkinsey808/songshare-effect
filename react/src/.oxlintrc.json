@@ -15,9 +15,7 @@
 		"**/dist/**",
 		"*/generated/**",
 		"**/generated/**",
-		"**/*.generated.*",
-		"public/vendor/**",
-		"shared/vendor/**"
+		"**/*.generated.*"
 	],
 	"rules": {
 		"eslint/array-callback-return": "warn",
@@ -505,7 +503,6 @@
 		"typescript/no-unsafe-member-access": "error",
 		"typescript/no-unsafe-return": "error",
 		"typescript/no-unsafe-type-assertion": "error",
-		"typescript/no-misused-promises": "off",
 		"typescript/no-unsafe-unary-minus": "error",
 		"typescript/no-useless-empty-export": "error",
 		"typescript/no-var-requires": "error",
@@ -698,35 +695,9 @@
 				"**/*.spec.tsx"
 			],
 			"rules": {
-				"eslint/max-lines": "off",
-				"typescript/no-unsafe-type-assertion": "off",
-				"typescript/no-misused-promises": "off",
-				"typescript/no-misused-promises": "off",
-				"@typescript-eslint/no-explicit-any": "off",
-				"typescript/no-explicit-any": "off",
-				"typescript/no-unsafe-assignment": "off",
-				"typescript/no-unsafe-member-access": "off",
-				"typescript/no-unsafe-call": "off",
-				"typescript/no-unsafe-return": "off",
-				"typescript/strict-boolean-expressions": "off",
-				"typescript/no-confusing-void-expression": "off",
-				"unicorn/consistent-function-scoping": "off"
+				"eslint/max-lines": "off"
 			}
 		},
-        {
-          "files": ["e2e/**"],
-          "rules": {
-			"typescript/no-unsafe-type-assertion": "off",
-			"@typescript-eslint/no-explicit-any": "off",
-			"typescript/no-unsafe-assignment": "off",
-            "typescript/no-unsafe-member-access": "off",
-            "typescript/no-unsafe-call": "off",
-            "typescript/no-unsafe-return": "off",
-            "typescript/strict-boolean-expressions": "off",
-            "typescript/no-confusing-void-expression": "off",
-            "unicorn/consistent-function-scoping": "off"
-          }
-        },
 		{
 			"files": [
 				"react/src/**"
@@ -794,23 +765,6 @@
 				"react_perf/jsx-no-new-array-as-prop": "error",
 				"react_perf/jsx-no-new-function-as-prop": "error",
 				"react_perf/jsx-no-new-object-as-prop": "error"
-			}
-		}
-		,
-		{
-			"files": [
-				"react/src/butterchurn/**"
-			],
-			"rules": {
-				"typescript/no-unsafe-type-assertion": "off",
-				"@typescript-eslint/no-explicit-any": "off",
-				"typescript/no-unsafe-assignment": "off",
-				"typescript/no-unsafe-member-access": "off",
-				"typescript/no-unsafe-call": "off",
-				"typescript/no-unsafe-return": "off",
-				"typescript/no-unnecessary-type-assertion": "off",
-				"typescript/strict-boolean-expressions": "off",
-				"typescript/no-confusing-void-expression": "off"
 			}
 		}
 		,

@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Butterchurn Port Test</title>
+  </head>
+  <body style="background:#111;color:#fff;">
+    <h1>Butterchurn Port Test</h1>
+    <div id="app" />
+    <div style="margin:12px;">
+      <label style="display:inline-block;margin-right:8px;color:#ddd">Load local audio file:</label>
+      <input id="file-input" type="file" accept="audio/*" style="display:inline-block" />
+    </div>
+    <div style="margin:12px;">
+      <button id="use-system-audio" style="margin-right:8px;padding:8px;background:#059669;border-radius:4px;color:white;border:none;">Use system audio (getDisplayMedia)</button>
+      <button id="start-visualization" style="padding:8px;background:#2563eb;border-radius:4px;color:white;border:none;">Start visualization</button>
+    </div>
+
+    <div style="margin:12px;">
+      <label style="display:inline-block;margin-right:8px;color:#ddd">Audio input device (for loopback drivers):</label>
+      <select id="audio-inputs" style="max-width:420px;display:inline-block;margin-right:8px;"></select>
+      <button id="use-input-device" style="padding:8px;background:#f59e0b;border-radius:4px;color:white;border:none;">Use selected input device</button>
+    </div>
+
+    <div style="margin:12px;color:#888;max-width:800px;line-height:1.4">
+      <strong>Tip:</strong> To capture audio playing on your computer, install a loopback / virtual audio device (e.g., BlackHole on macOS, VB-Cable or Virtual Audio Cable on Windows, or PulseAudio loopback on Linux). Then select that device here and press "Use selected input device". This page can also load a local file via the file input above.
+    </div>
+
+    <div id="status" style="margin:12px;color:#aaa;font-family:monospace;white-space:pre-wrap"></div>
+
+    <div style="margin:12px;">
+      <button id="diag-sample-rms" style="margin-right:8px;padding:6px;background:#374151;border-radius:6px;color:white;border:none;">Sample RMS</button>
+      <button id="diag-trigger-render" style="margin-right:8px;padding:6px;background:#4b5563;border-radius:6px;color:white;border:none;">Trigger render</button>
+      <button id="diag-show-flags" style="padding:6px;background:#6b7280;border-radius:6px;color:white;border:none;">Show flags</button>
+      <div id="diag-output" style="margin-top:8px;color:#9ca3af;white-space:pre-wrap;font-family:monospace"></div>
+    </div>
+    <script type="module">
+      import createVisualizerFromPort from '/react/src/butterchurn/portAdapter';
+
+      const canvas = document.createElement('canvas');
+      canvas.style.width = '640px';
+      canvas.style.height = '240px';
+      canvas.width = 640;
+      canvas.height = 240;
+      document.getElementById('app').appendChild(canvas);
+
+      const startBtn = document.getElementById('start-visualization');
+
+      // Keeps a single running visualization instance and audio sources so we can swap sources interactively
+      let running = undefined;
+      let currentInst = undefined;
+      let currentCtx = undefined;
+      // Diagnostic helpers: keep references to last connected stream and source node
+      let lastStream = undefined;
+      let lastSourceNode = undefined;
+
+      function setStatus(msg) {
+        const s = document.getElementById('status');
+        if (!s) return;
+        s.textContent = msg;
+        console.log('butterchurn-port-test.status', msg);
+      }
+
+      async function startVisualizationWithContext(ctx) {
+        try {
+          // Ensure we only have a single running instance
+          if (running && typeof running.stop === 'function') {
+            try { running.stop(); } catch {}
+            running = undefined;
+          }
+          currentCtx = ctx;
+          const inst = createVisualizerFromPort({ canvasElement: canvas, audioContext: ctx, width: 640, height: 240 });
+          currentInst = inst;
+
+          // Render periodically
+          const renderInterval = setInterval(() => {
+            try { if (inst && typeof inst.render === 'function') inst.render(); } catch (err) { console.warn('render error', err); }
+          }, 60);
+
+          // Expose flags for diagnostics
+          try { window.__butterchurn_using_port = true; } catch {}
+          try { window.__butterchurn_render_active = true; } catch {}
+
+          setStatus('Visualization started with AudioContext.');
+
+          running = { stop: () => {
+            try { clearInterval(renderInterval); } catch {}
+            try { if (inst && typeof inst.destroy === 'function') inst.destroy(); } catch {}
+            try { if (ctx && typeof ctx.close === 'function') { ctx.close(); } } catch {}
+            currentInst = undefined; currentCtx = undefined;
+            setStatus('Visualization stopped.');
+          } };
+
+          return running;
+        } catch (error) {
+          setStatus('Failed to start visualization: ' + String(error));
+          return undefined;
+        }
+      }
+
+      async function startVisualization() {
+        try {
+          const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+          const ctx = new AudioContextCtor();
+          try { await ctx.resume(); } catch {}
+          // Start with an oscillator by default so you immediately see something
+          const osc = ctx.createOscillator();
+          try { osc.frequency.value = 110; } catch {}
+          try { osc.connect(ctx.destination); } catch {}
+          try { if (typeof osc.start === 'function') osc.start(); } catch {}
+
+          const r = await startVisualizationWithContext(ctx);
+          // Also attach oscillator to the visualizer if available
+          try { if (r && currentInst && typeof currentInst.connectAudio === 'function') currentInst.connectAudio(osc); } catch {}
+          setStatus('Started (oscillator attached). You can load a file or use system audio.');
+          return r;
+        } catch (error) {
+          const pre = document.createElement('pre');
+          pre.textContent = String(error);
+          document.body.appendChild(pre);
+          setStatus('Start failed: ' + String(error));
+          return undefined;
+        }
+      }
+
+      startBtn?.addEventListener('click', () => { void startVisualization(); });
+
+      // File input handling
+      const fileInput = document.getElementById('file-input');
+      fileInput?.addEventListener('change', async (ev) => {
+        const files = fileInput.files;
+        if (!files || files.length === 0) return;
+        const file = files[0];
+        setStatus('Selected file: ' + file.name);
+        const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+        const ctx = currentCtx || new AudioContextCtor();
+        try { await ctx.resume(); } catch {}
+
+        // Create or reuse visualization instance
+        if (!currentInst) {
+          await startVisualizationWithContext(ctx);
+        }
+
+        // Create audio element for the file
+        const audioEl = document.createElement('audio');
+        audioEl.controls = true;
+        audioEl.src = URL.createObjectURL(file);
+        audioEl.style.display = 'block';
+        audioEl.muted = false;
+        document.getElementById('app')?.appendChild(audioEl);
+        try { await audioEl.play(); } catch (err) { setStatus('Playback requires user gesture/interactions: ' + String(err)); }
+
+        // Connect file playback to visualizer via MediaElementSource
+        try {
+          const source = ctx.createMediaElementSource(audioEl);
+          // store for diagnostics
+          lastStream = null; // not a MediaStream, but we mark source present
+          lastSourceNode = source;
+          if (currentInst && typeof currentInst.connectAudio === 'function') {
+            currentInst.connectAudio(source);
+            setStatus('File connected to visualizer and playing: ' + file.name);
+          } else {
+            setStatus('Visualizer not ready; file is playing but not visualized.');
+          }
+        } catch (error) {
+          setStatus('Failed to connect file to visualizer: ' + String(error));
+        }
+      });
+
+      // System audio / getDisplayMedia handling
+      const sysBtn = document.getElementById('use-system-audio');
+      sysBtn?.addEventListener('click', async () => {
+        setStatus('Requesting system audio (please select the window/tab and enable "Share Audio" if present).');
+        try {
+          // Prefer the modern getDisplayMedia signature
+          const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: false });
+          if (!stream) { setStatus('No stream received from getDisplayMedia.'); return; }
+          const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+          const ctx = currentCtx || new AudioContextCtor();
+          try { await ctx.resume(); } catch {}
+
+          if (!currentInst) {
+            await startVisualizationWithContext(ctx);
+          }
+
+          try {
+            const src = ctx.createMediaStreamSource(stream);
+            // store for diagnostics and manual sampling
+            lastStream = stream;
+            lastSourceNode = src;
+            if (currentInst && typeof currentInst.connectAudio === 'function') {
+              currentInst.connectAudio(src);
+              setStatus('System audio connected to visualizer.');
+            } else {
+              setStatus('Visualizer not ready; system audio started but not visualized.');
+            }
+          } catch (err) {
+            setStatus('Failed to connect system audio: ' + String(err));
+          }
+        } catch (err) {
+          setStatus('getDisplayMedia error: ' + String(err));
+        }
+      });
+
+      // Diagnostics hooks
+      const diagSampleBtn = document.getElementById('diag-sample-rms');
+      const diagRenderBtn = document.getElementById('diag-trigger-render');
+      const diagShowFlagsBtn = document.getElementById('diag-show-flags');
+      const diagOut = document.getElementById('diag-output');
+
+      diagSampleBtn?.addEventListener('click', async () => {
+        try {
+          if (!currentCtx) { diagOut.textContent = 'No AudioContext available.'; return; }
+          if (!lastSourceNode) { diagOut.textContent = 'No source connected to sample.'; return; }
+          const analyser = currentCtx.createAnalyser();
+          analyser.fftSize = 2048;
+          try { lastSourceNode.connect(analyser); } catch (err) { diagOut.textContent = 'Failed to connect source to analyser: ' + String(err); return; }
+          const data = new Uint8Array(analyser.fftSize);
+          analyser.getByteTimeDomainData(data);
+          let sum = 0;
+          for (const b of data) { const d = b - 128; sum += d*d; }
+          const rms = Math.sqrt(sum / data.length);
+          diagOut.textContent = 'Sampled RMS: ' + String(rms.toFixed(4));
+          try { lastSourceNode.disconnect(analyser); } catch {}
+        } catch (error) { diagOut.textContent = 'Sampling failed: ' + String(error); }
+      });
+
+      diagRenderBtn?.addEventListener('click', async () => {
+        try {
+          if (!currentInst) { diagOut.textContent = 'No visualizer instance.'; return; }
+          try { if (typeof currentInst.render === 'function') { currentInst.render(); } }
+          catch (err) { diagOut.textContent = 'Render call threw: ' + String(err); return; }
+          // mark manual render time
+          try { window.__butterchurn_last_manual_render = Date.now(); } catch {}
+          diagOut.textContent = 'Manual render triggered. __butterchurn_last_manual_render = ' + String(window.__butterchurn_last_manual_render || 'n/a');
+        } catch (error) { diagOut.textContent = 'Trigger render failed: ' + String(error); }
+      });
+
+      diagShowFlagsBtn?.addEventListener('click', () => {
+        try {
+          const using = !!(window.__butterchurn_using_port);
+          const renderFlag = !!(window.__butterchurn_render_active);
+          const lastManual = window.__butterchurn_last_manual_render || 'n/a';
+          diagOut.textContent = 'using_port=' + String(using) + '\nrender_active=' + String(renderFlag) + '\nlast_manual=' + String(lastManual);
+        } catch (err) { diagOut.textContent = 'Show flags failed: ' + String(err); }
+      });
+
+      // Audio input device enumeration + selection (for loopback / virtual devices)
+      async function enumerateAudioInputs() {
+        const sel = document.getElementById('audio-inputs');
+        if (!sel) return;
+        sel.innerHTML = '';
+        try {
+          // Some browsers only fill device labels after a getUserMedia permission; try to list devices
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const audioInputs = devices.filter((d) => d.kind === 'audioinput');
+          if (audioInputs.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'No audio inputs found';
+            sel.appendChild(opt);
+            return;
+          }
+          for (const dev of audioInputs) {
+            const opt = document.createElement('option');
+            opt.value = dev.deviceId || '';
+            // label might be empty until permission is granted
+            opt.textContent = dev.label || dev.deviceId || 'Audio input';
+            sel.appendChild(opt);
+          }
+          // Try to auto-select a likely loopback device if present
+          try {
+            const lower = Array.from(sel.options).map((o) => String(o.textContent || '').toLowerCase());
+            const prefer = ['blackhole', 'vb', 'vbaudio', 'virtual', 'loopback', 'cable'];
+            for (const p of prefer) {
+              const idx = lower.findIndex((t) => t.includes(p));
+              if (idx >= 0) { sel.selectedIndex = idx; break; }
+            }
+          } catch {}
+        } catch (err) {
+          // Fallback attempt: request permission to list devices
+          try {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const audioInputs = devices.filter((d) => d.kind === 'audioinput');
+            for (const dev of audioInputs) {
+              const opt = document.createElement('option');
+              opt.value = dev.deviceId || '';
+              opt.textContent = dev.label || dev.deviceId || 'Audio input';
+              sel.appendChild(opt);
+            }
+          } catch (err2) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'Permission denied or no inputs';
+            sel.appendChild(opt);
+            setStatus('Unable to enumerate audio inputs: ' + String(err2));
+          }
+        }
+      }
+
+      const inputsBtn = document.getElementById('use-input-device');
+      inputsBtn?.addEventListener('click', async () => {
+        const sel = document.getElementById('audio-inputs');
+        if (!sel) return setStatus('No device select found');
+        const deviceId = sel.value;
+        if (!deviceId) return setStatus('Select an audio input device first');
+        setStatus('Requesting audio from selected device...');
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: { exact: deviceId } } });
+          if (!stream) { setStatus('No stream returned from selected device'); return; }
+          const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+          const ctx = currentCtx || new AudioContextCtor();
+          try { await ctx.resume(); } catch {}
+          if (!currentInst) {
+            await startVisualizationWithContext(ctx);
+          }
+          try {
+            const src = ctx.createMediaStreamSource(stream);
+            if (currentInst && typeof currentInst.connectAudio === 'function') {
+              currentInst.connectAudio(src);
+              setStatus('Selected input connected to visualizer');
+            } else {
+              setStatus('Visualizer not ready; selected input started but not visualized');
+            }
+          } catch (err) {
+            setStatus('Failed to connect selected device: ' + String(err));
+          }
+        } catch (err) {
+          setStatus('getUserMedia failed: ' + String(err));
+        }
+      });
+
+      // Populate device list on load and when devices change
+      try { void enumerateAudioInputs(); } catch {}
+      navigator.mediaDevices?.addEventListener?.('devicechange', () => { void enumerateAudioInputs(); });
+
+      // Auto-start support: use ?autostart=1 to automatically begin (convenient for local/manual testing)
+      try {
+        const params = new URLSearchParams(window.location.search || '');
+        if (params.get('autostart') === '1') {
+          // Delay slightly to ensure UI is ready
+          setTimeout(() => { void startVisualization(); }, 200);
+        }
+      } catch {}
+
+    </script>
+  </body>
+</html>

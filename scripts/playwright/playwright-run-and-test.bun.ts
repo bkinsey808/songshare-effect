@@ -126,7 +126,8 @@ function startPlaywrightIfReady(): void {
 
 	// Start the Playwright process after ensuring browsers are installed
 	void (async (): Promise<void> => {
-		await installBrowsers();
+		try {
+			await installBrowsers();
 		const proc = spawn("npx", args, {
 			shell: true,
 			stdio: "inherit",
@@ -150,6 +151,10 @@ function startPlaywrightIfReady(): void {
 			const finalCode = exitCode ?? ZERO;
 			process.exit(finalCode);
 		});
+	} catch (error) {
+		sError("Playwright start failed:", error);
+		process.exit(EXIT_NON_ZERO);
+	}
 	})();
 }
 

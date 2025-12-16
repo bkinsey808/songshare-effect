@@ -1,129 +1,137 @@
 {
-	"app": {
-		"title": "SongShare Effect",
-		"subtitle": "Comparte tus canciones favoritas con el mundo"
-	},
-	"field": {
-		"required": "{{field}} es obligatorio",
-		"tooShort": "{{field}} debe tener al menos {{minLength}} caracteres",
-		"tooLong": "{{field}} no puede exceder {{maxLength}} caracteres",
-		"invalid": "{{field}} contiene caracteres inválidos"
-	},
-	"navigation": {
-		"home": "Inicio",
-		"songs": "Canciones",
-		"upload": "Subir",
-		"about": "Acerca de",
-		"suspenseUse": "Usar Suspense",
-		"userSubscription": "Suscripción de Usuario",
-		"switchLanguage": "Cambiar idioma"
-	},
-	"pages": {
-		"home": {
-			"title": "Bienvenido a SongShare",
-			"subtitle": "Comparte tu música con el mundo",
-			"paragraphs": [
-				{
-					"id": "community",
-					"text": "{{appName}} ayuda a los músicos a compartir canciones con sus comunidades. Los líderes de canciones pueden compartir información sobre la música que están interpretando en tiempo real con las personas que siguen la aplicación, incluyendo letras, traducciones, créditos y más. Los seguidores reciben cambios de canciones en tiempo real en sus propias aplicaciones durante un set en vivo y así pueden apreciar más profundamente la música."
-				},
-				{
-					"id": "library",
-					"text": "Además, los miembros de la comunidad pueden crear una biblioteca de canciones propia a la que pueden consultar después de que termine el set e incluso cuando están sin conexión. Y los seguidores pueden usar la aplicación para convertirse en líderes de canciones por su cuenta si así lo desean."
-				},
-				{
-					"id": "playlists",
-					"text": "Además, esta aplicación ayuda a un músico a registrar su práctica y a buscar y organizar su biblioteca de canciones en listas de reproducción. Las listas de reproducción categorizan las canciones y también registran un orden si eso importa. Las listas de reproducción pueden compartirse con la comunidad o mantenerse privadas para fines organizativos."
-				},
-				{
-					"id": "benefits",
-					"text": "De esta manera, {{appName}} satisface las necesidades de los músicos y sus comunidades. Simplifica enormemente el proceso de ayudar a la comunidad a aprender las letras de las canciones. Ahorra árboles porque ya no hacen falta folletos impresos con letras. Y la mayoría de la gente lleva un teléfono inteligente hoy en día."
-				},
-				{
-					"id": "spiritual",
-					"text": "{{appName}} podría usarse no solo para compartir canciones con una comunidad, sino también oraciones, meditaciones y muchas otras cosas. Está destinada a servir a las necesidades de todas las religiones y tradiciones espirituales."
-				}
-			]
-		},
-		"dashboard": {
-			"createdAccountSuccess": "Has creado una cuenta correctamente.",
-			"signedInSuccess": "Has iniciado sesión correctamente.",
-			"signedOutSuccess": {
-				"title": "Sesión Cerrada",
-				"message": "Has cerrado sesión correctamente."
-			},
-			"title": "Tu Panel",
-			"welcome": "Bienvenido de nuevo, {{name}}",
-			"signedOutTitle": "No has iniciado sesión",
-			"signedOutBody": "No has iniciado sesión. Por favor, inicia sesión para acceder a tu panel.",
-			"signOut": "Cerrar sesión",
-			"deleteAccount": "Eliminar cuenta",
-			"accountDeleted": {
-				"title": "Cuenta Eliminada",
-				"message": "Tu cuenta ha sido eliminada correctamente."
-			}
-		}
-	},
-	"register": {
-		"title": "Completar registro",
-		"username": "Nombre de usuario",
-		"usernamePlaceholder": "Ingresa tu nombre de usuario",
-		"usernameRequired": "El nombre de usuario es obligatorio",
-		"usernameTooShort": "El nombre de usuario debe tener al menos 3 caracteres",
-		"usernameTooLong": "El nombre de usuario no puede exceder 30 caracteres",
-		"usernameInvalid": "El nombre de usuario solo puede contener letras, números, guiones bajos y guiones",
-		"submit": "Crear cuenta",
-		"submitting": "Creando cuenta...",
-		"reset": "Restablecer formulario",
-		"errors": {
-			"registrationFailed": "Registro fallido",
-			"networkError": "Error de red"
-		}
-	},
-	"validation": {
-		"required": "{{field}} es obligatorio",
-		"minLength": "{{field}} debe tener al menos {{min}} caracteres",
-		"maxLength": "{{field}} no puede exceder {{max}} caracteres",
-		"pattern": "{{field}} contiene caracteres inválidos",
-		"username": {
-			"required": "El nombre de usuario es obligatorio",
-			"minLength": "El nombre de usuario debe tener al menos {{min}} caracteres",
-			"maxLength": "El nombre de usuario no puede exceder {{max}} caracteres",
-			"pattern": "El nombre de usuario solo puede contener letras, números, guiones bajos y guiones"
-		}
-	},
-	"common": {
-		"loading": "Cargando...",
-		"error": "Error",
-		"cancel": "Cancelar",
-		"save": "Guardar"
-	},
-	"errors": {
-		"signin": {
-			"providerMismatch": "La cuenta no está vinculada a ese proveedor.",
-			"unknown": "Ocurrió un error desconocido al iniciar sesión.",
-			"serverError": "Error del servidor durante el inicio de sesión. Por favor, inténtalo de nuevo.",
-			"providerUnavailable": "El proveedor de inicio de sesión no está disponible en este momento.",
-			"securityFailed": "La comprobación de seguridad falló. Por favor, inténtalo de nuevo.",
-			"missingData": "Faltan datos de inicio de sesión. Por favor, inténtalo de nuevo.",
-			"rateLimit": "Demasiados intentos de inicio de sesión. Por favor espera e inténtalo de nuevo.",
-			"cookiesDisabled": "Parece que las cookies están deshabilitadas. Habilita las cookies para iniciar sesión."
-		}
-	},
-	"actions": {
-		"dismiss": "Cerrar"
-	},
-	"song": {
-		"songName": "Nombre de la Canción",
-		"songSlug": "URL de la Canción",
-		"shortCredit": "Crédito Corto",
-		"longCredit": "Crédito Largo",
-		"publicNotes": "Notas Públicas",
-		"privateNotes": "Notas Privadas",
-		"slideName": "Nombre de la Diapositiva",
-		"fields": "Campos",
-		"lyrics": "Letras",
-		"script": "Guión",
-		"enTranslation": "Traducción al Inglés"
-	}
+  "app": {
+    "title": "SongShare Effect",
+    "subtitle": "Comparte tus canciones favoritas con el mundo"
+  },
+  "field": {
+    "required": "{{field}} es obligatorio",
+    "tooShort": "{{field}} debe tener al menos {{minLength}} caracteres",
+    "tooLong": "{{field}} no puede exceder {{maxLength}} caracteres",
+    "invalid": "{{field}} contiene caracteres inválidos"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "songs": "Canciones",
+    "upload": "Subir",
+    "about": "Acerca de",
+    "suspenseUse": "Usar Suspense",
+    "userSubscription": "Suscripción de Usuario",
+    "switchLanguage": "Cambiar idioma",
+    "butterchurn": "Visualizador de Butterchurn",
+    "demoSection": "Navegación de demostraciones",
+    "demoDescription": "Acceso rápido a todas las demostraciones"
+  },
+  "pages": {
+    "home": {
+      "title": "Bienvenido a SongShare",
+      "subtitle": "Comparte tu música con el mundo",
+      "paragraphs": [
+        {
+          "id": "community",
+          "text": "{{appName}} ayuda a los músicos a compartir canciones con sus comunidades. Los líderes de canciones pueden compartir información sobre la música que están interpretando en tiempo real con las personas que siguen la aplicación, incluyendo letras, traducciones, créditos y más. Los seguidores reciben cambios de canciones en tiempo real en sus propias aplicaciones durante un set en vivo y así pueden apreciar más profundamente la música."
+        },
+        {
+          "id": "library",
+          "text": "Además, los miembros de la comunidad pueden crear una biblioteca de canciones propia a la que pueden consultar después de que termine el set e incluso cuando están sin conexión. Y los seguidores pueden usar la aplicación para convertirse en líderes de canciones por su cuenta si así lo desean."
+        },
+        {
+          "id": "playlists",
+          "text": "Además, esta aplicación ayuda a un músico a registrar su práctica y a buscar y organizar su biblioteca de canciones en listas de reproducción. Las listas de reproducción categorizan las canciones y también registran un orden si eso importa. Las listas de reproducción pueden compartirse con la comunidad o mantenerse privadas para fines organizativos."
+        },
+        {
+          "id": "benefits",
+          "text": "De esta manera, {{appName}} satisface las necesidades de los músicos y sus comunidades. Simplifica enormemente el proceso de ayudar a la comunidad a aprender las letras de las canciones. Ahorra árboles porque ya no hacen falta folletos impresos con letras. Y la mayoría de la gente lleva un teléfono inteligente hoy en día."
+        },
+        {
+          "id": "spiritual",
+          "text": "{{appName}} podría usarse no solo para compartir canciones con una comunidad, sino también oraciones, meditaciones y muchas otras cosas. Está destinada a servir a las necesidades de todas las religiones y tradiciones espirituales."
+        }
+      ]
+    },
+    "dashboard": {
+      "createdAccountSuccess": "Has creado una cuenta correctamente.",
+      "signedInSuccess": "Has iniciado sesión correctamente.",
+      "signedOutSuccess": {
+        "title": "Sesión Cerrada",
+        "message": "Has cerrado sesión correctamente."
+      },
+      "title": "Tu Panel",
+      "welcome": "Bienvenido de nuevo, {{name}}",
+      "signedOutTitle": "No has iniciado sesión",
+      "signedOutBody": "No has iniciado sesión. Por favor, inicia sesión para acceder a tu panel.",
+      "signOut": "Cerrar sesión",
+      "deleteAccount": "Eliminar cuenta",
+      "accountDeleted": {
+        "title": "Cuenta Eliminada",
+        "message": "Tu cuenta ha sido eliminada correctamente."
+      },
+      "songManagement": "Gestión de canciones",
+      "createSong": "Crear nueva canción",
+      "manageSongs": "Administrar canciones",
+      "songLibrary": "Biblioteca de canciones",
+      "visualizations": "Visualizaciones"
+    }
+  },
+  "register": {
+    "title": "Completar registro",
+    "username": "Nombre de usuario",
+    "usernamePlaceholder": "Ingresa tu nombre de usuario",
+    "usernameRequired": "El nombre de usuario es obligatorio",
+    "usernameTooShort": "El nombre de usuario debe tener al menos 3 caracteres",
+    "usernameTooLong": "El nombre de usuario no puede exceder 30 caracteres",
+    "usernameInvalid": "El nombre de usuario solo puede contener letras, números, guiones bajos y guiones",
+    "submit": "Crear cuenta",
+    "submitting": "Creando cuenta...",
+    "reset": "Restablecer formulario",
+    "errors": {
+      "registrationFailed": "Registro fallido",
+      "networkError": "Error de red"
+    }
+  },
+  "validation": {
+    "required": "{{field}} es obligatorio",
+    "minLength": "{{field}} debe tener al menos {{min}} caracteres",
+    "maxLength": "{{field}} no puede exceder {{max}} caracteres",
+    "pattern": "{{field}} contiene caracteres inválidos",
+    "username": {
+      "required": "El nombre de usuario es obligatorio",
+      "minLength": "El nombre de usuario debe tener al menos {{min}} caracteres",
+      "maxLength": "El nombre de usuario no puede exceder {{max}} caracteres",
+      "pattern": "El nombre de usuario solo puede contener letras, números, guiones bajos y guiones"
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "cancel": "Cancelar",
+    "save": "Guardar"
+  },
+  "errors": {
+    "signin": {
+      "providerMismatch": "La cuenta no está vinculada a ese proveedor.",
+      "unknown": "Ocurrió un error desconocido al iniciar sesión.",
+      "serverError": "Error del servidor durante el inicio de sesión. Por favor, inténtalo de nuevo.",
+      "providerUnavailable": "El proveedor de inicio de sesión no está disponible en este momento.",
+      "securityFailed": "La comprobación de seguridad falló. Por favor, inténtalo de nuevo.",
+      "missingData": "Faltan datos de inicio de sesión. Por favor, inténtalo de nuevo.",
+      "rateLimit": "Demasiados intentos de inicio de sesión. Por favor espera e inténtalo de nuevo.",
+      "cookiesDisabled": "Parece que las cookies están deshabilitadas. Habilita las cookies para iniciar sesión."
+    }
+  },
+  "actions": {
+    "dismiss": "Cerrar"
+  },
+  "song": {
+    "songName": "Nombre de la Canción",
+    "songSlug": "URL de la Canción",
+    "shortCredit": "Crédito Corto",
+    "longCredit": "Crédito Largo",
+    "publicNotes": "Notas Públicas",
+    "privateNotes": "Notas Privadas",
+    "slideName": "Nombre de la Diapositiva",
+    "fields": "Campos",
+    "lyrics": "Letras",
+    "script": "Guión",
+    "enTranslation": "Traducción al Inglés"
+  }
 }

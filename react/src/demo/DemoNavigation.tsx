@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import {
 	activityDemoPath,
+	butterchurnDemoPath,
 	hookDemoPath,
 	optimizedCounterPath,
 	reactFeaturesPath,
@@ -54,6 +55,11 @@ function DemoNavigation(): ReactElement {
 			path: activityDemoPath,
 			labelKey: "navigation.activity",
 			icon: "⚡",
+		},
+		{
+			path: butterchurnDemoPath,
+			labelKey: "navigation.butterchurn",
+			icon: "🧈",
 		},
 	];
 

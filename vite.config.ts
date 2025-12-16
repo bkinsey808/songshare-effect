@@ -35,7 +35,15 @@ const config: UserConfig = defineConfig({
 			"@/react": path.resolve(__dirname, "./react/src"),
 			"@/shared": path.resolve(__dirname, "./shared/src"),
 			"@/api": path.resolve(__dirname, "./api/src"),
+			// Alias the package to the shipped UMD build so dynamic imports and
+			// explicit imports resolve to the browser-friendly bundle during dev.
+			"butterchurn": path.resolve(__dirname, "./node_modules/butterchurn/lib/butterchurn.js"),
 		},
+	},
+	// Force Vite to pre-bundle the butterchurn package during dev so bare
+	// specifier imports like `import('butterchurn')` resolve at runtime.
+	optimizeDeps: {
+		include: ["butterchurn"],
 	},
 	css: {
 		postcss: {
@@ -56,6 +64,10 @@ const config: UserConfig = defineConfig({
 		sourcemap: true,
 		// Ensure assets are properly fingerprinted
 		assetsInlineLimit: 0,
+		// Improve CommonJS handling for packages like butterchurn that ship CJS/UMD
+		commonjsOptions: {
+			include: [/node_modules/, /butterchurn/],
+		},
 	},
 
 	// Development server proxy to forward API requests to the

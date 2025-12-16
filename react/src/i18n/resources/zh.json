@@ -1,114 +1,133 @@
 {
-	"app": {
-		"title": "SongShare Effect",
-		"subtitle": "与世界分享您最喜爱的歌曲"
-	},
-	"field": {
-		"required": "{{field}} 是必需的",
-		"tooShort": "{{field}} 至少需要 {{minLength}} 个字符",
-		"tooLong": "{{field}} 不能超过 {{maxLength}} 个字符",
-		"invalid": "{{field}} 包含无效字符"
-	},
-	"navigation": {
-		"home": "首页",
-		"songs": "歌曲",
-		"upload": "上传",
-		"about": "关于",
-		"suspenseUse": "使用悬挂",
-		"userSubscription": "用户订阅",
-		"switchLanguage": "切换语言"
-	},
-	"pages": {
-		"home": {
-			"title": "欢迎来到 SongShare",
-			"subtitle": "与世界分享您的音乐",
-			"paragraphs": [
-				{ "id": "community", "text": "{{appName}} 帮助音乐家与他们的社区分享歌曲。歌曲领唱者可以在演出中实时与在应用中跟随的人分享他们正在演奏的音乐信息，包括歌词、翻译、鸣谢等。听众在直播演出期间会在自己的应用中实时收到歌曲更改，从而能够更深入地欣赏音乐。" },
-				{ "id": "library", "text": "此外，社区成员可以建立自己的歌曲库，以便在演出结束后甚至在离线时参考。听众也可以使用该应用成为自己的歌曲领唱者，如果他们愿意的话。" },
-				{ "id": "playlists", "text": "此外，该应用还帮助音乐家记录练习，并将他们的歌曲库搜索和组织到播放列表中。播放列表对歌曲进行分类，并在需要时跟踪顺序。播放列表可以与社区共享，也可以为组织目的保持私有。" },
-				{ "id": "benefits", "text": "通过这种方式，{{appName}} 满足了音乐家及其社区的需求。它大大简化了帮助社区学习歌曲歌词的过程。它节省了纸张，因为不再需要印刷的歌词讲义。而且现在大多数人随身携带智能手机。" },
-				{ "id": "spiritual", "text": "{{appName}} 不仅可用于与社区共享歌曲，还可用于祈祷、冥想和许多其他内容。它旨在服务所有信仰和精神传统的需求。" }
-			]
-		},
-		"dashboard": {
-			"createdAccountSuccess": "您已成功创建账户。",
-			"signedInSuccess": "您已成功登录。",
-			"signedOutSuccess": {
-				"title": "已登出",
-				"message": "您已成功登出。"
-			},
-			"title": "您的控制面板",
-			"welcome": "欢迎回来，{{name}}",
-			"signedOutTitle": "未登录",
-			"signedOutBody": "您尚未登录。请登录以访问控制面板。",
-			"signOut": "登出",
-			"deleteAccount": "删除账户",
-			"accountDeleted": {
-				"title": "账户已删除",
-				"message": "您的账户已成功删除。"
-			}
-		}
-	},
-	"register": {
-		"title": "完成注册",
-		"username": "用户名",
-		"usernamePlaceholder": "输入您的用户名",
-		"usernameRequired": "用户名是必需的",
-		"usernameTooShort": "用户名至少需要 3 个字符",
-		"usernameTooLong": "用户名不能超过 30 个字符",
-		"usernameInvalid": "用户名只能包含字母、数字、下划线和连字符",
-		"submit": "创建账户",
-		"submitting": "正在创建账户...",
-		"reset": "重置表单",
-		"errors": {
-			"registrationFailed": "注册失败",
-			"networkError": "网络错误"
-		}
-	},
-	"validation": {
-		"required": "{{field}} 是必需的",
-		"minLength": "{{field}} 至少需要 {{min}} 个字符",
-		"maxLength": "{{field}} 不能超过 {{max}} 个字符",
-		"pattern": "{{field}} 包含无效字符",
-		"username": {
-			"required": "用户名是必需的",
-			"minLength": "用户名至少需要 {{min}} 个字符",
-			"maxLength": "用户名不能超过 {{max}} 个字符",
-			"pattern": "用户名只能包含字母、数字、下划线和连字符"
-		}
-	},
-	"common": {
-		"loading": "加载中...",
-		"error": "错误",
-		"cancel": "取消",
-		"save": "保存"
-	},
-	"errors": {
-		"signin": {
-			"providerMismatch": "帐户未关联该认证提供商。",
-			"unknown": "发生未知的登录错误。",
-			"serverError": "登录时服务器出现错误。请稍后再试。",
-			"providerUnavailable": "登录提供商当前不可用。",
-			"securityFailed": "安全检查失败。请重试。",
-			"missingData": "缺少登录数据。请重试。",
-			"rateLimit": "登录尝试过多。请稍候再试。",
-			"cookiesDisabled": "检测到 cookie 被禁用。请启用 cookie 以登录。"
-		}
-	},
-	"actions": {
-		"dismiss": "关闭"
-	},
-	"song": {
-		"songName": "歌曲名称",
-		"songSlug": "歌曲链接",
-		"shortCredit": "简短署名",
-		"longCredit": "详细署名",
-		"publicNotes": "公开备注",
-		"privateNotes": "私人备注",
-		"slideName": "幻灯片名称",
-		"fields": "字段",
-		"lyrics": "歌词",
-		"script": "脚本",
-		"enTranslation": "英文翻译"
-	}
+  "app": {
+    "title": "SongShare Effect",
+    "subtitle": "与世界分享您最喜爱的歌曲"
+  },
+  "field": {
+    "required": "{{field}} 是必需的",
+    "tooShort": "{{field}} 至少需要 {{minLength}} 个字符",
+    "tooLong": "{{field}} 不能超过 {{maxLength}} 个字符",
+    "invalid": "{{field}} 包含无效字符"
+  },
+  "navigation": {
+    "home": "首页",
+    "songs": "歌曲",
+    "upload": "上传",
+    "about": "关于",
+    "suspenseUse": "使用 Suspense",
+    "userSubscription": "用户订阅",
+    "switchLanguage": "切换语言",
+    "butterchurn": "Butterchurn 可视化",
+    "demoSection": "演示导航",
+    "demoDescription": "快速访问所有演示"
+  },
+  "pages": {
+    "home": {
+      "title": "欢迎来到 SongShare",
+      "subtitle": "与世界分享您的音乐",
+      "paragraphs": [
+        {
+          "id": "community",
+          "text": "{{appName}} 帮助音乐家与他们的社区分享歌曲。歌曲领唱者可以在演出中实时与在应用中跟随的人分享他们正在演奏的音乐信息，包括歌词、翻译、鸣谢等。听众在直播演出期间会在自己的应用中实时收到歌曲变更，从而能够更深入地欣赏音乐。"
+        },
+        {
+          "id": "library",
+          "text": "此外，社区成员可以建立自己的歌曲库，以便在演出结束后甚至在离线时参考。听众也可以使用该应用成为自己的歌曲领唱者，如果他们愿意的话。"
+        },
+        {
+          "id": "playlists",
+          "text": "此外，该应用还帮助音乐家记录练习，并将他们的歌曲库搜索和组织到播放列表中。播放列表对歌曲进行分类，并在需要时跟踪顺序。播放列表可以与社区共享，也可以保持私有，以满足组织需求。"
+        },
+        {
+          "id": "benefits",
+          "text": "通过这种方式，{{appName}} 满足了音乐家及其社区的需求。它大大简化了帮助社区学习歌曲歌词的过程。它也节省了纸张，因为不再需要印刷的歌词讲义。并且现在大多数人都携带智能手机。"
+        },
+        {
+          "id": "spiritual",
+          "text": "{{appName}} 不仅可用于与社区共享歌曲，还可用于祈祷、冥想和许多其他内容。它旨在服务所有信仰和精神传统的需求。"
+        }
+      ]
+    },
+    "dashboard": {
+      "createdAccountSuccess": "您已成功创建账户。",
+      "signedInSuccess": "您已成功登录。",
+      "signedOutSuccess": {
+        "title": "已登出",
+        "message": "您已成功登出。"
+      },
+      "title": "您的控制面板",
+      "welcome": "欢迎回来，{{name}}",
+      "signedOutTitle": "未登录",
+      "signedOutBody": "您尚未登录。请登录以访问控制面板。",
+      "signOut": "登出",
+      "deleteAccount": "删除账户",
+      "accountDeleted": {
+        "title": "账户已删除",
+        "message": "您的账户已成功删除。"
+      },
+      "visualizations": "可视化"
+    }
+  },
+  "register": {
+    "title": "完成注册",
+    "username": "用户名",
+    "usernamePlaceholder": "输入您的用户名",
+    "usernameRequired": "用户名是必需的",
+    "usernameTooShort": "用户名至少需要 3 个字符",
+    "usernameTooLong": "用户名不能超过 30 个字符",
+    "usernameInvalid": "用户名只能包含字母、数字、下划线和连字符",
+    "submit": "创建账户",
+    "submitting": "正在创建账户...",
+    "reset": "重置表单",
+    "errors": {
+      "registrationFailed": "注册失败",
+      "networkError": "网络错误"
+    }
+  },
+  "validation": {
+    "required": "{{field}} 是必需的",
+    "minLength": "{{field}} 至少需要 {{min}} 个字符",
+    "maxLength": "{{field}} 不能超过 {{max}} 个字符",
+    "pattern": "{{field}} 包含无效字符",
+    "username": {
+      "required": "用户名是必需的",
+      "minLength": "用户名至少需要 {{min}} 个字符",
+      "maxLength": "用户名不能超过 {{max}} 个字符",
+      "pattern": "用户名只能包含字母、数字、下划线和连字符"
+    }
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "cancel": "取消",
+    "save": "保存"
+  },
+  "errors": {
+    "signin": {
+      "providerMismatch": "帐户未关联该认证提供商。",
+      "unknown": "发生未知的登录错误。",
+      "serverError": "登录时服务器出现错误。请稍后再试。",
+      "providerUnavailable": "登录提供商当前不可用。",
+      "securityFailed": "安全检查失败。请重试。",
+      "missingData": "缺少登录数据。请重试。",
+      "rateLimit": "登录尝试过多。请稍候再试。",
+      "cookiesDisabled": "检测到 cookie 被禁用。请启用 cookie 以登录。"
+    }
+  },
+  "actions": {
+    "dismiss": "关闭"
+  },
+  "song": {
+    "songName": "歌曲名称",
+    "songSlug": "歌曲链接",
+    "shortCredit": "简短署名",
+    "longCredit": "详细署名",
+    "publicNotes": "公开备注",
+    "privateNotes": "私人备注",
+    "slideName": "幻灯片名称",
+    "fields": "字段",
+    "lyrics": "歌词",
+    "script": "脚本",
+    "enTranslation": "英文翻译"
+  }
 }
