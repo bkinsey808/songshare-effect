@@ -18,7 +18,9 @@ export const songNameSchema: Schema.Schema<string> = Schema.String.pipe(
 	Schema.filter((value) => value.trim() === value, {
 		message: () => "song.validation.noLeadingTrailingSpaces",
 	}),
-	Schema.annotations({ [songMessageKey]: { key: "song.validation.noLeadingTrailingSpaces" } }),
+	Schema.annotations({
+		[songMessageKey]: { key: "song.validation.noLeadingTrailingSpaces" },
+	}),
 	// eslint-disable-next-line unicorn/no-array-method-this-argument
 	Schema.filter((value) => value.length >= NAME_MIN_LENGTH && value.length <= NAME_MAX_LENGTH, {
 		message: () => "song.validation.nameLength",
@@ -34,7 +36,9 @@ export const songNameSchema: Schema.Schema<string> = Schema.String.pipe(
 	Schema.filter((value) => !/\s{2}/.test(value), {
 		message: () => "song.validation.noConsecutiveSpaces",
 	}),
-	Schema.annotations({ [songMessageKey]: { key: "song.validation.noConsecutiveSpaces" } }),
+	Schema.annotations({
+		[songMessageKey]: { key: "song.validation.noConsecutiveSpaces" },
+	}),
 );
 
 export const songSlugSchema: Schema.Schema<string> = Schema.String.pipe(
@@ -54,7 +58,9 @@ export const songSlugSchema: Schema.Schema<string> = Schema.String.pipe(
 		},
 		{ message: () => "song.validation.invalidSlugFormat" },
 	),
-	Schema.annotations({ [songMessageKey]: { key: "song.validation.invalidSlugFormat" } }),
+	Schema.annotations({
+		[songMessageKey]: { key: "song.validation.invalidSlugFormat" },
+	}),
 );
 
 export const slidesOrderSchema: Schema.Array$<typeof Schema.String> = Schema.Array(Schema.String);

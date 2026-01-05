@@ -1,3 +1,4 @@
+import react from "@vitejs/plugin-react";
 // Importable augmentation ensures the editor / tsserver picks up the
 // `coverage.all` option for the v8 provider. The augmentation lives in
 // `types/vitest-coverage-augment.ts` (importable) so configuration files can
@@ -5,8 +6,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
-
-import react from "@vitejs/plugin-react";
 
 import { VITEST_COVERAGE_AUGMENT } from "./types/vitest-coverage-augment";
 // Touch the imported symbol so it counts as used and keeps ESLint from complaining

@@ -12,10 +12,7 @@ function SongLibraryPage(): ReactElement {
 					{t("pages.songLibrary.title", "Song Library")}
 				</h1>
 				<p className="text-lg text-gray-300">
-					{t(
-						"pages.songLibrary.description",
-						"Browse and manage your song collection",
-					)}
+					{t("pages.songLibrary.description", "Browse and manage your song collection")}
 				</p>
 			</div>
 

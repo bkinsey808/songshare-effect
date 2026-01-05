@@ -38,7 +38,9 @@ describe("retryWithBackoff", () => {
 		// Simulate first call failing then subsequent calls succeeding
 		const fn = vi.fn().mockRejectedValueOnce(new Error("boom")).mockResolvedValue("ok");
 
-		const res = await retryWithBackoff(fn, [ZERO, ZERO], { onError: () => undefined });
+		const res = await retryWithBackoff(fn, [ZERO, ZERO], {
+			onError: () => undefined,
+		});
 
 		expect(res.succeeded).toBe(true);
 		expect(res.value).toBe("ok");

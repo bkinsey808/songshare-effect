@@ -17,7 +17,10 @@ export default async function maybePromptInstallDeps(
 	}
 
 	try {
-		const rl = readlinePromises.createInterface({ input: process.stdin, output: process.stdout });
+		const rl = readlinePromises.createInterface({
+			input: process.stdin,
+			output: process.stdout,
+		});
 		const raw = await rl.question(
 			`Some system libraries required by Playwright are missing for ${exePath}. Install them now (this requires sudo)? (y/N): `,
 		);

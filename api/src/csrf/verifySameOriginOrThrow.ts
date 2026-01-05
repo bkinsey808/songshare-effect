@@ -11,10 +11,7 @@ export default function verifySameOriginOrThrow(ctx: ReadonlyContext): void {
 	const originToCheck = getOriginToCheck(ctx);
 
 	if (typeof originToCheck !== "string" || originToCheck === "") {
-		console.error(
-			"CSRF rejection: missing Origin/Referer. allowedOrigins=",
-			allowedOrigins,
-		);
+		console.error("CSRF rejection: missing Origin/Referer. allowedOrigins=", allowedOrigins);
 		throw new AuthenticationError({
 			message: "Missing Origin or Referer header",
 		});

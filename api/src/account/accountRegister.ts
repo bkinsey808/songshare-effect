@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
@@ -20,7 +21,6 @@ import { UserSessionDataSchema } from "@/shared/userSessionData";
 import { safeGet, safeSet } from "@/shared/utils/safe";
 import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
-import { createClient } from "@supabase/supabase-js";
 
 import { type ReadonlyContext } from "../hono/hono-context";
 

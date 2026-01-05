@@ -81,6 +81,72 @@ app.use("*", async (ctx, next) => {
 	return undefined;
 });
 
+// One-time startup health check for Supabase host. Runs on the first
+// incoming request (dev-friendly) and logs a clear warning if the
+// configured `VITE_SUPABASE_URL` cannot be contacted.
+const STARTUP_SUPABASE_TIMEOUT_MS = 3000;
+const SUPABASE_ACCEPTABLE_404 = 404;
+declare global {
+	// Declare the specific global variable we use for a one-time health check.
+	var __songshare_supabase_health_checked: boolean | undefined;
+}
+
+function isSupabaseHealthChecked(): boolean {
+	return Boolean(globalThis.__songshare_supabase_health_checked === true);
+}
+
+function markSupabaseHealthChecked(): void {
+	globalThis.__songshare_supabase_health_checked = true;
+}
+
+async function runSupabaseHealthCheck(url: string): Promise<void> {
+	try {
+		const parsed = new URL(url);
+		const controller = new AbortController();
+		const timeout = setTimeout(() => {
+			controller.abort();
+		}, STARTUP_SUPABASE_TIMEOUT_MS);
+		try {
+			const res = await fetch(parsed.origin, {
+				method: "HEAD",
+				signal: controller.signal,
+			});
+			if (!res.ok && res.status !== SUPABASE_ACCEPTABLE_404) {
+				console.warn("[startup-check] Supabase host responded with status:", res.status);
+			}
+		} catch (error) {
+			console.warn(
+				"[startup-check] Failed to contact Supabase host; check VITE_SUPABASE_URL and network/DNS:",
+				getErrorMessage(error),
+			);
+		} finally {
+			clearTimeout(timeout);
+		}
+	} catch (error) {
+		console.warn("[startup-check] Supabase URL parse failed:", getErrorMessage(error));
+	}
+}
+
+app.use("*", async (ctx, next) => {
+	if (isSupabaseHealthChecked()) {
+		await next();
+		return undefined;
+	}
+
+	markSupabaseHealthChecked();
+	const url = ctx.env.VITE_SUPABASE_URL ?? "";
+	if (!url) {
+		console.warn("[startup-check] VITE_SUPABASE_URL is not configured");
+		await next();
+		return undefined;
+	}
+
+	await runSupabaseHealthCheck(url);
+
+	await next();
+	return undefined;
+});
+
 // Health check endpoint
 app.get("/health", (ctx) =>
 	ctx.json({

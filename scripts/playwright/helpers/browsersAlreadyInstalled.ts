@@ -2,8 +2,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import findBrowserExecutable from "./findBrowserExecutable";
 import { warn as sWarn } from "../../utils/scriptLogger";
+import findBrowserExecutable from "./findBrowserExecutable";
 
 export default function browsersAlreadyInstalled(): boolean {
 	const repoPath: string | undefined =
@@ -36,7 +36,10 @@ export default function browsersAlreadyInstalled(): boolean {
 				}
 				// Directory exists but no executable found — prefer to install
 				// Playwright browsers instead of relying on a possibly stale cache.
-				sWarn("Playwright cache directory present but no browser executables were detected at:", candidate);
+				sWarn(
+					"Playwright cache directory present but no browser executables were detected at:",
+					candidate,
+				);
 			}
 		} catch {
 			// ignore

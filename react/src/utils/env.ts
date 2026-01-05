@@ -14,9 +14,7 @@ export function getEnvValue(envVar: string): string {
 	const raw: unknown = getEnvString(import.meta.env, fullEnvVar);
 
 	if (typeof raw !== "string" || raw === "") {
-		throw new Error(
-			`Environment variable ${fullEnvVar} is not defined or empty`,
-		);
+		throw new Error(`Environment variable ${fullEnvVar} is not defined or empty`);
 	}
 
 	return raw;

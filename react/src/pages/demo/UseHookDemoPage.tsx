@@ -23,11 +23,7 @@ function UseHookDemoPage(): ReactElement {
 
 			<DemoNavigation />
 
-			<Suspense
-				fallback={
-					<div className="p-5 text-center">Loading Use Hook Demo...</div>
-				}
-			>
+			<Suspense fallback={<div className="p-5 text-center">Loading Use Hook Demo...</div>}>
 				<UseHookDemo />
 			</Suspense>
 		</div>

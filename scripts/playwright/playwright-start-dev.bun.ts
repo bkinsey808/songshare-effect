@@ -185,13 +185,19 @@ if (!ready) {
 	}
 	try {
 		sError("--- CLIENT LOG (last 200 lines) ---");
-		spawn("tail", ["-n", String(TAIL_LINES), CLIENT_LOG], { stdio: "inherit", shell: true });
+		spawn("tail", ["-n", String(TAIL_LINES), CLIENT_LOG], {
+			stdio: "inherit",
+			shell: true,
+		});
 	} catch (error) {
 		sWarn("failed tail client", error);
 	}
 	try {
 		sError("--- API LOG (last 200 lines) ---");
-		spawn("tail", ["-n", String(TAIL_LINES), API_LOG], { stdio: "inherit", shell: true });
+		spawn("tail", ["-n", String(TAIL_LINES), API_LOG], {
+			stdio: "inherit",
+			shell: true,
+		});
 	} catch (error) {
 		sWarn("failed tail api", error);
 	}
@@ -221,7 +227,10 @@ for (const pid of pidsToWait) {
 		const txt = String(chunk).trim();
 		if (txt.startsWith("EXITED_")) {
 			sError(`One of the dev processes exited (marker: ${txt}). Tailing logs for debugging...`);
-			spawn("tail", ["-n", "+1", CLIENT_LOG], { stdio: "inherit", shell: true });
+			spawn("tail", ["-n", "+1", CLIENT_LOG], {
+				stdio: "inherit",
+				shell: true,
+			});
 			spawn("tail", ["-n", "+1", API_LOG], { stdio: "inherit", shell: true });
 			process.exit(EXIT_FAILURE);
 		}

@@ -10,14 +10,7 @@ type FormInputProps = Readonly<{
 }> &
 	React.RefAttributes<HTMLInputElement>;
 
-export default function FormInput(
-	props: Readonly<FormInputProps>,
-): ReactElement {
+export default function FormInput(props: Readonly<FormInputProps>): ReactElement {
 	const { className = "", ...restProps } = props;
-	return (
-		<input
-			{...restProps}
-			className={`w-full rounded border px-2 py-1 ${className}`}
-		/>
-	);
+	return <input {...restProps} className={`w-full rounded border px-2 py-1 ${className}`} />;
 }

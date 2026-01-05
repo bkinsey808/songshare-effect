@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import { Effect, type Schema } from "effect";
 
 import { DatabaseError, ValidationError } from "@/api/errors";
@@ -15,7 +16,6 @@ import { type OauthUserData } from "@/shared/oauth/oauthUserData";
 import { apiOauthCallbackPath } from "@/shared/paths";
 import { type ProviderType } from "@/shared/providers";
 import { safeSet } from "@/shared/utils/safe";
-import { createClient } from "@supabase/supabase-js";
 
 function computeDerivedFromReferer(referer: string): string {
 	try {

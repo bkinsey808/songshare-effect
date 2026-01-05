@@ -89,14 +89,10 @@ export function errorToHttpResponse(error: Readonly<AppError>): {
 export function handleHttpEndpoint<SuccessData, ErrorType extends AppError>(
 	// Mark the incoming function reference as `Readonly<>` so the linter
 	// `prefer-readonly-parameter-types` rule recognizes it as immutable.
-	effectFactory: (
-		ctxArg: ReadonlyContext,
-	) => Effect.Effect<SuccessData, ErrorType>,
+	effectFactory: (ctxArg: ReadonlyContext) => Effect.Effect<SuccessData, ErrorType>,
 	userOnSuccess?: (data: Readonly<SuccessData>) => object | Response,
 ) {
-	return function handleHttpEndpointRequest(
-		ctx: ReadonlyContext,
-	): Promise<Response> {
+	return function handleHttpEndpointRequest(ctx: ReadonlyContext): Promise<Response> {
 		const effect = Effect.match(effectFactory(ctx), {
 			onFailure: (error) => {
 				// Log the error for debugging. For expected authentication errors
@@ -110,10 +106,7 @@ export function handleHttpEndpoint<SuccessData, ErrorType extends AppError>(
 							getErrorMessage(error.message),
 						);
 					} else if (error instanceof Error) {
-						console.error(
-							"[handleHttpEndpoint] Unhandled error:",
-							error.stack ?? error.message,
-						);
+						console.error("[handleHttpEndpoint] Unhandled error:", error.stack ?? error.message);
 					} else {
 						console.error(
 							"[handleHttpEndpoint] Unhandled error (non-Error):",
@@ -122,10 +115,7 @@ export function handleHttpEndpoint<SuccessData, ErrorType extends AppError>(
 					}
 				} catch (error) {
 					// Swallow logging errors to avoid masking the original error
-					console.error(
-						"[handleHttpEndpoint] Failed to log error:",
-						getErrorMessage(error),
-					);
+					console.error("[handleHttpEndpoint] Failed to log error:", getErrorMessage(error));
 				}
 				// `error` can be unknown coming from Effect; format it with our helper
 				const { status, body } = errorToHttpResponse(error);
@@ -140,9 +130,7 @@ export function handleHttpEndpoint<SuccessData, ErrorType extends AppError>(
 					return data;
 				}
 
-				const result = userOnSuccess
-					? userOnSuccess(data)
-					: { success: true, data };
+				const result = userOnSuccess ? userOnSuccess(data) : { success: true, data };
 
 				// If the onSuccess handler returned a Response, return it directly.
 				if (result instanceof Response) {

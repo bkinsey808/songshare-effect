@@ -9,6 +9,7 @@ import SongLibraryPage from "@/react/pages/SongLibraryPage";
 import {
 	aboutPath,
 	activityDemoPath,
+	typegpuDemoPath,
 	dashboardPath,
 	deleteAccountPath,
 	hookDemoPath,
@@ -33,6 +34,7 @@ import ActivityDemoPage from "./pages/demo/ActivityDemoPage";
 import PopoverDemoPage from "./pages/demo/PopoverDemoPage";
 import ReactFeaturesDemoPage from "./pages/demo/ReactFeaturesDemoPage";
 import SuspenseDemoPage from "./pages/demo/SuspenseDemoPage";
+import TypeGpuDemoPage from "./pages/demo/TypeGpuDemoPage";
 import UseHookDemoPage from "./pages/demo/UseHookDemoPage";
 import HomePage from "./pages/home/HomePage";
 import OptimizedCounterPage from "./pages/OptimizedCounterPage";
@@ -171,6 +173,10 @@ const router = createBrowserRouter([
 					{
 						path: activityDemoPath,
 						element: <ActivityDemoPage />,
+					},
+					{
+						path: typegpuDemoPath,
+						element: <TypeGpuDemoPage />,
 					},
 				],
 			},

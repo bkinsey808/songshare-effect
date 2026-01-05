@@ -15,9 +15,7 @@ export default function createJwt<PayloadType>(
 	// and fall back to a `{ payload: string }` record on failure.
 	return Effect.tryPromise<string, ServerError>({
 		try: () => {
-			function computeToSign(
-				payloadCandidate: PayloadType,
-			): Record<string, unknown> {
+			function computeToSign(payloadCandidate: PayloadType): Record<string, unknown> {
 				try {
 					const parsed: unknown = structuredClone(payloadCandidate);
 					if (isRecordStringUnknown(parsed)) {

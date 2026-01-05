@@ -1,11 +1,5 @@
 import { useEffect } from "react";
-import {
-	Navigate,
-	Outlet,
-	useNavigate,
-	useParams,
-	useSearchParams,
-} from "react-router-dom";
+import { Navigate, Outlet, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import handleJustSignedIn from "@/react/auth/handleJustSignedIn";
 import useEnsureSignedIn from "@/react/auth/useEnsureSignedIn";

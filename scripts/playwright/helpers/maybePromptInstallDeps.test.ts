@@ -25,7 +25,10 @@ const NON_ZERO = 1;
 
 vi.mock(
 	"node:child_process",
-	(): { spawnSync: typeof spawnSync; default: { spawnSync: typeof spawnSync } } => {
+	(): {
+		spawnSync: typeof spawnSync;
+		default: { spawnSync: typeof spawnSync };
+	} => {
 		const spawn = vi.fn();
 		return { spawnSync: spawn, default: { spawnSync: spawn } };
 	},

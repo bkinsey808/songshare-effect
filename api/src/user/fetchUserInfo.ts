@@ -22,11 +22,7 @@ export default function fetchUserInfo({
 			const res = await fetch(userInfoUrl, { headers });
 			if (!res.ok) {
 				const text = await res.text().catch(() => "<non-text response>");
-				console.error(
-					"[oauthUserData] Userinfo fetch non-OK response:",
-					res.status,
-					text,
-				);
+				console.error("[oauthUserData] Userinfo fetch non-OK response:", res.status, text);
 				throw new Error(`Userinfo fetch failed: ${res.status} ${text}`);
 			}
 

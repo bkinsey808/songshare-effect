@@ -31,7 +31,9 @@ function background(cmd: string): number | undefined {
 }
 
 function waitForUrl(url: string, timeoutMs: number): boolean {
-	const code = run("npx", ["wait-on", "-t", String(timeoutMs), url], { ignoreOutput: true });
+	const code = run("npx", ["wait-on", "-t", String(timeoutMs), url], {
+		ignoreOutput: true,
+	});
 	return code === EXIT_SUCCESS;
 }
 

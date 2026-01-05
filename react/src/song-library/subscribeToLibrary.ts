@@ -1,7 +1,8 @@
+import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
+
 import { getSupabaseAuthToken } from "@/react/supabase/getSupabaseAuthToken";
 import { getSupabaseClient } from "@/react/supabase/supabaseClient";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
-import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
 import { type SongLibraryEntry } from "./song-library-schema";
 import { type SongLibrarySlice } from "./song-library-slice";

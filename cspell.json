@@ -1,10 +1,6 @@
 {
 	"version": "0.2",
-	"ignorePaths": [
-		"**/*.example",
-		"**/i18n/resources/es.json",
-		"**/i18n/resources/zh.json"
-	],
+	"ignorePaths": ["**/*.example", "**/i18n/resources/es.json", "**/i18n/resources/zh.json"],
 	"dictionaryDefinitions": [],
 	"dictionaries": [],
 	"words": [

@@ -52,7 +52,9 @@ export default function addActivePrivateSongIds(
 		let visitorToken: string | undefined = undefined;
 		const sliceStateUnknown: unknown = sliceState;
 		if (isRecord(sliceStateUnknown)) {
-			const { visitorToken: vt } = sliceStateUnknown as { visitorToken?: unknown };
+			const { visitorToken: vt } = sliceStateUnknown as {
+				visitorToken?: unknown;
+			};
 			if (typeof vt === "string") {
 				visitorToken = vt;
 			}

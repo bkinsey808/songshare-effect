@@ -2,10 +2,7 @@ import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { getEnvString } from "@/shared/env/getEnv";
 
-export default function createErrorResponse(
-	ctx: ReadonlyContext,
-	err: unknown,
-): Response {
+export default function createErrorResponse(ctx: ReadonlyContext, err: unknown): Response {
 	try {
 		// Read ENVIRONMENT via small helper and avoid call-site cast
 		const env = getEnvString(ctx.env, "ENVIRONMENT");
@@ -27,8 +24,5 @@ export default function createErrorResponse(
 		);
 	}
 
-	return Response.json(
-		{ success: false, error: "Internal server error" },
-		{ status: 500 },
-	);
+	return Response.json({ success: false, error: "Internal server error" }, { status: 500 });
 }

@@ -40,10 +40,7 @@ export const ALERT_TYPES = {
  * Helper to get translation values for testing (if needed).
  * This could be extended to load actual translation files for validation.
  */
-export function getExpectedTranslation(
-	key: string,
-	language = "en",
-): string | undefined {
+export function getExpectedTranslation(key: string, language = "en"): string | undefined {
 	// This is a placeholder that could be expanded to load actual translation files
 	// For now, we rely on data-testid attributes instead of text matching
 	console.warn(
@@ -60,12 +57,8 @@ export const TEST_SELECTORS = {
 	alertTitle: '[data-testid="alert-title"]',
 	alertMessage: '[data-testid="alert-message"]',
 	alertDismissButton: '[data-testid="alert-dismiss-button"]',
-	deleteSuccessAlert:
-		'[data-testid="dismissible-alert"][data-alert-type="deleteSuccess"]',
-	signOutSuccessAlert:
-		'[data-testid="dismissible-alert"][data-alert-type="signOutSuccess"]',
-	signInSuccessAlert:
-		'[data-testid="dismissible-alert"][data-alert-type="signedInSuccess"]',
-	registeredSuccessAlert:
-		'[data-testid="dismissible-alert"][data-alert-type="registeredSuccess"]',
+	deleteSuccessAlert: '[data-testid="dismissible-alert"][data-alert-type="deleteSuccess"]',
+	signOutSuccessAlert: '[data-testid="dismissible-alert"][data-alert-type="signOutSuccess"]',
+	signInSuccessAlert: '[data-testid="dismissible-alert"][data-alert-type="signedInSuccess"]',
+	registeredSuccessAlert: '[data-testid="dismissible-alert"][data-alert-type="registeredSuccess"]',
 } as const;

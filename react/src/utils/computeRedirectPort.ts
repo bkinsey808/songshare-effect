@@ -34,7 +34,10 @@ export default function computeRedirectPort(locationOverride?: {
 			const locValue = record["location"];
 
 			if (typeof locValue === "object" && locValue !== null) {
-				const loc = locValue as { port?: string | number | null; hostname?: string | null };
+				const loc = locValue as {
+					port?: string | number | null;
+					hostname?: string | null;
+				};
 				runtimePort = String(loc?.port ?? "");
 				runtimeHostname = String(loc?.hostname ?? "");
 			}

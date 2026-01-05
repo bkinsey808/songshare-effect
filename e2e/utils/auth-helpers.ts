@@ -27,19 +27,19 @@ export const DEFAULT_TEST_USER: MockUserSession = {
 
 /**
  * Authenticates a test user by mocking the /api/me endpoint.
- * 
+ *
  * Since the app uses OAuth with HttpOnly cookies, and we don't want to
  * set up full OAuth flow in tests, we mock the /api/me response to
  * simulate an authenticated session.
- * 
+ *
  * This works because:
  * 1. The app calls /api/me on load to check authentication
  * 2. A 200 response with user data means "signed in"
  * 3. The Zustand store updates isSignedIn based on this response
- * 
+ *
  * @param page - Playwright page object
  * @param userSession - Optional custom user session data
- * 
+ *
  * @example
  * ```typescript
  * test("authenticated user can access dashboard", async ({ page }) => {
@@ -65,9 +65,9 @@ export async function authenticateTestUser(
 
 /**
  * Simulates a signed-out user by mocking /api/me to return 401.
- * 
+ *
  * @param page - Playwright page object
- * 
+ *
  * @example
  * ```typescript
  * test("signed-out user cannot access dashboard", async ({ page }) => {
@@ -89,22 +89,20 @@ export async function mockSignedOutUser(page: Page): Promise<void> {
 
 /**
  * Creates a custom test user with specific properties.
- * 
+ *
  * @param overrides - Partial user data to override defaults
  * @returns Complete user session object
- * 
+ *
  * @example
  * ```typescript
- * const adminUser = createTestUser({ 
- *   name: "Admin User", 
- *   email: "admin@example.com" 
+ * const adminUser = createTestUser({
+ *   name: "Admin User",
+ *   email: "admin@example.com"
  * });
  * await authenticateTestUser(page, adminUser);
  * ```
  */
-export function createTestUser(
-	overrides: Partial<MockUserSession["user"]> = {},
-): MockUserSession {
+export function createTestUser(overrides: Partial<MockUserSession["user"]> = {}): MockUserSession {
 	return {
 		user: {
 			...DEFAULT_TEST_USER.user,

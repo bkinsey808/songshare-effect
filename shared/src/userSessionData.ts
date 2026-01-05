@@ -12,11 +12,10 @@ export type UserSessionData = {
 	readonly ip: string;
 };
 
-export const UserSessionDataSchema: Schema.Schema<UserSessionData> =
-	Schema.Struct({
-		user: UserSchema,
-		userPublic: UserPublicSchema,
-		oauthUserData: OauthUserDataSchema,
-		oauthState: OauthStateSchema,
-		ip: Schema.String,
-	});
+export const UserSessionDataSchema: Schema.Schema<UserSessionData> = Schema.Struct({
+	user: UserSchema,
+	userPublic: UserPublicSchema,
+	oauthUserData: OauthUserDataSchema,
+	oauthState: OauthStateSchema,
+	ip: Schema.String,
+});

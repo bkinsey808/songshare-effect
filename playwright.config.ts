@@ -38,7 +38,8 @@ const computedWebServer: PlaywrightWebServer | undefined = (() => {
 			// dev servers so the tests and any helper code reading
 			// process.env.PLAYWRIGHT_BASE_URL will see the HTTP base URL and
 			// not default back to the HTTPS fallback.
-			command: "bash -lc 'PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 bun ./scripts/playwright/playwright-start-dev.bun.ts'",
+			command:
+				"bash -lc 'PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 bun ./scripts/playwright/playwright-start-dev.bun.ts'",
 			url: "http://127.0.0.1:5173",
 			reuseExistingServer: false,
 			timeout: WEBSERVER_TIMEOUT_MS,
@@ -55,7 +56,8 @@ const computedWebServer: PlaywrightWebServer | undefined = (() => {
 		// Export PLAYWRIGHT_BASE_URL when starting the dev servers so the
 		// test code (which looks at process.env.PLAYWRIGHT_BASE_URL) will
 		// use the same HTTP URL the auto-started server uses.
-		command: "bash -lc 'PLAYWRIGHT_DISABLE_HTTPS=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 npm run dev:all'",
+		command:
+			"bash -lc 'PLAYWRIGHT_DISABLE_HTTPS=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 npm run dev:all'",
 		url: "http://127.0.0.1:5173",
 		reuseExistingServer: !CI,
 		timeout: WEBSERVER_TIMEOUT_MS,

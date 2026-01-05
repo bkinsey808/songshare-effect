@@ -71,7 +71,7 @@ test.describe("Dashboard Page", () => {
 		// Look for dashboard content - should show welcome message
 		const welcomeText = page.getByText(/welcome/i);
 		await expect(welcomeText).toBeVisible();
-		
+
 		// Should have sign out button
 		const signOutButton = page.getByRole("button", { name: /sign out/i });
 		await expect(signOutButton).toBeVisible();

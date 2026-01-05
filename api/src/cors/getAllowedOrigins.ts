@@ -14,10 +14,7 @@ export default function getAllowedOrigins(envLike: unknown): string[] {
 			? envLike["ALLOWED_ORIGINS"]
 			: undefined;
 
-	if (
-		typeof allowedOriginsEnv === "string" &&
-		allowedOriginsEnv.length > ZERO
-	) {
+	if (typeof allowedOriginsEnv === "string" && allowedOriginsEnv.length > ZERO) {
 		const list = allowedOriginsEnv
 			.split(",")
 			.map((raw) => normalizeOrigin(raw))

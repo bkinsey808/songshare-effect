@@ -206,7 +206,12 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 								table: payload.table,
 							});
 							try {
-								handleRealtimeEvent({ payload, eventType: "INSERT", setEvents, setUsers });
+								handleRealtimeEvent({
+									payload,
+									eventType: "INSERT",
+									setEvents,
+									setUsers,
+								});
 							} catch (error) {
 								console.error("Error handling INSERT event:", error);
 							}
@@ -228,7 +233,12 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 								table: payload.table,
 							});
 							try {
-								handleRealtimeEvent({ payload, eventType: "UPDATE", setEvents, setUsers });
+								handleRealtimeEvent({
+									payload,
+									eventType: "UPDATE",
+									setEvents,
+									setUsers,
+								});
 							} catch (error) {
 								console.error("Error handling UPDATE event:", error);
 							}
@@ -250,7 +260,12 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 								table: payload.table,
 							});
 							try {
-								handleRealtimeEvent({ payload, eventType: "DELETE", setEvents, setUsers });
+								handleRealtimeEvent({
+									payload,
+									eventType: "DELETE",
+									setEvents,
+									setUsers,
+								});
 							} catch (error) {
 								console.error("Error handling DELETE event:", error);
 							}

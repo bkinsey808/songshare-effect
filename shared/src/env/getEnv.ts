@@ -7,10 +7,7 @@ import isRecordStringUnknown from "@/shared/utils/isRecordStringUnknown";
  * Small helpers for safely reading environment-like bindings (e.g. `ctx.env`).
  * These avoid casting `ctx.env as unknown as Record<string, ...>` at call sites.
  */
-export function getEnvString(
-	envLike: unknown,
-	key: string,
-): string | undefined {
+export function getEnvString(envLike: unknown, key: string): string | undefined {
 	if (envLike === undefined || envLike === null) {
 		return undefined;
 	}
@@ -27,11 +24,7 @@ export function getEnvString(
 	return typeof val === "string" ? val : undefined;
 }
 
-export function getEnvStringOrDefault(
-	envLike: unknown,
-	key: string,
-	def: string,
-): string {
+export function getEnvStringOrDefault(envLike: unknown, key: string, def: string): string {
 	const val = getEnvString(envLike, key);
 	return val === undefined ? def : val;
 }

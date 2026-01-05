@@ -5,8 +5,10 @@ let cachedSupabaseClientToken: string | undefined = undefined;
 let tokenExpiry: number | undefined = undefined;
 
 // Cache for user-specific tokens
-export const userTokenCache: Map<string, { token: string; expiry: number }> =
-	new Map<string, { token: string; expiry: number }>();
+export const userTokenCache: Map<string, { token: string; expiry: number }> = new Map<
+	string,
+	{ token: string; expiry: number }
+>();
 
 export function getCachedClientToken(): {
 	token: string | undefined;

@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
 import buildClearCookieHeader from "@/api/cookie/buildClearCookieHeader";
@@ -8,7 +9,6 @@ import { AuthenticationError, DatabaseError } from "@/api/errors";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import { HTTP_FORBIDDEN } from "@/shared/constants/http";
 import { type Database } from "@/shared/generated/supabaseTypes";
-import { createClient } from "@supabase/supabase-js";
 
 import { type ReadonlyContext } from "../hono/hono-context";
 

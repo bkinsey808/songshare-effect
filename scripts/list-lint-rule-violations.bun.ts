@@ -34,11 +34,7 @@ async function runOxlint(): Promise<{
 }
 
 async function main(): Promise<void> {
-	const {
-		stdout: lintOutput,
-		stderr: lintStderr,
-		exitCode,
-	} = await runOxlint();
+	const { stdout: lintOutput, stderr: lintStderr, exitCode } = await runOxlint();
 	if (lintOutput.length === ZERO) {
 		console.error("No lint output found.");
 		if (lintStderr) {
@@ -80,8 +76,7 @@ async function main(): Promise<void> {
 				if (!isRecord(lintItem)) {
 					return [];
 				}
-				const maybeRule =
-					lintItem["rule"] ?? lintItem["code"] ?? lintItem["name"];
+				const maybeRule = lintItem["rule"] ?? lintItem["code"] ?? lintItem["name"];
 				if (typeof maybeRule === "string") {
 					return [{ rule: maybeRule }];
 				}
@@ -100,10 +95,7 @@ async function main(): Promise<void> {
 		if (lintStderr) {
 			console.error("oxlint stderr:", lintStderr);
 		}
-		console.error(
-			"Raw stdout (truncated):",
-			lintOutput.slice(ZERO, PREVIEW_LENGTH),
-		);
+		console.error("Raw stdout (truncated):", lintOutput.slice(ZERO, PREVIEW_LENGTH));
 		throw error;
 	}
 

@@ -25,7 +25,6 @@ import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 
 import { type Env } from "../env";
 // Removed unused safeGet import
-
 import { type ReadonlyContext } from "../hono/hono-context";
 
 function computeRequestOrigin(reqUrl: string): string {
