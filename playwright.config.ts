@@ -142,6 +142,35 @@ export default defineConfig({
 			},
 		},
 		{
+			// WebGPU / TypeGPU requires GPU support; the default chromium project disables it.
+			// Keep this project scoped to the TypeGPU demo spec.
+			name: "chromium-webgpu",
+			testMatch: ["e2e/typegpu-demo.spec.ts"],
+			use: {
+				...devices["Desktop Chrome"],
+				ignoreHTTPSErrors: true,
+				launchOptions: {
+					args: [
+						"--no-sandbox",
+						"--disable-setuid-sandbox",
+						"--disable-dev-shm-usage",
+						"--disable-extensions",
+						"--disable-web-security",
+						"--no-first-run",
+						"--no-default-browser-check",
+						"--disable-default-apps",
+						"--disable-background-networking",
+						"--disable-sync",
+						"--disable-component-update",
+						"--remote-debugging-port=0",
+						// Enable WebGPU in automated Chromium runs.
+						"--enable-unsafe-webgpu",
+						"--enable-features=WebGPU",
+					],
+				},
+			},
+		},
+		{
 			name: "firefox",
 			use: {
 				...devices["Desktop Firefox"],

@@ -1,4 +1,5 @@
 import { it, expect } from "vitest";
+
 import attachFakeCanvas2DContext from "./fakeCanvasContext";
 
 it("attaches getContext and returns partial 2D context", () => {

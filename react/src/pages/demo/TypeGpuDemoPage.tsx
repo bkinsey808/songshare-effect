@@ -1,11 +1,10 @@
 import { useRef, useState, useEffect, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
-// Attempt to dynamically load the optional `typegpu` runtime when the demo runs.
-// If it isn't available we will run the visual fallback animation instead.
+import typegpu from "typegpu";
 
 import DemoNavigation from "@/react/demo/DemoNavigation";
+import runTypeGpuDemo from "@/react/typegpu/runTypeGpuDemo";
 import { useCanvasAnimation } from "@/react/typegpu/useCanvasAnimation";
-import detectTypeGpu from "@/react/typegpu/detectTypeGpu";
 
 export default function TypeGpuDemoPage(): ReactElement {
 	const { t } = useTranslation();
@@ -17,7 +16,7 @@ export default function TypeGpuDemoPage(): ReactElement {
 	/** Make the animation continuous when true */
 	const [loop, setLoop] = useState<boolean>(false);
 
-	/** Information about the dynamically loaded module */
+	/** Information about the demo runtime */
 	const [moduleInfo, setModuleInfo] = useState<string | undefined>(undefined);
 
 	/** Reference to the canvas element for rendering */
@@ -36,16 +35,9 @@ export default function TypeGpuDemoPage(): ReactElement {
 	const TEXT_X = 12;
 	const TEXT_Y = 28;
 
-	async function runDemo(): Promise<void> {
+	function runDemo(): void {
 		setStatus("loading");
-
-		const hasMod = await detectTypeGpu();
-		if (hasMod) {
-			setModuleInfo("`typegpu` present — using installed runtime");
-		} else {
-			setModuleInfo("`typegpu` not present — running fallback");
-		}
-
+		setModuleInfo("Running fallback (no WebGPU / TypeGPU)...");
 		setStatus("ready");
 
 		const canvas = canvasRef.current;
@@ -62,7 +54,7 @@ export default function TypeGpuDemoPage(): ReactElement {
 				ctx.fillRect(CLEAR_X, CLEAR_Y, canvas.width, canvas.height);
 				ctx.fillStyle = "white";
 				ctx.font = "20px monospace";
-				ctx.fillText(`type-gpu module found: ${hasMod}`, TEXT_X, TEXT_Y);
+				ctx.fillText("fallback demo (no typegpu)", TEXT_X, TEXT_Y);
 			},
 			{
 				loop,
@@ -75,6 +67,40 @@ export default function TypeGpuDemoPage(): ReactElement {
 
 		if (loop) {
 			setStatus("running");
+		}
+	}
+
+	async function forceRunTypeGpu(): Promise<void> {
+		setStatus("loading");
+		setModuleInfo("Starting WebGPU demo...");
+		const canvas = canvasRef.current;
+		if (!canvas) {
+			setStatus("finished");
+			return;
+		}
+
+		try {
+			const stop = await runTypeGpuDemo(canvas, ANIMATION_DURATION, {
+				typegpuModule: typegpu,
+				onFinish: () => {
+					setStatus("finished");
+				},
+			});
+			if (stop === undefined) {
+				// Fallback path
+				setModuleInfo("TypeGPU unavailable — running fallback");
+				setStatus("finished");
+			} else if (loop) {
+				// TypeGPU path succeeded with loop
+				setStatus("running");
+			} else {
+				// TypeGPU path succeeded without loop
+				setStatus("ready");
+			}
+		} catch (error) {
+			console.error("Failed to run installed typegpu:", error);
+			setModuleInfo(String(error));
+			setStatus("finished");
 		}
 	}
 
@@ -94,7 +120,7 @@ export default function TypeGpuDemoPage(): ReactElement {
 				<p className="text-gray-400">
 					{t(
 						"pages.typegpuDemo.subtitle",
-						"A lightweight demo page that will dynamically load `type-gpu` if available and run a simple visual fallback.",
+						"A lightweight demo page that runs a WebGPU shader demo with a simple visual fallback.",
 					)}
 				</p>
 			</div>
@@ -104,9 +130,8 @@ export default function TypeGpuDemoPage(): ReactElement {
 			<section className="rounded-lg border border-white/10 bg-white/5 p-6">
 				<h2 className="mb-4 text-2xl font-bold">💡 How it works</h2>
 				<p className="text-gray-300">
-					This demo uses dynamic import so the repository doesn’t need `typegpu` as a hard
-					dependency. Click <strong>Run demo</strong> to attempt loading it and run a simple
-					visualization.
+					<strong>Run demo</strong> runs a simple Canvas 2D fallback animation.
+					<strong>Run installed TypeGPU</strong> runs a WebGPU shader demo using TypeGPU.
 				</p>
 
 				<div className="mt-6 flex flex-col gap-4">
@@ -114,12 +139,23 @@ export default function TypeGpuDemoPage(): ReactElement {
 						<button
 							type="button"
 							className="inline-flex items-center gap-2 rounded bg-primary-500 px-4 py-2 text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
-							onClick={() => void runDemo()}
+							onClick={() => {
+								runDemo();
+							}}
 							disabled={status === "loading" || status === "ready" || status === "running"}
 						>
 							Run demo
 						</button>
-
+						<button
+							type="button"
+							className="inline-flex items-center gap-2 rounded border border-white/10 bg-transparent px-4 py-2 text-white hover:border-white/20"
+							onClick={() => {
+								void forceRunTypeGpu();
+							}}
+							disabled={status === "loading" || status === "ready" || status === "running"}
+						>
+							Run installed TypeGPU
+						</button>
 						<label className="inline-flex items-center gap-2 text-sm text-gray-300">
 							<input
 								type="checkbox"
@@ -154,7 +190,7 @@ export default function TypeGpuDemoPage(): ReactElement {
 					</div>
 
 					<div className="mt-4 h-60 w-full overflow-hidden rounded border border-gray-700">
-						<canvas ref={canvasRef} width={900} height={360} />
+						<canvas ref={canvasRef} width={900} height={360} className="w-full h-full" />
 					</div>
 				</div>
 			</section>

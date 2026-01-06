@@ -10,8 +10,17 @@ import { useRef } from "react";
  * - `ctx` is a standard Canvas 2D rendering context.
  * - `frame` is an incrementing frame counter (starts at 1 and increments by 1
  *   each RAF tick).
+ * - `now` is the high-resolution DOM timestamp (milliseconds) provided by
+ *   `requestAnimationFrame` for this tick.
+ * - `dt` is the time in milliseconds since the previous frame (0 for the
+ *   first frame).
  */
-export type DrawFn = (ctx: CanvasRenderingContext2D, frame: number) => void;
+export type DrawFn = (
+	ctx: CanvasRenderingContext2D,
+	frame: number,
+	now?: number,
+	dt?: number,
+) => void;
 
 // -----------------------------------------------------------------------------
 // Hook: useCanvasAnimation
@@ -58,6 +67,8 @@ export function useCanvasAnimation(): {
 	const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 	// increment per-frame counter, kept as a constant for clarity and easy tuning
 	const FRAME_STEP = 1;
+	// initial delta time value used for the first frame (avoids magic numbers)
+	const INITIAL_DT = 0;
 
 	/**
 	 * Stop helper: cancels the active requestAnimationFrame and timeout (if any).
@@ -108,13 +119,18 @@ export function useCanvasAnimation(): {
 		const drawCtx = ctx;
 
 		let frame = 0;
+		let lastTime: number | undefined = undefined;
 
-		// Animation frame callback. We increment the frame counter, invoke the
-		// user-supplied `draw` callback and schedule the next RAF tick.
-		function anim(): void {
+		// Animation frame callback. We receive a high-resolution timestamp from
+		// RAF (`now`), compute `dt` since the previous tick, invoke the
+		// user-supplied `draw` callback with (ctx, frame, now, dt) and schedule
+		// the next RAF tick.
+		function anim(now: number): void {
+			const dt = lastTime === undefined ? INITIAL_DT : now - lastTime;
+			lastTime = now;
 			frame += FRAME_STEP;
 			// `drawCtx` is a CanvasRenderingContext2D
-			draw(drawCtx, frame);
+			draw(drawCtx, frame, now, dt);
 			rafRef.current = requestAnimationFrame(anim);
 		}
 

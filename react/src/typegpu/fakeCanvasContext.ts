@@ -13,10 +13,16 @@ export default function attachFakeCanvas2DContext(canvas: HTMLCanvasElement): vo
 				void _args;
 			},
 			fillText: (_text: string, _x: number, _y: number): void => {
-				void _text; void _x; void _y;
+				void _text;
+				void _x;
+				void _y;
 			},
-			save: (): void => { /* no-op */ },
-			restore: (): void => { /* no-op */ },
+			save: (): void => {
+				/* no-op */
+			},
+			restore: (): void => {
+				/* no-op */
+			},
 		}),
 	});
 }

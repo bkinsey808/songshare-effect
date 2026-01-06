@@ -26,7 +26,7 @@ it("computes fillStyle and text correctly", () => {
 	});
 
 	expect(spec.fillStyle).toBe("hsl(20, 60%, 50%)");
-	expect(spec.text).toBe("type-gpu module found: true");
+	expect(spec.text).toBe("typegpu module found: true");
 	expect(spec.font).toBe("12px sans-serif");
 	expect(spec.area.width).toBe(WIDTH);
 	expect(spec.area.height).toBe(HEIGHT);

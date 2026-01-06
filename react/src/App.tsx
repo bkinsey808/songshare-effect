@@ -1,4 +1,4 @@
-import { Suspense, type ReactElement } from "react";
+import { Suspense, lazy, type ReactElement } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import ProtectedLayout from "@/react/auth/ProtectedLayout";
@@ -34,7 +34,6 @@ import ActivityDemoPage from "./pages/demo/ActivityDemoPage";
 import PopoverDemoPage from "./pages/demo/PopoverDemoPage";
 import ReactFeaturesDemoPage from "./pages/demo/ReactFeaturesDemoPage";
 import SuspenseDemoPage from "./pages/demo/SuspenseDemoPage";
-import TypeGpuDemoPage from "./pages/demo/TypeGpuDemoPage";
 import UseHookDemoPage from "./pages/demo/UseHookDemoPage";
 import HomePage from "./pages/home/HomePage";
 import OptimizedCounterPage from "./pages/OptimizedCounterPage";
@@ -42,6 +41,8 @@ import RegisterPage from "./pages/RegisterPage";
 import SuspenseUsePage from "./pages/SuspenseUsePage";
 import UploadPage from "./pages/UploadPage";
 import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
+
+const TypeGpuDemoPage = lazy(() => import("./pages/demo/TypeGpuDemoPage"));
 
 // Component that uses Suspense for store hydration
 function HydratedLayout(): ReactElement {
@@ -176,7 +177,11 @@ const router = createBrowserRouter([
 					},
 					{
 						path: typegpuDemoPath,
-						element: <TypeGpuDemoPage />,
+						element: (
+							<Suspense fallback={<div>Loading TypeGPU demo...</div>}>
+								<TypeGpuDemoPage />
+							</Suspense>
+						),
 					},
 				],
 			},

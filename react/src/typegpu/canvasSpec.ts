@@ -34,7 +34,7 @@ export default function renderFrameSpec(
 	const hue = (frame * FRAME_INCREMENT) % HUE_MAX;
 	const fillStyle = `hsl(${hue}, 60%, 50%)`;
 	const area = { left: CLEAR_X, top: CLEAR_Y, width: options.width, height: options.height };
-	const text = `type-gpu module found: ${options.hasModule}`;
+	const text = `typegpu module found: ${options.hasModule}`;
 	const font = options.font ?? "20px monospace";
 	const textPos = { left: options.textX, top: options.textY };
 
