@@ -36,8 +36,7 @@ Notes:
 PLAYWRIGHT_RUN_TIMEOUT=300 PLAYWRIGHT_BASE_URL=https://localhost:5173 npm run test:e2e:dev
 ```
 
-Troubleshooting browser failures
---------------------------------
+## Troubleshooting browser failures
 
 If Playwright reports errors like "Executable doesn't exist" or suggests running `npx playwright install`, it's usually because the local Playwright browser cache is empty or incomplete. The runner will now attempt to detect real browser executables and run `npx playwright install` automatically when missing, but you can manually fix the problem by:
 
@@ -50,8 +49,7 @@ rm -rf ~/.cache/ms-playwright
 npx playwright install
 ```
 
-Running tests inside VS Code (Test Explorer)
--------------------------------------------
+## Running tests inside VS Code (Test Explorer)
 
 Playwright's VS Code integration runs the test runner directly and (by default)
 attempts to start the dev servers itself using the url configured in
@@ -63,22 +61,22 @@ certs are rejected).
 Two practical ways to run tests successfully from the VS Code Test Explorer:
 
 - Start your dev servers first and tell the Test Explorer where the running app
-	is by making sure the `PLAYWRIGHT_BASE_URL` environment variable is available
-	to the VS Code process. The simplest way to do that is to launch VS Code from a
-	terminal with the variable set, for example:
+  is by making sure the `PLAYWRIGHT_BASE_URL` environment variable is available
+  to the VS Code process. The simplest way to do that is to launch VS Code from a
+  terminal with the variable set, for example:
 
 ```bash
 # Start VS Code with the environment variable inherited by the extension
 PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 code .
 ```
 
-	With that set (and your dev servers already running via `npm run dev:all`),
-	the Test Explorer will run Playwright tests and won't try to auto-start the
-	webserver.
+    With that set (and your dev servers already running via `npm run dev:all`),
+    the Test Explorer will run Playwright tests and won't try to auto-start the
+    webserver.
 
 - Or, install the Node Playwright browsers and allow the extension to auto-start
-	the dev servers (this is more fragile when the dev server uses a self-signed
-	cert):
+  the dev servers (this is more fragile when the dev server uses a self-signed
+  cert):
 
 ```bash
 npm run playwright:install
@@ -89,8 +87,7 @@ npm run playwright:install
 The first option (launching VS Code with PLAYWRIGHT_BASE_URL and running the
 servers yourself) tends to be the most reliable on developer machines.
 
-Auto-start behavior (improved)
----------------------------------
+## Auto-start behavior (improved)
 
 To make Playwright's Test Explorer auto-start more reliable, the repository
 now runs the front-end dev server over HTTP when Playwright auto-starts the

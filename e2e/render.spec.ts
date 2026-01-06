@@ -1,5 +1,6 @@
-import { justDeletedAccountKey } from "@/shared/sessionStorageKeys";
 import { expect, test } from "@playwright/test";
+
+import { justDeletedAccountKey } from "@/shared/sessionStorageKeys";
 
 const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] ?? "";
 // Test timing constants

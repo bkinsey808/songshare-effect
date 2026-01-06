@@ -3,15 +3,7 @@
 	"compilerOptions": {
 		"composite": true,
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-		"types": [
-			"node"
-		]
+		"types": ["node"]
 	},
-	"include": [
-		"vite.config.ts",
-		"vitest.config.ts",
-		"types/**/*",
-		"scripts/**/*",
-		"shared/**/*"
-	]
+	"include": ["vite.config.ts", "vitest.config.ts", "types/**/*", "scripts/**/*", "shared/**/*"]
 }

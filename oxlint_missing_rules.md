@@ -5,6 +5,7 @@
 - Total rules disabled in config: 8
 
 ## Rules listed in txt but NOT in config (Missing)
+
 - eslint/for-direction
 - eslint/max-classes-per-file
 - eslint/max-depth
@@ -435,6 +436,7 @@
 - vue/valid-define-props
 
 ## Rules listed in txt and DISABLED in config
+
 - eslint/default-case
 - eslint/no-ternary
 - eslint/no-undef

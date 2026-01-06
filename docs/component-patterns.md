@@ -569,6 +569,7 @@ function Component({ onClick }) {
 #### When manual memoization is OK
 
 Although the project prefers to let the React Compiler handle memoization, there are valid exceptions:
+
 - When profiling shows a clear bottleneck and memoization reduces rendering work in a measurable way.
 - When integrating with third-party libraries that rely on stable callback references (but prefer alternatives like stable handlers in the library API first).
 - In isolated demo pages or performance experiments where the cost/benefit is explicit.
@@ -611,6 +612,7 @@ function handleData(data: Song) {
 #### Allowed `any` exceptions
 
 The repo tries to avoid `any`, but there are a few legitimate cases where constrained use is acceptable:
+
 - Interacting with poorly typed third-party libraries (localize casts; keep them tiny and contained).
 - Complex runtime decoding paths or schema-handling utilities where narrowing to `unknown` then validating is preferable; when `any` is unavoidable, contain it inside a small utility and add a comment describing the narrowing strategy.
 

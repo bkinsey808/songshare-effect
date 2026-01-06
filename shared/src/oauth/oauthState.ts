@@ -28,9 +28,7 @@ export function parseOauthState(oauthStateParamsString: string): OauthState {
 	// Throws if decodeURIComponent or JSON.parse fails (invalid URI or JSON)
 	// Also throws if the parsed object fails validation via the effect `Schema` decoder.
 	// Caller should handle any thrown errors.
-	const parsed = JSON.parse(
-		decodeURIComponent(oauthStateParamsString),
-	) as unknown;
+	const parsed = JSON.parse(decodeURIComponent(oauthStateParamsString)) as unknown;
 
 	// Decode the entire object with the schema so TypeScript gets the precise shape
 	const decoded = Schema.decodeUnknownSync(OauthStateSchema)(parsed);

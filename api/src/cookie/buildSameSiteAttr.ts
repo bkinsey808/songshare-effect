@@ -21,11 +21,7 @@ export default function buildSameSiteAttr({
 	// the session cookie after the OAuth provider redirects back to the
 	// app. This is strictly a development convenience and should not be
 	// enabled in production.
-	if (
-		!isProd &&
-		(redirectOrigin.includes("localhost") ||
-			redirectOrigin.includes("127.0.0.1"))
-	) {
+	if (!isProd && (redirectOrigin.includes("localhost") || redirectOrigin.includes("127.0.0.1"))) {
 		return "SameSite=None;";
 	}
 	// In secure contexts prefer None to allow cross-site/proxied requests.

@@ -17,10 +17,12 @@ describe("computeParams", () => {
 	});
 
 	it("preserves values of various types", () => {
-		const input = { key: "kk", arr: [ONE, TWO], nested: { aa: ONE }, nil: undefined } as Record<
-			string,
-			unknown
-		>;
+		const input = {
+			key: "kk",
+			arr: [ONE, TWO],
+			nested: { aa: ONE },
+			nil: undefined,
+		} as Record<string, unknown>;
 		expect(computeParams(input)).toStrictEqual({
 			arr: [ONE, TWO],
 			nested: { aa: ONE },

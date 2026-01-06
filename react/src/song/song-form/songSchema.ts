@@ -56,11 +56,10 @@ export const slideSchema: Schema.Schema<SlideShape> = Schema.Struct({
 	}),
 });
 
-export const slidesSchema: Schema.Schema<Record<string, SlideShape>> =
-	Schema.Record({
-		key: Schema.String,
-		value: slideSchema,
-	});
+export const slidesSchema: Schema.Schema<Record<string, SlideShape>> = Schema.Record({
+	key: Schema.String,
+	value: slideSchema,
+});
 
 export type SongFormValues = {
 	song_id?: string | undefined;
@@ -88,6 +87,4 @@ export const songFormSchema: Schema.Schema<SongFormValues> = Schema.Struct({
 	[SongFormField.slides]: slidesSchema,
 });
 
-export type SongFormValuesFromSchema = Schema.Schema.Type<
-	typeof songFormSchema
->;
+export type SongFormValuesFromSchema = Schema.Schema.Type<typeof songFormSchema>;

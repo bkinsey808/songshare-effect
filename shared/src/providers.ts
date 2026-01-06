@@ -16,19 +16,14 @@ export const ProviderSchema: Schema.Schema<ProviderType> = Schema.Union(
 );
 
 /** these are the providers sign in currently works with */
-export const activeProviders: ProviderType[] = [
-	Provider.google,
-	Provider.microsoft,
-];
+export const activeProviders: ProviderType[] = [Provider.google, Provider.microsoft];
 
 export function guardAsProvider(value: unknown): ProviderType {
 	return Schema.decodeUnknownSync(ProviderSchema)(value);
 }
 
 // Alternative functional approach that doesn't throw
-export function parseProvider(
-	value: unknown,
-): Either<ProviderType, ParseError> {
+export function parseProvider(value: unknown): Either<ProviderType, ParseError> {
 	return Schema.decodeUnknownEither(ProviderSchema)(value);
 }
 

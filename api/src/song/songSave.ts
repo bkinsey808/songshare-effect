@@ -1,5 +1,5 @@
-import { Effect, Schema } from "effect";
 import { createClient } from "@supabase/supabase-js";
+import { Effect, Schema } from "effect";
 
 import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
@@ -100,7 +100,8 @@ export default function songSave(
 				Effect.mapError((errs) => {
 					// Pick first error to return a structured ValidationError.
 					// Use a named ZERO constant instead of a magic numeric literal.
-					const first = Array.isArray(errs) && errs.length > ZERO ? errs.find(() => true) : undefined;
+					const first =
+						Array.isArray(errs) && errs.length > ZERO ? errs.find(() => true) : undefined;
 					return new ValidationError({
 						message: first?.message ?? "Validation failed",
 					});

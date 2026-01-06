@@ -17,13 +17,11 @@ export const providerBackEndData: Record<ProviderType, ProviderBackEndData> = {
 		authBaseUrl: "https://accounts.google.com/o/oauth2/v2/auth",
 	},
 	[Provider.microsoft]: {
-		accessTokenUrl:
-			"https://login.microsoftonline.com/common/oauth2/v2.0/token",
+		accessTokenUrl: "https://login.microsoftonline.com/common/oauth2/v2.0/token",
 		userInfoUrl: "https://graph.microsoft.com/oidc/userinfo",
 		clientIdEnvVar: "MS_CLIENT_ID",
 		clientSecretEnvVar: "MS_CLIENT_SECRET",
-		authBaseUrl:
-			"https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+		authBaseUrl: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
 	},
 	[Provider.amazon]: {
 		accessTokenUrl: "https://api.amazon.com/auth/o2/token",

@@ -1,8 +1,5 @@
 // Song Library schema and types
-import {
-	type SongLibrary,
-	type SongLibraryInsert,
-} from "@/shared/generated/supabaseSchemas";
+import { type SongLibrary, type SongLibraryInsert } from "@/shared/generated/supabaseSchemas";
 
 // Re-export the generated types
 export type { SongLibrary, SongLibraryInsert };

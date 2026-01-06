@@ -29,10 +29,7 @@ export default function buildSetCookieHeader({
 	const forwardedProtoIsHttps = headerProto.toLowerCase().startsWith("https");
 
 	const secureFlag =
-		isProd ||
-		redirectOrigin.startsWith("https://") ||
-		requestProtoIsHttps ||
-		forwardedProtoIsHttps;
+		isProd || redirectOrigin.startsWith("https://") || requestProtoIsHttps || forwardedProtoIsHttps;
 	const secureString = secureFlag ? "Secure;" : "";
 
 	// For localhost dev flows, omit Domain attribute
@@ -55,9 +52,7 @@ export default function buildSetCookieHeader({
 	const httpOnly = !(opts !== undefined && opts.httpOnly === false);
 
 	const expires =
-		opts !== undefined && opts.maxAge === ZERO
-			? `Expires=${new Date(ZERO).toUTCString()}; `
-			: "";
+		opts !== undefined && opts.maxAge === ZERO ? `Expires=${new Date(ZERO).toUTCString()}; ` : "";
 
 	const httpOnlyPart = httpOnly ? "HttpOnly; " : "";
 	const headerValue =

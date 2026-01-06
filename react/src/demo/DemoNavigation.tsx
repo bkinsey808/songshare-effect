@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import {
 	activityDemoPath,
 	hookDemoPath,
+	typegpuDemoPath,
 	optimizedCounterPath,
 	reactFeaturesPath,
 	songsDemoPath,
@@ -55,6 +56,11 @@ function DemoNavigation(): ReactElement {
 			labelKey: "navigation.activity",
 			icon: "⚡",
 		},
+		{
+			path: typegpuDemoPath,
+			labelKey: "navigation.typegpu",
+			icon: "🖥️",
+		},
 	];
 
 	return (
@@ -64,10 +70,7 @@ function DemoNavigation(): ReactElement {
 					🎯 {t("navigation.demoSection", "Demo Navigation")}
 				</h3>
 				<p className="text-sm text-gray-400">
-					{t(
-						"navigation.demoDescription",
-						"Quick access to all demonstrations",
-					)}
+					{t("navigation.demoDescription", "Quick access to all demonstrations")}
 				</p>
 			</div>
 

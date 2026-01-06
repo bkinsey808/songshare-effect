@@ -7,6 +7,7 @@ This guide explains how to write E2E tests for authenticated users in the SongSh
 ## Why Mock Authentication?
 
 The application uses **OAuth with HttpOnly cookies** for authentication. In E2E tests, we don't want to:
+
 - Go through full OAuth flows (slow, requires test accounts with providers)
 - Set up test OAuth providers
 - Manage real user credentials
@@ -31,10 +32,10 @@ import { authenticateTestUser } from "./utils/auth-helpers";
 test("authenticated user can access dashboard", async ({ page }) => {
   // Set up mock authentication
   await authenticateTestUser(page);
-  
+
   // Navigate to protected route
   await page.goto("https://localhost:5173/en/dashboard");
-  
+
   // Make assertions
   await expect(page.getByText(/welcome/i)).toBeVisible();
 });
@@ -51,10 +52,10 @@ test("user sees their own name", async ({ page }) => {
     email: "jane@example.com",
     user_id: "custom-user-id"
   });
-  
+
   await authenticateTestUser(page, customUser);
   await page.goto("https://localhost:5173/en/dashboard");
-  
+
   await expect(page.getByText(/jane doe/i)).toBeVisible();
 });
 ```
@@ -66,9 +67,9 @@ import { mockSignedOutUser } from "./utils/auth-helpers";
 
 test("signed-out user redirected from dashboard", async ({ page }) => {
   await mockSignedOutUser(page);
-  
+
   await page.goto("https://localhost:5173/en/dashboard");
-  
+
   // Should redirect to home
   expect(page.url()).toMatch(/\/en\/?$/);
 });
@@ -86,18 +87,18 @@ test("different users see their own data", async ({ browser }) => {
   const user1 = createTestUser({ name: "User One" });
   await authenticateTestUser(page1, user1);
   await page1.goto("https://localhost:5173/en/dashboard");
-  
+
   // User 2
   const context2 = await browser.newContext();
   const page2 = await context2.newPage();
   const user2 = createTestUser({ name: "User Two" });
   await authenticateTestUser(page2, user2);
   await page2.goto("https://localhost:5173/en/dashboard");
-  
+
   // Each user sees their own data
   await expect(page1.getByText(/user one/i)).toBeVisible();
   await expect(page2.getByText(/user two/i)).toBeVisible();
-  
+
   await context1.close();
   await context2.close();
 });
@@ -110,10 +111,12 @@ test("different users see their own data", async ({ browser }) => {
 Mocks the `/api/me` endpoint to simulate an authenticated user.
 
 **Parameters:**
+
 - `page: Page` - Playwright page object
 - `userSession?: MockUserSession` - Optional custom user data (defaults to `DEFAULT_TEST_USER`)
 
 **Example:**
+
 ```typescript
 await authenticateTestUser(page);
 // or with custom data:
@@ -125,9 +128,11 @@ await authenticateTestUser(page, { user: { name: "Custom User", ... } });
 Mocks the `/api/me` endpoint to return 401 (unauthenticated).
 
 **Parameters:**
+
 - `page: Page` - Playwright page object
 
 **Example:**
+
 ```typescript
 await mockSignedOutUser(page);
 ```
@@ -137,11 +142,13 @@ await mockSignedOutUser(page);
 Creates a test user object with custom properties.
 
 **Parameters:**
+
 - `overrides?: Partial<MockUserSession["user"]>` - Properties to override
 
 **Returns:** `MockUserSession` - Complete user session object
 
 **Example:**
+
 ```typescript
 const user = createTestUser({
   name: "Admin User",
@@ -212,7 +219,7 @@ test.describe("Dashboard Access", () => {
     await authenticateTestUser(page);
     // ... test authenticated behavior
   });
-  
+
   test("unauthenticated user redirected", async ({ page }) => {
     await mockSignedOutUser(page);
     // ... test redirect behavior
@@ -223,6 +230,7 @@ test.describe("Dashboard Access", () => {
 ## Examples
 
 See complete examples in:
+
 - `e2e/authenticated-user.spec.ts` - Various authenticated user scenarios
 - `e2e/dashboard.spec.ts` - Dashboard-specific authentication tests
 

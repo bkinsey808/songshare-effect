@@ -7,8 +7,16 @@ function NavigationExample(): ReactElement {
 
 	const pages = [
 		{ id: "home", label: "Home", color: "border-blue-500/20 bg-blue-500/10" },
-		{ id: "profile", label: "Profile", color: "border-green-500/20 bg-green-500/10" },
-		{ id: "settings", label: "Settings", color: "border-yellow-500/20 bg-yellow-500/10" },
+		{
+			id: "profile",
+			label: "Profile",
+			color: "border-green-500/20 bg-green-500/10",
+		},
+		{
+			id: "settings",
+			label: "Settings",
+			color: "border-yellow-500/20 bg-yellow-500/10",
+		},
 	] as const;
 
 	return (

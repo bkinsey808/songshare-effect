@@ -1,5 +1,6 @@
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { type SupabaseClient } from "@supabase/supabase-js";
+
+import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 /**
  * A canonical readonly supabase client type used across API helpers.P

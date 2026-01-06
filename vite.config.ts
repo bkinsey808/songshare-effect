@@ -7,6 +7,7 @@ import autoprefixer from "autoprefixer";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import typeGPU from "unplugin-typegpu/vite";
 import { type ServerOptions, type UserConfig, defineConfig } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,6 +16,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const config: UserConfig = defineConfig({
 	root: ".",
 	plugins: [
+		typeGPU(),
 		react({
 			babel: {
 				plugins: [

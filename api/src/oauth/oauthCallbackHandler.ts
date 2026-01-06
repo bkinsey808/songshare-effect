@@ -7,21 +7,14 @@ import createErrorResponse from "@/api/oauth/createErrorResponse";
 // Keep exported wrapper typed as `Context` for Hono compatibility. The
 // implementation below uses `ReadonlyContext` so helpers can declare
 // read-only parameters without lint issues.
-export default async function oauthCallbackHandler(
-	ctx: ReadonlyContext,
-): Promise<Response> {
+export default async function oauthCallbackHandler(ctx: ReadonlyContext): Promise<Response> {
 	try {
 		// Await the handler so we can catch any unexpected runtime rejections
-		return await handleHttpEndpoint((context) => oauthCallbackFactory(context))(
-			ctx,
-		);
+		return await handleHttpEndpoint((context) => oauthCallbackFactory(context))(ctx);
 	} catch (error) {
 		try {
 			if (error instanceof Error) {
-				console.error(
-					"[oauthCallbackHandler] Unhandled exception:",
-					error.stack ?? error.message,
-				);
+				console.error("[oauthCallbackHandler] Unhandled exception:", error.stack ?? error.message);
 			} else {
 				console.error(
 					"[oauthCallbackHandler] Unhandled exception (non-Error):",

@@ -29,6 +29,7 @@ This document describes the project's linting and formatting rules, tools, confi
 ## Useful npm scripts
 
 Formatting:
+
 ```bash
 npm run format          # run oxfmt across the repository
 npm run format:check    # exit non-zero if files are not formatted
@@ -36,6 +37,7 @@ npm run format:list-different  # list files that differ from formatting
 ```
 
 Linting:
+
 ```bash
 npm run lint            # run type-aware oxlint across the repo
 npm run lint:fix        # attempt auto-fixes with oxlint
@@ -68,7 +70,6 @@ Pre-commit behavior (note)
   ### TypeScript compiler settings (lint-like enforcement)
 
   The TypeScript compiler is configured with strict, lint-like checks in `tsconfig.base.json` which catch many issues at build time. These aren't `oxlint` rules but they act the same way — forcing safer code and reducing runtime surprises. Key options include:
-
   - `strict: true` — turns on the whole strict family (non-nullability, strict type checking)
   - `noUnusedLocals` / `noUnusedParameters` — stops forgotten variables and dead parameters early
   - `noImplicitReturns` — requires functions return in all branches, preventing undefined surprises
@@ -77,7 +78,6 @@ Pre-commit behavior (note)
   - `noImplicitOverride` — ensures method overrides are intentional and explicit
 
   How this influences real code (examples):
-
   - Explicit return types & overloads: `api/src/cookie/parseDataFromCookie.ts` uses function overloads and explicit Promise return types so callers get precise types and the implementation can't silently break type expectations.
   - Defensive `unknown` and runtime checks: `shared/src/utils/safe.ts` uses `unknown` inside implementations and typed overloads for callers so the compiler can't silently widen types — you must explicitly handle conversions.
   - Avoiding unused locals/parameters: the strict `noUnused*` options prevent temporary debug variables or forgotten argument names from lingering in production code and encourage cleanup during reviews.
@@ -87,17 +87,20 @@ Pre-commit behavior (note)
 ## Examples & quick commands
 
 - Format changed files only (fast, before commit):
+
 ```bash
 npx oxfmt "{,**/}*.{js,ts,jsx,tsx}"
 ```
 
 - Run lint (type-aware) and autofix:
+
 ```bash
 npm run lint:fix
 npm run lint
 ```
 
 - If a pre-commit fails with non-fixable issues:
+
 ```text
 1. Run `npm run lint` to see full diagnostic output
 2. Apply manual fixes and add tests where needed
@@ -126,6 +129,7 @@ npm run lint
 ---
 
 If you'd like, I can also:
+
 - Add examples of common oxlint rule violations and how to fix them
 - Annotate a couple of demo files that purposefully use manual memoization so they're clearly labeled as performance demos
 - Add a short developer note about editor integration (VS Code settings for oxfmt + linting)
@@ -144,6 +148,7 @@ Below are real-code examples from this repository showing how strict lint rules 
   - Benefit: the risky cast is isolated to a single small spot and the helper enforces schema validation at runtime — the rest of the code can rely on well-typed results.
 
 Example excerpt (simplified):
+
 ```ts
 // decodeUnknownSyncOrThrow validates the payload and returns typed result
 // oxlint-disable-next-line typescript/no-unsafe-assignment
@@ -184,6 +189,7 @@ return decoded as Schema.Schema.Type<SchemaT>;
 ### Real-world outcome — predictable, reviewable code
 
 Taken together, strict rules push contributors to:
+
 - write small, testable helpers that isolate unsafe logic;
 - narrow `unknown` to concrete types instead of allowing `any` everywhere;
 - prefer declarative APIs with explicit return types; and

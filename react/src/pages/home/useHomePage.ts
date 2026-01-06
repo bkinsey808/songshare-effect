@@ -7,8 +7,7 @@ export default function useHomePage(): {
 	alertState: AlertState;
 	dismissAlert: () => void;
 } {
-	const [alertState, setAlertState] =
-		useState<AlertState>(getInitialAlertState);
+	const [alertState, setAlertState] = useState<AlertState>(getInitialAlertState);
 
 	function dismissAlert(): void {
 		setAlertState({ visible: false, type: "" });

@@ -10,7 +10,6 @@ export const languageNames: Record<SupportedLanguageType, string> = {
 	zh: "中文",
 };
 
-export type SupportedLanguageType =
-	(typeof SupportedLanguage)[keyof typeof SupportedLanguage];
+export type SupportedLanguageType = (typeof SupportedLanguage)[keyof typeof SupportedLanguage];
 
 export const defaultLanguage: SupportedLanguageType = SupportedLanguage.en;

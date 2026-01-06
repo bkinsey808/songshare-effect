@@ -2,9 +2,7 @@
 	"compilerOptions": {
 		/* Language and Environment */
 		"target": "ES2023",
-		"lib": [
-			"ES2023"
-		],
+		"lib": ["ES2023"],
 		"module": "ESNext",
 		"moduleResolution": "bundler",
 		"moduleDetection": "force",
@@ -34,22 +32,12 @@
 		"skipLibCheck": true,
 		/* Path Mapping */
 		"paths": {
-			"@/shared/*": [
-				"./shared/src/*"
-			],
-			"@/react/*": [
-				"./react/src/*"
-			],
-			"@/api/*": [
-				"./api/src/*"
-			],
-			"@/scripts/*": [
-				"./scripts/*"
-			]
+			"@/shared/*": ["./shared/src/*"],
+			"@/react/*": ["./react/src/*"],
+			"@/api/*": ["./api/src/*"],
+			"@/scripts/*": ["./scripts/*"]
 		},
-		"types": [
-			"bun"
-		],
+		"types": ["bun"]
 		// allow the compiler to resolve types from project `types`/ and
 		// from packages that ship their own declarations (e.g. `vite`,
 		// `@cloudflare/workers-types`) by omitting an explicit `typeRoots`.
