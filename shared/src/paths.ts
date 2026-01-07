@@ -10,6 +10,7 @@ export const userSubscriptionDemoPath = "user-subscription-demo";
 export const popoverDemoPath = "popover-demo";
 export const activityDemoPath = "activity-demo";
 export const typegpuDemoPath = "typegpu-demo";
+export const typegpuAudioVizDemoPath = "typegpu-audio-viz-demo";
 
 export const dashboardPath = "dashboard";
 export const registerPath = "register";

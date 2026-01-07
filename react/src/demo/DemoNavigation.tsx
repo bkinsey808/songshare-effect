@@ -5,6 +5,7 @@ import {
 	activityDemoPath,
 	hookDemoPath,
 	typegpuDemoPath,
+	typegpuAudioVizDemoPath,
 	optimizedCounterPath,
 	reactFeaturesPath,
 	songsDemoPath,
@@ -60,6 +61,11 @@ function DemoNavigation(): ReactElement {
 			path: typegpuDemoPath,
 			labelKey: "navigation.typegpu",
 			icon: "🖥️",
+		},
+		{
+			path: typegpuAudioVizDemoPath,
+			labelKey: "navigation.typegpuAudioViz",
+			icon: "🎙️",
 		},
 	];
 

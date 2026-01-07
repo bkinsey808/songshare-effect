@@ -10,6 +10,7 @@ import {
 	aboutPath,
 	activityDemoPath,
 	typegpuDemoPath,
+	typegpuAudioVizDemoPath,
 	dashboardPath,
 	deleteAccountPath,
 	hookDemoPath,
@@ -43,6 +44,7 @@ import UploadPage from "./pages/UploadPage";
 import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
 
 const TypeGpuDemoPage = lazy(() => import("./pages/demo/TypeGpuDemoPage"));
+const TypegpuAudioVizDemoPage = lazy(() => import("./pages/demo/TypegpuAudioVizDemoPage"));
 
 // Component that uses Suspense for store hydration
 function HydratedLayout(): ReactElement {
@@ -180,6 +182,14 @@ const router = createBrowserRouter([
 						element: (
 							<Suspense fallback={<div>Loading TypeGPU demo...</div>}>
 								<TypeGpuDemoPage />
+							</Suspense>
+						),
+					},
+					{
+						path: typegpuAudioVizDemoPath,
+						element: (
+							<Suspense fallback={<div>Loading TypeGPU audio viz demo...</div>}>
+								<TypegpuAudioVizDemoPage />
 							</Suspense>
 						),
 					},

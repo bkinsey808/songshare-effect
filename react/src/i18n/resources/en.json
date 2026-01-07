@@ -12,12 +12,12 @@
 		"tooLong": "{{field}} cannot exceed {{maxLength}} characters",
 		"invalid": "{{field}} contains invalid characters"
 	},
-
 	"navigation": {
 		"home": "Home",
 		"songs": "Songs",
 		"upload": "Upload",
 		"about": "About",
+		"typegpuAudioViz": "TypeGPU Audio Viz",
 		"suspenseUse": "Suspense Use",
 		"userSubscription": "User Subscription",
 		"switchLanguage": "Switch Language"
