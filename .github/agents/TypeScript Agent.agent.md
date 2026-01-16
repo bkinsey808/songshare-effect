@@ -1,11 +1,11 @@
 ---
-description: 'Describe what this custom agent does and when to use it.'
+description: 'Custom agent for making TypeScript and React code changes in this repository, following project-specific rules and best practices.'
 tools: ['vscode', 'execute', 'read', 'agent', 'edit', 'search', 'web', 'todo']
 ---
 
 ## Purpose
 
-This custom agent helps make small-to-medium TypeScript and React changes in the SongShare Effect repository. It's intended for code edits, lint/test runs, basic refactors, and developer guidance. It is NOT permitted to run git write operations (commits, pushes) or make large architectural changes without explicit human approval.
+This custom agent helps make small-to-medium TypeScript and React changes in this repository. It's intended for code edits, lint/test runs, basic refactors, and developer guidance. It is NOT permitted to run git write operations (commits, pushes) or make large architectural changes without explicit human approval.
 
 ## TypeScript Rules
 
@@ -15,9 +15,11 @@ This custom agent helps make small-to-medium TypeScript and React changes in the
 - Prefer using effect ts instead of promises, especially at the top level of modules and functions.
 - Use async/await syntax for asynchronous code instead of `.then()` chains.
 - Follow existing project conventions for naming, file structure, and module organization.
-- Unit tests should be written using Vitest, following existing test patterns in the codebase, colocated witht the code they test.
+- Unit tests should be written using Vitest, following existing test patterns in the codebase, colocated witht the code they test.`
 - This project does not use Eslint. Use oxlint, including for disable comments.
 - No barrel files. import directly from source files (do not add `index.ts` re-exports).
+- export { something } from "./somefile" is strongly discouraged. Don't re-export from other modules.
+- all functions should have jsdoc comments, including param and return types.
 
 ## Project-specific rules (required)
 

@@ -44,7 +44,9 @@ import UploadPage from "./pages/UploadPage";
 import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
 
 const TypeGpuDemoPage = lazy(() => import("./pages/demo/TypeGpuDemoPage"));
-const TypegpuAudioVizDemoPage = lazy(() => import("./pages/demo/TypegpuAudioVizDemoPage"));
+const TypegpuAudioVizDemoPage = lazy(
+	() => import("./pages/demo/typegpu-audio-viz/TypegpuAudioVizDemoPage"),
+);
 
 // Component that uses Suspense for store hydration
 function HydratedLayout(): ReactElement {

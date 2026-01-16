@@ -9,30 +9,12 @@ import * as d from "typegpu/data";
 /* oxlint-disable-next-line import/no-namespace */
 import * as std from "typegpu/std";
 
+import logResolvedWgslOnFailure from "@/react/typegpu/logResolvedWgslOnFailure";
+
 type StopFn = () => void;
 
-function logResolvedWgslOnFailure(tgpuLike: unknown, entryPoints: unknown[]): void {
-	const resolveMaybe: unknown =
-		typeof tgpuLike === "object" && tgpuLike !== null
-			? Reflect.get(tgpuLike, "resolve")
-			: undefined;
-	if (typeof resolveMaybe !== "function") {
-		console.warn("[TypeGPU Demo] tgpu.resolve unavailable; cannot dump WGSL");
-		return;
-	}
-	try {
-		const wgslUnknown: unknown = Reflect.apply(resolveMaybe, undefined, [entryPoints]);
-		if (typeof wgslUnknown !== "string") {
-			console.warn("[TypeGPU Demo] tgpu.resolve returned a non-string result");
-			return;
-		}
-		const wgsl = wgslUnknown;
-		const MAX_WGSL_CHARS = 4000;
-		const START = 0;
-		console.warn(`[TypeGPU Demo] Resolved WGSL (truncated):\n${wgsl.slice(START, MAX_WGSL_CHARS)}`);
-	} catch (error) {
-		console.warn("[TypeGPU Demo] Failed to resolve WGSL:", error);
-	}
+function dumpResolvedWgsl(tgpuLike: unknown, entryPoints: unknown[]): void {
+	logResolvedWgslOnFailure({ prefix: "[TypeGPU Demo]", tgpuLike, entryPoints });
 }
 
 export default async function runTypeGpuDemo(
@@ -308,7 +290,7 @@ export default async function runTypeGpuDemo(
 					.draw(TRIANGLE_VERTEX_COUNT); // Draw 3 vertices forming a full-screen triangle
 			} catch (error) {
 				console.error("[TypeGPU Demo] Render error:", error);
-				logResolvedWgslOnFailure(tgpu, [mainVertex, mainFragment, computeColor]);
+				dumpResolvedWgsl(tgpu, [mainVertex, mainFragment, computeColor]);
 				/* stop on error */
 				stopped = true;
 				return;

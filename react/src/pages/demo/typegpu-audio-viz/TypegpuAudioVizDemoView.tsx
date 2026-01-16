@@ -1,7 +1,7 @@
 import { type ReactElement } from "react";
 
+import AudioInputDeviceSelect from "@/react/audio/AudioInputDeviceSelect";
 import DemoNavigation from "@/react/demo/DemoNavigation";
-import AudioInputDeviceSelect from "@/react/pages/demo/AudioInputDeviceSelect";
 
 type Props = {
 	title: string;
@@ -22,26 +22,24 @@ type Props = {
 	canvasHeight: number;
 };
 
-export default function TypegpuAudioVizDemoView(props: Props): ReactElement {
-	const {
-		title,
-		subtitle,
-		status,
-		levelUiValue,
-		levelDecimals,
-		renderInfo,
-		errorMessage,
-		selectedAudioInputDeviceId,
-		onChangeSelectedAudioInputDeviceId,
-		audioInputDevicesRefreshKey,
-		onStartMic,
-		onStartDeviceAudio,
-		onStop,
-		canvasRef,
-		canvasWidth,
-		canvasHeight,
-	} = props;
-
+export default function TypegpuAudioVizDemoView({
+	title,
+	subtitle,
+	status,
+	levelUiValue,
+	levelDecimals,
+	renderInfo,
+	errorMessage,
+	selectedAudioInputDeviceId,
+	onChangeSelectedAudioInputDeviceId,
+	audioInputDevicesRefreshKey,
+	onStartMic,
+	onStartDeviceAudio,
+	onStop,
+	canvasRef,
+	canvasWidth,
+	canvasHeight,
+}: Props): ReactElement {
 	const isBusy =
 		status === "requesting-mic" ||
 		status === "starting-render" ||

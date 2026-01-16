@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement } from "react";
 
-import { enumerateAudioInputDevices } from "@/react/pages/demo/typegpuAudioVizDemoHelpers";
+import enumerateAudioInputDevices from "@/react/audio/enumerateAudioInputDevices";
 
 type Props = {
 	value: string;
@@ -11,14 +11,32 @@ type Props = {
 
 const ONE = 1;
 
-export default function AudioInputDeviceSelect(props: Props): ReactElement {
-	const { value, onChange, disabled, refreshKey } = props;
+/**
+ * A simple select control that lists available audio input devices.
+ *
+ * @param value - The currently selected device id (or "default").
+ * @param onChange - Called when user selects a different device.
+ * @param disabled - Optional flag to disable the select control.
+ * @param refreshKey - Optional key used to trigger re-enumeration when changed.
+ * @returns A `ReactElement` rendering the device selector.
+ */
+export default function AudioInputDeviceSelect({
+	value,
+	onChange,
+	disabled,
+	refreshKey,
+}: Props): ReactElement {
 	const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
 
 	useEffect(() => {
 		let cancelled = false;
 		const { mediaDevices } = navigator;
 
+		/**
+		 * Enumerate and set available audio input devices.
+		 *
+		 * @returns Promise that resolves when device enumeration completes.
+		 */
 		async function load(): Promise<void> {
 			const nextDevices = await enumerateAudioInputDevices().catch(() => undefined);
 			if (!nextDevices) {
@@ -29,6 +47,7 @@ export default function AudioInputDeviceSelect(props: Props): ReactElement {
 			}
 		}
 
+		/** Devicechange event handler that re-loads the device list. */
 		function onDeviceChange(): void {
 			void load();
 		}

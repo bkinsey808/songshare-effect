@@ -4,15 +4,14 @@ import * as d from "typegpu/data";
 /* oxlint-disable-next-line import/no-namespace */
 import * as std from "typegpu/std";
 
+import logResolvedWgslOnFailure from "@/react/typegpu/logResolvedWgslOnFailure";
+
 type StopFn = () => void;
 
 type GetLevelFn = () => number;
 
 const ZERO = 0;
 const ONE = 1;
-
-const WGSL_TRUNCATE_START = 0;
-const MAX_WGSL_CHARS = 4000;
 
 const MS_IN_SEC = 1000;
 
@@ -50,28 +49,8 @@ function clamp01(value: number): number {
 	return value;
 }
 
-function logResolvedWgslOnFailure(tgpuLike: unknown, entryPoints: unknown[]): void {
-	const resolveMaybe: unknown =
-		typeof tgpuLike === "object" && tgpuLike !== null
-			? Reflect.get(tgpuLike, "resolve")
-			: undefined;
-	if (typeof resolveMaybe !== "function") {
-		console.warn("[TypeGPU AudioViz] tgpu.resolve unavailable; cannot dump WGSL");
-		return;
-	}
-	try {
-		const wgslUnknown: unknown = Reflect.apply(resolveMaybe, undefined, [entryPoints]);
-		if (typeof wgslUnknown !== "string") {
-			console.warn("[TypeGPU AudioViz] tgpu.resolve returned a non-string result");
-			return;
-		}
-		const wgsl = wgslUnknown;
-		console.warn(
-			`[TypeGPU AudioViz] Resolved WGSL (truncated):\n${wgsl.slice(WGSL_TRUNCATE_START, MAX_WGSL_CHARS)}`,
-		);
-	} catch (error) {
-		console.warn("[TypeGPU AudioViz] Failed to resolve WGSL:", error);
-	}
+function dumpResolvedWgsl(tgpuLike: unknown, entryPoints: unknown[]): void {
+	logResolvedWgslOnFailure({ prefix: "[TypeGPU AudioViz]", tgpuLike, entryPoints });
 }
 
 export default async function runTypeGpuAudioVizDemo(
@@ -232,7 +211,7 @@ export default async function runTypeGpuAudioVizDemo(
 				.draw(TRIANGLE_VERTEX_COUNT);
 		} catch (error) {
 			console.error("[TypeGPU AudioViz] Render error:", error);
-			logResolvedWgslOnFailure(tgpu, [mainVertex, mainFragment]);
+			dumpResolvedWgsl(tgpu, [mainVertex, mainFragment]);
 			stopped = true;
 			return;
 		}
