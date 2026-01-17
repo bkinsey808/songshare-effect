@@ -1,8 +1,10 @@
-import { it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import detectTypeGpu from "./detectTypeGpu";
 
-it("returns a boolean", async () => {
-	const res = await detectTypeGpu();
-	expect(typeof res).toBe("boolean");
+describe("detectTypeGpu", () => {
+	it("returns a boolean", async () => {
+		const res = await detectTypeGpu();
+		expect(typeof res).toBe("boolean");
+	});
 });

@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import useSmoothedAudioLevelRef from "./useSmoothedAudioLevelRef";
 
@@ -7,17 +7,22 @@ import useSmoothedAudioLevelRef from "./useSmoothedAudioLevelRef";
 // `useSmoothedAudioLevelRef` receives across renders.
 let currentMockAudioLevel: unknown = undefined;
 
+/* eslint-disable-next-line jest/no-untyped-mock-factory */
 vi.mock("./useSmoothedAudioLevel", () => ({
 	__esModule: true,
 	default: (_refs: unknown, _options: unknown): unknown => currentMockAudioLevel,
 }));
 
 describe("useSmoothedAudioLevelRef (behavior)", () => {
-	beforeEach(() => {
+	function setup(): () => void {
 		currentMockAudioLevel = { id: "initial" };
-	});
+		return () => {
+			/* noop cleanup for now */
+		};
+	}
 
 	it("returns audioLevel and audioLevelRef that point to the same instance initially", async () => {
+		const cleanup = setup();
 		const refs = {
 			analyserRef: { current: undefined as AnalyserNode | undefined },
 			timeDomainBytesRef: { current: undefined as Uint8Array<ArrayBuffer> | undefined },
@@ -34,9 +39,11 @@ describe("useSmoothedAudioLevelRef (behavior)", () => {
 		expect(result.current?.audioLevelRef.current).toBe(currentMockAudioLevel);
 
 		unmount();
+		cleanup();
 	});
 
 	it("updates audioLevelRef.current when audioLevel changes but keeps the same ref object", async () => {
+		const cleanup = setup();
 		const refs = {
 			analyserRef: { current: undefined as AnalyserNode | undefined },
 			timeDomainBytesRef: { current: undefined as Uint8Array<ArrayBuffer> | undefined },
@@ -64,9 +71,11 @@ describe("useSmoothedAudioLevelRef (behavior)", () => {
 		expect(result.current?.audioLevelRef).toBe(initialRef);
 
 		unmount();
+		cleanup();
 	});
 
 	it("handles undefined audio level", async () => {
+		const cleanup = setup();
 		const refs = {
 			analyserRef: { current: undefined as AnalyserNode | undefined },
 			timeDomainBytesRef: { current: undefined as Uint8Array<ArrayBuffer> | undefined },
@@ -84,5 +93,6 @@ describe("useSmoothedAudioLevelRef (behavior)", () => {
 		expect(result.current?.audioLevelRef.current).toBeUndefined();
 
 		unmount();
+		cleanup();
 	});
 });

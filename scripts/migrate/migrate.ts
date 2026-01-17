@@ -6,7 +6,7 @@
 import { execSync } from "node:child_process";
 import { statSync } from "node:fs";
 
-import { warn as sWarn, error as sError } from "../utils/scriptLogger";
+import { error as sError, warn as sWarn } from "../utils/scriptLogger";
 import getMigrationFiles from "./helpers/getMigrationFiles";
 import { loadEnvVars } from "./helpers/loadEnvVars";
 import runMigration from "./helpers/runMigration";

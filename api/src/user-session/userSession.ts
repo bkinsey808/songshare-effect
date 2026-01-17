@@ -42,7 +42,7 @@ export function verifyUserSessionToken(
 			if (jwtSecret === undefined || jwtSecret === "") {
 				throw new Error("Missing JWT_SECRET");
 			}
-			return verify(userSessionToken, jwtSecret);
+			return verify(userSessionToken, jwtSecret, "HS256");
 		},
 		catch: (err: unknown) =>
 			new AuthenticationError({

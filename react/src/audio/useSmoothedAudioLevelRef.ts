@@ -1,15 +1,12 @@
 import { useEffect, useRef } from "react";
 
 import useSmoothedAudioLevel, {
+	type AudioAnalyser,
 	type SmoothedAudioLevel,
 } from "@/react/audio/useSmoothedAudioLevel";
 
 type AudioLevelRefs = {
-	analyserRef: {
-		current:
-			| Pick<AnalyserNode, "fftSize" | "frequencyBinCount" | "getByteTimeDomainData">
-			| undefined;
-	};
+	analyserRef: { current: AudioAnalyser | undefined };
 	timeDomainBytesRef: { current: Uint8Array<ArrayBuffer> | undefined };
 };
 

@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type {
 	MinimalAnalyserNode,
@@ -17,21 +17,11 @@ import stopMediaStreamTracks from "./stopMediaStreamTracks";
 import useAudioCapture from "./useAudioCapture";
 
 // Mock dependencies
-vi.mock("./createTimeDomainAnalyser", () => ({
-	default: vi.fn(),
-}));
-vi.mock("./getMicStreamForDevice", () => ({
-	default: vi.fn(),
-}));
-vi.mock("./getDisplayAudioStream", () => ({
-	default: vi.fn(),
-}));
-vi.mock("./stopMediaStreamTracks", () => ({
-	default: vi.fn(),
-}));
-vi.mock("./closeAudioContextSafely", () => ({
-	default: vi.fn(),
-}));
+vi.mock("./createTimeDomainAnalyser");
+vi.mock("./getMicStreamForDevice");
+vi.mock("./getDisplayAudioStream");
+vi.mock("./stopMediaStreamTracks");
+vi.mock("./closeAudioContextSafely");
 
 const mockCreateTimeDomainAnalyser = vi.mocked(createTimeDomainAnalyser);
 const mockGetMicStreamForDevice = vi.mocked(getMicStreamForDevice);
@@ -104,11 +94,12 @@ function makeFakeMediaStream(hasTrack = true): MinimalMediaStream {
 describe("useAudioCapture", () => {
 	const FFT_SIZE = 2048; // from implementation
 
-	beforeEach(() => {
+	function setup(): void {
 		vi.clearAllMocks();
-	});
+	}
 
 	it("startMic success wires analyser and sets status", async () => {
+		setup();
 		const fakeAudioContext = makeFakeAudioContext();
 		const fakeAnalyser = makeFakeAnalyserNode(fakeAudioContext);
 		const fakeBuffer = new Uint8Array(FFT_SIZE);
@@ -138,6 +129,7 @@ describe("useAudioCapture", () => {
 	});
 
 	it("startMic rejects sets error status and message", async () => {
+		setup();
 		mockGetMicStreamForDevice.mockRejectedValue(new Error("boom"));
 
 		const { result } = renderHook(() => useAudioCapture());
@@ -152,6 +144,7 @@ describe("useAudioCapture", () => {
 	});
 
 	it("startMic with no audio tracks stops and returns error", async () => {
+		setup();
 		const fakeStream = makeFakeMediaStream(false);
 		mockGetMicStreamForDevice.mockResolvedValue(fakeStream);
 
@@ -168,6 +161,7 @@ describe("useAudioCapture", () => {
 	});
 
 	it("startDisplayAudio success sets tab/screen label", async () => {
+		setup();
 		const fakeAudioContext = makeFakeAudioContext();
 		const fakeAnalyser = makeFakeAnalyserNode(fakeAudioContext);
 		const fakeBuffer = new Uint8Array(FFT_SIZE);

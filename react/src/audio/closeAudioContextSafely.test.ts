@@ -10,7 +10,7 @@ describe("closeAudioContextSafely", () => {
 
 		await closeAudioContextSafely(mockContext);
 
-		expect(mockContext.close).toHaveBeenCalled();
+		expect(mockContext.close).toHaveBeenCalledWith();
 	});
 
 	it("swallows errors thrown by close", async () => {
@@ -21,6 +21,6 @@ describe("closeAudioContextSafely", () => {
 		// Should not throw
 		await expect(closeAudioContextSafely(mockContext)).resolves.toBeUndefined();
 
-		expect(mockContext.close).toHaveBeenCalled();
+		expect(mockContext.close).toHaveBeenCalledWith();
 	});
 });

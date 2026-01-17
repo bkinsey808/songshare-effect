@@ -32,11 +32,13 @@ test.describe("Dashboard Page", () => {
 
 		// Track console errors
 		const errors: string[] = [];
+		/* eslint-disable jest/no-conditional-in-test */
 		page.on("console", (msg) => {
 			if (msg.type() === "error") {
 				errors.push(msg.text());
 			}
 		});
+		/* eslint-enable jest/no-conditional-in-test */
 
 		// Navigate to dashboard
 		await page.goto(`${BASE_URL}/en/dashboard`, {

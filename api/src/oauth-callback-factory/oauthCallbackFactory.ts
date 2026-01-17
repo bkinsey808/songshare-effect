@@ -139,7 +139,7 @@ export default function oauthCallbackFactory(
 
 		const verified = yield* $(
 			Effect.tryPromise({
-				try: () => verify(oauthStateParamsString, stateSecret),
+				try: () => verify(oauthStateParamsString, stateSecret, "HS256"),
 				catch: (err) => new ServerError({ message: getErrorMessage(err) }),
 			}),
 		);

@@ -41,7 +41,9 @@ describe("stopMediaStreamTracks", () => {
 		const stream = makeFakeMediaStream([]);
 
 		// Should not throw
-		stopMediaStreamTracks(stream);
+		expect(() => {
+			stopMediaStreamTracks(stream);
+		}).not.toThrow();
 	});
 
 	it("works with a single track", () => {

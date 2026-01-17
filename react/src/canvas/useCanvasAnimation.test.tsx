@@ -1,6 +1,6 @@
-import { useRef, useEffect, act, type ReactElement } from "react";
+import { act, useEffect, useRef, type ReactElement } from "react";
 import { createRoot } from "react-dom/client";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import attachFakeCanvas2DContext from "./fakeCanvasContext";
 import { useCanvasAnimation, type DrawFn } from "./useCanvasAnimation";
@@ -22,6 +22,13 @@ const RAF_MS = 16;
 const DURATION = 1000;
 const DOUBLE_DURATION = DURATION + DURATION;
 
+function assertIsCanvas(node: unknown): asserts node is HTMLCanvasElement {
+	expect(node).toBeInstanceOf(HTMLCanvasElement);
+}
+function assertIsApi(node: unknown): asserts node is CanvasAnimationApi {
+	expect(node).toBeDefined();
+}
+
 function TestHarness({ onApi }: { onApi: (api: CanvasAnimationApi) => void }): ReactElement {
 	// The hook is a local runtime value inside the test harness; narrow it
 	// to the test API type. This involves an assert and is safe in tests.
@@ -37,7 +44,7 @@ function TestHarness({ onApi }: { onApi: (api: CanvasAnimationApi) => void }): R
 }
 
 describe("useCanvasAnimation (integration)", () => {
-	beforeEach(() => {
+	function setupFakeRaf(): void {
 		vi.useFakeTimers();
 		// Use a simple stub for RAF that schedules the callback on the fake timers
 		vi.stubGlobal("requestAnimationFrame", (frameCb: FrameRequestCallback) => {
@@ -53,14 +60,10 @@ describe("useCanvasAnimation (integration)", () => {
 		vi.stubGlobal("cancelAnimationFrame", (id: number) => {
 			clearTimeout(Number(id));
 		});
-	});
-
-	afterEach(() => {
-		vi.useRealTimers();
-		vi.unstubAllGlobals();
-	});
+	}
 
 	it("starts and stops and respects duration when loop=false", () => {
+		setupFakeRaf();
 		const container = document.createElement("div");
 		const root = createRoot(container);
 
@@ -70,17 +73,11 @@ describe("useCanvasAnimation (integration)", () => {
 			root.render(<TestHarness onApi={(api) => (apiRef.current = api)} />);
 		});
 
-		expect(apiRef.current).not.toBeUndefined();
-		if (apiRef.current === undefined) {
-			return;
-		}
+		assertIsApi(apiRef.current);
 		const api = apiRef.current;
 
 		const canvasNode = container.querySelector("canvas");
-		expect(canvasNode).toBeInstanceOf(HTMLCanvasElement);
-		if (!(canvasNode instanceof HTMLCanvasElement)) {
-			return;
-		}
+		assertIsCanvas(canvasNode);
 		const canvas = canvasNode;
 
 		// Provide a minimal fake 2D context for the JSDOM canvas
@@ -109,32 +106,29 @@ describe("useCanvasAnimation (integration)", () => {
 		act(() => {
 			root.unmount();
 		});
+
+		vi.useRealTimers();
+		vi.unstubAllGlobals();
 	});
 
 	it("keeps running when loop=true until stop is called", () => {
 		const container = document.createElement("div");
 		const root = createRoot(container);
 
+		setupFakeRaf();
 		let apiRef: { current?: CanvasAnimationApi } = {};
 
 		act(() => {
 			root.render(<TestHarness onApi={(api) => (apiRef.current = api)} />);
 		});
 
-		expect(apiRef.current).not.toBeUndefined();
-		if (apiRef.current === undefined) {
-			return;
-		}
+		assertIsApi(apiRef.current);
 		const api = apiRef.current;
 
 		const canvasNode = container.querySelector("canvas");
-		expect(canvasNode).toBeInstanceOf(HTMLCanvasElement);
-		if (!(canvasNode instanceof HTMLCanvasElement)) {
-			return;
-		}
+		assertIsCanvas(canvasNode);
 		const canvas = canvasNode;
 
-		// Provide a minimal fake 2D context for the JSDOM canvas
 		Object.defineProperty(canvas, "getContext", {
 			value: (_contextId?: string): Partial<CanvasRenderingContext2D> => ({
 				canvas: canvas,
@@ -193,23 +187,18 @@ describe("useCanvasAnimation (integration)", () => {
 		const container = document.createElement("div");
 		const root = createRoot(container);
 
+		setupFakeRaf();
 		let apiRef: { current?: CanvasAnimationApi } = {};
 
 		act(() => {
 			root.render(<TestHarness onApi={(api) => (apiRef.current = api)} />);
 		});
 
-		expect(apiRef.current).not.toBeUndefined();
-		if (apiRef.current === undefined) {
-			return;
-		}
+		assertIsApi(apiRef.current);
 		const api = apiRef.current;
 
 		const canvasNode = container.querySelector("canvas");
-		expect(canvasNode).toBeInstanceOf(HTMLCanvasElement);
-		if (!(canvasNode instanceof HTMLCanvasElement)) {
-			return;
-		}
+		assertIsCanvas(canvasNode);
 		const canvas = canvasNode;
 
 		Object.defineProperty(canvas, "getContext", {
@@ -221,7 +210,7 @@ describe("useCanvasAnimation (integration)", () => {
 			}),
 		});
 
-		const calls: { frame: number; now?: number | undefined; dt?: number | undefined }[] = [];
+		const calls: { frame: number; now?: unknown; dt?: unknown }[] = [];
 		const RAF_TICKS_TO_ADVANCE = 2;
 		const SECOND_INDEX = 1;
 		const MIN_DT_THRESHOLD = 0;
@@ -234,11 +223,9 @@ describe("useCanvasAnimation (integration)", () => {
 				canvas,
 				(...args: unknown[]) => {
 					const frame = Number(args[FRAME_INDEX]);
-					const maybeNow = args[NOW_INDEX];
-					const now = typeof maybeNow === "number" ? maybeNow : undefined;
-					const maybeDt = args[DT_INDEX];
-					const dt = typeof maybeDt === "number" ? maybeDt : undefined;
-					calls.push({ frame, now, dt });
+					const nowAny = args[NOW_INDEX];
+					const dtAny = args[DT_INDEX];
+					calls.push({ frame, now: nowAny, dt: dtAny });
 				},
 				{ loop: true, duration: DURATION },
 			);
@@ -257,19 +244,16 @@ describe("useCanvasAnimation (integration)", () => {
 
 		expect(calls.length).toBeGreaterThanOrEqual(RAF_TICKS_TO_ADVANCE);
 		const secondCall = calls[SECOND_INDEX];
-		expect(secondCall).not.toBeUndefined();
-		if (secondCall === undefined) {
-			return;
-		}
-		expect(secondCall.dt).not.toBeUndefined();
-		if (secondCall.dt === undefined) {
-			return;
-		}
-		expect(secondCall.dt).toBeGreaterThan(MIN_DT_THRESHOLD);
+		const sc = secondCall;
+		const dtNum = Number(sc?.dt);
+		expect(Number.isFinite(dtNum)).toBe(true);
+		expect(dtNum).toBeGreaterThan(MIN_DT_THRESHOLD);
 
 		act(() => {
 			api.stop();
 			root.unmount();
 		});
+		vi.useRealTimers();
+		vi.unstubAllGlobals();
 	});
 });

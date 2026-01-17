@@ -1,17 +1,15 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import enumerateAudioInputDevices from "@/react/audio/enumerateAudioInputDevices";
 
 import AudioInputDeviceSelect from "./AudioInputDeviceSelect";
 
-vi.mock("@/react/audio/enumerateAudioInputDevices", () => ({
-	default: vi.fn(),
-}));
+vi.mock("@/react/audio/enumerateAudioInputDevices");
 
 const mockEnumerate = vi.mocked(enumerateAudioInputDevices);
 
-describe("AudioInputDeviceSelect", () => {
+describe("<AudioInputDeviceSelect />", () => {
 	const MOCK_DEVICES: MediaDeviceInfo[] = [
 		{
 			deviceId: "dev1",
@@ -32,17 +30,13 @@ describe("AudioInputDeviceSelect", () => {
 	const CALL_COUNT_ONE = 1;
 	const CALL_COUNT_TWO = 2;
 
-	beforeEach(() => {
+	function setup(): void {
 		vi.resetAllMocks();
 		mockEnumerate.mockResolvedValue(MOCK_DEVICES);
-	});
-
-	afterEach(() => {
-		vi.unstubAllGlobals();
-		cleanup();
-	});
+	}
 
 	it("renders default option and enumerated devices", async () => {
+		setup();
 		render(<AudioInputDeviceSelect value="default" onChange={vi.fn()} />);
 
 		expect(screen.getByText("Default")).toBeTruthy();
@@ -51,9 +45,11 @@ describe("AudioInputDeviceSelect", () => {
 			expect(screen.getByText("Mic 1")).toBeTruthy();
 			expect(screen.getByText("Mic 2")).toBeTruthy();
 		});
+		cleanup();
 	});
 
 	it("calls onChange when a device is selected", async () => {
+		setup();
 		const handleChange = vi.fn();
 		render(<AudioInputDeviceSelect value="default" onChange={handleChange} />);
 
@@ -64,19 +60,20 @@ describe("AudioInputDeviceSelect", () => {
 		fireEvent.change(screen.getByRole("combobox"), { target: { value: "dev1" } });
 
 		expect(handleChange).toHaveBeenCalledWith("dev1");
+		cleanup();
 	});
 
 	it("disables the select control when disabled prop is true", () => {
 		render(<AudioInputDeviceSelect value="default" onChange={vi.fn()} disabled />);
 
 		const selectNode = screen.getByRole("combobox");
-		expect(selectNode instanceof HTMLSelectElement).toBe(true);
-		if (selectNode instanceof HTMLSelectElement) {
-			expect(selectNode.disabled).toBe(true);
-		}
+		expect(selectNode).toBeInstanceOf(HTMLSelectElement);
+		expect(selectNode.getAttribute("disabled")).not.toBeNull();
+		cleanup();
 	});
 
 	it("re-enumerates devices when refreshKey changes", async () => {
+		setup();
 		const { rerender } = render(
 			<AudioInputDeviceSelect value="default" onChange={vi.fn()} refreshKey={0} />,
 		);
@@ -90,6 +87,7 @@ describe("AudioInputDeviceSelect", () => {
 		await waitFor(() => {
 			expect(mockEnumerate).toHaveBeenCalledTimes(CALL_COUNT_TWO);
 		});
+		cleanup();
 	});
 
 	it("listens for devicechange events and cleanup on unmount", () => {
@@ -110,9 +108,12 @@ describe("AudioInputDeviceSelect", () => {
 		unmount();
 
 		expect(removeEventListener).toHaveBeenCalledWith("devicechange", expect.any(Function));
+		vi.unstubAllGlobals();
+		cleanup();
 	});
 
 	it("uses fallback labels for devices without labels", async () => {
+		vi.resetAllMocks();
 		const FALLBACK_DEVICES: MediaDeviceInfo[] = [
 			{
 				deviceId: "no-label",
@@ -129,5 +130,6 @@ describe("AudioInputDeviceSelect", () => {
 		await waitFor(() => {
 			expect(screen.getByText("Audio input 1")).toBeTruthy();
 		});
+		cleanup();
 	});
 });

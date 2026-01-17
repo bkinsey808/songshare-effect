@@ -1,26 +1,24 @@
 import { cleanup, renderHook } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import resizeCanvasToDisplaySize from "@/react/canvas/resizeCanvasToDisplaySize";
 
 import useResizeCanvasToDisplaySizeOnWindowResize from "./useResizeCanvasToDisplaySizeOnWindowResize";
 
-vi.mock("@/react/canvas/resizeCanvasToDisplaySize", () => ({
-	default: vi.fn(),
-}));
+vi.mock("@/react/canvas/resizeCanvasToDisplaySize");
 
 const mockResize = vi.mocked(resizeCanvasToDisplaySize);
 
 describe("useResizeCanvasToDisplaySizeOnWindowResize", () => {
-	beforeEach(() => {
+	function setup(): () => void {
 		vi.resetAllMocks();
-	});
-
-	afterEach(() => {
-		cleanup();
-	});
+		return () => {
+			cleanup();
+		};
+	}
 
 	it("adds resize listener on mount and removes on unmount", () => {
+		const cleanup = setup();
 		const addEventListener = vi.spyOn(globalThis, "addEventListener");
 		const removeEventListener = vi.spyOn(globalThis, "removeEventListener");
 
@@ -39,9 +37,11 @@ describe("useResizeCanvasToDisplaySizeOnWindowResize", () => {
 
 		addEventListener.mockRestore();
 		removeEventListener.mockRestore();
+		cleanup();
 	});
 
 	it("calls resizeCanvasToDisplaySize when resize event fires and canvas is present", () => {
+		const cleanup = setup();
 		const canvas = document.createElement("canvas");
 		const canvasRef = { current: canvas };
 
@@ -55,9 +55,11 @@ describe("useResizeCanvasToDisplaySizeOnWindowResize", () => {
 		expect(mockResize).toHaveBeenCalledWith(canvas);
 
 		unmount();
+		cleanup();
 	});
 
 	it("does not call resizeCanvasToDisplaySize if canvas is null", () => {
+		const cleanup = setup();
 		const canvasRef = { current: undefined };
 
 		const { unmount } = renderHook(() => {
@@ -70,5 +72,6 @@ describe("useResizeCanvasToDisplaySizeOnWindowResize", () => {
 		expect(mockResize).not.toHaveBeenCalled();
 
 		unmount();
+		cleanup();
 	});
 });

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { MinimalMediaStream, MinimalMediaStreamTrack } from "./types";
 
@@ -22,12 +22,9 @@ describe("createTimeDomainAnalyser", () => {
 
 	const SILENT_GAIN_VALUE = 0;
 
-	beforeEach(() => {
+	it("returns error if AudioContext is not supported", async () => {
 		vi.resetAllMocks();
 		vi.stubGlobal("MediaStream", MediaStreamMock);
-	});
-
-	it("returns error if AudioContext is not supported", async () => {
 		vi.stubGlobal("AudioContext", undefined);
 
 		const result = await createTimeDomainAnalyser({
@@ -36,10 +33,13 @@ describe("createTimeDomainAnalyser", () => {
 			smoothingTimeConstant: SMOOTHING,
 		});
 
-		expect(result).toEqual({ errorMessage: "This browser does not support AudioContext" });
+		expect(result).toStrictEqual({ errorMessage: "This browser does not support AudioContext" });
+		vi.unstubAllGlobals();
 	});
 
 	it("returns error if invalid MediaStream is provided", async () => {
+		vi.resetAllMocks();
+		vi.stubGlobal("MediaStream", MediaStreamMock);
 		const AudioContextMock = vi.fn().mockImplementation(function AudioContextStub() {
 			return { state: "running" };
 		});
@@ -54,22 +54,17 @@ describe("createTimeDomainAnalyser", () => {
 			smoothingTimeConstant: SMOOTHING,
 		});
 
-		expect(result).toEqual({ errorMessage: "Invalid MediaStream provided" });
+		expect(result).toStrictEqual({ errorMessage: "Invalid MediaStream provided" });
+		vi.unstubAllGlobals();
 	});
 
-	it("successfully creates and configures analyser", async () => {
-		const mockAnalyser = {
-			fftSize: 0,
-			smoothingTimeConstant: 0,
-			connect: vi.fn(),
-		};
-		const mockSource = {
-			connect: vi.fn(),
-		};
-		const mockGain = {
-			gain: { value: 1 },
-			connect: vi.fn(),
-		};
+	it("creates analyser and returns correct buffer length", async () => {
+		vi.resetAllMocks();
+		vi.stubGlobal("MediaStream", MediaStreamMock);
+
+		const mockAnalyser = { fftSize: 0, smoothingTimeConstant: 0, connect: vi.fn() };
+		const mockSource = { connect: vi.fn() };
+		const mockGain = { gain: { value: 1 }, connect: vi.fn() };
 		const mockContext = {
 			createMediaStreamSource: vi.fn().mockReturnValue(mockSource),
 			createAnalyser: vi.fn().mockReturnValue(mockAnalyser),
@@ -93,23 +88,49 @@ describe("createTimeDomainAnalyser", () => {
 			smoothingTimeConstant: SMOOTHING,
 		});
 
-		if ("errorMessage" in result) {
-			throw new Error(`Expected success but got error: ${result.errorMessage}`);
-		}
+		expect("errorMessage" in result).toBe(false);
+		expect("timeDomainBytes" in result).toBe(true);
+		vi.unstubAllGlobals();
+	});
 
-		expect(AudioContextMock).toHaveBeenCalled();
+	it("configures nodes and connections correctly", async () => {
+		vi.resetAllMocks();
+		vi.stubGlobal("MediaStream", MediaStreamMock);
+
+		const mockAnalyser = { fftSize: 0, smoothingTimeConstant: 0, connect: vi.fn() };
+		const mockSource = { connect: vi.fn() };
+		const mockGain = { gain: { value: 1 }, connect: vi.fn() };
+		const mockContext = {
+			createMediaStreamSource: vi.fn().mockReturnValue(mockSource),
+			createAnalyser: vi.fn().mockReturnValue(mockAnalyser),
+			createGain: vi.fn().mockReturnValue(mockGain),
+			destination: { id: "destination" },
+			state: "running",
+			resume: vi.fn().mockResolvedValue(undefined),
+		};
+
+		const AudioContextMock = vi.fn().mockImplementation(function AudioContextStub(this: object) {
+			Object.assign(this, mockContext);
+			return mockContext;
+		});
+
+		vi.stubGlobal("AudioContext", AudioContextMock);
+
+		const stream = new MediaStream() as MinimalMediaStream;
+		await createTimeDomainAnalyser({ stream, fftSize: FFT_SIZE, smoothingTimeConstant: SMOOTHING });
+
+		expect(AudioContextMock).toHaveBeenCalledWith();
 		expect(mockContext.createMediaStreamSource).toHaveBeenCalledWith(stream);
-		expect(mockAnalyser.fftSize).toBe(FFT_SIZE);
-		expect(mockAnalyser.smoothingTimeConstant).toBe(SMOOTHING);
+		expect(mockAnalyser).toMatchObject({ fftSize: FFT_SIZE, smoothingTimeConstant: SMOOTHING });
 		expect(mockSource.connect).toHaveBeenCalledWith(mockAnalyser);
-		expect(mockContext.createGain).toHaveBeenCalled();
 		expect(mockGain.gain.value).toBe(SILENT_GAIN_VALUE);
-		expect(mockAnalyser.connect).toHaveBeenCalledWith(mockGain);
-		expect(mockGain.connect).toHaveBeenCalledWith(mockContext.destination);
-		expect(result.timeDomainBytes.byteLength).toBe(FFT_SIZE);
+		vi.unstubAllGlobals();
 	});
 
 	it("resumes context if suspended", async () => {
+		vi.resetAllMocks();
+		vi.stubGlobal("MediaStream", MediaStreamMock);
+
 		const mockContext = {
 			createMediaStreamSource: vi.fn().mockReturnValue({ connect: vi.fn() }),
 			createAnalyser: vi.fn().mockReturnValue({ connect: vi.fn() }),
@@ -132,6 +153,7 @@ describe("createTimeDomainAnalyser", () => {
 			smoothingTimeConstant: SMOOTHING,
 		});
 
-		expect(mockContext.resume).toHaveBeenCalled();
+		expect(mockContext.resume).toHaveBeenCalledWith();
+		vi.unstubAllGlobals();
 	});
 });

@@ -1,39 +1,29 @@
 import { renderHook } from "@testing-library/react";
 import { useNavigate } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import detectBrowserLanguage from "./detectBrowserLanguage";
 import getStoredLanguage from "./getStoredLanguage";
 import useLanguageDetector from "./useLanguageDetector";
 
-vi.mock("react-router-dom", () => ({
-	useNavigate: vi.fn(),
-}));
-
-vi.mock("./detectBrowserLanguage", () => ({
-	default: vi.fn(),
-}));
-
-vi.mock("./getStoredLanguage", () => ({
-	default: vi.fn(),
-}));
+vi.mock("react-router-dom");
+vi.mock("./detectBrowserLanguage");
+vi.mock("./getStoredLanguage");
 
 describe("useLanguageDetector", () => {
 	const mockNavigate = vi.fn();
 
-	beforeEach(() => {
+	function setup(): () => void {
 		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-		vi.stubGlobal("navigator", {
-			language: "en-US",
-		});
-	});
-
-	afterEach(() => {
-		vi.clearAllMocks();
-		vi.unstubAllGlobals();
-	});
+		vi.stubGlobal("navigator", { language: "en-US" });
+		return () => {
+			vi.clearAllMocks();
+			vi.unstubAllGlobals();
+		};
+	}
 
 	it("redirects to stored language if available", () => {
+		const cleanup = setup();
 		vi.mocked(getStoredLanguage).mockReturnValue("zh");
 		vi.mocked(detectBrowserLanguage).mockReturnValue("en");
 
@@ -42,9 +32,11 @@ describe("useLanguageDetector", () => {
 		});
 
 		expect(mockNavigate).toHaveBeenCalledWith("/zh/", { replace: true });
+		cleanup();
 	});
 
 	it("redirects to detected browser language if no stored preference", () => {
+		const cleanup = setup();
 		vi.mocked(getStoredLanguage).mockReturnValue(undefined);
 		vi.mocked(detectBrowserLanguage).mockReturnValue("es");
 
@@ -53,9 +45,11 @@ describe("useLanguageDetector", () => {
 		});
 
 		expect(mockNavigate).toHaveBeenCalledWith("/es/", { replace: true });
+		cleanup();
 	});
 
 	it("passes navigator.language to detectBrowserLanguage", () => {
+		const cleanup = setup();
 		vi.mocked(getStoredLanguage).mockReturnValue(undefined);
 		vi.mocked(detectBrowserLanguage).mockReturnValue("en");
 
@@ -64,5 +58,6 @@ describe("useLanguageDetector", () => {
 		});
 
 		expect(detectBrowserLanguage).toHaveBeenCalledWith("en-US");
+		cleanup();
 	});
 });

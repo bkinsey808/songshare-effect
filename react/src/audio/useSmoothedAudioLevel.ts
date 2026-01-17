@@ -10,8 +10,21 @@ import smoothValue from "./smoothValue";
  * This allows for easier testing with mocks that only implement the required method.
  */
 type AudioAnalyser = {
+	/**
+	 * Fill `array` with the analyser's time-domain samples (0..255).
+	 *
+	 * - **Mutates** the provided buffer in-place (non-allocating, high-frequency API).
+	 * - Values are unsigned bytes in the range [0, 255].
+	 * - Caller must provide a buffer sized to the analyser's expected length.
+	 * - Synchronous and safe to call frequently (e.g. each animation frame).
+	 */
 	getByteTimeDomainData(array: Uint8Array<ArrayBuffer>): void;
-	context: Pick<BaseAudioContext, "currentTime" | "state">;
+	/**
+	 * `context` is optional for lightweight test doubles and some minimal analyser
+	 * implementations — callers that require timing information should check for
+	 * presence before use.
+	 */
+	context?: Pick<BaseAudioContext, "currentTime" | "state">;
 };
 
 type AudioLevelRefs = {
@@ -80,9 +93,15 @@ export default function useSmoothedAudioLevel(
 	const { analyserRef, timeDomainBytesRef } = refs;
 	const { uiIntervalMs, smoothingAlpha } = options;
 
+	// UI-facing state (updated on an interval) — kept separate from the
+	// high-frequency internal value used by render loops and immediate reads.
 	const [levelUiValue, setLevelUiValue] = useState<number>(ZERO);
 
+	// Internal, synchronous source-of-truth for the smoothed level. Updated
+	// immediately by `smoothLevel` and used by fast sampling paths.
 	const levelRef = useRef<number>(ZERO);
+
+	// Holds the UI timer id (if any). Cleared on stop/reset/unmount.
 	const uiTimerIdRef = useRef<ReturnType<typeof globalThis.setInterval> | undefined>(undefined);
 
 	/** Stop the UI timer if running. */
@@ -99,6 +118,9 @@ export default function useSmoothedAudioLevel(
 	function startUiTimer(): void {
 		stopUiTimer();
 		const timerId = globalThis.setInterval(() => {
+			// Read from the live `levelRef.current` (avoids stale-closure issues)
+			// and push that instantaneous value into React state at the
+			// lower UI update frequency.
 			setLevelUiValue(levelRef.current);
 		}, uiIntervalMs);
 		uiTimerIdRef.current = timerId;
@@ -110,15 +132,23 @@ export default function useSmoothedAudioLevel(
 	 * @returns Smoothed level in [0, 1]
 	 */
 	function smoothLevel(nextRaw: number): number {
+		// Guard the input to [0,1] to avoid analyser anomalies or out-of-range
+		// values from propagating into the smoother.
 		const raw = clamp01(nextRaw);
 		const previous = levelRef.current;
 		const smoothed = smoothValue(previous, raw, smoothingAlpha);
+		// Update the synchronous source-of-truth (used by render loops / timers)
 		levelRef.current = smoothed;
 		return smoothed;
 	}
 
 	/**
 	 * Read the analyser's current time-domain bytes into the provided buffer.
+	 *
+	 * Note: this function *mutates* the supplied buffer (the analyser writes
+	 * into it). The caller owns buffer lifecycle and sizing (must match the
+	 * analyser's expected length).
+	 *
 	 * @returns The buffer populated with bytes, or `undefined` if unavailable.
 	 */
 	function readBytesNow(): Uint8Array<ArrayBuffer> | undefined {
@@ -141,6 +171,12 @@ export default function useSmoothedAudioLevel(
 			return ZERO;
 		}
 
+		// Convert the analyser's raw time-domain bytes into a normalized RMS level
+		// (computeRmsLevelFromTimeDomainBytes -> value in [0, 1]), then apply
+		// exponential smoothing via `smoothLevel` which updates the internal
+		// `levelRef` and returns the smoothed instantaneous value. This does
+		// NOT update the UI interval value (`levelUiValue`) — that only changes
+		// when the optional UI timer calls `setLevelUiValue(levelRef.current)`.
 		return smoothLevel(computeRmsLevelFromTimeDomainBytes(bytes));
 	}
 
@@ -171,6 +207,9 @@ export default function useSmoothedAudioLevel(
 
 	/** Reset internal state and stop the UI timer. */
 	function reset(): void {
+		// Stop UI updates and clear internal state. Note: this does *not*
+		// stop or close the analyser nor zero the caller-owned buffer — the
+		// hook intentionally does not manage analyser lifecycle.
 		stopUiTimer();
 		levelRef.current = ZERO;
 		setLevelUiValue(ZERO);

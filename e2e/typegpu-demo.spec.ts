@@ -44,6 +44,7 @@ test.describe("TypeGPU demo page", () => {
 		await page.waitForTimeout(HYDRATION_WAIT_MS);
 
 		const allLogs = consoleMessages.join("\n");
+		/* eslint-disable jest/no-conditional-in-test */
 		if (
 			allLogs.includes("structures must have at least one member") ||
 			allLogs.includes("Error while parsing WGSL")
@@ -56,5 +57,6 @@ test.describe("TypeGPU demo page", () => {
 			);
 			throw new Error("TypeGPU demo WGSL compilation failed (see console log snippet)");
 		}
+		/* eslint-enable jest/no-conditional-in-test */
 	});
 });

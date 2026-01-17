@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import getMicStreamForDevice from "./getMicStreamForDevice";
 
@@ -8,11 +8,6 @@ describe("getMicStreamForDevice", () => {
 		noiseSuppression: false,
 		autoGainControl: false,
 	};
-
-	afterEach(() => {
-		vi.resetAllMocks();
-		vi.unstubAllGlobals();
-	});
 
 	it("throws TypeError if mediaDevices is not supported", () => {
 		vi.stubGlobal("navigator", { mediaDevices: undefined });
@@ -33,7 +28,9 @@ describe("getMicStreamForDevice", () => {
 				...commonConstraints,
 			},
 		});
-		expect(stream).toEqual({ id: "default-stream" });
+		expect(stream).toStrictEqual({ id: "default-stream" });
+		vi.resetAllMocks();
+		vi.unstubAllGlobals();
 	});
 
 	it("requests default microphone when deviceId is 'default'", async () => {
@@ -47,7 +44,9 @@ describe("getMicStreamForDevice", () => {
 				...commonConstraints,
 			},
 		});
-		expect(stream).toEqual({ id: "default-stream" });
+		expect(stream).toStrictEqual({ id: "default-stream" });
+		vi.resetAllMocks();
+		vi.unstubAllGlobals();
 	});
 
 	it("requests specific microphone when deviceId is provided", async () => {
@@ -63,6 +62,8 @@ describe("getMicStreamForDevice", () => {
 				deviceId: { exact: deviceId },
 			},
 		});
-		expect(stream).toEqual({ id: "specific-stream" });
+		expect(stream).toStrictEqual({ id: "specific-stream" });
+		vi.resetAllMocks();
+		vi.unstubAllGlobals();
 	});
 });

@@ -1,15 +1,17 @@
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
-import { describe, it, vi, expect } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import TypeGpuDemoPage from "./TypeGpuDemoPage";
 
 // Note: `vi.mock` is hoisted by Vitest so this still mocks the module
 // even though it's declared after the imports.
+/* eslint-disable-next-line jest/no-untyped-mock-factory */
 vi.mock("typegpu", () => ({ default: {} }));
 
 // Inject a fake runTypeGpuDemo implementation
+/* eslint-disable-next-line jest/no-untyped-mock-factory */
 vi.mock("@/react/typegpu/runTypeGpuDemo", () => {
 	const fn = vi.fn((): (() => void) => {
 		// signal to the test that the TypeGPU path was called
@@ -23,7 +25,7 @@ vi.mock("@/react/typegpu/runTypeGpuDemo", () => {
 	return { default: fn } as const;
 });
 
-describe("TypeGpuDemoPage (TypeGPU integration)", () => {
+describe("typeGpuDemoPage (TypeGPU integration)", () => {
 	it("calls runTypeGpuDemo when clicking 'Run installed TypeGPU' button", async () => {
 		const container = document.createElement("div");
 		const root = createRoot(container);

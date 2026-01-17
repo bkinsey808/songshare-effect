@@ -4,8 +4,8 @@ import getErrorMessage from "@/api/getErrorMessage";
 import oauthCallbackHandler from "@/api/oauth/oauthCallbackHandler";
 import {
 	ACCESS_CONTROL_MAX_AGE_SEC,
-	HTTP_NO_CONTENT,
 	HTTP_INTERNAL,
+	HTTP_NO_CONTENT,
 	ONE_HOUR_SECONDS,
 } from "@/shared/constants/http";
 import { apiMePath, apiOauthCallbackPath, apiOauthSignInPath } from "@/shared/paths";

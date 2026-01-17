@@ -1,13 +1,8 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import getDisplayAudioStream from "./getDisplayAudioStream";
 
 describe("getDisplayAudioStream", () => {
-	afterEach(() => {
-		vi.resetAllMocks();
-		vi.unstubAllGlobals();
-	});
-
 	it("throws TypeError if mediaDevices is not supported", () => {
 		vi.stubGlobal("navigator", { mediaDevices: undefined });
 
@@ -32,6 +27,8 @@ describe("getDisplayAudioStream", () => {
 			audio: true,
 			video: true,
 		});
-		expect(stream).toEqual({ id: "display-stream" });
+		expect(stream).toStrictEqual({ id: "display-stream" });
+		vi.resetAllMocks();
+		vi.unstubAllGlobals();
 	});
 });

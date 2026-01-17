@@ -1,19 +1,16 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import enumerateAudioInputDevices from "./enumerateAudioInputDevices";
 
 describe("enumerateAudioInputDevices", () => {
-	afterEach(() => {
-		vi.resetAllMocks();
-		vi.unstubAllGlobals();
-	});
-
 	it("returns empty array if mediaDevices is not supported", async () => {
 		vi.stubGlobal("navigator", { mediaDevices: undefined });
 
 		const result = await enumerateAudioInputDevices();
 
-		expect(result).toEqual([]);
+		expect(result).toStrictEqual([]);
+		vi.resetAllMocks();
+		vi.unstubAllGlobals();
 	});
 
 	it("returns empty array if enumerateDevices is not supported", async () => {
@@ -21,7 +18,9 @@ describe("enumerateAudioInputDevices", () => {
 
 		const result = await enumerateAudioInputDevices();
 
-		expect(result).toEqual([]);
+		expect(result).toStrictEqual([]);
+		vi.resetAllMocks();
+		vi.unstubAllGlobals();
 	});
 
 	it("returns only audioinput devices", async () => {
@@ -37,10 +36,12 @@ describe("enumerateAudioInputDevices", () => {
 
 		const result = await enumerateAudioInputDevices();
 
-		expect(result).toEqual([
+		expect(result).toStrictEqual([
 			{ kind: "audioinput", label: "Mic 1", deviceId: "mic1" },
 			{ kind: "audioinput", label: "Mic 2", deviceId: "mic2" },
 		]);
+		vi.resetAllMocks();
+		vi.unstubAllGlobals();
 	});
 
 	it("returns empty array if no devices found", async () => {
@@ -49,6 +50,8 @@ describe("enumerateAudioInputDevices", () => {
 
 		const result = await enumerateAudioInputDevices();
 
-		expect(result).toEqual([]);
+		expect(result).toStrictEqual([]);
+		vi.resetAllMocks();
+		vi.unstubAllGlobals();
 	});
 });

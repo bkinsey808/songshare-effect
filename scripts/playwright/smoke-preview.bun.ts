@@ -4,10 +4,10 @@
   Mirrors the old shell behaviour but written in TS so `bun ./scripts/playwright/smoke-preview.bun.ts`
   can be used as an entrypoint.
 */
-import { spawnSync, spawn, type SpawnSyncOptions } from "node:child_process";
+import { spawn, spawnSync, type SpawnSyncOptions } from "node:child_process";
 import fs from "node:fs";
 
-import { log as sLog, warn as sWarn, error as sError } from "../utils/scriptLogger";
+import { error as sError, log as sLog, warn as sWarn } from "../utils/scriptLogger";
 
 const EXIT_SUCCESS = 0;
 const EXIT_FAILURE = 1;

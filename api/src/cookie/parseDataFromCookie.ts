@@ -70,7 +70,8 @@ export async function parseDataFromCookie<
 			throw new Error("Missing JWT_SECRET in environment");
 		}
 
-		const verified = await verify(token, jwtSecret);
+		// Hono's `verify` requires the alg/options param — tokens in this app use HS256
+		const verified = await verify(token, jwtSecret, "HS256");
 		if (debug) {
 			serverLog("[parseDataFromCookie] Verified JWT payload:", verified);
 		}

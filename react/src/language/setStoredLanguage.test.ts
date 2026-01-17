@@ -1,12 +1,12 @@
 /* oxlint-disable unicorn/no-null */
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { preferredLanguageCookieName } from "@/shared/cookies";
 
 import setStoredLanguage from "./setStoredLanguage";
 
 describe("setStoredLanguage", () => {
-	beforeEach(() => {
+	function setup(): void {
 		vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
 			/* no-op */
 		});
@@ -22,14 +22,10 @@ describe("setStoredLanguage", () => {
 				cookieValue = value;
 			},
 		});
-	});
-
-	afterEach(() => {
-		vi.restoreAllMocks();
-		vi.unstubAllGlobals();
-	});
+	}
 
 	it("sets localStorage and document.cookie", () => {
+		setup();
 		const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
 		setStoredLanguage("zh");
 
@@ -37,9 +33,12 @@ describe("setStoredLanguage", () => {
 		expect(document.cookie).toContain(`${preferredLanguageCookieName}=zh`);
 		expect(document.cookie).toContain("path=/");
 		expect(document.cookie).toContain("SameSite=Lax");
+		vi.restoreAllMocks();
+		vi.unstubAllGlobals();
 	});
 
 	it("sets Secure flag on https", () => {
+		setup();
 		vi.stubGlobal("location", {
 			protocol: "https:",
 		});
@@ -47,11 +46,16 @@ describe("setStoredLanguage", () => {
 		setStoredLanguage("es");
 
 		expect(document.cookie).toContain("Secure");
+		vi.restoreAllMocks();
+		vi.unstubAllGlobals();
 	});
 
 	it("includes expiry date", () => {
+		setup();
 		setStoredLanguage("en");
 
 		expect(document.cookie).toContain("expires=");
+		vi.restoreAllMocks();
+		vi.unstubAllGlobals();
 	});
 });

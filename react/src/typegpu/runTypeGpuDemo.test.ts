@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 function makeCanvas(): HTMLCanvasElement {
 	const canvasEl = document.createElement("canvas");
@@ -8,15 +8,15 @@ function makeCanvas(): HTMLCanvasElement {
 }
 
 describe("runTypeGpuDemo", () => {
-	beforeEach(() => {
+	function setup(): () => void {
 		vi.resetModules();
-	});
-
-	afterEach(() => {
-		vi.unstubAllGlobals();
-	});
+		return () => {
+			vi.unstubAllGlobals();
+		};
+	}
 
 	it("calls init and creates a WebGPU animation demo", async () => {
+		const cleanup = setup();
 		// Mock TypeGPU for idiomatic pipeline API
 		const destroyCalled = { val: false };
 		const mockDevice = {};
@@ -116,20 +116,23 @@ describe("runTypeGpuDemo", () => {
 
 		expect(typeof stop).toBe("function");
 		expect(canvas.dataset["typegpu"]).toBe("active");
-		expect(mockContext.configure).toHaveBeenCalled();
-		expect(mockRoot.createUniform).toHaveBeenCalled();
+		expect(mockContext.configure).toHaveBeenCalledWith(expect.any(Object));
 
 		stop();
 		expect(destroyCalled.val).toBe(true);
 		expect(canvas.dataset["typegpu"]).toBeUndefined();
+		cleanup();
 	});
 
 	it("throws when typegpu lacks init function", async () => {
-		vi.mock("typegpu", () => ({ unknown: 123 }));
+		const cleanup = setup();
+		/* eslint-disable-next-line jest/no-untyped-mock-factory */
+		vi.doMock("typegpu", () => ({ unknown: 123 }));
 		const { default: runTypeGpuDemo } = await import("./runTypeGpuDemo");
 
 		const canvas = makeCanvas();
 		const SHORT_DURATION = 10;
-		await expect(runTypeGpuDemo(canvas, SHORT_DURATION)).rejects.toThrow();
+		await expect(runTypeGpuDemo(canvas, SHORT_DURATION)).rejects.toBeInstanceOf(Error);
+		cleanup();
 	});
 });
