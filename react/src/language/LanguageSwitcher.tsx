@@ -14,7 +14,7 @@ import {
 } from "@/shared/language/supported-languages-effect";
 import { safeGet } from "@/shared/utils/safe";
 
-import { setStoredLanguage } from "./languageStorage";
+import setStoredLanguage from "./setStoredLanguage";
 
 export default function LanguageSwitcher(): ReactElement {
 	const { t } = useTranslation();

@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import getCookie from "@/react/utils/cookie";
+import getCookie from "@/react/utils/getCookie";
 import { getStoreApi } from "@/react/zustand/useAppStore";
 import {
+	EMPTY_STRING,
 	JUST_DELETED_ACCOUNT_SIGNAL,
 	LANG_PATH_SEGMENT_INDEX,
-	EMPTY_STRING,
 } from "@/shared/constants/http";
 import { SupportedLanguage } from "@/shared/language/supported-languages";
 import { apiAccountDeletePath, dashboardPath } from "@/shared/paths";

@@ -1,10 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 
 import computeRmsLevelFromTimeDomainBytes from "@/react/audio/computeRmsLevel";
-import { clamp01, smoothValue } from "@/react/typegpu/numeric";
+
+import clamp01 from "./clamp01";
+import smoothValue from "./smoothValue";
+
+/**
+ * Minimal type for audio analysers that provide time-domain data.
+ * This allows for easier testing with mocks that only implement the required method.
+ */
+type AudioAnalyser = {
+	getByteTimeDomainData(array: Uint8Array<ArrayBuffer>): void;
+	context: Pick<BaseAudioContext, "currentTime" | "state">;
+};
 
 type AudioLevelRefs = {
-	analyserRef: { current: AnalyserNode | undefined };
+	analyserRef: { current: AudioAnalyser | undefined };
 	timeDomainBytesRef: { current: Uint8Array<ArrayBuffer> | undefined };
 };
 
@@ -16,10 +27,10 @@ type AudioLevelOptions = {
 const ZERO = 0;
 
 /**
- * Computes a smoothed audio level from a Web Audio `AnalyserNode` time-domain buffer.
+ * Computes a smoothed audio level from a Web Audio analyser time-domain buffer.
  *
  * Designed for demos/visualizations where you want:
- * - A frequently-sampled “current level” (used by render loops)
+ * - A frequently-sampled "current level" (used by render loops)
  * - A lower-frequency UI value updated on an interval
  * - Simple exponential smoothing to avoid jitter
  *
@@ -30,7 +41,7 @@ const ZERO = 0;
  * - `startUiTimer()` is opt-in; call it when capture starts.
  * - `reset()` stops the timer and clears internal state.
  *
- * @param refs Refs to an analyser node and its reusable time-domain byte buffer.
+ * @param refs Refs to an analyser (implementing AudioAnalyser) and its reusable time-domain byte buffer.
  * @param options UI timer interval and smoothing settings.
  */
 export type SmoothedAudioLevel = {
@@ -129,6 +140,7 @@ export default function useSmoothedAudioLevel(
 		if (!bytes) {
 			return ZERO;
 		}
+
 		return smoothLevel(computeRmsLevelFromTimeDomainBytes(bytes));
 	}
 
@@ -186,3 +198,5 @@ export default function useSmoothedAudioLevel(
 		reset,
 	};
 }
+
+export type { AudioAnalyser };

@@ -1,3 +1,5 @@
+import type { MinimalMediaStream } from "./types";
+
 /**
  * Stop all tracks associated with a `MediaStream`.
  *
@@ -5,7 +7,7 @@
  *
  * @param stream - The `MediaStream` whose tracks should be stopped.
  */
-export default function stopMediaStreamTracks(stream: MediaStream): void {
+export default function stopMediaStreamTracks(stream: MinimalMediaStream): void {
 	for (const track of stream.getTracks()) {
 		track.stop();
 	}

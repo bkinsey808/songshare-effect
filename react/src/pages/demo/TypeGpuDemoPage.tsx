@@ -2,9 +2,9 @@ import { useRef, useState, useEffect, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import typegpu from "typegpu";
 
+import { useCanvasAnimation } from "@/react/canvas/useCanvasAnimation";
 import DemoNavigation from "@/react/demo/DemoNavigation";
 import runTypeGpuDemo from "@/react/typegpu/runTypeGpuDemo";
-import { useCanvasAnimation } from "@/react/typegpu/useCanvasAnimation";
 
 export default function TypeGpuDemoPage(): ReactElement {
 	const { t } = useTranslation();

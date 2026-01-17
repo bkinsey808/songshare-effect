@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import type {
+	MinimalAnalyserNode,
+	MinimalMediaStream,
+	MinimalMediaStreamAudioSourceNode,
+	Status,
+} from "./types";
 
 import closeAudioContextSafely from "./closeAudioContextSafely";
 import createTimeDomainAnalyser from "./createTimeDomainAnalyser";
@@ -11,33 +18,33 @@ const ONE = 1;
 const FFT_SIZE = 2048;
 const SMOOTHING_TIME_CONSTANT = 0.85;
 
-/**
- * Status states returned by `useAudioCapture`.
- */
-type Status =
-	| "idle"
-	| "requesting-mic"
-	| "mic-ready"
-	| "starting-render"
-	| "running"
-	| "stopped"
-	| "error";
+/** Wait for a specified number of milliseconds. */
+function delay(ms: number): Promise<void> {
+	// oxlint-disable-next-line promise/avoid-new
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms);
+	});
+}
 
 /**
  * Result object returned by the `useAudioCapture` hook.
  */
 type UseAudioCaptureResult = {
-	analyserRef: { current: AnalyserNode | undefined };
+	analyserRef: {
+		current:
+			| Pick<AnalyserNode, "fftSize" | "frequencyBinCount" | "getByteTimeDomainData">
+			| undefined;
+	};
 	timeDomainBytesRef: { current: Uint8Array<ArrayBuffer> | undefined };
 	/**
 	 * Start microphone capture for the given device id (or default if omitted).
 	 * @param deviceId - Optional device id or "default" value.
 	 */
-	startMic(deviceId?: string): Promise<MediaStream | undefined>;
+	startMic: (deviceId?: string) => Promise<MinimalMediaStream | undefined>;
 	/** Start capture from the currently visible tab/screen (display audio). */
-	startDisplayAudio(): Promise<MediaStream | undefined>;
+	startDisplayAudio: () => Promise<MinimalMediaStream | undefined>;
 	/** Stop any ongoing capture and optionally avoid setting the stopped status. */
-	stop(options?: { setStoppedStatus?: boolean }): Promise<void>;
+	stop: (options?: { setStoppedStatus?: boolean }) => Promise<void>;
 	status: Status;
 	errorMessage: string | undefined;
 	audioInputDevicesRefreshKey: number;
@@ -54,10 +61,11 @@ type UseAudioCaptureResult = {
  * @returns An object containing refs, status, and lifecycle helpers.
  */
 export default function useAudioCapture(): UseAudioCaptureResult {
-	const analyserRef = useRef<AnalyserNode | undefined>(undefined);
+	const analyserRef = useRef<MinimalAnalyserNode | undefined>(undefined);
 	const timeDomainBytesRef = useRef<Uint8Array<ArrayBuffer> | undefined>(undefined);
-	const mediaStreamRef = useRef<MediaStream | undefined>(undefined);
-	const audioContextRef = useRef<AudioContext | undefined>(undefined);
+	const mediaStreamRef = useRef<MinimalMediaStream | undefined>(undefined);
+	const sourceNodeRef = useRef<MinimalMediaStreamAudioSourceNode | undefined>(undefined);
+	const audioContextRef = useRef<Pick<AudioContext, "close" | "resume"> | undefined>(undefined);
 
 	const [status, setStatus] = useState<Status>("idle");
 	const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
@@ -69,28 +77,32 @@ export default function useAudioCapture(): UseAudioCaptureResult {
 	 *
 	 * @param options.setStoppedStatus - If `false` the hook will not set the status to "stopped".
 	 */
-	async function stop(options?: { setStoppedStatus?: boolean }): Promise<void> {
-		const stream = mediaStreamRef.current;
-		if (stream) {
-			stopMediaStreamTracks(stream);
-			mediaStreamRef.current = undefined;
-		}
+	const stop = useCallback(
+		async (options?: { setStoppedStatus?: boolean }): Promise<void> => {
+			const stream = mediaStreamRef.current;
+			if (stream) {
+				stopMediaStreamTracks(stream);
+				mediaStreamRef.current = undefined;
+			}
 
-		analyserRef.current = undefined;
-		timeDomainBytesRef.current = undefined;
+			analyserRef.current = undefined;
+			timeDomainBytesRef.current = undefined;
 
-		const audioContext = audioContextRef.current;
-		if (audioContext) {
-			audioContextRef.current = undefined;
-			await closeAudioContextSafely(audioContext);
-		}
+			const audioContext = audioContextRef.current;
+			if (audioContext) {
+				audioContextRef.current = undefined;
+				sourceNodeRef.current = undefined;
+				await closeAudioContextSafely(audioContext);
+			}
 
-		setErrorMessage(undefined);
-		setCurrentStreamLabel(undefined);
-		if (options?.setStoppedStatus !== false) {
-			setStatus("stopped");
-		}
-	}
+			setErrorMessage(undefined);
+			setCurrentStreamLabel(undefined);
+			if (options?.setStoppedStatus !== false) {
+				setStatus("stopped");
+			}
+		},
+		[setStatus, setErrorMessage, setCurrentStreamLabel],
+	);
 
 	/**
 	 * Internal helper to start a stream and wire up analyser state.
@@ -98,85 +110,114 @@ export default function useAudioCapture(): UseAudioCaptureResult {
 	 * @param getStream - Function returning a `MediaStream` promise.
 	 * @param streamLabel - Human-readable label for the current stream.
 	 */
-	async function startStream(
-		getStream: () => Promise<MediaStream>,
-		streamLabel: string,
-	): Promise<MediaStream | undefined> {
-		setErrorMessage(undefined);
-		setCurrentStreamLabel(undefined);
-		setStatus("requesting-mic");
+	const startStream = useCallback(
+		async (
+			getStream: () => Promise<MinimalMediaStream>,
+			label: string,
+		): Promise<MinimalMediaStream | undefined> => {
+			setCurrentStreamLabel(label);
+			setErrorMessage(undefined);
+			setStatus("requesting-mic");
 
-		await stop({ setStoppedStatus: false });
+			let stream: MinimalMediaStream | undefined = undefined;
+			try {
+				stream = await getStream();
+			} catch (error) {
+				await stop({ setStoppedStatus: false });
+				setErrorMessage(error instanceof Error ? error.message : String(error));
+				setStatus("error");
+				return undefined;
+			}
 
-		const stream = await getStream().catch(async (error: unknown) => {
-			await stop({ setStoppedStatus: false });
-			setErrorMessage(String(error));
-			setStatus("error");
-			return undefined;
-		});
-		if (stream === undefined) {
-			return undefined;
-		}
+			if (stream === undefined) {
+				return undefined;
+			}
 
-		if (stream.getAudioTracks().length === ZERO) {
-			stopMediaStreamTracks(stream);
-			await stop({ setStoppedStatus: false });
-			setErrorMessage("No audio track received from stream");
-			setStatus("error");
-			return undefined;
-		}
+			if (stream.getAudioTracks().length === ZERO) {
+				await stop({ setStoppedStatus: false });
+				stopMediaStreamTracks(stream);
+				setErrorMessage("No audio track received from stream");
+				setStatus("error");
+				return undefined;
+			}
 
-		mediaStreamRef.current = stream;
-		setAudioInputDevicesRefreshKey((prevKey) => prevKey + ONE);
+			mediaStreamRef.current = stream;
+			setAudioInputDevicesRefreshKey((prevKey) => prevKey + ONE);
 
-		const analyserResult = createTimeDomainAnalyser({
-			stream,
-			fftSize: FFT_SIZE,
-			smoothingTimeConstant: SMOOTHING_TIME_CONSTANT,
-		});
-		if ("errorMessage" in analyserResult) {
-			await stop({ setStoppedStatus: false });
-			setErrorMessage(analyserResult.errorMessage);
-			setStatus("error");
-			return undefined;
-		}
+			// [Attempt 5] Add a small delay for the hardware/OS to "warm up"
+			const WARMUP_DELAY_MS = 200;
+			await delay(WARMUP_DELAY_MS);
 
-		audioContextRef.current = analyserResult.audioContext;
-		analyserRef.current = analyserResult.analyser;
-		timeDomainBytesRef.current = analyserResult.timeDomainBytes;
+			const analyserResult = await createTimeDomainAnalyser({
+				stream,
+				fftSize: FFT_SIZE,
+				smoothingTimeConstant: SMOOTHING_TIME_CONSTANT,
+			});
+			if ("errorMessage" in analyserResult) {
+				await stop({ setStoppedStatus: false });
+				setErrorMessage(analyserResult.errorMessage);
+				setStatus("error");
+				return undefined;
+			}
 
-		setStatus("mic-ready");
-		setCurrentStreamLabel(streamLabel);
-		return stream;
-	}
+			audioContextRef.current = analyserResult.audioContext;
+			sourceNodeRef.current = analyserResult.source;
+			analyserRef.current = analyserResult.analyser;
+			timeDomainBytesRef.current = analyserResult.timeDomainBytes;
+
+			setStatus("mic-ready");
+
+			return stream;
+		},
+		[stop, setStatus, setErrorMessage, setCurrentStreamLabel],
+	);
 
 	/**
 	 * Start microphone capture for an optional device id.
 	 * @param deviceId - Optional device id or "default" to use the default device.
 	 */
-	function startMic(deviceId?: string): Promise<MediaStream | undefined> {
-		return startStream(
-			() => getMicStreamForDevice(deviceId),
-			deviceId === undefined || deviceId === "default" ? "microphone" : `microphone (${deviceId})`,
-		);
-	}
+	const startMic = useCallback(
+		(deviceId?: string): Promise<MinimalMediaStream | undefined> =>
+			startStream(
+				() => getMicStreamForDevice(deviceId),
+				deviceId === undefined || deviceId === "default"
+					? "microphone"
+					: `microphone (${deviceId})`,
+			),
+		[startStream],
+	);
 
 	/** Start display (tab/screen) audio capture. */
-	function startDisplayAudio(): Promise<MediaStream | undefined> {
-		return startStream(() => getDisplayAudioStream(), "tab/screen audio");
-	}
+	const startDisplayAudio = useCallback(
+		(): Promise<MinimalMediaStream | undefined> =>
+			startStream(() => getDisplayAudioStream(), "tab/screen audio"),
+		[startStream],
+	);
 
-	useEffect(() => (): void => void stop(), []);
+	useEffect(() => (): void => void stop(), [stop]);
 
-	return {
-		analyserRef,
-		timeDomainBytesRef,
-		startMic,
-		startDisplayAudio,
-		stop,
-		status,
-		errorMessage,
-		audioInputDevicesRefreshKey,
-		currentStreamLabel,
-	};
+	return useMemo(
+		() => ({
+			analyserRef,
+			timeDomainBytesRef,
+			startMic,
+			startDisplayAudio,
+			stop,
+			status,
+			errorMessage,
+			audioInputDevicesRefreshKey,
+			currentStreamLabel,
+		}),
+		[
+			analyserRef,
+			timeDomainBytesRef,
+			startMic,
+			startDisplayAudio,
+			stop,
+			status,
+			errorMessage,
+			audioInputDevicesRefreshKey,
+			currentStreamLabel,
+		],
+	);
 }

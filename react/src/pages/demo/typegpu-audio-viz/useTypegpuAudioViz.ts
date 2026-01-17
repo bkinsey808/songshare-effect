@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import typegpu from "typegpu";
 
 import useAudioVizInput from "@/react/audio/useAudioVizInput";
+import resizeCanvasToDisplaySize from "@/react/canvas/resizeCanvasToDisplaySize";
+import { useCanvasAnimation } from "@/react/canvas/useCanvasAnimation";
 import drawAudioVizFallbackFrame from "@/react/pages/demo/typegpu-audio-viz/drawAudioVizFallbackFrame";
-import resizeCanvasToDisplaySize from "@/react/typegpu/resizeCanvasToDisplaySize";
 import runTypeGpuAudioVizDemo from "@/react/typegpu/runTypeGpuAudioVizDemo";
-import { useCanvasAnimation } from "@/react/typegpu/useCanvasAnimation";
 
 type DemoStatus =
 	| "idle"
@@ -72,21 +72,24 @@ export default function useTypegpuAudioViz(canvasRef: React.RefObject<HTMLCanvas
 		stopFn();
 	}
 
-	async function stop(options?: { setStoppedStatus?: boolean }): Promise<void> {
-		stopCanvas();
-		stopTypeGpuIfRunning();
-		resetLevel();
+	const stop = useCallback(
+		async (options?: { setStoppedStatus?: boolean }): Promise<void> => {
+			stopCanvas();
+			stopTypeGpuIfRunning();
+			resetLevel();
 
-		await stopAudio(options);
+			await stopAudio(options);
 
-		setRenderInfo(undefined);
-		setErrorMessage(undefined);
-		if (options?.setStoppedStatus !== false) {
-			setStatus("stopped");
-		}
-	}
+			setRenderInfo(undefined);
+			setErrorMessage(undefined);
+			if (options?.setStoppedStatus !== false) {
+				setStatus("stopped");
+			}
+		},
+		[stopCanvas, stopAudio, resetLevel],
+	);
 
-	async function startMic(): Promise<void> {
+	const startMic = useCallback(async (): Promise<void> => {
 		setErrorMessage(undefined);
 		setRenderInfo(undefined);
 		setStatus("requesting-mic");
@@ -156,9 +159,19 @@ export default function useTypegpuAudioViz(canvasRef: React.RefObject<HTMLCanvas
 				duration: 0,
 			},
 		);
-	}
+	}, [
+		canvasRef,
+		stop,
+		startAudioMic,
+		startLevelUiTimer,
+		stopLevelUiTimer,
+		readSmoothedLevelNow,
+		readBytesAndSmoothedLevelNow,
+		currentStreamLabel,
+		startCanvas,
+	]);
 
-	async function startDeviceAudio(): Promise<void> {
+	const startDeviceAudio = useCallback(async (): Promise<void> => {
 		setErrorMessage(undefined);
 		setRenderInfo(undefined);
 		setStatus("requesting-mic");
@@ -227,7 +240,17 @@ export default function useTypegpuAudioViz(canvasRef: React.RefObject<HTMLCanvas
 				duration: 0,
 			},
 		);
-	}
+	}, [
+		canvasRef,
+		stop,
+		startAudioDeviceAudio,
+		startLevelUiTimer,
+		stopLevelUiTimer,
+		readSmoothedLevelNow,
+		readBytesAndSmoothedLevelNow,
+		currentStreamLabel,
+		startCanvas,
+	]);
 
 	useEffect(() => {
 		// Mirror errors from the capture hook into the page UI
@@ -244,13 +267,15 @@ export default function useTypegpuAudioViz(canvasRef: React.RefObject<HTMLCanvas
 		}
 	}, [audioErrorMessage, audioStatus]);
 
-	useEffect((): (() => void) => {
-		stopCanvas();
-		stopTypeGpuIfRunning();
-		stopLevelUiTimer();
-		void stopAudio();
-		return (): void => undefined;
-	}, [stopCanvas, stopAudio, stopLevelUiTimer]);
+	useEffect(
+		() => (): void => {
+			stopCanvas();
+			stopTypeGpuIfRunning();
+			stopLevelUiTimer();
+			void stopAudio();
+		},
+		[stopCanvas, stopAudio, stopLevelUiTimer],
+	);
 
 	return {
 		status,

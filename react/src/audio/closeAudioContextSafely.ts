@@ -7,7 +7,9 @@
  * @param audioContext - The `AudioContext` instance to close.
  * @returns A promise that resolves once the close attempt completes.
  */
-export default async function closeAudioContextSafely(audioContext: AudioContext): Promise<void> {
+export default async function closeAudioContextSafely(
+	audioContext: Pick<AudioContext, "close">,
+): Promise<void> {
 	await audioContext.close().catch(() => {
 		// ignore
 	});

@@ -1,3 +1,9 @@
+import type {
+	MinimalAnalyserNode,
+	MinimalMediaStream,
+	MinimalMediaStreamAudioSourceNode,
+} from "./types";
+
 import getAudioContextCtor from "./getAudioContextCtor";
 
 /**
@@ -14,17 +20,19 @@ import getAudioContextCtor from "./getAudioContextCtor";
  * @param args.smoothingTimeConstant - The analyser smoothing constant.
  * @returns Either the instantiated `audioContext`, `analyser`, and `timeDomainBytes`, or an `{ errorMessage }` object.
  */
-export default function createTimeDomainAnalyser(args: {
-	stream: MediaStream;
+export default async function createTimeDomainAnalyser(args: {
+	stream: MinimalMediaStream;
 	fftSize: number;
 	smoothingTimeConstant: number;
-}):
+}): Promise<
 	| {
-			audioContext: AudioContext;
-			analyser: AnalyserNode;
+			audioContext: Pick<AudioContext, "close" | "resume">;
+			source: MinimalMediaStreamAudioSourceNode;
+			analyser: MinimalAnalyserNode;
 			timeDomainBytes: Uint8Array<ArrayBuffer>;
 	  }
-	| { errorMessage: string } {
+	| { errorMessage: string }
+> {
 	const { stream, fftSize, smoothingTimeConstant } = args;
 
 	const AudioContextCtor = getAudioContextCtor();
@@ -33,14 +41,35 @@ export default function createTimeDomainAnalyser(args: {
 	}
 
 	const audioContext = new AudioContextCtor();
+
+	// Type guard to satisfy createMediaStreamSource which requires a full MediaStream.
+	// In practice, our MinimalMediaStream is always a real MediaStream at runtime.
+	if (!(typeof MediaStream !== "undefined" && stream instanceof MediaStream)) {
+		return { errorMessage: "Invalid MediaStream provided" };
+	}
+
 	const source = audioContext.createMediaStreamSource(stream);
 	const analyser = audioContext.createAnalyser();
 	analyser.fftSize = fftSize;
 	analyser.smoothingTimeConstant = smoothingTimeConstant;
 	source.connect(analyser);
 
+	// Some browsers require the analyser to be connected to a destination to
+	// stay active. We connect to a GainNode with 0 gain so no audio is actually heard.
+	const silentGain = audioContext.createGain();
+	silentGain.gain.value = 0;
+	analyser.connect(silentGain);
+	silentGain.connect(audioContext.destination);
+
+	if (audioContext.state === "suspended") {
+		await audioContext.resume().catch((error: unknown) => {
+			console.error("[AudioCapture] Failed to resume AudioContext:", error);
+		});
+	}
+
 	return {
 		audioContext,
+		source,
 		analyser,
 		timeDomainBytes: new Uint8Array(new ArrayBuffer(analyser.fftSize)),
 	};

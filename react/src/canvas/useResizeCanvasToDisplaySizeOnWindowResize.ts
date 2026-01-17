@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 
-import resizeCanvasToDisplaySize from "@/react/typegpu/resizeCanvasToDisplaySize";
+import resizeCanvasToDisplaySize from "@/react/canvas/resizeCanvasToDisplaySize";
 
 export default function useResizeCanvasToDisplaySizeOnWindowResize(canvasRef: {
-	current: HTMLCanvasElement | null;
+	current: HTMLCanvasElement | null | undefined;
 }): void {
 	useEffect(() => {
 		function onResize(): void {

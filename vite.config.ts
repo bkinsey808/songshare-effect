@@ -16,7 +16,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const config: UserConfig = defineConfig({
 	root: ".",
 	plugins: [
-		typeGPU(),
+		typeGPU({}),
 		react({
 			babel: {
 				plugins: [

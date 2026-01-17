@@ -1,3 +1,5 @@
+import type { MinimalMediaStream } from "./types";
+
 /**
  * Request a display (tab/screen) capture stream that includes audio.
  *
@@ -7,7 +9,7 @@
  * @throws {TypeError} If the browser does not support `mediaDevices` or `getDisplayMedia()`.
  * @returns A promise resolving to the captured `MediaStream`.
  */
-export default function getDisplayAudioStream(): Promise<MediaStream> {
+export default function getDisplayAudioStream(): Promise<MinimalMediaStream> {
 	const { mediaDevices } = navigator;
 	if (mediaDevices === undefined) {
 		throw new TypeError("This browser does not support mediaDevices");

@@ -1,7 +1,9 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import useAudioCapture from "@/react/audio/useAudioCapture";
 import useSmoothedAudioLevelRef from "@/react/audio/useSmoothedAudioLevelRef";
+
+import type { MinimalMediaStream } from "./types";
 
 const ZERO = 0;
 
@@ -29,9 +31,9 @@ export default function useAudioVizInput(options: Options): {
 	/** Current UI-friendly level (cached on interval) */
 	levelUiValue: number | undefined;
 	/** Start microphone capture for the currently-selected device */
-	startMic: () => Promise<MediaStream | undefined>;
+	startMic: () => Promise<MinimalMediaStream | undefined>;
 	/** Start display/tab audio capture */
-	startDeviceAudio: () => Promise<MediaStream | undefined>;
+	startDeviceAudio: () => Promise<MinimalMediaStream | undefined>;
 	/** Stop capture (optionally control whether to set stopped status) */
 	stop: (options?: { setStoppedStatus?: boolean }) => Promise<void>;
 	selectedAudioInputDeviceId: string;
@@ -77,7 +79,7 @@ export default function useAudioVizInput(options: Options): {
 		audioLevelRef.current?.reset();
 	}, [audioLevelRef]);
 
-	const startMic = useCallback(async (): Promise<MediaStream | undefined> => {
+	const startMic = useCallback(async (): Promise<MinimalMediaStream | undefined> => {
 		const stream = await audioCapture.startMic(selectedAudioInputDeviceId);
 		if (!stream) {
 			return undefined;
@@ -85,9 +87,9 @@ export default function useAudioVizInput(options: Options): {
 		startLevelUiTimer();
 		readSmoothedLevelNow();
 		return stream;
-	}, [audioCapture, readSmoothedLevelNow, selectedAudioInputDeviceId, startLevelUiTimer]);
+	}, [audioCapture, selectedAudioInputDeviceId, startLevelUiTimer, readSmoothedLevelNow]);
 
-	const startDeviceAudio = useCallback(async (): Promise<MediaStream | undefined> => {
+	const startDeviceAudio = useCallback(async (): Promise<MinimalMediaStream | undefined> => {
 		const stream = await audioCapture.startDisplayAudio();
 		if (!stream) {
 			return undefined;
@@ -95,18 +97,24 @@ export default function useAudioVizInput(options: Options): {
 		startLevelUiTimer();
 		readSmoothedLevelNow();
 		return stream;
-	}, [audioCapture, readSmoothedLevelNow, startLevelUiTimer]);
+	}, [audioCapture, startLevelUiTimer, readSmoothedLevelNow]);
+
+	// Capture stop in a ref to keep it stable regardless of audioCapture object changes
+	const captureStopRef = useRef(audioCapture.stop);
+	useEffect(() => {
+		captureStopRef.current = audioCapture.stop;
+	}, [audioCapture.stop]);
 
 	const stop = useCallback(
 		async (options?: { setStoppedStatus?: boolean }) => {
 			resetLevel();
-			if (options?.setStoppedStatus === undefined) {
-				await audioCapture.stop();
+			if (options) {
+				await captureStopRef.current(options);
 			} else {
-				await audioCapture.stop({ setStoppedStatus: options.setStoppedStatus });
+				await captureStopRef.current();
 			}
 		},
-		[audioCapture, resetLevel],
+		[resetLevel],
 	);
 
 	return {

@@ -5,7 +5,11 @@ import useSmoothedAudioLevel, {
 } from "@/react/audio/useSmoothedAudioLevel";
 
 type AudioLevelRefs = {
-	analyserRef: { current: AnalyserNode | undefined };
+	analyserRef: {
+		current:
+			| Pick<AnalyserNode, "fftSize" | "frequencyBinCount" | "getByteTimeDomainData">
+			| undefined;
+	};
 	timeDomainBytesRef: { current: Uint8Array<ArrayBuffer> | undefined };
 };
 

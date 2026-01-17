@@ -5,7 +5,8 @@ import { Navigate, Outlet, useParams } from "react-router-dom";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
-import { getStoredLanguage, setStoredLanguage } from "./languageStorage";
+import getStoredLanguage from "./getStoredLanguage";
+import setStoredLanguage from "./setStoredLanguage";
 
 function LanguageProviderInner(): ReactElement {
 	const { lang } = useParams<{ lang: string }>();

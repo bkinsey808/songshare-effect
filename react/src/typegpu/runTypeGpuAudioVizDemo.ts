@@ -4,6 +4,7 @@ import * as d from "typegpu/data";
 /* oxlint-disable-next-line import/no-namespace */
 import * as std from "typegpu/std";
 
+import clamp01 from "@/react/audio/clamp01";
 import logResolvedWgslOnFailure from "@/react/typegpu/logResolvedWgslOnFailure";
 
 type StopFn = () => void;
@@ -35,19 +36,6 @@ const GREEN_LEVEL_GAIN = 0.6;
 const BLUE_BASE = 0.4;
 const BLUE_INV_GAIN = 0.35;
 const BLUE_LEVEL_GAIN = 0.25;
-
-function clamp01(value: number): number {
-	if (Number.isNaN(value)) {
-		return ZERO;
-	}
-	if (value < ZERO) {
-		return ZERO;
-	}
-	if (value > ONE) {
-		return ONE;
-	}
-	return value;
-}
 
 function dumpResolvedWgsl(tgpuLike: unknown, entryPoints: unknown[]): void {
 	logResolvedWgslOnFailure({ prefix: "[TypeGPU AudioViz]", tgpuLike, entryPoints });

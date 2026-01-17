@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { setStoredLanguage } from "@/react/language/languageStorage";
+import setStoredLanguage from "@/react/language/setStoredLanguage";
 import { LANG_PREFIX_LENGTH } from "@/shared/constants/http";
 import { type SupportedLanguageType } from "@/shared/language/supported-languages";
 

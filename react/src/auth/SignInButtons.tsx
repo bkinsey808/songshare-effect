@@ -5,7 +5,7 @@ import useLanguage from "@/react/language/useLanguage";
 import getFrontEndProviderData from "@/react/providers/providers";
 import computeRedirectPort from "@/react/utils/computeRedirectPort";
 import cssVars from "@/react/utils/cssVars";
-import toTitleCase from "@/react/utils/stringUtils";
+import toTitleCase from "@/react/utils/toTitleCase";
 import { apiOauthSignInPath } from "@/shared/paths";
 import { activeProviders } from "@/shared/providers";
 import { langQueryParam, redirectPortQueryParam } from "@/shared/queryParams";

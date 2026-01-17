@@ -1,9 +1,9 @@
 import { useRef, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
+import useResizeCanvasToDisplaySizeOnWindowResize from "@/react/canvas/useResizeCanvasToDisplaySizeOnWindowResize";
 import TypegpuAudioVizDemoView from "@/react/pages/demo/typegpu-audio-viz/TypegpuAudioVizDemoView";
 import useTypegpuAudioViz from "@/react/pages/demo/typegpu-audio-viz/useTypegpuAudioViz";
-import useResizeCanvasToDisplaySizeOnWindowResize from "@/react/typegpu/useResizeCanvasToDisplaySizeOnWindowResize";
 
 const CANVAS_WIDTH = 900;
 const CANVAS_HEIGHT = 360;
