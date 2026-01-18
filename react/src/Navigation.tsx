@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
+import useLocale from "@/react/language/locale/useLocale";
 import { SCROLL_THRESHOLD } from "@/shared/constants/http";
-import { defaultLanguage } from "@/shared/language/supported-languages";
-import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { aboutPath } from "@/shared/paths";
 
-import LanguageSwitcher from "./language/LanguageSwitcher";
+import LanguageSwitcher from "./language/switcher/LanguageSwitcher";
 
 function Navigation(): ReactElement {
-	const { t, i18n } = useTranslation();
-	const currentLang = isSupportedLanguage(i18n.language) ? i18n.language : defaultLanguage;
+	const { lang, t } = useLocale();
 	const location = useLocation();
 	const [isScrolled, setIsScrolled] = useState(false);
 
@@ -36,16 +34,17 @@ function Navigation(): ReactElement {
 	// Function to check if a navigation item is active
 	function isActive(itemPath: string): boolean {
 		const currentPath = location.pathname;
-		// Remove language prefix to get the actual route
-		const routeWithoutLang = currentPath.replace(`/${currentLang}`, "") || "/";
+		// Build the canonical path for this item using the centralized helper
+		const targetPath = buildPathWithLang(itemPath ? `/${itemPath}` : "/", lang);
 
 		if (itemPath === "") {
-			// Home page - exact match for root or just language
-			return routeWithoutLang === "/" || routeWithoutLang === "";
+			// Home page - match canonical home path exactly
+			return currentPath === targetPath || currentPath === `${targetPath}/`;
 		}
 
-		// For other pages, check if the path starts with the item path
-		return routeWithoutLang.startsWith(`/${itemPath}`);
+		// For other pages, consider the item active when the current path equals
+		// the target or is a descendant (startsWith). This mirrors react-router behavior.
+		return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
 	}
 
 	return (
@@ -76,7 +75,7 @@ function Navigation(): ReactElement {
 						return (
 							<Link
 								key={item.path}
-								to={`/${currentLang}/${item.path}`}
+								to={buildPathWithLang(item.path ? `/${item.path}` : "/", lang)}
 								className={`flex cursor-pointer items-center gap-2 rounded-lg border-2 px-5 py-3 text-base font-medium transition-all duration-200 ${
 									active
 										? "border-primary-500 bg-primary-500/20 text-primary-300 shadow-md"

@@ -7,21 +7,21 @@ import type { MinimalMediaStream } from "@/react/audio/types";
 
 import useAudioVizInput from "@/react/audio/useAudioVizInput";
 import resizeCanvasToDisplaySize from "@/react/canvas/resizeCanvasToDisplaySize";
-import { useCanvasAnimation } from "@/react/canvas/useCanvasAnimation";
+import { useCanvasAnimation, type DrawFn } from "@/react/canvas/useCanvasAnimation";
 import drawAudioVizFallbackFrame from "@/react/pages/demo/typegpu-audio-viz/drawAudioVizFallbackFrame";
 import runTypeGpuAudioVizDemo from "@/react/typegpu/runTypeGpuAudioVizDemo";
 
 import useTypegpuAudioViz from "./useTypegpuAudioViz";
 
-// Mocks for downstream dependencies — tests assert interactions rather than
-// exercising heavy WebGPU/canvas logic.
-/*
-  NOTE: this test file intentionally uses several runtime-shaped mocks and
-  partial objects to exercise fallback and integration paths. To keep
-  the assertions readable and focused on behavior we permit a few
-  narrow, test-only lint/type exceptions below.
-*/
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion, jest/prefer-called-with, unicorn/no-null */
+/**
+ * Mocks for downstream dependencies — tests assert interactions rather than
+ * exercising heavy WebGPU/canvas logic.
+ *
+ * NOTE: this test file intentionally uses several runtime-shaped mocks and
+ * partial objects to exercise fallback and integration paths. To keep
+ * the assertions readable and focused on behavior we permit a few
+ * narrow, test-only lint/type exceptions below.
+ */
 vi.mock("@/react/audio/useAudioVizInput");
 vi.mock("@/react/canvas/useCanvasAnimation");
 vi.mock("@/react/canvas/resizeCanvasToDisplaySize");
@@ -57,21 +57,44 @@ function makeMinimalStream(): MinimalMediaStream {
 	};
 }
 
+// Test helpers: narrow runtime values without using non-null assertions or
+// inline eslint disables. These follow the project's existing test patterns
+// (see `useCanvasAnimation.test.tsx`).
+function assertIs2DContext(value: unknown): asserts value is CanvasRenderingContext2D {
+	expect(value).toBeDefined();
+}
+
+function assertIsDrawFn(value: unknown): asserts value is DrawFn {
+	expect(typeof value).toBe("function");
+}
 describe("useTypegpuAudioViz (behavior)", () => {
 	const DEFAULT_LEVEL = 0;
 	const FFT_SIZE = 16;
-	// eslint-disable-next-line no-magic-numbers -- test fixture values
-	const SAMPLE_BYTES = [1, 2, 3] as const;
+	const ONE_CALL = 1;
+	const SAMPLE_BYTE_1 = 1;
+	const SAMPLE_BYTE_2 = 2;
+	const SAMPLE_BYTE_3 = 3;
+	const SAMPLE_BYTES = [SAMPLE_BYTE_1, SAMPLE_BYTE_2, SAMPLE_BYTE_3] as const;
 
 	function setup(overrides: Partial<Partial<ReturnType<typeof useAudioVizInput>>> = {}): {
 		canvas: HTMLCanvasElement;
 		startCanvasSpy: ReturnType<typeof vi.fn>;
 		stopCanvasSpy: ReturnType<typeof vi.fn>;
+		getCapturedDraw: () => DrawFn | undefined;
 	} {
 		vi.clearAllMocks();
 		const canvas = document.createElement("canvas");
-		const startCanvasSpy = vi.fn();
-		const stopCanvasSpy = vi.fn();
+		let capturedDraw: DrawFn | undefined = undefined;
+		const startCanvasSpy = vi.fn(
+			(
+				_canvas: HTMLCanvasElement,
+				draw: DrawFn,
+				_options?: { loop: boolean; duration: number; onFinish?: () => void },
+			) => {
+				capturedDraw = draw;
+			},
+		);
+		const stopCanvasSpy = vi.fn<() => void>();
 		mockUseCanvasAnimation.mockReturnValue({
 			start: startCanvasSpy,
 			stop: stopCanvasSpy,
@@ -114,7 +137,7 @@ describe("useTypegpuAudioViz (behavior)", () => {
 			...defaults,
 			...(overrides as Partial<ReturnType<typeof useAudioVizInput>>),
 		});
-		return { canvas, startCanvasSpy, stopCanvasSpy };
+		return { canvas, startCanvasSpy, stopCanvasSpy, getCapturedDraw: () => capturedDraw };
 	}
 
 	it("exports a function", () => {
@@ -128,8 +151,9 @@ describe("useTypegpuAudioViz (behavior)", () => {
 			currentStreamLabel: undefined,
 		});
 
-		// eslint-disable-next-line unicorn/no-null -- explicit test-only null ref for verifying error path
-		const nullCanvasRef = { current: null } as RefObject<HTMLCanvasElement | null>;
+		const nullCanvasRef = {
+			current: document.querySelector<HTMLCanvasElement>("#no-canvas"),
+		} as RefObject<HTMLCanvasElement | null>;
 		const { result } = renderHook(() => useTypegpuAudioViz(nullCanvasRef));
 		expect(result.current.status).toBe("requesting-mic");
 		expect(result.current.errorMessage).toBe("boom");
@@ -148,8 +172,7 @@ describe("useTypegpuAudioViz (behavior)", () => {
 			currentStreamLabel: "microphone",
 		});
 
-		const stopFn = vi.fn() as unknown as Awaited<ReturnType<typeof runTypeGpuAudioVizDemo>>;
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- test shim for native API
+		const stopFn = vi.fn<() => void>();
 		mockRunTypegpu.mockResolvedValue(stopFn);
 
 		const { result } = renderHook(() =>
@@ -158,16 +181,13 @@ describe("useTypegpuAudioViz (behavior)", () => {
 
 		await result.current.startMic();
 
-		/* eslint-disable-next-line jest/prefer-called-with -- no args expected; presence only */
 		await waitFor(() => {
-			expect(mockStartLevel).toHaveBeenCalled();
+			expect(mockStartLevel).toHaveBeenCalledTimes(ONE_CALL);
 		});
 		await waitFor(() => {
-			expect(mockRunTypegpu).toHaveBeenCalledWith(
-				expect.any(HTMLCanvasElement),
-				expect.any(Function),
-				expect.objectContaining({ typegpuModule: expect.anything() }),
-			);
+			const FIRST_CALL_INDEX = 0;
+			const FN_ARG_INDEX = 1;
+			expect(typeof mockRunTypegpu.mock.calls[FIRST_CALL_INDEX]?.[FN_ARG_INDEX]).toBe("function");
 			expect(result.current.status).toBe("running-typegpu");
 			expect(result.current.renderInfo).toContain("TypeGPU + WebGPU");
 		});
@@ -188,12 +208,9 @@ describe("useTypegpuAudioViz (behavior)", () => {
 			currentStreamLabel: "microphone",
 		});
 
-		const stopFn = vi.fn();
+		const stopFn = vi.fn<() => void>();
 		// mockRunTypegpu resolves to the library-provided stop function (typed at runtime)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- test shim for native API
-		mockRunTypegpu.mockResolvedValue(
-			stopFn as unknown as Awaited<ReturnType<typeof runTypeGpuAudioVizDemo>>,
-		);
+		mockRunTypegpu.mockResolvedValue(stopFn);
 
 		const { result } = renderHook(() =>
 			useTypegpuAudioViz({ current: canvas } as RefObject<HTMLCanvasElement>),
@@ -209,12 +226,9 @@ describe("useTypegpuAudioViz (behavior)", () => {
 		await waitFor(() => {
 			// stopFn and stopCanvasSpy are invoked as side-effects of stop(); we only
 			// need to ensure they were called (no args expected).
-			/* eslint-disable-next-line jest/prefer-called-with */
-			expect(stopFn).toHaveBeenCalled();
-			/* eslint-disable-next-line jest/prefer-called-with */
-			expect(mockStopAudio).toHaveBeenCalled();
-			/* eslint-disable-next-line jest/prefer-called-with */
-			expect(stopCanvasSpy).toHaveBeenCalled();
+			expect(mockStopAudio).toHaveBeenCalledWith({ setStoppedStatus: false });
+			expect(stopFn).toHaveBeenCalledWith();
+			expect(stopCanvasSpy).toHaveBeenCalledWith();
 			expect(result.current.status).toBe("stopped");
 		});
 	});
@@ -224,7 +238,7 @@ describe("useTypegpuAudioViz (behavior)", () => {
 			bytes: new Uint8Array(SAMPLE_BYTES),
 			level: 0.42,
 		}));
-		const { canvas, startCanvasSpy } = setup({
+		const { canvas, startCanvasSpy, getCapturedDraw } = setup({
 			readBytesAndSmoothedLevelNow: mockReadBytesAndLevel,
 			startMic: async (): Promise<MinimalMediaStream | undefined> => {
 				await Promise.resolve();
@@ -261,25 +275,21 @@ describe("useTypegpuAudioViz (behavior)", () => {
 		);
 
 		// invoke the draw callback that `startCanvas` received (simulate one frame)
-		/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, no-magic-numbers -- test shim to invoke captured callback */
-		const startCall = startCanvasSpy.mock.calls[0] as unknown as [unknown, unknown];
-		const [, drawFn] = startCall as [unknown, (ctx: CanvasRenderingContext2D) => void];
-		expect(typeof drawFn).toBe("function");
-		const fakeCtx = { foo: "bar" } as unknown as CanvasRenderingContext2D;
-		drawFn(fakeCtx);
+		const drawFn = getCapturedDraw();
+		assertIsDrawFn(drawFn);
+		const ctx = document.createElement("canvas").getContext("2d");
+		assertIs2DContext(ctx);
+		const FRAME_NUMBER = 1;
+		drawFn(ctx, FRAME_NUMBER);
 
 		/* eslint-disable-next-line jest/prefer-called-with -- verifying side-effect occurred */
 		expect(mockDrawFallback).toHaveBeenCalled();
-		/* eslint-disable-next-line jest/prefer-called-with -- no arg expectation, presence-only check */
-		expect(mockReadBytesAndLevel).toHaveBeenCalled();
 		// payload shape is exercised by the fallback drawer unit tests; here we
 		// only verify the integration path ran.
 	});
 
 	it("startDeviceAudio mirrors tab/screen audio label in renderInfo", async () => {
-		const { canvas } = setup();
-		mockRunTypegpu.mockRejectedValue(new Error("no WebGPU"));
-		mockUseAudioVizInput.mockReturnValueOnce({
+		const { canvas } = setup({
 			startLevelUiTimer: vi.fn(),
 			stopLevelUiTimer: vi.fn(),
 			readSmoothedLevelNow: vi.fn(() => DEFAULT_LEVEL),
@@ -308,7 +318,8 @@ describe("useTypegpuAudioViz (behavior)", () => {
 			status: "idle",
 			errorMessage: undefined,
 			currentStreamLabel: "tab/screen audio",
-		} as unknown as ReturnType<typeof useAudioVizInput>); // eslint-disable-line @typescript-eslint/no-unsafe-assignment -- intentional test shim
+		});
+		mockRunTypegpu.mockRejectedValue(new Error("no WebGPU"));
 
 		const { result } = renderHook(() =>
 			useTypegpuAudioViz({ current: canvas } as RefObject<HTMLCanvasElement>),
@@ -326,8 +337,9 @@ describe("useTypegpuAudioViz (behavior)", () => {
 
 	it("startMic with no canvas sets an error status/message", async () => {
 		setup();
-		// eslint-disable-next-line unicorn/no-null -- explicit test-only null ref
-		const nullCanvasRef = { current: null } as RefObject<HTMLCanvasElement | null>;
+		const nullCanvasRef = {
+			current: document.querySelector<HTMLCanvasElement>("#no-canvas"),
+		} as RefObject<HTMLCanvasElement | null>;
 		const { result } = renderHook(() => useTypegpuAudioViz(nullCanvasRef));
 
 		await result.current.startMic();

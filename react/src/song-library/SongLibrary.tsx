@@ -1,18 +1,14 @@
 import { useEffect } from "react";
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import useLocale from "@/react/language/locale/useLocale";
 import { useAppStoreSelector } from "@/react/zustand/useAppStore";
-import { defaultLanguage } from "@/shared/language/supported-languages";
-import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
 import { type SongLibraryEntry } from "./song-library-schema";
 
 export default function SongLibrary(): ReactElement {
-	const { t, i18n } = useTranslation();
+	const { lang, t } = useLocale();
 	const navigate = useNavigate();
-	const rawLang: unknown = i18n.language;
-	const currentLang = isSupportedLanguage(rawLang) ? rawLang : defaultLanguage;
 	const ZERO = 0;
 
 	const libraryEntries = useAppStoreSelector<Record<string, SongLibraryEntry>>(
@@ -146,7 +142,7 @@ export default function SongLibrary(): ReactElement {
 								className="text-sm text-blue-400 transition-colors hover:text-blue-300"
 								onClick={() => {
 									if (entry.song_slug !== undefined && entry.song_slug !== "") {
-										void navigate(`/${currentLang}/songs/${entry.song_slug}`);
+										void navigate(`/${lang}/songs/${entry.song_slug}`);
 									}
 								}}
 								disabled={entry.song_slug === undefined || entry.song_slug === ""}

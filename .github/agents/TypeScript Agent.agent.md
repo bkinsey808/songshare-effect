@@ -1,6 +1,6 @@
 ---
 description: 'Custom agent for making TypeScript and React code changes in this repository, following project-specific rules and best practices.'
-tools: ['vscode', 'execute', 'read', 'agent', 'edit', 'search', 'web', 'todo']
+tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
 ---
 
 ## Purpose

@@ -35,7 +35,8 @@ export default function detectInitialLanguage(): SupportedLanguageType {
 
 	// 4. Detect from browser language
 	if (typeof navigator !== "undefined") {
-		return detectBrowserLanguage(navigator.language);
+		const lang = detectBrowserLanguage(String(navigator.language));
+		return lang;
 	}
 
 	// 5. Default fallback

@@ -1,14 +1,13 @@
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
 
-import setStoredLanguage from "@/react/language/setStoredLanguage";
-import { LANG_PREFIX_LENGTH } from "@/shared/constants/http";
+import useLocale from "@/react/language/locale/useLocale";
+import useSetPreferredLanguage from "@/react/language/switcher/useSetPreferredLanguage";
 import { type SupportedLanguageType } from "@/shared/language/supported-languages";
 
 export default function LanguageTest(): ReactElement {
-	const { t, i18n } = useTranslation();
-	const navigate = useNavigate();
-	const location = useLocation();
+	const { i18n } = useTranslation();
+	const { lang, t } = useLocale();
+	const setPreferred = useSetPreferredLanguage();
 
 	function testTranslation(key: string): string {
 		try {
@@ -19,14 +18,8 @@ export default function LanguageTest(): ReactElement {
 	}
 
 	function switchLanguage(newLang: SupportedLanguageType): void {
-		// Update stored preference (like real language switcher)
-		setStoredLanguage(newLang);
-
-		// Extract the path without the language prefix
-		const currentPath = location.pathname.slice(LANG_PREFIX_LENGTH) || "/";
-
-		// Navigate to the new language URL
-		void navigate(`/${newLang}${currentPath}`);
+		// Centralised persistence + navigation
+		setPreferred(newLang);
 	}
 
 	return (
@@ -34,7 +27,7 @@ export default function LanguageTest(): ReactElement {
 			<h3 className="mb-4 text-lg font-bold">Language Test Debug</h3>
 			<div className="space-y-2 text-sm">
 				<p>
-					<strong>Current Language:</strong> {i18n.language}
+					<strong>Current Language:</strong> {lang}
 				</p>
 				<p>
 					<strong>Available Languages:</strong> {i18n.languages?.join(", ") ?? "-"}

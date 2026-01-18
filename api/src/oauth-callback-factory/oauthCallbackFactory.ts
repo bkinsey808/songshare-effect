@@ -20,6 +20,7 @@ import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
 import buildRegisterJwt from "@/api/register/buildRegisterJwt";
 import { buildUserSessionJwt } from "@/api/user-session/buildUserSessionJwt";
 import { csrfTokenCookieName, oauthCsrfCookieName } from "@/shared/cookies";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { OauthStateSchema } from "@/shared/oauth/oauthState";
 import { apiOauthCallbackPath, dashboardPath, registerPath } from "@/shared/paths";
@@ -77,8 +78,9 @@ export default function oauthCallbackFactory(
 			// Localized: server-side debug log for rate limiting
 			serverDebug("[oauthCallback] Rate limit exceeded, not allowed.");
 			// Redirect to home with rateLimit token so SPA can show a localized message
+			const rateLimitPath = buildPathWithLang("/", defaultLanguage);
 			return ctx.redirect(
-				`/${defaultLanguage}/?${signinErrorQueryParam}=${SigninErrorToken.rateLimit}`,
+				`${rateLimitPath}?${signinErrorQueryParam}=${SigninErrorToken.rateLimit}`,
 				SEE_OTHER,
 			);
 		}
@@ -172,15 +174,15 @@ export default function oauthCallbackFactory(
 			);
 			// Redirect to home with a generic security token so SPA shows a safe message
 			return yield* $(
-				Effect.sync(
-					() =>
-						new Response(undefined, {
-							status: SEE_OTHER,
-							headers: {
-								Location: `/${lang}/?${signinErrorQueryParam}=${SigninErrorToken.securityFailed}`,
-							},
-						}),
-				),
+				Effect.sync(() => {
+					const securityPath = buildPathWithLang("/", lang);
+					return new Response(undefined, {
+						status: SEE_OTHER,
+						headers: {
+							Location: `${securityPath}?${signinErrorQueryParam}=${SigninErrorToken.securityFailed}`,
+						},
+					});
+				}),
 			);
 		}
 
@@ -205,6 +207,20 @@ export default function oauthCallbackFactory(
 		const computedStateRedirectUri = computeStateRedirectUri(
 			stateRedirectOrigin,
 			stateRedirectPort,
+		);
+
+		yield* $(
+			Effect.sync(() => {
+				serverDebug(
+					"[oauthCallback] Redirect URI diagnostics:",
+					"computedStateRedirectUri:",
+					computedStateRedirectUri,
+					"stateRedirectOrigin:",
+					stateRedirectOrigin,
+					"stateRedirectPort:",
+					stateRedirectPort,
+				);
+			}),
 		);
 
 		const { supabase, oauthUserData, existingUser } = yield* $(
@@ -336,15 +352,15 @@ export default function oauthCallbackFactory(
 			// Redirect to home with a signinError marker so the SPA can show
 			// an inline error banner. Use 303 See Other to force a GET.
 			return yield* $(
-				Effect.sync(
-					() =>
-						new Response(undefined, {
-							status: SEE_OTHER,
-							headers: {
-								Location: `/${lang}/?${signinErrorQueryParam}=${SigninErrorToken.providerMismatch}&${providerQueryParam}=${prov}`,
-							},
-						}),
-				),
+				Effect.sync(() => {
+					const providerMismatchPath = buildPathWithLang("/", lang);
+					return new Response(undefined, {
+						status: SEE_OTHER,
+						headers: {
+							Location: `${providerMismatchPath}?${signinErrorQueryParam}=${SigninErrorToken.providerMismatch}&${providerQueryParam}=${prov}`,
+						},
+					});
+				}),
 			);
 		}
 

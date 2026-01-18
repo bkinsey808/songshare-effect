@@ -13,13 +13,13 @@
  * - HTTP 304 responses for unchanged content
  */
 import {
-	HTTP_TEMP_REDIRECT,
-	HTTP_INTERNAL,
-	HTTP_NOT_MODIFIED,
 	CACHE_MAX_AGE_HTML_SEC,
 	ETAG_INTERVAL_MS,
+	HTTP_INTERNAL,
+	HTTP_NOT_MODIFIED,
 	HTTP_REDIRECT_LOWER,
 	HTTP_REDIRECT_UPPER,
+	HTTP_TEMP_REDIRECT,
 } from "@/shared/constants/http";
 import detectBrowserLanguage from "@/shared/language/detectBrowserLanguage";
 import parseLanguageCookie from "@/shared/language/parseLanguageCookie";
@@ -50,15 +50,16 @@ export async function onRequest(context: PagesMiddlewareContext): Promise<Respon
 
 			// Check cookie first
 			const cookieHeader = context.request.headers.get("Cookie");
-			// no-op logging removed for production
 			const cookieLang = parseLanguageCookie(cookieHeader);
 
 			if (cookieLang === undefined) {
-				// no cookie language; fallback to browser detection below
-			} else {
-				// Fallback to browser language
+				// No cookie preference — fall back to browser Accept-Language detection
 				const acceptLanguageHeader = context.request.headers.get("Accept-Language");
-				detectedLang = detectBrowserLanguage(acceptLanguageHeader ?? "");
+				// pass a safe string | undefined into the detector to avoid `any` flows
+				detectedLang = detectBrowserLanguage(acceptLanguageHeader ?? undefined);
+			} else {
+				// Honor explicit cookie preference when present
+				detectedLang = cookieLang;
 			}
 
 			// Use 302 (temporary redirect) instead of 301 (permanent) because:

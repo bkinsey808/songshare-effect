@@ -1,23 +1,19 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Link, Navigate } from "react-router-dom";
 
 import SignInButtons from "@/react/auth/SignInButtons";
 import useSignIn from "@/react/auth/useSignIn";
 import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
 import {
-	normalizeTranslationParagraphs,
 	isParagraph,
+	normalizeTranslationParagraphs,
 	type Paragraph,
 } from "@/react/i18n/normalizeTranslationParagraphs";
-import { defaultLanguage } from "@/shared/language/supported-languages";
-import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
+import useLocale from "@/react/language/locale/useLocale";
 import { dashboardPath, reactFeaturesPath, uploadDemoPath } from "@/shared/paths";
 
 export default function HomePage(): ReactElement {
-	const { t, i18n } = useTranslation();
-	const rawLang: unknown = i18n.language;
-	const currentLang = isSupportedLanguage(rawLang) ? rawLang : defaultLanguage;
+	const { lang, t } = useLocale();
 	const { isSignedIn } = useSignIn();
 
 	// Use VITE_APP_NAME from env if available, fall back to the app title translation
@@ -83,7 +79,7 @@ export default function HomePage(): ReactElement {
 	const [alertState, setAlertState] = useState(getInitialAlertState);
 
 	if (isSignedIn === true) {
-		return <Navigate to={`/${currentLang}/${dashboardPath}`} replace />;
+		return <Navigate to={`/${lang}/${dashboardPath}`} replace />;
 	}
 
 	return (
@@ -137,7 +133,7 @@ export default function HomePage(): ReactElement {
 							new &apos;use&apos; hook, performance optimizations, and more
 						</p>
 						<Link
-							to={`/${currentLang}/${reactFeaturesPath}`}
+							to={`/${lang}/${reactFeaturesPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-linear-to-r from-blue-500 to-purple-500 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:from-blue-600 hover:to-purple-600 hover:shadow-lg"
 						>
 							Explore React Features
@@ -152,7 +148,7 @@ export default function HomePage(): ReactElement {
 							real-time feedback
 						</p>
 						<Link
-							to={`/${currentLang}/${uploadDemoPath}`}
+							to={`/${lang}/${uploadDemoPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-linear-to-r from-green-500 to-teal-500 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:from-green-600 hover:to-teal-600 hover:shadow-lg"
 						>
 							Try Upload Demo

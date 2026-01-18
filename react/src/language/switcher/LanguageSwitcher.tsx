@@ -1,39 +1,32 @@
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
-import { LANG_PREFIX_LENGTH } from "@/shared/constants/http";
 import {
 	SupportedLanguage,
 	type SupportedLanguageType,
-	defaultLanguage,
 	languageNames,
 } from "@/shared/language/supported-languages";
-import {
-	guardAsSupportedLanguage,
-	isSupportedLanguage,
-} from "@/shared/language/supported-languages-effect";
+import { guardAsSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { safeGet } from "@/shared/utils/safe";
 
-import setStoredLanguage from "./setStoredLanguage";
+import getPathWithoutLang from "../path/getPathWithoutLang";
+import useCurrentLang from "./useCurrentLang";
+import useSetPreferredLanguage from "./useSetPreferredLanguage";
 
 export default function LanguageSwitcher(): ReactElement {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const location = useLocation();
-	const { lang } = useParams<{ lang: string }>();
-
-	// Get current language from URL params, with fallback to 'en'
-	const currentLang = isSupportedLanguage(lang) ? lang : defaultLanguage;
+	const currentLang = useCurrentLang();
+	const setPreferred = useSetPreferredLanguage();
 
 	// Extract the path without the language prefix
-	const currentPath = location.pathname.slice(LANG_PREFIX_LENGTH) || "/";
+	// Use dedicated path util so callers don't need to know LANG_PREFIX_LENGTH
+	const currentPath = getPathWithoutLang(location.pathname);
 
 	function handleLanguageChange(newLang: SupportedLanguageType): void {
 		if (newLang !== currentLang) {
-			// Store the language preference
-			setStoredLanguage(newLang);
-
-			void navigate(`/${newLang}${currentPath}`);
+			// Centralised persistence + navigation (fire-and-forget)
+			setPreferred(newLang, { path: currentPath });
 		}
 	}
 
@@ -41,7 +34,7 @@ export default function LanguageSwitcher(): ReactElement {
 		<select
 			value={currentLang}
 			onChange={(ev) => {
-				handleLanguageChange(guardAsSupportedLanguage(ev.target.value as unknown));
+				handleLanguageChange(guardAsSupportedLanguage(ev.target.value));
 			}}
 			className="rounded-md border border-gray-300 bg-white px-3 py-1 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
 			aria-label={t("navigation.switchLanguage")}

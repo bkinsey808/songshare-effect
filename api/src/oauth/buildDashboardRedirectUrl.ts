@@ -1,13 +1,15 @@
-import { type ReadonlyContext } from "@/api/hono/hono-context";
-import { justSignedInQueryParam } from "@/shared/queryParams";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
+import { type ReadonlyContext } from "@/api/hono/hono-context";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
 // Env type is not required when using ReadonlyContext's default param
+import { justSignedInQueryParam } from "@/shared/queryParams";
 
 type BuildDashboardRedirectUrlParams = Readonly<{
 	ctx: ReadonlyContext;
 	url: URL;
 	redirectPort: string | undefined;
-	lang: string;
+	lang: SupportedLanguageType;
 	dashboardPath: string;
 }>;
 
@@ -29,7 +31,8 @@ export default function buildDashboardRedirectUrl({
 	lang,
 	dashboardPath,
 }: BuildDashboardRedirectUrlParams): string {
-	let dashboardRedirectUrl = `/${lang}/${dashboardPath}`;
+	let dashboardRedirectUrl: string = buildPathWithLang(`/${dashboardPath}`, lang);
+
 	if (redirectPort !== undefined && redirectPort !== "") {
 		// Only allow redirect to a port if it matches the allowed origins
 		const allowedOrigins = String(ctx.env.ALLOWED_REDIRECT_ORIGINS ?? "")
@@ -38,7 +41,8 @@ export default function buildDashboardRedirectUrl({
 			.filter((origin) => origin !== "");
 		const proto = url.protocol.replace(":", "");
 		const host = url.hostname;
-		const candidate = `${proto}://${host}:${redirectPort}/${lang}/${dashboardPath}`;
+		const pathWithLang = buildPathWithLang(`/${dashboardPath}`, lang);
+		const candidate = `${proto}://${host}:${redirectPort}${pathWithLang}`;
 		if (allowedOrigins.some((origin: string) => candidate.startsWith(origin))) {
 			dashboardRedirectUrl = candidate;
 		}

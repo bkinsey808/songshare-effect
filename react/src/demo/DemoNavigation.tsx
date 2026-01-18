@@ -1,23 +1,23 @@
-import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
+import useLocale from "@/react/language/locale/useLocale";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {
 	activityDemoPath,
 	hookDemoPath,
-	typegpuDemoPath,
-	typegpuAudioVizDemoPath,
 	optimizedCounterPath,
 	reactFeaturesPath,
 	songsDemoPath,
 	suspenseDemoPath,
 	suspenseUseDemoPath,
+	typegpuAudioVizDemoPath,
+	typegpuDemoPath,
 	uploadDemoPath,
 	userSubscriptionDemoPath,
 } from "@/shared/paths";
 
 function DemoNavigation(): ReactElement {
-	const { t, i18n } = useTranslation();
-	const currentLang = i18n.language;
+	const { lang, t } = useLocale();
 
 	const demoNavItems = [
 		{
@@ -84,7 +84,7 @@ function DemoNavigation(): ReactElement {
 				{demoNavItems.map((item) => (
 					<Link
 						key={item.path}
-						to={`/${currentLang}/${item.path}`}
+						to={buildPathWithLang(item.path ? `/${item.path}` : "/", lang)}
 						className="hover:border-primary-500 flex cursor-pointer items-center gap-2 rounded-lg border border-gray-600 bg-transparent px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700"
 					>
 						<span>{item.icon}</span>

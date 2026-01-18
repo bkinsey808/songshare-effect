@@ -1,10 +1,8 @@
 // ReactElement is an ambient type provided by the project (global.d.ts)
-import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 import DemoNavigation from "@/react/demo/DemoNavigation";
-import { defaultLanguage } from "@/shared/language/supported-languages";
-import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
+import useLocale from "@/react/language/locale/useLocale";
 import {
 	activityDemoPath,
 	hookDemoPath,
@@ -16,8 +14,7 @@ import {
 } from "@/shared/paths";
 
 function ReactFeaturesDemoPage(): ReactElement {
-	const { t, i18n } = useTranslation();
-	const currentLang = isSupportedLanguage(i18n.language) ? i18n.language : defaultLanguage;
+	const { lang, t } = useLocale();
 
 	return (
 		<div>
@@ -46,7 +43,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 							Performance optimization techniques with React.memo, useCallback, and useMemo
 						</p>
 						<Link
-							to={`/${currentLang}/${optimizedCounterPath}`}
+							to={`/${lang}/${optimizedCounterPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-yellow-500 px-6 py-3 text-white transition-colors hover:bg-yellow-600"
 						>
 							View Demo
@@ -60,7 +57,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 							Interactive demonstration of React Suspense with promise-based data fetching
 						</p>
 						<Link
-							to={`/${currentLang}/${suspenseDemoPath}`}
+							to={`/${lang}/${suspenseDemoPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-blue-500 px-6 py-3 text-white transition-colors hover:bg-blue-600"
 						>
 							View Demo
@@ -74,7 +71,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 							Explore the new React &apos;use&apos; hook for reading promises and context values
 						</p>
 						<Link
-							to={`/${currentLang}/${hookDemoPath}`}
+							to={`/${lang}/${hookDemoPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-purple-500 px-6 py-3 text-white transition-colors hover:bg-purple-600"
 						>
 							View Demo
@@ -88,7 +85,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 							Complex Suspense patterns with error boundaries and concurrent features
 						</p>
 						<Link
-							to={`/${currentLang}/${suspenseUseDemoPath}`}
+							to={`/${lang}/${suspenseUseDemoPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-green-500 px-6 py-3 text-white transition-colors hover:bg-green-600"
 						>
 							View Demo
@@ -102,7 +99,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 							File upload functionality with progress tracking and error handling
 						</p>
 						<Link
-							to={`/${currentLang}/${uploadDemoPath}`}
+							to={`/${lang}/${uploadDemoPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-indigo-500 px-6 py-3 text-white transition-colors hover:bg-indigo-600"
 						>
 							View Demo
@@ -117,7 +114,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 							priority
 						</p>
 						<Link
-							to={`/${currentLang}/${activityDemoPath}`}
+							to={`/${lang}/${activityDemoPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-yellow-500 px-6 py-3 text-white transition-colors hover:bg-yellow-600"
 						>
 							View Demo
@@ -131,7 +128,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 							Modern web UI popovers including native Popover API and custom implementations
 						</p>
 						<Link
-							to={`/${currentLang}/${popoverDemoPath}`}
+							to={`/${lang}/${popoverDemoPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-teal-500 px-6 py-3 text-white transition-colors hover:bg-teal-600"
 						>
 							View Demo

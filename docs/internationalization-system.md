@@ -227,6 +227,17 @@ switchLanguage("es");
 const spanishUrl = getLocalizedPath("/songs", "es"); // → '/es/songs'
 ```
 
+Convenience wrapper — `useLocale`
+
+If your component needs both the narrowed runtime language *and* the `t` function,
+use `useLocale()` for a concise, type-safe pattern:
+
+```typescript
+const { lang, t } = useLocale();
+<Link to={`/${lang}/songs`}>{t('navigation.home')}</Link>
+```
+
+
 ### 5. Preference Storage System
 
 #### Dual Storage Strategy

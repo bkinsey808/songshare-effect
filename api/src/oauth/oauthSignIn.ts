@@ -173,6 +173,17 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 			redirect_uri = `https://localhost:${redirectPortQuery}${apiOauthCallbackPath ?? ""}`;
 		}
 
+		yield* $(
+			Effect.sync(() => {
+				serverDebug(
+					"[oauthSignIn] redirect_uri aimed at provider:",
+					redirect_uri,
+					"trimmedOrigin:",
+					trimmedOrigin,
+				);
+			}),
+		);
+
 		// Encode state, include redirect_port and redirect_origin so the callback
 		// handler can reconstruct the exact redirect_uri used during the initial
 		// sign-in request. Having this in the signed state prevents relying on

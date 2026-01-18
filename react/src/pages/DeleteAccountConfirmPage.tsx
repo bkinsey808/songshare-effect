@@ -9,7 +9,9 @@ import {
 	JUST_DELETED_ACCOUNT_SIGNAL,
 	LANG_PATH_SEGMENT_INDEX,
 } from "@/shared/constants/http";
-import { SupportedLanguage } from "@/shared/language/supported-languages";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import { defaultLanguage, SupportedLanguage } from "@/shared/language/supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { apiAccountDeletePath, dashboardPath } from "@/shared/paths";
 import { justDeletedAccountKey } from "@/shared/sessionStorageKeys";
 
@@ -24,7 +26,8 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 	const currentLang = maybeLang || SupportedLanguage.en;
 
 	function onCancel(): void {
-		void navigate(`/${currentLang}/${dashboardPath}`, { replace: true });
+		const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
+		void navigate(buildPathWithLang(`/${dashboardPath}`, langForNav), { replace: true });
 	}
 
 	const ZERO = 0;
@@ -91,9 +94,8 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 		}
 
 		// Redirect to localized home (no query param)
-		void navigate(`/${currentLang}`, {
-			replace: true,
-		});
+		const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
+		void navigate(buildPathWithLang("/", langForNav), { replace: true });
 	}
 
 	return (

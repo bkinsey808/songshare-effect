@@ -1,13 +1,12 @@
 // Prefer localized console exceptions instead of module-level disables
 import { Effect } from "effect";
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 
 import useAppForm from "@/react/form/useAppForm";
-import { clientDebug, clientLog, clientError } from "@/react/utils/clientLogger";
+import useLocale from "@/react/language/locale/useLocale";
+import { clientDebug, clientError, clientLog } from "@/react/utils/clientLogger";
 import { JUST_REGISTERED_SIGNAL } from "@/shared/constants/http";
-import { defaultLanguage } from "@/shared/language/supported-languages";
-import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { apiAccountRegisterPath, dashboardPath } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 import { type RegisterForm, RegisterFormSchema } from "@/shared/register/register";
@@ -15,8 +14,7 @@ import { justRegisteredKey } from "@/shared/sessionStorageKeys";
 import { safeSet } from "@/shared/utils/safe";
 
 export default function RegisterPage(): ReactElement {
-	const { t, i18n } = useTranslation();
-	const currentLang = isSupportedLanguage(i18n.language) ? i18n.language : defaultLanguage;
+	const { lang, t } = useLocale();
 	const usernameRef = useRef<HTMLInputElement>(null);
 	const formRef = useRef<HTMLFormElement>(null);
 	const [submitError, setSubmitError] = useState<string | undefined>(undefined);
@@ -70,7 +68,7 @@ export default function RegisterPage(): ReactElement {
 			// ignore storage errors
 		}
 
-		globalThis.location.href = `/${currentLang}/${dashboardPath}?${justSignedInQueryParam}=${JUST_REGISTERED_SIGNAL}`;
+		globalThis.location.href = `${buildPathWithLang(`/${dashboardPath}`, lang)}?${justSignedInQueryParam}=${JUST_REGISTERED_SIGNAL}`;
 	}
 
 	async function onSubmit(data: RegisterForm): Promise<void> {

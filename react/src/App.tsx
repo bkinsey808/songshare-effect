@@ -2,15 +2,13 @@ import { Suspense, lazy, type ReactElement } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import ProtectedLayout from "@/react/auth/ProtectedLayout";
-import DashboardPage from "@/react/pages/DashboardPage";
+import DashboardPage from "@/react/pages/dashboard/DashboardPage";
 import DeleteAccountConfirmPage from "@/react/pages/DeleteAccountConfirmPage";
 import SongEditPage from "@/react/pages/SongEditPage";
 import SongLibraryPage from "@/react/pages/SongLibraryPage";
 import {
 	aboutPath,
 	activityDemoPath,
-	typegpuDemoPath,
-	typegpuAudioVizDemoPath,
 	dashboardPath,
 	deleteAccountPath,
 	hookDemoPath,
@@ -22,13 +20,15 @@ import {
 	songLibraryPath,
 	suspenseDemoPath,
 	suspenseUseDemoPath,
+	typegpuAudioVizDemoPath,
+	typegpuDemoPath,
 	uploadDemoPath,
 	userSubscriptionDemoPath,
 } from "@/shared/paths";
 
 import ErrorBoundary from "./demo/ErrorBoundary";
-import LanguageDetector from "./language/LanguageDetector";
-import LanguageProvider from "./language/LanguageProvider";
+import LanguageDetector from "./language/detector/LanguageDetector";
+import LanguageProvider from "./language/provider/LanguageProvider";
 import Navigation from "./Navigation";
 import AboutPage from "./pages/AboutPage";
 import ActivityDemoPage from "./pages/demo/ActivityDemoPage";

@@ -4,8 +4,19 @@ import { Navigate, Outlet, useNavigate, useParams, useSearchParams } from "react
 import handleJustSignedIn from "@/react/auth/handleJustSignedIn";
 import useEnsureSignedIn from "@/react/auth/useEnsureSignedIn";
 import { useAppStore } from "@/react/zustand/useAppStore";
-import { defaultLanguage } from "@/shared/language/supported-languages";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import { defaultLanguage, type SupportedLanguageType } from "@/shared/language/supported-languages";
+import {
+	guardAsSupportedLanguage,
+	isSupportedLanguage,
+} from "@/shared/language/supported-languages-effect";
 import { justSignedInQueryParam } from "@/shared/queryParams";
+
+function ensureSupportedLanguage(lang?: string): SupportedLanguageType {
+	return isSupportedLanguage(String(lang))
+		? guardAsSupportedLanguage(String(lang))
+		: defaultLanguage;
+}
 
 /**
  * ProtectedLayout
@@ -84,7 +95,11 @@ export default function ProtectedLayout(): ReactElement {
 		}
 
 		// Redirect to language-prefixed home (you can change target as needed)
-		return <Navigate to={`/${lang}`} replace />;
+
+		{
+			const langForNav = ensureSupportedLanguage(lang);
+			return <Navigate to={buildPathWithLang("/", langForNav)} replace />;
+		}
 	}
 
 	// Signed in — render nested routes

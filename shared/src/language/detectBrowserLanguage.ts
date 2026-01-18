@@ -1,19 +1,27 @@
-import { type SupportedLanguageType, defaultLanguage } from "@/shared/language/supported-languages";
-import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
+import { type SupportedLanguageType, defaultLanguage } from "./supported-languages";
+import { isSupportedLanguage } from "./supported-languages-effect";
 
+/**
+ * Parse an Accept-Language header (or similar) and return the best supported
+ * two-letter language code. Returns the configured `defaultLanguage` when no
+ * supported language is found.
+ */
 export default function detectBrowserLanguage(acceptLanguage?: string): SupportedLanguageType {
 	if (acceptLanguage === undefined || acceptLanguage === null || acceptLanguage.trim() === "") {
-		return "en";
+		return defaultLanguage;
 	}
 	const languages = acceptLanguage
 		.split(",")
 		.map((lang) => {
-			const [langPart = ""] = lang.split(";");
-			if (!langPart) {
+			const [langPart] = lang.split(";");
+			if (langPart === undefined || langPart === null || langPart === "") {
 				return "";
 			}
-			const [mainLang = ""] = langPart.split("-");
-			return mainLang ? mainLang.trim().toLowerCase() : "";
+			const [mainLang] = langPart.split("-");
+			if (mainLang === undefined || mainLang === null || mainLang === "") {
+				return "";
+			}
+			return mainLang.trim().toLowerCase();
 		})
 		.filter((lang) => lang !== "");
 

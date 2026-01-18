@@ -1,4 +1,3 @@
-/* oxlint-disable unicorn/no-null */
 import { describe, expect, it, vi } from "vitest";
 
 import { preferredLanguageCookieName } from "@/shared/cookies";
@@ -24,10 +23,10 @@ describe("setStoredLanguage", () => {
 		});
 	}
 
-	it("sets localStorage and document.cookie", () => {
+	it("sets localStorage and document.cookie", async () => {
 		setup();
 		const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
-		setStoredLanguage("zh");
+		await setStoredLanguage("zh");
 
 		expect(setItemSpy).toHaveBeenCalledWith("preferred-language", "zh");
 		expect(document.cookie).toContain(`${preferredLanguageCookieName}=zh`);
@@ -37,22 +36,46 @@ describe("setStoredLanguage", () => {
 		vi.unstubAllGlobals();
 	});
 
-	it("sets Secure flag on https", () => {
+	it("sets Secure flag on https", async () => {
 		setup();
 		vi.stubGlobal("location", {
 			protocol: "https:",
 		});
 
-		setStoredLanguage("es");
+		await setStoredLanguage("es");
 
 		expect(document.cookie).toContain("Secure");
 		vi.restoreAllMocks();
 		vi.unstubAllGlobals();
 	});
 
-	it("includes expiry date", () => {
+	it("uses Cookie Store API when available", async () => {
 		setup();
-		setStoredLanguage("en");
+		const setSpy = vi.fn();
+		setSpy.mockResolvedValue(undefined);
+		vi.stubGlobal("cookieStore", { set: setSpy });
+
+		await setStoredLanguage("zh");
+
+		expect(setSpy).toHaveBeenCalledWith(
+			expect.objectContaining({
+				name: preferredLanguageCookieName,
+				value: "zh",
+				path: "/",
+				sameSite: "lax",
+			}),
+		);
+
+		// Ensure fallback did not also write to document.cookie
+		expect(document.cookie).not.toContain(`${preferredLanguageCookieName}=zh`);
+
+		vi.restoreAllMocks();
+		vi.unstubAllGlobals();
+	});
+
+	it("includes expiry date", async () => {
+		setup();
+		await setStoredLanguage("en");
 
 		expect(document.cookie).toContain("expires=");
 		vi.restoreAllMocks();

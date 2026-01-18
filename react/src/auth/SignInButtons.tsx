@@ -1,7 +1,5 @@
-import { useTranslation } from "react-i18next";
-
 import useIsOnline from "@/react/hooks/useIsOnline";
-import useLanguage from "@/react/language/useLanguage";
+import useLocale from "@/react/language/locale/useLocale";
 import getFrontEndProviderData from "@/react/providers/providers";
 import computeRedirectPort from "@/react/utils/computeRedirectPort";
 import cssVars from "@/react/utils/cssVars";
@@ -12,9 +10,8 @@ import { langQueryParam, redirectPortQueryParam } from "@/shared/queryParams";
 
 export default function SignInButtons(): ReactElement {
 	const isOnline = useIsOnline();
-	const { t } = useTranslation();
+	const { lang, t } = useLocale();
 	const isSignedIn = false;
-	const lang = useLanguage();
 
 	// use helper to compute redirect port (keeps SSR safe and easier to test)
 	const redirectPort = computeRedirectPort();
