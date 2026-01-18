@@ -16,15 +16,15 @@ export default function CollapsibleSection({
 	children,
 }: CollapsibleSectionProps): ReactElement {
 	return (
-		<div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+		<div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-800">
 			<button
 				type="button"
 				onClick={onToggle}
-				className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
+				className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700"
 			>
 				<div className="flex items-center gap-2">
 					<span className="text-xl">{icon}</span>
-					<h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+					<h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
 				</div>
 				<svg
 					className={`h-5 w-5 transform transition-transform ${isExpanded ? "rotate-180" : ""}`}
@@ -35,7 +35,9 @@ export default function CollapsibleSection({
 					<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 				</svg>
 			</button>
-			{isExpanded && <div className="border-t border-gray-200 p-4">{children}</div>}
+			{isExpanded && (
+				<div className="border-t border-gray-200 dark:border-gray-600 p-4">{children}</div>
+			)}
 		</div>
 	);
 }

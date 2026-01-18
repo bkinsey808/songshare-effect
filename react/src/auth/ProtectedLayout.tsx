@@ -1,22 +1,12 @@
 import { useEffect } from "react";
-import { Navigate, Outlet, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Navigate, Outlet, useNavigate, useSearchParams } from "react-router-dom";
 
 import handleJustSignedIn from "@/react/auth/handleJustSignedIn";
 import useEnsureSignedIn from "@/react/auth/useEnsureSignedIn";
+import useCurrentLang from "@/react/language/useCurrentLang";
 import { useAppStore } from "@/react/zustand/useAppStore";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { defaultLanguage, type SupportedLanguageType } from "@/shared/language/supported-languages";
-import {
-	guardAsSupportedLanguage,
-	isSupportedLanguage,
-} from "@/shared/language/supported-languages-effect";
 import { justSignedInQueryParam } from "@/shared/queryParams";
-
-function ensureSupportedLanguage(lang?: string): SupportedLanguageType {
-	return isSupportedLanguage(String(lang))
-		? guardAsSupportedLanguage(String(lang))
-		: defaultLanguage;
-}
 
 /**
  * ProtectedLayout
@@ -77,9 +67,7 @@ export default function ProtectedLayout(): ReactElement {
 
 	const store = useAppStore();
 	const isSignedIn = store((state) => state.isSignedIn);
-	const { lang = defaultLanguage } = useParams();
-
-	// Still initializing — render nothing (parent Suspense handles hydration)
+	const lang = useCurrentLang();
 	if (isSignedIn === undefined) {
 		return <div />;
 	}
@@ -97,7 +85,7 @@ export default function ProtectedLayout(): ReactElement {
 		// Redirect to language-prefixed home (you can change target as needed)
 
 		{
-			const langForNav = ensureSupportedLanguage(lang);
+			const langForNav = lang;
 			return <Navigate to={buildPathWithLang("/", langForNav)} replace />;
 		}
 	}

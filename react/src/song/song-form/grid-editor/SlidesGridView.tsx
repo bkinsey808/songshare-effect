@@ -1,16 +1,9 @@
-import { DndContext, closestCenter } from "@dnd-kit/core";
-import { SortableContext } from "@dnd-kit/sortable";
-import { useTranslation } from "react-i18next";
-
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
 import useSlidesEditor from "../slides-editor/useSlidesEditor";
 import { type Slide } from "../songTypes";
-import ResizeHandle from "./ResizeHandle";
-import SortableGridRow from "./SortableGridRow";
-import { useColumnResize } from "./useColumnResize";
-import useGridDragAndDrop from "./useGridDragAndDrop";
+import SlidesGridTable from "./SlidesGridTable";
 
 type SlidesGridViewProps = Readonly<
 	ReadonlyDeep<{
@@ -29,8 +22,6 @@ export default function SlidesGridView({
 	slides,
 	setSlides,
 }: SlidesGridViewProps): ReactElement {
-	const { t } = useTranslation();
-
 	const { addSlide, deleteSlide, duplicateSlide, editFieldValue, editSlideName, safeGetField } =
 		useSlidesEditor({
 			slideOrder,
@@ -45,25 +36,7 @@ export default function SlidesGridView({
 	// Use slideOrder to maintain the same order as Slides View, including duplicates
 	const gridSlideOrder = slideOrder;
 
-	// Drag and drop functionality for grid ordering
-	const { sensors, handleDragEnd, sortableItems } = useGridDragAndDrop({
-		slideIds: gridSlideOrder,
-		setSlidesOrder: (newOrder) => {
-			// Update the slideOrder to match the new grid order
-			setSlideOrder(newOrder);
-		},
-	});
-
-	const DEFAULT_FIELD_WIDTH = 300;
-	const SLIDE_NAME_WIDTH = 144;
 	const HORIZONTAL_SCROLL_THRESHOLD = 1000;
-
-	// Column resizing functionality
-	const { getColumnWidth, isResizing, startResize, totalWidth } = useColumnResize({
-		fields,
-		defaultFieldWidth: DEFAULT_FIELD_WIDTH,
-		slideNameWidth: SLIDE_NAME_WIDTH,
-	});
 
 	return (
 		<div className="w-full">
@@ -82,110 +55,38 @@ export default function SlidesGridView({
 			</div>
 
 			{/* Horizontal scroll container */}
-			<div
-				className="overflow-x-auto"
-				style={{
-					maxWidth: "100%",
-					overflowX: totalWidth > HORIZONTAL_SCROLL_THRESHOLD ? "scroll" : "auto",
-				}}
-			>
-				<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-					<table
-						className="min-w-full border-collapse border border-gray-300"
-						style={{ minWidth: `${totalWidth}px` }}
-					>
-						<thead className="bg-gray-50">
-							<tr>
-								{/* Fixed Slide Name Column */}
-								<th
-									className="relative border border-gray-300 px-4 py-2 text-left font-semibold"
-									style={{
-										width: `${SLIDE_NAME_WIDTH}px`,
-										minWidth: `${SLIDE_NAME_WIDTH}px`,
-										maxWidth: `${SLIDE_NAME_WIDTH}px`,
-									}}
-								>
-									Slide Name
-								</th>
-								{/* Resizable Field Columns */}
-								{fields.map((field) => (
-									<th
-										key={field}
-										className="relative border border-gray-300 px-4 py-2 text-left font-semibold"
-										style={{
-											width: `${getColumnWidth(field)}px`,
-											minWidth: `${getColumnWidth(field)}px`,
-											maxWidth: `${getColumnWidth(field)}px`,
-										}}
-									>
-										{t(`song.${field}`, field)}
-										{/* Resize Handle */}
-										<ResizeHandle
-											field={field}
-											onStartResize={startResize}
-											isResizing={isResizing}
-										/>
-									</th>
-								))}
-							</tr>
-						</thead>
-						<SortableContext items={sortableItems}>
-							<tbody>
-								{gridSlideOrder.map((slideId, idx) => {
-									const slide = safeGet(slides, slideId);
-									if (!slide) {
-										return undefined;
-									}
-
-									return (
-										<SortableGridRow
-											key={`${slideId}-grid-${String(idx)}`}
-											slideId={slideId}
-											slide={slide}
-											fields={fields}
-											editSlideName={editSlideName}
-											editFieldValue={editFieldValue}
-											safeGetField={safeGetField}
-											setSlideOrder={setSlideOrder}
-											slideOrder={slideOrder}
-											duplicateSlide={duplicateSlide}
-											deleteSlide={deleteSlide}
-											slides={slides}
-											idx={idx}
-											getColumnWidth={getColumnWidth}
-										/>
-									);
-								})}
-							</tbody>
-						</SortableContext>
-					</table>
-				</DndContext>
-
-				{gridSlideOrder.length === EMPTY_COUNT && (
-					<div className="mt-8 text-center text-gray-500">
-						<p>No slides yet. Click &quot;Add New Slide&quot; to get started.</p>
-					</div>
-				)}
-			</div>
-
+			<SlidesGridTable
+				fields={fields}
+				slideOrder={gridSlideOrder}
+				slides={slides}
+				horizontalScrollThreshold={HORIZONTAL_SCROLL_THRESHOLD}
+				editSlideName={editSlideName}
+				editFieldValue={editFieldValue}
+				safeGetField={safeGetField}
+				setSlideOrder={setSlideOrder}
+				duplicateSlide={duplicateSlide}
+				deleteSlide={deleteSlide}
+			/>
 			{/* Presentation Order Info */}
 			{slideOrder.length > EMPTY_COUNT && (
-				<div className="mt-6 rounded-lg bg-blue-50 p-4">
-					<h3 className="mb-2 font-semibold text-blue-900">Current Presentation Order:</h3>
+				<div className="mt-6 rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4">
+					<h3 className="mb-2 font-semibold text-blue-900 dark:text-blue-200">
+						Current Presentation Order:
+					</h3>
 					<div className="flex flex-wrap gap-2">
 						{slideOrder.map((slideId, idx) => {
 							const slide = safeGet(slides, slideId);
 							return (
 								<span
 									key={`order-${slideId}-${String(idx)}`}
-									className="rounded bg-blue-200 px-2 py-1 text-sm text-blue-800"
+									className="rounded bg-blue-200 dark:bg-blue-800/30 px-2 py-1 text-sm text-blue-800 dark:text-blue-200"
 								>
 									{idx + INDEX_OFFSET}. {slide?.slide_name ?? "Unknown Slide"}
 								</span>
 							);
 						})}
 					</div>
-					<p className="mt-2 text-sm text-blue-700">
+					<p className="mt-2 text-sm text-blue-700 dark:text-blue-200">
 						Use the Slides view to reorder or modify presentation sequence.
 					</p>
 				</div>

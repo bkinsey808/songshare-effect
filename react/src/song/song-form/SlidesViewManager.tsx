@@ -31,17 +31,17 @@ export default function SlidesViewManager({
 	return (
 		<div className="space-y-4 lg:flex lg:gap-4 lg:space-y-0">
 			{/* Slides View Section */}
-			<div className="rounded-lg border border-gray-200 bg-white shadow-sm lg:flex-1">
+			<div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-800 lg:flex-1">
 				<button
 					type="button"
 					onClick={() => {
 						setIsSlidesExpanded(!isSlidesExpanded);
 					}}
-					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
+					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700"
 				>
 					<div className="flex items-center gap-2">
 						<span className="text-xl">📄</span>
-						<h2 className="text-lg font-semibold text-gray-900">Slides View</h2>
+						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">Slides View</h2>
 					</div>
 					<svg
 						className={`h-5 w-5 transform transition-transform ${
@@ -55,7 +55,7 @@ export default function SlidesViewManager({
 					</svg>
 				</button>
 				{isSlidesExpanded && (
-					<div className="border-t border-gray-200 p-4">
+					<div className="border-t border-gray-200 dark:border-gray-600 p-4">
 						<SlidesEditor
 							fields={fields}
 							toggleField={toggleField}
@@ -69,17 +69,17 @@ export default function SlidesViewManager({
 			</div>
 
 			{/* Grid View Section */}
-			<div className="rounded-lg border border-gray-200 bg-white shadow-sm lg:flex-1">
+			<div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-800 lg:flex-1">
 				<button
 					type="button"
 					onClick={() => {
 						setIsGridExpanded(!isGridExpanded);
 					}}
-					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
+					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700"
 				>
 					<div className="flex items-center gap-2">
 						<span className="text-xl">📊</span>
-						<h2 className="text-lg font-semibold text-gray-900">Grid View</h2>
+						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">Grid View</h2>
 					</div>
 					<svg
 						className={`h-5 w-5 transform transition-transform ${
@@ -93,7 +93,7 @@ export default function SlidesViewManager({
 					</svg>
 				</button>
 				{isGridExpanded && (
-					<div className="border-t border-gray-200 p-4">
+					<div className="border-t border-gray-200 dark:border-gray-600 p-4">
 						<SlidesGridView
 							fields={fields}
 							slideOrder={slideOrder}

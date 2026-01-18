@@ -18,7 +18,7 @@ export type UseColumnResizeReturn = Readonly<
 	}>
 >;
 
-export function useColumnResize({
+export default function useColumnResize({
 	fields,
 	defaultFieldWidth,
 	slideNameWidth,
@@ -101,6 +101,3 @@ export function useColumnResize({
 		totalWidth,
 	};
 }
-
-// Keep default export for backwards compatibility
-export default useColumnResize;

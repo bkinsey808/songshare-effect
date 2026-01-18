@@ -125,6 +125,12 @@
 		"fields": "Campos",
 		"lyrics": "Letras",
 		"script": "Guión",
-		"enTranslation": "Traducción al Inglés"
+		"enTranslation": "Traducción al Inglés",
+
+		"deleteSlide": {
+			"confirmation": "¿Está seguro de que desea eliminar esta diapositiva? Esto eliminará permanentemente la diapositiva y su contenido.",
+			"cancel": "Cancelar",
+			"confirm": "Eliminar"
+		}
 	}
 }

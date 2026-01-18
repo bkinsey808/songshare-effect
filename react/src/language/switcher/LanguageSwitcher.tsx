@@ -10,7 +10,7 @@ import { guardAsSupportedLanguage } from "@/shared/language/supported-languages-
 import { safeGet } from "@/shared/utils/safe";
 
 import getPathWithoutLang from "../path/getPathWithoutLang";
-import useCurrentLang from "./useCurrentLang";
+import useCurrentLang from "../useCurrentLang";
 import useSetPreferredLanguage from "./useSetPreferredLanguage";
 
 export default function LanguageSwitcher(): ReactElement {

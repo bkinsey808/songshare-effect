@@ -2,8 +2,8 @@ import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
-import getCurrentLangFromPath from "../path/getCurrentLangFromPath";
-import getRawLangFromPath from "../path/getRawLangFromPath";
+import getCurrentLangFromPath from "./path/getCurrentLangFromPath";
+import getRawLangFromPath from "./path/getRawLangFromPath";
 import useCurrentLang from "./useCurrentLang";
 
 describe("getCurrentLangFromPath (pure)", () => {

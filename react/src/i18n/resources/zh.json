@@ -125,6 +125,12 @@
 		"fields": "字段",
 		"lyrics": "歌词",
 		"script": "脚本",
-		"enTranslation": "英文翻译"
+		"enTranslation": "英文翻译",
+
+		"deleteSlide": {
+			"confirmation": "您确定要删除此幻灯片吗？此操作将永久删除该幻灯片及其内容。",
+			"cancel": "取消",
+			"confirm": "删除"
+		}
 	}
 }

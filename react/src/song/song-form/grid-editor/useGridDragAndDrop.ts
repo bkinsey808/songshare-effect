@@ -11,12 +11,12 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
-export type UseGridDragAndDropParams = Readonly<{
+type UseGridDragAndDropParams = Readonly<{
 	slideIds: readonly string[];
 	setSlidesOrder: (newOrder: readonly string[]) => void;
 }>;
 
-export type UseGridDragAndDropReturn = {
+type UseGridDragAndDropReturn = {
 	sensors: SensorDescriptor<SensorOptions>[];
 	handleDragEnd: (event: DragEndEvent) => void;
 	sortableItems: string[];

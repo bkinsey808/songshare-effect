@@ -1,8 +1,10 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useState } from "react";
 
 import AutoExpandingTextarea from "../../../design-system/AutoExpandingTextarea";
 import { type Slide } from "../songTypes";
+import DeleteConfirmationRow from "./DeleteConfirmationRow";
 
 type EditSlideName = ({
 	slideId,
@@ -46,6 +48,16 @@ type SortableGridRowProps = Readonly<{
 	getColumnWidth: (field: string) => number;
 }>;
 
+/**
+ * SortableGridRow
+ *
+ * Renders a single row in the slides grid editor. Supports reordering via drag
+ * and drop, duplicating, removing an instance from the presentation, and
+ * deleting the slide (with confirmation when deleting the last instance).
+ *
+ * @param props - props for the grid row
+ * @returns ReactElement
+ */
 export default function SortableGridRow({
 	slideId,
 	slide,
@@ -61,12 +73,16 @@ export default function SortableGridRow({
 	idx,
 	getColumnWidth,
 }: SortableGridRowProps): ReactElement {
-	const SLIDE_NAME_WIDTH = 144;
 	const DRAG_OPACITY = 0.5;
 	const NORMAL_OPACITY = 1;
 	const REMOVE_COUNT = 1;
 	const EMPTY_COUNT = 0;
 	const SINGLE_INSTANCE = 1;
+	// Number of fixed columns before the dynamic fields (slide name column)
+	const SLIDE_NAME_COL_COUNT = 1;
+	const [confirmingDelete, setConfirmingDelete] = useState(false);
+	const instancesCount = slideOrder.filter((id) => id === slideId).length;
+	const isSingleInstance = instancesCount === SINGLE_INSTANCE;
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: slideId,
 	});
@@ -77,20 +93,52 @@ export default function SortableGridRow({
 		opacity: isDragging ? DRAG_OPACITY : NORMAL_OPACITY,
 	};
 
+	// Compute total columns safely — guard against unexpected non-array `fields` which can lead to NaN colSpan
+	const BASE_FIELDS_LENGTH = 0;
+	const safeFieldsLength = Array.isArray(fields) ? fields.length : BASE_FIELDS_LENGTH;
+	if (!Array.isArray(fields)) {
+		// Log diagnostic info in development to help track down the root cause
+		// eslint-disable-next-line no-console
+		console.error("SortableGridRow: unexpected fields value (expected array)", { fields });
+	}
+	const totalColumns = SLIDE_NAME_COL_COUNT + safeFieldsLength;
+
+	// If this is the last instance and the user has clicked delete, replace the
+	// entire row with a confirmation message so it's clear this will delete the
+	// slide and its data.
+	if (isSingleInstance && confirmingDelete) {
+		return (
+			<DeleteConfirmationRow
+				rowRef={setNodeRef}
+				colSpan={totalColumns}
+				onCancel={() => {
+					setConfirmingDelete(false);
+				}}
+				onConfirm={() => {
+					const newSlideOrder = [...slideOrder];
+					newSlideOrder.splice(idx, REMOVE_COUNT);
+					setSlideOrder(newSlideOrder);
+					deleteSlide(slideId);
+					setConfirmingDelete(false);
+				}}
+			/>
+		);
+	}
+
 	return (
 		<tr
 			ref={setNodeRef}
 			style={style}
 			key={`${slideId}-grid-${String(idx)}`}
-			className={`hover:bg-gray-50 ${isDragging ? "z-10" : ""}`}
+			className={`hover:bg-gray-50 dark:hover:bg-gray-700 ${isDragging ? "z-10" : ""}`}
 		>
 			{/* Slide Name Column - Fixed width */}
 			<td
-				className="border border-gray-300 px-2 py-2"
+				className="border border-gray-300 dark:border-gray-600 px-2 py-2"
 				style={{
-					width: `${SLIDE_NAME_WIDTH}px`,
-					minWidth: `${SLIDE_NAME_WIDTH}px`,
-					maxWidth: `${SLIDE_NAME_WIDTH}px`,
+					width: "var(--slide-name-width)",
+					minWidth: "var(--slide-name-width)",
+					maxWidth: "var(--slide-name-width)",
 				}}
 			>
 				<div className="space-y-2">
@@ -101,7 +149,7 @@ export default function SortableGridRow({
 							onChange={(event) => {
 								editSlideName({ slideId, newName: event.target.value });
 							}}
-							className="w-full rounded border border-gray-200 px-2 py-1 focus:border-blue-500 focus:outline-none"
+							className="w-full rounded border border-gray-200 px-2 py-1 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-transparent dark:text-white"
 							placeholder="Slide name"
 						/>
 					</div>
@@ -110,7 +158,7 @@ export default function SortableGridRow({
 						<div
 							{...attributes}
 							{...listeners}
-							className="flex h-8 w-8 cursor-grab items-center justify-center rounded bg-gray-500 text-white hover:bg-gray-600 active:cursor-grabbing"
+							className="flex h-8 w-8 cursor-grab items-center justify-center rounded bg-gray-500 text-white hover:bg-gray-600 active:cursor-grabbing dark:bg-gray-600 dark:hover:bg-gray-500"
 							title="Drag to reorder"
 						>
 							<svg
@@ -149,7 +197,7 @@ export default function SortableGridRow({
 						</button>
 						<button
 							type="button"
-							className="flex h-8 w-8 items-center justify-center rounded bg-red-600 text-white hover:bg-red-700"
+							className="hidden"
 							onClick={() => {
 								// Remove this instance from slideOrder
 								const newSlideOrder = [...slideOrder];
@@ -173,8 +221,73 @@ export default function SortableGridRow({
 									: "Remove from Presentation"
 							}
 						>
-							<span className="text-sm">🗑️</span>
-						</button>
+							<span className="text-sm">🗑️</span>{" "}
+						</button>{" "}
+						{(() => {
+							const instancesCount = slideOrder.filter((id) => id === slideId).length;
+							const isSingleInstance = instancesCount === SINGLE_INSTANCE;
+
+							if (!isSingleInstance) {
+								return (
+									<button
+										type="button"
+										className="flex h-8 w-8 items-center justify-center rounded bg-red-600 text-white hover:bg-red-700"
+										onClick={() => {
+											const newSlideOrder = [...slideOrder];
+											newSlideOrder.splice(idx, REMOVE_COUNT);
+											setSlideOrder(newSlideOrder);
+										}}
+										title="Remove from Presentation"
+										aria-label="Remove from Presentation"
+									>
+										<span className="text-sm">🗑️</span>
+									</button>
+								);
+							}
+
+							if (confirmingDelete) {
+								return (
+									<div className="flex items-center gap-2">
+										<button
+											type="button"
+											className="rounded border border-gray-600 bg-gray-700 px-2 py-1 text-white hover:bg-gray-600"
+											onClick={() => {
+												setConfirmingDelete(false);
+											}}
+										>
+											Cancel
+										</button>
+										<button
+											type="button"
+											className="rounded bg-red-600 px-2 py-1 text-white hover:bg-red-700"
+											onClick={() => {
+												const newSlideOrder = [...slideOrder];
+												newSlideOrder.splice(idx, REMOVE_COUNT);
+												setSlideOrder(newSlideOrder);
+												deleteSlide(slideId);
+												setConfirmingDelete(false);
+											}}
+										>
+											Delete
+										</button>
+									</div>
+								);
+							}
+
+							return (
+								<button
+									type="button"
+									className="flex h-8 w-8 items-center justify-center rounded bg-red-600 text-white hover:bg-red-700"
+									onClick={() => {
+										setConfirmingDelete(true);
+									}}
+									title="Delete Slide"
+									aria-label="Delete Slide"
+								>
+									<span className="text-sm">🗑️</span>
+								</button>
+							);
+						})()}
 					</div>
 				</div>
 			</td>
@@ -183,7 +296,7 @@ export default function SortableGridRow({
 			{fields.map((field) => (
 				<td
 					key={field}
-					className="border border-gray-300 p-0"
+					className="border border-gray-300 dark:border-gray-600 p-0"
 					style={{
 						width: `${getColumnWidth(field)}px`,
 						minWidth: `${getColumnWidth(field)}px`,
@@ -195,7 +308,7 @@ export default function SortableGridRow({
 						onChange={(event) => {
 							editFieldValue({ slideId, field, value: event.target.value });
 						}}
-						className="h-full w-full border-none p-2 focus:outline-none"
+						className="h-full w-full border-none p-2 focus:outline-none text-black dark:text-white bg-transparent"
 						placeholder={`Enter ${field}...`}
 						minRows={2}
 						maxRows={8}

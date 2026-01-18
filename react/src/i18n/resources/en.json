@@ -138,6 +138,12 @@
 		"fields": "Fields",
 		"lyrics": "Lyrics",
 		"script": "Script",
-		"enTranslation": "English Translation"
+		"enTranslation": "English Translation",
+
+		"deleteSlide": {
+			"confirmation": "Are you sure you want to delete this slide? This will permanently remove the slide and its content.",
+			"cancel": "Cancel",
+			"confirm": "Delete"
+		}
 	}
 }

@@ -2,7 +2,7 @@ import { useLocation } from "react-router-dom";
 
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
-import getCurrentLangFromPath from "../path/getCurrentLangFromPath";
+import getCurrentLangFromPath from "./path/getCurrentLangFromPath";
 
 /**
  * URL-based language utilities and a small React hook.
