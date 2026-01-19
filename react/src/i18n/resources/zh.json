@@ -126,7 +126,10 @@
 		"lyrics": "歌词",
 		"script": "脚本",
 		"enTranslation": "英文翻译",
-
+		"slidesGridDescription": "这些是您实际看到的幻灯片，可以包含同一幻灯片多次。如果您编辑了显示多次的幻灯片，所有实例都会被编辑。如果不希望这样，请复制现有幻灯片或添加一个新幻灯片。",
+		"slidesGridTitle": "幻灯片演示网格",
+		"addNewSlide": "添加新幻灯片",
+		"addSameSlideAtAnotherPosition": "在另一个位置添加相同的幻灯片",
 		"deleteSlide": {
 			"confirmation": "您确定要删除此幻灯片吗？此操作将永久删除该幻灯片及其内容。",
 			"cancel": "取消",

@@ -1,5 +1,6 @@
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import cssVars from "@/react/utils/cssVars";
@@ -88,6 +89,15 @@ export default function SlidesGridTable({
 			setSlideOrder(newOrder);
 		},
 	});
+
+	// Track global dragging to allow rows to cancel delete confirmations when any drag starts
+	const [globalIsDragging, setGlobalIsDragging] = useState(false);
+
+	function onDragEndWrapper(event: DragEndEvent): void {
+		setGlobalIsDragging(false);
+		handleDragEnd(event);
+	}
+
 	return (
 		<div
 			className="overflow-x-auto"
@@ -96,7 +106,17 @@ export default function SlidesGridTable({
 				overflowX: totalWidth > horizontalScrollThreshold ? "scroll" : "auto",
 			}}
 		>
-			<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+			<DndContext
+				sensors={sensors}
+				collisionDetection={closestCenter}
+				onDragStart={() => {
+					setGlobalIsDragging(true);
+				}}
+				onDragCancel={() => {
+					setGlobalIsDragging(false);
+				}}
+				onDragEnd={onDragEndWrapper}
+			>
 				<table
 					className="min-w-[var(--table-min-width)] border-collapse border border-gray-300 dark:border-gray-600"
 					style={cssVars({
@@ -158,6 +178,7 @@ export default function SlidesGridTable({
 										slides={slides}
 										idx={idx}
 										getColumnWidth={getColumnWidth}
+										globalIsDragging={globalIsDragging}
 									/>
 								);
 							})}

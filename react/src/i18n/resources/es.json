@@ -126,7 +126,10 @@
 		"lyrics": "Letras",
 		"script": "Guión",
 		"enTranslation": "Traducción al Inglés",
-
+		"slidesGridDescription": "Estas son las diapositivas tal como las ves y pueden incluir la misma diapositiva más de una vez. Si editas una diapositiva que se muestra más de una vez, se editarán todas las instancias de esa diapositiva. Si no quieres este comportamiento, puedes duplicar una diapositiva existente o añadir una nueva.",
+		"slidesGridTitle": "Cuadrícula de presentación de diapositivas",
+		"addNewSlide": "Agregar nueva diapositiva",
+		"addSameSlideAtAnotherPosition": "Agregar esta misma diapositiva en otra posición",
 		"deleteSlide": {
 			"confirmation": "¿Está seguro de que desea eliminar esta diapositiva? Esto eliminará permanentemente la diapositiva y su contenido.",
 			"cancel": "Cancelar",

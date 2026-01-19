@@ -139,7 +139,10 @@
 		"lyrics": "Lyrics",
 		"script": "Script",
 		"enTranslation": "English Translation",
-
+		"slidesGridDescription": "These are the slides as you actually see them and can include the same slide more than once. If you edit a slide that is displayed more than once, it will edit all instances of the slide. If you don't want this behavior, you can duplicate an existing slide or add a new one.",
+		"slidesGridTitle": "Slides Presentation Grid",
+		"addNewSlide": "Add New Slide",
+		"addSameSlideAtAnotherPosition": "Add this same slide at another position",
 		"deleteSlide": {
 			"confirmation": "Are you sure you want to delete this slide? This will permanently remove the slide and its content.",
 			"cancel": "Cancel",

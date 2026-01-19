@@ -7,6 +7,9 @@ type DeleteConfirmationRowProps = Readonly<{
 	onCancel: () => void;
 	onConfirm: () => void;
 	rowRef: React.Ref<HTMLTableRowElement>;
+	isDragging: boolean;
+	isFaded?: boolean;
+	style?: React.CSSProperties;
 }>;
 
 /**
@@ -23,16 +26,22 @@ export default function DeleteConfirmationRow({
 	onCancel,
 	onConfirm,
 	rowRef,
+	isDragging,
+	isFaded = false,
+	style,
 }: DeleteConfirmationRowProps): ReactElement {
 	const { t } = useTranslation();
+	const faded = Boolean(isFaded);
 
 	return (
 		<tr ref={rowRef}>
 			<td
 				colSpan={colSpan}
-				className="w-full border border-gray-300 dark:border-gray-600 px-4 py-4"
+				style={style}
+				className={`w-full border border-gray-300 dark:border-gray-600 px-4 py-4 transition-opacity duration-150 ease-in-out ${isDragging ? "z-10" : ""}`}
+				aria-hidden={faded ? "true" : "false"}
 			>
-				<div className="w-full">
+				<div className={`${faded ? "opacity-40 pointer-events-none" : ""} w-full`}>
 					<div className="text-sm text-gray-800 dark:text-gray-200">
 						{t(
 							"song.deleteSlide.confirmation",
@@ -44,6 +53,7 @@ export default function DeleteConfirmationRow({
 							type="button"
 							className="rounded border border-gray-600 bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
 							onClick={onCancel}
+							disabled={isFaded}
 						>
 							{t("song.deleteSlide.cancel", "Cancel")}
 						</button>
@@ -51,6 +61,7 @@ export default function DeleteConfirmationRow({
 							type="button"
 							className="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
 							onClick={onConfirm}
+							disabled={isFaded}
 						>
 							{t("song.deleteSlide.confirm", "Delete")}
 						</button>

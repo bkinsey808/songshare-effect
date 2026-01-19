@@ -1,10 +1,19 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import AutoExpandingTextarea from "../../../design-system/AutoExpandingTextarea";
 import { type Slide } from "../songTypes";
 import DeleteConfirmationRow from "./DeleteConfirmationRow";
+
+const DRAG_OPACITY = 0.5;
+const NORMAL_OPACITY = 1;
+const REMOVE_COUNT = 1;
+const EMPTY_COUNT = 0;
+const SINGLE_INSTANCE = 1;
+// Number of fixed columns before the dynamic fields (slide name column)
+const SLIDE_NAME_COL_COUNT = 1;
 
 type EditSlideName = ({
 	slideId,
@@ -46,6 +55,7 @@ type SortableGridRowProps = Readonly<{
 	slides: Readonly<Record<string, Slide>>;
 	idx: number;
 	getColumnWidth: (field: string) => number;
+	globalIsDragging: boolean;
 }>;
 
 /**
@@ -72,22 +82,17 @@ export default function SortableGridRow({
 	slides,
 	idx,
 	getColumnWidth,
+	globalIsDragging,
 }: SortableGridRowProps): ReactElement {
-	const DRAG_OPACITY = 0.5;
-	const NORMAL_OPACITY = 1;
-	const REMOVE_COUNT = 1;
-	const EMPTY_COUNT = 0;
-	const SINGLE_INSTANCE = 1;
-	// Number of fixed columns before the dynamic fields (slide name column)
-	const SLIDE_NAME_COL_COUNT = 1;
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
+	const { t } = useTranslation();
 	const instancesCount = slideOrder.filter((id) => id === slideId).length;
 	const isSingleInstance = instancesCount === SINGLE_INSTANCE;
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: slideId,
 	});
 
-	const style = {
+	const style: React.CSSProperties = {
 		transform: CSS.Transform.toString(transform),
 		transition,
 		opacity: isDragging ? DRAG_OPACITY : NORMAL_OPACITY,
@@ -110,6 +115,9 @@ export default function SortableGridRow({
 		return (
 			<DeleteConfirmationRow
 				rowRef={setNodeRef}
+				style={style}
+				isDragging={isDragging}
+				isFaded={globalIsDragging}
 				colSpan={totalColumns}
 				onCancel={() => {
 					setConfirmingDelete(false);
@@ -179,8 +187,14 @@ export default function SortableGridRow({
 							onClick={() => {
 								setSlideOrder([...slideOrder, slideId]);
 							}}
-							title="Add to Presentation"
-							aria-label="Add to Presentation"
+							title={t(
+								"song.addSameSlideAtAnotherPosition",
+								"Add this same slide at another position",
+							)}
+							aria-label={t(
+								"song.addSameSlideAtAnotherPosition",
+								"Add this same slide at another position",
+							)}
 						>
 							<span className="text-sm">🔗</span>
 						</button>
@@ -247,13 +261,16 @@ export default function SortableGridRow({
 
 							if (confirmingDelete) {
 								return (
-									<div className="flex items-center gap-2">
+									<div
+										className={`${globalIsDragging ? "opacity-40 pointer-events-none" : ""} flex items-center gap-2`}
+									>
 										<button
 											type="button"
 											className="rounded border border-gray-600 bg-gray-700 px-2 py-1 text-white hover:bg-gray-600"
 											onClick={() => {
 												setConfirmingDelete(false);
 											}}
+											disabled={globalIsDragging}
 										>
 											Cancel
 										</button>
@@ -267,6 +284,7 @@ export default function SortableGridRow({
 												deleteSlide(slideId);
 												setConfirmingDelete(false);
 											}}
+											disabled={globalIsDragging}
 										>
 											Delete
 										</button>

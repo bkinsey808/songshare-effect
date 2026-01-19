@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
@@ -25,6 +26,7 @@ export default function SlidesViewManager({
 	slides,
 	setSlides,
 }: SlidesViewManagerProps): ReactElement {
+	const { t } = useTranslation();
 	const [isSlidesExpanded, setIsSlidesExpanded] = useState(true);
 	const [isGridExpanded, setIsGridExpanded] = useState(true);
 
@@ -41,7 +43,9 @@ export default function SlidesViewManager({
 				>
 					<div className="flex items-center gap-2">
 						<span className="text-xl">📄</span>
-						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">Slides View</h2>
+						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+							{t("song.slidesViewTitle", "Slides View")}
+						</h2>
 					</div>
 					<svg
 						className={`h-5 w-5 transform transition-transform ${
@@ -79,7 +83,9 @@ export default function SlidesViewManager({
 				>
 					<div className="flex items-center gap-2">
 						<span className="text-xl">📊</span>
-						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">Grid View</h2>
+						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+							{t("song.slidesGridTitle", "Slides Presentation Grid")}
+						</h2>
 					</div>
 					<svg
 						className={`h-5 w-5 transform transition-transform ${

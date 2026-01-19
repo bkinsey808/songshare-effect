@@ -126,7 +126,7 @@ export default function SongForm(): ReactElement {
 						{/* Row 2: Grid View spanning full width */}
 						<div className="w-full">
 							<CollapsibleSection
-								title="Grid View"
+								title={t("song.slidesGridTitle", "Slides Presentation Grid")}
 								icon="📊"
 								isExpanded={isGridExpanded}
 								onToggle={() => {

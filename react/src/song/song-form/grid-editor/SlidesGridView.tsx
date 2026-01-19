@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
@@ -22,6 +24,7 @@ export default function SlidesGridView({
 	slides,
 	setSlides,
 }: SlidesGridViewProps): ReactElement {
+	const { t } = useTranslation();
 	const { addSlide, deleteSlide, duplicateSlide, editFieldValue, editSlideName, safeGetField } =
 		useSlidesEditor({
 			slideOrder,
@@ -41,19 +44,25 @@ export default function SlidesGridView({
 	return (
 		<div className="w-full">
 			<div className="mb-4 flex items-center justify-between">
-				<h2 className="text-xl font-bold">Slides Grid View</h2>
+				<div>
+					<p className="text-sm text-gray-600 dark:text-gray-300">
+						{t(
+							"song.slidesGridDescription",
+							"These are the slides as you actually see them and can include the same slide more than once. If you edit a slide that is displayed more than once, it will edit all instances of the slide. If you don't want this behavior, you can duplicate an existing slide or add a new one.",
+						)}
+					</p>
+				</div>
 				<button
 					type="button"
 					onClick={addSlide}
-					className="flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-					title="Add New Slide"
-					aria-label="Add New Slide"
+					className="flex items-center gap-2 whitespace-nowrap rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+					title={t("song.addNewSlide", "Add New Slide")}
+					aria-label={t("song.addNewSlide", "Add New Slide")}
 				>
-					<span>➕</span>
-					<span>Add New Slide</span>
+					<span className="flex-shrink-0">➕</span>
+					<span className="flex-shrink-0">{t("song.addNewSlide", "Add New Slide")}</span>
 				</button>
 			</div>
-
 			{/* Horizontal scroll container */}
 			<SlidesGridTable
 				fields={fields}
