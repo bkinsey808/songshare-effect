@@ -11,7 +11,21 @@ import { isRecord, isString } from "@/shared/utils/typeGuards";
 import { type SongLibraryEntry } from "./song-library-schema";
 import { type SongLibrarySlice } from "./song-library-slice";
 
-export default function subscribeToLibrary(get: () => SongLibrarySlice): (() => void) | undefined {
+/**
+ * Subscribe to realtime updates on the current user's `song_library` table and
+ * apply incoming changes to the provided slice getters (`addSongLibraryEntry` / `removeSongLibraryEntry`).
+ *
+ * The subscription will fetch owner usernames for INSERT/UPDATE events when possible
+ * and update the local state optimistically. The function starts an async process
+ * to obtain an authenticated Supabase client and returns a synchronous cleanup
+ * function that will remove the created channel when invoked.
+ *
+ * @param get - Zustand slice getter used to access mutation helpers
+ * @returns A cleanup function that unsubscribes the realtime channel, or `undefined` if the subscription could not be established
+ */
+export default function subscribeToSongLibrary(
+	get: () => SongLibrarySlice,
+): (() => void) | undefined {
 	let channel: RealtimeChannel | undefined = undefined;
 	let client: SupabaseClient | undefined = undefined;
 
@@ -22,7 +36,7 @@ export default function subscribeToLibrary(get: () => SongLibrarySlice): (() => 
 			const supabaseClient = getSupabaseClient(userToken);
 
 			if (supabaseClient === undefined) {
-				console.warn("[subscribeToLibrary] No Supabase client");
+				console.warn("[subscribeToSongLibrary] No Supabase client");
 				return undefined;
 			}
 			client = supabaseClient;
@@ -46,8 +60,15 @@ export default function subscribeToLibrary(get: () => SongLibrarySlice): (() => 
 						// Use an async IIFE to avoid passing an async function where a
 						// synchronous callback is expected (prevents no-misused-promises).
 						void (async (): Promise<void> => {
-							const { addLibraryEntry, removeLibraryEntry } = get();
+							const { addSongLibraryEntry, removeSongLibraryEntry } = get();
 
+							/**
+							 * Type guard for Supabase realtime `postgres_changes` payloads used by the
+							 * song library subscription. Verifies the presence of an `eventType` string.
+							 *
+							 * @param value - Payload to inspect
+							 * @returns true if payload appears to be a valid library change event
+							 */
 							function isLibraryPayload(value: unknown): value is {
 								eventType: "INSERT" | "UPDATE" | "DELETE";
 								new?: unknown;
@@ -60,6 +81,13 @@ export default function subscribeToLibrary(get: () => SongLibrarySlice): (() => 
 								return isString(eventType);
 							}
 
+							/**
+							 * Type guard asserting the minimal shape of a `SongLibraryEntry` as received
+							 * from the realtime payload (requires `song_id` and `song_owner_id`).
+							 *
+							 * @param value - Value to check
+							 * @returns true if value has string `song_id` and `song_owner_id`
+							 */
 							function isSongLibraryEntry(value: unknown): value is SongLibraryEntry {
 								if (!isRecord(value)) {
 									return false;
@@ -111,19 +139,18 @@ export default function subscribeToLibrary(get: () => SongLibrarySlice): (() => 
 											!isString(userData["username"])
 										) {
 											console.warn(
-												"[subscribeToLibrary] Could not fetch owner username:",
+												"[subscribeToSongLibrary] Could not fetch owner username:",
 												userError,
 											);
-											addLibraryEntry(songLibraryEntry);
+											addSongLibraryEntry(songLibraryEntry);
 										} else {
-											addLibraryEntry({
+											addSongLibraryEntry({
 												...songLibraryEntry,
 												owner_username: userData["username"],
 											});
 										}
 									} catch (error) {
-										console.warn("[subscribeToLibrary] Error fetching owner username:", error);
-										addLibraryEntry(songLibraryEntry);
+										console.warn("[subscribeToSongLibrary] Error fetching owner username:", error);
 									}
 
 									break;
@@ -134,7 +161,7 @@ export default function subscribeToLibrary(get: () => SongLibrarySlice): (() => 
 									try {
 										const idRaw = isRecord(oldEntry) ? oldEntry["song_id"] : undefined;
 										if (isString(idRaw)) {
-											removeLibraryEntry(idRaw);
+											removeSongLibraryEntry(idRaw);
 										}
 									} catch {
 										// ignore malformed old entry
@@ -149,20 +176,20 @@ export default function subscribeToLibrary(get: () => SongLibrarySlice): (() => 
 					if (String(status) === String(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)) {
 						// Subscription successful - no logging needed in production
 					} else if (String(status) === String(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR)) {
-						console.error("[subscribeToLibrary] Channel error:", err);
+						console.error("[subscribeToSongLibrary] Channel error:", err);
 					} else if (String(status) === String(REALTIME_SUBSCRIBE_STATES.TIMED_OUT)) {
-						console.warn("[subscribeToLibrary] Subscription timed out");
+						console.warn("[subscribeToSongLibrary] Subscription timed out");
 					}
 				});
 		} catch (error) {
-			console.error("[subscribeToLibrary] Failed to get auth token:", error);
+			console.error("[subscribeToSongLibrary] Failed to get auth token:", error);
 		}
 	})();
 
 	// Return a cleanup function that will unsubscribe when called
 	return (): void => {
 		if (channel !== undefined && client !== undefined) {
-			console.warn("[subscribeToLibrary] Cleaning up channel subscription");
+			console.warn("[subscribeToSongLibrary] Cleaning up channel subscription");
 			void client.removeChannel(channel);
 		}
 	};

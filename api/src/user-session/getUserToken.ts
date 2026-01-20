@@ -4,8 +4,9 @@ import { log as serverLog } from "@/api/logger";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import { ONE_HOUR_SECONDS } from "@/shared/constants/http";
 
+import type { ReadonlyContext } from "../hono/hono-context";
+
 import { DatabaseError } from "../errors";
-import { type ReadonlyContext } from "../hono/hono-context";
 import getVerifiedUserSession from "./getVerifiedSession";
 
 type TokenResponse = Readonly<{
@@ -17,11 +18,17 @@ type TokenResponse = Readonly<{
 /**
  * Get a Supabase-compatible JWT token for the currently authenticated user.
  *
- * Uses the same Supabase visitor auth user but updates app_metadata with user.user_id
- * for RLS to distinguish between visitor and user access.
+ * Uses the shared Supabase visitor user account but updates the visitor
+ * account's `app_metadata` to include the current application's
+ * `user.user_id` so Row Level Security (RLS) policies can authorize
+ * user-specific access.
  *
- * This follows the same pattern as getSupabaseClientToken but adds user metadata
- * instead of visitor_id.
+ * This follows the same pattern as `getSupabaseClientToken` but adds user
+ * metadata instead of a `visitor_id` claim.
+ *
+ * @param ctx - The readonly Hono `Context` containing environment bindings and request information.
+ * @returns An Effect that yields a `TokenResponse` ({ access_token, token_type, expires_in })
+ *          or fails with a `DatabaseError` when authentication or Supabase operations fail.
  */
 export default function getUserToken(
 	ctx: ReadonlyContext,

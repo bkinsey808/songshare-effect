@@ -1,20 +1,33 @@
 import { getSupabaseAuthToken } from "../supabase/getSupabaseAuthToken";
 import { getSupabaseClient } from "../supabase/supabaseClient";
-import { type RemoveFromLibraryRequest } from "./song-library-schema";
+import { type RemoveSongFromSongLibraryRequest } from "./song-library-schema";
 import { type SongLibrarySlice } from "./song-library-slice";
 
-export default async function removeSongFromLibrary(
-	request: Readonly<RemoveFromLibraryRequest>,
+/**
+ * Remove a song from the current user's library (optimistic update).
+ *
+ * Performs a Supabase delete on `song_library` for the provided `song_id`.
+ * If the delete succeeds, the local store is updated via
+ * `removeSongLibraryEntry`. RLS policies ensure users can only delete their own
+ * entries.
+ *
+ * @param request - Object containing `song_id` to remove
+ * @param get - Zustand slice getter used to access state and mutation helpers
+ * @returns void (resolves when the operation completes)
+ * @throws Error when no Supabase client is available or the delete fails
+ */
+export default async function removeSongFromSongLibrary(
+	request: Readonly<RemoveSongFromSongLibraryRequest>,
 	get: () => SongLibrarySlice,
 ): Promise<void> {
-	const { setLibraryError, isInLibrary, removeLibraryEntry } = get();
+	const { setSongLibraryError, isInSongLibrary, removeSongLibraryEntry } = get();
 
 	// Clear any previous errors
-	setLibraryError(undefined);
+	setSongLibraryError(undefined);
 
 	// Check if song is in library
-	if (!isInLibrary(request.song_id)) {
-		console.warn("[removeFromLibrary] Song not in library:", request.song_id);
+	if (!isInSongLibrary(request.song_id)) {
+		console.warn("[removeFromSongLibrary] Song not in library:", request.song_id);
 		return;
 	}
 
@@ -34,5 +47,5 @@ export default async function removeSongFromLibrary(
 	}
 
 	// Remove from local state immediately (optimistic update)
-	removeLibraryEntry(request.song_id);
+	removeSongLibraryEntry(request.song_id);
 }

@@ -36,7 +36,7 @@ const omittedKeys: Set<string> = new Set<string>([
 	"showSignedInAlert",
 	"activePrivateSongsUnsubscribe",
 	"activePublicSongsUnsubscribe",
-	"libraryUnsubscribe",
+	"songLibraryUnsubscribe",
 ]);
 
 let store: UseBoundStore<StoreApi<AppSlice>> | undefined = undefined;

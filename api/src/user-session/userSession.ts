@@ -1,52 +1,13 @@
-import { Effect } from "effect";
-import { verify } from "hono/jwt";
-
-import { sessionCookieName } from "@/api/cookie/cookie";
-import { AuthenticationError } from "@/api/errors";
-import getErrorMessage from "@/api/getErrorMessage";
-import { type ReadonlyContext } from "@/api/hono/hono-context";
-import { getEnvString } from "@/shared/env/getEnv";
-
 /**
- * Pure helper - extract the raw token string from a Cookie header value.
- * Returns undefined when the cookie isn't present.
+ * DEPRECATED: `userSession.ts` has been split into separate files (one per function):
+ *  - `extractUserSessionTokenFromCookieHeader` -> `./extractUserSessionTokenFromCookieHeader`
+ *  - `extractUserSessionTokenFromContext` -> `./extractUserSessionTokenFromContext`
+ *  - `verifyUserSessionToken` -> `./verifyUserSessionToken`
+ *
+ * Please import the specific function you need directly from those files.
  */
-export function extractUserSessionTokenFromCookieHeader(
-	cookieHeader: string | undefined,
-): string | undefined {
-	const cookie = typeof cookieHeader === "string" ? cookieHeader : "";
-	// Use a named capture group to avoid indexed matches (and thus magic numbers)
-	const re = new RegExp(`${sessionCookieName}=(?<val>[^;]+)`);
-	const match = re.exec(cookie);
-	const value = match?.groups?.val;
-	return typeof value === "string" && value !== "" ? value : undefined;
-}
 
-/**
- * Effect helper - read token from Hono context's Cookie header.
- * Returns an Effect that succeeds with string | undefined.
- */
-export function extractUserSessionTokenFromContext(
-	ctx: ReadonlyContext,
-): Effect.Effect<string | undefined> {
-	return Effect.sync(() => extractUserSessionTokenFromCookieHeader(ctx.req.header("Cookie")));
-}
-
-export function verifyUserSessionToken(
-	userSessionToken: string,
-	envLike: unknown,
-): Effect.Effect<unknown, AuthenticationError> {
-	return Effect.tryPromise({
-		try: () => {
-			const jwtSecret = getEnvString(envLike, "JWT_SECRET");
-			if (jwtSecret === undefined || jwtSecret === "") {
-				throw new Error("Missing JWT_SECRET");
-			}
-			return verify(userSessionToken, jwtSecret, "HS256");
-		},
-		catch: (err: unknown) =>
-			new AuthenticationError({
-				message: getErrorMessage(err ?? "Invalid token"),
-			}),
-	});
-}
+// This file intentionally exports a sentinel value to prevent accidental barrel-style imports.
+// Prefer importing the specific function from its file instead of this module.
+const DEPRECATED_USER_SESSION_SPLIT = true;
+export default DEPRECATED_USER_SESSION_SPLIT;

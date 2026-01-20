@@ -133,7 +133,7 @@ setIsSignedIn(value: boolean);  // Update auth state
 **Security Features:**
 
 - **In-memory storage**: Tokens stored in memory, not localStorage or cookies
-- **Automatic cleanup**: Expired tokens automatically removed  
+- **Automatic cleanup**: Expired tokens automatically removed
 - **Token isolation**: User and visitor tokens managed separately
 - **Single auth user**: All JWTs signed by Supabase using the visitor account
 - **RLS enforcement**: Access control via JWT `app_metadata` claims
@@ -357,7 +357,7 @@ The repository CI workflows already run a preview server (Vite preview) and Play
 
 **"JwtSignatureError: Failed to validate JWT signature"**
 
-- **Cause:** JWT not signed by Supabase  
+- **Cause:** JWT not signed by Supabase
 - **Solution:** Use the visitor account sign-in approach (as implemented)
 - **Never:** Manually sign JWTs without Supabase's JWT secret
 
@@ -421,7 +421,7 @@ client.channel('test')
 
 **For detailed technical documentation including:**
 - Realtime subscription patterns
-- Complete RLS policy examples  
+- Complete RLS policy examples
 - Performance optimization strategies
 - Security best practices
 - Migration guides

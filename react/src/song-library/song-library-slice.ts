@@ -6,47 +6,61 @@ import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
 import { type Api, type Get, type Set } from "@/react/zustand/slice-utils";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
-import addSongToLibrary from "./addSongToLibrary";
-import removeSongFromLibrary from "./removeSongFromLibrary";
+import addSongToSongLibrary from "./addSongToSongLibrary";
+import removeSongFromSongLibrary from "./removeSongFromLibrary";
 import {
-	type AddToLibraryRequest,
-	type RemoveFromLibraryRequest,
+	type AddSongToSongLibraryRequest,
+	type RemoveSongFromSongLibraryRequest,
 	type SongLibraryEntry,
 } from "./song-library-schema";
 import { type SongLibrarySliceBase, type SongLibraryState } from "./song-library-types";
-import subscribeToLibraryFn from "./subscribeToLibrary";
+import subscribeToSongLibraryFn from "./subscribeToSongLibrary";
 
 const initialState: SongLibraryState = {
-	libraryEntries: {} as Record<string, SongLibraryEntry>,
-	isLibraryLoading: false,
-	libraryError: undefined as string | undefined,
+	songLibraryEntries: {} as Record<string, SongLibraryEntry>,
+	isSongLibraryLoading: false,
+	songLibraryError: undefined as string | undefined,
 };
 
 const ZERO = 0;
 
 export type SongLibrarySlice = SongLibrarySliceBase & {
 	/** Add a song to the user's library */
-	addToLibrary: (request: Readonly<AddToLibraryRequest>) => Promise<void>;
+	addSongToSongLibrary: (request: Readonly<AddSongToSongLibraryRequest>) => Promise<void>;
 	/** Remove a song from the user's library */
-	removeFromLibrary: (request: Readonly<RemoveFromLibraryRequest>) => Promise<void>;
+	removeSongFromSongLibrary: (request: Readonly<RemoveSongFromSongLibraryRequest>) => Promise<void>;
 	/** Get all song IDs in the user's library */
-	getLibrarySongIds: () => string[];
+	getSongLibrarySongIds: () => string[];
 	/** Fetch the user's complete library from the server */
-	fetchLibrary: () => Promise<void>;
+	fetchSongLibrary: () => Promise<void>;
 
 	/** Subscribe to realtime updates for the user's library. Returns an unsubscribe function. */
-	subscribeToLibrary: () => (() => void) | undefined;
+	subscribeToSongLibrary: () => (() => void) | undefined;
 	/** Internal: holds the current unsubscribe function for the realtime subscription */
-	libraryUnsubscribe?: () => void;
+	songLibraryUnsubscribe?: () => void;
 
 	/** Internal actions for updating state from subscriptions */
-	setLibraryEntries: (entries: ReadonlyDeep<Record<string, SongLibraryEntry>>) => void;
-	setLibraryLoading: (loading: boolean) => void;
+	setSongLibraryEntries: (entries: ReadonlyDeep<Record<string, SongLibraryEntry>>) => void;
+	setSongLibraryLoading: (loading: boolean) => void;
+	setSongLibraryError: (error: string | undefined) => void;
+	addSongLibraryEntry: (entry: SongLibraryEntry) => void;
+	removeSongLibraryEntry: (songId: string) => void;
 };
 
-// The slice factory uses an arrow-style function which matches the project's
-// preferred pattern for Zustand slice creators. Suppress the func-style rule
-// for this declaration specifically.
+/**
+ * Factory that creates the Song Library Zustand slice.
+ *
+ * This function returns the slice implementation containing public API methods
+ * (add/remove/fetch/subscribe) and internal mutation helpers used by
+ * subscriptions and optimistic updates. The factory registers a reset handler
+ * which will unsubscribe an active realtime subscription, if present, before
+ * restoring the initial state.
+ *
+ * @param set - Zustand `set` function for updating slice state
+ * @param get - Zustand `get` function for reading slice state and helpers
+ * @param api - Slice `api` object (unused but kept for consistency with other slices)
+ * @returns SongLibrarySlice - The initialized slice with public and internal methods
+ */
 export function createSongLibrarySlice(
 	set: Set<SongLibrarySlice>,
 	get: Get<SongLibrarySlice>,
@@ -56,9 +70,9 @@ export function createSongLibrarySlice(
 	void api;
 	sliceResetFns.add(() => {
 		// Unsubscribe before resetting state
-		const { libraryUnsubscribe } = get();
-		if (libraryUnsubscribe) {
-			libraryUnsubscribe();
+		const { songLibraryUnsubscribe } = get();
+		if (songLibraryUnsubscribe) {
+			songLibraryUnsubscribe();
 		}
 		set(initialState);
 	});
@@ -67,44 +81,44 @@ export function createSongLibrarySlice(
 		...initialState,
 
 		// Public API methods
-		addToLibrary: async (request: Readonly<AddToLibraryRequest>) => {
+		addSongToSongLibrary: async (request: Readonly<AddSongToSongLibraryRequest>) => {
 			try {
-				await addSongToLibrary(request, get);
+				await addSongToSongLibrary(request, get);
 			} catch (error) {
 				const errorMessage =
-					error instanceof Error ? error.message : "Failed to add song to library";
-				const { setLibraryError } = get();
-				setLibraryError(errorMessage);
-				console.error("[addToLibrary] Error:", error);
+					error instanceof Error ? error.message : "Failed to add song to song library";
+				const { setSongLibraryError } = get();
+				setSongLibraryError(errorMessage);
+				console.error("[addSongToSongLibrary] Error:", error);
 				throw error;
 			}
 		},
-		removeFromLibrary: async (request: Readonly<RemoveFromLibraryRequest>) => {
+		removeSongFromSongLibrary: async (request: Readonly<RemoveSongFromSongLibraryRequest>) => {
 			try {
-				await removeSongFromLibrary(request, get);
+				await removeSongFromSongLibrary(request, get);
 			} catch (error) {
 				const errorMessage =
-					error instanceof Error ? error.message : "Failed to remove song from library";
-				const { setLibraryError } = get();
-				setLibraryError(errorMessage);
-				console.error("[removeFromLibrary] Error:", error);
+					error instanceof Error ? error.message : "Failed to remove song from song library";
+				const { setSongLibraryError } = get();
+				setSongLibraryError(errorMessage);
+				console.error("[removeSongFromSongLibrary] Error:", error);
 				throw error;
 			}
 		},
 
-		isInLibrary: (songId: string) => {
-			const { libraryEntries } = get();
-			return songId in libraryEntries;
+		isInSongLibrary: (songId: string) => {
+			const { songLibraryEntries } = get();
+			return songId in songLibraryEntries;
 		},
 
-		getLibrarySongIds: () => {
-			const { libraryEntries } = get();
-			return Object.keys(libraryEntries);
+		getSongLibrarySongIds: () => {
+			const { songLibraryEntries } = get();
+			return Object.keys(songLibraryEntries);
 		},
 
-		fetchLibrary: async () => {
+		fetchSongLibrary: async () => {
 			try {
-				set({ isLibraryLoading: true, libraryError: undefined });
+				set({ isSongLibraryLoading: true, songLibraryError: undefined });
 
 				// Supabase utilities (statically imported)
 				const userToken = await getSupabaseAuthToken();
@@ -114,28 +128,28 @@ export function createSongLibrarySlice(
 					throw new Error("No Supabase client available");
 				}
 
-				console.warn("[fetchLibrary] Fetching song_library entries...");
+				console.warn("[fetchSongLibrary] Fetching song_library entries...");
 				const { data, error } = await client.from("song_library").select("*");
 
 				if (error) {
-					console.error("[fetchLibrary] Error fetching song_library:", error);
+					console.error("[fetchSongLibrary] Error fetching song_library:", error);
 					throw error;
 				}
 
-				console.warn("[fetchLibrary] Received entries:", data?.length ?? ZERO, data);
+				console.warn("[fetchSongLibrary] Received entries:", data?.length ?? ZERO, data);
 				const songIds = [...new Set((data ?? []).map((entry) => entry.song_id))];
-				console.warn("[fetchLibrary] Fetching song_public for song IDs:", songIds);
+				console.warn("[fetchSongLibrary] Fetching song_public for song IDs:", songIds);
 				const { data: songData, error: songError } = await client
 					.from("song_public")
 					.select("song_id, song_name, song_slug")
 					.in("song_id", songIds);
 
 				if (songError) {
-					console.error("[fetchLibrary] Error fetching song_public:", songError);
+					console.error("[fetchSongLibrary] Error fetching song_public:", songError);
 					throw songError;
 				}
 				console.warn(
-					"[fetchLibrary] Received song_public data:",
+					"[fetchSongLibrary] Received song_public data:",
 					songData?.length ?? ZERO,
 					songData,
 				);
@@ -150,18 +164,18 @@ export function createSongLibrarySlice(
 
 				// Fetch owner usernames for all entries
 				const ownerIds = [...new Set((data ?? []).map((entry) => entry.song_owner_id))];
-				console.warn("[fetchLibrary] Fetching user_public for owner IDs:", ownerIds);
+				console.warn("[fetchSongLibrary] Fetching user_public for owner IDs:", ownerIds);
 				const { data: ownerData, error: ownerError } = await client
 					.from("user_public")
 					.select("user_id, username")
 					.in("user_id", ownerIds);
 
 				if (ownerError) {
-					console.error("[fetchLibrary] Error fetching user_public:", ownerError);
+					console.error("[fetchSongLibrary] Error fetching user_public:", ownerError);
 					throw ownerError;
 				}
 				console.warn(
-					"[fetchLibrary] Received user_public data:",
+					"[fetchSongLibrary] Received user_public data:",
 					ownerData?.length ?? ZERO,
 					ownerData,
 				);
@@ -193,51 +207,51 @@ export function createSongLibrarySlice(
 				);
 
 				set({
-					libraryEntries: entriesRecord,
-					isLibraryLoading: false,
-					libraryError: undefined,
+					songLibraryEntries: entriesRecord,
+					isSongLibraryLoading: false,
+					songLibraryError: undefined,
 				});
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : "Failed to fetch library";
 				set({
-					isLibraryLoading: false,
-					libraryError: errorMessage,
+					isSongLibraryLoading: false,
+					songLibraryError: errorMessage,
 				});
-				console.error("[fetchLibrary] Error:", error);
+				console.error("[fetchSongLibrary] Error:", error);
 			}
 		},
 
-		subscribeToLibrary: () => subscribeToLibraryFn(get),
+		subscribeToSongLibrary: () => subscribeToSongLibraryFn(get),
 
 		// Internal state management methods
-		setLibraryEntries: (entries: ReadonlyDeep<Record<string, SongLibraryEntry>>) => {
-			set({ libraryEntries: entries });
+		setSongLibraryEntries: (entries: ReadonlyDeep<Record<string, SongLibraryEntry>>) => {
+			set({ songLibraryEntries: entries });
 		},
 
-		addLibraryEntry: (entry: SongLibraryEntry) => {
+		addSongLibraryEntry: (entry: SongLibraryEntry) => {
 			set((state) => ({
-				libraryEntries: {
-					...state.libraryEntries,
+				songLibraryEntries: {
+					...state.songLibraryEntries,
 					[entry.song_id]: entry,
 				},
 			}));
 		},
 
-		removeLibraryEntry: (songId: string) => {
+		removeSongLibraryEntry: (songId: string) => {
 			set((state) => {
 				const newEntries = Object.fromEntries(
-					Object.entries(state.libraryEntries).filter(([id]) => id !== songId),
+					Object.entries(state.songLibraryEntries).filter(([id]) => id !== songId),
 				);
-				return { libraryEntries: newEntries };
+				return { songLibraryEntries: newEntries };
 			});
 		},
 
-		setLibraryLoading: (loading: boolean) => {
-			set({ isLibraryLoading: loading });
+		setSongLibraryLoading: (loading: boolean) => {
+			set({ isSongLibraryLoading: loading });
 		},
 
-		setLibraryError: (error: string | undefined) => {
-			set({ libraryError: error });
+		setSongLibraryError: (error: string | undefined) => {
+			set({ songLibraryError: error });
 		},
 	};
 }

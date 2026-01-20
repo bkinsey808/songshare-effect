@@ -14,16 +14,16 @@ function SongLibraryPage(): ReactElement {
 			return undefined;
 		}
 
-		const { fetchLibrary, subscribeToLibrary } = store.getState();
+		const { fetchSongLibrary, subscribeToSongLibrary } = store.getState();
 
 		// Fetch initial library data
-		if (typeof fetchLibrary === "function") {
-			void fetchLibrary();
+		if (typeof fetchSongLibrary === "function") {
+			void fetchSongLibrary();
 		}
 
 		// Subscribe to realtime updates - resubscribe when auth state changes
-		if (typeof subscribeToLibrary === "function") {
-			const unsubscribe = subscribeToLibrary();
+		if (typeof subscribeToSongLibrary === "function") {
+			const unsubscribe = subscribeToSongLibrary();
 
 			// Cleanup: unsubscribe when component unmounts or auth state changes
 			return (): void => {

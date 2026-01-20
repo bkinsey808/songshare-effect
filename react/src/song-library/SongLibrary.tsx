@@ -3,18 +3,27 @@ import { useNavigate } from "react-router-dom";
 import useLocale from "@/react/language/locale/useLocale";
 import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 
+/**
+ * SongLibrary component — renders the current user's song library.
+ *
+ * This component selects library state from the app store (initialized by
+ * `SongLibraryPage`), and renders loading, error, empty, or the song grid.
+ * Each entry exposes actions to view the song or remove it from the library.
+ *
+ * @returns The song library UI
+ */
 export default function SongLibrary(): ReactElement {
 	const { lang, t } = useLocale();
 	const navigate = useNavigate();
 	const ZERO = 0;
 
 	// Select state from store (initialization handled by SongLibraryPage)
-	const libraryEntries = useAppStoreSelector((state) => state.libraryEntries);
-	const isLoading = useAppStoreSelector((state) => state.isLibraryLoading);
-	const error = useAppStoreSelector((state) => state.libraryError);
-	const removeFromLibrary = useAppStoreSelector((state) => state.removeFromLibrary);
+	const songLibraryEntries = useAppStoreSelector((state) => state.songLibraryEntries);
+	const isLoading = useAppStoreSelector((state) => state.isSongLibraryLoading);
+	const error = useAppStoreSelector((state) => state.songLibraryError);
+	const removeFromSongLibrary = useAppStoreSelector((state) => state.removeSongFromSongLibrary);
 
-	const songEntries = Object.values(libraryEntries);
+	const songEntries = Object.values(songLibraryEntries);
 
 	if (isLoading) {
 		return (
@@ -127,7 +136,7 @@ export default function SongLibrary(): ReactElement {
 								type="button"
 								className="text-sm text-red-400 transition-colors hover:text-red-300"
 								onClick={() => {
-									void removeFromLibrary({ song_id: entry.song_id });
+									void removeFromSongLibrary({ song_id: entry.song_id });
 								}}
 							>
 								{t("songLibrary.removeSong", "Remove")}

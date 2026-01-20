@@ -3,10 +3,8 @@ import { Effect } from "effect";
 import { AuthenticationError, DatabaseError } from "@/api/errors";
 import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
-import {
-	extractUserSessionTokenFromContext,
-	verifyUserSessionToken,
-} from "@/api/user-session/userSession";
+import extractUserSessionTokenFromContext from "@/api/user-session/extractUserSessionTokenFromContext";
+import verifyUserSessionToken from "@/api/user-session/verifyUserSessionToken";
 import { type UserSessionData, UserSessionDataSchema } from "@/shared/userSessionData";
 import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 

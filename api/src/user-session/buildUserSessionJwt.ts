@@ -21,7 +21,7 @@ import { type ReadonlyUser } from "../user/user";
 // because converting all nested `Context` fields to readonly can lead to
 // incompatible shapes (e.g. readonly arrays vs mutable arrays) when the
 // context is passed to other helpers like `getIpAddress`.
-export type BuildUserSessionJwtParams = ReadonlyDeep<{
+type BuildUserSessionJwtParams = ReadonlyDeep<{
 	readonly supabase: ReadonlySupabaseClient;
 	readonly existingUser: ReadonlyUser;
 	readonly oauthUserData: ReadonlyOauthUserData;
@@ -44,7 +44,7 @@ export type BuildUserSessionJwtParams = ReadonlyDeep<{
  * @param params.oauthState OAuth state
  * @returns Effect yielding the session JWT string
  */
-export function buildUserSessionJwt({
+export default function buildUserSessionJwt({
 	ctx,
 	supabase,
 	existingUser,

@@ -138,7 +138,7 @@ const getUserLibrary = async (userId: string) => {
 
 ```typescript
 // ✅ RECOMMENDED: Subscribe with explicit filter
-const subscribeToLibrary = (userId: string, callback: Function) => {
+const subscribeToSongLibrary = (userId: string, callback: Function) => {
 	return client
 		.channel(`song_library:user_id=eq.${userId}`)
 		.on(
@@ -159,7 +159,7 @@ const subscribeToLibrary = (userId: string, callback: Function) => {
 
 ```typescript
 // ✅ RECOMMENDED: Check if song is in user's library
-const isInLibrary = async (userId: string, songId: string) => {
+const isInSongLibrary = async (userId: string, songId: string) => {
 	const { data, error } = await client
 		.from("song_library")
 		.select("song_id")

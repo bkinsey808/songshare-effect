@@ -18,7 +18,7 @@ import rateLimit from "@/api/oauth-callback-factory/rateLimit";
 import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
 import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
 import buildRegisterJwt from "@/api/register/buildRegisterJwt";
-import { buildUserSessionJwt } from "@/api/user-session/buildUserSessionJwt";
+import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
 import { csrfTokenCookieName, oauthCsrfCookieName } from "@/shared/cookies";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";

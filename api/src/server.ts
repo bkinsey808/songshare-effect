@@ -197,7 +197,10 @@ app.get("/api/auth/visitor", async (ctx) => {
 });
 
 // Supabase user token endpoint - provides a JWT for authenticated user
-app.get("/api/auth/user/token", handleHttpEndpoint((ctx) => getUserToken(ctx)));
+app.get(
+	"/api/auth/user/token",
+	handleHttpEndpoint((ctx) => getUserToken(ctx)),
+);
 
 // Song save endpoint
 app.post(

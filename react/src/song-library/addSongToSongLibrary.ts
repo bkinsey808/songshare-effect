@@ -3,10 +3,16 @@ import { getSupabaseClient } from "@/react/supabase/supabaseClient";
 import { clientWarn } from "@/react/utils/clientLogger";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
-import { type AddToLibraryRequest, type SongLibraryEntry } from "./song-library-schema";
+import { type AddSongToSongLibraryRequest, type SongLibraryEntry } from "./song-library-schema";
 import { type SongLibrarySlice } from "./song-library-slice";
 
 // Add to local state immediately (optimistic update) with owner username if available
+/**
+ * Type guard asserting the provided value matches a minimal SongLibraryEntry shape.
+ *
+ * @param value - Value to check
+ * @returns true if value is a SongLibraryEntry-like record (has string `user_id` and `song_id`)
+ */
 function isSongLibraryEntry(value: unknown): value is SongLibraryEntry {
 	if (!isRecord(value)) {
 		return false;
@@ -15,6 +21,12 @@ function isSongLibraryEntry(value: unknown): value is SongLibraryEntry {
 	return isString(user_id) && isString(song_id);
 }
 
+/**
+ * Type guard for owner data returned by `user_public` queries.
+ *
+ * @param value - Potential owner data
+ * @returns true if `value` is a record with an optional string `username` property
+ */
 function isOwnerData(value: unknown): value is { username?: string } {
 	if (!isRecord(value)) {
 		return false;
@@ -23,18 +35,30 @@ function isOwnerData(value: unknown): value is { username?: string } {
 	return isString(username);
 }
 
-export default async function addSongToLibrary(
-	request: Readonly<AddToLibraryRequest>,
+/**
+ * Add a song to the current user's library (optimistic update).
+ *
+ * Performs a Supabase insert into `song_library` and attempts to fetch the
+ * owner's username to include in the local optimistic entry. On success or
+ * failure the local store is updated via `addSongLibraryEntry`.
+ *
+ * @param request - Request containing `song_id` and `song_owner_id`
+ * @param get - Zustand slice getter for accessing state and mutation helpers
+ * @returns void (resolves when the operation completes)
+ * @throws Error when no Supabase client or authenticated user is available, or when insert fails
+ */
+export default async function addSongToSongLibrary(
+	request: Readonly<AddSongToSongLibraryRequest>,
 	get: () => SongLibrarySlice,
 ): Promise<void> {
-	const { setLibraryError, isInLibrary, addLibraryEntry } = get();
+	const { setSongLibraryError, isInSongLibrary, addSongLibraryEntry } = get();
 
 	// Clear any previous errors
-	setLibraryError(undefined);
+	setSongLibraryError(undefined);
 
 	// Check if already in library
-	if (isInLibrary(request.song_id)) {
-		clientWarn("[addToLibrary] Song already in library:", request.song_id);
+	if (isInSongLibrary(request.song_id)) {
+		clientWarn("[addToSongSongLibrary] Song already in song library:", request.song_id);
 		return;
 	}
 
@@ -52,6 +76,13 @@ export default async function addSongToLibrary(
 		error: userError,
 	} = await client.auth.getUser();
 
+	/**
+	 * Type guard for Supabase `auth.getUser()` user object that checks for
+	 * `app_metadata.user.user_id` presence.
+	 *
+	 * @param value - The user object to inspect
+	 * @returns true if `app_metadata.user.user_id` exists and is a string
+	 */
 	function isAuthUser(value: unknown): value is { app_metadata: { user?: { user_id?: string } } } {
 		if (!isRecord(value)) {
 			return false;
@@ -109,7 +140,7 @@ export default async function addSongToLibrary(
 
 		if (ownerError || !isOwnerData(ownerData)) {
 			if (isSongLibraryEntry(data)) {
-				addLibraryEntry(data);
+				addSongLibraryEntry(data);
 			} else {
 				// Fallback: attempt to coerce minimal shape
 				const fallbackEntry: SongLibraryEntry = {
@@ -119,14 +150,14 @@ export default async function addSongToLibrary(
 					// created_at is required by the generated SongLibrary type
 					created_at: new Date().toISOString(),
 				};
-				addLibraryEntry(fallbackEntry);
+				addSongLibraryEntry(fallbackEntry);
 			}
 		} else if (isSongLibraryEntry(data)) {
 			const libraryEntryWithUsername: SongLibraryEntry = {
 				...data,
 				owner_username: ownerData.username,
 			};
-			addLibraryEntry(libraryEntryWithUsername);
+			addSongLibraryEntry(libraryEntryWithUsername);
 		} else {
 			const fallbackEntryWithUsername: SongLibraryEntry = {
 				user_id: userId,
@@ -136,10 +167,10 @@ export default async function addSongToLibrary(
 				// created_at is required by the generated SongLibrary type
 				created_at: new Date().toISOString(),
 			};
-			addLibraryEntry(fallbackEntryWithUsername);
+			addSongLibraryEntry(fallbackEntryWithUsername);
 		}
 	} catch (error) {
-		clientWarn("[addToLibrary] Could not fetch owner username:", error);
+		clientWarn("[addToSongSongLibrary] Could not fetch owner username:", error);
 		// Still add the entry without username — use a typed fallback
 		const fallbackEntry: SongLibraryEntry = {
 			user_id: userId,
@@ -148,6 +179,6 @@ export default async function addSongToLibrary(
 			// created_at is required by the generated SongLibrary type
 			created_at: new Date().toISOString(),
 		};
-		addLibraryEntry(fallbackEntry);
+		addSongLibraryEntry(fallbackEntry);
 	}
 }
