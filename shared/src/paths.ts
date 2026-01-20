@@ -22,6 +22,7 @@ export const apiOauthCallbackPath = "/api/oauth/callback";
 export const apiMePath = "/api/me";
 export const apiAccountRegisterPath = "/api/account/register";
 export const apiAccountDeletePath = "/api/account/delete";
+export const apiUserTokenPath = "/api/auth/user/token";
 
 // Frontend route for account deletion confirmation (nested under dashboard)
 export const deleteAccountPath = "delete-account";

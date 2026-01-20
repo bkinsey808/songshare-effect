@@ -1,9 +1,39 @@
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import SongLibrary from "@/react/song-library/SongLibrary";
+import { getStoreApi } from "@/react/zustand/useAppStore";
 
 function SongLibraryPage(): ReactElement {
 	const { t } = useTranslation();
+
+	// Initialize library data on mount
+	useEffect((): (() => void) | void => {
+		const store = getStoreApi();
+		if (!store) {
+			return undefined;
+		}
+
+		const { fetchLibrary, subscribeToLibrary } = store.getState();
+
+		// Fetch initial library data
+		if (typeof fetchLibrary === "function") {
+			void fetchLibrary();
+		}
+
+		// Subscribe to realtime updates - resubscribe when auth state changes
+		if (typeof subscribeToLibrary === "function") {
+			const unsubscribe = subscribeToLibrary();
+
+			// Cleanup: unsubscribe when component unmounts or auth state changes
+			return (): void => {
+				if (typeof unsubscribe === "function") {
+					unsubscribe();
+				}
+			};
+		}
+		return undefined;
+	}, []);
 
 	return (
 		<div className="mx-auto max-w-6xl px-4 py-6">

@@ -2,6 +2,11 @@ import { useRef, useState } from "react";
 
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
+const ZERO = 0;
+const DEFAULT_FIELD_WIDTH_VALUE = 200;
+const DEFAULT_SLIDE_NAME_WIDTH_VALUE = 144;
+const MIN_COLUMN_WIDTH = 80;
+
 export type UseColumnResizeProps = Readonly<{
 	fields: readonly string[];
 	defaultFieldWidth?: number;
@@ -18,15 +23,26 @@ export type UseColumnResizeReturn = Readonly<
 	}>
 >;
 
+/**
+ * useColumnResize
+ *
+ * Hook to manage resizable columns for the slides grid editor.
+ *
+ * Responsibilities:
+ * - Initialize per-field widths and provide a getter for current widths
+ * - Handle mouse-driven resize start/move/up and enforce a minimum width
+ * - Compute the table's total width including the fixed slide name column
+ *
+ * @param props.fields - The dynamic field keys rendered as table columns
+ * @param props.defaultFieldWidth - Default width (px) to apply to fields
+ * @param props.slideNameWidth - Width (px) for the fixed slide name column
+ * @returns An object with helpers: `getColumnWidth`, `isResizing`, `startResize`, and `totalWidth`
+ */
 export default function useColumnResize({
 	fields,
 	defaultFieldWidth,
 	slideNameWidth,
 }: UseColumnResizeProps): UseColumnResizeReturn {
-	const ZERO = 0;
-	const DEFAULT_FIELD_WIDTH_VALUE = 200;
-	const DEFAULT_SLIDE_NAME_WIDTH_VALUE = 144;
-	const MIN_COLUMN_WIDTH = 80;
 	const DEFAULT_FIELD_WIDTH = defaultFieldWidth ?? DEFAULT_FIELD_WIDTH_VALUE;
 	const DEFAULT_SLIDE_NAME_WIDTH = slideNameWidth ?? DEFAULT_SLIDE_NAME_WIDTH_VALUE;
 	// Use Map for safer key handling

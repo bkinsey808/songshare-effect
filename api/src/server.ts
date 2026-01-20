@@ -23,6 +23,7 @@ import me from "./me";
 import oauthSignInDefault from "./oauth/oauthSignIn";
 import { songSave } from "./song/songSave";
 import getSupabaseClientToken from "./supabase/getSupabaseClientToken";
+import getUserToken from "./user-session/getUserToken";
 
 const app: Hono<{ Bindings: Bindings }> = new Hono<{ Bindings: Bindings }>();
 
@@ -194,6 +195,9 @@ app.get("/api/auth/visitor", async (ctx) => {
 		);
 	}
 });
+
+// Supabase user token endpoint - provides a JWT for authenticated user
+app.get("/api/auth/user/token", handleHttpEndpoint((ctx) => getUserToken(ctx)));
 
 // Song save endpoint
 app.post(

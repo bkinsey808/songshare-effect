@@ -5,19 +5,43 @@
 
 SongShare implements a dual authentication system that supports both anonymous visitors and authenticated users with seamless token switching and Row Level Security (RLS) enforcement.
 
+**Key Architecture**: Uses a **single Supabase auth user** (the "visitor" account) with dynamic `app_metadata` updates to support both anonymous and authenticated access. This approach enables Realtime subscriptions while maintaining RLS-based access control.
+
+### Why a Single Auth User?
+
+**Supabase Realtime requires authenticated JWT tokens** - it cannot work with anonymous/unauthenticated connections. The single visitor account solves this by:
+
+1. **Authentication (transport layer)**: The visitor account provides valid Supabase-signed JWTs that enable Realtime WebSocket connections
+2. **Authorization (access control)**: RLS policies check JWT `app_metadata` to determine what data each user can access
+
+**Why not fully open/anonymous?**
+- ❌ Realtime subscriptions would not work (requires authenticated connection)
+- ❌ No way to establish WebSocket connections
+- ❌ Cannot filter events server-side
+
+**Why not individual Supabase auth users per app user?**
+- ❌ More complex (manage two separate user systems)
+- ❌ Unnecessary overhead (RLS can distinguish users via metadata)
+- ❌ Harder to maintain (sync between Supabase auth + app users)
+
+The single visitor account is essentially a **"transport layer"** that makes Realtime work while RLS handles security.
+
+> 📖 **For detailed technical documentation** on Realtime subscriptions, RLS policies, and implementation patterns, see [realtime-rls-architecture.md](./realtime-rls-architecture.md).
+
 ## 🏗️ **Architecture**
 
 ### **Two-Token System**
 
 1. **Visitor Tokens** - For anonymous users
-   - Shared JWT for a special "visitor" user account
+   - Uses the shared "visitor" Supabase auth account
    - Provides read-only access to public data (`*_public` tables)
-   - JWT structure: `{ app_metadata: { visitor_id: "uuid" } }`
+   - JWT structure: `{ app_metadata: { visitor_id: "visitor-uuid" } }`
 
 2. **User Tokens** - For authenticated users
-   - Individual JWT for each authenticated user
+   - Uses the **same** "visitor" Supabase auth account
+   - Updates `app_metadata` to include user context
    - Provides full CRUD access to user's own data and read access to public data
-   - JWT structure: `{ sub: "user_id", app_metadata: { user: { user_id: "uuid" } } }`
+   - JWT structure: `{ app_metadata: { visitor_id: "visitor-uuid", user: { user_id: "app-user-uuid" } } }`
 
 ### **Automatic Token Switching**
 
@@ -31,36 +55,40 @@ The system automatically selects the appropriate token:
 
 ```
 ├── api/src/
-│   ├── supabaseClientToken.ts     # Server-side token generation
-│   └── server.ts                   # Authentication API endpoints
+│   ├── supabase/
+│   │   └── getSupabaseClientToken.ts  # Visitor token generation
+│   ├── user-session/
+│   │   └── getUserToken.ts            # User token generation
+│   └── server.ts                       # Authentication API endpoints
 ├── react/src/
-│   ├── supabaseClient.ts          # Client creation with authentication
-│   ├── services/auth.ts           # Client-side authentication service
-│   ├── components/SignInForm.tsx  # Ready-to-use sign-in component
-│   └── examples/AuthTokenDemo.tsx # Authentication demonstration
+│   ├── supabase/
+│   │   ├── supabaseClient.ts          # Client creation with authentication
+│   │   └── getSupabaseAuthToken.ts    # Token selection logic
+│   └── auth/
+│       └── auth-slice.ts               # Authentication state management
 └── docs/
-    ├── AUTHENTICATION_SYSTEM.md   # This file
-    ├── TOKEN_STRUCTURE_FIX.md     # Technical implementation details
-    └── test-token-structure.ts    # Token validation utilities
+    ├── authentication-system.md        # This file (overview)
+    └── realtime-rls-architecture.md    # Detailed technical guide
 ```
 
 ## 🔧 **Implementation Details**
 
 ### **Server-Side (API)**
 
-#### **Token Generation (`api/src/supabaseClientToken.ts`)**
+#### **Token Generation**
 
-```typescript
-// Visitor token generation
-export async function getSupabaseClientToken(env: Env): Promise<string>;
+**Visitor Token** (`api/src/supabase/getSupabaseClientToken.ts`):
+1. Sign in to Supabase as visitor user
+2. Check if `app_metadata.visitor_id` exists
+3. If missing, update metadata and re-sign
+4. Return `access_token`
 
-// User token generation with proper metadata structure
-export async function getSupabaseUserToken(
-	env: Env,
-	email: string,
-	password: string,
-): Promise<string>;
-```
+**User Token** (`api/src/user-session/getUserToken.ts`):
+1. Verify user session (from session JWT cookie)
+2. Sign in to Supabase as visitor user
+3. Update `app_metadata` to include `user: { user_id: "app-user-uuid" }`
+4. Sign in again to get fresh JWT with user metadata
+5. Return `access_token`
 
 **Key Features:**
 
@@ -69,35 +97,46 @@ export async function getSupabaseUserToken(
 - **Expiration handling**: Respects token expiry times
 - **Error handling**: Graceful failure with detailed error messages
 
-#### **API Endpoints (`api/src/server.ts`)**
+#### **API Endpoints**
 
 ```typescript
 // Visitor token endpoint
 GET /api/auth/visitor
 Response: { access_token, token_type: "bearer", expires_in: 3600 }
+
+// User token endpoint (requires valid session cookie)
+GET /api/auth/user/token
+Response: { access_token, token_type: "bearer", expires_in: 3600 }
 ```
 
 ### **Client-Side (React)**
 
-#### **Authentication Service (`react/src/services/auth.ts`)**
+#### **Token Management** (`react/src/supabase/getSupabaseAuthToken.ts`)
+
+```typescript
+// Automatic token selection
+export async function getSupabaseAuthToken(): Promise<string | undefined>;
+// - If user signed in: fetch from /api/auth/user/token
+// - If user signed out: fetch from /api/auth/visitor
+// - Caches tokens in memory until expiry
+```
+
+#### **Authentication State** (`react/src/auth/auth-slice.ts`)
 
 ```typescript
 // Core authentication functions
-export async function getSupabaseClientToken(): Promise<string>; // Visitor token
-export async function signInUser(
-	email: string,
-	password: string,
-): Promise<string>; // User sign-in
-export async function getCurrentAuthToken(): Promise<string>; // Smart token selection
-export function signOutUser(): void; // Clear user session
-export function isUserSignedIn(): boolean; // Check auth status
+signIn(): Promise<void>;        // Fetch and cache user token
+signOut(): void;                // Clear user session
+setIsSignedIn(value: boolean);  // Update auth state
 ```
 
 **Security Features:**
 
 - **In-memory storage**: Tokens stored in memory, not localStorage or cookies
-- **Automatic cleanup**: Expired tokens automatically removed
+- **Automatic cleanup**: Expired tokens automatically removed  
 - **Token isolation**: User and visitor tokens managed separately
+- **Single auth user**: All JWTs signed by Supabase using the visitor account
+- **RLS enforcement**: Access control via JWT `app_metadata` claims
 
 #### **Supabase Client Creation (`react/src/supabaseClient.ts`)**
 
@@ -144,55 +183,41 @@ USING (
 
 ## 🚀 **Usage Examples**
 
-### **Basic Authentication Flow**
+### **Using Supabase Client** (Recommended)
 
 ```typescript
-import { isUserSignedIn, signInUser, signOutUser } from "./services/auth";
+import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
 
-// Check authentication status
-if (isUserSignedIn()) {
-	console.log("User is signed in");
-}
-
-// Sign in a user
-try {
-	await signInUser("user@example.com", "password");
-	console.log("User signed in successfully");
-} catch (error) {
-	console.error("Sign in failed:", error);
-}
-
-// Sign out
-signOutUser();
-```
-
-### **Using Supabase Client**
-
-```typescript
-import { getSupabaseClientWithAuth } from "./supabaseClient";
-
-// This automatically uses the correct token (user or visitor)
+// Automatically uses the correct token (user or visitor)
 const client = await getSupabaseClientWithAuth();
+
+if (!client) {
+  throw new Error("Failed to initialize Supabase client");
+}
 
 // Query will use appropriate authentication context
 const { data, error } = await client.from("song_public").select("*");
 ```
 
-### **React Components**
+### **Realtime Subscriptions**
 
-```tsx
-import { SignInForm } from "./components/SignInForm";
-import { AuthTokenDemo } from "./examples/AuthTokenDemo";
+```typescript
+const client = await getSupabaseClientWithAuth();
 
-function App() {
-	return (
-		<div>
-			<SignInForm />
-			<AuthTokenDemo />
-		</div>
-	);
-}
+// Subscribe to changes - RLS automatically filters based on JWT
+const channel = client
+  .channel('song_library_changes')
+  .on('postgres_changes', {
+    event: '*',
+    schema: 'public',
+    table: 'song_library'
+  }, (payload) => {
+    console.log('Change received:', payload);
+  })
+  .subscribe();
 ```
+
+> 📖 **See [realtime-rls-architecture.md](./realtime-rls-architecture.md)** for detailed Realtime and RLS implementation patterns.
 
 ## 🔒 **Security Model**
 
@@ -220,32 +245,35 @@ All database operations automatically enforce access control:
 
 ## 🧪 **Testing & Debugging**
 
-### **Token Structure Validation**
-
-```typescript
-import { runTokenTests } from "./docs/test-token-structure";
-
-// Verify token structures match RLS expectations
-await runTokenTests();
-```
-
-### **Authentication Demo**
-
-Use the `AuthTokenDemo` component to see real-time token switching:
-
-```tsx
-import { AuthTokenDemo } from "./examples/AuthTokenDemo";
-
-// Shows current token status and allows testing sign-in/out
-<AuthTokenDemo />;
-```
-
 ### **Manual Testing**
 
-1. **Start in visitor mode**: Browse public songs without signing in
-2. **Sign in**: Use SignInForm component to authenticate
-3. **Verify access**: Try accessing private data (should work for own data)
-4. **Sign out**: Return to visitor mode (private access should fail)
+1. **Start in visitor mode**: Browse public data without signing in
+2. **Sign in via OAuth**: Authenticate with Google/GitHub
+3. **Verify access**: Check that user-specific data (library) loads
+4. **Check Realtime**: Verify subscriptions receive updates
+5. **Sign out**: Return to visitor mode (library should be empty)
+
+### **Debug JWT Structure**
+
+```typescript
+// In browser console - decode the current token
+const token = await getSupabaseAuthToken();
+const payload = JSON.parse(atob(token.split('.')[1]));
+console.log('JWT claims:', payload);
+console.log('app_metadata:', payload.app_metadata);
+```
+
+### **Common Debugging**
+
+```typescript
+// Check current auth state
+import { useAppStore } from '@/react/app/useAppStore';
+const isSignedIn = useAppStore((state) => state.auth.isSignedIn);
+console.log('Is signed in:', isSignedIn);
+
+// Monitor token fetching
+// Check browser console for "[authSlice]" and "[getSupabaseAuthToken]" logs
+```
 
 ## 🔧 **Environment Setup**
 
@@ -283,9 +311,15 @@ The repository CI workflows already run a preview server (Vite preview) and Play
 ### **Supabase Setup**
 
 1. **Create visitor user account** in Supabase Auth dashboard
-2. **Set up RLS policies** using the provided SQL templates
+   - Email: `visitor@yourdomain.com` (set in env vars)
+   - Password: Secure random password (set in env vars)
+   - This is the **only** Supabase auth user needed
+
+2. **Set up RLS policies** using the SQL templates in [realtime-rls-architecture.md](./realtime-rls-architecture.md)
+
 3. **Configure environment variables** with your project credentials
-4. **Test authentication flow** using the provided test utilities
+
+4. **Test authentication flow** using OAuth sign-in
 
 ## 📈 **Performance Considerations**
 
@@ -321,41 +355,50 @@ The repository CI workflows already run a preview server (Vite preview) and Play
 
 ### **Common Issues**
 
-**"Invalid JWT" errors:**
+**"JwtSignatureError: Failed to validate JWT signature"**
 
-- Check that environment variables are set correctly
-- Verify visitor user exists in Supabase Auth
-- Ensure RLS policies match token structure
+- **Cause:** JWT not signed by Supabase  
+- **Solution:** Use the visitor account sign-in approach (as implemented)
+- **Never:** Manually sign JWTs without Supabase's JWT secret
 
-**"Access denied" errors:**
+**"No suitable key or wrong key type" (PGRST301)**
 
-- Verify RLS policies are created and enabled
-- Check that user_id fields match between tables
-- Test with the token structure validation utility
+- **Cause:** JWT missing required `app_metadata` for RLS
+- **Solution:** Ensure user token includes `app_metadata.user.user_id`
+- **Check:** Verify metadata update and re-sign flow in `getUserToken.ts`
 
-**Token refresh failures:**
+**Realtime subscriptions not working**
 
-- Check network connectivity to API endpoints
-- Verify CORS configuration allows authentication requests
-- Monitor token expiration times and caching behavior
+- **Cause:** RLS blocking events or token not set correctly
+- **Debug:** Check `client.realtime.setAuth(token)` is called
+- **Verify:** JWT has proper metadata structure
+
+**Library shows 0 entries after sign-in**
+
+- **Cause:** User token not being fetched or cached
+- **Debug:** Check browser console for `[authSlice]` logs
+- **Verify:** `/api/auth/user/token` returns 200 status
 
 ### **Debug Tools**
 
 ```typescript
-// Inspect token structure (development only)
-import { runTokenTests } from "./docs/test-token-structure";
+// Check current token and its claims
+const token = await getSupabaseAuthToken();
+const claims = JSON.parse(atob(token.split('.')[1]));
+console.log('Token claims:', claims);
 
-// Check current authentication state
-console.log("Signed in:", isUserSignedIn());
-
-await runTokenTests();
-
-// Monitor Supabase operations
+// Test database access with current token
 const client = await getSupabaseClientWithAuth();
-client.auth.onAuthStateChange((event, session) => {
-	console.log("Auth event:", event, session);
-});
+const { data, error } = await client.from('song_library').select('*');
+console.log('Library query:', { data, error });
+
+// Monitor Realtime connection
+client.channel('test')
+  .on('system', (msg) => console.log('Realtime system:', msg))
+  .subscribe();
 ```
+
+> 📖 **For more debugging techniques**, see [realtime-rls-architecture.md](./realtime-rls-architecture.md#troubleshooting).
 
 ## 🔮 **Future Enhancements**
 
@@ -376,5 +419,16 @@ client.auth.onAuthStateChange((event, session) => {
 
 ---
 
-This authentication system provides a secure, scalable foundation for user management while maintaining the simplicity of anonymous browsing through the visitor token system.
+**For detailed technical documentation including:**
+- Realtime subscription patterns
+- Complete RLS policy examples  
+- Performance optimization strategies
+- Security best practices
+- Migration guides
+
+**See:** [realtime-rls-architecture.md](./realtime-rls-architecture.md)
+
+---
+
+This authentication system provides a secure, scalable foundation for user management while maintaining the simplicity of anonymous browsing through a single shared Supabase auth user.
 ````

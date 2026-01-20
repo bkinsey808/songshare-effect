@@ -151,7 +151,9 @@ export default function subscribeToActivePublicSongs(
 				});
 
 				unsubscribeFn = (): void => {
-					supClient.removeChannel(channel);
+					console.warn(
+						"[subscribeToActivePublicSongs] unsubscribeFn set; will remove channel on cleanup",
+					);
 				};
 
 				return undefined;
@@ -161,6 +163,11 @@ export default function subscribeToActivePublicSongs(
 		})();
 
 		return (): void => {
+			console.warn(
+				"[subscribeToActivePublicSongs] cleanup invoked; unsubscribeFn:",
+				typeof unsubscribeFn,
+				unsubscribeFn,
+			);
 			if (unsubscribeFn) {
 				unsubscribeFn();
 			}

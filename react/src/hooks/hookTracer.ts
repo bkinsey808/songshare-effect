@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { clientDebug } from "@/react/utils/clientLogger";
+import { clientWarn } from "../utils/clientLogger";
 
 // Lightweight render-time hook tracer for debugging hook-order issues.
 // Use startHookTrace() at the top of a render tree, call traceHook(name)
@@ -20,10 +20,12 @@ export function traceHook(name: string): void {
 export function useLogHookTrace(): void {
 	useEffect(() => {
 		if (buffer.length > ZERO) {
-			// Print a concise trace; React's console will show it with other logs
-			// and our Puppeteer capture will pick it up.
-			// Debug-only trace output — allowed for dev tooling.
-			clientDebug("HOOK TRACE:", buffer.join(" -> "));
+			// Make the hook-order trace visible even when console.debug is filtered
+			// by the browser devtools. Use warn so it's not hidden by default.
+			clientWarn("HOOK TRACE:", buffer.join(" -> "));
+			// Also emit a plain console.warn to make it unmistakable in the
+			// browser console (some environments strip console.debug).
+			console.warn("HOOK TRACE:", buffer.join(" -> "));
 		}
 		// Clear after logging so subsequent commits start fresh.
 		buffer.length = 0;

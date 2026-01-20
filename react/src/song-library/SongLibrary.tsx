@@ -1,44 +1,18 @@
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import useLocale from "@/react/language/locale/useLocale";
 import { useAppStoreSelector } from "@/react/zustand/useAppStore";
-
-import { type SongLibraryEntry } from "./song-library-schema";
 
 export default function SongLibrary(): ReactElement {
 	const { lang, t } = useLocale();
 	const navigate = useNavigate();
 	const ZERO = 0;
 
-	const libraryEntries = useAppStoreSelector<Record<string, SongLibraryEntry>>(
-		(state) => state.libraryEntries,
-	);
-	const isLoading = useAppStoreSelector<boolean>((state) => state.isLibraryLoading);
-	const error = useAppStoreSelector<string | undefined>((state) => state.libraryError);
-	const fetchLibrary = useAppStoreSelector<() => Promise<void>>((state) => state.fetchLibrary);
-	const subscribeToLibrary = useAppStoreSelector<() => (() => void) | undefined>(
-		(state) => state.subscribeToLibrary,
-	);
-	const removeFromLibrary = useAppStoreSelector<
-		(request: Readonly<{ song_id: string }>) => Promise<void>
-	>((state) => state.removeFromLibrary);
-
-	// Initialize library data and subscription
-	useEffect((): (() => void) | void => {
-		// Fetch initial data
-		void fetchLibrary();
-
-		// Set up real-time subscription
-		const unsubscribe = subscribeToLibrary();
-
-		// Cleanup function
-		return (): void => {
-			if (unsubscribe) {
-				unsubscribe();
-			}
-		};
-	}, [fetchLibrary, subscribeToLibrary]);
+	// Select state from store (initialization handled by SongLibraryPage)
+	const libraryEntries = useAppStoreSelector((state) => state.libraryEntries);
+	const isLoading = useAppStoreSelector((state) => state.isLibraryLoading);
+	const error = useAppStoreSelector((state) => state.libraryError);
+	const removeFromLibrary = useAppStoreSelector((state) => state.removeFromLibrary);
 
 	const songEntries = Object.values(libraryEntries);
 

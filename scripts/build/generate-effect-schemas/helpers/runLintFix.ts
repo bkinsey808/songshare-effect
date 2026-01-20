@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 
 import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 
-export default function runEslintFix(
+export default function runLintFix(
 	params: Readonly<{
 		projectRoot: string;
 		files: readonly string[];
@@ -17,15 +17,15 @@ export default function runEslintFix(
 	try {
 		execFileSync(
 			params.cliPath,
-			["--no-warn-ignored", ...params.files, "--fix"],
+			["--fix", ...params.files],
 			{
 				cwd: params.projectRoot,
 				stdio: "pipe",
 			},
 		);
-		sWarn("✅ ESLint fix completed on generated schemas");
+		sWarn("✅ oxlint fix completed on generated schemas");
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error);
-		sWarn("⚠️  ESLint fix failed:", message);
+		sWarn("⚠️  oxlint fix failed:", message);
 	}
 }

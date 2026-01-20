@@ -9,7 +9,7 @@ import { safeGet } from "@/shared/utils/safe";
 
 import { type Slide } from "../songTypes";
 import ResizeHandle from "./ResizeHandle";
-import SortableGridRow from "./SortableGridRow";
+import SlidesGridRow from "./SlidesGridRow";
 import useColumnResize from "./useColumnResize";
 import useGridDragAndDrop from "./useGridDragAndDrop";
 
@@ -53,6 +53,19 @@ type SlidesGridTableProps = Readonly<
  * SlidesGridTable
  *
  * Extracted table + DnD container for the Slides Grid View.
+ * This component manages column resizing and DnD (drag & drop) concerns for the table.
+ *
+ * @param props - component props
+ * @param props.fields - The dynamic field columns to render as table columns
+ * @param props.slideOrder - Ordered list of slide ids to render in the table
+ * @param props.slides - Lookup of slide objects by id
+ * @param props.horizontalScrollThreshold - Pixel threshold to force horizontal scrolling
+ * @param props.editSlideName - Callback to update a slide's name ({ slideId, newName })
+ * @param props.editFieldValue - Callback to update a specific field ({ slideId, field, value })
+ * @param props.safeGetField - Safe accessor to read a field value for rendering
+ * @param props.setSlideOrder - Setter for the presentation's slide order array
+ * @param props.duplicateSlide - Duplicate the slide by id
+ * @param props.deleteSlide - Delete the slide by id
  */
 export default function SlidesGridTable({
 	fields,
@@ -163,7 +176,7 @@ export default function SlidesGridTable({
 								}
 
 								return (
-									<SortableGridRow
+									<SlidesGridRow
 										key={`${slideId}-grid-${String(idx)}`}
 										slideId={slideId}
 										slide={slide}

@@ -15,7 +15,7 @@ import {
 } from "@/react/song/song-view/song-slice";
 import { clientWarn } from "@/react/utils/clientLogger";
 
-import { sliceResetFns, resetAllSlices } from "./slice-reset-fns";
+import { resetAllSlices, sliceResetFns } from "./slice-reset-fns";
 
 // sliceResetFns & resetAllSlices live in a dedicated module to avoid
 // circular imports between slices and the root store.
@@ -58,10 +58,6 @@ function useAppStore(): UseBoundStore<StoreApi<AppSlice>> {
 // This wraps the internal `useAppStore()` call and provides a generic selector
 // while keeping the localized `any` casts contained in this file.
 function useAppStoreSelector<Selected>(selector: (slice: AppSlice) => Selected): Selected {
-	// The bound store accepts a selector function with the same shape
-	// as the `selector` parameter. We can pass the selector directly and
-	// let TypeScript validate the types — this avoids the previous unsafe
-	// cast and the need for an eslint exception.
 	return useAppStore()(selector);
 }
 
@@ -227,15 +223,15 @@ function useAppStoreHydrationPromise(): Promise<void> {
 
 // Re-export public API at end of file to satisfy export ordering lint rule
 export {
-	sliceResetFns,
-	resetAllSlices,
-	useAppStore,
-	useAppStoreSelector,
-	getOrCreateAppStore,
 	ensureAppStore,
+	getOrCreateAppStore,
 	getStoreApi,
+	resetAllSlices,
+	sliceResetFns,
+	useAppStore,
 	useAppStoreHydrated,
 	useAppStoreHydrationPromise,
+	useAppStoreSelector,
 };
 
 export type { AppSlice };

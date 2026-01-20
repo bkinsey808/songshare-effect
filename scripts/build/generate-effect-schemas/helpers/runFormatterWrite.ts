@@ -21,6 +21,6 @@ export default function runFormatterWrite(
 		});
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error);
-		sWarn("⚠️  Prettier format failed:", message);
+		sWarn("⚠️  oxfmt format failed:", message);
 	}
 }

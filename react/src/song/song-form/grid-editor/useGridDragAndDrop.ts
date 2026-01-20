@@ -1,6 +1,3 @@
-/**
- * Custom hook for managing drag and drop functionality for grid view slides
- */
 import {
 	type DragEndEvent,
 	PointerSensor,
@@ -22,6 +19,20 @@ type UseGridDragAndDropReturn = {
 	sortableItems: string[];
 };
 
+/**
+ * useGridDragAndDrop
+ *
+ * Custom hook to setup drag-and-drop sensors and handle reordering for the slides grid.
+ *
+ * Responsibilities:
+ * - Create dnd-kit sensors with an activation constraint to avoid accidental drags
+ * - Provide a `handleDragEnd` function that computes and emits a new slide order
+ * - Expose `sortableItems` representing current slide ids for sortable contexts
+ *
+ * @param params.slideIds - Ordered list of slide ids to be used as sortable items
+ * @param params.setSlidesOrder - Callback invoked with the new order after reordering
+ * @returns An object with `sensors`, `handleDragEnd`, and `sortableItems`
+ */
 export default function useGridDragAndDrop({
 	slideIds,
 	setSlidesOrder,

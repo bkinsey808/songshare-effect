@@ -1,12 +1,12 @@
 import { getEnvValue } from "@/react/utils/env";
 
 import {
-	getCachedSupabaseClientToken,
 	cacheSupabaseClientToken,
 	cacheUserToken,
-	getCachedUserToken,
 	clearSupabaseClientToken as clearClientTokenCache,
 	clearUserToken,
+	getCachedSupabaseClientToken,
+	getCachedUserToken,
 	isUserSignedIn as isUserSignedInCache,
 } from "./tokenCache";
 import { isTokenResponse } from "./validateTokenResponse";
@@ -137,18 +137,20 @@ function isUserSignedIn(): boolean {
 function getSupabaseAuthToken(): Promise<string | undefined> {
 	const userToken = getCachedUserToken();
 	if (userToken !== undefined) {
+		console.warn("[getSupabaseAuthToken] Using USER token");
 		return Promise.resolve(userToken);
 	}
 
 	// Fall back to the visitor client token
+	console.warn("[getSupabaseAuthToken] Using VISITOR token");
 	return getSupabaseClientToken();
 }
 
 export {
-	getSupabaseClientToken,
 	clearSupabaseClientToken,
+	getSupabaseAuthToken,
+	getSupabaseClientToken,
+	isUserSignedIn,
 	signInUser,
 	signOutUser,
-	isUserSignedIn,
-	getSupabaseAuthToken,
 };

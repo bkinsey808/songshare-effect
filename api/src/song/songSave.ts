@@ -213,6 +213,27 @@ export default function songSave(
 			);
 		}
 
+		// Automatically add the newly created song to the user's library
+		yield* $(
+			Effect.tryPromise({
+				try: () =>
+					supabase.from("song_library").insert([
+						{
+							user_id: userId,
+							song_id: songId,
+							song_owner_id: userId,
+						},
+					]),
+				catch: (err) => {
+					// Log error but don't fail the song creation
+					console.warn(`Failed to add song to library (non-fatal): ${getErrorMessage(err)}`);
+					return new DatabaseError({
+						message: `Song created but failed to add to library: ${getErrorMessage(err)}`,
+					});
+				},
+			}),
+		);
+
 		// Return created public record (frontend subscriptions will pick up the record as well)
 		return publicInsert.data;
 	});

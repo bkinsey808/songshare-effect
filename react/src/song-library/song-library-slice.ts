@@ -3,7 +3,7 @@ import { getSupabaseClient } from "@/react/supabase/supabaseClient";
 import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
 // Song Library Zustand slice with subscription functionality
 // Zustand StateCreator type is not required here — slices are declared as named functions.
-import { type Set, type Get, type Api } from "@/react/zustand/slice-utils";
+import { type Api, type Get, type Set } from "@/react/zustand/slice-utils";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import addSongToLibrary from "./addSongToLibrary";
@@ -21,6 +21,8 @@ const initialState: SongLibraryState = {
 	isLibraryLoading: false,
 	libraryError: undefined as string | undefined,
 };
+
+const ZERO = 0;
 
 export type SongLibrarySlice = SongLibrarySliceBase & {
 	/** Add a song to the user's library */
@@ -112,18 +114,31 @@ export function createSongLibrarySlice(
 					throw new Error("No Supabase client available");
 				}
 
+				console.warn("[fetchLibrary] Fetching song_library entries...");
 				const { data, error } = await client.from("song_library").select("*");
 
 				if (error) {
+					console.error("[fetchLibrary] Error fetching song_library:", error);
 					throw error;
 				}
 
-				// Fetch song details for all entries
+				console.warn("[fetchLibrary] Received entries:", data?.length ?? ZERO, data);
 				const songIds = [...new Set((data ?? []).map((entry) => entry.song_id))];
-				const { data: songData } = await client
+				console.warn("[fetchLibrary] Fetching song_public for song IDs:", songIds);
+				const { data: songData, error: songError } = await client
 					.from("song_public")
 					.select("song_id, song_name, song_slug")
 					.in("song_id", songIds);
+
+				if (songError) {
+					console.error("[fetchLibrary] Error fetching song_public:", songError);
+					throw songError;
+				}
+				console.warn(
+					"[fetchLibrary] Received song_public data:",
+					songData?.length ?? ZERO,
+					songData,
+				);
 
 				// Create a map of song_id to song details
 				const songMap = new Map(
@@ -135,10 +150,21 @@ export function createSongLibrarySlice(
 
 				// Fetch owner usernames for all entries
 				const ownerIds = [...new Set((data ?? []).map((entry) => entry.song_owner_id))];
-				const { data: ownerData } = await client
+				console.warn("[fetchLibrary] Fetching user_public for owner IDs:", ownerIds);
+				const { data: ownerData, error: ownerError } = await client
 					.from("user_public")
 					.select("user_id, username")
 					.in("user_id", ownerIds);
+
+				if (ownerError) {
+					console.error("[fetchLibrary] Error fetching user_public:", ownerError);
+					throw ownerError;
+				}
+				console.warn(
+					"[fetchLibrary] Received user_public data:",
+					ownerData?.length ?? ZERO,
+					ownerData,
+				);
 
 				// Create a map of owner_id to username
 				const ownerMap = new Map((ownerData ?? []).map((owner) => [owner.user_id, owner.username]));

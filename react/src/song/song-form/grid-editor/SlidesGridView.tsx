@@ -7,6 +7,10 @@ import useSlidesEditor from "../slides-editor/useSlidesEditor";
 import { type Slide } from "../songTypes";
 import SlidesGridTable from "./SlidesGridTable";
 
+const EMPTY_COUNT = 0;
+const INDEX_OFFSET = 1;
+const HORIZONTAL_SCROLL_THRESHOLD = 1000;
+
 type SlidesGridViewProps = Readonly<
 	ReadonlyDeep<{
 		readonly fields: readonly string[];
@@ -33,17 +37,12 @@ export default function SlidesGridView({
 			setSlides,
 		});
 
-	const EMPTY_COUNT = 0;
-	const INDEX_OFFSET = 1;
-
 	// Use slideOrder to maintain the same order as Slides View, including duplicates
 	const gridSlideOrder = slideOrder;
 
-	const HORIZONTAL_SCROLL_THRESHOLD = 1000;
-
 	return (
 		<div className="w-full">
-			<div className="mb-4 flex items-center justify-between">
+			<div className="mb-4">
 				<div>
 					<p className="text-sm text-gray-600 dark:text-gray-300">
 						{t(
@@ -52,16 +51,6 @@ export default function SlidesGridView({
 						)}
 					</p>
 				</div>
-				<button
-					type="button"
-					onClick={addSlide}
-					className="flex items-center gap-2 whitespace-nowrap rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-					title={t("song.addNewSlide", "Add New Slide")}
-					aria-label={t("song.addNewSlide", "Add New Slide")}
-				>
-					<span className="flex-shrink-0">➕</span>
-					<span className="flex-shrink-0">{t("song.addNewSlide", "Add New Slide")}</span>
-				</button>
 			</div>
 			{/* Horizontal scroll container */}
 			<SlidesGridTable
@@ -76,6 +65,19 @@ export default function SlidesGridView({
 				duplicateSlide={duplicateSlide}
 				deleteSlide={deleteSlide}
 			/>
+			{/* Add New Slide Button */}
+			<div className="mt-4 flex justify-start">
+				<button
+					type="button"
+					onClick={addSlide}
+					className="flex items-center gap-2 whitespace-nowrap rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+					title={t("song.addNewSlide", "Add New Slide")}
+					aria-label={t("song.addNewSlide", "Add New Slide")}
+				>
+					<span className="flex-shrink-0">➕</span>
+					<span className="flex-shrink-0">{t("song.addNewSlide", "Add New Slide")}</span>
+				</button>
+			</div>
 			{/* Presentation Order Info */}
 			{slideOrder.length > EMPTY_COUNT && (
 				<div className="mt-6 rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4">

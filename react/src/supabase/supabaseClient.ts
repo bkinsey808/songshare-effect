@@ -6,8 +6,32 @@ import { delay } from "../../../shared/src/utils/helpers";
 import { getEnvValueSafe } from "../utils/env";
 import { getSupabaseAuthToken } from "./getSupabaseAuthToken";
 
-// Cache Supabase clients per visitor token
-const clients = new Map<string, SupabaseClient<Database>>();
+/**
+ * Symbol key for storing Supabase clients globally.
+ * Using a Symbol ensures no conflicts with other global properties.
+ */
+const SUPABASE_CLIENTS_KEY = Symbol.for("__supabaseClients__");
+
+/**
+ * Type definition for globalThis with our cache attached.
+ */
+type GlobalWithSupabaseCache = typeof globalThis & {
+	[SUPABASE_CLIENTS_KEY]?: Map<string, SupabaseClient<Database>>;
+};
+
+/**
+ * Global singleton storage for Supabase clients.
+ * Using globalThis ensures persistence across React re-renders in development.
+ */
+function getGlobalClientCache(): Map<string, SupabaseClient<Database>> {
+	const global = globalThis as GlobalWithSupabaseCache;
+
+	if (global[SUPABASE_CLIENTS_KEY] === undefined) {
+		global[SUPABASE_CLIENTS_KEY] = new Map<string, SupabaseClient<Database>>();
+	}
+
+	return global[SUPABASE_CLIENTS_KEY];
+}
 
 // Time and retry constants
 const DEFAULT_RETRIES = 3;
@@ -40,6 +64,9 @@ export function getSupabaseClient(
 	) {
 		return undefined;
 	}
+
+	// Get global cache (survives React re-renders)
+	const clients = getGlobalClientCache();
 
 	// Return cached client if exists
 	if (clients.has(supabaseClientToken)) {

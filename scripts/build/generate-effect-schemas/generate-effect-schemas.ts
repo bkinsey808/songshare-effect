@@ -10,13 +10,13 @@ import { log as sLog } from "../../utils/scriptLogger";
 import assertPathExists from "./helpers/assertPathExists";
 import generateEffectSchemasFile from "./helpers/generateEffectSchemasFile";
 import { generateSupabaseTypes } from "./helpers/generateSupabaseTypes";
-import  loadEnvVariables from "./helpers/loadEnvVariables";
+import loadEnvVariables from "./helpers/loadEnvVariables";
 import logFinalSummary from "./helpers/logFinalSummary";
 import logGeneratedTables from "./helpers/logGeneratedTables";
 import { moveSupabaseTypes } from "./helpers/moveSupabaseTypes";
 import parseSupabaseTypes from "./helpers/parseSupabaseTypes";
-import runEslintFix from "./helpers/runLintFix";
 import runFormatterWrite from "./helpers/runFormatterWrite";
+import runLintFix from "./helpers/runLintFix";
 
 // Main execution
 function main(): void {
@@ -42,18 +42,18 @@ function main(): void {
 			"❌ Supabase CLI not found. Install it with: npm install -D supabase",
 	});
 
-	const eslintCliPath = join(projectRoot, "node_modules", ".bin", "eslint");
+	const oxlintCliPath = join(projectRoot, "node_modules", ".bin", "oxlint");
 	assertPathExists({
-		path: eslintCliPath,
+		path: oxlintCliPath,
 		errorMessage:
-			"❌ ESLint binary not found. Install it with: npm install -D eslint",
+			"❌ oxlint binary not found. Install it with: npm install -D oxlint",
 	});
 
-	const prettierCliPath = join(projectRoot, "node_modules", ".bin", "prettier");
+	const oxfmtCliPath = join(projectRoot, "node_modules", ".bin", "oxfmt");
 	assertPathExists({
-		path: prettierCliPath,
+		path: oxfmtCliPath,
 		errorMessage:
-			"❌ Prettier binary not found. Install it with: npm install -D prettier",
+			"❌ oxfmt binary not found. Install it with: npm install -D oxfmt",
 	});
 
 	const envFromFile = loadEnvVariables(envPath);
@@ -87,15 +87,15 @@ function main(): void {
 			? [schemasOutputPath]
 			: [schemasOutputPath, supabaseTypesFinalPath];
 
-	runEslintFix({
+	runLintFix({
 		projectRoot,
 		files: lintTargets,
-		cliPath: eslintCliPath,
+		cliPath: oxlintCliPath,
 	});
 	runFormatterWrite({
 		projectRoot,
 		files: lintTargets,
-		cliPath: prettierCliPath,
+		cliPath: oxfmtCliPath,
 	});
 
 	if (
