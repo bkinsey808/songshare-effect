@@ -1,4 +1,4 @@
-import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { getSupabaseClient } from "@/react/supabase/client/supabaseClient";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 

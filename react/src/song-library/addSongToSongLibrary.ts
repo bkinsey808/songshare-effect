@@ -1,5 +1,5 @@
-import { getSupabaseAuthToken } from "@/react/supabase/getSupabaseAuthToken";
-import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { getSupabaseAuthToken } from "@/react/supabase/auth-token/getSupabaseAuthToken";
+import { getSupabaseClient } from "@/react/supabase/client/supabaseClient";
 import { clientWarn } from "@/react/utils/clientLogger";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 

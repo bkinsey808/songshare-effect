@@ -1,10 +1,10 @@
 // src/features/supabase/supabaseClient.ts
 import { type SupabaseClient, createClient } from "@supabase/supabase-js";
 
-import { type Database } from "../../../shared/src/generated/supabaseTypes";
-import { delay } from "../../../shared/src/utils/helpers";
-import { getEnvValueSafe } from "../utils/env";
-import { getSupabaseAuthToken } from "./getSupabaseAuthToken";
+import { type Database } from "../../../../shared/src/generated/supabaseTypes";
+import { delay } from "../../../../shared/src/utils/helpers";
+import { getEnvValueSafe } from "../../utils/env";
+import { getSupabaseAuthToken } from "../auth-token/getSupabaseAuthToken";
 
 /**
  * Symbol key for storing Supabase clients globally.

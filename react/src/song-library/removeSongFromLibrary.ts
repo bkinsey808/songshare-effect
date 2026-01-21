@@ -1,5 +1,5 @@
-import { getSupabaseAuthToken } from "../supabase/getSupabaseAuthToken";
-import { getSupabaseClient } from "../supabase/supabaseClient";
+import { getSupabaseAuthToken } from "../supabase/auth-token/getSupabaseAuthToken";
+import { getSupabaseClient } from "../supabase/client/supabaseClient";
 import { type RemoveSongFromSongLibraryRequest } from "./song-library-schema";
 import { type SongLibrarySlice } from "./song-library-slice";
 
@@ -27,7 +27,7 @@ export default async function removeSongFromSongLibrary(
 
 	// Check if song is in library
 	if (!isInSongLibrary(request.song_id)) {
-		console.warn("[removeFromSongLibrary] Song not in library:", request.song_id);
+		console.warn("[removeSongFromSongLibrary] Song not in library:", request.song_id);
 		return;
 	}
 

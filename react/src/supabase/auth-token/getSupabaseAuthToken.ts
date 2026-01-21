@@ -1,5 +1,6 @@
 import { getEnvValue } from "@/react/utils/env";
 
+import { isTokenResponse } from "../token/isTokenResponse";
 import {
 	cacheSupabaseClientToken,
 	cacheUserToken,
@@ -8,8 +9,7 @@ import {
 	getCachedSupabaseClientToken,
 	getCachedUserToken,
 	isUserSignedIn as isUserSignedInCache,
-} from "./tokenCache";
-import { isTokenResponse } from "./validateTokenResponse";
+} from "../token/tokenCache";
 
 // Time constants used locally
 const MS_IN_SECOND = 1000;

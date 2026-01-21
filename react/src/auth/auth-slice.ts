@@ -1,4 +1,4 @@
-import { cacheUserToken } from "@/react/supabase/tokenCache";
+import { cacheUserToken } from "@/react/supabase/token/tokenCache";
 import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
 import { type Api, type Get, type Set } from "@/react/zustand/slice-utils";
 import { apiUserTokenPath } from "@/shared/paths";

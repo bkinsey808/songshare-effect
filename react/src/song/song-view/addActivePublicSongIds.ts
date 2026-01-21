@@ -1,7 +1,7 @@
 // src/features/react/song-subscribe/addActiveSongIds.ts
 import { Schema } from "effect";
 
-import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { getSupabaseClient } from "@/react/supabase/client/supabaseClient";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";
 

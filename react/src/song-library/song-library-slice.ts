@@ -1,5 +1,5 @@
-import { getSupabaseAuthToken } from "@/react/supabase/getSupabaseAuthToken";
-import { getSupabaseClient } from "@/react/supabase/supabaseClient";
+import { getSupabaseAuthToken } from "@/react/supabase/auth-token/getSupabaseAuthToken";
+import { getSupabaseClient } from "@/react/supabase/client/supabaseClient";
 import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
 // Song Library Zustand slice with subscription functionality
 // Zustand StateCreator type is not required here — slices are declared as named functions.
