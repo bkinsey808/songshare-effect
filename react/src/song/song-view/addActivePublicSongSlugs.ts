@@ -1,9 +1,11 @@
-import { getSupabaseClient } from "@/react/supabase/client/supabaseClient";
-import { type Get } from "@/react/zustand/slice-utils";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import type { Get } from "@/react/zustand/slice-utils";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { isRecord } from "@/shared/utils/typeGuards";
 
-import { type SongSubscribeSlice } from "./song-slice";
+import type { SongSubscribeSlice } from "./song-slice";
+
 import decodeSongData from "./utils/decodeSongData";
 import fetchPublicSongsBySlugs from "./utils/fetchPublicSongsBySlugs";
 import findMissingSongSlugs from "./utils/findMissingSongSlugs";

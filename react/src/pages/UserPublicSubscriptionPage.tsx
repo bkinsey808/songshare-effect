@@ -1,8 +1,7 @@
 import { type RealtimeChannel, type SupabaseClient } from "@supabase/supabase-js";
-/* eslint-disable max-lines */
 import { useEffect, useState } from "react";
 
-import { getSupabaseClientWithAuth } from "@/react/supabase/client/supabaseClient";
+import getSupabaseClientWithAuth from "@/react/supabase/client/getSupabaseClientWithAuth";
 import { type Database, type Tables } from "@/shared/generated/supabaseTypes";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 

@@ -1,8 +1,8 @@
 // src/features/react/song-subscribe/subscribeToActiveSongs.ts
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
-import { getSupabaseAuthToken } from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import { getSupabaseClient } from "@/react/supabase/client/supabaseClient";
+import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { type Get } from "@/react/zustand/slice-utils";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";

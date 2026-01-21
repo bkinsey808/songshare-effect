@@ -1,6 +1,6 @@
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
-import { getSupabaseClientWithAuth } from "@/react/supabase/client/supabaseClient";
+import getSupabaseClientWithAuth from "@/react/supabase/client/getSupabaseClientWithAuth";
 import { type Get } from "@/react/zustand/slice-utils";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";

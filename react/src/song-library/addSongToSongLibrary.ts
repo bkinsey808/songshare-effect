@@ -1,5 +1,5 @@
-import { getSupabaseAuthToken } from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import { getSupabaseClient } from "@/react/supabase/client/supabaseClient";
+import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { clientWarn } from "@/react/utils/clientLogger";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
@@ -155,7 +155,9 @@ export default async function addSongToSongLibrary(
 		} else if (isSongLibraryEntry(data)) {
 			const libraryEntryWithUsername: SongLibraryEntry = {
 				...data,
-				owner_username: ownerData.username,
+				...(ownerData.username !== undefined && {
+					owner_username: ownerData.username,
+				}),
 			};
 			addSongLibraryEntry(libraryEntryWithUsername);
 		} else {
@@ -163,7 +165,9 @@ export default async function addSongToSongLibrary(
 				user_id: userId,
 				song_id: request.song_id,
 				song_owner_id: request.song_owner_id,
-				owner_username: ownerData.username,
+				...(ownerData.username !== undefined && {
+					owner_username: ownerData.username,
+				}),
 				// created_at is required by the generated SongLibrary type
 				created_at: new Date().toISOString(),
 			};

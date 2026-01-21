@@ -1,5 +1,5 @@
-import { getSupabaseAuthToken } from "../supabase/auth-token/getSupabaseAuthToken";
-import { getSupabaseClient } from "../supabase/client/supabaseClient";
+import getSupabaseAuthToken from "../supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "../supabase/client/getSupabaseClient";
 import { type RemoveSongFromSongLibraryRequest } from "./song-library-schema";
 import { type SongLibrarySlice } from "./song-library-slice";
 

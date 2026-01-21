@@ -20,10 +20,6 @@
 			"@/api/*": ["./src/*"]
 		}
 	},
-	"include": [
-		"src/**/*",
-		"../shared/**/*",
-		"*.ts",
-	],
+	"include": ["src/**/*", "../shared/**/*", "*.ts"],
 	"exclude": ["node_modules", "dist"]
 }

@@ -1,19 +1,22 @@
-import { getSupabaseAuthToken } from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import { getSupabaseClient } from "@/react/supabase/client/supabaseClient";
-import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
 // Song Library Zustand slice with subscription functionality
 // Zustand StateCreator type is not required here — slices are declared as named functions.
-import { type Api, type Get, type Set } from "@/react/zustand/slice-utils";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import type { Api, Get, Set } from "@/react/zustand/slice-utils";
+import type { SongLibrary, UserPublic } from "@/shared/generated/supabaseSchemas";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
+import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
+
+import type {
+	AddSongToSongLibraryRequest,
+	RemoveSongFromSongLibraryRequest,
+	SongLibraryEntry,
+} from "./song-library-schema";
+import type { SongLibrarySliceBase, SongLibraryState } from "./song-library-types";
 
 import addSongToSongLibrary from "./addSongToSongLibrary";
 import removeSongFromSongLibrary from "./removeSongFromLibrary";
-import {
-	type AddSongToSongLibraryRequest,
-	type RemoveSongFromSongLibraryRequest,
-	type SongLibraryEntry,
-} from "./song-library-schema";
-import { type SongLibrarySliceBase, type SongLibraryState } from "./song-library-types";
 import subscribeToSongLibraryFn from "./subscribeToSongLibrary";
 
 const initialState: SongLibraryState = {
@@ -137,7 +140,8 @@ export function createSongLibrarySlice(
 				}
 
 				console.warn("[fetchSongLibrary] Received entries:", data?.length ?? ZERO, data);
-				const songIds = [...new Set((data ?? []).map((entry) => entry.song_id))];
+				const entriesArray = (data ?? []) as SongLibrary[];
+				const songIds = [...new Set(entriesArray.map((entry: SongLibrary) => entry.song_id))];
 				console.warn("[fetchSongLibrary] Fetching song_public for song IDs:", songIds);
 				const { data: songData, error: songError } = await client
 					.from("song_public")
@@ -155,16 +159,17 @@ export function createSongLibrarySlice(
 				);
 
 				// Create a map of song_id to song details
-				const songMap = new Map(
-					(songData ?? []).map((song) => [
+				const songArray = Array.isArray(songData) ? songData : [];
+				const songMap = new Map<string, { song_name: string; song_slug: string }>(
+					songArray.map((song: { song_id: string; song_name: string; song_slug: string }) => [
 						song.song_id,
 						{ song_name: song.song_name, song_slug: song.song_slug },
 					]),
 				);
-
 				// Fetch owner usernames for all entries
-				const ownerIds = [...new Set((data ?? []).map((entry) => entry.song_owner_id))];
-				console.warn("[fetchSongLibrary] Fetching user_public for owner IDs:", ownerIds);
+				const ownerIds = [
+					...new Set(entriesArray.map((entry: SongLibrary) => entry.song_owner_id)),
+				];
 				const { data: ownerData, error: ownerError } = await client
 					.from("user_public")
 					.select("user_id, username")
@@ -181,11 +186,13 @@ export function createSongLibrarySlice(
 				);
 
 				// Create a map of owner_id to username
-				const ownerMap = new Map((ownerData ?? []).map((owner) => [owner.user_id, owner.username]));
-
+				const ownerArray = (ownerData ?? []) as UserPublic[];
+				const ownerMap = new Map(
+					ownerArray.map((owner: UserPublic) => [owner.user_id, owner.username]),
+				);
 				// Convert array to object indexed by song_id and include owner username and song details
-				const entriesRecord = (data ?? []).reduce<Record<string, SongLibraryEntry>>(
-					(acc, entry) => {
+				const entriesRecord = entriesArray.reduce<Record<string, SongLibraryEntry>>(
+					(acc: Record<string, SongLibraryEntry>, entry: SongLibrary) => {
 						const ownerUsername = ownerMap.get(entry.song_owner_id);
 						const songDetails = songMap.get(entry.song_id);
 

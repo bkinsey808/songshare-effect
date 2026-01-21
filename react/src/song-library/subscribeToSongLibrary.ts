@@ -1,5 +1,5 @@
-import { getSupabaseAuthToken } from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import { getSupabaseClient } from "@/react/supabase/client/supabaseClient";
+import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { type SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
 import enrichWithOwnerUsername from "@/react/supabase/enrichment/enrichWithOwnerUsername";
 import createRealtimeSubscription from "@/react/supabase/subscription/createRealtimeSubscription";

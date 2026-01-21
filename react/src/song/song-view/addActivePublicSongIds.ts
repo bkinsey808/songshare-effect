@@ -1,12 +1,13 @@
-// src/features/react/song-subscribe/addActiveSongIds.ts
 import { Schema } from "effect";
 
-import { getSupabaseClient } from "@/react/supabase/client/supabaseClient";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+
+import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { isRecord } from "@/shared/utils/typeGuards";
 
+import type { SongSubscribeSlice } from "./song-slice";
+
 import { type SongPublic, songPublicSchema } from "../song-schema";
-import { type SongSubscribeSlice } from "./song-slice";
 
 export default function addActivePublicSongIds(
 	set: (

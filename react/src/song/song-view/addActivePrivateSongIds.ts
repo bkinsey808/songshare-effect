@@ -1,4 +1,4 @@
-import { getSupabaseClient } from "@/react/supabase/client/supabaseClient";
+import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";
 
