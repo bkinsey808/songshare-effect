@@ -5,7 +5,7 @@ import {
 	DEMO_POSTS_DELAY_MS,
 	DEMO_POSTS_COUNT,
 } from "@/shared/constants/http";
-import { delay } from "@/shared/utils/helpers";
+import delay from "@/shared/utils/delay";
 import { createSuspenseCache } from "@/shared/utils/typedPromiseCache";
 
 // Suspense-friendly typed caches to store Promise<T> while pending and T when resolved

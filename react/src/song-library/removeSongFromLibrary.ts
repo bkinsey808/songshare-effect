@@ -1,7 +1,10 @@
+import { isRecord, isString } from "@/shared/utils/typeGuards";
+
+import type { SongLibrarySlice } from "./song-library-slice";
+import type { RemoveSongFromSongLibraryRequest } from "./song-library-types";
+
 import getSupabaseAuthToken from "../supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "../supabase/client/getSupabaseClient";
-import { type RemoveSongFromSongLibraryRequest } from "./song-library-schema";
-import { type SongLibrarySlice } from "./song-library-slice";
 
 /**
  * Remove a song from the current user's library (optimistic update).
@@ -24,6 +27,11 @@ export default async function removeSongFromSongLibrary(
 
 	// Clear any previous errors
 	setSongLibraryError(undefined);
+
+	// Validate request shape to avoid passing unsafe `any` into string params
+	if (!isRecord(request) || !isString(request.song_id)) {
+		throw new Error("Invalid request to removeSongFromSongLibrary: missing song_id");
+	}
 
 	// Check if song is in library
 	if (!isInSongLibrary(request.song_id)) {

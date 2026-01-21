@@ -1,6 +1,6 @@
-import { type SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { delay } from "@/shared/utils/helpers";
+import delay from "@/shared/utils/delay";
 
 import getSupabaseAuthToken from "../auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "./getSupabaseClient";

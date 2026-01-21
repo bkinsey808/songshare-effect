@@ -8,8 +8,8 @@ import extractStringField from "@/react/supabase/subscription/extractStringField
 import isRealtimePayload from "@/react/supabase/subscription/isRealtimePayload";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
-import { type SongLibraryEntry } from "./song-library-schema";
-import { type SongLibrarySlice } from "./song-library-slice";
+import type { SongLibrarySlice } from "./song-library-slice";
+import type { SongLibraryEntry } from "./song-library-types";
 
 /**
  * Type guard to validate that a record has the minimal shape of a SongLibraryEntry.

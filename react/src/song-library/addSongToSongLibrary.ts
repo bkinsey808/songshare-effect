@@ -1,9 +1,11 @@
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { clientWarn } from "@/react/utils/clientLogger";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
-import { type AddSongToSongLibraryRequest, type SongLibraryEntry } from "./song-library-schema";
+import type { AddSongToSongLibraryRequest, SongLibraryEntry } from "./song-library-types";
+
 import { type SongLibrarySlice } from "./song-library-slice";
 
 // Add to local state immediately (optimistic update) with owner username if available
@@ -55,6 +57,11 @@ export default async function addSongToSongLibrary(
 
 	// Clear any previous errors
 	setSongLibraryError(undefined);
+
+	// Validate incoming request shape to avoid unsafe any → string assignments
+	if (!isRecord(request) || !isString(request.song_id) || !isString(request.song_owner_id)) {
+		throw new Error("Invalid request to addSongToSongLibrary: missing song_id or song_owner_id");
+	}
 
 	// Check if already in library
 	if (isInSongLibrary(request.song_id)) {
@@ -174,7 +181,10 @@ export default async function addSongToSongLibrary(
 			addSongLibraryEntry(fallbackEntryWithUsername);
 		}
 	} catch (error) {
-		clientWarn("[addToSongSongLibrary] Could not fetch owner username:", error);
+		clientWarn(
+			"[addToSongSongLibrary] Could not fetch owner username:",
+			getErrorMessage(error, "Could not fetch owner username"),
+		);
 		// Still add the entry without username — use a typed fallback
 		const fallbackEntry: SongLibraryEntry = {
 			user_id: userId,

@@ -7,13 +7,15 @@ import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
+import getErrorMessage from "@/shared/utils/getErrorMessage";
 
 import type {
 	AddSongToSongLibraryRequest,
 	RemoveSongFromSongLibraryRequest,
 	SongLibraryEntry,
-} from "./song-library-schema";
-import type { SongLibrarySliceBase, SongLibraryState } from "./song-library-types";
+	SongLibrarySliceBase,
+	SongLibraryState,
+} from "./song-library-types";
 
 import addSongToSongLibrary from "./addSongToSongLibrary";
 import removeSongFromSongLibrary from "./removeSongFromLibrary";
@@ -88,8 +90,7 @@ export function createSongLibrarySlice(
 			try {
 				await addSongToSongLibrary(request, get);
 			} catch (error) {
-				const errorMessage =
-					error instanceof Error ? error.message : "Failed to add song to song library";
+				const errorMessage = getErrorMessage(error, "Failed to add song to song library");
 				const { setSongLibraryError } = get();
 				setSongLibraryError(errorMessage);
 				console.error("[addSongToSongLibrary] Error:", error);
@@ -100,8 +101,7 @@ export function createSongLibrarySlice(
 			try {
 				await removeSongFromSongLibrary(request, get);
 			} catch (error) {
-				const errorMessage =
-					error instanceof Error ? error.message : "Failed to remove song from song library";
+				const errorMessage = getErrorMessage(error, "Failed to remove song from song library");
 				const { setSongLibraryError } = get();
 				setSongLibraryError(errorMessage);
 				console.error("[removeSongFromSongLibrary] Error:", error);
@@ -219,7 +219,7 @@ export function createSongLibrarySlice(
 					songLibraryError: undefined,
 				});
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : "Failed to fetch library";
+				const errorMessage = getErrorMessage(error, "Failed to fetch library");
 				set({
 					isSongLibraryLoading: false,
 					songLibraryError: errorMessage,

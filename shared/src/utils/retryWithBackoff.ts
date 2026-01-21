@@ -1,4 +1,4 @@
-import { delay as wait } from "./helpers";
+import wait from "./delay";
 
 const DEFAULT_DELAY_MS = 0;
 

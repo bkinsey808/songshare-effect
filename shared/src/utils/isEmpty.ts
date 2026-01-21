@@ -1,11 +1,15 @@
 const ZERO = 0;
 
 export default function isEmpty(value: unknown): boolean {
-	if (value === null) {
+	if (value === null || value === undefined) {
 		return true;
 	}
 
-	if (typeof value === "string" || Array.isArray(value)) {
+	if (typeof value === "string") {
+		return value.trim().length === ZERO;
+	}
+
+	if (Array.isArray(value)) {
 		return value.length === ZERO;
 	}
 

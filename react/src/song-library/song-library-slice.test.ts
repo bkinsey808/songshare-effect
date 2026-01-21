@@ -1,5 +1,3 @@
-/* eslint-disable jest/no-untyped-mock-factory, @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, unicorn/prefer-ternary, unicorn/no-null, jest/no-hooks, @typescript-eslint/consistent-type-assertions */
-
 import { describe, expect, it } from "vitest";
 
 /**

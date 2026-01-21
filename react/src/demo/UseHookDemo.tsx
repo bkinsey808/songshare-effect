@@ -6,7 +6,7 @@ import {
 	DEMO_DEFAULT_USER_ID,
 	DEMO_ALT_USER_ID,
 } from "@/shared/constants/http";
-import { delay } from "@/shared/utils/helpers";
+import delay from "@/shared/utils/delay";
 import { createTypedCache } from "@/shared/utils/typedPromiseCache";
 
 // Create a context for theme

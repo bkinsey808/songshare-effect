@@ -1,9 +1,9 @@
 import { execSync } from "node:child_process";
 
-import { isEmpty } from "@/shared/utils/helpers";
+import { error as sError, warn as sWarn } from "@/scripts/utils/scriptLogger";
+import isEmpty from "@/shared/utils/isEmpty";
 
-import { warn as sWarn, error as sError } from "../../utils/scriptLogger";
-import { type MigrationFile } from "./types";
+import type { MigrationFile } from "./types";
 
 /**
  * Get a string representation of an error.
