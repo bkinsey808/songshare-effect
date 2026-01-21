@@ -1,4 +1,5 @@
 import { type RealtimeChannel, type SupabaseClient } from "@supabase/supabase-js";
+/* eslint-disable max-lines */
 import { useEffect, useState } from "react";
 
 import getSupabaseClientWithAuth from "@/react/supabase/client/getSupabaseClientWithAuth";
