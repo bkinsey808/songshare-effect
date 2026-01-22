@@ -1,4 +1,4 @@
-import { getEnvValue } from "@/react/utils/env";
+import { apiAuthVisitorPath } from "@/shared/paths";
 
 import { isTokenResponse } from "../token/isTokenResponse";
 import { cacheSupabaseClientToken } from "../token/tokenCache";
@@ -18,10 +18,8 @@ const MS_IN_SECOND = 1000;
  * or the response payload is not a valid token response.
  */
 export default async function fetchSupabaseClientTokenFromApi(): Promise<string> {
-	const apiBaseUrl = getEnvValue("API_BASE_URL");
-
 	try {
-		const response = await fetch(`${apiBaseUrl}/api/auth/visitor`);
+		const response = await fetch(apiAuthVisitorPath);
 
 		if (!response.ok) {
 			throw new Error(`Failed to fetch visitor token: ${response.status}`);

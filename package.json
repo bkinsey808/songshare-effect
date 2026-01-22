@@ -124,7 +124,7 @@
 		"prettier-plugin-tailwindcss": "^0.6.14",
 		"puppeteer": "^24.30.0",
 		"react-compiler-healthcheck": "19.1.0-rc.3",
-		"supabase": "^2.72.7",
+		"supabase": "^2.72.8",
 		"tailwindcss": "^4.1.13",
 		"ts-node": "^10.9.2",
 		"typescript": "~5.9.2",

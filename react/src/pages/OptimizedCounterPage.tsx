@@ -29,9 +29,8 @@ function OptimizedCounterPage(): ReactElement {
 					💡 Performance Optimization Features:
 				</h3>
 				<ul className="space-y-2 text-sm text-blue-200">
-					<li>• React.memo for preventing unnecessary re-renders</li>
-					<li>• useCallback for memoizing event handlers</li>
-					<li>• useMemo for expensive calculations</li>
+					<li>• React Compiler automatically optimizes renders</li>
+					<li>• No manual memoization needed</li>
 					<li>• Proper state management to minimize updates</li>
 					<li>• Component splitting for better optimization</li>
 				</ul>

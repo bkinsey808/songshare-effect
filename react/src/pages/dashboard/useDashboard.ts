@@ -10,6 +10,7 @@ import { SIGNAL_ONE } from "@/shared/constants/http";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
+import { apiAuthSignOutPath } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 import { justRegisteredKey, justSignedOutKey } from "@/shared/sessionStorageKeys";
 
@@ -158,11 +159,11 @@ export default function useDashboard(): UseDashboardState {
 
 		// Attempt sign-out on the server to clear the HttpOnly cookie.
 		try {
-			const res = await fetch(`/api/auth/signout`, {
+			const res = await fetch(apiAuthSignOutPath, {
 				method: "POST",
 				credentials: "include",
 			});
-			clientDebug("/api/auth/signout status=", res.status);
+			clientDebug(`${apiAuthSignOutPath} status=`, res.status);
 		} catch (error) {
 			clientError("Sign-out API failed:", error);
 		}

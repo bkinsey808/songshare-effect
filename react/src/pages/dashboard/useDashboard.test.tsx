@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { getOrCreateAppStore } from "@/react/zustand/useAppStore";
 import { SIGNAL_ONE } from "@/shared/constants/http";
 import { defaultLanguage } from "@/shared/language/supported-languages";
+import { apiAuthSignOutPath } from "@/shared/paths";
 import { justRegisteredKey, justSignedOutKey } from "@/shared/sessionStorageKeys";
 
 import useDashboard from "./useDashboard";
@@ -54,7 +55,7 @@ describe("useDashboard", () => {
 		await result.current.signOut();
 
 		expect(mockSignOut).toHaveBeenCalledWith();
-		expect(mockFetch).toHaveBeenCalledWith("/api/auth/signout", {
+		expect(mockFetch).toHaveBeenCalledWith(apiAuthSignOutPath, {
 			method: "POST",
 			credentials: "include",
 		});

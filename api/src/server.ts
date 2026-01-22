@@ -8,7 +8,21 @@ import {
 	HTTP_NO_CONTENT,
 	ONE_HOUR_SECONDS,
 } from "@/shared/constants/http";
-import { apiMePath, apiOauthCallbackPath, apiOauthSignInPath } from "@/shared/paths";
+import {
+	apiAccountDeletePath,
+	apiAccountRegisterPath,
+	apiAuthSignOutPath,
+	apiAuthVisitorPath,
+	apiHelloPath,
+	apiMePath,
+	apiOauthCallbackPath,
+	apiOauthSignInPath,
+	apiSongLibraryAddPath,
+	apiSongsSavePath,
+	apiUploadPath,
+	apiUserTokenPath,
+	healthPath,
+} from "@/shared/paths";
 
 import accountDelete from "./account/accountDelete";
 import accountRegister from "./account/accountRegister";
@@ -21,6 +35,7 @@ import { type Bindings } from "./env";
 import { handleHttpEndpoint } from "./http/http-utils";
 import me from "./me";
 import oauthSignInDefault from "./oauth/oauthSignIn";
+import addSongToLibraryHandler from "./song-library/addSongToLibrary";
 import { songSave } from "./song/songSave";
 import getSupabaseClientToken from "./supabase/getSupabaseClientToken";
 import getUserToken from "./user-session/getUserToken";
@@ -149,7 +164,7 @@ app.use("*", async (ctx, next) => {
 });
 
 // Health check endpoint
-app.get("/health", (ctx) =>
+app.get(healthPath, (ctx) =>
 	ctx.json({
 		status: "ok",
 		environment: ctx.env.ENVIRONMENT,
@@ -158,10 +173,10 @@ app.get("/health", (ctx) =>
 );
 
 // Lightweight hello endpoint used by some E2E tests
-app.get("/api/hello", (ctx) => ctx.json({ message: "Hello from custom API endpoint!" }));
+app.get(apiHelloPath, (ctx) => ctx.json({ message: "Hello from custom API endpoint!" }));
 
 // Supabase client token endpoint - provides a JWT for client-side Supabase operations
-app.get("/api/auth/visitor", async (ctx) => {
+app.get(apiAuthVisitorPath, async (ctx) => {
 	try {
 		const {
 			VITE_SUPABASE_URL,
@@ -198,18 +213,24 @@ app.get("/api/auth/visitor", async (ctx) => {
 
 // Supabase user token endpoint - provides a JWT for authenticated user
 app.get(
-	"/api/auth/user/token",
+	apiUserTokenPath,
 	handleHttpEndpoint((ctx) => getUserToken(ctx)),
 );
 
 // Song save endpoint
 app.post(
-	"/api/songs/save",
+	apiSongsSavePath,
 	handleHttpEndpoint((ctx) => songSave(ctx)),
 );
 
+// Add song to library endpoint
+app.post(
+	apiSongLibraryAddPath,
+	handleHttpEndpoint((ctx) => addSongToLibraryHandler(ctx)),
+);
+
 // File upload endpoint
-app.post("/api/upload", (ctx) => ctx.json({ message: "Upload endpoint - to be implemented" }));
+app.post(apiUploadPath, (ctx) => ctx.json({ message: "Upload endpoint - to be implemented" }));
 
 // Current user/session endpoint
 app.get(
@@ -218,7 +239,7 @@ app.get(
 );
 
 // Sign-out endpoint: clears the user session cookie and returns success.
-app.post("/api/auth/signout", (ctx) => {
+app.post(apiAuthSignOutPath, (ctx) => {
 	try {
 		// CSRF check: ensure sign-out requests originate from an allowed origin
 		verifySameOriginOrThrow(ctx);
@@ -245,9 +266,9 @@ app.get(`${apiOauthSignInPath}/:provider`, oauthSignInDefault);
 app.get(apiOauthCallbackPath, oauthCallbackHandler);
 
 // Account registration
-app.post("/api/account/register", handleHttpEndpoint(accountRegister));
+app.post(apiAccountRegisterPath, handleHttpEndpoint(accountRegister));
 // Account deletion
-app.post("/api/account/delete", handleHttpEndpoint(accountDelete));
+app.post(apiAccountDeletePath, handleHttpEndpoint(accountDelete));
 
 // Global error handler: catch any uncaught exceptions in route handlers
 // and log them to Cloudflare Logs so we can diagnose production failures

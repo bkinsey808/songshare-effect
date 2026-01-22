@@ -23,6 +23,13 @@ export const apiMePath = "/api/me";
 export const apiAccountRegisterPath = "/api/account/register";
 export const apiAccountDeletePath = "/api/account/delete";
 export const apiUserTokenPath = "/api/auth/user/token";
+export const apiAuthVisitorPath = "/api/auth/visitor";
+export const apiAuthSignOutPath = "/api/auth/signout";
+export const apiSongsSavePath = "/api/songs/save";
+export const apiSongLibraryAddPath = "/api/song-library/add";
+export const apiUploadPath = "/api/upload";
+export const apiHelloPath = "/api/hello";
+export const healthPath = "/health";
 
 // Frontend route for account deletion confirmation (nested under dashboard)
 export const deleteAccountPath = "delete-account";

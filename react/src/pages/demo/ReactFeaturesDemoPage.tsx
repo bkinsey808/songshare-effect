@@ -39,9 +39,7 @@ function ReactFeaturesDemoPage(): ReactElement {
 					<div className="rounded-lg border border-white/10 bg-white/5 p-6 text-center">
 						<div className="mb-4 text-4xl">⚡</div>
 						<h3 className="mb-3 text-xl font-semibold">Optimized Counter</h3>
-						<p className="mb-4 text-gray-400">
-							Performance optimization techniques with React.memo, useCallback, and useMemo
-						</p>
+						<p className="mb-4 text-gray-400">Performance optimization via React Compiler</p>
 						<Link
 							to={`/${lang}/${optimizedCounterPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-yellow-500 px-6 py-3 text-white transition-colors hover:bg-yellow-600"
@@ -143,9 +141,8 @@ function ReactFeaturesDemoPage(): ReactElement {
 					<div>
 						<h4 className="mb-2 font-semibold">Performance Optimization:</h4>
 						<ul className="list-inside list-disc space-y-1">
-							<li>React.memo for preventing re-renders</li>
-							<li>useCallback for memoizing functions</li>
-							<li>useMemo for expensive calculations</li>
+							<li>React Compiler automates optimization</li>
+							<li>No useCallback or useMemo required</li>
 							<li>Component splitting strategies</li>
 						</ul>
 					</div>

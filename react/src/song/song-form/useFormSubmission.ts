@@ -1,6 +1,8 @@
 import { Effect } from "effect";
 import { useNavigate } from "react-router-dom";
 
+import { apiSongsSavePath } from "@/shared/paths";
+
 import { type Slide } from "./songTypes";
 
 type SongFormData = {
@@ -37,7 +39,7 @@ export default function useFormSubmission({
 
 	async function onSubmit(rawData: Readonly<SongFormData>): Promise<void> {
 		try {
-			const response = await fetch("/api/songs/save", {
+			const response = await fetch(apiSongsSavePath, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(rawData),
