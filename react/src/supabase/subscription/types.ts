@@ -1,11 +1,12 @@
 import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
+import type { Database } from "@/shared/generated/supabaseTypes";
 
 /**
  * Configuration for a Supabase realtime subscription.
  */
 export type SubscriptionConfig<TPayload = unknown> = {
 	/** Supabase client instance */
-	client: SupabaseClientLike;
+	client: SupabaseClientLike<Database>;
 	/** Table name to subscribe to */
 	tableName: string;
 	/** Optional filter for the subscription (e.g., "user_id=eq.123") */

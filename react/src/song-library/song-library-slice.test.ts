@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import isSongLibraryEntry from "./isSongLibraryEntry";
+
 /**
  * transformLibraryEntries
  * -----------------------
@@ -85,5 +87,20 @@ describe("transformSongLibraryEntries", () => {
 		expect(entry).toBeDefined();
 		expect(entry?.song_name).toBeUndefined();
 		expect(entry?.owner_username).toBeUndefined();
+	});
+
+	it("filters malformed library rows before transforming", () => {
+		const malformed: Record<string, unknown> = { song_owner_id: "u1" };
+		const library: unknown[] = [malformed, { song_id: "s1", song_owner_id: "u1" }];
+		const songs = [{ song_id: "s1", song_name: "Song 1", song_slug: "song-1" }];
+		const owners = [{ user_id: "u1", username: "owner1" }];
+
+		const filtered = library.filter((row) => isSongLibraryEntry(row));
+		const result = transformSongLibraryEntries(filtered, songs, owners);
+
+		const EXPECTED_COUNT = 1;
+		const keys = Object.keys(result);
+		expect(keys).toHaveLength(EXPECTED_COUNT);
+		expect(result["s1"]).toBeDefined();
 	});
 });

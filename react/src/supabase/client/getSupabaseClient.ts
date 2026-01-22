@@ -1,10 +1,12 @@
-import { type SupabaseClient, createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/shared/generated/supabaseTypes";
 
+import { type SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
 import { getEnvValueSafe } from "@/react/utils/env";
 
 import getGlobalClientCache from "./getGlobalClientCache";
+import guardAsSupabaseClientLike from "./guards/guardAsSupabaseClientLike";
 
 const MS_IN_SECOND = 1000;
 
@@ -20,7 +22,7 @@ const MINUTES_IN_HOUR = 60;
  */
 export default function getSupabaseClient(
 	supabaseClientToken?: string,
-): SupabaseClient<Database> | undefined {
+): SupabaseClientLike<Database> | undefined {
 	const supabaseUrl = getEnvValueSafe("SUPABASE_URL");
 	const supabaseKey = getEnvValueSafe("SUPABASE_ANON_KEY");
 
@@ -38,9 +40,9 @@ export default function getSupabaseClient(
 
 	// Return cached client if exists
 	if (clients.has(supabaseClientToken)) {
-		return clients.get(supabaseClientToken);
+		return guardAsSupabaseClientLike(clients.get(supabaseClientToken));
 	}
-	const client = createClient(supabaseUrl, supabaseKey, {
+	const client = createClient<Database>(supabaseUrl, supabaseKey, {
 		auth: {
 			persistSession: false,
 			autoRefreshToken: false,
@@ -51,7 +53,7 @@ export default function getSupabaseClient(
 				Authorization: `Bearer ${supabaseClientToken}`,
 			},
 		},
-	}) as SupabaseClient<Database>;
+	});
 
 	// Set the auth token for real-time WebSocket connections after client creation
 	// This must be done after client creation to ensure proper binding
@@ -67,5 +69,5 @@ export default function getSupabaseClient(
 		MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MS_IN_SECOND,
 	);
 
-	return client;
+	return guardAsSupabaseClientLike(client);
 }

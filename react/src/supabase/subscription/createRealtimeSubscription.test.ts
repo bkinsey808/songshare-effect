@@ -68,6 +68,7 @@ describe("createRealtimeSubscription", () => {
 				}),
 			})),
 			removeChannel: vi.fn(),
+			auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
 		};
 
 		const onEvent = vi.fn(async (_payload: unknown) => {
@@ -145,6 +146,7 @@ describe("createRealtimeSubscription", () => {
 			})),
 
 			removeChannel: vi.fn(),
+			auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
 		};
 
 		const onEvent = vi.fn(async () => {
@@ -202,6 +204,7 @@ describe("createRealtimeSubscription", () => {
 				}),
 			})),
 			removeChannel: vi.fn(),
+			auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
 		};
 
 		const badError = new Error("bad");

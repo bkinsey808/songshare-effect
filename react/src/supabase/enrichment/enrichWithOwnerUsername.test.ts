@@ -53,6 +53,7 @@ function createClient(): SupabaseClientLike {
 		removeChannel: (_channel: unknown): void => {
 			// noop
 		},
+		auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
 	};
 }
 

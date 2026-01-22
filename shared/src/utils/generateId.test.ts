@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+
 import generateId from "./generateId";
 
 const MIN_ID_LENGTH = 1;

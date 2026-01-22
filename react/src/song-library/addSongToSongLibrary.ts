@@ -1,12 +1,13 @@
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
+import callInsert from "@/react/supabase/client/safe-query/callInsert";
+import callSelect from "@/react/supabase/client/safe-query/callSelect";
 import { clientWarn } from "@/react/utils/clientLogger";
 import getErrorMessage from "@/shared/utils/getErrorMessage";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
+import type { SongLibrarySlice } from "./song-library-slice";
 import type { AddSongToSongLibraryRequest, SongLibraryEntry } from "./song-library-types";
-
-import { type SongLibrarySlice } from "./song-library-slice";
 
 // Add to local state immediately (optimistic update) with owner username if available
 /**
@@ -78,10 +79,13 @@ export default async function addSongToSongLibrary(
 	}
 
 	// Extract user_id from the token
-	const {
-		data: { user },
-		error: userError,
-	} = await client.auth.getUser();
+	const rawGetUser = await client.auth.getUser();
+	if (!isRecord(rawGetUser)) {
+		throw new Error("No authenticated user found");
+	}
+	const getUserRes = rawGetUser as { data?: unknown; error?: unknown };
+	const user = getUserRes.data;
+	const userError = getUserRes.error;
 
 	/**
 	 * Type guard for Supabase `auth.getUser()` user object that checks for
@@ -119,42 +123,52 @@ export default async function addSongToSongLibrary(
 	}
 	const userId = userIdRaw;
 
-	// Insert the new library entry
-	const insertResult = await client
-		.from("song_library")
-		.insert({
+	const insertResult = await callInsert(client, "song_library", {
+		row: {
 			user_id: userId,
 			song_id: request.song_id,
 			song_owner_id: request.song_owner_id,
-		})
-		.select()
-		.single();
+		},
+	});
 
-	const { data: rawData, error } = insertResult;
-	const data: unknown = rawData as unknown;
+	const { data, error: insertError } = insertResult;
 
-	if (error) {
-		throw error;
+	if (insertError !== undefined && insertError !== null) {
+		throw new Error(getErrorMessage(insertError, "Insert failed"));
 	}
 
 	// Fetch the owner's username to include in the library entry
 	try {
-		const { data: ownerData, error: ownerError } = await client
-			.from("user_public")
-			.select("username")
-			.eq("user_id", request.song_owner_id)
-			.single();
-
-		if (ownerError || !isOwnerData(ownerData)) {
+		const ownerRaw = await callSelect(client, "user_public", {
+			cols: "username",
+			eq: { col: "user_id", val: request.song_owner_id },
+			single: true,
+		});
+		if (!isRecord(ownerRaw)) {
+			// treat as missing/failed owner fetch
 			if (isSongLibraryEntry(data)) {
 				addSongLibraryEntry(data);
 			} else {
-				// Fallback: attempt to coerce minimal shape
 				const fallbackEntry: SongLibraryEntry = {
 					user_id: userId,
 					song_id: request.song_id,
 					song_owner_id: request.song_owner_id,
-					// created_at is required by the generated SongLibrary type
+					created_at: new Date().toISOString(),
+				};
+				addSongLibraryEntry(fallbackEntry);
+			}
+			return;
+		}
+		const { data: ownerData, error: ownerError } = ownerRaw as { data?: unknown; error?: unknown };
+
+		if ((ownerError !== undefined && ownerError !== null) || !isOwnerData(ownerData)) {
+			if (isSongLibraryEntry(data)) {
+				addSongLibraryEntry(data);
+			} else {
+				const fallbackEntry: SongLibraryEntry = {
+					user_id: userId,
+					song_id: request.song_id,
+					song_owner_id: request.song_owner_id,
 					created_at: new Date().toISOString(),
 				};
 				addSongLibraryEntry(fallbackEntry);
@@ -175,7 +189,6 @@ export default async function addSongToSongLibrary(
 				...(ownerData.username !== undefined && {
 					owner_username: ownerData.username,
 				}),
-				// created_at is required by the generated SongLibrary type
 				created_at: new Date().toISOString(),
 			};
 			addSongLibraryEntry(fallbackEntryWithUsername);

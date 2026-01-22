@@ -1,30 +1,14 @@
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import { type SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
 import enrichWithOwnerUsername from "@/react/supabase/enrichment/enrichWithOwnerUsername";
 import createRealtimeSubscription from "@/react/supabase/subscription/createRealtimeSubscription";
 import extractNewRecord from "@/react/supabase/subscription/extractNewRecord";
 import extractStringField from "@/react/supabase/subscription/extractStringField";
 import isRealtimePayload from "@/react/supabase/subscription/isRealtimePayload";
-import { isRecord, isString } from "@/shared/utils/typeGuards";
 
 import type { SongLibrarySlice } from "./song-library-slice";
-import type { SongLibraryEntry } from "./song-library-types";
 
-/**
- * Type guard to validate that a record has the minimal shape of a SongLibraryEntry.
- * Requires `song_id` and `song_owner_id` fields.
- *
- * @param value - Value to check
- * @returns true if value has string `song_id` and `song_owner_id`
- */
-function isSongLibraryEntry(value: unknown): value is SongLibraryEntry {
-	if (!isRecord(value)) {
-		return false;
-	}
-	const { song_id, song_owner_id } = value;
-	return isString(song_id) && isString(song_owner_id);
-}
+import isSongLibraryEntry from "./isSongLibraryEntry";
 
 /**
  * Subscribe to realtime updates on the current user's `song_library` table and
@@ -54,16 +38,9 @@ export default function subscribeToSongLibrary(
 				return undefined;
 			}
 
-			// Capture client reference for use in async callbacks
-			// SupabaseClient has complex overloaded method signatures that TypeScript cannot verify
-			// against SupabaseClientLike without hitting "Type instantiation is excessively deep" errors.
-			// At runtime, SupabaseClient implements all required methods.
-			// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-			const capturedClient = supabaseClient as unknown as SupabaseClientLike;
-
 			// Create subscription using the common utility
 			cleanup = createRealtimeSubscription({
-				client: capturedClient,
+				client: supabaseClient,
 				tableName: "song_library",
 				onEvent: async (payload: unknown): Promise<void> => {
 					const { addSongLibraryEntry, removeSongLibraryEntry } = get();
@@ -89,7 +66,7 @@ export default function subscribeToSongLibrary(
 
 							// Enrich with owner username if available
 							const enrichedEntry = await enrichWithOwnerUsername(
-								capturedClient,
+								supabaseClient,
 								newEntry,
 								"song_owner_id",
 							);

@@ -1,7 +1,10 @@
 import { useNavigate } from "react-router-dom";
 
 import useLocale from "@/react/language/locale/useLocale";
-import { useAppStoreSelector } from "@/react/zustand/useAppStore";
+
+import useSongLibrary from "./useSongLibrary";
+
+const ZERO = 0;
 
 /**
  * SongLibrary component — renders the current user's song library.
@@ -15,15 +18,8 @@ import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 export default function SongLibrary(): ReactElement {
 	const { lang, t } = useLocale();
 	const navigate = useNavigate();
-	const ZERO = 0;
 
-	// Select state from store (initialization handled by SongLibraryPage)
-	const songLibraryEntries = useAppStoreSelector((state) => state.songLibraryEntries);
-	const isLoading = useAppStoreSelector((state) => state.isSongLibraryLoading);
-	const error = useAppStoreSelector((state) => state.songLibraryError);
-	const removeFromSongLibrary = useAppStoreSelector((state) => state.removeSongFromSongLibrary);
-
-	const songEntries = Object.values(songLibraryEntries);
+	const { songEntries, isLoading, error, removeFromSongLibrary } = useSongLibrary();
 
 	if (isLoading) {
 		return (

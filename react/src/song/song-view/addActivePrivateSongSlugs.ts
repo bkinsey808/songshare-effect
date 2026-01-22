@@ -1,8 +1,10 @@
-import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
-import { safeGet } from "@/shared/utils/safe";
+import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
-// src/features/react/song-subscribe/addActiveSongIds.ts
+import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
+import callSelect from "@/react/supabase/client/safe-query/callSelect";
+import { safeGet } from "@/shared/utils/safe";
+import { isRecord } from "@/shared/utils/typeGuards";
+
 import { type Song } from "../song-schema";
 import { type SongSubscribeSlice } from "./song-slice";
 
@@ -56,6 +58,18 @@ export default function addActivePrivateSongSlugs(
 			return;
 		}
 
+		function isSongRow(value: unknown): value is Song {
+			if (!isRecord(value)) {
+				return false;
+			}
+			const rec = value;
+			return (
+				typeof rec["song_id"] === "string" &&
+				typeof rec["created_at"] === "string" &&
+				typeof rec["updated_at"] === "string"
+			);
+		}
+
 		const supabase = getSupabaseClient(userToken);
 		if (supabase === undefined) {
 			console.warn("[addActivePrivateSongSlugs] Supabase client not initialized.");
@@ -63,16 +77,17 @@ export default function addActivePrivateSongSlugs(
 		}
 
 		try {
-			const { data, error } = await supabase
-				.from("song")
-				.select("*, song_public(song_slug)")
-				.in("song_public.song_slug", missingSongSlugs);
+			const songQueryRes = await callSelect(supabase, "song", {
+				cols: "*, song_public(song_slug)",
+				in: { col: "song_public.song_slug", vals: missingSongSlugs },
+			});
 
-			if (error !== null) {
-				console.error("[addActivePrivateSongSlugs] Supabase fetch error:", error);
+			if (!isRecord(songQueryRes)) {
+				console.error("[addActivePrivateSongSlugs] Supabase fetch error:", songQueryRes);
 				return;
 			}
 
+			const data = Array.isArray(songQueryRes["data"]) ? songQueryRes["data"] : [];
 			console.warn("[addActivePrivateSongSlugs] Fetched data:", data);
 
 			// Simple validation assuming the data structure is correct
@@ -80,8 +95,8 @@ export default function addActivePrivateSongSlugs(
 				const privateSongsToAdd: Record<string, Song> = {};
 
 				for (const song of data) {
-					if (typeof song === "object" && "song_id" in song && typeof song.song_id === "string") {
-						privateSongsToAdd[song.song_id] = song as Song;
+					if (isSongRow(song)) {
+						privateSongsToAdd[song.song_id] = song;
 					}
 				}
 				console.warn("[addActivePrivateSongSlugs] Updating store with songs:", privateSongsToAdd);

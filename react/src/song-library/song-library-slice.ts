@@ -1,11 +1,8 @@
 // Song Library Zustand slice with subscription functionality
 // Zustand StateCreator type is not required here — slices are declared as named functions.
 import type { Api, Get, Set } from "@/react/zustand/slice-utils";
-import type { SongLibrary, UserPublic } from "@/shared/generated/supabaseSchemas";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
-import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
 import getErrorMessage from "@/shared/utils/getErrorMessage";
 
@@ -18,6 +15,7 @@ import type {
 } from "./song-library-types";
 
 import addSongToSongLibrary from "./addSongToSongLibrary";
+import fetchSongLibraryFn from "./fetchSongLibrary";
 import removeSongFromSongLibrary from "./removeSongFromLibrary";
 import subscribeToSongLibraryFn from "./subscribeToSongLibrary";
 
@@ -26,8 +24,6 @@ const initialState: SongLibraryState = {
 	isSongLibraryLoading: false,
 	songLibraryError: undefined as string | undefined,
 };
-
-const ZERO = 0;
 
 export type SongLibrarySlice = SongLibrarySliceBase & {
 	/** Add a song to the user's library */
@@ -121,109 +117,13 @@ export function createSongLibrarySlice(
 
 		fetchSongLibrary: async () => {
 			try {
-				set({ isSongLibraryLoading: true, songLibraryError: undefined });
-
-				// Supabase utilities (statically imported)
-				const userToken = await getSupabaseAuthToken();
-				const client = getSupabaseClient(userToken);
-
-				if (!client) {
-					throw new Error("No Supabase client available");
-				}
-
-				console.warn("[fetchSongLibrary] Fetching song_library entries...");
-				const { data, error } = await client.from("song_library").select("*");
-
-				if (error) {
-					console.error("[fetchSongLibrary] Error fetching song_library:", error);
-					throw error;
-				}
-
-				console.warn("[fetchSongLibrary] Received entries:", data?.length ?? ZERO, data);
-				const entriesArray = (data ?? []) as SongLibrary[];
-				const songIds = [...new Set(entriesArray.map((entry: SongLibrary) => entry.song_id))];
-				console.warn("[fetchSongLibrary] Fetching song_public for song IDs:", songIds);
-				const { data: songData, error: songError } = await client
-					.from("song_public")
-					.select("song_id, song_name, song_slug")
-					.in("song_id", songIds);
-
-				if (songError) {
-					console.error("[fetchSongLibrary] Error fetching song_public:", songError);
-					throw songError;
-				}
-				console.warn(
-					"[fetchSongLibrary] Received song_public data:",
-					songData?.length ?? ZERO,
-					songData,
-				);
-
-				// Create a map of song_id to song details
-				const songArray = Array.isArray(songData) ? songData : [];
-				const songMap = new Map<string, { song_name: string; song_slug: string }>(
-					songArray.map((song: { song_id: string; song_name: string; song_slug: string }) => [
-						song.song_id,
-						{ song_name: song.song_name, song_slug: song.song_slug },
-					]),
-				);
-				// Fetch owner usernames for all entries
-				const ownerIds = [
-					...new Set(entriesArray.map((entry: SongLibrary) => entry.song_owner_id)),
-				];
-				const { data: ownerData, error: ownerError } = await client
-					.from("user_public")
-					.select("user_id, username")
-					.in("user_id", ownerIds);
-
-				if (ownerError) {
-					console.error("[fetchSongLibrary] Error fetching user_public:", ownerError);
-					throw ownerError;
-				}
-				console.warn(
-					"[fetchSongLibrary] Received user_public data:",
-					ownerData?.length ?? ZERO,
-					ownerData,
-				);
-
-				// Create a map of owner_id to username
-				const ownerArray = (ownerData ?? []) as UserPublic[];
-				const ownerMap = new Map(
-					ownerArray.map((owner: UserPublic) => [owner.user_id, owner.username]),
-				);
-				// Convert array to object indexed by song_id and include owner username and song details
-				const entriesRecord = entriesArray.reduce<Record<string, SongLibraryEntry>>(
-					(acc: Record<string, SongLibraryEntry>, entry: SongLibrary) => {
-						const ownerUsername = ownerMap.get(entry.song_owner_id);
-						const songDetails = songMap.get(entry.song_id);
-
-						const libraryEntry: SongLibraryEntry = {
-							...entry,
-							...(ownerUsername !== undefined && {
-								owner_username: ownerUsername,
-							}),
-							...(songDetails !== undefined && {
-								song_name: songDetails.song_name,
-								song_slug: songDetails.song_slug,
-							}),
-						};
-
-						acc[entry.song_id] = libraryEntry;
-						return acc;
-					},
-					{},
-				);
-
-				set({
-					songLibraryEntries: entriesRecord,
-					isSongLibraryLoading: false,
-					songLibraryError: undefined,
-				});
+				// Delegate the heavy lifting to a separate module to keep the slice small.
+				await fetchSongLibraryFn(get);
 			} catch (error) {
 				const errorMessage = getErrorMessage(error, "Failed to fetch library");
-				set({
-					isSongLibraryLoading: false,
-					songLibraryError: errorMessage,
-				});
+				const { setSongLibraryLoading, setSongLibraryError } = get();
+				setSongLibraryLoading(false);
+				setSongLibraryError(errorMessage);
 				console.error("[fetchSongLibrary] Error:", error);
 			}
 		},

@@ -58,6 +58,7 @@ function makeStubClient(
 		removeChannel: (_channel: unknown): void => {
 			// noop for tests
 		},
+		auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
 	};
 }
 
@@ -146,21 +147,21 @@ describe("fetchUsername", () => {
 	it("respects custom table/column names and passes them to client", async () => {
 		const capture: { fromArg?: string; selectArg?: string; eqArgs?: [string, string] } = {};
 		const client = makeStubClient(
-			() => JSON.parse('{"data":{"handle":"bob"},"error":null}'),
+			() => JSON.parse('{"data":{"username":"bob"},"error":null}'),
 			capture,
 		);
 		const config: EnrichmentConfig = {
 			client,
 			userId: "user-6",
-			tableName: "members",
-			userIdColumn: "id",
-			usernameColumn: "handle",
+			tableName: "user_public",
+			userIdColumn: "user_id",
+			usernameColumn: "username",
 		};
 
 		const username = await fetchUsername(config);
 		expect(username).toBe("bob");
-		expect(capture.fromArg).toBe("members");
-		expect(capture.selectArg).toBe("handle");
-		expect(capture.eqArgs).toStrictEqual(["id", "user-6"]);
+		expect(capture.fromArg).toBe("user_public");
+		expect(capture.selectArg).toBe("username");
+		expect(capture.eqArgs).toStrictEqual(["user_id", "user-6"]);
 	});
 });

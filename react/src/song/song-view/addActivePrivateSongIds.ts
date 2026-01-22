@@ -1,8 +1,8 @@
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
+import callSelect from "@/react/supabase/client/safe-query/callSelect";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";
 
-// src/features/react/song-subscribe/addActiveSongIds.ts
 import { type Song } from "../song-schema";
 import { type SongSubscribeSlice } from "./song-slice";
 
@@ -43,6 +43,18 @@ export default function addActivePrivateSongIds(
 		});
 		const NO_ACTIVE_SONGS_COUNT = 0;
 
+		function isSongRow(value: unknown): value is Song {
+			if (!isRecord(value)) {
+				return false;
+			}
+			const rec = value;
+			return (
+				typeof rec["song_id"] === "string" &&
+				typeof rec["created_at"] === "string" &&
+				typeof rec["updated_at"] === "string"
+			);
+		}
+
 		if (newActivePrivateSongIds.length === NO_ACTIVE_SONGS_COUNT) {
 			console.warn("[addActivePrivateSongIds] No active songs to fetch.");
 			return;
@@ -75,15 +87,17 @@ export default function addActivePrivateSongIds(
 		void (async (): Promise<void> => {
 			console.warn("[addActivePrivateSongIds] Fetching active songs:", newActivePrivateSongIds);
 			try {
-				const { data, error } = await supabase
-					.from("song")
-					.select("*")
-					.in("song_id", newActivePrivateSongIds);
+				const songQueryRes = await callSelect(supabase, "song", {
+					cols: "*",
+					in: { col: "song_id", vals: [...newActivePrivateSongIds] },
+				});
 
-				if (error !== null) {
-					console.error("[addActivePrivateSongIds] Supabase fetch error:", error);
+				if (!isRecord(songQueryRes)) {
+					console.error("[addActivePrivateSongIds] Supabase fetch error:", songQueryRes);
 					return;
 				}
+
+				const data = Array.isArray(songQueryRes["data"]) ? songQueryRes["data"] : [];
 
 				console.warn("[addActivePrivateSongIds] Fetched data:", data);
 
@@ -92,10 +106,11 @@ export default function addActivePrivateSongIds(
 					const privateSongsToAdd: Record<string, Song> = {};
 
 					for (const song of data) {
-						if (typeof song === "object" && "song_id" in song && typeof song.song_id === "string") {
-							privateSongsToAdd[song.song_id] = song as Song;
+						if (isSongRow(song)) {
+							privateSongsToAdd[song.song_id] = song;
 						}
 					}
+
 					console.warn("[addActiveSongIds] Updating store with songs:", privateSongsToAdd);
 					const storeForOps = sliceState;
 					storeForOps.addOrUpdatePrivateSongs(privateSongsToAdd);

@@ -1,6 +1,8 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/shared/generated/supabaseTypes";
 
 import delay from "@/shared/utils/delay";
+
+import type { SupabaseClientLike } from "./SupabaseClientLike";
 
 import getSupabaseAuthToken from "../auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "./getSupabaseClient";
@@ -24,7 +26,7 @@ const MS_IN_SECOND = 1000;
  */
 export default async function getSupabaseClientWithAuth(
 	retries: number = DEFAULT_RETRIES,
-): Promise<SupabaseClient | undefined> {
+): Promise<SupabaseClientLike<Database> | undefined> {
 	for (let attempt = FIRST_ATTEMPT; attempt <= retries; attempt += INCREMENT) {
 		try {
 			// getSupabaseAuthToken can reasonably be awaited in the retry loop

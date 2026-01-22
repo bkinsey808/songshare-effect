@@ -1,4 +1,5 @@
 import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
+import type { Database } from "@/shared/generated/supabaseTypes";
 
 import { isString } from "@/shared/utils/typeGuards";
 
@@ -14,7 +15,7 @@ import fetchUsername from "./fetchUsername";
  * @returns Record with optional owner_username field added
  */
 export default async function enrichWithOwnerUsername<TRecord extends Record<string, unknown>>(
-	client: SupabaseClientLike,
+	client: SupabaseClientLike<Database>,
 	record: TRecord,
 	userIdField = "song_owner_id",
 ): Promise<TRecord & { owner_username?: string }> {

@@ -3,6 +3,7 @@ import { Schema } from "effect";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
+import callSelect from "@/react/supabase/client/safe-query/callSelect";
 import { isRecord } from "@/shared/utils/typeGuards";
 
 import type { SongSubscribeSlice } from "./song-slice";
@@ -96,15 +97,17 @@ export default function addActivePublicSongIds(
 			}
 
 			try {
-				const { data, error } = await supabase
-					.from("song_public")
-					.select("*")
-					.in("song_id", newActivePublicSongIds);
+				const songQueryRes = await callSelect(supabase, "song_public", {
+					cols: "*",
+					in: { col: "song_id", vals: [...newActivePublicSongIds] },
+				});
 
-				if (error !== null) {
-					console.error("[addActivePublicSongIds] Supabase fetch error:", error);
+				if (!isRecord(songQueryRes)) {
+					console.error("[addActivePublicSongIds] Supabase fetch error:", songQueryRes);
 					return;
 				}
+
+				const data = Array.isArray(songQueryRes["data"]) ? songQueryRes["data"] : [];
 
 				console.warn("[addActivePublicSongIds] Fetched data:", data);
 

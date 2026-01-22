@@ -1,5 +1,6 @@
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
+import callSelect from "../client/safe-query/callSelect";
 import { type EnrichmentConfig } from "./types";
 
 /**
@@ -20,12 +21,11 @@ export default async function fetchUsername(config: EnrichmentConfig): Promise<s
 
 	try {
 		// Query user_public for the owner's username
-		// Type as unknown to handle Supabase SDK's any return type safely
-		const queryResult: unknown = await client
-			.from(tableName)
-			.select(usernameColumn)
-			.eq(userIdColumn, userId)
-			.single();
+		const queryResult = await callSelect(client, tableName, {
+			cols: usernameColumn,
+			eq: { col: userIdColumn, val: userId },
+			single: true,
+		});
 
 		// Extract data and error using type guards
 		const rawData = isRecord(queryResult) ? queryResult["data"] : undefined;
