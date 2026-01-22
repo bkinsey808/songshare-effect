@@ -18,7 +18,12 @@ type PostgrestResponse = { data?: unknown; error?: unknown };
 // methods used throughout the app. Chain methods return unknown to avoid recursion.
 type SupabaseFromLike = {
 	/** Select returns a query-like object or promise */
-	select: (cols: string) => unknown;
+	select: (cols: string) => {
+		/** Optional order helper used by some callers */
+		order?: (column: string) => Promise<PostgrestResponse>;
+		/** Optional eq helper used by tests and some query patterns */
+		eq?: (column: string, value: string) => { single: () => Promise<unknown> };
+	};
 	/** Insert returns a query-like object or promise */
 	insert?: (row: unknown) => unknown;
 	/** Update returns a query-like object or promise */
@@ -45,5 +50,5 @@ export type SupabaseClientLike<DB = unknown> = {
 	auth: { getUser: () => Promise<unknown> };
 };
 
-// Export PostgrestResponse at end of file so linter is happy with export ordering
-export type { PostgrestResponse };
+// Export types at end of file so linter is happy with export ordering
+export type { PostgrestResponse, RealtimeChannelLike };

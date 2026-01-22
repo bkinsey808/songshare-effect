@@ -1,8 +1,14 @@
-import { type RealtimeChannel, type SupabaseClient } from "@supabase/supabase-js";
 /* eslint-disable max-lines */
 import { useEffect, useState } from "react";
 
 import getSupabaseClientWithAuth from "@/react/supabase/client/getSupabaseClientWithAuth";
+import guardAsFetchError from "@/react/supabase/client/guards/guardAsFetchError";
+import guardAsPostgrestResponse from "@/react/supabase/client/guards/guardAsPostgrestResponse";
+import guardAsRealtimeChannelLike from "@/react/supabase/client/guards/guardAsRealtimeChannelLike";
+import {
+	type RealtimeChannelLike,
+	type SupabaseClientLike,
+} from "@/react/supabase/client/SupabaseClientLike";
 import { type Database, type Tables } from "@/shared/generated/supabaseTypes";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
@@ -132,10 +138,10 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 	// Use shared isRecord/isString guards (imported at top) for runtime narrowing
 
 	useEffect(() => {
-		let channel: RealtimeChannel | undefined = undefined;
+		let channel: RealtimeChannelLike | undefined = undefined;
 
 		async function setupSubscription(): Promise<void> {
-			let supabase: SupabaseClient<Database> | undefined = undefined;
+			let supabase: SupabaseClientLike<Database> | undefined = undefined;
 
 			// 1) Initialize Supabase client
 			try {
@@ -153,24 +159,48 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 
 			// 2) Initial fetch - be explicit about columns and keep parsing separate
 			let fetchedData: UserPublic[] | null | undefined = undefined;
-			try {
-				const { data, error: fetchError } = await supabase
-					.from("user_public")
-					.select("user_id, username")
-					.order("username");
+			let result: unknown = undefined;
 
-				if (fetchError) {
-					setError(`Failed to fetch users: ${fetchError.message}`);
-					setLoading(false);
+			try {
+				if (supabase === undefined) {
+					setError("Supabase client is undefined");
 					return;
 				}
-				fetchedData = data;
+
+				const query = supabase.from("user_public").select("user_id, username");
+				const queryObj = query as { order?: (column: string) => Promise<unknown> };
+				const orderFn = queryObj.order;
+
+				if (typeof orderFn !== "function") {
+					setError("Supabase client missing order helper");
+					return;
+				}
+
+				result = await orderFn("username");
 			} catch (error) {
 				setError("Failed to fetch users");
 				console.error(error);
 				setLoading(false);
 				return;
 			}
+
+			// Process result outside try/catch to avoid React Compiler value block limitation
+			if (!guardAsPostgrestResponse(result)) {
+				setError("Invalid response format");
+				setLoading(false);
+				return;
+			}
+
+			const { error: fetchError, data } = result;
+			if (fetchError !== undefined && guardAsFetchError(fetchError)) {
+				setError(`Failed to fetch users: ${fetchError.message}`);
+				setLoading(false);
+				return;
+			}
+
+			fetchedData = Array.isArray(data)
+				? data.filter((item): item is UserPublic => isUserPublic(item))
+				: undefined;
 
 			// Set users using explicit checks (outside the fetch try/catch)
 			if (Array.isArray(fetchedData)) {
@@ -188,7 +218,12 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 			try {
 				console.warn("Setting up real-time subscription...");
 
-				channel = supabase
+				if (supabase === undefined) {
+					setError("Supabase client is undefined for realtime setup");
+					return;
+				}
+
+				const channelCandidate = supabase
 					.channel(`user_public_changes_${Date.now()}`)
 					.on(
 						"postgres_changes",
@@ -198,13 +233,17 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 							table: "user_public",
 						},
 						(payload) => {
-							console.warn("INSERT event received:", {
-								event: payload.eventType,
-								new: payload.new,
-								old: payload.old,
-								schema: payload.schema,
-								table: payload.table,
-							});
+							if (isRecord(payload)) {
+								console.warn("INSERT event received:", {
+									event: payload["eventType"],
+									new: payload["new"],
+									old: payload["old"],
+									schema: payload["schema"],
+									table: payload["table"],
+								});
+							} else {
+								console.warn("INSERT event received with unknown payload shape", payload);
+							}
 							try {
 								handleRealtimeEvent({
 									payload,
@@ -225,13 +264,17 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 							table: "user_public",
 						},
 						(payload) => {
-							console.warn("UPDATE event received:", {
-								event: payload.eventType,
-								new: payload.new,
-								old: payload.old,
-								schema: payload.schema,
-								table: payload.table,
-							});
+							if (isRecord(payload)) {
+								console.warn("UPDATE event received:", {
+									event: payload["eventType"],
+									new: payload["new"],
+									old: payload["old"],
+									schema: payload["schema"],
+									table: payload["table"],
+								});
+							} else {
+								console.warn("UPDATE event received with unknown payload shape", payload);
+							}
 							try {
 								handleRealtimeEvent({
 									payload,
@@ -252,13 +295,17 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 							table: "user_public",
 						},
 						(payload) => {
-							console.warn("DELETE event received:", {
-								event: payload.eventType,
-								new: payload.new,
-								old: payload.old,
-								schema: payload.schema,
-								table: payload.table,
-							});
+							if (isRecord(payload)) {
+								console.warn("DELETE event received:", {
+									event: payload["eventType"],
+									new: payload["new"],
+									old: payload["old"],
+									schema: payload["schema"],
+									table: payload["table"],
+								});
+							} else {
+								console.warn("DELETE event received with unknown payload shape", payload);
+							}
 							try {
 								handleRealtimeEvent({
 									payload,
@@ -278,17 +325,25 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 							timestamp: new Date().toISOString(),
 						});
 						setConnectionStatus(status);
-						if (subscriptionError) {
+						if (subscriptionError !== undefined && subscriptionError !== null) {
+							const subscriptionMessage =
+								isRecord(subscriptionError) && typeof subscriptionError["message"] === "string"
+									? subscriptionError["message"]
+									: JSON.stringify(subscriptionError);
+							const subscriptionStack =
+								isRecord(subscriptionError) && typeof subscriptionError["stack"] === "string"
+									? subscriptionError["stack"]
+									: "No stack trace";
 							console.error("Subscription error details:", {
 								error: subscriptionError,
-								message: subscriptionError.message ?? "Unknown error",
-								stack: subscriptionError.stack ?? "No stack trace",
+								message: subscriptionMessage,
+								stack: subscriptionStack,
 							});
-							setError(
-								`Subscription error: ${subscriptionError.message ?? JSON.stringify(subscriptionError)}`,
-							);
+							setError(`Subscription error: ${subscriptionMessage}`);
 						}
 					});
+
+				channel = guardAsRealtimeChannelLike(channelCandidate);
 			} catch (error) {
 				setError(`Setup error: ${error instanceof Error ? error.message : "Unknown"}`);
 				setLoading(false);
@@ -307,7 +362,10 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 			if (channel) {
 				void (async (): Promise<void> => {
 					try {
-						await channel.unsubscribe();
+						const { unsubscribe } = channel;
+						if (typeof unsubscribe === "function") {
+							await unsubscribe();
+						}
 					} catch (error) {
 						console.error(error);
 					}

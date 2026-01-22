@@ -1,7 +1,30 @@
 import type { SupabaseClientLike } from "../SupabaseClientLike";
 
-import hasAuth from "./hasAuth";
-import hasFrom from "./hasFrom";
+/**
+ * Runtime guard: returns true if value appears to have `auth.getUser` like Supabase client.
+ */
+function hasAuth(value: unknown): value is { auth: { getUser: () => Promise<unknown> } } {
+	if (value === null || value === undefined) {
+		return false;
+	}
+	const obj = value as { auth?: unknown };
+	if (typeof obj.auth !== "object" || obj.auth === null) {
+		return false;
+	}
+	const auth = obj.auth as { getUser?: unknown };
+	return typeof auth.getUser === "function";
+}
+
+/**
+ * Runtime guard: returns true if value appears to have a `from` method like Supabase client.
+ */
+function hasFrom<DB = unknown>(value: unknown): value is SupabaseClientLike<DB> {
+	if (value === null || value === undefined) {
+		return false;
+	}
+	const obj = value as { from?: unknown };
+	return typeof obj.from === "function";
+}
 
 /**
  * Type guard that validates and narrows any Supabase-like value to SupabaseClientLike.
