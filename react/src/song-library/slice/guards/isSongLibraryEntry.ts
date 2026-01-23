@@ -1,6 +1,6 @@
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
-import type { SongLibraryEntry } from "./song-library-types";
+import type { SongLibraryEntry } from "../song-library-types";
 
 /**
  * Type guard to validate that a record has the minimal shape of a SongLibraryEntry.

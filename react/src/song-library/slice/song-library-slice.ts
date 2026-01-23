@@ -1,10 +1,11 @@
+import type { Effect } from "effect";
+
 // Song Library Zustand slice with subscription functionality
 // Zustand StateCreator type is not required here — slices are declared as named functions.
 import type { Api, Get, Set } from "@/react/zustand/slice-utils";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
-import getErrorMessage from "@/shared/utils/getErrorMessage";
 
 import type {
 	AddSongToSongLibraryRequest,
@@ -14,10 +15,10 @@ import type {
 	SongLibraryState,
 } from "./song-library-types";
 
-import addSongToSongLibrary from "./addSongToSongLibrary";
 import fetchSongLibraryFn from "./fetchSongLibrary";
-import removeSongFromSongLibrary from "./removeSongFromLibrary";
-import subscribeToSongLibraryFn from "./subscribeToSongLibrary";
+import addSongToSongLibrary from "./song-add/addSongToSongLibrary";
+import removeSongFromSongLibrary from "./song-remove/removeSongFromLibrary";
+import subscribeToSongLibraryFn from "./subscribe/subscribeToSongLibrary";
 
 const initialState: SongLibraryState = {
 	songLibraryEntries: {} as Record<string, SongLibraryEntry>,
@@ -27,16 +28,20 @@ const initialState: SongLibraryState = {
 
 export type SongLibrarySlice = SongLibrarySliceBase & {
 	/** Add a song to the user's library */
-	addSongToSongLibrary: (request: Readonly<AddSongToSongLibraryRequest>) => Promise<void>;
+	addSongToSongLibrary: (
+		request: Readonly<AddSongToSongLibraryRequest>,
+	) => Effect.Effect<void, Error>;
 	/** Remove a song from the user's library */
-	removeSongFromSongLibrary: (request: Readonly<RemoveSongFromSongLibraryRequest>) => Promise<void>;
+	removeSongFromSongLibrary: (
+		request: Readonly<RemoveSongFromSongLibraryRequest>,
+	) => Effect.Effect<void, Error>;
 	/** Get all song IDs in the user's library */
 	getSongLibrarySongIds: () => string[];
 	/** Fetch the user's complete library from the server */
-	fetchSongLibrary: () => Promise<void>;
+	fetchSongLibrary: () => Effect.Effect<void, Error>;
 
-	/** Subscribe to realtime updates for the user's library. Returns an unsubscribe function. */
-	subscribeToSongLibrary: () => (() => void) | undefined;
+	/** Subscribe to realtime updates for the user's library. Returns an Effect yielding a cleanup function. */
+	subscribeToSongLibrary: () => Effect.Effect<() => void, Error>;
 	/** Internal: holds the current unsubscribe function for the realtime subscription */
 	songLibraryUnsubscribe?: () => void;
 
@@ -82,28 +87,10 @@ export function createSongLibrarySlice(
 		...initialState,
 
 		// Public API methods
-		addSongToSongLibrary: async (request: Readonly<AddSongToSongLibraryRequest>) => {
-			try {
-				await addSongToSongLibrary(request, get);
-			} catch (error) {
-				const errorMessage = getErrorMessage(error, "Failed to add song to song library");
-				const { setSongLibraryError } = get();
-				setSongLibraryError(errorMessage);
-				console.error("[addSongToSongLibrary] Error:", error);
-				throw error;
-			}
-		},
-		removeSongFromSongLibrary: async (request: Readonly<RemoveSongFromSongLibraryRequest>) => {
-			try {
-				await removeSongFromSongLibrary(request, get);
-			} catch (error) {
-				const errorMessage = getErrorMessage(error, "Failed to remove song from song library");
-				const { setSongLibraryError } = get();
-				setSongLibraryError(errorMessage);
-				console.error("[removeSongFromSongLibrary] Error:", error);
-				throw error;
-			}
-		},
+		addSongToSongLibrary: (request: Readonly<AddSongToSongLibraryRequest>) =>
+			addSongToSongLibrary(request, get),
+		removeSongFromSongLibrary: (request: Readonly<RemoveSongFromSongLibraryRequest>) =>
+			removeSongFromSongLibrary(request, get),
 
 		isInSongLibrary: (songId: string) => {
 			const { songLibraryEntries } = get();
@@ -115,18 +102,7 @@ export function createSongLibrarySlice(
 			return Object.keys(songLibraryEntries);
 		},
 
-		fetchSongLibrary: async () => {
-			try {
-				// Delegate the heavy lifting to a separate module to keep the slice small.
-				await fetchSongLibraryFn(get);
-			} catch (error) {
-				const errorMessage = getErrorMessage(error, "Failed to fetch library");
-				const { setSongLibraryLoading, setSongLibraryError } = get();
-				setSongLibraryLoading(false);
-				setSongLibraryError(errorMessage);
-				console.error("[fetchSongLibrary] Error:", error);
-			}
-		},
+		fetchSongLibrary: () => fetchSongLibraryFn(get),
 
 		subscribeToSongLibrary: () => subscribeToSongLibraryFn(get),
 

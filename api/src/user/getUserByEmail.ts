@@ -2,7 +2,6 @@ import { type Schema, Effect } from "effect";
 
 import { DatabaseError } from "@/api/errors";
 import getErrorMessage from "@/api/getErrorMessage";
-import { debug as serverDebug } from "@/api/logger";
 import normalizeNullsTopLevel from "@/api/oauth/normalizeNullsTopLevel";
 import normalizeLinkedProviders from "@/api/provider/normalizeLinkedProviders";
 import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
@@ -71,14 +70,6 @@ export default function getUserByEmail({
 	DatabaseError
 > {
 	return Effect.gen(function* getUserByEmailGen($) {
-		// Best-effort debug logging (synchronous)
-		yield* $(
-			Effect.sync(() => {
-				// Localized: debug-only server-side log
-				serverDebug("[getUserByEmail] Looking up user by email:", email);
-			}),
-		);
-
 		// Perform the Supabase query as a Promise and map any thrown error to DatabaseError.
 		// Detect common network/DNS error patterns and provide a clearer message to
 		// aid local development debugging (e.g. workerd DNS lookup failures).
@@ -98,8 +89,6 @@ export default function getUserByEmail({
 					const isDnsLike =
 						/dns lookup failed|name or service not known|gai_strerror|DNS lookup failed/i.test(msg);
 					if (isDnsLike) {
-						// Dev-only: make the log explicit so it's easy to spot in local consoles
-						serverDebug("[getUserByEmail] Detected network/DNS error contacting Supabase:", msg);
 						return new DatabaseError({
 							message: `Failed to contact Supabase (network/DNS error). Check VITE_SUPABASE_URL, network/DNS, and that the host is reachable. Original: ${msg}`,
 						});
@@ -110,57 +99,6 @@ export default function getUserByEmail({
 		);
 
 		const res = parseMaybeSingle(rawRes);
-
-		// Debug: log the raw Supabase response data
-		yield* $(
-			Effect.sync(() => {
-				// Localized: debug-only server-side log
-				serverDebug("[getUserByEmail] Raw Supabase data:", res.data);
-			}),
-		);
-
-		// Debug output to aid diagnosing preview vs production differences
-		try {
-			yield* $(
-				Effect.sync(() => {
-					function computeErrInfo(
-						maybeErr: unknown,
-					): { code: string | undefined; message: string | undefined } | undefined {
-						if (maybeErr === null || maybeErr === undefined) {
-							return undefined;
-						}
-						if (isRecordStringUnknown(maybeErr)) {
-							const code = typeof maybeErr["code"] === "string" ? maybeErr["code"] : undefined;
-							const message =
-								typeof maybeErr["message"] === "string"
-									? maybeErr["message"]
-									: getErrorMessage(maybeErr["message"]);
-							return { code, message };
-						}
-						return { code: undefined, message: getErrorMessage(maybeErr) };
-					}
-
-					const errInfo = computeErrInfo(res.error);
-					// Localized: debug-only server-side log
-					serverDebug("[getUserByEmail] Supabase response:", {
-						status: res.status,
-						error: errInfo,
-						hasData: res.data !== undefined,
-					});
-				}),
-			);
-		} catch (error) {
-			// don't fail the effect because logging failed
-			yield* $(
-				Effect.sync(() => {
-					// Localized: debug-only server-side log
-					serverDebug(
-						"[getUserByEmail] Failed to stringify Supabase response",
-						getErrorMessage(error),
-					);
-				}),
-			);
-		}
 
 		// Handle PostgREST table-not-exists (e.g. PGRST205) as "not found"
 		if (res.error !== undefined && res.error !== null) {
@@ -202,16 +140,8 @@ export default function getUserByEmail({
 			let normalizedProviders: string[] = [];
 			try {
 				normalizedProviders = normalizeLinkedProviders(validatedLocal);
-			} catch (error) {
-				yield* $(
-					Effect.sync(() => {
-						// Localized: debug-only server-side log
-						serverDebug(
-							"[getUserByEmail] Failed to normalize linked_providers at runtime:",
-							getErrorMessage(error),
-						);
-					}),
-				);
+			} catch {
+				// Fall back to empty array
 				normalizedProviders = [];
 			}
 

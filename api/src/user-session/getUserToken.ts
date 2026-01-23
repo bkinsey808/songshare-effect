@@ -34,13 +34,9 @@ export default function getUserToken(
 	ctx: ReadonlyContext,
 ): Effect.Effect<TokenResponse, DatabaseError> {
 	return Effect.gen(function* getUserTokenGen($) {
-		serverLog("[getUserToken] Starting token generation");
-
 		// Verify the user session first
 		const userSessionData = yield* $(getVerifiedUserSession(ctx));
 		const userId = userSessionData.user.user_id;
-
-		serverLog("[getUserToken] Getting Supabase token for user:", userId);
 
 		// Get Supabase admin client
 		const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
@@ -63,7 +59,6 @@ export default function getUserToken(
 		const { data, error } = signInResponse;
 
 		if (error) {
-			serverLog("[getUserToken] Sign in error:", error.message);
 			return yield* $(
 				Effect.fail(new DatabaseError({ message: `Sign in failed: ${error.message}` })),
 			);
@@ -89,8 +84,6 @@ export default function getUserToken(
 			user_id: userId,
 		};
 
-		serverLog("[getUserToken] Updating visitor user metadata with user_id:", userId);
-
 		const updateResult = yield* $(
 			Effect.tryPromise({
 				try: () =>
@@ -105,7 +98,6 @@ export default function getUserToken(
 		);
 
 		if (updateResult.error) {
-			serverLog("[getUserToken] Metadata update error:", updateResult.error.message);
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({
@@ -116,8 +108,6 @@ export default function getUserToken(
 		}
 
 		// Sign in again to get a fresh token with the updated metadata
-		serverLog("[getUserToken] Signing in again to get fresh token with user metadata");
-
 		const refreshSignInResponse = yield* $(
 			Effect.tryPromise({
 				try: () =>
@@ -135,7 +125,6 @@ export default function getUserToken(
 		const { data: refreshData, error: refreshError } = refreshSignInResponse;
 
 		if (refreshError) {
-			serverLog("[getUserToken] Refresh sign-in error:", refreshError.message);
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({ message: `Refresh sign-in failed: ${refreshError.message}` }),
@@ -144,11 +133,8 @@ export default function getUserToken(
 		}
 
 		if (!refreshData.session?.access_token) {
-			serverLog("[getUserToken] No access token in refresh response");
 			return yield* $(Effect.fail(new DatabaseError({ message: "No access token in response" })));
 		}
-
-		serverLog("[getUserToken] Successfully generated token for user:", userId);
 
 		return {
 			access_token: refreshData.session.access_token,

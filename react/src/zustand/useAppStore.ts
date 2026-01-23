@@ -8,7 +8,7 @@ import useSchedule from "@/react/hooks/useSchedule";
 import {
 	type SongLibrarySlice,
 	createSongLibrarySlice,
-} from "@/react/song-library/song-library-slice";
+} from "@/react/song-library/slice/song-library-slice";
 import {
 	type SongSubscribeSlice,
 	createSongSubscribeSlice,

@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
@@ -103,17 +104,14 @@ describe("fetchSongLibrary", () => {
 				isInSongLibrary: () => false,
 				addSongLibraryEntry: () => undefined,
 				removeSongLibraryEntry: () => undefined,
-				addSongToSongLibrary: async () => {
-					await Promise.resolve();
-				},
-				removeSongFromSongLibrary: async () => {
-					await Promise.resolve();
-				},
+				addSongToSongLibrary: () => Effect.sync(() => undefined),
+				removeSongFromSongLibrary: () => Effect.sync(() => undefined),
 				getSongLibrarySongIds: () => [],
-				fetchSongLibrary: async () => {
-					await Promise.resolve();
-				},
-				subscribeToSongLibrary: () => undefined,
+				fetchSongLibrary: () => Effect.sync(() => undefined),
+				subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
+					Effect.sync((): (() => void) => (): void => {
+						// Cleanup function (no-op for testing)
+					}),
 				setSongLibraryEntries,
 				setSongLibraryLoading,
 			};
@@ -124,7 +122,7 @@ describe("fetchSongLibrary", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TEST_AUTH_TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(createMockClient());
 
-		await fetchSongLibrary(getMock);
+		await Effect.runPromise(fetchSongLibrary(getMock));
 
 		expect(setSongLibraryLoading).toHaveBeenCalledWith(true);
 		expect(setSongLibraryEntries).toHaveBeenCalledTimes(ONE_CALL);
@@ -159,17 +157,14 @@ describe("fetchSongLibrary", () => {
 				isInSongLibrary: () => false,
 				addSongLibraryEntry: () => undefined,
 				removeSongLibraryEntry: () => undefined,
-				addSongToSongLibrary: async () => {
-					await Promise.resolve();
-				},
-				removeSongFromSongLibrary: async () => {
-					await Promise.resolve();
-				},
+				addSongToSongLibrary: () => Effect.sync(() => undefined),
+				removeSongFromSongLibrary: () => Effect.sync(() => undefined),
 				getSongLibrarySongIds: () => [],
-				fetchSongLibrary: async () => {
-					await Promise.resolve();
-				},
-				subscribeToSongLibrary: () => undefined,
+				fetchSongLibrary: () => Effect.sync(() => undefined),
+				subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
+					Effect.sync((): (() => void) => (): void => {
+						// Cleanup function (no-op for testing)
+					}),
 				setSongLibraryEntries,
 				setSongLibraryLoading,
 			};
@@ -178,7 +173,7 @@ describe("fetchSongLibrary", () => {
 
 		vi.mocked(getSupabaseClient).mockReturnValue(createMockClient({ songLibrary: [] }));
 
-		await fetchSongLibrary(getMock);
+		await Effect.runPromise(fetchSongLibrary(getMock));
 
 		expect(setSongLibraryEntries).toHaveBeenCalledWith({});
 		expect(setSongLibraryLoading).toHaveBeenLastCalledWith(false);
@@ -199,17 +194,14 @@ describe("fetchSongLibrary", () => {
 				isInSongLibrary: () => false,
 				addSongLibraryEntry: () => undefined,
 				removeSongLibraryEntry: () => undefined,
-				addSongToSongLibrary: async () => {
-					await Promise.resolve();
-				},
-				removeSongFromSongLibrary: async () => {
-					await Promise.resolve();
-				},
+				addSongToSongLibrary: () => Effect.sync(() => undefined),
+				removeSongFromSongLibrary: () => Effect.sync(() => undefined),
 				getSongLibrarySongIds: () => [],
-				fetchSongLibrary: async () => {
-					await Promise.resolve();
-				},
-				subscribeToSongLibrary: () => undefined,
+				fetchSongLibrary: () => Effect.sync(() => undefined),
+				subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
+					Effect.sync((): (() => void) => (): void => {
+						// Cleanup function (no-op for testing)
+					}),
 				setSongLibraryEntries,
 				setSongLibraryLoading,
 			};
@@ -218,7 +210,9 @@ describe("fetchSongLibrary", () => {
 
 		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
 
-		await expect(fetchSongLibrary(getMock)).rejects.toThrow("No Supabase client available");
+		await expect(Effect.runPromise(fetchSongLibrary(getMock))).rejects.toThrow(
+			"No Supabase client available",
+		);
 		expect(setSongLibraryLoading).toHaveBeenCalledWith(true);
 		expect(setSongLibraryLoading).toHaveBeenLastCalledWith(false);
 

@@ -1,16 +1,16 @@
+import { Effect } from "effect";
+
 import type { SongLibrary, UserPublic } from "@/shared/generated/supabaseSchemas";
 
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import callSelect from "@/react/supabase/client/safe-query/callSelect";
-import { isRecord } from "@/shared/utils/typeGuards";
+import { guardAsString, isRecord } from "@/shared/utils/typeGuards";
 
 import type { SongLibrarySlice } from "./song-library-slice";
 import type { SongLibraryEntry } from "./song-library-types";
 
-import isSongLibraryEntry from "./isSongLibraryEntry";
-
-const ZERO = 0;
+import isSongLibraryEntry from "./guards/isSongLibraryEntry";
 
 /**
  * Fetch the current user's song library and populate the slice with enriched
@@ -18,52 +18,65 @@ const ZERO = 0;
  *
  * @param get - Zustand slice getter used to access state and mutation helpers
  */
-export default async function fetchSongLibrary(get: () => SongLibrarySlice): Promise<void> {
-	const { setSongLibraryEntries, setSongLibraryLoading, setSongLibraryError } = get();
+export default function fetchSongLibrary(get: () => SongLibrarySlice): Effect.Effect<void, Error> {
+	return Effect.gen(function* fetchSongGen($) {
+		const { setSongLibraryEntries, setSongLibraryLoading, setSongLibraryError } = get();
 
-	// Start fresh
-	setSongLibraryLoading(true);
-	setSongLibraryError(undefined);
+		yield* $(
+			Effect.sync(() => {
+				setSongLibraryLoading(true);
+				setSongLibraryError(undefined);
+			}),
+		);
 
-	try {
-		const userToken = await getSupabaseAuthToken();
+		const userToken = yield* $(
+			Effect.tryPromise({
+				try: () => Promise.resolve(getSupabaseAuthToken()),
+				catch: (err) => new Error(String(err)),
+			}),
+		);
 		const client = getSupabaseClient(userToken);
-
 		if (!client) {
-			throw new Error("No Supabase client available");
+			return yield* $(Effect.fail(new Error("No Supabase client available")));
 		}
 
-		console.warn("[fetchSongLibrary] Fetching song_library entries...");
-		const libraryQueryRes = await callSelect(client, "song_library", { cols: "*" });
+		const libraryQueryRes = yield* $(
+			Effect.tryPromise({
+				try: () => callSelect(client, "song_library", { cols: "*" }),
+				catch: (err) => new Error(String(err)),
+			}),
+		);
 		if (!isRecord(libraryQueryRes)) {
-			throw new Error("Invalid response from Supabase fetching song_library");
+			return yield* $(
+				Effect.fail(new Error("Invalid response from Supabase fetching song_library")),
+			);
 		}
 		const libraryData: unknown[] = Array.isArray(libraryQueryRes["data"])
 			? libraryQueryRes["data"]
 			: [];
 
-		// Filter out malformed rows received from Supabase to avoid runtime errors
 		const filteredEntriesArray = libraryData.filter((entry: unknown): entry is SongLibrary =>
 			isSongLibraryEntry(entry),
 		);
 
 		const songIds = [...new Set(filteredEntriesArray.map((entry: SongLibrary) => entry.song_id))];
-		console.warn("[fetchSongLibrary] Fetching song_public for song IDs:", songIds);
-		const rawSongResult = await callSelect(client, "song_public", {
-			cols: "song_id, song_name, song_slug",
-			in: { col: "song_id", vals: songIds },
-		});
+		const rawSongResult = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					callSelect(client, "song_public", {
+						cols: "song_id, song_name, song_slug",
+						in: { col: "song_id", vals: songIds },
+					}),
+				catch: (err) => new Error(String(err)),
+			}),
+		);
 		if (!isRecord(rawSongResult)) {
-			throw new Error("Invalid response from Supabase fetching song_public");
+			return yield* $(
+				Effect.fail(new Error("Invalid response from Supabase fetching song_public")),
+			);
 		}
 		const songData: unknown[] = Array.isArray(rawSongResult["data"]) ? rawSongResult["data"] : [];
-		console.warn(
-			"[fetchSongLibrary] Received song_public data:",
-			songData.length ?? ZERO,
-			songData,
-		);
 
-		// Create a map of song_id to song details (filter malformed rows)
 		const songRecords = songData.filter(
 			(item: unknown): item is Record<string, unknown> =>
 				isRecord(item) && typeof item["song_id"] === "string",
@@ -74,8 +87,8 @@ export default async function fetchSongLibrary(get: () => SongLibrarySlice): Pro
 				if (typeof maybeId !== "string") {
 					return undefined;
 				}
-				const songName = typeof song["song_name"] === "string" ? song["song_name"] : "";
-				const songSlug = typeof song["song_slug"] === "string" ? song["song_slug"] : "";
+				const songName = guardAsString(song["song_name"]);
+				const songSlug = guardAsString(song["song_slug"]);
 				return [maybeId, { song_name: songName, song_slug: songSlug }] as [
 					string,
 					{ song_name: string; song_slug: string },
@@ -86,26 +99,26 @@ export default async function fetchSongLibrary(get: () => SongLibrarySlice): Pro
 			);
 		const songMap = new Map<string, { song_name: string; song_slug: string }>(songMapEntries);
 
-		// Fetch owner usernames for all entries
 		const ownerIds = [
 			...new Set(filteredEntriesArray.map((entry: SongLibrary) => entry.song_owner_id)),
 		];
-		const rawOwnerResult = await callSelect(client, "user_public", {
-			cols: "user_id, username",
-			in: { col: "user_id", vals: ownerIds },
-		});
+		const rawOwnerResult = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					callSelect(client, "user_public", {
+						cols: "user_id, username",
+						in: { col: "user_id", vals: ownerIds },
+					}),
+				catch: (err) => new Error(String(err)),
+			}),
+		);
 		if (!isRecord(rawOwnerResult)) {
-			throw new Error("Invalid response from Supabase fetching user_public");
+			return yield* $(
+				Effect.fail(new Error("Invalid response from Supabase fetching user_public")),
+			);
 		}
 		const ownerData = Array.isArray(rawOwnerResult["data"]) ? rawOwnerResult["data"] : [];
 
-		console.warn(
-			"[fetchSongLibrary] Received user_public data:",
-			ownerData.length ?? ZERO,
-			ownerData,
-		);
-
-		// Create a map of owner_id to username (filter malformed rows)
 		const ownerArray = (ownerData ?? []).filter(
 			(ownerItem: unknown): ownerItem is UserPublic =>
 				isRecord(ownerItem) &&
@@ -116,7 +129,6 @@ export default async function fetchSongLibrary(get: () => SongLibrarySlice): Pro
 			ownerArray.map((owner: UserPublic) => [owner.user_id, owner.username]),
 		);
 
-		// Convert array to object indexed by song_id and include owner username and song details
 		const entriesRecord = filteredEntriesArray.reduce<Record<string, SongLibraryEntry>>(
 			(acc: Record<string, SongLibraryEntry>, entry: SongLibrary) => {
 				const ownerUsername: string | undefined = ownerMap.get(entry.song_owner_id);
@@ -140,8 +152,25 @@ export default async function fetchSongLibrary(get: () => SongLibrarySlice): Pro
 			{},
 		);
 
-		setSongLibraryEntries(entriesRecord);
-	} finally {
-		setSongLibraryLoading(false);
-	}
+		yield* $(
+			Effect.sync(() => {
+				setSongLibraryEntries(entriesRecord);
+			}),
+		);
+	}).pipe(
+		Effect.tapError((err) =>
+			Effect.sync(() => {
+				const { setSongLibraryLoading, setSongLibraryError } = get();
+				setSongLibraryLoading(false);
+				setSongLibraryError("Failed to fetch library");
+				console.error("[fetchSongLibrary] Error:", err);
+			}),
+		),
+		Effect.ensuring(
+			Effect.sync(() => {
+				const { setSongLibraryLoading } = get();
+				setSongLibraryLoading(false);
+			}),
+		),
+	);
 }

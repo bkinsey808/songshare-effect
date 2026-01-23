@@ -1,8 +1,12 @@
+import { Effect } from "effect";
 import { useEffect } from "react";
 
 import { getStoreApi, useAppStoreSelector } from "@/react/zustand/useAppStore";
 
-import type { RemoveSongFromSongLibraryRequest, SongLibraryEntry } from "./song-library-types";
+import type {
+	RemoveSongFromSongLibraryRequest,
+	SongLibraryEntry,
+} from "./slice/song-library-types";
 
 /**
  * Initialize the song library when a page mounts.
@@ -14,7 +18,9 @@ export default function useSongLibrary(): {
 	songEntries: SongLibraryEntry[];
 	isLoading: boolean;
 	error: string | undefined;
-	removeFromSongLibrary: (request: Readonly<RemoveSongFromSongLibraryRequest>) => Promise<void>;
+	removeFromSongLibrary: (
+		request: Readonly<RemoveSongFromSongLibraryRequest>,
+	) => Effect.Effect<void, Error>;
 } {
 	// Initialize library data on mount
 	useEffect((): (() => void) | void => {
@@ -27,8 +33,15 @@ export default function useSongLibrary(): {
 
 		void fetchSongLibrary();
 
-		// Subscribe to realtime updates - resubscribe when auth state changes
-		const unsubscribe = subscribeToSongLibrary();
+		// Subscribe to realtime updates - run the Effect and get cleanup function
+		let unsubscribe: (() => void) | undefined = undefined;
+		void (async (): Promise<void> => {
+			try {
+				unsubscribe = await Effect.runPromise(subscribeToSongLibrary());
+			} catch (error) {
+				console.error("[useSongLibrary] Failed to subscribe to song library updates:", error);
+			}
+		})();
 
 		// Cleanup: unsubscribe when component unmounts or auth state changes
 		return (): void => {

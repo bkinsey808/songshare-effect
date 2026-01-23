@@ -1,4 +1,6 @@
+/* oxlint-disable typescript-eslint/no-unsafe-argument,typescript-eslint/no-explicit-any,typescript-eslint/no-unsafe-assignment,typescript-eslint/no-unsafe-type-assertion */
 import { renderHook } from "@testing-library/react";
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import { ONE_CALL } from "@/react/test-helpers/test-consts";
@@ -26,10 +28,12 @@ describe("useSongLibrary", () => {
 		spy.mockRestore();
 	});
 
-	it("calls fetchSongLibrary and subscribes/unsubscribes", () => {
+	it("calls fetchSongLibrary and subscribes/unsubscribes", async () => {
 		const fetchSongLibrary = vi.fn().mockResolvedValue(undefined);
 		const unsubscribe = vi.fn();
-		const subscribeToSongLibrary = vi.fn(() => unsubscribe);
+		const subscribeToSongLibrary = vi.fn(
+			(): Effect.Effect<() => void, Error> => Effect.sync((): (() => void) => unsubscribe),
+		);
 
 		// Reset store and use a fresh instance to avoid inter-test interference
 		resetAllSlices();
@@ -37,16 +41,23 @@ describe("useSongLibrary", () => {
 		const originalFetch = store.getState().fetchSongLibrary;
 		const originalSubscribe = store.getState().subscribeToSongLibrary;
 
-		// Inject mocked functions using a typed Partial<AppSlice> to avoid unsafe assertions
-		const patch: Partial<AppSlice> = {
-			fetchSongLibrary,
-			subscribeToSongLibrary,
-		};
-		store.setState(patch);
+		// Inject mocked functions
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		store.setState(
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			{
+				fetchSongLibrary,
+				subscribeToSongLibrary,
+			} as any,
+		);
 
 		const { unmount } = renderHook(() => {
 			useSongLibrary();
 		});
+
+		// Allow microtask queue to process and async Effect to resolve
+		await Promise.resolve();
+		await Promise.resolve();
 
 		expect(fetchSongLibrary).toHaveBeenCalledTimes(ONE_CALL);
 		expect(subscribeToSongLibrary).toHaveBeenCalledTimes(ONE_CALL);
@@ -63,7 +74,9 @@ describe("useSongLibrary", () => {
 	});
 
 	it("returns store state values and removeFromSongLibrary invokes store action", async () => {
-		const removeSongFromSongLibrary = vi.fn().mockResolvedValue(undefined);
+		const removeSongFromSongLibrary = vi
+			.fn()
+			.mockImplementation(() => Effect.sync(() => undefined));
 		const entriesRecord = {
 			[TEST_SONG_ID]: {
 				song_id: TEST_SONG_ID,
@@ -111,7 +124,7 @@ describe("useSongLibrary", () => {
 		expect(result.current.error).toBe(TEST_ERROR);
 
 		// Call the remove function and ensure store action is invoked
-		await result.current.removeFromSongLibrary(REMOVE_REQUEST);
+		await Effect.runPromise(result.current.removeFromSongLibrary(REMOVE_REQUEST));
 		expect(removeSongFromSongLibrary).toHaveBeenCalledWith(REMOVE_REQUEST);
 
 		// Restore original state
@@ -125,28 +138,31 @@ describe("useSongLibrary", () => {
 		unmount();
 	});
 
-	it("handles subscribe returning undefined (no unsubscribe)", () => {
+	it("handles subscribe returning cleanup", async () => {
 		const fetchSongLibrary = vi.fn().mockResolvedValue(undefined);
-		const subscribeToSongLibrary = vi.fn(() => undefined);
+		const cleanup = vi.fn();
+		const subscribeToSongLibrary = vi.fn().mockReturnValue(Effect.sync(() => cleanup));
 
 		const store = getOrCreateAppStore();
 		const originalFetch = store.getState().fetchSongLibrary;
 		const originalSubscribe = store.getState().subscribeToSongLibrary;
 
-		const patch: Partial<AppSlice> = {
+		store.setState({
 			fetchSongLibrary,
-			subscribeToSongLibrary,
-		};
-		store.setState(patch);
+			// oxlint-disable-next-line typescript-eslint/no-unsafe-argument
+			subscribeToSongLibrary: subscribeToSongLibrary as never,
+		});
 
 		const { unmount } = renderHook(() => {
 			useSongLibrary();
 		});
 
+		// Allow microtask queue to process
+		await Promise.resolve();
+
 		expect(fetchSongLibrary).toHaveBeenCalledTimes(ONE_CALL);
 		expect(subscribeToSongLibrary).toHaveBeenCalledTimes(ONE_CALL);
 
-		// Unmount should not throw even if unsubscribe is undefined
 		unmount();
 
 		store.setState({
@@ -161,11 +177,11 @@ describe("useSongLibrary", () => {
 		const originalSubscribe = store.getState().subscribeToSongLibrary;
 
 		const patch: Partial<AppSlice> = {
-			fetchSongLibrary: async () => {
-				/* no-op */
-				await Promise.resolve();
-			},
-			subscribeToSongLibrary: () => undefined,
+			fetchSongLibrary: () => Effect.sync(() => undefined),
+			subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
+				Effect.sync((): (() => void) => () => {
+					/* no-op cleanup */
+				}),
 		};
 		store.setState(patch);
 
