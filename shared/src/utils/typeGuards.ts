@@ -17,6 +17,6 @@ export function isStringArray(value: unknown): value is string[] {
  * @param defaultValue - Default value to return if not a string (defaults to "")
  * @returns The string value or the default value
  */
-export function guardAsString(value: unknown, defaultValue: string = ""): string {
+export function guardAsString(value: unknown, defaultValue = ""): string {
 	return typeof value === "string" ? value : defaultValue;
 }
