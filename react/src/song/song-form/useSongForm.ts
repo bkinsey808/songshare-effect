@@ -76,6 +76,7 @@ type UseSongFormReturn = {
 	handleSongNameBlur: () => void;
 	handleSave: () => Promise<void>;
 	handleCancel: () => void;
+	hasUnsavedChanges: () => boolean;
 };
 
 /* eslint-disable max-lines-per-function */
@@ -107,6 +108,14 @@ export default function useSongForm(): UseSongFormReturn {
 		public_notes: "",
 		private_notes: "",
 	});
+
+	// Track initial form state to detect unsaved changes
+	const [initialFormState, setInitialFormState] = useState<{
+		formValues: typeof formValues;
+		fields: readonly string[];
+		slideOrder: readonly string[];
+		slides: Record<string, Slide>;
+	} | undefined>(undefined);
 
 	// Helper to update form values
 	function setFormValue(
@@ -178,32 +187,100 @@ export default function useSongForm(): UseSongFormReturn {
 			initialValues,
 		});
 
+	// Function to check if form has unsaved changes
+	function hasUnsavedChanges(): boolean {
+		if (initialFormState === undefined) {
+			// No initial state set yet, check if form has any non-empty values
+			const EMPTY_STRING = "";
+			const hasAnyValue = Object.values(formValues).some((value) => value.trim() !== EMPTY_STRING);
+			const ZERO = 0;
+			return hasAnyValue || fields.length > ZERO || slideOrder.length > ZERO;
+		}
+
+		// Compare form values
+		const formValueKeys: (keyof typeof formValues)[] = [
+			"song_name",
+			"song_slug",
+			"short_credit",
+			"long_credit",
+			"public_notes",
+			"private_notes",
+		];
+		const formValuesChanged = formValueKeys.some((key) => {
+			const currentValue = formValues[key];
+			const initialValue = initialFormState.formValues[key];
+			return currentValue !== initialValue;
+		});
+
+		// Compare fields array
+		const fieldsChanged =
+			fields.length !== initialFormState.fields.length ||
+			fields.some((field, index) => field !== initialFormState.fields[index]);
+
+		// Compare slide order
+		const slideOrderChanged =
+			slideOrder.length !== initialFormState.slideOrder.length ||
+			slideOrder.some((id, index) => id !== initialFormState.slideOrder[index]);
+
+		// Compare slides
+		const slidesChanged =
+			Object.keys(slides).length !== Object.keys(initialFormState.slides).length ||
+			Object.keys(slides).some((slideId) => {
+				const currentSlide = slides[slideId];
+				const initialSlide = initialFormState.slides[slideId];
+				if (currentSlide === undefined || initialSlide === undefined) {
+					return true;
+				}
+				if (currentSlide.slide_name !== initialSlide.slide_name) {
+					return true;
+				}
+				const currentFieldData = currentSlide.field_data;
+				const initialFieldData = initialSlide.field_data;
+				if (
+					Object.keys(currentFieldData).length !== Object.keys(initialFieldData).length
+				) {
+					return true;
+				}
+				return Object.keys(currentFieldData).some(
+					(fieldKey) => currentFieldData[fieldKey] !== initialFieldData[fieldKey],
+				);
+			});
+
+		return formValuesChanged || fieldsChanged || slideOrderChanged || slidesChanged;
+	}
+
 	const { onSubmit, handleCancel } = useFormSubmission({
 		handleApiResponseEffect,
 		resetFormState,
+		hasUnsavedChanges,
 	});
 
 	// Fetch and populate song data when editing
-	// Reset populated flag when songId or location changes (navigating to/back to form)
-	useEffect(() => {
+		// Reset populated flag when songId or location changes (navigating to/back to form)
+		useEffect(() => {
 		if (songId === undefined || songId.trim() === "") {
 			hasPopulatedRef.current = false;
 			isFetchingRef.current = false;
 			setIsLoadingData(false);
 			// Reset form values when not editing
-			setFormValuesState({
+			const emptyFormValues = {
 				song_name: "",
 				song_slug: "",
 				short_credit: "",
 				long_credit: "",
 				public_notes: "",
 				private_notes: "",
-			});
+			};
+			setFormValuesState(emptyFormValues);
+			// Reset initial state for new song
+			setInitialFormState(undefined);
 			return;
 		}
 
 		// Reset populated flag when songId or location changes (forces refresh when navigating back)
 		hasPopulatedRef.current = false;
+		// Reset initial state when songId changes
+		setInitialFormState(undefined);
 		
 		// Clear form values to prevent flash of stale data
 		setFormValuesState({
@@ -318,7 +395,7 @@ export default function useSongForm(): UseSongFormReturn {
 		// Public song has song_name, song_slug, etc. Private song only has private_notes
 		if (isRecord(songPublic)) {
 			// Update form values state from public song data
-			setFormValuesState({
+			const newFormValues = {
 				song_name: isString(songPublic.song_name) ? songPublic.song_name : "",
 				song_slug: isString(songPublic.song_slug) ? songPublic.song_slug : "",
 				short_credit: isString(songPublic.short_credit) ? songPublic.short_credit : "",
@@ -327,7 +404,8 @@ export default function useSongForm(): UseSongFormReturn {
 				private_notes: isRecord(songPrivate) && "private_notes" in songPrivate && isString(songPrivate.private_notes)
 					? songPrivate.private_notes
 					: "",
-			});
+			};
+			setFormValuesState(newFormValues);
 		} else if (isRecord(songPrivate) && "private_notes" in songPrivate) {
 			// If no public song, at least set private notes if available
 			const privateNotes = songPrivate.private_notes;
@@ -440,7 +518,48 @@ export default function useSongForm(): UseSongFormReturn {
 			clearTimeout(timeoutId);
 		}
 		return cleanup;
-	}, [songId, publicSongs, privateSongs, setSlideOrder, setSlides, toggleField, fields, currentUserId, navigate, setIsLoadingData]);
+	}, [songId, publicSongs, privateSongs, setSlideOrder, setSlides, toggleField, fields, currentUserId, navigate, setIsLoadingData, initialSlideId]);
+
+	// Set initial form state after form is fully populated
+	// Use a ref to track if we've set initial state for the current songId
+	const hasSetInitialStateRef = useRef<string | undefined>(undefined);
+	
+	useEffect(() => {
+		// Reset initial state when songId changes
+		if (songId === undefined || songId.trim() === "") {
+			// New song - initial state already set in the previous effect
+			hasSetInitialStateRef.current = undefined;
+			return;
+		}
+		
+		// For editing: only set initial state once after form is populated
+		if (!hasPopulatedRef.current || isLoadingData) {
+			// Still loading or not populated yet
+			return;
+		}
+		
+		// Only set initial state once per songId
+		if (hasSetInitialStateRef.current === songId) {
+			return;
+		}
+		
+		// Set initial state with current form values (deep copy)
+		setInitialFormState({
+			formValues: { ...formValues },
+			fields: [...fields],
+			slideOrder: [...slideOrder],
+			slides: Object.fromEntries(
+				Object.entries(slides).map(([key, slide]) => [
+					key,
+					{
+						slide_name: slide.slide_name,
+						field_data: { ...slide.field_data },
+					},
+				]),
+			),
+		});
+		hasSetInitialStateRef.current = songId;
+	}, [formValues, fields, slideOrder, slides, songId, isLoadingData]);
 
 	// Handle form submission with data collection
 
@@ -517,15 +636,28 @@ export default function useSongForm(): UseSongFormReturn {
 	// Wrapper for resetForm that also resets form values
 	function resetForm(): void {
 		resetFormState();
-		setFormValuesState({
+		const emptyFormValues = {
 			song_name: "",
 			song_slug: "",
 			short_credit: "",
 			long_credit: "",
 			public_notes: "",
 			private_notes: "",
-		});
+		};
+		setFormValuesState(emptyFormValues);
 		hasPopulatedRef.current = false;
+		// Reset initial state after reset
+		setInitialFormState({
+			formValues: emptyFormValues,
+			fields: ["lyrics"],
+			slideOrder: [initialSlideId],
+			slides: {
+				[initialSlideId]: {
+					slide_name: "Slide 1",
+					field_data: {},
+				},
+			},
+		});
 	}
 
 	return {
@@ -562,5 +694,6 @@ export default function useSongForm(): UseSongFormReturn {
 		handleSongNameBlur,
 		handleSave,
 		handleCancel,
+		hasUnsavedChanges,
 	};
 }

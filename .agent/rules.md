@@ -14,7 +14,7 @@ This file defines custom coding guidelines and preferences for the Antigravity A
 
 ### **React Development Standards**
 
-- ✅ **React Compiler Ready**: No manual memoization (useCallback, useMemo, memo) - let React Compiler optimize
+- ✅ **React Compiler Ready**: This project uses React Compiler, which automatically handles memoization. Manual memoization (useCallback, useMemo, memo) is very rarely needed and should be avoided unless there's a specific, documented reason. Let React Compiler optimize automatically.
 - ✅ **TypeScript First**: Strong typing with proper type definitions, avoid `any` types
 - ✅ **Modern React**: Use hooks (useId, useRef, useState, useEffect) with proper dependency arrays
 - ✅ **Component Organization**: One main component per file, co-locate related utilities

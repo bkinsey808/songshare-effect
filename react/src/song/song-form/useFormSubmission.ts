@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { apiSongsSavePath } from "@/shared/paths";
 
@@ -24,6 +25,7 @@ type UseFormSubmissionOptions = {
 		onError: () => void,
 	) => Effect.Effect<boolean>;
 	readonly resetFormState: () => void;
+	readonly hasUnsavedChanges: () => boolean;
 };
 
 type UseFormSubmissionReturn = {
@@ -34,8 +36,10 @@ type UseFormSubmissionReturn = {
 export default function useFormSubmission({
 	handleApiResponseEffect,
 	resetFormState,
+	hasUnsavedChanges,
 }: UseFormSubmissionOptions): UseFormSubmissionReturn {
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 
 	async function onSubmit(rawData: Readonly<SongFormData>): Promise<void> {
 		try {
@@ -63,7 +67,23 @@ export default function useFormSubmission({
 
 	// Handle cancel button click
 	function handleCancel(): void {
-		void navigate("..");
+		// Check if there are unsaved changes
+		if (hasUnsavedChanges()) {
+			// Show confirmation dialog
+			const message = t(
+				"song.cancel.confirmMessage",
+				"You have unsaved changes. Are you sure you want to leave?",
+			);
+			// eslint-disable-next-line no-alert -- Using native confirm for unsaved changes warning
+			const confirmed = globalThis.confirm(message);
+			if (!confirmed) {
+				// User cancelled, don't navigate
+				return;
+			}
+		}
+		// Navigate back to previous page
+		const NAVIGATE_BACK = -1;
+		void navigate(NAVIGATE_BACK);
 	}
 
 	return {

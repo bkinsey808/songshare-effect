@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 import { useAppStore } from "@/react/zustand/useAppStore";
@@ -61,12 +61,8 @@ export default function useSongLibrary(): {
 	}, [location.pathname, fetchSongLibrary, subscribeToSongLibrary]);
 
 	// 2. Reactive metadata subscription for songs in the library
-	// Memoize the sorted keys to ensure the subscription Effect only runs
-	// when the actual set of IDs changes.
-	const songIdsKey = useMemo(
-		() => Object.keys(songLibraryEntries).toSorted().join(","),
-		[songLibraryEntries],
-	);
+	// React Compiler automatically memoizes this value
+	const songIdsKey = Object.keys(songLibraryEntries).toSorted().join(",");
 
 	useEffect(() => {
 		const songIds = songIdsKey.split(",").filter((id) => id !== "");
@@ -95,7 +91,8 @@ export default function useSongLibrary(): {
 		};
 	}, [songIdsKey, subscribeToSongPublic]);
 
-	const songEntries = useMemo(() => Object.values(songLibraryEntries), [songLibraryEntries]);
+	// React Compiler automatically memoizes this value
+	const songEntries = Object.values(songLibraryEntries);
 
 	return {
 		songEntries,

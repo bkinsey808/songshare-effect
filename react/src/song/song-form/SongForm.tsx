@@ -51,7 +51,13 @@ export default function SongForm(): ReactElement {
 		handleSongNameBlur,
 		handleSave,
 		handleCancel,
+		hasUnsavedChanges,
 	} = useSongForm();
+
+	// Check if there are unsaved changes for styling
+	// Only check for changes when not loading to avoid flash during initial load
+	// React Compiler automatically memoizes this value
+	const hasChanges = isLoadingData ? false : hasUnsavedChanges();
 
 	return (
 		<>
@@ -165,7 +171,11 @@ export default function SongForm(): ReactElement {
 			</div>
 
 			{/* Form Footer */}
-			<footer className="fixed right-0 bottom-0 left-0 z-50 bg-gray-800 px-5 py-4 shadow-lg">
+			<footer
+				className={`fixed right-0 bottom-0 left-0 z-50 px-5 py-4 shadow-lg transition-colors ${
+					hasChanges ? "bg-amber-900/80" : "bg-gray-800"
+				}`}
+			>
 				<div className="mx-auto max-w-screen-2xl px-6">
 					<div className="flex justify-start gap-4 pl-4">
 						<button

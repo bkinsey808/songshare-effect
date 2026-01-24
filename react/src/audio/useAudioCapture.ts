@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type {
 	MinimalAnalyserNode,
@@ -196,28 +196,16 @@ export default function useAudioCapture(): UseAudioCaptureResult {
 
 	useEffect(() => (): void => void stop(), [stop]);
 
-	return useMemo(
-		() => ({
-			analyserRef,
-			timeDomainBytesRef,
-			startMic,
-			startDisplayAudio,
-			stop,
-			status,
-			errorMessage,
-			audioInputDevicesRefreshKey,
-			currentStreamLabel,
-		}),
-		[
-			analyserRef,
-			timeDomainBytesRef,
-			startMic,
-			startDisplayAudio,
-			stop,
-			status,
-			errorMessage,
-			audioInputDevicesRefreshKey,
-			currentStreamLabel,
-		],
-	);
+	// React Compiler automatically memoizes this object
+	return {
+		analyserRef,
+		timeDomainBytesRef,
+		startMic,
+		startDisplayAudio,
+		stop,
+		status,
+		errorMessage,
+		audioInputDevicesRefreshKey,
+		currentStreamLabel,
+	};
 }
