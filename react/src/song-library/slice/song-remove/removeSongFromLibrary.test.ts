@@ -6,6 +6,8 @@ import type { RemoveSongFromSongLibraryRequest } from "../song-library-types";
 
 import removeSongFromSongLibrary from "./removeSongFromLibrary";
 
+/* eslint-disable arrow-body-style */
+
 // Mock modules
 vi.mock("@/react/utils/clientLogger");
 vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
@@ -35,9 +37,13 @@ function createMockSlice(overrides: Partial<SongLibrarySlice> = {}): SongLibrary
 		fetchSongLibrary: () => Effect.sync(() => undefined),
 		getSongLibrarySongIds: vi.fn(() => []),
 		subscribeToSongLibrary: vi.fn(
-			(): Effect.Effect<() => void, Error> =>
-				Effect.sync((): (() => void) => (): void => {
+			(): Effect.Effect<() => void, Error> => Effect.sync(() => (): void => undefined),
+		),
+		subscribeToSongPublic: vi.fn(
+			(_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
+				Effect.sync(() => {
 					// Cleanup function (no-op for testing)
+					return (): void => undefined;
 				}),
 		),
 		setSongLibraryEntries: vi.fn(),

@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import { Hono } from "hono";
 
 import getErrorMessage from "@/api/getErrorMessage";
@@ -31,6 +32,7 @@ import { userSessionCookieName } from "./cookie/cookie";
 import getAllowedOrigins from "./cors/getAllowedOrigins";
 import getOriginToCheck from "./cors/getOriginToCheck";
 import verifySameOriginOrThrow from "./csrf/verifySameOriginOrThrow";
+import updateSongPublic from "./dev/updateSongPublic";
 import { type Bindings } from "./env";
 import { handleHttpEndpoint } from "./http/http-utils";
 import me from "./me";
@@ -232,6 +234,21 @@ app.post(
 // File upload endpoint
 app.post(apiUploadPath, (ctx) => ctx.json({ message: "Upload endpoint - to be implemented" }));
 
+// Dev-only helper to update song_public rows and trigger realtime events.
+// This endpoint is intentionally gated to non-production environments.
+app.post("/api/dev/song-public/update", async (ctx) => {
+	// Safety: disallow in production
+	if (ctx.env.ENVIRONMENT === "production") {
+		return Response.json({ error: "Not allowed in production" }, { status: 403 });
+	}
+	try {
+		const resp = await Effect.runPromise(updateSongPublic(ctx));
+		return resp;
+	} catch (error) {
+		console.error("[dev:updateSongPublic] handler failed:", getErrorMessage(error));
+		return Response.json({ error: "Internal error" }, { status: 500 });
+	}
+});
 // Current user/session endpoint
 app.get(
 	apiMePath,

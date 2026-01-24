@@ -99,6 +99,11 @@ function createSliceGetter(): {
 			Effect.sync((): (() => void) => () => {
 				/* no-op cleanup */
 			}),
+		// Stubbed public-song subscription for tests
+		subscribeToSongPublic: (_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
+			Effect.sync((): (() => void) => () => {
+				/* no-op cleanup */
+			}),
 		setSongLibraryEntries: (): void => {
 			/* not used in tests */
 		},

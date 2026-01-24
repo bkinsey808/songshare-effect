@@ -69,8 +69,9 @@ export default function getUserToken(
 			return yield* $(Effect.fail(new DatabaseError({ message: "No session in response" })));
 		}
 
-		// Update the visitor user's app_metadata to include user.user_id
-		// This allows RLS policies to check for user-specific access
+		// Update the visitor user's app_metadata to include user.user_id and userPublic
+		// This allows RLS policies to check for user-specific access and provides
+		// accurate identity information to the frontend.
 		const newAppMetadata: Record<string, unknown> = {};
 		const existingMetadata = data.user.app_metadata;
 		if (typeof existingMetadata === "object" && existingMetadata !== null) {
@@ -79,10 +80,18 @@ export default function getUserToken(
 				newAppMetadata[key] = asRecord[key];
 			}
 		}
-		// Add user metadata for RLS
+
+		// Sync user identity and userPublic data from the verified session
+		// This ensures the JWT contains the correct user_id for RLS policies
+		// and the correct username for frontend display.
 		newAppMetadata.user = {
 			user_id: userId,
 		};
+		newAppMetadata.userPublic = userSessionData.userPublic;
+
+		serverLog(
+			`[getUserToken] Syncing metadata for user: ${userId} (${userSessionData.userPublic.username})`,
+		);
 
 		const updateResult = yield* $(
 			Effect.tryPromise({

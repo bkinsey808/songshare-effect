@@ -12,6 +12,27 @@ import type { SongLibraryEntry } from "./song-library-types";
 
 import isSongLibraryEntry from "./guards/isSongLibraryEntry";
 
+// Simple JWT decoder for debugging
+function decodeJwt(token: string): Record<string, unknown> | undefined {
+	try {
+		const segments = token.split(".");
+		const [, payloadSegment] = segments;
+		if (payloadSegment === undefined || payloadSegment === "") {
+			return undefined;
+		}
+		const base64 = payloadSegment.replaceAll("-", "+").replaceAll("_", "/");
+		const jsonPayload = atob(base64);
+		const parsed: unknown = JSON.parse(jsonPayload);
+		if (isRecord(parsed)) {
+			return parsed;
+		}
+		return undefined;
+	} catch (error) {
+		console.error("[fetchSongLibrary] JWT decode error:", error);
+		return undefined;
+	}
+}
+
 /**
  * Fetch the current user's song library and populate the slice with enriched
  * entries (includes owner username and song public details when available).
@@ -24,6 +45,7 @@ export default function fetchSongLibrary(get: () => SongLibrarySlice): Effect.Ef
 
 		yield* $(
 			Effect.sync(() => {
+				console.warn("[fetchSongLibrary] Starting fetch...");
 				setSongLibraryLoading(true);
 				setSongLibraryError(undefined);
 			}),
@@ -31,7 +53,14 @@ export default function fetchSongLibrary(get: () => SongLibrarySlice): Effect.Ef
 
 		const userToken = yield* $(
 			Effect.tryPromise({
-				try: () => Promise.resolve(getSupabaseAuthToken()),
+				try: async () => {
+					const token = await getSupabaseAuthToken();
+					if (token !== undefined && token !== "") {
+						const decoded = decodeJwt(token);
+						console.warn("[fetchSongLibrary] Token payload:", JSON.stringify(decoded));
+					}
+					return token;
+				},
 				catch: (err) => new Error(String(err)),
 			}),
 		);
@@ -42,7 +71,11 @@ export default function fetchSongLibrary(get: () => SongLibrarySlice): Effect.Ef
 
 		const libraryQueryRes = yield* $(
 			Effect.tryPromise({
-				try: () => callSelect(client, "song_library", { cols: "*" }),
+				try: async () => {
+					const res = await callSelect(client, "song_library", { cols: "*" });
+					console.warn("[fetchSongLibrary] Query result:", JSON.stringify(res));
+					return res;
+				},
 				catch: (err) => new Error(String(err)),
 			}),
 		);
@@ -55,8 +88,16 @@ export default function fetchSongLibrary(get: () => SongLibrarySlice): Effect.Ef
 			? libraryQueryRes["data"]
 			: [];
 
-		const filteredEntriesArray = libraryData.filter((entry: unknown): entry is SongLibrary =>
-			isSongLibraryEntry(entry),
+		const filteredEntriesArray = libraryData.filter((entry: unknown): entry is SongLibrary => {
+			const isValid = isSongLibraryEntry(entry);
+			if (!isValid) {
+				console.warn("[fetchSongLibrary] Row failed type guard:", JSON.stringify(entry));
+			}
+			return isValid;
+		});
+
+		console.warn(
+			`[fetchSongLibrary] ${filteredEntriesArray.length} entries remains after type guard`,
 		);
 
 		const songIds = [...new Set(filteredEntriesArray.map((entry: SongLibrary) => entry.song_id))];
@@ -154,9 +195,15 @@ export default function fetchSongLibrary(get: () => SongLibrarySlice): Effect.Ef
 
 		yield* $(
 			Effect.sync(() => {
+				const indent = 2;
+				console.warn(
+					`[fetchSongLibrary] Applying ${Object.keys(entriesRecord).length} entries to store:`,
+					JSON.stringify(entriesRecord, undefined, indent),
+				);
 				setSongLibraryEntries(entriesRecord);
 			}),
 		);
+		console.warn("[fetchSongLibrary] Complete.");
 	}).pipe(
 		Effect.tapError((err) =>
 			Effect.sync(() => {

@@ -15,14 +15,11 @@ export default function useSignIn(): UseSignInReturn {
 	const { signinError, provider, dismissError } = useSignInError();
 
 	const [isSignedIn, setIsSignedIn] = useState<boolean | undefined>(
-		() => getStoreApi()?.getState().isSignedIn,
+		() => getStoreApi().getState().isSignedIn,
 	);
 
 	useEffect(() => {
 		const api = getStoreApi();
-		if (!api) {
-			return;
-		}
 		const unsubscribe = api.subscribe((state) => {
 			setIsSignedIn(state.isSignedIn);
 		});

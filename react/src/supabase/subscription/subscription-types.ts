@@ -27,14 +27,14 @@ export type SubscriptionConfig<TPayload = unknown> = {
 	client: SupabaseClientLike<Database>;
 	/** Table name to subscribe to (must be a valid table in the database schema) */
 	tableName: ValidTableName;
-	/** Optional filter for the subscription (e.g., "user_id=eq.123" or "id=in.(1,2,3)") */
-	filter?: string;
 	/** Handler for incoming realtime events. Returns an Effect that may fail with an error. */
 	onEvent: (payload: TPayload) => Effect<void, Error>;
+	/** Optional PostgREST filter clause (e.g., "user_id=eq.123") */
+	filter?: string;
 	/** Optional custom channel name. Defaults to `${tableName}_changes_${timestamp}` */
 	channelName?: string;
 	/** Optional handler for subscription lifecycle events. Status is one of: SUBSCRIBED, CHANNEL_ERROR, TIMED_OUT, CLOSED */
-	onStatus?: (status: string, error?: Error) => void;
+	onStatus?: (status: string, error?: unknown) => void;
 };
 
 /**

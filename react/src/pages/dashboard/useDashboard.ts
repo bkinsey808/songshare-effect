@@ -48,15 +48,15 @@ export type UseDashboardState = {
  * @returns The local dashboard state and helpers.
  */
 export default function useDashboard(): UseDashboardState {
-	const snapshot = getStoreApi()?.getState();
+	const snapshot = getStoreApi().getState();
 
 	const [localIsSignedIn, setLocalIsSignedIn] = useState<boolean | undefined>(
-		() => snapshot?.isSignedIn,
+		() => snapshot.isSignedIn,
 	);
 	const [localUser, setLocalUser] = useState<UserSessionData | undefined>(
-		() => snapshot?.userSessionData,
+		() => snapshot.userSessionData,
 	);
-	const signOutRef = useRef<() => void>(() => snapshot?.signOut ?? ((): undefined => undefined));
+	const signOutRef = useRef<() => void>(() => snapshot.signOut);
 	const [showSignedInAlert, setShowSignedInAlert] = useState<boolean>(false);
 	const [showRegisteredAlert, setShowRegisteredAlert] = useState<boolean>(false);
 
@@ -94,9 +94,6 @@ export default function useDashboard(): UseDashboardState {
 
 	useEffect(() => {
 		const api = getStoreApi();
-		if (!api) {
-			return;
-		}
 
 		const unsubscribe = api.subscribe((state) => {
 			setLocalIsSignedIn(state.isSignedIn);
@@ -117,9 +114,6 @@ export default function useDashboard(): UseDashboardState {
 	function tryCallStoreSignOutSafe(): boolean {
 		try {
 			const storeApi = getStoreApi();
-			if (!storeApi) {
-				return false;
-			}
 			const fn = storeApi.getState().signOut;
 			if (typeof fn === "function") {
 				fn();
@@ -168,10 +162,7 @@ export default function useDashboard(): UseDashboardState {
 			clientError("Sign-out API failed:", error);
 		}
 		try {
-			const storeApi = getStoreApi();
-			if (storeApi) {
-				storeApi.getState().setIsSignedIn(false);
-			}
+			getStoreApi().getState().setIsSignedIn(false);
 		} catch (error) {
 			clientError("explicit setIsSignedIn(false) failed:", error);
 		}

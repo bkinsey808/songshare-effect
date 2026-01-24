@@ -19,6 +19,7 @@ import fetchSongLibraryFn from "./fetchSongLibrary";
 import addSongToSongLibrary from "./song-add/addSongToSongLibrary";
 import removeSongFromSongLibrary from "./song-remove/removeSongFromLibrary";
 import subscribeToSongLibraryFn from "./subscribe/subscribeToSongLibrary";
+import subscribeToSongPublicFn from "./subscribe/subscribeToSongPublic";
 
 const initialState: SongLibraryState = {
 	songLibraryEntries: {} as Record<string, SongLibraryEntry>,
@@ -44,6 +45,11 @@ export type SongLibrarySlice = SongLibrarySliceBase & {
 	subscribeToSongLibrary: () => Effect.Effect<() => void, Error>;
 	/** Internal: holds the current unsubscribe function for the realtime subscription */
 	songLibraryUnsubscribe?: () => void;
+	/** Internal: holds the current unsubscribe function for song_public subscriptions */
+	songLibraryPublicUnsubscribe?: () => void;
+
+	/** Subscribe to realtime updates for the provided song IDs in song_public */
+	subscribeToSongPublic: (songIds: readonly string[]) => Effect.Effect<() => void, Error>;
 
 	/** Internal actions for updating state from subscriptions */
 	setSongLibraryEntries: (entries: ReadonlyDeep<Record<string, SongLibraryEntry>>) => void;
@@ -80,6 +86,10 @@ export function createSongLibrarySlice(
 		if (songLibraryUnsubscribe) {
 			songLibraryUnsubscribe();
 		}
+		const { songLibraryPublicUnsubscribe } = get();
+		if (songLibraryPublicUnsubscribe) {
+			songLibraryPublicUnsubscribe();
+		}
 		set(initialState);
 	});
 
@@ -105,6 +115,8 @@ export function createSongLibrarySlice(
 		fetchSongLibrary: () => fetchSongLibraryFn(get),
 
 		subscribeToSongLibrary: () => subscribeToSongLibraryFn(get),
+
+		subscribeToSongPublic: (songIds: readonly string[]) => subscribeToSongPublicFn(get, songIds),
 
 		// Internal state management methods
 		setSongLibraryEntries: (entries: ReadonlyDeep<Record<string, SongLibraryEntry>>) => {

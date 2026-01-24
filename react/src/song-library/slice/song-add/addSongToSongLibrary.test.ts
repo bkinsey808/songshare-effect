@@ -8,6 +8,8 @@ import type { AddSongToSongLibraryRequest } from "../song-library-types";
 
 import addSongToSongLibrary from "./addSongToSongLibrary";
 
+/* eslint-disable arrow-body-style */
+
 // Mock modules
 vi.mock("@/react/utils/clientLogger");
 
@@ -48,10 +50,11 @@ function createMockSlice(overrides: Partial<SongLibrarySlice> = {}): SongLibrary
 		fetchSongLibrary: () => Effect.sync(() => undefined),
 		getSongLibrarySongIds: vi.fn(() => []),
 		subscribeToSongLibrary: vi.fn(
-			(): Effect.Effect<() => void, Error> =>
-				Effect.sync((): (() => void) => (): void => {
-					// Cleanup function (no-op for testing)
-				}),
+			(): Effect.Effect<() => void, Error> => Effect.sync(() => (): void => undefined),
+		),
+		subscribeToSongPublic: vi.fn(
+			(_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
+				Effect.sync(() => (): void => undefined),
 		),
 		setSongLibraryEntries: vi.fn(),
 		setSongLibraryLoading: vi.fn(),

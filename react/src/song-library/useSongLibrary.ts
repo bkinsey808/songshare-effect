@@ -1,7 +1,7 @@
 import { Effect } from "effect";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
-import { getStoreApi, useAppStoreSelector } from "@/react/zustand/useAppStore";
+import { useAppStore } from "@/react/zustand/useAppStore";
 
 import type {
 	RemoveSongFromSongLibraryRequest,
@@ -10,9 +10,7 @@ import type {
 
 /**
  * Initialize the song library when a page mounts.
- * - Triggers an initial `fetchSongLibrary()` if available
- * - Subscribes to realtime updates via `subscribeToSongLibrary()` and
- *   automatically unsubscribes on unmount
+ * Uses standard Zustand selectors hooks for maximum stability.
  */
 export default function useSongLibrary(): {
 	songEntries: SongLibraryEntry[];
@@ -22,42 +20,77 @@ export default function useSongLibrary(): {
 		request: Readonly<RemoveSongFromSongLibraryRequest>,
 	) => Effect.Effect<void, Error>;
 } {
-	// Initialize library data on mount
-	useEffect((): (() => void) | void => {
-		const store = getStoreApi();
-		if (!store) {
-			return undefined;
-		}
+	// Standard Zustand selector pattern. Calling useAppStore directly
+	// ensures React and the compiler see a standard hook name.
+	const songLibraryEntries = useAppStore((state) => state.songLibraryEntries);
+	const isLoading = useAppStore((state) => state.isSongLibraryLoading);
+	const error = useAppStore((state) => state.songLibraryError);
+	const removeFromSongLibrary = useAppStore((state) => state.removeSongFromSongLibrary);
+	const fetchSongLibrary = useAppStore((state) => state.fetchSongLibrary);
+	const subscribeToSongLibrary = useAppStore((state) => state.subscribeToSongLibrary);
+	const subscribeToSongPublic = useAppStore((state) => state.subscribeToSongPublic);
 
-		const { fetchSongLibrary, subscribeToSongLibrary } = store.getState();
+	// 1. Initial fetch and library subscription
+	useEffect(() => {
+		console.warn("[useSongLibrary] Mount: triggering fetch and library subscription");
 
-		void fetchSongLibrary();
+		// Trigger initial fetch
+		void Effect.runPromise(fetchSongLibrary());
 
-		// Subscribe to realtime updates - run the Effect and get cleanup function
+		// Subscribe to realtime updates for library changes (add/remove)
 		let unsubscribe: (() => void) | undefined = undefined;
 		void (async (): Promise<void> => {
 			try {
 				unsubscribe = await Effect.runPromise(subscribeToSongLibrary());
-			} catch (error) {
-				console.error("[useSongLibrary] Failed to subscribe to song library updates:", error);
+			} catch (error: unknown) {
+				console.error("[useSongLibrary] Failed to subscribe to library:", error);
 			}
 		})();
 
-		// Cleanup: unsubscribe when component unmounts or auth state changes
 		return (): void => {
-			if (typeof unsubscribe === "function") {
+			if (unsubscribe !== undefined) {
+				console.warn("[useSongLibrary] Unsubscribing from library");
 				unsubscribe();
 			}
 		};
-	}, []);
+	}, [fetchSongLibrary, subscribeToSongLibrary]);
 
-	// Select state from store (initialization handled by SongLibraryPage)
-	const songLibraryEntries = useAppStoreSelector((state) => state.songLibraryEntries);
-	const isLoading = useAppStoreSelector((state) => state.isSongLibraryLoading);
-	const error = useAppStoreSelector((state) => state.songLibraryError);
-	const removeFromSongLibrary = useAppStoreSelector((state) => state.removeSongFromSongLibrary);
+	// 2. Reactive metadata subscription for songs in the library
+	// Memoize the sorted keys to ensure the subscription Effect only runs
+	// when the actual set of IDs changes.
+	const songIdsKey = useMemo(
+		() => Object.keys(songLibraryEntries).toSorted().join(","),
+		[songLibraryEntries],
+	);
 
-	const songEntries = Object.values(songLibraryEntries);
+	useEffect(() => {
+		const songIds = songIdsKey.split(",").filter((id) => id !== "");
+		const MIN_IDS = 1;
+
+		if (songIds.length < MIN_IDS) {
+			return undefined;
+		}
+
+		console.warn(`[useSongLibrary] Subscribing to public updates for ${songIds.length} songs...`);
+
+		let unsubscribe: (() => void) | undefined = undefined;
+		void (async (): Promise<void> => {
+			try {
+				unsubscribe = await Effect.runPromise(subscribeToSongPublic(songIds));
+			} catch (error: unknown) {
+				console.error("[useSongLibrary] Failed to subscribe to public updates:", error);
+			}
+		})();
+
+		return (): void => {
+			if (unsubscribe !== undefined) {
+				console.warn("[useSongLibrary] Unsubscribing from public metadata updates");
+				unsubscribe();
+			}
+		};
+	}, [songIdsKey, subscribeToSongPublic]);
+
+	const songEntries = useMemo(() => Object.values(songLibraryEntries), [songLibraryEntries]);
 
 	return {
 		songEntries,

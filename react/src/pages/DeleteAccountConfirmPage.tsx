@@ -75,15 +75,8 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 			return;
 		}
 
-		// Clear client side signed-in state (imperative; no try/catch needed)
-		const api = getStoreApi();
-		if (api) {
-			try {
-				api.getState().setIsSignedIn(false);
-			} catch {
-				// ignore any setter errors
-			}
-		}
+		// Clear client side signed-in state
+		getStoreApi().getState().setIsSignedIn(false);
 
 		// Set a flag in sessionStorage to indicate account was just deleted.
 		// Home will read this and display the one-time alert.

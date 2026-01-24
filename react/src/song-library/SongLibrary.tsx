@@ -1,10 +1,17 @@
-import { useNavigate } from "react-router-dom";
+import type { TFunction } from "i18next";
 
-import useLocale from "@/react/language/locale/useLocale";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
 import useSongLibrary from "./useSongLibrary";
 
 const ZERO = 0;
+
+export type SongLibraryProps = {
+	lang: SupportedLanguageType;
+	/** Translation function `t` from i18next */
+	t: TFunction;
+	navigate: (to: string) => void;
+};
 
 /**
  * SongLibrary component — renders the current user's song library.
@@ -15,11 +22,16 @@ const ZERO = 0;
  *
  * @returns The song library UI
  */
-export default function SongLibrary(): ReactElement {
-	const { lang, t } = useLocale();
-	const navigate = useNavigate();
-
+export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): ReactElement {
 	const { songEntries, isLoading, error, removeFromSongLibrary } = useSongLibrary();
+
+	console.warn("[SongLibrary] Render state:", {
+		entriesCount: songEntries.length,
+		isLoading,
+		error,
+		firstEntryId: songEntries[ZERO]?.song_id ?? "none",
+		firstEntryName: songEntries[ZERO]?.song_name ?? "none",
+	});
 
 	if (isLoading) {
 		return (
@@ -78,10 +90,36 @@ export default function SongLibrary(): ReactElement {
 				<h2 className="text-xl font-semibold text-white">
 					{t("songLibrary.libraryTitle", "My Song Library")}
 				</h2>
-				<div className="text-sm text-gray-400">
-					{t("songLibrary.songCount", "{{count}} songs", {
-						count: songEntries.length,
-					})}
+				<div className="flex items-center space-x-4 text-sm text-gray-400">
+					<div>{t("songLibrary.songCount", "{{count}} songs", { count: songEntries.length })}</div>
+					{import.meta.env.DEV ? (
+						<button
+							type="button"
+							className="text-xs rounded border border-yellow-500 bg-yellow-700/10 px-2 py-1 text-yellow-300 hover:bg-yellow-700/20"
+							onClick={() => {
+								void (async (): Promise<void> => {
+									try {
+										await Promise.all(
+											songEntries.map((entry) =>
+												fetch("/api/dev/song-public/update", {
+													method: "POST",
+													headers: { "Content-Type": "application/json" },
+													body: JSON.stringify({
+														song_id: entry.song_id,
+														song_name: `${entry.song_name} (dev ${new Date().toISOString()})`,
+													}),
+												}),
+											),
+										);
+									} catch (error) {
+										console.error("[dev] updateSongPublic failed:", error);
+									}
+								})();
+							}}
+						>
+							Dev Update All
+						</button>
+					) : undefined}
 				</div>
 			</div>
 
@@ -121,7 +159,7 @@ export default function SongLibrary(): ReactElement {
 								className="text-sm text-blue-400 transition-colors hover:text-blue-300"
 								onClick={() => {
 									if (entry.song_slug !== undefined && entry.song_slug !== "") {
-										void navigate(`/${lang}/songs/${entry.song_slug}`);
+										navigate(`/${lang}/songs/${entry.song_slug}`);
 									}
 								}}
 								disabled={entry.song_slug === undefined || entry.song_slug === ""}

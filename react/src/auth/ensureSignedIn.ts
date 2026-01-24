@@ -1,9 +1,9 @@
 // Prefer per-line console exceptions
-import { type StoreApi } from "zustand";
 
+import { getCachedUserToken } from "@/react/supabase/token/tokenCache";
 import { clientDebug, clientError } from "@/react/utils/clientLogger";
-import { type AppSlice, getOrCreateAppStore, getStoreApi } from "@/react/zustand/useAppStore";
-import { HTTP_UNAUTHORIZED, HTTP_NO_CONTENT, HTTP_NOT_FOUND } from "@/shared/constants/http";
+import { getStoreApi } from "@/react/zustand/useAppStore";
+import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
 import { apiMePath } from "@/shared/paths";
 import { type UserSessionData } from "@/shared/userSessionData";
 import { isRecord } from "@/shared/utils/typeGuards";
@@ -52,16 +52,20 @@ export default function ensureSignedIn(options?: {
 	// Localized debug-only log
 	clientDebug("[ensureSignedIn] called, force=", force);
 
-	// Ensure store exists and get API
-	let api: StoreApi<AppSlice> | undefined = getStoreApi();
-	if (!api) {
-		api = getOrCreateAppStore();
-	}
+	// Get store API
+	const api = getStoreApi();
 
 	const currentIsSignedIn = api.getState().isSignedIn;
 
 	// If not forced and we already know the sign-in state, skip network call
-	if (!force && currentIsSignedIn !== undefined) {
+	// only if we either know we are NOT signed in, or we ARE signed in and
+	// have a valid cached token. If we are signed in but missing a token
+	// (common after page refresh), we must proceed to trigger a token fetch.
+	if (
+		!force &&
+		currentIsSignedIn !== undefined &&
+		(!currentIsSignedIn || getCachedUserToken() !== undefined)
+	) {
 		// callers expect a Promise<UserSessionData | undefined>
 		return Promise.resolve(undefined);
 	}
@@ -140,9 +144,6 @@ export default function ensureSignedIn(options?: {
 		const data = await promise;
 		try {
 			const storeApi = getStoreApi();
-			if (!storeApi) {
-				return data;
-			}
 
 			const current = storeApi.getState().isSignedIn;
 			// If the client explicitly signed out while the request was in-flight,

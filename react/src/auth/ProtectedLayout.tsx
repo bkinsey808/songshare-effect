@@ -65,8 +65,7 @@ export default function ProtectedLayout(): ReactElement {
 		void handleJustSignedIn({ next, setSearchParams, navigate });
 	}, [justSignedIn, navigate, searchParamsString, setSearchParams]);
 
-	const store = useAppStore();
-	const isSignedIn = store((state) => state.isSignedIn);
+	const isSignedIn = useAppStore((state) => state.isSignedIn);
 	const lang = useCurrentLang();
 	if (isSignedIn === undefined) {
 		return <div />;

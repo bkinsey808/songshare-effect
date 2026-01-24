@@ -15,7 +15,7 @@ import { type SubscriptionStatus, type ValidTableName } from "../subscription-ty
 export default function handleSubscriptionStatus(
 	tableName: ValidTableName,
 	status: SubscriptionStatus,
-	error?: Error,
+	error?: unknown,
 ): void {
 	if (String(status) === String(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)) {
 		// Subscription successful - no logging needed in production
