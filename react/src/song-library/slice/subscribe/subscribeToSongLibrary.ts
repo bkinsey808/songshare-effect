@@ -2,7 +2,7 @@ import { Effect } from "effect";
 
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import createRealtimeSubscription from "@/react/supabase/subscription/createRealtimeSubscription";
+import createRealtimeSubscription from "@/react/supabase/subscription/realtime/createRealtimeSubscription";
 
 import type { SongLibrarySlice } from "../song-library-slice";
 
@@ -39,10 +39,7 @@ export default function subscribeToSongLibrary(
 		const cleanup = createRealtimeSubscription({
 			client: supabaseClient,
 			tableName: "song_library",
-			onEvent: async (payload: unknown): Promise<void> => {
-				// Execute the Effect as a promise
-				await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, get));
-			},
+			onEvent: (payload: unknown) => handleSongLibrarySubscribeEvent(payload, supabaseClient, get),
 		});
 
 		// Return the cleanup function

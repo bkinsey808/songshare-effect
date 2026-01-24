@@ -1,4 +1,4 @@
-import type { RealtimePayload } from "./types";
+import type { RealtimePayload } from "../subscription-types";
 
 /**
  * Safely extracts the `new` field from a realtime payload for INSERT/UPDATE events.

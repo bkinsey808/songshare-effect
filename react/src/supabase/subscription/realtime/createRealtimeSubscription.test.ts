@@ -1,9 +1,10 @@
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SubscriptionConfig } from "./types";
+import type { SubscriptionConfig } from "../subscription-types";
 
+import handleSubscriptionStatus from "../status/handleSubscriptionStatus";
 import createRealtimeSubscription from "./createRealtimeSubscription";
-import handleSubscriptionStatus from "./handleSubscriptionStatus";
 
 vi.mock("./handleSubscriptionStatus");
 
@@ -71,9 +72,7 @@ describe("createRealtimeSubscription", () => {
 			auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
 		};
 
-		const onEvent = vi.fn(async (_payload: unknown) => {
-			await Promise.resolve();
-		});
+		const onEvent = vi.fn((_payload: unknown) => Effect.succeed(undefined));
 		const onStatus = vi.fn();
 
 		const config: SubscriptionConfig = {
@@ -149,9 +148,7 @@ describe("createRealtimeSubscription", () => {
 			auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
 		};
 
-		const onEvent = vi.fn(async () => {
-			await Promise.resolve();
-		});
+		const onEvent = vi.fn(() => Effect.succeed(undefined));
 
 		const config: SubscriptionConfig = {
 			client,
@@ -208,10 +205,7 @@ describe("createRealtimeSubscription", () => {
 		};
 
 		const badError = new Error("bad");
-		const onEvent = vi.fn(async () => {
-			await Promise.resolve();
-			throw badError;
-		});
+		const onEvent = vi.fn(() => Effect.fail(badError));
 
 		const config: SubscriptionConfig = {
 			client,

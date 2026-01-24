@@ -3,9 +3,9 @@ import { Effect } from "effect";
 import type getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 
 import enrichWithOwnerUsername from "@/react/supabase/enrichment/enrichWithOwnerUsername";
-import extractNewRecord from "@/react/supabase/subscription/extractNewRecord";
-import extractStringField from "@/react/supabase/subscription/extractStringField";
-import isRealtimePayload from "@/react/supabase/subscription/isRealtimePayload";
+import extractNewRecord from "@/react/supabase/subscription/extract/extractNewRecord";
+import extractStringField from "@/react/supabase/subscription/extract/extractStringField";
+import isRealtimePayload from "@/react/supabase/subscription/realtime/isRealtimePayload";
 
 import type { SongLibrarySlice } from "../song-library-slice";
 

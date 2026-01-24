@@ -1,6 +1,6 @@
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
-import { type RealtimePayload } from "./types";
+import { type RealtimePayload } from "../subscription-types";
 
 /**
  * Type guard to validate a standard Supabase realtime payload structure.
