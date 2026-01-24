@@ -170,10 +170,19 @@ export default function subscribeToSongPublic(
 		const channelName = `song_public_changes_${Date.now()}`;
 		console.warn(`[subscribeToSongPublic] Creating subscription: ${channelName}`);
 
+		// Build filter for song IDs using PostgREST `in` syntax
+		const quoted = uniqueIds
+			.map((id) => String(id).replaceAll("'", String.raw`\'`))
+			.map((id) => `'${id}'`)
+			.join(",");
+		const filter = `song_id=in.(${quoted})`;
+		console.warn(`[subscribeToSongPublic] Filter: ${filter}`);
+
 		const cleanup = createRealtimeSubscription({
 			client,
 			tableName: "song_public",
 			channelName,
+			filter,
 			onEvent: (payload: unknown) => handleSongPublicPayload(payload, get),
 			onStatus: (status: string, err: unknown) => {
 				console.warn(`[subscribeToSongPublic] status=${status} err=`, err);

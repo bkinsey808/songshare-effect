@@ -66,12 +66,16 @@ export const songSlugSchema: Schema.Schema<string> = Schema.String.pipe(
 export const slidesOrderSchema: Schema.Array$<typeof Schema.String> = Schema.Array(Schema.String);
 
 // Define slide structure
+// Note: field_data uses Schema.String for keys instead of Literal because:
+// 1. The actual data may have keys that don't match the literal values exactly
+// 2. The validation filter (Rule 2) already ensures all keys are in the fields array
+// 3. This allows the schema to be more flexible while still maintaining type safety
 export const slideSchema: Schema.Struct<{
 	slide_name: typeof Schema.String;
-	field_data: Schema.Record$<Schema.Literal<typeof songFields>, typeof Schema.String>;
+	field_data: Schema.Record$<typeof Schema.String, typeof Schema.String>;
 }> = Schema.Struct({
 	slide_name: Schema.String,
-	field_data: Schema.Record({ key: songFieldSchema, value: Schema.String }),
+	field_data: Schema.Record({ key: Schema.String, value: Schema.String }),
 });
 
 export const slidesSchema: Schema.Record$<typeof Schema.String, typeof slideSchema> = Schema.Record(
@@ -80,6 +84,14 @@ export const slidesSchema: Schema.Record$<typeof Schema.String, typeof slideSche
 
 export type Slide = Schema.Schema.Type<typeof slideSchema>;
 
+// Fields that can be null in the database but should be strings
+// Using Union to accept both string and null values
+// Schema.Union accepts multiple schemas as separate arguments
+const nullableStringSchema: Schema.Schema<string | null> = Schema.Union(
+	Schema.String,
+	Schema.Null,
+);
+
 const baseSongPublicSchema: Schema.Struct<{
 	song_id: typeof Schema.String;
 	song_name: typeof songNameSchema;
@@ -87,12 +99,12 @@ const baseSongPublicSchema: Schema.Struct<{
 	fields: typeof songFieldsSchema;
 	slide_order: typeof slidesOrderSchema;
 	slides: typeof slidesSchema;
-	key: typeof Schema.String;
-	scale: typeof Schema.String;
+	key: typeof nullableStringSchema;
+	scale: typeof nullableStringSchema;
 	user_id: typeof Schema.String;
-	short_credit: typeof Schema.String;
-	long_credit: typeof Schema.String;
-	public_notes: typeof Schema.String;
+	short_credit: typeof nullableStringSchema;
+	long_credit: typeof nullableStringSchema;
+	public_notes: typeof nullableStringSchema;
 	created_at: typeof Schema.String;
 	updated_at: typeof Schema.String;
 }> = Schema.Struct({
@@ -102,12 +114,12 @@ const baseSongPublicSchema: Schema.Struct<{
 	fields: songFieldsSchema,
 	slide_order: slidesOrderSchema,
 	slides: slidesSchema,
-	key: Schema.String,
-	scale: Schema.String,
+	key: nullableStringSchema,
+	scale: nullableStringSchema,
 	user_id: Schema.String,
-	short_credit: Schema.String,
-	long_credit: Schema.String,
-	public_notes: Schema.String,
+	short_credit: nullableStringSchema,
+	long_credit: nullableStringSchema,
+	public_notes: nullableStringSchema,
 	created_at: Schema.String,
 	updated_at: Schema.String,
 });

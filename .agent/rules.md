@@ -40,6 +40,7 @@ import type { PopoverProps } from "./popover/types";
 - ✅ **Union types**: Use union types for constrained string values (e.g., `PlacementOption`)
 - ✅ **Optional chaining**: Use `?.` for safe property access
 - ❗ **JSDoc in TypeScript files:** Do **not** add type annotations in JSDoc for `*.ts` / `*.tsx` files — TypeScript should carry types natively. JSDoc-based types are acceptable in plain JavaScript files, but in this repository avoid duplicating or overriding real TypeScript types in comments.
+- ❗ **ReactElement is ambient**: `ReactElement` is an ambient type in this project and does not need to be imported. Do not add `import type { ReactElement } from "react"` - it's available globally.
 
 ### **Performance & Optimization**
 

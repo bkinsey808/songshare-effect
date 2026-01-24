@@ -30,8 +30,10 @@ function DashboardPage(): ReactElement {
 		signOut,
 		showSignedInAlert,
 		showRegisteredAlert,
+		showUnauthorizedAlert,
 		setShowSignedInAlert,
 		setShowRegisteredAlert,
+		setShowUnauthorizedAlert,
 		currentLang,
 	} = useDashboard();
 
@@ -65,6 +67,21 @@ function DashboardPage(): ReactElement {
 				{showRegisteredAlert
 					? t("pages.dashboard.createdAccountSuccess", "You have successfully created an account.")
 					: t("pages.dashboard.signedInSuccess", "You have successfully signed in.")}
+			</DismissibleAlert>
+
+			{/* Unauthorized access alert */}
+			<DismissibleAlert
+				visible={showUnauthorizedAlert}
+				onDismiss={() => {
+					setShowUnauthorizedAlert(false);
+				}}
+				variant="error"
+				alertType="unauthorizedAccess"
+			>
+				{t(
+					"pages.dashboard.unauthorizedAccess",
+					"You do not have permission to access that song.",
+				)}
 			</DismissibleAlert>
 
 			<h2 className="mb-4 text-3xl font-bold">{t("pages.dashboard.title")}</h2>

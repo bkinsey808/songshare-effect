@@ -1,3 +1,5 @@
+import type { Effect } from "effect";
+
 import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
 import { type Set, type Get, type Api } from "@/react/zustand/slice-utils";
 import { safeGet } from "@/shared/utils/safe";
@@ -29,8 +31,8 @@ export type SongSubscribeSlice = SongSubscribeState & {
 	addOrUpdatePrivateSongs: (songs: Readonly<Record<string, Song>>) => void;
 	addOrUpdatePublicSongs: (songs: Readonly<Record<string, SongPublic>>) => void;
 	/** Add songIds to the set of active songs. Never removes any songs from the store. */
-	addActivePrivateSongIds: (songIds: readonly string[]) => void;
-	addActivePublicSongIds: (songIds: readonly string[]) => void;
+	addActivePrivateSongIds: (songIds: readonly string[]) => Effect.Effect<void, Error>;
+	addActivePublicSongIds: (songIds: readonly string[]) => Effect.Effect<void, Error>;
 	addActivePrivateSongSlugs: (songSlugs: readonly string[]) => Promise<void>;
 	addActivePublicSongSlugs: (songSlugs: readonly string[]) => Promise<void>;
 	/** Remove songIds from the set of active songs. Never removes any songs from the store. */

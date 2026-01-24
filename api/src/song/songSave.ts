@@ -117,7 +117,9 @@ export default function songSave(
 		const slideOrderForDb: string[] = Array.isArray(validated.slide_order)
 			? validated.slide_order.map(String)
 			: [];
-		const slidesForDb: Json = sanitizeSlidesForDb(validated.slides);
+		// CRITICAL: Pass fields array to sanitizeSlidesForDb so it can normalize field_data
+		// to ensure all fields are present in every slide's field_data
+		const slidesForDb: Json = sanitizeSlidesForDb(validated.slides, validated.fields);
 
 		// Create Supabase client with service role key to bypass RLS for writes
 		const supabase = createClient<Database>(
@@ -125,14 +127,63 @@ export default function songSave(
 			ctx.env.SUPABASE_SERVICE_KEY,
 		);
 
-		// Create a new song id using crypto.randomUUID() to match database UUID type
-		const songId = crypto.randomUUID();
+		// Determine if this is an update or create operation
+		const isUpdate = validated.song_id !== undefined && validated.song_id.trim() !== "";
+		const songId = isUpdate ? validated.song_id : crypto.randomUUID();
 
-		// Insert private song data first
-		const privateInsert = yield* $(
+		// If updating, verify the user owns the song
+		if (isUpdate) {
+			const existingSong = yield* $(
+				Effect.tryPromise({
+					try: () =>
+						supabase
+							.from("song_public")
+							.select("user_id")
+							.eq("song_id", songId)
+							.single(),
+					catch: (err) =>
+						new DatabaseError({
+							message: `Failed to verify song ownership: ${getErrorMessage(err)}`,
+						}),
+				}),
+			);
+
+			if (existingSong.error) {
+				return yield* $(
+					Effect.fail(
+						new DatabaseError({
+							message: existingSong.error?.message ?? "Song not found",
+						}),
+					),
+				);
+			}
+
+			if (existingSong.data?.user_id !== userId) {
+				return yield* $(
+					Effect.fail(
+						new ValidationError({
+							message: "You do not have permission to update this song",
+						}),
+					),
+				);
+			}
+		}
+
+		// Update or insert private song data
+		const privateResult = yield* $(
 			Effect.tryPromise({
-				try: () =>
-					supabase
+				try: () => {
+					if (isUpdate) {
+						return supabase
+							.from("song")
+							.update({
+								private_notes: validated.private_notes ?? "",
+							})
+							.eq("song_id", songId)
+							.select()
+							.single();
+					}
+					return supabase
 						.from("song")
 						.insert([
 							{
@@ -142,29 +193,50 @@ export default function songSave(
 							},
 						])
 						.select()
-						.single(),
+						.single();
+				},
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to create private song: ${getErrorMessage(err)}`,
+						message: `Failed to ${isUpdate ? "update" : "create"} private song: ${getErrorMessage(err)}`,
 					}),
 			}),
 		);
 
-		if (privateInsert.error) {
+		if (privateResult.error) {
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({
-						message: privateInsert.error?.message ?? "Unknown DB error",
+						message: privateResult.error?.message ?? "Unknown DB error",
 					}),
 				),
 			);
 		}
 
-		// Insert into public table (song_public) — fields that are safe for sharing
-		const publicInsert = yield* $(
+		// Update or insert into public table (song_public) — fields that are safe for sharing
+		const publicResult = yield* $(
 			Effect.tryPromise({
-				try: () =>
-					supabase
+				try: () => {
+					if (isUpdate) {
+						return supabase
+							.from("song_public")
+							.update({
+								song_name: validated.song_name,
+								song_slug: validated.song_slug,
+								fields: fieldsForDb,
+								slide_order: slideOrderForDb,
+								slides: slidesForDb,
+								/* eslint-disable-next-line unicorn/no-null */
+								short_credit: validated.short_credit ?? null,
+								/* eslint-disable-next-line unicorn/no-null */
+								long_credit: validated.long_credit ?? null,
+								/* eslint-disable-next-line unicorn/no-null */
+								public_notes: validated.public_notes ?? null,
+							})
+							.eq("song_id", songId)
+							.select()
+							.single();
+					}
+					return supabase
 						.from("song_public")
 						.insert([
 							{
@@ -184,58 +256,63 @@ export default function songSave(
 							},
 						])
 						.select()
-						.single(),
+						.single();
+				},
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to create public song: ${getErrorMessage(err)}`,
+						message: `Failed to ${isUpdate ? "update" : "create"} public song: ${getErrorMessage(err)}`,
 					}),
 			}),
 		);
 
-		if (publicInsert.error) {
-			// Attempt cleanup of private insert
-			try {
-				void Effect.runPromise(
-					Effect.tryPromise({
-						try: () => supabase.from("song").delete().eq("song_id", songId),
-						catch: () => undefined,
-					}),
-				);
-			} catch {
-				// Cleanup failed but continue with error reporting
+		if (publicResult.error) {
+			// Only attempt cleanup if this was a create operation
+			if (!isUpdate) {
+				try {
+					void Effect.runPromise(
+						Effect.tryPromise({
+							try: () => supabase.from("song").delete().eq("song_id", songId),
+							catch: () => undefined,
+						}),
+					);
+				} catch {
+					// Cleanup failed but continue with error reporting
+				}
 			}
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({
-						message: publicInsert.error?.message ?? "Unknown DB error",
+						message: publicResult.error?.message ?? "Unknown DB error",
 					}),
 				),
 			);
 		}
 
-		// Automatically add the newly created song to the user's library
-		yield* $(
-			Effect.tryPromise({
-				try: () =>
-					supabase.from("song_library").insert([
-						{
-							user_id: userId,
-							song_id: songId,
-							song_owner_id: userId,
-						},
-					]),
-				catch: (err) => {
-					// Log error but don't fail the song creation
-					console.warn(`Failed to add song to library (non-fatal): ${getErrorMessage(err)}`);
-					return new DatabaseError({
-						message: `Song created but failed to add to library: ${getErrorMessage(err)}`,
-					});
-				},
-			}),
-		);
+		// Only add to library if this is a new song (updates don't need this)
+		if (!isUpdate) {
+			yield* $(
+				Effect.tryPromise({
+					try: () =>
+						supabase.from("song_library").insert([
+							{
+								user_id: userId,
+								song_id: songId,
+								song_owner_id: userId,
+							},
+						]),
+					catch: (err) => {
+						// Log error but don't fail the song creation
+						console.warn(`Failed to add song to library (non-fatal): ${getErrorMessage(err)}`);
+						return new DatabaseError({
+							message: `Song created but failed to add to library: ${getErrorMessage(err)}`,
+						});
+					},
+				}),
+			);
+		}
 
-		// Return created public record (frontend subscriptions will pick up the record as well)
-		return publicInsert.data;
+		// Return updated/created public record (frontend subscriptions will pick up the record as well)
+		return publicResult.data;
 	});
 }
 

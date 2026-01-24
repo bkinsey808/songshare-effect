@@ -2,6 +2,9 @@ import type { TFunction } from "i18next";
 
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
+import { useAppStore } from "@/react/zustand/useAppStore";
+import { dashboardPath, songEditPath } from "@/shared/paths";
+
 import useSongLibrary from "./useSongLibrary";
 
 const ZERO = 0;
@@ -24,6 +27,7 @@ export type SongLibraryProps = {
  */
 export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): ReactElement {
 	const { songEntries, isLoading, error, removeFromSongLibrary } = useSongLibrary();
+	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
 
 	console.warn("[SongLibrary] Render state:", {
 		entriesCount: songEntries.length,
@@ -153,7 +157,7 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 						</div>
 
 						{/* Action Buttons */}
-						<div className="flex items-center justify-between">
+						<div className="flex items-center justify-between gap-2">
 							<button
 								type="button"
 								className="text-sm text-blue-400 transition-colors hover:text-blue-300"
@@ -166,6 +170,17 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 							>
 								{t("songLibrary.viewSong", "View Song")}
 							</button>
+							{currentUserId !== undefined && currentUserId === entry.song_owner_id ? (
+								<button
+									type="button"
+									className="text-sm text-green-400 transition-colors hover:text-green-300"
+									onClick={() => {
+										navigate(`/${lang}/${dashboardPath}/${songEditPath}/${entry.song_id}`);
+									}}
+								>
+									{t("songLibrary.editSong", "Edit")}
+								</button>
+							) : undefined}
 							<button
 								type="button"
 								className="text-sm text-red-400 transition-colors hover:text-red-300"

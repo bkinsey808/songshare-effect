@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import { useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 
 import { useAppStore } from "@/react/zustand/useAppStore";
 
@@ -30,9 +31,13 @@ export default function useSongLibrary(): {
 	const subscribeToSongLibrary = useAppStore((state) => state.subscribeToSongLibrary);
 	const subscribeToSongPublic = useAppStore((state) => state.subscribeToSongPublic);
 
+	// Track location to refresh when navigating to the library page
+	const location = useLocation();
+
 	// 1. Initial fetch and library subscription
+	// Refresh whenever the location changes (user navigates to/back to this page)
 	useEffect(() => {
-		console.warn("[useSongLibrary] Mount: triggering fetch and library subscription");
+		console.warn("[useSongLibrary] Location changed or mount: triggering fetch and library subscription");
 
 		// Trigger initial fetch
 		void Effect.runPromise(fetchSongLibrary());
@@ -53,7 +58,7 @@ export default function useSongLibrary(): {
 				unsubscribe();
 			}
 		};
-	}, [fetchSongLibrary, subscribeToSongLibrary]);
+	}, [location.pathname, fetchSongLibrary, subscribeToSongLibrary]);
 
 	// 2. Reactive metadata subscription for songs in the library
 	// Memoize the sorted keys to ensure the subscription Effect only runs

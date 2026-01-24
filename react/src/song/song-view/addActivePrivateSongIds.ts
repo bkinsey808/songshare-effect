@@ -1,3 +1,6 @@
+import { Effect } from "effect";
+
+import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import callSelect from "@/react/supabase/client/safe-query/callSelect";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
@@ -14,7 +17,7 @@ export default function addActivePrivateSongIds(
 	) => void,
 	get: () => SongSubscribeSlice,
 ) {
-	return (songIds: readonly string[]): void => {
+	return (songIds: readonly string[]): Effect.Effect<void, Error> => {
 		// Prefer the slice state for previous active IDs (avoids cross-module dependency).
 		const sliceState = get();
 		const prevActiveIds: readonly string[] = sliceState.activePrivateSongIds;
@@ -57,69 +60,71 @@ export default function addActivePrivateSongIds(
 
 		if (newActivePrivateSongIds.length === NO_ACTIVE_SONGS_COUNT) {
 			console.warn("[addActivePrivateSongIds] No active songs to fetch.");
-			return;
+			return Effect.void;
 		}
 
-		// Read optional visitorToken from the slice state when available.
-		let visitorToken: string | undefined = undefined;
-		const sliceStateUnknown: unknown = sliceState;
-		if (isRecord(sliceStateUnknown)) {
-			const { visitorToken: vt } = sliceStateUnknown as {
-				visitorToken?: unknown;
-			};
-			if (typeof vt === "string") {
-				visitorToken = vt;
+		// Return Effect that completes when fetch finishes
+		return Effect.gen(function* addActivePrivateSongIdsGen($) {
+			// Get authentication token (handles both user and visitor tokens automatically)
+			const authToken = yield* $(
+				Effect.tryPromise({
+					try: () => getSupabaseAuthToken(),
+					catch: (err) => new Error(`Failed to get auth token: ${String(err)}`),
+				}),
+			);
+
+			if (typeof authToken !== "string") {
+				console.warn("[addActivePrivateSongIds] No auth token found. Cannot fetch songs.");
+				return;
 			}
-		}
 
-		if (typeof visitorToken !== "string") {
-			console.warn("[addActivePrivateSongIds] No visitor token found. Cannot fetch songs.");
-			return;
-		}
+			const supabase = getSupabaseClient(authToken);
+			if (supabase === undefined) {
+				console.warn("[addActivePrivateSongIds] Supabase client not initialized.");
+				return;
+			}
 
-		const supabase = getSupabaseClient(visitorToken);
-		if (supabase === undefined) {
-			console.warn("[addActivePrivateSongIds] Supabase client not initialized.");
-			return;
-		}
-
-		// Fire-and-forget async function to fetch all active song data
-		void (async (): Promise<void> => {
 			console.warn("[addActivePrivateSongIds] Fetching active songs:", newActivePrivateSongIds);
-			try {
-				const songQueryRes = await callSelect(supabase, "song", {
-					cols: "*",
-					in: { col: "song_id", vals: [...newActivePrivateSongIds] },
-				});
 
-				if (!isRecord(songQueryRes)) {
-					console.error("[addActivePrivateSongIds] Supabase fetch error:", songQueryRes);
-					return;
-				}
+			const songQueryRes = yield* $(
+				Effect.tryPromise({
+					try: () =>
+						callSelect(supabase, "song", {
+							cols: "*",
+							in: { col: "song_id", vals: [...newActivePrivateSongIds] },
+						}),
+					catch: (err) => new Error(`Failed to fetch songs: ${String(err)}`),
+				}),
+			);
 
-				const data = Array.isArray(songQueryRes["data"]) ? songQueryRes["data"] : [];
-
-				console.warn("[addActivePrivateSongIds] Fetched data:", data);
-
-				// Simple validation assuming the data structure is correct
-				if (Array.isArray(data)) {
-					const privateSongsToAdd: Record<string, Song> = {};
-
-					for (const song of data) {
-						if (isSongRow(song)) {
-							privateSongsToAdd[song.song_id] = song;
-						}
-					}
-
-					console.warn("[addActiveSongIds] Updating store with songs:", privateSongsToAdd);
-					const storeForOps = sliceState;
-					storeForOps.addOrUpdatePrivateSongs(privateSongsToAdd);
-				} else {
-					console.error("[addActivePrivateSongIds] Invalid data format:", data);
-				}
-			} catch (error) {
-				console.error("[addActivePrivateSongIds] Unexpected fetch error:", error);
+			if (!isRecord(songQueryRes)) {
+				console.error("[addActivePrivateSongIds] Supabase fetch error:", songQueryRes);
+				return;
 			}
-		})();
+
+			const data = Array.isArray(songQueryRes["data"]) ? songQueryRes["data"] : [];
+			console.warn("[addActivePrivateSongIds] Fetched data:", data);
+
+			// Simple validation assuming the data structure is correct
+			if (Array.isArray(data)) {
+				const privateSongsToAdd: Record<string, Song> = {};
+
+				for (const song of data) {
+					if (isSongRow(song)) {
+						privateSongsToAdd[song.song_id] = song;
+					}
+				}
+
+				console.warn("[addActiveSongIds] Updating store with songs:", privateSongsToAdd);
+				yield* $(
+					Effect.sync(() => {
+						const storeForOps = sliceState;
+						storeForOps.addOrUpdatePrivateSongs(privateSongsToAdd);
+					}),
+				);
+			} else {
+				console.error("[addActivePrivateSongIds] Invalid data format:", data);
+			}
+		});
 	};
 }

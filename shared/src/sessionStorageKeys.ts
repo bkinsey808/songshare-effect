@@ -6,3 +6,4 @@ export const typeKey = "alertType";
 export const justDeletedAccountKey = "justDeletedAccount";
 export const justSignedOutKey = "justSignedOut";
 export const justRegisteredKey = "justRegistered";
+export const justUnauthorizedAccessKey = "justUnauthorizedAccess";

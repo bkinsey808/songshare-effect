@@ -94,27 +94,15 @@ export default function SlidesEditor({
 						>
 							<div className="mb-6">
 								<FormField label={t("song.slideName", "Slide Name")}>
-									<div className="mt-1 flex gap-2">
-										<input
-											type="text"
-											value={slide.slide_name}
-											onChange={(event) => {
-												editSlideName({ slideId, newName: event.target.value });
-											}}
-											className="flex-1 rounded border px-4 py-1"
-											placeholder="Slide name"
-										/>
-										<button
-											type="button"
-											className="remove-slide-btn rounded border border-transparent bg-red-600 px-4 py-1 text-base font-semibold whitespace-nowrap text-white shadow transition-colors duration-150 hover:bg-red-700 focus:ring-4 focus:outline-none"
-											onClick={() => {
-												deleteSlide(slideId);
-											}}
-											aria-label={`Remove slide ${String(idx + ONE)}`}
-										>
-											Delete&nbsp;Slide
-										</button>
-									</div>
+									<input
+										type="text"
+										value={slide.slide_name}
+										onChange={(event) => {
+											editSlideName({ slideId, newName: event.target.value });
+										}}
+										className="mt-1 w-full rounded border px-4 py-1"
+										placeholder="Slide name"
+									/>
 								</FormField>
 							</div>
 
@@ -142,6 +130,18 @@ export default function SlidesEditor({
 									</FormField>
 								</div>
 							))}
+							<div className="mt-4 flex justify-start">
+								<button
+									type="button"
+									className="remove-slide-btn rounded border border-transparent bg-red-600 px-4 py-1 text-base font-semibold text-white shadow transition-colors duration-150 hover:bg-red-700 focus:ring-4 focus:outline-none"
+									onClick={() => {
+										deleteSlide(slideId);
+									}}
+									aria-label={`Remove slide ${String(idx + ONE)}`}
+								>
+									Delete&nbsp;Slide
+								</button>
+							</div>
 							{/* Debug info - remove this in production */}
 							<details className="mt-4 text-xs text-gray-500">
 								<summary>Debug: All field data for this slide</summary>

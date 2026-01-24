@@ -112,8 +112,12 @@ export default function subscribeToActivePublicSongs(
 
 				const supClient = client as SupabaseRealtimeClientLike;
 
+			// Use unique channel name to avoid conflicts with multiple subscriptions
+			const RANDOM_STRING_BASE = 36;
+			const RANDOM_STRING_START = 7;
+			const channelName = `song_public_changes_${Date.now()}_${Math.random().toString(RANDOM_STRING_BASE).slice(RANDOM_STRING_START)}`;
 				const channel = supClient
-					.channel("song_public_changes")
+					.channel(channelName)
 					.on(
 						"postgres_changes",
 						{ event: "*", schema: "public", table: "song_public", filter },
@@ -140,20 +144,27 @@ export default function subscribeToActivePublicSongs(
 					);
 
 				channel.subscribe((status: string, err: unknown) => {
-					console.warn(`[subscribeToActivePublicSongs] Channel status: ${status}`, err ?? "");
 					if (String(status) === String(REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)) {
 						console.warn("[subscribeToActivePublicSongs] Successfully subscribed!");
 					} else if (String(status) === String(REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR)) {
-						console.error("[subscribeToActivePublicSongs] Channel error:", err);
+						const errorMessage = err instanceof Error ? err.message : String(err);
+						if (errorMessage.includes("mismatch between server and client bindings")) {
+							console.error(
+								"[subscribeToActivePublicSongs] Realtime not enabled for song_public table. " +
+									"Please run migration: 20260124000000_enable_song_public_realtime.sql",
+							);
+						} else {
+							console.error("[subscribeToActivePublicSongs] Channel error:", err);
+						}
 					} else if (String(status) === String(REALTIME_SUBSCRIBE_STATES.TIMED_OUT)) {
 						console.warn("[subscribeToActivePublicSongs] Subscription timed out");
+					} else {
+						console.warn(`[subscribeToActivePublicSongs] Channel status: ${status}`, err ?? "");
 					}
 				});
 
 				unsubscribeFn = (): void => {
-					console.warn(
-						"[subscribeToActivePublicSongs] unsubscribeFn set; will remove channel on cleanup",
-					);
+					supClient.removeChannel(channel);
 				};
 
 				return undefined;

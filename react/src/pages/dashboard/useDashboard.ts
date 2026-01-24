@@ -12,7 +12,11 @@ import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { apiAuthSignOutPath } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
-import { justRegisteredKey, justSignedOutKey } from "@/shared/sessionStorageKeys";
+import {
+	justRegisteredKey,
+	justSignedOutKey,
+	justUnauthorizedAccessKey,
+} from "@/shared/sessionStorageKeys";
 
 /**
  * Public shape returned by the hook.
@@ -28,8 +32,10 @@ export type UseDashboardState = {
 	signOut: () => Promise<void>;
 	showSignedInAlert: boolean;
 	showRegisteredAlert: boolean;
+	showUnauthorizedAlert: boolean;
 	setShowSignedInAlert: (value: boolean) => void;
 	setShowRegisteredAlert: (value: boolean) => void;
+	setShowUnauthorizedAlert: (value: boolean) => void;
 	currentLang: string;
 };
 
@@ -59,6 +65,7 @@ export default function useDashboard(): UseDashboardState {
 	const signOutRef = useRef<() => void>(() => snapshot.signOut);
 	const [showSignedInAlert, setShowSignedInAlert] = useState<boolean>(false);
 	const [showRegisteredAlert, setShowRegisteredAlert] = useState<boolean>(false);
+	const [showUnauthorizedAlert, setShowUnauthorizedAlert] = useState<boolean>(false);
 
 	// Derive current language from the URL. Use the *strict* parser here to
 	// normalize to a supported language (fallback to `en`) instead of
@@ -74,6 +81,7 @@ export default function useDashboard(): UseDashboardState {
 		try {
 			const justRegistered = sessionStorage.getItem(justRegisteredKey);
 			const justSigned = sessionStorage.getItem(justSignedInQueryParam);
+			const justUnauthorized = sessionStorage.getItem(justUnauthorizedAccessKey);
 			if (justRegistered === SIGNAL_ONE) {
 				clientWarn("[DashboardPage] consumed justRegistered from sessionStorage");
 				queueMicrotask(() => {
@@ -86,6 +94,12 @@ export default function useDashboard(): UseDashboardState {
 					setShowSignedInAlert(true);
 				});
 				sessionStorage.removeItem(justSignedInQueryParam);
+			} else if (justUnauthorized === SIGNAL_ONE) {
+				clientWarn("[DashboardPage] consumed justUnauthorizedAccess from sessionStorage");
+				queueMicrotask(() => {
+					setShowUnauthorizedAlert(true);
+				});
+				sessionStorage.removeItem(justUnauthorizedAccessKey);
 			}
 		} catch {
 			// ignore storage access errors
@@ -188,8 +202,10 @@ export default function useDashboard(): UseDashboardState {
 		signOut,
 		showSignedInAlert,
 		showRegisteredAlert,
+		showUnauthorizedAlert,
 		setShowSignedInAlert,
 		setShowRegisteredAlert,
+		setShowUnauthorizedAlert,
 		currentLang,
 	};
 }

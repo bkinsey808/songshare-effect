@@ -17,6 +17,15 @@ type SongFormFieldsProps = Readonly<{
 	onSongNameBlur: () => void;
 	songNameRef: React.RefObject<HTMLInputElement | null>;
 	songSlugRef: React.RefObject<HTMLInputElement | null>;
+	formValues: {
+		song_name: string;
+		song_slug: string;
+		short_credit: string;
+		long_credit: string;
+		public_notes: string;
+		private_notes: string;
+	};
+	setFormValue: (field: keyof SongFormFieldsProps["formValues"], value: string) => void;
 }>;
 
 export default function SongFormFields({
@@ -24,8 +33,30 @@ export default function SongFormFields({
 	onSongNameBlur,
 	songNameRef,
 	songSlugRef,
+	formValues,
+	setFormValue,
 }: SongFormFieldsProps): ReactElement {
 	const { t } = useTranslation();
+
+	// Extract onChange handlers to satisfy linter
+	function handleSongNameChange(event: React.ChangeEvent<HTMLInputElement>): void {
+		setFormValue("song_name", event.target.value);
+	}
+	function handleSongSlugChange(event: React.ChangeEvent<HTMLInputElement>): void {
+		setFormValue("song_slug", event.target.value);
+	}
+	function handleShortCreditChange(event: React.ChangeEvent<HTMLInputElement>): void {
+		setFormValue("short_credit", event.target.value);
+	}
+	function handleLongCreditChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
+		setFormValue("long_credit", event.target.value);
+	}
+	function handlePublicNotesChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
+		setFormValue("public_notes", event.target.value);
+	}
+	function handlePrivateNotesChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
+		setFormValue("private_notes", event.target.value);
+	}
 
 	return (
 		<FormSection>
@@ -41,7 +72,13 @@ export default function SongFormFields({
 						: undefined;
 				})()}
 			>
-				<FormInput ref={songNameRef} name="song_name" onBlur={onSongNameBlur} />
+				<FormInput
+					ref={songNameRef}
+					name="song_name"
+					value={formValues.song_name}
+					onChange={handleSongNameChange}
+					onBlur={onSongNameBlur}
+				/>
 			</FormField>
 
 			<FormField
@@ -56,7 +93,12 @@ export default function SongFormFields({
 						: undefined;
 				})()}
 			>
-				<FormInput ref={songSlugRef} name="song_slug" />
+				<FormInput
+					ref={songSlugRef}
+					name="song_slug"
+					value={formValues.song_slug}
+					onChange={handleSongSlugChange}
+				/>
 			</FormField>
 
 			<FormField
@@ -71,19 +113,41 @@ export default function SongFormFields({
 						: undefined;
 				})()}
 			>
-				<FormInput name="short_credit" />
+				<FormInput
+					name="short_credit"
+					value={formValues.short_credit}
+					onChange={handleShortCreditChange}
+				/>
 			</FormField>
 
 			<FormField label={t("song.longCredit", "Long Credit")}>
-				<FormTextarea name="long_credit" placeholder="Enter long credit..." autoExpand />
+				<FormTextarea
+					name="long_credit"
+					value={formValues.long_credit}
+					onChange={handleLongCreditChange}
+					placeholder="Enter long credit..."
+					autoExpand
+				/>
 			</FormField>
 
 			<FormField label={t("song.publicNotes", "Public Notes")}>
-				<FormTextarea name="public_notes" placeholder="Enter public notes..." autoExpand />
+				<FormTextarea
+					name="public_notes"
+					value={formValues.public_notes}
+					onChange={handlePublicNotesChange}
+					placeholder="Enter public notes..."
+					autoExpand
+				/>
 			</FormField>
 
 			<FormField label={t("song.privateNotes", "Private Notes")}>
-				<FormTextarea name="private_notes" placeholder="Enter private notes..." autoExpand />
+				<FormTextarea
+					name="private_notes"
+					value={formValues.private_notes}
+					onChange={handlePrivateNotesChange}
+					placeholder="Enter private notes..."
+					autoExpand
+				/>
 			</FormField>
 		</FormSection>
 	);

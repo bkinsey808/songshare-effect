@@ -20,6 +20,7 @@ export default function SongForm(): ReactElement {
 	const {
 		getFieldError,
 		isSubmitting,
+		isLoadingData,
 		slideOrder,
 		slides,
 		fields,
@@ -33,6 +34,10 @@ export default function SongForm(): ReactElement {
 		// Form field refs
 		songNameRef,
 		songSlugRef,
+
+		// Controlled form field values
+		formValues,
+		setFormValue,
 
 		// Collapsible section state
 		isFormFieldsExpanded,
@@ -70,15 +75,25 @@ export default function SongForm(): ReactElement {
 					</p>
 				</div>
 
-				<div className="rounded-lg border border-gray-600 bg-gray-800 p-6">
-					<form
-						ref={formRef}
-						className="flex w-full flex-col gap-4"
-						onSubmit={(event) => {
-							// Handle async submit without passing a promise directly to the DOM event
-							void handleFormSubmit(event);
-						}}
-					>
+				{isLoadingData ? (
+					<div className="flex items-center justify-center rounded-lg border border-gray-600 bg-gray-800 p-12">
+						<div className="flex flex-col items-center space-y-4">
+							<div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+							<p className="text-gray-400">
+								{t("song.loadingData", "Loading song data...")}
+							</p>
+						</div>
+					</div>
+				) : (
+					<div className="rounded-lg border border-gray-600 bg-gray-800 p-6">
+						<form
+							ref={formRef}
+							className="flex w-full flex-col gap-4"
+							onSubmit={(event) => {
+								// Handle async submit without passing a promise directly to the DOM event
+								void handleFormSubmit(event);
+							}}
+						>
 						{/* Row 1: Song Form Fields (left) + Slides Editor (right) on desktop, stacked on mobile */}
 						<div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
 							{/* Left Column - Song Form Fields */}
@@ -97,6 +112,8 @@ export default function SongForm(): ReactElement {
 										onSongNameBlur={handleSongNameBlur}
 										songNameRef={songNameRef}
 										songSlugRef={songSlugRef}
+										formValues={formValues}
+										setFormValue={setFormValue}
 									/>
 								</CollapsibleSection>
 							</div>
@@ -143,7 +160,8 @@ export default function SongForm(): ReactElement {
 							</CollapsibleSection>
 						</div>
 					</form>
-				</div>
+					</div>
+				)}
 			</div>
 
 			{/* Form Footer */}

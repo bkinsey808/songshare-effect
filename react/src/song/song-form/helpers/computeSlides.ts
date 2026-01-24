@@ -1,0 +1,35 @@
+import { isRecord, isString } from "@/shared/utils/typeGuards";
+
+import type { Slide } from "../songTypes";
+
+function buildFieldData(fieldDataRaw: unknown): Record<string, string> {
+	const out: Record<string, string> = {};
+	if (!isRecord(fieldDataRaw)) {
+		return out;
+	}
+	for (const [fieldKey, fieldValue] of Object.entries(fieldDataRaw)) {
+		if (typeof fieldValue === "string") {
+			out[fieldKey] = fieldValue;
+		}
+	}
+	return out;
+}
+
+export default function computeSlides(pub?: Record<string, unknown>): Record<string, Slide> {
+	if (!pub || !isRecord(pub["slides"])) {
+		return {};
+	}
+	const slidesRecord: Record<string, Slide> = {};
+	for (const [key, value] of Object.entries(pub["slides"])) {
+		if (isRecord(value) && isString(value["slide_name"])) {
+			const fieldData = buildFieldData(value["field_data"]);
+			slidesRecord[key] = {
+				slide_name: String(value["slide_name"]),
+				field_data: fieldData,
+			};
+		} else {
+			/* empty */
+		}
+	}
+	return slidesRecord;
+}
