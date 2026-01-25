@@ -1,0 +1,182 @@
+/* eslint-disable import/first */
+import { describe, expect, it, vi } from "vitest";
+
+// Mock the auth token and client modules before importing the module under test
+vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
+vi.mock("@/react/supabase/client/getSupabaseClient");
+
+import { Effect } from "effect";
+import { setTimeout as delay } from "node:timers/promises";
+
+import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
+
+import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
+
+import type { SongSubscribeSlice } from "./song-slice";
+
+import subscribeToActivePrivateSongs from "./subscribeToActivePrivateSongs";
+
+function createMinimalClient(): SupabaseClientLike {
+	return {
+		from: (_table: string) => ({
+			select: vi.fn().mockResolvedValue({ data: [], error: undefined }),
+		}),
+		channel: () => ({ on: vi.fn(), subscribe: vi.fn() }),
+		removeChannel: () => undefined,
+		auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
+	};
+}
+
+const MACROTASK_DELAY = 0;
+
+async function flushPromises(): Promise<void> {
+	// Let microtasks complete then yield to a macrotask in case the async IIFE
+	// schedules work that requires an additional tick.
+	// First microtask tick: allow the async IIFE to start and schedule its inner microtasks.
+	await Promise.resolve();
+	// Second microtask tick: run microtasks that the IIFE scheduled (avoids flakiness).
+	await Promise.resolve();
+	// Finally yield a macrotask tick for any timers or macrotask-scheduled work.
+	await delay(MACROTASK_DELAY);
+}
+
+function makeGetWithActiveIds(ids: readonly string[]): SongSubscribeSlice {
+	return {
+		privateSongs: {},
+		publicSongs: {},
+		activePrivateSongIds: ids,
+		activePublicSongIds: [],
+		addOrUpdatePrivateSongs: () => undefined,
+		addOrUpdatePublicSongs: () => undefined,
+		addActivePrivateSongIds: (_songIds: readonly string[]) => Effect.sync(() => undefined),
+		addActivePublicSongIds: (_songIds: readonly string[]) => Effect.sync(() => undefined),
+		addActivePrivateSongSlugs: async (): Promise<void> => {
+			await Promise.resolve();
+		},
+		addActivePublicSongSlugs: async (): Promise<void> => {
+			await Promise.resolve();
+		},
+		removeActivePrivateSongIds: (_songIds: readonly string[]) => undefined,
+		removeActivePublicSongIds: (_songIds: readonly string[]) => undefined,
+		removeSongsFromCache: (_songIds: readonly string[]) => undefined,
+		subscribeToActivePrivateSongs: () => undefined,
+		subscribeToActivePublicSongs: () => undefined,
+		getSongBySlug: () => undefined,
+	};
+}
+
+describe("subscribeToActivePrivateSongs", () => {
+	it("returns an unsubscribe function and warns when no Supabase client is available", async () => {
+		const warnSpy = vi
+			.spyOn(console, "warn")
+			.mockImplementation((..._args: unknown[]) => undefined);
+
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
+		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
+
+		const set = vi.fn();
+		function get(): SongSubscribeSlice {
+			return makeGetWithActiveIds(["song-1"]);
+		}
+
+		const factory = subscribeToActivePrivateSongs(set, get);
+		const unsub = factory();
+
+		expect(typeof unsub).toBe("function");
+
+		await flushPromises();
+
+		expect(warnSpy).toHaveBeenCalledWith("[subscribeToActivePrivateSongs] No Supabase client");
+
+		// unsubscribe function should be defined (no-op)
+		expect(unsub).toBeDefined();
+
+		warnSpy.mockRestore();
+		vi.mocked(getSupabaseAuthToken).mockReset();
+		vi.mocked(getSupabaseClient).mockReset();
+	});
+
+	it("warns and skips subscription when there are no active private song ids", async () => {
+		const warnSpy = vi
+			.spyOn(console, "warn")
+			.mockImplementation((..._args: unknown[]) => undefined);
+
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
+		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalClient());
+
+		const set = vi.fn();
+		function get(): SongSubscribeSlice {
+			return makeGetWithActiveIds([]);
+		}
+
+		const factory = subscribeToActivePrivateSongs(set, get);
+		factory();
+
+		await flushPromises();
+
+		expect(warnSpy).toHaveBeenCalledWith(
+			"[subscribeToActivePrivateSongs] No activeSongIds, skipping subscription",
+		);
+
+		warnSpy.mockRestore();
+		vi.mocked(getSupabaseAuthToken).mockReset();
+		vi.mocked(getSupabaseClient).mockReset();
+	});
+
+	it("warns that realtime subscription is disabled when there are active private song ids", async () => {
+		const warnSpy = vi
+			.spyOn(console, "warn")
+			.mockImplementation((..._args: unknown[]) => undefined);
+
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
+		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalClient());
+
+		const set = vi.fn();
+		function get(): SongSubscribeSlice {
+			return makeGetWithActiveIds(["song-1"]);
+		}
+
+		const factory = subscribeToActivePrivateSongs(set, get);
+		factory();
+
+		await flushPromises();
+
+		expect(warnSpy).toHaveBeenCalledWith(
+			"[subscribeToActivePrivateSongs] Realtime subscription disabled - song table only contains private_notes",
+		);
+
+		warnSpy.mockRestore();
+		vi.mocked(getSupabaseAuthToken).mockReset();
+		vi.mocked(getSupabaseClient).mockReset();
+	});
+
+	it("logs an error if getting the auth token fails", async () => {
+		const errorSpy = vi
+			.spyOn(console, "error")
+			.mockImplementation((..._args: unknown[]) => undefined);
+
+		const err = new Error("auth-fail");
+		vi.mocked(getSupabaseAuthToken).mockRejectedValue(err);
+
+		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalClient());
+
+		const set = vi.fn();
+		function get(): SongSubscribeSlice {
+			return makeGetWithActiveIds(["song-1"]);
+		}
+
+		const factory = subscribeToActivePrivateSongs(set, get);
+		factory();
+
+		await flushPromises();
+
+		expect(errorSpy).toHaveBeenCalledWith(
+			expect.any(String),
+			expect.objectContaining({ message: "auth-fail" }),
+		);
+
+		errorSpy.mockRestore();
+		vi.mocked(getSupabaseAuthToken).mockReset();
+	});
+});

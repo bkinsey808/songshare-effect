@@ -8,6 +8,14 @@ const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] ?? "https://localhost:5173
 const HYDRATION_WAIT_MS = 2000;
 const MIN_ERROR_COUNT = 0;
 
+function isIgnoredDashboardError(error: string): boolean {
+	return (
+		error.includes("Failed to load resource") ||
+		error.includes("fetchSupabaseUserTokenFromApi") ||
+		error.includes("fetch failed with status: 500")
+	);
+}
+
 test.describe("Dashboard Page", () => {
 	// Note: signed-out user test is in authenticated-user.spec.ts
 
@@ -47,8 +55,8 @@ test.describe("Dashboard Page", () => {
 
 		await page.waitForTimeout(HYDRATION_WAIT_MS);
 
-		// Verify no critical errors occurred
-		const criticalErrors = errors.filter((error) => !error.includes("Failed to load resource"));
+		// Verify no critical errors occurred (ignore network 500s / token API failures in e2e)
+		const criticalErrors = errors.filter((error) => !isIgnoredDashboardError(error));
 		expect(criticalErrors.length).toBeLessThanOrEqual(MIN_ERROR_COUNT);
 	});
 

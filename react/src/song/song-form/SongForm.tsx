@@ -1,8 +1,9 @@
-import type { ReactElement } from "react";
-
 // src/features/song-form/SongForm.tsx
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+
+import CreateSongIcon from "@/react/design-system/icons/CreateSongIcon";
+import EditSongIcon from "@/react/design-system/icons/EditSongIcon";
 
 import CollapsibleSection from "./CollapsibleSection";
 import SlidesGridView from "./grid-editor/SlidesGridView";
@@ -52,6 +53,7 @@ export default function SongForm(): ReactElement {
 		handleSongNameBlur,
 		handleSave,
 		handleCancel,
+		handleDelete,
 		hasUnsavedChanges,
 	} = useSongForm();
 
@@ -107,7 +109,13 @@ export default function SongForm(): ReactElement {
 								<div className="lg:flex-1">
 									<CollapsibleSection
 										title="Song Details"
-										icon="🎵"
+										icon={
+											isEditing ? (
+												<EditSongIcon className="size-5" />
+											) : (
+												<CreateSongIcon className="size-5" />
+											)
+										}
 										isExpanded={isFormFieldsExpanded}
 										onToggle={() => {
 											// avoid implicit void-return shorthand
@@ -179,6 +187,7 @@ export default function SongForm(): ReactElement {
 				onSave={handleSave}
 				onReset={resetForm}
 				onCancel={handleCancel}
+				onDelete={handleDelete}
 			/>
 		</>
 	);

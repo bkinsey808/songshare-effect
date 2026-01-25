@@ -1,5 +1,3 @@
-import type { ReactElement } from "react";
-
 // src/features/song-form/SlidesEditor.tsx
 import { useTranslation } from "react-i18next";
 

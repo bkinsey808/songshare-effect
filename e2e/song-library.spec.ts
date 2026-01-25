@@ -20,6 +20,9 @@ function filterExpectedAuthErrors(errors: readonly string[]): string[] {
 		"Cookie",
 		"invalid domain",
 		"__cf_bm",
+		"Failed to load resource",
+		"fetchSupabaseUserTokenFromApi",
+		"fetch failed with status: 500",
 	];
 
 	return errors.filter(

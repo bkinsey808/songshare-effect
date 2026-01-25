@@ -1,23 +1,24 @@
 // src/features/song-form/useSongForm.ts
-import type { Effect } from "effect";
-
+import { type Effect, Schema } from "effect";
 import { useRef, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import useAppForm from "@/react/form/useAppForm";
 import useFormChanges from "@/react/form/useFormChanges";
 import { useAppStore } from "@/react/zustand/useAppStore";
 
+import { type SongPublic, songPublicSchema } from "../../song-schema";
 import {
 	type FormState,
 	type Slide,
 	type SongFormValues,
 	type UseSongFormReturn,
 } from "../song-form-types";
-import { songFormSchema, type SongFormValuesFromSchema as SongFormData } from "../songSchema";
+import { type SongFormValuesFromSchema as SongFormData, songFormSchema } from "../songSchema";
 import generateSlug from "./generate/generateSlug";
 import setFieldValue from "./setFieldValue";
 import createFormSubmitHandler from "./submit/createFormSubmitHandler";
+import deleteSongRequest from "./submit/deleteSongRequest";
 import useFormSubmission from "./submit/useFormSubmission";
 import useCollapsibleSections from "./useCollapsibleSections";
 import useFetchSongData from "./useFetchSongData";
@@ -25,9 +26,12 @@ import useFormState from "./useFormState";
 import useInitialFormState from "./useInitialFormState";
 import usePopulateSongForm from "./usePopulateSongForm";
 
+const NAVIGATE_BACK = -1;
+
 export default function useSongForm(): UseSongFormReturn {
 	const songId = useParams<{ song_id?: string }>().song_id;
 	const location = useLocation();
+	const navigate = useNavigate();
 	const formRef = useRef<HTMLFormElement | null>(null);
 
 	// Form field refs
@@ -70,6 +74,12 @@ export default function useSongForm(): UseSongFormReturn {
 		useAppStore((state) => state.addActivePrivateSongIds);
 	const addActivePublicSongIds: (songIds: readonly string[]) => Effect.Effect<void, Error> =
 		useAppStore((state) => state.addActivePublicSongIds);
+	const addOrUpdatePublicSongs = useAppStore((state) => state.addOrUpdatePublicSongs);
+	const removeActivePrivateSongIds = useAppStore((state) => state.removeActivePrivateSongIds);
+	const removeActivePublicSongIds = useAppStore((state) => state.removeActivePublicSongIds);
+	const removeSongsFromCache = useAppStore((state) => state.removeSongsFromCache);
+	const removeSongLibraryEntry = useAppStore((state) => state.removeSongLibraryEntry);
+	const addSongLibraryEntry = useAppStore((state) => state.addSongLibraryEntry);
 	const privateSongs = useAppStore((state) => state.privateSongs);
 	const publicSongs = useAppStore((state) => state.publicSongs);
 	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
@@ -142,6 +152,29 @@ export default function useSongForm(): UseSongFormReturn {
 		handleApiResponseEffect,
 		resetFormState,
 		hasUnsavedChanges,
+		onSaveSuccess: (data: unknown) => {
+			const decoded = Schema.decodeUnknownEither(songPublicSchema)(data);
+			if (decoded._tag === "Right") {
+				const song: SongPublic = decoded.right;
+				addOrUpdatePublicSongs({ [song.song_id]: song });
+				// On create, add to library slice so it appears in "My library" and persists to localStorage
+				const wasCreate = songId === undefined || songId.trim() === "";
+				if (
+					wasCreate &&
+					currentUserId !== undefined &&
+					currentUserId !== ""
+				) {
+					addSongLibraryEntry({
+						song_id: song.song_id,
+						user_id: currentUserId,
+						song_owner_id: currentUserId,
+						created_at: new Date().toISOString(),
+						song_name: song.song_name,
+						song_slug: song.song_slug,
+					});
+				}
+			}
+		},
 	});
 
 	useFetchSongData({
@@ -249,6 +282,23 @@ export default function useSongForm(): UseSongFormReturn {
 		});
 	}
 
+	async function handleDelete(): Promise<void> {
+		const id = songId?.trim();
+		if (id === undefined || id === "") {
+			return;
+		}
+		const result = await deleteSongRequest(id);
+		if (result.success) {
+			removeActivePrivateSongIds([id]);
+			removeActivePublicSongIds([id]);
+			removeSongsFromCache([id]);
+			removeSongLibraryEntry(id);
+			void navigate(NAVIGATE_BACK);
+		} else {
+			console.error("[useSongForm] Delete failed:", result.errorMessage);
+		}
+	}
+
 	return {
 		getFieldError,
 		isSubmitting,
@@ -283,6 +333,7 @@ export default function useSongForm(): UseSongFormReturn {
 		handleSongNameBlur,
 		handleSave,
 		handleCancel,
+		handleDelete,
 		hasUnsavedChanges,
 	};
 }

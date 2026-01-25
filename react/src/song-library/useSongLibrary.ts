@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 import { useAppStore } from "@/react/zustand/useAppStore";
@@ -8,6 +8,8 @@ import type {
 	RemoveSongFromSongLibraryRequest,
 	SongLibraryEntry,
 } from "./slice/song-library-types";
+
+const PUBLIC_SUB_INITIAL_RUN = 0;
 
 /**
  * Initialize the song library when a page mounts.
@@ -63,30 +65,42 @@ export default function useSongLibrary(): {
 	// 2. Reactive metadata subscription for songs in the library
 	// React Compiler automatically memoizes this value
 	const songIdsKey = Object.keys(songLibraryEntries).toSorted().join(",");
+	const publicUnsubRef = useRef<(() => void) | undefined>(undefined);
+	const publicRunRef = useRef(PUBLIC_SUB_INITIAL_RUN);
 
 	useEffect(() => {
 		const songIds = songIdsKey.split(",").filter((id) => id !== "");
 		const MIN_IDS = 1;
 
 		if (songIds.length < MIN_IDS) {
+			// Clear ref so a previous subscription is still cleaned up on unmount
+			publicUnsubRef.current = undefined;
 			return undefined;
 		}
 
+		const run = (publicRunRef.current += 1);
 		console.warn(`[useSongLibrary] Subscribing to public updates for ${songIds.length} songs...`);
 
-		let unsubscribe: (() => void) | undefined = undefined;
 		void (async (): Promise<void> => {
 			try {
-				unsubscribe = await Effect.runPromise(subscribeToSongPublic(songIds));
+				const unsubscribe = await Effect.runPromise(subscribeToSongPublic(songIds));
+				// Only assign if this effect run is still current (no re-run or unmount yet)
+				if (run === publicRunRef.current) {
+					publicUnsubRef.current = unsubscribe;
+				} else {
+					unsubscribe();
+				}
 			} catch (error: unknown) {
 				console.error("[useSongLibrary] Failed to subscribe to public updates:", error);
 			}
 		})();
 
 		return (): void => {
-			if (unsubscribe !== undefined) {
+			const fn = publicUnsubRef.current;
+			publicUnsubRef.current = undefined;
+			if (fn !== undefined) {
 				console.warn("[useSongLibrary] Unsubscribing from public metadata updates");
-				unsubscribe();
+				fn();
 			}
 		};
 	}, [songIdsKey, subscribeToSongPublic]);

@@ -2,6 +2,10 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import Button from "@/react/design-system/Button";
+import DangerIcon from "@/react/design-system/icons/DangerIcon";
+import TrashIcon from "@/react/design-system/icons/TrashIcon";
+import XIcon from "@/react/design-system/icons/XIcon";
 import getCookie from "@/react/utils/getCookie";
 import { getStoreApi } from "@/react/zustand/useAppStore";
 import {
@@ -92,46 +96,49 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 	}
 
 	return (
-		<div className="mx-auto max-w-md">
-			<h1 className="mb-4 text-2xl font-bold text-white">
-				{t("deleteAccount.title", "Confirm account deletion")}
-			</h1>
-
-			<p className="mb-6 text-gray-300">
-				{t(
-					"deleteAccount.body",
-					"This will permanently delete your account and all associated data. This action cannot be undone.",
-				)}
-			</p>
-
-			{typeof error === "string" && error.length > ZERO && (
-				<div className="mb-4 rounded-md bg-red-900/50 p-4">
-					<p className="text-sm text-red-400">{error}</p>
+		<div className="mx-auto max-w-md rounded-lg border border-red-800/50 bg-red-950/40 px-4 py-4">
+			<div className="flex items-start gap-4">
+				<DangerIcon className="mt-0.5 size-5 shrink-0 text-red-400" />
+				<div className="min-w-0 flex-1">
+					<h1 className="mb-2 text-xl font-bold text-red-200">
+						{t("deleteAccount.title", "Confirm account deletion")}
+					</h1>
+					<p className="mb-4 text-red-200/90">
+						{t(
+							"deleteAccount.body",
+							"This will permanently delete your account and all associated data. This action cannot be undone.",
+						)}
+					</p>
+					{typeof error === "string" && error.length > ZERO && (
+						<div className="mb-4 rounded-md bg-red-900/50 px-3 py-2">
+							<p className="text-sm text-red-300">{error}</p>
+						</div>
+					)}
+					<div className="flex flex-wrap items-center gap-3">
+						<Button
+							variant="outlineSecondary"
+							icon={<XIcon className="size-4" />}
+							onClick={onCancel}
+							disabled={loading}
+							data-testid="delete-account-cancel"
+						>
+							{t("deleteAccount.cancel", "Cancel")}
+						</Button>
+						<Button
+							variant="danger"
+							icon={<TrashIcon className="size-4" />}
+							onClick={() => {
+								void onConfirm();
+							}}
+							disabled={loading}
+							data-testid="delete-account-confirm"
+						>
+							{loading
+								? t("deleteAccount.deleting", "Deleting...")
+								: t("deleteAccount.confirm", "Delete account")}
+						</Button>
+					</div>
 				</div>
-			)}
-
-			<div className="flex gap-4">
-				<button
-					type="button"
-					disabled={loading}
-					onClick={onCancel}
-					className="flex-1 rounded-md border border-gray-600 bg-gray-700 px-4 py-2 text-white hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
-				>
-					{t("deleteAccount.cancel", "Cancel")}
-				</button>
-
-				<button
-					type="button"
-					disabled={loading}
-					onClick={() => {
-						void onConfirm();
-					}}
-					className="flex-1 rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
-				>
-					{loading
-						? t("deleteAccount.deleting", "Deleting...")
-						: t("deleteAccount.confirm", "Delete account")}
-				</button>
 			</div>
 		</div>
 	);

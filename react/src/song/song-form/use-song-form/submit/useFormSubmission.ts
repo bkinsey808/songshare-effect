@@ -3,8 +3,34 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { apiSongsSavePath } from "@/shared/paths";
+import { isRecord } from "@/shared/utils/typeGuards";
 
 import { type Slide } from "../../song-form-types";
+
+const NAVIGATE_BACK = -1;
+
+/**
+ * Parse response JSON and call onSaveSuccess with `data` when present.
+ * Extracted to avoid React Compiler's "value blocks in try/catch" limitation.
+ */
+async function parseSaveResponseAndNotify(
+	response: Response,
+	onSaveSuccess: ((data: unknown) => void) | undefined,
+): Promise<void> {
+	try {
+		const raw: unknown = await response.json();
+		if (
+			isRecord(raw) &&
+			"data" in raw &&
+			raw["data"] !== undefined &&
+			onSaveSuccess !== undefined
+		) {
+			onSaveSuccess(raw["data"]);
+		}
+	} catch {
+		// Non-fatal: store will still receive data via subscribe/refetch
+	}
+}
 
 type SongFormData = {
 	song_id?: string | undefined;
@@ -26,6 +52,8 @@ type UseFormSubmissionOptions = {
 	) => Effect.Effect<boolean>;
 	readonly resetFormState: () => void;
 	readonly hasUnsavedChanges: () => boolean;
+	/** Called with the API response body’s `data` when save succeeds. Use to update the store immediately. */
+	readonly onSaveSuccess?: (data: unknown) => void;
 };
 
 type UseFormSubmissionReturn = {
@@ -37,6 +65,7 @@ export default function useFormSubmission({
 	handleApiResponseEffect,
 	resetFormState,
 	hasUnsavedChanges,
+	onSaveSuccess,
 }: UseFormSubmissionOptions): UseFormSubmissionReturn {
 	const navigate = useNavigate();
 	const { t } = useTranslation();
@@ -57,8 +86,9 @@ export default function useFormSubmission({
 			);
 
 			if (isSuccess) {
+				await parseSaveResponseAndNotify(response, onSaveSuccess);
 				resetFormState();
-				void navigate("/songs");
+				void navigate(NAVIGATE_BACK);
 			}
 		} catch (error) {
 			console.error("❌ Network error in onSubmit:", error);
@@ -82,7 +112,6 @@ export default function useFormSubmission({
 			}
 		}
 		// Navigate back to previous page
-		const NAVIGATE_BACK = -1;
 		void navigate(NAVIGATE_BACK);
 	}
 

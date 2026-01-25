@@ -61,5 +61,6 @@ export type UseSongFormReturn = {
 	handleSongNameBlur: () => void;
 	handleSave: () => void;
 	handleCancel: () => void;
+	handleDelete: () => Promise<void>;
 	hasUnsavedChanges: () => boolean;
 };

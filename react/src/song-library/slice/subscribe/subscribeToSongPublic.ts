@@ -21,6 +21,33 @@ import type { SongLibraryEntry } from "../song-library-types";
 const NO_SONG_IDS = 0;
 
 /**
+ * Normalize realtime payload to our expected shape.
+ * Supabase realtime-js may pass either:
+ * - Normalized: { eventType, new?, old? }
+ * - Wrapped: { ids?, data: { type, record?, old_record? } }
+ * This returns the normalized form so handlers can assume eventType/new/old.
+ */
+function normalizeSongPublicPayload(payload: unknown): unknown {
+	if (!isRecord(payload)) {
+		return payload;
+	}
+	const { eventType: existingType } = payload as { eventType?: string };
+	if (typeof existingType === "string") {
+		return payload;
+	}
+	const { data } = payload as { data?: unknown };
+	if (!isRecord(data) || typeof data["type"] !== "string") {
+		return payload;
+	}
+	return {
+		eventType: data["type"],
+		new: isRecord(data["record"]) ? data["record"] : undefined,
+		old: isRecord(data["old_record"]) ? data["old_record"] : undefined,
+		errors: data["errors"],
+	};
+}
+
+/**
  * Update a song library entry with fields from a song_public row.
  *
  * @param params - Update parameters
@@ -72,16 +99,17 @@ function handleSongPublicPayload(
 	get: () => SongLibrarySlice,
 ): Effect.Effect<void, Error> {
 	return Effect.gen(function* handleSongPublicGen($) {
-		if (!isRealtimePayload(payload)) {
+		const normalized = normalizeSongPublicPayload(payload);
+		if (!isRealtimePayload(normalized)) {
 			return;
 		}
 
 		// Debug: incoming realtime payload for song_public
-		console.warn("[song_public] Received payload:", payload);
-		switch (payload.eventType) {
+		console.warn("[song_public] Received payload:", normalized);
+		switch (normalized.eventType) {
 			case "INSERT":
 			case "UPDATE": {
-				const newRecord = extractNewRecord(payload);
+				const newRecord = extractNewRecord(normalized);
 				if (newRecord === undefined || !isRecord(newRecord)) {
 					break;
 				}
@@ -107,7 +135,7 @@ function handleSongPublicPayload(
 				break;
 			}
 			case "DELETE": {
-				const songId = extractStringField(payload.old, "song_id");
+				const songId = extractStringField(normalized.old, "song_id");
 				if (songId === undefined) {
 					break;
 				}
@@ -123,8 +151,30 @@ function handleSongPublicPayload(
 	});
 }
 
+/** Supabase realtime in-filter allows at most 100 values. */
+const REALTIME_IN_FILTER_MAX = 100;
+const REALTIME_IN_FILTER_START = 0;
+
+/**
+ * Build PostgREST-style in-filter for song_id. UUIDs must be double-quoted so
+ * hyphens are not parsed as operators. Format: song_id=in.("id1","id2",...)
+ */
+function buildSongIdInFilter(uniqueIds: readonly string[]): string {
+	const quoted = uniqueIds
+		.slice(REALTIME_IN_FILTER_START, REALTIME_IN_FILTER_MAX)
+		.map((id) => `"${String(id).replaceAll('"', String.raw`\"`)}"`)
+		.join(",");
+	return `song_id=in.(${quoted})`;
+}
+
 /**
  * Create a realtime subscription to `song_public` for the provided song IDs.
+ *
+ * Uses a scoped `in` filter (song_id=in.("id1","id2",...)) so only changes for
+ * those songs are delivered. UUIDs are double-quoted per PostgREST/realtime
+ * rules. If there are more than 100 IDs, only the first 100 are filtered;
+ * handleSongPublicPayload still applies updates only when the song is in the
+ * current library.
  *
  * @param get - Zustand slice getter used to access state and mutation helpers
  * @param songIds - List of song IDs to subscribe to
@@ -168,15 +218,14 @@ export default function subscribeToSongPublic(
 		}
 
 		const channelName = `song_public_changes_${Date.now()}`;
-		console.warn(`[subscribeToSongPublic] Creating subscription: ${channelName}`);
-
-		// Build filter for song IDs using PostgREST `in` syntax
-		const quoted = uniqueIds
-			.map((id) => String(id).replaceAll("'", String.raw`\'`))
-			.map((id) => `'${id}'`)
-			.join(",");
-		const filter = `song_id=in.(${quoted})`;
-		console.warn(`[subscribeToSongPublic] Filter: ${filter}`);
+		const filter = buildSongIdInFilter(uniqueIds);
+		const filterCount = Math.min(uniqueIds.length, REALTIME_IN_FILTER_MAX);
+		if (uniqueIds.length > REALTIME_IN_FILTER_MAX) {
+			console.warn(
+				`[subscribeToSongPublic] Library has ${uniqueIds.length} songs; filter limited to first ${REALTIME_IN_FILTER_MAX}`,
+			);
+		}
+		console.warn(`[subscribeToSongPublic] Creating subscription: ${channelName} filter for ${filterCount} song(s)`);
 
 		const cleanup = createRealtimeSubscription({
 			client,

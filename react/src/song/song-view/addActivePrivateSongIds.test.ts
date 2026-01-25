@@ -33,9 +33,9 @@ describe("addActivePrivateSongIds", () => {
 				subscribeToActivePrivateSongs: (): (() => void) | undefined => undefined,
 				subscribeToActivePublicSongs: (): (() => void) | undefined => undefined,
 				getSongBySlug: (_slug: string) => undefined,
+				removeSongsFromCache: (_songIds: readonly string[]) => undefined,
 			};
 		}
-
 		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
 		const effect = addActivePrivateSongIds(set, get)([]);

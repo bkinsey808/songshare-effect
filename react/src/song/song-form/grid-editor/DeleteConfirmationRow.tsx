@@ -1,5 +1,3 @@
-import type { ReactElement } from "react";
-
 import { useTranslation } from "react-i18next";
 
 type DeleteConfirmationRowProps = Readonly<{

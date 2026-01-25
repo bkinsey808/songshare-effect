@@ -38,6 +38,8 @@ export type SongSubscribeSlice = SongSubscribeState & {
 	/** Remove songIds from the set of active songs. Never removes any songs from the store. */
 	removeActivePrivateSongIds: (songIds: readonly string[]) => void;
 	removeActivePublicSongIds: (songIds: readonly string[]) => void;
+	/** Remove songs from the in-memory and persisted cache (e.g. after delete). */
+	removeSongsFromCache: (songIds: readonly string[]) => void;
 	/** Subscribes to realtime updates for the current activeSongIds. Returns an unsubscribe function. */
 	subscribeToActivePrivateSongs: () => (() => void) | undefined;
 	subscribeToActivePublicSongs: () => (() => void) | undefined;
@@ -118,6 +120,18 @@ export function createSongSubscribeSlice(
 					activePublicSongsUnsubscribe,
 				};
 			});
+		},
+
+		removeSongsFromCache: (songIds: readonly string[]) => {
+			const toRemove = new Set(songIds);
+			set((state) => ({
+				privateSongs: Object.fromEntries(
+					Object.entries(state.privateSongs).filter(([id]) => !toRemove.has(id)),
+				) as Record<string, Song>,
+				publicSongs: Object.fromEntries(
+					Object.entries(state.publicSongs).filter(([id]) => !toRemove.has(id)),
+				) as Record<string, SongPublic>,
+			}));
 		},
 
 		subscribeToActivePrivateSongs: subscribeToActivePrivateSongs(set, get),

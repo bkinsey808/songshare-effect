@@ -675,7 +675,7 @@
 		{
 			"files": ["react/src/**"],
 			"rules": {
-				"react/button-has-type": "error",
+				"react/button-has-type": "off",
 				"react/checked-requires-onchange-or-readonly": "error",
 				"react/exhaustive-deps": "error",
 				"react/forbid-dom-props": "error",

@@ -1,8 +1,8 @@
-import { type ReactNode } from "react";
+import { type ReactElement, type ReactNode } from "react";
 
 type CollapsibleSectionProps = Readonly<{
 	title: string;
-	icon: string;
+	icon: ReactNode;
 	isExpanded: boolean;
 	onToggle: () => void;
 	children: ReactNode;
@@ -23,7 +23,7 @@ export default function CollapsibleSection({
 				className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700"
 			>
 				<div className="flex items-center gap-2">
-					<span className="text-xl">{icon}</span>
+					<span className="flex shrink-0 items-center text-xl [&>svg]:size-5">{icon}</span>
 					<h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
 				</div>
 				<svg

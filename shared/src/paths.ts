@@ -26,6 +26,7 @@ export const apiUserTokenPath = "/api/auth/user/token";
 export const apiAuthVisitorPath = "/api/auth/visitor";
 export const apiAuthSignOutPath = "/api/auth/signout";
 export const apiSongsSavePath = "/api/songs/save";
+export const apiSongsDeletePath = "/api/songs/delete";
 export const apiSongLibraryAddPath = "/api/song-library/add";
 export const apiUploadPath = "/api/upload";
 export const apiHelloPath = "/api/hello";

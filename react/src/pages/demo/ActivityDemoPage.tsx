@@ -1,5 +1,4 @@
 /* eslint-disable max-lines */
-import type { ReactElement } from "react";
 
 import { useTranslation } from "react-i18next";
 

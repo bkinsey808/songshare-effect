@@ -1,61 +1,134 @@
+import assert from "node:assert";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import type { RealtimeChannelLike, SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
 import { ONE_CALL } from "@/react/test-helpers/test-consts";
+import type { Database } from "@/shared/generated/supabaseTypes";
 
 import type { SongLibrarySlice } from "../song-library-slice";
+import type { SongLibraryEntry } from "../song-library-types";
+import { isRecord } from "@/shared/utils/typeGuards";
 
 import subscribeToSongPublic from "./subscribeToSongPublic";
 
-/* oxlint-disable typescript-eslint/no-unsafe-assignment,typescript-eslint/no-explicit-any,typescript-eslint/no-unsafe-type-assertion,typescript-eslint/no-unsafe-argument */
+type CreateRealtimeConfig = {
+	tableName: string;
+	filter: string;
+	onStatus: (status: string, err?: unknown) => void;
+};
+
+function isCreateRealtimeConfig(value: unknown): value is CreateRealtimeConfig {
+	return (
+		isRecord(value) &&
+		typeof value["tableName"] === "string" &&
+		typeof value["filter"] === "string" &&
+		typeof value["onStatus"] === "function"
+	);
+}
+
+const MOCK_CALL_INDEX = 0;
+const MOCK_ARG_INDEX = 0;
+
+function createMockSlice(overrides: {
+	songLibraryEntries: Record<string, SongLibraryEntry>;
+	setSongLibraryEntries: (entries: Readonly<Record<string, SongLibraryEntry>>) => void;
+}): SongLibrarySlice {
+	const {
+		songLibraryEntries,
+		setSongLibraryEntries,
+	} = overrides;
+	return {
+		songLibraryEntries,
+		setSongLibraryEntries,
+		isSongLibraryLoading: false,
+		songLibraryError: undefined,
+		addSongToSongLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
+		removeSongFromSongLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
+		getSongLibrarySongIds: (): string[] => [],
+		fetchSongLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
+		subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
+			Effect.sync((): (() => void) => () => undefined),
+		subscribeToSongPublic: (): Effect.Effect<() => void, Error> =>
+			Effect.sync((): (() => void) => () => undefined),
+		setSongLibraryLoading: (): void => undefined,
+		setSongLibraryError: (): void => undefined,
+		addSongLibraryEntry: (): void => undefined,
+		removeSongLibraryEntry: (): void => undefined,
+		isInSongLibrary: (): boolean => false,
+	};
+}
+
+function createMockChannel(): RealtimeChannelLike {
+	const chain: RealtimeChannelLike = {
+		on: (): RealtimeChannelLike => chain,
+		subscribe: (): unknown => undefined,
+	};
+	return chain;
+}
+
+function createMockSupabaseClient(): SupabaseClientLike<Database> {
+	return {
+		from: (): ReturnType<SupabaseClientLike<Database>["from"]> =>
+			({ select: (): { eq: (_col: string, _val: string) => { single: () => Promise<unknown> } } => ({
+				eq: (): { single: () => Promise<unknown> } => ({
+					single: async (): Promise<unknown> => {
+						await Promise.resolve();
+						return {};
+					},
+				}),
+			}) }),
+		channel: (_name: string): RealtimeChannelLike => createMockChannel(),
+		removeChannel: (): unknown => undefined,
+		auth: {
+			getUser: async (): Promise<unknown> => {
+				await Promise.resolve();
+				return { data: undefined, error: undefined };
+			},
+		},
+	};
+}
 
 describe("subscribeToSongPublic", () => {
 	it("backfills song_public rows and creates realtime subscription", async () => {
-		// Arrange: slice with an existing entry missing public metadata
-		const existingEntry = {
+		const existingEntry: SongLibraryEntry = {
 			song_id: "s1",
 			song_owner_id: "owner",
 			user_id: "owner",
 			created_at: new Date().toISOString(),
 		};
-		const setSongLibraryEntries = vi.fn();
-		const slice: Partial<SongLibrarySlice> = {
-			songLibraryEntries: { s1: existingEntry } as any,
-			setSongLibraryEntries: setSongLibraryEntries as any,
-		};
+		const setSongLibraryEntries = vi.fn<(entries: Readonly<Record<string, SongLibraryEntry>>) => void>();
+		const slice = createMockSlice({
+			songLibraryEntries: { s1: existingEntry },
+			setSongLibraryEntries,
+		});
 		function get(): SongLibrarySlice {
-			return slice as SongLibrarySlice;
+			return slice;
 		}
 
-		// Mock auth/client/DB + subscription creation (dynamic imports for spy control)
 		const authTokenModule = await import("@/react/supabase/auth-token/getSupabaseAuthToken");
 		const clientModule = await import("@/react/supabase/client/getSupabaseClient");
 		const createRealtimeModule =
 			await import("@/react/supabase/subscription/realtime/createRealtimeSubscription");
 
 		vi.spyOn(authTokenModule, "default").mockResolvedValue("token-abc");
-		vi.spyOn(clientModule, "default").mockReturnValue({} as any);
-		const cleanupSpy = vi.fn();
+		vi.spyOn(clientModule, "default").mockReturnValue(createMockSupabaseClient());
+		const cleanupFn: () => void = vi.fn();
 		const createRealtimeMock = vi
 			.spyOn(createRealtimeModule, "default")
-			.mockReturnValue(cleanupSpy as any);
+			.mockReturnValue(cleanupFn);
 
-		// Act
 		const cleanup = await Effect.runPromise(subscribeToSongPublic(get, ["s1"]));
 
-		// Assert: subscription created with proper filter and status handler
-		expect(createRealtimeMock).toHaveBeenCalledWith(
-			expect.objectContaining({
-				filter: expect.stringContaining("song_id=in"),
-				onStatus: expect.any(Function),
-			}),
-		);
+		const expectedFilter = 'song_id=in.("s1")';
+		const config = createRealtimeMock.mock.calls[MOCK_CALL_INDEX]?.[MOCK_ARG_INDEX];
+		assert.ok(isCreateRealtimeConfig(config), "createRealtimeSubscription was not called with expected config");
+		expect(config.tableName).toBe("song_public");
+		expect(config.filter).toBe(expectedFilter);
 
-		// Cleanup returned function works
 		cleanup();
-		expect(cleanupSpy).toHaveBeenCalledTimes(ONE_CALL);
+		expect(cleanupFn).toHaveBeenCalledTimes(ONE_CALL);
 
-		// Restore mocks
 		createRealtimeMock.mockRestore();
 		vi.restoreAllMocks();
 	});

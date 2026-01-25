@@ -12,12 +12,27 @@ type DismissibleAlertProps = Readonly<{
 	alertType?: string;
 }>;
 
+const base = tw`mb-6 rounded-md p-4 text-center transition-all duration-200`;
+
+// Use data-variant attribute and data-[variant=...] classes so you can
+// override or add variant styles outside React (e.g. in CSS).
+const variantError = tw`
+	data-[variant=error]:bg-red-600/10 data-[variant=error]:text-red-300
+`;
+const variantInfo = tw`
+	data-[variant=info]:bg-blue-500/10 data-[variant=info]:text-blue-300
+`;
+const variantSuccess = tw`
+	data-[variant=success]:bg-green-500/10 data-[variant=success]:text-green-300
+`;
+const variantClasses = [variantError, variantInfo, variantSuccess].join(" ");
+
 export default function DismissibleAlert({
 	visible,
 	onDismiss,
 	title,
 	children,
-	variant: data_variant = "error",
+	variant = "error",
 	className = "",
 	alertType,
 }: DismissibleAlertProps): ReactElement | undefined {
@@ -25,16 +40,6 @@ export default function DismissibleAlert({
 	// calling onDismiss (parent will then clear state). Keep the element
 	// mounted while isClosing is true.
 	const [isClosing, setIsClosing] = useState(false);
-
-	// Use data-variant attribute and static tailwind classes so the JIT/purge
-	// recognizes all possible styles. This keeps Tailwind aware of the
-	// classes while still allowing the variant to be chosen at runtime.
-	const base = tw`
-		mb-6 rounded-md p-4 text-center transition-all duration-200
-		data-[variant=error]:bg-red-600/10 data-[variant=error]:text-red-300
-		data-[variant=info]:bg-blue-500/10 data-[variant=info]:text-blue-300
-		data-[variant=success]:bg-green-500/10 data-[variant=success]:text-green-300
-	`;
 
 	// If not visible and not in the middle of closing, don't render.
 	if (!visible && !isClosing) {
@@ -66,8 +71,8 @@ export default function DismissibleAlert({
 
 	return (
 		<div
-			data-variant={data_variant}
-			className={`${base} ${animClass} ${className}`}
+			data-variant={variant}
+			className={`${base} ${variantClasses} ${animClass} ${className}`}
 			data-testid="dismissible-alert"
 			data-alert-type={alertType}
 		>

@@ -181,15 +181,17 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 									{t("songLibrary.editSong", "Edit")}
 								</button>
 							) : undefined}
-							<button
-								type="button"
-								className="text-sm text-red-400 transition-colors hover:text-red-300"
-								onClick={() => {
-									void removeFromSongLibrary({ song_id: entry.song_id });
-								}}
-							>
-								{t("songLibrary.removeSong", "Remove")}
-							</button>
+							{currentUserId !== undefined && currentUserId !== entry.song_owner_id ? (
+								<button
+									type="button"
+									className="text-sm text-red-400 transition-colors hover:text-red-300"
+									onClick={() => {
+										void removeFromSongLibrary({ song_id: entry.song_id });
+									}}
+								>
+									{t("songLibrary.removeSong", "Remove")}
+								</button>
+							) : undefined}
 						</div>
 					</div>
 				))}

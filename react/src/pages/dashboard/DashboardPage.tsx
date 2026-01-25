@@ -1,7 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import Button from "@/react/design-system/Button";
 import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
+import LogOutIcon from "@/react/design-system/icons/LogOutIcon";
+import TrashIcon from "@/react/design-system/icons/TrashIcon";
 import { useAppStoreHydrated } from "@/react/zustand/useAppStore";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
@@ -91,32 +94,34 @@ function DashboardPage(): ReactElement {
 
 			<SongManagementSection currentLang={currentLang} />
 
-			<div className="mt-4">
-				<button
-					type="button"
-					className="rounded bg-red-600 px-3 py-1 text-white"
+			<div className="mt-4 flex flex-wrap items-center gap-3">
+				<Button
+					variant="danger"
+					size="compact"
+					icon={<LogOutIcon className="size-4" />}
 					onClick={() => {
 						void signOut();
 					}}
+					data-testid="dashboard-sign-out"
 				>
 					{t("pages.dashboard.signOut")}
-				</button>
+				</Button>
 
 				{/* Delete account navigates to a confirmation page */}
-				<button
-					type="button"
-					className="ml-3 rounded border border-red-600 bg-transparent px-3 py-1 text-red-600 hover:bg-red-50/5"
+				<Button
+					variant="outlineDanger"
+					size="compact"
+					icon={<TrashIcon className="size-4" />}
 					onClick={() => {
-						{
-							const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
-							void navigate(
-								buildPathWithLang(`/${dashboardPath}/${deleteAccountPath}`, langForNav),
-							);
-						}
+						const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
+						void navigate(
+							buildPathWithLang(`/${dashboardPath}/${deleteAccountPath}`, langForNav),
+						);
 					}}
+					data-testid="dashboard-delete-account"
 				>
 					{t("pages.dashboard.deleteAccount", "Delete Account")}
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

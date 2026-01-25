@@ -1,9 +1,12 @@
 import type { TFunction } from "i18next";
-import type { ReactElement } from "react";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import Button from "@/react/design-system/Button";
+import CreateSongIcon from "@/react/design-system/icons/CreateSongIcon";
+import PencilIcon from "@/react/design-system/icons/PencilIcon";
+import SongLibraryIcon from "@/react/design-system/icons/SongLibraryIcon";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
@@ -23,38 +26,39 @@ export default function SongManagementSection({
 				{t("pages.dashboard.songManagement", "Song Management")}
 			</h3>
 			<div className="flex flex-wrap gap-3">
-				<button
-					type="button"
-					className="rounded bg-blue-600 px-4 py-2 text-white transition-colors duration-150 hover:bg-blue-700"
+				<Button
+					variant="primary"
+					icon={<CreateSongIcon className="size-5" />}
 					onClick={() => {
-						{
-							const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
-							void navigate(
-								String(buildPathWithLang(`/${dashboardPath}/${songEditPath}`, langForNav)),
-							);
-						}
+						const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
+						void navigate(
+							String(buildPathWithLang(`/${dashboardPath}/${songEditPath}`, langForNav)),
+						);
 					}}
+					data-testid="dashboard-create-song"
 				>
 					{t("pages.dashboard.createSong", "Create New Song")}
-				</button>
-				<button
-					type="button"
-					className="rounded border border-blue-600 bg-transparent px-4 py-2 text-blue-600 transition-colors duration-150 hover:bg-blue-50/5"
+				</Button>
+				<Button
+					variant="outlineSecondary"
+					icon={<PencilIcon className="size-4" />}
 					onClick={() => {
 						void navigate(`/${currentLang}/${dashboardPath}/${songLibraryPath}`);
 					}}
+					data-testid="dashboard-manage-songs"
 				>
 					{t("pages.dashboard.manageSongs", "Manage Songs")}
-				</button>
-				<button
-					type="button"
-					className="rounded border border-green-600 bg-transparent px-4 py-2 text-green-600 transition-colors duration-150 hover:bg-green-50/5"
+				</Button>
+				<Button
+					variant="outlineSecondary"
+					icon={<SongLibraryIcon className="size-4" />}
 					onClick={() => {
 						void navigate(`/${currentLang}/${dashboardPath}/${songLibraryPath}`);
 					}}
+					data-testid="dashboard-song-library"
 				>
 					{t("pages.dashboard.songLibrary", "Song Library")}
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

@@ -44,6 +44,11 @@ This agent's sole responsibility is to **write and maintain unit tests** for the
 - If fixing a failing test would require source changes, create a detailed issue describing the expected behavior and test case.
 - If any mandatory validation step fails for reasons unrelated to tests, report and stop.
 
+## Interaction Guidelines 💬
+- Don't ask if user wants this agent to continue fixing the file. Always continue until the file is perfect, passes all the validation steps, and meets the coverage goal.
+
+
+
 ---
 
 **Summary:** This agent only adds tests, follows naming and coverage rules, never touches source or configuration files, and always validates with `npm run lint && npx tsc -b . && npm run test:unit -- --coverage`.

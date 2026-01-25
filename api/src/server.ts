@@ -19,6 +19,7 @@ import {
 	apiOauthCallbackPath,
 	apiOauthSignInPath,
 	apiSongLibraryAddPath,
+	apiSongsDeletePath,
 	apiSongsSavePath,
 	apiUploadPath,
 	apiUserTokenPath,
@@ -38,6 +39,7 @@ import { handleHttpEndpoint } from "./http/http-utils";
 import me from "./me";
 import oauthSignInDefault from "./oauth/oauthSignIn";
 import addSongToLibraryHandler from "./song-library/addSongToLibrary";
+import songDelete from "./song/songDelete";
 import { songSave } from "./song/songSave";
 import getSupabaseClientToken from "./supabase/getSupabaseClientToken";
 import getUserToken from "./user-session/getUserToken";
@@ -223,6 +225,12 @@ app.get(
 app.post(
 	apiSongsSavePath,
 	handleHttpEndpoint((ctx) => songSave(ctx)),
+);
+
+// Song delete endpoint (owner only)
+app.post(
+	apiSongsDeletePath,
+	handleHttpEndpoint((ctx) => songDelete(ctx)),
 );
 
 // Add song to library endpoint
