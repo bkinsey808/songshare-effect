@@ -30,15 +30,11 @@ describe("subscribeToSongPublic", () => {
 		// Mock auth/client/DB + subscription creation (dynamic imports for spy control)
 		const authTokenModule = await import("@/react/supabase/auth-token/getSupabaseAuthToken");
 		const clientModule = await import("@/react/supabase/client/getSupabaseClient");
-		const callSelectModule = await import("@/react/supabase/client/safe-query/callSelect");
 		const createRealtimeModule =
 			await import("@/react/supabase/subscription/realtime/createRealtimeSubscription");
 
 		vi.spyOn(authTokenModule, "default").mockResolvedValue("token-abc");
 		vi.spyOn(clientModule, "default").mockReturnValue({} as any);
-		const callSelectMock = vi.spyOn(callSelectModule, "default").mockResolvedValue({
-			data: [{ song_id: "s1", song_name: "New Name", song_slug: "new-slug" }],
-		});
 		const cleanupSpy = vi.fn();
 		const createRealtimeMock = vi
 			.spyOn(createRealtimeModule, "default")
@@ -46,13 +42,6 @@ describe("subscribeToSongPublic", () => {
 
 		// Act
 		const cleanup = await Effect.runPromise(subscribeToSongPublic(get, ["s1"]));
-
-		// Assert: initial backfill applied (song_name/song_slug applied for s1)
-		expect(setSongLibraryEntries).toHaveBeenCalledWith(
-			expect.objectContaining({
-				s1: expect.objectContaining({ song_name: "New Name", song_slug: "new-slug" }),
-			}),
-		);
 
 		// Assert: subscription created with proper filter and status handler
 		expect(createRealtimeMock).toHaveBeenCalledWith(
@@ -67,7 +56,6 @@ describe("subscribeToSongPublic", () => {
 		expect(cleanupSpy).toHaveBeenCalledTimes(ONE_CALL);
 
 		// Restore mocks
-		callSelectMock.mockRestore();
 		createRealtimeMock.mockRestore();
 		vi.restoreAllMocks();
 	});

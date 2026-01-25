@@ -83,7 +83,10 @@ describe("getUserToken", () => {
 		});
 		expect(mockSignIn).toHaveBeenCalledTimes(EXPECTED_SIGNIN_CALLS);
 		expect(mockUpdate).toHaveBeenCalledWith("visitor-1", {
-			app_metadata: { user: { user_id: "user-123" } },
+			app_metadata: {
+				user: { user_id: "user-123" },
+				userPublic: SAMPLE_USER_SESSION.userPublic,
+			},
 		});
 	});
 

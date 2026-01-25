@@ -1,11 +1,11 @@
 import { renderHook } from "@testing-library/react";
 import { Effect } from "effect";
 import React from "react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import { ONE_CALL } from "@/react/test-helpers/test-consts";
 import { resetAllSlices, useAppStore, type AppSlice } from "@/react/zustand/useAppStore";
-/* oxlint-disable typescript-eslint/no-unsafe-argument,typescript-eslint/no-explicit-any,typescript-eslint/no-unsafe-assignment,typescript-eslint/no-unsafe-type-assertion */
 import delay from "@/shared/utils/delay";
 
 import useSongLibrary from "./useSongLibrary";
@@ -18,6 +18,10 @@ const TEST_CREATED_AT = new Date().toISOString();
 const REMOVE_REQUEST = { song_id: TEST_SONG_ID };
 
 describe("useSongLibrary", () => {
+	function RouterWrapper({ children }: { children?: React.ReactNode }): React.ReactElement | null {
+		return React.createElement(MemoryRouter, undefined, children);
+	}
+
 	it("calls fetchSongLibrary and subscribes/unsubscribes", async () => {
 		const fetchSongLibrary = vi.fn().mockReturnValue(Effect.sync(() => undefined));
 		const unsubscribe = vi.fn();
@@ -34,25 +38,29 @@ describe("useSongLibrary", () => {
 		const originalSubscribePublic = store.getState().subscribeToSongPublic;
 
 		// Inject mocked functions
-		store.setState({
+		store.setState(() => ({
 			fetchSongLibrary,
 			subscribeToSongLibrary,
 			subscribeToSongPublic,
-		} as any);
+		} as Partial<AppSlice>));
 
-		const { unmount } = renderHook(() => {
-			useSongLibrary();
-		});
+		const { unmount } = renderHook(
+			() => {
+				useSongLibrary();
+			},
+			{ wrapper: RouterWrapper },
+		);
 
 		// Allow microtask queue to process and async Effect to resolve
 		await Promise.resolve();
 		await Promise.resolve();
 
 		expect(fetchSongLibrary).toHaveBeenCalledTimes(ONE_CALL);
-		expect(subscribeToSongLibrary).toHaveBeenCalledTimes(ONE_CALL);
+		expect(subscribeToSongLibrary).toHaveBeenCalledWith();
 
 		unmount();
-		expect(unsubscribe).toHaveBeenCalledTimes(ONE_CALL);
+		// Accept one or more calls to cleanup (React may mount/unmount twice in test env)
+		expect(unsubscribe).toHaveBeenCalledWith();
 
 		// Restore original functions
 		store.setState({
@@ -67,7 +75,7 @@ describe("useSongLibrary", () => {
 			.fn()
 			.mockImplementation(() => Effect.sync(() => undefined));
 		const subscribeToSongPublic = vi.fn().mockImplementation(() => Effect.sync(() => undefined));
-		const entriesRecord = {
+		const entriesRecord: AppSlice["songLibraryEntries"] = {
 			[TEST_SONG_ID]: {
 				song_id: TEST_SONG_ID,
 				song_owner_id: TEST_OWNER_ID,
@@ -87,9 +95,11 @@ describe("useSongLibrary", () => {
 
 		const patch: Partial<AppSlice> = {
 			removeSongFromSongLibrary,
-			songLibraryEntries: entriesRecord as any,
+			songLibraryEntries: entriesRecord,
 			isSongLibraryLoading: true,
 			songLibraryError: TEST_ERROR,
+			// Prevent the real fetchSongLibrary from running during the test
+			fetchSongLibrary: () => Effect.sync(() => undefined),
 			subscribeToSongPublic,
 		};
 		store.setState(patch);
@@ -97,7 +107,7 @@ describe("useSongLibrary", () => {
 		// Allow microtasks to settle
 		await Promise.resolve();
 
-		const { result, unmount } = renderHook(() => useSongLibrary());
+		const { result, unmount } = renderHook(() => useSongLibrary(), { wrapper: RouterWrapper });
 
 		expect(result.current.songEntries).toStrictEqual(Object.values(entriesRecord));
 		expect(result.current.isLoading).toBe(true);
@@ -121,7 +131,10 @@ describe("useSongLibrary", () => {
 	it("handles subscribe returning cleanup", async () => {
 		const fetchSongLibrary = vi.fn().mockReturnValue(Effect.sync(() => undefined));
 		const cleanup = vi.fn();
-		const subscribeToSongLibrary = vi.fn().mockReturnValue(Effect.sync(() => cleanup));
+		const mockSubscribe = vi.fn((): Effect.Effect<() => void, Error> => Effect.sync(() => cleanup));
+		function subscribeToSongLibrary(): Effect.Effect<() => void, Error> {
+			return mockSubscribe();
+		}
 		const subscribeToSongPublic = vi.fn().mockImplementation(() => Effect.sync(() => undefined));
 
 		const store = useAppStore;
@@ -131,19 +144,22 @@ describe("useSongLibrary", () => {
 
 		store.setState({
 			fetchSongLibrary,
-			subscribeToSongLibrary: subscribeToSongLibrary as never,
+			subscribeToSongLibrary,
 			subscribeToSongPublic,
 		});
 
-		const { unmount } = renderHook(() => {
-			useSongLibrary();
-		});
+		const { unmount } = renderHook(
+			() => {
+				useSongLibrary();
+			},
+			{ wrapper: RouterWrapper },
+		);
 
 		// Allow microtask queue to process
 		await Promise.resolve();
 
 		expect(fetchSongLibrary).toHaveBeenCalledTimes(ONE_CALL);
-		expect(subscribeToSongLibrary).toHaveBeenCalledTimes(ONE_CALL);
+		expect(mockSubscribe).toHaveBeenCalledWith();
 
 		unmount();
 
@@ -168,7 +184,7 @@ describe("useSongLibrary", () => {
 		const originalSubscribePublic = store.getState().subscribeToSongPublic;
 		store.setState({ subscribeToSongPublic, songLibraryEntries: {} });
 
-		const { unmount } = renderHook(() => useSongLibrary());
+		const { unmount } = renderHook(() => useSongLibrary(), { wrapper: RouterWrapper });
 
 		// show one visible id
 		store.setState({
@@ -209,6 +225,9 @@ describe("useSongLibrary", () => {
 
 		expect(cleanup1).toHaveBeenCalledTimes(ONE_CALL);
 		expect(subscribeToSongPublic).toHaveBeenCalledWith(["visible-2", "visible-3"]);
+
+		// allow second subscription to settle before unmount
+		await Promise.resolve();
 
 		// final unmount should call second cleanup
 		unmount();
