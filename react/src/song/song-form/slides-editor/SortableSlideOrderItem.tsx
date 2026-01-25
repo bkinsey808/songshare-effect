@@ -1,7 +1,7 @@
 // src/features/song-form/SortableSlideOrderItem.tsx
 import { useSortable } from "@dnd-kit/sortable";
 
-import { type Slide } from "../songTypes";
+import { type Slide } from "../song-form-types";
 
 type RemoveSlideOrder = ({
 	slideId,

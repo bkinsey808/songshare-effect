@@ -1,42 +1,9 @@
-/**
- * Utility functions for slide management
- */
-import { type Slide } from "../songTypes";
+import { type Slide } from "../song-form-types";
 
 const SLIDE_NUMBER_CAPTURE_INDEX = 1;
 const PARSE_RADIX = 10;
 const ONE = 1;
 const COPY_INDEX_START = 2;
-
-/**
- * Generate a random ID for slides
- */
-export function randomId(): string {
-	const RADIX = 36;
-	const ID_SLICE_START = 2;
-	const ID_SLICE_END = 10;
-
-	return (
-		Math.random().toString(RADIX).slice(ID_SLICE_START, ID_SLICE_END) + Date.now().toString(RADIX)
-	);
-}
-
-/**
- * Generate the next available slide name
- */
-export function getNextSlideName(
-	slides: Readonly<Record<string, Slide>>,
-	slideOrderLength: number,
-): string {
-	let idx = ONE;
-	let newSlideName = `Slide ${String(slideOrderLength + ONE)}`;
-	const names = new Set(Object.values(slides).map((slide) => slide.slide_name));
-	while (names.has(newSlideName)) {
-		idx += ONE;
-		newSlideName = `Slide ${String(slideOrderLength + idx)}`;
-	}
-	return newSlideName;
-}
 
 /**
  * Generate a smart duplicate name for a slide

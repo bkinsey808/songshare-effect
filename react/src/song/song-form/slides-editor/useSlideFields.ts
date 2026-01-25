@@ -3,7 +3,7 @@
  */
 import { safeGet } from "@/shared/utils/safe";
 
-import { type Slide } from "../songTypes";
+import { type Slide } from "../song-form-types";
 
 type EditFieldValue = ({
 	slideId,

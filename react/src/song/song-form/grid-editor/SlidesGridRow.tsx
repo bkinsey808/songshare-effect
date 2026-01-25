@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useState, type ReactElement } from "react";
 
-import { type Slide } from "../songTypes";
+import { type Slide } from "../song-form-types";
 import DeleteConfirmationRow from "./DeleteConfirmationRow";
 import SortableGridCells from "./SortableGridCells";
 

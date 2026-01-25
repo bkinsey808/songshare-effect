@@ -1,6 +1,6 @@
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
-import type { Slide } from "../songTypes";
+import type { Slide } from "../song-form-types";
 
 function buildFieldData(fieldDataRaw: unknown): Record<string, string> {
 	const out: Record<string, string> = {};

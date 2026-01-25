@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 
-import FormField from "../../design-system/form/FormField";
-import FormInput from "../../design-system/form/FormInput";
-import FormSection from "../../design-system/form/FormSection";
-import FormTextarea from "../../design-system/form/FormTextarea";
+import FormField from "@/react/design-system/form/FormField";
+import FormInput from "@/react/design-system/form/FormInput";
+import FormSection from "@/react/design-system/form/FormSection";
+import FormTextarea from "@/react/design-system/form/FormTextarea";
 
 type SongFormFieldsProps = Readonly<{
 	getFieldError: (

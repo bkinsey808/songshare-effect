@@ -1,3 +1,16 @@
+/**
+ * Sets the value of a form field by name.
+ *
+ * @param form - The HTML form element containing the field, or null to skip.
+ * @param name - The name attribute of the form field to set.
+ * @param value - The value to set. If undefined, the function returns early without setting anything.
+ * @returns void
+ *
+ * @remarks
+ * - Only works with HTMLInputElement and HTMLTextAreaElement fields.
+ * - Logs a warning to the console when the field is successfully set.
+ * - Logs a warning if the field cannot be found, including available form element names for debugging.
+ */
 export default function setFieldValue(
 	form: HTMLFormElement | null,
 	name: string,

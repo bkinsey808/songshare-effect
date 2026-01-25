@@ -2,7 +2,7 @@ import { type DragEndEvent, type SensorDescriptor, type SensorOptions } from "@d
 
 import { clientDebug } from "@/react/utils/clientLogger";
 
-import { type Slide } from "../songTypes";
+import { type Slide } from "../song-form-types";
 import useSlideData from "./useSlideData";
 import useSlideDragAndDrop from "./useSlideDragAndDrop";
 import useSlideFields from "./useSlideFields";

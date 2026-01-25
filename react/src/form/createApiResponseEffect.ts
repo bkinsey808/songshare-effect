@@ -3,7 +3,7 @@ import { Effect } from "effect";
 
 import { clientDebug } from "@/react/utils/clientLogger";
 
-import { type ApiResponseAction } from "./apiResponseTypes";
+import { type ApiResponseAction } from "./ApiResponseAction.test";
 
 /**
  * Create an Effect that handles API response parsing and returns structured actions

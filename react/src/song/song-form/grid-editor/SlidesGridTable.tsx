@@ -7,7 +7,7 @@ import cssVars from "@/react/utils/cssVars";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
-import { type Slide } from "../songTypes";
+import { type Slide } from "../song-form-types";
 import ResizeHandle from "./ResizeHandle";
 import SlidesGridRow from "./SlidesGridRow";
 import useColumnResize from "./useColumnResize";

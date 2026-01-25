@@ -1,10 +1,10 @@
 import { Effect } from "effect";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 import { apiSongsSavePath } from "@/shared/paths";
 
-import { type Slide } from "./songTypes";
+import { type Slide } from "../../song-form-types";
 
 type SongFormData = {
 	song_id?: string | undefined;

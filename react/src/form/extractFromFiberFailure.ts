@@ -1,20 +1,7 @@
-import { isRecord, isString } from "@/shared/utils/typeGuards";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
+import isValidationErrorArray from "./isValidationErrorArray";
 import safeJsonParse from "./safeJsonParse";
-
-function isValidationErrorArray(value: unknown): value is ValidationError[] {
-	if (!Array.isArray(value)) {
-		return false;
-	}
-	return value.every((item) => {
-		if (!isRecord(item)) {
-			return false;
-		}
-		const { field, message } = item;
-		return isString(field) && isString(message);
-	});
-}
 
 /**
  * Extract ValidationError[] from FiberFailure objects.

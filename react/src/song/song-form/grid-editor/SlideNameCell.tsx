@@ -4,7 +4,7 @@ import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
-import { type Slide } from "../songTypes";
+import { type Slide } from "../song-form-types";
 import DragHandle from "./DragHandle";
 
 const REMOVE_COUNT = 1;

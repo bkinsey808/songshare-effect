@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import { type Slide } from "./songTypes";
-import generateId from "./utils/generateId";
+import { type Slide } from "../song-form-types";
+import generateId from "./generate/generateId";
 
 type UseFormStateReturn = {
 	slideOrder: readonly string[];

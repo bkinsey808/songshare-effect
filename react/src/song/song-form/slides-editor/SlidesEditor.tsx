@@ -9,7 +9,7 @@ import { safeGet } from "@/shared/utils/safe";
 import AutoExpandingTextarea from "../../../design-system/AutoExpandingTextarea";
 import FormField from "../../../design-system/form/FormField";
 import { songFields } from "../../song-schema";
-import { type Slide } from "../songTypes";
+import { type Slide } from "../song-form-types";
 import useSlidesEditor from "./useSlidesEditor";
 
 type SlidesEditorProps = Readonly<

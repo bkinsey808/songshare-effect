@@ -4,7 +4,7 @@ import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
 import useSlidesEditor from "../slides-editor/useSlidesEditor";
-import { type Slide } from "../songTypes";
+import { type Slide } from "../song-form-types";
 import SlidesGridTable from "./SlidesGridTable";
 
 const EMPTY_COUNT = 0;

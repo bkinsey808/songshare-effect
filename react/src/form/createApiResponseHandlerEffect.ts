@@ -3,7 +3,7 @@ import { Effect } from "effect";
 
 import { clientDebug } from "@/react/utils/clientLogger";
 
-import { type ApiResponseAction } from "./apiResponseTypes";
+import { type ApiResponseAction } from "./ApiResponseAction.test";
 import createApiResponseEffect from "./createApiResponseEffect";
 
 /**

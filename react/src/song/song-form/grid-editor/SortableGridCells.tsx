@@ -6,7 +6,7 @@ import { type ReactElement } from "react";
 import cssVars from "@/react/utils/cssVars";
 
 import AutoExpandingTextarea from "../../../design-system/AutoExpandingTextarea";
-import { type Slide } from "../songTypes";
+import { type Slide } from "../song-form-types";
 import SlideNameCell from "./SlideNameCell";
 
 type EditSlideName = ({

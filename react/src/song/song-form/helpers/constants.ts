@@ -1,2 +1,0 @@
-const DOM_READY_TIMEOUT_MS = 100;
-export default DOM_READY_TIMEOUT_MS;

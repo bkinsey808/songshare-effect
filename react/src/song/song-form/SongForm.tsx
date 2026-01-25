@@ -8,7 +8,8 @@ import CollapsibleSection from "./CollapsibleSection";
 import SlidesGridView from "./grid-editor/SlidesGridView";
 import SlidesEditor from "./slides-editor/SlidesEditor";
 import SongFormFields from "./SongFormFields";
-import useSongForm from "./useSongForm";
+import SongFormFooter from "./SongFormFooter";
+import useSongForm from "./use-song-form/useSongForm";
 
 export default function SongForm(): ReactElement {
 	const { t } = useTranslation();
@@ -85,9 +86,7 @@ export default function SongForm(): ReactElement {
 					<div className="flex items-center justify-center rounded-lg border border-gray-600 bg-gray-800 p-12">
 						<div className="flex flex-col items-center space-y-4">
 							<div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
-							<p className="text-gray-400">
-								{t("song.loadingData", "Loading song data...")}
-							</p>
+							<p className="text-gray-400">{t("song.loadingData", "Loading song data...")}</p>
 						</div>
 					</div>
 				) : (
@@ -96,47 +95,70 @@ export default function SongForm(): ReactElement {
 							ref={formRef}
 							className="flex w-full flex-col gap-4"
 							onSubmit={(event) => {
-								// Handle async submit without passing a promise directly to the DOM event
-								void handleFormSubmit(event);
+								event.preventDefault();
+								// Extract form element from event and pass it to handler
+								const formElement = event.currentTarget;
+								void handleFormSubmit(formElement);
 							}}
 						>
-						{/* Row 1: Song Form Fields (left) + Slides Editor (right) on desktop, stacked on mobile */}
-						<div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
-							{/* Left Column - Song Form Fields */}
-							<div className="lg:flex-1">
-								<CollapsibleSection
-									title="Song Details"
-									icon="🎵"
-									isExpanded={isFormFieldsExpanded}
-									onToggle={() => {
-										// avoid implicit void-return shorthand
-										setIsFormFieldsExpanded(!isFormFieldsExpanded);
-									}}
-								>
-									<SongFormFields
-										getFieldError={getFieldError}
-										onSongNameBlur={handleSongNameBlur}
-										songNameRef={songNameRef}
-										songSlugRef={songSlugRef}
-										formValues={formValues}
-										setFormValue={setFormValue}
-									/>
-								</CollapsibleSection>
+							{/* Row 1: Song Form Fields (left) + Slides Editor (right) on desktop, stacked on mobile */}
+							<div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
+								{/* Left Column - Song Form Fields */}
+								<div className="lg:flex-1">
+									<CollapsibleSection
+										title="Song Details"
+										icon="🎵"
+										isExpanded={isFormFieldsExpanded}
+										onToggle={() => {
+											// avoid implicit void-return shorthand
+											setIsFormFieldsExpanded(!isFormFieldsExpanded);
+										}}
+									>
+										<SongFormFields
+											getFieldError={getFieldError}
+											onSongNameBlur={handleSongNameBlur}
+											songNameRef={songNameRef}
+											songSlugRef={songSlugRef}
+											formValues={formValues}
+											setFormValue={setFormValue}
+										/>
+									</CollapsibleSection>
+								</div>
+
+								{/* Right Column - Slides Editor */}
+								<div className="lg:flex-1">
+									<CollapsibleSection
+										title="Slides Editor"
+										icon="📄"
+										isExpanded={isSlidesExpanded}
+										onToggle={() => {
+											setIsSlidesExpanded(!isSlidesExpanded);
+										}}
+									>
+										<SlidesEditor
+											fields={fields}
+											toggleField={toggleField}
+											slideOrder={slideOrder}
+											setSlideOrder={setSlideOrder}
+											slides={slides}
+											setSlides={setSlides}
+										/>
+									</CollapsibleSection>
+								</div>
 							</div>
 
-							{/* Right Column - Slides Editor */}
-							<div className="lg:flex-1">
+							{/* Row 2: Grid View spanning full width */}
+							<div className="w-full">
 								<CollapsibleSection
-									title="Slides Editor"
-									icon="📄"
-									isExpanded={isSlidesExpanded}
+									title={t("song.slidesGridTitle", "Slides Presentation Grid")}
+									icon="📊"
+									isExpanded={isGridExpanded}
 									onToggle={() => {
-										setIsSlidesExpanded(!isSlidesExpanded);
+										setIsGridExpanded(!isGridExpanded);
 									}}
 								>
-									<SlidesEditor
+									<SlidesGridView
 										fields={fields}
-										toggleField={toggleField}
 										slideOrder={slideOrder}
 										setSlideOrder={setSlideOrder}
 										slides={slides}
@@ -144,75 +166,20 @@ export default function SongForm(): ReactElement {
 									/>
 								</CollapsibleSection>
 							</div>
-						</div>
-
-						{/* Row 2: Grid View spanning full width */}
-						<div className="w-full">
-							<CollapsibleSection
-								title={t("song.slidesGridTitle", "Slides Presentation Grid")}
-								icon="📊"
-								isExpanded={isGridExpanded}
-								onToggle={() => {
-									setIsGridExpanded(!isGridExpanded);
-								}}
-							>
-								<SlidesGridView
-									fields={fields}
-									slideOrder={slideOrder}
-									setSlideOrder={setSlideOrder}
-									slides={slides}
-									setSlides={setSlides}
-								/>
-							</CollapsibleSection>
-						</div>
-					</form>
+						</form>
 					</div>
 				)}
 			</div>
 
 			{/* Form Footer */}
-			<footer
-				className={`fixed right-0 bottom-0 left-0 z-50 px-5 py-4 shadow-lg transition-colors ${
-					hasChanges ? "bg-amber-900/80" : "bg-gray-800"
-				}`}
-			>
-				<div className="mx-auto max-w-screen-2xl px-6">
-					<div className="flex justify-start gap-4 pl-4">
-						<button
-							type="button"
-							onClick={() => {
-								// call async handler explicitly so the onClick doesn't receive a Promise
-								void handleSave();
-							}}
-							className="rounded bg-blue-600 px-6 py-3 text-white transition hover:bg-blue-700 disabled:opacity-50"
-							disabled={isSubmitting}
-							data-testid="create-song-button"
-						>
-							{isEditing
-								? t("song.updateSong", "Update Song")
-								: t("song.createSong", "Create Song")}
-						</button>
-						<button
-							type="button"
-							onClick={resetForm}
-							className="rounded bg-gray-600 px-6 py-3 text-white transition hover:bg-gray-700 disabled:opacity-50"
-							disabled={isSubmitting}
-							data-testid="reset-song-button"
-						>
-							{t("song.reset", "Reset")}
-						</button>
-						<button
-							type="button"
-							onClick={handleCancel}
-							className="rounded bg-red-600 px-6 py-3 text-white transition hover:bg-red-700 disabled:opacity-50"
-							disabled={isSubmitting}
-							data-testid="cancel-song-button"
-						>
-							{t("song.cancel", "Cancel")}
-						</button>
-					</div>
-				</div>
-			</footer>
+			<SongFormFooter
+				hasChanges={hasChanges}
+				isSubmitting={isSubmitting}
+				isEditing={isEditing}
+				onSave={handleSave}
+				onReset={resetForm}
+				onCancel={handleCancel}
+			/>
 		</>
 	);
 }

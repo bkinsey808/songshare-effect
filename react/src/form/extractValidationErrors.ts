@@ -2,28 +2,8 @@ import { isRecord } from "@/shared/utils/typeGuards";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
 import extractFromFiberFailure from "./extractFromFiberFailure";
+import isValidationErrorArray from "./isValidationErrorArray";
 import safeJsonParse from "./safeJsonParse";
-
-function isValidationErrorArray(value: unknown): value is ValidationError[] {
-	if (!Array.isArray(value)) {
-		return false;
-	}
-	return value.every((item) => {
-		if (typeof item !== "object" || item === null) {
-			return false;
-		}
-		// Use a runtime guard to narrow unknown -> Record<string, unknown>
-		if (!isRecord(item)) {
-			return false;
-		}
-		return (
-			Object.hasOwn(item, "field") &&
-			Object.hasOwn(item, "message") &&
-			typeof item["field"] === "string" &&
-			typeof item["message"] === "string"
-		);
-	});
-}
 
 /**
  * Extract ValidationError[] from various error shapes used in the codebase.
