@@ -10,7 +10,7 @@ const COPY_INDEX_START = 2;
  * If the original slide follows "Slide N" pattern and "Slide N+1" doesn't exist,
  * use "Slide N+1" instead of "Slide N (Copy)"
  */
-export function getDuplicateSlideName(
+export default function getDuplicateSlideName(
 	originalSlideName: string,
 	slides: Readonly<Record<string, Slide>>,
 ): string {

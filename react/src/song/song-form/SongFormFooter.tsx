@@ -1,14 +1,14 @@
 import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
-interface SongFormFooterProps {
+type SongFormFooterProps = {
 	hasChanges: boolean;
 	isSubmitting: boolean;
 	isEditing: boolean;
 	onSave: () => void;
 	onReset: () => void;
 	onCancel: () => void;
-}
+};
 
 export default function SongFormFooter({
 	hasChanges,

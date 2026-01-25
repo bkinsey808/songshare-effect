@@ -1,7 +1,7 @@
 /**
  * Generate a random ID for slides
  */
-export function randomId(): string {
+export default function randomId(): string {
 	const RADIX = 36;
 	const ID_SLICE_START = 2;
 	const ID_SLICE_END = 10;

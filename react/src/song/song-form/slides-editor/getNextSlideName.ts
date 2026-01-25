@@ -5,7 +5,7 @@ const ONE = 1;
 /**
  * Generate the next available slide name
  */
-export function getNextSlideName(
+export default function getNextSlideName(
 	slides: Readonly<Record<string, Slide>>,
 	slideOrderLength: number,
 ): string {

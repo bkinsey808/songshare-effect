@@ -4,9 +4,9 @@
 import { safeGet } from "@/shared/utils/safe";
 
 import { type Slide } from "../song-form-types";
-import { getDuplicateSlideName } from "./getDuplicateSlideName";
-import { getNextSlideName } from "./getNextSlideName";
-import { randomId } from "./randomId";
+import getDuplicateSlideName from "./getDuplicateSlideName";
+import getNextSlideName from "./getNextSlideName";
+import randomId from "./randomId";
 
 type UseSlideDataParams = Readonly<{
 	slideOrder: readonly string[];
