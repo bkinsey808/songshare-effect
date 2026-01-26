@@ -88,7 +88,7 @@ instead do this:
  * @param totalSlides - total number of slides (used to hide controls when zero)
 ```
 
-### 3. Prefer jsdoc for commenting symbs. 
+### 3. Prefer jsdoc for commenting symbols. 
 Instead of 
 
 ```tsx
