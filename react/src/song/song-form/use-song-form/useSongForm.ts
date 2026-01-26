@@ -151,7 +151,6 @@ export default function useSongForm(): UseSongFormReturn {
 	const { onSubmit, handleCancel } = useFormSubmission({
 		handleApiResponseEffect,
 		resetFormState,
-		hasUnsavedChanges,
 		onSaveSuccess: (data: unknown) => {
 			const decoded = Schema.decodeUnknownEither(songPublicSchema)(data);
 			if (decoded._tag === "Right") {
@@ -257,7 +256,7 @@ export default function useSongForm(): UseSongFormReturn {
 
 	// Wrapper for resetForm that also resets form values
 	function resetForm(): void {
-		resetFormState();
+		const newFirstId = resetFormState();
 		const emptyFormValues = {
 			song_name: "",
 			song_slug: "",
@@ -268,13 +267,13 @@ export default function useSongForm(): UseSongFormReturn {
 		};
 		setFormValuesState(emptyFormValues);
 		hasPopulatedRef.current = false;
-		// Reset initial state after reset
+		// Sync initial state with the new reset state so hasUnsavedChanges clears
 		setInitialFormState({
 			formValues: emptyFormValues,
 			fields: ["lyrics"],
-			slideOrder: [initialSlideId],
+			slideOrder: [newFirstId],
 			slides: {
-				[initialSlideId]: {
+				[newFirstId]: {
 					slide_name: "Slide 1",
 					field_data: {},
 				},

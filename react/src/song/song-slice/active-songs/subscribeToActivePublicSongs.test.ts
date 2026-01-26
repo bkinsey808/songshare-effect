@@ -13,7 +13,7 @@ import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientL
 
 import getSupabaseClientWithAuth from "@/react/supabase/client/getSupabaseClientWithAuth";
 
-import type { SongSubscribeSlice } from "./song-slice";
+import type { SongSubscribeSlice } from "../song-slice";
 
 import subscribeToActivePublicSongs from "./subscribeToActivePublicSongs";
 

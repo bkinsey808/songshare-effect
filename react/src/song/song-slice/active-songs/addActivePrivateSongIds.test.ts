@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SongSubscribeSlice } from "./song-slice";
+import type { SongSubscribeSlice } from "../song-slice";
 
 import addActivePrivateSongIds from "./addActivePrivateSongIds";
 

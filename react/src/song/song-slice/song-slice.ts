@@ -1,16 +1,16 @@
 import type { Effect } from "effect";
 
 import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
-import { type Set, type Get, type Api } from "@/react/zustand/slice-utils";
+import { type Api, type Get, type Set } from "@/react/zustand/slice-utils";
 import { safeGet } from "@/shared/utils/safe";
 
 import { type Song, type SongPublic } from "../song-schema";
-import addActivePrivateSongIds from "./addActivePrivateSongIds";
-import addActivePrivateSongSlugs from "./addActivePrivateSongSlugs";
-import addActivePublicSongIds from "./addActivePublicSongIds";
-import addActivePublicSongSlugs from "./addActivePublicSongSlugs";
-import subscribeToActivePrivateSongs from "./subscribeToActivePrivateSongs";
-import subscribeToActivePublicSongs from "./subscribeToActivePublicSongs";
+import addActivePrivateSongIds from "./active-songs/addActivePrivateSongIds";
+import addActivePrivateSongSlugs from "./active-songs/addActivePrivateSongSlugs";
+import addActivePublicSongIds from "./active-songs/addActivePublicSongIds";
+import addActivePublicSongSlugs from "./active-songs/addActivePublicSongSlugs";
+import subscribeToActivePrivateSongs from "./active-songs/subscribeToActivePrivateSongs";
+import subscribeToActivePublicSongs from "./active-songs/subscribeToActivePublicSongs";
 
 type SongSubscribeState = {
 	privateSongs: Record<string, Song>;
@@ -96,7 +96,9 @@ export function createSongSubscribeSlice(
 					(id) => !songIds.includes(id),
 				);
 				// Subscribe to new set
-				const activePrivateSongsUnsubscribe = subscribeToActivePrivateSongs(set, get);
+				const activePrivateSongsUnsubscribe = subscribeToActivePrivateSongs(set, get) as () =>
+					| (() => void)
+					| undefined;
 				return {
 					activePrivateSongIds: newActivePrivateSongIds,
 					activePrivateSongsUnsubscribe,
@@ -114,7 +116,9 @@ export function createSongSubscribeSlice(
 					(id) => !songIds.includes(id),
 				);
 				// Subscribe to new set
-				const activePublicSongsUnsubscribe = subscribeToActivePublicSongs(set, get);
+				const activePublicSongsUnsubscribe = subscribeToActivePublicSongs(set, get) as () =>
+					| (() => void)
+					| undefined;
 				return {
 					activePublicSongIds: newActivePublicSongIds,
 					activePublicSongsUnsubscribe,
@@ -134,8 +138,12 @@ export function createSongSubscribeSlice(
 			}));
 		},
 
-		subscribeToActivePrivateSongs: subscribeToActivePrivateSongs(set, get),
-		subscribeToActivePublicSongs: subscribeToActivePublicSongs(set, get),
+		subscribeToActivePrivateSongs: subscribeToActivePrivateSongs(set, get) as () =>
+			| (() => void)
+			| undefined,
+		subscribeToActivePublicSongs: subscribeToActivePublicSongs(set, get) as () =>
+			| (() => void)
+			| undefined,
 
 		getSongBySlug: (slug: string) => {
 			const allPublicSongs = get().publicSongs;

@@ -53,6 +53,8 @@ export default function useSlidesEditor({
 		slideId: string;
 		index?: number;
 	}>) => void;
+	moveSlideUp: (index: number) => void;
+	moveSlideDown: (index: number) => void;
 	sensors: SensorDescriptor<SensorOptions>[];
 	handleDragEnd: (event: DragEndEvent) => void;
 	sortableItems: string[];
@@ -66,7 +68,7 @@ export default function useSlidesEditor({
 		setSlideOrder,
 	});
 
-	const { duplicateSlideOrder, removeSlideOrder } = useSlideOrder({
+	const { duplicateSlideOrder, removeSlideOrder, moveSlideUp, moveSlideDown } = useSlideOrder({
 		slideOrder,
 		setSlideOrder,
 	});
@@ -89,6 +91,8 @@ export default function useSlidesEditor({
 		duplicateSlide,
 		duplicateSlideOrder,
 		removeSlideOrder,
+		moveSlideUp,
+		moveSlideDown,
 		editFieldValue,
 		editSlideName,
 		safeGetField,

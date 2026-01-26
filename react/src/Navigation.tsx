@@ -1,16 +1,29 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState, type ReactNode } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
+import Button from "@/react/design-system/Button";
+import SongLibraryIcon from "@/react/design-system/icons/SongLibraryIcon";
 import useLocale from "@/react/language/locale/useLocale";
 import { SCROLL_THRESHOLD } from "@/shared/constants/http";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { aboutPath } from "@/shared/paths";
+import { aboutPath, dashboardPath, songLibraryPath } from "@/shared/paths";
 
 import LanguageSwitcher from "./language/switcher/LanguageSwitcher";
+
+const navItems: readonly {
+	path: string;
+	labelKey: string;
+	icon: ReactNode;
+}[] = [
+	{ path: "", labelKey: "navigation.home", icon: "🏠" },
+	{ path: `${dashboardPath}/${songLibraryPath}`, labelKey: "navigation.songLibrary", icon: <SongLibraryIcon className="size-4" /> },
+	{ path: aboutPath, labelKey: "navigation.about", icon: "ℹ️" },
+];
 
 function Navigation(): ReactElement {
 	const { lang, t } = useLocale();
 	const location = useLocation();
+	const navigate = useNavigate();
 	const [isScrolled, setIsScrolled] = useState(false);
 
 	// Listen for scroll events to compress navigation
@@ -25,11 +38,6 @@ function Navigation(): ReactElement {
 			globalThis.removeEventListener("scroll", handleScroll);
 		};
 	}, []);
-
-	const navItems = [
-		{ path: "", labelKey: "navigation.home", icon: "🏠" },
-		{ path: aboutPath, labelKey: "navigation.about", icon: "ℹ️" },
-	];
 
 	// Function to check if a navigation item is active
 	function isActive(itemPath: string): boolean {
@@ -72,19 +80,20 @@ function Navigation(): ReactElement {
 				<div className="flex flex-wrap gap-5">
 					{navItems.map((item) => {
 						const active = isActive(item.path);
+						const path = buildPathWithLang(item.path ? `/${item.path}` : "/", lang);
 						return (
-							<Link
+							<Button
 								key={item.path}
-								to={buildPathWithLang(item.path ? `/${item.path}` : "/", lang)}
-								className={`flex cursor-pointer items-center gap-2 rounded-lg border-2 px-5 py-3 text-base font-medium transition-all duration-200 ${
-									active
-										? "border-primary-500 bg-primary-500/20 text-primary-300 shadow-md"
-										: "hover:border-primary-500 border-gray-600 bg-transparent text-white hover:bg-gray-700"
-								}`}
+								size="compact"
+								variant={active ? "primary" : "outlineSecondary"}
+								icon={typeof item.icon === "string" ? <span aria-hidden>{item.icon}</span> : item.icon}
+								onClick={() => {
+									void navigate(path);
+								}}
+								className="!rounded-md !items-center [&>span:first-of-type]:!mt-0"
 							>
-								<span>{item.icon}</span>
-								<span>{t(item.labelKey)}</span>
-							</Link>
+								{t(item.labelKey)}
+							</Button>
 						);
 					})}
 				</div>

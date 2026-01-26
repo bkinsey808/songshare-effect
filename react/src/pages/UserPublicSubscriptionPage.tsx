@@ -10,6 +10,7 @@ import {
 	type SupabaseClientLike,
 } from "@/react/supabase/client/SupabaseClientLike";
 import { type Database, type Tables } from "@/shared/generated/supabaseTypes";
+import { formatAppDateTime } from "@/shared/utils/formatAppDate";
 import { isRecord, isString } from "@/shared/utils/typeGuards";
 
 type UserPublic = Tables<"user_public">;
@@ -440,7 +441,7 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 									<div className="mb-2 flex items-center justify-between">
 										<span className="font-semibold text-white">{event.eventType}</span>
 										<span className="text-xs text-gray-500">
-											{new Date(event.timestamp).toLocaleTimeString()}
+											{formatAppDateTime(event.timestamp)}
 										</span>
 									</div>
 									{event.new && (

@@ -16,6 +16,8 @@ export const dashboardPath = "dashboard";
 export const registerPath = "register";
 export const songEditPath = "song-edit";
 export const songLibraryPath = "song-library";
+/** Base path for viewing a song by slug; use as "songs/:song_slug" in routes */
+export const songViewPath = "songs";
 
 export const apiOauthSignInPath = "/api/oauth/sign-in";
 export const apiOauthCallbackPath = "/api/oauth/callback";

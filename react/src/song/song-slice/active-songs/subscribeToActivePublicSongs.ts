@@ -5,8 +5,8 @@ import { type Get } from "@/react/zustand/slice-utils";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { isRecord } from "@/shared/utils/typeGuards";
 
-import { type SongPublic } from "../song-schema";
-import { type SongSubscribeSlice } from "./song-slice";
+import { type SongPublic } from "../../song-schema";
+import { type SongSubscribeSlice } from "../song-slice";
 
 type SongPublicRealtimePayload = {
 	eventType: "INSERT" | "UPDATE" | "DELETE";
@@ -112,10 +112,10 @@ export default function subscribeToActivePublicSongs(
 
 				const supClient = client as SupabaseRealtimeClientLike;
 
-			// Use unique channel name to avoid conflicts with multiple subscriptions
-			const RANDOM_STRING_BASE = 36;
-			const RANDOM_STRING_START = 7;
-			const channelName = `song_public_changes_${Date.now()}_${Math.random().toString(RANDOM_STRING_BASE).slice(RANDOM_STRING_START)}`;
+				// Use unique channel name to avoid conflicts with multiple subscriptions
+				const RANDOM_STRING_BASE = 36;
+				const RANDOM_STRING_START = 7;
+				const channelName = `song_public_changes_${Date.now()}_${Math.random().toString(RANDOM_STRING_BASE).slice(RANDOM_STRING_START)}`;
 				const channel = supClient
 					.channel(channelName)
 					.on(

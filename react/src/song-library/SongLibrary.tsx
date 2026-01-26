@@ -1,9 +1,12 @@
 import type { TFunction } from "i18next";
+import { Link } from "react-router-dom";
 
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
 import { useAppStore } from "@/react/zustand/useAppStore";
-import { dashboardPath, songEditPath } from "@/shared/paths";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import formatAppDate from "@/shared/utils/formatAppDate";
+import { dashboardPath, songEditPath, songViewPath } from "@/shared/paths";
 
 import useSongLibrary from "./useSongLibrary";
 
@@ -152,24 +155,24 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 						{/* Added Date */}
 						<div className="mb-4 text-xs text-gray-500">
 							{t("songLibrary.addedOn", "Added {{date}}", {
-								date: new Date(entry.created_at).toLocaleDateString(),
+								date: formatAppDate(entry.created_at),
 							})}
 						</div>
 
 						{/* Action Buttons */}
 						<div className="flex items-center justify-between gap-2">
-							<button
-								type="button"
-								className="text-sm text-blue-400 transition-colors hover:text-blue-300"
-								onClick={() => {
-									if (entry.song_slug !== undefined && entry.song_slug !== "") {
-										navigate(`/${lang}/songs/${entry.song_slug}`);
-									}
-								}}
-								disabled={entry.song_slug === undefined || entry.song_slug === ""}
-							>
-								{t("songLibrary.viewSong", "View Song")}
-							</button>
+							{entry.song_slug !== undefined && entry.song_slug.trim() !== "" ? (
+								<Link
+									to={buildPathWithLang(`/${songViewPath}/${entry.song_slug}`, lang)}
+									className="text-sm text-blue-400 transition-colors hover:text-blue-300"
+								>
+									{t("songLibrary.viewSong", "View Song")}
+								</Link>
+							) : (
+								<span className="cursor-not-allowed text-sm text-gray-500">
+									{t("songLibrary.viewSong", "View Song")}
+								</span>
+							)}
 							{currentUserId !== undefined && currentUserId === entry.song_owner_id ? (
 								<button
 									type="button"

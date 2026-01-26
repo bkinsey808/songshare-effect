@@ -16,6 +16,26 @@ import useGridDragAndDrop from "./useGridDragAndDrop";
 const DEFAULT_FIELD_WIDTH = 300;
 const SLIDE_NAME_WIDTH = 144;
 const EMPTY_COUNT = 0;
+const SINGLE_OCCURRENCE = 1;
+
+/** Build a map from slideId -> group index for slide IDs that appear more than once in order. */
+function getDuplicateGroupMap(slideOrder: readonly string[]): Map<string, number> {
+	const counts = new Map<string, number>();
+	for (const id of slideOrder) {
+		counts.set(id, (counts.get(id) ?? EMPTY_COUNT) + SINGLE_OCCURRENCE);
+	}
+	const map = new Map<string, number>();
+	let groupIndex = EMPTY_COUNT;
+	const seen = new Set<string>();
+	for (const id of slideOrder) {
+		if ((counts.get(id) ?? EMPTY_COUNT) > SINGLE_OCCURRENCE && !seen.has(id)) {
+			seen.add(id);
+			map.set(id, groupIndex);
+			groupIndex += SINGLE_OCCURRENCE;
+		}
+	}
+	return map;
+}
 
 type SlidesGridTableProps = Readonly<
 	ReadonlyDeep<{
@@ -106,6 +126,8 @@ export default function SlidesGridTable({
 	// Track global dragging to allow rows to cancel delete confirmations when any drag starts
 	const [globalIsDragging, setGlobalIsDragging] = useState(false);
 
+	const duplicateGroupBySlideId = getDuplicateGroupMap(slideOrder);
+
 	function onDragEndWrapper(event: DragEndEvent): void {
 		setGlobalIsDragging(false);
 		handleDragEnd(event);
@@ -135,6 +157,23 @@ export default function SlidesGridTable({
 					style={cssVars({
 						"slide-name-width": `${SLIDE_NAME_WIDTH}px`,
 						"table-min-width": `${totalWidth}px`,
+						/*
+						 * Baseline alignment: slide-name input and first line of lyrics share the same
+						 * baseline. We use em so spacing scales with font-size and works across fonts.
+						 *
+						 * --slides-grid-baseline-offset: Distance from the row top to where the first
+						 * line of text should sit. The slide-name <td> uses this as padding-top; the
+						 * input uses pt-0 so its text starts at that offset. 0.25em gives a small
+						 * buffer above the first line.
+						 *
+						 * --slides-grid-textarea-baseline-correction: <textarea> typically positions
+						 * its first line lower than <input> for the same padding (browser/line-box
+						 * differences). We subtract this from the baseline offset for the lyrics
+						 * textarea so its first baseline lines up with the slide-name. 0.2em is an
+						 * empirical correction; adjust if alignment drifts with different fonts.
+						 */
+						"slides-grid-baseline-offset": "0.25em",
+						"slides-grid-textarea-baseline-correction": "0.2em",
 						...fieldWidthVars,
 					})}
 				>
@@ -192,6 +231,7 @@ export default function SlidesGridTable({
 										idx={idx}
 										getColumnWidth={getColumnWidth}
 										globalIsDragging={globalIsDragging}
+										isDuplicateRow={duplicateGroupBySlideId.has(slideId)}
 									/>
 								);
 							})}

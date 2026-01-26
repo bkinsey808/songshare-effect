@@ -36,7 +36,7 @@ export default function LanguageSwitcher(): ReactElement {
 			onChange={(ev) => {
 				handleLanguageChange(guardAsSupportedLanguage(ev.target.value));
 			}}
-			className="rounded-md border border-gray-300 bg-white px-3 py-1 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+			className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
 			aria-label={t("navigation.switchLanguage")}
 		>
 			{Object.values(SupportedLanguage).map((language) => (

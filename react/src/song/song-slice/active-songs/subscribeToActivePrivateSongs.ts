@@ -4,7 +4,7 @@ import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { type Get } from "@/react/zustand/slice-utils";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
-import { type SongSubscribeSlice } from "./song-slice";
+import { type SongSubscribeSlice } from "../song-slice";
 
 export default function subscribeToActivePrivateSongs(
 	_set: (

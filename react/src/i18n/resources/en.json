@@ -14,6 +14,7 @@
 	},
 	"navigation": {
 		"home": "Home",
+		"songLibrary": "Song Library",
 		"songs": "Songs",
 		"upload": "Upload",
 		"about": "About",
@@ -145,8 +146,40 @@
 		"addSameSlideAtAnotherPosition": "Add this same slide at another position",
 		"deleteSlide": {
 			"confirmation": "Are you sure you want to delete this slide? This will permanently remove the slide and its content.",
+			"confirmPrompt": "Delete this slide permanently?",
 			"cancel": "Cancel",
-			"confirm": "Delete"
-		}
+			"confirm": "Delete slide",
+			"button": "Delete Slide"
+		},
+		"removeFromPresentation": "Remove Slide",
+		"moveSlideUp": "Up",
+		"moveSlideDown": "Down",
+		"moveSlideUpAria": "Move slide up in presentation",
+		"moveSlideDownAria": "Move slide down in presentation",
+		"cancelUnsavedPrompt": "You have unsaved changes. Leave without saving?",
+		"cancelStay": "Stay",
+		"cancelLeave": "Leave"
+	},
+	"songView": {
+		"notFound": "Song not found",
+		"untitled": "Untitled",
+		"currentSlide": "Current slide",
+		"noSlides": "No slides for this song.",
+		"firstSlide": "First",
+		"prevSlide": "Previous",
+		"nextSlide": "Next",
+		"lastSlide": "Last",
+		"slideCounter": "Slide {{current}} of {{total}}",
+		"slideNavigation": "Slide navigation",
+		"fullScreen": "Full screen",
+		"exitFullScreen": "Exit full screen",
+		"fullScreenSlide": "Slide in full screen",
+		"pressEscToExit": "Press Esc to exit",
+		"publicDetails": "Public song details",
+		"key": "Key",
+		"scale": "Scale",
+		"createdAt": "Created",
+		"updatedAt": "Updated",
+		"keyboardHints": "Use First / Previous / Next / Last or ← → Home End to change slides."
 	}
 }

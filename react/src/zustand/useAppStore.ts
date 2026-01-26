@@ -12,7 +12,7 @@ import {
 import {
 	type SongSubscribeSlice,
 	createSongSubscribeSlice,
-} from "@/react/song/song-view/song-slice";
+} from "@/react/song/song-slice/song-slice";
 
 import { resetAllSlices, sliceResetFns } from "./slice-reset-fns";
 

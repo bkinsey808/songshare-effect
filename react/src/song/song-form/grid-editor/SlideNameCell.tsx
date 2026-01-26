@@ -5,6 +5,7 @@ import { type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
 import { type Slide } from "../song-form-types";
+import hashToHue from "./duplicateTint";
 import DragHandle from "./DragHandle";
 
 const REMOVE_COUNT = 1;
@@ -31,6 +32,8 @@ type SlideNameCellProps = Readonly<{
 	globalIsDragging: boolean;
 	attributes: DraggableAttributes;
 	listeners: SyntheticListenerMap | undefined;
+	/** When true, this cell uses the duplicate tint bg; the input keeps default dark bg. */
+	isDuplicateRow: boolean;
 }>;
 
 /**
@@ -69,11 +72,35 @@ export default function SlideNameCell({
 	globalIsDragging,
 	attributes,
 	listeners,
+	isDuplicateRow,
 }: SlideNameCellProps): ReactElement {
 	const { t } = useTranslation();
 
+	const tdClass =
+		"border border-gray-300 dark:border-gray-600 pl-2 pr-2 pt-[var(--slides-grid-baseline-offset)] pb-2 w-[var(--slide-name-width)] min-w-[var(--slide-name-width)] max-w-[var(--slide-name-width)] group-hover:border-gray-300 dark:group-hover:border-gray-400";
+	const inputClass = isDuplicateRow
+		? "w-full rounded border border-gray-600 bg-gray-800 px-2 pt-0 pb-1 text-base leading-normal text-white focus:border-blue-500 focus:outline-none"
+		: "w-full rounded border border-gray-200 px-2 pt-0 pb-1 text-base leading-normal focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-transparent dark:text-white";
+
+	/*
+	 * Baseline alignment with lyrics column: this td uses pt-[var(--slides-grid-baseline-offset)]
+	 * so the first line of text sits that far from the row top. The input has pt-0 so its text
+	 * starts at that offset with no extra space above. text-base leading-normal matches the
+	 * lyrics column; both baselines align when lyrics use the corrected offset (SortableGridCells).
+	 */
 	return (
-		<td className="border border-gray-300 dark:border-gray-600 px-2 py-2 w-[var(--slide-name-width)] min-w-[var(--slide-name-width)] max-w-[var(--slide-name-width)] group-hover:border-gray-300 dark:group-hover:border-gray-400">
+		<td
+			className={tdClass}
+			{...(isDuplicateRow
+				? {
+						"data-duplicate-tint": "",
+						style: {
+							"--duplicate-row-hue": `${hashToHue(slideId)}`,
+						} as React.CSSProperties &
+							Record<"--duplicate-row-hue", string>,
+					}
+				: {})}
+		>
 			<div className="space-y-2">
 				<div>
 					<input
@@ -82,7 +109,7 @@ export default function SlideNameCell({
 						onChange={(event) => {
 							editSlideName({ slideId, newName: event.target.value });
 						}}
-						className="w-full rounded border border-gray-200 px-2 py-1 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-transparent dark:text-white"
+						className={inputClass}
 						placeholder="Slide name"
 					/>
 				</div>
@@ -143,6 +170,10 @@ export default function SlideNameCell({
 						<span className="text-sm">🗑️</span>{" "}
 					</button>{" "}
 					{(() => {
+						// Hide delete when this is the last slide (we don't allow deleting the last slide)
+						if (slideOrder.length === SINGLE_INSTANCE) {
+							return undefined;
+						}
 						const instancesCount = slideOrder.filter((id) => id === slideId).length;
 						const isSingleInstance = instancesCount === SINGLE_INSTANCE;
 

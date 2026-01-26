@@ -54,6 +54,8 @@ type SortableGridRowProps = Readonly<{
 	idx: number;
 	getColumnWidth: (field: string) => number;
 	globalIsDragging: boolean;
+	/** When true, this row is part of a duplicate set and uses a hash-of-slideId tint. */
+	isDuplicateRow: boolean;
 }>;
 
 /**
@@ -95,6 +97,7 @@ export default function SlidesGridRow({
 	idx,
 	getColumnWidth,
 	globalIsDragging,
+	isDuplicateRow,
 }: SortableGridRowProps): ReactElement {
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 	const instancesCount = slideOrder.filter((id) => id === slideId).length;
@@ -122,12 +125,15 @@ export default function SlidesGridRow({
 	// Render a single <tr> for both normal and delete-confirmation states.
 	const faded = isSingleInstance && confirmingDelete ? Boolean(globalIsDragging) : false;
 
+	const rowClass =
+		"bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700";
+
 	return (
 		<tr
 			ref={setNodeRef}
 			key={`${slideId}-grid-${String(idx)}`}
 			style={style}
-			className={`bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 ${isDragging ? "z-10" : ""}`}
+			className={`${rowClass} ${isDragging ? "z-10" : ""}`}
 			aria-hidden={faded ? "true" : "false"}
 		>
 			{isSingleInstance && confirmingDelete ? (
@@ -165,6 +171,7 @@ export default function SlidesGridRow({
 					getColumnWidth={getColumnWidth}
 					attributes={attributes}
 					listeners={listeners}
+					isDuplicateRow={isDuplicateRow}
 				/>
 			)}
 		</tr>

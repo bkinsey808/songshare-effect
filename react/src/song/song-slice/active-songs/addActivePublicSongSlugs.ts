@@ -4,13 +4,13 @@ import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { isRecord } from "@/shared/utils/typeGuards";
 
-import type { SongSubscribeSlice } from "./song-slice";
+import type { SongSubscribeSlice } from "../song-slice";
 
-import decodeSongData from "./utils/decodeSongData";
-import fetchPublicSongsBySlugs from "./utils/fetchPublicSongsBySlugs";
-import findMissingSongSlugs from "./utils/findMissingSongSlugs";
-import updateStoreWithPublicSongs from "./utils/updateStoreWithPublicSongs";
-import validateVisitorToken from "./utils/validateVisitorToken";
+import validateVisitorToken from "./validateVisitorToken";
+import decodeSongData from "./decodeSongData";
+import fetchPublicSongsBySlugs from "./fetchPublicSongsBySlugs";
+import findMissingSongSlugs from "./findMissingSongSlugs";
+import updateStoreWithPublicSongs from "./updateStoreWithPublicSongs";
 
 export default function addActivePublicSongSlugs(
 	set: (

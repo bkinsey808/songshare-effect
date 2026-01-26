@@ -3,14 +3,15 @@ import { useState } from "react";
 import { type Slide } from "../song-form-types";
 import generateId from "./generate/generateId";
 
-type UseFormStateReturn = {
+	type UseFormStateReturn = {
 	slideOrder: readonly string[];
 	slides: Record<string, Slide>;
 	fields: readonly string[];
 	setSlideOrder: (newOrder: readonly string[]) => void;
 	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 	toggleField: (field: string, checked: boolean) => void;
-	resetFormState: () => void;
+	/** Resets slides to a single new slide. Returns the new slide id so callers can sync initial state. */
+	resetFormState: () => string;
 	initialSlideId: string;
 };
 
@@ -41,11 +42,8 @@ export default function useFormState(): UseFormStateReturn {
 	}
 
 	// Reset form state to initial values
-	function resetFormState(): void {
-		// Generate a new first slide ID
+	function resetFormState(): string {
 		const newFirstId = generateId();
-
-		// Reset all state to initial values
 		setSlideOrder([newFirstId]);
 		setSlides({
 			[newFirstId]: {
@@ -54,6 +52,7 @@ export default function useFormState(): UseFormStateReturn {
 			},
 		});
 		setFields(["lyrics"]);
+		return newFirstId;
 	}
 
 	return {

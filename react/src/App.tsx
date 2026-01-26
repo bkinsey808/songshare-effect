@@ -18,6 +18,7 @@ import {
 	registerPath,
 	songEditPath,
 	songLibraryPath,
+	songViewPath,
 	suspenseDemoPath,
 	suspenseUseDemoPath,
 	typegpuAudioVizDemoPath,
@@ -27,6 +28,7 @@ import {
 } from "@/shared/paths";
 
 import ErrorBoundary from "./demo/ErrorBoundary";
+import SongView from "./song/song-view/SongView";
 import LanguageDetector from "./language/detector/LanguageDetector";
 import LanguageProvider from "./language/provider/LanguageProvider";
 import Navigation from "./Navigation";
@@ -158,6 +160,10 @@ const router = createBrowserRouter([
 								element: <SongLibraryPage />,
 							},
 						],
+					},
+					{
+						path: `${songViewPath}/:song_slug`,
+						element: <SongView />,
 					},
 					{
 						path: reactFeaturesPath,

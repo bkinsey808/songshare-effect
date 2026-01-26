@@ -3,8 +3,11 @@ import { useTranslation } from "react-i18next";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
+import Button from "@/react/design-system/Button";
+import PlusIcon from "@/react/design-system/icons/PlusIcon";
 import useSlidesEditor from "../slides-editor/useSlidesEditor";
 import { type Slide } from "../song-form-types";
+import hashToHue from "./duplicateTint";
 import SlidesGridTable from "./SlidesGridTable";
 
 const EMPTY_COUNT = 0;
@@ -67,16 +70,14 @@ export default function SlidesGridView({
 			/>
 			{/* Add New Slide Button */}
 			<div className="mt-4 flex justify-start">
-				<button
-					type="button"
+				<Button
+					size="compact"
+					variant="primary"
+					icon={<PlusIcon className="size-4" />}
 					onClick={addSlide}
-					className="flex items-center gap-2 whitespace-nowrap rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-					title={t("song.addNewSlide", "Add New Slide")}
-					aria-label={t("song.addNewSlide", "Add New Slide")}
 				>
-					<span className="flex-shrink-0">➕</span>
-					<span className="flex-shrink-0">{t("song.addNewSlide", "Add New Slide")}</span>
-				</button>
+					{t("song.addNewSlide", "Add New Slide")}
+				</Button>
 			</div>
 			{/* Presentation Order Info */}
 			{slideOrder.length > EMPTY_COUNT && (
@@ -87,10 +88,24 @@ export default function SlidesGridView({
 					<div className="flex flex-wrap gap-2">
 						{slideOrder.map((slideId, idx) => {
 							const slide = safeGet(slides, slideId);
+							const isDuplicate =
+								slideOrder.filter((id) => id === slideId).length > INDEX_OFFSET;
+							const chipClass = isDuplicate
+								? "rounded px-2 py-1 text-sm text-gray-200"
+								: "rounded bg-blue-200 dark:bg-blue-800/30 px-2 py-1 text-sm text-blue-800 dark:text-blue-200";
 							return (
 								<span
 									key={`order-${slideId}-${String(idx)}`}
-									className="rounded bg-blue-200 dark:bg-blue-800/30 px-2 py-1 text-sm text-blue-800 dark:text-blue-200"
+									className={chipClass}
+									{...(isDuplicate
+										? {
+												"data-duplicate-tint": "",
+												style: {
+													"--duplicate-row-hue": `${hashToHue(slideId)}`,
+												} as React.CSSProperties &
+													Record<"--duplicate-row-hue", string>,
+											}
+										: {})}
 								>
 									{idx + INDEX_OFFSET}. {slide?.slide_name ?? "Unknown Slide"}
 								</span>

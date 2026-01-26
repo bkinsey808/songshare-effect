@@ -5,8 +5,8 @@ import callSelect from "@/react/supabase/client/safe-query/callSelect";
 import { safeGet } from "@/shared/utils/safe";
 import { isRecord } from "@/shared/utils/typeGuards";
 
-import { type Song } from "../song-schema";
-import { type SongSubscribeSlice } from "./song-slice";
+import { type Song } from "../../song-schema";
+import { type SongSubscribeSlice } from "../song-slice";
 
 export default function addActivePrivateSongSlugs(
 	set: (

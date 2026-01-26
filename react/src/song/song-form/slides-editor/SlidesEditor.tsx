@@ -1,13 +1,20 @@
 // src/features/song-form/SlidesEditor.tsx
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
 import AutoExpandingTextarea from "../../../design-system/AutoExpandingTextarea";
+import Button from "../../../design-system/Button";
 import FormField from "../../../design-system/form/FormField";
+import ChevronDownIcon from "../../../design-system/icons/ChevronDownIcon";
+import ChevronUpIcon from "../../../design-system/icons/ChevronUpIcon";
+import PlusIcon from "../../../design-system/icons/PlusIcon";
+import TrashIcon from "../../../design-system/icons/TrashIcon";
 import { songFields } from "../../song-schema";
 import { type Slide } from "../song-form-types";
+import hashToHue from "../grid-editor/duplicateTint";
 import useSlidesEditor from "./useSlidesEditor";
 
 type SlidesEditorProps = Readonly<
@@ -31,14 +38,20 @@ export default function SlidesEditor({
 	slides,
 	setSlides,
 }: SlidesEditorProps): ReactElement {
-	const { addSlide, deleteSlide, editFieldValue, editSlideName, safeGetField } = useSlidesEditor({
-		slideOrder,
-		setSlideOrder,
-		slides,
-		setSlides,
-	});
+	const { addSlide, deleteSlide, editFieldValue, editSlideName, safeGetField, removeSlideOrder, moveSlideUp, moveSlideDown } =
+		useSlidesEditor({
+			slideOrder,
+			setSlideOrder,
+			slides,
+			setSlides,
+		});
+
+	const [confirmingDeleteSlideId, setConfirmingDeleteSlideId] = useState<string | undefined>(
+		undefined,
+	);
 
 	const { t } = useTranslation();
+	const FIRST_INDEX = 0;
 	const ONE = 1;
 	const JSON_INDENT = 2;
 	const TEXTAREA_MIN_ROWS = 3;
@@ -46,9 +59,8 @@ export default function SlidesEditor({
 
 	return (
 		<div className="@container w-full">
-			{/* Header with Fields and Add Button */}
-			<div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-				{/* Fields Selection */}
+			{/* Header with Fields */}
+			<div className="mb-6">
 				<fieldset className="flex flex-col gap-2">
 					<legend className="text-sm font-bold text-gray-300">{t("song.fields", "Fields")}</legend>
 					<div className="mt-2 flex flex-col gap-2">
@@ -66,29 +78,31 @@ export default function SlidesEditor({
 						))}
 					</div>
 				</fieldset>
-
-				{/* Add New Slide Button */}
-				<button
-					type="button"
-					onClick={addSlide}
-					className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 sm:shrink-0"
-				>
-					Add New Slide
-				</button>
 			</div>
 
 			<h2 className="mb-2 text-sm font-bold text-gray-300">Slides</h2>
 			{
-				// Show all slides based on keys in the slides object
-				Object.keys(slides).map((slideId, idx) => {
+				// One card per position in slideOrder (same order and duplicates as the grid)
+				slideOrder.map((slideId, idx) => {
 					const slide = safeGet(slides, slideId);
 					if (!slide) {
 						return undefined;
 					}
+					const isDuplicate =
+						slideOrder.filter((id) => id === slideId).length > ONE;
 					return (
 						<div
-							key={`${slideId}-detail-${String(idx)}`}
+							key={`slide-detail-${String(idx)}`}
 							className="mb-6 rounded-lg border border-gray-600 p-4"
+							{...(isDuplicate
+								? {
+										"data-duplicate-tint": "",
+										style: {
+											"--duplicate-row-hue": `${hashToHue(slideId)}`,
+										} as React.CSSProperties &
+											Record<"--duplicate-row-hue", string>,
+									}
+								: {})}
 						>
 							<div className="mb-6">
 								<FormField label={t("song.slideName", "Slide Name")}>
@@ -98,7 +112,7 @@ export default function SlidesEditor({
 										onChange={(event) => {
 											editSlideName({ slideId, newName: event.target.value });
 										}}
-										className="mt-1 w-full rounded border px-4 py-1"
+										className="mt-1 w-full rounded border border-gray-600 bg-gray-800 px-4 py-1 text-white"
 										placeholder="Slide name"
 									/>
 								</FormField>
@@ -121,25 +135,102 @@ export default function SlidesEditor({
 													value: event.target.value,
 												});
 											}}
-											className="mt-1 w-full rounded border px-2 py-1"
+											className="mt-1 w-full rounded border border-gray-600 bg-gray-800 px-2 py-1 text-white"
 											minRows={TEXTAREA_MIN_ROWS}
 											maxRows={TEXTAREA_MAX_ROWS}
 										/>
 									</FormField>
 								</div>
 							))}
-							<div className="mt-4 flex justify-start">
-								<button
-									type="button"
-									className="remove-slide-btn rounded border border-transparent bg-red-600 px-4 py-1 text-base font-semibold text-white shadow transition-colors duration-150 hover:bg-red-700 focus:ring-4 focus:outline-none"
-									onClick={() => {
-										deleteSlide(slideId);
-									}}
-									aria-label={`Remove slide ${String(idx + ONE)}`}
-								>
-									Delete&nbsp;Slide
-								</button>
-							</div>
+							{slideOrder.length > ONE && (
+								<div className="mt-4 flex flex-wrap items-center justify-start gap-2">
+									<Button
+										size="compact"
+										variant="outlineSecondary"
+										icon={<ChevronUpIcon className="size-4" />}
+										onClick={() => {
+											moveSlideUp(idx);
+										}}
+										disabled={idx === FIRST_INDEX}
+										aria-label={t("song.moveSlideUpAria", "Move slide up in presentation")}
+									>
+										{t("song.moveSlideUp", "Up")}
+									</Button>
+									<Button
+										size="compact"
+										variant="outlineSecondary"
+										icon={<ChevronDownIcon className="size-4" />}
+										onClick={() => {
+											moveSlideDown(idx);
+										}}
+										disabled={idx === slideOrder.length - ONE}
+										aria-label={t("song.moveSlideDownAria", "Move slide down in presentation")}
+									>
+										{t("song.moveSlideDown", "Down")}
+									</Button>
+									{(() => {
+										if (confirmingDeleteSlideId === slideId) {
+											return (
+												<>
+													<span className="flex items-center text-sm text-gray-300">
+														{t("song.deleteSlide.confirmPrompt", "Delete this slide permanently?")}
+													</span>
+													<Button
+														size="compact"
+														variant="outlineSecondary"
+														onClick={() => {
+															setConfirmingDeleteSlideId(undefined);
+														}}
+													>
+														{t("song.deleteSlide.cancel", "Cancel")}
+													</Button>
+													<Button
+														size="compact"
+														variant="danger"
+														icon={<TrashIcon className="size-4" />}
+														onClick={() => {
+															deleteSlide(slideId);
+															setConfirmingDeleteSlideId(undefined);
+														}}
+													>
+														{t("song.deleteSlide.confirm", "Delete slide")}
+													</Button>
+												</>
+											);
+										}
+										if (isDuplicate) {
+											return (
+												<Button
+													size="compact"
+													variant="outlineDanger"
+													icon={<TrashIcon className="size-4" />}
+													onClick={() => {
+														removeSlideOrder({ slideId, index: idx });
+													}}
+													aria-label={t("song.removeFromPresentation", "Remove from presentation")}
+													data-testid="remove-from-presentation"
+												>
+													{t("song.removeFromPresentation", "Remove Slide")}
+												</Button>
+											);
+										}
+										return (
+											<Button
+												size="compact"
+												variant="outlineDanger"
+												icon={<TrashIcon className="size-4" />}
+												onClick={() => {
+													setConfirmingDeleteSlideId(slideId);
+												}}
+												aria-label={t("song.deleteSlide.button", "Delete slide")}
+												data-testid="delete-slide-button"
+											>
+												{t("song.deleteSlide.button", "Delete Slide")}
+											</Button>
+										);
+									})()}
+								</div>
+							)}
 							{/* Debug info - remove this in production */}
 							<details className="mt-4 text-xs text-gray-500">
 								<summary>Debug: All field data for this slide</summary>
@@ -151,6 +242,16 @@ export default function SlidesEditor({
 					);
 				})
 			}
+			<div className="mt-6 flex justify-start">
+				<Button
+					size="compact"
+					variant="primary"
+					icon={<PlusIcon className="size-4" />}
+					onClick={addSlide}
+				>
+					Add New Slide
+				</Button>
+			</div>
 		</div>
 	);
 }

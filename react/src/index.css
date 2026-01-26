@@ -27,4 +27,20 @@
 	a {
 		@apply text-primary-500 hover:text-primary-600 font-medium no-underline transition-colors;
 	}
+
+	/* Duplicate slide indicators (grid rows, order chips): hue via --duplicate-row-hue.
+	 * Dark theme (default): muted dark tint so text stays readable. */
+	[data-duplicate-tint] {
+		background: hsl(var(--duplicate-row-hue), 10%, 22%);
+	}
+	[data-duplicate-tint]:hover {
+		background: hsl(var(--duplicate-row-hue), 10%, 26%);
+	}
+	/* Light theme override when .light is on a parent (e.g. html) */
+	.light [data-duplicate-tint] {
+		background: hsl(var(--duplicate-row-hue), 18%, 96%);
+	}
+	.light [data-duplicate-tint]:hover {
+		background: hsl(var(--duplicate-row-hue), 18%, 93%);
+	}
 }

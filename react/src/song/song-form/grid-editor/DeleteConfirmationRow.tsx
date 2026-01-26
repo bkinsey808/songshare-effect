@@ -1,5 +1,9 @@
 import { useTranslation } from "react-i18next";
 
+import Button from "@/react/design-system/Button";
+import TrashIcon from "@/react/design-system/icons/TrashIcon";
+import XIcon from "@/react/design-system/icons/XIcon";
+
 type DeleteConfirmationRowProps = Readonly<{
 	colSpan: number;
 	onCancel: () => void;
@@ -43,22 +47,24 @@ export default function DeleteConfirmationRow({
 					)}
 				</div>
 				<div className="mt-3 flex justify-start gap-2">
-					<button
-						type="button"
-						className="rounded border border-gray-600 bg-gray-700 px-3 py-1 text-white hover:bg-gray-600"
+					<Button
+						size="compact"
+						variant="outlineSecondary"
+						icon={<XIcon className="size-4" />}
 						onClick={onCancel}
 						disabled={isFaded}
 					>
 						{t("song.deleteSlide.cancel", "Cancel")}
-					</button>
-					<button
-						type="button"
-						className="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
+					</Button>
+					<Button
+						size="compact"
+						variant="danger"
+						icon={<TrashIcon className="size-4" />}
 						onClick={onConfirm}
 						disabled={isFaded}
 					>
 						{t("song.deleteSlide.confirm", "Delete")}
-					</button>
+					</Button>
 				</div>
 			</div>
 		</td>
