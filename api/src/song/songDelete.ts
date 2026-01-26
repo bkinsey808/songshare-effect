@@ -51,9 +51,7 @@ export default function songDelete(
 
 		const songId = validated.song_id.trim();
 		if (songId === "") {
-			return yield* $(
-				Effect.fail(new ValidationError({ message: "song_id is required" })),
-			);
+			return yield* $(Effect.fail(new ValidationError({ message: "song_id is required" })));
 		}
 
 		const supabaseUrl = ctx.env.VITE_SUPABASE_URL;
@@ -62,12 +60,7 @@ export default function songDelete(
 
 		const result = yield* $(
 			Effect.tryPromise({
-				try: () =>
-					supabase
-						.from("song")
-						.delete()
-						.eq("song_id", songId)
-						.eq("user_id", userId),
+				try: () => supabase.from("song").delete().eq("song_id", songId).eq("user_id", userId),
 				catch: (err) =>
 					new DatabaseError({
 						message: getErrorMessage(err) || "Failed to delete song",

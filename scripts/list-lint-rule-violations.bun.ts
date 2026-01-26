@@ -3,7 +3,7 @@
 
 /// <reference types="bun" />
 
-import isRecord from "../shared/src/utils/isRecord";
+import isRecord from "../shared/src/type-guards/isRecord";
 
 const OXLINT_CMD = ["bunx", "oxlint", "--format", "json", "."] as const;
 const ZERO = 0;

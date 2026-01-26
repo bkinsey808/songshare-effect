@@ -3,7 +3,7 @@
 // Keep this file minimal and use safe runtime checks instead of broad
 // eslint-disable blocks so it can be linted normally.
 
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 
 try {
 	// Narrow globalThis before mutating it (avoid unsafe casts)

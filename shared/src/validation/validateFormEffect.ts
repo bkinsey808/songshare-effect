@@ -1,7 +1,8 @@
 import { Effect, Either, Schema } from "effect";
 import { ArrayFormatter, type ArrayFormatterIssue } from "effect/ParseResult";
 
-import { isRecord, isString } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
+import isString from "@/shared/type-guards/isString";
 
 import computeParams from "./computeParams";
 import extractI18nMessages from "./extractI18nMessages";

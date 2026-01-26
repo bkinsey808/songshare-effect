@@ -1,14 +1,18 @@
-import assert from "node:assert";
 import { Effect } from "effect";
+import assert from "node:assert";
 import { describe, expect, it, vi } from "vitest";
 
-import type { RealtimeChannelLike, SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
-import { ONE_CALL } from "@/react/test-helpers/test-consts";
+import type {
+	RealtimeChannelLike,
+	SupabaseClientLike,
+} from "@/react/supabase/client/SupabaseClientLike";
 import type { Database } from "@/shared/generated/supabaseTypes";
+
+import { ONE_CALL } from "@/react/test-helpers/test-consts";
+import isRecord from "@/shared/type-guards/isRecord";
 
 import type { SongLibrarySlice } from "../song-library-slice";
 import type { SongLibraryEntry } from "../song-library-types";
-import { isRecord } from "@/shared/utils/typeGuards";
 
 import subscribeToSongPublic from "./subscribeToSongPublic";
 
@@ -34,10 +38,7 @@ function createMockSlice(overrides: {
 	songLibraryEntries: Record<string, SongLibraryEntry>;
 	setSongLibraryEntries: (entries: Readonly<Record<string, SongLibraryEntry>>) => void;
 }): SongLibrarySlice {
-	const {
-		songLibraryEntries,
-		setSongLibraryEntries,
-	} = overrides;
+	const { songLibraryEntries, setSongLibraryEntries } = overrides;
 	return {
 		songLibraryEntries,
 		setSongLibraryEntries,
@@ -69,15 +70,16 @@ function createMockChannel(): RealtimeChannelLike {
 
 function createMockSupabaseClient(): SupabaseClientLike<Database> {
 	return {
-		from: (): ReturnType<SupabaseClientLike<Database>["from"]> =>
-			({ select: (): { eq: (_col: string, _val: string) => { single: () => Promise<unknown> } } => ({
+		from: (): ReturnType<SupabaseClientLike<Database>["from"]> => ({
+			select: (): { eq: (_col: string, _val: string) => { single: () => Promise<unknown> } } => ({
 				eq: (): { single: () => Promise<unknown> } => ({
 					single: async (): Promise<unknown> => {
 						await Promise.resolve();
 						return {};
 					},
 				}),
-			}) }),
+			}),
+		}),
 		channel: (_name: string): RealtimeChannelLike => createMockChannel(),
 		removeChannel: (): unknown => undefined,
 		auth: {
@@ -97,7 +99,8 @@ describe("subscribeToSongPublic", () => {
 			user_id: "owner",
 			created_at: new Date().toISOString(),
 		};
-		const setSongLibraryEntries = vi.fn<(entries: Readonly<Record<string, SongLibraryEntry>>) => void>();
+		const setSongLibraryEntries =
+			vi.fn<(entries: Readonly<Record<string, SongLibraryEntry>>) => void>();
 		const slice = createMockSlice({
 			songLibraryEntries: { s1: existingEntry },
 			setSongLibraryEntries,
@@ -114,15 +117,16 @@ describe("subscribeToSongPublic", () => {
 		vi.spyOn(authTokenModule, "default").mockResolvedValue("token-abc");
 		vi.spyOn(clientModule, "default").mockReturnValue(createMockSupabaseClient());
 		const cleanupFn: () => void = vi.fn();
-		const createRealtimeMock = vi
-			.spyOn(createRealtimeModule, "default")
-			.mockReturnValue(cleanupFn);
+		const createRealtimeMock = vi.spyOn(createRealtimeModule, "default").mockReturnValue(cleanupFn);
 
 		const cleanup = await Effect.runPromise(subscribeToSongPublic(get, ["s1"]));
 
 		const expectedFilter = 'song_id=in.("s1")';
 		const config = createRealtimeMock.mock.calls[MOCK_CALL_INDEX]?.[MOCK_ARG_INDEX];
-		assert.ok(isCreateRealtimeConfig(config), "createRealtimeSubscription was not called with expected config");
+		assert.ok(
+			isCreateRealtimeConfig(config),
+			"createRealtimeSubscription was not called with expected config",
+		);
 		expect(config.tableName).toBe("song_public");
 		expect(config.filter).toBe(expectedFilter);
 

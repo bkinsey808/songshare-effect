@@ -1,6 +1,6 @@
 import DEFAULT_DEV_ORIGINS from "@/api/cors/defaultDevOrigins";
 import normalizeOrigin from "@/api/cors/normalizeOrigin";
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 
 export default function getAllowedOrigins(envLike: unknown): string[] {
 	const ZERO = 0;

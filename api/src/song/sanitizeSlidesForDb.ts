@@ -1,5 +1,6 @@
 import { type Json } from "@/shared/generated/supabaseTypes";
-import { isRecord, isString } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
+import isString from "@/shared/type-guards/isString";
 
 /**
  * Helper to ensure all fields are present in field_data
@@ -33,10 +34,7 @@ function ensureAllFieldsPresent(
  * @param fields - Array of field names that must be present in each slide's field_data.
  * @returns A plain JSON object that is safe to persist in the DB.
  */
-export default function sanitizeSlidesForDb(
-	slides: unknown,
-	fields: readonly string[] = [],
-): Json {
+export default function sanitizeSlidesForDb(slides: unknown, fields: readonly string[] = []): Json {
 	if (isRecord(slides)) {
 		const sanitized: Record<string, { slide_name: string; field_data: Record<string, string> }> =
 			{};

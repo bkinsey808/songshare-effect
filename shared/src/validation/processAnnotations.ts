@@ -1,4 +1,5 @@
-import { isRecord, isString } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
+import isString from "@/shared/type-guards/isString";
 
 // Scan `annotations` for an i18n message annotated under `i18nMessageKey`.
 // Returns the raw message object when found and validated, otherwise `undefined`.

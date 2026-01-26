@@ -5,8 +5,8 @@ import { clientDebug, clientError } from "@/react/utils/clientLogger";
 import { getStoreApi } from "@/react/zustand/useAppStore";
 import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
 import { apiMePath } from "@/shared/paths";
+import isRecord from "@/shared/type-guards/isRecord";
 import { type UserSessionData } from "@/shared/userSessionData";
-import { isRecord } from "@/shared/utils/typeGuards";
 
 // Module-level in-flight promise to dedupe concurrent requests.
 // Initialized to undefined to satisfy init-declarations lint rule

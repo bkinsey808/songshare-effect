@@ -81,10 +81,7 @@ function DashboardPage(): ReactElement {
 				variant="error"
 				alertType="unauthorizedAccess"
 			>
-				{t(
-					"pages.dashboard.unauthorizedAccess",
-					"You do not have permission to access that song.",
-				)}
+				{t("pages.dashboard.unauthorizedAccess", "You do not have permission to access that song.")}
 			</DismissibleAlert>
 
 			<h2 className="mb-4 text-3xl font-bold">{t("pages.dashboard.title")}</h2>
@@ -114,9 +111,7 @@ function DashboardPage(): ReactElement {
 					icon={<TrashIcon className="size-4" />}
 					onClick={() => {
 						const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
-						void navigate(
-							buildPathWithLang(`/${dashboardPath}/${deleteAccountPath}`, langForNav),
-						);
+						void navigate(buildPathWithLang(`/${dashboardPath}/${deleteAccountPath}`, langForNav));
 					}}
 					data-testid="dashboard-delete-account"
 				>

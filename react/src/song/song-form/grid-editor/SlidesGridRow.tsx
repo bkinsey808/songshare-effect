@@ -125,8 +125,7 @@ export default function SlidesGridRow({
 	// Render a single <tr> for both normal and delete-confirmation states.
 	const faded = isSingleInstance && confirmingDelete ? Boolean(globalIsDragging) : false;
 
-	const rowClass =
-		"bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700";
+	const rowClass = "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700";
 
 	return (
 		<tr

@@ -5,7 +5,7 @@ import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import callSelect from "@/react/supabase/client/safe-query/callSelect";
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 
 import type { SongSubscribeSlice } from "../song-slice";
 

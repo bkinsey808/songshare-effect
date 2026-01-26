@@ -47,9 +47,7 @@ describe("formatAppDateTime", () => {
 			new Date(YEAR_2026, JANUARY, DAY_19, HOUR_23, MINUTE_59, SECOND_59),
 		);
 		expect(afternoon).toBe("2026/19/01 23:59:59");
-		const midnight = formatAppDateTime(
-			new Date(YEAR_2026, JANUARY, DAY_20, ZERO, ZERO, ZERO),
-		);
+		const midnight = formatAppDateTime(new Date(YEAR_2026, JANUARY, DAY_20, ZERO, ZERO, ZERO));
 		expect(midnight).toBe("2026/20/01 00:00:00");
 	});
 });

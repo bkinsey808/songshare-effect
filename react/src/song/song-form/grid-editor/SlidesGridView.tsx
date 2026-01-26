@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next";
 
+import Button from "@/react/design-system/Button";
+import PlusIcon from "@/react/design-system/icons/PlusIcon";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
-import Button from "@/react/design-system/Button";
-import PlusIcon from "@/react/design-system/icons/PlusIcon";
 import useSlidesEditor from "../slides-editor/useSlidesEditor";
 import { type Slide } from "../song-form-types";
 import hashToHue from "./duplicateTint";
@@ -88,8 +88,7 @@ export default function SlidesGridView({
 					<div className="flex flex-wrap gap-2">
 						{slideOrder.map((slideId, idx) => {
 							const slide = safeGet(slides, slideId);
-							const isDuplicate =
-								slideOrder.filter((id) => id === slideId).length > INDEX_OFFSET;
+							const isDuplicate = slideOrder.filter((id) => id === slideId).length > INDEX_OFFSET;
 							const chipClass = isDuplicate
 								? "rounded px-2 py-1 text-sm text-gray-200"
 								: "rounded bg-blue-200 dark:bg-blue-800/30 px-2 py-1 text-sm text-blue-800 dark:text-blue-200";
@@ -102,8 +101,7 @@ export default function SlidesGridView({
 												"data-duplicate-tint": "",
 												style: {
 													"--duplicate-row-hue": `${hashToHue(slideId)}`,
-												} as React.CSSProperties &
-													Record<"--duplicate-row-hue", string>,
+												} as React.CSSProperties & Record<"--duplicate-row-hue", string>,
 											}
 										: {})}
 								>

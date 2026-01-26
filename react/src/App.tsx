@@ -28,7 +28,6 @@ import {
 } from "@/shared/paths";
 
 import ErrorBoundary from "./demo/ErrorBoundary";
-import SongView from "./song/song-view/SongView";
 import LanguageDetector from "./language/detector/LanguageDetector";
 import LanguageProvider from "./language/provider/LanguageProvider";
 import Navigation from "./Navigation";
@@ -44,6 +43,7 @@ import RegisterPage from "./pages/RegisterPage";
 import SuspenseUsePage from "./pages/SuspenseUsePage";
 import UploadPage from "./pages/UploadPage";
 import UserPublicSubscriptionPage from "./pages/UserPublicSubscriptionPage";
+import SongView from "./song/song-view/SongView";
 
 const TypeGpuDemoPage = lazy(() => import("./pages/demo/TypeGpuDemoPage"));
 const TypegpuAudioVizDemoPage = lazy(

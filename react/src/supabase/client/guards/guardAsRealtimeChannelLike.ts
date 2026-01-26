@@ -1,4 +1,4 @@
-import isRecord from "@/shared/utils/isRecord";
+import isRecord from "@/shared/type-guards/isRecord";
 
 import type { RealtimeChannelLike } from "../SupabaseClientLike";
 

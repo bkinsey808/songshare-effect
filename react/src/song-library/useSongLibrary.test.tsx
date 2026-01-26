@@ -38,11 +38,14 @@ describe("useSongLibrary", () => {
 		const originalSubscribePublic = store.getState().subscribeToSongPublic;
 
 		// Inject mocked functions
-		store.setState(() => ({
-			fetchSongLibrary,
-			subscribeToSongLibrary,
-			subscribeToSongPublic,
-		} as Partial<AppSlice>));
+		store.setState(
+			() =>
+				({
+					fetchSongLibrary,
+					subscribeToSongLibrary,
+					subscribeToSongPublic,
+				}) as Partial<AppSlice>,
+		);
 
 		const { unmount } = renderHook(
 			() => {

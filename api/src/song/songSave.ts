@@ -135,12 +135,7 @@ export default function songSave(
 		if (isUpdate) {
 			const existingSong = yield* $(
 				Effect.tryPromise({
-					try: () =>
-						supabase
-							.from("song_public")
-							.select("user_id")
-							.eq("song_id", songId)
-							.single(),
+					try: () => supabase.from("song_public").select("user_id").eq("song_id", songId).single(),
 					catch: (err) =>
 						new DatabaseError({
 							message: `Failed to verify song ownership: ${getErrorMessage(err)}`,

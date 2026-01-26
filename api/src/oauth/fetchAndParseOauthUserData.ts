@@ -5,7 +5,7 @@ import exchangeCodeForToken from "@/api/oauth/exchangeCodeForToken";
 import { type FetchOpts } from "@/api/oauth/fetchOpts";
 import fetchUserInfo from "@/api/user/fetchUserInfo";
 import { type OauthUserData, OauthUserDataSchema } from "@/shared/oauth/oauthUserData";
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 
 /**

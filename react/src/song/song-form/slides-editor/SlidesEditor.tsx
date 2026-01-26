@@ -13,8 +13,8 @@ import ChevronUpIcon from "../../../design-system/icons/ChevronUpIcon";
 import PlusIcon from "../../../design-system/icons/PlusIcon";
 import TrashIcon from "../../../design-system/icons/TrashIcon";
 import { songFields } from "../../song-schema";
-import { type Slide } from "../song-form-types";
 import hashToHue from "../grid-editor/duplicateTint";
+import { type Slide } from "../song-form-types";
 import useSlidesEditor from "./useSlidesEditor";
 
 type SlidesEditorProps = Readonly<
@@ -38,13 +38,21 @@ export default function SlidesEditor({
 	slides,
 	setSlides,
 }: SlidesEditorProps): ReactElement {
-	const { addSlide, deleteSlide, editFieldValue, editSlideName, safeGetField, removeSlideOrder, moveSlideUp, moveSlideDown } =
-		useSlidesEditor({
-			slideOrder,
-			setSlideOrder,
-			slides,
-			setSlides,
-		});
+	const {
+		addSlide,
+		deleteSlide,
+		editFieldValue,
+		editSlideName,
+		safeGetField,
+		removeSlideOrder,
+		moveSlideUp,
+		moveSlideDown,
+	} = useSlidesEditor({
+		slideOrder,
+		setSlideOrder,
+		slides,
+		setSlides,
+	});
 
 	const [confirmingDeleteSlideId, setConfirmingDeleteSlideId] = useState<string | undefined>(
 		undefined,
@@ -88,8 +96,7 @@ export default function SlidesEditor({
 					if (!slide) {
 						return undefined;
 					}
-					const isDuplicate =
-						slideOrder.filter((id) => id === slideId).length > ONE;
+					const isDuplicate = slideOrder.filter((id) => id === slideId).length > ONE;
 					return (
 						<div
 							key={`slide-detail-${String(idx)}`}
@@ -99,8 +106,7 @@ export default function SlidesEditor({
 										"data-duplicate-tint": "",
 										style: {
 											"--duplicate-row-hue": `${hashToHue(slideId)}`,
-										} as React.CSSProperties &
-											Record<"--duplicate-row-hue", string>,
+										} as React.CSSProperties & Record<"--duplicate-row-hue", string>,
 									}
 								: {})}
 						>

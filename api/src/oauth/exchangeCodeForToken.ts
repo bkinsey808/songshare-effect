@@ -2,7 +2,7 @@ import { Effect } from "effect";
 
 import { type FetchOpts } from "@/api/oauth/fetchOpts";
 import { codeQueryParam } from "@/shared/queryParams";
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 
 export default function exchangeCodeForToken(opts: FetchOpts): Effect.Effect<
 	{

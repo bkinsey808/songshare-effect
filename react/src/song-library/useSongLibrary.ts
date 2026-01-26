@@ -39,7 +39,9 @@ export default function useSongLibrary(): {
 	// 1. Initial fetch and library subscription
 	// Refresh whenever the location changes (user navigates to/back to this page)
 	useEffect(() => {
-		console.warn("[useSongLibrary] Location changed or mount: triggering fetch and library subscription");
+		console.warn(
+			"[useSongLibrary] Location changed or mount: triggering fetch and library subscription",
+		);
 
 		// Trigger initial fetch
 		void Effect.runPromise(fetchSongLibrary());

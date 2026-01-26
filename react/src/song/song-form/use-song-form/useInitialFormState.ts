@@ -90,5 +90,14 @@ export default function useInitialFormState({
 			),
 		});
 		hasSetInitialStateRef.current = songId;
-	}, [formValues, fields, slideOrder, slides, songId, isLoadingData, hasPopulatedRef, setInitialState]);
+	}, [
+		formValues,
+		fields,
+		slideOrder,
+		slides,
+		songId,
+		isLoadingData,
+		hasPopulatedRef,
+		setInitialState,
+	]);
 }

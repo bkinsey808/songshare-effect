@@ -1,4 +1,4 @@
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 
 /**
  * Extract error message from JSON response

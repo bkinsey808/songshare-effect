@@ -158,11 +158,7 @@ export default function useSongForm(): UseSongFormReturn {
 				addOrUpdatePublicSongs({ [song.song_id]: song });
 				// On create, add to library slice so it appears in "My library" and persists to localStorage
 				const wasCreate = songId === undefined || songId.trim() === "";
-				if (
-					wasCreate &&
-					currentUserId !== undefined &&
-					currentUserId !== ""
-				) {
+				if (wasCreate && currentUserId !== undefined && currentUserId !== "") {
 					addSongLibraryEntry({
 						song_id: song.song_id,
 						user_id: currentUserId,

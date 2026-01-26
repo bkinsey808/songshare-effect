@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import { useNavigate } from "react-router-dom";
 
 import { apiSongsSavePath } from "@/shared/paths";
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 
 import { type Slide } from "../../song-form-types";
 

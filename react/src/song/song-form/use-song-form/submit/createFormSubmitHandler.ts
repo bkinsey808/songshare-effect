@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 
+import toStringArray from "@/shared/type-guards/toStringArray";
 import { safeSet } from "@/shared/utils/safe";
-import { toStringArray } from "@/shared/utils/typeGuards";
 
 import type { Slide } from "../../song-form-types";
 

@@ -1,7 +1,8 @@
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import { userTokenCache } from "@/api/supabase/tokenCache";
 import { MS_PER_SECOND, ONE_HOUR_SECONDS, TOKEN_CACHE_SKEW_SECONDS } from "@/shared/constants/http";
-import { isRecord, isString } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
+import isString from "@/shared/type-guards/isString";
 
 // Narrow env shape for functions that only need Supabase credentials.
 type SupabaseClientEnv = Readonly<{

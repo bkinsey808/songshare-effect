@@ -1,4 +1,4 @@
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 
 /**
  * Small runtime helper to safely extract `.data`, `.error`, and `.status`

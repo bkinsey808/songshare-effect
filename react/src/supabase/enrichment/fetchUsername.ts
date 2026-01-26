@@ -1,4 +1,5 @@
-import { isRecord, isString } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
+import isString from "@/shared/type-guards/isString";
 
 import callSelect from "../client/safe-query/callSelect";
 import { type EnrichmentConfig } from "./types";

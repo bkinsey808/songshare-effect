@@ -13,7 +13,8 @@ import extractNewRecord from "@/react/supabase/subscription/extract/extractNewRe
 import extractStringField from "@/react/supabase/subscription/extract/extractStringField";
 import createRealtimeSubscription from "@/react/supabase/subscription/realtime/createRealtimeSubscription";
 import isRealtimePayload from "@/react/supabase/subscription/realtime/isRealtimePayload";
-import { guardAsString, isRecord } from "@/shared/utils/typeGuards";
+import guardAsString from "@/shared/type-guards/guardAsString";
+import isRecord from "@/shared/type-guards/isRecord";
 
 import type { SongLibrarySlice } from "../song-library-slice";
 import type { SongLibraryEntry } from "../song-library-types";
@@ -225,7 +226,9 @@ export default function subscribeToSongPublic(
 				`[subscribeToSongPublic] Library has ${uniqueIds.length} songs; filter limited to first ${REALTIME_IN_FILTER_MAX}`,
 			);
 		}
-		console.warn(`[subscribeToSongPublic] Creating subscription: ${channelName} filter for ${filterCount} song(s)`);
+		console.warn(
+			`[subscribeToSongPublic] Creating subscription: ${channelName} filter for ${filterCount} song(s)`,
+		);
 
 		const cleanup = createRealtimeSubscription({
 			client,

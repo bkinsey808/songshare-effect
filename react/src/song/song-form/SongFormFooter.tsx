@@ -164,19 +164,13 @@ export default function SongFormFooter({
 					size="compact"
 					variant="primary"
 					icon={
-						isEditing ? (
-							<EditSongIcon className="size-5" />
-						) : (
-							<CreateSongIcon className="size-5" />
-						)
+						isEditing ? <EditSongIcon className="size-5" /> : <CreateSongIcon className="size-5" />
 					}
 					onClick={onSave}
 					disabled={isSubmitting}
 					data-testid="create-song-button"
 				>
-					{isEditing
-						? t("song.updateSong", "Update Song")
-						: t("song.createSong", "Create Song")}
+					{isEditing ? t("song.updateSong", "Update Song") : t("song.createSong", "Create Song")}
 				</Button>
 				<Button
 					size="compact"

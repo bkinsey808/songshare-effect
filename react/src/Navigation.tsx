@@ -16,7 +16,11 @@ const navItems: readonly {
 	icon: ReactNode;
 }[] = [
 	{ path: "", labelKey: "navigation.home", icon: "🏠" },
-	{ path: `${dashboardPath}/${songLibraryPath}`, labelKey: "navigation.songLibrary", icon: <SongLibraryIcon className="size-4" /> },
+	{
+		path: `${dashboardPath}/${songLibraryPath}`,
+		labelKey: "navigation.songLibrary",
+		icon: <SongLibraryIcon className="size-4" />,
+	},
 	{ path: aboutPath, labelKey: "navigation.about", icon: "ℹ️" },
 ];
 
@@ -86,7 +90,9 @@ function Navigation(): ReactElement {
 								key={item.path}
 								size="compact"
 								variant={active ? "primary" : "outlineSecondary"}
-								icon={typeof item.icon === "string" ? <span aria-hidden>{item.icon}</span> : item.icon}
+								icon={
+									typeof item.icon === "string" ? <span aria-hidden>{item.icon}</span> : item.icon
+								}
 								onClick={() => {
 									void navigate(path);
 								}}

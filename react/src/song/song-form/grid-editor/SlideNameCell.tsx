@@ -5,8 +5,8 @@ import { type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
 import { type Slide } from "../song-form-types";
-import hashToHue from "./duplicateTint";
 import DragHandle from "./DragHandle";
+import hashToHue from "./duplicateTint";
 
 const REMOVE_COUNT = 1;
 const EMPTY_COUNT = 0;
@@ -96,8 +96,7 @@ export default function SlideNameCell({
 						"data-duplicate-tint": "",
 						style: {
 							"--duplicate-row-hue": `${hashToHue(slideId)}`,
-						} as React.CSSProperties &
-							Record<"--duplicate-row-hue", string>,
+						} as React.CSSProperties & Record<"--duplicate-row-hue", string>,
 					}
 				: {})}
 		>

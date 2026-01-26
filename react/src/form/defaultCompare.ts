@@ -1,8 +1,8 @@
 /**
  * Default deep equality comparison for objects and arrays.
- * 
+ *
  * Returns true if states are different (has changes).
- * 
+ *
  * @param current - Current value to compare
  * @param initial - Initial value to compare against
  * @returns true if values are different, false if they are equal
@@ -26,23 +26,28 @@ export default function defaultCompare<StateType>(current: StateType, initial: S
 		return current.some((item, index) => defaultCompare(item, initial[index]));
 	}
 
-		// Object comparison
-		if (typeof current === "object" && typeof initial === "object" && current !== null && initial !== null) {
-			const currentKeys = Object.keys(current);
-			const initialKeys = Object.keys(initial);
+	// Object comparison
+	if (
+		typeof current === "object" &&
+		typeof initial === "object" &&
+		current !== null &&
+		initial !== null
+	) {
+		const currentKeys = Object.keys(current);
+		const initialKeys = Object.keys(initial);
 
-			if (currentKeys.length !== initialKeys.length) {
-				return true;
-			}
-
-			return currentKeys.some((key) => {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/consistent-indexed-object-style
-				const currentValue = (current as Record<string, unknown>)[key];
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/consistent-indexed-object-style
-				const initialValue = (initial as Record<string, unknown>)[key];
-				return defaultCompare(currentValue, initialValue);
-			});
+		if (currentKeys.length !== initialKeys.length) {
+			return true;
 		}
+
+		return currentKeys.some((key) => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/consistent-indexed-object-style
+			const currentValue = (current as Record<string, unknown>)[key];
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/consistent-indexed-object-style
+			const initialValue = (initial as Record<string, unknown>)[key];
+			return defaultCompare(currentValue, initialValue);
+		});
+	}
 
 	// Fallback to strict equality
 	return current !== initial;

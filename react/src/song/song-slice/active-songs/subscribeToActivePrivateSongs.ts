@@ -1,4 +1,3 @@
-// src/features/react/song-subscribe/subscribeToActiveSongs.ts
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import { type Get } from "@/react/zustand/slice-utils";
@@ -6,6 +5,21 @@ import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { type SongSubscribeSlice } from "../song-slice";
 
+/**
+ * subscribeToActivePrivateSongs
+ *
+ * Sets up (but currently does not enable) a realtime subscription for private
+ * song records. The asynchronous work (fetching an auth token and creating a
+ * Supabase client) is performed inside an async IIFE so this helper can remain
+ * synchronous and be safely invoked from a Zustand slice initializer.
+ *
+ * @param _set - Zustand slice set function for the song subscribe slice
+ * @param get - Zustand slice get function to read current state
+ * @returns A function that returns a no-op unsubscribe function (or undefined).
+ *   Realtime subscriptions for private song data are intentionally disabled
+ *   because private notes do not require realtime sync; public song data is
+ *   subscribed to via `song_public` elsewhere.
+ */
 export default function subscribeToActivePrivateSongs(
 	_set: (
 		partial:
@@ -15,7 +29,8 @@ export default function subscribeToActivePrivateSongs(
 	get: Get<SongSubscribeSlice>,
 ): () => (() => void) | undefined {
 	return (): (() => void) | undefined => {
-		// Get authentication token asynchronously
+		// Perform async work without making the slice initializer async: fetch an
+		// auth token and create the Supabase client inside an IIFE.
 		void (async (): Promise<void> => {
 			try {
 				const userToken = await getSupabaseAuthToken();
@@ -29,6 +44,7 @@ export default function subscribeToActivePrivateSongs(
 
 				const { activePrivateSongIds } = get();
 
+				/** Numeric sentinel used to check for empty activePrivateSongIds arrays */
 				const NO_ACTIVE_IDS = 0;
 
 				if (!Array.isArray(activePrivateSongIds) || activePrivateSongIds.length === NO_ACTIVE_IDS) {
@@ -36,9 +52,10 @@ export default function subscribeToActivePrivateSongs(
 					return;
 				}
 
-				// Realtime subscription to the `song` table is disabled.
-				// The `song` table only contains `private_notes` which doesn't need real-time sync.
-				// All song content (name, slug, slides, etc.) is in `song_public` which has its own subscription.
+				// Realtime subscription to the `song` table is intentionally disabled.
+				// The `song` table only contains `private_notes` which do not require realtime sync.
+				// Publicly visible song content (name, slug, slides, etc.) lives in `song_public` and
+				// is subscribed to separately to keep concerns isolated and avoid unnecessary updates.
 				console.warn(
 					"[subscribeToActivePrivateSongs] Realtime subscription disabled - song table only contains private_notes",
 				);
@@ -47,9 +64,9 @@ export default function subscribeToActivePrivateSongs(
 			}
 		})();
 
-		// Return a no-op unsubscribe function since subscription is disabled
+		// Return a no-op unsubscribe function because realtime subscriptions are disabled
 		return (): void => {
-			// No-op: realtime subscription is disabled for private songs
+			// No-op: realtime subscription is intentionally disabled for private songs
 		};
 	};
 }

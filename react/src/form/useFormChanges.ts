@@ -47,17 +47,17 @@ type UseFormChangesReturn<State> = {
 
 /**
  * Hook for tracking unsaved changes in forms.
- * 
+ *
  * Tracks the current state of a form and compares it to an initial snapshot
  * to determine if there are unsaved changes.
- * 
+ *
  * @example
  * ```tsx
  * const { hasUnsavedChanges, setInitialState } = useFormChanges({
  *   currentState: { name: formName, email: formEmail },
  *   enabled: !isLoading,
  * });
- * 
+ *
  * // When form is loaded/ready, set initial state
  * useEffect(() => {
  *   if (formData) {

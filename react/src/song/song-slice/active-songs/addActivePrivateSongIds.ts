@@ -3,8 +3,8 @@ import { Effect } from "effect";
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import callSelect from "@/react/supabase/client/safe-query/callSelect";
+import isRecord from "@/shared/type-guards/isRecord";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
-import { isRecord } from "@/shared/utils/typeGuards";
 
 import { type Song } from "../../song-schema";
 import { type SongSubscribeSlice } from "../song-slice";

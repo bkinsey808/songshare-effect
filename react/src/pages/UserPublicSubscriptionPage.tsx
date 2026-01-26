@@ -10,8 +10,9 @@ import {
 	type SupabaseClientLike,
 } from "@/react/supabase/client/SupabaseClientLike";
 import { type Database, type Tables } from "@/shared/generated/supabaseTypes";
+import isRecord from "@/shared/type-guards/isRecord";
+import isString from "@/shared/type-guards/isString";
 import { formatAppDateTime } from "@/shared/utils/formatAppDate";
-import { isRecord, isString } from "@/shared/utils/typeGuards";
 
 type UserPublic = Tables<"user_public">;
 

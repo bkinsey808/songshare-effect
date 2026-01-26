@@ -2,15 +2,15 @@ import type { Get } from "@/react/zustand/slice-utils";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 
 import type { SongSubscribeSlice } from "../song-slice";
 
-import validateVisitorToken from "./validateVisitorToken";
 import decodeSongData from "./decodeSongData";
 import fetchPublicSongsBySlugs from "./fetchPublicSongsBySlugs";
 import findMissingSongSlugs from "./findMissingSongSlugs";
 import updateStoreWithPublicSongs from "./updateStoreWithPublicSongs";
+import validateVisitorToken from "./validateVisitorToken";
 
 export default function addActivePublicSongSlugs(
 	set: (

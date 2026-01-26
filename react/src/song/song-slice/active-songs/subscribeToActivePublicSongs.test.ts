@@ -1,13 +1,8 @@
-/* eslint-disable import/first */
-import { Effect } from "effect";
-import { describe, expect, it, vi } from "vitest";
-
-// Mock the supabase client factory before importing the module under test
-vi.mock("@/react/supabase/client/getSupabaseClientWithAuth");
-
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
+import { Effect } from "effect";
 import assert from "node:assert";
 import { setTimeout as delay } from "node:timers/promises";
+import { describe, expect, it, vi } from "vitest";
 
 import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
 
@@ -17,14 +12,28 @@ import type { SongSubscribeSlice } from "../song-slice";
 
 import subscribeToActivePublicSongs from "./subscribeToActivePublicSongs";
 
+// Mock the supabase client factory before importing the module under test
+vi.mock("@/react/supabase/client/getSupabaseClientWithAuth");
+
 const MACROTASK_DELAY = 0;
+/**
+ * Advance microtasks and a macrotask tick so tests can observe async effects
+ * that are scheduled to run on the next micro/macro tick (subscriptions, timers, etc.).
+ */
 async function flushPromises(): Promise<void> {
-	// Allow microtasks to run then yield a macrotask tick for any scheduled timers.
 	await Promise.resolve();
 	await Promise.resolve();
 	await delay(MACROTASK_DELAY);
 }
 
+/**
+ * Minimal `SongSubscribeSlice` factory used in tests.
+ * It provides just the fields and stubbed methods that `subscribeToActivePublicSongs`
+ * interacts with so tests can focus on subscription behavior.
+ *
+ * @param ids - active public song ids to seed the slice with
+ * @returns SongSubscribeSlice test stub
+ */
 function makeGetWithActiveIds(ids: readonly string[]): SongSubscribeSlice {
 	return {
 		privateSongs: {},
@@ -50,10 +59,15 @@ function makeGetWithActiveIds(ids: readonly string[]): SongSubscribeSlice {
 	};
 }
 
+/** No-op handler used to initialize handler vars in tests. */
 function noopHandler(_payload: unknown): void {
 	/* noop */
 }
 
+/**
+ * Type guard that verifies a value is a `set` updater function that transforms
+ * the current `SongSubscribeSlice` into a partial update.
+ */
 function isUpdater(
 	value: unknown,
 ): value is (state: Readonly<SongSubscribeSlice>) => Partial<Readonly<SongSubscribeSlice>> {
@@ -171,6 +185,8 @@ describe("subscribeToActivePublicSongs", () => {
 			created_at: "2026-01-01T00:00:00Z",
 			updated_at: "2026-01-01T00:00:00Z",
 		} as const;
+		// `fullState` models the pre-delete state (song present) so the DELETE
+		// handler's updater can be applied and validated against this state.
 		const fullState: Readonly<SongSubscribeSlice> = {
 			...makeGetWithActiveIds(["abc"]),
 			publicSongs: { abc: songPublic },

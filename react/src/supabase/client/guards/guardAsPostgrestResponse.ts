@@ -1,4 +1,4 @@
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 
 /**
  * Type predicate that checks if a value looks like a Postgrest response.

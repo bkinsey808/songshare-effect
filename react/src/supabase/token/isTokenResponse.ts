@@ -1,4 +1,4 @@
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 
 export type TokenResponse = {
 	access_token: string;

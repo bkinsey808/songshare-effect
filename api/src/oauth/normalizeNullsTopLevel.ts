@@ -1,5 +1,5 @@
 // Top-level helper: recursively convert SQL-null `null` values to `undefined`.
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
 
 export default function normalizeNullsTopLevel(input: unknown): unknown {
 	function normalize(value: unknown): unknown {

@@ -17,6 +17,14 @@ import type { SongSubscribeSlice } from "../song-slice";
 
 import subscribeToActivePrivateSongs from "./subscribeToActivePrivateSongs";
 
+/**
+ * createMinimalClient
+ *
+ * Returns a minimal Supabase-like client used in tests. All network-facing
+ * methods are stubbed so tests remain synchronous and deterministic.
+ *
+ * @returns a `SupabaseClientLike` with stubbed methods
+ */
 function createMinimalClient(): SupabaseClientLike {
 	return {
 		from: (_table: string) => ({
@@ -28,8 +36,16 @@ function createMinimalClient(): SupabaseClientLike {
 	};
 }
 
+/** Delay used by `flushPromises` to yield a macrotask tick; `0` is sufficient for tests */
 const MACROTASK_DELAY = 0;
 
+/**
+ * flushPromises
+ *
+ * Advances the JS microtask and macrotask queues to allow the async IIFE
+ * inside the subscription factory to start and complete any scheduled work.
+ * Waiting two microtask ticks then a macrotask avoids flakiness in tests.
+ */
 async function flushPromises(): Promise<void> {
 	// Let microtasks complete then yield to a macrotask in case the async IIFE
 	// schedules work that requires an additional tick.
@@ -41,6 +57,16 @@ async function flushPromises(): Promise<void> {
 	await delay(MACROTASK_DELAY);
 }
 
+/**
+ * makeGetWithActiveIds
+ *
+ * Produces a minimal `SongSubscribeSlice` with the given `activePrivateSongIds`.
+ * All mutating helpers are implemented as no-ops or synchronous Effects so
+ * unit tests can exercise subscription-related control flow without side effects.
+ *
+ * @param ids - active private song ids to include in the returned slice
+ * @returns a minimal `SongSubscribeSlice` suitable for tests
+ */
 function makeGetWithActiveIds(ids: readonly string[]): SongSubscribeSlice {
 	return {
 		privateSongs: {},
@@ -66,6 +92,8 @@ function makeGetWithActiveIds(ids: readonly string[]): SongSubscribeSlice {
 	};
 }
 
+// Ensures the factory returns a no-op unsubscribe, warns correctly when there
+// is no Supabase client or no active IDs, and logs errors when token fetching fails.
 describe("subscribeToActivePrivateSongs", () => {
 	it("returns an unsubscribe function and warns when no Supabase client is available", async () => {
 		const warnSpy = vi

@@ -5,7 +5,8 @@ import type { SongLibrary, UserPublic } from "@/shared/generated/supabaseSchemas
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import callSelect from "@/react/supabase/client/safe-query/callSelect";
-import { guardAsString, isRecord } from "@/shared/utils/typeGuards";
+import guardAsString from "@/shared/type-guards/guardAsString";
+import isRecord from "@/shared/type-guards/isRecord";
 
 import type { SongLibrarySlice } from "./song-library-slice";
 import type { SongLibraryEntry } from "./song-library-types";

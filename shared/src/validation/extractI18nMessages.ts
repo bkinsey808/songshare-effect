@@ -1,7 +1,7 @@
 import { type ParseError } from "effect/ParseResult";
 
+import isRecord from "@/shared/type-guards/isRecord";
 import { safeSet } from "@/shared/utils/safe";
-import { isRecord } from "@/shared/utils/typeGuards";
 
 import createTraverseIssue from "./traverseIssue";
 

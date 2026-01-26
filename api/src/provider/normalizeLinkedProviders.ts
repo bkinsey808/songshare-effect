@@ -1,6 +1,6 @@
-import { safeGet } from "@/shared/utils/safe";
 // Top-level helper: normalize `linked_providers` from validated data into string[].
-import { isRecord } from "@/shared/utils/typeGuards";
+import isRecord from "@/shared/type-guards/isRecord";
+import { safeGet } from "@/shared/utils/safe";
 
 export default function normalizeLinkedProviders(validated: unknown): string[] {
 	if (!isRecord(validated)) {

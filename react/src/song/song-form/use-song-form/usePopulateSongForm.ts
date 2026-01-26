@@ -7,15 +7,16 @@ import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { dashboardPath } from "@/shared/paths";
 import { justUnauthorizedAccessKey } from "@/shared/sessionStorageKeys";
+import isRecord from "@/shared/type-guards/isRecord";
+import isString from "@/shared/type-guards/isString";
 import { safeGet } from "@/shared/utils/safe";
-import { isRecord, isString } from "@/shared/utils/typeGuards";
 
 import type { Slide, SongFormValues } from "../song-form-types";
 
-import setFieldValue from "./setFieldValue";
 import computeSlideOrder from "../slides-editor/computeSlideOrder";
 import computeSlides from "../slides-editor/computeSlides";
 import computeFieldsArray from "./computeFieldsArray";
+import setFieldValue from "./setFieldValue";
 
 const DOM_READY_TIMEOUT_MS = 100;
 const FALLBACK_TIMEOUT_MS = 5000;

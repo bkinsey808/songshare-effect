@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 
 import { error as sError, warn as sWarn } from "@/scripts/utils/scriptLogger";
-import isEmpty from "@/shared/utils/isEmpty";
+import isEmpty from "@/shared/type-guards/isEmpty";
 
 import type { MigrationFile } from "./types";
 
