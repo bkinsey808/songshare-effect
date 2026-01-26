@@ -47,8 +47,6 @@ This agent's sole responsibility is to **write and maintain unit tests** for the
 ## Interaction Guidelines 💬
 - Don't ask if user wants this agent to continue fixing the file. Always continue until the file is perfect, passes all the validation steps, and meets the coverage goal.
 
-
-
 ---
 
 **Summary:** This agent only adds tests, follows naming and coverage rules, never touches source or configuration files, and always validates with `npm run lint && npx tsc -b . && npm run test:unit -- --coverage`.

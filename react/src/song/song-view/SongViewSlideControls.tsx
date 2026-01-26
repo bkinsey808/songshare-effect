@@ -1,9 +1,11 @@
-// ReactElement is ambient — do not import explicit type in components
 import { useTranslation } from "react-i18next";
 
 import Button from "@/react/design-system/Button";
 
+/** Minimum allowed slide index (keeps bounds explicit and avoids magic numbers). */
 const MIN_SLIDE_INDEX = 0;
+
+/** Small numeric constant used when computing human-visible slide indices. */
 const ONE = 1;
 
 type SongViewSlideControlsProps = Readonly<{
@@ -17,6 +19,23 @@ type SongViewSlideControlsProps = Readonly<{
 	totalSlides: number;
 }>;
 
+/**
+ * SongViewSlideControls
+ *
+ * Renders slide navigation controls (first/prev/next/last) and an optional
+ * full-screen toggle. Uses `clampedIndex` (0-based) to enable/disable buttons
+ * and shows a localized slide counter.
+ *
+ * @param clampedIndex - 0-based, clamped current slide index
+ * @param goFirst - navigate to the first slide
+ * @param goLast - navigate to the last slide
+ * @param goNext - navigate to the next slide
+ * @param goPrev - navigate to the previous slide
+ * @param isFullScreen - true when presentation is already full-screen
+ * @param onToggleFullScreen - optional handler to toggle full-screen mode
+ * @param totalSlides - total number of slides (used to hide controls when zero)
+ * @returns React element or undefined when there are no slides to show
+ */
 export default function SongViewSlideControls({
 	clampedIndex,
 	goFirst,
@@ -29,6 +48,7 @@ export default function SongViewSlideControls({
 }: SongViewSlideControlsProps): ReactElement | undefined {
 	const { t } = useTranslation();
 
+	// Nothing to render when there are no slides.
 	if (totalSlides <= MIN_SLIDE_INDEX) {
 		return undefined;
 	}
@@ -56,6 +76,7 @@ export default function SongViewSlideControls({
 			>
 				{t("songView.prevSlide", "Previous")}
 			</Button>
+			{/* Screen-reader friendly slide counter; use polite to avoid interruption. */}
 			<span className="px-2 text-sm text-gray-400" aria-live="polite">
 				{t("songView.slideCounter", "Slide {{current}} of {{total}}", {
 					current: clampedIndex + ONE,
@@ -80,6 +101,7 @@ export default function SongViewSlideControls({
 			>
 				{t("songView.lastSlide", "Last")}
 			</Button>
+			{/* Optional full-screen toggle (only shown if a handler is provided). */}
 			{onToggleFullScreen && (
 				<Button
 					variant="outlineSecondary"

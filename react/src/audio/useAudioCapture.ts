@@ -26,9 +26,7 @@ function delay(ms: number): Promise<void> {
 	});
 }
 
-/**
- * Result object returned by the `useAudioCapture` hook.
- */
+/** Result object returned by the `useAudioCapture` hook. */
 type UseAudioCaptureResult = {
 	analyserRef: {
 		current:

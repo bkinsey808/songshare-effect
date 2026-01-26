@@ -6,7 +6,9 @@ import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 
 import SongView from "./SongView";
 
+// Mock react-router so tests can control `useParams` return values
 vi.mock("react-router-dom");
+// Simplified i18n mock: `t` returns the `defaultVal` when provided, otherwise the key.
 vi.mock(
 	"react-i18next",
 	(): {
@@ -25,8 +27,10 @@ vi.mock(
 		}),
 	}),
 );
+// We'll stub `useAppStoreSelector` in tests using the `installStoreMocks` helper below
 vi.mock("@/react/zustand/useAppStore");
 
+// Test constants used across cases
 const NOT_FOUND_TEXT = "Song not found";
 const MY_SLUG = "my-slug";
 const NO_SLUG = "no-slug";
@@ -34,6 +38,15 @@ const WHITESPACE_SLUG = "   ";
 const MIN_ONE = 1;
 const FIRST_INDEX = 0;
 
+/**
+ * Create a minimal `songPublic`-like object for tests.
+ *
+ * This returns valid shape values that satisfy schema decoding; pass
+ * `overrides` to replace or add properties for specific test cases.
+ *
+ * @param overrides - optional fields to merge into the returned object
+ * @returns A `songPublic`-like record suitable for rendering assertions
+ */
 function makeSongPublicLike(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 	return {
 		song_id: "s1",
@@ -62,6 +75,15 @@ function makeSongPublicLike(overrides: Record<string, unknown> = {}): Record<str
 	};
 }
 
+/**
+ * Stub `useAppStoreSelector` to return provided mocks depending on which
+ * selector is used. Tests reference selectors by their function name, so
+ * we stringify the selector and match substrings to decide which mock to
+ * return.
+ *
+ * @param mockAdd - returned value when the selector looks like `addActivePublicSongSlugs`
+ * @param mockGet - returned value when the selector looks like `getSongBySlug`
+ */
 function installStoreMocks(mockAdd: unknown, mockGet: unknown): void {
 	vi.mocked(useAppStoreSelector).mockImplementation((selector: unknown) => {
 		const selectorText = String(selector);
@@ -75,6 +97,7 @@ function installStoreMocks(mockAdd: unknown, mockGet: unknown): void {
 	});
 }
 
+// Unit tests for `SongView` component: assert slug handling and store interaction
 describe("song view", () => {
 	// eslint-disable-next-line jest/no-hooks -- cleanup for test isolation (avoid multiple SongView mounts in DOM)
 	afterEach(cleanup);
@@ -118,6 +141,7 @@ describe("song view", () => {
 		expect(mockGet).toHaveBeenCalledWith(NO_SLUG);
 	});
 
+	// Whitespace-only slug should be treated as missing; ensure no store selectors are invoked
 	it("does not call addActivePublicSongSlugs when slug is only whitespace", () => {
 		vi.mocked(useParams).mockReturnValue({ song_slug: WHITESPACE_SLUG });
 		const mockAdd = vi.fn();
@@ -130,6 +154,6 @@ describe("song view", () => {
 		const EXPECTED_MATCHES = 1;
 		expect(matches.length).toBeGreaterThanOrEqual(EXPECTED_MATCHES);
 		expect(mockAdd).not.toHaveBeenCalled();
-		expect(mockGet).toHaveBeenCalledWith(WHITESPACE_SLUG);
+		expect(mockGet).not.toHaveBeenCalled();
 	});
 });

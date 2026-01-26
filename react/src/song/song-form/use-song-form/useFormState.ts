@@ -3,7 +3,7 @@ import { useState } from "react";
 import { type Slide } from "../song-form-types";
 import generateId from "./generate/generateId";
 
-	type UseFormStateReturn = {
+type UseFormStateReturn = {
 	slideOrder: readonly string[];
 	slides: Record<string, Slide>;
 	fields: readonly string[];

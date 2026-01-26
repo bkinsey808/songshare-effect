@@ -1,4 +1,3 @@
-// ReactElement is ambient — do not import explicit type in components
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -6,22 +5,32 @@ import Button from "@/react/design-system/Button";
 import XIcon from "@/react/design-system/icons/XIcon";
 
 import { type SongPublic } from "../song-schema";
-
 import SongViewCurrentSlide from "./SongViewCurrentSlide";
 import SongViewSlideControls from "./SongViewSlideControls";
 import { useSongViewSlides } from "./useSongViewSlides";
 
+/** Minimum allowed slide index (keeps bounds explicit and avoids magic numbers) */
 const MIN_SLIDE_INDEX = 0;
 
+/** Props for `SongViewSlides` component */
 type SongViewSlidesProps = Readonly<{
 	songPublic: SongPublic;
 }>;
 
-export default function SongViewSlides({
-	songPublic,
-}: SongViewSlidesProps): ReactElement {
+/**
+ * SongViewSlides
+ *
+ * Renders the current slide, keyboard hints and controls. Supports a full-screen
+ * dialog that can be exited with Escape or the UI close button.
+ *
+ * @param props - component props
+ * @param props.songPublic - public song payload used to derive slides
+ * @returns React element rendering slides and controls
+ */
+export default function SongViewSlides({ songPublic }: SongViewSlidesProps): ReactElement {
 	const { t } = useTranslation();
 	const [isFullScreen, setIsFullScreen] = useState(false);
+	// Hook that provides derived slide state and navigation helpers
 	const {
 		clampedIndex,
 		currentSlide,
@@ -33,6 +42,8 @@ export default function SongViewSlides({
 		totalSlides,
 	} = useSongViewSlides(songPublic);
 
+	// When in full-screen mode, listen for Escape to exit. Listener is
+	// removed on unmount or when `isFullScreen` changes.
 	useEffect(() => {
 		if (!isFullScreen) {
 			return;
@@ -62,6 +73,7 @@ export default function SongViewSlides({
 				/>
 			</section>
 
+			{/* Slide navigation controls (first, previous, next, last) and fullscreen toggle */}
 			<SongViewSlideControls
 				clampedIndex={clampedIndex}
 				goFirst={goFirst}
@@ -75,6 +87,7 @@ export default function SongViewSlides({
 				totalSlides={totalSlides}
 			/>
 
+			{/* Show keyboard hints when there is at least one slide */}
 			{totalSlides > MIN_SLIDE_INDEX && (
 				<p className="text-center text-xs text-gray-500">
 					{t(
