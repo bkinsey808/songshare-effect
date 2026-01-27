@@ -48,3 +48,4 @@ describe("navigation - language-aware links", () => {
 		expect(mockNavigate).toHaveBeenCalledWith(buildPathWithLang("/about", "es"));
 	});
 });
+

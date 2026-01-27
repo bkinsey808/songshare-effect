@@ -1,4 +1,4 @@
-import { Suspense, lazy, type ReactElement } from "react";
+import { Suspense, lazy, type ReactElement, useState } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import ProtectedLayout from "@/react/auth/ProtectedLayout";
@@ -30,7 +30,7 @@ import {
 import ErrorBoundary from "./demo/ErrorBoundary";
 import LanguageDetector from "./language/detector/LanguageDetector";
 import LanguageProvider from "./language/provider/LanguageProvider";
-import Navigation from "./Navigation";
+import Navigation from "@/react/navigation/Navigation";
 import AboutPage from "./pages/AboutPage";
 import ActivityDemoPage from "./pages/demo/ActivityDemoPage";
 import PopoverDemoPage from "./pages/demo/PopoverDemoPage";
@@ -56,10 +56,15 @@ function HydratedLayout(): ReactElement {
 	// when the component suspends during hydration.
 	// useEnsureSignedIn();
 
+	const [isActionsExpanded, setIsActionsExpanded] = useState(true);
+
 	return (
 		<ErrorBoundary>
-			<Navigation />
-			<div className="mx-auto max-w-screen-2xl p-5 pt-[200px] pb-24 font-sans">
+			<Navigation
+				actionsExpanded={isActionsExpanded}
+				onActionsExpandedChange={setIsActionsExpanded}
+			/>
+			<div className="mx-auto max-w-screen-2xl p-5 pt-4 pb-24 font-sans">
 				<main>
 					<Outlet />
 				</main>

@@ -1,7 +1,7 @@
 import type { TFunction } from "i18next";
 
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Button from "@/react/design-system/Button";
 import CreateSongIcon from "@/react/design-system/icons/CreateSongIcon";
@@ -19,6 +19,11 @@ export default function SongManagementSection({
 }): ReactElement {
 	const { t }: { t: TFunction } = useTranslation(undefined, { useSuspense: false });
 	const navigate = useNavigate();
+	const location = useLocation();
+
+	const createSongPath = `/${dashboardPath}/${songEditPath}`;
+	const isOnCreateSongPage =
+		location.pathname.includes(createSongPath) || location.pathname.endsWith(createSongPath);
 
 	return (
 		<div className="mt-6 rounded-lg border border-gray-600 bg-gray-800 p-4">
@@ -27,13 +32,11 @@ export default function SongManagementSection({
 			</h3>
 			<div className="flex flex-wrap gap-3">
 				<Button
-					variant="primary"
+					variant={isOnCreateSongPage ? "primary" : "outlineSecondary"}
 					icon={<CreateSongIcon className="size-5" />}
 					onClick={() => {
 						const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
-						void navigate(
-							String(buildPathWithLang(`/${dashboardPath}/${songEditPath}`, langForNav)),
-						);
+						void navigate(String(buildPathWithLang(createSongPath, langForNav)));
 					}}
 					data-testid="dashboard-create-song"
 				>
