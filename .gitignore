@@ -46,6 +46,7 @@ scripts/mcp/mcp.pid
 
 # Lighthouse temp directories (WSL2 path issue)
 C:\\*
+\\\\wsl*
 
 # Wrapper logs used during Playwright runs
 /tmp/playwright-dev-*.log

@@ -134,7 +134,21 @@ test.describe.serial("Lighthouse audit", () => {
 			return;
 		}
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- Runtime check above ensures this is a function
-		const launchChrome = chromeLauncher["launch"] as (options: { chromeFlags: string[] }) => Promise<{ port: number; kill: () => Promise<void> }>;
+		const launchChrome = chromeLauncher["launch"] as (options: {
+			chromeFlags: string[];
+			userDataDir?: string;
+			envVars?: Record<string, string>;
+		}) => Promise<{ port: number; kill: () => Promise<void> }>;
+
+		// Create unique temp directory for this run to avoid WSL2 creating Windows-path directories in project root
+		const fs = await import("node:fs");
+		const path = await import("node:path");
+		const tempDir = path.join("/tmp", `lighthouse-chrome-${Date.now()}`);
+		fs.mkdirSync(tempDir, { recursive: true });
+
+		// Change to temp directory during Chrome launch to prevent WSL path dirs in project root
+		const originalCwd = process.cwd();
+		process.chdir("/tmp");
 
 		const chrome = await launchChrome({
 			chromeFlags: [
@@ -144,6 +158,10 @@ test.describe.serial("Lighthouse audit", () => {
 				"--allow-insecure-localhost",
 				"--disable-web-security",
 			],
+			userDataDir: tempDir,
+		}).finally(() => {
+			// Restore original working directory
+			process.chdir(originalCwd);
 		});
 
 		/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
