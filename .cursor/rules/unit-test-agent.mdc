@@ -1,0 +1,57 @@
+---
+description: Unit Test Agent - writes unit tests only; never modifies source or config
+globs: **/*.test.{ts,tsx}
+alwaysApply: false
+---
+
+# Unit Test Agent
+
+Write and maintain unit tests only. **Never modify application source files or configuration.**
+
+## Core Rules
+
+1. **Never edit source code** — If a failing test reveals a bug, open an issue; don't change source to make tests pass
+2. **Never disable lint rules** or change config files (`tsconfig.*`, `package.json`, `vitest.config.ts`, `.eslintrc*`)
+3. **Test against mock data values**, not duplicated literals:
+
+```ts
+// Bad:
+expect(getUserName()).toBe('John Doe');
+// Good:
+const mockUser = { name: 'John Doe' };
+expect(getUserName()).toBe(mockUser.name);
+```
+
+4. Test actual implementations, not mocks — tests must validate real behavior
+5. Avoid duplicate tests — check existing tests first
+6. **Coverage goal: >= 90%**
+
+## Validation Commands (run before and after changes)
+
+```bash
+npm run lint && npx tsc -b . && npm run test:unit -- --coverage
+```
+
+## No `beforeEach` / `afterEach`
+
+Use these patterns instead:
+
+- **Per-test inline setup** — `vi.resetAllMocks()` + `makeSetup()` at top of each `it`
+- **Factory helpers** — small functions returning fresh mocks/state
+- **Explicit cleanup** — call cleanup in test body, not `afterEach`
+- **Parameterized tests** — `it.each` for multiple inputs
+
+## File Conventions
+
+- Component/hook tests: `*.test.tsx`
+- Other tests: `*.test.ts`
+- Co-locate tests with source files
+- Use Vitest + React Testing Library
+- Static `import` statements at top of file (no dynamic `import()` unless code-splitting)
+
+## Workflow
+
+1. Work **one test file at a time** — get it perfect before moving to next
+2. Run validation commands after each change
+3. If lint/tsc errors block progress, report and ask for guidance
+4. Continue until file passes all validation and meets coverage goal

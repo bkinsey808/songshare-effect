@@ -19,7 +19,7 @@ export default function SignInButtons(): ReactElement {
 	return (
 		<div className="flex flex-col items-center justify-center gap-6">
 			{!isSignedIn && (
-				<div className="mb-4 text-lg text-gray-700">
+				<div className="mb-4 text-lg text-gray-400">
 					<p>{t("auth.signedOutMessage", "You are not signed in.")}</p>
 					<p>{t("auth.signInPrompt", "Please sign in to access your dashboard and features.")}</p>
 				</div>

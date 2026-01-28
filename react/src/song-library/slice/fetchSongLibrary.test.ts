@@ -12,8 +12,6 @@ import type { SongLibraryEntry } from "./song-library-types";
 
 import fetchSongLibrary from "./fetchSongLibrary";
 
-/* eslint-disable arrow-body-style */
-
 // Auto-mock auth/client modules so we can configure mocks in each test
 vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
 vi.mock("@/react/supabase/client/getSupabaseClient");
@@ -113,10 +111,7 @@ describe("fetchSongLibrary", () => {
 				subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
 					Effect.sync(() => (): void => undefined),
 				subscribeToSongPublic: (_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
-					Effect.sync(() => {
-						// Cleanup function (no-op for testing)
-						return (): void => undefined;
-					}),
+					Effect.sync(() => (): void => undefined),
 				setSongLibraryEntries,
 				setSongLibraryLoading,
 			};
@@ -166,15 +161,9 @@ describe("fetchSongLibrary", () => {
 				getSongLibrarySongIds: () => [],
 				fetchSongLibrary: () => Effect.sync(() => undefined),
 				subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
-					Effect.sync(() => {
-						// Cleanup function (no-op for testing)
-						return (): void => undefined;
-					}),
+					Effect.sync(() => (): void => undefined),
 				subscribeToSongPublic: (_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
-					Effect.sync(() => {
-						// Cleanup function (no-op for testing)
-						return (): void => undefined;
-					}),
+					Effect.sync(() => (): void => undefined),
 				setSongLibraryEntries,
 				setSongLibraryLoading,
 			};
@@ -209,15 +198,9 @@ describe("fetchSongLibrary", () => {
 				getSongLibrarySongIds: () => [],
 				fetchSongLibrary: () => Effect.sync(() => undefined),
 				subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
-					Effect.sync(() => {
-						// Cleanup function (no-op for testing)
-						return (): void => undefined;
-					}),
+					Effect.sync(() => (): void => undefined),
 				subscribeToSongPublic: (_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
-					Effect.sync(() => {
-						// Cleanup function (no-op for testing)
-						return (): void => undefined;
-					}),
+					Effect.sync(() => (): void => undefined),
 				setSongLibraryEntries,
 				setSongLibraryLoading,
 			};

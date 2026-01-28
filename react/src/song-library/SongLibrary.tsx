@@ -154,7 +154,7 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 						</div>
 
 						{/* Added Date */}
-						<div className="mb-4 text-xs text-gray-500">
+						<div className="mb-4 text-xs text-gray-400">
 							{t("songLibrary.addedOn", "Added {{date}}", {
 								date: formatAppDate(entry.created_at),
 							})}

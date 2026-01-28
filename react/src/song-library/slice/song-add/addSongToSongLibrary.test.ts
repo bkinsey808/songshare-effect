@@ -8,8 +8,6 @@ import type { AddSongToSongLibraryRequest } from "../song-library-types";
 
 import addSongToSongLibrary from "./addSongToSongLibrary";
 
-/* eslint-disable arrow-body-style */
-
 // Mock modules
 vi.mock("@/react/utils/clientLogger");
 

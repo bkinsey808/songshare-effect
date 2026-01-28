@@ -44,6 +44,9 @@ scripts/mcp/mcp.pid
 /test-results/
 /playwright-report/
 
+# Lighthouse temp directories (WSL2 path issue)
+C:\\*
+
 # Wrapper logs used during Playwright runs
 /tmp/playwright-dev-*.log
 /playwright-report# Ignore local certs and keys

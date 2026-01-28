@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import resizeCanvasToDisplaySize from "./resizeCanvasToDisplaySize";
 
 describe("resizeCanvasToDisplaySize", () => {
-	/* eslint-disable-next-line init-declarations */ let canvas: HTMLCanvasElement;
 	const CANVAS_WIDTH = 100;
 	const CANVAS_HEIGHT = 200;
 	const DPR_2 = 2;
@@ -13,17 +12,21 @@ describe("resizeCanvasToDisplaySize", () => {
 	const EXPECTED_HEIGHT_DPR_2 = 400;
 	const ZERO = 0;
 
-	function setup(): () => void {
-		canvas = document.createElement("canvas");
+	function setup(): { canvas: HTMLCanvasElement; cleanup: () => void } {
+		const canvas = document.createElement("canvas");
 		vi.stubGlobal("devicePixelRatio", DPR_1);
-		return () => {
-			vi.unstubAllGlobals();
-			vi.clearAllMocks();
+
+		return {
+			canvas,
+			cleanup: () => {
+				vi.unstubAllGlobals();
+				vi.clearAllMocks();
+			},
 		};
 	}
 
 	it("resizes canvas width and height to match bounding rect on dpr 1", () => {
-		const cleanup = setup();
+		const { canvas, cleanup } = setup();
 		vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue(
 			new DOMRect(ZERO, ZERO, CANVAS_WIDTH, CANVAS_HEIGHT),
 		);
@@ -36,7 +39,7 @@ describe("resizeCanvasToDisplaySize", () => {
 	});
 
 	it("factors in devicePixelRatio when resizing", () => {
-		const cleanup = setup();
+		const { canvas, cleanup } = setup();
 		vi.stubGlobal("devicePixelRatio", DPR_2);
 		vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue(
 			new DOMRect(ZERO, ZERO, CANVAS_WIDTH, CANVAS_HEIGHT),
@@ -50,7 +53,7 @@ describe("resizeCanvasToDisplaySize", () => {
 	});
 
 	it("does not update size if it already matches", () => {
-		const cleanup = setup();
+		const { canvas, cleanup } = setup();
 		canvas.width = CANVAS_WIDTH;
 		canvas.height = CANVAS_HEIGHT;
 
@@ -69,7 +72,7 @@ describe("resizeCanvasToDisplaySize", () => {
 	});
 
 	it("clamps values to MIN_PIXEL_SIZE (1)", () => {
-		const cleanup = setup();
+		const { canvas, cleanup } = setup();
 		const MINUS_TEN = -10;
 		vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue(
 			new DOMRect(ZERO, ZERO, ZERO, MINUS_TEN),
@@ -83,7 +86,7 @@ describe("resizeCanvasToDisplaySize", () => {
 	});
 
 	it("uses MIN_DPR (1) if devicePixelRatio is undefined", () => {
-		const cleanup = setup();
+		const { canvas, cleanup } = setup();
 		const originalDpr = globalThis.devicePixelRatio;
 		delete (globalThis as { devicePixelRatio?: number }).devicePixelRatio;
 

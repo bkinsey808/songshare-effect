@@ -75,6 +75,22 @@ function AboutPage(): ReactElement {
 					</ul>
 				</section>
 
+				<section className="mb-10">
+					<h3 className="mb-5 text-2xl font-semibold text-white">♿ Accessibility</h3>
+					<p className="text-gray-300">
+						This app meets{" "}
+						<a
+							href="https://www.w3.org/WAI/WCAG21/quickref/?currentsidebar=%23702082e70c38e7cf64db57b3016c043b&levels=aaa"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-primary-400 underline hover:text-primary-300"
+						>
+							WCAG 2.1 AA
+						</a>{" "}
+						color contrast requirements.
+					</p>
+				</section>
+
 				<section className="rounded-lg border border-gray-600 bg-gray-800 p-10 text-center">
 					<h3 className="mb-5 text-2xl font-semibold text-white">🎶 Join Our Community</h3>
 					<p className="mb-5 text-gray-300">
@@ -82,7 +98,7 @@ function AboutPage(): ReactElement {
 					</p>
 					<button
 						type="button"
-						className="bg-primary-500 hover:bg-primary-600 cursor-pointer rounded-lg border-none px-8 py-4 text-lg text-white transition-colors"
+						className="bg-primary-600 hover:bg-primary-700 cursor-pointer rounded-lg border-none px-8 py-4 text-lg text-white transition-colors"
 					>
 						🎵 Start Sharing Music
 					</button>

@@ -1,0 +1,116 @@
+---
+description: Playwright Agent - writes e2e/integration tests following project conventions
+globs: e2e/**/*.spec.ts
+alwaysApply: false
+---
+
+# Playwright E2E Test Agent
+
+Write and maintain Playwright e2e/integration tests. **Never modify application source files.**
+
+## Philosophy
+
+- **Test user flows, not implementation** — e2e tests verify real user journeys through the app, not internal logic
+- **Mock at the API boundary** — use route mocking (`page.route()`) to control backend responses; don't mock React internals
+- **Tests must be independent** — each test should run in isolation without relying on state from other tests
+- **Don't duplicate unit test coverage** — e2e tests cover integration and user flows; leave logic testing to unit tests
+- **Prioritize critical paths** — test happy paths and key user journeys first; edge cases are better covered in unit tests
+- **Avoid flaky tests** — use proper waits (hydration, network idle) and stable locators; never use arbitrary sleeps without reason
+- **Descriptive test names** — test names should read like user stories: "authenticated user can access dashboard"
+
+## File Structure
+
+- Tests go in `e2e/*.spec.ts`
+- Helper utilities go in `e2e/utils/*.ts`
+- Import from `@playwright/test` (not `@playwright/test/test`)
+
+## Test Pattern
+
+```ts
+import { expect, test } from "@playwright/test";
+import { authenticateTestUser } from "./utils/auth-helpers";
+
+const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] ?? "https://localhost:5173";
+const HYDRATION_WAIT_MS = 2000;
+
+test.describe("Feature Name", () => {
+  test("descriptive test name", async ({ page }) => {
+    await authenticateTestUser(page);
+    await page.goto(`${BASE_URL}/en/route`);
+    await page.waitForTimeout(HYDRATION_WAIT_MS);
+    // assertions...
+  });
+});
+```
+
+## Conventions
+
+- **Constants at top** — `BASE_URL`, `HYDRATION_WAIT_MS`, error counts
+- **Use auth helpers** — `authenticateTestUser()`, `mockSignedOutUser()`, `createTestUser()`
+- **Wait for hydration** — always `await page.waitForTimeout(HYDRATION_WAIT_MS)` after navigation
+- **Prefer role locators** — `getByRole("button", { name: /sign out/i })` over CSS selectors
+- **Regex for text** — `getByText(/welcome/i)` for case-insensitive matching
+- **Clean up contexts** — call `context.close()` when using multiple browser contexts
+- **No lint disable comments in spec files** — if a disable is truly needed, isolate it in a helper function in `e2e/utils/`
+
+## Error Tracking
+
+```ts
+const errors: string[] = [];
+page.on("console", (msg) => {
+  if (msg.type() === "error") errors.push(msg.text());
+});
+
+// Filter expected errors before asserting
+const unexpectedErrors = errors.filter((e) => !isExpectedError(e));
+expect(unexpectedErrors).toHaveLength(0);
+```
+
+## Multiple Users/Contexts
+
+```ts
+test("different users see their data", async ({ browser }) => {
+  const context1 = await browser.newContext();
+  const page1 = await context1.newPage();
+  // ... test user 1
+  await context1.close();
+});
+```
+
+## Running Tests
+
+**Dev mode** (starts dev servers automatically):
+
+```bash
+npm run test:e2e:dev                              # run all tests
+npm run test:e2e:dev -- e2e/dashboard.spec.ts     # run specific file
+npm run test:e2e:dev -- -g "test name pattern"    # run by test name
+npm run test:e2e:dev -- e2e/file.spec.ts -g "pattern"  # file + pattern
+```
+
+**Cursor AI running tests** (requires explicit browser path):
+
+```bash
+PLAYWRIGHT_BROWSERS_PATH=/home/bkinsey/.cache/ms-playwright npm run test:e2e:dev -- [filename]
+```
+
+**Direct Playwright** (requires dev servers already running):
+
+```bash
+npx playwright test              # run all e2e tests
+npx playwright test <file>       # run specific file
+npx playwright test --ui         # interactive mode
+```
+
+## Validation (run before and after changes)
+
+```bash
+npm run lint && npx tsc -b . && npm run test:e2e:dev -- [filename]
+```
+
+## Workflow
+
+1. Work **one test file at a time** — get it perfect before moving to next
+2. Run validation commands after each change
+3. If lint/tsc errors block progress, report and ask for guidance
+4. Continue until file passes all validation

@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import SongFormFooter from "./SongFormFooter";
 
@@ -25,10 +25,6 @@ vi.mock(
 const ONE = 1;
 
 describe("song form footer", () => {
-	// Cleanup needed so multiple renders don't stack in the same document (e.g. duplicate testid)
-	// eslint-disable-next-line jest/no-hooks -- cleanup is required for correct test isolation
-	afterEach(cleanup);
-
 	it("renders create/reset/cancel buttons", (): void => {
 		render(
 			<SongFormFooter
@@ -44,6 +40,7 @@ describe("song form footer", () => {
 		expect(screen.getByTestId("create-song-button")).toBeTruthy();
 		expect(screen.getByTestId("reset-song-button")).toBeTruthy();
 		expect(screen.getByTestId("cancel-song-button")).toBeTruthy();
+		cleanup();
 	});
 
 	it("calls handlers when buttons are clicked", (): void => {
@@ -71,6 +68,7 @@ describe("song form footer", () => {
 		expect(onSave).toHaveBeenCalledTimes(ONE);
 		expect(onReset).toHaveBeenCalledTimes(ONE);
 		expect(onCancel).toHaveBeenCalledTimes(ONE);
+		cleanup();
 	});
 
 	it("calls onCancel immediately when Cancel clicked and no unsaved changes", (): void => {
@@ -89,6 +87,7 @@ describe("song form footer", () => {
 		fireEvent.click(screen.getByTestId("cancel-song-button"));
 		expect(onCancel).toHaveBeenCalledTimes(ONE);
 		expect(screen.queryByTestId("cancel-leave-confirm")).toBeNull();
+		cleanup();
 	});
 
 	it("shows leave confirmation when Cancel clicked with unsaved changes; Stay dismisses", (): void => {
@@ -111,6 +110,7 @@ describe("song form footer", () => {
 		fireEvent.click(screen.getByTestId("cancel-leave-stay"));
 		expect(onCancel).not.toHaveBeenCalled();
 		expect(screen.queryByTestId("cancel-leave-confirm")).toBeNull();
+		cleanup();
 	});
 
 	it("renders update label when editing", (): void => {
@@ -128,6 +128,7 @@ describe("song form footer", () => {
 
 		const createBtn = screen.getByTestId("create-song-button");
 		expect(String(createBtn.textContent)).toContain("Update Song");
+		cleanup();
 	});
 
 	it("applies hasChanges class to footer", (): void => {
@@ -157,6 +158,7 @@ describe("song form footer", () => {
 		);
 
 		expect(Boolean(footer?.classList.contains("bg-gray-800"))).toBe(true);
+		cleanup();
 	});
 
 	it("does not render delete section when onDelete not provided", (): void => {
@@ -172,6 +174,7 @@ describe("song form footer", () => {
 		);
 
 		expect(screen.queryByTestId("delete-song-button")).toBeNull();
+		cleanup();
 	});
 
 	it("shows confirmation when delete clicked and calls cancel/confirm", (): void => {
@@ -210,6 +213,7 @@ describe("song form footer", () => {
 	});
 
 	it("disables buttons while submitting", (): void => {
+		cleanup();
 		const onDelete = vi.fn();
 		render(
 			<SongFormFooter
@@ -232,5 +236,6 @@ describe("song form footer", () => {
 		expect(resetBtn.hasAttribute("disabled")).toBe(true);
 		expect(cancelBtn.hasAttribute("disabled")).toBe(true);
 		expect(deleteBtn.hasAttribute("disabled")).toBe(true);
+		cleanup();
 	});
 });

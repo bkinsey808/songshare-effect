@@ -28,15 +28,14 @@ const ONE = 1;
 describe("useSmoothedAudioLevel", () => {
 	let analyser: AudioAnalyser | undefined = undefined;
 	let buffer: Uint8Array<ArrayBuffer> | undefined = undefined;
-	/* eslint-disable-next-line init-declarations */
-	let refs: {
-		analyserRef: { current: AudioAnalyser | undefined };
-		timeDomainBytesRef: { current: Uint8Array<ArrayBuffer> | undefined };
-	};
-	/* eslint-disable-next-line init-declarations */
-	let options: { uiIntervalMs: number; smoothingAlpha: number };
 
-	function setup(): void {
+	function setup(): {
+		refs: {
+			analyserRef: { current: AudioAnalyser | undefined };
+			timeDomainBytesRef: { current: Uint8Array<ArrayBuffer> | undefined };
+		};
+		options: { uiIntervalMs: number; smoothingAlpha: number };
+	} {
 		vi.useFakeTimers();
 		analyser = {
 			getByteTimeDomainData: vi.fn(),
@@ -46,31 +45,33 @@ describe("useSmoothedAudioLevel", () => {
 			},
 		};
 		buffer = new Uint8Array(BUFFER_SIZE);
-		refs = {
+		const localRefs = {
 			analyserRef: { current: analyser },
 			timeDomainBytesRef: { current: buffer },
 		};
-		options = { uiIntervalMs: UI_INTERVAL_MS, smoothingAlpha: SMOOTHING_ALPHA };
+		const localOptions = { uiIntervalMs: UI_INTERVAL_MS, smoothingAlpha: SMOOTHING_ALPHA };
 
 		mockComputeRmsLevel.mockReturnValue(MOCK_LEVEL);
 		mockClamp01.mockImplementation((value) => value);
 		mockSmoothValue.mockImplementation((prev, raw, alpha) => raw * alpha + prev * (ONE - alpha));
+
+		return { refs: localRefs, options: localOptions };
 	}
 
 	it("initializes with zero levelUiValue", () => {
-		setup();
+		const { refs, options } = setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		expect(result.current.levelUiValue).toBe(ZERO_LEVEL);
 	});
 
 	it("peekSmoothedLevel returns current levelRef value", () => {
-		setup();
+		const { refs, options } = setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		expect(result.current.peekSmoothedLevel()).toBe(ZERO_LEVEL);
 	});
 
 	it("readSmoothedLevelNow reads and smooths level", () => {
-		setup();
+		const { refs, options } = setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		const level = result.current.readSmoothedLevelNow();
 		expect(mockComputeRmsLevel).toHaveBeenCalledWith(buffer);
@@ -83,7 +84,7 @@ describe("useSmoothedAudioLevel", () => {
 	});
 
 	it("readSmoothedLevelNow returns 0 when analyser unavailable", () => {
-		setup();
+		const { refs, options } = setup();
 		refs.analyserRef.current = undefined;
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		const level = result.current.readSmoothedLevelNow();
@@ -91,7 +92,7 @@ describe("useSmoothedAudioLevel", () => {
 	});
 
 	it("readBytesAndSmoothedLevelNow returns bytes and level", () => {
-		setup();
+		const { refs, options } = setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		const resultData = result.current.readBytesAndSmoothedLevelNow();
 		expect(resultData).toBeDefined();
@@ -100,7 +101,7 @@ describe("useSmoothedAudioLevel", () => {
 	});
 
 	it("readBytesAndSmoothedLevelNow returns undefined when buffer unavailable", () => {
-		setup();
+		const { refs, options } = setup();
 		refs.timeDomainBytesRef.current = undefined;
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		const resultData = result.current.readBytesAndSmoothedLevelNow();
@@ -108,7 +109,7 @@ describe("useSmoothedAudioLevel", () => {
 	});
 
 	it("stopUiTimer stops updating levelUiValue", () => {
-		setup();
+		const { refs, options } = setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		result.current.startUiTimer();
 		result.current.readSmoothedLevelNow(); // Set level
@@ -119,7 +120,7 @@ describe("useSmoothedAudioLevel", () => {
 	});
 
 	it("reset clears state and stops timer", () => {
-		setup();
+		const { refs, options } = setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		// cleanup
 		vi.useRealTimers();
@@ -133,7 +134,7 @@ describe("useSmoothedAudioLevel", () => {
 	});
 
 	it("cleanup stops timer on unmount", () => {
-		setup();
+		const { refs, options } = setup();
 		const { result, unmount } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		result.current.startUiTimer();
 

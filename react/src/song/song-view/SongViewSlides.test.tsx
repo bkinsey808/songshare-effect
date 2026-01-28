@@ -1,5 +1,7 @@
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+import makeSongPublic from "@/react/test-utils/makeSongPublic";
 
 import type { SongPublic } from "../song-schema";
 
@@ -56,36 +58,9 @@ vi.mock(
 vi.mock("./useSongViewSlides");
 
 // Minimal representative `SongPublic` used in tests.
-// Uses `null` for nullable DB fields (matches generated schema) to avoid validation issues.
-const DUMMY_SONG: SongPublic = {
-	song_id: "s1",
-	song_name: "My Song",
-	song_slug: "my-slug",
-	fields: ["lyrics"],
-	slide_order: ["slide-1"],
-	slides: {
-		"slide-1": { slide_name: "Verse 1", field_data: { lyrics: "Hello" } },
-	},
-	// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-	key: null,
-	// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-	scale: null,
-	user_id: "u1",
-	// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-	short_credit: null,
-	// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-	long_credit: null,
-	// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-	public_notes: null,
-	created_at: "2025-01-01T00:00:00Z",
-	updated_at: "2025-01-01T00:00:00Z",
-};
+const DUMMY_SONG: SongPublic = makeSongPublic({ song_slug: "my-slug" });
 
 describe("song view slides", () => {
-	// Ensure DOM is cleaned between tests to avoid interference from multiple mounts
-	// eslint-disable-next-line jest/no-hooks -- cleanup for test isolation (avoid multiple SongViewSlides mounts in DOM)
-	afterEach(cleanup);
-
 	// Verifies nav controls and keyboard hint render when slides are available
 	// Also checks fullscreen button is present
 	it("renders controls and keyboard hint", () => {
@@ -118,6 +93,7 @@ describe("song view slides", () => {
 
 		// full screen button is present
 		expect(getByTestId("song-view-fullscreen")).toBeTruthy();
+		cleanup();
 	});
 
 	// Ensures fullscreen opens, shows exit UI, and can be closed
@@ -162,6 +138,7 @@ describe("song view slides", () => {
 		await waitFor(() => {
 			expect(queryByTestId("song-view-exit-fullscreen")).toBeNull();
 		});
+		cleanup();
 	});
 
 	// Confirms controls and keyboard hint are hidden when no slides exist
@@ -193,5 +170,6 @@ describe("song view slides", () => {
 
 		// current slide area should show the 'no slides' message
 		expect(getByText("No slides for this song.")).toBeTruthy();
+		cleanup();
 	});
 });

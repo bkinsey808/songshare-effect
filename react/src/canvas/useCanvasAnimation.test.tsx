@@ -30,10 +30,12 @@ function assertIsApi(node: unknown): asserts node is CanvasAnimationApi {
 }
 
 function TestHarness({ onApi }: { onApi: (api: CanvasAnimationApi) => void }): ReactElement {
-	// The hook is a local runtime value inside the test harness; narrow it
-	// to the test API type. This involves an assert and is safe in tests.
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-type-assertion */
-	const api = useCanvasAnimation() as unknown as CanvasAnimationApi;
+	// The hook is a local runtime value inside the test harness. Narrow it
+	// into the explicit test API using a runtime assertion helper to avoid
+	// inline eslint disable comments and unsafe casts.
+	const apiAny = useCanvasAnimation();
+	assertIsApi(apiAny);
+	const api = apiAny;
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
 	useEffect(() => {

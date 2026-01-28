@@ -13,26 +13,16 @@ import findMissingSongSlugs from "./findMissingSongSlugs";
  * @param slug - slug to use for both `song_id` and `song_slug`
  * @returns a `SongPublic` shaped object suitable for test assertions
  */
+import makeMalformedPublicSongs from "@/react/test-utils/makeMalformedPublicSongs";
+import makeSongPublic from "@/react/test-utils/makeSongPublic";
+
 function makeSong(slug: string): SongPublic {
-	/* eslint-disable unicorn/no-null */
-	const song: SongPublic = {
+	return makeSongPublic({
 		song_id: slug,
-		song_name: "Hi",
 		song_slug: slug,
-		fields: ["lyrics"],
-		slide_order: [],
-		slides: {},
-		key: null,
-		scale: null,
-		user_id: "u",
-		short_credit: null,
-		long_credit: null,
-		public_notes: null,
 		created_at: new Date().toISOString(),
 		updated_at: new Date().toISOString(),
-	};
-	/* eslint-enable unicorn/no-null */
-	return song;
+	});
 }
 
 // Validate that active slugs are excluded and that when no active songs exist,
@@ -66,27 +56,15 @@ describe("findMissingSongSlugs", () => {
 	// Defensive behavior: malformed or missing `publicSongs` entries should be
 	// ignored rather than causing an exception or accidentally matching a slug.
 	it("ignores malformed publicSongs entries", () => {
-		// Allow `any` here to include malformed shapes intentionally used in this
-		// test. This keeps the assertion local and avoids unsafe per-property
-		// casts that trip the typechecker.
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const publicSongs: any = {
-			valid: makeSong("valid"),
-			badUndefined: undefined,
-			badType: { song_slug: 123 },
-		};
+		// Use a helper that centralizes the test-only malformed fixture and its
+		// narrow type assertion so individual tests stay lint-clean.
+		const publicSongs = makeMalformedPublicSongs();
 
-		// Intentionally pass a malformed map here to ensure defensive behavior.
-		// Allow this unsafe assignment for the purposes of the test — we want to
-		// ensure the implementation safely ignores malformed values rather than
-		// throwing. (This is test-only code.)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const songSlugs = ["valid", "maybe"];
 		const [, missingSlug] = songSlugs;
 		const out = findMissingSongSlugs({
 			songSlugs,
 			activePublicSongIds: ["valid", "badUndefined", "badType"],
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			publicSongs,
 		});
 

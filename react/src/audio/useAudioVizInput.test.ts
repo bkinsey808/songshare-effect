@@ -3,6 +3,8 @@ import type { RefObject } from "react";
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import makeSmoothedAudioLevelForUiTimer from "@/react/test-utils/makeSmoothedAudioLevelForUiTimer";
+
 import type { SmoothedAudioLevel } from "./useSmoothedAudioLevel";
 
 import useAudioCapture from "./useAudioCapture";
@@ -348,62 +350,15 @@ describe("useAudioVizInput", () => {
 		expect(mockAudioCapture.stop).toHaveBeenCalledTimes(CALLED_AT_LEAST_ONCE);
 	});
 
-	/* eslint-disable jest/no-conditional-in-test, @typescript-eslint/no-unused-vars, @typescript-eslint/no-unsafe-assignment */
 	it("ui timer reflects smoothed level after readings (integration)", async () => {
 		setup();
 		vi.useFakeTimers();
 
-		// Create a simple audioLevel implementation that mimics the smoothing + UI timer
-		const SMOOTH_STEP = 0.5;
-		let internalLevel = 0;
-		let timerId: ReturnType<typeof globalThis.setInterval> | undefined = undefined;
-		const customAudioLevel = {
-			levelUiValue: 0,
-			peekSmoothedLevel: vi.fn(() => internalLevel),
-			readSmoothedLevelNow: vi.fn(() => {
-				internalLevel += SMOOTH_STEP;
-				return internalLevel;
-			}),
-			readBytesAndSmoothedLevelNow: vi.fn(() => undefined),
-			startUiTimer(): void {
-				if (typeof timerId === "number") {
-					try {
-						clearInterval(timerId);
-					} catch {
-						// noop
-					}
-				}
-				timerId = globalThis.setInterval((): void => {
-					customAudioLevel.levelUiValue = internalLevel;
-				}, defaultOptions.uiIntervalMs);
-			},
-			stopUiTimer(): void {
-				if (typeof timerId === "number") {
-					try {
-						clearInterval(timerId);
-					} catch {
-						// noop
-					}
-				}
-				timerId = undefined;
-			},
-			reset(): void {
-				if (typeof timerId === "number") {
-					try {
-						clearInterval(timerId);
-					} catch {
-						// noop
-					}
-				}
-				timerId = undefined;
-				internalLevel = ZERO;
-				customAudioLevel.levelUiValue = ZERO;
-			},
-		};
-
 		// Use a deterministic custom `SmoothedAudioLevel` instance for this integration-style test
 		// so we can avoid dynamic imports and still exercise the UI timer logic.
-		const customAudioLevelRef = { current: customAudioLevel };
+		const { audioLevel: customAudioLevel, audioLevelRef: customAudioLevelRef } =
+			makeSmoothedAudioLevelForUiTimer(defaultOptions.uiIntervalMs);
+
 		mockUseSmoothedAudioLevelRef.mockReturnValueOnce({
 			audioLevel: customAudioLevel,
 			audioLevelRef: customAudioLevelRef,
@@ -419,9 +374,10 @@ describe("useAudioVizInput", () => {
 		vi.advanceTimersByTime(defaultOptions.uiIntervalMs);
 		rerender();
 		const MIN_POSITIVE = 0.001;
-		expect(result.current.levelUiValue ?? MIN_POSITIVE).toBeGreaterThan(MIN_POSITIVE);
-
-		const firstLevel = result.current.levelUiValue ?? MIN_POSITIVE;
+		const val = result.current.levelUiValue;
+		expect(val).toBeDefined();
+		expect(Number(val)).toBeGreaterThan(MIN_POSITIVE);
+		const firstLevel = Number(val);
 
 		// Simulate a second reading that increases the smoothed level
 		const returned = result.current.readSmoothedLevelNow();

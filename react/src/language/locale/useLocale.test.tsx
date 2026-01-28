@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-type-assertion */
 import { renderHook } from "@testing-library/react";
-import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
+
+import mockUseTranslation from "@/react/test-utils/mockUseTranslation";
 
 import useLanguage from "./useLanguage";
 import useLocale from "./useLocale";
@@ -12,10 +12,7 @@ vi.mock("./useLanguage");
 describe("useLocale", () => {
 	it("returns lang from useLanguage and t from useTranslation", () => {
 		vi.mocked(useLanguage).mockReturnValue("es");
-		vi.mocked(useTranslation).mockReturnValue({
-			t: (key: string) => `X:${key}`,
-			i18n: { languages: ["en", "es"] },
-		} as unknown as ReturnType<typeof useTranslation>);
+		mockUseTranslation("en");
 
 		const { result } = renderHook(() => useLocale());
 		expect(result.current.lang).toBe("es");

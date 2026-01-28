@@ -39,7 +39,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 						onClick={() => {
 							globalThis.location.reload();
 						}}
-						className="bg-primary-500 hover:bg-primary-600 cursor-pointer rounded-md border-none px-6 py-3 text-base text-white transition-colors"
+						className="bg-primary-600 hover:bg-primary-700 cursor-pointer rounded-md border-none px-6 py-3 text-base text-white transition-colors"
 					>
 						🔄 Reload Page
 					</button>

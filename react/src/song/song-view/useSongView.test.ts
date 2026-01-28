@@ -2,6 +2,7 @@ import { renderHook } from "@testing-library/react";
 import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
+import makeSongPublic from "@/react/test-utils/makeSongPublic";
 import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 
 import { type SongPublic } from "../song-schema";
@@ -16,30 +17,7 @@ const WHITESPACE_SLUG = "   ";
 const INVALID_SLUG = "invalid-slug";
 
 function makeValidSongPublic(overrides: Partial<SongPublic> = {}): SongPublic {
-	return {
-		song_id: "s1",
-		song_name: "Test Song",
-		song_slug: VALID_SLUG,
-		fields: ["lyrics"],
-		slide_order: ["slide-1"],
-		slides: {
-			"slide-1": { slide_name: "Verse 1", field_data: { lyrics: "Hello world" } },
-		},
-		// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-		key: null,
-		// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-		scale: null,
-		user_id: "u1",
-		// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-		short_credit: null,
-		// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-		long_credit: null,
-		// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-		public_notes: null,
-		created_at: "2025-01-01T00:00:00Z",
-		updated_at: "2025-01-01T00:00:00Z",
-		...overrides,
-	};
+	return makeSongPublic({ song_slug: VALID_SLUG, ...overrides });
 }
 
 function installStoreMocks(mockAdd: unknown, mockGet: unknown): void {

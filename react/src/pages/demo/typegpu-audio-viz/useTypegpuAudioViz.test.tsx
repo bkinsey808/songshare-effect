@@ -282,8 +282,7 @@ describe("useTypegpuAudioViz (behavior)", () => {
 		const FRAME_NUMBER = 1;
 		drawFn(ctx, FRAME_NUMBER);
 
-		/* eslint-disable-next-line jest/prefer-called-with -- verifying side-effect occurred */
-		expect(mockDrawFallback).toHaveBeenCalled();
+		expect(mockDrawFallback).toHaveBeenCalledTimes(ONE_CALL);
 		// payload shape is exercised by the fallback drawer unit tests; here we
 		// only verify the integration path ran.
 	});

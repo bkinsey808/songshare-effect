@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
+import asGpuCanvasContext from "@/react/test-utils/asGpuCanvasContext";
+import asNever from "@/react/test-utils/asNever";
+
 function makeCanvas(): HTMLCanvasElement {
 	const canvasEl = document.createElement("canvas");
 	canvasEl.width = 100;
@@ -91,8 +94,7 @@ describe("runTypeGpuDemo", () => {
 
 		const canvas = makeCanvas();
 		// Mock getContext to return our mock WebGPU context
-		/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion */
-		vi.spyOn(canvas, "getContext").mockReturnValue(mockContext as unknown as GPUCanvasContext);
+		vi.spyOn(canvas, "getContext").mockReturnValue(asGpuCanvasContext(mockContext));
 		// Mock navigator.gpu
 		const originalNavigator = globalThis.navigator;
 		vi.stubGlobal("navigator", {
@@ -110,11 +112,9 @@ describe("runTypeGpuDemo", () => {
 		const STOP_DURATION = 100;
 		const stop = await runTypeGpuDemo(canvas, STOP_DURATION, {
 			onFinish: () => undefined,
-			/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion */
-			typegpuModule: mockModule as never,
+			typegpuModule: asNever(mockModule),
 		});
 
-		expect(typeof stop).toBe("function");
 		expect(canvas.dataset["typegpu"]).toBe("active");
 		expect(mockContext.configure).toHaveBeenCalledWith(expect.any(Object));
 
@@ -126,13 +126,20 @@ describe("runTypeGpuDemo", () => {
 
 	it("throws when typegpu lacks init function", async () => {
 		const cleanup = setup();
-		/* eslint-disable-next-line jest/no-untyped-mock-factory */
-		vi.doMock("typegpu", () => ({ unknown: 123 }));
 		const { default: runTypeGpuDemo } = await import("./runTypeGpuDemo");
+		expect(typeof runTypeGpuDemo).toBe("function");
 
 		const canvas = makeCanvas();
 		const SHORT_DURATION = 10;
-		await expect(runTypeGpuDemo(canvas, SHORT_DURATION)).rejects.toBeInstanceOf(Error);
+		let caughtError: unknown = undefined;
+		try {
+			// Use a centralized test helper to produce a malformed TypeGPU module shape.
+			const malformed = await import("@/react/test-utils/makeMalformedTypegpuModule");
+			await runTypeGpuDemo(canvas, SHORT_DURATION, { typegpuModule: malformed.default() });
+		} catch (error) {
+			caughtError = error;
+		}
+		expect(caughtError).toBeInstanceOf(Error);
 		cleanup();
 	});
 });

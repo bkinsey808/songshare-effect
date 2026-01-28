@@ -1,15 +1,17 @@
 import { expect, test } from "@playwright/test";
 
-import { justDeletedAccountKey } from "@/shared/sessionStorageKeys";
+import { justDeletedAccountKey, justSignedOutKey } from "@/shared/sessionStorageKeys";
 
-const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] ?? "";
-// Test timing constants
+import { filterExpectedErrors, setupErrorTracking } from "./utils/error-helpers";
+
+const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] ?? "https://localhost:5173";
 const HYDRATION_WAIT_MS = 2000;
+const NO_ERRORS = 0;
 
-// Choose base URL: if PLAYWRIGHT_BASE_URL is set we treat this as a deployed run
 test.describe("Render smoke", () => {
-	test("app renders and shows heading", async ({ page }) => {
-		// Clear any stored auth state
+	test("app renders without errors", async ({ page }) => {
+		const errors = setupErrorTracking(page);
+
 		await page.evaluate(() => {
 			try {
 				localStorage.clear();
@@ -19,54 +21,48 @@ test.describe("Render smoke", () => {
 			}
 		});
 
-		// Navigate to the localized page
-		await page.goto(`${BASE_URL}/en`, {
-			waitUntil: "load",
-		});
-
-		// Allow some extra time for hydration/UI to render in dev mode
+		await page.goto(`${BASE_URL}/en`, { waitUntil: "load" });
 		await page.waitForTimeout(HYDRATION_WAIT_MS);
 
-		// Expect the page title to be correct
 		await expect(page).toHaveTitle("songshare-effect");
+
+		const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
+		expect(unexpectedErrors).toHaveLength(NO_ERRORS);
 	});
+
 	test("shows sign out success alert", async ({ page }) => {
-		// Navigate directly to the localized page and set sessionStorage there
 		await page.goto(`${BASE_URL}/en`, { waitUntil: "load" });
-		await page.evaluate(() => {
+
+		await page.evaluate((key) => {
 			try {
-				sessionStorage.setItem("justSignedOut", "1");
+				sessionStorage.setItem(key, "1");
 			} catch {
 				// ignore
 			}
-		});
-		// Reload to trigger the alert logic
-		await page.reload({ waitUntil: "load" });
+		}, justSignedOutKey);
 
-		// Allow time for hydration and alert to render
+		await page.reload({ waitUntil: "load" });
 		await page.waitForTimeout(HYDRATION_WAIT_MS);
 
-		// Expect the page title to be correct
-		await expect(page).toHaveTitle("songshare-effect");
+		await expect(page.getByText(/signed out/i)).toBeVisible();
+		await expect(page.getByText(/successfully signed out/i)).toBeVisible();
 	});
 
 	test("shows account deleted success alert", async ({ page }) => {
-		// Navigate directly to the localized page and set sessionStorage there
 		await page.goto(`${BASE_URL}/en`, { waitUntil: "load" });
-		await page.evaluate((keyName) => {
+
+		await page.evaluate((key) => {
 			try {
-				sessionStorage.setItem(keyName, "1");
+				sessionStorage.setItem(key, "1");
 			} catch {
 				// ignore
 			}
 		}, justDeletedAccountKey);
-		// Reload to trigger the alert logic
-		await page.reload({ waitUntil: "load" });
 
-		// Allow time for hydration and alert to render
+		await page.reload({ waitUntil: "load" });
 		await page.waitForTimeout(HYDRATION_WAIT_MS);
 
-		// Expect the page title to be correct
-		await expect(page).toHaveTitle("songshare-effect");
+		await expect(page.getByText(/account deleted/i)).toBeVisible();
+		await expect(page.getByText(/permanently deleted/i)).toBeVisible();
 	});
 });

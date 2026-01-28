@@ -52,6 +52,22 @@ const config: UserConfig = defineConfig({
 				entryFileNames: "assets/[name].[hash].js",
 				chunkFileNames: "assets/[name].[hash].js",
 				assetFileNames: "assets/[name].[hash].[ext]",
+				// Manual chunks for better caching and smaller initial bundle
+				manualChunks(id: string): string | undefined {
+					// React core - changes infrequently, good for caching
+					if (id.includes("node_modules/react") || id.includes("node_modules/react-dom") || id.includes("node_modules/react-router")) {
+						return "react-vendor";
+					}
+					// Effect library - large, used across app
+					if (id.includes("node_modules/effect")) {
+						return "effect";
+					}
+					// State management
+					if (id.includes("node_modules/zustand")) {
+						return "zustand";
+					}
+					return undefined;
+				},
 			},
 		},
 		// Generate source maps for better debugging in production

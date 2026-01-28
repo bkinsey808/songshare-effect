@@ -178,7 +178,7 @@ function UploadPage(): ReactElement {
 							className={`rounded-lg border-none px-8 py-4 text-lg transition-colors ${
 								isSubmitting
 									? "cursor-not-allowed bg-gray-500"
-									: "bg-primary-500 hover:bg-primary-600 cursor-pointer"
+									: "bg-primary-600 hover:bg-primary-700 cursor-pointer"
 							} text-white`}
 						>
 							{isSubmitting ? "⏳ Uploading..." : "🚀 Upload Song"}

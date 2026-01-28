@@ -1,7 +1,8 @@
 import { cleanup, render } from "@testing-library/react";
 import { useParams } from "react-router-dom";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
+import makeSongPublic from "@/react/test-utils/makeSongPublic";
 import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 
 import SongView from "./SongView";
@@ -38,41 +39,11 @@ const WHITESPACE_SLUG = "   ";
 const MIN_ONE = 1;
 const FIRST_INDEX = 0;
 
-/**
- * Create a minimal `songPublic`-like object for tests.
- *
- * This returns valid shape values that satisfy schema decoding; pass
- * `overrides` to replace or add properties for specific test cases.
- *
- * @param overrides - optional fields to merge into the returned object
- * @returns A `songPublic`-like record suitable for rendering assertions
- */
 function makeSongPublicLike(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-	return {
-		song_id: "s1",
-		song_name: "My Song",
+	return makeSongPublic({
 		song_slug: MY_SLUG,
-		fields: ["lyrics"],
-		slide_order: ["slide-1"],
-		slides: {
-			"slide-1": { slide_name: "Verse 1", field_data: { lyrics: "Hello world" } },
-		},
-		// songPublicSchema uses nullableStringSchema (string | null); undefined fails decode
-		// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-		key: null,
-		// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-		scale: null,
-		user_id: "u1",
-		// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-		short_credit: null,
-		// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-		long_credit: null,
-		// eslint-disable-next-line unicorn/no-null -- schema requires null for nullable DB fields
-		public_notes: null,
-		created_at: "2025-01-01T00:00:00Z",
-		updated_at: "2025-01-01T00:00:00Z",
-		...overrides,
-	};
+		...(overrides as Partial<Partial<Record<string, unknown>>>),
+	});
 }
 
 /**
@@ -99,9 +70,6 @@ function installStoreMocks(mockAdd: unknown, mockGet: unknown): void {
 
 // Unit tests for `SongView` component: assert slug handling and store interaction
 describe("song view", () => {
-	// eslint-disable-next-line jest/no-hooks -- cleanup for test isolation (avoid multiple SongView mounts in DOM)
-	afterEach(cleanup);
-
 	it("renders 'Song not found' when no song param is present", () => {
 		vi.mocked(useParams).mockReturnValue({});
 		installStoreMocks(vi.fn(), vi.fn());
@@ -109,6 +77,7 @@ describe("song view", () => {
 		const { getByText } = render(<SongView />);
 
 		expect(getByText(NOT_FOUND_TEXT)).toBeTruthy();
+		cleanup();
 	});
 
 	it("calls addActivePublicSongSlugs and displays song when valid songPublic is found", () => {
@@ -124,6 +93,7 @@ describe("song view", () => {
 		expect(getByText(MY_SLUG)).toBeTruthy();
 		expect(mockAdd).toHaveBeenCalledWith([MY_SLUG]);
 		expect(mockGet).toHaveBeenCalledWith(MY_SLUG);
+		cleanup();
 	});
 
 	it("shows Song not found when songPublic is empty or invalid", () => {
@@ -139,6 +109,7 @@ describe("song view", () => {
 		expect(matches[FIRST_INDEX]).toBeTruthy();
 		expect(mockAdd).toHaveBeenCalledWith([NO_SLUG]);
 		expect(mockGet).toHaveBeenCalledWith(NO_SLUG);
+		cleanup();
 	});
 
 	// Whitespace-only slug should be treated as missing; ensure no store selectors are invoked

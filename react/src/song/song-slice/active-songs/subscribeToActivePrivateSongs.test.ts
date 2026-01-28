@@ -1,12 +1,8 @@
-/* eslint-disable import/first */
-import { describe, expect, it, vi } from "vitest";
-
-// Mock the auth token and client modules before importing the module under test
-vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
-vi.mock("@/react/supabase/client/getSupabaseClient");
-
+// Mock registrations will be applied after imports to (1) satisfy import/first
+// and (2) still allow per-test mock configuration inside the tests.
 import { Effect } from "effect";
 import { setTimeout as delay } from "node:timers/promises";
+import { describe, expect, it, vi } from "vitest";
 
 import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
 
@@ -16,6 +12,12 @@ import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import type { SongSubscribeSlice } from "../song-slice";
 
 import subscribeToActivePrivateSongs from "./subscribeToActivePrivateSongs";
+
+// Register mocks for auth tokens and client modules (top-level registration is
+// fine because `subscribeToActivePrivateSongs` performs its work inside an
+// async IIFE and will use the mocked functions at call-time).
+vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
+vi.mock("@/react/supabase/client/getSupabaseClient");
 
 /**
  * createMinimalClient
@@ -185,8 +187,8 @@ describe("subscribeToActivePrivateSongs", () => {
 			.mockImplementation((..._args: unknown[]) => undefined);
 
 		const err = new Error("auth-fail");
-		vi.mocked(getSupabaseAuthToken).mockRejectedValue(err);
 
+		vi.mocked(getSupabaseAuthToken).mockRejectedValue(err);
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalClient());
 
 		const set = vi.fn();
@@ -196,7 +198,6 @@ describe("subscribeToActivePrivateSongs", () => {
 
 		const factory = subscribeToActivePrivateSongs(set, get);
 		factory();
-
 		await flushPromises();
 
 		expect(errorSpy).toHaveBeenCalledWith(

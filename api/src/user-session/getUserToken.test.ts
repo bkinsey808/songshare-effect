@@ -1,22 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment */
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { ReadonlyContext } from "@/api/hono/hono-context";
 import type { UserSessionData } from "@/shared/userSessionData";
 
-import getUserToken from "./getUserToken";
+import makeCtx from "@/api/test-utils/makeCtx";
+import stubGetSupabaseServerClient from "@/api/test-utils/stubGetSupabaseServerClient";
 
-function makeCtx(): unknown {
-	return {
-		env: {
-			VITE_SUPABASE_URL: "https://supabase.example",
-			SUPABASE_SERVICE_KEY: "service-key",
-			SUPABASE_VISITOR_EMAIL: "visitor@example.com",
-			SUPABASE_VISITOR_PASSWORD: "visitor-pass",
-		},
-	};
-}
+import getUserToken from "./getUserToken";
 
 const SAMPLE_USER_SESSION: UserSessionData = {
 	user: {
@@ -68,12 +58,11 @@ describe("getUserToken", () => {
 			.mockResolvedValueOnce(secondSignInResponse);
 		const mockUpdate = vi.fn().mockResolvedValue({ error: undefined });
 
-		const supabaseModule = await import("@/api/supabase/getSupabaseServerClient");
-		vi.spyOn(supabaseModule, "default").mockReturnValue({
+		await stubGetSupabaseServerClient({
 			auth: { signInWithPassword: mockSignIn, admin: { updateUserById: mockUpdate } },
-		} as unknown as ReturnType<typeof supabaseModule.default>);
+		});
 
-		const result = await Effect.runPromise(getUserToken(makeCtx() as ReadonlyContext));
+		const result = await Effect.runPromise(getUserToken(makeCtx()));
 
 		const EXPECTED_SIGNIN_CALLS = 2;
 		expect(result).toStrictEqual({
@@ -102,12 +91,11 @@ describe("getUserToken", () => {
 			.fn()
 			.mockResolvedValueOnce({ data: undefined, error: { message: "bad auth" } });
 
-		const supabaseModule2 = await import("@/api/supabase/getSupabaseServerClient");
-		vi.spyOn(supabaseModule2, "default").mockReturnValue({
+		await stubGetSupabaseServerClient({
 			auth: { signInWithPassword: mockSignIn, admin: { updateUserById: vi.fn() } },
-		} as unknown as ReturnType<typeof supabaseModule2.default>);
+		});
 
-		await expect(Effect.runPromise(getUserToken(makeCtx() as ReadonlyContext))).rejects.toThrow(
+		await expect(Effect.runPromise(getUserToken(makeCtx()))).rejects.toThrow(
 			/Sign in failed: bad auth/,
 		);
 	});
@@ -136,13 +124,10 @@ describe("getUserToken", () => {
 
 		const mockUpdate = vi.fn().mockResolvedValue({ error: { message: "update failed" } });
 
-		const supabaseModuleC = await import("@/api/supabase/getSupabaseServerClient");
-		vi.spyOn(supabaseModuleC, "default").mockReturnValue({
+		await stubGetSupabaseServerClient({
 			auth: { signInWithPassword: mockSignIn, admin: { updateUserById: mockUpdate } },
-		} as unknown as ReturnType<typeof supabaseModuleC.default>);
+		});
 
-		await expect(Effect.runPromise(getUserToken(makeCtx() as ReadonlyContext))).rejects.toThrow(
-			/update failed/,
-		);
+		await expect(Effect.runPromise(getUserToken(makeCtx()))).rejects.toThrow(/update failed/);
 	});
 });

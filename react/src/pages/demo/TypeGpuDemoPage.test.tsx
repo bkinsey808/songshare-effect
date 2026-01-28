@@ -1,32 +1,15 @@
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import TypeGpuDemoPage from "./TypeGpuDemoPage";
-
-// Note: `vi.mock` is hoisted by Vitest so this still mocks the module
-// even though it's declared after the imports.
-/* eslint-disable-next-line jest/no-untyped-mock-factory */
-vi.mock("typegpu", () => ({ default: {} }));
-
-// Inject a fake runTypeGpuDemo implementation
-/* eslint-disable-next-line jest/no-untyped-mock-factory */
-vi.mock("@/react/typegpu/runTypeGpuDemo", () => {
-	const fn = vi.fn((): (() => void) => {
-		// signal to the test that the TypeGPU path was called
-		/* istanbul ignore next */
-		/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion */
-		(globalThis as unknown as { __TYPEGPU_CALLED?: boolean }).__TYPEGPU_CALLED = true;
-		return (): void => {
-			/* stop */
-		};
-	});
-	return { default: fn } as const;
-});
+import { mockTypeGpu } from "@/react/test-utils/mockTypeGpu";
 
 describe("typeGpuDemoPage (TypeGPU integration)", () => {
 	it("calls runTypeGpuDemo when clicking 'Run installed TypeGPU' button", async () => {
+		const { runTypeGpuDemoMock } = mockTypeGpu();
+		const { default: TypeGpuDemoPage } = await import("./TypeGpuDemoPage");
+
 		const container = document.createElement("div");
 		const root = createRoot(container);
 
@@ -50,9 +33,11 @@ describe("typeGpuDemoPage (TypeGPU integration)", () => {
 
 		// Wait a microtask for the async click handler work to start.
 		await Promise.resolve();
-		// Wait another microtask for the runTypeGpuDemo mock to be invoked.
-		await Promise.resolve();
-		/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion */
-		expect((globalThis as unknown as { __TYPEGPU_CALLED?: boolean }).__TYPEGPU_CALLED).toBe(true);
+		// Assert our returned mock was invoked with expected args
+		expect(runTypeGpuDemoMock).toHaveBeenCalledWith(
+			expect.any(HTMLCanvasElement),
+			expect.any(Number),
+			expect.any(Object),
+		);
 	});
 });

@@ -1,0 +1,44 @@
+---
+description: TypeScript Agent - project-specific TypeScript and React conventions
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# TypeScript Agent
+
+Small-to-medium TypeScript and React changes following project conventions.
+
+## TypeScript Rules
+
+- Avoid `any` — prefer `unknown` if unsure, aim for precise types
+- Use strict null checks; avoid non-null assertions (`!`) unless necessary
+- Prefer `type` over `interface` (unless extending existing interfaces)
+- Prefer Effect TS over promises at module/function top level
+- Use `async/await` instead of `.then()` chains
+- All functions must have JSDoc comments with `@param` and `@returns`
+
+## Project-Specific Rules
+
+- **React Compiler project** — no manual memoization (`useCallback`, `useMemo`, `memo`) unless documented performance reason + human approval
+- Prefer plain `function` declarations with explicit return types for handlers/callbacks
+- **Oxlint, not ESLint** — use oxlint disable comments
+- **No barrel files** — import directly from source, no `index.ts` re-exports
+- **No re-exports** — `export { x } from "./file"` is discouraged
+- Unit tests use Vitest, co-located with source
+
+## Validation (run after changes)
+
+```bash
+npm run format:check   # formatting
+npm run lint           # oxlint
+npm run test:unit      # vitest
+```
+
+If any fail, report errors and stop until user provides direction.
+
+## Workflow
+
+- Small, focused changes with corresponding unit tests
+- When affecting public APIs, ask user first
+- Provide short preamble summarizing change + next steps
+- No git commits/pushes — propose commands, let human run them

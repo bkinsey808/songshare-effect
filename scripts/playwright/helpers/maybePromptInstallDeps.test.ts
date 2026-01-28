@@ -1,9 +1,10 @@
 import { spawnSync } from "node:child_process";
-import { createInterface, type Interface } from "node:readline/promises";
-import { describe, it, expect, vi } from "vitest";
+import { createInterface } from "node:readline/promises";
+import { describe, expect, it, vi } from "vitest";
 
 import { error, warn } from "../../utils/scriptLogger";
 import maybePrompt from "./maybePromptInstallDeps";
+import makeFakeRl from "./test-utils";
 
 /**
  * Resolution for oxlint and tsc errors without disable statements or dynamic imports:
@@ -110,16 +111,7 @@ describe("maybePromptInstallDeps", () => {
 
 		// Mock readline createInterface.question to return 'n'
 		const createInterfaceMock = vi.mocked(createInterface);
-		// Cast via unknown to avoid requiring full Interface surface in test
-		const fakeRl = {
-			question: async (): Promise<string> => {
-				await Promise.resolve();
-				return "n";
-			},
-			close: (): void => undefined,
-		};
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion
-		createInterfaceMock.mockImplementation(() => fakeRl as unknown as Interface);
+		createInterfaceMock.mockImplementation(() => makeFakeRl("n"));
 
 		// Make runtime appear interactive
 		const prevStdinTTY = process.stdin.isTTY;
@@ -145,16 +137,7 @@ describe("maybePromptInstallDeps", () => {
 		vi.resetAllMocks();
 
 		const createInterfaceMock = vi.mocked(createInterface);
-		// Cast via unknown to avoid requiring full Interface surface in test
-		const fakeRlYes = {
-			question: async (): Promise<string> => {
-				await Promise.resolve();
-				return "yes";
-			},
-			close: (): void => undefined,
-		};
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion
-		createInterfaceMock.mockImplementation(() => fakeRlYes as unknown as Interface);
+		createInterfaceMock.mockImplementation(() => makeFakeRl("yes"));
 
 		// simulate non-zero exit to trigger sError
 		const spawnMock = vi.mocked(spawnSync);
@@ -189,16 +172,7 @@ describe("maybePromptInstallDeps", () => {
 		vi.resetAllMocks();
 
 		const createInterfaceMock = vi.mocked(createInterface);
-		// Cast via unknown to avoid requiring full Interface surface in test
-		const fakeRlThrow = {
-			question: async (): Promise<string> => {
-				await Promise.resolve();
-				throw new Error("prompt fail");
-			},
-			close: (): void => undefined,
-		};
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion
-		createInterfaceMock.mockImplementation(() => fakeRlThrow as unknown as Interface);
+		createInterfaceMock.mockImplementation(() => makeFakeRl("throw"));
 
 		const prevStdinTTY = process.stdin.isTTY;
 		const prevStdoutTTY = process.stdout.isTTY;

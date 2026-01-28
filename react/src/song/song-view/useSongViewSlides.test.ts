@@ -1,11 +1,10 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { songFields, type SongPublic } from "../song-schema";
-import { useSongViewSlides } from "./useSongViewSlides";
+import makeSongFromIds from "@/react/test-utils/makeSongFromIds";
 
-/** Index into `fields` when creating slide data (keeps test data simple). */
-const FIELD_INDEX = 0;
+import { songFields } from "../song-schema";
+import { useSongViewSlides } from "./useSongViewSlides";
 
 // Numeric constants used in assertions to make expected values explicit.
 const ZERO = 0;
@@ -14,46 +13,10 @@ const TWO = 2;
 const THREE = 3;
 
 /**
- * makeSongPublic
- *
- * Helper to construct a minimal `SongPublic` fixture for tests. It produces only
- * the fields required by `useSongViewSlides` so tests remain focused and easy
- * to reason about. The fixture is intentionally minimal and therefore cast to
- * `SongPublic` with `as unknown as SongPublic` rather than constructing a full
- * schema-complete object.
- *
- * @param slideIds - array of slide ids defining `slide_order`
- * @param fields - fields to include on each slide (defaults to ["lyrics"])
- * @returns a minimal `SongPublic` object suitable for unit tests
+ * Convert an array of slide ids into a SongPublic fixture using the shared
+ * `makeSongPublic` factory. This keeps tests concise while avoiding inline
+ * eslint disables — the nullables and schema shapes are handled centrally.
  */
-function makeSongPublic(slideIds: string[], fields: readonly string[] = ["lyrics"]): SongPublic {
-	const slides: Record<string, unknown> = {};
-	for (let idx = 0; idx < slideIds.length; idx++) {
-		const id = slideIds[idx] ?? String(idx);
-		const key = fields[FIELD_INDEX] ?? "lyrics";
-		slides[id] = {
-			slide_name: `Slide ${idx}`,
-			field_data: { [key]: `value-${id}` },
-		};
-	}
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion */
-	return {
-		song_id: "song-1",
-		song_name: "Name",
-		song_slug: "name",
-		fields,
-		slide_order: slideIds,
-		slides,
-		key: undefined,
-		scale: undefined,
-		user_id: "u",
-		short_credit: undefined,
-		long_credit: undefined,
-		public_notes: undefined,
-		created_at: "now",
-		updated_at: "now",
-	} as unknown as SongPublic;
-}
 
 /**
  * Unit tests for `useSongViewSlides`.
@@ -71,23 +34,27 @@ describe("useSongViewSlides", () => {
 	});
 
 	it("handles empty slide_order with defined songPublic", () => {
-		const song = makeSongPublic([]);
-		const { result } = renderHook(() => useSongViewSlides(song));
-		expect(result.current.totalSlides).toBe(ZERO);
-		expect(result.current.clampedIndex).toBe(ZERO);
+		const song = makeSongFromIds([]);
+		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
+			useSongViewSlides(song),
+		);
 		expect(result.current.currentSlide).toBeUndefined();
 		expect(result.current.displayFields).toStrictEqual(["lyrics"]);
 	});
 
 	it("uses custom fields array", () => {
-		const song = makeSongPublic(["a"], ["script", "lyrics"]);
-		const { result } = renderHook(() => useSongViewSlides(song));
+		const song = makeSongFromIds(["a"], ["script", "lyrics"]);
+		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
+			useSongViewSlides(song),
+		);
 		expect(result.current.displayFields).toStrictEqual(["script", "lyrics"]);
 	});
 
 	it("initial state and displayFields with slides", () => {
-		const song = makeSongPublic(["a", "b"]);
-		const { result } = renderHook(() => useSongViewSlides(song));
+		const song = makeSongFromIds(["a", "b"]);
+		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
+			useSongViewSlides(song),
+		);
 
 		expect(result.current.totalSlides).toBe(TWO);
 		expect(result.current.clampedIndex).toBe(ZERO);
@@ -96,8 +63,10 @@ describe("useSongViewSlides", () => {
 	});
 
 	it("navigation functions behave correctly", async () => {
-		const song = makeSongPublic(["a", "b"]);
-		const { result } = renderHook(() => useSongViewSlides(song));
+		const song = makeSongFromIds(["a", "b"]);
+		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
+			useSongViewSlides(song),
+		);
 
 		// goNext
 		result.current.goNext();
@@ -125,8 +94,10 @@ describe("useSongViewSlides", () => {
 	});
 
 	it("keyboard navigation works for slides", async () => {
-		const song = makeSongPublic(["a", "b", "c"]);
-		const { result } = renderHook(() => useSongViewSlides(song));
+		const song = makeSongFromIds(["a", "b", "c"]);
+		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
+			useSongViewSlides(song),
+		);
 
 		expect(result.current.totalSlides).toBe(THREE);
 
@@ -152,8 +123,10 @@ describe("useSongViewSlides", () => {
 	});
 
 	it("ignores non-navigation keyboard keys", async () => {
-		const song = makeSongPublic(["a", "b"]);
-		const { result } = renderHook(() => useSongViewSlides(song));
+		const song = makeSongFromIds(["a", "b"]);
+		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
+			useSongViewSlides(song),
+		);
 
 		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "A" }));
 		await waitFor(() => {
@@ -176,8 +149,10 @@ describe("useSongViewSlides", () => {
 		});
 
 		// verify unmount removes listeners (no state changes occur after)
-		const song = makeSongPublic(["a", "b"]);
-		const { result: r2, unmount: u2 } = renderHook(() => useSongViewSlides(song));
+		const song = makeSongFromIds(["a", "b"]);
+		const { result: r2, unmount: u2 } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(
+			() => useSongViewSlides(song),
+		);
 		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
 		await waitFor(() => {
 			expect(r2.current.clampedIndex).toBe(ONE);
@@ -191,8 +166,8 @@ describe("useSongViewSlides", () => {
 	});
 
 	it("clamps index when song slides shrink", async () => {
-		const large = makeSongPublic(["a", "b", "c"]);
-		const small = makeSongPublic(["a"]);
+		const large = makeSongFromIds(["a", "b", "c"]);
+		const small = makeSongFromIds(["a"]);
 
 		const { result, rerender } = renderHook(({ songPublic }) => useSongViewSlides(songPublic), {
 			initialProps: { songPublic: large },
