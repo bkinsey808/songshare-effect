@@ -2,6 +2,7 @@ import { Suspense, lazy, type ReactElement, useState } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import ProtectedLayout from "@/react/auth/ProtectedLayout";
+import Navigation from "@/react/navigation/Navigation";
 import {
 	aboutPath,
 	activityDemoPath,
@@ -9,6 +10,9 @@ import {
 	deleteAccountPath,
 	hookDemoPath,
 	optimizedCounterPath,
+	playlistEditPath,
+	playlistLibraryPath,
+	playlistViewPath,
 	popoverDemoPath,
 	reactFeaturesPath,
 	registerPath,
@@ -26,8 +30,6 @@ import {
 import ErrorBoundary from "./demo/ErrorBoundary";
 import LanguageDetector from "./language/detector/LanguageDetector";
 import LanguageProvider from "./language/provider/LanguageProvider";
-import Navigation from "@/react/navigation/Navigation";
-
 // Lazy load all route pages for better code splitting
 // Only HomePage is eagerly loaded as it's the landing page
 import HomePage from "./pages/home/HomePage";
@@ -37,12 +39,15 @@ const DashboardPage = lazy(() => import("@/react/pages/dashboard/DashboardPage")
 const DeleteAccountConfirmPage = lazy(() => import("@/react/pages/DeleteAccountConfirmPage"));
 const SongEditPage = lazy(() => import("@/react/pages/SongEditPage"));
 const SongLibraryPage = lazy(() => import("@/react/pages/SongLibraryPage"));
+const PlaylistEditPage = lazy(() => import("@/react/pages/PlaylistEditPage"));
+const PlaylistLibraryPage = lazy(() => import("@/react/pages/PlaylistLibraryPage"));
 
 // Public pages
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const UploadPage = lazy(() => import("./pages/UploadPage"));
 const SongView = lazy(() => import("./song/song-view/SongView"));
+const PlaylistPage = lazy(() => import("./pages/PlaylistPage"));
 
 // Demo pages
 const ActivityDemoPage = lazy(() => import("./pages/demo/ActivityDemoPage"));
@@ -136,99 +141,115 @@ const router = createBrowserRouter([
 		// language context + Suspense
 		element: <LanguageProvider />,
 		children: [
-				{
-					path: "",
-					// under language route
-					element: <Layout />,
-					children: [
-						{
-							index: true,
-							element: <HomePage />,
-						},
-						{
-							path: registerPath,
-							element: withSuspense(RegisterPage),
-						},
-						{
-							path: uploadDemoPath,
-							element: withSuspense(UploadPage),
-						},
-						{
-							path: suspenseUseDemoPath,
-							element: withSuspense(SuspenseUsePage),
-						},
-						{
-							path: suspenseDemoPath,
-							element: withSuspense(SuspenseDemoPage),
-						},
-						{
-							path: hookDemoPath,
-							element: withSuspense(UseHookDemoPage),
-						},
-						{
-							path: optimizedCounterPath,
-							element: withSuspense(OptimizedCounterPage),
-						},
-						{
-							path: dashboardPath,
-							element: <ProtectedLayout />,
-							children: [
-								{
-									index: true,
-									element: withSuspense(DashboardPage),
-								},
-								{
-									path: deleteAccountPath,
-									element: withSuspense(DeleteAccountConfirmPage),
-								},
-								{
-									path: songEditPath,
-									element: withSuspense(SongEditPage),
-								},
-								{
-									path: `${songEditPath}/:song_id`,
-									element: withSuspense(SongEditPage),
-								},
-								{
-									path: songLibraryPath,
-									element: withSuspense(SongLibraryPage),
-								},
-							],
-						},
-						{
-							path: `${songViewPath}/:song_slug`,
-							element: withSuspense(SongView),
-						},
-						{
-							path: reactFeaturesPath,
-							element: withSuspense(ReactFeaturesDemoPage),
-						},
-						{
-							path: aboutPath,
-							element: withSuspense(AboutPage),
-						},
-						{
-							path: userSubscriptionDemoPath,
-							element: withSuspense(UserPublicSubscriptionPage),
-						},
-						{
-							path: popoverDemoPath,
-							element: withSuspense(PopoverDemoPage),
-						},
-						{
-							path: activityDemoPath,
-							element: withSuspense(ActivityDemoPage),
-						},
-						{
-							path: typegpuDemoPath,
-							element: withSuspense(TypeGpuDemoPage),
-						},
-						{
-							path: typegpuAudioVizDemoPath,
-							element: withSuspense(TypegpuAudioVizDemoPage),
-						},
-					],
-				},
+			{
+				path: "",
+				// under language route
+				element: <Layout />,
+				children: [
+					{
+						index: true,
+						element: <HomePage />,
+					},
+					{
+						path: registerPath,
+						element: withSuspense(RegisterPage),
+					},
+					{
+						path: uploadDemoPath,
+						element: withSuspense(UploadPage),
+					},
+					{
+						path: suspenseUseDemoPath,
+						element: withSuspense(SuspenseUsePage),
+					},
+					{
+						path: suspenseDemoPath,
+						element: withSuspense(SuspenseDemoPage),
+					},
+					{
+						path: hookDemoPath,
+						element: withSuspense(UseHookDemoPage),
+					},
+					{
+						path: optimizedCounterPath,
+						element: withSuspense(OptimizedCounterPage),
+					},
+					{
+						path: dashboardPath,
+						element: <ProtectedLayout />,
+						children: [
+							{
+								index: true,
+								element: withSuspense(DashboardPage),
+							},
+							{
+								path: deleteAccountPath,
+								element: withSuspense(DeleteAccountConfirmPage),
+							},
+							{
+								path: songEditPath,
+								element: withSuspense(SongEditPage),
+							},
+							{
+								path: `${songEditPath}/:song_id`,
+								element: withSuspense(SongEditPage),
+							},
+							{
+								path: songLibraryPath,
+								element: withSuspense(SongLibraryPage),
+							},
+							{
+								path: playlistEditPath,
+								element: withSuspense(PlaylistEditPage),
+							},
+							{
+								path: `${playlistEditPath}/:playlist_id`,
+								element: withSuspense(PlaylistEditPage),
+							},
+							{
+								path: playlistLibraryPath,
+								element: withSuspense(PlaylistLibraryPage),
+							},
+						],
+					},
+					{
+						path: `${songViewPath}/:song_slug`,
+						element: withSuspense(SongView),
+					},
+					{
+						path: `${playlistViewPath}/:playlist_slug`,
+						element: withSuspense(PlaylistPage),
+					},
+					{
+						path: reactFeaturesPath,
+						element: withSuspense(ReactFeaturesDemoPage),
+					},
+					{
+						path: aboutPath,
+						element: withSuspense(AboutPage),
+					},
+					{
+						path: userSubscriptionDemoPath,
+						element: withSuspense(UserPublicSubscriptionPage),
+					},
+					{
+						path: popoverDemoPath,
+						element: withSuspense(PopoverDemoPage),
+					},
+					{
+						path: activityDemoPath,
+						element: withSuspense(ActivityDemoPage),
+					},
+					{
+						path: typegpuDemoPath,
+						element: withSuspense(TypeGpuDemoPage),
+					},
+					{
+						path: typegpuAudioVizDemoPath,
+						element: withSuspense(TypegpuAudioVizDemoPage),
+					},
+				],
+			},
 		],
 	},
 ]);

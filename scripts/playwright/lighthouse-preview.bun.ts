@@ -113,7 +113,7 @@ function main(): void {
 	const playwrightArgs = [
 		"playwright",
 		"test",
-		"e2e/lighthouse.spec.ts",
+		"e2e/specs/lighthouse.spec.ts",
 		"--project=chromium",
 		"--reporter=list",
 		"--workers=1",

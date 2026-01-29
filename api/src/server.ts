@@ -18,6 +18,10 @@ import {
 	apiMePath,
 	apiOauthCallbackPath,
 	apiOauthSignInPath,
+	apiPlaylistDeletePath,
+	apiPlaylistLibraryAddPath,
+	apiPlaylistLibraryRemovePath,
+	apiPlaylistSavePath,
 	apiSongLibraryAddPath,
 	apiSongsDeletePath,
 	apiSongsSavePath,
@@ -38,6 +42,10 @@ import { type Bindings } from "./env";
 import { handleHttpEndpoint } from "./http/http-utils";
 import me from "./me";
 import oauthSignInDefault from "./oauth/oauthSignIn";
+import addPlaylistToLibraryHandler from "./playlist-library/addPlaylistToLibrary";
+import removePlaylistFromLibraryHandler from "./playlist-library/removePlaylistFromLibrary";
+import { playlistDelete } from "./playlist/playlistDelete";
+import { playlistSave } from "./playlist/playlistSave";
 import addSongToLibraryHandler from "./song-library/addSongToLibrary";
 import songDelete from "./song/songDelete";
 import { songSave } from "./song/songSave";
@@ -237,6 +245,30 @@ app.post(
 app.post(
 	apiSongLibraryAddPath,
 	handleHttpEndpoint((ctx) => addSongToLibraryHandler(ctx)),
+);
+
+// Playlist save endpoint
+app.post(
+	apiPlaylistSavePath,
+	handleHttpEndpoint((ctx) => playlistSave(ctx)),
+);
+
+// Playlist delete endpoint (owner only)
+app.post(
+	apiPlaylistDeletePath,
+	handleHttpEndpoint((ctx) => playlistDelete(ctx)),
+);
+
+// Add playlist to library endpoint
+app.post(
+	apiPlaylistLibraryAddPath,
+	handleHttpEndpoint((ctx) => addPlaylistToLibraryHandler(ctx)),
+);
+
+// Remove playlist from library endpoint
+app.post(
+	apiPlaylistLibraryRemovePath,
+	handleHttpEndpoint((ctx) => removePlaylistFromLibraryHandler(ctx)),
 );
 
 // File upload endpoint

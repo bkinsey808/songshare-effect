@@ -14,6 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
+      playlist: {
+        Row: {
+          created_at: string
+          playlist_id: string
+          private_notes: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          playlist_id?: string
+          private_notes?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          playlist_id?: string
+          private_notes?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      playlist_library: {
+        Row: {
+          created_at: string
+          playlist_id: string
+          playlist_owner_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          playlist_id: string
+          playlist_owner_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          playlist_id?: string
+          playlist_owner_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_library_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlist"
+            referencedColumns: ["playlist_id"]
+          },
+          {
+            foreignKeyName: "playlist_library_playlist_owner_id_fkey"
+            columns: ["playlist_owner_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "playlist_library_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      playlist_public: {
+        Row: {
+          created_at: string | null
+          playlist_id: string
+          playlist_name: string
+          playlist_slug: string
+          public_notes: string | null
+          song_order: string[]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          playlist_id: string
+          playlist_name: string
+          playlist_slug: string
+          public_notes?: string | null
+          song_order?: string[]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          playlist_id?: string
+          playlist_name?: string
+          playlist_slug?: string
+          public_notes?: string | null
+          song_order?: string[]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_public_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: true
+            referencedRelation: "playlist"
+            referencedColumns: ["playlist_id"]
+          },
+          {
+            foreignKeyName: "playlist_public_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       song: {
         Row: {
           created_at: string

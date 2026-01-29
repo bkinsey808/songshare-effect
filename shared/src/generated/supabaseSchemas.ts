@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-01-24T09:36:43.687Z
+ * Last generated: 2026-01-28T20:11:33.826Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -25,6 +25,153 @@ export const UUIDSchema: typeof Schema.UUID = Schema.UUID;
 export const PositiveNumberSchema: typeof Schema.Positive = Schema.Positive;
 export const NonNegativeNumberSchema: typeof Schema.NonNegative =
 	Schema.NonNegative;
+
+// playlist table schemas
+export const PlaylistSchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	playlist_id: typeof Schema.UUID;
+	private_notes: typeof Schema.NonEmptyString;
+	updated_at: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	playlist_id: Schema.UUID,
+	private_notes: Schema.NonEmptyString,
+	updated_at: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+});
+
+export type Playlist = Schema.Schema.Type<typeof PlaylistSchema>;
+
+export const PlaylistInsertSchema: Schema.Struct<{
+	playlist_id: Schema.optional<typeof Schema.UUID>;
+	private_notes: Schema.optional<typeof Schema.NonEmptyString>;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	playlist_id: Schema.optional(Schema.UUID),
+	private_notes: Schema.optional(Schema.NonEmptyString),
+	user_id: Schema.UUID,
+});
+
+export type PlaylistInsert = Schema.Schema.Type<typeof PlaylistInsertSchema>;
+
+export const PlaylistUpdateSchema: Schema.Struct<{
+	playlist_id: Schema.optional<typeof Schema.UUID>;
+	private_notes: Schema.optional<typeof Schema.NonEmptyString>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	playlist_id: Schema.optional(Schema.UUID),
+	private_notes: Schema.optional(Schema.NonEmptyString),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type PlaylistUpdate = Schema.Schema.Type<typeof PlaylistUpdateSchema>;
+
+// playlist_library table schemas
+export const PlaylistLibrarySchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	playlist_id: typeof Schema.UUID;
+	playlist_owner_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	playlist_id: Schema.UUID,
+	playlist_owner_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type PlaylistLibrary = Schema.Schema.Type<typeof PlaylistLibrarySchema>;
+
+export const PlaylistLibraryInsertSchema: Schema.Struct<{
+	playlist_id: typeof Schema.UUID;
+	playlist_owner_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	playlist_id: Schema.UUID,
+	playlist_owner_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type PlaylistLibraryInsert = Schema.Schema.Type<
+	typeof PlaylistLibraryInsertSchema
+>;
+
+export const PlaylistLibraryUpdateSchema: Schema.Struct<{
+	playlist_id: Schema.optional<typeof Schema.UUID>;
+	playlist_owner_id: Schema.optional<typeof Schema.UUID>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	playlist_id: Schema.optional(Schema.UUID),
+	playlist_owner_id: Schema.optional(Schema.UUID),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type PlaylistLibraryUpdate = Schema.Schema.Type<
+	typeof PlaylistLibraryUpdateSchema
+>;
+
+// playlist_public table schemas
+export const PlaylistPublicSchema: Schema.Struct<{
+	created_at: Schema.optional<typeof Schema.String>;
+	playlist_id: typeof Schema.UUID;
+	playlist_name: typeof Schema.NonEmptyString;
+	playlist_slug: typeof Schema.NonEmptyString;
+	public_notes: Schema.optional<typeof Schema.String>;
+	song_order: Schema.Array$<typeof Schema.String>;
+	updated_at: Schema.optional<typeof Schema.String>;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	created_at: Schema.optional(Schema.String),
+	playlist_id: Schema.UUID,
+	playlist_name: Schema.NonEmptyString,
+	playlist_slug: Schema.NonEmptyString,
+	public_notes: Schema.optional(Schema.String),
+	song_order: Schema.Array(Schema.String),
+	updated_at: Schema.optional(Schema.String),
+	user_id: Schema.UUID,
+});
+
+export type PlaylistPublic = Schema.Schema.Type<typeof PlaylistPublicSchema>;
+
+export const PlaylistPublicInsertSchema: Schema.Struct<{
+	playlist_id: typeof Schema.UUID;
+	playlist_name: typeof Schema.NonEmptyString;
+	playlist_slug: typeof Schema.NonEmptyString;
+	public_notes: Schema.optional<typeof Schema.String>;
+	song_order: Schema.optional<Schema.Array$<typeof Schema.String>>;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	playlist_id: Schema.UUID,
+	playlist_name: Schema.NonEmptyString,
+	playlist_slug: Schema.NonEmptyString,
+	public_notes: Schema.optional(Schema.String),
+	song_order: Schema.optional(Schema.Array(Schema.String)),
+	user_id: Schema.UUID,
+});
+
+export type PlaylistPublicInsert = Schema.Schema.Type<
+	typeof PlaylistPublicInsertSchema
+>;
+
+export const PlaylistPublicUpdateSchema: Schema.Struct<{
+	playlist_id: Schema.optional<typeof Schema.UUID>;
+	playlist_name: Schema.optional<typeof Schema.NonEmptyString>;
+	playlist_slug: Schema.optional<typeof Schema.NonEmptyString>;
+	public_notes: Schema.optional<typeof Schema.String>;
+	song_order: Schema.optional<Schema.Array$<typeof Schema.String>>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	playlist_id: Schema.optional(Schema.UUID),
+	playlist_name: Schema.optional(Schema.NonEmptyString),
+	playlist_slug: Schema.optional(Schema.NonEmptyString),
+	public_notes: Schema.optional(Schema.String),
+	song_order: Schema.optional(Schema.Array(Schema.String)),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type PlaylistPublicUpdate = Schema.Schema.Type<
+	typeof PlaylistPublicUpdateSchema
+>;
 
 // song table schemas
 export const SongSchema: Schema.Struct<{

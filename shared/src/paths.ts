@@ -19,6 +19,12 @@ export const songLibraryPath = "song-library";
 /** Base path for viewing a song by slug; use as "songs/:song_slug" in routes */
 export const songViewPath = "songs";
 
+// Playlist paths
+export const playlistEditPath = "playlist-edit";
+export const playlistLibraryPath = "playlist-library";
+/** Base path for viewing a playlist by slug; use as "playlists/:playlist_slug" in routes */
+export const playlistViewPath = "playlists";
+
 export const apiOauthSignInPath = "/api/oauth/sign-in";
 export const apiOauthCallbackPath = "/api/oauth/callback";
 export const apiMePath = "/api/me";
@@ -30,6 +36,10 @@ export const apiAuthSignOutPath = "/api/auth/signout";
 export const apiSongsSavePath = "/api/songs/save";
 export const apiSongsDeletePath = "/api/songs/delete";
 export const apiSongLibraryAddPath = "/api/song-library/add";
+export const apiPlaylistSavePath = "/api/playlists/save";
+export const apiPlaylistDeletePath = "/api/playlists/delete";
+export const apiPlaylistLibraryAddPath = "/api/playlist-library/add";
+export const apiPlaylistLibraryRemovePath = "/api/playlist-library/remove";
 export const apiUploadPath = "/api/upload";
 export const apiHelloPath = "/api/hello";
 export const healthPath = "/health";

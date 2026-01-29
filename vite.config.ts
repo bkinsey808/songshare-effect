@@ -55,7 +55,11 @@ const config: UserConfig = defineConfig({
 				// Manual chunks for better caching and smaller initial bundle
 				manualChunks(id: string): string | undefined {
 					// React core - changes infrequently, good for caching
-					if (id.includes("node_modules/react") || id.includes("node_modules/react-dom") || id.includes("node_modules/react-router")) {
+					if (
+						id.includes("node_modules/react") ||
+						id.includes("node_modules/react-dom") ||
+						id.includes("node_modules/react-router")
+					) {
 						return "react-vendor";
 					}
 					// Effect library - large, used across app

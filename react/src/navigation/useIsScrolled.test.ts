@@ -2,6 +2,7 @@ import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { SCROLL_THRESHOLD } from "@/shared/constants/http";
+
 import useIsScrolled from "./useIsScrolled";
 
 describe("useIsScrolled", () => {

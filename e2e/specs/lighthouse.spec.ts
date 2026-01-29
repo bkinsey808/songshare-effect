@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 // This test runs Lighthouse programmatically via `lighthouse` + `chrome-launcher`.
 // It is tolerant: if the packages are not installed it will be skipped with a
@@ -9,17 +9,21 @@ import { test, expect } from "@playwright/test";
 // produce untyped runtime objects (Lighthouse outputs). The disables are
 // narrow and limited to assignment/call/member-access rules used in the
 // integration logic.
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-type-assertion */
 
-const DEFAULT_URL = process.env["LIGHTHOUSE_URL"] ?? process.env["PLAYWRIGHT_BASE_URL"] ?? "https://localhost:5173";
+const DEFAULT_URL =
+	process.env["LIGHTHOUSE_URL"] ?? process.env["PLAYWRIGHT_BASE_URL"] ?? "https://localhost:5173";
 
 let lighthouse: unknown = undefined;
 let chromeLauncher: unknown = undefined;
 
+// The optional dev-dependency modules are validated in setup; typed handles are used inline in the test.
+
 // Perform dynamic imports in hooks to avoid top-level side-effects and to
 // allow lint rules about setup/teardown being inside hooks.
 // If imports fail we call `test.skip` inside the hook to skip the suite.
-const LH_SKIP_MESSAGE = "lighthouse or chrome-launcher not installed — run `npm i -D lighthouse chrome-launcher` to enable";
+const LH_SKIP_MESSAGE =
+	"lighthouse or chrome-launcher not installed — run `npm i -D lighthouse chrome-launcher` to enable";
 
 test.beforeAll(async () => {
 	try {
@@ -30,7 +34,25 @@ test.beforeAll(async () => {
 		console.debug("Skipping Lighthouse tests (imports failed):", error);
 		// Skip the suite when deps are not present
 		test.skip(true, LH_SKIP_MESSAGE);
+		return;
 	}
+
+	// Validate module shapes and skip early if they are unexpected. This moves
+	// conditional logic out of the test body to satisfy `jest/no-conditional-in-test`.
+	if (!isRecord(lighthouse) || typeof lighthouse["default"] !== "function") {
+		// eslint-disable-next-line no-console
+		console.debug("Skipping Lighthouse tests (lighthouse export missing or invalid)");
+		test.skip(true, "Lighthouse module not properly loaded");
+		return;
+	}
+	if (!isRecord(chromeLauncher) || typeof chromeLauncher["launch"] !== "function") {
+		// eslint-disable-next-line no-console
+		console.debug("Skipping Lighthouse tests (chrome-launcher export missing or invalid)");
+		test.skip(true, "Chrome-launcher module not properly loaded");
+		return;
+	}
+
+	// Module shapes validated above — no runtime assignments required here.
 });
 
 // Increase timeout for Lighthouse runs
@@ -83,7 +105,12 @@ function getLhrFromRunnerResult(runnerResult: unknown): unknown {
 	return runnerResult["lhr"];
 }
 
-function computeScoresFromLhr(lhr: unknown): { performance: number; accessibility: number; bestPractices: number; seo: number } {
+function computeScoresFromLhr(lhr: unknown): {
+	performance: number;
+	accessibility: number;
+	bestPractices: number;
+	seo: number;
+} {
 	// lhr is already extracted - get categories directly from lhr.categories
 	const categories = isRecord(lhr) ? lhr["categories"] : undefined;
 	return {
@@ -113,32 +140,49 @@ async function writeReportIfRequested(runnerResult: unknown): Promise<void> {
 	console.log(`Wrote Lighthouse HTML report to ${outputDir}`);
 }
 
+function maybeSkipForAllZeroScores(scores: {
+	performance: number;
+	accessibility: number;
+	bestPractices: number;
+	seo: number;
+}): void {
+	const allZero =
+		scores.performance === SCORE_DEFAULT &&
+		scores.accessibility === SCORE_DEFAULT &&
+		scores.bestPractices === SCORE_DEFAULT &&
+		scores.seo === SCORE_DEFAULT;
+	if (allZero) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			"Lighthouse returned all-zero scores — likely a certificate interstitial blocked the page.",
+		);
+		// eslint-disable-next-line no-console
+		console.warn("To run Lighthouse tests, either use HTTP or a trusted certificate.");
+		test.skip(true, "Certificate interstitial blocked Lighthouse — use HTTP or trusted cert");
+	}
+}
+
 test.describe.serial("Lighthouse audit", () => {
 	test("baseline page score meets thresholds", async () => {
 		// The concrete runner types come from optional devDependencies.
-		type LighthouseRunner = (url: string, options: { port: number }, config: Record<string, unknown> | undefined) => Promise<unknown>;
+		type LighthouseRunner = (
+			url: string,
+			options: { port: number },
+			config: Record<string, unknown> | undefined,
+		) => Promise<unknown>;
 
-		// Safely extract lighthouse default export using runtime checks
-		// eslint-disable-next-line jest/no-conditional-in-test -- Runtime check for dynamic import
-		if (!isRecord(lighthouse) || typeof lighthouse["default"] !== "function") {
-			test.skip(true, "Lighthouse module not properly loaded");
-			return;
-		}
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- Runtime check above ensures this is a function
-		const lh = lighthouse["default"] as LighthouseRunner;
-
-		// Safely extract chrome-launcher launch function using runtime checks
-		// eslint-disable-next-line jest/no-conditional-in-test -- Runtime check for dynamic import
-		if (!isRecord(chromeLauncher) || typeof chromeLauncher["launch"] !== "function") {
-			test.skip(true, "Chrome-launcher module not properly loaded");
-			return;
-		}
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- Runtime check above ensures this is a function
-		const launchChrome = chromeLauncher["launch"] as (options: {
-			chromeFlags: string[];
-			userDataDir?: string;
-			envVars?: Record<string, string>;
-		}) => Promise<{ port: number; kill: () => Promise<void> }>;
+		/* eslint-disable @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion */
+		const lh = (lighthouse as unknown as { default: LighthouseRunner }).default;
+		const launchChrome = (
+			chromeLauncher as unknown as {
+				launch: (options: {
+					chromeFlags: string[];
+					userDataDir?: string;
+					envVars?: Record<string, string>;
+				}) => Promise<{ port: number; kill: () => Promise<void> }>;
+			}
+		).launch;
+		/* eslint-enable @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion */
 
 		// Create unique temp directory for this run to avoid WSL2 creating Windows-path directories in project root
 		const fs = await import("node:fs");
@@ -166,7 +210,11 @@ test.describe.serial("Lighthouse audit", () => {
 
 		/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 		try {
-			const options = { port: chrome.port, logLevel: "info" as const, onlyCategories: ["performance", "accessibility", "best-practices", "seo"] } as const;
+			const options = {
+				port: chrome.port,
+				logLevel: "info" as const,
+				onlyCategories: ["performance", "accessibility", "best-practices", "seo"],
+			} as const;
 			// Pass undefined for config to use defaults (config object changed in newer lighthouse versions)
 			const runnerResult = await lh(DEFAULT_URL, options, undefined);
 
@@ -175,23 +223,14 @@ test.describe.serial("Lighthouse audit", () => {
 
 			// Check for certificate interstitial errors - all scores will be 0
 			// This can happen with self-signed certs in dev environments (e.g., WSL2 with HTTPS)
-			// eslint-disable-next-line jest/no-conditional-in-test -- Graceful skip for environments where cert interstitial blocks Lighthouse
-			const allZeroScores = scores.performance === SCORE_DEFAULT && scores.accessibility === SCORE_DEFAULT && scores.bestPractices === SCORE_DEFAULT && scores.seo === SCORE_DEFAULT;
-			// eslint-disable-next-line jest/no-conditional-in-test -- Required to skip test gracefully in unsupported environments
-			if (allZeroScores) {
-				// eslint-disable-next-line no-console
-				console.warn("Lighthouse returned all-zero scores — likely a certificate interstitial blocked the page.");
-				// eslint-disable-next-line no-console
-				console.warn("To run Lighthouse tests, either use HTTP or a trusted certificate.");
-				test.skip(true, "Certificate interstitial blocked Lighthouse — use HTTP or trusted cert");
-				return;
-			}
-
+			maybeSkipForAllZeroScores(scores);
 			const minScore = getMinScore();
 
 			expect(scores.performance, "performance").toBeGreaterThanOrEqual(minScore);
 			expect(scores.accessibility, "accessibility").toBeGreaterThanOrEqual(minScore);
-			expect(scores.bestPractices, "best-practices").toBeGreaterThanOrEqual(Math.min(minScore, MIN_FALLBACK));
+			expect(scores.bestPractices, "best-practices").toBeGreaterThanOrEqual(
+				Math.min(minScore, MIN_FALLBACK),
+			);
 			expect(scores.seo, "seo").toBeGreaterThanOrEqual(Math.min(minScore, MIN_FALLBACK));
 
 			// eslint-disable-next-line no-console

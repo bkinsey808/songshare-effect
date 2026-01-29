@@ -6,8 +6,12 @@ import { getOrCreateAppStore } from "@/react/zustand/useAppStore";
 import { SIGNAL_ONE } from "@/shared/constants/http";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { apiAuthSignOutPath } from "@/shared/paths";
-import { justRegisteredKey, justSignedOutKey, justUnauthorizedAccessKey } from "@/shared/sessionStorageKeys";
 import { justSignedInQueryParam } from "@/shared/queryParams";
+import {
+	justRegisteredKey,
+	justSignedOutKey,
+	justUnauthorizedAccessKey,
+} from "@/shared/sessionStorageKeys";
 
 import useDashboard from "./useDashboard";
 

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-import { authenticateTestUser } from "./utils/auth-helpers";
-import { filterExpectedErrors, setupErrorTracking } from "./utils/error-helpers";
+import { authenticateTestUser } from "../utils/auth-helpers";
+import { filterExpectedErrors, setupErrorTracking } from "../utils/error-helpers";
 
 const BASE_URL = process.env?.["PLAYWRIGHT_BASE_URL"] ?? "https://localhost:5173";
 const HYDRATION_WAIT_MS = 2000;

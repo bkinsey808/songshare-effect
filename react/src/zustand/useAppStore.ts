@@ -6,6 +6,11 @@ import { devtools, persist } from "zustand/middleware";
 import { type AuthSlice, createAuthSlice } from "@/react/auth/auth-slice";
 import useSchedule from "@/react/hooks/useSchedule";
 import {
+	type PlaylistLibrarySlice,
+	createPlaylistLibrarySlice,
+} from "@/react/playlist-library/slice/playlist-library-slice";
+import { type PlaylistSlice, createPlaylistSlice } from "@/react/playlist/slice/playlist-slice";
+import {
 	type SongLibrarySlice,
 	createSongLibrarySlice,
 } from "@/react/song-library/slice/song-library-slice";
@@ -17,7 +22,11 @@ import {
 import { resetAllSlices, sliceResetFns } from "./slice-reset-fns";
 
 // Compose slices
-type AppSlice = AuthSlice & SongSubscribeSlice & SongLibrarySlice;
+type AppSlice = AuthSlice &
+	SongSubscribeSlice &
+	SongLibrarySlice &
+	PlaylistSlice &
+	PlaylistLibrarySlice;
 
 // Track hydration state externally
 const hydrationState = {
@@ -45,6 +54,8 @@ export const useAppStore = create<AppSlice>()(
 				...createAuthSlice(set, get, api),
 				...createSongSubscribeSlice(set, get, api),
 				...createSongLibrarySlice(set, get, api),
+				...createPlaylistSlice(set, get, api),
+				...createPlaylistLibrarySlice(set, get, api),
 			}),
 			{
 				name: "app-store",
@@ -54,6 +65,8 @@ export const useAppStore = create<AppSlice>()(
 						"activePrivateSongsUnsubscribe",
 						"activePublicSongsUnsubscribe",
 						"songLibraryUnsubscribe",
+						"playlistLibraryUnsubscribe",
+						"playlistLibraryPublicUnsubscribe",
 					]);
 					return Object.fromEntries(
 						Object.entries(state).filter(([key]) => !omittedKeys.has(key)),

@@ -50,7 +50,7 @@ const MIN_SLIDE_INDEX = 0;
 
 ## Test Files
 
-- Use `//` comments only (no JSDoc above `describe`/`it`)
+- Use `//` comments only (no JSDoc) above `describe`/`it`
 - Keep extremely concise
 - Only comment if test isn't self-explanatory
 
