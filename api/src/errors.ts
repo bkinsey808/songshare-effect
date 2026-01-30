@@ -1,4 +1,3 @@
-/* oxlint-disable max-classes-per-file */
 // Lightweight typed error classes used across the API.
 // These provide a typed `_tag` (used by http-utils) and explicit properties
 // without relying on `any` or casting. They intentionally extend `Error`

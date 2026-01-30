@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
-import type { SavePlaylistRequest } from "@/react/playlist/slice/playlist-types";
+import type { SavePlaylistRequest } from "@/react/playlist/playlist-types";
 
 import useLocale from "@/react/language/locale/useLocale";
 import AddSongToPlaylistSection from "@/react/playlist/add-song/AddSongToPlaylistSection";

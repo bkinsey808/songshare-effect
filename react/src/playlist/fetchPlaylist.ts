@@ -7,42 +7,20 @@ import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
 import getErrorMessage from "@/shared/utils/getErrorMessage";
 
-import type { PlaylistSlice } from "./playlist-slice";
-import type { Playlist, PlaylistEntry, PlaylistPublic } from "./playlist-types";
+import type { Playlist, PlaylistEntry } from "./playlist-types";
+import type { PlaylistSlice } from "./slice/playlist-slice";
 
-/**
- * Validates that a value is a valid Playlist record.
- * @param value - The value to check.
- * @returns True if the value is a valid Playlist.
- */
-function isPlaylist(value: unknown): value is Playlist {
-	if (!isRecord(value)) {
-		return false;
-	}
-	return (
-		typeof value["playlist_id"] === "string" &&
-		typeof value["user_id"] === "string" &&
-		typeof value["private_notes"] === "string"
-	);
-}
+import isPlaylist from "./guards/isPlaylist";
+import isPlaylistPublic from "./guards/isPlaylistPublic";
+import {
+	InvalidPlaylistDataError,
+	NoSupabaseClientError,
+	PlaylistError,
+	PlaylistNotFoundError,
+	QueryError,
+} from "./playlist-errors";
 
-/**
- * Validates that a value is a valid PlaylistPublic record.
- * @param value - The value to check.
- * @returns True if the value is a valid PlaylistPublic.
- */
-function isPlaylistPublic(value: unknown): value is PlaylistPublic {
-	if (!isRecord(value)) {
-		return false;
-	}
-	return (
-		typeof value["playlist_id"] === "string" &&
-		typeof value["user_id"] === "string" &&
-		typeof value["playlist_name"] === "string" &&
-		typeof value["playlist_slug"] === "string" &&
-		Array.isArray(value["song_order"])
-	);
-}
+const ARRAY_EMPTY = 0;
 
 /**
  * Fetch a playlist by its slug and populate the slice with the combined
@@ -55,7 +33,7 @@ function isPlaylistPublic(value: unknown): value is PlaylistPublic {
 export default function fetchPlaylist(
 	playlistSlug: string,
 	get: () => PlaylistSlice,
-): Effect.Effect<void, Error> {
+): Effect.Effect<void, PlaylistError> {
 	return Effect.gen(function* fetchPlaylistGen($) {
 		const { setCurrentPlaylist, setPlaylistLoading, setPlaylistError } = get();
 
@@ -67,18 +45,16 @@ export default function fetchPlaylist(
 			}),
 		);
 
-		const ARRAY_EMPTY = 0;
-
 		const userToken = yield* $(
 			Effect.tryPromise({
 				try: () => getSupabaseAuthToken(),
-				catch: (err) => new Error(String(err)),
+				catch: (err) => new QueryError("Failed to get Supabase auth token", err),
 			}),
 		);
 
 		const client = getSupabaseClient(userToken);
 		if (!client) {
-			return yield* $(Effect.fail(new Error("No Supabase client available")));
+			return yield* $(Effect.fail(new NoSupabaseClientError()));
 		}
 
 		// First, fetch the public playlist data by slug
@@ -92,7 +68,7 @@ export default function fetchPlaylist(
 						console.warn("[fetchPlaylist] Public query result:", JSON.stringify(res));
 						return res;
 					}),
-				catch: (err) => new Error(String(err)),
+				catch: (err) => new QueryError("Failed to query playlist_public", err),
 			}),
 		);
 
@@ -101,12 +77,12 @@ export default function fetchPlaylist(
 			: [];
 
 		if (publicData.length === ARRAY_EMPTY) {
-			return yield* $(Effect.fail(new Error(`Playlist not found: ${playlistSlug}`)));
+			return yield* $(Effect.fail(new PlaylistNotFoundError(playlistSlug)));
 		}
 
 		const [playlistPublic] = publicData;
 		if (!isPlaylistPublic(playlistPublic)) {
-			return yield* $(Effect.fail(new Error("Invalid playlist_public data")));
+			return yield* $(Effect.fail(new InvalidPlaylistDataError()));
 		}
 
 		// Try to fetch private data (will only succeed if user is the owner)
@@ -118,7 +94,9 @@ export default function fetchPlaylist(
 						cols: "*",
 						eq: { col: "playlist_id", val: playlistPublic.playlist_id },
 					}).then((res) => res),
-				catch: () => ({ data: [] }) as unknown, // Swallow error - user may not have access
+				catch:
+					// Swallow error - user may not have access
+					() => ({ data: [] }) as unknown,
 			}),
 		);
 
@@ -141,7 +119,7 @@ export default function fetchPlaylist(
 						cols: "user_id, username",
 						eq: { col: "user_id", val: playlistPublic.user_id },
 					}).then((res) => res),
-				catch: (err) => new Error(String(err)),
+				catch: (err) => new QueryError("Failed to query user_public", err),
 			}),
 		);
 
@@ -191,10 +169,9 @@ export default function fetchPlaylist(
 			}),
 		),
 		Effect.mapError((err) =>
-			err instanceof Error ? err : new Error(getErrorMessage(err, "Failed to fetch playlist")),
+			err instanceof PlaylistError
+				? err
+				: new PlaylistError(getErrorMessage(err, "Failed to fetch playlist")),
 		),
-		// The pipeline above normalizes unknown errors to Error.
-		// The double-cast is necessary to satisfy the Effect typing in this generator-based workflow.
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	) as unknown as Effect.Effect<void, Error>;
+	);
 }

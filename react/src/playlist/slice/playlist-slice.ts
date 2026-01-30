@@ -5,26 +5,19 @@ import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
 
-import type {
-	PlaylistEntry,
-	PlaylistSliceBase,
-	PlaylistState,
-	SavePlaylistRequest,
-} from "./playlist-types";
+import type { PlaylistErrors } from "../playlist-errors";
+import type { PlaylistEntry, PlaylistSliceBase, SavePlaylistRequest } from "../playlist-types";
 
-import fetchPlaylistFn from "./fetchPlaylist";
-import savePlaylistFn from "./savePlaylist";
-
-const initialState: PlaylistState = {
-	currentPlaylist: undefined,
-	isPlaylistLoading: false,
-	playlistError: undefined as string | undefined,
-	isPlaylistSaving: false,
-};
+import fetchPlaylistFn from "../fetchPlaylist";
+import savePlaylistFn from "../savePlaylist";
+import createAddSongToLocalPlaylist from "./createAddSongToLocalPlaylist";
+import createRemoveSongFromLocalPlaylist from "./createRemoveSongFromLocalPlaylist";
+import createUpdateLocalSongOrder from "./createUpdateLocalSongOrder";
+import playlistSliceInitialState from "./playlistSliceInitialState";
 
 export type PlaylistSlice = PlaylistSliceBase & {
 	/** Fetch a playlist by slug */
-	fetchPlaylist: (playlistSlug: string) => Effect.Effect<void, Error>;
+	fetchPlaylist: (playlistSlug: string) => Effect.Effect<void, PlaylistErrors>;
 	/** Save a playlist (create or update) - all changes go through this API call */
 	savePlaylist: (request: Readonly<SavePlaylistRequest>) => Effect.Effect<string, Error>;
 	/** Clear the current playlist from state */
@@ -59,11 +52,11 @@ export function createPlaylistSlice(
 	void api;
 
 	sliceResetFns.add(() => {
-		set(initialState);
+		set(playlistSliceInitialState);
 	});
 
 	return {
-		...initialState,
+		...playlistSliceInitialState,
 
 		// Public API methods
 		fetchPlaylist: (playlistSlug: string) => fetchPlaylistFn(playlistSlug, get),
@@ -102,65 +95,15 @@ export function createPlaylistSlice(
 		/**
 		 * Update the song order in local state. Use for optimistic updates before calling savePlaylist.
 		 */
-		updateLocalSongOrder: (songOrder: readonly string[]) => {
-			set((state) => {
-				if (!state.currentPlaylist?.public) {
-					return state;
-				}
-				return {
-					currentPlaylist: {
-						...state.currentPlaylist,
-						public: {
-							...state.currentPlaylist.public,
-							song_order: [...songOrder],
-						},
-					},
-				};
-			});
-		},
+		updateLocalSongOrder: createUpdateLocalSongOrder(set, get),
 
 		/**
 		 * Add a song to the local playlist state. Use for optimistic updates before calling savePlaylist.
 		 */
-		addSongToLocalPlaylist: (songId: string) => {
-			set((state) => {
-				if (!state.currentPlaylist?.public) {
-					return state;
-				}
-				const currentOrder = state.currentPlaylist.public.song_order;
-				if (currentOrder.includes(songId)) {
-					return state; // Already in playlist
-				}
-				return {
-					currentPlaylist: {
-						...state.currentPlaylist,
-						public: {
-							...state.currentPlaylist.public,
-							song_order: [...currentOrder, songId],
-						},
-					},
-				};
-			});
-		},
-
+		addSongToLocalPlaylist: createAddSongToLocalPlaylist(set, get),
 		/**
 		 * Remove a song from the local playlist state. Use for optimistic updates before calling savePlaylist.
 		 */
-		removeSongFromLocalPlaylist: (songId: string) => {
-			set((state) => {
-				if (!state.currentPlaylist?.public) {
-					return state;
-				}
-				return {
-					currentPlaylist: {
-						...state.currentPlaylist,
-						public: {
-							...state.currentPlaylist.public,
-							song_order: state.currentPlaylist.public.song_order.filter((id) => id !== songId),
-						},
-					},
-				};
-			});
-		},
+		removeSongFromLocalPlaylist: createRemoveSongFromLocalPlaylist(set, get),
 	};
 }

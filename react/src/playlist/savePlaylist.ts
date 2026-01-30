@@ -4,8 +4,8 @@ import { apiPlaylistSavePath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
 import getErrorMessage from "@/shared/utils/getErrorMessage";
 
-import type { PlaylistSlice } from "./playlist-slice";
 import type { SavePlaylistRequest } from "./playlist-types";
+import type { PlaylistSlice } from "./slice/playlist-slice";
 
 /**
  * Save a playlist (create or update) by calling the API endpoint.

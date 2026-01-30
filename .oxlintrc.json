@@ -33,7 +33,7 @@
 			}
 		],
 		"eslint/init-declarations": "error",
-		"eslint/max-classes-per-file": "error",
+		"eslint/max-classes-per-file": "off",
 		"eslint/max-depth": "error",
 		"eslint/max-lines": [
 			"error",
