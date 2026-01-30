@@ -2,9 +2,9 @@ import { Effect } from "effect";
 
 import type { Get, Set } from "@/react/zustand/slice-utils";
 
-import type { PlaylistErrors } from "../../playlist-errors";
-import type { SavePlaylistRequest } from "../../playlist-types";
-import type { PlaylistSlice } from "../playlist-slice";
+import type { PlaylistErrors } from "../playlist-errors";
+import type { SavePlaylistRequest } from "../playlist-types";
+import type { PlaylistSlice } from "../slice/playlist-slice";
 
 /**
  * Test helper factory for `createUpdateLocalSongOrder` tests.

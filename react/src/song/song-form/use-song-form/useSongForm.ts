@@ -1,13 +1,13 @@
-// src/features/song-form/useSongForm.ts
 import { type Effect, Schema } from "effect";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import useAppForm from "@/react/form/useAppForm";
 import useFormChanges from "@/react/form/useFormChanges";
+import generateSlug from "@/react/slug/generateSlug";
+import { type SongPublic, songPublicSchema } from "@/react/song/song-schema";
 import { useAppStore } from "@/react/zustand/useAppStore";
 
-import { type SongPublic, songPublicSchema } from "../../song-schema";
 import {
 	type FormState,
 	type Slide,
@@ -15,7 +15,6 @@ import {
 	type UseSongFormReturn,
 } from "../song-form-types";
 import { type SongFormValuesFromSchema as SongFormData, songFormSchema } from "../songSchema";
-import generateSlug from "./generate/generateSlug";
 import setFieldValue from "./setFieldValue";
 import createFormSubmitHandler from "./submit/createFormSubmitHandler";
 import deleteSongRequest from "./submit/deleteSongRequest";

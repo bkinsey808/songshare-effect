@@ -8,6 +8,8 @@ describe("generateSlug", () => {
 		expect(generateSlug("  Hello   World  ")).toBe("hello-world");
 		expect(generateSlug("C# Major! (Live)")).toBe("c-major-live");
 		expect(generateSlug("--weird--name--")).toBe("weird-name");
+		// underscores should become dashes
+		expect(generateSlug("under_score_name")).toBe("under-score-name");
 	});
 
 	it("collapses multiple dashes and spaces", () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import makeSetGetForCreateUpdateLocalSongOrder from "../test-utils/makeSetGetForCreateUpdateLocalSongOrder";
 import createUpdateLocalSongOrder from "./createUpdateLocalSongOrder";
-import makeSetGetForCreateUpdateLocalSongOrder from "./test-utils/makeSetGetForCreateUpdateLocalSongOrder";
 
 describe("createUpdateLocalSongOrder", () => {
 	it("registers a state updater function when invoked", () => {

@@ -9,10 +9,10 @@ import type { PlaylistErrors } from "../playlist-errors";
 import type { PlaylistEntry, PlaylistSliceBase, SavePlaylistRequest } from "../playlist-types";
 
 import fetchPlaylistFn from "../fetchPlaylist";
+import createAddSongToLocalPlaylist from "../optimistic-ui/createAddSongToLocalPlaylist";
+import createRemoveSongFromLocalPlaylist from "../optimistic-ui/createRemoveSongFromLocalPlaylist";
+import createUpdateLocalSongOrder from "../optimistic-ui/createUpdateLocalSongOrder";
 import savePlaylistFn from "../savePlaylist";
-import createAddSongToLocalPlaylist from "./createAddSongToLocalPlaylist";
-import createRemoveSongFromLocalPlaylist from "./createRemoveSongFromLocalPlaylist";
-import createUpdateLocalSongOrder from "./createUpdateLocalSongOrder";
 import playlistSliceInitialState from "./playlistSliceInitialState";
 
 export type PlaylistSlice = PlaylistSliceBase & {

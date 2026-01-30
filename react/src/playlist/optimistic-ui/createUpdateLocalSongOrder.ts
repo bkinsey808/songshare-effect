@@ -1,6 +1,6 @@
 import type { Get, Set } from "@/react/zustand/slice-utils";
 
-import type { PlaylistSlice } from "./playlist-slice";
+import type { PlaylistSlice } from "../slice/playlist-slice";
 
 /**
  * Factory that creates the `updateLocalSongOrder` handler for the playlist slice.
