@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import { useEffect } from "react";
 
 import { useAppStore } from "@/react/zustand/useAppStore";
@@ -13,24 +14,26 @@ import { useAppStore } from "@/react/zustand/useAppStore";
 export default function useFetchPlaylist(playlistId?: string): void {
 	const currentPlaylist = useAppStore((state) => state.currentPlaylist);
 	const clearCurrentPlaylist = useAppStore((state) => state.clearCurrentPlaylist);
+	const fetchPlaylistById = useAppStore((state) => state.fetchPlaylistById);
 
 	useEffect(() => {
 		/*
 		 If a playlist id is present and does not match the currently-loaded
-		 playlist, we would fetch it here. The project currently fetches
-		 playlists by slug; fetching by id should be implemented when an API
-		 helper is available.
+		 playlist, we would fetch it here.
 		*/
 		if (
 			playlistId !== undefined &&
 			playlistId !== "" &&
 			currentPlaylist?.playlist_id !== playlistId
 		) {
-			// fetch-by-id not yet implemented
+			void Effect.runPromise(fetchPlaylistById(playlistId));
 		}
+	}, [playlistId, currentPlaylist?.playlist_id, fetchPlaylistById]);
 
-		return (): void => {
+	useEffect(
+		() => (): void => {
 			clearCurrentPlaylist();
-		};
-	}, [playlistId, currentPlaylist?.playlist_id, clearCurrentPlaylist]);
+		},
+		[clearCurrentPlaylist],
+	);
 }

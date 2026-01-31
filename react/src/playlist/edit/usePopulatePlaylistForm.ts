@@ -1,34 +1,55 @@
-import { useEffect } from "react";
+import React, { type Dispatch, type SetStateAction, useEffect } from "react";
 
 import type { PlaylistEntry } from "@/react/playlist/playlist-types";
 
-export type PopulatePlaylistFormSetters = {
-	setPlaylistName: (value: string) => void;
-	setPlaylistSlug: (value: string) => void;
-	setPublicNotes: (value: string) => void;
-	setPrivateNotes: (value: string) => void;
-	setSongOrder: (value: string[]) => void;
+import { type PlaylistFormValues } from "../playlistSchema";
+
+export type PopulatePlaylistFormProps = {
+	setFormValuesState: Dispatch<SetStateAction<PlaylistFormValues>>;
+	setIsLoadingData: Dispatch<SetStateAction<boolean>>;
+	hasPopulatedRef: React.RefObject<boolean>;
+	isFetchingRef: React.RefObject<boolean>;
 };
 
 /**
  * Populate localized form state when a `currentPlaylist` becomes available.
  *
  * This hook centralizes the side-effect of copying playlist data from the
- * store into component-level state. It is kept intentionally small and pure
- * so it can be unit tested in isolation later if desired.
+ * store into component-level state.
  */
 export default function usePopulatePlaylistForm(
 	currentPlaylist: PlaylistEntry | undefined,
-	setters: PopulatePlaylistFormSetters,
+	{
+		setFormValuesState,
+		setIsLoadingData,
+		hasPopulatedRef,
+		isFetchingRef,
+	}: PopulatePlaylistFormProps,
 ): void {
 	useEffect(() => {
-		const cp = currentPlaylist;
-		if (cp?.public) {
-			setters.setPlaylistName(cp.public.playlist_name);
-			setters.setPlaylistSlug(cp.public.playlist_slug);
-			setters.setPublicNotes(cp.public.public_notes ?? "");
-			setters.setPrivateNotes(cp.private_notes);
-			setters.setSongOrder([...(cp.public.song_order ?? [])]);
+		// If we are currently fetching, do not populate yet
+		if (isFetchingRef.current) {
+			return;
 		}
-	}, [currentPlaylist, setters]);
+
+		// If already populated, do not overwrite edits
+		if (hasPopulatedRef.current) {
+			return;
+		}
+
+		if (currentPlaylist?.public) {
+			setFormValuesState({
+				// Fix: use playlist_id instead of id
+				playlist_id: currentPlaylist.playlist_id,
+				playlist_name: currentPlaylist.public.playlist_name,
+				playlist_slug: currentPlaylist.public.playlist_slug,
+				public_notes: currentPlaylist.public.public_notes ?? "",
+				private_notes: currentPlaylist.private_notes,
+				song_order: currentPlaylist.public.song_order ?? [],
+			});
+
+			hasPopulatedRef.current = true;
+			setIsLoadingData(false);
+		}
+	}, [currentPlaylist, setFormValuesState, setIsLoadingData, hasPopulatedRef, isFetchingRef]);
 }

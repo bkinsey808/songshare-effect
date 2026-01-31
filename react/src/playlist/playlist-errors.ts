@@ -49,9 +49,46 @@ export class QueryError extends PlaylistError {
 	}
 }
 
+export class PlaylistSaveError extends PlaylistError {
+	override readonly _tag: string = "PlaylistSaveError";
+	override readonly cause?: unknown;
+	constructor(message: string, cause?: unknown) {
+		super(message);
+		this.cause = cause;
+		Object.setPrototypeOf(this, PlaylistSaveError.prototype);
+	}
+}
+
+export class PlaylistSaveNetworkError extends PlaylistSaveError {
+	override readonly _tag = "PlaylistSaveNetworkError";
+	constructor(message: string, cause?: unknown) {
+		super(message, cause);
+		Object.setPrototypeOf(this, PlaylistSaveNetworkError.prototype);
+	}
+}
+
+export class PlaylistSaveApiError extends PlaylistSaveError {
+	override readonly _tag = "PlaylistSaveApiError";
+	readonly status?: number | undefined;
+	constructor(message: string, status?: number, cause?: unknown) {
+		super(message, cause);
+		this.status = status;
+		Object.setPrototypeOf(this, PlaylistSaveApiError.prototype);
+	}
+}
+
+export class PlaylistSaveInvalidResponseError extends PlaylistSaveError {
+	override readonly _tag = "PlaylistSaveInvalidResponseError";
+	constructor(cause?: unknown) {
+		super("Invalid response from save API", cause);
+		Object.setPrototypeOf(this, PlaylistSaveInvalidResponseError.prototype);
+	}
+}
+
 export type PlaylistErrors =
 	| PlaylistNotFoundError
 	| NoSupabaseClientError
 	| InvalidPlaylistDataError
 	| QueryError
+	| PlaylistSaveError
 	| PlaylistError;

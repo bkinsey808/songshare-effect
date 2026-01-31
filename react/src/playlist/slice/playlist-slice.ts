@@ -5,10 +5,11 @@ import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
 
-import type { PlaylistErrors } from "../playlist-errors";
+import type { PlaylistError, PlaylistErrors } from "../playlist-errors";
 import type { PlaylistEntry, PlaylistSliceBase, SavePlaylistRequest } from "../playlist-types";
 
 import fetchPlaylistFn from "../fetchPlaylist";
+import fetchPlaylistByIdFn from "../fetchPlaylistById";
 import createAddSongToLocalPlaylist from "../optimistic-ui/createAddSongToLocalPlaylist";
 import createRemoveSongFromLocalPlaylist from "../optimistic-ui/createRemoveSongFromLocalPlaylist";
 import createUpdateLocalSongOrder from "../optimistic-ui/createUpdateLocalSongOrder";
@@ -18,8 +19,10 @@ import playlistSliceInitialState from "./playlistSliceInitialState";
 export type PlaylistSlice = PlaylistSliceBase & {
 	/** Fetch a playlist by slug */
 	fetchPlaylist: (playlistSlug: string) => Effect.Effect<void, PlaylistErrors>;
+	/** Fetch a playlist by ID */
+	fetchPlaylistById: (playlistId: string) => Effect.Effect<void, PlaylistErrors>;
 	/** Save a playlist (create or update) - all changes go through this API call */
-	savePlaylist: (request: Readonly<SavePlaylistRequest>) => Effect.Effect<string, Error>;
+	savePlaylist: (request: Readonly<SavePlaylistRequest>) => Effect.Effect<string, PlaylistError>;
 	/** Clear the current playlist from state */
 	clearCurrentPlaylist: () => void;
 	/** Update the song order in local state (for optimistic updates before save) */
@@ -60,6 +63,7 @@ export function createPlaylistSlice(
 
 		// Public API methods
 		fetchPlaylist: (playlistSlug: string) => fetchPlaylistFn(playlistSlug, get),
+		fetchPlaylistById: (playlistId: string) => fetchPlaylistByIdFn(playlistId, get),
 
 		savePlaylist: (request: Readonly<SavePlaylistRequest>) => savePlaylistFn(request, get),
 

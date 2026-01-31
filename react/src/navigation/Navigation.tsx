@@ -11,7 +11,6 @@ import { aboutPath, dashboardPath, songLibraryPath } from "@/shared/paths";
 
 import useLocale from "../language/locale/useLocale";
 import ActionsMenu from "./ActionsMenu";
-import useIsScrolled from "./useIsScrolled";
 import useNavigation from "./useNavigation";
 
 /** Primary navigation items displayed in the header.
@@ -41,6 +40,7 @@ const navItems: readonly {
 type NavigationProps = {
 	readonly actionsExpanded?: boolean;
 	readonly onActionsExpandedChange?: (expanded: boolean) => void;
+	readonly isScrolled: boolean;
 };
 
 /**
@@ -58,10 +58,10 @@ type NavigationProps = {
 export default function Navigation({
 	actionsExpanded,
 	onActionsExpandedChange,
+	isScrolled,
 }: NavigationProps): ReactElement {
 	const navigate = useNavigate();
 	const { t, lang } = useLocale();
-	const isScrolled = useIsScrolled();
 
 	const { isHeaderActionsExpanded, isActionsVisible, isActive, toggleActions } = useNavigation({
 		actionsExpanded,

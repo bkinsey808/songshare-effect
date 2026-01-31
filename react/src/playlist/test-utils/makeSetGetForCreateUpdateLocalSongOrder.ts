@@ -2,7 +2,7 @@ import { Effect } from "effect";
 
 import type { Get, Set } from "@/react/zustand/slice-utils";
 
-import type { PlaylistErrors } from "../playlist-errors";
+import type { PlaylistError, PlaylistErrors } from "../playlist-errors";
 import type { SavePlaylistRequest } from "../playlist-types";
 import type { PlaylistSlice } from "../slice/playlist-slice";
 
@@ -31,7 +31,9 @@ export default function makeSetGetForCreateUpdateLocalSongOrder(): {
 
 			fetchPlaylist: (_slug: string): Effect.Effect<void, PlaylistErrors> =>
 				Effect.sync(() => undefined),
-			savePlaylist: (_req: SavePlaylistRequest): Effect.Effect<string, Error> =>
+			fetchPlaylistById: (_id: string): Effect.Effect<void, PlaylistErrors> =>
+				Effect.sync(() => undefined),
+			savePlaylist: (_req: SavePlaylistRequest): Effect.Effect<string, PlaylistError> =>
 				Effect.sync(() => ""),
 
 			clearCurrentPlaylist: (): void => undefined,

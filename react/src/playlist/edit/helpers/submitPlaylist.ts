@@ -2,6 +2,7 @@ import type { NavigateFunction } from "react-router-dom";
 
 import { Effect } from "effect";
 
+import type { PlaylistError } from "@/react/playlist/playlist-errors";
 import type { SavePlaylistRequest } from "@/react/playlist/playlist-types";
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
@@ -10,7 +11,7 @@ import { dashboardPath, playlistLibraryPath } from "@/shared/paths";
 
 export type SubmitPlaylistDeps = {
 	/** Effect-returning save function from the playlist slice */
-	savePlaylist: (request: Readonly<SavePlaylistRequest>) => Effect.Effect<string, Error>;
+	savePlaylist: (request: Readonly<SavePlaylistRequest>) => Effect.Effect<string, PlaylistError>;
 	/** Navigation function from react-router's useNavigate */
 	navigate: NavigateFunction;
 	/** Language code used to build language-aware paths */

@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { SavePlaylistRequest } from "@/react/playlist/playlist-types";
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
+import { PlaylistError } from "@/react/playlist/playlist-errors";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistLibraryPath } from "@/shared/paths";
 
@@ -11,7 +12,7 @@ import submitPlaylist from "./submitPlaylist";
 
 describe("submitPlaylist", () => {
 	it("navigates and returns id on success", async () => {
-		function savePlaylist(_req: SavePlaylistRequest): Effect.Effect<string, Error> {
+		function savePlaylist(_req: SavePlaylistRequest): Effect.Effect<string, PlaylistError> {
 			return Effect.succeed("playlist-123");
 		}
 
@@ -38,8 +39,8 @@ describe("submitPlaylist", () => {
 	});
 
 	it("returns undefined and logs on failure", async () => {
-		function savePlaylist(_req: SavePlaylistRequest): Effect.Effect<string, Error> {
-			return Effect.fail(new Error("boom"));
+		function savePlaylist(_req: SavePlaylistRequest): Effect.Effect<string, PlaylistError> {
+			return Effect.fail(new PlaylistError("boom"));
 		}
 
 		const mockNavigateFn = vi.fn();

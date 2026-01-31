@@ -7,6 +7,13 @@ import getErrorMessage from "@/shared/utils/getErrorMessage";
 import type { SavePlaylistRequest } from "./playlist-types";
 import type { PlaylistSlice } from "./slice/playlist-slice";
 
+import {
+	PlaylistSaveApiError,
+	PlaylistSaveInvalidResponseError,
+	PlaylistSaveNetworkError,
+	type PlaylistError,
+} from "./playlist-errors";
+
 /**
  * Save a playlist (create or update) by calling the API endpoint.
  * Returns the playlist_id of the saved playlist.
@@ -18,7 +25,7 @@ import type { PlaylistSlice } from "./slice/playlist-slice";
 export default function savePlaylist(
 	request: Readonly<SavePlaylistRequest>,
 	get: () => PlaylistSlice,
-): Effect.Effect<string, Error> {
+): Effect.Effect<string, PlaylistError> {
 	return Effect.gen(function* savePlaylistGen($) {
 		const { setPlaylistSaving, setPlaylistError } = get();
 
@@ -39,7 +46,7 @@ export default function savePlaylist(
 						body: JSON.stringify(request),
 						credentials: "include",
 					}),
-				catch: (err) => new Error(`Network error: ${String(err)}`),
+				catch: (err) => new PlaylistSaveNetworkError(`Network error: ${String(err)}`, err),
 			}),
 		);
 
@@ -47,14 +54,18 @@ export default function savePlaylist(
 			const errorTextOrErr = yield* $(
 				Effect.tryPromise({
 					try: () => response.text(),
-					catch: () => new Error("Unknown error"),
+					catch: () => new PlaylistSaveApiError("Unknown error", response.status),
 				}),
 			);
 			const errorText =
 				typeof errorTextOrErr === "string"
 					? errorTextOrErr
 					: getErrorMessage(errorTextOrErr, "Unknown error");
-			return yield* $(Effect.fail(new Error(`Failed to save playlist: ${errorText}`)));
+			return yield* $(
+				Effect.fail(
+					new PlaylistSaveApiError(`Failed to save playlist: ${errorText}`, response.status),
+				),
+			);
 		}
 
 		const responseData = yield* $(
@@ -63,15 +74,19 @@ export default function savePlaylist(
 					const json: unknown = await response.json();
 					return json;
 				},
-				catch: (err) => new Error(`Failed to parse response: ${String(err)}`),
+				catch: (err) => new PlaylistSaveInvalidResponseError(err),
 			}),
 		);
 
-		if (!isRecord(responseData) || typeof responseData["playlist_id"] !== "string") {
-			return yield* $(Effect.fail(new Error("Invalid response from save API")));
+		if (
+			!isRecord(responseData) ||
+			!isRecord(responseData["data"]) ||
+			typeof responseData["data"]["playlist_id"] !== "string"
+		) {
+			return yield* $(Effect.fail(new PlaylistSaveInvalidResponseError(responseData)));
 		}
 
-		const playlistId = responseData["playlist_id"];
+		const playlistId = responseData["data"]["playlist_id"];
 
 		yield* $(
 			Effect.sync(() => {
@@ -99,5 +114,5 @@ export default function savePlaylist(
 		// The pipeline returns an Effect whose inferred error type can include unknown.
 		// Use a double-cast to align the type with the declared return type.
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	) as unknown as Effect.Effect<string, Error>;
+	) as unknown as Effect.Effect<string, PlaylistError>;
 }

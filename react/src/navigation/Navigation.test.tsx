@@ -25,7 +25,7 @@ describe("navigation - language-aware links", () => {
 
 		render(
 			<MemoryRouter initialEntries={["/es"]}>
-				<Navigation />
+				<Navigation isScrolled={false} />
 			</MemoryRouter>,
 		);
 

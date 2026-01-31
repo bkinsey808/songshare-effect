@@ -1,8 +1,9 @@
-import { Suspense, lazy, type ReactElement, useState } from "react";
+import { Suspense, lazy, useState, type ReactElement } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import ProtectedLayout from "@/react/auth/ProtectedLayout";
 import Navigation from "@/react/navigation/Navigation";
+import useIsScrolled from "@/react/navigation/useIsScrolled";
 import {
 	aboutPath,
 	activityDemoPath,
@@ -70,14 +71,18 @@ function HydratedLayout(): ReactElement {
 	// useEnsureSignedIn();
 
 	const [isActionsExpanded, setIsActionsExpanded] = useState(true);
+	const isScrolled = useIsScrolled();
 
 	return (
 		<ErrorBoundary>
 			<Navigation
 				actionsExpanded={isActionsExpanded}
 				onActionsExpandedChange={setIsActionsExpanded}
+				isScrolled={isScrolled}
 			/>
-			<div className="mx-auto max-w-screen-2xl p-5 pt-4 pb-24 font-sans">
+			<div
+				className={`mx-auto max-w-screen-2xl p-5 pt-4 font-sans ${isScrolled ? "pb-36" : "pb-24"}`}
+			>
 				<main>
 					<Outlet />
 				</main>

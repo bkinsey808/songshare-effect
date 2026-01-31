@@ -63,7 +63,7 @@ export function moveSongDown(order: readonly string[], index: number): string[] 
 	const STEP = 1;
 	const LAST_INDEX = order.length - STEP;
 
-	if (index <= MIN_INDEX || index >= LAST_INDEX) {
+	if (index < MIN_INDEX || index >= LAST_INDEX) {
 		return [...order];
 	}
 
