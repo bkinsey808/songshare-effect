@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { useLocation } from "react-router-dom";
 
 import useLocale from "@/react/language/locale/useLocale";
+import { useAppStore } from "@/react/zustand/useAppStore";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import getPathWithoutLang from "@/shared/language/getPathWithoutLang";
 import { dashboardPath } from "@/shared/paths";
@@ -55,11 +55,13 @@ export default function useNavigation({
 	const location = useLocation();
 
 	/**
-	 * Internal default for whether the header actions are expanded. Defaulting to
-	 * `true` keeps actions visible on first render; the UI expects actions to be
-	 * available by default and this avoids a flash of collapsed content on mount.
+	 * Use persisted app store state for header actions when uncontrolled. The
+	 * persisted default is `true` to avoid a flash of collapsed content on mount.
 	 */
-	const [internalActionsExpanded, setInternalActionsExpanded] = useState(true);
+	const isHeaderActionsExpandedFromStore = useAppStore((state) => state.isHeaderActionsExpanded);
+	const setHeaderActionsExpanded = useAppStore((state) => state.setHeaderActionsExpanded);
+	// toggleHeaderActions available on the store if a caller needs it
+	// const toggleHeaderActions = useAppStore((s) => s.toggleHeaderActions);
 
 	/**
 	 * isActive
@@ -94,22 +96,22 @@ export default function useNavigation({
 		return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
 	}
 
-	// Prefer controlled prop when provided, otherwise fall back to internal state.
-	const isHeaderActionsExpanded = actionsExpanded ?? internalActionsExpanded;
+	// Prefer controlled prop when provided, otherwise fall back to persisted store value.
+	const isHeaderActionsExpanded = actionsExpanded ?? isHeaderActionsExpandedFromStore;
 	const isActionsVisible = isHeaderActionsExpanded;
 
 	/**
 	 * toggleActions
 	 *
 	 * Toggles the expanded state. When the component is uncontrolled (no
-	 * `actionsExpanded` prop), the hook updates internal state. Regardless of
-	 * controlled/uncontrolled mode, it will call `onActionsExpandedChange` if
-	 * provided so parents can react to the change (e.g., persist preference).
+	 * `actionsExpanded` prop), the hook updates the persisted store. Regardless
+	 * of controlled/uncontrolled mode, it will call `onActionsExpandedChange`
+	 * if provided so parents can react to the change (e.g., local UI sync).
 	 */
 	function toggleActions(): void {
 		const next = !isHeaderActionsExpanded;
 		if (actionsExpanded === undefined) {
-			setInternalActionsExpanded(next);
+			setHeaderActionsExpanded(next);
 		}
 		onActionsExpandedChange?.(next);
 	}

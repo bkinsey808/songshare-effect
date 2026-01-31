@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
+import { type NavigationSlice, createNavigationSlice } from "@/react/navigation/navigation-slice";
+
 import { type AuthSlice, createAuthSlice } from "@/react/auth/auth-slice";
 import useSchedule from "@/react/hooks/useSchedule";
 import {
@@ -26,7 +28,8 @@ type AppSlice = AuthSlice &
 	SongSubscribeSlice &
 	SongLibrarySlice &
 	PlaylistSlice &
-	PlaylistLibrarySlice;
+	PlaylistLibrarySlice &
+	NavigationSlice;
 
 // Track hydration state externally
 const hydrationState = {
@@ -56,6 +59,7 @@ export const useAppStore = create<AppSlice>()(
 				...createSongLibrarySlice(set, get, api),
 				...createPlaylistSlice(set, get, api),
 				...createPlaylistLibrarySlice(set, get, api),
+				...createNavigationSlice(set, get, api),
 			}),
 			{
 				name: "app-store",

@@ -3,6 +3,7 @@ import { type Location, useLocation } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import mockLocaleWithLang from "@/react/test-utils/mockLocaleWithLang";
+import { getStoreApi, resetAllSlices } from "@/react/zustand/useAppStore";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import getPathWithoutLang from "@/shared/language/getPathWithoutLang";
 
@@ -24,6 +25,9 @@ vi.mock("react-router-dom");
  */
 describe("useNavigation", () => {
 	it("defaults to actions expanded when uncontrolled", () => {
+		// Ensure store is clean for deterministic test
+		localStorage.removeItem("app-store");
+		resetAllSlices();
 		mockLocaleWithLang();
 		vi.mocked(useLocation).mockReturnValue({
 			pathname: "/en",
@@ -39,6 +43,9 @@ describe("useNavigation", () => {
 	});
 
 	it("toggleActions updates internal state and calls callback when uncontrolled", async () => {
+		// Ensure store is clean for deterministic test
+		localStorage.removeItem("app-store");
+		resetAllSlices();
 		mockLocaleWithLang();
 		vi.mocked(useLocation).mockReturnValue({
 			pathname: "/en",
@@ -67,7 +74,33 @@ describe("useNavigation", () => {
 		});
 	});
 
+	it("toggleActions updates persisted store when uncontrolled", async () => {
+		mockLocaleWithLang();
+		vi.mocked(useLocation).mockReturnValue({
+			pathname: "/en",
+			search: "",
+			hash: "",
+			state: undefined,
+			key: "z",
+		} as Location);
+
+		const { result } = renderHook(() => useNavigation({}));
+
+		// read the current persisted value and assert the hook reflects it
+		const initial = getStoreApi().getState().isHeaderActionsExpanded;
+		expect(result.current.isHeaderActionsExpanded).toBe(initial);
+
+		// toggle via hook and observe store change flips the persisted value
+		result.current.toggleActions();
+		await waitFor(() => {
+			expect(getStoreApi().getState().isHeaderActionsExpanded).toBe(!initial);
+		});
+	});
+
 	it("toggleActions calls callback but does not override controlled prop", () => {
+		// Ensure store is clean for deterministic test
+		localStorage.removeItem("app-store");
+		resetAllSlices();
 		mockLocaleWithLang();
 		vi.mocked(useLocation).mockReturnValue({
 			pathname: "/en",
@@ -91,6 +124,9 @@ describe("useNavigation", () => {
 	});
 
 	it("isActive treats home (empty path) as active for language root", () => {
+		// Ensure store is clean for deterministic test
+		localStorage.removeItem("app-store");
+		resetAllSlices();
 		mockLocaleWithLang();
 		// Simulate being at the language root
 		vi.mocked(useLocation).mockReturnValue({
@@ -107,6 +143,9 @@ describe("useNavigation", () => {
 	});
 
 	it("isActive treats home (empty path) as active when dashboard path present", () => {
+		// Ensure store is clean for deterministic test
+		localStorage.removeItem("app-store");
+		resetAllSlices();
 		mockLocaleWithLang();
 		// Simulate being on dashboard
 		vi.mocked(useLocation).mockReturnValue({
@@ -123,6 +162,9 @@ describe("useNavigation", () => {
 	});
 
 	it("isActive matches explicit paths and descendants", () => {
+		// Ensure store is clean for deterministic test
+		localStorage.removeItem("app-store");
+		resetAllSlices();
 		mockLocaleWithLang();
 		// For this test buildPathWithLang will produce the canonical path
 		vi.mocked(buildPathWithLang).mockImplementation(

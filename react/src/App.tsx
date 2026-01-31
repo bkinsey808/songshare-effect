@@ -1,9 +1,10 @@
-import { Suspense, lazy, useState, type ReactElement } from "react";
+import { Suspense, lazy, type ReactElement } from "react";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import ProtectedLayout from "@/react/auth/ProtectedLayout";
 import Navigation from "@/react/navigation/Navigation";
 import useIsScrolled from "@/react/navigation/useIsScrolled";
+import { useAppStore } from "@/react/zustand/useAppStore";
 import {
 	aboutPath,
 	activityDemoPath,
@@ -70,7 +71,9 @@ function HydratedLayout(): ReactElement {
 	// when the component suspends during hydration.
 	// useEnsureSignedIn();
 
-	const [isActionsExpanded, setIsActionsExpanded] = useState(true);
+	// Use persisted app store for header actions so the toggle state survives refresh
+	const isActionsExpanded = useAppStore((state) => state.isHeaderActionsExpanded);
+	const setIsActionsExpanded = useAppStore((state) => state.setHeaderActionsExpanded);
 	const isScrolled = useIsScrolled();
 
 	return (
