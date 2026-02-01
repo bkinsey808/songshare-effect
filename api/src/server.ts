@@ -1,7 +1,6 @@
 import { Effect } from "effect";
 import { Hono } from "hono";
 
-import getErrorMessage from "@/api/getErrorMessage";
 import oauthCallbackHandler from "@/api/oauth/oauthCallbackHandler";
 import {
 	ACCESS_CONTROL_MAX_AGE_SEC,
@@ -9,6 +8,7 @@ import {
 	HTTP_NO_CONTENT,
 	ONE_HOUR_SECONDS,
 } from "@/shared/constants/http";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import {
 	apiAccountDeletePath,
 	apiAccountRegisterPath,
@@ -26,6 +26,8 @@ import {
 	apiSongsDeletePath,
 	apiSongsSavePath,
 	apiUploadPath,
+	apiUserLibraryAddPath,
+	apiUserLibraryRemovePath,
 	apiUserTokenPath,
 	healthPath,
 } from "@/shared/paths";
@@ -50,6 +52,8 @@ import addSongToLibraryHandler from "./song-library/addSongToLibrary";
 import songDelete from "./song/songDelete";
 import { songSave } from "./song/songSave";
 import getSupabaseClientToken from "./supabase/getSupabaseClientToken";
+import addUserToLibraryHandler from "./user-library/addUserToLibrary";
+import removeUserFromLibraryHandler from "./user-library/removeUserFromLibrary";
 import getUserToken from "./user-session/getUserToken";
 
 const app: Hono<{ Bindings: Bindings }> = new Hono<{ Bindings: Bindings }>();
@@ -145,13 +149,16 @@ async function runSupabaseHealthCheck(url: string): Promise<void> {
 		} catch (error) {
 			console.warn(
 				"[startup-check] Failed to contact Supabase host; check VITE_SUPABASE_URL and network/DNS:",
-				getErrorMessage(error),
+				extractErrorMessage(error, "Unknown error"),
 			);
 		} finally {
 			clearTimeout(timeout);
 		}
 	} catch (error) {
-		console.warn("[startup-check] Supabase URL parse failed:", getErrorMessage(error));
+		console.warn(
+			"[startup-check] Supabase URL parse failed:",
+			extractErrorMessage(error, "Unknown error"),
+		);
 	}
 }
 
@@ -212,7 +219,10 @@ app.get(apiAuthVisitorPath, async (ctx) => {
 			expires_in: ONE_HOUR_SECONDS,
 		});
 	} catch (error) {
-		console.error("Failed to generate Supabase client token:", getErrorMessage(error));
+		console.error(
+			"Failed to generate Supabase client token:",
+			extractErrorMessage(error, "Unknown error"),
+		);
 		return Response.json(
 			{ error: "Failed to generate Supabase client token" },
 			{
@@ -271,6 +281,17 @@ app.post(
 	handleHttpEndpoint((ctx) => removePlaylistFromLibraryHandler(ctx)),
 );
 
+// User library (follow users)
+app.post(
+	apiUserLibraryAddPath,
+	handleHttpEndpoint((ctx) => addUserToLibraryHandler(ctx)),
+);
+
+app.post(
+	apiUserLibraryRemovePath,
+	handleHttpEndpoint((ctx) => removeUserFromLibraryHandler(ctx)),
+);
+
 // File upload endpoint
 app.post(apiUploadPath, (ctx) => ctx.json({ message: "Upload endpoint - to be implemented" }));
 
@@ -285,7 +306,10 @@ app.post("/api/dev/song-public/update", async (ctx) => {
 		const resp = await Effect.runPromise(updateSongPublic(ctx));
 		return resp;
 	} catch (error) {
-		console.error("[dev:updateSongPublic] handler failed:", getErrorMessage(error));
+		console.error(
+			"[dev:updateSongPublic] handler failed:",
+			extractErrorMessage(error, "Unknown error"),
+		);
 		return Response.json({ error: "Internal error" }, { status: 500 });
 	}
 });
@@ -307,7 +331,7 @@ app.post(apiAuthSignOutPath, (ctx) => {
 		ctx.res.headers.append("Set-Cookie", cookieValue);
 		return ctx.json({ success: true });
 	} catch (error) {
-		console.error("Failed to sign out", getErrorMessage(error));
+		console.error("Failed to sign out", extractErrorMessage(error, "Unknown error"));
 		return Response.json(
 			{ error: "failed" },
 			{
@@ -338,10 +362,16 @@ function handleAppError(err: unknown, _ctx: unknown): Response {
 		if (err instanceof Error) {
 			console.error("[app.onError] Unhandled exception:", err.stack ?? err.message);
 		} else {
-			console.error("[app.onError] Unhandled exception (non-Error):", getErrorMessage(err));
+			console.error(
+				"[app.onError] Unhandled exception (non-Error):",
+				extractErrorMessage(err, "Unknown error"),
+			);
 		}
 	} catch (error) {
-		console.error("[app.onError] Failed to log error:", getErrorMessage(error));
+		console.error(
+			"[app.onError] Failed to log error:",
+			extractErrorMessage(error, "Unknown error"),
+		);
 	}
 
 	// Return a generic 500 response without leaking internals to clients

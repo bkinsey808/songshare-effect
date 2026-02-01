@@ -1,8 +1,8 @@
 import { Effect } from "effect";
 
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiPlaylistSavePath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
-import getErrorMessage from "@/shared/utils/getErrorMessage";
 
 import type { SavePlaylistRequest } from "./playlist-types";
 import type { PlaylistSlice } from "./slice/playlist-slice";
@@ -60,7 +60,7 @@ export default function savePlaylist(
 			const errorText =
 				typeof errorTextOrErr === "string"
 					? errorTextOrErr
-					: getErrorMessage(errorTextOrErr, "Unknown error");
+					: extractErrorMessage(errorTextOrErr, "Unknown error");
 			return yield* $(
 				Effect.fail(
 					new PlaylistSaveApiError(`Failed to save playlist: ${errorText}`, response.status),
@@ -100,7 +100,7 @@ export default function savePlaylist(
 			Effect.sync(() => {
 				const { setPlaylistSaving, setPlaylistError } = get();
 				setPlaylistSaving(false);
-				const msg = getErrorMessage(err, "Failed to save playlist");
+				const msg = extractErrorMessage(err, "Failed to save playlist");
 				setPlaylistError(msg);
 				console.error("[savePlaylist] Error:", err);
 			}),

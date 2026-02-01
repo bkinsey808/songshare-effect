@@ -1,6 +1,8 @@
 import { Schema } from "effect";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
+import addUserToLibraryClient from "@/react/user-library/addUserClient";
 import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 
 import { type SongPublic, songPublicSchema } from "../song-schema";
@@ -60,6 +62,7 @@ export function useSongView(): UseSongViewResult {
 		(state: Readonly<SongMethods>) => state.addActivePublicSongSlugs,
 	);
 	const getSongBySlug = useAppStoreSelector((state: Readonly<SongMethods>) => state.getSongBySlug);
+	const currentUserId = useAppStoreSelector((state) => state.userSessionData?.user?.user_id);
 
 	if (songSlug !== undefined && songSlug !== "") {
 		// Register the slug with the app store so background fetching / caching can start.
@@ -80,6 +83,23 @@ export function useSongView(): UseSongViewResult {
 					const decoded = Schema.decodeUnknownEither(songPublicSchema)(songData.songPublic);
 					return decoded._tag === "Right" ? decoded.right : undefined;
 				})();
+
+	// Auto-add the song owner to the user's library (fire-and-forget).
+	useEffect(() => {
+		if (
+			songPublic !== undefined &&
+			typeof songPublic.user_id === "string" &&
+			currentUserId !== songPublic.user_id
+		) {
+			void (async (): Promise<void> => {
+				try {
+					await addUserToLibraryClient(songPublic.user_id);
+				} catch {
+					/* ignore errors for auto-add */
+				}
+			})();
+		}
+	}, [songPublic, songPublic?.user_id, currentUserId]);
 
 	// Consider "not found" when there's no song data or the public metadata failed validation.
 	return {

@@ -7,13 +7,13 @@ import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
-import getErrorMessage from "@/api/getErrorMessage";
 import getIpAddress from "@/api/getIpAddress";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
 import { RegisterDataSchema } from "@/api/register/registerData";
 import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
 import { csrfTokenCookieName } from "@/shared/cookies";
 import { getEnvString } from "@/shared/env/getEnv";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { UserPublicSchema, UserSchema } from "@/shared/generated/supabaseSchemas";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import { RegisterFormSchema } from "@/shared/register/register";
@@ -230,7 +230,7 @@ export default function accountRegister(
 						// oxlint-disable-next-line no-null
 						JSON.stringify(rawInsertedUser, null, JSON_INDENT),
 						"error:",
-						getErrorMessage(err),
+						extractErrorMessage(err, "Unknown error"),
 					);
 					return new DatabaseError({
 						message: "Invalid user data from database",

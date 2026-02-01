@@ -1,8 +1,8 @@
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
 import oauthCallbackFactory from "@/api/oauth-callback-factory/oauthCallbackFactory";
 import createErrorResponse from "@/api/oauth/createErrorResponse";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 // Keep exported wrapper typed as `Context` for Hono compatibility. The
 // implementation below uses `ReadonlyContext` so helpers can declare
@@ -18,14 +18,14 @@ export default async function oauthCallbackHandler(ctx: ReadonlyContext): Promis
 			} else {
 				console.error(
 					"[oauthCallbackHandler] Unhandled exception (non-Error):",
-					getErrorMessage(error),
+					extractErrorMessage(error, "Unknown error"),
 				);
 			}
 			// oxlint-disable-next-line catch-error-name
 		} catch (innerError) {
 			console.error(
 				"[oauthCallbackHandler] Failed to log unhandled exception:",
-				getErrorMessage(innerError),
+				extractErrorMessage(innerError, "Unknown error"),
 			);
 		}
 		return createErrorResponse(ctx, error);

@@ -1,7 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, rmSync, writeFileSync } from "node:fs";
 
-import { warn as sWarn, error as sError } from "@/scripts/utils/scriptLogger";
+import { error as sError, warn as sWarn } from "@/scripts/utils/scriptLogger";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 export type SupabaseGenerationConfig = {
 	cliPath: string;
@@ -53,7 +54,7 @@ export function generateSupabaseTypes(
 			return true;
 		}
 	} catch (error: unknown) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message: string | undefined = extractErrorMessage(error, "Unknown error");
 		sError("❌ Error generating Supabase types:", message);
 	}
 

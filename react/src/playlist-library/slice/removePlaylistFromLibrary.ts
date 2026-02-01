@@ -1,30 +1,13 @@
 import { Effect } from "effect";
 
 import { clientWarn } from "@/react/utils/clientLogger";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiPlaylistLibraryRemovePath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
-import getErrorMessage from "@/shared/utils/getErrorMessage";
 
 import type { PlaylistLibrarySlice } from "./playlist-library-slice";
 import type { RemovePlaylistFromLibraryRequest } from "./playlist-library-types";
-
-/**
- * Extracts error message from API response.
- * @param responseJson - The parsed JSON response.
- * @returns The error message or undefined.
- */
-function extractErrorMessage(responseJson: unknown): string | undefined {
-	if (isRecord(responseJson)) {
-		if (typeof responseJson["error"] === "string") {
-			return responseJson["error"];
-		}
-		if (typeof responseJson["message"] === "string") {
-			return responseJson["message"];
-		}
-	}
-	return undefined;
-}
 
 /**
  * Remove a playlist from the current user's library (via server endpoint).
@@ -61,7 +44,7 @@ export default function removePlaylistFromLibrary(
 					}
 					return request.playlist_id;
 				},
-				catch: (err) => new Error(getErrorMessage(err, "Invalid request")),
+				catch: (err) => new Error(extractErrorMessage(err, "Invalid request")),
 			}),
 		);
 
@@ -93,7 +76,7 @@ export default function removePlaylistFromLibrary(
 						body: JSON.stringify({ playlist_id: playlistId }),
 						credentials: "include",
 					}),
-				catch: (err) => new Error(getErrorMessage(err, "Network error")),
+				catch: (err) => new Error(extractErrorMessage(err, "Network error")),
 			}),
 		);
 
@@ -104,14 +87,13 @@ export default function removePlaylistFromLibrary(
 					catch: () => ({}),
 				}),
 			);
-			const errorData = extractErrorMessage(responseJson);
+			const errorMsg = extractErrorMessage(
+				responseJson,
+				`Server returned ${response.status}: ${response.statusText}`,
+			);
 			// Note: We already removed from local state, but the API failed
 			// The realtime subscription will re-add it if still present
-			return yield* $(
-				Effect.fail(
-					new Error(errorData ?? `Server returned ${response.status}: ${response.statusText}`),
-				),
-			);
+			return yield* $(Effect.fail(new Error(errorMsg)));
 		}
 
 		yield* $(
@@ -122,7 +104,7 @@ export default function removePlaylistFromLibrary(
 	}).pipe(
 		Effect.tapError((err) =>
 			Effect.sync(() => {
-				const msg = getErrorMessage(err);
+				const msg = extractErrorMessage(err, "Unknown error");
 				clientWarn("[removePlaylistFromLibrary] Failed to remove playlist:", msg);
 				const { setPlaylistLibraryError } = get();
 				setPlaylistLibraryError(msg);

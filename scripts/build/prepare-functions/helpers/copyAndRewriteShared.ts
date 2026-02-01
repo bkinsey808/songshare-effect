@@ -1,4 +1,6 @@
-import { warn as sWarn } from "../../../utils/scriptLogger";
+import { warn as sWarn } from "@/scripts/utils/scriptLogger";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+
 import copyDir from "./copyDir";
 import rewriteSharedImports from "./rewriteSharedImports";
 
@@ -14,14 +16,14 @@ export default async function copyAndRewriteShared(
 		await copyDir(sourceDir, destDir);
 		sWarn("Copied shared/src ->", destDir);
 	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message: string | undefined = extractErrorMessage(error, "Unknown error");
 		sWarn("Warning: could not copy shared/src:", message);
 	}
 
 	try {
 		await rewriteSharedImports(destDir);
 	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message: string | undefined = extractErrorMessage(error, "Unknown error");
 		sWarn(
 			"Warning: could not rewrite imports in copied shared files:",
 			message,

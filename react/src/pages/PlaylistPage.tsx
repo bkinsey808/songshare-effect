@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 
 import useLocale from "@/react/language/locale/useLocale";
+import addUserToLibraryClient from "@/react/user-library/addUserClient";
 import { useAppStore } from "@/react/zustand/useAppStore";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, songViewPath } from "@/shared/paths";
@@ -38,6 +39,24 @@ export default function PlaylistPage(): ReactElement {
 			clearCurrentPlaylist();
 		};
 	}, [playlist_slug, fetchPlaylist, clearCurrentPlaylist]);
+
+	// Auto-add the playlist owner to the user's library (fire-and-forget)
+	useEffect(() => {
+		if (
+			currentPlaylist !== undefined &&
+			currentPlaylist.user_id !== undefined &&
+			currentUserId !== undefined &&
+			currentUserId !== currentPlaylist.user_id
+		) {
+			void (async (): Promise<void> => {
+				try {
+					await addUserToLibraryClient(currentPlaylist.user_id);
+				} catch {
+					/* ignore errors */
+				}
+			})();
+		}
+	}, [currentPlaylist, currentUserId]);
 
 	if (isLoading) {
 		return (

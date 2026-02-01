@@ -2,8 +2,8 @@ import { Effect } from "effect";
 import { verify } from "hono/jwt";
 
 import { AuthenticationError } from "@/api/errors";
-import getErrorMessage from "@/api/getErrorMessage";
 import { getEnvString } from "@/shared/env/getEnv";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 /**
  * Verify a user session JWT using the environment's `JWT_SECRET`.
@@ -31,7 +31,7 @@ export default function verifyUserSessionToken(
 		},
 		catch: (err: unknown) =>
 			new AuthenticationError({
-				message: getErrorMessage(err ?? "Invalid token"),
+				message: extractErrorMessage(err ?? "Invalid token", "Invalid token"),
 			}),
 	});
 }

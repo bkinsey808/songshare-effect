@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, renameSync, rmSync } from "node:fs";
 import { dirname } from "node:path";
 
 import { warn as sWarn } from "@/scripts/utils/scriptLogger";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 export type MoveSupabaseTypesConfig = {
 	tempPath: string;
@@ -23,7 +24,7 @@ export function moveSupabaseTypes(
 		renameSync(config.tempPath, config.destinationPath);
 		return config.destinationPath;
 	} catch (error: unknown) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message: string | undefined = extractErrorMessage(error, "Unknown error");
 		sWarn("Warning: could not move Supabase types:", message);
 		if (existsSync(config.tempPath)) {
 			rmSync(config.tempPath);

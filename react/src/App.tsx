@@ -26,6 +26,8 @@ import {
 	typegpuAudioVizDemoPath,
 	typegpuDemoPath,
 	uploadDemoPath,
+	userLibraryPath,
+	userPublicSubscriptionPath,
 	userSubscriptionDemoPath,
 } from "@/shared/paths";
 
@@ -43,6 +45,7 @@ const SongEditPage = lazy(() => import("@/react/pages/SongEditPage"));
 const SongLibraryPage = lazy(() => import("@/react/pages/SongLibraryPage"));
 const PlaylistEditPage = lazy(() => import("@/react/pages/PlaylistEditPage"));
 const PlaylistLibraryPage = lazy(() => import("@/react/pages/PlaylistLibraryPage"));
+const UserLibraryPage = lazy(() => import("@/react/user-library/UserLibraryPage"));
 
 // Public pages
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -218,6 +221,10 @@ const router = createBrowserRouter([
 								path: playlistLibraryPath,
 								element: withSuspense(PlaylistLibraryPage),
 							},
+							{
+								path: userLibraryPath,
+								element: withSuspense(UserLibraryPage),
+							},
 						],
 					},
 					{
@@ -238,6 +245,10 @@ const router = createBrowserRouter([
 					},
 					{
 						path: userSubscriptionDemoPath,
+						element: withSuspense(UserPublicSubscriptionPage),
+					},
+					{
+						path: userPublicSubscriptionPath,
 						element: withSuspense(UserPublicSubscriptionPage),
 					},
 					{

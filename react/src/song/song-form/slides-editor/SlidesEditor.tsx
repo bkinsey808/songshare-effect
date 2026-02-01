@@ -2,17 +2,17 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import AutoExpandingTextarea from "@/react/design-system/AutoExpandingTextarea";
+import Button from "@/react/design-system/Button";
+import FormField from "@/react/design-system/form/FormField";
+import ChevronDownIcon from "@/react/design-system/icons/ChevronDownIcon";
+import ChevronUpIcon from "@/react/design-system/icons/ChevronUpIcon";
+import PlusIcon from "@/react/design-system/icons/PlusIcon";
+import TrashIcon from "@/react/design-system/icons/TrashIcon";
+import { songFields } from "@/react/song/song-schema";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
-import AutoExpandingTextarea from "../../../design-system/AutoExpandingTextarea";
-import Button from "../../../design-system/Button";
-import FormField from "../../../design-system/form/FormField";
-import ChevronDownIcon from "../../../design-system/icons/ChevronDownIcon";
-import ChevronUpIcon from "../../../design-system/icons/ChevronUpIcon";
-import PlusIcon from "../../../design-system/icons/PlusIcon";
-import TrashIcon from "../../../design-system/icons/TrashIcon";
-import { songFields } from "../../song-schema";
 import hashToHue from "../grid-editor/duplicateTint";
 import { type Slide } from "../song-form-types";
 import useSlidesEditor from "./useSlidesEditor";

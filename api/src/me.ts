@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
-import { log as serverLog, error as serverError } from "@/api/logger";
+import { error as serverError, log as serverLog } from "@/api/logger";
 import { getEnvString } from "@/shared/env/getEnv";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type UserSessionData } from "@/shared/userSessionData";
 import { safeSet } from "@/shared/utils/safe";
 
@@ -41,7 +41,10 @@ export default function me(
 						}
 						serverLog("[me] Incoming request headers:", hdrObj);
 					} catch (error) {
-						serverError("[me] Failed to dump incoming headers:", getErrorMessage(error));
+						serverError(
+							"[me] Failed to dump incoming headers:",
+							extractErrorMessage(error, "Unknown error"),
+						);
 					}
 				}),
 			);

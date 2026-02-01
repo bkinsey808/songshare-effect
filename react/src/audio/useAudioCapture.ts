@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+
 import type {
 	MinimalAnalyserNode,
 	MinimalMediaStream,
@@ -122,9 +124,8 @@ export default function useAudioCapture(): UseAudioCaptureResult {
 				stream = await getStream();
 			} catch (error) {
 				await stop({ setStoppedStatus: false });
-				setErrorMessage(error instanceof Error ? error.message : String(error));
+				setErrorMessage(extractErrorMessage(error, "Failed to get audio stream"));
 				setStatus("error");
-				return undefined;
 			}
 
 			if (stream === undefined) {

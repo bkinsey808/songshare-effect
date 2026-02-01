@@ -1,8 +1,8 @@
+import type { SongPublic } from "@/react/song/song-schema";
+
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
 import { safeGet } from "@/shared/utils/safe";
-
-import { type SongPublic } from "../../song-schema";
 
 type FindMissingSongsSlugsParams = Readonly<{
 	songSlugs: readonly string[];

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict txwI0GV3tzKUPaYDUUsrZhECBf1OCYYxZ6PFm0NePuw3r7P6GVQnmuetFGS7iLb
+\restrict kvxP4Y48FSh7HeTuSUlfmEJQqshcfOGjowa5AlMfwIHhkDCc0jYhn8e2mRHBnms
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -326,6 +326,47 @@ CREATE TABLE public."user" (
 
 
 --
+-- Name: user_library; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_library (
+    user_id uuid NOT NULL,
+    followed_user_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.user_library REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE user_library; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.user_library IS 'Personal user libraries - allows users to follow other users. Realtime enabled.';
+
+
+--
+-- Name: COLUMN user_library.user_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.user_library.user_id IS 'The user who owns this library entry';
+
+
+--
+-- Name: COLUMN user_library.followed_user_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.user_library.followed_user_id IS 'The followed user id';
+
+
+--
+-- Name: COLUMN user_library.created_at; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.user_library.created_at IS 'When this user was added to the library';
+
+
+--
 -- Name: user_public; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -391,6 +432,14 @@ ALTER TABLE ONLY public.song
 
 ALTER TABLE ONLY public.song_public
     ADD CONSTRAINT song_public_pkey PRIMARY KEY (song_id);
+
+
+--
+-- Name: user_library user_library_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_library
+    ADD CONSTRAINT user_library_pkey PRIMARY KEY (user_id, followed_user_id);
 
 
 --
@@ -513,6 +562,27 @@ CREATE INDEX song_public_song_slug_idx ON public.song_public USING btree (song_s
 --
 
 CREATE INDEX user_email_idx ON public."user" USING btree (email);
+
+
+--
+-- Name: user_library_created_at_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX user_library_created_at_idx ON public.user_library USING btree (created_at DESC);
+
+
+--
+-- Name: user_library_followed_user_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX user_library_followed_user_id_idx ON public.user_library USING btree (followed_user_id);
+
+
+--
+-- Name: user_library_user_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX user_library_user_id_idx ON public.user_library USING btree (user_id);
 
 
 --
@@ -647,6 +717,22 @@ ALTER TABLE ONLY public.song
 
 
 --
+-- Name: user_library user_library_followed_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_library
+    ADD CONSTRAINT user_library_followed_user_id_fkey FOREIGN KEY (followed_user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_library user_library_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_library
+    ADD CONSTRAINT user_library_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
 -- Name: user_public user_public_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -718,6 +804,20 @@ COMMENT ON POLICY "Deny all INSERT operations on song_library" ON public.song_li
 
 
 --
+-- Name: user_library Deny all INSERT operations on user_library; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all INSERT operations on user_library" ON public.user_library FOR INSERT TO authenticated WITH CHECK (false);
+
+
+--
+-- Name: POLICY "Deny all INSERT operations on user_library" ON user_library; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON POLICY "Deny all INSERT operations on user_library" ON public.user_library IS 'All inserts must go through the /api/user-library/add server endpoint for proper validation and authorization.';
+
+
+--
 -- Name: song_library Users can access their own library entries; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -729,6 +829,13 @@ CREATE POLICY "Users can access their own library entries" ON public.song_librar
 --
 
 CREATE POLICY "Users can access their own playlist library entries" ON public.playlist_library FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: user_library Users can access their own user library entries; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Users can access their own user library entries" ON public.user_library FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
@@ -746,6 +853,13 @@ CREATE POLICY "Users can delete from their own playlist library" ON public.playl
 
 
 --
+-- Name: user_library Users can delete from their own user library; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Users can delete from their own user library" ON public.user_library FOR DELETE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
 -- Name: song_library Users can update their own library entries; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -757,6 +871,13 @@ CREATE POLICY "Users can update their own library entries" ON public.song_librar
 --
 
 CREATE POLICY "Users can update their own playlist library entries" ON public.playlist_library FOR UPDATE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)) WITH CHECK ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: user_library Users can update their own user library entries; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Users can update their own user library entries" ON public.user_library FOR UPDATE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)) WITH CHECK ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
@@ -802,6 +923,12 @@ ALTER TABLE public.song_public ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public."user" ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: user_library; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.user_library ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: user_public; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -811,5 +938,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict txwI0GV3tzKUPaYDUUsrZhECBf1OCYYxZ6PFm0NePuw3r7P6GVQnmuetFGS7iLb
+\unrestrict kvxP4Y48FSh7HeTuSUlfmEJQqshcfOGjowa5AlMfwIHhkDCc0jYhn8e2mRHBnms
 

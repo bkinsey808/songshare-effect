@@ -9,7 +9,7 @@ import { useAppStoreHydrated } from "@/react/zustand/useAppStore";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
-import { dashboardPath, deleteAccountPath } from "@/shared/paths";
+import { dashboardPath, deleteAccountPath, userLibraryPath } from "@/shared/paths";
 
 import SongManagementSection from "./SongManagementSection";
 import useDashboard from "./useDashboard";
@@ -116,6 +116,19 @@ function DashboardPage(): ReactElement {
 					data-testid="dashboard-delete-account"
 				>
 					{t("pages.dashboard.deleteAccount", "Delete Account")}
+				</Button>
+
+				{/* User Library navigation */}
+				<Button
+					variant="outlinePrimary"
+					size="compact"
+					onClick={() => {
+						const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
+						void navigate(buildPathWithLang(`/${dashboardPath}/${userLibraryPath}`, langForNav));
+					}}
+					data-testid="dashboard-user-library"
+				>
+					{t("pages.dashboard.userLibrary", "User Library")}
 				</Button>
 			</div>
 		</div>

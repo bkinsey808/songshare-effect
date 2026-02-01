@@ -11,6 +11,8 @@
 
 import { chromium } from "@playwright/test";
 
+import extractErrorMessage from "../shared/src/error-message/extractErrorMessage";
+
 const mockUserSession = {
 	user: {
 		user_id: "test-user-id-123",
@@ -111,7 +113,7 @@ async function testAuthBypass(): Promise<void> {
 		const INSPECT_TIME = 30_000;
 		await page.waitForTimeout(INSPECT_TIME);
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error);
+		const errorMessage = extractErrorMessage(error, "Unknown error");
 		console.error("\n❌ ERROR:", errorMessage);
 		console.log("\n💡 Troubleshooting:");
 		console.log("   1. Make sure the dev server is running: npm run dev");

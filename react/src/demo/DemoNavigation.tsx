@@ -13,6 +13,7 @@ import {
 	typegpuAudioVizDemoPath,
 	typegpuDemoPath,
 	uploadDemoPath,
+	userPublicSubscriptionPath,
 	userSubscriptionDemoPath,
 } from "@/shared/paths";
 
@@ -50,6 +51,11 @@ function DemoNavigation(): ReactElement {
 		{
 			path: userSubscriptionDemoPath,
 			labelKey: "navigation.userSubscription",
+			icon: "👥",
+		},
+		{
+			path: userPublicSubscriptionPath,
+			labelKey: "navigation.userPublicSubscription",
 			icon: "👥",
 		},
 		{

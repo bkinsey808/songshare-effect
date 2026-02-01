@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { SongPublic } from "../../song-schema";
+import type { SongPublic } from "@/react/song/song-schema";
 
 import findMissingSongSlugs from "./findMissingSongSlugs";
 

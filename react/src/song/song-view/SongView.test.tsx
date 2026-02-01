@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import makeSongPublic from "@/react/test-utils/makeSongPublic";
+import addUserToLibraryClient from "@/react/user-library/addUserClient";
 import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 
 import SongView from "./SongView";
@@ -30,6 +31,8 @@ vi.mock(
 );
 // We'll stub `useAppStoreSelector` in tests using the `installStoreMocks` helper below
 vi.mock("@/react/zustand/useAppStore");
+// Stub the addUserToLibrary client used by the view-side auto-follow
+vi.mock("@/react/user-library/addUserClient");
 
 // Test constants used across cases
 const NOT_FOUND_TEXT = "Song not found";
@@ -55,7 +58,7 @@ function makeSongPublicLike(overrides: Record<string, unknown> = {}): Record<str
  * @param mockAdd - returned value when the selector looks like `addActivePublicSongSlugs`
  * @param mockGet - returned value when the selector looks like `getSongBySlug`
  */
-function installStoreMocks(mockAdd: unknown, mockGet: unknown): void {
+function installStoreMocks(mockAdd: unknown, mockGet: unknown, mockUserId?: string): void {
 	vi.mocked(useAppStoreSelector).mockImplementation((selector: unknown) => {
 		const selectorText = String(selector);
 		if (selectorText.includes("addActivePublicSongSlugs")) {
@@ -63,6 +66,9 @@ function installStoreMocks(mockAdd: unknown, mockGet: unknown): void {
 		}
 		if (selectorText.includes("getSongBySlug")) {
 			return mockGet;
+		}
+		if (selectorText.includes("userSessionData")) {
+			return { user: { user_id: mockUserId } };
 		}
 		return undefined;
 	});
@@ -83,9 +89,11 @@ describe("song view", () => {
 	it("calls addActivePublicSongSlugs and displays song when valid songPublic is found", () => {
 		vi.mocked(useParams).mockReturnValue({ song_slug: MY_SLUG });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
-		const songPublic = makeSongPublicLike();
+		const songPublic = makeSongPublicLike({ user_id: "owner-1" });
 		const mockGet = vi.fn().mockReturnValue({ song: undefined, songPublic });
-		installStoreMocks(mockAdd, mockGet);
+		installStoreMocks(mockAdd, mockGet, "not-owner");
+		const mockAutoAdd = vi.mocked(addUserToLibraryClient);
+		vi.mocked(mockAutoAdd).mockResolvedValue(undefined);
 
 		const { getByRole, getByText } = render(<SongView />);
 
@@ -93,6 +101,8 @@ describe("song view", () => {
 		expect(getByText(MY_SLUG)).toBeTruthy();
 		expect(mockAdd).toHaveBeenCalledWith([MY_SLUG]);
 		expect(mockGet).toHaveBeenCalledWith(MY_SLUG);
+		// Auto-add should be called with the owner id
+		expect(mockAutoAdd).toHaveBeenCalledWith("owner-1");
 		cleanup();
 	});
 

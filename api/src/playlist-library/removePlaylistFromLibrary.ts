@@ -1,8 +1,8 @@
 import { Effect } from "effect";
 
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
@@ -68,7 +68,7 @@ export default function removePlaylistFromLibraryHandler(
 			return yield* $(
 				Effect.fail(
 					new ValidationError({
-						message: error instanceof Error ? error.message : "Invalid request",
+						message: extractErrorMessage(error, "Invalid request"),
 					}),
 				),
 			);
@@ -92,7 +92,7 @@ export default function removePlaylistFromLibraryHandler(
 						.eq("playlist_id", req.playlist_id),
 				catch: (error) =>
 					new DatabaseError({
-						message: `Failed to remove playlist from library: ${error instanceof Error ? error.message : String(error)}`,
+						message: extractErrorMessage(error, "Failed to remove playlist from library"),
 					}),
 			}),
 		);
@@ -101,7 +101,7 @@ export default function removePlaylistFromLibraryHandler(
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({
-						message: getErrorMessage(deleteResult.error),
+						message: extractErrorMessage(deleteResult.error, "Unknown error"),
 					}),
 				),
 			);

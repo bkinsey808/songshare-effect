@@ -1,10 +1,10 @@
 import { Effect } from "effect";
 import { useNavigate } from "react-router-dom";
 
+import type { Slide } from "@/react/song/song-schema";
+
 import { apiSongsSavePath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
-
-import { type Slide } from "../../song-form-types";
 
 const NAVIGATE_BACK = -1;
 

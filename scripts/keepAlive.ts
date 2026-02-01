@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { safeGet } from "@/shared/utils/safe";
 
 import { error as sError, warn as sWarn } from "./utils/scriptLogger";
@@ -51,7 +52,7 @@ async function keepAlive(): Promise<void> {
 			sWarn(`⚠️  Supabase responded with status: ${response.status}`);
 		}
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error);
+		const errorMessage = extractErrorMessage(error, "Unknown error");
 		sError("❌ Failed to ping Supabase:", errorMessage);
 	}
 }

@@ -1,29 +1,12 @@
 import { Effect } from "effect";
 
 import { clientWarn } from "@/react/utils/clientLogger";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiPlaylistLibraryAddPath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
-import getErrorMessage from "@/shared/utils/getErrorMessage";
 
 import type { PlaylistLibrarySlice } from "./playlist-library-slice";
 import type { AddPlaylistToLibraryRequest, PlaylistLibraryEntry } from "./playlist-library-types";
-
-/**
- * Extracts error message from API response.
- * @param responseJson - The parsed JSON response.
- * @returns The error message or undefined.
- */
-function extractErrorMessage(responseJson: unknown): string | undefined {
-	if (isRecord(responseJson)) {
-		if (typeof responseJson["error"] === "string") {
-			return responseJson["error"];
-		}
-		if (typeof responseJson["message"] === "string") {
-			return responseJson["message"];
-		}
-	}
-	return undefined;
-}
 
 /**
  * Validates that a value is a valid PlaylistLibraryEntry.
@@ -106,7 +89,7 @@ export default function addPlaylistToLibrary(
 		const input = yield* $(
 			Effect.try({
 				try: () => guardAsPlaylistLibraryEntry(request, "addPlaylistToLibrary"),
-				catch: (err) => new Error(getErrorMessage(err, "Invalid request")),
+				catch: (err) => new Error(extractErrorMessage(err, "Invalid request")),
 			}),
 		);
 
@@ -134,7 +117,7 @@ export default function addPlaylistToLibrary(
 						}),
 						credentials: "include",
 					}),
-				catch: (err) => new Error(getErrorMessage(err, "Network error")),
+				catch: (err) => new Error(extractErrorMessage(err, "Network error")),
 			}),
 		);
 
@@ -146,19 +129,18 @@ export default function addPlaylistToLibrary(
 		);
 
 		if (!response.ok) {
-			const errorData = extractErrorMessage(responseJson);
-			return yield* $(
-				Effect.fail(
-					new Error(errorData ?? `Server returned ${response.status}: ${response.statusText}`),
-				),
+			const errorMsg = extractErrorMessage(
+				responseJson,
+				`Server returned ${response.status}: ${response.statusText}`,
 			);
+			return yield* $(Effect.fail(new Error(errorMsg)));
 		}
 
 		// Validate server response shape
 		const output = yield* $(
 			Effect.try({
 				try: () => guardAsPlaylistLibraryEntry(responseJson, "server response"),
-				catch: (err) => new Error(getErrorMessage(err, "Invalid server response")),
+				catch: (err) => new Error(extractErrorMessage(err, "Invalid server response")),
 			}),
 		);
 
@@ -171,7 +153,7 @@ export default function addPlaylistToLibrary(
 	}).pipe(
 		Effect.tapError((err) =>
 			Effect.sync(() => {
-				const msg = getErrorMessage(err);
+				const msg = extractErrorMessage(err, "Unknown error");
 				clientWarn("[addPlaylistToLibrary] Failed to add playlist to library:", msg);
 				const { setPlaylistLibraryError } = get();
 				setPlaylistLibraryError(msg);

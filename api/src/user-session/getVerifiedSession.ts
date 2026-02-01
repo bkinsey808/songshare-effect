@@ -1,10 +1,10 @@
 import { Effect } from "effect";
 
 import { AuthenticationError, DatabaseError } from "@/api/errors";
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import extractUserSessionTokenFromContext from "@/api/user-session/extractUserSessionTokenFromContext";
 import verifyUserSessionToken from "@/api/user-session/verifyUserSessionToken";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type UserSessionData, UserSessionDataSchema } from "@/shared/userSessionData";
 import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 
@@ -40,7 +40,7 @@ export default function getVerifiedUserSession(
 				verified,
 				(err) =>
 					new AuthenticationError({
-						message: getErrorMessage(err ?? "Invalid session"),
+						message: extractErrorMessage(err ?? "Invalid session", "Invalid session"),
 					}),
 			),
 		);

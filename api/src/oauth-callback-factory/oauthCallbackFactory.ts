@@ -11,7 +11,6 @@ import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import { type Env } from "@/api/env";
 import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
 import rateLimit from "@/api/oauth-callback-factory/rateLimit";
@@ -20,6 +19,7 @@ import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
 import buildRegisterJwt from "@/api/register/buildRegisterJwt";
 import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
 import { csrfTokenCookieName, oauthCsrfCookieName } from "@/shared/cookies";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { OauthStateSchema } from "@/shared/oauth/oauthState";
@@ -142,7 +142,7 @@ export default function oauthCallbackFactory(
 		const verified = yield* $(
 			Effect.tryPromise({
 				try: () => verify(oauthStateParamsString, stateSecret, "HS256"),
-				catch: (err) => new ServerError({ message: getErrorMessage(err) }),
+				catch: (err) => new ServerError({ message: extractErrorMessage(err, "Unknown error") }),
 			}),
 		);
 

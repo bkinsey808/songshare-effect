@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import { sign } from "hono/jwt";
 
 import { ServerError } from "@/api/errors";
-import getErrorMessage from "@/api/getErrorMessage";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import isRecordStringUnknown from "@/shared/utils/isRecordStringUnknown";
 
 // Helper: create JWT (wrap sign)
@@ -21,9 +21,11 @@ export default function createJwt<PayloadType>(
 					if (isRecordStringUnknown(parsed)) {
 						return parsed;
 					}
-					return { payload: getErrorMessage(payloadCandidate) };
+					const payloadStr = extractErrorMessage(payloadCandidate) ?? String(payloadCandidate);
+					return { payload: payloadStr };
 				} catch {
-					return { payload: getErrorMessage(payloadCandidate) };
+					const payloadStr = extractErrorMessage(payloadCandidate) ?? String(payloadCandidate);
+					return { payload: payloadStr };
 				}
 			}
 
@@ -31,6 +33,6 @@ export default function createJwt<PayloadType>(
 
 			return sign(toSign, secret);
 		},
-		catch: (err) => new ServerError({ message: getErrorMessage(err) }),
+		catch: (err) => new ServerError({ message: extractErrorMessage(err, "Unknown error") }),
 	});
 }

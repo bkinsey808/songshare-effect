@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database, type Json } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
@@ -138,7 +138,7 @@ export default function songSave(
 					try: () => supabase.from("song_public").select("user_id").eq("song_id", songId).single(),
 					catch: (err) =>
 						new DatabaseError({
-							message: `Failed to verify song ownership: ${getErrorMessage(err)}`,
+							message: `Failed to verify song ownership: ${extractErrorMessage(err, "Unknown error")}`,
 						}),
 				}),
 			);
@@ -192,7 +192,7 @@ export default function songSave(
 				},
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to ${isUpdate ? "update" : "create"} private song: ${getErrorMessage(err)}`,
+						message: `Failed to ${isUpdate ? "update" : "create"} private song: ${extractErrorMessage(err, "Unknown error")}`,
 					}),
 			}),
 		);
@@ -255,7 +255,7 @@ export default function songSave(
 				},
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to ${isUpdate ? "update" : "create"} public song: ${getErrorMessage(err)}`,
+						message: `Failed to ${isUpdate ? "update" : "create"} public song: ${extractErrorMessage(err, "Unknown error")}`,
 					}),
 			}),
 		);
@@ -297,9 +297,11 @@ export default function songSave(
 						]),
 					catch: (err) => {
 						// Log error but don't fail the song creation
-						console.warn(`Failed to add song to library (non-fatal): ${getErrorMessage(err)}`);
+						console.warn(
+							`Failed to add song to library (non-fatal): ${extractErrorMessage(err, "Unknown error")}`,
+						);
 						return new DatabaseError({
-							message: `Song created but failed to add to library: ${getErrorMessage(err)}`,
+							message: `Song created but failed to add to library: ${extractErrorMessage(err, "Unknown error")}`,
 						});
 					},
 				}),

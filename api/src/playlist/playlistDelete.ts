@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
@@ -80,7 +80,7 @@ export default function playlistDelete(
 					supabase.from("playlist").select("user_id").eq("playlist_id", playlistId).single(),
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to verify playlist ownership: ${getErrorMessage(err)}`,
+						message: `Failed to verify playlist ownership: ${extractErrorMessage(err, "Unknown error")}`,
 					}),
 			}),
 		);
@@ -111,7 +111,7 @@ export default function playlistDelete(
 				try: () => supabase.from("playlist_library").delete().eq("playlist_id", playlistId),
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to remove playlist from libraries: ${getErrorMessage(err)}`,
+						message: `Failed to remove playlist from libraries: ${extractErrorMessage(err, "Unknown error")}`,
 					}),
 			}),
 		);
@@ -122,7 +122,7 @@ export default function playlistDelete(
 				try: () => supabase.from("playlist_public").delete().eq("playlist_id", playlistId),
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to delete public playlist: ${getErrorMessage(err)}`,
+						message: `Failed to delete public playlist: ${extractErrorMessage(err, "Unknown error")}`,
 					}),
 			}),
 		);
@@ -133,7 +133,7 @@ export default function playlistDelete(
 				try: () => supabase.from("playlist").delete().eq("playlist_id", playlistId),
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to delete private playlist: ${getErrorMessage(err)}`,
+						message: `Failed to delete private playlist: ${extractErrorMessage(err, "Unknown error")}`,
 					}),
 			}),
 		);

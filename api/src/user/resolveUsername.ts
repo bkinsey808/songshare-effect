@@ -2,9 +2,9 @@
 import { Effect } from "effect";
 
 import { DatabaseError } from "@/api/errors";
-import getErrorMessage from "@/api/getErrorMessage";
 import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
 import { type ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { UserPublicSchema } from "@/shared/generated/supabaseSchemas";
 import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 
@@ -26,7 +26,7 @@ export default function resolveUsername(
 			const upRes = parseMaybeSingle(rawRes);
 
 			if (upRes.error !== undefined && upRes.error !== null) {
-				throw new Error(getErrorMessage(upRes.error));
+				throw new Error(extractErrorMessage(upRes.error, "Unknown error") ?? "Unknown error");
 			}
 
 			if (upRes.data === undefined || upRes.data === null) {
@@ -36,6 +36,6 @@ export default function resolveUsername(
 			const validated = decodeUnknownSyncOrThrow(UserPublicSchema, upRes.data);
 			return validated.username;
 		},
-		catch: (err) => new DatabaseError({ message: getErrorMessage(err) }),
+		catch: (err) => new DatabaseError({ message: extractErrorMessage(err, "Unknown error") }),
 	});
 }

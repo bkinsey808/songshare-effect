@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 
 import { error as sError, warn as sWarn } from "@/scripts/utils/scriptLogger";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import isEmpty from "@/shared/type-guards/isEmpty";
 
 import type { MigrationFile } from "./types";
@@ -8,12 +9,6 @@ import type { MigrationFile } from "./types";
 /**
  * Get a string representation of an error.
  */
-function getErrorMessage(error: unknown): string {
-	if (error instanceof Error) {
-		return error.message;
-	}
-	return String(error);
-}
 
 /**
  * Execute a single SQL migration using the `psql` CLI.
@@ -58,7 +53,7 @@ export default function runMigration(
 		sWarn(`✅ Migration successful: ${migration.filename}`);
 	} catch (error: unknown) {
 		sError(`❌ Migration failed: ${migration.filename}`);
-		sError(getErrorMessage(error));
+		sError(extractErrorMessage(error, "Unknown error"));
 		throw error;
 	}
 }

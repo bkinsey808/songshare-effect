@@ -3,6 +3,7 @@ import { Effect } from "effect";
 import { log as serverLog } from "@/api/logger";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import { ONE_HOUR_SECONDS } from "@/shared/constants/http";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import type { ReadonlyContext } from "../hono/hono-context";
 
@@ -51,7 +52,7 @@ export default function getUserToken(
 					}),
 				catch: (error) =>
 					new DatabaseError({
-						message: `Failed to sign in visitor user: ${error instanceof Error ? error.message : String(error)}`,
+						message: extractErrorMessage(error, "Failed to sign in visitor user"),
 					}),
 			}),
 		);
@@ -101,7 +102,7 @@ export default function getUserToken(
 					}),
 				catch: (error) =>
 					new DatabaseError({
-						message: `Failed to update metadata: ${error instanceof Error ? error.message : String(error)}`,
+						message: extractErrorMessage(error, "Failed to update metadata"),
 					}),
 			}),
 		);
@@ -126,7 +127,7 @@ export default function getUserToken(
 					}),
 				catch: (error) =>
 					new DatabaseError({
-						message: `Failed to refresh sign-in: ${error instanceof Error ? error.message : String(error)}`,
+						message: extractErrorMessage(error, "Failed to refresh sign-in"),
 					}),
 			}),
 		);

@@ -3,13 +3,13 @@ import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
 import { type AppError, ServerError, ValidationError } from "@/api/errors";
-import getErrorMessage from "@/api/getErrorMessage";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
 import resolveRedirectOrigin from "@/api/oauth/resolveRedirectOrigin";
 import getBackEndProviderData from "@/api/provider/getBackEndProviderData";
 import { oauthCsrfCookieName } from "@/shared/cookies";
 import { getEnvString } from "@/shared/env/getEnv";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { SupportedLanguageSchema } from "@/shared/language/supported-languages-effect";
 import { type OauthState } from "@/shared/oauth/oauthState";
@@ -232,7 +232,7 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 		const signedStateParam = yield* $(
 			Effect.tryPromise<string, ServerError>({
 				try: () => sign(oauthState, stateSecret),
-				catch: (err) => new ServerError({ message: getErrorMessage(err) }),
+				catch: (err) => new ServerError({ message: extractErrorMessage(err, "Unknown error") }),
 			}),
 		);
 

@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
@@ -63,7 +63,7 @@ export default function songDelete(
 				try: () => supabase.from("song").delete().eq("song_id", songId).eq("user_id", userId),
 				catch: (err) =>
 					new DatabaseError({
-						message: getErrorMessage(err) || "Failed to delete song",
+						message: extractErrorMessage(err, "Unknown error") || "Failed to delete song",
 					}),
 			}),
 		);

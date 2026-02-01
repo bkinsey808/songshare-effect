@@ -1,0 +1,97 @@
+import { Effect } from "effect";
+
+import { clientWarn } from "@/react/utils/clientLogger";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+import { apiUserLibraryAddPath } from "@/shared/paths";
+
+import type { UserLibrarySlice } from "./user-library-slice";
+import type { AddUserToLibraryRequest } from "./user-library-types";
+
+import guardAsUserLibraryEntry from "./guards/guardAsUserLibraryEntry";
+
+export default function addUserToLibrary(
+	request: Readonly<AddUserToLibraryRequest>,
+	get: () => UserLibrarySlice,
+): Effect.Effect<void, Error> {
+	return Effect.gen(function* addUserToLibraryGen($) {
+		const { setUserLibraryError, isInUserLibrary, addUserLibraryEntry } = get();
+
+		// Clear previous errors
+		yield* $(
+			Effect.sync(() => {
+				setUserLibraryError(undefined);
+			}),
+		);
+
+		// Validate request shape
+		const input = yield* $(
+			Effect.try({
+				try: () => guardAsUserLibraryEntry(request, "addUserToLibrary"),
+				catch: (err) => new Error(extractErrorMessage(err, "Invalid request")),
+			}),
+		);
+
+		// Early exit if already present
+		const alreadyInLibrary = yield* $(Effect.sync(() => isInUserLibrary(input.followed_user_id)));
+		if (alreadyInLibrary) {
+			yield* $(
+				Effect.sync(() => {
+					clientWarn("[addUserToLibrary] User already in library:", input.followed_user_id);
+				}),
+			);
+			return;
+		}
+
+		// Perform POST
+		const response = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					fetch(apiUserLibraryAddPath, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ followed_user_id: input.followed_user_id }),
+					}),
+				catch: (err) => new Error(extractErrorMessage(err, "Network error")),
+			}),
+		);
+
+		const responseJson: unknown = yield* $(
+			Effect.tryPromise({
+				try: () => response.json(),
+				catch: () => new Error("Invalid JSON body"),
+			}),
+		);
+
+		if (!response.ok) {
+			const errorMsg = extractErrorMessage(
+				responseJson,
+				`Server returned ${response.status}: ${response.statusText}`,
+			);
+			return yield* $(Effect.fail(new Error(errorMsg)));
+		}
+
+		// Validate server response shape
+		const output = yield* $(
+			Effect.try({
+				try: () => guardAsUserLibraryEntry(responseJson, "server response"),
+				catch: (err) => new Error(extractErrorMessage(err, "Invalid server response")),
+			}),
+		);
+
+		// Update local store
+		yield* $(
+			Effect.sync(() => {
+				addUserLibraryEntry(output);
+			}),
+		);
+	}).pipe(
+		Effect.tapError((err) =>
+			Effect.sync(() => {
+				const msg = extractErrorMessage(err, "Unknown error");
+				clientWarn("[addUserToLibrary] Failed to add user to library:", msg);
+				const { setUserLibraryError } = get();
+				setUserLibraryError(msg);
+			}),
+		),
+	);
+}

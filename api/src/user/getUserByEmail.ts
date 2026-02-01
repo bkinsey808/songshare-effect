@@ -1,11 +1,11 @@
 import { type Schema, Effect } from "effect";
 
 import { DatabaseError } from "@/api/errors";
-import getErrorMessage from "@/api/getErrorMessage";
 import normalizeNullsTopLevel from "@/api/oauth/normalizeNullsTopLevel";
 import normalizeLinkedProviders from "@/api/provider/normalizeLinkedProviders";
 import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
 import { type ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
 import isRecordStringUnknown from "@/shared/utils/isRecordStringUnknown";
 import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
@@ -85,7 +85,7 @@ export default function getUserByEmail({
 				catch: (err) => err,
 			}).pipe(
 				Effect.mapError((err) => {
-					const msg = getErrorMessage(err);
+					const msg = extractErrorMessage(err, "Unknown error");
 					const isDnsLike =
 						/dns lookup failed|name or service not known|gai_strerror|DNS lookup failed/i.test(msg);
 					if (isDnsLike) {
@@ -115,7 +115,11 @@ export default function getUserByEmail({
 				// fall through to throw below
 			}
 			// Map to DatabaseError
-			return yield* $(Effect.fail(new DatabaseError({ message: getErrorMessage(res.error) })));
+			return yield* $(
+				Effect.fail(
+					new DatabaseError({ message: extractErrorMessage(res.error, "Unknown error") }),
+				),
+			);
 		}
 
 		if (res.data === undefined || res.data === null) {
@@ -155,7 +159,9 @@ export default function getUserByEmail({
 			const finalUserLocal = decodeUnknownSyncOrThrow(UserSchema, mergedRecord as unknown);
 			return finalUserLocal;
 		} catch (error) {
-			return yield* $(Effect.fail(new DatabaseError({ message: getErrorMessage(error) })));
+			return yield* $(
+				Effect.fail(new DatabaseError({ message: extractErrorMessage(error, "Unknown error") })),
+			);
 		}
 	});
 }

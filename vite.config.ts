@@ -10,6 +10,23 @@ import { fileURLToPath } from "node:url";
 import typeGPU from "unplugin-typegpu/vite";
 import { type ServerOptions, type UserConfig, defineConfig } from "vite";
 
+// Use a local helper here to avoid importing project source files that use
+// TS path aliases (e.g. "@/shared/...") which Node may not resolve when
+// loading `vite.config.ts` directly.
+function extractErrorMessageLocal(err: unknown, fallback = "Unknown error"): string {
+	try {
+		if (err instanceof Error) {
+			return err.stack ?? err.message ?? fallback;
+		}
+		if (typeof err === "string") {
+			return err;
+		}
+		return JSON.stringify(err ?? fallback);
+	} catch {
+		return fallback;
+	}
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vite.dev/config/
@@ -161,7 +178,7 @@ const config: UserConfig = defineConfig({
 		} catch (error) {
 			// If anything fails, fall back to non-https dev server.
 			// We intentionally swallow errors here to avoid blocking dev startup.
-			const msg = error instanceof Error ? error.message : String(error);
+			const msg = extractErrorMessageLocal(error, "Unknown error");
 			console.warn("Could not enable HTTPS for Vite dev server:", msg);
 		}
 

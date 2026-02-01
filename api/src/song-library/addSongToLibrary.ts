@@ -1,9 +1,9 @@
 import { type PostgrestSingleResponse, type SupabaseClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type SongLibrary } from "@/shared/generated/supabaseSchemas";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
@@ -66,7 +66,7 @@ function performInsert(
 				.single(),
 		catch: (error) =>
 			new DatabaseError({
-				message: `Failed to add song to library: ${error instanceof Error ? error.message : String(error)}`,
+				message: extractErrorMessage(error, "Failed to add song to library"),
 			}),
 	});
 }
@@ -105,7 +105,7 @@ export default function addSongToLibraryHandler(
 			return yield* $(
 				Effect.fail(
 					new ValidationError({
-						message: error instanceof Error ? error.message : "Invalid request",
+						message: extractErrorMessage(error, "Invalid request"),
 					}),
 				),
 			);
@@ -127,7 +127,7 @@ export default function addSongToLibraryHandler(
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({
-						message: getErrorMessage(insertError),
+						message: extractErrorMessage(insertError, "Unknown error"),
 					}),
 				),
 			);

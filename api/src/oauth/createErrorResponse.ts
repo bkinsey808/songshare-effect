@@ -1,13 +1,13 @@
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { getEnvString } from "@/shared/env/getEnv";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 export default function createErrorResponse(ctx: ReadonlyContext, err: unknown): Response {
 	try {
 		// Read ENVIRONMENT via small helper and avoid call-site cast
 		const env = getEnvString(ctx.env, "ENVIRONMENT");
 		if (env !== "production") {
-			const msg = err instanceof Error ? err.message : getErrorMessage(err);
+			const msg = err instanceof Error ? err.message : extractErrorMessage(err, "Unknown error");
 			return Response.json(
 				{
 					success: false,
@@ -20,7 +20,7 @@ export default function createErrorResponse(ctx: ReadonlyContext, err: unknown):
 	} catch (error) {
 		console.error(
 			"[oauthCallbackHandler] Failed to generate debug response:",
-			getErrorMessage(error),
+			extractErrorMessage(error, "Unknown error"),
 		);
 	}
 

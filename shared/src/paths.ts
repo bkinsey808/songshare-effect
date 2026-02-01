@@ -7,6 +7,7 @@ export const optimizedCounterPath = "optimized-counter";
 export const reactFeaturesPath = "react-features";
 export const aboutPath = "about";
 export const userSubscriptionDemoPath = "user-subscription-demo";
+export const userPublicSubscriptionPath = "demo/user-public-subscription";
 export const popoverDemoPath = "popover-demo";
 export const activityDemoPath = "activity-demo";
 export const typegpuDemoPath = "typegpu-demo";
@@ -22,6 +23,7 @@ export const songViewPath = "songs";
 // Playlist paths
 export const playlistEditPath = "playlist-edit";
 export const playlistLibraryPath = "playlist-library";
+export const userLibraryPath = "user-library";
 /** Base path for viewing a playlist by slug; use as "playlists/:playlist_slug" in routes */
 export const playlistViewPath = "playlists";
 
@@ -40,6 +42,8 @@ export const apiPlaylistSavePath = "/api/playlists/save";
 export const apiPlaylistDeletePath = "/api/playlists/delete";
 export const apiPlaylistLibraryAddPath = "/api/playlist-library/add";
 export const apiPlaylistLibraryRemovePath = "/api/playlist-library/remove";
+export const apiUserLibraryAddPath = "/api/user-library/add";
+export const apiUserLibraryRemovePath = "/api/user-library/remove";
 export const apiUploadPath = "/api/upload";
 export const apiHelloPath = "/api/hello";
 export const healthPath = "/health";

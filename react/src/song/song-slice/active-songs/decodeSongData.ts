@@ -1,9 +1,8 @@
 import { Schema } from "effect";
 
+import { type SongPublic, songPublicSchema } from "@/react/song/song-schema";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
-
-import { type SongPublic, songPublicSchema } from "../../song-schema";
 
 /**
  * Decodes and validates song data using Effect schema.

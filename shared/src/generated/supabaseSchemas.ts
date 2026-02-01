@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-01-28T20:11:33.826Z
+ * Last generated: 2026-01-31T07:32:55.566Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -432,6 +432,43 @@ export const UserUpdateSchema: Schema.Struct<{
 });
 
 export type UserUpdate = Schema.Schema.Type<typeof UserUpdateSchema>;
+
+// user_library table schemas
+export const UserLibrarySchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	followed_user_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	followed_user_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type UserLibrary = Schema.Schema.Type<typeof UserLibrarySchema>;
+
+export const UserLibraryInsertSchema: Schema.Struct<{
+	followed_user_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	followed_user_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type UserLibraryInsert = Schema.Schema.Type<
+	typeof UserLibraryInsertSchema
+>;
+
+export const UserLibraryUpdateSchema: Schema.Struct<{
+	followed_user_id: Schema.optional<typeof Schema.UUID>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	followed_user_id: Schema.optional(Schema.UUID),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type UserLibraryUpdate = Schema.Schema.Type<
+	typeof UserLibraryUpdateSchema
+>;
 
 // user_public table schemas
 export const UserPublicSchema: Schema.Struct<{

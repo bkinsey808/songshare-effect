@@ -1,12 +1,12 @@
 import { Effect } from "effect";
 import { useState } from "react";
 
+import type { PlaylistLibraryEntry } from "@/react/playlist-library/slice/playlist-library-types";
+
 import Button from "@/react/design-system/Button";
 import useLocale from "@/react/language/locale/useLocale";
 import CollapsibleSection from "@/react/song/song-form/CollapsibleSection";
 import { useAppStore } from "@/react/zustand/useAppStore";
-
-import type { PlaylistLibraryEntry } from "../../playlist-library/slice/playlist-library-types";
 
 type AddSongToPlaylistCardProps = {
 	/** The song ID to add to a playlist */

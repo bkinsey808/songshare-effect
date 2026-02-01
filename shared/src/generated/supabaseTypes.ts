@@ -320,6 +320,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_library: {
+        Row: {
+          created_at: string
+          followed_user_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          followed_user_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          followed_user_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_library_followed_user_id_fkey"
+            columns: ["followed_user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_library_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_public: {
         Row: {
           user_id: string

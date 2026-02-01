@@ -3,9 +3,9 @@ import { Effect } from "effect";
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import callSelect from "@/react/supabase/client/safe-query/callSelect";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
-import getErrorMessage from "@/shared/utils/getErrorMessage";
 
 import type { Playlist, PlaylistEntry } from "./playlist-types";
 import type { PlaylistSlice } from "./slice/playlist-slice";
@@ -157,7 +157,7 @@ export default function fetchPlaylistById(
 			Effect.sync(() => {
 				const { setPlaylistLoading, setPlaylistError } = get();
 				setPlaylistLoading(false);
-				const msg = getErrorMessage(err, "Failed to fetch playlist");
+				const msg = extractErrorMessage(err, "Failed to fetch playlist");
 				setPlaylistError(msg);
 				console.error("[fetchPlaylistById] Error:", err);
 			}),
@@ -171,7 +171,7 @@ export default function fetchPlaylistById(
 		Effect.mapError((err) =>
 			err instanceof PlaylistError
 				? err
-				: new PlaylistError(getErrorMessage(err, "Failed to fetch playlist")),
+				: new PlaylistError(extractErrorMessage(err, "Failed to fetch playlist")),
 		),
 	);
 }

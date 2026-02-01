@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
@@ -101,7 +101,7 @@ export default function playlistSave(
 							.single(),
 					catch: (err) =>
 						new DatabaseError({
-							message: `Failed to verify playlist ownership: ${getErrorMessage(err)}`,
+							message: `Failed to verify playlist ownership: ${extractErrorMessage(err, "Unknown error")}`,
 						}),
 				}),
 			);
@@ -155,7 +155,7 @@ export default function playlistSave(
 				},
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to ${isUpdate ? "update" : "create"} private playlist: ${getErrorMessage(err)}`,
+						message: `Failed to ${isUpdate ? "update" : "create"} private playlist: ${extractErrorMessage(err, "Unknown error")}`,
 					}),
 			}),
 		);
@@ -206,7 +206,7 @@ export default function playlistSave(
 				},
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to ${isUpdate ? "update" : "create"} public playlist: ${getErrorMessage(err)}`,
+						message: `Failed to ${isUpdate ? "update" : "create"} public playlist: ${extractErrorMessage(err, "Unknown error")}`,
 					}),
 			}),
 		);
@@ -247,9 +247,11 @@ export default function playlistSave(
 							},
 						]),
 					catch: (err) => {
-						console.warn(`Failed to add playlist to library (non-fatal): ${getErrorMessage(err)}`);
+						console.warn(
+							`Failed to add playlist to library (non-fatal): ${extractErrorMessage(err, "Unknown error")}`,
+						);
 						return new DatabaseError({
-							message: `Playlist created but failed to add to library: ${getErrorMessage(err)}`,
+							message: `Playlist created but failed to add to library: ${extractErrorMessage(err, "Unknown error")}`,
 						});
 					},
 				}),

@@ -3,10 +3,9 @@ import { useEffect, useState } from "react";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
-import { type NavigationSlice, createNavigationSlice } from "@/react/navigation/navigation-slice";
-
 import { type AuthSlice, createAuthSlice } from "@/react/auth/auth-slice";
 import useSchedule from "@/react/hooks/useSchedule";
+import { type NavigationSlice, createNavigationSlice } from "@/react/navigation/navigation-slice";
 import {
 	type PlaylistLibrarySlice,
 	createPlaylistLibrarySlice,
@@ -20,6 +19,10 @@ import {
 	type SongSubscribeSlice,
 	createSongSubscribeSlice,
 } from "@/react/song/song-slice/song-slice";
+import {
+	type UserLibrarySlice,
+	createUserLibrarySlice,
+} from "@/react/user-library/slice/user-library-slice";
 
 import { resetAllSlices, sliceResetFns } from "./slice-reset-fns";
 
@@ -27,6 +30,7 @@ import { resetAllSlices, sliceResetFns } from "./slice-reset-fns";
 type AppSlice = AuthSlice &
 	SongSubscribeSlice &
 	SongLibrarySlice &
+	UserLibrarySlice &
 	PlaylistSlice &
 	PlaylistLibrarySlice &
 	NavigationSlice;
@@ -57,6 +61,7 @@ export const useAppStore = create<AppSlice>()(
 				...createAuthSlice(set, get, api),
 				...createSongSubscribeSlice(set, get, api),
 				...createSongLibrarySlice(set, get, api),
+				...createUserLibrarySlice(set, get, api),
 				...createPlaylistSlice(set, get, api),
 				...createPlaylistLibrarySlice(set, get, api),
 				...createNavigationSlice(set, get, api),
@@ -71,6 +76,7 @@ export const useAppStore = create<AppSlice>()(
 						"songLibraryUnsubscribe",
 						"playlistLibraryUnsubscribe",
 						"playlistLibraryPublicUnsubscribe",
+						"userLibraryUnsubscribe",
 					]);
 					return Object.fromEntries(
 						Object.entries(state).filter(([key]) => !omittedKeys.has(key)),

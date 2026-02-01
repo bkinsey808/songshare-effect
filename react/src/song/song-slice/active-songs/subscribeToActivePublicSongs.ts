@@ -5,12 +5,13 @@
  */
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
+import type { SongPublic } from "@/react/song/song-schema";
+
 import getSupabaseClientWithAuth from "@/react/supabase/client/getSupabaseClientWithAuth";
 import { type Get } from "@/react/zustand/slice-utils";
 import isRecord from "@/shared/type-guards/isRecord";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 
-import { type SongPublic } from "../../song-schema";
 import { type SongSubscribeSlice } from "../song-slice";
 
 /**

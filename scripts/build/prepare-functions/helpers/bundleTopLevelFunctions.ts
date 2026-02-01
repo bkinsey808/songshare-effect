@@ -2,6 +2,7 @@ import { readdir, unlink } from "node:fs/promises";
 import path from "node:path";
 
 import { warn as sWarn } from "@/scripts/utils/scriptLogger";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 export default async function bundleTopLevelFunctions(outDir: string): Promise<void> {
 	try {
@@ -38,7 +39,7 @@ export default async function bundleTopLevelFunctions(outDir: string): Promise<v
 			 }
 		}
 	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message: string | undefined = extractErrorMessage(error, "Unknown error");
 		sWarn("Warning: could not bundle functions with esbuild:", message);
 	}
 }

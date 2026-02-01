@@ -6,7 +6,8 @@
 import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
-import { log as sLog } from "../../utils/scriptLogger";
+import { log as sLog } from "@/scripts/utils/scriptLogger";
+
 import assertPathExists from "./helpers/assertPathExists";
 import generateEffectSchemasFile from "./helpers/generateEffectSchemasFile";
 import { generateSupabaseTypes } from "./helpers/generateSupabaseTypes";
@@ -31,29 +32,25 @@ function main(): void {
 	const envPath = join(projectRoot, ".env");
 	assertPathExists({
 		path: envPath,
-		errorMessage:
-			"❌ .env file not found. Please create one with SUPABASE_PROJECT_REF",
+		errorMessage: "❌ .env file not found. Please create one with SUPABASE_PROJECT_REF",
 	});
 
 	const supabaseCliPath = join(projectRoot, "node_modules", ".bin", "supabase");
 	assertPathExists({
 		path: supabaseCliPath,
-		errorMessage:
-			"❌ Supabase CLI not found. Install it with: npm install -D supabase",
+		errorMessage: "❌ Supabase CLI not found. Install it with: npm install -D supabase",
 	});
 
 	const oxlintCliPath = join(projectRoot, "node_modules", ".bin", "oxlint");
 	assertPathExists({
 		path: oxlintCliPath,
-		errorMessage:
-			"❌ oxlint binary not found. Install it with: npm install -D oxlint",
+		errorMessage: "❌ oxlint binary not found. Install it with: npm install -D oxlint",
 	});
 
 	const oxfmtCliPath = join(projectRoot, "node_modules", ".bin", "oxfmt");
 	assertPathExists({
 		path: oxfmtCliPath,
-		errorMessage:
-			"❌ oxfmt binary not found. Install it with: npm install -D oxfmt",
+		errorMessage: "❌ oxfmt binary not found. Install it with: npm install -D oxfmt",
 	});
 
 	const envFromFile = loadEnvVariables(envPath);
@@ -98,10 +95,7 @@ function main(): void {
 		cliPath: oxfmtCliPath,
 	});
 
-	if (
-		supabaseTypesFinalPath === undefined &&
-		existsSync(tempSupabaseTypesPath)
-	) {
+	if (supabaseTypesFinalPath === undefined && existsSync(tempSupabaseTypesPath)) {
 		rmSync(tempSupabaseTypesPath);
 	}
 

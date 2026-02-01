@@ -2,7 +2,13 @@ import type { ButtonHTMLAttributes, ReactElement, ReactNode } from "react";
 
 import tw from "@/react/utils/tw";
 
-type ButtonVariant = "primary" | "secondary" | "danger" | "outlineSecondary" | "outlineDanger";
+type ButtonVariant =
+	| "primary"
+	| "secondary"
+	| "danger"
+	| "outlinePrimary"
+	| "outlineSecondary"
+	| "outlineDanger";
 type ButtonSize = "default" | "compact";
 
 const base = tw`rounded font-medium transition disabled:opacity-50`;
@@ -33,6 +39,10 @@ const variantDanger = tw`
 	data-[variant=danger]:bg-red-600 data-[variant=danger]:text-white data-[variant=danger]:hover:bg-red-700
 `;
 
+const variantOutlinePrimary = tw`
+	data-[variant=outlinePrimary]:border data-[variant=outlinePrimary]:border-blue-600 data-[variant=outlinePrimary]:bg-transparent data-[variant=outlinePrimary]:text-blue-600 data-[variant=outlinePrimary]:hover:bg-blue-700/10
+`;
+
 const variantOutlineSecondary = tw`
 	data-[variant=outlineSecondary]:border data-[variant=outlineSecondary]:border-gray-500 data-[variant=outlineSecondary]:bg-transparent data-[variant=outlineSecondary]:text-gray-300 data-[variant=outlineSecondary]:hover:bg-gray-700
 `;
@@ -45,6 +55,7 @@ const variantClasses = [
 	variantPrimary,
 	variantSecondary,
 	variantDanger,
+	variantOutlinePrimary,
 	variantOutlineSecondary,
 	variantOutlineDanger,
 ].join(" ");

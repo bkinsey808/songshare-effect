@@ -1,9 +1,10 @@
 #!/usr/bin/env bun
-import { readFile, writeFile, unlink } from "node:fs/promises";
+import { readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { warn as sWarn } from "../../utils/scriptLogger";
+import { warn as sWarn } from "@/scripts/utils/scriptLogger";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import bundleTopLevelFunctions from "./helpers/bundleTopLevelFunctions";
 import copyAndRewriteShared from "./helpers/copyAndRewriteShared";
 import ensureDir from "./helpers/ensureDir";
@@ -92,7 +93,7 @@ async function prepare(): Promise<void> {
 			);
 		}
 	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message = extractErrorMessage(error, "Unknown error");
 		sWarn("Warning: could not prune shared files:", message);
 	}
 
@@ -104,7 +105,7 @@ async function prepare(): Promise<void> {
 		await writeFile(middlewareDest, rewritten, "utf8");
 		sWarn("Prepared middleware ->", middlewareDest);
 	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message = extractErrorMessage(error, "Unknown error");
 		sWarn("Warning: could not prepare middleware:", message);
 	}
 

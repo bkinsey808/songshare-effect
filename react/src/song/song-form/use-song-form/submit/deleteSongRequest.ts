@@ -1,4 +1,4 @@
-import extractErrorMessage from "@/react/song-library/slice/song-add/extractErrorMessage";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiSongsDeletePath } from "@/shared/paths";
 
 type DeleteSongResult = { success: true } | { success: false; errorMessage: string };
@@ -18,10 +18,10 @@ export default async function deleteSongRequest(songId: string): Promise<DeleteS
 			return { success: true };
 		}
 		const raw: unknown = await response.json();
-		const errorMessage = extractErrorMessage(raw) ?? response.statusText;
+		const errorMessage = extractErrorMessage(raw, response.statusText);
 		return { success: false, errorMessage };
 	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message = extractErrorMessage(error, "Failed to delete song");
 		return { success: false, errorMessage: message };
 	}
 }

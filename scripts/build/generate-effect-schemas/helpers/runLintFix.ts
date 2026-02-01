@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 
 import { warn as sWarn } from "@/scripts/utils/scriptLogger";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 export default function runLintFix(
 	params: Readonly<{
@@ -25,7 +26,7 @@ export default function runLintFix(
 		);
 		sWarn("✅ oxlint fix completed on generated schemas");
 	} catch (error: unknown) {
-		const message = error instanceof Error ? error.message : String(error);
+		const message: string | undefined = extractErrorMessage(error, "Unknown error");
 		sWarn("⚠️  oxlint fix failed:", message);
 	}
 }

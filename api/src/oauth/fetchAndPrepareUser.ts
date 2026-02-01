@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import { Effect, type Schema } from "effect";
 
 import { DatabaseError, ValidationError } from "@/api/errors";
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
 import fetchAndParseOauthUserData from "@/api/oauth/fetchAndParseOauthUserData";
@@ -11,6 +10,7 @@ import getBackEndProviderData from "@/api/provider/getBackEndProviderData";
 import { type ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
 import getUserByEmail from "@/api/user/getUserByEmail";
 import { getEnvString } from "@/shared/env/getEnv";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type UserSchema } from "@/shared/generated/supabaseSchemas";
 import { type OauthUserData } from "@/shared/oauth/oauthUserData";
 import { apiOauthCallbackPath } from "@/shared/paths";
@@ -67,7 +67,10 @@ export default function fetchAndPrepareUser({
 					}
 				} catch (error) {
 					// Localized: server-side error log
-					serverError("[oauthCallback] Failed to dump incoming headers:", getErrorMessage(error));
+					serverError(
+						"[oauthCallback] Failed to dump incoming headers:",
+						extractErrorMessage(error, "Unknown error"),
+					);
 				}
 			}),
 		);
@@ -122,7 +125,7 @@ export default function fetchAndPrepareUser({
 				Effect.mapError((err) =>
 					err instanceof ValidationError
 						? err
-						: new DatabaseError({ message: getErrorMessage(err) }),
+						: new DatabaseError({ message: extractErrorMessage(err, "Unknown error") }),
 				),
 			),
 		);

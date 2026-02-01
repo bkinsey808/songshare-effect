@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 
 import { type AppError, AuthenticationError } from "@/api/errors";
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { HTTP_STATUS } from "@/shared/demo/api";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 /**
  * Convert AppError to appropriate HTTP response
@@ -15,7 +15,7 @@ export function errorToHttpResponse(error: Readonly<AppError>): {
 	if (error._tag === "ValidationError") {
 		const body: Record<string, unknown> = {
 			success: false,
-			error: getErrorMessage(error.message),
+			error: extractErrorMessage(error.message, "Unknown error"),
 		};
 
 		if (error.field !== undefined && error.field !== "") {
@@ -28,7 +28,7 @@ export function errorToHttpResponse(error: Readonly<AppError>): {
 	if (error._tag === "NotFoundError") {
 		const body: Record<string, unknown> = {
 			success: false,
-			error: getErrorMessage(error.message),
+			error: extractErrorMessage(error.message, "Unknown error"),
 			resource: error.resource,
 		};
 
@@ -44,7 +44,7 @@ export function errorToHttpResponse(error: Readonly<AppError>): {
 			status: HTTP_STATUS.UNAUTHORIZED as number,
 			body: {
 				success: false,
-				error: getErrorMessage(error.message),
+				error: extractErrorMessage(error.message, "Unknown error"),
 			},
 		};
 	}
@@ -52,7 +52,7 @@ export function errorToHttpResponse(error: Readonly<AppError>): {
 	if (error._tag === "AuthorizationError") {
 		const body: Record<string, unknown> = {
 			success: false,
-			error: getErrorMessage(error.message),
+			error: extractErrorMessage(error.message, "Unknown error"),
 		};
 
 		if (error.resource !== undefined && error.resource !== "") {
@@ -103,19 +103,22 @@ export function handleHttpEndpoint<SuccessData, ErrorType extends AppError>(
 					if (error instanceof AuthenticationError) {
 						console.warn(
 							"[handleHttpEndpoint] AuthenticationError:",
-							getErrorMessage(error.message),
+							extractErrorMessage(error.message, "Unknown error"),
 						);
 					} else if (error instanceof Error) {
 						console.error("[handleHttpEndpoint] Unhandled error:", error.stack ?? error.message);
 					} else {
 						console.error(
 							"[handleHttpEndpoint] Unhandled error (non-Error):",
-							getErrorMessage(error),
+							extractErrorMessage(error, "Unknown error"),
 						);
 					}
 				} catch (error) {
 					// Swallow logging errors to avoid masking the original error
-					console.error("[handleHttpEndpoint] Failed to log error:", getErrorMessage(error));
+					console.error(
+						"[handleHttpEndpoint] Failed to log error:",
+						extractErrorMessage(error, "Unknown error"),
+					);
 				}
 				// `error` can be unknown coming from Effect; format it with our helper
 				const { status, body } = errorToHttpResponse(error);

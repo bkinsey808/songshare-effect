@@ -1,14 +1,13 @@
 import { Effect } from "effect";
 
+import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
-import getErrorMessage from "@/shared/utils/getErrorMessage";
 
 import type { SongLibrarySlice } from "../song-library-slice";
 import type { RemoveSongFromSongLibraryRequest } from "../song-library-types";
-
-import getSupabaseAuthToken from "../../../supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "../../../supabase/client/getSupabaseClient";
 
 function isEqFunction(value: unknown): value is (col: string, val: string) => Promise<unknown> {
 	return typeof value === "function";
@@ -50,7 +49,7 @@ export default function removeSongFromSongLibrary(
 					}
 					return request.song_id;
 				},
-				catch: (err) => new Error(getErrorMessage(err, "Invalid request")),
+				catch: (err) => new Error(extractErrorMessage(err, "Invalid request")),
 			}),
 		);
 
@@ -69,7 +68,7 @@ export default function removeSongFromSongLibrary(
 		const userToken = yield* $(
 			Effect.tryPromise({
 				try: () => getSupabaseAuthToken(),
-				catch: (err) => new Error(getErrorMessage(err, "Failed to get auth token")),
+				catch: (err) => new Error(extractErrorMessage(err, "Failed to get auth token")),
 			}),
 		);
 
@@ -83,7 +82,7 @@ export default function removeSongFromSongLibrary(
 					}
 					return clientInstance;
 				},
-				catch: (err) => new Error(getErrorMessage(err)),
+				catch: (err) => new Error(extractErrorMessage(err, "Unknown error")),
 			}),
 		);
 
@@ -100,7 +99,7 @@ export default function removeSongFromSongLibrary(
 		const rawDeleteRes = yield* $(
 			Effect.tryPromise({
 				try: () => maybeEq("song_id", songId),
-				catch: (err) => new Error(getErrorMessage(err, "Delete failed")),
+				catch: (err) => new Error(extractErrorMessage(err, "Delete failed")),
 			}),
 		);
 		if (!isRecord(rawDeleteRes)) {
@@ -111,7 +110,9 @@ export default function removeSongFromSongLibrary(
 		const deleteError = rawDeleteRes["error"];
 		if (deleteError !== undefined && deleteError !== null) {
 			return yield* $(
-				Effect.fail(new Error(getErrorMessage(deleteError, "Error deleting song from library"))),
+				Effect.fail(
+					new Error(extractErrorMessage(deleteError, "Error deleting song from library")),
+				),
 			);
 		}
 		// Remove from local state immediately (optimistic update)
@@ -123,7 +124,7 @@ export default function removeSongFromSongLibrary(
 	}).pipe(
 		Effect.tapError((err) =>
 			Effect.sync(() => {
-				const msg = getErrorMessage(err);
+				const msg = extractErrorMessage(err, "Failed to remove song from library");
 				const { setSongLibraryError } = get();
 				setSongLibraryError(msg);
 			}),

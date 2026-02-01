@@ -1,9 +1,9 @@
 import { type PostgrestSingleResponse, type SupabaseClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type PlaylistLibrary } from "@/shared/generated/supabaseSchemas";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
@@ -68,7 +68,7 @@ function performPlaylistLibraryInsert(
 				.single(),
 		catch: (error) =>
 			new DatabaseError({
-				message: `Failed to add playlist to library: ${error instanceof Error ? error.message : String(error)}`,
+				message: extractErrorMessage(error, "Failed to add playlist to library"),
 			}),
 	});
 }
@@ -98,7 +98,7 @@ function addPlaylistSongsToUserLibrary(
 						.single(),
 				catch: (error) =>
 					new DatabaseError({
-						message: `Failed to fetch playlist songs: ${error instanceof Error ? error.message : String(error)}`,
+						message: extractErrorMessage(error, "Failed to fetch playlist songs"),
 					}),
 			}),
 		);
@@ -122,7 +122,7 @@ function addPlaylistSongsToUserLibrary(
 				try: () => client.from("song_public").select("song_id, user_id").in("song_id", songIds),
 				catch: (error) =>
 					new DatabaseError({
-						message: `Failed to fetch song info: ${error instanceof Error ? error.message : String(error)}`,
+						message: extractErrorMessage(error, "Failed to fetch song info"),
 					}),
 			}),
 		);
@@ -141,7 +141,7 @@ function addPlaylistSongsToUserLibrary(
 				try: () => client.from("song_library").select("song_id").eq("user_id", userId),
 				catch: (error) =>
 					new DatabaseError({
-						message: `Failed to fetch user library: ${error instanceof Error ? error.message : String(error)}`,
+						message: extractErrorMessage(error, "Failed to fetch user library"),
 					}),
 			}),
 		);
@@ -171,10 +171,10 @@ function addPlaylistSongsToUserLibrary(
 				catch: (error) => {
 					// Non-fatal: log but don't fail the whole operation
 					console.warn(
-						`[addPlaylistSongsToUserLibrary] Failed to add songs to library: ${error instanceof Error ? error.message : String(error)}`,
+						`[addPlaylistSongsToUserLibrary] Failed to add songs to library: ${extractErrorMessage(error, "Failed to add songs to library")}`,
 					);
 					return new DatabaseError({
-						message: `Failed to add songs to library: ${error instanceof Error ? error.message : String(error)}`,
+						message: extractErrorMessage(error, "Failed to add songs to library"),
 					});
 				},
 			}),
@@ -220,7 +220,7 @@ export default function addPlaylistToLibraryHandler(
 			return yield* $(
 				Effect.fail(
 					new ValidationError({
-						message: error instanceof Error ? error.message : "Invalid request",
+						message: extractErrorMessage(error, "Invalid request"),
 					}),
 				),
 			);
@@ -242,7 +242,7 @@ export default function addPlaylistToLibraryHandler(
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({
-						message: getErrorMessage(insertError),
+						message: extractErrorMessage(insertError, "Unknown error"),
 					}),
 				),
 			);

@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 
+import type { Slide } from "@/react/song/song-form/song-form-types";
+
 import toStringArray from "@/shared/type-guards/toStringArray";
 import { safeSet } from "@/shared/utils/safe";
-
-import type { Slide } from "../../song-form-types";
 
 type CreateFormSubmitHandlerParams<FormData> = {
 	readonly songId: string | undefined;

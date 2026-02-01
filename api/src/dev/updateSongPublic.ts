@@ -1,9 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
-import getErrorMessage from "@/api/getErrorMessage";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_INTERNAL } from "@/shared/constants/http";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
 /**
@@ -83,7 +83,7 @@ export default function updateSongPublic(ctx: ReadonlyContext): Effect.Effect<Re
 							.eq("song_id", songId)
 							.select()
 							.single(),
-					catch: (error) => new Error(getErrorMessage(error)),
+					catch: (error) => new Error(extractErrorMessage(error, "Unknown error")),
 				}),
 			);
 
@@ -96,7 +96,7 @@ export default function updateSongPublic(ctx: ReadonlyContext): Effect.Effect<Re
 
 			return Response.json({ success: true, data: updateRes.data });
 		} catch (error) {
-			console.error("[dev:updateSongPublic] failed:", getErrorMessage(error));
+			console.error("[dev:updateSongPublic] failed:", extractErrorMessage(error, "Unknown error"));
 			return Response.json({ error: "Internal error" }, { status: HTTP_INTERNAL });
 		}
 	});
