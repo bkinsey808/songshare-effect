@@ -4,6 +4,13 @@ import isRecord from "@/shared/type-guards/isRecord";
  * Small runtime helper to safely extract `.data`, `.error`, and `.status`
  * from a Supabase `maybeSingle()` response. This centralizes the single
  * narrow castsite and avoids repeating `as unknown as` throughout the code.
+ *
+ * @param res - The raw response returned by Supabase's `maybeSingle()` call.
+ *   May be any value; this function performs runtime checks before accessing
+ *   properties.
+ * @returns - An object containing any of the optional properties `data`,
+ *   `error`, and `status` when present on the input response. Returns an
+ *   empty object when the input is not an object.
  */
 export default function parseMaybeSingle(res: unknown): {
 	data?: unknown;

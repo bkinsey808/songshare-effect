@@ -6,12 +6,16 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database, type Json } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../errors";
+import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 import sanitizeSlidesForDb from "./sanitizeSlidesForDb";
 
 /**
- * Server-side schema (keeps verification close to the API boundary)
+ * Schema validating song form payload.
+ *
+ * Ensures the presence and shape of song fields, `fields`, `slide_order`,
+ * and `slides` records. This keeps validation close to the API boundary to
+ * prevent malformed data from reaching database code.
  */
 const SongFormSchema = Schema.Struct({
 	song_id: Schema.optional(Schema.String),
@@ -39,25 +43,8 @@ const SongFormSchema = Schema.Struct({
 // constant for clarity and to satisfy the project's lint rules.
 const ZERO = 0;
 
-// Extract the type from the schema
-
 type SongFormData = Schema.Schema.Type<typeof SongFormSchema>;
 
-/**
- * Sanitize an incoming `slides` value into a JSON-serializable structure
- * suitable for writing into the `song_public.slides` column. This strips
- * out non-record entries and coerces values to plain strings where needed.
- *
- * This is intentionally a runtime guard that accepts `unknown` and returns
- * a safe plain-object `Json` value; it does not perform schema validation.
- *
- * @param slides - The raw `slides` value from the incoming payload.
- * @returns A plain JSON object that is safe to persist in the DB.
- */
-
-/**
- * Effect-based handler used by handleHttpEndpoint. Returns the created public song data.
- */
 /**
  * Server-side handler for saving a song. This Effect-based handler:
  * - validates the incoming form payload
@@ -312,8 +299,3 @@ export default function songSave(
 		return publicResult.data;
 	});
 }
-
-// Provide a named export in addition to the default - some callers import { songSave }
-// rather than the default export. Exporting the local symbol keeps the file small
-// and avoids requiring callers to change their imports.
-export { songSave };

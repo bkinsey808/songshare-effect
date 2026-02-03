@@ -16,6 +16,10 @@ type SupabaseClientEnv = Readonly<{
  * Returns a valid JWT token for the shared visitor user to use in Supabase clients.
  * Will reuse cached token until it expires.
  * On first run, will ensure the visitor user has the `visitor_id` claim.
+ *
+ * @param env - Environment variables containing Supabase URL, service key, and
+ *   the visitor account credentials used to obtain and refresh the token.
+ * @returns - A valid Supabase access token for the shared visitor user.
  */
 export default async function getSupabaseClientToken(env: SupabaseClientEnv): Promise<string> {
 	const now = Math.floor(Date.now() / MS_PER_SECOND);

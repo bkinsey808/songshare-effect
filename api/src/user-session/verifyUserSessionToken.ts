@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { verify } from "hono/jwt";
 
-import { AuthenticationError } from "@/api/errors";
+import { AuthenticationError } from "@/api/api-errors";
 import { getEnvString } from "@/shared/env/getEnv";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 

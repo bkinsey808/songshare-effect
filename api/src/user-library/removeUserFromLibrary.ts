@@ -4,7 +4,7 @@ import { type ReadonlyContext } from "@/api/hono/hono-context";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../errors";
+import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 type RemoveUserRequest = {
@@ -12,7 +12,15 @@ type RemoveUserRequest = {
 };
 
 /**
- * Extract request data with validation
+ * Extract and validate the request payload for removing a user from a library.
+ *
+ * Ensures the incoming `request` is an object and contains a `followed_user_id`
+ * property of type string. On success a sanitized `RemoveUserRequest` is returned.
+ *
+ * @param request - The raw request payload (typically parsed JSON).
+ * @returns - A validated `RemoveUserRequest` containing `followed_user_id`.
+ * @throws - `TypeError` when the request is not an object, is missing required
+ *   properties, or when `followed_user_id` is not a string.
  */
 function extractRemoveUserRequest(request: unknown): RemoveUserRequest {
 	if (typeof request !== "object" || request === null) {

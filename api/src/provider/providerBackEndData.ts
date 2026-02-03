@@ -1,5 +1,15 @@
 import { Provider, type ProviderType } from "@/shared/providers";
 
+/**
+ * Backend configuration used for server-side OAuth flows for a provider.
+ *
+ * - `accessTokenUrl` - Endpoint used to exchange an authorization code for an access token.
+ * - `userInfoUrl` - OIDC userinfo endpoint used to fetch user profile data.
+ * - `clientIdEnvVar` / `clientSecretEnvVar` - Names of environment variables
+ *   that store the provider client credentials on the server.
+ * - `authBaseUrl` - Base URL for the provider's authorization endpoint (used when
+ *   building authorization redirects).
+ */
 export type ProviderBackEndData = {
 	accessTokenUrl: string;
 	clientIdEnvVar: string;
@@ -8,6 +18,10 @@ export type ProviderBackEndData = {
 	authBaseUrl: string;
 };
 
+/**
+ * Mapping from `Provider` to its backend configuration used by server-side
+ * OAuth/token flows and user info lookups.
+ */
 export const providerBackEndData: Record<ProviderType, ProviderBackEndData> = {
 	[Provider.google]: {
 		accessTokenUrl: "https://oauth2.googleapis.com/token",

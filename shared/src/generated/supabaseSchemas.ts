@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-01-31T07:32:55.566Z
+ * Last generated: 2026-02-02T18:11:04.981Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -25,6 +25,183 @@ export const UUIDSchema: typeof Schema.UUID = Schema.UUID;
 export const PositiveNumberSchema: typeof Schema.Positive = Schema.Positive;
 export const NonNegativeNumberSchema: typeof Schema.NonNegative =
 	Schema.NonNegative;
+
+// event table schemas
+export const EventSchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	event_id: typeof Schema.UUID;
+	owner_id: typeof Schema.UUID;
+	private_notes: typeof Schema.NonEmptyString;
+	updated_at: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	event_id: Schema.UUID,
+	owner_id: Schema.UUID,
+	private_notes: Schema.NonEmptyString,
+	updated_at: Schema.NonEmptyString,
+});
+
+export type Event = Schema.Schema.Type<typeof EventSchema>;
+
+export const EventInsertSchema: Schema.Struct<{
+	event_id: Schema.optional<typeof Schema.UUID>;
+	owner_id: typeof Schema.UUID;
+	private_notes: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	event_id: Schema.optional(Schema.UUID),
+	owner_id: Schema.UUID,
+	private_notes: Schema.optional(Schema.NonEmptyString),
+});
+
+export type EventInsert = Schema.Schema.Type<typeof EventInsertSchema>;
+
+export const EventUpdateSchema: Schema.Struct<{
+	event_id: Schema.optional<typeof Schema.UUID>;
+	owner_id: Schema.optional<typeof Schema.UUID>;
+	private_notes: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	event_id: Schema.optional(Schema.UUID),
+	owner_id: Schema.optional(Schema.UUID),
+	private_notes: Schema.optional(Schema.NonEmptyString),
+});
+
+export type EventUpdate = Schema.Schema.Type<typeof EventUpdateSchema>;
+
+// event_public table schemas
+export const EventPublicSchema: Schema.Struct<{
+	active_playlist_id: Schema.optional<typeof Schema.UUID>;
+	active_slide_id: Schema.optional<typeof Schema.UUID>;
+	active_song_id: Schema.optional<typeof Schema.UUID>;
+	created_at: Schema.optional<typeof Schema.String>;
+	event_date: Schema.optional<typeof Schema.String>;
+	event_description: Schema.optional<typeof Schema.String>;
+	event_id: typeof Schema.UUID;
+	event_name: typeof Schema.NonEmptyString;
+	event_slug: typeof Schema.NonEmptyString;
+	is_public: typeof Schema.Boolean;
+	owner_id: typeof Schema.UUID;
+	public_notes: Schema.optional<typeof Schema.String>;
+	updated_at: Schema.optional<typeof Schema.String>;
+}> = Schema.Struct({
+	active_playlist_id: Schema.optional(Schema.UUID),
+	active_slide_id: Schema.optional(Schema.UUID),
+	active_song_id: Schema.optional(Schema.UUID),
+	created_at: Schema.optional(Schema.String),
+	event_date: Schema.optional(Schema.String),
+	event_description: Schema.optional(Schema.String),
+	event_id: Schema.UUID,
+	event_name: Schema.NonEmptyString,
+	event_slug: Schema.NonEmptyString,
+	is_public: Schema.Boolean,
+	owner_id: Schema.UUID,
+	public_notes: Schema.optional(Schema.String),
+	updated_at: Schema.optional(Schema.String),
+});
+
+export type EventPublic = Schema.Schema.Type<typeof EventPublicSchema>;
+
+export const EventPublicInsertSchema: Schema.Struct<{
+	active_playlist_id: Schema.optional<typeof Schema.UUID>;
+	active_slide_id: Schema.optional<typeof Schema.UUID>;
+	active_song_id: Schema.optional<typeof Schema.UUID>;
+	event_date: Schema.optional<typeof Schema.String>;
+	event_description: Schema.optional<typeof Schema.String>;
+	event_id: typeof Schema.UUID;
+	event_name: typeof Schema.NonEmptyString;
+	event_slug: typeof Schema.NonEmptyString;
+	is_public: Schema.optional<typeof Schema.Boolean>;
+	owner_id: typeof Schema.UUID;
+	public_notes: Schema.optional<typeof Schema.String>;
+}> = Schema.Struct({
+	active_playlist_id: Schema.optional(Schema.UUID),
+	active_slide_id: Schema.optional(Schema.UUID),
+	active_song_id: Schema.optional(Schema.UUID),
+	event_date: Schema.optional(Schema.String),
+	event_description: Schema.optional(Schema.String),
+	event_id: Schema.UUID,
+	event_name: Schema.NonEmptyString,
+	event_slug: Schema.NonEmptyString,
+	is_public: Schema.optional(Schema.Boolean),
+	owner_id: Schema.UUID,
+	public_notes: Schema.optional(Schema.String),
+});
+
+export type EventPublicInsert = Schema.Schema.Type<
+	typeof EventPublicInsertSchema
+>;
+
+export const EventPublicUpdateSchema: Schema.Struct<{
+	active_playlist_id: Schema.optional<typeof Schema.UUID>;
+	active_slide_id: Schema.optional<typeof Schema.UUID>;
+	active_song_id: Schema.optional<typeof Schema.UUID>;
+	event_date: Schema.optional<typeof Schema.String>;
+	event_description: Schema.optional<typeof Schema.String>;
+	event_id: Schema.optional<typeof Schema.UUID>;
+	event_name: Schema.optional<typeof Schema.NonEmptyString>;
+	event_slug: Schema.optional<typeof Schema.NonEmptyString>;
+	is_public: Schema.optional<typeof Schema.Boolean>;
+	owner_id: Schema.optional<typeof Schema.UUID>;
+	public_notes: Schema.optional<typeof Schema.String>;
+}> = Schema.Struct({
+	active_playlist_id: Schema.optional(Schema.UUID),
+	active_slide_id: Schema.optional(Schema.UUID),
+	active_song_id: Schema.optional(Schema.UUID),
+	event_date: Schema.optional(Schema.String),
+	event_description: Schema.optional(Schema.String),
+	event_id: Schema.optional(Schema.UUID),
+	event_name: Schema.optional(Schema.NonEmptyString),
+	event_slug: Schema.optional(Schema.NonEmptyString),
+	is_public: Schema.optional(Schema.Boolean),
+	owner_id: Schema.optional(Schema.UUID),
+	public_notes: Schema.optional(Schema.String),
+});
+
+export type EventPublicUpdate = Schema.Schema.Type<
+	typeof EventPublicUpdateSchema
+>;
+
+// event_user table schemas
+export const EventUserSchema: Schema.Struct<{
+	event_id: typeof Schema.UUID;
+	joined_at: typeof Schema.NonEmptyString;
+	role: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	event_id: Schema.UUID,
+	joined_at: Schema.NonEmptyString,
+	role: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+});
+
+export type EventUser = Schema.Schema.Type<typeof EventUserSchema>;
+
+export const EventUserInsertSchema: Schema.Struct<{
+	event_id: typeof Schema.UUID;
+	joined_at: Schema.optional<typeof Schema.NonEmptyString>;
+	role: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	event_id: Schema.UUID,
+	joined_at: Schema.optional(Schema.NonEmptyString),
+	role: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+});
+
+export type EventUserInsert = Schema.Schema.Type<typeof EventUserInsertSchema>;
+
+export const EventUserUpdateSchema: Schema.Struct<{
+	event_id: Schema.optional<typeof Schema.UUID>;
+	joined_at: Schema.optional<typeof Schema.NonEmptyString>;
+	role: Schema.optional<typeof Schema.NonEmptyString>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	event_id: Schema.optional(Schema.UUID),
+	joined_at: Schema.optional(Schema.NonEmptyString),
+	role: Schema.optional(Schema.NonEmptyString),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type EventUserUpdate = Schema.Schema.Type<typeof EventUserUpdateSchema>;
 
 // playlist table schemas
 export const PlaylistSchema: Schema.Struct<{

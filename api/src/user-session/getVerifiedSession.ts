@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import { AuthenticationError, DatabaseError } from "@/api/errors";
+import { AuthenticationError, DatabaseError } from "@/api/api-errors";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import extractUserSessionTokenFromContext from "@/api/user-session/extractUserSessionTokenFromContext";
 import verifyUserSessionToken from "@/api/user-session/verifyUserSessionToken";
@@ -9,8 +9,18 @@ import { type UserSessionData, UserSessionDataSchema } from "@/shared/userSessio
 import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 
 /**
- * Verify user session JWT and return decoded `UserSessionData`.
- * Reusable helper for API handlers that need an authenticated user.
+ * Verify and decode the current user's session JWT.
+ *
+ * This helper extracts a session token from the request context, verifies
+ * it using server configuration (JWT secret), and validates the decoded
+ * payload against the `UserSessionData` schema. It is intended for reuse by
+ * API handlers that require an authenticated user.
+ *
+ * @param ctx - The readonly request context providing cookies and environment.
+ * @returns - An Effect that resolves to validated `UserSessionData` on success.
+ *   If the session is missing or invalid the Effect fails with an
+ *   `AuthenticationError`. If required server configuration is missing the
+ *   Effect fails with a `DatabaseError`.
  */
 export default function getVerifiedUserSession(
 	ctx: ReadonlyContext,

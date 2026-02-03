@@ -34,6 +34,10 @@ export type SubmitPlaylistParams = {
  *
  * Accepts high-level camelCase params and builds the SavePlaylistRequest
  * internally so callers don't need to know the persistence shape.
+ *
+ * @param deps - Dependency functions used by the helper (save, navigate, language).
+ * @param params - Playlist parameters (name, slug, optional notes/order/id).
+ * @returns - The created/updated playlist id on success, or `undefined` on failure.
  */
 export default async function submitPlaylist(
 	deps: SubmitPlaylistDeps,

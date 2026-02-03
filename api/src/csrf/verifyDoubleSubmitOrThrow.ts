@@ -1,7 +1,7 @@
 import { type Context } from "hono";
 import { getCookie } from "hono/cookie";
 
-import { AuthenticationError } from "@/api/errors";
+import { AuthenticationError } from "@/api/api-errors";
 import { csrfTokenCookieName } from "@/shared/cookies";
 
 import { type Env } from "../env";

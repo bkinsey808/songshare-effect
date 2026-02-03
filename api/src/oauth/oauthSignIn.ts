@@ -2,7 +2,7 @@ import { Effect, Schema } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
-import { type AppError, ServerError, ValidationError } from "@/api/errors";
+import { type AppError, ServerError, ValidationError } from "@/api/api-errors";
 import { handleHttpEndpoint } from "@/api/http/http-utils";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
 import resolveRedirectOrigin from "@/api/oauth/resolveRedirectOrigin";

@@ -12,5 +12,3 @@ export const RegisterDataSchema: Schema.Schema<RegisterData> = Schema.Struct({
 	oauthUserData: OauthUserDataSchema,
 	oauthState: OauthStateSchema,
 });
-
-export { RegisterData as type };

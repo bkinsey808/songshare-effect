@@ -8,7 +8,7 @@ import { statSync } from "node:fs";
 
 import { error as sError, warn as sWarn } from "../utils/scriptLogger";
 import getMigrationFiles from "./helpers/getMigrationFiles";
-import { loadEnvVars } from "./helpers/loadEnvVars";
+import loadEnvVars from "./helpers/loadEnvVars";
 import runMigration from "./helpers/runMigration";
 
 /**

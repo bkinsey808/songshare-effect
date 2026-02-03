@@ -1,4 +1,16 @@
-// Top-level helper: recursively convert SQL-null `null` values to `undefined`.
+/**
+ * Recursively normalize SQL `null` values to `undefined` at the top level.
+ *
+ * - Converts `null` to `undefined`.
+ * - Recurses into arrays and plain object records to normalize nested values.
+ * - Leaves non-object, non-array values unchanged.
+ *
+ * This is useful when database rows use `null` to represent missing values
+ * but consumers prefer `undefined` for absent properties.
+ *
+ * @param input - Arbitrary JSON-like value returned from the database.
+ * @returns - The same structure with all `null` values replaced by `undefined`.
+ */
 import isRecord from "@/shared/type-guards/isRecord";
 
 export default function normalizeNullsTopLevel(input: unknown): unknown {

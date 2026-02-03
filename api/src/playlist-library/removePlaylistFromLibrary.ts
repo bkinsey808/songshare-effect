@@ -4,7 +4,7 @@ import { type ReadonlyContext } from "@/api/hono/hono-context";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../errors";
+import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 type RemovePlaylistRequest = {
@@ -12,7 +12,14 @@ type RemovePlaylistRequest = {
 };
 
 /**
- * Extract request data with validation
+ * Extract and validate the request payload for removing a playlist from a
+ * user's library.
+ *
+ * @param request - The parsed request body; expected to be an object
+ *   containing the `playlist_id` string.
+ * @returns - A validated `RemovePlaylistRequest` with a `playlist_id`.
+ * @throws - `TypeError` when the request is not an object or missing/invalid
+ *   `playlist_id`.
  */
 function extractRemovePlaylistRequest(request: unknown): RemovePlaylistRequest {
 	if (typeof request !== "object" || request === null) {

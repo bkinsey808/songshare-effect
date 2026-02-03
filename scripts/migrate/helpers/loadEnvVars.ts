@@ -45,6 +45,3 @@ export default function loadEnvVars(): Record<string, string | undefined> {
 
 	return env;
 }
-
-// Named alias for compatibility
-export { loadEnvVars };

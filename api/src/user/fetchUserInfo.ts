@@ -1,5 +1,16 @@
 import { Effect } from "effect";
 
+/**
+ * Fetch user information from an OpenID Connect `userinfo` endpoint.
+ *
+ * @param params - Parameters for the request.
+ * @param params.userInfoUrl - The URL of the `userinfo` endpoint to call.
+ * @param params.accessToken - Optional access token to use for authorization.
+ * @param params.idToken - Optional ID token to use for authorization when no
+ *   access token is provided.
+ * @returns - An Effect that resolves to the parsed JSON userinfo object, or
+ *   fails with an error when the request or JSON parsing fails.
+ */
 export default function fetchUserInfo({
 	userInfoUrl,
 	accessToken,

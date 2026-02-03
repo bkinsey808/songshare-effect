@@ -4,6 +4,19 @@ import { type FetchOpts } from "@/api/oauth/fetchOpts";
 import { codeQueryParam } from "@/shared/queryParams";
 import isRecord from "@/shared/type-guards/isRecord";
 
+/**
+ * Exchange an authorization code for tokens at the provider's token endpoint.
+ *
+ * Performs a `POST` with `application/x-www-form-urlencoded` body containing
+ * `grant_type=authorization_code`, `code`, and `redirect_uri`. When provided,
+ * `clientId` and `clientSecret` are included in the body.
+ *
+ * @param opts - Fetch options including `accessTokenUrl`, `code`, `redirectUri`,
+ *   and optional `clientId`/`clientSecret`.
+ * @returns - An Effect that resolves to an object containing `accessToken` and
+ *   `idToken` (both optional) and the raw JSON response under `raw`. The
+ *   Effect fails if the HTTP response is non-OK or if the response JSON is invalid.
+ */
 export default function exchangeCodeForToken(opts: FetchOpts): Effect.Effect<
 	{
 		accessToken: string | undefined;

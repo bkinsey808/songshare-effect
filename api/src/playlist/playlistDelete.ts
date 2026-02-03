@@ -6,11 +6,13 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../errors";
+import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 /**
- * Server-side schema for playlist delete requests
+ * Schema validating payload for deleting a playlist.
+ *
+ * Expected shape: `{ playlist_id: string }`.
  */
 const PlaylistDeleteSchema = Schema.Struct({
 	playlist_id: Schema.String,
@@ -141,5 +143,3 @@ export default function playlistDelete(
 		return { success: true };
 	});
 }
-
-export { playlistDelete };

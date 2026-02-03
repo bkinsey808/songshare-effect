@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { sign } from "hono/jwt";
 
-import { ServerError } from "@/api/errors";
+import { ServerError } from "@/api/api-errors";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import isRecordStringUnknown from "@/shared/utils/isRecordStringUnknown";
 

@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import { type AppError, AuthenticationError } from "@/api/errors";
+import { type AppError, AuthenticationError } from "@/api/api-errors";
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { HTTP_STATUS } from "@/shared/demo/api";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";

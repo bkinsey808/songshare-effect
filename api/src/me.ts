@@ -7,11 +7,24 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type UserSessionData } from "@/shared/userSessionData";
 import { safeSet } from "@/shared/utils/safe";
 
-import { AuthenticationError, type DatabaseError } from "./errors";
+import { AuthenticationError, type DatabaseError } from "./api-errors";
 import getIpAddress from "./getIpAddress";
 import getVerifiedUserSession from "./user-session/getVerifiedSession";
 
-/** Effect-based handler for /api/me */
+/**
+ * Effect-based handler for `GET /api/me`.
+ *
+ * Verifies and decodes the current user's session, checks the request IP
+ * matches the session IP, and returns the validated `UserSessionData` on
+ * success. When `DEBUG_API_HEADERS=1` the handler will optionally log a set of
+ * incoming request headers to help debug cookie propagation and OAuth flows.
+ *
+ * @param ctx - Readonly request context providing cookies and environment.
+ * @returns - An Effect that resolves to validated `UserSessionData` on success.
+ *   Fails with an `AuthenticationError` when the user is not authenticated or
+ *   when the IP addresses do not match. Fails with a `DatabaseError` if
+ *   required server configuration is missing.
+ */
 export default function me(
 	ctx: ReadonlyContext,
 ): Effect.Effect<UserSessionData, AuthenticationError | DatabaseError> {

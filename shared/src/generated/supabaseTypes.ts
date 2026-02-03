@@ -14,6 +14,151 @@ export type Database = {
   }
   public: {
     Tables: {
+      event: {
+        Row: {
+          created_at: string
+          event_id: string
+          owner_id: string
+          private_notes: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id?: string
+          owner_id: string
+          private_notes?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          owner_id?: string
+          private_notes?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      event_public: {
+        Row: {
+          active_playlist_id: string | null
+          active_slide_id: string | null
+          active_song_id: string | null
+          created_at: string | null
+          event_date: string | null
+          event_description: string | null
+          event_id: string
+          event_name: string
+          event_slug: string
+          is_public: boolean
+          owner_id: string
+          public_notes: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active_playlist_id?: string | null
+          active_slide_id?: string | null
+          active_song_id?: string | null
+          created_at?: string | null
+          event_date?: string | null
+          event_description?: string | null
+          event_id: string
+          event_name: string
+          event_slug: string
+          is_public?: boolean
+          owner_id: string
+          public_notes?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active_playlist_id?: string | null
+          active_slide_id?: string | null
+          active_song_id?: string | null
+          created_at?: string | null
+          event_date?: string | null
+          event_description?: string | null
+          event_id?: string
+          event_name?: string
+          event_slug?: string
+          is_public?: boolean
+          owner_id?: string
+          public_notes?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_public_active_playlist_id_fkey"
+            columns: ["active_playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlist"
+            referencedColumns: ["playlist_id"]
+          },
+          {
+            foreignKeyName: "event_public_active_song_id_fkey"
+            columns: ["active_song_id"]
+            isOneToOne: false
+            referencedRelation: "song"
+            referencedColumns: ["song_id"]
+          },
+          {
+            foreignKeyName: "event_public_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "event"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_public_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      event_user: {
+        Row: {
+          event_id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          joined_at?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_user_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_user_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       playlist: {
         Row: {
           created_at: string

@@ -1,4 +1,4 @@
-import type { ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
+import type { ReadonlySupabaseClient } from "@/api/supabase/ReadonlySupabaseClient.type";
 
 export default function makeFakeSupabaseThatRejects(dnsErrMsg: string): ReadonlySupabaseClient {
 	// Create a typed, empty partial and assign members below so we can keep

@@ -15,7 +15,12 @@ export const ProviderSchema: Schema.Schema<ProviderType> = Schema.Union(
 	...providers.map((provider) => Schema.Literal(provider)),
 );
 
-/** these are the providers sign in currently works with */
+/**
+ * Providers currently enabled for sign-in flows in this application.
+ *
+ * The list should be updated when support for additional providers is added
+ * or during feature flags / configuration changes.
+ */
 export const activeProviders: ProviderType[] = [Provider.google, Provider.microsoft];
 
 export function guardAsProvider(value: unknown): ProviderType {

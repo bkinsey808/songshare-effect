@@ -1,6 +1,15 @@
 // Small numeric helpers used to avoid magic-number complaints from lint.
 const ZERO = 0;
-/** Safely get a property from an object, avoiding prototype pollution and unsafe access */
+/**
+ * Safely read a property from a plain object while avoiding prototype pollution.
+ *
+ * Overloaded forms allow providing a `defaultValue` when the key is absent.
+ * Uses `Object.hasOwn` to avoid reading properties from the prototype chain.
+ *
+ * @param obj - The object to read from.
+ * @param key - The key to read (must be a direct property of `obj`).
+ * @returns - The property value when present, otherwise `undefined` or the provided default value.
+ */
 export function safeGet<TValue extends Record<string, unknown>, Key extends keyof TValue>(
 	obj: TValue,
 	key: Key,

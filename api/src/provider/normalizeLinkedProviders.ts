@@ -1,4 +1,12 @@
-// Top-level helper: normalize `linked_providers` from validated data into string[].
+/**
+ * Normalize a validated `linked_providers` value into an array of provider
+ * identifiers.
+ *
+ * @param validated - The parsed/validated input object which may include a
+ *   `linked_providers` field (string or array).
+ * @returns - An array of provider identifiers as strings. Returns an empty
+ *   array when no providers are present or input is invalid.
+ */
 import isRecord from "@/shared/type-guards/isRecord";
 import { safeGet } from "@/shared/utils/safe";
 

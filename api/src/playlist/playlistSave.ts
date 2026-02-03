@@ -6,11 +6,14 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../errors";
+import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 /**
- * Server-side schema for playlist save requests
+ * Schema validating playlist form payload.
+ *
+ * Validates optional `playlist_id`, required `playlist_name` and `playlist_slug`,
+ * optional notes, and a `song_order` array of song IDs.
  */
 const PlaylistFormSchema = Schema.Struct({
 	playlist_id: Schema.optional(Schema.String),
@@ -262,5 +265,3 @@ export default function playlistSave(
 		return publicResult.data;
 	});
 }
-
-export { playlistSave };

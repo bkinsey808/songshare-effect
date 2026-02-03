@@ -27,6 +27,11 @@ export const userLibraryPath = "user-library";
 /** Base path for viewing a playlist by slug; use as "playlists/:playlist_slug" in routes */
 export const playlistViewPath = "playlists";
 
+// Event paths
+export const eventEditPath = "event-edit";
+/** Base path for viewing an event by slug; use as "events/:event_slug" in routes */
+export const eventViewPath = "events";
+
 export const apiOauthSignInPath = "/api/oauth/sign-in";
 export const apiOauthCallbackPath = "/api/oauth/callback";
 export const apiMePath = "/api/me";
@@ -44,6 +49,11 @@ export const apiPlaylistLibraryAddPath = "/api/playlist-library/add";
 export const apiPlaylistLibraryRemovePath = "/api/playlist-library/remove";
 export const apiUserLibraryAddPath = "/api/user-library/add";
 export const apiUserLibraryRemovePath = "/api/user-library/remove";
+export const apiEventSavePath = "/api/events/save";
+export const apiEventDeletePath = "/api/events/delete";
+export const apiEventUserAddPath = "/api/event-user/add";
+export const apiEventUserRemovePath = "/api/event-user/remove";
+export const apiEventUserUpdateRolePath = "/api/event-user/update-role";
 export const apiUploadPath = "/api/upload";
 export const apiHelloPath = "/api/hello";
 export const healthPath = "/health";

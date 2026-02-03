@@ -1,23 +1,16 @@
 import { type ReadonlyContext } from "@/api/hono/hono-context";
 
 /**
- * Gets the IP address of the requestor.
+ * Return the requestor's IP address.
  *
- * It checks for specific headers that are commonly used to identify the original IP address of a client.
- * This is especially important when the server is behind a proxy or a load balancer (like Cloudflare).
+ * Prefers the Cloudflare `cf-connecting-ip` header, then the first entry of
+ * `x-forwarded-for`. When no forwarding headers are present (e.g. local
+ * development) the function returns `"127.0.0.1"`.
  *
- * 1. `cf-connecting-ip`: This header is specific to Cloudflare and is considered reliable as it's set by Cloudflare's proxy.
- * 2. `x-forwarded-for`: This is a standard header for identifying the originating IP address of a client connecting to a web server through an HTTP proxy or a load balancer.
- *
- * For local development (e.g., using the `pnpm preview` script), these headers won't exist. In that case, we default to `127.0.0.1` to ensure the application continues to work as expected.
- *
- * @param ctx The Hono context object.
- * @returns The determined IP address or a default for local development.
+ * @param ctx - Readonly Hono request context. Accepts a readonly wrapper so
+ *   the function is compatible with both `Context` and `ReadonlyContext`.
+ * @returns - The determined IP address as a string.
  */
-// Accept a readonly context wrapper used across the project. This keeps
-// the function compatible with both `Context` and `ReadonlyContext` call
-// sites because a plain `Context` is structurally assignable to the
-// readonly wrapper.
 export default function getIpAddress(ctx: ReadonlyContext): string {
 	// headers.get can return string | null. Read each header explicitly
 	// and prefer `cf-connecting-ip` when present. For `x-forwarded-for`

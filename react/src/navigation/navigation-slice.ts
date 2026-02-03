@@ -11,6 +11,14 @@ export type NavigationSlice = {
 	toggleHeaderActions: () => void;
 };
 
+/**
+ * Create the navigation slice containing header action state and mutators.
+ *
+ * @param set - Zustand `set` function used to update slice state.
+ * @param _get - Zustand `get` function (unused, kept for parity with slice API).
+ * @param _api - Slice API helpers (unused, reserved for future use).
+ * @returns - Initialized `NavigationSlice` with state and action functions.
+ */
 export function createNavigationSlice(
 	set: Set<NavigationSlice>,
 	_get: Get<NavigationSlice>,

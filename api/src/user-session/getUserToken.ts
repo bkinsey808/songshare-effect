@@ -7,7 +7,7 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import type { ReadonlyContext } from "../hono/hono-context";
 
-import { DatabaseError } from "../errors";
+import { DatabaseError } from "../api-errors";
 import getVerifiedUserSession from "./getVerifiedSession";
 
 type TokenResponse = Readonly<{

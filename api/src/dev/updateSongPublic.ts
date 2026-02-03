@@ -7,10 +7,20 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
 /**
- * Dev-only handler to update a `song_public` row by song_id. This allows
- * triggering realtime events from the browser during local development.
+ * Dev-only handler to update a `song_public` row by `song_id`.
  *
- * Body: { song_id: string, song_name?: string, song_slug?: string }
+ * Intended for local development only; this endpoint is explicitly blocked
+ * in production (`ENVIRONMENT === "production"`) to prevent accidental
+ * use. The expected JSON body shape is:
+ *
+ *   { song_id: string, song_name?: string, song_slug?: string }
+ *
+ * On success the handler returns a JSON `Response` with `{ success: true, data }`.
+ * It returns a `403` when disabled in production, `400` for invalid payloads,
+ * and `500` for internal or database errors.
+ *
+ * @param ctx - Readonly request context providing environment variables and request body.
+ * @returns - An Effect that resolves to a `Response` representing the operation result.
  */
 export default function updateSongPublic(ctx: ReadonlyContext): Effect.Effect<Response, Error> {
 	return Effect.gen(function* updateSongPublicGen($) {

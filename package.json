@@ -37,6 +37,7 @@
 		"deploy:full": "npm run deploy && echo '🔄 Purging cache...' && ./scripts/purge-cache.sh",
 		"cache:purge": "./scripts/purge-cache.sh",
 		"test:unit": "vitest run",
+		"check:single-exports": "bash ./scripts/check/single-exports.sh",
 		"test:e2e:dev": "PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 bun ./scripts/playwright/run-playwright-with-timeout.bun.ts --reporter=list --retries=0 --workers=3 --forbid-only --timeout=20000",
 		"test:e2e:lighthouse": "bun ./scripts/playwright/lighthouse-preview.bun.ts",
 		"playwright:install": "npx playwright install",

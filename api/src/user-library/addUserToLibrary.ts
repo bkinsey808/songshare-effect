@@ -7,7 +7,7 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type UserLibrary } from "@/shared/generated/supabaseSchemas";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../errors";
+import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 type AddUserRequest = {
@@ -17,7 +17,15 @@ type AddUserRequest = {
 type UserLibraryRow = Database["public"]["Tables"]["user_library"]["Row"];
 
 /**
- * Extract request data with validation
+ * Extract and validate the request payload for adding a user to the library.
+ *
+ * Ensures the incoming `request` is an object and contains a `followed_user_id`
+ * property of type string. Returns a sanitized `AddUserRequest` on success.
+ *
+ * @param request - The raw request payload (typically parsed JSON).
+ * @returns - A validated `AddUserRequest` containing `followed_user_id`.
+ * @throws - `TypeError` when the request is not an object, is missing required
+ *   properties, or when `followed_user_id` is not a string.
  */
 function extractAddUserRequest(request: unknown): AddUserRequest {
 	if (typeof request !== "object" || request === null) {

@@ -15,11 +15,19 @@ This custom agent helps make small-to-medium TypeScript and React changes in thi
 - Prefer using effect ts instead of promises, especially at the top level of modules and functions.
 - Use async/await syntax for asynchronous code instead of `.then()` chains.
 - Follow existing project conventions for naming, file structure, and module organization.
-- Unit tests should be written using Vitest, following existing test patterns in the codebase, colocated witht the code they test.`
-- This project does not use Eslint. Use oxlint, including for disable comments.
-- No barrel files. import directly from source files (do not add `index.ts` re-exports).
-- export { something } from "./somefile" is strongly discouraged. Don't re-export from other modules.
-- all functions should have jsdoc comments, including param and return types.
+- Unit tests should be written using Vitest, following existing test patterns in the codebase and colocated with the code they test.
+- This project does not use ESLint. Use `oxlint`, including for disable comments.
+- No barrel files. Import directly from source files (do not add `index.ts` re-exports).
+- `export { something } from "./somefile"` is strongly discouraged. Don't re-export from other modules.
+- All functions should have JSDoc comments that include parameter and return **descriptions** (no types in the JSDoc for TypeScript files).
+- **Never** put types in JSDoc for `*.ts` / `*.tsx` files — TypeScript carries the types. Use plain descriptions instead, for example:
+
+```ts
+/**
+ * @param ctx - Hono request context (no type in JSDoc)
+ * @returns - JSON response indicating success
+ */
+```
 
 ## Project-specific rules (required)
 

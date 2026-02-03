@@ -3,10 +3,10 @@ import { Effect } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
+import { DatabaseError, ServerError, ValidationError } from "@/api/api-errors";
 import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
-import { DatabaseError, ServerError, ValidationError } from "@/api/errors";
 import getIpAddress from "@/api/getIpAddress";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
 import { RegisterDataSchema } from "@/api/register/registerData";

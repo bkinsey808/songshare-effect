@@ -1,10 +1,10 @@
 import { type Schema, Effect } from "effect";
 
-import { DatabaseError } from "@/api/errors";
+import { DatabaseError } from "@/api/api-errors";
 import normalizeNullsTopLevel from "@/api/oauth/normalizeNullsTopLevel";
 import normalizeLinkedProviders from "@/api/provider/normalizeLinkedProviders";
 import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
-import { type ReadonlySupabaseClient } from "@/api/supabase/supabase-client";
+import { type ReadonlySupabaseClient } from "@/api/supabase/ReadonlySupabaseClient.type";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
 import isRecordStringUnknown from "@/shared/utils/isRecordStringUnknown";

@@ -6,7 +6,7 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../errors";
+import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 const DeleteSongBodySchema = Schema.Struct({
@@ -19,6 +19,11 @@ type DeleteSongBody = Schema.Schema.Type<typeof DeleteSongBodySchema>;
  * Effect-based handler for deleting a song. The authenticated user must own
  * the song. Deletes the row from `song`; `song_public` and `song_library`
  * are removed by FK ON DELETE CASCADE.
+ *
+ * @param ctx - Readonly Hono request context used for authentication and to
+ *   access environment variables needed to perform the delete.
+ * @returns - An Effect that resolves to `{ success: true }` on success, or
+ *   fails with `ValidationError`, `DatabaseError`, or `AuthenticationError`.
  */
 export default function songDelete(
 	ctx: ReadonlyContext,

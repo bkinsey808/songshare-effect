@@ -7,7 +7,7 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type SongLibrary } from "@/shared/generated/supabaseSchemas";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../errors";
+import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 type AddSongRequest = {
@@ -18,7 +18,15 @@ type AddSongRequest = {
 type SongLibraryRow = Database["public"]["Tables"]["song_library"]["Row"];
 
 /**
- * Extract request data with validation
+ * Extract and validate the request payload for adding a song to a user's
+ * library.
+ *
+ * @param request - The parsed request body; expected to be an object
+ *   containing `song_id` and `song_owner_id` strings.
+ * @returns - A validated AddSongRequest containing `song_id` and
+ *   `song_owner_id`.
+ * @throws - `TypeError` when the request is not an object or when
+ *   `song_id`/`song_owner_id` are missing or not strings.
  */
 function extractAddSongRequest(request: unknown): AddSongRequest {
 	if (typeof request !== "object" || request === null) {

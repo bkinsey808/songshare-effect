@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import { ProviderError, ValidationError } from "@/api/errors";
+import { ProviderError, ValidationError } from "@/api/api-errors";
 import exchangeCodeForToken from "@/api/oauth/exchangeCodeForToken";
 import { type FetchOpts } from "@/api/oauth/fetchOpts";
 import fetchUserInfo from "@/api/user/fetchUserInfo";

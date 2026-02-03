@@ -96,7 +96,7 @@ export function SongCard({ song, onEdit, className }: SongCardProps) {
 - Don't create barrel files (`index.ts` re-exports)
 - Don't use `any` types
 - Don't use default exports
-- Don't add JSDoc type annotations in `.tsx` files
+- Don't add JSDoc type annotations in `.ts`/`.tsx` files — never include types in JSDoc for TypeScript files. Use `@param name - description` and `@returns - description` instead (no `{Type}` tokens).
 
 ### 5. Add Unit Tests (Optional but Recommended)
 

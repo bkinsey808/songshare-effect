@@ -58,7 +58,9 @@
 					"Schema.Array",
 					"Schema.Literal",
 					"Schema.String",
-					"Schema.Union"
+					"Schema.Union",
+					"Schema.Boolean",
+					"Schema.NullishOr"
 				]
 			}
 		],

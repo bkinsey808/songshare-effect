@@ -7,7 +7,7 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type PlaylistLibrary } from "@/shared/generated/supabaseSchemas";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../errors";
+import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 const ARRAY_EMPTY = 0;
@@ -20,7 +20,15 @@ type AddPlaylistRequest = {
 type PlaylistLibraryRow = Database["public"]["Tables"]["playlist_library"]["Row"];
 
 /**
- * Extract request data with validation
+ * Extract and validate the request payload for adding a playlist to a user's
+ * library.
+ *
+ * @param request - The parsed request body; expected to be an object
+ *   containing `playlist_id` and `playlist_owner_id` strings.
+ * @returns - A validated `AddPlaylistRequest` containing `playlist_id` and
+ *   `playlist_owner_id`.
+ * @throws - `TypeError` when the request is not an object or when
+ *   `playlist_id`/`playlist_owner_id` are missing or not strings.
  */
 function extractAddPlaylistRequest(request: unknown): AddPlaylistRequest {
 	if (typeof request !== "object" || request === null) {

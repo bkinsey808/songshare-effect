@@ -28,7 +28,7 @@ See [`docs/authentication-system.md`](../docs/authentication-system.md) for comp
 
 - ✅ **React Compiler Ready**: No manual memoization (`useCallback`, `useMemo`, `memo`)
 - ✅ **TypeScript First**: Strong typing, avoid `any` types
-- ❌ **No JSDoc types in `.ts`/`.tsx` files**: TypeScript should carry types natively
+- ❌ **No JSDoc types in `.ts`/`.tsx` files**: **Do not** put types in JSDoc for TypeScript files — document parameters/returns without types. Example: `@param ctx - description` and `@returns - description` (no `{Type}` in the tag).
 
 ### Import Patterns
 
