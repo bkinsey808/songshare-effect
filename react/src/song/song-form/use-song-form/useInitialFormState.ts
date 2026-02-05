@@ -16,6 +16,8 @@ type UseInitialFormStateParams = {
 /**
  * Hook that manages setting the initial form state snapshot after the form is populated.
  * Ensures initial state is only set once per songId after data is loaded.
+ *
+ * @returns void
  */
 export default function useInitialFormState({
 	songId,

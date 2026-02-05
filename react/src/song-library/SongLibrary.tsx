@@ -5,13 +5,12 @@ import { Link } from "react-router-dom";
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
 import { useAppStore } from "@/react/zustand/useAppStore";
+import { ZERO } from "@/shared/constants/shared-constants";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, songEditPath, songViewPath } from "@/shared/paths";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
 import useSongLibrary from "./useSongLibrary";
-
-const ZERO = 0;
 
 export type SongLibraryProps = {
 	lang: SupportedLanguageType;

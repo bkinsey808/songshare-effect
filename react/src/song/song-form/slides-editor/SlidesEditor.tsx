@@ -10,6 +10,7 @@ import ChevronUpIcon from "@/react/design-system/icons/ChevronUpIcon";
 import PlusIcon from "@/react/design-system/icons/PlusIcon";
 import TrashIcon from "@/react/design-system/icons/TrashIcon";
 import { songFields } from "@/react/song/song-schema";
+import { ONE } from "@/shared/constants/shared-constants";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 
@@ -30,6 +31,18 @@ type SlidesEditorProps = Readonly<
 	}>
 >;
 
+/**
+ * Slides editor UI that renders slide detail cards and per-field editors.
+ * Also exposes controls to add, duplicate, and delete slides and to change their order.
+ *
+ * @param fields - Which dynamic fields are enabled for each slide
+ * @param toggleField - Toggle a field on/off in the form
+ * @param slideOrder - Ordered array of slide ids (presentation order)
+ * @param setSlideOrder - Setter to update the presentation order
+ * @param slides - Map of slide id to slide data
+ * @param setSlides - Setter to replace the slides map
+ * @returns React element rendering the Slide Editor UI
+ */
 export default function SlidesEditor({
 	fields,
 	toggleField,
@@ -60,7 +73,6 @@ export default function SlidesEditor({
 
 	const { t } = useTranslation();
 	const FIRST_INDEX = 0;
-	const ONE = 1;
 	const JSON_INDENT = 2;
 	const TEXTAREA_MIN_ROWS = 3;
 	const TEXTAREA_MAX_ROWS = 10;

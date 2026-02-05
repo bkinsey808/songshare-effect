@@ -3,6 +3,12 @@
 // without relying on `any` or casting. They intentionally extend `Error`
 // to preserve Error semantics.
 
+/**
+ * Error thrown for request validation problems (invalid or missing fields).
+ *
+ * @remarks
+ * Carries an optional `field` property indicating which input caused the error.
+ */
 export class ValidationError extends Error {
 	readonly _tag = "ValidationError";
 	override readonly message: string;
@@ -16,6 +22,12 @@ export class ValidationError extends Error {
 	}
 }
 
+/**
+ * Error indicating a resource was not found.
+ *
+ * @remarks
+ * Includes `resource` and optional `id` to aid client-side diagnostics.
+ */
 export class NotFoundError extends Error {
 	readonly _tag = "NotFoundError";
 	override readonly message: string;
@@ -31,6 +43,12 @@ export class NotFoundError extends Error {
 	}
 }
 
+/**
+ * Error representing an unexpected database or persistence failure.
+ *
+ * @remarks
+ * May include a `cause` with the underlying error details.
+ */
 export class DatabaseError extends Error {
 	readonly _tag = "DatabaseError";
 	override readonly message: string;
@@ -44,6 +62,12 @@ export class DatabaseError extends Error {
 	}
 }
 
+/**
+ * Generic server error for unexpected runtime failures.
+ *
+ * @remarks
+ * Use this when there is no more specific typed error to return.
+ */
 export class ServerError extends Error {
 	readonly _tag = "ServerError";
 	override readonly message: string;
@@ -57,6 +81,9 @@ export class ServerError extends Error {
 	}
 }
 
+/**
+ * Error indicating an external provider (OAuth, etc.) is unavailable or failed.
+ */
 export class ProviderError extends Error {
 	readonly _tag = "ProviderError";
 	override readonly message: string;
@@ -70,6 +97,12 @@ export class ProviderError extends Error {
 	}
 }
 
+/**
+ * Error representing an issue during file upload/processing.
+ *
+ * @remarks
+ * May include an optional `filename` and `cause` with underlying details.
+ */
 export class FileUploadError extends Error {
 	readonly _tag = "FileUploadError";
 	override readonly message: string;
@@ -89,6 +122,9 @@ export class FileUploadError extends Error {
 	}
 }
 
+/**
+ * Error used when authentication fails or is required.
+ */
 export class AuthenticationError extends Error {
 	readonly _tag = "AuthenticationError";
 	override readonly message: string;
@@ -100,6 +136,12 @@ export class AuthenticationError extends Error {
 	}
 }
 
+/**
+ * Error used when an authenticated principal lacks permission for an action.
+ *
+ * @remarks
+ * May include `resource` to indicate which resource the permission check failed on.
+ */
 export class AuthorizationError extends Error {
 	readonly _tag = "AuthorizationError";
 	override readonly message: string;

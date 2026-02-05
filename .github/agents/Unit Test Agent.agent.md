@@ -5,6 +5,19 @@ tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
 
 globs: \*_/_.test.{ts,tsx}
 
+## Quick Reference
+
+**For quick testing guidance**, see the [unit-testing skill](../skills/unit-testing/SKILL.md).
+
+This agent provides extended validation steps and detailed patterns beyond the skill.
+
+**Related resources:**
+
+- [unit-testing skill](../skills/unit-testing/SKILL.md) - Quick reference
+- [.agent/rules.md](../../.agent/rules.md) - Full project rules
+
+---
+
 ## Purpose
 
 Write and maintain **unit tests only**. Never modify source files or configuration. Never instruct users to run git/PR commands.

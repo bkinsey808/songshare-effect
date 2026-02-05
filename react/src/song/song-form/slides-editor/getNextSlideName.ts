@@ -1,9 +1,11 @@
-import { type Slide } from "../song-form-types";
+import { ONE } from "@/shared/constants/shared-constants";
 
-const ONE = 1;
+import { type Slide } from "../song-form-types";
 
 /**
  * Generate the next available slide name
+ *
+ * @returns The next unique slide name (e.g., "Slide 2")
  */
 export default function getNextSlideName(
 	slides: Readonly<Record<string, Slide>>,

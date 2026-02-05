@@ -2,6 +2,11 @@ import { Activity, useState } from "react";
 
 import HeavyComponent from "@/react/pages/demo/components/HeavyComponent";
 
+/**
+ * Demo view comparing rendering strategies (Activity vs conditional rendering).
+ *
+ * @returns React element that toggles and displays heavy demo components
+ */
 export default function PerformanceComparison(): ReactElement {
 	const [showHeavyComponents, setShowHeavyComponents] = useState(false);
 	const [useActivity, setUseActivity] = useState(true);

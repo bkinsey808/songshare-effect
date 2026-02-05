@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { ZERO } from "@/shared/constants/shared-constants";
+
 import makeSmoothedAudioLevelForUiTimer from "./makeSmoothedAudioLevelForUiTimer";
 
 const UI_INTERVAL_MS = 100;
@@ -7,7 +9,6 @@ const SMALL_INTERVAL_MS = 50;
 const TICK_EPS = 1;
 const MULTI_TICKS = 3;
 const SECONDARY_TICKS = 2;
-const ZERO = 0;
 
 describe("makeSmoothedAudioLevelForUiTimer", () => {
 	it("readSmoothedLevelNow increments internal level and peekSmoothedLevel reflects it", () => {

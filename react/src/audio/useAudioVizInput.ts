@@ -2,10 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import useAudioCapture from "@/react/audio/useAudioCapture";
 import useSmoothedAudioLevelRef from "@/react/audio/useSmoothedAudioLevelRef";
+import { ZERO } from "@/shared/constants/shared-constants";
 
 import type { MinimalMediaStream } from "./types";
-
-const ZERO = 0;
 
 type Options = {
 	uiIntervalMs: number;
@@ -19,8 +18,8 @@ type Options = {
  * - Manage selected audio input device id
  * - Start/stop microphone / display-audio capture
  * - Provide a `SmoothedAudioLevel` instance and a ref for use by render loops
- * - Surface common values: `levelUiValue`, `audioInputDevicesRefreshKey`, `status`, `errorMessage`, `currentStreamLabel`
- */
+ * - Surface common values: `levelUiValue`, `audioInputDevicesRefreshKey`, `status`, `errorMessage`, `currentStreamLabel` *
+ * @returns Object containing helpers and current audio capture state */
 export default function useAudioVizInput(options: Options): {
 	/** Smoothed audio level helpers */
 	startLevelUiTimer: () => void;

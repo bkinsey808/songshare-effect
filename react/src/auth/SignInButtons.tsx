@@ -8,6 +8,11 @@ import { apiOauthSignInPath } from "@/shared/paths";
 import { activeProviders } from "@/shared/providers";
 import { langQueryParam, redirectPortQueryParam } from "@/shared/queryParams";
 
+/**
+ * Renders sign-in buttons for available providers and helpful sign-in messages.
+ *
+ * @returns React element with provider buttons
+ */
 export default function SignInButtons(): ReactElement {
 	const isOnline = useIsOnline();
 	const { lang, t } = useLocale();

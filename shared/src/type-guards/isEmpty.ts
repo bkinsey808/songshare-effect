@@ -1,5 +1,11 @@
-const ZERO = 0;
+import { ZERO } from "@/shared/constants/shared-constants";
 
+/**
+ * Check whether a value is empty (null/undefined, empty string, empty array, empty map/set, or object with no keys).
+ *
+ * @param value - Value to test for emptiness
+ * @returns True when the value is empty
+ */
 export default function isEmpty(value: unknown): boolean {
 	if (value === null || value === undefined) {
 		return true;

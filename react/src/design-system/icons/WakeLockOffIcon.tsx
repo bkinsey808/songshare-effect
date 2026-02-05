@@ -1,6 +1,13 @@
 import type { IconProps } from "./IconProps";
 
-/** Icon for wake lock disabled - shows a closed/sleeping eye. */
+/** Icon for wake lock disabled - shows a closed/sleeping eye.
+
+
+ * Wake lock off icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the wake-lock-off icon
+ */
 export default function WakeLockOffIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

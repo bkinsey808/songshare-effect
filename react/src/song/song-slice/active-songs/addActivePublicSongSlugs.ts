@@ -12,6 +12,14 @@ import findMissingSongSlugs from "./findMissingSongSlugs";
 import updateStoreWithPublicSongs from "./updateStoreWithPublicSongs";
 import validateVisitorToken from "./validateVisitorToken";
 
+/**
+ * Add public songs to the active subscription list by slug. Fetches missing
+ * songs from Supabase and updates the store with decoded results.
+ *
+ * @param set - Zustand set function for the SongSubscribe slice
+ * @param get - Getter for current slice state
+ * @returns A function accepting an array of song slugs and fetching them
+ */
 export default function addActivePublicSongSlugs(
 	set: (
 		partial:

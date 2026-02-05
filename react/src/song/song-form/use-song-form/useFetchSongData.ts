@@ -20,6 +20,8 @@ type UseFetchSongDataParams = {
 /**
  * Hook that fetches song data when editing.
  * Handles resetting form state when not editing and triggering data fetch when editing.
+ *
+ * @returns void
  */
 export default function useFetchSongData({
 	songId,

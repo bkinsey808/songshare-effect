@@ -1,5 +1,11 @@
 import type { IconProps } from "./IconProps";
 
+/**
+ * Library icon SVG component.
+ *
+ * @param className - Optional class names applied to the svg
+ * @returns A React element rendering the library icon
+ */
 export default function LibraryIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

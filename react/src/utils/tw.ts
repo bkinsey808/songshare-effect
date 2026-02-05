@@ -1,4 +1,8 @@
-/** noop. use where necessary to get tailwind intellisense */
+/**
+ * Template-tag helper used to get Tailwind intellisense while composing classnames.
+ *
+ * @returns Final combined string produced by the template
+ */
 export default function tw(
 	strings: TemplateStringsArray,
 	...values: readonly (string | number)[]

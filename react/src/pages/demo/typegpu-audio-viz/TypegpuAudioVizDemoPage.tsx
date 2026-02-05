@@ -4,13 +4,22 @@ import { useTranslation } from "react-i18next";
 import useResizeCanvasToDisplaySizeOnWindowResize from "@/react/canvas/useResizeCanvasToDisplaySizeOnWindowResize";
 import TypegpuAudioVizDemoView from "@/react/pages/demo/typegpu-audio-viz/TypegpuAudioVizDemoView";
 import useTypegpuAudioViz from "@/react/pages/demo/typegpu-audio-viz/useTypegpuAudioViz";
+import { ZERO } from "@/shared/constants/shared-constants";
 
 const CANVAS_WIDTH = 900;
 const CANVAS_HEIGHT = 360;
-const ZERO = 0;
 
 const LEVEL_DECIMALS = 3;
 
+/**
+ * TypegpuAudioVizDemoPage
+ *
+ * Demonstrates audio capture and GPU-driven visualization using TypeGPU.
+ * Provides controls to select input devices and render live audio visuals.
+ *
+ * @returns - A React element that hosts the audio viz demo view and
+ *   associated controls.
+ */
 export default function TypegpuAudioVizDemoPage(): ReactElement {
 	const { t } = useTranslation();
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);

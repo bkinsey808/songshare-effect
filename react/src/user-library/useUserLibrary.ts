@@ -7,7 +7,16 @@ import { useAppStore } from "@/react/zustand/useAppStore";
 import type { RemoveUserFromLibraryRequest, UserLibraryEntry } from "./slice/user-library-types";
 
 /**
- * Hook to initialize and expose User Library state and actions.
+ * useUserLibrary
+ *
+ * Initializes and exposes the current user's library. On mount this hook
+ * fetches the library and subscribes to realtime updates; the subscription
+ * is automatically torn down on unmount or when the location changes.
+ *
+ * @returns entries - array of followed user entries
+ * @returns isLoading - true while the library is loading
+ * @returns error - error message when loading fails, or undefined when ok
+ * @returns removeFromUserLibrary - function to remove a user from the library
  */
 export default function useUserLibrary(): {
 	entries: UserLibraryEntry[];

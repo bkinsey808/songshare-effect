@@ -86,6 +86,7 @@ type SlidesGridTableProps = Readonly<
  * @param props.setSlideOrder - Setter for the presentation's slide order array
  * @param props.duplicateSlide - Duplicate the slide by id
  * @param props.deleteSlide - Delete the slide by id
+ * @returns React element rendering the slides grid table and DnD container
  */
 export default function SlidesGridTable({
 	fields,

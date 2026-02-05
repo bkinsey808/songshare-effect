@@ -1,8 +1,11 @@
 import { useEffect, useRef } from "react";
 
-// Hook that returns a schedule function which runs callbacks on the
-// microtask queue (queueMicrotask or Promise.resolve().then) and avoids
-// calling callbacks after the component has unmounted.
+/**
+ * Returns a scheduling helper that runs callbacks on the microtask queue
+ * and prevents running callbacks after the component has unmounted.
+ *
+ * @returns A `schedule(fn)` function that queues `fn` as a microtask
+ */
 export default function useSchedule(): (fn: () => void) => void {
 	const mounted = useRef(true);
 

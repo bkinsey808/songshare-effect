@@ -7,6 +7,7 @@ import Button from "@/react/design-system/Button";
 import useLocale from "@/react/language/locale/useLocale";
 import CollapsibleSection from "@/react/song/song-form/CollapsibleSection";
 import { useAppStore } from "@/react/zustand/useAppStore";
+import { ZERO } from "@/shared/constants/shared-constants";
 
 type AddSongToPlaylistCardProps = {
 	/** The song ID to add to a playlist */
@@ -36,7 +37,6 @@ export default function AddSongToPlaylistCard({
 	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
 
 	// Constant to avoid magic number
-	const ZERO = 0;
 
 	// Filter playlists owned by the current user (can only add to own playlists)
 	const ownedPlaylists = Object.values(playlistLibraryEntries).filter(

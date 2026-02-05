@@ -15,6 +15,17 @@ function isUserLibraryEntry(value: unknown): value is UserLibrary {
 	return typeof value["user_id"] === "string" && typeof value["followed_user_id"] === "string";
 }
 
+/**
+ * fetchUserLibrary
+ *
+ * Fetches the current user's library from Supabase, joins owner username
+ * information, and populates the slice with validated entries. Manages
+ * loading and error state on the slice and logs diagnostic information.
+ *
+ * @param get - Getter for the `UserLibrarySlice` used to set state.
+ * @returns - An Effect that resolves when fetching and setting complete or
+ *   fails with an Error.
+ */
 export default function fetchUserLibrary(get: () => UserLibrarySlice): Effect.Effect<void, Error> {
 	return Effect.gen(function* fetchUserLibraryGen($) {
 		const { setUserLibraryEntries, setUserLibraryLoading, setUserLibraryError } = get();

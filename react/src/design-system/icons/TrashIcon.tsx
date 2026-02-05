@@ -1,5 +1,11 @@
 import type { IconProps } from "./IconProps";
 
+/**
+ * Trash (delete) icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the trash icon
+ */
 export default function TrashIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

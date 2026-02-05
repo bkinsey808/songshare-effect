@@ -11,6 +11,11 @@ type UseSignInErrorReturn = {
 	dismissError: () => void;
 };
 
+/**
+ * Hook that derives sign-in error and provider information from query params.
+ *
+ * @returns Object with a `signinError` translation key, `provider` and `dismissError` handler
+ */
 export default function useSignInError(): UseSignInErrorReturn {
 	const [searchParams, setSearchParams] = useSearchParams();
 

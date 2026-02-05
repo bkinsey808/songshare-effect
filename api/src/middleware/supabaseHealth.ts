@@ -1,4 +1,4 @@
-import type { ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 

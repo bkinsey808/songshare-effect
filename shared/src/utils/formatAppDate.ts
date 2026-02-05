@@ -13,6 +13,9 @@ function pad2(num: number): string {
 
 /**
  * Format a date as YYYY/DD/MM.
+ *
+ * @param date - Date object or ISO date string
+ * @returns Formatted date string in YYYY/DD/MM form
  */
 export default function formatAppDate(date: Date | string): string {
 	const value = typeof date === "string" ? new Date(date) : date;
@@ -25,6 +28,9 @@ export default function formatAppDate(date: Date | string): string {
 /**
  * Format a date and time as YYYY/DD/MM HH:mm:ss in 24-hour (military) time.
  * Hours are 00–23; no AM/PM.
+ *
+ * @param date - Date object or ISO date string
+ * @returns Formatted date/time string in YYYY/DD/MM HH:mm:ss form
  */
 export function formatAppDateTime(date: Date | string): string {
 	const value = typeof date === "string" ? new Date(date) : date;

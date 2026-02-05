@@ -1,8 +1,7 @@
 import { useRef, useState } from "react";
 
+import { ZERO } from "@/shared/constants/shared-constants";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
-
-const ZERO = 0;
 const DEFAULT_FIELD_WIDTH_VALUE = 200;
 const DEFAULT_SLIDE_NAME_WIDTH_VALUE = 144;
 const MIN_COLUMN_WIDTH = 80;

@@ -1,6 +1,10 @@
 import type { IconProps } from "./IconProps";
 
-/** Icon for “song library” / music collection. Use for song-specific library entry points. */
+/** Icon for “song library” / music collection. Use for song-specific library entry points.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the song library icon
+ */
 export default function SongLibraryIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

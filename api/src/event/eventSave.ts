@@ -1,7 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
-import { type ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
+import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
@@ -28,8 +30,6 @@ const EventFormSchema = Schema.Struct({
 	public_notes: Schema.optional(Schema.String),
 	private_notes: Schema.optional(Schema.String),
 });
-
-const ZERO = 0;
 
 type EventFormData = Schema.Schema.Type<typeof EventFormSchema>;
 

@@ -1,5 +1,7 @@
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
 import buildSameSiteAttr from "@/api/cookie/buildSameSiteAttr";
-import { type ReadonlyContext } from "@/api/hono/hono-context";
+import { ZERO } from "@/shared/constants/shared-constants";
 import { getEnvString } from "@/shared/env/getEnv";
 
 type BuildSetCookieHeaderParams = Readonly<{
@@ -13,6 +15,15 @@ type BuildSetCookieHeaderParams = Readonly<{
 	opts?: Readonly<{ maxAge?: number; httpOnly?: boolean }> | undefined;
 }>;
 
+/**
+ * Build a Set-Cookie header value for the given cookie parameters.
+ *
+ * @param ctx - Hono request context used to read environment and request data
+ * @param name - Cookie name
+ * @param value - Cookie value
+ * @param opts - Optional cookie options (maxAge, httpOnly)
+ * @returns The full Set-Cookie header value
+ */
 export default function buildSetCookieHeader({
 	ctx,
 	name,
@@ -42,7 +53,6 @@ export default function buildSetCookieHeader({
 	});
 
 	const DEFAULT_MAX_AGE_SECONDS = 604_800; // 7 days
-	const ZERO = 0;
 
 	let maxAge = String(DEFAULT_MAX_AGE_SECONDS);
 	if (opts !== undefined && typeof opts.maxAge === "number") {

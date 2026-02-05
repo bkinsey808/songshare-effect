@@ -1,5 +1,6 @@
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
 import buildSetCookieHeader from "@/api/cookie/buildSetCookieHeader";
-import { type ReadonlyContext } from "@/api/hono/hono-context";
 
 type BuildSessionCookieParams = Readonly<{
 	ctx: ReadonlyContext;
@@ -8,6 +9,12 @@ type BuildSessionCookieParams = Readonly<{
 	opts?: Readonly<{ maxAge?: number; httpOnly?: boolean }>;
 }>;
 
+/**
+ * Build a session cookie header value using `buildSetCookieHeader`.
+ *
+ * @param params - Parameters with ctx/name/value and optional opts
+ * @returns The Set-Cookie header value for the session cookie
+ */
 export default function buildSessionCookie({
 	ctx,
 	name,

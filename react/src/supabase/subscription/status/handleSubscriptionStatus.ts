@@ -1,6 +1,6 @@
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
-import { type SubscriptionStatus, type ValidTableName } from "../subscription-types";
+import type { SubscriptionStatus, ValidTableName } from "../subscription-types";
 
 /**
  * Default handler for subscription status events with common logging patterns.
@@ -11,6 +11,7 @@ import { type SubscriptionStatus, type ValidTableName } from "../subscription-ty
  * @param tableName - Valid database table name being subscribed to (used for log context)
  * @param status - Subscription status from Supabase realtime (SUBSCRIBED, CHANNEL_ERROR, TIMED_OUT, CLOSED)
  * @param error - Optional error object if the status indicates an error condition
+ * @returns void
  */
 export default function handleSubscriptionStatus(
 	tableName: ValidTableName,

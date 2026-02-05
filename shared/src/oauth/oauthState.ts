@@ -24,6 +24,13 @@ export const OauthStateSchema: Schema.Schema<OauthState> = Schema.Struct({
 	redirect_origin: Schema.optional(Schema.String),
 });
 
+/**
+ * Parse an encoded OAuth state parameter into a validated `OauthState` object.
+ *
+ * @param oauthStateParamsString - Encoded OAuth state string (URI and JSON encoded)
+ * @returns The decoded and validated `OauthState` object
+ * @throws When decoding or schema validation fails
+ */
 export function parseOauthState(oauthStateParamsString: string): OauthState {
 	// Throws if decodeURIComponent or JSON.parse fails (invalid URI or JSON)
 	// Also throws if the parsed object fails validation via the effect `Schema` decoder.

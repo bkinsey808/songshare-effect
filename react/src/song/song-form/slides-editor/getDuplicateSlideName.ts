@@ -1,14 +1,17 @@
+import { ONE } from "@/shared/constants/shared-constants";
+
 import { type Slide } from "../song-form-types";
 
 const SLIDE_NUMBER_CAPTURE_INDEX = 1;
 const PARSE_RADIX = 10;
-const ONE = 1;
 const COPY_INDEX_START = 2;
 
 /**
  * Generate a smart duplicate name for a slide
  * If the original slide follows "Slide N" pattern and "Slide N+1" doesn't exist,
  * use "Slide N+1" instead of "Slide N (Copy)"
+ *
+ * @returns The generated duplicate slide name
  */
 export default function getDuplicateSlideName(
 	originalSlideName: string,

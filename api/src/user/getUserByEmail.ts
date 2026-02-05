@@ -18,49 +18,12 @@ type GetUserByEmailParams = Readonly<{
 }>;
 
 /**
- * Lookup a user by email using a Supabase client and return a validated user
- * object suitable for session creation.
+ * Lookup a user by email and return a validated user or `undefined` when not found.
  *
- * This function performs several responsibilities:
- * - Queries the `user` table for a single row matching the provided email.
- * - Treats certain PostgREST errors (notably `PGRST205`, which indicates the
- * table is missing in preview environments) as "not found" and returns
- * `undefined` so callers can continue to registration flows instead of
- * returning HTTP 500.
- * - Normalizes SQL NULLs (Supabase returns SQL NULL as `null`) to `undefined`
- * for top-level optional fields so the value validates against the
- * generated Effect `UserSchema` (which expects `string | undefined`).
- * - Validates the sanitized row against `UserSchema` and performs a runtime
- * normalization of `linked_providers` into a `string[]` for easier use by
- * callers (e.g. `Array.includes`). If runtime normalization fails, an
- * empty array is used and a debug message is logged.
- *
- * Notes:
- * - The function logs debug information about the Supabase response to aid
- * diagnosing environment differences (preview vs production).
- * - On unexpected Supabase/PostgREST errors (other than the handled
- * `PGRST205` case) the original error is re-thrown so upstream callers
- * can map it to an HTTP 500.
- *
- * Example:
- * ```ts
- * const user = await getUserByEmail(supabaseClient, 'alice@example.com');
- * if (!user) {
- *   // continue to registration flow
- * }
- * // `user.linked_providers` will be a runtime `string[]` (or `[]` on error)
- * ```
- *
- * @param params - The parameters for the function.
- * @param params.supabase - An instantiated Supabase client used to query the DB.
- * @param params.email - Email address to look up (case and normalization should be
- * handled by the caller if necessary).
- * @returns A promise that resolves to the validated user object (with
- * runtime-normalized `linked_providers: string[]`) or `undefined` when no
- * matching user exists or when the user table is absent in preview.
- * @throws Will re-throw unexpected Supabase/PostgREST errors so callers can
- * map them to an HTTP 500. The `PGRST205` PostgREST error is treated as
- * "not found" and does not throw.
+ * @param supabase - Supabase client used to query the DB
+ * @param email - Email address to look up
+ * @returns An Effect yielding the validated user object or `undefined`
+ * @throws DatabaseError on unexpected Supabase failures
  */
 export default function getUserByEmail({
 	supabase,

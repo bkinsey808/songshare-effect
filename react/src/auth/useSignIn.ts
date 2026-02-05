@@ -11,6 +11,11 @@ type UseSignInReturn = {
 	dismissError: () => void;
 };
 
+/**
+ * Hook that returns sign-in state and helpers for UI components.
+ *
+ * @returns Object containing `isSignedIn`, `signinError`, `provider` and `dismissError`
+ */
 export default function useSignIn(): UseSignInReturn {
 	const { signinError, provider, dismissError } = useSignInError();
 

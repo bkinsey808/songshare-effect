@@ -28,6 +28,17 @@ type SongFormFieldsProps = Readonly<{
 	setFormValue: (field: keyof SongFormFieldsProps["formValues"], value: string) => void;
 }>;
 
+/**
+ * Renders the form fields used in the Song editor.
+ *
+ * @param getFieldError - Function to resolve validation errors for a field
+ * @param onSongNameBlur - Called when the song name field is blurred (used to generate slug)
+ * @param songNameRef - Ref to the song name input
+ * @param songSlugRef - Ref to the song slug input
+ * @param formValues - Controlled form values
+ * @param setFormValue - Setter for individual form values
+ * @returns React element rendering the set of fields for the song form
+ */
 export default function SongFormFields({
 	getFieldError,
 	onSongNameBlur,

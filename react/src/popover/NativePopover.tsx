@@ -25,6 +25,8 @@ export type NativePopoverProps = Readonly<{
 /**
  * Native HTML Popover API component with dual-mode support (hover/click)
  * Features smart positioning, scroll tracking, and auto-close functionality
+ *
+ * @returns React element rendering the native popover
  */
 export function NativePopover({
 	children,

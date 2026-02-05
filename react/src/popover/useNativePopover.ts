@@ -40,6 +40,8 @@ export type UseNativePopoverReturn = {
 /**
  * Custom hook that encapsulates all native popover logic
  * Handles state management, event handlers, and positioning
+ *
+ * @returns The `UseNativePopoverReturn` object containing refs, state, handlers and event callbacks
  */
 export function useNativePopover({
 	preferredPlacement,

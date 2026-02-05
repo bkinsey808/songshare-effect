@@ -6,12 +6,13 @@ import { getCookie } from "hono/cookie";
 import { verify } from "hono/jwt";
 import { nanoid } from "nanoid";
 
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
 import { DatabaseError, ServerError, ValidationError } from "@/api/api-errors";
 import buildSameSiteAttr from "@/api/cookie/buildSameSiteAttr";
 import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import { type Env } from "@/api/env";
-import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
 import rateLimit from "@/api/oauth-callback-factory/rateLimit";
 import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";

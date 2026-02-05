@@ -8,6 +8,16 @@ type CollapsibleSectionProps = Readonly<{
 	children: ReactNode;
 }>;
 
+/**
+ * UI primitive that renders a titled collapsible section used by the Song form
+ *
+ * @param title - Section title text
+ * @param icon - Icon node displayed to the left of the title
+ * @param isExpanded - Whether the section is expanded
+ * @param onToggle - Callback invoked when the section header is clicked
+ * @param children - Section content rendered when expanded
+ * @returns React element representing the collapsible section
+ */
 export default function CollapsibleSection({
 	title,
 	icon,

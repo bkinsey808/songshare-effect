@@ -52,6 +52,16 @@ export type SongSubscribeSlice = SongSubscribeState & {
 	) => { song: Song | undefined; songPublic: SongPublic | undefined } | undefined;
 };
 
+/**
+ * Create the song subscription slice for the global store. Provides methods
+ * to manage private/public song caches, active song id lists, and realtime
+ * subscription lifecycle handlers.
+ *
+ * @param set - Zustand set function scoped to this slice
+ * @param get - Getter for current slice state
+ * @param api - Optional store API (kept for middleware/consumers)
+ * @returns The initialized SongSubscribeSlice with helper methods
+ */
 export function createSongSubscribeSlice(
 	set: Set<SongSubscribeSlice>,
 	get: Get<SongSubscribeSlice>,

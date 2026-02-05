@@ -6,6 +6,7 @@ import resizeCanvasToDisplaySize from "@/react/canvas/resizeCanvasToDisplaySize"
 import { useCanvasAnimation } from "@/react/canvas/useCanvasAnimation";
 import drawAudioVizFallbackFrame from "@/react/pages/demo/typegpu-audio-viz/drawAudioVizFallbackFrame";
 import runTypeGpuAudioVizDemo from "@/react/typegpu/runTypeGpuAudioVizDemo";
+import { ZERO } from "@/shared/constants/shared-constants";
 
 type DemoStatus =
 	| "idle"
@@ -20,8 +21,13 @@ type DemoStatus =
 const LEVEL_UI_INTERVAL_MS = 200;
 const LEVEL_SMOOTHING_ALPHA = 0.2;
 const LEVEL_DECIMALS = 3;
-const ZERO = 0;
 
+/**
+ * Hook that manages a TypeGPU/WebGPU + Canvas2D audio visualization demo lifecycle.
+ *
+ * @param canvasRef - Ref to the canvas element used for rendering
+ * @returns Control methods and status for the demo (start/stop, status, level value, etc.)
+ */
 export default function useTypegpuAudioViz(canvasRef: React.RefObject<HTMLCanvasElement | null>): {
 	status: DemoStatus;
 	errorMessage: string | undefined;

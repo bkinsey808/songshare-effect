@@ -4,6 +4,9 @@ import { isSupportedLanguage } from "@/shared/language/supported-languages-effec
 /**
  * See react implementation for behavior — this is the shared canonical copy so
  * server and client can rely on the same logic.
+ *
+ * @param pathname - URL pathname potentially containing a leading language segment
+ * @returns Pathname with the language segment removed (or `/` when root)
  */
 export default function getPathWithoutLang(pathname: string): string {
 	if (!pathname || pathname === "/") {

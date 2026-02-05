@@ -15,6 +15,13 @@ type SortablePlaylistSongItemProps = {
 	onRemove: (songId: string) => void;
 };
 
+/**
+ * Sortable wrapper for `PlaylistSongCard` used by the playlist editor.
+ * Applies drag transform/transition styles and provides a handle to the card.
+ *
+ * @param props - SortablePlaylistSongItemProps
+ * @returns Sortable React element for the song
+ */
 export default function SortablePlaylistSongItem(
 	props: SortablePlaylistSongItemProps,
 ): ReactElement {

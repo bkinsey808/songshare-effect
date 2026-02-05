@@ -9,6 +9,8 @@ let inFlightPromise: Promise<string | undefined> | undefined = undefined;
  *
  * Deduplicates concurrent requests by returning the same in-flight promise.
  * If a valid token is already cached, returns it immediately.
+ *
+ * @returns A promise that resolves to the access token string or `undefined` on error
  */
 export default function fetchSupabaseUserTokenFromApi(): Promise<string | undefined> {
 	// 1. Check if we already have a valid token

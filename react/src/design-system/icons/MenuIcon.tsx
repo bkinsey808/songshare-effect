@@ -1,5 +1,11 @@
 import type { IconProps } from "./IconProps";
 
+/**
+ * Menu (hamburger) icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the menu icon
+ */
 export default function MenuIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

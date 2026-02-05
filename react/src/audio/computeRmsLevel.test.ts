@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { ONE, ZERO } from "@/shared/constants/shared-constants";
+
 import computeRmsLevelFromTimeDomainBytes from "./computeRmsLevel";
 
 describe("computeRmsLevelFromTimeDomainBytes", () => {
@@ -8,9 +10,6 @@ describe("computeRmsLevelFromTimeDomainBytes", () => {
 	const MIN_BYTE = 0;
 	const EXPECTED_ZERO = 0;
 	const EXPECTED_ONE = 1;
-
-	const ZERO = 0;
-	const ONE = 1;
 
 	it("returns 1 for maximum amplitude square wave (0s and 255s)", () => {
 		const pattern: [number, number] = [MAX_BYTE, MIN_BYTE];

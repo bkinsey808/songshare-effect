@@ -21,6 +21,8 @@ type SetPreferredOpts = {
  * - Persists preference via `setStoredLanguage()` (Cookie Store or fallback)
  * - Optionally navigates to a localized URL (common UI pattern)
  * - Returns a stable callback suitable for event handlers
+ *
+ * @returns A stable callback that accepts a new language and optional navigation/persistence options
  */
 export default function useSetPreferredLanguage(): (
 	newLang: SupportedLanguageType,

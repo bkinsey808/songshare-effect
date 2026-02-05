@@ -10,6 +10,8 @@ import { useAppStore } from "@/react/zustand/useAppStore";
  * playlist id. There's no `fetchPlaylistById` helper yet, so this hook only
  * performs the cleanup on unmount and contains a TODO to implement fetching by
  * id when an API is available.
+ *
+ * @returns void
  */
 export default function useFetchPlaylist(playlistId?: string): void {
 	const currentPlaylist = useAppStore((state) => state.currentPlaylist);

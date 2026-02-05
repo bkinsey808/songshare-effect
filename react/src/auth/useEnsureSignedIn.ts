@@ -6,6 +6,8 @@ import { clientDebug } from "@/react/utils/clientLogger";
 
 /**
  * Hook to ensure the user is signed in on mount.
+ *
+ * @returns void
  */
 export default function useEnsureSignedIn(options?: { readonly force?: boolean }): void {
 	const force = options?.force ?? false;

@@ -59,6 +59,15 @@ type UseFormSubmissionReturn = {
 	handleCancel: () => void;
 };
 
+/**
+ * Hook to handle song form submission: posts form data to the API and
+ * delegates API response handling to the provided effect handler.
+ *
+ * @param handleApiResponseEffect - Effect-based response handler for API errors
+ * @param resetFormState - Resets form state after successful save
+ * @param onSaveSuccess - Optional callback invoked with API response `data` on success
+ * @returns Object with `onSubmit` and `handleCancel` handlers
+ */
 export default function useFormSubmission({
 	handleApiResponseEffect,
 	resetFormState,

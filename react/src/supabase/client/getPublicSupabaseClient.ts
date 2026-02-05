@@ -5,8 +5,10 @@ import { type Database } from "@/shared/generated/supabaseTypes";
 
 /**
  * Creates a basic Supabase client with anonymous access only.
- * This uses the ANON_KEY and provides no authenticat@on.
- * Only useful for completely public data that doesn't require RLS.
+ * This uses the ANON key and provides no authentication.
+ * It's only useful for completely public data that doesn't require RLS.
+ *
+ * @returns A `SupabaseClient<Database>` using the anon key, or `undefined` if env vars are missing
  */
 export default function getPublicSupabaseClient(): SupabaseClient<Database> | undefined {
 	const supabaseUrl = getEnvValueSafe("SUPABASE_URL");

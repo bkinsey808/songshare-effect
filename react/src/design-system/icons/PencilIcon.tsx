@@ -1,5 +1,11 @@
 import type { IconProps } from "./IconProps";
 
+/**
+ * Pencil (edit) icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the pencil icon
+ */
 export default function PencilIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

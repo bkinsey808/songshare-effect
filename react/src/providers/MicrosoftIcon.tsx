@@ -4,6 +4,12 @@ type IconProps = Readonly<{
 	height?: string;
 }>;
 
+/**
+ * Microsoft brand icon (four-color square tiles)
+ *
+ * @param props - Icon properties (optional width, height, className)
+ * @returns React element rendering the Microsoft icon
+ */
 export default function MicrosoftIcon(props: IconProps): ReactElement {
 	return (
 		<svg

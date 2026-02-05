@@ -23,15 +23,34 @@ export const ProviderSchema: Schema.Schema<ProviderType> = Schema.Union(
  */
 export const activeProviders: ProviderType[] = [Provider.google, Provider.microsoft];
 
+/**
+ * Assert and return a ProviderType or throw when invalid.
+ *
+ * @param value - Value to validate as a provider
+ * @returns The given value as `ProviderType` when valid
+ */
 export function guardAsProvider(value: unknown): ProviderType {
 	return Schema.decodeUnknownSync(ProviderSchema)(value);
 }
 
 // Alternative functional approach that doesn't throw
+
+/**
+ * Parse a provider value without throwing; returns Either with the parsed value or a ParseError.
+ *
+ * @param value - Value to parse
+ * @returns Either containing the parsed ProviderType or a ParseError
+ */
 export function parseProvider(value: unknown): Either<ProviderType, ParseError> {
 	return Schema.decodeUnknownEither(ProviderSchema)(value);
 }
 
+/**
+ * Runtime check for a provider value
+ *
+ * @param value - Value to test
+ * @returns True when the value is a valid `ProviderType`
+ */
 export function isProvider(value: unknown): value is ProviderType {
 	try {
 		guardAsProvider(value);

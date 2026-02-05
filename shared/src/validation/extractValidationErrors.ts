@@ -4,6 +4,9 @@ import { type ValidationError } from "./validate-types";
 
 /**
  * Safely extract ValidationError[] from various unknown shapes.
+ *
+ * @param input - Unknown payload to inspect for validation error shapes
+ * @returns An array of ValidationError objects (possibly empty)
  */
 export default function extractValidationErrors(input: unknown): readonly ValidationError[] {
 	// Local runtime guard to validate array items look like ValidationError

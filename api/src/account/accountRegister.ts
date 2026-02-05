@@ -3,41 +3,33 @@ import { Effect } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
+import type { Database } from "@/shared/generated/supabaseTypes";
+
 import { DatabaseError, ServerError, ValidationError } from "@/api/api-errors";
 import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
 import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
 import getIpAddress from "@/api/getIpAddress";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
+import normalizeNullsTopLevel from "@/api/oauth/normalizeNullsTopLevel";
 import { RegisterDataSchema } from "@/api/register/registerData";
 import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
 import { csrfTokenCookieName } from "@/shared/cookies";
 import { getEnvString } from "@/shared/env/getEnv";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { UserPublicSchema, UserSchema } from "@/shared/generated/supabaseSchemas";
-import { type Database } from "@/shared/generated/supabaseTypes";
 import { RegisterFormSchema } from "@/shared/register/register";
 import { UserSessionDataSchema } from "@/shared/userSessionData";
-import { safeGet, safeSet } from "@/shared/utils/safe";
 import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 
-import { type ReadonlyContext } from "../hono/hono-context";
-
-// Normalize DB row: Supabase returns `null` for nullable fields whereas
-// our Effect schemas expect `undefined` for optional fields. Convert
-// any null values to undefined before running schema decoding so that
-// optional fields validate correctly.
-function isPlainRecord(maybePlainRecord: unknown): maybePlainRecord is Record<string, unknown> {
-	return (
-		maybePlainRecord !== null &&
-		typeof maybePlainRecord === "object" &&
-		!Array.isArray(maybePlainRecord)
-	);
-}
+import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
 
 /**
  * Handle account registration after OAuth callback
+ *
+ * @param ctx - Hono request context
+ * @returns An Effect that resolves to a Response on success
  */
 export default function accountRegister(
 	ctx: ReadonlyContext,
@@ -194,26 +186,7 @@ export default function accountRegister(
 			}),
 		);
 
-		function normalizeNulls(obj: unknown): Record<string, unknown> {
-			// Use safeGet/safeSet to satisfy lint/security rules and avoid
-			// prototype pollution while normalizing null -> undefined.
-			if (!isPlainRecord(obj)) {
-				// Not a plain record — return an empty normalized map
-				return {};
-			}
-
-			// `isPlainRecord` narrowed the type, so `obj` is a Record<string, unknown>
-			const src = obj;
-			const copy: Record<string, unknown> = {};
-			for (const key of Object.keys(src)) {
-				const value = safeGet(src, key);
-				// Normalize explicit `null` to `undefined`, otherwise copy value as-is
-				safeSet(copy, key, value === null ? undefined : value);
-			}
-			return copy;
-		}
-
-		const normalizedRow = normalizeNulls(rawInsertedUser);
+		const normalizedRow = normalizeNullsTopLevel(rawInsertedUser);
 
 		const newUser = yield* $(
 			Effect.tryPromise({

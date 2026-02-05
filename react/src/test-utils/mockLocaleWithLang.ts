@@ -18,6 +18,7 @@ function makeIdentityT(): ReturnType<typeof useLocale>["t"] {
  * i18n `t` function to avoid repeating inline disables across test files.
  *
  * @param lang - simulated language value (defaults to "en")
+ * @returns void
  */
 export default function mockLocaleWithLang(
 	lang: ReturnType<typeof useLocale>["lang"] = "en",

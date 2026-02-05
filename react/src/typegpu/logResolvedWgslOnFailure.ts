@@ -17,6 +17,8 @@ type Logger = {
  * @param tgpuLike - The TypeGPU module/instance to attempt `resolve()` on.
  * @param entryPoints - The entry point functions passed to `resolve()`.
  * @param logger - Optional logger (defaults to `console`).
+ *
+ * @returns void
  */
 export default function logResolvedWgslOnFailure({
 	prefix,

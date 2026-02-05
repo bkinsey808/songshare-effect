@@ -1,5 +1,12 @@
 import makeSongPublic from "@/react/test-utils/makeSongPublic";
 
+/**
+ * Build a simple song fixture from a list of ids (test utility).
+ *
+ * @param ids - Array of song ids
+ * @param fields - Which fields to include on each slide
+ * @returns Test object representing a song collection
+ */
 export default function makeSongFromIds(
 	ids: string[],
 	fields: ("lyrics" | "script" | "enTranslation")[] = ["lyrics"],

@@ -5,12 +5,14 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { warn as sWarn, error as sError } from "../utils/scriptLogger";
+import { ONE, ZERO } from "@/shared/constants/shared-constants";
+
+import { error as sError, warn as sWarn } from "../utils/scriptLogger";
 import { stripAnsi } from "../utils/stripAnsi";
 import browsersAlreadyInstalled from "./helpers/browsersAlreadyInstalled";
 import findBrowserExecutable from "./helpers/findBrowserExecutable";
 import libsMissingForExecutable from "./helpers/libsMissingForExecutable";
-import { CLIENT_LOG, API_LOG } from "./helpers/logPaths";
+import { API_LOG, CLIENT_LOG } from "./helpers/logPaths";
 import maybePromptInstallDeps from "./helpers/maybePromptInstallDeps";
 
 // LOG_DIR, CLIENT_LOG, API_LOG are provided by shared helpers
@@ -34,8 +36,6 @@ let playwrightProcess: ReturnType<typeof spawn> | undefined = undefined;
 
 const startTime = Date.now();
 const DEFAULT_TIMEOUT = 120_000;
-const ZERO = 0;
-const ONE = 1;
 const ARGV_FILE_INDEX = 2;
 const EXIT_NON_ZERO = 1;
 const INTERVAL_MS = 500;

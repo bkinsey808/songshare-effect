@@ -1,6 +1,8 @@
 /**
  * Test helper: attach a minimal 2D `getContext` implementation to a canvas element.
  * Keeps the surface small and strongly typed (returns a Partial<CanvasRenderingContext2D>).
+ *
+ * @returns void
  */
 export default function attachFakeCanvas2DContext(canvas: HTMLCanvasElement): void {
 	Object.defineProperty(canvas, "getContext", {

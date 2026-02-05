@@ -12,19 +12,44 @@ type Logger = {
 const logger: Logger = { log, debug, warn, error };
 
 // eslint-disable comments for console usage.
+
+/**
+ * Log informational messages to stdout.
+ *
+ * @param args - Values to log
+ * @returns void
+ */
 export function log(...args: unknown[]): void {
 	console.log(...args);
 }
 
+/**
+ * Log debug-level messages to stdout (lower priority).
+ *
+ * @param args - Values to log
+ * @returns void
+ */
 export function debug(...args: unknown[]): void {
 	// Use console.debug for lower-priority logs
 	console.debug(...args);
 }
 
+/**
+ * Log warnings to stderr.
+ *
+ * @param args - Values to log
+ * @returns void
+ */
 export function warn(...args: unknown[]): void {
 	console.warn(...args);
 }
 
+/**
+ * Log error messages to stderr.
+ *
+ * @param args - Values to log
+ * @returns void
+ */
 export function error(...args: unknown[]): void {
 	console.error(...args);
 }

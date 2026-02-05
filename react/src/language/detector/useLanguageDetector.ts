@@ -12,6 +12,8 @@ import getStoredLanguage from "../stored/getStoredLanguage";
  * Uses the async Cookie Store API when available to prefer the user's
  * explicit stored preference; falls back to synchronous helper for
  * environments that require it.
+ *
+ * @returns void
  */
 export default function useLanguageDetector(): void {
 	const navigate = useNavigate();

@@ -2,8 +2,13 @@
 // need to call API helpers. This centralizes the required unsafe casts so
 // individual tests don't need their own eslint-disable comments.
 import type { Env } from "@/api/env";
-import type { ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
+/**
+ * Create a minimal ReadonlyContext for tests.
+ *
+ * @returns A lightweight `ReadonlyContext` suitable for unit tests
+ */
 export default function makeCtx(): ReadonlyContext {
 	// Narrowly-scoped unsafe cast to `Env` for test helper only
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast for Env

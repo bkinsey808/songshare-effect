@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 
 import {
-	DEMO_PROFILE_DELAY_MS,
-	DEMO_POSTS_DELAY_MS,
 	DEMO_POSTS_COUNT,
+	DEMO_POSTS_DELAY_MS,
+	DEMO_PROFILE_DELAY_MS,
 } from "@/shared/constants/http";
+import { ZERO, ONE } from "@/shared/constants/shared-constants";
 import delay from "@/shared/utils/delay";
 import { createSuspenseCache } from "@/shared/utils/typedPromiseCache";
 
@@ -23,8 +24,6 @@ const postsCache = createSuspenseCache<DemoPost[]>("demo:posts");
 
 // File-local constants to avoid magic-number literals in this demo
 const POST_SAMPLE_COUNT = 3;
-const ZERO = 0;
-const ONE = 1;
 
 // Utility function to create a suspending fetch
 function suspendingFetch<ResultType>(
@@ -136,7 +135,13 @@ function PostsSkeleton(): ReactElement {
 	);
 }
 
-// Main demo component
+/**
+ * Demonstrates React Suspense with mock data and caches. Renders profile and posts
+ * that suspend while fetching, and provides a button to clear the cached results.
+ *
+ * @remarks Main demo component for the Suspense demo
+ * @returns React element rendering the Suspense demo
+ */
 export default function SuspenseDemo(): ReactElement {
 	function clearCache(): void {
 		// clear both type-specific caches used in this demo

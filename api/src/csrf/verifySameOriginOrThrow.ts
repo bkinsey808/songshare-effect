@@ -2,8 +2,15 @@ import { AuthenticationError } from "@/api/api-errors";
 import getAllowedOrigins from "@/api/cors/getAllowedOrigins";
 import getOriginToCheck from "@/api/cors/getOriginToCheck";
 
-import { type ReadonlyContext } from "../hono/hono-context";
+import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
 
+/**
+ * Verify the request originated from an allowed origin and throw AuthenticationError on failure.
+ *
+ * @param ctx - Hono request context
+ * @returns void
+ * @throws AuthenticationError when origin is missing or not allowed
+ */
 export default function verifySameOriginOrThrow(ctx: ReadonlyContext): void {
 	// Use getAllowedOrigins which accepts `unknown` so callers don't need to
 	// perform unsafe casts on `ctx.env`.

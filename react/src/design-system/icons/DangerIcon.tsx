@@ -1,5 +1,11 @@
 import type { IconProps } from "./IconProps";
 
+/**
+ * Danger (warning) icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the danger icon
+ */
 export default function DangerIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

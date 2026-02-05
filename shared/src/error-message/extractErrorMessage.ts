@@ -9,8 +9,36 @@ import isRecord from "@/shared/type-guards/isRecord";
  * @param payload - The parsed JSON response (unknown)
  * @returns The extracted error message, or `undefined` if none found
  */
+
+/**
+ * Extracts an error message from a parsed payload with optional fallback.
+ *
+ * @param payload - The parsed JSON response (unknown)
+ * @param fallback - Fallback string when no message is present
+ * @returns Extracted message or the provided fallback
+ */
+
+/**
+ * Extract an error message from a payload or return `undefined` when none present.
+ *
+ * @returns The extracted message or `undefined`
+ */
 export default function extractErrorMessage(payload: unknown): string | undefined;
+
+/**
+ * Extract an error message from a payload or return the provided `fallback`.
+ *
+ * @returns The extracted message or the provided fallback
+ */
 export default function extractErrorMessage(payload: unknown, fallback: string): string;
+
+/**
+ * Extracts an error message from a parsed payload with optional fallback.
+ *
+ * @param payload - The parsed JSON response (unknown)
+ * @param fallback - Optional fallback string when no message is present
+ * @returns The extracted message, the fallback, or `undefined` when none available
+ */
 export default function extractErrorMessage(
 	payload: unknown,
 	fallback?: string,

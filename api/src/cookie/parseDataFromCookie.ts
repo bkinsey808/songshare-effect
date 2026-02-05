@@ -2,8 +2,9 @@ import type { Schema } from "effect";
 
 import { verify } from "hono/jwt";
 
-import { type ReadonlyContext } from "@/api/hono/hono-context";
-import { log as serverLog, error as serverError } from "@/api/logger";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
+import { error as serverError, log as serverLog } from "@/api/logger";
 import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 
 type ParseDataFromCookieParams<

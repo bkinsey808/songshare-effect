@@ -11,7 +11,8 @@ function typegpuFactory(): { default: Record<string, unknown> } {
 /**
  * Apply the TypeGPU-related mocks at runtime.
  * Call this inside a test before importing modules that depend on `runTypeGpuDemo`.
- * Returns the mocked `runTypeGpuDemo` function so tests can assert invocations.
+ *
+ * @returns Object containing the mocked `runTypeGpuDemo` function for assertions
  */
 export function mockTypeGpu(): { runTypeGpuDemoMock: ReturnType<typeof vi.fn> } {
 	// Minimal mock for the `typegpu` runtime (tests don't need the real impl)
@@ -31,6 +32,11 @@ export function mockTypeGpu(): { runTypeGpuDemoMock: ReturnType<typeof vi.fn> } 
 	return { runTypeGpuDemoMock: fn };
 }
 
+/**
+ * Apply a minimal malformed `typegpu` mock (no initialization) for negative tests.
+ *
+ * @returns void
+ */
 export function mockTypeGpuWithoutInit(): void {
 	vi.doMock("typegpu", () => ({ unknown: 123 }));
 }

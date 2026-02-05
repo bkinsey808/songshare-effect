@@ -13,6 +13,14 @@ const RENDER_TIME_PRECISION = 2;
 const INITIAL_RENDER_TIME = 0;
 const INCREMENT = 1;
 
+/**
+ * Demo component that simulates heavy computation and reports render time.
+ *
+ * @param props - Component parameters
+ * @param props.name - Display name for the demo block
+ * @param props.color - Tailwind color classes used for visuals
+ * @returns React element showing simulated render timing
+ */
 export default function HeavyComponent({ name, color }: HeavyComponentParams): ReactElement {
 	const [renderTime, setRenderTime] = useState<number>(INITIAL_RENDER_TIME);
 

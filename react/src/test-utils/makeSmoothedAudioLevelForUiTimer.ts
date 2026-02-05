@@ -2,8 +2,14 @@ import type { RefObject } from "react";
 
 import type { SmoothedAudioLevel } from "@/react/audio/useSmoothedAudioLevel";
 
-const ZERO = 0;
+import { ZERO } from "@/shared/constants/shared-constants";
 
+/**
+ * Create a mock `SmoothedAudioLevel` with a controllable UI timer for tests.
+ *
+ * @param uiIntervalMs - Interval in ms used for the UI timer in tests
+ * @returns An object containing the `audioLevel` and a `RefObject` pointing to it
+ */
 export default function makeSmoothedAudioLevelForUiTimer(uiIntervalMs: number): {
 	audioLevel: SmoothedAudioLevel;
 	audioLevelRef: RefObject<SmoothedAudioLevel>;

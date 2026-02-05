@@ -1,4 +1,4 @@
-import { type ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
 /**
  * Return the requestor's IP address.

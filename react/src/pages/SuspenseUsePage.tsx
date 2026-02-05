@@ -3,20 +3,21 @@ import { Suspense, use, useState } from "react";
 
 import ErrorBoundary from "@/react/demo/ErrorBoundary";
 import {
-	DEMO_DEFAULT_USER_ID,
 	DEMO_ALT_USER_ID,
+	DEMO_DEFAULT_USER_ID,
 	SUSPENSE_ALBUM_DELAY_MS,
-	SUSPENSE_ARTIST_DELAY_MS,
-	SUSPENSE_PLAYLIST_DELAY_MS,
 	SUSPENSE_ALBUM_TRACKS,
 	SUSPENSE_ALBUM_TRACKS_DISPLAY,
 	SUSPENSE_ARTIST_ALBUMS,
-	SUSPENSE_PLAYLIST_SONGS,
-	SUSPENSE_PLAYLIST_DISPLAY,
-	SUSPENSE_PLAYLIST_BASE_SONGS,
-	SUSPENSE_PLAYLIST_INCREMENT,
+	SUSPENSE_ARTIST_DELAY_MS,
 	SUSPENSE_ERROR_ID,
+	SUSPENSE_PLAYLIST_BASE_SONGS,
+	SUSPENSE_PLAYLIST_DELAY_MS,
+	SUSPENSE_PLAYLIST_DISPLAY,
+	SUSPENSE_PLAYLIST_INCREMENT,
+	SUSPENSE_PLAYLIST_SONGS,
 } from "@/shared/constants/http";
+import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import { createTypedCache } from "@/shared/utils/typedPromiseCache";
 
 const albumCache = createTypedCache<{
@@ -50,8 +51,6 @@ const BASE_YEAR = 2020;
 const DURATION_BASE_HOUR = 2;
 const DURATION_BASE_MINUTES = 30;
 const GENRES: readonly string[] = ["Pop", "Rock", "Jazz", "Classical"];
-const ZERO = 0;
-const ONE = 1;
 
 // This function returns a Promise by delegating to the typed shared cache. We deliberately keep
 // it synchronous (returns Promise) and disable the rule that requires promise-returning

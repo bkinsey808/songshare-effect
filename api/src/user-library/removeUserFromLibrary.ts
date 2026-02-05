@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 
-import { type ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 

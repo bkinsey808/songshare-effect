@@ -10,6 +10,14 @@ import isRecord from "@/shared/type-guards/isRecord";
 
 import type { SongSubscribeSlice } from "../song-slice";
 
+/**
+ * Ensure the given private song IDs are active and fetch them for the current
+ * authenticated user. Updates the store with fetched private song rows.
+ *
+ * @param set - Zustand set function for the SongSubscribe slice
+ * @param get - Getter for current slice state
+ * @returns Effect that completes when fetching and updates are done
+ */
 export default function addActivePrivateSongIds(
 	set: (
 		partial:

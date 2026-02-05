@@ -1,4 +1,4 @@
-import type { ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
 import { ACCESS_CONTROL_MAX_AGE_SEC, HTTP_NO_CONTENT } from "@/shared/constants/http";
 

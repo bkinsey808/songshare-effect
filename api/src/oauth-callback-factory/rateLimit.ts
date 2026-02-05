@@ -1,4 +1,4 @@
-import { type ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
 // Minimal placeholder rate limiter. Returns true to allow the request.
 export default async function rateLimit(_ctx: ReadonlyContext, _key = "global"): Promise<boolean> {

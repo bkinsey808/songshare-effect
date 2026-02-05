@@ -1,3 +1,9 @@
+/**
+ * Read the slide order array from a public payload and coerce items to strings.
+ *
+ * @param pub - Optional public payload with `slide_order` field
+ * @returns The coerced array of slide ids
+ */
 export default function computeSlideOrder(pub?: Record<string, unknown>): string[] {
 	if (!pub || !Array.isArray(pub["slide_order"])) {
 		return [];

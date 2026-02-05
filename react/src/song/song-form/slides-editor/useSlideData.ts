@@ -1,6 +1,4 @@
-/**
- * Custom hook for managing slide data CRUD operations
- */
+import { ONE } from "@/shared/constants/shared-constants";
 import { safeGet } from "@/shared/utils/safe";
 
 import { type Slide } from "../song-form-types";
@@ -21,13 +19,21 @@ type UseSlideDataReturn = {
 	duplicateSlide: (slideId: string) => void;
 };
 
+/**
+ * Hook that provides CRUD operations for slide objects and updates slide order
+ *
+ * @param slideOrder - Current array of slide ids (presentation order)
+ * @param setSlideOrder - Setter to update the order
+ * @param slides - Map of slide id to Slide objects
+ * @param setSlides - Setter to replace the slides map
+ * @returns Methods: addSlide, deleteSlide, duplicateSlide
+ */
 export default function useSlideData({
 	slideOrder,
 	setSlideOrder,
 	slides,
 	setSlides,
 }: UseSlideDataParams): UseSlideDataReturn {
-	const ONE = 1;
 	function addSlide(): void {
 		const id = randomId();
 		const newSlideName = getNextSlideName(slides, slideOrder.length);

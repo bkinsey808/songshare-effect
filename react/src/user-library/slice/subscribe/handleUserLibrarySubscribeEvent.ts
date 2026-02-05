@@ -18,6 +18,19 @@ function isUserLibraryEntry(value: unknown): value is UserLibrary {
 	return typeof value["user_id"] === "string" && typeof value["followed_user_id"] === "string";
 }
 
+/**
+ * handleUserLibrarySubscribeEvent
+ *
+ * Processes realtime events for the `user_library` subscription. Handles
+ * INSERT/UPDATE by enriching and adding the entry, and DELETE by removing
+ * the entry from the local slice. Non-realtime payloads are ignored.
+ *
+ * @param payload - Raw realtime payload from Supabase.
+ * @param supabaseClient - Initialized Supabase client to perform enrichment
+ *   calls (e.g., to fetch owner usernames).
+ * @param get - Getter for the `UserLibrarySlice` used to apply changes.
+ * @returns - An Effect that completes after applying the change locally.
+ */
 export default function handleUserLibrarySubscribeEvent(
 	payload: unknown,
 	supabaseClient: Exclude<ReturnType<typeof getSupabaseClient>, undefined>,

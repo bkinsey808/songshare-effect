@@ -14,6 +14,8 @@ const PUBLIC_SUB_INITIAL_RUN = 0;
 /**
  * Initialize the song library when a page mounts.
  * Uses standard Zustand selectors hooks for maximum stability.
+ *
+ * @returns Object exposing library entries, loading state, error and remove handler
  */
 export default function useSongLibrary(): {
 	songEntries: SongLibraryEntry[];

@@ -1,6 +1,8 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { ONE } from "@/shared/constants/shared-constants";
+
 import SongFormFooter from "./SongFormFooter";
 
 vi.mock(
@@ -21,8 +23,6 @@ vi.mock(
 		}),
 	}),
 );
-
-const ONE = 1;
 
 describe("song form footer", () => {
 	it("renders create/reset/cancel buttons", (): void => {

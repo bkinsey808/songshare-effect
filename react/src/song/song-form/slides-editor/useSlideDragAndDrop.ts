@@ -1,5 +1,9 @@
 /**
  * Custom hook for managing drag and drop functionality for slides
+ *
+ * @param slideOrder - The current ordered array of slide ids
+ * @param setSlideOrder - Setter to update the slide order after drag operations
+ * @returns Sensors, a drag end handler, and the computed sortable item ids
  */
 import {
 	type DragEndEvent,
@@ -22,6 +26,13 @@ type UseSlideDragAndDropReturn = {
 	sortableItems: string[];
 };
 
+/**
+ * Custom hook for managing drag and drop functionality for slides.
+ *
+ * @param slideOrder - The current ordered array of slide ids
+ * @param setSlideOrder - Setter to update the slide order after drag operations
+ * @returns Sensors array, a drag end handler, and the computed sortable item ids
+ */
 export default function useSlideDragAndDrop({
 	slideOrder,
 	setSlideOrder,

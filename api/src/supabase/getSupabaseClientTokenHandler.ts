@@ -1,4 +1,4 @@
-import type { ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
 import { HTTP_INTERNAL, ONE_HOUR_SECONDS } from "@/shared/constants/http";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";

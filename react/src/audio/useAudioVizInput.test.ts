@@ -4,6 +4,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import makeSmoothedAudioLevelForUiTimer from "@/react/test-utils/makeSmoothedAudioLevelForUiTimer";
+import { ZERO } from "@/shared/constants/shared-constants";
 
 import type { SmoothedAudioLevel } from "./useSmoothedAudioLevel";
 
@@ -30,7 +31,7 @@ describe("useAudioVizInput", () => {
 	const BYTES_LEVEL = 0.6;
 	const FFT_SIZE = 1024;
 	const REFRESH_KEY = 42;
-	const ZERO = 0;
+
 	const SELECTED_DEVICE_ID = "device-123";
 	const MIC_STREAM_ID = "stream-123";
 	const DEFAULT_DEVICE_ID = "default";

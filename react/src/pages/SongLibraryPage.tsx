@@ -4,6 +4,14 @@ import { useNavigate } from "react-router-dom";
 import useLocale from "@/react/language/locale/useLocale";
 import SongLibrary from "@/react/song-library/SongLibrary";
 
+/**
+ * SongLibraryPage
+ *
+ * Page that displays the user's song library and provides navigation hooks
+ * for viewing and managing songs.
+ *
+ * @returns - A React element that renders the `SongLibrary` component.
+ */
 export default function SongLibraryPage(): ReactElement {
 	const { t } = useTranslation();
 	const { lang } = useLocale();

@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import typegpu from "typegpu";
 
@@ -6,6 +6,14 @@ import { useCanvasAnimation } from "@/react/canvas/useCanvasAnimation";
 import DemoNavigation from "@/react/demo/DemoNavigation";
 import runTypeGpuDemo from "@/react/typegpu/runTypeGpuDemo";
 
+/**
+ * TypeGpuDemoPage
+ *
+ * Interactive demo that exercises TypeGPU / WebGPU rendering paths with
+ * a canvas-based visualization and demo controls.
+ *
+ * @returns - A React element containing the TypeGPU demo UI and canvas.
+ */
 export default function TypeGpuDemoPage(): ReactElement {
 	const { t } = useTranslation();
 

@@ -4,7 +4,20 @@ description: 'Code Comment Custom Agent: adds high-quality comments to TypeScrip
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
 ---
 
-# Code Comment Custom Agent.md
+# Code Comment Custom Agent
+
+## Quick Reference
+
+**For quick commenting guidance**, see the [code-comments skill](../skills/code-comments/SKILL.md).
+
+This agent provides extended examples and operational guidance beyond the skill.
+
+**Related resources:**
+
+- [.agent/rules.md](../../.agent/rules.md) - Full project rules
+- [code-comments skill](../skills/code-comments/SKILL.md) - Quick reference
+
+---
 
 ## 🤖 Role
 
@@ -51,6 +64,8 @@ You are a specialized documentation expert for TypeScript (`.ts`) and React Type
 ### 1. JSDoc for Symbols (Functions, Components, Types)
 
 - **Multi-line Block**: Use for components/functions. Document props via `@param props.propertyName`.
+- **Don't repeat symbol names in JSDoc**: Do not start the JSDoc with the function or symbol name. The symbol name is already declared by the code; begin with a concise description of purpose and behavior instead.
+- **Always include `@returns`**: Every function should include an `@returns` tag. For functions that return `void`, document `@returns void` so the intent is explicit.
 - **Single-line JSDoc**: Use `/** description */` for short symbol descriptions if they fit on one line.
 - **Max line length**: Keep JSDoc and // lines under 100 characters for readability.
 
@@ -58,8 +73,6 @@ You are a specialized documentation expert for TypeScript (`.ts`) and React Type
 
 ```tsx
 /**
- * DeleteConfirmationRow
- *
  * Renders the inner TD content for the full-width delete confirmation UI.
  * Maintainers: This avoids alignment shifts seen in separate-row implementations.
  *
@@ -154,15 +167,15 @@ use this:
  */
 ```
 
-### 7. jsdoc above a function should document all params and also include @returns if function returns somethign besides void. If the return type is an object, document the properties with `@returns` sub-tags.
+### 7. jsdoc above a function should document all params and must include `@returns` for every function (use `@returns void` for void functions). If the return type is an object, document the properties with `@returns` sub-tags.
 
-we don't need a top object return object like this:
+We don't need a top-level return object description like this:
 
 ```tsx
  * @returns UseSongViewResult - object with the fields described below
 ```
 
-just the properties like this:
+Prefer listing the returned properties explicitly, for example:
 
 ```tsx
  * @returns isNotFound - true when the slug did not resolve to a song or the

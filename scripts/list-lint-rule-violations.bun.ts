@@ -3,11 +3,11 @@
 
 /// <reference types="bun" />
 
+import { ONE, ZERO } from "@/shared/constants/shared-constants";
+
 import isRecord from "../shared/src/type-guards/isRecord";
 
 const OXLINT_CMD = ["bunx", "oxlint", "--format", "json", "."] as const;
-const ZERO = 0;
-const ONE = 1;
 const PREVIEW_LENGTH = 2000;
 
 async function runOxlint(): Promise<{

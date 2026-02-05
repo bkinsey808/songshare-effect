@@ -6,6 +6,8 @@
 import { execSync } from "node:child_process";
 import { statSync } from "node:fs";
 
+import { ZERO } from "@/shared/constants/shared-constants";
+
 import { error as sError, warn as sWarn } from "../utils/scriptLogger";
 import getMigrationFiles from "./helpers/getMigrationFiles";
 import loadEnvVars from "./helpers/loadEnvVars";
@@ -22,7 +24,6 @@ import runMigration from "./helpers/runMigration";
  * @returns Resolves when all migrations and post-migration tasks complete.
  */
 function main(): void {
-	const ZERO = 0;
 	const EXIT_NON_ZERO = 1;
 
 	sWarn("🚀 Starting programmatic migration runner...");

@@ -13,6 +13,14 @@ function handleKeyDown(event: React.KeyboardEvent): void {
 	}
 }
 
+/**
+ * Visual handle used to initiate column resizing.
+ *
+ * @param field - The column field name being resized
+ * @param onStartResize - Callback invoked with (field, clientX) when resize begins
+ * @param isResizing - Whether a resize operation is active
+ * @returns Button element used as a visual resize handle
+ */
 export default function ResizeHandle({
 	field,
 	onStartResize,

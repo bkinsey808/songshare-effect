@@ -8,6 +8,9 @@ import safeJsonParse from "./safeJsonParse";
 /**
  * Extract ValidationError[] from various error shapes used in the codebase.
  * Keeps the extraction logic in one place to reduce cognitive complexity.
+ *
+ * @param error - Error-like value to inspect for validation errors
+ * @returns Array of `ValidationError` extracted from the provided value
  */
 export default function extractValidationErrors(error: unknown): readonly ValidationError[] {
 	// Direct array

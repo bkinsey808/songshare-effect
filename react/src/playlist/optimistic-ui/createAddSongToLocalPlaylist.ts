@@ -9,6 +9,8 @@ import type { PlaylistSlice } from "../slice/playlist-slice";
  * adds the `songId` to `currentPlaylist.public.song_order` if present and not
  * already included. If there is no current playlist or `public` metadata, the
  * updater returns the state unchanged.
+ *
+ * @returns A function `(songId) => void` that appends the song to the local playlist
  */
 export default function createAddSongToLocalPlaylist(
 	set: Set<PlaylistSlice>,

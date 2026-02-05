@@ -75,6 +75,21 @@ type ButtonProps = Readonly<{
 	className?: string;
 }>;
 
+/**
+ * Reusable button component with variant and size options, optional icon,
+ * and consistent styling across the app.
+ *
+ * @param variant - Visual variant of the button (primary, secondary, danger, outlines)
+ * @param size - Visual size ('default' or 'compact')
+ * @param children - Label or content for the button
+ * @param icon - Optional icon shown to the left of the label
+ * @param disabled - When true, the button is disabled
+ * @param type - Native button `type` attribute
+ * @param onClick - Click handler
+ * @param data-testid - Optional test id attribute used in tests
+ * @param className - Optional extra class names to apply
+ * @returns A styled button React element
+ */
 export default function Button({
 	variant,
 	size = "default",

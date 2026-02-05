@@ -17,6 +17,7 @@ export const dashboardPath = "dashboard";
 export const registerPath = "register";
 export const songEditPath = "song-edit";
 export const songLibraryPath = "song-library";
+
 /** Base path for viewing a song by slug; use as "songs/:song_slug" in routes */
 export const songViewPath = "songs";
 
@@ -24,11 +25,13 @@ export const songViewPath = "songs";
 export const playlistEditPath = "playlist-edit";
 export const playlistLibraryPath = "playlist-library";
 export const userLibraryPath = "user-library";
+
 /** Base path for viewing a playlist by slug; use as "playlists/:playlist_slug" in routes */
 export const playlistViewPath = "playlists";
 
 // Event paths
 export const eventEditPath = "event-edit";
+
 /** Base path for viewing an event by slug; use as "events/:event_slug" in routes */
 export const eventViewPath = "events";
 
@@ -58,5 +61,5 @@ export const apiUploadPath = "/api/upload";
 export const apiHelloPath = "/api/hello";
 export const healthPath = "/health";
 
-// Frontend route for account deletion confirmation (nested under dashboard)
+/** Frontend route for account deletion confirmation (nested under dashboard) */
 export const deleteAccountPath = "delete-account";

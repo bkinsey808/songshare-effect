@@ -2,15 +2,11 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import makeSongFromIds from "@/react/test-utils/makeSongFromIds";
+// Numeric constants used in assertions to make expected values explicit.
+import { ONE, THREE, TWO, ZERO } from "@/shared/constants/shared-constants";
 
 import { songFields } from "../song-schema";
 import { useSongViewSlides } from "./useSongViewSlides";
-
-// Numeric constants used in assertions to make expected values explicit.
-const ZERO = 0;
-const ONE = 1;
-const TWO = 2;
-const THREE = 3;
 
 /**
  * Convert an array of slide ids into a SongPublic fixture using the shared

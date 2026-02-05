@@ -1,7 +1,8 @@
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
 import buildClearCookieHeader from "@/api/cookie/buildClearCookieHeader";
 import { userSessionCookieName } from "@/api/cookie/cookie";
 import verifySameOriginOrThrow from "@/api/csrf/verifySameOriginOrThrow";
-import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { HTTP_INTERNAL } from "@/shared/constants/http";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 

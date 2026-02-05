@@ -1,10 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+
+import { ONE, THREE, TWO } from "@/shared/constants/shared-constants";
 
 import computeParams from "./computeParams";
-
-const ONE = 1;
-const TWO = 2;
-const THREE = 3;
 
 describe("computeParams", () => {
 	it("returns empty object for empty input", () => {

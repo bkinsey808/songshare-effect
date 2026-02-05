@@ -1,8 +1,9 @@
 import { spawnSync } from "node:child_process";
 import readlinePromises from "node:readline/promises";
 
-import { warn as sWarn, error as sError } from "../../utils/scriptLogger";
-import { ZERO } from "./constants";
+import { ZERO } from "@/shared/constants/shared-constants";
+
+import { error as sError, warn as sWarn } from "../../utils/scriptLogger";
 
 export default async function maybePromptInstallDeps(
 	isCI: boolean,

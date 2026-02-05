@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { ZERO } from "@/shared/constants/shared-constants";
+
 import attachFakeCanvas2DContext from "./fakeCanvasContext";
 
 describe("fakeCanvasContext", () => {
@@ -10,7 +12,7 @@ describe("fakeCanvasContext", () => {
 		expect(ctx).not.toBeNull();
 		expect(typeof ctx?.clearRect).toBe("function");
 		// sanity call
-		const ZERO = 0;
+
 		const DIM = 10;
 		ctx?.clearRect(ZERO, ZERO, DIM, DIM);
 	});

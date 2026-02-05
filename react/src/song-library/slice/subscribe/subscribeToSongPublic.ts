@@ -168,6 +168,8 @@ function buildSongIdInFilter(uniqueIds: readonly string[]): string {
 	return `song_id=in.(${quoted})`;
 }
 
+const TOKEN_FETCH_TIMEOUT_MS = 5000;
+
 /**
  * Create a realtime subscription to `song_public` for the provided song IDs.
  *
@@ -181,8 +183,6 @@ function buildSongIdInFilter(uniqueIds: readonly string[]): string {
  * @param songIds - List of song IDs to subscribe to
  * @returns Effect yielding a cleanup function that unsubscribes the realtime channel
  */
-const TOKEN_FETCH_TIMEOUT_MS = 5000;
-
 export default function subscribeToSongPublic(
 	get: () => SongLibrarySlice,
 	songIds: readonly string[],

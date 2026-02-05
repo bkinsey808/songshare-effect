@@ -6,6 +6,18 @@ import { apiUserLibraryRemovePath } from "@/shared/paths";
 import type { UserLibrarySlice } from "./user-library-slice";
 import type { RemoveUserFromLibraryRequest } from "./user-library-types";
 
+/**
+ * removeUserFromLibrary
+ *
+ * Removes a followed user by sending a removal request to the server and
+ * optimistically updating the local slice. On non-2xx responses the Effect
+ * fails with an Error.
+ *
+ * @param request - Request with `followed_user_id` to remove.
+ * @param get - Getter for the `UserLibrarySlice` used to mutate state.
+ * @returns - An Effect that resolves when the operation completes, or fails
+ *   with an Error on network/server errors.
+ */
 export default function removeUserFromLibrary(
 	request: Readonly<RemoveUserFromLibraryRequest>,
 	get: () => UserLibrarySlice,

@@ -1,4 +1,5 @@
 import normalizeOrigin from "@/api/cors/normalizeOrigin";
+import { ZERO } from "@/shared/constants/shared-constants";
 import isRecord from "@/shared/type-guards/isRecord";
 
 /** Default allowed origins used when ALLOWED_ORIGINS is not provided. */
@@ -25,7 +26,6 @@ const DEFAULT_DEV_ORIGINS: string[] = [
  * @returns - Array of allowed origin strings for CORS configuration.
  */
 export default function getAllowedOrigins(envLike: unknown): string[] {
-	const ZERO = 0;
 	// Accept an unknown runtime env object and safely extract the
 	// ALLOWED_ORIGINS binding if present and a string. This keeps callers
 	// free from unsafe narrowing casts like `as unknown as Record<...>`.

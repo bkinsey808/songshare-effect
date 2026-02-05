@@ -25,6 +25,7 @@ export type UseLocaleResult = {
  * - Keep `useLanguage()` focused on language-only responsibilities.
  * - Use `useLocale()` when you need both `lang` and `t` in the same
  *   component (common in UI + localized-link building).
+ * @returns An object containing the narrowed `lang` and the `t` translation function
  */
 export default function useLocale(): UseLocaleResult {
 	const lang = useLanguage();

@@ -3,6 +3,7 @@ import { Schema } from "effect";
 
 /** Minimum allowed characters for a song name (inclusive). */
 const NAME_MIN_LENGTH = 2;
+
 /** Maximum allowed characters for a song name (inclusive). */
 const NAME_MAX_LENGTH = 100;
 

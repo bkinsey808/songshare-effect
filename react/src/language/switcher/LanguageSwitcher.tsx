@@ -13,6 +13,13 @@ import getPathWithoutLang from "../path/getPathWithoutLang";
 import useCurrentLang from "../useCurrentLang";
 import useSetPreferredLanguage from "./useSetPreferredLanguage";
 
+/**
+ * Language selection dropdown used to change the application's preferred language.
+ * Persists the user's preference and optionally navigates to the same path under the
+ * newly selected language.
+ *
+ * @returns A select element allowing the user to switch languages
+ */
 export default function LanguageSwitcher(): ReactElement {
 	const { t } = useTranslation();
 	const location = useLocation();

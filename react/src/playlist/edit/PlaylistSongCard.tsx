@@ -20,6 +20,13 @@ const INDEX_OFFSET = 1;
 const INDEX_FIRST = 0;
 const INDEX_LAST_OFFSET = 1;
 
+/**
+ * Card showing a single song entry within the playlist editor.
+ * Includes controls to move or remove the song and displays owner info.
+ *
+ * @param props - PlaylistSongCardProps
+ * @returns A React element rendering the song card
+ */
 export default function PlaylistSongCard({
 	songId,
 	index,

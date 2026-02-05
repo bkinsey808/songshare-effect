@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect, type Schema } from "effect";
 
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
 import { DatabaseError, ValidationError } from "@/api/api-errors";
-import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
 import fetchAndParseOauthUserData from "@/api/oauth/fetchAndParseOauthUserData";
 import resolveRedirectOrigin from "@/api/oauth/resolveRedirectOrigin";
@@ -32,7 +33,16 @@ type FetchAndPrepareUserParams = Readonly<{
 	redirectUri?: string | undefined;
 }>;
 
-// Helper: exchange code and prepare supabase + existing user
+/**
+ * Exchange an OAuth code for user info and prepare a Supabase client and existing user lookup.
+ *
+ * @param ctx - Hono request context
+ * @param code - OAuth authorization code to exchange
+ * @param provider - Provider identifier used for token exchange
+ * @param redirectUri - Optional redirect URI from the caller
+ * @returns An Effect that yields `{ supabase, oauthUserData, existingUser }` on success
+ * @throws ValidationError or DatabaseError on failure
+ */
 export default function fetchAndPrepareUser({
 	ctx,
 	code,

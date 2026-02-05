@@ -1,4 +1,9 @@
-// Types for User Library functionality (merged from user-library schema)
+/**
+ * User library types
+ *
+ * Type definitions used by the User Library slice and helpers. These types
+ * mirror the database schema for `user_library` and related public fields.
+ */
 
 export type UserLibrary = {
 	user_id: string;

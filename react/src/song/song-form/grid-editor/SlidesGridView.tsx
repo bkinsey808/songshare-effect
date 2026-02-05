@@ -24,6 +24,17 @@ type SlidesGridViewProps = Readonly<
 	}>
 >;
 
+/**
+ * Presentation-oriented grid view of slides.
+ * Provides a table-like presentation of slides and quick edit affordances.
+ *
+ * @param fields - Dynamic fields to show in the grid
+ * @param slideOrder - Order in which slides appear in presentation
+ * @param setSlideOrder - Setter to update the presentation order
+ * @param slides - Map of slide id to slide data
+ * @param setSlides - Setter to update slides map
+ * @returns React element rendering the slides grid view
+ */
 export default function SlidesGridView({
 	fields,
 	slideOrder,

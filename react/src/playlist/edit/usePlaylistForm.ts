@@ -65,6 +65,15 @@ export type UsePlaylistFormReturn = {
 	t: TFunction;
 };
 
+/**
+ * Manages playlist form state and behavior in the edit/create flow.
+ *
+ * - Fetches and populates playlist data when editing
+ * - Tracks form values, submission state and unsaved changes
+ * - Provides handlers for adding/removing/moving songs and submitting the form
+ *
+ * @returns An object containing form state, handlers, and UI helpers
+ */
 export default function usePlaylistForm(): UsePlaylistFormReturn {
 	const { t } = useTranslation();
 	const { lang } = useLocale();

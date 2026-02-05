@@ -1,14 +1,20 @@
 import { useTranslation } from "react-i18next";
 
 import { useAppStore } from "@/react/zustand/useAppStore";
+import { ZERO } from "@/shared/constants/shared-constants";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
 import useUserLibrary from "./useUserLibrary";
 
-const ZERO = 0;
-
 /**
- * Simple UserLibrary component: lists followed users and allows unfollow.
+ * UserLibrary
+ *
+ * Renders the current user's followed users and allows them to unfollow
+ * individual entries. Reads the authenticated user id from the app store and
+ * uses the `useUserLibrary` hook to load, display, and remove entries.
+ *
+ * @returns - A React element that displays loading, error, empty, or library
+ *   states for the user's followed users.
  */
 export default function UserLibrary(): ReactElement {
 	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);

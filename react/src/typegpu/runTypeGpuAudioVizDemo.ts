@@ -6,13 +6,11 @@ import * as std from "typegpu/std";
 
 import clamp01 from "@/react/audio/clamp01";
 import logResolvedWgslOnFailure from "@/react/typegpu/logResolvedWgslOnFailure";
+import { ONE, THREE, ZERO } from "@/shared/constants/shared-constants";
 
 type StopFn = () => void;
 
 type GetLevelFn = () => number;
-
-const ZERO = 0;
-const ONE = 1;
 
 const MS_IN_SEC = 1000;
 
@@ -87,7 +85,6 @@ export default async function runTypeGpuAudioVizDemo(
 
 	const TRIANGLE_VERTEX_COUNT = 3;
 	const MINUS_ONE = -1;
-	const THREE = 3;
 	const VERTEX_INDEX_0 = d.u32(ZERO);
 	const VERTEX_INDEX_1 = d.u32(ONE);
 

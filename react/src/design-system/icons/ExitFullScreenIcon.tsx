@@ -1,6 +1,13 @@
 import type { IconProps } from "./IconProps";
 
-/** Icon for exiting full screen mode. Shows contracting arrows. */
+/** Icon for exiting full screen mode. Shows contracting arrows.
+
+
+ * Exit fullscreen icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the exit-fullscreen icon
+ */
 export default function ExitFullScreenIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

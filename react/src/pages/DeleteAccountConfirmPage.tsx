@@ -13,12 +13,21 @@ import {
 	JUST_DELETED_ACCOUNT_SIGNAL,
 	LANG_PATH_SEGMENT_INDEX,
 } from "@/shared/constants/http";
+import { ZERO } from "@/shared/constants/shared-constants";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage, SupportedLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { apiAccountDeletePath, dashboardPath } from "@/shared/paths";
 import { justDeletedAccountKey } from "@/shared/sessionStorageKeys";
 
+/**
+ * DeleteAccountConfirmPage
+ *
+ * Confirmation UI that handles account deletion flow: shows warnings,
+ * submits the deletion request, and redirects on success.
+ *
+ * @returns - A React element that renders the delete confirmation UI.
+ */
 export default function DeleteAccountConfirmPage(): ReactElement {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
@@ -33,8 +42,6 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 		const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
 		void navigate(buildPathWithLang(`/${dashboardPath}`, langForNav), { replace: true });
 	}
-
-	const ZERO = 0;
 
 	async function onConfirm(): Promise<void> {
 		setError(undefined);

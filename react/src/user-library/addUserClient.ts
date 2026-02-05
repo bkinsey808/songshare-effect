@@ -1,9 +1,15 @@
 import { apiUserLibraryAddPath } from "@/shared/paths";
 
 /**
- * Fire-and-forget add followed user request used by view-side auto-follow.
- * Keeps the client-side integration minimal for now — store-based user library
- * slice will be implemented later.
+ * addUserToLibraryClient
+ *
+ * Fire-and-forget request that adds a followed user to the current user's
+ * library. Network errors are intentionally swallowed to keep the auto-follow
+ * flow unobtrusive and avoid interrupting the user experience.
+ *
+ * @param followedUserId - The ID of the user to add to the library.
+ * @returns - A promise that resolves when the request completes. Errors are
+ *   logged and not re-thrown.
  */
 export default async function addUserToLibraryClient(followedUserId: string): Promise<void> {
 	try {

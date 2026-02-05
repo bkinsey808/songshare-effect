@@ -38,8 +38,13 @@ function LanguageProviderInner(): ReactElement {
 	// until translations are ready, so no manual loading state needed
 	return <Outlet />;
 }
-
-export default function LanguageProvider(): ReactElement {
+/**
+ * Top-level language provider that ensures the i18n runtime is ready and applies
+ * URL-driven language preferences. Wraps `LanguageProviderInner` with a Suspense
+ * boundary to handle async translation loading.
+ *
+ * @returns A provider that ensures language is applied for nested routes
+ */ export default function LanguageProvider(): ReactElement {
 	return (
 		<Suspense
 			fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}

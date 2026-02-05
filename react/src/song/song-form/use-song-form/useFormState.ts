@@ -15,6 +15,11 @@ type UseFormStateReturn = {
 	initialSlideId: string;
 };
 
+/**
+ * Hook that encapsulates form-local state for slides, fields and slide order
+ *
+ * @returns Object exposing `slideOrder`, `slides`, `fields`, and helpers to mutate them
+ */
 export default function useFormState(): UseFormStateReturn {
 	// Initialize slides state with a unique ID
 	const [initialSlideId] = useState(() => generateId());

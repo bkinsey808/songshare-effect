@@ -1,7 +1,8 @@
 import { Effect } from "effect";
 
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
 import { AuthenticationError, DatabaseError } from "@/api/api-errors";
-import { type ReadonlyContext } from "@/api/hono/hono-context";
 import extractUserSessionTokenFromContext from "@/api/user-session/extractUserSessionTokenFromContext";
 import verifyUserSessionToken from "@/api/user-session/verifyUserSessionToken";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";

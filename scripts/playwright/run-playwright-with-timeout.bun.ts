@@ -2,7 +2,9 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 
-import { warn as sWarn, error as sError } from "../utils/scriptLogger";
+import { ZERO } from "@/shared/constants/shared-constants";
+
+import { error as sError, warn as sWarn } from "../utils/scriptLogger";
 
 // Cross-platform timeout wrapper for running bun Playwright test script.
 // Usage: PLAYWRIGHT_BASE_URL=https://localhost:5173 bun ./scripts/playwright/run-playwright-with-timeout.bun.ts [bun args]
@@ -13,7 +15,6 @@ const KILL_GRACE_MS = 5000;
 const MS_PER_SECOND = 1000;
 const EXIT_TIMEOUT_CODE = 124;
 const EXIT_FAILURE = 1;
-const ZERO = 0;
 
 const rawTimeout = process.env["PLAYWRIGHT_RUN_TIMEOUT"] ?? process.env["RUN_TIMEOUT"];
 const timeoutSeconds = Number(

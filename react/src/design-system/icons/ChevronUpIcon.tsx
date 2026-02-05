@@ -1,5 +1,11 @@
 import type { IconProps } from "./IconProps";
 
+/**
+ * Chevron up icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the chevron up icon
+ */
 export default function ChevronUpIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

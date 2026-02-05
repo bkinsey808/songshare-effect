@@ -3,7 +3,16 @@ import parseLanguageCookie from "@/shared/language/parseLanguageCookie";
 import { type SupportedLanguageType, defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
-// Detect initial language with priority order
+/**
+ * Detects the initial language for the app using a priority order:
+ * 1) URL path language segment
+ * 2) Local storage preference
+ * 3) Language cookie
+ * 4) Browser language detection
+ * 5) Default fallback
+ *
+ * @returns The determined supported language to use on initial load
+ */
 export default function detectInitialLanguage(): SupportedLanguageType {
 	// 1. Check URL parameter (highest priority for explicit navigation)
 	const path = globalThis.location.pathname;

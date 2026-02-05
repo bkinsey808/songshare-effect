@@ -1,5 +1,11 @@
 import type { IconProps } from "./IconProps";
 
+/**
+ * Log out icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the log-out icon
+ */
 export default function LogOutIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

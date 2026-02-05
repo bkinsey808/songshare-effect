@@ -13,6 +13,16 @@ type FormTextareaProps = Readonly<{
 
 const DEFAULT_ROWS = 2;
 
+/**
+ * A simple controlled textarea used within forms. Supports an optional
+ * `autoExpand` mode that grows the textarea as the user types.
+ *
+ * @param autoExpand - When true, the textarea auto-expands to fit content
+ * @param className - Additional CSS classes to apply
+ * @param rows - Initial number of rows (defaults to 2)
+ * @param props - Other native textarea props such as `value` and `onChange`
+ * @returns A textarea React element suitable for form usage
+ */
 export default function FormTextarea({
 	autoExpand = false,
 	className = "",

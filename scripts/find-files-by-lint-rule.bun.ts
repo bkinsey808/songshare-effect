@@ -3,6 +3,7 @@
 // Usage: bun run scripts/find-files-by-lint-rule.bun.ts <rule-substring>
 
 // Always run the type-aware checks so calling code receives type-aware diagnostics
+import { ZERO } from "@/shared/constants/shared-constants";
 const OXLINT_CMD = ["bunx", "oxlint", "--type-aware", "--format", "json", "."] as const;
 const PREVIEW_LENGTH = 2000;
 const ARGV_SLICE = 2;
@@ -10,7 +11,6 @@ const USAGE_EXIT = 2;
 const NO_OUTPUT_EXIT = 3;
 const JSON_SHAPE_EXIT = 4;
 const RUNTIME_ERROR_EXIT = 1;
-const ZERO = 0;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);

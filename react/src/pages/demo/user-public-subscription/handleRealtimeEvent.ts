@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 
+import { ZERO } from "@/shared/constants/shared-constants";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import { type UserPublic, isUserPublic } from "./isUserPublic";
@@ -15,7 +16,6 @@ type SetEvents = Dispatch<SetStateAction<RealtimeEvent[]>>;
 type SetUsers = Dispatch<SetStateAction<UserPublic[]>>;
 
 const EVENTS_MAX = 10;
-const ZERO = 0;
 
 /**
  * Top-level helper so the main component function stays under the max-lines

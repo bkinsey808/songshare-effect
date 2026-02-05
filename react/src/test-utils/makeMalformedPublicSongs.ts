@@ -1,5 +1,10 @@
 import type { SongPublic } from "@/react/song/song-schema";
 
+/**
+ * Create a small set of malformed public song objects for negative tests.
+ *
+ * @returns Array of malformed public song objects
+ */
 export default function makeMalformedPublicSongs(): Record<string, SongPublic> {
 	const publicSongs: Record<string, unknown> = {
 		valid: {

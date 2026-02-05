@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import clamp01 from "./clamp01";
+import { ONE, TWO, ZERO } from "@/shared/constants/shared-constants";
 
-const ZERO = 0;
-const ONE = 1;
+import clamp01 from "./clamp01";
 const HALF = 0.5;
-const TWO = 2;
 const MINUS_ONE = -1;
 
 describe("clamp01", () => {

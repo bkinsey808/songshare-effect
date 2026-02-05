@@ -1,5 +1,7 @@
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
 import normalizeOrigin from "@/api/cors/normalizeOrigin";
-import { type ReadonlyContext } from "@/api/hono/hono-context";
+import { ZERO } from "@/shared/constants/shared-constants";
 
 /**
  * Determine the origin to check for CORS from the request.
@@ -14,7 +16,6 @@ import { type ReadonlyContext } from "@/api/hono/hono-context";
 export default function getOriginToCheck(ctx: ReadonlyContext): string {
 	const originHeader = ctx.req.header("Origin");
 	const refererHeader = ctx.req.header("Referer");
-	const ZERO = 0;
 
 	if (typeof originHeader === "string" && originHeader.length > ZERO) {
 		return normalizeOrigin(originHeader);

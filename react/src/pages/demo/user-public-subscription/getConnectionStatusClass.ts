@@ -1,3 +1,9 @@
+/**
+ * Map a realtime connection status to a Tailwind CSS class for display.
+ *
+ * @param status - Connection status string (e.g., `SUBSCRIBED`, `CHANNEL_ERROR`)
+ * @returns Tailwind CSS class to apply for the status text
+ */
 export default function getConnectionStatusClass(status: string): string {
 	switch (status) {
 		case "SUBSCRIBED": {

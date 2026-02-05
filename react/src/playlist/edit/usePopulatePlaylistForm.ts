@@ -2,7 +2,7 @@ import React, { type Dispatch, type SetStateAction, useEffect } from "react";
 
 import type { PlaylistEntry } from "@/react/playlist/playlist-types";
 
-import { type PlaylistFormValues } from "../playlistSchema";
+import type { PlaylistFormValues } from "../playlistSchema";
 
 export type PopulatePlaylistFormProps = {
 	setFormValuesState: Dispatch<SetStateAction<PlaylistFormValues>>;
@@ -16,6 +16,8 @@ export type PopulatePlaylistFormProps = {
  *
  * This hook centralizes the side-effect of copying playlist data from the
  * store into component-level state.
+ *
+ * @returns void
  */
 export default function usePopulatePlaylistForm(
 	currentPlaylist: PlaylistEntry | undefined,

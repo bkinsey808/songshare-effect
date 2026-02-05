@@ -4,6 +4,12 @@ type IconProps = Readonly<{
 	height?: string;
 }>;
 
+/**
+ * Google brand icon used for provider sign-in buttons.
+ *
+ * @param props - Icon properties (optional width, height, className)
+ * @returns React element rendering the Google icon
+ */
 export default function GoogleIcon(props: IconProps): ReactElement {
 	return (
 		<svg

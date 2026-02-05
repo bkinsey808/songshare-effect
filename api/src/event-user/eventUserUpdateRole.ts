@@ -1,7 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
-import { type ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
+import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
@@ -19,8 +21,6 @@ const EventUserUpdateRoleSchema = Schema.Struct({
 	user_id: Schema.String,
 	role: Schema.Literal("admin", "participant"),
 });
-
-const ZERO = 0;
 
 type EventUserUpdateRoleData = Schema.Schema.Type<typeof EventUserUpdateRoleSchema>;
 

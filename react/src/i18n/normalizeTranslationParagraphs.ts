@@ -1,3 +1,4 @@
+import { ZERO } from "@/shared/constants/shared-constants";
 import { safeArrayGet } from "@/shared/utils/safe";
 
 export type Paragraph = {
@@ -5,6 +6,12 @@ export type Paragraph = {
 	text: string;
 };
 
+/**
+ * Type guard to assert an object has `id` and `text` string properties.
+ *
+ * @param para - Unknown value to test
+ * @returns True when `para` conforms to the `Paragraph` shape
+ */
 export function isParagraph(para: unknown): para is Paragraph {
 	if (
 		typeof para === "object" &&
@@ -29,11 +36,20 @@ export function isParagraph(para: unknown): para is Paragraph {
 	return false;
 }
 
+/**
+ * Normalizes a translation payload into an array of `Paragraph` objects.
+ *
+ * Accepts either legacy arrays of strings (which are re-mapped to Paragraphs)
+ * or an already-structured `Paragraph[]` and filters invalid entries.
+ *
+ * @param raw - Unknown payload (possibly an array of strings or Paragraph objects)
+ * @returns An array of validated `Paragraph` items
+ */
 export function normalizeTranslationParagraphs(raw: unknown): Paragraph[] {
 	if (!Array.isArray(raw)) {
 		return [];
 	}
-	const ZERO = 0;
+
 	const firstItem = safeArrayGet(raw as unknown[], ZERO);
 	if (typeof firstItem === "string") {
 		return raw.map((text, idx) => ({

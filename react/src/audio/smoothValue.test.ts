@@ -1,16 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import smoothValue from "./smoothValue";
+import { ONE, TWO, ZERO } from "@/shared/constants/shared-constants";
 
-const ZERO = 0;
-const ONE = 1;
+import smoothValue from "./smoothValue";
 
 describe("smoothValue", () => {
 	const PREVIOUS = 10;
 	const NEXT = 20;
 	const ALPHA_HALF = 0.5;
 	const EXPECTED_HALF = 15;
-	const TWO = 2;
 	const MINUS_ONE = -1;
 
 	it("interpolates correctly with alpha 0.5", () => {

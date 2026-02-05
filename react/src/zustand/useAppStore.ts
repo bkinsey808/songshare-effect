@@ -111,18 +111,38 @@ export function useAppStoreSelector<Selected>(selector: (slice: AppSlice) => Sel
 /**
  * Non-hook accessors for the store API.
  */
+
+/**
+ * Return the store API for programmatic access.
+ *
+ * @returns The store API instance
+ */
 export function getStoreApi(): typeof useAppStore {
 	return useAppStore;
 }
+
+/**
+ * Return the singleton store instance or create it if needed.
+ *
+ * @returns The app store instance
+ */
 export function getOrCreateAppStore(): typeof useAppStore {
 	return useAppStore;
 }
+
+/**
+ * Ensure and return the global app store.
+ *
+ * @returns The app store instance
+ */
 export function ensureAppStore(): typeof useAppStore {
 	return useAppStore;
 }
 
 /**
  * Hook to track hydration state.
+ *
+ * @returns Object containing `isHydrated` boolean indicating hydration status
  */
 export function useAppStoreHydrated(): {
 	isHydrated: boolean;

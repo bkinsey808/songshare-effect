@@ -5,6 +5,8 @@ const MIN_DPR = 1;
  * Resizes a canvas' backing store to match its CSS size (accounting for device pixel ratio).
  *
  * Useful for crisp rendering in WebGPU/Canvas2D when the element is sized via layout.
+ *
+ * @returns void
  */
 export default function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement): void {
 	const rect = canvas.getBoundingClientRect();

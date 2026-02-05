@@ -11,6 +11,13 @@ const DEFAULT_HUE_MAX = 360;
 const DEFAULT_CLEAR_X = 0;
 const DEFAULT_CLEAR_Y = 0;
 
+/**
+ * Construct a deterministic frame spec describing background and text to render.
+ *
+ * @param frame - Frame number
+ * @param options - Rendering options (size, positions, module presence)
+ * @returns FrameSpec describing colors, text and layout for the frame
+ */
 export default function renderFrameSpec(
 	frame: number,
 	options: {

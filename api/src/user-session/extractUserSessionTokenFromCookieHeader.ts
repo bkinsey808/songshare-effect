@@ -1,4 +1,4 @@
-import { sessionCookieName } from "@/api/cookie/cookie";
+import { userSessionCookieName } from "@/api/cookie/cookie";
 
 /**
  * Extract the session token from a `Cookie` header value.
@@ -15,7 +15,7 @@ export default function extractUserSessionTokenFromCookieHeader(
 ): string | undefined {
 	const cookie = typeof cookieHeader === "string" ? cookieHeader : "";
 	// Use a named capture group to avoid indexed matches (and thus magic numbers)
-	const re = new RegExp(`${sessionCookieName}=(?<val>[^;]+)`);
+	const re = new RegExp(`${userSessionCookieName}=(?<val>[^;]+)`);
 	const match = re.exec(cookie);
 	const value = match?.groups?.val;
 	return typeof value === "string" && value !== "" ? value : undefined;

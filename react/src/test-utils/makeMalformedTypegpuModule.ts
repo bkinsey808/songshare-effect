@@ -1,3 +1,8 @@
+/**
+ * Create a malformed typegpu module object for negative tests.
+ *
+ * @returns A malformed module object (narrowed to `never` for test safety)
+ */
 export default function makeMalformedTypegpuModule(): never {
 	// Intentionally assert an invalid shape to trigger error paths in tests.
 	// The unsafe assertion is localized here so tests can use a clear helper

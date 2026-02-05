@@ -27,6 +27,12 @@ import usePopulateSongForm from "./usePopulateSongForm";
 
 const NAVIGATE_BACK = -1;
 
+/**
+ * High-level hook that composes all song form logic: state, validation,
+ * data fetching, submission handlers, and collapsible UI state.
+ *
+ * @returns An object exposing form state, refs, handlers, and helpers used by the Song form UI
+ */
 export default function useSongForm(): UseSongFormReturn {
 	const songId = useParams<{ song_id?: string }>().song_id;
 	const location = useLocation();

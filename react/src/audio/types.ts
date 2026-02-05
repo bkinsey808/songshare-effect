@@ -23,6 +23,7 @@ export type MinimalMediaStream = {
 	getTracks(): MinimalMediaStreamTrack[];
 	getAudioTracks(): MinimalMediaStreamTrack[];
 };
+
 /**
  * A minimal interface for `MediaStreamAudioSourceNode`.
  * This is primarily stored to prevent garbage collection of the audio source.

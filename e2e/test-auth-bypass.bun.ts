@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Test script to verify Playwright auth bypass setup
  *

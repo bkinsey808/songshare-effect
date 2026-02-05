@@ -14,6 +14,8 @@ const SECONDS_IN_MINUTE = 60;
 
 /**
  * Check if the app version has changed and clear cache if needed
+ *
+ * @returns void
  */
 export function checkAppVersion(): void {
 	const storedVersion = localStorage.getItem(VERSION_KEY);
@@ -52,6 +54,8 @@ export async function clearAppCache(): Promise<void> {
 
 /**
  * Force reload the page, bypassing cache
+ *
+ * @returns void
  */
 export function hardRefresh(): void {
 	// Use location.reload(true) equivalent
@@ -99,6 +103,8 @@ export async function checkForUpdates(): Promise<boolean> {
 
 /**
  * Initialize cache management
+ *
+ * @returns void
  */
 export function initCacheManagement(): void {
 	checkAppVersion();

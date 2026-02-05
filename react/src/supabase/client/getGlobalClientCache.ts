@@ -18,6 +18,8 @@ const SUPABASE_CLIENTS_KEY = Symbol.for("__supabaseClients__");
 /**
  * Global singleton storage for Supabase clients.
  * Using globalThis ensures persistence across React re-renders in development.
+ *
+ * @returns Global Map keyed by a string used to store `SupabaseClient<Database>` instances.
  */
 export default function getGlobalClientCache(): Map<string, SupabaseClient<Database>> {
 	const global = globalThis as GlobalWithSupabaseCache;

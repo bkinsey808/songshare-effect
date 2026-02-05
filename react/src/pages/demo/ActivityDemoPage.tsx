@@ -11,6 +11,15 @@ import PerformanceComparison from "@/react/pages/demo/components/PerformanceComp
 // PerformanceComparison is now in a dedicated component under
 // react/src/pages/demo/components/PerformanceComparison.tsx
 
+/**
+ * ActivityDemoPage
+ *
+ * Demonstrates the React Activity component and related performance
+ * comparisons and navigation examples for educational purposes.
+ *
+ * @returns - A React element presenting activity demos and supporting
+ *   explanatory content.
+ */
 export default function ActivityDemoPage(): ReactElement {
 	const { t } = useTranslation();
 

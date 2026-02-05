@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { POPOVER_DEFAULT_WIDTH, POPOVER_DEFAULT_HEIGHT } from "@/shared/constants/http";
+import { ZERO } from "@/shared/constants/shared-constants";
 
-import calculatePopoverPosition from "./calculatePopoverPosition";
+import calculateAndUpdatePosition from "./calculateAndUpdatePosition";
 import { type PlacementOption, type PopoverPosition } from "./types";
 
 type UsePopoverPositioningParams = Readonly<{
@@ -19,40 +19,20 @@ type UsePopoverPositioningReturn = {
 };
 
 /**
- * Shared position calculation logic
- */
-function calculateAndUpdatePosition({
-	triggerRef,
-	popoverRef,
-	preferredPlacement,
-	setPopoverPosition,
-	setPlacement,
-}: Readonly<{
-	triggerRef: React.RefObject<HTMLElement | null>;
-	popoverRef: React.RefObject<HTMLDivElement | null>;
-	preferredPlacement: PlacementOption;
-	setPopoverPosition: (position: PopoverPosition) => void;
-	setPlacement: (placement: PlacementOption) => void;
-}>): void {
-	if (triggerRef.current !== null && popoverRef.current !== null) {
-		const triggerRect = triggerRef.current.getBoundingClientRect();
-		const popoverRect = popoverRef.current.getBoundingClientRect();
-
-		const { position, placement: calculatedPlacement } = calculatePopoverPosition({
-			triggerRect,
-			popoverWidth: popoverRect.width || POPOVER_DEFAULT_WIDTH,
-			popoverHeight: popoverRect.height || POPOVER_DEFAULT_HEIGHT,
-			preferredPlacement,
-		});
-
-		setPopoverPosition(position);
-		setPlacement(calculatedPlacement);
-	}
-}
-
-/**
- * Custom hook to handle popover positioning and scroll tracking
- * Automatically positions popover relative to trigger and handles scroll events
+ * Custom hook that manages popover positioning and scroll/resize tracking.
+ *
+ * The hook automatically computes and maintains the popover coordinates
+ * and the placement used, keeping the popover positioned relative to the
+ * `triggerRef` element. It also listens for scroll and resize events and
+ * will call `hidePopover` when the trigger moves completely off-screen.
+ *
+ * @param triggerRef - Ref to the trigger element that the popover is anchored to
+ * @param popoverRef - Ref to the popover element that will be positioned
+ * @param preferredPlacement - Preferred placement hint (e.g., "top" | "bottom")
+ * @param hidePopover - Callback invoked to hide/close the popover
+ * @returns popoverPosition - Computed style object (top/left) used to position the popover
+ * @returns placement - Resolved `PlacementOption` actually used for layout
+ * @returns updatePosition - Helper function to manually recompute position
  */
 export default function usePopoverPositioning({
 	triggerRef,
@@ -64,7 +44,6 @@ export default function usePopoverPositioning({
 	const [placement, setPlacement] = useState<PlacementOption>("bottom");
 
 	// File-level/local constants to avoid magic numbers
-	const ZERO = 0;
 
 	// Handle scroll events to keep popover positioned relative to trigger
 	useEffect(() => {
@@ -137,7 +116,11 @@ export default function usePopoverPositioning({
 		};
 	}, [hidePopover, popoverRef, triggerRef, preferredPlacement]);
 
-	// Public API function for external position updates
+	/**
+	 * Recompute and apply the popover position on demand.
+	 *
+	 * @returns void
+	 */
 	function updatePosition(): void {
 		calculateAndUpdatePosition({
 			triggerRef,

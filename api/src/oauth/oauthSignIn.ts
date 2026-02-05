@@ -23,9 +23,10 @@ import {
 import { SigninErrorToken } from "@/shared/signinTokens";
 import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
 
-import { type Env } from "../env";
 // Removed unused safeGet import
-import { type ReadonlyContext } from "../hono/hono-context";
+import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
+
+import { type Env } from "../env";
 
 function computeRequestOrigin(reqUrl: string): string {
 	try {
@@ -304,6 +305,12 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 	});
 }
 
+/**
+ * Hono route handler for initiating OAuth sign-in and returning a redirect Response.
+ *
+ * @param ctx - Hono request context
+ * @returns A Promise resolving to a redirect Response (or error response via the HTTP handler)
+ */
 export function oauthSignInHandler(ctx: ReadonlyContext): Promise<Response> {
 	return handleHttpEndpoint((ctxInner: ReadonlyContext) => oauthSignInFactory(ctxInner))(ctx);
 }

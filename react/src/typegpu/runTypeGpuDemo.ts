@@ -10,6 +10,7 @@ import * as d from "typegpu/data";
 import * as std from "typegpu/std";
 
 import logResolvedWgslOnFailure from "@/react/typegpu/logResolvedWgslOnFailure";
+import { ONE, THREE, ZERO } from "@/shared/constants/shared-constants";
 
 type StopFn = () => void;
 
@@ -158,10 +159,8 @@ export default async function runTypeGpuDemo(
 		//   along the diagonal.
 		// - A single triangle avoids that seam and is common for full-screen effects.
 		const TRIANGLE_VERTEX_COUNT = 3;
-		const ZERO = 0;
-		const ONE = 1;
+
 		const MINUS_ONE = -1;
-		const THREE = 3;
 		const VERTEX_INDEX_0 = d.u32(ZERO);
 		const VERTEX_INDEX_1 = d.u32(ONE);
 		const mainVertex = tgpu["~unstable"].vertexFn({

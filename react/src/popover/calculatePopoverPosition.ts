@@ -150,6 +150,8 @@ function adjustLeftRightPosition({
 /**
  * Calculates optimal popover position relative to trigger element
  * Uses smart fallback algorithm when preferred placement doesn't fit
+ *
+ * @returns An object with `position` (style object for popover) and `placement` (chosen placement)
  */
 export default function calculatePopoverPosition({
 	triggerRect,

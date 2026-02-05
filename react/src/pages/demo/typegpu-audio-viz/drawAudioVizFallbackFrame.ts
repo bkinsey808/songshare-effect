@@ -1,10 +1,7 @@
-const ZERO = 0;
-const ONE = 1;
+import { ONE, TWO, ZERO } from "@/shared/constants/shared-constants";
 
 const BYTE_MIDPOINT = 128;
 const BYTE_SCALE = 128;
-
-const TWO = 2;
 
 const WAVEFORM_Y_SCALE = 0.35;
 
@@ -42,6 +39,8 @@ const WAVEFORM_INDEX_STEP = 1;
  * @param args.bytes - Time-domain PCM bytes (Uint8Array, 0-255) used for waveform
  * @param args.level - Normalized level (0..1) used to fill the level meter
  * @param args.levelDecimals - Number of decimals to show for the level text
+ *
+ * @returns void
  */
 export default function drawAudioVizFallbackFrame(args: {
 	ctx: CanvasRenderingContext2D;

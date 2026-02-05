@@ -1,66 +1,80 @@
 # GitHub Copilot Instructions
 
-> **Note**: For comprehensive coding guidelines and project rules, see [`.agent/rules.md`](../.agent/rules.md).
-> This file provides a quick reference for GitHub Copilot users.
+This file provides quick reference and orientation for GitHub Copilot.
 
-## Project Overview
+## 📚 Documentation Structure
+
+This project uses **Agent Skills** (portable, task-specific guidance) and **custom rules** (universal guidelines):
+
+### Skills (Task-Focused Guidance)
+
+These skills are automatically loaded when relevant to your task:
+
+- [**effect-ts-patterns**](./skills/effect-ts-patterns/SKILL.md) - Effect-TS API patterns, error handling, schema validation
+- [**authentication-system**](./skills/authentication-system/SKILL.md) - JWT tokens, RLS, visitor/user auth
+- [**file-organization**](./skills/file-organization/SKILL.md) - No barrel files, direct imports, naming conventions
+- [**typescript-conventions**](./skills/typescript-conventions/SKILL.md) - Strict typing, no `any`, JSDoc rules
+- [**react-conventions**](./skills/react-conventions/SKILL.md) - React Compiler, functional components, hooks patterns
+- [**code-comments**](./skills/code-comments/SKILL.md) - Comment conventions, JSDoc guidelines
+- [**unit-testing**](./skills/unit-testing/SKILL.md) - Vitest patterns and best practices
+- [**playwright-testing**](./skills/playwright-testing/SKILL.md) - E2E test patterns and stability tips
+
+### Master Rules
+
+The single source of truth for all coding guidelines:
+
+- [**`.agent/rules.md`**](../.agent/rules.md) - **Canonical reference** for coding standards, architecture, and project conventions
+
+## 🎯 Project Overview
 
 **SongShare Effect** is a React Vite project with Hono API server for Cloudflare Pages and Workers deployment.
 
-### Architecture
+- **Frontend**: React + Vite at http://localhost:5173/
+- **API**: Hono + Effect-TS at http://localhost:8787/
+- **Database**: Supabase with RLS and Realtime
+- **Auth**: Dual system (visitor + user tokens) with JWT and RLS enforcement
 
-- **Frontend**: React + Vite running on http://localhost:5173/
-- **API**: Hono API server on Cloudflare Workers at http://localhost:8787/
-- **Database**: Supabase with generated Effect schemas
-- **Authentication**: Dual authentication system (visitor + user tokens) with JWT and Row Level Security (RLS)
+### Quick Start
 
-See [`docs/authentication-system.md`](../docs/authentication-system.md) for complete authentication guide.
-
-## Quick Reference
-
-### File Organization
-
-- ❌ **NO BARREL FILES**: Do not create `index.ts` files that re-export other modules
-- ✅ **Direct Imports**: Always import directly from the source file
-- ✅ **Docs filenames**: Use kebab-case for files under `docs/` directory
-
-### React Standards
-
-- ✅ **React Compiler Ready**: No manual memoization (`useCallback`, `useMemo`, `memo`)
-- ✅ **TypeScript First**: Strong typing, avoid `any` types
-- ❌ **No JSDoc types in `.ts`/`.tsx` files**: **Do not** put types in JSDoc for TypeScript files — document parameters/returns without types. Example: `@param ctx - description` and `@returns - description` (no `{Type}` in the tag).
-
-### Import Patterns
-
-```typescript
-// ✅ PREFERRED - Direct imports
-import { NativePopover } from "./popover/NativePopover";
-import { type PopoverProps } from "./popover/types";
-
-// ❌ AVOID - Barrel file imports
-import { NativePopover, PopoverProps } from "./popover";
+```bash
+npm install
+npm run dev:all
 ```
 
-### Testing Conventions
+## 🔗 Key Documentation
 
-- ✅ **Vitest unit tests**: `*.test.ts` or `*.test.tsx` (colocated with source)
-- ✅ **Playwright specs**: `*.spec.ts` or `*.spec.tsx` (in `e2e/` directory)
+- [**README.md**](../README.md) - Project setup and architecture overview
+- [**CONTRIBUTING.md**](../CONTRIBUTING.md) - Commit message conventions and pre-commit hooks
+- [**docs/authentication-system.md**](../docs/authentication-system.md) - Complete auth guide (JWT, RLS, tokens)
+- [**docs/effect-implementation.md**](../docs/effect-implementation.md) - Effect-TS patterns used in API
 
-### Git Usage
+## ✅ Golden Rules (See `.agent/rules.md` for Complete List)
 
-- **Only humans run git**: Copilot will not run git commands that modify the repository
-- **Read-only git commands are allowed**: `git status`, `git log`, `git diff`, etc.
+1. ❌ **NO BARREL FILES** - Import directly from source files
+2. ✅ **Direct imports only** - No index.ts re-exports
+3. ✅ **React Compiler ready** - No manual memoization
+4. ✅ **TypeScript strict** - No `any` types
+5. ✅ **JSDoc without types** - Don't repeat types in comments
+6. ✅ **Colocated tests** - Unit tests next to source
+7. ✅ **ESM config files** - Use `export default`, not CommonJS
+8. ✅ **Kebab-case docs** - Documentation filenames in kebab-case
 
-### Configuration Files
+## 🛠️ Common Commands
 
-- **Use ESM format**: `.js` or `.mjs` with `export`/`export default` (not `.cjs`)
-- **Bun scripts**: Use `.bun.ts` extension for Bun TypeScript scripts
+```bash
+npm run dev           # Frontend only
+npm run dev:api       # API only
+npm run dev:all       # Both servers
 
-## Full Guidelines
+npm run build:all     # Build everything
+npm run lint          # Check code style
+npm run test:unit     # Run unit tests
+npm run test:e2e:dev  # Run E2E tests (interactive)
+npm run commit        # Interactive commit (Commitizen)
+```
 
-For complete coding guidelines, architecture details, and best practices, see:
+---
 
-- [`.agent/rules.md`](../.agent/rules.md) - Complete coding guidelines and preferences
-- [`README.md`](../README.md) - Project setup and development instructions
-- [`CONTRIBUTING.md`](../CONTRIBUTING.md) - Contribution guidelines
-- [`docs/`](../docs/) - Additional documentation
+## 📖 For Complete Reference
+
+Always consult [`.agent/rules.md`](../.agent/rules.md) for the canonical source of all coding guidelines and project conventions.

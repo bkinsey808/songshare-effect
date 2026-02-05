@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import { type ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
 import extractUserSessionTokenFromCookieHeader from "./extractUserSessionTokenFromCookieHeader";
 

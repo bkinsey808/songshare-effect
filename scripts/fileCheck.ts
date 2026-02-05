@@ -3,14 +3,14 @@
 // Usage: bun src/features/scripts/fileCheck.ts src/App.tsx
 import { spawnSync, type SpawnSyncReturns } from "node:child_process";
 
-import { warn as sWarn, error as sError } from "./utils/scriptLogger";
+import { ONE, ZERO } from "@/shared/constants/shared-constants";
+
+import { error as sError, warn as sWarn } from "./utils/scriptLogger";
 
 // Numeric helpers — small, explicit names to avoid magic-number lint warnings
 const ARGV_FILE_INDEX = 2;
 const EXIT_USAGE = 1;
 const EXIT_NON_ZERO = 1;
-const ZERO = 0;
-const ONE = 1;
 const INDEX_INCREMENT = 1;
 
 const file = process.argv[ARGV_FILE_INDEX];

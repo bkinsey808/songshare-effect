@@ -14,6 +14,9 @@ import { isSupportedLanguage } from "@/shared/language/supported-languages-effec
  * Example:
  *   getCurrentLangFromPath('/es/songs') // => 'es'
  *   getCurrentLangFromPath('/zz/foo')   // => defaultLanguage ('en')
+ *
+ * @param pathname - The URL pathname to parse
+ * @returns The supported language extracted from the pathname or the `defaultLanguage`
  */
 export default function getCurrentLangFromPath(pathname: string): SupportedLanguageType {
 	const maybeLang = pathname.split("/")[LANG_PATH_SEGMENT_INDEX] ?? "";

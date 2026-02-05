@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactElement } from "react";
 
 import enumerateAudioInputDevices from "@/react/audio/enumerateAudioInputDevices";
+import { ONE } from "@/shared/constants/shared-constants";
 
 type Props = {
 	value: string;
@@ -8,8 +9,6 @@ type Props = {
 	disabled?: boolean;
 	refreshKey?: number;
 };
-
-const ONE = 1;
 
 /**
  * A simple select control that lists available audio input devices.

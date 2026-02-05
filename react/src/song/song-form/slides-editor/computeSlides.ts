@@ -16,6 +16,12 @@ function buildFieldData(fieldDataRaw: unknown): Record<string, string> {
 	return out;
 }
 
+/**
+ * Convert the optional public payload's `slides` entry into validated `Slide` objects.
+ *
+ * @param pub - Optional public payload that may contain a `slides` map
+ * @returns Record mapping slide ids to `Slide` objects
+ */
 export default function computeSlides(pub?: Record<string, unknown>): Record<string, Slide> {
 	if (!pub || !isRecord(pub["slides"])) {
 		return {};

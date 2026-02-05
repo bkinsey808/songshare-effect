@@ -1,5 +1,6 @@
 // Small numeric helpers used to avoid magic-number complaints from lint.
-const ZERO = 0;
+import { ZERO } from "@/shared/constants/shared-constants";
+
 /**
  * Safely read a property from a plain object while avoiding prototype pollution.
  *
@@ -47,7 +48,15 @@ export function superSafeGet<TValue extends Record<string, unknown>, Key extends
 }
 
 // src/features/utils/safeSet.ts
-/** Safely set a property on an object, avoiding prototype pollution and unsafe access */
+
+/**
+ * Safely set a property on an object, avoiding prototype pollution and unsafe access.
+ *
+ * @param obj - The target object (treated as readonly to avoid mutation at call sites)
+ * @param key - The property name to set (must not be a prototype key)
+ * @param value - The value to set
+ * @returns void
+ */
 export function safeSet(obj: Readonly<Record<string, unknown>>, key: string, value: unknown): void {
 	if (key !== "__proto__" && key !== "constructor" && key !== "prototype") {
 		// Only set if not polluting prototype
@@ -57,7 +66,10 @@ export function safeSet(obj: Readonly<Record<string, unknown>>, key: string, val
 
 /**
  * Safely delete a property from an object, avoiding prototype pollution and unsafe access.
- * Returns true if the property was deleted, false otherwise.
+ *
+ * @param obj - The object to operate on
+ * @param key - The property name to delete
+ * @returns True if the property was deleted, false otherwise
  */
 export default function safeDelete(obj: Readonly<Record<string, unknown>>, key: string): boolean {
 	if (Object.hasOwn(obj, key)) {
@@ -70,13 +82,36 @@ export default function safeDelete(obj: Readonly<Record<string, unknown>>, key: 
 /**
  * Safely get an element from an array by index, avoiding out-of-bounds errors.
  * Returns the element if the index is valid, otherwise returns the default value (or undefined).
+ *
+ * @param arr - The array to index
+ * @param idx - Index to read
+ * @param defaultValue - Optional default value if index is invalid
+ * @returns The element at `idx` or the provided default/undefined
+ * Typed overload: safely get an element from a typed array by index.
+ *
+ * @returns The element at `idx` or the provided default/undefined
  */
 export function safeArrayGet<TItem>(
 	arr: readonly TItem[],
 	idx: number,
 	defaultValue?: TItem,
 ): TItem | undefined;
+
+/**
+ * Untyped overload: safely get an element from an unknown array by index.
+ *
+ * @returns The element at `idx` or the provided default/undefined
+ */
 export function safeArrayGet(arr: readonly unknown[], idx: number, defaultValue?: unknown): unknown;
+
+/**
+ * Implementation: safely get an element from an array by index.
+ *
+ * @param arr - The array to index
+ * @param idx - Index to read
+ * @param defaultValue - Optional default value if index is invalid
+ * @returns The element at `idx` or the provided default/undefined
+ */
 export function safeArrayGet(
 	arr: readonly unknown[],
 	idx: number,
@@ -96,17 +131,43 @@ export function safeArrayGet(
 /**
  * Safely set an element in an array by index, avoiding out-of-bounds errors.
  * Returns a new array with the value set if the index is valid, otherwise returns the original array.
+ *
+ * @param arr - The original readonly array
+ * @param idx - Index to set
+ * @param value - Value to set at `idx`
+ * @returns New array with the value set when valid, otherwise the original array
+ 
+
+
+ * Typed overload: safely set an element in a typed array by index.
+ *
+ * @returns New array with the value set when valid, otherwise the original array
  */
 export function safeArraySet<TItem>(
 	arr: readonly TItem[],
 	idx: number,
 	value: TItem,
 ): readonly TItem[];
+
+/**
+ * Untyped overload: safely set an element in an unknown array by index.
+ *
+ * @returns New array with the value set when valid, otherwise the original array
+ */
 export function safeArraySet(
 	arr: readonly unknown[],
 	idx: number,
 	value: unknown,
 ): readonly unknown[];
+
+/**
+ * Implementation: safely set an element in an array by index, returning a new array when valid.
+ *
+ * @param arr - The original readonly array
+ * @param idx - Index to set
+ * @param value - Value to set at `idx`
+ * @returns New array with the value set when valid, otherwise the original array
+ */
 export function safeArraySet(
 	arr: readonly unknown[],
 	idx: number,

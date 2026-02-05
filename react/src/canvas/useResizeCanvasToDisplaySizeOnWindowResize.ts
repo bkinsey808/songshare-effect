@@ -2,6 +2,12 @@ import { useEffect } from "react";
 
 import resizeCanvasToDisplaySize from "@/react/canvas/resizeCanvasToDisplaySize";
 
+/**
+ * Hook that resizes the canvas backing store when the window resizes.
+ *
+ * @param canvasRef - Ref to the canvas element to be resized
+ * @returns void
+ */
 export default function useResizeCanvasToDisplaySizeOnWindowResize(canvasRef: {
 	current: HTMLCanvasElement | null | undefined;
 }): void {

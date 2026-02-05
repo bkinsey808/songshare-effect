@@ -4,14 +4,14 @@ import { spawn } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
 
-import { warn as sWarn, error as sError } from "../utils/scriptLogger";
+// small helper sentinel used in the installer
+import { ZERO } from "@/shared/constants/shared-constants";
+
+import { error as sError, warn as sWarn } from "../utils/scriptLogger";
 import browsersAlreadyInstalled from "./helpers/browsersAlreadyInstalled";
 import findBrowserExecutable from "./helpers/findBrowserExecutable";
 import libsMissingForExecutable from "./helpers/libsMissingForExecutable";
 import maybePromptInstallDeps from "./helpers/maybePromptInstallDeps";
-
-// small helper sentinel used in the installer
-const ZERO = 0;
 
 // This script runs automatically after `npm install` when invoked as the
 // `postinstall` script in package.json. It attempts to download Playwright

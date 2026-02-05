@@ -1,6 +1,13 @@
 import type { IconProps } from "./IconProps";
 
-/** Icon for “create song” actions. Use for song-specific create entry points (playlists and other creates use different icons). */
+/** Icon for “create song” actions. Use for song-specific create entry points (playlists and other creates use different icons).
+
+
+ * Create song icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the create-song icon
+ */
 export default function CreateSongIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

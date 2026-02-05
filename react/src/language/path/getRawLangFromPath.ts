@@ -8,6 +8,9 @@ import { defaultLanguage } from "@/shared/language/supported-languages";
  *
  * Note: prefer the strict `getCurrentLangFromPath` for most callers that
  * expect a supported language value.
+ *
+ * @param pathname - The URL pathname to parse
+ * @returns The raw language segment or the `defaultLanguage` when none is present
  */
 export default function getRawLangFromPath(pathname: string): string {
 	const maybeLang = pathname.split("/")[LANG_PATH_SEGMENT_INDEX] ?? "";

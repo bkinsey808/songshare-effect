@@ -16,9 +16,13 @@ const MINUTES_IN_HOUR = 60;
 
 /**
  * Returns a Supabase client authenticated with a Supabase client token.
- * The supabaseClientToken can be from either:
+ * The `supabaseClientToken` can be from either:
  * - A shared visitor user (for anonymous access)
  * - A specific authenticated user (after sign-in)
+ *
+ * @param supabaseClientToken - Optional JWT used to set the Authorization header
+ * @returns A `SupabaseClientLike<Database>` configured for the token, or `undefined` when
+ *   the environment or token is not available
  */
 export default function getSupabaseClient(
 	supabaseClientToken?: string,

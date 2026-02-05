@@ -1,6 +1,13 @@
 import type { IconProps } from "./IconProps";
 
-/** Icon for entering full screen mode. Shows expanding arrows. */
+/** Icon for entering full screen mode. Shows expanding arrows.
+
+
+ * Fullscreen icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the fullscreen icon
+ */
 export default function FullScreenIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import computeRmsLevelFromTimeDomainBytes from "@/react/audio/computeRmsLevel";
+import { ZERO } from "@/shared/constants/shared-constants";
 
 import clamp01 from "./clamp01";
 import smoothValue from "./smoothValue";
@@ -36,8 +37,6 @@ type AudioLevelOptions = {
 	uiIntervalMs: number;
 	smoothingAlpha: number;
 };
-
-const ZERO = 0;
 
 /**
  * Computes a smoothed audio level from a Web Audio analyser time-domain buffer.

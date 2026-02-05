@@ -1,6 +1,11 @@
 /**
- * Custom hook for managing slide order operations
+ * Custom hook for managing slide order operations.
+ *
+ * @param slideOrder - Current slide order array
+ * @param setSlideOrder - Setter to update the slide order
+ * @returns Handlers for modifying slide order: `duplicateSlideOrder`, `removeSlideOrder`, `moveSlideUp`, `moveSlideDown`
  */
+import { ONE } from "@/shared/constants/shared-constants";
 
 export default function useSlideOrder({
 	slideOrder,
@@ -20,7 +25,6 @@ export default function useSlideOrder({
 	moveSlideUp: (index: number) => void;
 	moveSlideDown: (index: number) => void;
 } {
-	const ONE = 1;
 	const NOT_FOUND = -1;
 	const NONE = 0;
 

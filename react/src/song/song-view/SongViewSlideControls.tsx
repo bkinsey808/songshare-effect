@@ -1,12 +1,10 @@
 import { useTranslation } from "react-i18next";
 
 import Button from "@/react/design-system/Button";
+import { ONE } from "@/shared/constants/shared-constants";
 
 /** Minimum allowed slide index (keeps bounds explicit and avoids magic numbers). */
 const MIN_SLIDE_INDEX = 0;
-
-/** Small numeric constant used when computing human-visible slide indices. */
-const ONE = 1;
 
 type SongViewSlideControlsProps = Readonly<{
 	clampedIndex: number;

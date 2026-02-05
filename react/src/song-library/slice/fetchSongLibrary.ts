@@ -39,6 +39,7 @@ function decodeJwt(token: string): Record<string, unknown> | undefined {
  * entries (includes owner username and song public details when available).
  *
  * @param get - Zustand slice getter used to access state and mutation helpers
+ * @returns Effect that completes when the library has been fetched or fails with `Error`
  */
 export default function fetchSongLibrary(get: () => SongLibrarySlice): Effect.Effect<void, Error> {
 	return Effect.gen(function* fetchSongGen($) {

@@ -1,5 +1,11 @@
 import type { IconProps } from "./IconProps";
 
+/**
+ * Rotate counter-clockwise icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the rotate-ccw icon
+ */
 export default function RotateCcwIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

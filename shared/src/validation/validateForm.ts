@@ -3,11 +3,11 @@
 // Keep per-site inline disables rather than a broad, file-scope rule disable.
 import { Effect, type Schema } from "effect";
 
+import { ZERO } from "@/shared/constants/shared-constants";
+
 import extractValidationErrors from "./extractValidationErrors";
 import { type ValidationResult } from "./validate-types";
 import validateFormEffect from "./validateFormEffect";
-
-const ZERO = 0;
 
 /**
  * Validate form data using Effect schema

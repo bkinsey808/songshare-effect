@@ -8,6 +8,15 @@ import { safeGet } from "@/shared/utils/safe";
 
 import type { SongSubscribeSlice } from "../song-slice";
 
+/**
+ * Add private songs to the active subscription list by slug. Fetches any
+ * missing songs for the current user and updates the store's private songs
+ * and active private song ids accordingly.
+ *
+ * @param set - Zustand set function for the SongSubscribe slice
+ * @param get - Getter for the current slice state
+ * @returns A function accepting an array of song slugs and returning a Promise
+ */
 export default function addActivePrivateSongSlugs(
 	set: (
 		partial:

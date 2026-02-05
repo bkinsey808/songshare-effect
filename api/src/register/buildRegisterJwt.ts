@@ -1,8 +1,9 @@
 import { Effect } from "effect";
 
-import { ServerError } from "@/api/api-errors";
 // Env type not required — ReadonlyContext default covers the Bindings type
-import { type ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
+import { ServerError } from "@/api/api-errors";
 import createJwt from "@/api/oauth/createJwt";
 import { type OauthState } from "@/shared/oauth/oauthState";
 import { type OauthUserData } from "@/shared/oauth/oauthUserData";

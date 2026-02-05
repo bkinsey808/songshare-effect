@@ -1,9 +1,16 @@
 import { useTranslation } from "react-i18next";
 
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
+
 import useLocale from "@/react/language/locale/useLocale";
 import useSetPreferredLanguage from "@/react/language/switcher/useSetPreferredLanguage";
-import { type SupportedLanguageType } from "@/shared/language/supported-languages";
 
+/**
+ * Renders a debug panel that shows current language, sample translations,
+ * and buttons to change the preferred language for quick testing.
+ *
+ * @returns React element rendering the language test UI
+ */
 export default function LanguageTest(): ReactElement {
 	const { i18n } = useTranslation();
 	const { lang, t } = useLocale();

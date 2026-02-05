@@ -1,5 +1,11 @@
 import type { SongPublic } from "../song/song-schema";
 
+/**
+ * Build a test `SongPublic` object with sensible defaults that tests can override.
+ *
+ * @param overrides - Partial properties to override the default fixture
+ * @returns A `SongPublic` fixture object
+ */
 export default function makeSongPublic(overrides: Partial<SongPublic> = {}): SongPublic {
 	/* eslint-disable-next-line unicorn/no-null -- central DB-null constant for test helpers */
 	const DB_NULL: string | null = null;

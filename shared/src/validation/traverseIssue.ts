@@ -6,6 +6,14 @@ export type OnFound = (msgRaw: unknown, fieldName: string) => boolean | void;
 
 // Factory that returns a `traverseIssue` function bound to the provided
 // `i18nMessageKey` and `onFound` callback.
+
+/**
+ * Create a `traverseIssue` function that walks ParseResult issue trees and invokes `onFound` when an i18n message annotation is found.
+ *
+ * @param i18nMessageKey - Key used to identify i18n annotations
+ * @param onFound - Callback invoked with the raw message and field name
+ * @returns A function that traverses an issue tree and calls `onFound`
+ */
 export default function createTraverseIssue(
 	i18nMessageKey: symbol | string,
 	onFound: OnFound,

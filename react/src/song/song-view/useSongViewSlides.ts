@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 
+import { ONE } from "@/shared/constants/shared-constants";
 import { safeGet } from "@/shared/utils/safe";
 
 import { type SongPublic, songFields } from "../song-schema";
 
 /** Minimum allowed slide index (keeps bounds explicit and avoids magic numbers) */
 const MIN_SLIDE_INDEX = 0;
-/** Numeric one as a named constant to clarify arithmetic intent for increments. */
-const ONE = 1;
 
 /**
  * Result object returned by `useSongViewSlides`.
@@ -49,6 +48,7 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 	const totalSlides = slideOrder.length;
 
 	const [currentIndex, setCurrentIndex] = useState(MIN_SLIDE_INDEX);
+
 	/**
 	 * Clamp the current index into the valid slide range [0, totalSlides - 1].
 	 * When there are no slides the clamped index remains 0.
@@ -70,14 +70,17 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 	function goFirst(): void {
 		setCurrentIndex(MIN_SLIDE_INDEX);
 	}
+
 	/** Navigate to the previous slide, clamping at 0 to avoid negative indices. */
 	function goPrev(): void {
 		setCurrentIndex((i) => Math.max(MIN_SLIDE_INDEX, i - ONE));
 	}
+
 	/** Navigate to the next slide, clamping at the last index. */
 	function goNext(): void {
 		setCurrentIndex((i) => Math.min(totalSlides - ONE, i + ONE));
 	}
+
 	/** Navigate to the last slide safely (handles zero slides). */
 	function goLast(): void {
 		setCurrentIndex(Math.max(MIN_SLIDE_INDEX, totalSlides - ONE));

@@ -11,6 +11,7 @@ import isRecord from "@/shared/type-guards/isRecord";
  *
  * @param song - Raw song value (from Supabase row)
  * @param out - Mutable map updated with decoded/normalized song values keyed by song_id
+ * @returns void
  */
 export default function processSong(song: unknown, out: Record<string, SongPublic>): void {
 	if (!isRecord(song)) {

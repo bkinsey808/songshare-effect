@@ -1,4 +1,5 @@
 /* oxlint-disable sonarjs/slow-regex */
+
 /**
  * Normalizes React source imports to the `@/react` alias when possible.
  * @param filePath - Absolute or relative path to the React source file.

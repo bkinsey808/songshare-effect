@@ -1,5 +1,7 @@
 /**
  * Generate a random ID for slides
+ *
+ * @returns Random string id suitable for slide keys
  */
 export default function randomId(): string {
 	const RADIX = 36;

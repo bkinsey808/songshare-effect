@@ -1,6 +1,3 @@
-/**
- * Custom hook for managing slide field operations
- */
 import { safeGet } from "@/shared/utils/safe";
 
 import { type Slide } from "../song-form-types";
@@ -42,6 +39,13 @@ type UseSlideFieldsReturn = {
 	safeGetField: SafeGetField;
 };
 
+/**
+ * Custom hook for managing slide field operations.
+ *
+ * @param slides - Current slides record
+ * @param setSlides - Setter to update slides
+ * @returns Handlers to edit field values and slide names and to safely access a field value
+ */
 export default function useSlideFields({
 	slides,
 	setSlides,

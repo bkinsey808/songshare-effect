@@ -1,12 +1,16 @@
 import { Effect } from "effect";
 
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
 import { type AppError, AuthenticationError } from "@/api/api-errors";
-import { type ReadonlyContext } from "@/api/hono/hono-context";
 import { HTTP_STATUS } from "@/shared/demo/api";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 /**
- * Convert AppError to appropriate HTTP response
+ * Convert an AppError into an HTTP response payload and status.
+ *
+ * @param error - The application error to convert (one of the AppError variants)
+ * @returns An object containing `status` and `body` suitable for use with `Response.json`
  */
 export function errorToHttpResponse(error: Readonly<AppError>): {
 	status: number;

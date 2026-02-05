@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import type { ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
 import { HTTP_INTERNAL } from "@/shared/constants/http";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";

@@ -22,6 +22,12 @@ type Props = {
 	canvasHeight: number;
 };
 
+/**
+ * Presentational demo view for TypeGPU audio visualization controls and canvas.
+ *
+ * @param props - View props including control callbacks and canvas refs
+ * @returns React element rendering the audio viz demo UI
+ */
 export default function TypegpuAudioVizDemoView({
 	title,
 	subtitle,

@@ -13,7 +13,8 @@ import isSongLibraryEntry from "../guards/isSongLibraryEntry";
 
 /**
  * Handle a realtime subscription event payload for the song_library table.
- * Returns an Effect that processes INSERT/UPDATE/DELETE events.
+ *
+ * @returns Effect that processes INSERT/UPDATE/DELETE events
  */
 export default function handleSongLibrarySubscribeEvent(
 	payload: unknown,

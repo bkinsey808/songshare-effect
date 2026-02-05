@@ -11,6 +11,8 @@ import type { PlaylistSlice } from "../slice/playlist-slice";
  *
  * Provides a typed `set` and `get` pair and a mutable `setCalls` array
  * capturing all `set` calls for assertions.
+ *
+ * @returns An object with `set`, `get` and `setCalls` for use in tests
  */
 export default function makeSetGetForCreateUpdateLocalSongOrder(): {
 	set: Set<PlaylistSlice>;

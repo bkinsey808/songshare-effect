@@ -7,6 +7,9 @@ import { type ApiResponseAction } from "./ApiResponseAction";
 
 /**
  * Create an Effect that handles API response parsing and returns structured actions
+ *
+ * @param response - Fetch `Response` to parse
+ * @returns Effect that yields `success` on OK responses or fails with `ApiResponseAction` describing the error
  */
 export default function createApiResponseEffect(
 	response: Response,

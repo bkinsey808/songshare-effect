@@ -3,7 +3,17 @@ description: 'Custom agent for making TypeScript and React code changes in this 
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
 ---
 
-## Purpose
+## Quick Reference
+
+**For quick guidance**, see the corresponding Agent Skills:
+
+- [typescript-conventions skill](../skills/typescript-conventions/SKILL.md) - TypeScript patterns
+- [react-conventions skill](../skills/react-conventions/SKILL.md) - React & React Compiler patterns
+- [.agent/rules.md](../../.agent/rules.md) - Full project rules
+
+This agent provides extended operational guidance and mandatory validation steps beyond the skills.
+
+---
 
 This custom agent helps make small-to-medium TypeScript and React changes in this repository. It's intended for code edits, lint/test runs, basic refactors, and developer guidance. It is NOT permitted to run git write operations (commits, pushes) or make large architectural changes without explicit human approval.
 

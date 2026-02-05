@@ -8,6 +8,16 @@ import useSlideDragAndDrop from "./useSlideDragAndDrop";
 import useSlideFields from "./useSlideFields";
 import useSlideOrder from "./useSlideOrder";
 
+/**
+ * Composed hook that wires together slide editors, fields, order and drag/drop
+ * concerns into a single editor surface API.
+ *
+ * @param slideOrder - Current ordered array of slide ids
+ * @param setSlideOrder - Setter for the presentation order
+ * @param slides - Map of slide id to `Slide` object
+ * @param setSlides - Setter to update `slides`
+ * @returns Handlers and state used by slide editor views (add/delete/duplicate, reorder handlers, sensors)
+ */
 export default function useSlidesEditor({
 	slideOrder,
 	setSlideOrder,

@@ -25,6 +25,15 @@ const initialState: AuthState = {
 
 // Arrow-style factory is the preferred pattern for these slice creators.
 // Suppress the `func-style` rule here.
+
+/**
+ * Create the auth slice for the app store.
+ *
+ * @param set - Zustand `set` function
+ * @param get - Zustand `get` function
+ * @param api - Store API
+ * @returns The `AuthSlice` implementation for the store
+ */
 export function createAuthSlice(
 	set: Set<AuthSlice>,
 	get: Get<AuthSlice>,

@@ -24,6 +24,7 @@ type AudioLevelOptions = {
  *
  * @param refs - Refs to the analyser and time-domain buffer (same shape as `useSmoothedAudioLevel`).
  * @param options - Options passed to `useSmoothedAudioLevel`.
+ * @returns Object with `audioLevel` and a `RefObject` kept in sync
  */
 export default function useSmoothedAudioLevelRef(
 	refs: AudioLevelRefs,

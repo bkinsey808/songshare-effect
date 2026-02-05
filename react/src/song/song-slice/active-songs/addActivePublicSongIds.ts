@@ -12,6 +12,15 @@ import type { SongSubscribeSlice } from "../song-slice";
 
 import processSong from "./processSong";
 
+/**
+ * Add public songs to the active subscription list by song id. Ensures the
+ * store's `activePublicSongIds` contains the provided ids, fetches missing
+ * songs from Supabase, and updates the store with decoded results.
+ *
+ * @param set - Zustand set function for the SongSubscribe slice
+ * @param get - Getter for the current slice state
+ * @returns An Effect that completes when the fetch and store update finish
+ */
 export default function addActivePublicSongIds(
 	set: (
 		partial:

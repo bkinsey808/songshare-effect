@@ -9,6 +9,8 @@ import type { PlaylistSlice } from "../slice/playlist-slice";
  * removes the `songId` from `currentPlaylist.public.song_order` if present.
  * If there is no current playlist or `public` metadata, the updater returns
  * the state unchanged.
+ *
+ * @returns A function `(songId) => void` that removes the song id from the local playlist
  */
 export default function createRemoveSongFromLocalPlaylist(
 	set: Set<PlaylistSlice>,

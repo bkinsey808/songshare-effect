@@ -44,6 +44,8 @@ function parsePayload(payload: unknown): UserSessionData | undefined {
 /**
  * Ensure signed-in state by calling /api/me. Exported so non-hook code can
  * force a refresh when needed.
+ *
+ * @returns Promise that resolves to `UserSessionData` when authenticated, otherwise `undefined`
  */
 export default function ensureSignedIn(options?: {
 	readonly force?: boolean;

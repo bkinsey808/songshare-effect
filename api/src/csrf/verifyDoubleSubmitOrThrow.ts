@@ -4,9 +4,17 @@ import { getCookie } from "hono/cookie";
 import { AuthenticationError } from "@/api/api-errors";
 import { csrfTokenCookieName } from "@/shared/cookies";
 
-import { type Env } from "../env";
-import { type ReadonlyContext } from "../hono/hono-context";
+import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
 
+import { type Env } from "../env";
+
+/**
+ * Verify double-submit CSRF tokens and throw AuthenticationError on mismatch.
+ *
+ * @param ctx - Hono request context
+ * @returns void
+ * @throws AuthenticationError when headers/cookie are missing or do not match
+ */
 export default function verifyDoubleSubmitOrThrow(ctx: ReadonlyContext): void {
 	const headerToken = ctx.req.header("X-CSRF-Token");
 	const cookieToken = getCookie(ctx as Context<{ Bindings: Env }>, csrfTokenCookieName);

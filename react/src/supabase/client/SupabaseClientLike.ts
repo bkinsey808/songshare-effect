@@ -20,14 +20,18 @@ type SupabaseFromLike = {
 	/** Select returns a query-like object or promise */
 	select: (cols: string) => {
 		/** Optional order helper used by some callers */
-		order?: (column: string) => Promise<PostgrestResponse>;
-		/** Optional eq helper used by tests and some query patterns */
+		order?: (
+			column: string,
+		) => Promise<PostgrestResponse> /** Optional eq helper used by tests and some query patterns */;
 		eq?: (column: string, value: string) => { single: () => Promise<unknown> };
 	};
+
 	/** Insert returns a query-like object or promise */
 	insert?: (row: unknown) => unknown;
+
 	/** Update returns a query-like object or promise */
 	update?: (values: unknown) => unknown;
+
 	/** Optional: not every fake needs to implement `delete` */
 	delete?: () => unknown;
 };

@@ -1,12 +1,12 @@
 import { useState } from "react";
 
+import { ONE, ZERO } from "@/shared/constants/shared-constants";
+
 // This component will benefit from React Compiler optimizations
 // React Compiler should automatically memoize expensive computations based on dependencies
 
 function OptimizedCounter(): ReactElement {
-	const ZERO = 0;
-	const ONE = 1;
-	const [count, setCount] = useState(ZERO);
+	const [count, setCount] = useState<number>(ZERO);
 	const [name, setName] = useState("");
 
 	// File-local constants

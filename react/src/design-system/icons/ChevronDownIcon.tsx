@@ -1,5 +1,11 @@
 import type { IconProps } from "./IconProps";
 
+/**
+ * Chevron down icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the chevron down icon
+ */
 export default function ChevronDownIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

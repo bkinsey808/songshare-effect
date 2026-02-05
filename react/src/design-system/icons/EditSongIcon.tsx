@@ -1,6 +1,13 @@
 import type { IconProps } from "./IconProps";
 
-/** Icon for “edit song” actions. Use for song-specific edit entry points (playlists and other edits use different icons). */
+/** Icon for “edit song” actions. Use for song-specific edit entry points (playlists and other edits use different icons).
+
+
+ * Edit song icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the edit-song icon
+ */
 export default function EditSongIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

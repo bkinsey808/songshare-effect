@@ -22,6 +22,13 @@ type UsePlaylistDragAndDropReturn = {
 	sortableItems: string[];
 };
 
+/**
+ * Drag-and-drop helper hook for playlist song ordering using dnd-kit.
+ *
+ * @param songOrder - Current song order array
+ * @param setSongOrder - Setter to update song order
+ * @returns sensors, handler and sortable items for use with dnd-kit components
+ */
 export default function usePlaylistDragAndDrop({
 	songOrder,
 	setSongOrder,

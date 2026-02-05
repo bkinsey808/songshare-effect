@@ -1,5 +1,11 @@
 import type { IconProps } from "./IconProps";
 
+/**
+ * X (close) icon component.
+ *
+ * @param className - Optional classes applied to the svg
+ * @returns A React element rendering the close (X) icon
+ */
 export default function XIcon({ className = "" }: IconProps): ReactElement {
 	return (
 		<svg

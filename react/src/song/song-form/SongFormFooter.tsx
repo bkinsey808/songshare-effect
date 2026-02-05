@@ -20,6 +20,18 @@ type SongFormFooterProps = {
 	onDelete?: () => void | Promise<void>;
 };
 
+/**
+ * Footer UI for the Song form providing save/reset/cancel/delete controls
+ *
+ * @param hasChanges - Whether the form has unsaved changes
+ * @param isSubmitting - True when the form is currently being submitted
+ * @param isEditing - True when editing an existing song (enables delete)
+ * @param onSave - Save handler
+ * @param onReset - Reset handler
+ * @param onCancel - Cancel handler
+ * @param onDelete - Optional delete handler for existing songs
+ * @returns React element rendering the footer controls
+ */
 export default function SongFormFooter({
 	hasChanges,
 	isSubmitting,

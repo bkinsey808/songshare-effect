@@ -1,3 +1,9 @@
+/**
+ * Read a cookie by name from `document.cookie`.
+ *
+ * @param name - The cookie name to read
+ * @returns The decoded cookie value or `undefined` when not present or running server-side
+ */
 export default function getCookie(name: string): string | undefined {
 	if (typeof document === "undefined") {
 		return undefined;

@@ -1,10 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { ONE, TWO, ZERO } from "@/shared/constants/shared-constants";
 import { retryWithBackoff } from "@/shared/utils/retryWithBackoff";
-
-const ZERO = 0;
-const ONE = 1;
-const TWO = 2;
 
 // simple base function used by the first test
 async function base(): Promise<string> {

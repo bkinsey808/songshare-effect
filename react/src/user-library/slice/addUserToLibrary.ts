@@ -9,6 +9,20 @@ import type { AddUserToLibraryRequest } from "./user-library-types";
 
 import guardAsUserLibraryEntry from "./guards/guardAsUserLibraryEntry";
 
+/**
+ * addUserToLibrary
+ *
+ * Adds a followed user to the current user's library. Validates the input,
+ * performs a POST to the server, validates the server response, and updates
+ * the local slice on success. Any network or validation errors are propagated
+ * through the Effect error channel and also result in a local error being
+ * set on the slice for UI display.
+ *
+ * @param request - Request object containing `followed_user_id`.
+ * @param get - Getter for the `UserLibrarySlice` used to read and mutate state.
+ * @returns - An Effect that resolves when the operation completes or fails
+ *   with an Error.
+ */
 export default function addUserToLibrary(
 	request: Readonly<AddUserToLibraryRequest>,
 	get: () => UserLibrarySlice,

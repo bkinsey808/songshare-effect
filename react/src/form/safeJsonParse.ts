@@ -1,5 +1,8 @@
 /**
  * Safely parse JSON and return `unknown` or `undefined` if parsing fails.
+ *
+ * @param input - Value to parse (string or other coerced value)
+ * @returns The parsed value or `undefined` on parse error
  */
 export default function safeJsonParse(input: unknown): unknown {
 	try {

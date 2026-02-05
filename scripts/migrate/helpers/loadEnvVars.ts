@@ -1,5 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 
+import { ZERO } from "@/shared/constants/shared-constants";
+
 import { error as sError } from "../../utils/scriptLogger";
 
 /**
@@ -11,7 +13,6 @@ import { error as sError } from "../../utils/scriptLogger";
  * @returns An object mapping environment variable names to their values.
  */
 export default function loadEnvVars(): Record<string, string | undefined> {
-	const ZERO = 0;
 	const env: Record<string, string | undefined> = {};
 
 	try {

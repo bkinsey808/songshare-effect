@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import type {
@@ -15,8 +16,6 @@ import getDisplayAudioStream from "./getDisplayAudioStream";
 import getMicStreamForDevice from "./getMicStreamForDevice";
 import stopMediaStreamTracks from "./stopMediaStreamTracks";
 
-const ZERO = 0;
-const ONE = 1;
 const FFT_SIZE = 2048;
 const SMOOTHING_TIME_CONSTANT = 0.85;
 

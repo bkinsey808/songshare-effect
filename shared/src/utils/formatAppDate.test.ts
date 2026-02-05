@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { ZERO } from "@/shared/constants/shared-constants";
+
 import formatAppDate, { formatAppDateTime } from "./formatAppDate";
 
 const JANUARY = 0;
@@ -15,7 +17,6 @@ const MINUTE_30 = 30;
 const MINUTE_59 = 59;
 const SECOND_5 = 5;
 const SECOND_59 = 59;
-const ZERO = 0;
 
 describe("formatAppDate", () => {
 	it("formats as YYYY/DD/MM (e.g. 2026/19/01 for 19 January 2026)", () => {

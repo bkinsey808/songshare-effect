@@ -2,13 +2,12 @@
 import { Effect, type Schema } from "effect";
 
 import { clientDebug } from "@/react/utils/clientLogger";
+import { ZERO } from "@/shared/constants/shared-constants";
 import { registerMessageKey } from "@/shared/register/register";
 import { type ValidationError } from "@/shared/validation/validate-types";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
 import extractValidationErrors from "./extractValidationErrors";
-
-const ZERO = 0;
 
 type FormSubmitHandlerParams<FormValues> = {
 	readonly schema: Schema.Schema<FormValues>;

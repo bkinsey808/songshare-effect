@@ -10,6 +10,10 @@ import createTraverseIssue from "./traverseIssue";
  *
  * This implementation avoids unsafe compile-time assertions and uses
  * runtime guards to satisfy the project's strict lint rules.
+ *
+ * @param error - The parse error to traverse
+ * @param i18nMessageKey - Symbol or string used to identify i18n keys
+ * @returns A mapping of field names to i18n message payloads
  */
 export default function extractI18nMessages(
 	error: Readonly<ParseError>,

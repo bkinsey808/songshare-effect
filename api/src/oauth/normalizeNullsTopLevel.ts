@@ -1,3 +1,5 @@
+import isRecord from "@/shared/type-guards/isRecord";
+
 /**
  * Recursively normalize SQL `null` values to `undefined` at the top level.
  *
@@ -9,10 +11,8 @@
  * but consumers prefer `undefined` for absent properties.
  *
  * @param input - Arbitrary JSON-like value returned from the database.
- * @returns - The same structure with all `null` values replaced by `undefined`.
+ * @returns The same structure with all `null` values replaced by `undefined`.
  */
-import isRecord from "@/shared/type-guards/isRecord";
-
 export default function normalizeNullsTopLevel(input: unknown): unknown {
 	function normalize(value: unknown): unknown {
 		if (value === null) {

@@ -10,13 +10,14 @@ import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, songViewPath } from "@/shared/paths";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
-/**
- * Page component for viewing a playlist by slug.
- * @returns The playlist view page.
- */
 const SONGS_NONE = 0;
 const INDEX_STEP = 1;
 
+/**
+ * Page component for viewing a playlist by slug.
+ *
+ * @returns The playlist view page
+ */
 export default function PlaylistPage(): ReactElement {
 	const { t } = useTranslation();
 	const { lang } = useLocale();

@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 type FormFieldProps = Readonly<{
 	label: string;
@@ -6,6 +6,14 @@ type FormFieldProps = Readonly<{
 	children: ReactNode;
 }>;
 
+/**
+ * Labeled form field wrapper that displays an optional error below the input.
+ *
+ * @param label - The field label text
+ * @param error - Optional error message to display below the input
+ * @param children - Input element(s) to render inside the field
+ * @returns A labeled form field React element
+ */
 export default function FormField({
 	label,
 	error,

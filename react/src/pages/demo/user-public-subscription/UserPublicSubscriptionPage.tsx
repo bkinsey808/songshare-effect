@@ -8,6 +8,7 @@ import {
 	type RealtimeChannelLike,
 	type SupabaseClientLike,
 } from "@/react/supabase/client/SupabaseClientLike";
+import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import extractErrorStack from "@/shared/error-message/extractErrorStack";
 import { type Database } from "@/shared/generated/supabaseTypes";
@@ -20,8 +21,16 @@ import { isUserPublic, type UserPublic } from "./isUserPublic";
 
 // File-local constants used by the component and helpers below
 const INIT_CLIENT_DELAY_MS = 100;
-const ZERO = 0;
 
+/**
+ * UserPublicSubscriptionPage
+ *
+ * Demonstrates subscribing to the `user_public` table via Supabase Realtime
+ * and displays live user insert/update events for demo/debugging purposes.
+ *
+ * @returns - A React element that shows the current users list and realtime
+ *   event stream for the demo subscription.
+ */
 export default function UserPublicSubscriptionPage(): ReactElement {
 	const [users, setUsers] = useState<UserPublic[]>([]);
 	const [events, setEvents] = useState<RealtimeEvent[]>([]);

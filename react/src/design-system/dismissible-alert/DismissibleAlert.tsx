@@ -27,6 +27,19 @@ const variantSuccess = tw`
 `;
 const variantClasses = [variantError, variantInfo, variantSuccess].join(" ");
 
+/**
+ * A dismissible alert that shows a message and plays a short exit animation
+ * before notifying the parent via `onDismiss`.
+ *
+ * @param visible - Whether the alert is currently visible
+ * @param onDismiss - Callback invoked after the exit animation completes
+ * @param title - Optional bold title for the alert
+ * @param children - Optional alert message text or node
+ * @param variant - Visual variant: 'error' | 'info' | 'success'
+ * @param className - Optional additional CSS classes
+ * @param alertType - Optional test identifier for the alert type
+ * @returns A React element when visible (or during exit) or `undefined` when hidden
+ */
 export default function DismissibleAlert({
 	visible,
 	onDismiss,

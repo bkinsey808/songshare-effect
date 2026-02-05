@@ -40,6 +40,8 @@ export type DrawFn = (
  * - The hook stores RAF and timeout IDs in refs so values persist across
  *   renders without triggering re-renders.
  * - The `draw` callback receives a real `CanvasRenderingContext2D` object.
+ *
+ * @returns Object with `start`, `stop` and `isRunning` helpers for controlling animation
  */
 export function useCanvasAnimation(): {
 	/**

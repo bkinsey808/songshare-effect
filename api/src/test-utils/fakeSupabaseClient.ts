@@ -1,5 +1,11 @@
 import type { ReadonlySupabaseClient } from "@/api/supabase/ReadonlySupabaseClient.type";
 
+/**
+ * Create a fake Supabase client that rejects promises with the given DNS error message.
+ *
+ * @param dnsErrMsg - Error message that will be used when the fake client rejects
+ * @returns A `ReadonlySupabaseClient`-shaped fake useful for testing failure paths
+ */
 export default function makeFakeSupabaseThatRejects(dnsErrMsg: string): ReadonlySupabaseClient {
 	// Create a typed, empty partial and assign members below so we can keep
 	// the unsafe assertions localized and documented.

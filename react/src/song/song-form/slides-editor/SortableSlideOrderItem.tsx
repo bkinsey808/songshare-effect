@@ -1,6 +1,8 @@
 // src/features/song-form/SortableSlideOrderItem.tsx
 import { useSortable } from "@dnd-kit/sortable";
 
+import { ONE } from "@/shared/constants/shared-constants";
+
 import { type Slide } from "../song-form-types";
 
 type RemoveSlideOrder = ({
@@ -21,6 +23,18 @@ type SortableSlideOrderItemProps = Readonly<{
 	slideOrder: readonly string[];
 }>;
 
+/**
+ * Sortable list item used to display an ordered slide entry inside the
+ * Slide Order list. Includes controls to duplicate or remove a slide from the order.
+ *
+ * @param slideId - Unique id of the slide
+ * @param sortableId - Composite id used by dnd-kit sortable list
+ * @param slide - Slide data for rendering
+ * @param duplicateSlideOrder - Callback to duplicate the slide in the order
+ * @param removeSlideOrder - Callback to remove a slide from the order
+ * @param slideOrder - Current order array (used to disable remove when only one)
+ * @returns React element representing the sortable row
+ */
 export default function SortableSlideOrderItem({
 	slideId,
 	sortableId,
@@ -29,7 +43,6 @@ export default function SortableSlideOrderItem({
 	removeSlideOrder,
 	slideOrder,
 }: SortableSlideOrderItemProps): ReactElement {
-	const ONE = 1;
 	const OPACITY_DRAGGING = 0.5;
 	const OPACITY_DEFAULT = 1;
 	const { attributes, listeners, setNodeRef, isDragging, transform, transition } = useSortable({

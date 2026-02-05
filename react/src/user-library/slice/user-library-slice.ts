@@ -42,7 +42,16 @@ export type UserLibrarySlice = UserLibraryState &
 	};
 
 /**
- * Factory creating the User Library Zustand slice.
+ * createUserLibrarySlice
+ *
+ * Factory that creates the Zustand slice for user library state and actions.
+ * The returned slice exposes Effects for fetching, subscribing, and mutating
+ * the library, as well as local setters used by those Effects.
+ *
+ * @param set - Zustand `set` function for updating slice state.
+ * @param get - Zustand `get` function for reading slice state.
+ * @param api - Optional api helpers (currently unused).
+ * @returns - The fully constructed `UserLibrarySlice`.
  */
 export function createUserLibrarySlice(
 	set: Set<UserLibrarySlice>,

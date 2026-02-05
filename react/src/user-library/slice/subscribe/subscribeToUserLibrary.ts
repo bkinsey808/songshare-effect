@@ -8,6 +8,17 @@ import type { UserLibrarySlice } from "../user-library-slice";
 
 import handleUserLibrarySubscribeEvent from "./handleUserLibrarySubscribeEvent";
 
+/**
+ * subscribeToUserLibrary
+ *
+ * Establishes a realtime subscription to the `user_library` table. Returns
+ * an Effect that resolves to a cleanup function which removes the
+ * subscription when called. Errors during setup are communicated via the
+ * Effect error channel.
+ *
+ * @param get - Getter for the `UserLibrarySlice` used by event handlers.
+ * @returns - An Effect that resolves to a `() => void` cleanup function.
+ */
 export default function subscribeToUserLibrary(
 	get: () => UserLibrarySlice,
 ): Effect.Effect<() => void, Error> {

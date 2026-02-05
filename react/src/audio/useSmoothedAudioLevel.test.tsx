@@ -2,6 +2,7 @@ import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import computeRmsLevelFromTimeDomainBytes from "@/react/audio/computeRmsLevel";
+import { ONE } from "@/shared/constants/shared-constants";
 
 import clamp01 from "./clamp01";
 import smoothValue from "./smoothValue";
@@ -23,7 +24,6 @@ const SMOOTHING_ALPHA = 0.5;
 const UI_INTERVAL_MS = 100;
 const ZERO_LEVEL = 0;
 const MULTIPLIER = 2;
-const ONE = 1;
 
 describe("useSmoothedAudioLevel", () => {
 	let analyser: AudioAnalyser | undefined = undefined;

@@ -1,7 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
-import { type ReadonlyContext } from "@/api/hono/hono-context";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
+import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
@@ -17,8 +19,6 @@ import getVerifiedUserSession from "../user-session/getVerifiedSession";
 const PlaylistDeleteSchema = Schema.Struct({
 	playlist_id: Schema.String,
 });
-
-const ZERO = 0;
 
 type PlaylistDeleteData = Schema.Schema.Type<typeof PlaylistDeleteSchema>;
 

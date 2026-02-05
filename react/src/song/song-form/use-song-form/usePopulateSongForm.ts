@@ -43,6 +43,8 @@ type UsePopulateSongFormParams = {
 /**
  * Hook that populates the form when song data becomes available.
  * Handles ownership checks, form value population, and slide/field updates.
+ *
+ * @returns void
  */
 export default function usePopulateSongForm({
 	songId,

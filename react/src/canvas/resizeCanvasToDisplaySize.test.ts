@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { ZERO } from "@/shared/constants/shared-constants";
+
 import resizeCanvasToDisplaySize from "./resizeCanvasToDisplaySize";
 
 describe("resizeCanvasToDisplaySize", () => {
@@ -10,7 +12,6 @@ describe("resizeCanvasToDisplaySize", () => {
 	const MIN_PIXEL_SIZE = 1;
 	const EXPECTED_WIDTH_DPR_2 = 200;
 	const EXPECTED_HEIGHT_DPR_2 = 400;
-	const ZERO = 0;
 
 	function setup(): { canvas: HTMLCanvasElement; cleanup: () => void } {
 		const canvas = document.createElement("canvas");

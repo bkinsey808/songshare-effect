@@ -15,6 +15,12 @@ export const SigninErrorToken = {
 
 export type SigninErrorTokenType = (typeof SigninErrorToken)[keyof typeof SigninErrorToken];
 
+/**
+ * Type guard to detect known SigninErrorToken values used in redirects/UI.
+ *
+ * @param value - Value to check
+ * @returns True when `value` is a `SigninErrorTokenType`
+ */
 export function isSigninErrorToken(value: unknown): value is SigninErrorTokenType {
 	return (
 		typeof value === "string" &&

@@ -12,6 +12,12 @@ import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { dashboardPath, songEditPath, songLibraryPath } from "@/shared/paths";
 
+/**
+ * Dashboard section providing song management actions (create/manage library).
+ *
+ * @param currentLang - Current language/locale used to build navigation paths
+ * @returns React element for the song management UI section
+ */
 export default function SongManagementSection({
 	currentLang,
 }: {
