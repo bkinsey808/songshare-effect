@@ -52,6 +52,7 @@ export const apiPlaylistLibraryAddPath = "/api/playlist-library/add";
 export const apiPlaylistLibraryRemovePath = "/api/playlist-library/remove";
 export const apiUserLibraryAddPath = "/api/user-library/add";
 export const apiUserLibraryRemovePath = "/api/user-library/remove";
+export const apiUserLibraryLookupPath = "/api/user-library/lookup";
 export const apiEventSavePath = "/api/events/save";
 export const apiEventDeletePath = "/api/events/delete";
 export const apiEventUserAddPath = "/api/event-user/add";

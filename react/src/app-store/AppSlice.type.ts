@@ -3,7 +3,7 @@ import type { PlaylistLibrarySlice } from "@/react/playlist-library/slice/playli
 import type { PlaylistSlice } from "@/react/playlist/slice/playlist-slice";
 import type { SongLibrarySlice } from "@/react/song-library/slice/song-library-slice";
 import type { SongSubscribeSlice } from "@/react/song/song-slice/song-slice";
-import type { UserLibrarySlice } from "@/react/user-library/slice/user-library-slice";
+import type { UserLibrarySlice } from "@/react/user-library/slice/UserLibrarySlice.type";
 
 import type { AuthSlice } from "../auth/slice/auth-slice.types";
 

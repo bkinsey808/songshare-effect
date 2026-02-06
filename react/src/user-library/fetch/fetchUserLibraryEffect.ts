@@ -5,15 +5,10 @@ import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import callSelect from "@/react/supabase/client/safe-query/callSelect";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import type { UserLibrarySlice } from "./user-library-slice";
-import type { UserLibrary, UserLibraryEntry } from "./user-library-types";
+import type { UserLibrary, UserLibraryEntry } from "../slice/user-library-types";
+import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 
-function isUserLibraryEntry(value: unknown): value is UserLibrary {
-	if (!isRecord(value)) {
-		return false;
-	}
-	return typeof value["user_id"] === "string" && typeof value["followed_user_id"] === "string";
-}
+import isUserLibraryEntry from "../guards/isUserLibraryEntry";
 
 /**
  * fetchUserLibrary
@@ -26,7 +21,9 @@ function isUserLibraryEntry(value: unknown): value is UserLibrary {
  * @returns - An Effect that resolves when fetching and setting complete or
  *   fails with an Error.
  */
-export default function fetchUserLibrary(get: () => UserLibrarySlice): Effect.Effect<void, Error> {
+export default function fetchUserLibraryEffect(
+	get: () => UserLibrarySlice,
+): Effect.Effect<void, Error> {
 	return Effect.gen(function* fetchUserLibraryGen($) {
 		const { setUserLibraryEntries, setUserLibraryLoading, setUserLibraryError } = get();
 

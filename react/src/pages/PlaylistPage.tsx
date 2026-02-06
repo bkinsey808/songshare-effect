@@ -3,9 +3,9 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 
-import useAppStore from "@/react/app-store/useAppStore";
+import useAppStore, { getTypedState } from "@/react/app-store/useAppStore";
 import useLocale from "@/react/language/locale/useLocale";
-import addUserToLibraryClient from "@/react/user-library/addUserClient";
+import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, songViewPath } from "@/shared/paths";
 import formatAppDate from "@/shared/utils/formatAppDate";
@@ -51,7 +51,11 @@ export default function PlaylistPage(): ReactElement {
 		) {
 			void (async (): Promise<void> => {
 				try {
-					await addUserToLibraryClient(currentPlaylist.user_id);
+					await Effect.runPromise(
+						addUserToLibraryEffect({ followed_user_id: currentPlaylist.user_id }, () =>
+							getTypedState(),
+						),
+					);
 				} catch {
 					/* ignore errors */
 				}

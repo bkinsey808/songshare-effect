@@ -1,9 +1,9 @@
-import { Schema } from "effect";
+import { Effect, Schema } from "effect";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import useAppStore from "@/react/app-store/useAppStore";
-import addUserToLibraryClient from "@/react/user-library/addUserClient";
+import useAppStore, { getTypedState } from "@/react/app-store/useAppStore";
+import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import { type SongPublic, songPublicSchema } from "../song-schema";
 
@@ -93,7 +93,9 @@ export function useSongView(): UseSongViewResult {
 		) {
 			void (async (): Promise<void> => {
 				try {
-					await addUserToLibraryClient(songPublic.user_id);
+					await Effect.runPromise(
+						addUserToLibraryEffect({ followed_user_id: songPublic.user_id }, () => getTypedState()),
+					);
 				} catch {
 					/* ignore errors for auto-add */
 				}

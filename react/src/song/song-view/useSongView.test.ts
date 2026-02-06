@@ -1,8 +1,9 @@
 import { renderHook } from "@testing-library/react";
+import { Effect } from "effect";
 import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
-import type addUserToLibraryClient from "@/react/user-library/addUserClient";
+import type addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import makeSongPublic from "@/react/test-utils/makeSongPublic";
@@ -13,10 +14,13 @@ import { useSongView } from "./useSongView";
 vi.mock("react-router-dom");
 // Mock the store module so tests can set implementations
 vi.mock("@/react/app-store/useAppStore");
-// Stub networked client used by the hook to avoid noisy runtime warnings
-vi.mock("@/react/user-library/addUserClient", (): { default: typeof addUserToLibraryClient } => ({
-	default: vi.fn().mockResolvedValue(undefined),
-}));
+// Stub networked effect used by the hook to avoid noisy runtime warnings
+vi.mock(
+	"@/react/user-library/user-add/addUserToLibraryEffect",
+	(): { default: typeof addUserToLibraryEffect } => ({
+		default: vi.fn().mockReturnValue(Effect.sync(() => undefined)),
+	}),
+);
 
 const VALID_SLUG = "valid-slug";
 const EMPTY_SLUG = "";

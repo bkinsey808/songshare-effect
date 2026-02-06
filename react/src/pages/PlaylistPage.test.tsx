@@ -1,13 +1,14 @@
 import { render } from "@testing-library/react";
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import addUserToLibraryClient from "@/react/user-library/addUserClient";
+import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import PlaylistPage from "./PlaylistPage";
 
 vi.mock("@/react/app-store/useAppStore");
-vi.mock("@/react/user-library/addUserClient");
+vi.mock("@/react/user-library/user-add/addUserToLibraryEffect");
 
 function installStoreMocks(options: {
 	mockFetch: unknown;
@@ -54,11 +55,14 @@ describe("playlist page", () => {
 			userId: "not-owner",
 		});
 
-		const mockAutoAdd = vi.mocked(addUserToLibraryClient);
-		mockAutoAdd.mockResolvedValue(undefined);
+		const mockAutoAdd = vi.mocked(addUserToLibraryEffect);
+		mockAutoAdd.mockReturnValue(Effect.sync(() => undefined));
 
 		render(<PlaylistPage />);
 
-		expect(mockAutoAdd).toHaveBeenCalledWith("owner-123");
+		expect(mockAutoAdd).toHaveBeenCalledWith(
+			{ followed_user_id: "owner-123" },
+			expect.any(Function),
+		);
 	});
 });

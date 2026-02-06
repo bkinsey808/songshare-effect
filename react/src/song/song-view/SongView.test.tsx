@@ -1,10 +1,11 @@
 import { cleanup, render } from "@testing-library/react";
+import { Effect } from "effect";
 import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import makeSongPublic from "@/react/test-utils/makeSongPublic";
-import addUserToLibraryClient from "@/react/user-library/addUserClient";
+import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import SongView from "./SongView";
 
@@ -31,8 +32,8 @@ vi.mock(
 );
 // Mock the store module so tests can set implementations
 vi.mock("@/react/app-store/useAppStore");
-// Stub the addUserToLibrary client used by the view-side auto-follow
-vi.mock("@/react/user-library/addUserClient");
+// Stub the addUserToLibrary effect used by the view-side auto-follow
+vi.mock("@/react/user-library/user-add/addUserToLibraryEffect");
 
 // Test constants used across cases
 const NOT_FOUND_TEXT = "Song not found";
@@ -92,8 +93,8 @@ describe("song view", () => {
 		const songPublic = makeSongPublicLike({ user_id: "owner-1" });
 		const mockGet = vi.fn().mockReturnValue({ song: undefined, songPublic });
 		installStoreMocks(mockAdd, mockGet, "not-owner");
-		const mockAutoAdd = vi.mocked(addUserToLibraryClient);
-		vi.mocked(mockAutoAdd).mockResolvedValue(undefined);
+		const mockAutoAdd = vi.mocked(addUserToLibraryEffect);
+		vi.mocked(mockAutoAdd).mockReturnValue(Effect.sync(() => undefined));
 
 		const { getByRole, getByText } = render(<SongView />);
 
@@ -101,8 +102,8 @@ describe("song view", () => {
 		expect(getByText(MY_SLUG)).toBeTruthy();
 		expect(mockAdd).toHaveBeenCalledWith([MY_SLUG]);
 		expect(mockGet).toHaveBeenCalledWith(MY_SLUG);
-		// Auto-add should be called with the owner id
-		expect(mockAutoAdd).toHaveBeenCalledWith("owner-1");
+		// Auto-add should be called with the owner id as the request shape
+		expect(mockAutoAdd).toHaveBeenCalledWith({ followed_user_id: "owner-1" }, expect.any(Function));
 		cleanup();
 	});
 

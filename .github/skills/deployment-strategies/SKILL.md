@@ -80,6 +80,99 @@ npm run dev:all
 # API: http://localhost:8787
 ```
 
+### Deploy Best Practices
+
+Before deploying to production, follow these practices to ensure reliability:
+
+#### 1. **Run Pre-Deploy Checks Locally**
+
+Always validate the build before deploying:
+
+```bash
+# Check code quality
+npm run lint
+
+# Verify types are correct
+npx tsc -b .
+
+# Run unit tests
+npm run test:unit
+
+# Then deploy
+npm run deploy
+```
+
+**Why:** Catching errors locally prevents production outages. Type errors and lint issues can cause runtime failures.
+
+#### 2. **Use Full Deploy for Cache Invalidation**
+
+```bash
+# Automatically purges cache after deploy
+npm run deploy:full
+
+# Equivalent to:
+npm run deploy && npm run cache:purge
+```
+
+**When to use:** Always use this when:
+
+- Updating core UI components
+- Changing API behavior
+- Fixing critical bugs
+- Making any user-facing changes
+
+**Why:** Ensures users immediately see new code instead of cached versions. Without this, users may see old versions for 5-10 minutes.
+
+#### 3. **Verify Deployment Success**
+
+After deploying, verify the deployment worked:
+
+```bash
+# Check API is running
+curl https://effect.bardoshare.com/api/health
+
+# Check frontend loads (in browser)
+# https://effect.bardoshare.com
+
+# Verify in DevTools Network tab:
+# - index.html loads successfully
+# - Assets load from /assets/*
+# - No 5xx errors in console
+```
+
+#### 4. **Monitor Post-Deploy for Errors**
+
+```bash
+# Watch API logs for errors
+wrangler tail --env production
+
+# Check for:
+# - Startup errors
+# - Database connection issues
+# - Environment variable problems
+```
+
+#### 5. **Never Deploy Broken Tests**
+
+```bash
+# ❌ BAD - Skipping tests before deploy
+npm run deploy
+
+# ✅ GOOD - Verify all tests pass
+npm run test:unit && npm run lint && npm run deploy
+```
+
+#### Future Improvements
+
+Consider automating these checks in your deploy script:
+
+```json
+"deploy": "npm run lint && npm run test:unit && npm run deploy:pages && npm run deploy:api",
+"deploy:full": "npm run deploy && npm run cache:purge"
+```
+
+This ensures tests and lint always run before pushing to production, preventing bad deployments at the source.
+
 ### Staging Deployment
 
 Triggered automatically when PR is merged to `staging` branch:

@@ -2,7 +2,10 @@ import { Effect } from "effect";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
+import type { AppSlice } from "@/react/app-store/AppSlice.type";
+
 import useAppStore from "@/react/app-store/useAppStore";
+import useCurrentUserId from "@/react/auth/useCurrentUserId";
 
 import type { RemoveUserFromLibraryRequest, UserLibraryEntry } from "./slice/user-library-types";
 
@@ -18,43 +21,87 @@ import type { RemoveUserFromLibraryRequest, UserLibraryEntry } from "./slice/use
  * @returns error - error message when loading fails, or undefined when ok
  * @returns removeFromUserLibrary - function to remove a user from the library
  */
+import type { PlaylistLibraryEntry } from "@/react/playlist-library/slice/playlist-library-types";
+import type { SongLibraryEntry } from "@/react/song-library/slice/song-library-types";
+
 export default function useUserLibrary(): {
 	entries: UserLibraryEntry[];
 	isLoading: boolean;
 	error: string | undefined;
+	currentUserId: string | undefined;
+	songLibraryEntries: Readonly<Record<string, SongLibraryEntry>>;
+	playlistLibraryEntries: Readonly<Record<string, PlaylistLibraryEntry>>;
 	removeFromUserLibrary: (
 		request: Readonly<RemoveUserFromLibraryRequest>,
 	) => Effect.Effect<void, Error>;
 } {
-	const userLibraryEntries = useAppStore((state) => state.userLibraryEntries);
-	const isLoading = useAppStore((state) => state.isUserLibraryLoading);
-	const error = useAppStore((state) => state.userLibraryError);
-	const fetchUserLibrary = useAppStore((state) => state.fetchUserLibrary);
-	const subscribeToUserLibrary = useAppStore((state) => state.subscribeToUserLibrary);
-	const removeFromUserLibrary = useAppStore((state) => state.removeUserFromLibrary);
+	const userLibraryEntries = useAppStore<Readonly<Record<string, UserLibraryEntry>>>(
+		(state: AppSlice) => state.userLibraryEntries,
+	);
+	const isLoading = useAppStore<boolean>((state: AppSlice) => state.isUserLibraryLoading);
+	const error = useAppStore<string | undefined>((state: AppSlice) => state.userLibraryError);
+	const songLibraryEntries = useAppStore<Readonly<Record<string, SongLibraryEntry>>>(
+		(state: AppSlice) => state.songLibraryEntries,
+	);
+	const playlistLibraryEntries = useAppStore<Readonly<Record<string, PlaylistLibraryEntry>>>(
+		(state: AppSlice) => state.playlistLibraryEntries,
+	);
+	const fetchUserLibrary = useAppStore<() => Effect.Effect<void, Error>>(
+		(state: AppSlice) => state.fetchUserLibrary,
+	);
+	const subscribeToUserLibrary = useAppStore<() => Effect.Effect<() => void, Error>>(
+		(state: AppSlice) => state.subscribeToUserLibrary,
+	);
+	const subscribeToUserPublicForLibrary = useAppStore<() => Effect.Effect<() => void, Error>>(
+		(state: AppSlice) => state.subscribeToUserPublicForLibrary,
+	);
+	const removeFromUserLibrary = useAppStore<
+		(request: Readonly<RemoveUserFromLibraryRequest>) => Effect.Effect<void, Error>
+	>((state: AppSlice) => state.removeUserFromLibrary);
+	/* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+
+	const currentUserId = useCurrentUserId();
 
 	const location = useLocation();
 
 	useEffect(() => {
 		void Effect.runPromise(fetchUserLibrary());
 
-		let unsubscribe: (() => void) | undefined = undefined;
+		let unsubscribeUserLibrary: (() => void) | undefined = undefined;
+		let unsubscribeUserPublic: (() => void) | undefined = undefined;
 		void (async (): Promise<void> => {
 			try {
-				unsubscribe = await Effect.runPromise(subscribeToUserLibrary());
+				unsubscribeUserLibrary = await Effect.runPromise(subscribeToUserLibrary());
+				unsubscribeUserPublic = await Effect.runPromise(subscribeToUserPublicForLibrary());
 			} catch (error: unknown) {
-				console.error("[useUserLibrary] Failed to subscribe to user library:", error);
+				console.error("[useUserLibrary] Failed to subscribe:", error);
 			}
 		})();
 
 		return (): void => {
-			if (unsubscribe !== undefined) {
-				unsubscribe();
+			if (unsubscribeUserLibrary !== undefined) {
+				unsubscribeUserLibrary();
+			}
+			if (unsubscribeUserPublic !== undefined) {
+				unsubscribeUserPublic();
 			}
 		};
-	}, [location.pathname, fetchUserLibrary, subscribeToUserLibrary]);
+	}, [
+		location.pathname,
+		fetchUserLibrary,
+		subscribeToUserLibrary,
+		subscribeToUserPublicForLibrary,
+	]);
 
 	const entries = Object.values(userLibraryEntries);
 
-	return { entries, isLoading, error, removeFromUserLibrary };
+	return {
+		entries,
+		isLoading,
+		error,
+		currentUserId,
+		songLibraryEntries,
+		playlistLibraryEntries,
+		removeFromUserLibrary,
+	};
 }

@@ -3,8 +3,8 @@ import { Effect } from "effect";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiUserLibraryRemovePath } from "@/shared/paths";
 
-import type { UserLibrarySlice } from "./user-library-slice";
-import type { RemoveUserFromLibraryRequest } from "./user-library-types";
+import type { RemoveUserFromLibraryRequest } from "../slice/user-library-types";
+import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 
 /**
  * removeUserFromLibrary
@@ -18,7 +18,7 @@ import type { RemoveUserFromLibraryRequest } from "./user-library-types";
  * @returns - An Effect that resolves when the operation completes, or fails
  *   with an Error on network/server errors.
  */
-export default function removeUserFromLibrary(
+export default function removeUserFromLibraryEffect(
 	request: Readonly<RemoveUserFromLibraryRequest>,
 	get: () => UserLibrarySlice,
 ): Effect.Effect<void, Error> {

@@ -4,10 +4,10 @@ import { clientWarn } from "@/react/utils/clientLogger";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiUserLibraryAddPath } from "@/shared/paths";
 
-import type { UserLibrarySlice } from "./user-library-slice";
-import type { AddUserToLibraryRequest } from "./user-library-types";
+import type { AddUserToLibraryRequest } from "../slice/user-library-types";
+import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 
-import guardAsUserLibraryEntry from "./guards/guardAsUserLibraryEntry";
+import guardAsUserLibraryEntry from "../guards/guardAsUserLibraryEntry";
 
 /**
  * addUserToLibrary
@@ -23,7 +23,7 @@ import guardAsUserLibraryEntry from "./guards/guardAsUserLibraryEntry";
  * @returns - An Effect that resolves when the operation completes or fails
  *   with an Error.
  */
-export default function addUserToLibrary(
+export default function addUserToLibraryEffect(
 	request: Readonly<AddUserToLibraryRequest>,
 	get: () => UserLibrarySlice,
 ): Effect.Effect<void, Error> {
@@ -38,12 +38,15 @@ export default function addUserToLibrary(
 		);
 
 		// Validate request shape
-		const input = yield* $(
-			Effect.try({
-				try: () => guardAsUserLibraryEntry(request, "addUserToLibrary"),
-				catch: (err) => new Error(extractErrorMessage(err, "Invalid request")),
-			}),
-		);
+		if (
+			typeof request !== "object" ||
+			request === null ||
+			typeof (request as Record<string, unknown>)["followed_user_id"] !== "string"
+		) {
+			return yield* $(Effect.fail(new Error("Invalid request: followed_user_id must be a string")));
+		}
+
+		const input = request as AddUserToLibraryRequest;
 
 		// Early exit if already present
 		const alreadyInLibrary = yield* $(Effect.sync(() => isInUserLibrary(input.followed_user_id)));
@@ -84,11 +87,21 @@ export default function addUserToLibrary(
 			return yield* $(Effect.fail(new Error(errorMsg)));
 		}
 
+		// Extract data from HTTP response wrapper
+		let responseData: unknown = responseJson;
+		if (typeof responseJson === "object" && responseJson !== null && "data" in responseJson) {
+			responseData = (responseJson as Record<string, unknown>)["data"];
+		}
+
 		// Validate server response shape
 		const output = yield* $(
 			Effect.try({
-				try: () => guardAsUserLibraryEntry(responseJson, "server response"),
-				catch: (err) => new Error(extractErrorMessage(err, "Invalid server response")),
+				try: () => guardAsUserLibraryEntry(responseData, "server response"),
+				catch: (err) => {
+					const errMsg = extractErrorMessage(err, "Invalid server response");
+					clientWarn("[addUserToLibrary] Validation failed. Response data:", responseData);
+					return new Error(errMsg);
+				},
 			}),
 		);
 

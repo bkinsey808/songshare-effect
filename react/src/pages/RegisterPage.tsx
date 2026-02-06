@@ -60,7 +60,7 @@ export default function RegisterPage(): ReactElement {
 
 	function onSubmitSuccess(): void {
 		// Redirect to dashboard on success. Add `justSignedIn=1` so the
-	// RequireAuthBoundary knows to force-refresh `/api/me` and pick up the
+		// RequireAuthBoundary knows to force-refresh `/api/me` and pick up the
 		// HttpOnly session cookie that was set by the server during
 		// registration. Without this param, a persisted signed-out state can
 		// cause the client to skip the `/api/me` check and immediately

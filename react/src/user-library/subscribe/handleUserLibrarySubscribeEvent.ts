@@ -6,17 +6,10 @@ import enrichWithOwnerUsername from "@/react/supabase/enrichment/enrichWithOwner
 import extractNewRecord from "@/react/supabase/subscription/extract/extractNewRecord";
 import extractStringField from "@/react/supabase/subscription/extract/extractStringField";
 import isRealtimePayload from "@/react/supabase/subscription/realtime/isRealtimePayload";
-import isRecord from "@/shared/type-guards/isRecord";
 
-import type { UserLibrarySlice } from "../user-library-slice";
-import type { UserLibrary } from "../user-library-types";
+import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 
-function isUserLibraryEntry(value: unknown): value is UserLibrary {
-	if (!isRecord(value)) {
-		return false;
-	}
-	return typeof value["user_id"] === "string" && typeof value["followed_user_id"] === "string";
-}
+import isUserLibraryEntry from "../guards/isUserLibraryEntry";
 
 /**
  * handleUserLibrarySubscribeEvent

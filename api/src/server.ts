@@ -24,6 +24,7 @@ import {
 	apiSongsSavePath,
 	apiUploadPath,
 	apiUserLibraryAddPath,
+	apiUserLibraryLookupPath,
 	apiUserLibraryRemovePath,
 	apiUserTokenPath,
 	healthPath,
@@ -54,6 +55,7 @@ import songDelete from "./song/songDelete";
 import songSave from "./song/songSave";
 import getSupabaseClientTokenHandler from "./supabase/getSupabaseClientTokenHandler";
 import addUserToLibraryHandler from "./user-library/addUserToLibrary";
+import lookupUserByUsernameHandler from "./user-library/lookupUserByUsername";
 import removeUserFromLibraryHandler from "./user-library/removeUserFromLibrary";
 import getUserToken from "./user-session/getUserToken";
 
@@ -139,6 +141,11 @@ app.post(
 app.post(
 	apiUserLibraryRemovePath,
 	handleHttpEndpoint((ctx) => removeUserFromLibraryHandler(ctx)),
+);
+
+app.post(
+	apiUserLibraryLookupPath,
+	handleHttpEndpoint((ctx) => lookupUserByUsernameHandler(ctx)),
 );
 
 // Event save endpoint

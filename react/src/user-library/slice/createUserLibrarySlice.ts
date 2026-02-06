@@ -1,5 +1,3 @@
-import type { Effect } from "effect";
-
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
@@ -9,37 +7,21 @@ import type {
 	AddUserToLibraryRequest,
 	RemoveUserFromLibraryRequest,
 	UserLibraryEntry,
-	UserLibrarySliceBase,
 	UserLibraryState,
 } from "./user-library-types";
+import type { UserLibrarySlice } from "./UserLibrarySlice.type";
 
-import addUserToLibraryFn from "./addUserToLibrary";
-import fetchUserLibraryFn from "./fetchUserLibrary";
-import removeUserFromLibraryFn from "./removeUserFromLibrary";
-import subscribeToUserLibraryFn from "./subscribe/subscribeToUserLibrary";
+import fetchUserLibraryFn from "../fetch/fetchUserLibraryEffect";
+import subscribeToUserLibraryFn from "../subscribe/subscribeToUserLibrary";
+import subscribeToUserPublicForLibraryFn from "../subscribe/subscribeToUserPublicForLibrary";
+import addUserToLibraryFn from "../user-add/addUserToLibraryEffect";
+import removeUserFromLibraryFn from "../user-remove/removeUserFromLibraryEffect";
 
 const initialState: UserLibraryState = {
 	userLibraryEntries: {} as Record<string, UserLibraryEntry>,
 	isUserLibraryLoading: false,
 	userLibraryError: undefined,
 };
-
-export type UserLibrarySlice = UserLibraryState &
-	UserLibrarySliceBase & {
-		addUserToLibrary: (request: Readonly<AddUserToLibraryRequest>) => Effect.Effect<void, Error>;
-		removeUserFromLibrary: (
-			request: Readonly<RemoveUserFromLibraryRequest>,
-		) => Effect.Effect<void, Error>;
-		getUserLibraryIds: () => string[];
-		fetchUserLibrary: () => Effect.Effect<void, Error>;
-		subscribeToUserLibrary: () => Effect.Effect<() => void, Error>;
-		userLibraryUnsubscribe?: () => void;
-		setUserLibraryEntries: (entries: ReadonlyDeep<Record<string, UserLibraryEntry>>) => void;
-		setUserLibraryLoading: (loading: boolean) => void;
-		setUserLibraryError: (error: string | undefined) => void;
-		addUserLibraryEntry: (entry: UserLibraryEntry) => void;
-		removeUserLibraryEntry: (followedUserId: string) => void;
-	};
 
 /**
  * createUserLibrarySlice
@@ -53,7 +35,7 @@ export type UserLibrarySlice = UserLibraryState &
  * @param api - Optional api helpers (currently unused).
  * @returns - The fully constructed `UserLibrarySlice`.
  */
-export function createUserLibrarySlice(
+export default function createUserLibrarySlice(
 	set: Set<UserLibrarySlice>,
 	get: Get<UserLibrarySlice>,
 	api: Api<UserLibrarySlice>,
@@ -88,6 +70,8 @@ export function createUserLibrarySlice(
 		fetchUserLibrary: () => fetchUserLibraryFn(get),
 
 		subscribeToUserLibrary: () => subscribeToUserLibraryFn(get),
+
+		subscribeToUserPublicForLibrary: () => subscribeToUserPublicForLibraryFn(get),
 
 		setUserLibraryEntries: (entries: ReadonlyDeep<Record<string, UserLibraryEntry>>) => {
 			set({ userLibraryEntries: entries });

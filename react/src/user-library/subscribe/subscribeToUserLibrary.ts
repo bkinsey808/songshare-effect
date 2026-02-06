@@ -4,7 +4,7 @@ import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthTok
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import createRealtimeSubscription from "@/react/supabase/subscription/realtime/createRealtimeSubscription";
 
-import type { UserLibrarySlice } from "../user-library-slice";
+import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 
 import handleUserLibrarySubscribeEvent from "./handleUserLibrarySubscribeEvent";
 
