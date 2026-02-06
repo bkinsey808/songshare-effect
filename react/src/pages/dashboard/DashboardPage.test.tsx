@@ -4,12 +4,12 @@ import { fireEvent, render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
-import { useAppStoreHydrated } from "@/react/zustand/useAppStore";
+import useHydration from "@/react/app/useHydration";
 
 import DashboardPage from "./DashboardPage";
 import useDashboard from "./useDashboard";
 
-vi.mock("@/react/zustand/useAppStore");
+vi.mock("@/react/app/useHydration");
 vi.mock("./useDashboard");
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports, eslint-plugin-jest/no-untyped-mock-factory
 vi.mock("react-i18next", () => ({
@@ -33,7 +33,7 @@ vi.mock("react-router-dom", () => ({
 
 describe("dashboard page", () => {
 	it("renders user library button and navigates when clicked", () => {
-		vi.mocked(useAppStoreHydrated).mockReturnValue({ isHydrated: true });
+		vi.mocked(useHydration).mockReturnValue({ isHydrated: true, awaitHydration: vi.fn() });
 		const dashboardMockReturn: ReturnType<typeof useDashboard> = {
 			localIsSignedIn: true,
 			localUser: {

@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import useLocale from "@/react/language/locale/useLocale";
-import { useAppStore } from "@/react/zustand/useAppStore";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import getPathWithoutLang from "@/shared/language/getPathWithoutLang";
 import { dashboardPath } from "@/shared/paths";

@@ -250,7 +250,7 @@ export async function getUserToken(userId: string): Promise<string> {
 
 ```typescript
 // react/src/supabase/getSupabaseAuthToken.ts
-import { useAppStore } from "@/react/app/useAppStore";
+import useAppStore from "@/react/app/useAppStore";
 
 /**
  * Select and fetch the appropriate auth token based on user sign-in state.

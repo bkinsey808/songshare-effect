@@ -1,4 +1,4 @@
-import type { Get } from "@/react/zustand/slice-utils";
+import type { Get } from "@/react/app-store/app-store-types";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";

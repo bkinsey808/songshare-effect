@@ -2,8 +2,9 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { type Location, useLocation } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
+import { resetAllSlices } from "@/react/app-store/slice-reset-fns";
+import useAppStore from "@/react/app-store/useAppStore";
 import mockLocaleWithLang from "@/react/test-utils/mockLocaleWithLang";
-import { getStoreApi, resetAllSlices } from "@/react/zustand/useAppStore";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import getPathWithoutLang from "@/shared/language/getPathWithoutLang";
 
@@ -87,13 +88,13 @@ describe("useNavigation", () => {
 		const { result } = renderHook(() => useNavigation({}));
 
 		// read the current persisted value and assert the hook reflects it
-		const initial = getStoreApi().getState().isHeaderActionsExpanded;
+		const initial = useAppStore.getState().isHeaderActionsExpanded;
 		expect(result.current.isHeaderActionsExpanded).toBe(initial);
 
 		// toggle via hook and observe store change flips the persisted value
 		result.current.toggleActions();
 		await waitFor(() => {
-			expect(getStoreApi().getState().isHeaderActionsExpanded).toBe(!initial);
+			expect(useAppStore.getState().isHeaderActionsExpanded).toBe(!initial);
 		});
 	});
 

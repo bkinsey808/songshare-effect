@@ -2,8 +2,8 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import mockLocaleWithLang from "@/react/test-utils/mockLocaleWithLang";
-import { getOrCreateAppStore } from "@/react/zustand/useAppStore";
 
 import submitPlaylist from "./helpers/submitPlaylist";
 import usePlaylistForm from "./usePlaylistForm";
@@ -72,7 +72,7 @@ describe("usePlaylistEdit", () => {
 			vi.mocked(useNavigate).mockReturnValue(mockNavigate);
 			vi.mocked(useParams).mockReturnValue({});
 
-			const store = getOrCreateAppStore();
+			const store: typeof useAppStore = useAppStore;
 			const mockSave = vi.fn();
 			store.setState((prev) => ({ ...prev, savePlaylist: mockSave }));
 
@@ -120,7 +120,7 @@ describe("usePlaylistEdit", () => {
 			vi.mocked(useNavigate).mockReturnValue(mockNavigate);
 			vi.mocked(useParams).mockReturnValue({ playlist_id: "pl-123" });
 
-			const store = getOrCreateAppStore();
+			const store: typeof useAppStore = useAppStore;
 			const mockSave = vi.fn();
 			store.setState((prev) => ({ ...prev, savePlaylist: mockSave }));
 

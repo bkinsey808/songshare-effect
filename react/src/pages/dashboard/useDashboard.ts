@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 
 import type { UserSessionData } from "@/shared/userSessionData";
 
+import { appStore } from "@/react/app-store/useAppStore";
 import getCurrentLangFromPath from "@/react/language/path/getCurrentLangFromPath";
 import { clientDebug, clientError, clientWarn } from "@/react/utils/clientLogger";
-import { getStoreApi } from "@/react/zustand/useAppStore";
 import { SIGNAL_ONE } from "@/shared/constants/http";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
@@ -54,7 +54,7 @@ export type UseDashboardState = {
  * @returns The local dashboard state and helpers.
  */
 export default function useDashboard(): UseDashboardState {
-	const snapshot = getStoreApi().getState();
+	const snapshot = appStore.getState();
 
 	const [localIsSignedIn, setLocalIsSignedIn] = useState<boolean | undefined>(
 		() => snapshot.isSignedIn,
@@ -107,7 +107,7 @@ export default function useDashboard(): UseDashboardState {
 	}, []);
 
 	useEffect(() => {
-		const api = getStoreApi();
+		const api = appStore;
 
 		const unsubscribe = api.subscribe((state) => {
 			setLocalIsSignedIn(state.isSignedIn);
@@ -127,7 +127,7 @@ export default function useDashboard(): UseDashboardState {
 	// perturbing module-level initialization and to satisfy lint rules.
 	function tryCallStoreSignOutSafe(): boolean {
 		try {
-			const storeApi = getStoreApi();
+			const storeApi = appStore;
 			const fn = storeApi.getState().signOut;
 			if (typeof fn === "function") {
 				fn();
@@ -176,7 +176,7 @@ export default function useDashboard(): UseDashboardState {
 			clientError("Sign-out API failed:", error);
 		}
 		try {
-			getStoreApi().getState().setIsSignedIn(false);
+			appStore.getState().setIsSignedIn(false);
 		} catch (error) {
 			clientError("explicit setIsSignedIn(false) failed:", error);
 		}

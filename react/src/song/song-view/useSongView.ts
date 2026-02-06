@@ -2,8 +2,8 @@ import { Schema } from "effect";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import addUserToLibraryClient from "@/react/user-library/addUserClient";
-import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 
 import { type SongPublic, songPublicSchema } from "../song-schema";
 
@@ -58,11 +58,11 @@ export function useSongView(): UseSongViewResult {
 	// Treat empty or whitespace-only slugs as missing to avoid spurious lookups.
 	const songSlug = rawSongSlug === undefined ? undefined : rawSongSlug.trim();
 
-	const addActivePublicSongSlugs = useAppStoreSelector(
+	const addActivePublicSongSlugs = useAppStore(
 		(state: Readonly<SongMethods>) => state.addActivePublicSongSlugs,
 	);
-	const getSongBySlug = useAppStoreSelector((state: Readonly<SongMethods>) => state.getSongBySlug);
-	const currentUserId = useAppStoreSelector((state) => state.userSessionData?.user?.user_id);
+	const getSongBySlug = useAppStore((state: Readonly<SongMethods>) => state.getSongBySlug);
+	const currentUserId = useAppStore((state) => state.userSessionData?.user?.user_id);
 
 	if (songSlug !== undefined && songSlug !== "") {
 		// Register the slug with the app store so background fetching / caching can start.

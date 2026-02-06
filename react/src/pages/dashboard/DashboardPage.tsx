@@ -1,11 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import useHydration from "@/react/app/useHydration";
 import Button from "@/react/design-system/Button";
 import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
 import LogOutIcon from "@/react/design-system/icons/LogOutIcon";
 import TrashIcon from "@/react/design-system/icons/TrashIcon";
-import { useAppStoreHydrated } from "@/react/zustand/useAppStore";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
@@ -20,8 +20,8 @@ import useDashboard from "./useDashboard";
  * @returns The dashboard page element.
  */
 function DashboardPage(): ReactElement {
-	// Use hydration-aware app store hook to get hydration state only.
-	const { isHydrated } = useAppStoreHydrated();
+	// Use hydration hook to get hydration state.
+	const { isHydrated } = useHydration();
 
 	// Disable react-i18next suspense here to avoid suspending during render.
 	const { t } = useTranslation(undefined, { useSuspense: false });

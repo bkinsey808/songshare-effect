@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-import { useAppStore } from "@/react/zustand/useAppStore";
+import useAppStore from "@/react/app-store/useAppStore";
 
 import type { RemoveUserFromLibraryRequest, UserLibraryEntry } from "./slice/user-library-types";
 

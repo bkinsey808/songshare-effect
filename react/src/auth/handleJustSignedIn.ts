@@ -1,7 +1,7 @@
 import { type NavigateFunction } from "react-router-dom";
 
 import ensureSignedIn from "@/react/auth/ensureSignedIn";
-import { SIGNIN_RETRY_DELAYS_MS, SIGNIN_DEFAULT_DELAY_MS } from "@/shared/constants/http";
+import { SIGNIN_DEFAULT_DELAY_MS, SIGNIN_RETRY_DELAYS_MS } from "@/shared/constants/http";
 import { justSignedInQueryParam, signinErrorQueryParam } from "@/shared/queryParams";
 import { SigninErrorToken } from "@/shared/signinTokens";
 import { retryWithBackoff } from "@/shared/utils/retryWithBackoff";
@@ -9,7 +9,7 @@ import { retryWithBackoff } from "@/shared/utils/retryWithBackoff";
 /**
  * Handle the OAuth "just signed in" redirect flow.
  *
- * Extracted from the `ProtectedLayout` effect so the effect stays small and
+ * Extracted from the `RequireAuthBoundary` effect so the effect stays small and
  * the logic can be unit-tested or reused. This function performs a forced
  * `/api/me` refresh (so the client can observe the HttpOnly session cookie
  * the server set), writes a one-time marker to `sessionStorage` on success
@@ -53,7 +53,7 @@ export default async function handleJustSignedIn({
 				"name" in err &&
 				(err as { name?: unknown }).name === "AbortError",
 			onError: (err, attempt) => {
-				console.error(`[ProtectedLayout] ensureSignedIn attempt ${attempt} failed`, err);
+				console.error(`[RequireAuthBoundary] ensureSignedIn attempt ${attempt} failed`, err);
 			},
 			defaultDelayMs: SIGNIN_DEFAULT_DELAY_MS,
 		},
@@ -69,7 +69,7 @@ export default async function handleJustSignedIn({
 			// ignore storage errors
 		}
 	} else if (!aborted) {
-		console.error(`[ProtectedLayout] ensureSignedIn ultimately failed`, lastError);
+		console.error(`[RequireAuthBoundary] ensureSignedIn ultimately failed`, lastError);
 		next.set(signinErrorQueryParam, SigninErrorToken.serverError);
 	}
 

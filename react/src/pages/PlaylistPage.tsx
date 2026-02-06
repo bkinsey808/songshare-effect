@@ -3,9 +3,9 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import useLocale from "@/react/language/locale/useLocale";
 import addUserToLibraryClient from "@/react/user-library/addUserClient";
-import { useAppStore } from "@/react/zustand/useAppStore";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, songViewPath } from "@/shared/paths";
 import formatAppDate from "@/shared/utils/formatAppDate";

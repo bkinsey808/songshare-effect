@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import fetchUsername from "@/react/supabase/enrichment/fetchUsername";
-import { useAppStore } from "@/react/zustand/useAppStore";
 import { safeGet } from "@/shared/utils/safe";
 
 type PlaylistSongCardProps = {

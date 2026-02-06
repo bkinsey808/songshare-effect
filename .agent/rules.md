@@ -9,8 +9,18 @@ This file defines custom coding guidelines and preferences for the Antigravity A
 - ❌ **NO BARREL FILES**: Do not create index.ts files that re-export other modules
 - ✅ **Direct Imports**: Always import directly from the source file (e.g., `import { Component } from './Component'`)
 - ✅ **Explicit Imports**: Prefer explicit named imports over default exports when possible
-- ✅ **File Naming**: Use descriptive filenames that clearly indicate the module's purpose
-- ✅ **Docs filenames**: Use kebab-case for files under the `docs/` directory (for example, `commit-message-instructions.md` not `commitMessageInstructions.md`)
+- ✅ **File Naming**:
+  - **Single-symbol files**: Name after the symbol (e.g., `camelCase.ts` for functions, `PascalCase.tsx` for components).
+  - **Multi-symbol files**: Use `kebab-case.ts`.
+- ✅ **Docs filenames**: Use kebab-case for files under the `docs/` directory.
+
+### **Source Refactoring**
+
+- ✅ **One Function Per File**: By default, extract each function into its own dedicated file.
+- ✅ **Single Symbol Default Exports**: When a file exports only one main function or component, use `export default`.
+- ✅ **Preserve JSDoc**: Carry over all JSDoc comments when moving symbols between files. Ensure parameter and return descriptions are maintained.
+- ✅ **Test Colocation**: When splitting a symbol into a new file, move its corresponding unit tests to a new test file next to the new source file.
+- ✅ **Refactor References**: Update all imports across the codebase when moving or changing export types of a symbol.
 
 ### **React Development Standards**
 

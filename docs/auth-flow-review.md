@@ -15,7 +15,7 @@ Reviewed files (server & client)
   - `react/src/auth/ensureSignedIn.ts`
   - `react/src/auth/useEnsureSignedIn.ts`
   - `react/src/auth/handleJustSignedIn.ts`
-  - `react/src/auth/ProtectedLayout.tsx`
+  - `react/src/auth/RequireAuthBoundary.tsx`
   - `react/src/auth/useSignIn.ts`
   - `react/src/auth/useSignInError.ts`
   - `react/src/auth/SignInButtons.tsx`
@@ -25,7 +25,7 @@ Summary (high level)
 
 - The app uses an HttpOnly JWT session cookie set by the server on successful OAuth callback, then redirects the browser to the SPA (303 See Other).
 - The SPA hydrates auth state by calling `/api/me` (with credentials included) via `ensureSignedIn()`. The hook and a shared `ensureSignedIn` helper dedupe in-flight requests and update the Zustand store.
-- To mitigate a race (SPA loading before the browser includes the new cookie after callback redirect), the app uses a `justSignedIn=1` query param plus `ProtectedLayout` which forces a refresh (`ensureSignedIn({force:true})`) and writes a one-time `sessionStorage` marker on success. This prevents a transient redirect-to-Home flash.
+- To mitigate a race (SPA loading before the browser includes the new cookie after callback redirect), the app uses a `justSignedIn=1` query param plus `RequireAuthBoundary` which forces a refresh (`ensureSignedIn({force:true})`) and writes a one-time `sessionStorage` marker on success. This prevents a transient redirect-to-Home flash.
 - Sign-out is optimistic in the client (local state cleared immediately) followed by POST `/api/auth/signout` to clear the server cookie.
 
 What is done well (best practices observed)

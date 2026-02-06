@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
-import { useAppStore } from "@/react/zustand/useAppStore";
+import useAppStore from "@/react/app-store/useAppStore";
 import { ZERO } from "@/shared/constants/shared-constants";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, playlistViewPath } from "@/shared/paths";

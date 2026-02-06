@@ -4,8 +4,11 @@ import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
+import type { AppSlice } from "@/react/app-store/AppSlice.type";
+
+import { resetAllSlices } from "@/react/app-store/slice-reset-fns";
+import useAppStore from "@/react/app-store/useAppStore";
 import { ONE_CALL } from "@/react/test-helpers/test-consts";
-import { resetAllSlices, useAppStore, type AppSlice } from "@/react/zustand/useAppStore";
 import delay from "@/shared/utils/delay";
 
 import useSongLibrary from "./useSongLibrary";
@@ -32,7 +35,7 @@ describe("useSongLibrary", () => {
 
 		// Reset store and use the singleton instance
 		resetAllSlices();
-		const store = useAppStore;
+		const store: typeof useAppStore = useAppStore;
 		const originalFetch = store.getState().fetchSongLibrary;
 		const originalSubscribe = store.getState().subscribeToSongLibrary;
 		const originalSubscribePublic = store.getState().subscribeToSongPublic;

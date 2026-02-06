@@ -258,7 +258,7 @@ const channel = client
 ### Check Current Auth State
 
 ```typescript
-import { useAppStore } from "@/react/app/useAppStore";
+import useAppStore from "@/react/app/useAppStore";
 
 function MyComponent(): JSX.Element {
   const isSignedIn = useAppStore((state) => state.auth.isSignedIn);

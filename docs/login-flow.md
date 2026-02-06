@@ -8,7 +8,7 @@ Overview
 - Client: React + Zustand. Key pieces:
   - `useEnsureSignedIn` (client hook) — performs a deduped fetch to `/api/me` and updates the Zustand `userSessionData` and `isSignedIn` state.
   - `HydratedLayout` — waits for store hydration and runs `useEnsureSignedIn()` once on first render to set initial auth state.
-  - `ProtectedLayout` — guards protected routes, handles `?justSignedIn=1` marker, and calls `useEnsureSignedIn({ force: true })` when redirected from the OAuth server callback.
+  - `RequireAuthBoundary` — guards protected routes, handles `?justSignedIn=1` marker, and calls `useEnsureSignedIn({ force: true })` when redirected from the OAuth server callback.
   - `dashboardPath` — route segment for the dashboard ("dashboard").
 
 - Server: Hono handlers. Key pieces:
@@ -20,7 +20,7 @@ Goals and contracts
 
 - Single initial fetch: On first app start (after hydration), the client should call `/api/me` exactly once to determine signed-in state. `HydratedLayout` performs this initial call.
 
-- Forced refresh after OAuth: Since the OAuth callback sets an HttpOnly cookie server-side and then redirects the browser to the dashboard, the client cannot see the cookie until it issues a request. To ensure the client picks up the signed-in session immediately, the server appends `?justSignedIn=1` to the final redirect; `ProtectedLayout` detects this query param and calls `useEnsureSignedIn({ force: true })` to force a fresh `/api/me` fetch.
+- Forced refresh after OAuth: Since the OAuth callback sets an HttpOnly cookie server-side and then redirects the browser to the dashboard, the client cannot see the cookie until it issues a request. To ensure the client picks up the signed-in session immediately, the server appends `?justSignedIn=1` to the final redirect; `RequireAuthBoundary` detects this query param and calls `useEnsureSignedIn({ force: true })` to force a fresh `/api/me` fetch.
 
 - Deduping: `useEnsureSignedIn` dedupes in-flight `/api/me` requests using a module-level `globalInFlight` promise so concurrent calls share the same network request.
 
@@ -81,7 +81,7 @@ Security considerations
 
 Edge cases and behavior
 
-- Race: If the user is already signed in and initial `useEnsureSignedIn()` is running while a `ProtectedLayout` also triggers `force: true`, the module-level dedupe ensures only one network request is made (unless `force: true` is requested which intentionally bypasses any existing cached promise).
+- Race: If the user is already signed in and initial `useEnsureSignedIn()` is running while a `RequireAuthBoundary` also triggers `force: true`, the module-level dedupe ensures only one network request is made (unless `force: true` is requested which intentionally bypasses any existing cached promise).
 
 - Network failure: `useEnsureSignedIn` catches errors, logs to console, and leaves `isSignedIn` unchanged (or sets false if a 401/204 response is returned). The UI should gracefully handle `isSignedIn === undefined` as "loading".
 
@@ -93,7 +93,7 @@ QA / Testing checklist
   1. Start with no session cookie.
   2. Click "Sign in with <provider>".
   3. Complete provider consent. Server callback sets cookie and redirects the browser to `/<lang>/dashboard?justSignedIn=1` (where `<lang>` is e.g. `en`).
-  4. `ProtectedLayout` sees `justSignedIn` and calls `useEnsureSignedIn({ force: true })`.
+  4. `RequireAuthBoundary` sees `justSignedIn` and calls `useEnsureSignedIn({ force: true })`.
   5. `/api/me` returns session payload and Zustand `isSignedIn` becomes `true`. Dashboard UI renders.
 
 - Invalid token flow:

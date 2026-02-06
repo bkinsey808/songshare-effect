@@ -3,10 +3,10 @@ import { useState } from "react";
 
 import type { PlaylistLibraryEntry } from "@/react/playlist-library/slice/playlist-library-types";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import Button from "@/react/design-system/Button";
 import useLocale from "@/react/language/locale/useLocale";
 import CollapsibleSection from "@/react/song/song-form/CollapsibleSection";
-import { useAppStore } from "@/react/zustand/useAppStore";
 import { ZERO } from "@/shared/constants/shared-constants";
 
 type AddSongToPlaylistCardProps = {

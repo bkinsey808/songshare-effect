@@ -1,4 +1,4 @@
-import type { Get, Set } from "@/react/zustand/slice-utils";
+import type { Get, Set } from "@/react/app-store/app-store-types";
 
 import type { PlaylistSlice } from "../slice/playlist-slice";
 

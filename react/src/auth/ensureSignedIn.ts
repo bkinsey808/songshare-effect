@@ -1,45 +1,17 @@
 // Prefer per-line console exceptions
 
+import useAppStore from "@/react/app-store/useAppStore";
 import { getCachedUserToken } from "@/react/supabase/token/tokenCache";
 import { clientDebug, clientError } from "@/react/utils/clientLogger";
-import { getStoreApi } from "@/react/zustand/useAppStore";
 import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
 import { apiMePath } from "@/shared/paths";
-import isRecord from "@/shared/type-guards/isRecord";
 import { type UserSessionData } from "@/shared/userSessionData";
+
+import parseUserSessionData from "./parseUserSessionData";
 
 // Module-level in-flight promise to dedupe concurrent requests.
 // Initialized to undefined to satisfy init-declarations lint rule
 let globalInFlight: Promise<UserSessionData | undefined> | undefined = undefined;
-
-// Validate payload shape and return UserSessionData if valid, otherwise undefined
-function parsePayload(payload: unknown): UserSessionData | undefined {
-	function isSuccessWrapper(value: unknown): value is { success: true; data: unknown } {
-		if (!isRecord(value)) {
-			return false;
-		}
-		return Object.hasOwn(value, "data") && value["data"] !== undefined;
-	}
-
-	function isUserSessionData(value: unknown): value is UserSessionData {
-		if (!isRecord(value)) {
-			return false;
-		}
-		return Object.hasOwn(value, "user");
-	}
-
-	if (isSuccessWrapper(payload)) {
-		const { data } = payload as { data: unknown };
-		if (isUserSessionData(data)) {
-			return data;
-		}
-	}
-
-	if (isUserSessionData(payload)) {
-		return payload;
-	}
-	return undefined;
-}
 
 /**
  * Ensure signed-in state by calling /api/me. Exported so non-hook code can
@@ -55,7 +27,7 @@ export default function ensureSignedIn(options?: {
 	clientDebug("[ensureSignedIn] called, force=", force);
 
 	// Get store API
-	const api = getStoreApi();
+	const api = useAppStore;
 
 	const currentIsSignedIn = api.getState().isSignedIn;
 
@@ -120,7 +92,7 @@ export default function ensureSignedIn(options?: {
 			// Localized debug-only log
 			clientDebug("[ensureSignedIn] payload=", payload);
 
-			const data = parsePayload(payload);
+			const data = parseUserSessionData(payload);
 			return data;
 		} catch (error) {
 			const isAbort =
@@ -145,7 +117,7 @@ export default function ensureSignedIn(options?: {
 	globalInFlight = (async (): Promise<UserSessionData | undefined> => {
 		const data = await promise;
 		try {
-			const storeApi = getStoreApi();
+			const storeApi = useAppStore;
 
 			const current = storeApi.getState().isSignedIn;
 			// If the client explicitly signed out while the request was in-flight,

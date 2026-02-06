@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { Api } from "@/react/zustand/slice-utils";
+import type { Api } from "@/react/app-store/app-store-types";
 
 import type { SongPublic } from "../song-schema";
 

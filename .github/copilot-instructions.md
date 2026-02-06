@@ -17,6 +17,7 @@ These skills are automatically loaded when relevant to your task:
 - [**react-conventions**](./skills/react-conventions/SKILL.md) - React Compiler, functional components, hooks patterns
 - [**code-comments**](./skills/code-comments/SKILL.md) - Comment conventions, JSDoc guidelines
 - [**unit-testing**](./skills/unit-testing/SKILL.md) - Vitest patterns and best practices
+- [**source-refactoring**](./skills/source-refactoring/SKILL.md) - Splitting files, default exports, test colocation
 - [**playwright-testing**](./skills/playwright-testing/SKILL.md) - E2E test patterns and stability tips
 
 ### Master Rules

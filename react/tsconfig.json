@@ -1,0 +1,11 @@
+{
+	"extends": "../tsconfig.app.json",
+	"compilerOptions": {
+		"tsBuildInfoFile": "../node_modules/.tmp/tsconfig.react.tsbuildinfo"
+	},
+	// This config exists so the editor/tsserver picks up the React source
+	// tree (and shared aliases) when opening files under react/. It simply
+	// reuses the app tsconfig while listing react/src (and shared) in its
+	// include so insight like path mappings works without needing baseUrl.
+	"include": ["src", "../shared/src"]
+}

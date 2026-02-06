@@ -89,11 +89,13 @@ import { type PopoverProps, type PopoverState } from "./popover/types";
 
 ### 4. Naming Conventions
 
-#### Components & Modules
+#### Files
 
-- **PascalCase** for React components: `UserProfile.tsx`, `SongCard.tsx`
-- **camelCase** for utilities and functions: `formatDate.ts`, `calculateDuration.ts`
-- **kebab-case** for directories when grouping: `song-library/`, `auth-flow/`
+- **Single-symbol files** (preferred):
+  - **PascalCase** for React components: `UserProfile.tsx`, `SongCard.tsx`
+  - **camelCase** for utilities and functions: `formatDate.ts`, `calculateDuration.ts`
+- **Multi-symbol files**: Use **kebab-case**: `auth-utils.ts`, `api-helpers.ts`
+- **Directories**: Use **kebab-case** when grouping: `song-library/`, `auth-flow/`
 
 #### Tests
 
@@ -326,6 +328,6 @@ npm run lint
 ## References
 
 - Reference guide: [references/REFERENCE.md](references/REFERENCE.md) - Detailed patterns and examples
-- Project rules: [.agent/rules.md](../../.agent/rules.md)
-- Copilot instructions: [.github/copilot-instructions.md](../../.github/copilot-instructions.md)
+- Project rules: [.agent/rules.md](../../../.agent/rules.md)
+- Copilot instructions: [.github/copilot-instructions.md](../../../.github/copilot-instructions.md)
 - TypeScript conventions skill: [../typescript-conventions/SKILL.md](../typescript-conventions/SKILL.md)

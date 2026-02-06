@@ -1,12 +1,12 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import addUserToLibraryClient from "@/react/user-library/addUserClient";
-import { useAppStore } from "@/react/zustand/useAppStore";
 
 import PlaylistPage from "./PlaylistPage";
 
-vi.mock("@/react/zustand/useAppStore");
+vi.mock("@/react/app-store/useAppStore");
 vi.mock("@/react/user-library/addUserClient");
 
 function installStoreMocks(options: {

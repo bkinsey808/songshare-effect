@@ -2,9 +2,9 @@ import { cleanup, render } from "@testing-library/react";
 import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import makeSongPublic from "@/react/test-utils/makeSongPublic";
 import addUserToLibraryClient from "@/react/user-library/addUserClient";
-import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 
 import SongView from "./SongView";
 
@@ -29,8 +29,8 @@ vi.mock(
 		}),
 	}),
 );
-// We'll stub `useAppStoreSelector` in tests using the `installStoreMocks` helper below
-vi.mock("@/react/zustand/useAppStore");
+// Mock the store module so tests can set implementations
+vi.mock("@/react/app-store/useAppStore");
 // Stub the addUserToLibrary client used by the view-side auto-follow
 vi.mock("@/react/user-library/addUserClient");
 
@@ -59,7 +59,7 @@ function makeSongPublicLike(overrides: Record<string, unknown> = {}): Record<str
  * @param mockGet - returned value when the selector looks like `getSongBySlug`
  */
 function installStoreMocks(mockAdd: unknown, mockGet: unknown, mockUserId?: string): void {
-	vi.mocked(useAppStoreSelector).mockImplementation((selector: unknown) => {
+	vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
 		const selectorText = String(selector);
 		if (selectorText.includes("addActivePublicSongSlugs")) {
 			return mockAdd;

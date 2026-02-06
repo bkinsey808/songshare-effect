@@ -2,7 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { useNavigate } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
-import { getOrCreateAppStore } from "@/react/zustand/useAppStore";
+import useAppStore from "@/react/app-store/useAppStore";
 import { SIGNAL_ONE } from "@/shared/constants/http";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { apiAuthSignOutPath } from "@/shared/paths";
@@ -46,7 +46,7 @@ describe("useDashboard", () => {
 		const mockSetIsSignedIn = vi.fn();
 
 		// Use the real store instance for this test to avoid constructing a full AppSlice
-		const store = getOrCreateAppStore();
+		const store: typeof useAppStore = useAppStore;
 		store.setState({ isSignedIn: true, userSessionData: undefined });
 		// Spy/replace the slice methods used by the hook (restore after assertions)
 		const originalSignOut = store.getState().signOut;
@@ -120,7 +120,7 @@ describe("useDashboard", () => {
 		const mockSignOut = vi.fn();
 		const mockSetIsSignedIn = vi.fn();
 
-		const store = getOrCreateAppStore();
+		const store: typeof useAppStore = useAppStore;
 		store.setState({ isSignedIn: true, userSessionData: undefined });
 		const originalSignOut2 = store.getState().signOut;
 		const originalSetIsSignedIn2 = store.getState().setIsSignedIn;
@@ -163,7 +163,7 @@ describe("useDashboard", () => {
 		const mockSignOut2 = vi.fn();
 		const mockSetIsSignedIn2 = vi.fn();
 
-		const store2 = getOrCreateAppStore();
+		const store2 = useAppStore;
 		store2.setState({ isSignedIn: true, userSessionData: undefined });
 		const originalSignOut3 = store2.getState().signOut;
 		const originalSetIsSignedIn3 = store2.getState().setIsSignedIn;

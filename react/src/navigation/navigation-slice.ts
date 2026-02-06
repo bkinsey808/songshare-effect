@@ -1,6 +1,6 @@
-import type { Api, Get, Set } from "@/react/zustand/slice-utils";
+import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 
-import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
+import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
 export type NavigationSlice = {
 	/** Whether the header actions area is expanded (persisted) */

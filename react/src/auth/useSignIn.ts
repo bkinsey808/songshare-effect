@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import useSignInError from "@/react/auth/useSignInError";
-import { getStoreApi } from "@/react/zustand/useAppStore";
 
 type UseSignInReturn = {
 	isSignedIn: boolean | undefined;
@@ -20,11 +20,11 @@ export default function useSignIn(): UseSignInReturn {
 	const { signinError, provider, dismissError } = useSignInError();
 
 	const [isSignedIn, setIsSignedIn] = useState<boolean | undefined>(
-		() => getStoreApi().getState().isSignedIn,
+		() => useAppStore.getState().isSignedIn,
 	);
 
 	useEffect(() => {
-		const api = getStoreApi();
+		const api = useAppStore;
 		const unsubscribe = api.subscribe((state) => {
 			setIsSignedIn(state.isSignedIn);
 		});

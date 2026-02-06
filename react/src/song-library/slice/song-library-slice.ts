@@ -2,10 +2,10 @@ import type { Effect } from "effect";
 
 // Song Library Zustand slice with subscription functionality
 // Zustand StateCreator type is not required here — slices are declared as named functions.
-import type { Api, Get, Set } from "@/react/zustand/slice-utils";
+import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
-import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
+import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
 import type {
 	AddSongToSongLibraryRequest,

@@ -267,7 +267,7 @@ console.log('app_metadata:', payload.app_metadata);
 
 ```typescript
 // Check current auth state
-import { useAppStore } from '@/react/app/useAppStore';
+import useAppStore from '@/react/app/useAppStore';
 const isSignedIn = useAppStore((state) => state.auth.isSignedIn);
 console.log('Is signed in:', isSignedIn);
 

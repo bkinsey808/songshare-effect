@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import type { Get, Set } from "@/react/zustand/slice-utils";
+import type { Get, Set } from "@/react/app-store/app-store-types";
 
 import type { PlaylistError, PlaylistErrors } from "../playlist-errors";
 import type { SavePlaylistRequest } from "../playlist-types";

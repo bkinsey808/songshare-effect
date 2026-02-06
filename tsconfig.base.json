@@ -32,6 +32,9 @@
 		"skipLibCheck": true,
 		/* Path Mapping */
 		"paths": {
+			// The blank alias lets editors resolve root-prefixed imports even though
+			// `baseUrl` must be removed for oxc/tsgolint; it mirrors what baseUrl="."
+			"": ["./"],
 			"@/shared/*": ["./shared/src/*"],
 			"@/react/*": ["./react/src/*"],
 			"@/api/*": ["./api/src/*"],

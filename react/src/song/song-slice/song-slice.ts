@@ -1,7 +1,7 @@
 import type { Effect } from "effect";
 
-import { sliceResetFns } from "@/react/zustand/slice-reset-fns";
-import { type Api, type Get, type Set } from "@/react/zustand/slice-utils";
+import { type Api, type Get, type Set } from "@/react/app-store/app-store-types";
+import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 import { safeGet } from "@/shared/utils/safe";
 
 import { type Song, type SongPublic } from "../song-schema";

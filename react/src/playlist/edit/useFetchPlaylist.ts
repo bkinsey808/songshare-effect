@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { useEffect } from "react";
 
-import { useAppStore } from "@/react/zustand/useAppStore";
+import useAppStore from "@/react/app-store/useAppStore";
 
 /**
  * Hook that handles fetching/clearing the current playlist when in edit mode.

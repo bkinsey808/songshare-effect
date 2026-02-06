@@ -2,14 +2,21 @@ import { renderHook } from "@testing-library/react";
 import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
+import type addUserToLibraryClient from "@/react/user-library/addUserClient";
+
+import useAppStore from "@/react/app-store/useAppStore";
 import makeSongPublic from "@/react/test-utils/makeSongPublic";
-import { useAppStoreSelector } from "@/react/zustand/useAppStore";
 
 import { type SongPublic } from "../song-schema";
 import { useSongView } from "./useSongView";
 
 vi.mock("react-router-dom");
-vi.mock("@/react/zustand/useAppStore");
+// Mock the store module so tests can set implementations
+vi.mock("@/react/app-store/useAppStore");
+// Stub networked client used by the hook to avoid noisy runtime warnings
+vi.mock("@/react/user-library/addUserClient", (): { default: typeof addUserToLibraryClient } => ({
+	default: vi.fn().mockResolvedValue(undefined),
+}));
 
 const VALID_SLUG = "valid-slug";
 const EMPTY_SLUG = "";
@@ -21,7 +28,7 @@ function makeValidSongPublic(overrides: Partial<SongPublic> = {}): SongPublic {
 }
 
 function installStoreMocks(mockAdd: unknown, mockGet: unknown): void {
-	vi.mocked(useAppStoreSelector).mockImplementation((selector: unknown) => {
+	vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
 		const selectorText = String(selector);
 		if (selectorText.includes("addActivePublicSongSlugs")) {
 			return mockAdd;

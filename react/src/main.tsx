@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 /* eslint-disable import/no-unassigned-import */
 import { createRoot } from "react-dom/client";
 
-import App from "@/react/App";
+import App from "@/react/app/App";
 // Removed unused imports after moving hide style logic to React
 import "@/react/i18n/i18n";
 import "@/react/index.css";

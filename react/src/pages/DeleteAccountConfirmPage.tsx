@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import Button from "@/react/design-system/Button";
 import DangerIcon from "@/react/design-system/icons/DangerIcon";
 import TrashIcon from "@/react/design-system/icons/TrashIcon";
 import XIcon from "@/react/design-system/icons/XIcon";
 import getCookie from "@/react/utils/getCookie";
-import { getStoreApi } from "@/react/zustand/useAppStore";
 import {
 	EMPTY_STRING,
 	JUST_DELETED_ACCOUNT_SIGNAL,
@@ -87,7 +87,7 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 		}
 
 		// Clear client side signed-in state
-		getStoreApi().getState().setIsSignedIn(false);
+		useAppStore.getState().setIsSignedIn(false);
 
 		// Set a flag in sessionStorage to indicate account was just deleted.
 		// Home will read this and display the one-time alert.

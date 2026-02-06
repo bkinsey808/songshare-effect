@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
+// Note: These helpers might need to be adjusted or moved if they depend on the old state structure
+import useAppStore from "@/react/app-store/useAppStore";
 import useAppForm from "@/react/form/useAppForm";
 import useFormChanges from "@/react/form/useFormChanges";
-// Note: These helpers might need to be adjusted or moved if they depend on the old state structure
 import useLocale from "@/react/language/locale/useLocale";
 import generateSlug from "@/react/slug/generateSlug";
 import setFieldValue from "@/react/song/song-form/use-song-form/setFieldValue";
-import { useAppStore } from "@/react/zustand/useAppStore";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
 import {

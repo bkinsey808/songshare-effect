@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import { useAppStore } from "@/react/zustand/useAppStore";
+import useAppStore from "@/react/app-store/useAppStore";
 import { ZERO } from "@/shared/constants/shared-constants";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
