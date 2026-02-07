@@ -31,6 +31,7 @@ export const playlistViewPath = "playlists";
 
 // Event paths
 export const eventEditPath = "event-edit";
+export const eventLibraryPath = "event-library";
 
 /** Base path for viewing an event by slug; use as "events/:event_slug" in routes */
 export const eventViewPath = "events";
@@ -55,7 +56,10 @@ export const apiUserLibraryRemovePath = "/api/user-library/remove";
 export const apiUserLibraryLookupPath = "/api/user-library/lookup";
 export const apiEventSavePath = "/api/events/save";
 export const apiEventDeletePath = "/api/events/delete";
+export const apiEventLibraryAddPath = "/api/event-library/add";
+export const apiEventLibraryRemovePath = "/api/event-library/remove";
 export const apiEventUserAddPath = "/api/event-user/add";
+export const apiEventUserJoinPath = "/api/event-user/join";
 export const apiEventUserRemovePath = "/api/event-user/remove";
 export const apiEventUserUpdateRolePath = "/api/event-user/update-role";
 export const apiUploadPath = "/api/upload";

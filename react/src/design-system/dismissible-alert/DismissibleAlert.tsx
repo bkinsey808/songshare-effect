@@ -1,6 +1,8 @@
-import { useState } from "react";
+import type { ReactElement } from "react";
 
 import tw from "@/react/utils/tw";
+
+import useDismissibleAlert from "./useDismissibleAlert";
 
 type DismissibleAlertProps = Readonly<{
 	visible: boolean;
@@ -49,37 +51,12 @@ export default function DismissibleAlert({
 	className = "",
 	alertType,
 }: DismissibleAlertProps): ReactElement | undefined {
-	// Internal closing state so we can play an exit animation before
-	// calling onDismiss (parent will then clear state). Keep the element
-	// mounted while isClosing is true.
-	const [isClosing, setIsClosing] = useState(false);
+	// Hook manages closing state and animation timing.
+	const { isClosing, animClass, handleDismiss } = useDismissibleAlert(onDismiss);
 
 	// If not visible and not in the middle of closing, don't render.
 	if (!visible && !isClosing) {
 		return undefined;
-	}
-
-	// Compute animation classes: when visible and not closing -> enter state;
-	// when closing -> exit state.
-	const animClass = isClosing ? tw`opacity-0 -translate-y-2` : tw`opacity-100 translate-y-0`;
-
-	const ANIMATION_DURATION_MS = 200;
-
-	function handleClick(): void {
-		// Start exit animation, then notify parent after animation finishes.
-		setIsClosing(true);
-		// Match the duration in CSS above (200ms). Use a timeout to call onDismiss
-		// after the animation completes.
-		globalThis.setTimeout(() => {
-			try {
-				onDismiss();
-			} catch (error) {
-				// ignore errors from onDismiss to ensure we always reset local state
-				console.error("DismissibleAlert onDismiss error:", error);
-			}
-			// reset local state in case component remains mounted via props
-			setIsClosing(false);
-		}, ANIMATION_DURATION_MS);
 	}
 
 	return (
@@ -102,7 +79,7 @@ export default function DismissibleAlert({
 					<button
 						type="button"
 						className="rounded px-3 py-1 text-sm text-white/90"
-						onClick={handleClick}
+						onClick={handleDismiss}
 						data-testid="alert-dismiss-button"
 					>
 						Dismiss

@@ -19,36 +19,36 @@ const SECOND_5 = 5;
 const SECOND_59 = 59;
 
 describe("formatAppDate", () => {
-	it("formats as YYYY/DD/MM (e.g. 2026/19/01 for 19 January 2026)", () => {
+	it("formats as YYYY/MM/DD (e.g. 2026/01/19 for 19 January 2026)", () => {
 		// Use (year, monthIndex, day) to avoid timezone issues: month 0 = January
-		expect(formatAppDate(new Date(YEAR_2026, JANUARY, DAY_19))).toBe("2026/19/01");
+		expect(formatAppDate(new Date(YEAR_2026, JANUARY, DAY_19))).toBe("2026/01/19");
 	});
 
 	it("pads month and day with leading zeros", () => {
-		expect(formatAppDate(new Date(YEAR_2025, MARCH, DAY_5))).toBe("2025/05/03");
+		expect(formatAppDate(new Date(YEAR_2025, MARCH, DAY_5))).toBe("2025/03/05");
 	});
 
 	it("accepts ISO date strings", () => {
 		// Use noon UTC so the date is 19 Jan in all common timezones (avoids TZ-dependent failures)
-		expect(formatAppDate("2026-01-19T12:00:00.000Z")).toBe("2026/19/01");
+		expect(formatAppDate("2026-01-19T12:00:00.000Z")).toBe("2026/01/19");
 	});
 });
 
 describe("formatAppDateTime", () => {
-	it("formats as YYYY/DD/MM HH:mm:ss in 24-hour (military) time", () => {
+	it("formats as YYYY/MM/DD HH:mm:ss in 24-hour (military) time", () => {
 		// 2:30:05 PM = 14:30:05 in military time
 		const result = formatAppDateTime(
 			new Date(YEAR_2026, JANUARY, DAY_19, HOUR_14, MINUTE_30, SECOND_5),
 		);
-		expect(result).toBe("2026/19/01 14:30:05");
+		expect(result).toBe("2026/01/19 14:30:05");
 	});
 
 	it("uses 24-hour clock (no AM/PM)", () => {
 		const afternoon = formatAppDateTime(
 			new Date(YEAR_2026, JANUARY, DAY_19, HOUR_23, MINUTE_59, SECOND_59),
 		);
-		expect(afternoon).toBe("2026/19/01 23:59:59");
+		expect(afternoon).toBe("2026/01/19 23:59:59");
 		const midnight = formatAppDateTime(new Date(YEAR_2026, JANUARY, DAY_20, ZERO, ZERO, ZERO));
-		expect(midnight).toBe("2026/20/01 00:00:00");
+		expect(midnight).toBe("2026/01/20 00:00:00");
 	});
 });

@@ -4,6 +4,8 @@ import { lazy } from "react";
 
 import {
 	deleteAccountPath,
+	eventEditPath,
+	eventLibraryPath,
 	playlistEditPath,
 	playlistLibraryPath,
 	songEditPath,
@@ -20,6 +22,8 @@ const SongEditPage = lazy(() => import("@/react/pages/SongEditPage"));
 const SongLibraryPage = lazy(() => import("@/react/pages/SongLibraryPage"));
 const PlaylistEditPage = lazy(() => import("@/react/pages/PlaylistEditPage"));
 const PlaylistLibraryPage = lazy(() => import("@/react/pages/PlaylistLibraryPage"));
+const EventEditPage = lazy(() => import("@/react/pages/EventEditPage"));
+const EventLibraryPage = lazy(() => import("@/react/pages/EventLibraryPage"));
 const UserLibraryPage = lazy(() => import("@/react/user-library/UserLibraryPage"));
 
 /**
@@ -64,12 +68,24 @@ const dashboardRoutes: RouteObject[] = [
 		element: withSuspense(PlaylistEditPage),
 	},
 	{
+		path: eventEditPath,
+		element: withSuspense(EventEditPage),
+	},
+	{
+		path: `${eventEditPath}/:event_id`,
+		element: withSuspense(EventEditPage),
+	},
+	{
 		path: playlistLibraryPath,
 		element: withSuspense(PlaylistLibraryPage),
 	},
 	{
 		path: userLibraryPath,
 		element: withSuspense(UserLibraryPage),
+	},
+	{
+		path: eventLibraryPath,
+		element: withSuspense(EventLibraryPage),
 	},
 ];
 

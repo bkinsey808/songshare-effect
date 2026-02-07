@@ -62,3 +62,35 @@ export function makeFormEventWithPreventDefault(): {
 
 	return { event, preventDefault };
 }
+
+export function makeKeyboardEventWithPreventDefault(key: string): {
+	event: React.KeyboardEvent;
+	preventDefault: ReturnType<typeof vi.fn>;
+} {
+	const preventDefault = vi.fn();
+	const el = document.createElement("div");
+
+	const event = {
+		bubbles: false,
+		cancelable: false,
+		currentTarget: el,
+		target: el,
+		type: "keydown" as const,
+		defaultPrevented: false,
+		eventPhase: 0,
+		isTrusted: true,
+		nativeEvent: new KeyboardEvent("keydown", { key }),
+		persist: (): void => undefined,
+		preventDefault,
+		isDefaultPrevented: (): boolean => false,
+		isPropagationStopped: (): boolean => false,
+		stopPropagation: (): void => undefined,
+		timeStamp: Date.now(),
+		key,
+	};
+
+	// Confine the narrow, unsafe assertion to this helper so tests can use
+	// a properly-typed `React.KeyboardEvent` without repeating an unsafe cast.
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+	return { event: event as unknown as React.KeyboardEvent, preventDefault };
+}

@@ -44,13 +44,18 @@ The library follows a modular, hook-based architecture with clear separation of 
 
 ```
 react/src/popover/
-├── README.md                     # This documentation
-├── types.ts                      # TypeScript type definitions
-├── NativePopover.tsx             # Pure UI component (presentation layer)
-├── useNativePopover.ts           # Main business logic hook
-├── usePopoverPositioning.ts      # Positioning and scroll tracking hook
-├── calculatePopoverPosition.ts   # Smart positioning algorithm
-└── getArrowClasses.ts            # Utility functions (arrow positioning)
+├── README.md                               # This documentation
+├── types.ts                                # TypeScript type definitions
+├── NativePopover.tsx                       # Pure UI component (presentation layer)
+├── useNativePopover.ts                     # Main business logic hook
+├── usePopoverPositioning.ts                # Positioning and scroll tracking hook
+├── calculatePopoverPosition.ts             # Smart positioning algorithm (public API)
+├── calculatePopoverPositionTypes.ts        # Shared types for the positioning algorithm
+├── adjustHorizontalPosition.ts             # Helper: clamp centered horizontal positions
+├── adjustTopBottomPosition.ts              # Helper: clamp top/bottom placements
+├── adjustLeftRightPosition.ts              # Helper: clamp left/right placements
+├── popover-constants.ts                    # Shared numeric layout constants (GAP_DEFAULT, MIN_MARGIN, CENTER_DIVISOR)
+└── getArrowClasses.ts                      # Utility functions (arrow positioning)
 ```
 
 ### **Design Principles**
@@ -221,18 +226,28 @@ export type NativePopoverProps = Readonly<{
 ### Utility Functions
 
 ```typescript
-// Calculate optimal popover position
-export function calculatePopoverPosition(
-	triggerRect: DOMRect,
-	popoverWidth: number,
-	popoverHeight: number,
+// Calculate optimal popover position (default export)
+export default function calculatePopoverPosition({
+	triggerRect,
+	popoverWidth,
+	popoverHeight,
 	preferredPlacement?: "top" | "bottom" | "left" | "right",
 	gap?: number,
-): { position: PopoverPosition; placement: string };
+}): { position: PopoverPosition; placement: string };
+
+// Internal helper modules (available for advanced use)
+import adjustHorizontalPosition from "./adjustHorizontalPosition"; // clamp centered horizontal positions
+import adjustTopBottomPosition from "./adjustTopBottomPosition";   // clamps top/bottom placements to viewport
+import adjustLeftRightPosition from "./adjustLeftRightPosition";   // clamps left/right placements to viewport
+
+// Shared numeric constants
+import { GAP_DEFAULT, MIN_MARGIN, CENTER_DIVISOR } from "./constants";
 
 // Get CSS classes for arrow positioning
 export function getArrowClasses(placement: string): string;
 ```
+
+> Note: The `adjust*` helpers and `constants` are implementation helpers exposed for advanced usage; the recommended integration point is `calculatePopoverPosition` or `usePopoverPositioning`.
 
 ## Technical Implementation
 
@@ -695,7 +710,12 @@ test("popover has proper ARIA attributes", () => {
 Add debug logging to positioning:
 
 ```typescript
-const { position, placement } = calculatePopoverPosition(/* ... */);
+const { position, placement } = calculatePopoverPosition({
+	triggerRect: someTrigger.getBoundingClientRect(),
+	popoverWidth: 240,
+	popoverHeight: 120,
+	preferredPlacement: "bottom",
+});
 console.log("Calculated position:", { position, placement });
 ```
 

@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-02-02T18:11:04.981Z
+ * Last generated: 2026-02-07T11:29:07.093Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -66,6 +66,49 @@ export const EventUpdateSchema: Schema.Struct<{
 });
 
 export type EventUpdate = Schema.Schema.Type<typeof EventUpdateSchema>;
+
+// event_library table schemas
+export const EventLibrarySchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	event_id: typeof Schema.UUID;
+	event_owner_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	event_id: Schema.UUID,
+	event_owner_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type EventLibrary = Schema.Schema.Type<typeof EventLibrarySchema>;
+
+export const EventLibraryInsertSchema: Schema.Struct<{
+	event_id: typeof Schema.UUID;
+	event_owner_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	event_id: Schema.UUID,
+	event_owner_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type EventLibraryInsert = Schema.Schema.Type<
+	typeof EventLibraryInsertSchema
+>;
+
+export const EventLibraryUpdateSchema: Schema.Struct<{
+	event_id: Schema.optional<typeof Schema.UUID>;
+	event_owner_id: Schema.optional<typeof Schema.UUID>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	event_id: Schema.optional(Schema.UUID),
+	event_owner_id: Schema.optional(Schema.UUID),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type EventLibraryUpdate = Schema.Schema.Type<
+	typeof EventLibraryUpdateSchema
+>;
 
 // event_public table schemas
 export const EventPublicSchema: Schema.Struct<{

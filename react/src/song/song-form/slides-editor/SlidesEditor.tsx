@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import AutoExpandingTextarea from "@/react/design-system/AutoExpandingTextarea";
+import AutoExpandingTextarea from "@/react/design-system/auto-expanding-textarea/AutoExpandingTextarea";
 import Button from "@/react/design-system/Button";
 import FormField from "@/react/design-system/form/FormField";
 import ChevronDownIcon from "@/react/design-system/icons/ChevronDownIcon";

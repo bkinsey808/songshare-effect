@@ -1,0 +1,11 @@
+export const MIN_MONTH = 1;
+export const MAX_MONTH = 12;
+export const MIN_DAY = 1;
+export const MAX_DAY = 31;
+export const MONTH_OFFSET = 1;
+export const MIN_HOUR = 0;
+export const MAX_HOUR = 23;
+export const MIN_MINUTE = 0;
+export const MAX_MINUTE = 59;
+export const MAX_PARTS = 2;
+export const PAD_LENGTH = 2;

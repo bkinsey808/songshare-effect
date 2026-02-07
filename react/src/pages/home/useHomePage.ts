@@ -4,8 +4,6 @@ import { type AlertState } from "@/react/pages/home/AlertState.type";
 import getInitialAlertState from "@/react/pages/home/getInitialAlertState";
 
 /**
- * useHomePage
- *
  * Hook that manages the home page alert UI state.
  *
  * - Encapsulates alert visibility and type state.

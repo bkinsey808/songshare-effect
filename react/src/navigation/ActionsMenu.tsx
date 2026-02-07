@@ -1,6 +1,8 @@
+import EventLibraryCard from "./EventLibraryCard";
 import PlaylistCard from "./PlaylistCard";
 import SettingsCard from "./SettingsCard";
 import SongActionsCard from "./SongActionsCard";
+import UserLibraryCard from "./UserLibraryCard";
 
 type ActionsMenuProps = {
 	readonly isVisible: boolean;
@@ -35,8 +37,8 @@ export default function ActionsMenu({ isVisible, isScrolled }: ActionsMenuProps)
 					>
 						<div className="flex flex-wrap items-center justify-between gap-4">
 							<SongActionsCard />
-							<PlaylistCard />
-							<SettingsCard />
+							<PlaylistCard /> <UserLibraryCard />
+							<EventLibraryCard /> <SettingsCard />
 						</div>
 					</div>
 				</div>

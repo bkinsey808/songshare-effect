@@ -18,3 +18,9 @@ export type PopoverElement = HTMLElement & {
 	readonly showPopover?: () => void;
 	readonly hidePopover?: () => void;
 };
+
+export type PlacementConfig = {
+	readonly name: PlacementOption;
+	readonly hasSpace: boolean;
+	readonly position: PopoverPosition;
+};

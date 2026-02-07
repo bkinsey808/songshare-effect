@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion --
+/* eslint-disable @typescript-eslint/no-unsafe-type-assertion --
    Centralized store wiring composes dynamically-created slice factories and
    performs runtime validation. Narrowing/casts are localized here for safety
    and readability rather than repeated at each consumer site.
@@ -20,7 +20,10 @@ function isFullAppSlice(obj: unknown): obj is AppSlice {
 	}
 	// Use `in` checks to avoid direct member access on potentially untyped objects
 	return (
-		"setShowSignedInAlert" in obj && "addOrUpdatePrivateSongs" in obj && "fetchPlaylist" in obj
+		"setShowSignedInAlert" in obj &&
+		"addOrUpdatePrivateSongs" in obj &&
+		"fetchPlaylist" in obj &&
+		"fetchEventBySlug" in obj
 	);
 }
 

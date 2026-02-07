@@ -22,8 +22,6 @@ import { apiAccountDeletePath, dashboardPath } from "@/shared/paths";
 import { justDeletedAccountKey } from "@/shared/sessionStorageKeys";
 
 /**
- * DeleteAccountConfirmPage
- *
  * Confirmation UI that handles account deletion flow: shows warnings,
  * submits the deletion request, and redirects on success.
  *

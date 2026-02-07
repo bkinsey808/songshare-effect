@@ -1,8 +1,6 @@
 import PlaylistForm from "../playlist/edit/PlaylistForm";
 
 /**
- * PlaylistEditPage
- *
  * Page wrapper that renders the playlist edit form used for creating and
  * editing playlists.
  *

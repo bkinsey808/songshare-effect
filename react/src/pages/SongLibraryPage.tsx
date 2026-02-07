@@ -5,8 +5,6 @@ import useLocale from "@/react/language/locale/useLocale";
 import SongLibrary from "@/react/song-library/SongLibrary";
 
 /**
- * SongLibraryPage
- *
  * Page that displays the user's song library and provides navigation hooks
  * for viewing and managing songs.
  *

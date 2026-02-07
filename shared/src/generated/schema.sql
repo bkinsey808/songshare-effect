@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict kvxP4Y48FSh7HeTuSUlfmEJQqshcfOGjowa5AlMfwIHhkDCc0jYhn8e2mRHBnms
+\restrict GP2JiiBjMyWcy6z1mkkgie6hLkPfHX5NiYgwFqQSR50Pnuvg6OBDWaFczxH8CVH
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -20,21 +20,23 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
+-- Name: public; Type: SCHEMA; Schema: -; Owner: pg_database_owner
 --
 
 CREATE SCHEMA public;
 
 
+ALTER SCHEMA public OWNER TO pg_database_owner;
+
 --
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: pg_database_owner
 --
 
 COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 --
--- Name: update_updated_at_column(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: update_updated_at_column(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.update_updated_at_column() RETURNS trigger
@@ -47,12 +49,218 @@ END;
 $$;
 
 
+ALTER FUNCTION public.update_updated_at_column() OWNER TO postgres;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: playlist; Type: TABLE; Schema: public; Owner: -
+-- Name: event; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.event (
+    event_id uuid DEFAULT gen_random_uuid() NOT NULL,
+    owner_id uuid NOT NULL,
+    private_notes text DEFAULT ''::text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.event OWNER TO postgres;
+
+--
+-- Name: TABLE event; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.event IS 'Private event data - only accessible by the event owner';
+
+
+--
+-- Name: COLUMN event.event_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event.event_id IS 'Unique identifier for the event';
+
+
+--
+-- Name: COLUMN event.owner_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event.owner_id IS 'The user who owns this event';
+
+
+--
+-- Name: COLUMN event.private_notes; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event.private_notes IS 'Private notes visible only to the owner';
+
+
+--
+-- Name: event_public; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.event_public (
+    event_id uuid NOT NULL,
+    owner_id uuid NOT NULL,
+    event_name text NOT NULL,
+    event_slug text NOT NULL,
+    event_description text DEFAULT ''::text,
+    event_date timestamp with time zone,
+    is_public boolean DEFAULT false NOT NULL,
+    active_playlist_id uuid,
+    active_song_id uuid,
+    active_slide_id text,
+    public_notes text DEFAULT ''::text,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT event_name_format CHECK (((length(event_name) >= 2) AND (length(event_name) <= 100) AND (event_name = btrim(event_name)) AND (POSITION(('  '::text) IN (event_name)) = 0))),
+    CONSTRAINT event_slug_format CHECK (((event_slug ~ '^[a-z0-9-]+$'::text) AND (event_slug !~ '^-'::text) AND (event_slug !~ '-$'::text) AND (POSITION(('--'::text) IN (event_slug)) = 0)))
+);
+
+
+ALTER TABLE public.event_public OWNER TO postgres;
+
+--
+-- Name: TABLE event_public; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.event_public IS 'Public event data - readable based on is_public flag and participant status. Realtime enabled for live event updates.';
+
+
+--
+-- Name: COLUMN event_public.event_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_public.event_id IS 'Reference to the parent event record';
+
+
+--
+-- Name: COLUMN event_public.owner_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_public.owner_id IS 'The user who owns this event';
+
+
+--
+-- Name: COLUMN event_public.event_name; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_public.event_name IS 'Display name of the event';
+
+
+--
+-- Name: COLUMN event_public.event_slug; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_public.event_slug IS 'URL-friendly identifier, unique system-wide';
+
+
+--
+-- Name: COLUMN event_public.event_description; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_public.event_description IS 'Description of the event';
+
+
+--
+-- Name: COLUMN event_public.event_date; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_public.event_date IS 'Date and time of the event';
+
+
+--
+-- Name: COLUMN event_public.is_public; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_public.is_public IS 'Whether the event is publicly viewable (including anonymous users)';
+
+
+--
+-- Name: COLUMN event_public.active_playlist_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_public.active_playlist_id IS 'Currently active playlist for this event';
+
+
+--
+-- Name: COLUMN event_public.active_song_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_public.active_song_id IS 'Currently active song within the active playlist';
+
+
+--
+-- Name: COLUMN event_public.active_slide_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_public.active_slide_id IS 'Currently active slide within the active song';
+
+
+--
+-- Name: COLUMN event_public.public_notes; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_public.public_notes IS 'Public notes visible to all event viewers';
+
+
+--
+-- Name: event_user; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.event_user (
+    event_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    role text NOT NULL,
+    joined_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT event_user_role_check CHECK ((role = ANY (ARRAY['owner'::text, 'admin'::text, 'participant'::text])))
+);
+
+ALTER TABLE ONLY public.event_user REPLICA IDENTITY FULL;
+
+
+ALTER TABLE public.event_user OWNER TO postgres;
+
+--
+-- Name: TABLE event_user; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.event_user IS 'Event participants with roles - manages who can access and modify events. Realtime enabled for participant tracking.';
+
+
+--
+-- Name: COLUMN event_user.event_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_user.event_id IS 'Reference to the event';
+
+
+--
+-- Name: COLUMN event_user.user_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_user.user_id IS 'Reference to the user';
+
+
+--
+-- Name: COLUMN event_user.role; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_user.role IS 'User role in this event: owner, admin, or participant';
+
+
+--
+-- Name: COLUMN event_user.joined_at; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.event_user.joined_at IS 'When this user joined the event';
+
+
+--
+-- Name: playlist; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.playlist (
@@ -64,36 +272,38 @@ CREATE TABLE public.playlist (
 );
 
 
+ALTER TABLE public.playlist OWNER TO postgres;
+
 --
--- Name: TABLE playlist; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE playlist; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON TABLE public.playlist IS 'Private playlist data - only accessible by the playlist owner';
 
 
 --
--- Name: COLUMN playlist.playlist_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist.playlist_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist.playlist_id IS 'Unique identifier for the playlist';
 
 
 --
--- Name: COLUMN playlist.user_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist.user_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist.user_id IS 'The user who owns this playlist';
 
 
 --
--- Name: COLUMN playlist.private_notes; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist.private_notes; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist.private_notes IS 'Private notes visible only to the owner';
 
 
 --
--- Name: playlist_library; Type: TABLE; Schema: public; Owner: -
+-- Name: playlist_library; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.playlist_library (
@@ -106,43 +316,45 @@ CREATE TABLE public.playlist_library (
 ALTER TABLE ONLY public.playlist_library REPLICA IDENTITY FULL;
 
 
+ALTER TABLE public.playlist_library OWNER TO postgres;
+
 --
--- Name: TABLE playlist_library; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE playlist_library; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON TABLE public.playlist_library IS 'Personal playlist libraries - allows users to collect playlists (their own or others'') into their personal library. Realtime enabled.';
 
 
 --
--- Name: COLUMN playlist_library.user_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist_library.user_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist_library.user_id IS 'The user who owns this library entry';
 
 
 --
--- Name: COLUMN playlist_library.playlist_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist_library.playlist_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist_library.playlist_id IS 'Reference to the playlist being added to library';
 
 
 --
--- Name: COLUMN playlist_library.playlist_owner_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist_library.playlist_owner_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist_library.playlist_owner_id IS 'The original owner/creator of the playlist';
 
 
 --
--- Name: COLUMN playlist_library.created_at; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist_library.created_at; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist_library.created_at IS 'When this playlist was added to the user''s library';
 
 
 --
--- Name: playlist_public; Type: TABLE; Schema: public; Owner: -
+-- Name: playlist_public; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.playlist_public (
@@ -161,57 +373,59 @@ CREATE TABLE public.playlist_public (
 ALTER TABLE ONLY public.playlist_public REPLICA IDENTITY FULL;
 
 
+ALTER TABLE public.playlist_public OWNER TO postgres;
+
 --
--- Name: TABLE playlist_public; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE playlist_public; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON TABLE public.playlist_public IS 'Public playlist data - readable by anyone authenticated, writable by owner';
 
 
 --
--- Name: COLUMN playlist_public.playlist_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist_public.playlist_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist_public.playlist_id IS 'Reference to the parent playlist record';
 
 
 --
--- Name: COLUMN playlist_public.user_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist_public.user_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist_public.user_id IS 'The user who owns this playlist';
 
 
 --
--- Name: COLUMN playlist_public.playlist_name; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist_public.playlist_name; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist_public.playlist_name IS 'Display name of the playlist';
 
 
 --
--- Name: COLUMN playlist_public.playlist_slug; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist_public.playlist_slug; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist_public.playlist_slug IS 'URL-friendly identifier, unique system-wide';
 
 
 --
--- Name: COLUMN playlist_public.public_notes; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist_public.public_notes; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist_public.public_notes IS 'Public notes visible to everyone';
 
 
 --
--- Name: COLUMN playlist_public.song_order; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN playlist_public.song_order; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.playlist_public.song_order IS 'Ordered array of song_ids in this playlist';
 
 
 --
--- Name: song; Type: TABLE; Schema: public; Owner: -
+-- Name: song; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.song (
@@ -223,8 +437,10 @@ CREATE TABLE public.song (
 );
 
 
+ALTER TABLE public.song OWNER TO postgres;
+
 --
--- Name: song_library; Type: TABLE; Schema: public; Owner: -
+-- Name: song_library; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.song_library (
@@ -237,43 +453,45 @@ CREATE TABLE public.song_library (
 ALTER TABLE ONLY public.song_library REPLICA IDENTITY FULL;
 
 
+ALTER TABLE public.song_library OWNER TO postgres;
+
 --
--- Name: TABLE song_library; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE song_library; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON TABLE public.song_library IS 'Personal song libraries - allows users to collect songs (their own or others'') into their personal library. Realtime enabled.';
 
 
 --
--- Name: COLUMN song_library.user_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN song_library.user_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.song_library.user_id IS 'The user who owns this library entry';
 
 
 --
--- Name: COLUMN song_library.song_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN song_library.song_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.song_library.song_id IS 'Reference to the song being added to library';
 
 
 --
--- Name: COLUMN song_library.song_owner_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN song_library.song_owner_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.song_library.song_owner_id IS 'The original owner/creator of the song';
 
 
 --
--- Name: COLUMN song_library.created_at; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN song_library.created_at; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.song_library.created_at IS 'When this song was added to the user''s library';
 
 
 --
--- Name: song_public; Type: TABLE; Schema: public; Owner: -
+-- Name: song_public; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.song_public (
@@ -298,15 +516,17 @@ CREATE TABLE public.song_public (
 ALTER TABLE ONLY public.song_public REPLICA IDENTITY FULL;
 
 
+ALTER TABLE public.song_public OWNER TO postgres;
+
 --
--- Name: TABLE song_public; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE song_public; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON TABLE public.song_public IS 'Public song metadata. Realtime enabled for metadata updates.';
 
 
 --
--- Name: user; Type: TABLE; Schema: public; Owner: -
+-- Name: user; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public."user" (
@@ -325,8 +545,10 @@ CREATE TABLE public."user" (
 );
 
 
+ALTER TABLE public."user" OWNER TO postgres;
+
 --
--- Name: user_library; Type: TABLE; Schema: public; Owner: -
+-- Name: user_library; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.user_library (
@@ -338,36 +560,38 @@ CREATE TABLE public.user_library (
 ALTER TABLE ONLY public.user_library REPLICA IDENTITY FULL;
 
 
+ALTER TABLE public.user_library OWNER TO postgres;
+
 --
--- Name: TABLE user_library; Type: COMMENT; Schema: public; Owner: -
+-- Name: TABLE user_library; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON TABLE public.user_library IS 'Personal user libraries - allows users to follow other users. Realtime enabled.';
 
 
 --
--- Name: COLUMN user_library.user_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN user_library.user_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.user_library.user_id IS 'The user who owns this library entry';
 
 
 --
--- Name: COLUMN user_library.followed_user_id; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN user_library.followed_user_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.user_library.followed_user_id IS 'The followed user id';
 
 
 --
--- Name: COLUMN user_library.created_at; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN user_library.created_at; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN public.user_library.created_at IS 'When this user was added to the library';
 
 
 --
--- Name: user_public; Type: TABLE; Schema: public; Owner: -
+-- Name: user_public; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.user_public (
@@ -378,8 +602,157 @@ CREATE TABLE public.user_public (
 ALTER TABLE ONLY public.user_public REPLICA IDENTITY FULL;
 
 
+ALTER TABLE public.user_public OWNER TO postgres;
+
 --
--- Name: playlist_library playlist_library_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Data for Name: event; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.event (event_id, owner_id, private_notes, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: event_public; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.event_public (event_id, owner_id, event_name, event_slug, event_description, event_date, is_public, active_playlist_id, active_song_id, active_slide_id, public_notes, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: event_user; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.event_user (event_id, user_id, role, joined_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: playlist; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.playlist (playlist_id, user_id, private_notes, created_at, updated_at) FROM stdin;
+02bc2923-6820-408f-a96b-962d1ee4873a	dec73c0f-7b26-423c-a9b4-70db1e82ec31	private	2026-01-28 22:13:23.918939+00	2026-01-28 22:13:23.918939+00
+b4b7f37b-5595-4a2b-8373-d0a25a89e00c	dec73c0f-7b26-423c-a9b4-70db1e82ec31	private	2026-01-28 22:13:06.15343+00	2026-01-30 23:46:14.393678+00
+\.
+
+
+--
+-- Data for Name: playlist_library; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.playlist_library (user_id, playlist_id, playlist_owner_id, created_at) FROM stdin;
+dec73c0f-7b26-423c-a9b4-70db1e82ec31	b4b7f37b-5595-4a2b-8373-d0a25a89e00c	dec73c0f-7b26-423c-a9b4-70db1e82ec31	2026-01-28 22:13:06.618234+00
+\.
+
+
+--
+-- Data for Name: playlist_public; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.playlist_public (playlist_id, user_id, playlist_name, playlist_slug, public_notes, song_order, created_at, updated_at) FROM stdin;
+b4b7f37b-5595-4a2b-8373-d0a25a89e00c	dec73c0f-7b26-423c-a9b4-70db1e82ec31	my first playlist	my-first-playlist	test2	{a575c4a8-9be3-4dc3-b7a0-fdd3684cdce9,a0a2a017-76d8-4305-aa0d-b7e310e4d589}	2026-01-28 22:13:06.38665+00	2026-01-30 23:46:14.571577+00
+\.
+
+
+--
+-- Data for Name: song; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.song (song_id, user_id, private_notes, created_at, updated_at) FROM stdin;
+a575c4a8-9be3-4dc3-b7a0-fdd3684cdce9	dec73c0f-7b26-423c-a9b4-70db1e82ec31		2026-01-26 05:17:02.398123+00	2026-01-26 05:54:45.84225+00
+a0a2a017-76d8-4305-aa0d-b7e310e4d589	dec73c0f-7b26-423c-a9b4-70db1e82ec31		2026-01-24 20:25:13.751332+00	2026-01-27 16:31:03.827516+00
+6090a1d7-f206-4693-a292-a1d954952007	73efe64e-9aff-4a64-8c60-610c80ce6c0f		2026-01-31 07:17:43.376061+00	2026-01-31 07:17:43.376061+00
+\.
+
+
+--
+-- Data for Name: song_library; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.song_library (user_id, song_id, song_owner_id, created_at) FROM stdin;
+dec73c0f-7b26-423c-a9b4-70db1e82ec31	a0a2a017-76d8-4305-aa0d-b7e310e4d589	dec73c0f-7b26-423c-a9b4-70db1e82ec31	2026-01-24 20:25:14.324325+00
+dec73c0f-7b26-423c-a9b4-70db1e82ec31	a575c4a8-9be3-4dc3-b7a0-fdd3684cdce9	dec73c0f-7b26-423c-a9b4-70db1e82ec31	2026-01-26 05:17:03.064366+00
+73efe64e-9aff-4a64-8c60-610c80ce6c0f	6090a1d7-f206-4693-a292-a1d954952007	73efe64e-9aff-4a64-8c60-610c80ce6c0f	2026-01-31 07:17:43.852694+00
+\.
+
+
+--
+-- Data for Name: song_public; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.song_public (song_id, user_id, song_name, song_slug, fields, slide_order, slides, key, scale, short_credit, long_credit, public_notes, created_at, updated_at) FROM stdin;
+a575c4a8-9be3-4dc3-b7a0-fdd3684cdce9	dec73c0f-7b26-423c-a9b4-70db1e82ec31	my song	my-song	{lyrics,script,enTranslation}	{e64c5f3c-d8,h9z91stymkupvz2r,bdyqjlz6mkupwazz,h9z91stymkupvz2r}	{"e64c5f3c-d8": {"field_data": {"lyrics": "these are the first lyrics", "script": "", "enTranslation": ""}, "slide_name": "first lyrics"}, "bdyqjlz6mkupwazz": {"field_data": {"lyrics": "these are the second lyrics", "script": "", "enTranslation": ""}, "slide_name": "lyrics 2"}, "h9z91stymkupvz2r": {"field_data": {"lyrics": "this chorus has two positions", "script": "", "enTranslation": ""}, "slide_name": "chorus"}}	\N	\N				2026-01-26 05:17:02.768448+00	2026-01-26 05:54:46.158959+00
+a0a2a017-76d8-4305-aa0d-b7e310e4d589	dec73c0f-7b26-423c-a9b4-70db1e82ec31	test7.	test	{lyrics,script,enTranslation}	{6ab83dbc-ad}	{"6ab83dbc-ad": {"field_data": {"lyrics": "", "script": "", "enTranslation": ""}, "slide_name": "Slide 1"}}	\N	\N				2026-01-24 20:25:14.080998+00	2026-01-27 16:31:04.028552+00
+6090a1d7-f206-4693-a292-a1d954952007	73efe64e-9aff-4a64-8c60-610c80ce6c0f	Ben Song	ben-song	{lyrics}	{ad142573-03}	{"ad142573-03": {"field_data": {"lyrics": "hello"}, "slide_name": "Slide 1"}}	\N	\N				2026-01-31 07:17:43.615106+00	2026-01-31 07:17:43.615106+00
+\.
+
+
+--
+-- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."user" (user_id, name, sub, email, google_calendar_access, google_calendar_refresh_token, role, role_expires_at, created_at, updated_at, linked_providers) FROM stdin;
+73efe64e-9aff-4a64-8c60-610c80ce6c0f	Ben Kinsey	117431619666552862313	bkinsey@gmail.com	none	\N	free	\N	2025-12-03 08:19:37.033958+00	2025-12-03 08:19:37.033958+00	{google}
+e1e72149-c79a-47ba-8b6f-813166164345	Kinsey Family	104480054130266665054	kinseyfamily808@gmail.com	none	\N	free	\N	2025-10-26 22:55:30.424217+00	2025-10-26 22:55:30.424217+00	{google}
+dec73c0f-7b26-423c-a9b4-70db1e82ec31	Metta Ben	110197596977075676789	mettaben@gmail.com	none	\N	free	\N	2025-11-11 06:50:25.998736+00	2025-11-11 06:50:25.998736+00	{google}
+\.
+
+
+--
+-- Data for Name: user_library; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.user_library (user_id, followed_user_id, created_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: user_public; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.user_public (user_id, username) FROM stdin;
+dec73c0f-7b26-423c-a9b4-70db1e82ec31	mettaben
+73efe64e-9aff-4a64-8c60-610c80ce6c0f	bkinsey808c
+e1e72149-c79a-47ba-8b6f-813166164345	kinseyfamily808
+\.
+
+
+--
+-- Name: event event_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.event
+    ADD CONSTRAINT event_pkey PRIMARY KEY (event_id);
+
+
+--
+-- Name: event_public event_public_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.event_public
+    ADD CONSTRAINT event_public_pkey PRIMARY KEY (event_id);
+
+
+--
+-- Name: event_public event_slug_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.event_public
+    ADD CONSTRAINT event_slug_unique UNIQUE (event_slug);
+
+
+--
+-- Name: event_user event_user_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.event_user
+    ADD CONSTRAINT event_user_pkey PRIMARY KEY (event_id, user_id);
+
+
+--
+-- Name: playlist_library playlist_library_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.playlist_library
@@ -387,7 +760,7 @@ ALTER TABLE ONLY public.playlist_library
 
 
 --
--- Name: playlist playlist_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: playlist playlist_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.playlist
@@ -395,7 +768,7 @@ ALTER TABLE ONLY public.playlist
 
 
 --
--- Name: playlist_public playlist_public_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: playlist_public playlist_public_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.playlist_public
@@ -403,7 +776,7 @@ ALTER TABLE ONLY public.playlist_public
 
 
 --
--- Name: playlist_public playlist_slug_unique; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: playlist_public playlist_slug_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.playlist_public
@@ -411,7 +784,7 @@ ALTER TABLE ONLY public.playlist_public
 
 
 --
--- Name: song_library song_library_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: song_library song_library_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.song_library
@@ -419,7 +792,7 @@ ALTER TABLE ONLY public.song_library
 
 
 --
--- Name: song song_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: song song_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.song
@@ -427,7 +800,7 @@ ALTER TABLE ONLY public.song
 
 
 --
--- Name: song_public song_public_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: song_public song_public_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.song_public
@@ -435,7 +808,7 @@ ALTER TABLE ONLY public.song_public
 
 
 --
--- Name: user_library user_library_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user_library user_library_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_library
@@ -443,7 +816,7 @@ ALTER TABLE ONLY public.user_library
 
 
 --
--- Name: user user_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user user_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."user"
@@ -451,7 +824,7 @@ ALTER TABLE ONLY public."user"
 
 
 --
--- Name: user_public user_public_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user_public user_public_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_public
@@ -459,7 +832,7 @@ ALTER TABLE ONLY public.user_public
 
 
 --
--- Name: user_public user_public_username_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user_public user_public_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_public
@@ -467,161 +840,308 @@ ALTER TABLE ONLY public.user_public
 
 
 --
--- Name: idx_user_public_username; Type: INDEX; Schema: public; Owner: -
+-- Name: event_owner_id_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX event_owner_id_idx ON public.event USING btree (owner_id);
+
+
+--
+-- Name: event_public_active_playlist_id_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX event_public_active_playlist_id_idx ON public.event_public USING btree (active_playlist_id);
+
+
+--
+-- Name: event_public_active_song_id_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX event_public_active_song_id_idx ON public.event_public USING btree (active_song_id);
+
+
+--
+-- Name: event_public_event_date_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX event_public_event_date_idx ON public.event_public USING btree (event_date DESC);
+
+
+--
+-- Name: event_public_event_slug_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX event_public_event_slug_idx ON public.event_public USING btree (event_slug);
+
+
+--
+-- Name: event_public_is_public_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX event_public_is_public_idx ON public.event_public USING btree (is_public);
+
+
+--
+-- Name: event_public_owner_id_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX event_public_owner_id_idx ON public.event_public USING btree (owner_id);
+
+
+--
+-- Name: event_user_event_id_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX event_user_event_id_idx ON public.event_user USING btree (event_id);
+
+
+--
+-- Name: event_user_joined_at_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX event_user_joined_at_idx ON public.event_user USING btree (joined_at DESC);
+
+
+--
+-- Name: event_user_role_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX event_user_role_idx ON public.event_user USING btree (role);
+
+
+--
+-- Name: event_user_user_id_idx; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX event_user_user_id_idx ON public.event_user USING btree (user_id);
+
+
+--
+-- Name: idx_user_public_username; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX idx_user_public_username ON public.user_public USING btree (username);
 
 
 --
--- Name: playlist_library_created_at_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: playlist_library_created_at_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX playlist_library_created_at_idx ON public.playlist_library USING btree (created_at DESC);
 
 
 --
--- Name: playlist_library_playlist_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: playlist_library_playlist_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX playlist_library_playlist_id_idx ON public.playlist_library USING btree (playlist_id);
 
 
 --
--- Name: playlist_library_playlist_owner_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: playlist_library_playlist_owner_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX playlist_library_playlist_owner_id_idx ON public.playlist_library USING btree (playlist_owner_id);
 
 
 --
--- Name: playlist_library_user_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: playlist_library_user_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX playlist_library_user_id_idx ON public.playlist_library USING btree (user_id);
 
 
 --
--- Name: playlist_public_playlist_slug_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: playlist_public_playlist_slug_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX playlist_public_playlist_slug_idx ON public.playlist_public USING btree (playlist_slug);
 
 
 --
--- Name: playlist_public_user_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: playlist_public_user_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX playlist_public_user_id_idx ON public.playlist_public USING btree (user_id);
 
 
 --
--- Name: playlist_user_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: playlist_user_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX playlist_user_id_idx ON public.playlist USING btree (user_id);
 
 
 --
--- Name: song_library_created_at_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: song_library_created_at_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX song_library_created_at_idx ON public.song_library USING btree (created_at DESC);
 
 
 --
--- Name: song_library_song_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: song_library_song_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX song_library_song_id_idx ON public.song_library USING btree (song_id);
 
 
 --
--- Name: song_library_song_owner_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: song_library_song_owner_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX song_library_song_owner_id_idx ON public.song_library USING btree (song_owner_id);
 
 
 --
--- Name: song_library_user_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: song_library_user_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX song_library_user_id_idx ON public.song_library USING btree (user_id);
 
 
 --
--- Name: song_public_song_slug_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: song_public_song_slug_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX song_public_song_slug_idx ON public.song_public USING btree (song_slug);
 
 
 --
--- Name: user_email_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: user_email_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX user_email_idx ON public."user" USING btree (email);
 
 
 --
--- Name: user_library_created_at_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: user_library_created_at_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX user_library_created_at_idx ON public.user_library USING btree (created_at DESC);
 
 
 --
--- Name: user_library_followed_user_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: user_library_followed_user_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX user_library_followed_user_id_idx ON public.user_library USING btree (followed_user_id);
 
 
 --
--- Name: user_library_user_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: user_library_user_id_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX user_library_user_id_idx ON public.user_library USING btree (user_id);
 
 
 --
--- Name: playlist set_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: event set_updated_at; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.event FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+
+--
+-- Name: event_public set_updated_at; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.event_public FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+
+--
+-- Name: playlist set_updated_at; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
 CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.playlist FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
--- Name: playlist_public set_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: playlist_public set_updated_at; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
 CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.playlist_public FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
--- Name: song set_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: song set_updated_at; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
 CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.song FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
--- Name: song_public set_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: song_public set_updated_at; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
 CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.song_public FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
--- Name: user set_updated_at; Type: TRIGGER; Schema: public; Owner: -
+-- Name: user set_updated_at; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
 CREATE TRIGGER set_updated_at BEFORE UPDATE ON public."user" FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 
 --
--- Name: playlist_library playlist_library_playlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: event event_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.event
+    ADD CONSTRAINT event_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: event_public event_public_active_playlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.event_public
+    ADD CONSTRAINT event_public_active_playlist_id_fkey FOREIGN KEY (active_playlist_id) REFERENCES public.playlist(playlist_id) ON DELETE SET NULL;
+
+
+--
+-- Name: event_public event_public_active_song_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.event_public
+    ADD CONSTRAINT event_public_active_song_id_fkey FOREIGN KEY (active_song_id) REFERENCES public.song(song_id) ON DELETE SET NULL;
+
+
+--
+-- Name: event_public event_public_event_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.event_public
+    ADD CONSTRAINT event_public_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.event(event_id) ON DELETE CASCADE;
+
+
+--
+-- Name: event_public event_public_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.event_public
+    ADD CONSTRAINT event_public_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: event_user event_user_event_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.event_user
+    ADD CONSTRAINT event_user_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.event(event_id) ON DELETE CASCADE;
+
+
+--
+-- Name: event_user event_user_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.event_user
+    ADD CONSTRAINT event_user_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: playlist_library playlist_library_playlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.playlist_library
@@ -629,7 +1149,7 @@ ALTER TABLE ONLY public.playlist_library
 
 
 --
--- Name: playlist_library playlist_library_playlist_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: playlist_library playlist_library_playlist_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.playlist_library
@@ -637,7 +1157,7 @@ ALTER TABLE ONLY public.playlist_library
 
 
 --
--- Name: playlist_library playlist_library_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: playlist_library playlist_library_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.playlist_library
@@ -645,7 +1165,7 @@ ALTER TABLE ONLY public.playlist_library
 
 
 --
--- Name: playlist_public playlist_public_playlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: playlist_public playlist_public_playlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.playlist_public
@@ -653,7 +1173,7 @@ ALTER TABLE ONLY public.playlist_public
 
 
 --
--- Name: playlist_public playlist_public_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: playlist_public playlist_public_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.playlist_public
@@ -661,7 +1181,7 @@ ALTER TABLE ONLY public.playlist_public
 
 
 --
--- Name: playlist playlist_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: playlist playlist_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.playlist
@@ -669,7 +1189,7 @@ ALTER TABLE ONLY public.playlist
 
 
 --
--- Name: song_library song_library_song_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: song_library song_library_song_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.song_library
@@ -677,7 +1197,7 @@ ALTER TABLE ONLY public.song_library
 
 
 --
--- Name: song_library song_library_song_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: song_library song_library_song_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.song_library
@@ -685,7 +1205,7 @@ ALTER TABLE ONLY public.song_library
 
 
 --
--- Name: song_library song_library_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: song_library song_library_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.song_library
@@ -693,7 +1213,7 @@ ALTER TABLE ONLY public.song_library
 
 
 --
--- Name: song_public song_public_song_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: song_public song_public_song_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.song_public
@@ -701,7 +1221,7 @@ ALTER TABLE ONLY public.song_public
 
 
 --
--- Name: song_public song_public_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: song_public song_public_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.song_public
@@ -709,7 +1229,7 @@ ALTER TABLE ONLY public.song_public
 
 
 --
--- Name: song song_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: song song_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.song
@@ -717,7 +1237,7 @@ ALTER TABLE ONLY public.song
 
 
 --
--- Name: user_library user_library_followed_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: user_library user_library_followed_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_library
@@ -725,7 +1245,7 @@ ALTER TABLE ONLY public.user_library
 
 
 --
--- Name: user_library user_library_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: user_library user_library_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_library
@@ -733,7 +1253,7 @@ ALTER TABLE ONLY public.user_library
 
 
 --
--- Name: user_public user_public_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: user_public user_public_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_public
@@ -741,202 +1261,483 @@ ALTER TABLE ONLY public.user_public
 
 
 --
--- Name: playlist_public Allow read access to playlist_public for visitors or users; Type: POLICY; Schema: public; Owner: -
+-- Name: event_public Allow admins to update event fields; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Allow admins to update event fields" ON public.event_public FOR UPDATE TO authenticated USING ((EXISTS ( SELECT 1
+   FROM public.event_user
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = 'admin'::text))))) WITH CHECK ((EXISTS ( SELECT 1
+   FROM public.event_user
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = 'admin'::text)))));
+
+
+--
+-- Name: event_public Allow owner to update all fields; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Allow owner to update all fields" ON public.event_public FOR UPDATE TO authenticated USING ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)) WITH CHECK ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: playlist_public Allow read access to playlist_public for visitors or users; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Allow read access to playlist_public for visitors or users" ON public.playlist_public FOR SELECT TO authenticated USING (((((auth.jwt() -> 'app_metadata'::text) ->> 'visitor_id'::text) IS NOT NULL) OR ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text) IS NOT NULL)));
 
 
 --
--- Name: song_public Allow read access to song_public for visitors or users; Type: POLICY; Schema: public; Owner: -
+-- Name: event_public Allow read access to private events for participants; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Allow read access to private events for participants" ON public.event_public FOR SELECT TO authenticated USING (((is_public = false) AND (EXISTS ( SELECT 1
+   FROM public.event_user
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid))))));
+
+
+--
+-- Name: event_public Allow read access to public events for anyone; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Allow read access to public events for anyone" ON public.event_public FOR SELECT USING ((is_public = true));
+
+
+--
+-- Name: song_public Allow read access to song_public for visitors or users; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Allow read access to song_public for visitors or users" ON public.song_public FOR SELECT TO authenticated USING (((((auth.jwt() -> 'app_metadata'::text) ->> 'visitor_id'::text) IS NOT NULL) OR ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text) IS NOT NULL)));
 
 
 --
--- Name: user_public Allow read access to user_public for visitors or users; Type: POLICY; Schema: public; Owner: -
+-- Name: user_public Allow read access to user_public for visitors or users; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Allow read access to user_public for visitors or users" ON public.user_public FOR SELECT TO authenticated USING (((((auth.jwt() -> 'app_metadata'::text) ->> 'visitor_id'::text) IS NOT NULL) OR ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text) IS NOT NULL)));
 
 
 --
--- Name: playlist Allow read for matching user_id; Type: POLICY; Schema: public; Owner: -
+-- Name: event Allow read for matching owner_id; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Allow read for matching owner_id" ON public.event FOR SELECT TO authenticated USING ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: playlist Allow read for matching user_id; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Allow read for matching user_id" ON public.playlist FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
--- Name: song Allow read for matching user_id; Type: POLICY; Schema: public; Owner: -
+-- Name: song Allow read for matching user_id; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Allow read for matching user_id" ON public.song FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
--- Name: playlist_library Deny all INSERT operations on playlist_library; Type: POLICY; Schema: public; Owner: -
+-- Name: event_user Deny all INSERT operations on event_user; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Deny all INSERT operations on event_user" ON public.event_user FOR INSERT TO authenticated WITH CHECK (false);
+
+
+--
+-- Name: POLICY "Deny all INSERT operations on event_user" ON event_user; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON POLICY "Deny all INSERT operations on event_user" ON public.event_user IS 'All inserts must go through the /api/event-user/add server endpoint for proper validation and authorization.';
+
+
+--
+-- Name: playlist_library Deny all INSERT operations on playlist_library; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Deny all INSERT operations on playlist_library" ON public.playlist_library FOR INSERT TO authenticated WITH CHECK (false);
 
 
 --
--- Name: POLICY "Deny all INSERT operations on playlist_library" ON playlist_library; Type: COMMENT; Schema: public; Owner: -
+-- Name: POLICY "Deny all INSERT operations on playlist_library" ON playlist_library; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON POLICY "Deny all INSERT operations on playlist_library" ON public.playlist_library IS 'All inserts must go through the /api/playlist-library/add server endpoint for proper validation and authorization.';
 
 
 --
--- Name: song_library Deny all INSERT operations on song_library; Type: POLICY; Schema: public; Owner: -
+-- Name: song_library Deny all INSERT operations on song_library; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Deny all INSERT operations on song_library" ON public.song_library FOR INSERT TO authenticated WITH CHECK (false);
 
 
 --
--- Name: POLICY "Deny all INSERT operations on song_library" ON song_library; Type: COMMENT; Schema: public; Owner: -
+-- Name: POLICY "Deny all INSERT operations on song_library" ON song_library; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON POLICY "Deny all INSERT operations on song_library" ON public.song_library IS 'All inserts must go through the /api/song-library/add server endpoint for proper validation and authorization.';
 
 
 --
--- Name: user_library Deny all INSERT operations on user_library; Type: POLICY; Schema: public; Owner: -
+-- Name: user_library Deny all INSERT operations on user_library; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Deny all INSERT operations on user_library" ON public.user_library FOR INSERT TO authenticated WITH CHECK (false);
 
 
 --
--- Name: POLICY "Deny all INSERT operations on user_library" ON user_library; Type: COMMENT; Schema: public; Owner: -
+-- Name: POLICY "Deny all INSERT operations on user_library" ON user_library; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON POLICY "Deny all INSERT operations on user_library" ON public.user_library IS 'All inserts must go through the /api/user-library/add server endpoint for proper validation and authorization.';
 
 
 --
--- Name: song_library Users can access their own library entries; Type: POLICY; Schema: public; Owner: -
+-- Name: event_user Users can access their own event entries; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Users can access their own event entries" ON public.event_user FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: song_library Users can access their own library entries; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Users can access their own library entries" ON public.song_library FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
--- Name: playlist_library Users can access their own playlist library entries; Type: POLICY; Schema: public; Owner: -
+-- Name: playlist_library Users can access their own playlist library entries; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Users can access their own playlist library entries" ON public.playlist_library FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
--- Name: user_library Users can access their own user library entries; Type: POLICY; Schema: public; Owner: -
+-- Name: user_library Users can access their own user library entries; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Users can access their own user library entries" ON public.user_library FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
--- Name: song_library Users can delete from their own library; Type: POLICY; Schema: public; Owner: -
+-- Name: song_library Users can delete from their own library; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Users can delete from their own library" ON public.song_library FOR DELETE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
--- Name: playlist_library Users can delete from their own playlist library; Type: POLICY; Schema: public; Owner: -
+-- Name: playlist_library Users can delete from their own playlist library; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Users can delete from their own playlist library" ON public.playlist_library FOR DELETE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
--- Name: user_library Users can delete from their own user library; Type: POLICY; Schema: public; Owner: -
+-- Name: user_library Users can delete from their own user library; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Users can delete from their own user library" ON public.user_library FOR DELETE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
--- Name: song_library Users can update their own library entries; Type: POLICY; Schema: public; Owner: -
+-- Name: event_user Users can delete their own event entries; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Users can delete their own event entries" ON public.event_user FOR DELETE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: event_user Users can update their own event entries; Type: POLICY; Schema: public; Owner: postgres
+--
+
+CREATE POLICY "Users can update their own event entries" ON public.event_user FOR UPDATE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)) WITH CHECK ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: song_library Users can update their own library entries; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Users can update their own library entries" ON public.song_library FOR UPDATE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)) WITH CHECK ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
--- Name: playlist_library Users can update their own playlist library entries; Type: POLICY; Schema: public; Owner: -
+-- Name: playlist_library Users can update their own playlist library entries; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Users can update their own playlist library entries" ON public.playlist_library FOR UPDATE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)) WITH CHECK ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
--- Name: user_library Users can update their own user library entries; Type: POLICY; Schema: public; Owner: -
+-- Name: user_library Users can update their own user library entries; Type: POLICY; Schema: public; Owner: postgres
 --
 
 CREATE POLICY "Users can update their own user library entries" ON public.user_library FOR UPDATE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)) WITH CHECK ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
--- Name: playlist; Type: ROW SECURITY; Schema: public; Owner: -
+-- Name: event; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.event ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: event_public; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.event_public ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: event_user; Type: ROW SECURITY; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.event_user ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: playlist; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
 ALTER TABLE public.playlist ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: playlist_library; Type: ROW SECURITY; Schema: public; Owner: -
+-- Name: playlist_library; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
 ALTER TABLE public.playlist_library ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: playlist_public; Type: ROW SECURITY; Schema: public; Owner: -
+-- Name: playlist_public; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
 ALTER TABLE public.playlist_public ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: song; Type: ROW SECURITY; Schema: public; Owner: -
+-- Name: song; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
 ALTER TABLE public.song ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: song_library; Type: ROW SECURITY; Schema: public; Owner: -
+-- Name: song_library; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
 ALTER TABLE public.song_library ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: song_public; Type: ROW SECURITY; Schema: public; Owner: -
+-- Name: song_public; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
 ALTER TABLE public.song_public ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: user; Type: ROW SECURITY; Schema: public; Owner: -
+-- Name: user; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
 ALTER TABLE public."user" ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: user_library; Type: ROW SECURITY; Schema: public; Owner: -
+-- Name: user_library; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
 ALTER TABLE public.user_library ENABLE ROW LEVEL SECURITY;
 
 --
--- Name: user_public; Type: ROW SECURITY; Schema: public; Owner: -
+-- Name: user_public; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
 ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: pg_database_owner
+--
+
+GRANT USAGE ON SCHEMA public TO postgres;
+GRANT USAGE ON SCHEMA public TO anon;
+GRANT USAGE ON SCHEMA public TO authenticated;
+GRANT USAGE ON SCHEMA public TO service_role;
+
+
+--
+-- Name: FUNCTION update_updated_at_column(); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.update_updated_at_column() TO anon;
+GRANT ALL ON FUNCTION public.update_updated_at_column() TO authenticated;
+GRANT ALL ON FUNCTION public.update_updated_at_column() TO service_role;
+
+
+--
+-- Name: TABLE event; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.event TO anon;
+GRANT ALL ON TABLE public.event TO authenticated;
+GRANT ALL ON TABLE public.event TO service_role;
+
+
+--
+-- Name: TABLE event_public; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.event_public TO anon;
+GRANT ALL ON TABLE public.event_public TO authenticated;
+GRANT ALL ON TABLE public.event_public TO service_role;
+
+
+--
+-- Name: TABLE event_user; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.event_user TO anon;
+GRANT ALL ON TABLE public.event_user TO authenticated;
+GRANT ALL ON TABLE public.event_user TO service_role;
+
+
+--
+-- Name: TABLE playlist; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.playlist TO anon;
+GRANT ALL ON TABLE public.playlist TO authenticated;
+GRANT ALL ON TABLE public.playlist TO service_role;
+
+
+--
+-- Name: TABLE playlist_library; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.playlist_library TO anon;
+GRANT ALL ON TABLE public.playlist_library TO authenticated;
+GRANT ALL ON TABLE public.playlist_library TO service_role;
+
+
+--
+-- Name: TABLE playlist_public; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.playlist_public TO anon;
+GRANT ALL ON TABLE public.playlist_public TO authenticated;
+GRANT ALL ON TABLE public.playlist_public TO service_role;
+
+
+--
+-- Name: TABLE song; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.song TO anon;
+GRANT ALL ON TABLE public.song TO authenticated;
+GRANT ALL ON TABLE public.song TO service_role;
+
+
+--
+-- Name: TABLE song_library; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.song_library TO anon;
+GRANT ALL ON TABLE public.song_library TO authenticated;
+GRANT ALL ON TABLE public.song_library TO service_role;
+
+
+--
+-- Name: TABLE song_public; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.song_public TO anon;
+GRANT ALL ON TABLE public.song_public TO authenticated;
+GRANT ALL ON TABLE public.song_public TO service_role;
+
+
+--
+-- Name: TABLE "user"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public."user" TO anon;
+GRANT ALL ON TABLE public."user" TO authenticated;
+GRANT ALL ON TABLE public."user" TO service_role;
+
+
+--
+-- Name: TABLE user_library; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.user_library TO anon;
+GRANT ALL ON TABLE public.user_library TO authenticated;
+GRANT ALL ON TABLE public.user_library TO service_role;
+
+
+--
+-- Name: TABLE user_public; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.user_public TO anon;
+GRANT ALL ON TABLE public.user_public TO authenticated;
+GRANT ALL ON TABLE public.user_public TO service_role;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO postgres;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO service_role;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES TO postgres;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES TO anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES TO authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES TO service_role;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON FUNCTIONS TO postgres;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON FUNCTIONS TO anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON FUNCTIONS TO authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON FUNCTIONS TO service_role;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: public; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS TO postgres;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS TO anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS TO authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS TO service_role;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO postgres;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO service_role;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: supabase_admin
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO postgres;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO authenticated;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO service_role;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
-\unrestrict kvxP4Y48FSh7HeTuSUlfmEJQqshcfOGjowa5AlMfwIHhkDCc0jYhn8e2mRHBnms
+\unrestrict GP2JiiBjMyWcy6z1mkkgie6hLkPfHX5NiYgwFqQSR50Pnuvg6OBDWaFczxH8CVH
 

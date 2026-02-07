@@ -1,4 +1,6 @@
-import { type PlacementOption } from "./types";
+import tw from "@/react/utils/tw";
+
+import { type PlacementOption } from "./popover-types";
 
 /**
  * Returns Tailwind CSS classes for positioning the popover arrow
@@ -9,16 +11,16 @@ import { type PlacementOption } from "./types";
 export default function getArrowClasses(placement: PlacementOption): string {
 	switch (placement) {
 		case "bottom": {
-			return "-top-1 left-1/2 -translate-x-1/2";
+			return tw`-top-1 left-1/2 -translate-x-1/2`;
 		}
 		case "top": {
-			return "-bottom-1 left-1/2 -translate-x-1/2";
+			return tw`-bottom-1 left-1/2 -translate-x-1/2`;
 		}
 		case "right": {
-			return "top-1/2 -left-1 -translate-y-1/2";
+			return tw`top-1/2 -left-1 -translate-y-1/2`;
 		}
 		case "left": {
-			return "top-1/2 -right-1 -translate-y-1/2";
+			return tw`top-1/2 -right-1 -translate-y-1/2`;
 		} // Switch is exhaustive for `PlacementOption`; no default needed
 	}
 }

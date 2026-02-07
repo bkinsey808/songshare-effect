@@ -1,4 +1,6 @@
 import type { AuthSlice } from "@/react/auth/slice/auth-slice.types";
+import type { EventLibrarySlice } from "@/react/event-library/slice/EventLibrarySlice.type";
+import type { EventSlice } from "@/react/event/slice/event-slice";
 import type { NavigationSlice } from "@/react/navigation/slice/NavigationSlice.type";
 import type { PlaylistLibrarySlice } from "@/react/playlist-library/slice/playlist-library-slice";
 import type { PlaylistSlice } from "@/react/playlist/slice/playlist-slice";
@@ -13,6 +15,8 @@ type AppSlice = AuthSlice &
 	UserLibrarySlice &
 	PlaylistSlice &
 	PlaylistLibrarySlice &
+	EventSlice &
+	EventLibrarySlice &
 	NavigationSlice;
 
 export type { AppSlice };

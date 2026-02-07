@@ -7,8 +7,11 @@ import {
 	apiAuthSignOutPath,
 	apiAuthVisitorPath,
 	apiEventDeletePath,
+	apiEventLibraryAddPath,
+	apiEventLibraryRemovePath,
 	apiEventSavePath,
 	apiEventUserAddPath,
+	apiEventUserJoinPath,
 	apiEventUserRemovePath,
 	apiEventUserUpdateRolePath,
 	apiHelloPath,
@@ -35,7 +38,10 @@ import accountRegister from "./account/accountRegister";
 import signOutHandler from "./auth/signOut";
 import updateSongPublicHandler from "./dev/updateSongPublicHandler";
 import { type Bindings } from "./env";
+import addEventToLibraryHandler from "./event-library/addEventToLibrary";
+import removeEventFromLibraryHandler from "./event-library/removeEventFromLibrary";
 import eventUserAdd from "./event-user/eventUserAdd";
+import eventUserJoin from "./event-user/eventUserJoin";
 import eventUserRemove from "./event-user/eventUserRemove";
 import eventUserUpdateRoleHandler from "./event-user/eventUserUpdateRole";
 import eventDelete from "./event/eventDelete";
@@ -167,6 +173,11 @@ app.post(
 );
 
 app.post(
+	apiEventUserJoinPath,
+	handleHttpEndpoint((ctx) => eventUserJoin(ctx)),
+);
+
+app.post(
 	apiEventUserRemovePath,
 	handleHttpEndpoint((ctx) => eventUserRemove(ctx)),
 );
@@ -174,6 +185,17 @@ app.post(
 app.post(
 	apiEventUserUpdateRolePath,
 	handleHttpEndpoint((ctx) => eventUserUpdateRoleHandler(ctx)),
+);
+
+// Event library endpoints (add/remove events from user's personal library)
+app.post(
+	apiEventLibraryAddPath,
+	handleHttpEndpoint((ctx) => addEventToLibraryHandler(ctx)),
+);
+
+app.post(
+	apiEventLibraryRemovePath,
+	handleHttpEndpoint((ctx) => removeEventFromLibraryHandler(ctx)),
 );
 
 // File upload endpoint

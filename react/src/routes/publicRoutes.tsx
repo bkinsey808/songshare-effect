@@ -5,6 +5,7 @@ import { lazy } from "react";
 import {
 	aboutPath,
 	activityDemoPath,
+	eventViewPath,
 	hookDemoPath,
 	optimizedCounterPath,
 	playlistViewPath,
@@ -30,6 +31,7 @@ const RegisterPage = lazy(() => import("../pages/RegisterPage"));
 const UploadPage = lazy(() => import("../pages/UploadPage"));
 const SongView = lazy(() => import("../song/song-view/SongView"));
 const PlaylistPage = lazy(() => import("../pages/PlaylistPage"));
+const EventView = lazy(() => import("../event/view/EventView"));
 const ActivityDemoPage = lazy(() => import("../pages/demo/ActivityDemoPage"));
 const PopoverDemoPage = lazy(() => import("../pages/demo/PopoverDemoPage"));
 const ReactFeaturesDemoPage = lazy(() => import("../pages/demo/ReactFeaturesDemoPage"));
@@ -86,6 +88,10 @@ const publicRoutes: RouteObject[] = [
 	{
 		path: `${playlistViewPath}/:playlist_slug`,
 		element: withSuspense(PlaylistPage),
+	},
+	{
+		path: `${eventViewPath}/:event_slug`,
+		element: withSuspense(EventView),
 	},
 	{
 		path: reactFeaturesPath,

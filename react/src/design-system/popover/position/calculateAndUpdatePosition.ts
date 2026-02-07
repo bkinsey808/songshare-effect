@@ -1,6 +1,6 @@
 import { POPOVER_DEFAULT_HEIGHT, POPOVER_DEFAULT_WIDTH } from "@/shared/constants/http";
 
-import type { PlacementOption, PopoverPosition } from "./types";
+import type { PlacementOption, PopoverPosition } from "../popover-types";
 
 import calculatePopoverPosition from "./calculatePopoverPosition";
 

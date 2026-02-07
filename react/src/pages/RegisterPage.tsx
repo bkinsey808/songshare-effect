@@ -14,8 +14,6 @@ import { justRegisteredKey } from "@/shared/sessionStorageKeys";
 import { safeSet } from "@/shared/utils/safe";
 
 /**
- * RegisterPage
- *
  * Renders the user registration form and handles submission, validation,
  * and successful registration redirect behavior.
  *

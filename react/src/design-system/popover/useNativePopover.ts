@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 
-import { type PlacementOption, type TriggerMode } from "./types";
-import usePopoverPositioning from "./usePopoverPositioning";
+import { type PlacementOption, type TriggerMode } from "./popover-types";
+import usePopoverPositioning from "./position/usePopoverPositioning";
 
 export type UseNativePopoverProps = Readonly<{
 	preferredPlacement: PlacementOption;

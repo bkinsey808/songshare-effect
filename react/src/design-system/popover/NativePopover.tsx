@@ -1,7 +1,8 @@
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
+
+import type { PlacementOption, TriggerMode } from "./popover-types";
 
 import getArrowClasses from "./getArrowClasses";
-import { type PlacementOption, type TriggerMode } from "./types";
 import { useNativePopover } from "./useNativePopover";
 
 // File-local default to avoid magic-number literal for tabIndex
@@ -82,7 +83,7 @@ export function NativePopover({
 				ref={popoverRef}
 				id={popoverId}
 				popover="auto"
-				className="max-w-64 overflow-hidden rounded-lg bg-gray-800 p-4 shadow-lg ring-1 ring-white/10"
+				className="max-w-full overflow-hidden rounded-lg bg-gray-800 p-4 shadow-lg ring-1 ring-white/10"
 				style={popoverPosition}
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}

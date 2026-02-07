@@ -46,6 +46,42 @@ export type Database = {
           },
         ]
       }
+      event_library: {
+        Row: {
+          created_at: string
+          event_id: string
+          event_owner_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          event_owner_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          event_owner_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_library_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_library_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       event_public: {
         Row: {
           active_playlist_id: string | null

@@ -13,8 +13,6 @@ import useLocale from "@/react/language/locale/useLocale";
 import { dashboardPath, reactFeaturesPath, uploadDemoPath } from "@/shared/paths";
 
 /**
- * HomePage
- *
  * Public landing page that surfaces sign-in options, feature demos, and
  * transient success alerts (e.g., after account deletion or sign-out).
  *

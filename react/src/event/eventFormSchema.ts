@@ -6,7 +6,7 @@ const MAX_EVENT_NAME_LENGTH = 100;
 /**
  * Event form schema for client-side validation
  */
-export const eventFormSchema = Schema.Struct({
+const eventFormSchema = Schema.Struct({
 	event_id: Schema.optional(Schema.String),
 	event_name: Schema.String.pipe(
 		Schema.minLength(MIN_EVENT_NAME_LENGTH),
@@ -27,5 +27,4 @@ export const eventFormSchema = Schema.Struct({
 	private_notes: Schema.optional(Schema.String),
 });
 
-export type EventFormValues = Schema.Schema.Type<typeof eventFormSchema>;
-export type EventFormValuesFromSchema = EventFormValues;
+export default eventFormSchema;

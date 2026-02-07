@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 
 import { ZERO } from "@/shared/constants/shared-constants";
 
+import { type PlacementOption, type PopoverPosition } from "../popover-types";
 import calculateAndUpdatePosition from "./calculateAndUpdatePosition";
-import { type PlacementOption, type PopoverPosition } from "./types";
 
 type UsePopoverPositioningParams = Readonly<{
 	triggerRef: React.RefObject<HTMLElement | null>;
