@@ -2,15 +2,7 @@ import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
-export type NavigationSlice = {
-	/** Whether the header actions area is expanded (persisted) */
-	isHeaderActionsExpanded: boolean;
-
-	/** Set the header actions expanded state */
-	setHeaderActionsExpanded: (expanded: boolean) => void;
-	/** Toggle the header actions expanded state */
-	toggleHeaderActions: () => void;
-};
+import type { NavigationSlice } from "./NavigationSlice.type";
 
 /**
  * Create the navigation slice containing header action state and mutators.
@@ -20,7 +12,7 @@ export type NavigationSlice = {
  * @param _api - Slice API helpers (unused, reserved for future use).
  * @returns - Initialized `NavigationSlice` with state and action functions.
  */
-export function createNavigationSlice(
+export default function createNavigationSlice(
 	set: Set<NavigationSlice>,
 	_get: Get<NavigationSlice>,
 	_api: Api<NavigationSlice>,

@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { PostgrestResponse } from "@/react/supabase/client/SupabaseClientLike";
 
-import createMinimalSupabaseClient from "@/react/playlist/test-utils/createMinimalSupabaseClient";
 import makeGetStub from "@/react/playlist/test-utils/makeGetStub";
 import makePlaylistPrivate from "@/react/playlist/test-utils/makePlaylistPrivate";
 import makePlaylistPublic from "@/react/playlist/test-utils/makePlaylistPublic";
@@ -11,6 +10,7 @@ import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic";
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
 import callSelect from "@/react/supabase/client/safe-query/callSelect";
+import createMinimalSupabaseClient from "@/react/supabase/test-utils/createMinimalSupabaseClient.mock";
 
 import fetchPlaylist from "./fetchPlaylist";
 

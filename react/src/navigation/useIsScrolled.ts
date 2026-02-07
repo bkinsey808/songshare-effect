@@ -1,36 +1,41 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { SCROLL_THRESHOLD } from "@/shared/constants/http";
+import createScrollHandler from "./createScrollHandler";
 
 /**
  * Hook that tracks whether the page has been scrolled past a threshold.
  * Used to compress the navigation header when scrolled.
  *
+ * Uses hysteresis to prevent feedback loops when header resize causes content shifts:
+ * - Becomes true when scrolling down past SCROLL_THRESHOLD
+ * - Becomes false when scrolling up below (SCROLL_THRESHOLD - SCROLL_HYSTERESIS)
+ *
  * Notes:
  * - Uses `globalThis` so the hook can be referenced in environments where
  *   `window` may be undefined (e.g., SSR or test environments).
- * - Threshold value (in pixels) is defined by `SCROLL_THRESHOLD`.
+ * - Threshold values (in pixels) are defined by `SCROLL_THRESHOLD` and `SCROLL_HYSTERESIS`.
  *
- * @returns true when the page vertical scroll (`scrollY`) is greater than `SCROLL_THRESHOLD`
+ * @returns true when the page vertical scroll (`scrollY`) is in the scrolled state
  */
 export default function useIsScrolled(): boolean {
 	// Start `false` to avoid an initial compressed header flash before the user scrolls.
 	const [isScrolled, setIsScrolled] = useState(false);
+	// Use ref to track current state without causing effect to re-run
+	const isScrolledRef = useRef(isScrolled);
+
+	// Keep ref in sync with state
+	useEffect(() => {
+		isScrolledRef.current = isScrolled;
+	}, [isScrolled]);
 
 	// Attach a scroll listener on mount and remove it on unmount.
 	// The empty dependency array ensures the listener is added only once.
 	useEffect(() => {
-		/**
-		 * Read the global vertical scroll position and update state when crossing
-		 * the `SCROLL_THRESHOLD`.
-		 */
-		function handleScroll(): void {
-			const scrollTop = globalThis.scrollY;
-			setIsScrolled(scrollTop > SCROLL_THRESHOLD);
-		}
+		const { handleScroll, cleanup } = createScrollHandler(isScrolledRef, setIsScrolled);
 
-		globalThis.addEventListener("scroll", handleScroll);
+		globalThis.addEventListener("scroll", handleScroll, { passive: true });
 		return (): void => {
+			cleanup();
 			globalThis.removeEventListener("scroll", handleScroll);
 		};
 	}, []);

@@ -1,1 +1,2 @@
+name = "your-cloudflare-pages-project-name"
 pages_build_output_dir = "dist"

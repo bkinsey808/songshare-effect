@@ -2,7 +2,7 @@ import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 
 import createAuthSlice from "@/react/auth/slice/createAuthSlice";
-import { createNavigationSlice } from "@/react/navigation/navigation-slice";
+import createNavigationSlice from "@/react/navigation/slice/createNavigationSlice";
 import { createPlaylistLibrarySlice } from "@/react/playlist-library/slice/playlist-library-slice";
 import { createPlaylistSlice } from "@/react/playlist/slice/playlist-slice";
 import { createSongLibrarySlice } from "@/react/song-library/slice/song-library-slice";

@@ -47,9 +47,6 @@ export const SUSPENSE_PLAYLIST_INCREMENT = 5;
 
 export const SUSPENSE_ERROR_ID = 99;
 
-// UI / page constants
-export const SCROLL_THRESHOLD = 50;
-
 // Sign-in retry/delay constants (used by client-side auth retry helpers)
 // These values are intentionally numeric constants for retry timing
 // Use named constants so rules like `no-magic-numbers` don't need to be disabled.
