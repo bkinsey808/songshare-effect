@@ -406,4 +406,4 @@ curl http://localhost:8787/health
 - Hono documentation: https://hono.dev/
 - Effect-TS documentation: https://effect.website/
 - Effect-TS Patterns skill: [../effect-ts-patterns/SKILL.md](../effect-ts-patterns/SKILL.md)
-- Project rules: [.agent/rules.md](../../.agent/rules.md)
+- Project rules: [.agent/rules.md](../../../.agent/rules.md)

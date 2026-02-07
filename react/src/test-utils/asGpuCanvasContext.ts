@@ -1,10 +1,19 @@
 /**
- * Narrow an unknown value to a `GPUCanvasContext` for test fixtures.
+ * Create a minimal `GPUCanvasContext` mock by merging provided partials with
+ * a safe default. This avoids an unsafe cast and keeps tests explicit about
+ * the shape needed by the code under test.
  *
- * @param obj - Value to coerce into a GPUCanvasContext
- * @returns A `GPUCanvasContext` (unsafe test-only cast)
+ * @param obj - Partial pieces of the mocked context
+ * @returns A `GPUCanvasContext` suitable for use in tests
  */
 export default function asGpuCanvasContext(obj: unknown): GPUCanvasContext {
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion -- test-only narrow cast for mock WebGPU context */
-	return obj as unknown as GPUCanvasContext;
+	// Merge caller-provided partials with our defaults and keep the single
+	// unsafe assertion localized here so tests do not repeat inline disables.
+	const base: Partial<GPUCanvasContext> = {
+		configure: (_configuration: GPUCanvasConfiguration): undefined => undefined,
+	};
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- merging unknown test input into mock
+	const merged = { ...base, ...(obj as object) };
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast for mock WebGPU context
+	return merged as unknown as GPUCanvasContext;
 }

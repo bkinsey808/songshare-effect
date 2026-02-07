@@ -10,8 +10,6 @@ import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import type { RemoveUserFromLibraryRequest, UserLibraryEntry } from "./slice/user-library-types";
 
 /**
- * useUserLibrary
- *
  * Initializes and exposes the current user's library. On mount this hook
  * fetches the library and subscribes to realtime updates; the subscription
  * is automatically torn down on unmount or when the location changes.
@@ -58,7 +56,6 @@ export default function useUserLibrary(): {
 	const removeFromUserLibrary = useAppStore<
 		(request: Readonly<RemoveUserFromLibraryRequest>) => Effect.Effect<void, Error>
 	>((state: AppSlice) => state.removeUserFromLibrary);
-	/* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
 
 	const currentUserId = useCurrentUserId();
 

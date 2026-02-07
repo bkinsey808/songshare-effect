@@ -38,7 +38,7 @@ function ensureFullscreenMethods(): () => void {
 	};
 }
 
-function TestComponent(): React.ReactElement {
+function TestComponent(): ReactElement {
 	const { isFullScreen, toggleFullScreen, enterFullScreen, exitFullScreen } = useFullScreen();
 
 	return (

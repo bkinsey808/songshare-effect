@@ -6,8 +6,6 @@ import isRecord from "@/shared/type-guards/isRecord";
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 
 /**
- * handleUserPublicSubscribeEvent
- *
  * Processes realtime events for the `user_public` subscription. Handles
  * UPDATE events to sync username changes to the user library entries.
  * Non-realtime payloads are ignored.

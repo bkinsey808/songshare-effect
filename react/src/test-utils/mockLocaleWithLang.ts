@@ -2,9 +2,9 @@ import { vi } from "vitest";
 
 import useLocale from "@/react/language/locale/useLocale";
 
-// Helper: create an identity `t` translation function typed to the runtime
-// `useTranslation()` signature. Keep the unsafe cast localized here and
-// documented so individual tests don't need their own eslint-disable comments.
+// Helper: identity `t` translation function typed to the runtime
+// `useTranslation()` signature. Defined at module scope to avoid recreating
+// it on every call.
 function makeIdentityT(): ReturnType<typeof useLocale>["t"] {
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion -- test-only identity translator
 	return ((key: string) => key) as unknown as ReturnType<typeof useLocale>["t"];

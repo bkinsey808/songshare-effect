@@ -2,12 +2,10 @@ import { Effect } from "effect";
 import assert from "node:assert";
 import { describe, expect, it, vi } from "vitest";
 
-import type {
-	RealtimeChannelLike,
-	SupabaseClientLike,
-} from "@/react/supabase/client/SupabaseClientLike";
+import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
 import type { Database } from "@/shared/generated/supabaseTypes";
 
+import createMinimalSupabaseClient from "@/react/supabase/test-utils/createMinimalSupabaseClient.mock";
 import { ONE_CALL } from "@/react/test-helpers/test-consts";
 import isRecord from "@/shared/type-guards/isRecord";
 
@@ -60,35 +58,8 @@ function createMockSlice(overrides: {
 	};
 }
 
-function createMockChannel(): RealtimeChannelLike {
-	const chain: RealtimeChannelLike = {
-		on: (): RealtimeChannelLike => chain,
-		subscribe: (): unknown => undefined,
-	};
-	return chain;
-}
-
 function createMockSupabaseClient(): SupabaseClientLike<Database> {
-	return {
-		from: (): ReturnType<SupabaseClientLike<Database>["from"]> => ({
-			select: (): { eq: (_col: string, _val: string) => { single: () => Promise<unknown> } } => ({
-				eq: (): { single: () => Promise<unknown> } => ({
-					single: async (): Promise<unknown> => {
-						await Promise.resolve();
-						return {};
-					},
-				}),
-			}),
-		}),
-		channel: (_name: string): RealtimeChannelLike => createMockChannel(),
-		removeChannel: (): unknown => undefined,
-		auth: {
-			getUser: async (): Promise<unknown> => {
-				await Promise.resolve();
-				return { data: undefined, error: undefined };
-			},
-		},
-	};
+	return createMinimalSupabaseClient<Database>();
 }
 
 describe("subscribeToSongPublic", () => {

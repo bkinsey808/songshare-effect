@@ -21,7 +21,7 @@ const TEST_CREATED_AT = new Date().toISOString();
 const REMOVE_REQUEST = { song_id: TEST_SONG_ID };
 
 describe("useSongLibrary", () => {
-	function RouterWrapper({ children }: { children?: React.ReactNode }): React.ReactElement | null {
+	function RouterWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
 		return React.createElement(MemoryRouter, undefined, children);
 	}
 
@@ -260,11 +260,7 @@ describe("useSongLibrary", () => {
 
 		store.setState({ fetchSongLibrary, subscribeToSongLibrary });
 
-		function StrictWrapper({
-			children,
-		}: {
-			children?: React.ReactNode;
-		}): React.ReactElement | null {
+		function StrictWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
 			return React.createElement(React.StrictMode, undefined, children);
 		}
 

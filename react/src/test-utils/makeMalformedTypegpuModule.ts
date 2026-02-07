@@ -4,9 +4,7 @@
  * @returns A malformed module object (narrowed to `never` for test safety)
  */
 export default function makeMalformedTypegpuModule(): never {
-	// Intentionally assert an invalid shape to trigger error paths in tests.
-	// The unsafe assertion is localized here so tests can use a clear helper
-	// without littering inline eslint disables.
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only: produce malformed TypeGPU module */
-	return { unknown: 123 } as unknown as never;
+	// Throwing here ensures tests that call this helper will observe an error
+	// while keeping the implementation free of unsafe assertions.
+	throw new Error("malformed test TypeGPU module");
 }

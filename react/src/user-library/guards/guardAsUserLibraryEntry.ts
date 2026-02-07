@@ -5,8 +5,6 @@ import isUserLibraryEntry from "./isUserLibraryEntry";
 export { isUserLibraryEntry };
 
 /**
- * guardAsUserLibraryEntry
- *
  * Runtime assertion that throws a `TypeError` if the provided value is not a
  * valid `UserLibraryEntry`. Useful when validating external data (e.g., server
  * responses) before using it in slice updates.

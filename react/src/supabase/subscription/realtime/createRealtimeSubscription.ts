@@ -1,68 +1,11 @@
 import { Effect } from "effect";
 
+import { unwrapError } from "@/shared/utils/unwrap-error";
+
 import type { SubscriptionConfig } from "../subscription-types";
 
 import handleSubscriptionStatus from "../status/handleSubscriptionStatus";
 import isSubscriptionStatus from "../status/isSubscriptionStatus";
-
-const DEFAULT_FIND_ERROR_DEPTH = 3;
-
-const FIND_INNER_ERROR_MIN = 0;
-const FIND_INNER_ERROR_STEP = 1;
-
-function findInnerError(obj: unknown, depth = DEFAULT_FIND_ERROR_DEPTH): Error | undefined {
-	if (obj instanceof Error) {
-		return obj;
-	}
-	if (depth <= FIND_INNER_ERROR_MIN) {
-		return undefined;
-	}
-	if (typeof obj !== "object" || obj === null) {
-		return undefined;
-	}
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion */
-	const values = Object.values(obj as Record<string, unknown>);
-	for (const value of values) {
-		try {
-			const found = findInnerError(value, depth - FIND_INNER_ERROR_STEP);
-			if (found) {
-				return found;
-			}
-		} catch {
-			// ignore and continue
-		}
-	}
-	return undefined;
-}
-
-function unwrapError(err: unknown): unknown {
-	const inner = findInnerError(err);
-	if (inner) {
-		return inner;
-	}
-	// fall back to shallow unwraps for common wrapper shapes
-	if (typeof err !== "object" || err === null) {
-		return err;
-	}
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion */
-	const anyErr = err as Record<string, unknown>;
-	const { cause, error: errorVal, failure } = anyErr;
-	if (cause instanceof Error) {
-		return cause;
-	}
-	if (errorVal instanceof Error) {
-		return errorVal;
-	}
-	if (typeof failure === "object" && failure !== null) {
-		/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion */
-		const failureObj = failure as Record<string, unknown>;
-		const failureCause = failureObj["cause"];
-		if (failureCause instanceof Error) {
-			return failureCause;
-		}
-	}
-	return err;
-}
 
 /**
  * Creates and subscribes to a Supabase realtime channel with common error handling

@@ -1,5 +1,6 @@
 import { Effect, Schema } from "effect";
 
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiUserLibraryLookupPath } from "@/shared/paths";
 
 import { NetworkError, ParseError } from "./user-library-errors";
@@ -28,7 +29,7 @@ const ApiResponseSchema = Schema.Struct({
  * @param username - Username to search for
  * @returns - Effect that resolves to user ID and username on success
  */
-export default function lookupUserByUsername(
+export default function lookupUserByUsernameEffect(
 	username: string,
 ): Effect.Effect<LookupUserResponse, NetworkError | ParseError> {
 	return Effect.gen(function* gen() {
@@ -42,7 +43,7 @@ export default function lookupUserByUsername(
 				}),
 			catch: (error) =>
 				new NetworkError(
-					`Failed to fetch user lookup: ${error instanceof Error ? error.message : String(error)}`,
+					`Failed to fetch user lookup: ${extractErrorMessage(error, String(error))}`,
 				),
 		});
 
@@ -52,12 +53,7 @@ export default function lookupUserByUsername(
 			yield* Effect.tryPromise({
 				try: async () => {
 					const errorData = (await response.json()) as unknown;
-					if (typeof errorData === "object" && errorData !== null && "message" in errorData) {
-						const msg = (errorData as Record<string, unknown>)["message"];
-						if (typeof msg === "string") {
-							errorMessage = msg;
-						}
-					}
+					errorMessage = extractErrorMessage(errorData, errorMessage);
 				},
 				catch: () => {
 					// Use default message if we can't parse error response
@@ -71,14 +67,15 @@ export default function lookupUserByUsername(
 		const jsonData = yield* Effect.tryPromise({
 			try: () => response.json() as Promise<unknown>,
 			catch: (error) =>
-				new ParseError(
-					`Failed to parse response: ${error instanceof Error ? error.message : String(error)}`,
-				),
+				new ParseError(`Failed to parse response: ${extractErrorMessage(error, String(error))}`),
 		});
 
 		// Validate response structure
 		const validated = yield* Schema.decodeUnknown(ApiResponseSchema)(jsonData).pipe(
-			Effect.mapError((error) => new ParseError(`Invalid response format: ${String(error)}`)),
+			Effect.mapError(
+				(error) =>
+					new ParseError(`Invalid response format: ${extractErrorMessage(error, String(error))}`),
+			),
 		);
 
 		return validated.data;

@@ -4,9 +4,13 @@ import assert from "node:assert";
 import { setTimeout as delay } from "node:timers/promises";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
+import type {
+	RealtimeChannelLike,
+	SupabaseClientLike,
+} from "@/react/supabase/client/SupabaseClientLike";
 
 import getSupabaseClientWithAuth from "@/react/supabase/client/getSupabaseClientWithAuth";
+import createMinimalSupabaseClient from "@/react/supabase/test-utils/createMinimalSupabaseClient.mock";
 
 import type { SongSubscribeSlice } from "../song-slice";
 
@@ -89,14 +93,10 @@ describe("subscribeToActivePublicSongs", () => {
 			},
 		} as const;
 
-		const mockClient: SupabaseClientLike = {
-			from: (_table: string) => ({
-				select: vi.fn().mockResolvedValue({ data: [], error: undefined }),
-			}),
-			channel: () => mockChannel,
-			removeChannel: removeChannelSpy,
-			auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
-		} as const;
+		// Use shared helper for consistent, typed minimal client
+		const mockClient: SupabaseClientLike = createMinimalSupabaseClient();
+		mockClient.channel = (): RealtimeChannelLike => mockChannel;
+		mockClient.removeChannel = removeChannelSpy;
 
 		vi.mocked(getSupabaseClientWithAuth).mockResolvedValue(mockClient);
 
@@ -151,14 +151,14 @@ describe("subscribeToActivePublicSongs", () => {
 			},
 		} as const;
 
-		const mockClient: SupabaseClientLike = {
-			from: (_table: string) => ({
-				select: vi.fn().mockResolvedValue({ data: [], error: undefined }),
-			}),
-			channel: () => mockChannel,
-			removeChannel: removeChannelSpy,
-			auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
-		} as const;
+		const mockClient: SupabaseClientLike = createMinimalSupabaseClient();
+		mockClient.from = (_table: string): ReturnType<typeof mockClient.from> => ({
+			select: vi.fn().mockResolvedValue({ data: [], error: undefined }),
+		});
+		mockClient.channel = (): RealtimeChannelLike => mockChannel;
+		mockClient.removeChannel = removeChannelSpy;
+		// eslint-disable-next-line jest/prefer-spy-on -- test-only: direct assignment is simpler for this test
+		mockClient.auth.getUser = vi.fn().mockResolvedValue({ data: {}, error: undefined });
 
 		vi.mocked(getSupabaseClientWithAuth).mockResolvedValue(mockClient);
 

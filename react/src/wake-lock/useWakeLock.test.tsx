@@ -7,7 +7,7 @@ import useWakeLock from "@/react/wake-lock/useWakeLock";
 const CALLED_ONCE = 1;
 const CALLED_TWICE = 2;
 
-function TestComponent(): React.ReactElement {
+function TestComponent(): ReactElement {
 	const { isWakeLockActive, toggleWakeLock, isSupported } = useWakeLock();
 	return (
 		<div>

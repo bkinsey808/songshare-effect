@@ -14,6 +14,7 @@ import {
 	LANG_PATH_SEGMENT_INDEX,
 } from "@/shared/constants/http";
 import { ZERO } from "@/shared/constants/shared-constants";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage, SupportedLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
@@ -68,7 +69,7 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 
 			res = await fetch(apiAccountDeletePath, init);
 		} catch (error) {
-			setError(String(error));
+			setError(extractErrorMessage(error, String(error)));
 			setLoading(false);
 			return;
 		}

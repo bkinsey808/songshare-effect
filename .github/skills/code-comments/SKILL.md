@@ -181,4 +181,4 @@ npx tsc -b .
 ## References
 
 - Agent guidance: [.github/agents/Comment Agent.agent.md](../../agents/Comment%20Agent.agent.md)
-- Project rules: [.agent/rules.md](../../.agent/rules.md)
+- Project rules: [.agent/rules.md](../../../.agent/rules.md)

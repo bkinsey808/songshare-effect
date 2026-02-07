@@ -3,8 +3,6 @@ import { useTranslation } from "react-i18next";
 import AddUserForm from "./user-add/AddUserForm";
 
 /**
- * UserLibraryEmptyState
- *
  * Displays a message and call-to-action when the user library is empty.
  *
  * @returns - A React element showing the empty state

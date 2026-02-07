@@ -9,8 +9,6 @@ import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 import handleUserPublicSubscribeEvent from "./handleUserPublicSubscribeEvent";
 
 /**
- * subscribeToUserPublicForLibrary
- *
  * Establishes a realtime subscription to the `user_public` table to monitor
  * username changes for users in the current user's library. Returns an Effect
  * that resolves to a cleanup function. Errors during setup are communicated
@@ -19,7 +17,7 @@ import handleUserPublicSubscribeEvent from "./handleUserPublicSubscribeEvent";
  * @param get - Getter for the `UserLibrarySlice` used by event handlers.
  * @returns - An Effect that resolves to a `() => void` cleanup function.
  */
-export default function subscribeToUserPublicForLibrary(
+export default function subscribeToUserPublicForLibraryEffect(
 	get: () => UserLibrarySlice,
 ): Effect.Effect<() => void, Error> {
 	return Effect.gen(function* subscribeGen($) {

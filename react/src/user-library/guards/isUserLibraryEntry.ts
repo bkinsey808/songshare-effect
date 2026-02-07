@@ -3,8 +3,6 @@ import isRecord from "@/shared/type-guards/isRecord";
 import type { UserLibraryEntry } from "../slice/user-library-types";
 
 /**
- * isUserLibraryEntry
- *
  * Type guard that verifies an unknown value has the shape of a
  * `UserLibraryEntry` (required keys and primitive types only).
  *

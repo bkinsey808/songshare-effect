@@ -340,5 +340,4 @@ const result = Effect.gen(function* () {
 ## References
 
 - [Effect Documentation](https://effect.website/)
-- [Effect API Reference](https://effect.website/docs/api/effect)
-- [Effect Schema Documentation](https://effect.website/docs/schema/schema)
+- [Effect website](https://effect.website/)

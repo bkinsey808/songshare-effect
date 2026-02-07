@@ -317,8 +317,8 @@ grep -r "useMemo\|useCallback\|memo(" react/src --include="*.tsx"
 
 - Reference guide: [references/REFERENCE.md](references/REFERENCE.md) - Detailed React patterns
 - Zustand patterns: [references/ZUSTAND.md](references/ZUSTAND.md) - Complete state management guide
-- React Compiler docs: [https://react.dev/blog/2024/10/21/react-compiler-beta](https://react.dev/blog/2024/10/21/react-compiler-beta)
+- React Compiler docs: [https://react.dev](https://react.dev)
 - React Hooks guide: [https://react.dev/reference/react/hooks](https://react.dev/reference/react/hooks)
 - TypeScript + React: [React TypeScript Cheatsheet](https://react-typescript-cheatsheet.netlify.app/)
-- Project rules: [.agent/rules.md](../../.agent/rules.md)
+- Project rules: [.agent/rules.md](../../../.agent/rules.md)
 - TypeScript conventions: [typescript-conventions skill](../typescript-conventions/SKILL.md)

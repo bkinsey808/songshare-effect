@@ -26,7 +26,7 @@ describe("getCurrentLangFromPath (pure)", () => {
 
 describe("useCurrentLang (integration)", () => {
 	it("reads language from router location when mounted inside a Router (strict)", () => {
-		function TestApp(): React.ReactElement {
+		function TestApp(): ReactElement {
 			// `useCurrentLang` uses `useLocation` internally; this integration
 			// test mounts the component inside a `MemoryRouter` so the call is
 			// safe. Annotate the result so the type-checker (and linter) can

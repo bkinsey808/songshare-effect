@@ -3,8 +3,6 @@ import { useTranslation } from "react-i18next";
 import UserLibrary from "@/react/user-library/UserLibrary";
 
 /**
- * UserLibraryPage
- *
  * Page that displays the current user's followed users and provides
  * high-level UI (title and description) for managing the user library.
  *

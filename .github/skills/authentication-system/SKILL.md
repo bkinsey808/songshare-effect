@@ -409,8 +409,8 @@ npm run dev:all  # Check browser console for subscription logs
 ## References
 
 - Reference guide: [references/REFERENCE.md](references/REFERENCE.md) - Detailed technical patterns
-- Full technical guide: [docs/authentication-system.md](../../docs/authentication-system.md)
-- Realtime & RLS details: [docs/realtime-rls-architecture.md](../../docs/realtime-rls-architecture.md)
+- Full technical guide: [docs/authentication-system.md](../../../docs/authentication-system.md)
+- Realtime & RLS details: [docs/realtime-rls-architecture.md](../../../docs/realtime-rls-architecture.md)
 - Token generation: `api/src/supabase/getSupabaseClientToken.ts`, `api/src/user-session/getUserToken.ts`
 - Client setup: `react/src/supabase/supabaseClient.ts`
 - Auth state: `react/src/auth/auth-slice.ts`

@@ -5,6 +5,7 @@ import typegpu from "typegpu";
 import { useCanvasAnimation } from "@/react/canvas/useCanvasAnimation";
 import DemoNavigation from "@/react/demo/DemoNavigation";
 import runTypeGpuDemo from "@/react/typegpu/runTypeGpuDemo";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 /**
  * TypeGpuDemoPage
@@ -107,7 +108,7 @@ export default function TypeGpuDemoPage(): ReactElement {
 			}
 		} catch (error) {
 			console.error("Failed to run installed typegpu:", error);
-			setModuleInfo(String(error));
+			setModuleInfo(extractErrorMessage(error, String(error)));
 			setStatus("finished");
 		}
 	}

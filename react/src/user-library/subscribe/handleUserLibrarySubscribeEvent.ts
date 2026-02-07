@@ -12,8 +12,6 @@ import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 import isUserLibraryEntry from "../guards/isUserLibraryEntry";
 
 /**
- * handleUserLibrarySubscribeEvent
- *
  * Processes realtime events for the `user_library` subscription. Handles
  * INSERT/UPDATE by enriching and adding the entry, and DELETE by removing
  * the entry from the local slice. Non-realtime payloads are ignored.

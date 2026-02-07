@@ -159,7 +159,44 @@ function MyComponent() {
 }
 ```
 
-### 7. Strict tsconfig
+### 7. Destructure Parameters in Function Signature
+
+Destructure object parameters directly in the function signature instead of inside the function body:
+
+```typescript
+// ❌ BAD: Destructuring inside function body
+export default function runAddUserFlow(params: RunAddUserFlowParams): Effect.Effect<void> {
+  const {
+    username,
+    lookupUserByUsername,
+    addUserToLibrary,
+    t,
+    setUsername,
+    setIsOpen,
+    setIsLoading,
+    setError,
+  } = params;
+  // ...
+}
+
+// ✅ GOOD: Destructuring in function signature
+export default function runAddUserFlow({
+  username,
+  lookupUserByUsername,
+  addUserToLibrary,
+  t,
+  setUsername,
+  setIsOpen,
+  setIsLoading,
+  setError,
+}: RunAddUserFlowParams): Effect.Effect<void> {
+  // ...
+}
+```
+
+This pattern improves clarity by making parameter requirements explicit at the function declaration.
+
+### 8. Strict tsconfig
 
 The project uses `strict: true` - take advantage of it:
 
@@ -193,7 +230,7 @@ npm run test:unit
 
 ## References
 
-- Complete project rules: [.agent/rules.md](../../.agent/rules.md)
+- Complete project rules: [.agent/rules.md](../../../.agent/rules.md)
 - TypeScript strict mode: [TypeScript Handbook - Type Checking](https://www.typescriptlang.org/docs/handbook/type-checking-javascript-files.html)
 - TypeScript handbook: [https://www.typescriptlang.org/docs/handbook/](https://www.typescriptlang.org/docs/handbook/)
 - React conventions: [react-conventions skill](../react-conventions/SKILL.md) (for React-specific typing patterns)

@@ -1,3 +1,5 @@
+import getStringField from "@/shared/utils/getStringField";
+
 /**
  * Default deep equality comparison for objects and arrays.
  *
@@ -41,10 +43,9 @@ export default function defaultCompare<StateType>(current: StateType, initial: S
 		}
 
 		return currentKeys.some((key) => {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/consistent-indexed-object-style
-			const currentValue = (current as Record<string, unknown>)[key];
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/consistent-indexed-object-style
-			const initialValue = (initial as Record<string, unknown>)[key];
+			// Use `getField` helper (centralized) to read the property as `unknown`.
+			const currentValue = getStringField(current, key);
+			const initialValue = getStringField(initial, key);
 			return defaultCompare(currentValue, initialValue);
 		});
 	}

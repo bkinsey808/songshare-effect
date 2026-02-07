@@ -10,8 +10,6 @@ import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 import guardAsUserLibraryEntry from "../guards/guardAsUserLibraryEntry";
 
 /**
- * addUserToLibrary
- *
  * Adds a followed user to the current user's library. Validates the input,
  * performs a POST to the server, validates the server response, and updates
  * the local slice on success. Any network or validation errors are propagated

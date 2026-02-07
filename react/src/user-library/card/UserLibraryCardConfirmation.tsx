@@ -14,8 +14,6 @@ type UserLibraryCardConfirmationProps = {
 };
 
 /**
- * UserLibraryCardConfirmation
- *
  * Displays an inline confirmation dialog with warnings about what will be
  * removed when deleting a user from the library.
  *

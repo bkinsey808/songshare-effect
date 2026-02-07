@@ -17,6 +17,10 @@ export default function makeMalformedPublicSongs(): Record<string, SongPublic> {
 		badType: { song_slug: 123 },
 	};
 
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment -- test-only: pass malformed fixture shape */
+	// Localized cast: this helper intentionally returns malformed shapes (e.g.,
+	// `undefined` and wrong field types) so tests can exercise defensive
+	// behavior. Centralizing the single narrow cast here avoids repeated
+	// inline disables across many tests.
+	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment -- test-only: intentionally malformed fixture */
 	return publicSongs as unknown as Record<string, SongPublic>;
 }

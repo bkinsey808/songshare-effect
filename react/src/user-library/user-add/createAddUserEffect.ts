@@ -1,11 +1,11 @@
 import { Effect } from "effect";
 
-import type lookupUserByUsername from "../lookupUserByUsername";
+import type lookupUserByUsernameEffect from "../lookupUserByUsernameEffect";
 import type { NetworkError, ParseError } from "../user-library-errors";
 
 type CreateAddUserEffectParams = Readonly<{
 	username: string;
-	lookupUserByUsername: typeof lookupUserByUsername;
+	lookupUserByUsername: typeof lookupUserByUsernameEffect;
 	addUserToLibrary: (params: { readonly followed_user_id: string }) => Effect.Effect<void, Error>;
 	t: (key: string, defaultValue: string) => string;
 }>;
@@ -39,13 +39,7 @@ export default function createAddUserEffect(
 		const user = yield* lookup(trimmedUsername).pipe(
 			Effect.mapError((error: NetworkError | ParseError) => {
 				const baseErrorMessage = error.message;
-				// Append username if not already in the message
-				const errorMessage =
-					baseErrorMessage.includes(trimmedUsername) ||
-					baseErrorMessage.includes(`"${trimmedUsername}"`)
-						? baseErrorMessage
-						: `${baseErrorMessage} "${trimmedUsername}"`;
-				return new Error(errorMessage);
+				return new Error(baseErrorMessage);
 			}),
 		);
 

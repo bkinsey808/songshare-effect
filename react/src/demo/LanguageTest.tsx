@@ -4,6 +4,7 @@ import type { SupportedLanguageType } from "@/shared/language/supported-language
 
 import useLocale from "@/react/language/locale/useLocale";
 import useSetPreferredLanguage from "@/react/language/switcher/useSetPreferredLanguage";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 /**
  * Renders a debug panel that shows current language, sample translations,
@@ -20,7 +21,7 @@ export default function LanguageTest(): ReactElement {
 		try {
 			return t(key);
 		} catch (error) {
-			return `Error: ${String(error)}`;
+			return `Error: ${extractErrorMessage(error, String(error))}`;
 		}
 	}
 

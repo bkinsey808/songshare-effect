@@ -11,8 +11,6 @@ import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 import isUserLibraryEntry from "../guards/isUserLibraryEntry";
 
 /**
- * fetchUserLibrary
- *
  * Fetches the current user's library from Supabase, joins owner username
  * information, and populates the slice with validated entries. Manages
  * loading and error state on the slice and logs diagnostic information.

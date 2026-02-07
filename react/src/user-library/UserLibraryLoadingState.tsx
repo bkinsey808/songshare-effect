@@ -1,8 +1,6 @@
 import { useTranslation } from "react-i18next";
 
 /**
- * UserLibraryLoadingState
- *
  * Displays a loading spinner with a message while the user library is being fetched.
  *
  * @returns - A React element showing the loading state

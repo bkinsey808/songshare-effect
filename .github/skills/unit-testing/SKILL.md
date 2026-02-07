@@ -27,6 +27,7 @@ metadata:
 3. Use `vi.useFakeTimers()` only when verifying timer behavior and always restore with `vi.useRealTimers()`.
 4. Mock external network calls and browser APIs at the module boundary.
 5. Run `npm run lint && npx tsc -b . && npm run test:unit -- <file> --coverage` to validate formatting, types, and tests.
+6. Prefer asserting against mock data variables (not duplicated literal strings). Define constants for mock inputs (e.g., `const songId = "s1"`) and use those variables in both setup and expectations to avoid mismatches and improve test clarity.
 
 ## Examples
 
@@ -89,6 +90,47 @@ it("fetches data", async () => {
 });
 ```
 
+### ❌ Duplicated literal test data
+
+```typescript
+// BAD: Duplicated literals in setup and assertions – easy to mistype
+const songs = ["s1", "s2"];
+await Effect.runPromise(removeUserEffect({ songsOwnedByUser: songs, ... }));
+expect(removeSongFromSongLibrary).toHaveBeenCalledWith({ song_id: "s1" });
+```
+
+**✅ Better:** Define and assert against variables used for mocks:
+
+```typescript
+const songId1 = "s1";
+const songId2 = "s2";
+const songs = [songId1, songId2];
+
+await Effect.runPromise(removeUserEffect({ songsOwnedByUser: songs, ... }));
+expect(removeSongFromSongLibrary).toHaveBeenCalledWith({ song_id: songId1 });
+```
+
+This ensures your expectations reference the same mock data declared in setup — no duplicated magic strings.
+
+### ⚠️ Lint disable comments
+
+- **Avoid file-level `/* eslint-disable ... */`** in test files — they conceal rule violations and make it harder to keep tests correct.
+- **Prefer narrow, local disables** when necessary:
+  - Use `// eslint-disable-next-line <rule> - reason` for a single line, or
+  - Add the disable only above a small helper function that would otherwise require a complex workaround.
+- **Always add a brief rationale** and a TODO/issue reference when you add a disable so it can be revisited and removed later.
+
+```typescript
+// BAD: file-level disable — avoid this
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+// BETTER: local, documented disable within a small helper
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- typed wrapper simplifies test setup (TODO: remove when we have a typed helper)
+function makeUnsafeMock() {
+  return undefined as any;
+}
+```
+
 ## Validation Commands
 
 **When working on a single file, run tests only for that file** to get faster feedback:
@@ -112,6 +154,6 @@ npm run test:unit -- --coverage
 
 ## References
 
-- Agent guidance: [.github/agents/Unit Test Agent.agent.md](../../agents/Unit%20Test%20Agent.agent.md)
+- Agent guidance: [.github/agents/Unit Test Agent.agent.md](../../agents/Unit Test Agent.agent.md)
 - Vitest documentation: https://vitest.dev/
 - Testing Library: https://testing-library.com/

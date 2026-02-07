@@ -1,15 +1,8 @@
-import { Effect } from "effect";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import useAppStore from "@/react/app-store/useAppStore";
-
-import lookupUserByUsername from "../lookupUserByUsername";
-import createAddUserEffect from "./createAddUserEffect";
+import useAddUserForm from "./useAddUserForm";
 
 /**
- * AddUserForm
- *
  * Component that provides inline UI for adding a user to the library by username.
  * When the button is clicked, it expands to show a text input and submit button.
  * On submit, it looks up the user by username and adds them to the library.
@@ -18,62 +11,17 @@ import createAddUserEffect from "./createAddUserEffect";
  */
 export default function AddUserForm(): ReactElement {
 	const { t } = useTranslation();
-	const [isOpen, setIsOpen] = useState(false);
-	const [username, setUsername] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState<string | undefined>(undefined);
-
-	const addUserToLibrary = useAppStore((state) => state.addUserToLibrary);
-
-	function handleChange(event: React.ChangeEvent<HTMLInputElement>): void {
-		setUsername(event.currentTarget.value);
-		setError(undefined);
-	}
-
-	function handleSubmit(event: React.FormEvent<HTMLFormElement>): void {
-		event.preventDefault();
-
-		setIsLoading(true);
-		setError(undefined);
-
-		void (async (): Promise<void> => {
-			try {
-				const effect = createAddUserEffect({
-					username,
-					lookupUserByUsername,
-					addUserToLibrary,
-					t,
-				});
-
-				await Effect.runPromise(effect);
-				// Reset form on success
-				setUsername("");
-				setIsOpen(false);
-				setIsLoading(false);
-			} catch (error: unknown) {
-				const errorMessage =
-					error instanceof Error
-						? error.message
-						: t("addUserForm.unknownError", "An error occurred");
-				setError(errorMessage);
-				setIsLoading(false);
-			}
-		})();
-	}
-
-	function handleClose(): void {
-		setIsOpen(false);
-		setUsername("");
-		setError(undefined);
-	}
-
-	function openForm(): void {
-		setIsOpen(true);
-	}
-
-	function dismissError(): void {
-		setError(undefined);
-	}
+	const {
+		isOpen,
+		username,
+		isLoading,
+		error,
+		handleChange,
+		handleSubmit,
+		handleClose,
+		openForm,
+		dismissError,
+	} = useAddUserForm();
 
 	if (!isOpen) {
 		return (

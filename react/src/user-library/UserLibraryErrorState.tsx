@@ -5,8 +5,6 @@ type UserLibraryErrorStateProps = {
 };
 
 /**
- * UserLibraryErrorState
- *
  * Displays an error message when the user library fails to load.
  *
  * @param error - The error message to display

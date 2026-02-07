@@ -571,8 +571,8 @@ npm run cache:purge
 ## References
 
 - Reference guide: [references/REFERENCE.md](references/REFERENCE.md) - Detailed deployment patterns
-- Deployment guide: [docs/DEPLOY.md](../../docs/DEPLOY.md)
-- Cache management: [docs/cache-management.md](../../docs/cache-management.md)
-- GitHub Actions: [docs/github-actions-workflows.md](../../docs/github-actions-workflows.md)
+- Deployment guide: [docs/DEPLOY.md](../../../docs/DEPLOY.md)
+- Cache management: [docs/cache-management.md](../../../docs/cache-management.md)
+- GitHub Actions: [docs/github-actions-workflows.md](../../../docs/github-actions-workflows.md)
 - Cloudflare Pages docs: https://developers.cloudflare.com/pages/
 - Cloudflare Workers docs: https://developers.cloudflare.com/workers/

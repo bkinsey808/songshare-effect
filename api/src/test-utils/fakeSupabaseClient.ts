@@ -3,6 +3,11 @@ import type { ReadonlySupabaseClient } from "@/api/supabase/ReadonlySupabaseClie
 /**
  * Create a fake Supabase client that rejects promises with the given DNS error message.
  *
+ * This is a **test helper** that intentionally returns a partial, minimal client
+ * shape used by the code under test. The helper centralizes the single narrow
+ * unsafe assertion so individual tests don't need inline `eslint-disable`
+ * comments scattered across the codebase.
+ *
  * @param dnsErrMsg - Error message that will be used when the fake client rejects
  * @returns A `ReadonlySupabaseClient`-shaped fake useful for testing failure paths
  */
@@ -34,7 +39,9 @@ export default function makeFakeSupabaseThatRejects(dnsErrMsg: string): Readonly
 	});
 	/* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion */
 
-	// Narrowly-scoped cast to `ReadonlySupabaseClient` for test helper
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment -- test-only narrow cast to ReadonlySupabaseClient
+	// Localized cast: return the partial as the test-shaped `ReadonlySupabaseClient`.
+	// This single, documented cast keeps the tests readable and avoids repeated
+	// inline disables throughout test files.
+	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment -- test-only narrow cast to ReadonlySupabaseClient */
 	return fakeSupabase as ReadonlySupabaseClient;
 }

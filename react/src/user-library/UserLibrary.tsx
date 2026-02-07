@@ -11,8 +11,6 @@ import UserLibraryLoadingState from "./UserLibraryLoadingState";
 import useUserLibrary from "./useUserLibrary";
 
 /**
- * UserLibrary
- *
  * Main component for the user library page. Displays the current user's followed
  * users and allows them to remove individual entries and all associated songs/playlists.
  *

@@ -542,7 +542,7 @@ function VirtualizedSongList({ songs }: { songs: Song[] }) {
 
 ## References
 
-- [React Compiler Documentation](https://react.dev/blog/2024/10/21/react-compiler-beta)
+- [React Documentation](https://react.dev)
 - [React Hooks API Reference](https://react.dev/reference/react/hooks)
 - [Zustand Documentation](https://github.com/pmndrs/zustand)
 - [Tailwind CSS Utilities](https://tailwindcss.com/docs/utility-first)

@@ -302,7 +302,7 @@ npm run build:api
 ## References
 
 - Reference guide: [references/REFERENCE.md](references/REFERENCE.md) - Detailed Effect patterns
-- Complete implementation guide: [docs/effect-implementation.md](../../docs/effect-implementation.md)
+- Complete implementation guide: [docs/effect-implementation.md](../../../docs/effect-implementation.md)
 - Effect documentation: https://effect.website/
 - Hono API integration: See `api/src/server.ts`
 - Error types: See `api/src/errors.ts`

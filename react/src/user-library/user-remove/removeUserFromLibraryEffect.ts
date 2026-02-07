@@ -7,8 +7,6 @@ import type { RemoveUserFromLibraryRequest } from "../slice/user-library-types";
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 
 /**
- * removeUserFromLibrary
- *
  * Removes a followed user by sending a removal request to the server and
  * optimistically updating the local slice. On non-2xx responses the Effect
  * fails with an Error.

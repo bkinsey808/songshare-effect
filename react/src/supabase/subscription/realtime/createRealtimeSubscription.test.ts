@@ -1,6 +1,8 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import createMinimalSupabaseClient from "@/react/supabase/test-utils/createMinimalSupabaseClient.mock";
+
 import type { SubscriptionConfig } from "../subscription-types";
 
 import createRealtimeSubscription from "./createRealtimeSubscription";
@@ -142,7 +144,6 @@ describe("createRealtimeSubscription", () => {
 					},
 				}),
 			})),
-
 			removeChannel: vi.fn(),
 			auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
 		};
@@ -170,14 +171,10 @@ describe("createRealtimeSubscription", () => {
 	it("logs error but does not throw when onEvent throws", async () => {
 		let onEventCallback: (payload: unknown) => void = noopOnEvent;
 
-		const client = {
-			from: (
-				_tableName: string,
-			): {
-				select: (column: string) => {
-					eq: (colName: string, val: string) => { single: () => Promise<unknown> };
-				};
-			} => ({
+		const base = createMinimalSupabaseClient();
+		const client: ReturnType<typeof createMinimalSupabaseClient> = {
+			...base,
+			from: (_tableName: string): ReturnType<typeof base.from> => ({
 				select: (
 					_column: string,
 				): { eq: (colName: string, val: string) => { single: () => Promise<unknown> } } => ({

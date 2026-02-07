@@ -8,6 +8,7 @@ import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientL
 
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
+import createMinimalSupabaseClient from "@/react/supabase/test-utils/createMinimalSupabaseClient.mock";
 
 import type { SongSubscribeSlice } from "../song-slice";
 
@@ -28,14 +29,7 @@ vi.mock("@/react/supabase/client/getSupabaseClient");
  * @returns a `SupabaseClientLike` with stubbed methods
  */
 function createMinimalClient(): SupabaseClientLike {
-	return {
-		from: (_table: string) => ({
-			select: vi.fn().mockResolvedValue({ data: [], error: undefined }),
-		}),
-		channel: () => ({ on: vi.fn(), subscribe: vi.fn() }),
-		removeChannel: () => undefined,
-		auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
-	};
+	return createMinimalSupabaseClient();
 }
 
 /** Delay used by `flushPromises` to yield a macrotask tick; `0` is sufficient for tests */

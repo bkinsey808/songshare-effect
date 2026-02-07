@@ -5,6 +5,7 @@ import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+import getStringField from "@/shared/utils/getStringField";
 
 import { DatabaseError, ValidationError, type AuthenticationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
@@ -135,14 +136,11 @@ export default function lookupUserByUsernameHandler(
 			);
 		}
 
-		// Type narrowing: data is unknown from parseMaybeSingle, so we must access
-		// properties via bracket notation and validate types. Disabling type assertion
-		// warnings since we perform runtime type checks after accessing the properties.
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion, prefer-destructuring
-		const user_id = (data as Record<string, unknown>)["user_id"];
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion, prefer-destructuring
-		const username = (data as Record<string, unknown>)["username"];
-
+		// Type narrowing: data is unknown from parseMaybeSingle. Use the
+		// module-scoped helper `getStringField` defined above which keeps the
+		// single necessary eslint exception confined to one place.
+		const user_id = getStringField(data, "user_id");
+		const username = getStringField(data, "username");
 		if (typeof user_id !== "string" || typeof username !== "string") {
 			return yield* $(
 				Effect.fail(

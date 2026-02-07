@@ -5,6 +5,7 @@ import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientL
 
 import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
+import createMinimalSupabaseClient from "@/react/supabase/test-utils/createMinimalSupabaseClient.mock";
 import { ONE_CALL, TEST_AUTH_TOKEN } from "@/react/test-helpers/test-consts";
 
 import type { SongLibrarySlice } from "./song-library-slice";
@@ -50,43 +51,35 @@ function createMockClient({
 	songPublic?: unknown[];
 	owners?: unknown[];
 } = {}): SupabaseClientLike {
-	const channelLike: {
-		on: (event: string, opts: unknown, handler: (payload: unknown) => void) => typeof channelLike;
-		subscribe: (cb: (status: string, err?: unknown) => void) => unknown;
-	} = {
-		on: (_event: string, _opts: unknown, _handler: (payload: unknown) => void) => channelLike,
-		subscribe: (_cb: (status: string, err?: unknown) => void) => ({}),
-	};
+	const base = createMinimalSupabaseClient();
+
+	function from(table: string): ReturnType<typeof base.from> {
+		if (table === "song_library") {
+			return { select: vi.fn().mockResolvedValue({ data: songLibrary, error: undefined }) };
+		}
+
+		if (table === "song_public") {
+			return {
+				select: vi.fn().mockReturnValue({
+					in: vi.fn().mockResolvedValue({ data: songPublic, error: undefined }),
+				}),
+			};
+		}
+
+		if (table === "user_public") {
+			return {
+				select: vi
+					.fn()
+					.mockReturnValue({ in: vi.fn().mockResolvedValue({ data: owners, error: undefined }) }),
+			};
+		}
+
+		return base.from(table);
+	}
 
 	return {
-		from: (table: string) => {
-			if (table === "song_library") {
-				return {
-					select: vi.fn().mockResolvedValue({ data: songLibrary, error: undefined }),
-				};
-			}
-
-			if (table === "song_public") {
-				return {
-					select: vi.fn().mockReturnValue({
-						in: vi.fn().mockResolvedValue({ data: songPublic, error: undefined }),
-					}),
-				};
-			}
-
-			if (table === "user_public") {
-				return {
-					select: vi
-						.fn()
-						.mockReturnValue({ in: vi.fn().mockResolvedValue({ data: owners, error: undefined }) }),
-				};
-			}
-
-			return { select: vi.fn().mockResolvedValue({ data: [], error: undefined }) };
-		},
-		channel: (_name: string) => channelLike,
-		removeChannel: (_channel: unknown) => undefined,
-		auth: { getUser: vi.fn().mockResolvedValue({ data: {}, error: undefined }) },
+		...base,
+		from,
 	};
 }
 

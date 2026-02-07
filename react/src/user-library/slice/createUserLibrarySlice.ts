@@ -1,3 +1,5 @@
+import type { Effect } from "effect";
+
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
@@ -12,8 +14,8 @@ import type {
 import type { UserLibrarySlice } from "./UserLibrarySlice.type";
 
 import fetchUserLibraryFn from "../fetch/fetchUserLibraryEffect";
-import subscribeToUserLibraryFn from "../subscribe/subscribeToUserLibrary";
-import subscribeToUserPublicForLibraryFn from "../subscribe/subscribeToUserPublicForLibrary";
+import subscribeToUserLibraryFn from "../subscribe/subscribeToUserLibraryEffect";
+import subscribeToUserPublicForLibraryFn from "../subscribe/subscribeToUserPublicForLibraryEffect";
 import addUserToLibraryFn from "../user-add/addUserToLibraryEffect";
 import removeUserFromLibraryFn from "../user-remove/removeUserFromLibraryEffect";
 
@@ -24,8 +26,6 @@ const initialState: UserLibraryState = {
 };
 
 /**
- * createUserLibrarySlice
- *
  * Factory that creates the Zustand slice for user library state and actions.
  * The returned slice exposes Effects for fetching, subscribing, and mutating
  * the library, as well as local setters used by those Effects.
@@ -69,9 +69,10 @@ export default function createUserLibrarySlice(
 
 		fetchUserLibrary: () => fetchUserLibraryFn(get),
 
-		subscribeToUserLibrary: () => subscribeToUserLibraryFn(get),
+		subscribeToUserLibrary: (): Effect.Effect<() => void, Error> => subscribeToUserLibraryFn(get),
 
-		subscribeToUserPublicForLibrary: () => subscribeToUserPublicForLibraryFn(get),
+		subscribeToUserPublicForLibrary: (): Effect.Effect<() => void, Error> =>
+			subscribeToUserPublicForLibraryFn(get),
 
 		setUserLibraryEntries: (entries: ReadonlyDeep<Record<string, UserLibraryEntry>>) => {
 			set({ userLibraryEntries: entries });
