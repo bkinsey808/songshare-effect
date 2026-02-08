@@ -1,21 +1,21 @@
 import { Effect } from "effect";
 
-import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import callSelect from "@/react/supabase/client/safe-query/callSelect";
+import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type { EventEntry, EventUser } from "./event-types";
-import type { EventSlice } from "./slice/event-slice";
+import type { EventSlice } from "./slice/EventSlice.type";
 
 import {
-	EventNotFoundError,
-	NoSupabaseClientError,
-	InvalidEventDataError,
-	QueryError,
 	EventError,
+	EventNotFoundError,
+	InvalidEventDataError,
+	NoSupabaseClientError,
+	QueryError,
 } from "./event-errors";
 import { isEventPublic } from "./guards/guardEventTypes";
 

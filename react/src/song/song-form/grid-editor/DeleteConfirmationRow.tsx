@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 
-import Button from "@/react/design-system/Button";
-import TrashIcon from "@/react/design-system/icons/TrashIcon";
-import XIcon from "@/react/design-system/icons/XIcon";
+import Button from "@/react/lib/design-system/Button";
+import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
+import XIcon from "@/react/lib/design-system/icons/XIcon";
 
 type DeleteConfirmationRowProps = Readonly<{
 	colSpan: number;

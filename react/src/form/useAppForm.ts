@@ -1,7 +1,7 @@
 import { type Effect, type Schema } from "effect";
 import { useState } from "react";
 
-import { clientDebug } from "@/react/utils/clientLogger";
+import { clientDebug } from "@/react/lib/utils/clientLogger";
 import { registerMessageKey } from "@/shared/register/register";
 import { safeSet } from "@/shared/utils/safe";
 import { type ValidationError } from "@/shared/validation/validate-types";

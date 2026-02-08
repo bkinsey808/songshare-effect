@@ -1,6 +1,6 @@
 import { type ReactElement } from "react";
 
-import DateTimePicker from "@/react/design-system/date-time-picker/DateTimePicker";
+import DateTimePicker from "@/react/lib/design-system/date-time-picker/DateTimePicker";
 
 import useEventForm from "./useEventForm";
 

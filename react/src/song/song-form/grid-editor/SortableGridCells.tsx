@@ -3,8 +3,8 @@ import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 
 import { type ReactElement } from "react";
 
-import AutoExpandingTextarea from "@/react/design-system/auto-expanding-textarea/AutoExpandingTextarea";
-import cssVars from "@/react/utils/cssVars";
+import AutoExpandingTextarea from "@/react/lib/design-system/auto-expanding-textarea/AutoExpandingTextarea";
+import cssVars from "@/react/lib/utils/cssVars";
 
 import { type Slide } from "../song-form-types";
 import SlideNameCell from "./SlideNameCell";

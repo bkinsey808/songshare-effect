@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import useLocale from "@/react/language/locale/useLocale";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import PlaylistLibrary from "@/react/playlist-library/PlaylistLibrary";
 
 /**

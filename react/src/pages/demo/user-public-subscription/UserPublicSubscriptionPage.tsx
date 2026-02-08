@@ -1,13 +1,13 @@
 /* eslint-disable max-lines */
 import { useEffect, useState } from "react";
 
-import getSupabaseClientWithAuth from "@/react/supabase/client/getSupabaseClientWithAuth";
-import guardAsPostgrestResponse from "@/react/supabase/client/guards/guardAsPostgrestResponse";
-import guardAsRealtimeChannelLike from "@/react/supabase/client/guards/guardAsRealtimeChannelLike";
+import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
+import guardAsPostgrestResponse from "@/react/lib/supabase/client/guards/guardAsPostgrestResponse";
+import guardAsRealtimeChannelLike from "@/react/lib/supabase/client/guards/guardAsRealtimeChannelLike";
 import {
 	type RealtimeChannelLike,
 	type SupabaseClientLike,
-} from "@/react/supabase/client/SupabaseClientLike";
+} from "@/react/lib/supabase/client/SupabaseClientLike";
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import extractErrorStack from "@/shared/error-message/extractErrorStack";

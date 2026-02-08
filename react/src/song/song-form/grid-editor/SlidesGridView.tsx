@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
-import Button from "@/react/design-system/Button";
-import PlusIcon from "@/react/design-system/icons/PlusIcon";
+import Button from "@/react/lib/design-system/Button";
+import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import { safeGet } from "@/shared/utils/safe";
 

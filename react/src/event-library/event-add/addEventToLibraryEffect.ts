@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import { clientWarn } from "@/react/utils/clientLogger";
+import { clientWarn } from "@/react/lib/utils/clientLogger";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiEventLibraryAddPath } from "@/shared/paths";
 

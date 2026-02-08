@@ -4,13 +4,13 @@ import { type Api, type Get, type Set } from "@/react/app-store/app-store-types"
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 import { safeGet } from "@/shared/utils/safe";
 
+import addActivePrivateSongIds from "../active-songs/addActivePrivateSongIds";
+import addActivePrivateSongSlugs from "../active-songs/addActivePrivateSongSlugs";
+import addActivePublicSongIds from "../active-songs/addActivePublicSongIds";
+import addActivePublicSongSlugs from "../active-songs/addActivePublicSongSlugs";
+import subscribeToActivePrivateSongs from "../active-songs/subscribeToActivePrivateSongs";
+import subscribeToActivePublicSongs from "../active-songs/subscribeToActivePublicSongs";
 import { type Song, type SongPublic } from "../song-schema";
-import addActivePrivateSongIds from "./active-songs/addActivePrivateSongIds";
-import addActivePrivateSongSlugs from "./active-songs/addActivePrivateSongSlugs";
-import addActivePublicSongIds from "./active-songs/addActivePublicSongIds";
-import addActivePublicSongSlugs from "./active-songs/addActivePublicSongSlugs";
-import subscribeToActivePrivateSongs from "./active-songs/subscribeToActivePrivateSongs";
-import subscribeToActivePublicSongs from "./active-songs/subscribeToActivePublicSongs";
 
 type SongSubscribeState = {
 	privateSongs: Record<string, Song>;

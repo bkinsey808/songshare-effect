@@ -1,39 +1,37 @@
-import type { ReactNode } from "react";
-
 import { fireEvent, render } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useNavigate } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useHydration from "@/react/app/useHydration";
+import mockTranslation from "@/react/lib/test-utils/mockTranslation";
 
 import DashboardPage from "./DashboardPage";
 import useDashboard from "./useDashboard";
 
 vi.mock("@/react/app/useHydration");
 vi.mock("./useDashboard");
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports, eslint-plugin-jest/no-untyped-mock-factory
-vi.mock("react-i18next", () => ({
-	useTranslation: (): { t: (key: string, def?: string) => string } => ({
-		t: (key: string, def?: string): string => (typeof def === "string" ? def : key),
-	}),
-}));
 
-const mockNavigate = vi.fn<(to: string) => unknown>();
-// eslint-disable-next-line eslint-plugin-jest/no-untyped-mock-factory
-vi.mock("react-router-dom", () => ({
-	MemoryRouter: ({ children }: { children?: ReactNode }): ReactNode => children ?? undefined,
-	useNavigate: (): ((to: string) => unknown) => mockNavigate,
-	useLocation: (): { pathname: string; search: string; hash: string; state: unknown } => ({
-		pathname: "/",
-		search: "",
-		hash: "",
-		state: undefined,
-	}),
-}));
+// Mock react-router-dom with explicit type
+// eslint-disable-next-line jest/no-untyped-mock-factory
+vi.mock("react-router-dom", async () => {
+	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+	const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
+	return {
+		...actual,
+		useNavigate: vi.fn(),
+	};
+});
 
 describe("dashboard page", () => {
 	it("renders user library button and navigates when clicked", () => {
+		// Mock translation within the test to avoid top-level side effects
+		mockTranslation();
+
+		const mockNavigate = vi.fn();
+		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+
 		vi.mocked(useHydration).mockReturnValue({ isHydrated: true, awaitHydration: vi.fn() });
+
 		const dashboardMockReturn: ReturnType<typeof useDashboard> = {
 			localIsSignedIn: true,
 			localUser: {
@@ -63,8 +61,6 @@ describe("dashboard page", () => {
 		};
 		vi.mocked(useDashboard).mockReturnValue(dashboardMockReturn);
 
-		// useNavigate is mocked at module scope to return `mockNavigate` above
-
 		const { getByTestId } = render(
 			<MemoryRouter>
 				<DashboardPage />
@@ -75,6 +71,7 @@ describe("dashboard page", () => {
 		expect(btn).toBeTruthy();
 
 		fireEvent.click(btn);
+		// Expect navigation to have been called with some path (string)
 		expect(mockNavigate).toHaveBeenCalledWith(expect.any(String));
 	});
 });

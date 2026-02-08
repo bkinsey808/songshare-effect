@@ -1,9 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 
-import Button from "@/react/design-system/Button";
-import LibraryIcon from "@/react/design-system/icons/LibraryIcon";
-import PlusIcon from "@/react/design-system/icons/PlusIcon";
-import useLocale from "@/react/language/locale/useLocale";
+import Button from "@/react/lib/design-system/Button";
+import LibraryIcon from "@/react/lib/design-system/icons/LibraryIcon";
+import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, eventEditPath, eventLibraryPath } from "@/shared/paths";
 

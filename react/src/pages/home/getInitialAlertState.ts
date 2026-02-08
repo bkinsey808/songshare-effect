@@ -1,4 +1,6 @@
-import { type AlertState } from "@/react/pages/home/AlertState.type";
+import { DELETE_SUCCESS, SIGN_OUT_SUCCESS } from "@/react/pages/home/alert-keys";
+import { type AlertState, type AlertType } from "@/react/pages/home/AlertState.type";
+import isAlertType from "@/react/pages/home/isAlertType";
 import {
 	displayedKey,
 	justDeletedAccountKey,
@@ -7,8 +9,6 @@ import {
 } from "@/shared/sessionStorageKeys";
 
 /**
- * getInitialAlertState
- *
  * Read sessionStorage to determine whether an alert should be visible on the
  * homepage on initial render. Prefers an already-displayed sentinel so the
  * same alert is not re-shown; otherwise inspects transient signals set by
@@ -24,28 +24,28 @@ export default function getInitialAlertState(): AlertState {
 		const alreadyDisplayed = sessionStorage.getItem(displayedKey);
 		if (alreadyDisplayed === "1") {
 			const storedType = sessionStorage.getItem(typeKey);
-			// Treat missing or empty storedType as "no alert" for robustness.
-			if (storedType !== null && storedType !== "") {
+			// Treat missing or unknown storedType as "no alert" for robustness.
+			if (storedType !== null && isAlertType(storedType)) {
 				return { visible: true, type: storedType };
 			}
-			return { visible: false, type: "" };
+			return { visible: false };
 		}
 
 		// Check transient flags that indicate an action just occurred.
 		const justDeletedAccount = sessionStorage.getItem(justDeletedAccountKey);
 		const justSignedOut = sessionStorage.getItem(justSignedOutKey);
 
-		let foundType = "";
+		let foundType: AlertType | undefined = undefined;
 		if (justDeletedAccount === "1") {
-			foundType = "deleteSuccess";
+			foundType = DELETE_SUCCESS;
 		}
 		// If multiple transient flags exist, the latter one wins. Sign-out
 		// intentionally takes precedence over delete in this ordering.
 		if (justSignedOut === "1") {
-			foundType = "signOutSuccess";
+			foundType = SIGN_OUT_SUCCESS;
 		}
 
-		if (foundType !== "") {
+		if (foundType !== undefined) {
 			// Persist a sentinel so the alert is not re-shown on subsequent
 			// renders, and clean up the transient signals that triggered it.
 			sessionStorage.setItem(displayedKey, "1");
@@ -61,5 +61,5 @@ export default function getInitialAlertState(): AlertState {
 	}
 
 	// No alerts to show by default
-	return { visible: false, type: "" };
+	return { visible: false };
 }

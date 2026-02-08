@@ -3,8 +3,8 @@ import { Effect } from "effect";
 import { useEffect, useRef, useState } from "react";
 
 import useAppForm from "@/react/form/useAppForm";
-import useLocale from "@/react/language/locale/useLocale";
-import { clientDebug, clientError, clientLog } from "@/react/utils/clientLogger";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import { clientDebug, clientError, clientLog } from "@/react/lib/utils/clientLogger";
 import { JUST_REGISTERED_SIGNAL } from "@/shared/constants/http";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { apiAccountRegisterPath, dashboardPath } from "@/shared/paths";

@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import makeSongPublic from "@/react/test-utils/makeSongPublic";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 
 import type { SongPublic } from "../song-schema";
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import makeSetGetForCreateUpdateLocalSongOrder from "../test-utils/makeSetGetForCreateUpdateLocalSongOrder";
+import makeSetGetForCreateUpdateLocalSongOrder from "../test-utils/makeSetGetForCreateUpdateLocalSongOrder.mock";
 import createAddSongToLocalPlaylist from "./createAddSongToLocalPlaylist";
 
 describe("createAddSongToLocalPlaylist", () => {

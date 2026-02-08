@@ -1,4 +1,4 @@
-import { clientWarn } from "@/react/utils/clientLogger";
+import { clientWarn } from "@/react/lib/utils/clientLogger";
 import { type EventLibrary } from "@/shared/generated/supabaseSchemas";
 
 import isEventLibraryEntry from "./isEventLibraryEntry";

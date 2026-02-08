@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import useSchedule from "@/react/hooks/useSchedule";
+import useSchedule from "@/react/lib/hooks/useSchedule";
 
 import { hydrationState } from "./hydration";
 

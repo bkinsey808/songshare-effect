@@ -2,8 +2,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
-import mockLocaleWithLang from "@/react/test-utils/mockLocaleWithLang";
-import mockReactRouterWithNavigate from "@/react/test-utils/mockReactRouter";
+import mockLocaleWithLang from "@/react/lib/test-utils/mockLocaleWithLang";
+import mockReactRouterWithNavigate from "@/react/lib/test-utils/mockReactRouter";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 
 import Navigation from "./Navigation";
@@ -13,15 +13,12 @@ vi.mock("@/react/language/locale/useLocale");
 describe("navigation - language-aware links", () => {
 	it("builds links using buildPathWithLang (home + about)", async () => {
 		mockLocaleWithLang("es");
-		// apply the runtime mock for react-router-dom (mockNavigate available)
-		mockReactRouterWithNavigate();
-		const { useNavigate: mockedUseNavigate } = await import("react-router-dom");
+
 		const mockNavigate = vi.fn();
-		vi.mocked(mockedUseNavigate).mockReturnValue(mockNavigate);
-		mockNavigate.mockImplementation((path: string) => {
-			console.warn("NAV CALLED", path);
-		});
-		expect(mockedUseNavigate()).toBe(mockNavigate);
+		// apply the runtime mock for react-router-dom with our custom mockNavigate
+		mockReactRouterWithNavigate(mockNavigate);
+
+		const { useNavigate } = await import("react-router-dom");
 
 		render(
 			<MemoryRouter initialEntries={["/es"]}>
@@ -33,7 +30,7 @@ describe("navigation - language-aware links", () => {
 		expect(homeButton).toBeTruthy();
 
 		// Verify programmatic navigate returns the expected path (sanity check)
-		const navigateFromHook = mockedUseNavigate();
+		const navigateFromHook = useNavigate();
 		void navigateFromHook(buildPathWithLang("/", "es"));
 		await waitFor(() => {
 			expect(mockNavigate).toHaveBeenCalledWith(buildPathWithLang("/", "es"));
@@ -43,7 +40,7 @@ describe("navigation - language-aware links", () => {
 		expect(aboutButton).toBeTruthy();
 
 		// Sanity check: programmatic navigation for the About path
-		const navigateFromHook2 = mockedUseNavigate();
+		const navigateFromHook2 = useNavigate();
 		void navigateFromHook2(buildPathWithLang("/about", "es"));
 		expect(mockNavigate).toHaveBeenCalledWith(buildPathWithLang("/about", "es"));
 	});

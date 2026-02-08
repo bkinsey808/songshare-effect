@@ -3,8 +3,8 @@ import { useState } from "react";
 import type { SongLibraryEntry } from "@/react/song-library/slice/song-library-types";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import Button from "@/react/design-system/Button";
-import useLocale from "@/react/language/locale/useLocale";
+import Button from "@/react/lib/design-system/Button";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import CollapsibleSection from "@/react/song/song-form/CollapsibleSection";
 
 type AddSongToPlaylistSectionProps = {

@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import isRealtimePayload from "@/react/supabase/subscription/realtime/isRealtimePayload";
+import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isRealtimePayload";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";

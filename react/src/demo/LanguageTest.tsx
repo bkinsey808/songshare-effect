@@ -2,8 +2,8 @@ import { useTranslation } from "react-i18next";
 
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
-import useLocale from "@/react/language/locale/useLocale";
-import useSetPreferredLanguage from "@/react/language/switcher/useSetPreferredLanguage";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import useSetPreferredLanguage from "@/react/lib/language/switcher/useSetPreferredLanguage";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 /**

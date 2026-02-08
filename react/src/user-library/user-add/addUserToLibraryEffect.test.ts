@@ -1,6 +1,8 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import mockFetchResponse from "@/react/lib/test-utils/mockFetchResponse";
+
 import type {
 	AddUserToLibraryRequest,
 	RemoveUserFromLibraryRequest,
@@ -52,18 +54,7 @@ describe("addUserToLibraryEffect", () => {
 			return makeGet(false, setUserLibraryError, addUserLibraryEntry);
 		}
 
-		// eslint-disable-next-line promise/prefer-await-to-then -- mocking Response.json() which returns a Promise
-		vi.stubGlobal(
-			"fetch",
-			vi.fn().mockResolvedValue({
-				ok: true,
-				status: 200,
-				json: async () => {
-					await Promise.resolve();
-					return { data: entry };
-				},
-			}),
-		);
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockFetchResponse({ data: entry })));
 
 		await Effect.runPromise(
 			addUserToLibraryEffect({ followed_user_id: entry.followed_user_id }, get),
@@ -104,15 +95,16 @@ describe("addUserToLibraryEffect", () => {
 
 		vi.stubGlobal(
 			"fetch",
-			vi.fn().mockResolvedValue({
-				ok: false,
-				status: 500,
-				statusText: "Internal Error",
-				json: async () => {
-					await Promise.resolve();
-					return {};
-				},
-			}),
+			vi.fn().mockResolvedValue(
+				mockFetchResponse(
+					{},
+					{
+						ok: false,
+						status: 500,
+						statusText: "Internal Error",
+					},
+				),
+			),
 		);
 
 		const promise = Effect.runPromise(addUserToLibraryEffect({ followed_user_id: "f3" }, get));

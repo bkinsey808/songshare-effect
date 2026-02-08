@@ -1,12 +1,12 @@
-import Button from "@/react/design-system/Button";
-import ExitFullScreenIcon from "@/react/design-system/icons/ExitFullScreenIcon";
-import FullScreenIcon from "@/react/design-system/icons/FullScreenIcon";
-import WakeLockOffIcon from "@/react/design-system/icons/WakeLockOffIcon";
-import WakeLockOnIcon from "@/react/design-system/icons/WakeLockOnIcon";
-import useFullScreen from "@/react/fullscreen/useFullScreen";
-import useLocale from "@/react/language/locale/useLocale";
-import LanguageSwitcher from "@/react/language/switcher/LanguageSwitcher";
-import useWakeLock from "@/react/wake-lock/useWakeLock";
+import Button from "@/react/lib/design-system/Button";
+import ExitFullScreenIcon from "@/react/lib/design-system/icons/ExitFullScreenIcon";
+import FullScreenIcon from "@/react/lib/design-system/icons/FullScreenIcon";
+import WakeLockOffIcon from "@/react/lib/design-system/icons/WakeLockOffIcon";
+import WakeLockOnIcon from "@/react/lib/design-system/icons/WakeLockOnIcon";
+import useFullScreen from "@/react/lib/fullscreen/useFullScreen";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import LanguageSwitcher from "@/react/lib/language/switcher/LanguageSwitcher";
+import useWakeLock from "@/react/lib/wake-lock/useWakeLock";
 
 /**
  * Card containing settings controls.
@@ -32,7 +32,7 @@ export default function SettingsCard(): ReactElement {
 				}
 				onClick={toggleFullScreen}
 				data-testid="navigation-fullscreen-toggle"
-				className="!rounded-md whitespace-nowrap"
+				className="rounded-md! whitespace-nowrap"
 			>
 				{isFullScreen
 					? t("navigation.exitFullScreen", "Exit Full Screen")
@@ -52,7 +52,7 @@ export default function SettingsCard(): ReactElement {
 					}
 					onClick={toggleWakeLock}
 					data-testid="navigation-wakelock-toggle"
-					className="!rounded-md whitespace-nowrap"
+					className="rounded-md! whitespace-nowrap"
 				>
 					{t("navigation.wakeLock", "Wake Lock")}
 				</Button>

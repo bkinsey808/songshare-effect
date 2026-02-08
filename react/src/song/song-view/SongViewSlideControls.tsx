@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import Button from "@/react/design-system/Button";
+import Button from "@/react/lib/design-system/Button";
 import { ONE } from "@/shared/constants/shared-constants";
 
 /** Minimum allowed slide index (keeps bounds explicit and avoids magic numbers). */

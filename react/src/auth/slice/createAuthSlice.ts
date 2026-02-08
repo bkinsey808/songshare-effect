@@ -1,6 +1,6 @@
 import { type Api, type Get, type Set } from "@/react/app-store/app-store-types";
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
-import fetchSupabaseUserTokenFromApi from "@/react/supabase/auth-token/fetchSupabaseUserTokenFromApi";
+import fetchSupabaseUserTokenFromApi from "@/react/lib/supabase/auth-token/fetchSupabaseUserTokenFromApi";
 import { type UserSessionData } from "@/shared/userSessionData";
 
 import type { AuthSlice, AuthState } from "./auth-slice.types";

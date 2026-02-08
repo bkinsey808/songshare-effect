@@ -7,12 +7,12 @@
  */
 import { Effect } from "effect";
 
-import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import extractNewRecord from "@/react/supabase/subscription/extract/extractNewRecord";
-import extractStringField from "@/react/supabase/subscription/extract/extractStringField";
-import createRealtimeSubscription from "@/react/supabase/subscription/realtime/createRealtimeSubscription";
-import isRealtimePayload from "@/react/supabase/subscription/realtime/isRealtimePayload";
+import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import extractNewRecord from "@/react/lib/supabase/subscription/extract/extractNewRecord";
+import extractStringField from "@/react/lib/supabase/subscription/extract/extractStringField";
+import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
+import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isRealtimePayload";
 import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
 

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
-import useLocale from "@/react/language/locale/useLocale";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import { reactFeaturesPath } from "@/shared/paths";
 
 import DemoNavigation from "./DemoNavigation";

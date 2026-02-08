@@ -1,8 +1,8 @@
 import { Effect } from "effect";
 
-import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import callSelect from "@/react/supabase/client/safe-query/callSelect";
+import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
 

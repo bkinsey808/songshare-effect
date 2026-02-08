@@ -1,7 +1,7 @@
 // Prefer per-line console exceptions instead of module-wide disabling
 import { Effect, type Schema } from "effect";
 
-import { clientDebug } from "@/react/utils/clientLogger";
+import { clientDebug } from "@/react/lib/utils/clientLogger";
 import { ZERO } from "@/shared/constants/shared-constants";
 import { registerMessageKey } from "@/shared/register/register";
 import { type ValidationError } from "@/shared/validation/validate-types";

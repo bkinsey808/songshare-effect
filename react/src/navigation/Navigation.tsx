@@ -2,14 +2,14 @@ import type { ReactNode } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-import Button from "@/react/design-system/Button";
-import MenuIcon from "@/react/design-system/icons/MenuIcon";
-import SongLibraryIcon from "@/react/design-system/icons/SongLibraryIcon";
-import XIcon from "@/react/design-system/icons/XIcon";
+import Button from "@/react/lib/design-system/Button";
+import MenuIcon from "@/react/lib/design-system/icons/MenuIcon";
+import SongLibraryIcon from "@/react/lib/design-system/icons/SongLibraryIcon";
+import XIcon from "@/react/lib/design-system/icons/XIcon";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { aboutPath, dashboardPath, songLibraryPath } from "@/shared/paths";
 
-import useLocale from "../language/locale/useLocale";
+import useLocale from "../lib/language/locale/useLocale";
 import ActionsMenu from "./ActionsMenu";
 import useNavigation from "./useNavigation";
 

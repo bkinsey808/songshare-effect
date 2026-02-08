@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import typegpu from "typegpu";
 
-import useAudioVizInput from "@/react/audio/useAudioVizInput";
-import resizeCanvasToDisplaySize from "@/react/canvas/resizeCanvasToDisplaySize";
-import { useCanvasAnimation } from "@/react/canvas/useCanvasAnimation";
+import useAudioVizInput from "@/react/lib/audio/useAudioVizInput";
+import resizeCanvasToDisplaySize from "@/react/lib/canvas/resizeCanvasToDisplaySize";
+import { useCanvasAnimation } from "@/react/lib/canvas/useCanvasAnimation";
+import runTypeGpuAudioVizDemo from "@/react/lib/typegpu/runTypeGpuAudioVizDemo";
 import drawAudioVizFallbackFrame from "@/react/pages/demo/typegpu-audio-viz/drawAudioVizFallbackFrame";
-import runTypeGpuAudioVizDemo from "@/react/typegpu/runTypeGpuAudioVizDemo";
 import { ZERO } from "@/shared/constants/shared-constants";
 
 type DemoStatus =

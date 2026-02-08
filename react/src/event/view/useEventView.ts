@@ -61,7 +61,15 @@ export default function useEventView(): {
 			return;
 		}
 
-		void Effect.runPromise(fetchEventBySlug(event_slug));
+		const slug = event_slug;
+		async function loadEvent(): Promise<void> {
+			try {
+				await Effect.runPromise(fetchEventBySlug(slug));
+			} catch {
+				// Error is handled in the app store state
+			}
+		}
+		void loadEvent();
 	}, [event_slug, fetchEventBySlug]);
 
 	// Auto-join authenticated users when they visit the event link
@@ -89,15 +97,20 @@ export default function useEventView(): {
 			return;
 		}
 
-		// Auto-join the user
+		async function autoJoin(eventId: string): Promise<void> {
+			try {
+				await Effect.runPromise(appStoreJoinEvent(eventId));
+			} catch {
+				// Error state handled by joinEvent or locally if needed
+			}
+		}
 		autoJoinAttempted.current = true;
-		void Effect.runPromise(appStoreJoinEvent(currentEvent.event_id));
+		void autoJoin(currentEvent.event_id);
 	}, [isEventLoading, currentEvent, currentUserId, appStoreJoinEvent]);
 
 	/**
 	 * Handles join event action with loading and error state management.
 	 */
-	// oxlint-disable promise/prefer-await-to-then
 	function handleJoinEvent(): void {
 		if (currentEvent === undefined) {
 			return;
@@ -106,24 +119,23 @@ export default function useEventView(): {
 		setActionError(undefined);
 		setActionSuccess(undefined);
 
-		void Effect.runPromise(appStoreJoinEvent(currentEvent.event_id))
-			.then(() => {
+		const eventId = currentEvent.event_id;
+		async function runJoin(): Promise<void> {
+			try {
+				await Effect.runPromise(appStoreJoinEvent(eventId));
 				setActionSuccess("Successfully joined the event!");
-				return undefined;
-			})
-			.catch((error: unknown) => {
+			} catch (error: unknown) {
 				const message = error instanceof Error ? error.message : "Failed to join event";
 				setActionError(message);
-			})
-			.finally(() => {
-				setActionLoading(false);
-			});
+			}
+			setActionLoading(false);
+		}
+		void runJoin();
 	}
 
 	/**
 	 * Handles leave event action with loading and error state management.
 	 */
-	// oxlint-disable promise/prefer-await-to-then
 	function handleLeaveEvent(): void {
 		if (currentEvent === undefined || currentUserId === undefined) {
 			return;
@@ -132,18 +144,19 @@ export default function useEventView(): {
 		setActionError(undefined);
 		setActionSuccess(undefined);
 
-		void Effect.runPromise(appStoreLeaveEvent(currentEvent.event_id, currentUserId))
-			.then(() => {
+		const eventId = currentEvent.event_id;
+		const userId = currentUserId;
+		async function runLeave(): Promise<void> {
+			try {
+				await Effect.runPromise(appStoreLeaveEvent(eventId, userId));
 				setActionSuccess("Successfully left the event!");
-				return undefined;
-			})
-			.catch((error: unknown) => {
+			} catch (error: unknown) {
 				const message = error instanceof Error ? error.message : "Failed to leave event";
 				setActionError(message);
-			})
-			.finally(() => {
-				setActionLoading(false);
-			});
+			}
+			setActionLoading(false);
+		}
+		void runLeave();
 	}
 
 	return {

@@ -1,8 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 
-import Button from "@/react/design-system/Button";
-import LibraryIcon from "@/react/design-system/icons/LibraryIcon";
-import useLocale from "@/react/language/locale/useLocale";
+import Button from "@/react/lib/design-system/Button";
+import LibraryIcon from "@/react/lib/design-system/icons/LibraryIcon";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, userLibraryPath } from "@/shared/paths";
 
@@ -38,7 +38,7 @@ export default function UserLibraryCard(): ReactElement {
 					void navigate(libraryPath);
 				}}
 				data-testid="navigation-user-library"
-				className="!rounded-md whitespace-nowrap"
+				className="rounded-md! whitespace-nowrap"
 			>
 				{t("pages.dashboard.userLibrary", "User Library")}
 			</Button>

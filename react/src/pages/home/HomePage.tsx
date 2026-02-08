@@ -1,16 +1,20 @@
-import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { useState, type ReactElement } from "react";
+import { Navigate } from "react-router-dom";
 
-import SignInButtons from "@/react/auth/SignInButtons";
 import useSignIn from "@/react/auth/useSignIn";
-import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
+import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import { DELETE_SUCCESS } from "@/react/pages/home/alert-keys";
+import getInitialAlertState from "@/react/pages/home/getInitialAlertState";
+import { dashboardPath } from "@/shared/paths";
 import {
-	isParagraph,
-	normalizeTranslationParagraphs,
-	type Paragraph,
-} from "@/react/i18n/normalizeTranslationParagraphs";
-import useLocale from "@/react/language/locale/useLocale";
-import { dashboardPath, reactFeaturesPath, uploadDemoPath } from "@/shared/paths";
+	displayedKey,
+	justDeletedAccountKey,
+	justSignedOutKey,
+	typeKey,
+} from "@/shared/sessionStorageKeys";
+
+import Home from "./Home";
 
 /**
  * Public landing page that surfaces sign-in options, feature demos, and
@@ -21,66 +25,6 @@ import { dashboardPath, reactFeaturesPath, uploadDemoPath } from "@/shared/paths
 export default function HomePage(): ReactElement {
 	const { lang, t } = useLocale();
 	const { isSignedIn } = useSignIn();
-
-	// Use VITE_APP_NAME from env if available, fall back to the app title translation
-	const appNameEnv =
-		typeof import.meta.env["VITE_APP_NAME"] === "string"
-			? import.meta.env["VITE_APP_NAME"]
-			: undefined;
-	const appName = appNameEnv ?? t("app.title") ?? "SongShare";
-
-	// Read paragraphs array from translations. We pass appName so the translations can interpolate the application name ({{appName}}).
-	const translationConfig = { returnObjects: true, appName };
-	const homeParagraphsRaw = t("pages.home.paragraphs", translationConfig);
-	const homeParagraphs: Paragraph[] = normalizeTranslationParagraphs(homeParagraphsRaw);
-
-	// Alert state keys
-	const displayedKey = "alertDisplayed";
-	const typeKey = "alertType";
-	const deletedKey = "justDeletedAccount";
-	const signedOutKey = "justSignedOut";
-
-	// Initializer reads sessionStorage synchronously on first render (SPA only)
-	function getInitialAlertState(): { visible: boolean; type: string } {
-		try {
-			// If we've already displayed an alert for this navigation, return it.
-			const alreadyDisplayed = sessionStorage.getItem(displayedKey);
-			if (alreadyDisplayed === "1") {
-				const storedType = sessionStorage.getItem(typeKey);
-				if (storedType !== null) {
-					if (storedType !== "") {
-						return { visible: true, type: storedType };
-					}
-					return { visible: false, type: "" };
-				}
-				return { visible: false, type: "" };
-			}
-
-			// Otherwise, check the transient flags set by the sign-out / delete flows.
-			const justDeletedAccount = sessionStorage.getItem(deletedKey);
-			const justSignedOut = sessionStorage.getItem(signedOutKey);
-
-			let foundType = "";
-			if (justDeletedAccount === "1") {
-				foundType = "deleteSuccess";
-			}
-			if (justSignedOut === "1") {
-				foundType = "signOutSuccess";
-			}
-
-			if (foundType !== "") {
-				// Persist marker immediately so StrictMode remounts rehydrate the same UI. Also clear the transient flags.
-				sessionStorage.setItem(displayedKey, "1");
-				sessionStorage.setItem(typeKey, foundType);
-				sessionStorage.removeItem(deletedKey);
-				sessionStorage.removeItem(signedOutKey);
-				return { visible: true, type: foundType };
-			}
-		} catch (error) {
-			console.error("Error reading sessionStorage in getInitialAlertState:", error);
-		}
-		return { visible: false, type: "" };
-	}
 
 	const [alertState, setAlertState] = useState(getInitialAlertState);
 
@@ -94,82 +38,26 @@ export default function HomePage(): ReactElement {
 				visible={alertState.visible}
 				onDismiss={() => {
 					// Clear persisted/session flags when the user dismisses the alert
-					setAlertState({ visible: false, type: "" });
+					setAlertState({ visible: false });
 					sessionStorage.removeItem(displayedKey);
 					sessionStorage.removeItem(typeKey);
-					sessionStorage.removeItem(deletedKey);
-					sessionStorage.removeItem(signedOutKey);
+					sessionStorage.removeItem(justDeletedAccountKey);
+					sessionStorage.removeItem(justSignedOutKey);
 				}}
 				title={
-					alertState.type === "deleteSuccess"
+					alertState.type === DELETE_SUCCESS
 						? t("pages.dashboard.accountDeleted.title")
 						: t("pages.dashboard.signedOutSuccess.title")
 				}
 				variant="success"
 				alertType={alertState.type}
 			>
-				{alertState.type === "deleteSuccess"
+				{alertState.type === DELETE_SUCCESS
 					? t("pages.dashboard.accountDeleted.message")
 					: t("pages.dashboard.signedOutSuccess.message")}
 			</DismissibleAlert>
 
-			<div className="mb-10 text-center">
-				<h2 className="mb-4 text-3xl font-bold">🏠 {t("pages.home.title")}</h2>
-				<p className="text-gray-400">{t("pages.home.subtitle")}</p>
-			</div>
-			<SignInButtons />
-
-			{/* Render translated paragraph array (pages.home.paragraphs) */}
-			<div className="mx-auto mt-8 max-w-3xl space-y-4 text-left">
-				{homeParagraphs.map((paragraph) =>
-					isParagraph(paragraph) ? (
-						<p key={paragraph.id} className="text-gray-300">
-							{paragraph.text}
-						</p>
-					) : undefined,
-				)}
-			</div>
-			<div className="my-12 space-y-8">
-				<div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-					<div className="rounded-xl border border-white/10 bg-linear-to-br from-blue-500/10 to-purple-500/10 p-8 text-center">
-						<div className="mb-6 text-6xl">🚀</div>
-						<h3 className="mb-4 text-2xl font-bold">React Features Demo</h3>
-						<p className="mb-6 text-gray-300">
-							Explore interactive demonstrations of modern React features including Suspense, the
-							new &apos;use&apos; hook, performance optimizations, and more
-						</p>
-						<Link
-							to={`/${lang}/${reactFeaturesPath}`}
-							className="inline-block cursor-pointer rounded-lg border-none bg-linear-to-r from-blue-500 to-purple-500 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:from-blue-600 hover:to-purple-600 hover:shadow-lg"
-						>
-							Explore React Features
-						</Link>
-					</div>
-
-					<div className="rounded-xl border border-white/10 bg-linear-to-br from-green-500/10 to-teal-500/10 p-8 text-center">
-						<div className="mb-6 text-6xl">📤</div>
-						<h3 className="mb-4 text-2xl font-bold">Upload Demo</h3>
-						<p className="mb-6 text-gray-300">
-							Experience file upload functionality with progress tracking, error handling, and
-							real-time feedback
-						</p>
-						<Link
-							to={`/${lang}/${uploadDemoPath}`}
-							className="inline-block cursor-pointer rounded-lg border-none bg-linear-to-r from-green-500 to-teal-500 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:from-green-600 hover:to-teal-600 hover:shadow-lg"
-						>
-							Try Upload Demo
-						</Link>
-					</div>
-				</div>
-
-				<div className="mt-12 rounded-lg border border-blue-500/20 bg-blue-500/10 p-6 text-center">
-					<h4 className="mb-3 text-lg font-semibold text-blue-300">💡 What&apos;s Inside</h4>
-					<p className="text-sm text-blue-200">
-						Discover cutting-edge React patterns, performance optimization techniques, and modern
-						development practices through hands-on examples
-					</p>
-				</div>
-			</div>
+			<Home />
 		</div>
 	);
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import makeValidPlaylistPublic from "../test-utils/makeValidPlaylistPublic";
+import makeValidPlaylistPublic from "../test-utils/makeValidPlaylistPublic.mock";
 import isPlaylistPublic from "./isPlaylistPublic";
 
 describe("isPlaylistPublic", () => {

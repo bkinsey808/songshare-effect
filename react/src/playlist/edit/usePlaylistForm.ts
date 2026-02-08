@@ -8,8 +8,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import useAppStore from "@/react/app-store/useAppStore";
 import useAppForm from "@/react/form/useAppForm";
 import useFormChanges from "@/react/form/useFormChanges";
-import useLocale from "@/react/language/locale/useLocale";
-import generateSlug from "@/react/slug/generateSlug";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import generateSlug from "@/react/lib/slug/generateSlug";
 import setFieldValue from "@/react/song/song-form/use-song-form/setFieldValue";
 import { type ValidationError } from "@/shared/validation/validate-types";
 

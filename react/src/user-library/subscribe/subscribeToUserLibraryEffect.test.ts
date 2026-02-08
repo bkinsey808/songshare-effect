@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import assert from "node:assert";
 import { describe, expect, it, vi } from "vitest";
 
-import createMinimalSupabaseClient from "@/react/supabase/test-utils/createMinimalSupabaseClient.mock";
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 
@@ -33,10 +33,10 @@ describe("subscribeToUserLibraryEffect", () => {
 	it("creates a realtime subscription and returns cleanup", async () => {
 		vi.resetAllMocks();
 
-		const auth = await import("@/react/supabase/auth-token/getSupabaseAuthToken");
-		const client = await import("@/react/supabase/client/getSupabaseClient");
+		const auth = await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
+		const client = await import("@/react/lib/supabase/client/getSupabaseClient");
 		const createRealtime =
-			await import("@/react/supabase/subscription/realtime/createRealtimeSubscription");
+			await import("@/react/lib/supabase/subscription/realtime/createRealtimeSubscription");
 
 		vi.spyOn(auth, "default").mockResolvedValue("token-xyz");
 		vi.spyOn(client, "default").mockReturnValue(createMinimalSupabaseClient());
@@ -71,8 +71,8 @@ describe("subscribeToUserLibraryEffect", () => {
 
 	it("throws when no supabase client available", async () => {
 		vi.resetAllMocks();
-		const auth = await import("@/react/supabase/auth-token/getSupabaseAuthToken");
-		const client = await import("@/react/supabase/client/getSupabaseClient");
+		const auth = await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
+		const client = await import("@/react/lib/supabase/client/getSupabaseClient");
 
 		vi.spyOn(auth, "default").mockResolvedValue("token-xyz");
 		vi.spyOn(client, "default").mockReturnValue(undefined);

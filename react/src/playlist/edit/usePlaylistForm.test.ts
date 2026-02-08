@@ -3,7 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import mockLocaleWithLang from "@/react/test-utils/mockLocaleWithLang";
+import mockLocaleWithLang from "@/react/lib/test-utils/mockLocaleWithLang";
+import withAuthFetchMock from "@/react/lib/test-utils/withAuthFetchMock";
 
 import submitPlaylist from "./helpers/submitPlaylist";
 import usePlaylistForm from "./usePlaylistForm";
@@ -11,56 +12,6 @@ import usePlaylistForm from "./usePlaylistForm";
 vi.mock("react-router-dom");
 vi.mock("@/react/language/locale/useLocale");
 vi.mock("./helpers/submitPlaylist");
-// Prevent background auth fetches from starting during tests by stubbing
-// network responses for the auth endpoints used by getSupabaseAuthToken.
-/* eslint-disable @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access */
-async function withAuthFetchMock<ReturnType>(task: () => Promise<ReturnType> | ReturnType) {
-	const original =
-		typeof globalThis.fetch === "function" ? globalThis.fetch.bind(globalThis) : undefined;
-
-	async function authFetchMock(input: URL | RequestInfo, init?: RequestInit): Promise<Response> {
-		let url = "";
-		if (typeof input === "string") {
-			url = input;
-		} else if (input instanceof URL) {
-			url = input.href;
-		} else {
-			const req = input as unknown as Request;
-			const { url: reqUrl } = req;
-			url = reqUrl;
-		}
-
-		if (url.endsWith("/api/auth/visitor")) {
-			return Response.json({ access_token: "visitor-token", expires_in: 3600 }, { status: 200 });
-		}
-		if (url.endsWith("/api/auth/user/token")) {
-			return Response.json(
-				{ success: true, data: { access_token: "user-token", expires_in: 3600 } },
-				{ status: 200 },
-			);
-		}
-
-		const result = original ? await original(input as unknown as RequestInfo, init) : undefined;
-		return result ?? new Response(undefined, { status: 404 });
-	}
-
-	Object.defineProperty(globalThis, "fetch", {
-		configurable: true,
-		writable: true,
-		value: authFetchMock,
-	});
-
-	try {
-		return await task();
-	} finally {
-		Object.defineProperty(globalThis, "fetch", {
-			value: original,
-			configurable: true,
-			writable: true,
-		});
-	}
-}
-/* eslint-enable @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access */
 
 describe("usePlaylistEdit", () => {
 	it("delegates submit to submitPlaylist when creating a playlist", async () => {

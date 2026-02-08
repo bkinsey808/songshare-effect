@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 
-import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
+import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";

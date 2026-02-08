@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 
 import ensureSignedIn from "@/react/auth/ensureSignedIn";
-import { clientDebug } from "@/react/utils/clientLogger";
+import { clientDebug } from "@/react/lib/utils/clientLogger";
 
 /**
  * Hook to ensure the user is signed in on mount.

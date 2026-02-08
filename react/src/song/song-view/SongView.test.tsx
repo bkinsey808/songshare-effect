@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import makeSongPublic from "@/react/test-utils/makeSongPublic";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import SongView from "./SongView";

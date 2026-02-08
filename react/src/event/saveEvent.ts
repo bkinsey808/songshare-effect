@@ -5,7 +5,7 @@ import { apiEventSavePath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type { SaveEventRequest } from "./event-types";
-import type { EventSlice } from "./slice/event-slice";
+import type { EventSlice } from "./slice/EventSlice.type";
 
 import {
 	EventSaveApiError,

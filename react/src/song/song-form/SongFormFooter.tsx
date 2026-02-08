@@ -1,14 +1,14 @@
 import { type ReactElement, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import Button from "@/react/design-system/Button";
-import CreateSongIcon from "@/react/design-system/icons/CreateSongIcon";
-import DangerIcon from "@/react/design-system/icons/DangerIcon";
-import EditSongIcon from "@/react/design-system/icons/EditSongIcon";
-import LogOutIcon from "@/react/design-system/icons/LogOutIcon";
-import RotateCcwIcon from "@/react/design-system/icons/RotateCcwIcon";
-import TrashIcon from "@/react/design-system/icons/TrashIcon";
-import XIcon from "@/react/design-system/icons/XIcon";
+import Button from "@/react/lib/design-system/Button";
+import CreateSongIcon from "@/react/lib/design-system/icons/CreateSongIcon";
+import DangerIcon from "@/react/lib/design-system/icons/DangerIcon";
+import EditSongIcon from "@/react/lib/design-system/icons/EditSongIcon";
+import LogOutIcon from "@/react/lib/design-system/icons/LogOutIcon";
+import RotateCcwIcon from "@/react/lib/design-system/icons/RotateCcwIcon";
+import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
+import XIcon from "@/react/lib/design-system/icons/XIcon";
 
 type SongFormFooterProps = {
 	hasChanges: boolean;

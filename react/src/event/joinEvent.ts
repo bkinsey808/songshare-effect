@@ -3,7 +3,7 @@ import { Effect } from "effect";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiEventUserJoinPath } from "@/shared/paths";
 
-import type { EventSlice } from "./slice/event-slice";
+import type { EventSlice } from "./slice/EventSlice.type";
 
 import { EventUserJoinApiError, EventUserJoinNetworkError, type EventError } from "./event-errors";
 

@@ -1,4 +1,4 @@
-import type { RealtimeEventType } from "@/react/supabase/subscription/subscription-types";
+import type { RealtimeEventType } from "@/react/lib/supabase/subscription/subscription-types";
 import type {
 	Playlist,
 	PlaylistInsert,

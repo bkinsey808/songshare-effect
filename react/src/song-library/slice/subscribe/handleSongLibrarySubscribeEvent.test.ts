@@ -1,13 +1,13 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
+import type getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import type {
 	PostgrestResponse,
 	RealtimeChannelLike,
-} from "@/react/supabase/client/SupabaseClientLike";
+} from "@/react/lib/supabase/client/SupabaseClientLike";
 
-import enrichWithOwnerUsername from "@/react/supabase/enrichment/enrichWithOwnerUsername";
+import enrichWithOwnerUsername from "@/react/lib/supabase/enrichment/enrichWithOwnerUsername";
 
 import type { SongLibrarySlice } from "../song-library-slice";
 

@@ -3,13 +3,13 @@ import type { RefObject } from "react";
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { MinimalMediaStream } from "@/react/audio/types";
+import type { MinimalMediaStream } from "@/react/lib/audio/audio-types";
 
-import useAudioVizInput from "@/react/audio/useAudioVizInput";
-import resizeCanvasToDisplaySize from "@/react/canvas/resizeCanvasToDisplaySize";
-import { useCanvasAnimation, type DrawFn } from "@/react/canvas/useCanvasAnimation";
+import useAudioVizInput from "@/react/lib/audio/useAudioVizInput";
+import resizeCanvasToDisplaySize from "@/react/lib/canvas/resizeCanvasToDisplaySize";
+import { useCanvasAnimation, type DrawFn } from "@/react/lib/canvas/useCanvasAnimation";
+import runTypeGpuAudioVizDemo from "@/react/lib/typegpu/runTypeGpuAudioVizDemo";
 import drawAudioVizFallbackFrame from "@/react/pages/demo/typegpu-audio-viz/drawAudioVizFallbackFrame";
-import runTypeGpuAudioVizDemo from "@/react/typegpu/runTypeGpuAudioVizDemo";
 
 import useTypegpuAudioViz from "./useTypegpuAudioViz";
 

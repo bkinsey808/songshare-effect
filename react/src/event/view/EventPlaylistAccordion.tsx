@@ -1,9 +1,4 @@
-import { useEffect, useState } from "react";
-
-import useAppStore from "@/react/app-store/useAppStore";
-import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import fetchUsername from "@/react/supabase/enrichment/fetchUsername";
-import { safeGet } from "@/shared/utils/safe";
+import useEventPlaylistAccordion, { usePlaylistSongDisplay } from "./useEventPlaylistAccordion";
 
 const SONGS_NONE = 0;
 const INDEX_OFFSET = 1;
@@ -32,38 +27,7 @@ function PlaylistSongDisplay({
 	index,
 	publicSongs,
 }: PlaylistSongDisplayProps): React.ReactElement {
-	const song = safeGet(publicSongs, songId);
-	const [ownerUsername, setOwnerUsername] = useState<string | undefined>(undefined);
-
-	useEffect(() => {
-		async function fetchOwner(): Promise<void> {
-			const client = getSupabaseClient();
-			const userId = song?.user_id;
-
-			if (client === undefined || userId === undefined || userId === "") {
-				return;
-			}
-
-			const username = await fetchUsername({
-				client,
-				userId,
-			});
-			if (username !== undefined && username !== "") {
-				setOwnerUsername(username);
-			}
-		}
-
-		if (song?.user_id !== undefined && song.user_id !== "" && ownerUsername === undefined) {
-			void fetchOwner();
-		}
-	}, [song?.user_id, ownerUsername]);
-
-	let subText = "";
-	if (ownerUsername !== undefined && ownerUsername !== "") {
-		subText = `@${ownerUsername}`;
-	} else if (song?.user_id !== undefined && song.user_id !== "") {
-		subText = "...";
-	}
+	const { song, subText } = usePlaylistSongDisplay(songId, publicSongs);
 
 	return (
 		<div className="flex items-start gap-3 rounded bg-gray-100 px-3 py-2">
@@ -86,14 +50,9 @@ function PlaylistSongDisplay({
 export default function EventPlaylistAccordion({
 	playlistId,
 }: EventPlaylistAccordionProps): React.ReactElement {
-	const currentPlaylist = useAppStore((state) => state.currentPlaylist);
-	const publicSongs = useAppStore((state) => state.publicSongs);
+	const { isLoading, playlistName, songOrder, publicSongs } = useEventPlaylistAccordion(playlistId);
 
-	if (
-		currentPlaylist === undefined ||
-		currentPlaylist.playlist_id !== playlistId ||
-		!Array.isArray(currentPlaylist.public?.song_order)
-	) {
+	if (isLoading) {
 		return (
 			<details className="mb-6 rounded-lg border border-gray-600 bg-gray-50 p-6">
 				<summary className="cursor-pointer text-lg font-semibold text-gray-700">
@@ -103,9 +62,6 @@ export default function EventPlaylistAccordion({
 		);
 	}
 
-	const playlistName = currentPlaylist.public?.playlist_name ?? "Untitled Playlist";
-	const songOrder = currentPlaylist.public.song_order;
-
 	return (
 		<details className="mb-6 rounded-lg border border-gray-600 bg-gray-50 p-6" open={false}>
 			<summary className="cursor-pointer text-lg font-semibold text-gray-700 hover:text-gray-900">
@@ -113,7 +69,7 @@ export default function EventPlaylistAccordion({
 			</summary>
 			<div className="mt-4 space-y-2">
 				{songOrder.length > SONGS_NONE ? (
-					(songOrder as readonly string[]).map((songId: string, index: number) => (
+					songOrder.map((songId: string, index: number) => (
 						<PlaylistSongDisplay
 							key={songId}
 							songId={songId}

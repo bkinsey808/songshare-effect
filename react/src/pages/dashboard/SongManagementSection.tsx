@@ -3,10 +3,10 @@ import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import Button from "@/react/design-system/Button";
-import CreateSongIcon from "@/react/design-system/icons/CreateSongIcon";
-import PencilIcon from "@/react/design-system/icons/PencilIcon";
-import SongLibraryIcon from "@/react/design-system/icons/SongLibraryIcon";
+import Button from "@/react/lib/design-system/Button";
+import CreateSongIcon from "@/react/lib/design-system/icons/CreateSongIcon";
+import PencilIcon from "@/react/lib/design-system/icons/PencilIcon";
+import SongLibraryIcon from "@/react/lib/design-system/icons/SongLibraryIcon";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";

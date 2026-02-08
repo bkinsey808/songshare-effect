@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import useLocale from "@/react/language/locale/useLocale";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {
 	activityDemoPath,

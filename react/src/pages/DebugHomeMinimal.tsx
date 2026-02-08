@@ -1,4 +1,4 @@
-import { traceHook } from "@/react/hooks/hookTracer";
+import { traceHook } from "@/react/lib/hooks/hookTracer";
 
 function DebugHomeMinimal(): ReactElement {
 	traceHook("DebugHomeMinimal:render");

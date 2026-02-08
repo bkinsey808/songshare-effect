@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import Button from "@/react/design-system/Button";
-import DangerIcon from "@/react/design-system/icons/DangerIcon";
-import TrashIcon from "@/react/design-system/icons/TrashIcon";
-import XIcon from "@/react/design-system/icons/XIcon";
-import getCookie from "@/react/utils/getCookie";
+import Button from "@/react/lib/design-system/Button";
+import DangerIcon from "@/react/lib/design-system/icons/DangerIcon";
+import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
+import XIcon from "@/react/lib/design-system/icons/XIcon";
+import getCookie from "@/react/lib/utils/getCookie";
 import {
 	EMPTY_STRING,
 	JUST_DELETED_ACCOUNT_SIGNAL,

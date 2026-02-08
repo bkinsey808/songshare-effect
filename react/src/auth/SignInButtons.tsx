@@ -1,9 +1,9 @@
-import useIsOnline from "@/react/hooks/useIsOnline";
-import useLocale from "@/react/language/locale/useLocale";
-import getFrontEndProviderData from "@/react/providers/providers";
-import computeRedirectPort from "@/react/utils/computeRedirectPort";
-import cssVars from "@/react/utils/cssVars";
-import toTitleCase from "@/react/utils/toTitleCase";
+import useIsOnline from "@/react/lib/hooks/useIsOnline";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import getFrontEndProviderData from "@/react/lib/providers/providers";
+import computeRedirectPort from "@/react/lib/utils/computeRedirectPort";
+import cssVars from "@/react/lib/utils/cssVars";
+import toTitleCase from "@/react/lib/utils/toTitleCase";
 import { apiOauthSignInPath } from "@/shared/paths";
 import { activeProviders } from "@/shared/providers";
 import { langQueryParam, redirectPortQueryParam } from "@/shared/queryParams";

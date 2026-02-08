@@ -1,12 +1,12 @@
 import { type ReactElement, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import Button from "@/react/design-system/Button";
-import LogOutIcon from "@/react/design-system/icons/LogOutIcon";
-import PencilIcon from "@/react/design-system/icons/PencilIcon";
-import PlusIcon from "@/react/design-system/icons/PlusIcon";
-import RotateCcwIcon from "@/react/design-system/icons/RotateCcwIcon";
-import XIcon from "@/react/design-system/icons/XIcon";
+import Button from "@/react/lib/design-system/Button";
+import LogOutIcon from "@/react/lib/design-system/icons/LogOutIcon";
+import PencilIcon from "@/react/lib/design-system/icons/PencilIcon";
+import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
+import RotateCcwIcon from "@/react/lib/design-system/icons/RotateCcwIcon";
+import XIcon from "@/react/lib/design-system/icons/XIcon";
 
 type PlaylistFormFooterProps = {
 	hasChanges: boolean;

@@ -4,8 +4,9 @@ import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import { getCachedUserToken } from "@/react/supabase/token/tokenCache";
-import { clientError } from "@/react/utils/clientLogger";
+import { getCachedUserToken } from "@/react/lib/supabase/token/tokenCache";
+import forceCast from "@/react/lib/test-utils/forceCast";
+import { clientError } from "@/react/lib/utils/clientLogger";
 import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
 
 import ensureSignedIn from "./ensureSignedIn";
@@ -51,10 +52,7 @@ function makeAppSlice(overrides: Partial<AppSlice> = {}): AppSlice {
 		setShowSignedInAlert: vi.fn(),
 	};
 	// The test helper returns a full AppSlice shape for callers that expect it.
-	// We suppress the lint rule here because constructing a full AppSlice in tests
-	// would be verbose; this cast is intentionally narrow but safe for tests.
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	return { ...base, ...overrides } as unknown as AppSlice;
+	return forceCast<AppSlice>({ ...base, ...overrides });
 }
 describe("ensureSignedIn", () => {
 	it("returns undefined immediately when store indicates signed out", async () => {
@@ -156,8 +154,7 @@ describe("ensureSignedIn", () => {
 		);
 
 		const payload = { foo: "bar" };
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		const data = { user: { user_id: "u1" } } as unknown as UserSessionData;
+		const data = forceCast<UserSessionData>({ user: { user_id: "u1" } });
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi
 			.fn()
@@ -184,8 +181,7 @@ describe("ensureSignedIn", () => {
 		);
 
 		const payload = { foo: "bar" };
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		const data = { user: { user_id: "u2" } } as unknown as UserSessionData;
+		const data = forceCast<UserSessionData>({ user: { user_id: "u2" } });
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi
 			.fn()

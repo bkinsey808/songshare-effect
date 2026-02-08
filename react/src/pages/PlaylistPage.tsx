@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 
 import useAppStore, { getTypedState } from "@/react/app-store/useAppStore";
-import useLocale from "@/react/language/locale/useLocale";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, songViewPath } from "@/shared/paths";

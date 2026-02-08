@@ -1,12 +1,12 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
+import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 
-import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import createMinimalSupabaseClient from "@/react/supabase/test-utils/createMinimalSupabaseClient.mock";
-import { ONE_CALL, TEST_AUTH_TOKEN } from "@/react/test-helpers/test-consts";
+import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
+import { ONE_CALL, TEST_AUTH_TOKEN } from "@/react/lib/test-helpers/test-consts";
 
 import type { SongLibrarySlice } from "./song-library-slice";
 import type { SongLibraryEntry } from "./song-library-types";

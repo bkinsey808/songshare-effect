@@ -2,13 +2,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import AutoExpandingTextarea from "@/react/design-system/auto-expanding-textarea/AutoExpandingTextarea";
-import Button from "@/react/design-system/Button";
-import FormField from "@/react/design-system/form/FormField";
-import ChevronDownIcon from "@/react/design-system/icons/ChevronDownIcon";
-import ChevronUpIcon from "@/react/design-system/icons/ChevronUpIcon";
-import PlusIcon from "@/react/design-system/icons/PlusIcon";
-import TrashIcon from "@/react/design-system/icons/TrashIcon";
+import AutoExpandingTextarea from "@/react/lib/design-system/auto-expanding-textarea/AutoExpandingTextarea";
+import Button from "@/react/lib/design-system/Button";
+import FormField from "@/react/lib/design-system/form/FormField";
+import ChevronDownIcon from "@/react/lib/design-system/icons/ChevronDownIcon";
+import ChevronUpIcon from "@/react/lib/design-system/icons/ChevronUpIcon";
+import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
+import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
 import { songFields } from "@/react/song/song-schema";
 import { ONE } from "@/shared/constants/shared-constants";
 import { type ReadonlyDeep } from "@/shared/types/deep-readonly";

@@ -1,7 +1,7 @@
 // Prefer per-line console exceptions
 import { type Schema } from "effect";
 
-import { clientDebug } from "@/react/utils/clientLogger";
+import { clientDebug } from "@/react/lib/utils/clientLogger";
 import { type ValidationError } from "@/shared/validation/validate-types";
 import validateForm from "@/shared/validation/validateForm";
 

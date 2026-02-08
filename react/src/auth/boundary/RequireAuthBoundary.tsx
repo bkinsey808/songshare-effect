@@ -1,12 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
 
 import useRequireAuthBoundary from "@/react/auth/boundary/useRequireAuthBoundary";
-import useCurrentLang from "@/react/language/useCurrentLang";
+import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 
 /**
- * RequireAuthBoundary
- *
  * Top-level boundary component used for routes that require an authenticated session.
  * Responsibilities:
  * - Ensure auth state is initialized (via `useEnsureSignedIn`).

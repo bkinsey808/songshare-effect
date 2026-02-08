@@ -62,7 +62,7 @@ const useAppStore = create<AppSlice>()(
 					// can be inferred as `any`.
 					for (const key of Object.keys(state) as (keyof AppSlice)[]) {
 						if (!omittedPersistKeysSet.has(key as string)) {
-							result[key] = state[key];
+							result[key as string] = (state as Record<string, unknown>)[key as string];
 						}
 					}
 					return result as Partial<AppSlice>;

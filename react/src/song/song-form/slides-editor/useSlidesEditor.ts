@@ -1,6 +1,6 @@
 import { type DragEndEvent, type SensorDescriptor, type SensorOptions } from "@dnd-kit/core";
 
-import { clientDebug } from "@/react/utils/clientLogger";
+import { clientDebug } from "@/react/lib/utils/clientLogger";
 
 import { type Slide } from "../song-form-types";
 import useSlideData from "./useSlideData";

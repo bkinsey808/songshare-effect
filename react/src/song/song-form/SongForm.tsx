@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
-import CreateSongIcon from "@/react/design-system/icons/CreateSongIcon";
-import EditSongIcon from "@/react/design-system/icons/EditSongIcon";
+import CreateSongIcon from "@/react/lib/design-system/icons/CreateSongIcon";
+import EditSongIcon from "@/react/lib/design-system/icons/EditSongIcon";
 
 import CollapsibleSection from "./CollapsibleSection";
 import SlidesGridView from "./grid-editor/SlidesGridView";

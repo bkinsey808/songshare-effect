@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import type addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import makeSongPublic from "@/react/test-utils/makeSongPublic";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 
 import { type SongPublic } from "../song-schema";
 import { useSongView } from "./useSongView";

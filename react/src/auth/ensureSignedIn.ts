@@ -1,8 +1,8 @@
 // Prefer per-line console exceptions
 
 import useAppStore from "@/react/app-store/useAppStore";
-import { getCachedUserToken } from "@/react/supabase/token/tokenCache";
-import { clientDebug, clientError } from "@/react/utils/clientLogger";
+import { getCachedUserToken } from "@/react/lib/supabase/token/tokenCache";
+import { clientDebug, clientError } from "@/react/lib/utils/clientLogger";
 import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
 import { apiMePath } from "@/shared/paths";
 import { type UserSessionData } from "@/shared/userSessionData";

@@ -4,8 +4,8 @@ import RequireAuthBoundary from "@/react/auth/boundary/RequireAuthBoundary";
 import { dashboardPath } from "@/shared/paths";
 
 import AppHydrationBoundary from "../app/AppHydrationBoundary";
-import LanguageDetector from "../language/detector/LanguageDetector";
-import LanguageProvider from "../language/provider/LanguageProvider";
+import LanguageDetector from "../lib/language/detector/LanguageDetector";
+import LanguageProvider from "../lib/language/provider/LanguageProvider";
 import dashboardRoutes from "./dashboardRoutes";
 import publicRoutes from "./publicRoutes";
 

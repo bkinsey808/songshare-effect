@@ -2,11 +2,11 @@ import { Effect } from "effect";
 import assert from "node:assert";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SupabaseClientLike } from "@/react/supabase/client/SupabaseClientLike";
+import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 import type { Database } from "@/shared/generated/supabaseTypes";
 
-import createMinimalSupabaseClient from "@/react/supabase/test-utils/createMinimalSupabaseClient.mock";
-import { ONE_CALL } from "@/react/test-helpers/test-consts";
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
+import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type { SongLibrarySlice } from "../song-library-slice";
@@ -80,10 +80,10 @@ describe("subscribeToSongPublic", () => {
 			return slice;
 		}
 
-		const authTokenModule = await import("@/react/supabase/auth-token/getSupabaseAuthToken");
-		const clientModule = await import("@/react/supabase/client/getSupabaseClient");
+		const authTokenModule = await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
+		const clientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
 		const createRealtimeModule =
-			await import("@/react/supabase/subscription/realtime/createRealtimeSubscription");
+			await import("@/react/lib/supabase/subscription/realtime/createRealtimeSubscription");
 
 		vi.spyOn(authTokenModule, "default").mockResolvedValue("token-abc");
 		vi.spyOn(clientModule, "default").mockReturnValue(createMockSupabaseClient());

@@ -1,12 +1,13 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { PostgrestResponse } from "@/react/supabase/client/SupabaseClientLike";
+import type { PostgrestResponse } from "@/react/lib/supabase/client/SupabaseClientLike";
 
-import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import callSelect from "@/react/supabase/client/safe-query/callSelect";
-import createMinimalSupabaseClient from "@/react/supabase/test-utils/createMinimalSupabaseClient.mock";
+import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
+import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
@@ -130,9 +131,7 @@ describe("fetchUserLibraryEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TEST_TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(minimalClient);
 
-		// Make callSelect return a non-record (undefined) so the type-guard fails
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- returning a non-record intentionally to exercise error branch
-		vi.mocked(callSelect).mockResolvedValueOnce(undefined as unknown as PostgrestResponse);
+		vi.mocked(callSelect).mockResolvedValueOnce(asPostgrestResponse(undefined));
 
 		const slice = makeGet();
 		function get(): UserLibrarySlice {
@@ -159,9 +158,8 @@ describe("fetchUserLibraryEffect", () => {
 		};
 
 		vi.mocked(callSelect)
-			.mockResolvedValueOnce({ data: [libRow] } as PostgrestResponse)
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- intentional non-record owner response
-			.mockResolvedValueOnce(undefined as unknown as PostgrestResponse);
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [libRow] }))
+			.mockResolvedValueOnce(asPostgrestResponse(undefined));
 		const slice = makeGet();
 		function get(): UserLibrarySlice {
 			return slice;

@@ -2,10 +2,15 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import useHydration from "@/react/app/useHydration";
-import Button from "@/react/design-system/Button";
-import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
-import LogOutIcon from "@/react/design-system/icons/LogOutIcon";
-import TrashIcon from "@/react/design-system/icons/TrashIcon";
+import Button from "@/react/lib/design-system/Button";
+import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
+import LogOutIcon from "@/react/lib/design-system/icons/LogOutIcon";
+import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
+import {
+	REGISTERED_SUCCESS,
+	SIGNED_IN_SUCCESS,
+	UNAUTHORIZED_ACCESS,
+} from "@/react/pages/home/alert-keys";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
@@ -65,7 +70,7 @@ function DashboardPage(): ReactElement {
 					setShowRegisteredAlert(false);
 				}}
 				variant="success"
-				alertType={showRegisteredAlert ? "registeredSuccess" : "signedInSuccess"}
+				alertType={showRegisteredAlert ? REGISTERED_SUCCESS : SIGNED_IN_SUCCESS}
 			>
 				{showRegisteredAlert
 					? t("pages.dashboard.createdAccountSuccess", "You have successfully created an account.")
@@ -79,7 +84,7 @@ function DashboardPage(): ReactElement {
 					setShowUnauthorizedAlert(false);
 				}}
 				variant="error"
-				alertType="unauthorizedAccess"
+				alertType={UNAUTHORIZED_ACCESS}
 			>
 				{t("pages.dashboard.unauthorizedAccess", "You do not have permission to access that song.")}
 			</DismissibleAlert>

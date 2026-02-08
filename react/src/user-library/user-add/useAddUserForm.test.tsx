@@ -2,17 +2,16 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import { makeChangeEvent, makeFormEventWithPreventDefault } from "@/react/test-utils/dom-events";
+import {
+	makeChangeEvent,
+	makeFormEventWithPreventDefault,
+} from "@/react/lib/test-utils/dom-events";
 
-import runAddUserFlow from "./runAddUserFlow";
+import runAddUserFlow, { type RunAddUserFlowParams as RunParams } from "./runAddUserFlow";
 import useAddUserForm from "./useAddUserForm";
 
 vi.mock("./runAddUserFlow");
 const mockedRunAddUserFlow = vi.mocked(runAddUserFlow);
-
-// Typed aliases for mock implementations
-// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-type RunParams = Parameters<typeof runAddUserFlow>[number];
 
 describe("useAddUserForm (basic state)", () => {
 	it("initializes with default state", () => {
@@ -57,10 +56,6 @@ describe("useAddUserForm (basic state)", () => {
 
 	it("handleSubmit executes flow and resets on success", async () => {
 		const { result } = renderHook(() => useAddUserForm());
-
-		// typed params for `runAddUserFlow` argument
-		// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-		type RunParams = Parameters<typeof runAddUserFlow>[number];
 
 		let ran = false;
 
@@ -137,7 +132,6 @@ describe("useAddUserForm (basic state)", () => {
 			expect(result.current.error).toBe("boom");
 			expect(result.current.isLoading).toBe(false);
 		});
-		/* eslint-enable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-explicit-any */
 	});
 
 	it("dismissError is safe to call (no-op when no error)", () => {

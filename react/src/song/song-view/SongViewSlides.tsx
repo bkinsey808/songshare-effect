@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import Button from "@/react/design-system/Button";
-import XIcon from "@/react/design-system/icons/XIcon";
+import Button from "@/react/lib/design-system/Button";
+import XIcon from "@/react/lib/design-system/icons/XIcon";
 
 import { type SongPublic } from "../song-schema";
 import SongViewCurrentSlide from "./SongViewCurrentSlide";

@@ -2,10 +2,10 @@ import { Effect } from "effect";
 import { useEffect } from "react";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import Button from "@/react/design-system/Button";
-import DismissibleAlert from "@/react/design-system/dismissible-alert/DismissibleAlert";
 import EventPlaylistAccordion from "@/react/event/view/EventPlaylistAccordion";
 import useEventView from "@/react/event/view/useEventView";
+import Button from "@/react/lib/design-system/Button";
+import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
 import { utcTimestampToClientLocalDate } from "@/shared/utils/formatEventDate";
 
 const MIN_PARTICIPANTS = 0;

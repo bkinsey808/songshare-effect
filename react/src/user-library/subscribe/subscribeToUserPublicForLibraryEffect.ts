@@ -1,8 +1,8 @@
 import { Effect } from "effect";
 
-import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import createRealtimeSubscription from "@/react/supabase/subscription/realtime/createRealtimeSubscription";
+import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 

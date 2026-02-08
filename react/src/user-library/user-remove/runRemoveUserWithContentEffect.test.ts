@@ -1,5 +1,7 @@
-import { Effect } from "effect";
+import { Effect, type Effect as EffectType } from "effect";
 import { describe, expect, it, vi } from "vitest";
+
+import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
 
@@ -85,10 +87,9 @@ describe("runRemoveUserWithContentEffect", () => {
 			created_at: "now",
 		};
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- intentionally fail with non-Error to verify mapping to Error
-		const removeFromUserLibrary = vi.fn(() => Effect.fail(raw as unknown)) as unknown as (params: {
-			readonly followed_user_id: string;
-		}) => Effect.Effect<void, Error>;
+		const removeFromUserLibrary = forceCast<
+			(params: { readonly followed_user_id: string }) => EffectType.Effect<void, Error>
+		>(vi.fn(() => Effect.fail(raw as unknown)));
 		const removeSongFromSongLibrary = vi.fn(() => Effect.succeed(undefined));
 		const removePlaylistFromLibrary = vi.fn(() => Effect.succeed(undefined));
 

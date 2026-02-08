@@ -1,9 +1,10 @@
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { mockTypeGpu } from "@/react/test-utils/mockTypeGpu";
+import waitForAsync from "@/react/lib/test-utils/waitForAsync";
+import { mockTypeGpu, mockTypeGpuWithoutInit } from "@/react/lib/typegpu/mockTypeGpu.mock";
 
 describe("typeGpuDemoPage (TypeGPU integration)", () => {
 	it("calls runTypeGpuDemo when clicking 'Run installed TypeGPU' button", async () => {
@@ -39,5 +40,37 @@ describe("typeGpuDemoPage (TypeGPU integration)", () => {
 			expect.any(Number),
 			expect.any(Object),
 		);
+	});
+
+	it("displays error when typegpu module initialization fails", async () => {
+		vi.resetModules();
+		vi.doUnmock("@/react/typegpu/runTypeGpuDemo");
+		mockTypeGpuWithoutInit();
+		const { default: TypeGpuDemoPage } = await import("./TypeGpuDemoPage");
+
+		const container = document.createElement("div");
+		const root = createRoot(container);
+
+		act(() => {
+			root.render(
+				<MemoryRouter>
+					<TypeGpuDemoPage />
+				</MemoryRouter>,
+			);
+		});
+
+		const buttons = container.querySelectorAll("button");
+		const [, runTypeGpuButton] = buttons;
+		expect(runTypeGpuButton).not.toBeNull();
+
+		act(() => {
+			runTypeGpuButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+		});
+
+		// Wait for async operations and state updates to settle
+		await waitForAsync();
+
+		const errorRegex = /typegpu module present but no known demo API found/u;
+		expect(container.textContent).toMatch(errorRegex);
 	});
 });

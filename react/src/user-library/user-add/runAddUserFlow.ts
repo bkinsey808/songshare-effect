@@ -4,7 +4,7 @@ import type lookupUserByUsernameEffect from "../lookupUserByUsernameEffect";
 
 import createAddUserEffect from "./createAddUserEffect";
 
-type RunAddUserFlowParams = Readonly<{
+export type RunAddUserFlowParams = Readonly<{
 	username: string;
 	lookupUserByUsername: typeof lookupUserByUsernameEffect;
 	addUserToLibrary: (params: { readonly followed_user_id: string }) => Effect.Effect<void, Error>;

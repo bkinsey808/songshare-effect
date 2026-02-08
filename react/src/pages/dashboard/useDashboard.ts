@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import { appStore } from "@/react/app-store/useAppStore";
-import getCurrentLangFromPath from "@/react/language/path/getCurrentLangFromPath";
-import { clientDebug, clientError, clientWarn } from "@/react/utils/clientLogger";
+import getCurrentLangFromPath from "@/react/lib/language/path/getCurrentLangFromPath";
+import { clientDebug, clientError, clientWarn } from "@/react/lib/utils/clientLogger";
 import { SIGNAL_ONE } from "@/shared/constants/http";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";

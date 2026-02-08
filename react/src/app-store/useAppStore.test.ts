@@ -1,6 +1,11 @@
+import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
+
 import type { AppSlice } from "./AppSlice.type";
+
+const WAIT_TIMEOUT = 2000;
 
 describe("useAppStore persist behavior", () => {
 	it("omits transient keys when persisting state", async () => {
@@ -9,12 +14,19 @@ describe("useAppStore persist behavior", () => {
 
 		const { appStore } = await import("./useAppStore");
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		const initial = (appStore as unknown as { getState: () => AppSlice }).getState();
+		const initial = forceCast<{ getState: () => AppSlice }>(appStore).getState();
 		expect(typeof initial.setShowSignedInAlert).toBe("function");
 
 		// Use the slice action to trigger a state change which will be persisted
 		initial.setShowSignedInAlert(true);
+
+		// Wait for persistence to flush (debounced async write)
+		await waitFor(
+			() => {
+				expect(localStorage.getItem("app-store")).not.toBeNull();
+			},
+			{ timeout: WAIT_TIMEOUT },
+		);
 
 		// Inspect persisted blob and ensure omitted keys are not present
 		const raw = localStorage.getItem("app-store");

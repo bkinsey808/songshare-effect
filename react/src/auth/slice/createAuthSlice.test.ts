@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import type { UserSessionData } from "@/shared/userSessionData";
 
-import fetchSupabaseUserTokenFromApi from "@/react/supabase/auth-token/fetchSupabaseUserTokenFromApi";
+import fetchSupabaseUserTokenFromApi from "@/react/lib/supabase/auth-token/fetchSupabaseUserTokenFromApi";
+import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { AuthSlice, AuthState } from "./auth-slice.types";
 
@@ -53,11 +54,9 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 			| ((stateParam: AuthState & AuthSlice) => AuthState & AuthSlice),
 	): void {
 		if (typeof patchOrUpdater === "function") {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			const next = (patchOrUpdater as (stateParam: AuthState & AuthSlice) => AuthState & AuthSlice)(
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				state as AuthState & AuthSlice,
-			);
+			const next = forceCast<(stateParam: AuthState & AuthSlice) => AuthState & AuthSlice>(
+				patchOrUpdater,
+			)(forceCast<AuthState & AuthSlice>(state));
 			Object.assign(state, next);
 		} else {
 			Object.assign(state, patchOrUpdater);
@@ -65,8 +64,7 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 	}
 
 	function get(): AuthState & AuthSlice {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		return state as AuthState & AuthSlice;
+		return forceCast<AuthState & AuthSlice>(state);
 	}
 
 	const api: Api<AuthSlice> = {

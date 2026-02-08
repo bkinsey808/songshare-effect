@@ -1,7 +1,7 @@
 import { type ReactElement } from "react";
 
-import AudioInputDeviceSelect from "@/react/audio/AudioInputDeviceSelect";
 import DemoNavigation from "@/react/demo/DemoNavigation";
+import AudioInputDeviceSelect from "@/react/lib/audio/audio-input-device-select/AudioInputDeviceSelect";
 
 type Props = {
 	title: string;

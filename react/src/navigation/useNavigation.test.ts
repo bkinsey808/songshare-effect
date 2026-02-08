@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { resetAllSlices } from "@/react/app-store/slice-reset-fns";
 import useAppStore from "@/react/app-store/useAppStore";
-import mockLocaleWithLang from "@/react/test-utils/mockLocaleWithLang";
+import mockLocaleWithLang from "@/react/lib/test-utils/mockLocaleWithLang";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import getPathWithoutLang from "@/shared/language/getPathWithoutLang";
 

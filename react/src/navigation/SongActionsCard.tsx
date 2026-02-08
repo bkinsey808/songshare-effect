@@ -1,9 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 
-import Button from "@/react/design-system/Button";
-import CreateSongIcon from "@/react/design-system/icons/CreateSongIcon";
-import SongLibraryIcon from "@/react/design-system/icons/SongLibraryIcon";
-import useLocale from "@/react/language/locale/useLocale";
+import Button from "@/react/lib/design-system/Button";
+import CreateSongIcon from "@/react/lib/design-system/icons/CreateSongIcon";
+import SongLibraryIcon from "@/react/lib/design-system/icons/SongLibraryIcon";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, songEditPath, songLibraryPath } from "@/shared/paths";
 

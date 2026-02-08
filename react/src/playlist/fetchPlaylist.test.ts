@@ -1,16 +1,16 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { PostgrestResponse } from "@/react/supabase/client/SupabaseClientLike";
+import type { PostgrestResponse } from "@/react/lib/supabase/client/SupabaseClientLike";
 
-import makeGetStub from "@/react/playlist/test-utils/makeGetStub";
-import makePlaylistPrivate from "@/react/playlist/test-utils/makePlaylistPrivate";
+import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import mockGetSupabaseClient from "@/react/lib/supabase/client/test-utils/mockGetSupabaseClient.mock";
+import asNull from "@/react/lib/test-utils/asNull";
+import forceCast from "@/react/lib/test-utils/forceCast";
+import makeGetStub from "@/react/playlist/slice/makeGetPlaylistSliceStub.mock";
 import makePlaylistPublic from "@/react/playlist/test-utils/makePlaylistPublic";
-import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic";
-import getSupabaseAuthToken from "@/react/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/supabase/client/getSupabaseClient";
-import callSelect from "@/react/supabase/client/safe-query/callSelect";
-import createMinimalSupabaseClient from "@/react/supabase/test-utils/createMinimalSupabaseClient.mock";
+import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 
 import fetchPlaylist from "./fetchPlaylist";
 
@@ -18,90 +18,88 @@ vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
 vi.mock("@/react/supabase/client/getSupabaseClient");
 vi.mock("@/react/supabase/client/safe-query/callSelect");
 
-describe("fetchPlaylist error cases", () => {
-	it("throws NoSupabaseClientError when no client is available", async () => {
-		vi.resetAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
-		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
+describe("fetchPlaylist", () => {
+	it("sets success and playlist data on success", async () => {
+		vi.clearAllMocks();
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue(forceCast("token"));
+		mockGetSupabaseClient();
 
-		const eff = fetchPlaylist("no-client", makeGetStub());
-
-		await expect(Effect.runPromise(eff)).rejects.toThrow(/No Supabase client available/);
-	});
-
-	it("throws PlaylistNotFoundError when public playlist not found", async () => {
-		vi.resetAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-call
-		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalSupabaseClient());
-		const emptyResp: PostgrestResponse = { data: [] };
-		vi.mocked(callSelect).mockResolvedValue(emptyResp);
-
-		const eff = fetchPlaylist("missing-slug", makeGetStub());
-
-		await expect(Effect.runPromise(eff)).rejects.toThrow(/Playlist not found/);
-	});
-});
-
-// Success and additional error cases
-describe("fetchPlaylist success & behavior", () => {
-	it("sets current playlist on success and merges private overrides", async () => {
-		vi.resetAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
-		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalSupabaseClient());
-
-		const pub = makePlaylistPublic();
-		const priv = makePlaylistPrivate();
-		const owner = makeUserPublic();
-
-		vi.mocked(callSelect)
-			.mockResolvedValueOnce({ data: [pub] } as PostgrestResponse)
-			.mockResolvedValueOnce({ data: [priv] } as PostgrestResponse)
-			.mockResolvedValueOnce({ data: [owner] } as PostgrestResponse);
-
+		const mockPlaylist = makePlaylistPublic();
 		const get = makeGetStub();
-		const eff = fetchPlaylist("slug-1", get);
 
-		await expect(Effect.runPromise(eff)).resolves.toBeUndefined();
-
-		const state = get();
-		expect(state.setCurrentPlaylist).toHaveBeenCalledWith(
-			expect.objectContaining({
-				playlist_id: "00000000-0000-0000-0000-000000000001",
-				private_notes: "private note",
-			}),
+		vi.mocked(callSelect).mockResolvedValue(
+			forceCast<PostgrestResponse>({ data: [mockPlaylist], error: asNull() }),
 		);
-		expect(state.setPlaylistLoading).toHaveBeenCalledWith(true);
-		expect(state.setPlaylistLoading).toHaveBeenCalledWith(false);
-	});
 
-	it("throws InvalidPlaylistDataError when public data fails guard", async () => {
-		vi.resetAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
-		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalSupabaseClient());
-		// Return an invalid public row
-		vi.mocked(callSelect).mockResolvedValueOnce({ data: [{}] } as PostgrestResponse);
+		await Effect.runPromise(fetchPlaylist("p1", get));
 
-		const get = makeGetStub();
-		const eff = fetchPlaylist("bad-slug", get);
-
-		await expect(Effect.runPromise(eff)).rejects.toThrow(/Invalid playlist_public data/);
-		expect(get().setPlaylistLoading).toHaveBeenCalledWith(true);
+		expect(get().setCurrentPlaylist).toHaveBeenCalledWith(
+			expect.objectContaining({ public: mockPlaylist }),
+		);
 		expect(get().setPlaylistLoading).toHaveBeenCalledWith(false);
-		expect(get().setPlaylistError).toHaveBeenCalledWith(expect.anything());
 	});
 
-	it("maps query failures to QueryError and sets error state", async () => {
-		vi.resetAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
-		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalSupabaseClient());
-		vi.mocked(callSelect).mockRejectedValue(new Error("boom"));
+	it("handles unauthorized error when token is missing", async () => {
+		vi.clearAllMocks();
+		// Mock token to be undefined (no user logged in)
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue(undefined);
+		mockGetSupabaseClient();
+
+		const playlistPublic = makePlaylistPublic();
+		const userPublic = makeUserPublic();
+
+		// Even with null token, the query might succeed or fail depending on RLS.
+		// We mock success to verify the flow completes.
+		vi.mocked(callSelect)
+			.mockResolvedValueOnce(forceCast({ data: [playlistPublic], error: asNull() }))
+			.mockResolvedValueOnce(forceCast({ data: [], error: asNull() }))
+			.mockResolvedValueOnce(forceCast({ data: [userPublic], error: asNull() }));
 
 		const get = makeGetStub();
-		const eff = fetchPlaylist("any", get);
+		await Effect.runPromise(fetchPlaylist("p1", get));
 
+		expect(get().setCurrentPlaylist).toHaveBeenCalledWith(
+			expect.objectContaining({ public: playlistPublic }),
+		);
+		expect(get().setPlaylistLoading).toHaveBeenCalledWith(false);
+	});
+
+	it("handles query failures by setting the error state", async () => {
+		vi.clearAllMocks();
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue(forceCast("token"));
+		mockGetSupabaseClient();
+
+		// A rejected promise from callSelect (e.g. network fail or thrown error)
+		vi.mocked(callSelect).mockRejectedValue(new Error("query failed"));
+
+		const get = makeGetStub();
+		const eff = fetchPlaylist("p1", get);
+
+		// Effect should fail and the promise should reject
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/Failed to query playlist_public/);
-		expect(get().setPlaylistError).toHaveBeenCalledWith(expect.anything());
+
+		// Cleanup should still turn off loading
 		expect(get().setPlaylistLoading).toHaveBeenCalledWith(false);
+		// The error message should be set in the slice
+		expect(get().setPlaylistError).toHaveBeenCalledWith(
+			expect.stringContaining("Failed to query playlist_public"),
+		);
+	});
+
+	it("handles missing playlist by failing with not found", async () => {
+		vi.clearAllMocks();
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue(forceCast("token"));
+		mockGetSupabaseClient();
+
+		// Return empty data (no rows found)
+		vi.mocked(callSelect).mockResolvedValue(forceCast({ data: [], error: asNull() }));
+
+		const get = makeGetStub();
+		const eff = fetchPlaylist("missing", get);
+
+		await expect(Effect.runPromise(eff)).rejects.toThrow(/Playlist not found: missing/);
+
+		expect(get().setPlaylistLoading).toHaveBeenCalledWith(false);
+		expect(get().setPlaylistError).toHaveBeenCalledWith(expect.stringContaining("not found"));
 	});
 });

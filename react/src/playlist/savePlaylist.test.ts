@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/require-await, promise/prefer-await-to-then, @typescript-eslint/no-unsafe-type-assertion */
-
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import mockFetchResponse from "@/react/lib/test-utils/mockFetchResponse";
+
 import savePlaylist from "./savePlaylist";
-import makeGetStub from "./test-utils/makeGetStub";
+import makeGetStub from "./slice/makeGetPlaylistSliceStub.mock";
 
 const sampleRequest = {
 	playlist_name: "test",
@@ -26,11 +26,12 @@ describe("savePlaylist error cases", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal(
 			"fetch",
-			vi.fn().mockResolvedValue({
-				ok: false,
-				status: 500,
-				text: () => Promise.resolve("server err"),
-			} as unknown as Response),
+			vi.fn().mockResolvedValue(
+				mockFetchResponse("server err", {
+					ok: false,
+					status: 500,
+				}),
+			),
 		);
 
 		const eff = savePlaylist(sampleRequest, makeGetStub());
@@ -43,11 +44,13 @@ describe("savePlaylist error cases", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal(
 			"fetch",
-			vi.fn().mockResolvedValue({
-				ok: true,
-				status: 200,
-				json: () => Promise.reject(new Error("bad json")),
-			} as unknown),
+			vi.fn().mockResolvedValue(
+				mockFetchResponse(undefined, {
+					ok: true,
+					status: 200,
+					jsonError: new Error("bad json"),
+				}),
+			),
 		);
 
 		const eff = savePlaylist(sampleRequest, makeGetStub());
@@ -58,14 +61,7 @@ describe("savePlaylist error cases", () => {
 
 	it("throws PlaylistSaveInvalidResponseError when response missing playlist_id", async () => {
 		vi.resetAllMocks();
-		vi.stubGlobal(
-			"fetch",
-			vi.fn().mockResolvedValue({
-				ok: true,
-				status: 200,
-				json: () => Promise.resolve({ data: {} }),
-			} as unknown),
-		);
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockFetchResponse({ data: {} })));
 
 		const eff = savePlaylist(sampleRequest, makeGetStub());
 		const promise = Effect.runPromise(eff);
@@ -77,11 +73,7 @@ describe("savePlaylist error cases", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal(
 			"fetch",
-			vi.fn().mockResolvedValue({
-				ok: true,
-				status: 200,
-				json: () => Promise.resolve({ data: { playlist_id: "abc-123" } }),
-			} as unknown as Response),
+			vi.fn().mockResolvedValue(mockFetchResponse({ data: { playlist_id: "abc-123" } })),
 		);
 
 		const get = makeGetStub();

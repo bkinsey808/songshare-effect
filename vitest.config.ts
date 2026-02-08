@@ -55,6 +55,11 @@ export default defineConfig({
 			],
 		],
 		environment: "jsdom",
+		environmentOptions: {
+			jsdom: {
+				url: "https://localhost",
+			},
+		},
 		include: ["**/*.test.ts", "**/*.test.tsx"],
 		exclude: ["**/*.spec.ts", "**/*.spec.tsx", "dist/**", "node_modules/**", "e2e/**"],
 		coverage: {

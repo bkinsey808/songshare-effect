@@ -1,7 +1,7 @@
 import { useRef, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
-import useResizeCanvasToDisplaySizeOnWindowResize from "@/react/canvas/useResizeCanvasToDisplaySizeOnWindowResize";
+import useResizeCanvasToDisplaySizeOnWindowResize from "@/react/lib/canvas/useResizeCanvasToDisplaySizeOnWindowResize";
 import TypegpuAudioVizDemoView from "@/react/pages/demo/typegpu-audio-viz/TypegpuAudioVizDemoView";
 import useTypegpuAudioViz from "@/react/pages/demo/typegpu-audio-viz/useTypegpuAudioViz";
 import { ZERO } from "@/shared/constants/shared-constants";

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { DELETE_SUCCESS, SIGN_OUT_SUCCESS } from "@/react/pages/home/alert-keys";
 import {
 	displayedKey,
 	justDeletedAccountKey,
@@ -16,7 +17,7 @@ describe("getInitialAlertState", () => {
 		vi.resetAllMocks();
 		sessionStorage.clear();
 		sessionStorage.setItem(displayedKey, "1");
-		sessionStorage.setItem(typeKey, "deleteSuccess");
+		sessionStorage.setItem(typeKey, DELETE_SUCCESS);
 
 		const res = getInitialAlertState();
 
@@ -33,11 +34,11 @@ describe("getInitialAlertState", () => {
 
 		const res = getInitialAlertState();
 
-		expect(res).toStrictEqual({ visible: false, type: "" });
+		expect(res).toStrictEqual({ visible: false });
 
 		// Also ensure explicit empty string behaves the same
 		sessionStorage.setItem(typeKey, "");
-		expect(getInitialAlertState()).toStrictEqual({ visible: false, type: "" });
+		expect(getInitialAlertState()).toStrictEqual({ visible: false });
 	});
 
 	// When `justDeletedAccount` transient flag is set, the alert should show
@@ -52,7 +53,7 @@ describe("getInitialAlertState", () => {
 
 		expect(res).toStrictEqual({ visible: true, type: "deleteSuccess" });
 		expect(sessionStorage.getItem(displayedKey)).toBe("1");
-		expect(sessionStorage.getItem(typeKey)).toBe("deleteSuccess");
+		expect(sessionStorage.getItem(typeKey)).toBe(DELETE_SUCCESS);
 		expect(sessionStorage.getItem(justDeletedAccountKey)).toBeNull();
 		expect(sessionStorage.getItem(justSignedOutKey)).toBeNull();
 	});
@@ -67,9 +68,9 @@ describe("getInitialAlertState", () => {
 
 		const res = getInitialAlertState();
 
-		expect(res).toStrictEqual({ visible: true, type: "signOutSuccess" });
+		expect(res).toStrictEqual({ visible: true, type: SIGN_OUT_SUCCESS });
 		expect(sessionStorage.getItem(displayedKey)).toBe("1");
-		expect(sessionStorage.getItem(typeKey)).toBe("signOutSuccess");
+		expect(sessionStorage.getItem(typeKey)).toBe(SIGN_OUT_SUCCESS);
 		expect(sessionStorage.getItem(justDeletedAccountKey)).toBeNull();
 		expect(sessionStorage.getItem(justSignedOutKey)).toBeNull();
 	});
@@ -113,7 +114,7 @@ describe("getInitialAlertState", () => {
 
 		const res = getInitialAlertState();
 
-		expect(res).toStrictEqual({ visible: false, type: "" });
+		expect(res).toStrictEqual({ visible: false });
 
 		const MIN_EXPECTED_LOG_ENTRIES = 1;
 		expect(logged.length).toBeGreaterThanOrEqual(MIN_EXPECTED_LOG_ENTRIES);

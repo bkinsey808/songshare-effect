@@ -1,9 +1,9 @@
 // Prefer per-line console exceptions
 import { Effect } from "effect";
 
-import { clientDebug } from "@/react/utils/clientLogger";
+import { clientDebug } from "@/react/lib/utils/clientLogger";
 
-import { type ApiResponseAction } from "./ApiResponseAction";
+import { type ApiResponseAction } from "./ApiResponseAction.type";
 import createApiResponseEffect from "./createApiResponseEffect";
 
 /**

@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 
 import DemoNavigation from "@/react/demo/DemoNavigation";
-import useLocale from "@/react/language/locale/useLocale";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import {
 	activityDemoPath,
 	hookDemoPath,

@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import { clientWarn } from "@/react/utils/clientLogger";
+import { clientWarn } from "@/react/lib/utils/clientLogger";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiPlaylistLibraryAddPath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";

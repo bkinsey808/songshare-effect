@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import makeSongFromIds from "@/react/test-utils/makeSongFromIds";
+import makeSongFromIds from "@/react/song/test-utils/makeSongFromIds.mock";
 // Numeric constants used in assertions to make expected values explicit.
 import { ONE, THREE, TWO, ZERO } from "@/shared/constants/shared-constants";
 

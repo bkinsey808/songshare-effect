@@ -1,0 +1,46 @@
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+// Import translation resources
+import detectInitialLanguage from "@/react/lib/language/detector/detectInitialLanguage";
+import en from "@/react/translations/en.json";
+import es from "@/react/translations/es.json";
+import zh from "@/react/translations/zh.json";
+import { type SupportedLanguageType } from "@/shared/language/supported-languages";
+
+const resources: Record<SupportedLanguageType, { translation: Record<string, unknown> }> = {
+	en: { translation: en },
+	es: { translation: es },
+	zh: { translation: zh },
+} as const;
+
+const initialLanguage = detectInitialLanguage();
+
+// oxlint-disable-next-line no-named-as-default-member
+void i18n.use(initReactI18next).init({
+	resources,
+	// Set initial language from URL
+	lng: initialLanguage,
+	fallbackLng: "en",
+	// Enable debug only when explicitly requested. This keeps dev-time
+	// i18next noise quiet for Playwright/dev runs unless you set
+	// VITE_I18NEXT_DEBUG=true (or "1").
+	debug:
+		import.meta.env["VITE_I18NEXT_DEBUG"] === "1" ||
+		import.meta.env["VITE_I18NEXT_DEBUG"] === "true",
+
+	// Disable automatic detection - handled by middleware
+	detection: { order: [] },
+
+	interpolation: {
+		// React already escapes values
+		escapeValue: false,
+	},
+
+	// Enable Suspense for smooth loading transitions
+	react: {
+		useSuspense: false,
+	},
+});
+
+export default i18n;

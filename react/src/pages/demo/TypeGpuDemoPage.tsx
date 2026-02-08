@@ -2,9 +2,9 @@ import { useEffect, useRef, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import typegpu from "typegpu";
 
-import { useCanvasAnimation } from "@/react/canvas/useCanvasAnimation";
 import DemoNavigation from "@/react/demo/DemoNavigation";
-import runTypeGpuDemo from "@/react/typegpu/runTypeGpuDemo";
+import { useCanvasAnimation } from "@/react/lib/canvas/useCanvasAnimation";
+import runTypeGpuDemo from "@/react/lib/typegpu/runTypeGpuDemo";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 /**

@@ -3,7 +3,7 @@ import type { AppSlice } from "@/react/app-store/AppSlice.type";
 
 import createAuthSlice from "@/react/auth/slice/createAuthSlice";
 import createEventLibrarySlice from "@/react/event-library/slice/createEventLibrarySlice";
-import { createEventSlice } from "@/react/event/slice/event-slice";
+import createEventSlice from "@/react/event/slice/createEventSlice";
 import createNavigationSlice from "@/react/navigation/slice/createNavigationSlice";
 import { createPlaylistLibrarySlice } from "@/react/playlist-library/slice/playlist-library-slice";
 import { createPlaylistSlice } from "@/react/playlist/slice/playlist-slice";

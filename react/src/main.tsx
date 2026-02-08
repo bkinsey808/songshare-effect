@@ -4,9 +4,9 @@ import { createRoot } from "react-dom/client";
 
 import App from "@/react/app/App";
 // Removed unused imports after moving hide style logic to React
-import "@/react/i18n/i18n";
 import "@/react/index.css";
-import { initCacheManagement } from "@/react/utils/cacheManagement";
+import "@/react/lib/language/i18n";
+import { initCacheManagement } from "@/react/lib/utils/cacheManagement";
 
 // Initialize cache management
 initCacheManagement();
