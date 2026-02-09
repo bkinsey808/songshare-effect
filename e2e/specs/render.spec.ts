@@ -44,8 +44,8 @@ test.describe("Render smoke", () => {
 		await page.reload({ waitUntil: "load" });
 		await page.waitForTimeout(HYDRATION_WAIT_MS);
 
-		await expect(page.getByText(/signed out/i)).toBeVisible();
-		await expect(page.getByText(/successfully signed out/i)).toBeVisible();
+		await expect(page.getByTestId("alert-title")).toHaveText(/signed out/i);
+		await expect(page.getByTestId("alert-message")).toHaveText(/successfully signed out/i);
 	});
 
 	test("shows account deleted success alert", async ({ page }) => {

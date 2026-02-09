@@ -40,7 +40,7 @@ const variantDanger = tw`
 `;
 
 const variantOutlinePrimary = tw`
-	data-[variant=outlinePrimary]:border data-[variant=outlinePrimary]:border-blue-600 data-[variant=outlinePrimary]:bg-transparent data-[variant=outlinePrimary]:text-blue-600 data-[variant=outlinePrimary]:hover:bg-blue-700/10
+	data-[variant=outlinePrimary]:border data-[variant=outlinePrimary]:border-blue-600 data-[variant=outlinePrimary]:bg-transparent data-[variant=outlinePrimary]:text-white data-[variant=outlinePrimary]:hover:bg-blue-700/10
 `;
 
 const variantOutlineSecondary = tw`

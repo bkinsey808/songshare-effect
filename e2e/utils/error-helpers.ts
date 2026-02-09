@@ -15,6 +15,7 @@ const EXPECTED_ERROR_PATTERNS = [
 	"Cookie",
 	"invalid domain",
 	"__cf_bm",
+	"Failed to request wake lock",
 ];
 
 /**
