@@ -146,8 +146,11 @@
 		"ws": "^8.18.3"
 	},
 	"overrides": {
-		"tar": "^7.5.3",
-		"vite": "npm:rolldown-vite@^7.1.12"
+		"tar": "^7.5.7",
+		"vite": "npm:rolldown-vite@^7.1.12",
+		"micromatch": "4.0.8",
+		"tmp": "^0.2.5",
+		"lodash": "4.17.23"
 	},
 	"lint-staged": {
 		"*.{js,ts,jsx,tsx}": [
