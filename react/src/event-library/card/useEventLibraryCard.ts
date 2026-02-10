@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 import { useState } from "react";
 
-import type { EventLibraryEntry } from "../event-library-types";
+import useAppStore from "@/react/app-store/useAppStore";
 
-import useEventLibrary from "../useEventLibrary";
+import type { EventLibraryEntry } from "../event-library-types";
 
 type UseEventLibraryCardParams = {
 	entry: EventLibraryEntry;
@@ -25,7 +25,7 @@ export default function useEventLibraryCard({ entry }: UseEventLibraryCardParams
 } {
 	const [isConfirming, setIsConfirming] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
-	const { removeFromEventLibrary } = useEventLibrary();
+	const removeFromEventLibrary = useAppStore((state) => state.removeEventFromLibrary);
 
 	function startConfirming(): void {
 		setIsConfirming(true);

@@ -141,6 +141,7 @@ export default function fetchUserLibraryEffect(
 		Effect.ensuring(
 			Effect.sync(() => {
 				const { setUserLibraryLoading } = get();
+				console.warn("[fetchUserLibrary] Setting loading to false in ensuring");
 				setUserLibraryLoading(false);
 			}),
 		),

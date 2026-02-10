@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
@@ -44,15 +44,6 @@ export default function useUserLibrary(): {
 	const playlistLibraryEntries = useAppStore<Readonly<Record<string, PlaylistLibraryEntry>>>(
 		(state: AppSlice) => state.playlistLibraryEntries,
 	);
-	const fetchUserLibrary = useAppStore<() => Effect.Effect<void, Error>>(
-		(state: AppSlice) => state.fetchUserLibrary,
-	);
-	const subscribeToUserLibrary = useAppStore<() => Effect.Effect<() => void, Error>>(
-		(state: AppSlice) => state.subscribeToUserLibrary,
-	);
-	const subscribeToUserPublicForLibrary = useAppStore<() => Effect.Effect<() => void, Error>>(
-		(state: AppSlice) => state.subscribeToUserPublicForLibrary,
-	);
 	const removeFromUserLibrary = useAppStore<
 		(request: Readonly<RemoveUserFromLibraryRequest>) => Effect.Effect<void, Error>
 	>((state: AppSlice) => state.removeUserFromLibrary);
@@ -60,35 +51,45 @@ export default function useUserLibrary(): {
 	const currentUserId = useCurrentUserId();
 
 	const location = useLocation();
+	const initialized = useRef(false);
 
 	useEffect(() => {
-		void Effect.runPromise(fetchUserLibrary());
+		const state = useAppStore.getState();
+
+		// Only initialize once per mount
+		if (initialized.current) {
+			console.warn("[useUserLibrary] Already initialized, skipping");
+			return;
+		}
+		initialized.current = true;
+
+		console.warn("[useUserLibrary] Initializing, isLoading:", state.isUserLibraryLoading);
 
 		let unsubscribeUserLibrary: (() => void) | undefined = undefined;
 		let unsubscribeUserPublic: (() => void) | undefined = undefined;
+
+		void Effect.runPromise(state.fetchUserLibrary());
+
 		void (async (): Promise<void> => {
 			try {
-				unsubscribeUserLibrary = await Effect.runPromise(subscribeToUserLibrary());
-				unsubscribeUserPublic = await Effect.runPromise(subscribeToUserPublicForLibrary());
+				console.warn("[useUserLibrary] Starting subscriptions...");
+				unsubscribeUserLibrary = await Effect.runPromise(state.subscribeToUserLibrary());
+				unsubscribeUserPublic = await Effect.runPromise(state.subscribeToUserPublicForLibrary());
+				console.warn("[useUserLibrary] Subscriptions complete");
 			} catch (error: unknown) {
 				console.error("[useUserLibrary] Failed to subscribe:", error);
 			}
 		})();
 
 		return (): void => {
-			if (unsubscribeUserLibrary !== undefined) {
+			if (unsubscribeUserLibrary) {
 				unsubscribeUserLibrary();
 			}
-			if (unsubscribeUserPublic !== undefined) {
+			if (unsubscribeUserPublic) {
 				unsubscribeUserPublic();
 			}
 		};
-	}, [
-		location.pathname,
-		fetchUserLibrary,
-		subscribeToUserLibrary,
-		subscribeToUserPublicForLibrary,
-	]);
+	}, [location.pathname]);
 
 	const entries = Object.values(userLibraryEntries);
 

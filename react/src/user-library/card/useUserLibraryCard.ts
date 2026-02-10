@@ -1,9 +1,7 @@
 import { Effect } from "effect";
 import { useState } from "react";
 
-import usePlaylistLibrary from "@/react/playlist-library/usePlaylistLibrary";
-import useSongLibrary from "@/react/song-library/useSongLibrary";
-import useUserLibrary from "@/react/user-library/useUserLibrary";
+import useAppStore from "@/react/app-store/useAppStore";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
 
@@ -36,9 +34,9 @@ export default function useUserLibraryCard({
 	const [isConfirming, setIsConfirming] = useState(false);
 	const [isRemoving, setIsRemoving] = useState(false);
 
-	const { removeFromUserLibrary } = useUserLibrary();
-	const { removeFromSongLibrary } = useSongLibrary();
-	const { removeFromPlaylistLibrary } = usePlaylistLibrary();
+	const removeFromUserLibrary = useAppStore((state) => state.removeUserFromLibrary);
+	const removeFromSongLibrary = useAppStore((state) => state.removeSongFromSongLibrary);
+	const removeFromPlaylistLibrary = useAppStore((state) => state.removePlaylistFromLibrary);
 
 	function startConfirming(): void {
 		setIsConfirming(true);

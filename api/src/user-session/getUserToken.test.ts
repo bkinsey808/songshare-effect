@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import makeCtx from "@/api/test-utils/makeCtx";
-import spyImport from "@/react/lib/test-utils/spyImport";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import getUserToken from "./getUserToken";
 

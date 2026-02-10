@@ -1,11 +1,10 @@
 import { useTranslation } from "react-i18next";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
 import type { EventLibraryEntry } from "../event-library-types";
-
-import useEventLibrary from "../useEventLibrary";
 
 type EventLibraryCardDisplayProps = {
 	entry: EventLibraryEntry;
@@ -30,7 +29,7 @@ export default function EventLibraryCardDisplay({
 }: Omit<EventLibraryCardDisplayProps, "currentUserId">): ReactElement {
 	const { t } = useTranslation();
 	const currentUserId = useCurrentUserId();
-	const { removeFromEventLibrary } = useEventLibrary();
+	const removeFromEventLibrary = useAppStore((state) => state.removeEventFromLibrary);
 
 	const isOwned = currentUserId === entry.event_owner_id;
 
