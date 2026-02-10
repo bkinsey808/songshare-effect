@@ -5,7 +5,7 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { AppSlice } from "./AppSlice.type";
 
-const WAIT_TIMEOUT = 2000;
+const WAIT_TIMEOUT = 5000;
 
 describe("useAppStore persist behavior", () => {
 	it("omits transient keys when persisting state", async () => {

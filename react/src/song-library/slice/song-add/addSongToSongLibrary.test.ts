@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
 import { apiSongLibraryAddPath } from "@/shared/paths";
 
 import type { SongLibrarySlice } from "../song-library-slice";
@@ -103,8 +104,7 @@ describe("addSongToSongLibrary", () => {
 		const mockSlice = createMockSlice();
 		const get = vi.fn(() => mockSlice);
 
-		// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-		const invalidRequest = { song_id: SONG_ID } as AddSongToSongLibraryRequest; // Missing song_owner_id
+		const invalidRequest = forceCast<AddSongToSongLibraryRequest>({ song_id: SONG_ID }); // Missing song_owner_id
 
 		await expect(Effect.runPromise(addSongToSongLibrary(invalidRequest, get))).rejects.toThrow(
 			Error,
@@ -168,8 +168,7 @@ describe("addSongToSongLibrary", () => {
 
 		const fetchSpy = vi
 			.spyOn(globalThis, "fetch")
-			// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-			.mockResolvedValue(mockResponse as unknown as Response);
+			.mockResolvedValue(forceCast<Response>(mockResponse));
 
 		await expect(Effect.runPromise(addSongToSongLibrary(VALID_REQUEST, get))).rejects.toThrow(
 			Error,

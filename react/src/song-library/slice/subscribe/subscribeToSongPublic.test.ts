@@ -7,6 +7,7 @@ import type { Database } from "@/shared/generated/supabaseTypes";
 
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type { SongLibrarySlice } from "../song-library-slice";
@@ -80,13 +81,13 @@ describe("subscribeToSongPublic", () => {
 			return slice;
 		}
 
-		const authTokenModule = await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-		const clientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
+		const authSpy = await spyImport("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
+		const clientSpy = await spyImport("@/react/lib/supabase/client/getSupabaseClient");
 		const createRealtimeModule =
 			await import("@/react/lib/supabase/subscription/realtime/createRealtimeSubscription");
 
-		vi.spyOn(authTokenModule, "default").mockResolvedValue("token-abc");
-		vi.spyOn(clientModule, "default").mockReturnValue(createMockSupabaseClient());
+		authSpy.mockResolvedValue("token-abc");
+		clientSpy.mockReturnValue(createMockSupabaseClient());
 		const cleanupFn: () => void = vi.fn();
 		const createRealtimeMock = vi.spyOn(createRealtimeModule, "default").mockReturnValue(cleanupFn);
 

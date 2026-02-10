@@ -7,15 +7,11 @@ import type {
 	RealtimeChannelLike,
 } from "@/react/lib/supabase/client/SupabaseClientLike";
 
-import enrichWithOwnerUsername from "@/react/lib/supabase/enrichment/enrichWithOwnerUsername";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import type { SongLibrarySlice } from "../song-library-slice";
 
 import handleSongLibrarySubscribeEvent from "./handleSongLibrarySubscribeEvent";
-
-vi.mock("@/react/supabase/enrichment/enrichWithOwnerUsername");
-
-const mockEnrichWithOwnerUsername = vi.mocked(enrichWithOwnerUsername);
 
 type SupabaseClientResolved = Exclude<ReturnType<typeof getSupabaseClient>, undefined>;
 type SupabaseFromStub = {
@@ -129,6 +125,9 @@ describe("handleSongLibrarySubscribeEvent", () => {
 	it("ignores payloads that do not match the realtime shape", async () => {
 		vi.resetAllMocks();
 		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
+		const mockEnrichWithOwnerUsername = await spyImport(
+			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
+		);
 
 		await Effect.runPromise(handleSongLibrarySubscribeEvent({}, supabaseClient, getSlice));
 
@@ -142,12 +141,12 @@ describe("handleSongLibrarySubscribeEvent", () => {
 		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
 		const newEntry = { song_id: "song-123", song_owner_id: "owner-456" };
 		const enrichedEntry = { ...newEntry, owner_username: "test-user" };
-		mockEnrichWithOwnerUsername.mockResolvedValue(enrichedEntry);
-
+		const mockEnrichWithOwnerUsername = await spyImport(
+			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
+		);
 		const payload = { eventType, new: newEntry };
-
+		mockEnrichWithOwnerUsername.mockResolvedValue(enrichedEntry);
 		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, getSlice));
-
 		expect(mockEnrichWithOwnerUsername).toHaveBeenCalledWith(
 			supabaseClient,
 			newEntry,
@@ -161,6 +160,10 @@ describe("handleSongLibrarySubscribeEvent", () => {
 		vi.resetAllMocks();
 		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
 
+		const mockEnrichWithOwnerUsername = await spyImport(
+			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
+		);
+
 		const payload = { eventType: "INSERT" as const };
 
 		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, getSlice));
@@ -173,6 +176,9 @@ describe("handleSongLibrarySubscribeEvent", () => {
 	it("skips malformed new entries that fail validation", async () => {
 		vi.resetAllMocks();
 		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
+		const mockEnrichWithOwnerUsername = await spyImport(
+			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
+		);
 		const malformedEntry = { song_id: "song-123", song_owner_id: 42 };
 
 		const payload = { eventType: "UPDATE" as const, new: malformedEntry };
@@ -225,6 +231,9 @@ describe("handleSongLibrarySubscribeEvent", () => {
 		vi.resetAllMocks();
 		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
 		const newEntry = { song_id: "song-999", song_owner_id: "owner-000" };
+		const mockEnrichWithOwnerUsername = await spyImport(
+			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
+		);
 		mockEnrichWithOwnerUsername.mockRejectedValue(new Error("fetch failure"));
 
 		const payload = { eventType: "INSERT" as const, new: newEntry };

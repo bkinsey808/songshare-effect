@@ -17,8 +17,8 @@ import subscribeToActivePrivateSongs from "./subscribeToActivePrivateSongs";
 // Register mocks for auth tokens and client modules (top-level registration is
 // fine because `subscribeToActivePrivateSongs` performs its work inside an
 // async IIFE and will use the mocked functions at call-time).
-vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
-vi.mock("@/react/supabase/client/getSupabaseClient");
+vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
+vi.mock("@/react/lib/supabase/client/getSupabaseClient");
 
 /**
  * createMinimalClient
@@ -127,6 +127,7 @@ describe("subscribeToActivePrivateSongs", () => {
 			.mockImplementation((..._args: unknown[]) => undefined);
 
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
+		// Ensure a client exists so the no-active-ids branch is reached
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalClient());
 
 		const set = vi.fn();

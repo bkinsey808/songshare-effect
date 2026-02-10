@@ -7,6 +7,7 @@ import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAut
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import { ONE_CALL, TEST_AUTH_TOKEN } from "@/react/lib/test-helpers/test-consts";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import type { SongLibrarySlice } from "./song-library-slice";
 import type { SongLibraryEntry } from "./song-library-types";
@@ -14,8 +15,8 @@ import type { SongLibraryEntry } from "./song-library-types";
 import fetchSongLibrary from "./fetchSongLibrary";
 
 // Auto-mock auth/client modules so we can configure mocks in each test
-vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
-vi.mock("@/react/supabase/client/getSupabaseClient");
+vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
+vi.mock("@/react/lib/supabase/client/getSupabaseClient");
 
 const TEST_USER_ID = "user-1";
 const TEST_SONG_ID = "song-1";
@@ -111,9 +112,12 @@ describe("fetchSongLibrary", () => {
 			return slice;
 		}
 		// Configure mocked auth/token and client modules
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TEST_AUTH_TOKEN);
-		vi.mocked(getSupabaseClient).mockReturnValue(createMockClient());
-
+		const getSupabaseAuthTokenMock = await spyImport(
+			"@/react/lib/supabase/auth-token/getSupabaseAuthToken",
+		);
+		getSupabaseAuthTokenMock.mockResolvedValue?.(TEST_AUTH_TOKEN);
+		const getSupabaseClientMock = await spyImport("@/react/lib/supabase/client/getSupabaseClient");
+		getSupabaseClientMock.mockReturnValue(createMockClient());
 		await Effect.runPromise(fetchSongLibrary(getMock));
 
 		expect(setSongLibraryLoading).toHaveBeenCalledWith(true);
@@ -134,6 +138,8 @@ describe("fetchSongLibrary", () => {
 		// Reset mocked implementations for next tests
 		vi.mocked(getSupabaseAuthToken).mockReset();
 		vi.mocked(getSupabaseClient).mockReset();
+		// Reset spies created by test-time helpers
+		vi.resetAllMocks();
 	});
 
 	it("handles empty song_library gracefully", async () => {
@@ -163,7 +169,8 @@ describe("fetchSongLibrary", () => {
 			return slice;
 		}
 
-		vi.mocked(getSupabaseClient).mockReturnValue(createMockClient({ songLibrary: [] }));
+		const getSupabaseClientMock = await spyImport("@/react/lib/supabase/client/getSupabaseClient");
+		getSupabaseClientMock.mockReturnValue(createMockClient({ songLibrary: [] }));
 
 		await Effect.runPromise(fetchSongLibrary(getMock));
 

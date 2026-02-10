@@ -8,7 +8,6 @@ const TEST_OWNER_ID = "o1";
 describe("guardAsSongLibraryEntry", () => {
 	it("returns the value when valid", () => {
 		const val = { song_id: TEST_SONG_ID, song_owner_id: TEST_OWNER_ID };
-		// oxlint-disable-next-line typescript-eslint/no-unsafe-assignment
 		const result = guardAsSongLibraryEntry(val);
 		expect(result).toStrictEqual(val);
 	});

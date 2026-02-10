@@ -4,20 +4,31 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import makeSmoothedAudioLevelForUiTimer from "@/react/lib/audio/smooth/makeSmoothedAudioLevelForUiTimer.mock";
+import forceCast from "@/react/lib/test-utils/forceCast";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import { ZERO } from "@/shared/constants/shared-constants";
 
 import type { SmoothedAudioLevel } from "./smooth/useSmoothedAudioLevel";
 
-import useSmoothedAudioLevelRef from "./smooth/useSmoothedAudioLevelRef";
-import useAudioCapture from "./useAudioCapture";
 import useAudioVizInput from "./useAudioVizInput";
 
-// Mock dependencies
-vi.mock("./useAudioCapture");
-vi.mock("./useSmoothedAudioLevelRef");
+// Async spy helpers (use inside tests with `await`) to avoid namespace imports
+type AsyncSpy = {
+	mockReturnValue: (value: unknown) => void;
+	mockReturnValueOnce: (value: unknown) => void;
+	mockResolvedValue: (value: unknown) => void;
+	mockResolvedValueOnce?: (value: unknown) => void;
+	mockImplementation?: (...args: readonly unknown[]) => unknown;
+	mockReset?: () => void;
+};
 
-const mockUseAudioCapture = vi.mocked(useAudioCapture);
-const mockUseSmoothedAudioLevelRef = vi.mocked(useSmoothedAudioLevelRef);
+async function spyUseAudioCapture(): Promise<AsyncSpy> {
+	return forceCast<AsyncSpy>(await spyImport("@/react/lib/audio/useAudioCapture"));
+}
+
+async function spyUseSmoothedAudioLevelRef(): Promise<AsyncSpy> {
+	return forceCast<AsyncSpy>(await spyImport("@/react/lib/audio/smooth/useSmoothedAudioLevelRef"));
+}
 
 describe("useAudioVizInput", () => {
 	const defaultOptions = {
@@ -73,21 +84,28 @@ describe("useAudioVizInput", () => {
 
 	const mockAudioLevelRef: RefObject<SmoothedAudioLevel | undefined> = { current: mockAudioLevel };
 
-	function setup(): void {
+	async function setup(): Promise<{
+		mockUseAudioCapture: AsyncSpy;
+		mockUseSmoothedAudioLevelRef: AsyncSpy;
+	}> {
 		vi.clearAllMocks();
 
 		// Ensure the audio level ref points to the mock before each test
 		mockAudioLevelRef.current = mockAudioLevel;
 
+		// Create spies at test-time
+		const mockUseAudioCapture = await spyUseAudioCapture();
 		mockUseAudioCapture.mockReturnValue(mockAudioCapture);
+		const mockUseSmoothedAudioLevelRef = await spyUseSmoothedAudioLevelRef();
 		mockUseSmoothedAudioLevelRef.mockReturnValue({
 			audioLevel: mockAudioLevel,
 			audioLevelRef: mockAudioLevelRef,
 		});
+		return { mockUseAudioCapture, mockUseSmoothedAudioLevelRef };
 	}
 
-	it("initializes with default state", () => {
-		setup();
+	it("initializes with default state", async () => {
+		await setup();
 		const { result } = renderHook(() => useAudioVizInput(defaultOptions));
 
 		expect(result.current.selectedAudioInputDeviceId).toBe(DEFAULT_DEVICE_ID);
@@ -98,7 +116,7 @@ describe("useAudioVizInput", () => {
 	});
 
 	it("allows setting selected audio input device", async () => {
-		setup();
+		await setup();
 		const { result } = renderHook(() => useAudioVizInput(defaultOptions));
 
 		result.current.setSelectedAudioInputDeviceId(SELECTED_DEVICE_ID);
@@ -109,7 +127,7 @@ describe("useAudioVizInput", () => {
 	});
 
 	it("starts microphone capture successfully", async () => {
-		setup();
+		await setup();
 		const mockStream = { id: MIC_STREAM_ID };
 		mockAudioCapture.startMic.mockResolvedValue(mockStream);
 
@@ -124,7 +142,7 @@ describe("useAudioVizInput", () => {
 	});
 
 	it("starts microphone capture with custom device ID", async () => {
-		setup();
+		await setup();
 		const mockStream = { id: CUSTOM_STREAM_ID };
 		mockAudioCapture.startMic.mockResolvedValue(mockStream);
 
@@ -142,7 +160,7 @@ describe("useAudioVizInput", () => {
 	});
 
 	it("handles microphone capture failure", async () => {
-		setup();
+		await setup();
 		mockAudioCapture.startMic.mockResolvedValue(undefined);
 
 		const { result } = renderHook(() => useAudioVizInput(defaultOptions));
@@ -156,7 +174,7 @@ describe("useAudioVizInput", () => {
 	});
 
 	it("starts display audio capture successfully", async () => {
-		setup();
+		await setup();
 		const mockStream = { id: DISPLAY_STREAM_ID };
 		mockAudioCapture.startDisplayAudio.mockResolvedValue(mockStream);
 
@@ -171,7 +189,7 @@ describe("useAudioVizInput", () => {
 	});
 
 	it("handles display audio capture failure", async () => {
-		setup();
+		await setup();
 		mockAudioCapture.startDisplayAudio.mockResolvedValue(undefined);
 
 		const { result } = renderHook(() => useAudioVizInput(defaultOptions));
@@ -185,7 +203,7 @@ describe("useAudioVizInput", () => {
 	});
 
 	it("stops capture with default options", async () => {
-		setup();
+		await setup();
 		const { result } = renderHook(() => useAudioVizInput(defaultOptions));
 
 		await result.current.stop();
@@ -195,7 +213,7 @@ describe("useAudioVizInput", () => {
 	});
 
 	it("stops capture with custom options", async () => {
-		setup();
+		await setup();
 		const { result } = renderHook(() => useAudioVizInput(defaultOptions));
 
 		await result.current.stop({ setStoppedStatus: false });
@@ -204,8 +222,8 @@ describe("useAudioVizInput", () => {
 		expect(mockAudioCapture.stop).toHaveBeenCalledWith({ setStoppedStatus: false });
 	});
 
-	it("provides audio level methods", () => {
-		setup();
+	it("provides audio level methods", async () => {
+		await setup();
 		const { result } = renderHook(() => useAudioVizInput(defaultOptions));
 
 		result.current.startLevelUiTimer();
@@ -222,8 +240,8 @@ describe("useAudioVizInput", () => {
 		expect(bytesAndLevel?.level).toBe(BYTES_LEVEL);
 	});
 
-	it("returns 0 for readSmoothedLevelNow when audioLevelRef is undefined", () => {
-		setup();
+	it("returns 0 for readSmoothedLevelNow when audioLevelRef is undefined", async () => {
+		await setup();
 		mockAudioLevelRef.current = undefined;
 		const { result } = renderHook(() => useAudioVizInput(defaultOptions));
 
@@ -232,8 +250,8 @@ describe("useAudioVizInput", () => {
 		expect(level).toBe(ZERO);
 	});
 
-	it("returns undefined for readBytesAndSmoothedLevelNow when audioLevelRef is undefined", () => {
-		setup();
+	it("returns undefined for readBytesAndSmoothedLevelNow when audioLevelRef is undefined", async () => {
+		await setup();
 		mockAudioLevelRef.current = undefined;
 		const { result } = renderHook(() => useAudioVizInput(defaultOptions));
 
@@ -242,8 +260,8 @@ describe("useAudioVizInput", () => {
 		expect(resultData).toBeUndefined();
 	});
 
-	it("surfaces audio capture status and error information", () => {
-		setup();
+	it("surfaces audio capture status and error information", async () => {
+		await setup();
 		Object.assign(mockAudioCapture, {
 			status: "running" as const,
 			errorMessage: "Test error",
@@ -257,8 +275,8 @@ describe("useAudioVizInput", () => {
 		expect(result.current.currentStreamLabel).toBe("Microphone (Built-in)");
 	});
 
-	it("surfaces audio input devices refresh key", () => {
-		setup();
+	it("surfaces audio input devices refresh key", async () => {
+		await setup();
 		Object.assign(mockAudioCapture, {
 			audioInputDevicesRefreshKey: REFRESH_KEY,
 		});
@@ -268,8 +286,9 @@ describe("useAudioVizInput", () => {
 		expect(result.current.audioInputDevicesRefreshKey).toBe(REFRESH_KEY);
 	});
 
-	it("passes options to useSmoothedAudioLevelRef", () => {
-		setup();
+	it("passes options to useSmoothedAudioLevelRef", async () => {
+		// get the spy so we can assert the call args
+		const { mockUseSmoothedAudioLevelRef } = await setup();
 		const customOptions = {
 			uiIntervalMs: 200,
 			smoothingAlpha: 0.8,
@@ -286,8 +305,8 @@ describe("useAudioVizInput", () => {
 		);
 	});
 
-	it("handles audio level ref being undefined gracefully", () => {
-		setup();
+	it("handles audio level ref being undefined gracefully", async () => {
+		await setup();
 		mockAudioLevelRef.current = undefined;
 
 		const { result } = renderHook(() => useAudioVizInput(defaultOptions));
@@ -305,7 +324,7 @@ describe("useAudioVizInput", () => {
 	});
 
 	it("stop is idempotent and safe to call multiple times", async () => {
-		setup();
+		await setup();
 		const mockStream = { id: MIC_STREAM_ID };
 		mockAudioCapture.startMic.mockResolvedValue(mockStream);
 
@@ -328,7 +347,7 @@ describe("useAudioVizInput", () => {
 	});
 
 	it("unmounting does not auto-stop and stop works after unmount", async () => {
-		setup();
+		await setup();
 		const mockStream = { id: MIC_STREAM_ID };
 		mockAudioCapture.startMic.mockResolvedValue(mockStream);
 
@@ -352,7 +371,8 @@ describe("useAudioVizInput", () => {
 	});
 
 	it("ui timer reflects smoothed level after readings (integration)", async () => {
-		setup();
+		// get spy so we can inject a deterministic level for this integration test
+		const { mockUseSmoothedAudioLevelRef } = await setup();
 		vi.useFakeTimers();
 
 		// Use a deterministic custom `SmoothedAudioLevel` instance for this integration-style test

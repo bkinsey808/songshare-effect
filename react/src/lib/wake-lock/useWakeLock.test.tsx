@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import { getWakeLockSentinel, setWakeLockSentinel } from "@/react/lib/wake-lock/sentinel";
 import useWakeLock from "@/react/lib/wake-lock/useWakeLock";
 
@@ -78,8 +79,8 @@ describe("useWakeLock", () => {
 		cleanup();
 		setWakeLockSentinel(undefined);
 		const restoreNav = setNavigatorWakeLockPresent(true);
-		const requestModule = await import("@/react/lib/wake-lock/requestWakeLock");
-		const reqSpy = vi.spyOn(requestModule, "default").mockResolvedValue(true);
+		const reqSpy = await spyImport("@/react/lib/wake-lock/requestWakeLock");
+		reqSpy.mockResolvedValue(true);
 
 		const { getByTestId } = render(<TestComponent />);
 
@@ -101,10 +102,10 @@ describe("useWakeLock", () => {
 		const restoreNav = setNavigatorWakeLockPresent(true);
 
 		// initial mount acquires the lock
-		const requestModule = await import("@/react/lib/wake-lock/requestWakeLock");
-		const releaseModule = await import("@/react/lib/wake-lock/releaseWakeLock");
-		const reqSpy = vi.spyOn(requestModule, "default").mockResolvedValue(true);
-		const releaseSpy = vi.spyOn(releaseModule, "default").mockResolvedValue();
+		const reqSpy = await spyImport("@/react/lib/wake-lock/requestWakeLock");
+		const releaseSpy = await spyImport("@/react/lib/wake-lock/releaseWakeLock");
+		reqSpy.mockResolvedValue(true);
+		releaseSpy.mockResolvedValue();
 
 		const { getByTestId } = render(<TestComponent />);
 		await waitFor(() => {
@@ -137,8 +138,8 @@ describe("useWakeLock", () => {
 		setWakeLockSentinel(undefined);
 		const restoreNav = setNavigatorWakeLockPresent(true);
 
-		const requestModule = await import("@/react/lib/wake-lock/requestWakeLock");
-		const reqSpy = vi.spyOn(requestModule, "default").mockResolvedValue(true);
+		const reqSpy = await spyImport("@/react/lib/wake-lock/requestWakeLock");
+		reqSpy.mockResolvedValue(true);
 
 		const restoreVis = overrideDocumentVisibilityState("hidden");
 		const { getByTestId } = render(<TestComponent />);
@@ -172,10 +173,10 @@ describe("useWakeLock", () => {
 		cleanup();
 		setWakeLockSentinel(undefined);
 		const restoreNav = setNavigatorWakeLockPresent(true);
-		const releaseModule = await import("@/react/lib/wake-lock/releaseWakeLock");
-		const requestModule = await import("@/react/lib/wake-lock/requestWakeLock");
-		const releaseSpy = vi.spyOn(releaseModule, "default").mockResolvedValue();
-		vi.spyOn(requestModule, "default").mockResolvedValue(true);
+		const releaseSpy = await spyImport("@/react/lib/wake-lock/releaseWakeLock");
+		const reqSpy = await spyImport("@/react/lib/wake-lock/requestWakeLock");
+		releaseSpy.mockResolvedValue();
+		reqSpy.mockResolvedValue(true);
 
 		const { getByTestId } = render(<TestComponent />);
 		await waitFor(() => {

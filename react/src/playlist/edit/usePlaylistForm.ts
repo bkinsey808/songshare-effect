@@ -40,6 +40,7 @@ export type UsePlaylistFormReturn = {
 	setFormValue: (field: keyof PlaylistFormValues, value: string) => void;
 
 	// Handlers
+	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	handleFormSubmit: (event?: React.FormEvent<HTMLFormElement>) => Promise<void>;
 	formRef: React.RefObject<HTMLFormElement | null>;
 	resetForm: () => void;
@@ -202,6 +203,7 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 	}
 
 	// Submission
+	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	function handleFormSubmit(event?: React.FormEvent<HTMLFormElement>): Promise<void> {
 		if (event) {
 			event.preventDefault();

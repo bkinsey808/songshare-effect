@@ -14,7 +14,7 @@ const AUTH_PREFIX = "[authSlice]";
 
 // Mock the token fetcher with an explicit typed factory
 vi.mock(
-	"@/react/supabase/auth-token/fetchSupabaseUserTokenFromApi",
+	"@/react/lib/supabase/auth-token/fetchSupabaseUserTokenFromApi",
 	(): { default: typeof fetchSupabaseUserTokenFromApi } => ({
 		default: vi.fn(),
 	}),

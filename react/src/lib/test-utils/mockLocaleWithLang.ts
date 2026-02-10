@@ -1,13 +1,17 @@
 import { vi } from "vitest";
 
-import useLocale from "@/react/lib/language/locale/useLocale";
+import type { UseLocaleResult } from "@/react/lib/language/locale/useLocale";
 
 // Helper: identity `t` translation function typed to the runtime
 // `useTranslation()` signature. Defined at module scope to avoid recreating
 // it on every call.
-function makeIdentityT(): ReturnType<typeof useLocale>["t"] {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion -- test-only identity translator
-	return ((key: string) => key) as unknown as ReturnType<typeof useLocale>["t"];
+import forceCast from "@/react/lib/test-utils/forceCast";
+
+function makeIdentityT(): UseLocaleResult["t"] {
+	// Narrow cast kept localized in the helper so tests don't need inline disables.
+	return forceCast<UseLocaleResult["t"]>((key: string, def?: string): string =>
+		typeof def === "string" ? def : key,
+	);
 }
 
 /**
@@ -20,14 +24,13 @@ function makeIdentityT(): ReturnType<typeof useLocale>["t"] {
  * @param lang - simulated language value (defaults to "en")
  * @returns void
  */
-export default function mockLocaleWithLang(
-	lang: ReturnType<typeof useLocale>["lang"] = "en",
-): void {
-	vi.mocked(useLocale).mockImplementation(
-		(): ReturnType<typeof useLocale> => ({
+export default function mockLocaleWithLang(lang: UseLocaleResult["lang"] = "en"): void {
+	// Use a module mock so callers can call this synchronously before importing
+	// modules that depend on `useLocale()` in test files.
+	vi.doMock("@/react/lib/language/locale/useLocale", () => ({
+		default: (): UseLocaleResult => ({
 			lang,
-			// Default to identity function so tests can expect translation keys to be used as labels
 			t: makeIdentityT(),
 		}),
-	);
+	}));
 }

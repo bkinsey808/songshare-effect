@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import makeCtx from "@/api/test-utils/makeCtx";
-import stubGetSupabaseServerClient from "@/api/test-utils/stubGetSupabaseServerClient";
+import spyImport from "@/react/lib/test-utils/spyImport";
 
 import getUserToken from "./getUserToken";
 
@@ -58,9 +58,14 @@ describe("getUserToken", () => {
 			.mockResolvedValueOnce(secondSignInResponse);
 		const mockUpdate = vi.fn().mockResolvedValue({ error: undefined });
 
-		await stubGetSupabaseServerClient({
+		const mockClient = {
 			auth: { signInWithPassword: mockSignIn, admin: { updateUserById: mockUpdate } },
-		});
+		} as unknown;
+
+		const mockGetSupabaseServerClientSpy = await spyImport(
+			"@/api/supabase/getSupabaseServerClient",
+		);
+		mockGetSupabaseServerClientSpy.mockReturnValue(mockClient);
 
 		const result = await Effect.runPromise(getUserToken(makeCtx()));
 
@@ -91,9 +96,12 @@ describe("getUserToken", () => {
 			.fn()
 			.mockResolvedValueOnce({ data: undefined, error: { message: "bad auth" } });
 
-		await stubGetSupabaseServerClient({
+		const mockGetSupabaseServerClientSpy = await spyImport(
+			"@/api/supabase/getSupabaseServerClient",
+		);
+		mockGetSupabaseServerClientSpy.mockReturnValue({
 			auth: { signInWithPassword: mockSignIn, admin: { updateUserById: vi.fn() } },
-		});
+		} as unknown);
 
 		await expect(Effect.runPromise(getUserToken(makeCtx()))).rejects.toThrow(
 			/Sign in failed: bad auth/,
@@ -124,9 +132,14 @@ describe("getUserToken", () => {
 
 		const mockUpdate = vi.fn().mockResolvedValue({ error: { message: "update failed" } });
 
-		await stubGetSupabaseServerClient({
+		const mockClient = {
 			auth: { signInWithPassword: mockSignIn, admin: { updateUserById: mockUpdate } },
-		});
+		} as unknown;
+
+		const mockGetSupabaseServerClientSpy = await spyImport(
+			"@/api/supabase/getSupabaseServerClient",
+		);
+		mockGetSupabaseServerClientSpy.mockReturnValue(mockClient);
 
 		await expect(Effect.runPromise(getUserToken(makeCtx()))).rejects.toThrow(/update failed/);
 	});

@@ -1,13 +1,20 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import enumerateAudioInputDevices from "@/react/lib/audio/audio-input-device-select/enumerateAudioInputDevices";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import AudioInputDeviceSelect from "./AudioInputDeviceSelect";
 
-vi.mock("@/react/audio/enumerateAudioInputDevices");
-
-const mockEnumerate = vi.mocked(enumerateAudioInputDevices);
+async function applyMockEnumerate(
+	devices: MediaDeviceInfo[],
+): Promise<{ mockResolvedValue: (value: MediaDeviceInfo[]) => void; mockReset?: () => void }> {
+	vi.resetAllMocks();
+	const spy = await spyImport(
+		"@/react/lib/audio/audio-input-device-select/enumerateAudioInputDevices",
+	);
+	spy.mockResolvedValue(devices);
+	return spy;
+}
 
 describe("<AudioInputDeviceSelect />", () => {
 	const MOCK_DEVICES: MediaDeviceInfo[] = [
@@ -30,13 +37,10 @@ describe("<AudioInputDeviceSelect />", () => {
 	const CALL_COUNT_ONE = 1;
 	const CALL_COUNT_TWO = 2;
 
-	function setup(): void {
-		vi.resetAllMocks();
-		mockEnumerate.mockResolvedValue(MOCK_DEVICES);
-	}
+	// Test-scoped helper removed in favor of `applyMockEnumerate` to avoid namespace imports
 
 	it("renders default option and enumerated devices", async () => {
-		setup();
+		await applyMockEnumerate(MOCK_DEVICES);
 		render(<AudioInputDeviceSelect value="default" onChange={vi.fn()} />);
 
 		expect(screen.getByText("Default")).toBeTruthy();
@@ -49,7 +53,7 @@ describe("<AudioInputDeviceSelect />", () => {
 	});
 
 	it("calls onChange when a device is selected", async () => {
-		setup();
+		await applyMockEnumerate(MOCK_DEVICES);
 		const handleChange = vi.fn();
 		render(<AudioInputDeviceSelect value="default" onChange={handleChange} />);
 
@@ -73,19 +77,25 @@ describe("<AudioInputDeviceSelect />", () => {
 	});
 
 	it("re-enumerates devices when refreshKey changes", async () => {
-		setup();
+		const spy = await applyMockEnumerate(MOCK_DEVICES);
 		const { rerender } = render(
 			<AudioInputDeviceSelect value="default" onChange={vi.fn()} refreshKey={0} />,
 		);
 
 		await waitFor(() => {
-			expect(mockEnumerate).toHaveBeenCalledTimes(CALL_COUNT_ONE);
+			expect(spy).toHaveBeenCalledTimes(CALL_COUNT_ONE);
 		});
 
 		rerender(<AudioInputDeviceSelect value="default" onChange={vi.fn()} refreshKey={1} />);
 
 		await waitFor(() => {
-			expect(mockEnumerate).toHaveBeenCalledTimes(CALL_COUNT_TWO);
+			expect(spy).toHaveBeenCalledTimes(CALL_COUNT_TWO);
+		});
+
+		rerender(<AudioInputDeviceSelect value="default" onChange={vi.fn()} refreshKey={1} />);
+
+		await waitFor(() => {
+			expect(spy).toHaveBeenCalledTimes(CALL_COUNT_TWO);
 		});
 		cleanup();
 	});
@@ -113,7 +123,6 @@ describe("<AudioInputDeviceSelect />", () => {
 	});
 
 	it("uses fallback labels for devices without labels", async () => {
-		vi.resetAllMocks();
 		const FALLBACK_DEVICES: MediaDeviceInfo[] = [
 			{
 				deviceId: "no-label",
@@ -123,7 +132,7 @@ describe("<AudioInputDeviceSelect />", () => {
 				toJSON: () => ({}),
 			},
 		];
-		mockEnumerate.mockResolvedValue(FALLBACK_DEVICES);
+		await applyMockEnumerate(FALLBACK_DEVICES);
 
 		render(<AudioInputDeviceSelect value="default" onChange={vi.fn()} />);
 

@@ -13,6 +13,7 @@ type UseAddUserFormReturn = {
 	isLoading: boolean;
 	error: string | undefined;
 	handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 	handleClose: () => void;
 	openForm: () => void;
@@ -38,6 +39,7 @@ export default function useAddUserForm(): UseAddUserFormReturn {
 		setError(undefined);
 	}
 
+	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>): void {
 		event.preventDefault();
 

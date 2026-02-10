@@ -1,21 +1,30 @@
 import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import computeRmsLevelFromTimeDomainBytes from "@/react/lib/audio/computeRmsLevel";
+// Spy helpers to allow per-test mocking while keeping imports at the top
+import computeRmsLevel from "@/react/lib/audio/computeRmsLevel";
+import forceCast from "@/react/lib/test-utils/forceCast";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import { ONE } from "@/shared/constants/shared-constants";
 
 import clamp01 from "../clamp01";
 import smoothValue from "./smoothValue";
 import useSmoothedAudioLevel, { type AudioAnalyser } from "./useSmoothedAudioLevel";
 
-// Mock dependencies
-vi.mock("@/react/audio/computeRmsLevel");
-vi.mock("./clamp01");
-vi.mock("./smoothValue");
+// ensure these imported modules are treated as used (we spy on them at test-time)
+void computeRmsLevel;
+void clamp01;
+void smoothValue;
 
-const mockComputeRmsLevel = vi.mocked(computeRmsLevelFromTimeDomainBytes);
-const mockClamp01 = vi.mocked(clamp01);
-const mockSmoothValue = vi.mocked(smoothValue);
+type ComputeSpy = { mockReturnValue: (value: unknown) => void; mockReset?: () => void };
+type ClampSpy = {
+	mockImplementation: (...args: readonly unknown[]) => unknown;
+	mockReset?: () => void;
+};
+type SmoothSpy = {
+	mockImplementation: (...args: readonly unknown[]) => unknown;
+	mockReset?: () => void;
+};
 
 // Constants for test values
 const BUFFER_SIZE = 1024;
@@ -29,13 +38,14 @@ describe("useSmoothedAudioLevel", () => {
 	let analyser: AudioAnalyser | undefined = undefined;
 	let buffer: Uint8Array<ArrayBuffer> | undefined = undefined;
 
-	function setup(): {
+	async function setup(): Promise<{
 		refs: {
 			analyserRef: { current: AudioAnalyser | undefined };
 			timeDomainBytesRef: { current: Uint8Array<ArrayBuffer> | undefined };
 		};
 		options: { uiIntervalMs: number; smoothingAlpha: number };
-	} {
+		spies: { mockCompute: ComputeSpy; mockClamp: ClampSpy; mockSmooth: SmoothSpy };
+	}> {
 		vi.useFakeTimers();
 		analyser = {
 			getByteTimeDomainData: vi.fn(),
@@ -51,31 +61,46 @@ describe("useSmoothedAudioLevel", () => {
 		};
 		const localOptions = { uiIntervalMs: UI_INTERVAL_MS, smoothingAlpha: SMOOTHING_ALPHA };
 
-		mockComputeRmsLevel.mockReturnValue(MOCK_LEVEL);
-		mockClamp01.mockImplementation((value) => value);
-		mockSmoothValue.mockImplementation((prev, raw, alpha) => raw * alpha + prev * (ONE - alpha));
+		// acquire spies at test time so imports can remain at the top
+		const mockCompute = forceCast<ComputeSpy>(await spyImport("@/react/lib/audio/computeRmsLevel"));
+		mockCompute.mockReturnValue(MOCK_LEVEL);
+		const mockClamp = forceCast<ClampSpy>(await spyImport("@/react/lib/audio/clamp01"));
+		mockClamp.mockImplementation((value: number) => value);
+		const mockSmooth = forceCast<SmoothSpy>(
+			await spyImport("@/react/lib/audio/smooth/smoothValue"),
+		);
+		mockSmooth.mockImplementation(
+			(prev: number, raw: number, alpha: number) =>
+				// Mirror smoothing used in production tests — prefer explicit numeric ops to satisfy lint
+				raw * alpha + prev * (ONE - alpha),
+		);
 
-		return { refs: localRefs, options: localOptions };
+		return {
+			refs: localRefs,
+			options: localOptions,
+			spies: { mockCompute, mockClamp, mockSmooth },
+		};
 	}
 
-	it("initializes with zero levelUiValue", () => {
-		const { refs, options } = setup();
+	it("initializes with zero levelUiValue", async () => {
+		const { refs, options } = await setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		expect(result.current.levelUiValue).toBe(ZERO_LEVEL);
 	});
 
-	it("peekSmoothedLevel returns current levelRef value", () => {
-		const { refs, options } = setup();
+	it("peekSmoothedLevel returns current levelRef value", async () => {
+		const { refs, options } = await setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		expect(result.current.peekSmoothedLevel()).toBe(ZERO_LEVEL);
 	});
 
-	it("readSmoothedLevelNow reads and smooths level", () => {
-		const { refs, options } = setup();
+	it("readSmoothedLevelNow reads and smooths level", async () => {
+		const { refs, options, spies } = await setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		const level = result.current.readSmoothedLevelNow();
-		expect(mockComputeRmsLevel).toHaveBeenCalledWith(buffer);
-		expect(mockSmoothValue).toHaveBeenCalledWith(
+		// assert that the underlying module spies were called
+		expect(spies.mockCompute).toHaveBeenCalledWith(buffer);
+		expect(spies.mockSmooth).toHaveBeenCalledWith(
 			expect.any(Number),
 			expect.any(Number),
 			SMOOTHING_ALPHA,
@@ -83,16 +108,16 @@ describe("useSmoothedAudioLevel", () => {
 		expect(level).toBeGreaterThan(ZERO_LEVEL);
 	});
 
-	it("readSmoothedLevelNow returns 0 when analyser unavailable", () => {
-		const { refs, options } = setup();
+	it("readSmoothedLevelNow returns 0 when analyser unavailable", async () => {
+		const { refs, options } = await setup();
 		refs.analyserRef.current = undefined;
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		const level = result.current.readSmoothedLevelNow();
 		expect(level).toBe(ZERO_LEVEL);
 	});
 
-	it("readBytesAndSmoothedLevelNow returns bytes and level", () => {
-		const { refs, options } = setup();
+	it("readBytesAndSmoothedLevelNow returns bytes and level", async () => {
+		const { refs, options } = await setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		const resultData = result.current.readBytesAndSmoothedLevelNow();
 		expect(resultData).toBeDefined();
@@ -100,16 +125,16 @@ describe("useSmoothedAudioLevel", () => {
 		expect(resultData?.level).toBeGreaterThan(ZERO_LEVEL);
 	});
 
-	it("readBytesAndSmoothedLevelNow returns undefined when buffer unavailable", () => {
-		const { refs, options } = setup();
+	it("readBytesAndSmoothedLevelNow returns undefined when buffer unavailable", async () => {
+		const { refs, options } = await setup();
 		refs.timeDomainBytesRef.current = undefined;
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		const resultData = result.current.readBytesAndSmoothedLevelNow();
 		expect(resultData).toBeUndefined();
 	});
 
-	it("stopUiTimer stops updating levelUiValue", () => {
-		const { refs, options } = setup();
+	it("stopUiTimer stops updating levelUiValue", async () => {
+		const { refs, options } = await setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		result.current.startUiTimer();
 		result.current.readSmoothedLevelNow(); // Set level
@@ -119,8 +144,8 @@ describe("useSmoothedAudioLevel", () => {
 		expect(result.current.levelUiValue).toBe(ZERO_LEVEL); // Timer stopped, no update
 	});
 
-	it("reset clears state and stops timer", () => {
-		const { refs, options } = setup();
+	it("reset clears state and stops timer", async () => {
+		const { refs, options } = await setup();
 		const { result } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		// cleanup
 		vi.useRealTimers();
@@ -133,8 +158,8 @@ describe("useSmoothedAudioLevel", () => {
 		expect(result.current.peekSmoothedLevel()).toBe(ZERO_LEVEL);
 	});
 
-	it("cleanup stops timer on unmount", () => {
-		const { refs, options } = setup();
+	it("cleanup stops timer on unmount", async () => {
+		const { refs, options } = await setup();
 		const { result, unmount } = renderHook(() => useSmoothedAudioLevel(refs, options));
 		result.current.startUiTimer();
 

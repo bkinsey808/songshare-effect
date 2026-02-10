@@ -1,6 +1,12 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import {
+	setMockRejectedValue,
+	setMockResolvedValue,
+} from "@/react/lib/test-utils/spy-import/spyHelpers";
+import spyImport, { type SpyLike } from "@/react/lib/test-utils/spy-import/spyImport";
+
 import type {
 	MinimalAnalyserNode,
 	MinimalBaseAudioContext,
@@ -8,26 +14,22 @@ import type {
 	MinimalMediaStreamAudioSourceNode,
 	MinimalMediaStreamTrack,
 } from "./audio-types";
+import type createTimeDomainAnalyser from "./createTimeDomainAnalyser";
 
-import closeAudioContextSafely from "./closeAudioContextSafely";
-import createTimeDomainAnalyser from "./createTimeDomainAnalyser";
-import getDisplayAudioStream from "./stream/getDisplayAudioStream";
-import getMicStreamForDevice from "./stream/getMicStreamForDevice";
-import stopMediaStreamTracks from "./stream/stopMediaStreamTracks";
 import useAudioCapture from "./useAudioCapture";
 
-// Mock dependencies
-vi.mock("./createTimeDomainAnalyser");
-vi.mock("./getMicStreamForDevice");
-vi.mock("./getDisplayAudioStream");
-vi.mock("./stopMediaStreamTracks");
-vi.mock("./closeAudioContextSafely");
-
-const mockCreateTimeDomainAnalyser = vi.mocked(createTimeDomainAnalyser);
-const mockGetMicStreamForDevice = vi.mocked(getMicStreamForDevice);
-const mockGetDisplayAudioStream = vi.mocked(getDisplayAudioStream);
-const mockStopMediaStreamTracks = vi.mocked(stopMediaStreamTracks);
-const mockCloseAudioContextSafely = vi.mocked(closeAudioContextSafely);
+function spyCreateTimeDomainAnalyser(): Promise<SpyLike> {
+	return spyImport("@/react/lib/audio/createTimeDomainAnalyser");
+}
+function spyGetMicStreamForDevice(): Promise<SpyLike> {
+	return spyImport("@/react/lib/audio/stream/getMicStreamForDevice");
+}
+function spyStopMediaStreamTracks(): Promise<SpyLike> {
+	return spyImport("@/react/lib/audio/stream/stopMediaStreamTracks");
+}
+function spyCloseAudioContextSafely(): Promise<SpyLike> {
+	return spyImport("@/react/lib/audio/closeAudioContextSafely");
+}
 
 // Narrow the success return type of `createTimeDomainAnalyser` for typed test stubs
 type TimeDomainAnalyserSuccess = Exclude<
@@ -94,6 +96,7 @@ function makeFakeMediaStream(hasTrack = true): MinimalMediaStream {
 describe("useAudioCapture", () => {
 	const FFT_SIZE = 2048; // from implementation
 
+	// Small helper: clear mocks before each test
 	function setup(): void {
 		vi.clearAllMocks();
 	}
@@ -111,14 +114,14 @@ describe("useAudioCapture", () => {
 			analyser: fakeAnalyser,
 			timeDomainBytes: fakeBuffer,
 		};
-		mockCreateTimeDomainAnalyser.mockResolvedValue(successResult);
-		mockGetMicStreamForDevice.mockResolvedValue(fakeStream);
+		await setMockResolvedValue("@/react/lib/audio/createTimeDomainAnalyser", successResult);
+		await setMockResolvedValue("@/react/lib/audio/stream/getMicStreamForDevice", fakeStream);
 
 		const { result } = renderHook(() => useAudioCapture());
 
 		const stream = await result.current.startMic("device-1");
 
-		expect(mockGetMicStreamForDevice).toHaveBeenCalledWith("device-1");
+		await expect(spyGetMicStreamForDevice()).resolves.toHaveBeenCalledWith("device-1");
 		expect(stream).toBe(fakeStream);
 		await waitFor(() => {
 			expect(result.current.status).toBe("mic-ready");
@@ -130,7 +133,7 @@ describe("useAudioCapture", () => {
 
 	it("startMic rejects sets error status and message", async () => {
 		setup();
-		mockGetMicStreamForDevice.mockRejectedValue(new Error("boom"));
+		await setMockRejectedValue("@/react/lib/audio/stream/getMicStreamForDevice", new Error("boom"));
 
 		const { result } = renderHook(() => useAudioCapture());
 
@@ -146,14 +149,16 @@ describe("useAudioCapture", () => {
 	it("startMic with no audio tracks stops and returns error", async () => {
 		setup();
 		const fakeStream = makeFakeMediaStream(false);
-		mockGetMicStreamForDevice.mockResolvedValue(fakeStream);
+		// ensure spy exists so it can be asserted against later
+		await spyImport("@/react/lib/audio/stream/stopMediaStreamTracks");
+		await setMockResolvedValue("@/react/lib/audio/stream/getMicStreamForDevice", fakeStream);
 
 		const { result } = renderHook(() => useAudioCapture());
 
 		const stream = await result.current.startMic();
 
 		expect(stream).toBeUndefined();
-		expect(mockStopMediaStreamTracks).toHaveBeenCalledWith(fakeStream);
+		await expect(spyStopMediaStreamTracks()).resolves.toHaveBeenCalledWith(fakeStream);
 		await waitFor(() => {
 			expect(result.current.status).toBe("error");
 		});
@@ -173,8 +178,8 @@ describe("useAudioCapture", () => {
 			analyser: fakeAnalyser,
 			timeDomainBytes: fakeBuffer,
 		};
-		mockCreateTimeDomainAnalyser.mockResolvedValue(successResult);
-		mockGetDisplayAudioStream.mockResolvedValue(fakeStream);
+		await setMockResolvedValue("@/react/lib/audio/createTimeDomainAnalyser", successResult);
+		await setMockResolvedValue("@/react/lib/audio/stream/getDisplayAudioStream", fakeStream);
 
 		const { result } = renderHook(() => useAudioCapture());
 
@@ -188,10 +193,14 @@ describe("useAudioCapture", () => {
 	});
 
 	it("stop stops tracks and closes audio context and clears refs", async () => {
+		setup();
 		const fakeAudioContext = makeFakeAudioContext(() => undefined);
 		const fakeAnalyser = makeFakeAnalyserNode(fakeAudioContext);
 		const fakeBuffer = new Uint8Array(FFT_SIZE);
 		const fakeStream = makeFakeMediaStream(true);
+
+		await spyImport("@/react/lib/audio/stream/stopMediaStreamTracks");
+		await spyImport("@/react/lib/audio/closeAudioContextSafely");
 
 		const successResult: TimeDomainAnalyserSuccess = {
 			audioContext: fakeAudioContext,
@@ -199,8 +208,8 @@ describe("useAudioCapture", () => {
 			analyser: fakeAnalyser,
 			timeDomainBytes: fakeBuffer,
 		};
-		mockCreateTimeDomainAnalyser.mockResolvedValue(successResult);
-		mockGetMicStreamForDevice.mockResolvedValue(fakeStream);
+		await setMockResolvedValue("@/react/lib/audio/createTimeDomainAnalyser", successResult);
+		await setMockResolvedValue("@/react/lib/audio/stream/getMicStreamForDevice", fakeStream);
 
 		const { result } = renderHook(() => useAudioCapture());
 
@@ -209,8 +218,8 @@ describe("useAudioCapture", () => {
 
 		await result.current.stop();
 
-		expect(mockStopMediaStreamTracks).toHaveBeenCalledWith(fakeStream);
-		expect(mockCloseAudioContextSafely).toHaveBeenCalledWith(fakeAudioContext);
+		await expect(spyStopMediaStreamTracks()).resolves.toHaveBeenCalledWith(fakeStream);
+		await expect(spyCloseAudioContextSafely()).resolves.toHaveBeenCalledWith(fakeAudioContext);
 		expect(result.current.analyserRef.current).toBeUndefined();
 		expect(result.current.timeDomainBytesRef.current).toBeUndefined();
 		await waitFor(() => {
@@ -219,6 +228,7 @@ describe("useAudioCapture", () => {
 	});
 
 	it("stop with setStoppedStatus false doesn't set stopped status", async () => {
+		setup();
 		const fakeAudioContext = makeFakeAudioContext(() => undefined);
 		const fakeAnalyser = makeFakeAnalyserNode(fakeAudioContext);
 		const fakeBuffer = new Uint8Array(FFT_SIZE);
@@ -230,8 +240,8 @@ describe("useAudioCapture", () => {
 			analyser: fakeAnalyser,
 			timeDomainBytes: fakeBuffer,
 		};
-		mockCreateTimeDomainAnalyser.mockResolvedValue(successResult);
-		mockGetMicStreamForDevice.mockResolvedValue(fakeStream);
+		await setMockResolvedValue("@/react/lib/audio/createTimeDomainAnalyser", successResult);
+		await setMockResolvedValue("@/react/lib/audio/stream/getMicStreamForDevice", fakeStream);
 
 		const { result } = renderHook(() => useAudioCapture());
 
@@ -242,6 +252,10 @@ describe("useAudioCapture", () => {
 	});
 
 	it("unmount cleanup calls stop (stops tracks)", async () => {
+		setup();
+		await spyImport("@/react/lib/audio/createTimeDomainAnalyser");
+		await spyImport("@/react/lib/audio/stream/getMicStreamForDevice");
+		await spyImport("@/react/lib/audio/stream/stopMediaStreamTracks");
 		const fakeAudioContext = makeFakeAudioContext(() => undefined);
 		const fakeAnalyser = makeFakeAnalyserNode(fakeAudioContext);
 		const fakeBuffer = new Uint8Array(FFT_SIZE);
@@ -253,8 +267,14 @@ describe("useAudioCapture", () => {
 			analyser: fakeAnalyser,
 			timeDomainBytes: fakeBuffer,
 		};
-		mockCreateTimeDomainAnalyser.mockResolvedValue(successResult);
-		mockGetMicStreamForDevice.mockResolvedValue(fakeStream);
+		await spyCreateTimeDomainAnalyser().then((spy) => {
+			spy.mockResolvedValue(successResult);
+			return undefined;
+		});
+		await spyGetMicStreamForDevice().then((spy) => {
+			spy.mockResolvedValue(fakeStream);
+			return undefined;
+		});
 
 		const { result, unmount } = renderHook(() => useAudioCapture());
 
@@ -262,6 +282,6 @@ describe("useAudioCapture", () => {
 
 		unmount();
 
-		expect(mockStopMediaStreamTracks).toHaveBeenCalledWith(fakeStream);
+		await expect(spyStopMediaStreamTracks()).resolves.toHaveBeenCalledWith(fakeStream);
 	});
 });

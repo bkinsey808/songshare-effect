@@ -13,6 +13,13 @@ type FormTextareaProps = Readonly<{
 
 const DEFAULT_ROWS = 2;
 
+// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for DOM handler at module scope
+function handleInputEvent(formEvent: React.FormEvent<HTMLTextAreaElement>): void {
+	const target = formEvent.currentTarget;
+	target.style.height = "auto";
+	target.style.height = `${target.scrollHeight}px`;
+}
+
 /**
  * A simple controlled textarea used within forms. Supports an optional
  * `autoExpand` mode that grows the textarea as the user types.
@@ -29,13 +36,7 @@ export default function FormTextarea({
 	rows = DEFAULT_ROWS,
 	...props
 }: FormTextareaProps): ReactElement {
-	const handleInput = autoExpand
-		? (formEvent: React.FormEvent<HTMLTextAreaElement>): void => {
-				const target = formEvent.currentTarget;
-				target.style.height = "auto";
-				target.style.height = `${target.scrollHeight}px`;
-			}
-		: undefined;
+	const handleInput = autoExpand ? handleInputEvent : undefined;
 
 	return (
 		<textarea

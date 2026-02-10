@@ -2,6 +2,8 @@ import { vi } from "vitest";
 
 import type { EventSlice } from "@/react/event/slice/EventSlice.type";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
+
 /**
  * Returns a getter that provides a minimal, test-friendly `EventSlice`.
  *
@@ -31,6 +33,5 @@ export default function makeGetStub(): () => EventSlice {
 		setEventError: vi.fn(),
 		setEventSaving: vi.fn(),
 	};
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	return () => stub as unknown as EventSlice;
+	return () => forceCast<EventSlice>(stub);
 }

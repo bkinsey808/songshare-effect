@@ -1,15 +1,25 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+
 import type { SongLibrarySlice } from "../song-library-slice";
 import type { RemoveSongFromSongLibraryRequest } from "../song-library-types";
 
 import removeSongFromSongLibrary from "./removeSongFromLibrary";
+const unsafeAs = forceCast;
+
+type TestSpy = {
+	mockResolvedValue: (val: unknown) => void;
+	mockRejectedValue: (err: unknown) => void;
+	mockReturnValue: (val: unknown) => void;
+};
 
 // Mock modules
 vi.mock("@/react/utils/clientLogger");
-vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
-vi.mock("@/react/supabase/client/getSupabaseClient");
+vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
+vi.mock("@/react/lib/supabase/client/getSupabaseClient");
 
 // Test constants
 const SONG_ID = "song-123";
@@ -54,19 +64,24 @@ describe("removeSongFromSongLibrary", () => {
 
 		const getSupabaseAuthTokenModule =
 			await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-		vi.mocked(getSupabaseAuthTokenModule.default).mockResolvedValue("test-token");
+		const mockGetSupabaseAuthToken = forceCast<TestSpy>(
+			vi.spyOn(getSupabaseAuthTokenModule, "default"),
+		);
+		mockGetSupabaseAuthToken.mockResolvedValue("test-token");
 
 		const mockDeleteEq = vi.fn().mockResolvedValue({});
 		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
 
-		// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue({
-			from: vi.fn().mockReturnValue({
-				delete: vi.fn().mockReturnValue({
-					eq: mockDeleteEq,
+		const mockGetSupabaseClient = forceCast<TestSpy>(vi.spyOn(getSupabaseClientModule, "default"));
+		mockGetSupabaseClient.mockReturnValue(
+			forceCast<ReturnType<typeof getSupabaseClientModule.default>>({
+				from: vi.fn().mockReturnValue({
+					delete: vi.fn().mockReturnValue({
+						eq: mockDeleteEq,
+					}),
 				}),
 			}),
-		} as unknown as ReturnType<typeof getSupabaseClientModule.default>);
+		);
 
 		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));
 
@@ -90,8 +105,7 @@ describe("removeSongFromSongLibrary", () => {
 		const mockSlice = createMockSlice();
 		const get = vi.fn(() => mockSlice);
 
-		// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-		const invalidRequest = {} as RemoveSongFromSongLibraryRequest; // Missing song_id
+		const invalidRequest = forceCast<RemoveSongFromSongLibraryRequest>({}); // Missing song_id
 
 		await expect(Effect.runPromise(removeSongFromSongLibrary(invalidRequest, get))).rejects.toThrow(
 			Error,
@@ -106,9 +120,10 @@ describe("removeSongFromSongLibrary", () => {
 		const mockSlice = createMockSlice();
 		const get = vi.fn(() => mockSlice);
 
-		const getSupabaseAuthTokenModule =
-			await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-		vi.mocked(getSupabaseAuthTokenModule.default).mockRejectedValue(new Error(ERROR_AUTH_FAILED));
+		const mockGetSupabaseAuthToken = forceCast<TestSpy>(
+			await spyImport("@/react/lib/supabase/auth-token/getSupabaseAuthToken"),
+		);
+		mockGetSupabaseAuthToken.mockRejectedValue(new Error(ERROR_AUTH_FAILED));
 
 		await expect(Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get))).rejects.toThrow(
 			Error,
@@ -123,12 +138,15 @@ describe("removeSongFromSongLibrary", () => {
 		const mockSlice = createMockSlice();
 		const get = vi.fn(() => mockSlice);
 
-		const getSupabaseAuthTokenModule =
-			await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-		vi.mocked(getSupabaseAuthTokenModule.default).mockResolvedValue("test-token");
+		const mockGetSupabaseAuthToken = forceCast<TestSpy>(
+			await spyImport("@/react/lib/supabase/auth-token/getSupabaseAuthToken"),
+		);
+		mockGetSupabaseAuthToken.mockResolvedValue("test-token");
 
-		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue(undefined);
+		const mockGetSupabaseClient = forceCast<TestSpy>(
+			await spyImport("@/react/lib/supabase/client/getSupabaseClient"),
+		);
+		mockGetSupabaseClient.mockReturnValue(undefined);
 
 		await expect(Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get))).rejects.toThrow(
 			Error,
@@ -152,14 +170,15 @@ describe("removeSongFromSongLibrary", () => {
 			error: serverError,
 		});
 		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-		// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue({
-			from: vi.fn().mockReturnValue({
-				delete: vi.fn().mockReturnValue({
-					eq: mockDeleteEq,
+		vi.mocked(getSupabaseClientModule.default).mockReturnValue(
+			forceCast<ReturnType<typeof getSupabaseClientModule.default>>({
+				from: vi.fn().mockReturnValue({
+					delete: vi.fn().mockReturnValue({
+						eq: mockDeleteEq,
+					}),
 				}),
 			}),
-		} as unknown as ReturnType<typeof getSupabaseClientModule.default>);
+		);
 
 		await expect(Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get))).rejects.toThrow(
 			Error,
@@ -185,10 +204,11 @@ describe("removeSongFromSongLibrary", () => {
 		});
 
 		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-		// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue({
-			from: mockFrom,
-		} as unknown as ReturnType<typeof getSupabaseClientModule.default>);
+		vi.mocked(getSupabaseClientModule.default).mockReturnValue(
+			forceCast<ReturnType<typeof getSupabaseClientModule.default>>({
+				from: mockFrom,
+			}),
+		);
 
 		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));
 
@@ -209,15 +229,15 @@ describe("removeSongFromSongLibrary", () => {
 
 		const mockDeleteEq = vi.fn().mockResolvedValue({});
 		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-		// oxlint-disable-next-line typescript-eslint/no-unsafe-assignment
-		// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue({
-			from: vi.fn().mockReturnValue({
-				delete: vi.fn().mockReturnValue({
-					eq: mockDeleteEq,
+		vi.mocked(getSupabaseClientModule.default).mockReturnValue(
+			unsafeAs<ReturnType<typeof getSupabaseClientModule.default>>({
+				from: vi.fn().mockReturnValue({
+					delete: vi.fn().mockReturnValue({
+						eq: mockDeleteEq,
+					}),
 				}),
 			}),
-		} as unknown as ReturnType<typeof getSupabaseClientModule.default>);
+		);
 
 		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));
 
@@ -238,14 +258,15 @@ describe("removeSongFromSongLibrary", () => {
 		// Return invalid response (not a record with error property)
 		const mockDeleteEq = vi.fn().mockResolvedValue(undefined);
 		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-		// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue({
-			from: vi.fn().mockReturnValue({
-				delete: vi.fn().mockReturnValue({
-					eq: mockDeleteEq,
+		vi.mocked(getSupabaseClientModule.default).mockReturnValue(
+			unsafeAs<ReturnType<typeof getSupabaseClientModule.default>>({
+				from: vi.fn().mockReturnValue({
+					delete: vi.fn().mockReturnValue({
+						eq: mockDeleteEq,
+					}),
 				}),
 			}),
-		} as unknown as ReturnType<typeof getSupabaseClientModule.default>);
+		);
 
 		await expect(Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get))).rejects.toThrow(
 			Error,
@@ -266,15 +287,15 @@ describe("removeSongFromSongLibrary", () => {
 
 		const mockDeleteEq = vi.fn().mockResolvedValue({});
 		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-		// oxlint-disable-next-line typescript-eslint/no-unsafe-assignment
-		// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue({
-			from: vi.fn().mockReturnValue({
-				delete: vi.fn().mockReturnValue({
-					eq: mockDeleteEq,
+		vi.mocked(getSupabaseClientModule.default).mockReturnValue(
+			unsafeAs<ReturnType<typeof getSupabaseClientModule.default>>({
+				from: vi.fn().mockReturnValue({
+					delete: vi.fn().mockReturnValue({
+						eq: mockDeleteEq,
+					}),
 				}),
 			}),
-		} as unknown as ReturnType<typeof getSupabaseClientModule.default>);
+		);
 
 		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));
 

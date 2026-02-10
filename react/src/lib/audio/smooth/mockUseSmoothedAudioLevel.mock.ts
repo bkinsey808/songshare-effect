@@ -28,7 +28,10 @@ function makeUseSmoothedAudioLevelMockFactoryInternal(): () => {
  * @returns void
  */
 export function mockUseSmoothedAudioLevel(): void {
-	vi.doMock("@/react/audio/useSmoothedAudioLevel", makeUseSmoothedAudioLevelMockFactoryInternal());
+	vi.doMock(
+		"@/react/lib/audio/smooth/useSmoothedAudioLevel",
+		makeUseSmoothedAudioLevelMockFactoryInternal(),
+	);
 }
 
 /**

@@ -5,18 +5,18 @@ import type { PostgrestResponse } from "@/react/lib/supabase/client/SupabaseClie
 
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
-import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 
 import fetchUserLibrary from "./fetchUserLibraryEffect";
 
-vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
-vi.mock("@/react/supabase/client/getSupabaseClient");
-vi.mock("@/react/supabase/client/safe-query/callSelect");
+vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
+vi.mock("@/react/lib/supabase/client/getSupabaseClient");
+vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 
 const TEST_TOKEN = "token-1";
 const TEST_USER_ID = "user-1";
@@ -62,7 +62,8 @@ describe("fetchUserLibraryEffect", () => {
 		};
 		const ownerRow = { user_id: TEST_FOLLOWED_ID, username: TEST_USERNAME };
 
-		vi.mocked(callSelect)
+		const callSelectMock = await spyImport("@/react/lib/supabase/client/safe-query/callSelect");
+		callSelectMock
 			.mockResolvedValueOnce({ data: [libRow] } as PostgrestResponse)
 			.mockResolvedValueOnce({ data: [ownerRow] } as PostgrestResponse);
 
@@ -86,12 +87,17 @@ describe("fetchUserLibraryEffect", () => {
 
 	it("handles empty user_library gracefully", async () => {
 		vi.resetAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TEST_TOKEN);
-		vi.mocked(getSupabaseClient).mockReturnValue(minimalClient);
+		const getSupabaseAuthTokenMock = await spyImport(
+			"@/react/lib/supabase/auth-token/getSupabaseAuthToken",
+		);
+		getSupabaseAuthTokenMock.mockResolvedValue?.(TEST_TOKEN);
+		const getSupabaseClientMock = await spyImport("@/react/lib/supabase/client/getSupabaseClient");
+		getSupabaseClientMock.mockReturnValue?.(minimalClient);
 
-		vi.mocked(callSelect)
-			.mockResolvedValueOnce({ data: [] } as PostgrestResponse)
-			.mockResolvedValueOnce({ data: [] } as PostgrestResponse);
+		/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- test-time spy */
+		const callSelectMock = await spyImport("@/react/lib/supabase/client/safe-query/callSelect");
+		callSelectMock.mockResolvedValueOnce({ data: [] } as PostgrestResponse);
+		callSelectMock.mockResolvedValueOnce({ data: [] } as PostgrestResponse);
 
 		const slice = makeGet();
 		function get(): UserLibrarySlice {
@@ -108,8 +114,12 @@ describe("fetchUserLibraryEffect", () => {
 
 	it("throws when no supabase client available and cleans up loading flag", async () => {
 		vi.resetAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TEST_TOKEN);
-		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
+		const getSupabaseAuthTokenMock = await spyImport(
+			"@/react/lib/supabase/auth-token/getSupabaseAuthToken",
+		);
+		getSupabaseAuthTokenMock.mockResolvedValue(TEST_TOKEN);
+		const getSupabaseClientMock = await spyImport("@/react/lib/supabase/client/getSupabaseClient");
+		getSupabaseClientMock.mockReturnValue?.(undefined);
 
 		const slice = makeGet();
 		function get(): UserLibrarySlice {
@@ -128,10 +138,15 @@ describe("fetchUserLibraryEffect", () => {
 
 	it("maps invalid library response to error and sets error state", async () => {
 		vi.resetAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TEST_TOKEN);
-		vi.mocked(getSupabaseClient).mockReturnValue(minimalClient);
+		const getSupabaseAuthTokenMock = await spyImport(
+			"@/react/lib/supabase/auth-token/getSupabaseAuthToken",
+		);
+		getSupabaseAuthTokenMock.mockResolvedValue(TEST_TOKEN);
+		const getSupabaseClientMock = await spyImport("@/react/lib/supabase/client/getSupabaseClient");
+		getSupabaseClientMock.mockReturnValue(minimalClient);
 
-		vi.mocked(callSelect).mockResolvedValueOnce(asPostgrestResponse(undefined));
+		const callSelectMock = await spyImport("@/react/lib/supabase/client/safe-query/callSelect");
+		callSelectMock.mockResolvedValueOnce(asPostgrestResponse(undefined));
 
 		const slice = makeGet();
 		function get(): UserLibrarySlice {
@@ -148,8 +163,12 @@ describe("fetchUserLibraryEffect", () => {
 
 	it("maps invalid owner response to error and sets error state", async () => {
 		vi.resetAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TEST_TOKEN);
-		vi.mocked(getSupabaseClient).mockReturnValue(minimalClient);
+		const getSupabaseAuthTokenMock = await spyImport(
+			"@/react/lib/supabase/auth-token/getSupabaseAuthToken",
+		);
+		getSupabaseAuthTokenMock.mockResolvedValue(TEST_TOKEN);
+		const getSupabaseClientMock = await spyImport("@/react/lib/supabase/client/getSupabaseClient");
+		getSupabaseClientMock.mockReturnValue(minimalClient);
 
 		const libRow = {
 			user_id: TEST_USER_ID,
@@ -157,7 +176,8 @@ describe("fetchUserLibraryEffect", () => {
 			created_at: "2020-01-01T00:00:00.000Z",
 		};
 
-		vi.mocked(callSelect)
+		const callSelectMock = await spyImport("@/react/lib/supabase/client/safe-query/callSelect");
+		callSelectMock
 			.mockResolvedValueOnce(asPostgrestResponse({ data: [libRow] }))
 			.mockResolvedValueOnce(asPostgrestResponse(undefined));
 		const slice = makeGet();

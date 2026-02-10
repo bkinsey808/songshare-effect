@@ -2,11 +2,20 @@
  * Prevent background auth fetches from starting during tests by stubbing
  * network responses for the auth endpoints used by getSupabaseAuthToken.
  */
+function isRequestLike(input: unknown): input is Request {
+	return typeof input === "object" && input !== null && "url" in input;
+}
+
 export default async function withAuthFetchMock<TReturnType>(
 	task: () => Promise<TReturnType> | TReturnType,
 ): Promise<TReturnType> {
-	const original =
-		typeof globalThis.fetch === "function" ? globalThis.fetch.bind(globalThis) : undefined;
+	const original: ((input: RequestInfo, init?: RequestInit) => Promise<Response>) | undefined =
+		typeof globalThis.fetch === "function"
+			? (globalThis.fetch.bind(globalThis) as (
+					input: RequestInfo,
+					init?: RequestInit,
+				) => Promise<Response>)
+			: undefined;
 
 	async function authFetchMock(input: URL | RequestInfo, init?: RequestInit): Promise<Response> {
 		let url = "";
@@ -14,11 +23,11 @@ export default async function withAuthFetchMock<TReturnType>(
 			url = input;
 		} else if (input instanceof URL) {
 			url = input.href;
+		} else if (isRequestLike(input)) {
+			const { url: requestUrl } = input;
+			url = requestUrl;
 		} else {
-			// oxlint-disable-next-line typescript/no-unsafe-type-assertion
-			const req = input as unknown as Request;
-			const { url: reqUrl } = req;
-			url = reqUrl;
+			url = String(input);
 		}
 
 		if (url.endsWith("/api/auth/visitor")) {
@@ -31,8 +40,8 @@ export default async function withAuthFetchMock<TReturnType>(
 			);
 		}
 
-		// oxlint-disable-next-line typescript/no-unsafe-type-assertion
-		const result = original ? await original(input as unknown as RequestInfo, init) : undefined;
+		const callInput: RequestInfo = input instanceof URL ? input.href : input;
+		const result = original ? await original(callInput, init) : undefined;
 		return result ?? new Response(undefined, { status: 404 });
 	}
 

@@ -12,9 +12,9 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 
 import fetchEventBySlug from "./fetchEventBySlug";
 
-vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
-vi.mock("@/react/supabase/client/getSupabaseClient");
-vi.mock("@/react/supabase/client/safe-query/callSelect");
+vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
+vi.mock("@/react/lib/supabase/client/getSupabaseClient");
+vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 
 describe("fetchEventBySlug error cases", () => {
 	it("throws NoSupabaseClientError when no client is available", async () => {

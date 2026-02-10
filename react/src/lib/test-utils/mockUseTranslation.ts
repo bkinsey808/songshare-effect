@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
+
 /**
  * mockUseTranslation
  *
@@ -11,12 +13,12 @@ import { vi } from "vitest";
  * @returns void
  */
 export default function mockUseTranslation(lang = "en"): void {
-	// `react-i18next` types are complex (branded `TFunction` and a full `i18n`
-	// instance). Centralize a single narrow cast here so individual tests can
-	// stub `useTranslation()` without repeating verbose disables.
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- testing helper central cast */
-	vi.mocked(useTranslation).mockReturnValue({
-		t: (key: string): string => `X:${key}`,
+	// Construct a typed stub matching `useTranslation()` return shape and cast
+	// once to the official return type. Narrowing here keeps tests concise.
+	const stub = {
+		t: (key: string, def?: string): string => (typeof def === "string" ? def : `X:${key}`),
 		i18n: { language: lang, languages: ["en", "es"], changeLanguage: vi.fn() },
-	} as unknown as ReturnType<typeof useTranslation>);
+	};
+
+	vi.mocked(useTranslation).mockReturnValue(forceCast<ReturnType<typeof useTranslation>>(stub));
 }

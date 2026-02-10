@@ -72,12 +72,19 @@ function getMinScore(): number {
 	// 3. Auto-detect local dev server (localhost or 127.0.0.1 or port 5173) and use dev fallback
 	// 4. Fallback to LIGHTHOUSE_MIN_SCORE or DEFAULT_MIN_SCORE
 	const mode = process.env["LIGHTHOUSE_MODE"];
-	if (mode === "dev") { return Number(process.env["LIGHTHOUSE_MIN_SCORE_DEV"] ?? DEV_MIN_SCORE); }
-	if (mode === "dist" || mode === "ci") { return Number(process.env["LIGHTHOUSE_MIN_SCORE_DIST"] ?? DEFAULT_MIN_SCORE); }
+	if (mode === "dev") {
+		return Number(process.env["LIGHTHOUSE_MIN_SCORE_DEV"] ?? DEV_MIN_SCORE);
+	}
+	if (mode === "dist" || mode === "ci") {
+		return Number(process.env["LIGHTHOUSE_MIN_SCORE_DIST"] ?? DEFAULT_MIN_SCORE);
+	}
 
 	const url = process.env["LIGHTHOUSE_URL"] ?? process.env["PLAYWRIGHT_BASE_URL"] ?? "";
 	if (url.includes("localhost") || url.includes("127.0.0.1") || url.includes(":5173")) {
-		return Number(process.env["LIGHTHOUSE_MIN_SCORE_DEV"] ?? Number(process.env["LIGHTHOUSE_MIN_SCORE"] ?? DEV_MIN_SCORE));
+		return Number(
+			process.env["LIGHTHOUSE_MIN_SCORE_DEV"] ??
+				Number(process.env["LIGHTHOUSE_MIN_SCORE"] ?? DEV_MIN_SCORE),
+		);
 	}
 
 	return Number(process.env["LIGHTHOUSE_MIN_SCORE"] ?? DEFAULT_MIN_SCORE);
@@ -117,8 +124,6 @@ async function waitForPort(port: number, timeoutMs = DEFAULT_WAIT_PORT_MS): Prom
 	});
 }
 
-
-
 // Retry constants for local Lighthouse reliability
 const LH_RETRY_ATTEMPTS = 2;
 const LH_RETRY_BASE_DELAY_MS = 1500;
@@ -127,7 +132,11 @@ const LH_RETRY_BASE_DELAY_MS = 1500;
  * Run Lighthouse runner with retries for transient connection failures.
  */
 async function runLighthouseWithRetries(
-	lhRunner: (url: string, options: { port: number }, config?: Record<string, unknown>) => Promise<unknown>,
+	lhRunner: (
+		url: string,
+		options: { port: number },
+		config?: Record<string, unknown>,
+	) => Promise<unknown>,
 	url: string,
 	options: { port: number },
 ): Promise<unknown> {
@@ -141,9 +150,11 @@ async function runLighthouseWithRetries(
 				if (attempt + 1 >= LH_RETRY_ATTEMPTS) {
 					throw error;
 				}
-				const delay = LH_RETRY_BASE_DELAY_MS * (2 ** attempt);
+				const delay = LH_RETRY_BASE_DELAY_MS * 2 ** attempt;
 				// eslint-disable-next-line no-console
-				console.warn(`Lighthouse attempt ${attempt + 1} failed with ${text}; retrying after ${delay}ms`);
+				console.warn(
+					`Lighthouse attempt ${attempt + 1} failed with ${text}; retrying after ${delay}ms`,
+				);
 				await new Promise((resolve) => setTimeout(resolve, delay));
 				return attemptRun(attempt + 1);
 			}
@@ -341,7 +352,7 @@ test.describe.serial("Lighthouse audit", () => {
 					} catch {
 						// ignore
 					}
-					const delay = LH_RETRY_BASE_DELAY_MS * (2 ** _attempt);
+					const delay = LH_RETRY_BASE_DELAY_MS * 2 ** _attempt;
 					await new Promise((resolve) => setTimeout(resolve, delay));
 					return await runFullLighthouseCycle(_attempt + 1);
 				}
@@ -352,12 +363,14 @@ test.describe.serial("Lighthouse audit", () => {
 			} catch (error) {
 				// eslint-disable-next-line no-console
 				console.warn("Lighthouse cycle attempt failed:", error);
-				const delay = LH_RETRY_BASE_DELAY_MS * (2 ** _attempt);
+				const delay = LH_RETRY_BASE_DELAY_MS * 2 ** _attempt;
 				await new Promise((resolve) => setTimeout(resolve, delay));
 				return await runFullLighthouseCycle(_attempt + 1);
 			} finally {
 				try {
-					if (chrome !== undefined) { await chrome.kill(); }
+					if (chrome !== undefined) {
+						await chrome.kill();
+					}
 				} catch {
 					// ignore
 				}
@@ -391,13 +404,12 @@ test.describe.serial("Lighthouse audit", () => {
 		maybeSkipForAllZeroScores(scores);
 		const minScore = getMinScore();
 
-
-				expect(scores.performance, "performance").toBeGreaterThanOrEqual(minScore);
-				expect(scores.accessibility, "accessibility").toBeGreaterThanOrEqual(minScore);
-				expect(scores.bestPractices, "best-practices").toBeGreaterThanOrEqual(
-					Math.min(minScore, MIN_FALLBACK),
-				);
-				expect(scores.seo, "seo").toBeGreaterThanOrEqual(Math.min(minScore, MIN_FALLBACK));
+		expect(scores.performance, "performance").toBeGreaterThanOrEqual(minScore);
+		expect(scores.accessibility, "accessibility").toBeGreaterThanOrEqual(minScore);
+		expect(scores.bestPractices, "best-practices").toBeGreaterThanOrEqual(
+			Math.min(minScore, MIN_FALLBACK),
+		);
+		expect(scores.seo, "seo").toBeGreaterThanOrEqual(Math.min(minScore, MIN_FALLBACK));
 
 		// eslint-disable-next-line no-console
 		console.log("Lighthouse scores:", scores);

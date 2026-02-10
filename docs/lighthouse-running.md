@@ -80,4 +80,5 @@ If `LH_OUTPUT_DIR` is set, the test writes `lighthouse-<timestamp>.html` to that
 - To generate an HTML report for inspection set `LH_OUTPUT_DIR` before running.
 
 ---
+
 If you want, I can also add a GitHub Actions job that runs Lighthouse against a preview URL and uploads the HTML report as an artifact. Would you like that? (yes/no)

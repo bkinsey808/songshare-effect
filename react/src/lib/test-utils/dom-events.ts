@@ -1,12 +1,11 @@
 import { vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
+
 /* Centralized test helpers for constructing DOM events with safe typing.
    These helpers contain the required narrow casts in one place so tests don't
    need to repeat eslint-disable comments.
 */
-
-// Keep the unsafe assertions confined to this test-only helper file.
-
 export function makeChangeEvent(value: string): React.ChangeEvent<HTMLInputElement> {
 	// Construct a minimal, fully-typed event object to avoid unsafe assertions.
 	// Use a real input element so `currentTarget` has the right DOM type.
@@ -35,6 +34,7 @@ export function makeChangeEvent(value: string): React.ChangeEvent<HTMLInputEleme
 }
 
 export function makeFormEventWithPreventDefault(): {
+	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow test helper; FormEvent shape is intentional here
 	event: React.FormEvent<HTMLFormElement>;
 	preventDefault: ReturnType<typeof vi.fn>;
 } {
@@ -58,6 +58,7 @@ export function makeFormEventWithPreventDefault(): {
 		isPropagationStopped: (): boolean => false,
 		stopPropagation: (): void => undefined,
 		timeStamp: Date.now(),
+		// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for helper
 	} satisfies React.FormEvent<HTMLFormElement>;
 
 	return { event, preventDefault };
@@ -89,8 +90,6 @@ export function makeKeyboardEventWithPreventDefault(key: string): {
 		key,
 	};
 
-	// Confine the narrow, unsafe assertion to this helper so tests can use
-	// a properly-typed `React.KeyboardEvent` without repeating an unsafe cast.
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	return { event: event as unknown as React.KeyboardEvent, preventDefault };
+	// Confine the narrow cast to this helper so tests can use a properly-typed `React.KeyboardEvent` without repeating an unsafe cast.
+	return { event: forceCast<React.KeyboardEvent>(event), preventDefault };
 }

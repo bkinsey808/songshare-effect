@@ -34,6 +34,7 @@ function UploadPage(): ReactElement {
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	}
 
+	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	async function handleSubmit(ev: React.FormEvent): Promise<void> {
 		ev.preventDefault();
 		setIsSubmitting(true);

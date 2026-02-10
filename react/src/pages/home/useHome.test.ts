@@ -2,11 +2,12 @@ import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import useLocale from "@/react/lib/language/locale/useLocale";
+import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { UseHomeReturn } from "./useHome";
 
 // Mock the locale hook so we can control translations per-test,
-vi.mock("@/react/language/locale/useLocale");
+vi.mock("@/react/lib/language/locale/useLocale");
 
 describe("useHome", () => {
 	it("normalizes legacy paragraph arrays (VITE_APP_NAME not testable in unit tests)", async () => {
@@ -19,10 +20,9 @@ describe("useHome", () => {
 		};
 		{
 			const tMock = vi.fn().mockImplementation((key: string) => mapping1[key]);
-			// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
-			vi.mocked(useLocale).mockReturnValue({ lang: "en", t: tMock } as unknown as ReturnType<
-				typeof useLocale
-			>);
+			vi.mocked(useLocale).mockReturnValue(
+				forceCast<ReturnType<typeof useLocale>>({ lang: "en", t: tMock }),
+			);
 		}
 
 		// Act
@@ -44,10 +44,9 @@ describe("useHome", () => {
 		// Mock translation for app.title fallback
 		const mapping2: Record<string, unknown> = { "app.title": "Translated App" };
 		const tMock2 = vi.fn().mockImplementation((key: string) => mapping2[key]);
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
-		vi.mocked(useLocale).mockReturnValue({ lang: "en", t: tMock2 } as unknown as ReturnType<
-			typeof useLocale
-		>);
+		vi.mocked(useLocale).mockReturnValue(
+			forceCast<ReturnType<typeof useLocale>>({ lang: "en", t: tMock2 }),
+		);
 
 		// Act
 		const mod3 = await import("./useHome");
@@ -69,10 +68,9 @@ describe("useHome", () => {
 			],
 		};
 		const tMock3 = vi.fn().mockImplementation((key: string) => mapping3[key]);
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
-		vi.mocked(useLocale).mockReturnValue({ lang: "en", t: tMock3 } as unknown as ReturnType<
-			typeof useLocale
-		>);
+		vi.mocked(useLocale).mockReturnValue(
+			forceCast<ReturnType<typeof useLocale>>({ lang: "en", t: tMock3 }),
+		);
 
 		// Act
 		const mod4 = await import("./useHome");

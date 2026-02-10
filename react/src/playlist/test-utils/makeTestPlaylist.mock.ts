@@ -3,9 +3,10 @@ import type { PlaylistEntry } from "@/react/playlist/playlist-types";
 /**
  * Helper to create a minimal PlaylistEntry for testing.
  */
+import forceCast from "@/react/lib/test-utils/forceCast";
+
 export function makeTestPlaylist(overrides: Partial<PlaylistEntry> = {}): PlaylistEntry {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	return {
+	return forceCast<PlaylistEntry>({
 		playlist_id: "p1",
 		user_id: "u1",
 		created_at: "2026-02-07T00:00:00Z",
@@ -22,7 +23,7 @@ export function makeTestPlaylist(overrides: Partial<PlaylistEntry> = {}): Playli
 			public_notes: "",
 		},
 		...overrides,
-	} as unknown as PlaylistEntry;
+	});
 }
 
 /**
@@ -30,15 +31,13 @@ export function makeTestPlaylist(overrides: Partial<PlaylistEntry> = {}): Playli
  */
 export function makePlaylistWithUndefinedSongOrder(): PlaylistEntry {
 	const base = makeTestPlaylist();
-	return {
+	return forceCast<PlaylistEntry>({
 		...base,
 		public: {
 			...base.public,
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			song_order: undefined as unknown as string[],
+			song_order: forceCast<string[]>(undefined),
 		},
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	} as unknown as PlaylistEntry;
+	});
 }
 
 /**
@@ -46,13 +45,11 @@ export function makePlaylistWithUndefinedSongOrder(): PlaylistEntry {
  */
 export function makePlaylistWithUndefinedName(): PlaylistEntry {
 	const base = makeTestPlaylist();
-	return {
+	return forceCast<PlaylistEntry>({
 		...base,
 		public: {
 			...base.public,
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-			playlist_name: undefined as unknown as string,
+			playlist_name: forceCast<string>(undefined),
 		},
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	} as unknown as PlaylistEntry;
+	});
 }

@@ -28,7 +28,10 @@ export function mockTypeGpu(): { runTypeGpuDemoMock: ReturnType<typeof vi.fn> } 
 		};
 	});
 	// Type the mock factory to satisfy linting rules
-	vi.doMock("@/react/typegpu/runTypeGpuDemo", () => ({ default: fn }) as { default: typeof fn });
+	vi.doMock(
+		"@/react/lib/typegpu/runTypeGpuDemo",
+		() => ({ default: fn }) as { default: typeof fn },
+	);
 	return { runTypeGpuDemoMock: fn };
 }
 

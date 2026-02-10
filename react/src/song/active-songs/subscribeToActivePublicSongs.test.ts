@@ -19,7 +19,7 @@ import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import subscribeToActivePublicSongs from "./subscribeToActivePublicSongs";
 
 // Mock the supabase client factory before importing the module under test
-vi.mock("@/react/supabase/client/getSupabaseClientWithAuth");
+vi.mock("@/react/lib/supabase/client/getSupabaseClientWithAuth");
 
 const MACROTASK_DELAY = 0;
 /**

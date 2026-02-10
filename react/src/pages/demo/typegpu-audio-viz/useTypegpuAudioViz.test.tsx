@@ -22,11 +22,11 @@ import useTypegpuAudioViz from "./useTypegpuAudioViz";
  * the assertions readable and focused on behavior we permit a few
  * narrow, test-only lint/type exceptions below.
  */
-vi.mock("@/react/audio/useAudioVizInput");
-vi.mock("@/react/canvas/useCanvasAnimation");
-vi.mock("@/react/canvas/resizeCanvasToDisplaySize");
+vi.mock("@/react/lib/audio/useAudioVizInput");
+vi.mock("@/react/lib/canvas/useCanvasAnimation");
+vi.mock("@/react/lib/canvas/resizeCanvasToDisplaySize");
 vi.mock("@/react/pages/demo/typegpu-audio-viz/drawAudioVizFallbackFrame");
-vi.mock("@/react/typegpu/runTypeGpuAudioVizDemo");
+vi.mock("@/react/lib/typegpu/runTypeGpuAudioVizDemo");
 
 const mockUseAudioVizInput = vi.mocked(useAudioVizInput);
 const mockUseCanvasAnimation = vi.mocked(useCanvasAnimation);

@@ -44,7 +44,7 @@ describe("typeGpuDemoPage (TypeGPU integration)", () => {
 
 	it("displays error when typegpu module initialization fails", async () => {
 		vi.resetModules();
-		vi.doUnmock("@/react/typegpu/runTypeGpuDemo");
+		vi.doUnmock("@/react/lib/typegpu/runTypeGpuDemo");
 		mockTypeGpuWithoutInit();
 		const { default: TypeGpuDemoPage } = await import("./TypeGpuDemoPage");
 

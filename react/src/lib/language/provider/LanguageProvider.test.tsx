@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
+
 import getStoredLanguage from "../stored/getStoredLanguage";
 import setStoredLanguage from "../stored/setStoredLanguage";
 import LanguageProvider from "./LanguageProvider";
@@ -17,11 +19,12 @@ describe("language provider", () => {
 	function setup(): () => void {
 		vi.mocked(useParams).mockReturnValue({ lang: "es" });
 		// Stub react-i18next runtime used by LanguageProvider
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
-		vi.mocked(useTranslation).mockReturnValue({
-			i18n: { language: "en", changeLanguage: vi.fn() },
-			t: vi.fn(),
-		} as unknown as ReturnType<typeof useTranslation>);
+		vi.mocked(useTranslation).mockReturnValue(
+			forceCast<ReturnType<typeof useTranslation>>({
+				i18n: { language: "en", changeLanguage: vi.fn() },
+				t: vi.fn(),
+			}),
+		);
 		// Ensure setStoredLanguage resolves when called (async public API)
 		vi.mocked(setStoredLanguage).mockResolvedValue(undefined);
 		return () => {

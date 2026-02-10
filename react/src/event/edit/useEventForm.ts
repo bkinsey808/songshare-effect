@@ -28,6 +28,7 @@ export type UseEventFormReturn = {
 	setFormValue: (field: keyof EventFormValues, value: string | boolean | undefined) => void;
 
 	// Handlers
+	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	handleFormSubmit: (event?: React.FormEvent<HTMLFormElement>) => Promise<void>;
 	formRef: React.RefObject<HTMLFormElement | null>;
 	resetForm: () => void;
@@ -133,6 +134,7 @@ export default function useEventForm(): UseEventFormReturn {
 	}
 
 	// Handle Form Submission
+	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	function handleFormSubmit(event?: React.FormEvent<HTMLFormElement>): Promise<void> {
 		if (event) {
 			event.preventDefault();

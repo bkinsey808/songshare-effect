@@ -7,7 +7,7 @@ import { reactFeaturesPath } from "@/shared/paths";
 
 import DemoNavigation from "./DemoNavigation";
 
-vi.mock("@/react/language/locale/useLocale");
+vi.mock("@/react/lib/language/locale/useLocale");
 
 describe("demoNavigation - language-aware links", () => {
 	it("constructs demo links with the language prefix", () => {

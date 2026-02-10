@@ -5,24 +5,28 @@ import type { PostgrestResponse } from "@/react/lib/supabase/client/SupabaseClie
 
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
-import mockGetSupabaseClient from "@/react/lib/supabase/client/test-utils/mockGetSupabaseClient.mock";
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import asNull from "@/react/lib/test-utils/asNull";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import makeGetStub from "@/react/playlist/slice/makeGetPlaylistSliceStub.mock";
 import makePlaylistPublic from "@/react/playlist/test-utils/makePlaylistPublic";
 import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 
 import fetchPlaylist from "./fetchPlaylist";
 
-vi.mock("@/react/supabase/auth-token/getSupabaseAuthToken");
-vi.mock("@/react/supabase/client/getSupabaseClient");
-vi.mock("@/react/supabase/client/safe-query/callSelect");
+vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
+vi.mock("@/react/lib/supabase/client/getSupabaseClient");
+vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 
 describe("fetchPlaylist", () => {
 	it("sets success and playlist data on success", async () => {
 		vi.clearAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(forceCast("token"));
-		mockGetSupabaseClient();
+		const mockGetSupabaseClientSpy = await spyImport(
+			"@/react/lib/supabase/client/getSupabaseClient",
+		);
+		mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
 
 		const mockPlaylist = makePlaylistPublic();
 		const get = makeGetStub();
@@ -43,7 +47,10 @@ describe("fetchPlaylist", () => {
 		vi.clearAllMocks();
 		// Mock token to be undefined (no user logged in)
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(undefined);
-		mockGetSupabaseClient();
+		const mockGetSupabaseClientSpy = await spyImport(
+			"@/react/lib/supabase/client/getSupabaseClient",
+		);
+		mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
 
 		const playlistPublic = makePlaylistPublic();
 		const userPublic = makeUserPublic();
@@ -67,7 +74,10 @@ describe("fetchPlaylist", () => {
 	it("handles query failures by setting the error state", async () => {
 		vi.clearAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(forceCast("token"));
-		mockGetSupabaseClient();
+		const mockGetSupabaseClientSpy = await spyImport(
+			"@/react/lib/supabase/client/getSupabaseClient",
+		);
+		mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
 
 		// A rejected promise from callSelect (e.g. network fail or thrown error)
 		vi.mocked(callSelect).mockRejectedValue(new Error("query failed"));
@@ -89,7 +99,11 @@ describe("fetchPlaylist", () => {
 	it("handles missing playlist by failing with not found", async () => {
 		vi.clearAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(forceCast("token"));
-		mockGetSupabaseClient();
+		const mockGetSupabaseClientSpy = await spyImport(
+			"@/react/lib/supabase/client/getSupabaseClient",
+		);
+
+		mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
 
 		// Return empty data (no rows found)
 		vi.mocked(callSelect).mockResolvedValue(forceCast({ data: [], error: asNull() }));
