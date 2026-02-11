@@ -9,6 +9,7 @@ import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import { resetAllSlices } from "@/react/app-store/slice-reset-fns";
 import useAppStore from "@/react/app-store/useAppStore";
 import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
+import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
 import delay from "@/shared/utils/delay";
 
 import useUserLibrary from "./useUserLibrary";
@@ -40,12 +41,11 @@ describe("useUserLibrary", () => {
 		const originalSubscribePublic = store.getState().subscribeToUserPublicForLibrary;
 
 		store.setState(
-			() =>
-				({
-					fetchUserLibrary,
-					subscribeToUserLibrary,
-					subscribeToUserPublicForLibrary,
-				}) as Partial<AppSlice>,
+			makeAppSlice({
+				fetchUserLibrary,
+				subscribeToUserLibrary,
+				subscribeToUserPublicForLibrary,
+			}),
 		);
 
 		const { unmount } = renderHook(
@@ -65,11 +65,13 @@ describe("useUserLibrary", () => {
 		unmount();
 		expect(unsubscribe).toHaveBeenCalledWith();
 
-		store.setState({
-			fetchUserLibrary: originalFetch,
-			subscribeToUserLibrary: originalSubscribe,
-			subscribeToUserPublicForLibrary: originalSubscribePublic,
-		});
+		store.setState(
+			makeAppSlice({
+				fetchUserLibrary: originalFetch,
+				subscribeToUserLibrary: originalSubscribe,
+				subscribeToUserPublicForLibrary: originalSubscribePublic,
+			}),
+		);
 	});
 
 	it("returns store state values and removeFromUserLibrary invokes store action", async () => {
@@ -102,7 +104,7 @@ describe("useUserLibrary", () => {
 			fetchUserLibrary: () => Effect.sync(() => undefined),
 			subscribeToUserPublicForLibrary,
 		};
-		store.setState(patch);
+		store.setState(makeAppSlice(patch));
 
 		// Allow microtasks to settle
 		await Promise.resolve();
@@ -116,13 +118,15 @@ describe("useUserLibrary", () => {
 		await Effect.runPromise(result.current.removeFromUserLibrary(REMOVE_REQUEST));
 		expect(removeFromUserLibrary).toHaveBeenCalledWith(REMOVE_REQUEST);
 
-		store.setState({
-			removeUserFromLibrary: originalRemove,
-			userLibraryEntries: originalEntries,
-			isUserLibraryLoading: originalLoading,
-			userLibraryError: originalError,
-			subscribeToUserPublicForLibrary: originalSubscribePublic,
-		});
+		store.setState(
+			makeAppSlice({
+				removeUserFromLibrary: originalRemove,
+				userLibraryEntries: originalEntries,
+				isUserLibraryLoading: originalLoading,
+				userLibraryError: originalError,
+				subscribeToUserPublicForLibrary: originalSubscribePublic,
+			}),
+		);
 		unmount();
 	});
 
@@ -142,7 +146,7 @@ describe("useUserLibrary", () => {
 				}),
 		);
 
-		store.setState({ fetchUserLibrary, subscribeToUserLibrary });
+		store.setState(makeAppSlice({ fetchUserLibrary, subscribeToUserLibrary }));
 
 		function StrictWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
 			return React.createElement(React.StrictMode, undefined, children);

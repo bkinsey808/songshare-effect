@@ -1,7 +1,5 @@
 import { vi } from "vitest";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
-
 export type SpyLike = {
 	mockResolvedValue: (value?: unknown) => SpyLike;
 	mockResolvedValueOnce: (value?: unknown) => SpyLike;
@@ -25,5 +23,7 @@ export default async function spyImport(
 ): Promise<SpyLike> {
 	// oxlint-disable-next-line typescript/no-unsafe-assignment
 	const mod = await import(modulePath);
-	return forceCast<SpyLike>(vi.spyOn(mod, exportName));
+	// Cast through unknown to satisfy TypeScript typing for test spies
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	return vi.spyOn(mod, exportName) as unknown as SpyLike;
 }

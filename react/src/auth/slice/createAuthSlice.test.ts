@@ -4,7 +4,6 @@ import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import fetchSupabaseUserTokenFromApi from "@/react/lib/supabase/auth-token/fetchSupabaseUserTokenFromApi";
-import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { AuthSlice, AuthState } from "./auth-slice.types";
 
@@ -54,9 +53,10 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 			| ((stateParam: AuthState & AuthSlice) => AuthState & AuthSlice),
 	): void {
 		if (typeof patchOrUpdater === "function") {
-			const next = forceCast<(stateParam: AuthState & AuthSlice) => AuthState & AuthSlice>(
-				patchOrUpdater,
-			)(forceCast<AuthState & AuthSlice>(state));
+			const updater = patchOrUpdater as (
+				stateParam: AuthState & AuthSlice,
+			) => AuthState & AuthSlice;
+			const next = updater(get());
 			Object.assign(state, next);
 		} else {
 			Object.assign(state, patchOrUpdater);
@@ -64,7 +64,26 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 	}
 
 	function get(): AuthState & AuthSlice {
-		return forceCast<AuthState & AuthSlice>(state);
+		const base: AuthState & AuthSlice = {
+			isSignedIn: state.isSignedIn ?? false,
+			userSessionData: state.userSessionData,
+			showSignedInAlert: state.showSignedInAlert ?? false,
+			setIsSignedIn: (isSignedIn) => {
+				state.isSignedIn = isSignedIn;
+			},
+			signIn: (userSessionData) => {
+				state.userSessionData = userSessionData;
+				state.isSignedIn = true;
+			},
+			signOut: () => {
+				state.userSessionData = undefined;
+				state.isSignedIn = false;
+			},
+			setShowSignedInAlert: (value) => {
+				state.showSignedInAlert = value;
+			},
+		};
+		return base;
 	}
 
 	const api: Api<AuthSlice> = {

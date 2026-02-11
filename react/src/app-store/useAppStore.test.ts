@@ -1,10 +1,6 @@
 import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
-
-import type { AppSlice } from "./AppSlice.type";
-
 const WAIT_TIMEOUT = 5000;
 
 describe("useAppStore persist behavior", () => {
@@ -12,9 +8,9 @@ describe("useAppStore persist behavior", () => {
 		vi.resetModules();
 		localStorage.clear();
 
-		const { appStore } = await import("./useAppStore");
+		const { getTypedState } = await import("./useAppStore");
 
-		const initial = forceCast<{ getState: () => AppSlice }>(appStore).getState();
+		const initial = getTypedState();
 		expect(typeof initial.setShowSignedInAlert).toBe("function");
 
 		// Use the slice action to trigger a state change which will be persisted

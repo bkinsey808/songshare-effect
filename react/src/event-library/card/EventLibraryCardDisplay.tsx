@@ -1,10 +1,10 @@
+import type { ReactElement } from "react";
+
 import { useTranslation } from "react-i18next";
 
-import useAppStore from "@/react/app-store/useAppStore";
-import useCurrentUserId from "@/react/auth/useCurrentUserId";
-import formatAppDate from "@/shared/utils/formatAppDate";
-
 import type { EventLibraryEntry } from "../event-library-types";
+
+import useEventLibraryCardDisplay from "./useEventLibraryCardDisplay";
 
 type EventLibraryCardDisplayProps = {
 	entry: EventLibraryEntry;
@@ -28,10 +28,10 @@ export default function EventLibraryCardDisplay({
 	onDeleteClick,
 }: Omit<EventLibraryCardDisplayProps, "currentUserId">): ReactElement {
 	const { t } = useTranslation();
-	const currentUserId = useCurrentUserId();
-	const removeFromEventLibrary = useAppStore((state) => state.removeEventFromLibrary);
-
-	const isOwned = currentUserId === entry.event_owner_id;
+	const { isOwned, ownerUsername, addedOnText, onPrimaryClick } = useEventLibraryCardDisplay({
+		entry,
+		onDeleteClick,
+	});
 
 	return (
 		<div className="group hover:bg-gray-750 rounded-lg border border-gray-700 bg-gray-800 p-4 transition-colors hover:border-gray-600">
@@ -45,39 +45,21 @@ export default function EventLibraryCardDisplay({
 
 			<div className="mb-3 flex items-center space-x-1 text-sm text-gray-400">
 				<span>👤</span>
-				<span>
-					{typeof entry.event?.owner_username === "string" && entry.event.owner_username !== ""
-						? entry.event.owner_username
-						: t("eventLibrary.unknownOwner", "Unknown User")}
-				</span>
+				<span>{ownerUsername}</span>
 			</div>
 
-			<div className="mb-4 text-xs text-gray-400">
-				{t("eventLibrary.addedOn", "Added {{date}}", { date: formatAppDate(entry.created_at) })}
-			</div>
+			<div className="mb-4 text-xs text-gray-400">{addedOnText}</div>
 
 			<div className="flex items-center justify-between gap-2">
-				<div />
-
-				{isOwned ? (
-					<button
-						type="button"
-						className="text-sm text-red-400 transition-colors hover:text-red-300"
-						onClick={onDeleteClick}
-					>
-						{t("eventLibrary.deleteEvent", "Delete")}
-					</button>
-				) : (
-					<button
-						type="button"
-						className="text-sm text-red-400 transition-colors hover:text-red-300"
-						onClick={() => {
-							void removeFromEventLibrary({ event_id: entry.event_id });
-						}}
-					>
-						{t("eventLibrary.removeEvent", "Remove")}
-					</button>
-				)}
+				<button
+					type="button"
+					className="text-sm text-red-400 transition-colors hover:text-red-300"
+					onClick={onPrimaryClick}
+				>
+					{isOwned
+						? t("eventLibrary.deleteEvent", "Delete")
+						: t("eventLibrary.removeEvent", "Remove")}
+				</button>
 			</div>
 		</div>
 	);

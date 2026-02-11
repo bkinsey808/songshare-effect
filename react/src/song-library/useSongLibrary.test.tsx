@@ -9,6 +9,7 @@ import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import { resetAllSlices } from "@/react/app-store/slice-reset-fns";
 import useAppStore from "@/react/app-store/useAppStore";
 import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
+import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
 import delay from "@/shared/utils/delay";
 
 import useSongLibrary from "./useSongLibrary";
@@ -42,12 +43,11 @@ describe("useSongLibrary", () => {
 
 		// Inject mocked functions
 		store.setState(
-			() =>
-				({
-					fetchSongLibrary,
-					subscribeToSongLibrary,
-					subscribeToSongPublic,
-				}) as Partial<AppSlice>,
+			makeAppSlice({
+				fetchSongLibrary,
+				subscribeToSongLibrary,
+				subscribeToSongPublic,
+			}),
 		);
 
 		const { unmount } = renderHook(
@@ -69,11 +69,13 @@ describe("useSongLibrary", () => {
 		expect(unsubscribe).toHaveBeenCalledWith();
 
 		// Restore original functions
-		store.setState({
-			fetchSongLibrary: originalFetch,
-			subscribeToSongLibrary: originalSubscribe,
-			subscribeToSongPublic: originalSubscribePublic,
-		});
+		store.setState(
+			makeAppSlice({
+				fetchSongLibrary: originalFetch,
+				subscribeToSongLibrary: originalSubscribe,
+				subscribeToSongPublic: originalSubscribePublic,
+			}),
+		);
 	});
 
 	it("returns store state values and removeFromSongLibrary invokes store action", async () => {
@@ -108,7 +110,7 @@ describe("useSongLibrary", () => {
 			fetchSongLibrary: () => Effect.sync(() => undefined),
 			subscribeToSongPublic,
 		};
-		store.setState(patch);
+		store.setState(makeAppSlice(patch));
 
 		// Allow microtasks to settle
 		await Promise.resolve();
@@ -148,11 +150,13 @@ describe("useSongLibrary", () => {
 		const originalSubscribe = store.getState().subscribeToSongLibrary;
 		const originalSubscribePublic = store.getState().subscribeToSongPublic;
 
-		store.setState({
-			fetchSongLibrary,
-			subscribeToSongLibrary,
-			subscribeToSongPublic,
-		});
+		store.setState(
+			makeAppSlice({
+				fetchSongLibrary,
+				subscribeToSongLibrary,
+				subscribeToSongPublic,
+			}),
+		);
 
 		const { unmount } = renderHook(
 			() => {
@@ -169,11 +173,13 @@ describe("useSongLibrary", () => {
 
 		unmount();
 
-		store.setState({
-			fetchSongLibrary: originalFetch,
-			subscribeToSongLibrary: originalSubscribe,
-			subscribeToSongPublic: originalSubscribePublic,
-		});
+		store.setState(
+			makeAppSlice({
+				fetchSongLibrary: originalFetch,
+				subscribeToSongLibrary: originalSubscribe,
+				subscribeToSongPublic: originalSubscribePublic,
+			}),
+		);
 	});
 
 	it("subscribes to song_public for visible song IDs and unsubscribes on change", async () => {
@@ -188,7 +194,7 @@ describe("useSongLibrary", () => {
 			.mockImplementationOnce((_ids: readonly string[]) => Effect.sync(() => cleanup2));
 
 		const originalSubscribePublic = store.getState().subscribeToSongPublic;
-		store.setState({ subscribeToSongPublic, songLibraryEntries: {} });
+		store.setState(makeAppSlice({ subscribeToSongPublic, songLibraryEntries: {} }));
 
 		const { unmount } = renderHook(() => useSongLibrary(), { wrapper: RouterWrapper });
 
@@ -258,7 +264,7 @@ describe("useSongLibrary", () => {
 				}),
 		);
 
-		store.setState({ fetchSongLibrary, subscribeToSongLibrary });
+		store.setState(makeAppSlice({ fetchSongLibrary, subscribeToSongLibrary }));
 
 		function StrictWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
 			return React.createElement(React.StrictMode, undefined, children);

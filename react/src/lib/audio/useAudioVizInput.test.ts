@@ -4,7 +4,6 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import makeSmoothedAudioLevelForUiTimer from "@/react/lib/audio/smooth/makeSmoothedAudioLevelForUiTimer.mock";
-import forceCast from "@/react/lib/test-utils/forceCast";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import { ZERO } from "@/shared/constants/shared-constants";
 
@@ -23,11 +22,15 @@ type AsyncSpy = {
 };
 
 async function spyUseAudioCapture(): Promise<AsyncSpy> {
-	return forceCast<AsyncSpy>(await spyImport("@/react/lib/audio/useAudioCapture"));
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	return (await spyImport("@/react/lib/audio/useAudioCapture")) as unknown as AsyncSpy;
 }
 
 async function spyUseSmoothedAudioLevelRef(): Promise<AsyncSpy> {
-	return forceCast<AsyncSpy>(await spyImport("@/react/lib/audio/smooth/useSmoothedAudioLevelRef"));
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	return (await spyImport(
+		"@/react/lib/audio/smooth/useSmoothedAudioLevelRef",
+	)) as unknown as AsyncSpy;
 }
 
 describe("useAudioVizInput", () => {

@@ -7,7 +7,6 @@ import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAut
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import asNull from "@/react/lib/test-utils/asNull";
-import forceCast from "@/react/lib/test-utils/forceCast";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import makeGetStub from "@/react/playlist/slice/makeGetPlaylistSliceStub.mock";
 import makePlaylistPublic from "@/react/playlist/test-utils/makePlaylistPublic";
@@ -22,7 +21,7 @@ vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 describe("fetchPlaylist", () => {
 	it("sets success and playlist data on success", async () => {
 		vi.clearAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue(forceCast("token"));
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
 		const mockGetSupabaseClientSpy = await spyImport(
 			"@/react/lib/supabase/client/getSupabaseClient",
 		);
@@ -31,9 +30,11 @@ describe("fetchPlaylist", () => {
 		const mockPlaylist = makePlaylistPublic();
 		const get = makeGetStub();
 
-		vi.mocked(callSelect).mockResolvedValue(
-			forceCast<PostgrestResponse>({ data: [mockPlaylist], error: asNull() }),
-		);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		vi.mocked(callSelect).mockResolvedValue({
+			data: [mockPlaylist],
+			error: asNull(),
+		} as unknown as PostgrestResponse);
 
 		await Effect.runPromise(fetchPlaylist("p1", get));
 
@@ -58,9 +59,18 @@ describe("fetchPlaylist", () => {
 		// Even with null token, the query might succeed or fail depending on RLS.
 		// We mock success to verify the flow completes.
 		vi.mocked(callSelect)
-			.mockResolvedValueOnce(forceCast({ data: [playlistPublic], error: asNull() }))
-			.mockResolvedValueOnce(forceCast({ data: [], error: asNull() }))
-			.mockResolvedValueOnce(forceCast({ data: [userPublic], error: asNull() }));
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+			.mockResolvedValueOnce({
+				data: [playlistPublic],
+				error: asNull(),
+			} as unknown as PostgrestResponse)
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+			.mockResolvedValueOnce({ data: [], error: asNull() } as unknown as PostgrestResponse)
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+			.mockResolvedValueOnce({
+				data: [userPublic],
+				error: asNull(),
+			} as unknown as PostgrestResponse);
 
 		const get = makeGetStub();
 		await Effect.runPromise(fetchPlaylist("p1", get));
@@ -73,7 +83,7 @@ describe("fetchPlaylist", () => {
 
 	it("handles query failures by setting the error state", async () => {
 		vi.clearAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue(forceCast("token"));
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
 		const mockGetSupabaseClientSpy = await spyImport(
 			"@/react/lib/supabase/client/getSupabaseClient",
 		);
@@ -98,7 +108,7 @@ describe("fetchPlaylist", () => {
 
 	it("handles missing playlist by failing with not found", async () => {
 		vi.clearAllMocks();
-		vi.mocked(getSupabaseAuthToken).mockResolvedValue(forceCast("token"));
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
 		const mockGetSupabaseClientSpy = await spyImport(
 			"@/react/lib/supabase/client/getSupabaseClient",
 		);
@@ -106,7 +116,11 @@ describe("fetchPlaylist", () => {
 		mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
 
 		// Return empty data (no rows found)
-		vi.mocked(callSelect).mockResolvedValue(forceCast({ data: [], error: asNull() }));
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		vi.mocked(callSelect).mockResolvedValue({
+			data: [],
+			error: asNull(),
+		} as unknown as PostgrestResponse);
 
 		const get = makeGetStub();
 		const eff = fetchPlaylist("missing", get);

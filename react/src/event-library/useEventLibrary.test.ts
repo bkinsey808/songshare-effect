@@ -9,6 +9,7 @@ import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import { resetAllSlices } from "@/react/app-store/slice-reset-fns";
 import useAppStore from "@/react/app-store/useAppStore";
 import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
+import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
 import delay from "@/shared/utils/delay";
 
 import useEventLibrary from "./useEventLibrary";
@@ -40,12 +41,11 @@ describe("useEventLibrary", () => {
 		const originalSubscribePublic = store.getState().subscribeToEventPublicForLibrary;
 
 		store.setState(
-			() =>
-				({
-					fetchEventLibrary,
-					subscribeToEventLibrary,
-					subscribeToEventPublicForLibrary,
-				}) as Partial<AppSlice>,
+			makeAppSlice({
+				fetchEventLibrary,
+				subscribeToEventLibrary,
+				subscribeToEventPublicForLibrary,
+			}),
 		);
 
 		const { unmount } = renderHook(
@@ -65,11 +65,13 @@ describe("useEventLibrary", () => {
 		unmount();
 		expect(unsubscribe).toHaveBeenCalledWith();
 
-		store.setState({
-			fetchEventLibrary: originalFetch,
-			subscribeToEventLibrary: originalSubscribe,
-			subscribeToEventPublicForLibrary: originalSubscribePublic,
-		});
+		store.setState(
+			makeAppSlice({
+				fetchEventLibrary: originalFetch,
+				subscribeToEventLibrary: originalSubscribe,
+				subscribeToEventPublicForLibrary: originalSubscribePublic,
+			}),
+		);
 	});
 
 	it("returns store state values and removeFromEventLibrary invokes store action", async () => {
@@ -111,7 +113,7 @@ describe("useEventLibrary", () => {
 			fetchEventLibrary: () => Effect.sync(() => undefined),
 			subscribeToEventPublicForLibrary,
 		};
-		store.setState(patch);
+		store.setState(makeAppSlice(patch));
 
 		// Allow microtasks to settle
 		await Promise.resolve();
@@ -125,13 +127,15 @@ describe("useEventLibrary", () => {
 		await Effect.runPromise(result.current.removeFromEventLibrary(REMOVE_REQUEST));
 		expect(removeFromEventLibrary).toHaveBeenCalledWith(REMOVE_REQUEST);
 
-		store.setState({
-			removeEventFromLibrary: originalRemove,
-			eventLibraryEntries: originalEntries,
-			isEventLibraryLoading: originalLoading,
-			eventLibraryError: originalError,
-			subscribeToEventPublicForLibrary: originalSubscribePublic,
-		});
+		store.setState(
+			makeAppSlice({
+				removeEventFromLibrary: originalRemove,
+				eventLibraryEntries: originalEntries,
+				isEventLibraryLoading: originalLoading,
+				eventLibraryError: originalError,
+				subscribeToEventPublicForLibrary: originalSubscribePublic,
+			}),
+		);
 		unmount();
 	});
 
@@ -151,7 +155,7 @@ describe("useEventLibrary", () => {
 				}),
 		);
 
-		store.setState({ fetchEventLibrary, subscribeToEventLibrary });
+		store.setState(makeAppSlice({ fetchEventLibrary, subscribeToEventLibrary }));
 
 		function StrictWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
 			return React.createElement(React.StrictMode, undefined, children);

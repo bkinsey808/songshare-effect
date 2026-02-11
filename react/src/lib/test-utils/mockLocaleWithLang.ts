@@ -5,13 +5,11 @@ import type { UseLocaleResult } from "@/react/lib/language/locale/useLocale";
 // Helper: identity `t` translation function typed to the runtime
 // `useTranslation()` signature. Defined at module scope to avoid recreating
 // it on every call.
-import forceCast from "@/react/lib/test-utils/forceCast";
-
 function makeIdentityT(): UseLocaleResult["t"] {
 	// Narrow cast kept localized in the helper so tests don't need inline disables.
-	return forceCast<UseLocaleResult["t"]>((key: string, def?: string): string =>
-		typeof def === "string" ? def : key,
-	);
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	return ((key: string, def?: string): string =>
+		typeof def === "string" ? def : key) as unknown as UseLocaleResult["t"];
 }
 
 /**

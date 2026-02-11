@@ -1,5 +1,9 @@
 import { Effect } from "effect";
 
+import extractNewRecord from "@/react/lib/supabase/subscription/extract/extractNewRecord";
+import extractStringField from "@/react/lib/supabase/subscription/extract/extractStringField";
+import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isRealtimePayload";
+
 import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";
 
 import isEventLibraryEntry from "../guards/isEventLibraryEntry";
@@ -23,20 +27,18 @@ export default function handleEventLibrarySubscribeEvent(
 		const { addEventLibraryEntry, removeEventLibraryEntry } = get();
 
 		// Check if payload is a realtime event
-		if (
-			typeof payload !== "object" ||
-			payload === null ||
-			!("eventType" in payload) ||
-			!("new" in payload)
-		) {
+		if (!isRealtimePayload(payload)) {
 			return;
 		}
 
-		const rec = payload as Record<string, unknown>;
-		const { eventType } = rec;
-		const newRecord = rec["new"];
+		const { eventType } = payload as Record<string, unknown>;
 
 		if (eventType === "INSERT" || eventType === "UPDATE") {
+			const newRecord = extractNewRecord(payload);
+			if (newRecord === undefined) {
+				return;
+			}
+
 			if (!isEventLibraryEntry(newRecord)) {
 				console.warn("[handleEventLibraryEvent] Invalid entry:", newRecord);
 				return;
@@ -48,14 +50,8 @@ export default function handleEventLibrarySubscribeEvent(
 				}),
 			);
 		} else if (eventType === "DELETE") {
-			const oldRecord = rec["old"];
-			if (
-				typeof oldRecord === "object" &&
-				oldRecord !== null &&
-				"event_id" in oldRecord &&
-				typeof (oldRecord as Record<string, unknown>)["event_id"] === "string"
-			) {
-				const eventId = String((oldRecord as Record<string, unknown>)["event_id"]);
+			const eventId = extractStringField((payload as Record<string, unknown>)["old"], "event_id");
+			if (eventId !== undefined) {
 				yield* $(
 					Effect.sync(() => {
 						removeEventLibraryEntry(eventId);

@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 
 // Spy helpers to allow per-test mocking while keeping imports at the top
 import computeRmsLevel from "@/react/lib/audio/computeRmsLevel";
-import forceCast from "@/react/lib/test-utils/forceCast";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import { ONE } from "@/shared/constants/shared-constants";
 
@@ -62,13 +61,18 @@ describe("useSmoothedAudioLevel", () => {
 		const localOptions = { uiIntervalMs: UI_INTERVAL_MS, smoothingAlpha: SMOOTHING_ALPHA };
 
 		// acquire spies at test time so imports can remain at the top
-		const mockCompute = forceCast<ComputeSpy>(await spyImport("@/react/lib/audio/computeRmsLevel"));
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockCompute = (await spyImport(
+			"@/react/lib/audio/computeRmsLevel",
+		)) as unknown as ComputeSpy;
 		mockCompute.mockReturnValue(MOCK_LEVEL);
-		const mockClamp = forceCast<ClampSpy>(await spyImport("@/react/lib/audio/clamp01"));
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockClamp = (await spyImport("@/react/lib/audio/clamp01")) as unknown as ClampSpy;
 		mockClamp.mockImplementation((value: number) => value);
-		const mockSmooth = forceCast<SmoothSpy>(
-			await spyImport("@/react/lib/audio/smooth/smoothValue"),
-		);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockSmooth = (await spyImport(
+			"@/react/lib/audio/smooth/smoothValue",
+		)) as unknown as SmoothSpy;
 		mockSmooth.mockImplementation(
 			(prev: number, raw: number, alpha: number) =>
 				// Mirror smoothing used in production tests — prefer explicit numeric ops to satisfy lint

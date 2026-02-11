@@ -1,13 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import forceCast from "@/react/lib/test-utils/forceCast";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
 
+import makeAppSlice from "../lib/test-utils/makeAppSlice";
 import ensureSignedIn from "./ensureSignedIn";
 import parseUserSessionData from "./parseUserSessionData";
 
@@ -29,6 +28,26 @@ vi.mock("./parseUserSessionData", (): { default: (payload: unknown) => unknown }
 	default: vi.fn(),
 }));
 
+const SAMPLE_USER_SESSION: UserSessionData = {
+	user: {
+		created_at: "2026-01-01T00:00:00Z",
+		email: "u@example.com",
+		google_calendar_access: "none",
+		google_calendar_refresh_token: undefined,
+		linked_providers: undefined,
+		name: "Test User",
+		role: "user",
+		role_expires_at: undefined,
+		sub: undefined,
+		updated_at: "2026-01-01T00:00:00Z",
+		user_id: "u1",
+	},
+	userPublic: { user_id: "u1", username: "u1" },
+	oauthUserData: { email: "u@example.com" },
+	oauthState: { csrf: "x", lang: "en", provider: "google" },
+	ip: "127.0.0.1",
+};
+
 const mockedUseAppStore = vi.mocked(useAppStore);
 const mockedParse = vi.mocked(parseUserSessionData);
 
@@ -49,7 +68,8 @@ type GetCachedUserTokenSpy = {
 
 async function spyClientError(): Promise<ClientErrorSpy> {
 	const mod = await import("@/react/lib/utils/clientLogger");
-	return forceCast<ClientErrorSpy>(vi.spyOn(mod, "clientError"));
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	return vi.spyOn(mod, "clientError") as unknown as ClientErrorSpy;
 }
 
 function restoreFetch(originalFetch: unknown): void {
@@ -58,27 +78,15 @@ function restoreFetch(originalFetch: unknown): void {
 	Reflect.set(globalThis, "fetch", originalFetch);
 }
 
-function makeAppSlice(overrides: Partial<AppSlice> = {}): AppSlice {
-	const base: Partial<AppSlice> = {
-		isSignedIn: undefined,
-		userSessionData: undefined,
-		showSignedInAlert: false,
-		setIsSignedIn: vi.fn(),
-		signIn: vi.fn(),
-		signOut: vi.fn(),
-		setShowSignedInAlert: vi.fn(),
-	};
-	// The test helper returns a full AppSlice shape for callers that expect it.
-	return forceCast<AppSlice>({ ...base, ...overrides });
-}
-
 describe("ensureSignedIn", () => {
 	it("returns undefined immediately when store indicates signed out", async () => {
 		vi.resetAllMocks();
 
-		const mockedGetCachedUserTokenSpy = forceCast<GetCachedUserTokenSpy>(
-			await spyImport("@/react/lib/supabase/token/tokenCache", "getCachedUserToken"),
-		);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockedGetCachedUserTokenSpy = (await spyImport(
+			"@/react/lib/supabase/token/tokenCache",
+			"getCachedUserToken",
+		)) as unknown as GetCachedUserTokenSpy;
 		mockedGetCachedUserTokenSpy.mockReturnValue(undefined);
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi.fn();
@@ -95,9 +103,11 @@ describe("ensureSignedIn", () => {
 
 	it("returns undefined immediately when signed in and cached token exists", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy = forceCast<GetCachedUserTokenSpy>(
-			await spyImport("@/react/lib/supabase/token/tokenCache", "getCachedUserToken"),
-		);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockedGetCachedUserTokenSpy = (await spyImport(
+			"@/react/lib/supabase/token/tokenCache",
+			"getCachedUserToken",
+		)) as unknown as GetCachedUserTokenSpy;
 		mockedGetCachedUserTokenSpy.mockReturnValue("token-123");
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi.fn();
@@ -116,9 +126,11 @@ describe("ensureSignedIn", () => {
 		"treats %s as not signed in and sets isSignedIn(false)",
 		async (statusCode) => {
 			vi.resetAllMocks();
-			const mockedGetCachedUserTokenSpy = forceCast<GetCachedUserTokenSpy>(
-				await spyImport("@/react/lib/supabase/token/tokenCache", "getCachedUserToken"),
-			);
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+			const mockedGetCachedUserTokenSpy = (await spyImport(
+				"@/react/lib/supabase/token/tokenCache",
+				"getCachedUserToken",
+			)) as unknown as GetCachedUserTokenSpy;
 			mockedGetCachedUserTokenSpy.mockReturnValue(undefined);
 			const setIsSignedIn = vi.fn();
 			vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
@@ -136,9 +148,11 @@ describe("ensureSignedIn", () => {
 
 	it("logs and sets signed out for server errors (non-ok) other than common unauthenticated statuses", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpyA = forceCast<GetCachedUserTokenSpy>(
-			await spyImport("@/react/lib/supabase/token/tokenCache", "getCachedUserToken"),
-		);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockedGetCachedUserTokenSpyA = (await spyImport(
+			"@/react/lib/supabase/token/tokenCache",
+			"getCachedUserToken",
+		)) as unknown as GetCachedUserTokenSpy;
 		mockedGetCachedUserTokenSpyA.mockReturnValue(undefined);
 		const setIsSignedIn = vi.fn();
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
@@ -156,9 +170,11 @@ describe("ensureSignedIn", () => {
 
 	it("handles json parse errors gracefully and logs them", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpyB = forceCast<GetCachedUserTokenSpy>(
-			await spyImport("@/react/lib/supabase/token/tokenCache", "getCachedUserToken"),
-		);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockedGetCachedUserTokenSpyB = (await spyImport(
+			"@/react/lib/supabase/token/tokenCache",
+			"getCachedUserToken",
+		)) as unknown as GetCachedUserTokenSpy;
 		mockedGetCachedUserTokenSpyB.mockReturnValue(undefined);
 		const store = { isSignedIn: undefined, signIn: vi.fn(), setIsSignedIn: vi.fn() };
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() => makeAppSlice({ ...store }));
@@ -181,9 +197,11 @@ describe("ensureSignedIn", () => {
 
 	it("applies signIn and sets signed in when payload parses to data", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy = forceCast<GetCachedUserTokenSpy>(
-			await spyImport("@/react/lib/supabase/token/tokenCache", "getCachedUserToken"),
-		);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockedGetCachedUserTokenSpy = (await spyImport(
+			"@/react/lib/supabase/token/tokenCache",
+			"getCachedUserToken",
+		)) as unknown as GetCachedUserTokenSpy;
 		mockedGetCachedUserTokenSpy.mockReturnValue(undefined);
 		const signIn = vi.fn();
 		const setIsSignedIn = vi.fn();
@@ -192,7 +210,10 @@ describe("ensureSignedIn", () => {
 		);
 
 		const payload = { foo: "bar" };
-		const data = forceCast<UserSessionData>({ user: { user_id: "u1" } });
+		const data: UserSessionData = {
+			...SAMPLE_USER_SESSION,
+			user: { ...SAMPLE_USER_SESSION.user, user_id: "u1" },
+		};
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi
 			.fn()
@@ -209,9 +230,11 @@ describe("ensureSignedIn", () => {
 
 	it("logs when signIn throws but continues", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy2 = forceCast<GetCachedUserTokenSpy>(
-			await spyImport("@/react/lib/supabase/token/tokenCache", "getCachedUserToken"),
-		);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockedGetCachedUserTokenSpy2 = (await spyImport(
+			"@/react/lib/supabase/token/tokenCache",
+			"getCachedUserToken",
+		)) as unknown as GetCachedUserTokenSpy;
 		mockedGetCachedUserTokenSpy2.mockReturnValue(undefined);
 		const signIn = vi.fn(() => {
 			throw new Error("sign fail");
@@ -222,7 +245,10 @@ describe("ensureSignedIn", () => {
 		);
 
 		const payload = { foo: "bar" };
-		const data = forceCast<UserSessionData>({ user: { user_id: "u2" } });
+		const data: UserSessionData = {
+			...SAMPLE_USER_SESSION,
+			user: { ...SAMPLE_USER_SESSION.user, user_id: "u2" },
+		};
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi
 			.fn()
@@ -240,9 +266,11 @@ describe("ensureSignedIn", () => {
 
 	it("handles parseUserSessionData throwing by logging and returning undefined", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy3 = forceCast<GetCachedUserTokenSpy>(
-			await spyImport("@/react/lib/supabase/token/tokenCache", "getCachedUserToken"),
-		);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockedGetCachedUserTokenSpy3 = (await spyImport(
+			"@/react/lib/supabase/token/tokenCache",
+			"getCachedUserToken",
+		)) as unknown as GetCachedUserTokenSpy;
 		mockedGetCachedUserTokenSpy3.mockReturnValue(undefined);
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
 			makeAppSlice({ isSignedIn: undefined }),
@@ -265,9 +293,11 @@ describe("ensureSignedIn", () => {
 
 	it("returns undefined on AbortError without logging an error", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy4 = forceCast<GetCachedUserTokenSpy>(
-			await spyImport("@/react/lib/supabase/token/tokenCache", "getCachedUserToken"),
-		);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockedGetCachedUserTokenSpy4 = (await spyImport(
+			"@/react/lib/supabase/token/tokenCache",
+			"getCachedUserToken",
+		)) as unknown as GetCachedUserTokenSpy;
 		mockedGetCachedUserTokenSpy4.mockReturnValue(undefined);
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
 			makeAppSlice({ isSignedIn: undefined }),
@@ -285,9 +315,11 @@ describe("ensureSignedIn", () => {
 
 	it("dedupes concurrent requests using globalInFlight", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy5 = forceCast<GetCachedUserTokenSpy>(
-			await spyImport("@/react/lib/supabase/token/tokenCache", "getCachedUserToken"),
-		);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		const mockedGetCachedUserTokenSpy5 = (await spyImport(
+			"@/react/lib/supabase/token/tokenCache",
+			"getCachedUserToken",
+		)) as unknown as GetCachedUserTokenSpy;
 		mockedGetCachedUserTokenSpy5.mockReturnValue(undefined);
 		const signIn = vi.fn();
 		const setIsSignedIn = vi.fn();
