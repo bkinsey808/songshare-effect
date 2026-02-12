@@ -7,9 +7,8 @@ import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/
 import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
-import type { EventLibraryEntry } from "../event-library-types";
-import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";
-
+import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.mock";
+import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import fetchEventLibrary from "./fetchEventLibraryEffect";
 
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
@@ -19,79 +18,24 @@ vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 const TEST_TOKEN = "token-1";
 const minimalClient = createMinimalSupabaseClient();
 
-function makeGet(): EventLibrarySlice {
-	const state = {
-		eventLibraryEntries: {} as Record<string, EventLibraryEntry>,
-		isEventLibraryLoading: false,
-		eventLibraryError: undefined as string | undefined,
-	};
-
-	const setEventLibraryEntries = vi.fn((entries: Record<string, EventLibraryEntry>): void => {
-		state.eventLibraryEntries = entries;
-	});
-	const setEventLibraryLoading = vi.fn((loading: boolean): void => {
-		state.isEventLibraryLoading = loading;
-	});
-	const setEventLibraryError = vi.fn((err: string | undefined): void => {
-		state.eventLibraryError = err;
-	});
-
-	const slice: EventLibrarySlice = {
-		eventLibraryEntries: state.eventLibraryEntries,
-		isEventLibraryLoading: state.isEventLibraryLoading,
-		eventLibraryError: state.eventLibraryError,
-		setEventLibraryEntries,
-		setEventLibraryLoading,
-		setEventLibraryError,
-		addEventToLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
-		removeEventFromLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
-		isInEventLibrary: (): boolean => false,
-		getEventLibraryIds: (): string[] => [],
-		fetchEventLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
-		subscribeToEventLibrary: (): Effect.Effect<() => void, Error> =>
-			Effect.sync(() => (): void => undefined),
-		subscribeToEventPublicForLibrary: (): Effect.Effect<() => void, Error> =>
-			Effect.sync(() => (): void => undefined),
-		addEventLibraryEntry: (_entry: unknown): void => undefined,
-		removeEventLibraryEntry: (_id: string): void => undefined,
-	};
-
-	Object.defineProperty(slice, "eventLibraryEntries", {
-		get: () => state.eventLibraryEntries,
-		enumerable: true,
-	});
-	Object.defineProperty(slice, "isEventLibraryLoading", {
-		get: () => state.isEventLibraryLoading,
-		enumerable: true,
-	});
-	Object.defineProperty(slice, "eventLibraryError", {
-		get: () => state.eventLibraryError,
-		enumerable: true,
-	});
-
-	return slice;
-}
-
 describe("fetchEventLibraryEffect", () => {
 	it("fetches and applies entries when data present", async () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TEST_TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(minimalClient);
 
-		const libRow = {
+		const libRow = makeEventLibraryEntry({
 			event_id: "e1",
 			user_id: "u1",
 			event_owner_id: "owner-1",
 			created_at: "2020-01-01T00:00:00.000Z",
-		};
+		});
 
 		const callSelectMock = await spyImport("@/react/lib/supabase/client/safe-query/callSelect");
 		callSelectMock.mockResolvedValueOnce({ data: [libRow] });
 
-		const slice = makeGet();
-		function get(): EventLibrarySlice {
-			return slice;
-		}
+		const get = makeEventLibrarySlice();
+		const slice = get();
 
 		await expect(Effect.runPromise(fetchEventLibrary(get))).resolves.toBeUndefined();
 
@@ -116,10 +60,8 @@ describe("fetchEventLibraryEffect", () => {
 		const callSelectMock = await spyImport("@/react/lib/supabase/client/safe-query/callSelect");
 		callSelectMock.mockResolvedValueOnce({ data: [] });
 
-		const slice = makeGet();
-		function get(): EventLibrarySlice {
-			return slice;
-		}
+		const get = makeEventLibrarySlice();
+		const slice = get();
 		await Effect.runPromise(fetchEventLibrary(get));
 
 		expect(slice.setEventLibraryEntries).toHaveBeenCalledWith({});
@@ -138,10 +80,8 @@ describe("fetchEventLibraryEffect", () => {
 		const getSupabaseClientMock = await spyImport("@/react/lib/supabase/client/getSupabaseClient");
 		getSupabaseClientMock.mockReturnValue?.(undefined);
 
-		const slice = makeGet();
-		function get(): EventLibrarySlice {
-			return slice;
-		}
+		const get = makeEventLibrarySlice();
+		const slice = get();
 
 		await expect(Effect.runPromise(fetchEventLibrary(get))).rejects.toThrow(
 			"No Supabase client available",
@@ -165,10 +105,8 @@ describe("fetchEventLibraryEffect", () => {
 		const callSelectMock = await spyImport("@/react/lib/supabase/client/safe-query/callSelect");
 		callSelectMock.mockResolvedValueOnce(asPostgrestResponse(undefined));
 
-		const slice = makeGet();
-		function get(): EventLibrarySlice {
-			return slice;
-		}
+		const get = makeEventLibrarySlice();
+		const slice = get();
 
 		await expect(Effect.runPromise(fetchEventLibrary(get))).rejects.toThrow(
 			/Invalid response from Supabase fetching event_library/,
@@ -184,12 +122,11 @@ describe("fetchEventLibraryEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TEST_TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(minimalClient);
 
-		const valid = {
+		const valid = makeEventLibraryEntry({
 			event_id: "e1",
 			user_id: "u1",
 			event_owner_id: "owner-1",
-			created_at: "2020-01-01T00:00:00.000Z",
-		};
+		});
 		const invalid = { nope: "bad" };
 
 		const callSelectMock = await spyImport("@/react/lib/supabase/client/safe-query/callSelect");
@@ -197,10 +134,8 @@ describe("fetchEventLibraryEffect", () => {
 
 		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
-		const slice = makeGet();
-		function get(): EventLibrarySlice {
-			return slice;
-		}
+		const get = makeEventLibrarySlice();
+		const slice = get();
 
 		await Effect.runPromise(fetchEventLibrary(get));
 

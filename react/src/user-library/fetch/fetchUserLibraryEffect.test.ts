@@ -8,10 +8,10 @@ import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 
-import type { UserLibraryEntry } from "../slice/user-library-types";
-import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
-
+import makeUserLibrarySlice from "../slice/makeUserLibrarySlice.mock";
+import makeUserLibraryEntry from "../test-utils/makeUserLibraryEntry.mock";
 import fetchUserLibrary from "./fetchUserLibraryEffect";
 
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
@@ -25,52 +25,25 @@ const TEST_USERNAME = "owner_user";
 
 const minimalClient = createMinimalSupabaseClient();
 
-function makeGet(): UserLibrarySlice {
-	const setUserLibraryEntries = vi.fn<(entries: Record<string, UserLibraryEntry>) => void>();
-	const setUserLibraryLoading = vi.fn<(value: boolean) => void>();
-	const setUserLibraryError = vi.fn<(err: string | undefined) => void>();
-	const slice: UserLibrarySlice = {
-		userLibraryEntries: {},
-		isUserLibraryLoading: false,
-		userLibraryError: undefined,
-		setUserLibraryError,
-		isInUserLibrary: () => false,
-		addUserToLibrary: () => Effect.sync(() => undefined),
-		removeUserFromLibrary: () => Effect.sync(() => undefined),
-		getUserLibraryIds: () => [],
-		fetchUserLibrary: () => Effect.sync(() => undefined),
-		subscribeToUserLibrary: () => Effect.sync(() => (): void => undefined),
-		subscribeToUserPublicForLibrary: () => Effect.sync(() => (): void => undefined),
-		setUserLibraryEntries,
-		setUserLibraryLoading,
-		addUserLibraryEntry: () => undefined,
-		removeUserLibraryEntry: () => undefined,
-	};
-	return slice;
-}
-
 describe("fetchUserLibraryEffect", () => {
 	it("fetches and applies entries when data present", async () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TEST_TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(minimalClient);
 
-		const libRow = {
+		const libRow = makeUserLibraryEntry({
 			user_id: TEST_USER_ID,
 			followed_user_id: TEST_FOLLOWED_ID,
-			created_at: "2020-01-01T00:00:00.000Z",
-		};
-		const ownerRow = { user_id: TEST_FOLLOWED_ID, username: TEST_USERNAME };
+		});
+		const ownerRow = makeUserPublic({ user_id: TEST_FOLLOWED_ID, username: TEST_USERNAME });
 
 		const callSelectMock = await spyImport("@/react/lib/supabase/client/safe-query/callSelect");
 		callSelectMock
 			.mockResolvedValueOnce({ data: [libRow] } as PostgrestResponse)
 			.mockResolvedValueOnce({ data: [ownerRow] } as PostgrestResponse);
 
-		const slice = makeGet();
-		function get(): UserLibrarySlice {
-			return slice;
-		}
+		const get = makeUserLibrarySlice();
+		const slice = get();
 
 		await expect(Effect.runPromise(fetchUserLibrary(get))).resolves.toBeUndefined();
 
@@ -99,10 +72,8 @@ describe("fetchUserLibraryEffect", () => {
 		callSelectMock.mockResolvedValueOnce({ data: [] } as PostgrestResponse);
 		callSelectMock.mockResolvedValueOnce({ data: [] } as PostgrestResponse);
 
-		const slice = makeGet();
-		function get(): UserLibrarySlice {
-			return slice;
-		}
+		const get = makeUserLibrarySlice();
+		const slice = get();
 		await Effect.runPromise(fetchUserLibrary(get));
 
 		expect(slice.setUserLibraryEntries).toHaveBeenCalledWith({});
@@ -121,10 +92,8 @@ describe("fetchUserLibraryEffect", () => {
 		const getSupabaseClientMock = await spyImport("@/react/lib/supabase/client/getSupabaseClient");
 		getSupabaseClientMock.mockReturnValue?.(undefined);
 
-		const slice = makeGet();
-		function get(): UserLibrarySlice {
-			return slice;
-		}
+		const get = makeUserLibrarySlice();
+		const slice = get();
 
 		await expect(Effect.runPromise(fetchUserLibrary(get))).rejects.toThrow(
 			"No Supabase client available",
@@ -148,10 +117,8 @@ describe("fetchUserLibraryEffect", () => {
 		const callSelectMock = await spyImport("@/react/lib/supabase/client/safe-query/callSelect");
 		callSelectMock.mockResolvedValueOnce(asPostgrestResponse(undefined));
 
-		const slice = makeGet();
-		function get(): UserLibrarySlice {
-			return slice;
-		}
+		const get = makeUserLibrarySlice();
+		const slice = get();
 
 		await expect(Effect.runPromise(fetchUserLibrary(get))).rejects.toThrow(
 			/Invalid response from Supabase fetching user_library/,
@@ -180,10 +147,8 @@ describe("fetchUserLibraryEffect", () => {
 		callSelectMock
 			.mockResolvedValueOnce(asPostgrestResponse({ data: [libRow] }))
 			.mockResolvedValueOnce(asPostgrestResponse(undefined));
-		const slice = makeGet();
-		function get(): UserLibrarySlice {
-			return slice;
-		}
+		const get = makeUserLibrarySlice();
+		const slice = get();
 
 		await expect(Effect.runPromise(fetchUserLibrary(get))).rejects.toThrow(
 			/Invalid response from Supabase fetching user_public/,

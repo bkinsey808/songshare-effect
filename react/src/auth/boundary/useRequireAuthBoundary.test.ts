@@ -3,15 +3,15 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { describe, expect, it, vi, type Mock } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import useEnsureSignedIn from "@/react/auth/ensure-signed-in/useEnsureSignedIn";
 import handleJustSignedIn from "@/react/auth/handleJustSignedIn";
-import useEnsureSignedIn from "@/react/auth/useEnsureSignedIn";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 
 import useRequireAuthBoundary from "./useRequireAuthBoundary";
 
 vi.mock("react-router-dom");
 vi.mock("@/react/auth/handleJustSignedIn");
-vi.mock("@/react/auth/useEnsureSignedIn");
+vi.mock("@/react/auth/ensure-signed-in/useEnsureSignedIn");
 vi.mock("@/react/app-store/useAppStore");
 
 describe("useRequireAuthBoundary", () => {

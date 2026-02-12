@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import makeSongLibraryEntry from "@/react/song-library/test-utils/makeSongLibraryEntry.mock";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
+
 import isSongLibraryEntry from "./guards/isSongLibraryEntry";
 
 /**
@@ -56,8 +59,8 @@ function transformSongLibraryEntries(
 /** Unit tests for the helper */
 describe("transformSongLibraryEntries", () => {
 	it("combines song library rows with song and owner data", () => {
-		const library = [{ song_id: "s1", song_owner_id: "u1" }];
-		const songs = [{ song_id: "s1", song_name: "Song 1", song_slug: "song-1" }];
+		const library = [makeSongLibraryEntry({ song_id: "s1", song_owner_id: "u1" })];
+		const songs = [makeSongPublic({ song_id: "s1", song_name: "Song 1", song_slug: "song-1" })];
 		const owners = [{ user_id: "u1", username: "owner1" }];
 
 		const result = transformSongLibraryEntries(library, songs, owners);
@@ -73,8 +76,8 @@ describe("transformSongLibraryEntries", () => {
 	});
 
 	it("omits missing song or owner details gracefully", () => {
-		const library = [{ song_id: "s2", song_owner_id: "u2" }];
-		const songs: { song_id: string; song_name?: string; song_slug?: string }[] = [];
+		const library = [makeSongLibraryEntry({ song_id: "s2", song_owner_id: "u2" })];
+		const songs: { song_id: string; song_name?: string; song_slug?: string }[] = []; // empty song rows
 		const owners: { user_id: string; username?: string }[] = [];
 
 		const result = transformSongLibraryEntries(library, songs, owners);
@@ -91,11 +94,16 @@ describe("transformSongLibraryEntries", () => {
 
 	it("filters malformed library rows before transforming", () => {
 		const malformed: Record<string, unknown> = { song_owner_id: "u1" };
-		const library: unknown[] = [malformed, { song_id: "s1", song_owner_id: "u1" }];
+		const library: unknown[] = [
+			malformed,
+			makeSongLibraryEntry({ song_id: "s1", song_owner_id: "u1" }),
+		];
 		const songs = [{ song_id: "s1", song_name: "Song 1", song_slug: "song-1" }];
 		const owners = [{ user_id: "u1", username: "owner1" }];
 
-		const filtered = library.filter((row) => isSongLibraryEntry(row));
+		const filtered = library.filter((row): row is { song_id: string; song_owner_id: string } =>
+			isSongLibraryEntry(row),
+		);
 		const result = transformSongLibraryEntries(filtered, songs, owners);
 
 		const EXPECTED_COUNT = 1;

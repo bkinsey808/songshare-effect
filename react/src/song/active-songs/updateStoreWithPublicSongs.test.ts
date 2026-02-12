@@ -1,10 +1,10 @@
-import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import type { SongPublic } from "@/react/song/song-schema";
 
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 
+import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
 import updateStoreWithPublicSongs from "./updateStoreWithPublicSongs";
 
 /**
@@ -18,28 +18,8 @@ import updateStoreWithPublicSongs from "./updateStoreWithPublicSongs";
  * @returns minimal {@link SongSubscribeSlice}
  */
 function makeStateWithActiveIds(ids: readonly string[]): SongSubscribeSlice {
-	return {
-		privateSongs: {},
-		publicSongs: {},
-		activePrivateSongIds: [],
-		activePublicSongIds: ids,
-		addOrUpdatePrivateSongs: () => undefined,
-		addOrUpdatePublicSongs: () => undefined,
-		addActivePrivateSongIds: () => Effect.sync(() => undefined),
-		addActivePublicSongIds: () => Effect.sync(() => undefined),
-		addActivePrivateSongSlugs: async (): Promise<void> => {
-			await Promise.resolve();
-		},
-		addActivePublicSongSlugs: async (): Promise<void> => {
-			await Promise.resolve();
-		},
-		removeActivePrivateSongIds: () => undefined,
-		removeActivePublicSongIds: () => undefined,
-		removeSongsFromCache: () => undefined,
-		subscribeToActivePrivateSongs: () => undefined,
-		subscribeToActivePublicSongs: () => undefined,
-		getSongBySlug: () => undefined,
-	};
+	const get = makeSongSubscribeSlice({ initialActivePublicSongIds: ids });
+	return get();
 }
 
 describe("updateStoreWithPublicSongs", () => {

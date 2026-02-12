@@ -1,5 +1,4 @@
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
-import { Effect } from "effect";
 import assert from "node:assert";
 import { setTimeout as delay } from "node:timers/promises";
 import { describe, expect, it, vi } from "vitest";
@@ -14,6 +13,7 @@ import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/
 import asNull from "@/react/lib/test-utils/asNull";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
+import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 
 import subscribeToActivePublicSongs from "./subscribeToActivePublicSongs";
@@ -41,28 +41,8 @@ async function flushPromises(): Promise<void> {
  * @returns SongSubscribeSlice test stub
  */
 function makeGetWithActiveIds(ids: readonly string[]): SongSubscribeSlice {
-	return {
-		privateSongs: {},
-		publicSongs: {},
-		activePrivateSongIds: [],
-		activePublicSongIds: ids,
-		addOrUpdatePrivateSongs: () => undefined,
-		addOrUpdatePublicSongs: () => undefined,
-		addActivePrivateSongIds: (_songIds: readonly string[]) => Effect.sync(() => undefined),
-		addActivePublicSongIds: (_songIds: readonly string[]) => Effect.sync(() => undefined),
-		addActivePrivateSongSlugs: async (): Promise<void> => {
-			await Promise.resolve();
-		},
-		addActivePublicSongSlugs: async (): Promise<void> => {
-			await Promise.resolve();
-		},
-		removeActivePrivateSongIds: (_songIds: readonly string[]) => undefined,
-		removeActivePublicSongIds: (_songIds: readonly string[]) => undefined,
-		removeSongsFromCache: (_songIds: readonly string[]) => undefined,
-		subscribeToActivePrivateSongs: () => undefined,
-		subscribeToActivePublicSongs: () => undefined,
-		getSongBySlug: () => undefined,
-	};
+	const get = makeSongSubscribeSlice({ initialActivePublicSongIds: ids });
+	return get();
 }
 
 /** No-op handler used to initialize handler vars in tests. */

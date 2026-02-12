@@ -4,9 +4,9 @@ import { describe, expect, it, vi } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { apiSongLibraryAddPath } from "@/shared/paths";
 
-import type { SongLibrarySlice } from "../song-library-slice";
 import type { AddSongToSongLibraryRequest } from "../song-library-types";
 
+import makeSongLibrarySlice from "../makeSongLibrarySlice.mock";
 import addSongToSongLibrary from "./addSongToSongLibrary";
 
 // Mock modules
@@ -35,36 +35,12 @@ const VALID_RESPONSE = {
 	created_at: CREATED_AT,
 };
 
-function createMockSlice(overrides: Partial<SongLibrarySlice> = {}): SongLibrarySlice {
-	return {
-		songLibraryEntries: {},
-		isSongLibraryLoading: false,
-		songLibraryError: undefined,
-		isInSongLibrary: vi.fn(() => false),
-		setSongLibraryError: vi.fn(),
-		addSongLibraryEntry: vi.fn(),
-		removeSongLibraryEntry: vi.fn(),
-		addSongToSongLibrary: () => Effect.sync(() => undefined),
-		removeSongFromSongLibrary: () => Effect.sync(() => undefined),
-		fetchSongLibrary: () => Effect.sync(() => undefined),
-		getSongLibrarySongIds: vi.fn(() => []),
-		subscribeToSongLibrary: vi.fn(
-			(): Effect.Effect<() => void, Error> => Effect.sync(() => (): void => undefined),
-		),
-		subscribeToSongPublic: vi.fn(
-			(_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
-				Effect.sync(() => (): void => undefined),
-		),
-		setSongLibraryEntries: vi.fn(),
-		setSongLibraryLoading: vi.fn(),
-		...overrides,
-	};
-}
+// Use shared test helper `makeSongLibrarySlice` directly in tests
 
 describe("addSongToSongLibrary", () => {
 	it("adds a song successfully and updates local state", async () => {
-		const mockSlice = createMockSlice();
-		const get = vi.fn(() => mockSlice);
+		const get = makeSongLibrarySlice();
+		const mockSlice = get();
 
 		const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
 			Response.json(VALID_RESPONSE, {
@@ -85,9 +61,8 @@ describe("addSongToSongLibrary", () => {
 	});
 
 	it("skips adding a song that is already in the library", async () => {
-		const mockSlice = createMockSlice({
-			isInSongLibrary: vi.fn(() => true),
-		});
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
 
 		const fetchSpy = vi.spyOn(globalThis, "fetch");
@@ -101,8 +76,8 @@ describe("addSongToSongLibrary", () => {
 	});
 
 	it("throws when request validation fails", async () => {
-		const mockSlice = createMockSlice();
-		const get = vi.fn(() => mockSlice);
+		const get = makeSongLibrarySlice();
+		const mockSlice = get();
 
 		const invalidRequest = forceCast<AddSongToSongLibraryRequest>({ song_id: SONG_ID }); // Missing song_owner_id
 
@@ -114,8 +89,8 @@ describe("addSongToSongLibrary", () => {
 	});
 
 	it("throws when fetch fails with network error", async () => {
-		const mockSlice = createMockSlice();
-		const get = vi.fn(() => mockSlice);
+		const get = makeSongLibrarySlice();
+		const mockSlice = get();
 
 		const fetchSpy = vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error(ERROR_NETWORK));
 
@@ -131,8 +106,8 @@ describe("addSongToSongLibrary", () => {
 	});
 
 	it("throws when response status is not ok", async () => {
-		const mockSlice = createMockSlice();
-		const get = vi.fn(() => mockSlice);
+		const get = makeSongLibrarySlice();
+		const mockSlice = get();
 
 		const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
 			Response.json(
@@ -156,8 +131,8 @@ describe("addSongToSongLibrary", () => {
 	});
 
 	it("throws when response.json() fails", async () => {
-		const mockSlice = createMockSlice();
-		const get = vi.fn(() => mockSlice);
+		const get = makeSongLibrarySlice();
+		const mockSlice = get();
 
 		const mockResponse = {
 			ok: true,
@@ -182,8 +157,8 @@ describe("addSongToSongLibrary", () => {
 	});
 
 	it("throws when server response validation fails", async () => {
-		const mockSlice = createMockSlice();
-		const get = vi.fn(() => mockSlice);
+		const get = makeSongLibrarySlice();
+		const mockSlice = get();
 
 		const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
 			Response.json(
@@ -210,8 +185,7 @@ describe("addSongToSongLibrary", () => {
 	});
 
 	it("sends correct request to API endpoint", async () => {
-		const mockSlice = createMockSlice();
-		const get = vi.fn(() => mockSlice);
+		const get = makeSongLibrarySlice();
 
 		const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
 			Response.json(VALID_RESPONSE, {
@@ -238,8 +212,7 @@ describe("addSongToSongLibrary", () => {
 	});
 
 	it("handles server error response with custom message", async () => {
-		const mockSlice = createMockSlice();
-		const get = vi.fn(() => mockSlice);
+		const get = makeSongLibrarySlice();
 
 		const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
 			Response.json(
@@ -259,8 +232,7 @@ describe("addSongToSongLibrary", () => {
 	});
 
 	it("handles server error response without custom message", async () => {
-		const mockSlice = createMockSlice();
-		const get = vi.fn(() => mockSlice);
+		const get = makeSongLibrarySlice();
 
 		const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
 			Response.json(

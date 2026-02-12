@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { makeTestPlaylist } from "@/react/playlist/test-utils/makeTestPlaylist.mock";
+
 import makeSetGetForCreateUpdateLocalSongOrder from "../test-utils/makeSetGetForCreateUpdateLocalSongOrder.mock";
 import createAddSongToLocalPlaylist from "./createAddSongToLocalPlaylist";
 
@@ -19,12 +21,9 @@ describe("createAddSongToLocalPlaylist", () => {
 
 		// Initialize helper internal state with a playlist containing the initial song
 		set({
-			currentPlaylist: {
+			currentPlaylist: makeTestPlaylist({
 				playlist_id: "pl-1",
 				user_id: "user-1",
-				private_notes: "",
-				created_at: "",
-				updated_at: "",
 				public: {
 					playlist_id: "pl-1",
 					user_id: "user-1",
@@ -32,7 +31,7 @@ describe("createAddSongToLocalPlaylist", () => {
 					playlist_slug: "my-playlist",
 					song_order: ["song-a"],
 				},
-			},
+			}),
 		});
 
 		const handler = createAddSongToLocalPlaylist(set, get);

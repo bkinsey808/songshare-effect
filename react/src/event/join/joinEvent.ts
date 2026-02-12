@@ -3,9 +3,9 @@ import { Effect } from "effect";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiEventUserJoinPath } from "@/shared/paths";
 
-import type { EventSlice } from "./slice/EventSlice.type";
+import type { EventSlice } from "../slice/EventSlice.type";
 
-import { EventUserJoinApiError, EventUserJoinNetworkError, type EventError } from "./event-errors";
+import { EventUserJoinApiError, EventUserJoinNetworkError, type EventError } from "../event-errors";
 
 /**
  * Join the current user to an event by calling the API endpoint.

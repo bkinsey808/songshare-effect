@@ -3,55 +3,35 @@ import { describe, expect, it, vi } from "vitest";
 
 import mockFetchResponse from "@/react/lib/test-utils/mockFetchResponse";
 
-import type {
-	AddUserToLibraryRequest,
-	RemoveUserFromLibraryRequest,
-	UserLibraryEntry,
-} from "../slice/user-library-types";
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 
+import makeUserLibrarySlice from "../slice/makeUserLibrarySlice.mock";
+import makeUserLibraryEntry from "../test-utils/makeUserLibraryEntry.mock";
 import addUserToLibraryEffect from "./addUserToLibraryEffect";
 
-function makeGet(
-	isInLibrary = false,
-	setUserLibraryError = vi.fn(),
-	addUserLibraryEntry = vi.fn(),
-): UserLibrarySlice {
-	return {
-		userLibraryEntries: {},
-		isUserLibraryLoading: false,
-		userLibraryError: undefined,
-		isInUserLibrary: () => isInLibrary,
-		addUserToLibrary: (_req: Readonly<AddUserToLibraryRequest>) => Effect.succeed(undefined),
-		removeUserFromLibrary: (_removeReq: Readonly<RemoveUserFromLibraryRequest>) =>
-			Effect.succeed(undefined),
-		getUserLibraryIds: () => [],
-		fetchUserLibrary: () => Effect.succeed(undefined),
-		subscribeToUserLibrary: () => Effect.succeed(() => undefined),
-		subscribeToUserPublicForLibrary: () => Effect.succeed(() => undefined),
-		userLibraryUnsubscribe: () => undefined,
-		setUserLibraryEntries: vi.fn(),
-		setUserLibraryLoading: vi.fn(),
-		setUserLibraryError,
-		addUserLibraryEntry,
-		removeUserLibraryEntry: vi.fn(),
-	};
-}
+// Use `makeUserLibrarySlice` directly in tests to get a stateful slice
 
 describe("addUserToLibraryEffect", () => {
 	it("adds user when server returns valid entry", async () => {
-		const entry: UserLibraryEntry = {
+		const entry = makeUserLibraryEntry({
 			user_id: "u1",
 			followed_user_id: "f1",
 			created_at: "now",
 			owner_username: "owner",
-		};
+		});
 
 		const setUserLibraryError = vi.fn();
 		const addUserLibraryEntry = vi.fn();
 
 		function get(): UserLibrarySlice {
-			return makeGet(false, setUserLibraryError, addUserLibraryEntry);
+			const baseGet = makeUserLibrarySlice();
+			const slice = {
+				...baseGet(),
+				isInUserLibrary: (): boolean => false,
+				setUserLibraryError,
+				addUserLibraryEntry,
+			};
+			return slice;
 		}
 
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockFetchResponse({ data: entry })));
@@ -72,7 +52,14 @@ describe("addUserToLibraryEffect", () => {
 		const setUserLibraryError = vi.fn();
 		const addUserLibraryEntry = vi.fn();
 		function get(): UserLibrarySlice {
-			return makeGet(true, setUserLibraryError, addUserLibraryEntry);
+			const baseGet = makeUserLibrarySlice();
+			const slice = {
+				...baseGet(),
+				isInUserLibrary: (): boolean => true,
+				setUserLibraryError,
+				addUserLibraryEntry,
+			};
+			return slice;
 		}
 
 		await Effect.runPromise(addUserToLibraryEffect({ followed_user_id: "f2" }, get));
@@ -90,7 +77,14 @@ describe("addUserToLibraryEffect", () => {
 		const setUserLibraryError = vi.fn();
 		const addUserLibraryEntry = vi.fn();
 		function get(): UserLibrarySlice {
-			return makeGet(false, setUserLibraryError, addUserLibraryEntry);
+			const baseGet = makeUserLibrarySlice();
+			const slice = {
+				...baseGet(),
+				isInUserLibrary: (): boolean => false,
+				setUserLibraryError,
+				addUserLibraryEntry,
+			};
+			return slice;
 		}
 
 		vi.stubGlobal(
@@ -118,7 +112,14 @@ describe("addUserToLibraryEffect", () => {
 		const setUserLibraryError = vi.fn();
 		const addUserLibraryEntry = vi.fn();
 		function get(): UserLibrarySlice {
-			return makeGet(false, setUserLibraryError, addUserLibraryEntry);
+			const baseGet = makeUserLibrarySlice();
+			const slice = {
+				...baseGet(),
+				isInUserLibrary: (): boolean => false,
+				setUserLibraryError,
+				addUserLibraryEntry,
+			};
+			return slice;
 		}
 
 		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("no network")));

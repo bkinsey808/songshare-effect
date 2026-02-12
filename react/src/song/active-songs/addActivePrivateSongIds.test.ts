@@ -1,41 +1,14 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SongSubscribeSlice } from "../song-slice/song-slice";
+import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
 
 import addActivePrivateSongIds from "./addActivePrivateSongIds";
 
 describe("addActivePrivateSongIds", () => {
 	it("early-returns when no active song ids are provided and warns", async () => {
 		const set = vi.fn();
-		function get(): SongSubscribeSlice {
-			return {
-				privateSongs: {},
-				publicSongs: {},
-				activePrivateSongIds: [] as readonly string[],
-				activePublicSongIds: [] as readonly string[],
-				addOrUpdatePrivateSongs: (_songs: Record<string, unknown>): void => {
-					// no-op
-				},
-				addOrUpdatePublicSongs: (_songs: Record<string, unknown>): void => {
-					// no-op
-				},
-				addActivePrivateSongIds: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
-				addActivePublicSongIds: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
-				addActivePrivateSongSlugs: async (): Promise<void> => {
-					await Promise.resolve();
-				},
-				addActivePublicSongSlugs: async (): Promise<void> => {
-					await Promise.resolve();
-				},
-				removeActivePrivateSongIds: (_songIds: readonly string[]): void => undefined,
-				removeActivePublicSongIds: (_songIds: readonly string[]): void => undefined,
-				subscribeToActivePrivateSongs: (): (() => void) | undefined => undefined,
-				subscribeToActivePublicSongs: (): (() => void) | undefined => undefined,
-				getSongBySlug: (_slug: string) => undefined,
-				removeSongsFromCache: (_songIds: readonly string[]) => undefined,
-			};
-		}
+		const get = makeSongSubscribeSlice();
 		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
 		const effect = addActivePrivateSongIds(set, get)([]);

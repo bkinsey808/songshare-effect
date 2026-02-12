@@ -7,7 +7,8 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import type { EventEntry, EventUser } from "./event-types";
+import type { EventEntry } from "./event-entry/EventEntry.type";
+import type { EventUser } from "./event-types";
 import type { EventSlice } from "./slice/EventSlice.type";
 
 import {

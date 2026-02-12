@@ -7,9 +7,9 @@ import type { EventEntry, EventUser, SaveEventRequest } from "../event-types";
 import type { EventSlice } from "./EventSlice.type";
 
 import fetchEventBySlugFn from "../fetchEventBySlug";
-import joinEventFn from "../joinEvent";
-import leaveEventFn from "../leaveEvent";
-import saveEventFn from "../saveEvent";
+import saveEventFn from "../form/saveEvent";
+import joinEventFn from "../join/joinEvent";
+import leaveEventFn from "../leave/leaveEvent";
 import eventSliceInitialState from "./eventSliceInitialState";
 
 /**

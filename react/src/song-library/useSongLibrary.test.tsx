@@ -10,6 +10,7 @@ import { resetAllSlices } from "@/react/app-store/slice-reset-fns";
 import useAppStore from "@/react/app-store/useAppStore";
 import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
 import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
+import makeSongLibraryEntry from "@/react/song-library/test-utils/makeSongLibraryEntry.mock";
 import delay from "@/shared/utils/delay";
 
 import useSongLibrary from "./useSongLibrary";
@@ -84,12 +85,12 @@ describe("useSongLibrary", () => {
 			.mockImplementation(() => Effect.sync(() => undefined));
 		const subscribeToSongPublic = vi.fn().mockImplementation(() => Effect.sync(() => undefined));
 		const entriesRecord: AppSlice["songLibraryEntries"] = {
-			[TEST_SONG_ID]: {
+			[TEST_SONG_ID]: makeSongLibraryEntry({
 				song_id: TEST_SONG_ID,
 				song_owner_id: TEST_OWNER_ID,
 				user_id: TEST_OWNER_ID,
 				created_at: TEST_CREATED_AT,
-			},
+			}),
 		};
 
 		// Reset store
@@ -201,12 +202,12 @@ describe("useSongLibrary", () => {
 		// show one visible id
 		store.setState({
 			songLibraryEntries: {
-				"visible-1": {
+				"visible-1": makeSongLibraryEntry({
 					song_id: "visible-1",
 					created_at: TEST_CREATED_AT,
 					user_id: TEST_OWNER_ID,
 					song_owner_id: TEST_OWNER_ID,
-				},
+				}),
 			},
 		});
 		// allow async subscriptions to settle
@@ -218,18 +219,18 @@ describe("useSongLibrary", () => {
 		// change visible ids - should unsubscribe first and subscribe again
 		store.setState({
 			songLibraryEntries: {
-				"visible-2": {
+				"visible-2": makeSongLibraryEntry({
 					song_id: "visible-2",
 					created_at: TEST_CREATED_AT,
 					user_id: TEST_OWNER_ID,
 					song_owner_id: TEST_OWNER_ID,
-				},
-				"visible-3": {
+				}),
+				"visible-3": makeSongLibraryEntry({
 					song_id: "visible-3",
 					created_at: TEST_CREATED_AT,
 					user_id: TEST_OWNER_ID,
 					song_owner_id: TEST_OWNER_ID,
-				},
+				}),
 			},
 		});
 		await Promise.resolve();

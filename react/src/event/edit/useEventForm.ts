@@ -14,7 +14,7 @@ import { type ValidationError } from "@/shared/validation/validate-types";
 
 import type { EventFormValues, EventFormValuesFromSchema, SaveEventRequest } from "../event-types";
 
-import eventFormSchema from "../eventFormSchema";
+import eventFormSchema from "../form/eventFormSchema";
 
 const NAVIGATE_BACK = -1;
 

@@ -8,6 +8,7 @@ import fetchSupabaseUserTokenFromApi from "@/react/lib/supabase/auth-token/fetch
 import type { AuthSlice, AuthState } from "./auth-slice.types";
 
 import createAuthSlice from "./createAuthSlice";
+import makeAuthSlice from "./makeAuthSlice.mock";
 
 const AUTH_PREFIX = "[authSlice]";
 
@@ -45,18 +46,19 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 	get: Get<AuthSlice>;
 	api: Api<AuthSlice>;
 } {
-	const state: Partial<AuthState> = { ...initialState };
+	const getHelper = makeAuthSlice(initialState);
+
+	let state: Partial<AuthState> = { ...initialState };
 
 	function set(
 		patchOrUpdater:
 			| Partial<AuthState>
-			| ((stateParam: AuthState & AuthSlice) => AuthState & AuthSlice),
+			| ((stateParam: AuthState & AuthSlice) => Partial<AuthState>),
 	): void {
 		if (typeof patchOrUpdater === "function") {
-			const updater = patchOrUpdater as (
-				stateParam: AuthState & AuthSlice,
-			) => AuthState & AuthSlice;
-			const next = updater(get());
+			const next = (patchOrUpdater as (stateParam: AuthState & AuthSlice) => Partial<AuthState>)(
+				get(),
+			);
 			Object.assign(state, next);
 		} else {
 			Object.assign(state, patchOrUpdater);
@@ -64,49 +66,44 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 	}
 
 	function get(): AuthState & AuthSlice {
-		const base: AuthState & AuthSlice = {
+		const base = getHelper();
+		return {
+			...base,
 			isSignedIn: state.isSignedIn ?? false,
 			userSessionData: state.userSessionData,
 			showSignedInAlert: state.showSignedInAlert ?? false,
 			setIsSignedIn: (isSignedIn) => {
 				state.isSignedIn = isSignedIn;
+				base.setIsSignedIn(isSignedIn);
 			},
 			signIn: (userSessionData) => {
 				state.userSessionData = userSessionData;
 				state.isSignedIn = true;
+				base.signIn(userSessionData);
 			},
 			signOut: () => {
 				state.userSessionData = undefined;
 				state.isSignedIn = false;
+				base.signOut();
 			},
 			setShowSignedInAlert: (value) => {
 				state.showSignedInAlert = value;
+				base.setShowSignedInAlert(value);
 			},
-		};
-		return base;
+		} as AuthState & AuthSlice;
 	}
 
 	const api: Api<AuthSlice> = {
-		setState(
-			patchOrUpdater:
-				| Partial<AuthState>
-				| ((stateParam: AuthState & AuthSlice) => AuthState & AuthSlice),
-		): void {
+		setState(patchOrUpdater) {
 			set(
 				patchOrUpdater as
 					| Partial<AuthState>
-					| ((stateParam: AuthState & AuthSlice) => AuthState & AuthSlice),
+					| ((state: AuthState & AuthSlice) => Partial<AuthState>),
 			);
 		},
-		getState(): AuthState & AuthSlice {
-			return get();
-		},
-		subscribe(): () => void {
-			return () => undefined;
-		},
-		getInitialState(): AuthState & AuthSlice {
-			return get();
-		},
+		getState: get,
+		getInitialState: get,
+		subscribe: () => () => undefined,
 	};
 
 	return { state, set: set as Set<AuthSlice>, get: get as Get<AuthSlice>, api };

@@ -8,22 +8,11 @@ import type {
 	EventUser,
 } from "@/shared/generated/supabaseSchemas";
 
-import type eventFormSchema from "./eventFormSchema";
+import type { EventEntry } from "./event-entry/EventEntry.type";
+import type eventFormSchema from "./form/eventFormSchema";
 
 // Re-export generated types
-export type { Event, EventInsert, EventPublic, EventPublicInsert, EventUser };
-
-/**
- * Extended event type for UI with combined data.
- */
-export type EventEntry = Event & {
-	/** Public event data */
-	public?: EventPublic;
-	/** Event participants with roles */
-	participants?: readonly EventUser[];
-	/** Username of the event owner */
-	owner_username?: string;
-};
+export type { Event, EventInsert, EventPublic, EventPublicInsert, EventUser, EventEntry };
 
 /**
  * Request payload to save an event (create or update).

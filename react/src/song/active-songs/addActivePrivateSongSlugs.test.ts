@@ -1,14 +1,13 @@
-import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 
+import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
 import addActivePrivateSongSlugs from "./addActivePrivateSongSlugs";
 
 function makeGetWithActiveSlug(): SongSubscribeSlice {
-	return {
-		privateSongs: {},
-		publicSongs: {
+	const get = makeSongSubscribeSlice({
+		initialPublic: {
 			s1: {
 				song_id: "s1",
 				song_slug: "slug-1",
@@ -26,54 +25,14 @@ function makeGetWithActiveSlug(): SongSubscribeSlice {
 				updated_at: "2020-01-01T00:00:00.000Z",
 			},
 		},
-		activePrivateSongIds: ["s1"],
-		activePublicSongIds: [],
-		addOrUpdatePrivateSongs: () => undefined,
-		addOrUpdatePublicSongs: () => undefined,
-		addActivePrivateSongIds: (_songIds: readonly string[]): Effect.Effect<void, Error> =>
-			Effect.sync(() => undefined),
-		addActivePublicSongIds: (_songIds: readonly string[]): Effect.Effect<void, Error> =>
-			Effect.sync(() => undefined),
-		addActivePrivateSongSlugs: async (): Promise<void> => {
-			await Promise.resolve();
-		},
-		addActivePublicSongSlugs: async (): Promise<void> => {
-			await Promise.resolve();
-		},
-		removeActivePrivateSongIds: (_songIds: readonly string[]) => undefined,
-		removeActivePublicSongIds: (_songIds: readonly string[]) => undefined,
-		removeSongsFromCache: (_songIds: readonly string[]) => undefined,
-		subscribeToActivePrivateSongs: () => undefined,
-		subscribeToActivePublicSongs: () => undefined,
-		getSongBySlug: () => undefined,
-	};
+		initialActivePrivateSongIds: ["s1"],
+	});
+	return get();
 }
 
 function makeGetWithoutUserToken(): SongSubscribeSlice {
-	return {
-		privateSongs: {},
-		publicSongs: {},
-		activePrivateSongIds: [],
-		activePublicSongIds: [],
-		addOrUpdatePrivateSongs: () => undefined,
-		addOrUpdatePublicSongs: () => undefined,
-		addActivePrivateSongIds: (_songIds: readonly string[]): Effect.Effect<void, Error> =>
-			Effect.sync(() => undefined),
-		addActivePublicSongIds: (_songIds: readonly string[]): Effect.Effect<void, Error> =>
-			Effect.sync(() => undefined),
-		addActivePrivateSongSlugs: async (): Promise<void> => {
-			await Promise.resolve();
-		},
-		addActivePublicSongSlugs: async (): Promise<void> => {
-			await Promise.resolve();
-		},
-		removeActivePrivateSongIds: (_songIds: readonly string[]) => undefined,
-		removeActivePublicSongIds: (_songIds: readonly string[]) => undefined,
-		removeSongsFromCache: (_songIds: readonly string[]) => undefined,
-		subscribeToActivePrivateSongs: () => undefined,
-		subscribeToActivePublicSongs: () => undefined,
-		getSongBySlug: () => undefined,
-	};
+	const get = makeSongSubscribeSlice();
+	return get();
 }
 
 describe("addActivePrivateSongSlugs", () => {

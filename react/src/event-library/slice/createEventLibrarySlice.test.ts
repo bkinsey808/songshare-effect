@@ -6,7 +6,9 @@ import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import type { EventLibraryEntry, EventLibraryState } from "../event-library-types";
 import type { EventLibrarySlice } from "./EventLibrarySlice.type";
 
+import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import createEventLibrarySlice from "./createEventLibrarySlice";
+import makeEventLibrarySlice from "./makeEventLibrarySlice.mock";
 
 function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 	state: Partial<EventLibraryState>;
@@ -14,24 +16,26 @@ function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 	get: Get<EventLibrarySlice>;
 	api: Api<EventLibrarySlice>;
 } {
-	const state: Partial<EventLibraryState> = {
-		eventLibraryEntries: {},
-		isEventLibraryLoading: false,
-		...initialState,
+	// Delegate base behavior to shared helper to avoid duplication in tests.
+	const getHelper = makeEventLibrarySlice(initialState.eventLibraryEntries ?? {});
+
+	let state: Partial<EventLibraryState> = {
+		eventLibraryEntries: initialState.eventLibraryEntries ?? {},
+		isEventLibraryLoading: Boolean(initialState.isEventLibraryLoading ?? false),
+		eventLibraryError: initialState.eventLibraryError,
 	};
 
 	function set(
 		patchOrUpdater:
 			| Partial<EventLibraryState>
-			| ((
-					stateParam: EventLibraryState & EventLibrarySlice,
-			  ) => EventLibraryState & EventLibrarySlice),
+			| ((stateParam: EventLibraryState & EventLibrarySlice) => Partial<EventLibraryState>),
 	): void {
 		if (typeof patchOrUpdater === "function") {
-			const updater = patchOrUpdater as (
-				stateParam: EventLibraryState & EventLibrarySlice,
-			) => EventLibraryState & EventLibrarySlice;
-			const next = updater(get());
+			const next = (
+				patchOrUpdater as (
+					stateParam: EventLibraryState & EventLibrarySlice,
+				) => Partial<EventLibraryState>
+			)(get());
 			Object.assign(state, next);
 		} else {
 			Object.assign(state, patchOrUpdater);
@@ -39,67 +43,52 @@ function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 	}
 
 	function get(): EventLibraryState & EventLibrarySlice {
-		const entries = state.eventLibraryEntries ?? {};
-		const base: EventLibraryState & EventLibrarySlice = {
-			eventLibraryEntries: entries,
-			isEventLibraryLoading: Boolean(state.isEventLibraryLoading),
-			eventLibraryError: state.eventLibraryError,
-			addEventToLibrary: (_req) => Effect.succeed(undefined),
-			removeEventFromLibrary: (_req) => Effect.succeed(undefined),
-			getEventLibraryIds: () => Object.keys(entries),
-			isInEventLibrary: (id: string) => Object.hasOwn(entries, id),
-			fetchEventLibrary: () => Effect.succeed(undefined),
-			subscribeToEventLibrary: () => Effect.succeed(() => undefined),
-			subscribeToEventPublicForLibrary: () => Effect.succeed(() => undefined),
-			setEventLibraryEntries: (entriesObj) => {
+		const base = getHelper();
+		return {
+			...base,
+			get eventLibraryEntries(): Record<string, EventLibraryEntry> {
+				return state.eventLibraryEntries ?? {};
+			},
+			get isEventLibraryLoading(): boolean {
+				return Boolean(state.isEventLibraryLoading);
+			},
+			get eventLibraryError(): string | undefined {
+				return state.eventLibraryError;
+			},
+			setEventLibraryEntries(entriesObj) {
 				state.eventLibraryEntries = entriesObj as EventLibraryState["eventLibraryEntries"];
 			},
-			setEventLibraryLoading: (loading) => {
+			setEventLibraryLoading(loading) {
 				state.isEventLibraryLoading = loading;
 			},
-			setEventLibraryError: (error) => {
+			setEventLibraryError(error) {
 				state.eventLibraryError = error;
 			},
-			addEventLibraryEntry: (entry) => {
+			addEventLibraryEntry(entry) {
 				state.eventLibraryEntries = {
 					...state.eventLibraryEntries,
 					[entry.event_id]: entry,
 				};
 			},
-			removeEventLibraryEntry: (eventId) => {
+			removeEventLibraryEntry(eventId) {
 				const entriesObj = state.eventLibraryEntries ?? {};
 				const { [eventId]: _removed, ...rest } = entriesObj;
 				state.eventLibraryEntries = rest as Record<string, EventLibraryEntry>;
 			},
-		};
-		return base;
+		} as EventLibraryState & EventLibrarySlice;
 	}
 
 	const api: Api<EventLibrarySlice> = {
-		setState(
-			patchOrUpdater:
-				| Partial<EventLibraryState>
-				| ((
-						stateParam: EventLibraryState & EventLibrarySlice,
-				  ) => EventLibraryState & EventLibrarySlice),
-		): void {
+		setState(patchOrUpdater) {
 			set(
 				patchOrUpdater as
 					| Partial<EventLibraryState>
-					| ((
-							stateParam: EventLibraryState & EventLibrarySlice,
-					  ) => EventLibraryState & EventLibrarySlice),
+					| ((state: EventLibraryState & EventLibrarySlice) => Partial<EventLibraryState>),
 			);
 		},
-		getState(): EventLibraryState & EventLibrarySlice {
-			return get();
-		},
-		subscribe(): () => void {
-			return () => undefined;
-		},
-		getInitialState(): EventLibraryState & EventLibrarySlice {
-			return get();
-		},
+		getState: get,
+		getInitialState: get,
+		subscribe: () => () => undefined,
 	};
 
 	return { state, set: set as Set<EventLibrarySlice>, get: get as Get<EventLibrarySlice>, api };
@@ -140,12 +129,7 @@ describe("createEventLibrarySlice", () => {
 
 		const slice = createEventLibrarySlice(set, get, api);
 
-		const entry: EventLibraryEntry = {
-			user_id: "u1",
-			event_id: "e1",
-			event_owner_id: "o1",
-			created_at: "2026-01-01T00:00:00Z",
-		};
+		const entry = makeEventLibraryEntry();
 
 		slice.setEventLibraryEntries({ e1: entry });
 
@@ -160,19 +144,9 @@ describe("createEventLibrarySlice", () => {
 
 		const slice = createEventLibrarySlice(set, get, api);
 
-		const entry1: EventLibraryEntry = {
-			user_id: "u1",
-			event_id: "e1",
-			event_owner_id: "o1",
-			created_at: "2026-01-01T00:00:00Z",
-		};
+		const entry1 = makeEventLibraryEntry({ user_id: "u1", event_id: "e1", event_owner_id: "o1" });
 
-		const entry2: EventLibraryEntry = {
-			user_id: "u2",
-			event_id: "e2",
-			event_owner_id: "o2",
-			created_at: "2026-01-02T00:00:00Z",
-		};
+		const entry2 = makeEventLibraryEntry({ user_id: "u2", event_id: "e2", event_owner_id: "o2" });
 
 		slice.addEventLibraryEntry(entry1);
 		expect(setSpy).toHaveBeenCalledWith(expect.any(Function));
@@ -192,12 +166,7 @@ describe("createEventLibrarySlice", () => {
 
 		const slice = createEventLibrarySlice(set, get, api);
 
-		const entry1: EventLibraryEntry = {
-			user_id: "u1",
-			event_id: "e1",
-			event_owner_id: "o1",
-			created_at: "2026-01-01T00:00:00Z",
-		};
+		const entry1 = makeEventLibraryEntry({ user_id: "u1", event_id: "e1", event_owner_id: "o1" });
 
 		slice.addEventLibraryEntry(entry1);
 

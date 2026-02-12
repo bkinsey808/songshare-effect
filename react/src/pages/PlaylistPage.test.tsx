@@ -3,6 +3,7 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import { makeTestPlaylist } from "@/react/playlist/test-utils/makeTestPlaylist.mock";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import PlaylistPage from "./PlaylistPage";
@@ -43,15 +44,17 @@ describe("playlist page", () => {
 		const mockFetch = vi.fn();
 		const mockClear = vi.fn();
 		// currentPlaylist has owner user_id = 'owner-123'
+		const playlist = {
+			...makeTestPlaylist(),
+			playlist_id: "p1",
+			user_id: "owner-123",
+			public: { ...makeTestPlaylist().public, playlist_name: "Test" },
+		};
+
 		installStoreMocks({
 			mockFetch,
 			mockClear,
-			currentPlaylistReturn: {
-				playlist_id: "p1",
-				public: { playlist_name: "Test" },
-				user_id: "owner-123",
-				owner_username: "owner_user",
-			},
+			currentPlaylistReturn: playlist,
 			userId: "not-owner",
 		});
 

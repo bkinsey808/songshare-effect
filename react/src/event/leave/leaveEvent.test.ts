@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import makeGetStub from "@/react/event/slice/test-utils/makeGetEventSliceStub.mock";
+import makeEventSlice from "@/react/event/slice/makeEventSlice.mock";
 
 import leaveEvent from "./leaveEvent";
 
@@ -10,7 +10,7 @@ describe("leaveEvent error cases", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network fail")));
 
-		const eff = leaveEvent("e1", "u1", makeGetStub());
+		const eff = leaveEvent("e1", "u1", makeEventSlice());
 
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/Network error/);
 	});
@@ -19,7 +19,7 @@ describe("leaveEvent error cases", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("bad", { status: 400 })));
 
-		const eff = leaveEvent("e1", "u1", makeGetStub());
+		const eff = leaveEvent("e1", "u1", makeEventSlice());
 		const promise = Effect.runPromise(eff);
 
 		await expect(promise).rejects.toThrow(/Failed to leave event/);
@@ -29,7 +29,7 @@ describe("leaveEvent error cases", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(undefined, { status: 200 })));
 
-		const get = makeGetStub();
+		const get = makeEventSlice();
 		const eff = leaveEvent("e1", "u1", get);
 
 		await expect(Effect.runPromise(eff)).resolves.toBeUndefined();

@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import useEnsureSignedIn from "@/react/auth/ensure-signed-in/useEnsureSignedIn";
 import handleJustSignedIn from "@/react/auth/handleJustSignedIn";
-import useEnsureSignedIn from "@/react/auth/useEnsureSignedIn";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 
 /**

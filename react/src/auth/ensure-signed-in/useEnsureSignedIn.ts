@@ -1,7 +1,7 @@
 // Prefer per-line console exceptions
 import { useEffect } from "react";
 
-import ensureSignedIn from "@/react/auth/ensureSignedIn";
+import ensureSignedIn from "@/react/auth/ensure-signed-in/ensureSignedIn";
 import { clientDebug } from "@/react/lib/utils/clientLogger";
 
 /**

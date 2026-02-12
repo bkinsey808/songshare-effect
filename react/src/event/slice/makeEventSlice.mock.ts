@@ -15,7 +15,7 @@ import forceCast from "@/react/lib/test-utils/forceCast";
  * @returns getter function that returns a stubbed `EventSlice` suitable for
  * unit tests
  */
-export default function makeGetStub(): () => EventSlice {
+export default function makeEventSlice(): () => EventSlice {
 	const stub = {
 		currentEvent: undefined,
 		isEventLoading: false,

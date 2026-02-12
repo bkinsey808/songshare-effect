@@ -10,9 +10,9 @@ import { ONE_CALL, TEST_AUTH_TOKEN } from "@/react/lib/test-helpers/test-consts"
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import type { SongLibrarySlice } from "./song-library-slice";
-import type { SongLibraryEntry } from "./song-library-types";
 
 import fetchSongLibrary from "./fetchSongLibrary";
+import makeSongLibrarySlice from "./makeSongLibrarySlice.mock";
 
 // Auto-mock auth/client modules so we can configure mocks in each test
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
@@ -86,29 +86,9 @@ function createMockClient({
 
 describe("fetchSongLibrary", () => {
 	it("fetches and enriches entries when data is present", async () => {
-		const setSongLibraryEntries = vi.fn<(entries: Record<string, SongLibraryEntry>) => void>();
-		const setSongLibraryLoading = vi.fn<(value: boolean) => void>();
-		const setSongLibraryError = vi.fn<(err: unknown) => void>();
+		const get = makeSongLibrarySlice();
+		const slice = get();
 		function getMock(): SongLibrarySlice {
-			const slice: SongLibrarySlice = {
-				songLibraryEntries: {},
-				isSongLibraryLoading: false,
-				songLibraryError: undefined,
-				setSongLibraryError,
-				isInSongLibrary: () => false,
-				addSongLibraryEntry: () => undefined,
-				removeSongLibraryEntry: () => undefined,
-				addSongToSongLibrary: () => Effect.sync(() => undefined),
-				removeSongFromSongLibrary: () => Effect.sync(() => undefined),
-				getSongLibrarySongIds: () => [],
-				fetchSongLibrary: () => Effect.sync(() => undefined),
-				subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
-					Effect.sync(() => (): void => undefined),
-				subscribeToSongPublic: (_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
-					Effect.sync(() => (): void => undefined),
-				setSongLibraryEntries,
-				setSongLibraryLoading,
-			};
 			return slice;
 		}
 		// Configure mocked auth/token and client modules
@@ -120,8 +100,8 @@ describe("fetchSongLibrary", () => {
 		getSupabaseClientMock.mockReturnValue(createMockClient());
 		await Effect.runPromise(fetchSongLibrary(getMock));
 
-		expect(setSongLibraryLoading).toHaveBeenCalledWith(true);
-		expect(setSongLibraryEntries).toHaveBeenCalledTimes(ONE_CALL);
+		expect(slice.setSongLibraryLoading).toHaveBeenCalledWith(true);
+		expect(slice.setSongLibraryEntries).toHaveBeenCalledTimes(ONE_CALL);
 
 		// Build expected object to avoid computed property in expect call
 		const expectedEntries: Record<string, unknown> = {};
@@ -131,9 +111,11 @@ describe("fetchSongLibrary", () => {
 			song_slug: TEST_SONG_SLUG,
 		});
 
-		expect(setSongLibraryEntries).toHaveBeenCalledWith(expect.objectContaining(expectedEntries));
+		expect(slice.setSongLibraryEntries).toHaveBeenCalledWith(
+			expect.objectContaining(expectedEntries),
+		);
 		// ensures loading is cleared in finally
-		expect(setSongLibraryLoading).toHaveBeenLastCalledWith(false);
+		expect(slice.setSongLibraryLoading).toHaveBeenLastCalledWith(false);
 
 		// Reset mocked implementations for next tests
 		vi.mocked(getSupabaseAuthToken).mockReset();
@@ -143,29 +125,9 @@ describe("fetchSongLibrary", () => {
 	});
 
 	it("handles empty song_library gracefully", async () => {
-		const setSongLibraryEntries = vi.fn<(entries: Record<string, SongLibraryEntry>) => void>();
-		const setSongLibraryLoading = vi.fn<(value: boolean) => void>();
-		const setSongLibraryError = vi.fn<(err: unknown) => void>();
+		const get = makeSongLibrarySlice();
+		const slice = get();
 		function getMock(): SongLibrarySlice {
-			const slice: SongLibrarySlice = {
-				songLibraryEntries: {},
-				isSongLibraryLoading: false,
-				songLibraryError: undefined,
-				setSongLibraryError,
-				isInSongLibrary: () => false,
-				addSongLibraryEntry: () => undefined,
-				removeSongLibraryEntry: () => undefined,
-				addSongToSongLibrary: () => Effect.sync(() => undefined),
-				removeSongFromSongLibrary: () => Effect.sync(() => undefined),
-				getSongLibrarySongIds: () => [],
-				fetchSongLibrary: () => Effect.sync(() => undefined),
-				subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
-					Effect.sync(() => (): void => undefined),
-				subscribeToSongPublic: (_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
-					Effect.sync(() => (): void => undefined),
-				setSongLibraryEntries,
-				setSongLibraryLoading,
-			};
 			return slice;
 		}
 
@@ -174,36 +136,16 @@ describe("fetchSongLibrary", () => {
 
 		await Effect.runPromise(fetchSongLibrary(getMock));
 
-		expect(setSongLibraryEntries).toHaveBeenCalledWith({});
-		expect(setSongLibraryLoading).toHaveBeenLastCalledWith(false);
+		expect(slice.setSongLibraryEntries).toHaveBeenCalledWith({});
+		expect(slice.setSongLibraryLoading).toHaveBeenLastCalledWith(false);
 
 		vi.mocked(getSupabaseClient).mockReset();
 	});
 
 	it("throws when no supabase client available and cleans up loading flag", async () => {
-		const setSongLibraryEntries = vi.fn<(entries: Record<string, SongLibraryEntry>) => void>();
-		const setSongLibraryLoading = vi.fn<(value: boolean) => void>();
-		const setSongLibraryError = vi.fn<(err: unknown) => void>();
+		const get = makeSongLibrarySlice();
+		const slice = get();
 		function getMock(): SongLibrarySlice {
-			const slice: SongLibrarySlice = {
-				songLibraryEntries: {},
-				isSongLibraryLoading: false,
-				songLibraryError: undefined,
-				setSongLibraryError,
-				isInSongLibrary: () => false,
-				addSongLibraryEntry: () => undefined,
-				removeSongLibraryEntry: () => undefined,
-				addSongToSongLibrary: () => Effect.sync(() => undefined),
-				removeSongFromSongLibrary: () => Effect.sync(() => undefined),
-				getSongLibrarySongIds: () => [],
-				fetchSongLibrary: () => Effect.sync(() => undefined),
-				subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
-					Effect.sync(() => (): void => undefined),
-				subscribeToSongPublic: (_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
-					Effect.sync(() => (): void => undefined),
-				setSongLibraryEntries,
-				setSongLibraryLoading,
-			};
 			return slice;
 		}
 
@@ -212,8 +154,8 @@ describe("fetchSongLibrary", () => {
 		await expect(Effect.runPromise(fetchSongLibrary(getMock))).rejects.toThrow(
 			"No Supabase client available",
 		);
-		expect(setSongLibraryLoading).toHaveBeenCalledWith(true);
-		expect(setSongLibraryLoading).toHaveBeenLastCalledWith(false);
+		expect(slice.setSongLibraryLoading).toHaveBeenCalledWith(true);
+		expect(slice.setSongLibraryLoading).toHaveBeenLastCalledWith(false);
 
 		vi.mocked(getSupabaseClient).mockReset();
 	});

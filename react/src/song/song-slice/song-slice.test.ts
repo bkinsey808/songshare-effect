@@ -1,93 +1,13 @@
-import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { Api } from "@/react/app-store/app-store-types";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 
 import type { SongPublic } from "../song-schema";
 
-import { createSongSubscribeSlice, type SongSubscribeSlice } from "./song-slice";
+import makeSongTestSlice from "./makeSongTestSlice.mock";
 
-function createMockSlice(overrides: Partial<SongSubscribeSlice> = {}): SongSubscribeSlice {
-	return {
-		privateSongs: {},
-		publicSongs: {},
-		activePrivateSongIds: [],
-		activePublicSongIds: [],
-		addOrUpdatePrivateSongs: () => undefined,
-		addOrUpdatePublicSongs: () => undefined,
-		addActivePrivateSongIds: () => Effect.sync(() => undefined),
-		addActivePublicSongIds: () => Effect.sync(() => undefined),
-		addActivePrivateSongSlugs: async () => {
-			await Promise.resolve();
-			return undefined;
-		},
-		addActivePublicSongSlugs: async () => {
-			await Promise.resolve();
-			return undefined;
-		},
-		removeActivePrivateSongIds: () => undefined,
-		removeActivePublicSongIds: () => undefined,
-		removeSongsFromCache: () => undefined,
-		subscribeToActivePrivateSongs: () => undefined,
-		subscribeToActivePublicSongs: () => undefined,
-		getSongBySlug: () => undefined,
-		...overrides,
-	};
-}
-
-function makeTestSlice(): {
-	slice: SongSubscribeSlice;
-	getState: () => SongSubscribeSlice;
-	setState: (
-		partial:
-			| Partial<SongSubscribeSlice>
-			| ((prevState: SongSubscribeSlice) => Partial<SongSubscribeSlice>),
-	) => void;
-} {
-	let state: SongSubscribeSlice = createMockSlice();
-
-	function set(
-		partial:
-			| Partial<SongSubscribeSlice>
-			| ((prevState: SongSubscribeSlice) => Partial<SongSubscribeSlice>),
-	): void {
-		if (typeof partial === "function") {
-			state = {
-				...state,
-				...(partial as (prevState: SongSubscribeSlice) => Partial<SongSubscribeSlice>)(state),
-			};
-		} else {
-			state = { ...state, ...partial };
-		}
-	}
-
-	function get(): SongSubscribeSlice {
-		return state;
-	}
-
-	const api: Api<SongSubscribeSlice> = {
-		setState: (
-			partial:
-				| Partial<SongSubscribeSlice>
-				| ((prevState: SongSubscribeSlice) => Partial<SongSubscribeSlice>),
-		) => {
-			set(
-				partial as
-					| Partial<SongSubscribeSlice>
-					| ((prevState: SongSubscribeSlice) => Partial<SongSubscribeSlice>),
-			);
-		},
-		getState: get,
-		getInitialState: () => get(),
-		subscribe: (_listener: unknown) => (): void => undefined,
-	};
-
-	const slice = createSongSubscribeSlice(set, get, api);
-
-	// Ensure state reflects the slice's shape after creation
-	state = get();
-
-	return { slice, getState: get, setState: set };
+function makeTestSlice(): ReturnType<typeof makeSongTestSlice> {
+	return makeSongTestSlice();
 }
 
 describe("createSongSubscribeSlice", () => {
@@ -109,23 +29,8 @@ describe("createSongSubscribeSlice", () => {
 	it("adds and merges public songs with addOrUpdatePublicSongs", () => {
 		const { slice, getState } = makeTestSlice();
 
-		const p1: SongPublic = {
-			song_id: "p1",
-			song_name: "P1",
-			song_slug: "slug-1",
-			fields: ["lyrics"],
-			slide_order: [],
-			slides: {},
-			key: "",
-			scale: "",
-			user_id: "u1",
-			short_credit: "",
-			long_credit: "",
-			public_notes: "",
-			created_at: "2020-01-01T00:00:00Z",
-			updated_at: "2020-01-01T00:00:00Z",
-		};
-		const p2: SongPublic = { ...p1, song_id: "p2", song_slug: "slug-2" };
+		const p1: SongPublic = makeSongPublic({ song_id: "p1", song_name: "P1", song_slug: "slug-1" });
+		const p2: SongPublic = makeSongPublic({ song_id: "p2", song_slug: "slug-2" });
 
 		slice.addOrUpdatePublicSongs({ p1 });
 		expect(getState().publicSongs["p1"]).toBeDefined();
@@ -141,22 +46,11 @@ describe("createSongSubscribeSlice", () => {
 
 		const songId = "s1";
 		const slug = "my-slug";
-		const publicSong: SongPublic = {
+		const publicSong: SongPublic = makeSongPublic({
 			song_id: songId,
 			song_name: "Public name",
 			song_slug: slug,
-			fields: ["lyrics"],
-			slide_order: [],
-			slides: {},
-			key: "",
-			scale: "",
-			user_id: "u1",
-			short_credit: "",
-			long_credit: "",
-			public_notes: "",
-			created_at: "2020-01-01T00:00:00Z",
-			updated_at: "2020-01-01T00:00:00Z",
-		};
+		});
 		const privateSong = { song_id: songId, created_at: "t", updated_at: "t" };
 
 		slice.addOrUpdatePublicSongs({ [songId]: publicSong });

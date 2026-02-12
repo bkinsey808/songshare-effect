@@ -1,10 +1,8 @@
-import { type ReactElement, useRef, useState } from "react";
+import { type ReactElement } from "react";
 
 import type { PlaylistLibraryEntry } from "@/react/playlist-library/slice/playlist-library-types";
 
-import useAppStore from "@/react/app-store/useAppStore";
-
-const PLAYLISTS_NONE = 0;
+import usePlaylistSearchInput from "./usePlaylistSearchInput";
 
 export type PlaylistSearchInputProps = {
 	/** Currently active playlist ID */
@@ -39,79 +37,20 @@ export default function PlaylistSearchInput({
 	placeholder = "Search playlists...",
 	containerClassName = "",
 }: PlaylistSearchInputProps): ReactElement {
-	const [searchQuery, setSearchQuery] = useState("");
-	const [isOpen, setIsOpen] = useState(false);
-	const containerRef = useRef<HTMLDivElement>(null);
-	const inputRef = useRef<HTMLInputElement>(null);
-
-	// Get playlists from app store - extract from playlistLibraryEntries
-	const playlistLibraryEntries = useAppStore((state) => state.playlistLibraryEntries);
-
-	// Convert record of playlists to array
-	const userPlaylistsArray: readonly PlaylistLibraryEntry[] = Object.values(
-		playlistLibraryEntries,
-	).filter((entry): entry is PlaylistLibraryEntry => entry !== undefined);
-
-	// Find active playlist
-	const activePlaylist =
-		activePlaylistId === undefined || activePlaylistId === null || activePlaylistId === ""
-			? undefined
-			: userPlaylistsArray.find((entry) => entry.playlist_id === activePlaylistId);
-
-	// Filter playlists by search query
-	const trimmedQuery = searchQuery.trim();
-	const filteredPlaylists: readonly PlaylistLibraryEntry[] =
-		trimmedQuery === ""
-			? userPlaylistsArray
-			: userPlaylistsArray.filter(
-					(entry) =>
-						(entry.playlist_name?.toLowerCase().includes(trimmedQuery.toLowerCase()) ?? false) ||
-						(entry.playlist_slug?.toLowerCase().includes(trimmedQuery.toLowerCase()) ?? false),
-				);
-
-	// Handle playlist selection
-	function handleSelectPlaylist(entry: PlaylistLibraryEntry): void {
-		onSelect(entry.playlist_id);
-		setSearchQuery("");
-		setIsOpen(false);
-	}
-
-	// Handle click outside to close dropdown
-	function handleClickOutside(): void {
-		setIsOpen(false);
-	}
-
-	// Handle input focus
-	function handleInputFocus(): void {
-		setIsOpen(true);
-	}
-
-	// Handle input change
-	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>): void {
-		setSearchQuery(event.target.value);
-		setIsOpen(true);
-	}
-
-	// Clear selection
-	function handleClearSelection(event: React.MouseEvent<HTMLButtonElement>): void {
-		event.preventDefault();
-		event.stopPropagation();
-		onSelect(""); // Pass empty string to clear
-		setSearchQuery("");
-		setIsOpen(false);
-		inputRef.current?.focus();
-	}
-
-	// Calculate input display value
-	let inputDisplayValue = "";
-	if (searchQuery === "") {
-		const playlistName = activePlaylist?.playlist_name;
-		if (playlistName !== undefined && playlistName !== "") {
-			inputDisplayValue = playlistName;
-		}
-	} else {
-		inputDisplayValue = searchQuery;
-	}
+	const {
+		PLAYLISTS_NONE,
+		searchQuery,
+		isOpen,
+		containerRef,
+		inputRef,
+		filteredPlaylists,
+		handleSelectPlaylist,
+		handleClickOutside,
+		handleInputFocus,
+		handleInputChange,
+		handleClearSelection,
+		inputDisplayValue,
+	} = usePlaylistSearchInput({ activePlaylistId, onSelect });
 
 	return (
 		<div

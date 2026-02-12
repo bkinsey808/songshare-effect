@@ -90,6 +90,44 @@ it("fetches data", async () => {
 });
 ```
 
+### ⚠️ Avoid using `act` from @testing-library/react
+
+`act` calls from `@testing-library/react` have been causing deprecation warnings in our test environment and can lead to verbose, brittle tests where you end up simulating browser events with unsafe casts. Prefer the Testing Library helpers and direct state updates on hook results in tests. For async behavior, use `waitFor` (or `waitForElementToBeRemoved`) to wait for expected changes instead of wrapping updates in `act()`.
+
+- Don't use `act` to simulate DOM events or construct ChangeEvent objects with unsafe casts in tests. Instead, update hook state directly or use user-event helpers when testing DOM interactions.
+- For assertions that depend on asynchronous side effects, use `await waitFor(() => ...)`.
+
+**BAD:** using `act` with manual event casting
+
+```typescript
+act(() => {
+  // Unsafe cast and deprecated pattern
+  result.current.handleInputChange({ target: { value: "another" } } as unknown as React.ChangeEvent<HTMLInputElement>);
+});
+```
+
+**BETTER:** set hook state directly for synchronous updates
+
+```typescript
+// Direct setter calls are clearer and avoid unsafe casts
+result.current.setSearchQuery("another");
+result.current.setIsOpen(true);
+```
+
+**BEST (async assertions):** use `waitFor` to assert eventual state
+
+```typescript
+import { waitFor } from "@testing-library/react";
+
+result.current.setSearchQuery("another");
+
+await waitFor(() => {
+  expect(result.current.filteredPlaylists.map((p) => p.playlist_id)).toStrictEqual(["p2"]);
+});
+```
+
+This pattern keeps tests explicit and avoids deprecated usages and unsafe type assertions. If you find a test that still uses `act`, please replace it with direct state setters or `waitFor` as shown above.
+
 ### ❌ Duplicated literal test data
 
 ```typescript
@@ -115,21 +153,38 @@ This ensures your expectations reference the same mock data declared in setup �
 ### ⚠️ Lint disable comments
 
 - **Avoid file-level `/* eslint-disable ... */`** in test files — they conceal rule violations and make it harder to keep tests correct.
-- **Prefer narrow, local disables** when necessary:
-  - Use `// eslint-disable-next-line <rule> - reason` for a single line, or
-  - Add the disable only above a small helper function that would otherwise require a complex workaround.
-- **Always add a brief rationale** and a TODO/issue reference when you add a disable so it can be revisited and removed later.
+- **Prefer narrow, local disables** when necessary, and prefer to scope them to small test helper functions rather than test bodies:
+  - Use `// eslint-disable-next-line <rule> - reason` for a single-line exception.
+  - Better: place the disable above a helper function (e.g., `getCachedUserTokenSpy`, `makeUnsafeMock`) so the exception is obvious, localized, and easily audited.
+- **Never scatter disables throughout test cases.** Centralize them in helpers to keep test assertions clean and to make it straightforward to remove the disable later.
+- **Always add a brief rationale** and a `TODO`/issue reference when you add a disable so it can be revisited and removed later.
 
 ```typescript
 // BAD: file-level disable — avoid this
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// BETTER: local, documented disable within a small helper
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- typed wrapper simplifies test setup (TODO: remove when we have a typed helper)
-function makeUnsafeMock() {
-  return undefined as any;
-}
+// BAD: inline disables sprinkled inside tests — avoid this
+it("does something", () => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const x: unknown = doUnsafeThing();
+  expect(x).toBeDefined();
+});
+
+// BETTER: local, documented disable within a small helper so tests remain clean
+// Define helper in a shared test utility file (e.g. `react/src/lib/test-utils/test-helper-template.ts`).
+// The helper centralizes the unsafe cast and keeps tests free of inline disables.
+// Example helper usage:
+//   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- localized and documented in helper
+//   export function asUnsafe<T>(value: unknown): T { return value as unknown as T }
+
+// Use helper in tests (keeps test code lint-friendly):
+it("does something", () => {
+  const x = asUnsafe<MyType>({ foo: "bar" });
+  expect(x).toBeDefined();
+});
 ```
+
+**Helper template**: copy these examples into your tests or reuse the helpers directly — see `react/src/lib/test-utils/test-helper-template.ts` for `getCachedUserTokenSpy`, `getParseMock`, and `makeUnsafeMock`.
 
 ## Validation Commands
 

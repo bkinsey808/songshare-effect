@@ -1,6 +1,6 @@
 import { type NavigateFunction } from "react-router-dom";
 
-import ensureSignedIn from "@/react/auth/ensureSignedIn";
+import ensureSignedIn from "@/react/auth/ensure-signed-in/ensureSignedIn";
 import { SIGNIN_DEFAULT_DELAY_MS, SIGNIN_RETRY_DELAYS_MS } from "@/shared/constants/http";
 import { justSignedInQueryParam, signinErrorQueryParam } from "@/shared/queryParams";
 import { SigninErrorToken } from "@/shared/signinTokens";

@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
-import makeTestEvent from "@/react/event/test-utils/makeTestEvent.mock";
+import makeEventEntry from "@/react/event/event-entry/makeEventEntry.mock";
 
 import useEventView from "./useEventView";
 
@@ -38,7 +38,7 @@ describe("useEventView", () => {
 		vi.mocked(useParams).mockReturnValue({ event_slug: "my-slug" });
 		vi.mocked(useCurrentUserId).mockReturnValue("u1");
 
-		const currentEvent = makeTestEvent({ participants: [] });
+		const currentEvent = makeEventEntry({ participants: [] });
 		store.setState((prev) => ({ ...prev, currentEvent, isEventLoading: false }));
 
 		renderHook(() => useEventView());
@@ -53,7 +53,7 @@ describe("useEventView", () => {
 		const store: typeof useAppStore = useAppStore;
 		store.setState((prev) => ({ ...prev, joinEvent: mockJoin }));
 
-		const currentEvent = makeTestEvent();
+		const currentEvent = makeEventEntry();
 		store.setState((prev) => ({ ...prev, currentEvent }));
 
 		vi.mocked(useParams).mockReturnValue({});
@@ -75,7 +75,7 @@ describe("useEventView", () => {
 		const store: typeof useAppStore = useAppStore;
 		store.setState((prev) => ({ ...prev, joinEvent: mockJoin }));
 
-		const currentEvent = makeTestEvent();
+		const currentEvent = makeEventEntry();
 		store.setState((prev) => ({ ...prev, currentEvent }));
 
 		vi.mocked(useParams).mockReturnValue({});
@@ -97,7 +97,7 @@ describe("useEventView", () => {
 		const store: typeof useAppStore = useAppStore;
 		store.setState((prev) => ({ ...prev, leaveEvent: mockLeave }));
 
-		const currentEvent = makeTestEvent();
+		const currentEvent = makeEventEntry();
 		store.setState((prev) => ({ ...prev, currentEvent }));
 
 		vi.mocked(useParams).mockReturnValue({});
@@ -119,7 +119,7 @@ describe("useEventView", () => {
 		const store: typeof useAppStore = useAppStore;
 		store.setState((prev) => ({ ...prev, leaveEvent: mockLeave }));
 
-		const currentEvent = makeTestEvent();
+		const currentEvent = makeEventEntry();
 		store.setState((prev) => ({ ...prev, currentEvent }));
 
 		vi.mocked(useParams).mockReturnValue({});

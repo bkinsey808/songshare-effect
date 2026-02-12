@@ -10,6 +10,7 @@ import { resetAllSlices } from "@/react/app-store/slice-reset-fns";
 import useAppStore from "@/react/app-store/useAppStore";
 import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
 import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
+import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
 import delay from "@/shared/utils/delay";
 
 import useUserLibrary from "./useUserLibrary";
@@ -79,13 +80,12 @@ describe("useUserLibrary", () => {
 		const subscribeToUserPublicForLibrary = vi
 			.fn()
 			.mockImplementation(() => Effect.sync(() => undefined));
-		const entriesRecord: AppSlice["userLibraryEntries"] = {
-			[TEST_USER_ID]: {
-				followed_user_id: TEST_USER_ID,
-				created_at: TEST_CREATED_AT,
-				user_id: TEST_USER_ID,
-			},
-		};
+const entry = makeUserLibraryEntry({
+		user_id: TEST_USER_ID,
+		followed_user_id: TEST_USER_ID,
+		created_at: TEST_CREATED_AT,
+	});
+	const entriesRecord: AppSlice["userLibraryEntries"] = { [TEST_USER_ID]: entry };
 
 		resetAllSlices();
 		const store = useAppStore;

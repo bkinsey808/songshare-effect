@@ -8,11 +8,13 @@ import type { Database } from "@/shared/generated/supabaseTypes";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import makeSongLibraryEntry from "@/react/song-library/test-utils/makeSongLibraryEntry.mock";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type { SongLibrarySlice } from "../song-library-slice";
 import type { SongLibraryEntry } from "../song-library-types";
 
+import makeSongLibrarySlice from "../makeSongLibrarySlice.mock";
 import subscribeToSongPublic from "./subscribeToSongPublic";
 
 type CreateRealtimeConfig = {
@@ -33,31 +35,7 @@ function isCreateRealtimeConfig(value: unknown): value is CreateRealtimeConfig {
 const MOCK_CALL_INDEX = 0;
 const MOCK_ARG_INDEX = 0;
 
-function createMockSlice(overrides: {
-	songLibraryEntries: Record<string, SongLibraryEntry>;
-	setSongLibraryEntries: (entries: Readonly<Record<string, SongLibraryEntry>>) => void;
-}): SongLibrarySlice {
-	const { songLibraryEntries, setSongLibraryEntries } = overrides;
-	return {
-		songLibraryEntries,
-		setSongLibraryEntries,
-		isSongLibraryLoading: false,
-		songLibraryError: undefined,
-		addSongToSongLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
-		removeSongFromSongLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
-		getSongLibrarySongIds: (): string[] => [],
-		fetchSongLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
-		subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
-			Effect.sync((): (() => void) => () => undefined),
-		subscribeToSongPublic: (): Effect.Effect<() => void, Error> =>
-			Effect.sync((): (() => void) => () => undefined),
-		setSongLibraryLoading: (): void => undefined,
-		setSongLibraryError: (): void => undefined,
-		addSongLibraryEntry: (): void => undefined,
-		removeSongLibraryEntry: (): void => undefined,
-		isInSongLibrary: (): boolean => false,
-	};
-}
+// Use shared helper `makeSongLibrarySlice` directly in tests
 
 function createMockSupabaseClient(): SupabaseClientLike<Database> {
 	return createMinimalSupabaseClient<Database>();
@@ -65,18 +43,16 @@ function createMockSupabaseClient(): SupabaseClientLike<Database> {
 
 describe("subscribeToSongPublic", () => {
 	it("backfills song_public rows and creates realtime subscription", async () => {
-		const existingEntry: SongLibraryEntry = {
+		const existingEntry = makeSongLibraryEntry({
 			song_id: "s1",
 			song_owner_id: "owner",
 			user_id: "owner",
 			created_at: new Date().toISOString(),
-		};
+		});
 		const setSongLibraryEntries =
 			vi.fn<(entries: Readonly<Record<string, SongLibraryEntry>>) => void>();
-		const slice = createMockSlice({
-			songLibraryEntries: { s1: existingEntry },
-			setSongLibraryEntries,
-		});
+		const baseGet = makeSongLibrarySlice({ s1: existingEntry });
+		const slice = { ...baseGet(), setSongLibraryEntries };
 		function get(): SongLibrarySlice {
 			return slice;
 		}

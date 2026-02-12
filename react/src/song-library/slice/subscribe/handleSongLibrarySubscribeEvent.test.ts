@@ -8,9 +8,9 @@ import type {
 } from "@/react/lib/supabase/client/SupabaseClientLike";
 
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import makeSongLibraryEntry from "@/react/song-library/test-utils/makeSongLibraryEntry.mock";
 
-import type { SongLibrarySlice } from "../song-library-slice";
-
+import makeSongLibrarySlice from "../makeSongLibrarySlice.mock";
 import handleSongLibrarySubscribeEvent from "./handleSongLibrarySubscribeEvent";
 
 type SupabaseClientResolved = Exclude<ReturnType<typeof getSupabaseClient>, undefined>;
@@ -70,95 +70,58 @@ const supabaseClient: SupabaseClientResolved = {
 	},
 };
 
-/**
- * Creates a SongLibrary slice getter with tracked add/remove spies.
- *
- * @returns Getter function and associated spies for entry mutations
- */
-function createSliceGetter(): {
-	readonly getSlice: () => SongLibrarySlice;
-	readonly addSongLibraryEntry: ReturnType<typeof vi.fn>;
-	readonly removeSongLibraryEntry: ReturnType<typeof vi.fn>;
-} {
-	const addSongLibraryEntry = vi.fn();
-	const removeSongLibraryEntry = vi.fn();
-
-	const slice: SongLibrarySlice = {
-		songLibraryEntries: {},
-		isSongLibraryLoading: false,
-		songLibraryError: undefined,
-		addSongToSongLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
-		removeSongFromSongLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
-		getSongLibrarySongIds: (): string[] => [],
-		fetchSongLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
-		subscribeToSongLibrary: (): Effect.Effect<() => void, Error> =>
-			Effect.sync((): (() => void) => () => {
-				/* no-op cleanup */
-			}),
-		// Stubbed public-song subscription for tests
-		subscribeToSongPublic: (_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
-			Effect.sync((): (() => void) => () => {
-				/* no-op cleanup */
-			}),
-		setSongLibraryEntries: (): void => {
-			/* not used in tests */
-		},
-		setSongLibraryLoading: (): void => {
-			/* not used in tests */
-		},
-		setSongLibraryError: (): void => {
-			/* not used in tests */
-		},
-		addSongLibraryEntry,
-		removeSongLibraryEntry,
-		isInSongLibrary: (): boolean => false,
-	};
-
-	function getSlice(): SongLibrarySlice {
-		return slice;
-	}
-
-	return { getSlice, addSongLibraryEntry, removeSongLibraryEntry };
-}
+// Use the reusable test slice factory which already exposes spies for add/remove
+// access the spies via `slice.addSongLibraryEntry` and `slice.removeSongLibraryEntry`
+// by creating a getter `get` using the factory.
 
 describe("handleSongLibrarySubscribeEvent", () => {
 	it("ignores payloads that do not match the realtime shape", async () => {
 		vi.resetAllMocks();
-		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
+		const get = makeSongLibrarySlice();
+		const slice = get();
 		const mockEnrichWithOwnerUsername = await spyImport(
 			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
 		);
 
-		await Effect.runPromise(handleSongLibrarySubscribeEvent({}, supabaseClient, getSlice));
+		await Effect.runPromise(handleSongLibrarySubscribeEvent({}, supabaseClient, get));
 
-		expect(addSongLibraryEntry).not.toHaveBeenCalled();
-		expect(removeSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.addSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.removeSongLibraryEntry).not.toHaveBeenCalled();
 		expect(mockEnrichWithOwnerUsername).not.toHaveBeenCalled();
 	});
 
 	it.each(["INSERT", "UPDATE"] as const)("adds a new entry for %s events", async (eventType) => {
 		vi.resetAllMocks();
-		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
-		const newEntry = { song_id: "song-123", song_owner_id: "owner-456" };
-		const enrichedEntry = { ...newEntry, owner_username: "test-user" };
+		const get = makeSongLibrarySlice();
+		const slice = get();
+		const newEntry = makeSongLibraryEntry({ song_id: "song-123", song_owner_id: "owner-456" });
+		const enrichedEntry = {
+			song_id: newEntry.song_id,
+			song_owner_id: newEntry.song_owner_id,
+			owner_username: "test-user",
+		};
 		const mockEnrichWithOwnerUsername = await spyImport(
 			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
 		);
-		const payload = { eventType, new: newEntry };
+		const payload = {
+			eventType,
+			new: { song_id: newEntry.song_id, song_owner_id: newEntry.song_owner_id },
+		};
 		mockEnrichWithOwnerUsername.mockResolvedValue(enrichedEntry);
-		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, getSlice));
+		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, get));
 		expect(mockEnrichWithOwnerUsername).toHaveBeenCalledWith(
 			supabaseClient,
-			newEntry,
+			expect.objectContaining({ song_id: newEntry.song_id, song_owner_id: newEntry.song_owner_id }),
 			"song_owner_id",
 		);
-		expect(addSongLibraryEntry).toHaveBeenCalledWith(enrichedEntry);
-		expect(removeSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.addSongLibraryEntry).toHaveBeenCalledWith(enrichedEntry);
+		expect(slice.removeSongLibraryEntry).not.toHaveBeenCalled();
 	});
 
 	it("skips inserts when payload.new is missing", async () => {
 		vi.resetAllMocks();
-		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
+		const get = makeSongLibrarySlice();
+		const slice = get();
 
 		const mockEnrichWithOwnerUsername = await spyImport(
 			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
@@ -166,16 +129,17 @@ describe("handleSongLibrarySubscribeEvent", () => {
 
 		const payload = { eventType: "INSERT" as const };
 
-		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, getSlice));
+		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, get));
 
-		expect(addSongLibraryEntry).not.toHaveBeenCalled();
-		expect(removeSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.addSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.removeSongLibraryEntry).not.toHaveBeenCalled();
 		expect(mockEnrichWithOwnerUsername).not.toHaveBeenCalled();
 	});
 
 	it("skips malformed new entries that fail validation", async () => {
 		vi.resetAllMocks();
-		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
+		const get = makeSongLibrarySlice();
+		const slice = get();
 		const mockEnrichWithOwnerUsername = await spyImport(
 			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
 		);
@@ -183,66 +147,73 @@ describe("handleSongLibrarySubscribeEvent", () => {
 
 		const payload = { eventType: "UPDATE" as const, new: malformedEntry };
 
-		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, getSlice));
+		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, get));
 
-		expect(addSongLibraryEntry).not.toHaveBeenCalled();
-		expect(removeSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.addSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.removeSongLibraryEntry).not.toHaveBeenCalled();
 		expect(mockEnrichWithOwnerUsername).not.toHaveBeenCalled();
 	});
 
 	it("removes an entry when DELETE includes a song_id", async () => {
 		vi.resetAllMocks();
-		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
+		const get = makeSongLibrarySlice();
+		const slice = get();
 		const songId = "song-789";
 
 		const payload = { eventType: "DELETE", old: { song_id: songId } };
 
-		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, getSlice));
+		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, get));
 
-		expect(removeSongLibraryEntry).toHaveBeenCalledWith(songId);
-		expect(addSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.removeSongLibraryEntry).toHaveBeenCalledWith(songId);
+		expect(slice.addSongLibraryEntry).not.toHaveBeenCalled();
 	});
 
 	it("skips removal when DELETE payload is missing song_id", async () => {
 		vi.resetAllMocks();
-		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
+		const get = makeSongLibrarySlice();
+		const slice = get();
 
 		const payload = { eventType: "DELETE", old: {} };
 
-		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, getSlice));
+		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, get));
 
-		expect(removeSongLibraryEntry).not.toHaveBeenCalled();
-		expect(addSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.removeSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.addSongLibraryEntry).not.toHaveBeenCalled();
 	});
 
 	it("skips removal when DELETE song_id is not a string", async () => {
 		vi.resetAllMocks();
-		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
+		const get = makeSongLibrarySlice();
+		const slice = get();
 
 		const payload = { eventType: "DELETE" as const, old: { song_id: 1234 } };
 
-		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, getSlice));
+		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, get));
 
-		expect(removeSongLibraryEntry).not.toHaveBeenCalled();
-		expect(addSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.removeSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.addSongLibraryEntry).not.toHaveBeenCalled();
 	});
 
 	it("fails the effect when enrichment rejects", async () => {
 		vi.resetAllMocks();
-		const { getSlice, addSongLibraryEntry, removeSongLibraryEntry } = createSliceGetter();
-		const newEntry = { song_id: "song-999", song_owner_id: "owner-000" };
+		const get = makeSongLibrarySlice();
+		const slice = get();
+		const newEntry = makeSongLibraryEntry({ song_id: "song-999", song_owner_id: "owner-000" });
 		const mockEnrichWithOwnerUsername = await spyImport(
 			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
 		);
 		mockEnrichWithOwnerUsername.mockRejectedValue(new Error("fetch failure"));
 
-		const payload = { eventType: "INSERT" as const, new: newEntry };
+		const payload = {
+			eventType: "INSERT" as const,
+			new: { song_id: newEntry.song_id, song_owner_id: newEntry.song_owner_id },
+		};
 
 		await expect(() =>
-			Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, getSlice)),
+			Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, get)),
 		).rejects.toThrow("fetch failure");
 
-		expect(addSongLibraryEntry).not.toHaveBeenCalled();
-		expect(removeSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.addSongLibraryEntry).not.toHaveBeenCalled();
+		expect(slice.removeSongLibraryEntry).not.toHaveBeenCalled();
 	});
 });

@@ -1,6 +1,5 @@
 // Mock registrations will be applied after imports to (1) satisfy import/first
 // and (2) still allow per-test mock configuration inside the tests.
-import { Effect } from "effect";
 import { setTimeout as delay } from "node:timers/promises";
 import { describe, expect, it, vi } from "vitest";
 
@@ -12,6 +11,7 @@ import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/
 
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 
+import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
 import subscribeToActivePrivateSongs from "./subscribeToActivePrivateSongs";
 
 // Register mocks for auth tokens and client modules (top-level registration is
@@ -64,28 +64,8 @@ async function flushPromises(): Promise<void> {
  * @returns a minimal `SongSubscribeSlice` suitable for tests
  */
 function makeGetWithActiveIds(ids: readonly string[]): SongSubscribeSlice {
-	return {
-		privateSongs: {},
-		publicSongs: {},
-		activePrivateSongIds: ids,
-		activePublicSongIds: [],
-		addOrUpdatePrivateSongs: () => undefined,
-		addOrUpdatePublicSongs: () => undefined,
-		addActivePrivateSongIds: (_songIds: readonly string[]) => Effect.sync(() => undefined),
-		addActivePublicSongIds: (_songIds: readonly string[]) => Effect.sync(() => undefined),
-		addActivePrivateSongSlugs: async (): Promise<void> => {
-			await Promise.resolve();
-		},
-		addActivePublicSongSlugs: async (): Promise<void> => {
-			await Promise.resolve();
-		},
-		removeActivePrivateSongIds: (_songIds: readonly string[]) => undefined,
-		removeActivePublicSongIds: (_songIds: readonly string[]) => undefined,
-		removeSongsFromCache: (_songIds: readonly string[]) => undefined,
-		subscribeToActivePrivateSongs: () => undefined,
-		subscribeToActivePublicSongs: () => undefined,
-		getSongBySlug: () => undefined,
-	};
+	const get = makeSongSubscribeSlice({ initialActivePrivateSongIds: ids });
+	return get();
 }
 
 // Ensures the factory returns a no-op unsubscribe, warns correctly when there

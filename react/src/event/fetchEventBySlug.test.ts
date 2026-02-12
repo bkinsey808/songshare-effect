@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 
-import makeGetStub from "@/react/event/slice/test-utils/makeGetEventSliceStub.mock";
+import makeEventSlice from "@/react/event/slice/makeEventSlice.mock";
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
@@ -22,7 +22,7 @@ describe("fetchEventBySlug error cases", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
 		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
 
-		const eff = fetchEventBySlug("no-client", makeGetStub());
+		const eff = fetchEventBySlug("no-client", makeEventSlice());
 
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/No Supabase client available/);
 	});
@@ -35,7 +35,7 @@ describe("fetchEventBySlug error cases", () => {
 		);
 		vi.mocked(callSelect).mockResolvedValue({ data: [] });
 
-		const eff = fetchEventBySlug("missing-slug", makeGetStub());
+		const eff = fetchEventBySlug("missing-slug", makeEventSlice());
 
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/not found/i);
 	});
@@ -70,7 +70,7 @@ describe("fetchEventBySlug success & behavior", () => {
 			.mockResolvedValueOnce({ data: [pub] })
 			.mockResolvedValueOnce({ data: [participant] });
 
-		const get = makeGetStub();
+		const get = makeEventSlice();
 		const eff = fetchEventBySlug("slug-1", get);
 
 		await expect(Effect.runPromise(eff)).resolves.toBeUndefined();
@@ -96,7 +96,7 @@ describe("fetchEventBySlug success & behavior", () => {
 		// Return an invalid public row
 		vi.mocked(callSelect).mockResolvedValueOnce({ data: [{}] });
 
-		const get = makeGetStub();
+		const get = makeEventSlice();
 		const eff = fetchEventBySlug("bad-slug", get);
 
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/Invalid event_public data/);
@@ -111,7 +111,7 @@ describe("fetchEventBySlug success & behavior", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalSupabaseClient());
 		vi.mocked(callSelect).mockRejectedValue(new Error("boom"));
 
-		const get = makeGetStub();
+		const get = makeEventSlice();
 		const eff = fetchEventBySlug("any", get);
 
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/Failed to query event_public/);

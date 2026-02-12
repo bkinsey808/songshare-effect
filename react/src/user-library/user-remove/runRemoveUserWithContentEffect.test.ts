@@ -2,6 +2,7 @@ import { Effect, type Effect as EffectType } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
+import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
 
@@ -11,11 +12,11 @@ describe("runRemoveUserWithContentEffect", () => {
 	it("resolves when underlying removal effect succeeds and doesn't log errors", async () => {
 		const userId = "u1";
 		const followedUserId = "f1";
-		const entry: UserLibraryEntry = {
+		const entry: UserLibraryEntry = makeUserLibraryEntry({
 			user_id: userId,
 			followed_user_id: followedUserId,
 			created_at: "now",
-		};
+		});
 
 		const removeFromUserLibrary = vi.fn(() => Effect.succeed(undefined));
 		const removeSongFromSongLibrary = vi.fn(() => Effect.succeed(undefined));
@@ -44,11 +45,11 @@ describe("runRemoveUserWithContentEffect", () => {
 		const userId = "u2";
 		const followedUserId = "f2";
 		const errMsg = "boom";
-		const entry: UserLibraryEntry = {
+		const entry: UserLibraryEntry = makeUserLibraryEntry({
 			user_id: userId,
 			followed_user_id: followedUserId,
 			created_at: "now",
-		};
+		});
 
 		const removeFromUserLibrary = vi.fn(() => Effect.fail(new Error(errMsg)));
 		const removeSongFromSongLibrary = vi.fn(() => Effect.succeed(undefined));
@@ -81,11 +82,11 @@ describe("runRemoveUserWithContentEffect", () => {
 		const userId = "u3";
 		const followedUserId = "f3";
 		const raw = "raw error";
-		const entry: UserLibraryEntry = {
+		const entry: UserLibraryEntry = makeUserLibraryEntry({
 			user_id: userId,
 			followed_user_id: followedUserId,
 			created_at: "now",
-		};
+		});
 
 		const removeFromUserLibrary = forceCast<
 			(params: { readonly followed_user_id: string }) => EffectType.Effect<void, Error>

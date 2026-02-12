@@ -3,7 +3,9 @@ import { MemoryRouter, useNavigate } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useHydration from "@/react/app/useHydration";
+import forceCast from "@/react/lib/test-utils/forceCast";
 import mockTranslation from "@/react/lib/test-utils/mockTranslation";
+import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 
 import DashboardPage from "./DashboardPage";
 import useDashboard from "./useDashboard";
@@ -44,7 +46,12 @@ describe("dashboard page", () => {
 					updated_at: new Date().toISOString(),
 					user_id: "00000000-0000-0000-0000-000000000000",
 				},
-				userPublic: { user_id: "00000000-0000-0000-0000-000000000000", username: "testuser" },
+				userPublic: forceCast(
+					makeUserPublic({
+						user_id: "00000000-0000-0000-0000-000000000000",
+						username: "testuser",
+					}),
+				),
 				oauthUserData: { email: "test@example.com" },
 				oauthState: { csrf: "csrf", lang: "en", provider: "google" },
 				ip: "127.0.0.1",

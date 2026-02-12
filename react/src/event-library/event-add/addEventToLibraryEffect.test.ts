@@ -1,110 +1,15 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type {
-	AddEventToLibraryRequest,
-	EventLibraryEntry,
-	RemoveEventFromLibraryRequest,
-} from "../event-library-types";
-import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";
-
+import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.mock";
+import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import addEventToLibraryEffect from "./addEventToLibraryEffect";
-
-function makeGetStub(): () => EventLibrarySlice {
-	// Internal mutable state for the fake slice
-	const state: {
-		eventLibraryEntries: Record<string, EventLibraryEntry>;
-		isEventLibraryLoading: boolean;
-		eventLibraryError?: string | undefined;
-	} = { eventLibraryEntries: {}, isEventLibraryLoading: false, eventLibraryError: undefined };
-
-	function setEventLibraryEntries(entries: Readonly<Record<string, EventLibraryEntry>>): void {
-		state.eventLibraryEntries = { ...(entries as Record<string, EventLibraryEntry>) };
-	}
-
-	function removeEventLibraryEntry(eventId: string): void {
-		state.eventLibraryEntries = Object.fromEntries(
-			Object.entries(state.eventLibraryEntries).filter(([id]) => id !== eventId),
-		) as Record<string, EventLibraryEntry>;
-	}
-
-	function isInEventLibrary(eventId: string): boolean {
-		return eventId in state.eventLibraryEntries;
-	}
-
-	const setEventLibraryError = vi.fn((err?: string) => {
-		state.eventLibraryError = err;
-	});
-
-	const addEventLibraryEntry = vi.fn((entry: EventLibraryEntry): void => {
-		state.eventLibraryEntries = { ...state.eventLibraryEntries, [entry.event_id]: entry };
-	});
-
-	function addEventToLibrary(
-		_request: Readonly<AddEventToLibraryRequest>,
-	): Effect.Effect<void, Error> {
-		return Effect.succeed(undefined);
-	}
-
-	function removeEventFromLibrary(
-		_request: Readonly<RemoveEventFromLibraryRequest>,
-	): Effect.Effect<void, Error> {
-		return Effect.succeed(undefined);
-	}
-
-	function getEventLibraryIds(): string[] {
-		return Object.keys(state.eventLibraryEntries);
-	}
-
-	function fetchEventLibrary(): Effect.Effect<void, Error> {
-		return Effect.succeed(undefined);
-	}
-
-	function subscribeToEventLibrary(): Effect.Effect<() => void, Error> {
-		return Effect.succeed((): void => undefined);
-	}
-
-	function subscribeToEventPublicForLibrary(): Effect.Effect<() => void, Error> {
-		return Effect.succeed((): void => undefined);
-	}
-
-	function setEventLibraryLoading(loading: boolean): void {
-		state.isEventLibraryLoading = loading;
-	}
-
-	const slice: EventLibrarySlice = {
-		get eventLibraryEntries() {
-			return state.eventLibraryEntries;
-		},
-		get isEventLibraryLoading() {
-			return state.isEventLibraryLoading;
-		},
-		get eventLibraryError() {
-			return state.eventLibraryError;
-		},
-
-		addEventToLibrary,
-		removeEventFromLibrary,
-		isInEventLibrary,
-		getEventLibraryIds,
-		fetchEventLibrary,
-		subscribeToEventLibrary,
-		subscribeToEventPublicForLibrary,
-		setEventLibraryEntries,
-		setEventLibraryLoading,
-		setEventLibraryError,
-		addEventLibraryEntry,
-		removeEventLibraryEntry,
-	};
-
-	return () => slice;
-}
 
 describe("addEventToLibraryEffect", () => {
 	it("throws on invalid request and sets error", async () => {
 		vi.resetAllMocks();
 
-		const get = makeGetStub();
+		const get = makeEventLibrarySlice();
 		// @ts-expect-error: intentionally pass invalid shape to trigger validation
 		const eff = addEventToLibraryEffect({}, get);
 
@@ -121,7 +26,7 @@ describe("addEventToLibraryEffect", () => {
 		vi.resetAllMocks();
 		const spyWarn = vi.spyOn(console, "warn").mockImplementation(vi.fn());
 
-		const get = makeGetStub();
+		const get = makeEventLibrarySlice();
 		Object.assign(get(), { isInEventLibrary: vi.fn().mockReturnValue(true) });
 
 		// stub fetch so we can assert it was NOT called
@@ -140,7 +45,7 @@ describe("addEventToLibraryEffect", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network fail")));
 
-		const get = makeGetStub();
+		const get = makeEventLibrarySlice();
 		const eff = addEventToLibraryEffect({ event_id: "e1" }, get);
 
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/network fail/);
@@ -156,7 +61,7 @@ describe("addEventToLibraryEffect", () => {
 				.mockResolvedValue(Response.json({ error: "bad" }, { status: 400, statusText: "Bad" })),
 		);
 
-		const get = makeGetStub();
+		const get = makeEventLibrarySlice();
 		const eff = addEventToLibraryEffect({ event_id: "e1" }, get);
 
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/bad/);
@@ -165,18 +70,13 @@ describe("addEventToLibraryEffect", () => {
 
 	it("adds entry on success and clears error", async () => {
 		vi.resetAllMocks();
-		const entry = {
-			user_id: "u1",
-			event_id: "e1",
-			event_owner_id: "owner1",
-			created_at: "2020-01-01",
-		};
+		const entry = makeEventLibraryEntry();
 		vi.stubGlobal(
 			"fetch",
 			vi.fn().mockResolvedValue(Response.json({ data: entry }, { status: 200 })),
 		);
 
-		const get = makeGetStub();
+		const get = makeEventLibrarySlice();
 		const eff = addEventToLibraryEffect({ event_id: "e1" }, get);
 
 		await expect(Effect.runPromise(eff)).resolves.toBeUndefined();
@@ -196,7 +96,7 @@ describe("addEventToLibraryEffect", () => {
 		const spyWarn = vi.spyOn(console, "warn").mockImplementation(vi.fn());
 
 		const addEntryMock = vi.fn();
-		const get = makeGetStub();
+		const get = makeEventLibrarySlice();
 		Object.assign(get(), { addEventLibraryEntry: addEntryMock });
 		const eff = addEventToLibraryEffect({ event_id: "e1" }, get);
 

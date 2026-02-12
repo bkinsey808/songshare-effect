@@ -1,6 +1,8 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
+
 import type { UserLibraryEntry } from "../slice/user-library-types";
 
 import runRemoveUserFromCardEffect from "./runRemoveUserFromCardEffect";
@@ -15,11 +17,11 @@ describe("runRemoveUserFromCardEffect", () => {
 
 		const userId = "u1";
 		const followedUserId = "f1";
-		const entry: UserLibraryEntry = {
+		const entry: UserLibraryEntry = makeUserLibraryEntry({
 			user_id: userId,
 			followed_user_id: followedUserId,
 			created_at: "now",
-		};
+		});
 
 		const setIsConfirming = vi.fn();
 		const setIsRemoving = vi.fn();
@@ -51,11 +53,11 @@ describe("runRemoveUserFromCardEffect", () => {
 
 		const userId = "u2";
 		const followedUserId = "f2";
-		const entry: UserLibraryEntry = {
+		const entry: UserLibraryEntry = makeUserLibraryEntry({
 			user_id: userId,
 			followed_user_id: followedUserId,
 			created_at: "now",
-		};
+		});
 
 		const setIsConfirming = vi.fn();
 		const setIsRemoving = vi.fn();

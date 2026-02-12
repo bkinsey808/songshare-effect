@@ -4,15 +4,15 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiEventSavePath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import type { SaveEventRequest } from "./event-types";
-import type { EventSlice } from "./slice/EventSlice.type";
+import type { SaveEventRequest } from "../event-types";
+import type { EventSlice } from "../slice/EventSlice.type";
 
 import {
 	EventSaveApiError,
 	EventSaveInvalidResponseError,
 	EventSaveNetworkError,
 	type EventError,
-} from "./event-errors";
+} from "../event-errors";
 
 /**
  * Save an event (create or update) by calling the API endpoint.

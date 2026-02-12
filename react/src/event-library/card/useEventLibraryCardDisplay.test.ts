@@ -8,34 +8,15 @@ import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
 import mockUseTranslation from "@/react/lib/test-utils/mockUseTranslation";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
-import type { EventLibraryEntry } from "../event-library-types";
-
+import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import useEventLibraryCardDisplay from "./useEventLibraryCardDisplay";
 
 vi.mock("react-i18next");
 vi.mock("@/react/auth/useCurrentUserId");
 
-function makeEntry(overrides: Partial<EventLibraryEntry> = {}): EventLibraryEntry {
-	return {
-		user_id: "u1",
-		event_id: "e1",
-		event_owner_id: "owner-1",
-		created_at: "2020-01-01T00:00:00.000Z",
-		event: overrides.event ?? {
-			event_id: "e1",
-			created_at: "2020-01-01T00:00:00.000Z",
-			owner_id: "owner-1",
-			private_notes: "",
-			updated_at: "2020-01-01T00:00:00.000Z",
-			owner_username: "owner_user",
-		},
-		...overrides,
-	};
-}
-
 describe("useEventLibraryCardDisplay", () => {
 	it("marks entry as owned and calls onDeleteClick when primary clicked", () => {
-		const entry = makeEntry();
+		const entry = makeEventLibraryEntry();
 		const onDeleteClick = vi.fn();
 		mockUseTranslation();
 
@@ -67,7 +48,7 @@ describe("useEventLibraryCardDisplay", () => {
 	});
 
 	it("calls removeFromEventLibrary when not owned", () => {
-		const entry = makeEntry();
+		const entry = makeEventLibraryEntry();
 		const onDeleteClick = vi.fn();
 		mockUseTranslation();
 

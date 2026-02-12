@@ -8,6 +8,7 @@ import type { AppSlice } from "@/react/app-store/AppSlice.type";
 
 import { resetAllSlices } from "@/react/app-store/slice-reset-fns";
 import useAppStore from "@/react/app-store/useAppStore";
+import makeEventLibraryEntry from "@/react/event-library/test-utils/makeEventLibraryEntry.mock";
 import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
 import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
 import delay from "@/shared/utils/delay";
@@ -79,22 +80,22 @@ describe("useEventLibrary", () => {
 		const subscribeToEventPublicForLibrary = vi
 			.fn()
 			.mockImplementation(() => Effect.sync(() => undefined));
-		const entriesRecord: AppSlice["eventLibraryEntries"] = {
-			[TEST_EVENT_ID]: {
+		const entry = makeEventLibraryEntry({
+			event_id: TEST_EVENT_ID,
+			created_at: TEST_CREATED_AT,
+			user_id: "00000000-0000-0000-0000-000000000002",
+			event_owner_id: "00000000-0000-0000-0000-000000000001",
+			// include a minimal `event` shape matching existing tests
+			event: {
 				event_id: TEST_EVENT_ID,
+				owner_id: "00000000-0000-0000-0000-000000000001",
 				created_at: TEST_CREATED_AT,
-				user_id: "00000000-0000-0000-0000-000000000002",
-				event_owner_id: "00000000-0000-0000-0000-000000000001",
-				// minimal event object shape used by tests
-				event: {
-					event_id: TEST_EVENT_ID,
-					owner_id: "00000000-0000-0000-0000-000000000001",
-					created_at: TEST_CREATED_AT,
-					updated_at: TEST_CREATED_AT,
-					private_notes: "notes",
-				},
+				updated_at: TEST_CREATED_AT,
+				private_notes: "notes",
 			},
-		};
+		});
+
+		const entriesRecord: AppSlice["eventLibraryEntries"] = { [TEST_EVENT_ID]: entry };
 
 		resetAllSlices();
 		const store = useAppStore;

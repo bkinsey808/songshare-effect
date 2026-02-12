@@ -7,7 +7,7 @@ import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/con
 import { apiMePath } from "@/shared/paths";
 import { type UserSessionData } from "@/shared/userSessionData";
 
-import parseUserSessionData from "./parseUserSessionData";
+import parseUserSessionData from "../parseUserSessionData";
 
 // Module-level in-flight promise to dedupe concurrent requests.
 // Initialized to undefined to satisfy init-declarations lint rule

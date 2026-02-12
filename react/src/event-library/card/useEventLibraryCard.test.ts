@@ -5,31 +5,12 @@ import { describe, expect, it, vi } from "vitest";
 import useAppStore from "@/react/app-store/useAppStore";
 import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
 
-import type { EventLibraryEntry } from "../event-library-types";
-
+import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import useEventLibraryCard from "./useEventLibraryCard";
-
-function makeEntry(overrides: Partial<EventLibraryEntry> = {}): EventLibraryEntry {
-	return {
-		user_id: "u1",
-		event_id: "e1",
-		event_owner_id: "owner-1",
-		created_at: "2020-01-01T00:00:00.000Z",
-		event: overrides.event ?? {
-			event_id: "e1",
-			created_at: "2020-01-01T00:00:00.000Z",
-			owner_id: "owner-1",
-			private_notes: "",
-			updated_at: "2020-01-01T00:00:00.000Z",
-			owner_username: "owner_user",
-		},
-		...overrides,
-	};
-}
 
 describe("useEventLibraryCard", () => {
 	it("start and cancel confirming toggle isConfirming", async () => {
-		const entry = makeEntry();
+		const entry = makeEventLibraryEntry();
 		useAppStore.setState(makeAppSlice({ removeEventFromLibrary: () => Effect.succeed(undefined) }));
 
 		const { result } = renderHook(() => useEventLibraryCard({ entry }));
@@ -49,7 +30,7 @@ describe("useEventLibraryCard", () => {
 	});
 
 	it("handleConfirm calls remove and resets state on success", async () => {
-		const entry = makeEntry();
+		const entry = makeEventLibraryEntry();
 		const removeSpy = vi.fn(() => Effect.succeed(undefined));
 		useAppStore.setState(makeAppSlice({ removeEventFromLibrary: removeSpy }));
 
@@ -71,7 +52,7 @@ describe("useEventLibraryCard", () => {
 	});
 
 	it("handleConfirm resets state on failure", async () => {
-		const entry = makeEntry();
+		const entry = makeEventLibraryEntry();
 		const removeSpy = vi.fn(() => Effect.fail(new Error("fail")));
 		useAppStore.setState(makeAppSlice({ removeEventFromLibrary: removeSpy }));
 
@@ -86,8 +67,9 @@ describe("useEventLibraryCard", () => {
 
 		await waitFor(() => {
 			expect(result.current.isDeleting).toBe(false);
+			expect(result.current.isConfirming).toBe(false);
 		});
+
 		expect(removeSpy).toHaveBeenCalledWith({ event_id: entry.event_id });
-		expect(result.current.isConfirming).toBe(false);
 	});
 });

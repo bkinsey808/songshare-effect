@@ -1,11 +1,11 @@
-import type { EventEntry } from "@/react/event/event-types";
-
 import forceCast from "@/react/lib/test-utils/forceCast";
+
+import type { EventEntry } from "./EventEntry.type";
 
 /**
  * Test helper to construct a minimal EventEntry.
  */
-export default function makeTestEvent(overrides: Partial<EventEntry> = {}): EventEntry {
+export default function makeEventEntry(overrides: Partial<EventEntry> = {}): EventEntry {
 	return forceCast<EventEntry>({
 		event_id: "e1",
 		owner_id: "u1",

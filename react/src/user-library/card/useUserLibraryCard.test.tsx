@@ -1,7 +1,8 @@
-import { renderHook } from "@testing-library/react";
+import { renderHook, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
-import { act } from "react";
 import { describe, expect, it, vi } from "vitest";
+
+import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
 
@@ -39,13 +40,9 @@ vi.mock(
 );
 
 describe("useUserLibraryCard", () => {
-	const entry: UserLibraryEntry = {
-		user_id: "u1",
-		followed_user_id: "u1",
-		created_at: new Date().toISOString(),
-	};
+	const entry: UserLibraryEntry = makeUserLibraryEntry({ user_id: "u1", followed_user_id: "u1" });
 
-	it("starts with confirming=false and removing=false and toggles correctly", () => {
+	it("starts with confirming=false and removing=false and toggles correctly", async () => {
 		const { result } = renderHook(() =>
 			useUserLibraryCard({ entry, songsOwnedByUser: [], playlistsOwnedByUser: [] }),
 		);
@@ -53,17 +50,17 @@ describe("useUserLibraryCard", () => {
 		expect(result.current.isConfirming).toBe(false);
 		expect(result.current.isRemoving).toBe(false);
 
-		act(() => {
-			result.current.startConfirming();
+		result.current.startConfirming();
+
+		await waitFor(() => {
+			expect(result.current.isConfirming).toBe(true);
 		});
 
-		expect(result.current.isConfirming).toBe(true);
+		result.current.cancelConfirming();
 
-		act(() => {
-			result.current.cancelConfirming();
+		await waitFor(() => {
+			expect(result.current.isConfirming).toBe(false);
 		});
-
-		expect(result.current.isConfirming).toBe(false);
 	});
 
 	it("calls Effect.runPromise when confirming removal", () => {

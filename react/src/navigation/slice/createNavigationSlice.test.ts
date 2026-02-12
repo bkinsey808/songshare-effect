@@ -1,12 +1,13 @@
-import { expect, it, describe } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import type { Set, Get, Api } from "@/react/app-store/app-store-types";
+import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 
 import { resetAllSlices, sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
 import type { NavigationSlice } from "./NavigationSlice.type";
 
 import createNavigationSlice from "./createNavigationSlice";
+import makeNavigationSlice from "./makeNavigationSlice.mock";
 
 function makeStore(): {
 	set: Set<NavigationSlice>;
@@ -14,22 +15,29 @@ function makeStore(): {
 	stateRef: () => NavigationSlice;
 	api: Api<NavigationSlice>;
 } {
-	let state: NavigationSlice = {
-		isHeaderActionsExpanded: true,
-		setHeaderActionsExpanded: () => undefined,
-		toggleHeaderActions: () => undefined,
-	};
+	const getStub = makeNavigationSlice();
+	const state = getStub();
 
 	function set(
 		partialOrFn:
 			| Partial<NavigationSlice>
 			| ((previous: NavigationSlice) => Partial<NavigationSlice>),
 	): void {
+		function applyPatch(patch: Partial<NavigationSlice>): void {
+			if (Object.hasOwn(patch, "isHeaderActionsExpanded")) {
+				// Use the public setter to update the getter-only property
+				const val = patch.isHeaderActionsExpanded;
+				if (typeof val === "boolean") {
+					state.setHeaderActionsExpanded(val);
+				}
+			}
+		}
+
 		if (typeof partialOrFn === "function") {
 			const patch = (partialOrFn as (previous: NavigationSlice) => Partial<NavigationSlice>)(state);
-			state = { ...state, ...patch };
+			applyPatch(patch);
 		} else {
-			state = { ...state, ...partialOrFn };
+			applyPatch(partialOrFn);
 		}
 	}
 

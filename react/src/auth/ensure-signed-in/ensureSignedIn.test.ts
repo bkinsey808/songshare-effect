@@ -3,12 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import forceCast from "@/react/lib/test-utils/forceCast";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
 
-import makeAppSlice from "../lib/test-utils/makeAppSlice";
+import makeAppSlice from "../../lib/test-utils/makeAppSlice";
 import ensureSignedIn from "./ensureSignedIn";
-import parseUserSessionData from "./parseUserSessionData";
 
 vi.mock("@/react/app-store/useAppStore", (): { default: { getState: () => unknown } } => ({
 	default: { getState: vi.fn() },
@@ -42,14 +43,28 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 		updated_at: "2026-01-01T00:00:00Z",
 		user_id: "u1",
 	},
-	userPublic: { user_id: "u1", username: "u1" },
+	userPublic: forceCast(makeUserPublic({ user_id: "u1", username: "u1" })),
 	oauthUserData: { email: "u@example.com" },
 	oauthState: { csrf: "x", lang: "en", provider: "google" },
 	ip: "127.0.0.1",
 };
 
 const mockedUseAppStore = vi.mocked(useAppStore);
-const mockedParse = vi.mocked(parseUserSessionData);
+
+// Typed helper shape for the `parseUserSessionData` spy used in tests.
+type ParseMock = {
+	mockReturnValue: (value: unknown) => void;
+	mockImplementation: (...args: unknown[]) => unknown;
+};
+
+// Helper to obtain a fresh mocked parse function from the mocked module so
+// tests don't rely on a potentially stale top-level reference.
+// Use `spyImport` which returns a Spy-like helper we can call directly.
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+async function getParseMock(): Promise<ParseMock> {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	return (await spyImport("@/react/auth/parseUserSessionData", "default")) as unknown as ParseMock;
+}
 
 // Helper to create a spy for clientError at test-time without wildcard imports
 type ClientErrorSpy = {
@@ -65,6 +80,16 @@ type GetCachedUserTokenSpy = {
 	mockReturnValueOnce?: (token: string | undefined) => void;
 	mockResolvedValue?: (token: string | undefined) => void;
 };
+
+// Helper to return a typed spy for `getCachedUserToken`.
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+async function getCachedUserTokenSpy(): Promise<GetCachedUserTokenSpy> {
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	return (await spyImport(
+		"@/react/lib/supabase/token/tokenCache",
+		"getCachedUserToken",
+	)) as unknown as GetCachedUserTokenSpy;
+}
 
 async function spyClientError(): Promise<ClientErrorSpy> {
 	const mod = await import("@/react/lib/utils/clientLogger");
@@ -82,11 +107,7 @@ describe("ensureSignedIn", () => {
 	it("returns undefined immediately when store indicates signed out", async () => {
 		vi.resetAllMocks();
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		const mockedGetCachedUserTokenSpy = (await spyImport(
-			"@/react/lib/supabase/token/tokenCache",
-			"getCachedUserToken",
-		)) as unknown as GetCachedUserTokenSpy;
+		const mockedGetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy.mockReturnValue(undefined);
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi.fn();
@@ -103,11 +124,7 @@ describe("ensureSignedIn", () => {
 
 	it("returns undefined immediately when signed in and cached token exists", async () => {
 		vi.resetAllMocks();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		const mockedGetCachedUserTokenSpy = (await spyImport(
-			"@/react/lib/supabase/token/tokenCache",
-			"getCachedUserToken",
-		)) as unknown as GetCachedUserTokenSpy;
+		const mockedGetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy.mockReturnValue("token-123");
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi.fn();
@@ -126,11 +143,7 @@ describe("ensureSignedIn", () => {
 		"treats %s as not signed in and sets isSignedIn(false)",
 		async (statusCode) => {
 			vi.resetAllMocks();
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-			const mockedGetCachedUserTokenSpy = (await spyImport(
-				"@/react/lib/supabase/token/tokenCache",
-				"getCachedUserToken",
-			)) as unknown as GetCachedUserTokenSpy;
+			const mockedGetCachedUserTokenSpy = await getCachedUserTokenSpy();
 			mockedGetCachedUserTokenSpy.mockReturnValue(undefined);
 			const setIsSignedIn = vi.fn();
 			vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
@@ -148,11 +161,7 @@ describe("ensureSignedIn", () => {
 
 	it("logs and sets signed out for server errors (non-ok) other than common unauthenticated statuses", async () => {
 		vi.resetAllMocks();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		const mockedGetCachedUserTokenSpyA = (await spyImport(
-			"@/react/lib/supabase/token/tokenCache",
-			"getCachedUserToken",
-		)) as unknown as GetCachedUserTokenSpy;
+		const mockedGetCachedUserTokenSpyA = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpyA.mockReturnValue(undefined);
 		const setIsSignedIn = vi.fn();
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
@@ -170,11 +179,7 @@ describe("ensureSignedIn", () => {
 
 	it("handles json parse errors gracefully and logs them", async () => {
 		vi.resetAllMocks();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		const mockedGetCachedUserTokenSpyB = (await spyImport(
-			"@/react/lib/supabase/token/tokenCache",
-			"getCachedUserToken",
-		)) as unknown as GetCachedUserTokenSpy;
+		const mockedGetCachedUserTokenSpyB = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpyB.mockReturnValue(undefined);
 		const store = { isSignedIn: undefined, signIn: vi.fn(), setIsSignedIn: vi.fn() };
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() => makeAppSlice({ ...store }));
@@ -197,11 +202,7 @@ describe("ensureSignedIn", () => {
 
 	it("applies signIn and sets signed in when payload parses to data", async () => {
 		vi.resetAllMocks();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		const mockedGetCachedUserTokenSpy = (await spyImport(
-			"@/react/lib/supabase/token/tokenCache",
-			"getCachedUserToken",
-		)) as unknown as GetCachedUserTokenSpy;
+		const mockedGetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy.mockReturnValue(undefined);
 		const signIn = vi.fn();
 		const setIsSignedIn = vi.fn();
@@ -219,7 +220,8 @@ describe("ensureSignedIn", () => {
 			.fn()
 			.mockResolvedValue({ status: 200, ok: true, json: vi.fn().mockResolvedValue(payload) });
 		vi.stubGlobal("fetch", fetchMock);
-		mockedParse.mockReturnValue(data);
+		const parseMock = await getParseMock();
+		parseMock.mockReturnValue(data);
 
 		const res = await ensureSignedIn();
 		expect(res).toBe(data);
@@ -230,11 +232,7 @@ describe("ensureSignedIn", () => {
 
 	it("logs when signIn throws but continues", async () => {
 		vi.resetAllMocks();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		const mockedGetCachedUserTokenSpy2 = (await spyImport(
-			"@/react/lib/supabase/token/tokenCache",
-			"getCachedUserToken",
-		)) as unknown as GetCachedUserTokenSpy;
+		const mockedGetCachedUserTokenSpy2 = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy2.mockReturnValue(undefined);
 		const signIn = vi.fn(() => {
 			throw new Error("sign fail");
@@ -254,7 +252,8 @@ describe("ensureSignedIn", () => {
 			.fn()
 			.mockResolvedValue({ status: 200, ok: true, json: vi.fn().mockResolvedValue(payload) });
 		vi.stubGlobal("fetch", fetchMock);
-		mockedParse.mockReturnValue(data);
+		const parseMock = await getParseMock();
+		parseMock.mockReturnValue(data);
 
 		const mockedClientError = await spyClientError();
 		const res = await ensureSignedIn();
@@ -266,11 +265,7 @@ describe("ensureSignedIn", () => {
 
 	it("handles parseUserSessionData throwing by logging and returning undefined", async () => {
 		vi.resetAllMocks();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		const mockedGetCachedUserTokenSpy3 = (await spyImport(
-			"@/react/lib/supabase/token/tokenCache",
-			"getCachedUserToken",
-		)) as unknown as GetCachedUserTokenSpy;
+		const mockedGetCachedUserTokenSpy3 = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy3.mockReturnValue(undefined);
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
 			makeAppSlice({ isSignedIn: undefined }),
@@ -280,7 +275,8 @@ describe("ensureSignedIn", () => {
 			.fn()
 			.mockResolvedValue({ status: 200, ok: true, json: vi.fn().mockResolvedValue({}) });
 		vi.stubGlobal("fetch", fetchMock);
-		mockedParse.mockImplementation(() => {
+		const parseMock = await getParseMock();
+		parseMock.mockImplementation(() => {
 			throw new Error("parse failed");
 		});
 
@@ -293,11 +289,7 @@ describe("ensureSignedIn", () => {
 
 	it("returns undefined on AbortError without logging an error", async () => {
 		vi.resetAllMocks();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		const mockedGetCachedUserTokenSpy4 = (await spyImport(
-			"@/react/lib/supabase/token/tokenCache",
-			"getCachedUserToken",
-		)) as unknown as GetCachedUserTokenSpy;
+		const mockedGetCachedUserTokenSpy4 = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy4.mockReturnValue(undefined);
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
 			makeAppSlice({ isSignedIn: undefined }),
@@ -315,11 +307,7 @@ describe("ensureSignedIn", () => {
 
 	it("dedupes concurrent requests using globalInFlight", async () => {
 		vi.resetAllMocks();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		const mockedGetCachedUserTokenSpy5 = (await spyImport(
-			"@/react/lib/supabase/token/tokenCache",
-			"getCachedUserToken",
-		)) as unknown as GetCachedUserTokenSpy;
+		const mockedGetCachedUserTokenSpy5 = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy5.mockReturnValue(undefined);
 		const signIn = vi.fn();
 		const setIsSignedIn = vi.fn();

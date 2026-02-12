@@ -5,30 +5,10 @@ import { describe, expect, it, vi } from "vitest";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
-import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
-
+import makeUserLibrarySlice from "../slice/makeUserLibrarySlice.mock";
 import subscribeToUserLibrary from "./subscribeToUserLibraryEffect";
 
-function createMockSlice(): UserLibrarySlice {
-	const slice: UserLibrarySlice = {
-		userLibraryEntries: {},
-		isUserLibraryLoading: false,
-		userLibraryError: undefined,
-		setUserLibraryError: () => undefined,
-		isInUserLibrary: () => false,
-		addUserToLibrary: () => Effect.sync(() => undefined),
-		removeUserFromLibrary: () => Effect.sync(() => undefined),
-		getUserLibraryIds: () => [],
-		fetchUserLibrary: () => Effect.sync(() => undefined),
-		subscribeToUserLibrary: () => Effect.sync(() => (): void => undefined),
-		subscribeToUserPublicForLibrary: () => Effect.sync(() => (): void => undefined),
-		setUserLibraryEntries: () => undefined,
-		setUserLibraryLoading: () => undefined,
-		addUserLibraryEntry: () => undefined,
-		removeUserLibraryEntry: () => undefined,
-	};
-	return slice;
-}
+// Use shared test helper for slice
 
 describe("subscribeToUserLibraryEffect", () => {
 	it("creates a realtime subscription and returns cleanup", async () => {
@@ -45,10 +25,7 @@ describe("subscribeToUserLibraryEffect", () => {
 		const cleanupFn: () => void = vi.fn();
 		const createRealtimeMock = vi.spyOn(createRealtimeModule, "default").mockReturnValue(cleanupFn);
 
-		const slice = createMockSlice();
-		function get(): UserLibrarySlice {
-			return slice;
-		}
+		const get = makeUserLibrarySlice();
 
 		const cleanup = await Effect.runPromise(subscribeToUserLibrary(get));
 
@@ -77,10 +54,7 @@ describe("subscribeToUserLibraryEffect", () => {
 		vi.spyOn(auth, "default").mockResolvedValue("token-xyz");
 		vi.spyOn(client, "default").mockReturnValue(undefined);
 
-		const slice = createMockSlice();
-		function get(): UserLibrarySlice {
-			return slice;
-		}
+		const get = makeUserLibrarySlice();
 
 		await expect(Effect.runPromise(subscribeToUserLibrary(get))).rejects.toThrow(
 			/No Supabase client available/,

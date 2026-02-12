@@ -1,10 +1,10 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import makeGetStub from "@/react/event/slice/test-utils/makeGetEventSliceStub.mock";
+import makeEventSlice from "@/react/event/slice/makeEventSlice.mock";
 import mockFetchResponse from "@/react/lib/test-utils/mockFetchResponse";
 
-import type { SaveEventRequest } from "./event-types";
+import type { SaveEventRequest } from "../event-types";
 
 import saveEvent from "./saveEvent";
 
@@ -18,7 +18,7 @@ describe("saveEvent error cases", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network fail")));
 
-		const eff = saveEvent(sampleRequest, makeGetStub());
+		const eff = saveEvent(sampleRequest, makeEventSlice());
 
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/Network error/);
 	});
@@ -35,7 +35,7 @@ describe("saveEvent error cases", () => {
 			),
 		);
 
-		const eff = saveEvent(sampleRequest, makeGetStub());
+		const eff = saveEvent(sampleRequest, makeEventSlice());
 		const promise = Effect.runPromise(eff);
 
 		await expect(promise).rejects.toThrow(/Failed to save event/);
@@ -54,7 +54,7 @@ describe("saveEvent error cases", () => {
 			),
 		);
 
-		const eff = saveEvent(sampleRequest, makeGetStub());
+		const eff = saveEvent(sampleRequest, makeEventSlice());
 		const promise = Effect.runPromise(eff);
 
 		await expect(promise).rejects.toThrow(/Invalid response/);
@@ -64,7 +64,7 @@ describe("saveEvent error cases", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockFetchResponse({ data: {} })));
 
-		const eff = saveEvent(sampleRequest, makeGetStub());
+		const eff = saveEvent(sampleRequest, makeEventSlice());
 		const promise = Effect.runPromise(eff);
 
 		await expect(promise).rejects.toThrow(/Invalid response/);
@@ -77,7 +77,7 @@ describe("saveEvent error cases", () => {
 			vi.fn().mockResolvedValue(mockFetchResponse({ data: { event_id: "abc-123" } })),
 		);
 
-		const get = makeGetStub();
+		const get = makeEventSlice();
 		const eff = saveEvent(sampleRequest, get);
 
 		await expect(Effect.runPromise(eff)).resolves.toBe("abc-123");

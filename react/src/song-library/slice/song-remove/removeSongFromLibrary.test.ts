@@ -4,9 +4,9 @@ import { describe, expect, it, vi } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
-import type { SongLibrarySlice } from "../song-library-slice";
 import type { RemoveSongFromSongLibraryRequest } from "../song-library-types";
 
+import makeSongLibrarySlice from "../makeSongLibrarySlice.mock";
 import removeSongFromSongLibrary from "./removeSongFromLibrary";
 const unsafeAs = forceCast;
 
@@ -31,35 +31,12 @@ const VALID_REQUEST: RemoveSongFromSongLibraryRequest = {
 	song_id: SONG_ID,
 };
 
-function createMockSlice(overrides: Partial<SongLibrarySlice> = {}): SongLibrarySlice {
-	const baseSlice: SongLibrarySlice = {
-		songLibraryEntries: {},
-		isSongLibraryLoading: false,
-		songLibraryError: undefined,
-		isInSongLibrary: vi.fn(() => true),
-		setSongLibraryError: vi.fn(),
-		addSongLibraryEntry: vi.fn(),
-		removeSongLibraryEntry: vi.fn(),
-		addSongToSongLibrary: () => Effect.sync(() => undefined),
-		removeSongFromSongLibrary: () => Effect.sync(() => undefined),
-		fetchSongLibrary: () => Effect.sync(() => undefined),
-		getSongLibrarySongIds: vi.fn(() => []),
-		subscribeToSongLibrary: vi.fn(
-			(): Effect.Effect<() => void, Error> => Effect.sync(() => (): void => undefined),
-		),
-		subscribeToSongPublic: vi.fn(
-			(_songIds: readonly string[]): Effect.Effect<() => void, Error> =>
-				Effect.sync(() => (): void => undefined),
-		),
-		setSongLibraryEntries: vi.fn(),
-		setSongLibraryLoading: vi.fn(),
-	};
-	return { ...baseSlice, ...overrides };
-}
+// Use shared test helper `makeSongLibrarySlice` directly in tests
 
 describe("removeSongFromSongLibrary", () => {
 	it("removes a song successfully and updates local state", async () => {
-		const mockSlice = createMockSlice();
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
 
 		const getSupabaseAuthTokenModule =
@@ -91,9 +68,8 @@ describe("removeSongFromSongLibrary", () => {
 	});
 
 	it("skips removing a song that is not in the library", async () => {
-		const mockSlice = createMockSlice({
-			isInSongLibrary: vi.fn(() => false),
-		});
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => false) };
 		const get = vi.fn(() => mockSlice);
 
 		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));
@@ -102,7 +78,8 @@ describe("removeSongFromSongLibrary", () => {
 	});
 
 	it("throws when request validation fails", async () => {
-		const mockSlice = createMockSlice();
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
 
 		const invalidRequest = forceCast<RemoveSongFromSongLibraryRequest>({}); // Missing song_id
@@ -117,7 +94,8 @@ describe("removeSongFromSongLibrary", () => {
 	});
 
 	it("throws when auth token fetch fails", async () => {
-		const mockSlice = createMockSlice();
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
 
 		const mockGetSupabaseAuthToken = forceCast<TestSpy>(
@@ -135,7 +113,8 @@ describe("removeSongFromSongLibrary", () => {
 	});
 
 	it("throws when no Supabase client available", async () => {
-		const mockSlice = createMockSlice();
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
 
 		const mockGetSupabaseAuthToken = forceCast<TestSpy>(
@@ -158,7 +137,8 @@ describe("removeSongFromSongLibrary", () => {
 	});
 
 	it("throws when delete fails with server error", async () => {
-		const mockSlice = createMockSlice();
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
 
 		const getSupabaseAuthTokenModule =
@@ -188,7 +168,8 @@ describe("removeSongFromSongLibrary", () => {
 	});
 
 	it("sends correct delete request to Supabase", async () => {
-		const mockSlice = createMockSlice();
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
 
 		const getSupabaseAuthTokenModule =
@@ -218,9 +199,8 @@ describe("removeSongFromSongLibrary", () => {
 	});
 
 	it("clears previous errors before operation", async () => {
-		const mockSlice = createMockSlice({
-			songLibraryError: "Previous error",
-		});
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), songLibraryError: "Previous error" };
 		const get = vi.fn(() => mockSlice);
 
 		const getSupabaseAuthTokenModule =
@@ -248,7 +228,8 @@ describe("removeSongFromSongLibrary", () => {
 	});
 
 	it("handles invalid Supabase client response", async () => {
-		const mockSlice = createMockSlice();
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
 
 		const getSupabaseAuthTokenModule =
@@ -278,7 +259,8 @@ describe("removeSongFromSongLibrary", () => {
 	});
 
 	it("removes from local state after successful delete", async () => {
-		const mockSlice = createMockSlice();
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
 
 		const getSupabaseAuthTokenModule =

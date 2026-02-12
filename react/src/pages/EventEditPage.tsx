@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 
-import EventForm from "../event/edit/EventForm";
+import EventForm from "../event/form/EventForm";
 
 /**
  * Page wrapper that renders the event edit form used for creating and

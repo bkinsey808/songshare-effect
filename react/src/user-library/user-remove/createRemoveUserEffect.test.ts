@@ -1,6 +1,8 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
+
 import type { UserLibraryEntry } from "../slice/user-library-types";
 
 import createRemoveUserEffect from "./createRemoveUserEffect";
@@ -9,11 +11,11 @@ describe("createRemoveUserEffect", () => {
 	it("removes user only when there are no songs/playlists", async () => {
 		const userId = "u1";
 		const followedUserId = "f1";
-		const entry: UserLibraryEntry = {
+		const entry: UserLibraryEntry = makeUserLibraryEntry({
 			user_id: userId,
 			followed_user_id: followedUserId,
 			created_at: "now",
-		};
+		});
 
 		const removeFromUserLibrary = vi.fn(() => Effect.succeed(undefined));
 		const removeSongFromSongLibrary = vi.fn(() => Effect.succeed(undefined));
@@ -42,11 +44,11 @@ describe("createRemoveUserEffect", () => {
 		const songId2 = "s2";
 		const playlistId1 = "p1";
 
-		const entry: UserLibraryEntry = {
+		const entry: UserLibraryEntry = makeUserLibraryEntry({
 			user_id: userId,
 			followed_user_id: followedUserId,
 			created_at: "now",
-		};
+		});
 
 		const removeFromUserLibrary = vi.fn(() => Effect.succeed(undefined));
 		const removeSongFromSongLibrary = vi.fn(() => Effect.succeed(undefined));
@@ -80,11 +82,11 @@ describe("createRemoveUserEffect", () => {
 		const songBad = "bad";
 		const playlistOk = "p-ok";
 
-		const entry: UserLibraryEntry = {
+		const entry: UserLibraryEntry = makeUserLibraryEntry({
 			user_id: userId,
 			followed_user_id: followedUserId,
 			created_at: "now",
-		};
+		});
 
 		const removeFromUserLibrary = vi.fn(() => Effect.succeed(undefined));
 		const removeSongFromSongLibrary = vi
@@ -119,11 +121,11 @@ describe("createRemoveUserEffect", () => {
 		const songId = "s1";
 		const playlistId = "p1";
 
-		const entry: UserLibraryEntry = {
+		const entry: UserLibraryEntry = makeUserLibraryEntry({
 			user_id: userId,
 			followed_user_id: followedUserId,
 			created_at: "now",
-		};
+		});
 
 		const removeFromUserLibrary = vi.fn(() => Effect.fail(new Error("user remove failed")));
 		const removeSongFromSongLibrary = vi.fn(() => Effect.succeed(undefined));
