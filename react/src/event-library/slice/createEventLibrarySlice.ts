@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import type { Effect } from "effect";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
@@ -17,6 +17,7 @@ import addEventToLibraryFn from "../event-add/addEventToLibraryEffect";
 import removeEventFromLibraryFn from "../event-remove/removeEventFromLibraryEffect";
 import fetchEventLibraryFn from "../fetch/fetchEventLibraryEffect";
 import subscribeToEventLibraryFn from "../subscribe/subscribeToEventLibraryEffect";
+import subscribeToEventPublicForLibraryFn from "../subscribe/subscribeToEventPublicForLibraryEffect";
 
 const initialState: EventLibraryState = {
 	eventLibraryEntries: {} as Record<string, EventLibraryEntry>,
@@ -71,9 +72,7 @@ export default function createEventLibrarySlice(
 		subscribeToEventLibrary: (): Effect.Effect<() => void, Error> => subscribeToEventLibraryFn(get),
 
 		subscribeToEventPublicForLibrary: (): Effect.Effect<() => void, Error> =>
-			Effect.succeed((): void => {
-				// No-op for now - can add enrichment later
-			}),
+			subscribeToEventPublicForLibraryFn(get),
 
 		setEventLibraryEntries: (entries: ReadonlyDeep<Record<string, EventLibraryEntry>>) => {
 			set({ eventLibraryEntries: entries });

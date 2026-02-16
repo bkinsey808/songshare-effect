@@ -2,11 +2,11 @@
 /* eslint-disable unicorn/no-null -- supabase uses null */
 /* eslint-disable promise/prefer-await-to-then -- mocked promises need explicit resolve */
 import type {
-    MaybeSingleBuilder,
-    MaybeSingleResult,
-    MultiResult,
-    SingleBuilder,
-    SingleResult,
+	MaybeSingleBuilder,
+	MaybeSingleResult,
+	MultiResult,
+	SingleBuilder,
+	SingleResult,
 } from "./supabase-mock-types";
 
 export type EventMockOpts = {

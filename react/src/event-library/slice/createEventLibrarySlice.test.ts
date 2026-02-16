@@ -10,6 +10,12 @@ import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import createEventLibrarySlice from "./createEventLibrarySlice";
 import makeEventLibrarySlice from "./makeEventLibrarySlice.mock";
 
+// Mock the subscription effect to avoid network calls and authentication
+// oxlint-disable-next-line eslint-plugin-jest(no-untyped-mock-factory)
+vi.mock("../subscribe/subscribeToEventPublicForLibraryEffect", () => ({
+	default: vi.fn(() => Effect.succeed(() => undefined)),
+}));
+
 function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 	state: Partial<EventLibraryState>;
 	set: Set<EventLibrarySlice>;
