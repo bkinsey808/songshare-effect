@@ -1,10 +1,9 @@
 /**
  * Determines the SameSite attribute for cookies based on environment and security.
  *
- * @param params
- * @param params.isProd - Whether the environment is production
- * @param params.redirectOrigin - The redirect origin string
- * @param params.secureFlag - Whether the request is considered secure
+ * @param isProd - Whether the environment is production
+ * @param redirectOrigin - The redirect origin string
+ * @param secureFlag - Whether the request is considered secure
  * @returns The SameSite attribute string for the Set-Cookie header
  */
 export default function buildSameSiteAttr({

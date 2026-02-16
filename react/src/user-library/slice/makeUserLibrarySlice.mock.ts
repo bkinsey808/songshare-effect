@@ -34,7 +34,7 @@ export default function makeUserLibrarySlice(
 	});
 
 	const addUserLibraryEntry = vi.fn((entry: UserLibraryEntry) => {
-		const key = (entry).followed_user_id;
+		const key = entry.followed_user_id;
 		state.userLibraryEntries = forceCast<Record<string, UserLibraryEntry>>({
 			...state.userLibraryEntries,
 			[key]: entry,

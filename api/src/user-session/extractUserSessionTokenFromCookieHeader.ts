@@ -14,8 +14,11 @@ export default function extractUserSessionTokenFromCookieHeader(
 	cookieHeader: string | undefined,
 ): string | undefined {
 	const cookie = typeof cookieHeader === "string" ? cookieHeader : "";
-	// Use a named capture group to avoid indexed matches (and thus magic numbers)
-	const re = new RegExp(`${userSessionCookieName}=(?<val>[^;]+)`);
+	// Match the cookie name exactly (either at the start of the header or
+	// immediately following a ";" plus optional whitespace). Escape the
+	// configured cookie name before embedding in the RegExp.
+	const name = userSessionCookieName.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+	const re = new RegExp(`(?:^|;\\s*)${name}=(?<val>[^;]+)`);
 	const match = re.exec(cookie);
 	const value = match?.groups?.val;
 	return typeof value === "string" && value !== "" ? value : undefined;

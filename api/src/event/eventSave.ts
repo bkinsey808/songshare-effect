@@ -345,6 +345,32 @@ export default function eventSave(
 					),
 				);
 			}
+
+			// Automatically add newly created event to owner's library
+			const eventLibraryResult = yield* $(
+				Effect.tryPromise({
+					try: () =>
+						supabase.from("event_library").insert([
+							{
+								user_id: userId,
+								event_id: eventId,
+								event_owner_id: userId,
+							},
+						]),
+					catch: (err) =>
+						new DatabaseError({
+							message: `Failed to add event to owner's library: ${extractErrorMessage(err, "Unknown error")}`,
+						}),
+				}),
+			);
+
+			if (eventLibraryResult.error) {
+				// Non-fatal: log but don't fail the event creation
+				console.warn(
+					`Failed to add event ${eventId} to owner's library (non-fatal):`,
+					eventLibraryResult.error.message,
+				);
+			}
 		}
 
 		// Return updated/created public record

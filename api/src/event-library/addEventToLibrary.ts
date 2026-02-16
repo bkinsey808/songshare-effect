@@ -148,7 +148,7 @@ export default function addEventToLibraryHandler(
 
 		const { data, error: insertError } = insertResult;
 
-		if (insertError !== null) {
+		if (insertError !== undefined && insertError !== null) {
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({
@@ -158,7 +158,7 @@ export default function addEventToLibraryHandler(
 			);
 		}
 
-		if (data === null) {
+		if (data === undefined) {
 			return yield* $(Effect.fail(new DatabaseError({ message: "No data returned from insert" })));
 		}
 

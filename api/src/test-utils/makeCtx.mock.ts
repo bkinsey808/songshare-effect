@@ -13,17 +13,44 @@ import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
  *
  * @returns A lightweight `ReadonlyContext` suitable for unit tests
  */
-export default function makeCtx(): ReadonlyContext {
-	// Narrowly-scoped unsafe cast to `Env` for test helper only
+type MakeCtxOpts = {
+	body?: unknown;
+	env?: Partial<Env>;
+	headers?: Record<string, string>;
+	/** Optional spy for `res.headers.append` — pass `vi.fn()` in tests when you need assertions */
+	resHeadersAppend?: (name: string, value: string) => void;
+};
+
+function noop(): void {
+	// Intentionally empty — used as safe default for `res.headers.append` in tests
+	return undefined;
+}
+
+export default function makeCtx(opts: MakeCtxOpts = {}): ReadonlyContext {
 	/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast for Env */
 	const env = {
 		VITE_SUPABASE_URL: "https://supabase.example",
 		SUPABASE_SERVICE_KEY: "service-key",
+		JWT_SECRET: "jwt-secret",
 		SUPABASE_VISITOR_EMAIL: "visitor@example.com",
 		SUPABASE_VISITOR_PASSWORD: "visitor-pass",
+		...opts.env,
 	} as unknown as Env;
 
-	// Narrowly-scoped unsafe cast to `ReadonlyContext` for test helper only
+	const req = {
+		json: () => {
+			if (opts.body instanceof Error) {
+				return Promise.reject(opts.body);
+			}
+			return Promise.resolve(opts.body ?? { username: "new-user" });
+		},
+		header: (_name: string) => opts.headers?.[_name] ?? "",
+		url: "https://example.test/api/test",
+	} as unknown;
+
+	const res = { headers: { append: opts.resHeadersAppend ?? noop } } as unknown;
+	// Return a minimal ReadonlyContext for tests. Keep the unsafe cast localized
+	// so test files don't need to repeat inline eslint disables.
 	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment -- test-only narrow cast to ReadonlyContext */
-	return { env } as unknown as ReadonlyContext;
+	return { env, req, res, json: (body: unknown) => body } as unknown as ReadonlyContext;
 }

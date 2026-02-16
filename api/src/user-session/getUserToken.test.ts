@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { UserSessionData } from "@/shared/userSessionData";
 
-import makeCtx from "@/api/test-utils/makeCtx";
+import makeCtx from "@/api/test-utils/makeCtx.mock";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import getUserToken from "./getUserToken";

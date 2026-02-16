@@ -74,6 +74,20 @@ export type Database = {
             referencedColumns: ["event_id"]
           },
           {
+            foreignKeyName: "event_library_event_owner_id_fkey"
+            columns: ["event_owner_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "event_library_event_public_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_public"
+            referencedColumns: ["event_id"]
+          },
+          {
             foreignKeyName: "event_library_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -154,7 +168,7 @@ export type Database = {
             foreignKeyName: "event_public_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "user_public"
             referencedColumns: ["user_id"]
           },
         ]
@@ -548,6 +562,13 @@ export type Database = {
           username?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "user_public_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "user_public_userid_fkey"
             columns: ["user_id"]

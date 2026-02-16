@@ -10,16 +10,24 @@ describe("makeEventLibraryEntry", () => {
 
 		const overridden = makeEventLibraryEntry({
 			event_id: "e2",
-			event: {
+			event_public: {
 				event_id: "e2",
-				created_at: entry.created_at,
 				owner_id: "owner-1",
-				private_notes: "",
+				event_name: "Test Event 2",
+				event_slug: "test-event-2",
+				event_description: "",
+				event_date: entry.created_at,
+				is_public: true,
+				active_playlist_id: undefined,
+				active_song_id: undefined,
+				active_slide_id: undefined,
+				public_notes: "",
+				created_at: entry.created_at,
 				updated_at: entry.created_at,
-				owner_username: "bob",
+				owner: { username: "bob" },
 			},
 		});
 		expect(overridden.event_id).toBe("e2");
-		expect(overridden.event?.owner_username).toBe("bob");
+		expect(overridden.event_public?.owner?.username).toBe("bob");
 	});
 });

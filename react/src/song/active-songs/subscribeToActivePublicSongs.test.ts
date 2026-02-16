@@ -13,9 +13,9 @@ import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/
 import asNull from "@/react/lib/test-utils/asNull";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
-import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 
+import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
 import subscribeToActivePublicSongs from "./subscribeToActivePublicSongs";
 
 // Mock the supabase client factory before importing the module under test

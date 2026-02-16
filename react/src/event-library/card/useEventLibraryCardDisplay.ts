@@ -40,8 +40,9 @@ export default function useEventLibraryCardDisplay({
 
 	const isOwned = currentUserId === entry.event_owner_id;
 	const ownerUsername =
-		typeof entry.event?.owner_username === "string" && entry.event.owner_username !== ""
-			? entry.event.owner_username
+		typeof entry.event_public?.owner?.username === "string" &&
+		entry.event_public.owner.username !== ""
+			? entry.event_public.owner.username
 			: t("eventLibrary.unknownOwner", "Unknown User");
 
 	const addedOnText = t("eventLibrary.addedOn", "Added {{date}}", {

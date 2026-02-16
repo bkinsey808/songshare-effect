@@ -23,7 +23,7 @@
 		"file:check": "bun run scripts/fileCheck.ts",
 		"supabase:generate": "bun run scripts/build/generate-effect-schemas/generate-effect-schemas.ts",
 		"find-missing-jsdoc": "bun run ./scripts/find-missing-jsdoc.bun.ts",
-		"supabase:migrate": "./scripts/run-migrations.sh",
+		"supabase:migrate": "npx supabase db push && && npm run supabase:export && npm run supabase:generate",
 		"supabase:migrate:ts": "bun run scripts/migrate/migrate.ts",
 		"supabase:migrate:single": "dotenv -e .env -- sh -c 'psql -h \"$PGHOST\" -U \"$PGUSER\" -d \"$PGDATABASE\" -f \"$1\"' --",
 		"supabase:keep-alive": "bun run scripts/keepAlive.ts",

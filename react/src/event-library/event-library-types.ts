@@ -5,7 +5,7 @@
  * mirror the database schema for `event_library` and related event data.
  */
 
-import type { EventEntry } from "@/react/event/event-types";
+import type { EventPublic } from "@/react/event/event-types";
 
 export type EventLibrary = {
 	user_id: string;
@@ -15,7 +15,11 @@ export type EventLibrary = {
 };
 
 export type EventLibraryEntry = EventLibrary & {
-	event?: EventEntry;
+	event_public?: EventPublic & {
+		owner?: {
+			username: string;
+		};
+	};
 };
 
 export type AddEventToLibraryRequest = {

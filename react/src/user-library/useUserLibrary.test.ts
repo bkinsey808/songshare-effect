@@ -80,12 +80,12 @@ describe("useUserLibrary", () => {
 		const subscribeToUserPublicForLibrary = vi
 			.fn()
 			.mockImplementation(() => Effect.sync(() => undefined));
-const entry = makeUserLibraryEntry({
-		user_id: TEST_USER_ID,
-		followed_user_id: TEST_USER_ID,
-		created_at: TEST_CREATED_AT,
-	});
-	const entriesRecord: AppSlice["userLibraryEntries"] = { [TEST_USER_ID]: entry };
+		const entry = makeUserLibraryEntry({
+			user_id: TEST_USER_ID,
+			followed_user_id: TEST_USER_ID,
+			created_at: TEST_CREATED_AT,
+		});
+		const entriesRecord: AppSlice["userLibraryEntries"] = { [TEST_USER_ID]: entry };
 
 		resetAllSlices();
 		const store = useAppStore;

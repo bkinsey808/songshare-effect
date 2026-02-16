@@ -85,13 +85,15 @@ describe("useEventLibrary", () => {
 			created_at: TEST_CREATED_AT,
 			user_id: "00000000-0000-0000-0000-000000000002",
 			event_owner_id: "00000000-0000-0000-0000-000000000001",
-			// include a minimal `event` shape matching existing tests
-			event: {
+			// include a minimal `event_public` shape matching existing tests
+			event_public: {
 				event_id: TEST_EVENT_ID,
 				owner_id: "00000000-0000-0000-0000-000000000001",
 				created_at: TEST_CREATED_AT,
 				updated_at: TEST_CREATED_AT,
-				private_notes: "notes",
+				event_name: "test event",
+				event_slug: "test-event",
+				is_public: true,
 			},
 		});
 

@@ -35,7 +35,9 @@ export default function EventLibraryCardDisplay({
 
 	return (
 		<div className="group hover:bg-gray-750 rounded-lg border border-gray-700 bg-gray-800 p-4 transition-colors hover:border-gray-600">
-			<h3 className="mb-2 line-clamp-2 font-semibold text-white">Event Library Entry</h3>
+			<h3 className="mb-2 line-clamp-2 font-semibold text-white">
+				{entry.event_public?.event_name ?? t("eventLibrary.entryTitle", "Event Library Entry")}
+			</h3>
 
 			{isOwned && (
 				<div className="mb-2 inline-block rounded-full bg-blue-900/30 px-2 py-1 text-xs text-blue-300">

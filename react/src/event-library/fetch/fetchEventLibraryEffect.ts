@@ -47,7 +47,9 @@ export default function fetchEventLibraryEffect(
 		const libraryQueryRes = yield* $(
 			Effect.tryPromise({
 				try: async () => {
-					const res = await callSelect(client, "event_library", { cols: "*" });
+					const res = await callSelect(client, "event_library", {
+						cols: "*, event_public!inner(*, owner:user_public!owner_id(username))",
+					});
 					console.warn("[fetchEventLibrary] Query result:", JSON.stringify(res));
 					return res;
 				},

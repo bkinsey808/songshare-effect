@@ -46,6 +46,9 @@ export default function useEventLibrary(): {
 
 	const location = useLocation();
 
+	// this useEffect handles fetching the library on mount and
+	// subscribing to updates, and ensures subscriptions are
+	// cleaned up on unmount or location change
 	useEffect(() => {
 		void Effect.runPromise(fetchEventLibrary());
 

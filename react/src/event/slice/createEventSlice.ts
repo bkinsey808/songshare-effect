@@ -3,14 +3,22 @@ import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
 
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
-import type { EventEntry, EventUser, SaveEventRequest } from "../event-types";
+import type { EventEntry, EventState, EventUser, SaveEventRequest } from "../event-types";
 import type { EventSlice } from "./EventSlice.type";
 
 import fetchEventBySlugFn from "../fetchEventBySlug";
 import saveEventFn from "../form/saveEvent";
 import joinEventFn from "../join/joinEvent";
 import leaveEventFn from "../leave/leaveEvent";
-import eventSliceInitialState from "./eventSliceInitialState";
+
+const eventSliceInitialState: EventState = {
+	currentEvent: undefined,
+	events: [],
+	participants: [],
+	isEventLoading: false,
+	eventError: undefined,
+	isEventSaving: false,
+};
 
 /**
  * Factory that creates the Event Zustand slice.

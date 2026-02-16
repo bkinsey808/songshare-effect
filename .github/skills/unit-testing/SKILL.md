@@ -33,6 +33,141 @@ metadata:
 
 - See [test-template.test.ts](./test-template.test.ts) for a minimal setup and assertion pattern.
 
+## API Testing Patterns
+
+When testing Effect-based API handlers (e.g., `accountDelete`, `songSave`), use these patterns to mock dependencies and validate Effect results.
+
+### Setup: Mock External Modules
+
+At the top of your test file, mock all imported modules (Supabase client, external handlers, utilities):
+
+```typescript
+import { createClient } from "@supabase/supabase-js";
+import { Effect } from "effect";
+import { describe, expect, it, vi } from "vitest";
+
+import type { UserSessionData } from "@/shared/userSessionData";
+import { AuthenticationError } from "@/api/api-errors";
+import buildClearCookieHeader from "@/api/cookie/buildClearCookieHeader";
+import makeCtx from "@/api/test-utils/makeCtx.mock";
+import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.mock";
+
+import accountDelete from "./accountDelete";
+
+// Mock all external dependencies
+vi.mock("@supabase/supabase-js");
+vi.mock("@/api/cookie/buildClearCookieHeader");
+vi.mock("@/api/user-session/getVerifiedSession");
+vi.mock("@/api/csrf/verifySameOriginOrThrow");
+vi.mock("@/api/csrf/verifyDoubleSubmitOrThrow");
+```
+
+### Test Helpers: Use Existing Factories
+
+Leverage project test helpers to keep tests DRY and typed:
+
+- **`makeCtx(opts)`** — Creates a minimal `ReadonlyContext` for tests. Pass `env` overrides or `resHeadersAppend` spies.
+- **`makeSupabaseClient(opts)`** — Creates a fake Supabase client. Pass mock rows or errors (e.g., `userDeleteRows`, `userInsertError`).
+
+```typescript
+const ctx = makeCtx({
+  env: { VITE_SUPABASE_URL: "url", SUPABASE_SERVICE_KEY: "svc-key" },
+  resHeadersAppend: vi.fn(), // Spy to assert cookie headers
+});
+
+const typedFakeClient = makeSupabaseClient({ userDeleteRows: [{ user_id: "123" }] });
+vi.mocked(createClient).mockReturnValue(typedFakeClient);
+```
+
+### Mocking Effect Functions: Static Mocks vs. Dynamic Imports
+
+**Static mocks** (simple side effects like CSRF checks):
+
+```typescript
+vi.mocked(verifySameOriginOrThrow).mockReturnValue(undefined);
+vi.mocked(verifyDoubleSubmitOrThrow).mockReturnValue(undefined);
+```
+
+**Dynamic imports with `vi.spyOn`** (for module functions that return Effects):
+
+Handlers like `getVerifiedUserSession` return `Effect.Effect<UserSessionData, ...>`. Mock them by:
+
+1. Importing the module at runtime (`await import(...)`)
+2. Spying on its default export
+3. Returning a mocked Effect:
+
+```typescript
+const verifiedModule = await import("@/api/user-session/getVerifiedSession");
+vi.spyOn(verifiedModule, "default").mockReturnValue(
+  Effect.succeed<UserSessionData>({
+    user: { user_id: "123", ... },
+    userPublic: { user_id: "123", username: "testuser" },
+    oauthUserData: { email: "u@example.com" },
+    oauthState: { csrf: "x", lang: "en", provider: "google" },
+    ip: "127.0.0.1",
+  }),
+);
+
+// For failure cases:
+vi.spyOn(verifiedModule, "default").mockReturnValue(
+  Effect.fail(new AuthenticationError({ message: "Not authenticated" })),
+);
+```
+
+### Running the Effect and Asserting Results
+
+Use `Effect.runPromise()` to execute mocked handlers and assert their output:
+
+```typescript
+// Happy path: should resolve to success response
+const res = await Effect.runPromise(accountDelete(ctx));
+expect(res).toStrictEqual({ success: true });
+expect(appendSpy).toHaveBeenCalledWith("Set-Cookie", "clear-cookie");
+
+// Error case: should reject with expected error
+await expect(Effect.runPromise(accountDelete(ctx))).rejects.toThrow(/Database error/);
+
+// Early return (e.g., CSRF failure returns Response before Effect chain):
+const res = await Effect.runPromise(accountDelete(ctx));
+expect(res).toBeInstanceOf(Response);
+expect(res.status).toBe(HTTP_FORBIDDEN);
+```
+
+### Pattern Summary
+
+```typescript
+describe("myHandler", () => {
+  it("should verify auth and delete user", async () => {
+    vi.resetAllMocks(); // Start fresh per test
+
+    // 1. Create mocked context
+    const appendSpy = vi.fn();
+    const ctx = makeCtx({ env: {...}, resHeadersAppend: appendSpy });
+
+    // 2. Mock dependencies (return values or Effects)
+    vi.mocked(verifySameOriginOrThrow).mockReturnValue(undefined);
+    const module = await import("@/api/user-session/getVerifiedSession");
+    vi.spyOn(module, "default").mockReturnValue(Effect.succeed<UserSessionData>({...}));
+
+    // 3. Mock DB client
+    const fakeClient = makeSupabaseClient({ userDeleteRows: [{...}] });
+    vi.mocked(createClient).mockReturnValue(fakeClient);
+
+    // 4. Execute the handler
+    const res = await Effect.runPromise(myHandler(ctx));
+
+    // 5. Assert results
+    expect(res).toStrictEqual({ success: true });
+    expect(appendSpy).toHaveBeenCalledWith("Set-Cookie", expect.stringContaining("session="));
+  });
+});
+```
+
+### See Also
+
+- [**effect-ts-patterns skill**](../effect-ts-patterns/SKILL.md) — Error handling, Effect.gen, schema validation, dependency injection patterns
+- **Example test file:** `api/src/account/accountDelete.test.ts` — Implementation of patterns above
+
 ## Common Pitfalls
 
 ### ❌ Global test state pollution

@@ -11,13 +11,23 @@ export default function makeEventLibraryEntry(
 		event_id: "e1",
 		event_owner_id: "owner-1",
 		created_at: now,
-		event: overrides.event ?? {
+		event_public: overrides.event_public ?? {
 			event_id: "e1",
-			created_at: now,
 			owner_id: "owner-1",
-			private_notes: "",
+			event_name: "Test Event",
+			event_slug: "test-event",
+			event_description: "Test event description",
+			event_date: now,
+			is_public: true,
+			active_playlist_id: undefined,
+			active_song_id: undefined,
+			active_slide_id: undefined,
+			public_notes: "",
+			created_at: now,
 			updated_at: now,
-			owner_username: "owner_user",
+			owner: {
+				username: "owner_user",
+			},
 		},
 		...overrides,
 	});
