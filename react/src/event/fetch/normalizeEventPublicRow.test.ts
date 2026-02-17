@@ -35,7 +35,7 @@ describe("normalizeEventPublicRow", () => {
 	it("should convert known nullable fields from null to undefined", () => {
 		const row: unknown = JSON.parse(`{
 			"active_playlist_id": null,
-			"active_slide_id": null,
+			"active_slide_position": null,
 			"active_song_id": null,
 			"event_date": null,
 			"event_description": null,
@@ -48,7 +48,7 @@ describe("normalizeEventPublicRow", () => {
 
 		expect(normalized).toMatchObject({
 			active_playlist_id: undefined,
-			active_slide_id: undefined,
+			active_slide_position: undefined,
 			active_song_id: undefined,
 			event_date: undefined,
 			event_description: undefined,
@@ -61,7 +61,7 @@ describe("normalizeEventPublicRow", () => {
 	it("should keep non-null values for known nullable fields", () => {
 		const row = {
 			active_playlist_id: "playlist-1",
-			active_slide_id: undefined,
+			active_slide_position: undefined,
 			active_song_id: "song-1",
 			event_date: "2026-02-16",
 			event_description: "desc",

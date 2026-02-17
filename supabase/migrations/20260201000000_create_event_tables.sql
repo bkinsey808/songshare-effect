@@ -11,7 +11,7 @@
 --   - Public events (is_public=true): Readable by anyone (authenticated or anonymous)
 --   - Private events (is_public=false): Readable only by event participants
 --   - Owner can update all fields
---   - Admins can update: event_name, event_description, active_playlist_id, active_song_id, active_slide_id
+--   - Admins can update: event_name, event_description, active_playlist_id, active_song_id, active_slide_id (legacy; replaced by active_slide_position in a later migration)
 -- - event_user: Users can only access their own event entries; INSERT via API only
 --
 -- event_slug is UNIQUE system-wide (like playlist_slug)
@@ -184,7 +184,7 @@ COMMENT ON COLUMN public.event_public.event_date IS 'Date and time of the event'
 COMMENT ON COLUMN public.event_public.is_public IS 'Whether the event is publicly viewable (including anonymous users)';
 COMMENT ON COLUMN public.event_public.active_playlist_id IS 'Currently active playlist for this event';
 COMMENT ON COLUMN public.event_public.active_song_id IS 'Currently active song within the active playlist';
-COMMENT ON COLUMN public.event_public.active_slide_id IS 'Currently active slide within the active song';
+COMMENT ON COLUMN public.event_public.active_slide_id IS 'Legacy active slide identifier; superseded by active_slide_position in later migrations';
 COMMENT ON COLUMN public.event_public.public_notes IS 'Public notes visible to all event viewers';
 
 -- ============================================================================

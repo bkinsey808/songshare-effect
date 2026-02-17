@@ -6,9 +6,9 @@ import useActiveSongSelectionState from "./useActiveSongSelectionState";
 type ActiveSongSelectionSectionProps = {
 	activePlaylistId: string | null | undefined;
 	activeSongId: string | null | undefined;
-	activeSlideId: string | null | undefined;
+	activeSlidePosition: number | null | undefined;
 	onSelectActiveSong: (songId: string) => void;
-	onSelectActiveSlide: (slideId: string) => void;
+	onSelectActiveSlidePosition: (slidePosition: number) => void;
 };
 
 /**
@@ -16,17 +16,17 @@ type ActiveSongSelectionSectionProps = {
  *
  * @param activePlaylistId - Currently selected playlist ID
  * @param activeSongId - Currently selected active song ID
- * @param activeSlideId - Currently selected active slide ID
+ * @param activeSlidePosition - Currently selected active slide position
  * @param onSelectActiveSong - Song selection handler
- * @param onSelectActiveSlide - Slide selection handler
+ * @param onSelectActiveSlidePosition - Slide position selection handler
  * @returns Active song selection section UI
  */
 export default function ActiveSongSelectionSection({
 	activePlaylistId,
 	activeSongId,
-	activeSlideId,
+	activeSlidePosition,
 	onSelectActiveSong,
-	onSelectActiveSlide,
+	onSelectActiveSlidePosition,
 }: ActiveSongSelectionSectionProps): ReactElement {
 	const { t } = useTranslation();
 	const {
@@ -92,11 +92,11 @@ export default function ActiveSongSelectionSection({
 							>
 								<input
 									type="radio"
-									name="active_slide_id"
-									value={slide.slideId}
-									checked={activeSlideId === slide.slideId}
+									name="active_slide_position"
+									value={slide.position}
+									checked={activeSlidePosition === slide.position}
 									onChange={() => {
-										onSelectActiveSlide(slide.slideId);
+										onSelectActiveSlidePosition(slide.position);
 									}}
 									className="h-4 w-4 border-gray-500 bg-gray-700 text-blue-500"
 								/>

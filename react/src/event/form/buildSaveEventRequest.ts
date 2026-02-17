@@ -42,8 +42,8 @@ export default function buildSaveEventRequest(
 		request.active_song_id = formValues.active_song_id;
 	}
 
-	if (formValues.active_slide_id !== undefined) {
-		request.active_slide_id = formValues.active_slide_id;
+	if (formValues.active_slide_position !== undefined) {
+		request.active_slide_position = formValues.active_slide_position;
 	}
 
 	if (formValues.public_notes !== undefined && formValues.public_notes !== "") {

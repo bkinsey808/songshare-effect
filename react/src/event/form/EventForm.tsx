@@ -39,7 +39,7 @@ export default function EventForm(): ReactElement {
 		handleIsPublicChange,
 		handlePlaylistSelect,
 		handleActiveSongSelect,
-		handleActiveSlideSelect,
+		handleActiveSlidePositionSelect,
 		setEventSlug,
 		setPublicNotes,
 		setPrivateNotes,
@@ -151,9 +151,9 @@ export default function EventForm(): ReactElement {
 					<ActiveSongSelectionSection
 						activePlaylistId={formValues.active_playlist_id}
 						activeSongId={formValues.active_song_id}
-						activeSlideId={formValues.active_slide_id}
+						activeSlidePosition={formValues.active_slide_position}
 						onSelectActiveSong={handleActiveSongSelect}
-						onSelectActiveSlide={handleActiveSlideSelect}
+						onSelectActiveSlidePosition={handleActiveSlidePositionSelect}
 					/>
 
 					{/* Public Toggle */}

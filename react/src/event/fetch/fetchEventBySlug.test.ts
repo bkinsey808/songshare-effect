@@ -122,7 +122,6 @@ describe("fetchEventBySlug success & behavior", () => {
 			"event_description": null,
 			"active_playlist_id": null,
 			"active_song_id": null,
-			"active_slide_id": null,
 			"public_notes": null,
 			"created_at": null,
 			"updated_at": null

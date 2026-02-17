@@ -22,7 +22,7 @@ const eventFormSchema = Schema.Struct({
 	is_public: Schema.optional(Schema.Boolean),
 	active_playlist_id: Schema.optional(Schema.NullishOr(Schema.String)),
 	active_song_id: Schema.optional(Schema.NullishOr(Schema.String)),
-	active_slide_id: Schema.optional(Schema.NullishOr(Schema.String)),
+	active_slide_position: Schema.optional(Schema.NullishOr(Schema.Number)),
 	public_notes: Schema.optional(Schema.String),
 	private_notes: Schema.optional(Schema.String),
 });

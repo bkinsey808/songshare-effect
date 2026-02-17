@@ -27,7 +27,10 @@ export type UseEventFormReturn = {
 
 	// Form State
 	formValues: EventFormValues;
-	setFormValue: (field: keyof EventFormValues, value: string | boolean | undefined) => void;
+	setFormValue: (
+		field: keyof EventFormValues,
+		value: string | number | boolean | undefined,
+	) => void;
 
 	// Handlers
 	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
@@ -42,7 +45,7 @@ export type UseEventFormReturn = {
 	handleIsPublicChange: (value: boolean) => void;
 	handlePlaylistSelect: (playlistId: string) => void;
 	handleActiveSongSelect: (songId: string) => void;
-	handleActiveSlideSelect: (slideId: string) => void;
+	handleActiveSlidePositionSelect: (slidePosition: number) => void;
 	setEventSlug: (value: string) => void;
 	setPublicNotes: (value: string) => void;
 	setPrivateNotes: (value: string) => void;
@@ -107,7 +110,10 @@ export default function useEventForm(): UseEventFormReturn {
 	);
 
 	// Helper to update form values
-	function setFormValue(field: keyof EventFormValues, value: string | boolean | undefined): void {
+	function setFormValue(
+		field: keyof EventFormValues,
+		value: string | number | boolean | undefined,
+	): void {
 		setFormValuesState((prev) => ({ ...prev, [field]: value }));
 		if (formRef.current && typeof value === "string") {
 			setFieldValue(formRef.current, field, value);
@@ -176,7 +182,7 @@ export default function useEventForm(): UseEventFormReturn {
 		const idOrUndefined = playlistId === "" ? undefined : playlistId;
 		if (formValues.active_playlist_id !== idOrUndefined) {
 			setFormValue("active_song_id", undefined);
-			setFormValue("active_slide_id", undefined);
+			setFormValue("active_slide_position", undefined);
 		}
 		setFormValue("active_playlist_id", idOrUndefined);
 	}
@@ -184,14 +190,13 @@ export default function useEventForm(): UseEventFormReturn {
 	function handleActiveSongSelect(songId: string): void {
 		const idOrUndefined = songId === "" ? undefined : songId;
 		if (formValues.active_song_id !== idOrUndefined) {
-			setFormValue("active_slide_id", undefined);
+			setFormValue("active_slide_position", undefined);
 		}
 		setFormValue("active_song_id", idOrUndefined);
 	}
 
-	function handleActiveSlideSelect(slideId: string): void {
-		const idOrUndefined = slideId === "" ? undefined : slideId;
-		setFormValue("active_slide_id", idOrUndefined);
+	function handleActiveSlidePositionSelect(slidePosition: number): void {
+		setFormValue("active_slide_position", slidePosition);
 	}
 
 	function setEventSlug(value: string): void {
@@ -234,7 +239,7 @@ export default function useEventForm(): UseEventFormReturn {
 		handleIsPublicChange,
 		handlePlaylistSelect,
 		handleActiveSongSelect,
-		handleActiveSlideSelect,
+		handleActiveSlidePositionSelect,
 		setEventSlug,
 		setPublicNotes,
 		setPrivateNotes,

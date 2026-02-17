@@ -13,6 +13,8 @@ import useEventForm from "./useEventForm";
 vi.mock("react-router-dom");
 vi.mock("@/react/language/locale/useLocale");
 
+const FIRST_POSITION = 1;
+
 /*
  Reuse the same auth fetch stub used in playlist tests to prevent background
  auth requests from interfering with tests (getSupabaseAuthToken calls).
@@ -274,7 +276,7 @@ describe("useEventForm", () => {
 
 			await waitFor(() => {
 				expect(result.current.formValues.active_song_id).toBe("s1");
-				expect(result.current.formValues.active_slide_id).toBe("sl-1");
+				expect(result.current.formValues.active_slide_position).toBe(FIRST_POSITION);
 			});
 		});
 	});
@@ -320,20 +322,20 @@ describe("useEventForm", () => {
 
 			await waitFor(() => {
 				expect(result.current.formValues.active_song_id).toBe("s1");
-				expect(result.current.formValues.active_slide_id).toBe("sl-1");
+				expect(result.current.formValues.active_slide_position).toBe(FIRST_POSITION);
 			});
 
 			result.current.handleActiveSongSelect("s2");
 
 			await waitFor(() => {
 				expect(result.current.formValues.active_song_id).toBe("s2");
-				expect(result.current.formValues.active_slide_id).toBe("sl-3");
+				expect(result.current.formValues.active_slide_position).toBe(FIRST_POSITION);
 			});
 
-			result.current.handleActiveSlideSelect("sl-3");
+			result.current.handleActiveSlidePositionSelect(FIRST_POSITION);
 
 			await waitFor(() => {
-				expect(result.current.formValues.active_slide_id).toBe("sl-3");
+				expect(result.current.formValues.active_slide_position).toBe(FIRST_POSITION);
 			});
 		});
 	});

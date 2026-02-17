@@ -21,7 +21,7 @@ export default function makeEventLibraryEntry(
 			is_public: true,
 			active_playlist_id: undefined,
 			active_song_id: undefined,
-			active_slide_id: undefined,
+			active_slide_position: undefined,
 			public_notes: "",
 			created_at: now,
 			updated_at: now,

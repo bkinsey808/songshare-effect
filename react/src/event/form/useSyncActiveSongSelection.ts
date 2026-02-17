@@ -5,6 +5,9 @@ import useAppStore from "@/react/app-store/useAppStore";
 
 import type { EventFormValues } from "../event-types";
 
+const ZERO = 0;
+const FIRST_POSITION = 1;
+
 type UseSyncActiveSongSelectionArgs = {
 	formValues: EventFormValues;
 	setFormValuesState: React.Dispatch<React.SetStateAction<EventFormValues>>;
@@ -88,29 +91,42 @@ export default function useSyncActiveSongSelection({
 			: [];
 	const selectedSongSlideOrderKey = selectedSongSlideOrder.join(",");
 
-	// Defaults active_slide_id to the first slide when no valid active slide is selected.
+	// Defaults/normalizes active_slide_position for the selected song.
 	useEffect(() => {
 		if (!hasSelectedSongId) {
 			return;
 		}
 
 		const slideOrder = selectedSongSlideOrderKey === "" ? [] : selectedSongSlideOrderKey.split(",");
-		const [firstSlideId] = slideOrder;
-		if (firstSlideId === undefined) {
+		if (slideOrder[ZERO] === undefined) {
 			return;
 		}
 
-		const activeSlideId = formValues.active_slide_id;
-		const hasActiveSlide = activeSlideId !== undefined && activeSlideId !== "";
-		const isActiveSlideInSong = hasActiveSlide && slideOrder.includes(activeSlideId ?? "");
+		const activeSlidePosition = formValues.active_slide_position;
+		const hasActiveSlidePosition =
+			typeof activeSlidePosition === "number" &&
+			Number.isInteger(activeSlidePosition) &&
+			activeSlidePosition > ZERO;
+		const requestedSlideIndex = hasActiveSlidePosition
+			? activeSlidePosition - FIRST_POSITION
+			: ZERO;
+		const isRequestedSlideIndexInRange =
+			requestedSlideIndex >= ZERO && requestedSlideIndex < slideOrder.length;
+		const normalizedSlideIndex = isRequestedSlideIndexInRange ? requestedSlideIndex : ZERO;
+		const resolvedSlidePosition = normalizedSlideIndex + FIRST_POSITION;
 
-		if (!hasActiveSlide || !isActiveSlideInSong) {
-			setFormValuesState((previous) => ({ ...previous, active_slide_id: firstSlideId }));
+		const shouldUpdateSlidePosition = !hasActiveSlidePosition || !isRequestedSlideIndexInRange;
+
+		if (shouldUpdateSlidePosition) {
+			setFormValuesState((previous) => ({
+				...previous,
+				active_slide_position: resolvedSlidePosition,
+			}));
 		}
 	}, [
 		hasSelectedSongId,
 		selectedSongSlideOrderKey,
-		formValues.active_slide_id,
+		formValues.active_slide_position,
 		setFormValuesState,
 	]);
 }

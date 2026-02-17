@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict twCQWb3JgaZywTaeFeHUpWVNwcH0gLUN5v91CWmqF8lkhi2Oh2KhK8rB7JILSuO
+\restrict roVVg7PLgmN1WE3q6pbJDqGsgg8NPEgK2E6TemiShtfi4BUfih2elt5MrvaBT7f
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -153,10 +153,10 @@ CREATE TABLE public.event_public (
     is_public boolean DEFAULT false NOT NULL,
     active_playlist_id uuid,
     active_song_id uuid,
-    active_slide_id text,
     public_notes text DEFAULT ''::text,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
+    active_slide_position integer,
     CONSTRAINT event_name_format CHECK (((length(event_name) >= 2) AND (length(event_name) <= 100) AND (event_name = btrim(event_name)) AND (POSITION(('  '::text) IN (event_name)) = 0))),
     CONSTRAINT event_slug_format CHECK (((event_slug ~ '^[a-z0-9-]+$'::text) AND (event_slug !~ '^-'::text) AND (event_slug !~ '-$'::text) AND (POSITION(('--'::text) IN (event_slug)) = 0)))
 );
@@ -233,17 +233,17 @@ COMMENT ON COLUMN public.event_public.active_song_id IS 'Currently active song w
 
 
 --
--- Name: COLUMN event_public.active_slide_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.event_public.active_slide_id IS 'Currently active slide within the active song';
-
-
---
 -- Name: COLUMN event_public.public_notes; Type: COMMENT; Schema: public; Owner: -
 --
 
 COMMENT ON COLUMN public.event_public.public_notes IS 'Public notes visible to all event viewers';
+
+
+--
+-- Name: COLUMN event_public.active_slide_position; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.event_public.active_slide_position IS '1-based active slide position within the active song order';
 
 
 --
@@ -1589,5 +1589,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict twCQWb3JgaZywTaeFeHUpWVNwcH0gLUN5v91CWmqF8lkhi2Oh2KhK8rB7JILSuO
+\unrestrict roVVg7PLgmN1WE3q6pbJDqGsgg8NPEgK2E6TemiShtfi4BUfih2elt5MrvaBT7f
 

@@ -17,7 +17,7 @@ function makeFormValues(overrides: Partial<EventFormValues> = {}): EventFormValu
 		is_public: false,
 		active_playlist_id: undefined,
 		active_song_id: undefined,
-		active_slide_id: undefined,
+		active_slide_position: undefined,
 		public_notes: "",
 		private_notes: "",
 		...overrides,
@@ -45,7 +45,7 @@ describe("buildSaveEventRequest", () => {
 			is_public: true,
 			active_playlist_id: "playlist-1",
 			active_song_id: "song-1",
-			active_slide_id: "slide-1",
+			active_slide_position: 1,
 			public_notes: "Public note",
 			private_notes: "Private note",
 		});
@@ -60,7 +60,7 @@ describe("buildSaveEventRequest", () => {
 			is_public: true,
 			active_playlist_id: "playlist-1",
 			active_song_id: "song-1",
-			active_slide_id: "slide-1",
+			active_slide_position: 1,
 			public_notes: "Public note",
 			private_notes: "Private note",
 		});

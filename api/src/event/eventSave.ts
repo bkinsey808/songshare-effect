@@ -26,7 +26,7 @@ const EventFormSchema = Schema.Struct({
 	is_public: Schema.optional(Schema.Boolean),
 	active_playlist_id: Schema.optional(Schema.NullishOr(Schema.String)),
 	active_song_id: Schema.optional(Schema.NullishOr(Schema.String)),
-	active_slide_id: Schema.optional(Schema.NullishOr(Schema.String)),
+	active_slide_position: Schema.optional(Schema.NullishOr(Schema.Number)),
 	public_notes: Schema.optional(Schema.String),
 	private_notes: Schema.optional(Schema.String),
 });
@@ -137,7 +137,7 @@ export default function eventSave(
 
 			// If user is admin (not owner), restrict which fields can be updated
 			if (isAdmin && !isOwner) {
-				// Admins can only update: event_name, event_description, active_playlist_id, active_song_id, active_slide_id
+				// Admins can only update: event_name, event_description, active playlist/song/slide fields
 				const restrictedFields: (keyof EventFormData)[] = [
 					"event_slug",
 					"is_public",
@@ -234,9 +234,9 @@ export default function eventSave(
 							/* eslint-disable-next-line unicorn/no-null */
 							updateData.active_song_id = validated.active_song_id ?? null;
 						}
-						if (validated.active_slide_id !== undefined) {
+						if (validated.active_slide_position !== undefined) {
 							/* eslint-disable-next-line unicorn/no-null */
-							updateData.active_slide_id = validated.active_slide_id ?? null;
+							updateData.active_slide_position = validated.active_slide_position ?? null;
 						}
 						if (validated.public_notes !== undefined) {
 							/* eslint-disable-next-line unicorn/no-null */
@@ -267,7 +267,7 @@ export default function eventSave(
 								/* eslint-disable-next-line unicorn/no-null */
 								active_song_id: validated.active_song_id ?? null,
 								/* eslint-disable-next-line unicorn/no-null */
-								active_slide_id: validated.active_slide_id ?? null,
+								active_slide_position: validated.active_slide_position ?? null,
 								/* eslint-disable-next-line unicorn/no-null */
 								public_notes: validated.public_notes ?? null,
 							},

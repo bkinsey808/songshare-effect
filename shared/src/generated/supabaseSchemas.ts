@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-02-16T01:41:59.008Z
+ * Last generated: 2026-02-17T16:52:36.452Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -113,7 +113,7 @@ export type EventLibraryUpdate = Schema.Schema.Type<
 // event_public table schemas
 export const EventPublicSchema: Schema.Struct<{
 	active_playlist_id: Schema.optional<typeof Schema.UUID>;
-	active_slide_id: Schema.optional<typeof Schema.UUID>;
+	active_slide_position: Schema.optional<typeof Schema.Number>;
 	active_song_id: Schema.optional<typeof Schema.UUID>;
 	created_at: Schema.optional<typeof Schema.String>;
 	event_date: Schema.optional<typeof Schema.String>;
@@ -127,7 +127,7 @@ export const EventPublicSchema: Schema.Struct<{
 	updated_at: Schema.optional<typeof Schema.String>;
 }> = Schema.Struct({
 	active_playlist_id: Schema.optional(Schema.UUID),
-	active_slide_id: Schema.optional(Schema.UUID),
+	active_slide_position: Schema.optional(Schema.Number),
 	active_song_id: Schema.optional(Schema.UUID),
 	created_at: Schema.optional(Schema.String),
 	event_date: Schema.optional(Schema.String),
@@ -145,7 +145,7 @@ export type EventPublic = Schema.Schema.Type<typeof EventPublicSchema>;
 
 export const EventPublicInsertSchema: Schema.Struct<{
 	active_playlist_id: Schema.optional<typeof Schema.UUID>;
-	active_slide_id: Schema.optional<typeof Schema.UUID>;
+	active_slide_position: Schema.optional<typeof Schema.Number>;
 	active_song_id: Schema.optional<typeof Schema.UUID>;
 	event_date: Schema.optional<typeof Schema.String>;
 	event_description: Schema.optional<typeof Schema.String>;
@@ -157,7 +157,7 @@ export const EventPublicInsertSchema: Schema.Struct<{
 	public_notes: Schema.optional<typeof Schema.String>;
 }> = Schema.Struct({
 	active_playlist_id: Schema.optional(Schema.UUID),
-	active_slide_id: Schema.optional(Schema.UUID),
+	active_slide_position: Schema.optional(Schema.Number),
 	active_song_id: Schema.optional(Schema.UUID),
 	event_date: Schema.optional(Schema.String),
 	event_description: Schema.optional(Schema.String),
@@ -175,7 +175,7 @@ export type EventPublicInsert = Schema.Schema.Type<
 
 export const EventPublicUpdateSchema: Schema.Struct<{
 	active_playlist_id: Schema.optional<typeof Schema.UUID>;
-	active_slide_id: Schema.optional<typeof Schema.UUID>;
+	active_slide_position: Schema.optional<typeof Schema.Number>;
 	active_song_id: Schema.optional<typeof Schema.UUID>;
 	event_date: Schema.optional<typeof Schema.String>;
 	event_description: Schema.optional<typeof Schema.String>;
@@ -187,7 +187,7 @@ export const EventPublicUpdateSchema: Schema.Struct<{
 	public_notes: Schema.optional<typeof Schema.String>;
 }> = Schema.Struct({
 	active_playlist_id: Schema.optional(Schema.UUID),
-	active_slide_id: Schema.optional(Schema.UUID),
+	active_slide_position: Schema.optional(Schema.Number),
 	active_song_id: Schema.optional(Schema.UUID),
 	event_date: Schema.optional(Schema.String),
 	event_description: Schema.optional(Schema.String),

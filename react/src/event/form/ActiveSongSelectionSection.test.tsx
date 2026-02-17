@@ -6,6 +6,9 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import ActiveSongSelectionSection from "./ActiveSongSelectionSection";
 import useActiveSongSelectionState from "./useActiveSongSelectionState";
 
+const FIRST_POSITION = 1;
+const SECOND_POSITION = 2;
+
 // oxlint-disable-next-line eslint-plugin-jest/no-untyped-mock-factory -- local test stub for translation only
 vi.mock("react-i18next", () => ({
 	useTranslation: (): {
@@ -25,7 +28,7 @@ vi.mock("./useActiveSongSelectionState");
 describe("active song selection section", () => {
 	it("renders slide radios and calls onSelectActiveSlide for selected position", () => {
 		const onSelectActiveSong = vi.fn();
-		const onSelectActiveSlide = vi.fn();
+		const onSelectActiveSlidePosition = vi.fn();
 
 		vi.mocked(useActiveSongSelectionState).mockReturnValue(
 			forceCast<ReturnType<typeof useActiveSongSelectionState>>({
@@ -47,9 +50,9 @@ describe("active song selection section", () => {
 			<ActiveSongSelectionSection
 				activePlaylistId="playlist-1"
 				activeSongId="song-1"
-				activeSlideId="slide-1"
+				activeSlidePosition={FIRST_POSITION}
 				onSelectActiveSong={onSelectActiveSong}
-				onSelectActiveSlide={onSelectActiveSlide}
+				onSelectActiveSlidePosition={onSelectActiveSlidePosition}
 			/>,
 		);
 
@@ -58,6 +61,6 @@ describe("active song selection section", () => {
 
 		expect(screen.getByText("Active Slide Position")).toBeDefined();
 		expect(slideTwoRadio).toBeDefined();
-		expect(onSelectActiveSlide).toHaveBeenCalledWith("slide-2");
+		expect(onSelectActiveSlidePosition).toHaveBeenCalledWith(SECOND_POSITION);
 	});
 });

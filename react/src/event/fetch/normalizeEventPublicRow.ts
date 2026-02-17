@@ -15,7 +15,7 @@ export default function normalizeEventPublicRow(value: unknown): unknown {
 	const normalized = { ...value };
 	const nullableKeys = [
 		"active_playlist_id",
-		"active_slide_id",
+		"active_slide_position",
 		"active_song_id",
 		"event_date",
 		"event_description",

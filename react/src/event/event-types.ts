@@ -12,7 +12,7 @@ import type { EventEntry } from "./event-entry/EventEntry.type";
 import type eventFormSchema from "./form/eventFormSchema";
 
 // Re-export generated types
-export type { Event, EventInsert, EventPublic, EventPublicInsert, EventUser, EventEntry };
+export type { Event, EventEntry, EventInsert, EventPublic, EventPublicInsert, EventUser };
 
 /**
  * Request payload to save an event (create or update).
@@ -26,7 +26,7 @@ export type SaveEventRequest = {
 	is_public?: boolean;
 	active_playlist_id?: string | null;
 	active_song_id?: string | null;
-	active_slide_id?: string | null;
+	active_slide_position?: number | null;
 	public_notes?: string;
 	private_notes?: string;
 };

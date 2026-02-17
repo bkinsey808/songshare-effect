@@ -14,6 +14,9 @@ import type { EventFormValues } from "../event-types";
 import useSyncActiveSongSelection from "./useSyncActiveSongSelection";
 
 const CALLED_ONCE = 1;
+const FIRST_POSITION = 1;
+const SECOND_POSITION = 2;
+const INVALID_NINTH_POSITION = 9;
 
 type SetFormValuesState = React.Dispatch<React.SetStateAction<EventFormValues>>;
 
@@ -27,7 +30,7 @@ function makeFormValues(overrides: Partial<EventFormValues> = {}): EventFormValu
 		is_public: false,
 		active_playlist_id: undefined,
 		active_song_id: undefined,
-		active_slide_id: undefined,
+		active_slide_position: undefined,
 		public_notes: "",
 		private_notes: "",
 		...overrides,
@@ -104,6 +107,7 @@ describe("useSyncActiveSongSelection", () => {
 		const formValues = makeFormValues({
 			active_playlist_id: "playlist-1",
 			active_song_id: undefined,
+			active_slide_position: undefined,
 		});
 
 		store.setState((prev) => ({
@@ -185,7 +189,7 @@ describe("useSyncActiveSongSelection", () => {
 				formValues: makeFormValues({
 					active_playlist_id: "playlist-1",
 					active_song_id: "song-2",
-					active_slide_id: "slide-2",
+					active_slide_position: SECOND_POSITION,
 				}),
 				setFormValuesState,
 			});
@@ -205,6 +209,7 @@ describe("useSyncActiveSongSelection", () => {
 		const formValues = makeFormValues({
 			active_playlist_id: "playlist-1",
 			active_song_id: "song-9",
+			active_slide_position: undefined,
 		});
 
 		store.setState((prev) => ({
@@ -258,7 +263,7 @@ describe("useSyncActiveSongSelection", () => {
 		const formValues = makeFormValues({
 			active_playlist_id: "playlist-1",
 			active_song_id: "song-1",
-			active_slide_id: undefined,
+			active_slide_position: undefined,
 		});
 
 		store.setState((prev) => ({
@@ -301,7 +306,7 @@ describe("useSyncActiveSongSelection", () => {
 			const [setStateAction] = forceCast<[React.SetStateAction<EventFormValues>]>(call);
 			return applySetStateAction(setStateAction, currentValues);
 		}, formValues);
-		expect(updatedValues.active_slide_id).toBe("slide-1");
+		expect(updatedValues.active_slide_position).toBe(FIRST_POSITION);
 	});
 
 	it("resets active slide to first slide when selected slide is not in song", async () => {
@@ -312,7 +317,7 @@ describe("useSyncActiveSongSelection", () => {
 		const formValues = makeFormValues({
 			active_playlist_id: "playlist-1",
 			active_song_id: "song-1",
-			active_slide_id: "slide-9",
+			active_slide_position: INVALID_NINTH_POSITION,
 		});
 
 		store.setState((prev) => ({
@@ -355,6 +360,6 @@ describe("useSyncActiveSongSelection", () => {
 			const [setStateAction] = forceCast<[React.SetStateAction<EventFormValues>]>(call);
 			return applySetStateAction(setStateAction, currentValues);
 		}, formValues);
-		expect(updatedValues.active_slide_id).toBe("slide-1");
+		expect(updatedValues.active_slide_position).toBe(FIRST_POSITION);
 	});
 });

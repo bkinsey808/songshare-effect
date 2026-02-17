@@ -99,7 +99,7 @@ export type Database = {
       event_public: {
         Row: {
           active_playlist_id: string | null
-          active_slide_id: string | null
+          active_slide_position: number | null
           active_song_id: string | null
           created_at: string | null
           event_date: string | null
@@ -114,7 +114,7 @@ export type Database = {
         }
         Insert: {
           active_playlist_id?: string | null
-          active_slide_id?: string | null
+          active_slide_position?: number | null
           active_song_id?: string | null
           created_at?: string | null
           event_date?: string | null
@@ -129,7 +129,7 @@ export type Database = {
         }
         Update: {
           active_playlist_id?: string | null
-          active_slide_id?: string | null
+          active_slide_position?: number | null
           active_song_id?: string | null
           created_at?: string | null
           event_date?: string | null

@@ -18,7 +18,7 @@ function makeFormValues(overrides: Partial<EventFormValues> = {}): EventFormValu
 		is_public: false,
 		active_playlist_id: undefined,
 		active_song_id: undefined,
-		active_slide_id: undefined,
+		active_slide_position: undefined,
 		public_notes: "",
 		private_notes: "",
 		...overrides,
