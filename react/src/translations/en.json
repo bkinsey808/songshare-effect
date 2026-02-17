@@ -128,6 +128,27 @@
 	"actions": {
 		"dismiss": "Dismiss"
 	},
+	"eventLibrary": {
+		"title": "My Event Library",
+		"count": "{{count}} events",
+		"entryTitle": "Event Library Entry",
+		"youOwn": "You own this",
+		"viewEvent": "View Event",
+		"editEvent": "Edit",
+		"deleteEvent": "Delete",
+		"removeEvent": "Remove",
+		"deleteWarning": "Delete this event?",
+		"deleteWarningDescription": "This will permanently delete this event. This action cannot be undone.",
+		"deleting": "Deleting...",
+		"confirmDelete": "Delete Event",
+		"cancel": "Cancel",
+		"loading": "Loading your event library...",
+		"emptyTitle": "Your event library is empty",
+		"emptyDescription": "Join events and add them to your library to see them here.",
+		"errorTitle": "Error Loading Library",
+		"unknownOwner": "Unknown User",
+		"addedOn": "Added {{date}}"
+	},
 	"song": {
 		"songName": "Song Name",
 		"songSlug": "Song Slug",

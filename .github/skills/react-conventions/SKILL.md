@@ -118,6 +118,23 @@ if (user.isActive) {
 const [state, setState] = useState("initial");
 ```
 
+**Always add a `//` comment above each `useEffect` describing what it does:**
+
+```typescript
+// ✅ GOOD: Comment explains the side effect intent
+
+// Fetches latest user profile when userId changes.
+useEffect(() => {
+  void fetchUserProfile(userId);
+}, [userId]);
+
+// ❌ BAD: No explanatory comment above useEffect
+
+useEffect(() => {
+  void fetchUserProfile(userId);
+}, [userId]);
+```
+
 ### 4. Component Organization
 
 **One main component per file:**

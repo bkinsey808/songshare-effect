@@ -114,6 +114,27 @@
 	"actions": {
 		"dismiss": "Cerrar"
 	},
+	"eventLibrary": {
+		"title": "Mi biblioteca de eventos",
+		"count": "{{count}} eventos",
+		"entryTitle": "Entrada de biblioteca de eventos",
+		"youOwn": "Eres el propietario",
+		"viewEvent": "Ver evento",
+		"editEvent": "Editar",
+		"deleteEvent": "Eliminar",
+		"removeEvent": "Quitar",
+		"deleteWarning": "¿Eliminar este evento?",
+		"deleteWarningDescription": "Esto eliminará permanentemente este evento. Esta acción no se puede deshacer.",
+		"deleting": "Eliminando...",
+		"confirmDelete": "Eliminar evento",
+		"cancel": "Cancelar",
+		"loading": "Cargando tu biblioteca de eventos...",
+		"emptyTitle": "Tu biblioteca de eventos está vacía",
+		"emptyDescription": "Únete a eventos y agrégalos a tu biblioteca para verlos aquí.",
+		"errorTitle": "Error al cargar la biblioteca",
+		"unknownOwner": "Usuario desconocido",
+		"addedOn": "Añadido el {{date}}"
+	},
 	"song": {
 		"songName": "Nombre de la Canción",
 		"songSlug": "URL de la Canción",

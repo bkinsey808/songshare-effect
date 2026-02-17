@@ -1,6 +1,5 @@
 import { Effect } from "effect";
-import { type TFunction } from "i18next";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -9,19 +8,22 @@ import useAppForm from "@/react/form/useAppForm";
 import useFormChanges from "@/react/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import setFieldValue from "@/react/song/song-form/use-song-form/setFieldValue";
-import { clientLocalDateToUtcTimestamp } from "@/shared/utils/formatEventDate";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
 import type { EventFormValues, EventFormValuesFromSchema, SaveEventRequest } from "../event-types";
 
+import createHandleFormSubmit from "./createHandleFormSubmit";
 import eventFormSchema from "./eventFormSchema";
+import getDefaultEventFormValues from "./getDefaultEventFormValues";
+import getEventSubmitLabel from "./getEventSubmitLabel";
+import useSyncActiveSongSelection from "./useSyncActiveSongSelection";
 
 const NAVIGATE_BACK = -1;
+const PLAYLISTS_NONE = 0;
 
 export type UseEventFormReturn = {
 	getFieldError: (field: keyof EventFormValues) => ValidationError | undefined;
 	isSubmitting: boolean;
-	isLoadingData: boolean;
 
 	// Form State
 	formValues: EventFormValues;
@@ -39,6 +41,8 @@ export type UseEventFormReturn = {
 	handleDateChange: (value: string) => void;
 	handleIsPublicChange: (value: boolean) => void;
 	handlePlaylistSelect: (playlistId: string) => void;
+	handleActiveSongSelect: (songId: string) => void;
+	handleActiveSlideSelect: (slideId: string) => void;
 	setEventSlug: (value: string) => void;
 	setPublicNotes: (value: string) => void;
 	setPrivateNotes: (value: string) => void;
@@ -50,17 +54,14 @@ export type UseEventFormReturn = {
 	error: string | undefined;
 	hasUnsavedChanges: boolean;
 	isSaving: boolean;
-	t: TFunction;
+	isPlaylistLibraryLoading: boolean;
+	hasNoPlaylists: boolean;
 };
 
 /**
  * Manages event form state and behavior in the edit/create flow.
  *
- * - Tracks form values, submission state, and unsaved changes
- * - Provides handlers for form field changes and submission
- * - Validates event data using eventSchema
- *
- * @returns An object containing form state, handlers, and UI helpers
+ * @returns Event form state, handlers, and UI helpers
  */
 export default function useEventForm(): UseEventFormReturn {
 	const { t } = useTranslation();
@@ -73,23 +74,37 @@ export default function useEventForm(): UseEventFormReturn {
 	const storeIsLoading = useAppStore((state) => state.isEventLoading);
 	const isSaving = useAppStore((state) => state.isEventSaving);
 	const storeError = useAppStore((state) => state.eventError);
+	const setEventError = useAppStore((state) => state.setEventError);
+	const fetchPlaylistLibrary = useAppStore((state) => state.fetchPlaylistLibrary);
+	const playlistLibraryEntries = useAppStore((state) => state.playlistLibraryEntries);
+	const isPlaylistLibraryLoading = useAppStore((state) => state.isPlaylistLibraryLoading);
 	const saveEvent = useAppStore((state) => state.saveEvent);
 
 	const isEditing = event_id !== undefined && event_id !== "";
-	const [isLoadingData] = useState(false);
+	const hasNoPlaylists = Object.keys(playlistLibraryEntries).length === PLAYLISTS_NONE;
+
+	// Clears stale event errors when opening the create form.
+	useEffect(() => {
+		if (!isEditing) {
+			setEventError(undefined);
+		}
+	}, [isEditing, setEventError]);
+
+	// Loads playlist library entries so the active playlist selector has options.
+	useEffect(() => {
+		void (async (): Promise<void> => {
+			try {
+				await Effect.runPromise(fetchPlaylistLibrary());
+			} catch (error: unknown) {
+				console.error("[useEventForm] Failed to fetch playlist library:", error);
+			}
+		})();
+	}, [fetchPlaylistLibrary]);
 
 	// Controlled form field values
-	const [formValues, setFormValuesState] = useState<EventFormValues>({
-		event_id: event_id,
-		event_name: "",
-		event_slug: "",
-		event_description: "",
-		event_date: "",
-		is_public: false,
-		active_playlist_id: undefined,
-		public_notes: "",
-		private_notes: "",
-	});
+	const [formValues, setFormValuesState] = useState<EventFormValues>(() =>
+		getDefaultEventFormValues(event_id),
+	);
 
 	// Helper to update form values
 	function setFormValue(field: keyof EventFormValues, value: string | boolean | undefined): void {
@@ -99,30 +114,41 @@ export default function useEventForm(): UseEventFormReturn {
 		}
 	}
 
+	useSyncActiveSongSelection({
+		formValues,
+		setFormValuesState,
+	});
+
 	// Form Changes Tracking
 	const { hasUnsavedChanges: hasUnsavedChangesFn, clearInitialState } =
 		useFormChanges<EventFormValues>({
 			currentState: formValues,
-			enabled: !isLoadingData,
+			enabled: true,
 		});
 
 	// Initial Values for Validation
-	const initialValues: Partial<EventFormValuesFromSchema> = {
-		event_id: event_id,
-		event_name: "",
-		event_slug: "",
-		event_description: "",
-		event_date: "",
-		is_public: false,
-		active_playlist_id: undefined,
-		public_notes: "",
-		private_notes: "",
-	};
+	const initialValues: Partial<EventFormValuesFromSchema> = getDefaultEventFormValues(event_id);
 
 	const { getFieldError, handleSubmit, isSubmitting } = useAppForm<EventFormValuesFromSchema>({
 		schema: eventFormSchema,
 		formRef,
 		initialValues,
+	});
+
+	function runSaveEvent(request: SaveEventRequest): Promise<string> {
+		return Effect.runPromise(saveEvent(request));
+	}
+
+	const handleFormSubmit = createHandleFormSubmit({
+		formValues,
+		isEditing,
+		runValidatedSubmit: (onSubmitValid: () => Promise<void>): Promise<void> =>
+			Effect.runPromise(handleSubmit(formValues, onSubmitValid)),
+		runSaveEvent,
+		clearInitialState,
+		navigateToEvent: (slug: string): void => {
+			void navigate(`/events/${slug}`);
+		},
 	});
 
 	// Handle Name Change (auto-generate slug)
@@ -131,62 +157,6 @@ export default function useEventForm(): UseEventFormReturn {
 		if (!isEditing) {
 			setFormValue("event_slug", generateSlug(value));
 		}
-	}
-
-	// Handle Form Submission
-	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
-	function handleFormSubmit(event?: React.FormEvent<HTMLFormElement>): Promise<void> {
-		if (event) {
-			event.preventDefault();
-		}
-
-		return Effect.runPromise(
-			handleSubmit(formValues, async () => {
-				const request: SaveEventRequest = {
-					event_name: formValues.event_name,
-					event_slug: formValues.event_slug,
-				};
-
-				if (isEditing && formValues.event_id !== undefined && formValues.event_id !== "") {
-					request.event_id = formValues.event_id;
-				}
-
-				if (formValues.event_description !== undefined && formValues.event_description !== "") {
-					request.event_description = formValues.event_description;
-				}
-
-				if (formValues.event_date !== undefined && formValues.event_date !== "") {
-					// Convert from local time (YYYY/MM/DD HH:mm) to UTC ISO 8601 for database storage
-					const utcTimestamp = clientLocalDateToUtcTimestamp(formValues.event_date);
-					if (utcTimestamp !== undefined) {
-						request.event_date = utcTimestamp;
-					}
-				}
-
-				if (formValues.is_public === true) {
-					request.is_public = formValues.is_public;
-				}
-
-				if (formValues.active_playlist_id !== undefined) {
-					request.active_playlist_id = formValues.active_playlist_id;
-				}
-
-				if (formValues.public_notes !== undefined && formValues.public_notes !== "") {
-					request.public_notes = formValues.public_notes;
-				}
-
-				if (formValues.private_notes !== undefined && formValues.private_notes !== "") {
-					request.private_notes = formValues.private_notes;
-				}
-
-				const result = await Effect.runPromise(saveEvent(request));
-
-				if (result) {
-					clearInitialState();
-					void navigate(`/events/${formValues.event_slug}`);
-				}
-			}),
-		);
 	}
 
 	function handleDescriptionChange(value: string): void {
@@ -204,7 +174,24 @@ export default function useEventForm(): UseEventFormReturn {
 
 	function handlePlaylistSelect(playlistId: string): void {
 		const idOrUndefined = playlistId === "" ? undefined : playlistId;
+		if (formValues.active_playlist_id !== idOrUndefined) {
+			setFormValue("active_song_id", undefined);
+			setFormValue("active_slide_id", undefined);
+		}
 		setFormValue("active_playlist_id", idOrUndefined);
+	}
+
+	function handleActiveSongSelect(songId: string): void {
+		const idOrUndefined = songId === "" ? undefined : songId;
+		if (formValues.active_song_id !== idOrUndefined) {
+			setFormValue("active_slide_id", undefined);
+		}
+		setFormValue("active_song_id", idOrUndefined);
+	}
+
+	function handleActiveSlideSelect(slideId: string): void {
+		const idOrUndefined = slideId === "" ? undefined : slideId;
+		setFormValue("active_slide_id", idOrUndefined);
 	}
 
 	function setEventSlug(value: string): void {
@@ -224,28 +211,16 @@ export default function useEventForm(): UseEventFormReturn {
 	}
 
 	function resetForm(): void {
-		setFormValuesState({
-			event_id: event_id,
-			event_name: "",
-			event_slug: "",
-			event_description: "",
-			event_date: "",
-			is_public: false,
-			active_playlist_id: undefined,
-			public_notes: "",
-			private_notes: "",
-		});
+		setFormValuesState(getDefaultEventFormValues(event_id));
 		clearInitialState();
 	}
 
-	let submitLabel = "";
-	if (isSaving || isSubmitting) {
-		submitLabel = t("eventEdit.saving", "Saving...");
-	} else if (isEditing) {
-		submitLabel = t("eventEdit.submitLabel", "Save Event");
-	} else {
-		submitLabel = t("eventEdit.submitLabelCreate", "Create Event");
-	}
+	const submitLabel = getEventSubmitLabel({
+		isSaving,
+		isSubmitting,
+		isEditing,
+		t,
+	});
 
 	return {
 		formValues,
@@ -258,6 +233,8 @@ export default function useEventForm(): UseEventFormReturn {
 		handleDateChange,
 		handleIsPublicChange,
 		handlePlaylistSelect,
+		handleActiveSongSelect,
+		handleActiveSlideSelect,
 		setEventSlug,
 		setPublicNotes,
 		setPrivateNotes,
@@ -267,9 +244,9 @@ export default function useEventForm(): UseEventFormReturn {
 		error: storeError,
 		hasUnsavedChanges: hasUnsavedChangesFn(),
 		isSaving: isSubmitting || isSaving || storeIsLoading,
-		isLoadingData,
+		isPlaylistLibraryLoading,
+		hasNoPlaylists,
 		getFieldError,
 		isSubmitting,
-		t,
 	};
 }

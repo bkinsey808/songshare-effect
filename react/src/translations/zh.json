@@ -114,6 +114,27 @@
 	"actions": {
 		"dismiss": "关闭"
 	},
+	"eventLibrary": {
+		"title": "我的活动库",
+		"count": "{{count}} 个活动",
+		"entryTitle": "活动库条目",
+		"youOwn": "你拥有此活动",
+		"viewEvent": "查看活动",
+		"editEvent": "编辑",
+		"deleteEvent": "删除",
+		"removeEvent": "移除",
+		"deleteWarning": "删除此活动？",
+		"deleteWarningDescription": "这将永久删除此活动。此操作无法撤销。",
+		"deleting": "删除中...",
+		"confirmDelete": "删除活动",
+		"cancel": "取消",
+		"loading": "正在加载你的活动库...",
+		"emptyTitle": "你的活动库为空",
+		"emptyDescription": "加入活动并将其添加到你的活动库后，可在此处查看。",
+		"errorTitle": "加载活动库时出错",
+		"unknownOwner": "未知用户",
+		"addedOn": "添加于 {{date}}"
+	},
 	"song": {
 		"songName": "歌曲名称",
 		"songSlug": "歌曲链接",

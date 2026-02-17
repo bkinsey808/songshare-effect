@@ -1,6 +1,11 @@
 import type { ReactElement } from "react";
 
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+
+import useCurrentLang from "@/react/lib/language/useCurrentLang";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import { dashboardPath, eventEditPath, eventViewPath } from "@/shared/paths";
 
 import type { EventLibraryEntry } from "../event-library-types";
 
@@ -28,6 +33,7 @@ export default function EventLibraryCardDisplay({
 	onDeleteClick,
 }: Omit<EventLibraryCardDisplayProps, "currentUserId">): ReactElement {
 	const { t } = useTranslation();
+	const lang = useCurrentLang();
 	const { isOwned, ownerUsername, addedOnText, onPrimaryClick } = useEventLibraryCardDisplay({
 		entry,
 		onDeleteClick,
@@ -52,7 +58,21 @@ export default function EventLibraryCardDisplay({
 
 			<div className="mb-4 text-xs text-gray-400">{addedOnText}</div>
 
-			<div className="flex items-center justify-between gap-2">
+			<div className="flex items-center justify-between gap-3">
+				<Link
+					to={buildPathWithLang(`/${eventViewPath}/${entry.event_public?.event_slug ?? ""}`, lang)}
+					className="text-sm text-blue-400 transition-colors hover:text-blue-300"
+				>
+					{t("eventLibrary.viewEvent", "View Event")}
+				</Link>
+				{isOwned ? (
+					<Link
+						to={buildPathWithLang(`/${dashboardPath}/${eventEditPath}/${entry.event_id}`, lang)}
+						className="text-sm text-green-400 transition-colors hover:text-green-300"
+					>
+						{t("eventLibrary.editEvent", "Edit")}
+					</Link>
+				) : undefined}
 				<button
 					type="button"
 					className="text-sm text-red-400 transition-colors hover:text-red-300"

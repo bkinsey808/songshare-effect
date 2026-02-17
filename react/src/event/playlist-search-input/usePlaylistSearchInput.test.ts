@@ -140,4 +140,38 @@ describe("usePlaylistSearchInput", () => {
 			expect(result.current.isOpen).toBe(false);
 		});
 	});
+
+	it("closes on outside mousedown and stays open on inside mousedown", async () => {
+		const store: typeof useAppStore = useAppStore;
+		store.setState((prev) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
+
+		const onSelect = vi.fn();
+		const { result } = renderHook(() =>
+			usePlaylistSearchInput({ activePlaylistId: undefined, onSelect }),
+		);
+
+		const container = document.createElement("div");
+		const insideButton = document.createElement("button");
+		container.append(insideButton);
+		document.body.append(container);
+
+		Reflect.set(result.current.containerRef, "current", container);
+
+		result.current.handleInputFocus();
+		await waitFor(() => {
+			expect(result.current.isOpen).toBe(true);
+		});
+
+		insideButton.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+		await waitFor(() => {
+			expect(result.current.isOpen).toBe(true);
+		});
+
+		document.body.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+		await waitFor(() => {
+			expect(result.current.isOpen).toBe(false);
+		});
+
+		container.remove();
+	});
 });

@@ -5,6 +5,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import mockLocaleWithLang from "@/react/lib/test-utils/mockLocaleWithLang";
+import { makeTestPlaylist } from "@/react/playlist/test-utils/makeTestPlaylist.mock";
+import { makeTestSong } from "@/react/song/test-utils/makeTestSong.mock";
 
 import useEventForm from "./useEventForm";
 
@@ -135,6 +137,7 @@ describe("useEventForm", () => {
 					event_name: "My Event",
 					event_slug: "my-event",
 					is_public: true,
+					active_playlist_id: "pl-1",
 				}),
 			);
 			// Navigation to created event
@@ -179,6 +182,158 @@ describe("useEventForm", () => {
 						event_slug: "edit-me",
 					}),
 				);
+			});
+		});
+	});
+
+	it("sends is_public false when creating with unchecked visibility", async () => {
+		await withAuthFetchMock(async () => {
+			vi.resetAllMocks();
+			mockLocaleWithLang("en");
+
+			const mockNavigate = vi.fn();
+			vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+			vi.mocked(useParams).mockReturnValue({});
+
+			const store: typeof useAppStore = useAppStore;
+			const mockSave = vi.fn().mockReturnValue(Effect.succeed("e2"));
+			store.setState((prev) => ({ ...prev, saveEvent: mockSave }));
+
+			const { result } = renderHook(() => useEventForm());
+
+			result.current.handleNameChange("Private Event");
+			result.current.setEventSlug("private-event");
+
+			await waitFor(() => {
+				expect(result.current.formValues.event_name).toBe("Private Event");
+			});
+
+			await result.current.handleFormSubmit();
+
+			expect(mockSave).toHaveBeenCalledWith(
+				expect.objectContaining({
+					event_name: "Private Event",
+					event_slug: "private-event",
+					is_public: false,
+				}),
+			);
+		});
+	});
+
+	it("clears stale event error when opening create form", async () => {
+		vi.resetAllMocks();
+		mockLocaleWithLang("en");
+		vi.mocked(useParams).mockReturnValue({});
+
+		const store: typeof useAppStore = useAppStore;
+		store.setState((prev) => ({ ...prev, eventError: "Invalid event_public data" }));
+
+		const { result } = renderHook(() => useEventForm());
+
+		await waitFor(() => {
+			expect(result.current.error).toBeUndefined();
+		});
+	});
+
+	it("defaults active song to first track when playlist is selected", async () => {
+		await withAuthFetchMock(async () => {
+			vi.resetAllMocks();
+			mockLocaleWithLang("en");
+			vi.mocked(useParams).mockReturnValue({});
+
+			const store: typeof useAppStore = useAppStore;
+			const mockFetchPlaylistById = vi.fn().mockReturnValue(Effect.succeed(undefined));
+			store.setState((prev) => ({
+				...prev,
+				fetchPlaylistById: mockFetchPlaylistById,
+				currentPlaylist: makeTestPlaylist({
+					playlist_id: "pl-1",
+					public: {
+						playlist_id: "pl-1",
+						playlist_name: "My Playlist",
+						playlist_slug: "my-playlist",
+						user_id: "u1",
+						song_order: ["s1", "s2"],
+						created_at: "",
+						updated_at: "",
+						public_notes: "",
+					},
+				}),
+				publicSongs: {
+					s1: makeTestSong({
+						song_id: "s1",
+						song_name: "Song 1",
+						slide_order: ["sl-1", "sl-2"],
+					}),
+					s2: makeTestSong({ song_id: "s2", song_name: "Song 2" }),
+				},
+			}));
+
+			const { result } = renderHook(() => useEventForm());
+			result.current.handlePlaylistSelect("pl-1");
+
+			await waitFor(() => {
+				expect(result.current.formValues.active_song_id).toBe("s1");
+				expect(result.current.formValues.active_slide_id).toBe("sl-1");
+			});
+		});
+	});
+
+	it("allows selecting a different active song", async () => {
+		await withAuthFetchMock(async () => {
+			vi.resetAllMocks();
+			mockLocaleWithLang("en");
+			vi.mocked(useParams).mockReturnValue({});
+
+			const store: typeof useAppStore = useAppStore;
+			store.setState((prev) => ({
+				...prev,
+				currentPlaylist: makeTestPlaylist({
+					playlist_id: "pl-1",
+					public: {
+						playlist_id: "pl-1",
+						playlist_name: "My Playlist",
+						playlist_slug: "my-playlist",
+						user_id: "u1",
+						song_order: ["s1", "s2"],
+						created_at: "",
+						updated_at: "",
+						public_notes: "",
+					},
+				}),
+				publicSongs: {
+					s1: makeTestSong({
+						song_id: "s1",
+						song_name: "Song 1",
+						slide_order: ["sl-1", "sl-2"],
+					}),
+					s2: makeTestSong({
+						song_id: "s2",
+						song_name: "Song 2",
+						slide_order: ["sl-3"],
+					}),
+				},
+			}));
+
+			const { result } = renderHook(() => useEventForm());
+			result.current.handlePlaylistSelect("pl-1");
+
+			await waitFor(() => {
+				expect(result.current.formValues.active_song_id).toBe("s1");
+				expect(result.current.formValues.active_slide_id).toBe("sl-1");
+			});
+
+			result.current.handleActiveSongSelect("s2");
+
+			await waitFor(() => {
+				expect(result.current.formValues.active_song_id).toBe("s2");
+				expect(result.current.formValues.active_slide_id).toBe("sl-3");
+			});
+
+			result.current.handleActiveSlideSelect("sl-3");
+
+			await waitFor(() => {
+				expect(result.current.formValues.active_slide_id).toBe("sl-3");
 			});
 		});
 	});

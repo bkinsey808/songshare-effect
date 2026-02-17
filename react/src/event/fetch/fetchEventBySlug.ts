@@ -7,9 +7,9 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import type { EventEntry } from "./event-entry/EventEntry.type";
-import type { EventUser } from "./event-types";
-import type { EventSlice } from "./slice/EventSlice.type";
+import type { EventEntry } from "../event-entry/EventEntry.type";
+import type { EventUser } from "../event-types";
+import type { EventSlice } from "../slice/EventSlice.type";
 
 import {
 	EventError,
@@ -17,8 +17,9 @@ import {
 	InvalidEventDataError,
 	NoSupabaseClientError,
 	QueryError,
-} from "./event-errors";
-import { isEventPublic } from "./guards/guardEventTypes";
+} from "../event-errors";
+import { isEventPublic } from "../guards/guardEventTypes";
+import normalizeEventPublicRow from "./normalizeEventPublicRow";
 
 const ARRAY_EMPTY = 0;
 
@@ -86,7 +87,8 @@ export default function fetchEventBySlug(
 			return yield* $(Effect.fail(new EventNotFoundError(eventSlug)));
 		}
 
-		const [eventPublic] = publicData;
+		const [rawEventPublic] = publicData;
+		const eventPublic = normalizeEventPublicRow(rawEventPublic);
 		if (!isEventPublic(eventPublic)) {
 			return yield* $(Effect.fail(new InvalidEventDataError()));
 		}

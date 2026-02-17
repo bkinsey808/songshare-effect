@@ -6,7 +6,7 @@ import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 import type { EventEntry, EventState, EventUser, SaveEventRequest } from "../event-types";
 import type { EventSlice } from "./EventSlice.type";
 
-import fetchEventBySlugFn from "../fetchEventBySlug";
+import fetchEventBySlugFn from "../fetch/fetchEventBySlug";
 import saveEventFn from "../form/saveEvent";
 import joinEventFn from "../join/joinEvent";
 import leaveEventFn from "../leave/leaveEvent";

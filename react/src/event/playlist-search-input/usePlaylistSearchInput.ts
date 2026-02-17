@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { PlaylistLibraryEntry } from "@/react/playlist-library/slice/playlist-library-types";
 
@@ -45,6 +45,32 @@ export default function usePlaylistSearchInput({
 	const [isOpen, setIsOpen] = useState(false);
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const inputRef = useRef<HTMLInputElement | null>(null);
+
+	useEffect(() => {
+		function handleDocumentPointerDown(event: MouseEvent | TouchEvent): void {
+			const container = containerRef.current;
+			if (!container) {
+				return;
+			}
+
+			const targetNode = event.target;
+			if (!(targetNode instanceof Node)) {
+				return;
+			}
+
+			if (!container.contains(targetNode)) {
+				setIsOpen(false);
+			}
+		}
+
+		document.addEventListener("mousedown", handleDocumentPointerDown);
+		document.addEventListener("touchstart", handleDocumentPointerDown);
+
+		return (): void => {
+			document.removeEventListener("mousedown", handleDocumentPointerDown);
+			document.removeEventListener("touchstart", handleDocumentPointerDown);
+		};
+	}, [containerRef]);
 
 	// Get playlists from app store - extract from playlistLibraryEntries
 	const playlistLibraryEntries = useAppStore((state) => state.playlistLibraryEntries);

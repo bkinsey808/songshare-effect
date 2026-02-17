@@ -105,6 +105,42 @@ describe("fetchEventBySlug success & behavior", () => {
 		expect(get().setEventError).toHaveBeenCalledWith(expect.anything());
 	});
 
+	it("accepts nullable event_public fields returned as null", async () => {
+		vi.resetAllMocks();
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
+		vi.mocked(getSupabaseClient).mockReturnValue(
+			forceCast<SupabaseClientLike | undefined>(createMinimalSupabaseClient()),
+		);
+
+		const pubWithNulls: unknown = JSON.parse(`{
+			"event_id": "00000000-0000-0000-0000-000000000030",
+			"owner_id": "00000000-0000-0000-0000-000000000031",
+			"event_name": "Fresh Event",
+			"event_slug": "fresh-event",
+			"is_public": false,
+			"event_date": null,
+			"event_description": null,
+			"active_playlist_id": null,
+			"active_song_id": null,
+			"active_slide_id": null,
+			"public_notes": null,
+			"created_at": null,
+			"updated_at": null
+		}`);
+
+		vi.mocked(callSelect)
+			.mockResolvedValueOnce({ data: [pubWithNulls] })
+			.mockResolvedValueOnce({ data: [] });
+
+		const get = makeEventSlice();
+		const eff = fetchEventBySlug("fresh-event", get);
+
+		await expect(Effect.runPromise(eff)).resolves.toBeUndefined();
+		expect(get().setCurrentEvent).toHaveBeenCalledWith(
+			expect.objectContaining({ event_id: "00000000-0000-0000-0000-000000000030" }),
+		);
+	});
+
 	it("maps query failures to QueryError and sets error state", async () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");

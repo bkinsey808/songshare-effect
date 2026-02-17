@@ -1,7 +1,12 @@
 import { type ReactElement } from "react";
+import { useTranslation } from "react-i18next";
 
 import DateTimePicker from "@/react/lib/design-system/date-time-picker/DateTimePicker";
 
+import PlaylistSearchInput from "../playlist-search-input/PlaylistSearchInput";
+import ActiveSongSelectionSection from "./ActiveSongSelectionSection";
+import EventFormFooter from "./EventFormFooter";
+import EventFormHeader from "./EventFormHeader";
 import useEventForm from "./useEventForm";
 
 /**
@@ -11,23 +16,30 @@ import useEventForm from "./useEventForm";
  * - Event name and unique slug
  * - Description and date
  * - Public/private toggle
- * - Active playlist selection (inline search)
+ * - Active playlist selection (inline search) and active song selection
  * - Public and private notes
  *
  * @returns The event form UI
  */
 export default function EventForm(): ReactElement {
+	const { t } = useTranslation();
+
 	const {
 		formValues,
 		isEditing,
-		isLoadingData,
 		isSaving,
 		isSubmitting,
+		isPlaylistLibraryLoading,
+		hasNoPlaylists,
+		submitLabel,
 		error,
 		handleNameChange,
 		handleDescriptionChange,
 		handleDateChange,
 		handleIsPublicChange,
+		handlePlaylistSelect,
+		handleActiveSongSelect,
+		handleActiveSlideSelect,
 		setEventSlug,
 		setPublicNotes,
 		setPrivateNotes,
@@ -36,34 +48,12 @@ export default function EventForm(): ReactElement {
 		resetForm,
 		hasUnsavedChanges,
 		formRef,
-		t,
 	} = useEventForm();
-
-	if (isLoadingData) {
-		return (
-			<div className="flex items-center justify-center py-12">
-				<div className="flex items-center space-x-2 text-gray-400">
-					<div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-					<span>{t("eventEdit.loading", "Loading event...")}</span>
-				</div>
-			</div>
-		);
-	}
 
 	return (
 		<>
 			<div className="mx-auto max-w-2xl px-4 py-6 pb-24">
-				<h1 className="mb-6 text-2xl font-bold text-white">
-					{isEditing
-						? t("eventEdit.titleEdit", "Edit Event")
-						: t("eventEdit.titleCreate", "Create New Event")}
-				</h1>
-
-				{typeof error === "string" && error !== "" && (
-					<div className="mb-4 rounded-lg border border-red-600 bg-red-900/20 p-4">
-						<p className="text-red-400">{error}</p>
-					</div>
-				)}
+				<EventFormHeader isEditing={isEditing} error={error} />
 
 				<form
 					ref={formRef}
@@ -145,6 +135,27 @@ export default function EventForm(): ReactElement {
 						placeholder="YYYY/MM/DD HH:mm"
 						disablePastDates={!isEditing}
 					/>
+
+					<PlaylistSearchInput
+						activePlaylistId={formValues.active_playlist_id}
+						onSelect={handlePlaylistSelect}
+						label={t("eventEdit.activePlaylist", "Active Playlist")}
+						placeholder={t("eventEdit.activePlaylistPlaceholder", "Search playlists...")}
+					/>
+					{!isPlaylistLibraryLoading && hasNoPlaylists && (
+						<p className="-mt-4 text-xs text-gray-400">
+							{t("eventEdit.noPlaylistsHint", "No playlists in your library yet")}
+						</p>
+					)}
+
+					<ActiveSongSelectionSection
+						activePlaylistId={formValues.active_playlist_id}
+						activeSongId={formValues.active_song_id}
+						activeSlideId={formValues.active_slide_id}
+						onSelectActiveSong={handleActiveSongSelect}
+						onSelectActiveSlide={handleActiveSlideSelect}
+					/>
+
 					{/* Public Toggle */}
 					<div className="flex items-center space-x-3 rounded-lg border border-gray-600 bg-gray-800 p-4">
 						<input
@@ -200,48 +211,15 @@ export default function EventForm(): ReactElement {
 				</form>
 			</div>
 
-			{/* Form Footer - Fixed at bottom */}
-			<div className="fixed bottom-0 left-0 right-0 border-t border-gray-700 bg-gray-900 px-4 py-4">
-				<div className="mx-auto max-w-2xl space-x-3">
-					<button
-						type="submit"
-						onClick={() => {
-							void handleFormSubmit();
-						}}
-						disabled={isSaving || isSubmitting}
-						className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-					>
-						{isSaving || isSubmitting ? (
-							<>
-								<div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-								{t("eventEdit.saving", "Saving...")}
-							</>
-						) : (
-							t("eventEdit.submitLabel", "Save Event")
-						)}
-					</button>
-
-					{hasUnsavedChanges && (
-						<button
-							type="button"
-							onClick={resetForm}
-							disabled={isSaving || isSubmitting}
-							className="inline-flex items-center rounded-lg border border-gray-600 px-4 py-2 font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-						>
-							{t("form.reset", "Reset")}
-						</button>
-					)}
-
-					<button
-						type="button"
-						onClick={handleCancel}
-						disabled={isSaving || isSubmitting}
-						className="inline-flex items-center rounded-lg border border-gray-600 px-4 py-2 font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-					>
-						{t("form.cancel", "Cancel")}
-					</button>
-				</div>
-			</div>
+			<EventFormFooter
+				isSaving={isSaving}
+				isSubmitting={isSubmitting}
+				submitLabel={submitLabel}
+				hasUnsavedChanges={hasUnsavedChanges}
+				handleFormSubmit={handleFormSubmit}
+				resetForm={resetForm}
+				handleCancel={handleCancel}
+			/>
 		</>
 	);
 }

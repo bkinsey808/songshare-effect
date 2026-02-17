@@ -1,5 +1,3 @@
-import { type ReactElement } from "react";
-
 import type { PlaylistLibraryEntry } from "@/react/playlist-library/slice/playlist-library-types";
 
 import usePlaylistSearchInput from "./usePlaylistSearchInput";
@@ -45,7 +43,6 @@ export default function PlaylistSearchInput({
 		inputRef,
 		filteredPlaylists,
 		handleSelectPlaylist,
-		handleClickOutside,
 		handleInputFocus,
 		handleInputChange,
 		handleClearSelection,
@@ -53,11 +50,7 @@ export default function PlaylistSearchInput({
 	} = usePlaylistSearchInput({ activePlaylistId, onSelect });
 
 	return (
-		<div
-			ref={containerRef}
-			className={`relative ${containerClassName}`}
-			onMouseLeave={handleClickOutside}
-		>
+		<div ref={containerRef} className={`relative ${containerClassName}`}>
 			<label className="mb-2 block text-sm font-medium text-white">{label}</label>
 
 			<div className="relative">
