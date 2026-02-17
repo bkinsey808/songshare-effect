@@ -9,6 +9,7 @@ type PlaylistSongOption = {
 type SongSlidePositionOption = {
 	slideId: string;
 	position: number;
+	slideName: string;
 };
 
 type UseActiveSongSelectionStateArgs = {
@@ -70,6 +71,10 @@ export default function useActiveSongSelectionState({
 		isRecord(selectedPublicSong) && Array.isArray(selectedPublicSong["slide_order"])
 			? selectedPublicSong["slide_order"]
 			: [];
+	const slidesByIdValue: unknown =
+		isRecord(selectedPublicSong) && isRecord(selectedPublicSong["slides"])
+			? selectedPublicSong["slides"]
+			: undefined;
 	const selectedSongSlideOrder: readonly string[] = Array.isArray(slideOrderValue)
 		? slideOrderValue.filter((slideId): slideId is string => typeof slideId === "string")
 		: [];
@@ -78,6 +83,13 @@ export default function useActiveSongSelectionState({
 			(slideId, index): SongSlidePositionOption => ({
 				slideId,
 				position: index + SLIDE_POSITION_OFFSET,
+				slideName:
+					isRecord(slidesByIdValue) &&
+					isRecord(slidesByIdValue[slideId]) &&
+					typeof slidesByIdValue[slideId]["slide_name"] === "string" &&
+					slidesByIdValue[slideId]["slide_name"] !== ""
+						? slidesByIdValue[slideId]["slide_name"]
+						: slideId,
 			}),
 		);
 	const hasSongSlides = availableSongSlidePositions.length > SONGS_NONE;

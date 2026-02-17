@@ -87,7 +87,7 @@ export default function ActiveSongSelectionSection({
 					<div className="space-y-2 rounded-lg border border-gray-600 bg-gray-800 p-3">
 						{availableSongSlidePositions.map((slide) => (
 							<label
-								key={slide.slideId}
+								key={slide.position}
 								className="flex cursor-pointer items-center gap-2 text-sm text-white"
 							>
 								<input
@@ -100,11 +100,7 @@ export default function ActiveSongSelectionSection({
 									}}
 									className="h-4 w-4 border-gray-500 bg-gray-700 text-blue-500"
 								/>
-								<span>
-									{t("eventEdit.slidePositionLabel", "Slide {{position}}", {
-										position: slide.position,
-									})}
-								</span>
+								<span>{slide.slideName}</span>
 							</label>
 						))}
 					</div>

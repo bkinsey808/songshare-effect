@@ -62,11 +62,18 @@ describe("useActiveSongSelectionState", () => {
 					song_id: "song-1",
 					song_name: "Song One",
 					slide_order: ["slide-1", "slide-2"],
+					slides: {
+						"slide-1": { slide_name: "Verse 1", field_data: {} },
+						"slide-2": { slide_name: "Chorus", field_data: {} },
+					},
 				}),
 				"song-2": makeTestSong({
 					song_id: "song-2",
 					song_name: "Song Two",
 					slide_order: ["slide-3"],
+					slides: {
+						"slide-3": { slide_name: "Bridge", field_data: {} },
+					},
 				}),
 			},
 		}));
@@ -91,8 +98,8 @@ describe("useActiveSongSelectionState", () => {
 			{ songId: "song-2", songName: "Song Two" },
 		]);
 		expect(result.current.availableSongSlidePositions).toStrictEqual([
-			{ slideId: "slide-1", position: 1 },
-			{ slideId: "slide-2", position: 2 },
+			{ slideId: "slide-1", position: 1, slideName: "Verse 1" },
+			{ slideId: "slide-2", position: 2, slideName: "Chorus" },
 		]);
 	});
 
