@@ -28,24 +28,12 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 	ip: "127.0.0.1",
 };
 
-// eslint-disable-next-line jest/no-untyped-mock-factory
-vi.mock("@/react/app-store/useAppStore", async () => {
-	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-	const actual = await vi.importActual<typeof import("@/react/app-store/useAppStore")>(
-		"@/react/app-store/useAppStore",
-	);
-	return {
-		...actual,
-		getTypedState: vi.fn(),
-	};
-});
-
 // Helper: set the mocked `getTypedState` to return a derived state that
 // optionally includes `userSessionData`. Localizes the `importActual` typing
 // rule to this small helper.
 async function setGetTypedStateUser(userSessionData?: UserSessionData): Promise<void> {
 	vi.resetModules();
-	const { getTypedState } = await import("@/react/app-store/useAppStore");
+	const appStoreModule = await import("@/react/app-store/useAppStore");
 	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 	const actual = await vi.importActual<typeof import("@/react/app-store/useAppStore")>(
 		"@/react/app-store/useAppStore",
@@ -55,7 +43,7 @@ async function setGetTypedStateUser(userSessionData?: UserSessionData): Promise<
 		userSessionData === undefined
 			? { ...base, userSessionData: undefined }
 			: { ...base, userSessionData };
-	vi.mocked(getTypedState).mockReturnValue(newState);
+	vi.spyOn(appStoreModule, "getTypedState").mockReturnValue(newState);
 }
 
 // Helper: construct a sample `UserSessionData` with a non-string `user_id`.

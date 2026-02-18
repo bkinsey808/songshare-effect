@@ -1,12 +1,7 @@
-import { Effect } from "effect";
-import { useEffect } from "react";
-
-import useAppStore from "@/react/app-store/useAppStore";
-import EventPlaylistAccordion from "@/react/event/view/EventPlaylistAccordion";
+import EventPlaylistAccordion from "@/react/event/view/playlist-accordion/EventPlaylistAccordion";
 import useEventView from "@/react/event/view/useEventView";
 import Button from "@/react/lib/design-system/Button";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
-import { utcTimestampToClientLocalDate } from "@/shared/utils/formatEventDate";
 
 const MIN_PARTICIPANTS = 0;
 
@@ -24,10 +19,16 @@ const MIN_PARTICIPANTS = 0;
 function EventView(): React.ReactNode {
 	const {
 		currentEvent,
+		eventPublic,
+		ownerUsername,
+		participants = [],
 		isEventLoading,
 		eventError,
 		isParticipant,
-		currentUserId,
+		isOwner,
+		shouldShowActions,
+		activeSongName,
+		displayDate,
 		actionLoading,
 		actionError,
 		actionSuccess,
@@ -36,18 +37,6 @@ function EventView(): React.ReactNode {
 		clearActionError,
 		clearActionSuccess,
 	} = useEventView();
-
-	// Fetch playlist if there's an active one
-	const fetchPlaylistById = useAppStore((state) => state.fetchPlaylistById);
-
-	useEffect(() => {
-		if (
-			currentEvent?.public?.active_playlist_id !== null &&
-			currentEvent?.public?.active_playlist_id !== undefined
-		) {
-			void Effect.runPromise(fetchPlaylistById(currentEvent.public.active_playlist_id));
-		}
-	}, [currentEvent?.public?.active_playlist_id, fetchPlaylistById]);
 
 	if (isEventLoading) {
 		return (
@@ -69,7 +58,7 @@ function EventView(): React.ReactNode {
 		);
 	}
 
-	if (currentEvent === undefined || currentEvent.public === undefined) {
+	if (currentEvent === undefined || eventPublic === undefined) {
 		return (
 			<div className="flex items-center justify-center min-h-screen">
 				<div className="text-center">
@@ -79,42 +68,36 @@ function EventView(): React.ReactNode {
 		);
 	}
 
-	const { public: eventPublic, owner_username, participants = [] } = currentEvent;
-	const displayDate =
-		eventPublic.event_date !== undefined && eventPublic.event_date !== ""
-			? utcTimestampToClientLocalDate(eventPublic.event_date)
-			: undefined;
-
 	return (
 		<div className="max-w-4xl mx-auto px-6 py-8">
 			{/* Header */}
 			<div className="mb-8">
 				<h1 className="text-4xl font-bold mb-2">{eventPublic.event_name}</h1>
-				{owner_username !== undefined && owner_username !== "" && (
-					<p className="text-gray-600">Hosted by {owner_username}</p>
+				{ownerUsername !== undefined && ownerUsername !== "" && (
+					<p className="text-gray-600">Hosted by {ownerUsername}</p>
 				)}
 			</div>
 
 			{/* Event Details */}
-			<div className="bg-gray-50 rounded-lg p-6 mb-8">
+			<div className="mb-8 rounded-lg border border-gray-700 bg-gray-800 p-6">
 				{eventPublic.event_description !== undefined && eventPublic.event_description !== "" && (
 					<div className="mb-4">
 						<h2 className="text-lg font-semibold mb-2">Description</h2>
-						<p className="text-gray-700">{eventPublic.event_description}</p>
+						<p className="text-gray-300">{eventPublic.event_description}</p>
 					</div>
 				)}
 
 				{displayDate !== undefined && (
 					<div className="mb-4">
 						<h2 className="text-lg font-semibold mb-2">Date</h2>
-						<p className="text-gray-700">{displayDate}</p>
+						<p className="text-gray-300">{displayDate}</p>
 					</div>
 				)}
 
 				{eventPublic.public_notes !== undefined && eventPublic.public_notes !== "" && (
 					<div className="mb-4">
 						<h2 className="text-lg font-semibold mb-2">Notes</h2>
-						<p className="text-gray-700">{eventPublic.public_notes}</p>
+						<p className="text-gray-300">{eventPublic.public_notes}</p>
 					</div>
 				)}
 			</div>
@@ -143,9 +126,9 @@ function EventView(): React.ReactNode {
 			)}
 
 			{/* Actions */}
-			{currentUserId !== undefined && (
+			{shouldShowActions && (
 				<div className="mb-8 flex gap-4">
-					{isParticipant ? (
+					{isParticipant && !isOwner ? (
 						<Button variant="danger" onClick={handleLeaveEvent} disabled={actionLoading}>
 							{actionLoading ? "Leaving..." : "Leave Event"}
 						</Button>
@@ -158,17 +141,18 @@ function EventView(): React.ReactNode {
 			)}
 
 			{/* Active Media */}
-			{(eventPublic.active_playlist_id !== null || eventPublic.active_song_id !== null) && (
+			{((eventPublic.active_playlist_id !== null && eventPublic.active_playlist_id !== undefined) ||
+				eventPublic.active_song_id !== null) && (
 				<div className="mb-8">
 					{eventPublic.active_playlist_id !== null &&
 						eventPublic.active_playlist_id !== undefined && (
 							<EventPlaylistAccordion playlistId={eventPublic.active_playlist_id} />
 						)}
-					{eventPublic.active_song_id !== null && (
-						<div className="mb-6 rounded-lg border border-gray-600 bg-blue-50 p-6">
-							<h2 className="mb-2 text-lg font-semibold text-gray-700">Currently Playing Song</h2>
-							<p className="text-gray-700">
-								Song: <span className="font-medium">{eventPublic.active_song_id}</span>
+					{eventPublic.active_song_id !== null && eventPublic.active_song_id !== undefined && (
+						<div className="mb-6 rounded-lg border border-blue-600 bg-blue-900/20 p-6">
+							<h2 className="mb-2 text-lg font-semibold text-blue-200">Currently Playing Song</h2>
+							<p className="text-blue-200">
+								Song: <span className="font-medium">{activeSongName}</span>
 							</p>
 						</div>
 					)}
@@ -183,10 +167,16 @@ function EventView(): React.ReactNode {
 						{participants.map((participant) => (
 							<div
 								key={participant.user_id}
-								className="flex items-center justify-between bg-gray-100 rounded px-4 py-3"
+								className="flex items-center justify-between rounded border border-gray-700 bg-gray-800 px-4 py-3"
 							>
-								<span>{participant.user_id}</span>
-								<span className="text-sm bg-gray-200 rounded px-3 py-1">{participant.role}</span>
+								<span>
+									{participant.username ??
+										(participant.user_id === currentEvent.owner_id ? ownerUsername : undefined) ??
+										"Unknown user"}
+								</span>
+								<span className="rounded bg-gray-700 px-3 py-1 text-sm text-gray-200">
+									{participant.role}
+								</span>
 							</div>
 						))}
 					</div>

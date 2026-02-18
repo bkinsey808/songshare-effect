@@ -21,6 +21,26 @@ export type EventUserMockOpts = {
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable unicorn/no-null */
 export function createEventUserMock(opts: EventUserMockOpts): any {
+	function makeWriteResult(rows: unknown[]): MultiResult & { select: () => SingleBuilder } {
+		const promise: MultiResult = Promise.resolve({
+			data: opts.eventUserInsertError === undefined ? opts.eventUserInsertRows || rows : null,
+			error: opts.eventUserInsertError ?? null,
+		});
+
+		return Object.assign(promise, {
+			select: (): SingleBuilder => ({
+				single: async (): SingleResult => {
+					const [row] = rows;
+					const [firstEventUserInsertRow] = opts.eventUserInsertRows ?? [];
+					return {
+						data: firstEventUserInsertRow === undefined ? row : firstEventUserInsertRow,
+						error: opts.eventUserInsertError ?? undefined,
+					};
+				},
+			}),
+		});
+	}
+
 	return {
 		select: (
 			_cols: string,
@@ -39,25 +59,12 @@ export function createEventUserMock(opts: EventUserMockOpts): any {
 				}),
 			}),
 		}),
-		insert: (rows: unknown[]): MultiResult & { select: () => SingleBuilder } => {
-			const promise: MultiResult = Promise.resolve({
-				data: opts.eventUserInsertError === undefined ? opts.eventUserInsertRows || rows : null,
-				error: opts.eventUserInsertError ?? null,
-			});
-
-			return Object.assign(promise, {
-				select: (): SingleBuilder => ({
-					single: async (): SingleResult => {
-						const [row] = rows;
-						const [firstEventUserInsertRow] = opts.eventUserInsertRows ?? [];
-						return {
-							data: firstEventUserInsertRow === undefined ? row : firstEventUserInsertRow,
-							error: opts.eventUserInsertError ?? undefined,
-						};
-					},
-				}),
-			});
-		},
+		insert: (rows: unknown[]): MultiResult & { select: () => SingleBuilder } =>
+			makeWriteResult(rows),
+		upsert: (
+			rows: unknown[],
+			_options?: { onConflict?: string; ignoreDuplicates?: boolean },
+		): MultiResult & { select: () => SingleBuilder } => makeWriteResult(rows),
 		delete: (): any => {
 			const promise = Promise.resolve({
 				data: null,

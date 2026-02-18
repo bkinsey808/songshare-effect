@@ -143,7 +143,7 @@ describe("useEventForm", () => {
 				}),
 			);
 			// Navigation to created event
-			expect(mockNavigate).toHaveBeenCalledWith("/events/my-event");
+			expect(mockNavigate).toHaveBeenCalledWith("/en/events/my-event");
 		});
 	});
 

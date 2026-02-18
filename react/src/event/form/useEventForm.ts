@@ -8,6 +8,10 @@ import useAppForm from "@/react/form/useAppForm";
 import useFormChanges from "@/react/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import setFieldValue from "@/react/song/song-form/use-song-form/setFieldValue";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import { defaultLanguage } from "@/shared/language/supported-languages";
+import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
+import { eventViewPath } from "@/shared/paths";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
 import type { EventFormValues, EventFormValuesFromSchema, SaveEventRequest } from "../event-types";
@@ -69,7 +73,8 @@ export type UseEventFormReturn = {
 export default function useEventForm(): UseEventFormReturn {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const { event_id } = useParams<{ event_id: string }>();
+	const { event_id, lang } = useParams<{ event_id: string; lang: string }>();
+	const langForNav = isSupportedLanguage(lang) ? lang : defaultLanguage;
 
 	const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -153,7 +158,7 @@ export default function useEventForm(): UseEventFormReturn {
 		runSaveEvent,
 		clearInitialState,
 		navigateToEvent: (slug: string): void => {
-			void navigate(`/events/${slug}`);
+			void navigate(buildPathWithLang(`/${eventViewPath}/${slug}`, langForNav));
 		},
 	});
 

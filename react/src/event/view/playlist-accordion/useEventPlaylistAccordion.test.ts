@@ -12,7 +12,8 @@ import {
 } from "@/react/playlist/test-utils/makeTestPlaylist.mock";
 import { makeSongWithUndefinedName, makeTestSong } from "@/react/song/test-utils/makeTestSong.mock";
 
-import useEventPlaylistAccordion, { usePlaylistSongDisplay } from "./useEventPlaylistAccordion";
+import usePlaylistSongDisplay from "../playlist-song-display/usePlaylistSongDisplay";
+import useEventPlaylistAccordion from "./useEventPlaylistAccordion";
 
 vi.mock("@/react/lib/supabase/enrichment/fetchUsername");
 vi.mock("@/react/lib/supabase/client/getSupabaseClient");

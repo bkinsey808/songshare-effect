@@ -86,7 +86,7 @@ describe("eventUserJoinHandler", () => {
 		await expect(Effect.runPromise(eventUserJoinHandler(ctx))).rejects.toThrow(/Event not found/);
 	});
 
-	it("fails when insert returns an error", async () => {
+	it("returns success when user is already joined", async () => {
 		vi.resetAllMocks();
 		const ctx = makeCtx({ body: { event_id: "evt-1" } });
 
@@ -97,10 +97,12 @@ describe("eventUserJoinHandler", () => {
 
 		mockCreateSupabaseClient(vi.mocked(createClient), {
 			eventSelectSingleRow: { event_id: "evt-1" },
-			eventUserInsertError: { message: "duplicate" },
+			eventUserInsertRows: [],
 		});
 
-		await expect(Effect.runPromise(eventUserJoinHandler(ctx))).rejects.toThrow(/duplicate/);
+		const res = await Effect.runPromise(eventUserJoinHandler(ctx));
+
+		expect(res).toStrictEqual({ success: true });
 	});
 
 	it("joins event and returns success (happy path)", async () => {

@@ -1,11 +1,14 @@
-import { Effect } from "effect";
-import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import type { EventEntry } from "@/react/event/event-types";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
+import deriveEventViewState from "@/react/event/view/deriveEventViewState";
+import useEventActions from "@/react/event/view/useEventActions";
+import useEventAutoJoin from "@/react/event/view/useEventAutoJoin";
+import useEventDataSync from "@/react/event/view/useEventDataSync";
+import useEventRealtimeSync from "@/react/event/view/useEventRealtimeSync";
 
 /**
  * Hook for managing event view state and actions.
@@ -17,9 +20,16 @@ import useCurrentUserId from "@/react/auth/useCurrentUserId";
 export default function useEventView(): {
 	event_slug: string | undefined;
 	currentEvent: EventEntry | undefined;
+	eventPublic: EventEntry["public"];
+	ownerUsername: string | undefined;
+	participants: EventEntry["participants"];
 	isEventLoading: boolean;
 	eventError: string | undefined;
 	isParticipant: boolean;
+	isOwner: boolean;
+	shouldShowActions: boolean;
+	activeSongName: string | undefined;
+	displayDate: string | undefined;
 	currentUserId: string | undefined;
 	actionLoading: boolean;
 	actionError: string | undefined;
@@ -30,152 +40,69 @@ export default function useEventView(): {
 	clearActionSuccess: () => void;
 } {
 	const { event_slug } = useParams<{ event_slug: string }>();
-
-	// App store state and methods
 	const currentEvent = useAppStore((state) => state.currentEvent);
 	const isEventLoading = useAppStore((state) => state.isEventLoading);
 	const eventError = useAppStore((state) => state.eventError);
 	const fetchEventBySlug = useAppStore((state) => state.fetchEventBySlug);
 	const appStoreJoinEvent = useAppStore((state) => state.joinEvent);
 	const appStoreLeaveEvent = useAppStore((state) => state.leaveEvent);
-
-	// Auth and participation
+	const fetchPlaylistById = useAppStore((state) => state.fetchPlaylistById);
+	const publicSongs = useAppStore((state) => state.publicSongs);
 	const currentUserId = useCurrentUserId();
 
-	// Join/leave action state
-	const [actionLoading, setActionLoading] = useState(false);
-	const [actionError, setActionError] = useState<string | undefined>(undefined);
-	const [actionSuccess, setActionSuccess] = useState<string | undefined>(undefined);
-	const autoJoinAttempted = useRef(false);
+	const derivedState = deriveEventViewState({
+		currentEvent,
+		currentUserId,
+		publicSongs,
+	});
 
-	// Detect if current user is a participant
-	const participants = currentEvent?.participants ?? [];
-	const isParticipant =
-		currentUserId !== undefined && currentUserId !== ""
-			? participants.some((participant) => participant.user_id === currentUserId)
-			: false;
+	useEventDataSync({
+		eventSlug: event_slug,
+		activePlaylistId: derivedState.eventPublic?.active_playlist_id,
+		fetchEventBySlug,
+		fetchPlaylistById,
+	});
 
-	// Fetch event on mount or when slug changes
-	useEffect(() => {
-		if (event_slug === undefined || event_slug === "") {
-			return;
-		}
+	useEventRealtimeSync({
+		eventSlug: event_slug,
+		eventId: currentEvent?.event_id,
+		fetchEventBySlug,
+	});
 
-		const slug = event_slug;
-		async function loadEvent(): Promise<void> {
-			try {
-				await Effect.runPromise(fetchEventBySlug(slug));
-			} catch {
-				// Error is handled in the app store state
-			}
-		}
-		void loadEvent();
-	}, [event_slug, fetchEventBySlug]);
+	useEventAutoJoin({
+		isEventLoading,
+		currentEvent,
+		currentUserId,
+		joinEvent: appStoreJoinEvent,
+	});
 
-	// Auto-join authenticated users when they visit the event link
-	useEffect(() => {
-		// Only proceed if event is loaded, user is authenticated, and we haven't tried yet
-		if (
-			isEventLoading ||
-			currentEvent === undefined ||
-			currentUserId === undefined ||
-			currentUserId === "" ||
-			autoJoinAttempted.current
-		) {
-			return;
-		}
-
-		// Check if user needs to join (not already a participant)
-		const currentParticipants = currentEvent.participants ?? [];
-		const userIsParticipant = currentParticipants.some(
-			(participant) => participant.user_id === currentUserId,
-		);
-
-		if (userIsParticipant) {
-			// User is already a participant, no need to auto-join
-			autoJoinAttempted.current = true;
-			return;
-		}
-
-		async function autoJoin(eventId: string): Promise<void> {
-			try {
-				await Effect.runPromise(appStoreJoinEvent(eventId));
-			} catch {
-				// Error state handled by joinEvent or locally if needed
-			}
-		}
-		autoJoinAttempted.current = true;
-		void autoJoin(currentEvent.event_id);
-	}, [isEventLoading, currentEvent, currentUserId, appStoreJoinEvent]);
-
-	/**
-	 * Handles join event action with loading and error state management.
-	 */
-	function handleJoinEvent(): void {
-		if (currentEvent === undefined) {
-			return;
-		}
-		setActionLoading(true);
-		setActionError(undefined);
-		setActionSuccess(undefined);
-
-		const eventId = currentEvent.event_id;
-		async function runJoin(): Promise<void> {
-			try {
-				await Effect.runPromise(appStoreJoinEvent(eventId));
-				setActionSuccess("Successfully joined the event!");
-			} catch (error: unknown) {
-				const message = error instanceof Error ? error.message : "Failed to join event";
-				setActionError(message);
-			}
-			setActionLoading(false);
-		}
-		void runJoin();
-	}
-
-	/**
-	 * Handles leave event action with loading and error state management.
-	 */
-	function handleLeaveEvent(): void {
-		if (currentEvent === undefined || currentUserId === undefined) {
-			return;
-		}
-		setActionLoading(true);
-		setActionError(undefined);
-		setActionSuccess(undefined);
-
-		const eventId = currentEvent.event_id;
-		const userId = currentUserId;
-		async function runLeave(): Promise<void> {
-			try {
-				await Effect.runPromise(appStoreLeaveEvent(eventId, userId));
-				setActionSuccess("Successfully left the event!");
-			} catch (error: unknown) {
-				const message = error instanceof Error ? error.message : "Failed to leave event";
-				setActionError(message);
-			}
-			setActionLoading(false);
-		}
-		void runLeave();
-	}
+	const actionState = useEventActions({
+		currentEvent,
+		currentUserId,
+		joinEvent: appStoreJoinEvent,
+		leaveEvent: appStoreLeaveEvent,
+	});
 
 	return {
 		event_slug,
 		currentEvent,
+		eventPublic: derivedState.eventPublic,
+		ownerUsername: derivedState.ownerUsername,
+		participants: derivedState.participants,
 		isEventLoading,
 		eventError,
-		isParticipant,
+		isParticipant: derivedState.isParticipant,
+		isOwner: derivedState.isOwner,
+		shouldShowActions: derivedState.shouldShowActions,
+		activeSongName: derivedState.activeSongName,
+		displayDate: derivedState.displayDate,
 		currentUserId,
-		actionLoading,
-		actionError,
-		actionSuccess,
-		handleJoinEvent,
-		handleLeaveEvent,
-		clearActionError: () => {
-			setActionError(undefined);
-		},
-		clearActionSuccess: () => {
-			setActionSuccess(undefined);
-		},
+		actionLoading: actionState.actionLoading,
+		actionError: actionState.actionError,
+		actionSuccess: actionState.actionSuccess,
+		handleJoinEvent: actionState.handleJoinEvent,
+		handleLeaveEvent: actionState.handleLeaveEvent,
+		clearActionError: actionState.clearActionError,
+		clearActionSuccess: actionState.clearActionSuccess,
 	};
 }

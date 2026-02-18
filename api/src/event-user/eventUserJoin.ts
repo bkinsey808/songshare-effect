@@ -100,13 +100,16 @@ export default function eventUserJoin(
 		const addResult = yield* $(
 			Effect.tryPromise({
 				try: () =>
-					supabase.from("event_user").insert([
-						{
-							event_id: validated.event_id,
-							user_id: userId,
-							role: "participant",
-						},
-					]),
+					supabase.from("event_user").upsert(
+						[
+							{
+								event_id: validated.event_id,
+								user_id: userId,
+								role: "participant",
+							},
+						],
+						{ onConflict: "event_id,user_id", ignoreDuplicates: true },
+					),
 				catch: (err) =>
 					new DatabaseError({
 						message: `Failed to join event: ${extractErrorMessage(err, "Unknown error")}`,
