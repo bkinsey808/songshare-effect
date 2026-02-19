@@ -6,6 +6,12 @@ A modern song sharing platform built with React, Vite, and Hono for Cloudflare d
 [![E2E Tests](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml)
 [![Coverage (GitHub)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml)
 
+## For AI Agents
+
+- Read `AGENTS.md` for repository workflow and guardrails.
+- Treat `.agent/rules.md` as the canonical source of coding standards.
+- Review `.github/copilot-instructions.md` for available skills and project orientation.
+
 ## Architecture
 
 - **Frontend**: React + TypeScript + Vite with React Compiler (deployed to Cloudflare Pages)
@@ -255,10 +261,11 @@ ENVIRONMENT=development
 
 1. Fork the repository
 2. Read `CONTRIBUTING.md` for commit message guidelines, pre-commit hooks, and local setup steps (Husky / Commitlint / Commitizen).
-3. Create a feature branch
-4. Make your changes
-5. Add tests if applicable
-6. Submit a pull request
+3. If you use an AI coding agent, read `AGENTS.md` and `.agent/rules.md` before making changes.
+4. Create a feature branch
+5. Make your changes
+6. Add tests if applicable
+7. Submit a pull request
 
 ## License
 

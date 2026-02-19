@@ -16,7 +16,7 @@ const MIN_PARTICIPANTS = 0;
  *
  * @returns Event view component or loading/error state
  */
-function EventView(): React.ReactNode {
+export default function EventView(): React.ReactNode {
 	const {
 		currentEvent,
 		eventPublic,
@@ -187,5 +187,3 @@ function EventView(): React.ReactNode {
 		</div>
 	);
 }
-
-export default EventView;
