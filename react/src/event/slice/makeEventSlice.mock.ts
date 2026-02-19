@@ -21,7 +21,7 @@ export default function makeEventSlice(): () => EventSlice {
 		isEventLoading: false,
 		eventError: undefined,
 		isEventSaving: false,
-		fetchEventBySlug: (_slug: string): unknown => ({}) as unknown,
+		fetchEventBySlug: vi.fn((_slug: string): unknown => ({}) as unknown),
 		saveEvent: (_req: unknown): unknown => ({}) as unknown,
 		joinEvent: (_id: string): unknown => ({}) as unknown,
 		leaveEvent: (_id: string, _userId: string): unknown => ({}) as unknown,

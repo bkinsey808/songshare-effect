@@ -44,6 +44,107 @@ describe("fetchEventBySlug error cases", () => {
 });
 
 describe("fetchEventBySlug success & behavior", () => {
+	it("falls back when joined relation selects return 400-style errors", async () => {
+		vi.resetAllMocks();
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
+		vi.mocked(getSupabaseClient).mockReturnValue(
+			forceCast<SupabaseClientLike | undefined>(createMinimalSupabaseClient()),
+		);
+
+		const fallbackPub = {
+			event_id: "00000000-0000-0000-0000-000000000700",
+			owner_id: "00000000-0000-0000-0000-000000000701",
+			event_name: "Fallback From 400",
+			event_slug: "my-event",
+			is_public: true,
+			created_at: "2020-01-01T00:00:00Z",
+			updated_at: "2020-01-01T00:00:00Z",
+		};
+
+		vi.mocked(callSelect)
+			// Joined event_public query fails with invalid relation select.
+			.mockRejectedValueOnce(new Error("400 Bad Request"))
+			// Plain event_public fallback succeeds.
+			.mockResolvedValueOnce({ data: [fallbackPub] })
+			// Joined event_user query fails with invalid relation select.
+			.mockRejectedValueOnce(new Error("400 Bad Request"))
+			// Plain event_user fallback succeeds.
+			.mockResolvedValueOnce({
+				data: [
+					{
+						event_id: fallbackPub.event_id,
+						user_id: fallbackPub.owner_id,
+						role: "participant",
+						joined_at: "2020-02-02T00:00:00Z",
+					},
+				],
+			})
+			// Username hydration still succeeds.
+			.mockResolvedValueOnce({
+				data: [
+					{
+						user_id: fallbackPub.owner_id,
+						username: "joined_user",
+					},
+				],
+			});
+
+		const get = makeEventSlice();
+		const eff = fetchEventBySlug("my-event", get);
+
+		await expect(Effect.runPromise(eff)).resolves.toBeUndefined();
+		expect(get().setCurrentEvent).toHaveBeenCalledWith(
+			expect.objectContaining({ event_id: fallbackPub.event_id }),
+		);
+		expect(get().setParticipants).toHaveBeenCalledWith(
+			expect.arrayContaining([
+				expect.objectContaining({
+					user_id: fallbackPub.owner_id,
+					username: "joined_user",
+				}),
+			]),
+		);
+	});
+
+	it("uses owner embed in event_public query with explicit FK hint", async () => {
+		vi.resetAllMocks();
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
+		vi.mocked(getSupabaseClient).mockReturnValue(
+			forceCast<SupabaseClientLike | undefined>(createMinimalSupabaseClient()),
+		);
+
+		vi.mocked(callSelect)
+			.mockResolvedValueOnce({
+				data: [
+					{
+						event_id: "00000000-0000-0000-0000-000000000710",
+						owner_id: "00000000-0000-0000-0000-000000000711",
+						event_name: "Compatibility Event",
+						event_slug: "compatibility-event",
+						is_public: true,
+						created_at: "2020-01-01T00:00:00Z",
+						updated_at: "2020-01-01T00:00:00Z",
+					},
+				],
+			})
+			.mockResolvedValueOnce({ data: [] })
+			.mockResolvedValueOnce({ data: [] });
+
+		const get = makeEventSlice();
+		await expect(
+			Effect.runPromise(fetchEventBySlug("compatibility-event", get)),
+		).resolves.toBeUndefined();
+
+		expect(vi.mocked(callSelect)).toHaveBeenNthCalledWith(
+			CALLED_ONCE,
+			expect.anything(),
+			"event_public",
+			expect.objectContaining({
+				cols: "*, owner:user_public!event_public_owner_id_fkey(username)",
+			}),
+		);
+	});
+
 	it("falls back to plain event_public query when joined query returns invalid data shape", async () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
@@ -343,7 +444,7 @@ describe("fetchEventBySlug success & behavior", () => {
 		);
 	});
 
-	it("resolves owner username from user_public when owner embed is missing", async () => {
+	it("does not run extra owner username lookup when owner embed is missing", async () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
 		vi.mocked(getSupabaseClient).mockReturnValue(
@@ -371,16 +472,7 @@ describe("fetchEventBySlug success & behavior", () => {
 			],
 		};
 
-		vi.mocked(callSelect)
-			.mockResolvedValueOnce({ data: [pub] })
-			.mockResolvedValueOnce({
-				data: [
-					{
-						user_id: "00000000-0000-0000-0000-000000000611",
-						username: "owner_user",
-					},
-				],
-			});
+		vi.mocked(callSelect).mockResolvedValueOnce({ data: [pub] });
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("owner-username-fallback-event", get);
@@ -389,7 +481,6 @@ describe("fetchEventBySlug success & behavior", () => {
 		expect(get().setCurrentEvent).toHaveBeenCalledWith(
 			expect.objectContaining({
 				event_id: "00000000-0000-0000-0000-000000000610",
-				owner_username: "owner_user",
 			}),
 		);
 		expect(get().setParticipants).toHaveBeenCalledWith(
@@ -397,10 +488,10 @@ describe("fetchEventBySlug success & behavior", () => {
 				expect.objectContaining({
 					user_id: "00000000-0000-0000-0000-000000000611",
 					role: "owner",
-					username: "owner_user",
 				}),
 			]),
 		);
+		expect(vi.mocked(callSelect)).toHaveBeenCalledTimes(CALLED_ONCE);
 	});
 
 	it("throws InvalidEventDataError when public data fails guard", async () => {

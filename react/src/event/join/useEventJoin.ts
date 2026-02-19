@@ -1,5 +1,3 @@
-import { useCallback } from "react";
-
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 
@@ -12,14 +10,11 @@ export default function useEventJoin(): (eventId: string) => void {
 	const currentUserId = useCurrentUserId();
 	const joinEvent = useAppStore((state) => state.joinEvent);
 
-	return useCallback(
-		(eventId: string) => {
-			if (currentUserId === undefined || currentUserId === "") {
-				console.error("[useEventJoin] No current user ID");
-				return;
-			}
-			return joinEvent(eventId);
-		},
-		[currentUserId, joinEvent],
-	);
+	return (eventId: string) => {
+		if (currentUserId === undefined || currentUserId === "") {
+			console.error("[useEventJoin] No current user ID");
+			return;
+		}
+		return joinEvent(eventId);
+	};
 }

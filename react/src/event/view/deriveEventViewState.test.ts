@@ -36,11 +36,19 @@ describe("deriveEventViewState", () => {
 				event_date: "2026-02-17T00:00:00Z",
 				active_playlist_id: "playlist-1",
 				active_song_id: "song-1",
+				active_slide_position: 2,
 			}),
 		});
 
 		const publicSongs = forceCast<Record<string, SongPublic>>({
-			"song-1": { song_name: "Song Title" },
+			"song-1": {
+				song_name: "Song Title",
+				slide_order: ["slide-1", "slide-2"],
+				slides: {
+					"slide-1": { slide_name: "Verse 1" },
+					"slide-2": { slide_name: "Chorus" },
+				},
+			},
 		});
 
 		const result = deriveEventViewState({
@@ -55,6 +63,8 @@ describe("deriveEventViewState", () => {
 			isOwner: false,
 			shouldShowActions: true,
 			activeSongName: "Song Title",
+			activeSlidePosition: 2,
+			activeSlideName: "Chorus",
 		});
 		expect(result.displayDate).toBe("formatted:2026-02-17T00:00:00Z");
 	});
@@ -82,5 +92,7 @@ describe("deriveEventViewState", () => {
 		expect(result.isOwner).toBe(true);
 		expect(result.shouldShowActions).toBe(false);
 		expect(result.activeSongName).toBe("song-unknown");
+		expect(result.activeSlidePosition).toBeUndefined();
+		expect(result.activeSlideName).toBeUndefined();
 	});
 });

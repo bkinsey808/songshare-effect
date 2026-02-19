@@ -71,6 +71,15 @@ export default function leaveEvent(
 			}),
 		);
 
+		const { currentEvent, fetchEventBySlug } = get();
+		const currentEventSlug =
+			currentEvent?.event_id === eventId ? currentEvent.public?.event_slug : undefined;
+
+		if (currentEventSlug !== undefined && currentEventSlug !== "") {
+			// Best-effort UI refresh: ignore refetch failures because leave already succeeded.
+			yield* $(fetchEventBySlug(currentEventSlug).pipe(Effect.catchAll(() => Effect.void)));
+		}
+
 		return;
 	}).pipe(
 		Effect.tapError((err) =>

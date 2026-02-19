@@ -7,7 +7,7 @@ import AppHydrationBoundary from "../app/AppHydrationBoundary";
 import LanguageDetector from "../lib/language/detector/LanguageDetector";
 import LanguageProvider from "../lib/language/provider/LanguageProvider";
 import dashboardRoutes from "./dashboardRoutes";
-import publicRoutes from "./publicRoutes";
+import { publicRoutesWithLayout, publicRoutesWithoutLayout } from "./publicRoutes";
 
 /**
  * Application route configuration used by the router.
@@ -29,12 +29,13 @@ const appRoutes: RouteObject[] = [
 		// language context + Suspense
 		element: <LanguageProvider />,
 		children: [
+			...publicRoutesWithoutLayout,
 			{
 				path: "",
 				// under language route
 				element: <AppHydrationBoundary />,
 				children: [
-					...publicRoutes,
+					...publicRoutesWithLayout,
 					{
 						path: dashboardPath,
 						element: <RequireAuthBoundary />,

@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import type { EventEntry } from "@/react/event/event-entry/EventEntry.type";
@@ -54,6 +55,11 @@ function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): Us
 		isOwner: true,
 		shouldShowActions: false,
 		activeSongName: undefined,
+		activeSlidePosition: undefined,
+		activeSlideName: undefined,
+		activeSlide: undefined,
+		activeSlideDisplayFields: [],
+		activeSongTotalSlides: 0,
 		displayDate: event.public?.event_date,
 		currentUserId: "owner-1",
 		actionLoading: false,
@@ -68,13 +74,22 @@ function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): Us
 }
 
 describe("event view", () => {
+	function renderEventView(): void {
+		render(
+			<MemoryRouter initialEntries={["/en/events/event"]}>
+				<EventView />
+			</MemoryRouter>,
+		);
+	}
+
 	it("does not render Leave Event button for event owner", () => {
 		vi.mocked(useEventView).mockReturnValue(makeUseEventViewResult());
 
-		render(<EventView />);
+		renderEventView();
 
 		expect(screen.queryByRole("button", { name: "Leave Event" })).toBeNull();
 		expect(screen.queryByRole("button", { name: "Join Event" })).toBeNull();
+		expect(screen.getByRole("button", { name: "View Slide Show" })).toBeTruthy();
 	});
 
 	it("renders Leave Event button for participant who is not owner", () => {
@@ -86,7 +101,7 @@ describe("event view", () => {
 			}),
 		);
 
-		render(<EventView />);
+		renderEventView();
 
 		expect(screen.getByRole("button", { name: "Leave Event" })).toBeTruthy();
 	});
@@ -109,18 +124,22 @@ describe("event view", () => {
 				currentEvent: event,
 				eventPublic: event.public,
 				activeSongName: "Amazing Grace",
+				activeSlidePosition: 3,
+				activeSlideName: "Bridge",
 			}),
 		);
 
-		render(<EventView />);
+		renderEventView();
 
 		expect(screen.getByText("Amazing Grace")).toBeTruthy();
+		expect(screen.getByText("3")).toBeTruthy();
+		expect(screen.getByText("Bridge")).toBeTruthy();
 	});
 
 	it("renders participant username in participants card", () => {
 		vi.mocked(useEventView).mockReturnValue(makeUseEventViewResult());
 
-		render(<EventView />);
+		renderEventView();
 
 		expect(screen.getAllByText("owner_user")).toBeTruthy();
 	});
@@ -146,7 +165,7 @@ describe("event view", () => {
 			}),
 		);
 
-		render(<EventView />);
+		renderEventView();
 
 		expect(screen.queryByText("user-uuid-1")).toBeNull();
 		expect(screen.getByText("Unknown user")).toBeTruthy();

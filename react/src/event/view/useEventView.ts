@@ -29,6 +29,13 @@ export default function useEventView(): {
 	isOwner: boolean;
 	shouldShowActions: boolean;
 	activeSongName: string | undefined;
+	activeSlidePosition: number | undefined;
+	activeSlideName: string | undefined;
+	activeSlide: EventEntry["public"] extends undefined
+		? undefined
+		: ReturnType<typeof deriveEventViewState>["activeSlide"];
+	activeSlideDisplayFields: readonly string[];
+	activeSongTotalSlides: number;
 	displayDate: string | undefined;
 	currentUserId: string | undefined;
 	actionLoading: boolean;
@@ -46,8 +53,10 @@ export default function useEventView(): {
 	const fetchEventBySlug = useAppStore((state) => state.fetchEventBySlug);
 	const appStoreJoinEvent = useAppStore((state) => state.joinEvent);
 	const appStoreLeaveEvent = useAppStore((state) => state.leaveEvent);
+	const setCurrentEvent = useAppStore((state) => state.setCurrentEvent);
 	const fetchPlaylistById = useAppStore((state) => state.fetchPlaylistById);
 	const publicSongs = useAppStore((state) => state.publicSongs);
+	const currentUsername = useAppStore((state) => state.userSessionData?.userPublic.username);
 	const currentUserId = useCurrentUserId();
 
 	const derivedState = deriveEventViewState({
@@ -66,6 +75,7 @@ export default function useEventView(): {
 	useEventRealtimeSync({
 		eventSlug: event_slug,
 		eventId: currentEvent?.event_id,
+		currentUserId,
 		fetchEventBySlug,
 	});
 
@@ -79,6 +89,8 @@ export default function useEventView(): {
 	const actionState = useEventActions({
 		currentEvent,
 		currentUserId,
+		currentUsername,
+		setCurrentEvent,
 		joinEvent: appStoreJoinEvent,
 		leaveEvent: appStoreLeaveEvent,
 	});
@@ -95,6 +107,11 @@ export default function useEventView(): {
 		isOwner: derivedState.isOwner,
 		shouldShowActions: derivedState.shouldShowActions,
 		activeSongName: derivedState.activeSongName,
+		activeSlidePosition: derivedState.activeSlidePosition,
+		activeSlideName: derivedState.activeSlideName,
+		activeSlide: derivedState.activeSlide,
+		activeSlideDisplayFields: derivedState.activeSlideDisplayFields,
+		activeSongTotalSlides: derivedState.activeSongTotalSlides,
 		displayDate: derivedState.displayDate,
 		currentUserId,
 		actionLoading: actionState.actionLoading,

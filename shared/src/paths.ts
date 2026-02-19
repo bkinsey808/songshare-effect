@@ -36,6 +36,9 @@ export const eventLibraryPath = "event-library";
 /** Base path for viewing an event by slug; use as "events/:event_slug" in routes */
 export const eventViewPath = "events";
 
+/** Suffix path for event slide show view; use as "events/:event_slug/slideshow" */
+export const eventSlideShowPath = "slideshow";
+
 export const apiOauthSignInPath = "/api/oauth/sign-in";
 export const apiOauthCallbackPath = "/api/oauth/callback";
 export const apiMePath = "/api/me";

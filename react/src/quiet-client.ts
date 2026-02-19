@@ -13,7 +13,7 @@ try {
 		if (typeof console.debug === "function") {
 			// Save the original debug function on the global object so it can be restored by dev tooling
 
-			globalObj["__origConsoleDebug"] = console.debug.bind(console);
+			globalObj["__origConsoleDebug"] = console.debug;
 		}
 
 		// Make debug a no-op

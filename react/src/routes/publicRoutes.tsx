@@ -5,6 +5,7 @@ import { lazy } from "react";
 import {
 	aboutPath,
 	activityDemoPath,
+	eventSlideShowPath,
 	eventViewPath,
 	hookDemoPath,
 	optimizedCounterPath,
@@ -32,6 +33,7 @@ const UploadPage = lazy(() => import("../pages/UploadPage"));
 const SongView = lazy(() => import("../song/song-view/SongView"));
 const PlaylistPage = lazy(() => import("../pages/PlaylistPage"));
 const EventView = lazy(() => import("../event/view/EventView"));
+const EventSlideShowView = lazy(() => import("../event/view/EventSlideShowView"));
 const ActivityDemoPage = lazy(() => import("../pages/demo/ActivityDemoPage"));
 const PopoverDemoPage = lazy(() => import("../pages/demo/PopoverDemoPage"));
 const ReactFeaturesDemoPage = lazy(() => import("../pages/demo/ReactFeaturesDemoPage"));
@@ -48,11 +50,23 @@ const TypegpuAudioVizDemoPage = lazy(
 );
 
 /**
+ * Public route definitions that should render without the hydrated layout.
+ */
+export const publicRoutesWithoutLayout: RouteObject[] = [
+	{
+		path: `${eventViewPath}/:event_slug/${eventSlideShowPath}`,
+		element: withSuspense(EventSlideShowView),
+	},
+];
+
+/**
  * Public route definitions that live under the language-prefixed root.
+ *
+ * These routes render inside the hydrated app layout.
  * Lazy load all route pages for better code splitting
  * Only HomePage is eagerly loaded as it's the landing page
  */
-const publicRoutes: RouteObject[] = [
+export const publicRoutesWithLayout: RouteObject[] = [
 	{
 		index: true,
 		element: <HomePage />,
@@ -126,5 +140,3 @@ const publicRoutes: RouteObject[] = [
 		element: withSuspense(TypegpuAudioVizDemoPage),
 	},
 ];
-
-export default publicRoutes;

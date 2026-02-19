@@ -65,6 +65,14 @@ export default function joinEvent(
 			}),
 		);
 
+		const { currentEvent, fetchEventBySlug } = get();
+		const currentEventSlug =
+			currentEvent?.event_id === eventId ? currentEvent.public?.event_slug : undefined;
+
+		if (currentEventSlug !== undefined && currentEventSlug !== "") {
+			yield* $(fetchEventBySlug(currentEventSlug).pipe(Effect.catchAll(() => Effect.void)));
+		}
+
 		return;
 	}).pipe(
 		Effect.tapError((err) =>

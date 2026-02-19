@@ -27,10 +27,19 @@ export default function parseEventParticipants(
 			participant["user_id"] !== undefined &&
 			participant["role"] !== undefined
 		) {
-			const participantUser = isRecord(participant["participant"])
-				? participant["participant"]
-				: undefined;
-
+			const participantPayload = participant["participant"];
+			let participantUser: Record<string, unknown> | undefined = undefined;
+			if (isRecord(participantPayload)) {
+				participantUser = participantPayload;
+			} else if (
+				Array.isArray(participantPayload) &&
+				participantPayload.length > ARRAY_EMPTY &&
+				isRecord(participantPayload[ARRAY_EMPTY])
+			) {
+				participantUser = participantPayload[ARRAY_EMPTY];
+			} else {
+				participantUser = undefined;
+			}
 			const legacyUsername =
 				participantUser !== undefined &&
 				typeof participantUser["username"] === "string" &&

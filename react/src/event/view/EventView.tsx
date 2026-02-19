@@ -1,7 +1,12 @@
+import { useNavigate } from "react-router-dom";
+
 import EventPlaylistAccordion from "@/react/event/view/playlist-accordion/EventPlaylistAccordion";
 import useEventView from "@/react/event/view/useEventView";
 import Button from "@/react/lib/design-system/Button";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
+import useCurrentLang from "@/react/lib/language/useCurrentLang";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import { eventSlideShowPath, eventViewPath } from "@/shared/paths";
 
 const MIN_PARTICIPANTS = 0;
 
@@ -17,6 +22,8 @@ const MIN_PARTICIPANTS = 0;
  * @returns Event view component or loading/error state
  */
 export default function EventView(): React.ReactNode {
+	const navigate = useNavigate();
+	const lang = useCurrentLang();
 	const {
 		currentEvent,
 		eventPublic,
@@ -28,6 +35,8 @@ export default function EventView(): React.ReactNode {
 		isOwner,
 		shouldShowActions,
 		activeSongName,
+		activeSlidePosition,
+		activeSlideName,
 		displayDate,
 		actionLoading,
 		actionError,
@@ -140,6 +149,22 @@ export default function EventView(): React.ReactNode {
 				</div>
 			)}
 
+			<div className="mb-8 flex">
+				<Button
+					variant="outlinePrimary"
+					onClick={() => {
+						void navigate(
+							buildPathWithLang(
+								`/${eventViewPath}/${eventPublic.event_slug}/${eventSlideShowPath}`,
+								lang,
+							),
+						);
+					}}
+				>
+					View Slide Show
+				</Button>
+			</div>
+
 			{/* Active Media */}
 			{((eventPublic.active_playlist_id !== null && eventPublic.active_playlist_id !== undefined) ||
 				eventPublic.active_song_id !== null) && (
@@ -154,6 +179,16 @@ export default function EventView(): React.ReactNode {
 							<p className="text-blue-200">
 								Song: <span className="font-medium">{activeSongName}</span>
 							</p>
+							{activeSlidePosition !== undefined && (
+								<p className="text-blue-200">
+									Current Slide Position: <span className="font-medium">{activeSlidePosition}</span>
+								</p>
+							)}
+							{activeSlideName !== undefined && activeSlideName !== "" && (
+								<p className="text-blue-200">
+									Current Slide Name: <span className="font-medium">{activeSlideName}</span>
+								</p>
+							)}
 						</div>
 					)}
 				</div>

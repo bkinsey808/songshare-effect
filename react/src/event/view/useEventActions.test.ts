@@ -10,12 +10,15 @@ describe("useEventActions", () => {
 	it("sets success when join action succeeds", async () => {
 		const joinEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
 		const leaveEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
+		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry>) => void>();
 		const currentEvent = makeEventEntry();
 
 		const { result } = renderHook(() =>
 			useEventActions({
 				currentEvent,
 				currentUserId: "u1",
+				currentUsername: "u1_name",
+				setCurrentEvent,
 				joinEvent,
 				leaveEvent,
 			}),
@@ -30,15 +33,48 @@ describe("useEventActions", () => {
 		expect(joinEvent).toHaveBeenCalledWith("e1");
 	});
 
+	it("optimistically adds current user with username after join success", async () => {
+		const joinEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
+		const leaveEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
+		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry>) => void>();
+		const currentEvent = makeEventEntry({ participants: [] });
+
+		const { result } = renderHook(() =>
+			useEventActions({
+				currentEvent,
+				currentUserId: "u2",
+				currentUsername: "joined_user",
+				setCurrentEvent,
+				joinEvent,
+				leaveEvent,
+			}),
+		);
+
+		result.current.handleJoinEvent();
+
+		await waitFor(() => {
+			expect(setCurrentEvent).toHaveBeenCalledWith(expect.anything());
+			const [[calledArg]] = setCurrentEvent.mock.calls as [ReturnType<typeof makeEventEntry>][];
+			expect(calledArg.participants).toStrictEqual(
+				expect.arrayContaining([
+					expect.objectContaining({ user_id: "u2", username: "joined_user" }),
+				]),
+			);
+		});
+	});
+
 	it("sets error when leave action fails", async () => {
 		const joinEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
 		const leaveEvent = vi.fn().mockReturnValue(Effect.fail(new Error("leave failed")));
+		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry>) => void>();
 		const currentEvent = makeEventEntry();
 
 		const { result } = renderHook(() =>
 			useEventActions({
 				currentEvent,
 				currentUserId: "u1",
+				currentUsername: "u1_name",
+				setCurrentEvent,
 				joinEvent,
 				leaveEvent,
 			}),
@@ -56,12 +92,15 @@ describe("useEventActions", () => {
 	it("clears action messages", async () => {
 		const joinEvent = vi.fn().mockReturnValue(Effect.fail(new Error("join failed")));
 		const leaveEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
+		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry>) => void>();
 		const currentEvent = makeEventEntry();
 
 		const { result } = renderHook(() =>
 			useEventActions({
 				currentEvent,
 				currentUserId: "u1",
+				currentUsername: "u1_name",
+				setCurrentEvent,
 				joinEvent,
 				leaveEvent,
 			}),

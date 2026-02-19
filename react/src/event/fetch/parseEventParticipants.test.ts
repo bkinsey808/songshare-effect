@@ -52,4 +52,29 @@ describe("parseEventParticipants", () => {
 			},
 		]);
 	});
+
+	it("parses participants when participant relation is returned as an array", () => {
+		const participants = parseEventParticipants(
+			[
+				{
+					event_id: "event-3",
+					user_id: "user-3",
+					role: "participant",
+					joined_at: "2026-02-17T00:00:00Z",
+					participant: [{ user_public: { username: "array_user" } }],
+				},
+			],
+			"event-3",
+		);
+
+		expect(participants).toStrictEqual([
+			{
+				event_id: "event-3",
+				user_id: "user-3",
+				role: "participant",
+				joined_at: "2026-02-17T00:00:00Z",
+				username: "array_user",
+			},
+		]);
+	});
 });

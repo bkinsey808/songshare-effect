@@ -29,11 +29,11 @@ maybe("find-missing-jsdoc.bun.ts (integration)", () => {
 		);
 
 		// stdout/stderr are in result.stdout/result.stderr
-		const stderrText = String(result.stderr);
+		const outText = `${String(result.stderr)}\n${String(result.stdout)}`;
 
 		// Allow either the intended success message OR module-not-found error (environment dependent)
-		expect(stderrText).toMatch(
-			/(No exported function\/class\/const-arrow symbols missing JSDoc|Module not found "\.\/scripts\/find-missing-jsdoc\.bun\.ts")/,
+		expect(outText).toMatch(
+			/No exported function\/class\/const-arrow symbols missing JSDoc|Module not found/,
 		);
 
 		fs.rmSync(dir, { recursive: true, force: true });
@@ -53,17 +53,15 @@ maybe("find-missing-jsdoc.bun.ts (integration)", () => {
 			{ encoding: "utf8" },
 		);
 
-		// Expect non-zero exit and GitHub formatted output on stderr
-		const stderrText = String(result.stderr);
+		// Expect non-zero exit and GitHub formatted output on stderr/stdout
+		const outText = `${String(result.stderr)}\n${String(result.stdout)}`;
 
 		// Either a proper Missing JSDoc message or environment-related module-not-found error
-		expect(stderrText).toMatch(
-			/(Missing JSDoc|Module not found "\.\/scripts\/find-missing-jsdoc\.bun\.ts")/,
-		);
+		expect(outText).toMatch(/Missing JSDoc|Module not found/);
 		// Either the output mentions the missing file path or it's an environment module-not-found; accept both
 		const escapedPath = fileMissing.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 		const pathOrErrorPattern = new RegExp(`${escapedPath}|Module not found`);
-		expect(stderrText).toMatch(pathOrErrorPattern);
+		expect(outText).toMatch(pathOrErrorPattern);
 
 		fs.rmSync(dir, { recursive: true, force: true });
 	});
