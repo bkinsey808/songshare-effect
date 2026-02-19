@@ -343,6 +343,66 @@ describe("fetchEventBySlug success & behavior", () => {
 		);
 	});
 
+	it("resolves owner username from user_public when owner embed is missing", async () => {
+		vi.resetAllMocks();
+		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
+		vi.mocked(getSupabaseClient).mockReturnValue(
+			forceCast<SupabaseClientLike | undefined>(createMinimalSupabaseClient()),
+		);
+
+		const pub = {
+			event_id: "00000000-0000-0000-0000-000000000610",
+			owner_id: "00000000-0000-0000-0000-000000000611",
+			event_name: "Owner Username Fallback Event",
+			event_slug: "owner-username-fallback-event",
+			is_public: true,
+			created_at: "2020-01-01T00:00:00Z",
+			updated_at: "2020-01-01T00:00:00Z",
+			event_user: [
+				{
+					event_id: "00000000-0000-0000-0000-000000000610",
+					user_id: "00000000-0000-0000-0000-000000000620",
+					role: "participant",
+					joined_at: "2020-02-02T00:00:00Z",
+					participant: {
+						username: "member_user",
+					},
+				},
+			],
+		};
+
+		vi.mocked(callSelect)
+			.mockResolvedValueOnce({ data: [pub] })
+			.mockResolvedValueOnce({
+				data: [
+					{
+						user_id: "00000000-0000-0000-0000-000000000611",
+						username: "owner_user",
+					},
+				],
+			});
+
+		const get = makeEventSlice();
+		const eff = fetchEventBySlug("owner-username-fallback-event", get);
+
+		await expect(Effect.runPromise(eff)).resolves.toBeUndefined();
+		expect(get().setCurrentEvent).toHaveBeenCalledWith(
+			expect.objectContaining({
+				event_id: "00000000-0000-0000-0000-000000000610",
+				owner_username: "owner_user",
+			}),
+		);
+		expect(get().setParticipants).toHaveBeenCalledWith(
+			expect.arrayContaining([
+				expect.objectContaining({
+					user_id: "00000000-0000-0000-0000-000000000611",
+					role: "owner",
+					username: "owner_user",
+				}),
+			]),
+		);
+	});
+
 	it("throws InvalidEventDataError when public data fails guard", async () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");

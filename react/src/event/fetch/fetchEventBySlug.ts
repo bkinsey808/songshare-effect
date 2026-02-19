@@ -1,5 +1,7 @@
 import { Effect } from "effect";
 
+import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
+
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
@@ -24,6 +26,50 @@ import normalizeEventPublicRow from "./normalizeEventPublicRow";
 import parseEventParticipants from "./parseEventParticipants";
 
 const ARRAY_EMPTY = 0;
+
+/**
+ * Resolves a username for the event owner from user_public.
+ *
+ * @param client - Supabase client used for lookup
+ * @param ownerId - Owner user id
+ * @returns Owner username when available
+ */
+function fetchOwnerUsername(
+	client: SupabaseClientLike,
+	ownerId: string,
+): Effect.Effect<
+	/** owner username */
+	string | undefined,
+	QueryError
+> {
+	return Effect.gen(function* fetchOwnerUsernameGen($) {
+		const rawOwnerResult = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					callSelect(client, "user_public", {
+						cols: "user_id, username",
+						eq: { col: "user_id", val: ownerId },
+					}),
+				catch: (err) => {
+					const errorMessage = err instanceof Error ? err.message : String(err);
+					return new QueryError("Failed to query owner username", errorMessage);
+				},
+			}),
+		);
+
+		const ownerRows = Array.isArray(rawOwnerResult["data"]) ? rawOwnerResult["data"] : [];
+		const ownerRow = ownerRows.find(
+			(row: unknown): row is { user_id: string; username: string } =>
+				isRecord(row) &&
+				typeof row["user_id"] === "string" &&
+				row["user_id"] === ownerId &&
+				typeof row["username"] === "string" &&
+				row["username"] !== "",
+		);
+
+		return ownerRow?.username;
+	});
+}
 
 /**
  * Fetch a single event by slug (readable based on is_public + participant status).
@@ -153,13 +199,29 @@ export default function fetchEventBySlug(
 
 		const hydratedParticipants = yield* $(hydrateParticipantUsernames(client, participants));
 
-		const ownerUsername =
+		const embeddedOwnerUsername =
 			isRecord(rawEventPublic) &&
 			isRecord(rawEventPublic["owner"]) &&
 			typeof rawEventPublic["owner"]["username"] === "string" &&
 			rawEventPublic["owner"]["username"] !== ""
 				? rawEventPublic["owner"]["username"]
 				: undefined;
+
+		const participantOwnerUsername = hydratedParticipants.find(
+			(participant) => participant.user_id === eventPublic.owner_id,
+		)?.username;
+
+		const fallbackOwnerUsername =
+			embeddedOwnerUsername === undefined && participantOwnerUsername === undefined
+				? yield* $(
+						fetchOwnerUsername(client, eventPublic.owner_id).pipe(
+							Effect.catchAll(() => Effect.succeed(undefined)),
+						),
+					)
+				: undefined;
+
+		const ownerUsername =
+			embeddedOwnerUsername ?? participantOwnerUsername ?? fallbackOwnerUsername;
 
 		const participantsWithOwner = ensureOwnerParticipant({
 			participants: hydratedParticipants,
