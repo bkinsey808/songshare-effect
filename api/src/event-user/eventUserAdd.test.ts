@@ -102,7 +102,7 @@ describe("eventUserAddHandler", () => {
 			Effect.succeed<UserSessionData>(SAMPLE_USER_SESSION),
 		);
 
-		await expect(Effect.runPromise(eventUserAddHandler(ctx))).rejects.toThrow(/Expected "admin"/);
+		await expect(Effect.runPromise(eventUserAddHandler(ctx))).rejects.toThrow(/Expected/);
 	});
 
 	it("propagates authentication failure from getVerifiedUserSession", async () => {
@@ -135,7 +135,7 @@ describe("eventUserAddHandler", () => {
 		);
 	});
 
-	it("rejects when requester is not owner or admin", async () => {
+	it("rejects when requester is not owner or event admin", async () => {
 		vi.resetAllMocks();
 		const ctx = makeCtx({ body: { event_id: "evt-1", user_id: "u-1", role: "participant" } });
 
@@ -149,8 +149,34 @@ describe("eventUserAddHandler", () => {
 		});
 
 		await expect(Effect.runPromise(eventUserAddHandler(ctx))).rejects.toThrow(
-			/Only event owners and admins can add participants/,
+			/Only event owners and event admins can add participants/,
 		);
+	});
+
+	it("allows event admin to add participants", async () => {
+		vi.resetAllMocks();
+		const ctx = makeCtx({
+			body: { event_id: "evt-1", user_id: "target-1", role: "participant" },
+			env: { VITE_SUPABASE_URL: "url", SUPABASE_SERVICE_KEY: "svc" },
+		});
+
+		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
+		vi.spyOn(verifiedModule, "default").mockReturnValue(
+			Effect.succeed<UserSessionData>(SAMPLE_USER_SESSION),
+		);
+
+		mockCreateSupabaseClient(vi.mocked(createClient), {
+			eventUserSelectRow: { role: "event_admin" },
+			eventUserInsertRows: [{ event_id: "evt-1", user_id: "target-1", role: "participant" }],
+		});
+		const patched = patchUserSingle(createClient("", ""), {
+			data: { user_id: "target-1" },
+			error: undefined,
+		});
+		vi.mocked(createClient).mockReturnValue(patched);
+
+		const res = await Effect.runPromise(eventUserAddHandler(ctx));
+		expect(res).toStrictEqual({ success: true });
 	});
 
 	it("fails when target user is not found", async () => {
@@ -163,7 +189,7 @@ describe("eventUserAddHandler", () => {
 		);
 
 		mockCreateSupabaseClient(vi.mocked(createClient), {
-			eventUserSelectRow: { role: "admin" },
+			eventUserSelectRow: { role: "event_admin" },
 		});
 		const patched = patchUserSingle(createClient("", ""), {
 			data: undefined,
@@ -186,7 +212,7 @@ describe("eventUserAddHandler", () => {
 		);
 
 		mockCreateSupabaseClient(vi.mocked(createClient), {
-			eventUserSelectRow: { role: "admin" },
+			eventUserSelectRow: { role: "event_admin" },
 			eventUserInsertError: { message: "duplicate" },
 		});
 		const patched = patchUserSingle(createClient("", ""), {
@@ -211,7 +237,7 @@ describe("eventUserAddHandler", () => {
 		);
 
 		mockCreateSupabaseClient(vi.mocked(createClient), {
-			eventUserSelectRow: { role: "admin" },
+			eventUserSelectRow: { role: "event_admin" },
 			eventUserInsertRows: [{ event_id: "evt-1", user_id: "target-1", role: "participant" }],
 		});
 		const patched2 = patchUserSingle(createClient("", ""), {

@@ -10,6 +10,7 @@ import validateFormEffect from "@/shared/validation/validateFormEffect";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
+import { getEventRoleCapabilities } from "./eventRoleCapabilities";
 
 /**
  * Schema validating payload for removing a user from an event.
@@ -107,14 +108,13 @@ export default function eventUserRemove(
 				);
 			}
 
-			const isOwnerOrAdmin =
-				requesterRole.data?.role === "owner" || requesterRole.data?.role === "admin";
+			const requesterCapabilities = getEventRoleCapabilities(requesterRole.data?.role);
 
-			if (!isOwnerOrAdmin) {
+			if (!requesterCapabilities.canManageParticipants) {
 				return yield* $(
 					Effect.fail(
 						new ValidationError({
-							message: "Only event owners and admins can remove other participants",
+							message: "Only event owners and event admins can remove other participants",
 						}),
 					),
 				);

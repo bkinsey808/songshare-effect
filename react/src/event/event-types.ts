@@ -19,8 +19,8 @@ export type { Event, EventEntry, EventInsert, EventPublic, EventPublicInsert, Ev
  */
 export type SaveEventRequest = {
 	event_id?: string;
-	event_name: string;
-	event_slug: string;
+	event_name?: string;
+	event_slug?: string;
 	event_description?: string;
 	event_date?: string;
 	is_public?: boolean;

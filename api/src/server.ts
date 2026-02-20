@@ -12,6 +12,7 @@ import {
 	apiEventSavePath,
 	apiEventUserAddPath,
 	apiEventUserJoinPath,
+	apiEventUserKickPath,
 	apiEventUserRemovePath,
 	apiEventUserUpdateRolePath,
 	apiHelloPath,
@@ -42,6 +43,7 @@ import addEventToLibraryHandler from "./event-library/addEventToLibrary";
 import removeEventFromLibraryHandler from "./event-library/removeEventFromLibrary";
 import eventUserAdd from "./event-user/eventUserAdd";
 import eventUserJoin from "./event-user/eventUserJoin";
+import eventUserKick from "./event-user/eventUserKick";
 import eventUserRemove from "./event-user/eventUserRemove";
 import eventUserUpdateRoleHandler from "./event-user/eventUserUpdateRole";
 import eventDelete from "./event/eventDelete";
@@ -180,6 +182,11 @@ app.post(
 app.post(
 	apiEventUserRemovePath,
 	handleHttpEndpoint((ctx) => eventUserRemove(ctx)),
+);
+
+app.post(
+	apiEventUserKickPath,
+	handleHttpEndpoint((ctx) => eventUserKick(ctx)),
 );
 
 app.post(

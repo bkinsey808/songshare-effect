@@ -6,6 +6,7 @@ import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
+import isRecord from "@/shared/type-guards/isRecord";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
@@ -96,6 +97,55 @@ export default function eventUserJoin(
 			);
 		}
 
+		const existingMembership = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					supabase
+						.from("event_user")
+						.select("*")
+						.eq("event_id", validated.event_id)
+						.eq("user_id", userId)
+						.single(),
+				catch: (err) =>
+					new DatabaseError({
+						message: `Failed to verify participant status: ${extractErrorMessage(err, "Unknown error")}`,
+					}),
+			}),
+		);
+
+		if (existingMembership.error !== undefined && existingMembership.error !== null) {
+			const membershipErrorMessage = extractErrorMessage(existingMembership.error, "Unknown error");
+			const isNotFoundError =
+				membershipErrorMessage.includes("PGRST116") ||
+				membershipErrorMessage.toLowerCase().includes("not found") ||
+				membershipErrorMessage.toLowerCase().includes("no rows");
+			if (!isNotFoundError) {
+				return yield* $(
+					Effect.fail(
+						new DatabaseError({
+							message: `Failed to verify participant status: ${membershipErrorMessage}`,
+						}),
+					),
+				);
+			}
+		}
+
+		const membershipData: unknown = existingMembership.data;
+		const membershipStatus =
+			isRecord(membershipData) && typeof membershipData["status"] === "string"
+				? membershipData["status"]
+				: undefined;
+
+		if (membershipStatus === "kicked" || existingMembership.data?.role === "kicked") {
+			return yield* $(
+				Effect.fail(
+					new ValidationError({
+						message: "You have been removed from this event and cannot rejoin",
+					}),
+				),
+			);
+		}
+
 		// Add user to event_user table
 		const addResult = yield* $(
 			Effect.tryPromise({
@@ -106,9 +156,10 @@ export default function eventUserJoin(
 								event_id: validated.event_id,
 								user_id: userId,
 								role: "participant",
+								status: "joined",
 							},
 						],
-						{ onConflict: "event_id,user_id", ignoreDuplicates: true },
+						{ onConflict: "event_id,user_id" },
 					),
 				catch: (err) =>
 					new DatabaseError({

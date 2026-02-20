@@ -33,9 +33,20 @@ export default function ensureOwnerParticipant({
 		if (participant.user_id !== ownerId) {
 			participantsWithOwner.push(participant);
 		} else if (participant.username !== undefined || ownerUsername === undefined) {
-			participantsWithOwner.push({ ...participant, role: "owner" });
+			participantsWithOwner.push({
+				...participant,
+				role: "owner",
+				status: "joined",
+				participantStatus: "joined",
+			});
 		} else {
-			participantsWithOwner.push({ ...participant, role: "owner", username: ownerUsername });
+			participantsWithOwner.push({
+				...participant,
+				role: "owner",
+				status: "joined",
+				participantStatus: "joined",
+				username: ownerUsername,
+			});
 		}
 	}
 
@@ -48,6 +59,8 @@ export default function ensureOwnerParticipant({
 			event_id: eventId,
 			user_id: ownerId,
 			role: "owner",
+			status: "joined",
+			participantStatus: "joined",
 			joined_at: ownerJoinedAt,
 			...(ownerUsername === undefined ? {} : { username: ownerUsername }),
 		});

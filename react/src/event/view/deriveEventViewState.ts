@@ -1,5 +1,10 @@
 import type { EventEntry } from "@/react/event/event-types";
 
+import {
+	deriveCurrentParticipantStatus,
+	getParticipantPermissions,
+	type ParticipantStatus,
+} from "@/react/event/participant-status/participantStatusMachine";
 import { songFields, type SongPublic } from "@/react/song/song-schema";
 import { utcTimestampToClientLocalDate } from "@/shared/utils/formatEventDate";
 
@@ -16,6 +21,11 @@ type DerivedEventViewState = {
 	eventPublic: EventEntry["public"];
 	ownerUsername: string | undefined;
 	participants: EventEntry["participants"];
+	participantStatus: ParticipantStatus;
+	canViewFullEvent: boolean;
+	canViewSlides: boolean;
+	canJoin: boolean;
+	canLeave: boolean;
 	isParticipant: boolean;
 	isOwner: boolean;
 	shouldShowActions: boolean;
@@ -41,6 +51,8 @@ export default function deriveEventViewState(
 	const participants = currentEvent?.participants ?? [];
 	const eventPublic = currentEvent?.public;
 	const ownerUsername = currentEvent?.owner_username;
+	const participantStatus = deriveCurrentParticipantStatus(currentEvent, currentUserId);
+	const participantPermissions = getParticipantPermissions(participantStatus);
 	const isParticipant =
 		currentUserId !== undefined && currentUserId !== ""
 			? participants.some((participant) => participant.user_id === currentUserId)
@@ -50,7 +62,11 @@ export default function deriveEventViewState(
 		currentUserId !== "" &&
 		currentEvent !== undefined &&
 		currentUserId === currentEvent.owner_id;
-	const shouldShowActions = currentUserId !== undefined && currentUserId !== "" && !isOwner;
+	const shouldShowActions =
+		currentUserId !== undefined &&
+		currentUserId !== "" &&
+		!isOwner &&
+		(participantPermissions.canJoin || participantPermissions.canLeave);
 	const activeSongName =
 		eventPublic?.active_song_id !== undefined && eventPublic.active_song_id !== null
 			? (publicSongs[eventPublic.active_song_id]?.song_name ?? eventPublic.active_song_id)
@@ -94,6 +110,11 @@ export default function deriveEventViewState(
 		eventPublic,
 		ownerUsername,
 		participants,
+		participantStatus,
+		canViewFullEvent: participantPermissions.canViewFullEvent,
+		canViewSlides: participantPermissions.canViewSlides,
+		canJoin: participantPermissions.canJoin,
+		canLeave: participantPermissions.canLeave,
 		isParticipant,
 		isOwner,
 		shouldShowActions,

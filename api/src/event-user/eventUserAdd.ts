@@ -10,16 +10,18 @@ import validateFormEffect from "@/shared/validation/validateFormEffect";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
+import { getEventRoleCapabilities } from "./eventRoleCapabilities";
 
 /**
  * Schema validating payload for adding a user to an event.
  *
- * Expected fields: `event_id`, `user_id`, and `role` ("admin" | "participant").
+ * Expected fields: `event_id`, `user_id`, and `role`.
  */
 const EventUserAddSchema = Schema.Struct({
 	event_id: Schema.String,
 	user_id: Schema.String,
-	role: Schema.Literal("admin", "participant"),
+	role: Schema.Literal("participant", "event_admin", "event_playlist_admin"),
+	status: Schema.optional(Schema.Literal("invited", "joined")),
 });
 
 type EventUserAddData = Schema.Schema.Type<typeof EventUserAddSchema>;
@@ -27,7 +29,7 @@ type EventUserAddData = Schema.Schema.Type<typeof EventUserAddSchema>;
 /**
  * Server-side handler for adding a user to an event. This Effect-based handler:
  * - validates the incoming request
- * - verifies the requester is owner or admin
+ * - verifies the requester is owner or event admin
  * - adds the user to event_user table
  * - automatically adds active playlist/song to user's libraries if applicable
  *
@@ -71,6 +73,7 @@ export default function eventUserAdd(
 		);
 
 		const { event_id, user_id, role } = validated;
+		const status = validated.status ?? "invited";
 
 		// Create Supabase client with service role key to bypass RLS
 		const supabase = createClient<Database>(
@@ -105,14 +108,13 @@ export default function eventUserAdd(
 			);
 		}
 
-		const isOwnerOrAdmin =
-			requesterRole.data?.role === "owner" || requesterRole.data?.role === "admin";
+		const requesterCapabilities = getEventRoleCapabilities(requesterRole.data?.role);
 
-		if (!isOwnerOrAdmin) {
+		if (!requesterCapabilities.canManageParticipants) {
 			return yield* $(
 				Effect.fail(
 					new ValidationError({
-						message: "Only event owners and admins can add participants",
+						message: "Only event owners and event admins can add participants",
 					}),
 				),
 			);
@@ -148,6 +150,7 @@ export default function eventUserAdd(
 							event_id,
 							user_id,
 							role,
+							status,
 						},
 					]),
 				catch: (err) =>

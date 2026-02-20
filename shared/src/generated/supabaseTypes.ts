@@ -178,18 +178,21 @@ export type Database = {
           event_id: string
           joined_at: string
           role: string
+          status: string
           user_id: string
         }
         Insert: {
           event_id: string
           joined_at?: string
           role: string
+          status?: string
           user_id: string
         }
         Update: {
           event_id?: string
           joined_at?: string
           role?: string
+          status?: string
           user_id?: string
         }
         Relationships: [

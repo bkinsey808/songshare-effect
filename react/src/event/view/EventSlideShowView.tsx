@@ -29,6 +29,7 @@ export default function EventSlideShowView(): React.ReactNode {
 		eventError,
 		currentEvent,
 		eventPublic,
+		canViewSlides,
 		activeSlide,
 		activeSlideDisplayFields,
 	} = useEventView();
@@ -52,12 +53,15 @@ export default function EventSlideShowView(): React.ReactNode {
 	if (
 		currentEvent === undefined ||
 		eventPublic === undefined ||
+		!canViewSlides ||
 		eventPublic.active_song_id === undefined ||
 		eventPublic.active_song_id === null
 	) {
 		return (
 			<div className="flex min-h-screen items-center justify-center">
-				<p className="text-gray-300">No active song.</p>
+				<p className="text-gray-300">
+					{canViewSlides ? "No active song." : "Join this event to access the slide show."}
+				</p>
 			</div>
 		);
 	}

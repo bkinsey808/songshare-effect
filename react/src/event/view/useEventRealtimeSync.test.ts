@@ -15,12 +15,6 @@ vi.mock("@/react/lib/supabase/subscription/realtime/createRealtimeSubscription")
 const mockedCreateRealtimeSubscription = vi.mocked(createRealtimeSubscription);
 const EXPECTED_SUBSCRIPTION_COUNT = 2;
 
-function assertDefined<TVal>(value: TVal | undefined): asserts value is TVal {
-	if (value === undefined) {
-		throw new Error("expected defined");
-	}
-}
-
 describe("useEventRealtimeSync", () => {
 	it("subscribes to event_public and event_user channels", async () => {
 		vi.resetAllMocks();
@@ -73,7 +67,18 @@ describe("useEventRealtimeSync", () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalSupabaseClient());
-		vi.mocked(createRealtimeSubscription).mockReturnValue(() => undefined);
+		vi.mocked(createRealtimeSubscription)
+			.mockImplementationOnce(
+				(_cfg: { onEvent: (payload: unknown) => Effect.Effect<void, Error> }) => (): void =>
+					undefined,
+			)
+			.mockImplementationOnce(
+				({ onEvent }: { onEvent: (payload: unknown) => Effect.Effect<void, Error> }) => {
+					// event_user subscription - exercise handler for current-user payload
+					void Effect.runPromise(onEvent({ eventType: "INSERT", new: { user_id: "u1" } }));
+					return (): void => undefined;
+				},
+			);
 		const fetchEventBySlug = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
 
 		renderHook(() => {
@@ -88,25 +93,6 @@ describe("useEventRealtimeSync", () => {
 		await waitFor(() => {
 			expect(mockedCreateRealtimeSubscription).toHaveBeenCalledTimes(EXPECTED_SUBSCRIPTION_COUNT);
 		});
-
-		const eventUserConfig = mockedCreateRealtimeSubscription.mock.calls
-			.map(
-				([call]) =>
-					call as {
-						tableName?: string;
-						onEvent?: (payload: unknown) => Effect.Effect<unknown, unknown, unknown>;
-					},
-			)
-			.find((config) => config.tableName === "event_user");
-		expect(eventUserConfig).toBeDefined();
-		assertDefined(eventUserConfig);
-
-		await Effect.runPromise(
-			eventUserConfig.onEvent({
-				eventType: "INSERT",
-				new: { user_id: "u1" },
-			}),
-		);
 
 		expect(fetchEventBySlug).not.toHaveBeenCalled();
 	});

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
@@ -9,6 +10,7 @@ import { type Database } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
+import { getEventRoleCapabilities } from "../event-user/eventRoleCapabilities";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 /**
@@ -19,8 +21,8 @@ import getVerifiedUserSession from "../user-session/getVerifiedSession";
  */
 const EventFormSchema = Schema.Struct({
 	event_id: Schema.optional(Schema.String),
-	event_name: Schema.String,
-	event_slug: Schema.String,
+	event_name: Schema.optional(Schema.String),
+	event_slug: Schema.optional(Schema.String),
 	event_description: Schema.optional(Schema.String),
 	event_date: Schema.optional(Schema.String),
 	is_public: Schema.optional(Schema.Boolean),
@@ -93,6 +95,28 @@ export default function eventSave(
 		const isUpdate = validated.event_id !== undefined && validated.event_id.trim() !== "";
 		const eventId = isUpdate ? validated.event_id : crypto.randomUUID();
 
+		if (!isUpdate) {
+			if (validated.event_name === undefined || validated.event_name.trim() === "") {
+				return yield* $(
+					Effect.fail(
+						new ValidationError({
+							message: "event_name is missing",
+						}),
+					),
+				);
+			}
+
+			if (validated.event_slug === undefined || validated.event_slug.trim() === "") {
+				return yield* $(
+					Effect.fail(
+						new ValidationError({
+							message: "event_slug is missing",
+						}),
+					),
+				);
+			}
+		}
+
 		// If updating, verify the user owns the event or is an admin
 		if (isUpdate) {
 			const userRole = yield* $(
@@ -121,11 +145,9 @@ export default function eventSave(
 				);
 			}
 
-			const role = userRole.data?.role;
-			const isOwner = role === "owner";
-			const isAdmin = role === "admin";
+			const roleCapabilities = getEventRoleCapabilities(userRole.data?.role);
 
-			if (!isOwner && !isAdmin) {
+			if (!roleCapabilities.canUpdateEventPlaybackFields) {
 				return yield* $(
 					Effect.fail(
 						new ValidationError({
@@ -135,10 +157,10 @@ export default function eventSave(
 				);
 			}
 
-			// If user is admin (not owner), restrict which fields can be updated
-			if (isAdmin && !isOwner) {
-				// Admins can only update: event_name, event_description, active playlist/song/slide fields
+			if (!roleCapabilities.canUpdateEventAllFields) {
 				const restrictedFields: (keyof EventFormData)[] = [
+					"event_name",
+					"event_description",
 					"event_slug",
 					"is_public",
 					"event_date",
@@ -154,7 +176,7 @@ export default function eventSave(
 						Effect.fail(
 							new ValidationError({
 								message:
-									"Admins can only update event name, description, and active playlist/song/slide",
+									"Event playlist admins can only update active playlist, active song, and active slide",
 							}),
 						),
 					);
@@ -167,10 +189,14 @@ export default function eventSave(
 			Effect.tryPromise({
 				try: () => {
 					if (isUpdate) {
+						if (validated.private_notes === undefined) {
+							return supabase.from("event").select("event_id").eq("event_id", eventId).single();
+						}
+
 						return supabase
 							.from("event")
 							.update({
-								private_notes: validated.private_notes ?? "",
+								private_notes: validated.private_notes,
 							})
 							.eq("event_id", eventId)
 							.select()
@@ -211,10 +237,14 @@ export default function eventSave(
 				try: () => {
 					if (isUpdate) {
 						// Build update object based on what fields are provided
-						const updateData: Record<string, unknown> = {
-							event_name: validated.event_name,
-							event_description: validated.event_description ?? "",
-						};
+						const updateData: Record<string, unknown> = {};
+
+						if (validated.event_name !== undefined) {
+							updateData.event_name = validated.event_name;
+						}
+						if (validated.event_description !== undefined) {
+							updateData.event_description = validated.event_description;
+						}
 
 						// Add optional fields if provided
 						if (validated.event_slug !== undefined) {
@@ -243,6 +273,10 @@ export default function eventSave(
 							updateData.public_notes = validated.public_notes ?? null;
 						}
 
+						if (Object.keys(updateData).length === ZERO) {
+							return supabase.from("event_public").select().eq("event_id", eventId).single();
+						}
+
 						return supabase
 							.from("event_public")
 							.update(updateData)
@@ -256,8 +290,8 @@ export default function eventSave(
 							{
 								event_id: eventId,
 								owner_id: userId,
-								event_name: validated.event_name,
-								event_slug: validated.event_slug,
+								event_name: validated.event_name ?? "",
+								event_slug: validated.event_slug ?? "",
 								event_description: validated.event_description ?? "",
 								/* eslint-disable-next-line unicorn/no-null */
 								event_date: validated.event_date ?? null,

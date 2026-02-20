@@ -41,7 +41,7 @@ describe("useEventView", () => {
 		});
 	});
 
-	it("auto-joins authenticated user who is not a participant", async () => {
+	it("does not auto-join authenticated invited user", async () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalSupabaseClient());
@@ -61,8 +61,10 @@ describe("useEventView", () => {
 		renderHook(() => useEventView());
 
 		await waitFor(() => {
-			expect(mockJoin).toHaveBeenCalledWith("e1");
+			expect(mockFetch).toHaveBeenCalledWith("my-slug");
 		});
+
+		expect(mockJoin).not.toHaveBeenCalled();
 	});
 
 	it("does not auto-join when current user is the event owner", async () => {

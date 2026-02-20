@@ -105,6 +105,23 @@ describe("eventUserJoinHandler", () => {
 		expect(res).toStrictEqual({ success: true });
 	});
 
+	it("rejects rejoin when existing membership is kicked", async () => {
+		vi.resetAllMocks();
+		const ctx = makeCtx({ body: { event_id: "evt-1" } });
+
+		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
+		vi.spyOn(verifiedModule, "default").mockReturnValue(
+			Effect.succeed<UserSessionData>(SAMPLE_USER_SESSION),
+		);
+
+		mockCreateSupabaseClient(vi.mocked(createClient), {
+			eventSelectSingleRow: { event_id: "evt-1" },
+			eventUserSelectRow: { role: "kicked" },
+		});
+
+		await expect(Effect.runPromise(eventUserJoinHandler(ctx))).rejects.toThrow(/cannot rejoin/);
+	});
+
 	it("joins event and returns success (happy path)", async () => {
 		vi.resetAllMocks();
 		const ctx = makeCtx({

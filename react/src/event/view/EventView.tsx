@@ -6,7 +6,7 @@ import Button from "@/react/lib/design-system/Button";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { eventSlideShowPath, eventViewPath } from "@/shared/paths";
+import { eventManagePath, eventSlideShowPath, eventViewPath } from "@/shared/paths";
 
 const MIN_PARTICIPANTS = 0;
 
@@ -31,8 +31,13 @@ export default function EventView(): React.ReactNode {
 		participants = [],
 		isEventLoading,
 		eventError,
+		participantStatus,
+		canViewFullEvent,
+		canJoin,
+		canLeave,
 		isParticipant,
 		isOwner,
+		canManageEvent,
 		shouldShowActions,
 		activeSongName,
 		activeSlidePosition,
@@ -74,6 +79,29 @@ export default function EventView(): React.ReactNode {
 					<p className="text-gray-600">Event not found</p>
 				</div>
 			</div>
+		);
+	}
+
+	let actionContent: React.ReactNode = undefined;
+	if (canLeave && isParticipant && !isOwner) {
+		actionContent = (
+			<Button variant="danger" onClick={handleLeaveEvent} disabled={actionLoading}>
+				{actionLoading ? "Leaving..." : "Leave Event"}
+			</Button>
+		);
+	} else if (canJoin) {
+		actionContent = (
+			<Button variant="primary" onClick={handleJoinEvent} disabled={actionLoading}>
+				{actionLoading ? "Joining..." : "Join Event"}
+			</Button>
+		);
+	} else {
+		actionContent = (
+			<p className="text-sm text-gray-400">
+				{participantStatus === "kicked"
+					? "You have been removed from this event and cannot rejoin."
+					: "You cannot join this event."}
+			</p>
 		);
 	}
 
@@ -135,90 +163,107 @@ export default function EventView(): React.ReactNode {
 			)}
 
 			{/* Actions */}
-			{shouldShowActions && (
-				<div className="mb-8 flex gap-4">
-					{isParticipant && !isOwner ? (
-						<Button variant="danger" onClick={handleLeaveEvent} disabled={actionLoading}>
-							{actionLoading ? "Leaving..." : "Leave Event"}
-						</Button>
-					) : (
-						<Button variant="primary" onClick={handleJoinEvent} disabled={actionLoading}>
-							{actionLoading ? "Joining..." : "Join Event"}
-						</Button>
-					)}
-				</div>
-			)}
+			{shouldShowActions && <div className="mb-8 flex gap-4">{actionContent}</div>}
 
-			<div className="mb-8 flex">
-				<Button
-					variant="outlinePrimary"
-					onClick={() => {
-						void navigate(
-							buildPathWithLang(
-								`/${eventViewPath}/${eventPublic.event_slug}/${eventSlideShowPath}`,
-								lang,
-							),
-						);
-					}}
-				>
-					View Slide Show
-				</Button>
-			</div>
-
-			{/* Active Media */}
-			{((eventPublic.active_playlist_id !== null && eventPublic.active_playlist_id !== undefined) ||
-				eventPublic.active_song_id !== null) && (
-				<div className="mb-8">
-					{eventPublic.active_playlist_id !== null &&
-						eventPublic.active_playlist_id !== undefined && (
-							<EventPlaylistAccordion playlistId={eventPublic.active_playlist_id} />
+			{canViewFullEvent ? (
+				<>
+					<div className="mb-8 flex gap-3">
+						<Button
+							variant="outlinePrimary"
+							onClick={() => {
+								void navigate(
+									buildPathWithLang(
+										`/${eventViewPath}/${eventPublic.event_slug}/${eventSlideShowPath}`,
+										lang,
+									),
+								);
+							}}
+						>
+							View Slide Show
+						</Button>
+						{canManageEvent && (
+							<Button
+								variant="outlineSecondary"
+								onClick={() => {
+									void navigate(
+										buildPathWithLang(
+											`/${eventViewPath}/${eventPublic.event_slug}/${eventManagePath}`,
+											lang,
+										),
+									);
+								}}
+							>
+								Manage Event
+							</Button>
 						)}
-					{eventPublic.active_song_id !== null && eventPublic.active_song_id !== undefined && (
-						<div className="mb-6 rounded-lg border border-blue-600 bg-blue-900/20 p-6">
-							<h2 className="mb-2 text-lg font-semibold text-blue-200">Currently Playing Song</h2>
-							<p className="text-blue-200">
-								Song: <span className="font-medium">{activeSongName}</span>
-							</p>
-							{activeSlidePosition !== undefined && (
-								<p className="text-blue-200">
-									Current Slide Position: <span className="font-medium">{activeSlidePosition}</span>
-								</p>
-							)}
-							{activeSlideName !== undefined && activeSlideName !== "" && (
-								<p className="text-blue-200">
-									Current Slide Name: <span className="font-medium">{activeSlideName}</span>
-								</p>
+					</div>
+
+					{/* Active Media */}
+					{((eventPublic.active_playlist_id !== null &&
+						eventPublic.active_playlist_id !== undefined) ||
+						eventPublic.active_song_id !== null) && (
+						<div className="mb-8">
+							{eventPublic.active_playlist_id !== null &&
+								eventPublic.active_playlist_id !== undefined && (
+									<EventPlaylistAccordion playlistId={eventPublic.active_playlist_id} />
+								)}
+							{eventPublic.active_song_id !== null && eventPublic.active_song_id !== undefined && (
+								<div className="mb-6 rounded-lg border border-blue-600 bg-blue-900/20 p-6">
+									<h2 className="mb-2 text-lg font-semibold text-blue-200">
+										Currently Playing Song
+									</h2>
+									<p className="text-blue-200">
+										Song: <span className="font-medium">{activeSongName}</span>
+									</p>
+									{activeSlidePosition !== undefined && (
+										<p className="text-blue-200">
+											Current Slide Position:{" "}
+											<span className="font-medium">{activeSlidePosition}</span>
+										</p>
+									)}
+									{activeSlideName !== undefined && activeSlideName !== "" && (
+										<p className="text-blue-200">
+											Current Slide Name: <span className="font-medium">{activeSlideName}</span>
+										</p>
+									)}
+								</div>
 							)}
 						</div>
 					)}
-				</div>
-			)}
 
-			{/* Participants */}
-			<div className="mb-8">
-				<h2 className="text-lg font-semibold mb-4">Participants ({participants.length})</h2>
-				{participants.length > MIN_PARTICIPANTS ? (
-					<div className="space-y-2">
-						{participants.map((participant) => (
-							<div
-								key={participant.user_id}
-								className="flex items-center justify-between rounded border border-gray-700 bg-gray-800 px-4 py-3"
-							>
-								<span>
-									{participant.username ??
-										(participant.user_id === currentEvent.owner_id ? ownerUsername : undefined) ??
-										"Unknown user"}
-								</span>
-								<span className="rounded bg-gray-700 px-3 py-1 text-sm text-gray-200">
-									{participant.role}
-								</span>
+					{/* Participants */}
+					<div className="mb-8">
+						<h2 className="text-lg font-semibold mb-4">Participants ({participants.length})</h2>
+						{participants.length > MIN_PARTICIPANTS ? (
+							<div className="space-y-2">
+								{participants.map((participant) => (
+									<div
+										key={participant.user_id}
+										className="flex items-center justify-between rounded border border-gray-700 bg-gray-800 px-4 py-3"
+									>
+										<span>
+											{participant.username ??
+												(participant.user_id === currentEvent.owner_id
+													? ownerUsername
+													: undefined) ??
+												"Unknown user"}
+										</span>
+										<span className="rounded bg-gray-700 px-3 py-1 text-sm text-gray-200">
+											{participant.role}
+										</span>
+									</div>
+								))}
 							</div>
-						))}
+						) : (
+							<p className="text-gray-600">No participants yet</p>
+						)}
 					</div>
-				) : (
-					<p className="text-gray-600">No participants yet</p>
-				)}
-			</div>
+				</>
+			) : (
+				<p className="text-sm text-gray-400">
+					Join this event to see participants, playlist, and slides.
+				</p>
+			)}
 		</div>
 	);
 }

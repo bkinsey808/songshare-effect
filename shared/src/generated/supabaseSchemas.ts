@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-02-17T16:52:36.452Z
+ * Last generated: 2026-02-20T00:03:42.110Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -208,11 +208,13 @@ export const EventUserSchema: Schema.Struct<{
 	event_id: typeof Schema.UUID;
 	joined_at: typeof Schema.NonEmptyString;
 	role: typeof Schema.NonEmptyString;
+	status: typeof Schema.NonEmptyString;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	event_id: Schema.UUID,
 	joined_at: Schema.NonEmptyString,
 	role: Schema.NonEmptyString,
+	status: Schema.NonEmptyString,
 	user_id: Schema.UUID,
 });
 
@@ -222,11 +224,13 @@ export const EventUserInsertSchema: Schema.Struct<{
 	event_id: typeof Schema.UUID;
 	joined_at: Schema.optional<typeof Schema.NonEmptyString>;
 	role: typeof Schema.NonEmptyString;
+	status: Schema.optional<typeof Schema.NonEmptyString>;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	event_id: Schema.UUID,
 	joined_at: Schema.optional(Schema.NonEmptyString),
 	role: Schema.NonEmptyString,
+	status: Schema.optional(Schema.NonEmptyString),
 	user_id: Schema.UUID,
 });
 
@@ -236,11 +240,13 @@ export const EventUserUpdateSchema: Schema.Struct<{
 	event_id: Schema.optional<typeof Schema.UUID>;
 	joined_at: Schema.optional<typeof Schema.NonEmptyString>;
 	role: Schema.optional<typeof Schema.NonEmptyString>;
+	status: Schema.optional<typeof Schema.NonEmptyString>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
 	event_id: Schema.optional(Schema.UUID),
 	joined_at: Schema.optional(Schema.NonEmptyString),
 	role: Schema.optional(Schema.NonEmptyString),
+	status: Schema.optional(Schema.NonEmptyString),
 	user_id: Schema.optional(Schema.UUID),
 });
 

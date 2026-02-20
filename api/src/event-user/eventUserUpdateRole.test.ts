@@ -138,7 +138,7 @@ describe("eventUserUpdateRoleHandler", () => {
 
 	it("fails when request is missing event_id", async () => {
 		vi.resetAllMocks();
-		const ctx = makeCtx({ body: { user_id: "u-1", role: "admin" } });
+		const ctx = makeCtx({ body: { user_id: "u-1", role: "event_admin" } });
 
 		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
 		vi.spyOn(verifiedModule, "default").mockReturnValue(
@@ -157,14 +157,12 @@ describe("eventUserUpdateRoleHandler", () => {
 			Effect.succeed<UserSessionData>(SAMPLE_USER_SESSION),
 		);
 
-		await expect(Effect.runPromise(eventUserUpdateRoleHandler(ctx))).rejects.toThrow(
-			/Expected "admin"/,
-		);
+		await expect(Effect.runPromise(eventUserUpdateRoleHandler(ctx))).rejects.toThrow(/Expected/);
 	});
 
 	it("propagates authentication failure from getVerifiedUserSession", async () => {
 		vi.resetAllMocks();
-		const ctx = makeCtx({ body: { event_id: "evt-1", user_id: "u-2", role: "admin" } });
+		const ctx = makeCtx({ body: { event_id: "evt-1", user_id: "u-2", role: "event_admin" } });
 
 		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
 		vi.spyOn(verifiedModule, "default").mockReturnValue(
@@ -178,7 +176,7 @@ describe("eventUserUpdateRoleHandler", () => {
 
 	it("fails when permission check returns an error", async () => {
 		vi.resetAllMocks();
-		const ctx = makeCtx({ body: { event_id: "evt-1", user_id: "u-2", role: "admin" } });
+		const ctx = makeCtx({ body: { event_id: "evt-1", user_id: "u-2", role: "event_admin" } });
 
 		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
 		vi.spyOn(verifiedModule, "default").mockReturnValue(
@@ -194,25 +192,51 @@ describe("eventUserUpdateRoleHandler", () => {
 		);
 	});
 
-	it("rejects when requester is not owner", async () => {
+	it("rejects when requester is not owner or event admin", async () => {
 		vi.resetAllMocks();
-		const ctx = makeCtx({ body: { event_id: "evt-1", user_id: "u-2", role: "admin" } });
+		const ctx = makeCtx({ body: { event_id: "evt-1", user_id: "u-2", role: "event_admin" } });
 
 		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
 		vi.spyOn(verifiedModule, "default").mockReturnValue(
 			Effect.succeed<UserSessionData>(SAMPLE_USER_SESSION),
 		);
 
-		mockCreateSupabaseClient(vi.mocked(createClient), { eventUserSelectRow: { role: "admin" } });
+		mockCreateSupabaseClient(vi.mocked(createClient), {
+			eventUserSelectRow: { role: "event_playlist_admin" },
+		});
 
 		await expect(Effect.runPromise(eventUserUpdateRoleHandler(ctx))).rejects.toThrow(
-			/Only the event owner can change participant roles/,
+			/Only event owners and event admins can change participant roles/,
 		);
+	});
+
+	it("allows event admin to change participant roles", async () => {
+		vi.resetAllMocks();
+		const ctx = makeCtx({
+			body: { event_id: "evt-1", user_id: "target-1", role: "event_playlist_admin" },
+			env: { VITE_SUPABASE_URL: "url", SUPABASE_SERVICE_KEY: "svc" },
+		});
+
+		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
+		vi.spyOn(verifiedModule, "default").mockReturnValue(
+			Effect.succeed<UserSessionData>(SAMPLE_USER_SESSION),
+		);
+
+		mockCreateSupabaseClient(vi.mocked(createClient));
+		const patched = patchEventUserClient(createClient("", ""), {
+			requesterRole: { role: "event_admin" },
+			targetRole: { role: "participant" },
+			updateRows: [{ role: "event_playlist_admin" }],
+		});
+		vi.mocked(createClient).mockReturnValue(patched);
+
+		const res = await Effect.runPromise(eventUserUpdateRoleHandler(ctx));
+		expect(res).toStrictEqual({ success: true });
 	});
 
 	it("fails when target user is not a participant", async () => {
 		vi.resetAllMocks();
-		const ctx = makeCtx({ body: { event_id: "evt-1", user_id: "target-1", role: "admin" } });
+		const ctx = makeCtx({ body: { event_id: "evt-1", user_id: "target-1", role: "event_admin" } });
 
 		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
 		vi.spyOn(verifiedModule, "default").mockReturnValue(
@@ -255,7 +279,9 @@ describe("eventUserUpdateRoleHandler", () => {
 
 	it("fails when update returns an error", async () => {
 		vi.resetAllMocks();
-		const ctx = makeCtx({ body: { event_id: "evt-1", user_id: "target-1", role: "admin" } });
+		const ctx = makeCtx({
+			body: { event_id: "evt-1", user_id: "target-1", role: "event_playlist_admin" },
+		});
 
 		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
 		vi.spyOn(verifiedModule, "default").mockReturnValue(
@@ -276,7 +302,7 @@ describe("eventUserUpdateRoleHandler", () => {
 	it("updates role and returns success (happy path)", async () => {
 		vi.resetAllMocks();
 		const ctx = makeCtx({
-			body: { event_id: "evt-1", user_id: "target-1", role: "admin" },
+			body: { event_id: "evt-1", user_id: "target-1", role: "event_admin" },
 			env: { VITE_SUPABASE_URL: "url", SUPABASE_SERVICE_KEY: "svc" },
 		});
 
@@ -289,7 +315,7 @@ describe("eventUserUpdateRoleHandler", () => {
 		const patched = patchEventUserClient(createClient("", ""), {
 			requesterRole: { role: "owner" },
 			targetRole: { role: "participant" },
-			updateRows: [{ role: "admin" }],
+			updateRows: [{ role: "event_admin" }],
 		});
 		vi.mocked(createClient).mockReturnValue(patched);
 

@@ -10,7 +10,7 @@ describe("useEventActions", () => {
 	it("sets success when join action succeeds", async () => {
 		const joinEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
 		const leaveEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
-		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry>) => void>();
+		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry> | undefined) => void>();
 		const currentEvent = makeEventEntry();
 
 		const { result } = renderHook(() =>
@@ -36,7 +36,7 @@ describe("useEventActions", () => {
 	it("optimistically adds current user with username after join success", async () => {
 		const joinEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
 		const leaveEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
-		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry>) => void>();
+		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry> | undefined) => void>();
 		const currentEvent = makeEventEntry({ participants: [] });
 
 		const { result } = renderHook(() =>
@@ -53,9 +53,12 @@ describe("useEventActions", () => {
 		result.current.handleJoinEvent();
 
 		await waitFor(() => {
-			expect(setCurrentEvent).toHaveBeenCalledWith(expect.anything());
-			const [[calledArg]] = setCurrentEvent.mock.calls as [ReturnType<typeof makeEventEntry>][];
-			expect(calledArg.participants).toStrictEqual(
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
+			const calls = setCurrentEvent.mock.calls as unknown as [ReturnType<typeof makeEventEntry>][];
+			const FIRST_CALL_INDEX = 0;
+			const FN_ARG_INDEX = 0;
+			const firstCall = calls[FIRST_CALL_INDEX]?.[FN_ARG_INDEX];
+			expect(firstCall?.participants).toStrictEqual(
 				expect.arrayContaining([
 					expect.objectContaining({ user_id: "u2", username: "joined_user" }),
 				]),
@@ -66,7 +69,7 @@ describe("useEventActions", () => {
 	it("sets error when leave action fails", async () => {
 		const joinEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
 		const leaveEvent = vi.fn().mockReturnValue(Effect.fail(new Error("leave failed")));
-		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry>) => void>();
+		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry> | undefined) => void>();
 		const currentEvent = makeEventEntry();
 
 		const { result } = renderHook(() =>
@@ -92,7 +95,7 @@ describe("useEventActions", () => {
 	it("clears action messages", async () => {
 		const joinEvent = vi.fn().mockReturnValue(Effect.fail(new Error("join failed")));
 		const leaveEvent = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
-		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry>) => void>();
+		const setCurrentEvent = vi.fn<(value: ReturnType<typeof makeEventEntry> | undefined) => void>();
 		const currentEvent = makeEventEntry();
 
 		const { result } = renderHook(() =>

@@ -19,7 +19,11 @@ function makeParticipant(overrides: Partial<EventParticipant>): EventParticipant
 		user_id: overrides.user_id ?? "user-1",
 		role: overrides.role ?? "participant",
 		joined_at: overrides.joined_at ?? "2026-02-17T00:00:00Z",
+		status: overrides.status ?? "joined",
 		...(overrides.username === undefined ? {} : { username: overrides.username }),
+		...(overrides.participantStatus === undefined
+			? {}
+			: { participantStatus: overrides.participantStatus }),
 	};
 }
 

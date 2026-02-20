@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { EventEntry } from "@/react/event/event-entry/EventEntry.type";
+import type { EventEntry, EventParticipant } from "@/react/event/event-entry/EventEntry.type";
 import type { SongPublic } from "@/react/song/song-schema";
 
 import makeEventEntry from "@/react/event/event-entry/makeEventEntry.mock";
@@ -17,17 +17,20 @@ vi.mock(
 
 describe("deriveEventViewState", () => {
 	it("derives participant ownership and active song display values", () => {
+		const participants = [
+			{
+				user_id: "user-2",
+				event_id: "e1",
+				joined_at: "2026-02-17T00:00:00Z",
+				role: "participant",
+				status: "joined",
+			},
+		] satisfies readonly EventParticipant[];
+
 		const currentEvent = makeEventEntry({
 			owner_id: "owner-1",
 			owner_username: "dj-owner",
-			participants: [
-				{
-					user_id: "user-2",
-					event_id: "e1",
-					joined_at: "2026-02-17T00:00:00Z",
-					role: "participant",
-				},
-			],
+			participants,
 			public: forceCast<NonNullable<EventEntry["public"]>>({
 				event_name: "Event",
 				event_slug: "event",
@@ -94,5 +97,36 @@ describe("deriveEventViewState", () => {
 		expect(result.activeSongName).toBe("song-unknown");
 		expect(result.activeSlidePosition).toBeUndefined();
 		expect(result.activeSlideName).toBeUndefined();
+	});
+
+	it("derives invited users as preview-only with join permission", () => {
+		const currentEvent = makeEventEntry({
+			owner_id: "owner-1",
+			participants: [],
+			public: forceCast<NonNullable<EventEntry["public"]>>({
+				event_name: "Event",
+				event_slug: "event",
+				event_description: "desc",
+				public_notes: "notes",
+				event_date: "2026-02-17T00:00:00Z",
+				active_playlist_id: undefined,
+				active_song_id: undefined,
+			}),
+		});
+
+		const result = deriveEventViewState({
+			currentEvent,
+			currentUserId: "invited-1",
+			publicSongs: {},
+		});
+
+		expect(result).toMatchObject({
+			participantStatus: "invited",
+			canViewFullEvent: false,
+			canViewSlides: false,
+			canJoin: true,
+			canLeave: false,
+			shouldShowActions: true,
+		});
 	});
 });

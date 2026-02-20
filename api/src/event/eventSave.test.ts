@@ -248,7 +248,7 @@ describe("eventSave", () => {
 		});
 	});
 
-	it("rejects when admin attempts to change restricted fields", async () => {
+	it("rejects when event playlist admin attempts to change restricted fields", async () => {
 		vi.resetAllMocks();
 
 		const ctx = makeCtx({ body: { event_id: "evt-admin", event_name: "X", event_slug: "bad" } });
@@ -276,9 +276,69 @@ describe("eventSave", () => {
 			}),
 		);
 
-		mockCreateSupabaseClient(vi.mocked(createClient), { eventUserSelectRow: { role: "admin" } });
+		mockCreateSupabaseClient(vi.mocked(createClient), {
+			eventUserSelectRow: { role: "event_playlist_admin" },
+		});
 
-		await expect(Effect.runPromise(eventSave(ctx))).rejects.toThrow(/Admins can only update/);
+		await expect(Effect.runPromise(eventSave(ctx))).rejects.toThrow(
+			/Event playlist admins can only update active playlist, active song, and active slide/,
+		);
+	});
+
+	it("allows event admin to update unrestricted event fields", async () => {
+		vi.resetAllMocks();
+
+		const ctx = makeCtx({
+			body: {
+				event_id: "evt-admin",
+				event_name: "Updated Name",
+				event_slug: "updated-slug",
+				event_description: "updated description",
+				is_public: true,
+			},
+		});
+
+		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
+		vi.spyOn(verifiedModule, "default").mockReturnValue(
+			Effect.succeed<UserSessionData>({
+				user: {
+					created_at: "2026-01-01T00:00:00Z",
+					email: "u@example.com",
+					google_calendar_access: "none",
+					google_calendar_refresh_token: undefined,
+					linked_providers: undefined,
+					name: "Test User",
+					role: "user",
+					role_expires_at: undefined,
+					sub: undefined,
+					updated_at: "2026-01-01T00:00:00Z",
+					user_id: SAMPLE_USER_ID,
+				},
+				userPublic: { user_id: SAMPLE_USER_ID, username: "testuser" },
+				oauthUserData: { email: "u@example.com" },
+				oauthState: { csrf: "x", lang: "en", provider: "google" },
+				ip: "127.0.0.1",
+			}),
+		);
+
+		mockCreateSupabaseClient(vi.mocked(createClient), {
+			eventUserSelectRow: { role: "event_admin" },
+			eventUpdateSelectRow: { event_id: "evt-admin", private_notes: "" },
+			eventPublicUpdateRow: {
+				event_id: "evt-admin",
+				event_name: "Updated Name",
+				event_slug: "updated-slug",
+				event_description: "updated description",
+			},
+		});
+
+		const res = await Effect.runPromise(eventSave(ctx));
+		expect(res).toStrictEqual({
+			event_id: "evt-admin",
+			event_name: "Updated Name",
+			event_slug: "updated-slug",
+			event_description: "updated description",
+		});
 	});
 
 	it("rejects when user is not owner or admin on update", async () => {

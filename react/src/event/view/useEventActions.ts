@@ -3,6 +3,12 @@ import { useState } from "react";
 
 import type { EventEntry } from "@/react/event/event-types";
 
+import {
+	getParticipantPermissions,
+	transitionParticipantStatus,
+	type ParticipantStatus,
+} from "@/react/event/participant-status/participantStatusMachine";
+
 type UseEventActionsParams = {
 	currentEvent: EventEntry | undefined;
 	currentUserId: string | undefined;
@@ -21,6 +27,27 @@ type EventActionsState = {
 	clearActionError: () => void;
 	clearActionSuccess: () => void;
 };
+
+type ParticipantList = NonNullable<EventEntry["participants"]>;
+type MutableParticipantList = ParticipantList[number][];
+
+/**
+ * Normalizes raw status-like values into a supported participant status.
+ *
+ * @param status - Unknown status candidate from participant data
+ * @param fallback - Status to use when the input is not recognized
+ * @returns Safe participant status for state transitions
+ */
+function normalizeParticipantStatus(
+	status: unknown,
+	fallback: ParticipantStatus,
+): ParticipantStatus {
+	if (status === "invited" || status === "joined" || status === "left" || status === "kicked") {
+		return status;
+	}
+
+	return fallback;
+}
 
 /**
  * Manages join/leave action state and handlers for the event view.
@@ -60,27 +87,51 @@ export default function useEventActions(
 			}
 
 			if (currentUserId !== undefined && currentUserId !== "") {
-				const existingParticipants = event.participants ?? [];
-				const hasCurrentUser = existingParticipants.some(
+				const existingParticipants: ParticipantList = event.participants ?? [];
+				const existingCurrentUser = existingParticipants.find(
 					(participant) => participant.user_id === currentUserId,
 				);
+				const currentStatus = normalizeParticipantStatus(
+					existingCurrentUser?.participantStatus ?? existingCurrentUser?.status,
+					existingCurrentUser === undefined ? "invited" : "joined",
+				);
+				const nextStatus = transitionParticipantStatus(currentStatus, "join");
+				if (nextStatus === currentStatus && !getParticipantPermissions(currentStatus).canJoin) {
+					setActionError("You cannot join this event.");
+					setActionLoading(false);
+					return;
+				}
 
-				const nextParticipants = hasCurrentUser
-					? existingParticipants.map((participant) =>
-							participant.user_id === currentUserId && currentUsername !== undefined
-								? { ...participant, username: currentUsername }
-								: participant,
-						)
-					: [
-							...existingParticipants,
-							{
-								event_id: event.event_id,
-								user_id: currentUserId,
-								role: "participant",
-								joined_at: new Date().toISOString(),
+				let nextParticipants: ParticipantList = existingParticipants;
+				if (existingCurrentUser === undefined) {
+					nextParticipants = [
+						...existingParticipants,
+						{
+							event_id: event.event_id,
+							user_id: currentUserId,
+							role: "participant",
+							status: nextStatus,
+							participantStatus: nextStatus,
+							joined_at: new Date().toISOString(),
+							...(currentUsername === undefined ? {} : { username: currentUsername }),
+						},
+					];
+				} else {
+					const nextParticipantsMutable: MutableParticipantList = [];
+					for (const participant of existingParticipants) {
+						if (participant.user_id === currentUserId) {
+							nextParticipantsMutable.push({
+								...participant,
+								status: nextStatus,
+								participantStatus: nextStatus,
 								...(currentUsername === undefined ? {} : { username: currentUsername }),
-							},
-						];
+							});
+						} else {
+							nextParticipantsMutable.push(participant);
+						}
+					}
+					nextParticipants = nextParticipantsMutable;
+				}
 
 				setCurrentEvent({
 					...event,
@@ -118,10 +169,37 @@ export default function useEventActions(
 				return;
 			}
 
-			const existingParticipants = event.participants ?? [];
+			const existingParticipants: ParticipantList = event.participants ?? [];
+			const existingCurrentUser = existingParticipants.find(
+				(participant) => participant.user_id === userId,
+			);
+			const currentStatus = normalizeParticipantStatus(
+				existingCurrentUser?.participantStatus ?? existingCurrentUser?.status,
+				"joined",
+			);
+			const nextStatus = transitionParticipantStatus(currentStatus, "leave");
+			if (nextStatus === currentStatus && !getParticipantPermissions(currentStatus).canLeave) {
+				setActionError("You cannot leave this event.");
+				setActionLoading(false);
+				return;
+			}
+
+			const nextParticipants: MutableParticipantList = [];
+			for (const participant of existingParticipants) {
+				if (participant.user_id === userId) {
+					nextParticipants.push({
+						...participant,
+						status: nextStatus,
+						participantStatus: nextStatus,
+					});
+				} else {
+					nextParticipants.push(participant);
+				}
+			}
+
 			setCurrentEvent({
 				...event,
-				participants: existingParticipants.filter((participant) => participant.user_id !== userId),
+				participants: nextParticipants,
 			});
 			setActionSuccess("Successfully left the event!");
 			setActionLoading(false);

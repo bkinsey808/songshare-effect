@@ -238,7 +238,7 @@ describe("eventUserRemoveHandler", () => {
 		);
 	});
 
-	it("rejects when requester is not owner or admin", async () => {
+	it("rejects when requester is not owner or event admin", async () => {
 		vi.resetAllMocks();
 		const ctx = makeCtx({ body: { event_id: "evt-1", user_id: "target-1" } });
 
@@ -252,7 +252,7 @@ describe("eventUserRemoveHandler", () => {
 		});
 
 		await expect(Effect.runPromise(eventUserRemoveHandler(ctx))).rejects.toThrow(
-			/Only event owners and admins can remove other participants/,
+			/Only event owners and event admins can remove other participants/,
 		);
 	});
 

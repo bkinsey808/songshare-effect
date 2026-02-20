@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict roVVg7PLgmN1WE3q6pbJDqGsgg8NPEgK2E6TemiShtfi4BUfih2elt5MrvaBT7f
+\restrict VSyKp0wzhZqQWEAtzVCH2l1zcsbZ0nhNCTRk0c1NMefW4D68FN34MWe4d2GtvHg
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -255,7 +255,9 @@ CREATE TABLE public.event_user (
     user_id uuid NOT NULL,
     role text NOT NULL,
     joined_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT event_user_role_check CHECK ((role = ANY (ARRAY['owner'::text, 'admin'::text, 'participant'::text])))
+    status text DEFAULT 'joined'::text NOT NULL,
+    CONSTRAINT event_user_role_check CHECK ((role = ANY (ARRAY['owner'::text, 'event_admin'::text, 'event_playlist_admin'::text, 'participant'::text]))),
+    CONSTRAINT event_user_status_check CHECK ((status = ANY (ARRAY['invited'::text, 'joined'::text, 'left'::text, 'kicked'::text])))
 );
 
 ALTER TABLE ONLY public.event_user REPLICA IDENTITY FULL;
@@ -286,7 +288,7 @@ COMMENT ON COLUMN public.event_user.user_id IS 'Reference to the user';
 -- Name: COLUMN event_user.role; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN public.event_user.role IS 'User role in this event: owner, admin, or participant';
+COMMENT ON COLUMN public.event_user.role IS 'User role in this event: owner, event_admin, event_playlist_admin, or participant';
 
 
 --
@@ -294,6 +296,13 @@ COMMENT ON COLUMN public.event_user.role IS 'User role in this event: owner, adm
 --
 
 COMMENT ON COLUMN public.event_user.joined_at IS 'When this user joined the event';
+
+
+--
+-- Name: COLUMN event_user.status; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.event_user.status IS 'Membership status in this event: invited, joined, left, or kicked';
 
 
 --
@@ -822,6 +831,13 @@ CREATE INDEX event_user_role_idx ON public.event_user USING btree (role);
 
 
 --
+-- Name: event_user_status_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX event_user_status_idx ON public.event_user USING btree (status);
+
+
+--
 -- Name: event_user_user_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1260,9 +1276,9 @@ ALTER TABLE ONLY public.user_public
 
 CREATE POLICY "Allow admins to update event fields" ON public.event_public FOR UPDATE TO authenticated USING ((EXISTS ( SELECT 1
    FROM public.event_user
-  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = 'admin'::text))))) WITH CHECK ((EXISTS ( SELECT 1
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = ANY (ARRAY['event_admin'::text, 'event_playlist_admin'::text])))))) WITH CHECK ((EXISTS ( SELECT 1
    FROM public.event_user
-  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = 'admin'::text)))));
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = ANY (ARRAY['event_admin'::text, 'event_playlist_admin'::text]))))));
 
 
 --
@@ -1285,14 +1301,23 @@ CREATE POLICY "Allow read access to playlist_public for visitors or users" ON pu
 
 CREATE POLICY "Allow read access to private events for participants" ON public.event_public FOR SELECT TO authenticated USING (((is_public = false) AND (EXISTS ( SELECT 1
    FROM public.event_user
-  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid))))));
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.status = ANY (ARRAY['invited'::text, 'joined'::text, 'left'::text])))))));
+
+
+--
+-- Name: event_public Allow read access to public events for anonymous; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read access to public events for anonymous" ON public.event_public FOR SELECT TO anon USING ((is_public = true));
 
 
 --
 -- Name: event_public Allow read access to public events for anyone; Type: POLICY; Schema: public; Owner: -
 --
 
-CREATE POLICY "Allow read access to public events for anyone" ON public.event_public FOR SELECT USING ((is_public = true));
+CREATE POLICY "Allow read access to public events for anyone" ON public.event_public FOR SELECT TO authenticated USING (((is_public = true) AND (NOT (EXISTS ( SELECT 1
+   FROM public.event_user
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.status = 'kicked'::text)))))));
 
 
 --
@@ -1313,16 +1338,11 @@ CREATE POLICY "Allow read access to user_public for visitors or users" ON public
 -- Name: event_public Allow read event_public for library events; Type: POLICY; Schema: public; Owner: -
 --
 
-CREATE POLICY "Allow read event_public for library events" ON public.event_public FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1
+CREATE POLICY "Allow read event_public for library events" ON public.event_public FOR SELECT TO authenticated USING (((EXISTS ( SELECT 1
    FROM public.event_library
-  WHERE ((event_library.event_id = event_public.event_id) AND (event_library.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)))));
-
-
---
--- Name: POLICY "Allow read event_public for library events" ON event_public; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON POLICY "Allow read event_public for library events" ON public.event_public IS 'Users can read public event data for events in their personal library (without needing to be owner or participant).';
+  WHERE ((event_library.event_id = event_public.event_id) AND (event_library.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)))) AND (NOT (EXISTS ( SELECT 1
+   FROM public.event_user
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.status = 'kicked'::text)))))));
 
 
 --
@@ -1406,7 +1426,7 @@ COMMENT ON POLICY "Deny all INSERT operations on user_library" ON public.user_li
 -- Name: event_user Users can access their own event entries; Type: POLICY; Schema: public; Owner: -
 --
 
-CREATE POLICY "Users can access their own event entries" ON public.event_user FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+CREATE POLICY "Users can access their own event entries" ON public.event_user FOR SELECT TO authenticated USING (((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (status = ANY (ARRAY['invited'::text, 'joined'::text, 'left'::text]))));
 
 
 --
@@ -1589,5 +1609,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict roVVg7PLgmN1WE3q6pbJDqGsgg8NPEgK2E6TemiShtfi4BUfih2elt5MrvaBT7f
+\unrestrict VSyKp0wzhZqQWEAtzVCH2l1zcsbZ0nhNCTRk0c1NMefW4D68FN34MWe4d2GtvHg
 

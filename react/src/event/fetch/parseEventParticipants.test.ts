@@ -22,7 +22,9 @@ describe("parseEventParticipants", () => {
 				event_id: "event-1",
 				user_id: "user-1",
 				role: "participant",
+				status: "joined",
 				joined_at: "2026-02-17T00:00:00Z",
+				participantStatus: "joined",
 				username: "legacy_user",
 			},
 		]);
@@ -47,7 +49,9 @@ describe("parseEventParticipants", () => {
 				event_id: "event-2",
 				user_id: "user-2",
 				role: "participant",
+				status: "joined",
 				joined_at: "2026-02-17T00:00:00Z",
+				participantStatus: "joined",
 				username: "nested_user",
 			},
 		]);
@@ -72,7 +76,9 @@ describe("parseEventParticipants", () => {
 				event_id: "event-3",
 				user_id: "user-3",
 				role: "participant",
+				status: "joined",
 				joined_at: "2026-02-17T00:00:00Z",
+				participantStatus: "joined",
 				username: "array_user",
 			},
 		]);

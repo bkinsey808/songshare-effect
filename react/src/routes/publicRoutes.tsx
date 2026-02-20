@@ -5,6 +5,7 @@ import { lazy } from "react";
 import {
 	aboutPath,
 	activityDemoPath,
+	eventManagePath,
 	eventSlideShowPath,
 	eventViewPath,
 	hookDemoPath,
@@ -33,6 +34,7 @@ const UploadPage = lazy(() => import("../pages/UploadPage"));
 const SongView = lazy(() => import("../song/song-view/SongView"));
 const PlaylistPage = lazy(() => import("../pages/PlaylistPage"));
 const EventView = lazy(() => import("../event/view/EventView"));
+const EventManageView = lazy(() => import("../event/manage/EventManageView"));
 const EventSlideShowView = lazy(() => import("../event/view/EventSlideShowView"));
 const ActivityDemoPage = lazy(() => import("../pages/demo/ActivityDemoPage"));
 const PopoverDemoPage = lazy(() => import("../pages/demo/PopoverDemoPage"));
@@ -106,6 +108,10 @@ export const publicRoutesWithLayout: RouteObject[] = [
 	{
 		path: `${eventViewPath}/:event_slug`,
 		element: withSuspense(EventView),
+	},
+	{
+		path: `${eventViewPath}/:event_slug/${eventManagePath}`,
+		element: withSuspense(EventManageView),
 	},
 	{
 		path: reactFeaturesPath,

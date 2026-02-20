@@ -55,7 +55,7 @@ describe("quiet-client", () => {
 		expect(Reflect.get(globalThis, "__origConsoleDebug")).toBe(actualOriginalConsoleDebug);
 	});
 
-it("silences console.timeStamp when it is originally present", async () => {
+	it("silences console.timeStamp when it is originally present", async () => {
 		// Make sure console.timeStamp exists *before* the module loads so we can
 		// verify quiet-client silences it.
 		vi.resetModules();

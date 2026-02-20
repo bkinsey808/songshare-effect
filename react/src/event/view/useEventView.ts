@@ -1,12 +1,13 @@
 import { useParams } from "react-router-dom";
 
+import type { EventParticipant } from "@/react/event/event-entry/EventEntry.type";
 import type { EventEntry } from "@/react/event/event-types";
+import type { ParticipantStatus } from "@/react/event/participant-status/participantStatusMachine";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import deriveEventViewState from "@/react/event/view/deriveEventViewState";
 import useEventActions from "@/react/event/view/useEventActions";
-import useEventAutoJoin from "@/react/event/view/useEventAutoJoin";
 import useEventDataSync from "@/react/event/view/useEventDataSync";
 import useEventRealtimeSync from "@/react/event/view/useEventRealtimeSync";
 
@@ -25,6 +26,11 @@ export default function useEventView(): {
 	participants: EventEntry["participants"];
 	isEventLoading: boolean;
 	eventError: string | undefined;
+	participantStatus: ParticipantStatus;
+	canViewFullEvent: boolean;
+	canViewSlides: boolean;
+	canJoin: boolean;
+	canLeave: boolean;
 	isParticipant: boolean;
 	isOwner: boolean;
 	shouldShowActions: boolean;
@@ -38,6 +44,8 @@ export default function useEventView(): {
 	activeSongTotalSlides: number;
 	displayDate: string | undefined;
 	currentUserId: string | undefined;
+	currentParticipant: EventParticipant | undefined;
+	canManageEvent: boolean;
 	actionLoading: boolean;
 	actionError: string | undefined;
 	actionSuccess: string | undefined;
@@ -79,13 +87,6 @@ export default function useEventView(): {
 		fetchEventBySlug,
 	});
 
-	useEventAutoJoin({
-		isEventLoading,
-		currentEvent,
-		currentUserId,
-		joinEvent: appStoreJoinEvent,
-	});
-
 	const actionState = useEventActions({
 		currentEvent,
 		currentUserId,
@@ -103,6 +104,11 @@ export default function useEventView(): {
 		participants: derivedState.participants,
 		isEventLoading,
 		eventError,
+		participantStatus: derivedState.participantStatus,
+		canViewFullEvent: derivedState.canViewFullEvent,
+		canViewSlides: derivedState.canViewSlides,
+		canJoin: derivedState.canJoin,
+		canLeave: derivedState.canLeave,
 		isParticipant: derivedState.isParticipant,
 		isOwner: derivedState.isOwner,
 		shouldShowActions: derivedState.shouldShowActions,
@@ -121,5 +127,20 @@ export default function useEventView(): {
 		handleLeaveEvent: actionState.handleLeaveEvent,
 		clearActionError: actionState.clearActionError,
 		clearActionSuccess: actionState.clearActionSuccess,
+		// Derived values used by UI logic
+		currentParticipant:
+			currentUserId === undefined
+				? undefined
+				: (derivedState.participants ?? []).find(
+						(participant) => participant.user_id === currentUserId,
+					),
+		canManageEvent:
+			derivedState.isOwner ||
+			(currentUserId === undefined
+				? false
+				: (derivedState.participants ?? []).some(
+						(participant) =>
+							participant.user_id === currentUserId && participant.role === "event_admin",
+					)),
 	};
 }

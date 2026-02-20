@@ -12,37 +12,28 @@ import { type AuthenticationError, DatabaseError, ValidationError } from "../api
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 import { getEventRoleCapabilities } from "./eventRoleCapabilities";
 
-/**
- * Schema validating payload for updating a user's role in an event.
- *
- * Expected fields: `event_id`, `user_id`, and `role`.
- */
-const EventUserUpdateRoleSchema = Schema.Struct({
+const EventUserKickSchema = Schema.Struct({
 	event_id: Schema.String,
 	user_id: Schema.String,
-	role: Schema.Literal("participant", "event_admin", "event_playlist_admin"),
 });
 
-type EventUserUpdateRoleData = Schema.Schema.Type<typeof EventUserUpdateRoleSchema>;
+type EventUserKickData = Schema.Schema.Type<typeof EventUserKickSchema>;
 
 /**
- * Server-side handler for updating a user's role in an event. This Effect-based handler:
- * - validates the incoming request
- * - verifies the requester is the owner (only owners can change roles)
- * - updates the user's role in event_user table
+ * Sets a participant membership status to kicked.
  *
- * @param ctx - The readonly request context provided by the server.
- * @returns Success indicator or fails with an error.
+ * Only event owners and event admins can kick participants.
+ *
+ * @param ctx - The readonly request context provided by the server
+ * @returns Success indicator or fails with an error
  */
-export default function eventUserUpdateRole(
+export default function eventUserKick(
 	ctx: ReadonlyContext,
 ): Effect.Effect<{ success: boolean }, ValidationError | DatabaseError | AuthenticationError> {
-	return Effect.gen(function* eventUserUpdateRoleGen($) {
-		// Authenticate user
+	return Effect.gen(function* eventUserKickGen($) {
 		const userSession = yield* $(getVerifiedUserSession(ctx));
 		const requesterId = userSession.user.user_id;
 
-		// Parse JSON body
 		const body: unknown = yield* $(
 			Effect.tryPromise({
 				try: async () => {
@@ -53,12 +44,11 @@ export default function eventUserUpdateRole(
 			}),
 		);
 
-		// Validate request payload
-		const validated: EventUserUpdateRoleData = yield* $(
+		const validated: EventUserKickData = yield* $(
 			validateFormEffect({
-				schema: EventUserUpdateRoleSchema,
+				schema: EventUserKickSchema,
 				data: body,
-				i18nMessageKey: "EVENT_USER_UPDATE_ROLE",
+				i18nMessageKey: "EVENT_USER_KICK",
 			}).pipe(
 				Effect.mapError((errs) => {
 					const first =
@@ -70,22 +60,18 @@ export default function eventUserUpdateRole(
 			),
 		);
 
-		const { event_id, user_id, role } = validated;
-
-		// Create Supabase client with service role key to bypass RLS
 		const supabase = createClient<Database>(
 			ctx.env.VITE_SUPABASE_URL,
 			ctx.env.SUPABASE_SERVICE_KEY,
 		);
 
-		// Verify the requester can manage roles
 		const requesterRole = yield* $(
 			Effect.tryPromise({
 				try: () =>
 					supabase
 						.from("event_user")
 						.select("role")
-						.eq("event_id", event_id)
+						.eq("event_id", validated.event_id)
 						.eq("user_id", requesterId)
 						.single(),
 				catch: (err) =>
@@ -99,42 +85,40 @@ export default function eventUserUpdateRole(
 			return yield* $(
 				Effect.fail(
 					new ValidationError({
-						message: "Event not found or you do not have permission to manage roles",
+						message: "Event not found or you do not have permission to manage participants",
 					}),
 				),
 			);
 		}
 
 		const requesterCapabilities = getEventRoleCapabilities(requesterRole.data?.role);
-
-		if (!requesterCapabilities.canManageRoles) {
+		if (!requesterCapabilities.canManageParticipants) {
 			return yield* $(
 				Effect.fail(
 					new ValidationError({
-						message: "Only event owners and event admins can change participant roles",
+						message: "Only event owners and event admins can kick participants",
 					}),
 				),
 			);
 		}
 
-		// Verify the target user exists in the event
-		const targetUserRole = yield* $(
+		const targetRole = yield* $(
 			Effect.tryPromise({
 				try: () =>
 					supabase
 						.from("event_user")
 						.select("role")
-						.eq("event_id", event_id)
-						.eq("user_id", user_id)
+						.eq("event_id", validated.event_id)
+						.eq("user_id", validated.user_id)
 						.single(),
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to verify target user: ${extractErrorMessage(err, "Unknown error")}`,
+						message: `Failed to verify target role: ${extractErrorMessage(err, "Unknown error")}`,
 					}),
 			}),
 		);
 
-		if (targetUserRole.error) {
+		if (targetRole.error) {
 			return yield* $(
 				Effect.fail(
 					new ValidationError({
@@ -144,29 +128,27 @@ export default function eventUserUpdateRole(
 			);
 		}
 
-		// Cannot change the owner's role
-		if (targetUserRole.data?.role === "owner") {
+		if (targetRole.data?.role === "owner") {
 			return yield* $(
 				Effect.fail(
 					new ValidationError({
-						message: "Cannot change the owner's role",
+						message: "Cannot kick the event owner",
 					}),
 				),
 			);
 		}
 
-		// Update the user's role
 		const updateResult = yield* $(
 			Effect.tryPromise({
 				try: () =>
 					supabase
 						.from("event_user")
-						.update({ role })
-						.eq("event_id", event_id)
-						.eq("user_id", user_id),
+						.update({ status: "kicked" })
+						.eq("event_id", validated.event_id)
+						.eq("user_id", validated.user_id),
 				catch: (err) =>
 					new DatabaseError({
-						message: `Failed to update user role: ${extractErrorMessage(err, "Unknown error")}`,
+						message: `Failed to kick user: ${extractErrorMessage(err, "Unknown error")}`,
 					}),
 			}),
 		);
@@ -175,7 +157,7 @@ export default function eventUserUpdateRole(
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({
-						message: updateResult.error?.message ?? "Failed to update user role",
+						message: updateResult.error.message,
 					}),
 				),
 			);

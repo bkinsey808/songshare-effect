@@ -36,6 +36,9 @@ export const eventLibraryPath = "event-library";
 /** Base path for viewing an event by slug; use as "events/:event_slug" in routes */
 export const eventViewPath = "events";
 
+/** Suffix path for event manager view; use as "events/:event_slug/manage" */
+export const eventManagePath = "manage";
+
 /** Suffix path for event slide show view; use as "events/:event_slug/slideshow" */
 export const eventSlideShowPath = "slideshow";
 
@@ -64,6 +67,7 @@ export const apiEventLibraryRemovePath = "/api/event-library/remove";
 export const apiEventUserAddPath = "/api/event-user/add";
 export const apiEventUserJoinPath = "/api/event-user/join";
 export const apiEventUserRemovePath = "/api/event-user/remove";
+export const apiEventUserKickPath = "/api/event-user/kick";
 export const apiEventUserUpdateRolePath = "/api/event-user/update-role";
 export const apiUploadPath = "/api/upload";
 export const apiHelloPath = "/api/hello";

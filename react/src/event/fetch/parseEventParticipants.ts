@@ -2,8 +2,27 @@ import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type { EventParticipant } from "../event-entry/EventEntry.type";
+import type { ParticipantStatus } from "../participant-status/participantStatusMachine";
 
 const ARRAY_EMPTY = 0;
+
+/**
+ * Normalizes raw participant status values into known states.
+ *
+ * @param value - Raw status value from event_user payload
+ * @returns Parsed participant status when recognized
+ */
+function parseParticipantStatus(value: unknown): ParticipantStatus | undefined {
+	if (typeof value !== "string") {
+		return undefined;
+	}
+
+	if (value === "invited" || value === "joined" || value === "left" || value === "kicked") {
+		return value;
+	}
+
+	return undefined;
+}
 
 /**
  * Converts raw event_user rows into normalized event participants.
@@ -65,12 +84,16 @@ export default function parseEventParticipants(
 				nestedUserPublic["username"] !== ""
 					? nestedUserPublic["username"]
 					: undefined);
+			const participantStatus = parseParticipantStatus(participant["status"]);
+			const status = participantStatus ?? "joined";
 
 			participants.push({
 				event_id: eventId,
 				user_id: guardAsString(participant["user_id"]),
 				role: guardAsString(participant["role"]),
+				status,
 				joined_at: guardAsString(participant["joined_at"]),
+				participantStatus: status,
 				...(username === undefined ? {} : { username }),
 			});
 		}

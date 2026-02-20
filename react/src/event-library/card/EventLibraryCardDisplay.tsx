@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { dashboardPath, eventEditPath, eventViewPath } from "@/shared/paths";
+import { dashboardPath, eventEditPath, eventManagePath, eventViewPath } from "@/shared/paths";
 
 import type { EventLibraryEntry } from "../event-library-types";
 
@@ -64,6 +64,15 @@ export default function EventLibraryCardDisplay({
 					className="text-sm text-blue-400 transition-colors hover:text-blue-300"
 				>
 					{t("eventLibrary.viewEvent", "View Event")}
+				</Link>
+				<Link
+					to={buildPathWithLang(
+						`/${eventViewPath}/${entry.event_public?.event_slug ?? ""}/${eventManagePath}`,
+						lang,
+					)}
+					className="text-sm text-purple-400 transition-colors hover:text-purple-300"
+				>
+					{t("eventLibrary.manageEvent", "Manage Event")}
 				</Link>
 				{isOwned ? (
 					<Link

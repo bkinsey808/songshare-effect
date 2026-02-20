@@ -1,7 +1,9 @@
 import type { Event, EventPublic, EventUser } from "../event-types";
+import type { ParticipantStatus } from "../participant-status/participantStatusMachine";
 
 export type EventParticipant = EventUser & {
 	username?: string;
+	participantStatus?: ParticipantStatus;
 };
 
 /**

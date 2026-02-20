@@ -1,8 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
-import type { EventEntry } from "@/react/event/event-entry/EventEntry.type";
+import type { EventEntry, EventParticipant } from "@/react/event/event-entry/EventEntry.type";
 
 import makeEventEntry from "@/react/event/event-entry/makeEventEntry.mock";
 import forceCast from "@/react/lib/test-utils/forceCast";
@@ -21,17 +21,20 @@ vi.mock(
 type UseEventViewResult = ReturnType<typeof useEventView>;
 
 function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): UseEventViewResult {
+	const ownerParticipants: EventParticipant[] = [
+		{
+			user_id: "owner-1",
+			username: "owner_user",
+			event_id: "e1",
+			joined_at: "2026-02-17T00:00:00Z",
+			role: "owner",
+			status: "joined",
+		},
+	] satisfies readonly EventParticipant[];
+
 	const event = makeEventEntry({
 		owner_id: "owner-1",
-		participants: [
-			{
-				user_id: "owner-1",
-				username: "owner_user",
-				event_id: "e1",
-				joined_at: "2026-02-17T00:00:00Z",
-				role: "owner",
-			},
-		],
+		participants: ownerParticipants,
 		public: forceCast<NonNullable<EventEntry["public"]>>({
 			event_name: "Event",
 			event_slug: "event",
@@ -43,7 +46,7 @@ function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): Us
 		}),
 	});
 
-	return {
+	const base: UseEventViewResult = {
 		event_slug: "event",
 		currentEvent: event,
 		eventPublic: event.public,
@@ -51,6 +54,11 @@ function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): Us
 		participants: event.participants,
 		isEventLoading: false,
 		eventError: undefined,
+		participantStatus: "joined",
+		canViewFullEvent: true,
+		canViewSlides: true,
+		canJoin: false,
+		canLeave: true,
 		isParticipant: true,
 		isOwner: true,
 		shouldShowActions: false,
@@ -62,6 +70,8 @@ function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): Us
 		activeSongTotalSlides: 0,
 		displayDate: event.public?.event_date,
 		currentUserId: "owner-1",
+		currentParticipant: undefined,
+		canManageEvent: true,
 		actionLoading: false,
 		actionError: undefined,
 		actionSuccess: undefined,
@@ -69,12 +79,24 @@ function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): Us
 		handleLeaveEvent: vi.fn(),
 		clearActionError: vi.fn(),
 		clearActionSuccess: vi.fn(),
-		...overrides,
 	};
+
+	const result = { ...base, ...overrides } as UseEventViewResult;
+	// compute derived fields that depend on participants/currentUserId
+	result.currentParticipant =
+		result.currentUserId === undefined
+			? undefined
+			: (result.participants ?? []).find(
+					(participant) => participant.user_id === result.currentUserId,
+				);
+	result.canManageEvent = result.isOwner || result.currentParticipant?.role === "event_admin";
+
+	return result;
 }
 
 describe("event view", () => {
 	function renderEventView(): void {
+		cleanup();
 		render(
 			<MemoryRouter initialEntries={["/en/events/event"]}>
 				<EventView />
@@ -98,12 +120,36 @@ describe("event view", () => {
 				isOwner: false,
 				shouldShowActions: true,
 				isParticipant: true,
+				canLeave: true,
 			}),
 		);
 
 		renderEventView();
 
 		expect(screen.getByRole("button", { name: "Leave Event" })).toBeTruthy();
+	});
+
+	it("renders preview-only message for invited users", () => {
+		vi.mocked(useEventView).mockReturnValue(
+			makeUseEventViewResult({
+				participantStatus: "invited",
+				canViewFullEvent: false,
+				canViewSlides: false,
+				canJoin: true,
+				canLeave: false,
+				isOwner: false,
+				isParticipant: false,
+				shouldShowActions: true,
+			}),
+		);
+
+		renderEventView();
+
+		expect(screen.getByRole("button", { name: "Join Event" })).toBeTruthy();
+		expect(
+			screen.getByText("Join this event to see participants, playlist, and slides."),
+		).toBeTruthy();
+		expect(screen.queryByRole("button", { name: "View Slide Show" })).toBeNull();
 	});
 
 	it("renders currently playing song name when available in publicSongs", () => {
@@ -145,16 +191,19 @@ describe("event view", () => {
 	});
 
 	it("does not render participant UUID when username is missing", () => {
+		const participants = [
+			{
+				user_id: "user-uuid-1",
+				event_id: "e1",
+				joined_at: "2026-02-17T00:00:00Z",
+				role: "participant",
+				status: "joined",
+			},
+		] satisfies readonly EventParticipant[];
+
 		const event = makeEventEntry({
 			owner_id: "owner-1",
-			participants: [
-				{
-					user_id: "user-uuid-1",
-					event_id: "e1",
-					joined_at: "2026-02-17T00:00:00Z",
-					role: "participant",
-				},
-			],
+			participants,
 		});
 
 		vi.mocked(useEventView).mockReturnValue(
