@@ -30,7 +30,7 @@ describe("fetchPlaylist", () => {
 		const mockPlaylist = makePlaylistPublic();
 		const get = makeGetStub();
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 		vi.mocked(callSelect).mockResolvedValue({
 			data: [mockPlaylist],
 			error: asNull(),
@@ -59,14 +59,14 @@ describe("fetchPlaylist", () => {
 		// Even with null token, the query might succeed or fail depending on RLS.
 		// We mock success to verify the flow completes.
 		vi.mocked(callSelect)
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+			// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 			.mockResolvedValueOnce({
 				data: [playlistPublic],
 				error: asNull(),
 			} as unknown as PostgrestResponse)
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+			// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 			.mockResolvedValueOnce({ data: [], error: asNull() } as unknown as PostgrestResponse)
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+			// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 			.mockResolvedValueOnce({
 				data: [userPublic],
 				error: asNull(),
@@ -116,7 +116,7 @@ describe("fetchPlaylist", () => {
 		mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
 
 		// Return empty data (no rows found)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 		vi.mocked(callSelect).mockResolvedValue({
 			data: [],
 			error: asNull(),

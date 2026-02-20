@@ -11,7 +11,7 @@ type Logger = {
 
 const logger: Logger = { log, debug, warn, error };
 
-// eslint-disable comments for console usage.
+// oxlint-disable comments for console usage.
 
 /**
  * Log informational messages to stdout.

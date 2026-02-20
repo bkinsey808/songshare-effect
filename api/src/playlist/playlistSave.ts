@@ -184,7 +184,7 @@ export default function playlistSave(
 								playlist_name: validated.playlist_name,
 								playlist_slug: validated.playlist_slug,
 								song_order: songOrderForDb,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								public_notes: validated.public_notes ?? null,
 							})
 							.eq("playlist_id", playlistId)
@@ -200,7 +200,7 @@ export default function playlistSave(
 								playlist_name: validated.playlist_name,
 								playlist_slug: validated.playlist_slug,
 								song_order: songOrderForDb,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								public_notes: validated.public_notes ?? null,
 							},
 						])

@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+/* oxlint-disable max-lines */
 import { Suspense, use, useState } from "react";
 
 import ErrorBoundary from "@/react/demo/ErrorBoundary";
@@ -72,7 +72,7 @@ async function fetchArtistData(artistId: number): Promise<{
 	bio: string;
 }> {
 	// 1.5 second delay
-	// eslint-disable-next-line promise/avoid-new
+	// oxlint-disable-next-line promise/avoid-new
 	await new Promise<void>((resolve) => setTimeout(resolve, SUSPENSE_ARTIST_DELAY_MS));
 
 	// Simulate occasional errors for artist ID 99
@@ -101,7 +101,7 @@ async function fetchPlaylistData(playlistId: number): Promise<{
 	songs: string[];
 }> {
 	// 3 second delay
-	// eslint-disable-next-line promise/avoid-new
+	// oxlint-disable-next-line promise/avoid-new
 	await new Promise<void>((resolve) => setTimeout(resolve, SUSPENSE_PLAYLIST_DELAY_MS));
 
 	// Simulate occasional errors for playlist ID 99
@@ -134,7 +134,7 @@ async function fetchAlbumData(albumId: number): Promise<{
 	coverUrl: string;
 }> {
 	// 2 second delay
-	// eslint-disable-next-line promise/avoid-new
+	// oxlint-disable-next-line promise/avoid-new
 	await new Promise<void>((resolve) => setTimeout(resolve, SUSPENSE_ALBUM_DELAY_MS));
 
 	// Simulate occasional errors for album ID 99

@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+/* oxlint-disable max-lines */
 import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
@@ -257,19 +257,19 @@ export default function eventSave(
 							updateData.event_date = validated.event_date;
 						}
 						if (validated.active_playlist_id !== undefined) {
-							/* eslint-disable-next-line unicorn/no-null */
+							/* oxlint-disable-next-line unicorn/no-null */
 							updateData.active_playlist_id = validated.active_playlist_id ?? null;
 						}
 						if (validated.active_song_id !== undefined) {
-							/* eslint-disable-next-line unicorn/no-null */
+							/* oxlint-disable-next-line unicorn/no-null */
 							updateData.active_song_id = validated.active_song_id ?? null;
 						}
 						if (validated.active_slide_position !== undefined) {
-							/* eslint-disable-next-line unicorn/no-null */
+							/* oxlint-disable-next-line unicorn/no-null */
 							updateData.active_slide_position = validated.active_slide_position ?? null;
 						}
 						if (validated.public_notes !== undefined) {
-							/* eslint-disable-next-line unicorn/no-null */
+							/* oxlint-disable-next-line unicorn/no-null */
 							updateData.public_notes = validated.public_notes ?? null;
 						}
 
@@ -293,16 +293,16 @@ export default function eventSave(
 								event_name: validated.event_name ?? "",
 								event_slug: validated.event_slug ?? "",
 								event_description: validated.event_description ?? "",
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								event_date: validated.event_date ?? null,
 								is_public: validated.is_public ?? false,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								active_playlist_id: validated.active_playlist_id ?? null,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								active_song_id: validated.active_song_id ?? null,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								active_slide_position: validated.active_slide_position ?? null,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								public_notes: validated.public_notes ?? null,
 							},
 						])

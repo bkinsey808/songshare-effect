@@ -19,7 +19,7 @@ const actualOriginalConsoleDebug = console.debug;
 const actualOriginalConsoleTimeStamp = getConsoleTimeStamp();
 
 describe("quiet-client", () => {
-	// eslint-disable-next-line jest/no-hooks
+	// oxlint-disable-next-line jest/no-hooks
 	beforeEach(async () => {
 		// 1. Restore console to its *true original* state for a clean slate.
 		console.debug = actualOriginalConsoleDebug;
@@ -33,7 +33,7 @@ describe("quiet-client", () => {
 		await import("./quiet-client");
 	});
 
-	// eslint-disable-next-line jest/no-hooks
+	// oxlint-disable-next-line jest/no-hooks
 	afterEach(() => {
 		// 1. Restore console to its *true original* state after each test.
 		console.debug = actualOriginalConsoleDebug;

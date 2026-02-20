@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+/* oxlint-disable max-lines */
 import { useEffect, useState } from "react";
 
 import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
@@ -42,6 +42,7 @@ export default function UserPublicSubscriptionPage(): ReactElement {
 
 	// Use shared isRecord/isString guards (imported at top) for runtime narrowing
 
+	// Set up the user_public real-time subscription and initial fetch on mount
 	useEffect(() => {
 		let channel: RealtimeChannelLike | undefined = undefined;
 

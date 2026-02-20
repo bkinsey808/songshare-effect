@@ -81,6 +81,15 @@ JSDoc type annotations are acceptable in plain JavaScript files only; avoid dupl
 - `scripts/build/generate-effect-schemas/helpers/toPascalCase.test.ts` (Vitest unit test)
 - `e2e/flows/login.spec.ts` (Playwright spec)
 
+## **Command Execution Safety**
+
+- ✅ **Safe to Auto-Run**: The following commands are considered safe and should be executed with `SafeToAutoRun: true`:
+  - `npm run test:unit` (including any arguments for specific test files)
+  - `npm run lint`
+  - `npm run format`
+- ❗ **Always set SafeToAutoRun: true** for the above commands to streamline the development workflow when running individual tests or linting checks.
+- ❌ **Unsafe for Auto-Run**: Any command that modifies the git repository, performs deployments (other than the `/deploy` workflow), or installs new system-level dependencies.
+
 ## **Git Usage**
 
 - **Only humans do git:** Antigravity will not run git commands that change the repository (for example: `git mv`, `git commit`, `git push`, `git checkout` that modifies branches, `git reset`, or any other write operations). Humans should perform those actions.

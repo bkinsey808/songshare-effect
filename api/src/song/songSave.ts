@@ -208,11 +208,11 @@ export default function songSave(
 								fields: fieldsForDb,
 								slide_order: slideOrderForDb,
 								slides: slidesForDb,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								short_credit: validated.short_credit ?? null,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								long_credit: validated.long_credit ?? null,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								public_notes: validated.public_notes ?? null,
 							})
 							.eq("song_id", songId)
@@ -230,11 +230,11 @@ export default function songSave(
 								fields: fieldsForDb,
 								slide_order: slideOrderForDb,
 								slides: slidesForDb,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								short_credit: validated.short_credit ?? null,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								long_credit: validated.long_credit ?? null,
-								/* eslint-disable-next-line unicorn/no-null */
+								/* oxlint-disable-next-line unicorn/no-null */
 								public_notes: validated.public_notes ?? null,
 							},
 						])

@@ -17,6 +17,7 @@ export default function useAppStoreHydrated(): { isHydrated: boolean } {
 	const schedule = useSchedule();
 	const [isHydrated, setIsHydrated] = useState(hydrationState.isHydrated);
 
+	// Subscribe to hydration state changes and update local isHydrated state
 	useEffect(() => {
 		if (hydrationState.isHydrated) {
 			schedule(() => {

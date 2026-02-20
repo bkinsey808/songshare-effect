@@ -66,7 +66,7 @@ describe("accountRegister cookie integration", () => {
 		expect(res).toStrictEqual({ success: true });
 
 		// Collect cookie header values
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
 		const cookieCalls = appendSpy.mock.calls as unknown as [string, string][];
 		const cookieHeaders = cookieCalls.map(([_name, headerValue]) => headerValue);
 		const sessionHeader = cookieHeaders.find((header) =>
@@ -113,7 +113,7 @@ describe("accountRegister cookie integration", () => {
 		const res = await Effect.runPromise(accountRegister(ctx));
 		expect(res).toStrictEqual({ success: true });
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
 		const cookieCalls = appendSpy.mock.calls as unknown as [string, string][];
 		const cookieHeaders = cookieCalls.map(([_name, headerValue]) => headerValue);
 		const csrfHeader = cookieHeaders.find((header) => header.includes(`${csrfTokenCookieName}=`));
@@ -135,7 +135,7 @@ describe("accountRegister cookie integration", () => {
 		});
 
 		// Force non-https request URL (test-only cast)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only
 		(ctx.req as unknown as { url: string }).url = "http://example.test/api/test";
 
 		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
@@ -156,7 +156,7 @@ describe("accountRegister cookie integration", () => {
 		const res = await Effect.runPromise(accountRegister(ctx));
 		expect(res).toStrictEqual({ success: true });
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
 		const cookieCalls = appendSpy.mock.calls as unknown as [string, string][];
 		const cookieHeaders = cookieCalls.map(([_name, headerValue]) => headerValue);
 		const sessionCookie = cookieHeaders.find((header) =>

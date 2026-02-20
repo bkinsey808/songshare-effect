@@ -58,7 +58,7 @@ describe("resolveUsername", () => {
 						}),
 					}),
 				};
-				/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only cast */
+				/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only cast */
 				return table as unknown as ReturnType<typeof makeSupabaseClient>["from"];
 			},
 		);

@@ -68,6 +68,7 @@ export default function usePlaylistLibrary(): {
 	const publicUnsubRef = useRef<(() => void) | undefined>(undefined);
 	const publicRunRef = useRef(PUBLIC_SUB_INITIAL_RUN);
 
+	// subscribe to public metadata updates for any playlist ids in the library
 	useEffect(() => {
 		const playlistIds = playlistIdsKey.split(",").filter((id) => id !== "");
 		const MIN_IDS = 1;

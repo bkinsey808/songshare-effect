@@ -1,6 +1,6 @@
 // Centralized test helper to create a minimal ReadonlyContext for tests that
 // need to call API helpers. This centralizes the required unsafe casts so
-// individual tests don't need their own eslint-disable comments.
+// individual tests don't need their own oxlint-disable comments.
 import type { Env } from "@/api/env";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
@@ -27,7 +27,7 @@ function noop(): void {
 }
 
 export default function makeCtx(opts: MakeCtxOpts = {}): ReadonlyContext {
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast for Env */
+	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast for Env */
 	const env = {
 		VITE_SUPABASE_URL: "https://supabase.example",
 		SUPABASE_SERVICE_KEY: "service-key",
@@ -51,6 +51,6 @@ export default function makeCtx(opts: MakeCtxOpts = {}): ReadonlyContext {
 	const res = { headers: { append: opts.resHeadersAppend ?? noop } } as unknown;
 	// Return a minimal ReadonlyContext for tests. Keep the unsafe cast localized
 	// so test files don't need to repeat inline eslint disables.
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment -- test-only narrow cast to ReadonlyContext */
+	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment -- test-only narrow cast to ReadonlyContext */
 	return { env, req, res, json: (body: unknown) => body } as unknown as ReadonlyContext;
 }

@@ -14,9 +14,9 @@ vi.mock("@/react/app/useHydration");
 vi.mock("./useDashboard");
 
 // Mock react-router-dom with explicit type
-// eslint-disable-next-line jest/no-untyped-mock-factory
+// oxlint-disable-next-line jest/no-untyped-mock-factory
 vi.mock("react-router-dom", async () => {
-	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+	// oxlint-disable-next-line @typescript-eslint/consistent-type-imports
 	const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
 	return {
 		...actual,

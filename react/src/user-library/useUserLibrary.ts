@@ -53,6 +53,7 @@ export default function useUserLibrary(): {
 	const location = useLocation();
 	const initialized = useRef(false);
 
+	// Fetch user library and subscribe to realtime updates on mount or path change
 	useEffect(() => {
 		const state = useAppStore.getState();
 

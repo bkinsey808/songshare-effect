@@ -120,7 +120,7 @@ async function main(): Promise<void> {
 try {
 	await main();
 } catch (error: unknown) {
-	// eslint-disable-next-line no-console
+	// oxlint-disable-next-line no-console
 	console.error(error);
 }
 

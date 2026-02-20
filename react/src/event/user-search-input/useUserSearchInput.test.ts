@@ -43,7 +43,7 @@ describe("useUserSearchInput", () => {
 		const onSelect = vi.fn();
 		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect }));
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only synthetic event
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only synthetic event
 		result.current.handleInputChange({
 			target: { value: "ali" },
 		} as unknown as React.ChangeEvent<HTMLInputElement>);
@@ -57,7 +57,7 @@ describe("useUserSearchInput", () => {
 		});
 
 		// search by id
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only synthetic event
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only synthetic event
 		result.current.handleInputChange({
 			target: { value: "bob" },
 		} as unknown as React.ChangeEvent<HTMLInputElement>);
@@ -80,7 +80,7 @@ describe("useUserSearchInput", () => {
 		const onSelect = vi.fn();
 		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect }));
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only synthetic event
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only synthetic event
 		result.current.handleInputChange({
 			target: { value: "ali" },
 		} as unknown as React.ChangeEvent<HTMLInputElement>);
@@ -113,7 +113,7 @@ describe("useUserSearchInput", () => {
 
 		const preventDefault = vi.fn();
 		const stopPropagation = vi.fn();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only fake MouseEvent
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only fake MouseEvent
 		const fakeEvent = {
 			preventDefault,
 			stopPropagation,

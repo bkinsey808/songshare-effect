@@ -287,20 +287,20 @@ This ensures your expectations reference the same mock data declared in setup �
 
 ### ⚠️ Lint disable comments
 
-- **Avoid file-level `/* eslint-disable ... */`** in test files — they conceal rule violations and make it harder to keep tests correct.
+- **Avoid file-level `/* oxlint-disable ... */`** in test files — they conceal rule violations and make it harder to keep tests correct.
 - **Prefer narrow, local disables** when necessary, and prefer to scope them to small test helper functions rather than test bodies:
-  - Use `// eslint-disable-next-line <rule> - reason` for a single-line exception.
+  - Use `// oxlint-disable-next-line <rule> - reason` for a single-line exception.
   - Better: place the disable above a helper function (e.g., `getCachedUserTokenSpy`, `makeUnsafeMock`) so the exception is obvious, localized, and easily audited.
 - **Never scatter disables throughout test cases.** Centralize them in helpers to keep test assertions clean and to make it straightforward to remove the disable later.
 - **Always add a brief rationale** and a `TODO`/issue reference when you add a disable so it can be revisited and removed later.
 
 ```typescript
 // BAD: file-level disable — avoid this
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* oxlint-disable @typescript-eslint/no-explicit-any */
 
 // BAD: inline disables sprinkled inside tests — avoid this
 it("does something", () => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const x: unknown = doUnsafeThing();
   expect(x).toBeDefined();
 });
@@ -309,7 +309,7 @@ it("does something", () => {
 // Define helper in a shared test utility file (e.g. `react/src/lib/test-utils/test-helper-template.ts`).
 // The helper centralizes the unsafe cast and keeps tests free of inline disables.
 // Example helper usage:
-//   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- localized and documented in helper
+//   // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment -- localized and documented in helper
 //   export function asUnsafe<T>(value: unknown): T { return value as unknown as T }
 
 // Use helper in tests (keeps test code lint-friendly):

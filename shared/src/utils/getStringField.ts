@@ -15,7 +15,7 @@ export default function getStringField(obj: unknown, key: string): string | unde
 
 	// Reflect.get returns `any` in lib typings. Keep the single localized eslint
 	// exception here rather than repeating unsafe assertions at call sites.
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- reflect returns any; we validate before returning */
+	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment -- reflect returns any; we validate before returning */
 	const val = Reflect.get(obj, key);
 	return typeof val === "string" ? val : undefined;
 }

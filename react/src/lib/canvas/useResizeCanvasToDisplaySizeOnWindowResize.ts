@@ -11,6 +11,7 @@ import resizeCanvasToDisplaySize from "@/react/lib/canvas/resizeCanvasToDisplayS
 export default function useResizeCanvasToDisplaySizeOnWindowResize(canvasRef: {
 	current: HTMLCanvasElement | null | undefined;
 }): void {
+	// Resize the canvas backing store any time the window resizes
 	useEffect(() => {
 		function onResize(): void {
 			const canvas = canvasRef.current;

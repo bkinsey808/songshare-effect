@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-/* eslint-disable jest/require-hook */
+/* oxlint-disable jest/require-hook */
 // Usage: bun src/features/scripts/fileCheck.ts src/App.tsx
 import { spawnSync, type SpawnSyncReturns } from "node:child_process";
 

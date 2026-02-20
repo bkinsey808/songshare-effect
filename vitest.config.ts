@@ -71,7 +71,7 @@ export default defineConfig({
 			branches: 60,
 			functions: 90,
 			lines: 55,
-			/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion */
+			/* oxlint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion */
 		} as any,
 	},
 });

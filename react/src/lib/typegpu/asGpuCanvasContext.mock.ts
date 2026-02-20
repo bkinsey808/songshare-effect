@@ -12,8 +12,8 @@ export default function asGpuCanvasContext(obj: unknown): GPUCanvasContext {
 	const base: Partial<GPUCanvasContext> = {
 		configure: (_configuration: GPUCanvasConfiguration): undefined => undefined,
 	};
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- merging unknown test input into mock
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- merging unknown test input into mock
 	const merged = { ...base, ...(obj as object) };
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast for mock WebGPU context
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast for mock WebGPU context
 	return merged as unknown as GPUCanvasContext;
 }

@@ -38,6 +38,7 @@ function TestHarness({ onApi }: { onApi: (api: CanvasAnimationApi) => void }): R
 	const api = apiAny;
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+	// Expose the hook's runtime API to the test harness when the component mounts
 	useEffect(() => {
 		onApi(api);
 	}, [api, onApi]);

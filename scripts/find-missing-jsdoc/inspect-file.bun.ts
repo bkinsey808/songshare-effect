@@ -34,7 +34,7 @@ if (descriptor && isJsDocGetter(descriptor.value)) {
 	getPrecedingJsDoc = descriptor.value;
 }
 
-// eslint-disable-next-line no-console
+// oxlint-disable-next-line no-console
 console.warn("Inspecting", filePath);
 for (const { regex, kind } of patterns) {
 	while (true) {
@@ -50,7 +50,7 @@ for (const { regex, kind } of patterns) {
 		const jsdocText = getPrecedingJsDoc?.(lines, lineNum);
 		const hasJsdoc = jsdocText !== undefined;
 		const hasReturns = typeof jsdocText === "string" ? /@returns?\b/i.test(jsdocText) : false;
-		// eslint-disable-next-line no-console
+		// oxlint-disable-next-line no-console
 		console.warn(
 			`- ${kind} ${name} at line ${lineNum}: jsdoc=${hasJsdoc} hasReturns=${hasReturns}`,
 		);
@@ -58,11 +58,11 @@ for (const { regex, kind } of patterns) {
 		const startPreview = Math.max(ZERO, lineNum - PREVIEW_WINDOW);
 		const endPreview = Math.min(lines.length, lineNum + ONE);
 		for (let i = startPreview; i < endPreview; i += ONE) {
-			// eslint-disable-next-line no-console
+			// oxlint-disable-next-line no-console
 			console.warn(`${i + ONE}: ${String(lines[i])}`);
 		}
 		if (typeof jsdocText === "string") {
-			// eslint-disable-next-line no-console
+			// oxlint-disable-next-line no-console
 			console.warn(
 				"--- JSDOC ---\n",
 				jsdocText
@@ -70,7 +70,7 @@ for (const { regex, kind } of patterns) {
 					.map((line) => `> ${line}`)
 					.join("\n"),
 			);
-			// eslint-disable-next-line no-console
+			// oxlint-disable-next-line no-console
 			console.warn("--- END ---");
 		}
 	}

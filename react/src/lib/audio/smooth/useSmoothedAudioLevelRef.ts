@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 
 import useSmoothedAudioLevel, {
-	type AudioAnalyser,
-	type SmoothedAudioLevel,
+    type AudioAnalyser,
+    type SmoothedAudioLevel,
 } from "@/react/lib/audio/smooth/useSmoothedAudioLevel";
 
 type AudioLevelRefs = {
@@ -36,6 +36,7 @@ export default function useSmoothedAudioLevelRef(
 	const audioLevel: SmoothedAudioLevel = useSmoothedAudioLevel(refs, options);
 	const audioLevelRef = useRef<SmoothedAudioLevel | undefined>(audioLevel);
 
+	// Keep the ref pointing to the latest `audioLevel` value for external callers
 	useEffect(() => {
 		audioLevelRef.current = audioLevel;
 	}, [audioLevel]);

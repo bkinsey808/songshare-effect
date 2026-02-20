@@ -2,6 +2,8 @@
 description: Run unit and end-to-end tests
 ---
 
+// turbo-all
+
 # Run Tests
 
 This workflow covers running unit tests (Vitest) and end-to-end tests (Playwright).

@@ -12,14 +12,14 @@ import makeSupabaseClient, { type MakeSupabaseClientOpts } from "./makeSupabaseC
  * @param opts - Options for the fake client
  */
 /* oxlint-disable typescript-eslint/no-explicit-any, typescript-eslint/explicit-module-boundary-types */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line @typescript-eslint/no-explicit-any
 export default function mockCreateSupabaseClient(
 	mockedFn: any,
 	opts: MakeSupabaseClientOpts = {},
 ): void {
 	/* oxlint-enable typescript-eslint/no-explicit-any, typescript-eslint/explicit-module-boundary-types */
 	const fakeClient = makeSupabaseClient(opts);
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test helper wraps narrow cast */
+	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test helper wraps narrow cast */
 	// oxlint-disable-next-line typescript-eslint/no-unsafe-call, typescript-eslint/no-unsafe-member-access, typescript-eslint/no-unsafe-type-assertion
 	mockedFn.mockReturnValue(fakeClient as unknown as ReturnType<typeof createClient>);
 }

@@ -66,6 +66,7 @@ export default function usePopulateSongForm({
 }: UsePopulateSongFormParams): void {
 	const navigate = useNavigate();
 
+	// Populate form state when song data becomes available and verify ownership
 	useEffect(() => {
 		if (songId === undefined || songId.trim() === "") {
 			// If not editing, ensure loading is false

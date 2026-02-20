@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-/* eslint-disable import/exports-last, unicorn/no-array-method-this-argument */
+/* oxlint-disable import/exports-last, unicorn/no-array-method-this-argument */
 
 /** Minimum allowed characters for a song name (inclusive). */
 const NAME_MIN_LENGTH = 2;
@@ -29,14 +29,14 @@ export const songFieldsSchema: Schema.Array$<Schema.Literal<typeof songFields>> 
  * Attaches i18n message keys via `songMessageKey` for each rule.
  */
 export const songNameSchema: Schema.Schema<string> = Schema.String.pipe(
-	// eslint-disable-next-line unicorn/no-array-method-this-argument
+	// oxlint-disable-next-line unicorn/no-array-method-this-argument
 	Schema.filter((value) => value.trim() === value, {
 		message: () => "song.validation.noLeadingTrailingSpaces",
 	}),
 	Schema.annotations({
 		[songMessageKey]: { key: "song.validation.noLeadingTrailingSpaces" },
 	}),
-	// eslint-disable-next-line unicorn/no-array-method-this-argument
+	// oxlint-disable-next-line unicorn/no-array-method-this-argument
 	Schema.filter((value) => value.length >= NAME_MIN_LENGTH && value.length <= NAME_MAX_LENGTH, {
 		message: () => "song.validation.nameLength",
 	}),
@@ -47,7 +47,7 @@ export const songNameSchema: Schema.Schema<string> = Schema.String.pipe(
 			maxLength: NAME_MAX_LENGTH,
 		},
 	}),
-	// eslint-disable-next-line unicorn/no-array-method-this-argument
+	// oxlint-disable-next-line unicorn/no-array-method-this-argument
 	Schema.filter((value) => !/\s{2}/.test(value), {
 		message: () => "song.validation.noConsecutiveSpaces",
 	}),
@@ -63,7 +63,7 @@ export const songNameSchema: Schema.Schema<string> = Schema.String.pipe(
  * - No consecutive dashes
  */
 export const songSlugSchema: Schema.Schema<string> = Schema.String.pipe(
-	// eslint-disable-next-line unicorn/no-array-method-this-argument
+	// oxlint-disable-next-line unicorn/no-array-method-this-argument
 	Schema.filter(
 		(value) => {
 			if (!/^[a-z0-9-]+$/.test(value)) {
@@ -163,7 +163,7 @@ const baseSongPublicSchema: Schema.Struct<{
 export const songPublicSchema: Schema.Schema<Schema.Schema.Type<typeof baseSongPublicSchema>> =
 	baseSongPublicSchema.pipe(
 		// Rule 1: all slide keys must be included in slideOrder
-		// eslint-disable-next-line unicorn/no-array-method-this-argument
+		// oxlint-disable-next-line unicorn/no-array-method-this-argument
 		Schema.filter(
 			(input: Schema.Schema.Type<typeof baseSongPublicSchema>) => {
 				const slideKeys = Object.keys(input.slides);
@@ -178,7 +178,7 @@ export const songPublicSchema: Schema.Schema<Schema.Schema.Type<typeof baseSongP
 		}),
 
 		// Rule 2: all field_data keys must exist in fields
-		// eslint-disable-next-line unicorn/no-array-method-this-argument
+		// oxlint-disable-next-line unicorn/no-array-method-this-argument
 		Schema.filter(
 			(input: Schema.Schema.Type<typeof baseSongPublicSchema>) => {
 				// Normalize allowed field names to `string` so we can safely

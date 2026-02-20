@@ -1,6 +1,7 @@
 import { cleanup, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
 import { apiEventSavePath } from "@/shared/paths";
 
 import usePlaybackAutosaveFlush from "./usePlaybackAutosaveFlush";
@@ -89,7 +90,7 @@ describe("usePlaybackAutosaveFlush", () => {
 		const clearSpy = vi.spyOn(globalThis, "clearTimeout");
 
 		const songAutosaveTimeoutRef: { current: ReturnType<typeof setTimeout> | undefined } = {
-			// eslint-disable-next-line @typescript-eslint/no-magic-numbers, no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
+			// oxlint-disable-next-line @typescript-eslint/no-magic-numbers, no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
 			current: 42 as unknown as ReturnType<typeof setTimeout>,
 		};
 		const slideAutosaveTimeoutRef: { current: ReturnType<typeof setTimeout> | undefined } = {
@@ -111,7 +112,7 @@ describe("usePlaybackAutosaveFlush", () => {
 
 		globalThis.dispatchEvent(new Event("pagehide"));
 
-		// eslint-disable-next-line no-magic-numbers
+		// oxlint-disable-next-line no-magic-numbers
 		expect(clearSpy).toHaveBeenCalledWith(42);
 		expect(songAutosaveTimeoutRef.current).toBeUndefined();
 		expect(fetchMock).not.toHaveBeenCalled();
@@ -126,9 +127,9 @@ describe("usePlaybackAutosaveFlush", () => {
 		vi.stubGlobal("fetch", fetchMock);
 		const clearSpy = vi.spyOn(globalThis, "clearTimeout");
 
-		// eslint-disable-next-line no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
+		// oxlint-disable-next-line no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
 		const SONG_TIMEOUT = 1 as unknown as ReturnType<typeof setTimeout>;
-		// eslint-disable-next-line no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
+		// oxlint-disable-next-line no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
 		const SLIDE_TIMEOUT = 2 as unknown as ReturnType<typeof setTimeout>;
 
 		const songAutosaveTimeoutRef: { current: ReturnType<typeof setTimeout> | undefined } = {
@@ -180,11 +181,11 @@ describe("usePlaybackAutosaveFlush", () => {
 		vi.stubGlobal("fetch", fetchMock);
 
 		const songAutosaveTimeoutRef: { current: ReturnType<typeof setTimeout> | undefined } = {
-			// eslint-disable-next-line no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
+			// oxlint-disable-next-line no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
 			current: 1 as unknown as ReturnType<typeof setTimeout>,
 		};
 		const slideAutosaveTimeoutRef: { current: ReturnType<typeof setTimeout> | undefined } = {
-			// eslint-disable-next-line no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
+			// oxlint-disable-next-line no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
 			current: 2 as unknown as ReturnType<typeof setTimeout>,
 		};
 		const latestEventIdRef: { current: string | undefined } = { current: "evt-2" };
@@ -218,7 +219,7 @@ describe("usePlaybackAutosaveFlush", () => {
 		vi.stubGlobal("fetch", fetchMock);
 
 		const songAutosaveTimeoutRef: { current: ReturnType<typeof setTimeout> | undefined } = {
-			// eslint-disable-next-line no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
+			// oxlint-disable-next-line no-magic-numbers, @typescript-eslint/no-unsafe-type-assertion
 			current: 1 as unknown as ReturnType<typeof setTimeout>,
 		};
 		const slideAutosaveTimeoutRef: { current: ReturnType<typeof setTimeout> | undefined } = {
@@ -240,12 +241,20 @@ describe("usePlaybackAutosaveFlush", () => {
 
 		unmount();
 
-		expect(fetchMock).toHaveBeenCalledWith();
-
-		// Serialize mock calls and assert the POST body contains expected fields
-		const callsJson = JSON.stringify(vi.mocked(fetchMock).mock.calls);
-		expect(callsJson).toContain("evt-unmount");
-		expect(callsJson).toContain("song-unmount");
+		expect(fetchMock).toHaveBeenCalledWith(
+			apiEventSavePath,
+			expect.objectContaining({
+				method: "POST",
+				keepalive: true,
+				body: forceCast(expect.stringContaining("evt-unmount")),
+			}),
+		);
+		expect(fetchMock).toHaveBeenCalledWith(
+			apiEventSavePath,
+			expect.objectContaining({
+				body: forceCast(expect.stringContaining("song-unmount")),
+			}),
+		);
 
 		cleanupFn();
 	});

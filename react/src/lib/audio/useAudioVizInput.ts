@@ -100,6 +100,7 @@ export default function useAudioVizInput(options: Options): {
 
 	// Capture stop in a ref to keep it stable regardless of audioCapture object changes
 	const captureStopRef = useRef(audioCapture.stop);
+	// Keep the latest stop function in a ref so callbacks can call it safely
 	useEffect(() => {
 		captureStopRef.current = audioCapture.stop;
 	}, [audioCapture.stop]);

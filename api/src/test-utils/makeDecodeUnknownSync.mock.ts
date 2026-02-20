@@ -4,11 +4,11 @@ import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThr
 
 /**
  * Centralize mocks for `decodeUnknownSyncOrThrow` so tests don't need
- * to include inline `eslint-disable` comments for unsafe returns.
+ * to include inline `oxlint-disable` comments for unsafe returns.
  */
 export function mockDecodeReturn(value: unknown): void {
 	// test-only cast: convert `unknown` into the function's return type
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- test-only narrow cast */
+	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment -- test-only narrow cast */
 	vi.mocked(decodeUnknownSyncOrThrow).mockReturnValue(value);
 }
 

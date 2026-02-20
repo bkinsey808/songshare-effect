@@ -7,7 +7,7 @@ import type { UseLocaleResult } from "@/react/lib/language/locale/useLocale";
 // it on every call.
 function makeIdentityT(): UseLocaleResult["t"] {
 	// Narrow cast kept localized in the helper so tests don't need inline disables.
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 	return ((key: string, def?: string): string =>
 		typeof def === "string" ? def : key) as unknown as UseLocaleResult["t"];
 }

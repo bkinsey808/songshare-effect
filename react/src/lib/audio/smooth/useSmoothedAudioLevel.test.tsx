@@ -61,15 +61,15 @@ describe("useSmoothedAudioLevel", () => {
 		const localOptions = { uiIntervalMs: UI_INTERVAL_MS, smoothingAlpha: SMOOTHING_ALPHA };
 
 		// acquire spies at test time so imports can remain at the top
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 		const mockCompute = (await spyImport(
 			"@/react/lib/audio/computeRmsLevel",
 		)) as unknown as ComputeSpy;
 		mockCompute.mockReturnValue(MOCK_LEVEL);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 		const mockClamp = (await spyImport("@/react/lib/audio/clamp01")) as unknown as ClampSpy;
 		mockClamp.mockImplementation((value: number) => value);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 		const mockSmooth = (await spyImport(
 			"@/react/lib/audio/smooth/smoothValue",
 		)) as unknown as SmoothSpy;

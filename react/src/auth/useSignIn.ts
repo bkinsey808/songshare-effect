@@ -23,6 +23,7 @@ export default function useSignIn(): UseSignInReturn {
 		() => useAppStore.getState().isSignedIn,
 	);
 
+	// Synchronize local isSignedIn state with the app store
 	useEffect(() => {
 		const api = useAppStore;
 		const unsubscribe = api.subscribe((state) => {

@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/require-await -- mocks match signatures */
-/* eslint-disable unicorn/no-null -- supabase uses null */
-/* eslint-disable promise/prefer-await-to-then -- mocked promises need explicit resolve */
+/* oxlint-disable @typescript-eslint/require-await -- mocks match signatures */
+/* oxlint-disable unicorn/no-null -- supabase uses null */
+/* oxlint-disable promise/prefer-await-to-then -- mocked promises need explicit resolve */
 import type {
 	MaybeSingleBuilder,
 	MaybeSingleResult,
@@ -17,9 +17,9 @@ export type EventUserMockOpts = {
 	eventUserDeleteError?: unknown;
 };
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable unicorn/no-null */
+/* oxlint-disable @typescript-eslint/no-explicit-any */
+/* oxlint-disable @typescript-eslint/require-await */
+/* oxlint-disable unicorn/no-null */
 export function createEventUserMock(opts: EventUserMockOpts): any {
 	function makeWriteResult(rows: unknown[]): MultiResult & { select: () => SingleBuilder } {
 		const promise: MultiResult = Promise.resolve({

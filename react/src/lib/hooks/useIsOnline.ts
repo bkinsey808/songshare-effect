@@ -11,6 +11,7 @@ export default function useIsOnline(): boolean {
 		typeof navigator === "undefined" ? true : navigator.onLine,
 	);
 
+	// Listen to browser online/offline events and keep `isOnline` state updated
 	useEffect(() => {
 		function handleOnline(): void {
 			setIsOnline(true);

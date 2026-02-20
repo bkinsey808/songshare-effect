@@ -39,13 +39,13 @@ fs.writeFileSync(file, contents, "utf8");
 try {
 	const issues = analyzeFile(file);
 	const INDENT = 2;
-	// eslint-disable-next-line no-console
+	// oxlint-disable-next-line no-console
 	console.log("issues:", JSON.stringify(issues, undefined, INDENT));
 	// exit 0 to indicate success
 	const EXIT_OK = 0;
 	process.exit(EXIT_OK);
 } catch (error) {
-	// eslint-disable-next-line no-console
+	// oxlint-disable-next-line no-console
 	console.error("ERR running analyzeFile:", error);
 	const EXIT_ERROR = 1;
 	process.exit(EXIT_ERROR);

@@ -18,7 +18,7 @@ export default function convertReactImports(filePath: string, content: string): 
 	const IMPORT_PART_INDEX = 1;
 	const RELATIVE_PATH_INDEX = 3;
 	// Use `replace` with a function replacer here — `replaceAll` doesn't accept a function.
-	// eslint-disable-next-line unicorn/prefer-string-replace-all
+	// oxlint-disable-next-line unicorn/prefer-string-replace-all
 	updatedContent = updatedContent.replace(
 		/import\s+([^'"]*)\s+from\s+['"](\.\.\/)+([^'"]*?)['"]?;?/g,
 		(...args) => {

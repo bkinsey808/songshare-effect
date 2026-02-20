@@ -34,6 +34,7 @@ export default function useFetchSongData({
 	setFormValuesState,
 	clearInitialState,
 }: UseFetchSongDataParams): void {
+	// Trigger song data fetch or reset form state when songId or location changes
 	useEffect(() => {
 		if (songId === undefined || songId.trim() === "") {
 			hasPopulatedRef.current = false;

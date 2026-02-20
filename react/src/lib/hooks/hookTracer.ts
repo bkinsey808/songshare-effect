@@ -37,6 +37,7 @@ export function traceHook(name: string): void {
  * @returns void
  */
 export function useLogHookTrace(): void {
+	// After each render commit, log whatever hook names were traced and clear the buffer
 	useEffect(() => {
 		if (buffer.length > ZERO) {
 			// Make the hook-order trace visible even when console.debug is filtered

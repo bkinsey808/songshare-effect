@@ -34,7 +34,7 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 async function setGetTypedStateUser(userSessionData?: UserSessionData): Promise<void> {
 	vi.resetModules();
 	const appStoreModule = await import("@/react/app-store/useAppStore");
-	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+	// oxlint-disable-next-line @typescript-eslint/consistent-type-imports
 	const actual = await vi.importActual<typeof import("@/react/app-store/useAppStore")>(
 		"@/react/app-store/useAppStore",
 	);
@@ -50,12 +50,12 @@ async function setGetTypedStateUser(userSessionData?: UserSessionData): Promise<
 function makeSampleWithNonStringId(): UserSessionData {
 	// Build as `unknown` to avoid narrowing the type to `string` and triggering
 	// the `no-unsafe-type-assertion` rule on the inner property.
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
 	const sample: unknown = {
 		...SAMPLE_USER_SESSION,
 		user: { ...SAMPLE_USER_SESSION.user, user_id: NON_STRING_ID },
 	};
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion
 	return sample as UserSessionData;
 }
 

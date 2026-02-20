@@ -27,6 +27,7 @@ export default function HeavyComponent({ name, color }: HeavyComponentParams): R
 	// Call hooks at top-level
 	const schedule = useSchedule();
 
+	// Simulate heavy computation and measure render time
 	useEffect(() => {
 		const start = performance.now();
 		// Simulate some heavy computation

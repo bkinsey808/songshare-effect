@@ -22,12 +22,12 @@ type AsyncSpy = {
 };
 
 async function spyUseAudioCapture(): Promise<AsyncSpy> {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 	return (await spyImport("@/react/lib/audio/useAudioCapture")) as unknown as AsyncSpy;
 }
 
 async function spyUseSmoothedAudioLevelRef(): Promise<AsyncSpy> {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 	return (await spyImport(
 		"@/react/lib/audio/smooth/useSmoothedAudioLevelRef",
 	)) as unknown as AsyncSpy;

@@ -64,6 +64,7 @@ export default function useEventManageState(): UseEventManageStateResult {
 	const navigate = useNavigate();
 	const lang = useCurrentLang();
 	const fetchEventBySlug = useAppStore((state) => state.fetchEventBySlug);
+	const subscribeToEvent = useAppStore((state) => state.subscribeToEvent);
 	const currentEvent = useAppStore((state) => state.currentEvent);
 	const isEventLoading = useAppStore((state) => state.isEventLoading);
 	const eventError = useAppStore((state) => state.eventError);
@@ -112,6 +113,7 @@ export default function useEventManageState(): UseEventManageStateResult {
 	const canManageEvent = isOwner || isEventAdmin;
 	const activePlaylistIdForEffect = selectedActivePlaylistId ?? eventPublic?.active_playlist_id;
 
+	// Fetch the event data whenever the slug changes (skip empty slug)
 	useEffect(() => {
 		if (event_slug === undefined || event_slug === "") {
 			return;
@@ -120,6 +122,22 @@ export default function useEventManageState(): UseEventManageStateResult {
 		void EffectRuntime.runPromise(fetchEventBySlug(event_slug));
 	}, [event_slug, fetchEventBySlug]);
 
+	// Subscribe to realtime updates for the current event when we have an id
+	useEffect(() => {
+		const cid = currentEvent?.event_id;
+		if (cid === undefined) {
+			return;
+		}
+
+		const unsubscribe = subscribeToEvent();
+		return (): void => {
+			if (unsubscribe) {
+				unsubscribe();
+			}
+		};
+	}, [currentEvent?.event_id, subscribeToEvent]);
+
+	// Load playlist library once so the manager can show playlists for adding songs
 	useEffect(() => {
 		void (async (): Promise<void> => {
 			try {
@@ -130,6 +148,7 @@ export default function useEventManageState(): UseEventManageStateResult {
 		})();
 	}, [fetchPlaylistLibrary]);
 
+	// Load current user's library on mount so we can reference it in the manager
 	useEffect(() => {
 		void (async (): Promise<void> => {
 			try {
@@ -140,6 +159,7 @@ export default function useEventManageState(): UseEventManageStateResult {
 		})();
 	}, [fetchUserLibrary]);
 
+	// When the active playlist changes, fetch its details so the UI can display it
 	useEffect(() => {
 		if (activePlaylistIdForEffect === undefined || activePlaylistIdForEffect === "") {
 			return;
@@ -197,6 +217,7 @@ export default function useEventManageState(): UseEventManageStateResult {
 	const activeSlidePositionForSelector =
 		selectedActiveSlidePosition ?? eventPublic?.active_slide_position ?? undefined;
 
+	// Update the mutable refs whenever any of the ids change (avoids stale closures)
 	useEffect(() => {
 		latestEventIdRef.current = currentEventId;
 		latestSongIdRef.current = activeSongIdForSelector;

@@ -51,7 +51,7 @@ describe("buildSetCookieHeader", () => {
 
 	it("does not set request proto as https when overriding url via a typed cast", () => {
 		const ctx = makeCtx();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only override to simulate insecure request URL
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only override to simulate insecure request URL
 		(ctx.req as unknown as { url: string }).url = "http://example.test/api/test";
 
 		const hdr = buildSetCookieHeader({ ctx, name: "insecure2", value: "1" });

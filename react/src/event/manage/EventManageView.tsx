@@ -12,7 +12,7 @@ import UserSearchInput from "../user-search-input/UserSearchInput";
  *
  * @returns Management UI for playback and participant controls
  */
-export default function EventManageView(): React.ReactNode {
+export default function EventManageView(): ReactElement {
 	const {
 		currentEvent,
 		eventPublic,

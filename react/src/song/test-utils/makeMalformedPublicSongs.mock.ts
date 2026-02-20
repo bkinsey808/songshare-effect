@@ -21,6 +21,6 @@ export default function makeMalformedPublicSongs(): Record<string, SongPublic> {
 	// `undefined` and wrong field types) so tests can exercise defensive
 	// behavior. Centralizing the single narrow cast here avoids repeated
 	// inline disables across many tests.
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment -- test-only: intentionally malformed fixture */
+	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment -- test-only: intentionally malformed fixture */
 	return publicSongs as unknown as Record<string, SongPublic>;
 }

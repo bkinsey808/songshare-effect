@@ -83,6 +83,6 @@ export default function joinEvent(
 				console.error("[joinEvent] Error:", err);
 			}),
 		),
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 	) as unknown as Effect.Effect<void, EventError>;
 }

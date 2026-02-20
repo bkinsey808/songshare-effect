@@ -66,6 +66,7 @@ export default function useFullScreen(): {
 			document.fullscreenElement !== null && document.fullscreenElement !== undefined,
 	);
 
+	// Listen for fullscreenchange events and update local state accordingly
 	useEffect(() => {
 		function updateFullScreenState(): void {
 			setIsFullScreen(

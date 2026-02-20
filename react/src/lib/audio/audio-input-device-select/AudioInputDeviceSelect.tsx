@@ -27,6 +27,7 @@ export default function AudioInputDeviceSelect({
 }: Props): ReactElement {
 	const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
 
+	// Enumerate audio input devices on mount and re-enumerate on `devicechange` events
 	useEffect(() => {
 		let cancelled = false;
 		const { mediaDevices } = navigator;

@@ -32,6 +32,7 @@ export default function useInitialFormState({
 	// Use a ref to track if we've set initial state for the current songId
 	const hasSetInitialStateRef = useRef<string | undefined>(undefined);
 
+	// Set the initial form state snapshot once data is loaded/populated
 	useEffect(() => {
 		// For new songs: set initial state once when not loading
 		if (songId === undefined || songId.trim() === "") {

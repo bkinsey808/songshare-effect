@@ -8,7 +8,7 @@
  * This script validates that the auth bypass configuration works correctly.
  */
 
-/* eslint-disable no-console */
+/* oxlint-disable no-console */
 
 import { chromium } from "@playwright/test";
 

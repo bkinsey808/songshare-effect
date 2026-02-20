@@ -258,6 +258,7 @@ export default function useTypegpuAudioViz(canvasRef: React.RefObject<HTMLCanvas
 		startCanvas,
 	]);
 
+	// Synchronize error message and status from the audio capture hook
 	useEffect(() => {
 		// Mirror errors from the capture hook into the page UI
 		setErrorMessage(audioErrorMessage);
@@ -273,6 +274,7 @@ export default function useTypegpuAudioViz(canvasRef: React.RefObject<HTMLCanvas
 		}
 	}, [audioErrorMessage, audioStatus]);
 
+	// Cleanup all resources (canvas, TypeGPU, audio) on unmount
 	useEffect(
 		() => (): void => {
 			stopCanvas();

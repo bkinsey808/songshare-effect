@@ -9,12 +9,12 @@ import { vi } from "vitest";
  */
 export function mockVerifySuccess(payload: unknown): void {
 	// test-only cast: feed the mocked `verify` the expected resolved payload type
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion -- test-only narrow cast */
+	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion -- test-only narrow cast */
 	vi.mocked(verify).mockResolvedValue(payload as unknown as Awaited<ReturnType<typeof verify>>);
 }
 
 export function mockVerifyFailure(err: unknown): void {
 	// normalise rejected value to an Error for callers that expect Error instances
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
 	vi.mocked(verify).mockRejectedValue(err instanceof Error ? err : new Error(String(err)));
 }

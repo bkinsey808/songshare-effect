@@ -32,7 +32,7 @@ describe("removeUserFromLibraryEffect", () => {
 		);
 
 		const req: Readonly<RemoveUserFromLibraryRequest> = { followed_user_id: followedUserId };
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- typed test request
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-argument -- typed test request
 		await Effect.runPromise(removeUserFromLibraryEffect(req, get));
 
 		expect(setUserLibraryError).toHaveBeenCalledWith(undefined);

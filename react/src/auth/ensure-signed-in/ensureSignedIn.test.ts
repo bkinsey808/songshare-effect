@@ -60,9 +60,9 @@ type ParseMock = {
 // Helper to obtain a fresh mocked parse function from the mocked module so
 // tests don't rely on a potentially stale top-level reference.
 // Use `spyImport` which returns a Spy-like helper we can call directly.
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 async function getParseMock(): Promise<ParseMock> {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 	return (await spyImport("@/react/auth/parseUserSessionData", "default")) as unknown as ParseMock;
 }
 
@@ -82,9 +82,9 @@ type GetCachedUserTokenSpy = {
 };
 
 // Helper to return a typed spy for `getCachedUserToken`.
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 async function getCachedUserTokenSpy(): Promise<GetCachedUserTokenSpy> {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 	return (await spyImport(
 		"@/react/lib/supabase/token/tokenCache",
 		"getCachedUserToken",
@@ -93,7 +93,7 @@ async function getCachedUserTokenSpy(): Promise<GetCachedUserTokenSpy> {
 
 async function spyClientError(): Promise<ClientErrorSpy> {
 	const mod = await import("@/react/lib/utils/clientLogger");
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 	return vi.spyOn(mod, "clientError") as unknown as ClientErrorSpy;
 }
 

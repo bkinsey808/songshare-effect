@@ -6,7 +6,8 @@
 		"**/dist/**",
 		"*/generated/**",
 		"**/generated/**",
-		"**/*.generated.*"
+		"**/*.generated.*",
+		"eslint-rules/**"
 	],
 	"rules": {
 		"eslint/array-callback-return": "warn",
@@ -483,7 +484,7 @@
 			}
 		],
 		"unicorn/new-for-builtins": "error",
-		"unicorn/no-abusive-eslint-disable": "error",
+		"unicorn/no-abusive-oxlint-disable": "error",
 		"unicorn/no-accessor-recursion": "error",
 		"unicorn/no-anonymous-default-export": "error",
 		"unicorn/no-array-callback-reference": "error",

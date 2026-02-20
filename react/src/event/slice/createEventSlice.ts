@@ -10,6 +10,7 @@ import fetchEventBySlugFn from "../fetch/fetchEventBySlug";
 import saveEventFn from "../form/saveEvent";
 import joinEventFn from "../join/joinEvent";
 import leaveEventFn from "../leave/leaveEvent";
+import subscribeToEventFn from "../subscribe/subscribeToEvent";
 
 const eventSliceInitialState: EventState = {
 	currentEvent: undefined,
@@ -41,6 +42,10 @@ export default function createEventSlice(
 	void api;
 
 	sliceResetFns.add(() => {
+		const state = get();
+		if (state.activeEventUnsubscribe !== undefined) {
+			state.activeEventUnsubscribe();
+		}
 		set(eventSliceInitialState);
 	});
 
@@ -56,6 +61,25 @@ export default function createEventSlice(
 
 		leaveEvent: (eventId: string, userId: string) => leaveEventFn(eventId, userId, get),
 
+		subscribeToEvent: () => {
+			const state = get();
+			// Unsubscribe from previous if exists
+			if (state.activeEventUnsubscribe !== undefined) {
+				state.activeEventUnsubscribe();
+			}
+
+			// Cast set to the type expected by subscribeToEventFn
+			const typedSet = set as (
+				partial:
+					| Partial<ReadonlyDeep<EventSlice>>
+					| ((state: ReadonlyDeep<EventSlice>) => Partial<ReadonlyDeep<EventSlice>>),
+			) => void;
+
+			const unsubscribe = subscribeToEventFn(typedSet, get)();
+			set({ activeEventUnsubscribe: unsubscribe ?? undefined });
+			return unsubscribe;
+		},
+
 		// Internal state management methods
 		setCurrentEvent: (event: EventEntry | undefined) => {
 			set({ currentEvent: event as ReadonlyDeep<EventEntry> | undefined });
@@ -66,7 +90,7 @@ export default function createEventSlice(
 		},
 
 		setParticipants: (participants: readonly EventUser[]) => {
-			set({ participants: participants as ReadonlyDeep<readonly EventUser[]> });
+			set({ participants: participants as ReadonlyDeep<EventUser[]> });
 		},
 
 		setEventLoading: (loading: boolean) => {
@@ -82,7 +106,15 @@ export default function createEventSlice(
 		},
 
 		clearCurrentEvent: () => {
-			set({ currentEvent: undefined, eventError: undefined });
+			const state = get();
+			if (state.activeEventUnsubscribe !== undefined) {
+				state.activeEventUnsubscribe();
+			}
+			set({
+				currentEvent: undefined,
+				eventError: undefined,
+				activeEventUnsubscribe: undefined,
+			});
 		},
 	};
 }

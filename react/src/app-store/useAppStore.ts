@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-type-assertion --
+/* oxlint-disable @typescript-eslint/no-unsafe-type-assertion --
    Centralized store wiring composes dynamically-created slice factories and
    performs runtime validation. Narrowing/casts are localized here for safety
    and readability rather than repeated at each consumer site.
@@ -97,7 +97,7 @@ const useAppStore = create<AppSlice>()(
 // The Zustand `getState()` is untyped at this callsite; we assert the shape
 // once below using a small runtime check so callers get a fully-typed `AppSlice`
 // without repeating unsafe casts across the codebase.
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion -- runtime validation of untyped store
+// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion -- runtime validation of untyped store
 function assertAppSlice(state: unknown): asserts state is AppSlice {
 	if (state === null || typeof state !== "object") {
 		throw new TypeError("App store is not yet initialized or has unexpected shape");

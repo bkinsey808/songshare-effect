@@ -324,7 +324,7 @@
 - unicorn/explicit-length-check
 - unicorn/filename-case
 - unicorn/new-for-builtins
-- unicorn/no-abusive-eslint-disable
+- unicorn/no-abusive-oxlint-disable
 - unicorn/no-accessor-recursion
 - unicorn/no-anonymous-default-export
 - unicorn/no-array-callback-reference

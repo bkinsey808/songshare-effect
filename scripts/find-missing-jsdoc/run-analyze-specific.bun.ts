@@ -9,10 +9,10 @@ const ARG_FILE_INDEX = 2;
 const file = process.argv[ARG_FILE_INDEX] ?? DEFAULT_FILE;
 try {
 	const issues = analyzeFile(file);
-	// eslint-disable-next-line no-console
+	// oxlint-disable-next-line no-console
 	console.warn(JSON.stringify(issues, undefined, INDENT));
 } catch (error: unknown) {
-	// eslint-disable-next-line no-console
+	// oxlint-disable-next-line no-console
 	console.error("ERR", error);
 	process.exit(EXIT_ERROR);
 }

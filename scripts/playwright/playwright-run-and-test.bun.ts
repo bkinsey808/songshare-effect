@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-/* eslint-disable jest/require-hook */
+/* oxlint-disable jest/require-hook */
 import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";

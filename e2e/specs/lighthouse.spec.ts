@@ -9,7 +9,7 @@ import { expect, test } from "@playwright/test";
 // produce untyped runtime objects (Lighthouse outputs). The disables are
 // narrow and limited to assignment/call/member-access rules used in the
 // integration logic.
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-type-assertion */
+/* oxlint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-type-assertion */
 
 const DEFAULT_URL =
 	process.env["LIGHTHOUSE_URL"] ?? process.env["PLAYWRIGHT_BASE_URL"] ?? "https://localhost:5173";
@@ -30,7 +30,7 @@ test.beforeAll(async () => {
 		lighthouse = await import("lighthouse");
 		chromeLauncher = await import("chrome-launcher");
 	} catch (error) {
-		// eslint-disable-next-line no-console
+		// oxlint-disable-next-line no-console
 		console.debug("Skipping Lighthouse tests (imports failed):", error);
 		// Skip the suite when deps are not present
 		test.skip(true, LH_SKIP_MESSAGE);
@@ -40,13 +40,13 @@ test.beforeAll(async () => {
 	// Validate module shapes and skip early if they are unexpected. This moves
 	// conditional logic out of the test body to satisfy `jest/no-conditional-in-test`.
 	if (!isRecord(lighthouse) || typeof lighthouse["default"] !== "function") {
-		// eslint-disable-next-line no-console
+		// oxlint-disable-next-line no-console
 		console.debug("Skipping Lighthouse tests (lighthouse export missing or invalid)");
 		test.skip(true, "Lighthouse module not properly loaded");
 		return;
 	}
 	if (!isRecord(chromeLauncher) || typeof chromeLauncher["launch"] !== "function") {
-		// eslint-disable-next-line no-console
+		// oxlint-disable-next-line no-console
 		console.debug("Skipping Lighthouse tests (chrome-launcher export missing or invalid)");
 		test.skip(true, "Chrome-launcher module not properly loaded");
 		return;
@@ -104,7 +104,7 @@ const PORT_RETRY_DELAY_MS = 100;
 async function waitForPort(port: number, timeoutMs = DEFAULT_WAIT_PORT_MS): Promise<void> {
 	const net = await import("node:net");
 	const start = Date.now();
-	/* eslint-disable promise/avoid-new */
+	/* oxlint-disable promise/avoid-new */
 	return new Promise<void>((resolve, reject) => {
 		function attempt(): void {
 			const socket = net.createConnection({ port, host: "127.0.0.1" }, () => {
@@ -140,7 +140,7 @@ async function runLighthouseWithRetries(
 	url: string,
 	options: { port: number },
 ): Promise<unknown> {
-	/* eslint-disable no-magic-numbers */
+	/* oxlint-disable no-magic-numbers */
 	async function attemptRun(attempt: number): Promise<unknown> {
 		try {
 			return await lhRunner(url, options, undefined);
@@ -151,7 +151,7 @@ async function runLighthouseWithRetries(
 					throw error;
 				}
 				const delay = LH_RETRY_BASE_DELAY_MS * 2 ** attempt;
-				// eslint-disable-next-line no-console
+				// oxlint-disable-next-line no-console
 				console.warn(
 					`Lighthouse attempt ${attempt + 1} failed with ${text}; retrying after ${delay}ms`,
 				);
@@ -162,7 +162,7 @@ async function runLighthouseWithRetries(
 		}
 	}
 	const result = await attemptRun(0);
-	/* eslint-enable no-magic-numbers */
+	/* oxlint-enable no-magic-numbers */
 	return result;
 }
 
@@ -172,7 +172,7 @@ async function runLighthouseWithRetries(
 	third-party tool (Lighthouse). Keeping the disable local avoids file-level
 	disables while making the code readable and safe via explicit guards.
 */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+/* oxlint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 function getCategoryScore(categories: unknown, key: string): number {
 	if (!isRecord(categories)) {
 		return SCORE_DEFAULT;
@@ -187,7 +187,7 @@ function getCategoryScore(categories: unknown, key: string): number {
 	}
 	return score;
 }
-/* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+/* oxlint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 
 function getLhrFromRunnerResult(runnerResult: unknown): unknown {
 	if (!isRecord(runnerResult)) {
@@ -230,7 +230,7 @@ async function writeReportIfRequested(runnerResult: unknown): Promise<void> {
 	}
 	await fs.mkdir(outputDir, { recursive: true });
 	await fs.writeFile(`${outputDir}/lighthouse-${Date.now()}.html`, reportHtml);
-	// eslint-disable-next-line no-console
+	// oxlint-disable-next-line no-console
 	console.log(`Wrote Lighthouse HTML report to ${outputDir}`);
 }
 
@@ -246,11 +246,11 @@ function maybeSkipForAllZeroScores(scores: {
 		scores.bestPractices === SCORE_DEFAULT &&
 		scores.seo === SCORE_DEFAULT;
 	if (allZero) {
-		// eslint-disable-next-line no-console
+		// oxlint-disable-next-line no-console
 		console.warn(
 			"Lighthouse returned all-zero scores — likely a certificate interstitial blocked the page.",
 		);
-		// eslint-disable-next-line no-console
+		// oxlint-disable-next-line no-console
 		console.warn("To run Lighthouse tests, either use HTTP or a trusted certificate.");
 		test.skip(true, "Certificate interstitial blocked Lighthouse — use HTTP or trusted cert");
 	}
@@ -265,7 +265,7 @@ test.describe.serial("Lighthouse audit", () => {
 			config: Record<string, unknown> | undefined,
 		) => Promise<unknown>;
 
-		/* eslint-disable @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion */
+		/* oxlint-disable @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion */
 		// Only run Lighthouse on the Chromium project to avoid running it multiple
 		// times across different browser projects and worker processes.
 		/* oxlint-disable jest/no-conditional-in-test */
@@ -285,7 +285,7 @@ test.describe.serial("Lighthouse audit", () => {
 				}) => Promise<{ port: number; kill: () => Promise<void> }>;
 			}
 		).launch;
-		/* eslint-enable @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion */
+		/* oxlint-enable @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unnecessary-type-assertion */
 
 		// Create unique temp directory for this run to avoid WSL2 creating Windows-path directories in project root
 		const fs = await import("node:fs");
@@ -296,7 +296,7 @@ test.describe.serial("Lighthouse audit", () => {
 		/* oxlint-disable jest/no-conditional-in-test */
 		function skipOnConnRefused(error: unknown): void {
 			if (String(error).includes("ECONNREFUSED")) {
-				// eslint-disable-next-line no-console
+				// oxlint-disable-next-line no-console
 				console.warn("Observed ECONNREFUSED during Lighthouse run:", error);
 				// Skip the test gracefully
 				test.skip(true, `Lighthouse skipped due to connection error: ${String(error)}`);
@@ -310,8 +310,8 @@ test.describe.serial("Lighthouse audit", () => {
 		// debug-port connection races on local dev machines.
 		/* oxlint-disable jest/no-conditional-in-test */
 		async function runFullLighthouseCycle(attempt?: number): Promise<unknown> {
-			/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-			/* eslint-disable no-magic-numbers */
+			/* oxlint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+			/* oxlint-disable no-magic-numbers */
 			const _attempt = attempt ?? 0;
 			if (_attempt >= LH_RETRY_ATTEMPTS) {
 				throw new Error("Lighthouse failed after multiple attempts");
@@ -345,7 +345,7 @@ test.describe.serial("Lighthouse audit", () => {
 					await waitForPort(chrome.port, DEFAULT_WAIT_PORT_MS);
 				} catch (error) {
 					// If Chrome never accepts connections, try again after a delay.
-					// eslint-disable-next-line no-console
+					// oxlint-disable-next-line no-console
 					console.warn("Chrome did not accept connections on port", chrome.port, error);
 					try {
 						await chrome.kill();
@@ -361,7 +361,7 @@ test.describe.serial("Lighthouse audit", () => {
 				const runnerResult = await runLighthouseWithRetries(lh, DEFAULT_URL, options);
 				return runnerResult;
 			} catch (error) {
-				// eslint-disable-next-line no-console
+				// oxlint-disable-next-line no-console
 				console.warn("Lighthouse cycle attempt failed:", error);
 				const delay = LH_RETRY_BASE_DELAY_MS * 2 ** _attempt;
 				await new Promise((resolve) => setTimeout(resolve, delay));
@@ -380,8 +380,8 @@ test.describe.serial("Lighthouse audit", () => {
 					// ignore
 				}
 			}
-			/* eslint-enable no-magic-numbers */
-			/* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+			/* oxlint-enable no-magic-numbers */
+			/* oxlint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 		}
 		/* oxlint-enable jest/no-conditional-in-test */
 
@@ -390,7 +390,7 @@ test.describe.serial("Lighthouse audit", () => {
 			runnerResult = await runFullLighthouseCycle();
 		} catch (error) {
 			// If still failing after retries, skip the test gracefully.
-			// eslint-disable-next-line no-console
+			// oxlint-disable-next-line no-console
 			console.warn("Lighthouse runner failed after retries:", error);
 			test.skip(true, `Lighthouse runner failed after retries: ${String(error)}`);
 			return;
@@ -411,7 +411,7 @@ test.describe.serial("Lighthouse audit", () => {
 		);
 		expect(scores.seo, "seo").toBeGreaterThanOrEqual(Math.min(minScore, MIN_FALLBACK));
 
-		// eslint-disable-next-line no-console
+		// oxlint-disable-next-line no-console
 		console.log("Lighthouse scores:", scores);
 
 		await writeReportIfRequested(runnerResult);

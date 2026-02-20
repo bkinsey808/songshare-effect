@@ -113,6 +113,6 @@ export default function savePlaylist(
 		),
 		// The pipeline returns an Effect whose inferred error type can include unknown.
 		// Use a double-cast to align the type with the declared return type.
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 	) as unknown as Effect.Effect<string, PlaylistError>;
 }

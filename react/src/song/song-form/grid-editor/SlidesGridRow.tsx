@@ -117,7 +117,7 @@ export default function SlidesGridRow({
 	const safeFieldsLength = Array.isArray(fields) ? fields.length : BASE_FIELDS_LENGTH;
 	if (!Array.isArray(fields)) {
 		// Log diagnostic info in development to help track down the root cause
-		// eslint-disable-next-line no-console
+		// oxlint-disable-next-line no-console
 		console.error("SortableGridRow: unexpected fields value (expected array)", { fields });
 	}
 	const totalColumns = SLIDE_NAME_COL_COUNT + safeFieldsLength;

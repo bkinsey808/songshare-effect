@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/require-await -- mocks match signatures */
-/* eslint-disable unicorn/no-null -- supabase uses null */
-/* eslint-disable promise/prefer-await-to-then -- mocked promises need explicit resolve */
+/* oxlint-disable @typescript-eslint/require-await -- mocks match signatures */
+/* oxlint-disable unicorn/no-null -- supabase uses null */
+/* oxlint-disable promise/prefer-await-to-then -- mocked promises need explicit resolve */
 import type { MaybeSingleResult, MultiResult } from "./supabase-mock-types";
 
 export type UserPublicMockOpts = {
@@ -9,8 +9,8 @@ export type UserPublicMockOpts = {
 	userPublicInsertRows?: unknown[];
 };
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/require-await */
+/* oxlint-disable @typescript-eslint/no-explicit-any */
+/* oxlint-disable @typescript-eslint/require-await */
 export function createUserPublicMock(opts: UserPublicMockOpts): any {
 	return {
 		select: (
@@ -20,7 +20,7 @@ export function createUserPublicMock(opts: UserPublicMockOpts): any {
 		} => ({
 			eq: (_field: string, _val: string): { maybeSingle: () => MaybeSingleResult } => ({
 				maybeSingle: async (): MaybeSingleResult => {
-					/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion */
+					/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion */
 					if (opts.userPublicMaybeError !== undefined) {
 						return { data: undefined, error: opts.userPublicMaybeError };
 					}

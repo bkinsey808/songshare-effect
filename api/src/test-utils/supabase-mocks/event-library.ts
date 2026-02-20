@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/require-await -- mocks match signatures */
-/* eslint-disable unicorn/no-null -- supabase uses null */
-/* eslint-disable promise/prefer-await-to-then -- mocked promises need explicit resolve */
+/* oxlint-disable @typescript-eslint/require-await -- mocks match signatures */
+/* oxlint-disable unicorn/no-null -- supabase uses null */
+/* oxlint-disable promise/prefer-await-to-then -- mocked promises need explicit resolve */
 import type { MultiResult, SingleBuilder, SingleResult } from "./supabase-mock-types";
 
 export type EventLibraryMockOpts = {
@@ -8,7 +8,7 @@ export type EventLibraryMockOpts = {
 	eventLibraryInsertError?: unknown;
 };
 
-/* eslint-disable @typescript-eslint/no-explicit-any -- mocking requires loose types */
+/* oxlint-disable @typescript-eslint/no-explicit-any -- mocking requires loose types */
 export function createEventLibraryMock(opts: EventLibraryMockOpts): {
 	insert: (rows: unknown[]) => MultiResult & { select: () => SingleBuilder };
 } {

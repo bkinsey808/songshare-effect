@@ -18,6 +18,7 @@ export default function useFetchPlaylist(playlistId?: string): void {
 	const clearCurrentPlaylist = useAppStore((state) => state.clearCurrentPlaylist);
 	const fetchPlaylistById = useAppStore((state) => state.fetchPlaylistById);
 
+	// Fetch playlist by ID if it's not already loaded or if the ID changed
 	useEffect(() => {
 		/*
 		 If a playlist id is present and does not match the currently-loaded
@@ -32,6 +33,7 @@ export default function useFetchPlaylist(playlistId?: string): void {
 		}
 	}, [playlistId, currentPlaylist?.playlist_id, fetchPlaylistById]);
 
+	// Clear current playlist from the store on unmount
 	useEffect(
 		() => (): void => {
 			clearCurrentPlaylist();

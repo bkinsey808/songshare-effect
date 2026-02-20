@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
 export default function useSchedule(): (fn: () => void) => void {
 	const mounted = useRef(true);
 
+	// Track mounted state so scheduled callbacks can be dropped after unmount
 	useEffect((): (() => void) | void => {
 		mounted.current = true;
 		return (): void => {

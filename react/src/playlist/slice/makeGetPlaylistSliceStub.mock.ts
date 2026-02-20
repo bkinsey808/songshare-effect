@@ -29,6 +29,6 @@ export default function makeGetStub(): () => PlaylistSlice {
 		setPlaylistSaving: vi.fn(),
 		isSongInPlaylist: (_songId: string): boolean => false,
 	};
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 	return () => stub as unknown as PlaylistSlice;
 }

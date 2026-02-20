@@ -24,6 +24,6 @@ export default async function spyImport(
 	// oxlint-disable-next-line typescript/no-unsafe-assignment
 	const mod = await import(modulePath);
 	// Cast through unknown to satisfy TypeScript typing for test spies
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 	return vi.spyOn(mod, exportName) as unknown as SpyLike;
 }

@@ -14,4 +14,8 @@ export type EventSlice = EventSliceBase & {
 	leaveEvent: (eventId: string, userId: string) => Effect.Effect<void, EventError>;
 	/** Clear the current event from state */
 	clearCurrentEvent: () => void;
+	/** Subscribe to realtime updates for the current event. Returns an unsubscribe function. */
+	subscribeToEvent: () => (() => void) | undefined;
+	/** Internal: holds the current unsubscribe function for the realtime subscription. */
+	activeEventUnsubscribe?: (() => void) | undefined;
 };

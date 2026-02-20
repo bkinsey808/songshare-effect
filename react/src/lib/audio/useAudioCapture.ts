@@ -4,10 +4,10 @@ import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import type {
-	MinimalAnalyserNode,
-	MinimalMediaStream,
-	MinimalMediaStreamAudioSourceNode,
-	Status,
+    MinimalAnalyserNode,
+    MinimalMediaStream,
+    MinimalMediaStreamAudioSourceNode,
+    Status,
 } from "./audio-types";
 
 import closeAudioContextSafely from "./closeAudioContextSafely";
@@ -192,6 +192,7 @@ export default function useAudioCapture(): UseAudioCaptureResult {
 		[startStream],
 	);
 
+	// Stop any ongoing audio capture when the component/unhooked hook unmounts
 	useEffect(() => (): void => void stop(), [stop]);
 
 	// React Compiler automatically memoizes this object

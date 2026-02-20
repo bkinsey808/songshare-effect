@@ -214,6 +214,7 @@ export default function useSmoothedAudioLevel(
 		setLevelUiValue(ZERO);
 	}
 
+	// Ensure any UI timer is cleared when the hook unmounts to avoid leaks
 	useEffect(
 		(): (() => void) => (): void => {
 			const timerId = uiTimerIdRef.current;

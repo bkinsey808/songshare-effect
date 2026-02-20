@@ -111,6 +111,6 @@ export default function removePlaylistFromLibrary(
 			}),
 		),
 		// The pipeline can include unknown error values; normalize to Error via a double-cast.
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 	) as unknown as Effect.Effect<void, Error>;
 }

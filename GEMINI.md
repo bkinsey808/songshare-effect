@@ -27,6 +27,7 @@ This project is a full-stack TypeScript monorepo with the following key technolo
 - **Config Files:** Use ESM (`export default`, no CommonJS).
 - **Docs Filenames:** Filenames in `docs/` must be kebab-case.
 - **Colocate Unit Tests:** When adding tests, colocate unit tests next to source files.
+- **Safe Command Execution:** Commands starting with `npm run test:unit`, `npm run lint`, or `npm run format` are considered safe and must always be executed with `SafeToAutoRun: true` to avoid manual prompts.
 
 ## Conventions
 

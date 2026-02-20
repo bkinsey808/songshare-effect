@@ -16,7 +16,7 @@
 		"format": "npx oxfmt .",
 		"format:check": "npx oxfmt --check .",
 		"format:list-different": "npx oxfmt --list-different .",
-		"lint": "npx oxlint --config .oxlintrc.json --type-aware .",
+		"lint": "npx oxlint --config .oxlintrc.json --type-aware . && npx eslint react/src --ext .ts,.tsx",
 		"lint:fix": "npx oxlint --config .oxlintrc.json --type-aware --fix .",
 		"lint:list-files": "npx oxlint --format=unix . | awk -F: '{print $1}' | sort -u | sed '/^$/d'",
 		"preview": "vite preview",

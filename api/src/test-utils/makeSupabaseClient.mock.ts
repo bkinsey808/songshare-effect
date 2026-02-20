@@ -32,7 +32,7 @@ function makeSupabaseClient(opts: MakeSupabaseClientOpts = {}): ReturnType<typeo
 		},
 	};
 
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast to Supabase client */
+	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast to Supabase client */
 	return fake as unknown as ReturnType<typeof createClient>;
 }
 

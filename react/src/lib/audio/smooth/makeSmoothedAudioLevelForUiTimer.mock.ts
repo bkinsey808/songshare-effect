@@ -19,11 +19,11 @@ export default function makeSmoothedAudioLevelForUiTimer(uiIntervalMs: number): 
 	let timerId: ReturnType<typeof globalThis.setInterval> | undefined = undefined;
 
 	// Central helper that clears the internal timer. Place the single narrow
-	// eslint-disable here so individual methods don't need repeated disables.
+	// oxlint-disable here so individual methods don't need repeated disables.
 	function clearTimer(): void {
 		if (timerId !== undefined) {
 			try {
-				/* eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-type-assertion -- clear runtime timer that can be number or Timeout */
+				/* oxlint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-type-assertion -- clear runtime timer that can be number or Timeout */
 				clearInterval(timerId as unknown as ReturnType<typeof globalThis.setInterval>);
 			} catch {
 				// noop

@@ -1,5 +1,5 @@
 import { StrictMode } from "react";
-/* eslint-disable import/no-unassigned-import */
+/* oxlint-disable import/no-unassigned-import */
 import { createRoot } from "react-dom/client";
 
 import App from "@/react/app/App";

@@ -4,7 +4,7 @@
  * This isolates a small number of localized type assertions used to probe
  * unknown values for inner Error instances. Keeping the unsafe assertions
  * contained in a single helper reduces the need for repeated inline
- * `eslint-disable` comments throughout the codebase.
+ * `oxlint-disable` comments throughout the codebase.
  */
 
 const DEFAULT_FIND_ERROR_DEPTH = 3;
@@ -34,7 +34,7 @@ export function findInnerError(
 	// Localized, documented assertion: we only need the object's values to
 	// traverse for inner Error instances. Keep the cast and single-line
 	// eslint exception localized here rather than repeating it where used.
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- runtime traversal of unknown object */
+	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- runtime traversal of unknown object */
 	const values = Object.values(obj as Record<string, unknown>);
 	for (const value of values) {
 		try {
@@ -64,7 +64,7 @@ export function unwrapError(err: unknown): unknown {
 	if (typeof err !== "object" || err === null) {
 		return err;
 	}
-	/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- shallow property access on unknown object */
+	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- shallow property access on unknown object */
 	const anyErr = err as Record<string, unknown>;
 	const { cause, error: errorVal, failure } = anyErr;
 	if (cause instanceof Error) {
@@ -74,7 +74,7 @@ export function unwrapError(err: unknown): unknown {
 		return errorVal;
 	}
 	if (typeof failure === "object" && failure !== null) {
-		/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- shallow property on unknown */
+		/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- shallow property on unknown */
 		const failureObj = failure as Record<string, unknown>;
 		const failureCause = failureObj["cause"];
 		if (failureCause instanceof Error) {

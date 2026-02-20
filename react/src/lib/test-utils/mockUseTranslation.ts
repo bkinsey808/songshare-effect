@@ -8,7 +8,7 @@ import forceCast from "@/react/lib/test-utils/forceCast";
  *
  * Centralized test helper to stub `useTranslation()` with a predictable
  * language and a simple `t` implementation. Keeps tests free of inline
- * unsafe type assertions and avoids repeated eslint-disable comments.
+ * unsafe type assertions and avoids repeated oxlint-disable comments.
  *
  * @returns void
  */

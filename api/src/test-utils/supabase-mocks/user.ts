@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/require-await -- mocks match signatures */
-/* eslint-disable unicorn/no-null -- supabase uses null */
-/* eslint-disable promise/prefer-await-to-then -- mocked promises need explicit resolve */
+/* oxlint-disable @typescript-eslint/require-await -- mocks match signatures */
+/* oxlint-disable unicorn/no-null -- supabase uses null */
+/* oxlint-disable promise/prefer-await-to-then -- mocked promises need explicit resolve */
 import type { MaybeSingleResult, MultiMaybeResult } from "./supabase-mock-types";
 
 export type UserMockOpts = {
@@ -13,8 +13,8 @@ export type UserMockOpts = {
 	userDeleteError?: unknown;
 };
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/require-await */
+/* oxlint-disable @typescript-eslint/no-explicit-any */
+/* oxlint-disable @typescript-eslint/require-await */
 export function createUserMock(opts: UserMockOpts): any {
 	return {
 		select: (
@@ -33,7 +33,7 @@ export function createUserMock(opts: UserMockOpts): any {
 					if (opts.userMaybeError !== undefined) {
 						return { data: null, error: opts.userMaybeError };
 					}
-					/* eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion */
+					/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion */
 					if (opts.userMaybeReject !== undefined) {
 						if (opts.userMaybeReject instanceof Error) {
 							throw opts.userMaybeReject;

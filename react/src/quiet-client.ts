@@ -1,7 +1,7 @@
 /* oxlint-disable no-console */
 // Small module that silences console.debug and console.timeStamp in dev.
 // Keep this file minimal and use safe runtime checks instead of broad
-// eslint-disable blocks so it can be linted normally.
+// oxlint-disable blocks so it can be linted normally.
 
 import isRecord from "@/shared/type-guards/isRecord";
 

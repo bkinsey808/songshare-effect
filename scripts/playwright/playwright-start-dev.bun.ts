@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-/* eslint-disable jest/require-hook */
+/* oxlint-disable jest/require-hook */
 /*
   Non-interactive Playwright start wrapper (Bun/TypeScript)
   Starts frontend dev and API dev servers (wrangler), waits until both are ready, prints READY, and tails logs.

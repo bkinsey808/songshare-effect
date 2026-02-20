@@ -5,30 +5,36 @@ import { apiEventSavePath } from "@/shared/paths";
 type MutableRef<TValue> = { current: TValue };
 
 type UsePlaybackAutosaveFlushArgs = {
+	/** Ref to the active song autosave timeout ID. */
 	songAutosaveTimeoutRef: MutableRef<ReturnType<typeof setTimeout> | undefined>;
+	/** Ref to the active slide autosave timeout ID. */
 	slideAutosaveTimeoutRef: MutableRef<ReturnType<typeof setTimeout> | undefined>;
+	/** Ref to the latest event ID. */
 	latestEventIdRef: MutableRef<string | undefined>;
+	/** Ref to the latest song ID. */
 	latestSongIdRef: MutableRef<string | undefined>;
+	/** Ref to the latest slide position. */
 	latestSlidePositionRef: MutableRef<number | undefined>;
 };
 
 /**
  * Flushes pending debounced playback saves when the page is unloading.
  *
- * @param args - Timeout and latest-value refs used to build a keepalive save payload
+ * @param songAutosaveTimeoutRef - Ref to the active song autosave timeout ID.
+ * @param slideAutosaveTimeoutRef - Ref to the active slide autosave timeout ID.
+ * @param latestEventIdRef - Ref to the latest event ID.
+ * @param latestSongIdRef - Ref to the latest song ID.
+ * @param latestSlidePositionRef - Ref to the latest slide position.
  * @returns Nothing; this hook performs side effects only
  */
-export default function usePlaybackAutosaveFlush(
-	args: Readonly<UsePlaybackAutosaveFlushArgs>,
-): void {
-	const {
-		songAutosaveTimeoutRef,
-		slideAutosaveTimeoutRef,
-		latestEventIdRef,
-		latestSongIdRef,
-		latestSlidePositionRef,
-	} = args;
-
+export default function usePlaybackAutosaveFlush({
+	songAutosaveTimeoutRef,
+	slideAutosaveTimeoutRef,
+	latestEventIdRef,
+	latestSongIdRef,
+	latestSlidePositionRef,
+}: Readonly<UsePlaybackAutosaveFlushArgs>): void {
+	// Flush pending playback autosave when the page is unloading.
 	useEffect(() => {
 		function flushPendingPlaybackAutosave(): void {
 			const hasPendingSongSave = songAutosaveTimeoutRef.current !== undefined;

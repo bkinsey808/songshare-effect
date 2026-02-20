@@ -45,6 +45,7 @@ export default function useDismissibleAlert(onDismiss: () => void): {
 		}, ANIMATION_DURATION_MS);
 	}
 
+	// Cleanup the dismissal timeout on unmount to prevent memory leaks or state updates
 	useEffect(
 		(): (() => void) => () => {
 			if (timeoutRef.current !== undefined) {

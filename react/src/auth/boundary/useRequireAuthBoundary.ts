@@ -35,6 +35,7 @@ export default function useRequireAuthBoundary(): {
 	// Keep using the app store for auth state (isSignedIn) but the
 	// transient just-signed-in signal is handled via sessionStorage.
 
+	// Handle OAuth callback redirect by refreshing session and cleaning up query params
 	useEffect(() => {
 		if (!justSignedIn) {
 			return;

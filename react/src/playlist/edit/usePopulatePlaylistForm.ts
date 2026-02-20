@@ -28,6 +28,7 @@ export default function usePopulatePlaylistForm(
 		isFetchingRef,
 	}: PopulatePlaylistFormProps,
 ): void {
+	// Copy playlist data from the store into local form state when it becomes available
 	useEffect(() => {
 		// If we are currently fetching, do not populate yet
 		if (isFetchingRef.current) {

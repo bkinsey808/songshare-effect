@@ -4,7 +4,7 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 
 /* Centralized test helpers for constructing DOM events with safe typing.
    These helpers contain the required narrow casts in one place so tests don't
-   need to repeat eslint-disable comments.
+   need to repeat oxlint-disable comments.
 */
 export function makeChangeEvent(value: string): React.ChangeEvent<HTMLInputElement> {
 	// Construct a minimal, fully-typed event object to avoid unsafe assertions.

@@ -73,6 +73,7 @@ export default function useDashboard(): UseDashboardState {
 	const currentLang = getCurrentLangFromPath(
 		typeof globalThis === "undefined" ? "/" : globalThis.location.pathname,
 	);
+	// Check sessionStorage for one-time signals (registration, sign-in, unauthorized) and trigger alerts
 	useEffect(() => {
 		if (typeof globalThis === "undefined") {
 			return;
@@ -106,6 +107,7 @@ export default function useDashboard(): UseDashboardState {
 		}
 	}, []);
 
+	// Subscribe to global store changes and update local state to avoid hook-order issues
 	useEffect(() => {
 		const api = appStore;
 

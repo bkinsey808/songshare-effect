@@ -12,6 +12,7 @@ import { clientDebug } from "@/react/lib/utils/clientLogger";
 export default function useEnsureSignedIn(options?: { readonly force?: boolean }): void {
 	const force = options?.force ?? false;
 
+	// Trigger the sign-in check on mount or when force option changes
 	useEffect(() => {
 		// Localized debug-only log
 		clientDebug("[useEnsureSignedIn] effect mounted, force=", force);

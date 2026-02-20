@@ -113,6 +113,7 @@ export default function TypeGpuDemoPage(): ReactElement {
 		}
 	}
 
+	// Cleanup animation on unmount or when stop function changes
 	useEffect(() => {
 		function cleanup(): void {
 			stop();

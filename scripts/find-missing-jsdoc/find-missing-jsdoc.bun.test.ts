@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-/* eslint-disable jest/require-hook */
+/* oxlint-disable jest/require-hook */
 import { describe, expect, test } from "vitest";
 
 import { ZERO } from "@/shared/constants/shared-constants";

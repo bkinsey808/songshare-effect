@@ -46,6 +46,7 @@ export default function usePlaylistSearchInput({
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const inputRef = useRef<HTMLInputElement | null>(null);
 
+	// Handle clicks outside the container to close the search dropdown
 	useEffect(() => {
 		function handleDocumentPointerDown(event: MouseEvent | TouchEvent): void {
 			const container = containerRef.current;

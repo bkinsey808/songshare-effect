@@ -53,7 +53,7 @@ describe("useEventActions", () => {
 		result.current.handleJoinEvent();
 
 		await waitFor(() => {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
+			// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
 			const calls = setCurrentEvent.mock.calls as unknown as [ReturnType<typeof makeEventEntry>][];
 			const FIRST_CALL_INDEX = 0;
 			const FN_ARG_INDEX = 0;

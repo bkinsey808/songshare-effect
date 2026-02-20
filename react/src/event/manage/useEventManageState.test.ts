@@ -16,9 +16,9 @@ vi.mock("@/react/auth/useCurrentUserId");
 vi.mock("@/react/lib/language/useCurrentLang");
 vi.mock("@/shared/fetch/postJson");
 // Mock react-router-dom with the actual module and override hooks
-// eslint-disable-next-line jest/no-untyped-mock-factory
+// oxlint-disable-next-line jest/no-untyped-mock-factory
 vi.mock("react-router-dom", async () => {
-	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+	// oxlint-disable-next-line @typescript-eslint/consistent-type-imports
 	const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
 	return {
 		...actual,
@@ -49,6 +49,9 @@ function installEventStoreMocks(
 		}
 		if (selectorText.includes("fetchUserLibrary")) {
 			return vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
+		}
+		if (selectorText.includes("subscribeToEvent")) {
+			return vi.fn().mockReturnValue(vi.fn());
 		}
 		if (selectorText.includes("currentEvent")) {
 			return currentEvent;

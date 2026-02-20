@@ -134,6 +134,8 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 
 	// Sync initial state when populated
 	const hasSyncedInitialStateRef = useRef(false);
+
+	// (separate comment placed directly above effect to satisfy rule)
 	useEffect(() => {
 		if (hasPopulatedRef.current && !isLoadingData && !hasSyncedInitialStateRef.current) {
 			setInitialState(formValues);

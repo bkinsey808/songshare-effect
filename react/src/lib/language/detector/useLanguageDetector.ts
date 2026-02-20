@@ -18,6 +18,7 @@ import getStoredLanguage from "../stored/getStoredLanguage";
 export default function useLanguageDetector(): void {
 	const navigate = useNavigate();
 
+	// perform language detection once on mount and redirect if needed
 	useEffect((): (() => void) => {
 		let mounted = true;
 

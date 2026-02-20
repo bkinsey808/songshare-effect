@@ -48,7 +48,7 @@ describe("analyzeFile", () => {
 
 		// Debug output to inspect all reported issues
 		const INDENT = 2;
-		// eslint-disable-next-line no-console
+		// oxlint-disable-next-line no-console
 		console.warn("issues:", JSON.stringify(issues, undefined, INDENT));
 
 		// Log issues when tests fail to help debugging (kept lightweight)

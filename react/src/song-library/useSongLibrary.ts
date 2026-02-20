@@ -72,6 +72,7 @@ export default function useSongLibrary(): {
 	const publicUnsubRef = useRef<(() => void) | undefined>(undefined);
 	const publicRunRef = useRef(PUBLIC_SUB_INITIAL_RUN);
 
+	// subscribe to public metadata updates for songs currently in library
 	useEffect(() => {
 		const songIds = songIdsKey.split(",").filter((id) => id !== "");
 		const MIN_IDS = 1;

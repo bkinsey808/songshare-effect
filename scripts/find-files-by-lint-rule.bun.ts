@@ -59,13 +59,13 @@ async function main(): Promise<void> {
 	const args = process.argv.slice(ARGV_SLICE);
 	if (args.length === ZERO) {
 		console.error("Usage: bun run scripts/find-files-by-lint-rule.bun.ts <rule-substring>");
-		// eslint-disable-next-line no-process-exit
+		// oxlint-disable-next-line no-process-exit
 		process.exit(USAGE_EXIT);
 	}
 	const [maybeRuleArg] = args;
 	if (typeof maybeRuleArg !== "string" || maybeRuleArg.length === ZERO) {
 		console.error("Usage: bun run scripts/find-files-by-lint-rule.bun.ts <rule-substring>");
-		// eslint-disable-next-line no-process-exit
+		// oxlint-disable-next-line no-process-exit
 		process.exit(USAGE_EXIT);
 	}
 	const ruleArg = maybeRuleArg;
@@ -77,7 +77,7 @@ async function main(): Promise<void> {
 			console.error("oxlint stderr:", lintStderr);
 		}
 		// still exit non-zero because nothing to parse
-		// eslint-disable-next-line no-process-exit
+		// oxlint-disable-next-line no-process-exit
 		process.exit(NO_OUTPUT_EXIT);
 	}
 
@@ -93,7 +93,7 @@ async function main(): Promise<void> {
 				"Unexpected oxlint JSON shape. Raw (truncated):",
 				lintOutput.slice(ZERO, PREVIEW_LENGTH),
 			);
-			// eslint-disable-next-line no-process-exit
+			// oxlint-disable-next-line no-process-exit
 			process.exit(JSON_SHAPE_EXIT);
 		}
 	} catch (error) {
@@ -127,9 +127,9 @@ async function main(): Promise<void> {
 try {
 	await main();
 } catch (error) {
-	// eslint-disable-next-line no-console
+	// oxlint-disable-next-line no-console
 	console.error(error);
-	// eslint-disable-next-line no-process-exit
+	// oxlint-disable-next-line no-process-exit
 	process.exit(RUNTIME_ERROR_EXIT);
 }
 

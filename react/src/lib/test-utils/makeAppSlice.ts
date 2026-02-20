@@ -102,7 +102,7 @@ export default function makeAppSlice(overrides: Partial<AppSlice> = {}): AppSlic
 	// Merge overrides into the base and cast through `unknown` to a typed
 	// `AppSlice` for tests. This is a controlled assertion: callers supply a
 	// `Partial<AppSlice>` and the runtime shape in tests is kept minimal.
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 	return {
 		...base,
 		...overrides,
