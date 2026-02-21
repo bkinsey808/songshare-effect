@@ -4,10 +4,10 @@ import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import type {
-    MinimalAnalyserNode,
-    MinimalMediaStream,
-    MinimalMediaStreamAudioSourceNode,
-    Status,
+	MinimalAnalyserNode,
+	MinimalMediaStream,
+	MinimalMediaStreamAudioSourceNode,
+	Status,
 } from "./audio-types";
 
 import closeAudioContextSafely from "./closeAudioContextSafely";

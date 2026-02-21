@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict VSyKp0wzhZqQWEAtzVCH2l1zcsbZ0nhNCTRk0c1NMefW4D68FN34MWe4d2GtvHg
+\restrict zBtyS6eKYKNK9NPaybA3PtLNelWdeK2LEEuFmnGeyXzS4sEbWnwcAHIPEaAH3zq
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -31,6 +31,22 @@ CREATE SCHEMA public;
 --
 
 COMMENT ON SCHEMA public IS 'standard public schema';
+
+
+--
+-- Name: debug_jwt(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.debug_jwt() RETURNS TABLE(jwt_text text, user_text text, user_id_text text)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  RETURN QUERY SELECT 
+    auth.jwt()::text,
+    (auth.jwt() -> 'user')::text,
+    ((auth.jwt() -> 'user' ->> 'user_id'))::text;
+END;
+$$;
 
 
 --
@@ -166,7 +182,7 @@ CREATE TABLE public.event_public (
 -- Name: TABLE event_public; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE public.event_public IS 'Public event data - readable based on is_public flag and participant status. Realtime enabled for live event updates.';
+COMMENT ON TABLE public.event_public IS 'Public event data with RLS enforcing owner/admin write access. Readable by authenticated users (public events) or participants. Realtime enabled for real-time sync.';
 
 
 --
@@ -1276,16 +1292,48 @@ ALTER TABLE ONLY public.user_public
 
 CREATE POLICY "Allow admins to update event fields" ON public.event_public FOR UPDATE TO authenticated USING ((EXISTS ( SELECT 1
    FROM public.event_user
-  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = ANY (ARRAY['event_admin'::text, 'event_playlist_admin'::text])))))) WITH CHECK ((EXISTS ( SELECT 1
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = ANY (ARRAY['admin'::text, 'playlist-admin'::text])))))) WITH CHECK ((EXISTS ( SELECT 1
    FROM public.event_user
-  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = ANY (ARRAY['event_admin'::text, 'event_playlist_admin'::text]))))));
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = ANY (ARRAY['admin'::text, 'playlist-admin'::text]))))));
 
 
 --
--- Name: event_public Allow owner to update all fields; Type: POLICY; Schema: public; Owner: -
+-- Name: event_public Allow event admins to update event_public; Type: POLICY; Schema: public; Owner: -
 --
 
-CREATE POLICY "Allow owner to update all fields" ON public.event_public FOR UPDATE TO authenticated USING ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)) WITH CHECK ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+CREATE POLICY "Allow event admins to update event_public" ON public.event_public FOR UPDATE USING ((EXISTS ( SELECT 1
+   FROM public.event_user
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = ANY (ARRAY['event_admin'::text, 'event_playlist_admin'::text])) AND (event_user.status = 'joined'::text))))) WITH CHECK ((EXISTS ( SELECT 1
+   FROM public.event_user
+  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.role = ANY (ARRAY['event_admin'::text, 'event_playlist_admin'::text])) AND (event_user.status = 'joined'::text)))));
+
+
+--
+-- Name: event_public Allow owner to delete own event_public; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow owner to delete own event_public" ON public.event_public FOR DELETE USING ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: event_public Allow owner to read own event_public; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow owner to read own event_public" ON public.event_public FOR SELECT TO authenticated USING ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: event_public Allow owner to update event fields; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow owner to update event fields" ON public.event_public FOR UPDATE TO authenticated USING ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)) WITH CHECK ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: event_public Allow owner to update own event_public; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow owner to update own event_public" ON public.event_public FOR UPDATE USING ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)) WITH CHECK ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
@@ -1305,19 +1353,10 @@ CREATE POLICY "Allow read access to private events for participants" ON public.e
 
 
 --
--- Name: event_public Allow read access to public events for anonymous; Type: POLICY; Schema: public; Owner: -
+-- Name: event_public Allow read access to public events; Type: POLICY; Schema: public; Owner: -
 --
 
-CREATE POLICY "Allow read access to public events for anonymous" ON public.event_public FOR SELECT TO anon USING ((is_public = true));
-
-
---
--- Name: event_public Allow read access to public events for anyone; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Allow read access to public events for anyone" ON public.event_public FOR SELECT TO authenticated USING (((is_public = true) AND (NOT (EXISTS ( SELECT 1
-   FROM public.event_user
-  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.status = 'kicked'::text)))))));
+CREATE POLICY "Allow read access to public events" ON public.event_public FOR SELECT TO authenticated USING (((is_public = true) AND ((((auth.jwt() -> 'app_metadata'::text) ->> 'visitor_id'::text) IS NOT NULL) OR ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text) IS NOT NULL))));
 
 
 --
@@ -1332,17 +1371,6 @@ CREATE POLICY "Allow read access to song_public for visitors or users" ON public
 --
 
 CREATE POLICY "Allow read access to user_public for visitors or users" ON public.user_public FOR SELECT TO authenticated USING (((((auth.jwt() -> 'app_metadata'::text) ->> 'visitor_id'::text) IS NOT NULL) OR ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text) IS NOT NULL)));
-
-
---
--- Name: event_public Allow read event_public for library events; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Allow read event_public for library events" ON public.event_public FOR SELECT TO authenticated USING (((EXISTS ( SELECT 1
-   FROM public.event_library
-  WHERE ((event_library.event_id = event_public.event_id) AND (event_library.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)))) AND (NOT (EXISTS ( SELECT 1
-   FROM public.event_user
-  WHERE ((event_user.event_id = event_public.event_id) AND (event_user.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (event_user.status = 'kicked'::text)))))));
 
 
 --
@@ -1609,5 +1637,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict VSyKp0wzhZqQWEAtzVCH2l1zcsbZ0nhNCTRk0c1NMefW4D68FN34MWe4d2GtvHg
+\unrestrict zBtyS6eKYKNK9NPaybA3PtLNelWdeK2LEEuFmnGeyXzS4sEbWnwcAHIPEaAH3zq
 

@@ -586,7 +586,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      debug_jwt: {
+        Args: never
+        Returns: {
+          jwt_text: string
+          user_id_text: string
+          user_text: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

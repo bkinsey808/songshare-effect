@@ -130,4 +130,43 @@ describe("useEventManageState", () => {
 			}),
 		);
 	});
+
+	it("sends updates for song and slide through autosave helpers", () => {
+		const event = makeEventEntry({
+			owner_id: "u1",
+			participants: [],
+			public: forceCast({
+				event_name: "E1",
+				event_slug: "e1",
+				active_playlist_id: undefined,
+				active_song_id: undefined,
+				active_slide_position: undefined,
+			}),
+		});
+		installEventStoreMocks({ currentEvent: event });
+		vi.mocked(useCurrentUserId).mockReturnValue("u1");
+		vi.mocked(useCurrentLang).mockReturnValue("en");
+		const mockPostJson = vi.mocked(postJson);
+		mockPostJson.mockResolvedValue();
+
+		const { result } = renderHook(() => useEventManageState());
+		result.current.updateActiveSong("song-abc");
+		// oxlint-disable-next-line no-magic-numbers
+		result.current.updateActiveSlidePosition(5);
+
+		expect(mockPostJson).toHaveBeenCalledWith(
+			expect.any(String),
+			expect.objectContaining({
+				event_id: event.event_id,
+				active_song_id: "song-abc",
+			}),
+		);
+		expect(mockPostJson).toHaveBeenCalledWith(
+			expect.any(String),
+			expect.objectContaining({
+				event_id: event.event_id,
+				active_slide_position: 5,
+			}),
+		);
+	});
 });

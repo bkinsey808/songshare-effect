@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 
 import useSmoothedAudioLevel, {
-    type AudioAnalyser,
-    type SmoothedAudioLevel,
+	type AudioAnalyser,
+	type SmoothedAudioLevel,
 } from "@/react/lib/audio/smooth/useSmoothedAudioLevel";
 
 type AudioLevelRefs = {

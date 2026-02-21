@@ -12,7 +12,7 @@ import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
 import type { EventParticipant } from "../event-entry/EventEntry.type";
 
 import { type EventEntry, type EventPublic, type EventUser } from "../event-types";
-import { isEventPublic, isEventUser } from "../guards/guardEventTypes";
+import { isEventUser } from "../guards/guardEventTypes";
 import { type EventSlice } from "../slice/EventSlice.type";
 
 /**
@@ -47,13 +47,20 @@ export default function subscribeToEvent(
 		void (async (): Promise<void> => {
 			try {
 				const client = await getSupabaseClientWithAuth();
-				const realtimeClient = guardAsSupabaseRealtimeClientLike(client);
-				if (realtimeClient === undefined) {
+
+				if (client === undefined) {
+					console.error("❌ [subscribeToEvent] Supabase client is undefined");
 					return;
 				}
 
-				const channel = realtimeClient.channel(`event_${eventId}_${Date.now()}`);
+				const realtimeClient = guardAsSupabaseRealtimeClientLike(client);
+				if (realtimeClient === undefined) {
+					console.error("❌ [subscribeToEvent] Realtime client is undefined");
+					return;
+				}
 
+				const channelName = `event_${eventId}_${Date.now()}`;
+				const channel = realtimeClient.channel(channelName);
 				channel.on(
 					"postgres_changes",
 					{
@@ -63,23 +70,33 @@ export default function subscribeToEvent(
 						filter: `event_id=eq.${eventId}`,
 					},
 					(payloadObj: unknown): void => {
-						const payload = forceCast<RealtimePayload<EventPublic>>(payloadObj);
+						const payload = forceCast<RealtimePayload<Partial<EventPublic>>>(payloadObj);
+
+						// Supabase realtime sometimes delivers only the updated columns instead of
+						// the full row. The strict `isEventPublic` guard previously used would
+						// reject those partial payloads, meaning listeners would never see
+						// playback-only changes (e.g. active_song_id, active_slide_position).
+						//
+						// To ensure the manager view stays in sync across tabs we accept any
+						// object payload and merge whatever fields are present. The filter on
+						// the channel guarantees the `event_id` matches the current event.
 						if (
 							payload.eventType === "UPDATE" &&
 							payload.new !== undefined &&
 							payload.new !== null &&
-							isEventPublic(payload.new)
+							typeof payload.new === "object"
 						) {
-							const newData = payload.new;
+							const newData = forceCast<Partial<EventPublic>>(payload.new);
 							set((state) => {
 								if (state.currentEvent === undefined || state.currentEvent.event_id !== eventId) {
 									return state;
 								}
-								// Build new event object without spread in a way that avoids lint issues if possible,
-								// though spread on local objects is usually fine.
+								// Build new event object by merging the partial update into
+								// the existing public data. We intentionally avoid spreading
+								// over `state.currentEvent` directly to keep linter happy.
 								const nextCurrentEvent: EventEntry = {
 									...state.currentEvent,
-									public: { ...state.currentEvent.public, ...newData },
+									public: forceCast<EventPublic>({ ...state.currentEvent.public, ...newData }),
 								};
 								return forceCast<Partial<ReadonlyDeep<EventSlice>>>({
 									currentEvent: forceCast<ReadonlyDeep<EventEntry>>(nextCurrentEvent),
@@ -89,6 +106,7 @@ export default function subscribeToEvent(
 					},
 				);
 
+				// participant updates subscription
 				channel.on(
 					"postgres_changes",
 					{
@@ -141,7 +159,7 @@ export default function subscribeToEvent(
 								oldItem !== null &&
 								isRecord(oldItem)
 							) {
-								const deletedUserId = oldItem["user_id"];
+								const deletedUserId = (oldItem as Record<string, unknown>)["user_id"];
 								if (typeof deletedUserId === "string") {
 									nextParticipants = currentParticipants.filter(
 										(participant) => participant.user_id !== deletedUserId,
@@ -172,7 +190,6 @@ export default function subscribeToEvent(
 						event: "UPDATE",
 						schema: "public",
 						table: "user_public",
-						filter: "",
 					},
 					(payloadObj: unknown): void => {
 						const payload = forceCast<
@@ -229,11 +246,23 @@ export default function subscribeToEvent(
 					},
 				);
 
+				console.warn(
+					"📡 [subscribeToEvent] All listeners attached, about to call channel.subscribe()",
+				);
+
+				// Add error listener to catch Realtime errors (only log actual errors, not ok status)
+				channel.on("system", { event: "error" }, (payload: unknown) => {
+					if (isRecord(payload) && payload["status"] !== "ok") {
+						console.error("❌ [subscribeToEvent] Realtime channel error:", payload);
+					}
+				});
+
 				channel.subscribe((status: string, subscribeError: unknown) => {
-					if (status === (REALTIME_SUBSCRIBE_STATES.SUBSCRIBED as string)) {
-						console.warn("Subscribed", eventId);
-					} else if (subscribeError !== undefined && subscribeError !== null) {
-						console.error("Sub error", eventId, subscribeError);
+					if (status !== (REALTIME_SUBSCRIBE_STATES.SUBSCRIBED as string)) {
+						console.warn("⚠️ Realtime subscription status:", status, "for event:", eventId);
+						if (subscribeError !== undefined && subscribeError !== null) {
+							console.error("❌ Realtime subscription error for event:", eventId, subscribeError);
+						}
 					}
 				});
 
@@ -243,9 +272,10 @@ export default function subscribeToEvent(
 					}
 				};
 			} catch (setupError) {
-				console.error("Sub setup error", setupError);
+				console.error("❌ [subscribeToEvent] Setup error for event:", eventId, setupError);
 			}
 		})();
+
 		return () => {
 			if (unsubscribeFn !== undefined) {
 				unsubscribeFn();

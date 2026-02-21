@@ -349,6 +349,7 @@ export default function eventSave(
 								event_id: eventId,
 								user_id: userId,
 								role: "owner",
+								status: "joined",
 							},
 						]),
 					catch: (err) =>

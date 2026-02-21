@@ -7,7 +7,6 @@ import type { EventEntry } from "@/react/event/event-types";
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
-import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import postJson from "@/shared/fetch/postJson";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {
@@ -17,16 +16,15 @@ import {
 	eventViewPath,
 } from "@/shared/paths";
 
+import type { ActionState } from "./ActionState.type";
+
+import refreshEvent from "./refreshEvent";
+import runAction from "./runAction";
+import useEventAutosave from "./useEventAutosave";
 import usePlaybackAutosaveFlush from "./usePlaybackAutosaveFlush";
+import usePlaybackSelectionSync from "./usePlaybackSelectionSync";
 
-const AUTOSAVE_DEBOUNCE_MS = 250;
-const FIRST_SLIDE_POSITION = 1;
-
-type ActionState = {
-	loadingKey: string | undefined;
-	error: string | undefined;
-	success: string | undefined;
-};
+// helper types for the hook result
 
 type UseEventManageStateResult = {
 	currentEvent: EventEntry | undefined;
@@ -53,12 +51,7 @@ type UseEventManageStateResult = {
 	kickParticipant: (userId: string) => void;
 	goBackToEvent: () => void;
 };
-
-/**
- * Provides state and handlers for the event management realtime controls.
- *
- * @returns Data and actions consumed by the EventManageView presentation component
- */
+// State & handlers for realtime event management (used by EventManageView)
 export default function useEventManageState(): UseEventManageStateResult {
 	const { event_slug } = useParams<{ event_slug: string }>();
 	const navigate = useNavigate();
@@ -79,28 +72,47 @@ export default function useEventManageState(): UseEventManageStateResult {
 	const [selectedActivePlaylistId, setSelectedActivePlaylistId] = useState<string | undefined>(
 		undefined,
 	);
-	const [selectedActiveSongId, setSelectedActiveSongId] = useState<string | undefined>(undefined);
-	const [selectedActiveSlidePosition, setSelectedActiveSlidePosition] = useState<
-		number | undefined
-	>(undefined);
+	// reference setter so TypeScript doesn't think it's unused (it is used later)
+	void setSelectedActivePlaylistId;
 	const [inviteUserIdInput, setInviteUserIdInput] = useState<string | undefined>(undefined);
 	const [actionState, setActionState] = useState<ActionState>({
 		loadingKey: undefined,
 		error: undefined,
 		success: undefined,
 	});
-	const songAutosaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-	const slideAutosaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-	const latestEventIdRef = useRef<string | undefined>(undefined);
-	const latestSongIdRef = useRef<string | undefined>(undefined);
 	const latestSlidePositionRef = useRef<number | undefined>(undefined);
+	const currentEventIdRef = useRef<string | undefined>(currentEvent?.event_id);
 
-	usePlaybackAutosaveFlush({
-		songAutosaveTimeoutRef,
-		slideAutosaveTimeoutRef,
-		latestEventIdRef,
-		latestSongIdRef,
+	// sync the ref with the latest event id so helpers defined outside of
+	// render (e.g. callbacks in useEventAutosave) can always read a current value
+	// without recreating the callback.
+	useEffect(() => {
+		currentEventIdRef.current = currentEvent?.event_id;
+	}, [currentEvent?.event_id]);
+
+	// playback autosave logic handled by a dedicated hook to keep this file
+	// focused on the broader event management state.
+	const {
+		selectedActiveSongId,
+		selectedActiveSlidePosition,
+		setSelectedSongId,
+		setSelectedSlidePosition,
+		updateActiveSong,
+		updateActiveSlidePosition,
+		throttledSongSaveFlush,
+		throttledSlideSaveFlush,
+	} = useEventAutosave({
+		event_slug,
+		fetchEventBySlug,
+		currentEventIdRef,
 		latestSlidePositionRef,
+		setActionState,
+	});
+
+	// flush callbacks ensure any pending throttled updates are sent on unload
+	usePlaybackAutosaveFlush({
+		flushSong: throttledSongSaveFlush,
+		flushSlide: throttledSlideSaveFlush,
 	});
 
 	const ownerId = currentEvent?.owner_id;
@@ -168,41 +180,6 @@ export default function useEventManageState(): UseEventManageStateResult {
 		void EffectRuntime.runPromise(fetchPlaylistById(activePlaylistIdForEffect));
 	}, [activePlaylistIdForEffect, fetchPlaylistById]);
 
-	async function refreshEvent(): Promise<void> {
-		if (event_slug !== undefined && event_slug !== "") {
-			await EffectRuntime.runPromise(fetchEventBySlug(event_slug));
-		}
-	}
-
-	async function runAction(
-		actionKey: string,
-		successMessage: string,
-		action: () => Promise<void>,
-	): Promise<void> {
-		const isPlaybackAction =
-			actionKey === "playlist" || actionKey === "song" || actionKey === "slide";
-		const shouldRefreshEvent =
-			actionKey !== "playlist" && actionKey !== "song" && actionKey !== "slide";
-		if (!isPlaybackAction) {
-			setActionState({ loadingKey: actionKey, error: undefined, success: undefined });
-		}
-		try {
-			await action();
-			if (shouldRefreshEvent) {
-				await refreshEvent();
-			}
-			if (!isPlaybackAction) {
-				setActionState({ loadingKey: undefined, error: undefined, success: successMessage });
-			}
-		} catch (error: unknown) {
-			setActionState({
-				loadingKey: undefined,
-				error: extractErrorMessage(error, "Action failed"),
-				success: undefined,
-			});
-		}
-	}
-
 	function goBackToEvent(): void {
 		if (eventPublic?.event_slug !== undefined) {
 			void navigate(buildPathWithLang(`/${eventViewPath}/${eventPublic.event_slug}`, lang));
@@ -210,20 +187,25 @@ export default function useEventManageState(): UseEventManageStateResult {
 	}
 
 	// Always update refs, even if event is not loaded, to comply with React rules
-	const currentEventId = currentEvent?.event_id;
 	const activePlaylistIdForSelector =
 		selectedActivePlaylistId ?? eventPublic?.active_playlist_id ?? undefined;
 	const activeSongIdForSelector = selectedActiveSongId ?? eventPublic?.active_song_id ?? undefined;
 	const activeSlidePositionForSelector =
 		selectedActiveSlidePosition ?? eventPublic?.active_slide_position ?? undefined;
 
-	// Update the mutable refs whenever any of the ids change (avoids stale closures)
+	// keep slide position ref in sync with the selector value
 	useEffect(() => {
-		latestEventIdRef.current = currentEventId;
-		latestSongIdRef.current = activeSongIdForSelector;
 		latestSlidePositionRef.current = activeSlidePositionForSelector;
-	}, [currentEventId, activeSongIdForSelector, activeSlidePositionForSelector]);
+	}, [activeSlidePositionForSelector]);
 
+	// keep local song/slide selections in sync with backend
+	usePlaybackSelectionSync({
+		eventPublic,
+		selectedSongId: selectedActiveSongId,
+		selectedSlidePosition: selectedActiveSlidePosition,
+		setSelectedSongId,
+		setSelectedSlidePosition,
+	});
 	if (currentEvent === undefined || eventPublic === undefined) {
 		return {
 			currentEvent,
@@ -257,109 +239,51 @@ export default function useEventManageState(): UseEventManageStateResult {
 	// (moved above)
 
 	function updateActivePlaylist(playlistId: string): void {
-		if (songAutosaveTimeoutRef.current !== undefined) {
-			clearTimeout(songAutosaveTimeoutRef.current);
-			songAutosaveTimeoutRef.current = undefined;
-		}
-		if (slideAutosaveTimeoutRef.current !== undefined) {
-			clearTimeout(slideAutosaveTimeoutRef.current);
-			slideAutosaveTimeoutRef.current = undefined;
-		}
-		setSelectedActivePlaylistId(playlistId);
-		void runAction(
-			"playlist",
-			"Active playlist updated",
-			() =>
+		void runAction({
+			actionKey: "playlist",
+			successMessage: "Active playlist updated",
+			action: () =>
 				/* oxlint-disable unicorn/no-null */
 				postJson(apiEventSavePath, {
 					event_id: currentEventIdRequired,
 					active_playlist_id: playlistId === "" ? null : playlistId,
 				}),
 			/* oxlint-enable unicorn/no-null */
-		);
-	}
-
-	function updateActiveSong(songId: string): void {
-		const shouldSetFirstSlide = songId !== "" && activeSlidePositionForSelector === undefined;
-		latestEventIdRef.current = currentEventIdRequired;
-		latestSongIdRef.current = songId === "" ? undefined : songId;
-		if (shouldSetFirstSlide) {
-			latestSlidePositionRef.current = FIRST_SLIDE_POSITION;
-		}
-
-		setSelectedActiveSongId(songId);
-		if (shouldSetFirstSlide) {
-			setSelectedActiveSlidePosition(FIRST_SLIDE_POSITION);
-		}
-
-		if (songAutosaveTimeoutRef.current !== undefined) {
-			clearTimeout(songAutosaveTimeoutRef.current);
-		}
-
-		songAutosaveTimeoutRef.current = setTimeout(() => {
-			const payload: {
-				event_id: string;
-				active_song_id: string | null;
-				active_slide_position?: number | null;
-			} = {
-				event_id: currentEventIdRequired,
-				/* oxlint-disable unicorn/no-null */
-				active_song_id: songId === "" ? null : songId,
-				/* oxlint-enable unicorn/no-null */
-			};
-
-			if (shouldSetFirstSlide) {
-				payload.active_slide_position = FIRST_SLIDE_POSITION;
-			}
-
-			void runAction("song", "Active song updated", () => postJson(apiEventSavePath, payload));
-			songAutosaveTimeoutRef.current = undefined;
-		}, AUTOSAVE_DEBOUNCE_MS);
-	}
-
-	function updateActiveSlidePosition(slidePosition: number | undefined): void {
-		latestEventIdRef.current = currentEventIdRequired;
-		latestSlidePositionRef.current = slidePosition;
-		setSelectedActiveSlidePosition(slidePosition);
-		if (slideAutosaveTimeoutRef.current !== undefined) {
-			clearTimeout(slideAutosaveTimeoutRef.current);
-		}
-
-		slideAutosaveTimeoutRef.current = setTimeout(() => {
-			void runAction(
-				"slide",
-				"Active slide position updated",
-				() =>
-					/* oxlint-disable unicorn/no-null */
-					postJson(apiEventSavePath, {
-						event_id: currentEventIdRequired,
-						active_slide_position: slidePosition === undefined ? null : slidePosition,
-					}),
-				/* oxlint-enable unicorn/no-null */
-			);
-			slideAutosaveTimeoutRef.current = undefined;
-		}, AUTOSAVE_DEBOUNCE_MS);
+			setActionState,
+			refreshFn: () => refreshEvent(event_slug, fetchEventBySlug),
+		});
 	}
 
 	function inviteParticipant(userId: string): void {
-		void runAction("invite", "Participant invited", async () => {
-			await postJson(apiEventUserAddPath, {
-				event_id: currentEventIdRequired,
-				user_id: userId,
-				role: "participant",
-				status: "invited",
-			});
-			setInviteUserIdInput(undefined);
+		void runAction({
+			actionKey: "invite",
+			successMessage: "Participant invited",
+			action: async () => {
+				await postJson(apiEventUserAddPath, {
+					event_id: currentEventIdRequired,
+					user_id: userId,
+					role: "participant",
+					status: "invited",
+				});
+				setInviteUserIdInput(undefined);
+			},
+			setActionState,
+			refreshFn: () => refreshEvent(event_slug, fetchEventBySlug),
 		});
 	}
 
 	function kickParticipant(userId: string): void {
-		void runAction(`kick:${userId}`, "Participant kicked", () =>
-			postJson(apiEventUserKickPath, {
-				event_id: currentEventIdRequired,
-				user_id: userId,
-			}),
-		);
+		void runAction({
+			actionKey: `kick:${userId}`,
+			successMessage: "Participant kicked",
+			action: () =>
+				postJson(apiEventUserKickPath, {
+					event_id: currentEventIdRequired,
+					user_id: userId,
+				}),
+			setActionState,
+			refreshFn: () => refreshEvent(event_slug, fetchEventBySlug),
+		});
 	}
 
 	return {

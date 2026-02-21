@@ -185,6 +185,55 @@ describe("subscribeToEvent", () => {
 		expect(stateAfterUpdate.currentEvent.public.event_name).toBe("Updated Event Name");
 	});
 
+	it("updates store when payload contains only partial event_public fields", async () => {
+		const { handlers, set, get } = setupTest();
+		const start = subscribeToEvent(forceCast(set), forceCast(get));
+		start();
+		await flushPromises();
+
+		// simulate a realtime payload that only contains the active_song_id field
+		const partialPayload = { active_song_id: "song-xyz" };
+
+		// ensure the strict guard is not relied upon in this case
+		vi.mocked(isEventPublic).mockReturnValue(false);
+
+		const eventPublicHandler = handlers["event_public"];
+		assert.ok(eventPublicHandler !== undefined);
+		eventPublicHandler({ eventType: "UPDATE", new: partialPayload });
+
+		expect(set).toHaveBeenCalledWith(expect.any(Function));
+		const calls = forceCast<[unknown[]]>(set.mock.calls);
+		const [firstCall] = calls;
+		const [updater] = firstCall;
+		assert.ok(isUpdater(updater));
+
+		const stateAfter = updater(
+			forceCast<ReadonlyDeep<EventSlice>>({
+				currentEvent: forceCast<ReadonlyDeep<EventEntry>>({
+					event_id: "event-123",
+					owner_id: "owner-456",
+					owner_username: "owner_user",
+					created_at: "2026-01-01T00:00:00Z",
+					updated_at: "2026-01-01T00:00:00Z",
+					private_notes: "",
+					public: {
+						event_id: "event-123",
+						event_name: "Initial",
+						event_slug: "initial",
+						owner_id: "owner-456",
+						is_public: true,
+						created_at: "2026-01-01T00:00:00Z",
+						updated_at: "2026-01-01T00:00:00Z",
+					},
+					participants: [],
+				}),
+			}),
+		);
+
+		// optional chaining on public row to satisfy TS
+		expect(stateAfter.currentEvent?.public?.active_song_id).toBe("song-xyz");
+	});
+
 	it("handles event_user INSERT correctly", async () => {
 		const { eventId, initialEvent, handlers, set, get } = setupTest();
 		const start = subscribeToEvent(forceCast(set), forceCast(get));
