@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+// ReactElement is ambient; no import needed
 
 import type { AlertType } from "@/react/pages/home/AlertState.type";
 

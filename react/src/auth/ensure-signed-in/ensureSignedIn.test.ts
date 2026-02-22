@@ -4,12 +4,15 @@ import type { UserSessionData } from "@/shared/userSessionData";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
-import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
+// Helpers live in a companion file so this test never needs any
+// lint-disable comments. A custom rule (`no-disable-in-tests`) enforces the
+// separation.
 
 import makeAppSlice from "../../lib/test-utils/makeAppSlice";
 import ensureSignedIn from "./ensureSignedIn";
+import { getParseMock, getCachedUserTokenSpy, spyClientError, restoreFetch } from "./test-utils";
 
 vi.mock("@/react/app-store/useAppStore", (): { default: { getState: () => unknown } } => ({
 	default: { getState: vi.fn() },
@@ -50,58 +53,6 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 };
 
 const mockedUseAppStore = vi.mocked(useAppStore);
-
-// Typed helper shape for the `parseUserSessionData` spy used in tests.
-type ParseMock = {
-	mockReturnValue: (value: unknown) => void;
-	mockImplementation: (...args: unknown[]) => unknown;
-};
-
-// Helper to obtain a fresh mocked parse function from the mocked module so
-// tests don't rely on a potentially stale top-level reference.
-// Use `spyImport` which returns a Spy-like helper we can call directly.
-// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-async function getParseMock(): Promise<ParseMock> {
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-	return (await spyImport("@/react/auth/parseUserSessionData", "default")) as unknown as ParseMock;
-}
-
-// Helper to create a spy for clientError at test-time without wildcard imports
-type ClientErrorSpy = {
-	(...args: unknown[]): unknown;
-	mockImplementation?: (...args: unknown[]) => void;
-};
-
-/**
- * Typed spy shape for `getCachedUserToken` in tests.
- */
-type GetCachedUserTokenSpy = {
-	mockReturnValue: (token: string | undefined) => void;
-	mockReturnValueOnce?: (token: string | undefined) => void;
-	mockResolvedValue?: (token: string | undefined) => void;
-};
-
-// Helper to return a typed spy for `getCachedUserToken`.
-// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-async function getCachedUserTokenSpy(): Promise<GetCachedUserTokenSpy> {
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-	return (await spyImport(
-		"@/react/lib/supabase/token/tokenCache",
-		"getCachedUserToken",
-	)) as unknown as GetCachedUserTokenSpy;
-}
-
-async function spyClientError(): Promise<ClientErrorSpy> {
-	const mod = await import("@/react/lib/utils/clientLogger");
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-	return vi.spyOn(mod, "clientError") as unknown as ClientErrorSpy;
-}
-
-function restoreFetch(originalFetch: unknown): void {
-	// Restore global fetch in a type-safe way for tests.
-	// Use Reflect.set to avoid unsafe type assertions when mutating globals in tests.
-	Reflect.set(globalThis, "fetch", originalFetch);
-}
 
 describe("ensureSignedIn", () => {
 	it("returns undefined immediately when store indicates signed out", async () => {

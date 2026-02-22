@@ -1,4 +1,4 @@
-import { type ReactElement } from "react";
+// ReactElement is ambient; no import needed
 import { useTranslation } from "react-i18next";
 
 import DateTimePicker from "@/react/lib/design-system/date-time-picker/DateTimePicker";

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactElement } from "react";
+import { useEffect, useState } from "react";
 
 import enumerateAudioInputDevices from "@/react/lib/audio/audio-input-device-select/enumerateAudioInputDevices";
 import { ONE } from "@/shared/constants/shared-constants";

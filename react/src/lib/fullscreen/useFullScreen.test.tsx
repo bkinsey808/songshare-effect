@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+// ReactElement is ambient; no import needed
 
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";

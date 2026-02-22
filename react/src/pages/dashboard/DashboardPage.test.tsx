@@ -1,36 +1,34 @@
 import { fireEvent, render } from "@testing-library/react";
-import { MemoryRouter, useNavigate } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useHydration from "@/react/app/useHydration";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import mockReactRouter from "@/react/lib/test-utils/mockReactRouter";
 import mockTranslation from "@/react/lib/test-utils/mockTranslation";
 import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 
-import DashboardPage from "./DashboardPage";
+// DashboardPage (and its hooks) will be imported inside each test
+// after applying our router mock. This avoids early imports that would
+// capture the real `useNavigate` before our runtime mock is applied.
+// We'll still import useDashboard since that's mocked separately below.
 import useDashboard from "./useDashboard";
 
 vi.mock("@/react/app/useHydration");
 vi.mock("./useDashboard");
 
-// Mock react-router-dom with explicit type
-// oxlint-disable-next-line jest/no-untyped-mock-factory
-vi.mock("react-router-dom", async () => {
-	// oxlint-disable-next-line @typescript-eslint/consistent-type-imports
-	const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
-	return {
-		...actual,
-		useNavigate: vi.fn(),
-	};
-});
-
 describe("dashboard page", () => {
-	it("renders user library button and navigates when clicked", () => {
+	it("renders user library button and navigates when clicked", async () => {
 		// Mock translation within the test to avoid top-level side effects
 		mockTranslation();
 
 		const mockNavigate = vi.fn();
-		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+		// replace built-in router mock with helper that returns our function
+		mockReactRouter(mockNavigate);
+
+		// Now that the router is mocked we can import DashboardPage so its
+		// internal `useNavigate` will resolve to our stub.
+		const { default: DashboardPage } = await import("./DashboardPage");
 
 		vi.mocked(useHydration).mockReturnValue({ isHydrated: true, awaitHydration: vi.fn() });
 

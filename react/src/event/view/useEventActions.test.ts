@@ -3,6 +3,7 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import makeEventEntry from "@/react/event/event-entry/makeEventEntry.mock";
+import forceCast from "@/react/lib/test-utils/forceCast";
 
 import useEventActions from "./useEventActions";
 
@@ -53,8 +54,7 @@ describe("useEventActions", () => {
 		result.current.handleJoinEvent();
 
 		await waitFor(() => {
-			// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
-			const calls = setCurrentEvent.mock.calls as unknown as [ReturnType<typeof makeEventEntry>][];
+			const calls = forceCast<[ReturnType<typeof makeEventEntry>][]>(setCurrentEvent.mock.calls);
 			const FIRST_CALL_INDEX = 0;
 			const FN_ARG_INDEX = 0;
 			const firstCall = calls[FIRST_CALL_INDEX]?.[FN_ARG_INDEX];

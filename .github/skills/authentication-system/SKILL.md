@@ -260,7 +260,7 @@ const channel = client
 ```typescript
 import useAppStore from "@/react/app/useAppStore";
 
-function MyComponent(): JSX.Element {
+function MyComponent(): ReactElement {
   const isSignedIn = useAppStore((state) => state.auth.isSignedIn);
 
   if (isSignedIn) {

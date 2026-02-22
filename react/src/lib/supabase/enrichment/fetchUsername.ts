@@ -2,7 +2,7 @@ import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
 
 import callSelect from "../client/safe-query/callSelect";
-import { type EnrichmentConfig } from "./types";
+import { type EnrichmentConfig } from "./EnrichmentConfig.type";
 
 /**
  * Fetches the username for a given user ID from the user_public table.

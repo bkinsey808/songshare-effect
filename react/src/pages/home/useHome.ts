@@ -1,8 +1,7 @@
+import type { Paragraph } from "@/react/lib/language/paragraph";
+
 import useLocale from "@/react/lib/language/locale/useLocale";
-import {
-	normalizeTranslationParagraphs,
-	type Paragraph,
-} from "@/react/lib/language/normalizeTranslationParagraphs";
+import normalizeTranslationParagraphs from "@/react/lib/language/normalizeTranslationParagraphs";
 import { getEnvValueSafe } from "@/react/lib/utils/env";
 import { reactFeaturesPath, uploadDemoPath } from "@/shared/paths";
 
@@ -32,7 +31,7 @@ export default function useHome(): UseHomeReturn {
 	const appName = rawAppName === undefined ? (t("app.title") ?? "SongShare") : String(rawAppName);
 
 	const translationConfig = { returnObjects: true, appName };
-	const homeParagraphsRaw = t("pages.home.paragraphs", translationConfig);
+	const homeParagraphsRaw: unknown = t("pages.home.paragraphs", translationConfig);
 	const homeParagraphs: Paragraph[] = normalizeTranslationParagraphs(homeParagraphsRaw);
 
 	return { lang, t, appName, homeParagraphs, reactFeaturesPath, uploadDemoPath };

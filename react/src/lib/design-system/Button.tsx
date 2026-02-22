@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactElement, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import tw from "@/react/lib/utils/tw";
 

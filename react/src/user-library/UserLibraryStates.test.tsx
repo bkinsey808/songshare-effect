@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import React from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import UserLibraryEmptyState from "./UserLibraryEmptyState";
@@ -16,8 +15,8 @@ vi.mock(
 	}),
 );
 
-vi.mock("./user-add/AddUserForm", (): { default: () => React.ReactElement } => ({
-	default: (): React.ReactElement => <div data-testid="add-user" />,
+vi.mock("./user-add/AddUserForm", (): { default: () => ReactElement } => ({
+	default: (): ReactElement => <div data-testid="add-user" />,
 }));
 
 describe("user library states", () => {

@@ -1,4 +1,4 @@
-import { Suspense, type ReactElement } from "react";
+import { Suspense } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import appRoutes from "../routes/appRoutes";

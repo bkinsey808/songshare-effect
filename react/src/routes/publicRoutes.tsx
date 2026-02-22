@@ -6,6 +6,7 @@ import {
 	aboutPath,
 	activityDemoPath,
 	eventManagePath,
+	eventSlideManagerPath,
 	eventSlideShowPath,
 	eventViewPath,
 	hookDemoPath,
@@ -36,6 +37,7 @@ const PlaylistPage = lazy(() => import("../pages/PlaylistPage"));
 const EventView = lazy(() => import("../event/view/EventView"));
 const EventManageView = lazy(() => import("../event/manage/EventManageView"));
 const EventSlideShowView = lazy(() => import("../event/view/EventSlideShowView"));
+const SlideManagerView = lazy(() => import("../event/manage/slide/SlideManagerView"));
 const ActivityDemoPage = lazy(() => import("../pages/demo/ActivityDemoPage"));
 const PopoverDemoPage = lazy(() => import("../pages/demo/PopoverDemoPage"));
 const ReactFeaturesDemoPage = lazy(() => import("../pages/demo/ReactFeaturesDemoPage"));
@@ -58,6 +60,10 @@ export const publicRoutesWithoutLayout: RouteObject[] = [
 	{
 		path: `${eventViewPath}/:event_slug/${eventSlideShowPath}`,
 		element: withSuspense(EventSlideShowView),
+	},
+	{
+		path: `${eventViewPath}/:event_slug/${eventSlideManagerPath}`,
+		element: withSuspense(SlideManagerView),
 	},
 ];
 

@@ -92,15 +92,18 @@ function makeMockStore(initialState: Partial<EventState> = {}): {
 }
 
 describe("createEventSlice", () => {
-	// oxlint-disable-next-line jest/max-expects
-	it("returns initial state and exposes methods", () => {
+	it("returns initial state", () => {
 		const store = makeMockStore({});
 		const slice = createEventSlice(store.set, store.get, store.api);
 
 		expect(slice.events).toStrictEqual([]);
 		expect(slice.isEventLoading).toBe(false);
 		expect(slice.eventError).toBeUndefined();
+	});
 
+	it("exposes slice methods", () => {
+		const store = makeMockStore({});
+		const slice = createEventSlice(store.set, store.get, store.api);
 		expect(typeof slice.fetchEventBySlug).toBe("function");
 		expect(typeof slice.setEventLoading).toBe("function");
 	});

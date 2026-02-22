@@ -1,7 +1,6 @@
 import type { DraggableAttributes } from "@dnd-kit/core";
 import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 
-import { type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
 import { type Slide } from "../song-form-types";

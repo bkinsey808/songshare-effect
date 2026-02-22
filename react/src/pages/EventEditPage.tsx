@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+// ReactElement is ambient; no import needed
 
 import EventForm from "../event/form/EventForm";
 

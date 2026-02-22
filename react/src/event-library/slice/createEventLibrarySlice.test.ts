@@ -10,11 +10,20 @@ import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import createEventLibrarySlice from "./createEventLibrarySlice";
 import makeEventLibrarySlice from "./makeEventLibrarySlice.mock";
 
+type SubscribeModule = {
+	default: (get: () => EventLibrarySlice) => Effect.Effect<unknown, never, () => void>;
+};
+
 // Mock the subscription effect to avoid network calls and authentication
-// oxlint-disable-next-line eslint-plugin-jest(no-untyped-mock-factory)
-vi.mock("../subscribe/subscribeToEventPublicForLibraryEffect", () => ({
-	default: vi.fn(() => Effect.succeed(() => undefined)),
-}));
+// we only need a typed `vi.fn` so the jest rule is happy; avoid `import()` types
+vi.mock(
+	"../subscribe/subscribeToEventPublicForLibraryEffect",
+	(): SubscribeModule => ({
+		default: vi.fn<(get: () => EventLibrarySlice) => Effect.Effect<unknown, never, () => void>>(
+			(_get) => Effect.succeed(() => undefined),
+		),
+	}),
+);
 
 function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 	state: Partial<EventLibraryState>;

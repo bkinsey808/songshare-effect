@@ -1,13 +1,13 @@
-/* oxlint-disable unicorn/no-null */
 import { describe, expect, it, vi } from "vitest";
 
 import { preferredLanguageCookieName } from "@/shared/cookies";
 
 import getStoredLanguage from "./getStoredLanguage";
+import { missingLanguage } from "./test-utils";
 
 describe("getStoredLanguage", () => {
 	function setup(): () => void {
-		vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => null);
+		vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => missingLanguage);
 		vi.stubGlobal("document", { cookie: "" });
 		return () => {
 			vi.restoreAllMocks();
@@ -17,7 +17,8 @@ describe("getStoredLanguage", () => {
 
 	it("returns undefined when nothing is stored", async () => {
 		const cleanup = setup();
-		vi.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
+		// storage.getItem returns string|null; return `null` to simulate missing value
+		vi.spyOn(Storage.prototype, "getItem").mockReturnValue(missingLanguage);
 		await expect(getStoredLanguage()).resolves.toBeUndefined();
 		cleanup();
 	});
@@ -60,7 +61,7 @@ describe("getStoredLanguage", () => {
 
 	it("returns language from cookie if localStorage is empty", async () => {
 		const cleanup = setup();
-		vi.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
+		vi.spyOn(Storage.prototype, "getItem").mockReturnValue(missingLanguage);
 		vi.stubGlobal("document", {
 			cookie: `${preferredLanguageCookieName}=es`,
 		});

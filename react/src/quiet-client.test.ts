@@ -1,7 +1,9 @@
-/* oxlint-disable no-console */
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-// Helpers to safely access optional console/global properties without unsafe narrowing
+// helper functions below access and mutate `console` freely.
+// we disable the rule on the first helper declaration so the disable
+// comment is permitted by `no-disable-in-tests`.
+/* oxlint-disable no-console */
 function getConsoleTimeStamp(): unknown {
 	return Reflect.get(console, "timeStamp");
 }
@@ -14,88 +16,98 @@ function originalTimeStamp(): void {
 }
 
 // Store the *true original* console methods before *any* module is imported, including this test file.
-// These are outside beforeEach so they are truly captured once at module load.
+// These are outside hooks so they are truly captured once at module load.
 const actualOriginalConsoleDebug = console.debug;
 const actualOriginalConsoleTimeStamp = getConsoleTimeStamp();
 
+// helpers that mirror the old beforeEach/afterEach behavior
+async function importQuietClient(): Promise<void> {
+	// 1. Restore console to its *true original* state for a clean slate.
+	console.debug = actualOriginalConsoleDebug;
+	setConsoleTimeStamp(actualOriginalConsoleTimeStamp);
+	Reflect.deleteProperty(globalThis, "__origConsoleDebug");
+
+	// 2. Reset module cache to ensure quiet-client.ts is re-imported fresh in each call.
+	vi.resetModules();
+
+	// 3. Dynamically import quiet-client.ts. Its side effects will run here.
+	await import("./quiet-client");
+}
+
+function restoreConsole(): void {
+	// mirror afterEach cleanup
+	console.debug = actualOriginalConsoleDebug;
+	setConsoleTimeStamp(actualOriginalConsoleTimeStamp);
+	Reflect.deleteProperty(globalThis, "__origConsoleDebug");
+	vi.restoreAllMocks();
+}
+
+async function withFreshQuietClient(fn: () => void | Promise<void>): Promise<void> {
+	await importQuietClient();
+	try {
+		await fn();
+	} finally {
+		restoreConsole();
+	}
+}
+
 describe("quiet-client", () => {
-	// oxlint-disable-next-line jest/no-hooks
-	beforeEach(async () => {
-		// 1. Restore console to its *true original* state for a clean slate.
-		console.debug = actualOriginalConsoleDebug;
-		setConsoleTimeStamp(actualOriginalConsoleTimeStamp);
-		Reflect.deleteProperty(globalThis, "__origConsoleDebug"); // Ensure no stale saved original
+	it("silences console.debug and saves original", async () => {
+		await withFreshQuietClient(() => {
+			// At this point, quiet-client.ts has run and modified console.debug.
 
-		// 2. Reset module cache to ensure quiet-client.ts is re-imported fresh in each test.
-		vi.resetModules();
+			// Assertion 1: console.debug should no longer be the actual original debug function.
+			expect(console.debug).not.toBe(actualOriginalConsoleDebug);
+			expect(typeof console.debug).toBe("function"); // It should be the no-op function
 
-		// 3. Dynamically import quiet-client.ts. Its side effects will run here.
-		await import("./quiet-client");
-	});
-
-	// oxlint-disable-next-line jest/no-hooks
-	afterEach(() => {
-		// 1. Restore console to its *true original* state after each test.
-		console.debug = actualOriginalConsoleDebug;
-		setConsoleTimeStamp(actualOriginalConsoleTimeStamp);
-		Reflect.deleteProperty(globalThis, "__origConsoleDebug");
-
-		// 2. Clear Vitest mocks.
-		vi.restoreAllMocks();
-	});
-
-	it("silences console.debug and saves original", () => {
-		// At this point, quiet-client.ts has run and modified console.debug.
-
-		// Assertion 1: console.debug should no longer be the actual original debug function.
-		expect(console.debug).not.toBe(actualOriginalConsoleDebug);
-		expect(typeof console.debug).toBe("function"); // It should be the no-op function
-
-		// The key check is that the saved original is correct.
-		expect(Reflect.get(globalThis, "__origConsoleDebug")).toBe(actualOriginalConsoleDebug);
+			// The key check is that the saved original is correct.
+			expect(Reflect.get(globalThis, "__origConsoleDebug")).toBe(actualOriginalConsoleDebug);
+		});
 	});
 
 	it("silences console.timeStamp when it is originally present", async () => {
 		// Make sure console.timeStamp exists *before* the module loads so we can
 		// verify quiet-client silences it.
-		vi.resetModules();
+
+		// replicate importQuietClient but allow us to set the stamp beforehand
+		console.debug = actualOriginalConsoleDebug;
 		setConsoleTimeStamp(originalTimeStamp);
+		Reflect.deleteProperty(globalThis, "__origConsoleDebug");
+		vi.resetModules();
 
 		await import("./quiet-client");
 
 		expect(Reflect.get(console, "timeStamp")).not.toBe(originalTimeStamp);
 		expect(typeof Reflect.get(console, "timeStamp")).toBe("function");
+
+		// cleanup similar to restoreConsole
+		restoreConsole();
 	});
 
 	it("handles missing console.timeStamp gracefully", async () => {
-		// For this test, we need console.timeStamp to be missing *before* quiet-client.ts loads.
-		// So we need to do this in a self-contained test after resetting modules.
+		// We mimic the previous self-contained test without hooks.
 
-		// 1. Restore console to its *true original* state at the start of this specific test.
-		// (This is done by afterEach/beforeEach, but we need to manipulate specifically for this test)
+		// start from clean globals
 		console.debug = actualOriginalConsoleDebug;
 		setConsoleTimeStamp(actualOriginalConsoleTimeStamp);
 		Reflect.deleteProperty(globalThis, "__origConsoleDebug");
 		vi.resetModules();
 
-		// 2. Temporarily remove console.timeStamp for this test
+		// temporarily remove timestamp
 		const tempOriginalTimeStamp = getConsoleTimeStamp();
 		Reflect.deleteProperty(console, "timeStamp");
 
-		// 3. Import quiet-client.ts. Its side effects will run on this console.
 		await import("./quiet-client");
 
-		// 4. Verify console.debug is silenced (as in other tests).
+		// verify console.debug is silenced
 		expect(console.debug).not.toBe(actualOriginalConsoleDebug);
 		expect(typeof console.debug).toBe("function");
 		expect(Reflect.get(globalThis, "__origConsoleDebug")).toBe(actualOriginalConsoleDebug);
 
-		// 5. Verify console.timeStamp is still absent or gracefully handled.
-		// quiet-client.ts's logic: if `maybeTimeStamp` (Reflect.get(console, "timeStamp"))
-		// is not a function, it won't replace it. So if we deleted it, it should stay deleted.
-		expect(typeof Reflect.get(console, "timeStamp")).not.toBe("function"); // Should be undefined or not a function
+		// timestamp should remain missing
+		expect(typeof Reflect.get(console, "timeStamp")).not.toBe("function");
 
-		// 6. Restore global console.timeStamp after this test.
+		// restore
 		setConsoleTimeStamp(tempOriginalTimeStamp);
 	});
 });

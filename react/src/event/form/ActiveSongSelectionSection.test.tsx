@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
+import mockUseTranslation from "@/react/lib/test-utils/mockUseTranslation";
 
 import ActiveSongSelectionSection from "./ActiveSongSelectionSection";
 import useActiveSongSelectionState from "./useActiveSongSelectionState";
@@ -9,21 +10,15 @@ import useActiveSongSelectionState from "./useActiveSongSelectionState";
 const FIRST_POSITION = 1;
 const SECOND_POSITION = 2;
 
-// oxlint-disable-next-line eslint-plugin-jest/no-untyped-mock-factory -- local test stub for translation only
-vi.mock("react-i18next", () => ({
-	useTranslation: (): {
-		t: (key: string, fallback: string) => string;
-	} => ({
-		t: (_key: string, fallback: string): string => fallback,
-	}),
-}));
+vi.mock("react-i18next");
 
 vi.mock("./useActiveSongSelectionState");
 
 describe("active song selection section", () => {
 	it("renders slide radios and calls onSelectActiveSlide for selected position", () => {
-		const onSelectActiveSong = vi.fn();
-		const onSelectActiveSlidePosition = vi.fn();
+		mockUseTranslation();
+		const onSelectActiveSong: (songId: string) => void = vi.fn();
+		const onSelectActiveSlidePosition: (slidePosition: number) => void = vi.fn();
 
 		vi.mocked(useActiveSongSelectionState).mockReturnValue(
 			forceCast<ReturnType<typeof useActiveSongSelectionState>>({
@@ -60,8 +55,9 @@ describe("active song selection section", () => {
 	});
 
 	it("allows selecting first slide position when slide ids repeat", () => {
-		const onSelectActiveSong = vi.fn();
-		const onSelectActiveSlidePosition = vi.fn();
+		mockUseTranslation();
+		const onSelectActiveSong: (songId: string) => void = vi.fn();
+		const onSelectActiveSlidePosition: (slidePosition: number) => void = vi.fn();
 
 		vi.mocked(useActiveSongSelectionState).mockReturnValue(
 			forceCast<ReturnType<typeof useActiveSongSelectionState>>({

@@ -1,4 +1,4 @@
-import { type ReactElement, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";

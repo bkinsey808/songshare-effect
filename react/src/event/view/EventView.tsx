@@ -6,7 +6,12 @@ import Button from "@/react/lib/design-system/Button";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { eventManagePath, eventSlideShowPath, eventViewPath } from "@/shared/paths";
+import {
+	eventManagePath,
+	eventSlideManagerPath,
+	eventSlideShowPath,
+	eventViewPath,
+} from "@/shared/paths";
 
 const MIN_PARTICIPANTS = 0;
 
@@ -32,6 +37,7 @@ export default function EventView(): React.ReactNode {
 		isEventLoading,
 		eventError,
 		participantStatus,
+		currentParticipant,
 		canViewFullEvent,
 		canJoin,
 		canLeave,
@@ -194,6 +200,21 @@ export default function EventView(): React.ReactNode {
 								}}
 							>
 								Manage Event
+							</Button>
+						)}
+						{(canManageEvent || currentParticipant?.role === "event_playlist_admin") && (
+							<Button
+								variant="outlineSecondary"
+								onClick={() => {
+									void navigate(
+										buildPathWithLang(
+											`/${eventViewPath}/${eventPublic.event_slug}/${eventSlideManagerPath}`,
+											lang,
+										),
+									);
+								}}
+							>
+								Slide Manager
 							</Button>
 						)}
 					</div>

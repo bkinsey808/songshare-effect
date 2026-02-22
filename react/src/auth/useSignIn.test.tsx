@@ -69,7 +69,7 @@ describe("useSignIn", () => {
 
 		result.current.dismissError();
 
-		// oxlint-disable-next-line @typescript-eslint/no-magic-numbers
-		expect(dismissMock).toHaveBeenCalledTimes(1);
+		const ONE_CALL = 1;
+		expect(dismissMock).toHaveBeenCalledTimes(ONE_CALL);
 	});
 });

@@ -25,9 +25,6 @@ export default function EventManageView(): ReactElement {
 		actionState,
 		inviteUserIdInput,
 		setInviteUserIdInput,
-		activePlaylistDisplay,
-		activeSongDisplay,
-		activeSlideDisplay,
 		activePlaylistIdForSelector,
 		activeSongIdForSelector,
 		activeSlidePositionForSelector,
@@ -90,9 +87,6 @@ export default function EventManageView(): ReactElement {
 			<section className="rounded-lg border border-gray-700 bg-gray-800 p-6 space-y-4">
 				<h2 className="text-xl font-semibold">Active Playback</h2>
 				<p className="text-sm text-gray-400">Selections save automatically.</p>
-				<p className="text-sm text-gray-400">Current playlist: {activePlaylistDisplay}</p>
-				<p className="text-sm text-gray-400">Current song: {activeSongDisplay}</p>
-				<p className="text-sm text-gray-400">Current slide position: {activeSlideDisplay}</p>
 
 				<div className="grid grid-cols-1 gap-4">
 					<PlaylistSearchInput

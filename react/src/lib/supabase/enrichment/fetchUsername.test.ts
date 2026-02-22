@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 
-import type { EnrichmentConfig } from "./types";
+import type { EnrichmentConfig } from "./EnrichmentConfig.type";
 
 import fetchUsername from "./fetchUsername";
 

@@ -1,9 +1,7 @@
-import type { ReactElement } from "react";
-
 import { Link } from "react-router-dom";
 
 import SignInButtons from "@/react/auth/SignInButtons";
-import { isParagraph } from "@/react/lib/language/normalizeTranslationParagraphs";
+import { isParagraph } from "@/react/lib/language/paragraph";
 
 import useHome from "./useHome";
 

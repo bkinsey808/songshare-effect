@@ -112,6 +112,37 @@ describe("event view", () => {
 		expect(screen.queryByRole("button", { name: "Leave Event" })).toBeNull();
 		expect(screen.queryByRole("button", { name: "Join Event" })).toBeNull();
 		expect(screen.getByRole("button", { name: "View Slide Show" })).toBeTruthy();
+		expect(screen.getByRole("button", { name: "Slide Manager" })).toBeTruthy();
+	});
+
+	it("shows slide manager for playlist admins even if not full manager", () => {
+		// makeUseEventViewResult computes currentParticipant by looking up
+		// result.currentUserId in result.participants. To simulate a user who
+		// is only an event_playlist_admin without broader event management
+		// rights, we override both fields accordingly.
+		vi.mocked(useEventView).mockReturnValue(
+			makeUseEventViewResult({
+				participants: [
+					{
+						user_id: "u1",
+						username: "playlist_admin",
+						event_id: "e1",
+						joined_at: "2026-02-17T00:00:00Z",
+						role: "event_playlist_admin",
+						status: "joined",
+					},
+				] as EventParticipant[],
+				currentUserId: "u1",
+				isOwner: false,
+				shouldShowActions: false,
+				canViewFullEvent: true,
+				canViewSlides: true,
+				canManageEvent: false,
+			}),
+		);
+
+		renderEventView();
+		expect(screen.getByRole("button", { name: "Slide Manager" })).toBeTruthy();
 	});
 
 	it("renders Leave Event button for participant who is not owner", () => {

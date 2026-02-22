@@ -1,3 +1,12 @@
+/*
+ * ⚠️ WARNING: this file exposes a helper that performs insert queries directly on the
+ * client. It is extremely unsafe for production usage—any insert/update/delete work
+ * should always run on the server side where credentials and RLS policies can be
+ * enforced. Do **not** import or rely on this in application code except for tests or
+ * narrow debugging scenarios. Using it elsewhere can leak secrets and bypass
+ * authorization.
+ */
+
 /* oxlint-disable typescript-eslint/no-unsafe-type-assertion, typescript-eslint/no-unsafe-call, typescript-eslint/no-unsafe-assignment, typescript-eslint/dot-notation */
 import type { PostgrestResponse, SupabaseClientLike } from "../SupabaseClientLike";
 

@@ -1,6 +1,6 @@
-import { renderHook } from "@testing-library/react";
+import { renderHook, type RenderHookResult } from "@testing-library/react";
 import { Effect } from "effect";
-import { useState } from "react";
+import { useState, type RefObject } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import postJson from "@/shared/fetch/postJson";
@@ -12,20 +12,17 @@ import useEventAutosave from "./useEventAutosave";
 vi.mock("@/shared/fetch/postJson");
 
 describe("useEventAutosave", () => {
-	// oxlint-disable-next-line typescript-eslint/explicit-function-return-type
-	function setup() {
+	// result.current should expose the hook return value
+	type HookResult = ReturnType<typeof useEventAutosave>;
+	type SetupReturn = RenderHookResult<HookResult, unknown>;
+
+	function setup(): SetupReturn {
 		const event_slug = "e1";
 		const fetchEventBySlug = vi.fn().mockReturnValue(Effect.succeed(undefined as void));
-		// oxlint-disable-next-line typescript-eslint/no-deprecated
-		const currentEventIdRef = { current: "event-123" } as React.MutableRefObject<
-			string | undefined
-		>;
-		// oxlint-disable-next-line typescript-eslint/no-deprecated
-		const latestSlidePositionRef = { current: undefined } as React.MutableRefObject<
-			number | undefined
-		>;
+		const currentEventIdRef = { current: "event-123" } as RefObject<string | undefined>;
+		const latestSlidePositionRef = { current: undefined } as RefObject<number | undefined>;
 
-		return renderHook(() => {
+		return renderHook<HookResult, unknown>(() => {
 			const [, setActionState] = useState<ActionState>({
 				loadingKey: undefined,
 				error: undefined,
@@ -62,14 +59,14 @@ describe("useEventAutosave", () => {
 		const mockPost = vi.mocked(postJson);
 		mockPost.mockResolvedValue(undefined);
 
-		// oxlint-disable-next-line no-magic-numbers
-		result.current.updateActiveSlidePosition(7);
+		const slidePos = 7;
+		result.current.updateActiveSlidePosition(slidePos);
 
 		expect(mockPost).toHaveBeenCalledWith(
 			expect.any(String),
 			expect.objectContaining({
 				event_id: "event-123",
-				active_slide_position: 7,
+				active_slide_position: slidePos,
 			}),
 		);
 	});

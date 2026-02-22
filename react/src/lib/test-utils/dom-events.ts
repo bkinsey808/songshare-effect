@@ -93,3 +93,36 @@ export function makeKeyboardEventWithPreventDefault(key: string): {
 	// Confine the narrow cast to this helper so tests can use a properly-typed `React.KeyboardEvent` without repeating an unsafe cast.
 	return { event: forceCast<React.KeyboardEvent>(event), preventDefault };
 }
+
+/**
+ * Build a minimal `MouseEvent` with spies for preventDefault/stopPropagation.
+ *
+ * @returns well-typed React.MouseEvent<HTMLButtonElement>
+ */
+export function makeMouseEvent(): React.MouseEvent<HTMLButtonElement> {
+	const preventDefault = vi.fn();
+	const stopPropagation = vi.fn();
+	const button = document.createElement("button");
+
+	const event = {
+		bubbles: false,
+		cancelable: false,
+		currentTarget: button,
+		target: button,
+		type: "click" as const,
+		defaultPrevented: false,
+		eventPhase: 0,
+		isTrusted: true,
+		nativeEvent: new MouseEvent("click"),
+		persist: (): void => undefined,
+		preventDefault,
+		isDefaultPrevented: (): boolean => false,
+		isPropagationStopped: (): boolean => false,
+		stopPropagation,
+		timeStamp: Date.now(),
+	};
+
+	// Confine the unsafe cast to this helper; consumer tests can use a
+	// properly-typed `React.MouseEvent` without repeating the cast.
+	return forceCast<React.MouseEvent<HTMLButtonElement>>(event);
+}

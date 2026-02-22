@@ -1,4 +1,3 @@
-/* oxlint-disable unicorn/no-null */
 import { render, waitFor } from "@testing-library/react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";

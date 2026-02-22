@@ -1,4 +1,4 @@
-import { type ReactElement } from "react";
+// ReactElement is ambient; no import needed
 
 import type { EventLibraryEntry } from "../event-library-types";
 

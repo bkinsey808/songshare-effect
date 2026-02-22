@@ -42,6 +42,11 @@ export const eventManagePath = "manage";
 /** Suffix path for event slide show view; use as "events/:event_slug/slideshow" */
 export const eventSlideShowPath = "slideshow";
 
+/**
+ * Suffix path for event slide *manager* view; use as "events/:event_slug/slide-manager"
+ */
+export const eventSlideManagerPath = "slide-manager";
+
 export const apiOauthSignInPath = "/api/oauth/sign-in";
 export const apiOauthCallbackPath = "/api/oauth/callback";
 export const apiMePath = "/api/me";

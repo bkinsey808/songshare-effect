@@ -1,63 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import type { UserSessionData } from "@/shared/userSessionData";
-
-import forceCast from "@/react/lib/test-utils/forceCast";
-import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
-
-// Provide a hoisted typed mock so tests can set return values per-case.
-const NON_STRING_ID = 999;
-const SAMPLE_USER_SESSION: UserSessionData = {
-	user: {
-		created_at: new Date().toISOString(),
-		email: "u@example.com",
-		google_calendar_access: "",
-		google_calendar_refresh_token: undefined,
-		linked_providers: undefined,
-		name: "Test User",
-		role: "user",
-		role_expires_at: undefined,
-		sub: undefined,
-		updated_at: new Date().toISOString(),
-		user_id: "u1",
-	},
-	userPublic: forceCast(makeUserPublic({ user_id: "u1", username: "u1" })),
-
-	oauthUserData: { email: "u@example.com" },
-	oauthState: { csrf: "x", lang: "en", provider: "google" },
-	ip: "127.0.0.1",
-};
-
-// Helper: set the mocked `getTypedState` to return a derived state that
-// optionally includes `userSessionData`. Localizes the `importActual` typing
-// rule to this small helper.
-async function setGetTypedStateUser(userSessionData?: UserSessionData): Promise<void> {
-	vi.resetModules();
-	const appStoreModule = await import("@/react/app-store/useAppStore");
-	// oxlint-disable-next-line @typescript-eslint/consistent-type-imports
-	const actual = await vi.importActual<typeof import("@/react/app-store/useAppStore")>(
-		"@/react/app-store/useAppStore",
-	);
-	const base = actual.getTypedState();
-	const newState =
-		userSessionData === undefined
-			? { ...base, userSessionData: undefined }
-			: { ...base, userSessionData };
-	vi.spyOn(appStoreModule, "getTypedState").mockReturnValue(newState);
-}
-
-// Helper: construct a sample `UserSessionData` with a non-string `user_id`.
-function makeSampleWithNonStringId(): UserSessionData {
-	// Build as `unknown` to avoid narrowing the type to `string` and triggering
-	// the `no-unsafe-type-assertion` rule on the inner property.
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
-	const sample: unknown = {
-		...SAMPLE_USER_SESSION,
-		user: { ...SAMPLE_USER_SESSION.user, user_id: NON_STRING_ID },
-	};
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-type-assertion
-	return sample as UserSessionData;
-}
+import { SAMPLE_USER_SESSION, makeSampleWithNonStringId, setGetTypedStateUser } from "./test-utils";
 
 describe("useCurrentUserId", () => {
 	it("returns the current user id when a user is signed in", async () => {

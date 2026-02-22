@@ -7,7 +7,7 @@ import type { SongPublic } from "../song-schema";
  * @returns A `SongPublic` fixture object
  */
 export default function makeSongPublic(overrides: Partial<SongPublic> = {}): SongPublic {
-	/* oxlint-disable-next-line unicorn/no-null -- central DB-null constant for test helpers */
+	// oxlint-disable-next-line unicorn/no-null
 	const DB_NULL: string | null = null;
 	return {
 		song_id: overrides.song_id ?? "s1",

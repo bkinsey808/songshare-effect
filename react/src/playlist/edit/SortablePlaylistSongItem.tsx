@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { type ReactElement } from "react";
+// ReactElement is ambient; no import needed
 
 import DragHandle from "@/react/song/song-form/grid-editor/DragHandle";
 

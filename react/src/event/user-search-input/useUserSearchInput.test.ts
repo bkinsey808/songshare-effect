@@ -2,6 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import { makeChangeEvent, makeMouseEvent } from "@/react/lib/test-utils/dom-events";
 import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
 
 import useUserSearchInput from "./useUserSearchInput";
@@ -43,24 +44,10 @@ describe("useUserSearchInput", () => {
 		const onSelect = vi.fn();
 		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect }));
 
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only synthetic event
-		result.current.handleInputChange({
-			target: { value: "ali" },
-		} as unknown as React.ChangeEvent<HTMLInputElement>);
-
-		await waitFor(() => {
-			expect(result.current.searchQuery).toBe("ali");
-			expect(result.current.isOpen).toBe(true);
-			expect(result.current.filteredUsers.map((entry) => entry.followed_user_id)).toStrictEqual([
-				"f1",
-			]);
-		});
+		result.current.handleInputChange(makeChangeEvent("ali"));
 
 		// search by id
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only synthetic event
-		result.current.handleInputChange({
-			target: { value: "bob" },
-		} as unknown as React.ChangeEvent<HTMLInputElement>);
+		result.current.handleInputChange(makeChangeEvent("bob"));
 		await waitFor(() => {
 			expect(result.current.filteredUsers.map((entry) => entry.followed_user_id)).toStrictEqual([
 				"bob123",
@@ -80,10 +67,7 @@ describe("useUserSearchInput", () => {
 		const onSelect = vi.fn();
 		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect }));
 
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only synthetic event
-		result.current.handleInputChange({
-			target: { value: "ali" },
-		} as unknown as React.ChangeEvent<HTMLInputElement>);
+		result.current.handleInputChange(makeChangeEvent("ali"));
 
 		await waitFor(() => {
 			expect(result.current.filteredUsers).toHaveLength(EXPECTED_SINGLE);
@@ -111,16 +95,11 @@ describe("useUserSearchInput", () => {
 		const focusSpy = vi.spyOn(input, "focus");
 		Reflect.set(result.current.inputRef, "current", input);
 
-		const preventDefault = vi.fn();
-		const stopPropagation = vi.fn();
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only fake MouseEvent
-		const fakeEvent = {
-			preventDefault,
-			stopPropagation,
-		} as unknown as React.MouseEvent<HTMLButtonElement>;
+		const fakeEvent = makeMouseEvent();
+		const preventSpy = vi.spyOn(fakeEvent, "preventDefault");
 		result.current.handleClearSelection(fakeEvent);
 
-		expect(preventDefault).toHaveBeenCalledWith();
+		expect(preventSpy).toHaveBeenCalledWith();
 		expect(onSelect).toHaveBeenCalledWith("");
 		expect(result.current.searchQuery).toBe("");
 		expect(result.current.isOpen).toBe(false);

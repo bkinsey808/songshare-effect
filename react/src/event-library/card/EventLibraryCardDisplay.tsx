@@ -1,11 +1,17 @@
-import type { ReactElement } from "react";
+// ReactElement is ambient; no import needed
 
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { dashboardPath, eventEditPath, eventManagePath, eventViewPath } from "@/shared/paths";
+import {
+	dashboardPath,
+	eventEditPath,
+	eventManagePath,
+	eventSlideManagerPath,
+	eventViewPath,
+} from "@/shared/paths";
 
 import type { EventLibraryEntry } from "../event-library-types";
 
@@ -65,6 +71,7 @@ export default function EventLibraryCardDisplay({
 				>
 					{t("eventLibrary.viewEvent", "View Event")}
 				</Link>
+
 				<Link
 					to={buildPathWithLang(
 						`/${eventViewPath}/${entry.event_public?.event_slug ?? ""}/${eventManagePath}`,
@@ -74,6 +81,17 @@ export default function EventLibraryCardDisplay({
 				>
 					{t("eventLibrary.manageEvent", "Manage Event")}
 				</Link>
+
+				<Link
+					to={buildPathWithLang(
+						`/${eventViewPath}/${entry.event_public?.event_slug ?? ""}/${eventSlideManagerPath}`,
+						lang,
+					)}
+					className="text-sm text-indigo-400 transition-colors hover:text-indigo-300"
+				>
+					{t("eventLibrary.slideManager", "Slide Manager")}
+				</Link>
+
 				{isOwned ? (
 					<Link
 						to={buildPathWithLang(`/${dashboardPath}/${eventEditPath}/${entry.event_id}`, lang)}
@@ -82,6 +100,7 @@ export default function EventLibraryCardDisplay({
 						{t("eventLibrary.editEvent", "Edit")}
 					</Link>
 				) : undefined}
+
 				<button
 					type="button"
 					className="text-sm text-red-400 transition-colors hover:text-red-300"

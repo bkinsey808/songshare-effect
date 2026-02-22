@@ -20,7 +20,7 @@ export default function PlaylistSongDisplay({
 	songId,
 	index,
 	publicSongs,
-}: PlaylistSongDisplayProps): React.ReactElement {
+}: PlaylistSongDisplayProps): ReactElement {
 	const { song, subText } = usePlaylistSongDisplay(songId, publicSongs);
 
 	return (

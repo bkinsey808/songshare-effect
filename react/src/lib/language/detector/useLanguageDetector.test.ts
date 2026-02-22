@@ -7,6 +7,19 @@ import detectBrowserLanguage from "@/shared/language/detectBrowserLanguage";
 import getStoredLanguage from "../stored/getStoredLanguage";
 import useLanguageDetector from "./useLanguageDetector";
 
+/**
+ * Stub out the browser language detector with a typed mock implementation.
+ *
+ * By casting `vi.mocked(...)` to `MockedFunction<typeof detectBrowserLanguage>`
+ * we avoid the loose `any` return type that otherwise triggers the
+ * unsafe-call/member-access rules. This keeps the rest of the test file
+ * free of any disabling comments.
+ */
+function mockDetectBrowserLanguage(lang: ReturnType<typeof detectBrowserLanguage>): void {
+	const mocked = vi.mocked(detectBrowserLanguage);
+	mocked.mockImplementation(() => lang);
+}
+
 vi.mock("react-router-dom");
 vi.mock("@/shared/language/detectBrowserLanguage");
 vi.mock("../stored/getStoredLanguage");
@@ -26,10 +39,7 @@ describe("useLanguageDetector", () => {
 	it("redirects to stored language if available", async () => {
 		const cleanup = setup();
 		vi.mocked(getStoredLanguage).mockResolvedValue("zh");
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-		vi.mocked(detectBrowserLanguage).mockImplementation(
-			(): ReturnType<typeof detectBrowserLanguage> => "en",
-		);
+		mockDetectBrowserLanguage("en");
 
 		renderHook(() => {
 			useLanguageDetector();
@@ -44,10 +54,7 @@ describe("useLanguageDetector", () => {
 	it("redirects to detected browser language if no stored preference", async () => {
 		const cleanup = setup();
 		vi.mocked(getStoredLanguage).mockResolvedValue(undefined);
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-		vi.mocked(detectBrowserLanguage).mockImplementation(
-			(): ReturnType<typeof detectBrowserLanguage> => "es",
-		);
+		mockDetectBrowserLanguage("es");
 
 		renderHook(() => {
 			useLanguageDetector();
@@ -61,10 +68,7 @@ describe("useLanguageDetector", () => {
 	it("passes navigator.language to detectBrowserLanguage", async () => {
 		const cleanup = setup();
 		vi.mocked(getStoredLanguage).mockResolvedValue(undefined);
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-		vi.mocked(detectBrowserLanguage).mockImplementation(
-			(): ReturnType<typeof detectBrowserLanguage> => "en",
-		);
+		mockDetectBrowserLanguage("en");
 
 		renderHook(() => {
 			useLanguageDetector();

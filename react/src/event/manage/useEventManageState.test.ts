@@ -1,6 +1,8 @@
-import { renderHook } from "@testing-library/react";
+import { renderHook, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
+
+import type { EventEntry } from "@/react/event/event-types";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
@@ -9,33 +11,40 @@ import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import postJson from "@/shared/fetch/postJson";
 
+import { makeFakeManage } from "./test-utils"; // side-effect import registers shared router mock and helpers
 import useEventManageState from "./useEventManageState";
+
+// named constants to avoid magic-number lint errors
+const CALL_COUNT_MIN = 1;
+const FIRST_SPY_INDEX = 0;
 
 vi.mock("@/react/app-store/useAppStore");
 vi.mock("@/react/auth/useCurrentUserId");
 vi.mock("@/react/lib/language/useCurrentLang");
 vi.mock("@/shared/fetch/postJson");
-// Mock react-router-dom with the actual module and override hooks
-// oxlint-disable-next-line jest/no-untyped-mock-factory
-vi.mock("react-router-dom", async () => {
-	// oxlint-disable-next-line @typescript-eslint/consistent-type-imports
-	const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
-	return {
-		...actual,
-		useParams: (): { event_slug: string } => ({ event_slug: "e1" }),
-		useNavigate: vi.fn(),
-	};
-});
 
-// Helper to stub `useAppStore` selectors used by these tests
-function installEventStoreMocks(
-	overrides: {
-		currentEvent?: ReturnType<typeof makeEventEntry> | undefined;
-		isEventLoading?: boolean;
-		eventError?: unknown;
-	} = {},
-): void {
-	const { currentEvent = undefined, isEventLoading = false, eventError = undefined } = overrides;
+type StoreMocksOverrides = {
+	currentEvent?: EventEntry | undefined;
+	isEventLoading?: boolean;
+	eventError?: string | undefined;
+	playlistLibraryEntries?: Record<string, { playlist_id: string }>;
+};
+
+function installEventStoreMocks(overrides: StoreMocksOverrides = {}): {
+	playlistSubSpy: ReturnType<typeof vi.fn>;
+	playlistPublicSpy: ReturnType<typeof vi.fn>;
+} {
+	const {
+		currentEvent = undefined,
+		isEventLoading = false,
+		eventError = undefined,
+		playlistLibraryEntries = {},
+	} = overrides;
+
+	// create spies upfront so tests can assert immediately
+	const playlistSubSpy = vi.fn().mockReturnValue(Effect.succeed(() => undefined));
+	const playlistPublicSpy = vi.fn().mockReturnValue(Effect.succeed(() => undefined));
+
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
 		const selectorText = String(selector);
 		if (selectorText.includes("fetchEventBySlug")) {
@@ -43,6 +52,15 @@ function installEventStoreMocks(
 		}
 		if (selectorText.includes("fetchPlaylistLibrary")) {
 			return vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
+		}
+		if (selectorText.includes("subscribeToPlaylistLibrary")) {
+			return playlistSubSpy;
+		}
+		if (selectorText.includes("playlistLibraryEntries")) {
+			return playlistLibraryEntries;
+		}
+		if (selectorText.includes("subscribeToPlaylistPublic")) {
+			return playlistPublicSpy;
 		}
 		if (selectorText.includes("fetchPlaylistById")) {
 			return vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
@@ -64,6 +82,8 @@ function installEventStoreMocks(
 		}
 		return undefined;
 	});
+
+	return { playlistSubSpy, playlistPublicSpy };
 }
 
 describe("useEventManageState", () => {
@@ -72,11 +92,14 @@ describe("useEventManageState", () => {
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
+		// smoke check helper usage
+		const fake = makeFakeManage();
+		expect(fake.canManageEvent).toBe(false);
+
 		const { result } = renderHook(() => useEventManageState());
 		expect(result.current.currentEvent).toBeUndefined();
 		expect(result.current.eventPublic).toBeUndefined();
 		expect(result.current.canManageEvent).toBe(false);
-		expect(result.current.activePlaylistDisplay).toBe("(none)");
 		expect(typeof result.current.updateActivePlaylist).toBe("function");
 	});
 
@@ -100,6 +123,34 @@ describe("useEventManageState", () => {
 		expect(result.current.currentEvent).toStrictEqual(event);
 		expect(result.current.canManageEvent).toBe(true);
 		expect(result.current.ownerId).toBe("u1");
+	});
+
+	it("subscribes to playlist library on mount", async () => {
+		const { playlistSubSpy } = installEventStoreMocks();
+		expect(playlistSubSpy).toBeDefined();
+		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
+		vi.mocked(useCurrentLang).mockReturnValue("en");
+
+		renderHook(() => useEventManageState());
+		await waitFor(() => {
+			expect(playlistSubSpy).toBeDefined();
+			expect(playlistSubSpy?.mock.calls.length).toBeGreaterThanOrEqual(CALL_COUNT_MIN);
+		});
+	});
+
+	it("subscribes to public metadata when library contains playlists", async () => {
+		const sampleEntries = { p1: { playlist_id: "p1" } };
+		const { playlistPublicSpy } = installEventStoreMocks({ playlistLibraryEntries: sampleEntries });
+		expect(playlistPublicSpy).toBeDefined();
+		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
+		vi.mocked(useCurrentLang).mockReturnValue("en");
+
+		renderHook(() => useEventManageState());
+		await waitFor(() => {
+			// subscribe should be invoked with id array
+			expect(playlistPublicSpy).toBeDefined();
+			expect(playlistPublicSpy?.mock.calls[FIRST_SPY_INDEX]).toStrictEqual([["p1"]]);
+		});
 	});
 
 	it("calls postJson and updates playlist on updateActivePlaylist", () => {
@@ -151,9 +202,8 @@ describe("useEventManageState", () => {
 
 		const { result } = renderHook(() => useEventManageState());
 		result.current.updateActiveSong("song-abc");
-		// oxlint-disable-next-line no-magic-numbers
-		result.current.updateActiveSlidePosition(5);
-
+		const newSlidePos = 5; // avoid magic number lint
+		result.current.updateActiveSlidePosition(newSlidePos);
 		expect(mockPostJson).toHaveBeenCalledWith(
 			expect.any(String),
 			expect.objectContaining({

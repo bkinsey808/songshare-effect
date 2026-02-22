@@ -1,12 +1,11 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { PostgrestResponse } from "@/react/lib/supabase/client/SupabaseClientLike";
-
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import asNull from "@/react/lib/test-utils/asNull";
+import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import makeGetStub from "@/react/playlist/slice/makeGetPlaylistSliceStub.mock";
 import makePlaylistPublic from "@/react/playlist/test-utils/makePlaylistPublic";
@@ -30,11 +29,12 @@ describe("fetchPlaylist", () => {
 		const mockPlaylist = makePlaylistPublic();
 		const get = makeGetStub();
 
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		vi.mocked(callSelect).mockResolvedValue({
-			data: [mockPlaylist],
-			error: asNull(),
-		} as unknown as PostgrestResponse);
+		vi.mocked(callSelect).mockResolvedValue(
+			asPostgrestResponse({
+				data: [mockPlaylist],
+				error: asNull(),
+			}),
+		);
 
 		await Effect.runPromise(fetchPlaylist("p1", get));
 
@@ -59,18 +59,19 @@ describe("fetchPlaylist", () => {
 		// Even with null token, the query might succeed or fail depending on RLS.
 		// We mock success to verify the flow completes.
 		vi.mocked(callSelect)
-			// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-			.mockResolvedValueOnce({
-				data: [playlistPublic],
-				error: asNull(),
-			} as unknown as PostgrestResponse)
-			// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-			.mockResolvedValueOnce({ data: [], error: asNull() } as unknown as PostgrestResponse)
-			// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-			.mockResolvedValueOnce({
-				data: [userPublic],
-				error: asNull(),
-			} as unknown as PostgrestResponse);
+			.mockResolvedValueOnce(
+				asPostgrestResponse({
+					data: [playlistPublic],
+					error: asNull(),
+				}),
+			)
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [], error: asNull() }))
+			.mockResolvedValueOnce(
+				asPostgrestResponse({
+					data: [userPublic],
+					error: asNull(),
+				}),
+			);
 
 		const get = makeGetStub();
 		await Effect.runPromise(fetchPlaylist("p1", get));
@@ -116,11 +117,12 @@ describe("fetchPlaylist", () => {
 		mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
 
 		// Return empty data (no rows found)
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-		vi.mocked(callSelect).mockResolvedValue({
-			data: [],
-			error: asNull(),
-		} as unknown as PostgrestResponse);
+		vi.mocked(callSelect).mockResolvedValue(
+			asPostgrestResponse({
+				data: [],
+				error: asNull(),
+			}),
+		);
 
 		const get = makeGetStub();
 		const eff = fetchPlaylist("missing", get);

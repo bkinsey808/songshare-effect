@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { RealtimeChannelLike } from "../SupabaseClientLike";
 
@@ -9,12 +9,14 @@ import guardAsRealtimeChannelLike from "./guardAsRealtimeChannelLike";
  * @returns A mock channel object with on and subscribe methods.
  */
 function createMockChannel(): RealtimeChannelLike {
-	// oxlint-disable-next-line init-declarations
-	let channel: RealtimeChannelLike;
-	channel = {
-		on: vi.fn(() => channel),
-		subscribe: vi.fn().mockReturnValue(undefined),
-		unsubscribe: vi.fn().mockResolvedValue(undefined),
+	// minimal implementation matching `RealtimeChannelLike`; no need for spies.
+	const channel: RealtimeChannelLike = {
+		on(_event: string, _opts: unknown, _handler?: (payload: unknown) => void) {
+			return channel;
+		},
+		subscribe(_cb?: (status: string, err?: unknown) => void) {
+			return undefined;
+		},
 	};
 
 	return channel;

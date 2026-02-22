@@ -17,13 +17,14 @@ export type SpyLike = {
  * @param exportName - Export name to spy on (default "default").
  * @returns Spy instance typed as TSpy.
  */
-export default async function spyImport(
+export default async function spyImport<TSpy = SpyLike>(
 	modulePath: string,
 	exportName = "default",
-): Promise<SpyLike> {
+): Promise<TSpy> {
 	// oxlint-disable-next-line typescript/no-unsafe-assignment
 	const mod = await import(modulePath);
-	// Cast through unknown to satisfy TypeScript typing for test spies
+	// the generic parameter lets callers narrow the return type; we still
+	// cast through unknown because `vi.spyOn` returns a very wide type.
 	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-	return vi.spyOn(mod, exportName) as unknown as SpyLike;
+	return vi.spyOn(mod, exportName) as unknown as TSpy;
 }

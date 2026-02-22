@@ -1,14 +1,9 @@
 import { cleanup, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
-
+// helper lives in a non-test file to avoid lint-disable comments
+import { spyResizeCanvasToDisplaySize } from "../canvas/test-utils/spyCanvas";
 import useResizeCanvasToDisplaySizeOnWindowResize from "./useResizeCanvasToDisplaySizeOnWindowResize";
-
-// Async spy helper for `resizeCanvasToDisplaySize`
-function spyResizeCanvasToDisplaySize(): Promise<ReturnType<typeof vi.spyOn>> {
-	return spyImport("@/react/lib/canvas/resizeCanvasToDisplaySize");
-}
 
 describe("useResizeCanvasToDisplaySizeOnWindowResize", () => {
 	function setup(): () => void {
@@ -50,12 +45,10 @@ describe("useResizeCanvasToDisplaySizeOnWindowResize", () => {
 			useResizeCanvasToDisplaySizeOnWindowResize(canvasRef);
 		});
 
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const mockResize = await spyResizeCanvasToDisplaySize();
 		const resizeEvent = new Event("resize");
 		globalThis.dispatchEvent(resizeEvent);
 
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		expect(mockResize).toHaveBeenCalledWith(canvas);
 
 		unmount();
@@ -70,12 +63,10 @@ describe("useResizeCanvasToDisplaySizeOnWindowResize", () => {
 			useResizeCanvasToDisplaySizeOnWindowResize(canvasRef);
 		});
 
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const mockResize = await spyResizeCanvasToDisplaySize();
 		const resizeEvent = new Event("resize");
 		globalThis.dispatchEvent(resizeEvent);
 
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 		expect(mockResize).not.toHaveBeenCalled();
 
 		unmount();

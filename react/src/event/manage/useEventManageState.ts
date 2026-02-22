@@ -24,7 +24,7 @@ import useEventAutosave from "./useEventAutosave";
 import usePlaybackAutosaveFlush from "./usePlaybackAutosaveFlush";
 import usePlaybackSelectionSync from "./usePlaybackSelectionSync";
 
-// helper types for the hook result
+const PUBLIC_SUB_INITIAL_RUN = 0;
 
 type UseEventManageStateResult = {
 	currentEvent: EventEntry | undefined;
@@ -38,9 +38,6 @@ type UseEventManageStateResult = {
 	actionState: ActionState;
 	inviteUserIdInput: string | undefined;
 	setInviteUserIdInput: (userId: string | undefined) => void;
-	activePlaylistDisplay: string;
-	activeSongDisplay: string;
-	activeSlideDisplay: string;
 	activePlaylistIdForSelector: string | undefined;
 	activeSongIdForSelector: string | undefined;
 	activeSlidePositionForSelector: number | undefined;
@@ -51,6 +48,7 @@ type UseEventManageStateResult = {
 	kickParticipant: (userId: string) => void;
 	goBackToEvent: () => void;
 };
+
 // State & handlers for realtime event management (used by EventManageView)
 export default function useEventManageState(): UseEventManageStateResult {
 	const { event_slug } = useParams<{ event_slug: string }>();
@@ -62,6 +60,9 @@ export default function useEventManageState(): UseEventManageStateResult {
 	const isEventLoading = useAppStore((state) => state.isEventLoading);
 	const eventError = useAppStore((state) => state.eventError);
 	const fetchPlaylistLibrary = useAppStore((state) => state.fetchPlaylistLibrary);
+	const subscribeToPlaylistLibrary = useAppStore((state) => state.subscribeToPlaylistLibrary);
+	const playlistLibraryEntries = useAppStore((state) => state.playlistLibraryEntries);
+	const subscribeToPlaylistPublic = useAppStore((state) => state.subscribeToPlaylistPublic);
 	const fetchPlaylistById = useAppStore((state) => state.fetchPlaylistById);
 	const fetchUserLibrary = useAppStore((state) => state.fetchUserLibrary);
 	const currentUserId = useCurrentUserId();
@@ -150,15 +151,72 @@ export default function useEventManageState(): UseEventManageStateResult {
 	}, [currentEvent?.event_id, subscribeToEvent]);
 
 	// Load playlist library once so the manager can show playlists for adding songs
+	// and subscribe to updates so real‑time changes on other pages propagate here.
 	useEffect(() => {
+		let unsubscribe: (() => void) | undefined = undefined;
+
 		void (async (): Promise<void> => {
 			try {
 				await EffectRuntime.runPromise(fetchPlaylistLibrary());
 			} catch {
 				// Keep manager usable even if playlist library fails to load.
 			}
+
+			// subscribe to library updates after initial fetch so the list stays fresh
+			try {
+				unsubscribe = await EffectRuntime.runPromise(subscribeToPlaylistLibrary());
+			} catch (error: unknown) {
+				// subscription is nice‑to‑have but not critical
+				console.error("[useEventManageState] playlist library subscription failed:", error);
+			}
 		})();
-	}, [fetchPlaylistLibrary]);
+
+		return (): void => {
+			if (unsubscribe) {
+				unsubscribe();
+			}
+		};
+	}, [fetchPlaylistLibrary, subscribeToPlaylistLibrary]);
+
+	// keep public metadata for any playlists in the library up to date
+	const playlistIdsKey = Object.keys(playlistLibraryEntries).toSorted().join(",");
+	const publicUnsubRef = useRef<(() => void) | undefined>(undefined);
+	const publicRunRef = useRef(PUBLIC_SUB_INITIAL_RUN);
+
+	// subscribe to public metadata for any playlists currently in the
+	// user's library. this mirrors the logic in usePlaylistLibrary so the
+	// dropdown can display up‑to‑date names when libraries change.
+	useEffect(() => {
+		const playlistIds = playlistIdsKey.split(",").filter((id) => id !== "");
+		const MIN_IDS = 1;
+
+		if (playlistIds.length < MIN_IDS) {
+			publicUnsubRef.current = undefined;
+			return undefined;
+		}
+
+		const run = (publicRunRef.current += 1);
+		void (async (): Promise<void> => {
+			try {
+				const unsubscribe = await EffectRuntime.runPromise(subscribeToPlaylistPublic(playlistIds));
+				if (run === publicRunRef.current) {
+					publicUnsubRef.current = unsubscribe;
+				} else {
+					unsubscribe();
+				}
+			} catch (error: unknown) {
+				console.error("[useEventManageState] playlist public subscription failed:", error);
+			}
+		})();
+
+		return (): void => {
+			const fn = publicUnsubRef.current;
+			publicUnsubRef.current = undefined;
+			if (fn !== undefined) {
+				fn();
+			}
+		};
+	}, [playlistIdsKey, subscribeToPlaylistPublic]);
 
 	// Load current user's library on mount so we can reference it in the manager
 	useEffect(() => {
@@ -206,6 +264,7 @@ export default function useEventManageState(): UseEventManageStateResult {
 		setSelectedSongId,
 		setSelectedSlidePosition,
 	});
+
 	if (currentEvent === undefined || eventPublic === undefined) {
 		return {
 			currentEvent,
@@ -219,9 +278,6 @@ export default function useEventManageState(): UseEventManageStateResult {
 			actionState,
 			inviteUserIdInput,
 			setInviteUserIdInput,
-			activePlaylistDisplay: "(none)",
-			activeSongDisplay: "(none)",
-			activeSlideDisplay: "(none)",
 			activePlaylistIdForSelector: activePlaylistIdForEffect ?? undefined,
 			activeSongIdForSelector: selectedActiveSongId,
 			activeSlidePositionForSelector: selectedActiveSlidePosition,
@@ -235,8 +291,6 @@ export default function useEventManageState(): UseEventManageStateResult {
 	}
 
 	const currentEventIdRequired = currentEvent.event_id;
-
-	// (moved above)
 
 	function updateActivePlaylist(playlistId: string): void {
 		void runAction({
@@ -298,12 +352,6 @@ export default function useEventManageState(): UseEventManageStateResult {
 		actionState,
 		inviteUserIdInput,
 		setInviteUserIdInput,
-		activePlaylistDisplay: activePlaylistIdForSelector ?? "(none)",
-		activeSongDisplay: activeSongIdForSelector ?? "(none)",
-		activeSlideDisplay:
-			typeof activeSlidePositionForSelector === "number"
-				? String(activeSlidePositionForSelector)
-				: "(none)",
 		activePlaylistIdForSelector,
 		activeSongIdForSelector,
 		activeSlidePositionForSelector,

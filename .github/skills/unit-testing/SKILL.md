@@ -26,8 +26,9 @@ metadata:
 2. Prefer descriptive test names and one behavior per test.
 3. Use `vi.useFakeTimers()` only when verifying timer behavior and always restore with `vi.useRealTimers()`.
 4. Mock external network calls and browser APIs at the module boundary.
-5. Run `npm run lint && npx tsc -b . && npm run test:unit -- <file> --coverage` to validate formatting, types, and tests.
-6. Prefer asserting against mock data variables (not duplicated literal strings). Define constants for mock inputs (e.g., `const songId = "s1"`) and use those variables in both setup and expectations to avoid mismatches and improve test clarity.
+5. Leverage the growing set of shared helpers under `react/src/lib/test-utils` (e.g. `asNull`, `asNever`, `asPostgrestResponse`, `waitForAsync`, DOM event generators, `spyImport`, `makeAppSlice`). Add to that folder when you need reusable boilerplate instead of inlining it in tests.
+6. Run `npm run lint && npx tsc -b . && npm run test:unit -- <file> --coverage` to validate formatting, types, and tests.
+7. Prefer asserting against mock data variables (not duplicated literal strings). Define constants for mock inputs (e.g., `const songId = "s1"`) and use those variables in both setup and expectations to avoid mismatches and improve test clarity.
 
 ## Examples
 
@@ -292,7 +293,33 @@ This ensures your expectations reference the same mock data declared in setup �
   - Use `// oxlint-disable-next-line <rule> - reason` for a single-line exception.
   - Better: place the disable above a helper function (e.g., `getCachedUserTokenSpy`, `makeUnsafeMock`) so the exception is obvious, localized, and easily audited.
 - **Never scatter disables throughout test cases.** Centralize them in helpers to keep test assertions clean and to make it straightforward to remove the disable later.
+- A custom oxlint rule enforces this by failing whenever an `oxlint-disable` comment appears inside a `describe`, `test`, or `it` block or anywhere at the top level of a test file. The only permitted location for a disable is directly above a small helper function/constant; that way the exception remains localized and obvious.
 - **Always add a brief rationale** and a `TODO`/issue reference when you add a disable so it can be revisited and removed later.
+
+### 🛠️ Type-cast helpers
+
+Certain tests require unsafe casts (e.g. converting an `unknown` response into a
+`PostgrestResponse<T>` or forcing a branch that accepts `never`). The repo now
+provides narrow helpers for these cases in `react/src/lib/test-utils`, such as
+`asNull`, `asNever`, and `asPostgrestResponse`. Each helper contains its own
+`oxlint-disable` comment and JSDoc explanation so callers stay lint-friendly.
+You should:
+
+- Use the existing helpers instead of writing `as any` or sprinkling disable
+  comments in tests.
+- Add a new helper to the folder if you encounter a recurring pattern that
+  doesn’t already have one.
+
+Example usage:
+
+```ts
+import { asNever } from "@/lib/test-utils";
+
+it("handles unexpected value", () => {
+  const bad = asNever("foo");
+  expect(() => myFn(bad)).toThrow();
+});
+```
 
 ```typescript
 // BAD: file-level disable — avoid this

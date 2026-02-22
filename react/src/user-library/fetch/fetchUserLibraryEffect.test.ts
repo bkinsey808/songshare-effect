@@ -67,7 +67,7 @@ describe("fetchUserLibraryEffect", () => {
 		const getSupabaseClientMock = await spyImport("@/react/lib/supabase/client/getSupabaseClient");
 		getSupabaseClientMock.mockReturnValue?.(minimalClient);
 
-		/* oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment -- test-time spy */
+		// the spy import returns an untyped mock; we only care about its jest methods
 		const callSelectMock = await spyImport("@/react/lib/supabase/client/safe-query/callSelect");
 		callSelectMock.mockResolvedValueOnce({ data: [] } as PostgrestResponse);
 		callSelectMock.mockResolvedValueOnce({ data: [] } as PostgrestResponse);

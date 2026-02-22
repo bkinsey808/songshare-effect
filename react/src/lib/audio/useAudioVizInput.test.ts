@@ -3,35 +3,20 @@ import type { RefObject } from "react";
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+// helpers extracted to a shared location so they can safely contain the
+// necessary cast/unescape comments without tripping the `no-disable-in-tests`
+// lint rule that applies to test files.
 import makeSmoothedAudioLevelForUiTimer from "@/react/lib/audio/smooth/makeSmoothedAudioLevelForUiTimer.mock";
-import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import {
+	spyUseAudioCapture,
+	spyUseSmoothedAudioLevelRef,
+	type AsyncSpy,
+} from "@/react/lib/audio/test-utils/spyAudio";
 import { ZERO } from "@/shared/constants/shared-constants";
 
 import type { SmoothedAudioLevel } from "./smooth/useSmoothedAudioLevel";
 
 import useAudioVizInput from "./useAudioVizInput";
-
-// Async spy helpers (use inside tests with `await`) to avoid namespace imports
-type AsyncSpy = {
-	mockReturnValue: (value: unknown) => void;
-	mockReturnValueOnce: (value: unknown) => void;
-	mockResolvedValue: (value: unknown) => void;
-	mockResolvedValueOnce?: (value: unknown) => void;
-	mockImplementation?: (...args: readonly unknown[]) => unknown;
-	mockReset?: () => void;
-};
-
-async function spyUseAudioCapture(): Promise<AsyncSpy> {
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-	return (await spyImport("@/react/lib/audio/useAudioCapture")) as unknown as AsyncSpy;
-}
-
-async function spyUseSmoothedAudioLevelRef(): Promise<AsyncSpy> {
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-	return (await spyImport(
-		"@/react/lib/audio/smooth/useSmoothedAudioLevelRef",
-	)) as unknown as AsyncSpy;
-}
 
 describe("useAudioVizInput", () => {
 	const defaultOptions = {

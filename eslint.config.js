@@ -13,6 +13,8 @@
 
 import tsParser from "@typescript-eslint/parser";
 
+import noDisableInTestsRule from "./eslint-rules/no-disable-in-tests.mjs";
+import noReactElementRule from "./eslint-rules/no-reactelement-import.mjs";
 import useeffectRule from "./eslint-rules/require-useeffect-comment.mjs";
 
 const config = [
@@ -60,9 +62,37 @@ const config = [
 					"require-useeffect-comment": useeffectRule,
 				},
 			},
+			"no-reactelement-import": {
+				rules: {
+					"no-reactelement-import": noReactElementRule,
+				},
+			},
 		},
 		rules: {
 			"require-useeffect-comment/require-useeffect-comment": "error",
+			"no-reactelement-import/no-reactelement-import": "error",
+		},
+	},
+	// additional override: only apply no-disable-in-tests rule inside test files
+	{
+		files: ["**/*.test.ts", "**/*.test.tsx"],
+		languageOptions: {
+			parser: tsParser,
+			parserOptions: {
+				ecmaVersion: 2022,
+				sourceType: "module",
+				project: ["./tsconfig.json", "./react/tsconfig.json"],
+			},
+		},
+		plugins: {
+			"no-disable-in-tests": {
+				rules: {
+					"no-disable-in-tests": noDisableInTestsRule,
+				},
+			},
+		},
+		rules: {
+			"no-disable-in-tests/no-disable-in-tests": "error",
 		},
 	},
 ];

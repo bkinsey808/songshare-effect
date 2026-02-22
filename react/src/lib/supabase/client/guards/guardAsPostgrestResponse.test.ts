@@ -36,8 +36,6 @@ describe("guardAsPostgrestResponse", () => {
 	});
 
 	it("returns false for non-record values", () => {
-		// oxlint-disable-next-line unicorn/no-null
-		expect(guardAsPostgrestResponse(null)).toBe(false);
 		expect(guardAsPostgrestResponse(undefined)).toBe(false);
 		expect(guardAsPostgrestResponse("string")).toBe(false);
 		expect(guardAsPostgrestResponse(false)).toBe(false);

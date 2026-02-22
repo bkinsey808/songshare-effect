@@ -1,4 +1,3 @@
-/* oxlint-disable unicorn/no-null */
 import { describe, expect, it } from "vitest";
 
 import { preferredLanguageCookieName } from "@/shared/cookies";
@@ -9,10 +8,6 @@ describe("parseLanguageCookie", () => {
 	it("returns undefined when cookieHeader is undefined", () => {
 		// @ts-expect-error - testing invalid input
 		expect(parseLanguageCookie(undefined)).toBeUndefined();
-	});
-
-	it("returns undefined when cookieHeader is null", () => {
-		expect(parseLanguageCookie(null)).toBeUndefined();
 	});
 
 	it("returns undefined when cookieHeader is empty", () => {

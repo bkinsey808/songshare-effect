@@ -9,8 +9,6 @@ import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 import makeUserLibrarySlice from "../slice/makeUserLibrarySlice.mock";
 import removeUserFromLibraryEffect from "./removeUserFromLibraryEffect";
 
-// Use `makeUserLibrarySlice` directly in tests to get a stateful slice
-
 describe("removeUserFromLibraryEffect", () => {
 	it("succeeds and updates slice on 2xx response", async () => {
 		vi.resetAllMocks();
@@ -32,7 +30,6 @@ describe("removeUserFromLibraryEffect", () => {
 		);
 
 		const req: Readonly<RemoveUserFromLibraryRequest> = { followed_user_id: followedUserId };
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-argument -- typed test request
 		await Effect.runPromise(removeUserFromLibraryEffect(req, get));
 
 		expect(setUserLibraryError).toHaveBeenCalledWith(undefined);

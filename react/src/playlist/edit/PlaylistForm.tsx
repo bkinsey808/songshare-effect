@@ -1,6 +1,6 @@
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { type ReactElement } from "react";
+// ReactElement is ambient; no import needed
 
 import AddSongToPlaylistSection from "@/react/playlist/add-song/AddSongToPlaylistSection";
 import usePlaylistForm from "@/react/playlist/edit/usePlaylistForm";

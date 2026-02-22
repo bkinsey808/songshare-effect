@@ -1,5 +1,3 @@
-import { type ReactElement } from "react";
-
 import DemoNavigation from "@/react/demo/DemoNavigation";
 import AudioInputDeviceSelect from "@/react/lib/audio/audio-input-device-select/AudioInputDeviceSelect";
 

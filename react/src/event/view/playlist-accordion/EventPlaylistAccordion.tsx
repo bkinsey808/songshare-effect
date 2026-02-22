@@ -16,7 +16,7 @@ type EventPlaylistAccordionProps = {
  */
 export default function EventPlaylistAccordion({
 	playlistId,
-}: EventPlaylistAccordionProps): React.ReactElement {
+}: EventPlaylistAccordionProps): ReactElement {
 	const { isLoading, playlistName, songOrder, publicSongs } = useEventPlaylistAccordion(playlistId);
 
 	if (isLoading) {

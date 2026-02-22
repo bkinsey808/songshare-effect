@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useLocale from "@/react/lib/language/locale/useLocale";
+import forceCast from "@/react/lib/test-utils/forceCast";
 import { reactFeaturesPath } from "@/shared/paths";
 
 import DemoNavigation from "./DemoNavigation";
@@ -11,12 +12,11 @@ vi.mock("@/react/lib/language/locale/useLocale");
 
 describe("demoNavigation - language-aware links", () => {
 	it("constructs demo links with the language prefix", () => {
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment
-		vi.mocked(useLocale).mockImplementation(
-			(): ReturnType<typeof useLocale> => ({
+		// provide a typed mock of useLocale without inline disables
+		vi.mocked(useLocale).mockReturnValue(
+			forceCast<ReturnType<typeof useLocale>>({
 				lang: "es",
-				// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-				t: ((key: string) => key) as ReturnType<typeof useLocale>["t"],
+				t: (key: string) => key,
 			}),
 		);
 
