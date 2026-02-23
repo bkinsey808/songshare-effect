@@ -95,6 +95,7 @@ import { type PopoverProps, type PopoverState } from "./popover/types";
   - **PascalCase** for React components: `UserProfile.tsx`, `SongCard.tsx`
   - **camelCase** for utilities and functions: `formatDate.ts`, `calculateDuration.ts`
 - **Multi-symbol files**: Use **kebab-case**: `auth-utils.ts`, `api-helpers.ts`
+- **Test-only helpers**: name with `.test-util.ts` or `.test-util.tsx` so they’re clearly not part of production code
 - **Directories**: Use **kebab-case** when grouping: `song-library/`, `auth-flow/`
 
 #### Tests
@@ -193,7 +194,43 @@ songshare-effect/
 - ❌ No `index.ts` re-export files anywhere
 - ❌ No deeply nested structures (max 3-4 levels)
 
-### 6. Import Organization
+### 6. Absolute Paths for Shared Utilities and Test Helpers
+
+When creating shared utilities or test helpers that will be imported from **multiple different locations** (especially at varying directory depths), always use absolute paths (`@/`) instead of relative paths. This ensures the module works regardless of the caller's depth.
+
+**Example:** A test helper `mockUseSlideManagerView` might be imported from:
+
+- `react/src/event/manage/slide/SlideManagerView.test.tsx` (same folder)
+- `react/src/event/manage/useEventManageState.test.tsx` (sibling folder)
+- `react/src/event/manage/useActiveSongSelectionState.test.tsx` (sibling folder)
+
+Using relative paths would require different import statements for each caller:
+
+```typescript
+// ❌ BAD: Different relative paths per caller location
+// From SlideManagerView.test.tsx:
+import mockUseSlideManagerView from "./test-utils/mockUseSlideManagerView.test-util";
+
+// From useEventManageState.test.tsx (sibling):
+import mockUseSlideManagerView from "./test-utils/mockUseSlideManagerView.test-util"; // Same as above, but fragile
+
+// If test-utils moves up one level, all imports break
+```
+
+Using absolute paths works from **any location**:
+
+```typescript
+// ✅ GOOD: Same absolute path from any caller location
+import mockUseSlideManagerView from "@/react/event/manage/test-utils/mockUseSlideManagerView.test-util";
+```
+
+**Apply this rule to:**
+
+- Shared test helpers (`@/react/event/manage/test-utils/mockUseSlideManagerView.test-util`)
+- Shared utilities (`@/react/lib/test-utils/RouterWrapper`)
+- Cross-module imports where the caller's depth varies
+
+### 7. Import Organization
 
 Within a file, organize imports in this order:
 
@@ -205,8 +242,9 @@ import { createClient } from "@supabase/supabase-js";
 
 // 2. Internal absolute imports (if configured)
 import { Song, SongError } from "@shared/types/song";
+import mockUseSlideManagerView from "@/react/event/manage/test-utils/mockUseSlideManagerView.test-util";
 
-// 3. Internal relative imports (features/utilities)
+// 3. Internal relative imports (features/utilities in same feature area)
 import { SongCard } from "../components/SongCard";
 import { useSongLibrary } from "../hooks/useSongLibrary";
 import { type SongLibraryProps } from "./types";

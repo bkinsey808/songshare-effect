@@ -16,13 +16,13 @@ import {
 	eventViewPath,
 } from "@/shared/paths";
 
-import type { ActionState } from "./ActionState.type";
+import type { ActionState } from "../ActionState.type";
 
-import refreshEvent from "./refreshEvent";
-import runAction from "./runAction";
-import useEventAutosave from "./useEventAutosave";
-import usePlaybackAutosaveFlush from "./usePlaybackAutosaveFlush";
-import usePlaybackSelectionSync from "./usePlaybackSelectionSync";
+import refreshEvent from "../refreshEvent";
+import runAction from "../runAction";
+import useEventAutosave from "../useEventAutosave";
+import usePlaybackAutosaveFlush from "../usePlaybackAutosaveFlush";
+import usePlaybackSelectionSync from "../usePlaybackSelectionSync";
 
 const PUBLIC_SUB_INITIAL_RUN = 0;
 

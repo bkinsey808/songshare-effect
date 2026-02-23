@@ -8,7 +8,7 @@ import fetchSupabaseUserTokenFromApi from "@/react/lib/supabase/auth-token/fetch
 import type { AuthSlice, AuthState } from "./auth-slice.types";
 
 import createAuthSlice from "./createAuthSlice";
-import makeAuthSlice from "./makeAuthSlice.mock";
+import makeAuthSlice from "./makeAuthSlice.test-util";
 
 const AUTH_PREFIX = "[authSlice]";
 

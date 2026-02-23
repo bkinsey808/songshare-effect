@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { clientDebug } from "@/react/lib/utils/clientLogger";
 
 import createApiResponseEffect from "./createApiResponseEffect";
-import { runUnwrapped } from "./test-utils";
+import { runUnwrapped } from "./test-util";
 
 // stub out debug logging so the real implementation isn't called and
 // we can easily assert on the calls.  Pattern borrowed from similar tests.

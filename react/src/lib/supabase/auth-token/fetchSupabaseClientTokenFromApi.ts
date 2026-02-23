@@ -1,7 +1,7 @@
 import { apiAuthVisitorPath } from "@/shared/paths";
 
-import { isTokenResponse } from "../token/isTokenResponse";
-import { cacheSupabaseClientToken } from "../token/tokenCache";
+import isTokenResponse from "../token/isTokenResponse";
+import { cacheSupabaseClientToken } from "../token/token-cache";
 
 // Time constants used locally
 const MS_IN_SECOND = 1000;

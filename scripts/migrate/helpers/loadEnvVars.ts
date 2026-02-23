@@ -1,8 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 
+import { error as sError } from "@/scripts/utils/scriptLogger";
 import { ZERO } from "@/shared/constants/shared-constants";
-
-import { error as sError } from "../../utils/scriptLogger";
 
 /**
  * Load environment variables from a `.env` file in the current working directory.

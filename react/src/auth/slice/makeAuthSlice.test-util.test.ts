@@ -4,7 +4,7 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { AuthState } from "./auth-slice.types";
 
-import makeAuthSlice from "./makeAuthSlice.mock";
+import makeAuthSlice from "./makeAuthSlice.test-util";
 
 describe("makeAuthSlice", () => {
 	it("returns initial state when provided", () => {

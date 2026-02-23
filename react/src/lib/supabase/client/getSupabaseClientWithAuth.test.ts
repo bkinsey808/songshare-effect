@@ -5,7 +5,7 @@ import delay from "@/shared/utils/delay";
 import getSupabaseAuthToken from "../auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "./getSupabaseClient";
 import getSupabaseClientWithAuth from "./getSupabaseClientWithAuth";
-import { makeFakeClient } from "./test-utils";
+import { makeFakeClient } from "./test-util";
 
 vi.mock("../auth-token/getSupabaseAuthToken");
 vi.mock("./getSupabaseClient");

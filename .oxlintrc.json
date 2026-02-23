@@ -141,7 +141,17 @@
 		"eslint/no-redeclare": "error",
 		"eslint/no-regex-spaces": "warn",
 		"eslint/no-restricted-globals": "warn",
-		"eslint/no-restricted-imports": "warn",
+		"eslint/no-restricted-imports": [
+			"error",
+			{
+				"patterns": [
+					{
+						"regex": "^\\.\\./\\.\\./",
+						"message": "Avoid deep parent imports (../../). Use an alias (@/) or restructure instead."
+					}
+				]
+			}
+		],
 		"eslint/no-return-assign": "error",
 		"eslint/no-script-url": "error",
 		"eslint/no-self-assign": "error",
@@ -608,7 +618,7 @@
 			"rules": {
 				"jest/consistent-test-it": "error",
 				"jest/expect-expect": "error",
-				"jest/max-expects": "error",
+				"jest/max-expects": ["error", { "max": 6 }],
 				"jest/max-nested-describe": "error",
 				"jest/no-alias-methods": "error",
 				"jest/no-commented-out-tests": "error",

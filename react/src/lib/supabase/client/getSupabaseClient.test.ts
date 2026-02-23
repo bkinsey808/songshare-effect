@@ -2,16 +2,16 @@ import { describe, expect, it, vi } from "vitest";
 
 // import mocks before the module under test so Vitest can hoist and apply them
 import {
+	createClientMock,
+	createClientOptionsMatcher,
+	envMock,
+	globalCache,
+	HOUR_MS,
 	makeFakeClient,
 	setup,
-	globalCache,
-	envMock,
-	createClientMock,
-	HOUR_MS,
-	TWO_MINUTES_MS,
-	createClientOptionsMatcher,
 	toCreateClientReturn,
-} from "./getSupabaseClient.test-utils";
+	TWO_MINUTES_MS,
+} from "./getSupabaseClient.test-util";
 
 describe("getSupabaseClient", () => {
 	it("returns undefined when env is missing", async () => {

@@ -31,6 +31,35 @@ Captures React best practices for this project with emphasis on **React Compiler
 
 ## Key Rules
 
+### ReactElement vs JSX.Element
+
+This project treats `ReactElement` as an **ambient type** rather than requiring
+an import from `react`. When specifying component return types or other JSX
+values prefer `ReactElement` without importing it. Attempting to import
+`ReactElement` or using `JSX.Element` will trigger eslint complaints
+(`no-reactelement-import` rule) and confuse tooling. The AI helper may suggest
+adding an import; please ignore that advice and leave the type ambient.
+
+```ts
+// ✅ GOOD
+function MyComponent(): ReactElement {
+  return <div />;
+}
+
+// ❌ BAD - imports not needed & linter will flag
+import type { ReactElement } from "react";
+function MyComponent(): ReactElement {
+  return <div />;
+}
+
+// ❌ BAD - JSX.Element is discouraged
+function MyComponent(): JSX.Element {
+  return <div />;
+}
+```
+
+###
+
 ### 1. React Compiler Ready
 
 **Never use manual memoization** - React Compiler handles optimization automatically:
@@ -134,6 +163,12 @@ useEffect(() => {
   void fetchUserProfile(userId);
 }, [userId]);
 ```
+
+### 4. Component Organization
+
+**Testing helpers** – when writing hook tests, use the shared `RouterWrapper` from `@/react/lib/test-utils/RouterWrapper` instead of re‑implementing a memory router in each file. This keeps routes consistent and avoids repeated imports from `react-router-dom` which often end up unused.
+
+**Lint disables** – React guidelines also apply when writing tests; avoid placing `// oxlint-disable` comments inside test blocks. If a test requires a disable, move it into a small helper or revisit the typing problem.
 
 ### 4. Component Organization
 

@@ -1,14 +1,10 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import { restoreFetch } from "@/react/lib/test-utils/restoreFetch.test-util";
 import { apiUserLibraryLookupPath } from "@/shared/paths";
 
 import lookupUserByUsernameEffect from "./lookupUserByUsernameEffect";
-
-/** Restore global fetch safely after tests */
-function restoreFetch(originalFetch: unknown): void {
-	Reflect.set(globalThis, "fetch", originalFetch);
-}
 
 describe("lookupUserByUsernameEffect", () => {
 	it("resolves with user data on success", async () => {

@@ -8,7 +8,8 @@
  */
 import { execSync } from "node:child_process";
 
-import { log as sLog, error as sError } from "../../utils/scriptLogger";
+import { error as sError, log as sLog } from "@/scripts/utils/scriptLogger";
+
 import { findAllTsFiles } from "./helpers/findAllTsFiles";
 import updateFileImports from "./helpers/updateFileImports";
 

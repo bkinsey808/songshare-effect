@@ -10,7 +10,7 @@ import isRecord from "@/shared/type-guards/isRecord";
 /**
  * Token response shape returned by the auth endpoints.
  */
-export type TokenResponse = {
+type TokenResponse = {
 	access_token: string;
 	token_type: string;
 	expires_in: number;
@@ -26,7 +26,7 @@ export type TokenResponse = {
  * @param value - Value to validate
  * @returns true when the value has `access_token`, `token_type`, and `expires_in`
  */
-export function isTokenResponse(value: unknown): value is TokenResponse {
+export default function isTokenResponse(value: unknown): value is TokenResponse {
 	if (!isRecord(value)) {
 		return false;
 	}

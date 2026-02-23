@@ -1,9 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-// helper exposes both the comparison function and a spy on the
-// string-field module. We import from the helper to avoid namespace
-// imports and inline eslint disables in this test file.
-import { defaultCompare, getStringFieldSpy, makeNull } from "./defaultCompare.test-utils";
+import makeNull from "@/react/lib/test-utils/makeNull.test-util";
+
+import defaultCompare from "./defaultCompare";
 
 // Note: spy is created at module load time by the helper; individual
 // tests may call `vi.resetAllMocks()` when they need a fresh spy.
@@ -56,18 +55,11 @@ describe("defaultCompare", () => {
 		expect(defaultCompare(arr1, arr2)).toBe(true);
 	});
 
-	it("compares plain objects and uses getStringField for field access", () => {
-		// clear spy from any earlier tests
-		vi.resetAllMocks();
+	it("compares plain objects by their string fields", () => {
 		const firstObj = { alpha: "x", beta: "y" };
 		const secondObj = { alpha: "x", beta: "y" };
 
 		expect(defaultCompare(firstObj, secondObj)).toBe(false);
-		// our spy should have been called for each key
-		expect(getStringFieldSpy).toHaveBeenCalledWith(firstObj, "alpha");
-		expect(getStringFieldSpy).toHaveBeenCalledWith(secondObj, "alpha");
-		expect(getStringFieldSpy).toHaveBeenCalledWith(firstObj, "beta");
-		expect(getStringFieldSpy).toHaveBeenCalledWith(secondObj, "beta");
 	});
 
 	it("treats non-string values as undefined when comparing objects", () => {

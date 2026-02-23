@@ -54,6 +54,7 @@ Pre-commit behavior (note)
 - Fix lint problems incrementally — use `npm run lint` locally, then `npm run lint:fix` to apply safe autofixes. If autofixes don't resolve an error, address it manually.
 - Avoid using `any`. The lint rule `typescript/no-explicit-any` is enforced; when an exception is necessary, keep it small, add an explanatory comment and prefer `unknown` + runtime checks.
 - Import modules directly (no barrel `index.ts` files) to simplify tooling and tree-shaking. The repo enforces this with `oxc/no-barrel-file`.
+- Avoid deep parent-relative imports (`../../…`). A general `no-restricted-imports` rule flags any path starting with `../../` and suggests using an alias (`@/`) or reorganizing code instead. This keeps import graphs easy to follow and prevents unwieldy file relocation churn.
 - When adding manual optimizations (like useMemo/useCallback/memo), include a short comment that explains the measured reason — profiling is required for exceptions to the default rule of relying on the React Compiler.
 
 ### When you need to relax rules or add exceptions

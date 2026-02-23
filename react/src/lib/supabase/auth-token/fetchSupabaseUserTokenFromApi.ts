@@ -1,6 +1,6 @@
 import { apiUserTokenPath } from "@/shared/paths";
 
-import { cacheUserToken, getCachedUserToken } from "../token/tokenCache";
+import { cacheUserToken, getCachedUserToken } from "../token/token-cache";
 
 let inFlightPromise: Promise<string | undefined> | undefined = undefined;
 

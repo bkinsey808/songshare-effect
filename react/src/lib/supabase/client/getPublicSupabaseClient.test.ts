@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { getEnvValueSafe } from "@/react/lib/utils/env";
 
 import getPublicSupabaseClient from "./getPublicSupabaseClient";
-import makeFakeSupabaseClient from "./test-utils";
+import makeFakeSupabaseClient from "./test-util";
 
 // mocks --------------------------------------------------------------------
 vi.mock("@supabase/supabase-js");

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { preferredLanguageCookieName } from "@/shared/cookies";
 
 import getStoredLanguage from "./getStoredLanguage";
-import { missingLanguage } from "./test-utils";
+import { missingLanguage } from "./test-util";
 
 describe("getStoredLanguage", () => {
 	function setup(): () => void {

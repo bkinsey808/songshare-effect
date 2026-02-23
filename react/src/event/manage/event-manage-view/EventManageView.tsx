@@ -1,9 +1,9 @@
+import ActiveSongSelectionSection from "@/react/event/form/ActiveSongSelectionSection";
+import PlaylistSearchInput from "@/react/event/playlist-search-input/PlaylistSearchInput";
+import UserSearchInput from "@/react/event/user-search-input/UserSearchInput";
 import Button from "@/react/lib/design-system/Button";
 
-import ActiveSongSelectionSection from "../form/ActiveSongSelectionSection";
-import useEventManageState from "../manage/useEventManageState";
-import PlaylistSearchInput from "../playlist-search-input/PlaylistSearchInput";
-import UserSearchInput from "../user-search-input/UserSearchInput";
+import useEventManageState from "./useEventManageView";
 
 /**
  * Realtime event management page for owners and event admins.
@@ -12,7 +12,7 @@ import UserSearchInput from "../user-search-input/UserSearchInput";
  *
  * @returns Management UI for playback and participant controls
  */
-export default function EventManageView(): ReactElement {
+export default function EventManageView(): React.JSX.Element {
 	const {
 		currentEvent,
 		eventPublic,

@@ -2,9 +2,10 @@ import { spawnSync } from "node:child_process";
 import { createInterface } from "node:readline/promises";
 import { describe, expect, it, vi } from "vitest";
 
-import { error, warn } from "../../utils/scriptLogger";
+import { error, warn } from "@/scripts/utils/scriptLogger";
+
 import maybePrompt from "./maybePromptInstallDeps";
-import makeFakeRl from "./test-utils";
+import makeFakeRl from "./test-util";
 
 /**
  * Resolution for oxlint and tsc errors without disable statements or dynamic imports:
@@ -47,7 +48,7 @@ vi.mock(
 );
 
 vi.mock(
-	"../../utils/scriptLogger",
+	"@/scripts/utils/scriptLogger",
 	(): {
 		warn: typeof warn;
 		error: typeof error;

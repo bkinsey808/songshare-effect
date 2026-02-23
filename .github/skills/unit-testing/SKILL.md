@@ -22,13 +22,20 @@ metadata:
 
 **Step-by-step**
 
+_Note:_ helper modules intended solely for unit tests should be named with a `.test-util.ts` or `.test-util.tsx` suffix (singular) so their purpose is obvious and they don’t get mistaken for production code.
+
 1. Use the included `test-template.test.ts` as a starting point for new tests.
 2. Prefer descriptive test names and one behavior per test.
 3. Use `vi.useFakeTimers()` only when verifying timer behavior and always restore with `vi.useRealTimers()`.
-4. Mock external network calls and browser APIs at the module boundary.
-5. Leverage the growing set of shared helpers under `react/src/lib/test-utils` (e.g. `asNull`, `asNever`, `asPostgrestResponse`, `waitForAsync`, DOM event generators, `spyImport`, `makeAppSlice`). Add to that folder when you need reusable boilerplate instead of inlining it in tests.
-6. Run `npm run lint && npx tsc -b . && npm run test:unit -- <file> --coverage` to validate formatting, types, and tests.
-7. Prefer asserting against mock data variables (not duplicated literal strings). Define constants for mock inputs (e.g., `const songId = "s1"`) and use those variables in both setup and expectations to avoid mismatches and improve test clarity.
+
+4. **RouterWrapper** – most hook tests need React Router context. Instead of copying a wrapper around every file, import `RouterWrapper` from `@/react/lib/test-utils/RouterWrapper` and pass it as the `wrapper` option to `renderHook`. Doing so avoids duplication and keeps routes consistent.
+5. Mock only external dependencies such as network calls or browser APIs at the module boundary. **Simple, deterministic pure functions should be exercised with their real implementations**; mocking them just adds maintenance burden and can hide problems.
+6. Leverage the growing set of shared helpers under `react/src/lib/test-utils` (e.g. `asNull`, `asNever`, `asPostgrestResponse`, `waitForAsync`, DOM event generators, `spyImport`, `makeAppSlice`).
+   - For DOM events the `makeChangeEvent` helper builds a properly‑typed `React.ChangeEvent<HTMLInputElement>` so tests don’t need unsafe casts.
+   - If you find yourself sprinkling `// oxlint-disable` comments around tests, consider moving that logic into a helper or fixing the underlying type mismatch; avoid in‑test disables when possible.
+     Add to that folder when you need reusable boilerplate instead of inlining it in tests.
+7. Run `npm run lint && npx tsc -b . && npm run test:unit -- <file> --coverage` to validate formatting, types, and tests.
+8. Prefer asserting against mock data variables (not duplicated literal strings). Define constants for mock inputs (e.g., `const songId = "s1"`) and use those variables in both setup and expectations to avoid mismatches and improve test clarity.
 
 ## Examples
 
@@ -164,12 +171,139 @@ describe("myHandler", () => {
 });
 ```
 
+## Reusable Test Helper Patterns
+
+### Callable Mock Setup Functions
+
+When creating shared test helper modules (e.g., helpers for mocking hooks or services across multiple test files), structure them as **callable functions** rather than auto-executing module-level code:
+
+```typescript
+// react/src/event/manage/test-utils/mockUseSlideManagerView.ts
+import { vi } from "vitest";
+
+let mockFn: ReturnType<typeof vi.fn> | undefined = undefined;
+
+/**
+ * Set up the mock for useSlideManagerView.
+ * Must be called explicitly in each test before using the hook.
+ * @returns The mock function for inspection
+ */
+export default function mockUseSlideManagerView(): ReturnType<typeof vi.fn> {
+  vi.resetModules(); // Clear module cache for fresh state
+  mockFn = vi.fn();
+  vi.doMock("@/react/event/manage/slide/useSlideManagerView", () => ({
+    default: mockFn,
+  }));
+  return mockFn;
+}
+
+/**
+ * Get the current mock function (used by setters).
+ * @returns The mock function if set up, undefined otherwise
+ */
+export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
+  return mockFn;
+}
+```
+
+**Benefits:**
+
+- ✅ Setup is explicit, not hidden at module load
+- ✅ Easy to reset per test; `vi.resetModules()` ensures clean state
+- ✅ Tests are self-documenting: you see `mockUseSlideManagerView()` called
+- ✅ No cross-test pollution when tests run in any order
+
+**Test usage:**
+
+```typescript
+it("updates state correctly", async () => {
+  mockUseSlideManagerView(); // Explicit setup call
+  setUseSlideManagerViewReturn(fakeState); // Then configure
+  // ... test assertions
+});
+```
+
+**Why not module-level side effects:**
+
+- ❌ Mock setup hidden at import time (unclear dependencies)
+- ❌ Hard to reset between tests (state leaks)
+- ❌ Test order becomes fragile
+- ❌ Harder to disable/modify for specific tests
+
+### Global Mock Storage Pattern
+
+When multiple helpers share a mock, use Vitest's `vi.hoisted()` to create an encapsulated scope that persists across the test—no module-level variables needed:
+
+```typescript
+// mockUseSlideManagerView.ts: stores mock state via vi.hoisted()
+import { vi } from "vitest";
+
+const mockState = vi.hoisted(
+  () =>
+    ({
+      mockFn: undefined as ReturnType<typeof vi.fn> | undefined,
+    }),
+);
+
+export default function mockUseSlideManagerView(): ReturnType<typeof vi.fn> {
+  vi.resetModules();
+  mockState.mockFn = vi.fn();
+  vi.doMock("@/react/event/manage/slide/useSlideManagerView", () => ({
+    default: mockState.mockFn,
+  }));
+  return mockState.mockFn;
+}
+
+export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
+  return mockState.mockFn;
+}
+```
+
+```typescript
+// setUseSlideManagerViewReturn.ts: retrieves and configures the mock
+import { getMockFn } from "./mockUseSlideManagerView";
+
+export default function setUseSlideManagerViewReturn(
+  val: UseSlideManagerViewResult,
+): void {
+  const mockFn = getMockFn();
+  if (!mockFn) {
+    throw new Error("Mock not set up. Call mockUseSlideManagerView() first.");
+  }
+  mockFn.mockReturnValue(val);
+}
+```
+
+**Why `vi.hoisted()`:**
+
+- ✅ Idiomatic Vitest pattern for shared mock state
+- ✅ Encapsulated scope (not exposed as module-level variable)
+- ✅ Automatically available in the test scope
+- ✅ Cleaner than raw `let` declarations
+
+This pattern keeps concerns separated while allowing helpers to coordinate without exposed module-level state.
+
 ### See Also
 
 - [**effect-ts-patterns skill**](../effect-ts-patterns/SKILL.md) — Error handling, Effect.gen, schema validation, dependency injection patterns
 - **Example test file:** `api/src/account/accountDelete.test.ts` — Implementation of patterns above
 
 ## Common Pitfalls
+
+- **Lint rule gaps** – some rules referenced in tests (`@typescript-eslint/no-magic-numbers`, `@typescript-eslint/no-unsafe-type-assertion`, etc.) aren’t actually enabled in the config, which can trigger meaningless warnings or require disables. If you see these messages in CI, don’t add a disable; instead file a repo issue so the rule can be added or the comment removed.
+- **`jest/no-untyped-mock-factory` warnings** – the jest/vitest plugin complains when you call `vi.mock()` without a generic parameter. Those generics often conflict with our TypeScript setup, so it’s safe to suppress the rule at the point where the mock is defined (preferably in a shared helper rather than at the top of every test). Example:
+
+  ```ts
+  // in react/src/event/manage/test-utils.ts
+  export function mockUseSlideManagerView(): void {
+      // eslint-disable-next-line jest/no-untyped-mock-factory
+      vi.doMock("./useSlideManagerView", () => ({ default: vi.fn() }));
+  }
+  ```
+
+  This keeps test files free of module‑level disables and centralizes the
+  exception. If you really must mock inline, disable the rule on that line and
+  include a comment explaining why.
 
 ### ❌ Global test state pollution
 
@@ -346,7 +480,7 @@ it("does something", () => {
 });
 ```
 
-**Helper template**: copy these examples into your tests or reuse the helpers directly — see `react/src/lib/test-utils/test-helper-template.ts` for `getCachedUserTokenSpy`, `getParseMock`, and `makeUnsafeMock`.
+**Helper template**: copy these examples into your tests or reuse the helpers directly — see `react/src/lib/test-utils/test-helper-template.ts` for `getCachedUserTokenSpy` and `makeUnsafeMock`. Helpers may also be co-located with the module they support; e.g. `getCachedUserToken.test-util.ts` lives in the same folder as `token-cache.ts` so tests nearby can import it with a simple relative path. Conversely, generic helpers that are reused across many tests belong under `react/src/lib/test-utils` — for example, `restoreFetch.test-util.ts` centralizes logic for resetting a stubbed `fetch` global. (pure validators like `parseUserSessionData` generally don't need mocks.)
 
 ## Validation Commands
 

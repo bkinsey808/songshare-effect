@@ -1,4 +1,4 @@
-import { getCachedSupabaseClientToken } from "../token/tokenCache";
+import { getCachedSupabaseClientToken } from "../token/token-cache";
 import fetchSupabaseClientTokenFromApi from "./fetchSupabaseClientTokenFromApi";
 
 /**

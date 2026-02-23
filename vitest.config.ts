@@ -42,6 +42,7 @@ export default defineConfig({
 			"@/react": path.resolve(workspaceDir, "./react/src"),
 			"@/shared": path.resolve(workspaceDir, "./shared/src"),
 			"@/api": path.resolve(workspaceDir, "./api/src"),
+			"@/scripts": path.resolve(workspaceDir, "./scripts"),
 		},
 	},
 	test: {

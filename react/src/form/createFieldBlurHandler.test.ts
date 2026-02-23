@@ -6,7 +6,7 @@ import type { ValidationError } from "@/shared/validation/validate-types";
 import validateForm from "@/shared/validation/validateForm";
 
 import createFieldBlurHandler from "./createFieldBlurHandler";
-import { makeDummySchema } from "./test-utils";
+import { makeDummySchema } from "./test-util";
 // stub logging so tests are quiet and we can inspect calls
 
 vi.mock("@/react/lib/utils/clientLogger", (): { clientDebug: typeof _clientDebug } => ({

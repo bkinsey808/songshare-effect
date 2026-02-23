@@ -3,22 +3,26 @@ import { describe, expect, it, vi } from "vitest";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import {
+	getCachedUserTokenSpy,
+	type GetCachedUserTokenSpy,
+} from "@/react/lib/supabase/token/getCachedUserToken.test-util";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
+import { restoreFetch } from "@/react/lib/test-utils/restoreFetch.test-util";
+import { spyClientError } from "@/react/lib/utils/clientError.test-util";
 import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
-// Helpers live in a companion file so this test never needs any
-// lint-disable comments. A custom rule (`no-disable-in-tests`) enforces the
-// separation.
 
-import makeAppSlice from "../../lib/test-utils/makeAppSlice";
 import ensureSignedIn from "./ensureSignedIn";
-import { getParseMock, getCachedUserTokenSpy, spyClientError, restoreFetch } from "./test-utils";
 
 vi.mock("@/react/app-store/useAppStore", (): { default: { getState: () => unknown } } => ({
 	default: { getState: vi.fn() },
 }));
 
-vi.mock("@/react/lib/supabase/token/tokenCache", (): { getCachedUserToken: () => unknown } => ({
+// `getCachedUserToken` is a simple exported function; mock via absolute path to match normal imports
+// and keep consistency with the spy helper above.
+vi.mock("@/react/lib/supabase/token/token-cache", (): { getCachedUserToken: () => unknown } => ({
 	getCachedUserToken: vi.fn(),
 }));
 vi.mock(
@@ -28,9 +32,6 @@ vi.mock(
 		clientError: vi.fn(),
 	}),
 );
-vi.mock("./parseUserSessionData", (): { default: (payload: unknown) => unknown } => ({
-	default: vi.fn(),
-}));
 
 const SAMPLE_USER_SESSION: UserSessionData = {
 	user: {
@@ -58,7 +59,7 @@ describe("ensureSignedIn", () => {
 	it("returns undefined immediately when store indicates signed out", async () => {
 		vi.resetAllMocks();
 
-		const mockedGetCachedUserTokenSpy = await getCachedUserTokenSpy();
+		const mockedGetCachedUserTokenSpy: GetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy.mockReturnValue(undefined);
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi.fn();
@@ -75,7 +76,7 @@ describe("ensureSignedIn", () => {
 
 	it("returns undefined immediately when signed in and cached token exists", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy = await getCachedUserTokenSpy();
+		const mockedGetCachedUserTokenSpy: GetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy.mockReturnValue("token-123");
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi.fn();
@@ -94,7 +95,7 @@ describe("ensureSignedIn", () => {
 		"treats %s as not signed in and sets isSignedIn(false)",
 		async (statusCode) => {
 			vi.resetAllMocks();
-			const mockedGetCachedUserTokenSpy = await getCachedUserTokenSpy();
+			const mockedGetCachedUserTokenSpy: GetCachedUserTokenSpy = await getCachedUserTokenSpy();
 			mockedGetCachedUserTokenSpy.mockReturnValue(undefined);
 			const setIsSignedIn = vi.fn();
 			vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
@@ -112,7 +113,7 @@ describe("ensureSignedIn", () => {
 
 	it("logs and sets signed out for server errors (non-ok) other than common unauthenticated statuses", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpyA = await getCachedUserTokenSpy();
+		const mockedGetCachedUserTokenSpyA: GetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpyA.mockReturnValue(undefined);
 		const setIsSignedIn = vi.fn();
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
@@ -130,7 +131,7 @@ describe("ensureSignedIn", () => {
 
 	it("handles json parse errors gracefully and logs them", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpyB = await getCachedUserTokenSpy();
+		const mockedGetCachedUserTokenSpyB: GetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpyB.mockReturnValue(undefined);
 		const store = { isSignedIn: undefined, signIn: vi.fn(), setIsSignedIn: vi.fn() };
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() => makeAppSlice({ ...store }));
@@ -153,7 +154,7 @@ describe("ensureSignedIn", () => {
 
 	it("applies signIn and sets signed in when payload parses to data", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy = await getCachedUserTokenSpy();
+		const mockedGetCachedUserTokenSpy: GetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy.mockReturnValue(undefined);
 		const signIn = vi.fn();
 		const setIsSignedIn = vi.fn();
@@ -161,18 +162,16 @@ describe("ensureSignedIn", () => {
 			makeAppSlice({ isSignedIn: undefined, signIn, setIsSignedIn }),
 		);
 
-		const payload = { foo: "bar" };
 		const data: UserSessionData = {
 			...SAMPLE_USER_SESSION,
 			user: { ...SAMPLE_USER_SESSION.user, user_id: "u1" },
 		};
+		const payload = data;
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi
 			.fn()
 			.mockResolvedValue({ status: 200, ok: true, json: vi.fn().mockResolvedValue(payload) });
 		vi.stubGlobal("fetch", fetchMock);
-		const parseMock = await getParseMock();
-		parseMock.mockReturnValue(data);
 
 		const res = await ensureSignedIn();
 		expect(res).toBe(data);
@@ -183,7 +182,7 @@ describe("ensureSignedIn", () => {
 
 	it("logs when signIn throws but continues", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy2 = await getCachedUserTokenSpy();
+		const mockedGetCachedUserTokenSpy2: GetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy2.mockReturnValue(undefined);
 		const signIn = vi.fn(() => {
 			throw new Error("sign fail");
@@ -193,18 +192,16 @@ describe("ensureSignedIn", () => {
 			makeAppSlice({ isSignedIn: undefined, signIn, setIsSignedIn }),
 		);
 
-		const payload = { foo: "bar" };
 		const data: UserSessionData = {
 			...SAMPLE_USER_SESSION,
 			user: { ...SAMPLE_USER_SESSION.user, user_id: "u2" },
 		};
+		const payload = data;
 		const originalFetch = globalThis.fetch;
 		const fetchMock = vi
 			.fn()
 			.mockResolvedValue({ status: 200, ok: true, json: vi.fn().mockResolvedValue(payload) });
 		vi.stubGlobal("fetch", fetchMock);
-		const parseMock = await getParseMock();
-		parseMock.mockReturnValue(data);
 
 		const mockedClientError = await spyClientError();
 		const res = await ensureSignedIn();
@@ -214,9 +211,9 @@ describe("ensureSignedIn", () => {
 		restoreFetch(originalFetch);
 	});
 
-	it("handles parseUserSessionData throwing by logging and returning undefined", async () => {
+	it("returns undefined when payload is invalid", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy3 = await getCachedUserTokenSpy();
+		const mockedGetCachedUserTokenSpy3: GetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy3.mockReturnValue(undefined);
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
 			makeAppSlice({ isSignedIn: undefined }),
@@ -226,21 +223,19 @@ describe("ensureSignedIn", () => {
 			.fn()
 			.mockResolvedValue({ status: 200, ok: true, json: vi.fn().mockResolvedValue({}) });
 		vi.stubGlobal("fetch", fetchMock);
-		const parseMock = await getParseMock();
-		parseMock.mockImplementation(() => {
-			throw new Error("parse failed");
-		});
 
+		// invalid payload leads parseUserSessionData to return undefined
 		const mockedClientError = await spyClientError();
 		const res = await ensureSignedIn();
 		expect(res).toBeUndefined();
-		expect(mockedClientError).toHaveBeenCalledWith("ensureSignedIn error", expect.any(Error));
+		// parse returns undefined; no error log should occur
+		expect(mockedClientError).not.toHaveBeenCalled();
 		restoreFetch(originalFetch);
 	});
 
 	it("returns undefined on AbortError without logging an error", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy4 = await getCachedUserTokenSpy();
+		const mockedGetCachedUserTokenSpy4: GetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy4.mockReturnValue(undefined);
 		vi.spyOn(mockedUseAppStore, "getState").mockImplementation(() =>
 			makeAppSlice({ isSignedIn: undefined }),
@@ -258,7 +253,7 @@ describe("ensureSignedIn", () => {
 
 	it("dedupes concurrent requests using globalInFlight", async () => {
 		vi.resetAllMocks();
-		const mockedGetCachedUserTokenSpy5 = await getCachedUserTokenSpy();
+		const mockedGetCachedUserTokenSpy5: GetCachedUserTokenSpy = await getCachedUserTokenSpy();
 		mockedGetCachedUserTokenSpy5.mockReturnValue(undefined);
 		const signIn = vi.fn();
 		const setIsSignedIn = vi.fn();

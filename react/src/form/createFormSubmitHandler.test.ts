@@ -1,7 +1,7 @@
 import { Effect, type Schema } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import { makeDeferred, makeDummySchema, mockedValidateFormEffect } from "@/react/form/test-utils";
+import { makeDeferred, makeDummySchema, mockedValidateFormEffect } from "@/react/form/test-util";
 import { clientDebug } from "@/react/lib/utils/clientLogger";
 import { ZERO } from "@/shared/constants/shared-constants";
 import { type ValidationError } from "@/shared/validation/validate-types";

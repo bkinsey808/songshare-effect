@@ -2,7 +2,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { warn as sWarn } from "../../utils/scriptLogger";
+import { warn as sWarn } from "@/scripts/utils/scriptLogger";
+
 import findBrowserExecutable from "./findBrowserExecutable";
 
 export default function browsersAlreadyInstalled(): boolean {

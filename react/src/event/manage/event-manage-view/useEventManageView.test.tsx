@@ -9,10 +9,11 @@ import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import makeEventEntry from "@/react/event/event-entry/makeEventEntry.mock";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import RouterWrapper from "@/react/lib/test-utils/RouterWrapper";
 import postJson from "@/shared/fetch/postJson";
 
-import { makeFakeManage } from "./test-utils"; // side-effect import registers shared router mock and helpers
-import useEventManageState from "./useEventManageState";
+import useEventManageState from "./useEventManageView";
+import makeUseManageView from "./useEventManageView.test-util";
 
 // named constants to avoid magic-number lint errors
 const CALL_COUNT_MIN = 1;
@@ -89,14 +90,15 @@ function installEventStoreMocks(overrides: StoreMocksOverrides = {}): {
 describe("useEventManageState", () => {
 	it("returns default state when no event is loaded", () => {
 		installEventStoreMocks();
+
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
 		// smoke check helper usage
-		const fake = makeFakeManage();
+		const fake = makeUseManageView();
 		expect(fake.canManageEvent).toBe(false);
 
-		const { result } = renderHook(() => useEventManageState());
+		const { result } = renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
 		expect(result.current.currentEvent).toBeUndefined();
 		expect(result.current.eventPublic).toBeUndefined();
 		expect(result.current.canManageEvent).toBe(false);
@@ -119,7 +121,7 @@ describe("useEventManageState", () => {
 		vi.mocked(useCurrentUserId).mockReturnValue("u1");
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
-		const { result } = renderHook(() => useEventManageState());
+		const { result } = renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
 		expect(result.current.currentEvent).toStrictEqual(event);
 		expect(result.current.canManageEvent).toBe(true);
 		expect(result.current.ownerId).toBe("u1");
@@ -131,7 +133,7 @@ describe("useEventManageState", () => {
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
-		renderHook(() => useEventManageState());
+		renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
 		await waitFor(() => {
 			expect(playlistSubSpy).toBeDefined();
 			expect(playlistSubSpy?.mock.calls.length).toBeGreaterThanOrEqual(CALL_COUNT_MIN);
@@ -145,7 +147,7 @@ describe("useEventManageState", () => {
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
-		renderHook(() => useEventManageState());
+		renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
 		await waitFor(() => {
 			// subscribe should be invoked with id array
 			expect(playlistPublicSpy).toBeDefined();
@@ -171,7 +173,7 @@ describe("useEventManageState", () => {
 		const mockPostJson = vi.mocked(postJson);
 		mockPostJson.mockResolvedValue();
 
-		const { result } = renderHook(() => useEventManageState());
+		const { result } = renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
 		result.current.updateActivePlaylist("playlist-123");
 		expect(mockPostJson).toHaveBeenCalledWith(
 			expect.any(String),
@@ -200,7 +202,7 @@ describe("useEventManageState", () => {
 		const mockPostJson = vi.mocked(postJson);
 		mockPostJson.mockResolvedValue();
 
-		const { result } = renderHook(() => useEventManageState());
+		const { result } = renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
 		result.current.updateActiveSong("song-abc");
 		const newSlidePos = 5; // avoid magic number lint
 		result.current.updateActiveSlidePosition(newSlidePos);
