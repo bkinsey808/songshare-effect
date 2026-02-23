@@ -1,3 +1,4 @@
+import { error as serverError } from "@/api/logger";
 import { HTTP_INTERNAL } from "@/shared/constants/http";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
@@ -12,18 +13,23 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 export default function handleAppError(err: unknown, _ctx: unknown): Response {
 	try {
 		if (err instanceof Error) {
-			console.error("[app.onError] Unhandled exception:", err.stack ?? err.message);
+			serverError("[app.onError] Unhandled exception:", err.stack ?? err.message);
 		} else {
-			console.error(
+			serverError(
 				"[app.onError] Unhandled exception (non-Error):",
 				extractErrorMessage(err, "Unknown error"),
 			);
 		}
 	} catch (error) {
-		console.error(
-			"[app.onError] Failed to log error:",
-			extractErrorMessage(error, "Unknown error"),
-		);
+		// protect against the logger itself throwing during the error path
+		try {
+			serverError(
+				"[app.onError] Failed to log error:",
+				extractErrorMessage(error, "Unknown error"),
+			);
+		} catch {
+			// nothing we can do; swallow to avoid masking original error
+		}
 	}
 
 	// Return a generic 500 response without leaking internals to clients

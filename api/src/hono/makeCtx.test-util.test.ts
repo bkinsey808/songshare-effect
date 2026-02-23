@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import makeCtx from "./makeCtx.mock";
+import makeCtx from "./makeCtx.test-util";
 
 describe("makeCtx helper", () => {
 	it("returns default env values and default request body", async () => {

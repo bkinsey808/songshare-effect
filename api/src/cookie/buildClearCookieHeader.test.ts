@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import buildSetCookieHeader from "@/api/cookie/buildSetCookieHeader";
-import makeCtx from "@/api/test-utils/makeCtx.mock";
+import makeCtx from "@/api/hono/makeCtx.test-util";
 
 import buildClearCookieHeader from "./buildClearCookieHeader";
 

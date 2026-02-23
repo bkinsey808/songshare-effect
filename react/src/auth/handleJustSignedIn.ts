@@ -16,10 +16,9 @@ import { retryWithBackoff } from "@/shared/utils/retryWithBackoff";
  * so downstream UI can show a one-time success message, and finally
  * removes the `justSignedIn` query param and navigates with `replace`.
  *
- * @param params - Parameters object containing next, setSearchParams, and navigate
- * @param params.next - A URLSearchParams instance describing the next search params (the function will remove the `justSignedIn` param).
- * @param params.setSearchParams - Setter returned by React Router's `useSearchParams` used to update the URL.
- * @param params.navigate - React Router's `navigate` function used to perform the final replace navigation.
+ * @param next - A URLSearchParams instance describing the next search params (the function will remove the `justSignedIn` param).
+ * @param setSearchParams - Setter returned by React Router's `useSearchParams` used to update the URL.
+ * @param navigate - React Router's `navigate` function used to perform the final replace navigation.
  * @returns A promise that resolves once navigation has been triggered.
  */
 export default async function handleJustSignedIn({

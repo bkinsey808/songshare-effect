@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import makeCtx from "@/api/test-utils/makeCtx.mock";
+import makeCtx from "@/api/hono/makeCtx.test-util";
 
 import getIpAddress from "./getIpAddress";
 

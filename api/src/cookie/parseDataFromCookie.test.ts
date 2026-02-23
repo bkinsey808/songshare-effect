@@ -2,9 +2,9 @@ import { Schema } from "effect";
 import { verify } from "hono/jwt";
 import { describe, expect, it, vi } from "vitest";
 
-import makeCtx from "@/api/test-utils/makeCtx.mock";
+import makeCtx from "@/api/hono/makeCtx.test-util";
 import { mockDecodeReturn, mockDecodeThrow } from "@/api/test-utils/makeDecodeUnknownSync.mock";
-import { mockVerifySuccess, mockVerifyFailure } from "@/api/test-utils/makeHonoJwt.mock";
+import { mockVerifyFailure, mockVerifySuccess } from "@/api/test-utils/makeHonoJwt.mock";
 
 import { parseDataFromCookie } from "./parseDataFromCookie";
 

@@ -17,6 +17,10 @@ type MakeCtxOpts = {
 	body?: unknown;
 	env?: Partial<Env>;
 	headers?: Record<string, string>;
+	/** Spy for `ctx.header` (response‑side header setter) */
+	header?: (name: string, value: string) => void;
+	/** Override request properties such as method */
+	req?: Partial<{ method: string }>;
 	/** Optional spy for `res.headers.append` — pass `vi.fn()` in tests when you need assertions */
 	resHeadersAppend?: (name: string, value: string) => void;
 };
@@ -46,11 +50,22 @@ export default function makeCtx(opts: MakeCtxOpts = {}): ReadonlyContext {
 		},
 		header: (_name: string) => opts.headers?.[_name] ?? "",
 		url: "https://example.test/api/test",
+		method: opts.req?.method ?? "GET",
 	} as unknown;
 
 	const res = { headers: { append: opts.resHeadersAppend ?? noop } } as unknown;
+
+	// `ctx.header` is a convenience wrapper Hono provides; allow tests to inject
+	// a spy for it.
+	const headerFn = opts.header ?? ((): void => undefined);
 	// Return a minimal ReadonlyContext for tests. Keep the unsafe cast localized
 	// so test files don't need to repeat inline eslint disables.
 	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion, @typescript-eslint/no-unsafe-assignment -- test-only narrow cast to ReadonlyContext */
-	return { env, req, res, json: (body: unknown) => body } as unknown as ReadonlyContext;
+	return {
+		env,
+		req,
+		res,
+		header: headerFn,
+		json: (body: unknown) => body,
+	} as unknown as ReadonlyContext;
 }

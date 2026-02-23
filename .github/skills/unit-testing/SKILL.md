@@ -30,6 +30,21 @@ _Note:_ helper modules intended solely for unit tests should be named with a `.t
 
 4. **RouterWrapper** – most hook tests need React Router context. Instead of copying a wrapper around every file, import `RouterWrapper` from `@/react/lib/test-utils/RouterWrapper` and pass it as the `wrapper` option to `renderHook`. Doing so avoids duplication and keeps routes consistent.
 5. Mock only external dependencies such as network calls or browser APIs at the module boundary. **Simple, deterministic pure functions should be exercised with their real implementations**; mocking them just adds maintenance burden and can hide problems.
+
+   For server‑side API code avoid sprinkling `console.log/console.warn` etc. –
+   use the shared `@/api/logger` helpers (`log/debug/warn/error`). Tests can
+   spy on these exported functions (`vi.spyOn(logger, "warn")`) instead of
+   stubbing globals, which keeps the logging behaviour consistent and makes
+   it easier to suppress or inspect output in CI.
+
+   A "pure" helper returns the same value for the same input and has no side
+   effects (no internal state, I/O, timers, etc.). When you stub one you gain
+   nothing: you already control its behavior by choosing the arguments, and a
+   mock can mask bugs in the helper. The CORS middleware tests previously
+   mocked `getAllowedOrigins` even though the real function is a tiny pure
+   parser; switching that test to call the real helper directly makes it easier
+   to read and prevents regressions if someone later tweaks the parsing logic.
+
 6. Leverage the growing set of shared helpers under `react/src/lib/test-utils` (e.g. `asNull`, `asNever`, `asPostgrestResponse`, `waitForAsync`, DOM event generators, `spyImport`, `makeAppSlice`).
    - For DOM events the `makeChangeEvent` helper builds a properly‑typed `React.ChangeEvent<HTMLInputElement>` so tests don’t need unsafe casts.
    - If you find yourself sprinkling `// oxlint-disable` comments around tests, consider moving that logic into a helper or fixing the underlying type mismatch; avoid in‑test disables when possible.

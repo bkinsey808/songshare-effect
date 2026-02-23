@@ -2,15 +2,7 @@
 // Centralized server-side logger used to keep debug/error calls in one place.
 // Keep a single, file-scoped disable here so other files don't need per-line
 
-type Logger = {
-	readonly log: (...args: unknown[]) => void;
-	readonly debug: (...args: unknown[]) => void;
-	readonly warn: (...args: unknown[]) => void;
-	readonly error: (...args: unknown[]) => void;
-};
-
-const logger: Logger = { log, debug, warn, error };
-
+// no default logger value; individual functions are exported instead
 // oxlint-disable comments for console usage.
 
 /**
@@ -54,4 +46,4 @@ export function error(...args: unknown[]): void {
 	console.error(...args);
 }
 
-export default logger;
+// default export removed in favor of named exports only

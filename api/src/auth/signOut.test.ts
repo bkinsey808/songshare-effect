@@ -4,7 +4,7 @@ import { AuthenticationError } from "@/api/api-errors";
 import buildClearCookieHeader from "@/api/cookie/buildClearCookieHeader";
 import { userSessionCookieName } from "@/api/cookie/cookie";
 import verifySameOriginOrThrow from "@/api/csrf/verifySameOriginOrThrow";
-import makeCtx from "@/api/test-utils/makeCtx.mock";
+import makeCtx from "@/api/hono/makeCtx.test-util";
 import { HTTP_INTERNAL } from "@/shared/constants/http";
 
 import signOutHandler from "./signOut";

@@ -13,6 +13,9 @@ export type Env = {
 	OAUTH_REDIRECT_ORIGIN?: string;
 	OAUTH_REDIRECT_PATH?: string;
 	ALLOWED_REDIRECT_ORIGINS?: string;
+	// Comma-separated list used by CORS middleware tests and runtime config
+	// (credentials require explicit origins; wildcard "*" is ignored).
+	ALLOWED_ORIGINS?: string;
 	// Optional platform bindings to make Env compatible with full worker
 	// `Bindings` used at runtime. These are optional here so that a
 	// `Bindings = Env & { BUCKET: R2Bucket; ENVIRONMENT: string }` type
