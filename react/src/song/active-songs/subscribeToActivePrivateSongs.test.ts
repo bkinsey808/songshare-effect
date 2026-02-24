@@ -6,8 +6,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
-import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 

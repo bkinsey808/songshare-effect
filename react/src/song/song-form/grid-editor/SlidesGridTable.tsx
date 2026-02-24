@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import cssVars from "@/react/lib/utils/cssVars";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { safeGet } from "@/shared/utils/safe";
 
 import { type Slide } from "../song-form-types";

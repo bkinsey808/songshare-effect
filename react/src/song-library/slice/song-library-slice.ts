@@ -3,7 +3,7 @@ import type { Effect } from "effect";
 // Song Library Zustand slice with subscription functionality
 // Zustand StateCreator type is not required here — slices are declared as named functions.
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 

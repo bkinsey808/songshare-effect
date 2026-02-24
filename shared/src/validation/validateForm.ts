@@ -10,7 +10,15 @@ import { type ValidationResult } from "./validate-types";
 import validateFormEffect from "./validateFormEffect";
 
 /**
- * Validate form data using Effect schema
+ * Run a schema validation against an arbitrary value and convert the
+ * result into our `ValidationResult` shape, which is easier for callers to
+ * consume than raw Effect failures.
+ *
+ * @param schema - Effect validation schema for the expected form values
+ * @param data - value being validated (usually user input)
+ * @param i18nMessageKey - key used when translating validation messages
+ * @returns success and typed data when validation passes, or a list of
+ *   field-specific errors on failure
  */
 export default function validateForm<FormValues>({
 	schema,

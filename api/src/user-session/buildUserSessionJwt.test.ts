@@ -36,7 +36,7 @@ describe("buildUserSessionJwt", () => {
 		const ctx = makeCtx();
 
 		// validation passes
-		const decodeModule = await import("@/shared/validation/decode-effect");
+		const decodeModule = await import("@/shared/validation/decodeUnknownEffectOrMap");
 		vi.spyOn(decodeModule, "default").mockReturnValue(Effect.succeed(true));
 
 		// sign the JWT
@@ -62,7 +62,7 @@ describe("buildUserSessionJwt", () => {
 		const supabase = makeSupabaseClient(); // userPublicMaybe undefined
 		const ctx = makeCtx();
 
-		const decodeModule = await import("@/shared/validation/decode-effect");
+		const decodeModule = await import("@/shared/validation/decodeUnknownEffectOrMap");
 		vi.spyOn(decodeModule, "default").mockReturnValue(Effect.succeed(true));
 
 		const createJwtMod = await import("@/api/oauth/createJwt");
@@ -88,7 +88,7 @@ describe("buildUserSessionJwt", () => {
 		const ctx = makeCtx({ env: { JWT_SECRET: "" } });
 
 		// ensure validation would pass if reached
-		const decodeModule = await import("@/shared/validation/decode-effect");
+		const decodeModule = await import("@/shared/validation/decodeUnknownEffectOrMap");
 		vi.spyOn(decodeModule, "default").mockReturnValue(Effect.succeed(true));
 
 		const createJwtMod = await import("@/api/oauth/createJwt");
@@ -113,7 +113,7 @@ describe("buildUserSessionJwt", () => {
 		const supabase = makeSupabaseClient();
 		const ctx = makeCtx();
 
-		const decodeModule = await import("@/shared/validation/decode-effect");
+		const decodeModule = await import("@/shared/validation/decodeUnknownEffectOrMap");
 		vi.spyOn(decodeModule, "default").mockReturnValue(
 			Effect.fail(new ValidationError({ message: "Invalid session" })),
 		);

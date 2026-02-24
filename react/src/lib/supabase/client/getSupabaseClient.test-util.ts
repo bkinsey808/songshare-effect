@@ -1,60 +1,24 @@
-import { createClient } from "@supabase/supabase-js";
-import { vi, expect, type MockedFunction } from "vitest";
+import type { createClient } from "@supabase/supabase-js";
 
-import { getEnvValueSafe } from "@/react/lib/utils/env";
+import { expect, vi } from "vitest";
 
 import type { SupabaseClientLike } from "./SupabaseClientLike";
 
-import getGlobalClientCache from "./getGlobalClientCache";
-import guardAsSupabaseClientLike from "./guards/guardAsSupabaseClientLike";
-
-/* oxlint-disable @typescript-eslint/no-unsafe-call,
-   @typescript-eslint/no-unsafe-member-access,
-   @typescript-eslint/no-unsafe-return,
-   @typescript-eslint/no-unsafe-assignment,
-   @typescript-eslint/no-unsafe-type-assertion,
-   @typescript-eslint/no-magic-numbers,
-   no-disable-in-tests/no-disable-in-tests,
-   import/exports-last */
-
-// helpers ------------------------------------------------------------------
+/**
+ * Reset mocks and provide a sane default environment.
+ *
+ * This helper is invoked explicitly in each test to avoid jest-hooks lint
+ * rules and to document state per-test.
+ */
 
 /** Minimal client type used by tests */
-export type FakeClient = SupabaseClientLike & {
+type FakeClient = SupabaseClientLike & {
 	readonly realtime: {
 		setAuth: (token: string) => void;
 	};
 };
 
-export function makeFakeClient(): FakeClient {
-	const realtime = { setAuth: vi.fn() };
-	// return a partial object and assert to satisfy supabase type
-	return { realtime } as unknown as FakeClient;
-}
-
-// mocks --------------------------------------------------------------------
-vi.mock("@/react/lib/utils/env");
-vi.mock("./getGlobalClientCache");
-vi.mock("./guards/guardAsSupabaseClientLike");
-vi.mock("@supabase/supabase-js");
-
-export const envMock: MockedFunction<typeof getEnvValueSafe> = vi.mocked(getEnvValueSafe);
-export const cacheMock: MockedFunction<typeof getGlobalClientCache> =
-	vi.mocked(getGlobalClientCache);
-export const guardMock: MockedFunction<typeof guardAsSupabaseClientLike> =
-	vi.mocked(guardAsSupabaseClientLike);
-export const createClientMock: MockedFunction<typeof createClient> = vi.mocked(createClient);
-
-// timing constants used in tests
-export const MS_IN_MINUTE = 60_000;
-export const MINUTES_PER_HOUR = 60;
-export const EVICTION_BUFFER_MINUTES = 2;
-
-export const HOUR_MS = MINUTES_PER_HOUR * MS_IN_MINUTE;
-export const TWO_MINUTES_MS = EVICTION_BUFFER_MINUTES * MS_IN_MINUTE;
-
-// cache shared across tests
-export const globalCache = new Map<string, FakeClient>();
+// mocks are managed locally below
 
 /**
  * Cast a `FakeClient` to the real return type of `createClient`.
@@ -65,22 +29,73 @@ export const globalCache = new Map<string, FakeClient>();
  * `oxlint-disable` comments.
  */
 export function toCreateClientReturn(client: FakeClient): ReturnType<typeof createClient> {
+	// oxlint-disable-next-line typescript/no-unsafe-type-assertion
 	return client as unknown as ReturnType<typeof createClient>;
 }
 
 /**
- * Reset mocks and provide a sane default environment.
+ * Build a matcher for the third options argument passed to createClient.
  *
- * This helper is invoked explicitly in each test to avoid jest-hooks lint
- * rules and to document state per-test.
+ * The matcher logic lives here to keep `no-unsafe-assignment` disables out of
+ * the test file itself; this module already globally disables the rule.
  */
-export function setup(): void {
-	// clear module cache to ensure mocks apply to freshly imported modules
+export function createClientOptionsMatcher(token: string): object {
+	// oxlint-disable-next-line typescript/no-unsafe-return
+	return expect.objectContaining({
+		// oxlint-disable-next-line typescript/no-unsafe-assignment
+		auth: expect.any(Object),
+		// oxlint-disable-next-line typescript/no-unsafe-assignment
+		global: expect.objectContaining({
+			headers: { Authorization: `Bearer ${token}` },
+		}),
+	});
+}
+
+export function makeFakeClient(): FakeClient {
+	const realtime = { setAuth: vi.fn() };
+	// return a partial object and assert to satisfy supabase type
+	// oxlint-disable-next-line typescript/no-unsafe-type-assertion
+	return { realtime } as unknown as FakeClient;
+}
+
+export async function setup(): Promise<{
+	envMockInternal: ReturnType<typeof vi.fn>;
+	cacheMockInternal: ReturnType<typeof vi.fn>;
+	guardMockInternal: ReturnType<typeof vi.fn>;
+	createClientMockInternal: ReturnType<typeof vi.fn>;
+	globalCache: Map<string, FakeClient>;
+}> {
 	vi.resetModules();
+	vi.doMock("@/react/lib/utils/env");
+	vi.doMock("./getGlobalClientCache");
+	vi.doMock("./guards/guardAsSupabaseClientLike");
+	vi.doMock("@supabase/supabase-js");
 	vi.resetAllMocks();
 
-	// ensure env returns defined values by default
-	envMock.mockImplementation((key: string) => {
+	// internal mock references; assigned by setup()
+	// oxlint-disable-next-line init-declarations
+	let envMockInternal: ReturnType<typeof vi.fn>;
+	// oxlint-disable-next-line init-declarations
+	let cacheMockInternal: ReturnType<typeof vi.fn>;
+	// oxlint-disable-next-line init-declarations
+	let guardMockInternal: ReturnType<typeof vi.fn>;
+	// oxlint-disable-next-line init-declarations
+	let createClientMockInternal: ReturnType<typeof vi.fn>;
+
+	const { getEnvValueSafe } = await import("@/react/lib/utils/env");
+	const { default: _cache } = await import("./getGlobalClientCache");
+	const { default: _guard } = await import("./guards/guardAsSupabaseClientLike");
+	const { createClient: _createClient } = await import("@supabase/supabase-js");
+
+	envMockInternal = vi.mocked(getEnvValueSafe);
+	cacheMockInternal = vi.mocked(_cache);
+	guardMockInternal = vi.mocked(_guard);
+	createClientMockInternal = vi.mocked(_createClient);
+
+	// cache shared across tests
+	const globalCache = new Map<string, FakeClient>();
+
+	envMockInternal.mockImplementation((key: string) => {
 		if (key === "SUPABASE_URL") {
 			return "https://example.supabase.co";
 		}
@@ -89,33 +104,30 @@ export function setup(): void {
 		}
 		return undefined;
 	});
-
-	// provide a shared cache for tests that need caching behavior
 	globalCache.clear();
-	// cast to match supabase client map
-	cacheMock.mockReturnValue(globalCache as unknown as Map<string, ReturnType<typeof createClient>>);
+	/*
+		   cacheMockInternal returns a Map full of fake clients; the cast is
+		   intentionally loose and already lives in a helper file.  Move the
+		   assertion onto its own variable so the `oxlint-disable` can sit on the
+		   line that actually triggers the rule.
+		*/
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+	const looseCache: unknown = globalCache;
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+	cacheMockInternal.mockReturnValue(looseCache as Map<string, ReturnType<typeof createClient>>);
+	// oxlint-disable-next-line @typescript-eslint/no-explicit-any, id-length, @typescript-eslint/no-unsafe-return
+	guardMockInternal.mockImplementation((client: any) => client);
+	// the fake client is typed `any` internally; put the cast on the variable so
+	// the linter comment can disable it directly
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+	const looseCreate = makeFakeClient() as unknown as ReturnType<typeof createClient>;
+	createClientMockInternal.mockImplementation(() => looseCreate);
 
-	// guard just returns its input
-	// oxlint-disable-next-line @typescript-eslint/no-explicit-any
-	guardMock.mockImplementation((client: any) => client);
-
-	// createClient returns a new fake client each time
-	// ensure return type aligns with actual supabase client
-	createClientMock.mockImplementation(
-		() => makeFakeClient() as unknown as ReturnType<typeof createClient>,
-	);
-}
-/**
- * Build a matcher for the third options argument passed to createClient.
- *
- * The matcher logic lives here to keep `no-unsafe-assignment` disables out of
- * the test file itself; this module already globally disables the rule.
- */
-export function createClientOptionsMatcher(token: string): object {
-	return expect.objectContaining({
-		auth: expect.any(Object),
-		global: expect.objectContaining({
-			headers: { Authorization: `Bearer ${token}` },
-		}),
-	});
+	return {
+		envMockInternal,
+		cacheMockInternal,
+		guardMockInternal,
+		createClientMockInternal,
+		globalCache,
+	};
 }

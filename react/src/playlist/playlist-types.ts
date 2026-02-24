@@ -5,7 +5,7 @@ import type {
 	PlaylistPublic,
 	PlaylistPublicInsert,
 } from "@/shared/generated/supabaseSchemas";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 // Re-export the generated types
 export type { Playlist, PlaylistInsert, PlaylistPublic, PlaylistPublicInsert };

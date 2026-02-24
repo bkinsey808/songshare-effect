@@ -10,7 +10,7 @@ import type { SongPublic } from "@/react/song/song-schema";
 import { type Get } from "@/react/app-store/app-store-types";
 import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import isRecord from "@/shared/type-guards/isRecord";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import { type SongSubscribeSlice } from "../song-slice/song-slice";
 

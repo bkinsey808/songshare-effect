@@ -11,7 +11,7 @@ import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
 import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
 import { songFields } from "@/react/song/song-schema";
 import { ONE } from "@/shared/constants/shared-constants";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { safeGet } from "@/shared/utils/safe";
 
 import hashToHue from "../grid-editor/duplicateTint";

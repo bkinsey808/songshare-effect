@@ -1,9 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
 import handleJustSignedIn from "@/react/auth/handleJustSignedIn";
-import { justSignedInQueryParam, signinErrorQueryParam } from "@/shared/queryParams";
-import { SigninErrorToken } from "@/shared/signinTokens";
+import {
+	justSignedInQueryParam,
+	queryParamTokens,
+	signinErrorQueryParam,
+} from "@/shared/queryParams";
 import { retryWithBackoff } from "@/shared/utils/retryWithBackoff";
+
+const signinErrorTokens = queryParamTokens[signinErrorQueryParam];
 
 vi.mock("@/shared/utils/retryWithBackoff");
 
@@ -42,7 +47,7 @@ describe("handleJustSignedIn", () => {
 
 		await handleJustSignedIn({ next, setSearchParams, navigate });
 
-		expect(next.get(signinErrorQueryParam)).toBe(SigninErrorToken.serverError);
+		expect(next.get(signinErrorQueryParam)).toBe(signinErrorTokens.serverError);
 		expect(setSearchParams).toHaveBeenCalledWith(next, { replace: true });
 		expect(navigate).toHaveBeenCalledWith(expect.any(String), { replace: true });
 		// `next` should have the signin error token set; navigate will be called with the updated query string

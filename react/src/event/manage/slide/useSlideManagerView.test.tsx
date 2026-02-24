@@ -21,8 +21,8 @@ import useSlideManagerView from "./useSlideManagerView";
 vi.mock("@/react/lib/language/useCurrentLang");
 vi.mock("@/shared/language/buildPathWithLang");
 
-// mocks for dependent hooks
-vi.mock("../useEventManageState");
+// mocks for dependent hooks (paths must match imports)
+vi.mock("../event-manage-view/useEventManageView");
 vi.mock("@/react/event/view/useEventView");
 vi.mock("@/react/event/form/useActiveSongSelectionState");
 vi.mock("@/react/auth/useCurrentUserId");
@@ -56,11 +56,7 @@ function initBasicState(): {
 	return { fakeManage, fakeView, fakeSelection };
 }
 
-// mocks for dependent hooks
-vi.mock("../useEventManageState");
-vi.mock("@/react/event/view/useEventView");
-vi.mock("@/react/event/form/useActiveSongSelectionState");
-vi.mock("@/react/auth/useCurrentUserId");
+// (no additional mocks needed; already configured above)
 
 describe("useSlideManagerState", () => {
 	it("computes initial values correctly", () => {

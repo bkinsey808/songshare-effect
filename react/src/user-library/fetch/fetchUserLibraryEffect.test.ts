@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { PostgrestResponse } from "@/react/lib/supabase/client/SupabaseClientLike";
 
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
-import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";

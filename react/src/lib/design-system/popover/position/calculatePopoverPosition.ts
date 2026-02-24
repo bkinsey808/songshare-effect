@@ -1,4 +1,4 @@
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import type { PlacementConfig, PlacementOption, PopoverPosition } from "../popover-types";
 

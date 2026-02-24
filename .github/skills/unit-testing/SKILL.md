@@ -30,25 +30,13 @@ _Note:_ helper modules intended solely for unit tests should be named with a `.t
 
 4. **RouterWrapper** – most hook tests need React Router context. Instead of copying a wrapper around every file, import `RouterWrapper` from `@/react/lib/test-utils/RouterWrapper` and pass it as the `wrapper` option to `renderHook`. Doing so avoids duplication and keeps routes consistent.
 5. Mock only external dependencies such as network calls or browser APIs at the module boundary. **Simple, deterministic pure functions should be exercised with their real implementations**; mocking them just adds maintenance burden and can hide problems.
-
-   For server‑side API code avoid sprinkling `console.log/console.warn` etc. –
-   use the shared `@/api/logger` helpers (`log/debug/warn/error`). Tests can
-   spy on these exported functions (`vi.spyOn(logger, "warn")`) instead of
-   stubbing globals, which keeps the logging behaviour consistent and makes
-   it easier to suppress or inspect output in CI.
-
-   A "pure" helper returns the same value for the same input and has no side
-   effects (no internal state, I/O, timers, etc.). When you stub one you gain
-   nothing: you already control its behavior by choosing the arguments, and a
-   mock can mask bugs in the helper. The CORS middleware tests previously
-   mocked `getAllowedOrigins` even though the real function is a tiny pure
-   parser; switching that test to call the real helper directly makes it easier
-   to read and prevents regressions if someone later tweaks the parsing logic.
-
 6. Leverage the growing set of shared helpers under `react/src/lib/test-utils` (e.g. `asNull`, `asNever`, `asPostgrestResponse`, `waitForAsync`, DOM event generators, `spyImport`, `makeAppSlice`).
    - For DOM events the `makeChangeEvent` helper builds a properly‑typed `React.ChangeEvent<HTMLInputElement>` so tests don’t need unsafe casts.
    - If you find yourself sprinkling `// oxlint-disable` comments around tests, consider moving that logic into a helper or fixing the underlying type mismatch; avoid in‑test disables when possible.
      Add to that folder when you need reusable boilerplate instead of inlining it in tests.
+   - **Helper modules should not contain top‑level `vi.mock` calls.**
+     Instead export a callable function (e.g. `mockFoo()`) that uses `vi.doMock` or `vi.mock` when invoked, and provide accessors for the mocked functions.
+     This mirrors patterns in `react/src/form/test-util.ts` and `react/src/lib/supabase/client/getSupabaseClient.test-util.ts` and prevents hoisting surprises.
 7. Run `npm run lint && npx tsc -b . && npm run test:unit -- <file> --coverage` to validate formatting, types, and tests.
 8. Prefer asserting against mock data variables (not duplicated literal strings). Define constants for mock inputs (e.g., `const songId = "s1"`) and use those variables in both setup and expectations to avoid mismatches and improve test clarity.
 
@@ -240,6 +228,70 @@ it("updates state correctly", async () => {
 
 **Why not module-level side effects:**
 
+---
+
+### Avoid lifecycle hooks in unit tests
+
+We recently consolidated a pattern for tests that need to install mocks and
+then import modules that depend on those mocks. The lint rule `jest/no-hooks`
+is enabled and will error whenever a `beforeAll`/`beforeEach`/`after*` hook
+appears anywhere in a test file, so instead of relying on hooks we recommend
+putting all setup into an `async init()` helper defined inside the
+`describe` block.
+
+```ts
+describe("foo handler", () => {
+  async function init() {
+    vi.resetModules();              // clear cache for fresh imports
+    mockFoo();                       // install any doMocks
+
+    const { default: handler } = await import("./fooHandler");
+    const { foo } = await import("./foo");
+
+    const mockedFoo = vi.mocked(foo);
+    return { handler, mockedFoo };
+  }
+
+  it("works", async () => {
+    const { handler, mockedFoo } = await init();
+    mockedFoo.mockReturnValue(42);
+
+    const res = handler();
+    expect(res).toBe(42);
+  });
+});
+```
+
+This keeps each spec self-contained, avoids shared state between tests, and
+fits cleanly with existing lint rules.  You can still `vi.resetAllMocks()` or
+other per-test resets inside the test body as needed.
+
+---
+
+### Typed mock retrieval helpers
+
+Sometimes tests need a strongly‑typed reference to a mocked module that also
+uses generics.  A convenient pattern is to export a helper from your shared
+test-util which does the import and casts once, catching any `any` complaints
+in a single place rather than in every test.
+
+```ts
+// in test-util.ts
+export async function getValidateFormEffectMock(): Promise<ValidateFormEffectMock> {
+  const { default: _validateFormEffect } =
+    await import("@/shared/validation/validateFormEffect");
+  // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+  return vi.mocked(_validateFormEffect) as unknown as ValidateFormEffectMock;
+}
+```
+
+Tests then simply `await getValidateFormEffectMock()` after calling the
+`mockValidateFormEffect()` setup helper.  The disable comment is contained in
+the util file, keeping test files lint-clean.
+
+---
+
+
 - ❌ Mock setup hidden at import time (unclear dependencies)
 - ❌ Hard to reset between tests (state leaks)
 - ❌ Test order becomes fragile
@@ -305,13 +357,15 @@ This pattern keeps concerns separated while allowing helpers to coordinate witho
 
 ## Common Pitfalls
 
+- **Avoid magic numbers** – hundreds of tests have gotten noisy due to bare `1`, `0`, `42` etc. When you need a literal in an expectation or return value, extract it to a named constant or use a shared helper (e.g. `const expectedOnce = 1`, or import `ZERO` from shared constants). This keeps the intent clear, satisfies `no-magic-numbers` lint when enabled, and makes it easier to update if the value ever changes.
+
 - **Lint rule gaps** – some rules referenced in tests (`@typescript-eslint/no-magic-numbers`, `@typescript-eslint/no-unsafe-type-assertion`, etc.) aren’t actually enabled in the config, which can trigger meaningless warnings or require disables. If you see these messages in CI, don’t add a disable; instead file a repo issue so the rule can be added or the comment removed.
 - **`jest/no-untyped-mock-factory` warnings** – the jest/vitest plugin complains when you call `vi.mock()` without a generic parameter. Those generics often conflict with our TypeScript setup, so it’s safe to suppress the rule at the point where the mock is defined (preferably in a shared helper rather than at the top of every test). Example:
 
   ```ts
   // in react/src/event/manage/test-utils.ts
   export function mockUseSlideManagerView(): void {
-      // eslint-disable-next-line jest/no-untyped-mock-factory
+      // oxlint-disable-next-line jest/no-untyped-mock-factory
       vi.doMock("./useSlideManagerView", () => ({ default: vi.fn() }));
   }
   ```

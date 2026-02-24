@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
+import isSigninErrorToken from "@/shared/isSigninErrorToken";
 import { providerQueryParam, signinErrorQueryParam } from "@/shared/queryParams";
-import { isSigninErrorToken } from "@/shared/signinTokens";
 
 type UseSignInErrorReturn = {
 	// translation key for the sign-in error, e.g. 'errors.signin.providerMismatch'

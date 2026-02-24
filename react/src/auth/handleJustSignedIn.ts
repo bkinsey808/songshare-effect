@@ -2,8 +2,11 @@ import { type NavigateFunction } from "react-router-dom";
 
 import ensureSignedIn from "@/react/auth/ensure-signed-in/ensureSignedIn";
 import { SIGNIN_DEFAULT_DELAY_MS, SIGNIN_RETRY_DELAYS_MS } from "@/shared/constants/http";
-import { justSignedInQueryParam, signinErrorQueryParam } from "@/shared/queryParams";
-import { SigninErrorToken } from "@/shared/signinTokens";
+import {
+	justSignedInQueryParam,
+	signinErrorQueryParam,
+	SigninErrorToken,
+} from "@/shared/queryParams";
 import { retryWithBackoff } from "@/shared/utils/retryWithBackoff";
 
 /**

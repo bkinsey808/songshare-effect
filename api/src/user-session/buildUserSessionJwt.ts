@@ -9,9 +9,9 @@ import resolveUsername from "@/api/user/resolveUsername";
 import { type User } from "@/shared/generated/supabaseSchemas";
 import { type ReadonlyOauthState } from "@/shared/oauth/oauthState";
 import { type ReadonlyOauthUserData } from "@/shared/oauth/oauthUserData";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { UserSessionDataSchema as sessionDataSchema } from "@/shared/userSessionData";
-import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
+import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrMap";
 
 // Env type not required — ReadonlyContext default covers Bindings
 import type { ReadonlyContext } from "../hono/ReadonlyContext.type";

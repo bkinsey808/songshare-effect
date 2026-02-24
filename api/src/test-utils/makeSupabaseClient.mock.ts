@@ -1,11 +1,23 @@
 import type { createClient } from "@supabase/supabase-js";
 
-import { createEventMock, type EventMockOpts } from "./supabase-mocks/event";
-import { createEventLibraryMock, type EventLibraryMockOpts } from "./supabase-mocks/event-library";
-import { createEventPublicMock, type EventPublicMockOpts } from "./supabase-mocks/event-public";
-import { createEventUserMock, type EventUserMockOpts } from "./supabase-mocks/event-user";
-import { createUserMock, type UserMockOpts } from "./supabase-mocks/user";
-import { createUserPublicMock, type UserPublicMockOpts } from "./supabase-mocks/user-public";
+import {
+	createEventLibraryMock,
+	type EventLibraryMockOpts,
+} from "./supabase-mocks/createEventLibraryMock.test-util";
+import { createEventMock, type EventMockOpts } from "./supabase-mocks/createEventMock.test-util";
+import {
+	createEventPublicMock,
+	type EventPublicMockOpts,
+} from "./supabase-mocks/createEventPublicMock.test-util";
+import {
+	createEventUserMock,
+	type EventUserMockOpts,
+} from "./supabase-mocks/createEventUserMock.test-util";
+import { createUserMock, type UserMockOpts } from "./supabase-mocks/createUserMock.test-util";
+import {
+	createUserPublicMock,
+	type UserPublicMockOpts,
+} from "./supabase-mocks/createUserPublicMock.test-util";
 
 /**
  * Options to customize the fake Supabase client returned for tests.

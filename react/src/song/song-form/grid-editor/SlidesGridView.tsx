@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
 import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { safeGet } from "@/shared/utils/safe";
 
 import useSlidesEditor from "../slides-editor/useSlidesEditor";

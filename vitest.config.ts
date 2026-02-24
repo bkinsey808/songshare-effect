@@ -46,8 +46,11 @@ export default defineConfig({
 		},
 	},
 	test: {
+		// 'dot' reporter is much quieter than the default list, and we still
+		// keep junit for CI output. developers can temporarily override with
+		// `--reporter default` if they need the full view.
 		reporters: [
-			"default",
+			"dot",
 			[
 				"junit",
 				{
@@ -55,6 +58,12 @@ export default defineConfig({
 				},
 			],
 		],
+		// quiet every console call so captured stderr/stdout isn’t printed
+		silent: true,
+		// some tests dynamically import modules; the 5s default has tripped
+		// occasionally when the runner is busy, so bump it to 10s globally.
+		testTimeout: 10_000,
+		setupFiles: "./vitest.setup.ts",
 		environment: "jsdom",
 		environmentOptions: {
 			jsdom: {

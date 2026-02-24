@@ -1,7 +1,7 @@
 import type { Effect } from "effect";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 

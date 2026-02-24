@@ -41,7 +41,7 @@ describe("getVerifiedUserSession", () => {
 		vi.spyOn(verifyModule, "default").mockReturnValue(Effect.succeed({ foo: "bar" }));
 
 		// mock schema decoder to return the validated session data
-		const decodeModule = await import("@/shared/validation/decode-effect");
+		const decodeModule = await import("@/shared/validation/decodeUnknownEffectOrMap");
 		vi.spyOn(decodeModule, "default").mockReturnValue(Effect.succeed(SAMPLE_SESSION));
 
 		const ctx = makeCtx({
@@ -102,7 +102,7 @@ describe("getVerifiedUserSession", () => {
 		const verifyMod2 = await import("@/api/user-session/verifyUserSessionToken");
 		vi.spyOn(verifyMod2, "default").mockReturnValue(Effect.succeed({ bad: "payload" }));
 
-		const decodeModule2 = await import("@/shared/validation/decode-effect");
+		const decodeModule2 = await import("@/shared/validation/decodeUnknownEffectOrMap");
 		const apiErrors2 = await import("@/api/api-errors");
 		vi.spyOn(decodeModule2, "default").mockReturnValue(
 			Effect.fail(new apiErrors2.AuthenticationError({ message: "Invalid session" })),

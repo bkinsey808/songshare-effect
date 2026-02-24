@@ -10,11 +10,11 @@ import type {
 	SupabaseRealtimeClientLike,
 } from "@/react/lib/supabase/client/SupabaseClientLike";
 
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import guardAsSupabaseRealtimeClientLike from "@/react/lib/supabase/client/guards/guardAsSupabaseRealtimeClientLike";
-import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import forceCast from "@/react/lib/test-utils/forceCast";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import type { EventEntry, EventPublic, EventUser } from "../event-types";
 import type { EventSlice } from "../slice/EventSlice.type";

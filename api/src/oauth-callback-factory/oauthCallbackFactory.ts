@@ -29,10 +29,10 @@ import {
 	codeQueryParam,
 	providerQueryParam,
 	signinErrorQueryParam,
+	SigninErrorToken,
 	stateQueryParam,
 } from "@/shared/queryParams";
-import { SigninErrorToken } from "@/shared/signinTokens";
-import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
+import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrMap";
 
 // HTTP status codes used in redirects
 const SEE_OTHER = 303;

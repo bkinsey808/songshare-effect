@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import assert from "node:assert";
 import { describe, expect, it, vi } from "vitest";
 
-import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import makeUserLibrarySlice from "../slice/makeUserLibrarySlice.mock";

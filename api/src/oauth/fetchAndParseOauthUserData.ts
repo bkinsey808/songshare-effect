@@ -7,7 +7,7 @@ import exchangeCodeForToken from "@/api/oauth/exchangeCodeForToken";
 import fetchUserInfo from "@/api/user/fetchUserInfo";
 import { type OauthUserData, OauthUserDataSchema } from "@/shared/oauth/oauthUserData";
 import isRecord from "@/shared/type-guards/isRecord";
-import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
+import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrMap";
 
 /**
  * Exchange an authorization code for tokens, fetch the provider's userinfo

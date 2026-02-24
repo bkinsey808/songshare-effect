@@ -5,9 +5,9 @@ import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseCli
 
 import makeEventSlice from "@/react/event/slice/makeEventSlice.mock";
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
-import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import fetchEventBySlug from "./fetchEventBySlug";

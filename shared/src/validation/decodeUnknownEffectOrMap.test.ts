@@ -1,7 +1,7 @@
 import { Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
-import decodeUnknownEffectOrMap from "./decode-effect";
+import decodeUnknownEffectOrMap from "./decodeUnknownEffectOrMap";
 
 describe("decodeUnknownEffectOrMap", () => {
 	it("succeeds when value matches schema", async () => {

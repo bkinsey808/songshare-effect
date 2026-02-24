@@ -12,6 +12,9 @@ import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
 import { restoreFetch } from "@/react/lib/test-utils/restoreFetch.test-util";
 import { spyClientError } from "@/react/lib/utils/clientError.test-util";
 import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
+// Helpers live in a companion file so this test never needs any
+// lint-disable comments. A custom rule (`no-disable-in-tests`) enforces the
+// separation.
 import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
 
 import ensureSignedIn from "./ensureSignedIn";

@@ -2,8 +2,8 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
-import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
 import asNull from "@/react/lib/test-utils/asNull";
 import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";

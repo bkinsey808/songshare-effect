@@ -1,13 +1,21 @@
 import { Effect, type Schema } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import { makeDeferred, makeDummySchema, mockedValidateFormEffect } from "@/react/form/test-util";
-import { clientDebug } from "@/react/lib/utils/clientLogger";
+import {
+	getValidateFormEffectMock,
+	makeDeferred,
+	makeDummySchema,
+	mockClientLogger,
+	mockExtractValidationErrors,
+	mockValidateFormEffect,
+	type ValidateFormEffectMock,
+} from "@/react/form/test-util";
 import { ZERO } from "@/shared/constants/shared-constants";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
-import createFormSubmitHandler from "./createFormSubmitHandler";
-import extractValidationErrors from "./extractValidationErrors";
+// types needed for the init helper signature
+import type createFormSubmitHandlerType from "./createFormSubmitHandler";
+import type extractValidationErrorsType from "./extractValidationErrors";
 
 // convenience helpers for returning mock effects
 function successEffect<TValue>(value: TValue): Effect.Effect<unknown, ValidationError[], TValue> {
@@ -20,8 +28,8 @@ function failingEffect(error: unknown): Effect.Effect<unknown, ValidationError[]
 	}) as Effect.Effect<unknown, ValidationError[]>;
 }
 
-const mockedExtractValidationErrors = vi.mocked(extractValidationErrors);
-const mockedClientDebug = vi.mocked(clientDebug);
+// mockedExtractValidationErrors already created above via helper
+// mockedClientDebug created by mockClientLogger()
 
 // a tiny dummy schema used purely for typing; the real logic is mocked
 const schema: Schema.Schema<{ foo: string }> = makeDummySchema();
@@ -29,7 +37,48 @@ const baseFormData = { foo: "bar" };
 const validatedData = { foo: "bar" };
 
 describe("createFormSubmitHandler", () => {
-	it("runs sync onSubmit and toggles submitting state", () => {
+	/**
+	 * Prepare fresh modules and mocks for each test.  Avoids lifecycle hooks
+	 * so lint rules remain happy; callers just `await init()` at the top of the
+	 * spec body.
+	 */
+	async function init(): Promise<{
+		createFormSubmitHandler: typeof createFormSubmitHandlerType;
+		extractValidationErrors: typeof extractValidationErrorsType;
+		mockedClientDebug: ReturnType<typeof vi.fn>;
+		mockedValidateFormEffect: ValidateFormEffectMock;
+		mockedExtractValidationErrors: ReturnType<typeof vi.fn>;
+	}> {
+		vi.resetModules();
+		mockClientLogger();
+		mockValidateFormEffect();
+		mockExtractValidationErrors();
+
+		const handlerMod = await import("./createFormSubmitHandler");
+		const extractMod = await import("./extractValidationErrors");
+		const { clientDebug } = await import("@/react/lib/utils/clientLogger");
+
+		const mockedClientDebug = vi.mocked(clientDebug);
+		const mockedValidateFormEffect = await getValidateFormEffectMock();
+		const extractValidationErrors = extractMod.default;
+		const mockedExtractValidationErrors = vi.mocked(extractValidationErrors);
+
+		return {
+			createFormSubmitHandler: handlerMod.default,
+			extractValidationErrors,
+			mockedClientDebug,
+			mockedValidateFormEffect,
+			mockedExtractValidationErrors,
+		};
+	}
+
+	it("runs sync onSubmit and toggles submitting state", async () => {
+		const {
+			createFormSubmitHandler,
+			mockedValidateFormEffect,
+			mockedExtractValidationErrors,
+			mockedClientDebug,
+		} = await init();
 		vi.resetAllMocks();
 		const setValidationErrors = vi.fn();
 		const setIsSubmitting = vi.fn();
@@ -57,6 +106,8 @@ describe("createFormSubmitHandler", () => {
 	});
 
 	it("handles async onSubmit and clears submitting after promise resolves", async () => {
+		const { createFormSubmitHandler, mockedValidateFormEffect, mockedExtractValidationErrors } =
+			await init();
 		vi.resetAllMocks();
 		const setValidationErrors = vi.fn();
 		const setIsSubmitting = vi.fn();
@@ -88,7 +139,9 @@ describe("createFormSubmitHandler", () => {
 		expect(setIsSubmitting).toHaveBeenCalledWith(false);
 	});
 
-	it("sets validation errors when validation throws and extractor returns errors", () => {
+	it("sets validation errors when validation throws and extractor returns errors", async () => {
+		const { createFormSubmitHandler, mockedValidateFormEffect, mockedExtractValidationErrors } =
+			await init();
 		vi.resetAllMocks();
 		const setValidationErrors = vi.fn();
 		const setIsSubmitting = vi.fn();
@@ -113,7 +166,9 @@ describe("createFormSubmitHandler", () => {
 		expect(onSubmit).not.toHaveBeenCalled();
 	});
 
-	it("does not call setValidationErrors when extractor returns empty array", () => {
+	it("does not call setValidationErrors when extractor returns empty array", async () => {
+		const { createFormSubmitHandler, mockedValidateFormEffect, mockedExtractValidationErrors } =
+			await init();
 		vi.resetAllMocks();
 		const setValidationErrors = vi.fn();
 		const setIsSubmitting = vi.fn();

@@ -20,7 +20,7 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { UserPublicSchema, UserSchema } from "@/shared/generated/supabaseSchemas";
 import { RegisterFormSchema } from "@/shared/register/register";
 import { UserSessionDataSchema } from "@/shared/userSessionData";
-import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
+import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrMap";
 import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 
 import type { ReadonlyContext } from "../hono/ReadonlyContext.type";

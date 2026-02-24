@@ -3,8 +3,9 @@ import { verify } from "hono/jwt";
 import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import { mockDecodeReturn, mockDecodeThrow } from "@/api/test-utils/makeDecodeUnknownSync.mock";
+import mockDecodeThrow from "@/api/test-utils/makeDecodeUnknownSync.test-util";
 import { mockVerifyFailure, mockVerifySuccess } from "@/api/test-utils/makeHonoJwt.mock";
+import mockDecodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow.test-util";
 
 import { parseDataFromCookie } from "./parseDataFromCookie";
 
@@ -23,7 +24,7 @@ describe("parseDataFromCookie", () => {
 		});
 
 		mockVerifySuccess({ foo: "bar" });
-		mockDecodeReturn({ foo: "bar" });
+		mockDecodeUnknownSyncOrThrow({ foo: "bar" });
 
 		const res = await parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema });
 		expect(res).toStrictEqual({ foo: "bar" });

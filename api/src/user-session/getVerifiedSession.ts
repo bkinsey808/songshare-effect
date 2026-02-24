@@ -7,7 +7,7 @@ import extractUserSessionTokenFromContext from "@/api/user-session/extractUserSe
 import verifyUserSessionToken from "@/api/user-session/verifyUserSessionToken";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type UserSessionData, UserSessionDataSchema } from "@/shared/userSessionData";
-import decodeUnknownEffectOrMap from "@/shared/validation/decode-effect";
+import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrMap";
 
 /**
  * Verify and decode the current user's session JWT.

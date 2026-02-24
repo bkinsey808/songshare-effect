@@ -7,7 +7,7 @@ import guardAsSupabaseRealtimeClientLike from "@/react/lib/supabase/client/guard
 import { type RealtimePayload } from "@/react/lib/supabase/subscription/subscription-types";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import isRecord from "@/shared/type-guards/isRecord";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import type { EventParticipant } from "../event-entry/EventEntry.type";
 

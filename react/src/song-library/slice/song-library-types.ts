@@ -1,7 +1,7 @@
 import type { RealtimeEventType } from "@/react/lib/supabase/subscription/subscription-types";
 import type { SongLibrary, SongLibraryInsert } from "@/shared/generated/supabaseSchemas";
 // Types for Song Library functionality (merged from song-library-schema.ts) to avoid circular imports
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 // Re-export the generated types
 export type { SongLibrary, SongLibraryInsert };

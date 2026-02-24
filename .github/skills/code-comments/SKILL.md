@@ -57,7 +57,9 @@ function f() {}
 - **Separation between JSDoc and `//` comments** — A JSDoc block must be immediately above the symbol it documents (no blank lines or comments between the JSDoc and the symbol). If you need an explanatory single-line `//` comment, place it _above_ the JSDoc and keep a single blank line between the `//` comment and the JSDoc block (never put `//` comments between a JSDoc block and the symbol). This avoids ambiguous or squished comment layouts and makes tooling more reliable.
 - **Prefer integrating notes into JSDoc** — In most cases, concise implementation notes or warnings should be part of the JSDoc text (an extra sentence or an `@remarks` section) rather than a separate `//` comment. This keeps the API documentation cohesive and ensures important notes are captured by documentation tools.
 
-- **Single-object params (props) — document fields directly** — For functions or components that accept a single object parameter (commonly `props`), prefer listing the destructured fields as top-level `@param` entries rather than documenting `@param props` and `@param props.field`. This keeps JSDoc concise and aligned with destructured parameters used in code.
+- **Single-object params (props) — document fields directly** — When a function or component accepts a single object (often named `props`), do **not** create a standalone `@param props` entry. Instead, list each destructured field as its own `@param`. The `props` wrapper adds noise and can mislead readers into thinking they should pass an object rather than using destructuring.
+
+  This rule applies even when there are only one or two fields; being explicit makes the documentation clearer and matches common call-site usage.
 
 **Bad:**
 

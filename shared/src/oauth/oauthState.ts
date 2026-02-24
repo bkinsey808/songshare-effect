@@ -4,7 +4,7 @@ import { type SupportedLanguageType } from "@/shared/language/supported-language
 import { SupportedLanguageSchema } from "@/shared/language/supported-languages-effect";
 import { ProviderSchema, type ProviderType } from "@/shared/providers";
 
-import { type ReadonlyDeep } from "../types/deep-readonly";
+import { type ReadonlyDeep } from "../types/ReadonlyDeep.type";
 
 export type OauthState = {
 	readonly csrf: string;

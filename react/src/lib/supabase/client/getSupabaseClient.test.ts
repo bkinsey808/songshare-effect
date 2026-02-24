@@ -1,51 +1,52 @@
 import { describe, expect, it, vi } from "vitest";
 
-// import mocks before the module under test so Vitest can hoist and apply them
 import {
-	createClientMock,
 	createClientOptionsMatcher,
-	envMock,
-	globalCache,
-	HOUR_MS,
 	makeFakeClient,
 	setup,
 	toCreateClientReturn,
-	TWO_MINUTES_MS,
 } from "./getSupabaseClient.test-util";
+
+// timing constants used in tests
+const MS_IN_MINUTE = 60_000;
+const MINUTES_PER_HOUR = 60;
+const EVICTION_BUFFER_MINUTES = 2;
+const HOUR_MS = MINUTES_PER_HOUR * MS_IN_MINUTE;
+const TWO_MINUTES_MS = EVICTION_BUFFER_MINUTES * MS_IN_MINUTE;
 
 describe("getSupabaseClient", () => {
 	it("returns undefined when env is missing", async () => {
-		setup();
+		const { envMockInternal, createClientMockInternal } = await setup();
 		// ensure both variables are absent so the guard at the top of
 		// `getSupabaseClient` bails out immediately
-		envMock.mockImplementation(() => undefined);
+		envMockInternal.mockImplementation(() => undefined);
 
 		const { default: getSupabaseClient } = await import("./getSupabaseClient");
 		const result = getSupabaseClient("token");
 		expect(result).toBeUndefined();
-		expect(createClientMock).not.toHaveBeenCalled();
+		expect(createClientMockInternal).not.toHaveBeenCalled();
 	});
 
 	it("returns undefined when token is undefined or empty", async () => {
-		setup();
+		const { createClientMockInternal } = await setup();
 		const { default: getSupabaseClient } = await import("./getSupabaseClient");
 		const r1 = getSupabaseClient(undefined);
 		const r2 = getSupabaseClient("");
 
 		expect(r1).toBeUndefined();
 		expect(r2).toBeUndefined();
-		expect(createClientMock).not.toHaveBeenCalled();
+		expect(createClientMockInternal).not.toHaveBeenCalled();
 	});
 
 	it("creates a new client when inputs are valid", async () => {
-		setup();
+		const { createClientMockInternal, globalCache } = await setup();
 		const { default: getSupabaseClient } = await import("./getSupabaseClient");
 		const token = "tok123";
 		const client = makeFakeClient();
-		createClientMock.mockReturnValue(toCreateClientReturn(client));
+		createClientMockInternal.mockReturnValue(toCreateClientReturn(client));
 		const result = getSupabaseClient(token);
 
-		expect(createClientMock).toHaveBeenCalledWith(
+		expect(createClientMockInternal).toHaveBeenCalledWith(
 			"https://example.supabase.co",
 			"anon-key",
 			createClientOptionsMatcher(token),
@@ -59,7 +60,7 @@ describe("getSupabaseClient", () => {
 	});
 
 	it("reuses a cached client when called with the same token", async () => {
-		setup();
+		const { globalCache, createClientMockInternal } = await setup();
 		const { default: getSupabaseClient } = await import("./getSupabaseClient");
 		const token = "abc";
 		const existing = makeFakeClient();
@@ -67,16 +68,16 @@ describe("getSupabaseClient", () => {
 
 		const result = getSupabaseClient(token);
 		expect(result).toBe(existing);
-		expect(createClientMock).not.toHaveBeenCalled();
+		expect(createClientMockInternal).not.toHaveBeenCalled();
 	});
 
 	it("schedules cache eviction after one hour", async () => {
-		setup();
+		const { globalCache, createClientMockInternal } = await setup();
 		const { default: getSupabaseClient } = await import("./getSupabaseClient");
 		vi.useFakeTimers();
 		const token = "temp";
 		const client = makeFakeClient();
-		createClientMock.mockReturnValue(toCreateClientReturn(client));
+		createClientMockInternal.mockReturnValue(toCreateClientReturn(client));
 		const deleteSpy = vi.spyOn(globalCache, "delete");
 
 		getSupabaseClient(token);

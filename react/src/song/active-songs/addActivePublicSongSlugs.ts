@@ -1,5 +1,5 @@
 import type { Get } from "@/react/app-store/app-store-types";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import isRecord from "@/shared/type-guards/isRecord";

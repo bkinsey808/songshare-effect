@@ -28,7 +28,8 @@ describe("browsersAlreadyInstalled", () => {
 			expect(mod.default()).toBe(false);
 		} finally {
 			delete process.env["PLAYWRIGHT_BROWSERS_PATH"];
-			fs.rmdirSync(tmp, { recursive: true });
+			// avoid deprecated rmdirSync(recursive:true) warning (DEP0147)
+			fs.rmSync(tmp, { recursive: true, force: true });
 		}
 		cleanup();
 	});
@@ -50,7 +51,8 @@ describe("browsersAlreadyInstalled", () => {
 			expect(mod.default()).toBe(true);
 		} finally {
 			delete process.env["PLAYWRIGHT_BROWSERS_PATH"];
-			fs.rmdirSync(tmp, { recursive: true });
+			// avoid deprecated rmdirSync(recursive:true) warning (DEP0147)
+			fs.rmSync(tmp, { recursive: true, force: true });
 		}
 		cleanup();
 	});

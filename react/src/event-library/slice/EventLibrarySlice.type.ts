@@ -1,6 +1,6 @@
 import type { Effect } from "effect";
 
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import type {
 	AddEventToLibraryRequest,

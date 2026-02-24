@@ -1,5 +1,5 @@
 import { type SongPublic } from "@/react/song/song-schema";
-import { type ReadonlyDeep } from "@/shared/types/deep-readonly";
+import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import { type SongSubscribeSlice } from "../song-slice/song-slice";
 

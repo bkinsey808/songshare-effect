@@ -1,6 +1,6 @@
 import type { RealtimeEventType } from "@/react/lib/supabase/subscription/subscription-types";
 import type { PlaylistLibrary, PlaylistLibraryInsert } from "@/shared/generated/supabaseSchemas";
-import type { ReadonlyDeep } from "@/shared/types/deep-readonly";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 // Re-export the generated types
 export type { PlaylistLibrary, PlaylistLibraryInsert };

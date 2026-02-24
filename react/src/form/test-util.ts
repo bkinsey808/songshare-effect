@@ -2,25 +2,56 @@
 import { Effect, type Schema } from "effect";
 import { vi } from "vitest";
 
-import validateFormEffect from "@/shared/validation/validateFormEffect";
+// helper for mocking the client logger; tests should call this early before
+// importing anything that uses `clientDebug`.  The return value allows callers
+// to grab the mocked function without importing the real module themselves.
+export function mockClientLogger(): void {
+	// use doMock so the call isn't hoisted by vitest; it should run when the
+	// helper is invoked rather than at module evaluation time.
+	vi.doMock("@/react/lib/utils/clientLogger", () => ({ clientDebug: vi.fn() }));
+}
 
-// reference the function so TypeScript doesn't flag it as unused
-void _mockClientLogger;
-vi.mock("@/react/lib/utils/clientLogger", () => ({ clientDebug: vi.fn() }));
+// create a loose interface for the validateFormEffect mock so callers can set
+// return values without fighting generics in every test.
+export type ValidateFormEffectMock = {
+	mockReturnValue: (value: unknown) => void;
+	// other mock helpers may exist, so allow extra props if needed
+	[key: string]: unknown;
+};
 
-// reused in many form tests, so centralize the mocks here
-vi.mock("@/shared/validation/validateFormEffect", () => ({
-	__esModule: true,
-	default: vi.fn(),
-}));
+/**
+ * Install a jest-style mock for the validation effect and return the mocked
+ * function for convenient usage in tests.  Callers are responsible for
+ * invoking this *before* importing modules that depend on the real effect.
+ */
+export function mockValidateFormEffect(): void {
+	vi.doMock("@/shared/validation/validateFormEffect", () => ({
+		__esModule: true,
+		default: vi.fn(),
+	}));
+}
 
-vi.mock("./extractValidationErrors", () => ({
-	__esModule: true,
-	default: vi.fn(),
-}));
+/**
+ * Once `mockValidateFormEffect()` has been installed and the module is loaded,
+ * this helper resolves to a strongly‑typed mock reference.  It lives here so
+ * the lint disable can be confined to one place rather than scattered through
+ * test files.
+ */
+export async function getValidateFormEffectMock(): Promise<ValidateFormEffectMock> {
+	const { default: _validateFormEffect } = await import("@/shared/validation/validateFormEffect");
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	return vi.mocked(_validateFormEffect) as unknown as ValidateFormEffectMock;
+}
 
-export function _mockClientLogger(): void {
-	// helper placeholder
+/**
+ * Install a mock for the local `extractValidationErrors` helper.  Returns the
+ * mocked function so callers can configure its behavior.
+ */
+export function mockExtractValidationErrors(): void {
+	vi.doMock("./extractValidationErrors", () => ({
+		__esModule: true,
+		default: vi.fn(),
+	}));
 }
 
 /**
@@ -76,23 +107,6 @@ export function makeDummySchema<TValue>(): Schema.Schema<TValue> {
  * payload.  This replicates the logic previously duplicated in the
  * test file.
  */
-
-/*
-Export at bottom because linter prefers exports after implementations.  The mock
-type is intentionally loose so tests can supply arbitrary effects without
-fighting generic inference; we define a minimal interface to keep TypeScript
-happy while avoiding `any` in consuming files.
-*/
-type ValidateFormEffectMock = {
-	mockReturnValue: (value: unknown) => void;
-	// other mock helpers may exist, so allow extra props if needed
-	[key: string]: unknown;
-};
-/* oxlint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion */
-export const mockedValidateFormEffect = vi.mocked(
-	validateFormEffect,
-) as unknown as ValidateFormEffectMock;
-/* oxlint-enable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion */
 
 export async function runUnwrapped(effect: Effect.Effect<unknown, unknown>): Promise<unknown> {
 	try {

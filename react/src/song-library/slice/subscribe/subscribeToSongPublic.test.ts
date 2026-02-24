@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 import type { Database } from "@/shared/generated/supabaseTypes";
 
-import createMinimalSupabaseClient from "@/react/lib/supabase/client/test-utils/createMinimalSupabaseClient.mock";
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import makeSongLibraryEntry from "@/react/song-library/test-utils/makeSongLibraryEntry.mock";
