@@ -8,7 +8,7 @@ import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
 import getIpAddress from "@/api/getIpAddress";
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import mockCreateSupabaseClient from "@/api/test-utils/mockCreateSupabaseClient.mock";
+import mockCreateSupabaseClient from "@/api/test-utils/mockCreateSupabaseClient.test-util";
 
 import accountRegister from "./accountRegister";
 

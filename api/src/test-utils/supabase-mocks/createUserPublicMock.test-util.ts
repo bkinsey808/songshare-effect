@@ -1,13 +1,13 @@
 import type { UserPublicInsert } from "@/shared/generated/supabaseSchemas";
 
-import type { MaybeSingleResult, MultiResult } from "./supabase-mock-types";
+import type { MaybeSingleResult, MockRow, MultiResult } from "./supabase-mock-types";
 
 export type UserPublicMockOpts = {
 	/** value returned by maybeSingle select; kept `unknown` so tests can simulate
 	 * invalid rows. */
 	userPublicMaybe?: unknown;
 	userPublicMaybeError?: unknown;
-	userPublicInsertRows?: Partial<UserPublicInsert>[];
+	userPublicInsertRows?: MockRow<UserPublicInsert>[];
 };
 
 export type UserPublicTableMock = {

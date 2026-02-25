@@ -1,4 +1,3 @@
-/* oxlint-disable max-lines */
 // Localized console usage — prefer per-line exceptions.
 import { Effect } from "effect";
 import { type Context } from "hono";
@@ -9,22 +8,22 @@ import { nanoid } from "nanoid";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
 import { DatabaseError, ServerError, ValidationError } from "@/api/api-errors";
-import buildSameSiteAttr from "@/api/cookie/buildSameSiteAttr";
 import buildSessionCookie from "@/api/cookie/buildSessionCookie";
-import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
+import { userSessionCookieName } from "@/api/cookie/cookie";
 import { type Env } from "@/api/env";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
+import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
 import rateLimit from "@/api/oauth-callback-factory/rateLimit";
+import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
 import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
 import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
-import buildRegisterJwt from "@/api/register/buildRegisterJwt";
 import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
 import { csrfTokenCookieName, oauthCsrfCookieName } from "@/shared/cookies";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { OauthStateSchema } from "@/shared/oauth/oauthState";
-import { apiOauthCallbackPath, dashboardPath, registerPath } from "@/shared/paths";
+import { dashboardPath } from "@/shared/paths";
 import {
 	codeQueryParam,
 	providerQueryParam,
@@ -194,20 +193,12 @@ export default function oauthCallbackFactory(
 		const stateRedirectPort = oauthState.redirect_port;
 		const stateRedirectOrigin = oauthState.redirect_origin ?? "";
 
-		function computeStateRedirectUri(origin: string, port: unknown): string {
-			const trimmed = (origin ?? "").replace(/\/$/, "");
-			let computedRedirectUri = trimmed
-				? trimmed + (apiOauthCallbackPath ?? "")
-				: (apiOauthCallbackPath ?? "");
-			if (typeof port === "string" && port !== "" && envRecord.ENVIRONMENT !== "production") {
-				computedRedirectUri = `https://localhost:${port}${apiOauthCallbackPath ?? ""}`;
-			}
-			return computedRedirectUri;
-		}
-
-		const computedStateRedirectUri = computeStateRedirectUri(
+		// `computeStateRedirectUri` was moved to its own helper so it can be
+		// unit tested independently and keeps the factory shorter.
+		const computedStateRedirectUri: string = computeStateRedirectUri(
 			stateRedirectOrigin,
 			stateRedirectPort,
+			envRecord,
 		);
 
 		yield* $(
@@ -233,112 +224,18 @@ export default function oauthCallbackFactory(
 			}),
 		);
 
-		// Determine Secure flag using environment (avoid relying on process)
-		// reuse envRecord declared earlier
-		const isProd = envRecord.ENVIRONMENT === "production";
-		const redirectOrigin = envRecord.OAUTH_REDIRECT_ORIGIN ?? "";
-
-		// Only include Secure when in production or when we can determine the
-		// incoming request used HTTPS. Vite's dev proxy and other proxies may
-		// terminate TLS before forwarding, so prefer checking x-forwarded-proto
-		// and the request URL protocol in addition to any configured redirect
-		// origin. This ensures that in HTTPS dev (mkcert + Vite) we include
-		// Secure so browsers accept SameSite=None cookies.
-		const headerProto = ctx.req.header("x-forwarded-proto") ?? "";
-		const requestProtoIsHttps = requestUrl.protocol === "https:";
-		const forwardedProtoIsHttps = headerProto.toLowerCase().startsWith("https");
-		const secureFlag =
-			isProd ||
-			redirectOrigin.startsWith("https://") ||
-			requestProtoIsHttps ||
-			forwardedProtoIsHttps;
-		const secureString = secureFlag ? "Secure;" : "";
-
-		// For localhost dev flows, omit the Domain attribute (setting Domain to
-		// "localhost" can cause browsers to ignore the cookie). Use SameSite=Lax
-		// for localhost so modern browsers will accept the cookie without the
-		// Secure attribute. In non-localhost secure contexts we allow SameSite=None
-		// and set Secure when appropriate.
-		// Avoid setting Domain for localhost (can cause browsers to ignore cookie).
-		const domainAttr = "";
-
-		/**
-		 * Choose SameSite attribute for cookies based on environment and security:
-		 *
-		 * - In production: prefer SameSite=None when secure (for cross-site scenarios).
-		 * - In localhost dev: use SameSite=Lax to avoid requiring Secure.
-		 * - When a secure transport is detected (secureFlag true) and not localhost,
-		 * allow SameSite=None so cross-site requests (proxied dev or production) work.
-		 */
-		const sameSiteAttr = buildSameSiteAttr({
-			isProd,
-			redirectOrigin,
-			secureFlag,
-		});
-
-		// dashboardRedirectUrl is not assigned yet, will log after assignment below
 		if (!existingUser) {
-			// User needs registration
-			const registerJwt = yield* $(buildRegisterJwt({ ctx, oauthUserData, oauthState }));
-
-			yield* $(
-				Effect.sync(() => {
-					// Localized: debug-only server-side log
-					serverDebug("[oauthCallback] Setting register cookie:", registerCookieName);
+			// delegate registration branch to helper
+			return yield* $(
+				handleRegistration({
+					ctx,
+					envRecord,
+					oauthUserData,
+					oauthState,
+					lang,
 				}),
 			);
-
-			yield* $(
-				Effect.sync(() => {
-					// Localized: debug-only server-side log
-					serverDebug("[oauthCallback] Protocol/secure diagnostics:", {
-						requestUrlProtocol: requestUrl.protocol,
-						headerProto,
-						requestProtoIsHttps,
-						forwardedProtoIsHttps,
-						secureFlag,
-						redirectOrigin,
-						isProd,
-					});
-
-					// Use helper to build cookie header so attributes match sign-out
-					// and other cookie operations across the codebase.
-					const clientDebug = envRecord.REGISTER_COOKIE_CLIENT_DEBUG === "true";
-					const headerValue = clientDebug
-						? `${registerCookieName}=${registerJwt}; Path=/; ${domainAttr} ${sameSiteAttr} Max-Age=604800; ${secureString}`
-						: buildSessionCookie({
-								ctx,
-								name: registerCookieName,
-								value: registerJwt,
-								opts: {
-									maxAge: 604_800,
-									httpOnly: true,
-								},
-							});
-					ctx.res.headers.append("Set-Cookie", headerValue);
-					// Localized: debug-only server-side log
-					serverDebug(
-						"[oauthCallback] Set-Cookie header (register):",
-						headerValue,
-						"clientDebug=",
-						clientDebug,
-					);
-				}),
-			);
-
-			yield* $(
-				Effect.sync(() => {
-					// Localized: debug-only server-side log
-					serverDebug("[oauthCallback] Redirecting to register page:", `/${lang}/${registerPath}`);
-				}),
-			);
-
-			// Redirect to register page (303 See Other) using ctx.redirect so
-			// previously-set headers (including Set-Cookie) are preserved on the
-			// response. Returning a new Response would drop headers attached to ctx.
-			return yield* $(Effect.sync(() => ctx.redirect(`/${lang}/${registerPath}`, SEE_OTHER)));
 		}
-
 		if (
 			!Array.isArray(existingUser.linked_providers) ||
 			!existingUser.linked_providers.includes(provider)

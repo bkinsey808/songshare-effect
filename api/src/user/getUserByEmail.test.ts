@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.mock";
+import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 
 import getUserByEmail from "./getUserByEmail";
 

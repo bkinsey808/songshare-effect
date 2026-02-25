@@ -6,7 +6,7 @@ import type { UserSessionData } from "@/shared/userSessionData";
 
 import { AuthenticationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import mockCreateSupabaseClient from "@/api/test-utils/mockCreateSupabaseClient.mock";
+import mockCreateSupabaseClient from "@/api/test-utils/mockCreateSupabaseClient.test-util";
 
 import eventUserRemoveHandler from "./eventUserRemove";
 

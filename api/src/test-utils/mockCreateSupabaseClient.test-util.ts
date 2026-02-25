@@ -1,6 +1,6 @@
 import type { createClient } from "@supabase/supabase-js";
 
-import makeSupabaseClient, { type MakeSupabaseClientOpts } from "./makeSupabaseClient.mock";
+import makeSupabaseClient, { type MakeSupabaseClientOpts } from "./makeSupabaseClient.test-util";
 
 /**
  * Helper to mock createClient with a typed fake client.

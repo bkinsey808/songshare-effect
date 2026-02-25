@@ -4,6 +4,7 @@ import type { EventUser, EventUserInsert } from "@/shared/generated/supabaseSche
 import type {
 	MaybeSingleBuilder,
 	MaybeSingleResult,
+	MockRow,
 	MultiResult,
 	SingleBuilder,
 	SingleResult,
@@ -11,11 +12,11 @@ import type {
 
 export type EventUserMockOpts = {
 	/** Rows returned by an `insert`/`upsert` call (default is to echo input) */
-	eventUserInsertRows?: Partial<EventUserInsert>[];
+	eventUserInsertRows?: MockRow<EventUserInsert>[];
 	/** Error to simulate from an `insert`/`upsert` call */
 	eventUserInsertError?: unknown;
 	/** Single row returned by select queries */
-	eventUserSelectRow?: Partial<EventUser> | undefined;
+	eventUserSelectRow?: MockRow<EventUser> | undefined;
 	/** Error to simulate from select queries */
 	eventUserSelectError?: unknown;
 	/** Error to simulate from delete queries */

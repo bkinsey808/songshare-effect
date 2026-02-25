@@ -13,6 +13,18 @@ import {
 	createEventUserMock,
 	type EventUserMockOpts,
 } from "./supabase-mocks/createEventUserMock.test-util";
+import {
+	createPlaylistLibraryMock,
+	type PlaylistLibraryMockOpts,
+} from "./supabase-mocks/createPlaylistLibraryMock.test-util";
+import {
+	createPlaylistMock,
+	type PlaylistMockOpts,
+} from "./supabase-mocks/createPlaylistMock.test-util";
+import {
+	createPlaylistPublicMock,
+	type PlaylistPublicMockOpts,
+} from "./supabase-mocks/createPlaylistPublicMock.test-util";
 import { createUserMock, type UserMockOpts } from "./supabase-mocks/createUserMock.test-util";
 import {
 	createUserPublicMock,
@@ -27,7 +39,10 @@ type MakeSupabaseClientOpts = UserPublicMockOpts &
 	EventMockOpts &
 	EventPublicMockOpts &
 	EventLibraryMockOpts &
-	EventUserMockOpts;
+	EventUserMockOpts &
+	PlaylistMockOpts &
+	PlaylistPublicMockOpts &
+	PlaylistLibraryMockOpts;
 
 function makeSupabaseClient(opts: MakeSupabaseClientOpts = {}): ReturnType<typeof createClient> {
 	const fake = {
@@ -39,6 +54,9 @@ function makeSupabaseClient(opts: MakeSupabaseClientOpts = {}): ReturnType<typeo
 				event_public: createEventPublicMock(opts),
 				event_library: createEventLibraryMock(opts),
 				event_user: createEventUserMock(opts),
+				playlist: createPlaylistMock(opts),
+				playlist_public: createPlaylistPublicMock(opts),
+				playlist_library: createPlaylistLibraryMock(opts),
 			};
 			return tables[table];
 		},

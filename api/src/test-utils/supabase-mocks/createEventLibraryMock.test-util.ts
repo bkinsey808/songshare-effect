@@ -1,11 +1,9 @@
-import type { EventLibraryInsert } from "@/shared/generated/supabaseSchemas";
+import type { EventLibrary, EventLibraryInsert } from "@/shared/generated/supabaseSchemas";
 
-import type { MultiResult, SingleBuilder, SingleResult } from "./supabase-mock-types";
+import type { MockRow, MultiResult, SingleBuilder, SingleResult } from "./supabase-mock-types";
 
 export type EventLibraryMockOpts = {
-	// support undefined elements and additional fields (tests sometimes supply
-	// `created_at` etc)
-	eventLibraryInsertRows?: ((Partial<EventLibraryInsert> & Record<string, unknown>) | undefined)[];
+	eventLibraryInsertRows?: (MockRow<EventLibrary> | undefined)[];
 	eventLibraryInsertError?: unknown;
 };
 

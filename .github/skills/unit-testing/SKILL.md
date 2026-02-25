@@ -34,9 +34,40 @@ _Note:_ helper modules intended solely for unit tests should be named with a `.t
    - For DOM events the `makeChangeEvent` helper builds a properly‑typed `React.ChangeEvent<HTMLInputElement>` so tests don’t need unsafe casts.
    - If you find yourself sprinkling `// oxlint-disable` comments around tests, consider moving that logic into a helper or fixing the underlying type mismatch; avoid in‑test disables when possible.
      Add to that folder when you need reusable boilerplate instead of inlining it in tests.
-   - **Helper modules should not contain top‑level `vi.mock` calls.**
-     Instead export a callable function (e.g. `mockFoo()`) that uses `vi.doMock` or `vi.mock` when invoked, and provide accessors for the mocked functions.
-     This mirrors patterns in `react/src/form/test-util.ts` and `react/src/lib/supabase/client/getSupabaseClient.test-util.ts` and prevents hoisting surprises.
+   - **Module‑level eslint-disable comments are forbidden in test and test‑util files.**
+     Lint rules that conflict with transient, small helpers should be scoped to the individual line or wrapped in a block inside the function. This keeps the rest of the file clean and avoids reviewers having to hunt for wide‑ranging disables.
+   - When possible, use a _typed factory_ for `vi.mock` rather than the generic parameter. Import the real module at top level and then write:
+
+     ```ts
+     vi.mock("@/api/register/buildRegisterJwt", (): { default: typeof buildRegisterJwt } => ({
+       default: vi.fn(() => Effect.succeed("fake-jwt")),
+     }));
+     ```
+
+     This satisfies the `jest/no-untyped-mock-factory` rule without needing any eslint disable comments or a dynamic `import()` type.
+
+   - When you need to stub complex platform types (e.g. a tiny Hono `Context`), define a narrow “dummy” type that lists only the properties your tests actually read. Create a helper returning that type and cast the final `RegistrationRedirectParams` or similar with `as unknown as`. That way the rest of the spec remains typed and lint‑clean without resorting to `any` or broad disables.
+
+- If a module under test (such as an OAuth callback factory) grows large and contains independent pieces of logic, extract those pieces into their own files and give them focused unit tests. For example, computing a redirect URI or cookie attribute string can live in a helper which both the main factory and its registration branch import. This keeps the primary file shorter and simplifies testing.
+- **Helper modules should not contain top‑level `vi.mock` calls.**
+  Instead export a callable function (e.g. `mockFoo()`) that uses `vi.doMock` or `vi.mock` when invoked, and provide accessors for the mocked functions.
+  This mirrors patterns in `react/src/form/test-util.ts` and `react/src/lib/supabase/client/getSupabaseClient.test-util.ts` and prevents hoisting surprises.
+- When you need a tiny fake `ReadonlyContext` for API handler tests, create a dedicated helper that constructs only the fields used by the helper under test. Document it with JSDoc and, if you must cast, scope any eslint disables _only to the single cast expression_ rather than the whole file. Example pattern:
+  ```ts
+  /**
+   * Return a minimal ReadonlyContext for CSRF tests.
+   * @param headerValue value returned by `req.header`
+   * @param cookieValue cookie string or undefined
+   */
+  function makeCtx(headerValue?: string, cookieValue?: string): ReadonlyContext {
+    const headers = new Headers();
+    if (cookieValue) headers.set("Cookie", `${csrfTokenCookieName}=${cookieValue}`);
+    // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+    return { req: { header: () => headerValue, raw: { headers } } } as unknown as ReadonlyContext;
+  }
+  ```
+  This keeps the rest of the test file lint-clean and makes intent explicit.
+
 7. Run `npm run lint && npx tsc -b . && npm run test:unit -- <file> --coverage` to validate formatting, types, and tests.
 8. Prefer asserting against mock data variables (not duplicated literal strings). Define constants for mock inputs (e.g., `const songId = "s1"`) and use those variables in both setup and expectations to avoid mismatches and improve test clarity.
 
@@ -77,8 +108,11 @@ vi.mock("@/api/csrf/verifyDoubleSubmitOrThrow");
 
 Leverage project test helpers to keep tests DRY and typed:
 
+- **Proactively check for existing mocks**: Before creating local mocks for external services (Supabase, Effect, etc.), check `api/src/test-utils/` and its `supabase-mocks/` subfolder.
+- **`mockCreateSupabaseClient(mockedFn, opts)`** — Standard way to mock the Supabase client. It accepts a typed options object that configures behavior across multiple tables.
 - **`makeCtx(opts)`** — Creates a minimal `ReadonlyContext` for tests. Pass `env` overrides or `resHeadersAppend` spies.
 - **`makeSupabaseClient(opts)`** — Creates a fake Supabase client. Pass mock rows or errors (e.g., `userDeleteRows`, `userInsertError`).
+- **`makeSimpleClient(opts)`** — Default-exported helper for a minimal fake Supabase client. Pass an object with optional `result`, `error`, and `reject` properties; when `reject` is true the promise returned by `single()` will throw (using `error` as the thrown value). Located in `@/api/test-utils/makeSupabaseClient.simple.test-util`; use it for endpoints that only need to exercise one update/query and you don’t want the full `makeSupabaseClient.mock` dependency.
 
 ```typescript
 const ctx = makeCtx({
@@ -86,8 +120,25 @@ const ctx = makeCtx({
   resHeadersAppend: vi.fn(), // Spy to assert cookie headers
 });
 
-const typedFakeClient = makeSupabaseClient({ userDeleteRows: [{ user_id: "123" }] });
-vi.mocked(createClient).mockReturnValue(typedFakeClient);
+// Use standard mock factory
+mockCreateSupabaseClient(vi.mocked(createClient), {
+  playlistSelectSingleRow: { user_id: "requester-1" },
+  playlistDeleteError: new Error("boom"),
+});
+```
+
+### MockRow<T> and strict TypeScript
+
+The project uses `exactOptionalPropertyTypes: true`. When creating mock data, use the `MockRow<T>` utility type from `@/api/test-utils/supabase-mocks/supabase-mock-types`. This type explicitly allows `null | undefined` for all properties, which correctly mirrors Supabase's nullable columns while satisfying the strict compiler.
+
+```typescript
+import { type MockRow } from "@/api/test-utils/supabase-mocks/supabase-mock-types";
+import { type Playlist } from "@/shared/generated/supabaseSchemas";
+
+const myMockRow: MockRow<Playlist> = {
+  playlist_id: "uuid",
+  public_notes: undefined, // OK with MockRow even if required in schema
+};
 ```
 
 ### Mocking Effect Functions: Static Mocks vs. Dynamic Imports
@@ -263,7 +314,7 @@ describe("foo handler", () => {
 ```
 
 This keeps each spec self-contained, avoids shared state between tests, and
-fits cleanly with existing lint rules.  You can still `vi.resetAllMocks()` or
+fits cleanly with existing lint rules. You can still `vi.resetAllMocks()` or
 other per-test resets inside the test body as needed.
 
 ---
@@ -271,7 +322,7 @@ other per-test resets inside the test body as needed.
 ### Typed mock retrieval helpers
 
 Sometimes tests need a strongly‑typed reference to a mocked module that also
-uses generics.  A convenient pattern is to export a helper from your shared
+uses generics. A convenient pattern is to export a helper from your shared
 test-util which does the import and casts once, catching any `any` complaints
 in a single place rather than in every test.
 
@@ -286,11 +337,10 @@ export async function getValidateFormEffectMock(): Promise<ValidateFormEffectMoc
 ```
 
 Tests then simply `await getValidateFormEffectMock()` after calling the
-`mockValidateFormEffect()` setup helper.  The disable comment is contained in
+`mockValidateFormEffect()` setup helper. The disable comment is contained in
 the util file, keeping test files lint-clean.
 
 ---
-
 
 - ❌ Mock setup hidden at import time (unclear dependencies)
 - ❌ Hard to reset between tests (state leaks)
@@ -374,41 +424,48 @@ This pattern keeps concerns separated while allowing helpers to coordinate witho
   exception. If you really must mock inline, disable the rule on that line and
   include a comment explaining why.
 
-### ❌ Global test state pollution
+### ❌ Brittle tests with `as any`
+
+Avoid using `as any` or unsafe type assertions in test bodies, especially in assertions. These make tests brittle and hide type errors.
+
+**✅ Better:** Use type guards or check for property existence:
 
 ```typescript
-// BAD: Shared state between tests or lifecycle hooks
-let sharedData = [];
+function publicNotes(res: unknown): unknown {
+  if (typeof res === "object" && res !== null && "public_notes" in res) {
+    return (res as { public_notes: unknown }).public_notes;
+  }
+  return undefined;
+}
 
-describe("MyComponent", () => {
-  it("adds to array", () => {
-    sharedData.push(1);
-    expect(sharedData).toHaveLength(1); // Fails if test order changes
-  });
-});
+// In test:
+expect(publicNotes(res)).toBeUndefined();
 ```
 
-**✅ Better:** Use factory helpers to set up fresh state per test:
+### ❌ Manual global overrides
+
+Avoid manually assigning to `global.crypto` or other built-ins.
+
+**✅ Better:** Use Vitest's `vi.stubGlobal`:
 
 ```typescript
-/** Create fresh array for this test */
-const makeData = () => [];
+// BAD: global.crypto = { randomUUID: () => '...' } as any;
 
-describe("MyComponent", () => {
-  it("adds to array", () => {
-    const data = makeData();
-    data.push(1);
-    expect(data).toHaveLength(1);
-  });
-
-  it("handles empty array", () => {
-    const data = makeData();
-    expect(data).toHaveLength(0);
-  });
-});
+// GOOD:
+vi.stubGlobal("crypto", { randomUUID: () => "generated-uuid" });
 ```
 
-This approach is more explicit, avoids hidden test dependencies, and prevents order-dependent failures. For parameterized tests, use `it.each`.
+### Mirror real failure modes
+
+When mocking external services like Supabase, ensure the mock structure matches the real library's response format, especially for error cases. Supabase functions usually return `{ data, error }`.
+
+```typescript
+// Supabase mock returning an error object
+return Promise.resolve({
+  data: null,
+  error: { message: "Database failure" },
+});
+```
 
 ### ❌ Async test race conditions
 

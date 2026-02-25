@@ -6,56 +6,63 @@ alwaysApply: false
 
 # Comment Agent
 
-Add/update comments only. **Never refactor or modify source code logic.**
+Add/update comments to provide context and clarity. **Never refactor or modify functional logic.**
 
 ## Core Rules
 
-- **No types in JSDoc** — use `@param props`, not `@param {Props} props`
-- **Comments above code** — never on the same line
-- **Explain "why," not "what"** — if code is obvious, don't comment it
-- **Max 100 chars per line** — use multi-line for longer comments
+1. **No Logic Changes**: Only add or update comments. Never modify source code.
+2. **TypeScript Native**: Never include types in JSDoc (e.g., use `@param props`, not `@param {Props} props`).
+3. **Placement**: Always place comments immediately **above** the target code, never on the same line.
+4. **Explain "Why," Not "What"**: Avoid redundant descriptions of obvious code. Focus on the reason/context.
+5. **Max Line Length**: Keep JSDoc and `//` lines under **100 characters**.
+6. **Professionalism**: Avoid unprofessional language, blame, or "hazard lights" (apologizing for bad code).
 
-## JSDoc vs Inline Comments
+## Comment Styles
 
-- **JSDoc (`/** */`)** — for symbols (functions, components, types, constants)
-- **Inline (`//`)** — for non-symbol code (above `useEffect`, test blocks, groups of related items)
+### JSDoc (`/** */`)
+Use for **symbols** (functions, components, types, constants).
 
-## JSDoc Format
+- **Multi-line format**: Start with `/**` on its own line and end with `*/` on its own line.
+- **Don't repeat names**: Do not start JSDoc with the function or symbol name.
+- **Param naming**: Use `@param propertyName`, not `@param props.propertyName`.
+- **Always include `@returns`**: Every function must have a `@returns` tag. Use `@returns void` for void functions.
+- **Object returns**: Document each returned property with its own `@returns` tag (no need for a top-level object description).
+- **Single-line**: Use `/** description */` for short symbol descriptions.
 
+### Inline (`//`)
+Use for **non-symbol code** (logic groups, `useEffect`, complex setup).
+
+- Use for groups of related constants (don't use one JSDoc for multiple symbols).
+- In **test files**: Use `//` style only. Never use JSDoc above `describe` or `it/test` blocks. Keep test comments extremely concise.
+
+## Examples
+
+### Component JSDoc
 ```tsx
-// Single-line for short descriptions:
-/** Minimum allowed slide index */
-const MIN_SLIDE_INDEX = 0;
-
-// Multi-line — first line is /**, last line is */
 /**
- * Renders delete confirmation UI.
- * Maintainers: Avoids alignment shifts seen in separate-row implementations.
+ * Renders the inner TD content for the full-width delete confirmation UI.
+ * Maintainers: This avoids alignment shifts seen in separate-row implementations.
  *
- * @param colSpan - number of columns to span
+ * @param colSpan - number of columns to span across the grid
  * @returns React element (TD)
  */
 ```
 
-## @param and @returns
-
-- Don't repeat parent name: use `@param colSpan`, not `@param props.colSpan`
-- Document all params and `@returns` (unless void)
-- For object returns, document each property:
-
-```tsx
- * @returns isNotFound - true when slug did not resolve
+### Function with Object Return
+```ts
+/**
+ * Fetches and validates song data from the store.
+ *
+ * @param slug - unique song identifier
+ * @returns isNotFound - true when the slug did not resolve
  * @returns songData - raw store payload or undefined
+ * @returns songPublic - validated SongPublic payload
+ */
 ```
 
-## Test Files
-
-- Use `//` comments only (no JSDoc) above `describe`/`it`
-- Keep extremely concise
-- Only comment if test isn't self-explanatory
-
-## Don't
-
-- Comment obvious code (`// check if user is active` for `if (user.isActive)`)
-- Use JSDoc to comment multiple symbols at once
-- Write paragraphs — brevity signals good code
+### Related Constants
+```ts
+// Numeric constants used in assertions to make expected values explicit.
+const ZERO = 0;
+const ONE = 1;
+```

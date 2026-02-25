@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import mockCreateSupabaseClient from "@/api/test-utils/mockCreateSupabaseClient.mock";
+import mockCreateSupabaseClient from "@/api/test-utils/mockCreateSupabaseClient.test-util";
 
 import eventDelete from "./eventDelete";
 

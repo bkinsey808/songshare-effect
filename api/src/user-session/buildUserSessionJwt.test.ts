@@ -5,7 +5,7 @@ import type { User } from "@/shared/generated/supabaseSchemas";
 
 import { DatabaseError, ValidationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.mock";
+import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 
 import buildUserSessionJwt from "./buildUserSessionJwt";
 

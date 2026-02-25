@@ -6,52 +6,70 @@ alwaysApply: false
 
 # Unit Test Agent
 
-Write and maintain unit tests only. **Never modify application source files or configuration.**
+Write and maintain **unit tests only**. Never modify application source files or configuration. Never instruct users to run git/PR commands.
 
-## Core Rules
+## Boundaries
 
-1. **Never edit source code** — If a failing test reveals a bug, open an issue; don't change source to make tests pass
-2. **Never disable lint rules** or change config files (`tsconfig.*`, `package.json`, `vitest.config.ts`, `.eslintrc*`)
-3. **Test against mock data values**, not duplicated literals:
+1. **Never edit source code** — If a failing test reveals a bug, open an issue; don't change source to make tests pass.
+2. **Never change config** — No edits to `tsconfig.*`, `package.json`, `vitest.config.ts`, `.eslintrc*`, etc.
+3. **Coverage goal: >= 90%** — Add tests until threshold is met.
+4. **Work one file at a time** — Perfect each file before moving to the next.
 
-```ts
-// Bad:
-expect(getUserName()).toBe('John Doe');
-// Good:
-const mockUser = { name: 'John Doe' };
-expect(getUserName()).toBe(mockUser.name);
-```
+## Validation Commands
 
-4. Test actual implementations, not mocks — tests must validate real behavior
-5. Avoid duplicate tests — check existing tests first
-6. **Coverage goal: >= 90%**
-
-## Validation Commands (run before and after changes)
-
+Run before and after each change:
 ```bash
-npm run lint && npx tsc -b . && npm run test:unit -- --coverage
+npx tsc -b . && npm run test:unit -- [filepath] --coverage
 ```
+*Note: Use `npm run lint` for broader checks.*
 
-## No `beforeEach` / `afterEach`
+## Quality Standards
 
-Use these patterns instead:
+### Data & Mocking
+- **Test against mock data**, not duplicated literals:
+  ```ts
+  const mockUser = { name: 'John Doe' };
+  expect(getUserName()).toBe(mockUser.name); // Good
+  ```
+- **Test real implementations**, not mocks — validate actual behavior.
+- **Mock external dependencies** only (APIs, network, browser APIs). Avoid mocking internal code you own.
+- **Cast mocked imports**: Use `vi.mocked(symbol)` (preferred) or `(symbol as MockedFunction<typeof symbol>)`.
+- **No magic numbers**: Extract literals to named constants (e.g., `const expectedCount = 1`).
 
-- **Per-test inline setup** — `vi.resetAllMocks()` + `makeSetup()` at top of each `it`
-- **Factory helpers** — small functions returning fresh mocks/state
-- **Explicit cleanup** — call cleanup in test body, not `afterEach`
-- **Parameterized tests** — `it.each` for multiple inputs
+### Structure & Patterns
+- **No lifecycle hooks**: Avoid `beforeEach`/`afterEach`.
+  - Use **per-test setup** (`vi.resetAllMocks()` + `makeSetup()` helper) inside each `it` block.
+  - Or use an **`async init()`** helper inside `describe` for complex imports/mocks.
+- **Descriptive names**: "should [behavior] when [condition]".
+- **Arrange-Act-Assert**: Clear separation with blank lines.
+- **Testing Library queries**: Priority: `getByRole` > `getByLabelText` > `getByPlaceholderText` > `getByText` > `getByTestId`.
+- **Avoid `act`**: Use direct state updates or `waitFor` instead of wrapping in `act()`.
 
-## File Conventions
+### Async & Timers
+- **Use waitFor/findBy** — never arbitrary timeouts.
+- **Clean up side effects** (timers, subscriptions).
+- Use `vi.useFakeTimers()` / `vi.runAllTimers()` / `vi.useRealTimers()` for time-dependent logic.
 
-- Component/hook tests: `*.test.tsx`
-- Other tests: `*.test.ts`
-- Co-locate tests with source files
-- Use Vitest + React Testing Library
-- Static `import` statements at top of file (no dynamic `import()` unless code-splitting)
+## Project-Specific Patterns
+
+### API & Effect Tests
+- Use **`makeCtx()`** for Hono `ReadonlyContext` and **`makeSupabaseClient()`** for DB mocks.
+- **Mock Effect functions**: Use `vi.spyOn(module, "default").mockReturnValue(Effect.succeed(data))`.
+- **Run Effects**: Use `await Effect.runPromise(handler(ctx))`.
+
+### React & Hook Tests
+- Use **`RouterWrapper`** from `@/react/lib/test-utils/RouterWrapper` for route context.
+- Use shared helpers in `react/src/lib/test-utils` (e.g., `asNull`, `asNever`, `makeChangeEvent`).
+
+## Documentation & Comments
+- **Explain "why," not "what"**.
+- **JSDoc (`/** */`)** for symbols; no types in JSDoc (use `@param name - description`).
+- **Inline comments (`//`)** for logic explanations; place above code, never on the same line.
+- **Local oxlint-disables**: Only permitted directly above small helper functions. **Never** in `describe`/`it` blocks or at file top level.
 
 ## Workflow
-
-1. Work **one test file at a time** — get it perfect before moving to next
-2. Run validation commands after each change
-3. If lint/tsc errors block progress, report and ask for guidance
-4. Continue until file passes all validation and meets coverage goal
+1. Read existing tests to avoid duplicates.
+2. Add tests following patterns above.
+3. Run validation commands and report results (lint/tsc/test/coverage).
+4. If errors block progress, report and ask for guidance.
+5. Suggest Conventional Commit message (e.g., `test(foo): add unit tests for Bar`).

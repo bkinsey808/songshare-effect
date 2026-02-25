@@ -5,3 +5,12 @@ export type MultiMaybeResult = Promise<{ data: unknown[] | null | undefined; err
 
 export type SingleBuilder = { single: () => SingleResult };
 export type MaybeSingleBuilder = { single: () => MaybeSingleResult };
+
+/**
+ * Type representing a Supabase row in tests, which permits `null` or `undefined`
+ * for any property to match Supabase's behavior for nullable columns and
+ * vitest's exactOptionalPropertyTypes configuration.
+ */
+export type MockRow<TRow> = {
+	[TKey in keyof TRow]?: TRow[TKey] | null | undefined;
+};

@@ -9,7 +9,7 @@ import buildClearCookieHeader from "@/api/cookie/buildClearCookieHeader";
 import verifyDoubleSubmitOrThrow from "@/api/csrf/verifyDoubleSubmitOrThrow";
 import verifySameOriginOrThrow from "@/api/csrf/verifySameOriginOrThrow";
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import mockCreateSupabaseClient from "@/api/test-utils/mockCreateSupabaseClient.mock";
+import mockCreateSupabaseClient from "@/api/test-utils/mockCreateSupabaseClient.test-util";
 import { HTTP_FORBIDDEN } from "@/shared/constants/http";
 
 import accountDelete from "./accountDelete";

@@ -2,7 +2,10 @@ import { Effect } from "effect";
 import { verify } from "hono/jwt";
 import { describe, expect, it, vi } from "vitest";
 
-import { mockVerifyFailure, mockVerifySuccess } from "@/api/test-utils/makeHonoJwt.mock";
+import {
+	mockHonoJwtVerifyFailure,
+	mockHonoJwtVerifySuccess,
+} from "@/api/hono/makeHonoJwt.test-util";
 
 import verifyUserSessionToken from "./verifyUserSessionToken";
 
@@ -13,7 +16,7 @@ describe("verifyUserSessionToken", () => {
 		vi.resetAllMocks();
 
 		const payload = { sub: "user-1", foo: "bar" };
-		mockVerifySuccess(payload);
+		mockHonoJwtVerifySuccess(payload);
 
 		const result = await Effect.runPromise(
 			verifyUserSessionToken("token-abc", { JWT_SECRET: "s3cr3t" }),
@@ -40,7 +43,7 @@ describe("verifyUserSessionToken", () => {
 	it("maps verify rejection (Error) to AuthenticationError with original message", async () => {
 		vi.resetAllMocks();
 
-		mockVerifyFailure(new Error("invalid token"));
+		mockHonoJwtVerifyFailure(new Error("invalid token"));
 
 		await expect(
 			Effect.runPromise(verifyUserSessionToken("token-abc", { JWT_SECRET: "s3cr3t" })),
@@ -52,7 +55,7 @@ describe("verifyUserSessionToken", () => {
 	it("maps verify rejection (non-Error) to AuthenticationError with stringified message", async () => {
 		vi.resetAllMocks();
 
-		mockVerifyFailure("string-error");
+		mockHonoJwtVerifyFailure("string-error");
 
 		await expect(
 			Effect.runPromise(verifyUserSessionToken("token-abc", { JWT_SECRET: "s3cr3t" })),

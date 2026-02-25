@@ -1,24 +1,14 @@
 import type { User, UserInsert } from "@/shared/generated/supabaseSchemas";
 
-import type { MaybeSingleResult, MultiMaybeResult } from "./supabase-mock-types";
-
-/**
- * Helper that converts every field of `T` into a possibly-`undefined` value.  This
- * mirrors our usage in tests where records may include explicit `undefined` to
- * prove absence (and satisfies exactOptionalPropertyTypes).
- */
-// id-length complaints would be noise for this helper type
-export type WithUndefinedFields<TValue> = {
-	[KValue in keyof TValue]?: TValue[KValue] | undefined;
-};
+import type { MaybeSingleResult, MockRow, MultiMaybeResult } from "./supabase-mock-types";
 
 export type UserMockOpts = {
-	userMaybe?: WithUndefinedFields<User>;
+	userMaybe?: MockRow<User>;
 	userMaybeError?: unknown;
 	userMaybeReject?: unknown;
-	userInsertRows?: WithUndefinedFields<UserInsert>[];
+	userInsertRows?: MockRow<UserInsert>[];
 	userInsertError?: unknown;
-	userDeleteRows?: WithUndefinedFields<User>[];
+	userDeleteRows?: MockRow<User>[];
 	userDeleteError?: unknown;
 };
 

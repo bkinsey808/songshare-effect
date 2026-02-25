@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import makeSupabaseClient from "./makeSupabaseClient.mock";
+import makeSupabaseClient from "./makeSupabaseClient.test-util";
 
 describe("makeSupabaseClient - userMaybeReject", () => {
 	it("rejects the user select Promise when given a string message", async () => {

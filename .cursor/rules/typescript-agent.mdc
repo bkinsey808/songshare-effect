@@ -6,39 +6,40 @@ alwaysApply: false
 
 # TypeScript Agent
 
-Small-to-medium TypeScript and React changes following project conventions.
+Small-to-medium TypeScript and React changes following project conventions. **Never run git write operations (commits, pushes) or make large architectural changes without explicit approval.**
 
 ## TypeScript Rules
 
-- Avoid `any` — prefer `unknown` if unsure, aim for precise types
-- Use strict null checks; avoid non-null assertions (`!`) unless necessary
-- Prefer `type` over `interface` (unless extending existing interfaces)
-- Prefer Effect TS over promises at module/function top level
-- Use `async/await` instead of `.then()` chains
-- All functions must have JSDoc comments with `@param` and `@returns`
+- **Avoid `any`**: Prefer `unknown` if unsure, and aim for precise types.
+- **Strict Null Checks**: Avoid non-null assertions (`!`) unless absolutely necessary.
+- **Prefer `type` over `interface`**: For object shapes, unless extending existing interfaces.
+- **Prefer Effect-TS**: Use Effect-TS instead of promises at module and function top levels.
+- **Async/Await**: Use `async/await` syntax instead of `.then()` chains.
+- **Module Organization**: No barrel files. Import directly from source files. Do not use `export { x } from "./file"`.
 
-## Project-Specific Rules
+## React & React Compiler
 
-- **React Compiler project** — no manual memoization (`useCallback`, `useMemo`, `memo`) unless documented performance reason + human approval
-- Prefer plain `function` declarations with explicit return types for handlers/callbacks
-- **Oxlint, not ESLint** — use oxlint disable comments
-- **No barrel files** — import directly from source, no `index.ts` re-exports
-- **No re-exports** — `export { x } from "./file"` is discouraged
-- Unit tests use Vitest, co-located with source
+- **No Manual Memoization**: This project uses the React Compiler. **Do not** use `useCallback`, `useMemo`, or `memo` unless there is a documented performance reason and human approval.
+- **Event Handlers**: Prefer plain `function` declarations (e.g., `function handle(): void {}`) with explicit return types over arrow functions for handlers and local callbacks.
 
-## Validation (run after changes)
+## Documentation & Comments
 
-```bash
-npm run format:check   # formatting
-npm run lint           # oxlint
-npm run test:unit      # vitest
-```
+- **JSDoc Mandatory**: All functions must have JSDoc comments with `@param` and `@returns` descriptions.
+- **No Types in JSDoc**: **Never** put types in JSDoc (e.g., use `@param ctx - description`, NOT `@param {Context} ctx`). TypeScript already carries the types.
+- **Placement**: Comments must be placed **above** the target code, never on the same line.
 
-If any fail, report errors and stop until user provides direction.
+## Validation Commands
+
+Before returning control, you must run and pass:
+1. **Formatting**: `npm run format:check` (or `npx oxfmt --check .`)
+2. **Linting**: `npm run lint` (or `npx oxlint --config .oxlintrc.json --type-aware .`)
+3. **Tests**: `npx vitest run <path-to-test>` (or `npm run test:unit`)
+
+If any validation step fails, report the errors and stop further changes until the user provides direction.
 
 ## Workflow
 
-- Small, focused changes with corresponding unit tests
-- When affecting public APIs, ask user first
-- Provide short preamble summarizing change + next steps
-- No git commits/pushes — propose commands, let human run them
+- **Focused Changes**: Make small, targeted edits with corresponding unit tests.
+- **Public APIs**: Ask the user before proposing changes that affect public APIs.
+- **Reporting**: Provide a short preamble (one sentence plan + one sentence next action).
+- **Git Safety**: Do not run `git commit`, `git push`, or branch creation. Propose the exact commands for the human to run.

@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { userSessionCookieName } from "@/api/cookie/cookie";
 import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.mock";
+import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 import { csrfTokenCookieName } from "@/shared/cookies";
 
 import accountRegister from "./accountRegister";

@@ -3,8 +3,11 @@ import { verify } from "hono/jwt";
 import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
+import {
+	mockHonoJwtVerifyFailure,
+	mockHonoJwtVerifySuccess,
+} from "@/api/hono/makeHonoJwt.test-util";
 import mockDecodeThrow from "@/api/test-utils/makeDecodeUnknownSync.test-util";
-import { mockVerifyFailure, mockVerifySuccess } from "@/api/test-utils/makeHonoJwt.mock";
 import mockDecodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow.test-util";
 
 import { parseDataFromCookie } from "./parseDataFromCookie";
@@ -23,7 +26,7 @@ describe("parseDataFromCookie", () => {
 			env: { JWT_SECRET: "jwt-secret" },
 		});
 
-		mockVerifySuccess({ foo: "bar" });
+		mockHonoJwtVerifySuccess({ foo: "bar" });
 		mockDecodeUnknownSyncOrThrow({ foo: "bar" });
 
 		const res = await parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema });
@@ -70,7 +73,7 @@ describe("parseDataFromCookie", () => {
 			env: { JWT_SECRET: "jwt-secret" },
 		});
 
-		mockVerifyFailure(new Error("invalid token"));
+		mockHonoJwtVerifyFailure(new Error("invalid token"));
 
 		const res = await parseDataFromCookie({
 			ctx,
@@ -89,7 +92,7 @@ describe("parseDataFromCookie", () => {
 			env: { JWT_SECRET: "jwt-secret" },
 		});
 
-		mockVerifyFailure(new Error("invalid token"));
+		mockHonoJwtVerifyFailure(new Error("invalid token"));
 
 		await expect(
 			parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema }),
@@ -104,7 +107,7 @@ describe("parseDataFromCookie", () => {
 			env: { JWT_SECRET: "jwt-secret" },
 		});
 
-		mockVerifySuccess({ bad: "payload" });
+		mockHonoJwtVerifySuccess({ bad: "payload" });
 		mockDecodeThrow(new Error("schema mismatch"));
 
 		const res = await parseDataFromCookie({
@@ -124,7 +127,7 @@ describe("parseDataFromCookie", () => {
 			env: { JWT_SECRET: "jwt-secret" },
 		});
 
-		mockVerifySuccess({ bad: "payload" });
+		mockHonoJwtVerifySuccess({ bad: "payload" });
 		mockDecodeThrow(new Error("schema mismatch"));
 
 		await expect(

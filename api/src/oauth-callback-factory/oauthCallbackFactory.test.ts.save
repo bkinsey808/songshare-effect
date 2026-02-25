@@ -1,0 +1,1676 @@
+ cat <<'BASE64' | base64 -w0
+import { Effect } from "effect";
+import { getCookie } from "hono/cookie";
+import { verify } from "hono/jwt";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import type { OauthState } from "@/shared/oauth/oauthState";
+
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
+import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
+import rateLimit from "@/api/oauth-callback-factory/rateLimit";
+import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
+import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
+import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
+import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
+
+import oauthCallbackFactory from "./oauthCallbackFactory";
+import { SEE_OTHER } from "./registrationRedirect";
+
+// mock every external dependency so tests can control their return values
+vi.mock("@/api/oauth-callback-factory/rateLimit", () => ({ default: vi.fn() }));
+vi.mock("hono/jwt", () => ({ verify: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/registrationRedirect", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/fetchAndPrepareUser", () => ({ default: vi.fn() }));
+vi.mock("@/api/user-session/buildUserSessionJwt", () => ({ default: vi.fn() }));
+vi.mock("@/api/cookie/buildSessionCookie", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/buildDashboardRedirectUrl", () => ({ default: vi.fn() }));
+vi.mock("hono/cookie", () => ({ getCookie: vi.fn() }));
+
+const mockedRateLimit = vi.mocked(rateLimit);
+const mockedVerify = vi.mocked(verify);
+const mockedComputeStateRedirectUri = vi.mocked(computeStateRedirectUri);
+const mockedHandleRegistration = vi.mocked(handleRegistration);
+const mockedFetchAndPrepareUser = vi.mocked(fetchAndPrepareUser);
+const mockedBuildUserSessionJwt = vi.mocked(buildUserSessionJwt);
+const mockedBuildSessionCookie = vi.mocked(buildSessionCookie);
+const mockedBuildDashboardRedirectUrl = vi.mocked(buildDashboardRedirectUrl);
+const mockedGetCookie = vi.mocked(getCookie);
+
+// small fake context that satisfies the factory's usage
+function makeCtx(url = "https://example.com/", env: unknown = {}): ReadonlyContext {
+  const headers = new Headers();
+  return {
+    res: { headers },
+    env: env as any,
+    req: { header: () => "", url },
+    redirect: (loc: string, status = SEE_OTHER) =>
+      new Response(undefined, { status, headers: { Location: loc } }),
+  } as unknown as ReadonlyContext;
+}
+
+function getCookieHeader(ctx: ReadonlyContext): string | null {
+  return (ctx as unknown as { res: { headers: Headers } }).res.headers.get("Set-Cookie");
+}
+
+describe("oauthCallbackFactory", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // default mocks
+    mockedRateLimit.mockResolvedValue(true);
+    mockedVerify.mockResolvedValue({});
+    mockedComputeStateRedirectUri.mockReturnValue("https://callback");
+    mockedHandleRegistration.mockImplementation(() =>
+      Effect.succeed(new Response("reg", { status: SEE_OTHER })),
+    );
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      (Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }) as any),
+    );
+    mockedBuildUserSessionJwt.mockResolvedValue(Effect.succeed("jwt"));
+    mockedBuildSessionCookie.mockImplementation(({ name }: { name: string }) => `${name}=val`);
+    mockedBuildDashboardRedirectUrl.mockReturnValue("/dash");
+    mockedGetCookie.mockReturnValue(undefined);
+  });
+
+  it("redirects when rate limit disallows", async () => {
+    mockedRateLimit.mockResolvedValue(false);
+    const ctx = makeCtx("https://example.com/?code=1&state=2");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("rateLimit");
+  });
+
+  it("handles missing code or state", async () => {
+    const ctx = makeCtx("https://example.com/");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("missingData");
+  });
+
+  it("fails CSRF validation when cookie doesn't match", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("bad");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("securityFailed");
+  });
+
+  it("delegates to handleRegistration when user is new", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: undefined,
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    const text = await resp.text();
+    expect(text).toBe("reg");
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    expect(mockedHandleRegistration).toHaveBeenCalled();
+  });
+
+  it("creates session for existing user and sets cookies/redirects dashboard", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      (Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }) as any),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toBe("/dash");
+
+    const cookieHeader = getCookieHeader(ctx);
+    expect(cookieHeader).toContain("userSessionCookieName");
+    expect(cookieHeader).toContain("csrf");
+  });
+
+  it("redirects with providerMismatch when providers differ", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "microsoft",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      (Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }) as any),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("providerMismatch");
+  });
+});
+BASE64
+ cat <<'TEXT' | base64 -w0 > /tmp/oauthtest.b64
+import { Effect } from "effect";
+import { getCookie } from "hono/cookie";
+import { verify } from "hono/jwt";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import type { OauthState } from "@/shared/oauth/oauthState";
+
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
+import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
+import rateLimit from "@/api/oauth-callback-factory/rateLimit";
+import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
+import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
+import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
+import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
+
+import oauthCallbackFactory from "./oauthCallbackFactory";
+import { SEE_OTHER } from "./registrationRedirect";
+
+// mock every external dependency so tests can control their return values
+vi.mock("@/api/oauth-callback-factory/rateLimit", () => ({ default: vi.fn() }));
+vi.mock("hono/jwt", () => ({ verify: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/registrationRedirect", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/fetchAndPrepareUser", () => ({ default: vi.fn() }));
+vi.mock("@/api/user-session/buildUserSessionJwt", () => ({ default: vi.fn() }));
+vi.mock("@/api/cookie/buildSessionCookie", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/buildDashboardRedirectUrl", () => ({ default: vi.fn() }));
+vi.mock("hono/cookie", () => ({ getCookie: vi.fn() }));
+
+const mockedRateLimit = vi.mocked(rateLimit);
+const mockedVerify = vi.mocked(verify);
+const mockedComputeStateRedirectUri = vi.mocked(computeStateRedirectUri);
+const mockedHandleRegistration = vi.mocked(handleRegistration);
+const mockedFetchAndPrepareUser = vi.mocked(fetchAndPrepareUser);
+const mockedBuildUserSessionJwt = vi.mocked(buildUserSessionJwt);
+const mockedBuildSessionCookie = vi.mocked(buildSessionCookie);
+const mockedBuildDashboardRedirectUrl = vi.mocked(buildDashboardRedirectUrl);
+const mockedGetCookie = vi.mocked(getCookie);
+
+// small fake context that satisfies the factory's usage
+function makeCtx(url = "https://example.com/", env: unknown = {}): ReadonlyContext {
+  const headers = new Headers();
+  return {
+    res: { headers },
+    env: env as any,
+    req: { header: () => "", url },
+    redirect: (loc: string, status = SEE_OTHER) =>
+      new Response(undefined, { status, headers: { Location: loc } }),
+  } as unknown as ReadonlyContext;
+}
+
+function getCookieHeader(ctx: ReadonlyContext): string | null {
+  return (ctx as unknown as { res: { headers: Headers } }).res.headers.get("Set-Cookie");
+}
+
+describe("oauthCallbackFactory", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // default mocks
+    mockedRateLimit.mockResolvedValue(true);
+    mockedVerify.mockResolvedValue({});
+    mockedComputeStateRedirectUri.mockReturnValue("https://callback");
+    mockedHandleRegistration.mockImplementation(() =>
+      Effect.succeed(new Response("reg", { status: SEE_OTHER })),
+    );
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      (Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }) as any),
+    );
+    mockedBuildUserSessionJwt.mockResolvedValue(Effect.succeed("jwt"));
+    mockedBuildSessionCookie.mockImplementation(({ name }: { name: string }) => `${name}=val`);
+    mockedBuildDashboardRedirectUrl.mockReturnValue("/dash");
+    mockedGetCookie.mockReturnValue(undefined);
+  });
+
+  it("redirects when rate limit disallows", async () => {
+    mockedRateLimit.mockResolvedValue(false);
+    const ctx = makeCtx("https://example.com/?code=1&state=2");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("rateLimit");
+  });
+
+  it("handles missing code or state", async () => {
+    const ctx = makeCtx("https://example.com/");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("missingData");
+  });
+
+  it("fails CSRF validation when cookie doesn't match", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("bad");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("securityFailed");
+  });
+
+  it("delegates to handleRegistration when user is new", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: undefined,
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    const text = await resp.text();
+    expect(text).toBe("reg");
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    expect(mockedHandleRegistration).toHaveBeenCalled();
+  });
+
+  it("creates session for existing user and sets cookies/redirects dashboard", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      (Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }) as any),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toBe("/dash");
+
+    const cookieHeader = getCookieHeader(ctx);
+    expect(cookieHeader).toContain("userSessionCookieName");
+    expect(cookieHeader).toContain("csrf");
+  });
+
+  it("redirects with providerMismatch when providers differ", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "microsoft",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      (Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }) as any),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("providerMismatch");
+  });
+});
+TEXT
+ ls -l /tmp/oauthtest.b64 && head -n 3 /tmp/oauthtest.b64
+ rm api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ ls api/src/oauth-callback-factory | grep oauthCallbackFactory.test.ts || echo "missing"
+ if [ -f api/src/oauth-callback-factory/oauthCallbackFactory.test.ts ]; then echo exists; else echo missing; fi
+ if [ -f api/src/oauth-callback-factory/oauthCallbackFactory.test.ts ]; then echo exists; else echo missing; fi
+ cat <<'EOF' > api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+import { Effect } from "effect";
+import { getCookie } from "hono/cookie";
+import { verify } from "hono/jwt";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import type { OauthState } from "@/shared/oauth/oauthState";
+
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
+import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
+import rateLimit from "@/api/oauth-callback-factory/rateLimit";
+import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
+import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
+import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
+import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
+
+import oauthCallbackFactory from "./oauthCallbackFactory";
+import { SEE_OTHER } from "./registrationRedirect";
+
+// mock every external dependency so tests can control their return values
+vi.mock("@/api/oauth-callback-factory/rateLimit", () => ({ default: vi.fn() }));
+vi.mock("hono/jwt", () => ({ verify: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/registrationRedirect", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/fetchAndPrepareUser", () => ({ default: vi.fn() }));
+vi.mock("@/api/user-session/buildUserSessionJwt", () => ({ default: vi.fn() }));
+vi.mock("@/api/cookie/buildSessionCookie", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/buildDashboardRedirectUrl", () => ({ default: vi.fn() }));
+vi.mock("hono/cookie", () => ({ getCookie: vi.fn() }));
+
+const mockedRateLimit = vi.mocked(rateLimit);
+const mockedVerify = vi.mocked(verify);
+const mockedComputeStateRedirectUri = vi.mocked(computeStateRedirectUri);
+const mockedHandleRegistration = vi.mocked(handleRegistration);
+const mockedFetchAndPrepareUser = vi.mocked(fetchAndPrepareUser);
+const mockedBuildUserSessionJwt = vi.mocked(buildUserSessionJwt);
+const mockedBuildSessionCookie = vi.mocked(buildSessionCookie);
+const mockedBuildDashboardRedirectUrl = vi.mocked(buildDashboardRedirectUrl);
+const mockedGetCookie = vi.mocked(getCookie);
+
+// small fake context that satisfies the factory's usage
+function makeCtx(url = "https://example.com/", env: unknown = {}): ReadonlyContext {
+  const headers = new Headers();
+  return {
+    res: { headers },
+    env: env as any,
+    req: { header: () => "", url },
+    redirect: (loc: string, status = SEE_OTHER) =>
+      new Response(undefined, { status, headers: { Location: loc } }),
+  } as unknown as ReadonlyContext;
+}
+
+function getCookieHeader(ctx: ReadonlyContext): string | null {
+  return (ctx as unknown as { res: { headers: Headers } }).res.headers.get("Set-Cookie");
+}
+
+describe("oauthCallbackFactory", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // default mocks
+    mockedRateLimit.mockResolvedValue(true);
+    mockedVerify.mockResolvedValue({});
+    mockedComputeStateRedirectUri.mockReturnValue("https://callback");
+    mockedHandleRegistration.mockImplementation(() =>
+      Effect.succeed(new Response("reg", { status: SEE_OTHER })),
+    );
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      (Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }) as any),
+    );
+    mockedBuildUserSessionJwt.mockResolvedValue(Effect.succeed("jwt"));
+    mockedBuildSessionCookie.mockImplementation(({ name }: { name: string }) => `${name}=val`);
+    mockedBuildDashboardRedirectUrl.mockReturnValue("/dash");
+    mockedGetCookie.mockReturnValue(undefined);
+  });
+
+  it("redirects when rate limit disallows", async () => {
+    mockedRateLimit.mockResolvedValue(false);
+    const ctx = makeCtx("https://example.com/?code=1&state=2");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("rateLimit");
+  });
+
+  it("handles missing code or state", async () => {
+    const ctx = makeCtx("https://example.com/");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("missingData");
+  });
+
+  it("fails CSRF validation when cookie doesn't match", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("bad");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("securityFailed");
+  });
+
+  it("delegates to handleRegistration when user is new", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: undefined,
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    const text = await resp.text();
+    expect(text).toBe("reg");
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    expect(mockedHandleRegistration).toHaveBeenCalled();
+  });
+
+  it("creates session for existing user and sets cookies/redirects dashboard", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      (Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }) as any),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toBe("/dash");
+
+    const cookieHeader = getCookieHeader(ctx);
+    expect(cookieHeader).toContain("userSessionCookieName");
+    expect(cookieHeader).toContain("csrf");
+  });
+
+  it("redirects with providerMismatch when providers differ", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "microsoft",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      (Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }) as any),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("providerMismatch");
+  });
+});
+EOF
+ node - <<'JS'
+const fs = require('fs');
+fs.writeFileSync('api/src/oauth-callback-factory/oauthCallbackFactory.test.ts', `import { Effect } from "effect";
+import { getCookie } from "hono/cookie";
+import { verify } from "hono/jwt";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import type { OauthState } from "@/shared/oauth/oauthState";
+
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
+import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
+import rateLimit from "@/api/oauth-callback-factory/rateLimit";
+import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
+import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
+import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
+import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
+
+import oauthCallbackFactory from "./oauthCallbackFactory";
+import { SEE_OTHER } from "./registrationRedirect";
+
+// mock every external dependency so tests can control their return values
+vi.mock("@/api/oauth-callback-factory/rateLimit", () => ({ default: vi.fn() }));
+vi.mock("hono/jwt", () => ({ verify: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/registrationRedirect", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/fetchAndPrepareUser", () => ({ default: vi.fn() }));
+vi.mock("@/api/user-session/buildUserSessionJwt", () => ({ default: vi.fn() }));
+vi.mock("@/api/cookie/buildSessionCookie", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/buildDashboardRedirectUrl", () => ({ default: vi.fn() }));
+vi.mock("hono/cookie", () => ({ getCookie: vi.fn() }));
+
+const mockedRateLimit = vi.mocked(rateLimit);
+const mockedVerify = vi.mocked(verify);
+const mockedComputeStateRedirectUri = vi.mocked(computeStateRedirectUri);
+const mockedHandleRegistration = vi.mocked(handleRegistration);
+const mockedFetchAndPrepareUser = vi.mocked(fetchAndPrepareUser);
+const mockedBuildUserSessionJwt = vi.mocked(buildUserSessionJwt);
+const mockedBuildSessionCookie = vi.mocked(buildSessionCookie);
+const mockedBuildDashboardRedirectUrl = vi.mocked(buildDashboardRedirectUrl);
+const mockedGetCookie = vi.mocked(getCookie);
+
+// small fake context that satisfies the factory's usage
+function makeCtx(url = "https://example.com/", env = {}) {
+  const headers = new Headers();
+  return {
+    res: { headers },
+    env: env,
+    req: { header: () => "", url },
+    redirect: (loc, status = SEE_OTHER) =>
+      new Response(undefined, { status, headers: { Location: loc } }),
+  };
+}
+
+function getCookieHeader(ctx) {
+  return ctx.res.headers.get("Set-Cookie");
+}
+
+describe("oauthCallbackFactory", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // default mocks
+    mockedRateLimit.mockResolvedValue(true);
+    mockedVerify.mockResolvedValue({});
+    mockedComputeStateRedirectUri.mockReturnValue("https://callback");
+    mockedHandleRegistration.mockImplementation(() =>
+      Effect.succeed(new Response("reg", { status: SEE_OTHER })),
+    );
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+      (Effect.succeed({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+        supabase: {} ,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }) ),
+    );
+    mockedBuildUserSessionJwt.mockResolvedValue(Effect.succeed("jwt"));
+    mockedBuildSessionCookie.mockImplementation(({ name }) => `${name}=val`);
+    mockedBuildDashboardRedirectUrl.mockReturnValue("/dash");
+    mockedGetCookie.mockReturnValue(undefined);
+  });
+
+  it("redirects when rate limit disallows", async () => {
+    mockedRateLimit.mockResolvedValue(false);
+    const ctx = makeCtx("https://example.com/?code=1&state=2");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("rateLimit");
+  });
+});
+`);
+JS
+ mv api/src/oauth-callback-factory/oauthCallbackFactory.test.new.ts api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ npm run lint -- --max-warnings=0
+ npm run lint -- --max-warnings=0
+ npm run lint -- --max-warnings=0 | tee /tmp/lint.log
+ cat <<'EOF' > api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+import { Effect } from "effect";
+import { getCookie } from "hono/cookie";
+import { verify } from "hono/jwt";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import type { OauthState } from "@/shared/oauth/oauthState";
+
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
+import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
+import rateLimit from "@/api/oauth-callback-factory/rateLimit";
+import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
+import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
+import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
+import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
+
+import oauthCallbackFactory from "./oauthCallbackFactory";
+import { SEE_OTHER } from "./registrationRedirect";
+
+// mocks
+vi.mock("@/api/oauth-callback-factory/rateLimit", () => ({ default: vi.fn() }));
+vi.mock("hono/jwt", () => ({ verify: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/registrationRedirect", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/fetchAndPrepareUser", () => ({ default: vi.fn() }));
+vi.mock("@/api/user-session/buildUserSessionJwt", () => ({ default: vi.fn() }));
+vi.mock("@/api/cookie/buildSessionCookie", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/buildDashboardRedirectUrl", () => ({ default: vi.fn() }));
+vi.mock("hono/cookie", () => ({ getCookie: vi.fn() }));
+
+const mockedRateLimit = vi.mocked(rateLimit);
+const mockedVerify = vi.mocked(verify);
+const mockedComputeStateRedirectUri = vi.mocked(computeStateRedirectUri);
+const mockedHandleRegistration = vi.mocked(handleRegistration);
+const mockedFetchAndPrepareUser = vi.mocked(fetchAndPrepareUser);
+const mockedBuildUserSessionJwt = vi.mocked(buildUserSessionJwt);
+const mockedBuildSessionCookie = vi.mocked(buildSessionCookie);
+const mockedBuildDashboardRedirectUrl = vi.mocked(buildDashboardRedirectUrl);
+const mockedGetCookie = vi.mocked(getCookie);
+
+function makeCtx(url = "https://example.com/", env: unknown = {}): ReadonlyContext {
+  const headers = new Headers();
+  return {
+    res: { headers },
+    env: env as any, // test only
+    req: { header: () => "", url },
+    redirect: (loc: string, status = SEE_OTHER) =>
+      new Response(undefined, { status, headers: { Location: loc } }),
+  } as unknown as ReadonlyContext;
+}
+
+function getCookieHeader(ctx: ReadonlyContext): string | null {
+  return (ctx as unknown as { res: { headers: Headers } }).res.headers.get("Set-Cookie");
+}
+
+// tests
+
+describe("oauthCallbackFactory", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockedRateLimit.mockResolvedValue(true);
+    mockedVerify.mockResolvedValue({} as OauthState);
+    mockedComputeStateRedirectUri.mockReturnValue("https://callback");
+    mockedHandleRegistration.mockImplementation(() =>
+      Effect.succeed(new Response("reg", { status: SEE_OTHER })),
+    );
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      Effect.succeed({
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      } as any),
+    );
+    mockedBuildUserSessionJwt.mockResolvedValue(Effect.succeed("jwt"));
+    mockedBuildSessionCookie.mockImplementation(({ name }: { name: string }) => `${name}=val`);
+    mockedBuildDashboardRedirectUrl.mockReturnValue("/dash");
+    mockedGetCookie.mockReturnValue(undefined);
+  });
+
+  it("redirects when rate limit disallows", async () => {
+    mockedRateLimit.mockResolvedValue(false);
+    const ctx = makeCtx("https://example.com/?code=1&state=2");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("rateLimit");
+  });
+
+  it("handles missing code or state", async () => {
+    const ctx = makeCtx("https://example.com/");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("missingData");
+  });
+
+  it("fails CSRF validation when cookie doesn't match", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("bad");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("securityFailed");
+  });
+
+  it("delegates to handleRegistration when user is new", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      Effect.succeed({
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: undefined,
+      } as any),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    const text = await resp.text();
+    expect(text).toBe("reg");
+    expect(mockedHandleRegistration).toHaveBeenCalled();
+  });
+
+  it("creates session for existing user and sets cookies/redirects dashboard", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      Effect.succeed({
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      } as any),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toBe("/dash");
+
+    const cookieHeader = getCookieHeader(ctx);
+    expect(cookieHeader).toContain("userSessionCookieName");
+    expect(cookieHeader).toContain("csrf");
+  });
+
+  it("redirects with providerMismatch when providers differ", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState: OauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "microsoft",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockResolvedValue(
+      Effect.succeed({
+        supabase: {} as any,
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      } as any),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("providerMismatch");
+  });
+});
+EOF
+ rm api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ ls -l api/src/oauth-callback-factory/oauthCallbackFactory.test.ts && rm api/src/oauth-callback-factory/oauthCallbackFactory.test.ts && echo removed
+ node -e "require('fs').unlinkSync('api/src/oauth-callback-factory/oauthCallbackFactory.test.ts'); console.log('deleted');"
+ ls -l api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ npm run test:unit -- --runTestsByPath api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ node - <<'EOF'
+const fs = require('fs');
+const content = `import { Effect } from "effect";
+import { getCookie } from "hono/cookie";
+import { verify } from "hono/jwt";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import type { OauthState } from "@/shared/oauth/oauthState";
+
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
+import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
+import rateLimit from "@/api/oauth-callback-factory/rateLimit";
+import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
+import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
+import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
+import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
+
+import oauthCallbackFactory from "./oauthCallbackFactory";
+import { SEE_OTHER } from "./registrationRedirect";
+
+// mock every external dependency so tests can control their return values
+vi.mock("@/api/oauth-callback-factory/rateLimit", () => ({ default: vi.fn() }));
+vi.mock("hono/jwt", () => ({ verify: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/registrationRedirect", () => ({ default: vi.fn(), SEE_OTHER: 303 }));
+vi.mock("@/api/oauth/fetchAndPrepareUser", () => ({ default: vi.fn() }));
+vi.mock("@/api/user-session/buildUserSessionJwt", () => ({ default: vi.fn() }));
+vi.mock("@/api/cookie/buildSessionCookie", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/buildDashboardRedirectUrl", () => ({ default: vi.fn() }));
+vi.mock("hono/cookie", () => ({ getCookie: vi.fn() }));
+
+const mockedRateLimit = vi.mocked(rateLimit);
+const mockedVerify = vi.mocked(verify);
+const mockedComputeStateRedirectUri = vi.mocked(computeStateRedirectUri);
+const mockedHandleRegistration = vi.mocked(handleRegistration);
+const mockedFetchAndPrepareUser = vi.mocked(fetchAndPrepareUser);
+const mockedBuildUserSessionJwt = vi.mocked(buildUserSessionJwt);
+const mockedBuildSessionCookie = vi.mocked(buildSessionCookie);
+const mockedBuildDashboardRedirectUrl = vi.mocked(buildDashboardRedirectUrl);
+const mockedGetCookie = vi.mocked(getCookie);
+
+// small fake context that satisfies the factory's usage
+function makeCtx(url = "https://example.com/", env = { STATE_HMAC_SECRET: "test" }) {
+  const headers = new Headers();
+  return {
+    res: { headers },
+    env: env,
+    req: { header: () => "", url },
+    redirect: (loc, status = SEE_OTHER) =>
+      new Response(undefined, { status, headers: { Location: loc } }),
+  };
+}
+
+function getCookieHeader(ctx) {
+  return ctx.res.headers.get("Set-Cookie");
+}
+
+describe("oauthCallbackFactory", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // default mocks
+    mockedRateLimit.mockResolvedValue(true);
+    mockedVerify.mockResolvedValue({} );
+    mockedComputeStateRedirectUri.mockReturnValue("https://callback");
+    mockedHandleRegistration.mockImplementation(() =>
+      Effect.succeed(new Response("reg", { status: SEE_OTHER })),
+    );
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }),
+    );
+    mockedBuildUserSessionJwt.mockResolvedValue(Effect.succeed("jwt"));
+    mockedBuildSessionCookie.mockImplementation(({ name }) => `${name}=val`);
+    mockedBuildDashboardRedirectUrl.mockReturnValue("/dash");
+    mockedGetCookie.mockReturnValue(undefined);
+  });
+
+  it("redirects when rate limit disallows", async () => {
+    mockedRateLimit.mockResolvedValue(false);
+    const ctx = makeCtx("https://example.com/?code=1&state=2");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("rateLimit");
+  });
+
+  it("handles missing code or state", async () => {
+    const ctx = makeCtx("https://example.com/");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("missingData");
+  });
+
+  it("fails CSRF validation when cookie doesn't match", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("bad");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("securityFailed");
+  });
+
+  it("delegates to handleRegistration when user is new", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: undefined,
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    const text = await resp.text();
+    expect(text).toBe("reg");
+    expect(mockedHandleRegistration).toHaveBeenCalled();
+  });
+
+  it("creates session for existing user and sets cookies/redirects dashboard", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toBe("/dash");
+
+    const cookieHeader = getCookieHeader(ctx);
+    expect(cookieHeader).toContain("userSessionCookieName");
+    expect(cookieHeader).toContain("csrf");
+  });
+
+  it("redirects with providerMismatch when providers differ", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "microsoft",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("providerMismatch");
+  });
+});
+`;
+fs.writeFileSync('api/src/oauth-callback-factory/oauthCallbackFactory.test.ts', content);
+EOF
+ npm run lint -- --max-warnings=0 | tee /tmp/lint2.log
+ nl -ba api/src/oauth-callback-factory/oauthCallbackFactory.test.ts | sed -n '140,160p'
+ nl -ba api/src/oauth-callback-factory/oauthCallbackFactory.test.ts > numbered.txt
+ node - <<'EOF'
+const fs = require('fs');
+const content = `/* eslint-disable jest/no-mocks-import, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
+import { Effect } from "effect";
+import { getCookie } from "hono/cookie";
+import { verify } from "hono/jwt";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import type { OauthState } from "@/shared/oauth/oauthState";
+
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
+import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
+import rateLimit from "@/api/oauth-callback-factory/rateLimit";
+import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
+import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
+import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
+import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
+
+import oauthCallbackFactory from "./oauthCallbackFactory";
+import { SEE_OTHER } from "./registrationRedirect";
+
+// mock every external dependency so tests can control their return values
+vi.mock("@/api/oauth-callback-factory/rateLimit", () => ({ default: vi.fn() }));
+vi.mock("hono/jwt", () => ({ verify: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/registrationRedirect", () => ({ default: vi.fn(), SEE_OTHER: 303 }));
+vi.mock("@/api/oauth/fetchAndPrepareUser", () => ({ default: vi.fn() }));
+vi.mock("@/api/user-session/buildUserSessionJwt", () => ({ default: vi.fn() }));
+vi.mock("@/api/cookie/buildSessionCookie", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/buildDashboardRedirectUrl", () => ({ default: vi.fn() }));
+vi.mock("hono/cookie", () => ({ getCookie: vi.fn() }));
+
+const mockedRateLimit = vi.mocked(rateLimit);
+const mockedVerify = vi.mocked(verify);
+const mockedComputeStateRedirectUri = vi.mocked(computeStateRedirectUri);
+const mockedHandleRegistration = vi.mocked(handleRegistration);
+const mockedFetchAndPrepareUser = vi.mocked(fetchAndPrepareUser);
+const mockedBuildUserSessionJwt = vi.mocked(buildUserSessionJwt);
+const mockedBuildSessionCookie = vi.mocked(buildSessionCookie);
+const mockedBuildDashboardRedirectUrl = vi.mocked(buildDashboardRedirectUrl);
+const mockedGetCookie = vi.mocked(getCookie);
+
+// small fake context that satisfies the factory's usage
+function makeCtx(url = "https://example.com/", env = { STATE_HMAC_SECRET: "test" }) {
+  const headers = new Headers();
+  return {
+    res: { headers },
+    env: env,
+    req: { header: () => "", url },
+    redirect: (loc, status = SEE_OTHER) =>
+      new Response(undefined, { status, headers: { Location: loc } }),
+  };
+}
+
+function getCookieHeader(ctx) {
+  return ctx.res.headers.get("Set-Cookie");
+}
+
+describe("oauthCallbackFactory", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // default mocks
+    mockedRateLimit.mockResolvedValue(true);
+    mockedVerify.mockResolvedValue({});
+    mockedComputeStateRedirectUri.mockReturnValue("https://callback");
+    mockedHandleRegistration.mockImplementation(() =>
+      Effect.succeed(new Response("reg", { status: SEE_OTHER })),
+    );
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }),
+    );
+    mockedBuildUserSessionJwt.mockImplementation(() => Effect.succeed("jwt"));
+    mockedBuildSessionCookie.mockImplementation(({ name }) => `${name}=val`);
+    mockedBuildDashboardRedirectUrl.mockReturnValue("/dash");
+    mockedGetCookie.mockReturnValue(undefined);
+  });
+
+  it("redirects when rate limit disallows", async () => {
+    mockedRateLimit.mockResolvedValue(false);
+    const ctx = makeCtx("https://example.com/?code=1&state=2");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("rateLimit");
+  });
+
+  it("handles missing code or state", async () => {
+    const ctx = makeCtx("https://example.com/");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("missingData");
+  });
+
+  it("fails CSRF validation when cookie doesn't match", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("bad");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("securityFailed");
+  });
+
+  it("delegates to handleRegistration when user is new", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: undefined,
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    const text = await resp.text();
+    expect(text).toBe("reg");
+    expect(mockedHandleRegistration).toHaveBeenCalled();
+  });
+
+  it("creates session for existing user and sets cookies/redirects dashboard", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toBe("/dash");
+
+    const cookieHeader = getCookieHeader(ctx);
+    expect(cookieHeader).toContain("userSession");
+    expect(cookieHeader).toContain("csrf");
+  });
+
+  it("redirects with providerMismatch when providers differ", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "microsoft",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("providerMismatch");
+  });
+});
+`;
+fs.writeFileSync('api/src/oauth-callback-factory/oauthCallbackFactory.test.ts', content);
+EOF
+ node - <<'EOF'
+const fs = require('fs');
+const content = `/* eslint-disable jest/no-mocks-import, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
+import { Effect } from "effect";
+import { getCookie } from "hono/cookie";
+import { verify } from "hono/jwt";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import type { OauthState } from "@/shared/oauth/oauthState";
+
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
+import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
+import rateLimit from "@/api/oauth-callback-factory/rateLimit";
+import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
+import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
+import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
+import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
+
+import oauthCallbackFactory from "./oauthCallbackFactory";
+import { SEE_OTHER } from "./registrationRedirect";
+
+// mock every external dependency so tests can control their return values
+vi.mock("@/api/oauth-callback-factory/rateLimit", () => ({ default: vi.fn() }));
+vi.mock("hono/jwt", () => ({ verify: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/registrationRedirect", () => ({ default: vi.fn(), SEE_OTHER: 303 }));
+vi.mock("@/api/oauth/fetchAndPrepareUser", () => ({ default: vi.fn() }));
+vi.mock("@/api/user-session/buildUserSessionJwt", () => ({ default: vi.fn() }));
+vi.mock("@/api/cookie/buildSessionCookie", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/buildDashboardRedirectUrl", () => ({ default: vi.fn() }));
+vi.mock("hono/cookie", () => ({ getCookie: vi.fn() }));
+
+const mockedRateLimit = vi.mocked(rateLimit);
+const mockedVerify = vi.mocked(verify);
+const mockedComputeStateRedirectUri = vi.mocked(computeStateRedirectUri);
+const mockedHandleRegistration = vi.mocked(handleRegistration);
+const mockedFetchAndPrepareUser = vi.mocked(fetchAndPrepareUser);
+const mockedBuildUserSessionJwt = vi.mocked(buildUserSessionJwt);
+const mockedBuildSessionCookie = vi.mocked(buildSessionCookie);
+const mockedBuildDashboardRedirectUrl = vi.mocked(buildDashboardRedirectUrl);
+const mockedGetCookie = vi.mocked(getCookie);
+
+// small fake context that satisfies the factory's usage
+function makeCtx(url = "https://example.com/", env = { STATE_HMAC_SECRET: "test" }) {
+  const headers = new Headers();
+  return {
+    res: { headers },
+    env: env,
+    req: { header: () => "", url },
+    redirect: (loc, status = SEE_OTHER) =>
+      new Response(undefined, { status, headers: { Location: loc } }),
+  };
+}
+
+function getCookieHeader(ctx) {
+  return ctx.res.headers.get("Set-Cookie");
+}
+
+describe("oauthCallbackFactory", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // default mocks
+    mockedRateLimit.mockResolvedValue(true);
+    mockedVerify.mockResolvedValue({});
+    mockedComputeStateRedirectUri.mockReturnValue("https://callback");
+    mockedHandleRegistration.mockImplementation(() =>
+      Effect.succeed(new Response("reg", { status: SEE_OTHER })),
+    );
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }),
+    );
+    mockedBuildUserSessionJwt.mockImplementation(() => Effect.succeed("jwt"));
+    mockedBuildSessionCookie.mockImplementation(({ name }) => name + "=val");
+    mockedBuildDashboardRedirectUrl.mockReturnValue("/dash");
+    mockedGetCookie.mockReturnValue(undefined);
+  });
+
+  it("redirects when rate limit disallows", async () => {
+    mockedRateLimit.mockResolvedValue(false);
+    const ctx = makeCtx("https://example.com/?code=1&state=2");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("rateLimit");
+  });
+
+  it("handles missing code or state", async () => {
+    const ctx = makeCtx("https://example.com/");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("missingData");
+  });
+
+  it("fails CSRF validation when cookie doesn't match", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("bad");
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("securityFailed");
+  });
+
+  it("delegates to handleRegistration when user is new", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: undefined,
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    const text = await resp.text();
+    expect(text).toBe("reg");
+    expect(mockedHandleRegistration).toHaveBeenCalled();
+  });
+
+  it("creates session for existing user and sets cookies/redirects dashboard", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "google",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toBe("/dash");
+
+    const cookieHeader = getCookieHeader(ctx);
+    expect(cookieHeader).toContain("userSession");
+    expect(cookieHeader).toContain("csrf");
+  });
+
+  it("redirects with providerMismatch when providers differ", async () => {
+    const ctx = makeCtx("https://example.com/?code=1&state=abc");
+    const oauthState = {
+      csrf: "good",
+      lang: "en",
+      provider: "microsoft",
+      redirect_port: "",
+      redirect_origin: "",
+    };
+    mockedVerify.mockResolvedValue(oauthState);
+    mockedGetCookie.mockReturnValue("good");
+    mockedFetchAndPrepareUser.mockImplementation(() =>
+      Effect.succeed({
+        supabase: {},
+        oauthUserData: { email: "x" },
+        existingUser: { linked_providers: ["google"] },
+      }),
+    );
+
+    const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+    expect(resp.status).toBe(SEE_OTHER);
+    expect(resp.headers.get("Location")).toContain("providerMismatch");
+  });
+});
+`;
+fs.writeFileSync('api/src/oauth-callback-factory/oauthCallbackFactory.test.ts', content);
+EOF
+ rm api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ ls api/src/oauth-callback-factory | grep oauthCallbackFactory.test
+ rm /home/bkinsey/gh/bkinsey808/songshare-effect/api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ ls -l /home/bkinsey/gh/bkinsey808/songshare-effect/api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ npm run lint -- api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ npm run lint -- api/src/oauth-callback-factory/oauthCallbackFactory.test.ts | head -n 50
+ npm run format:check
+ npm run lint -- api/src/oauth-callback-factory/oauthCallbackFactory.test.ts | head -n 30
+ npm run format:check
+ npm run lint -- api/src/oauth-callback-factory/oauthCallbackFactory.test.ts | head -n 100
+ npm run lint -- api/src/oauth-callback-factory/oauthCallbackFactory.test.ts 2>&1 | sed -n '1,80p'
+ sed -i 's/ as any//g' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ sed -i 's/supabase: {} as any/supabase: {}/g' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ nl -ba api/src/oauth-callback-factory/oauthCallbackFactory.test.ts | grep "supabase" -n
+ sed -i '97s/supabase: {} as any,/supabase: {},/' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts && sed -i '192s/supabase: {} as any,/supabase: {},/' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts && sed -i '224s/supabase: {} as any,/supabase: {},/' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ nl -ba api/src/oauth-callback-factory/oauthCallbackFactory.test.ts | grep 'supabase'
+ nl -ba api/src/oauth-callback-factory/oauthCallbackFactory.test.ts | grep supabase
+ awk '/supabase/ {print NR, $0}' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ sed -i '97s/as any//g' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ sed -n '95,100p' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts | cat -A
+ sed -i 's/ as any//g' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ grep -n "supabase" -n api/src/oauth-callback-factory/oauthCallbackFactory.test.ts | sed -n '1,5p'
+ sed -i '175,185s/supabase: {} as any/supabase: {}/' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts && sed -i '204,214s/supabase: {} as any/supabase: {}/' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ sed -i '188,192s/supabase: {} as any/supabase: {}/' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts && sed -i '216,220s/supabase: {} as any/supabase: {}/' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ sed -i -E 's/\s*supabase: \{\} as any,/supabase: {},/g' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ sed -i '192s/as any//;224s/as any//' api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ npm run test:unit -- --runTestsByPath api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ npm run test:unit -- --runTestsByPath api/src/oauth-callback-factory/oauthCallbackFactory.test.ts | cat
+ npx vitest run api/src/oauth-callback-factory/oauthCallbackFactory.test.ts --run
+ npm run lint
+ npm run lint | cat
+ npm run format:check
+ npx oxfmt --check .
+ npm run lint | cat
+ npm run lint --silent
+ npm run lint
+ npx oxlint --type-aware api/src/oauth-callback-factory/oauthCallbackFactory.test.ts
+ npm run format:check --silent
+ npx oxlint --type-aware api/src/oauth-callback-factory/oauthCallbackFactory.test.ts | head -n 200
+import { Effect } from "effect";
+import { getCookie } from "hono/cookie";
+import { verify } from "hono/jwt";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import type { OauthState } from "@/shared/oauth/oauthState";
+
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
+import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
+import rateLimit from "@/api/oauth-callback-factory/rateLimit";
+import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
+import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
+import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
+import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
+
+import oauthCallbackFactory from "./oauthCallbackFactory";
+import { SEE_OTHER } from "./registrationRedirect";
+
+// mock every external dependency so tests can control their return values
+vi.mock("@/api/oauth-callback-factory/rateLimit", () => ({ default: vi.fn() }));
+vi.mock("hono/jwt", () => ({ verify: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth-callback-factory/registrationRedirect", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/fetchAndPrepareUser", () => ({ default: vi.fn() }));
+vi.mock("@/api/user-session/buildUserSessionJwt", () => ({ default: vi.fn() }));
+vi.mock("@/api/cookie/buildSessionCookie", () => ({ default: vi.fn() }));
+vi.mock("@/api/oauth/buildDashboardRedirectUrl", () => ({ default: vi.fn() }));
+vi.mock("hono/cookie", () => ({ getCookie: vi.fn() }));
+
+const mockedRateLimit = vi.mocked(rateLimit);
+const mockedVerify = vi.mocked(verify);
+const mockedComputeStateRedirectUri = vi.mocked(computeStateRedirectUri);
+const mockedHandleRegistration = vi.mocked(handleRegistration);
+const mockedFetchAndPrepareUser = vi.mocked(fetchAndPrepareUser);
+const mockedBuildUserSessionJwt = vi.mocked(buildUserSessionJwt);
+const mockedBuildSessionCookie = vi.mocked(buildSessionCookie);
+const mockedBuildDashboardRedirectUrl = vi.mocked(buildDashboardRedirectUrl);
+const mockedGetCookie = vi.mocked(getCookie);
+
+// small fake context that satisfies the factory's usage
+function makeCtx(url = "https://example.com/", env: unknown = {}): ReadonlyContext {
+const headers = new Headers();
+return {
+headers },
+v: env as any,
+: { header: () => "", url },
+string, status = SEE_OTHER) =>
+ew Response(undefined, { status, headers: { Location: loc } }),
+} as unknown as ReadonlyContext;
+}
+
+function getCookieHeader(ctx: ReadonlyContext): string | null {
+return (ctx as unknown as { res: { headers: Headers } }).res.headers.get("Set-Cookie");
+}
+
+// all hooks inside describe to satisfy lint
+
+describe("oauthCallbackFactory", () => {
+beforeEach(() => {
+mocks
+Value("https://callback");
+dleRegistration.mockImplementation(() =>
+ew Response("reg", { status: SEE_OTHER })),
+dPrepareUser.mockResolvedValue(
+t-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+t-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+as any,
+email: "x" },
+gUser: { linked_providers: ["google"] },
+any),
+Jwt.mockResolvedValue(Effect.succeed("jwt"));
+Cookie.mockImplementation(({ name }: { name: string }) => `${name}=val`);
+Value("/dash");
+Value(undefined);
+});
+
+it("redirects when rate limit disallows", async () => {
+st ctx = makeCtx("https://example.com/?code=1&state=2");
+st resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+")).toContain("rateLimit");
+});
+
+it("handles missing code or state", async () => {
+st ctx = makeCtx("https://example.com/");
+st resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+")).toContain("missingData");
+});
+
+it("fails CSRF validation when cookie doesn't match", async () => {
+st ctx = makeCtx("https://example.com/?code=1&state=abc");
+st oauthState: OauthState = {
+g: "en",
+"",
+: "",
+Value("bad");
+st resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+")).toContain("securityFailed");
+});
+
+it("delegates to handleRegistration when user is new", async () => {
+st ctx = makeCtx("https://example.com/?code=1&state=abc");
+st oauthState: OauthState = {
+g: "en",
+"",
+: "",
+Value("good");
+dPrepareUser.mockResolvedValue(
+t-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+t-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+as any,
+email: "x" },
+gUser: undefined,
+st resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+st text = await resp.text();
+t-disable-next-line @typescript-eslint/no-unsafe-call
+dleRegistration).toHaveBeenCalled();
+});
+
+it("creates session for existing user and sets cookies/redirects dashboard", async () => {
+st ctx = makeCtx("https://example.com/?code=1&state=abc");
+st oauthState: OauthState = {
+g: "en",
+"",
+: "",
+Value("good");
+dPrepareUser.mockResolvedValue(
+t-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+t-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+as any,
+email: "x" },
+gUser: { linked_providers: ["google"] },
+any),
+st resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+")).toBe("/dash");
+
+st cookieHeader = getCookieHeader(ctx);
+tain("userSessionCookieName");
+tain("csrf");
+});
+
+it("redirects with providerMismatch when providers differ", async () => {
+st ctx = makeCtx("https://example.com/?code=1&state=abc");
+st oauthState: OauthState = {
+g: "en",
+"",
+: "",
+Value("good");
+dPrepareUser.mockResolvedValue(
+t-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+t-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+as any,
+email: "x" },
+gUser: { linked_providers: ["google"] },
+any),
+st resp = await Effect.runPromise(oauthCallbackFactory(ctx));
+")).toContain("providerMismatch");
+});
+});

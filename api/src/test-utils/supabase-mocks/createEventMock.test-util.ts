@@ -3,17 +3,18 @@ import type { Event, EventInsert } from "@/shared/generated/supabaseSchemas";
 import type {
 	MaybeSingleBuilder,
 	MaybeSingleResult,
+	MockRow,
 	MultiResult,
 	SingleBuilder,
 	SingleResult,
 } from "./supabase-mock-types";
 
 export type EventMockOpts = {
-	eventInsertRows?: Partial<EventInsert>[];
+	eventInsertRows?: MockRow<EventInsert>[];
 	eventInsertError?: unknown;
-	eventSelectSingleRow?: Partial<Event> | undefined;
+	eventSelectSingleRow?: MockRow<Event> | undefined;
 	eventSelectSingleError?: unknown;
-	eventUpdateSelectRow?: Partial<Event> | undefined;
+	eventUpdateSelectRow?: MockRow<Event> | undefined;
 	eventUpdateSelectError?: unknown;
 };
 
