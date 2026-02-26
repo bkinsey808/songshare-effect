@@ -17,71 +17,79 @@ const rule = {
 	create(context) {
 		const sourceCode = context.getSourceCode();
 		const commentsInTests = new Set();
+		const allFunctions = [];
 
 		function containsDisable(text) {
 			return /(?:eslint|oxlint)-disable/.test(text);
 		}
 
-		// record any offending comments found inside the bodies of describe/test/it
-		// callbacks so that we don't double-report them during the Program check.
-		function checkFunction(fn) {
-			if (!fn.body) return;
-			const comments = sourceCode.getCommentsInside(fn.body);
-			for (const comment of comments) {
-				if (containsDisable(comment.value)) {
-					commentsInTests.add(comment);
-					context.report({
-						node: comment,
-						message:
-							"Avoid lint-disable comments inside test blocks; move them to a helper function.",
-					});
+		function isInsideTest(node) {
+			let parent = node.parent;
+			while (parent) {
+				if (parent.type === "CallExpression") {
+					let name = null;
+					const { callee } = parent;
+					if (callee.type === "Identifier") {
+						name = callee.name;
+					} else if (callee.type === "MemberExpression" && callee.property?.type === "Identifier") {
+						name = callee.property.name;
+					}
+					if (name === "describe" || name === "test" || name === "it") {
+						return true;
+					}
 				}
+				parent = parent.parent;
 			}
+			return false;
 		}
 
 		return {
-			CallExpression(node) {
-				let name = null;
-				const { callee } = node;
-				if (callee.type === "Identifier") {
-					name = callee.name;
-				} else if (callee.type === "MemberExpression" && callee.property?.type === "Identifier") {
-					// e.g. describe.only, test.skip
-					name = callee.property.name;
-				}
+			"FunctionDeclaration": (node) => allFunctions.push(node),
+			"FunctionExpression": (node) => allFunctions.push(node),
+			"ArrowFunctionExpression": (node) => allFunctions.push(node),
 
-				if (name === "describe" || name === "test" || name === "it") {
-					const [, secondArg] = node.arguments;
-					if (
-						secondArg &&
-						(secondArg.type === "FunctionExpression" ||
-							secondArg.type === "ArrowFunctionExpression")
-					) {
-						checkFunction(secondArg);
+			"Program:exit"(programNode) {
+				const allComments = sourceCode.getAllComments();
+				const commentsInHelpers = new Set();
+
+				for (const fn of allFunctions) {
+					const isTest = isInsideTest(fn);
+					const comments = sourceCode.getCommentsInside(fn.body);
+					for (const comment of comments) {
+						if (containsDisable(comment.value)) {
+							if (isTest) {
+								commentsInTests.add(comment);
+								context.report({
+									node: comment,
+									message:
+										"Avoid lint-disable comments inside test blocks; move them to a helper function.",
+								});
+							} else {
+								commentsInHelpers.add(comment);
+							}
+						}
 					}
 				}
-			},
 
-			Program(node) {
-				// flag any remaining disable comments that weren't already caught inside
-				// test blocks.  This captures module-level disables (outside of any
-				// describe/test/it).  We allow a comment if it sits immediately above a
-				// helper function/variable declaration, since disables belong there if
-				// they're truly necessary.
-				const allComments = sourceCode.getAllComments();
 				for (const comment of allComments) {
 					if (!containsDisable(comment.value)) continue;
 					if (commentsInTests.has(comment)) continue;
+					if (commentsInHelpers.has(comment)) continue;
 
-					// look for a body node that starts on the line immediately after the
-					// comment; if it's a FunctionDeclaration or VariableDeclaration we
-					// treat it as a helper and permit the disable there.
-					const nextBody = node.body.find(
+					// also check if it's immediately above a helper
+					const nextBody = programNode.body.find(
 						(n) => n.loc && n.loc.start.line === comment.loc.end.line + 1,
 					);
 					const isHelper =
 						nextBody &&
-						(nextBody.type === "FunctionDeclaration" || nextBody.type === "VariableDeclaration");
+						(nextBody.type === "FunctionDeclaration" ||
+							nextBody.type === "VariableDeclaration" ||
+							(nextBody.type === "ExpressionStatement" &&
+								nextBody.expression.type === "CallExpression" &&
+								(nextBody.expression.callee.name === "vi.mock" ||
+									(nextBody.expression.callee.type === "MemberExpression" &&
+										nextBody.expression.callee.object.name === "vi" &&
+										nextBody.expression.callee.property.name === "mock"))));
 					if (isHelper) {
 						continue;
 					}

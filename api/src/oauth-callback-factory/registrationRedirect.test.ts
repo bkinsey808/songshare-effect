@@ -7,11 +7,12 @@ import type { OauthState } from "@/shared/oauth/oauthState";
 import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 
 import { registerCookieName } from "@/api/cookie/cookie";
+import makeCtx from "@/api/hono/makeCtx.test-util";
 import { registerPath } from "@/shared/paths";
 
 import handleRegistration, {
-    type RegistrationRedirectParams,
-    SEE_OTHER,
+	type RegistrationRedirectParams,
+	SEE_OTHER,
 } from "./registrationRedirect";
 
 // stub buildRegisterJwt so we don't have to construct a real context
@@ -19,49 +20,36 @@ vi.mock("@/api/register/buildRegisterJwt", (): { default: typeof buildRegisterJw
 	default: vi.fn(() => Effect.succeed("fake-jwt")),
 }));
 
-// minimal subset of Hono Context used in this test
-type DummyCtx = {
-	res: { headers: Headers };
-	env: { REGISTER_COOKIE_CLIENT_DEBUG: string; [key: string]: unknown };
-	req: { header: (name: string) => string; url: string };
-	redirect: (location: string, status?: number) => Response;
-};
+function asEnv(val: unknown): Env {
+	/* oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion */
+	return val as Env;
+}
 
-function makeCtx(clientDebug = "false"): DummyCtx {
-	const headers = new Headers();
-	return {
-		res: { headers },
-		env: { REGISTER_COOKIE_CLIENT_DEBUG: clientDebug },
-		req: { header: () => "", url: "https://example.com" },
-		redirect: (loc: string, status = SEE_OTHER) =>
-			new Response(undefined, { status, headers: { Location: loc } }),
-	};
+function asParams(val: unknown): RegistrationRedirectParams {
+	/* oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion */
+	return val as RegistrationRedirectParams;
 }
 
 function makeBaseParams(): RegistrationRedirectParams {
+	const ctx = makeCtx();
 	// build a minimal valid parameter set; return cast to satisfy ctx type
-	return {
-		ctx: makeCtx(),
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-		envRecord: {} as unknown as Env,
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+	return asParams({
+		ctx,
+		envRecord: asEnv(ctx.env),
 		oauthUserData: { email: "a@b.com" } as OauthUserData,
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 		oauthState: { csrf: "c", lang: "en", provider: "google" } as OauthState,
 		lang: "en",
-	} as unknown as RegistrationRedirectParams;
+	});
 }
 
 function addCtxToParams(
 	base: RegistrationRedirectParams,
-	ctx: DummyCtx,
+	ctx: ReturnType<typeof makeCtx>,
 ): RegistrationRedirectParams {
-	// ctx is already the right shape (DummyCtx)
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	return { ...base, ctx, envRecord: ctx.env as Env } as RegistrationRedirectParams;
+	return { ...base, ctx, envRecord: ctx.env } as RegistrationRedirectParams;
 }
 
-function getCookieHeader(ctx: DummyCtx): string | null {
+function getCookieHeader(ctx: ReturnType<typeof makeCtx>): string | null {
 	return ctx.res.headers.get("Set-Cookie");
 }
 
@@ -79,7 +67,7 @@ describe("handleRegistration helper", () => {
 	});
 
 	it("uses client-debug header when env flag is true", async () => {
-		const ctx = makeCtx("true");
+		const ctx = makeCtx({ env: { REGISTER_COOKIE_CLIENT_DEBUG: "true" } });
 		const params = addCtxToParams(baseParams, ctx);
 		await Effect.runPromise(handleRegistration(params));
 

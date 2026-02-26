@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { describe, expect, it, vi } from "vitest";
 
 import { userSessionCookieName } from "@/api/cookie/cookie";
+import getCookieHeaders from "@/api/cookie/getCookieHeaders.test-util";
 import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
@@ -66,10 +67,8 @@ describe("accountRegister cookie integration", () => {
 		expect(res).toStrictEqual({ success: true });
 
 		// Collect cookie header values
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
-		const cookieCalls = appendSpy.mock.calls as unknown as [string, string][];
-		const cookieHeaders = cookieCalls.map(([_name, headerValue]) => headerValue);
-		const sessionHeader = cookieHeaders.find((header) =>
+		const cookieHeaders = getCookieHeaders(appendSpy);
+		const sessionHeader = cookieHeaders.find((header: string) =>
 			header.includes(`${userSessionCookieName}=`),
 		);
 
@@ -113,10 +112,10 @@ describe("accountRegister cookie integration", () => {
 		const res = await Effect.runPromise(accountRegister(ctx));
 		expect(res).toStrictEqual({ success: true });
 
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
-		const cookieCalls = appendSpy.mock.calls as unknown as [string, string][];
-		const cookieHeaders = cookieCalls.map(([_name, headerValue]) => headerValue);
-		const csrfHeader = cookieHeaders.find((header) => header.includes(`${csrfTokenCookieName}=`));
+		const cookieHeaders = getCookieHeaders(appendSpy);
+		const csrfHeader = cookieHeaders.find((header: string) =>
+			header.includes(`${csrfTokenCookieName}=`),
+		);
 
 		expect(csrfHeader).toBeDefined();
 		expect(csrfHeader).toContain("csrf-token");
@@ -132,11 +131,8 @@ describe("accountRegister cookie integration", () => {
 			body: { username: "intuser" },
 			env: { VITE_SUPABASE_URL: "url", SUPABASE_SERVICE_KEY: "svc-key", JWT_SECRET: "jwt-secret" },
 			resHeadersAppend: appendSpy,
+			req: { url: "http://example.test/api/test" },
 		});
-
-		// Force non-https request URL (test-only cast)
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only
-		(ctx.req as unknown as { url: string }).url = "http://example.test/api/test";
 
 		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
 			oauthUserData: { email: "u@example.com", name: "Test User", sub: "sub-1" },
@@ -156,10 +152,8 @@ describe("accountRegister cookie integration", () => {
 		const res = await Effect.runPromise(accountRegister(ctx));
 		expect(res).toStrictEqual({ success: true });
 
-		// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only cast from Vitest mock calls
-		const cookieCalls = appendSpy.mock.calls as unknown as [string, string][];
-		const cookieHeaders = cookieCalls.map(([_name, headerValue]) => headerValue);
-		const sessionCookie = cookieHeaders.find((header) =>
+		const cookieHeaders = getCookieHeaders(appendSpy);
+		const sessionCookie = cookieHeaders.find((header: string) =>
 			header.includes(`${userSessionCookieName}=`),
 		);
 		expect(sessionCookie).toBeDefined();

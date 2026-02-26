@@ -17,10 +17,9 @@ type BuildRegisterJwtParams = Readonly<{
 /**
  * Builds a registration JWT for a new user registration flow.
  *
- * @param params Parameters object
- * @param params.ctx Hono context (for env and request info)
- * @param params.oauthUserData User information returned by the OAuth provider
- * @param params.oauthState The decoded OAuth state object used during the flow
+ * @param ctx Hono context (for env and request info)
+ * @param oauthUserData User information returned by the OAuth provider
+ * @param oauthState The decoded OAuth state object used during the flow
  * @returns Effect yielding the registration JWT string
  */
 export default function buildRegisterJwt({

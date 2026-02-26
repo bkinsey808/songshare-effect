@@ -36,7 +36,7 @@ const config = [
 			parserOptions: {
 				ecmaVersion: 2022,
 				sourceType: "module",
-				project: ["./tsconfig.json", "./react/tsconfig.json"],
+				project: ["./tsconfig.json", "./react/tsconfig.json", "./api/tsconfig.json"],
 			},
 		},
 		rules: {
@@ -47,13 +47,13 @@ const config = [
 	},
 	// apply our custom rule to TSX/TS/JS files
 	{
-		files: ["react/**/*.{ts,tsx,js,jsx}", "tmp/**/*.{js,jsx,ts,tsx}"],
+		files: ["react/**/*.{ts,tsx,js,jsx}", "api/**/*.{ts,tsx,js,jsx}", "tmp/**/*.{js,jsx,ts,tsx}"],
 		languageOptions: {
 			parser: tsParser,
 			parserOptions: {
 				ecmaVersion: 2022,
 				sourceType: "module",
-				project: ["./tsconfig.json", "./react/tsconfig.json"],
+				project: ["./tsconfig.json", "./react/tsconfig.json", "./api/tsconfig.json"],
 			},
 		},
 		plugins: {
@@ -81,7 +81,7 @@ const config = [
 			parserOptions: {
 				ecmaVersion: 2022,
 				sourceType: "module",
-				project: ["./tsconfig.json", "./react/tsconfig.json"],
+				project: ["./tsconfig.json", "./react/tsconfig.json", "./api/tsconfig.json"],
 			},
 		},
 		plugins: {

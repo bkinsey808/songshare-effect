@@ -47,7 +47,7 @@ export default function makeSimpleSupabaseClient<TData = unknown>(
 								const err = opts.error;
 								return Promise.reject(err instanceof Error ? err : new Error(String(err)));
 							}
-							// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+							// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 							return Promise.resolve({ data: result as TData, error });
 						},
 					}),
@@ -57,6 +57,6 @@ export default function makeSimpleSupabaseClient<TData = unknown>(
 	};
 
 	// narrow cast; fake object only implements small slice of client
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 	return fake as unknown as ReturnType<typeof createClient>;
 }

@@ -68,8 +68,14 @@ _Note:_ helper modules intended solely for unit tests should be named with a `.t
   ```
   This keeps the rest of the test file lint-clean and makes intent explicit.
 
-7. Run `npm run lint && npx tsc -b . && npm run test:unit -- <file> --coverage` to validate formatting, types, and tests.
-8. Prefer asserting against mock data variables (not duplicated literal strings). Define constants for mock inputs (e.g., `const songId = "s1"`) and use those variables in both setup and expectations to avoid mismatches and improve test clarity.
+7. Before running your new spec, **make sure lint passes**; fix any lint or type errors first. New test files will fail to execute if the codebase is not clean.
+
+8. Validate formatting, types, and tests by running a targeted test command:
+   ```bash
+   npm run lint && npx tsc -b . && npm run test:unit -- <file> --coverage
+   ```
+   Only run the single file you’re working on, not the entire suite, to keep feedback fast. Once the file is green, broader runs (e.g. `npm run test:unit`) can follow.
+9. Prefer asserting against mock data variables (not duplicated literal strings). Define constants for mock inputs (e.g., `const songId = "s1"`) and use those variables in both setup and expectations to avoid mismatches and improve test clarity.
 
 ## Examples
 

@@ -3,8 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { AuthenticationError } from "@/api/api-errors";
 import getAllowedOrigins from "@/api/cors/getAllowedOrigins";
 import getOriginToCheck from "@/api/cors/getOriginToCheck";
-
-import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
+import makeCtx from "@/api/hono/makeCtx.test-util";
 
 import verifySameOriginOrThrow from "./verifySameOriginOrThrow";
 
@@ -14,15 +13,6 @@ vi.mock("@/api/cors/getOriginToCheck");
 
 const mockedGetAllowedOrigins = vi.mocked(getAllowedOrigins);
 const mockedGetOriginToCheck = vi.mocked(getOriginToCheck);
-
-/**
- * Minimal wrapper returning a `ReadonlyContext` stub.  Only the cast line is
- * allowed to bypass lint rules.
- */
-function makeCtx(): ReadonlyContext {
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-	return {} as unknown as ReadonlyContext;
-}
 
 describe("verifySameOriginOrThrow", () => {
 	it("throws when origin header is missing or empty", () => {

@@ -25,6 +25,15 @@ import {
 	createPlaylistPublicMock,
 	type PlaylistPublicMockOpts,
 } from "./supabase-mocks/createPlaylistPublicMock.test-util";
+import {
+	createSongLibraryMock,
+	type SongLibraryMockOpts,
+} from "./supabase-mocks/createSongLibraryMock.test-util";
+import { createSongMock, type SongMockOpts } from "./supabase-mocks/createSongMock.test-util";
+import {
+	createSongPublicMock,
+	type SongPublicMockOpts,
+} from "./supabase-mocks/createSongPublicMock.test-util";
 import { createUserMock, type UserMockOpts } from "./supabase-mocks/createUserMock.test-util";
 import {
 	createUserPublicMock,
@@ -42,7 +51,10 @@ type MakeSupabaseClientOpts = UserPublicMockOpts &
 	EventUserMockOpts &
 	PlaylistMockOpts &
 	PlaylistPublicMockOpts &
-	PlaylistLibraryMockOpts;
+	PlaylistLibraryMockOpts &
+	SongMockOpts &
+	SongPublicMockOpts &
+	SongLibraryMockOpts;
 
 function makeSupabaseClient(opts: MakeSupabaseClientOpts = {}): ReturnType<typeof createClient> {
 	const fake = {
@@ -57,12 +69,15 @@ function makeSupabaseClient(opts: MakeSupabaseClientOpts = {}): ReturnType<typeo
 				playlist: createPlaylistMock(opts),
 				playlist_public: createPlaylistPublicMock(opts),
 				playlist_library: createPlaylistLibraryMock(opts),
+				song: createSongMock(opts),
+				song_public: createSongPublicMock(opts),
+				song_library: createSongLibraryMock(opts),
 			};
 			return tables[table];
 		},
 	};
 
-	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast to Supabase client */
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast to Supabase client
 	return fake as unknown as ReturnType<typeof createClient>;
 }
 

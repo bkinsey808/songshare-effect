@@ -147,9 +147,13 @@ react/src/event/manage/slide/
 For each function, create a new file with:
 
 - **Proper imports** (from consolidated or external)
-- **JSDoc comments** (carry over, no types in TSX/TS JSDoc)
-- **Default export** (since each file has one symbol)
+- **JSDoc comments** – copy the entire comment block that documents the symbol being moved. The documentation is part of the implementation; do not leave it behind in the source file or replace it with a vague reference. Missing this step is a common source of confusion for AI assistants, so be explicit: _when you move logic, move its JSDoc too._
+- **Default export** – every isolated file should `export default` its single symbol rather than a named export.
 - **No module-level side effects** (especially for test helpers—see below)
+
+**Avoid re-exports**. This repository shuns barrel files and module re-exports; each consumer imports the helper or type directly from its own path. If you extract a type or function, don't re-export it from another module just for convenience.
+
+After extraction, go back to the original file and remove any leftover comments or docblocks relating to the moved logic. There’s no need to leave `// implementation moved to …` or similar annotations; the handler should stand alone with only its own documentation.
 
 **Template for utility:**
 

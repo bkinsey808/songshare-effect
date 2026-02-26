@@ -1,17 +1,15 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
-// @ts-nocheck
-/* eslint-enable @typescript-eslint/ban-ts-comment */
-// helper-specific disables are scoped below where needed
-import { Effect } from "effect";
+import { Effect, type Schema } from "effect";
 import { getCookie } from "hono/cookie";
 import { verify } from "hono/jwt";
 import { describe, expect, it, vi } from "vitest";
 
 import type { ReadonlySupabaseClient } from "@/api/supabase/ReadonlySupabaseClient.type";
+import type { UserSchema } from "@/shared/generated/supabaseSchemas";
 import type { OauthState } from "@/shared/oauth/oauthState";
+import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 
 import buildSessionCookie from "@/api/cookie/buildSessionCookie";
+import makeCtx from "@/api/hono/makeCtx.test-util";
 import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
 import rateLimit from "@/api/oauth-callback-factory/rateLimit";
 import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
@@ -28,8 +26,7 @@ import { SEE_OTHER } from "./registrationRedirect";
 const fakeSupabase = makeSupabaseClient();
 
 // mock every external dependency so tests can control their return values
-// using untyped factories is convenient here; enable only for this block
-/* eslint-disable jest/no-untyped-mock-factory */
+/* oxlint-disable eslint-plugin-jest/no-untyped-mock-factory */
 vi.mock("@/api/oauth-callback-factory/rateLimit", () => ({ default: vi.fn() }));
 vi.mock("hono/jwt", () => ({ verify: vi.fn() }));
 vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri", () => ({ default: vi.fn() }));
@@ -42,7 +39,7 @@ vi.mock("@/api/user-session/buildUserSessionJwt", () => ({ default: vi.fn() }));
 vi.mock("@/api/cookie/buildSessionCookie", () => ({ default: vi.fn() }));
 vi.mock("@/api/oauth/buildDashboardRedirectUrl", () => ({ default: vi.fn() }));
 vi.mock("hono/cookie", () => ({ getCookie: vi.fn() }));
-/* eslint-enable jest/no-untyped-mock-factory */
+/* oxlint-enable eslint-plugin-jest/no-untyped-mock-factory */
 
 const mockedRateLimit = vi.mocked(rateLimit);
 const mockedVerify = vi.mocked(verify);
@@ -54,41 +51,37 @@ const mockedBuildSessionCookie = vi.mocked(buildSessionCookie);
 const mockedBuildDashboardRedirectUrl = vi.mocked(buildDashboardRedirectUrl);
 const mockedGetCookie = vi.mocked(getCookie);
 
-// small fake context that satisfies the factory's usage
-// only fields used by oauthCallbackFactory
-type FakeCtx = {
-	res: { headers: Headers };
-	env: unknown;
-	req: { header: () => string; url: string };
-	redirect: (loc: string, status?: number) => Response;
-};
-
-// minimal success payload type for our fetchAndPrepareUser stub
-// matches the real helper's output shape (supabase client is opaque)
-type FetchUserResult = {
-	supabase: ReadonlySupabaseClient;
-	oauthUserData: { email: string };
-	existingUser: { linked_providers: string[] } | undefined;
-};
-
-function makeCtx(url = "https://example.com/", env?: unknown): FakeCtx {
-	// avoid object literal default in parameter to satisfy lint
-	const envVal = env ?? { STATE_HMAC_SECRET: "test" };
-	const headers = new Headers();
-	/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
-	return {
-		res: { headers },
-		env: envVal,
-		req: { header: () => "", url },
-		redirect: (loc: string, status = SEE_OTHER) =>
-			new Response(undefined, { status, headers: { Location: loc } }),
-	};
-	/* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
+function getCookieHeader(ctx: ReturnType<typeof makeCtx>): string | null {
+	return ctx.res.headers.get("Set-Cookie");
 }
 
-function getCookieHeader(ctx: FakeCtx): string | null {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
-	return ctx.res.headers.get("Set-Cookie");
+type FetchUserResult = {
+	supabase: ReadonlySupabaseClient;
+	oauthUserData: OauthUserData;
+	existingUser: Schema.Schema.Type<typeof UserSchema> | undefined;
+};
+
+function asOauthState(val: unknown): OauthState {
+	/* oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion */
+	return val as OauthState;
+}
+
+function asFetchUserResult(val: unknown): FetchUserResult {
+	/* oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion */
+	return val as FetchUserResult;
+}
+
+function asString(val: unknown): string {
+	/* oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion */
+	return val as string;
+}
+
+/**
+ * Provide an explicit undefined value for mocks that avoids "confusing void expression"
+ * lint errors by returning a non-void type.
+ */
+function getMockUndefined(): string | undefined {
+	return undefined;
 }
 
 // helper to reset mocks and set defaults (no hooks)
@@ -97,35 +90,39 @@ function setup(): void {
 	// default mocks
 	mockedRateLimit.mockResolvedValue(true);
 	// provide minimal valid state so no assertion is needed
-	mockedVerify.mockResolvedValue({
-		csrf: "",
-		lang: "en",
-		provider: "google",
-		redirect_port: "",
-		redirect_origin: "",
-	} as OauthState);
+	mockedVerify.mockResolvedValue(
+		asOauthState({
+			csrf: "",
+			lang: "en",
+			provider: "google",
+			redirect_port: "",
+			redirect_origin: "",
+		}),
+	);
 	mockedComputeStateRedirectUri.mockReturnValue("https://callback");
 	mockedHandleRegistration.mockImplementation(() =>
 		Effect.succeed(new Response("reg", { status: SEE_OTHER })),
 	);
 	mockedFetchAndPrepareUser.mockResolvedValue(
-		Effect.succeed<FetchUserResult, never>({
-			supabase: fakeSupabase,
-			oauthUserData: { email: "x" },
-			existingUser: { linked_providers: ["google"] },
-		}),
+		Effect.succeed(
+			asFetchUserResult({
+				supabase: fakeSupabase,
+				oauthUserData: { email: "x" },
+				existingUser: { linked_providers: ["google"] },
+			}),
+		),
 	);
 	mockedBuildUserSessionJwt.mockImplementation(() => Effect.succeed("jwt"));
 	mockedBuildSessionCookie.mockImplementation(({ name }: { name: string }) => `${name}=val`);
 	mockedBuildDashboardRedirectUrl.mockReturnValue("/dash");
-	mockedGetCookie.mockReturnValue(undefined);
+	mockedGetCookie.mockReturnValue(getMockUndefined());
 }
 
 describe("oauthCallbackFactory", () => {
 	it("redirects when rate limit disallows", async () => {
 		setup();
 		mockedRateLimit.mockResolvedValue(false);
-		const ctx = makeCtx("https://example.com/?code=1&state=2");
+		const ctx = makeCtx({ req: { url: "https://example.com/?code=1&state=2" } });
 		const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
 		expect(resp.status).toBe(SEE_OTHER);
 		expect(resp.headers.get("Location")).toContain("rateLimit");
@@ -133,7 +130,7 @@ describe("oauthCallbackFactory", () => {
 
 	it("handles missing code or state", async () => {
 		setup();
-		const ctx = makeCtx("https://example.com/");
+		const ctx = makeCtx({ req: { url: "https://example.com/" } });
 
 		const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
 		expect(resp.status).toBe(SEE_OTHER);
@@ -142,7 +139,7 @@ describe("oauthCallbackFactory", () => {
 
 	it("fails CSRF validation when cookie doesn't match", async () => {
 		setup();
-		const ctx = makeCtx("https://example.com/?code=1&state=2");
+		const ctx = makeCtx({ req: { url: "https://example.com/?code=1&state=2" } });
 
 		const oauthState: OauthState = {
 			csrf: "good",
@@ -152,7 +149,7 @@ describe("oauthCallbackFactory", () => {
 			redirect_origin: "",
 		};
 		mockedVerify.mockResolvedValue(oauthState);
-		mockedGetCookie.mockReturnValue("bad");
+		mockedGetCookie.mockReturnValue(asString("bad"));
 		const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
 		expect(resp.status).toBe(SEE_OTHER);
 		expect(resp.headers.get("Location")).toContain("securityFailed");
@@ -160,7 +157,7 @@ describe("oauthCallbackFactory", () => {
 
 	it("delegates to handleRegistration when user is new", async () => {
 		setup();
-		const ctx = makeCtx("https://example.com/?code=1&state=abc");
+		const ctx = makeCtx({ req: { url: "https://example.com/?code=1&state=abc" } });
 		const oauthState: OauthState = {
 			csrf: "good",
 			lang: "en",
@@ -169,13 +166,15 @@ describe("oauthCallbackFactory", () => {
 			redirect_origin: "",
 		};
 		mockedVerify.mockResolvedValue(oauthState);
-		mockedGetCookie.mockReturnValue("good");
+		mockedGetCookie.mockReturnValue(asString("good"));
 		mockedFetchAndPrepareUser.mockImplementation(() =>
-			Effect.succeed<FetchUserResult, never>({
-				supabase: fakeSupabase,
-				oauthUserData: { email: "x" },
-				existingUser: undefined,
-			}),
+			Effect.succeed(
+				asFetchUserResult({
+					supabase: fakeSupabase,
+					oauthUserData: { email: "x" },
+					existingUser: undefined,
+				}),
+			),
 		);
 
 		const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
@@ -187,7 +186,7 @@ describe("oauthCallbackFactory", () => {
 
 	it("creates session for existing user and sets cookies/redirects dashboard", async () => {
 		setup();
-		const ctx = makeCtx("https://example.com/?code=1&state=abc");
+		const ctx = makeCtx({ req: { url: "https://example.com/?code=1&state=abc" } });
 		const oauthState: OauthState = {
 			csrf: "good",
 			lang: "en",
@@ -196,13 +195,15 @@ describe("oauthCallbackFactory", () => {
 			redirect_origin: "",
 		};
 		mockedVerify.mockResolvedValue(oauthState);
-		mockedGetCookie.mockReturnValue("good");
+		mockedGetCookie.mockReturnValue(asString("good"));
 		mockedFetchAndPrepareUser.mockImplementation(() =>
-			Effect.succeed<FetchUserResult, never>({
-				supabase: fakeSupabase,
-				oauthUserData: { email: "x" },
-				existingUser: { linked_providers: ["google"] },
-			}),
+			Effect.succeed(
+				asFetchUserResult({
+					supabase: fakeSupabase,
+					oauthUserData: { email: "x" },
+					existingUser: { linked_providers: ["google"] },
+				}),
+			),
 		);
 
 		const resp = await Effect.runPromise(oauthCallbackFactory(ctx));
@@ -216,7 +217,7 @@ describe("oauthCallbackFactory", () => {
 
 	it("redirects with providerMismatch when providers differ", async () => {
 		setup();
-		const ctx = makeCtx("https://example.com/?code=1&state=abc");
+		const ctx = makeCtx({ req: { url: "https://example.com/?code=1&state=abc" } });
 		const oauthState: OauthState = {
 			csrf: "good",
 			lang: "en",
@@ -225,13 +226,15 @@ describe("oauthCallbackFactory", () => {
 			redirect_origin: "",
 		};
 		mockedVerify.mockResolvedValue(oauthState);
-		mockedGetCookie.mockReturnValue("good");
+		mockedGetCookie.mockReturnValue(asString("good"));
 		mockedFetchAndPrepareUser.mockImplementation(() =>
-			Effect.succeed<FetchUserResult, never>({
-				supabase: fakeSupabase,
-				oauthUserData: { email: "x" },
-				existingUser: { linked_providers: ["google"] },
-			}),
+			Effect.succeed(
+				asFetchUserResult({
+					supabase: fakeSupabase,
+					oauthUserData: { email: "x" },
+					existingUser: { linked_providers: ["google"] },
+				}),
+			),
 		);
 
 		const resp = await Effect.runPromise(oauthCallbackFactory(ctx));

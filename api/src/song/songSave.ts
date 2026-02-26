@@ -251,16 +251,14 @@ export default function songSave(
 		if (publicResult.error) {
 			// Only attempt cleanup if this was a create operation
 			if (!isUpdate) {
-				try {
-					void Effect.runPromise(
-						Effect.tryPromise({
-							try: () => supabase.from("song").delete().eq("song_id", songId),
-							catch: () => undefined,
-						}),
-					);
-				} catch {
-					// Cleanup failed but continue with error reporting
-				}
+				// Fire-and-forget cleanup of the private song record if public insert failed.
+				// We use Effect.runPromise but ensure it cannot fail to avoid unhandled rejections.
+				void Effect.runPromise(
+					Effect.tryPromise({
+						try: () => supabase.from("song").delete().eq("song_id", songId),
+						catch: () => undefined,
+					}).pipe(Effect.catchAll(() => Effect.void)),
+				);
 			}
 			return yield* $(
 				Effect.fail(

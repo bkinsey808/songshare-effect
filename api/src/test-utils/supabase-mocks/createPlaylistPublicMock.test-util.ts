@@ -1,7 +1,5 @@
-import type {
-	PlaylistPublic,
-	PlaylistPublicInsert,
-} from "@/shared/generated/supabaseSchemas";
+import type { PlaylistPublic, PlaylistPublicInsert } from "@/shared/generated/supabaseSchemas";
+
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import type {

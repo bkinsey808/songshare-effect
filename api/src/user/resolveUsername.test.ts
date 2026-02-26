@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 
@@ -34,34 +34,9 @@ describe("resolveUsername", () => {
 	});
 
 	it("fails with DatabaseError when supabase.from returns error (use makeSupabaseClient)", async () => {
-		const supabase = makeSupabaseClient();
-
-		vi.spyOn(supabase, "from").mockImplementation(
-			(_table: string): ReturnType<typeof makeSupabaseClient>["from"] => {
-				const table = {
-					select: (
-						_cols: string,
-					): {
-						eq: (
-							_field: string,
-							_val: string,
-						) => { maybeSingle: () => Promise<{ data: unknown; error: unknown } | undefined> };
-					} => ({
-						eq: (
-							_field: string,
-							_val: string,
-						): { maybeSingle: () => Promise<{ data: unknown; error: unknown } | undefined> } => ({
-							maybeSingle: async (): Promise<{ data: unknown; error: unknown } | undefined> => {
-								await Promise.resolve();
-								return { data: undefined, error: { message: "db fail" } };
-							},
-						}),
-					}),
-				};
-				/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only cast */
-				return table as unknown as ReturnType<typeof makeSupabaseClient>["from"];
-			},
-		);
+		const supabase = makeSupabaseClient({
+			userPublicMaybeError: { message: "db fail" },
+		});
 
 		await expect(Effect.runPromise(resolveUsername(supabase, SAMPLE_USER))).rejects.toThrow(
 			/db fail/,
