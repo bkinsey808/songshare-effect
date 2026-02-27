@@ -1,6 +1,8 @@
 import { Effect } from "effect";
+
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityUserAddPath } from "@/shared/paths";
+
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
 
 type AddMemberArgs = {

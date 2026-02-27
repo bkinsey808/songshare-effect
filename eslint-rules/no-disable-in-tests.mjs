@@ -44,9 +44,9 @@ const rule = {
 		}
 
 		return {
-			"FunctionDeclaration": (node) => allFunctions.push(node),
-			"FunctionExpression": (node) => allFunctions.push(node),
-			"ArrowFunctionExpression": (node) => allFunctions.push(node),
+			FunctionDeclaration: (node) => allFunctions.push(node),
+			FunctionExpression: (node) => allFunctions.push(node),
+			ArrowFunctionExpression: (node) => allFunctions.push(node),
 
 			"Program:exit"(programNode) {
 				const allComments = sourceCode.getAllComments();

@@ -11,7 +11,7 @@ import validateFormEffect from "@/shared/validation/validateFormEffect";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
-import { getCommunityRoleCapabilities } from "./communityRoleCapabilities";
+import getCommunityRoleCapabilities from "./getCommunityRoleCapabilities";
 
 type CommunityUserAddData = Schema.Schema.Type<typeof communityUserAddSchema>;
 
@@ -134,12 +134,16 @@ export default function communityUserAdd(
 			const { status: existingStatus } = existingMembership.data;
 			if (existingStatus === "joined") {
 				return yield* $(
-					Effect.fail(new ValidationError({ message: "User is already a member of this community" })),
+					Effect.fail(
+						new ValidationError({ message: "User is already a member of this community" }),
+					),
 				);
 			}
 			if (existingStatus === "invited") {
 				return yield* $(
-					Effect.fail(new ValidationError({ message: "User has already been invited to this community" })),
+					Effect.fail(
+						new ValidationError({ message: "User has already been invited to this community" }),
+					),
 				);
 			}
 			// If they left or were kicked, we might want to allow re-inviting them.

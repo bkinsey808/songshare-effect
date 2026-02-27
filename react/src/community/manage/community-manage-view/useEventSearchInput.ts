@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+
 import type { EventLibraryEntry } from "@/react/event-library/event-library-types";
+
 import useAppStore from "@/react/app-store/useAppStore";
 
 const EVENTS_NONE = 0;
@@ -73,7 +75,9 @@ export default function useEventSearchInput({
 					const name = entry.event_public?.event_name?.toLowerCase() ?? "";
 					const slug = entry.event_public?.event_slug?.toLowerCase() ?? "";
 					const id = entry.event_id.toLowerCase();
-					return name.includes(trimmedQuery) || slug.includes(trimmedQuery) || id.includes(trimmedQuery);
+					return (
+						name.includes(trimmedQuery) || slug.includes(trimmedQuery) || id.includes(trimmedQuery)
+					);
 				});
 
 	function handleSelectEvent(entry: EventLibraryEntry): void {
@@ -103,7 +107,10 @@ export default function useEventSearchInput({
 	let inputDisplayValue = "";
 	if (searchQuery !== "") {
 		inputDisplayValue = searchQuery;
-	} else if (activeEvent?.event_public?.event_name !== undefined && activeEvent.event_public.event_name !== "") {
+	} else if (
+		activeEvent?.event_public?.event_name !== undefined &&
+		activeEvent.event_public.event_name !== ""
+	) {
 		inputDisplayValue = activeEvent.event_public.event_name;
 	} else if (activeEvent?.event_id !== undefined && activeEvent.event_id !== "") {
 		inputDisplayValue = activeEvent.event_id;

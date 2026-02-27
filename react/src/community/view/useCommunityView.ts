@@ -7,7 +7,12 @@ import type { UserSessionData } from "@/shared/userSessionData";
 import useAppStore from "@/react/app-store/useAppStore";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { dashboardPath, communityManagePath, communityViewPath, communityEditPath } from "@/shared/paths";
+import {
+	dashboardPath,
+	communityManagePath,
+	communityViewPath,
+	communityEditPath,
+} from "@/shared/paths";
 
 import type { CommunityEntry, CommunityUser } from "../community-types";
 

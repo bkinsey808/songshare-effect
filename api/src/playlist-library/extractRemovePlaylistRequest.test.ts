@@ -1,5 +1,5 @@
-
 import { describe, expect, it } from "vitest";
+
 import extractRemovePlaylistRequest from "./extractRemovePlaylistRequest";
 
 describe("extractRemovePlaylistRequest", () => {
@@ -18,14 +18,14 @@ describe("extractRemovePlaylistRequest", () => {
 	});
 
 	it("throws when playlist_id is missing", () => {
-		expect(() =>
-			extractRemovePlaylistRequest({} as unknown),
-		).toThrow("Request must contain playlist_id");
+		expect(() => extractRemovePlaylistRequest({} as unknown)).toThrow(
+			"Request must contain playlist_id",
+		);
 	});
 
 	it("throws when playlist_id is not a string", () => {
-		expect(() =>
-			extractRemovePlaylistRequest({ playlist_id: 123 } as unknown),
-		).toThrow("playlist_id must be a string");
+		expect(() => extractRemovePlaylistRequest({ playlist_id: 123 } as unknown)).toThrow(
+			"playlist_id must be a string",
+		);
 	});
 });

@@ -10,7 +10,7 @@ import { communityFormSchema } from "@/shared/validation/communitySchemas";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
-import { getCommunityRoleCapabilities } from "../community-user/communityRoleCapabilities";
+import getCommunityRoleCapabilities from "../community-user/getCommunityRoleCapabilities";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 type CommunityFormData = Schema.Schema.Type<typeof communityFormSchema>;
@@ -19,8 +19,9 @@ type CommunityFormData = Schema.Schema.Type<typeof communityFormSchema>;
  * Server-side handler for saving a community.
  *
  * @param ctx - The readonly request context provided by the server.
- * @returns The public record that was created in `community_public` (or a
- * failed Effect with a ValidationError/DatabaseError/AuthenticationError).
+ * @returns The public record that was created in `community_public` or a
+ *   failed effect. Errors are one of {@link ValidationError},
+ *   {@link DatabaseError}, or {@link AuthenticationError}.
  */
 export default function communitySave(
 	ctx: ReadonlyContext,

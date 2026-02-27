@@ -1,9 +1,12 @@
 import { Effect } from "effect";
-import { DatabaseError, type AppError } from "../api-errors";
+
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+
+import { type Database } from "@/shared/generated/supabaseTypes";
+
+import { DatabaseError, type AppError } from "../api-errors";
 import getSupabaseServerClient from "../supabase/getSupabaseServerClient";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
-import { type Database } from "@/shared/generated/supabaseTypes";
 
 type CommunityPublicRow = Database["public"]["Tables"]["community_public"]["Row"];
 
@@ -25,7 +28,20 @@ type CommunityEntry = {
 const EMPTY_ARRAY_LENGTH = 0;
 
 /**
- * Fetches the list of communities where the current user is a member.
+ * Return the list of communities the current user has joined.
+ *
+ * This helper encapsulates the multi-step database interaction required by the
+ * frontend. It validates the caller's session, looks up joined community IDs,
+ * retrieves the public details for each one, and normalizes the result into a
+ * simple `CommunityEntry` array suitable for shipping over the wire.
+ *
+ * The effect will fail with an {@link AppError} when any of the underlying
+ * Supabase queries fail, which the API route layer translates into a 500.
+ *
+ * @param ctx - read-only request context providing environment variables and
+ *   headers needed for auth and database clients
+ * @returns an effect that yields the joined communities or fails with an
+ *   {@link AppError}
  */
 export default function communityLibrary(
 	ctx: ReadonlyContext,
@@ -34,7 +50,10 @@ export default function communityLibrary(
 		const userSession = yield* $(getVerifiedUserSession(ctx));
 		const userId = userSession.user.user_id;
 
-		const supabase = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
+		const supabase = getSupabaseServerClient(
+			ctx.env.VITE_SUPABASE_URL,
+			ctx.env.SUPABASE_SERVICE_KEY,
+		);
 
 		// 1. Fetch community IDs joined by the user
 		const membershipQuery = yield* $(
@@ -47,15 +66,14 @@ export default function communityLibrary(
 						.eq("status", "joined"),
 				catch: (error) =>
 					new DatabaseError({
-						message: error instanceof Error ? error.message : "Failed to fetch community memberships",
+						message:
+							error instanceof Error ? error.message : "Failed to fetch community memberships",
 					}),
 			}),
 		);
 
 		if (membershipQuery.error !== null) {
-			return yield* $(
-				Effect.fail(new DatabaseError({ message: membershipQuery.error.message })),
-			);
+			return yield* $(Effect.fail(new DatabaseError({ message: membershipQuery.error.message })));
 		}
 
 		const communityIds = (membershipQuery.data ?? []).map((membership) => membership.community_id);

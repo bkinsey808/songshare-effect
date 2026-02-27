@@ -2,7 +2,11 @@ import { Effect } from "effect";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import type { CommunityEntry, CommunityUser, CommunityEvent } from "@/react/community/community-types";
+import type {
+	CommunityEntry,
+	CommunityUser,
+	CommunityEvent,
+} from "@/react/community/community-types";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import useAppStore from "@/react/app-store/useAppStore";
@@ -146,7 +150,11 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 	}
 
 	function onInviteClick(): void {
-		if (currentCommunity !== undefined && inviteUserIdInput !== undefined && inviteUserIdInput !== "") {
+		if (
+			currentCommunity !== undefined &&
+			inviteUserIdInput !== undefined &&
+			inviteUserIdInput !== ""
+		) {
 			void (async (): Promise<void> => {
 				await runCommunityAction(
 					"invite",

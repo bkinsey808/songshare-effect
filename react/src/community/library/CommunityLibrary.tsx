@@ -1,8 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
+
 import useLocale from "@/react/lib/language/locale/useLocale";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { communityViewPath } from "@/shared/paths";
+
 import useCommunityLibrary from "./useCommunityLibrary";
 
 const EMPTY_LIST_LENGTH = 0;

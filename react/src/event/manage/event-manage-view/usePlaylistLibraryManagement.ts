@@ -1,5 +1,6 @@
 import { Effect as EffectRuntime } from "effect";
 import { useEffect, useRef } from "react";
+
 import useAppStore from "@/react/app-store/useAppStore";
 
 const PUBLIC_SUB_INITIAL_RUN = 0;
@@ -28,7 +29,10 @@ export default function usePlaylistLibraryManagement(): void {
 			try {
 				unsubscribe = await EffectRuntime.runPromise(subscribeToPlaylistLibrary());
 			} catch (error: unknown) {
-				console.error("[usePlaylistLibraryManagement] playlist library subscription failed:", error);
+				console.error(
+					"[usePlaylistLibraryManagement] playlist library subscription failed:",
+					error,
+				);
 			}
 		})();
 
@@ -60,10 +64,7 @@ export default function usePlaylistLibraryManagement(): void {
 			try {
 				unsubscribe = await EffectRuntime.runPromise(subscribeToPlaylistPublic(playlistIds));
 			} catch (error: unknown) {
-				console.error(
-					"[usePlaylistLibraryManagement] playlist public subscription failed:",
-					error,
-				);
+				console.error("[usePlaylistLibraryManagement] playlist public subscription failed:", error);
 			}
 
 			if (unsubscribe) {

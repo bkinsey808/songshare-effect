@@ -77,7 +77,10 @@ export default function CommunityView(): ReactElement {
 									member.status === "invited",
 							)
 							.map((member) => (
-								<div key={member.user_id} className="flex justify-between items-center text-gray-300">
+								<div
+									key={member.user_id}
+									className="flex justify-between items-center text-gray-300"
+								>
 									<div className="flex items-center gap-2">
 										<span>
 											{member.username !== undefined && member.username !== ""

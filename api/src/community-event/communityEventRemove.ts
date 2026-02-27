@@ -7,7 +7,7 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
-import { getCommunityRoleCapabilities } from "../community-user/communityRoleCapabilities";
+import getCommunityRoleCapabilities from "../community-user/getCommunityRoleCapabilities";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 const CommunityEventRemoveSchema = Schema.Struct({

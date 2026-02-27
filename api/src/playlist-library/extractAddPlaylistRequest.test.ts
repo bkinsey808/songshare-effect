@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import extractAddPlaylistRequest from "./extractAddPlaylistRequest";
 
 describe("extractAddPlaylistRequest", () => {
@@ -17,15 +18,15 @@ describe("extractAddPlaylistRequest", () => {
 	});
 
 	it("throws when playlist_id is missing", () => {
-		expect(() =>
-			extractAddPlaylistRequest({ playlist_owner_id: "owner" } as unknown),
-		).toThrow("Request must contain playlist_id and playlist_owner_id");
+		expect(() => extractAddPlaylistRequest({ playlist_owner_id: "owner" } as unknown)).toThrow(
+			"Request must contain playlist_id and playlist_owner_id",
+		);
 	});
 
 	it("throws when playlist_owner_id is missing", () => {
-		expect(() =>
-			extractAddPlaylistRequest({ playlist_id: "abc" } as unknown),
-		).toThrow("Request must contain playlist_id and playlist_owner_id");
+		expect(() => extractAddPlaylistRequest({ playlist_id: "abc" } as unknown)).toThrow(
+			"Request must contain playlist_id and playlist_owner_id",
+		);
 	});
 
 	it("throws when playlist_id is not a string", () => {

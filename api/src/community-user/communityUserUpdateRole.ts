@@ -8,7 +8,7 @@ import { type Database } from "@/shared/generated/supabaseTypes";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
-import { getCommunityRoleCapabilities } from "./communityRoleCapabilities";
+import getCommunityRoleCapabilities from "./getCommunityRoleCapabilities";
 
 const CommunityUserUpdateRoleSchema = Schema.Struct({
 	community_id: Schema.String,

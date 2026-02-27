@@ -7,11 +7,11 @@ import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {
-    communityEditPath,
-    communityLibraryPath,
-    communityManagePath,
-    communityViewPath,
-    dashboardPath,
+	communityEditPath,
+	communityLibraryPath,
+	communityManagePath,
+	communityViewPath,
+	dashboardPath,
 } from "@/shared/paths";
 
 import useAppStore from "../app-store/useAppStore";

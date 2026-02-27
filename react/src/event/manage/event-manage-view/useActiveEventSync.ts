@@ -1,5 +1,6 @@
 import { Effect as EffectRuntime } from "effect";
 import { useEffect } from "react";
+
 import useAppStore from "@/react/app-store/useAppStore";
 
 type UseActiveEventSyncProps = {

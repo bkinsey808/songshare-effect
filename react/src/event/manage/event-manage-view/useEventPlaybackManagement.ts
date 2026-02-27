@@ -1,7 +1,11 @@
 import type { Effect } from "effect";
+
 import { useEffect, useRef, useState } from "react";
+
 import type { EventEntry } from "@/react/event/event-types";
+
 import type { ActionState } from "../ActionState.type";
+
 import useEventAutosave from "../useEventAutosave";
 import usePlaybackAutosaveFlush from "../usePlaybackAutosaveFlush";
 import usePlaybackSelectionSync from "../usePlaybackSelectionSync";

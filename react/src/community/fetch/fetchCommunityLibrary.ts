@@ -1,6 +1,8 @@
 import { Effect } from "effect";
-import { apiCommunityLibraryPath } from "@/shared/paths";
+
 import getJson from "@/shared/fetch/getJson";
+import { apiCommunityLibraryPath } from "@/shared/paths";
+
 import type { CommunityEntry } from "../community-types";
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
 

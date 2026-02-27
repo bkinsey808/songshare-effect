@@ -19,10 +19,10 @@ import type { UseEventManageStateResult } from "./UseEventManageStateResult.type
 
 import refreshEvent from "../refreshEvent";
 import runAction from "../runAction";
-import usePlaylistLibraryManagement from "./usePlaylistLibraryManagement";
 import useActiveEventSync from "./useActiveEventSync";
 import useEventPermissions from "./useEventPermissions";
 import useEventPlaybackManagement from "./useEventPlaybackManagement";
+import usePlaylistLibraryManagement from "./usePlaylistLibraryManagement";
 
 /**
  * State & handlers for realtime event management (used by EventManageView).

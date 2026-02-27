@@ -1,4 +1,5 @@
 import type { EventEntry } from "@/react/event/event-types";
+
 import type { ActionState } from "../ActionState.type";
 
 export type UseEventManageStateResult = {

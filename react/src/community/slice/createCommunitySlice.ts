@@ -18,9 +18,9 @@ import fetchCommunityBySlugFn from "../fetch/fetchCommunityBySlug";
 import fetchCommunityLibraryFn from "../fetch/fetchCommunityLibrary";
 import saveCommunityFn from "../form/saveCommunity";
 import joinCommunityFn from "../join/joinCommunity";
-import addMemberFn from "../manage/addMember";
 import kickMemberFn from "../kick/kickMember";
 import leaveCommunityFn from "../leave/leaveCommunity";
+import addMemberFn from "../manage/addMember";
 
 const communitySliceInitialState: CommunityState = {
 	currentCommunity: undefined,

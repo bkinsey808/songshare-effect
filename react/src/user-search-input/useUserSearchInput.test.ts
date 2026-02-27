@@ -67,7 +67,9 @@ describe("useUserSearchInput", () => {
 		// typing part of the id should match even though username is empty
 		result.current.handleInputChange(makeChangeEvent("f1"));
 		await waitFor(() => {
-			expect(result.current.filteredUsers.map((entry) => entry.followed_user_id)).toStrictEqual(["f1"]);
+			expect(result.current.filteredUsers.map((entry) => entry.followed_user_id)).toStrictEqual([
+				"f1",
+			]);
 		});
 	});
 

@@ -143,7 +143,9 @@ export default function fetchCommunityBySlug(
 								in: { col: "event_id", vals: eventIds },
 							}),
 						catch: (err) =>
-							new Error(`Failed to fetch event details: ${extractErrorMessage(err, "Unknown error")}`),
+							new Error(
+								`Failed to fetch event details: ${extractErrorMessage(err, "Unknown error")}`,
+							),
 					}),
 				);
 

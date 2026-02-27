@@ -10,7 +10,7 @@ import { communityEventAddSchema } from "@/shared/validation/communitySchemas";
 import validateFormEffect from "@/shared/validation/validateFormEffect";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
-import { getCommunityRoleCapabilities } from "../community-user/communityRoleCapabilities";
+import getCommunityRoleCapabilities from "../community-user/getCommunityRoleCapabilities";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 type CommunityEventAddData = Schema.Schema.Type<typeof communityEventAddSchema>;

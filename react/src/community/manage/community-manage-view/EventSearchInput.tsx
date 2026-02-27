@@ -80,9 +80,7 @@ export default function EventSearchInput({
 										<span className="font-medium">{displayName}</span>
 										{entry.event_public?.event_slug !== undefined &&
 											entry.event_public.event_slug !== "" && (
-												<span className="text-xs opacity-70">
-													{entry.event_public.event_slug}
-												</span>
+												<span className="text-xs opacity-70">{entry.event_public.event_slug}</span>
 											)}
 									</button>
 								);

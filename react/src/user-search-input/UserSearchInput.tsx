@@ -70,12 +70,12 @@ export default function UserSearchInput({
 						{filteredUsers.length > USERS_NONE ? (
 							filteredUsers.map((entry) => {
 								const isSelected = entry.followed_user_id === activeUserId;
-        const displayName =
-            entry.owner_username !== null &&
-            entry.owner_username !== undefined &&
-            entry.owner_username !== ""
-                ? entry.owner_username
-                : entry.followed_user_id;
+								const displayName =
+									entry.owner_username !== null &&
+									entry.owner_username !== undefined &&
+									entry.owner_username !== ""
+										? entry.owner_username
+										: entry.followed_user_id;
 								return (
 									<button
 										type="button"
@@ -87,9 +87,7 @@ export default function UserSearchInput({
 											isSelected ? "bg-primary/10 text-primary" : "text-primary hover:bg-muted"
 										}`}
 									>
-										<span className="font-medium">
-											{displayName}
-										</span>
+										<span className="font-medium">{displayName}</span>
 									</button>
 								);
 							})

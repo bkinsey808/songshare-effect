@@ -1,6 +1,6 @@
-import { ZERO } from "@/shared/constants/shared-constants";
 import Button from "@/react/lib/design-system/Button";
 import UserSearchInput from "@/react/user-search-input/UserSearchInput";
+import { ZERO } from "@/shared/constants/shared-constants";
 
 import EventRow from "./EventRow";
 import EventSearchInput from "./EventSearchInput";
@@ -129,7 +129,10 @@ export default function CommunityManageView(): ReactElement {
 
 				<div className="flex gap-2 items-end mb-6">
 					<div className="flex-1">
-						<label htmlFor="community-manage-add-event-input" className="text-sm font-medium text-white mb-2 block">
+						<label
+							htmlFor="community-manage-add-event-input"
+							className="text-sm font-medium text-white mb-2 block"
+						>
 							Add Event from Library
 						</label>
 						<EventSearchInput
