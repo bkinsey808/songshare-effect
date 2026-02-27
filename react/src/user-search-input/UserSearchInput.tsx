@@ -1,9 +1,10 @@
-import useUserSearchInput from "@/react/event/user-search-input/useUserSearchInput";
+import useUserSearchInput from "@/react/user-search-input/useUserSearchInput";
 
 type UserSearchInputProps = {
 	activeUserId: string | undefined;
 	onSelect: (userId: string) => void;
 	disabled?: boolean;
+	label?: string;
 };
 
 /**
@@ -16,7 +17,8 @@ export default function UserSearchInput({
 	activeUserId,
 	onSelect,
 	disabled = false,
-}: UserSearchInputProps): React.JSX.Element {
+	label = "Invite User (username or id)",
+}: UserSearchInputProps): ReactElement {
 	const inputId = "event-manage-invite-user-input";
 	const {
 		USERS_NONE,
@@ -35,8 +37,8 @@ export default function UserSearchInput({
 
 	return (
 		<div className="flex flex-col gap-2">
-			<label htmlFor={inputId} className="text-sm font-medium text-primary">
-				Invite User (username or id)
+			<label htmlFor={inputId} className="text-sm font-medium text-white">
+				{label}
 			</label>
 			<div className="relative" ref={containerRef}>
 				<input
@@ -68,6 +70,12 @@ export default function UserSearchInput({
 						{filteredUsers.length > USERS_NONE ? (
 							filteredUsers.map((entry) => {
 								const isSelected = entry.followed_user_id === activeUserId;
+        const displayName =
+            entry.owner_username !== null &&
+            entry.owner_username !== undefined &&
+            entry.owner_username !== ""
+                ? entry.owner_username
+                : entry.followed_user_id;
 								return (
 									<button
 										type="button"
@@ -80,9 +88,8 @@ export default function UserSearchInput({
 										}`}
 									>
 										<span className="font-medium">
-											{entry.owner_username ?? entry.followed_user_id}
+											{displayName}
 										</span>
-										<span className="text-xs text-muted-foreground">{entry.followed_user_id}</span>
 									</button>
 								);
 							})

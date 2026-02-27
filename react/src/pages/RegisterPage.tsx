@@ -104,6 +104,7 @@ export default function RegisterPage(): ReactElement {
 			const isSuccess = await Effect.runPromise(handleApiResponse(response, setSubmitError));
 			// Localized debug-only log
 			clientDebug("✅ API response handled, success:", isSuccess);
+
 			if (isSuccess) {
 				// Localized debug-only log
 				clientLog("🎉 Registration successful, redirecting to dashboard");

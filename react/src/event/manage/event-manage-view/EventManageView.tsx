@@ -1,8 +1,9 @@
 import ActiveSongSelectionSection from "@/react/event/form/ActiveSongSelectionSection";
 import PlaylistSearchInput from "@/react/event/playlist-search-input/PlaylistSearchInput";
-import UserSearchInput from "@/react/event/user-search-input/UserSearchInput";
 import Button from "@/react/lib/design-system/Button";
+import UserSearchInput from "@/react/user-search-input/UserSearchInput";
 
+import ParticipantRow from "./ParticipantRow";
 import useEventManageState from "./useEventManageView";
 
 /**
@@ -12,7 +13,7 @@ import useEventManageState from "./useEventManageView";
  *
  * @returns Management UI for playback and participant controls
  */
-export default function EventManageView(): React.JSX.Element {
+export default function EventManageView(): ReactElement {
 	const {
 		currentEvent,
 		eventPublic,
@@ -24,16 +25,16 @@ export default function EventManageView(): React.JSX.Element {
 		canManageEvent,
 		actionState,
 		inviteUserIdInput,
-		setInviteUserIdInput,
 		activePlaylistIdForSelector,
 		activeSongIdForSelector,
 		activeSlidePositionForSelector,
-		updateActivePlaylist,
-		updateActiveSong,
-		updateActiveSlidePosition,
-		inviteParticipant,
-		kickParticipant,
-		goBackToEvent,
+		onBackClick,
+		onInviteClick,
+		onInviteUserSelect,
+		onPlaylistSelect,
+		onSongSelect,
+		onSlidePositionSelect,
+		onKickParticipant,
 	} = useEventManageState();
 
 	if (isEventLoading) {
@@ -56,7 +57,7 @@ export default function EventManageView(): React.JSX.Element {
 				<p className="text-red-400 mb-4">
 					Only event owners and event admins can access this page.
 				</p>
-				<Button variant="outlineSecondary" onClick={goBackToEvent}>
+				<Button variant="outlineSecondary" onClick={onBackClick}>
 					Back to Event
 				</Button>
 			</div>
@@ -91,11 +92,7 @@ export default function EventManageView(): React.JSX.Element {
 				<div className="grid grid-cols-1 gap-4">
 					<PlaylistSearchInput
 						activePlaylistId={activePlaylistIdForSelector}
-						onSelect={(playlistId) => {
-							if (playlistId !== (activePlaylistIdForSelector ?? "")) {
-								updateActivePlaylist(playlistId);
-							}
-						}}
+						onSelect={onPlaylistSelect}
 						label="Active Playlist"
 						placeholder="Search playlists..."
 					/>
@@ -104,16 +101,8 @@ export default function EventManageView(): React.JSX.Element {
 						activePlaylistId={activePlaylistIdForSelector}
 						activeSongId={activeSongIdForSelector}
 						activeSlidePosition={activeSlidePositionForSelector}
-						onSelectActiveSong={(songId) => {
-							if (songId !== (activeSongIdForSelector ?? "")) {
-								updateActiveSong(songId);
-							}
-						}}
-						onSelectActiveSlidePosition={(slidePosition) => {
-							if (slidePosition !== activeSlidePositionForSelector) {
-								updateActiveSlidePosition(slidePosition);
-							}
-						}}
+						onSelectActiveSong={onSongSelect}
+						onSelectActiveSlidePosition={onSlidePositionSelect}
 					/>
 				</div>
 			</section>
@@ -123,7 +112,7 @@ export default function EventManageView(): React.JSX.Element {
 				<div className="flex gap-2">
 					<UserSearchInput
 						activeUserId={inviteUserIdInput}
-						onSelect={setInviteUserIdInput}
+						onSelect={onInviteUserSelect}
 						disabled={actionState.loadingKey === "invite"}
 					/>
 					<Button
@@ -133,59 +122,27 @@ export default function EventManageView(): React.JSX.Element {
 							inviteUserIdInput === undefined ||
 							inviteUserIdInput.trim() === ""
 						}
-						onClick={() => {
-							const userId = inviteUserIdInput?.trim() ?? "";
-							if (userId === "") {
-								return;
-							}
-							inviteParticipant(userId);
-						}}
+						onClick={onInviteClick}
 					>
 						{actionState.loadingKey === "invite" ? "Inviting..." : "Invite Participant"}
 					</Button>
 				</div>
 				<div className="space-y-2">
-					{participants.map((participant) => {
-						const isTargetOwner = participant.role === "owner";
-						const canKickParticipant = !isTargetOwner;
-						const rowLabel =
-							participant.username ??
-							(participant.user_id === ownerId ? ownerUsername : undefined) ??
-							participant.user_id;
-
-						return (
-							<div
-								key={participant.user_id}
-								className="flex items-center justify-between rounded border border-gray-700 bg-gray-900 px-4 py-3"
-							>
-								<div>
-									<p className="text-white">{rowLabel}</p>
-									<p className="text-xs text-gray-400">
-										role: {participant.role} · status: {participant.status}
-									</p>
-								</div>
-								<Button
-									variant="outlineDanger"
-									disabled={
-										!canKickParticipant || actionState.loadingKey === `kick:${participant.user_id}`
-									}
-									onClick={() => {
-										if (!canKickParticipant) {
-											return;
-										}
-										kickParticipant(participant.user_id);
-									}}
-								>
-									{actionState.loadingKey === `kick:${participant.user_id}` ? "Kicking..." : "Kick"}
-								</Button>
-							</div>
-						);
-					})}
+					{participants.map((participant) => (
+						<ParticipantRow
+							key={participant.user_id}
+							participant={participant}
+							ownerId={ownerId}
+							ownerUsername={ownerUsername}
+							loadingKey={actionState.loadingKey}
+							onKick={onKickParticipant}
+						/>
+					))}
 				</div>
 			</section>
 
 			<div>
-				<Button variant="outlineSecondary" onClick={goBackToEvent}>
+				<Button variant="outlineSecondary" onClick={onBackClick}>
 					Back to Event
 				</Button>
 			</div>

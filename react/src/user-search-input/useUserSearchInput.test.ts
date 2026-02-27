@@ -55,6 +55,22 @@ describe("useUserSearchInput", () => {
 		});
 	});
 
+	it("treats empty username as missing when filtering", async () => {
+		const store: typeof useAppStore = useAppStore;
+		// user with blank username should still be found by id
+		const u1 = makeUserLibraryEntry({ followed_user_id: "f1", owner_username: "" });
+		store.setState((prev) => ({ ...prev, userLibraryEntries: { f1: u1 } }));
+
+		const onSelect = vi.fn();
+		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect }));
+
+		// typing part of the id should match even though username is empty
+		result.current.handleInputChange(makeChangeEvent("f1"));
+		await waitFor(() => {
+			expect(result.current.filteredUsers.map((entry) => entry.followed_user_id)).toStrictEqual(["f1"]);
+		});
+	});
+
 	it("handleSelectUser calls onSelect and clears state", async () => {
 		const EXPECTED_SINGLE = 1;
 		const FIRST_INDEX = 0;

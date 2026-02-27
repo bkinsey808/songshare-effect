@@ -2,6 +2,7 @@ import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 
 import createAuthSlice from "@/react/auth/slice/createAuthSlice";
+import createCommunitySlice from "@/react/community/slice/createCommunitySlice";
 import createEventLibrarySlice from "@/react/event-library/slice/createEventLibrarySlice";
 import createEventSlice from "@/react/event/slice/createEventSlice";
 import createNavigationSlice from "@/react/navigation/slice/createNavigationSlice";
@@ -29,6 +30,7 @@ const sliceFactories: readonly SliceFactory[] = [
 	createPlaylistLibrarySlice,
 	createEventSlice,
 	createEventLibrarySlice,
+	createCommunitySlice,
 	createNavigationSlice,
 ];
 

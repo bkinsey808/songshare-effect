@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict zBtyS6eKYKNK9NPaybA3PtLNelWdeK2LEEuFmnGeyXzS4sEbWnwcAHIPEaAH3zq
+\restrict brFx0tQvypE5WM7hGhkm3VJOLxR8Ah7FmzogPTM490atbEDUfWByHwKSayegIP4
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -50,6 +50,41 @@ $$;
 
 
 --
+-- Name: is_community_admin(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.is_community_admin(p_community_id uuid, p_user_id uuid) RETURNS boolean
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.community_user
+    WHERE community_id = p_community_id
+    AND user_id = p_user_id
+    AND role = 'community_admin'::text
+  );
+END;
+$$;
+
+
+--
+-- Name: is_community_owner(uuid, uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.is_community_owner(p_community_id uuid, p_user_id uuid) RETURNS boolean
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.community_public
+    WHERE community_id = p_community_id
+    AND owner_id = p_user_id
+  );
+END;
+$$;
+
+
+--
 -- Name: update_updated_at_column(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -66,6 +101,96 @@ $$;
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+--
+-- Name: community; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.community (
+    community_id uuid DEFAULT gen_random_uuid() NOT NULL,
+    owner_id uuid NOT NULL,
+    private_notes text DEFAULT ''::text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE community; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.community IS 'Private community data - only accessible by the community owner';
+
+
+--
+-- Name: community_event; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.community_event (
+    community_id uuid NOT NULL,
+    event_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE community_event; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.community_event IS 'Many-to-many relationship between communities and events.';
+
+
+--
+-- Name: community_public; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.community_public (
+    community_id uuid NOT NULL,
+    owner_id uuid NOT NULL,
+    name text NOT NULL,
+    slug text NOT NULL,
+    description text DEFAULT ''::text,
+    is_public boolean DEFAULT false NOT NULL,
+    public_notes text DEFAULT ''::text,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT community_name_format CHECK (((length(name) >= 2) AND (length(name) <= 100) AND (name = btrim(name)) AND (POSITION(('  '::text) IN (name)) = 0))),
+    CONSTRAINT community_slug_format CHECK (((slug ~ '^[a-z0-9-]+$'::text) AND (slug !~ '^-'::text) AND (slug !~ '-$'::text) AND (POSITION(('--'::text) IN (slug)) = 0)))
+);
+
+ALTER TABLE ONLY public.community_public REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE community_public; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.community_public IS 'Public community data. Readable by anyone, writable by owner/admin.';
+
+
+--
+-- Name: community_user; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.community_user (
+    community_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    role text NOT NULL,
+    joined_at timestamp with time zone DEFAULT now() NOT NULL,
+    status text DEFAULT 'joined'::text NOT NULL,
+    CONSTRAINT community_user_role_check CHECK ((role = ANY (ARRAY['owner'::text, 'community_admin'::text, 'member'::text]))),
+    CONSTRAINT community_user_status_check CHECK ((status = ANY (ARRAY['invited'::text, 'joined'::text, 'left'::text, 'kicked'::text])))
+);
+
+ALTER TABLE ONLY public.community_user REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE community_user; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.community_user IS 'Community members and roles.';
+
 
 --
 -- Name: event; Type: TABLE; Schema: public; Owner: -
@@ -649,6 +774,46 @@ ALTER TABLE ONLY public.user_public REPLICA IDENTITY FULL;
 
 
 --
+-- Name: community_event community_event_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_event
+    ADD CONSTRAINT community_event_pkey PRIMARY KEY (community_id, event_id);
+
+
+--
+-- Name: community community_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community
+    ADD CONSTRAINT community_pkey PRIMARY KEY (community_id);
+
+
+--
+-- Name: community_public community_public_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_public
+    ADD CONSTRAINT community_public_pkey PRIMARY KEY (community_id);
+
+
+--
+-- Name: community_public community_slug_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_public
+    ADD CONSTRAINT community_slug_unique UNIQUE (slug);
+
+
+--
+-- Name: community_user community_user_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_user
+    ADD CONSTRAINT community_user_pkey PRIMARY KEY (community_id, user_id);
+
+
+--
 -- Name: event_library event_library_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -994,6 +1159,20 @@ CREATE INDEX user_library_user_id_idx ON public.user_library USING btree (user_i
 
 
 --
+-- Name: community set_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.community FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+
+--
+-- Name: community_public set_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.community_public FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+
+--
 -- Name: event set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1040,6 +1219,54 @@ CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.song_public FOR EACH ROW E
 --
 
 CREATE TRIGGER set_updated_at BEFORE UPDATE ON public."user" FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+
+--
+-- Name: community_event community_event_community_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_event
+    ADD CONSTRAINT community_event_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.community(community_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_event community_event_event_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_event
+    ADD CONSTRAINT community_event_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.event(event_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community community_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community
+    ADD CONSTRAINT community_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_public community_public_community_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_public
+    ADD CONSTRAINT community_public_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.community(community_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_user community_user_community_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_user
+    ADD CONSTRAINT community_user_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.community(community_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_user community_user_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_user
+    ADD CONSTRAINT community_user_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
 
 
 --
@@ -1337,6 +1564,13 @@ CREATE POLICY "Allow owner to update own event_public" ON public.event_public FO
 
 
 --
+-- Name: community_public Allow read access to community_public for everyone; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read access to community_public for everyone" ON public.community_public FOR SELECT TO authenticated USING (true);
+
+
+--
 -- Name: playlist_public Allow read access to playlist_public for visitors or users; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -1374,6 +1608,13 @@ CREATE POLICY "Allow read access to user_public for visitors or users" ON public
 
 
 --
+-- Name: community Allow read for matching owner_id; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for matching owner_id" ON public.community FOR SELECT TO authenticated USING ((owner_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
 -- Name: event Allow read for matching owner_id; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -1392,6 +1633,27 @@ CREATE POLICY "Allow read for matching user_id" ON public.playlist FOR SELECT TO
 --
 
 CREATE POLICY "Allow read for matching user_id" ON public.song FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: community_event Anyone can see community events; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Anyone can see community events" ON public.community_event FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: community_user Community admins can see all members; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Community admins can see all members" ON public.community_user FOR SELECT TO authenticated USING (public.is_community_admin(community_id, ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: community_user Community owners can see all members; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Community owners can see all members" ON public.community_user FOR SELECT TO authenticated USING (public.is_community_owner(community_id, ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
@@ -1448,6 +1710,69 @@ CREATE POLICY "Deny all INSERT operations on user_library" ON public.user_librar
 --
 
 COMMENT ON POLICY "Deny all INSERT operations on user_library" ON public.user_library IS 'All inserts must go through the /api/user-library/add server endpoint for proper validation and authorization.';
+
+
+--
+-- Name: community Deny all mutations on community; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on community" ON public.community TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: POLICY "Deny all mutations on community" ON community; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON POLICY "Deny all mutations on community" ON public.community IS 'All community mutations must go through the API server for proper validation and authorization.';
+
+
+--
+-- Name: community_event Deny all mutations on community_event; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on community_event" ON public.community_event TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: POLICY "Deny all mutations on community_event" ON community_event; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON POLICY "Deny all mutations on community_event" ON public.community_event IS 'All community event association mutations must go through the API server for proper validation and authorization.';
+
+
+--
+-- Name: community_public Deny all mutations on community_public; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on community_public" ON public.community_public TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: POLICY "Deny all mutations on community_public" ON community_public; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON POLICY "Deny all mutations on community_public" ON public.community_public IS 'All community mutations must go through the API server for proper validation and authorization.';
+
+
+--
+-- Name: community_user Deny all mutations on community_user; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on community_user" ON public.community_user TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: POLICY "Deny all mutations on community_user" ON community_user; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON POLICY "Deny all mutations on community_user" ON public.community_user IS 'All community membership mutations must go through the API server for proper validation and authorization.';
+
+
+--
+-- Name: community_user Users can access their own community entries; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Users can access their own community entries" ON public.community_user FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
@@ -1532,6 +1857,31 @@ CREATE POLICY "Users can update their own playlist library entries" ON public.pl
 --
 
 CREATE POLICY "Users can update their own user library entries" ON public.user_library FOR UPDATE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid)) WITH CHECK ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: community; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.community ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: community_event; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.community_event ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: community_public; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.community_public ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: community_user debug_all_read; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY debug_all_read ON public.community_user FOR SELECT TO authenticated USING (true);
 
 
 --
@@ -1637,5 +1987,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict zBtyS6eKYKNK9NPaybA3PtLNelWdeK2LEEuFmnGeyXzS4sEbWnwcAHIPEaAH3zq
+\unrestrict brFx0tQvypE5WM7hGhkm3VJOLxR8Ah7FmzogPTM490atbEDUfWByHwKSayegIP4
 

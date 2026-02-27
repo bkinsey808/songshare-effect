@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-02-21T00:36:47.265Z
+ * Last generated: 2026-02-27T01:32:05.809Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -25,6 +25,206 @@ export const UUIDSchema: typeof Schema.UUID = Schema.UUID;
 export const PositiveNumberSchema: typeof Schema.Positive = Schema.Positive;
 export const NonNegativeNumberSchema: typeof Schema.NonNegative =
 	Schema.NonNegative;
+
+// community table schemas
+export const CommunitySchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	created_at: typeof Schema.NonEmptyString;
+	owner_id: typeof Schema.UUID;
+	private_notes: typeof Schema.NonEmptyString;
+	updated_at: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	created_at: Schema.NonEmptyString,
+	owner_id: Schema.UUID,
+	private_notes: Schema.NonEmptyString,
+	updated_at: Schema.NonEmptyString,
+});
+
+export type Community = Schema.Schema.Type<typeof CommunitySchema>;
+
+export const CommunityInsertSchema: Schema.Struct<{
+	community_id: Schema.optional<typeof Schema.UUID>;
+	owner_id: typeof Schema.UUID;
+	private_notes: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	community_id: Schema.optional(Schema.UUID),
+	owner_id: Schema.UUID,
+	private_notes: Schema.optional(Schema.NonEmptyString),
+});
+
+export type CommunityInsert = Schema.Schema.Type<typeof CommunityInsertSchema>;
+
+export const CommunityUpdateSchema: Schema.Struct<{
+	community_id: Schema.optional<typeof Schema.UUID>;
+	owner_id: Schema.optional<typeof Schema.UUID>;
+	private_notes: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	community_id: Schema.optional(Schema.UUID),
+	owner_id: Schema.optional(Schema.UUID),
+	private_notes: Schema.optional(Schema.NonEmptyString),
+});
+
+export type CommunityUpdate = Schema.Schema.Type<typeof CommunityUpdateSchema>;
+
+// community_event table schemas
+export const CommunityEventSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	created_at: typeof Schema.NonEmptyString;
+	event_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	created_at: Schema.NonEmptyString,
+	event_id: Schema.UUID,
+});
+
+export type CommunityEvent = Schema.Schema.Type<typeof CommunityEventSchema>;
+
+export const CommunityEventInsertSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	event_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	event_id: Schema.UUID,
+});
+
+export type CommunityEventInsert = Schema.Schema.Type<
+	typeof CommunityEventInsertSchema
+>;
+
+export const CommunityEventUpdateSchema: Schema.Struct<{
+	community_id: Schema.optional<typeof Schema.UUID>;
+	event_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	community_id: Schema.optional(Schema.UUID),
+	event_id: Schema.optional(Schema.UUID),
+});
+
+export type CommunityEventUpdate = Schema.Schema.Type<
+	typeof CommunityEventUpdateSchema
+>;
+
+// community_public table schemas
+export const CommunityPublicSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	created_at: Schema.optional<typeof Schema.String>;
+	description: Schema.optional<typeof Schema.String>;
+	is_public: typeof Schema.Boolean;
+	name: typeof Schema.NonEmptyString;
+	owner_id: typeof Schema.UUID;
+	public_notes: Schema.optional<typeof Schema.String>;
+	slug: typeof Schema.NonEmptyString;
+	updated_at: Schema.optional<typeof Schema.String>;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	created_at: Schema.optional(Schema.String),
+	description: Schema.optional(Schema.String),
+	is_public: Schema.Boolean,
+	name: Schema.NonEmptyString,
+	owner_id: Schema.UUID,
+	public_notes: Schema.optional(Schema.String),
+	slug: Schema.NonEmptyString,
+	updated_at: Schema.optional(Schema.String),
+});
+
+export type CommunityPublic = Schema.Schema.Type<typeof CommunityPublicSchema>;
+
+export const CommunityPublicInsertSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	description: Schema.optional<typeof Schema.String>;
+	is_public: Schema.optional<typeof Schema.Boolean>;
+	name: typeof Schema.NonEmptyString;
+	owner_id: typeof Schema.UUID;
+	public_notes: Schema.optional<typeof Schema.String>;
+	slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	description: Schema.optional(Schema.String),
+	is_public: Schema.optional(Schema.Boolean),
+	name: Schema.NonEmptyString,
+	owner_id: Schema.UUID,
+	public_notes: Schema.optional(Schema.String),
+	slug: Schema.NonEmptyString,
+});
+
+export type CommunityPublicInsert = Schema.Schema.Type<
+	typeof CommunityPublicInsertSchema
+>;
+
+export const CommunityPublicUpdateSchema: Schema.Struct<{
+	community_id: Schema.optional<typeof Schema.UUID>;
+	description: Schema.optional<typeof Schema.String>;
+	is_public: Schema.optional<typeof Schema.Boolean>;
+	name: Schema.optional<typeof Schema.NonEmptyString>;
+	owner_id: Schema.optional<typeof Schema.UUID>;
+	public_notes: Schema.optional<typeof Schema.String>;
+	slug: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	community_id: Schema.optional(Schema.UUID),
+	description: Schema.optional(Schema.String),
+	is_public: Schema.optional(Schema.Boolean),
+	name: Schema.optional(Schema.NonEmptyString),
+	owner_id: Schema.optional(Schema.UUID),
+	public_notes: Schema.optional(Schema.String),
+	slug: Schema.optional(Schema.NonEmptyString),
+});
+
+export type CommunityPublicUpdate = Schema.Schema.Type<
+	typeof CommunityPublicUpdateSchema
+>;
+
+// community_user table schemas
+export const CommunityUserSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	joined_at: typeof Schema.NonEmptyString;
+	role: typeof Schema.NonEmptyString;
+	status: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	joined_at: Schema.NonEmptyString,
+	role: Schema.NonEmptyString,
+	status: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+});
+
+export type CommunityUser = Schema.Schema.Type<typeof CommunityUserSchema>;
+
+export const CommunityUserInsertSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	joined_at: Schema.optional<typeof Schema.NonEmptyString>;
+	role: typeof Schema.NonEmptyString;
+	status: Schema.optional<typeof Schema.NonEmptyString>;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	joined_at: Schema.optional(Schema.NonEmptyString),
+	role: Schema.NonEmptyString,
+	status: Schema.optional(Schema.NonEmptyString),
+	user_id: Schema.UUID,
+});
+
+export type CommunityUserInsert = Schema.Schema.Type<
+	typeof CommunityUserInsertSchema
+>;
+
+export const CommunityUserUpdateSchema: Schema.Struct<{
+	community_id: Schema.optional<typeof Schema.UUID>;
+	joined_at: Schema.optional<typeof Schema.NonEmptyString>;
+	role: Schema.optional<typeof Schema.NonEmptyString>;
+	status: Schema.optional<typeof Schema.NonEmptyString>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	community_id: Schema.optional(Schema.UUID),
+	joined_at: Schema.optional(Schema.NonEmptyString),
+	role: Schema.optional(Schema.NonEmptyString),
+	status: Schema.optional(Schema.NonEmptyString),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type CommunityUserUpdate = Schema.Schema.Type<
+	typeof CommunityUserUpdateSchema
+>;
 
 // event table schemas
 export const EventSchema: Schema.Struct<{

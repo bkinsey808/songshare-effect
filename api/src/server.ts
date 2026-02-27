@@ -6,6 +6,16 @@ import {
 	apiAccountRegisterPath,
 	apiAuthSignOutPath,
 	apiAuthVisitorPath,
+	apiCommunityDeletePath,
+	apiCommunityEventAddPath,
+	apiCommunityEventRemovePath,
+	apiCommunityLibraryPath,
+	apiCommunitySavePath,
+	apiCommunityUserAddPath,
+	apiCommunityUserJoinPath,
+	apiCommunityUserKickPath,
+	apiCommunityUserRemovePath,
+	apiCommunityUserUpdateRolePath,
 	apiEventDeletePath,
 	apiEventLibraryAddPath,
 	apiEventLibraryRemovePath,
@@ -37,6 +47,16 @@ import {
 import accountDelete from "./account/accountDelete";
 import accountRegister from "./account/accountRegister";
 import signOutHandler from "./auth/signOut";
+import communityEventAdd from "./community-event/communityEventAdd";
+import communityEventRemove from "./community-event/communityEventRemove";
+import communityUserAdd from "./community-user/communityUserAdd";
+import communityUserJoin from "./community-user/communityUserJoin";
+import communityUserKick from "./community-user/communityUserKick";
+import communityUserRemove from "./community-user/communityUserRemove";
+import communityUserUpdateRole from "./community-user/communityUserUpdateRole";
+import communityDelete from "./community/communityDelete";
+import communityLibrary from "./community/communityLibrary";
+import communitySave from "./community/communitySave";
 import updateSongPublicHandler from "./dev/updateSongPublicHandler";
 import { type Bindings } from "./env";
 import addEventToLibraryHandler from "./event-library/addEventToLibrary";
@@ -203,6 +223,59 @@ app.post(
 app.post(
 	apiEventLibraryRemovePath,
 	handleHttpEndpoint((ctx) => removeEventFromLibraryHandler(ctx)),
+);
+
+// Community endpoints
+app.post(
+	apiCommunitySavePath,
+	handleHttpEndpoint((ctx) => communitySave(ctx)),
+);
+
+app.post(
+	apiCommunityDeletePath,
+	handleHttpEndpoint((ctx) => communityDelete(ctx)),
+);
+
+app.get(
+	apiCommunityLibraryPath,
+	handleHttpEndpoint((ctx) => communityLibrary(ctx)),
+);
+
+// Community user management
+app.post(
+	apiCommunityUserAddPath,
+	handleHttpEndpoint((ctx) => communityUserAdd(ctx)),
+);
+
+app.post(
+	apiCommunityUserJoinPath,
+	handleHttpEndpoint((ctx) => communityUserJoin(ctx)),
+);
+
+app.post(
+	apiCommunityUserRemovePath,
+	handleHttpEndpoint((ctx) => communityUserRemove(ctx)),
+);
+
+app.post(
+	apiCommunityUserKickPath,
+	handleHttpEndpoint((ctx) => communityUserKick(ctx)),
+);
+
+app.post(
+	apiCommunityUserUpdateRolePath,
+	handleHttpEndpoint((ctx) => communityUserUpdateRole(ctx)),
+);
+
+// Community event management
+app.post(
+	apiCommunityEventAddPath,
+	handleHttpEndpoint((ctx) => communityEventAdd(ctx)),
+);
+
+app.post(
+	apiCommunityEventRemovePath,
+	handleHttpEndpoint((ctx) => communityEventRemove(ctx)),
 );
 
 // File upload endpoint

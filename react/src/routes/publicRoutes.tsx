@@ -5,6 +5,8 @@ import { lazy } from "react";
 import {
 	aboutPath,
 	activityDemoPath,
+	communityManagePath,
+	communityViewPath,
 	eventManagePath,
 	eventSlideManagerPath,
 	eventSlideShowPath,
@@ -36,6 +38,8 @@ const SongView = lazy(() => import("../song/song-view/SongView"));
 const PlaylistPage = lazy(() => import("../pages/PlaylistPage"));
 const EventView = lazy(() => import("../event/view/EventView"));
 const EventManageView = lazy(() => import("../event/manage/event-manage-view/EventManageView"));
+const CommunityViewPage = lazy(() => import("../pages/CommunityViewPage"));
+const CommunityManagePage = lazy(() => import("../pages/CommunityManagePage"));
 const EventSlideShowView = lazy(() => import("../event/view/EventSlideShowView"));
 const SlideManagerView = lazy(() => import("../event/manage/slide/SlideManagerView"));
 const ActivityDemoPage = lazy(() => import("../pages/demo/ActivityDemoPage"));
@@ -118,6 +122,14 @@ export const publicRoutesWithLayout: RouteObject[] = [
 	{
 		path: `${eventViewPath}/:event_slug/${eventManagePath}`,
 		element: withSuspense(EventManageView),
+	},
+	{
+		path: `${communityViewPath}/:community_slug`,
+		element: withSuspense(CommunityViewPage),
+	},
+	{
+		path: `${communityViewPath}/:community_slug/${communityManagePath}`,
+		element: withSuspense(CommunityManagePage),
 	},
 	{
 		path: reactFeaturesPath,

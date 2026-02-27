@@ -14,6 +14,154 @@ export type Database = {
   }
   public: {
     Tables: {
+      community: {
+        Row: {
+          community_id: string
+          created_at: string
+          owner_id: string
+          private_notes: string
+          updated_at: string
+        }
+        Insert: {
+          community_id?: string
+          created_at?: string
+          owner_id: string
+          private_notes?: string
+          updated_at?: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          owner_id?: string
+          private_notes?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      community_event: {
+        Row: {
+          community_id: string
+          created_at: string
+          event_id: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          event_id: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          event_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_event_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_event_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["event_id"]
+          },
+        ]
+      }
+      community_public: {
+        Row: {
+          community_id: string
+          created_at: string | null
+          description: string | null
+          is_public: boolean
+          name: string
+          owner_id: string
+          public_notes: string | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          community_id: string
+          created_at?: string | null
+          description?: string | null
+          is_public?: boolean
+          name: string
+          owner_id: string
+          public_notes?: string | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          community_id?: string
+          created_at?: string | null
+          description?: string | null
+          is_public?: boolean
+          name?: string
+          owner_id?: string
+          public_notes?: string | null
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_public_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: true
+            referencedRelation: "community"
+            referencedColumns: ["community_id"]
+          },
+        ]
+      }
+      community_user: {
+        Row: {
+          community_id: string
+          joined_at: string
+          role: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          joined_at?: string
+          role: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          joined_at?: string
+          role?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_user_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_user_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       event: {
         Row: {
           created_at: string
@@ -593,6 +741,14 @@ export type Database = {
           user_id_text: string
           user_text: string
         }[]
+      }
+      is_community_admin: {
+        Args: { p_community_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_community_owner: {
+        Args: { p_community_id: string; p_user_id: string }
+        Returns: boolean
       }
     }
     Enums: {

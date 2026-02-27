@@ -47,6 +47,16 @@ export const eventSlideShowPath = "slideshow";
  */
 export const eventSlideManagerPath = "slide-manager";
 
+// Community paths
+export const communityEditPath = "community-edit";
+export const communityLibraryPath = "community-library";
+
+/** Base path for viewing a community by slug; use as "communities/:community_slug" in routes */
+export const communityViewPath = "communities";
+
+/** Suffix path for community manager view; use as "communities/:community_slug/manage" */
+export const communityManagePath = "manage";
+
 export const apiOauthSignInPath = "/api/oauth/sign-in";
 export const apiOauthCallbackPath = "/api/oauth/callback";
 export const apiMePath = "/api/me";
@@ -74,6 +84,18 @@ export const apiEventUserJoinPath = "/api/event-user/join";
 export const apiEventUserRemovePath = "/api/event-user/remove";
 export const apiEventUserKickPath = "/api/event-user/kick";
 export const apiEventUserUpdateRolePath = "/api/event-user/update-role";
+
+// Community API paths
+export const apiCommunitySavePath = "/api/communities/save";
+export const apiCommunityDeletePath = "/api/communities/delete";
+export const apiCommunityLibraryPath = "/api/communities/library";
+export const apiCommunityUserAddPath = "/api/community-user/add";
+export const apiCommunityUserJoinPath = "/api/community-user/join";
+export const apiCommunityUserRemovePath = "/api/community-user/remove";
+export const apiCommunityUserKickPath = "/api/community-user/kick";
+export const apiCommunityUserUpdateRolePath = "/api/community-user/update-role";
+export const apiCommunityEventAddPath = "/api/community-event/add";
+export const apiCommunityEventRemovePath = "/api/community-event/remove";
 export const apiUploadPath = "/api/upload";
 export const apiHelloPath = "/api/hello";
 export const healthPath = "/health";

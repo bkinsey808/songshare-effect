@@ -35,7 +35,7 @@ export default function PlaylistSongCard({
 	onMoveDown,
 	onRemove,
 	dragHandle,
-}: PlaylistSongCardProps): React.JSX.Element {
+}: PlaylistSongCardProps): ReactElement {
 	const { t } = useTranslation();
 	const publicSongs = useAppStore((state) => state.publicSongs);
 	const song = safeGet(publicSongs, songId);

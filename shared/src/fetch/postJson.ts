@@ -1,3 +1,5 @@
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+
 /**
  * Perform a POST with a JSON body and throw when the response is not ok.
  *
@@ -18,7 +20,18 @@ export default async function postJson(path: string, body: unknown): Promise<voi
 	const response = await fetch(path, init);
 
 	if (!response.ok) {
-		const errorText = await response.text();
+		let errorText = "";
+		try {
+			errorText = await response.text();
+			try {
+				const json: unknown = JSON.parse(errorText);
+				errorText = extractErrorMessage(json, errorText);
+			} catch {
+				// Not JSON, use as-is
+			}
+		} catch {
+			errorText = `Request failed (${response.status})`;
+		}
 		throw new Error(errorText === "" ? `Request failed (${response.status})` : errorText);
 	}
 }

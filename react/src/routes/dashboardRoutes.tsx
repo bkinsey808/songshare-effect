@@ -3,6 +3,8 @@ import type { RouteObject } from "react-router-dom";
 import { lazy } from "react";
 
 import {
+	communityEditPath,
+	communityLibraryPath,
 	deleteAccountPath,
 	eventEditPath,
 	eventLibraryPath,
@@ -24,6 +26,8 @@ const PlaylistEditPage = lazy(() => import("@/react/pages/PlaylistEditPage"));
 const PlaylistLibraryPage = lazy(() => import("@/react/pages/PlaylistLibraryPage"));
 const EventEditPage = lazy(() => import("@/react/pages/EventEditPage"));
 const EventLibraryPage = lazy(() => import("@/react/pages/EventLibraryPage"));
+const CommunityEditPage = lazy(() => import("@/react/pages/CommunityEditPage"));
+const CommunityLibraryPage = lazy(() => import("@/react/pages/CommunityLibraryPage"));
 const UserLibraryPage = lazy(() => import("@/react/user-library/UserLibraryPage"));
 
 /**
@@ -76,6 +80,14 @@ const dashboardRoutes: RouteObject[] = [
 		element: withSuspense(EventEditPage),
 	},
 	{
+		path: communityEditPath,
+		element: withSuspense(CommunityEditPage),
+	},
+	{
+		path: `${communityEditPath}/:community_id`,
+		element: withSuspense(CommunityEditPage),
+	},
+	{
 		path: playlistLibraryPath,
 		element: withSuspense(PlaylistLibraryPage),
 	},
@@ -86,6 +98,10 @@ const dashboardRoutes: RouteObject[] = [
 	{
 		path: eventLibraryPath,
 		element: withSuspense(EventLibraryPage),
+	},
+	{
+		path: communityLibraryPath,
+		element: withSuspense(CommunityLibraryPage),
 	},
 ];
 

@@ -83,7 +83,13 @@ export default function useUserSearchInput({
 		trimmedQuery === ""
 			? usersArray
 			: usersArray.filter((entry) => {
-					const username = (entry.owner_username ?? "").toLowerCase();
+					// entry.owner_username may be null/undefined/empty; cast to
+					// lowercase string only when actually present.
+					const rawName = entry.owner_username;
+					const username =
+						rawName !== null && rawName !== undefined && rawName !== ""
+							? rawName.toLowerCase()
+							: "";
 					const userId = entry.followed_user_id.toLowerCase();
 					return username.includes(trimmedQuery) || userId.includes(trimmedQuery);
 				});
@@ -112,11 +118,26 @@ export default function useUserSearchInput({
 		inputRef.current?.focus();
 	}
 
-	const inputDisplayValue =
-		searchQuery === ""
-			? (activeUser?.owner_username ?? activeUser?.followed_user_id ?? "")
-			: searchQuery;
+	// When searchQuery is empty we show either the active user's username or
+	// their id.  We explicitly guard against null/undefined/empty username so
+	// that we never render an unexpected falsy value in the input.
+	let inputDisplayValue = "";
+	if (searchQuery !== "") {
+		inputDisplayValue = searchQuery;
+	} else if (activeUser === undefined) {
+		inputDisplayValue = "";
+	} else if (
+		activeUser.owner_username !== null &&
+		activeUser.owner_username !== undefined &&
+		activeUser.owner_username !== ""
+	) {
+		inputDisplayValue = activeUser.owner_username;
+	} else {
+		inputDisplayValue = activeUser.followed_user_id;
+	}
 
+	// inputDisplayValue is what shows inside the text input.  We prefer a
+	// friendly username when available and fall back to the raw id.
 	return {
 		USERS_NONE,
 		searchQuery,

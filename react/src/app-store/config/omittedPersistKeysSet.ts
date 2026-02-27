@@ -11,6 +11,13 @@ const omittedPersistKeys = [
 	"playlistLibraryUnsubscribe",
 	"playlistLibraryPublicUnsubscribe",
 	"userLibraryUnsubscribe",
+	"communities",
+	"currentCommunity",
+	"members",
+	"communityEvents",
+	"isCommunityLoading",
+	"communityError",
+	"isCommunitySaving",
 ] as const;
 
 const omittedPersistKeysSet = new Set<string>(omittedPersistKeys as readonly string[]);
