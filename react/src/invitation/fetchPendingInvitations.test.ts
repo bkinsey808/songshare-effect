@@ -1,5 +1,4 @@
 import type { PostgrestResponse } from "@supabase/supabase-js";
-
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
@@ -8,19 +7,25 @@ import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import { makeFakeClient } from "@/react/lib/supabase/client/test-util";
 
+import fetchPendingInvitations from "./fetchPendingInvitations";
+import mapCommunityInvitations from "./mapCommunityInvitations";
+import mapEventInvitations from "./mapEventInvitations";
 import type { InvitationSlice } from "./slice/InvitationSlice.type";
+import makeInvitationSlice from "./slice/makeInvitationSlice.test-util";
 
 import asPostgrestResponse from "../lib/test-utils/asPostgrestResponse";
-import fetchPendingInvitations from "./fetchPendingInvitations";
-import makeInvitationSlice from "./slice/makeInvitationSlice.test-util";
 
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
 vi.mock("@/react/lib/supabase/client/getSupabaseClient");
 vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
+vi.mock("./mapCommunityInvitations");
+vi.mock("./mapEventInvitations");
 
 const mockedGetToken = vi.mocked(getSupabaseAuthToken);
 const mockedGetClient = vi.mocked(getSupabaseClient);
 const mockedCallSelect = vi.mocked(callSelect);
+const mockedMapCommunity = vi.mocked(mapCommunityInvitations);
+const mockedMapEvent = vi.mocked(mapEventInvitations);
 
 /**
  * Create Postgrest-shaped response fixtures used by the invitation tests.
@@ -103,6 +108,13 @@ describe("fetchPendingInvitations", () => {
 			.mockResolvedValueOnce(resp2)
 			.mockResolvedValueOnce(resp3)
 			.mockResolvedValueOnce(resp4);
+
+		mockedMapCommunity.mockReturnValueOnce([
+			{ community_id: "1", community_name: "Com", community_slug: "com-slug" },
+		]);
+		mockedMapEvent.mockReturnValueOnce([
+			{ event_id: "e1", event_name: "Event", event_slug: "event-slug" },
+		]);
 
 		/**
 		 * Build a synthetic `InvitationSlice` used when a Supabase client is

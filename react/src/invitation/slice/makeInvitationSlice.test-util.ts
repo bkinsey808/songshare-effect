@@ -49,10 +49,10 @@ export default function makeInvitationSlice(overrides?: Partial<InvitationSlice>
 	}
 
 	return {
-		pendingCommunityInvitations: [],
-		pendingEventInvitations: [],
-		isInvitationLoading: false,
-		invitationError: undefined,
+		pendingCommunityInvitations: overrides?.pendingCommunityInvitations ?? [],
+		pendingEventInvitations: overrides?.pendingEventInvitations ?? [],
+		isInvitationLoading: overrides?.isInvitationLoading ?? false,
+		invitationError: overrides?.invitationError ?? undefined,
 		setPendingCommunityInvitations,
 		setPendingEventInvitations,
 		setInvitationLoading,
