@@ -77,6 +77,92 @@ _Note:_ helper modules intended solely for unit tests should be named with a `.t
    Only run the single file you’re working on, not the entire suite, to keep feedback fast. Once the file is green, broader runs (e.g. `npm run test:unit`) can follow.
 9. Prefer asserting against mock data variables (not duplicated literal strings). Define constants for mock inputs (e.g., `const songId = "s1"`) and use those variables in both setup and expectations to avoid mismatches and improve test clarity.
 
+### Supabase / Postgrest mocking guidance
+
+- The repo commonly mocks Supabase queries which return `PostgrestResponse<T>` shapes. Mock return values should match that shape (including `data`, and where appropriate `error`, `count`, `status`, `statusText`) to keep TypeScript and linter checks happy.
+- Centralize any unsafe casts in a test-only helper such as `asPostgrestResponse(value)` under `react/src/lib/test-utils`. That helper can construct a minimal `PostgrestResponse<T>` and contain the localized `oxlint`/eslint disable comments. This prevents scattering disables across many tests.
+- Prefer the typed mocked function: `const mockedCallSelect = vi.mocked(callSelect);` and wrap return values with `asPostgrestResponse(...)` instead of casting to `any`.
+
+Example:
+
+```ts
+import callSelect from '@/react/lib/supabase/client/safe-query/callSelect';
+import asPostgrestResponse from '@/react/lib/test-utils/asPostgrestResponse';
+
+vi.mock('@/react/lib/supabase/client/safe-query/callSelect');
+const mockedCallSelect = vi.mocked(callSelect);
+
+mockedCallSelect.mockResolvedValue(asPostgrestResponse({ data: [{ id: 'r1' }] }));
+```
+
+If you need an unsafe assertion for a narrow test-only reason, put it in a helper (not in each test file) and keep the disable comment localized there.
+
+## Practical learnings from recent tests
+
+- **Test-util naming is important:** helper modules created for tests should use the `*-test-util.ts` suffix and default-export a single factory when appropriate. This makes intent and usage obvious to both humans and agents.
+- **Prefer reuse of shared fake clients:** when stubbing Supabase or complex clients, import and reuse the repo's shared `makeFakeClient`/`makeSupabaseClient` helpers instead of hand-rolling `{}` casts in individual tests. This avoids unsafe `as unknown as` assertions.
+- **Use `asPostgrestResponse` for Postgrest shapes:** build Postgrest-shaped fixtures with the shared `asPostgrestResponse(...)` helper rather than crafting objects with `null` literals or unsafe casts.
+- **Extract typed slice/get factories for repeated stubs:** if multiple tests need the same `get()` or slice stub, extract a `makeInvitationSlice`-style factory into a `*-test-util.ts` file that returns a fully-typed object (including Effect-based stubs and setter spies). This reduces duplication and keeps test files concise.
+- **Localize any eslint/oxlint disables to helpers:** if a cast or disable is unavoidable, contain it inside a test-util helper (with JSDoc explaining why). Tests then import and use the helper without needing in-file disables.
+- **Prefer function declarations + explicit return types in helpers:** agents and linters handle function declarations with explicit return types more predictably than arrow helpers without annotations.
+- **Document test helpers with JSDoc:** add short JSDoc to explain the helper's purpose, parameters, and why any unsafe cast (if present) is acceptable. This aids future maintainers and automated agents.
+
+### Type-safe test checklist (avoid rewrites)
+
+- Use the repo test-utils first: `forceCast`, `asPostgrestResponse`, and any `make*` factories. These centralize one-off `oxlint` disables and keep tests lint-clean.
+- Build fully-typed slice/get stubs (provide every method the production code may call) instead of partial `any` objects. Example pattern:
+
+```ts
+import forceCast from '@/react/lib/test-utils/forceCast';
+import type { CommunitySlice } from '@/react/state/community/types';
+
+const makeGet = () =>
+  forceCast<CommunitySlice['get']>({
+    setCommunities: vi.fn(),
+    setCommunityLoading: vi.fn(),
+    setCommunityError: vi.fn(),
+    // include other setters/readers used by the module under test
+  });
+
+const get = makeGet();
+// pass `get` to the function under test or to a mocked slice factory
+```
+
+- When mocking Supabase responses always return a valid `PostgrestResponse<T>` shape; prefer `asPostgrestResponse({ data, error: null, status: 200, statusText: 'OK' })` so the compiler and runtime behavior match production.
+- Prefer `vi.mocked(module)` for typed mocks and `vi.spyOn`/`await import()` inside an `init()` helper when you need to swap implementations per-test. This avoids untyped mock factories and module cache surprises.
+- Use `undefined` for absent optional fields (the repo prefers `undefined` over `null`).
+- Keep setup explicit and local to the test via an `async init()` (no lifecycle hooks). Call `vi.resetModules()` inside `init()` before `vi.doMock`/`vi.mock` when you need fresh module resolution.
+
+### Advanced Mocking and Spying (ESM & Effect)
+
+- **Avoid untyped mock factories**: Calling `vi.mock("path", () => ({ ... }))` triggers `jest/no-untyped-mock-factory` and breaks Vitest's automatic hoist/type-aware mocking. **Prefer top-level `vi.mock("path")`** (single argument), then use `vi.mocked(exportedSymbol)` inside your test to configure behavior.
+- **Avoid top-level mock state**: Declaring mutable variables (e.g., `let appState`) for mocks at the top level triggers `jest/require-hook`. Instead, perform arrangement directly inside each `it` block using local constants.
+- **Mocking Effects**: In ESM environments, `vi.spyOn(Effect, "runPromise")` may fail with `TypeError: Cannot redefine property`. Instead of spying on the runner, have your mocked dependency return a "spy Effect":
+  ```ts
+  const effectSpy = vi.fn();
+  mockedFetch.mockReturnValue(Effect.sync(() => effectSpy()));
+  // ... run test ...
+  expect(effectSpy).toHaveBeenCalled();
+  ```
+- **Use `forceCast` for complex mocks**: When mocking Zustand stores or objects with large interfaces, use `@/react/lib/test-utils/forceCast` to coercion your mock state into the required shape. This keeps tests lint-clean without using `any`.
+
+Small example for a fetch function:
+
+```ts
+async function init() {
+  vi.resetModules();
+  vi.mock('@/react/lib/supabase/client/safe-query/callSelect');
+  const { default: fetchCommunityBySlug } = await import('./fetchCommunityBySlug');
+  const mockedCallSelect = vi.mocked(await import('@/react/lib/supabase/client/safe-query/callSelect'));
+
+  const get = makeGet();
+  mockedCallSelect.mockResolvedValue(asPostgrestResponse({ data: [{ id: 'c1', slug: 's' }], error: null, status: 200, statusText: 'OK' }));
+  return { fetchCommunityBySlug, get, mockedCallSelect };
+}
+```
+
+Following these patterns prevents the common cycle of adding a test, hitting typed/lint failures, deleting it, and starting over.
+
 ## Examples
 
 - See [test-template.test.ts](./test-template.test.ts) for a minimal setup and assertion pattern.

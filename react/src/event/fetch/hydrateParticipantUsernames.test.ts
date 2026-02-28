@@ -5,6 +5,7 @@ import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseCli
 
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { EventParticipant } from "../event-entry/EventEntry.type";
@@ -12,6 +13,9 @@ import type { EventParticipant } from "../event-entry/EventEntry.type";
 import hydrateParticipantUsernames from "./hydrateParticipantUsernames";
 
 vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
+
+// Typed mocked helper for callSelect
+const mockedCallSelect = vi.mocked(callSelect);
 
 function makeParticipant(overrides: Partial<EventParticipant>): EventParticipant {
 	return {
@@ -61,12 +65,14 @@ describe("hydrateParticipantUsernames", () => {
 			makeParticipant({ user_id: "user-2" }),
 			makeParticipant({ user_id: "user-3" }),
 		];
-		vi.mocked(callSelect).mockResolvedValue({
-			data: [
-				{ user_id: "user-2", username: "user_two" },
-				{ user_id: "user-3", username: "user_three" },
-			],
-		});
+		mockedCallSelect.mockResolvedValue(
+			asPostgrestResponse({
+				data: [
+					{ user_id: "user-2", username: "user_two" },
+					{ user_id: "user-3", username: "user_three" },
+				],
+			}),
+		);
 
 		const result = await Effect.runPromise(hydrateParticipantUsernames(client, participants));
 
@@ -89,9 +95,9 @@ describe("hydrateParticipantUsernames", () => {
 			makeParticipant({ user_id: "user-2" }),
 			makeParticipant({ user_id: "user-4" }),
 		];
-		vi.mocked(callSelect).mockResolvedValue({
-			data: [{ user_id: "user-2", username: "user_two" }],
-		});
+		mockedCallSelect.mockResolvedValue(
+			asPostgrestResponse({ data: [{ user_id: "user-2", username: "user_two" }] }),
+		);
 
 		const result = await Effect.runPromise(hydrateParticipantUsernames(client, participants));
 
@@ -110,7 +116,7 @@ describe("hydrateParticipantUsernames", () => {
 		vi.resetAllMocks();
 		const client = forceCast<SupabaseClientLike>(createMinimalSupabaseClient());
 		const participants: readonly EventParticipant[] = [makeParticipant({ user_id: "user-5" })];
-		vi.mocked(callSelect).mockRejectedValue(new Error("network down"));
+		mockedCallSelect.mockRejectedValue(new Error("network down"));
 
 		await expect(
 			Effect.runPromise(hydrateParticipantUsernames(client, participants)),

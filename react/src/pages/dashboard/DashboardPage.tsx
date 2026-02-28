@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import useHydration from "@/react/app/useHydration";
+import PendingInvitationsSection from "@/react/invitation/PendingInvitationsSection";
+import useInvitationSubscription from "@/react/invitation/useInvitationSubscription";
 import Button from "@/react/lib/design-system/Button";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
 import LogOutIcon from "@/react/lib/design-system/icons/LogOutIcon";
@@ -44,6 +46,9 @@ function DashboardPage(): ReactElement {
 		setShowUnauthorizedAlert,
 		currentLang,
 	} = useDashboard();
+
+	// Set up invitation subscriptions and initial fetch
+	useInvitationSubscription();
 
 	// If we haven't finished hydration, render a neutral placeholder to
 	// ensure hook order remains stable and avoid hydration mismatches.
@@ -94,7 +99,9 @@ function DashboardPage(): ReactElement {
 				{t("pages.dashboard.welcome", { name: localUser?.user?.name ?? "" })}
 			</p>
 
-			<SongManagementSection currentLang={currentLang} />
+			<PendingInvitationsSection />
+
+			<SongManagementSection />
 
 			<div className="mt-4 flex flex-wrap items-center gap-3">
 				<Button

@@ -10,7 +10,14 @@ import useCommunityLibrary from "./useCommunityLibrary";
 const EMPTY_LIST_LENGTH = 0;
 
 /**
- * Renders the user's community library.
+ * Displays the grid of communities the current user has joined.
+ *
+ * Handles loading and error states, and shows a friendly message when the
+ * library is empty.  The component delegates data fetching to
+ * `useCommunityLibrary` and only concerns itself with presentation.
+ *
+ * @returns React element containing the community tiles or appropriate
+ *   fallback content
  */
 export default function CommunityLibrary(): ReactElement {
 	const { t } = useTranslation();

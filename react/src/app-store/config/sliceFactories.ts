@@ -5,6 +5,7 @@ import createAuthSlice from "@/react/auth/slice/createAuthSlice";
 import createCommunitySlice from "@/react/community/slice/createCommunitySlice";
 import createEventLibrarySlice from "@/react/event-library/slice/createEventLibrarySlice";
 import createEventSlice from "@/react/event/slice/createEventSlice";
+import createInvitationSlice from "@/react/invitation/slice/createInvitationSlice";
 import createNavigationSlice from "@/react/navigation/slice/createNavigationSlice";
 import { createPlaylistLibrarySlice } from "@/react/playlist-library/slice/playlist-library-slice";
 import { createPlaylistSlice } from "@/react/playlist/slice/playlist-slice";
@@ -31,6 +32,7 @@ const sliceFactories: readonly SliceFactory[] = [
 	createEventSlice,
 	createEventLibrarySlice,
 	createCommunitySlice,
+	createInvitationSlice,
 	createNavigationSlice,
 ];
 

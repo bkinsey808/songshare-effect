@@ -1,11 +1,11 @@
 import { Effect } from "effect";
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import type {
 	CommunityEntry,
-	CommunityUser,
 	CommunityEvent,
+	CommunityUser,
 } from "@/react/community/community-types";
 import type { UserSessionData } from "@/shared/userSessionData";
 
@@ -49,7 +49,16 @@ export type UseCommunityManageViewReturn = {
 };
 
 /**
- * Hook for managing community members and events.
+ * Custom hook powering the community management screen.
+ *
+ * It handles fetching the current community, tracking members and events,
+ * and provides a suite of callbacks used by the UI (invite/kick users,
+ * add/remove events, and navigate back).  The hook also manages a simple
+ * `actionState` object used for displaying success/error messages and a
+ * loading indicator for individual operations.
+ *
+ * @returns an object containing state slices and handler functions consumed
+ *   by `CommunityManageView`.
  */
 export default function useCommunityManageView(): UseCommunityManageViewReturn {
 	const { community_slug, lang } = useParams<{ community_slug: string; lang: string }>();
@@ -87,6 +96,10 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 		}
 	}, [community_slug, fetchCommunityBySlug]);
 
+	/**
+	 * True when the current session user matches the community's owner_id.
+	 * Used downstream to decide which management actions are allowed.
+	 */
 	const isOwner =
 		userSessionData?.user !== undefined &&
 		currentCommunity !== undefined &&
@@ -97,8 +110,22 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 			? undefined
 			: members.find((member) => member.user_id === userSessionData.user?.user_id);
 
+	/**
+	 * True when the current user is either the owner or has the
+	 * `community_admin` role; controls whether management UI is shown.
+	 */
 	const canManage = isOwner || currentMember?.role === "community_admin";
 
+	/**
+	 * Helper that wraps a promise-returning operation and manages the
+	 * `actionState` object used by the UI.  Pass a `key` to identify the
+	 * action (errors/success are recorded under this key), a thunk performing
+	 * the async work, and a success message displayed on completion.
+	 *
+	 * @param key - unique identifier for this action
+	 * @param action - async work to run
+	 * @param successMessage - message shown after a successful run
+	 */
 	async function runCommunityAction(
 		key: string,
 		action: () => Promise<void>,
@@ -127,7 +154,9 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 		}
 
 		if (success) {
-			// Refresh data if possible
+			// after a successful mutation we attempt to refresh the full community
+			// payload; the silent flag prevents the global loading spinner from
+			// blinking if this is just a background refresh.
 			const slugToFetch =
 				community_slug !== undefined && community_slug !== "" ? community_slug : undefined;
 

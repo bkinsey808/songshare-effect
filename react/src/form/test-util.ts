@@ -1,5 +1,4 @@
 /* oxlint-disable import/exports-last */
-import { Effect, type Schema } from "effect";
 import { vi } from "vitest";
 
 // helper for mocking the client logger; tests should call this early before
@@ -25,7 +24,7 @@ export type ValidateFormEffectMock = {
  * invoking this *before* importing modules that depend on the real effect.
  */
 export function mockValidateFormEffect(): void {
-	vi.doMock("@/shared/validation/validateFormEffect", () => ({
+	vi.doMock("@/shared/validation/form/validateFormEffect", () => ({
 		__esModule: true,
 		default: vi.fn(),
 	}));
@@ -38,7 +37,8 @@ export function mockValidateFormEffect(): void {
  * test files.
  */
 export async function getValidateFormEffectMock(): Promise<ValidateFormEffectMock> {
-	const { default: _validateFormEffect } = await import("@/shared/validation/validateFormEffect");
+	const { default: _validateFormEffect } =
+		await import("@/shared/validation/form/validateFormEffect");
 	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
 	return vi.mocked(_validateFormEffect) as unknown as ValidateFormEffectMock;
 }
@@ -58,10 +58,6 @@ export function mockExtractValidationErrors(): void {
  * Throw a value as an error.  Having the disable comment here keeps the
  * test file clean while still allowing the helper to use `throw` directly.
  */
-export function throwAny(value: unknown): never {
-	// oxlint-disable-next-line @typescript-eslint/no-throw-literal, no-throw-literal
-	throw value;
-}
 
 /**
  * Create a deferred promise that can be resolved or rejected manually.
@@ -93,40 +89,4 @@ export function makeDeferred<TValue>(): {
 }
 /* oxlint-enable promise/avoid-new,promise/param-names,@typescript-eslint/init-declarations,@typescript-eslint/no-unused-vars */
 
-/**
- * Return a dummy schema for typing in tests.  The cast is intentionally
- * unsafe; the disable comment keeps the warning out of test files.
- */
-export function makeDummySchema<TValue>(): Schema.Schema<TValue> {
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
-	return {} as unknown as Schema.Schema<TValue>;
-}
-
-/**
- * Run an effect and unwrap FiberFailure messages to reveal the original
- * payload.  This replicates the logic previously duplicated in the
- * test file.
- */
-
-export async function runUnwrapped(effect: Effect.Effect<unknown, unknown>): Promise<unknown> {
-	try {
-		return await Effect.runPromise(effect);
-	} catch (error: unknown) {
-		// try to pull stringified payload out of FiberFailure message
-		if (typeof error === "object" && error !== null && "message" in error) {
-			const msg = (error as { message: unknown }).message;
-			if (typeof msg === "string") {
-				let parsed: unknown = undefined;
-				try {
-					parsed = JSON.parse(msg);
-				} catch {
-					parsed = undefined;
-				}
-				if (parsed !== undefined) {
-					throwAny(parsed);
-				}
-			}
-		}
-		throw error;
-	}
-}
+export { default as makeDummySchema } from "@/shared/makeDummySchema.test-util";

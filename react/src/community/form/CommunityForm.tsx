@@ -4,6 +4,15 @@ import Button from "@/react/lib/design-system/Button";
 
 import useCommunityForm from "./useCommunityForm";
 
+/**
+ * Form UI used for creating or editing a community.
+ *
+ * Delegates state and handlers to the `useCommunityForm` hook and renders the
+ * various input fields, error banners, and action buttons.  The form is
+ * responsible only for markup; all logic lives in the hook.
+ *
+ * @returns React element containing the community form
+ */
 export default function CommunityForm(): ReactElement {
 	const { t } = useTranslation();
 	const {

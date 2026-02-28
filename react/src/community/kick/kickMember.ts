@@ -5,6 +5,16 @@ import { apiCommunityUserKickPath } from "@/shared/paths";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
 
+/**
+ * Remove (kick) a user from a community via API and update slice state.
+ *
+ * Handles loading/error toggles on the slice automatically.
+ *
+ * @param communityId - the community from which to remove the user
+ * @param userId - the user to kick
+ * @param get - function returning the community slice helpers
+ * @returns effect resolving after the kick request
+ */
 export default function kickMember(
 	communityId: string,
 	userId: string,
@@ -28,6 +38,7 @@ export default function kickMember(
 
 		setCommunityLoading(false);
 	}).pipe(
+		// same cleanup as other community operations: clear loading and set error
 		Effect.tapError((err) =>
 			Effect.sync(() => {
 				const { setCommunityLoading, setCommunityError } = get();

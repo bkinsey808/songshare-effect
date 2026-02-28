@@ -6,7 +6,7 @@ import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database, type Json } from "@/shared/generated/supabaseTypes";
-import validateFormEffect from "@/shared/validation/validateFormEffect";
+import validateFormEffect from "@/shared/validation/form/validateFormEffect";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";

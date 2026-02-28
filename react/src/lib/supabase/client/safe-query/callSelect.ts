@@ -1,5 +1,7 @@
+import type { PostgrestResponse } from "@supabase/postgrest-js";
+
 /* oxlint-disable typescript-eslint/no-unsafe-type-assertion, typescript-eslint/no-unsafe-call, typescript-eslint/no-unsafe-assignment, typescript-eslint/dot-notation */
-import type { PostgrestResponse, SupabaseClientLike } from "../SupabaseClientLike";
+import type { SupabaseClientLike } from "../SupabaseClientLike";
 
 /**
  * Extract column names from a table in the database schema.
@@ -27,12 +29,26 @@ type SelectOptions<DB, TableName> = {
 /**
  * Safely call select on a Supabase-like client with type-safe table names.
  *
+ * The helper is generic over the shape of rows returned from the query, as
+ * well as the database schema and table name.  Callers should provide the row
+ * type when they know it, which allows future code to operate on `.data`
+ * without unsafe assertions.
+ *
+ * @template Row - the type of each row returned by the query; defaults to
+ *   `unknown` when unspecified
+ * @template DB - database schema type used for table name inference
+ * @template TableName - specific table name within the schema
  * @param client - The Supabase client
  * @param table - Table name (type-checked against database schema)
  * @param opts - Select options (cols, in, eq, single)
  * @returns PostgrestResponse with data/error
  */
 export default async function callSelect<
+	/**
+	 * Type of rows returned by the query. Specify this when calling to avoid
+	 * unsafe assertions at the call site.
+	 */
+	Row = unknown,
 	DB = unknown,
 	TableName extends DB extends { public: { Tables: infer TablesMap } } ? keyof TablesMap : string =
 		DB extends {
@@ -44,7 +60,7 @@ export default async function callSelect<
 	client: SupabaseClientLike<DB>,
 	table: TableName,
 	opts?: SelectOptions<DB, TableName>,
-): Promise<PostgrestResponse> {
+): Promise<PostgrestResponse<Row>> {
 	const cols = opts?.cols ?? "*";
 	const inOpt = opts?.in;
 	const eqOpt = opts?.eq;
@@ -100,8 +116,8 @@ export default async function callSelect<
 
 	// Await the promise
 	if (typeof (query as Promise<unknown>)?.then === "function") {
-		return (await (query as Promise<unknown>)) as PostgrestResponse;
+		return (await (query as Promise<unknown>)) as PostgrestResponse<Row>;
 	}
 
-	return query as PostgrestResponse;
+	return query as PostgrestResponse<Row>;
 }

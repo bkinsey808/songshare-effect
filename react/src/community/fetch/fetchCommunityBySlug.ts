@@ -1,3 +1,5 @@
+import type { PostgrestResponse } from "@supabase/postgrest-js";
+
 import { Effect } from "effect";
 
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
@@ -5,11 +7,23 @@ import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
-import type { CommunityEntry, CommunityUser, CommunityEvent } from "../community-types";
+import type { CommunityEntry, CommunityEvent, CommunityUser } from "../community-types";
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
 
 /**
- * Fetch community details, members, and events by slug.
+ * Retrieves a community's public information, member list, and associated
+ * events by its slug identifier.
+ *
+ * The function updates the provided slice's loading and error state, and
+ * populates `currentCommunity`, `members`, and `communityEvents` on success.
+ * The optional `silent` flag suppresses the loading indicator for background
+ * refreshes.
+ *
+ * @param slug - human-friendly identifier used in URLs
+ * @param get - callback supplying the community slice helpers
+ * @param options - optional flags (currently only `silent`)
+ * @returns effect resolving with the fetched `CommunityEntry` or failing with
+ *   an error message
  */
 export default function fetchCommunityBySlug(
 	slug: string,
@@ -17,6 +31,8 @@ export default function fetchCommunityBySlug(
 	options?: { silent?: boolean },
 ): Effect.Effect<CommunityEntry, Error> {
 	return Effect.gen(function* fetchCommunityBySlugGen($) {
+		// helpers pulled from the slice; used throughout the generator to
+		// update state based on the outcome of each async step.
 		const {
 			setCurrentCommunity,
 			setMembers,
@@ -45,10 +61,10 @@ export default function fetchCommunityBySlug(
 			}
 
 			// 1. Fetch community public data
-			const publicRes = yield* $(
-				Effect.tryPromise({
+			const publicRes: PostgrestResponse<CommunityEntry> = yield* $(
+				Effect.tryPromise<PostgrestResponse<CommunityEntry>, Error>({
 					try: () =>
-						callSelect(client, "community_public", {
+						callSelect<CommunityEntry>(client, "community_public", {
 							cols: "*",
 							eq: { col: "slug", val: slug },
 						}),
@@ -60,8 +76,7 @@ export default function fetchCommunityBySlug(
 			);
 
 			const EMPTY_ARRAY_LENGTH = 0;
-			// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-			const publicData = publicRes.data as CommunityEntry[];
+			const publicData: CommunityEntry[] = publicRes.data ?? [];
 			if (publicData.length === EMPTY_ARRAY_LENGTH) {
 				throw new Error("Community not found");
 			}
@@ -71,10 +86,10 @@ export default function fetchCommunityBySlug(
 			}
 
 			// 2. Fetch members
-			const membersRes = yield* $(
-				Effect.tryPromise({
+			const membersRes: PostgrestResponse<CommunityUser> = yield* $(
+				Effect.tryPromise<PostgrestResponse<CommunityUser>, Error>({
 					try: () =>
-						callSelect(client, "community_user", {
+						callSelect<CommunityUser>(client, "community_user", {
 							cols: "*",
 							eq: { col: "community_id", val: communityPublic.community_id },
 						}),
@@ -83,15 +98,12 @@ export default function fetchCommunityBySlug(
 				}),
 			);
 
-			// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-			const rawMembersData = (membersRes.data ?? []) as CommunityUser[];
-
-			// Fetch usernames separately to avoid join issues
-			const userIds = rawMembersData.map((member) => member.user_id);
-			const usersRes = yield* $(
-				Effect.tryPromise({
+			const rawMembersData: CommunityUser[] = membersRes.data ?? [];
+			const userIds = rawMembersData.map((member: CommunityUser) => member.user_id);
+			const usersRes: PostgrestResponse<{ user_id: string; username: string }> = yield* $(
+				Effect.tryPromise<PostgrestResponse<{ user_id: string; username: string }>, Error>({
 					try: () =>
-						callSelect(client, "user_public", {
+						callSelect<{ user_id: string; username: string }>(client, "user_public", {
 							cols: "user_id, username",
 							in: { col: "user_id", vals: userIds },
 						}),
@@ -100,10 +112,16 @@ export default function fetchCommunityBySlug(
 				}),
 			);
 
-			// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-			const rawUsersData = (usersRes.data ?? []) as { user_id: string; username: string }[];
-			const userDataMap = new Map(rawUsersData.map((user) => [user.user_id, user.username]));
+			const rawUsersData: { user_id: string; username: string }[] = usersRes.data ?? [];
+			const userDataMap = new Map(
+				rawUsersData.map((user: { user_id: string; username: string }) => [
+					user.user_id,
+					user.username,
+				]),
+			);
 
+			// combine membership data with the fetched usernames; if the member is
+			// also the community owner we override their role for clarity on the UI
 			const members = rawMembersData.map((member) => {
 				const isOwnerMember = member.user_id === communityPublic.owner_id;
 				return Object.assign(member, {
@@ -113,10 +131,10 @@ export default function fetchCommunityBySlug(
 			}) as CommunityUser[];
 
 			// 3. Fetch community events
-			const eventsRes = yield* $(
-				Effect.tryPromise({
+			const eventsRes: PostgrestResponse<CommunityEvent> = yield* $(
+				Effect.tryPromise<PostgrestResponse<CommunityEvent>, Error>({
 					try: () =>
-						callSelect(client, "community_event", {
+						callSelect<CommunityEvent>(client, "community_event", {
 							cols: "*",
 							eq: { col: "community_id", val: communityPublic.community_id },
 						}),
@@ -127,21 +145,26 @@ export default function fetchCommunityBySlug(
 				}),
 			);
 
-			// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-			const rawEventsData = (eventsRes.data ?? []) as CommunityEvent[];
-
-			// Fetch event details separately
+			const rawEventsData: CommunityEvent[] = eventsRes.data ?? [];
+			// without performing an expensive join in the original query.
 			const eventIds = rawEventsData.map((event) => event.event_id);
 			let communityEvents: CommunityEvent[] = [];
 
 			if (eventIds.length > EMPTY_ARRAY_LENGTH) {
 				const eventDetailsRes = yield* $(
-					Effect.tryPromise({
+					Effect.tryPromise<
+						PostgrestResponse<{ event_id: string; event_name: string; event_slug: string }>,
+						Error
+					>({
 						try: () =>
-							callSelect(client, "event_public", {
-								cols: "event_id, event_name, event_slug",
-								in: { col: "event_id", vals: eventIds },
-							}),
+							callSelect<{ event_id: string; event_name: string; event_slug: string }>(
+								client,
+								"event_public",
+								{
+									cols: "event_id, event_name, event_slug",
+									in: { col: "event_id", vals: eventIds },
+								},
+							),
 						catch: (err) =>
 							new Error(
 								`Failed to fetch event details: ${extractErrorMessage(err, "Unknown error")}`,
@@ -149,17 +172,18 @@ export default function fetchCommunityBySlug(
 					}),
 				);
 
-				// oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion
-				const rawEventDetailsData = (eventDetailsRes.data ?? []) as {
-					event_id: string;
-					event_name: string;
-					event_slug: string;
-				}[];
+				const rawEventDetailsData: { event_id: string; event_name: string; event_slug: string }[] =
+					eventDetailsRes.data ?? [];
 				const eventDetailMap = new Map(
-					rawEventDetailsData.map((details) => [details.event_id, details]),
+					rawEventDetailsData.map(
+						(details: { event_id: string; event_name: string; event_slug: string }) => [
+							details.event_id,
+							details,
+						],
+					),
 				);
 
-				communityEvents = rawEventsData.map((communityEvent) => {
+				communityEvents = rawEventsData.map((communityEvent: CommunityEvent) => {
 					const details = eventDetailMap.get(communityEvent.event_id);
 					return Object.assign(communityEvent, {
 						event_name: details?.event_name,

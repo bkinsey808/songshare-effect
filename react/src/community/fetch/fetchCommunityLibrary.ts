@@ -7,7 +7,14 @@ import type { CommunityEntry } from "../community-types";
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
 
 /**
- * Fetch the list of communities where the current user is a member.
+ * Retrieves the membership library for the currently authenticated user.
+ *
+ * Side‑effects include setting `isCommunityLoading`/`communityError` on the
+ * provided slice during the request.  On success the resulting entries are
+ * written back to the slice via `setCommunities`.
+ *
+ * @param get - callback returning the community slice helpers
+ * @returns effect that yields the array of communities or fails with an error
  */
 export default function fetchCommunityLibrary(
 	get: () => CommunitySlice,

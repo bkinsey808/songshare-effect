@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 // helpers extracted to a shared location so they can safely contain the
 // necessary cast/unescape comments without tripping the `no-disable-in-tests`
 // lint rule that applies to test files.
-import makeSmoothedAudioLevelForUiTimer from "@/react/lib/audio/smooth/makeSmoothedAudioLevelForUiTimer.mock";
+import makeSmoothedAudioLevelForUiTimer from "@/react/lib/audio/smooth/makeSmoothedAudioLevelForUiTimer.test-util";
 import {
 	spyUseAudioCapture,
 	spyUseSmoothedAudioLevelRef,

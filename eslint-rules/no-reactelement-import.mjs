@@ -1,6 +1,6 @@
 // ESLint rule that prevents two related anti-patterns around `ReactElement`:
 // * importing it from the `react` package (it's ambient in this repo)
-// * referencing it as the qualified type `React.ReactElement` (use the
+// * referencing it as the qualified type `ReactElement` (use the
 //   unqualified ambient `ReactElement` instead)
 //
 // Both forms are unnecessary/confusing because the type is provided globally.
@@ -33,7 +33,7 @@ const rule = {
 				}
 			},
 
-			// also forbid usage of the qualified type `React.ReactElement`
+			// also forbid usage of the qualified type `ReactElement`
 			TSTypeReference(node) {
 				const { typeName } = node;
 				if (

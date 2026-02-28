@@ -5,6 +5,14 @@ import { apiCommunityEventAddPath } from "@/shared/paths";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
 
+/**
+ * API call that associates an event with a community and flips slice state.
+ *
+ * @param communityId - target community id
+ * @param eventId - event to add
+ * @param get - slice accessor returning state helpers
+ * @returns effect which resolves when the backend operation completes
+ */
 export default function addEventToCommunity(
 	communityId: string,
 	eventId: string,
@@ -28,6 +36,8 @@ export default function addEventToCommunity(
 
 		setCommunityLoading(false);
 	}).pipe(
+		// mirror the pattern used elsewhere: always clear loading state and
+		// record the error when the effect fails
 		Effect.tapError((err) =>
 			Effect.sync(() => {
 				const { setCommunityLoading, setCommunityError } = get();

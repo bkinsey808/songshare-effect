@@ -8,6 +8,7 @@ import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAut
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import fetchEventBySlug from "./fetchEventBySlug";
@@ -17,6 +18,12 @@ const CALLED_ONCE = 1;
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
 vi.mock("@/react/lib/supabase/client/getSupabaseClient");
 vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
+
+// Typed mocked helper for callSelect
+const mockedCallSelect = vi.mocked(callSelect);
+
+// use the typed mocked function directly
+// vi.mocked(callSelect) is used inline below
 
 describe("fetchEventBySlug error cases", () => {
 	it("throws NoSupabaseClientError when no client is available", async () => {
@@ -35,7 +42,7 @@ describe("fetchEventBySlug error cases", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(
 			forceCast<SupabaseClientLike | undefined>(createMinimalSupabaseClient()),
 		);
-		vi.mocked(callSelect).mockResolvedValue({ data: [] });
+		vi.mocked(callSelect).mockResolvedValue(asPostgrestResponse({ data: [] }));
 
 		const eff = fetchEventBySlug("missing-slug", makeEventSlice());
 
@@ -61,33 +68,37 @@ describe("fetchEventBySlug success & behavior", () => {
 			updated_at: "2020-01-01T00:00:00Z",
 		};
 
-		vi.mocked(callSelect)
+		mockedCallSelect
 			// Joined event_public query fails with invalid relation select.
 			.mockRejectedValueOnce(new Error("400 Bad Request"))
 			// Plain event_public fallback succeeds.
-			.mockResolvedValueOnce({ data: [fallbackPub] })
+			.mockResolvedValueOnce(forceCast({ data: [fallbackPub] }))
 			// Joined event_user query fails with invalid relation select.
 			.mockRejectedValueOnce(new Error("400 Bad Request"))
 			// Plain event_user fallback succeeds.
-			.mockResolvedValueOnce({
-				data: [
-					{
-						event_id: fallbackPub.event_id,
-						user_id: fallbackPub.owner_id,
-						role: "participant",
-						joined_at: "2020-02-02T00:00:00Z",
-					},
-				],
-			})
+			.mockResolvedValueOnce(
+				forceCast({
+					data: [
+						{
+							event_id: fallbackPub.event_id,
+							user_id: fallbackPub.owner_id,
+							role: "participant",
+							joined_at: "2020-02-02T00:00:00Z",
+						},
+					],
+				}),
+			)
 			// Username hydration still succeeds.
-			.mockResolvedValueOnce({
-				data: [
-					{
-						user_id: fallbackPub.owner_id,
-						username: "joined_user",
-					},
-				],
-			});
+			.mockResolvedValueOnce(
+				forceCast({
+					data: [
+						{
+							user_id: fallbackPub.owner_id,
+							username: "joined_user",
+						},
+					],
+				}),
+			);
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("my-event", get);
@@ -114,28 +125,30 @@ describe("fetchEventBySlug success & behavior", () => {
 		);
 
 		vi.mocked(callSelect)
-			.mockResolvedValueOnce({
-				data: [
-					{
-						event_id: "00000000-0000-0000-0000-000000000710",
-						owner_id: "00000000-0000-0000-0000-000000000711",
-						event_name: "Compatibility Event",
-						event_slug: "compatibility-event",
-						is_public: true,
-						created_at: "2020-01-01T00:00:00Z",
-						updated_at: "2020-01-01T00:00:00Z",
-					},
-				],
-			})
-			.mockResolvedValueOnce({ data: [] })
-			.mockResolvedValueOnce({ data: [] });
+			.mockResolvedValueOnce(
+				asPostgrestResponse({
+					data: [
+						{
+							event_id: "00000000-0000-0000-0000-000000000710",
+							owner_id: "00000000-0000-0000-0000-000000000711",
+							event_name: "Compatibility Event",
+							event_slug: "compatibility-event",
+							is_public: true,
+							created_at: "2020-01-01T00:00:00Z",
+							updated_at: "2020-01-01T00:00:00Z",
+						},
+					],
+				}),
+			)
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [] }))
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [] }));
 
 		const get = makeEventSlice();
 		await expect(
 			Effect.runPromise(fetchEventBySlug("compatibility-event", get)),
 		).resolves.toBeUndefined();
 
-		expect(vi.mocked(callSelect)).toHaveBeenNthCalledWith(
+		expect(mockedCallSelect).toHaveBeenNthCalledWith(
 			CALLED_ONCE,
 			expect.anything(),
 			"event_public",
@@ -172,10 +185,10 @@ describe("fetchEventBySlug success & behavior", () => {
 			},
 		};
 
-		vi.mocked(callSelect)
-			.mockResolvedValueOnce({ data: undefined })
-			.mockResolvedValueOnce({ data: [fallbackPub] })
-			.mockResolvedValueOnce({ data: [participant] });
+		mockedCallSelect
+			.mockResolvedValueOnce(asPostgrestResponse({ data: undefined }))
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [fallbackPub] }))
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [participant] }));
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("my-event", get);
@@ -226,8 +239,8 @@ describe("fetchEventBySlug success & behavior", () => {
 		};
 
 		vi.mocked(callSelect)
-			.mockResolvedValueOnce({ data: [pub] })
-			.mockResolvedValueOnce({ data: [] });
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [pub] }))
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [] }));
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("slug-1", get);
@@ -249,8 +262,8 @@ describe("fetchEventBySlug success & behavior", () => {
 				}),
 			]),
 		);
-		expect(vi.mocked(callSelect)).toHaveBeenCalledTimes(CALLED_ONCE);
-		expect(vi.mocked(callSelect)).toHaveBeenCalledWith(
+		expect(mockedCallSelect).toHaveBeenCalledTimes(CALLED_ONCE);
+		expect(mockedCallSelect).toHaveBeenCalledWith(
 			expect.anything(),
 			"event_public",
 			expect.anything(),
@@ -285,9 +298,9 @@ describe("fetchEventBySlug success & behavior", () => {
 			],
 		};
 
-		vi.mocked(callSelect)
-			.mockResolvedValueOnce({ data: [pub] })
-			.mockResolvedValueOnce({ data: [] });
+		mockedCallSelect
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [pub] }))
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [] }));
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("nested-participant-event", get);
@@ -321,32 +334,36 @@ describe("fetchEventBySlug success & behavior", () => {
 			event_user: [
 				{
 					event_id: "00000000-0000-0000-0000-000000000510",
-					user_id: "00000000-0000-0000-0000-000000000520",
+					user_id: "00000000-0000-0000-000000000520",
 					role: "participant",
 					joined_at: "2020-02-02T00:00:00Z",
+					participant: { username: "hydrated_user" },
 				},
 			],
 		};
 
 		vi.mocked(callSelect)
-			.mockResolvedValueOnce({ data: [pub] })
-			.mockResolvedValueOnce({
-				data: [
-					{
-						user_id: "00000000-0000-0000-0000-000000000520",
-						username: "hydrated_user",
-					},
-				],
-			});
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [pub] }))
+			.mockResolvedValueOnce(
+				asPostgrestResponse({
+					data: [
+						{
+							user_id: "00000000-0000-0000-000000000520",
+							username: "hydrated_user",
+						},
+					],
+				}),
+			);
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("hydrated-username-event", get);
 
 		await expect(Effect.runPromise(eff)).resolves.toBeUndefined();
+
 		expect(get().setParticipants).toHaveBeenCalledWith(
 			expect.arrayContaining([
 				expect.objectContaining({
-					user_id: "00000000-0000-0000-0000-000000000520",
+					user_id: "00000000-0000-0000-000000000520",
 					username: "hydrated_user",
 				}),
 			]),
@@ -384,7 +401,7 @@ describe("fetchEventBySlug success & behavior", () => {
 			],
 		};
 
-		vi.mocked(callSelect).mockResolvedValueOnce({ data: [pub] });
+		mockedCallSelect.mockResolvedValueOnce(asPostgrestResponse({ data: [pub] }));
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("owner-included-event", get);
@@ -426,9 +443,9 @@ describe("fetchEventBySlug success & behavior", () => {
 			],
 		};
 
-		vi.mocked(callSelect)
-			.mockResolvedValueOnce({ data: [pub] })
-			.mockResolvedValueOnce({ data: [] });
+		mockedCallSelect
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [pub] }))
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [] }));
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("owner-normalized-event", get);
@@ -472,7 +489,7 @@ describe("fetchEventBySlug success & behavior", () => {
 			],
 		};
 
-		vi.mocked(callSelect).mockResolvedValueOnce({ data: [pub] });
+		vi.mocked(callSelect).mockResolvedValueOnce(asPostgrestResponse({ data: [pub] }));
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("owner-username-fallback-event", get);
@@ -491,7 +508,7 @@ describe("fetchEventBySlug success & behavior", () => {
 				}),
 			]),
 		);
-		expect(vi.mocked(callSelect)).toHaveBeenCalledTimes(CALLED_ONCE);
+		expect(mockedCallSelect).toHaveBeenCalledTimes(CALLED_ONCE);
 	});
 
 	it("throws InvalidEventDataError when public data fails guard", async () => {
@@ -501,7 +518,7 @@ describe("fetchEventBySlug success & behavior", () => {
 			forceCast<SupabaseClientLike | undefined>(createMinimalSupabaseClient()),
 		);
 		// Return an invalid public row
-		vi.mocked(callSelect).mockResolvedValueOnce({ data: [{}] });
+		mockedCallSelect.mockResolvedValueOnce(asPostgrestResponse({ data: [{}] }));
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("bad-slug", get);
@@ -534,9 +551,9 @@ describe("fetchEventBySlug success & behavior", () => {
 			"updated_at": null
 		}`);
 
-		vi.mocked(callSelect)
-			.mockResolvedValueOnce({ data: [pubWithNulls] })
-			.mockResolvedValueOnce({ data: [] });
+		mockedCallSelect
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [pubWithNulls] }))
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [] }));
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("fresh-event", get);
@@ -551,7 +568,7 @@ describe("fetchEventBySlug success & behavior", () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token");
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalSupabaseClient());
-		vi.mocked(callSelect).mockRejectedValue(new Error("boom"));
+		mockedCallSelect.mockRejectedValue(new Error("boom"));
 
 		const get = makeEventSlice();
 		const eff = fetchEventBySlug("any", get);

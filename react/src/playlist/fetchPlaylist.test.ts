@@ -17,6 +17,9 @@ vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
 vi.mock("@/react/lib/supabase/client/getSupabaseClient");
 vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 
+// Typed mocked helper for callSelect
+const mockedCallSelect = vi.mocked(callSelect);
+
 describe("fetchPlaylist", () => {
 	it("sets success and playlist data on success", async () => {
 		vi.clearAllMocks();
@@ -29,11 +32,8 @@ describe("fetchPlaylist", () => {
 		const mockPlaylist = makePlaylistPublic();
 		const get = makeGetStub();
 
-		vi.mocked(callSelect).mockResolvedValue(
-			asPostgrestResponse({
-				data: [mockPlaylist],
-				error: asNull(),
-			}),
+		mockedCallSelect.mockResolvedValue(
+			asPostgrestResponse({ data: [mockPlaylist], error: asNull() }),
 		);
 
 		await Effect.runPromise(fetchPlaylist("p1", get));
@@ -58,20 +58,10 @@ describe("fetchPlaylist", () => {
 
 		// Even with null token, the query might succeed or fail depending on RLS.
 		// We mock success to verify the flow completes.
-		vi.mocked(callSelect)
-			.mockResolvedValueOnce(
-				asPostgrestResponse({
-					data: [playlistPublic],
-					error: asNull(),
-				}),
-			)
+		mockedCallSelect
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [playlistPublic], error: asNull() }))
 			.mockResolvedValueOnce(asPostgrestResponse({ data: [], error: asNull() }))
-			.mockResolvedValueOnce(
-				asPostgrestResponse({
-					data: [userPublic],
-					error: asNull(),
-				}),
-			);
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [userPublic], error: asNull() }));
 
 		const get = makeGetStub();
 		await Effect.runPromise(fetchPlaylist("p1", get));
@@ -117,12 +107,7 @@ describe("fetchPlaylist", () => {
 		mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
 
 		// Return empty data (no rows found)
-		vi.mocked(callSelect).mockResolvedValue(
-			asPostgrestResponse({
-				data: [],
-				error: asNull(),
-			}),
-		);
+		mockedCallSelect.mockResolvedValue(asPostgrestResponse({ data: [], error: asNull() }));
 
 		const get = makeGetStub();
 		const eff = fetchPlaylist("missing", get);

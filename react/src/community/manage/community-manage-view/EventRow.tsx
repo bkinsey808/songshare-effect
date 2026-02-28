@@ -8,7 +8,14 @@ export type EventRowProps = {
 };
 
 /**
- * Component for displaying an event in the community management view.
+ * Row component used within the community manager to show an associated
+ * event.  It renders the event name (or id) plus a remove button that
+ * invokes the supplied callback when clicked.
+ *
+ * @param event - the community‑linked event record
+ * @param onRemove - called with the event id when the user presses
+ *   the remove button
+ * @returns markup for the event row
  */
 export default function EventRow({ event, onRemove }: EventRowProps): ReactElement {
 	function handleRemoveClick(): void {

@@ -7,7 +7,7 @@ import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import { communityEventAddSchema } from "@/shared/validation/communitySchemas";
-import validateFormEffect from "@/shared/validation/validateFormEffect";
+import validateFormEffect from "@/shared/validation/form/validateFormEffect";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getCommunityRoleCapabilities from "../community-user/getCommunityRoleCapabilities";

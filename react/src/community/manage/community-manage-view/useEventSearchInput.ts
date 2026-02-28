@@ -27,7 +27,22 @@ export type UseEventSearchInputReturn = {
 };
 
 /**
- * Encapsulates state and handlers for the event search input.
+ * Encapsulates state and interaction logic for the searchable event input
+ * used in the community manager.
+ *
+ * This hook maintains query text, dropdown open state, filtered results,
+ * and provides refs for click‑outside handling.  It exposes handlers for
+ * selecting/clearing an entry or updating the input value.  The caller is
+ * responsible for supplying the current selected event id and receiving
+ * callback events via `onSelect`.
+ *
+ * @param args - hook arguments
+ * @param args.activeEventId - id of the currently selected event (may be
+ *   undefined or empty when nothing is chosen)
+ * @param args.onSelect - callback invoked with the new event id when user
+ *   picks an item or clears the selection
+ * @returns an object containing query state, refs, filtered list, and
+ *   event handlers used by `EventSearchInput`
  */
 export default function useEventSearchInput({
 	activeEventId,

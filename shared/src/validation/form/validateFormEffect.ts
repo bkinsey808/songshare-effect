@@ -4,9 +4,9 @@ import { ArrayFormatter, type ArrayFormatterIssue } from "effect/ParseResult";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
 
-import computeParams from "./computeParams";
-import extractI18nMessages from "./extractI18nMessages";
-import { type ValidationError } from "./validate-types";
+import computeParams from "../computeParams";
+import extractI18nMessages from "../extractI18nMessages";
+import { type ValidationError } from "../validate-types";
 
 /**
  * Extract a shallow params object from a record used for i18n message
@@ -25,10 +25,9 @@ import { type ValidationError } from "./validate-types";
  * the project's `ValidationError` shape.
  *
  * @template FormValues
- * @param options - Validation options object.
- * @param options.schema - The Effect `Schema` used to validate `data`.
- * @param options.data - The unknown input to validate against the schema.
- * @param options.i18nMessageKey - Symbol or string used to locate i18n messages
+ * @param schema - The Effect `Schema` used to validate `data`.
+ * @param data - The unknown input to validate against the schema.
+ * @param i18nMessageKey - Symbol or string used to locate i18n messages
  *   within parse errors produced by Effect.
  * @returns An `Effect` which fails with an array of `ValidationError` on
  *   validation errors, or yields the validated `FormValues` on success.

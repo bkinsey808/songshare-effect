@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ZERO } from "@/shared/constants/shared-constants";
 
-import makeSmoothedAudioLevelForUiTimer from "./makeSmoothedAudioLevelForUiTimer.mock";
+import makeSmoothedAudioLevelForUiTimer from "./makeSmoothedAudioLevelForUiTimer.test-util";
 
 const UI_INTERVAL_MS = 100;
 const SMALL_INTERVAL_MS = 50;

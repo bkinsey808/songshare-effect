@@ -19,8 +19,14 @@ export type CommunitySlice = CommunityState & {
 		options?: { silent?: boolean },
 	) => Effect.Effect<CommunityEntry, Error>;
 	saveCommunity: (request: SaveCommunityRequest) => Effect.Effect<CommunityEntry, Error>;
-	joinCommunity: (communityId: string) => Effect.Effect<void, Error>;
-	leaveCommunity: (communityId: string) => Effect.Effect<void, Error>;
+	joinCommunity: (
+		communityId: string,
+		options?: { silent?: boolean },
+	) => Effect.Effect<void, Error>;
+	leaveCommunity: (
+		communityId: string,
+		options?: { silent?: boolean },
+	) => Effect.Effect<void, Error>;
 	addMember: (
 		communityId: string,
 		userId: string,

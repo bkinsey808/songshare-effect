@@ -22,6 +22,11 @@ import kickMemberFn from "../kick/kickMember";
 import leaveCommunityFn from "../leave/leaveCommunity";
 import addMemberFn from "../manage/addMember";
 
+/**
+ * Core values for the community slice.  Exported API methods assume these
+ * properties exist on the state object, so the initial state must include
+ * them (even if empty/undefined).
+ */
 const communitySliceInitialState: CommunityState = {
 	currentCommunity: undefined,
 	communities: [],
@@ -32,6 +37,18 @@ const communitySliceInitialState: CommunityState = {
 	isCommunitySaving: false,
 };
 
+/**
+ * Factory used by the app store to build the community slice state and API.
+ *
+ * Provides methods for fetching, joining, leaving, and managing communities
+ * plus a set of internal setters.  Designed to be passed `set`/`get` from
+ * the zustand-based store.
+ *
+ * @param set - store setter helper
+ * @param get - store getter helper
+ * @param api - unused API argument (required by slice interface)
+ * @returns fully formed `CommunitySlice` object
+ */
 export default function createCommunitySlice(
 	set: Set<CommunitySlice>,
 	get: Get<CommunitySlice>,
@@ -51,8 +68,10 @@ export default function createCommunitySlice(
 		fetchCommunityBySlug: (slug: string, options?: { silent?: boolean }) =>
 			fetchCommunityBySlugFn(slug, get, options),
 		saveCommunity: (request: SaveCommunityRequest) => saveCommunityFn(request, get),
-		joinCommunity: (communityId: string) => joinCommunityFn(communityId, get),
-		leaveCommunity: (communityId: string) => leaveCommunityFn(communityId, get),
+		joinCommunity: (communityId: string, options?: { silent?: boolean }) =>
+			joinCommunityFn(communityId, get, options),
+		leaveCommunity: (communityId: string, options?: { silent?: boolean }) =>
+			leaveCommunityFn(communityId, get, options),
 		addMember: (communityId: string, userId: string, role: "community_admin" | "member") =>
 			addMemberFn({ communityId, userId, role, get }),
 		kickMember: (communityId: string, userId: string) => kickMemberFn(communityId, userId, get),
@@ -61,7 +80,7 @@ export default function createCommunitySlice(
 		removeEventFromCommunity: (communityId: string, eventId: string) =>
 			removeEventFromCommunityFn(communityId, eventId, get),
 
-		// Internal state management methods
+		// Internal state management methods (not part of the public API)
 		setCurrentCommunity: (community: CommunityEntry | undefined) => {
 			set({ currentCommunity: community as ReadonlyDeep<CommunityEntry> | undefined });
 		},

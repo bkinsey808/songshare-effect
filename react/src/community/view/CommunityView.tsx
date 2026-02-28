@@ -4,6 +4,15 @@ import Button from "@/react/lib/design-system/Button";
 
 import useCommunityView from "./useCommunityView";
 
+/**
+ * Top‑level component for displaying a community's public information.
+ *
+ * Handles loading/error skeletons and renders members, events, and notes.
+ *
+ * Permissions derived from the hook control which action buttons are shown.
+ *
+ * @returns rendered community view element
+ */
 export default function CommunityView(): ReactElement {
 	const { t } = useTranslation();
 	const {
@@ -12,9 +21,13 @@ export default function CommunityView(): ReactElement {
 		isCommunityLoading,
 		communityError,
 		isMember,
+		isOwner,
+		isJoinLoading,
+		isLeaveLoading,
 		canManage,
 		canEdit,
 		onJoinClick,
+		onLeaveClick,
 		onManageClick,
 		onEditClick,
 		userSession,
@@ -41,8 +54,10 @@ export default function CommunityView(): ReactElement {
 				</div>
 				<div className="flex gap-2">
 					{userSession !== undefined && isMember === false && (
-						<Button variant="primary" onClick={onJoinClick}>
-							{t("communityView.join", "Join Community")}
+						<Button variant="primary" onClick={onJoinClick} disabled={isJoinLoading}>
+							{isJoinLoading
+								? t("communityView.joining", "Joining...")
+								: t("communityView.join", "Join Community")}
 						</Button>
 					)}
 					{canEdit === true && (
@@ -56,8 +71,17 @@ export default function CommunityView(): ReactElement {
 						</Button>
 					)}
 					{isMember === true && (
-						<div className="bg-green-900/20 text-green-400 px-4 py-2 rounded-lg border border-green-700">
-							{t("communityView.isMember", "Member")}
+						<div className="flex items-center gap-2">
+							<div className="bg-green-900/20 text-green-400 px-4 py-2 rounded-lg border border-green-700">
+								{t("communityView.isMember", "Member")}
+							</div>
+							{isOwner === false && (
+								<Button variant="outlineDanger" onClick={onLeaveClick} disabled={isLeaveLoading}>
+									{isLeaveLoading
+										? t("communityView.leaving", "Leaving...")
+										: t("communityView.leave", "Leave Community")}
+								</Button>
+							)}
 						</div>
 					)}
 				</div>

@@ -7,6 +7,15 @@ export type MemberRowProps = {
 	readonly onKick: (userId: string) => void;
 };
 
+/**
+ * Row component representing a single member within the community manager.
+ *
+ * Shows name, role/status, and renders a kick/cancel button when allowed.
+ *
+ * @param member - the community user being displayed
+ * @param onKick - callback invoked when kick button is pressed
+ * @returns JSX element for the row
+ */
 export default function MemberRow({ member, onKick }: MemberRowProps): ReactElement {
 	function handleKickClick(): void {
 		onKick(member.user_id);

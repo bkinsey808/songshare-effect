@@ -12,11 +12,22 @@ type UseCommunityLibraryReturn = {
 	readonly onCommunityClick: (slug: string) => void;
 };
 
+// placeholder click handler exposed so callers can wire up navigation if
+// desired; there is no default action because routing lives in the UI layer.
 function onCommunityClick(slug: string): void {
 	// Navigation logic will be handled by the component or a helper
 	void slug;
 }
 
+/**
+ * Hook that fetches the list of communities the current user belongs to.
+ *
+ * Automatically triggers a fetch on mount and exposes loading/error state
+ * along with an inert navigation callback (`onCommunityClick`) that callers
+ * can wire up if desired.
+ *
+ * @returns data and status for the community library
+ */
 function useCommunityLibrary(): UseCommunityLibraryReturn {
 	const fetchCommunityLibrary = useAppStore((state) => state.fetchCommunityLibrary);
 	const communities = useAppStore((state) => state.communities);

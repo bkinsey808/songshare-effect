@@ -9,7 +9,7 @@ import {
 	clearMockUseSmoothedAudioLevel,
 	mockUseSmoothedAudioLevel,
 	setMockUseSmoothedAudioLevel,
-} from "@/react/lib/audio/smooth/mockUseSmoothedAudioLevel.mock";
+} from "@/react/lib/audio/smooth/mockUseSmoothedAudioLevel.test-util";
 
 const DEFAULT_LEVEL = 0;
 

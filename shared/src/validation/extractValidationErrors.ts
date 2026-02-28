@@ -41,6 +41,12 @@ export default function extractValidationErrors(input: unknown): readonly Valida
 				return parsed;
 			}
 		} catch {
+			// If the Error carries a `cause` property that contains the array,
+			// prefer that. Use `Reflect.get` to avoid unsafe casts.
+			const maybeCause = Reflect.get(input, "cause");
+			if (isValidationErrorArray(maybeCause)) {
+				return maybeCause;
+			}
 			return [];
 		}
 	}

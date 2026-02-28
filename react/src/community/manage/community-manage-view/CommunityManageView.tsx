@@ -7,6 +7,14 @@ import EventSearchInput from "./EventSearchInput";
 import MemberRow from "./MemberRow";
 import useCommunityManageView from "./useCommunityManageView";
 
+/**
+ * Main UI for community owners/admins to invite members and manage events.
+ *
+ * Handles loading/error states and conditionally renders forms/actions
+ * based on permissions and current state returned by the corresponding hook.
+ *
+ * @returns React element for the manage view
+ */
 export default function CommunityManageView(): ReactElement {
 	const {
 		currentCommunity,

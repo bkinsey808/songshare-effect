@@ -4,8 +4,8 @@ import { Effect, type Schema } from "effect";
 import { clientDebug } from "@/react/lib/utils/clientLogger";
 import { ZERO } from "@/shared/constants/shared-constants";
 import { registerMessageKey } from "@/shared/register/register";
+import validateFormEffect from "@/shared/validation/form/validateFormEffect";
 import { type ValidationError } from "@/shared/validation/validate-types";
-import validateFormEffect from "@/shared/validation/validateFormEffect";
 
 import extractValidationErrors from "./extractValidationErrors";
 

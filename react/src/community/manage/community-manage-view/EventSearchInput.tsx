@@ -8,7 +8,19 @@ type EventSearchInputProps = {
 };
 
 /**
- * Searchable selector for choosing an event from the user's library.
+ * Searchable dropdown used in the community manage UI for picking an event
+ * from the user's personal library.
+ *
+ * The input shows an autocomplete list as the user types and allows clearing
+ * the current selection.  It is fully controlled via props so the parent hook
+ * manages the selected event id.
+ *
+ * @param activeEventId - currently selected event id (may be empty)
+ * @param onSelect - callback invoked with the new event id when the user
+ *   chooses an item or clears the field
+ * @param disabled - optional flag to disable interactions
+ * @param id - optional DOM id for the text input element
+ * @returns React element for the event search control
  */
 export default function EventSearchInput({
 	activeEventId,

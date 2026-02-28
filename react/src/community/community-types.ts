@@ -4,6 +4,9 @@ import type { communityFormSchema } from "@/shared/validation/communitySchemas";
 
 export type CommunityFormValues = Schema.Schema.Type<typeof communityFormSchema>;
 
+/**
+ * Public-facing community details returned by the API.
+ */
 export type CommunityEntry = {
 	community_id: string;
 	owner_id: string;
@@ -17,6 +20,9 @@ export type CommunityEntry = {
 	updated_at: string;
 };
 
+/**
+ * Membership record representing a user's relationship to a community.
+ */
 export type CommunityUser = {
 	community_id: string;
 	user_id: string;
@@ -26,6 +32,9 @@ export type CommunityUser = {
 	username?: string;
 };
 
+/**
+ * Association between a community and an event from the user's library.
+ */
 export type CommunityEvent = {
 	community_id: string;
 	event_id: string;

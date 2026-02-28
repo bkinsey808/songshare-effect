@@ -2,8 +2,8 @@
 import { type Schema } from "effect";
 
 import { clientDebug } from "@/react/lib/utils/clientLogger";
+import validateForm from "@/shared/validation/form/validateForm";
 import { type ValidationError } from "@/shared/validation/validate-types";
-import validateForm from "@/shared/validation/validateForm";
 
 type CreateFieldBlurHandlerParams<FormValues extends Record<string, unknown>> = {
 	readonly schema: Schema.Schema<FormValues>;

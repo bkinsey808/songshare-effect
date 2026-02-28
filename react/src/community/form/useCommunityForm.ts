@@ -36,6 +36,15 @@ export type UseCommunityFormReturn = {
 	submitButtonLabel: string;
 };
 
+/**
+ * Custom hook encapsulating the form state/logic for creating/editing a
+ * community.
+ *
+ * Manages field handlers, validation, submission, and navigation without
+ * exposing implementation details to callers.
+ *
+ * @returns API surface consumed by the community form component
+ */
 export default function useCommunityForm(): UseCommunityFormReturn {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
@@ -69,7 +78,9 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 
 	const hasLoadedRef = useRef(false);
 
-	// Sync form values from store when editing
+	// Sync form values from store when editing.  This runs only once per
+	// mount/unmount because we guard with `hasLoadedRef`, avoiding a loop that
+	// would reset the form while the user is typing.
 	useEffect(() => {
 		if (
 			isEditing &&
@@ -92,7 +103,8 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 		}
 	}, [isEditing, currentCommunity, community_id, setInitialState]);
 
-	// Initialize the baseline state for Create flow immediately
+	// Initialize the baseline state for Create flow immediately; prevents the
+	// unsaved-changes tracker from thinking the form has already been altered.
 	useEffect(() => {
 		if (!isEditing && !hasLoadedRef.current) {
 			setInitialState(formValues);
