@@ -7,13 +7,14 @@ import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import mapCommunityInvitations from "./mapCommunityInvitations";
-import mapEventInvitations from "./mapEventInvitations";
 import type {
 	InvitationSlice,
 	PendingCommunityInvitation,
 	PendingEventInvitation,
 } from "./slice/InvitationSlice.type";
+
+import mapCommunityInvitations from "./mapCommunityInvitations";
+import mapEventInvitations from "./mapEventInvitations";
 
 /**
  * Fetches all pending community and event invitations for the currently

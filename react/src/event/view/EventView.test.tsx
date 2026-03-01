@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { EventEntry, EventParticipant } from "@/react/event/event-entry/EventEntry.type";
 
-import makeEventEntry from "@/react/event/event-entry/makeEventEntry.mock";
+import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import EventView from "./EventView";

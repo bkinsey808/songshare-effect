@@ -1,38 +1,54 @@
+import { Schema } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import type { clientDebug as _clientDebug } from "@/react/lib/utils/clientLogger";
 import type { ValidationError } from "@/shared/validation/validate-types";
 
-import { makeDummySchema } from "./test-util";
-// stub logging so tests are quiet and we can inspect calls
+import type createFieldBlurHandlerType from "./createFieldBlurHandler";
 
+// stub logging so tests are quiet and we can inspect calls
 vi.mock("@/react/lib/utils/clientLogger", (): { clientDebug: typeof _clientDebug } => ({
 	clientDebug: vi.fn(),
 }));
 
-// The validation helper is mocked per-test to avoid cross-test interference.
+/**
+ * Extract errors from the last mock call. Factored out to keep the test body
+ * clean and accommodate lint rules regarding disable comments.
+ */
+function extractLastCall(calls: unknown[][]): ValidationError[] {
+	const NEG_ONE = -1;
+	const ZERO = 0;
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+	return calls.at(NEG_ONE)?.at(ZERO) as ValidationError[];
+}
 
 describe("createFieldBlurHandler", () => {
 	const i18nMessageKey = Symbol("i18n");
 	const baseData = { name: "Alice", age: 30 };
+	const schema = Schema.Struct({
+		name: Schema.NonEmptyString,
+		age: Schema.Number,
+	});
+
+	async function init(): Promise<{
+		createFieldBlurHandler: typeof createFieldBlurHandlerType;
+	}> {
+		vi.resetModules();
+		const mod = await import("./createFieldBlurHandler");
+		return { createFieldBlurHandler: mod.default };
+	}
 
 	it("filters out field errors when validation succeeds", async () => {
+		const { createFieldBlurHandler } = await init();
 		const setValidationErrors = vi.fn();
 		const currentErrors: ValidationError[] = [
 			{ field: "name", message: "old" },
 			{ field: "age", message: "bad" },
 		];
 
-		vi.resetModules();
-		vi.doMock("@/shared/validation/form/validateForm");
-		const { default: mockedValidateForm } = await import("@/shared/validation/form/validateForm");
-		vi.mocked(mockedValidateForm).mockReturnValue({ success: true, data: {} });
-
-		// schema is irrelevant for this unit test
-		const { default: createFieldBlurHandler } = await import("./createFieldBlurHandler");
 		const handler = createFieldBlurHandler<{ name: string; age: number }>({
-			schema: makeDummySchema(),
-			formData: baseData,
+			schema,
+			formData: baseData, // Alice is valid
 			currentErrors,
 			setValidationErrors,
 			i18nMessageKey,
@@ -45,27 +61,16 @@ describe("createFieldBlurHandler", () => {
 	});
 
 	it("replaces old field errors with new ones when validation fails and returns field errors", async () => {
+		const { createFieldBlurHandler } = await init();
 		const setValidationErrors = vi.fn();
 		const currentErrors: ValidationError[] = [
 			{ field: "name", message: "old" },
 			{ field: "age", message: "bad" },
 		];
 
-		const errs: ValidationError[] = [
-			{ field: "name", message: "required" },
-			{ field: "other", message: "ignored" },
-		];
-
-		vi.resetModules();
-		vi.doMock("@/shared/validation/form/validateForm");
-		const { default: mockedValidateForm } = await import("@/shared/validation/form/validateForm");
-		vi.mocked(mockedValidateForm).mockReturnValue({ success: false, errors: errs });
-
-		// schema is irrelevant for this unit test
-		const { default: createFieldBlurHandler } = await import("./createFieldBlurHandler");
 		const handler = createFieldBlurHandler<{ name: string; age: number }>({
-			schema: makeDummySchema(),
-			formData: baseData,
+			schema,
+			formData: { ...baseData, name: "" }, // invalid name
 			currentErrors,
 			setValidationErrors,
 			i18nMessageKey,
@@ -73,40 +78,36 @@ describe("createFieldBlurHandler", () => {
 
 		handler("name", "");
 
-		// existing name error should be gone, age should remain
-		// new name error should be added, global/other errors ignored
-		expect(setValidationErrors).toHaveBeenCalledWith([
-			{ field: "age", message: "bad" },
-			{ field: "name", message: "required" },
-		]);
+		// Check what the actual error message is from the real implementation.
+		// Since we're using real validateForm, we expect the default Effect/i18n output.
+		const { calls } = setValidationErrors.mock;
+		const lastCall = extractLastCall(calls);
+
+		expect(lastCall.some((error) => error.field === "age")).toBe(true);
+		expect(lastCall.some((error) => error.field === "name")).toBe(true);
+		expect(lastCall.find((error) => error.field === "name")?.message).not.toBe("old");
 	});
 
 	it("removes old field errors when validation fails but provides no new errors for that field", async () => {
+		const { createFieldBlurHandler } = await init();
 		const setValidationErrors = vi.fn();
 		const currentErrors: ValidationError[] = [
 			{ field: "name", message: "old" },
 			{ field: "age", message: "bad" },
 		];
 
-		vi.resetModules();
-		vi.doMock("@/shared/validation/form/validateForm");
-		const { default: mockedValidateForm } = await import("@/shared/validation/form/validateForm");
-		vi.mocked(mockedValidateForm).mockReturnValue({
-			success: false,
-			errors: [{ field: "other", message: "nope" }],
-		});
-
-		const { default: createFieldBlurHandler } = await import("./createFieldBlurHandler");
 		const handler = createFieldBlurHandler<{ name: string; age: number }>({
-			schema: makeDummySchema(),
-			formData: baseData,
+			schema,
+			formData: { name: "Valid Name", age: Number.NaN }, // age is invalid, name is valid
 			currentErrors,
 			setValidationErrors,
 			i18nMessageKey,
 		});
 
-		handler("name", "something");
+		handler("name", "Bob");
 
+		// Validation fails (on age), but we blurred 'name'.
+		// 'name' is now valid, so 'old' name error should be removed.
 		expect(setValidationErrors).toHaveBeenCalledWith([{ field: "age", message: "bad" }]);
 	});
 });

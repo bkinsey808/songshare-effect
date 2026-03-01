@@ -68,7 +68,7 @@ import eventUserRemove from "./event-user/eventUserRemove";
 import eventUserUpdateRoleHandler from "./event-user/eventUserUpdateRole";
 import eventDelete from "./event/eventDelete";
 import eventSave from "./event/eventSave";
-import { handleHttpEndpoint } from "./http/http-utils";
+import handleHttpEndpoint from "./http/handleHttpEndpoint";
 import me from "./me";
 import corsMiddleware from "./middleware/cors";
 import handleAppError from "./middleware/handleAppError";
@@ -113,170 +113,80 @@ app.get(apiHelloPath, (ctx) => ctx.json({ message: "Hello from custom API endpoi
 app.get(apiAuthVisitorPath, getSupabaseClientTokenHandler);
 
 // Supabase user token endpoint - provides a JWT for authenticated user
-app.get(
-	apiUserTokenPath,
-	handleHttpEndpoint((ctx) => getUserToken(ctx)),
-);
+app.get(apiUserTokenPath, handleHttpEndpoint(getUserToken));
 
 // Song save endpoint
-app.post(
-	apiSongsSavePath,
-	handleHttpEndpoint((ctx) => songSave(ctx)),
-);
+app.post(apiSongsSavePath, handleHttpEndpoint(songSave));
 
 // Song delete endpoint (owner only)
-app.post(
-	apiSongsDeletePath,
-	handleHttpEndpoint((ctx) => songDelete(ctx)),
-);
+app.post(apiSongsDeletePath, handleHttpEndpoint(songDelete));
 
 // Add song to library endpoint
-app.post(
-	apiSongLibraryAddPath,
-	handleHttpEndpoint((ctx) => addSongToLibraryHandler(ctx)),
-);
+app.post(apiSongLibraryAddPath, handleHttpEndpoint(addSongToLibraryHandler));
 
 // Playlist save endpoint
-app.post(
-	apiPlaylistSavePath,
-	handleHttpEndpoint((ctx) => playlistSave(ctx)),
-);
+app.post(apiPlaylistSavePath, handleHttpEndpoint(playlistSave));
 
 // Playlist delete endpoint (owner only)
-app.post(
-	apiPlaylistDeletePath,
-	handleHttpEndpoint((ctx) => playlistDelete(ctx)),
-);
+app.post(apiPlaylistDeletePath, handleHttpEndpoint(playlistDelete));
 
 // Add playlist to library endpoint
-app.post(
-	apiPlaylistLibraryAddPath,
-	handleHttpEndpoint((ctx) => addPlaylistToLibraryHandler(ctx)),
-);
+app.post(apiPlaylistLibraryAddPath, handleHttpEndpoint(addPlaylistToLibraryHandler));
 
 // Remove playlist from library endpoint
-app.post(
-	apiPlaylistLibraryRemovePath,
-	handleHttpEndpoint((ctx) => removePlaylistFromLibraryHandler(ctx)),
-);
+app.post(apiPlaylistLibraryRemovePath, handleHttpEndpoint(removePlaylistFromLibraryHandler));
 
 // User library (follow users)
-app.post(
-	apiUserLibraryAddPath,
-	handleHttpEndpoint((ctx) => addUserToLibraryHandler(ctx)),
-);
+app.post(apiUserLibraryAddPath, handleHttpEndpoint(addUserToLibraryHandler));
 
-app.post(
-	apiUserLibraryRemovePath,
-	handleHttpEndpoint((ctx) => removeUserFromLibraryHandler(ctx)),
-);
+app.post(apiUserLibraryRemovePath, handleHttpEndpoint(removeUserFromLibraryHandler));
 
-app.post(
-	apiUserLibraryLookupPath,
-	handleHttpEndpoint((ctx) => lookupUserByUsernameHandler(ctx)),
-);
+app.post(apiUserLibraryLookupPath, handleHttpEndpoint(lookupUserByUsernameHandler));
 
 // Event save endpoint
-app.post(
-	apiEventSavePath,
-	handleHttpEndpoint((ctx) => eventSave(ctx)),
-);
+app.post(apiEventSavePath, handleHttpEndpoint(eventSave));
 
 // Event delete endpoint (owner only)
-app.post(
-	apiEventDeletePath,
-	handleHttpEndpoint((ctx) => eventDelete(ctx)),
-);
+app.post(apiEventDeletePath, handleHttpEndpoint(eventDelete));
 
 // Event user management endpoints
-app.post(
-	apiEventUserAddPath,
-	handleHttpEndpoint((ctx) => eventUserAdd(ctx)),
-);
+app.post(apiEventUserAddPath, handleHttpEndpoint(eventUserAdd));
 
-app.post(
-	apiEventUserJoinPath,
-	handleHttpEndpoint((ctx) => eventUserJoin(ctx)),
-);
+app.post(apiEventUserJoinPath, handleHttpEndpoint(eventUserJoin));
 
-app.post(
-	apiEventUserRemovePath,
-	handleHttpEndpoint((ctx) => eventUserRemove(ctx)),
-);
+app.post(apiEventUserRemovePath, handleHttpEndpoint(eventUserRemove));
 
-app.post(
-	apiEventUserKickPath,
-	handleHttpEndpoint((ctx) => eventUserKick(ctx)),
-);
+app.post(apiEventUserKickPath, handleHttpEndpoint(eventUserKick));
 
-app.post(
-	apiEventUserUpdateRolePath,
-	handleHttpEndpoint((ctx) => eventUserUpdateRoleHandler(ctx)),
-);
+app.post(apiEventUserUpdateRolePath, handleHttpEndpoint(eventUserUpdateRoleHandler));
 
 // Event library endpoints (add/remove events from user's personal library)
-app.post(
-	apiEventLibraryAddPath,
-	handleHttpEndpoint((ctx) => addEventToLibraryHandler(ctx)),
-);
+app.post(apiEventLibraryAddPath, handleHttpEndpoint(addEventToLibraryHandler));
 
-app.post(
-	apiEventLibraryRemovePath,
-	handleHttpEndpoint((ctx) => removeEventFromLibraryHandler(ctx)),
-);
+app.post(apiEventLibraryRemovePath, handleHttpEndpoint(removeEventFromLibraryHandler));
 
 // Community endpoints
-app.post(
-	apiCommunitySavePath,
-	handleHttpEndpoint((ctx) => communitySave(ctx)),
-);
+app.post(apiCommunitySavePath, handleHttpEndpoint(communitySave));
 
-app.post(
-	apiCommunityDeletePath,
-	handleHttpEndpoint((ctx) => communityDelete(ctx)),
-);
+app.post(apiCommunityDeletePath, handleHttpEndpoint(communityDelete));
 
-app.get(
-	apiCommunityLibraryPath,
-	handleHttpEndpoint((ctx) => communityLibrary(ctx)),
-);
+app.get(apiCommunityLibraryPath, handleHttpEndpoint(communityLibrary));
 
 // Community user management
-app.post(
-	apiCommunityUserAddPath,
-	handleHttpEndpoint((ctx) => communityUserAdd(ctx)),
-);
+app.post(apiCommunityUserAddPath, handleHttpEndpoint(communityUserAdd));
 
-app.post(
-	apiCommunityUserJoinPath,
-	handleHttpEndpoint((ctx) => communityUserJoin(ctx)),
-);
+app.post(apiCommunityUserJoinPath, handleHttpEndpoint(communityUserJoin));
 
-app.post(
-	apiCommunityUserRemovePath,
-	handleHttpEndpoint((ctx) => communityUserRemove(ctx)),
-);
+app.post(apiCommunityUserRemovePath, handleHttpEndpoint(communityUserRemove));
 
-app.post(
-	apiCommunityUserKickPath,
-	handleHttpEndpoint((ctx) => communityUserKick(ctx)),
-);
+app.post(apiCommunityUserKickPath, handleHttpEndpoint(communityUserKick));
 
-app.post(
-	apiCommunityUserUpdateRolePath,
-	handleHttpEndpoint((ctx) => communityUserUpdateRole(ctx)),
-);
+app.post(apiCommunityUserUpdateRolePath, handleHttpEndpoint(communityUserUpdateRole));
 
 // Community event management
-app.post(
-	apiCommunityEventAddPath,
-	handleHttpEndpoint((ctx) => communityEventAdd(ctx)),
-);
+app.post(apiCommunityEventAddPath, handleHttpEndpoint(communityEventAdd));
 
-app.post(
-	apiCommunityEventRemovePath,
-	handleHttpEndpoint((ctx) => communityEventRemove(ctx)),
-);
+app.post(apiCommunityEventRemovePath, handleHttpEndpoint(communityEventRemove));
 
 // File upload endpoint
 app.post(apiUploadPath, (ctx) => ctx.json({ message: "Upload endpoint - to be implemented" }));
@@ -287,10 +197,7 @@ app.post(apiUploadPath, (ctx) => ctx.json({ message: "Upload endpoint - to be im
 // Extracted to `api/src/dev/updateSongPublicHandler.ts`
 app.post("/api/dev/song-public/update", updateSongPublicHandler);
 // Current user/session endpoint
-app.get(
-	apiMePath,
-	handleHttpEndpoint((ctx) => me(ctx)),
-);
+app.get(apiMePath, handleHttpEndpoint(me));
 
 // Sign-out endpoint
 app.post(apiAuthSignOutPath, signOutHandler);

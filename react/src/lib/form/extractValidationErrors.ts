@@ -9,6 +9,15 @@ import safeJsonParse from "./safeJsonParse";
  * Extract ValidationError[] from various error shapes used in the codebase.
  * Keeps the extraction logic in one place to reduce cognitive complexity.
  *
+ * This function is pure: it performs no observable side effects and will
+ * always return the same output for the same input. It may return
+ * references to input arrays (it does not deep-clone returned arrays).
+ * Purity depends on the imported helpers (`isValidationErrorArray`,
+ * `safeJsonParse`, `isRecord`, `extractFromFiberFailure`) also being
+ * side-effect free. Since it is pure, it is not recommended to mock it in
+ * tests; instead, test the actual implementation and its helpers to ensure
+ * correct behavior.
+ *
  * @param error - Error-like value to inspect for validation errors
  * @returns Array of `ValidationError` extracted from the provided value
  */

@@ -6,6 +6,9 @@ import type { InvitationSlice } from "./InvitationSlice.type";
 /**
  * Create a minimal InvitationSlice test double. Tests pass spies/overrides
  * to assert behavior; defaults are no-op spies.
+ *
+ * @param overrides - Partial overrides to replace default spies and values
+ * @returns InvitationSlice - test double implementing the slice
  */
 export default function makeInvitationSlice(overrides?: Partial<InvitationSlice>): InvitationSlice {
 	const setPendingCommunityInvitations = overrides?.setPendingCommunityInvitations ?? vi.fn();

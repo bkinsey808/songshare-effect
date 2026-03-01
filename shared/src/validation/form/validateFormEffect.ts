@@ -9,25 +9,19 @@ import extractI18nMessages from "../extractI18nMessages";
 import { type ValidationError } from "../validate-types";
 
 /**
- * Extract a shallow params object from a record used for i18n message
- * interpolation. The input `rec` is expected to contain a reserved `key`
- * property and zero or more other properties which are treated as params.
- *
- * The function returns a new object that contains all properties from
- * `rec` except the `key` property.
- *
- * @param rec - Record that may contain a `key` and additional params.
- * @returns A plain object with all entries from `rec` except `key`.
- */
-
-/**
  * Validate form data using an Effect schema and normalize parse errors into
  * the project's `ValidationError` shape.
+ *
+ * This is a pure function that constructs an Effect blueprint for validation.
+ * It traverses the ParseError tree to extract i18n message payloads (identifying
+ * them via `i18nMessageKey`) and transforms them into structured
+ * `ValidationError` objects, including shallow interpolation params extracted
+ * from records containing a reserved `key` property.
  *
  * @template FormValues
  * @param schema - The Effect `Schema` used to validate `data`.
  * @param data - The unknown input to validate against the schema.
- * @param i18nMessageKey - Symbol or string used to locate i18n messages
+ * @param i18nMessageKey - Symbol or string used to identify i18n messages
  *   within parse errors produced by Effect.
  * @returns An `Effect` which fails with an array of `ValidationError` on
  *   validation errors, or yields the validated `FormValues` on success.

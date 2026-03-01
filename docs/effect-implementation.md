@@ -25,10 +25,10 @@ We have successfully migrated the SongShare API from basic error handling to a c
 - All service methods return `Effect` types with proper error channels
 - Used Effect's `Context` and `Layer` for dependency injection
 
-### 4. **HTTP Utilities** (`api/src/http-utils.ts`)
+### 4. **HTTP Utilities** (`api/src/http/handleHttpEndpoint.ts` and `api/src/http/errorToHttpResponse.ts`)
 
-- Created utilities to convert Effect errors to HTTP responses
-- Implemented `executeEffect` to run Effects and handle responses
+- Utilities to convert Effect errors to HTTP responses (`errorToHttpResponse.ts`)
+- `handleHttpEndpoint.ts` provides the HTTP handler wrapper to run Effects and return `Response`
 - Proper status code mapping for different error types
 - Centralized error-to-HTTP conversion logic
 
@@ -95,29 +95,30 @@ app.post("/api/songs", async (c) => {
 
 		const validatedData = yield* Schema.decodeUnknown(CreateSongRequestSchema)(
 			body,
-		).pipe(
-			Effect.mapError(
-				(error) => new ValidationError({ message: error.message }),
-			),
-		);
+		```
+		app.post("/api/songs", async (c) => {
+			const createSongEffect = Effect.gen(function* () {
+				const body = yield* Effect.tryPromise({
+					try: () => c.req.json(),
+					catch: () => new ValidationError({ message: "Invalid JSON" }),
+				});
 
-		const songService = yield* SongService;
-		return yield* songService.create({ ...validatedData /* ... */ });
-	}).pipe(Effect.provide(InMemorySongServiceLive));
+				const validatedData = yield* Schema.decodeUnknown(CreateSongRequestSchema)(
+					body,
+				).pipe(
+					Effect.mapError(
+						(error) => new ValidationError({ message: error.message }),
+					),
+				);
 
-	return executeEffect(createSongEffect, c);
-});
-```
+				const songService = yield* SongService;
+				return yield* songService.create({ ...validatedData /* ... */ });
+			}).pipe(Effect.provide(InMemorySongServiceLive));
 
-## API Testing Results
-
-✅ **Health endpoint**: Working correctly
-✅ **GET /api/songs**: Returns properly structured responses
-✅ **POST /api/songs**: Creates songs with validation
-✅ **Validation errors**: Proper error messages and status codes
-✅ **Frontend integration**: Successfully communicates with Effect API
-
-## Next Steps for Further Effect-TS Integration
+			// Use the HTTP handler wrapper exported from api/src/http/handleHttpEndpoint.ts
+			return handleHttpEndpoint(() => createSongEffect)(c);
+		});
+		```
 
 1. **Frontend Data Fetching**: Implement Effect-TS on the frontend using `@effect/platform-browser`
 2. **Database Integration**: Replace in-memory storage with Effect-based database operations

@@ -140,34 +140,10 @@ export const SongServiceLive = Layer.succeed(SongService, {
 Use utility function to execute Effects and map errors to HTTP status codes:
 
 ```typescript
-// api/src/http-utils.ts
-import { Effect } from "effect";
-import { Context } from "hono";
-
-/**
- * Execute an Effect operation and convert the result to an HTTP response.
- * Maps typed errors to appropriate HTTP status codes.
- *
- * @param effect - The Effect operation to execute
- * @returns - Promise resolving to HTTP Response with success data or error message
- */
-export function executeEffect<A, E, R>(
-  effect: Effect.Effect<A, E, R>,
-): Promise<Response> {
-  return Effect.runPromise(effect).then(
-    (value) => new Response(JSON.stringify({ success: true, data: value }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    }),
-    (error) => {
-      // Map typed errors to HTTP responses
-      if (error instanceof ValidationError) {
-        return new Response(JSON.stringify({ error: error.message }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      if (error instanceof NotFoundError) {
+// api/src/http/handleHttpEndpoint.ts & api/src/http/errorToHttpResponse.ts
+// The project now exposes `handleHttpEndpoint` (HTTP wrapper) and
+// `errorToHttpResponse` (error -> status/body mapping) under `api/src/http/`.
+// Use `handleHttpEndpoint` when wiring Effects into Hono routes.
         return new Response(
           JSON.stringify({
             error: `${error.resource} with id ${error.id} not found`,

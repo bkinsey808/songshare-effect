@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { EventParticipant } from "@/react/event/event-entry/EventEntry.type";
 
-import makeEventEntry from "@/react/event/event-entry/makeEventEntry.mock";
+import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
 
 import {
 	deriveCurrentParticipantStatus,

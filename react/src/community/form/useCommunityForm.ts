@@ -6,8 +6,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { ValidationError } from "@/shared/validation/validate-types";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import useAppForm from "@/react/form/useAppForm";
-import useFormChanges from "@/react/form/useFormChanges";
+import useAppForm from "@/react/lib/form/useAppForm";
+import useFormChanges from "@/react/lib/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";

@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
+
 import usePendingInvitationSection from "./usePendingInvitationSection";
 
 vi.mock("@/react/app-store/useAppStore");

@@ -1,12 +1,18 @@
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 /**
- * Perform a POST with a JSON body and throw when the response is not ok.
+ * Perform an HTTP POST with a JSON body and throw when the response is not ok.
+ *
+ * This function performs network I/O via `fetch` and therefore is not pure.
+ * It reads the response body and will attempt to parse JSON error information
+ * when available.
  *
  * @param path - Request path or full URL
  * @param body - Value to JSON.stringify and send as the request body
- * @returns - Resolves when the request succeeds; rejects with an Error when the
- *             response is not ok (uses response.text() if available)
+ * @returns Resolves when the request succeeds.
+ * @throws Error - When the response is not ok or the request fails. The error
+ *   message prefers parsed JSON error text when available,
+ *   otherwise includes the HTTP status.
  */
 export default async function postJson(path: string, body: unknown): Promise<void> {
 	type RequestInitWithCredentials = RequestInit & { credentials?: string };

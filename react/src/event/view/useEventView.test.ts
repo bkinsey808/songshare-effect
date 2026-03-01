@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
-import makeEventEntry from "@/react/event/event-entry/makeEventEntry.mock";
+import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";

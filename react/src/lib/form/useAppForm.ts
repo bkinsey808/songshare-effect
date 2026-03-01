@@ -38,7 +38,20 @@ type UseAppFormReturn<FormValues> = {
 };
 
 /**
- * Hook for managing form state and validation with Effect schemas
+ * Hook for managing form state and validation with Effect schemas.
+ *
+ * @param schema - Effect Schema used to validate the form payload.
+ * @param formRef - Ref to the HTML form element backing this hook.
+ * @param initialValues - Optional partial initial values used by `reset`.
+ * @param defaultErrorMessage - Optional default message used for submit errors.
+ * @returns validationErrors - Array of current validation errors for the form.
+ * @returns isSubmitting - True when a submit flow is in progress.
+ * @returns handleFieldBlur - Validate a single field on blur and update state.
+ * @returns getFieldError - Retrieve the current error for a specific field.
+ * @returns handleSubmit - Effect-based submit handler which validates and manages submit state.
+ * @returns handleApiResponseEffect - Effect that maps API responses into form errors and submit messages.
+ * @returns reset - Reset form inputs to `initialValues` and clear state.
+ * @returns setValidationErrors - Setter to update validation errors state from callers/tests.
  */
 export default function useAppForm<FormValues extends Record<string, unknown>>({
 	schema,
@@ -50,7 +63,11 @@ export default function useAppForm<FormValues extends Record<string, unknown>>({
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	/**
-	 * Handle field blur validation
+	 * Validate a single field when it loses focus and update validation state.
+	 *
+	 * @param field - Field key to validate.
+	 * @param ref - Input ref containing the current value for the field.
+	 * @returns void
 	 */
 	function handleFieldBlur<Field extends keyof FormValues>(
 		field: Field,
@@ -86,7 +103,10 @@ export default function useAppForm<FormValues extends Record<string, unknown>>({
 	}
 
 	/**
-	 * Get field error
+	 * Get validation error for a specific field.
+	 *
+	 * @param field - Field key to look up.
+	 * @returns ValidationError | undefined - The error object if present.
 	 */
 	function getFieldError(field: keyof FormValues): ValidationError | undefined {
 		return validationErrors.find((err) => err.field === String(field));
@@ -99,7 +119,12 @@ export default function useAppForm<FormValues extends Record<string, unknown>>({
 	});
 
 	/**
-	 * Handle API response using pure Effect - returns Effect that performs side effects and returns success boolean
+	 * Create an Effect that handles an API `Response`, mapping server validation
+	 * errors into form state and invoking `setSubmitError` for top-level messages.
+	 *
+	 * @param response - The fetch `Response` to handle.
+	 * @param setSubmitError - Setter to display a submit-level error message.
+	 * @returns Effect that resolves to `true` when the response indicates success.
 	 */
 	function handleApiResponseEffect(
 		response: Response,
@@ -114,7 +139,9 @@ export default function useAppForm<FormValues extends Record<string, unknown>>({
 	}
 
 	/**
-	 * Reset form to initial values
+	 * Reset form inputs to `initialValues` (when provided) and clear form state.
+	 *
+	 * @returns void
 	 */
 	function reset(): void {
 		if (formRef.current && initialValues) {

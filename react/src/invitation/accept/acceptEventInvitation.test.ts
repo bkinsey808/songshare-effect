@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
 import { apiEventUserJoinPath } from "@/shared/paths";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
 import makeInvitationSlice from "../slice/makeInvitationSlice.test-util";
 import acceptEventInvitation from "./acceptEventInvitation";
 

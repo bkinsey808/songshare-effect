@@ -1,6 +1,6 @@
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
-import { handleHttpEndpoint } from "@/api/http/http-utils";
+import handleHttpEndpoint from "@/api/http/handleHttpEndpoint";
 import oauthCallbackFactory from "@/api/oauth-callback-factory/oauthCallbackFactory";
 import createErrorResponse from "@/api/oauth/createErrorResponse";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";

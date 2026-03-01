@@ -6,8 +6,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 // Note: These helpers might need to be adjusted or moved if they depend on the old state structure
 import useAppStore from "@/react/app-store/useAppStore";
-import useAppForm from "@/react/form/useAppForm";
-import useFormChanges from "@/react/form/useFormChanges";
+import useAppForm from "@/react/lib/form/useAppForm";
+import useFormChanges from "@/react/lib/form/useFormChanges";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import setFieldValue from "@/react/song/song-form/use-song-form/setFieldValue";

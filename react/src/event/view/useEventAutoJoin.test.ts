@@ -2,7 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import makeEventEntry from "@/react/event/event-entry/makeEventEntry.mock";
+import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
 
 import useEventAutoJoin from "./useEventAutoJoin";
 

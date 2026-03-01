@@ -6,7 +6,7 @@ import type { EventEntry } from "@/react/event/event-types";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
-import makeEventEntry from "@/react/event/event-entry/makeEventEntry.mock";
+import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import RouterWrapper from "@/react/lib/test-utils/RouterWrapper";

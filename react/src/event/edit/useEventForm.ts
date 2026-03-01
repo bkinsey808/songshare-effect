@@ -5,8 +5,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import useAppForm from "@/react/form/useAppForm";
-import useFormChanges from "@/react/form/useFormChanges";
+import useAppForm from "@/react/lib/form/useAppForm";
+import useFormChanges from "@/react/lib/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import setFieldValue from "@/react/song/song-form/use-song-form/setFieldValue";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";

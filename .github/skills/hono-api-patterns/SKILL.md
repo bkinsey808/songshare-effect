@@ -67,36 +67,10 @@ app.post("/songs", async (c: Context) => {
 Convert Effect operations to HTTP responses:
 
 ```typescript
-// api/src/http-utils.ts
-import { Effect } from "effect";
-import { Context } from "hono";
-
-/**
- * Execute an Effect operation within Hono context and convert to HTTP response.
- * Handles success and error cases, mapping typed errors to appropriate status codes.
- *
- * @param effect - The Effect operation to execute
- * @param c - Hono context to use for JSON response generation
- * @returns - Promise resolving to HTTP response
- */
-export function executeEffect<A, E, R>(
-  effect: Effect.Effect<A, E, R>,
-  c: Context,
-): Promise<Response> {
-  return Effect.runPromise(effect).then(
-    (value) => c.json({ success: true, data: value }),
-    (error) => {
-      // Map typed errors to HTTP responses
-      if (error instanceof ValidationError) {
-        return c.json({ error: error.message }, 400);
-      }
-      if (error instanceof NotFoundError) {
-        return c.json({ error: `${error.resource} not found` }, 404);
-      }
-      return c.json({ error: "Internal server error" }, 500);
-    },
-  );
-}
+// api/src/http/handleHttpEndpoint.ts
+// The project now provides `handleHttpEndpoint` (HTTP wrapper) which runs
+// Effect operations and converts typed errors to HTTP `Response` objects via
+// the helper `errorToHttpResponse` in `api/src/http/`.
 
 // Usage in handler
 app.post("/songs", async (c: Context) => {
@@ -109,7 +83,7 @@ app.post("/songs", async (c: Context) => {
     return result;
   });
 
-  return executeEffect(songEffect, c);
+  return handleHttpEndpoint(() => songEffect)(c);
 });
 ```
 

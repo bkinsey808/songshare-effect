@@ -93,7 +93,7 @@ Open `api/src/server.ts` and add your route:
 ```typescript
 // Import the handler
 import { getSong } from "./song/getSong";
-import { handleHttpEndpoint } from "./http/http-utils";
+import handleHttpEndpoint from "./http/handleHttpEndpoint";
 
 // Add the route (find the appropriate section in the file)
 app.get(

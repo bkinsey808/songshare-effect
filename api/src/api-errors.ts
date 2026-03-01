@@ -1,5 +1,5 @@
 // Lightweight typed error classes used across the API.
-// These provide a typed `_tag` (used by http-utils) and explicit properties
+// These provide a typed `_tag` (used by the HTTP helpers in `api/src/http/`)
 // without relying on `any` or casting. They intentionally extend `Error`
 // to preserve Error semantics.
 

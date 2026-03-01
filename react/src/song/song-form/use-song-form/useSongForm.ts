@@ -3,8 +3,8 @@ import { useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import useAppForm from "@/react/form/useAppForm";
-import useFormChanges from "@/react/form/useFormChanges";
+import useAppForm from "@/react/lib/form/useAppForm";
+import useFormChanges from "@/react/lib/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import { type SongPublic, songPublicSchema } from "@/react/song/song-schema";
 

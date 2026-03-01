@@ -131,7 +131,7 @@ songshare-effect/
 │   ├── src/
 │   │   ├── server.ts       # API routes and handlers
 │   │   ├── errors.ts      # Effect-TS error definitions
-│   │   ├── http-utils.ts  # HTTP utilities for Effect
+│   │   ├── http/         # HTTP utilities for Effect (handleHttpEndpoint, errorToHttpResponse)
 │   │   ├── schemas.ts     # Effect Schema definitions
 │   │   └── services.ts    # Service layer with dependency injection
 │   ├── wrangler.toml      # Cloudflare Workers config

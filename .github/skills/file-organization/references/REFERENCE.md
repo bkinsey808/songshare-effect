@@ -145,7 +145,7 @@ songshare-effect/
 │   │   ├── errors.ts            # Typed error classes
 │   │   ├── schemas.ts           # Effect schemas
 │   │   ├── services.ts          # Service layer (DI)
-│   │   ├── http-utils.ts        # HTTP utilities
+│   │   ├── http/                # HTTP utilities (handleHttpEndpoint, errorToHttpResponse)
 │   │   ├── supabase/            # Supabase integration
 │   │   │   ├── getSupabaseClientToken.ts
 │   │   │   └── types.ts

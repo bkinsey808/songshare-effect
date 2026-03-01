@@ -3,7 +3,7 @@ import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
 import { type AppError, ServerError, ValidationError } from "@/api/api-errors";
-import { handleHttpEndpoint } from "@/api/http/http-utils";
+import handleHttpEndpoint from "@/api/http/handleHttpEndpoint";
 import { debug as serverDebug, error as serverError } from "@/api/logger";
 import resolveRedirectOrigin from "@/api/oauth/resolveRedirectOrigin";
 import getBackEndProviderData from "@/api/provider/getBackEndProviderData";
