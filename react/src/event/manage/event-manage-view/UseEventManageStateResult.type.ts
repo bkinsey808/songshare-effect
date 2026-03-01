@@ -1,4 +1,4 @@
-import type { EventEntry } from "@/react/event/event-types";
+import type { EventCommunityEntry, EventEntry } from "@/react/event/event-types";
 
 import type { ActionState } from "../ActionState.type";
 
@@ -6,6 +6,7 @@ export type UseEventManageStateResult = {
 	readonly currentEvent: EventEntry | undefined;
 	readonly eventPublic: EventEntry["public"];
 	readonly participants: EventEntry["participants"];
+	readonly eventCommunities: readonly EventCommunityEntry[];
 	readonly ownerId: string | undefined;
 	readonly ownerUsername: string | undefined;
 	readonly isEventLoading: boolean;
@@ -13,6 +14,7 @@ export type UseEventManageStateResult = {
 	readonly canManageEvent: boolean;
 	readonly actionState: ActionState;
 	readonly inviteUserIdInput: string | undefined;
+	readonly addCommunityIdInput: string | undefined;
 	readonly activePlaylistIdForSelector: string | undefined;
 	readonly activeSongIdForSelector: string | undefined;
 	readonly activeSlidePositionForSelector: number | undefined;
@@ -22,6 +24,9 @@ export type UseEventManageStateResult = {
 	readonly onBackClick: () => void;
 	readonly onInviteClick: () => void;
 	readonly onInviteUserSelect: (userId: string | undefined) => void;
+	readonly onAddCommunityIdSelect: (communityId: string) => void;
+	readonly onAddCommunityClick: () => void;
+	readonly onRemoveCommunityClick: (communityId: string) => void;
 	readonly onPlaylistSelect: (playlistId: string) => void;
 	readonly onSongSelect: (songId: string) => void;
 	readonly onSlidePositionSelect: (slidePosition: number | undefined) => void;

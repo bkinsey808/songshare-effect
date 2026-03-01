@@ -5,6 +5,7 @@ type EventSearchInputProps = {
 	onSelect: (eventId: string) => void;
 	disabled?: boolean;
 	id?: string;
+	excludeEventIds?: readonly string[];
 };
 
 /**
@@ -27,6 +28,7 @@ export default function EventSearchInput({
 	onSelect,
 	disabled = false,
 	id = "community-manage-add-event-input",
+	excludeEventIds,
 }: EventSearchInputProps): ReactElement {
 	const {
 		EVENTS_NONE,
@@ -41,7 +43,11 @@ export default function EventSearchInput({
 		handleInputChange,
 		handleClearSelection,
 		inputDisplayValue,
-	} = useEventSearchInput({ activeEventId, onSelect });
+	} = useEventSearchInput({
+		activeEventId,
+		onSelect,
+		...(excludeEventIds === undefined ? {} : { excludeEventIds }),
+	});
 
 	return (
 		<div className="flex flex-col gap-2 flex-1">

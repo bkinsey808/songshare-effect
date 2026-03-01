@@ -28,6 +28,7 @@ function makeMockStore(initialState: Partial<EventState> = {}): {
 		isEventLoading: false,
 		eventError: undefined,
 		isEventSaving: false,
+		eventCommunities: [],
 	};
 
 	let state: Partial<EventState> = { ...initialState };

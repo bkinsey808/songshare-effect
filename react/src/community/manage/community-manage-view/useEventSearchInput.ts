@@ -9,6 +9,7 @@ const EVENTS_NONE = 0;
 type UseEventSearchInputArgs = {
 	activeEventId: string | undefined;
 	onSelect: (eventId: string) => void;
+	excludeEventIds?: readonly string[];
 };
 
 export type UseEventSearchInputReturn = {
@@ -47,6 +48,7 @@ export type UseEventSearchInputReturn = {
 export default function useEventSearchInput({
 	activeEventId,
 	onSelect,
+	excludeEventIds,
 }: UseEventSearchInputArgs): UseEventSearchInputReturn {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isOpen, setIsOpen] = useState(false);
@@ -73,8 +75,9 @@ export default function useEventSearchInput({
 	}, []);
 
 	const eventLibraryEntries = useAppStore((state) => state.eventLibraryEntries);
+	const excludeSet = new Set(excludeEventIds);
 	const eventsArray: readonly EventLibraryEntry[] = Object.values(eventLibraryEntries).filter(
-		(entry): entry is EventLibraryEntry => entry !== undefined,
+		(entry): entry is EventLibraryEntry => entry !== undefined && !excludeSet.has(entry.event_id),
 	);
 
 	const activeEvent =

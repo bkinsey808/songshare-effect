@@ -10,25 +10,6 @@ metadata:
 
 # Source Refactoring Skill
 
-## What This Skill Does
-
-Provides guidance on splitting existing code (functions, components, hooks) into separate files while maintaining project standards:
-
-- **One function per file** - By default, extract each function into its own dedicated file.
-- **Single Symbol Exports** - Use `export default` when a file only exports one main symbol.
-- **Naming Conventions**:
-  - **Single-symbol files**: Name the file after the symbol (e.g., `camelCase.ts` for functions, `PascalCase.tsx` for components).
-  - **Multi-symbol files**: Use `kebab-case.ts` for files that must export multiple symbols.
-- **JSDoc Preservation** - Carry over existing documentation and JSDoc comments.
-- **Test Colocation** - Move and refactor unit tests into a new `*.test.ts` or `*.test.tsx` file next to the new source file.
-- **Import Management** - Update all references to the moved symbol across the codebase.
-
-## When to Use
-
-- When a file grows too large and needs splitting.
-- When extracting a utility function or component for better reuse.
-- When moving logic out of a component into a specialized hook or service.
-
 ## Key Rules
 
 ### 1. Default Export for Single Symbols
@@ -74,65 +55,9 @@ For test helper files created during refactoring, **always use absolute imports*
 
 ### 3. Avoid Module-Level Side Effects in Test Helpers
 
-Test helpers (mocking functions, setup utilities) should be **callable functions**, not auto-executing code. This keeps test setup explicit and avoids hidden dependencies.
+Test helper files should export **callable setup functions**, not auto-execute at import time. Use `vi.hoisted()` for shared mock state.
 
-**Problem:** Module-level `vi.doMock()` executes when the module loads, creating implicit test couplings and making mocks hard to reset between tests.
-
-```typescript
-// ❌ BAD: Side effect at module level
-vi.doMock("./useSlideManagerView", () => ({
-  default: vi.fn(),
-}));
-
-export function setMockReturn(val: unknown) {
-  // ... but mock wasn't set up explicitly
-}
-```
-
-**Solution:** Move mocking logic into an explicit function. Use `vi.hoisted()` for test-scoped state and `vi.resetModules()` to ensure fresh setup per test:
-
-```typescript
-// ✅ GOOD: Callable setup function with vi.hoisted() for state
-import { vi } from "vitest";
-
-const mockState = vi.hoisted(
-  () =>
-    ({
-      mockFn: undefined as ReturnType<typeof vi.fn> | undefined,
-    }),
-);
-
-export default function mockUseSlideManagerView(): ReturnType<typeof vi.fn> {
-  vi.resetModules(); // Clear module cache for fresh mock setup
-  mockState.mockFn = vi.fn();
-  vi.doMock("@/react/event/manage/slide/useSlideManagerView", () => ({
-    default: mockState.mockFn,
-  }));
-  return mockState.mockFn;
-}
-
-// Export helper to access the mock function from other helpers
-export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
-  return mockState.mockFn;
-}
-```
-
-Then in tests, call the setup function explicitly:
-
-```typescript
-it("test case", async () => {
-  mockUseSlideManagerView(); // Explicit call
-  setUseSlideManagerViewReturn(fakeState); // Then configure return value
-  // ... test
-});
-```
-
-**Benefits:**
-
-- Tests are clearer: setup is explicit, not implicit
-- Mocks are isolated per test (no cross-test pollution)
-- Easy to verify mock was called correctly
-- Easier to disable/modify mocking for specific tests
+See [unit-testing-mocking skill](../unit-testing-mocking/SKILL.md) for full patterns and examples.
 
 ### 4. Preserve JSDoc
 

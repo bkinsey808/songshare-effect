@@ -96,6 +96,7 @@ export const apiCommunityUserKickPath = "/api/community-user/kick";
 export const apiCommunityUserUpdateRolePath = "/api/community-user/update-role";
 export const apiCommunityEventAddPath = "/api/community-event/add";
 export const apiCommunityEventRemovePath = "/api/community-event/remove";
+export const apiCommunitySetActiveEventPath = "/api/community/set-active-event";
 export const apiUploadPath = "/api/upload";
 export const apiHelloPath = "/api/hello";
 export const healthPath = "/health";

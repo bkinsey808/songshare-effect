@@ -9,6 +9,8 @@ tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
 
 - [typescript-conventions skill](../skills/typescript-conventions/SKILL.md) - TypeScript patterns
 - [react-conventions skill](../skills/react-conventions/SKILL.md) - React & React Compiler patterns
+- [manage-page-patterns skill](../skills/manage-page-patterns/SKILL.md) - Local actionState, runCommunityAction/runAction for admin/manage pages
+- [app-store-patterns skill](../skills/app-store-patterns/SKILL.md) - Zustand slice pattern, createXxxSlice factories, useAppStore selectors, getTypedState
 - [.agent/rules.md](../../.agent/rules.md) - Full project rules
 
 This agent provides extended operational guidance and mandatory validation steps beyond the skills.

@@ -1,3 +1,4 @@
+```skill
 ---
 name: hono-api-patterns
 description: Hono API route handlers, middleware patterns, request/response handling, and integration with Effect-TS. Use when building API endpoints, implementing middleware, handling errors, or validating request data.
@@ -5,74 +6,23 @@ license: MIT
 compatibility: Hono 4.x, Effect 3.x, TypeScript 5.x, Node.js 20+
 metadata:
   author: bkinsey808
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Hono API Patterns Skill
 
-## What This Skill Does
-
-Guides development of the SongShare API using Hono as the HTTP framework with Effect-TS for functional error handling:
-
-- **Route handlers** - Clean, typed endpoints with request parsing
-- **Middleware patterns** - Authentication, logging, error handling
-- **Request/response handling** - Type-safe parsing and validation
-- **Integration with Effect** - Converting Effect operations to HTTP responses
-- **Error mapping** - Structured error types to HTTP status codes
-- **Composable handlers** - Reusable middleware and utilities
-
-## When to Use
-
-- Building new API endpoints
-- Creating or modifying middleware
-- Implementing request validation and parsing
-- Handling errors in HTTP context
-- Adding authentication/authorization checks
-- Integrating with Effect-TS services
-- Responding with proper HTTP status codes
-
 ## Key Patterns
 
-### 1. Basic Route Handler
+### 1. Integration with Effect-TS
+
+The project provides `handleHttpEndpoint` (in `api/src/http/`) which runs an Effect and converts typed errors to HTTP `Response` objects via `errorToHttpResponse`:
 
 ```typescript
-// api/src/server.ts
-import { Hono } from "hono";
-import { Context } from "hono";
+// api/src/song/songHandler.ts
+import { Effect } from "effect";
+import { handleHttpEndpoint } from "@/api/http/handleHttpEndpoint";
+import { ValidationError } from "@/api/api-errors";
 
-const app = new Hono();
-
-// Simple GET endpoint
-app.get("/health", (c: Context) => {
-  return c.json({ status: "ok" });
-});
-
-// Typed GET endpoint with path parameter
-app.get("/songs/:id", (c: Context) => {
-  const id = c.req.param("id");
-  return c.json({ id, title: "Example Song" });
-});
-
-// POST with request body
-app.post("/songs", async (c: Context) => {
-  const body = await c.req.json();
-  return c.json({ created: true, data: body }, 201);
-});
-```
-
-**Why:** Hono provides clean syntax similar to Express but with better TypeScript support.
-
-### 2. Integration with Effect-TS
-
-Convert Effect operations to HTTP responses:
-
-```typescript
-// api/src/http/handleHttpEndpoint.ts
-// The project now provides `handleHttpEndpoint` (HTTP wrapper) which runs
-// Effect operations and converts typed errors to HTTP `Response` objects via
-// the helper `errorToHttpResponse` in `api/src/http/`.
-
-// Usage in handler
 app.post("/songs", async (c: Context) => {
   const songEffect = Effect.gen(function* () {
     const body = yield* Effect.tryPromise({
@@ -87,14 +37,12 @@ app.post("/songs", async (c: Context) => {
 });
 ```
 
-**Why:** Separates Effect logic from HTTP concerns; centralized error mapping.
+### 2. Request Validation with Effect Schema
 
-### 3. Request Validation
-
-Parse and validate requests with Effect Schema:
+Schemas live per feature (e.g. `api/src/song/songSchemas.ts`), not in a central file:
 
 ```typescript
-// api/src/schemas.ts
+// api/src/song/songSchemas.ts
 import { Schema } from "effect";
 
 export const CreateSongSchema = Schema.Struct({
@@ -102,282 +50,95 @@ export const CreateSongSchema = Schema.Struct({
   artist: Schema.String.pipe(Schema.minLength(1)),
   duration: Schema.Number.pipe(Schema.positive()),
 });
-
-// api/src/server.ts
-app.post("/songs", async (c: Context) => {
-  const createEffect = Effect.gen(function* () {
-    const body = yield* Effect.tryPromise({
-      try: () => c.req.json(),
-      catch: () => new ValidationError({ message: "Invalid JSON" }),
-    });
-
-    const validated = yield* Schema.decodeUnknown(CreateSongSchema)(body).pipe(
-      Effect.mapError(
-        (error) => new ValidationError({ message: error.message }),
-      ),
-    );
-
-    // validated is now typed and safe
-    return { id: "123", ...validated };
-  });
-
-  return executeEffect(createEffect, c);
-});
 ```
 
-**Why:** Type-safe validation with detailed error messages; single source of truth.
-
-### 4. Middleware Pattern
-
-Create reusable middleware for cross-cutting concerns:
+Decode in the handler:
 
 ```typescript
-// api/src/middleware/auth.ts
-import { Context, Next } from "hono";
-
-/**
- * Middleware to verify authorization token and attach user to context.
- * Returns 401 if token is missing or invalid.
- *
- * @param c - Hono context for this request
- * @param next - Function to continue to next middleware
- */
-export async function authMiddleware(c: Context, next: Next): Promise<void> {
-  const token = c.req.header("authorization");
-
-  if (!token) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
-
-  // Verify token and attach to context
-  const user = await verifyToken(token);
-  c.set("user", user);
-
-  await next();
-}
-
-// api/src/server.ts
-app.use("/api/*", authMiddleware);
-
-app.get("/api/profile", (c: Context) => {
-  const user = c.get("user");
-  return c.json({ user });
-});
+const validated = yield* Schema.decodeUnknown(CreateSongSchema)(body).pipe(
+  Effect.mapError((error) => new ValidationError({ message: error.message })),
+);
 ```
 
-**Why:** Middleware keeps authentication logic separate; reusable across routes.
+### 3. Error Types
 
-### 5. Error Handling
-
-Map typed errors to proper HTTP responses:
+Typed errors live in `api/src/api-errors.ts` (not `errors.ts`):
 
 ```typescript
-// api/src/errors.ts
+// api/src/api-errors.ts
 import { Data } from "effect";
 
 export class ValidationError extends Data.TaggedError("ValidationError") {
-  constructor(readonly message: string) {
-    super();
-  }
+  constructor(readonly message: string) { super(); }
 }
 
 export class NotFoundError extends Data.TaggedError("NotFoundError") {
-  constructor(
-    readonly resource: string,
-    readonly id: string,
-  ) {
-    super();
-  }
+  constructor(readonly resource: string, readonly id: string) { super(); }
 }
+```
 
-// api/src/server.ts
+Map in `app.onError`:
+
+```typescript
 app.onError((error, c: Context) => {
-  if (error instanceof ValidationError) {
-    return c.json({ error: error.message }, 400);
-  }
-  if (error instanceof NotFoundError) {
-    return c.json(
-      { error: `${error.resource} ${error.id} not found` },
-      404,
-    );
-  }
+  if (error instanceof ValidationError) return c.json({ error: error.message }, 400);
+  if (error instanceof NotFoundError) return c.json({ error: `${error.resource} ${error.id} not found` }, 404);
   return c.json({ error: "Internal server error" }, 500);
 });
 ```
 
-**Why:** Centralized error handling; consistent error responses.
+### 4. Middleware
 
-### 6. Typed Context Variables
-
-Store typed data on context for later use:
+Existing middleware lives in `api/src/middleware/` — currently `cors.ts` and `handleAppError.ts`. Pattern:
 
 ```typescript
-// api/src/types.ts
-export type User = {
-  id: string;
-  email: string;
-  role: "admin" | "user";
-};
+// api/src/middleware/handleAppError.ts
+import { type Context, type Next } from "hono";
 
-// api/src/middleware/auth.ts
-export async function authMiddleware(c: Context<{ Variables: { user: User } }>, next: Next): Promise<void> {
-  const token = c.req.header("authorization");
-  const user = await verifyToken(token);
-  c.set("user", user);
+export async function handleAppError(c: Context, next: Next): Promise<void> {
   await next();
+  // post-processing
 }
-
-// api/src/server.ts
-app.get("/api/profile", (c: Context<{ Variables: { user: User } }>) => {
-  const user = c.get("user"); // Type-safe!
-  return c.json({ user });
-});
 ```
 
-**Why:** TypeScript ensures context variables are typed; prevents runtime errors.
-
-## Common Patterns
-
-### Query Parameters
+### 5. JSON Parsing — Always Wrap in Effect
 
 ```typescript
-app.get("/songs", (c: Context) => {
-  const limit = c.req.query("limit") || "10";
-  const offset = c.req.query("offset") || "0";
-
-  return c.json({
-    limit: parseInt(limit),
-    offset: parseInt(offset),
-  });
-});
-
-// Usage: GET /songs?limit=20&offset=40
-```
-
-### Path Parameters
-
-```typescript
-app.get("/songs/:id", (c: Context) => {
-  const id = c.req.param("id");
-  return c.json({ id });
-});
-
-// Usage: GET /songs/abc123
-```
-
-### Headers
-
-```typescript
-app.post("/upload", (c: Context) => {
-  const contentType = c.req.header("content-type");
-  const authorization = c.req.header("authorization");
-
-  return c.json({ contentType, authorization });
-});
-```
-
-### JSON Response with Status Code
-
-```typescript
-app.post("/songs", async (c: Context) => {
-  const song = { id: "123", title: "New Song" };
-  return c.json({ data: song }, 201); // 201 Created
-});
-```
-
-### Empty Response
-
-```typescript
-app.delete("/songs/:id", (c: Context) => {
-  return c.text("", 204); // 204 No Content
-});
-```
-
-## Best Practices
-
-### ✅ DO
-
-- **Type everything** - Parameters, request body, response shape
-- **Validate input** - Use Effect Schema for runtime validation
-- **Centralize error handling** - Use middleware and error mappers
-- **Compose middleware** - Reuse auth, logging, etc. across routes
-- **Use Effect** - Leverage functional error handling patterns
-- **Return proper status codes** - 200, 201, 400, 404, 500, etc.
-
-### ❌ DON'T
-
-- **Throw errors** - Use Effect.fail() instead
-- **Assume request validity** - Always validate JSON and parameters
-- **Mix concerns** - Keep HTTP logic separate from business logic
-- **Catch and swallow errors** - Map them to proper HTTP responses
-- **Store sensitive data in context** - Use headers or encrypted cookies
-
-## Common Pitfalls
-
-### ❌ Not handling async JSON parsing
-
-```typescript
-// Bad: req.json() can throw
+// ❌ Bad: can throw
 const body = c.req.json();
-```
 
-**✅ Better:**
-
-```typescript
-const body = await Effect.tryPromise({
+// ✅ Good: typed error
+const body = yield* Effect.tryPromise({
   try: () => c.req.json(),
   catch: () => new ValidationError({ message: "Invalid JSON" }),
 });
 ```
 
-### ❌ Missing error handler
+## Response Conventions
 
-```typescript
-// Bad: unhandled errors crash the app
-app.post("/songs", async (c) => {
-  throw new Error("Something went wrong");
-});
-```
+| Situation       | Status | Example                               |
+| --------------- | ------ | ------------------------------------- |
+| Created         | 201    | `c.json({ data: song }, 201)`         |
+| No content      | 204    | `c.text("", 204)`                     |
+| Bad input       | 400    | `c.json({ error: "..." }, 400)`       |
+| Not found       | 404    | `c.json({ error: "..." }, 404)`       |
+| Server error    | 500    | `c.json({ error: "..." }, 500)`       |
 
-**✅ Better:** Use app.onError middleware or Effect error handling.
-
-### ❌ Inconsistent response shapes
-
-```typescript
-// Bad: sometimes { data }, sometimes { result }
-app.get("/a", (c) => c.json({ data: value }));
-app.get("/b", (c) => c.json({ result: value }));
-```
-
-**✅ Better:** Define response schemas and reuse them.
-
-## Deep Reference
-
-For detailed technical reference on advanced middleware composition, streaming responses, WebSocket integration, performance optimization, and integration patterns with Effect-TS, see [the reference guide](references/REFERENCE.md).
+Keep response shapes consistent — define schemas and reuse them.
 
 ## Validation Commands
 
-Run these after modifying API code:
-
 ```bash
-# Type check
-npx tsc -b api/
-
-# Lint
+npx tsc -b api/   # Type check
 npm run lint
-
-# Unit tests (if testing handlers)
 npm run test:unit
-
-# Local server test
-npm run dev:api
-curl http://localhost:8787/health
+npm run dev:api   # Then: curl http://localhost:8787/health
 ```
 
 ## References
 
-- Reference guide: [references/REFERENCE.md](references/REFERENCE.md) - Detailed patterns and advanced usage
-- Hono documentation: https://hono.dev/
-- Effect-TS documentation: https://effect.website/
-- Effect-TS Patterns skill: [../effect-ts-patterns/SKILL.md](../effect-ts-patterns/SKILL.md)
+- Effect-TS patterns: [../effect-ts-patterns/SKILL.md](../effect-ts-patterns/SKILL.md)
+- Unit testing API handlers: [../unit-testing-api/SKILL.md](../unit-testing-api/SKILL.md)
+- Hono docs: https://hono.dev/
 - Project rules: [.agent/rules.md](../../../.agent/rules.md)
+```

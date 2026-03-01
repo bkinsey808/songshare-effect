@@ -200,6 +200,9 @@ export default function fetchCommunityBySlug(
 				description: communityPublic.description,
 				is_public: communityPublic.is_public,
 				public_notes: communityPublic.public_notes,
+				...(communityPublic.active_event_id === undefined
+					? {}
+					: { active_event_id: communityPublic.active_event_id }),
 				created_at: communityPublic.created_at || new Date().toISOString(),
 				updated_at: communityPublic.updated_at || new Date().toISOString(),
 			};

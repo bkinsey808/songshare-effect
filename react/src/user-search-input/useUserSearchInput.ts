@@ -9,6 +9,7 @@ const USERS_NONE = 0;
 type UseUserSearchInputArgs = {
 	activeUserId: string | undefined;
 	onSelect: (userId: string) => void;
+	excludeUserIds?: readonly string[];
 };
 
 type UseUserSearchInputReturn = {
@@ -35,6 +36,7 @@ type UseUserSearchInputReturn = {
 export default function useUserSearchInput({
 	activeUserId,
 	onSelect,
+	excludeUserIds,
 }: UseUserSearchInputArgs): UseUserSearchInputReturn {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isOpen, setIsOpen] = useState(false);
@@ -69,8 +71,10 @@ export default function useUserSearchInput({
 	}, []);
 
 	const userLibraryEntries = useAppStore((state) => state.userLibraryEntries);
+	const excludeSet = new Set(excludeUserIds);
 	const usersArray: readonly UserLibraryEntry[] = Object.values(userLibraryEntries).filter(
-		(entry): entry is UserLibraryEntry => entry !== undefined,
+		(entry): entry is UserLibraryEntry =>
+			entry !== undefined && !excludeSet.has(entry.followed_user_id),
 	);
 
 	const activeUser =

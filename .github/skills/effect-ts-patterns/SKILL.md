@@ -10,24 +10,6 @@ metadata:
 
 # Effect-TS Patterns Skill
 
-## What This Skill Does
-
-Guides development of the Hono API server using Effect-TS functional programming patterns:
-
-- **Structured error handling** with typed `Data.TaggedError` classes
-- **Schema validation** using Effect Schema for runtime type safety
-- **Service layer** with Effect's dependency injection (Context and Layer)
-- **HTTP utilities** to convert Effect errors to proper responses
-- **Composable operations** using Effect combinators (`gen`, `pipe`, `map`, `flatMap`)
-
-## When to Use
-
-- Building new API endpoints or handlers in `api/src/`
-- Creating or modifying service layer code
-- Adding new error types or validation schemas
-- Refactoring imperative try-catch code to functional Effect pipelines
-- Setting up dependency injection for services
-
 ## Key Patterns
 
 ### 1. Define Typed Errors
@@ -35,7 +17,7 @@ Guides development of the Hono API server using Effect-TS functional programming
 Use Effect's `Data.TaggedError` for discriminated error unions:
 
 ```typescript
-// api/src/errors.ts
+// api/src/api-errors.ts
 import { Data } from "effect";
 
 export class ValidationError extends Data.TaggedError("ValidationError") {
@@ -66,7 +48,7 @@ type ApiError = ValidationError | NotFoundError | DatabaseError;
 Use Effect Schema for runtime validation with compile-time type inference:
 
 ```typescript
-// api/src/schemas.ts
+// Per-feature schema file, e.g. api/src/song/songSchemas.ts
 import { Schema } from "effect";
 
 export const CreateSongRequestSchema = Schema.Struct({
@@ -97,7 +79,7 @@ const validatedData = yield* Schema.decodeUnknown(
 Create service interfaces and implementations using Context:
 
 ```typescript
-// api/src/services.ts
+// Per-feature service file, e.g. api/src/song/songService.ts
 import { Context, Effect, Layer } from "effect";
 
 // Define service interface
@@ -137,28 +119,27 @@ export const SongServiceLive = Layer.succeed(SongService, {
 
 ### 4. Convert Effects to HTTP Responses
 
-Use utility function to execute Effects and map errors to HTTP status codes:
+The project provides two utilities under `api/src/http/`:
+
+- **`handleHttpEndpoint`** — wraps an Effect-returning function and runs it as a Hono response handler
+- **`errorToHttpResponse`** — maps typed `ApiError` variants to HTTP `Response` objects with appropriate status codes
 
 ```typescript
-// api/src/http/handleHttpEndpoint.ts & api/src/http/errorToHttpResponse.ts
-// The project now exposes `handleHttpEndpoint` (HTTP wrapper) and
-// `errorToHttpResponse` (error -> status/body mapping) under `api/src/http/`.
-// Use `handleHttpEndpoint` when wiring Effects into Hono routes.
-        return new Response(
-          JSON.stringify({
-            error: `${error.resource} with id ${error.id} not found`,
-          }),
-          { status: 404, headers: { "Content-Type": "application/json" } },
-        );
-      }
-      // Default error
-      return new Response(JSON.stringify({ error: "Internal server error" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
+// api/src/song/songHandler.ts
+import { handleHttpEndpoint } from "@/api/http/handleHttpEndpoint";
+
+app.post("/api/songs", async (c) => {
+  return handleHttpEndpoint(() =>
+    Effect.gen(function* () {
+      const body = yield* Effect.tryPromise({
+        try: () => c.req.json(),
+        catch: () => new ValidationError({ message: "Invalid JSON" }),
       });
-    },
-  );
-}
+      const service = yield* SongService;
+      return yield* service.create(body);
+    })
+  )(c);
+});
 ```
 
 **Why:** Centralized error-to-HTTP conversion eliminates repetitive error handling in every endpoint.
@@ -281,5 +262,4 @@ npm run build:api
 - Complete implementation guide: [docs/effect-implementation.md](../../../docs/effect-implementation.md)
 - Effect documentation: https://effect.website/
 - Hono API integration: See `api/src/server.ts`
-- Error types: See `api/src/errors.ts`
-- Service examples: See `api/src/services.ts`
+- Error types: See `api/src/api-errors.ts`

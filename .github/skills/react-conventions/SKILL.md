@@ -1,376 +1,158 @@
 ---
 name: react-conventions
-description: React 18+ conventions with React Compiler guidance (no manual memoization, functional components, hooks patterns). Use when authoring components, hooks, or reviewing React code for styling and performance issues.
+description: React 18+ conventions for this project — React Compiler (no manual memoization), ReactElement ambient type, useEffect comment rule, component organization. Use when authoring or editing any React component, hook, or page.
 license: MIT
 compatibility: React 18+, React Compiler enabled, TypeScript 5.x
 metadata:
   author: bkinsey808
-  version: "1.0"
+  version: "1.1"
 ---
 
 # React Conventions Skill
 
 ## What This Skill Does
 
-Captures React best practices for this project with emphasis on **React Compiler compatibility**:
+Captures **repo-specific** React patterns. Generic React knowledge (functional components, prop types, Tailwind) is excluded — focus here is on project-enforced rules:
 
-- **Compiler-ready code** - No manual memoization (`useMemo`, `useCallback`, `memo`)
-- **Functional components** - Plain functions, hooks-based patterns only
-- **Styling patterns** - Tailwind CSS integration and best practices
-- **Component organization** - One main export per file, colocated tests
-- **Hook patterns** - Proper dependency arrays, no stale closures
-- **Type safety** - Strong prop typing with TypeScript
-
-## When to Use
-
-- Authoring new React components, hooks, or pages
-- Reviewing PRs for React patterns and performance
-- Implementing component-specific styling or state management
-- Migrating code to React Compiler (removing manual optimizations)
-- Creating custom hooks or composable logic
+- **No manual memoization** — React Compiler handles it; `useMemo`/`useCallback`/`memo` are forbidden without documented profiling evidence
+- **ReactElement ambient** — no import needed; `JSX.Element` is discouraged
+- **`useEffect` must have a comment** — every `useEffect` call needs a `//` comment above it
+- **`RouterWrapper` in hook tests** — use the shared helper, not ad-hoc memory routers
+- **One file, one component** — colocated tests
 
 ## Key Rules
 
 ### ReactElement vs JSX.Element
 
-This project treats `ReactElement` as an **ambient type** rather than requiring
-an import from `react`. When specifying component return types or other JSX
-values prefer `ReactElement` without importing it. Attempting to import
-`ReactElement` or using `JSX.Element` will trigger eslint complaints
-(`no-reactelement-import` rule) and confuse tooling. The AI helper may suggest
-adding an import; please ignore that advice and leave the type ambient.
+`ReactElement` is an **ambient type** in this project — never import it. Using `JSX.Element` will trigger lint warnings.
 
 ```ts
-// ✅ GOOD
+// ✅ GOOD — ReactElement is globally available
 function MyComponent(): ReactElement {
   return <div />;
 }
 
-// ❌ BAD - imports not needed & linter will flag
+// ❌ BAD — import not needed, linter will flag it
 import type { ReactElement } from "react";
-function MyComponent(): ReactElement {
-  return <div />;
-}
 
-// ❌ BAD - JSX.Element is discouraged
+// ❌ BAD — JSX.Element is discouraged
 function MyComponent(): JSX.Element {
   return <div />;
 }
 ```
 
-###
+### §1. React Compiler Ready — No Manual Memoization
 
-### 1. React Compiler Ready
-
-**Never use manual memoization** - React Compiler handles optimization automatically:
+**Never use** `memo`, `useMemo`, or `useCallback`. React Compiler optimizes automatically.
 
 ```typescript
-// ❌ BAD: Unnecessary memoization
-const MyComponent = memo(() => {
-  return <div>Content</div>;
-});
+// ❌ BAD
+const handleClick = useCallback(() => doThing(), []);
+const value = useMemo(() => compute(), [deps]);
+const Comp = memo(() => <div />);
 
-const handleClick = useCallback(() => {
-  console.log("clicked");
-}, []);
-
-const computedValue = useMemo(() => expensiveComputation(), [deps]);
+// ✅ GOOD — plain functions, no wrappers
+function handleClick(): void { doThing(); }
+const value = compute();
+function Comp(): ReactElement { return <div />; }
 ```
 
-**✅ GOOD: Plain functions - Compiler optimizes automatically:**
+**Exception**: Only if profiling shows a documented regression. Add a comment with issue link.
+
+### §2. Hook Patterns
+
+**Always add a `//` comment above each `useEffect`** — this is enforced by the `require-useeffect-comment` lint rule:
 
 ```typescript
-function MyComponent(): JSX.Element {
-  // Plain function - no memo needed
-  return <div>Content</div>;
-}
-
-function handleClick(): void {
-  // Plain function - no useCallback needed
-  console.log("clicked");
-}
-
-const computedValue = expensiveComputation(); // No useMemo needed
-```
-
-**When to break this rule:** Only if there's documented evidence of performance regression. Then add a comment explaining why:
-
-```typescript
-// NOTE: Profiling showed unnecessary re-renders (see GitHub issue #123).
-// Memoization reduces re-renders from 5x to 1x in this scenario.
-const MemoizedComponent = memo(ExpensiveComponent);
-```
-
-### 2. Functional Components Only
-
-All components are functional components with hooks:
-
-```typescript
-// ❌ BAD: Class components
-class UserProfile extends React.Component {
-  render() {
-    return <div>{this.props.name}</div>;
-  }
-}
-
-// ✅ GOOD: Functional component
-function UserProfile(props: UserProfileProps): JSX.Element {
-  return <div>{props.name}</div>;
-}
-```
-
-### 3. Hook Patterns
-
-**Proper dependency arrays:**
-
-```typescript
-// ❌ BAD: Missing or incorrect dependencies
-useEffect(() => {
-  fetchUser(userId); // userId not in deps - stale closure!
-}, []);
-
-// ✅ GOOD: Complete dependency array
-useEffect(() => {
-  fetchUser(userId);
-}, [userId]); // userId included
-```
-
-**No hook rules violations:**
-
-```typescript
-// ❌ BAD: Hook inside conditional
-if (user.isActive) {
-  useState("initial"); // NEVER - breaks hook rules
-}
-
-// ✅ GOOD: Hooks at top level
-const [state, setState] = useState("initial");
-```
-
-**Always add a `//` comment above each `useEffect` describing what it does:**
-
-```typescript
-// ✅ GOOD: Comment explains the side effect intent
-
+// ✅ GOOD — comment required
 // Fetches latest user profile when userId changes.
 useEffect(() => {
   void fetchUserProfile(userId);
 }, [userId]);
 
-// ❌ BAD: No explanatory comment above useEffect
-
+// ❌ BAD — missing comment; lint will fail
 useEffect(() => {
   void fetchUserProfile(userId);
 }, [userId]);
 ```
 
-### 4. Component Organization
-
-**Testing helpers** – when writing hook tests, use the shared `RouterWrapper` from `@/react/lib/test-utils/RouterWrapper` instead of re‑implementing a memory router in each file. This keeps routes consistent and avoids repeated imports from `react-router-dom` which often end up unused.
-
-**Lint disables** – React guidelines also apply when writing tests; avoid placing `// oxlint-disable` comments inside test blocks. If a test requires a disable, move it into a small helper or revisit the typing problem.
-
-### 4. Component Organization
-
-**One main component per file:**
+**Complete dependency arrays** — never omit a dependency to suppress the lint warning:
 
 ```typescript
-// ✅ GOOD: SongCard.tsx - single responsibility
-export function SongCard(props: SongCardProps): JSX.Element {
-  return <div>{/* ... */}</div>;
-}
+// ❌ BAD — userId missing from deps (stale closure)
+useEffect(() => { fetchUser(userId); }, []);
 
-// ✅ GOOD: Colocated test
-// SongCard.test.tsx in same directory
+// ✅ GOOD
+useEffect(() => { fetchUser(userId); }, [userId]);
 ```
 
-**Colocated tests:**
+**In hook tests**, use the shared `RouterWrapper` from `@/react/lib/test-utils/RouterWrapper` — do not re-implement a memory router per test file.
+
+### §3. Component Organization
+
+**One main export per file.** Colocate the test next to the source:
 
 ```
 react/src/components/
   SongCard.tsx
-  SongCard.test.tsx      ← Same directory
-  UserMenu.tsx
-  UserMenu.test.tsx
+  SongCard.test.tsx    ← same directory
 ```
 
-### 5. Prop Typing
+**Avoid `oxlint-disable` inside test blocks.** If a disable is needed, move it to a small helper or fix the type problem.
 
-**Always type component props:**
+### §4. State Management
+
+Use Zustand for shared state, `useState` for component-local data.
 
 ```typescript
-// ❌ BAD: No prop types
-function Button(props) {
-  return <button>{props.label}</button>;
-}
-
-// ✅ GOOD: Explicit prop type
-type ButtonProps = {
-  label: string;
-  onClick?: () => void;
-  disabled?: boolean;
-};
-
-function Button({ label, onClick, disabled }: ButtonProps): JSX.Element {
-  return (
-    <button onClick={onClick} disabled={disabled}>
-      {label}
-    </button>
-  );
-}
+// Zustand — use selectors to avoid unnecessary re-renders
+const user = useAppStore((state) => state.user);
 ```
 
-### 6. State Management
+See [ZUSTAND.md](references/ZUSTAND.md) for store patterns, async actions, middleware, and testing.
 
-**Use Zustand for shared state:**
-
-```typescript
-// ✅ GOOD: Zustand store with selector
-export const useAppStore = create((set) => ({
-  user: null,
-  setUser: (user) => set({ user }),
-}));
-
-// In component - use selector to avoid unnecessary re-renders
-function MyComponent() {
-  const user = useAppStore((state) => state.user);
-  return <div>{user?.name}</div>;
-}
-```
-
-**Local state with useState for component-local data:**
-
-```typescript
-// ✅ GOOD: Local state for form
-function LoginForm(): JSX.Element {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSubmit = async () => {
-    // Use email and password
-  };
-```
-
-See [Zustand patterns guide](references/ZUSTAND.md) for detailed store patterns, async operations, middleware, and testing.
-
-return <form onSubmit={handleSubmit}>...</form>;
-}
-
-````
-
-### 7. Styling with Tailwind
-
-**Use Tailwind utility classes:**
-
-```typescript
-// ✅ GOOD: Tailwind classes
-function Card(): JSX.Element {
-  return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow">
-      <h2 className="text-lg font-semibold">Title</h2>
-    </div>
-  );
-}
-
-// ✅ GOOD: Dynamic classes with clsx if needed
-import { clsx } from "clsx";
-
-function Badge({ variant }: { variant: "primary" | "secondary" }): JSX.Element {
-  return (
-    <span
-      className={clsx(
-        "px-3 py-1 rounded-full text-sm font-medium",
-        variant === "primary"
-          ? "bg-blue-500 text-white"
-          : "bg-gray-100 text-gray-700",
-      )}
-    >
-      Badge
-    </span>
-  );
-}
-````
+---
 
 ## Common Pitfalls
 
-### ❌ Removing manual optimizations when migrating to React Compiler
+### ❌ Keeping `useCallback` when migrating to React Compiler
 
 ```typescript
-// BAD: Keep useCallback when migrating
-const handleClick = useCallback(() => {
-  console.log("clicked");
-}, []);
+// BAD — remove manual optimizations
+const handleClick = useCallback(() => { doThing(); }, []);
 
-// GOOD: Remove manual memoization
-function handleClick() {
-  console.log("clicked");
-}
+// GOOD
+function handleClick(): void { doThing(); }
 ```
 
 ### ❌ Stale closures in event handlers
 
 ```typescript
-// BAD: userId is captured at component creation
-function UserCard({ userId }: { userId: string }) {
-  const handleDelete = () => {
-    deleteUser(userId); // Stale userId!
-  };
+// BAD — userId captured at creation time
+const handleDelete = () => { deleteUser(userId); }; // possible stale ref
 
-  return <button onClick={handleDelete}>Delete</button>;
-}
-
-// GOOD: userId is passed when event fires
-function UserCard({ userId }: { userId: string }): JSX.Element {
-  return (
-    <button onClick={() => deleteUser(userId)}>
-      Delete
-    </button>
-  );
-}
+// GOOD — passed inline, always fresh
+<button onClick={() => deleteUser(userId)}>Delete</button>
 ```
 
-### ❌ Missing ReactElement import (not needed!)
+---
 
-```typescript
-// BAD: Unnecessary import
-import type { ReactElement } from "react";
+## Manage-Page Mutations
 
-function MyComponent(): ReactElement {
-  return <div>content</div>;
-}
+Admin/manage pages have a required pattern for mutations (invite, kick, add, remove):
+use **local `actionState`** via `runCommunityAction`/`runAction` — never store-level loading flags.
 
-// GOOD: ReactElement is ambient (globally available)
-function MyComponent() {
-  return <div>content</div>;
-}
-```
+See [manage-page-patterns skill](../manage-page-patterns/SKILL.md) for the full pattern, realtime update path, and exclusion list rules.
+
+---
 
 ## Deep Reference
 
-For detailed technical reference on React Compiler behavior, hook patterns, state management with Zustand, Tailwind styling, and component composition patterns, see [the reference guide](references/REFERENCE.md).
+[references/REFERENCE.md](references/REFERENCE.md) — React Compiler behavior, Zustand patterns, Tailwind styling, component composition.
 
-## Validation Commands
+## Validation
 
 ```bash
-# Type check
 npx tsc -b .
-
-# Lint (includes React/Compiler rules)
 npm run lint
-
-# Unit tests
-npm run test:unit
-
-# Check for manual memoization (use sparingly)
-grep -r "useMemo\|useCallback\|memo(" react/src --include="*.tsx"
 ```
-
-## References
-
-- Reference guide: [references/REFERENCE.md](references/REFERENCE.md) - Detailed React patterns
-- Zustand patterns: [references/ZUSTAND.md](references/ZUSTAND.md) - Complete state management guide
-- React Compiler docs: [https://react.dev](https://react.dev)
-- React Hooks guide: [https://react.dev/reference/react/hooks](https://react.dev/reference/react/hooks)
-- TypeScript + React: [React TypeScript Cheatsheet](https://react-typescript-cheatsheet.netlify.app/)
-- Project rules: [.agent/rules.md](../../../.agent/rules.md)
-- TypeScript conventions: [typescript-conventions skill](../typescript-conventions/SKILL.md)

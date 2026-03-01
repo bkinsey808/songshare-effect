@@ -31,6 +31,8 @@ export default function CommunityManageView(): ReactElement {
 		setAddEventIdInput,
 		onAddEventClick,
 		onRemoveEventClick,
+		onSetActiveEventClick,
+		activeEventId,
 		onKickClick,
 		onBackClick,
 	} = useCommunityManageView();
@@ -46,7 +48,7 @@ export default function CommunityManageView(): ReactElement {
 		return <div className="max-w-4xl mx-auto px-6 py-8 text-gray-300">Community not found</div>;
 	}
 
-	if (canManage !== true) {
+	if (!canManage) {
 		return (
 			<div className="max-w-4xl mx-auto px-6 py-8">
 				<h1 className="text-3xl font-bold mb-4 text-white">Community Manager</h1>
@@ -75,6 +77,9 @@ export default function CommunityManageView(): ReactElement {
 							activeUserId={inviteUserIdInput}
 							onSelect={setInviteUserIdInput}
 							disabled={actionState.loadingKey === "invite"}
+							excludeUserIds={members
+							.filter((member) => member.status !== "kicked")
+							.map((member) => member.user_id)}
 						/>
 					</div>
 					<Button
@@ -148,6 +153,7 @@ export default function CommunityManageView(): ReactElement {
 							activeEventId={addEventIdInput}
 							onSelect={setAddEventIdInput}
 							disabled={actionState.loadingKey === "add-event"}
+							excludeEventIds={communityEvents.map((ev) => ev.event_id)}
 						/>
 					</div>
 					<Button
@@ -178,9 +184,17 @@ export default function CommunityManageView(): ReactElement {
 				)}
 
 				<div className="space-y-3">
-					{communityEvents.map((event) => (
-						<EventRow key={event.event_id} event={event} onRemove={onRemoveEventClick} />
-					))}
+					{communityEvents
+						.toSorted((evA, evB) => (evB.created_at ?? "").localeCompare(evA.created_at ?? ""))
+						.map((event) => (
+							<EventRow
+								key={event.event_id}
+								event={event}
+								onRemove={onRemoveEventClick}
+								activeEventId={activeEventId}
+								onSetActive={onSetActiveEventClick}
+							/>
+						))}
 					{communityEvents.length === ZERO && (
 						<div className="text-gray-400">
 							<p>Events associated with this community will appear here.</p>

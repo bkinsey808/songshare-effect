@@ -2,7 +2,10 @@ import ActiveSongSelectionSection from "@/react/event/form/ActiveSongSelectionSe
 import PlaylistSearchInput from "@/react/event/playlist-search-input/PlaylistSearchInput";
 import Button from "@/react/lib/design-system/Button";
 import UserSearchInput from "@/react/user-search-input/UserSearchInput";
+import { ZERO } from "@/shared/constants/shared-constants";
 
+import CommunityRow from "./CommunityRow";
+import CommunitySearchInput from "./CommunitySearchInput";
 import ParticipantRow from "./ParticipantRow";
 import useEventManageState from "./useEventManageView";
 
@@ -35,6 +38,11 @@ export default function EventManageView(): ReactElement {
 		onSongSelect,
 		onSlidePositionSelect,
 		onKickParticipant,
+		eventCommunities,
+		addCommunityIdInput,
+		onAddCommunityIdSelect,
+		onAddCommunityClick,
+		onRemoveCommunityClick,
 	} = useEventManageState();
 
 	if (isEventLoading) {
@@ -114,6 +122,9 @@ export default function EventManageView(): ReactElement {
 						activeUserId={inviteUserIdInput}
 						onSelect={onInviteUserSelect}
 						disabled={actionState.loadingKey === "invite"}
+						excludeUserIds={participants
+							.filter((participant) => participant.status !== "kicked")
+							.map((participant) => participant.user_id)}
 					/>
 					<Button
 						variant="secondary"
@@ -138,6 +149,48 @@ export default function EventManageView(): ReactElement {
 							onKick={onKickParticipant}
 						/>
 					))}
+				</div>
+			</section>
+
+			<section className="rounded-lg border border-gray-700 bg-gray-800 p-6 space-y-4">
+				<h2 className="text-xl font-semibold">Communities</h2>
+				<div className="flex gap-2">
+					<CommunitySearchInput
+						activeCommunityId={addCommunityIdInput}
+						onSelect={onAddCommunityIdSelect}
+						disabled={actionState.loadingKey === "add-community"}
+						excludeCommunityIds={eventCommunities.map((ec) => ec.community_id)}
+					/>
+					<Button
+						variant="secondary"
+						disabled={
+							actionState.loadingKey === "add-community" ||
+							addCommunityIdInput === undefined ||
+							addCommunityIdInput === ""
+						}
+						onClick={onAddCommunityClick}
+					>
+						{actionState.loadingKey === "add-community" ? "Adding..." : "Add to Community"}
+					</Button>
+				</div>
+				<div className="space-y-2">
+					{eventCommunities.length === ZERO ? (
+						<p className="text-sm text-gray-400">No communities linked yet.</p>
+					) : (
+						eventCommunities
+							.toSorted((ecA, ecB) =>
+								(ecA.community_name ?? ecA.community_id).localeCompare(
+									ecB.community_name ?? ecB.community_id,
+								),
+							)
+							.map((community) => (
+								<CommunityRow
+									key={community.community_id}
+									community={community}
+									onRemove={onRemoveCommunityClick}
+								/>
+							))
+					)}
 				</div>
 			</section>
 

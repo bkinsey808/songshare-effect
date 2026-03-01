@@ -1,11 +1,11 @@
 import type { Effect } from "effect";
 
 import type {
-	CommunityEntry,
-	CommunityEvent,
-	CommunityState,
-	CommunityUser,
-	SaveCommunityRequest,
+    CommunityEntry,
+    CommunityEvent,
+    CommunityState,
+    CommunityUser,
+    SaveCommunityRequest,
 } from "../community-types";
 
 /**
@@ -35,6 +35,10 @@ export type CommunitySlice = CommunityState & {
 	kickMember: (communityId: string, userId: string) => Effect.Effect<void, Error>;
 	addEventToCommunity: (communityId: string, eventId: string) => Effect.Effect<void, Error>;
 	removeEventFromCommunity: (communityId: string, eventId: string) => Effect.Effect<void, Error>;
+	setActiveEventForCommunity: (
+		communityId: string,
+		eventId: string | undefined,
+	) => Effect.Effect<void, Error>;
 
 	// Internal state management
 	setCurrentCommunity: (community: CommunityEntry | undefined) => void;

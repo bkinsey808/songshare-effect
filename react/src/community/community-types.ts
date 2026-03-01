@@ -16,6 +16,7 @@ export type CommunityEntry = {
 	is_public: boolean;
 	public_notes: string | null;
 	private_notes?: string;
+	active_event_id?: string;
 	created_at: string;
 	updated_at: string;
 };

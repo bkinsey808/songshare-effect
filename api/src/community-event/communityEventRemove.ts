@@ -113,6 +113,36 @@ export default function communityEventRemove(
 			);
 		}
 
+		// Clear active_event_id if the removed event was the active event
+		const clearActiveResult = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					supabase
+						.from("community_public")
+						.update({
+							// oxlint-disable-next-line no-null
+							active_event_id: null,
+						})
+						.eq("community_id", community_id)
+						.eq("active_event_id", event_id),
+				catch: (err) =>
+					new DatabaseError({
+						message: `Failed to clear active event: ${extractErrorMessage(err, "Unknown error")}`,
+					}),
+			}),
+		);
+
+		if (clearActiveResult.error) {
+			return yield* $(
+				Effect.fail(
+					new DatabaseError({
+						message:
+							clearActiveResult.error?.message ?? "Failed to clear active event from community",
+					}),
+				),
+			);
+		}
+
 		return { success: true };
 	});
 }

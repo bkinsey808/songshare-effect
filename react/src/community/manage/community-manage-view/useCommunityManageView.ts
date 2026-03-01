@@ -17,10 +17,17 @@ import { isSupportedLanguage } from "@/shared/language/supported-languages-effec
 import {
 	apiCommunityEventAddPath,
 	apiCommunityEventRemovePath,
+	apiCommunitySetActiveEventPath,
 	apiCommunityUserAddPath,
 	apiCommunityUserKickPath,
 	communityViewPath,
 } from "@/shared/paths";
+
+import type { CommunityActionState } from "./CommunityActionState.type";
+
+import runCommunityAction from "./runCommunityAction";
+import useCommunityManageSubscriptions from "./useCommunityManageSubscriptions";
+import useCommunityPermissions from "./useCommunityPermissions";
 
 export type UseCommunityManageViewReturn = {
 	currentCommunity: CommunityEntry | undefined;
@@ -28,14 +35,8 @@ export type UseCommunityManageViewReturn = {
 	communityEvents: readonly CommunityEvent[];
 	isCommunityLoading: boolean;
 	communityError: string | undefined;
-	canManage: boolean | undefined;
-	actionState: {
-		loadingKey: string | undefined;
-		error: string | undefined;
-		errorKey: string | undefined;
-		success: string | undefined;
-		successKey: string | undefined;
-	};
+	canManage: boolean;
+	actionState: CommunityActionState;
 	inviteUserIdInput: string | undefined;
 	setInviteUserIdInput: (userId: string) => void;
 	onInviteClick: () => void;
@@ -43,6 +44,8 @@ export type UseCommunityManageViewReturn = {
 	setAddEventIdInput: (eventId: string) => void;
 	onAddEventClick: () => void;
 	onRemoveEventClick: (eventId: string) => void;
+	onSetActiveEventClick: (eventId: string | undefined) => void;
+	activeEventId: string | undefined;
 	onKickClick: (userId: string) => void;
 	onBackClick: () => void;
 	userSessionData: UserSessionData | undefined;
@@ -73,15 +76,12 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 	const communityError = useAppStore((state) => state.communityError);
 	const userSessionData = useAppStore((state) => state.userSessionData);
 
+	const communityId = currentCommunity?.community_id;
+	const activeEventId = currentCommunity?.active_event_id;
+
 	const [inviteUserIdInput, setInviteUserIdInput] = useState<string | undefined>(undefined);
 	const [addEventIdInput, setAddEventIdInput] = useState<string | undefined>(undefined);
-	const [actionState, setActionState] = useState<{
-		loadingKey: string | undefined;
-		error: string | undefined;
-		errorKey: string | undefined;
-		success: string | undefined;
-		successKey: string | undefined;
-	}>({
+	const [actionState, setActionState] = useState<CommunityActionState>({
 		loadingKey: undefined,
 		error: undefined,
 		errorKey: undefined,
@@ -96,85 +96,18 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 		}
 	}, [community_slug, fetchCommunityBySlug]);
 
-	/**
-	 * True when the current session user matches the community's owner_id.
-	 * Used downstream to decide which management actions are allowed.
-	 */
-	const isOwner =
-		userSessionData?.user !== undefined &&
-		currentCommunity !== undefined &&
-		userSessionData.user.user_id === currentCommunity.owner_id;
+	// Realtime subscriptions (community_event + community_public)
+	useCommunityManageSubscriptions(communityId);
 
-	const currentMember =
-		userSessionData?.user === undefined
-			? undefined
-			: members.find((member) => member.user_id === userSessionData.user?.user_id);
+	const { canManage } = useCommunityPermissions({
+		currentCommunity,
+		members,
+		userSessionData,
+	});
 
-	/**
-	 * True when the current user is either the owner or has the
-	 * `community_admin` role; controls whether management UI is shown.
-	 */
-	const canManage = isOwner || currentMember?.role === "community_admin";
-
-	/**
-	 * Helper that wraps a promise-returning operation and manages the
-	 * `actionState` object used by the UI.  Pass a `key` to identify the
-	 * action (errors/success are recorded under this key), a thunk performing
-	 * the async work, and a success message displayed on completion.
-	 *
-	 * @param key - unique identifier for this action
-	 * @param action - async work to run
-	 * @param successMessage - message shown after a successful run
-	 */
-	async function runCommunityAction(
-		key: string,
-		action: () => Promise<void>,
-		successMessage: string,
-	): Promise<void> {
-		setActionState({
-			loadingKey: key,
-			error: undefined,
-			errorKey: undefined,
-			success: undefined,
-			successKey: undefined,
-		});
-
-		let success = false;
-		try {
-			await action();
-			success = true;
-		} catch (error: unknown) {
-			setActionState({
-				loadingKey: undefined,
-				error: error instanceof Error ? error.message : String(error),
-				errorKey: key,
-				success: undefined,
-				successKey: undefined,
-			});
-		}
-
-		if (success) {
-			// after a successful mutation we attempt to refresh the full community
-			// payload; the silent flag prevents the global loading spinner from
-			// blinking if this is just a background refresh.
-			const slugToFetch =
-				community_slug !== undefined && community_slug !== "" ? community_slug : undefined;
-
-			if (slugToFetch !== undefined) {
-				try {
-					await Effect.runPromise(fetchCommunityBySlug(slugToFetch, { silent: true }));
-				} catch {
-					// Refresh failed but we still consider the primary action a success for UI purposes
-				}
-			}
-
-			setActionState({
-				loadingKey: undefined,
-				error: undefined,
-				errorKey: undefined,
-				success: successMessage,
-				successKey: key,
-			});
+	async function refreshCommunity(): Promise<void> {
+		if (community_slug !== undefined && community_slug !== "") {
+			await Effect.runPromise(fetchCommunityBySlug(community_slug, { silent: true }));
 		}
 	}
 
@@ -185,17 +118,19 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 			inviteUserIdInput !== ""
 		) {
 			void (async (): Promise<void> => {
-				await runCommunityAction(
-					"invite",
-					() =>
+				await runCommunityAction({
+					key: "invite",
+					action: () =>
 						postJson(apiCommunityUserAddPath, {
 							community_id: currentCommunity.community_id,
 							user_id: inviteUserIdInput,
 							role: "member",
 							status: "invited",
 						}),
-					"Member invited successfully",
-				);
+					successMessage: "Member invited successfully",
+					setActionState,
+					refreshFn: refreshCommunity,
+				});
 				setInviteUserIdInput(undefined);
 			})();
 		}
@@ -204,15 +139,17 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 	function onAddEventClick(): void {
 		if (currentCommunity !== undefined && addEventIdInput !== undefined && addEventIdInput !== "") {
 			void (async (): Promise<void> => {
-				await runCommunityAction(
-					"add-event",
-					() =>
+				await runCommunityAction({
+					key: "add-event",
+					action: () =>
 						postJson(apiCommunityEventAddPath, {
 							community_id: currentCommunity.community_id,
 							event_id: addEventIdInput,
 						}),
-					"Event added successfully",
-				);
+					successMessage: "Event added successfully",
+					setActionState,
+					refreshFn: refreshCommunity,
+				});
 				setAddEventIdInput(undefined);
 			})();
 		}
@@ -220,30 +157,51 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 
 	function onRemoveEventClick(eventId: string): void {
 		if (currentCommunity !== undefined) {
-			void runCommunityAction(
-				`remove-event:${eventId}`,
-				() =>
+			void runCommunityAction({
+				key: `remove-event:${eventId}`,
+				action: () =>
 					postJson(apiCommunityEventRemovePath, {
 						community_id: currentCommunity.community_id,
 						event_id: eventId,
 					}),
-				"Event removed successfully",
-			);
+				successMessage: "Event removed successfully",
+				setActionState,
+				refreshFn: refreshCommunity,
+			});
+		}
+	}
+
+	function onSetActiveEventClick(eventId: string | undefined): void {
+		if (currentCommunity !== undefined) {
+			void runCommunityAction({
+				key: `set-active-event:${eventId ?? "unset"}`,
+				action: () =>
+					postJson(apiCommunitySetActiveEventPath, {
+						community_id: currentCommunity.community_id,
+						...(eventId === undefined ? {} : { event_id: eventId }),
+					}),
+				successMessage:
+					eventId === undefined ? "Active event cleared" : "Active event set successfully",
+				setActionState,
+				refreshFn: refreshCommunity,
+			});
 		}
 	}
 
 	function onKickClick(userId: string): void {
 		if (currentCommunity !== undefined) {
 			const isInvited = members.find((member) => member.user_id === userId)?.status === "invited";
-			void runCommunityAction(
-				`kick:${userId}`,
-				() =>
+			void runCommunityAction({
+				key: `kick:${userId}`,
+				action: () =>
 					postJson(apiCommunityUserKickPath, {
 						community_id: currentCommunity.community_id,
 						user_id: userId,
 					}),
-				isInvited ? "Invitation cancelled" : "Member kicked successfully",
-			);
+				successMessage: isInvited ? "Invitation cancelled" : "Member kicked successfully",
+				setActionState,
+				refreshFn: refreshCommunity,
+			});
 		}
 	}
 
@@ -268,6 +226,8 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 		setAddEventIdInput,
 		onAddEventClick,
 		onRemoveEventClick,
+		onSetActiveEventClick,
+		activeEventId,
 		onKickClick,
 		onBackClick,
 		userSessionData,

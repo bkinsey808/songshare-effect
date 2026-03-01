@@ -7,6 +7,8 @@ import type { EventEntry } from "@/react/event/event-types";
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
+import fetchEventCommunitiesFn from "@/react/event/fetch/fetchEventCommunities";
+import subscribeToCommunityEventByEvent from "@/react/event/subscribe/subscribeToCommunityEventByEvent";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import RouterWrapper from "@/react/lib/test-utils/RouterWrapper";
@@ -23,6 +25,11 @@ vi.mock("@/react/app-store/useAppStore");
 vi.mock("@/react/auth/useCurrentUserId");
 vi.mock("@/react/lib/language/useCurrentLang");
 vi.mock("@/shared/fetch/postJson");
+vi.mock("@/react/event/fetch/fetchEventCommunities");
+vi.mock("@/react/event/subscribe/subscribeToCommunityEventByEvent");
+
+vi.mocked(fetchEventCommunitiesFn).mockReturnValue(Effect.succeed([]));
+vi.mocked(subscribeToCommunityEventByEvent).mockReturnValue(Effect.succeed(() => undefined));
 
 type StoreMocksOverrides = {
 	currentEvent?: EventEntry | undefined;
@@ -68,6 +75,12 @@ function installEventStoreMocks(overrides: StoreMocksOverrides = {}): {
 		}
 		if (selectorText.includes("fetchUserLibrary")) {
 			return vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
+		}
+		if (selectorText.includes("fetchCommunityLibrary")) {
+			return vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
+		}
+		if (selectorText.includes("eventCommunities")) {
+			return [];
 		}
 		if (selectorText.includes("subscribeToEvent")) {
 			return vi.fn().mockReturnValue(vi.fn());

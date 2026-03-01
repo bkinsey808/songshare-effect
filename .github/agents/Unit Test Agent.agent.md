@@ -13,7 +13,10 @@ This agent provides extended validation steps and detailed patterns beyond the s
 
 **Related resources:**
 
-- [unit-testing skill](../skills/unit-testing/SKILL.md) - Quick reference
+- [unit-testing skill](../skills/unit-testing/SKILL.md) - Core setup, templates, shared utils
+- [unit-testing-mocking skill](../skills/unit-testing-mocking/SKILL.md) - vi.mock, vi.hoisted, Supabase stubs
+- [unit-testing-api skill](../skills/unit-testing-api/SKILL.md) - Effect-based API handler testing
+- [unit-testing-pitfalls skill](../skills/unit-testing-pitfalls/SKILL.md) - Common anti-patterns
 - [.agent/rules.md](../../.agent/rules.md) - Full project rules
 
 ---

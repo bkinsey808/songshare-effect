@@ -5,6 +5,7 @@ type UserSearchInputProps = {
 	onSelect: (userId: string) => void;
 	disabled?: boolean;
 	label?: string;
+	excludeUserIds?: readonly string[];
 };
 
 /**
@@ -18,6 +19,7 @@ export default function UserSearchInput({
 	onSelect,
 	disabled = false,
 	label = "Invite User (username or id)",
+	excludeUserIds,
 }: UserSearchInputProps): ReactElement {
 	const inputId = "event-manage-invite-user-input";
 	const {
@@ -33,7 +35,11 @@ export default function UserSearchInput({
 		handleInputChange,
 		handleClearSelection,
 		inputDisplayValue,
-	} = useUserSearchInput({ activeUserId, onSelect });
+	} = useUserSearchInput({
+		activeUserId,
+		onSelect,
+		...(excludeUserIds === undefined ? {} : { excludeUserIds }),
+	});
 
 	return (
 		<div className="flex flex-col gap-2">
@@ -51,7 +57,7 @@ export default function UserSearchInput({
 					placeholder="Search users by username or ID"
 					autoComplete="off"
 					disabled={disabled}
-					className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-primary placeholder:text-muted-foreground"
+					className="w-full rounded-md border border-gray-600 bg-gray-800 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
 				/>
 
 				{activeUser !== undefined && searchQuery === "" ? (
@@ -59,14 +65,14 @@ export default function UserSearchInput({
 						type="button"
 						onClick={handleClearSelection}
 						disabled={disabled}
-						className="absolute right-2 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+						className="absolute right-2 top-1/2 -translate-y-1/2 rounded px-2 py-1 text-xs text-gray-400 hover:bg-gray-700"
 					>
 						Clear
 					</button>
 				) : undefined}
 
 				{isOpen && !disabled ? (
-					<div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-md border border-border bg-card shadow-lg">
+					<div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-md border border-gray-600 bg-gray-800 shadow-lg py-1">
 						{filteredUsers.length > USERS_NONE ? (
 							filteredUsers.map((entry) => {
 								const isSelected = entry.followed_user_id === activeUserId;
@@ -92,7 +98,7 @@ export default function UserSearchInput({
 								);
 							})
 						) : (
-							<p className="px-3 py-2 text-sm text-muted-foreground">No users found.</p>
+							<p className="px-3 py-2 text-sm text-gray-500">No users found.</p>
 						)}
 					</div>
 				) : undefined}

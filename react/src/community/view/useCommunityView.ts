@@ -5,6 +5,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import subscribeToCommunityEvent from "@/react/community/subscribe/subscribeToCommunityEvent";
+import subscribeToCommunityPublic from "@/react/community/subscribe/subscribeToCommunityPublic";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {
@@ -14,11 +16,13 @@ import {
 	dashboardPath,
 } from "@/shared/paths";
 
-import type { CommunityEntry, CommunityUser } from "../community-types";
+import type { CommunityEntry, CommunityEvent, CommunityUser } from "../community-types";
 
 export type UseCommunityViewReturn = {
 	currentCommunity: CommunityEntry | undefined;
 	members: readonly CommunityUser[];
+	communityEvents: readonly CommunityEvent[];
+	activeEventId: string | undefined;
 	isCommunityLoading: boolean;
 	communityError: string | undefined;
 	isMember: boolean | undefined;
@@ -52,11 +56,15 @@ export default function useCommunityView(): UseCommunityViewReturn {
 	const fetchCommunityBySlug = useAppStore((state) => state.fetchCommunityBySlug);
 	const currentCommunity = useAppStore((state) => state.currentCommunity);
 	const members = useAppStore((state) => state.members);
+	const communityEvents = useAppStore((state) => state.communityEvents);
 	const isCommunityLoading = useAppStore((state) => state.isCommunityLoading);
 	const communityError = useAppStore((state) => state.communityError);
 	const joinCommunity = useAppStore((state) => state.joinCommunity);
 	const leaveCommunity = useAppStore((state) => state.leaveCommunity);
 	const userSessionData = useAppStore((state) => state.userSessionData);
+
+	const communityId = currentCommunity?.community_id;
+	const activeEventId = currentCommunity?.active_event_id;
 
 	// Fetch community data when the slug changes
 	useEffect(() => {
@@ -64,6 +72,46 @@ export default function useCommunityView(): UseCommunityViewReturn {
 			void Effect.runPromise(fetchCommunityBySlug(community_slug));
 		}
 	}, [community_slug, fetchCommunityBySlug]);
+
+	// Subscribe to realtime community_event changes
+	useEffect(() => {
+		if (communityId === undefined) {
+			return;
+		}
+		let cleanup: (() => void) | undefined = undefined;
+		void (async (): Promise<void> => {
+			try {
+				cleanup = await Effect.runPromise(
+					subscribeToCommunityEvent(communityId, useAppStore.getState),
+				);
+			} catch (error: unknown) {
+				console.error("[useCommunityView] subscribeToCommunityEvent error:", error);
+			}
+		})();
+		return (): void => {
+			cleanup?.();
+		};
+	}, [communityId]);
+
+	// Subscribe to realtime community_public changes (active_event_id)
+	useEffect(() => {
+		if (communityId === undefined) {
+			return;
+		}
+		let cleanup: (() => void) | undefined = undefined;
+		void (async (): Promise<void> => {
+			try {
+				cleanup = await Effect.runPromise(
+					subscribeToCommunityPublic(communityId, useAppStore.getState),
+				);
+			} catch (error: unknown) {
+				console.error("[useCommunityView] subscribeToCommunityPublic error:", error);
+			}
+		})();
+		return (): void => {
+			cleanup?.();
+		};
+	}, [communityId]);
 
 	// find the current user's membership record, if they are logged in
 	const currentMember =
@@ -155,6 +203,8 @@ export default function useCommunityView(): UseCommunityViewReturn {
 	return {
 		currentCommunity,
 		members,
+		communityEvents,
+		activeEventId,
 		isCommunityLoading,
 		communityError,
 		isMember,

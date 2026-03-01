@@ -7,12 +7,7 @@ import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import postJson from "@/shared/fetch/postJson";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import {
-	apiEventSavePath,
-	apiEventUserAddPath,
-	apiEventUserKickPath,
-	eventViewPath,
-} from "@/shared/paths";
+import { apiEventSavePath, eventViewPath } from "@/shared/paths";
 
 import type { ActionState } from "../ActionState.type";
 import type { UseEventManageStateResult } from "./UseEventManageStateResult.type";
@@ -20,6 +15,8 @@ import type { UseEventManageStateResult } from "./UseEventManageStateResult.type
 import refreshEvent from "../refreshEvent";
 import runAction from "../runAction";
 import useActiveEventSync from "./useActiveEventSync";
+import useEventCommunityManagement from "./useEventCommunityManagement";
+import useEventParticipantManagement from "./useEventParticipantManagement";
 import useEventPermissions from "./useEventPermissions";
 import useEventPlaybackManagement from "./useEventPlaybackManagement";
 import usePlaylistLibraryManagement from "./usePlaylistLibraryManagement";
@@ -37,15 +34,15 @@ export default function useEventManageState(): UseEventManageStateResult {
 	const isEventLoading = useAppStore((state) => state.isEventLoading);
 	const eventError = useAppStore((state) => state.eventError);
 	const fetchPlaylistById = useAppStore((state) => state.fetchPlaylistById);
-	const fetchUserLibrary = useAppStore((state) => state.fetchUserLibrary);
+	const eventCommunities = useAppStore((state) => state.eventCommunities);
 	const currentUserId = useCurrentUserId();
 
+	const currentEventId = currentEvent?.event_id;
 	const eventPublic = currentEvent?.public;
 	const participants = currentEvent?.participants ?? [];
 	const ownerUsername = currentEvent?.owner_username;
 	const ownerId = currentEvent?.owner_id;
 
-	const [inviteUserIdInput, setInviteUserIdInput] = useState<string | undefined>(undefined);
 	const [actionState, setActionState] = useState<ActionState>({
 		loadingKey: undefined,
 		error: undefined,
@@ -90,18 +87,29 @@ export default function useEventManageState(): UseEventManageStateResult {
 		participants,
 	});
 
-	const activePlaylistIdForEffect = selectedActivePlaylistId ?? eventPublic?.active_playlist_id;
+	// Participant invite/kick management
+	const { inviteUserIdInput, onInviteUserSelect, onInviteClick, onKickParticipant } =
+		useEventParticipantManagement({
+			currentEventId,
+			event_slug,
+			fetchEventBySlug,
+			setActionState,
+		});
 
-	// Load user library on mount
-	useEffect(() => {
-		void (async (): Promise<void> => {
-			try {
-				await EffectRuntime.runPromise(fetchUserLibrary());
-			} catch {
-				// Keep manager usable even if user library fails to load
-			}
-		})();
-	}, [fetchUserLibrary]);
+	// Community linking management
+	const {
+		addCommunityIdInput,
+		onAddCommunityIdSelect,
+		onAddCommunityClick,
+		onRemoveCommunityClick,
+	} = useEventCommunityManagement({
+		currentEventId,
+		event_slug,
+		fetchEventBySlug,
+		setActionState,
+	});
+
+	const activePlaylistIdForEffect = selectedActivePlaylistId ?? eventPublic?.active_playlist_id;
 
 	// When active playlist changes, fetch its details
 	useEffect(() => {
@@ -142,6 +150,11 @@ export default function useEventManageState(): UseEventManageStateResult {
 			onSongSelect: (_songId) => undefined,
 			onSlidePositionSelect: (_slidePosition) => undefined,
 			onKickParticipant: (_userId) => undefined,
+			eventCommunities: [],
+			addCommunityIdInput,
+			onAddCommunityIdSelect: (_communityId) => undefined,
+			onAddCommunityClick: () => undefined,
+			onRemoveCommunityClick: (_communityId) => undefined,
 		};
 	}
 
@@ -181,46 +194,6 @@ export default function useEventManageState(): UseEventManageStateResult {
 		}
 	}
 
-	function onInviteClick(): void {
-		const userId = inviteUserIdInput?.trim() ?? "";
-		if (userId === "") {
-			return;
-		}
-		void runAction({
-			actionKey: "invite",
-			successMessage: "Participant invited",
-			action: async () => {
-				await postJson(apiEventUserAddPath, {
-					event_id: currentEventIdRequired,
-					user_id: userId,
-					role: "participant",
-					status: "invited",
-				});
-				setInviteUserIdInput(undefined);
-			},
-			setActionState,
-			refreshFn: () => refreshEvent(event_slug, fetchEventBySlug),
-		});
-	}
-
-	function onInviteUserSelect(userId: string | undefined): void {
-		setInviteUserIdInput(userId);
-	}
-
-	function onKickParticipant(userId: string): void {
-		void runAction({
-			actionKey: `kick:${userId}`,
-			successMessage: "Participant kicked",
-			action: () =>
-				postJson(apiEventUserKickPath, {
-					event_id: currentEventIdRequired,
-					user_id: userId,
-				}),
-			setActionState,
-			refreshFn: () => refreshEvent(event_slug, fetchEventBySlug),
-		});
-	}
-
 	return {
 		currentEvent,
 		eventPublic,
@@ -245,5 +218,10 @@ export default function useEventManageState(): UseEventManageStateResult {
 		onSongSelect,
 		onSlidePositionSelect,
 		onKickParticipant,
+		eventCommunities,
+		addCommunityIdInput,
+		onAddCommunityIdSelect,
+		onAddCommunityClick,
+		onRemoveCommunityClick,
 	};
 }

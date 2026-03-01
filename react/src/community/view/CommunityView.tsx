@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
+import { ZERO } from "@/shared/constants/shared-constants";
 
 import useCommunityView from "./useCommunityView";
 
@@ -18,6 +19,8 @@ export default function CommunityView(): ReactElement {
 	const {
 		currentCommunity,
 		members,
+		communityEvents,
+		activeEventId,
 		isCommunityLoading,
 		communityError,
 		isMember,
@@ -129,10 +132,44 @@ export default function CommunityView(): ReactElement {
 					<h2 className="text-2xl font-semibold text-white mb-4">
 						{t("communityView.events", "Events")}
 					</h2>
-					<div className="space-y-3 text-gray-400">
-						{/* Events would be listed here */}
-						<p>{t("communityView.noEvents", "No events found for this community")}</p>
-					</div>
+
+					{communityEvents.length === ZERO ? (
+						<div className="space-y-3 text-gray-400">
+							<p>{t("communityView.noEvents", "No events found for this community")}</p>
+						</div>
+					) : (
+						<div className="space-y-2">
+							{communityEvents
+								.toSorted((evA, evB) => (evB.created_at ?? "").localeCompare(evA.created_at ?? ""))
+								.map((event) => {
+									const isActive = event.event_id === activeEventId;
+									return (
+										<div
+											key={event.event_id}
+											className={`px-4 py-3 rounded border ${
+												isActive ? "bg-indigo-950 border-indigo-500" : "bg-gray-900 border-gray-700"
+											}`}
+										>
+											<div className="flex items-center gap-2">
+												<p className="text-white">
+													{event.event_name !== undefined && event.event_name !== ""
+														? event.event_name
+														: event.event_id}
+												</p>
+												{isActive && (
+													<span className="text-[10px] bg-indigo-900/60 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/60 uppercase tracking-wider font-semibold">
+														Active
+													</span>
+												)}
+											</div>
+											{event.event_slug !== undefined && event.event_slug !== "" && (
+												<p className="text-xs text-gray-400">slug: {event.event_slug}</p>
+											)}
+										</div>
+									);
+								})}
+						</div>
+					)}
 				</section>
 			</div>
 

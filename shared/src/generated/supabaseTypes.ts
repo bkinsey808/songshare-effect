@@ -81,6 +81,7 @@ export type Database = {
       }
       community_public: {
         Row: {
+          active_event_id: string | null
           community_id: string
           created_at: string | null
           description: string | null
@@ -92,6 +93,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          active_event_id?: string | null
           community_id: string
           created_at?: string | null
           description?: string | null
@@ -103,6 +105,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          active_event_id?: string | null
           community_id?: string
           created_at?: string | null
           description?: string | null
@@ -114,6 +117,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "community_public_active_event_id_fkey"
+            columns: ["active_event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["event_id"]
+          },
           {
             foreignKeyName: "community_public_community_id_fkey"
             columns: ["community_id"]

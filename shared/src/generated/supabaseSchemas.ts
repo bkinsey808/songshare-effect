@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-02-27T01:32:05.809Z
+ * Last generated: 2026-03-01T18:18:22.970Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -106,6 +106,7 @@ export type CommunityEventUpdate = Schema.Schema.Type<
 
 // community_public table schemas
 export const CommunityPublicSchema: Schema.Struct<{
+	active_event_id: Schema.optional<typeof Schema.UUID>;
 	community_id: typeof Schema.UUID;
 	created_at: Schema.optional<typeof Schema.String>;
 	description: Schema.optional<typeof Schema.String>;
@@ -116,6 +117,7 @@ export const CommunityPublicSchema: Schema.Struct<{
 	slug: typeof Schema.NonEmptyString;
 	updated_at: Schema.optional<typeof Schema.String>;
 }> = Schema.Struct({
+	active_event_id: Schema.optional(Schema.UUID),
 	community_id: Schema.UUID,
 	created_at: Schema.optional(Schema.String),
 	description: Schema.optional(Schema.String),
@@ -130,6 +132,7 @@ export const CommunityPublicSchema: Schema.Struct<{
 export type CommunityPublic = Schema.Schema.Type<typeof CommunityPublicSchema>;
 
 export const CommunityPublicInsertSchema: Schema.Struct<{
+	active_event_id: Schema.optional<typeof Schema.UUID>;
 	community_id: typeof Schema.UUID;
 	description: Schema.optional<typeof Schema.String>;
 	is_public: Schema.optional<typeof Schema.Boolean>;
@@ -138,6 +141,7 @@ export const CommunityPublicInsertSchema: Schema.Struct<{
 	public_notes: Schema.optional<typeof Schema.String>;
 	slug: typeof Schema.NonEmptyString;
 }> = Schema.Struct({
+	active_event_id: Schema.optional(Schema.UUID),
 	community_id: Schema.UUID,
 	description: Schema.optional(Schema.String),
 	is_public: Schema.optional(Schema.Boolean),
@@ -152,6 +156,7 @@ export type CommunityPublicInsert = Schema.Schema.Type<
 >;
 
 export const CommunityPublicUpdateSchema: Schema.Struct<{
+	active_event_id: Schema.optional<typeof Schema.UUID>;
 	community_id: Schema.optional<typeof Schema.UUID>;
 	description: Schema.optional<typeof Schema.String>;
 	is_public: Schema.optional<typeof Schema.Boolean>;
@@ -160,6 +165,7 @@ export const CommunityPublicUpdateSchema: Schema.Struct<{
 	public_notes: Schema.optional<typeof Schema.String>;
 	slug: Schema.optional<typeof Schema.NonEmptyString>;
 }> = Schema.Struct({
+	active_event_id: Schema.optional(Schema.UUID),
 	community_id: Schema.optional(Schema.UUID),
 	description: Schema.optional(Schema.String),
 	is_public: Schema.optional(Schema.Boolean),

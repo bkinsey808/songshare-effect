@@ -3,7 +3,13 @@ import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
-import type { EventEntry, EventState, EventUser, SaveEventRequest } from "../event-types";
+import type {
+    EventCommunityEntry,
+    EventEntry,
+    EventState,
+    EventUser,
+    SaveEventRequest,
+} from "../event-types";
 import type { EventSlice } from "./EventSlice.type";
 
 import fetchEventBySlugFn from "../fetch/fetchEventBySlug";
@@ -16,6 +22,7 @@ const eventSliceInitialState: EventState = {
 	currentEvent: undefined,
 	events: [],
 	participants: [],
+	eventCommunities: [],
 	isEventLoading: false,
 	eventError: undefined,
 	isEventSaving: false,
@@ -91,6 +98,27 @@ export default function createEventSlice(
 
 		setParticipants: (participants: readonly EventUser[]) => {
 			set({ participants: participants as ReadonlyDeep<EventUser[]> });
+		},
+
+		setEventCommunities: (communities: readonly EventCommunityEntry[]) => {
+			set({ eventCommunities: communities as ReadonlyDeep<readonly EventCommunityEntry[]> });
+		},
+
+		addEventCommunity: (community: EventCommunityEntry) => {
+			set((state) => ({
+				eventCommunities: [
+					...state.eventCommunities,
+					community as ReadonlyDeep<EventCommunityEntry>,
+				],
+			}));
+		},
+
+		removeEventCommunity: (communityId: string) => {
+			set((state) => ({
+				eventCommunities: state.eventCommunities.filter(
+					(ec) => ec.community_id !== communityId,
+				) as ReadonlyDeep<readonly EventCommunityEntry[]>,
+			}));
 		},
 
 		setEventLoading: (loading: boolean) => {

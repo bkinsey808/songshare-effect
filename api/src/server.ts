@@ -2,46 +2,47 @@ import { Hono } from "hono";
 
 import oauthCallbackHandler from "@/api/oauth/oauthCallbackHandler";
 import {
-	apiAccountDeletePath,
-	apiAccountRegisterPath,
-	apiAuthSignOutPath,
-	apiAuthVisitorPath,
-	apiCommunityDeletePath,
-	apiCommunityEventAddPath,
-	apiCommunityEventRemovePath,
-	apiCommunityLibraryPath,
-	apiCommunitySavePath,
-	apiCommunityUserAddPath,
-	apiCommunityUserJoinPath,
-	apiCommunityUserKickPath,
-	apiCommunityUserRemovePath,
-	apiCommunityUserUpdateRolePath,
-	apiEventDeletePath,
-	apiEventLibraryAddPath,
-	apiEventLibraryRemovePath,
-	apiEventSavePath,
-	apiEventUserAddPath,
-	apiEventUserJoinPath,
-	apiEventUserKickPath,
-	apiEventUserRemovePath,
-	apiEventUserUpdateRolePath,
-	apiHelloPath,
-	apiMePath,
-	apiOauthCallbackPath,
-	apiOauthSignInPath,
-	apiPlaylistDeletePath,
-	apiPlaylistLibraryAddPath,
-	apiPlaylistLibraryRemovePath,
-	apiPlaylistSavePath,
-	apiSongLibraryAddPath,
-	apiSongsDeletePath,
-	apiSongsSavePath,
-	apiUploadPath,
-	apiUserLibraryAddPath,
-	apiUserLibraryLookupPath,
-	apiUserLibraryRemovePath,
-	apiUserTokenPath,
-	healthPath,
+    apiAccountDeletePath,
+    apiAccountRegisterPath,
+    apiAuthSignOutPath,
+    apiAuthVisitorPath,
+    apiCommunityDeletePath,
+    apiCommunityEventAddPath,
+    apiCommunityEventRemovePath,
+    apiCommunityLibraryPath,
+    apiCommunitySavePath,
+    apiCommunitySetActiveEventPath,
+    apiCommunityUserAddPath,
+    apiCommunityUserJoinPath,
+    apiCommunityUserKickPath,
+    apiCommunityUserRemovePath,
+    apiCommunityUserUpdateRolePath,
+    apiEventDeletePath,
+    apiEventLibraryAddPath,
+    apiEventLibraryRemovePath,
+    apiEventSavePath,
+    apiEventUserAddPath,
+    apiEventUserJoinPath,
+    apiEventUserKickPath,
+    apiEventUserRemovePath,
+    apiEventUserUpdateRolePath,
+    apiHelloPath,
+    apiMePath,
+    apiOauthCallbackPath,
+    apiOauthSignInPath,
+    apiPlaylistDeletePath,
+    apiPlaylistLibraryAddPath,
+    apiPlaylistLibraryRemovePath,
+    apiPlaylistSavePath,
+    apiSongLibraryAddPath,
+    apiSongsDeletePath,
+    apiSongsSavePath,
+    apiUploadPath,
+    apiUserLibraryAddPath,
+    apiUserLibraryLookupPath,
+    apiUserLibraryRemovePath,
+    apiUserTokenPath,
+    healthPath,
 } from "@/shared/paths";
 
 import accountDelete from "./account/accountDelete";
@@ -49,6 +50,7 @@ import accountRegister from "./account/accountRegister";
 import signOutHandler from "./auth/signOut";
 import communityEventAdd from "./community-event/communityEventAdd";
 import communityEventRemove from "./community-event/communityEventRemove";
+import communitySetActiveEvent from "./community-event/communitySetActiveEvent";
 import communityUserAdd from "./community-user/communityUserAdd";
 import communityUserJoin from "./community-user/communityUserJoin";
 import communityUserKick from "./community-user/communityUserKick";
@@ -187,6 +189,8 @@ app.post(apiCommunityUserUpdateRolePath, handleHttpEndpoint(communityUserUpdateR
 app.post(apiCommunityEventAddPath, handleHttpEndpoint(communityEventAdd));
 
 app.post(apiCommunityEventRemovePath, handleHttpEndpoint(communityEventRemove));
+
+app.post(apiCommunitySetActiveEventPath, handleHttpEndpoint(communitySetActiveEvent));
 
 // File upload endpoint
 app.post(apiUploadPath, (ctx) => ctx.json({ message: "Upload endpoint - to be implemented" }));

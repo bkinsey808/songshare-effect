@@ -24,7 +24,6 @@
 		"supabase:generate": "bun run scripts/build/generate-effect-schemas/generate-effect-schemas.ts",
 		"find-missing-jsdoc": "bun run ./scripts/find-missing-jsdoc.bun.ts",
 		"supabase:migrate": "npx supabase db push && npm run supabase:export && npm run supabase:generate",
-		"supabase:migrate:ts": "bun run scripts/migrate/migrate.ts",
 		"supabase:migrate:single": "dotenv -e .env -- sh -c 'psql -h \"$PGHOST\" -U \"$PGUSER\" -d \"$PGDATABASE\" -f \"$1\"' --",
 		"supabase:keep-alive": "bun run scripts/keepAlive.ts",
 		"supabase:export": "dotenv -e .env -- pg_dump --schema=public --schema-only --no-owner --no-privileges --format=plain > shared/src/generated/schema.sql",

@@ -11,14 +11,30 @@ This project uses **Agent Skills** (portable, task-specific guidance) and **cust
 These skills are automatically loaded when relevant to your task:
 
 - [**effect-ts-patterns**](./skills/effect-ts-patterns/SKILL.md) - Effect-TS API patterns, error handling, schema validation
-- [**authentication-system**](./skills/authentication-system/SKILL.md) - JWT tokens, RLS, visitor/user auth
+- [**authentication-system**](./skills/authentication-system/SKILL.md) - JWT tokens, visitor/user auth, client-side token management, React auth patterns
+- [**realtime-rls-architecture**](./skills/realtime-rls-architecture/SKILL.md) - RLS policy templates for Realtime tables, JWT validation logic, access control layers
+- [**realtime-rls-debugging**](./skills/realtime-rls-debugging/SKILL.md) - Debugging Realtime subscriptions that connect but deliver no updates, empty filter errors
 - [**file-organization**](./skills/file-organization/SKILL.md) - No barrel files, direct imports, naming conventions
 - [**typescript-conventions**](./skills/typescript-conventions/SKILL.md) - Strict typing, no `any`, JSDoc rules
-- [**react-conventions**](./skills/react-conventions/SKILL.md) - React Compiler, functional components, hooks patterns
+- [**react-conventions**](./skills/react-conventions/SKILL.md) - React Compiler (no memoization), ReactElement ambient type, useEffect comment rule, component organization
+- [**manage-page-patterns**](./skills/manage-page-patterns/SKILL.md) - Local actionState, runCommunityAction/runAction helpers, realtime update path for admin/manage pages
+- [**app-store-patterns**](./skills/app-store-patterns/SKILL.md) - Zustand slice pattern, createXxxSlice factories, AppSlice type, useAppStore selectors, getTypedState
+- [**supabase-client-patterns**](./skills/supabase-client-patterns/SKILL.md) - Which Supabase client to use in React (public/token/withAuth), safe-query helpers, SupabaseClientLike type
+- [**form-patterns**](./skills/form-patterns/SKILL.md) - useAppForm hook, Effect-based form validation, handleSubmit, handleApiResponseEffect
+- [**internationalization**](./skills/internationalization/SKILL.md) - useLocale/useLanguage hooks, URL-path language routing, adding translation keys
 - [**code-comments**](./skills/code-comments/SKILL.md) - Comment conventions, JSDoc guidelines
-- [**unit-testing**](./skills/unit-testing/SKILL.md) - Vitest patterns and best practices
+- [**unit-testing**](./skills/unit-testing/SKILL.md) - Core Vitest setup, templates, shared test-utils, and validation commands
+- [**unit-testing-mocking**](./skills/unit-testing-mocking/SKILL.md) - vi.mock, vi.hoisted, Supabase/Postgrest stubs, callable mock helpers
+- [**unit-testing-api**](./skills/unit-testing-api/SKILL.md) - Effect-based Hono API handler testing (makeCtx, makeSupabaseClient, Effect.runPromise)
+- [**unit-testing-pitfalls**](./skills/unit-testing-pitfalls/SKILL.md) - Common anti-patterns: `as any`, `act`, magic numbers, lint disables, async races
 - [**source-refactoring**](./skills/source-refactoring/SKILL.md) - Splitting files, default exports, test colocation
+- [**file-splitting**](./skills/file-splitting/SKILL.md) - Step-by-step guide for breaking consolidated files into single-function files
+- [**hono-api-patterns**](./skills/hono-api-patterns/SKILL.md) - Hono route handlers, Effect integration, error mapping, middleware patterns
+- [**scripts**](./skills/scripts/SKILL.md) - Bun script conventions, naming, linting, testing scripts
 - [**playwright-testing**](./skills/playwright-testing/SKILL.md) - E2E test patterns and stability tips
+- [**deployment-strategies**](./skills/deployment-strategies/SKILL.md) - Core Cloudflare Pages/Workers deploy workflow, env vars, secrets management
+- [**cloudflare-cache-cicd**](./skills/cloudflare-cache-cicd/SKILL.md) - CDN cache invalidation and GitHub Actions CI/CD workflows
+- [**deployment-operations**](./skills/deployment-operations/SKILL.md) - Rollback, health monitoring, and production troubleshooting
 
 ### Master Rules
 

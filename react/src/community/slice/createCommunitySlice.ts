@@ -4,16 +4,17 @@ import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
 import type {
-	CommunityEntry,
-	CommunityEvent,
-	CommunityState,
-	CommunityUser,
-	SaveCommunityRequest,
+    CommunityEntry,
+    CommunityEvent,
+    CommunityState,
+    CommunityUser,
+    SaveCommunityRequest,
 } from "../community-types";
 import type { CommunitySlice } from "./CommunitySlice.type";
 
 import addEventToCommunityFn from "../event-manage/addEventToCommunity";
 import removeEventFromCommunityFn from "../event-manage/removeEventFromCommunity";
+import setActiveEventForCommunityFn from "../event-manage/setActiveEventForCommunity";
 import fetchCommunityBySlugFn from "../fetch/fetchCommunityBySlug";
 import fetchCommunityLibraryFn from "../fetch/fetchCommunityLibrary";
 import saveCommunityFn from "../form/saveCommunity";
@@ -79,6 +80,8 @@ export default function createCommunitySlice(
 			addEventToCommunityFn(communityId, eventId, get),
 		removeEventFromCommunity: (communityId: string, eventId: string) =>
 			removeEventFromCommunityFn(communityId, eventId, get),
+		setActiveEventForCommunity: (communityId: string, eventId: string | undefined) =>
+			setActiveEventForCommunityFn(communityId, eventId, get),
 
 		// Internal state management methods (not part of the public API)
 		setCurrentCommunity: (community: CommunityEntry | undefined) => {

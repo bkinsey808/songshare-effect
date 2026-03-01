@@ -1,6 +1,6 @@
 ---
 name: typescript-conventions
-description: TypeScript conventions (strict typing, no `any`, JSDoc rules). Use when authoring new modules, utilities, or reviewing PRs for typing issues.
+description: TypeScript conventions for this repo (strict typing, no `any`, JSDoc rules, exactOptionalPropertyTypes, ambient types). Use when authoring or editing any TypeScript or TSX file.
 license: MIT
 compatibility: TypeScript 5.x, Node.js 20+
 metadata:
@@ -10,26 +10,7 @@ metadata:
 
 # TypeScript Conventions Skill
 
-## What This Skill Does
-
-Captures TypeScript best practices tailored to this repository:
-
-- **Strict typing** - Avoid `any`, use `unknown` when unsure
-- **Type declarations** - Prefer `type` over `interface` in most cases
-- **Explicit return types** - Always specify function return types
-- **JSDoc conventions** - Document without repeating types
-- **Union types** - Use for constrained string/number values
-- **Ambient types** - Know which types are globally available
-
-## When to Use
-
-- Authoring new TypeScript modules or utility functions
-- Reviewing PRs for typing and type safety issues
-- Setting up typed APIs or service layers
-- Working with strict tsconfig settings
-
 ## Key Rules
-
 ### 1. Avoid `any`
 
 ```typescript
@@ -95,53 +76,7 @@ function validateSong(data: unknown): Effect.Effect<Song, ValidationError> {
 }
 ```
 
-### 4. JSDoc Without Types
-
-Document functions clearly without repeating TypeScript types in comments:
-
-```typescript
-// ❌ BAD: Types duplicated in JSDoc
-/**
- * @param userId - The user ID (string)
- * @param options - The options object ({Object})
- * @returns - The user data (Promise<User>)
- */
-function fetchUser(userId: string, options?: FetchOptions): Promise<User> {
-  // ...
-}
-
-// ✅ GOOD: JSDoc describes purpose, types already in code
-/**
- * Fetch user data by ID with optional caching behavior.
- *
- * @param userId - The ID of the user to fetch
- * @param options - Optional caching and timeout settings
- * @returns - User object with profile information
- */
-function fetchUser(userId: string, options?: FetchOptions): Promise<User> {
-  // ...
-}
-```
-
-### 5. Union Types for Constrained Values
-
-```typescript
-// ❌ BAD: String type with no constraints
-type Status = string;
-
-function setStatus(status: Status) {
-  // Could be anything - no validation
-}
-
-// ✅ GOOD: Union type with specific values
-type Status = "pending" | "active" | "completed" | "failed";
-
-function setStatus(status: Status) {
-  // Type-safe - only valid values allowed
-}
-```
-
-### 6. Ambient Types
+### 4. Ambient Types
 
 Some types don't need to be imported (they're globally available):
 
@@ -159,7 +94,7 @@ function MyComponent() {
 }
 ```
 
-### 7. Destructure Parameters in Function Signature
+### 5. Destructure Parameters in Function Signature
 
 Destructure object parameters directly in the function signature instead of inside the function body:
 
@@ -196,21 +131,63 @@ export default function runAddUserFlow({
 
 This pattern improves clarity by making parameter requirements explicit at the function declaration.
 
-### 8. Strict tsconfig
+### 6. `exactOptionalPropertyTypes` — Threading Optional Props
 
-The project uses `strict: true` - take advantage of it:
+The project enables `exactOptionalPropertyTypes` in `tsconfig`. This means an optional property `foo?: T` **cannot** receive a value of type `T | undefined` — only `T` or absence.
+
+This bites when you thread an optional prop through a component into a hook or child:
 
 ```typescript
-// ✅ GOOD: Type narrowing with strict null checks
-function getUserName(user: User | null): string {
-  if (!user) {
-    return "Anonymous";
-  }
-  return user.name; // user is known to be non-null
+// ❌ FAILS: passes `readonly string[] | undefined` where `readonly string[]` expected
+function MyInput({ excludeIds }: { excludeIds?: readonly string[] }): ReactElement {
+  const result = useMyHook({ excludeIds }); // type error!
+  // ...
 }
+```
 
-// ✅ GOOD: Optional chaining in strict mode
-const email = user?.profile?.email; // Safe, won't error on null/undefined
+**Fix — conditional spread pattern:**
+
+```typescript
+// ✅ GOOD: only includes the key when the value is defined
+function MyInput({ excludeIds }: { excludeIds?: readonly string[] }): ReactElement {
+  const result = useMyHook({
+    baseArg: "value",
+    ...(excludeIds === undefined ? {} : { excludeIds }),
+  });
+  // ...
+}
+```
+
+This pattern omits the key entirely when the value is `undefined`, satisfying `exactOptionalPropertyTypes`. Use it any time you thread an optional prop from a component into a hook or nested call.
+
+**Same pattern for Supabase updates with nullable values (`no-null` rule):**
+
+```typescript
+// When clearing a nullable FK column, disable no-null on that specific line
+yield* $(Effect.tryPromise({
+  try: () =>
+    supabase
+      .from("community_public")
+      .update({
+        // oxlint-disable-next-line no-null
+        active_event_id: null,
+      })
+      .eq("community_id", community_id)
+      .eq("active_event_id", event_id),
+  catch: (err) => new DatabaseError({ message: extractErrorMessage(err) }),
+}));
+```
+
+### 7. Strict Null Checks — `Set` Construction from Optional Arrays
+
+`new Set(undefined)` is valid in TypeScript and produces an empty set, so you do **not** need a `?? []` fallback when constructing a `Set` from an optional array:
+
+```typescript
+// ❌ triggers oxlint no-useless-undefined / unnecessary empty array
+const excludeSet = new Set(optionalArray ?? []);
+
+// ✅ GOOD: new Set(undefined) === new Set([])
+const excludeSet = new Set(optionalArray);
 ```
 
 ## Validation
@@ -231,6 +208,6 @@ npm run test:unit
 ## References
 
 - Complete project rules: [.agent/rules.md](../../../.agent/rules.md)
-- TypeScript strict mode: [TypeScript Handbook - Type Checking](https://www.typescriptlang.org/docs/handbook/type-checking-javascript-files.html)
-- TypeScript handbook: [https://www.typescriptlang.org/docs/handbook/](https://www.typescriptlang.org/docs/handbook/)
+- JSDoc conventions: [code-comments skill](../code-comments/SKILL.md)
 - React conventions: [react-conventions skill](../react-conventions/SKILL.md) (for React-specific typing patterns)
+- TypeScript handbook: [https://www.typescriptlang.org/docs/handbook/](https://www.typescriptlang.org/docs/handbook/)

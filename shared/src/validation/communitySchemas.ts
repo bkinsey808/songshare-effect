@@ -78,3 +78,21 @@ export const communityEventAddSchema: Schema.Schema<
 	community_id: Schema.String,
 	event_id: Schema.String,
 });
+
+/**
+ * Schema for setting (or clearing) the active event on a community.
+ * Omit `event_id` to unset the active event.
+ */
+export const communitySetActiveEventSchema: Schema.Schema<
+	{
+		readonly community_id: string;
+		readonly event_id?: string | undefined;
+	},
+	{
+		readonly community_id: string;
+		readonly event_id?: string | undefined;
+	}
+> = Schema.Struct({
+	community_id: Schema.String,
+	event_id: Schema.optional(Schema.String),
+});

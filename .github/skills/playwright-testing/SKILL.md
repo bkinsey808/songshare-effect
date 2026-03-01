@@ -24,7 +24,7 @@ metadata:
 
 1. Start the dev servers (`npm run dev:all`) for local test development.
 2. Use `authenticateTestUser()` and other helpers from `e2e/utils` when validating authenticated flows.
-3. After navigation, call `await page.waitForTimeout(HYDRATION_WAIT_MS)` (the project uses a short hydration wait to let React Compiler hydrate the app).
+3. After navigation, call `await page.waitForTimeout(HYDRATION_WAIT_MS)` where `HYDRATION_WAIT_MS` is a named constant from `e2e/utils`. This deliberate hydration wait is the one acceptable use of `waitForTimeout` — it uses a shared constant, not a magic number, and accounts for React Compiler hydration time.
 4. Prefer role-based locators (e.g., `getByRole`) and regex text matches for stability.
 5. Use `npm run test:e2e:dev` for running tests in dev mode and `npx playwright test` for CI or production checks.
 
@@ -50,8 +50,10 @@ await page.getByRole("button", { name: /submit/i }).click();
 
 ### ❌ Hard-coded timeouts (flaky in CI)
 
+**Exception:** `HYDRATION_WAIT_MS` from `e2e/utils` is permitted — it's a project constant for React hydration, not a magic number.
+
 ```typescript
-// BAD: Works locally, flakes in slow CI
+// BAD: Magic number timeout — flaky in CI
 await page.waitForTimeout(500);
 await page.click("button");
 ```
@@ -90,7 +92,6 @@ npx playwright show-report
 
 ## References
 
-- Agent guidance: [.github/agents/Playwright Agent.agent.md](../../agents/Playwright%20Agent.agent.md)
 - Playwright documentation: https://playwright.dev/
 - Best practices: https://playwright.dev/docs/best-practices
 - Locator strategies: https://playwright.dev/docs/locators

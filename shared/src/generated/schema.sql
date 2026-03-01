@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict brFx0tQvypE5WM7hGhkm3VJOLxR8Ah7FmzogPTM490atbEDUfWByHwKSayegIP4
+\restrict WetT97LH28HWV4ZjUdJRXT3pEd9V8LK7Dadv1LAzCi7dEXY5OW7M09xgCemKR7I
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -132,6 +132,8 @@ CREATE TABLE public.community_event (
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
+ALTER TABLE ONLY public.community_event REPLICA IDENTITY FULL;
+
 
 --
 -- Name: TABLE community_event; Type: COMMENT; Schema: public; Owner: -
@@ -154,6 +156,7 @@ CREATE TABLE public.community_public (
     public_notes text DEFAULT ''::text,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
+    active_event_id uuid,
     CONSTRAINT community_name_format CHECK (((length(name) >= 2) AND (length(name) <= 100) AND (name = btrim(name)) AND (POSITION(('  '::text) IN (name)) = 0))),
     CONSTRAINT community_slug_format CHECK (((slug ~ '^[a-z0-9-]+$'::text) AND (slug !~ '^-'::text) AND (slug !~ '-$'::text) AND (POSITION(('--'::text) IN (slug)) = 0)))
 );
@@ -166,6 +169,13 @@ ALTER TABLE ONLY public.community_public REPLICA IDENTITY FULL;
 --
 
 COMMENT ON TABLE public.community_public IS 'Public community data. Readable by anyone, writable by owner/admin.';
+
+
+--
+-- Name: COLUMN community_public.active_event_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.community_public.active_event_id IS 'The currently active event for this community, shown automatically on the Community View page. Nullable; set/unset by community owners and admins via the API.';
 
 
 --
@@ -1246,6 +1256,14 @@ ALTER TABLE ONLY public.community
 
 
 --
+-- Name: community_public community_public_active_event_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_public
+    ADD CONSTRAINT community_public_active_event_id_fkey FOREIGN KEY (active_event_id) REFERENCES public.event(event_id) ON DELETE SET NULL;
+
+
+--
 -- Name: community_public community_public_community_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1987,5 +2005,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict brFx0tQvypE5WM7hGhkm3VJOLxR8Ah7FmzogPTM490atbEDUfWByHwKSayegIP4
+\unrestrict WetT97LH28HWV4ZjUdJRXT3pEd9V8LK7Dadv1LAzCi7dEXY5OW7M09xgCemKR7I
 
