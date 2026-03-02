@@ -1,7 +1,7 @@
 ````skill
 ---
 name: unit-testing-pitfalls
-description: Common anti-patterns and mistakes to avoid in Vitest tests for this repo. Covers magic numbers, lint disables, `as any`, async races, `act`, duplicated literals, and type-cast helpers. Use when writing or editing any unit test to avoid introducing these patterns.
+description: Behavioral and async anti-patterns to avoid in Vitest tests. Covers magic numbers, `as any` in tests, async races, `act`, duplicated literals, global overrides, and mirroring real failure modes. Use when writing or editing any unit test. For lint-disable hygiene, type-cast helpers, Node.js built-in mocking, and assertion quality rules see unit-testing-pitfalls-quality.
 license: MIT
 compatibility: Vitest 1.x
 metadata:
@@ -168,63 +168,12 @@ expect(removeSongFromSongLibrary).toHaveBeenCalledWith({ song_id: songId1 });
 
 ---
 
-## ⚠️ Lint Disable Comments in Tests
-
-- **Avoid file-level `/* oxlint-disable ... */`** in test files — they conceal rule violations.
-- **Prefer narrow, local disables** scoped to small test helper functions rather than test bodies.
-  - Use `// oxlint-disable-next-line <rule> - reason` for a single-line exception.
-  - Better: place the disable above a helper function so the exception is obvious, localized, and easily audited.
-- **Never scatter disables throughout test cases.** Centralize them in helpers.
-- A custom oxlint rule enforces this: `oxlint-disable` comments are only permitted directly above a small helper function/constant — not inside `describe`, `test`, or `it` blocks or at file top-level.
-- **Always add a brief rationale** and a `TODO`/issue reference when you add a disable.
-
-```typescript
-// BAD: file-level disable
-/* oxlint-disable @typescript-eslint/no-explicit-any */
-
-// BAD: inline disables sprinkled inside tests
-it("does something", () => {
-  // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const x: unknown = doUnsafeThing();
-  expect(x).toBeDefined();
-});
-
-// BETTER: localized, documented helper
-// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment -- localized in helper
-export function asUnsafe<T>(value: unknown): T { return value as unknown as T; }
-
-// Tests stay clean:
-it("does something", () => {
-  const x = asUnsafe<MyType>({ foo: "bar" });
-  expect(x).toBeDefined();
-});
-```
-
----
-
-## 🛠️ Type-Cast Helpers
-
-The repo provides narrow helpers for common unsafe casts in `react/src/lib/test-utils`: `asNull`, `asNever`, `asPostgrestResponse`. Each contains its own `oxlint-disable` and JSDoc explanation so callers stay lint-friendly.
-
-- Use the existing helpers instead of writing `as any` or sprinkling disables in tests.
-- Add a new helper to the folder if you encounter a recurring pattern.
-
-```ts
-import { asNever } from "@/lib/test-utils";
-
-it("handles unexpected value", () => {
-  const bad = asNever("foo");
-  expect(() => myFn(bad)).toThrow();
-});
-```
-
-Generic helpers that are reused across many tests belong under `react/src/lib/test-utils`. Co-located helpers (e.g., `getCachedUserToken.test-util.ts`) live next to the module they support. See `react/src/lib/test-utils/test-helper-template.ts` for examples.
-
----
-
 ## See Also
 
 - [**unit-testing**](../unit-testing/SKILL.md) — Core Vitest patterns, validation commands
 - [**unit-testing-mocking**](../unit-testing-mocking/SKILL.md) — vi.mock, vi.hoisted, callable helpers
 - [**unit-testing-api**](../unit-testing-api/SKILL.md) — Hono API handler testing
+- [**unit-testing-pitfalls-quality**](../unit-testing-pitfalls-quality/SKILL.md) — Lint disables, type-cast helpers, mocking built-ins, `toStrictEqual`, `toSorted()`
 ````
+
+`````

@@ -2,8 +2,8 @@ import Button from "@/react/lib/design-system/Button";
 import UserSearchInput from "@/react/user-search-input/UserSearchInput";
 import { ZERO } from "@/shared/constants/shared-constants";
 
+import EventSearchInput from "./event-search-input/EventSearchInput";
 import EventRow from "./EventRow";
-import EventSearchInput from "./EventSearchInput";
 import MemberRow from "./MemberRow";
 import useCommunityManageView from "./useCommunityManageView";
 

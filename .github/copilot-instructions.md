@@ -24,9 +24,14 @@ These skills are automatically loaded when relevant to your task:
 - [**internationalization**](./skills/internationalization/SKILL.md) - useLocale/useLanguage hooks, URL-path language routing, adding translation keys
 - [**code-comments**](./skills/code-comments/SKILL.md) - Comment conventions, JSDoc guidelines
 - [**unit-testing**](./skills/unit-testing/SKILL.md) - Core Vitest setup, templates, shared test-utils, and validation commands
+- [**unit-testing-hooks**](./skills/unit-testing-hooks/SKILL.md) - Core hook testing: renderHook, installStore helper, one-behavior-per-test, named constants
+- [**unit-testing-hooks-harness**](./skills/unit-testing-hooks-harness/SKILL.md) - When/how to use a Harness component, React Compiler ref constraint, query helper rules
+- [**unit-testing-hooks-fixtures**](./skills/unit-testing-hooks-fixtures/SKILL.md) - Mock data with real types, forceCast, shared module-level fixture constants, filter-query specificity
+- [**unit-testing-hooks-subscriptions**](./skills/unit-testing-hooks-subscriptions/SKILL.md) - Testing Effect-based realtime subscription hooks: void hooks, getState spy, cleanup, undefined→defined transition
 - [**unit-testing-mocking**](./skills/unit-testing-mocking/SKILL.md) - vi.mock, vi.hoisted, Supabase/Postgrest stubs, callable mock helpers
 - [**unit-testing-api**](./skills/unit-testing-api/SKILL.md) - Effect-based Hono API handler testing (makeCtx, makeSupabaseClient, Effect.runPromise)
-- [**unit-testing-pitfalls**](./skills/unit-testing-pitfalls/SKILL.md) - Common anti-patterns: `as any`, `act`, magic numbers, lint disables, async races
+- [**unit-testing-pitfalls**](./skills/unit-testing-pitfalls/SKILL.md) - Common anti-patterns: `as any`, `act`, magic numbers, async races
+- [**unit-testing-pitfalls-quality**](./skills/unit-testing-pitfalls-quality/SKILL.md) - Code-quality pitfalls: lint disables, type-cast helpers, mocking built-ins, `toStrictEqual`, `toSorted()`
 - [**source-refactoring**](./skills/source-refactoring/SKILL.md) - Splitting files, default exports, test colocation
 - [**file-splitting**](./skills/file-splitting/SKILL.md) - Step-by-step guide for breaking consolidated files into single-function files
 - [**hono-api-patterns**](./skills/hono-api-patterns/SKILL.md) - Hono route handlers, Effect integration, error mapping, middleware patterns

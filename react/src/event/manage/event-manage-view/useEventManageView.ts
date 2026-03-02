@@ -24,7 +24,7 @@ import usePlaylistLibraryManagement from "./usePlaylistLibraryManagement";
 /**
  * State & handlers for realtime event management (used by EventManageView).
  */
-export default function useEventManageState(): UseEventManageStateResult {
+export default function useEventManageView(): UseEventManageStateResult {
 	const { event_slug } = useParams<{ event_slug: string }>();
 	const navigate = useNavigate();
 	const lang = useCurrentLang();

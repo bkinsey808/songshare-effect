@@ -41,10 +41,11 @@ _Note:_ helper modules intended solely for unit tests should be named with a `.t
 2. Prefer descriptive test names and one behavior per test.
 3. Use `vi.useFakeTimers()` only when verifying timer behavior and always restore with `vi.useRealTimers()`.
 4. **RouterWrapper** – most hook tests need React Router context. Import `RouterWrapper` from `@/react/lib/test-utils/RouterWrapper` and pass it as the `wrapper` option to `renderHook`.
-5. Mock only external dependencies (network calls, browser APIs). **Simple, deterministic pure functions should be tested with their real implementations** — mocking them adds maintenance burden and can hide problems.
+5. Mock only external dependencies (network calls, browser APIs). **Simple, deterministic pure functions should be tested with their real implementations** — mocking them adds maintenance burden and can hide problems. **Never mock Node.js built-ins** (`node:fs/promises`, `node:path`, etc.); use real `mkdtemp`/`rm` temp directories instead (see [unit-testing-pitfalls](../unit-testing-pitfalls/SKILL.md)).
 6. Use shared helpers under `react/src/lib/test-utils` (`asNull`, `asNever`, `asPostgrestResponse`, `waitForAsync`, `makeChangeEvent`, `spyImport`, `makeAppSlice`).
 7. Before running your spec, **make sure lint passes**. New test files will fail to execute if the codebase is not clean.
 8. Prefer asserting against named constants rather than duplicated literal strings. Define `const songId = "s1"` and use that variable in both setup and expectations.
+9. Always use `toStrictEqual` instead of `toEqual` — the linter enforces this. Use `toSorted()` instead of `sort()` for non-mutating sorted comparisons (e.g. `expect(result.toSorted()).toStrictEqual(expected.toSorted())`).
 
 ---
 
@@ -60,6 +61,24 @@ See [unit-testing-mocking](../unit-testing-mocking/SKILL.md) for full guidance. 
 
 ---
 
+## Script / pure-logic module testing
+
+When a `.bun.ts` entry-point script contains non-trivial logic, extract that logic into a **pure, Node-importable module** (e.g. `checkSkillFiles.ts`) and test the module directly. This avoids spawning `bun` in tests, which is fragile in environments where Bun is not globally installed.
+
+Pattern:
+
+```ts
+// checkSkillFiles.ts — pure module, import-able under Node
+export async function checkSkillFiles(repoRoot: string, opts: CheckOptions = {}): Promise<CheckResult> { ... }
+
+// checkSkillFiles.test.ts — tested with Vitest, no bun spawn needed
+import { checkSkillFiles } from "./checkSkillFiles";
+```
+
+The `.bun.ts` entry point becomes a thin shell that reads `import.meta.dir`, calls the pure function, and handles `process.exit` / stream writes. It does **not** need its own test file.
+
+---
+
 ## Practical Learnings
 
 - Prefer reuse of shared fake clients (`makeFakeClient`/`makeSupabaseClient`) over hand-rolling `{}` casts.
@@ -67,6 +86,13 @@ See [unit-testing-mocking](../unit-testing-mocking/SKILL.md) for full guidance. 
 - Localize any `oxlint-disable` to helpers, never in test bodies. Module-level disables are forbidden in test files.
 - Prefer function declarations with explicit return types in helpers.
 - Document test helpers with JSDoc: purpose, params, and why any cast is acceptable.
+- **Wrap all tests in a `describe` block** — the `eslint-plugin-jest/require-top-level-describe` rule enforces this. All `test`/`it` calls at the top level will fail lint.
+- **Use `it` inside `describe`, `test` at the top level** — `eslint-plugin-jest/consistent-test-it` enforces `it` within `describe` blocks. If all tests are inside `describe`, import and use `it` (not `test`).
+- **Every numeric literal needs a named constant** — `no-magic-numbers` applies even to `0`, `1`, and arithmetic offsets like `index + 1`. Define constants at the top of the file (e.g. `const LINE_OFFSET = 1`, `const NO_ERRORS = 0`).
+- **Use `toHaveLength()` for array length assertions** — `expect(arr).toHaveLength(0)` not `expect(arr.length).toBe(0)`.
+- **Avoid single-character callback parameter names** — `id-length` rejects `_` and `i` even in `Array.from` callbacks. Use `_el, index` instead.
+- **Every string literal used more than once needs a named constant** — e.g. `const NEWLINE = "\n"` instead of inline `"\n"`.
+- **Function parameters: use options objects to avoid `max-params`** — ESLint's `max-params` (max 3) will flag functions with many positional injectable args. Group them into a single `opts: Options = {}` parameter.
 
 ---
 
@@ -99,6 +125,9 @@ npm run test:unit -- --coverage
 
 ## References
 
+- [**unit-testing-hooks**](../unit-testing-hooks/SKILL.md) — core hook testing: renderHook, installStore, one-behavior-per-test
+- [**unit-testing-hooks-harness**](../unit-testing-hooks-harness/SKILL.md) — Harness components, React Compiler ref constraint, query helper rules
+- [**unit-testing-hooks-fixtures**](../unit-testing-hooks-fixtures/SKILL.md) — mock data, forceCast, shared constants, filter-query specificity
 - [**unit-testing-mocking**](../unit-testing-mocking/SKILL.md) — vi.mock, vi.hoisted, Supabase stubs, callable helpers
 - [**unit-testing-api**](../unit-testing-api/SKILL.md) — Effect-based Hono handler testing
 - [**unit-testing-pitfalls**](../unit-testing-pitfalls/SKILL.md) — Common anti-patterns to avoid

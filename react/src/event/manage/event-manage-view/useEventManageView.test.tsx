@@ -14,7 +14,7 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import RouterWrapper from "@/react/lib/test-utils/RouterWrapper";
 import postJson from "@/shared/fetch/postJson";
 
-import useEventManageState from "./useEventManageView";
+import useEventManageView from "./useEventManageView";
 import makeUseManageView from "./useEventManageView.test-util";
 
 // named constants to avoid magic-number lint errors
@@ -111,7 +111,7 @@ describe("useEventManageState", () => {
 		const fake = makeUseManageView();
 		expect(fake.canManageEvent).toBe(false);
 
-		const { result } = renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
+		const { result } = renderHook(() => useEventManageView(), { wrapper: RouterWrapper });
 		expect(result.current.currentEvent).toBeUndefined();
 		expect(result.current.eventPublic).toBeUndefined();
 		expect(result.current.canManageEvent).toBe(false);
@@ -134,7 +134,7 @@ describe("useEventManageState", () => {
 		vi.mocked(useCurrentUserId).mockReturnValue("u1");
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
-		const { result } = renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
+		const { result } = renderHook(() => useEventManageView(), { wrapper: RouterWrapper });
 		expect(result.current.currentEvent).toStrictEqual(event);
 		expect(result.current.canManageEvent).toBe(true);
 		expect(result.current.ownerId).toBe("u1");
@@ -146,7 +146,7 @@ describe("useEventManageState", () => {
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
-		renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
+		renderHook(() => useEventManageView(), { wrapper: RouterWrapper });
 		await waitFor(() => {
 			expect(playlistSubSpy).toBeDefined();
 			expect(playlistSubSpy?.mock.calls.length).toBeGreaterThanOrEqual(CALL_COUNT_MIN);
@@ -160,7 +160,7 @@ describe("useEventManageState", () => {
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
-		renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
+		renderHook(() => useEventManageView(), { wrapper: RouterWrapper });
 		await waitFor(() => {
 			// subscribe should be invoked with id array
 			expect(playlistPublicSpy).toBeDefined();
@@ -186,7 +186,7 @@ describe("useEventManageState", () => {
 		const mockPostJson = vi.mocked(postJson);
 		mockPostJson.mockResolvedValue();
 
-		const { result } = renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
+		const { result } = renderHook(() => useEventManageView(), { wrapper: RouterWrapper });
 		result.current.updateActivePlaylist("playlist-123");
 		expect(mockPostJson).toHaveBeenCalledWith(
 			expect.any(String),
@@ -215,7 +215,7 @@ describe("useEventManageState", () => {
 		const mockPostJson = vi.mocked(postJson);
 		mockPostJson.mockResolvedValue();
 
-		const { result } = renderHook(() => useEventManageState(), { wrapper: RouterWrapper });
+		const { result } = renderHook(() => useEventManageView(), { wrapper: RouterWrapper });
 		result.current.updateActiveSong("song-abc");
 		const newSlidePos = 5; // avoid magic number lint
 		result.current.updateActiveSlidePosition(newSlidePos);

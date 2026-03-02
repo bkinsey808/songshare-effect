@@ -14,6 +14,10 @@ This agent provides extended validation steps and detailed patterns beyond the s
 **Related resources:**
 
 - [unit-testing skill](../skills/unit-testing/SKILL.md) - Core setup, templates, shared utils
+- [unit-testing-hooks skill](../skills/unit-testing-hooks/SKILL.md) - core: renderHook, installStore, one-behavior-per-test, named constants
+- [unit-testing-hooks-harness skill](../skills/unit-testing-hooks-harness/SKILL.md) - Harness components, React Compiler ref constraint, query helpers
+- [unit-testing-hooks-fixtures skill](../skills/unit-testing-hooks-fixtures/SKILL.md) - mock data, forceCast, shared constants, filter-query specificity
+- [unit-testing-hooks-subscriptions skill](../skills/unit-testing-hooks-subscriptions/SKILL.md) - Effect.runPromise subscription hooks: void hooks, getState spy, cleanup, undefined→defined transition
 - [unit-testing-mocking skill](../skills/unit-testing-mocking/SKILL.md) - vi.mock, vi.hoisted, Supabase stubs
 - [unit-testing-api skill](../skills/unit-testing-api/SKILL.md) - Effect-based API handler testing
 - [unit-testing-pitfalls skill](../skills/unit-testing-pitfalls/SKILL.md) - Common anti-patterns
@@ -71,49 +75,64 @@ Run before and after each change:
 - **One behavior per test** - split unrelated assertions into separate tests
 - **Group with describe blocks** - organize by feature/area
 
-### No Lifecycle Hooks
+### Hook Testing
 
-Avoid `beforeEach`/`afterEach`. Use instead:
+> See [unit-testing-hooks skill](../skills/unit-testing-hooks/SKILL.md), [unit-testing-hooks-harness skill](../skills/unit-testing-hooks-harness/SKILL.md), [unit-testing-hooks-fixtures skill](../skills/unit-testing-hooks-fixtures/SKILL.md), and [unit-testing-hooks-subscriptions skill](../skills/unit-testing-hooks-subscriptions/SKILL.md) for the complete reference. Key rules:
 
-- **Per-test setup**: `vi.resetAllMocks()` + `makeSetup()` at top of each `it`
-- **Factory helpers**: Small functions returning fresh mocks/state
-- **Explicit cleanup**: Call cleanup in test body
-- **Parameterized tests**: `it.each` for multiple inputs
+- **Use `.test.tsx`** for all hook tests — even when the hook file is `.ts`.
+- **`renderHook` by default** — use `render` + a Harness component only when the test requires a real DOM node (e.g. a click-outside `useEffect` that reads `containerRef.current`).
+- **Read `result.current` in assertions** — never alias it (`const hook = result.current`) because the alias goes stale after re-renders.
+- **`installStore` helper** — write a small per-file function that calls `vi.mocked(useAppStore).mockImplementation(...)` and call it as the first line of each test. Do not use `beforeEach` for store setup.
+- **`forceCast<T>`** from `@/react/lib/test-utils/forceCast` — use instead of inline `as unknown as T` for partial test objects and nullable fixtures.
+- **`waitFor`, never `act`** — `@testing-library/react`'s `waitFor` already handles React flush cycles.
+- **Filter queries must narrow** — a search query that matches every fixture item proves nothing; use one that narrows the list.
+- **React Compiler constraint in Harness components** — always destructure the hook return value rather than accessing properties through the return object:
 
-Note: Use `vi.clearAllMocks()` to preserve implementations; use `vi.resetAllMocks()` only when resetting per-test implementations.
+  ```tsx
+  // ❌ ReactCompilerError: Cannot access refs during render
+  const hook = useMyHook(args);
+  return <div ref={hook.containerRef}>{hook.isOpen ? "open" : "closed"}</div>;
 
-Example DRY pattern:
+  // ✅ Compiler traces each binding individually
+  const { containerRef, isOpen } = useMyHook(args);
+  return <div ref={containerRef}>{isOpen ? "open" : "closed"}</div>;
+  ```
+
+---
+
+### Per-test setup
+
+Call setup helpers as the **first line of each `it` block** — never in lifecycle hooks. This keeps every test self-contained and makes failures easy to trace.
+
+- **Factory helpers**: small functions that configure mocks and return any needed spies (e.g. `installStore(...)`, `installEventStoreMocks(...)`).
+- **Parameterized tests**: `it.each` for multiple inputs.
+- **`vi.clearAllMocks()`** when you need to reset call counts between acts in the same test while preserving implementations.
+
+Example:
 
 ```ts
-/** Setup mock for each test */
-const setupMock = (opts = { country: 'USA' }) => {
-  vi.resetAllMocks();
-  mockHook.mockReturnValue(makeValues(opts));
-};
+function installStore(communities: CommunityEntry[]): void {
+  vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
+    if (String(selector).includes("communities")) return communities as unknown;
+    return undefined;
+  });
+}
 
-const renderWith = (props = {}, opts?) => {
-  setupMock(opts);
-  return render(<Component {...defaultProps} {...props} />);
-};
-
-it('handles country change', () => {
-  renderWith({ onChange: vi.fn() }, { country: 'CAN' });
-  // assertions...
+it("filters by query", async () => {
+  installStore(mockCommunities);
+  const { result } = renderHook(() => useMyHook({ onSelect: vi.fn() }));
+  // ...
 });
 ```
 
 ### Imports & Dependencies
 
-- **Static imports only** - no `require()` or dynamic `import()` unless necessary for code-splitting
-- **Imports at top of file** - before all other statements
-- **Cast mocked imports**: `(useHook as MockedFunction<typeof useHook>).mockReturnValue({...})` or use Vitest's `vi.mocked(useHook)`
+- **Static imports only** — no `require()` or dynamic `import()` unless necessary for code-splitting.
+- **Imports at top of file** — before all other statements.
+- **Always use `vi.mocked`** for typed mock access — never use `as MockedFunction<...>` casts (lint rejects unsafe assertions):
 
   ```ts
-  // Option 1: Type assertion
-  (useHook as MockedFunction<typeof useHook>).mockReturnValue({...});
-
-  // Option 2: vi.mocked helper (preferred)
-  vi.mocked(useHook).mockReturnValue({...});
+  vi.mocked(useHook).mockReturnValue({ ... });
   ```
 
 ### Async Handling
@@ -148,27 +167,7 @@ vi.useRealTimers(); // cleanup
 
 ## Code Comments
 
-- **Explain "why," not "what"** - avoid commenting obvious code
-- **JSDoc for symbols** (`/** */`): functions, constants, types
-- **Inline comments** (`//`): logic explanations, above test blocks (never above `describe`/`it` with JSDoc)
-- **No types in JSDoc** - use `@param name - description`, not `@param {Type} name`
-- **Don't repeat parent names** - `@param colSpan` not `@param props.colSpan`
-- **Max 100 chars per line** - multi-line if needed
-- **Comments above code** - never on same line
-
-JSDoc example:
-
-```ts
-/** Minimum allowed index */
-const MIN_INDEX = 0;
-
-/**
- * Renders confirmation UI.
- *
- * @param colSpan - number of columns to span
- * @returns React element
- */
-```
+Follow the [code-comments skill](../skills/code-comments/SKILL.md). Short version: JSDoc (`/** */`) for exported symbols, inline `//` for logic rationale, no types in JSDoc, comments above the line they describe.
 
 ---
 

@@ -176,7 +176,8 @@ Scope any `oxlint-disable` to the single cast expression; keep the rest of the f
 
 - [**unit-testing**](../unit-testing/SKILL.md) — Core Vitest patterns, validation commands
 - [**unit-testing-mocking**](../unit-testing-mocking/SKILL.md) — vi.mock, vi.hoisted, callable helpers
-- [**unit-testing-pitfalls**](../unit-testing-pitfalls/SKILL.md) — Common anti-patterns to avoid
+- [**unit-testing-pitfalls**](../unit-testing-pitfalls/SKILL.md) — Behavioral and async anti-patterns
+- [**unit-testing-pitfalls-quality**](../unit-testing-pitfalls-quality/SKILL.md) — Lint disables, type-cast helpers, `toStrictEqual`, `toSorted()`
 - [**effect-ts-patterns**](../effect-ts-patterns/SKILL.md) — Effect.gen, error types, schema validation
 - **Example test:** `api/src/account/accountDelete.test.ts`
 ````

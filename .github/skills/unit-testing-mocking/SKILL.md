@@ -258,9 +258,42 @@ Tests then `await getValidateFormEffectMock()` after calling the setup helper. T
 
 ---
 
+## Clearing vs. Resetting Mocks Between Tests
+
+| Method | Clears call counts | Clears implementations |
+|---|---|---|
+| `vi.clearAllMocks()` | ✅ Yes | ❌ No — `mockReturnValue` preserved |
+| `vi.resetAllMocks()` | ✅ Yes | ✅ Yes — implementations wiped |
+
+**Prefer `vi.clearAllMocks()`** inside tests that assert `not.toHaveBeenCalled()` when prior tests may have called the same mock — this preserves module-level defaults. **Use `vi.resetAllMocks()`** only to wipe implementations entirely.
+
+---
+
+## Mocking Static Properties on Zustand Stores (`useAppStore.getState`)
+
+Zustand exposes `getState` as a property on the hook function — the auto-mock does **not** stub it. Spy on it before `renderHook`:
+
+```ts
+vi.mock("@/react/app-store/useAppStore");
+
+it("passes getState to the subscribe function", async () => {
+  vi.spyOn(useAppStore, "getState").mockReturnValue(forceCast({}));
+  renderHook(() => { mySubscriptionHook("community-1"); });
+  await waitFor(() => {
+    // Exact reference — not expect.any(Function) — catches regressions
+    expect(vi.mocked(mySubscribeFn)).toHaveBeenCalledWith("community-1", useAppStore.getState);
+  });
+});
+```
+
+Use `forceCast({})` (from `react/src/lib/test-utils/forceCast.ts`) to stay lint-clean without `as any`.
+
+---
+
 ## See Also
 
 - [**unit-testing**](../unit-testing/SKILL.md) — Core Vitest patterns, validation commands
 - [**unit-testing-api**](../unit-testing-api/SKILL.md) — Hono API handler testing
-- [**unit-testing-pitfalls**](../unit-testing-pitfalls/SKILL.md) — Common anti-patterns to avoid
+- [**unit-testing-pitfalls**](../unit-testing-pitfalls/SKILL.md) — Behavioral and async anti-patterns
+- [**unit-testing-pitfalls-quality**](../unit-testing-pitfalls-quality/SKILL.md) — Lint disables, type-cast helpers, `toStrictEqual`, `toSorted()`
 ````

@@ -60,6 +60,7 @@ npx tsc -b . && npm run test:unit -- [filepath] --coverage
 ### React & Hook Tests
 - Use **`RouterWrapper`** from `@/react/lib/test-utils/RouterWrapper` for route context.
 - Use shared helpers in `react/src/lib/test-utils` (e.g., `asNull`, `asNever`, `makeChangeEvent`).
+- **Subscription hooks** (`Effect.runPromise` pattern, void-returning hooks, `useAppStore.getState` spy, cleanup): follow [unit-testing-hooks-subscriptions](../../.github/skills/unit-testing-hooks-subscriptions/SKILL.md).
 
 ## Documentation & Comments
 - **Explain "why," not "what"**.

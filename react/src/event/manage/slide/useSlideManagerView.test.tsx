@@ -9,7 +9,7 @@ import RouterWrapper from "@/react/lib/test-utils/RouterWrapper";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { eventViewPath } from "@/shared/paths";
 
-import useEventManageState from "../event-manage-view/useEventManageView";
+import useEventManageView from "../event-manage-view/useEventManageView";
 import makeUseManageView from "../event-manage-view/useEventManageView.test-util";
 import makeFakeSelection from "../test-utils/makeFakeSelection.test-util";
 import makeFakeView from "../test-utils/makeFakeView.test-util";
@@ -33,7 +33,7 @@ const CLAMPED_SLIDE = 2;
 const SECOND_SONG_INDEX = 1;
 
 function initBasicState(): {
-	fakeManage: ReturnType<typeof useEventManageState>;
+	fakeManage: ReturnType<typeof useEventManageView>;
 	fakeView: ReturnType<typeof useEventView>;
 	fakeSelection: ReturnType<typeof useActiveSongSelectionState>;
 } {
@@ -43,7 +43,7 @@ function initBasicState(): {
 	mockReactRouter();
 
 	const fakeManage = makeUseManageView({ canManageEvent: true });
-	vi.mocked(useEventManageState).mockReturnValue(fakeManage);
+	vi.mocked(useEventManageView).mockReturnValue(fakeManage);
 
 	const fakeView = makeFakeView();
 	vi.mocked(useEventView).mockReturnValue(fakeView);
@@ -121,7 +121,7 @@ describe("useSlideManagerState", () => {
 
 		// adjust a copy of fakeManage so our hook sees the new ids; avoid
 		// unsafe casts by typing the result explicitly.
-		const modifiedManage: ReturnType<typeof useEventManageState> = {
+		const modifiedManage: ReturnType<typeof useEventManageView> = {
 			...fakeManage,
 			// eventPublic is loosely typed in our fake generator, so TS can't
 			// guarantee required fields. the override itself is safe.
@@ -137,7 +137,7 @@ describe("useSlideManagerState", () => {
 				is_public: false,
 			},
 		};
-		vi.mocked(useEventManageState).mockReturnValue(modifiedManage);
+		vi.mocked(useEventManageView).mockReturnValue(modifiedManage);
 
 		const { result: r3 } = renderHook(() => useSlideManagerView(), { wrapper: RouterWrapper });
 
@@ -158,7 +158,7 @@ describe("useSlideManagerState", () => {
 			canManageEvent: false,
 			participants: [],
 		});
-		vi.mocked(useEventManageState).mockReturnValue(fakeManage);
+		vi.mocked(useEventManageView).mockReturnValue(fakeManage);
 		vi.mocked(useEventView).mockReturnValue(makeFakeView());
 		vi.mocked(useActiveSongSelectionState).mockReturnValue(makeFakeSelection());
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
@@ -183,7 +183,7 @@ describe("useSlideManagerState", () => {
 				},
 			],
 		});
-		const mockedUseEventManageState = vi.mocked(useEventManageState);
+		const mockedUseEventManageState = vi.mocked(useEventManageView);
 		mockedUseEventManageState.mockReturnValue(fakeManage);
 		const fakeView2 = makeFakeView({
 			activeSlidePosition: undefined,

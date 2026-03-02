@@ -8,7 +8,7 @@ import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { eventViewPath } from "@/shared/paths";
 
-import useEventManageState from "../event-manage-view/useEventManageView";
+import useEventManageView from "../event-manage-view/useEventManageView";
 
 // utility constants
 const NO_SLIDES = 0;
@@ -75,7 +75,7 @@ export type UseSlideManagerViewOpts = {
 export default function useSlideManagerView(
 	opts?: UseSlideManagerViewOpts,
 ): UseSlideManagerViewResult {
-	const eventManage = useEventManageState();
+	const eventManage = useEventManageView();
 	const eventView = useEventView();
 	const currentUserId = useCurrentUserId();
 

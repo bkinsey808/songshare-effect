@@ -4,10 +4,10 @@ import Button from "@/react/lib/design-system/Button";
 import UserSearchInput from "@/react/user-search-input/UserSearchInput";
 import { ZERO } from "@/shared/constants/shared-constants";
 
+import CommunitySearchInput from "./community-search-input/CommunitySearchInput";
 import CommunityRow from "./CommunityRow";
-import CommunitySearchInput from "./CommunitySearchInput";
 import ParticipantRow from "./ParticipantRow";
-import useEventManageState from "./useEventManageView";
+import useEventManageView from "./useEventManageView";
 
 /**
  * Realtime event management page for owners and event admins.
@@ -43,7 +43,7 @@ export default function EventManageView(): ReactElement {
 		onAddCommunityIdSelect,
 		onAddCommunityClick,
 		onRemoveCommunityClick,
-	} = useEventManageState();
+	} = useEventManageView();
 
 	if (isEventLoading) {
 		return (
