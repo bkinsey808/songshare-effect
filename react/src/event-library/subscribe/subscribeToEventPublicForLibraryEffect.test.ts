@@ -6,7 +6,7 @@ import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinim
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 
-import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.mock";
+import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.test-util";
 import handleEventPublicSubscribeEvent from "./handleEventPublicSubscribeEvent";
 import subscribeToEventPublicForLibraryEffect from "./subscribeToEventPublicForLibraryEffect";
 

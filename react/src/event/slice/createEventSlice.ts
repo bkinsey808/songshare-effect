@@ -4,11 +4,11 @@ import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
 import type {
-    EventCommunityEntry,
-    EventEntry,
-    EventState,
-    EventUser,
-    SaveEventRequest,
+	EventCommunityEntry,
+	EventEntry,
+	EventState,
+	EventUser,
+	SaveEventRequest,
 } from "../event-types";
 import type { EventSlice } from "./EventSlice.type";
 

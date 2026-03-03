@@ -1,4 +1,4 @@
-```skill
+````skill
 ---
 name: hono-api-patterns
 description: Hono API route handlers, middleware patterns, request/response handling, and integration with Effect-TS. Use when building API endpoints, implementing middleware, handling errors, or validating request data.
@@ -35,7 +35,7 @@ app.post("/songs", async (c: Context) => {
 
   return handleHttpEndpoint(() => songEffect)(c);
 });
-```
+````
 
 ### 2. Request Validation with Effect Schema
 
@@ -116,13 +116,13 @@ const body = yield* Effect.tryPromise({
 
 ## Response Conventions
 
-| Situation       | Status | Example                               |
-| --------------- | ------ | ------------------------------------- |
-| Created         | 201    | `c.json({ data: song }, 201)`         |
-| No content      | 204    | `c.text("", 204)`                     |
-| Bad input       | 400    | `c.json({ error: "..." }, 400)`       |
-| Not found       | 404    | `c.json({ error: "..." }, 404)`       |
-| Server error    | 500    | `c.json({ error: "..." }, 500)`       |
+| Situation    | Status | Example                         |
+| ------------ | ------ | ------------------------------- |
+| Created      | 201    | `c.json({ data: song }, 201)`   |
+| No content   | 204    | `c.text("", 204)`               |
+| Bad input    | 400    | `c.json({ error: "..." }, 400)` |
+| Not found    | 404    | `c.json({ error: "..." }, 404)` |
+| Server error | 500    | `c.json({ error: "..." }, 500)` |
 
 Keep response shapes consistent — define schemas and reuse them.
 
@@ -141,4 +141,7 @@ npm run dev:api   # Then: curl http://localhost:8787/health
 - Unit testing API handlers: [../unit-testing-api/SKILL.md](../unit-testing-api/SKILL.md)
 - Hono docs: https://hono.dev/
 - Project rules: [.agent/rules.md](../../../.agent/rules.md)
+
+```
+
 ```

@@ -11,6 +11,7 @@ metadata:
 # TypeScript Conventions Skill
 
 ## Key Rules
+
 ### 1. Avoid `any`
 
 ```typescript

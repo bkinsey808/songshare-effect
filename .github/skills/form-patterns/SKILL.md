@@ -1,4 +1,4 @@
-```skill
+````skill
 ---
 name: form-patterns
 description: Project-specific form patterns using useAppForm, createFormSubmitHandler, and createApiResponseHandlerEffect. Use when building or editing any form with validation, submission, or API response handling in React.
@@ -38,16 +38,16 @@ function MyForm(): ReactElement {
   });
   // ...
 }
-```
+````
 
 ### Props
 
-| Prop | Type | Required | Description |
-|---|---|---|---|
-| `schema` | `Schema.Schema<FormValues>` | ✅ | Effect Schema for validation |
-| `formRef` | `React.RefObject<HTMLFormElement>` | ✅ | Ref to the `<form>` element |
-| `defaultErrorMessage` | `string` | optional | Fallback for generic API errors |
-| `initialValues` | `Partial<FormValues>` | optional | Values used by `reset()` |
+| Prop                  | Type                               | Required | Description                     |
+| --------------------- | ---------------------------------- | -------- | ------------------------------- |
+| `schema`              | `Schema.Schema<FormValues>`        | ✅       | Effect Schema for validation    |
+| `formRef`             | `React.RefObject<HTMLFormElement>` | ✅       | Ref to the `<form>` element     |
+| `defaultErrorMessage` | `string`                           | optional | Fallback for generic API errors |
+| `initialValues`       | `Partial<FormValues>`              | optional | Values used by `reset()`        |
 
 ## Handling Submission
 
@@ -79,6 +79,7 @@ function handleFormSubmit(formData: Record<string, unknown>): void {
 ```
 
 `handleSubmit` automatically:
+
 - Validates with the Effect Schema
 - Sets `isSubmitting = true` while running
 - Populates `validationErrors` on failure
@@ -145,4 +146,7 @@ export type SongFormValues = Schema.Schema.Type<typeof SongFormSchema>;
 
 - Effect Schema: [../effect-ts-patterns/SKILL.md](../effect-ts-patterns/SKILL.md)
 - Source: `@/react/lib/form/useAppForm.ts`
+
+```
+
 ```

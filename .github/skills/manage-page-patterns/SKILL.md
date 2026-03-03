@@ -48,6 +48,7 @@ function onSetActiveEventClick(eventId: string | undefined): void {
 ```
 
 Helper locations:
+
 - **Community actions**: `react/src/community/manage/community-manage-view/runCommunityAction.ts`
 - **Event actions**: `react/src/event/manage/runAction.ts`
 

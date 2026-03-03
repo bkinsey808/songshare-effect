@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import makeEventSlice from "@/react/event/slice/makeEventSlice.mock";
+import makeEventSlice from "@/react/event/slice/makeEventSlice.test-util";
 import mockFetchResponse from "@/react/lib/test-utils/mockFetchResponse";
 
 import type { SaveEventRequest } from "../event-types";

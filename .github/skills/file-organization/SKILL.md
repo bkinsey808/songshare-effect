@@ -1,4 +1,4 @@
-```skill
+````skill
 ---
 name: file-organization
 description: File organization, naming conventions, and import patterns (no barrel files, direct imports, kebab-case docs, ESM config). Use when creating new files, modules, refactoring imports, or setting up directory structures.
@@ -21,7 +21,7 @@ metadata:
 // BAD: react/src/components/index.ts
 export { SongCard } from "./SongCard";
 export { UserProfile } from "./UserProfile";
-```
+````
 
 ✅ **Always import directly from source:**
 
@@ -180,4 +180,7 @@ npm run lint
 - Project rules: [.agent/rules.md](../../../.agent/rules.md)
 - TypeScript conventions: [../typescript-conventions/SKILL.md](../typescript-conventions/SKILL.md)
 - Source refactoring: [../source-refactoring/SKILL.md](../source-refactoring/SKILL.md)
+
+```
+
 ```

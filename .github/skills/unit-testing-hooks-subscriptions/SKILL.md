@@ -13,7 +13,7 @@ metadata:
 
 Focused guidance for testing hooks that subscribe to realtime data via `Effect.runPromise(subscribeFn(...))`.
 
-For general hook testing see [unit-testing-hooks](../unit-testing-hooks/SKILL.md).  
+For general hook testing see [unit-testing-hooks](../unit-testing-hooks/SKILL.md).
 For mocking strategies (clearing vs. resetting, `getState` spy) see [unit-testing-mocking](../unit-testing-mocking/SKILL.md).
 
 ---
@@ -150,7 +150,8 @@ See [useCommunityManageSubscriptions.test.tsx](../../../react/src/community/mana
 
 ## References
 
-- [unit-testing-hooks](../unit-testing-hooks/SKILL.md) — core renderHook patterns, installStore, one-behavior-per-test
+- [unit-testing-hooks](../unit-testing-hooks/SKILL.md) — core renderHook patterns, installStore, Harness requirement
+- [unit-testing-hooks-checklist](../unit-testing-hooks-checklist/SKILL.md) — one-behavior-per-test, named constants, pre-completion checklist
 - [unit-testing-mocking](../unit-testing-mocking/SKILL.md) — clearAllMocks vs. resetAllMocks, getState spy, factoryless vi.mock
 - [unit-testing-pitfalls](../unit-testing-pitfalls/SKILL.md) — act, async races, magic numbers
 ````

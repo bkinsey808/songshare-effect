@@ -8,7 +8,7 @@ import type { EventLibrarySlice } from "./EventLibrarySlice.type";
 
 import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import createEventLibrarySlice from "./createEventLibrarySlice";
-import makeEventLibrarySlice from "./makeEventLibrarySlice.mock";
+import makeEventLibrarySlice from "./makeEventLibrarySlice.test-util";
 
 type SubscribeModule = {
 	default: (get: () => EventLibrarySlice) => Effect.Effect<unknown, never, () => void>;

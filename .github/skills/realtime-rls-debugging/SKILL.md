@@ -83,6 +83,7 @@ Catches parsing errors, auth failures, and RLS rejections that are otherwise sil
 ### Step 4 — Confirm token passes RLS (direct SQL test)
 
 Decode your JWT in DevTools:
+
 ```javascript
 const [, b64] = token.split(".");
 console.log(JSON.parse(atob(b64)));
@@ -100,6 +101,7 @@ WHERE schemaname = 'public' AND tablename = 'event_public' AND policyname LIKE '
 ```
 
 Common mistakes:
+
 - Wrong JWT path (`{ user_id: "..." }` at root instead of inside `app_metadata`)
 - Missing visitor token branch (see [realtime-rls-architecture skill](../realtime-rls-architecture/SKILL.md))
 - `WITH CHECK` clause blocks the UPDATE/change notification row
@@ -126,6 +128,7 @@ npm run test:unit
 ```
 
 Manual two-tab smoke test:
+
 1. Open event in Tab A (owner) and Tab B (participant)
 2. Change `active_song_id` in Tab A
 3. Tab B should receive the update within ~250 ms + Realtime latency

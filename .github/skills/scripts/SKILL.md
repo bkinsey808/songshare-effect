@@ -109,7 +109,7 @@ export async function checkSkillFiles(repoRoot: string, opts: CheckOptions = {})
 - Colocate test files next to the file they test, inside the script's directory.
 - Naming: append `.test.ts` to the source file name:
   - Source: `scripts/check-skill-line-count/countLines.ts`
-  - Test:   `scripts/check-skill-line-count/countLines.test.ts`
+  - Test: `scripts/check-skill-line-count/countLines.test.ts`
 - **Prefer testing the pure logic module** (`checkSkillFiles.ts`) over the entry point (`.bun.ts`). The entry point is a thin shell and does not need its own spec; the logic module does.
 - Use Vitest and follow the repo's test conventions (descriptive names, no magic numbers, etc.).
 - **Do not spawn `bun` in unit tests.** Tests that call `spawnSync("bun", ...)` will fail in environments where Bun is not installed. Extract logic into a pure Node-importable module instead.
@@ -118,6 +118,7 @@ export async function checkSkillFiles(repoRoot: string, opts: CheckOptions = {})
 ## Validation & CI checks 🔁
 
 Before submitting a PR run:
+
 1. `npx oxfmt --check .` or `npm run format:check`
 2. `npx oxlint --config .oxlintrc.json --type-aware .` or `npm run lint`
 3. `npx tsc -b .` (typecheck)

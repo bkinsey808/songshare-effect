@@ -11,7 +11,7 @@ metadata:
 
 # Unit Testing — Hook Test Fixtures
 
-For the general renderHook-first approach see [unit-testing-hooks](../unit-testing-hooks/SKILL.md).  
+For the general renderHook-first approach see [unit-testing-hooks](../unit-testing-hooks/SKILL.md).
 For mocking external modules see [unit-testing-mocking](../unit-testing-mocking/SKILL.md).
 
 ---
@@ -118,7 +118,8 @@ await waitFor(() => {
 ## References
 
 - [unit-testing-hooks](../unit-testing-hooks/SKILL.md) — renderHook, installStore, test structure
-- [unit-testing-hooks-harness](../unit-testing-hooks-harness/SKILL.md) — Harness components, React Compiler constraint
+- [unit-testing-hooks-harness](../unit-testing-hooks-harness/SKILL.md) — Harness components, completeness checklist
+- [unit-testing-hooks-harness-lint](../unit-testing-hooks-harness-lint/SKILL.md) — React Compiler constraint, query helpers, lint traps
 - [unit-testing-mocking](../unit-testing-mocking/SKILL.md) — `vi.mock`, `vi.mocked`, `forceCast`
 - [unit-testing-pitfalls](../unit-testing-pitfalls/SKILL.md) — magic numbers, async races
 ````

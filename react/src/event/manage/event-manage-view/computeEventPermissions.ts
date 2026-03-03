@@ -1,25 +1,25 @@
 import type { EventEntry } from "@/react/event/event-types";
 
-type UseEventPermissionsProps = {
+type ComputeEventPermissionsProps = {
 	readonly currentUserId: string | undefined;
 	readonly ownerId: string | undefined;
 	readonly participants: EventEntry["participants"];
 };
 
-type UseEventPermissionsReturn = {
+type ComputeEventPermissionsReturn = {
 	readonly isOwner: boolean;
 	readonly isEventAdmin: boolean;
 	readonly canManageEvent: boolean;
 };
 
 /**
- * Hook to calculate permissions for the current user in the context of an event.
+ * Compute permissions for the current user in the context of an event.
  */
-export default function useEventPermissions({
+export default function computeEventPermissions({
 	currentUserId,
 	ownerId,
 	participants,
-}: UseEventPermissionsProps): UseEventPermissionsReturn {
+}: ComputeEventPermissionsProps): ComputeEventPermissionsReturn {
 	const isOwner = currentUserId !== undefined && ownerId !== undefined && currentUserId === ownerId;
 
 	const currentParticipant =

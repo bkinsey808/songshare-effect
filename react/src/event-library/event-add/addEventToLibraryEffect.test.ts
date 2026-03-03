@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.mock";
+import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.test-util";
 import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import addEventToLibraryEffect from "./addEventToLibraryEffect";
 

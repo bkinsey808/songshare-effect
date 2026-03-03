@@ -4,7 +4,7 @@ import makeEventLibraryEntry from "@/react/event-library/test-utils/makeEventLib
 
 import type { EventLibraryEntry } from "../event-library-types";
 
-import makeEventLibrarySlice from "./makeEventLibrarySlice.mock";
+import makeEventLibrarySlice from "./makeEventLibrarySlice.test-util";
 
 describe("makeEventLibrarySlice", () => {
 	it("reflects initial entries and setters update state", () => {

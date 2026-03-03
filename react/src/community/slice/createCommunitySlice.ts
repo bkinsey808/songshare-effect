@@ -4,11 +4,11 @@ import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
 import type {
-    CommunityEntry,
-    CommunityEvent,
-    CommunityState,
-    CommunityUser,
-    SaveCommunityRequest,
+	CommunityEntry,
+	CommunityEvent,
+	CommunityState,
+	CommunityUser,
+	SaveCommunityRequest,
 } from "../community-types";
 import type { CommunitySlice } from "./CommunitySlice.type";
 

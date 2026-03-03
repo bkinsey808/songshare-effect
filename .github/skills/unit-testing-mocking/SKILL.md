@@ -1,20 +1,22 @@
 ````skill
 ---
 name: unit-testing-mocking
-description: Mocking strategies for Vitest tests in this repo. Covers factoryless vi.mock, vi.hoisted, ESM/Effect mocking, Supabase/Postgrest stubs, callable mock helpers, avoiding lifecycle hooks, and typed retrieval helpers. Use when writing any vi.mock, vi.spyOn, or Supabase stub in a unit test.
+description: Core mocking patterns for Vitest tests in this repo. Covers factoryless vi.mock, vi.mocked vs vi.spyOn, Supabase/Postgrest stubs, Zustand getState spy, clearing/resetting mocks, and the type-safe checklist. For ESM/Effect patterns and lifecycle-hook avoidance see unit-testing-mocking-esm. For shared callable mock helpers and vi.hoisted patterns see unit-testing-mocking-helpers.
 license: MIT
 compatibility: Vitest 1.x, Effect 3.x
 metadata:
   author: bkinsey808
-  version: "1.0"
+  version: "1.1"
 ---
 
-# Unit Testing — Mocking Strategies
+# Unit Testing — Mocking Strategies (Core)
 
-Focused mocking guidance for Vitest tests in this repo.
+Core mocking guidance for Vitest tests in this repo.
 
 For general Vitest patterns see [unit-testing](../unit-testing/SKILL.md).
 For API handler testing see [unit-testing-api](../unit-testing-api/SKILL.md).
+For ESM/Effect mocking and `init()` patterns see [unit-testing-mocking-esm](../unit-testing-mocking-esm/SKILL.md).
+For shared callable helpers and `vi.hoisted()` see [unit-testing-mocking-helpers](../unit-testing-mocking-helpers/SKILL.md).
 
 ---
 
@@ -57,242 +59,103 @@ mockedCallSelect.mockResolvedValue(asPostgrestResponse({ data: [{ id: 'r1' }] })
 
 ---
 
+## `vi.mocked()` vs `vi.spyOn()` — Know the Difference
+
+**`vi.mocked()` only works when the module has already been registered with `vi.mock()`.**
+
+```ts
+// ✅ This works because vi.mock("...") is at the top of the file
+vi.mock("@/shared/utils/formatEventDate");
+// Later, in a test:
+vi.mocked(formatEventDate.clientLocalDateToUtcTimestamp).mockReturnValue("2026-01-01T00:00:00Z");
+```
+
+If you have NOT registered the module with `vi.mock()` at the top of the file (e.g. you imported the module dynamically inside a test), calling `vi.mocked(...).mockReturnValue(...)` will throw at runtime:
+
+```ts
+// ❌ WRONG — clientLocalDateToUtcTimestamp is not a mock function because
+//            there is no top-level vi.mock("@/shared/utils/formatEventDate")
+const mod = await import("@/shared/utils/formatEventDate");
+vi.mocked(mod.clientLocalDateToUtcTimestamp).mockReturnValue("..."); // TypeError!
+```
+
+**Use `vi.spyOn()` when you need per-test control without a top-level `vi.mock()`:**
+
+```ts
+// ✅ Works without a top-level vi.mock — spyOn wraps the live function
+const mod = await import("@/shared/utils/formatEventDate");
+vi.spyOn(mod, "clientLocalDateToUtcTimestamp").mockReturnValue("2026-01-01T00:00:00Z");
+```
+
+**Rule of thumb:**
+
+| You have a top-level `vi.mock("path")` | Use `vi.mocked(fn).mockReturnValue(...)` |
+|---|---|
+| No top-level `vi.mock("path")` for this module | Use `vi.spyOn(module, "fnName").mockReturnValue(...)` |
+
+> Prefer adding a top-level `vi.mock()` when the same module needs to be controlled in multiple tests; use `vi.spyOn()` for one-off per-test overrides.
+
+---
+
 ## Type-Safe Test Checklist (Avoid Rewrites)
 
 - Use `forceCast<T>(obj)` from `@/react/lib/test-utils/forceCast` to build fully-typed slice/store stubs without `any`. Provide every method the production code may call.
 - Use `asPostgrestResponse({ data, error: null, status: 200, statusText: 'OK' })` for Postgrest shapes — never hand-craft the object.
-- Use `vi.mocked(module)` for typed mocks; use `vi.spyOn` + `await import()` inside `init()` when you need per-test implementations.
+- Use `vi.mocked(module)` for typed mocks (requires top-level `vi.mock("path")`); use `vi.spyOn` + `await import()` for per-test overrides when the module is not top-level mocked.
 - Use `undefined` for absent optional fields (not `null`).
 
 ---
 
-## Advanced Mocking: ESM & Effect
+## Never mock an entire shared library
 
-### Avoid top-level mock state
-
-Declaring mutable variables (e.g., `let appState`) at top level triggers `jest/require-hook`. Instead, arrange directly inside each `it` block using local constants.
-
-### Mocking Effects
-
-In ESM environments, `vi.spyOn(Effect, "runPromise")` may fail with `TypeError: Cannot redefine property`. Instead, have your mocked dependency return a "spy Effect":
+Avoiding partial `vi.mock` factories for libraries like `effect` that export types used across the whole repo. Even if the factory only overrides one export, Vitest's auto-mocking will replace all other exports with `undefined`, breaking any file that imports `Schema`, `Effect`, etc.
 
 ```ts
-const effectSpy = vi.fn();
-mockedFetch.mockReturnValue(Effect.sync(() => effectSpy()));
-// ... run test ...
-expect(effectSpy).toHaveBeenCalled();
+// ❌ Replaces ALL exports with undefined — breaks Schema, Context, Layer, etc.
+vi.mock("effect", () => ({
+  Effect: { runPromise: vi.fn() },
+}));
+
+// ✅ Stub only at the call site using real Effect values
+import { Effect } from "effect";
+// Pass as a prop or argument in tests:
+fetchEventBySlug: (_slug: string) => Effect.sync(() => undefined)
+// Or spy on the imported function without touching the whole module:
+vi.spyOn(effectModule, "runPromise").mockResolvedValue(undefined);
 ```
 
-### Using `forceCast` for complex mocks
-
-When mocking Zustand stores or objects with large interfaces, use `@/react/lib/test-utils/forceCast` to coerce your mock state into the required shape — keeps tests lint-clean without using `any`.
-
-### `init()` pattern for ESM modules
-
-See the full example under **Avoid Lifecycle Hooks** below — the same `init()` structure applies here.
+**Rule:** only mock modules that the code under test **directly imports**. Verify with a quick `grep` before adding a `vi.mock`.
 
 ---
 
-## Avoid Lifecycle Hooks
+## Using `forceCast` for type-safe selector dispatch in `installStore`
 
-The lint rule `jest/no-hooks` is enabled and will error on `beforeAll`/`beforeEach`/`after*` hooks. Use an `async init()` helper inside the `describe` block instead:
+When mocking `useAppStore` with `vi.mocked(...).mockImplementation(...)`, invoking the selector against a partial mock state triggers `@typescript-eslint/no-unsafe-type-assertion`. The correct pattern uses `forceCast` from `@/react/lib/test-utils/forceCast` to encapsulate the double-cast:
 
-```ts
-describe("foo handler", () => {
-  async function init() {
-    vi.resetModules();   // clear cache for fresh imports
-    mockFoo();           // install any doMocks
+```tsx
+import forceCast from "@/react/lib/test-utils/forceCast";
 
-    const { default: handler } = await import("./fooHandler");
-    const { foo } = await import("./foo");
-    const mockedFoo = vi.mocked(foo);
-    return { handler, mockedFoo };
-  }
+const mockFetchUserLibrary = vi.fn(() => Effect.sync(() => undefined));
+const mockState = { fetchUserLibrary: mockFetchUserLibrary };
 
-  it("works", async () => {
-    const { handler, mockedFoo } = await init();
-    mockedFoo.mockReturnValue(42);
-
-    const res = handler();
-    expect(res).toBe(42);
-  });
-});
-```
-
----
-
-## Which Mock Setup Pattern to Use
-
-Three patterns exist; pick the right one upfront to avoid rewrites:
-
-| Situation | Pattern | Location |
-|---|---|---|
-| Single test file needs fresh module imports per test | `async init()` inside `describe` | Inline in the test file |
-| Multiple test files mock the same module | Callable `mockFoo()` function | Colocated `*.test-util.ts` |
-| Multiple helper files need to share mock state | `vi.hoisted()` state + `mockFoo()` + getter | Colocated `*.test-util.ts` |
-
-**Rule of thumb:** start with `async init()`. Extract to a callable helper only when two or more test files need the same mock. Add `vi.hoisted()` only when a second helper file needs to read or configure the same mock function.
-
----
-
-## Callable Mock Setup Functions
-
-When creating shared test helper modules, structure them as **callable functions** rather than auto-executing module-level code:
-
-```typescript
-// react/src/event/manage/test-utils/mockUseSlideManagerView.ts
-import { vi } from "vitest";
-
-let mockFn: ReturnType<typeof vi.fn> | undefined = undefined;
-
-/**
- * Set up the mock for useSlideManagerView.
- * Must be called explicitly in each test before using the hook.
- * @returns - The mock function for inspection
- */
-export default function mockUseSlideManagerView(): ReturnType<typeof vi.fn> {
-  vi.resetModules();
-  mockFn = vi.fn();
-  vi.doMock("@/react/event/manage/slide/useSlideManagerView", () => ({
-    default: mockFn,
-  }));
-  return mockFn;
-}
-
-/**
- * Get the current mock function (used by setters).
- * @returns - The mock function if set up, undefined otherwise
- */
-export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
-  return mockFn;
+function installStore() {
+  mockedUseAppStore.mockImplementation((selector: unknown) =>
+    // forceCast wraps the double assertion; keeps the call-site lint-clean
+    forceCast<(state: typeof mockState) => unknown>(selector)(mockState),
+  );
+  return { fetchUserLibrary: mockFetchUserLibrary };
 }
 ```
 
-**Why not module-level side effects:**
-
-- ❌ Mock setup hidden at import time (unclear dependencies)
-- ❌ Hard to reset between tests (state leaks)
-- ❌ Test order becomes fragile
-
-**Test usage:**
-
-```typescript
-it("updates state correctly", async () => {
-  mockUseSlideManagerView(); // Explicit setup call
-  setUseSlideManagerViewReturn(fakeState); // Then configure
-  // ... test assertions
-});
-```
-
----
-
-## Global Mock Storage with `vi.hoisted()`
-
-When multiple helpers share a mock, use `vi.hoisted()` to create an encapsulated scope:
-
-```typescript
-import { vi } from "vitest";
-
-const mockState = vi.hoisted(
-  () => ({
-    mockFn: undefined as ReturnType<typeof vi.fn> | undefined,
-  }),
-);
-
-export default function mockUseSlideManagerView(): ReturnType<typeof vi.fn> {
-  vi.resetModules();
-  mockState.mockFn = vi.fn();
-  vi.doMock("@/react/event/manage/slide/useSlideManagerView", () => ({
-    default: mockState.mockFn,
-  }));
-  return mockState.mockFn;
-}
-
-export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
-  return mockState.mockFn;
-}
-```
-
-Configure the mock separately:
-
-```typescript
-// setUseSlideManagerViewReturn.ts
-import { getMockFn } from "./mockUseSlideManagerView";
-
-export default function setUseSlideManagerViewReturn(val: UseSlideManagerViewResult): void {
-  const mockFn = getMockFn();
-  if (!mockFn) {
-    throw new Error("Mock not set up. Call mockUseSlideManagerView() first.");
-  }
-  mockFn.mockReturnValue(val);
-}
-```
-
-**Why `vi.hoisted()`:** idiomatic Vitest pattern; encapsulated scope; no exposed module-level variables; cleaner than raw `let` declarations.
-
----
-
-## Typed Mock Retrieval Helpers
-
-When tests need a strongly-typed reference to a mocked module that also uses generics, export a helper from your shared test-util:
-
-```ts
-// in test-util.ts
-export async function getValidateFormEffectMock(): Promise<ValidateFormEffectMock> {
-  const { default: _validateFormEffect } =
-    await import("@/shared/validation/validateFormEffect");
-  // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-  return vi.mocked(_validateFormEffect) as unknown as ValidateFormEffectMock;
-}
-```
-
-Tests then `await getValidateFormEffectMock()` after calling the setup helper. The disable comment is contained in the util file, keeping test files lint-clean.
-
----
-
-## Helper Module Rules
-
-- **Helper modules should not contain top-level `vi.mock` calls.** Export a callable function (e.g., `mockFoo()`) that uses `vi.doMock` or `vi.mock` when invoked. This prevents hoisting surprises.
-- **Module-level eslint-disable comments are forbidden** in test and test-util files. Scope any `oxlint` disables to the individual line or a small helper function.
-- See patterns in `react/src/form/test-util.ts` and `react/src/lib/supabase/client/getSupabaseClient.test-util.ts`.
-
----
-
-## Clearing vs. Resetting Mocks Between Tests
-
-| Method | Clears call counts | Clears implementations |
-|---|---|---|
-| `vi.clearAllMocks()` | ✅ Yes | ❌ No — `mockReturnValue` preserved |
-| `vi.resetAllMocks()` | ✅ Yes | ✅ Yes — implementations wiped |
-
-**Prefer `vi.clearAllMocks()`** inside tests that assert `not.toHaveBeenCalled()` when prior tests may have called the same mock — this preserves module-level defaults. **Use `vi.resetAllMocks()`** only to wipe implementations entirely.
-
----
-
-## Mocking Static Properties on Zustand Stores (`useAppStore.getState`)
-
-Zustand exposes `getState` as a property on the hook function — the auto-mock does **not** stub it. Spy on it before `renderHook`:
-
-```ts
-vi.mock("@/react/app-store/useAppStore");
-
-it("passes getState to the subscribe function", async () => {
-  vi.spyOn(useAppStore, "getState").mockReturnValue(forceCast({}));
-  renderHook(() => { mySubscriptionHook("community-1"); });
-  await waitFor(() => {
-    // Exact reference — not expect.any(Function) — catches regressions
-    expect(vi.mocked(mySubscribeFn)).toHaveBeenCalledWith("community-1", useAppStore.getState);
-  });
-});
-```
-
-Use `forceCast({})` (from `react/src/lib/test-utils/forceCast.ts`) to stay lint-clean without `as any`.
+This invokes the **real selector function** against the typed mock state — avoiding fragile `String(selector).includes(...)` string inspection and unsafe inline casts.
 
 ---
 
 ## See Also
 
 - [**unit-testing**](../unit-testing/SKILL.md) — Core Vitest patterns, validation commands
+- [**unit-testing-mocking-esm**](../unit-testing-mocking-esm/SKILL.md) — ESM/Effect patterns, `init()`, lifecycle hook avoidance
+- [**unit-testing-mocking-helpers**](../unit-testing-mocking-helpers/SKILL.md) — Callable helper functions, `vi.hoisted()`, typed retrieval, helper module rules
 - [**unit-testing-api**](../unit-testing-api/SKILL.md) — Hono API handler testing
 - [**unit-testing-pitfalls**](../unit-testing-pitfalls/SKILL.md) — Behavioral and async anti-patterns
 - [**unit-testing-pitfalls-quality**](../unit-testing-pitfalls-quality/SKILL.md) — Lint disables, type-cast helpers, `toStrictEqual`, `toSorted()`

@@ -9,7 +9,7 @@ import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";
 
-import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.mock";
+import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.test-util";
 import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import fetchEventLibrary from "./fetchEventLibraryEffect";
 

@@ -56,17 +56,20 @@ Always use `npm run deploy:full` (not bare `deploy`) for any user-facing change.
 ### Three Workflows
 
 **1. PR Checks** — runs on every PR:
+
 - Lint (oxlint)
 - Type check (TypeScript)
 - Unit tests (Vitest)
 - E2E tests (Playwright — staging only)
 
 **2. Deploy to Staging** — runs when PR merged to `staging`:
+
 - Build frontend + API
 - Deploy to Cloudflare (staging)
 - Run smoke tests
 
 **3. Deploy to Production** — runs when PR merged to `main`:
+
 - Full test suite
 - Build frontend + API
 - Deploy to Cloudflare (production)
@@ -82,18 +85,21 @@ Always use `npm run deploy:full` (not bare `deploy`) for any user-facing change.
 ### Common Workflow Failures
 
 **Lint failed:**
+
 ```bash
 npm run lint:fix
 git add . && git commit -m "fix: lint issues"
 ```
 
 **Tests failed:**
+
 ```bash
 npm run test:unit -- --reporter=verbose
 npm run test:e2e:dev   # interactive Playwright
 ```
 
 **Deploy failed:**
+
 - Check `wrangler.toml` for syntax errors
 - Verify all required secrets are set (`wrangler secret list --env production`)
 - Check if build step timed out (run `npm run build:all` locally to reproduce)

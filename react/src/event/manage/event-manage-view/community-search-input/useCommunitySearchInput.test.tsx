@@ -50,6 +50,18 @@ const mockCommunities: CommunityEntry[] = [
 	},
 ];
 
+/**
+ * Configure the mocked app store to return a constant list of communities.
+ *
+ * Most of the tests in this file only care about the data returned from
+ * `useAppStore` when the selector touches the `communities` slice, so the
+ * implementation simply stringifies the selector and looks for the word
+ * "communities". This mirrors the pattern used elsewhere in hook tests and
+ * keeps the setup lightweight.
+ *
+ * @param communities - array of entries that the mocked store will supply
+ *   whenever the hook reads `state.communities`.
+ */
 function installStore(communities: CommunityEntry[]): void {
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
 		const sel = String(selector);
@@ -61,28 +73,120 @@ function installStore(communities: CommunityEntry[]): void {
 }
 
 /**
- * Harness needed to attach containerRef to a real DOM node so the
- * click-outside effect can call `contains()`.
+ * Harness for useCommunitySearchInput — "Documentation by Harness".
+ *
+ * Renders every return value of the hook in a simple, realistic UI so that
+ * readers (human or AI) can understand how the pieces fit together without
+ * digging into the implementation.
+ *
+ * @param activeCommunityId - id of the pre‑selected community (undefined = none selected)
+ * @param onSelect - called with the new community id when picked, or "" when
+ *   the selection is cleared
+ * @param excludeCommunityIds - optional list of community IDs that should be
+ *   omitted from the filtered results. the harness accepts this prop so that it
+ *   documents the full API, but it does not render any controls to change it;
+ *   tests simply pass `undefined` when they don't care about exclusion.
+ * @returns - JSX element rendering the hook's return values in a realistic way, with
+ *  thorough comments explaining how the hook values connect to the UI and behavior
  */
-function Harness(props: { onSelect: (communityId: string) => void }): ReactElement {
-	// Destructure so the React Compiler sees isOpen/handleInputFocus as plain
-	// state/function values rather than ref-bearing object properties.
-	const { containerRef, isOpen, handleInputFocus } = useCommunitySearchInput({
-		activeCommunityId: undefined,
-		onSelect: props.onSelect,
-	});
+function Harness(props: {
+	activeCommunityId: string | undefined;
+	onSelect: (communityId: string) => void;
+	excludeCommunityIds?: readonly string[];
+}): ReactElement {
+	// Always destructure — React Compiler rejects property access through
+	// the hook return object in JSX when the object contains refs.
+	const {
+		containerRef, // ref for outer div — enables click-outside detection
+		inputRef, // ref for <input> — enables external focus management
+		searchQuery, // controlled input value
+		isOpen, // dropdown visibility flag
+		filteredCommunities, // communities matching the current query
+		activeCommunity, // full entry for the selected community (or undefined)
+		inputDisplayValue, // display text: typed query OR selected community name
+		COMMUNITIES_NONE: noResults, // 0 — used to show empty-state message
+		handleInputFocus, // open dropdown on focus
+		handleInputChange, // filter list as user types
+		handleSelectCommunity, // pick a community and close
+		handleClearSelection, // deselect and close
+	} = useCommunitySearchInput(props);
+
 	return (
-		<div>
+		// Fragment wraps both the container and the out-of-container sentinel
+		// used by the click-outside test.
+		<>
+			{/* containerRef: mousedown outside this div closes the dropdown */}
 			<div ref={containerRef} data-testid="container">
-				<span data-testid="is-open">{String(isOpen)}</span>
+				{/* Shows the currently selected community name above the input */}
+				{activeCommunity !== undefined && (
+					<span data-testid="active-community-name">{activeCommunity.name}</span>
+				)}
+
+				{/* inputRef: allows external consumers to focus the input programmatically */}
+				<input
+					ref={inputRef}
+					data-testid="search-input"
+					value={inputDisplayValue}
+					onFocus={handleInputFocus}
+					onChange={handleInputChange}
+				/>
+
+				{/*
+				 * "open" button: calls handleInputFocus to set isOpen = true.
+				 * Used by the click-outside test to open the dropdown before
+				 * firing a mousedown outside the container.
+				 */}
 				<button type="button" onClick={handleInputFocus}>
 					open
 				</button>
+
+				{/* Clear button — only shown when a community is selected */}
+				{activeCommunity !== undefined && (
+					<button type="button" data-testid="clear-btn" onClick={handleClearSelection}>
+						clear
+					</button>
+				)}
+
+				{/* Dropdown — rendered only while isOpen is true */}
+				{isOpen && (
+					<ul data-testid="results">
+						{filteredCommunities.length === noResults && (
+							// COMMUNITIES_NONE (0) used for the empty-state comparison
+							<li data-testid="no-results">No communities found</li>
+						)}
+						{filteredCommunities.map((entry) => (
+							<li
+								key={entry.community_id}
+								data-testid={`result-${entry.community_id}`}
+								// handleSelectCommunity receives the full CommunityEntry,
+								// not just the id — the hook extracts the id internally
+								onClick={() => {
+									handleSelectCommunity(entry);
+								}}
+								onKeyDown={(ev) => {
+									if (ev.key === "Enter") {
+										handleSelectCommunity(entry);
+									}
+								}}
+							>
+								{entry.name}
+							</li>
+						))}
+					</ul>
+				)}
+
+				{/* Debug output used by the click-outside test */}
+				<span data-testid="is-open">{String(isOpen)}</span>
+				<span data-testid="search-query">{searchQuery}</span>
 			</div>
-			<button type="button" data-testid="outside">
-				outside
-			</button>
-		</div>
+
+			{/*
+			 * Sentinel element rendered outside the container.
+			 * A mousedown here triggers the click-outside handler and closes
+			 * the dropdown — this is what the click-outside test targets.
+			 */}
+			<div data-testid="outside">outside</div>
+		</>
 	);
 }
 
@@ -197,7 +301,7 @@ describe("useCommunitySearchInput", () => {
 
 	it("closes the dropdown when a mousedown fires outside the container", async () => {
 		installStore(mockCommunities);
-		render(<Harness onSelect={vi.fn()} />);
+		render(<Harness activeCommunityId={undefined} onSelect={vi.fn()} />);
 
 		// open the dropdown by clicking the button inside the container
 		fireEvent.click(screen.getByText("open"));

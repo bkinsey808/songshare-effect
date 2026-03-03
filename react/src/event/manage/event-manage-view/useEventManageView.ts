@@ -14,10 +14,10 @@ import type { UseEventManageStateResult } from "./UseEventManageStateResult.type
 
 import refreshEvent from "../refreshEvent";
 import runAction from "../runAction";
+import computeEventPermissions from "./computeEventPermissions";
 import useActiveEventSync from "./useActiveEventSync";
 import useEventCommunityManagement from "./useEventCommunityManagement";
 import useEventParticipantManagement from "./useEventParticipantManagement";
-import useEventPermissions from "./useEventPermissions";
 import useEventPlaybackManagement from "./useEventPlaybackManagement";
 import usePlaylistLibraryManagement from "./usePlaylistLibraryManagement";
 
@@ -81,7 +81,7 @@ export default function useEventManageView(): UseEventManageStateResult {
 	void setSelectedActivePlaylistId;
 
 	// Permission logic
-	const { canManageEvent } = useEventPermissions({
+	const { canManageEvent } = computeEventPermissions({
 		currentUserId,
 		ownerId,
 		participants,

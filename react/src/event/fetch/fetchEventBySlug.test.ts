@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 
-import makeEventSlice from "@/react/event/slice/makeEventSlice.mock";
+import makeEventSlice from "@/react/event/slice/makeEventSlice.test-util";
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";

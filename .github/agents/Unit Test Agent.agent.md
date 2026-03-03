@@ -13,12 +13,16 @@ This agent provides extended validation steps and detailed patterns beyond the s
 
 **Related resources:**
 
-- [unit-testing skill](../skills/unit-testing/SKILL.md) - Core setup, templates, shared utils
-- [unit-testing-hooks skill](../skills/unit-testing-hooks/SKILL.md) - core: renderHook, installStore, one-behavior-per-test, named constants
-- [unit-testing-hooks-harness skill](../skills/unit-testing-hooks-harness/SKILL.md) - Harness components, React Compiler ref constraint, query helpers
+- [unit-testing skill](../skills/unit-testing/SKILL.md) - Core setup, templates, shared utils; includes task routing (which skills to load per test type)
+- [unit-testing-hooks skill](../skills/unit-testing-hooks/SKILL.md) - Hook test bundle (entry point, load all 4 together): renderHook, installStore, Harness requirement
+- [unit-testing-hooks-harness skill](../skills/unit-testing-hooks-harness/SKILL.md) - Hook test bundle: "Documentation by Harness" pattern (always required), full template, completeness, cleanup
+- [unit-testing-hooks-harness-lint skill](../skills/unit-testing-hooks-harness-lint/SKILL.md) - Hook test bundle ⚠️ load before writing Harness JSX: React Compiler destructure constraint, query helpers, oxlint pitfalls
+- [unit-testing-hooks-checklist skill](../skills/unit-testing-hooks-checklist/SKILL.md) - Hook test bundle (run at end): one-behavior-per-test, named constants, pre-completion checklist
 - [unit-testing-hooks-fixtures skill](../skills/unit-testing-hooks-fixtures/SKILL.md) - mock data, forceCast, shared constants, filter-query specificity
 - [unit-testing-hooks-subscriptions skill](../skills/unit-testing-hooks-subscriptions/SKILL.md) - Effect.runPromise subscription hooks: void hooks, getState spy, cleanup, undefined→defined transition
-- [unit-testing-mocking skill](../skills/unit-testing-mocking/SKILL.md) - vi.mock, vi.hoisted, Supabase stubs
+- [unit-testing-mocking skill](../skills/unit-testing-mocking/SKILL.md) - Core vi.mock/vi.spyOn, Supabase stubs, clearing/resetting
+- [unit-testing-mocking-esm skill](../skills/unit-testing-mocking-esm/SKILL.md) - ESM/Effect, async init(), lifecycle hook avoidance
+- [unit-testing-mocking-helpers skill](../skills/unit-testing-mocking-helpers/SKILL.md) - Callable mock helpers, vi.hoisted(), typed retrieval
 - [unit-testing-api skill](../skills/unit-testing-api/SKILL.md) - Effect-based API handler testing
 - [unit-testing-pitfalls skill](../skills/unit-testing-pitfalls/SKILL.md) - Common anti-patterns
 - [.agent/rules.md](../../.agent/rules.md) - Full project rules
@@ -77,10 +81,14 @@ Run before and after each change:
 
 ### Hook Testing
 
-> See [unit-testing-hooks skill](../skills/unit-testing-hooks/SKILL.md), [unit-testing-hooks-harness skill](../skills/unit-testing-hooks-harness/SKILL.md), [unit-testing-hooks-fixtures skill](../skills/unit-testing-hooks-fixtures/SKILL.md), and [unit-testing-hooks-subscriptions skill](../skills/unit-testing-hooks-subscriptions/SKILL.md) for the complete reference. Key rules:
+> See [unit-testing-hooks skill](../skills/unit-testing-hooks/SKILL.md), [unit-testing-hooks-checklist skill](../skills/unit-testing-hooks-checklist/SKILL.md), [unit-testing-hooks-harness skill](../skills/unit-testing-hooks-harness/SKILL.md), [unit-testing-hooks-harness-lint skill](../skills/unit-testing-hooks-harness-lint/SKILL.md), [unit-testing-hooks-fixtures skill](../skills/unit-testing-hooks-fixtures/SKILL.md), and [unit-testing-hooks-subscriptions skill](../skills/unit-testing-hooks-subscriptions/SKILL.md) for the complete reference. Key rules:
 
 - **Use `.test.tsx`** for all hook tests — even when the hook file is `.ts`.
-- **`renderHook` by default** — use `render` + a Harness component only when the test requires a real DOM node (e.g. a click-outside `useEffect` that reads `containerRef.current`).
+- **Dual requirement — both `renderHook` AND a Harness component are required in every hook test file:**
+  - **`renderHook` tests** — assert hook behavior in isolation (state, handlers, return values). Default for behavioral assertions.
+  - **At least one Harness component** — always present for "Documentation by Harness": shows how the hook integrates into real JSX; must be thoroughly commented.
+  - If a hook test file has neither, that is a red flag: consider refactoring the hook.
+- **`renderHook` by default for behavior** — call handlers directly via `result.current`; use the Harness only for DOM-interaction tests (click-outside, ref attachment, real event propagation).
 - **Read `result.current` in assertions** — never alias it (`const hook = result.current`) because the alias goes stale after re-renders.
 - **`installStore` helper** — write a small per-file function that calls `vi.mocked(useAppStore).mockImplementation(...)` and call it as the first line of each test. Do not use `beforeEach` for store setup.
 - **`forceCast<T>`** from `@/react/lib/test-utils/forceCast` — use instead of inline `as unknown as T` for partial test objects and nullable fixtures.

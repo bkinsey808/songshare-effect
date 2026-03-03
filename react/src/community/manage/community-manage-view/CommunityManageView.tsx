@@ -78,8 +78,8 @@ export default function CommunityManageView(): ReactElement {
 							onSelect={setInviteUserIdInput}
 							disabled={actionState.loadingKey === "invite"}
 							excludeUserIds={members
-							.filter((member) => member.status !== "kicked")
-							.map((member) => member.user_id)}
+								.filter((member) => member.status !== "kicked")
+								.map((member) => member.user_id)}
 						/>
 					</div>
 					<Button

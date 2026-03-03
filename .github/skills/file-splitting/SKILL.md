@@ -1,4 +1,4 @@
-```skill
+````skill
 ---
 name: file-splitting
 description: Comprehensive guide for breaking large files into separate single-function files. Covers naming, exports, import paths, test colocation, and validation. Use when refactoring consolidated utilities or test helpers into modular, maintainable pieces.
@@ -24,7 +24,7 @@ export function makeFakeSelection() { ... }
 export function makeSelectChangeEvent() { ... }
 export function mockUseSlideManagerView() { ... }
 export function setUseSlideManagerViewReturn() { ... }
-```
+````
 
 ### After: Separate Files
 
@@ -267,4 +267,7 @@ import { getMockFn } from "./mockUseSlideManagerView.test-util";
 - [**file-organization skill**](../file-organization/SKILL.md) — Naming conventions, directory structure
 - [**unit-testing-mocking skill**](../unit-testing-mocking/SKILL.md) — `vi.mock`, `vi.hoisted`, callable mock helpers
 - [**unit-testing skill**](../unit-testing/SKILL.md) — Core test patterns
+
+```
+
 ```

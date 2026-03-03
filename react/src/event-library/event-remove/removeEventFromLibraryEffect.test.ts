@@ -5,7 +5,7 @@ import { clientWarn } from "@/react/lib/utils/clientLogger";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiEventLibraryRemovePath } from "@/shared/paths";
 
-import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.mock";
+import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.test-util";
 import removeEventFromLibraryEffect from "./removeEventFromLibraryEffect";
 
 vi.mock(

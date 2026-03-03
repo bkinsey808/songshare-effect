@@ -13,7 +13,7 @@ metadata:
 **What this skill does**
 
 - Provides a lightweight Vitest test template and core best-practice guidance.
-- For mocking strategies, see [unit-testing-mocking](../unit-testing-mocking/SKILL.md).
+- For mocking strategies, see [unit-testing-mocking](../unit-testing-mocking/SKILL.md) (core), [unit-testing-mocking-esm](../unit-testing-mocking-esm/SKILL.md) (ESM/Effect), and [unit-testing-mocking-helpers](../unit-testing-mocking-helpers/SKILL.md) (shared helpers).
 - For API handler testing, see [unit-testing-api](../unit-testing-api/SKILL.md).
 - For common pitfalls, see [unit-testing-pitfalls](../unit-testing-pitfalls/SKILL.md).
 
@@ -30,6 +30,37 @@ metadata:
 - **One-liner re-exports** — if the only logic is `export default someLib.method`, the test would just verify that JS imports work.
 
 If you find yourself writing a test that asserts an import exists or that a constant equals itself, skip it.
+
+---
+
+## Which skills to load for your task
+
+Loading only `unit-testing` is rarely sufficient. Use this as a routing guide before writing any code:
+
+**Hook test** (any `use*.ts` / `use*.tsx` file) — load all four together:
+
+- [unit-testing-hooks](../unit-testing-hooks/SKILL.md) — renderHook, installStore, Harness requirement (read first)
+- [unit-testing-hooks-harness](../unit-testing-hooks-harness/SKILL.md) — full Harness template, completeness, cleanup, describe block ordering
+- [unit-testing-hooks-harness-lint](../unit-testing-hooks-harness-lint/SKILL.md) — ⚠️ load _before_ writing Harness JSX: React Compiler constraint + oxlint traps
+- [unit-testing-hooks-checklist](../unit-testing-hooks-checklist/SKILL.md) — one-behavior-per-test, named constants, pre-completion checklist
+
+  Also load when relevant:
+  - [unit-testing-hooks-fixtures](../unit-testing-hooks-fixtures/SKILL.md) — mock data, `forceCast`, shared constants
+  - [unit-testing-hooks-subscriptions](../unit-testing-hooks-subscriptions/SKILL.md) — hook calls `Effect.runPromise(subscribeFn(...))`
+  - [unit-testing-mocking](../unit-testing-mocking/SKILL.md) — mocking modules beyond `useAppStore`
+  - [unit-testing-pitfalls](../unit-testing-pitfalls/SKILL.md) — async patterns, mock accumulator anti-patterns
+
+**API handler test** (`api/src/**/*.test.ts`):
+
+- [unit-testing-api](../unit-testing-api/SKILL.md) — makeCtx, makeSupabaseClient, MockRow, Effect.runPromise
+- [unit-testing-mocking](../unit-testing-mocking/SKILL.md) — factoryless vi.mock, vi.spyOn patterns
+- [unit-testing-pitfalls](../unit-testing-pitfalls/SKILL.md) — common async/assertion mistakes
+
+**Pure utility / module test** (non-hook, non-API):
+
+- This file covers most of what you need (templates, named constants, validation commands)
+- [unit-testing-mocking](../unit-testing-mocking/SKILL.md) — if external modules need to be mocked
+- [unit-testing-pitfalls](../unit-testing-pitfalls/SKILL.md) — anti-patterns checklist
 
 ---
 
@@ -51,7 +82,7 @@ _Note:_ helper modules intended solely for unit tests should be named with a `.t
 
 ## Mocking Quick Reference
 
-See [unit-testing-mocking](../unit-testing-mocking/SKILL.md) for full guidance. Key rules:
+See [unit-testing-mocking](../unit-testing-mocking/SKILL.md) for core patterns, [unit-testing-mocking-esm](../unit-testing-mocking-esm/SKILL.md) for ESM/Effect and `init()`, and [unit-testing-mocking-helpers](../unit-testing-mocking-helpers/SKILL.md) for shared callable helpers. Key rules:
 
 - **Prefer factoryless `vi.mock("path")`** — single argument, then `vi.mocked(fn).mockReturnValue(...)` at module level. Works for all return types including Effects.
 - **Avoid typed factories** — typed `vi.mock("path", () => ({ ... }))` breaks for Effect generics.
@@ -88,7 +119,7 @@ The `.bun.ts` entry point becomes a thin shell that reads `import.meta.dir`, cal
 - Document test helpers with JSDoc: purpose, params, and why any cast is acceptable.
 - **Wrap all tests in a `describe` block** — the `eslint-plugin-jest/require-top-level-describe` rule enforces this. All `test`/`it` calls at the top level will fail lint.
 - **Use `it` inside `describe`, `test` at the top level** — `eslint-plugin-jest/consistent-test-it` enforces `it` within `describe` blocks. If all tests are inside `describe`, import and use `it` (not `test`).
-- **Every numeric literal needs a named constant** — `no-magic-numbers` applies even to `0`, `1`, and arithmetic offsets like `index + 1`. Define constants at the top of the file (e.g. `const LINE_OFFSET = 1`, `const NO_ERRORS = 0`).
+- **Every numeric literal needs a named constant** — `no-magic-numbers` applies even to `0`, `1`, and arithmetic offsets like `index + 1`. Define constants at the top of the file (e.g. `const LINE_OFFSET = 1`, `const NO_ERRORS = 0`). For hook tests, see the full treatment in [unit-testing-hooks-checklist](../unit-testing-hooks-checklist/SKILL.md).
 - **Use `toHaveLength()` for array length assertions** — `expect(arr).toHaveLength(0)` not `expect(arr.length).toBe(0)`.
 - **Avoid single-character callback parameter names** — `id-length` rejects `_` and `i` even in `Array.from` callbacks. Use `_el, index` instead.
 - **Every string literal used more than once needs a named constant** — e.g. `const NEWLINE = "\n"` instead of inline `"\n"`.
@@ -125,10 +156,14 @@ npm run test:unit -- --coverage
 
 ## References
 
-- [**unit-testing-hooks**](../unit-testing-hooks/SKILL.md) — core hook testing: renderHook, installStore, one-behavior-per-test
-- [**unit-testing-hooks-harness**](../unit-testing-hooks-harness/SKILL.md) — Harness components, React Compiler ref constraint, query helper rules
+- [**unit-testing-hooks**](../unit-testing-hooks/SKILL.md) — core hook testing: renderHook, installStore, Harness requirement
+- [**unit-testing-hooks-checklist**](../unit-testing-hooks-checklist/SKILL.md) — one-behavior-per-test, named constants, pre-completion checklist
+- [**unit-testing-hooks-harness**](../unit-testing-hooks-harness/SKILL.md) — "Documentation by Harness" pattern (always required), DOM-interaction tests, completeness checklist, cleanup
+- [**unit-testing-hooks-harness-lint**](../unit-testing-hooks-harness-lint/SKILL.md) — Harness lint/compiler traps: React Compiler destructure constraint, query helper rules, oxlint pitfalls
 - [**unit-testing-hooks-fixtures**](../unit-testing-hooks-fixtures/SKILL.md) — mock data, forceCast, shared constants, filter-query specificity
-- [**unit-testing-mocking**](../unit-testing-mocking/SKILL.md) — vi.mock, vi.hoisted, Supabase stubs, callable helpers
+- [**unit-testing-mocking**](../unit-testing-mocking/SKILL.md) — Core vi.mock/vi.spyOn, Supabase stubs, clearing/resetting
+- [**unit-testing-mocking-esm**](../unit-testing-mocking-esm/SKILL.md) — ESM/Effect, `init()`, lifecycle hook avoidance
+- [**unit-testing-mocking-helpers**](../unit-testing-mocking-helpers/SKILL.md) — Callable helpers, `vi.hoisted()`, typed retrieval
 - [**unit-testing-api**](../unit-testing-api/SKILL.md) — Effect-based Hono handler testing
 - [**unit-testing-pitfalls**](../unit-testing-pitfalls/SKILL.md) — Common anti-patterns to avoid
 - Agent guidance: [.github/agents/Unit Test Agent.agent.md](../../agents/Unit Test Agent.agent.md)

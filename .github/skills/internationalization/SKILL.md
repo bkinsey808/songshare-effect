@@ -1,4 +1,4 @@
-```skill
+````skill
 ---
 name: internationalization
 description: i18n patterns for this project — useLocale/useLanguage/useCurrentLang hooks, URL-based language routing, adding translation keys, SupportedLanguageType. Use when adding UI text, building localized links, or working with language switching.
@@ -18,15 +18,15 @@ Supported languages are defined in `@/shared/language/supported-languages`:
 ```typescript
 // Supported values: "en" | "es" | "zh"
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-```
+````
 
 ## Which Hook to Use
 
-| Hook | Returns | Use when |
-|---|---|---|
-| `useLocale()` | `{ lang, t }` | Component needs **both** language and translation function |
-| `useLanguage()` | `lang` | Component needs language only (e.g., building locale-aware URLs) |
-| `useCurrentLang()` | `lang` | Need lang from URL pathname without component reactivity (or in tests with `{ pathname }` override) |
+| Hook               | Returns       | Use when                                                                                            |
+| ------------------ | ------------- | --------------------------------------------------------------------------------------------------- |
+| `useLocale()`      | `{ lang, t }` | Component needs **both** language and translation function                                          |
+| `useLanguage()`    | `lang`        | Component needs language only (e.g., building locale-aware URLs)                                    |
+| `useCurrentLang()` | `lang`        | Need lang from URL pathname without component reactivity (or in tests with `{ pathname }` override) |
 
 **Default: `useLocale()`** — it's the most ergonomic for UI components.
 
@@ -124,4 +124,7 @@ const lang = getCurrentLangFromPath("/zz/foo");   // → "en" (falls back to def
 - Supported languages: `@/shared/language/supported-languages`
 - Full i18n documentation: [docs/internationalization-system.md](../../../docs/internationalization-system.md)
 - React conventions: [../react-conventions/SKILL.md](../react-conventions/SKILL.md)
+
+```
+
 ```

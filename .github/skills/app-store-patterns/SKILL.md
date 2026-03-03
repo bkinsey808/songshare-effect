@@ -16,20 +16,22 @@ The app store is a single Zustand store composed from feature slices. Each featu
 ## Architecture Overview
 
 ```
+
 react/src/app-store/
-├── AppSlice.type.ts          # Intersection of all slice types → AppSlice
-├── app-store-types.ts        # Set / Get / Api utility types
-├── useAppStore.ts            # Singleton Zustand hook + getTypedState()
+├── AppSlice.type.ts # Intersection of all slice types → AppSlice
+├── app-store-types.ts # Set / Get / Api utility types
+├── useAppStore.ts # Singleton Zustand hook + getTypedState()
 ├── config/
-│   ├── sliceFactories.ts     # Ordered array of createXxxSlice functions
-│   └── omittedPersistKeysSet.ts  # Keys excluded from localStorage persist
-├── hydration.ts              # Tracks rehydration state for SSR/hydration wait
-└── slice-reset-fns.ts        # Registry for resetting all slices
+│ ├── sliceFactories.ts # Ordered array of createXxxSlice functions
+│ └── omittedPersistKeysSet.ts # Keys excluded from localStorage persist
+├── hydration.ts # Tracks rehydration state for SSR/hydration wait
+└── slice-reset-fns.ts # Registry for resetting all slices
 
 react/src/auth/slice/
-├── auth-slice.types.ts       # AuthState + AuthSlice types
-└── createAuthSlice.ts        # Slice factory
-```
+├── auth-slice.types.ts # AuthState + AuthSlice types
+└── createAuthSlice.ts # Slice factory
+
+````
 
 ## Slice Pattern
 
@@ -75,7 +77,7 @@ export default function createFeatureSlice(
     },
   };
 }
-```
+````
 
 ## Slice Types
 
@@ -182,4 +184,7 @@ vi.mocked(useAppStore).mockImplementation((selector) =>
 - Project rules: [.agent/rules.md](../../../.agent/rules.md)
 - Authentication slice example: [react/src/auth/slice/createAuthSlice.ts](../../../react/src/auth/slice/createAuthSlice.ts)
 - Unit testing mocking: [../unit-testing-mocking/SKILL.md](../unit-testing-mocking/SKILL.md)
+
+```
+
 ```

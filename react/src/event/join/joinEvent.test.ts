@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
-import makeEventSlice from "@/react/event/slice/makeEventSlice.mock";
+import makeEventSlice from "@/react/event/slice/makeEventSlice.test-util";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import joinEvent from "./joinEvent";

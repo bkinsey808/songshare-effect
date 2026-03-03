@@ -25,9 +25,9 @@ import {
 
 import type { CommunityActionState } from "./CommunityActionState.type";
 
+import getCommunityPermissions from "./getCommunityPermissions";
 import runCommunityAction from "./runCommunityAction";
 import useCommunityManageSubscriptions from "./useCommunityManageSubscriptions";
-import useCommunityPermissions from "./useCommunityPermissions";
 
 export type UseCommunityManageViewReturn = {
 	currentCommunity: CommunityEntry | undefined;
@@ -99,7 +99,7 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 	// Realtime subscriptions (community_event + community_public)
 	useCommunityManageSubscriptions(communityId);
 
-	const { canManage } = useCommunityPermissions({
+	const { canManage } = getCommunityPermissions({
 		currentCommunity,
 		members,
 		userSessionData,

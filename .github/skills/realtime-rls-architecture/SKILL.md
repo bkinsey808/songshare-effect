@@ -21,12 +21,12 @@ metadata:
 
 ## Access Control Layers
 
-| Layer | Mechanism | Purpose |
-|---|---|---|
-| **Database RLS** | Row-level policies enforce owner/admin/participant access | Primary protection |
-| **API** | Service role with business-logic validation | Secondary check |
-| **Frontend** | Hide edit/delete UI for non-owners | UX safety |
-| **Realtime filtering** | RLS SELECT policies filter per-subscriber | Real-time safety |
+| Layer                  | Mechanism                                                 | Purpose            |
+| ---------------------- | --------------------------------------------------------- | ------------------ |
+| **Database RLS**       | Row-level policies enforce owner/admin/participant access | Primary protection |
+| **API**                | Service role with business-logic validation               | Secondary check    |
+| **Frontend**           | Hide edit/delete UI for non-owners                        | UX safety          |
+| **Realtime filtering** | RLS SELECT policies filter per-subscriber                 | Real-time safety   |
 
 **Key principle**: Realtime respects RLS. Subscriptions succeed regardless, but message delivery is silently filtered — a client without SELECT permission receives nothing, no error.
 
@@ -48,11 +48,11 @@ This project uses two token types. Any SELECT policy on a public-readable table 
 )
 ```
 
-| Token type | `visitor_id` | `user.user_id` | Result |
-|---|---|---|---|
-| Visitor (anonymous) | ✅ set | null | `TRUE OR FALSE` → access ✅ |
-| User (signed in) | null | ✅ set | `FALSE OR TRUE` → access ✅ |
-| Invalid/malformed | null | null | `FALSE OR FALSE` → blocked ❌ |
+| Token type          | `visitor_id` | `user.user_id` | Result                        |
+| ------------------- | ------------ | -------------- | ----------------------------- |
+| Visitor (anonymous) | ✅ set       | null           | `TRUE OR FALSE` → access ✅   |
+| User (signed in)    | null         | ✅ set         | `FALSE OR TRUE` → access ✅   |
+| Invalid/malformed   | null         | null           | `FALSE OR FALSE` → blocked ❌ |
 
 See [authentication-system skill](../authentication-system/SKILL.md) for full token generation details.
 

@@ -1,11 +1,11 @@
 import type { Effect } from "effect";
 
 import type {
-    CommunityEntry,
-    CommunityEvent,
-    CommunityState,
-    CommunityUser,
-    SaveCommunityRequest,
+	CommunityEntry,
+	CommunityEvent,
+	CommunityState,
+	CommunityUser,
+	SaveCommunityRequest,
 } from "../community-types";
 
 /**

@@ -35,10 +35,12 @@ RLS policies and Realtime subscription patterns are in [realtime-rls-architectur
 ### Two-Token System
 
 **Visitor Token** (anonymous):
+
 - JWT `app_metadata: { visitor_id: "uuid" }`
 - Read-only access to `*_public` tables
 
 **User Token** (authenticated):
+
 - JWT `app_metadata: { visitor_id: "uuid", user: { user_id: "app-uuid" } }`
 - Full CRUD on user's own data
 
@@ -48,17 +50,17 @@ Both tokens are issued against a single shared "visitor" Supabase auth account s
 
 ## Key Source Files
 
-| Purpose | File |
-|---|---|
-| Select token for Supabase client | `react/src/lib/supabase/auth-token/getSupabaseAuthToken.ts` |
-| Fetch visitor token from API | `react/src/lib/supabase/auth-token/getSupabaseClientToken.ts` |
-| Fetch user token from API | `react/src/lib/supabase/auth-token/fetchSupabaseUserTokenFromApi.ts` |
-| In-memory token cache | `react/src/lib/supabase/token/token-cache.ts` |
-| Authenticated Supabase client | `react/src/lib/supabase/client/getSupabaseClientWithAuth.ts` |
-| Auth slice (Zustand) | `react/src/auth/slice/createAuthSlice.ts` |
-| Auth state types | `react/src/auth/slice/auth-slice.types.ts` |
-| Server: visitor token | `api/src/supabase/getSupabaseClientToken.ts` |
-| Server: user token | `api/src/user-session/getUserToken.ts` |
+| Purpose                          | File                                                                 |
+| -------------------------------- | -------------------------------------------------------------------- |
+| Select token for Supabase client | `react/src/lib/supabase/auth-token/getSupabaseAuthToken.ts`          |
+| Fetch visitor token from API     | `react/src/lib/supabase/auth-token/getSupabaseClientToken.ts`        |
+| Fetch user token from API        | `react/src/lib/supabase/auth-token/fetchSupabaseUserTokenFromApi.ts` |
+| In-memory token cache            | `react/src/lib/supabase/token/token-cache.ts`                        |
+| Authenticated Supabase client    | `react/src/lib/supabase/client/getSupabaseClientWithAuth.ts`         |
+| Auth slice (Zustand)             | `react/src/auth/slice/createAuthSlice.ts`                            |
+| Auth state types                 | `react/src/auth/slice/auth-slice.types.ts`                           |
+| Server: visitor token            | `api/src/supabase/getSupabaseClientToken.ts`                         |
+| Server: user token               | `api/src/user-session/getUserToken.ts`                               |
 
 ---
 
@@ -155,18 +157,22 @@ Signs in as the visitor account, updates `app_metadata` with `{ user: { user_id 
 ## Common Pitfalls
 
 ### ❌ Storing tokens in localStorage
+
 ```typescript
 localStorage.setItem("token", token); // XSS vulnerability
 ```
+
 Use in-memory cache only — the token cache does this correctly.
 
 ### ❌ Using hook inside a token utility function
+
 ```typescript
 // WRONG — useAppStore cannot be called outside a React component/hook
 export async function getToken() {
   const isSignedIn = useAppStore((state) => state.isSignedIn); // ❌
 }
 ```
+
 Check the token cache or fetch from the API directly instead.
 
 ---

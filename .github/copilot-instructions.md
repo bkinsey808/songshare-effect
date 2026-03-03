@@ -15,6 +15,7 @@ These skills are automatically loaded when relevant to your task:
 - [**realtime-rls-architecture**](./skills/realtime-rls-architecture/SKILL.md) - RLS policy templates for Realtime tables, JWT validation logic, access control layers
 - [**realtime-rls-debugging**](./skills/realtime-rls-debugging/SKILL.md) - Debugging Realtime subscriptions that connect but deliver no updates, empty filter errors
 - [**file-organization**](./skills/file-organization/SKILL.md) - No barrel files, direct imports, naming conventions
+- [**naming-conventions**](./skills/naming-conventions/SKILL.md) - Function prefix guide (use* vs compute* vs get* etc.), type/variable/file naming rules
 - [**typescript-conventions**](./skills/typescript-conventions/SKILL.md) - Strict typing, no `any`, JSDoc rules
 - [**react-conventions**](./skills/react-conventions/SKILL.md) - React Compiler (no memoization), ReactElement ambient type, useEffect comment rule, component organization
 - [**manage-page-patterns**](./skills/manage-page-patterns/SKILL.md) - Local actionState, runCommunityAction/runAction helpers, realtime update path for admin/manage pages
@@ -24,11 +25,15 @@ These skills are automatically loaded when relevant to your task:
 - [**internationalization**](./skills/internationalization/SKILL.md) - useLocale/useLanguage hooks, URL-path language routing, adding translation keys
 - [**code-comments**](./skills/code-comments/SKILL.md) - Comment conventions, JSDoc guidelines
 - [**unit-testing**](./skills/unit-testing/SKILL.md) - Core Vitest setup, templates, shared test-utils, and validation commands
-- [**unit-testing-hooks**](./skills/unit-testing-hooks/SKILL.md) - Core hook testing: renderHook, installStore helper, one-behavior-per-test, named constants
-- [**unit-testing-hooks-harness**](./skills/unit-testing-hooks-harness/SKILL.md) - When/how to use a Harness component, React Compiler ref constraint, query helper rules
+- [**unit-testing-hooks**](./skills/unit-testing-hooks/SKILL.md) - Hook test bundle (entry point, load all 4 together): renderHook, installStore, Harness requirement
+- [**unit-testing-hooks-harness**](./skills/unit-testing-hooks-harness/SKILL.md) - Hook test bundle: "Documentation by Harness" pattern (always required), full template, completeness checklist, cleanup, test structure
+- [**unit-testing-hooks-harness-lint**](./skills/unit-testing-hooks-harness-lint/SKILL.md) - Hook test bundle ⚠️ load before writing Harness JSX: React Compiler destructure constraint, query helper rules, oxlint pitfalls
+- [**unit-testing-hooks-checklist**](./skills/unit-testing-hooks-checklist/SKILL.md) - Hook test bundle (run at end): one-behavior-per-test, named constants, pre-completion checklist
 - [**unit-testing-hooks-fixtures**](./skills/unit-testing-hooks-fixtures/SKILL.md) - Mock data with real types, forceCast, shared module-level fixture constants, filter-query specificity
 - [**unit-testing-hooks-subscriptions**](./skills/unit-testing-hooks-subscriptions/SKILL.md) - Testing Effect-based realtime subscription hooks: void hooks, getState spy, cleanup, undefined→defined transition
-- [**unit-testing-mocking**](./skills/unit-testing-mocking/SKILL.md) - vi.mock, vi.hoisted, Supabase/Postgrest stubs, callable mock helpers
+- [**unit-testing-mocking**](./skills/unit-testing-mocking/SKILL.md) - Core vi.mock/vi.spyOn patterns, Supabase/Postgrest stubs, vi.mocked vs vi.spyOn, clearing/resetting
+- [**unit-testing-mocking-esm**](./skills/unit-testing-mocking-esm/SKILL.md) - ESM/Effect mocking, async init() pattern, lifecycle hook avoidance, Zustand getState spy
+- [**unit-testing-mocking-helpers**](./skills/unit-testing-mocking-helpers/SKILL.md) - Shared callable mock helpers, vi.hoisted(), typed retrieval helpers, helper module rules
 - [**unit-testing-api**](./skills/unit-testing-api/SKILL.md) - Effect-based Hono API handler testing (makeCtx, makeSupabaseClient, Effect.runPromise)
 - [**unit-testing-pitfalls**](./skills/unit-testing-pitfalls/SKILL.md) - Common anti-patterns: `as any`, `act`, magic numbers, async races
 - [**unit-testing-pitfalls-quality**](./skills/unit-testing-pitfalls-quality/SKILL.md) - Code-quality pitfalls: lint disables, type-cast helpers, mocking built-ins, `toStrictEqual`, `toSorted()`

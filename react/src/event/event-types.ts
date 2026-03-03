@@ -1,11 +1,11 @@
 import type { Schema } from "effect";
 
 import type {
-    Event,
-    EventInsert,
-    EventPublic,
-    EventPublicInsert,
-    EventUser,
+	Event,
+	EventInsert,
+	EventPublic,
+	EventPublicInsert,
+	EventUser,
 } from "@/shared/generated/supabaseSchemas";
 
 import type { EventEntry } from "./event-entry/EventEntry.type";
