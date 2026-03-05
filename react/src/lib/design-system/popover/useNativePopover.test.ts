@@ -3,16 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 
 import { makeKeyboardEventWithPreventDefault } from "@/react/lib/test-utils/dom-events";
 
-import type usePopoverPositioning from "./position/usePopoverPositioning";
-
+import usePopoverPositioning from "./position/usePopoverPositioning";
 import { useNativePopover } from "./useNativePopover";
 
-vi.mock("./position/usePopoverPositioning", (): { default: typeof usePopoverPositioning } => ({
-	default: vi.fn().mockReturnValue({
-		popoverPosition: {},
-		placement: "bottom",
-		updatePosition: vi.fn(),
-	}),
+vi.mock("./position/usePopoverPositioning");
+vi.mocked(usePopoverPositioning).mockImplementation(() => ({
+	popoverPosition: {},
+	placement: "bottom",
+	updatePosition: vi.fn(),
 }));
 
 describe("useNativePopover", () => {

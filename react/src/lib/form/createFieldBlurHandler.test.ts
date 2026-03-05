@@ -1,15 +1,12 @@
 import { Schema } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { clientDebug as _clientDebug } from "@/react/lib/utils/clientLogger";
 import type { ValidationError } from "@/shared/validation/validate-types";
 
 import type createFieldBlurHandlerType from "./createFieldBlurHandler";
 
 // stub logging so tests are quiet and we can inspect calls
-vi.mock("@/react/lib/utils/clientLogger", (): { clientDebug: typeof _clientDebug } => ({
-	clientDebug: vi.fn(),
-}));
+vi.mock("@/react/lib/utils/clientLogger");
 
 /**
  * Extract errors from the last mock call. Factored out to keep the test body

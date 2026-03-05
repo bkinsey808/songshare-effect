@@ -8,9 +8,7 @@ import createApiResponseEffect from "./createApiResponseEffect";
 
 // stub out debug logging so the real implementation isn't called and
 // we can easily assert on the calls.  Pattern borrowed from similar tests.
-vi.mock("@/react/lib/utils/clientLogger", (): { clientDebug: typeof clientDebug } => ({
-	clientDebug: vi.fn(),
-}));
+vi.mock("@/react/lib/utils/clientLogger");
 
 /**
  * Helper for constructing a minimal `Response` object for the tests.

@@ -36,7 +36,7 @@ Loading only this doc is rarely sufficient. Use this as a routing guide before w
 
 - [API Handler Testing](#api-handler-testing) — makeCtx, makeSupabaseClient, MockRow,
   Effect.runPromise
-- [Mocking](#mocking) — factoryless vi.mock, vi.spyOn patterns
+- [Mocking](#mocking) — non-factory `vi.mock`, `vi.spyOn` exception patterns
 - [Common Pitfalls](#common-pitfalls) — async/assertion mistakes
 
 **Pure utility / module test** (non-hook, non-API):
@@ -76,8 +76,8 @@ suffix so their purpose is obvious and they don't get mistaken for production co
 
 - **Wrap all tests in a `describe` block** — `eslint-plugin-jest/require-top-level-describe` enforces
   this. All `test`/`it` calls at the top level fail lint.
-- **Use `it` inside `describe`, `test` at the top level** — `eslint-plugin-jest/consistent-test-it`
-  enforces `it` within `describe` blocks.
+- **Use `it` inside `describe`** — `eslint-plugin-jest/consistent-test-it` enforces `it` within
+  `describe` blocks.
 - **Every numeric literal needs a named constant** — `no-magic-numbers` applies even to `0`, `1`,
   and arithmetic offsets like `index + 1`. Define constants at the top of the file
   (e.g. `const LINE_OFFSET = 1`, `const NO_ERRORS = 0`).
@@ -117,13 +117,13 @@ function, and handles `process.exit` / stream writes. It does **not** need its o
 
 ## Mocking
 
-### Factoryless `vi.mock` Pattern (Preferred)
+### Non-Factory `vi.mock` Pattern (Preferred)
 
-**Avoid typed factories.** Calling `vi.mock("path", () => ({ ... }))` triggers
-`jest/no-untyped-mock-factory` and breaks for Effect return types (the factory doesn't capture
-generic parameters).
+Use single-argument `vi.mock("path")` as the default. Then configure behavior with `vi.mocked(...)`
+inside each test. This keeps mocks predictable in ESM-heavy code and avoids brittle hand-built
+module shapes.
 
-**Preferred — single-argument `vi.mock` + `vi.mocked` at module level:**
+**Preferred - non-factory mock registration + per-test `vi.mocked(...)`:**
 
 ```ts
 import fetchEventCommunities from "@/react/event/fetch/fetchEventCommunities";
@@ -132,13 +132,25 @@ import subscribeToCommunityEventByEvent from "@/react/event/subscribe/subscribeT
 vi.mock("@/react/event/fetch/fetchEventCommunities");
 vi.mock("@/react/event/subscribe/subscribeToCommunityEventByEvent");
 
-// Module-level defaults (override per-test with .mockReturnValue in the it block)
-vi.mocked(fetchEventCommunities).mockReturnValue(Effect.succeed([]));
-vi.mocked(subscribeToCommunityEventByEvent).mockReturnValue(Effect.succeed(() => undefined));
+it("uses mocked dependencies", () => {
+  vi.mocked(fetchEventCommunities).mockReturnValue(Effect.succeed([]));
+  vi.mocked(subscribeToCommunityEventByEvent).mockReturnValue(Effect.succeed(() => undefined));
+});
 ```
 
-Do **not** suppress `jest/no-untyped-mock-factory` with a lint-disable. Use the factoryless pattern
-instead.
+Prefer non-factory mocks unless you have a specific need that requires a module factory.
+When using a factory, keep it minimal and typed.
+
+```ts
+vi.mock("@/shared/utils/formatEventDate", () => ({
+  clientLocalDateToUtcTimestamp: vi.fn(() => "2026-01-01T00:00:00Z"),
+}));
+```
+
+Treat `vi.importActual` as a code smell by default in this repo. In most tests, if you need a
+mocked dependency, prefer non-factory `vi.mock("path")` + `vi.mocked(...)` and avoid partial module
+merging. Use `vi.importActual` only for explicit, documented partial-mock exceptions where the
+non-factory pattern cannot express the behavior under test.
 
 ### Supabase / Postgrest Mocking
 
@@ -162,49 +174,78 @@ response format, especially for error cases:
 return Promise.resolve({ data: null, error: { message: "Database failure" } });
 ```
 
-### `vi.mocked()` vs `vi.spyOn()` — Know the Difference
+### `vi.mock()` vs `vi.spyOn()` - Default to `vi.mock()`
 
-`vi.mocked()` **only works** when the module has already been registered with `vi.mock()`.
+In this repository, use `vi.mock()` as the default for dependencies imported by the SUT. This is
+more predictable in ESM-heavy code and gives stronger module-boundary isolation.
 
 ```ts
-// ✅ Works because vi.mock("...") is at the top of the file
+// ✅ Preferred default: non-factory module mock
 vi.mock("@/shared/utils/formatEventDate");
 vi.mocked(formatEventDate.clientLocalDateToUtcTimestamp).mockReturnValue("2026-01-01T00:00:00Z");
+```
 
-// ❌ WRONG — calling vi.mocked on a dynamic import without a top-level vi.mock
-const mod = await import("@/shared/utils/formatEventDate");
-vi.mocked(mod.clientLocalDateToUtcTimestamp).mockReturnValue("..."); // TypeError!
+Use `vi.spyOn()` only when you intentionally want to keep the real module implementation and patch
+just one property for a test:
 
-// ✅ Use vi.spyOn() when you need per-test control without a top-level vi.mock
+```ts
 const mod = await import("@/shared/utils/formatEventDate");
 vi.spyOn(mod, "clientLocalDateToUtcTimestamp").mockReturnValue("2026-01-01T00:00:00Z");
 ```
 
 | Situation | Pattern |
 |---|---|
-| Top-level `vi.mock("path")` exists | `vi.mocked(fn).mockReturnValue(...)` |
-| No top-level `vi.mock("path")` | `vi.spyOn(module, "fnName").mockReturnValue(...)` |
+| Imported collaborator / repeated control across tests | `vi.mock("path")` + `vi.mocked(...)` |
+| Advanced module-shape override | `vi.mock("path", factory)` |
+| One-off partial override on a stable object reference | `vi.spyOn(object, "method")` |
 
-Prefer adding a top-level `vi.mock()` when the same module needs to be controlled in multiple
-tests; use `vi.spyOn()` for one-off per-test overrides.
+Use `vi.spyOn()` as an escape hatch, not the baseline pattern.
+
+### `vi.doMock()` - Runtime Exception Path
+
+Use `vi.doMock()` only when non-factory top-level `vi.mock("path")` cannot express the test setup.
+Typical case: per-test runtime-dependent mocking before importing the SUT.
+
+Preferred flow for `vi.doMock()`:
+
+1. Create a local `async init()` helper inside `describe`.
+2. Call `vi.resetModules()` inside `init()` before imports.
+3. Install `vi.doMock(...)` in `init()`.
+4. Dynamically `import()` the SUT and mocked dependency in `init()`.
+5. Return all handles needed by the test.
+
+Do not use `vi.doMock()` as a default replacement for top-level non-factory `vi.mock`.
 
 ### Never mock an entire shared library
 
-Avoid `vi.mock` factories for libraries like `effect` that export types used across the whole repo.
-Even if the factory only overrides one export, Vitest's auto-mocking will replace all other exports
-with `undefined`.
+Avoid `vi.mock("effect")` entirely for libraries like `effect` that export values used across the
+whole repo. This applies to both non-factory and factory patterns.
+
+Best practice order for Effect tests:
+
+1. Do not mock `effect` at all.
+2. Mock your own dependency boundary and return real `Effect` values.
+3. Use targeted `vi.spyOn` on `effect` only when no practical boundary exists.
+
+- Non-factory `vi.mock("effect")` can auto-mock broad module surfaces unexpectedly.
+- Factory `vi.mock("effect", () => ...)` can accidentally omit exports, leaving them `undefined`.
 
 ```ts
-// ❌ Replaces ALL exports with undefined — breaks Schema, Context, Layer, etc.
+// ❌ Avoid non-factory module-level mocking of effect
+vi.mock("effect");
+
+// ❌ Avoid factory module-level mocking of effect
 vi.mock("effect", () => ({ Effect: { runPromise: vi.fn() } }));
 
-// ✅ Stub only at the call site using real Effect values
+// ✅ Prefer mocking your own dependency boundary with real Effect values
 fetchEventBySlug: (_slug: string) => Effect.sync(() => undefined)
-// Or spy without touching the whole module:
+
+// ✅ If absolutely required, use targeted spyOn without replacing the full module:
 vi.spyOn(effectModule, "runPromise").mockResolvedValue(undefined);
 ```
 
-**Rule:** only mock modules that the code under test **directly imports**. Verify with a quick
+**Rule:** only mock modules that the code under test **directly imports**, and prefer your own
+application modules over third-party shared libraries. Verify with a quick
 `grep` before adding a `vi.mock`.
 
 ### ESM & Effect Mocking
@@ -283,6 +324,10 @@ Three patterns exist; pick the right one upfront:
 | Single test file needs fresh module imports per test | `async init()` inside `describe` | Inline |
 | Multiple test files mock the same module | Callable `mockFoo()` function | `*.test-util.ts` |
 | Multiple helper files share the same mock state | `vi.hoisted()` state + `mockFoo()` + getter | `*.test-util.ts` |
+
+Treat `vi.hoisted()` as a code smell by default in this repo. Most tests should use top-level
+`vi.mock("path")` plus per-test `vi.mocked(...)` setup. Reach for `vi.hoisted()` only when hoist
+timing is required for shared mock state across helper modules.
 
 Start with `async init()`. Extract to a callable helper only when two or more test files need the
 same mock. Add `vi.hoisted()` only when a second helper file needs to read or configure the same
@@ -452,7 +497,8 @@ vi.mocked(verifySameOriginOrThrow).mockReturnValue(undefined);
 vi.mocked(verifyDoubleSubmitOrThrow).mockReturnValue(undefined);
 ```
 
-**Dynamic imports with `vi.spyOn`** (functions returning Effects):
+**Dynamic imports with `vi.spyOn`** (functions returning Effects, exception path when a top-level
+`vi.mock` setup is not practical):
 
 ```typescript
 const verifiedModule = await import("@/api/user-session/getVerifiedSession");
@@ -637,6 +683,45 @@ differences.
 ### ❌ `Array#sort()` Instead of `Array#toSorted()`
 
 `sort()` mutates in place. Use `toSorted()` which returns a new sorted array.
+
+---
+
+## Advanced Tradeoffs
+
+### Behavior vs Implementation Assertions
+
+Prefer behavior-first assertions (return values, state updates, visible side effects). Assert
+internal collaborator calls only when the call shape is part of the contract.
+
+### Choose One Mocking Seam
+
+Mock one boundary per test whenever possible (for example: network layer *or* mapper layer, not
+both). Multi-layer mocks can pass while real integration is broken.
+
+### Module Cache Isolation
+
+When using dynamic imports and `vi.doMock`, isolate setup in a local `async init()` helper and call
+`vi.resetModules()` inside that helper. This avoids cross-test module cache leakage.
+
+### Deterministic Async
+
+Always await the unit under test. For eventual updates, use `waitFor` with explicit expectations
+instead of timing assumptions.
+
+### Avoid Over-Mocking Pure Logic
+
+Keep pure, deterministic, fast helpers real where practical. Mocking simple pure logic increases
+fragility and hides integration mistakes.
+
+### Assert Error Semantics, Not Just "Throws"
+
+For Effect-based paths, assert the specific error type and meaningful message fields, not only that
+an exception occurred.
+
+### Extract Helpers Only After Repetition
+
+Keep setup inline until the same pattern appears in two or more test files. Early extraction
+creates indirection and makes tests harder to read.
 
 ---
 

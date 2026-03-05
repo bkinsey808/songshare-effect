@@ -1,27 +1,22 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import type { UserSessionData } from "@/shared/userSessionData";
+
 import { appStore } from "@/react/app-store/useAppStore";
+import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
 import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
-import type { UserSessionData } from "@/shared/userSessionData";
+import UserSearchInput from "@/react/user-search-input/UserSearchInput";
 
 import ShareButton from "./ShareButton";
 
+const FIRST_PARAMETER = 0;
+
 vi.mock("@/react/app-store/useAppStore");
-vi.mock(
-	"@/react/auth/useCurrentUserId",
-	(): { default: () => string } => ({
-		default: (): string => "test-user",
-	}),
-);
-vi.mock(
-	"@/react/user-search-input/UserSearchInput",
-	(): { default: ({ label }: { label: string }) => ReactElement } => ({
-		default: ({ label }: { label: string }): ReactElement => <div>{label}</div>,
-	}),
-);
+vi.mock("@/react/auth/useCurrentUserId");
+vi.mock("@/react/user-search-input/UserSearchInput");
 
 const TEST_USER_SESSION: UserSessionData = {
 	user: {
@@ -43,8 +38,15 @@ const TEST_USER_SESSION: UserSessionData = {
 	ip: "127.0.0.1",
 };
 
+type UserSearchInputProps = Parameters<typeof UserSearchInput>[typeof FIRST_PARAMETER];
+
 describe("share button", () => {
 	it("renders share button", () => {
+		vi.mocked(useCurrentUserId).mockReturnValue("test-user");
+		vi.mocked(UserSearchInput).mockImplementation((props: UserSearchInputProps) => (
+			<div>{props.label}</div>
+		));
+
 		// Mock appStore for ShareButton
 		vi.mocked(appStore).mockReturnValue(
 			makeAppSlice({
@@ -54,11 +56,7 @@ describe("share button", () => {
 		);
 
 		const { getByText } = render(
-			<ShareButton
-				itemType="song"
-				itemId="test-song"
-				itemName="Test Song"
-			/>,
+			<ShareButton itemType="song" itemId="test-song" itemName="Test Song" />,
 		);
 
 		expect(getByText("Share")).toBeTruthy();

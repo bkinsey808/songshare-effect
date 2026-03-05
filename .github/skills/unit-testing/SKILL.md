@@ -37,8 +37,10 @@ Output requirements:
 - **When NOT to write a test** (trivial getters, generated code, test-util helpers)
 - **Routing guide** — which section to consult for hook vs. API vs. utility tests
 - **Core setup** — file naming, `describe`/`it` rules, named constants, `toStrictEqual`, lint rules
-- **Mocking** — factoryless `vi.mock`, `vi.mocked` vs `vi.spyOn`, Supabase stubs, ESM/Effect
-  patterns, `async init()`, shared callable helpers, `vi.hoisted()`, `forceCast`
+- **Mocking** — default to non-factory `vi.mock("path")` + `vi.mocked(...)` for module boundaries,
+  use `vi.spyOn` as a targeted escape hatch, plus `vi.doMock` exception flow (`init()` +
+  `vi.resetModules()` + dynamic import), Supabase stubs, ESM/Effect patterns, shared callable
+  helpers, `vi.hoisted()`, `forceCast`
 - **API handler testing** — `makeCtx`, `makeSupabaseClient`, `MockRow<T>`, `Effect.runPromise`
 - **Common pitfalls** — magic numbers, `as any`, `act`, async races, lint-disable hygiene,
   `toSorted()`, Node.js built-in mocking
@@ -56,6 +58,20 @@ npm run test:unit                            # all tests (before PR)
 - Do not violate repo-wide rules in `.agent/rules.md`.
 - Do not add broad lint/type suppressions without explicit justification.
 - Do not expand scope beyond the requested task without calling it out.
+- Do not reinvent mock guidance in-line; follow the canonical `docs/unit-testing.md` mocking
+  section for full `vi.mock` vs `vi.spyOn` patterns.
+- Do not mock `effect` at module level (`vi.mock("effect")` with or without factory). Mock your own
+  boundary module and return real `Effect` values.
+- Do not treat `vi.hoisted()` or `vi.importActual()` as baseline patterns; they are exception paths.
+
+## Mocking Order (Quick)
+
+1. Use non-factory `vi.mock("path")` + `vi.mocked(...)` by default.
+2. Use `vi.spyOn(...)` only for one-off partial overrides on stable references.
+3. Use `vi.doMock(...)` only when runtime-dependent per-test mocking is required before importing
+   the SUT.
+4. Use factory mocks / `vi.importActual` / `vi.hoisted` only for explicit advanced cases that
+   cannot be expressed with the default pattern.
 
 ## Success Criteria
 

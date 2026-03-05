@@ -8,9 +8,7 @@ import { clientDebug } from "@/react/lib/utils/clientLogger";
 import createApiResponseHandlerEffect from "./createApiResponseHandlerEffect";
 
 // stub out debug logging so tests aren't noisy and we can inspect calls
-vi.mock("@/react/lib/utils/clientLogger", (): { clientDebug: typeof clientDebug } => ({
-	clientDebug: vi.fn(),
-}));
+vi.mock("@/react/lib/utils/clientLogger");
 
 /**
  * Minimal `Response` builder used across the handler tests.
