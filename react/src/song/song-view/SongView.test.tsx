@@ -1,5 +1,6 @@
 import { cleanup, render } from "@testing-library/react";
 import { Effect } from "effect";
+import type { ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
@@ -28,6 +29,28 @@ vi.mock(
 				typeof defaultVal === "string" ? defaultVal : key,
 			i18n: { language: "en" },
 		}),
+	}),
+);
+// Mock ShareButton to avoid popover complexity in integration tests
+vi.mock(
+	"@/react/lib/design-system/ShareButton",
+	(): { default: ({ children, ...props }: { children?: ReactNode }) => ReactElement } => ({
+		default: ({ children, ...props }: { children?: ReactNode }): ReactElement => (
+			<button {...props}>{children ?? "Share"}</button>
+		),
+	}),
+);
+vi.mock(
+	import("@/react/share/SharedUsersSection"),
+	() => ({
+		default: (): ReactElement => <div data-testid="shared-users-section" />,
+	}),
+);
+// Avoid coupling SongView tests to share subscription side effects/state shape
+vi.mock(
+	import("@/react/share/useShareSubscription"),
+	() => ({
+		default: vi.fn((): void => undefined),
 	}),
 );
 // Mock the store module so tests can set implementations

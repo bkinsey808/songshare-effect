@@ -1,7 +1,6 @@
 ---
 name: cloudflare-cache-cicd
 description: Cloudflare CDN cache management and GitHub Actions CI/CD workflows. Use when setting up or debugging CI/CD pipelines, handling cache invalidation, or troubleshooting workflow failures.
-license: MIT
 compatibility: Cloudflare Pages, GitHub Actions
 metadata:
   author: bkinsey808
@@ -9,6 +8,22 @@ metadata:
 ---
 
 # Cloudflare Cache & CI/CD Skill
+
+## Use When
+
+Use this skill when:
+- Updating cache behavior, deploy workflows, or CI pipeline steps.
+- Debugging stale assets, failed GitHub Actions runs, or cache invalidation issues.
+
+Execution workflow:
+1. Confirm the intended deploy path (standard deploy vs deploy with cache purge).
+2. Validate workflow/config changes in the narrowest scope first.
+3. Preserve existing environment/workflow conventions unless there is a clear reason to change them.
+4. Report operational validation steps for cache and CI behavior.
+
+Output requirements:
+- Summarize workflow/cache files changed and expected operational impact.
+- Include exact verification commands/run checks used.
 
 ## What This Skill Does
 
@@ -113,3 +128,20 @@ npm run test:e2e:dev   # interactive Playwright
 - [docs/github-actions-workflows.md](../../../docs/github-actions-workflows.md)
 - Core deploy workflow: [deployment-strategies skill](../deployment-strategies/SKILL.md)
 - Rollback / monitoring: [deployment-operations skill](../deployment-operations/SKILL.md)
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If incident response or rollback steps are needed, also load `deployment-operations`.
+- If task is release planning/configuration, also load `deployment-strategies`.

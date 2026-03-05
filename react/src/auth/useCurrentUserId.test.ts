@@ -5,10 +5,17 @@ import type { UserSessionData } from "@/shared/userSessionData";
 import forceCast from "../lib/test-utils/forceCast";
 import makeUserPublic from "../playlist/test-utils/makeUserPublic.mock";
 
+/**
+ * A non-string value used to simulate malformed `user_id` values at runtime.
+ * Tests verify the hook treats this as invalid and returns `undefined`.
+ */
 const NON_STRING_ID = 999;
 
 /**
- * A realistic user session object that tests can clone or override.
+ * A realistic user session fixture used by tests.
+ *
+ * Tests may clone or override fields from this object to simulate different
+ * signed-in states without repeating the full shape each time.
  */
 const SAMPLE_USER_SESSION: UserSessionData = {
 	user: {
@@ -32,8 +39,12 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 };
 
 /**
- * Return a copy of the sample user session where the `user_id` is not a
- * string. This is used to verify the hook gracefully rejects bad types.
+ * Create a copy of `SAMPLE_USER_SESSION` where the `user.user_id` is a
+ * non-string value. The returned object intentionally violates the
+ * expected type at runtime so tests can confirm the hook handles bad data
+ * safely.
+ *
+ * @returns a `UserSessionData`-shaped object with a non-string `user_id`
  */
 function makeSampleWithNonStringId(): UserSessionData {
 	// we want a runtime user_id that is not a string; the type assertion
@@ -49,8 +60,15 @@ function makeSampleWithNonStringId(): UserSessionData {
 }
 
 /**
- * Configure the mocked application store to return a state that optionally
- * includes the given `UserSessionData`.
+ * Mock `getTypedState()` from the app store to return a test-controlled
+ * `userSessionData` value.
+ *
+ * The test harness imports the real store module and spies on
+ * `getTypedState()` so individual tests can simulate signed-in and
+ * signed-out scenarios.
+ *
+ * @param userSessionData - Optional fixture to return from the store
+ * @returns Promise that resolves once the module has been mocked
  */
 async function setGetTypedStateUser(userSessionData?: UserSessionData): Promise<void> {
 	vi.resetModules();
@@ -61,6 +79,7 @@ async function setGetTypedStateUser(userSessionData?: UserSessionData): Promise<
 	// the exact shape is irrelevant for tests
 	vi.spyOn(appStoreModule, "getTypedState").mockReturnValue(newState as unknown);
 }
+
 describe("useCurrentUserId", () => {
 	it("returns the current user id when a user is signed in", async () => {
 		await setGetTypedStateUser({

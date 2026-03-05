@@ -16,15 +16,15 @@ import usePlaylistSongDisplay from "../playlist-song-display/usePlaylistSongDisp
 import useEventPlaylistAccordion from "./useEventPlaylistAccordion";
 
 vi.mock("@/react/lib/supabase/enrichment/fetchUsername");
-vi.mock("@/react/lib/supabase/client/getSupabaseClient");
+vi.mock("@/react/lib/supabase/client/getSupabaseClientWithAuth");
 
 describe("useEventPlaylistAccordion hooks", () => {
 	describe("usePlaylistSongDisplay", () => {
 		it("returns song data and subtext", async () => {
 			const mockGetSupabaseClientSpy = await spyImport(
-				"@/react/lib/supabase/client/getSupabaseClient",
+				"@/react/lib/supabase/client/getSupabaseClientWithAuth",
 			);
-			mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
+			mockGetSupabaseClientSpy.mockResolvedValue?.(createMinimalSupabaseClient());
 			const publicSongs = {
 				s1: makeTestSong({ song_name: "Song 1", user_id: "u1" }),
 			};
@@ -37,9 +37,9 @@ describe("useEventPlaylistAccordion hooks", () => {
 
 		it("returns songId as name if song name is missing", async () => {
 			const mockGetSupabaseClientSpy = await spyImport(
-				"@/react/lib/supabase/client/getSupabaseClient",
+				"@/react/lib/supabase/client/getSupabaseClientWithAuth",
 			);
-			mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
+			mockGetSupabaseClientSpy.mockResolvedValue?.(createMinimalSupabaseClient());
 			const publicSongs = {
 				s1: makeSongWithUndefinedName({ user_id: "u1" }),
 			};
@@ -51,9 +51,9 @@ describe("useEventPlaylistAccordion hooks", () => {
 
 		it("fetches and displays username when available", async () => {
 			const mockGetSupabaseClientSpy = await spyImport(
-				"@/react/lib/supabase/client/getSupabaseClient",
+				"@/react/lib/supabase/client/getSupabaseClientWithAuth",
 			);
-			mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
+			mockGetSupabaseClientSpy.mockResolvedValue?.(createMinimalSupabaseClient());
 			vi.mocked(fetchUsername).mockResolvedValue("user_one");
 
 			const publicSongs = {
@@ -70,9 +70,9 @@ describe("useEventPlaylistAccordion hooks", () => {
 
 		it("returns empty subtext if no user_id", async () => {
 			const mockGetSupabaseClientSpy = await spyImport(
-				"@/react/lib/supabase/client/getSupabaseClient",
+				"@/react/lib/supabase/client/getSupabaseClientWithAuth",
 			);
-			mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
+			mockGetSupabaseClientSpy.mockResolvedValue?.(createMinimalSupabaseClient());
 			const publicSongs = {
 				s1: makeTestSong({ song_name: "Song 1", user_id: "" }),
 			};

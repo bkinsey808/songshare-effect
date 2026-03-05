@@ -14,6 +14,16 @@ import omittedPersistKeysSet from "./config/omittedPersistKeysSet";
 import sliceFactories from "./config/sliceFactories";
 import { hydrationState } from "./hydration";
 
+/**
+ * Check whether a runtime value implements the minimal `AppSlice` API.
+ *
+ * This guard performs simple `in` checks for a small set of required
+ * methods. It is used during store composition to ensure the combined
+ * partials produce a complete slice before asserting the narrow type.
+ *
+ * @param obj - value to test
+ * @returns true when `obj` implements the expected `AppSlice` members
+ */
 function isFullAppSlice(obj: unknown): obj is AppSlice {
 	if (obj === null || typeof obj !== "object") {
 		return false;
@@ -23,7 +33,8 @@ function isFullAppSlice(obj: unknown): obj is AppSlice {
 		"setShowSignedInAlert" in obj &&
 		"addOrUpdatePrivateSongs" in obj &&
 		"fetchPlaylist" in obj &&
-		"fetchEventBySlug" in obj
+		"fetchEventBySlug" in obj &&
+		"createShare" in obj
 	);
 }
 
@@ -87,12 +98,14 @@ const useAppStore = create<AppSlice>()(
 );
 
 /**
- * Typed getter for the vanilla store API
+ * Typed getter for the vanilla store API.
  *
  * Use this when you need a fully-typed `AppSlice` from code that runs
  * outside a selector (tests, hooks, non-react helpers). This centralizes
  * the narrowing/cast so callers don't have to perform `as unknown as AppSlice`
  * themselves.
+ *
+ * @returns the fully-initialized `AppSlice` instance
  */
 // The Zustand `getState()` is untyped at this callsite; we assert the shape
 // once below using a small runtime check so callers get a fully-typed `AppSlice`
@@ -119,9 +132,13 @@ export function getTypedState(): AppSlice {
 }
 
 /**
- * Common alias for useAppStore to satisfy React Compiler rules when
- * accessing the vanilla store API (e.g. getState, subscribe) outside
- * of the hook-oriented usage.
+ * Common alias for the vanilla store API.
+ *
+ * Exported to support non-hook usage patterns (for example in test helpers
+ * or other runtime modules that need `getState` / `subscribe`). Prefer
+ * `getTypedState()` when a typed snapshot of the store is required.
+ *
+ * @returns the same hook instance as `useAppStore` but usable outside React
  */
 export const appStore = useAppStore;
 

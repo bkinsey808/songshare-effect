@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
+import Button from "@/react/lib/design-system/Button";
+import CreatePlaylistIcon from "@/react/lib/design-system/icons/CreatePlaylistIcon";
 import useAppStore from "@/react/app-store/useAppStore";
 import { ZERO } from "@/shared/constants/shared-constants";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
@@ -32,14 +34,6 @@ export type PlaylistLibraryProps = {
 export default function PlaylistLibrary({ lang, t, navigate }: PlaylistLibraryProps): ReactElement {
 	const { playlistEntries, isLoading, error, removeFromPlaylistLibrary } = usePlaylistLibrary();
 	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
-
-	console.warn("[PlaylistLibrary] Render state:", {
-		entriesCount: playlistEntries.length,
-		isLoading,
-		error,
-		firstEntryId: playlistEntries[ZERO]?.playlist_id ?? "none",
-		firstEntryName: playlistEntries[ZERO]?.playlist_name ?? "none",
-	});
 
 	if (isLoading) {
 		return (
@@ -81,6 +75,18 @@ export default function PlaylistLibrary({ lang, t, navigate }: PlaylistLibraryPr
 						"Start building your collection by creating playlists or adding others' playlists!",
 					)}
 				</p>
+				<Button
+					variant="primary"
+					size="default"
+					icon={<CreatePlaylistIcon className="size-5" />}
+					onClick={() => {
+						navigate(buildPathWithLang(`/${dashboardPath}/${playlistEditPath}`, lang));
+					}}
+					data-testid="playlist-library-create-playlist"
+					className="mb-4"
+				>
+					{t("pages.dashboard.createPlaylist", "Create Playlist")}
+				</Button>
 				<div className="text-sm text-gray-500">
 					{t(
 						"playlistLibrary.emptyHint",
@@ -94,17 +100,28 @@ export default function PlaylistLibrary({ lang, t, navigate }: PlaylistLibraryPr
 	return (
 		<div className="space-y-6">
 			{/* Header Stats */}
-			<div className="flex items-center justify-between">
-				<h2 className="text-xl font-semibold text-white">
-					{t("playlistLibrary.libraryTitle", "My Playlist Library")}
-				</h2>
-				<div className="flex items-center space-x-4 text-sm text-gray-400">
-					<div>
+			<div className="flex flex-wrap items-center justify-between gap-4">
+				<div className="flex items-center gap-4">
+					<h2 className="text-xl font-semibold text-white">
+						{t("playlistLibrary.libraryTitle", "My Playlist Library")}
+					</h2>
+					<span className="text-sm text-gray-400">
 						{t("playlistLibrary.playlistCount", "{{count}} playlists", {
 							count: playlistEntries.length,
 						})}
-					</div>
+					</span>
 				</div>
+				<Button
+					variant="outlinePrimary"
+					size="compact"
+					icon={<CreatePlaylistIcon className="size-5" />}
+					onClick={() => {
+						navigate(buildPathWithLang(`/${dashboardPath}/${playlistEditPath}`, lang));
+					}}
+					data-testid="playlist-library-create-playlist"
+				>
+					{t("pages.dashboard.createPlaylist", "Create Playlist")}
+				</Button>
 			</div>
 
 			{/* Playlist Grid */}

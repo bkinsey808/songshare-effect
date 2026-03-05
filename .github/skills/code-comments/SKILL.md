@@ -1,7 +1,6 @@
 ---
 name: code-comments
 description: Code comment conventions and examples (JSDoc vs inline comments, when to explain why vs what, max line length, and placement rules). Use when adding comments to TypeScript/React code or reviewing PR comments.
-license: MIT
 compatibility: TypeScript 5.x, React 18+
 metadata:
   author: bkinsey808
@@ -9,6 +8,22 @@ metadata:
 ---
 
 # Code Comments Skill
+
+## Use When
+
+Use this skill when:
+- Adding or editing comments/JSDoc in `.ts` or `.tsx` files.
+- Reviewing whether comments explain intent clearly without duplicating types or obvious code.
+
+Execution workflow:
+1. Prefer concise comments that explain why/intent, not restating code.
+2. Keep JSDoc aligned with repo rules (no repeated types, consistent placement/spacing).
+3. Add inline comments only for non-obvious logic blocks.
+4. Re-check nearby style/lint rules after comment edits.
+
+Output requirements:
+- Summarize where comments were added/updated and why.
+- Call out any rule exception and rationale if applicable.
 
 **What this skill does**
 
@@ -184,3 +199,20 @@ npx tsc -b .
 
 - Agent guidance: [.github/agents/Comment Agent.agent.md](../../agents/Comment%20Agent.agent.md)
 - Project rules: [.agent/rules.md](../../../.agent/rules.md)
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If comment updates are driven by TypeScript API clarity, also load `typescript-conventions`.
+- If comments are for React hooks/components, also load `react-conventions`.

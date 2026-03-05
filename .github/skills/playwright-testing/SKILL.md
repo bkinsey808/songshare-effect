@@ -1,7 +1,6 @@
 ---
 name: playwright-testing
 description: Playwright testing workflows, templates, and tips for stable, non-flaky E2E tests in dev and CI environments. Use when writing Playwright specs for critical user flows (auth, navigation, features).
-license: MIT
 compatibility: Playwright 1.x, Node.js 20+, Chrome/Firefox/Safari browsers
 metadata:
   author: bkinsey808
@@ -9,6 +8,22 @@ metadata:
 ---
 
 # Playwright Testing Skill
+
+## Use When
+
+Use this skill when:
+- Adding or updating Playwright specs under `e2e/`.
+- Debugging flaky end-to-end tests or stabilizing CI/browser behavior.
+
+Execution workflow:
+1. Use project helpers and stable role-based locators first.
+2. Mock network boundaries intentionally and keep waits deterministic.
+3. Run the narrowest spec while iterating, then broaden test coverage.
+4. Validate with `npm run test:e2e:dev` (or targeted Playwright command) before finalizing.
+
+Output requirements:
+- Report scenarios covered and any new mocks or helpers introduced.
+- Report exact Playwright command(s) run.
 
 **What this skill does**
 
@@ -95,3 +110,20 @@ npx playwright show-report
 - Playwright documentation: https://playwright.dev/
 - Best practices: https://playwright.dev/docs/best-practices
 - Locator strategies: https://playwright.dev/docs/locators
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If you need unit-level coverage in addition to E2E, also load `unit-testing`.
+- If E2E failures involve auth behavior, also load `authentication-system`.

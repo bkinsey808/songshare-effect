@@ -1,6 +1,12 @@
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+import Button from "@/react/lib/design-system/Button";
+import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import { dashboardPath, eventEditPath } from "@/shared/paths";
 import { ZERO } from "@/shared/constants/shared-constants";
 
 import type { EventLibraryEntry } from "./event-library-types";
@@ -22,6 +28,8 @@ export default function EventLibrary(): ReactElement {
 	const { entries, isLoading, error } = useEventLibrary();
 	const currentUserId = useCurrentUserId();
 	const { t } = useTranslation();
+	const { lang } = useLocale();
+	const navigate = useNavigate();
 
 	if (isLoading) {
 		return <EventLibraryLoadingState />;
@@ -32,7 +40,13 @@ export default function EventLibrary(): ReactElement {
 	}
 
 	if (entries.length === ZERO) {
-		return <EventLibraryEmptyState />;
+		return (
+			<EventLibraryEmptyState
+				onCreateClick={() => {
+					void navigate(buildPathWithLang(`/${dashboardPath}/${eventEditPath}`, lang));
+				}}
+			/>
+		);
 	}
 
 	return (
@@ -46,6 +60,17 @@ export default function EventLibrary(): ReactElement {
 						{t("eventLibrary.count", "{{count}} events", { count: entries.length })}
 					</span>
 				</div>
+				<Button
+					variant="outlinePrimary"
+					size="compact"
+					icon={<PlusIcon className="size-5" />}
+					onClick={() => {
+						void navigate(buildPathWithLang(`/${dashboardPath}/${eventEditPath}`, lang));
+					}}
+					data-testid="event-library-create-event"
+				>
+					{t("pages.dashboard.createEvent", "Create Event")}
+				</Button>
 			</div>
 
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

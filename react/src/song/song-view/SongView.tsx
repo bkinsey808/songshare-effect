@@ -1,5 +1,8 @@
 import { useTranslation } from "react-i18next";
 
+import ShareButton from "@/react/lib/design-system/ShareButton";
+import SharedUsersSection from "@/react/share/SharedUsersSection";
+import useShareSubscription from "@/react/share/useShareSubscription";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
 import SongViewSlides from "./SongViewSlides";
@@ -42,6 +45,9 @@ export default function SongView(): ReactElement {
 	const { t } = useTranslation();
 	const { isNotFound, songPublic } = useSongView();
 
+	// Fetch and subscribe to sent shares - must be called before any early return
+	useShareSubscription();
+
 	// Show friendly not-found UI when the slug did not resolve or the payload
 	// failed validation — keeps the UI resilient to missing or invalid data.
 	if (isNotFound || songPublic === undefined) {
@@ -54,9 +60,16 @@ export default function SongView(): ReactElement {
 
 	return (
 		<div className="mx-auto max-w-3xl space-y-6">
-			<h1 className="text-2xl font-bold text-white">
-				{songPublic.song_name ?? t("songView.untitled", "Untitled")}
-			</h1>
+			<div className="flex items-center justify-between gap-4">
+				<h1 className="text-2xl font-bold text-white">
+					{songPublic.song_name ?? t("songView.untitled", "Untitled")}
+				</h1>
+				<ShareButton
+					itemType="song"
+					itemId={songPublic.song_id}
+					itemName={songPublic.song_name ?? "Untitled"}
+				/>
+			</div>
 
 			<SongViewSlides songPublic={songPublic} />
 
@@ -100,6 +113,12 @@ export default function SongView(): ReactElement {
 					/>
 				</dl>
 			</section>
+
+			<SharedUsersSection
+				itemType="song"
+				itemId={songPublic.song_id}
+				itemName={songPublic.song_name ?? "Untitled"}
+			/>
 		</div>
 	);
 }

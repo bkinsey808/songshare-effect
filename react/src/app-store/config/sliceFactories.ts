@@ -9,6 +9,7 @@ import createInvitationSlice from "@/react/invitation/slice/createInvitationSlic
 import createNavigationSlice from "@/react/navigation/slice/createNavigationSlice";
 import { createPlaylistLibrarySlice } from "@/react/playlist-library/slice/playlist-library-slice";
 import { createPlaylistSlice } from "@/react/playlist/slice/playlist-slice";
+import createShareSlice from "@/react/share/slice/createShareSlice";
 import { createSongLibrarySlice } from "@/react/song-library/slice/song-library-slice";
 import { createSongSubscribeSlice } from "@/react/song/song-slice/song-slice";
 import createUserLibrarySlice from "@/react/user-library/slice/createUserLibrarySlice";
@@ -34,6 +35,7 @@ const sliceFactories: readonly SliceFactory[] = [
 	createCommunitySlice,
 	createInvitationSlice,
 	createNavigationSlice,
+	createShareSlice,
 ];
 
 export type { SliceFactory };

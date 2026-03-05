@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import EventPlaylistAccordion from "@/react/event/view/playlist-accordion/EventPlaylistAccordion";
 import useEventView from "@/react/event/view/useEventView";
 import Button from "@/react/lib/design-system/Button";
+import ShareButton from "@/react/lib/design-system/ShareButton";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
@@ -115,7 +116,14 @@ export default function EventView(): React.ReactNode {
 		<div className="max-w-4xl mx-auto px-6 py-8">
 			{/* Header */}
 			<div className="mb-8">
-				<h1 className="text-4xl font-bold mb-2">{eventPublic.event_name}</h1>
+				<div className="flex items-start justify-between gap-4 mb-2">
+					<h1 className="text-4xl font-bold">{eventPublic.event_name}</h1>
+					<ShareButton
+						itemType="event"
+						itemId={currentEvent.event_id}
+						itemName={eventPublic.event_name}
+					/>
+				</div>
 				{ownerUsername !== undefined && ownerUsername !== "" && (
 					<p className="text-gray-600">Hosted by {ownerUsername}</p>
 				)}

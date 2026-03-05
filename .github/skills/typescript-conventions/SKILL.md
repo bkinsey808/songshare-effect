@@ -1,7 +1,6 @@
 ---
 name: typescript-conventions
 description: TypeScript conventions for this repo (strict typing, no `any`, JSDoc rules, exactOptionalPropertyTypes, ambient types). Use when authoring or editing any TypeScript or TSX file.
-license: MIT
 compatibility: TypeScript 5.x, Node.js 20+
 metadata:
   author: bkinsey808
@@ -9,6 +8,22 @@ metadata:
 ---
 
 # TypeScript Conventions Skill
+
+## Use When
+
+Use this skill when:
+- Editing any `.ts` or `.tsx` file.
+- Resolving TypeScript strictness or lint errors related to typing quality.
+
+Execution workflow:
+1. Prefer precise types (`unknown`, type guards, discriminated unions) over `any`.
+2. Follow repo style conventions (`type` first, explicit return types, ambient types where required).
+3. Keep changes minimal and local to the problem area.
+4. Validate with `npm run lint` after meaningful TS changes.
+
+Output requirements:
+- Summarize which conventions were applied in edited files.
+- Mention any unavoidable tradeoffs (for example temporary assertions with justification).
 
 ## Key Rules
 
@@ -212,3 +227,20 @@ npm run test:unit
 - JSDoc conventions: [code-comments skill](../code-comments/SKILL.md)
 - React conventions: [react-conventions skill](../react-conventions/SKILL.md) (for React-specific typing patterns)
 - TypeScript handbook: [https://www.typescriptlang.org/docs/handbook/](https://www.typescriptlang.org/docs/handbook/)
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If TypeScript issues are reported as lint failures, also load `lint-error-resolution`.
+- If edits are React-focused, also load `react-conventions`.

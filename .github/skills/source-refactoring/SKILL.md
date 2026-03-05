@@ -1,7 +1,6 @@
 ---
 name: source-refactoring
 description: Patterns for splitting functions and components into their own files. Ensures consistent exports, JSDoc preservation, and test colocation. Use when refactoring large files or extracting reusable logic.
-license: MIT
 compatibility: TypeScript 5.x, React 18+, Vitest 1.x
 metadata:
   author: bkinsey808
@@ -9,6 +8,22 @@ metadata:
 ---
 
 # Source Refactoring Skill
+
+## Use When
+
+Use this skill when:
+- Splitting large files into focused modules/components.
+- Moving logic into new files while preserving behavior and tests.
+
+Execution workflow:
+1. Extract one coherent symbol/group at a time with minimal behavior change.
+2. Keep exports/imports aligned with repo conventions and avoid barrel files.
+3. Update colocated tests or add targeted tests for extracted logic.
+4. Validate with targeted tests first, then `npm run lint`.
+
+Output requirements:
+- Summarize what was extracted/moved and where.
+- Note any import-path or export-shape changes.
 
 ## Key Rules
 
@@ -57,7 +72,7 @@ For test helper files created during refactoring, **always use absolute imports*
 
 Test helper files should export **callable setup functions**, not auto-execute at import time. Use `vi.hoisted()` for shared mock state.
 
-See [unit-testing-mocking skill](../unit-testing-mocking/SKILL.md) for full patterns and examples.
+See [unit-testing skill](../unit-testing/SKILL.md) for full mocking patterns and examples.
 
 ### 4. Preserve JSDoc
 
@@ -90,3 +105,20 @@ Search the codebase for all occurrences of the moved symbol and update their imp
 5. **Split tests**: Move the tests to `NewFile.test.ts`.
 6. **Update imports**: Use `grep_search` or `semantic_search` to find all usages and update imports.
 7. **Verify**: Run `npm run lint` and `npm run test:unit -- <NewFile>.test.ts` to confirm the change is correct.
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If the refactor is specifically file decomposition, also load `file-splitting`.
+- If naming changes are central to the refactor, also load `naming-conventions`.

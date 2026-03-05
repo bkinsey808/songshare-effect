@@ -27,7 +27,16 @@ vi.mock("@/react/lib/supabase/client/getSupabaseClientWithAuth");
 vi.mock("@/react/lib/supabase/client/guards/guardAsSupabaseRealtimeClientLike");
 vi.mock("../guards/guardEventTypes");
 
+/** Delay used when flushing macrotasks in tests (milliseconds). */
 const MACROTASK_DELAY = 10;
+
+/**
+ * Advance the microtask queue and wait a short macrotask so Promises and
+ * scheduled callbacks have a chance to run. Tests using realtime or timers
+ * should call this after triggering asynchronous handlers.
+ *
+ * @returns void
+ */
 async function flushPromises(): Promise<void> {
 	await Promise.resolve();
 	await Promise.resolve();
@@ -38,7 +47,12 @@ const EXPECTED_PARTICIPANT_COUNT = 1;
 const DELETED_PARTICIPANT_COUNT = 0;
 
 /**
- * Type guard that verifies a value is a `set` updater function.
+ * Narrow a runtime value to the `set` updater function shape used by the
+ * EventSlice store. This keeps tests typesafe while verifying that the
+ * callback stored by the slice can be invoked as an updater.
+ *
+ * @param value - arbitrary runtime value to check
+ * @returns true when `value` is a set-updater function for `EventSlice`
  */
 function isUpdater(
 	value: unknown,
@@ -46,6 +60,7 @@ function isUpdater(
 	return typeof value === "function";
 }
 
+/** Test harness returned by `setupTest()` with mocks and fixtures. */
 type TestContext = {
 	eventId: string;
 	ownerId: string;
@@ -58,6 +73,16 @@ type TestContext = {
 	removeChannelSpy: ReturnType<typeof vi.fn>;
 };
 
+/**
+ * Create a minimal test context for subscribing to an event.
+ *
+ * The returned context includes a mocked Supabase client/channel that
+ * captures handlers registered via `.on`, a fake `set`/`get` pair that
+ * simulates the Event slice, and prepared fixture data for an initial
+ * `EventEntry`.
+ *
+ * @returns initialized TestContext used by the tests in this file
+ */
 function setupTest(): TestContext {
 	const eventId = "event-123";
 	const ownerId = "owner-456";

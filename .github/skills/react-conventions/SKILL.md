@@ -1,7 +1,6 @@
 ---
 name: react-conventions
 description: React 18+ conventions for this project — React Compiler (no manual memoization), ReactElement ambient type, useEffect comment rule, component organization. Use when authoring or editing any React component, hook, or page.
-license: MIT
 compatibility: React 18+, React Compiler enabled, TypeScript 5.x
 metadata:
   author: bkinsey808
@@ -10,145 +9,34 @@ metadata:
 
 # React Conventions Skill
 
-## What This Skill Does
+## Use When
 
-Captures **repo-specific** React patterns. Generic React knowledge (functional components, prop types, Tailwind) is excluded — focus here is on project-enforced rules:
+Use this skill when:
+- Editing components, pages, or hooks under `react/`.
+- Resolving React lint/style issues tied to repo conventions.
 
-- **No manual memoization** — React Compiler handles it; `useMemo`/`useCallback`/`memo` are forbidden without documented profiling evidence
-- **ReactElement ambient** — no import needed; `JSX.Element` is discouraged
-- **`useEffect` must have a comment** — every `useEffect` call needs a `//` comment above it
-- **`RouterWrapper` in hook tests** — use the shared helper, not ad-hoc memory routers
-- **One file, one component** — colocated tests
+Execution workflow:
+1. Apply core rules first: no `memo`/`useMemo`/`useCallback` unless explicitly justified.
+2. Ensure every `useEffect` has a `//` comment directly above it.
+3. Use ambient `ReactElement` conventions and avoid unnecessary type imports.
+4. Keep one primary component per file and colocate tests.
+5. Run targeted tests where relevant, then `npm run lint`.
 
-## Key Rules
+Output requirements:
+- Summarize which conventions were enforced.
+- Call out any explicit exception and why.
 
-### ReactElement vs JSX.Element
+## Core Rules
 
-`ReactElement` is an **ambient type** in this project — never import it. Using `JSX.Element` will trigger lint warnings.
+- Do not manually memoize by default; React Compiler handles optimization.
+- Keep `useEffect` dependency arrays complete.
+- Use shared test wrappers (for example `RouterWrapper`) in hook/component tests.
+- Prefer clear component boundaries and direct imports.
 
-```ts
-// ✅ GOOD — ReactElement is globally available
-function MyComponent(): ReactElement {
-  return <div />;
-}
+## References
 
-// ❌ BAD — import not needed, linter will flag it
-import type { ReactElement } from "react";
-
-// ❌ BAD — JSX.Element is discouraged
-function MyComponent(): JSX.Element {
-  return <div />;
-}
-```
-
-### §1. React Compiler Ready — No Manual Memoization
-
-**Never use** `memo`, `useMemo`, or `useCallback`. React Compiler optimizes automatically.
-
-```typescript
-// ❌ BAD
-const handleClick = useCallback(() => doThing(), []);
-const value = useMemo(() => compute(), [deps]);
-const Comp = memo(() => <div />);
-
-// ✅ GOOD — plain functions, no wrappers
-function handleClick(): void { doThing(); }
-const value = compute();
-function Comp(): ReactElement { return <div />; }
-```
-
-**Exception**: Only if profiling shows a documented regression. Add a comment with issue link.
-
-### §2. Hook Patterns
-
-**Always add a `//` comment above each `useEffect`** — this is enforced by the `require-useeffect-comment` lint rule:
-
-```typescript
-// ✅ GOOD — comment required
-// Fetches latest user profile when userId changes.
-useEffect(() => {
-  void fetchUserProfile(userId);
-}, [userId]);
-
-// ❌ BAD — missing comment; lint will fail
-useEffect(() => {
-  void fetchUserProfile(userId);
-}, [userId]);
-```
-
-**Complete dependency arrays** — never omit a dependency to suppress the lint warning:
-
-```typescript
-// ❌ BAD — userId missing from deps (stale closure)
-useEffect(() => { fetchUser(userId); }, []);
-
-// ✅ GOOD
-useEffect(() => { fetchUser(userId); }, [userId]);
-```
-
-**In hook tests**, use the shared `RouterWrapper` from `@/react/lib/test-utils/RouterWrapper` — do not re-implement a memory router per test file.
-
-### §3. Component Organization
-
-**One main export per file.** Colocate the test next to the source:
-
-```
-react/src/components/
-  SongCard.tsx
-  SongCard.test.tsx    ← same directory
-```
-
-**Avoid `oxlint-disable` inside test blocks.** If a disable is needed, move it to a small helper or fix the type problem.
-
-### §4. State Management
-
-Use Zustand for shared state, `useState` for component-local data.
-
-```typescript
-// Zustand — use selectors to avoid unnecessary re-renders
-const user = useAppStore((state) => state.user);
-```
-
-See [ZUSTAND.md](references/ZUSTAND.md) for store patterns, async actions, middleware, and testing.
-
----
-
-## Common Pitfalls
-
-### ❌ Keeping `useCallback` when migrating to React Compiler
-
-```typescript
-// BAD — remove manual optimizations
-const handleClick = useCallback(() => { doThing(); }, []);
-
-// GOOD
-function handleClick(): void { doThing(); }
-```
-
-### ❌ Stale closures in event handlers
-
-```typescript
-// BAD — userId captured at creation time
-const handleDelete = () => { deleteUser(userId); }; // possible stale ref
-
-// GOOD — passed inline, always fresh
-<button onClick={() => deleteUser(userId)}>Delete</button>
-```
-
----
-
-## Manage-Page Mutations
-
-Admin/manage pages have a required pattern for mutations (invite, kick, add, remove):
-use **local `actionState`** via `runCommunityAction`/`runAction` — never store-level loading flags.
-
-See [manage-page-patterns skill](../manage-page-patterns/SKILL.md) for the full pattern, realtime update path, and exclusion list rules.
-
----
-
-## Deep Reference
-
-[references/REFERENCE.md](references/REFERENCE.md) — React Compiler behavior, Zustand patterns, Tailwind styling, component composition.
+- Deep reference: [references/REFERENCE.md](references/REFERENCE.md)
+- Manage page mutation pattern: [../manage-page-patterns/SKILL.md](../manage-page-patterns/SKILL.md)
 
 ## Validation
 
@@ -156,3 +44,20 @@ See [manage-page-patterns skill](../manage-page-patterns/SKILL.md) for the full 
 npx tsc -b .
 npm run lint
 ```
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If the task is primarily form submission/validation, also load `form-patterns`.
+- If the task includes React-side Supabase querying, also load `supabase-client-patterns`.

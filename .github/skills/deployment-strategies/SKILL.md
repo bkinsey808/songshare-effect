@@ -1,7 +1,6 @@
 ---
 name: deployment-strategies
 description: Core Cloudflare Pages/Workers deployment workflow, environment variable configuration, and secrets management. Use when deploying code, configuring environments, or managing secrets.
-license: MIT
 compatibility: Cloudflare Pages, Cloudflare Workers, Node.js 20+
 metadata:
   author: bkinsey808
@@ -9,6 +8,22 @@ metadata:
 ---
 
 # Deployment Strategies Skill
+
+## Use When
+
+Use this skill when:
+- Preparing or executing staging/production deployments.
+- Updating environment configuration or secrets management steps.
+
+Execution workflow:
+1. Run pre-deploy quality checks before deployment changes.
+2. Use the appropriate deploy command for the change type (including cache purge when needed).
+3. Keep env/secrets handling aligned with existing Cloudflare workflow conventions.
+4. Verify deployment health immediately after rollout.
+
+Output requirements:
+- Summarize deploy/config changes and affected environments.
+- Include exact deploy and verification commands used.
 
 ## What This Skill Does
 
@@ -18,7 +33,7 @@ Core deployment patterns for SongShare Effect:
 - **Environment configuration** — per-environment env vars for frontend and API
 - **Secrets management** — Cloudflare Worker secrets via `wrangler secret put`
 
-## When to Use
+## Common Scenarios
 
 - Deploying API server to Cloudflare Workers or frontend to Cloudflare Pages
 - Configuring environment variables for staging or production
@@ -124,3 +139,20 @@ Local development secrets go in `.env` files (gitignored).
 - [docs/DEPLOY.md](../../../docs/DEPLOY.md)
 - [docs/cache-management.md](../../../docs/cache-management.md)
 - [docs/github-actions-workflows.md](../../../docs/github-actions-workflows.md)
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If active production recovery is required, also load `deployment-operations`.
+- If CDN cache behavior must change with deploy, also load `cloudflare-cache-cicd`.

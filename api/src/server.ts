@@ -34,7 +34,11 @@ import {
 	apiPlaylistLibraryAddPath,
 	apiPlaylistLibraryRemovePath,
 	apiPlaylistSavePath,
+	apiShareCreatePath,
+	apiShareListPath,
+	apiShareUpdateStatusPath,
 	apiSongLibraryAddPath,
+	apiSongLibraryRemovePath,
 	apiSongsDeletePath,
 	apiSongsSavePath,
 	apiUploadPath,
@@ -80,7 +84,11 @@ import addPlaylistToLibraryHandler from "./playlist-library/addPlaylistToLibrary
 import removePlaylistFromLibraryHandler from "./playlist-library/removePlaylistFromLibrary";
 import playlistDelete from "./playlist/playlistDelete";
 import playlistSave from "./playlist/playlistSave";
+import shareCreateHandler from "./share/shareCreate";
+import shareListHandler from "./share/shareList";
+import shareUpdateStatusHandler from "./share/shareUpdateStatus";
 import addSongToLibraryHandler from "./song-library/addSongToLibrary";
+import removeSongFromLibraryHandler from "./song-library/removeSongFromLibrary";
 import songDelete from "./song/songDelete";
 import songSave from "./song/songSave";
 import getSupabaseClientTokenHandler from "./supabase/getSupabaseClientTokenHandler";
@@ -126,6 +134,9 @@ app.post(apiSongsDeletePath, handleHttpEndpoint(songDelete));
 // Add song to library endpoint
 app.post(apiSongLibraryAddPath, handleHttpEndpoint(addSongToLibraryHandler));
 
+// Remove song from library endpoint
+app.post(apiSongLibraryRemovePath, handleHttpEndpoint(removeSongFromLibraryHandler));
+
 // Playlist save endpoint
 app.post(apiPlaylistSavePath, handleHttpEndpoint(playlistSave));
 
@@ -144,6 +155,13 @@ app.post(apiUserLibraryAddPath, handleHttpEndpoint(addUserToLibraryHandler));
 app.post(apiUserLibraryRemovePath, handleHttpEndpoint(removeUserFromLibraryHandler));
 
 app.post(apiUserLibraryLookupPath, handleHttpEndpoint(lookupUserByUsernameHandler));
+
+// Share endpoints
+app.post(apiShareCreatePath, handleHttpEndpoint(shareCreateHandler));
+
+app.post(apiShareUpdateStatusPath, handleHttpEndpoint(shareUpdateStatusHandler));
+
+app.get(apiShareListPath, handleHttpEndpoint(shareListHandler));
 
 // Event save endpoint
 app.post(apiEventSavePath, handleHttpEndpoint(eventSave));

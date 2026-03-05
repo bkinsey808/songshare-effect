@@ -1,9 +1,11 @@
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
+import Button from "@/react/lib/design-system/Button";
+import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { communityViewPath } from "@/shared/paths";
+import { communityEditPath, communityViewPath, dashboardPath } from "@/shared/paths";
 
 import useCommunityLibrary from "./useCommunityLibrary";
 
@@ -22,6 +24,7 @@ const EMPTY_LIST_LENGTH = 0;
 export default function CommunityLibrary(): ReactElement {
 	const { t } = useTranslation();
 	const { lang } = useLocale();
+	const navigate = useNavigate();
 	const { communities, isCommunityLoading, communityError } = useCommunityLibrary();
 
 	if (isCommunityLoading) {
@@ -35,15 +38,41 @@ export default function CommunityLibrary(): ReactElement {
 	if (communities.length === EMPTY_LIST_LENGTH) {
 		return (
 			<div className="bg-gray-800 rounded-lg p-8 border border-gray-700 text-center">
-				<p className="text-gray-400">
+				<p className="mb-6 text-gray-400">
 					{t("communityLibrary.empty", "You haven't joined any communities yet.")}
 				</p>
+				<Button
+					variant="primary"
+					size="default"
+					icon={<PlusIcon className="size-5" />}
+					onClick={() => {
+						void navigate(buildPathWithLang(`/${dashboardPath}/${communityEditPath}`, lang));
+					}}
+					data-testid="community-library-create-community"
+				>
+					{t("navigation.createCommunity", "Create Community")}
+				</Button>
 			</div>
 		);
 	}
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+		<div className="space-y-6">
+			<div className="flex flex-wrap items-center justify-between gap-4">
+				<div />
+				<Button
+					variant="outlinePrimary"
+					size="compact"
+					icon={<PlusIcon className="size-5" />}
+					onClick={() => {
+						void navigate(buildPathWithLang(`/${dashboardPath}/${communityEditPath}`, lang));
+					}}
+					data-testid="community-library-create-community"
+				>
+					{t("navigation.createCommunity", "Create Community")}
+				</Button>
+			</div>
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 			{communities.map((community) => (
 				<Link
 					key={community.community_id}
@@ -61,6 +90,7 @@ export default function CommunityLibrary(): ReactElement {
 					</div>
 				</Link>
 			))}
+			</div>
 		</div>
 	);
 }

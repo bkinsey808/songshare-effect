@@ -38,7 +38,7 @@ export default function UserSearchInput({
 	} = useUserSearchInput({
 		activeUserId,
 		onSelect,
-		...(excludeUserIds === undefined ? {} : { excludeUserIds }),
+		excludeUserIds: excludeUserIds ?? [],
 	});
 
 	return (

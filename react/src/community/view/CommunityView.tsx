@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
+import ShareButton from "@/react/lib/design-system/ShareButton";
 import { ZERO } from "@/shared/constants/shared-constants";
 
 import useCommunityView from "./useCommunityView";
@@ -56,6 +57,11 @@ export default function CommunityView(): ReactElement {
 					<p className="text-gray-400 mt-2">{currentCommunity.description}</p>
 				</div>
 				<div className="flex gap-2">
+					<ShareButton
+						itemType="community"
+						itemId={currentCommunity.community_id}
+						itemName={currentCommunity.name}
+					/>
 					{userSession !== undefined && isMember === false && (
 						<Button variant="primary" onClick={onJoinClick} disabled={isJoinLoading}>
 							{isJoinLoading

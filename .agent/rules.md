@@ -48,6 +48,8 @@ import type { PopoverProps } from "./popover/types";
 
 - ✅ **Proper typing**: Define types for component props and function parameters
 - ✅ **Union types**: Use union types for constrained string values (e.g., `PlacementOption`)
+- ✅ **Strict TypeScript**: This project uses strict TypeScript settings (`exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`). See [docs/strict-typescript-patterns.md](../docs/strict-typescript-patterns.md) for handling patterns.
+- ✅ **Lint Error Resolution**: When encountering lint errors, fix root causes rather than disabling rules. See [.github/skills/lint-error-resolution/SKILL.md](../.github/skills/lint-error-resolution/SKILL.md) for comprehensive solutions.
 - ✅ **Optional chaining**: Use `?.` for safe property access
 - ❗ **JSDoc in TypeScript files:** **Never** include type annotations in JSDoc for `*.ts` / `*.tsx` files — TypeScript provides the types. Provide parameter and return descriptions without types. Example:
 

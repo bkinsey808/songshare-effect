@@ -21,6 +21,8 @@ export type NativePopoverProps = Readonly<{
 	closeOnTriggerClick?: boolean;
 	/** Custom tabIndex for the trigger element. Defaults to 0 for keyboard accessibility */
 	tabIndex?: number;
+	/** Allow content to overflow the popover bounds (useful for dropdowns) */
+	allowOverflow?: boolean;
 }>;
 
 /**
@@ -36,6 +38,7 @@ export function NativePopover({
 	trigger = "hover",
 	closeOnTriggerClick = false,
 	tabIndex = DEFAULT_TAB_INDEX,
+	allowOverflow = false,
 }: NativePopoverProps): ReactElement {
 	// Use custom hook that encapsulates all popover logic
 	const {
@@ -83,7 +86,7 @@ export function NativePopover({
 				ref={popoverRef}
 				id={popoverId}
 				popover="auto"
-				className="max-w-full overflow-hidden rounded-lg bg-gray-800 p-4 shadow-lg ring-1 ring-white/10"
+				className={`max-w-full ${allowOverflow ? "overflow-visible" : "overflow-hidden"} rounded-lg bg-gray-800 p-4 shadow-lg ring-1 ring-white/10`}
 				style={popoverPosition}
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
@@ -97,3 +100,5 @@ export function NativePopover({
 		</div>
 	);
 }
+
+export default NativePopover;

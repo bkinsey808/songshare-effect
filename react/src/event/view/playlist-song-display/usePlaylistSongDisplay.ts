@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import fetchUsername from "@/react/lib/supabase/enrichment/fetchUsername";
 import { safeGet } from "@/shared/utils/safe";
 
@@ -26,10 +26,13 @@ export default function usePlaylistSongDisplay(
 	// Resolve and cache the song owner username when it is available and not yet loaded.
 	useEffect(() => {
 		async function fetchOwner(): Promise<void> {
-			const client = getSupabaseClient();
 			const userId = song?.user_id;
+			if (userId === undefined || userId === "") {
+				return;
+			}
 
-			if (client === undefined || userId === undefined || userId === "") {
+			const client = await getSupabaseClientWithAuth();
+			if (client === undefined) {
 				return;
 			}
 

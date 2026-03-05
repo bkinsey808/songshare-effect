@@ -1,7 +1,6 @@
 ---
 name: authentication-system
 description: Dual JWT authentication system (visitor + user tokens) with Supabase. Use when implementing auth flows, token management, client-side token selection/caching, or working with auth state in React components.
-license: MIT
 compatibility: Supabase, Node.js 20+, React 18+
 metadata:
   author: bkinsey808
@@ -9,6 +8,22 @@ metadata:
 ---
 
 # Authentication System Skill
+
+## Use When
+
+Use this skill when:
+- Implementing sign-in/sign-out flows or auth-state driven UI behavior.
+- Editing token selection, caching, or Supabase auth client wiring in `react/src/lib/supabase/`.
+
+Execution workflow:
+1. Preserve dual-token behavior (visitor + user JWT) and token selection semantics.
+2. Reuse existing token/cache utilities before introducing new auth helpers.
+3. Verify auth edge cases (no user session, stale token, sign-out transitions).
+4. Validate with targeted tests first, then `npm run lint`.
+
+Output requirements:
+- State which auth paths were changed (visitor token, user token, selection/caching).
+- Note any behavior changes affecting RLS or realtime access.
 
 ## What This Skill Does
 
@@ -21,7 +36,7 @@ Covers SongShare's dual authentication architecture:
 
 RLS policies and Realtime subscription patterns are in [realtime-rls-architecture skill](../realtime-rls-architecture/SKILL.md).
 
-## When to Use
+## Common Scenarios
 
 - Implementing OAuth sign-in flows (Google, GitHub)
 - Fetching or managing authentication tokens
@@ -182,3 +197,20 @@ Check the token cache or fetch from the API directly instead.
 - Full auth guide: [docs/authentication-system.md](../../../docs/authentication-system.md)
 - RLS policy templates: [realtime-rls-architecture skill](../realtime-rls-architecture/SKILL.md)
 - Realtime debugging: [realtime-rls-debugging skill](../realtime-rls-debugging/SKILL.md)
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If changes touch React Supabase client selection, also load `supabase-client-patterns`.
+- If the task includes RLS/realtime policy behavior, also load `realtime-rls-architecture`.

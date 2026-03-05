@@ -1,8 +1,6 @@
-````skill
 ---
 name: naming-conventions
 description: Symbol and file naming conventions for functions, types, variables, and React components. Use when naming a new function, hook, type, file, or variable, or when reviewing whether an existing name is appropriate.
-license: MIT
 compatibility: TypeScript 5.x, React 18+
 metadata:
   author: bkinsey808
@@ -10,6 +8,22 @@ metadata:
 ---
 
 # Naming Conventions Skill
+
+## Use When
+
+Use this skill when:
+- Naming new files, functions, hooks, types, or variables.
+- Renaming symbols during refactors for clarity and convention compliance.
+
+Execution workflow:
+1. Choose names based on behavioral intent (fetch, compute, subscribe, run, etc.).
+2. Ensure hook names (`use*`) only apply when React hooks are called internally.
+3. Keep file and symbol names aligned with nearby project patterns.
+4. Recheck references/imports after renames and validate with `npm run lint`.
+
+Output requirements:
+- Call out key symbol/file renames and rationale.
+- Note any convention exceptions that remain.
 
 ## Function / Hook Prefix Guide
 
@@ -147,4 +161,20 @@ Before finalizing a name, ask:
 - [react-conventions skill](../react-conventions/SKILL.md) — React-specific patterns
 - [typescript-conventions skill](../typescript-conventions/SKILL.md) — type declaration conventions
 - [.agent/rules.md](../../../.agent/rules.md) — canonical project rules
-````
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If rename work includes moving files/modules, also load `file-organization`.
+- If rename work is part of a larger refactor, also load `source-refactoring`.

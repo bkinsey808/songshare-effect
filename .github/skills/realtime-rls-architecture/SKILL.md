@@ -1,7 +1,6 @@
 ---
 name: realtime-rls-architecture
 description: RLS policy architecture for Supabase Realtime subscriptions — access control layers, JWT validation logic for visitor/user tokens, verified production policy templates. Use when writing or reviewing RLS policies for tables used with Realtime.
-license: MIT
 compatibility: Supabase Realtime, PostgreSQL RLS
 metadata:
   author: bkinsey808
@@ -10,7 +9,23 @@ metadata:
 
 # Realtime + RLS Architecture Skill
 
-## When to Use
+## Use When
+
+Use this skill when:
+- Writing/reviewing RLS policies for tables used by Supabase Realtime.
+- Verifying token-shape assumptions in policy conditions for visitor/user JWT access.
+
+Execution workflow:
+1. Define access rules at the table/policy layer first, then verify API/frontend assumptions.
+2. Ensure policies account for both visitor and user token structures where required.
+3. Use proven policy templates and adapt minimally for new tables.
+4. Validate via SQL simulation and realtime behavior checks before rollout.
+
+Output requirements:
+- Summarize policy changes and which token paths are allowed.
+- Report SQL verification steps and expected realtime visibility impact.
+
+## Common Scenarios
 
 - Writing or modifying RLS policies on tables used with Realtime
 - Understanding why the dual visitor/user JWT structure requires two policy conditions
@@ -156,3 +171,20 @@ USING (
 - JWT token structure: [authentication-system skill](../authentication-system/SKILL.md)
 - Project migration: `supabase/migrations/20260220000011_re_enable_rls_on_event_public.sql`
 - [docs/realtime-rls-architecture.md](../../../docs/realtime-rls-architecture.md)
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If the issue is active breakage (messages not arriving), also load `realtime-rls-debugging`.
+- If token-claim behavior changes are in scope, also load `authentication-system`.

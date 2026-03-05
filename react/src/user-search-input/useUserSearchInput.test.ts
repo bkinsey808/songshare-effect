@@ -25,7 +25,7 @@ describe("useUserSearchInput", () => {
 		store.setState((prev) => ({ ...prev, userLibraryEntries: { f1: u1, f2: u2 } }));
 
 		const onSelect = vi.fn();
-		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect }));
+		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect, excludeUserIds: [] }));
 
 		expect(result.current.filteredUsers.map((entry) => entry.followed_user_id)).toStrictEqual([
 			"f1",
@@ -42,7 +42,7 @@ describe("useUserSearchInput", () => {
 		store.setState((prev) => ({ ...prev, userLibraryEntries: { f1: u1, bob123: u2 } }));
 
 		const onSelect = vi.fn();
-		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect }));
+		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect, excludeUserIds: [] }));
 
 		result.current.handleInputChange(makeChangeEvent("ali"));
 
@@ -62,7 +62,7 @@ describe("useUserSearchInput", () => {
 		store.setState((prev) => ({ ...prev, userLibraryEntries: { f1: u1 } }));
 
 		const onSelect = vi.fn();
-		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect }));
+		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect, excludeUserIds: [] }));
 
 		// typing part of the id should match even though username is empty
 		result.current.handleInputChange(makeChangeEvent("f1"));
@@ -83,7 +83,7 @@ describe("useUserSearchInput", () => {
 		store.setState((prev) => ({ ...prev, userLibraryEntries: { f1: u1, f2: u2 } }));
 
 		const onSelect = vi.fn();
-		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect }));
+		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect, excludeUserIds: [] }));
 
 		result.current.handleInputChange(makeChangeEvent("ali"));
 
@@ -107,7 +107,7 @@ describe("useUserSearchInput", () => {
 		store.setState((prev) => ({ ...prev, userLibraryEntries: { f1: u1 } }));
 
 		const onSelect = vi.fn();
-		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect }));
+		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect, excludeUserIds: [] }));
 
 		const input = document.createElement("input");
 		const focusSpy = vi.spyOn(input, "focus");
@@ -130,7 +130,7 @@ describe("useUserSearchInput", () => {
 		store.setState((prev) => ({ ...prev, userLibraryEntries: { f1: u1 } }));
 
 		const onSelect = vi.fn();
-		const { result } = renderHook(() => useUserSearchInput({ activeUserId: "f1", onSelect }));
+		const { result } = renderHook(() => useUserSearchInput({ activeUserId: "f1", onSelect, excludeUserIds: [] }));
 
 		expect(result.current.inputDisplayValue).toBe("charlie");
 	});
@@ -141,7 +141,7 @@ describe("useUserSearchInput", () => {
 		store.setState((prev) => ({ ...prev, userLibraryEntries: { f1: u1 } }));
 
 		const onSelect = vi.fn();
-		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect }));
+		const { result } = renderHook(() => useUserSearchInput({ activeUserId: undefined, onSelect, excludeUserIds: [] }));
 
 		const container = document.createElement("div");
 		const insideButton = document.createElement("button");

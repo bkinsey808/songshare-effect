@@ -9,6 +9,7 @@ import XIcon from "@/react/lib/design-system/icons/XIcon";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { aboutPath, dashboardPath, songLibraryPath } from "@/shared/paths";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import useLocale from "../lib/language/locale/useLocale";
 import ActionsMenu from "./ActionsMenu";
 import useNavigation from "./useNavigation";
@@ -62,6 +63,7 @@ export default function Navigation({
 }: NavigationProps): ReactElement {
 	const navigate = useNavigate();
 	const { t, lang } = useLocale();
+	const currentUsername = useAppStore((state) => state.userSessionData?.userPublic?.username);
 
 	const { isHeaderActionsExpanded, isActionsVisible, isActive, toggleActions } = useNavigation({
 		actionsExpanded,
@@ -125,8 +127,16 @@ export default function Navigation({
 							})}
 						</div>
 
-						{/* Right-side controls - Actions toggle now lives where the language selector was */}
+						{/* Right-side controls - signed-in username + Actions toggle */}
 						<div className="ml-4 flex items-center gap-3">
+							{typeof currentUsername === "string" && currentUsername.trim() !== "" && (
+								<span
+									className="text-sm text-gray-300 truncate max-w-[8rem] sm:max-w-[12rem]"
+									title={currentUsername}
+								>
+									@{currentUsername}
+								</span>
+							)}
 							{/* Dark background wrapper extends to the right edge of the viewport using large horizontal padding and negative margins. */}
 							<div
 								className={`pl-2 py-1 -ml-2 -my-1 pr-[50vw] -mr-[50vw] transition-colors duration-200 ${

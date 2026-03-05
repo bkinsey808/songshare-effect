@@ -13,18 +13,8 @@ This agent provides extended validation steps and detailed patterns beyond the s
 
 **Related resources:**
 
-- [unit-testing skill](../skills/unit-testing/SKILL.md) - Core setup, templates, shared utils; includes task routing (which skills to load per test type)
-- [unit-testing-hooks skill](../skills/unit-testing-hooks/SKILL.md) - Hook test bundle (entry point, load all 4 together): renderHook, installStore, Harness requirement
-- [unit-testing-hooks-harness skill](../skills/unit-testing-hooks-harness/SKILL.md) - Hook test bundle: "Documentation by Harness" pattern (always required), full template, completeness, cleanup
-- [unit-testing-hooks-harness-lint skill](../skills/unit-testing-hooks-harness-lint/SKILL.md) - Hook test bundle ⚠️ load before writing Harness JSX: React Compiler destructure constraint, query helpers, oxlint pitfalls
-- [unit-testing-hooks-checklist skill](../skills/unit-testing-hooks-checklist/SKILL.md) - Hook test bundle (run at end): one-behavior-per-test, named constants, pre-completion checklist
-- [unit-testing-hooks-fixtures skill](../skills/unit-testing-hooks-fixtures/SKILL.md) - mock data, forceCast, shared constants, filter-query specificity
-- [unit-testing-hooks-subscriptions skill](../skills/unit-testing-hooks-subscriptions/SKILL.md) - Effect.runPromise subscription hooks: void hooks, getState spy, cleanup, undefined→defined transition
-- [unit-testing-mocking skill](../skills/unit-testing-mocking/SKILL.md) - Core vi.mock/vi.spyOn, Supabase stubs, clearing/resetting
-- [unit-testing-mocking-esm skill](../skills/unit-testing-mocking-esm/SKILL.md) - ESM/Effect, async init(), lifecycle hook avoidance
-- [unit-testing-mocking-helpers skill](../skills/unit-testing-mocking-helpers/SKILL.md) - Callable mock helpers, vi.hoisted(), typed retrieval
-- [unit-testing-api skill](../skills/unit-testing-api/SKILL.md) - Effect-based API handler testing
-- [unit-testing-pitfalls skill](../skills/unit-testing-pitfalls/SKILL.md) - Common anti-patterns
+- [unit-testing skill](../skills/unit-testing/SKILL.md) — Core Vitest setup, mocking strategies, API handler testing, and common pitfalls. Full reference: [docs/unit-testing.md](../../docs/unit-testing.md)
+- [unit-testing-hooks skill](../skills/unit-testing-hooks/SKILL.md) — renderHook, Documentation by Harness, installStore, fixtures, subscriptions, lint traps, pre-completion checklist. Full reference: [docs/unit-testing-hooks.md](../../docs/unit-testing-hooks.md)
 - [.agent/rules.md](../../.agent/rules.md) - Full project rules
 
 ---
@@ -81,7 +71,7 @@ Run before and after each change:
 
 ### Hook Testing
 
-> See [unit-testing-hooks skill](../skills/unit-testing-hooks/SKILL.md), [unit-testing-hooks-checklist skill](../skills/unit-testing-hooks-checklist/SKILL.md), [unit-testing-hooks-harness skill](../skills/unit-testing-hooks-harness/SKILL.md), [unit-testing-hooks-harness-lint skill](../skills/unit-testing-hooks-harness-lint/SKILL.md), [unit-testing-hooks-fixtures skill](../skills/unit-testing-hooks-fixtures/SKILL.md), and [unit-testing-hooks-subscriptions skill](../skills/unit-testing-hooks-subscriptions/SKILL.md) for the complete reference. Key rules:
+> See [unit-testing-hooks skill](../skills/unit-testing-hooks/SKILL.md) and [docs/unit-testing-hooks.md](../../docs/unit-testing-hooks.md) for the complete reference. Key rules:
 
 - **Use `.test.tsx`** for all hook tests — even when the hook file is `.ts`.
 - **Dual requirement — both `renderHook` AND a Harness component are required in every hook test file:**

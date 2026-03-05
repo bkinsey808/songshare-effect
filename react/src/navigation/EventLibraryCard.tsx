@@ -2,10 +2,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import Button from "@/react/lib/design-system/Button";
 import LibraryIcon from "@/react/lib/design-system/icons/LibraryIcon";
-import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { dashboardPath, eventEditPath, eventLibraryPath } from "@/shared/paths";
+import { dashboardPath, eventLibraryPath } from "@/shared/paths";
 
 /**
  * Card containing event library navigation.
@@ -29,21 +28,7 @@ export default function EventLibraryCard(): ReactElement {
 
 	return (
 		<div className="flex items-center gap-2 rounded-lg bg-slate-800/50 px-3 py-1.5">
-			{/* Create New Event - highlights when active */}
-			<Button
-				size="compact"
-				variant={isActive(`${dashboardPath}/${eventEditPath}`) ? "primary" : "outlineSecondary"}
-				icon={<PlusIcon className="size-5" />}
-				onClick={() => {
-					const createEventPath = buildPathWithLang(`/${dashboardPath}/${eventEditPath}`, lang);
-					void navigate(createEventPath);
-				}}
-				data-testid="navigation-create-event"
-				className="rounded-md! whitespace-nowrap"
-			>
-				{t("pages.dashboard.createEvent", "Create Event")}
-			</Button>
-			{/* Event Library shortcut - highlights when active */}
+			{/* Event Library - highlights when active */}
 			<Button
 				size="compact"
 				variant={isActive(`${dashboardPath}/${eventLibraryPath}`) ? "primary" : "outlineSecondary"}

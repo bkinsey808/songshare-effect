@@ -1,9 +1,12 @@
 import type { TFunction } from "i18next";
 
+import { Effect } from "effect";
 import { Link } from "react-router-dom";
 
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
+import Button from "@/react/lib/design-system/Button";
+import CreateSongIcon from "@/react/lib/design-system/icons/CreateSongIcon";
 import useAppStore from "@/react/app-store/useAppStore";
 import { ZERO } from "@/shared/constants/shared-constants";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
@@ -31,14 +34,6 @@ export type SongLibraryProps = {
 export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): ReactElement {
 	const { songEntries, isLoading, error, removeFromSongLibrary } = useSongLibrary();
 	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
-
-	console.warn("[SongLibrary] Render state:", {
-		entriesCount: songEntries.length,
-		isLoading,
-		error,
-		firstEntryId: songEntries[ZERO]?.song_id ?? "none",
-		firstEntryName: songEntries[ZERO]?.song_name ?? "none",
-	});
 
 	if (isLoading) {
 		return (
@@ -80,6 +75,18 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 						"Start building your collection by adding songs you love!",
 					)}
 				</p>
+				<Button
+					variant="primary"
+					size="default"
+					icon={<CreateSongIcon className="size-5" />}
+					onClick={() => {
+						navigate(buildPathWithLang(`/${dashboardPath}/${songEditPath}`, lang));
+					}}
+					data-testid="song-library-create-song"
+					className="mb-4"
+				>
+					{t("pages.dashboard.createSong", "Create New Song")}
+				</Button>
 				<div className="text-sm text-gray-500">
 					{t(
 						"songLibrary.emptyHint",
@@ -93,41 +100,26 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 	return (
 		<div className="space-y-6">
 			{/* Header Stats */}
-			<div className="flex items-center justify-between">
-				<h2 className="text-xl font-semibold text-white">
-					{t("songLibrary.libraryTitle", "My Song Library")}
-				</h2>
-				<div className="flex items-center space-x-4 text-sm text-gray-400">
-					<div>{t("songLibrary.songCount", "{{count}} songs", { count: songEntries.length })}</div>
-					{import.meta.env.DEV ? (
-						<button
-							type="button"
-							className="text-xs rounded border border-yellow-500 bg-yellow-700/10 px-2 py-1 text-yellow-300 hover:bg-yellow-700/20"
-							onClick={() => {
-								void (async (): Promise<void> => {
-									try {
-										await Promise.all(
-											songEntries.map((entry) =>
-												fetch("/api/dev/song-public/update", {
-													method: "POST",
-													headers: { "Content-Type": "application/json" },
-													body: JSON.stringify({
-														song_id: entry.song_id,
-														song_name: `${entry.song_name} (dev ${new Date().toISOString()})`,
-													}),
-												}),
-											),
-										);
-									} catch (error) {
-										console.error("[dev] updateSongPublic failed:", error);
-									}
-								})();
-							}}
-						>
-							Dev Update All
-						</button>
-					) : undefined}
+			<div className="flex flex-wrap items-center justify-between gap-4">
+				<div className="flex items-center gap-4">
+					<h2 className="text-xl font-semibold text-white">
+						{t("songLibrary.libraryTitle", "My Song Library")}
+					</h2>
+					<span className="text-sm text-gray-400">
+						{t("songLibrary.songCount", "{{count}} songs", { count: songEntries.length })}
+					</span>
 				</div>
+				<Button
+					variant="outlinePrimary"
+					size="compact"
+					icon={<CreateSongIcon className="size-5" />}
+					onClick={() => {
+						navigate(buildPathWithLang(`/${dashboardPath}/${songEditPath}`, lang));
+					}}
+					data-testid="song-library-create-song"
+				>
+					{t("pages.dashboard.createSong", "Create New Song")}
+				</Button>
 			</div>
 
 			{/* Song Grid */}
@@ -188,9 +180,9 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 								<button
 									type="button"
 									className="text-sm text-red-400 transition-colors hover:text-red-300"
-									onClick={() => {
-										void removeFromSongLibrary({ song_id: entry.song_id });
-									}}
+								onClick={() => {
+									void Effect.runPromise(removeFromSongLibrary({ song_id: entry.song_id }));
+								}}
 								>
 									{t("songLibrary.removeSong", "Remove")}
 								</button>

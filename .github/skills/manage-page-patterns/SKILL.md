@@ -1,7 +1,6 @@
 ---
 name: manage-page-patterns
 description: Patterns for admin/manage pages (community manage, event manage) — local actionState, runCommunityAction/runAction helpers, realtime as primary update path. Use when building manage pages with mutations like invite, kick, add, or remove.
-license: MIT
 compatibility: React 18+, Effect-TS, Supabase Realtime
 metadata:
   author: bkinsey808
@@ -10,11 +9,27 @@ metadata:
 
 # Manage-Page Patterns Skill
 
+## Use When
+
+Use this skill when:
+- Building or editing admin/manage page mutations and feedback flows.
+- Working on realtime-backed updates for community/event management views.
+
+Execution workflow:
+1. Use local `actionState` mutation patterns; avoid store-level page-blanking loading flags.
+2. Keep realtime subscriptions as the primary update path with silent refresh fallback.
+3. Reuse shared action helpers (`runCommunityAction`/`runAction`) for mutation lifecycle.
+4. Validate mutation UX and error states with targeted tests/checks.
+
+Output requirements:
+- Summarize mutation-flow and realtime integration changes.
+- Note any user-visible loading/success/error behavior changes.
+
 ## What This Skill Does
 
 Describes the required patterns for "manage" pages (community manage, event manage, etc.) that let admins perform mutations. Getting this wrong causes page-blanking loading states that break the admin UX.
 
-## When to Use
+## Common Scenarios
 
 - Building a new community or event manage page
 - Adding mutation buttons (invite, kick, add, remove) to an existing manage page
@@ -95,3 +110,20 @@ The same applies to event participants (`status !== "kicked"`).
 - [ ] `refreshFn` passes `{ silent: true }` to the fetch call
 - [ ] Realtime subscription is active on the page
 - [ ] Kicked members are excluded from exclusion lists (not from re-invite eligibility)
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If data access paths use Supabase client helpers, also load `supabase-client-patterns`.
+- If realtime update behavior regresses, also load `realtime-rls-debugging`.

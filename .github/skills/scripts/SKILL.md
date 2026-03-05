@@ -1,7 +1,6 @@
 ---
 name: scripts
 description: Conventions for repository scripts (naming, execution, linting, testing).
-license: MIT
 compatibility: Bun, Node.js 20+, TypeScript 5.x
 metadata:
   author: bkinsey808
@@ -9,6 +8,22 @@ metadata:
 ---
 
 # Scripts Skill
+
+## Use When
+
+Use this skill when:
+- Adding or editing files under `scripts/`.
+- Refactoring script logic into testable modules.
+
+Execution workflow:
+1. Keep `.bun.ts` entrypoints thin and move logic into pure modules.
+2. Follow script naming/layout conventions and colocate tests with helper modules.
+3. Prefer reusable helpers over duplicated CLI logic.
+4. Validate with targeted unit tests and `npm run lint` when script code changes are substantial.
+
+Output requirements:
+- Summarize script entrypoint vs helper-module changes.
+- Report any test coverage added or updated.
 
 This skill documents the conventions and expectations for repository scripts. Follow these rules when adding or changing scripts so they remain discoverable, testable, and consistent with the project's lint/type conventions.
 
@@ -130,3 +145,20 @@ Before submitting a PR run:
 - Splitting the entry point into a thin shell + pure logic module allows the logic to be tested under Node/Vitest without spawning Bun, which is often unavailable in automated environments.
 - `kebab-case.bun.ts` entry points are immediately recognisable as Bun scripts.
 - Running via `npx bun` ensures CI portability without requiring global Bun installs — but `npx bun` may also be unavailable in locked-down CI; having a pure Node-testable module is the reliable fallback.
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If script files are being decomposed into smaller modules, also load `file-splitting`.
+- If script tests are being added/updated, also load `unit-testing`.

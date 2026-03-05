@@ -1,8 +1,6 @@
-````skill
 ---
 name: file-organization
 description: File organization, naming conventions, and import patterns (no barrel files, direct imports, kebab-case docs, ESM config). Use when creating new files, modules, refactoring imports, or setting up directory structures.
-license: MIT
 compatibility: Node.js 20+, TypeScript 5.x, ESM modules
 metadata:
   author: bkinsey808
@@ -10,6 +8,22 @@ metadata:
 ---
 
 # File Organization Skill
+
+## Use When
+
+Use this skill when:
+- Creating new files/directories or restructuring module layout.
+- Updating imports/exports to comply with repo organization rules.
+
+Execution workflow:
+1. Follow naming and placement conventions for file type and symbol type.
+2. Avoid barrel files and use direct imports.
+3. Keep test/docs naming conventions aligned with project rules.
+4. Validate with `npm run lint` after meaningful structure/import changes.
+
+Output requirements:
+- Summarize structural and import-path changes.
+- Note any convention exception that remains and why.
 
 ## Key Rules
 
@@ -181,6 +195,19 @@ npm run lint
 - TypeScript conventions: [../typescript-conventions/SKILL.md](../typescript-conventions/SKILL.md)
 - Source refactoring: [../source-refactoring/SKILL.md](../source-refactoring/SKILL.md)
 
-```
+## Do Not
 
-```
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If reorganizing includes splitting large modules, also load `file-splitting`.
+- If symbol naming decisions are part of the reorg, also load `naming-conventions`.

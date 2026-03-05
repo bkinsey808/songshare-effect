@@ -1,8 +1,6 @@
-````skill
 ---
 name: supabase-client-patterns
 description: Which Supabase client to use in React (public vs token-auth vs withAuth), safe-query helpers (callSelect/callInsert/callUpdate), and SupabaseClientLike type. Use when querying Supabase from a React component, hook, or fetch function.
-license: MIT
 compatibility: Supabase JS 2.x, TypeScript 5.x
 metadata:
   author: bkinsey808
@@ -12,6 +10,22 @@ metadata:
 # Supabase Client Patterns (React)
 
 **For API-side Supabase usage** see `api/src/supabase/`. This skill covers React-side clients only.
+
+## Use When
+
+Use this skill when:
+- Fetching or mutating Supabase data from React hooks/components.
+- Refactoring Supabase access code in `react/` to align with repo client and safe-query patterns.
+
+Execution workflow:
+1. Choose the correct client (`getSupabaseClientWithAuth` by default).
+2. Use `SupabaseClientLike` in signatures and safe-query helpers for table operations.
+3. Handle `{ data, error }` consistently and avoid direct raw client creation in React code.
+4. Validate with targeted unit tests for changed fetch/mutation logic, then run `npm run lint`.
+
+Output requirements:
+- State which client/helper pattern was applied and where.
+- Note any auth or RLS-related behavior changes.
 
 ## The Three Clients
 
@@ -110,9 +124,16 @@ For the client itself use `getSupabaseClient.test-util` from `@/react/lib/supaba
 ## References
 
 - Authentication skill: [../authentication-system/SKILL.md](../authentication-system/SKILL.md)
-- Unit testing mocking: [../unit-testing-mocking/SKILL.md](../unit-testing-mocking/SKILL.md)
+- Unit testing mocking: [../unit-testing/SKILL.md](../unit-testing/SKILL.md)
 - Generated types: `@/shared/generated/supabaseTypes`
 
-```
+## Success Criteria
 
-```
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If token acquisition/selection logic changes, also load `authentication-system`.
+- If realtime behavior or policy access is involved, also load `realtime-rls-debugging`.

@@ -9,7 +9,7 @@ import { makeTestSong } from "@/react/song/test-utils/makeTestSong.mock";
 import usePlaylistSongDisplay from "./usePlaylistSongDisplay";
 
 vi.mock("@/react/lib/supabase/enrichment/fetchUsername");
-vi.mock("@/react/lib/supabase/client/getSupabaseClient");
+vi.mock("@/react/lib/supabase/client/getSupabaseClientWithAuth");
 
 describe("usePlaylistSongDisplay (unit)", () => {
 	it("returns undefined song and empty subText when songId is missing", () => {
@@ -26,21 +26,22 @@ describe("usePlaylistSongDisplay (unit)", () => {
 		expect(result.current.subText).toBe("");
 	});
 
-	it("does not call fetchUsername when getSupabaseClient returns undefined", async () => {
+	it("does not call fetchUsername when getSupabaseClientWithAuth resolves to undefined", async () => {
 		vi.resetAllMocks();
 
-		const mockGetSupabaseClientSpy = await spyImport(
-			"@/react/lib/supabase/client/getSupabaseClient",
+		const mockGetSupabaseClientWithAuthSpy = await spyImport(
+			"@/react/lib/supabase/client/getSupabaseClientWithAuth",
 		);
-		mockGetSupabaseClientSpy.mockReturnValue?.(undefined);
+		mockGetSupabaseClientWithAuthSpy.mockResolvedValue?.(undefined);
 
 		vi.mocked(fetchUsername).mockResolvedValue("should-not-be-used");
 
 		const publicSongs = { s1: makeTestSong({ user_id: "u1" }) };
 		const { result } = renderHook(() => usePlaylistSongDisplay("s1", publicSongs));
 
-		// effect returns early when client is undefined
-		expect(vi.mocked(fetchUsername)).not.toHaveBeenCalled();
+		await waitFor(() => {
+			expect(vi.mocked(fetchUsername)).not.toHaveBeenCalled();
+		});
 		expect(result.current.ownerUsername).toBeUndefined();
 		expect(result.current.subText).toBe("...");
 	});
@@ -48,10 +49,10 @@ describe("usePlaylistSongDisplay (unit)", () => {
 	it("does not call fetchUsername when song.user_id is undefined", async () => {
 		vi.resetAllMocks();
 
-		const mockGetSupabaseClientSpy = await spyImport(
-			"@/react/lib/supabase/client/getSupabaseClient",
+		const mockGetSupabaseClientWithAuthSpy = await spyImport(
+			"@/react/lib/supabase/client/getSupabaseClientWithAuth",
 		);
-		mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
+		mockGetSupabaseClientWithAuthSpy.mockResolvedValue?.(createMinimalSupabaseClient());
 
 		vi.mocked(fetchUsername).mockResolvedValue("should-not-be-used");
 
@@ -70,10 +71,10 @@ describe("usePlaylistSongDisplay (unit)", () => {
 		async (fetched: string | undefined) => {
 			vi.resetAllMocks();
 
-			const mockGetSupabaseClientSpy = await spyImport(
-				"@/react/lib/supabase/client/getSupabaseClient",
+			const mockGetSupabaseClientWithAuthSpy = await spyImport(
+				"@/react/lib/supabase/client/getSupabaseClientWithAuth",
 			);
-			mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
+			mockGetSupabaseClientWithAuthSpy.mockResolvedValue?.(createMinimalSupabaseClient());
 
 			vi.mocked(fetchUsername).mockResolvedValueOnce(fetched);
 
@@ -93,10 +94,10 @@ describe("usePlaylistSongDisplay (unit)", () => {
 	it("only fetches username once and does not re-fetch on rerender", async () => {
 		vi.resetAllMocks();
 
-		const mockGetSupabaseClientSpy = await spyImport(
-			"@/react/lib/supabase/client/getSupabaseClient",
+		const mockGetSupabaseClientWithAuthSpy = await spyImport(
+			"@/react/lib/supabase/client/getSupabaseClientWithAuth",
 		);
-		mockGetSupabaseClientSpy.mockReturnValue?.(createMinimalSupabaseClient());
+		mockGetSupabaseClientWithAuthSpy.mockResolvedValue?.(createMinimalSupabaseClient());
 
 		vi.mocked(fetchUsername).mockResolvedValue("user_one");
 

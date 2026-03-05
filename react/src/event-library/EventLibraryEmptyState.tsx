@@ -1,11 +1,20 @@
 import { useTranslation } from "react-i18next";
 
+import Button from "@/react/lib/design-system/Button";
+import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
+
+type EventLibraryEmptyStateProps = {
+	onCreateClick?: () => void;
+};
+
 /**
  * Displays a message and call-to-action when the event library is empty.
  *
  * @returns - A React element showing the empty state
  */
-export default function EventLibraryEmptyState(): ReactElement {
+export default function EventLibraryEmptyState({
+	onCreateClick,
+}: EventLibraryEmptyStateProps): ReactElement {
 	const { t } = useTranslation();
 
 	return (
@@ -14,12 +23,24 @@ export default function EventLibraryEmptyState(): ReactElement {
 			<h2 className="mb-2 text-xl font-semibold text-white">
 				{t("eventLibrary.emptyTitle", "Your event library is empty")}
 			</h2>
-			<p className="text-gray-400">
+			<p className="mb-6 text-gray-400">
 				{t(
 					"eventLibrary.emptyDescription",
 					"Join events and add them to your library to see them here.",
 				)}
 			</p>
+			{onCreateClick !== undefined && (
+				<Button
+					variant="primary"
+					size="default"
+					icon={<PlusIcon className="size-5" />}
+					onClick={onCreateClick}
+					data-testid="event-library-create-event"
+					className="mb-4"
+				>
+					{t("pages.dashboard.createEvent", "Create Event")}
+				</Button>
+			)}
 		</div>
 	);
 }

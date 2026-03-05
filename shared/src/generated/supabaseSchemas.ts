@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-03-01T18:18:22.970Z
+ * Last generated: 2026-03-04T17:00:35.749Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -603,6 +603,159 @@ export const PlaylistPublicUpdateSchema: Schema.Struct<{
 
 export type PlaylistPublicUpdate = Schema.Schema.Type<
 	typeof PlaylistPublicUpdateSchema
+>;
+
+// share table schemas
+export const ShareSchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	private_notes: typeof Schema.NonEmptyString;
+	sender_user_id: typeof Schema.UUID;
+	share_id: typeof Schema.UUID;
+	updated_at: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	private_notes: Schema.NonEmptyString,
+	sender_user_id: Schema.UUID,
+	share_id: Schema.UUID,
+	updated_at: Schema.NonEmptyString,
+});
+
+export type Share = Schema.Schema.Type<typeof ShareSchema>;
+
+export const ShareInsertSchema: Schema.Struct<{
+	private_notes: Schema.optional<typeof Schema.NonEmptyString>;
+	sender_user_id: typeof Schema.UUID;
+	share_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	private_notes: Schema.optional(Schema.NonEmptyString),
+	sender_user_id: Schema.UUID,
+	share_id: Schema.optional(Schema.UUID),
+});
+
+export type ShareInsert = Schema.Schema.Type<typeof ShareInsertSchema>;
+
+export const ShareUpdateSchema: Schema.Struct<{
+	private_notes: Schema.optional<typeof Schema.NonEmptyString>;
+	sender_user_id: Schema.optional<typeof Schema.UUID>;
+	share_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	private_notes: Schema.optional(Schema.NonEmptyString),
+	sender_user_id: Schema.optional(Schema.UUID),
+	share_id: Schema.optional(Schema.UUID),
+});
+
+export type ShareUpdate = Schema.Schema.Type<typeof ShareUpdateSchema>;
+
+// share_library table schemas
+export const ShareLibrarySchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	share_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	share_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type ShareLibrary = Schema.Schema.Type<typeof ShareLibrarySchema>;
+
+export const ShareLibraryInsertSchema: Schema.Struct<{
+	share_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	share_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type ShareLibraryInsert = Schema.Schema.Type<
+	typeof ShareLibraryInsertSchema
+>;
+
+export const ShareLibraryUpdateSchema: Schema.Struct<{
+	share_id: Schema.optional<typeof Schema.UUID>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	share_id: Schema.optional(Schema.UUID),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type ShareLibraryUpdate = Schema.Schema.Type<
+	typeof ShareLibraryUpdateSchema
+>;
+
+// share_public table schemas
+export const SharePublicSchema: Schema.Struct<{
+	created_at: Schema.optional<typeof Schema.String>;
+	message: Schema.optional<typeof Schema.String>;
+	recipient_user_id: typeof Schema.UUID;
+	sender_user_id: typeof Schema.UUID;
+	share_id: typeof Schema.UUID;
+	shared_item_id: typeof Schema.UUID;
+	shared_item_name: typeof Schema.NonEmptyString;
+	shared_item_type: typeof Schema.NonEmptyString;
+	status: typeof Schema.NonEmptyString;
+	updated_at: Schema.optional<typeof Schema.String>;
+}> = Schema.Struct({
+	created_at: Schema.optional(Schema.String),
+	message: Schema.optional(Schema.String),
+	recipient_user_id: Schema.UUID,
+	sender_user_id: Schema.UUID,
+	share_id: Schema.UUID,
+	shared_item_id: Schema.UUID,
+	shared_item_name: Schema.NonEmptyString,
+	shared_item_type: Schema.NonEmptyString,
+	status: Schema.NonEmptyString,
+	updated_at: Schema.optional(Schema.String),
+});
+
+export type SharePublic = Schema.Schema.Type<typeof SharePublicSchema>;
+
+export const SharePublicInsertSchema: Schema.Struct<{
+	message: Schema.optional<typeof Schema.String>;
+	recipient_user_id: typeof Schema.UUID;
+	sender_user_id: typeof Schema.UUID;
+	share_id: typeof Schema.UUID;
+	shared_item_id: typeof Schema.UUID;
+	shared_item_name: typeof Schema.NonEmptyString;
+	shared_item_type: typeof Schema.NonEmptyString;
+	status: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	message: Schema.optional(Schema.String),
+	recipient_user_id: Schema.UUID,
+	sender_user_id: Schema.UUID,
+	share_id: Schema.UUID,
+	shared_item_id: Schema.UUID,
+	shared_item_name: Schema.NonEmptyString,
+	shared_item_type: Schema.NonEmptyString,
+	status: Schema.optional(Schema.NonEmptyString),
+});
+
+export type SharePublicInsert = Schema.Schema.Type<
+	typeof SharePublicInsertSchema
+>;
+
+export const SharePublicUpdateSchema: Schema.Struct<{
+	message: Schema.optional<typeof Schema.String>;
+	recipient_user_id: Schema.optional<typeof Schema.UUID>;
+	sender_user_id: Schema.optional<typeof Schema.UUID>;
+	share_id: Schema.optional<typeof Schema.UUID>;
+	shared_item_id: Schema.optional<typeof Schema.UUID>;
+	shared_item_name: Schema.optional<typeof Schema.NonEmptyString>;
+	shared_item_type: Schema.optional<typeof Schema.NonEmptyString>;
+	status: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	message: Schema.optional(Schema.String),
+	recipient_user_id: Schema.optional(Schema.UUID),
+	sender_user_id: Schema.optional(Schema.UUID),
+	share_id: Schema.optional(Schema.UUID),
+	shared_item_id: Schema.optional(Schema.UUID),
+	shared_item_name: Schema.optional(Schema.NonEmptyString),
+	shared_item_type: Schema.optional(Schema.NonEmptyString),
+	status: Schema.optional(Schema.NonEmptyString),
+});
+
+export type SharePublicUpdate = Schema.Schema.Type<
+	typeof SharePublicUpdateSchema
 >;
 
 // song table schemas

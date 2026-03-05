@@ -1,8 +1,6 @@
-````skill
 ---
 name: hono-api-patterns
 description: Hono API route handlers, middleware patterns, request/response handling, and integration with Effect-TS. Use when building API endpoints, implementing middleware, handling errors, or validating request data.
-license: MIT
 compatibility: Hono 4.x, Effect 3.x, TypeScript 5.x, Node.js 20+
 metadata:
   author: bkinsey808
@@ -10,6 +8,22 @@ metadata:
 ---
 
 # Hono API Patterns Skill
+
+## Use When
+
+Use this skill when:
+- Creating or editing Hono route handlers, middleware, or request/response logic in `api/`.
+- Implementing endpoint validation and error handling for Effect-based HTTP flows.
+
+Execution workflow:
+1. Keep endpoint logic in Effect and route through shared HTTP helpers.
+2. Validate request input with feature-local schemas and map failures to typed errors.
+3. Reuse existing middleware and error mapping patterns before creating new abstractions.
+4. Validate with `npm run lint` and targeted tests for changed handlers/middleware.
+
+Output requirements:
+- Summarize endpoint/middleware changes and which shared patterns were used.
+- Note any new error mapping or validation behavior introduced.
 
 ## Key Patterns
 
@@ -138,10 +152,23 @@ npm run dev:api   # Then: curl http://localhost:8787/health
 ## References
 
 - Effect-TS patterns: [../effect-ts-patterns/SKILL.md](../effect-ts-patterns/SKILL.md)
-- Unit testing API handlers: [../unit-testing-api/SKILL.md](../unit-testing-api/SKILL.md)
+- Unit testing API handlers: [unit-testing skill](../unit-testing/SKILL.md) — see API Handler Testing section in [docs/unit-testing.md](../../../docs/unit-testing.md)
 - Hono docs: https://hono.dev/
 - Project rules: [.agent/rules.md](../../../.agent/rules.md)
 
-```
+## Do Not
 
-```
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If handlers/services use Effect composition, also load `effect-ts-patterns`.
+- If endpoints depend on auth token semantics, also load `authentication-system`.

@@ -1,7 +1,6 @@
 ---
 name: effect-ts-patterns
 description: Effect-TS API patterns for Hono server (error handling, schema validation, service composition, dependency injection). Use when building API handlers, services, or working with structured error types.
-license: MIT
 compatibility: Node.js 20+, Effect 3.x, Hono 4.x
 metadata:
   author: bkinsey808
@@ -9,6 +8,22 @@ metadata:
 ---
 
 # Effect-TS Patterns Skill
+
+## Use When
+
+Use this skill when:
+- Editing files under `api/` that use Effect, Hono handlers, schema decoding, or typed API errors.
+- Implementing/refactoring handlers, services, or error mapping in the Effect stack.
+
+Execution workflow:
+1. Identify the feature boundary (handler, service, schema, error type).
+2. Keep errors typed (`Data.TaggedError`), decode/validate untrusted input, and keep async work in `Effect`.
+3. Use existing HTTP integration helpers (`handleHttpEndpoint`, `errorToHttpResponse`) instead of duplicating response mapping.
+4. Validate with `npm run lint` and targeted unit tests for changed service/handler behavior.
+
+Output requirements:
+- Summarize which Effect patterns were applied (typed errors, schema decode, service DI, HTTP mapping).
+- Note any intentional deviations from these patterns.
 
 ## Key Patterns
 
@@ -263,3 +278,20 @@ npm run build:api
 - Effect documentation: https://effect.website/
 - Hono API integration: See `api/src/server.ts`
 - Error types: See `api/src/api-errors.ts`
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If editing Hono routes/middleware, also load `hono-api-patterns`.
+- If auth token behavior is involved, also load `authentication-system`.

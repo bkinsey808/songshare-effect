@@ -25,6 +25,7 @@ export const songViewPath = "songs";
 export const playlistEditPath = "playlist-edit";
 export const playlistLibraryPath = "playlist-library";
 export const userLibraryPath = "user-library";
+export const shareLibraryPath = "share-library";
 
 /** Base path for viewing a playlist by slug; use as "playlists/:playlist_slug" in routes */
 export const playlistViewPath = "playlists";
@@ -68,6 +69,7 @@ export const apiAuthSignOutPath = "/api/auth/signout";
 export const apiSongsSavePath = "/api/songs/save";
 export const apiSongsDeletePath = "/api/songs/delete";
 export const apiSongLibraryAddPath = "/api/song-library/add";
+export const apiSongLibraryRemovePath = "/api/song-library/remove";
 export const apiPlaylistSavePath = "/api/playlists/save";
 export const apiPlaylistDeletePath = "/api/playlists/delete";
 export const apiPlaylistLibraryAddPath = "/api/playlist-library/add";
@@ -100,6 +102,11 @@ export const apiCommunitySetActiveEventPath = "/api/community/set-active-event";
 export const apiUploadPath = "/api/upload";
 export const apiHelloPath = "/api/hello";
 export const healthPath = "/health";
+
+// Sharing API paths
+export const apiShareCreatePath = "/api/shares/create";
+export const apiShareUpdateStatusPath = "/api/shares/update-status";
+export const apiShareListPath = "/api/shares/list";
 
 /** Frontend route for account deletion confirmation (nested under dashboard) */
 export const deleteAccountPath = "delete-account";

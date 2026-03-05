@@ -9,7 +9,7 @@ const USERS_NONE = 0;
 type UseUserSearchInputArgs = {
 	activeUserId: string | undefined;
 	onSelect: (userId: string) => void;
-	excludeUserIds?: readonly string[];
+	excludeUserIds: readonly string[];
 };
 
 type UseUserSearchInputReturn = {
@@ -99,9 +99,12 @@ export default function useUserSearchInput({
 				});
 
 	function handleSelectUser(entry: UserLibraryEntry): void {
-		onSelect(entry.followed_user_id);
-		setSearchQuery("");
+		// Close dropdown and clear search first
 		setIsOpen(false);
+		setSearchQuery("");
+		
+		// Call onSelect immediately after state updates
+		onSelect(entry.followed_user_id);
 	}
 
 	function handleInputFocus(): void {

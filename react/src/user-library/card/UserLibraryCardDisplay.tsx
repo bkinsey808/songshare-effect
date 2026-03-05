@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
+import ShareButton from "@/react/lib/design-system/ShareButton";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
@@ -35,7 +36,13 @@ export default function UserLibraryCardDisplay({
 					date: formatAppDate(entry.created_at),
 				})}
 			</div>
-			<div className="flex items-center justify-end gap-2">
+			<div className="flex items-center justify-between gap-2">
+				<ShareButton
+					itemType="user"
+					itemId={entry.followed_user_id}
+					itemName={displayName}
+					size="compact"
+				/>
 				{currentUserId !== undefined && currentUserId !== entry.followed_user_id && (
 					<button
 						type="button"

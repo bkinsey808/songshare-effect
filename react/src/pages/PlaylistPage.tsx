@@ -4,14 +4,18 @@ import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 
 import useAppStore, { getTypedState } from "@/react/app-store/useAppStore";
+import useCurrentUserId from "@/react/auth/useCurrentUserId";
+import ShareButton from "@/react/lib/design-system/ShareButton";
 import useLocale from "@/react/lib/language/locale/useLocale";
+import PlaylistSongDisplay from "@/react/event/view/playlist-song-display/PlaylistSongDisplay";
+import SharedUsersSection from "@/react/share/SharedUsersSection";
+import useShareSubscription from "@/react/share/useShareSubscription";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, songViewPath } from "@/shared/paths";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
 const SONGS_NONE = 0;
-const INDEX_STEP = 1;
 
 /**
  * Page component for viewing a playlist by slug.
@@ -23,12 +27,17 @@ export default function PlaylistPage(): ReactElement {
 	const { lang } = useLocale();
 	const { playlist_slug } = useParams<{ playlist_slug: string }>();
 
+	const currentUserId = useCurrentUserId();
 	const currentPlaylist = useAppStore((state) => state.currentPlaylist);
+	const publicSongs = useAppStore((state) => state.publicSongs);
 	const isLoading = useAppStore((state) => state.isPlaylistLoading);
 	const error = useAppStore((state) => state.playlistError);
 	const fetchPlaylist = useAppStore((state) => state.fetchPlaylist);
 	const clearCurrentPlaylist = useAppStore((state) => state.clearCurrentPlaylist);
-	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
+	const addActivePublicSongIds = useAppStore((state) => state.addActivePublicSongIds);
+
+	// Fetch and subscribe to sent shares - must be called before any early return
+	useShareSubscription();
 
 	// Fetch playlist on mount or when slug changes
 	useEffect(() => {
@@ -43,16 +52,17 @@ export default function PlaylistPage(): ReactElement {
 
 	// Auto-add the playlist owner to the user's library (fire-and-forget)
 	useEffect(() => {
+		const ownerId = currentPlaylist?.user_id;
 		if (
-			currentPlaylist !== undefined &&
-			currentPlaylist.user_id !== undefined &&
+			typeof ownerId === "string" &&
+			ownerId !== "" &&
 			currentUserId !== undefined &&
-			currentUserId !== currentPlaylist.user_id
+			currentUserId !== ownerId
 		) {
-			void (async (): Promise<void> => {
+				void (async (): Promise<void> => {
 				try {
 					await Effect.runPromise(
-						addUserToLibraryEffect({ followed_user_id: currentPlaylist.user_id }, () =>
+						addUserToLibraryEffect({ followed_user_id: ownerId }, () =>
 							getTypedState(),
 						),
 					);
@@ -62,6 +72,14 @@ export default function PlaylistPage(): ReactElement {
 			})();
 		}
 	}, [currentPlaylist, currentUserId]);
+
+	// Fetch song details so we can display song names (populates publicSongs)
+	useEffect(() => {
+		const order = currentPlaylist?.public?.song_order;
+		if (Array.isArray(order) && order.length > SONGS_NONE) {
+			void Effect.runPromise(addActivePublicSongIds(order));
+		}
+	}, [currentPlaylist, addActivePublicSongIds]);
 
 	if (isLoading) {
 		return (
@@ -106,8 +124,8 @@ export default function PlaylistPage(): ReactElement {
 	}
 
 	const playlistPublic = currentPlaylist.public;
-	const isOwner = currentUserId !== undefined && currentUserId === currentPlaylist.user_id;
 	const songOrder = playlistPublic.song_order ?? [];
+	const isOwner = currentUserId !== undefined && currentUserId === currentPlaylist.user_id;
 
 	return (
 		<div className="mx-auto max-w-4xl px-4 py-6">
@@ -124,17 +142,24 @@ export default function PlaylistPage(): ReactElement {
 							</p>
 						)}
 					</div>
-					{isOwner && (
-						<Link
-							to={buildPathWithLang(
-								`/${dashboardPath}/${playlistEditPath}/${currentPlaylist.playlist_id}`,
-								lang,
-							)}
-							className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-						>
-							{t("playlist.edit", "Edit Playlist")}
-						</Link>
-					)}
+					<div className="flex items-center gap-3">
+						<ShareButton
+							itemType="playlist"
+							itemId={currentPlaylist.playlist_id}
+							itemName={playlistPublic.playlist_name}
+						/>
+						{isOwner && (
+							<Link
+								to={buildPathWithLang(
+									`/${dashboardPath}/${playlistEditPath}/${currentPlaylist.playlist_id}`,
+									lang,
+								)}
+								className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+							>
+								{t("playlist.edit", "Edit Playlist")}
+							</Link>
+						)}
+					</div>
 				</div>
 
 				{/* Public Notes */}
@@ -172,18 +197,18 @@ export default function PlaylistPage(): ReactElement {
 						{songOrder.map((songId, index) => (
 							<div
 								key={songId}
-								className="flex items-center justify-between rounded-lg border border-gray-700 bg-gray-800 p-4"
+								className="flex items-center gap-4"
 							>
-								<div className="flex items-center space-x-4">
-									<span className="w-8 text-center text-gray-500">{index + INDEX_STEP}</span>
-									<div>
-										{/* NOTE: Fetch song details and display song name (future work) */}
-										<p className="text-white">Song ID: {songId}</p>
-									</div>
+								<div className="min-w-0 flex-1">
+									<PlaylistSongDisplay
+										songId={songId}
+										index={index}
+										publicSongs={publicSongs}
+									/>
 								</div>
 								<Link
 									to={buildPathWithLang(`/${songViewPath}/${songId}`, lang)}
-									className="text-sm text-blue-400 hover:text-blue-300"
+									className="shrink-0 text-sm text-blue-400 hover:text-blue-300"
 								>
 									{t("playlist.viewSong", "View")}
 								</Link>
@@ -192,6 +217,12 @@ export default function PlaylistPage(): ReactElement {
 					</div>
 				)}
 			</div>
+
+			<SharedUsersSection
+				itemType="playlist"
+				itemId={currentPlaylist.playlist_id}
+				itemName={playlistPublic.playlist_name}
+			/>
 		</div>
 	);
 }

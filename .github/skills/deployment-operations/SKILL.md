@@ -1,7 +1,6 @@
 ---
 name: deployment-operations
 description: Cloudflare deployment rollback, health monitoring, and production troubleshooting. Use when recovering from a failed deployment, checking deployment health, or diagnosing production issues.
-license: MIT
 compatibility: Cloudflare Pages, Cloudflare Workers, GitHub Actions
 metadata:
   author: bkinsey808
@@ -9,6 +8,22 @@ metadata:
 ---
 
 # Deployment Operations Skill
+
+## Use When
+
+Use this skill when:
+- Handling production incidents, rollback decisions, or post-deploy checks.
+- Diagnosing runtime issues immediately after deployment.
+
+Execution workflow:
+1. Prioritize safe recovery (rollback/mitigation) before deep root-cause changes.
+2. Validate system health with existing health checks and logs.
+3. Document exact operational commands/actions taken.
+4. After stabilization, identify follow-up fixes to prevent recurrence.
+
+Output requirements:
+- Report incident scope, recovery path used, and current health status.
+- Include exact rollback/verification commands used.
 
 ## What This Skill Does
 
@@ -126,3 +141,20 @@ npm run deploy
 - [docs/DEPLOY.md](../../../docs/DEPLOY.md)
 - Core deploy workflow: [deployment-strategies skill](../deployment-strategies/SKILL.md)
 - Cache + CI/CD: [cloudflare-cache-cicd skill](../cloudflare-cache-cicd/SKILL.md)
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If modifying deployment configuration/workflows, also load `deployment-strategies`.
+- If cache invalidation or CI cache behavior is involved, also load `cloudflare-cache-cicd`.

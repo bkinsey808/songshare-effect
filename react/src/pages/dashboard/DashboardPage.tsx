@@ -1,22 +1,15 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 
 import useHydration from "@/react/app/useHydration";
 import PendingInvitationsSection from "@/react/invitation/PendingInvitationsSection";
 import useInvitationSubscription from "@/react/invitation/useInvitationSubscription";
-import Button from "@/react/lib/design-system/Button";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
-import LogOutIcon from "@/react/lib/design-system/icons/LogOutIcon";
-import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
+import SharedItemsSection from "@/react/share/SharedItemsSection";
 import {
 	REGISTERED_SUCCESS,
 	SIGNED_IN_SUCCESS,
 	UNAUTHORIZED_ACCESS,
 } from "@/react/pages/home/alert-keys";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { defaultLanguage } from "@/shared/language/supported-languages";
-import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
-import { dashboardPath, deleteAccountPath, userLibraryPath } from "@/shared/paths";
 
 import SongManagementSection from "./SongManagementSection";
 import useDashboard from "./useDashboard";
@@ -32,19 +25,16 @@ function DashboardPage(): ReactElement {
 
 	// Disable react-i18next suspense here to avoid suspending during render.
 	const { t } = useTranslation(undefined, { useSuspense: false });
-	const navigate = useNavigate();
 
 	const {
 		localIsSignedIn,
 		localUser,
-		signOut,
 		showSignedInAlert,
 		showRegisteredAlert,
 		showUnauthorizedAlert,
 		setShowSignedInAlert,
 		setShowRegisteredAlert,
 		setShowUnauthorizedAlert,
-		currentLang,
 	} = useDashboard();
 
 	// Set up invitation subscriptions and initial fetch
@@ -101,48 +91,9 @@ function DashboardPage(): ReactElement {
 
 			<PendingInvitationsSection />
 
+			<SharedItemsSection />
+
 			<SongManagementSection />
-
-			<div className="mt-4 flex flex-wrap items-center gap-3">
-				<Button
-					variant="danger"
-					size="compact"
-					icon={<LogOutIcon className="size-4" />}
-					onClick={() => {
-						void signOut();
-					}}
-					data-testid="dashboard-sign-out"
-				>
-					{t("pages.dashboard.signOut")}
-				</Button>
-
-				{/* Delete account navigates to a confirmation page */}
-				<Button
-					variant="outlineDanger"
-					size="compact"
-					icon={<TrashIcon className="size-4" />}
-					onClick={() => {
-						const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
-						void navigate(buildPathWithLang(`/${dashboardPath}/${deleteAccountPath}`, langForNav));
-					}}
-					data-testid="dashboard-delete-account"
-				>
-					{t("pages.dashboard.deleteAccount", "Delete Account")}
-				</Button>
-
-				{/* User Library navigation */}
-				<Button
-					variant="outlinePrimary"
-					size="compact"
-					onClick={() => {
-						const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
-						void navigate(buildPathWithLang(`/${dashboardPath}/${userLibraryPath}`, langForNav));
-					}}
-					data-testid="dashboard-user-library"
-				>
-					{t("pages.dashboard.userLibrary", "User Library")}
-				</Button>
-			</div>
 		</div>
 	);
 }

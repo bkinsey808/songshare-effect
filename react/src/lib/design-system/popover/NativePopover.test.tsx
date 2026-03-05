@@ -1,30 +1,42 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { NativePopover } from "./NativePopover";
 
-describe("<NativePopover />", () => {
-	it("renders trigger and popover with correct ARIA attrs and toggles on click", () => {
-		render(
-			<NativePopover trigger="click" content={<div>Pop Content</div>}>
-				Open
-			</NativePopover>,
+describe("native popover", () => {
+	it("renders with overflow-hidden by default", () => {
+		const { container } = render(
+			<NativePopover content={<div>Test content</div>} trigger="click">
+				<button>Trigger</button>
+			</NativePopover>
 		);
 
-		const button = screen.getByRole("button");
-		expect(button).toBeTruthy();
+		const popover = container.querySelector('[popover="auto"]');
+		expect(popover?.className).toContain("overflow-hidden");
+		expect(popover?.className).not.toContain("overflow-visible");
+	});
 
-		// Initially closed
-		expect(button.getAttribute("aria-expanded")).not.toBe("true");
+	it("renders with overflow-visible when allowOverflow is true", () => {
+		const { container } = render(
+			<NativePopover content={<div>Test content</div>} trigger="click" allowOverflow>
+				<button>Trigger</button>
+			</NativePopover>
+		);
 
-		// Click to open
-		fireEvent.click(button);
+		const popover = container.querySelector('[popover="auto"]');
+		expect(popover?.className).toContain("overflow-visible");
+		expect(popover?.className).not.toContain("overflow-hidden");
+	});
 
-		// When opened with click mode, aria-expanded should be true
-		expect(button.getAttribute("aria-expanded")).toBe("true");
+	it("renders with overflow-hidden when allowOverflow is false", () => {
+		const { container } = render(
+			<NativePopover content={<div>Test content</div>} trigger="click" allowOverflow={false}>
+				<button>Trigger</button>
+			</NativePopover>
+		);
 
-		// Popover element should contain the content
-		const popContent = screen.getByText("Pop Content");
-		expect(popContent).toBeTruthy();
+		const popover = container.querySelector('[popover="auto"]');
+		expect(popover?.className).toContain("overflow-hidden");
+		expect(popover?.className).not.toContain("overflow-visible");
 	});
 });

@@ -493,6 +493,132 @@ export type Database = {
           },
         ]
       }
+      share: {
+        Row: {
+          created_at: string
+          private_notes: string
+          sender_user_id: string
+          share_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          private_notes?: string
+          sender_user_id: string
+          share_id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          private_notes?: string
+          sender_user_id?: string
+          share_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_sender_user_id_fkey"
+            columns: ["sender_user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      share_library: {
+        Row: {
+          created_at: string
+          share_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          share_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          share_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_library_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: false
+            referencedRelation: "share"
+            referencedColumns: ["share_id"]
+          },
+          {
+            foreignKeyName: "share_library_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      share_public: {
+        Row: {
+          created_at: string | null
+          message: string | null
+          recipient_user_id: string
+          sender_user_id: string
+          share_id: string
+          shared_item_id: string
+          shared_item_name: string
+          shared_item_type: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          message?: string | null
+          recipient_user_id: string
+          sender_user_id: string
+          share_id: string
+          shared_item_id: string
+          shared_item_name: string
+          shared_item_type: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          message?: string | null
+          recipient_user_id?: string
+          sender_user_id?: string
+          share_id?: string
+          shared_item_id?: string
+          shared_item_name?: string
+          shared_item_type?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_public_recipient_user_id_fkey"
+            columns: ["recipient_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_public"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "share_public_sender_user_id_fkey"
+            columns: ["sender_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_public"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "share_public_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: true
+            referencedRelation: "share"
+            referencedColumns: ["share_id"]
+          },
+        ]
+      }
       song: {
         Row: {
           created_at: string

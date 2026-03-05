@@ -24,19 +24,9 @@ These skills are automatically loaded when relevant to your task:
 - [**form-patterns**](./skills/form-patterns/SKILL.md) - useAppForm hook, Effect-based form validation, handleSubmit, handleApiResponseEffect
 - [**internationalization**](./skills/internationalization/SKILL.md) - useLocale/useLanguage hooks, URL-path language routing, adding translation keys
 - [**code-comments**](./skills/code-comments/SKILL.md) - Comment conventions, JSDoc guidelines
-- [**unit-testing**](./skills/unit-testing/SKILL.md) - Core Vitest setup, templates, shared test-utils, and validation commands
-- [**unit-testing-hooks**](./skills/unit-testing-hooks/SKILL.md) - Hook test bundle (entry point, load all 4 together): renderHook, installStore, Harness requirement
-- [**unit-testing-hooks-harness**](./skills/unit-testing-hooks-harness/SKILL.md) - Hook test bundle: "Documentation by Harness" pattern (always required), full template, completeness checklist, cleanup, test structure
-- [**unit-testing-hooks-harness-lint**](./skills/unit-testing-hooks-harness-lint/SKILL.md) - Hook test bundle ⚠️ load before writing Harness JSX: React Compiler destructure constraint, query helper rules, oxlint pitfalls
-- [**unit-testing-hooks-checklist**](./skills/unit-testing-hooks-checklist/SKILL.md) - Hook test bundle (run at end): one-behavior-per-test, named constants, pre-completion checklist
-- [**unit-testing-hooks-fixtures**](./skills/unit-testing-hooks-fixtures/SKILL.md) - Mock data with real types, forceCast, shared module-level fixture constants, filter-query specificity
-- [**unit-testing-hooks-subscriptions**](./skills/unit-testing-hooks-subscriptions/SKILL.md) - Testing Effect-based realtime subscription hooks: void hooks, getState spy, cleanup, undefined→defined transition
-- [**unit-testing-mocking**](./skills/unit-testing-mocking/SKILL.md) - Core vi.mock/vi.spyOn patterns, Supabase/Postgrest stubs, vi.mocked vs vi.spyOn, clearing/resetting
-- [**unit-testing-mocking-esm**](./skills/unit-testing-mocking-esm/SKILL.md) - ESM/Effect mocking, async init() pattern, lifecycle hook avoidance, Zustand getState spy
-- [**unit-testing-mocking-helpers**](./skills/unit-testing-mocking-helpers/SKILL.md) - Shared callable mock helpers, vi.hoisted(), typed retrieval helpers, helper module rules
-- [**unit-testing-api**](./skills/unit-testing-api/SKILL.md) - Effect-based Hono API handler testing (makeCtx, makeSupabaseClient, Effect.runPromise)
-- [**unit-testing-pitfalls**](./skills/unit-testing-pitfalls/SKILL.md) - Common anti-patterns: `as any`, `act`, magic numbers, async races
-- [**unit-testing-pitfalls-quality**](./skills/unit-testing-pitfalls-quality/SKILL.md) - Code-quality pitfalls: lint disables, type-cast helpers, mocking built-ins, `toStrictEqual`, `toSorted()`
+- [**lint-error-resolution**](./skills/lint-error-resolution/SKILL.md) - Guide for resolving ESLint, TypeScript, and oxlint errors in strict environments
+- [**unit-testing**](./skills/unit-testing/SKILL.md) - Core Vitest setup, mocking strategies, API handler testing, and common pitfalls. Full reference: docs/unit-testing.md
+- [**unit-testing-hooks**](./skills/unit-testing-hooks/SKILL.md) - React hook testing: renderHook, Documentation by Harness, installStore, fixtures, subscriptions, lint/compiler traps, pre-completion checklist. Full reference: docs/unit-testing-hooks.md
 - [**source-refactoring**](./skills/source-refactoring/SKILL.md) - Splitting files, default exports, test colocation
 - [**file-splitting**](./skills/file-splitting/SKILL.md) - Step-by-step guide for breaking consolidated files into single-function files
 - [**hono-api-patterns**](./skills/hono-api-patterns/SKILL.md) - Hono route handlers, Effect integration, error mapping, middleware patterns
@@ -74,6 +64,8 @@ npm run dev:all
 - [**CONTRIBUTING.md**](../CONTRIBUTING.md) - Commit message conventions and pre-commit hooks
 - [**docs/authentication-system.md**](../docs/authentication-system.md) - Complete auth guide (JWT, RLS, tokens)
 - [**docs/effect-implementation.md**](../docs/effect-implementation.md) - Effect-TS patterns used in API
+- [**docs/unit-testing.md**](../docs/unit-testing.md) - Unit testing reference (mocking, pitfalls, API handler testing)
+- [**docs/unit-testing-hooks.md**](../docs/unit-testing-hooks.md) - React hook testing reference (Harness, fixtures, subscriptions, checklist)
 
 ## ✅ Golden Rules (See `.agent/rules.md` for Complete List)
 

@@ -1,7 +1,6 @@
 ---
 name: realtime-rls-debugging
 description: Debugging Supabase Realtime subscriptions that connect but deliver no updates, empty filter errors, and RLS silent-rejection diagnosis. Use when Realtime subscriptions are not delivering messages or updates.
-license: MIT
 compatibility: Supabase Realtime, PostgreSQL RLS
 metadata:
   author: bkinsey808
@@ -10,7 +9,23 @@ metadata:
 
 # Realtime + RLS Debugging Skill
 
-## When to Use
+## Use When
+
+Use this skill when:
+- Realtime subscriptions connect but no events are delivered.
+- Investigating filter parsing errors or suspected RLS silent rejection.
+
+Execution workflow:
+1. Verify replication/publication and subscription filter validity.
+2. Validate RLS behavior directly with SQL/JWT simulation.
+3. Isolate whether failure is client filter, publication, or RLS policy logic.
+4. Confirm fix by reproducing the original realtime scenario.
+
+Output requirements:
+- Summarize root cause category (filter/publication/RLS) and fix applied.
+- Include exact SQL/debug checks performed.
+
+## Common Scenarios
 
 - Subscription reaches `SUBSCRIBED` but UPDATE/INSERT messages never fire
 - `Error parsing filter params: [""]` in Supabase logs
@@ -143,3 +158,20 @@ Manual two-tab smoke test:
 - [Supabase Realtime docs](https://supabase.com/docs/guides/realtime)
 - [Supabase RLS docs](https://supabase.com/docs/guides/auth/row-level-security)
 - Project migration: `supabase/migrations/20260220000011_re_enable_rls_on_event_public.sql`
+
+## Do Not
+
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If policy design changes are required after debugging, also load `realtime-rls-architecture`.
+- If root cause appears to be token shape/selection, also load `authentication-system`.

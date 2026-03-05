@@ -1,0 +1,155 @@
+---
+description: Lint Resolution Agent - comprehensive guide for resolving lint errors in strict TypeScript environments
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Lint Resolution Agent
+
+Specialized agent for resolving ESLint, TypeScript, and oxlint errors in strict TypeScript environments. **Fix root causes, not symptoms.**
+
+## Philosophy
+
+**❌ AVOID**: Disabling lint rules with `eslint-disable` comments
+**✅ PREFER**: Solving the underlying type safety or code quality issue
+
+## Common Error Patterns & Solutions
+
+### Type Safety Errors
+
+#### `no-unsafe-type-assertion`
+```typescript
+// ❌ BAD: Unsafe assertion
+const data = response as { user: User };
+
+// ✅ GOOD: Type guard with validation
+function isUserResponse(value: unknown): value is { user: User } {
+  return typeof value === 'object' && value !== null && 'user' in value;
+}
+if (!isUserResponse(response)) throw new Error('Invalid response');
+const data = response;
+```
+
+#### `no-unsafe-assignment`
+```typescript
+// ❌ BAD: Unsafe assignment
+const result = await query;
+
+// ✅ GOOD: Type guard for API results
+const result: unknown = await query;
+if (!isSupabaseResult(result)) throw new Error('Invalid result');
+const { data, error } = result;
+```
+
+#### `strict-boolean-expressions`
+```typescript
+// ❌ BAD: Implicit truthiness
+if (nullableString) { }
+
+// ✅ GOOD: Explicit null/undefined checks
+if (nullableString !== null && nullableString !== undefined) { }
+```
+
+#### `exactOptionalPropertyTypes`
+```typescript
+// ❌ BAD: Type error with exactOptionalPropertyTypes
+<Component optionalProp={maybeUndefined} />
+
+// ✅ GOOD: Conditional spread pattern
+<Component {...(maybeUndefined !== undefined && { optionalProp: maybeUndefined })} />
+```
+
+### Code Quality Errors
+
+#### `init-declarations`
+```typescript
+// ❌ BAD: Uninitialized variable
+let query: unknown;
+
+// ✅ GOOD: Initialize on declaration
+let query: unknown = undefined;
+```
+
+#### `consistent-function-scoping`
+```typescript
+// ❌ BAD: Function recreated on every call
+function parent() {
+  function helper() { return true; }
+  return helper;
+}
+
+// ✅ GOOD: Move to outer scope
+function helper() { return true; }
+function parent() { return helper; }
+```
+
+#### `no-confusing-void-expression`
+```typescript
+// ❌ BAD: Confusing void return
+onClick={() => setLoading(true)}
+
+// ✅ GOOD: Explicit block
+onClick={() => { setLoading(true); }}
+```
+
+#### `no-misused-promises`
+```typescript
+// ❌ BAD: Promise in onClick
+<button onClick={handleAsyncClick}>Click</button>
+
+// ✅ GOOD: Wrap with void
+<button onClick={() => { void handleAsyncClick(); }}>Click</button>
+```
+
+## Essential Type Guards
+
+```typescript
+// Basic validation
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+// API result validation
+function isSupabaseResult(value: unknown): value is { data: unknown; error: unknown } {
+  return isRecord(value) && 'data' in value && 'error' in value;
+}
+
+// Enum validation
+function isValidStatus(value: unknown): value is 'pending' | 'accepted' | 'rejected' {
+  return typeof value === 'string' && ['pending', 'accepted', 'rejected'].includes(value);
+}
+```
+
+## Resolution Workflow
+
+1. **Identify Error Type**: TypeScript vs ESLint vs oxlint
+2. **Choose Strategy**: Type guards, explicit typing, code restructuring
+3. **Validate Solution**: Run validation commands
+
+## Validation Commands
+
+Always run these commands after fixing lint errors:
+```bash
+npx tsc -b . --noEmit
+npm run lint
+npm run build:client  # if frontend changes
+```
+
+## When to Disable Rules (Rare Cases Only)
+
+Only for:
+- Third-party library compatibility issues
+- Temporary workarounds with TODO comments
+- Generated code that cannot be modified
+
+Always include specific rule name and explanation:
+```typescript
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO: Add proper typing for legacy API
+const legacyData = oldLibrary.getData();
+```
+
+## References
+
+- **Full Documentation**: [docs/strict-typescript-patterns.md](../docs/strict-typescript-patterns.md)
+- **Quick Reference**: [docs/lint-quick-reference.md](../docs/lint-quick-reference.md)
+- **Project Rules**: [.agent/rules.md](../.agent/rules.md)

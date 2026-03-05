@@ -2,72 +2,50 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
-import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import { apiSongLibraryRemovePath } from "@/shared/paths";
 
 import type { RemoveSongFromSongLibraryRequest } from "../song-library-types";
 
 import makeSongLibrarySlice from "../makeSongLibrarySlice.mock";
 import removeSongFromSongLibrary from "./removeSongFromLibrary";
-const unsafeAs = forceCast;
 
-type TestSpy = {
-	mockResolvedValue: (val: unknown) => void;
-	mockRejectedValue: (err: unknown) => void;
-	mockReturnValue: (val: unknown) => void;
-};
-
-// Mock modules
-vi.mock("@/react/utils/clientLogger");
-vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-vi.mock("@/react/lib/supabase/client/getSupabaseClient");
-
-// Test constants
 const SONG_ID = "song-123";
-const ERROR_AUTH_FAILED = "Failed to get auth token";
-const ERROR_NO_CLIENT = "No Supabase client available";
-const ERROR_INVALID_REQUEST = "Invalid request to removeSongFromSongLibrary: missing song_id";
-
+const FIRST_CALL_INDEX = 1;
 const VALID_REQUEST: RemoveSongFromSongLibraryRequest = {
 	song_id: SONG_ID,
 };
 
-// Use shared test helper `makeSongLibrarySlice` directly in tests
-
 describe("removeSongFromSongLibrary", () => {
 	it("removes a song successfully and updates local state", async () => {
+		vi.resetAllMocks();
+		vi.stubGlobal(
+			"fetch",
+			vi.fn().mockResolvedValue(Response.json({ success: true }, { status: 200 })),
+		);
+
 		const baseGet = makeSongLibrarySlice();
 		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
-
-		const getSupabaseAuthTokenModule =
-			await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-		const mockGetSupabaseAuthToken = forceCast<TestSpy>(
-			vi.spyOn(getSupabaseAuthTokenModule, "default"),
-		);
-		mockGetSupabaseAuthToken.mockResolvedValue("test-token");
-
-		const mockDeleteEq = vi.fn().mockResolvedValue({});
-		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-
-		const mockGetSupabaseClient = forceCast<TestSpy>(vi.spyOn(getSupabaseClientModule, "default"));
-		mockGetSupabaseClient.mockReturnValue(
-			forceCast<ReturnType<typeof getSupabaseClientModule.default>>({
-				from: vi.fn().mockReturnValue({
-					delete: vi.fn().mockReturnValue({
-						eq: mockDeleteEq,
-					}),
-				}),
-			}),
-		);
 
 		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));
 
 		expect(mockSlice.setSongLibraryError).toHaveBeenCalledWith(undefined);
 		expect(mockSlice.removeSongLibraryEntry).toHaveBeenCalledWith(SONG_ID);
-		expect(mockDeleteEq).toHaveBeenCalledWith("song_id", SONG_ID);
+		expect(globalThis.fetch).toHaveBeenCalledWith(
+			apiSongLibraryRemovePath,
+			expect.objectContaining({
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ song_id: SONG_ID }),
+			}),
+		);
 	});
 
 	it("skips removing a song that is not in the library", async () => {
+		vi.resetAllMocks();
+		const fetchSpy = vi.fn();
+		vi.stubGlobal("fetch", fetchSpy);
+
 		const baseGet = makeSongLibrarySlice();
 		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => false) };
 		const get = vi.fn(() => mockSlice);
@@ -75,212 +53,148 @@ describe("removeSongFromSongLibrary", () => {
 		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));
 
 		expect(mockSlice.removeSongLibraryEntry).not.toHaveBeenCalled();
+		expect(fetchSpy).not.toHaveBeenCalled();
 	});
 
 	it("throws when request validation fails", async () => {
+		vi.resetAllMocks();
 		const baseGet = makeSongLibrarySlice();
 		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
 
-		const invalidRequest = forceCast<RemoveSongFromSongLibraryRequest>({}); // Missing song_id
+		const invalidRequest = forceCast<RemoveSongFromSongLibraryRequest>({ song_id: undefined });
 
 		await expect(Effect.runPromise(removeSongFromSongLibrary(invalidRequest, get))).rejects.toThrow(
 			Error,
 		);
 
-		expect(mockSlice.setSongLibraryError).toHaveBeenCalledWith(
-			expect.stringMatching(new RegExp(ERROR_INVALID_REQUEST)),
+		expect(mockSlice.setSongLibraryError).toHaveBeenLastCalledWith(
+			expect.stringMatching(/Invalid|Failed/),
 		);
 	});
 
-	it("throws when auth token fetch fails", async () => {
+	it("throws when network fails", async () => {
+		vi.resetAllMocks();
+		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Network error")));
+
 		const baseGet = makeSongLibrarySlice();
 		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
 
-		const mockGetSupabaseAuthToken = forceCast<TestSpy>(
-			await spyImport("@/react/lib/supabase/auth-token/getSupabaseAuthToken"),
+		await expect(Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get))).rejects.toThrow(
+			Error,
 		);
-		mockGetSupabaseAuthToken.mockRejectedValue(new Error(ERROR_AUTH_FAILED));
+
+		expect(mockSlice.setSongLibraryError).toHaveBeenLastCalledWith(
+			expect.stringMatching(/Network|Failed/),
+		);
+	});
+
+	it("throws when API returns non-ok response", async () => {
+		vi.resetAllMocks();
+		vi.stubGlobal(
+			"fetch",
+			vi.fn().mockResolvedValue(
+				Response.json({ message: "Permission denied" }, { status: 403, statusText: "Forbidden" }),
+			),
+		);
+
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
+		const get = vi.fn(() => mockSlice);
 
 		await expect(Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get))).rejects.toThrow(
 			Error,
 		);
 
 		expect(mockSlice.setSongLibraryError).toHaveBeenCalledWith(
-			expect.stringMatching(new RegExp(ERROR_AUTH_FAILED)),
+			expect.stringMatching(/Permission denied|Server returned/),
 		);
 	});
 
-	it("throws when no Supabase client available", async () => {
+	it("throws when server response missing success flag", async () => {
+		vi.resetAllMocks();
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({}, { status: 200 })));
+
 		const baseGet = makeSongLibrarySlice();
 		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
-
-		const mockGetSupabaseAuthToken = forceCast<TestSpy>(
-			await spyImport("@/react/lib/supabase/auth-token/getSupabaseAuthToken"),
-		);
-		mockGetSupabaseAuthToken.mockResolvedValue("test-token");
-
-		const mockGetSupabaseClient = forceCast<TestSpy>(
-			await spyImport("@/react/lib/supabase/client/getSupabaseClient"),
-		);
-		mockGetSupabaseClient.mockReturnValue(undefined);
 
 		await expect(Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get))).rejects.toThrow(
-			Error,
+			/Invalid server response: missing success flag/,
 		);
 
-		expect(mockSlice.setSongLibraryError).toHaveBeenCalledWith(
-			expect.stringMatching(new RegExp(ERROR_NO_CLIENT)),
+		expect(mockSlice.setSongLibraryError).toHaveBeenLastCalledWith(
+			expect.stringMatching(/Invalid server response|Failed/),
 		);
 	});
 
-	it("throws when delete fails with server error", async () => {
+	it("throws when success is not boolean", async () => {
+		vi.resetAllMocks();
+		vi.stubGlobal(
+			"fetch",
+			vi.fn().mockResolvedValue(Response.json({ success: "yes" }, { status: 200 })),
+		);
+
 		const baseGet = makeSongLibrarySlice();
 		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
-
-		const getSupabaseAuthTokenModule =
-			await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-		vi.mocked(getSupabaseAuthTokenModule.default).mockResolvedValue("test-token");
-
-		const serverError = "Permission denied";
-		const mockDeleteEq = vi.fn().mockResolvedValue({
-			error: serverError,
-		});
-		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue(
-			forceCast<ReturnType<typeof getSupabaseClientModule.default>>({
-				from: vi.fn().mockReturnValue({
-					delete: vi.fn().mockReturnValue({
-						eq: mockDeleteEq,
-					}),
-				}),
-			}),
-		);
 
 		await expect(Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get))).rejects.toThrow(
-			Error,
+			/Invalid server response: success must be boolean/,
 		);
-
-		expect(mockSlice.setSongLibraryError).toHaveBeenCalledWith(expect.stringMatching(/.+/));
-	});
-
-	it("sends correct delete request to Supabase", async () => {
-		const baseGet = makeSongLibrarySlice();
-		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
-		const get = vi.fn(() => mockSlice);
-
-		const getSupabaseAuthTokenModule =
-			await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-		vi.mocked(getSupabaseAuthTokenModule.default).mockResolvedValue("test-token");
-
-		const mockDeleteEq = vi.fn().mockResolvedValue({});
-		const mockDelete = vi.fn().mockReturnValue({
-			eq: mockDeleteEq,
-		});
-		const mockFrom = vi.fn().mockReturnValue({
-			delete: mockDelete,
-		});
-
-		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue(
-			forceCast<ReturnType<typeof getSupabaseClientModule.default>>({
-				from: mockFrom,
-			}),
-		);
-
-		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));
-
-		expect(mockFrom).toHaveBeenCalledWith("song_library");
-		expect(mockDelete).toHaveBeenCalledWith();
-		expect(mockDeleteEq).toHaveBeenCalledWith("song_id", SONG_ID);
 	});
 
 	it("clears previous errors before operation", async () => {
-		const baseGet = makeSongLibrarySlice();
-		const mockSlice = { ...baseGet(), songLibraryError: "Previous error" };
-		const get = vi.fn(() => mockSlice);
-
-		const getSupabaseAuthTokenModule =
-			await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-		vi.mocked(getSupabaseAuthTokenModule.default).mockResolvedValue("test-token");
-
-		const mockDeleteEq = vi.fn().mockResolvedValue({});
-		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue(
-			unsafeAs<ReturnType<typeof getSupabaseClientModule.default>>({
-				from: vi.fn().mockReturnValue({
-					delete: vi.fn().mockReturnValue({
-						eq: mockDeleteEq,
-					}),
-				}),
-			}),
+		vi.resetAllMocks();
+		vi.stubGlobal(
+			"fetch",
+			vi.fn().mockResolvedValue(Response.json({ success: true }, { status: 200 })),
 		);
+
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true), songLibraryError: "Previous error" };
+		const get = vi.fn(() => mockSlice);
 
 		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));
 
-		// Verify first call cleared error
-		const callIndex = 0;
-		const { mock: setSongLibraryErrorMock } = vi.mocked(mockSlice.setSongLibraryError);
-		expect(setSongLibraryErrorMock.calls[callIndex]).toStrictEqual([undefined]);
+		expect(mockSlice.setSongLibraryError).toHaveBeenNthCalledWith(FIRST_CALL_INDEX, undefined);
 	});
 
-	it("handles invalid Supabase client response", async () => {
+	it("removes from local state after successful API response", async () => {
+		vi.resetAllMocks();
+		vi.stubGlobal(
+			"fetch",
+			vi.fn().mockResolvedValue(Response.json({ success: true }, { status: 200 })),
+		);
+
 		const baseGet = makeSongLibrarySlice();
 		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
 		const get = vi.fn(() => mockSlice);
-
-		const getSupabaseAuthTokenModule =
-			await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-		vi.mocked(getSupabaseAuthTokenModule.default).mockResolvedValue("test-token");
-
-		// Return invalid response (not a record with error property)
-		const mockDeleteEq = vi.fn().mockResolvedValue(undefined);
-		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue(
-			unsafeAs<ReturnType<typeof getSupabaseClientModule.default>>({
-				from: vi.fn().mockReturnValue({
-					delete: vi.fn().mockReturnValue({
-						eq: mockDeleteEq,
-					}),
-				}),
-			}),
-		);
-
-		await expect(Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get))).rejects.toThrow(
-			Error,
-		);
-
-		expect(mockSlice.setSongLibraryError).toHaveBeenCalledWith(
-			expect.stringMatching(/Invalid response/),
-		);
-	});
-
-	it("removes from local state after successful delete", async () => {
-		const baseGet = makeSongLibrarySlice();
-		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
-		const get = vi.fn(() => mockSlice);
-
-		const getSupabaseAuthTokenModule =
-			await import("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-		vi.mocked(getSupabaseAuthTokenModule.default).mockResolvedValue("test-token");
-
-		const mockDeleteEq = vi.fn().mockResolvedValue({});
-		const getSupabaseClientModule = await import("@/react/lib/supabase/client/getSupabaseClient");
-		vi.mocked(getSupabaseClientModule.default).mockReturnValue(
-			unsafeAs<ReturnType<typeof getSupabaseClientModule.default>>({
-				from: vi.fn().mockReturnValue({
-					delete: vi.fn().mockReturnValue({
-						eq: mockDeleteEq,
-					}),
-				}),
-			}),
-		);
 
 		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));
 
 		expect(mockSlice.removeSongLibraryEntry).toHaveBeenCalledWith(SONG_ID);
+	});
+
+	it("sends correct request to API", async () => {
+		vi.resetAllMocks();
+		const fetchSpy = vi.fn().mockResolvedValue(Response.json({ success: true }, { status: 200 }));
+		vi.stubGlobal("fetch", fetchSpy);
+
+		const baseGet = makeSongLibrarySlice();
+		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true) };
+		const get = vi.fn(() => mockSlice);
+
+		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));
+
+		expect(fetchSpy).toHaveBeenCalledWith(
+			apiSongLibraryRemovePath,
+			expect.objectContaining({
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ song_id: SONG_ID }),
+			}),
+		);
 	});
 });

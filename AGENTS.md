@@ -89,3 +89,45 @@ Do not fix unrelated failing tests/lint unless requested.
 - Rules above respected
 - Relevant checks pass (or failures clearly reported)
 - Any changed developer-facing behavior documented
+
+## Skills
+
+Codex (and all other models) should treat GitHub skills in this repository as available skills.
+
+### Skill Location
+
+- `.github/skills/*/SKILL.md`
+
+### Trigger Rules
+
+- If a user explicitly names a skill (for example `$lint-error-resolution` or `lint-error-resolution`), load that skill before making changes.
+- If the task clearly matches a skill name or description, load the matching skill(s) before making changes.
+- If multiple skills apply, use the smallest set that covers the task and state the order briefly.
+
+### Available Skills
+
+- `app-store-patterns` (`.github/skills/app-store-patterns/SKILL.md`)
+- `authentication-system` (`.github/skills/authentication-system/SKILL.md`)
+- `cloudflare-cache-cicd` (`.github/skills/cloudflare-cache-cicd/SKILL.md`)
+- `code-comments` (`.github/skills/code-comments/SKILL.md`)
+- `deployment-operations` (`.github/skills/deployment-operations/SKILL.md`)
+- `deployment-strategies` (`.github/skills/deployment-strategies/SKILL.md`)
+- `effect-ts-patterns` (`.github/skills/effect-ts-patterns/SKILL.md`)
+- `file-organization` (`.github/skills/file-organization/SKILL.md`)
+- `file-splitting` (`.github/skills/file-splitting/SKILL.md`)
+- `form-patterns` (`.github/skills/form-patterns/SKILL.md`)
+- `hono-api-patterns` (`.github/skills/hono-api-patterns/SKILL.md`)
+- `internationalization` (`.github/skills/internationalization/SKILL.md`)
+- `lint-error-resolution` (`.github/skills/lint-error-resolution/SKILL.md`)
+- `manage-page-patterns` (`.github/skills/manage-page-patterns/SKILL.md`)
+- `naming-conventions` (`.github/skills/naming-conventions/SKILL.md`)
+- `playwright-testing` (`.github/skills/playwright-testing/SKILL.md`)
+- `react-conventions` (`.github/skills/react-conventions/SKILL.md`)
+- `realtime-rls-architecture` (`.github/skills/realtime-rls-architecture/SKILL.md`)
+- `realtime-rls-debugging` (`.github/skills/realtime-rls-debugging/SKILL.md`)
+- `scripts` (`.github/skills/scripts/SKILL.md`)
+- `source-refactoring` (`.github/skills/source-refactoring/SKILL.md`)
+- `supabase-client-patterns` (`.github/skills/supabase-client-patterns/SKILL.md`)
+- `typescript-conventions` (`.github/skills/typescript-conventions/SKILL.md`)
+- `unit-testing-hooks` (`.github/skills/unit-testing-hooks/SKILL.md`)
+- `unit-testing` (`.github/skills/unit-testing/SKILL.md`)

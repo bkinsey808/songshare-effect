@@ -1,8 +1,6 @@
-```skill
 ---
 name: app-store-patterns
 description: Zustand app store architecture — slice pattern, createXxxSlice factories, AppSlice type, useAppStore selectors, getTypedState for non-React code. Use when adding state to the store, creating new slices, or reading/writing store state in components or hooks.
-license: MIT
 compatibility: Zustand 4.x, React 18+, TypeScript 5.x
 metadata:
   author: bkinsey808
@@ -10,6 +8,22 @@ metadata:
 ---
 
 # App Store Patterns Skill
+
+## Use When
+
+Use this skill when:
+- Adding or modifying Zustand slices, selectors, or app-store composition.
+- Refactoring shared state behavior across features.
+
+Execution workflow:
+1. Follow existing slice factory and app-store composition patterns.
+2. Keep state changes localized to the appropriate feature slice.
+3. Preserve reset/hydration behavior and selector usage patterns.
+4. Validate with targeted store/slice tests, then `npm run lint`.
+
+Output requirements:
+- Summarize which slice/store modules changed and why.
+- Note any state-shape or persistence behavior changes.
 
 The app store is a single Zustand store composed from feature slices. Each feature owns its own slice file.
 
@@ -183,8 +197,21 @@ vi.mocked(useAppStore).mockImplementation((selector) =>
 
 - Project rules: [.agent/rules.md](../../../.agent/rules.md)
 - Authentication slice example: [react/src/auth/slice/createAuthSlice.ts](../../../react/src/auth/slice/createAuthSlice.ts)
-- Unit testing mocking: [../unit-testing-mocking/SKILL.md](../unit-testing-mocking/SKILL.md)
+- Unit testing mocking: [../unit-testing/SKILL.md](../unit-testing/SKILL.md)
 
-```
+## Do Not
 
-```
+- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not add broad lint/type suppressions without explicit justification.
+- Do not expand scope beyond the requested task without calling it out.
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If refactor involves moving store helpers/modules, also load `source-refactoring`.
+- If naming of actions/selectors is unclear, also load `naming-conventions`.

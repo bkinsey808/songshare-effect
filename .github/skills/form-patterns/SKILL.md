@@ -1,8 +1,7 @@
-````skill
+
 ---
 name: form-patterns
 description: Project-specific form patterns using useAppForm, createFormSubmitHandler, and createApiResponseHandlerEffect. Use when building or editing any form with validation, submission, or API response handling in React.
-license: MIT
 compatibility: React 18+, Effect 3.x, TypeScript 5.x
 metadata:
   author: bkinsey808
@@ -10,6 +9,22 @@ metadata:
 ---
 
 # Form Patterns Skill
+
+## Use When
+
+Use this skill when:
+- Building or modifying form validation/submission behavior in React.
+- Wiring API response handling through `useAppForm` and Effect helpers.
+
+Execution workflow:
+1. Use `useAppForm` as the primary form abstraction.
+2. Keep schema validation and submission flow typed and effect-driven.
+3. Reuse shared response/error handling helpers instead of ad-hoc form logic.
+4. Validate with targeted form tests, then `npm run lint`.
+
+Output requirements:
+- Summarize form flow changes (validation, submit, response handling).
+- Note user-visible error-handling behavior changes.
 
 All forms in this project use `useAppForm` from `@/react/lib/form/useAppForm`. Do not reach for raw React state + `onSubmit` — the project has typed Effect/validation plumbing you must use.
 
@@ -147,6 +162,17 @@ export type SongFormValues = Schema.Schema.Type<typeof SongFormSchema>;
 - Effect Schema: [../effect-ts-patterns/SKILL.md](../effect-ts-patterns/SKILL.md)
 - Source: `@/react/lib/form/useAppForm.ts`
 
-```
 
-```
+
+
+
+## Success Criteria
+
+- Changes follow this skill's conventions and project rules.
+- Relevant validation commands are run, or skipped with a clear reason.
+- Results clearly summarize behavior impact and remaining risks.
+
+## Skill Handoffs
+
+- If form logic includes Effect-style response handling, also load `effect-ts-patterns`.
+- If the form sits in React-heavy component work, also load `react-conventions`.

@@ -1,15 +1,14 @@
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Button from "@/react/lib/design-system/Button";
-import CreatePlaylistIcon from "@/react/lib/design-system/icons/CreatePlaylistIcon";
 import PlaylistLibraryIcon from "@/react/lib/design-system/icons/PlaylistLibraryIcon";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { dashboardPath, playlistEditPath, playlistLibraryPath } from "@/shared/paths";
+import { dashboardPath, playlistLibraryPath } from "@/shared/paths";
 
 /**
- * Card containing playlist-related action buttons.
- * @returns The playlist actions card with Create Playlist and Playlist Library buttons.
+ * Card containing playlist library navigation.
+ * @returns The playlist actions card with Playlist Library button.
  */
 export default function PlaylistCard(): ReactElement {
 	const { lang, t } = useLocale();
@@ -29,24 +28,7 @@ export default function PlaylistCard(): ReactElement {
 
 	return (
 		<div className="flex items-center gap-2 rounded-lg bg-slate-800/50 px-3 py-1.5">
-			{/* Create New Playlist - highlights when active */}
-			<Button
-				size="compact"
-				variant={isActive(`${dashboardPath}/${playlistEditPath}`) ? "primary" : "outlineSecondary"}
-				icon={<CreatePlaylistIcon className="size-5" />}
-				onClick={() => {
-					const createPlaylistPath = buildPathWithLang(
-						`/${dashboardPath}/${playlistEditPath}`,
-						lang,
-					);
-					void navigate(createPlaylistPath);
-				}}
-				data-testid="navigation-create-playlist"
-				className="!rounded-md whitespace-nowrap"
-			>
-				{t("pages.dashboard.createPlaylist", "Create Playlist")}
-			</Button>
-			{/* Playlist Library shortcut - highlights when active */}
+			{/* Playlist Library - highlights when active */}
 			<Button
 				size="compact"
 				variant={

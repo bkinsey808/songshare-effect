@@ -3,11 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Button from "@/react/lib/design-system/Button";
 import LibraryIcon from "@/react/lib/design-system/icons/LibraryIcon";
 import PencilIcon from "@/react/lib/design-system/icons/PencilIcon";
-import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {
-	communityEditPath,
 	communityLibraryPath,
 	communityManagePath,
 	communityViewPath,
@@ -53,11 +51,6 @@ export default function CommunityActionsCard(): ReactElement {
 		return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
 	}
 
-	function handleCreateCommunity(): void {
-		const createCommunityPath = buildPathWithLang(`/${dashboardPath}/${communityEditPath}`, lang);
-		void navigate(createCommunityPath);
-	}
-
 	function handleGoToLibrary(): void {
 		const libraryPath = buildPathWithLang(`/${dashboardPath}/${communityLibraryPath}`, lang);
 		void navigate(libraryPath);
@@ -75,16 +68,6 @@ export default function CommunityActionsCard(): ReactElement {
 
 	return (
 		<div className="flex items-center gap-2 rounded-lg bg-slate-800/50 px-3 py-1.5">
-			<Button
-				size="compact"
-				variant={isActive(`${dashboardPath}/${communityEditPath}`) ? "primary" : "outlineSecondary"}
-				icon={<PlusIcon className="size-5" />}
-				onClick={handleCreateCommunity}
-				data-testid="navigation-create-community"
-				className="rounded-md! whitespace-nowrap"
-			>
-				{t("navigation.createCommunity", "Create Community")}
-			</Button>
 			<Button
 				size="compact"
 				variant={

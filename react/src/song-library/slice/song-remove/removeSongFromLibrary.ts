@@ -1,30 +1,25 @@
 import { Effect } from "effect";
 
-import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
 
+import { apiSongLibraryRemovePath } from "@/shared/paths";
+
 import type { SongLibrarySlice } from "../song-library-slice";
 import type { RemoveSongFromSongLibraryRequest } from "../song-library-types";
-
-function isEqFunction(value: unknown): value is (col: string, val: string) => Promise<unknown> {
-	return typeof value === "function";
-}
 
 /**
  * Remove a song from the current user's library (optimistic update).
  *
- * Performs a Supabase delete on `song_library` for the provided `song_id`.
- * If the delete succeeds, the local store is updated via
- * `removeSongLibraryEntry`. RLS policies ensure users can only delete their own
- * entries.
+ * Performs a POST to the server API, which deletes the entry from `song_library`.
+ * If the request succeeds, the local store is updated via
+ * `removeSongLibraryEntry`. Uses the same API pattern as add and event library remove.
  *
  * @param request - Object containing `song_id` to remove
  * @param get - Zustand slice getter used to access state and mutation helpers
  * @returns void (resolves when the operation completes)
- * @throws Error when no Supabase client is available or the delete fails
+ * @throws Error when the request is invalid or the API fails
  */
 export default function removeSongFromSongLibrary(
 	request: Readonly<RemoveSongFromSongLibraryRequest>,
@@ -64,58 +59,44 @@ export default function removeSongFromSongLibrary(
 			return;
 		}
 
-		// Get auth token
-		const userToken = yield* $(
+		// Perform POST
+		const response = yield* $(
 			Effect.tryPromise({
-				try: () => getSupabaseAuthToken(),
-				catch: (err) => new Error(extractErrorMessage(err, "Failed to get auth token")),
+				try: () =>
+					fetch(apiSongLibraryRemovePath, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ song_id: songId }),
+					}),
+				catch: (err) => new Error(extractErrorMessage(err, "Network error")),
 			}),
 		);
 
-		// Get client
-		const client = yield* $(
-			Effect.try({
-				try: () => {
-					const clientInstance = getSupabaseClient(userToken);
-					if (!clientInstance) {
-						throw new Error("No Supabase client available");
-					}
-					return clientInstance;
-				},
-				catch: (err) => new Error(extractErrorMessage(err, "Unknown error")),
+		const responseJson: unknown = yield* $(
+			Effect.tryPromise({
+				try: () => response.json(),
+				catch: () => new Error("Invalid JSON body"),
 			}),
 		);
 
-		// Delete the library entry (RLS ensures permission checks)
-		const fromObj = client.from("song_library");
-		if (typeof fromObj.delete !== "function") {
-			return yield* $(Effect.fail(new TypeError("Supabase client missing delete on from(...)")));
-		}
-		const deleteRes = fromObj.delete?.();
-		const maybeEq = isRecord(deleteRes) ? deleteRes["eq"] : undefined;
-		if (!isEqFunction(maybeEq)) {
-			return yield* $(Effect.fail(new TypeError("Supabase delete returned unexpected shape")));
-		}
-		const rawDeleteRes = yield* $(
-			Effect.tryPromise({
-				try: () => maybeEq("song_id", songId),
-				catch: (err) => new Error(extractErrorMessage(err, "Delete failed")),
-			}),
-		);
-		if (!isRecord(rawDeleteRes)) {
-			return yield* $(
-				Effect.fail(new Error("Invalid response from Supabase deleting song_library entry")),
+		if (!response.ok) {
+			const errorMsg = extractErrorMessage(
+				responseJson,
+				`Server returned ${response.status}: ${response.statusText}`,
 			);
+			return yield* $(Effect.fail(new Error(errorMsg)));
 		}
-		const deleteError = rawDeleteRes["error"];
-		if (deleteError !== undefined && deleteError !== null) {
-			return yield* $(
-				Effect.fail(
-					new Error(extractErrorMessage(deleteError, "Error deleting song from library")),
-				),
-			);
+
+		// Check for success flag in response
+		if (!isRecord(responseJson) || !("success" in responseJson)) {
+			return yield* $(Effect.fail(new Error("Invalid server response: missing success flag")));
 		}
-		// Remove from local state immediately (optimistic update)
+
+		if (typeof responseJson["success"] !== "boolean") {
+			return yield* $(Effect.fail(new Error("Invalid server response: success must be boolean")));
+		}
+
+		// Remove from local state (optimistic update)
 		yield* $(
 			Effect.sync(() => {
 				removeSongLibraryEntry(songId);
