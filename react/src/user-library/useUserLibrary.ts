@@ -3,12 +3,8 @@ import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
-
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
-
-import type { RemoveUserFromLibraryRequest, UserLibraryEntry } from "./slice/user-library-types";
-
 /**
  * Initializes and exposes the current user's library. On mount this hook
  * fetches the library and subscribes to realtime updates; the subscription
@@ -21,6 +17,8 @@ import type { RemoveUserFromLibraryRequest, UserLibraryEntry } from "./slice/use
  */
 import type { PlaylistLibraryEntry } from "@/react/playlist-library/slice/playlist-library-types";
 import type { SongLibraryEntry } from "@/react/song-library/slice/song-library-types";
+
+import type { RemoveUserFromLibraryRequest, UserLibraryEntry } from "./slice/user-library-types";
 
 export default function useUserLibrary(): {
 	entries: UserLibraryEntry[];

@@ -43,6 +43,7 @@ npm run build:all
 
 # Only then deploy
 npm run deploy
+```
 ````
 
 **Why this matters:** Catching errors locally prevents production outages. Type errors and linting violations can cause runtime failures that affect all users.

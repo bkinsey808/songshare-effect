@@ -48,15 +48,15 @@ import { describe, expect, it, vi } from "vitest";
 import useCommunitySearchInput from "./useCommunitySearchInput";
 
 describe("useCommunitySearchInput", () => {
-  it("returns empty search state initially", () => {
-    installStore(mockCommunities);
-    const { result } = renderHook(() =>
-      useCommunitySearchInput({ activeCommunityId: undefined, onSelect: (): void => undefined }),
-    );
+	it("returns empty search state initially", () => {
+		installStore(mockCommunities);
+		const { result } = renderHook(() =>
+			useCommunitySearchInput({ activeCommunityId: undefined, onSelect: (): void => undefined }),
+		);
 
-    expect(result.current.searchQuery).toBe("");
-    expect(result.current.isOpen).toBe(false);
-  });
+		expect(result.current.searchQuery).toBe("");
+		expect(result.current.isOpen).toBe(false);
+	});
 });
 ```
 
@@ -68,11 +68,13 @@ describe("useCommunitySearchInput", () => {
 - For async state updates, trigger the action then `await waitFor(...)` on the assertion:
 
 ```tsx
-result.current.handleInputChange(forceCast<ChangeEvent<HTMLInputElement>>({ target: { value: "alp" } }));
+result.current.handleInputChange(
+	forceCast<ChangeEvent<HTMLInputElement>>({ target: { value: "alp" } }),
+);
 
 await waitFor(() => {
-  expect(result.current.searchQuery).toBe("alp");
-  expect(result.current.isOpen).toBe(true);
+	expect(result.current.searchQuery).toBe("alp");
+	expect(result.current.isOpen).toBe(true);
 });
 ```
 
@@ -93,10 +95,10 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 vi.mock("@/react/app-store/useAppStore");
 
 function installStore(communities: CommunityEntry[]): void {
-  const mockState = { communities };
-  vi.mocked(useAppStore).mockImplementation((selector: unknown) =>
-    forceCast<(state: typeof mockState) => unknown>(selector)(mockState),
-  );
+	const mockState = { communities };
+	vi.mocked(useAppStore).mockImplementation((selector: unknown) =>
+		forceCast<(state: typeof mockState) => unknown>(selector)(mockState),
+	);
 }
 ```
 
@@ -116,7 +118,7 @@ through DOM elements. **Every hook test file must include at least one**, regard
 `renderHook` covers all behavior.
 
 **Purpose:** AI agents and future developers need to see how the hook integrates into real UI code.
-The Harness shows *how you actually use it*. This is the "Documentation by Harness" pattern.
+The Harness shows _how you actually use it_. This is the "Documentation by Harness" pattern.
 
 The Harness must be **thorough and complete** (see completeness checklist below). At minimum:
 
@@ -138,45 +140,47 @@ use `@param activeCommunityId` / `@param onSelect`, not `@param props`.
  * - A container div that the click-outside listener is attached to
  */
 function Harness(props: {
-  activeCommunityId: string | undefined; // pre-selected community (undefined = none)
-  onSelect: (id: string) => void;        // called when the user picks a result
+	activeCommunityId: string | undefined; // pre-selected community (undefined = none)
+	onSelect: (id: string) => void; // called when the user picks a result
 }): ReactElement {
-  // Always destructure — React Compiler rejects hook.property access in JSX
-  const {
-    containerRef,          // ref for the outer div — click-outside closes the dropdown
-    inputRef,              // ref for the <input> — focus is managed externally
-    searchQuery,           // controlled value of the search field
-    isOpen,                // true when the dropdown is visible
-    filteredCommunities,   // list filtered by the current searchQuery
-    handleInputFocus,      // sets isOpen = true on focus
-    handleInputChange,     // updates searchQuery on keystroke
-    handleSelectCommunity, // picks a community: calls onSelect, closes dropdown
-  } = useMyHook(props);
+	// Always destructure — React Compiler rejects hook.property access in JSX
+	const {
+		containerRef, // ref for the outer div — click-outside closes the dropdown
+		inputRef, // ref for the <input> — focus is managed externally
+		searchQuery, // controlled value of the search field
+		isOpen, // true when the dropdown is visible
+		filteredCommunities, // list filtered by the current searchQuery
+		handleInputFocus, // sets isOpen = true on focus
+		handleInputChange, // updates searchQuery on keystroke
+		handleSelectCommunity, // picks a community: calls onSelect, closes dropdown
+	} = useMyHook(props);
 
-  return (
-    <div ref={containerRef} data-testid="container">
-      <input
-        ref={inputRef}
-        data-testid="search-input"
-        value={searchQuery}
-        onFocus={handleInputFocus}
-        onChange={handleInputChange}
-      />
-      {isOpen && (
-        <ul data-testid="results">
-          {filteredCommunities.map((c) => (
-            <li
-              key={c.community_id}
-              data-testid={`result-${c.community_id}`}
-              onClick={() => { handleSelectCommunity(c.community_id); }}
-            >
-              {c.community_name}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+	return (
+		<div ref={containerRef} data-testid="container">
+			<input
+				ref={inputRef}
+				data-testid="search-input"
+				value={searchQuery}
+				onFocus={handleInputFocus}
+				onChange={handleInputChange}
+			/>
+			{isOpen && (
+				<ul data-testid="results">
+					{filteredCommunities.map((c) => (
+						<li
+							key={c.community_id}
+							data-testid={`result-${c.community_id}`}
+							onClick={() => {
+								handleSelectCommunity(c.community_id);
+							}}
+						>
+							{c.community_name}
+						</li>
+					))}
+				</ul>
+			)}
+		</div>
+	);
 }
 ```
 
@@ -205,23 +209,28 @@ has only one test checking a single state getter is incomplete.
 
 ```tsx
 function Harness({ eventSlug }: { eventSlug?: string }): ReactElement {
-  useActiveEventSync({ eventSlug });
+	useActiveEventSync({ eventSlug });
 
-  const currentEventId = useAppStore((s) => s.currentEvent?.event_id);
-  const fetchEventBySlug = useAppStore((s) => s.fetchEventBySlug);
+	const currentEventId = useAppStore((s) => s.currentEvent?.event_id);
+	const fetchEventBySlug = useAppStore((s) => s.fetchEventBySlug);
 
-  return (
-    <div>
-      {/* currentEventId: event this hook is synced to */}
-      <div data-testid="current-event-id">{String(currentEventId ?? "")}</div>
+	return (
+		<div>
+			{/* currentEventId: event this hook is synced to */}
+			<div data-testid="current-event-id">{String(currentEventId ?? "")}</div>
 
-      {/* fetch button: documents the fetch lifecycle */}
-      <button type="button" data-testid="call-fetch"
-        onClick={() => { void (fetchEventBySlug as Function)("doc-slug"); }}>
-        fetch
-      </button>
-    </div>
-  );
+			{/* fetch button: documents the fetch lifecycle */}
+			<button
+				type="button"
+				data-testid="call-fetch"
+				onClick={() => {
+					void (fetchEventBySlug as Function)("doc-slug");
+				}}
+			>
+				fetch
+			</button>
+		</div>
+	);
 }
 ```
 
@@ -267,13 +276,13 @@ two separate named `describe` blocks**, with the Harness block appearing **first
 
 ```tsx
 describe("useMyHook", () => {
-  describe("harness (DOM) behavior", () => {
-    // DOM-interaction and documentation-driven tests using the Harness
-  });
+	describe("harness (DOM) behavior", () => {
+		// DOM-interaction and documentation-driven tests using the Harness
+	});
 
-  describe("renderHook behavior", () => {
-    // Behavioral assertions using renderHook
-  });
+	describe("renderHook behavior", () => {
+		// Behavioral assertions using renderHook
+	});
 });
 ```
 
@@ -305,13 +314,13 @@ Import `within` from `@testing-library/react`. Use this pattern in **every Harne
 
 The Harness is the **only** way to test certain behaviors that require a real DOM:
 
-| Scenario | Use |
-|---|---|
-| Hook documentation (always) | Harness |
-| Reading state / calling handlers that update state | `renderHook` |
-| `useEffect` that reads `ref.current.contains(target)` | Harness |
-| Ref attached to the correct DOM node | Harness |
-| Events with propagation behavior | Harness |
+| Scenario                                              | Use          |
+| ----------------------------------------------------- | ------------ |
+| Hook documentation (always)                           | Harness      |
+| Reading state / calling handlers that update state    | `renderHook` |
+| `useEffect` that reads `ref.current.contains(target)` | Harness      |
+| Ref attached to the correct DOM node                  | Harness      |
+| Events with propagation behavior                      | Harness      |
 
 ---
 
@@ -433,26 +442,30 @@ Fields typed as `string | null` cannot be assigned `undefined` directly (type mi
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 const mockCommunities: CommunityEntry[] = [
-  {
-    community_id: "c1",
-    owner_id: "owner1",
-    name: "Alpha",
-    slug: "alpha",
-    description: forceCast<string | null>(undefined),
-    is_public: true,
-    public_notes: forceCast<string | null>(undefined),
-    created_at: "2020-01-01",
-    updated_at: "2020-01-02",
-  },
+	{
+		community_id: "c1",
+		owner_id: "owner1",
+		name: "Alpha",
+		slug: "alpha",
+		description: forceCast<string | null>(undefined),
+		is_public: true,
+		public_notes: forceCast<string | null>(undefined),
+		created_at: "2020-01-01",
+		updated_at: "2020-01-02",
+	},
 ];
 ```
 
 ```tsx
 // ❌ Triggers no-unsafe-type-assertion
-result.current.handleInputChange({ target: { value: "alp" } } as unknown as ChangeEvent<HTMLInputElement>);
+result.current.handleInputChange({
+	target: { value: "alp" },
+} as unknown as ChangeEvent<HTMLInputElement>);
 
 // ✅
-result.current.handleInputChange(forceCast<ChangeEvent<HTMLInputElement>>({ target: { value: "alp" } }));
+result.current.handleInputChange(
+	forceCast<ChangeEvent<HTMLInputElement>>({ target: { value: "alp" } }),
+);
 ```
 
 ### Shared fixture constants — declare at module level
@@ -464,8 +477,8 @@ directly to `installStore` for that one test only.
 ```tsx
 // ✅ Module-level constant
 const MOCK_ENTRIES: Record<string, unknown> = {
-  e1: { event_id: "e1", event_public: { event_name: "First Event", event_slug: "first" } },
-  e2: { event_id: "e2", event_public: { event_name: "Second Event", event_slug: "second" } },
+	e1: { event_id: "e1", event_public: { event_name: "First Event", event_slug: "first" } },
+	e2: { event_id: "e2", event_public: { event_name: "Second Event", event_slug: "second" } },
 };
 ```
 
@@ -476,12 +489,16 @@ matches every entry proves nothing.
 
 ```tsx
 // ❌ "a" matches Alpha, Beta, Gamma — filtering is never verified
-result.current.handleInputChange(forceCast<ChangeEvent<HTMLInputElement>>({ target: { value: "a" } }));
+result.current.handleInputChange(
+	forceCast<ChangeEvent<HTMLInputElement>>({ target: { value: "a" } }),
+);
 
 // ✅ "alp" matches only Alpha — narrowing is confirmed
-result.current.handleInputChange(forceCast<ChangeEvent<HTMLInputElement>>({ target: { value: "alp" } }));
+result.current.handleInputChange(
+	forceCast<ChangeEvent<HTMLInputElement>>({ target: { value: "alp" } }),
+);
 await waitFor(() => {
-  expect(result.current.filteredCommunities).toHaveLength(ONE_RESULT);
+	expect(result.current.filteredCommunities).toHaveLength(ONE_RESULT);
 });
 ```
 
@@ -502,7 +519,7 @@ renderHook(() => useMySubscriptionHook("id-1"));
 
 // ✅ Block body
 renderHook(() => {
-  useMySubscriptionHook("id-1");
+	useMySubscriptionHook("id-1");
 });
 ```
 
@@ -540,72 +557,75 @@ vi.mocked(subscribeToCommunityEvent).mockReturnValue(Effect.succeed(() => undefi
 const COMMUNITY_ID = "c1";
 
 describe("useMySubscriptionHook", () => {
-  it("skips subscription when communityId is undefined", () => {
-    vi.clearAllMocks(); // clears call counts; preserves mockReturnValue defaults
+	it("skips subscription when communityId is undefined", () => {
+		vi.clearAllMocks(); // clears call counts; preserves mockReturnValue defaults
 
-    renderHook(() => {
-      useMySubscriptionHook(undefined);
-    });
+		renderHook(() => {
+			useMySubscriptionHook(undefined);
+		});
 
-    expect(vi.mocked(subscribeToCommunityEvent)).not.toHaveBeenCalled();
-  });
+		expect(vi.mocked(subscribeToCommunityEvent)).not.toHaveBeenCalled();
+	});
 
-  it("subscribes with communityId and getState", async () => {
-    vi.spyOn(useAppStore, "getState").mockReturnValue(forceCast({}));
+	it("subscribes with communityId and getState", async () => {
+		vi.spyOn(useAppStore, "getState").mockReturnValue(forceCast({}));
 
-    renderHook(() => {
-      useMySubscriptionHook(COMMUNITY_ID);
-    });
+		renderHook(() => {
+			useMySubscriptionHook(COMMUNITY_ID);
+		});
 
-    await waitFor(() => {
-      // Exact reference — not expect.any(Function) — catches regressions
-      expect(vi.mocked(subscribeToCommunityEvent)).toHaveBeenCalledWith(
-        COMMUNITY_ID,
-        useAppStore.getState,
-      );
-    });
-  });
+		await waitFor(() => {
+			// Exact reference — not expect.any(Function) — catches regressions
+			expect(vi.mocked(subscribeToCommunityEvent)).toHaveBeenCalledWith(
+				COMMUNITY_ID,
+				useAppStore.getState,
+			);
+		});
+	});
 
-  it("calls cleanup on unmount", async () => {
-    const cleanup = vi.fn();
-    vi.mocked(subscribeToCommunityEvent).mockReturnValue(Effect.succeed(cleanup));
-    vi.spyOn(useAppStore, "getState").mockReturnValue(forceCast({}));
+	it("calls cleanup on unmount", async () => {
+		const cleanup = vi.fn();
+		vi.mocked(subscribeToCommunityEvent).mockReturnValue(Effect.succeed(cleanup));
+		vi.spyOn(useAppStore, "getState").mockReturnValue(forceCast({}));
 
-    const { unmount } = renderHook(() => {
-      useMySubscriptionHook(COMMUNITY_ID);
-    });
+		const { unmount } = renderHook(() => {
+			useMySubscriptionHook(COMMUNITY_ID);
+		});
 
-    await waitFor(() => {
-      expect(vi.mocked(subscribeToCommunityEvent)).toHaveBeenCalledWith(
-        COMMUNITY_ID,
-        useAppStore.getState,
-      );
-    });
+		await waitFor(() => {
+			expect(vi.mocked(subscribeToCommunityEvent)).toHaveBeenCalledWith(
+				COMMUNITY_ID,
+				useAppStore.getState,
+			);
+		});
 
-    unmount();
-    expect(cleanup).toHaveBeenCalledWith();
-  });
+		unmount();
+		expect(cleanup).toHaveBeenCalledWith();
+	});
 
-  it("begins subscribing when communityId transitions from undefined to defined", async () => {
-    vi.clearAllMocks();
-    vi.mocked(subscribeToCommunityEvent).mockReturnValue(Effect.succeed(() => undefined));
-    vi.spyOn(useAppStore, "getState").mockReturnValue(forceCast({}));
+	it("begins subscribing when communityId transitions from undefined to defined", async () => {
+		vi.clearAllMocks();
+		vi.mocked(subscribeToCommunityEvent).mockReturnValue(Effect.succeed(() => undefined));
+		vi.spyOn(useAppStore, "getState").mockReturnValue(forceCast({}));
 
-    const { rerender } = renderHook(({ id }) => {
-      useMySubscriptionHook(id);
-    }, { initialProps: { id: undefined as string | undefined } });
+		const { rerender } = renderHook(
+			({ id }) => {
+				useMySubscriptionHook(id);
+			},
+			{ initialProps: { id: undefined as string | undefined } },
+		);
 
-    expect(vi.mocked(subscribeToCommunityEvent)).not.toHaveBeenCalled();
+		expect(vi.mocked(subscribeToCommunityEvent)).not.toHaveBeenCalled();
 
-    rerender({ id: COMMUNITY_ID });
+		rerender({ id: COMMUNITY_ID });
 
-    await waitFor(() => {
-      expect(vi.mocked(subscribeToCommunityEvent)).toHaveBeenCalledWith(
-        COMMUNITY_ID,
-        useAppStore.getState,
-      );
-    });
-  });
+		await waitFor(() => {
+			expect(vi.mocked(subscribeToCommunityEvent)).toHaveBeenCalledWith(
+				COMMUNITY_ID,
+				useAppStore.getState,
+			);
+		});
+	});
 });
 ```
 
@@ -640,15 +660,13 @@ constant:
 ```tsx
 // ❌ Magic strings
 result.current.onKickParticipant("user-9");
-expect(mockedRunAction).toHaveBeenCalledWith(
-  expect.objectContaining({ actionKey: "kick:user-9" }),
-);
+expect(mockedRunAction).toHaveBeenCalledWith(expect.objectContaining({ actionKey: "kick:user-9" }));
 
 // ✅ Named constants
 const USER_ID_9 = "user-9";
 result.current.onKickParticipant(USER_ID_9);
 expect(mockedRunAction).toHaveBeenCalledWith(
-  expect.objectContaining({ actionKey: `kick:${USER_ID_9}` }),
+	expect.objectContaining({ actionKey: `kick:${USER_ID_9}` }),
 );
 ```
 
@@ -661,9 +679,7 @@ Declare all fixture constants at module top level so every test in the file shar
 expect(mockedRunAction).toHaveBeenCalledWith(expect.any(Object));
 
 // ✅ Asserts the specific actionKey
-expect(mockedRunAction).toHaveBeenCalledWith(
-  expect.objectContaining({ actionKey: "invite" }),
-);
+expect(mockedRunAction).toHaveBeenCalledWith(expect.objectContaining({ actionKey: "invite" }));
 ```
 
 ### Lift shared types to module level

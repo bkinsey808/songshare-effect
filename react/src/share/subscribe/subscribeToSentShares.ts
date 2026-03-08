@@ -5,7 +5,6 @@ import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 
 import type { ShareSlice } from "../slice/ShareSlice.type";
-
 import handleShareSubscribeEvent from "./handleShareSubscribeEvent";
 
 /**
@@ -43,8 +42,8 @@ export default function subscribeToSentShares(
 			client: supabaseClient,
 			tableName: "share_public",
 			filter: `sender_user_id=eq.${currentUserId}`,
-			onEvent: (payload: unknown) => 
-				handleShareSubscribeEvent(payload, supabaseClient, { get, shareType: 'sent' }),
+			onEvent: (payload: unknown) =>
+				handleShareSubscribeEvent(payload, supabaseClient, { get, shareType: "sent" }),
 		});
 
 		return (): void => {

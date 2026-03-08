@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-import type { UserLibraryEntry } from "@/react/user-library/slice/user-library-types";
-
 import useAppStore from "@/react/app-store/useAppStore";
+import type { UserLibraryEntry } from "@/react/user-library/slice/user-library-types";
 
 const USERS_NONE = 0;
 
@@ -102,7 +101,7 @@ export default function useUserSearchInput({
 		// Close dropdown and clear search first
 		setIsOpen(false);
 		setSearchQuery("");
-		
+
 		// Call onSelect immediately after state updates
 		onSelect(entry.followed_user_id);
 	}

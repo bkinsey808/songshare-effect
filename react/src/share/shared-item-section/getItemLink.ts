@@ -8,24 +8,24 @@ import type { SharedItem } from "../slice/share-types";
  */
 export default function getItemLink(share: SharedItem): string | undefined {
 	switch (share.shared_item_type) {
-		case 'song': {
+		case "song": {
 			// Songs use slug, but we only have ID - would need to fetch slug
 			// For now, return undefined and show item name only
 			return undefined;
 		}
-		case 'playlist': {
+		case "playlist": {
 			// Similar issue with playlist slug
 			return undefined;
 		}
-		case 'event': {
+		case "event": {
 			// Similar issue with event slug
 			return undefined;
 		}
-		case 'community': {
+		case "community": {
 			// Similar issue with community slug
 			return undefined;
 		}
-		case 'user': {
+		case "user": {
 			// Users don't have a direct view page in this app
 			return undefined;
 		}

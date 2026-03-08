@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { CommunityEntry, CommunityUser } from "@/react/community/community-types";
-import type { UserSessionData } from "@/shared/userSessionData";
-
 import forceCast from "@/react/lib/test-utils/forceCast";
+import type { UserSessionData } from "@/shared/userSessionData";
 
 import getCommunityPermissions from "./getCommunityPermissions";
 

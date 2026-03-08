@@ -6,7 +6,6 @@ import { describe, expect, it, vi } from "vitest";
 import postJson from "@/shared/fetch/postJson";
 
 import type { ActionState } from "./ActionState.type";
-
 import useEventAutosave from "./useEventAutosave";
 
 vi.mock("@/shared/fetch/postJson");

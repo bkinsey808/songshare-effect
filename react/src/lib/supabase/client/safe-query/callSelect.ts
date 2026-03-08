@@ -14,6 +14,8 @@ type ColumnsOf<DB, TableName> = DB extends {
 		: string
 	: string;
 
+type FilterEq<DB, TableName> = { col: ColumnsOf<DB, TableName> | string; val: unknown };
+
 /**
  * Options for callSelect helper with type-safe column names.
  * For joins/complex queries, column names fall back to string.
@@ -21,7 +23,7 @@ type ColumnsOf<DB, TableName> = DB extends {
 type SelectOptions<DB, TableName> = {
 	cols?: string;
 	in?: { col: ColumnsOf<DB, TableName> | string; vals: readonly unknown[] };
-	eq?: { col: ColumnsOf<DB, TableName> | string; val: unknown };
+	eq?: FilterEq<DB, TableName> | FilterEq<DB, TableName>[];
 	order?: ColumnsOf<DB, TableName> | string;
 	single?: boolean;
 };
@@ -94,10 +96,19 @@ export default async function callSelect<
 	}
 
 	// Apply .eq() if specified
-	if (eqOpt !== undefined && typeof (query as Record<string, unknown>)["eq"] === "function") {
-		const queryRec = query as Record<string, unknown>;
-		const eqFn = queryRec["eq"];
-		query = (eqFn as (col: string, val: unknown) => unknown).call(queryRec, eqOpt.col, eqOpt.val);
+	if (eqOpt !== undefined) {
+		const eqFilters = Array.isArray(eqOpt) ? eqOpt : [eqOpt];
+		for (const eqFilter of eqFilters) {
+			if (typeof (query as Record<string, unknown>)["eq"] === "function") {
+				const queryRec = query as Record<string, unknown>;
+				const eqFn = queryRec["eq"];
+				query = (eqFn as (col: string, val: unknown) => unknown).call(
+					queryRec,
+					eqFilter.col,
+					eqFilter.val,
+				);
+			}
+		}
 	}
 
 	// Apply .order() if specified

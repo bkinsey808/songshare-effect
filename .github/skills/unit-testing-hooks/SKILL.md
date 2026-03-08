@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Writing or editing tests for any `use*.ts` / `use*.tsx` hook.
 - Validating hook behavior, side effects, and cleanup logic.
 
 Execution workflow:
+
 1. Cover behavior with both `renderHook` tests and Harness-style tests when applicable.
 2. Keep tests colocated and use shared wrappers/utilities.
 3. Verify async behavior and cleanup paths explicitly.
 4. Run targeted hook tests first, then broader checks.
 
 Output requirements:
+
 - State which behaviors were covered by `renderHook` vs Harness tests.
 - Report exact test/lint commands run.
 

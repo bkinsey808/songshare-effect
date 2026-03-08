@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { RealtimePayload } from "../subscription-types";
-
 import extractNewRecord from "./extractNewRecord";
 
 // helper asserts a value is neither null nor undefined so tests can narrow types

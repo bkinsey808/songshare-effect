@@ -17,7 +17,6 @@ import { clientLocalDateToUtcTimestamp } from "@/shared/utils/formatEventDate";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
 import type { EventFormValues, EventFormValuesFromSchema, SaveEventRequest } from "../event-types";
-
 import eventFormSchema from "../form/eventFormSchema";
 
 const NAVIGATE_BACK = -1;

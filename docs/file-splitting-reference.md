@@ -7,6 +7,7 @@ This document provides the detailed checklist for larger file-splitting refactor
 1. Inventory exports in the source file.
 2. Map dependencies between symbols before extraction.
 3. Choose target layout:
+
 - single folder for cohesive helpers
 - colocated placement near domain consumers
 

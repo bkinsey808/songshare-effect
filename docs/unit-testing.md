@@ -135,8 +135,8 @@ vi.mock("@/react/event/fetch/fetchEventCommunities");
 vi.mock("@/react/event/subscribe/subscribeToCommunityEventByEvent");
 
 it("uses mocked dependencies", () => {
-  vi.mocked(fetchEventCommunities).mockReturnValue(Effect.succeed([]));
-  vi.mocked(subscribeToCommunityEventByEvent).mockReturnValue(Effect.succeed(() => undefined));
+	vi.mocked(fetchEventCommunities).mockReturnValue(Effect.succeed([]));
+	vi.mocked(subscribeToCommunityEventByEvent).mockReturnValue(Effect.succeed(() => undefined));
 });
 ```
 
@@ -145,7 +145,7 @@ When using a factory, keep it minimal and typed.
 
 ```ts
 vi.mock("@/shared/utils/formatEventDate", () => ({
-  clientLocalDateToUtcTimestamp: vi.fn(() => "2026-01-01T00:00:00Z"),
+	clientLocalDateToUtcTimestamp: vi.fn(() => "2026-01-01T00:00:00Z"),
 }));
 ```
 
@@ -160,13 +160,13 @@ Centralize unsafe casts in `asPostgrestResponse(value)` under `react/src/lib/tes
 hand-craft the `{ data, error, count, status, statusText }` shape inline.
 
 ```ts
-import callSelect from '@/react/lib/supabase/client/safe-query/callSelect';
-import asPostgrestResponse from '@/react/lib/test-utils/asPostgrestResponse';
+import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 
-vi.mock('@/react/lib/supabase/client/safe-query/callSelect');
+vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 const mockedCallSelect = vi.mocked(callSelect);
 
-mockedCallSelect.mockResolvedValue(asPostgrestResponse({ data: [{ id: 'r1' }] }));
+mockedCallSelect.mockResolvedValue(asPostgrestResponse({ data: [{ id: "r1" }] }));
 ```
 
 When mocking external services like Supabase, ensure the mock structure matches the real library's
@@ -195,11 +195,11 @@ const mod = await import("@/shared/utils/formatEventDate");
 vi.spyOn(mod, "clientLocalDateToUtcTimestamp").mockReturnValue("2026-01-01T00:00:00Z");
 ```
 
-| Situation | Pattern |
-|---|---|
+| Situation                                             | Pattern                              |
+| ----------------------------------------------------- | ------------------------------------ |
 | Imported collaborator / repeated control across tests | `vi.mock("path")` + `vi.mocked(...)` |
-| Advanced module-shape override | `vi.mock("path", factory)` |
-| One-off partial override on a stable object reference | `vi.spyOn(object, "method")` |
+| Advanced module-shape override                        | `vi.mock("path", factory)`           |
+| One-off partial override on a stable object reference | `vi.spyOn(object, "method")`         |
 
 Use `vi.spyOn()` as an escape hatch, not the baseline pattern.
 
@@ -240,7 +240,7 @@ vi.mock("effect");
 vi.mock("effect", () => ({ Effect: { runPromise: vi.fn() } }));
 
 // ✅ Prefer mocking your own dependency boundary with real Effect values
-fetchEventBySlug: (_slug: string) => Effect.sync(() => undefined)
+fetchEventBySlug: (_slug: string) => Effect.sync(() => undefined);
 
 // ✅ If absolutely required, use targeted spyOn without replacing the full module:
 vi.spyOn(effectModule, "runPromise").mockResolvedValue(undefined);
@@ -261,8 +261,8 @@ let appState = {};
 
 // ✅ arrange inside the test
 it("works", async () => {
-  const appState = {};
-  vi.mocked(myFn).mockReturnValue(appState);
+	const appState = {};
+	vi.mocked(myFn).mockReturnValue(appState);
 });
 ```
 
@@ -280,20 +280,20 @@ Use an **`async init()` helper** inside the `describe` block instead:
 
 ```ts
 describe("foo handler", () => {
-  async function init() {
-    vi.resetModules();   // clear module registry for fresh imports
-    mockFoo();           // install any vi.doMock calls
-    const { default: handler } = await import("./fooHandler");
-    const { foo } = await import("./foo");
-    return { handler, mockedFoo: vi.mocked(foo) };
-  }
+	async function init() {
+		vi.resetModules(); // clear module registry for fresh imports
+		mockFoo(); // install any vi.doMock calls
+		const { default: handler } = await import("./fooHandler");
+		const { foo } = await import("./foo");
+		return { handler, mockedFoo: vi.mocked(foo) };
+	}
 
-  it("calls foo with the expected argument", async () => {
-    const { handler, mockedFoo } = await init();
-    mockedFoo.mockReturnValue(42);
-    const res = handler();
-    expect(res).toBe(42);
-  });
+	it("calls foo with the expected argument", async () => {
+		const { handler, mockedFoo } = await init();
+		mockedFoo.mockReturnValue(42);
+		const res = handler();
+		expect(res).toBe(42);
+	});
 });
 ```
 
@@ -307,11 +307,13 @@ module instance. Return everything the test needs from `init()`.
 vi.mock("@/react/app-store/useAppStore");
 
 it("passes getState to the subscribe function", async () => {
-  vi.spyOn(useAppStore, "getState").mockReturnValue(forceCast({}));
-  renderHook(() => { mySubscriptionHook("community-1"); });
-  await waitFor(() => {
-    expect(vi.mocked(mySubscribeFn)).toHaveBeenCalledWith("community-1", useAppStore.getState);
-  });
+	vi.spyOn(useAppStore, "getState").mockReturnValue(forceCast({}));
+	renderHook(() => {
+		mySubscriptionHook("community-1");
+	});
+	await waitFor(() => {
+		expect(vi.mocked(mySubscribeFn)).toHaveBeenCalledWith("community-1", useAppStore.getState);
+	});
 });
 ```
 
@@ -321,11 +323,11 @@ Use exact reference (`useAppStore.getState`) — not `expect.any(Function)` — 
 
 Three patterns exist; pick the right one upfront:
 
-| Situation | Pattern | Location |
-|---|---|---|
-| Single test file needs fresh module imports per test | `async init()` inside `describe` | Inline |
-| Multiple test files mock the same module | Callable `mockFoo()` function | `*.test-util.ts` |
-| Multiple helper files share the same mock state | `vi.hoisted()` state + `mockFoo()` + getter | `*.test-util.ts` |
+| Situation                                            | Pattern                                     | Location         |
+| ---------------------------------------------------- | ------------------------------------------- | ---------------- |
+| Single test file needs fresh module imports per test | `async init()` inside `describe`            | Inline           |
+| Multiple test files mock the same module             | Callable `mockFoo()` function               | `*.test-util.ts` |
+| Multiple helper files share the same mock state      | `vi.hoisted()` state + `mockFoo()` + getter | `*.test-util.ts` |
 
 Treat `vi.hoisted()` as a code smell by default in this repo. Most tests should use top-level
 `vi.mock("path")` plus per-test `vi.mocked(...)` setup. Reach for `vi.hoisted()` only when hoist
@@ -349,14 +351,14 @@ let mockFn: ReturnType<typeof vi.fn> | undefined = undefined;
  * @returns The mock function for inspection
  */
 export default function mockUseSlideManagerView(): ReturnType<typeof vi.fn> {
-  vi.resetModules();
-  mockFn = vi.fn();
-  vi.doMock("@/react/event/manage/slide/useSlideManagerView", () => ({ default: mockFn }));
-  return mockFn;
+	vi.resetModules();
+	mockFn = vi.fn();
+	vi.doMock("@/react/event/manage/slide/useSlideManagerView", () => ({ default: mockFn }));
+	return mockFn;
 }
 
 export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
-  return mockFn;
+	return mockFn;
 }
 ```
 
@@ -364,20 +366,20 @@ export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
 
 ```typescript
 const mockState = vi.hoisted(() => ({
-  mockFn: undefined as ReturnType<typeof vi.fn> | undefined,
+	mockFn: undefined as ReturnType<typeof vi.fn> | undefined,
 }));
 
 export default function mockUseSlideManagerView(): ReturnType<typeof vi.fn> {
-  vi.resetModules();
-  mockState.mockFn = vi.fn();
-  vi.doMock("@/react/event/manage/slide/useSlideManagerView", () => ({
-    default: mockState.mockFn,
-  }));
-  return mockState.mockFn;
+	vi.resetModules();
+	mockState.mockFn = vi.fn();
+	vi.doMock("@/react/event/manage/slide/useSlideManagerView", () => ({
+		default: mockState.mockFn,
+	}));
+	return mockState.mockFn;
 }
 
 export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
-  return mockState.mockFn;
+	return mockState.mockFn;
 }
 ```
 
@@ -385,9 +387,9 @@ export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
 
 ```ts
 export async function getValidateFormEffectMock(): Promise<ValidateFormEffectMock> {
-  const { default: validateFormEffect } = await import("@/shared/validation/validateFormEffect");
-  // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-  return vi.mocked(validateFormEffect) as unknown as ValidateFormEffectMock;
+	const { default: validateFormEffect } = await import("@/shared/validation/validateFormEffect");
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	return vi.mocked(validateFormEffect) as unknown as ValidateFormEffectMock;
 }
 ```
 
@@ -412,10 +414,10 @@ const mockFetchUserLibrary = vi.fn(() => Effect.sync(() => undefined));
 const mockState = { fetchUserLibrary: mockFetchUserLibrary };
 
 function installStore() {
-  mockedUseAppStore.mockImplementation((selector: unknown) =>
-    forceCast<(state: typeof mockState) => unknown>(selector)(mockState),
-  );
-  return { fetchUserLibrary: mockFetchUserLibrary };
+	mockedUseAppStore.mockImplementation((selector: unknown) =>
+		forceCast<(state: typeof mockState) => unknown>(selector)(mockState),
+	);
+	return { fetchUserLibrary: mockFetchUserLibrary };
 }
 ```
 
@@ -464,13 +466,13 @@ subfolder before writing local stubs.
 
 ```typescript
 const ctx = makeCtx({
-  env: { VITE_SUPABASE_URL: "url", SUPABASE_SERVICE_KEY: "svc-key" },
-  resHeadersAppend: vi.fn(),
+	env: { VITE_SUPABASE_URL: "url", SUPABASE_SERVICE_KEY: "svc-key" },
+	resHeadersAppend: vi.fn(),
 });
 
 mockCreateSupabaseClient(vi.mocked(createClient), {
-  playlistSelectSingleRow: { user_id: "requester-1" },
-  playlistDeleteError: new Error("boom"),
+	playlistSelectSingleRow: { user_id: "requester-1" },
+	playlistDeleteError: new Error("boom"),
 });
 ```
 
@@ -485,8 +487,8 @@ import { type MockRow } from "@/api/test-utils/supabase-mocks/supabase-mock-type
 import { type Playlist } from "@/shared/generated/supabaseSchemas";
 
 const myMockRow: MockRow<Playlist> = {
-  playlist_id: "uuid",
-  public_notes: undefined, // OK with MockRow even if required in schema
+	playlist_id: "uuid",
+	public_notes: undefined, // OK with MockRow even if required in schema
 };
 ```
 
@@ -545,10 +547,10 @@ See `api/src/account/accountDelete.test.ts` for a full worked example.
  * @param cookieValue - cookie string or undefined
  */
 function makeCtxForCsrf(headerValue?: string, cookieValue?: string): ReadonlyContext {
-  const headers = new Headers();
-  if (cookieValue) headers.set("Cookie", `${csrfTokenCookieName}=${cookieValue}`);
-  // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-  return { req: { header: () => headerValue, raw: { headers } } } as unknown as ReadonlyContext;
+	const headers = new Headers();
+	if (cookieValue) headers.set("Cookie", `${csrfTokenCookieName}=${cookieValue}`);
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
+	return { req: { header: () => headerValue, raw: { headers } } } as unknown as ReadonlyContext;
 }
 ```
 
@@ -600,14 +602,14 @@ maintainers and mask comprehension gaps.
 ```typescript
 // ❌ Not awaiting async operations
 it("fetches data", () => {
-  fetchData();
-  expect(data).toBeDefined(); // runs before fetch completes
+	fetchData();
+	expect(data).toBeDefined(); // runs before fetch completes
 });
 
 // ✅ Await
 it("fetches data", async () => {
-  await fetchData();
-  expect(data).toBeDefined();
+	await fetchData();
+	expect(data).toBeDefined();
 });
 ```
 
@@ -652,18 +654,18 @@ import os from "node:os";
 import path from "node:path";
 
 it("collects only SKILL.md files recursively", async () => {
-  const tmp = await mkdtemp(path.join(os.tmpdir(), "my-test-"));
-  try {
-    await mkdir(path.join(tmp, "sub"), { recursive: true });
-    await writeFile(path.join(tmp, "SKILL.md"), "");
-    await writeFile(path.join(tmp, "sub", "SKILL.md"), "");
-    const result = await myFn(tmp);
-    expect(result.toSorted()).toStrictEqual(
-      [path.join(tmp, "SKILL.md"), path.join(tmp, "sub", "SKILL.md")].toSorted()
-    );
-  } finally {
-    await rm(tmp, { recursive: true, force: true });
-  }
+	const tmp = await mkdtemp(path.join(os.tmpdir(), "my-test-"));
+	try {
+		await mkdir(path.join(tmp, "sub"), { recursive: true });
+		await writeFile(path.join(tmp, "SKILL.md"), "");
+		await writeFile(path.join(tmp, "sub", "SKILL.md"), "");
+		const result = await myFn(tmp);
+		expect(result.toSorted()).toStrictEqual(
+			[path.join(tmp, "SKILL.md"), path.join(tmp, "sub", "SKILL.md")].toSorted(),
+		);
+	} finally {
+		await rm(tmp, { recursive: true, force: true });
+	}
 });
 ```
 
@@ -697,7 +699,7 @@ internal collaborator calls only when the call shape is part of the contract.
 
 ### Choose One Mocking Seam
 
-Mock one boundary per test whenever possible (for example: network layer *or* mapper layer, not
+Mock one boundary per test whenever possible (for example: network layer _or_ mapper layer, not
 both). Multi-layer mocks can pass while real integration is broken.
 
 ### Module Cache Isolation

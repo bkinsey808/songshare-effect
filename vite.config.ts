@@ -1,12 +1,13 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 // Use the Tailwind PostCSS plugin package rather than importing Tailwind's
 // runtime directly. Tailwind's PostCSS plugin was moved to a separate
 // package (`@tailwindcss/postcss`) so import that here for PostCSS usage.
 import tailwindPostcss from "@tailwindcss/postcss";
 import react from "@vitejs/plugin-react";
 import autoprefixer from "autoprefixer";
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import typeGPU from "unplugin-typegpu/vite";
 import { type ServerOptions, type UserConfig, defineConfig } from "vite";
 

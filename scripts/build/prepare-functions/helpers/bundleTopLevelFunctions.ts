@@ -36,7 +36,7 @@ export default async function bundleTopLevelFunctions(outDir: string): Promise<v
 				}
 			} else {
 				// skip non-TypeScript files
-			 }
+			}
 		}
 	} catch (error) {
 		const message: string | undefined = extractErrorMessage(error, "Unknown error");

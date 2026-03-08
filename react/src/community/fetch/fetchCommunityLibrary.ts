@@ -25,23 +25,34 @@ export default function fetchCommunityLibrary(
 		setCommunityLoading(true);
 		setCommunityError(undefined);
 
-		try {
-			const communities = yield* $(
-				Effect.tryPromise({
-					try: () => getJson<readonly CommunityEntry[]>(apiCommunityLibraryPath),
-					catch: (err) =>
-						new Error(err instanceof Error ? err.message : "Failed to fetch community library"),
-				}),
-			);
+		const communities = yield* $(
+			Effect.tryPromise({
+				try: () => getJson<readonly CommunityEntry[]>(apiCommunityLibraryPath),
+				catch: (err) =>
+					new Error(err instanceof Error ? err.message : "Failed to fetch community library"),
+			}),
+		);
 
-			setCommunities(communities);
-			setCommunityLoading(false);
-			return communities;
-		} catch (error: unknown) {
-			setCommunityLoading(false);
-			const message = error instanceof Error ? error.message : String(error);
-			setCommunityError(message);
-			return yield* $(Effect.fail(new Error(message)));
-		}
-	});
+		setCommunities(communities);
+		setCommunityLoading(false);
+		return communities;
+	}).pipe(
+		// On failure: clear loading, set error state, and log. Error still propagates.
+		Effect.tapError((err) =>
+			Effect.sync(() => {
+				const { setCommunityLoading, setCommunityError } = get();
+				const message = err instanceof Error ? err.message : String(err);
+				setCommunityLoading(false);
+				setCommunityError(message);
+				console.error("[fetchCommunityLibrary] Error fetching community library:", message);
+			}),
+		),
+		// Like `finally`: always clears loading on success, failure, or interruption.
+		Effect.ensuring(
+			Effect.sync(() => {
+				const { setCommunityLoading } = get();
+				setCommunityLoading(false);
+			}),
+		),
+	);
 }

@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { RealtimeChannelLike } from "../SupabaseClientLike";
-
 import guardAsRealtimeChannelLike from "./guardAsRealtimeChannelLike";
 
 /**

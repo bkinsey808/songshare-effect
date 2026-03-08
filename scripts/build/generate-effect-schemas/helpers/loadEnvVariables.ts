@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
-import computeEnvValue from "./computeEnvValue";
 
+import computeEnvValue from "./computeEnvValue";
 
 /**
  * Loads environment variables from an .env file into a plain object.
@@ -18,16 +18,13 @@ export default function loadEnvVariables(envFilePath: string): Record<string, st
 	const EXPORT_PREFIX = "export ";
 	const EMPTY = "";
 
-
 	for (const rawLine of lines) {
 		const line = rawLine.trim();
 
 		if (line === EMPTY || line.startsWith("#")) {
 			// skip empty lines or comments
 		} else {
-			const normalized = line.startsWith(EXPORT_PREFIX)
-				? line.slice(EXPORT_PREFIX.length)
-				: line;
+			const normalized = line.startsWith(EXPORT_PREFIX) ? line.slice(EXPORT_PREFIX.length) : line;
 
 			const equalsIndex = normalized.indexOf("=");
 			if (equalsIndex === NO_INDEX) {

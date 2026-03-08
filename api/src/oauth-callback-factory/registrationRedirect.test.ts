@@ -1,13 +1,12 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { Env } from "@/api/env";
-import type { OauthState } from "@/shared/oauth/oauthState";
-import type { OauthUserData } from "@/shared/oauth/oauthUserData";
-
 import { registerCookieName } from "@/api/cookie/cookie";
+import type { Env } from "@/api/env";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import buildRegisterJwt from "@/api/register/buildRegisterJwt";
+import type { OauthState } from "@/shared/oauth/oauthState";
+import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 import { registerPath } from "@/shared/paths";
 
 import handleRegistration, {

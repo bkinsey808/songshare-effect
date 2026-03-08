@@ -31,10 +31,7 @@ export default function convertReactImports(filePath: string, content: string): 
 			}
 
 			// Skip external modules or shared imports that might not be in react/src
-			if (
-				relativePath.includes("node_modules") ||
-				relativePath.includes("shared")
-			) {
+			if (relativePath.includes("node_modules") || relativePath.includes("shared")) {
 				return match;
 			}
 

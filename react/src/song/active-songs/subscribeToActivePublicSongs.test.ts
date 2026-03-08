@@ -1,21 +1,20 @@
-import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 import assert from "node:assert";
 import { setTimeout as delay } from "node:timers/promises";
+
+import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 
+import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
+import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import type {
 	RealtimeChannelLike,
 	SupabaseClientLike,
 } from "@/react/lib/supabase/client/SupabaseClientLike";
-
-import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
-import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import asNull from "@/react/lib/test-utils/asNull";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
-import type { SongSubscribeSlice } from "../song-slice/song-slice";
-
 import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
+import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import subscribeToActivePublicSongs from "./subscribeToActivePublicSongs";
 
 // Mock the supabase client factory before importing the module under test

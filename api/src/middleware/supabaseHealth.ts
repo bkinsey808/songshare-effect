@@ -1,5 +1,4 @@
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 const STARTUP_SUPABASE_TIMEOUT_MS = 3000;

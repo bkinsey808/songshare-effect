@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 
+import { NOT_FOUND } from "@/shared/constants/shared-constants";
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityUserJoinPath } from "@/shared/paths";
 
@@ -20,8 +21,15 @@ export default function acceptCommunityInvitation(
 	get: () => InvitationSlice,
 ): Effect.Effect<void, Error> {
 	return Effect.gen(function* acceptCommunityInvitationGen($) {
-		const { setInvitationError, setPendingCommunityInvitations, pendingCommunityInvitations } =
-			get();
+		const {
+			setInvitationLoading,
+			setInvitationError,
+			setPendingCommunityInvitations,
+			pendingCommunityInvitations,
+		} = get();
+
+		console.warn(`[acceptCommunityInvitation] Accepting invitation for community: ${communityId}`);
+		setInvitationLoading(true);
 		setInvitationError(undefined);
 
 		yield* $(
@@ -32,9 +40,14 @@ export default function acceptCommunityInvitation(
 		);
 
 		// Optimistically mark as accepted so UI can show the link immediately
-		const updated = pendingCommunityInvitations.map((inv) =>
-			inv.community_id === communityId ? Object.assign(inv, { accepted: true }) : inv,
-		);
+		const updated = [...pendingCommunityInvitations];
+		const index = updated.findIndex((inv) => inv.community_id === communityId);
+		if (index !== NOT_FOUND) {
+			const existing = updated[index];
+			if (existing !== undefined) {
+				updated[index] = { ...existing, accepted: true };
+			}
+		}
 		setPendingCommunityInvitations(updated);
 	}).pipe(
 		Effect.tapError((err) =>

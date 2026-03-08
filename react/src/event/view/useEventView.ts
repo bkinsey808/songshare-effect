@@ -1,11 +1,10 @@
 import { useParams } from "react-router-dom";
 
+import useAppStore from "@/react/app-store/useAppStore";
+import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import type { EventParticipant } from "@/react/event/event-entry/EventEntry.type";
 import type { EventEntry } from "@/react/event/event-types";
 import type { ParticipantStatus } from "@/react/event/participant-status/participantStatusMachine";
-
-import useAppStore from "@/react/app-store/useAppStore";
-import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import deriveEventViewState from "@/react/event/view/deriveEventViewState";
 import useEventActions from "@/react/event/view/useEventActions";
 import useEventDataSync from "@/react/event/view/useEventDataSync";

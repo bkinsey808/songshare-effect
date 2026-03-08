@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import { Effect } from "effect";
+import { useEffect } from "react";
 
 import { appStore } from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
@@ -18,10 +18,7 @@ export default function useShareSubscription(): void {
 		}
 
 		const userId: string = currentUserId;
-		const {
-			fetchShares,
-			subscribeToSentShares,
-		} = appStore.getState();
+		const { fetchShares, subscribeToSentShares } = appStore.getState();
 
 		let sentCleanup: (() => void) | undefined = undefined;
 
@@ -39,13 +36,8 @@ export default function useShareSubscription(): void {
 		async function setup(): Promise<void> {
 			try {
 				const fetchPromise = Effect.runPromise(fetchShares({ view: "sent" }));
-				await Promise.race([
-					fetchPromise,
-					createTimeoutPromise(FETCH_TIMEOUT_MS),
-				]);
-				sentCleanup = await Effect.runPromise(
-					subscribeToSentShares(userId),
-				);
+				await Promise.race([fetchPromise, createTimeoutPromise(FETCH_TIMEOUT_MS)]);
+				sentCleanup = await Effect.runPromise(subscribeToSentShares(userId));
 			} catch (error) {
 				console.error("Failed to set up share subscription:", error);
 				appStore.getState().setSharesLoading(false);

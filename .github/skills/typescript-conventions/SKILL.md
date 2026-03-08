@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Editing any `.ts` or `.tsx` file.
 - Resolving TypeScript strictness or lint errors related to typing quality.
 
 Execution workflow:
+
 1. Prefer precise types (`unknown`, type guards, discriminated unions) over `any`.
 2. Follow repo style conventions (`type` first, explicit return types, ambient types where required).
 3. Keep changes minimal and local to the problem area.
 4. Validate with `npm run lint` after meaningful TS changes.
 
 Output requirements:
+
 - Summarize which conventions were applied in edited files.
 - Mention any unavoidable tradeoffs (for example temporary assertions with justification).
 
@@ -32,15 +35,15 @@ Output requirements:
 ```typescript
 // ❌ BAD
 function processData(data: any) {
-  return data.value; // Type unknown, no safety
+	return data.value; // Type unknown, no safety
 }
 
 // ✅ GOOD
 function processData(data: unknown) {
-  if (typeof data === "object" && data !== null && "value" in data) {
-    return (data as Record<string, unknown>).value;
-  }
-  throw new Error("Invalid data");
+	if (typeof data === "object" && data !== null && "value" in data) {
+		return (data as Record<string, unknown>).value;
+	}
+	throw new Error("Invalid data");
 }
 ```
 
@@ -51,9 +54,9 @@ For most cases, use `type` declarations:
 ```typescript
 // ✅ GOOD: type for object shapes
 type User = {
-  id: string;
-  name: string;
-  email: string;
+	id: string;
+	name: string;
+	email: string;
 };
 
 // ✅ GOOD: type for unions
@@ -64,10 +67,10 @@ type FetchUser = (id: string) => Promise<User>;
 
 // ✅ OKAY: interface when extending is needed
 interface Document {
-  id: string;
+	id: string;
 }
 interface SongDocument extends Document {
-  title: string;
+	title: string;
 }
 ```
 
@@ -78,17 +81,17 @@ Always specify function return types:
 ```typescript
 // ❌ BAD: Inferred return type
 function calculateTotal(items: Item[]) {
-  return items.reduce((sum, item) => sum + item.price, 0);
+	return items.reduce((sum, item) => sum + item.price, 0);
 }
 
 // ✅ GOOD: Explicit return type
 function calculateTotal(items: Item[]): number {
-  return items.reduce((sum, item) => sum + item.price, 0);
+	return items.reduce((sum, item) => sum + item.price, 0);
 }
 
 // ✅ GOOD: Effect-TS return types
 function validateSong(data: unknown): Effect.Effect<Song, ValidationError> {
-  return Schema.decodeUnknown(SongSchema)(data);
+	return Schema.decodeUnknown(SongSchema)(data);
 }
 ```
 
@@ -117,31 +120,31 @@ Destructure object parameters directly in the function signature instead of insi
 ```typescript
 // ❌ BAD: Destructuring inside function body
 export default function runAddUserFlow(params: RunAddUserFlowParams): Effect.Effect<void> {
-  const {
-    username,
-    lookupUserByUsername,
-    addUserToLibrary,
-    t,
-    setUsername,
-    setIsOpen,
-    setIsLoading,
-    setError,
-  } = params;
-  // ...
+	const {
+		username,
+		lookupUserByUsername,
+		addUserToLibrary,
+		t,
+		setUsername,
+		setIsOpen,
+		setIsLoading,
+		setError,
+	} = params;
+	// ...
 }
 
 // ✅ GOOD: Destructuring in function signature
 export default function runAddUserFlow({
-  username,
-  lookupUserByUsername,
-  addUserToLibrary,
-  t,
-  setUsername,
-  setIsOpen,
-  setIsLoading,
-  setError,
+	username,
+	lookupUserByUsername,
+	addUserToLibrary,
+	t,
+	setUsername,
+	setIsOpen,
+	setIsLoading,
+	setError,
 }: RunAddUserFlowParams): Effect.Effect<void> {
-  // ...
+	// ...
 }
 ```
 
@@ -156,8 +159,8 @@ This bites when you thread an optional prop through a component into a hook or c
 ```typescript
 // ❌ FAILS: passes `readonly string[] | undefined` where `readonly string[]` expected
 function MyInput({ excludeIds }: { excludeIds?: readonly string[] }): ReactElement {
-  const result = useMyHook({ excludeIds }); // type error!
-  // ...
+	const result = useMyHook({ excludeIds }); // type error!
+	// ...
 }
 ```
 
@@ -166,11 +169,11 @@ function MyInput({ excludeIds }: { excludeIds?: readonly string[] }): ReactEleme
 ```typescript
 // ✅ GOOD: only includes the key when the value is defined
 function MyInput({ excludeIds }: { excludeIds?: readonly string[] }): ReactElement {
-  const result = useMyHook({
-    baseArg: "value",
-    ...(excludeIds === undefined ? {} : { excludeIds }),
-  });
-  // ...
+	const result = useMyHook({
+		baseArg: "value",
+		...(excludeIds === undefined ? {} : { excludeIds }),
+	});
+	// ...
 }
 ```
 
@@ -180,18 +183,21 @@ This pattern omits the key entirely when the value is `undefined`, satisfying `e
 
 ```typescript
 // When clearing a nullable FK column, disable no-null on that specific line
-yield* $(Effect.tryPromise({
-  try: () =>
-    supabase
-      .from("community_public")
-      .update({
-        // oxlint-disable-next-line no-null
-        active_event_id: null,
-      })
-      .eq("community_id", community_id)
-      .eq("active_event_id", event_id),
-  catch: (err) => new DatabaseError({ message: extractErrorMessage(err) }),
-}));
+yield *
+	$(
+		Effect.tryPromise({
+			try: () =>
+				supabase
+					.from("community_public")
+					.update({
+						// oxlint-disable-next-line no-null
+						active_event_id: null,
+					})
+					.eq("community_id", community_id)
+					.eq("active_event_id", event_id),
+			catch: (err) => new DatabaseError({ message: extractErrorMessage(err) }),
+		}),
+	);
 ```
 
 ### 7. Strict Null Checks — `Set` Construction from Optional Arrays

@@ -2,10 +2,9 @@ import { Effect } from "effect";
 
 import { unwrapError } from "@/shared/utils/unwrap-error";
 
-import type { SubscriptionConfig } from "../subscription-types";
-
 import handleSubscriptionStatus from "../status/handleSubscriptionStatus";
 import isSubscriptionStatus from "../status/isSubscriptionStatus";
+import type { SubscriptionConfig } from "../subscription-types";
 
 /**
  * Creates and subscribes to a Supabase realtime channel with common error handling

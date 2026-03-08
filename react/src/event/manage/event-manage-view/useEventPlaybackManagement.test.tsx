@@ -14,7 +14,6 @@ import { describe, expect, it, vi } from "vitest";
 import type { EventEntry } from "@/react/event/event-types";
 
 import type { ActionState } from "../ActionState.type";
-
 import useEventPlaybackManagement from "./useEventPlaybackManagement";
 
 // Prevent side-effects from selection sync and autosave flush hooks

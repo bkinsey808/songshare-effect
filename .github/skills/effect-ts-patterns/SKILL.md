@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Editing files under `api/` that use Effect, Hono handlers, schema decoding, or typed API errors.
 - Implementing/refactoring handlers, services, or error mapping in the Effect stack.
 
 Execution workflow:
+
 1. Identify the feature boundary (handler, service, schema, error type).
 2. Keep errors typed (`Data.TaggedError`), decode/validate untrusted input, and keep async work in `Effect`.
 3. Use existing HTTP integration helpers (`handleHttpEndpoint`, `errorToHttpResponse`) instead of duplicating response mapping.
 4. Validate with `npm run lint` and targeted unit tests for changed service/handler behavior.
 
 Output requirements:
+
 - Summarize which Effect patterns were applied (typed errors, schema decode, service DI, HTTP mapping).
 - Note any intentional deviations from these patterns.
 
@@ -36,21 +39,24 @@ Use Effect's `Data.TaggedError` for discriminated error unions:
 import { Data } from "effect";
 
 export class ValidationError extends Data.TaggedError("ValidationError") {
-  constructor(readonly message: string) {
-    super();
-  }
+	constructor(readonly message: string) {
+		super();
+	}
 }
 
 export class NotFoundError extends Data.TaggedError("NotFoundError") {
-  constructor(readonly resource: string, readonly id: string) {
-    super();
-  }
+	constructor(
+		readonly resource: string,
+		readonly id: string,
+	) {
+		super();
+	}
 }
 
 export class DatabaseError extends Data.TaggedError("DatabaseError") {
-  constructor(readonly message: string) {
-    super();
-  }
+	constructor(readonly message: string) {
+		super();
+	}
 }
 
 type ApiError = ValidationError | NotFoundError | DatabaseError;
@@ -67,24 +73,19 @@ Use Effect Schema for runtime validation with compile-time type inference:
 import { Schema } from "effect";
 
 export const CreateSongRequestSchema = Schema.Struct({
-  title: Schema.String.pipe(Schema.minLength(1)),
-  artist: Schema.String.pipe(Schema.minLength(1)),
-  duration: Schema.Number.pipe(Schema.positive()),
+	title: Schema.String.pipe(Schema.minLength(1)),
+	artist: Schema.String.pipe(Schema.minLength(1)),
+	duration: Schema.Number.pipe(Schema.positive()),
 });
 
-export type CreateSongRequest = Schema.Schema.Type<
-  typeof CreateSongRequestSchema
->;
+export type CreateSongRequest = Schema.Schema.Type<typeof CreateSongRequestSchema>;
 
 // Usage in handler:
-const validatedData = yield* Schema.decodeUnknown(
-  CreateSongRequestSchema,
-)(body).pipe(
-  Effect.mapError(
-    (error) =>
-      new ValidationError({ message: Schema.formatIssueSync(error) }),
-  ),
-);
+const validatedData =
+	yield *
+	Schema.decodeUnknown(CreateSongRequestSchema)(body).pipe(
+		Effect.mapError((error) => new ValidationError({ message: Schema.formatIssueSync(error) })),
+	);
 ```
 
 **Why:** Single source of truth for validation logic; errors are detailed and actionable.
@@ -144,16 +145,16 @@ The project provides two utilities under `api/src/http/`:
 import { handleHttpEndpoint } from "@/api/http/handleHttpEndpoint";
 
 app.post("/api/songs", async (c) => {
-  return handleHttpEndpoint(() =>
-    Effect.gen(function* () {
-      const body = yield* Effect.tryPromise({
-        try: () => c.req.json(),
-        catch: () => new ValidationError({ message: "Invalid JSON" }),
-      });
-      const service = yield* SongService;
-      return yield* service.create(body);
-    })
-  )(c);
+	return handleHttpEndpoint(() =>
+		Effect.gen(function* () {
+			const body = yield* Effect.tryPromise({
+				try: () => c.req.json(),
+				catch: () => new ValidationError({ message: "Invalid JSON" }),
+			});
+			const service = yield* SongService;
+			return yield* service.create(body);
+		}),
+	)(c);
 });
 ```
 
@@ -166,31 +167,26 @@ Use `Effect.gen` for readable, sequential Effect composition:
 ```typescript
 // api/src/server.ts
 app.post("/api/songs", async (c) => {
-  const songEffect = Effect.gen(function* () {
-    // Parse JSON (can fail with ValidationError)
-    const body = yield* Effect.tryPromise({
-      try: () => c.req.json(),
-      catch: () => new ValidationError({ message: "Invalid JSON" }),
-    });
+	const songEffect = Effect.gen(function* () {
+		// Parse JSON (can fail with ValidationError)
+		const body = yield* Effect.tryPromise({
+			try: () => c.req.json(),
+			catch: () => new ValidationError({ message: "Invalid JSON" }),
+		});
 
-    // Validate against schema
-    const validatedData = yield* Schema.decodeUnknown(
-      CreateSongRequestSchema,
-    )(body).pipe(
-      Effect.mapError(
-        (error) =>
-          new ValidationError({ message: Schema.formatIssueSync(error) }),
-      ),
-    );
+		// Validate against schema
+		const validatedData = yield* Schema.decodeUnknown(CreateSongRequestSchema)(body).pipe(
+			Effect.mapError((error) => new ValidationError({ message: Schema.formatIssueSync(error) })),
+		);
 
-    // Call service (injected via Context)
-    const service = yield* SongService;
-    const song = yield* service.create(validatedData);
+		// Call service (injected via Context)
+		const service = yield* SongService;
+		const song = yield* service.create(validatedData);
 
-    return song;
-  });
+		return song;
+	});
 
-  return executeEffect(songEffect);
+	return executeEffect(songEffect);
 });
 ```
 
@@ -203,17 +199,19 @@ app.post("/api/songs", async (c) => {
 ```typescript
 // Bad: mixing Promise and Effect
 const data = await somePromise;
-const result = yield* service.doSomething();
+const result = yield * service.doSomething();
 ```
 
 **✅ Better:** Convert Promises to Effects:
 
 ```typescript
-const data = yield* Effect.tryPromise({
-  try: () => somePromise,
-  catch: (error) => new ApiError({ message: String(error) }),
-});
-const result = yield* service.doSomething();
+const data =
+	yield *
+	Effect.tryPromise({
+		try: () => somePromise,
+		catch: (error) => new ApiError({ message: String(error) }),
+	});
+const result = yield * service.doSomething();
 ```
 
 ### ❌ Throwing errors instead of using Effect.fail
@@ -237,16 +235,18 @@ if (!data) {
 
 ```typescript
 // Bad: not mapping promise rejection to proper error type
-const data = yield* Effect.tryPromise(() => dbQuery());
+const data = yield * Effect.tryPromise(() => dbQuery());
 ```
 
 **✅ Better:** Always handle catch:
 
 ```typescript
-const data = yield* Effect.tryPromise({
-  try: () => dbQuery(),
-  catch: () => new DatabaseError({ message: "Query failed" }),
-});
+const data =
+	yield *
+	Effect.tryPromise({
+		try: () => dbQuery(),
+		catch: () => new DatabaseError({ message: "Query failed" }),
+	});
 ```
 
 ## Deep Reference

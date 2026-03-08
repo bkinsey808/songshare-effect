@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - The task mentions lint, TypeScript errors, ESLint, oxlint, or failing CI checks related to static analysis.
 - Any command output contains lint/type errors in files being edited.
 
 Execution workflow:
+
 1. Run the narrowest failing check first (single file or targeted command).
 2. Fix root causes in source code; do not suppress rules unless explicitly justified.
 3. Re-run the same narrow check.
 4. Run `npm run lint` before finalizing broader lint/type work.
 
 Output requirements:
+
 - Report exact rules/errors fixed and files changed.
 - If any suppression is added, include the rule name and one-line justification.
 
@@ -35,39 +38,45 @@ This project uses strict linting rules to enforce type safety and code quality. 
 ## Quick Solutions for Common Errors
 
 ### `no-unsafe-type-assertion`
+
 ```typescript
 // ❌ BAD: Unsafe assertion
 const data = response as { user: User };
 
 // ✅ GOOD: Type guard with validation
 function isUserResponse(value: unknown): value is { user: User } {
-  return typeof value === 'object' && value !== null && 'user' in value;
+	return typeof value === "object" && value !== null && "user" in value;
 }
-if (!isUserResponse(response)) throw new Error('Invalid response');
+if (!isUserResponse(response)) throw new Error("Invalid response");
 const data = response;
 ```
 
 ### `no-unsafe-assignment`
+
 ```typescript
 // ❌ BAD: Unsafe assignment
 const result = await query;
 
 // ✅ GOOD: Type guard for API results
 const result: unknown = await query;
-if (!isSupabaseResult(result)) throw new Error('Invalid result');
+if (!isSupabaseResult(result)) throw new Error("Invalid result");
 const { data, error } = result;
 ```
 
 ### `strict-boolean-expressions`
+
 ```typescript
 // ❌ BAD: Implicit truthiness
-if (nullableString) { }
+if (nullableString) {
+}
 
 // ✅ GOOD: Explicit null/undefined checks
-if (nullableString !== null && nullableString !== undefined) { }
+if (nullableString !== null && nullableString !== undefined) {
+}
 ```
 
 ### `exactOptionalPropertyTypes`
+
 ```typescript
 // ❌ BAD: Type error with exactOptionalPropertyTypes
 <Component optionalProp={maybeUndefined} />
@@ -77,6 +86,7 @@ if (nullableString !== null && nullableString !== undefined) { }
 ```
 
 ### `init-declarations`
+
 ```typescript
 // ❌ BAD: Uninitialized variable
 let query: unknown;
@@ -86,16 +96,23 @@ let query: unknown = undefined;
 ```
 
 ### `consistent-function-scoping`
+
 ```typescript
 // ❌ BAD: Function recreated on every call
 function parent() {
-  function helper() { return true; }
-  return helper;
+	function helper() {
+		return true;
+	}
+	return helper;
 }
 
 // ✅ GOOD: Move to outer scope
-function helper() { return true; }
-function parent() { return helper; }
+function helper() {
+	return true;
+}
+function parent() {
+	return helper;
+}
 ```
 
 ## Essential Type Guards
@@ -103,17 +120,17 @@ function parent() { return helper; }
 ```typescript
 // Basic validation
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 // API result validation
 function isSupabaseResult(value: unknown): value is { data: unknown; error: unknown } {
-  return isRecord(value) && 'data' in value && 'error' in value;
+	return isRecord(value) && "data" in value && "error" in value;
 }
 
 // Enum validation
-function isValidStatus(value: unknown): value is 'pending' | 'accepted' | 'rejected' {
-  return typeof value === 'string' && ['pending', 'accepted', 'rejected'].includes(value);
+function isValidStatus(value: unknown): value is "pending" | "accepted" | "rejected" {
+	return typeof value === "string" && ["pending", "accepted", "rejected"].includes(value);
 }
 ```
 
@@ -126,11 +143,13 @@ function isValidStatus(value: unknown): value is 'pending' | 'accepted' | 'rejec
 ## When to Disable Rules (Rare)
 
 Only for:
+
 - Third-party library compatibility
 - Temporary workarounds with TODO comments
 - Generated code
 
 Always include specific rule name and explanation:
+
 ```typescript
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO: Add proper typing
 const legacyData = oldLibrary.getData();

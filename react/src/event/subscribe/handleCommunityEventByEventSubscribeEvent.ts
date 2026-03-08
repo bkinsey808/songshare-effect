@@ -3,9 +3,8 @@ import { Effect } from "effect";
 import extractStringField from "@/react/lib/supabase/subscription/extract/extractStringField";
 import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isRealtimePayload";
 
-import type { EventSlice } from "../slice/EventSlice.type";
-
 import fetchEventCommunities from "../fetch/fetchEventCommunities";
+import type { EventSlice } from "../slice/EventSlice.type";
 
 /**
  * Handles realtime subscription events for `community_event` scoped to a

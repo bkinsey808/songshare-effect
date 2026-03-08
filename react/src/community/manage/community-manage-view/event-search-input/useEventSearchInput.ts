@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-import type { EventLibraryEntry } from "@/react/event-library/event-library-types";
-
 import useAppStore from "@/react/app-store/useAppStore";
+import type { EventLibraryEntry } from "@/react/event-library/event-library-types";
 
 const EVENTS_NONE = 0;
 

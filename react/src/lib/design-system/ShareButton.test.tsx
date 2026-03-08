@@ -1,14 +1,13 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { UserSessionData } from "@/shared/userSessionData";
-
 import { appStore } from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
 import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 import UserSearchInput from "@/react/user-search-input/UserSearchInput";
+import type { UserSessionData } from "@/shared/userSessionData";
 
 import ShareButton from "./ShareButton";
 

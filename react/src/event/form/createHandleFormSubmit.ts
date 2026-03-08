@@ -1,7 +1,6 @@
 import type React from "react";
 
 import type { EventFormValues, SaveEventRequest } from "../event-types";
-
 import buildSaveEventRequest from "./buildSaveEventRequest";
 
 type CreateHandleFormSubmitArgs = {

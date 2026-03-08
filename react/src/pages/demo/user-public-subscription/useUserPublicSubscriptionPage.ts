@@ -4,8 +4,8 @@ import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseCl
 import guardAsPostgrestResponse from "@/react/lib/supabase/client/guards/guardAsPostgrestResponse";
 import guardAsRealtimeChannelLike from "@/react/lib/supabase/client/guards/guardAsRealtimeChannelLike";
 import {
-    type RealtimeChannelLike,
-    type SupabaseClientLike,
+	type RealtimeChannelLike,
+	type SupabaseClientLike,
 } from "@/react/lib/supabase/client/SupabaseClientLike";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import extractErrorStack from "@/shared/error-message/extractErrorStack";
@@ -92,7 +92,9 @@ export default function useUserPublicSubscriptionPage(): UserPublicSubscriptionP
 
 				const { error: fetchError, data } = result;
 				if (fetchError !== undefined) {
-					setError(`Failed to fetch users: ${extractErrorMessage(fetchError, "Failed to fetch users")}`);
+					setError(
+						`Failed to fetch users: ${extractErrorMessage(fetchError, "Failed to fetch users")}`,
+					);
 					setLoading(false);
 					return;
 				}
@@ -233,10 +235,7 @@ export default function useUserPublicSubscriptionPage(): UserPublicSubscriptionP
 								subscriptionError,
 								JSON.stringify(subscriptionError),
 							);
-							const subscriptionStack = extractErrorStack(
-								subscriptionError,
-								"No stack trace",
-							);
+							const subscriptionStack = extractErrorStack(subscriptionError, "No stack trace");
 							console.error("Subscription error details:", {
 								error: subscriptionError,
 								message: subscriptionMessage,

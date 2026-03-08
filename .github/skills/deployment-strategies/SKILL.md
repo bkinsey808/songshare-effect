@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Preparing or executing staging/production deployments.
 - Updating environment configuration or secrets management steps.
 
 Execution workflow:
+
 1. Run pre-deploy quality checks before deployment changes.
 2. Use the appropriate deploy command for the change type (including cache purge when needed).
 3. Keep env/secrets handling aligned with existing Cloudflare workflow conventions.
 4. Verify deployment health immediately after rollout.
 
 Output requirements:
+
 - Summarize deploy/config changes and affected environments.
 - Include exact deploy and verification commands used.
 

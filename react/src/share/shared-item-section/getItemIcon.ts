@@ -6,23 +6,23 @@
  */
 export default function getItemIcon(itemType: string): string {
 	switch (itemType) {
-		case 'song': {
-			return '🎵';
+		case "song": {
+			return "🎵";
 		}
-		case 'playlist': {
-			return '📋';
+		case "playlist": {
+			return "📋";
 		}
-		case 'event': {
-			return '📅';
+		case "event": {
+			return "📅";
 		}
-		case 'community': {
-			return '👥';
+		case "community": {
+			return "👥";
 		}
-		case 'user': {
-			return '👤';
+		case "user": {
+			return "👤";
 		}
 		default: {
-			return '📄';
+			return "📄";
 		}
 	}
 }

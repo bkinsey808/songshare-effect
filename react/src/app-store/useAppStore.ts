@@ -9,7 +9,6 @@ import { devtools, persist } from "zustand/middleware";
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 
 import type { AppSlice } from "./AppSlice.type";
-
 import omittedPersistKeysSet from "./config/omittedPersistKeysSet";
 import sliceFactories from "./config/sliceFactories";
 import { hydrationState } from "./hydration";

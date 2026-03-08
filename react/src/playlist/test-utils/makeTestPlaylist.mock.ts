@@ -1,9 +1,8 @@
-import type { PlaylistEntry } from "@/react/playlist/playlist-types";
-
 /**
  * Helper to create a minimal PlaylistEntry for testing.
  */
 import forceCast from "@/react/lib/test-utils/forceCast";
+import type { PlaylistEntry } from "@/react/playlist/playlist-types";
 
 export function makeTestPlaylist(overrides: Partial<PlaylistEntry> = {}): PlaylistEntry {
 	return forceCast<PlaylistEntry>({

@@ -12,10 +12,12 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Splitting large files into focused single-responsibility modules.
 - Extracting utilities/test helpers while preserving behavior.
 
 Execution workflow:
+
 1. Identify extraction boundaries and dependency order before moving code.
 2. Create focused files with one primary export where practical.
 3. Update all imports and colocated tests alongside each move.
@@ -23,6 +25,7 @@ Execution workflow:
 5. Run targeted tests first, then `npm run lint`.
 
 Output requirements:
+
 - Summarize what moved, from where, and why.
 - List import-path updates and test updates.
 

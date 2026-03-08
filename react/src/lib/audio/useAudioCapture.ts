@@ -9,7 +9,6 @@ import type {
 	MinimalMediaStreamAudioSourceNode,
 	Status,
 } from "./audio-types";
-
 import closeAudioContextSafely from "./closeAudioContextSafely";
 import createTimeDomainAnalyser from "./createTimeDomainAnalyser";
 import getDisplayAudioStream from "./stream/getDisplayAudioStream";

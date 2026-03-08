@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Updating cache behavior, deploy workflows, or CI pipeline steps.
 - Debugging stale assets, failed GitHub Actions runs, or cache invalidation issues.
 
 Execution workflow:
+
 1. Confirm the intended deploy path (standard deploy vs deploy with cache purge).
 2. Validate workflow/config changes in the narrowest scope first.
 3. Preserve existing environment/workflow conventions unless there is a clear reason to change them.
 4. Report operational validation steps for cache and CI behavior.
 
 Output requirements:
+
 - Summarize workflow/cache files changed and expected operational impact.
 - Include exact verification commands/run checks used.
 

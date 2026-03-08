@@ -1,17 +1,16 @@
 // Mock registrations will be applied after imports to (1) satisfy import/first
 // and (2) still allow per-test mock configuration inside the tests.
 import { setTimeout as delay } from "node:timers/promises";
-import { describe, expect, it, vi } from "vitest";
 
-import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
+import { describe, expect, it, vi } from "vitest";
 
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
-
-import type { SongSubscribeSlice } from "../song-slice/song-slice";
+import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 
 import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
+import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import subscribeToActivePrivateSongs from "./subscribeToActivePrivateSongs";
 
 // Register mocks for auth tokens and client modules (top-level registration is

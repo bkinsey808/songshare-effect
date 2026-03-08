@@ -2,9 +2,8 @@ import { Effect } from "effect";
 
 import type { Get } from "@/react/app-store/app-store-types";
 import extractSharesFromResponse from "@/react/share/create/extractSharesFromResponse";
-import type { ShareSlice } from "@/react/share/slice/ShareSlice.type";
 import type { ShareListRequest, SharedItem } from "@/react/share/slice/share-types";
-
+import type { ShareSlice } from "@/react/share/slice/ShareSlice.type";
 import { apiShareListPath } from "@/shared/paths";
 
 /**
@@ -25,12 +24,7 @@ export default function fetchSharesEffect(
 	get: Get<ShareSlice>,
 ): Effect.Effect<void, Error> {
 	return Effect.gen(function* fetchSharesGen($) {
-		const {
-			setSharesLoading,
-			setShareError,
-			setReceivedShares,
-			setSentShares,
-		} = get();
+		const { setSharesLoading, setShareError, setReceivedShares, setSentShares } = get();
 
 		// Set loading state
 		setSharesLoading(true);
@@ -41,13 +35,13 @@ export default function fetchSharesEffect(
 			const params = new URLSearchParams({
 				view: request.view,
 			});
-			
+
 			if (request.status) {
-				params.append('status', request.status);
+				params.append("status", request.status);
 			}
-			
+
 			if (request.item_type) {
-				params.append('item_type', request.item_type);
+				params.append("item_type", request.item_type);
 			}
 
 			// Make API call
@@ -56,11 +50,11 @@ export default function fetchSharesEffect(
 					try: async () => {
 						const url = `${apiShareListPath}?${params.toString()}`;
 						const res = await fetch(url, {
-							method: 'GET',
+							method: "GET",
 							headers: {
-								'Content-Type': 'application/json',
+								"Content-Type": "application/json",
 							},
-							credentials: 'include',
+							credentials: "include",
 						});
 
 						if (!res.ok) {
@@ -75,21 +69,17 @@ export default function fetchSharesEffect(
 			);
 
 			// Convert array to record keyed by share_id
-			const sharesRecord = response.reduce<Record<string, SharedItem>>(
-				(acc, share) => {
-					acc[share.share_id] = share;
-					return acc;
-				},
-				{},
-			);
+			const sharesRecord = response.reduce<Record<string, SharedItem>>((acc, share) => {
+				acc[share.share_id] = share;
+				return acc;
+			}, {});
 
 			// Update the appropriate collection
-			if (request.view === 'received') {
+			if (request.view === "received") {
 				setReceivedShares(sharesRecord);
 			} else {
 				setSentShares(sharesRecord);
 			}
-
 		} catch (error) {
 			// Handle error
 			const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";

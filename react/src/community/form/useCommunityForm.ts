@@ -3,9 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
-import type { ValidationError } from "@/shared/validation/validate-types";
-
 import useAppStore from "@/react/app-store/useAppStore";
+import useLoadCommunityById from "@/react/community/useLoadCommunityById";
 import useAppForm from "@/react/lib/form/useAppForm";
 import useFormChanges from "@/react/lib/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
@@ -14,12 +13,14 @@ import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { communityViewPath } from "@/shared/paths";
 import { communityFormSchema } from "@/shared/validation/communitySchemas";
+import type { ValidationError } from "@/shared/validation/validate-types";
 
 import type { CommunityFormValues } from "../community-types";
 
 export type UseCommunityFormReturn = {
 	formValues: CommunityFormValues;
 	isEditing: boolean;
+	isLoadingData: boolean;
 	isSaving: boolean;
 	error: string | undefined;
 	onNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -54,6 +55,7 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 	const formRef = useRef<HTMLFormElement | null>(null);
 
 	const isCommunitySaving = useAppStore((state) => state.isCommunitySaving);
+	const isCommunityLoading = useAppStore((state) => state.isCommunityLoading);
 	const communityError = useAppStore((state) => state.communityError);
 	const setCommunityError = useAppStore((state) => state.setCommunityError);
 	const saveCommunity = useAppStore((state) => state.saveCommunity);
@@ -71,9 +73,11 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 		private_notes: "",
 	}));
 
+	useLoadCommunityById(isEditing ? community_id : undefined);
+
 	const { hasUnsavedChanges, setInitialState, clearInitialState } = useFormChanges({
 		currentState: formValues,
-		enabled: true,
+		enabled: !isCommunityLoading,
 	});
 
 	const hasLoadedRef = useRef(false);
@@ -196,6 +200,7 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 	return {
 		formValues,
 		isEditing,
+		isLoadingData: isEditing && isCommunityLoading,
 		isSaving,
 		error: communityError,
 		onNameChange,

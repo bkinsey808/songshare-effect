@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { SongPublic } from "@/react/song/song-schema";
-
-import findMissingSongSlugs from "./findMissingSongSlugs";
-
 /**
  * Build a minimal `SongPublic` payload for tests.
  *
@@ -15,6 +12,8 @@ import findMissingSongSlugs from "./findMissingSongSlugs";
  */
 import makeMalformedPublicSongs from "@/react/song/test-utils/makeMalformedPublicSongs.mock";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
+
+import findMissingSongSlugs from "./findMissingSongSlugs";
 
 function makeSong(slug: string): SongPublic {
 	return makeSongPublic({

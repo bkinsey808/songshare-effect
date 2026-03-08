@@ -1,8 +1,7 @@
 import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
-import type { PlacementConfig, PlacementOption, PopoverPosition } from "../popover-types";
-
 import { CENTER_DIVISOR, GAP_DEFAULT } from "../popover-constants";
+import type { PlacementConfig, PlacementOption, PopoverPosition } from "../popover-types";
 import adjustHorizontalPosition from "./adjustHorizontalPosition";
 import adjustLeftRightPosition from "./adjustLeftRightPosition";
 import adjustTopBottomPosition from "./adjustTopBottomPosition";

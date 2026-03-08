@@ -66,12 +66,12 @@ The single visitor account is essentially a **transport layer** enabling Realtim
 
 ```json
 {
-  "sub": "visitor-user-uuid",
-  "aud": "authenticated",
-  "role": "authenticated",
-  "app_metadata": {
-    "visitor_id": "visitor-user-uuid"
-  }
+	"sub": "visitor-user-uuid",
+	"aud": "authenticated",
+	"role": "authenticated",
+	"app_metadata": {
+		"visitor_id": "visitor-user-uuid"
+	}
 }
 ```
 
@@ -97,15 +97,15 @@ The single visitor account is essentially a **transport layer** enabling Realtim
 
 ```json
 {
-  "sub": "visitor-user-uuid",
-  "aud": "authenticated",
-  "role": "authenticated",
-  "app_metadata": {
-    "visitor_id": "visitor-user-uuid",
-    "user": {
-      "user_id": "app-user-uuid"
-    }
-  }
+	"sub": "visitor-user-uuid",
+	"aud": "authenticated",
+	"role": "authenticated",
+	"app_metadata": {
+		"visitor_id": "visitor-user-uuid",
+		"user": {
+			"user_id": "app-user-uuid"
+		}
+	}
 }
 ```
 
@@ -198,15 +198,19 @@ const supabase = await getSupabaseClientWithAuth();
 
 // 2. Create Realtime channel
 const channel = supabase
-  .channel(`user_public_changes_${Date.now()}`)
-  .on('postgres_changes', {
-    event: 'INSERT',
-    schema: 'public',
-    table: 'user_public'
-  }, (payload) => {
-    // Handle insert
-  })
-  .subscribe();
+	.channel(`user_public_changes_${Date.now()}`)
+	.on(
+		"postgres_changes",
+		{
+			event: "INSERT",
+			schema: "public",
+			table: "user_public",
+		},
+		(payload) => {
+			// Handle insert
+		},
+	)
+	.subscribe();
 ```
 
 **Token Selection:**
@@ -282,7 +286,7 @@ const channel = supabase
 // In getSupabaseClientToken.ts
 const cached = getCachedClientToken();
 if (cached.token && now < cached.expiry - TOKEN_CACHE_SKEW_SECONDS) {
-  return cached.token; // Reuse until expiry
+	return cached.token; // Reuse until expiry
 }
 ```
 
@@ -292,7 +296,7 @@ if (cached.token && now < cached.expiry - TOKEN_CACHE_SKEW_SECONDS) {
 // In getSupabaseClient.ts
 const clients = getGlobalClientCache();
 if (clients.has(supabaseClientToken)) {
-  return clients.get(supabaseClientToken); // Reuse client
+	return clients.get(supabaseClientToken); // Reuse client
 }
 ```
 
@@ -393,8 +397,8 @@ CREATE INDEX idx_song_library_user_id ON song_library(user_id);
 
 ```typescript
 // Decode token (use jwt.io or library)
-const decoded = JSON.parse(atob(token.split('.')[1]));
-console.log('app_metadata:', decoded.app_metadata);
+const decoded = JSON.parse(atob(token.split(".")[1]));
+console.log("app_metadata:", decoded.app_metadata);
 ```
 
 **Test RLS Policies:**
@@ -409,8 +413,8 @@ SELECT * FROM song_library; -- Should only return user's entries
 
 ```typescript
 client.realtime.setAuth(token); // Explicitly set token
-channel.on('system', (payload) => {
-  console.log('Channel status:', payload);
+channel.on("system", (payload) => {
+	console.log("Channel status:", payload);
 });
 ```
 

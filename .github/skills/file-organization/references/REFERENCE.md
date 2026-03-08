@@ -228,7 +228,7 @@ export { UserMenu } from "./UserMenu";
 export { PlaybackControls } from "./PlaybackControls";
 
 // Import hides actual location
-import { SongCard, UserMenu } from "./components";  // Where are they really?
+import { SongCard, UserMenu } from "./components"; // Where are they really?
 ```
 
 **Solution:** Import directly from source files:
@@ -245,8 +245,8 @@ import { UserMenu } from "./components/UserMenu";
 
 ```typescript
 // BAD: Inconsistent
-import { Song } from "../../../shared/types/song";     // Fragile relative
-import { Button } from "@shared/components/Button";   // But also absolute
+import { Song } from "../../../shared/types/song"; // Fragile relative
+import { Button } from "@shared/components/Button"; // But also absolute
 import { useState } from "react";
 ```
 
@@ -275,10 +275,10 @@ export { AuthContext } from "./AuthContext";
 export { useAuth } from "./useAuth";
 
 // components/Button.tsx
-import { useAuth } from "../auth";  // ← Creates circular dependency
+import { useAuth } from "../auth"; // ← Creates circular dependency
 
 // hooks/useAuth.ts
-import { Button } from "../components/Button";  // ← Circular!
+import { Button } from "../components/Button"; // ← Circular!
 ```
 
 **Solution:** Organize by dependency flow:

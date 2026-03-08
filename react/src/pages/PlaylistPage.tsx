@@ -59,12 +59,10 @@ export default function PlaylistPage(): ReactElement {
 			currentUserId !== undefined &&
 			currentUserId !== ownerId
 		) {
-				void (async (): Promise<void> => {
+			void (async (): Promise<void> => {
 				try {
 					await Effect.runPromise(
-						addUserToLibraryEffect({ followed_user_id: ownerId }, () =>
-							getTypedState(),
-						),
+						addUserToLibraryEffect({ followed_user_id: ownerId }, () => getTypedState()),
 					);
 				} catch {
 					/* ignore errors */
@@ -199,16 +197,9 @@ export default function PlaylistPage(): ReactElement {
 				) : (
 					<div className="space-y-2">
 						{songOrder.map((songId, index) => (
-							<div
-								key={songId}
-								className="flex items-center gap-4"
-							>
+							<div key={songId} className="flex items-center gap-4">
 								<div className="min-w-0 flex-1">
-									<PlaylistSongDisplay
-										songId={songId}
-										index={index}
-										publicSongs={publicSongs}
-									/>
+									<PlaylistSongDisplay songId={songId} index={index} publicSongs={publicSongs} />
 								</div>
 								<Link
 									to={buildPathWithLang(`/${songViewPath}/${songId}`, lang)}

@@ -1,11 +1,9 @@
 import type { Database } from "@/shared/generated/supabaseTypes";
-
 import delay from "@/shared/utils/delay";
-
-import type { SupabaseClientLike } from "./SupabaseClientLike";
 
 import getSupabaseAuthToken from "../auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "./getSupabaseClient";
+import type { SupabaseClientLike } from "./SupabaseClientLike";
 
 // Retry and backoff constants (local to token-authenticated client helper)
 const DEFAULT_RETRIES = 3;

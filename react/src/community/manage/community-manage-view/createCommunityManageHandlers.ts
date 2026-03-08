@@ -1,7 +1,9 @@
 import { Effect } from "effect";
 
+import type { CommunityEntry, CommunityUser } from "@/react/community/community-types";
 import postJson from "@/shared/fetch/postJson";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import {
 	apiCommunityEventAddPath,
 	apiCommunityEventRemovePath,
@@ -16,11 +18,7 @@ import {
 	communityViewPath,
 } from "@/shared/paths";
 
-import type { CommunityEntry, CommunityUser } from "@/react/community/community-types";
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
 import type { CommunityActionState } from "./CommunityActionState.type";
-
 import runCommunityAction from "./runCommunityAction";
 
 type StateSetter<Value> = (value: Value | ((current: Value) => Value)) => void;

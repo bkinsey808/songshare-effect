@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Creating new files/directories or restructuring module layout.
 - Updating imports/exports to comply with repo organization rules.
 
 Execution workflow:
+
 1. Follow naming and placement conventions for file type and symbol type.
 2. Avoid barrel files and use direct imports.
 3. Keep test/docs naming conventions aligned with project rules.
 4. Validate with `npm run lint` after meaningful structure/import changes.
 
 Output requirements:
+
 - Summarize structural and import-path changes.
 - Note any convention exception that remains and why.
 
@@ -35,7 +38,7 @@ Output requirements:
 // BAD: react/src/components/index.ts
 export { SongCard } from "./SongCard";
 export { UserProfile } from "./UserProfile";
-````
+```
 
 ✅ **Always import directly from source:**
 

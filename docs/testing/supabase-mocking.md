@@ -12,18 +12,18 @@ Helper
 Usage
 
 ```ts
-import callSelect from '@/react/lib/supabase/client/safe-query/callSelect';
-import asPostgrestResponse from '@/react/lib/test-utils/asPostgrestResponse';
+import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 
-vi.mock('@/react/lib/supabase/client/safe-query/callSelect');
+vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 const mockedCallSelect = vi.mocked(callSelect);
 
 // Return a minimal success response for a query that returns rows
-mockedCallSelect.mockResolvedValue(asPostgrestResponse({ data: [{ id: 'r1' }] }));
+mockedCallSelect.mockResolvedValue(asPostgrestResponse({ data: [{ id: "r1" }] }));
 
 // You can also include error/count/status if you need to emulate other outcomes
 mockedCallSelect.mockResolvedValue(
-  asPostgrestResponse({ data: [], error: null, count: null, status: 200, statusText: 'OK' }),
+	asPostgrestResponse({ data: [], error: null, count: null, status: 200, statusText: "OK" }),
 );
 ```
 

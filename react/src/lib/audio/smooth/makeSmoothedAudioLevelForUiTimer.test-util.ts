@@ -1,7 +1,6 @@
 import type { RefObject } from "react";
 
 import type { SmoothedAudioLevel } from "@/react/lib/audio/smooth/useSmoothedAudioLevel";
-
 import { ZERO } from "@/shared/constants/shared-constants";
 
 /**

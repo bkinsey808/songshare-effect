@@ -24,9 +24,6 @@ export default async function copyAndRewriteShared(
 		await rewriteSharedImports(destDir);
 	} catch (error) {
 		const message: string | undefined = extractErrorMessage(error, "Unknown error");
-		sWarn(
-			"Warning: could not rewrite imports in copied shared files:",
-			message,
-		);
+		sWarn("Warning: could not rewrite imports in copied shared files:", message);
 	}
 }

@@ -1,5 +1,5 @@
-import type { SharedItem } from "@/react/share/slice/share-types";
 import isSharedItem from "@/react/share/guards/isSharedItem";
+import type { SharedItem } from "@/react/share/slice/share-types";
 import isRecord from "@/shared/type-guards/isRecord";
 
 /**

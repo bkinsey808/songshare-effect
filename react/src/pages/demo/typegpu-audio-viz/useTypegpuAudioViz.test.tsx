@@ -1,10 +1,8 @@
-import type { RefObject } from "react";
-
 import { renderHook, waitFor } from "@testing-library/react";
+import type { RefObject } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { MinimalMediaStream } from "@/react/lib/audio/audio-types";
-
 import useAudioVizInput from "@/react/lib/audio/useAudioVizInput";
 import resizeCanvasToDisplaySize from "@/react/lib/canvas/resizeCanvasToDisplaySize";
 import { useCanvasAnimation, type DrawFn } from "@/react/lib/canvas/useCanvasAnimation";

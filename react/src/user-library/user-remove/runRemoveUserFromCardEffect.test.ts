@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from "vitest";
 import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
-
 import runRemoveUserFromCardEffect from "./runRemoveUserFromCardEffect";
 import runRemoveUserWithContentEffect from "./runRemoveUserWithContentEffect";
 

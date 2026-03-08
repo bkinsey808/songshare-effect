@@ -3,8 +3,6 @@ export default function toPascalCase(str: string): string {
 	const REST_START = 1;
 	return str
 		.split("_")
-		.map(
-			(word) => word.charAt(FIRST_INDEX).toUpperCase() + word.slice(REST_START),
-		)
+		.map((word) => word.charAt(FIRST_INDEX).toUpperCase() + word.slice(REST_START))
 		.join("");
 }

@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 
 import type { CommunityEntry } from "@/react/community/community-types";
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import postJson from "@/shared/fetch/postJson";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import {
 	apiCommunityShareRequestCreatePath,
 	communityEditPath,

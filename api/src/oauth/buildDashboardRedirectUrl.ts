@@ -1,7 +1,6 @@
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 // Env type is not required when using ReadonlyContext's default param
 import { justSignedInQueryParam } from "@/shared/queryParams";
 

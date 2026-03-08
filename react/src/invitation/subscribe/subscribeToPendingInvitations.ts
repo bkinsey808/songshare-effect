@@ -39,7 +39,8 @@ export default function subscribeToPendingInvitations(
 ): () => void {
 	const unsubscribeFns: (() => void)[] = [];
 	let isDisposed = false;
-	const uniqueSuffix = typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}`;
+	const uniqueSuffix =
+		typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}`;
 	let hasLoggedCommunityRealtimeUnavailable = false;
 	let hasLoggedEventRealtimeUnavailable = false;
 

@@ -12,12 +12,12 @@ Provides readable, imperative-like syntax for Effect composition:
 import { Effect } from "effect";
 
 const myEffect = Effect.gen(function* () {
-  // Yields work like await
-  const result1 = yield* someEffect;
-  const result2 = yield* anotherEffect;
+	// Yields work like await
+	const result1 = yield* someEffect;
+	const result2 = yield* anotherEffect;
 
-  // Return the final value
-  return result1 + result2;
+	// Return the final value
+	return result1 + result2;
 });
 ```
 
@@ -31,10 +31,10 @@ Chain operations in left-to-right order:
 import { Effect, pipe } from "effect";
 
 const result = pipe(
-  someEffect,
-  Effect.map((value) => value * 2),
-  Effect.flatMap((doubled) => anotherEffect(doubled)),
-  Effect.mapError((error) => new CustomError(error))
+	someEffect,
+	Effect.map((value) => value * 2),
+	Effect.flatMap((doubled) => anotherEffect(doubled)),
+	Effect.mapError((error) => new CustomError(error)),
 );
 ```
 
@@ -45,10 +45,12 @@ const result = pipe(
 Map over the success value without affecting the error channel:
 
 ```typescript
-const result = yield* Effect.map(getData(), (data) => ({
-  ...data,
-  processed: true,
-}));
+const result =
+	yield *
+	Effect.map(getData(), (data) => ({
+		...data,
+		processed: true,
+	}));
 ```
 
 ### `Effect.flatMap` - Sequence Effects
@@ -56,10 +58,7 @@ const result = yield* Effect.map(getData(), (data) => ({
 Chain two Effects where the second depends on the first's result:
 
 ```typescript
-const result = yield* Effect.flatMap(
-  getUser(userId),
-  (user) => getSongLibrary(user.id)
-);
+const result = yield * Effect.flatMap(getUser(userId), (user) => getSongLibrary(user.id));
 ```
 
 ### `Effect.mapError` - Transform Errors
@@ -67,9 +66,8 @@ const result = yield* Effect.flatMap(
 Map errors to different error types:
 
 ```typescript
-const result = yield* someEffect.pipe(
-  Effect.mapError((error) => new ValidationError(String(error)))
-);
+const result =
+	yield * someEffect.pipe(Effect.mapError((error) => new ValidationError(String(error))));
 ```
 
 ### `Effect.tryPromise` - Convert Promises
@@ -77,10 +75,12 @@ const result = yield* someEffect.pipe(
 Convert Promise-based operations to Effects with error handling:
 
 ```typescript
-const data = yield* Effect.tryPromise({
-  try: () => fetch("/api/data").then((r) => r.json()),
-  catch: (error) => new NetworkError({ message: String(error) }),
-});
+const data =
+	yield *
+	Effect.tryPromise({
+		try: () => fetch("/api/data").then((r) => r.json()),
+		catch: (error) => new NetworkError({ message: String(error) }),
+	});
 ```
 
 **Best practice:** Always provide a `catch` that returns a proper error type.
@@ -91,7 +91,7 @@ Fail with a typed error:
 
 ```typescript
 if (!user) {
-  yield* Effect.fail(new NotFoundError({ resource: "User", id }));
+	yield * Effect.fail(new NotFoundError({ resource: "User", id }));
 }
 ```
 
@@ -100,10 +100,11 @@ if (!user) {
 Run multiple Effects in parallel:
 
 ```typescript
-const [songs, playlists, followers] = yield* Effect.all(
-  [getSongs(userId), getPlaylists(userId), getFollowers(userId)],
-  { concurrency: "unbounded" }
-);
+const [songs, playlists, followers] =
+	yield *
+	Effect.all([getSongs(userId), getPlaylists(userId), getFollowers(userId)], {
+		concurrency: "unbounded",
+	});
 ```
 
 ### `Effect.try` - Sync Error Handling
@@ -111,10 +112,12 @@ const [songs, playlists, followers] = yield* Effect.all(
 Handle synchronous try-catch scenarios:
 
 ```typescript
-const parsed = yield* Effect.try({
-  try: () => JSON.parse(jsonString),
-  catch: (error) => new ParsingError({ message: String(error) }),
-});
+const parsed =
+	yield *
+	Effect.try({
+		try: () => JSON.parse(jsonString),
+		catch: (error) => new ParsingError({ message: String(error) }),
+	});
 ```
 
 ## Dependency Injection with Context & Layer
@@ -125,37 +128,35 @@ const parsed = yield* Effect.try({
 import { Context, Effect, Layer } from "effect";
 
 export type DatabaseService = {
-  query: (sql: string) => Effect.Effect<unknown[], DatabaseError>;
-  insert: (table: string, data: Record<string, unknown>) => Effect.Effect<void, DatabaseError>;
+	query: (sql: string) => Effect.Effect<unknown[], DatabaseError>;
+	insert: (table: string, data: Record<string, unknown>) => Effect.Effect<void, DatabaseError>;
 };
 
-export const DatabaseService = Context.GenericTag<DatabaseService>(
-  "DatabaseService"
-);
+export const DatabaseService = Context.GenericTag<DatabaseService>("DatabaseService");
 ```
 
 ### Implement with Layer
 
 ```typescript
 export const DatabaseServiceLive = Layer.succeed(DatabaseService, {
-  query: (sql) =>
-    Effect.gen(function* () {
-      const client = yield* getPooledConnection();
-      const result = yield* Effect.tryPromise({
-        try: () => client.query(sql),
-        catch: () => new DatabaseError({ message: "Query failed" }),
-      });
-      return result.rows;
-    }),
+	query: (sql) =>
+		Effect.gen(function* () {
+			const client = yield* getPooledConnection();
+			const result = yield* Effect.tryPromise({
+				try: () => client.query(sql),
+				catch: () => new DatabaseError({ message: "Query failed" }),
+			});
+			return result.rows;
+		}),
 
-  insert: (table, data) =>
-    Effect.gen(function* () {
-      const client = yield* getPooledConnection();
-      yield* Effect.tryPromise({
-        try: () => client.insert(table, data),
-        catch: () => new DatabaseError({ message: "Insert failed" }),
-      });
-    }),
+	insert: (table, data) =>
+		Effect.gen(function* () {
+			const client = yield* getPooledConnection();
+			yield* Effect.tryPromise({
+				try: () => client.insert(table, data),
+				catch: () => new DatabaseError({ message: "Insert failed" }),
+			});
+		}),
 });
 ```
 
@@ -163,9 +164,9 @@ export const DatabaseServiceLive = Layer.succeed(DatabaseService, {
 
 ```typescript
 const myEffect = Effect.gen(function* () {
-  const db = yield* DatabaseService;
-  const results = yield* db.query("SELECT * FROM songs");
-  return results;
+	const db = yield* DatabaseService;
+	const results = yield* db.query("SELECT * FROM songs");
+	return results;
 }).pipe(Effect.provide(DatabaseServiceLive));
 ```
 
@@ -176,14 +177,10 @@ const myEffect = Effect.gen(function* () {
 Define all possible error types:
 
 ```typescript
-export type ApiError =
-  | ValidationError
-  | NotFoundError
-  | DatabaseError
-  | AuthenticationError;
+export type ApiError = ValidationError | NotFoundError | DatabaseError | AuthenticationError;
 
 export const createSong = (data: unknown): Effect.Effect<Song, ApiError> => {
-  // Implementation
+	// Implementation
 };
 ```
 
@@ -192,10 +189,12 @@ export const createSong = (data: unknown): Effect.Effect<Song, ApiError> => {
 Provide fallback Effects on failure:
 
 ```typescript
-const result = yield* someEffect.pipe(
-  Effect.catchTag("NotFoundError", () => Effect.succeed(defaultValue)),
-  Effect.catchTag("DatabaseError", () => retry(someEffect, 3))
-);
+const result =
+	yield *
+	someEffect.pipe(
+		Effect.catchTag("NotFoundError", () => Effect.succeed(defaultValue)),
+		Effect.catchTag("DatabaseError", () => retry(someEffect, 3)),
+	);
 ```
 
 ### Error Logging
@@ -203,11 +202,11 @@ const result = yield* someEffect.pipe(
 Chain error handling with side effects:
 
 ```typescript
-const result = yield* someEffect.pipe(
-  Effect.tapError((error) =>
-    Effect.log(`[Error] ${error._tag}: ${error.message}`)
-  )
-);
+const result =
+	yield *
+	someEffect.pipe(
+		Effect.tapError((error) => Effect.log(`[Error] ${error._tag}: ${error.message}`)),
+	);
 ```
 
 ## Schema Validation
@@ -218,32 +217,32 @@ const result = yield* someEffect.pipe(
 import { Schema } from "effect";
 
 const UserSchema = Schema.Struct({
-  id: Schema.String.pipe(Schema.uuid()),
-  email: Schema.String.pipe(Schema.email()),
-  age: Schema.Number.pipe(Schema.positive()),
+	id: Schema.String.pipe(Schema.uuid()),
+	email: Schema.String.pipe(Schema.email()),
+	age: Schema.Number.pipe(Schema.positive()),
 });
 
 type User = Schema.Schema.Type<typeof UserSchema>;
 
 // In Effect
-const validated = yield* Schema.decodeUnknown(UserSchema)(unknownData).pipe(
-  Effect.mapError(
-    (error) => new ValidationError({ message: Schema.formatIssueSync(error) })
-  )
-);
+const validated =
+	yield *
+	Schema.decodeUnknown(UserSchema)(unknownData).pipe(
+		Effect.mapError((error) => new ValidationError({ message: Schema.formatIssueSync(error) })),
+	);
 ```
 
 ### Custom Validators
 
 ```typescript
 const NonEmptyString = Schema.String.pipe(
-  Schema.minLength(1),
-  Schema.description("Non-empty string")
+	Schema.minLength(1),
+	Schema.description("Non-empty string"),
 );
 
 const UserInput = Schema.Struct({
-  name: NonEmptyString,
-  email: Schema.String.pipe(Schema.email()),
+	name: NonEmptyString,
+	email: Schema.String.pipe(Schema.email()),
 });
 ```
 
@@ -253,58 +252,55 @@ const UserInput = Schema.Struct({
 
 ```typescript
 app.post("/api/songs", async (c) => {
-  const createSongEffect = Effect.gen(function* () {
-    const body = yield* Effect.tryPromise({
-      try: () => c.req.json(),
-      catch: () => new ValidationError({ message: "Invalid JSON" }),
-    });
+	const createSongEffect = Effect.gen(function* () {
+		const body = yield* Effect.tryPromise({
+			try: () => c.req.json(),
+			catch: () => new ValidationError({ message: "Invalid JSON" }),
+		});
 
-    const validated = yield* Schema.decodeUnknown(CreateSongSchema)(body).pipe(
-      Effect.mapError((error) => new ValidationError({ message: error.message }))
-    );
+		const validated = yield* Schema.decodeUnknown(CreateSongSchema)(body).pipe(
+			Effect.mapError((error) => new ValidationError({ message: error.message })),
+		);
 
-    const service = yield* SongService;
-    return yield* service.create(validated);
-  }).pipe(Effect.provide(SongServiceLive));
+		const service = yield* SongService;
+		return yield* service.create(validated);
+	}).pipe(Effect.provide(SongServiceLive));
 
-  return executeEffect(createSongEffect, c);
+	return executeEffect(createSongEffect, c);
 });
 ```
 
 ### Error-to-HTTP Mapping
 
 ```typescript
-export function executeEffect<A, E, R>(
-  effect: Effect.Effect<A, E, R>,
-  c: Context
-): Response {
-  return Effect.runPromise(effect).then(
-    (value) =>
-      new Response(JSON.stringify({ success: true, data: value }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
-    (error) => {
-      if (error instanceof ValidationError) {
-        return new Response(JSON.stringify({ error: error.message }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      if (error instanceof NotFoundError) {
-        return new Response(
-          JSON.stringify({
-            error: `${error.resource} with id ${error.id} not found`,
-          }),
-          { status: 404, headers: { "Content-Type": "application/json" } }
-        );
-      }
-      return new Response(JSON.stringify({ error: "Internal server error" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-  );
+export function executeEffect<A, E, R>(effect: Effect.Effect<A, E, R>, c: Context): Response {
+	return Effect.runPromise(effect).then(
+		(value) =>
+			new Response(JSON.stringify({ success: true, data: value }), {
+				status: 200,
+				headers: { "Content-Type": "application/json" },
+			}),
+		(error) => {
+			if (error instanceof ValidationError) {
+				return new Response(JSON.stringify({ error: error.message }), {
+					status: 400,
+					headers: { "Content-Type": "application/json" },
+				});
+			}
+			if (error instanceof NotFoundError) {
+				return new Response(
+					JSON.stringify({
+						error: `${error.resource} with id ${error.id} not found`,
+					}),
+					{ status: 404, headers: { "Content-Type": "application/json" } },
+				);
+			}
+			return new Response(JSON.stringify({ error: "Internal server error" }), {
+				status: 500,
+				headers: { "Content-Type": "application/json" },
+			});
+		},
+	);
 }
 ```
 
@@ -315,16 +311,18 @@ export function executeEffect<A, E, R>(
 ```typescript
 // Service A
 const ServiceA = Context.GenericTag<ServiceA>("ServiceA");
-export const ServiceALive = Layer.succeed(ServiceA, { /* ... */ });
+export const ServiceALive = Layer.succeed(ServiceA, {
+	/* ... */
+});
 
 // Service B depends on A
 const ServiceB = Context.GenericTag<ServiceB>("ServiceB");
 export const ServiceBLive = Layer.succeed(ServiceB, {
-  doSomething: () =>
-    Effect.gen(function* () {
-      const serviceA = yield* ServiceA;
-      return yield* serviceA.operation();
-    }),
+	doSomething: () =>
+		Effect.gen(function* () {
+			const serviceA = yield* ServiceA;
+			return yield* serviceA.operation();
+		}),
 });
 
 // Combine layers
@@ -332,8 +330,8 @@ const AllServiceLive = Layer.merge(ServiceALive, ServiceBLive);
 
 // Use in Effect
 const result = Effect.gen(function* () {
-  const serviceB = yield* ServiceB;
-  return yield* serviceB.doSomething();
+	const serviceB = yield* ServiceB;
+	return yield* serviceB.doSomething();
 }).pipe(Effect.provide(AllServiceLive));
 ```
 

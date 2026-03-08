@@ -1,5 +1,4 @@
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
 import type { NavigationSlice } from "./NavigationSlice.type";

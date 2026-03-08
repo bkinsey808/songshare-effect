@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import type { SongSubscribeSlice } from "./song-slice";
-
 import makeSongTestSlice from "./makeSongTestSlice.mock";
+import type { SongSubscribeSlice } from "./song-slice";
 
 describe("makeSongTestSlice", () => {
 	it("returns slice, getState, and setState and reflects updates", () => {

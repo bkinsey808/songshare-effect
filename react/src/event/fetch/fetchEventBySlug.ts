@@ -7,9 +7,6 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type { EventEntry, EventParticipant } from "../event-entry/EventEntry.type";
-import type { EventUser } from "../event-types";
-import type { EventSlice } from "../slice/EventSlice.type";
-
 import {
 	EventError,
 	EventNotFoundError,
@@ -17,7 +14,9 @@ import {
 	NoSupabaseClientError,
 	QueryError,
 } from "../event-errors";
+import type { EventUser } from "../event-types";
 import { isEventPublic } from "../guards/guardEventTypes";
+import type { EventSlice } from "../slice/EventSlice.type";
 import ensureOwnerParticipant from "./ensureOwnerParticipant";
 import hydrateParticipantUsernames from "./hydrateParticipantUsernames";
 import normalizeEventPublicRow from "./normalizeEventPublicRow";

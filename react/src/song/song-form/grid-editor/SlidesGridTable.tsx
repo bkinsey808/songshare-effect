@@ -211,7 +211,8 @@ export default function SlidesGridTable({
 					<SortableContext items={[...sortableItems]}>
 						<tbody>
 							{slideOrder.map((slideId, idx) => {
-								const occurrence = (slideRowKeyCounts.get(slideId) ?? EMPTY_COUNT) + SINGLE_OCCURRENCE;
+								const occurrence =
+									(slideRowKeyCounts.get(slideId) ?? EMPTY_COUNT) + SINGLE_OCCURRENCE;
 								slideRowKeyCounts.set(slideId, occurrence);
 								const slide = safeGet(slides, slideId);
 								if (!slide) {

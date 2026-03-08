@@ -1,11 +1,9 @@
 import type { Get } from "@/react/app-store/app-store-types";
-import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
-
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import isRecord from "@/shared/type-guards/isRecord";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
-
 import decodeSongData from "./decodeSongData";
 import fetchPublicSongsBySlugs from "./fetchPublicSongsBySlugs";
 import findMissingSongSlugs from "./findMissingSongSlugs";

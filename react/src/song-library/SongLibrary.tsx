@@ -1,15 +1,13 @@
-import type { TFunction } from "i18next";
-
 import { Effect } from "effect";
+import type { TFunction } from "i18next";
 import { Link } from "react-router-dom";
 
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
+import useAppStore from "@/react/app-store/useAppStore";
 import Button from "@/react/lib/design-system/Button";
 import CreateSongIcon from "@/react/lib/design-system/icons/CreateSongIcon";
-import useAppStore from "@/react/app-store/useAppStore";
 import { ZERO } from "@/shared/constants/shared-constants";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import { dashboardPath, songEditPath, songViewPath } from "@/shared/paths";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
@@ -180,9 +178,9 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 								<button
 									type="button"
 									className="text-sm text-red-400 transition-colors hover:text-red-300"
-								onClick={() => {
-									void Effect.runPromise(removeFromSongLibrary({ song_id: entry.song_id }));
-								}}
+									onClick={() => {
+										void Effect.runPromise(removeFromSongLibrary({ song_id: entry.song_id }));
+									}}
 								>
 									{t("songLibrary.removeSong", "Remove")}
 								</button>

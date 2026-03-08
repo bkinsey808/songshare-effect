@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import type { UserSessionData } from "@/shared/userSessionData";
-
 import useAppStore from "@/react/app-store/useAppStore";
 import useLoadCommunityBySlug from "@/react/community/useLoadCommunityBySlug";
 import useLoadCommunityLibraries from "@/react/community/useLoadCommunityLibraries";
 import useLocale from "@/react/lib/language/locale/useLocale";
+import type { UserSessionData } from "@/shared/userSessionData";
 
 import type {
 	CommunityEntry,
@@ -15,7 +14,6 @@ import type {
 	CommunitySong,
 	CommunityUser,
 } from "../community-types";
-
 import createCommunityViewHandlers from "./createCommunityViewHandlers";
 import useCommunityViewSubscriptions from "./useCommunityViewSubscriptions";
 
@@ -84,11 +82,7 @@ export default function useCommunityView(): UseCommunityViewReturn {
 	const activeEventId = currentCommunity?.active_event_id;
 
 	useLoadCommunityBySlug(community_slug, fetchCommunityBySlug);
-	useLoadCommunityLibraries(
-		userSessionData?.user?.user_id,
-		fetchSongLibrary,
-		fetchPlaylistLibrary,
-	);
+	useLoadCommunityLibraries(userSessionData?.user?.user_id, fetchSongLibrary, fetchPlaylistLibrary);
 	useCommunityViewSubscriptions(communityId);
 
 	// find the current user's membership record, if they are logged in

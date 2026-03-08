@@ -1,6 +1,5 @@
 import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 import type { Database } from "@/shared/generated/supabaseTypes";
-
 import isString from "@/shared/type-guards/isString";
 
 import fetchUsername from "./fetchUsername";

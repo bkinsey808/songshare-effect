@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
-
 import useAppStore from "@/react/app-store/useAppStore";
 
 import type { EventLibraryEntry, RemoveEventFromLibraryRequest } from "./event-library-types";

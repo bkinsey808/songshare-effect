@@ -1,5 +1,4 @@
 import type { Env } from "@/api/env";
-
 import { apiOauthCallbackPath } from "@/shared/paths";
 
 /**

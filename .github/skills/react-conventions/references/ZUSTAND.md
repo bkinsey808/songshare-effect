@@ -10,17 +10,17 @@ Comprehensive patterns for Zustand state management, including store creation, s
 import { create } from "zustand";
 
 type CounterState = {
-  count: number;
-  increment: () => void;
-  decrement: () => void;
-  reset: () => void;
+	count: number;
+	increment: () => void;
+	decrement: () => void;
+	reset: () => void;
 };
 
 export const useCounterStore = create<CounterState>((set) => ({
-  count: 0,
-  increment: () => set((state) => ({ count: state.count + 1 })),
-  decrement: () => set((state) => ({ count: state.count - 1 })),
-  reset: () => set({ count: 0 }),
+	count: 0,
+	increment: () => set((state) => ({ count: state.count + 1 })),
+	decrement: () => set((state) => ({ count: state.count - 1 })),
+	reset: () => set({ count: 0 }),
 }));
 ```
 
@@ -31,31 +31,31 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 type TodoState = {
-  todos: Array<{ id: string; title: string; done: boolean }>;
-  addTodo: (title: string) => void;
-  toggleTodo: (id: string) => void;
-  removeTodo: (id: string) => void;
+	todos: Array<{ id: string; title: string; done: boolean }>;
+	addTodo: (title: string) => void;
+	toggleTodo: (id: string) => void;
+	removeTodo: (id: string) => void;
 };
 
 export const useTodoStore = create<TodoState>()(
-  immer((set) => ({
-    todos: [],
-    addTodo: (title) =>
-      set((state) => {
-        state.todos.push({ id: Math.random().toString(), title, done: false });
-      }),
-    toggleTodo: (id) =>
-      set((state) => {
-        const todo = state.todos.find((t) => t.id === id);
-        if (todo) {
-          todo.done = !todo.done;
-        }
-      }),
-    removeTodo: (id) =>
-      set((state) => {
-        state.todos = state.todos.filter((t) => t.id !== id);
-      }),
-  }))
+	immer((set) => ({
+		todos: [],
+		addTodo: (title) =>
+			set((state) => {
+				state.todos.push({ id: Math.random().toString(), title, done: false });
+			}),
+		toggleTodo: (id) =>
+			set((state) => {
+				const todo = state.todos.find((t) => t.id === id);
+				if (todo) {
+					todo.done = !todo.done;
+				}
+			}),
+		removeTodo: (id) =>
+			set((state) => {
+				state.todos = state.todos.filter((t) => t.id !== id);
+			}),
+	})),
 );
 ```
 
@@ -94,12 +94,12 @@ const titles = useTodoStore(selectTodoTitles, shallow);
 ```typescript
 // Create reusable selectors
 const todoSelectors = {
-  selectAll: (state: TodoState) => state.todos,
-  selectDone: (state: TodoState) => state.todos.filter((t) => t.done),
-  selectPending: (state: TodoState) => state.todos.filter((t) => !t.done),
-  selectCount: (state: TodoState) => state.todos.length,
-  selectByStatus: (done: boolean) => (state: TodoState) =>
-    state.todos.filter((t) => t.done === done),
+	selectAll: (state: TodoState) => state.todos,
+	selectDone: (state: TodoState) => state.todos.filter((t) => t.done),
+	selectPending: (state: TodoState) => state.todos.filter((t) => !t.done),
+	selectCount: (state: TodoState) => state.todos.length,
+	selectByStatus: (done: boolean) => (state: TodoState) =>
+		state.todos.filter((t) => t.done === done),
 };
 
 // Usage
@@ -156,49 +156,48 @@ function Header() {
 ```typescript
 // For very large stores, split into slices
 type AppState = {
-  // Auth slice
-  isSignedIn: boolean;
-  user: User | null;
+	// Auth slice
+	isSignedIn: boolean;
+	user: User | null;
 
-  // UI slice
-  sidebarOpen: boolean;
-  theme: "light" | "dark";
+	// UI slice
+	sidebarOpen: boolean;
+	theme: "light" | "dark";
 
-  // Data slice
-  songs: Song[];
-  playlists: Playlist[];
+	// Data slice
+	songs: Song[];
+	playlists: Playlist[];
 
-  // Actions
-  signIn: (credentials: Credentials) => Promise<void>;
-  toggleSidebar: () => void;
-  setSongs: (songs: Song[]) => void;
-}
+	// Actions
+	signIn: (credentials: Credentials) => Promise<void>;
+	toggleSidebar: () => void;
+	setSongs: (songs: Song[]) => void;
+};
 
 export const useAppStore = create<AppState>((set) => ({
-  // Auth
-  isSignedIn: false,
-  user: null,
+	// Auth
+	isSignedIn: false,
+	user: null,
 
-  // UI
-  sidebarOpen: true,
-  theme: "light",
+	// UI
+	sidebarOpen: true,
+	theme: "light",
 
-  // Data
-  songs: [],
-  playlists: [],
+	// Data
+	songs: [],
+	playlists: [],
 
-  // Auth actions
-  signIn: async (credentials) => {
-    const user = await authAPI.login(credentials);
-    set({ isSignedIn: true, user });
-  },
+	// Auth actions
+	signIn: async (credentials) => {
+		const user = await authAPI.login(credentials);
+		set({ isSignedIn: true, user });
+	},
 
-  // UI actions
-  toggleSidebar: () =>
-    set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+	// UI actions
+	toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
-  // Data actions
-  setSongs: (songs) => set({ songs }),
+	// Data actions
+	setSongs: (songs) => set({ songs }),
 }));
 ```
 
@@ -261,38 +260,36 @@ function SongLibrary(): JSX.Element {
 
 ```typescript
 type PlaylistState = {
-  playlists: Playlist[];
-  addPlaylist: (name: string) => Promise<void>;
+	playlists: Playlist[];
+	addPlaylist: (name: string) => Promise<void>;
 };
 
 export const usePlaylistStore = create<PlaylistState>((set) => ({
-  playlists: [],
+	playlists: [],
 
-  addPlaylist: async (name) => {
-    // Optimistically update local state
-    const tempId = Math.random().toString();
-    set((state) => ({
-      playlists: [...state.playlists, { id: tempId, name, songs: [] }],
-    }));
+	addPlaylist: async (name) => {
+		// Optimistically update local state
+		const tempId = Math.random().toString();
+		set((state) => ({
+			playlists: [...state.playlists, { id: tempId, name, songs: [] }],
+		}));
 
-    try {
-      const newPlaylist = await playlistAPI.create(name);
+		try {
+			const newPlaylist = await playlistAPI.create(name);
 
-      // Replace temp item with real one
-      set((state) => ({
-        playlists: state.playlists.map((p) =>
-          p.id === tempId ? newPlaylist : p
-        ),
-      }));
-    } catch (error) {
-      // Revert on error
-      set((state) => ({
-        playlists: state.playlists.filter((p) => p.id !== tempId),
-      }));
+			// Replace temp item with real one
+			set((state) => ({
+				playlists: state.playlists.map((p) => (p.id === tempId ? newPlaylist : p)),
+			}));
+		} catch (error) {
+			// Revert on error
+			set((state) => ({
+				playlists: state.playlists.filter((p) => p.id !== tempId),
+			}));
 
-      throw error;
-    }
-  },
+			throw error;
+		}
+	},
 }));
 ```
 
@@ -305,14 +302,14 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
 export const useCounterStore = create<CounterState>()(
-  devtools(
-    (set) => ({
-      count: 0,
-      increment: () => set((state) => ({ count: state.count + 1 })),
-      decrement: () => set((state) => ({ count: state.count - 1 })),
-    }),
-    { name: "counter-store" } // Name for DevTools
-  )
+	devtools(
+		(set) => ({
+			count: 0,
+			increment: () => set((state) => ({ count: state.count + 1 })),
+			decrement: () => set((state) => ({ count: state.count - 1 })),
+		}),
+		{ name: "counter-store" }, // Name for DevTools
+	),
 );
 ```
 
@@ -325,22 +322,21 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type ThemeState = {
-  theme: "light" | "dark";
-  toggleTheme: () => void;
+	theme: "light" | "dark";
+	toggleTheme: () => void;
 };
 
 export const useThemeStore = create<ThemeState>()(
-  persist(
-    (set) => ({
-      theme: "light",
-      toggleTheme: () =>
-        set((state) => ({ theme: state.theme === "light" ? "dark" : "light" })),
-    }),
-    {
-      name: "theme-storage", // localStorage key
-      partialize: (state) => ({ theme: state.theme }), // Only persist theme
-    }
-  )
+	persist(
+		(set) => ({
+			theme: "light",
+			toggleTheme: () => set((state) => ({ theme: state.theme === "light" ? "dark" : "light" })),
+		}),
+		{
+			name: "theme-storage", // localStorage key
+			partialize: (state) => ({ theme: state.theme }), // Only persist theme
+		},
+	),
 );
 ```
 
@@ -355,15 +351,15 @@ import { devtools } from "zustand/middleware";
 import { persist } from "zustand/middleware";
 
 export const useAppStore = create<AppState>()(
-  devtools(
-    persist(
-      immer((set) => ({
-        // ... store definition
-      })),
-      { name: "app-storage" }
-    ),
-    { name: "app-store" }
-  )
+	devtools(
+		persist(
+			immer((set) => ({
+				// ... store definition
+			})),
+			{ name: "app-storage" },
+		),
+		{ name: "app-store" },
+	),
 );
 ```
 
@@ -376,65 +372,65 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
 type User = {
-  id: string;
-  email: string;
-  name: string;
+	id: string;
+	email: string;
+	name: string;
 };
 
 type AuthState = {
-  // State
-  isSignedIn: boolean;
-  user: User | null;
-  isLoading: boolean;
-  error: Error | null;
+	// State
+	isSignedIn: boolean;
+	user: User | null;
+	isLoading: boolean;
+	error: Error | null;
 
-  // Actions
-  signIn: (credentials: { email: string; password: string }) => Promise<void>;
-  signOut: () => void;
-  clearError: () => void;
+	// Actions
+	signIn: (credentials: { email: string; password: string }) => Promise<void>;
+	signOut: () => void;
+	clearError: () => void;
 };
 
 export const useAuthStore = create<AuthState>()(
-  devtools(
-    (set) => ({
-      isSignedIn: false,
-      user: null,
-      isLoading: false,
-      error: null,
+	devtools(
+		(set) => ({
+			isSignedIn: false,
+			user: null,
+			isLoading: false,
+			error: null,
 
-      signIn: async (credentials) => {
-        set({ isLoading: true, error: null });
+			signIn: async (credentials) => {
+				set({ isLoading: true, error: null });
 
-        try {
-          const response = await fetch("/api/auth/signin", {
-            method: "POST",
-            body: JSON.stringify(credentials),
-          });
+				try {
+					const response = await fetch("/api/auth/signin", {
+						method: "POST",
+						body: JSON.stringify(credentials),
+					});
 
-          if (!response.ok) {
-            throw new Error("Sign in failed");
-          }
+					if (!response.ok) {
+						throw new Error("Sign in failed");
+					}
 
-          const user = await response.json();
-          set({ isSignedIn: true, user, isLoading: false });
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error : new Error("Unknown error"),
-            isLoading: false,
-          });
-          throw error;
-        }
-      },
+					const user = await response.json();
+					set({ isSignedIn: true, user, isLoading: false });
+				} catch (error) {
+					set({
+						error: error instanceof Error ? error : new Error("Unknown error"),
+						isLoading: false,
+					});
+					throw error;
+				}
+			},
 
-      signOut: () => {
-        set({ isSignedIn: false, user: null });
-        // Clear tokens, etc.
-      },
+			signOut: () => {
+				set({ isSignedIn: false, user: null });
+				// Clear tokens, etc.
+			},
 
-      clearError: () => set({ error: null }),
-    }),
-    { name: "auth-store" }
-  )
+			clearError: () => set({ error: null }),
+		}),
+		{ name: "auth-store" },
+	),
 );
 ```
 
@@ -447,32 +443,32 @@ import { renderHook, act } from "@testing-library/react";
 import { useCounterStore } from "./counterStore";
 
 describe("Counter Store", () => {
-  beforeEach(() => {
-    // Reset store before each test
-    useCounterStore.setState({ count: 0 });
-  });
+	beforeEach(() => {
+		// Reset store before each test
+		useCounterStore.setState({ count: 0 });
+	});
 
-  it("increments counter", () => {
-    const { result } = renderHook(() => useCounterStore());
+	it("increments counter", () => {
+		const { result } = renderHook(() => useCounterStore());
 
-    act(() => {
-      result.current.increment();
-    });
+		act(() => {
+			result.current.increment();
+		});
 
-    expect(result.current.count).toBe(1);
-  });
+		expect(result.current.count).toBe(1);
+	});
 
-  it("decrements counter", () => {
-    const { result } = renderHook(() => useCounterStore());
+	it("decrements counter", () => {
+		const { result } = renderHook(() => useCounterStore());
 
-    act(() => {
-      result.current.increment();
-      result.current.increment();
-      result.current.decrement();
-    });
+		act(() => {
+			result.current.increment();
+			result.current.increment();
+			result.current.decrement();
+		});
 
-    expect(result.current.count).toBe(1);
-  });
+		expect(result.current.count).toBe(1);
+	});
 });
 ```
 

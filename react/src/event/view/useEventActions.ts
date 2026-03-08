@@ -2,7 +2,6 @@ import { Effect as EffectRuntime, type Effect } from "effect";
 import { useState } from "react";
 
 import type { EventEntry } from "@/react/event/event-types";
-
 import {
 	getParticipantPermissions,
 	transitionParticipantStatus,

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 2ndKHL3DvLSfMA2fuqdqPjzeBJwwslRgrdCzhIjkh1xOhFFuXYRMW8Bb31jqExv
+\restrict rKJgAq8vLAkPCbClARf3HE0uchGO7uff70ANeXdiNcrp808CMk0JVeczbZIYtIL
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -256,7 +256,7 @@ ALTER TABLE ONLY public.community_user REPLICA IDENTITY FULL;
 -- Name: TABLE community_user; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE public.community_user IS 'Community members and roles.';
+COMMENT ON TABLE public.community_user IS 'RLS re-enabled after fixing invitation fetch logic.';
 
 
 --
@@ -374,7 +374,7 @@ CREATE TABLE public.event_public (
 -- Name: TABLE event_public; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON TABLE public.event_public IS 'Public event data with RLS enforcing owner/admin write access. Readable by authenticated users (public events) or participants. Realtime enabled for real-time sync.';
+COMMENT ON TABLE public.event_public IS 'RLS re-enabled after fixing invitation fetch logic.';
 
 
 --
@@ -2523,6 +2523,12 @@ ALTER TABLE public.community_share_request ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.community_song ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: community_user; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.community_user ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: community_user debug_all_read; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -2650,5 +2656,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 2ndKHL3DvLSfMA2fuqdqPjzeBJwwslRgrdCzhIjkh1xOhFFuXYRMW8Bb31jqExv
+\unrestrict rKJgAq8vLAkPCbClARf3HE0uchGO7uff70ANeXdiNcrp808CMk0JVeczbZIYtIL
 

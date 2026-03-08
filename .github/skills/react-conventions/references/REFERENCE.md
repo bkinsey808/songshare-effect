@@ -30,19 +30,19 @@ function Component() {
 ```typescript
 // ❌ BAD: useCallback defeats compiler optimization
 const handleClick = useCallback(() => {
-  console.log("clicked");
+	console.log("clicked");
 }, []);
 
 // ✅ GOOD: Plain function - compiler memoizes it
 function handleClick() {
-  console.log("clicked");
+	console.log("clicked");
 }
 ```
 
 ```typescript
 // ❌ BAD: useMemo adds unnecessary abstraction
 const computedValue = useMemo(() => {
-  return expensive(input);
+	return expensive(input);
 }, [input]);
 
 // ✅ GOOD: Direct call - compiler optimizes the computation
@@ -102,51 +102,51 @@ function LoginForm(): JSX.Element {
 ```typescript
 // Data fetching
 useEffect(() => {
-  let isMounted = true;
+	let isMounted = true;
 
-  const loadData = async () => {
-    const data = await fetchSongs(userId);
-    if (isMounted) {
-      setData(data);
-    }
-  };
+	const loadData = async () => {
+		const data = await fetchSongs(userId);
+		if (isMounted) {
+			setData(data);
+		}
+	};
 
-  loadData();
+	loadData();
 
-  return () => {
-    isMounted = false; // Cleanup prevents state updates after unmount
-  };
+	return () => {
+		isMounted = false; // Cleanup prevents state updates after unmount
+	};
 }, [userId]); // Re-run when userId changes
 ```
 
 ```typescript
 // Event listener subscription
 useEffect(() => {
-  const handleResize = () => {
-    setWidth(window.innerWidth);
-  };
+	const handleResize = () => {
+		setWidth(window.innerWidth);
+	};
 
-  window.addEventListener("resize", handleResize);
+	window.addEventListener("resize", handleResize);
 
-  return () => {
-    window.removeEventListener("resize", handleResize); // Always clean up
-  };
+	return () => {
+		window.removeEventListener("resize", handleResize); // Always clean up
+	};
 }, []); // Run once on mount
 ```
 
 ```typescript
 // Realtime subscription
 useEffect(() => {
-  const channel = supabaseClient
-    .channel("song_changes")
-    .on("postgres_changes", { event: "*", schema: "public", table: "song" }, (payload) => {
-      setData((prev) => [...prev, payload.new]);
-    })
-    .subscribe();
+	const channel = supabaseClient
+		.channel("song_changes")
+		.on("postgres_changes", { event: "*", schema: "public", table: "song" }, (payload) => {
+			setData((prev) => [...prev, payload.new]);
+		})
+		.subscribe();
 
-  return () => {
-    channel.unsubscribe();
-  };
+	return () => {
+		channel.unsubscribe();
+	};
 }, [supabaseClient]);
 ```
 
@@ -299,19 +299,19 @@ function LibraryPage() {
 import { create } from "zustand";
 
 type AuthState = {
-  isSignedIn: boolean;
-  user: User | null;
-  setIsSignedIn: (value: boolean) => void;
-  setUser: (user: User | null) => void;
-  clear: () => void;
+	isSignedIn: boolean;
+	user: User | null;
+	setIsSignedIn: (value: boolean) => void;
+	setUser: (user: User | null) => void;
+	clear: () => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-  isSignedIn: false,
-  user: null,
-  setIsSignedIn: (isSignedIn) => set({ isSignedIn }),
-  setUser: (user) => set({ user }),
-  clear: () => set({ isSignedIn: false, user: null }),
+	isSignedIn: false,
+	user: null,
+	setIsSignedIn: (isSignedIn) => set({ isSignedIn }),
+	setUser: (user) => set({ user }),
+	clear: () => set({ isSignedIn: false, user: null }),
 }));
 ```
 

@@ -3,7 +3,6 @@ import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseCli
 import type { Database } from "@/shared/generated/supabaseTypes";
 
 import type { CommunityPlaylist, CommunityShareRequest, CommunitySong } from "../community-types";
-
 import cloneCommunityRow from "./cloneCommunityRow";
 import fetchOptionalPostgrestResponse from "./fetchOptionalPostgrestResponse";
 
@@ -48,7 +47,9 @@ export default async function fetchCommunityShareRequests(
 				in: { col: "user_id", vals: senderIds },
 			}),
 		);
-		senderUsernameMap = new Map((requestUsersRes.data ?? []).map((user) => [user.user_id, user.username]));
+		senderUsernameMap = new Map(
+			(requestUsersRes.data ?? []).map((user) => [user.user_id, user.username]),
+		);
 	}
 
 	const shareRequestNameMap = new Map<string, string>();
@@ -60,7 +61,9 @@ export default async function fetchCommunityShareRequests(
 			}
 		}
 		if (request.shared_item_type === "playlist") {
-			const playlist = communityPlaylists.find((entry) => entry.playlist_id === request.shared_item_id);
+			const playlist = communityPlaylists.find(
+				(entry) => entry.playlist_id === request.shared_item_id,
+			);
 			if (playlist?.playlist_name !== undefined) {
 				shareRequestNameMap.set(request.request_id, playlist.playlist_name);
 			}

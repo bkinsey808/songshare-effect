@@ -1,4 +1,3 @@
-
 ---
 name: form-patterns
 description: Project-specific form patterns using useAppForm, createFormSubmitHandler, and createApiResponseHandlerEffect. Use when building or editing any form with validation, submission, or API response handling in React.
@@ -13,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Building or modifying form validation/submission behavior in React.
 - Wiring API response handling through `useAppForm` and Effect helpers.
 
 Execution workflow:
+
 1. Use `useAppForm` as the primary form abstraction.
 2. Keep schema validation and submission flow typed and effect-driven.
 3. Reuse shared response/error handling helpers instead of ad-hoc form logic.
 4. Validate with targeted form tests, then `npm run lint`.
 
 Output requirements:
+
 - Summarize form flow changes (validation, submit, response handling).
 - Note user-visible error-handling behavior changes.
 
@@ -37,23 +39,23 @@ import { useRef } from "react";
 import { MyFormSchema } from "./myFormSchema"; // Effect Schema
 
 function MyForm(): ReactElement {
-  const formRef = useRef<HTMLFormElement>(null);
-  const {
-    validationErrors,
-    isSubmitting,
-    handleFieldBlur,
-    getFieldError,
-    handleSubmit,
-    handleApiResponseEffect,
-    reset,
-  } = useAppForm({
-    schema: MyFormSchema,
-    formRef,
-    defaultErrorMessage: "Something went wrong. Please try again.",
-  });
-  // ...
+	const formRef = useRef<HTMLFormElement>(null);
+	const {
+		validationErrors,
+		isSubmitting,
+		handleFieldBlur,
+		getFieldError,
+		handleSubmit,
+		handleApiResponseEffect,
+		reset,
+	} = useAppForm({
+		schema: MyFormSchema,
+		formRef,
+		defaultErrorMessage: "Something went wrong. Please try again.",
+	});
+	// ...
 }
-````
+```
 
 ### Props
 
@@ -120,9 +122,7 @@ Validate individual fields as the user leaves them:
 `handleApiResponseEffect` maps API responses to form errors:
 
 ```typescript
-const success = await Effect.runPromise(
-  handleApiResponseEffect(response, setSubmitError),
-);
+const success = await Effect.runPromise(handleApiResponseEffect(response, setSubmitError));
 // success === true → API returned OK
 // success === false → ApiResponseAction already dispatched (field error or general error)
 ```
@@ -143,8 +143,8 @@ Use Effect Schema in a colocated `<feature>FormSchema.ts` file:
 import { Schema } from "effect";
 
 export const SongFormSchema = Schema.Struct({
-  title: Schema.String.pipe(Schema.minLength(1)),
-  artist: Schema.String.pipe(Schema.minLength(1)),
+	title: Schema.String.pipe(Schema.minLength(1)),
+	artist: Schema.String.pipe(Schema.minLength(1)),
 });
 
 export type SongFormValues = Schema.Schema.Type<typeof SongFormSchema>;
@@ -161,10 +161,6 @@ export type SongFormValues = Schema.Schema.Type<typeof SongFormSchema>;
 
 - Effect Schema: [../effect-ts-patterns/SKILL.md](../effect-ts-patterns/SKILL.md)
 - Source: `@/react/lib/form/useAppForm.ts`
-
-
-
-
 
 ## Success Criteria
 

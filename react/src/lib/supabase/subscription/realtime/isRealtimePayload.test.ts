@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { RealtimePayload } from "../subscription-types";
-
 import isRealtimePayload from "./isRealtimePayload";
 
 // use a named constant to satisfy lint rules against magic numbers

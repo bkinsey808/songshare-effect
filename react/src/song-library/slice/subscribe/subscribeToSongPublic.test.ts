@@ -1,20 +1,19 @@
-import { Effect } from "effect";
 import assert from "node:assert";
+
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
-import type { Database } from "@/shared/generated/supabaseTypes";
-
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
+import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import makeSongLibraryEntry from "@/react/song-library/test-utils/makeSongLibraryEntry.mock";
+import type { Database } from "@/shared/generated/supabaseTypes";
 import isRecord from "@/shared/type-guards/isRecord";
 
+import makeSongLibrarySlice from "../makeSongLibrarySlice.mock";
 import type { SongLibrarySlice } from "../song-library-slice";
 import type { SongLibraryEntry } from "../song-library-types";
-
-import makeSongLibrarySlice from "../makeSongLibrarySlice.mock";
 import subscribeToSongPublic from "./subscribeToSongPublic";
 
 type CreateRealtimeConfig = {

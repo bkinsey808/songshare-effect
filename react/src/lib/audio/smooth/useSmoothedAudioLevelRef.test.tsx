@@ -1,8 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import type { SmoothedAudioLevel } from "@/react/lib/audio/smooth/useSmoothedAudioLevel";
-
 // Mock the underlying `useSmoothedAudioLevel` hook so we can control what
 // `useSmoothedAudioLevelRef` receives across renders.
 import {
@@ -10,6 +8,7 @@ import {
 	mockUseSmoothedAudioLevel,
 	setMockUseSmoothedAudioLevel,
 } from "@/react/lib/audio/smooth/mockUseSmoothedAudioLevel.test-util";
+import type { SmoothedAudioLevel } from "@/react/lib/audio/smooth/useSmoothedAudioLevel";
 
 const DEFAULT_LEVEL = 0;
 

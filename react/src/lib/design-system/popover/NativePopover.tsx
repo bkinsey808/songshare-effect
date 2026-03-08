@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
 
-import type { PlacementOption, TriggerMode } from "./popover-types";
-
 import getArrowClasses from "./getArrowClasses";
+import type { PlacementOption, TriggerMode } from "./popover-types";
 import { useNativePopover } from "./useNativePopover";
 
 // File-local default to avoid magic-number literal for tabIndex
@@ -23,6 +22,9 @@ export type NativePopoverProps = Readonly<{
 	tabIndex?: number;
 	/** Allow content to overflow the popover bounds (useful for dropdowns) */
 	allowOverflow?: boolean;
+	/** Custom element for the trigger container. Defaults to 'button'.
+	 * Use 'div' if the children already contain interactive elements like buttons to avoid HTML nesting errors. */
+	triggerContainer?: "button" | "div";
 }>;
 
 /**
@@ -39,6 +41,7 @@ export function NativePopover({
 	closeOnTriggerClick = false,
 	tabIndex = DEFAULT_TAB_INDEX,
 	allowOverflow = false,
+	triggerContainer = "button",
 }: NativePopoverProps): ReactElement {
 	// Use custom hook that encapsulates all popover logic
 	const {
@@ -62,13 +65,15 @@ export function NativePopover({
 	// Hover mode: tooltip pattern with aria-describedby relationship
 	// Click mode: dialog pattern with aria-expanded and bidirectional labeling
 
+	const TriggerElement = triggerContainer;
+
 	return (
 		<div className="relative inline-block">
-			<button
-				ref={(el) => {
+			<TriggerElement
+				ref={(el: HTMLElement | null) => {
 					setTriggerRef(el);
 				}}
-				type="button"
+				{...(TriggerElement === "button" ? { type: "button" } : { role: "button" })}
 				id={trigger === "click" ? `${popoverId}-trigger` : undefined}
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
@@ -80,7 +85,7 @@ export function NativePopover({
 				className="cursor-pointer"
 			>
 				{children}
-			</button>
+			</TriggerElement>
 
 			<div
 				ref={popoverRef}

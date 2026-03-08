@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 import Button from "@/react/lib/design-system/Button";
-import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import ShareButton from "@/react/lib/design-system/ShareButton";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import { ZERO } from "@/shared/constants/shared-constants";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { eventViewPath, playlistViewPath, songViewPath } from "@/shared/paths";
 
 import useCommunityView from "./useCommunityView";
@@ -236,7 +236,9 @@ export default function CommunityView(): ReactElement {
 					)}
 					<div className="space-y-2">
 						{communitySongs.length === ZERO && (
-							<p className="text-gray-400">{t("communityView.noSongs", "No community songs yet")}</p>
+							<p className="text-gray-400">
+								{t("communityView.noSongs", "No community songs yet")}
+							</p>
 						)}
 						{communitySongs.map((song) => (
 							<div
@@ -315,10 +317,7 @@ export default function CommunityView(): ReactElement {
 								</div>
 								{playlist.playlist_slug !== undefined && playlist.playlist_slug !== "" && (
 									<Link
-										to={buildPathWithLang(
-											`/${playlistViewPath}/${playlist.playlist_slug}`,
-											lang,
-										)}
+										to={buildPathWithLang(`/${playlistViewPath}/${playlist.playlist_slug}`, lang)}
 										className="rounded border border-blue-500/50 px-3 py-1 text-xs font-medium text-blue-300 transition hover:bg-blue-500/10 hover:text-white"
 									>
 										{t("communityView.goToPlaylist", "Go to Playlist")}

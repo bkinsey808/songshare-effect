@@ -20,7 +20,7 @@ The app store uses Zustand's `persist` middleware, which automatically synchroni
 ```tsx
 // ❌ Risky: assumes state exists, but hydration hasn't completed
 const { isSignedIn } = useAppStore();
-if (!isSignedIn) return <Redirect to="login" />;  // May redirect to login even though user IS signed in
+if (!isSignedIn) return <Redirect to="login" />; // May redirect to login even though user IS signed in
 ```
 
 **Better:**
@@ -28,7 +28,7 @@ if (!isSignedIn) return <Redirect to="login" />;  // May redirect to login even 
 ```tsx
 // ✅ Safe: waits for hydration before checking auth
 const { isHydrated } = useHydration();
-if (!isHydrated) return <div />;  // Wait for state to load
+if (!isHydrated) return <div />; // Wait for state to load
 
 const { isSignedIn } = useAppStore();
 if (!isSignedIn) return <Redirect to="login" />;
@@ -72,16 +72,16 @@ Wait for hydration before rendering component logic:
 import useHydration from "@/react/app/useHydration";
 
 export function MyComponent() {
-  const { isHydrated } = useHydration();
+	const { isHydrated } = useHydration();
 
-  // Return placeholder until hydration finishes
-  if (!isHydrated) {
-    return <div />;
-  }
+	// Return placeholder until hydration finishes
+	if (!isHydrated) {
+		return <div />;
+	}
 
-  // Safe to use store state now
-  const user = useAppStore((state) => state.user);
-  return <div>Hello {user?.name}</div>;
+	// Safe to use store state now
+	const user = useAppStore((state) => state.user);
+	return <div>Hello {user?.name}</div>;
 }
 ```
 
@@ -93,20 +93,20 @@ For code that must run after hydration (e.g., analytics, prefetch):
 import useHydration from "@/react/app/useHydration";
 
 export function MyComponent() {
-  const { awaitHydration } = useHydration();
+	const { awaitHydration } = useHydration();
 
-  useEffect(() => {
-    (async () => {
-      // Block until store is hydrated
-      await awaitHydration();
+	useEffect(() => {
+		(async () => {
+			// Block until store is hydrated
+			await awaitHydration();
 
-      // Safe to use store state here
-      const user = useAppStore((state) => state.user);
-      logAnalytics({ userId: user?.id });
-    })();
-  }, [awaitHydration]);
+			// Safe to use store state here
+			const user = useAppStore((state) => state.user);
+			logAnalytics({ userId: user?.id });
+		})();
+	}, [awaitHydration]);
 
-  return <div>Tracking events...</div>;
+	return <div>Tracking events...</div>;
 }
 ```
 
@@ -118,18 +118,18 @@ In auth-protected layouts, always check hydration first:
 import useHydration from "@/react/app/useHydration";
 
 export function RequireAuthBoundary({ children }) {
-  const { isHydrated } = useHydration();
-  const isSignedIn = useAppStore((state) => state.isSignedIn);
+	const { isHydrated } = useHydration();
+	const isSignedIn = useAppStore((state) => state.isSignedIn);
 
-  if (!isHydrated) {
-    return <AppLoadingFallback />;
-  }
+	if (!isHydrated) {
+		return <AppLoadingFallback />;
+	}
 
-  if (!isSignedIn) {
-    return <Navigate to="/login" />;
-  }
+	if (!isSignedIn) {
+		return <Navigate to="/login" />;
+	}
 
-  return children;
+	return children;
 }
 ```
 
@@ -141,9 +141,9 @@ export function RequireAuthBoundary({ children }) {
 
 ```tsx
 function useHydration(): {
-  isHydrated: boolean;
-  awaitHydration: () => Promise<void>;
-}
+	isHydrated: boolean;
+	awaitHydration: () => Promise<void>;
+};
 ```
 
 **Returns:**
@@ -226,13 +226,13 @@ return <Dashboard />;
 
 ```tsx
 useEffect(() => {
-  const { awaitHydration } = useHydration();
+	const { awaitHydration } = useHydration();
 
-  (async () => {
-    await awaitHydration();
-    // Guaranteed: store is now fully loaded
-    initializeAnalytics();
-  })();
+	(async () => {
+		await awaitHydration();
+		// Guaranteed: store is now fully loaded
+		initializeAnalytics();
+	})();
 }, []);
 ```
 
@@ -242,11 +242,11 @@ useEffect(() => {
 const { isHydrated } = useHydration();
 
 useEffect(() => {
-  if (!isHydrated) return;
+	if (!isHydrated) return;
 
-  // This effect only runs after hydration
-  const user = useAppStore((state) => state.user);
-  logLogin(user?.id);
+	// This effect only runs after hydration
+	const user = useAppStore((state) => state.user);
+	logLogin(user?.id);
 }, [isHydrated]);
 ```
 
@@ -262,18 +262,18 @@ import useHydration from "@/react/app/useHydration";
 
 // Mock the hook
 vi.mock("@/react/app/useHydration", () => ({
-  default: vi.fn(),
+	default: vi.fn(),
 }));
 
 // In your test:
 it("renders content when hydrated", () => {
-  vi.mocked(useHydration).mockReturnValue({
-    isHydrated: true,
-    awaitHydration: vi.fn(),
-  });
+	vi.mocked(useHydration).mockReturnValue({
+		isHydrated: true,
+		awaitHydration: vi.fn(),
+	});
 
-  const { getByText } = render(<MyComponent />);
-  expect(getByText("Real Content")).toBeInTheDocument();
+	const { getByText } = render(<MyComponent />);
+	expect(getByText("Real Content")).toBeInTheDocument();
 });
 ```
 
@@ -286,12 +286,12 @@ import { renderHook, waitFor } from "@testing-library/react";
 import useHydration from "@/react/app/useHydration";
 
 it("hydration completes", async () => {
-  const { result } = renderHook(() => useHydration());
+	const { result } = renderHook(() => useHydration());
 
-  // Wait for hydration to complete
-  await waitFor(() => {
-    expect(result.current.isHydrated).toBe(true);
-  });
+	// Wait for hydration to complete
+	await waitFor(() => {
+		expect(result.current.isHydrated).toBe(true);
+	});
 });
 ```
 
@@ -303,14 +303,16 @@ it("hydration completes", async () => {
 
 ```tsx
 // In DevTools console
-useAppStore.getState().isHydrated
+useAppStore.getState().isHydrated;
 ```
 
 ### Force Rehydration
 
 ```tsx
 // Reset store (for testing)
-useAppStore.setState({ /* reset state */ });
+useAppStore.setState({
+	/* reset state */
+});
 
 // Or reset everything
 await resetAllSlices();

@@ -1,4 +1,3 @@
-
 ---
 name: internationalization
 description: i18n patterns for this project — useLocale/useLanguage/useCurrentLang hooks, URL-based language routing, adding translation keys, SupportedLanguageType. Use when adding UI text, building localized links, or working with language switching.
@@ -13,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Adding/changing localized UI copy or language-aware routes/links.
 - Editing language hooks, supported-language handling, or translation keys.
 
 Execution workflow:
+
 1. Use the appropriate language hook for context (`useLocale` default for UI).
 2. Keep language in URL/path handling consistent with existing routing patterns.
 3. Update translation keys across all supported language files.
 4. Validate localized behavior with targeted tests/checks, then run `npm run lint`.
 
 Output requirements:
+
 - Summarize hook/key/path changes and impacted locales.
 - Note any fallback or missing-translation behavior changes.
 
@@ -33,7 +35,7 @@ Supported languages are defined in `@/shared/language/supported-languages`:
 ```typescript
 // Supported values: "en" | "es" | "zh"
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-````
+```
 
 ## Which Hook to Use
 
@@ -86,7 +88,7 @@ Add the key to **all three files**:
 Use dot notation in `t()`:
 
 ```typescript
-t("songs.by_artist")
+t("songs.by_artist");
 ```
 
 ## Building Language-Aware Links
@@ -120,7 +122,7 @@ Use the pure utility `getCurrentLangFromPath` when you need the language outside
 import getCurrentLangFromPath from "@/react/lib/language/path/getCurrentLangFromPath";
 
 const lang = getCurrentLangFromPath("/es/songs"); // → "es"
-const lang = getCurrentLangFromPath("/zz/foo");   // → "en" (falls back to defaultLanguage)
+const lang = getCurrentLangFromPath("/zz/foo"); // → "en" (falls back to defaultLanguage)
 ```
 
 ## Language Provider
@@ -139,10 +141,6 @@ const lang = getCurrentLangFromPath("/zz/foo");   // → "en" (falls back to def
 - Supported languages: `@/shared/language/supported-languages`
 - Full i18n documentation: [docs/internationalization-system.md](../../../docs/internationalization-system.md)
 - React conventions: [../react-conventions/SKILL.md](../react-conventions/SKILL.md)
-
-
-
-
 
 ## Success Criteria
 

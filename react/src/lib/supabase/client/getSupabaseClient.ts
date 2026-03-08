@@ -1,9 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
-import type { Database } from "@/shared/generated/supabaseTypes";
-
 import { type SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 import { getEnvValueSafe } from "@/react/lib/utils/env";
+import type { Database } from "@/shared/generated/supabaseTypes";
 
 import getGlobalClientCache from "./getGlobalClientCache";
 import guardAsSupabaseClientLike from "./guards/guardAsSupabaseClientLike";

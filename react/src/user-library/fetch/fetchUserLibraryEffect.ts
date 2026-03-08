@@ -5,10 +5,9 @@ import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import isRecord from "@/shared/type-guards/isRecord";
 
+import isUserLibraryEntry from "../guards/isUserLibraryEntry";
 import type { UserLibrary, UserLibraryEntry } from "../slice/user-library-types";
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
-
-import isUserLibraryEntry from "../guards/isUserLibraryEntry";
 
 /**
  * Fetches the current user's library from Supabase, joins owner username

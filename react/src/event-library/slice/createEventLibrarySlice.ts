@@ -1,23 +1,21 @@
 import type { Effect } from "effect";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
+import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
-import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
-
+import addEventToLibraryFn from "../event-add/addEventToLibraryEffect";
 import type {
 	AddEventToLibraryRequest,
 	EventLibraryEntry,
 	EventLibraryState,
 	RemoveEventFromLibraryRequest,
 } from "../event-library-types";
-import type { EventLibrarySlice } from "./EventLibrarySlice.type";
-
-import addEventToLibraryFn from "../event-add/addEventToLibraryEffect";
 import removeEventFromLibraryFn from "../event-remove/removeEventFromLibraryEffect";
 import fetchEventLibraryFn from "../fetch/fetchEventLibraryEffect";
 import subscribeToEventLibraryFn from "../subscribe/subscribeToEventLibraryEffect";
 import subscribeToEventPublicForLibraryFn from "../subscribe/subscribeToEventPublicForLibraryEffect";
+import type { EventLibrarySlice } from "./EventLibrarySlice.type";
 
 const initialState: EventLibraryState = {
 	eventLibraryEntries: {} as Record<string, EventLibraryEntry>,

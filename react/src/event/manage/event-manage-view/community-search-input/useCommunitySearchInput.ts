@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-import type { CommunityEntry } from "@/react/community/community-types";
-
 import useAppStore from "@/react/app-store/useAppStore";
+import type { CommunityEntry } from "@/react/community/community-types";
 
 const COMMUNITIES_NONE = 0;
 

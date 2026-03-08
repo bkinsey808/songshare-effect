@@ -1,6 +1,5 @@
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
 import { preferredLanguageCookieName } from "@/shared/cookies";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
 /**
  * Persist the user's preferred language.

@@ -1,5 +1,4 @@
 import type { UserLibraryEntry } from "../slice/user-library-types";
-
 import isUserLibraryEntry from "./isUserLibraryEntry";
 
 export { isUserLibraryEntry };

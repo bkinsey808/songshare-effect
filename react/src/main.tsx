@@ -3,6 +3,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import App from "@/react/app/App";
+
 // Removed unused imports after moving hide style logic to React
 import "@/react/index.css";
 import "@/react/lib/language/i18n";

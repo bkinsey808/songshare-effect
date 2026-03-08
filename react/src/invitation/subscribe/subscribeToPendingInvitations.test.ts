@@ -1,9 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { SupabaseRealtimeClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
-
 import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import guardAsSupabaseRealtimeClientLike from "@/react/lib/supabase/client/guards/guardAsSupabaseRealtimeClientLike";
+import type { SupabaseRealtimeClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 import { makeFakeClient } from "@/react/lib/supabase/client/test-util";
 import isRecord from "@/shared/type-guards/isRecord";
 
@@ -140,6 +139,8 @@ describe("subscribeToPendingInvitations", () => {
 		}).not.toThrow();
 		expect(realtimeClient.removeChannel).toHaveBeenCalledTimes(EXPECT_TWO_CHANNELS);
 		expect(realtimeClient.removeChannel).toHaveBeenCalledWith(createdChannels[FIRST_CHANNEL_INDEX]);
-		expect(realtimeClient.removeChannel).toHaveBeenCalledWith(createdChannels[SECOND_CHANNEL_INDEX]);
+		expect(realtimeClient.removeChannel).toHaveBeenCalledWith(
+			createdChannels[SECOND_CHANNEL_INDEX],
+		);
 	});
 });

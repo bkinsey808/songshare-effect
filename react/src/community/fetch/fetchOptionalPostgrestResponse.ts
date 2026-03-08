@@ -9,10 +9,7 @@ import type { PostgrestResponse } from "@supabase/postgrest-js";
  * @returns resolved PostgREST response, or an empty success response
  */
 export default async function fetchOptionalPostgrestResponse<TRow>(
-	fetcher: () =>
-		| Promise<PostgrestResponse<TRow> | undefined>
-		| PostgrestResponse<TRow>
-		| undefined,
+	fetcher: () => Promise<PostgrestResponse<TRow> | undefined> | PostgrestResponse<TRow> | undefined,
 ): Promise<PostgrestResponse<TRow>> {
 	const response = await Promise.resolve(fetcher());
 	if (response !== undefined) {

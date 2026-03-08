@@ -5,7 +5,6 @@ import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
-
 import handleCommunityPublicSubscribeEvent from "./handleCommunityPublicSubscribeEvent";
 
 /**

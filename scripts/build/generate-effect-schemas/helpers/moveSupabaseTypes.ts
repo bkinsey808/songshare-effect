@@ -10,9 +10,7 @@ export type MoveSupabaseTypesConfig = {
 	generated: boolean;
 };
 
-export function moveSupabaseTypes(
-	config: Readonly<MoveSupabaseTypesConfig>,
-): string | undefined {
+export function moveSupabaseTypes(config: Readonly<MoveSupabaseTypesConfig>): string | undefined {
 	if (!config.generated || !existsSync(config.tempPath)) {
 		sWarn("📁 No types file to move (using fallback schemas)");
 		return undefined;

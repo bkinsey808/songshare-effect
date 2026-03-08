@@ -1,5 +1,4 @@
 import type { EventLibraryEntry } from "@/react/event-library/event-library-types";
-
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 export default function makeEventLibraryEntry(

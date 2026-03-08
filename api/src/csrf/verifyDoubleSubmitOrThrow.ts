@@ -4,9 +4,8 @@ import { getCookie } from "hono/cookie";
 import { AuthenticationError } from "@/api/api-errors";
 import { csrfTokenCookieName } from "@/shared/cookies";
 
-import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
-
 import { type Env } from "../env";
+import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
 
 /**
  * Verify double-submit CSRF tokens and throw AuthenticationError on mismatch.

@@ -2,7 +2,6 @@ import { type PostgrestSingleResponse, type SupabaseClient } from "@supabase/sup
 import { Effect } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type UserLibrary } from "@/shared/generated/supabaseSchemas";

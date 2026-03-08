@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { AuthState } from "./auth-slice.types";
-
 import makeAuthSlice from "./makeAuthSlice.test-util";
 
 describe("makeAuthSlice", () => {

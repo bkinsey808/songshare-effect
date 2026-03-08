@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Implementing sign-in/sign-out flows or auth-state driven UI behavior.
 - Editing token selection, caching, or Supabase auth client wiring in `react/src/lib/supabase/`.
 
 Execution workflow:
+
 1. Preserve dual-token behavior (visitor + user JWT) and token selection semantics.
 2. Reuse existing token/cache utilities before introducing new auth helpers.
 3. Verify auth edge cases (no user session, stale token, sign-out transitions).
 4. Validate with targeted tests first, then `npm run lint`.
 
 Output requirements:
+
 - State which auth paths were changed (visitor token, user token, selection/caching).
 - Note any behavior changes affecting RLS or realtime access.
 
@@ -86,16 +89,16 @@ Both tokens are issued against a single shared "visitor" Supabase auth account s
 ```typescript
 // react/src/lib/supabase/auth-token/getSupabaseAuthToken.ts (simplified)
 export default async function getSupabaseAuthToken(): Promise<string | undefined> {
-  // 1. Return cached user token if still valid
-  const userToken = getCachedUserToken();
-  if (userToken !== undefined) return userToken;
+	// 1. Return cached user token if still valid
+	const userToken = getCachedUserToken();
+	if (userToken !== undefined) return userToken;
 
-  // 2. Try to fetch fresh user token from API (deduplicated in-flight)
-  const fetchedUserToken = await fetchSupabaseUserTokenFromApi();
-  if (fetchedUserToken !== undefined) return fetchedUserToken;
+	// 2. Try to fetch fresh user token from API (deduplicated in-flight)
+	const fetchedUserToken = await fetchSupabaseUserTokenFromApi();
+	if (fetchedUserToken !== undefined) return fetchedUserToken;
 
-  // 3. Fall back to visitor (client) token
-  return getSupabaseClientToken();
+	// 3. Fall back to visitor (client) token
+	return getSupabaseClientToken();
 }
 ```
 
@@ -184,7 +187,7 @@ Use in-memory cache only — the token cache does this correctly.
 ```typescript
 // WRONG — useAppStore cannot be called outside a React component/hook
 export async function getToken() {
-  const isSignedIn = useAppStore((state) => state.isSignedIn); // ❌
+	const isSignedIn = useAppStore((state) => state.isSignedIn); // ❌
 }
 ```
 

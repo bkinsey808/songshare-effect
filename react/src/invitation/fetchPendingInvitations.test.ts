@@ -1,19 +1,19 @@
 import type { PostgrestResponse } from "@supabase/supabase-js";
-
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import type { AuthState } from "@/react/auth/slice/auth-slice.types";
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import { makeFakeClient } from "@/react/lib/supabase/client/test-util";
-
-import type { InvitationSlice } from "./slice/InvitationSlice.type";
+import forceCast from "@/react/lib/test-utils/forceCast";
 
 import asPostgrestResponse from "../lib/test-utils/asPostgrestResponse";
 import fetchPendingInvitations from "./fetchPendingInvitations";
 import mapCommunityInvitations from "./mapCommunityInvitations";
 import mapEventInvitations from "./mapEventInvitations";
+import type { InvitationSlice } from "./slice/InvitationSlice.type";
 import makeInvitationSlice from "./slice/makeInvitationSlice.test-util";
 
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
@@ -68,19 +68,21 @@ describe("fetchPendingInvitations", () => {
 		mockedGetClient.mockReturnValueOnce(undefined);
 
 		/**
-		 * Build a synthetic `InvitationSlice` for the "missing client" test.
+		 * Build a synthetic `InvitationSlice & AuthState` for the "missing client" test.
 		 * The returned object implements only the minimal API required by the
 		 * slice under test so the logic can be executed in isolation.
 		 *
-		 * @returns `InvitationSlice` test double
+		 * @returns test double satisfying InvitationSlice & AuthState
 		 */
-		function get(): InvitationSlice {
-			return makeInvitationSlice({
-				setPendingCommunityInvitations,
-				setPendingEventInvitations,
-				setInvitationLoading,
-				setInvitationError,
-			});
+		function get(): InvitationSlice & AuthState {
+			return forceCast<InvitationSlice & AuthState>(
+				makeInvitationSlice({
+					setPendingCommunityInvitations,
+					setPendingEventInvitations,
+					setInvitationLoading,
+					setInvitationError,
+				}),
+			);
 		}
 
 		await Effect.runPromise(fetchPendingInvitations(get));
@@ -118,19 +120,21 @@ describe("fetchPendingInvitations", () => {
 		]);
 
 		/**
-		 * Build a synthetic `InvitationSlice` used when a Supabase client is
+		 * Build a synthetic `InvitationSlice & AuthState` used when a Supabase client is
 		 * present. This test double supplies no-op implementations of the
 		 * slice callbacks so the mapping behavior can be asserted.
 		 *
-		 * @returns `InvitationSlice` test double
+		 * @returns test double satisfying InvitationSlice & AuthState
 		 */
-		function get(): InvitationSlice {
-			return makeInvitationSlice({
-				setPendingCommunityInvitations,
-				setPendingEventInvitations,
-				setInvitationLoading,
-				setInvitationError,
-			});
+		function get(): InvitationSlice & AuthState {
+			return forceCast<InvitationSlice & AuthState>(
+				makeInvitationSlice({
+					setPendingCommunityInvitations,
+					setPendingEventInvitations,
+					setInvitationLoading,
+					setInvitationError,
+				}),
+			);
 		}
 
 		await Effect.runPromise(fetchPendingInvitations(get));

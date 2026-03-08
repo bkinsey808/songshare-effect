@@ -30,14 +30,14 @@ import { test, expect } from "@playwright/test";
 import { authenticateTestUser } from "./utils/auth-helpers";
 
 test("authenticated user can access dashboard", async ({ page }) => {
-  // Set up mock authentication
-  await authenticateTestUser(page);
+	// Set up mock authentication
+	await authenticateTestUser(page);
 
-  // Navigate to protected route
-  await page.goto("https://localhost:5173/en/dashboard");
+	// Navigate to protected route
+	await page.goto("https://localhost:5173/en/dashboard");
 
-  // Make assertions
-  await expect(page.getByText(/welcome/i)).toBeVisible();
+	// Make assertions
+	await expect(page.getByText(/welcome/i)).toBeVisible();
 });
 ```
 
@@ -47,16 +47,16 @@ test("authenticated user can access dashboard", async ({ page }) => {
 import { authenticateTestUser, createTestUser } from "./utils/auth-helpers";
 
 test("user sees their own name", async ({ page }) => {
-  const customUser = createTestUser({
-    name: "Jane Doe",
-    email: "jane@example.com",
-    user_id: "custom-user-id"
-  });
+	const customUser = createTestUser({
+		name: "Jane Doe",
+		email: "jane@example.com",
+		user_id: "custom-user-id",
+	});
 
-  await authenticateTestUser(page, customUser);
-  await page.goto("https://localhost:5173/en/dashboard");
+	await authenticateTestUser(page, customUser);
+	await page.goto("https://localhost:5173/en/dashboard");
 
-  await expect(page.getByText(/jane doe/i)).toBeVisible();
+	await expect(page.getByText(/jane doe/i)).toBeVisible();
 });
 ```
 
@@ -66,12 +66,12 @@ test("user sees their own name", async ({ page }) => {
 import { mockSignedOutUser } from "./utils/auth-helpers";
 
 test("signed-out user redirected from dashboard", async ({ page }) => {
-  await mockSignedOutUser(page);
+	await mockSignedOutUser(page);
 
-  await page.goto("https://localhost:5173/en/dashboard");
+	await page.goto("https://localhost:5173/en/dashboard");
 
-  // Should redirect to home
-  expect(page.url()).toMatch(/\/en\/?$/);
+	// Should redirect to home
+	expect(page.url()).toMatch(/\/en\/?$/);
 });
 ```
 
@@ -81,26 +81,26 @@ To test multiple users, create separate browser contexts:
 
 ```typescript
 test("different users see their own data", async ({ browser }) => {
-  // User 1
-  const context1 = await browser.newContext();
-  const page1 = await context1.newPage();
-  const user1 = createTestUser({ name: "User One" });
-  await authenticateTestUser(page1, user1);
-  await page1.goto("https://localhost:5173/en/dashboard");
+	// User 1
+	const context1 = await browser.newContext();
+	const page1 = await context1.newPage();
+	const user1 = createTestUser({ name: "User One" });
+	await authenticateTestUser(page1, user1);
+	await page1.goto("https://localhost:5173/en/dashboard");
 
-  // User 2
-  const context2 = await browser.newContext();
-  const page2 = await context2.newPage();
-  const user2 = createTestUser({ name: "User Two" });
-  await authenticateTestUser(page2, user2);
-  await page2.goto("https://localhost:5173/en/dashboard");
+	// User 2
+	const context2 = await browser.newContext();
+	const page2 = await context2.newPage();
+	const user2 = createTestUser({ name: "User Two" });
+	await authenticateTestUser(page2, user2);
+	await page2.goto("https://localhost:5173/en/dashboard");
 
-  // Each user sees their own data
-  await expect(page1.getByText(/user one/i)).toBeVisible();
-  await expect(page2.getByText(/user two/i)).toBeVisible();
+	// Each user sees their own data
+	await expect(page1.getByText(/user one/i)).toBeVisible();
+	await expect(page2.getByText(/user two/i)).toBeVisible();
 
-  await context1.close();
-  await context2.close();
+	await context1.close();
+	await context2.close();
 });
 ```
 
@@ -151,9 +151,9 @@ Creates a test user object with custom properties.
 
 ```typescript
 const user = createTestUser({
-  name: "Admin User",
-  email: "admin@example.com",
-  user_id: "admin-123"
+	name: "Admin User",
+	email: "admin@example.com",
+	user_id: "admin-123",
 });
 ```
 
@@ -203,8 +203,8 @@ const page2 = await browser.newPage();
 ```typescript
 // ✅ Good - clear what's being tested
 const adminUser = createTestUser({
-  name: "Admin User",
-  email: "admin@test.com"
+	name: "Admin User",
+	email: "admin@test.com",
 });
 
 // ❌ Bad - unclear user identity
@@ -215,15 +215,15 @@ const user = createTestUser({ name: "User" });
 
 ```typescript
 test.describe("Dashboard Access", () => {
-  test("authenticated user can access", async ({ page }) => {
-    await authenticateTestUser(page);
-    // ... test authenticated behavior
-  });
+	test("authenticated user can access", async ({ page }) => {
+		await authenticateTestUser(page);
+		// ... test authenticated behavior
+	});
 
-  test("unauthenticated user redirected", async ({ page }) => {
-    await mockSignedOutUser(page);
-    // ... test redirect behavior
-  });
+	test("unauthenticated user redirected", async ({ page }) => {
+		await mockSignedOutUser(page);
+		// ... test redirect behavior
+	});
 });
 ```
 
@@ -276,15 +276,15 @@ You can create custom authentication helpers for special cases:
 
 ```typescript
 async function mockExpiredSession(page: Page): Promise<void> {
-  await page.route("**/api/me", async (route) => {
-    await route.fulfill({
-      status: 401,
-      headers: {
-        "Set-Cookie": "userSession=; Max-Age=0; Path=/",
-      },
-      body: JSON.stringify({ error: "Session expired" }),
-    });
-  });
+	await page.route("**/api/me", async (route) => {
+		await route.fulfill({
+			status: 401,
+			headers: {
+				"Set-Cookie": "userSession=; Max-Age=0; Path=/",
+			},
+			body: JSON.stringify({ error: "Session expired" }),
+		});
+	});
 }
 ```
 
@@ -292,23 +292,23 @@ async function mockExpiredSession(page: Page): Promise<void> {
 
 ```typescript
 async function authenticateIf(page: Page, shouldAuth: boolean): Promise<void> {
-  if (shouldAuth) {
-    await authenticateTestUser(page);
-  } else {
-    await mockSignedOutUser(page);
-  }
+	if (shouldAuth) {
+		await authenticateTestUser(page);
+	} else {
+		await mockSignedOutUser(page);
+	}
 }
 
 // Use in tests
-test.describe.each([
-  { authenticated: true },
-  { authenticated: false },
-])("Feature with auth=$authenticated", ({ authenticated }) => {
-  test("behaves correctly", async ({ page }) => {
-    await authenticateIf(page, authenticated);
-    // ... test behavior
-  });
-});
+test.describe.each([{ authenticated: true }, { authenticated: false }])(
+	"Feature with auth=$authenticated",
+	({ authenticated }) => {
+		test("behaves correctly", async ({ page }) => {
+			await authenticateIf(page, authenticated);
+			// ... test behavior
+		});
+	},
+);
 ```
 
 ## Related Documentation

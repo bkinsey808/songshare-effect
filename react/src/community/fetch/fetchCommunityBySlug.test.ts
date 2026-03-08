@@ -7,8 +7,8 @@ import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
+import type { CommunityEntry, CommunityUser } from "../community-types";
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
-
 import fetchCommunityBySlug from "./fetchCommunityBySlug";
 
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
@@ -25,42 +25,50 @@ describe("fetchCommunityBySlug", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token123");
 		vi.mocked(getSupabaseClient).mockReturnValue(forceCast({}));
 
-		const communityRow = {
+		const communityRow: CommunityEntry = {
 			community_id: "cid",
 			owner_id: "owner1",
 			name: "Name",
 			slug: "cslug",
 			description: "d",
 			is_public: true,
-			public_notes: undefined,
+			public_notes: "",
 			created_at: "2020",
 			updated_at: "2020",
 		};
 
+		const communityUsers: CommunityUser[] = [
+			{
+				user_id: "u1",
+				role: "member",
+				community_id: "cid",
+				status: "joined",
+				joined_at: "2020-01-01",
+			},
+		];
+
+		const emptyResponse = asPostgrestResponse({ data: [] });
 		mockedCallSelect
-			.mockResolvedValueOnce(asPostgrestResponse({ data: [communityRow] }))
+			.mockResolvedValueOnce(asPostgrestResponse<CommunityEntry>({ data: [communityRow] }))
+			.mockResolvedValueOnce(asPostgrestResponse<CommunityUser>({ data: communityUsers }))
 			.mockResolvedValueOnce(
-				asPostgrestResponse({
-					data: [
-						{
-							user_id: "u1",
-							role: "member",
-							community_id: "cid",
-							status: "joined",
-							joined_at: "2020-01-01",
-						},
-					],
+				asPostgrestResponse<{ user_id: string; username: string }>({
+					data: [{ user_id: "u1", username: "alice" }],
 				}),
 			)
-			.mockResolvedValueOnce(asPostgrestResponse({ data: [{ user_id: "u1", username: "alice" }] }))
 			.mockResolvedValueOnce(
-				asPostgrestResponse({
+				asPostgrestResponse<{ event_id: string; community_id: string; created_at: string }>({
 					data: [{ event_id: "e1", community_id: "cid", created_at: "2020-01-01" }],
 				}),
 			)
 			.mockResolvedValueOnce(
-				asPostgrestResponse({ data: [{ event_id: "e1", event_name: "E1", event_slug: "e1" }] }),
-			);
+				asPostgrestResponse<{ event_id: string; event_name: string; event_slug: string }>({
+					data: [{ event_id: "e1", event_name: "E1", event_slug: "e1" }],
+				}),
+			)
+			.mockResolvedValueOnce(emptyResponse) // community_song
+			.mockResolvedValueOnce(emptyResponse) // community_playlist
+			.mockResolvedValueOnce(emptyResponse); // community_share_request
 
 		const setCurrentCommunity = vi.fn();
 		const setMembers = vi.fn();
@@ -96,7 +104,7 @@ describe("fetchCommunityBySlug", () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue("token123");
 		vi.mocked(getSupabaseClient).mockReturnValue(forceCast({}));
-		mockedCallSelect.mockResolvedValueOnce(asPostgrestResponse({ data: [] }));
+		mockedCallSelect.mockResolvedValueOnce(asPostgrestResponse<CommunityEntry>({ data: [] }));
 
 		const setCurrentCommunity = vi.fn();
 		const setMembers = vi.fn();

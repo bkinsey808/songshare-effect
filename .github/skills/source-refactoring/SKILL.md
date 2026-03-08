@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Splitting large files into focused modules/components.
 - Moving logic into new files while preserving behavior and tests.
 
 Execution workflow:
+
 1. Extract one coherent symbol/group at a time with minimal behavior change.
 2. Keep exports/imports aligned with repo conventions and avoid barrel files.
 3. Update colocated tests or add targeted tests for extracted logic.
 4. Validate with targeted tests first, then `npm run lint`.
 
 Output requirements:
+
 - Summarize what was extracted/moved and where.
 - Note any import-path or export-shape changes.
 
@@ -38,7 +41,7 @@ If the new file only exports one main function or component, use `export default
  * @returns True if value is a record
  */
 export default function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 ```
 

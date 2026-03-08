@@ -10,9 +10,7 @@ import subscribeToCommunityPublic from "@/react/community/subscribe/subscribeToC
  *
  * @param communityId - current community id
  */
-export default function useCommunityViewSubscriptions(
-	communityId: string | undefined,
-): void {
+export default function useCommunityViewSubscriptions(communityId: string | undefined): void {
 	// Subscribe to realtime community_event changes for the active community.
 	useEffect(() => {
 		if (communityId === undefined) {

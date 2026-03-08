@@ -35,7 +35,6 @@ export default function useInvitationSubscription(): void {
 			};
 		}
 
-
 		void Effect.runPromise(fetchPendingInvitations());
 		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR stability
 		return;

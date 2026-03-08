@@ -83,33 +83,29 @@ export default function createShareRecord(
 
 					const shareId = shareData.share_id;
 
-					const { error: publicError } = await client
-						.from("share_public")
-						.insert([
-							{
-								share_id: shareId,
-								sender_user_id: senderUserId,
-								recipient_user_id: req.recipient_user_id,
-								shared_item_type: req.shared_item_type,
-								shared_item_id: req.shared_item_id,
-								shared_item_name: req.shared_item_name,
-								status: "pending",
-								message: req.message ?? "",
-							},
-						]);
+					const { error: publicError } = await client.from("share_public").insert([
+						{
+							share_id: shareId,
+							sender_user_id: senderUserId,
+							recipient_user_id: req.recipient_user_id,
+							shared_item_type: req.shared_item_type,
+							shared_item_id: req.shared_item_id,
+							shared_item_name: req.shared_item_name,
+							status: "pending",
+							message: req.message ?? "",
+						},
+					]);
 
 					if (publicError !== null) {
 						throw publicError;
 					}
 
-					const { error: libraryError } = await client
-						.from("share_library")
-						.insert([
-							{
-								user_id: req.recipient_user_id,
-								share_id: shareId,
-							},
-						]);
+					const { error: libraryError } = await client.from("share_library").insert([
+						{
+							user_id: req.recipient_user_id,
+							share_id: shareId,
+						},
+					]);
 
 					if (libraryError !== null) {
 						throw libraryError;

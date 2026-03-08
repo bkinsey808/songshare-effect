@@ -1,5 +1,4 @@
 import type { CommunityUser } from "@/react/community/community-types";
-
 import Button from "@/react/lib/design-system/Button";
 
 export type MemberRowProps = {

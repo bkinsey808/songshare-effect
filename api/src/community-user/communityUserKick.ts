@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 

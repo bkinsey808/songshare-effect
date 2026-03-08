@@ -1,15 +1,13 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
-
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { ShareSlice } from "../slice/ShareSlice.type";
-
 import handleShareSubscribeEvent from "./handleShareSubscribeEvent";
 import subscribeToReceivedShares from "./subscribeToReceivedShares";
 
@@ -46,9 +44,7 @@ describe("subscribeToReceivedShares", () => {
 
 		const eff = subscribeToReceivedShares(get, "");
 
-		await expect(Effect.runPromise(eff)).rejects.toThrow(
-			/No user ID available for subscription/,
-		);
+		await expect(Effect.runPromise(eff)).rejects.toThrow(/No user ID available for subscription/);
 	});
 
 	it("creates a subscription, wires events, and returns a cleanup that calls underlying cleanup", async () => {
@@ -59,8 +55,7 @@ describe("subscribeToReceivedShares", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 
 		const cleanupSpy = vi.fn();
-		let capturedOnEvent: ((payload: unknown) => Effect.Effect<void, Error>) | undefined =
-			undefined;
+		let capturedOnEvent: ((payload: unknown) => Effect.Effect<void, Error>) | undefined = undefined;
 
 		vi.mocked(createRealtimeSubscription).mockImplementation(
 			({ client, tableName, filter, onEvent }) => {

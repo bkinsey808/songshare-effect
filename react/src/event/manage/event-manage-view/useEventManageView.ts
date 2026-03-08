@@ -10,13 +10,12 @@ import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { apiEventSavePath, eventViewPath } from "@/shared/paths";
 
 import type { ActionState } from "../ActionState.type";
-import type { UseEventManageStateResult } from "./UseEventManageStateResult.type";
-
 import refreshEvent from "../refreshEvent";
 import runAction from "../runAction";
 import computeEventPermissions from "./computeEventPermissions";
 import useActiveEventSync from "./useActiveEventSync";
 import useEventCommunityManagement from "./useEventCommunityManagement";
+import type { UseEventManageStateResult } from "./UseEventManageStateResult.type";
 import useEventParticipantManagement from "./useEventParticipantManagement";
 import useEventPlaybackManagement from "./useEventPlaybackManagement";
 import usePlaylistLibraryManagement from "./usePlaylistLibraryManagement";

@@ -1,20 +1,20 @@
-import { useState, useTransition } from "react";
 import { Effect } from "effect";
+import { useState, useTransition } from "react";
+
+import { appStore } from "@/react/app-store/useAppStore";
+import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import Button from "@/react/lib/design-system/Button";
 import ShareIcon from "@/react/lib/design-system/icons/ShareIcon";
 import { NativePopover } from "@/react/lib/design-system/popover/NativePopover";
+import type { ShareCreateRequest, SharedItemType } from "@/react/share/slice/share-types";
 import UserSearchInput from "@/react/user-search-input/UserSearchInput";
-import useCurrentUserId from "@/react/auth/useCurrentUserId";
-import { appStore } from "@/react/app-store/useAppStore";
-
-import type { SharedItemType, ShareCreateRequest } from "@/react/share/slice/share-types";
 
 type ShareButtonProps = {
 	itemType: SharedItemType;
 	itemId: string;
 	itemName: string;
-	variant?: 'primary' | 'outlinePrimary';
-	size?: 'default' | 'compact';
+	variant?: "primary" | "outlinePrimary";
+	size?: "default" | "compact";
 	disabled?: boolean;
 	className?: string;
 	"data-testid"?: string;
@@ -49,28 +49,23 @@ export default function ShareButton({
 }: ShareButtonProps): ReactElement {
 	// Avoid store hook completely during render - get it only when needed
 	const currentUserId = useCurrentUserId();
-	
+
 	const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined);
 	const [isSharing, setIsSharing] = useState(false);
 	const [isPending, startTransition] = useTransition();
-	
+
 	// Get users who have already been shared with for this item
 	function getSharedUserIds(): string[] {
 		const state = appStore.getState();
 		const sentShares = state?.sentShares ?? {};
 		return Object.values(sentShares)
-			.filter(share => 
-				share.shared_item_type === itemType && 
-				share.shared_item_id === itemId
-			)
-			.map(share => share.recipient_user_id);
+			.filter((share) => share.shared_item_type === itemType && share.shared_item_id === itemId)
+			.map((share) => share.recipient_user_id);
 	}
-	
-	
+
 	// Create excludeUserIds array - exclude current user and already shared users
-	const baseExcludeIds = currentUserId !== undefined && currentUserId !== null 
-		? [currentUserId] 
-		: [];
+	const baseExcludeIds =
+		currentUserId !== undefined && currentUserId !== null ? [currentUserId] : [];
 	const sharedUserIds = getSharedUserIds();
 	const excludeUserIds = [...baseExcludeIds, ...sharedUserIds];
 
@@ -81,7 +76,6 @@ export default function ShareButton({
 			return;
 		}
 
-		
 		// Update state immediately for UI feedback
 		startTransition(() => {
 			setSelectedUserId(userId);
@@ -102,12 +96,12 @@ export default function ShareButton({
 			void (async (): Promise<void> => {
 				try {
 					const { createShare, fetchShares } = appStore.getState();
-					
+
 					await Effect.runPromise(createShare(shareRequest));
-					
+
 					// Refresh sent shares so SharedUsersSection shows the new share
-					await Effect.runPromise(fetchShares({ view: 'sent' }));
-					
+					await Effect.runPromise(fetchShares({ view: "sent" }));
+
 					startTransition(() => {
 						setIsSharing(false);
 						setSelectedUserId(undefined);
@@ -128,7 +122,7 @@ export default function ShareButton({
 				<p className="text-sm text-gray-300 mb-1">Share {itemType}:</p>
 				<p className="font-medium text-white text-sm truncate">{itemName}</p>
 			</div>
-			
+
 			<UserSearchInput
 				activeUserId={selectedUserId}
 				onSelect={handleUserSelect}
@@ -136,10 +130,8 @@ export default function ShareButton({
 				label="Share with user"
 				excludeUserIds={excludeUserIds}
 			/>
-			
-			{(isSharing || isPending) && (
-				<p className="text-sm text-blue-400 mt-2">Sharing...</p>
-			)}
+
+			{(isSharing || isPending) && <p className="text-sm text-blue-400 mt-2">Sharing...</p>}
 		</div>
 	);
 
@@ -149,6 +141,7 @@ export default function ShareButton({
 			preferredPlacement="bottom"
 			trigger="click"
 			allowOverflow
+			triggerContainer="div"
 		>
 			<Button
 				variant={variant}

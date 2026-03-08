@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import { Effect, Schema } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
@@ -45,16 +44,18 @@ export default function communityUserJoin(
 			ctx.env.SUPABASE_SERVICE_KEY,
 		);
 
+		console.warn(`[communityUserJoin] User ${userId} is joining community ${community_id}`);
+
 		// Check if user is already a member or has been kicked
 		const existingUser = yield* $(
 			Effect.tryPromise({
 				try: () =>
 					supabase
 						.from("community_user")
-						.select("status")
+						.select("status, role")
 						.eq("community_id", community_id)
 						.eq("user_id", userId)
-						.single(),
+						.maybeSingle(),
 				catch: (err) =>
 					new DatabaseError({
 						message: `Failed to check membership: ${extractErrorMessage(err, "Unknown error")}`,
@@ -62,6 +63,7 @@ export default function communityUserJoin(
 			}),
 		);
 
+		// Handle explicit kicked status (already checked maybeSingle, so if data is null row doesn't exist)
 		if (existingUser.data?.status === "kicked") {
 			return yield* $(
 				Effect.fail(
@@ -72,30 +74,36 @@ export default function communityUserJoin(
 			);
 		}
 
+		// If already joined, succeed early
 		if (existingUser.data?.status === "joined") {
 			return { success: true };
 		}
 
-		// Join community
+		// Join/Accept community: update row if it exists (e.g. invited), insert if new
+		const query = existingUser.data
+			? supabase
+					.from("community_user")
+					.update({
+						status: "joined",
+						joined_at: new Date().toISOString(),
+						// keep existing role
+						role: existingUser.data.role,
+					})
+					.eq("community_id", community_id)
+					.eq("user_id", userId)
+			: supabase.from("community_user").insert([
+					{
+						community_id,
+						user_id: userId,
+						role: "member",
+						status: "joined",
+						joined_at: new Date().toISOString(),
+					},
+				]);
+
 		const joinResult = yield* $(
 			Effect.tryPromise({
-				try: () => {
-					if (existingUser.data?.status === "invited" || existingUser.data?.status === "left") {
-						return supabase
-							.from("community_user")
-							.update({ status: "joined" })
-							.eq("community_id", community_id)
-							.eq("user_id", userId);
-					}
-					return supabase.from("community_user").insert([
-						{
-							community_id,
-							user_id: userId,
-							role: "member",
-							status: "joined",
-						},
-					]);
-				},
+				try: () => query,
 				catch: (err) =>
 					new DatabaseError({
 						message: `Failed to join community: ${extractErrorMessage(err, "Unknown error")}`,
@@ -104,6 +112,7 @@ export default function communityUserJoin(
 		);
 
 		if (joinResult.error) {
+			console.error("[communityUserJoin] Error:", joinResult.error);
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({

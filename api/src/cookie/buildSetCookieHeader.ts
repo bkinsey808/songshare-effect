@@ -1,6 +1,5 @@
-import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import buildSameSiteAttr from "@/api/cookie/buildSameSiteAttr";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
 import { getEnvString } from "@/shared/env/getEnv";
 

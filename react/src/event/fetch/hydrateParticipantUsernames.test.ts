@@ -1,15 +1,13 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
-
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { EventParticipant } from "../event-entry/EventEntry.type";
-
 import hydrateParticipantUsernames from "./hydrateParticipantUsernames";
 
 vi.mock("@/react/lib/supabase/client/safe-query/callSelect");

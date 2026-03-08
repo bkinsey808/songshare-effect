@@ -1,6 +1,5 @@
-import type { ChangeEvent, MouseEvent } from "react";
-
 import { fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
+import type { ChangeEvent, MouseEvent } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";

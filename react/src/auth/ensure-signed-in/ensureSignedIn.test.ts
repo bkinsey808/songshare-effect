@@ -1,7 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { UserSessionData } from "@/shared/userSessionData";
-
 import useAppStore from "@/react/app-store/useAppStore";
 import {
 	getCachedUserTokenSpy,
@@ -16,6 +14,7 @@ import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 // lint-disable comments. A custom rule (`no-disable-in-tests`) enforces the
 // separation.
 import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
+import type { UserSessionData } from "@/shared/userSessionData";
 
 import ensureSignedIn from "./ensureSignedIn";
 

@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Adding or modifying Zustand slices, selectors, or app-store composition.
 - Refactoring shared state behavior across features.
 
 Execution workflow:
+
 1. Follow existing slice factory and app-store composition patterns.
 2. Keep state changes localized to the appropriate feature slice.
 3. Preserve reset/hydration behavior and selector usage patterns.
 4. Validate with targeted store/slice tests, then `npm run lint`.
 
 Output requirements:
+
 - Summarize which slice/store modules changed and why.
 - Note any state-shape or persistence behavior changes.
 
@@ -45,7 +48,7 @@ react/src/auth/slice/
 ├── auth-slice.types.ts # AuthState + AuthSlice types
 └── createAuthSlice.ts # Slice factory
 
-````
+```
 
 ## Slice Pattern
 
@@ -58,8 +61,8 @@ import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 import type { FeatureSlice, FeatureState } from "./<Feature>Slice.type";
 
 const initialState: FeatureState = {
-  items: [],
-  isLoading: false,
+	items: [],
+	isLoading: false,
 };
 
 /**
@@ -71,27 +74,31 @@ const initialState: FeatureState = {
  * @returns The FeatureSlice implementation
  */
 export default function createFeatureSlice(
-  set: Set<FeatureSlice>,
-  get: Get<FeatureSlice>,
-  api: Api<FeatureSlice>,
+	set: Set<FeatureSlice>,
+	get: Get<FeatureSlice>,
+	api: Api<FeatureSlice>,
 ): FeatureSlice {
-  void get; // silence unused warning if not needed
-  void api;
+	void get; // silence unused warning if not needed
+	void api;
 
-  // Register reset function so the whole store can be reset
-  sliceResetFns.add(() => { set(initialState); });
+	// Register reset function so the whole store can be reset
+	sliceResetFns.add(() => {
+		set(initialState);
+	});
 
-  return {
-    ...initialState,
-    setItems: (items) => { set({ items }); },
-    fetchItems: async () => {
-      set({ isLoading: true });
-      // ... fetch logic
-      set({ items: result, isLoading: false });
-    },
-  };
+	return {
+		...initialState,
+		setItems: (items) => {
+			set({ items });
+		},
+		fetchItems: async () => {
+			set({ isLoading: true });
+			// ... fetch logic
+			set({ items: result, isLoading: false });
+		},
+	};
 }
-````
+```
 
 ## Slice Types
 
@@ -100,13 +107,13 @@ Keep state and actions separated:
 ```typescript
 // react/src/<feature>/slice/<Feature>Slice.type.ts
 export type FeatureState = {
-  items: readonly Item[];
-  isLoading: boolean;
+	items: readonly Item[];
+	isLoading: boolean;
 };
 
 export type FeatureSlice = FeatureState & {
-  setItems: (items: readonly Item[]) => void;
-  fetchItems: () => Promise<void>;
+	setItems: (items: readonly Item[]) => void;
+	fetchItems: () => Promise<void>;
 };
 ```
 
@@ -128,8 +135,8 @@ type AppSlice = AuthSlice & /* ... existing ... */ & FeatureSlice;
 import createFeatureSlice from "@/react/feature/slice/createFeatureSlice";
 
 const sliceFactories: readonly SliceFactory[] = [
-  // ...existing...
-  createFeatureSlice,
+	// ...existing...
+	createFeatureSlice,
 ];
 ```
 
@@ -141,9 +148,9 @@ Use `useAppStore` with a selector. The selector must be a stable function refere
 import useAppStore from "@/react/app-store/useAppStore";
 
 function MyComponent(): ReactElement {
-  const items = useAppStore((s) => s.items);
-  const isLoading = useAppStore((s) => s.isLoading);
-  // ...
+	const items = useAppStore((s) => s.items);
+	const isLoading = useAppStore((s) => s.isLoading);
+	// ...
 }
 ```
 
@@ -176,11 +183,13 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 vi.mock("@/react/app-store/useAppStore");
 
 vi.mocked(useAppStore).mockImplementation((selector) =>
-  selector(forceCast<AppSlice>({
-    items: [],
-    isLoading: false,
-    setItems: vi.fn(),
-  }))
+	selector(
+		forceCast<AppSlice>({
+			items: [],
+			isLoading: false,
+			setItems: vi.fn(),
+		}),
+	),
 );
 ```
 

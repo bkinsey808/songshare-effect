@@ -5,7 +5,6 @@ import makeEventSlice from "@/react/event/slice/makeEventSlice.test-util";
 import mockFetchResponse from "@/react/lib/test-utils/mockFetchResponse";
 
 import type { SaveEventRequest } from "../event-types";
-
 import saveEvent from "./saveEvent";
 
 const sampleRequest: Readonly<SaveEventRequest> = {

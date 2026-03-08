@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 
+import type { AuthState } from "@/react/auth/slice/auth-slice.types";
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
@@ -7,14 +8,13 @@ import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import isRecord from "@/shared/type-guards/isRecord";
 
+import mapCommunityInvitations from "./mapCommunityInvitations";
+import mapEventInvitations from "./mapEventInvitations";
 import type {
 	InvitationSlice,
 	PendingCommunityInvitation,
 	PendingEventInvitation,
 } from "./slice/InvitationSlice.type";
-
-import mapCommunityInvitations from "./mapCommunityInvitations";
-import mapEventInvitations from "./mapEventInvitations";
 
 /**
  * Fetches all pending community and event invitations for the currently
@@ -26,8 +26,8 @@ import mapEventInvitations from "./mapEventInvitations";
  * @param get - accessor for the invitation slice helpers
  * @returns Effect that completes when fetch is done
  */
-export default function fetchPendingInvitations(
-	get: () => InvitationSlice,
+export default function fetchPendingInvitations<TState extends InvitationSlice & AuthState>(
+	get: () => TState,
 ): Effect.Effect<void, Error> {
 	return Effect.gen(function* fetchPendingInvitationsGen($) {
 		const { setInvitationLoading, setInvitationError } = get();
@@ -51,13 +51,19 @@ export default function fetchPendingInvitations(
 			return;
 		}
 
+		const { userSessionData } = get();
+		const userId = userSessionData?.user.user_id;
+
 		// 1. Fetch pending community_user rows
 		const communityUserRes = yield* $(
 			Effect.tryPromise({
 				try: () =>
 					callSelect(client, "community_user", {
 						cols: "*",
-						eq: { col: "status", val: "invited" },
+						eq: [
+							{ col: "status", val: "invited" },
+							...(userId === undefined ? [] : [{ col: "user_id", val: userId }]),
+						],
 					}),
 				catch: (err) =>
 					new Error(
@@ -112,7 +118,10 @@ export default function fetchPendingInvitations(
 				try: () =>
 					callSelect(client, "event_user", {
 						cols: "*",
-						eq: { col: "status", val: "invited" },
+						eq: [
+							{ col: "status", val: "invited" },
+							...(userId === undefined ? [] : [{ col: "user_id", val: userId }]),
+						],
 					}),
 				catch: (err) =>
 					new Error(

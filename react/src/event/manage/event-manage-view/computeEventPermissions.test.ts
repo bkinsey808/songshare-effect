@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { EventEntry } from "@/react/event/event-types";
-
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import computeEventPermissions from "./computeEventPermissions";

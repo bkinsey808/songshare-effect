@@ -15,7 +15,6 @@ import { eventViewPath } from "@/shared/paths";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
 import type { EventFormValues, EventFormValuesFromSchema, SaveEventRequest } from "../event-types";
-
 import createHandleFormSubmit from "./createHandleFormSubmit";
 import eventFormSchema from "./eventFormSchema";
 import getDefaultEventFormValues from "./getDefaultEventFormValues";

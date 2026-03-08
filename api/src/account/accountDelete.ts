@@ -1,8 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
-import type { Database } from "@/shared/generated/supabaseTypes";
-
 import { AuthenticationError, DatabaseError } from "@/api/api-errors";
 import buildClearCookieHeader from "@/api/cookie/buildClearCookieHeader";
 import { userSessionCookieName } from "@/api/cookie/cookie";
@@ -10,6 +8,7 @@ import verifyDoubleSubmitOrThrow from "@/api/csrf/verifyDoubleSubmitOrThrow";
 import verifySameOriginOrThrow from "@/api/csrf/verifySameOriginOrThrow";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import { HTTP_FORBIDDEN } from "@/shared/constants/http";
+import type { Database } from "@/shared/generated/supabaseTypes";
 
 import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
 

@@ -3,10 +3,9 @@ import { describe, expect, it, vi } from "vitest";
 
 import { apiUserLibraryRemovePath } from "@/shared/paths";
 
+import makeUserLibrarySlice from "../slice/makeUserLibrarySlice.mock";
 import type { RemoveUserFromLibraryRequest } from "../slice/user-library-types";
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
-
-import makeUserLibrarySlice from "../slice/makeUserLibrarySlice.mock";
 import removeUserFromLibraryEffect from "./removeUserFromLibraryEffect";
 
 describe("removeUserFromLibraryEffect", () => {

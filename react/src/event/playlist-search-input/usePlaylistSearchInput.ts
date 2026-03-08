@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-import type { PlaylistLibraryEntry } from "@/react/playlist-library/slice/playlist-library-types";
-
 import useAppStore from "@/react/app-store/useAppStore";
+import type { PlaylistLibraryEntry } from "@/react/playlist-library/slice/playlist-library-types";
 
 const PLAYLISTS_NONE = 0;
 

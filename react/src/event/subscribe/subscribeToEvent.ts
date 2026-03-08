@@ -1,7 +1,6 @@
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
 import type { Get } from "@/react/app-store/app-store-types";
-
 import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import guardAsSupabaseRealtimeClientLike from "@/react/lib/supabase/client/guards/guardAsSupabaseRealtimeClientLike";
 import { type RealtimePayload } from "@/react/lib/supabase/subscription/subscription-types";
@@ -10,7 +9,6 @@ import isRecord from "@/shared/type-guards/isRecord";
 import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import type { EventParticipant } from "../event-entry/EventEntry.type";
-
 import { type EventEntry, type EventPublic, type EventUser } from "../event-types";
 import { isEventUser } from "../guards/guardEventTypes";
 import { type EventSlice } from "../slice/EventSlice.type";

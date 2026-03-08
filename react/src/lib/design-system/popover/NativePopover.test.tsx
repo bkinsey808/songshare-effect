@@ -8,7 +8,7 @@ describe("native popover", () => {
 		const { container } = render(
 			<NativePopover content={<div>Test content</div>} trigger="click">
 				<button>Trigger</button>
-			</NativePopover>
+			</NativePopover>,
 		);
 
 		const popover = container.querySelector('[popover="auto"]');
@@ -20,7 +20,7 @@ describe("native popover", () => {
 		const { container } = render(
 			<NativePopover content={<div>Test content</div>} trigger="click" allowOverflow>
 				<button>Trigger</button>
-			</NativePopover>
+			</NativePopover>,
 		);
 
 		const popover = container.querySelector('[popover="auto"]');
@@ -32,11 +32,23 @@ describe("native popover", () => {
 		const { container } = render(
 			<NativePopover content={<div>Test content</div>} trigger="click" allowOverflow={false}>
 				<button>Trigger</button>
-			</NativePopover>
+			</NativePopover>,
 		);
 
 		const popover = container.querySelector('[popover="auto"]');
 		expect(popover?.className).toContain("overflow-hidden");
 		expect(popover?.className).not.toContain("overflow-visible");
+	});
+
+	it("renders as a div when triggerContainer is 'div'", () => {
+		const { container } = render(
+			<NativePopover content={<div>Test content</div>} trigger="click" triggerContainer="div">
+				<button>Trigger</button>
+			</NativePopover>,
+		);
+
+		const trigger = container.querySelector('div[role="button"]');
+		expect(trigger).not.toBeNull();
+		expect(trigger?.tagName.toLowerCase()).toBe("div");
 	});
 });

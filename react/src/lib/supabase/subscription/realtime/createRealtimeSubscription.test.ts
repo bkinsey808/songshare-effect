@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from "vitest";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 
 import type { SubscriptionConfig } from "../subscription-types";
-
 import createRealtimeSubscription from "./createRealtimeSubscription";
 
 vi.mock("../status/handleSubscriptionStatus");

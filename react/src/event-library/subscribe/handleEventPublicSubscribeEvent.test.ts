@@ -5,7 +5,6 @@ import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isReal
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { EventLibraryEntry } from "../event-library-types";
-
 import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.test-util";
 import handleEventPublicSubscribeEvent from "./handleEventPublicSubscribeEvent";
 

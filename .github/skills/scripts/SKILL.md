@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Adding or editing files under `scripts/`.
 - Refactoring script logic into testable modules.
 
 Execution workflow:
+
 1. Keep `.bun.ts` entrypoints thin and move logic into pure modules.
 2. Follow script naming/layout conventions and colocate tests with helper modules.
 3. Prefer reusable helpers over duplicated CLI logic.
 4. Validate with targeted unit tests and `npm run lint` when script code changes are substantial.
 
 Output requirements:
+
 - Summarize script entrypoint vs helper-module changes.
 - Report any test coverage added or updated.
 
@@ -63,13 +66,15 @@ import path from "node:path";
 import { checkSkillFiles } from "./checkSkillFiles";
 
 async function main(): Promise<void> {
-  const repoRoot = path.resolve(import.meta.dir, "../..");
-  const result = await checkSkillFiles(repoRoot);
-  if (result.hasError) {
-    for (const msg of result.errors) { process.stderr.write(`${msg}\n`); }
-    process.exit(1);
-  }
-  process.stdout.write(`✓ Checked ${result.checkedCount} file(s).\n`);
+	const repoRoot = path.resolve(import.meta.dir, "../..");
+	const result = await checkSkillFiles(repoRoot);
+	if (result.hasError) {
+		for (const msg of result.errors) {
+			process.stderr.write(`${msg}\n`);
+		}
+		process.exit(1);
+	}
+	process.stdout.write(`✓ Checked ${result.checkedCount} file(s).\n`);
 }
 await main();
 ```

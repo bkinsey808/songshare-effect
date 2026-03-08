@@ -6,9 +6,8 @@ import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type { EventLibraryEntry } from "../event-library-types";
-import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";
-
 import isEventLibraryEntry from "../guards/isEventLibraryEntry";
+import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";
 
 /**
  * Fetches the current user's event library from Supabase

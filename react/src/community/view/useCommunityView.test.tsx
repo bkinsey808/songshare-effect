@@ -3,15 +3,13 @@ import { Effect } from "effect";
 import { useNavigate, useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
-import type { UserSessionData } from "@/shared/userSessionData";
-
 import useAppStore from "@/react/app-store/useAppStore";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import type { UserSessionData } from "@/shared/userSessionData";
 
 import type { CommunityEntry, CommunityUser } from "../community-types";
-
 import subscribeToCommunityEvent from "../subscribe/subscribeToCommunityEvent";
 import subscribeToCommunityPublic from "../subscribe/subscribeToCommunityPublic";
 import useCommunityView from "./useCommunityView";

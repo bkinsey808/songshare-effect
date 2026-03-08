@@ -1,11 +1,15 @@
-
 import type { Effect } from "effect";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
+import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
-import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
-
+// Import effects (will be created later)
+import createShareFn from "../create/createShareEffect";
+import fetchSharesFn from "../create/fetchSharesEffect";
+import updateShareStatusFn from "../effects/updateShareStatusEffect";
+import subscribeToReceivedSharesFn from "../subscribe/subscribeToReceivedShares";
+import subscribeToSentSharesFn from "../subscribe/subscribeToSentShares";
 import type {
 	ShareCreateRequest,
 	SharedItem,
@@ -15,13 +19,6 @@ import type {
 	ShareUpdateStatusRequest,
 } from "./share-types";
 import type { ShareSlice } from "./ShareSlice.type";
-
-// Import effects (will be created later)
-import createShareFn from "../create/createShareEffect";
-import fetchSharesFn from "../create/fetchSharesEffect";
-import updateShareStatusFn from "../effects/updateShareStatusEffect";
-import subscribeToReceivedSharesFn from "../subscribe/subscribeToReceivedShares";
-import subscribeToSentSharesFn from "../subscribe/subscribeToSentShares";
 
 const initialState: ShareState = {
 	receivedShares: {} as Record<string, SharedItem>,
@@ -59,15 +56,13 @@ export default function createShareSlice(
 		...initialState,
 
 		// Effect-based actions
-		createShare: (request: Readonly<ShareCreateRequest>) =>
-			createShareFn(request, get),
+		createShare: (request: Readonly<ShareCreateRequest>) => createShareFn(request, get),
 		updateShareStatus: (request: Readonly<ShareUpdateStatusRequest>) =>
 			updateShareStatusFn(request, get),
-		fetchShares: (request: Readonly<ShareListRequest>) =>
-			fetchSharesFn(request, get),
-		subscribeToReceivedShares: (currentUserId: string): Effect.Effect<() => void, Error> => 
+		fetchShares: (request: Readonly<ShareListRequest>) => fetchSharesFn(request, get),
+		subscribeToReceivedShares: (currentUserId: string): Effect.Effect<() => void, Error> =>
 			subscribeToReceivedSharesFn(get, currentUserId),
-		subscribeToSentShares: (currentUserId: string): Effect.Effect<() => void, Error> => 
+		subscribeToSentShares: (currentUserId: string): Effect.Effect<() => void, Error> =>
 			subscribeToSentSharesFn(get, currentUserId),
 
 		// Helper methods
@@ -89,11 +84,11 @@ export default function createShareSlice(
 		},
 		getReceivedSharesByStatus: (status: ShareStatus) => {
 			const { receivedShares } = get();
-			return Object.values(receivedShares).filter(share => share.status === status);
+			return Object.values(receivedShares).filter((share) => share.status === status);
 		},
 		getSentSharesByStatus: (status: ShareStatus) => {
 			const { sentShares } = get();
-			return Object.values(sentShares).filter(share => share.status === status);
+			return Object.values(sentShares).filter((share) => share.status === status);
 		},
 
 		// Optimistic update methods

@@ -17,8 +17,7 @@ vi.mock("@/react/app-store/useAppStore", () => ({
 	__esModule: true,
 	default: vi.fn(),
 	appStore: {
-		getState: (): Record<string, unknown> =>
-			mockGetStateReturn.current,
+		getState: (): Record<string, unknown> => mockGetStateReturn.current,
 	},
 	getTypedState: vi.fn(),
 }));
@@ -35,17 +34,14 @@ function installMocks(opts: {
 	sentShares?: Record<string, unknown>;
 }): void {
 	const signedIn = opts.signedIn !== false;
-	const userId =
-		opts.currentUserId === undefined ? CURRENT_USER_ID : opts.currentUserId;
+	const userId = opts.currentUserId === undefined ? CURRENT_USER_ID : opts.currentUserId;
 	vi.mocked(useCurrentUserId).mockReturnValue(
 		signedIn && typeof userId === "string" ? userId : undefined,
 	);
 
-	const fetchShares =
-		opts.fetchShares ?? vi.fn().mockReturnValue(Effect.succeed(undefined));
+	const fetchShares = opts.fetchShares ?? vi.fn().mockReturnValue(Effect.succeed(undefined));
 	const subscribeToSentShares =
-		opts.subscribeToSentShares ??
-		vi.fn().mockReturnValue(Effect.succeed(() => undefined));
+		opts.subscribeToSentShares ?? vi.fn().mockReturnValue(Effect.succeed(() => undefined));
 	const setSharesLoading = opts.setSharesLoading ?? vi.fn();
 	const sentShares = opts.sentShares ?? {};
 
@@ -70,9 +66,7 @@ function Harness(): ReactElement {
 	useShareSubscription();
 	const state = mockGetStateReturn.current;
 	const isSharesLoading = forceCast<boolean>(state["isSharesLoading"]);
-	const sentShares = forceCast<Record<string, unknown> | undefined>(
-		state["sentShares"],
-	);
+	const sentShares = forceCast<Record<string, unknown> | undefined>(state["sentShares"]);
 	const sentShareCount = Object.keys(sentShares ?? {}).length;
 
 	return (
@@ -101,9 +95,7 @@ describe("useShareSubscription — Harness", () => {
 describe("useShareSubscription — renderHook", () => {
 	it("skips fetch and subscribe when currentUserId is not a string", async () => {
 		const fetchShares = vi.fn().mockReturnValue(Effect.succeed(undefined));
-		const subscribeToSentShares = vi
-			.fn()
-			.mockReturnValue(Effect.succeed(() => undefined));
+		const subscribeToSentShares = vi.fn().mockReturnValue(Effect.succeed(() => undefined));
 		installMocks({
 			signedIn: false,
 			fetchShares,
@@ -136,9 +128,7 @@ describe("useShareSubscription — renderHook", () => {
 	});
 
 	it("calls subscribeToSentShares with currentUserId when fetch succeeds", async () => {
-		const subscribeToSentShares = vi
-			.fn()
-			.mockReturnValue(Effect.succeed(() => undefined));
+		const subscribeToSentShares = vi.fn().mockReturnValue(Effect.succeed(() => undefined));
 		installMocks({ subscribeToSentShares });
 
 		renderHook(() => {
@@ -153,9 +143,7 @@ describe("useShareSubscription — renderHook", () => {
 	it("calls setSharesLoading and sent cleanup on unmount", async () => {
 		const sentCleanup = vi.fn();
 		const setSharesLoading = vi.fn();
-		const subscribeToSentShares = vi
-			.fn()
-			.mockReturnValue(Effect.succeed(sentCleanup));
+		const subscribeToSentShares = vi.fn().mockReturnValue(Effect.succeed(sentCleanup));
 		installMocks({
 			subscribeToSentShares,
 			setSharesLoading,
@@ -177,9 +165,7 @@ describe("useShareSubscription — renderHook", () => {
 
 	it("calls setSharesLoading(false) on fetch error", async () => {
 		const setSharesLoading = vi.fn();
-		const fetchShares = vi
-			.fn()
-			.mockReturnValue(Effect.fail(new Error("fetch failed")));
+		const fetchShares = vi.fn().mockReturnValue(Effect.fail(new Error("fetch failed")));
 		installMocks({ fetchShares, setSharesLoading });
 
 		const consoleSpy = vi.spyOn(console, "error").mockImplementation(vi.fn());

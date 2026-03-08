@@ -192,17 +192,14 @@ npm run deploy:pages
 ```typescript
 // api/src/server.ts
 export default {
-  fetch: (request, env) => {
-    const response = handleRequest(request);
+	fetch: (request, env) => {
+		const response = handleRequest(request);
 
-    // Don't cache API responses
-    response.headers.set(
-      'Cache-Control',
-      'no-cache, no-store, must-revalidate'
-    );
+		// Don't cache API responses
+		response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
 
-    return response;
-  },
+		return response;
+	},
 };
 ```
 
@@ -478,13 +475,13 @@ Expected response:
 
 ```json
 {
-  "status": "ok",
-  "environment": "production",
-  "timestamp": "2024-01-15T12:00:00Z",
-  "checks": {
-    "database": "ok",
-    "supabase": "ok"
-  }
+	"status": "ok",
+	"environment": "production",
+	"timestamp": "2024-01-15T12:00:00Z",
+	"checks": {
+		"database": "ok",
+		"supabase": "ok"
+	}
 }
 ```
 
@@ -547,8 +544,8 @@ wrangler tail --env production | grep "client_ip=123.456"
 import * as Sentry from "@sentry/react";
 
 Sentry.init({
-  dsn: process.env.VITE_SENTRY_DSN,
-  environment: process.env.VITE_ENVIRONMENT,
+	dsn: process.env.VITE_SENTRY_DSN,
+	environment: process.env.VITE_ENVIRONMENT,
 });
 ```
 

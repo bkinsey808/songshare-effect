@@ -1,11 +1,9 @@
-import type { ChangeEvent, MouseEvent } from "react";
-
 import { fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
+import type { ChangeEvent, MouseEvent } from "react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { CommunityEntry } from "@/react/community/community-types";
-
 import useAppStore from "@/react/app-store/useAppStore";
+import type { CommunityEntry } from "@/react/community/community-types";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import useCommunitySearchInput from "./useCommunitySearchInput";

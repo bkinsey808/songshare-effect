@@ -1,15 +1,14 @@
 import { Effect } from "effect";
 
 import type { ServerError } from "@/api/api-errors";
-import type { Env } from "@/api/env";
-import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-import type { OauthState } from "@/shared/oauth/oauthState";
-import type { OauthUserData } from "@/shared/oauth/oauthUserData";
-
 import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import { registerCookieName } from "@/api/cookie/cookie";
+import type { Env } from "@/api/env";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { debug as serverDebug } from "@/api/logger";
 import buildRegisterJwt from "@/api/register/buildRegisterJwt";
+import type { OauthState } from "@/shared/oauth/oauthState";
+import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 import { registerPath } from "@/shared/paths";
 
 import computeCookieAttributes from "./computeCookieAttributes";

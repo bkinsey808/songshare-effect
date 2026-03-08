@@ -28,8 +28,7 @@ export default function useSharedUsersSection(
 	// Subscription is set up by the page (e.g. SongView via useShareSubscription)
 	// Get shares for this specific item - React Compiler will optimize this
 	const itemShares: SharedItem[] = Object.values(sentShares).filter(
-		(share) =>
-			share.shared_item_type === itemType && share.shared_item_id === itemId,
+		(share) => share.shared_item_type === itemType && share.shared_item_id === itemId,
 	);
 
 	return {

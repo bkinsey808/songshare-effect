@@ -1,14 +1,12 @@
 import type { TFunction } from "i18next";
-
 import { Link } from "react-router-dom";
 
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
+import useAppStore from "@/react/app-store/useAppStore";
 import Button from "@/react/lib/design-system/Button";
 import CreatePlaylistIcon from "@/react/lib/design-system/icons/CreatePlaylistIcon";
-import useAppStore from "@/react/app-store/useAppStore";
 import { ZERO } from "@/shared/constants/shared-constants";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import { dashboardPath, playlistEditPath, playlistViewPath } from "@/shared/paths";
 import formatAppDate from "@/shared/utils/formatAppDate";
 

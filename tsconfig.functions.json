@@ -6,5 +6,5 @@
 		"types": ["@cloudflare/workers-types", "node"],
 		"lib": ["ES2022", "WebWorker"]
 	},
-	"include": ["functions/**/*", "shared/**/*", "react/src/songDemo/types.ts"]
+	"include": ["functions/**/*", "shared/**/*"]
 }

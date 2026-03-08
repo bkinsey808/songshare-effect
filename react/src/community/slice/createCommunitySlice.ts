@@ -1,7 +1,6 @@
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
-
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import type {
 	CommunityEntry,
@@ -13,11 +12,10 @@ import type {
 	CommunityUser,
 	SaveCommunityRequest,
 } from "../community-types";
-import type { CommunitySlice } from "./CommunitySlice.type";
-
 import addEventToCommunityFn from "../event-manage/addEventToCommunity";
 import removeEventFromCommunityFn from "../event-manage/removeEventFromCommunity";
 import setActiveEventForCommunityFn from "../event-manage/setActiveEventForCommunity";
+import fetchCommunityByIdFn from "../fetch/fetchCommunityById";
 import fetchCommunityBySlugFn from "../fetch/fetchCommunityBySlug";
 import fetchCommunityLibraryFn from "../fetch/fetchCommunityLibrary";
 import saveCommunityFn from "../form/saveCommunity";
@@ -25,6 +23,7 @@ import joinCommunityFn from "../join/joinCommunity";
 import kickMemberFn from "../kick/kickMember";
 import leaveCommunityFn from "../leave/leaveCommunity";
 import addMemberFn from "../manage/addMember";
+import type { CommunitySlice } from "./CommunitySlice.type";
 
 /**
  * Core values for the community slice.  Exported API methods assume these
@@ -74,6 +73,8 @@ export default function createCommunitySlice(
 		fetchCommunityLibrary: () => fetchCommunityLibraryFn(get),
 		fetchCommunityBySlug: (slug: string, options?: { silent?: boolean }) =>
 			fetchCommunityBySlugFn(slug, get, options),
+		fetchCommunityById: (communityId: string, options?: { silent?: boolean }) =>
+			fetchCommunityByIdFn(communityId, get, options),
 		saveCommunity: (request: SaveCommunityRequest) => saveCommunityFn(request, get),
 		joinCommunity: (communityId: string, options?: { silent?: boolean }) =>
 			joinCommunityFn(communityId, get, options),

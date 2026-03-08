@@ -14,26 +14,29 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Fetching or mutating Supabase data from React hooks/components.
 - Refactoring Supabase access code in `react/` to align with repo client and safe-query patterns.
 
 Execution workflow:
+
 1. Choose the correct client (`getSupabaseClientWithAuth` by default).
 2. Use `SupabaseClientLike` in signatures and safe-query helpers for table operations.
 3. Handle `{ data, error }` consistently and avoid direct raw client creation in React code.
 4. Validate with targeted unit tests for changed fetch/mutation logic, then run `npm run lint`.
 
 Output requirements:
+
 - State which client/helper pattern was applied and where.
 - Note any auth or RLS-related behavior changes.
 
 ## The Three Clients
 
-| Function | Location | Auth | Use when |
-|---|---|---|---|
-| `getPublicSupabaseClient` | `react/src/lib/supabase/client/` | Anon key only | Truly public data, no RLS needed |
-| `getSupabaseClient(token)` | same | JWT in header | You already have the token string |
-| `getSupabaseClientWithAuth()` | same | Auto-fetch token | Fetching data in a hook/component |
+| Function                      | Location                         | Auth             | Use when                          |
+| ----------------------------- | -------------------------------- | ---------------- | --------------------------------- |
+| `getPublicSupabaseClient`     | `react/src/lib/supabase/client/` | Anon key only    | Truly public data, no RLS needed  |
+| `getSupabaseClient(token)`    | same                             | JWT in header    | You already have the token string |
+| `getSupabaseClientWithAuth()` | same                             | Auto-fetch token | Fetching data in a hook/component |
 
 **Default: always use `getSupabaseClientWithAuth()`** unless you have a specific reason for the others.
 
@@ -42,10 +45,10 @@ import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseCl
 
 const client = await getSupabaseClientWithAuth();
 if (!client) {
-  // Handle unavailable client (env vars missing, token fetch failed)
-  return;
+	// Handle unavailable client (env vars missing, token fetch failed)
+	return;
 }
-````
+```
 
 `getSupabaseClientWithAuth` automatically picks the right token (user JWT if signed in, visitor JWT if not) with 3-retry + exponential backoff.
 
@@ -71,18 +74,23 @@ import callUpdate from "@/react/lib/supabase/client/safe-query/callUpdate";
 
 // Select
 const response = await callSelect<SongRow, Database, "songs">(client, "songs", {
-  cols: "id, title, artist",
-  eq: { col: "community_id", val: communityId },
-  order: "title",
+	cols: "id, title, artist",
+	eq: { col: "community_id", val: communityId },
+	order: "title",
 });
 
 // Insert
 const response = await callInsert(client, "songs", { id, title, artist });
 
 // Update
-const response = await callUpdate(client, "songs", { title }, {
-  eq: { col: "id", val: songId },
-});
+const response = await callUpdate(
+	client,
+	"songs",
+	{ title },
+	{
+		eq: { col: "id", val: songId },
+	},
+);
 ```
 
 ### Handling the response
@@ -92,8 +100,8 @@ Supabase returns `{ data, error }`. Always check both:
 ```typescript
 const { data, error } = await callSelect<SongRow, Database, "songs">(client, "songs");
 if (error) {
-  // handle
-  return;
+	// handle
+	return;
 }
 // data is SongRow[] | null
 ```

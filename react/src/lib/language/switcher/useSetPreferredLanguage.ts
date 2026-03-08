@@ -1,8 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 
 import getPathWithoutLang from "../path/getPathWithoutLang";
 import setStoredLanguage from "../stored/setStoredLanguage";

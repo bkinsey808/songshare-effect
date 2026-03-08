@@ -1,6 +1,5 @@
-import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import buildSameSiteAttr from "@/api/cookie/buildSameSiteAttr";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { getEnvString } from "@/shared/env/getEnv";
 
 export type CookieAttrs = Readonly<{

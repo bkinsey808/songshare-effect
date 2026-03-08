@@ -11,10 +11,9 @@ import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
 import { safeGet } from "@/shared/utils/safe";
 
-import type { Slide, SongFormValues } from "../song-form-types";
-
 import computeSlideOrder from "../slides-editor/computeSlideOrder";
 import computeSlides from "../slides-editor/computeSlides";
+import type { Slide, SongFormValues } from "../song-form-types";
 import computeFieldsArray from "./computeFieldsArray";
 import setFieldValue from "./setFieldValue";
 

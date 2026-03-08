@@ -1,8 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { SongSubscribeSlice } from "../song-slice/song-slice";
-
 import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
+import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import addActivePrivateSongSlugs from "./addActivePrivateSongSlugs";
 
 function makeGetWithActiveSlug(): SongSubscribeSlice {

@@ -1,6 +1,6 @@
 ---
-description: 'Unit Test Agent: writes unit tests only; never modifies source or config.'
-tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
+description: "Unit Test Agent: writes unit tests only; never modifies source or config."
+tools: ["vscode", "execute", "read", "edit", "search", "web", "agent", "todo"]
 ---
 
 globs: \*_/_.test.{ts,tsx}
@@ -110,16 +110,16 @@ Example:
 
 ```ts
 function installStore(communities: CommunityEntry[]): void {
-  vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
-    if (String(selector).includes("communities")) return communities as unknown;
-    return undefined;
-  });
+	vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
+		if (String(selector).includes("communities")) return communities as unknown;
+		return undefined;
+	});
 }
 
 it("filters by query", async () => {
-  installStore(mockCommunities);
-  const { result } = renderHook(() => useMyHook({ onSelect: vi.fn() }));
-  // ...
+	installStore(mockCommunities);
+	const { result } = renderHook(() => useMyHook({ onSelect: vi.fn() }));
+	// ...
 });
 ```
 

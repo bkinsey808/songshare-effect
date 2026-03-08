@@ -1,6 +1,5 @@
-import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import normalizeOrigin from "@/api/cors/normalizeOrigin";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
 
 /**

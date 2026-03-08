@@ -3,7 +3,6 @@ import type {
 	MinimalMediaStream,
 	MinimalMediaStreamAudioSourceNode,
 } from "./audio-types";
-
 import getAudioContextCtor from "./getAudioContextCtor";
 
 /**

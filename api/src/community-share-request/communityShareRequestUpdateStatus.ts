@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import { Effect, type Schema } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
@@ -36,12 +35,16 @@ export default function communityShareRequestUpdateStatus(
 				i18nMessageKey: "COMMUNITY_SHARE_REQUEST_UPDATE_STATUS",
 			}).pipe(
 				Effect.mapError((errs) => {
-					const first = Array.isArray(errs) && errs.length > ZERO ? errs.find(() => true) : undefined;
+					const first =
+						Array.isArray(errs) && errs.length > ZERO ? errs.find(() => true) : undefined;
 					return new ValidationError({ message: first?.message ?? "Validation failed" });
 				}),
 			),
 		);
-		const supabase = createClient<Database>(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
+		const supabase = createClient<Database>(
+			ctx.env.VITE_SUPABASE_URL,
+			ctx.env.SUPABASE_SERVICE_KEY,
+		);
 		const requestResult = yield* $(
 			Effect.tryPromise({
 				try: () =>
@@ -50,14 +53,23 @@ export default function communityShareRequestUpdateStatus(
 						.select("community_id, shared_item_type, shared_item_id, status")
 						.eq("request_id", validated.request_id)
 						.single(),
-				catch: (err) => new DatabaseError({ message: extractErrorMessage(err, "Failed to load community share request") }),
+				catch: (err) =>
+					new DatabaseError({
+						message: extractErrorMessage(err, "Failed to load community share request"),
+					}),
 			}),
 		);
 		if (requestResult.error || requestResult.data === null) {
-			return yield* $(Effect.fail(new ValidationError({ message: "Community share request not found" })));
+			return yield* $(
+				Effect.fail(new ValidationError({ message: "Community share request not found" })),
+			);
 		}
 		if (requestResult.data.status !== "pending") {
-			return yield* $(Effect.fail(new ValidationError({ message: "Community share request has already been reviewed" })));
+			return yield* $(
+				Effect.fail(
+					new ValidationError({ message: "Community share request has already been reviewed" }),
+				),
+			);
 		}
 		const requesterRole = yield* $(
 			Effect.tryPromise({
@@ -68,11 +80,21 @@ export default function communityShareRequestUpdateStatus(
 						.eq("community_id", requestResult.data.community_id)
 						.eq("user_id", reviewerId)
 						.single(),
-				catch: (err) => new DatabaseError({ message: extractErrorMessage(err, "Failed to verify permissions") }),
+				catch: (err) =>
+					new DatabaseError({ message: extractErrorMessage(err, "Failed to verify permissions") }),
 			}),
 		);
-		if (requesterRole.error || !getCommunityRoleCapabilities(requesterRole.data?.role).canManageEvents) {
-			return yield* $(Effect.fail(new ValidationError({ message: "Only community owners and admins can review share requests" })));
+		if (
+			requesterRole.error ||
+			!getCommunityRoleCapabilities(requesterRole.data?.role).canManageEvents
+		) {
+			return yield* $(
+				Effect.fail(
+					new ValidationError({
+						message: "Only community owners and admins can review share requests",
+					}),
+				),
+			);
 		}
 		const updateResult = yield* $(
 			Effect.tryPromise({
@@ -85,11 +107,20 @@ export default function communityShareRequestUpdateStatus(
 							reviewed_at: new Date().toISOString(),
 						})
 						.eq("request_id", validated.request_id),
-				catch: (err) => new DatabaseError({ message: extractErrorMessage(err, "Failed to review community share request") }),
+				catch: (err) =>
+					new DatabaseError({
+						message: extractErrorMessage(err, "Failed to review community share request"),
+					}),
 			}),
 		);
 		if (updateResult.error) {
-			return yield* $(Effect.fail(new DatabaseError({ message: updateResult.error.message ?? "Failed to review community share request" })));
+			return yield* $(
+				Effect.fail(
+					new DatabaseError({
+						message: updateResult.error.message ?? "Failed to review community share request",
+					}),
+				),
+			);
 		}
 		if (validated.status === "accepted") {
 			if (requestResult.data.shared_item_type === "song") {
@@ -102,11 +133,20 @@ export default function communityShareRequestUpdateStatus(
 									song_id: requestResult.data.shared_item_id,
 								},
 							]),
-						catch: (err) => new DatabaseError({ message: extractErrorMessage(err, "Failed to add approved song to community") }),
+						catch: (err) =>
+							new DatabaseError({
+								message: extractErrorMessage(err, "Failed to add approved song to community"),
+							}),
 					}),
 				);
 				if (addSongResult.error) {
-					return yield* $(Effect.fail(new DatabaseError({ message: addSongResult.error.message ?? "Failed to add approved song to community" })));
+					return yield* $(
+						Effect.fail(
+							new DatabaseError({
+								message: addSongResult.error.message ?? "Failed to add approved song to community",
+							}),
+						),
+					);
 				}
 			}
 			if (requestResult.data.shared_item_type === "playlist") {
@@ -119,11 +159,21 @@ export default function communityShareRequestUpdateStatus(
 									playlist_id: requestResult.data.shared_item_id,
 								},
 							]),
-						catch: (err) => new DatabaseError({ message: extractErrorMessage(err, "Failed to add approved playlist to community") }),
+						catch: (err) =>
+							new DatabaseError({
+								message: extractErrorMessage(err, "Failed to add approved playlist to community"),
+							}),
 					}),
 				);
 				if (addPlaylistResult.error) {
-					return yield* $(Effect.fail(new DatabaseError({ message: addPlaylistResult.error.message ?? "Failed to add approved playlist to community" })));
+					return yield* $(
+						Effect.fail(
+							new DatabaseError({
+								message:
+									addPlaylistResult.error.message ?? "Failed to add approved playlist to community",
+							}),
+						),
+					);
 				}
 			}
 		}

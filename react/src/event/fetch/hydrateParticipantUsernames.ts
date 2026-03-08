@@ -1,12 +1,10 @@
 import { Effect } from "effect";
 
-import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
-
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type { EventParticipant } from "../event-entry/EventEntry.type";
-
 import { QueryError } from "../event-errors";
 
 const ARRAY_EMPTY = 0;

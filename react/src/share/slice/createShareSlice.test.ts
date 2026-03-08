@@ -7,21 +7,17 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
-
 import forceCast from "@/react/lib/test-utils/forceCast";
-
-import type { SharedItem, ShareState } from "./share-types";
-import type { ShareSlice } from "./ShareSlice.type";
 
 import createShareEffect from "../create/createShareEffect";
 import fetchSharesEffect from "../create/fetchSharesEffect";
 import updateShareStatusEffect from "../effects/updateShareStatusEffect";
 import subscribeToReceivedShares from "../subscribe/subscribeToReceivedShares";
 import subscribeToSentShares from "../subscribe/subscribeToSentShares";
-
 import createShareSlice from "./createShareSlice";
+import type { SharedItem, ShareState } from "./share-types";
+import type { ShareSlice } from "./ShareSlice.type";
 
 vi.mock("../create/createShareEffect");
 vi.mock("../create/fetchSharesEffect");
@@ -86,9 +82,10 @@ function makeMockStore(initialState: Partial<ShareState> = {}): {
 			| ((stateParam: ShareState & ShareSlice) => Partial<ShareState>),
 	): void {
 		if (typeof patchOrUpdater === "function") {
-			const next = (
-				patchOrUpdater as (st: ShareState & ShareSlice) => Partial<ShareState>
-			)({ ...sliceHolder.current, ...state });
+			const next = (patchOrUpdater as (st: ShareState & ShareSlice) => Partial<ShareState>)({
+				...sliceHolder.current,
+				...state,
+			});
 			Object.assign(state, next);
 		} else {
 			Object.assign(state, patchOrUpdater);
@@ -125,9 +122,7 @@ function installMocks(): void {
 	vi.mocked(createShareEffect).mockReturnValue(Effect.succeed({ shareId: "share-1" }));
 	vi.mocked(fetchSharesEffect).mockReturnValue(Effect.succeed(undefined));
 	vi.mocked(updateShareStatusEffect).mockReturnValue(Effect.succeed(undefined));
-	vi.mocked(subscribeToReceivedShares).mockReturnValue(
-		Effect.succeed(() => undefined),
-	);
+	vi.mocked(subscribeToReceivedShares).mockReturnValue(Effect.succeed(() => undefined));
 	vi.mocked(subscribeToSentShares).mockReturnValue(Effect.succeed(() => undefined));
 }
 
@@ -272,13 +267,9 @@ describe("createShareSlice", () => {
 		const { slice } = store;
 
 		expect(slice.getReceivedSharesByStatus("pending")).toHaveLength(PENDING_COUNT);
-		expect(slice.getReceivedSharesByStatus("pending")[FIRST_INDEX]).toStrictEqual(
-			pendingShare,
-		);
+		expect(slice.getReceivedSharesByStatus("pending")[FIRST_INDEX]).toStrictEqual(pendingShare);
 		expect(slice.getReceivedSharesByStatus("accepted")).toHaveLength(ACCEPTED_COUNT);
-		expect(slice.getReceivedSharesByStatus("accepted")[FIRST_INDEX]).toStrictEqual(
-			acceptedShare,
-		);
+		expect(slice.getReceivedSharesByStatus("accepted")[FIRST_INDEX]).toStrictEqual(acceptedShare);
 		expect(slice.getSentSharesByStatus("pending")).toHaveLength(PENDING_COUNT);
 	});
 
@@ -345,9 +336,7 @@ describe("createShareSlice", () => {
 		const store = makeMockStore();
 		const { slice } = store;
 
-		const unsubReceived = await Effect.runPromise(
-			slice.subscribeToReceivedShares("user-1"),
-		);
+		const unsubReceived = await Effect.runPromise(slice.subscribeToReceivedShares("user-1"));
 		expect(typeof unsubReceived).toBe("function");
 
 		const unsubSent = await Effect.runPromise(slice.subscribeToSentShares("user-1"));

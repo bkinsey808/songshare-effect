@@ -1,9 +1,8 @@
-import type { Song } from "@/shared/generated/supabaseSchemas";
-import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
-
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import type { Song } from "@/shared/generated/supabaseSchemas";
 import isRecord from "@/shared/type-guards/isRecord";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { safeGet } from "@/shared/utils/safe";
 
 import type { SongSubscribeSlice } from "../song-slice/song-slice";

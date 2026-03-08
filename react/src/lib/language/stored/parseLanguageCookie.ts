@@ -1,6 +1,5 @@
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
 import { preferredLanguageCookieName } from "@/shared/cookies";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 
 /**

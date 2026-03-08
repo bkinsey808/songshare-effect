@@ -1,7 +1,6 @@
 import { Effect } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import { error as serverError, log as serverLog } from "@/api/logger";
 import { getEnvString } from "@/shared/env/getEnv";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";

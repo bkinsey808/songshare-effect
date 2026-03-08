@@ -26,18 +26,18 @@ This project uses extremely strict TypeScript and ESLint configurations:
 ```typescript
 // Type guard for Supabase results
 function isSupabaseResult(value: unknown): value is { data: unknown; error: unknown } {
-  return typeof value === 'object' && value !== null && 'data' in value && 'error' in value;
+	return typeof value === "object" && value !== null && "data" in value && "error" in value;
 }
 
 // Usage pattern
 const result: unknown = await supabaseQuery;
 if (!isSupabaseResult(result)) {
-  throw new Error('Invalid Supabase result');
+	throw new Error("Invalid Supabase result");
 }
 
 const { data, error } = result;
 if (error !== null && error !== undefined) {
-  throw new Error(error instanceof Error ? error.message : 'Database query failed');
+	throw new Error(error instanceof Error ? error.message : "Database query failed");
 }
 ```
 
@@ -50,21 +50,21 @@ if (error !== null && error !== undefined) {
 ```typescript
 // Generic API response type guard
 function isApiResponse<T>(
-  value: unknown, 
-  dataValidator: (data: unknown) => data is T
+	value: unknown,
+	dataValidator: (data: unknown) => data is T,
 ): value is { data: T } {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'data' in value &&
-    dataValidator((value as { data: unknown }).data)
-  );
+	return (
+		typeof value === "object" &&
+		value !== null &&
+		"data" in value &&
+		dataValidator((value as { data: unknown }).data)
+	);
 }
 
 // Usage
 const jsonData: unknown = await res.json();
 if (!isApiResponse(jsonData, isUserArray)) {
-  throw new Error('Invalid API response format');
+	throw new Error("Invalid API response format");
 }
 const { data } = jsonData;
 ```
@@ -77,29 +77,29 @@ const { data } = jsonData;
 
 ```typescript
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function isValidItemType(value: unknown): value is 'song' | 'playlist' | 'event' {
-  return typeof value === 'string' && ['song', 'playlist', 'event'].includes(value);
+function isValidItemType(value: unknown): value is "song" | "playlist" | "event" {
+	return typeof value === "string" && ["song", "playlist", "event"].includes(value);
 }
 
 function extractCreateRequest(request: unknown): CreateRequest {
-  if (!isRecord(request)) {
-    throw new TypeError("Request must be an object");
-  }
+	if (!isRecord(request)) {
+		throw new TypeError("Request must be an object");
+	}
 
-  const { item_type, name } = request;
-  
-  if (typeof name !== 'string') {
-    throw new TypeError("name must be a string");
-  }
-  
-  if (!isValidItemType(item_type)) {
-    throw new TypeError("item_type must be one of: song, playlist, event");
-  }
+	const { item_type, name } = request;
 
-  return { item_type, name };
+	if (typeof name !== "string") {
+		throw new TypeError("name must be a string");
+	}
+
+	if (!isValidItemType(item_type)) {
+		throw new TypeError("item_type must be one of: song, playlist, event");
+	}
+
+	return { item_type, name };
 }
 ```
 
@@ -118,8 +118,8 @@ function MyComponent({ optionalProp }: { optionalProp?: string }) {
 // ✅ GOOD: conditional spread
 function MyComponent({ optionalProp }: { optionalProp?: string }) {
   return (
-    <ChildComponent 
-      {...(optionalProp !== undefined && { optionalProp })} 
+    <ChildComponent
+      {...(optionalProp !== undefined && { optionalProp })}
     />
   );
 }
@@ -134,13 +134,13 @@ function MyComponent({ optionalProp }: { optionalProp?: string }) {
 ```typescript
 // ❌ BAD: Dot notation on index signature
 function processObject(obj: Record<string, unknown>) {
-  return obj.someProperty; // Error!
+	return obj.someProperty; // Error!
 }
 
 // ✅ GOOD: Bracket notation with validation
 function processObject(obj: Record<string, unknown>) {
-  const value = obj['someProperty'];
-  return value !== null && value !== undefined ? value : 'default';
+	const value = obj["someProperty"];
+	return value !== null && value !== undefined ? value : "default";
 }
 ```
 
@@ -150,27 +150,27 @@ function processObject(obj: Record<string, unknown>) {
 
 ```typescript
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function isString(value: unknown): value is string {
-  return typeof value === 'string';
+	return typeof value === "string";
 }
 
 function isNumber(value: unknown): value is number {
-  return typeof value === 'number' && !Number.isNaN(value);
+	return typeof value === "number" && !Number.isNaN(value);
 }
 ```
 
 ### Enum/Union Type Guards
 
 ```typescript
-function isValidStatus(value: unknown): value is 'pending' | 'accepted' | 'rejected' {
-  return typeof value === 'string' && ['pending', 'accepted', 'rejected'].includes(value);
+function isValidStatus(value: unknown): value is "pending" | "accepted" | "rejected" {
+	return typeof value === "string" && ["pending", "accepted", "rejected"].includes(value);
 }
 
-function isValidRole(value: unknown): value is 'admin' | 'user' | 'guest' {
-  return typeof value === 'string' && ['admin', 'user', 'guest'].includes(value);
+function isValidRole(value: unknown): value is "admin" | "user" | "guest" {
+	return typeof value === "string" && ["admin", "user", "guest"].includes(value);
 }
 ```
 
@@ -178,15 +178,11 @@ function isValidRole(value: unknown): value is 'admin' | 'user' | 'guest' {
 
 ```typescript
 function hasId(obj: unknown): obj is { id: string } {
-  return isRecord(obj) && typeof obj['id'] === 'string';
+	return isRecord(obj) && typeof obj["id"] === "string";
 }
 
 function hasRequiredUserFields(obj: unknown): obj is { id: string; email: string } {
-  return (
-    isRecord(obj) &&
-    typeof obj['id'] === 'string' &&
-    typeof obj['email'] === 'string'
-  );
+	return isRecord(obj) && typeof obj["id"] === "string" && typeof obj["email"] === "string";
 }
 ```
 
@@ -196,10 +192,10 @@ function hasRequiredUserFields(obj: unknown): obj is { id: string; email: string
 
 ```typescript
 function handleDatabaseError(error: unknown): never {
-  if (error instanceof Error) {
-    throw new DatabaseError({ message: error.message });
-  }
-  throw new DatabaseError({ message: 'Unknown database error' });
+	if (error instanceof Error) {
+		throw new DatabaseError({ message: error.message });
+	}
+	throw new DatabaseError({ message: "Unknown database error" });
 }
 ```
 
@@ -207,10 +203,8 @@ function handleDatabaseError(error: unknown): never {
 
 ```typescript
 function handleApiError(error: unknown): never {
-  const message = error instanceof Error 
-    ? error.message 
-    : 'API request failed';
-  throw new Error(message);
+	const message = error instanceof Error ? error.message : "API request failed";
+	throw new Error(message);
 }
 ```
 
@@ -223,11 +217,11 @@ Move type guards and utility functions to module scope to avoid recreation:
 ```typescript
 // ✅ GOOD: Module-scoped functions
 function isValidUser(value: unknown): value is User {
-  return isRecord(value) && typeof value['id'] === 'string';
+	return isRecord(value) && typeof value["id"] === "string";
 }
 
 function processUsers(data: unknown[]) {
-  return data.filter(isValidUser); // Reuses same function reference
+	return data.filter(isValidUser); // Reuses same function reference
 }
 ```
 
@@ -243,7 +237,7 @@ function isValidComplexObject(obj: unknown): obj is ComplexObject {
     if (validationCache.has(obj)) {
       return validationCache.get(obj)!;
     }
-    
+
     const isValid = /* expensive validation */;
     validationCache.set(obj, isValid);
     return isValid;
@@ -256,16 +250,16 @@ function isValidComplexObject(obj: unknown): obj is ComplexObject {
 
 ```typescript
 // Test type guards thoroughly
-describe('isValidUser', () => {
-  it('accepts valid user objects', () => {
-    expect(isValidUser({ id: '123', name: 'John' })).toBe(true);
-  });
-  
-  it('rejects invalid objects', () => {
-    expect(isValidUser(null)).toBe(false);
-    expect(isValidUser({})).toBe(false);
-    expect(isValidUser({ id: 123 })).toBe(false); // wrong type
-  });
+describe("isValidUser", () => {
+	it("accepts valid user objects", () => {
+		expect(isValidUser({ id: "123", name: "John" })).toBe(true);
+	});
+
+	it("rejects invalid objects", () => {
+		expect(isValidUser(null)).toBe(false);
+		expect(isValidUser({})).toBe(false);
+		expect(isValidUser({ id: 123 })).toBe(false); // wrong type
+	});
 });
 ```
 
@@ -286,13 +280,13 @@ For complex objects with nested validation:
 
 ```typescript
 function isValidUserWithProfile(value: unknown): value is UserWithProfile {
-  return (
-    isRecord(value) &&
-    typeof value['id'] === 'string' &&
-    typeof value['email'] === 'string' &&
-    isRecord(value['profile']) &&
-    typeof value['profile']['name'] === 'string'
-  );
+	return (
+		isRecord(value) &&
+		typeof value["id"] === "string" &&
+		typeof value["email"] === "string" &&
+		isRecord(value["profile"]) &&
+		typeof value["profile"]["name"] === "string"
+	);
 }
 ```
 
@@ -301,18 +295,12 @@ function isValidUserWithProfile(value: unknown): value is UserWithProfile {
 For reusable validation patterns:
 
 ```typescript
-function hasProperty<K extends string>(
-  obj: unknown, 
-  key: K
-): obj is Record<K, unknown> {
-  return isRecord(obj) && key in obj;
+function hasProperty<K extends string>(obj: unknown, key: K): obj is Record<K, unknown> {
+	return isRecord(obj) && key in obj;
 }
 
-function isArrayOf<T>(
-  value: unknown, 
-  itemValidator: (item: unknown) => item is T
-): value is T[] {
-  return Array.isArray(value) && value.every(itemValidator);
+function isArrayOf<T>(value: unknown, itemValidator: (item: unknown) => item is T): value is T[] {
+	return Array.isArray(value) && value.every(itemValidator);
 }
 ```
 
@@ -325,13 +313,13 @@ import { Effect, Schema } from "effect";
 
 // Use Schema for validation instead of manual type guards
 const UserSchema = Schema.Struct({
-  id: Schema.String,
-  email: Schema.String,
-  name: Schema.optional(Schema.String)
+	id: Schema.String,
+	email: Schema.String,
+	name: Schema.optional(Schema.String),
 });
 
 function validateUser(data: unknown): Effect.Effect<User, ValidationError> {
-  return Schema.decodeUnknown(UserSchema)(data);
+	return Schema.decodeUnknown(UserSchema)(data);
 }
 ```
 

@@ -1,7 +1,6 @@
 import { Effect } from "effect";
 
 import type { FetchOpts } from "@/api/oauth/FetchOpts.type";
-
 import { codeQueryParam } from "@/shared/queryParams";
 import isRecord from "@/shared/type-guards/isRecord";
 

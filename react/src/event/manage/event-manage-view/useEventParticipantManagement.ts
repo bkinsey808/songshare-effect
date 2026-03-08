@@ -6,7 +6,6 @@ import postJson from "@/shared/fetch/postJson";
 import { apiEventUserAddPath, apiEventUserKickPath } from "@/shared/paths";
 
 import type { ActionState } from "../ActionState.type";
-
 import refreshEvent from "../refreshEvent";
 import runAction from "../runAction";
 

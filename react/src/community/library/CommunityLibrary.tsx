@@ -73,23 +73,23 @@ export default function CommunityLibrary(): ReactElement {
 				</Button>
 			</div>
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-			{communities.map((community) => (
-				<Link
-					key={community.community_id}
-					to={buildPathWithLang(`/${communityViewPath}/${community.slug}`, lang)}
-					className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-blue-500 transition-colors group"
-				>
-					<h3 className="text-xl font-semibold text-white group-hover:text-blue-400 transition-colors">
-						{community.name}
-					</h3>
-					{community.description !== null && community.description !== "" && (
-						<p className="text-gray-400 mt-2 line-clamp-2 text-sm">{community.description}</p>
-					)}
-					<div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-						<span>{community.is_public ? "Public" : "Private"}</span>
-					</div>
-				</Link>
-			))}
+				{communities.map((community) => (
+					<Link
+						key={community.community_id}
+						to={buildPathWithLang(`/${communityViewPath}/${community.slug}`, lang)}
+						className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-blue-500 transition-colors group"
+					>
+						<h3 className="text-xl font-semibold text-white group-hover:text-blue-400 transition-colors">
+							{community.name}
+						</h3>
+						{community.description !== null && community.description !== "" && (
+							<p className="text-gray-400 mt-2 line-clamp-2 text-sm">{community.description}</p>
+						)}
+						<div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+							<span>{community.is_public ? "Public" : "Private"}</span>
+						</div>
+					</Link>
+				))}
 			</div>
 		</div>
 	);

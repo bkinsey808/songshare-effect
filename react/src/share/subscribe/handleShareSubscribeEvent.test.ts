@@ -5,9 +5,8 @@ import type getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClien
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/react/lib/test-utils/makeNull.test-util";
 
-import type { ShareSlice } from "../slice/ShareSlice.type";
 import type { SharedItem } from "../slice/share-types";
-
+import type { ShareSlice } from "../slice/ShareSlice.type";
 import handleShareSubscribeEvent from "./handleShareSubscribeEvent";
 
 const ONCE = 1;
@@ -81,17 +80,13 @@ function makeContext(
 }
 
 describe("handleShareSubscribeEvent", () => {
-	const supabaseStub = forceCast<
-		NonNullable<ReturnType<typeof getSupabaseClient>>
-	>({});
+	const supabaseStub = forceCast<NonNullable<ReturnType<typeof getSupabaseClient>>>({});
 
 	it("returns without calling slice methods when payload is not a realtime payload", async () => {
 		const methods = makeSliceMethods();
 		const context = makeContext(methods, "received");
 
-		await Effect.runPromise(
-			handleShareSubscribeEvent({}, supabaseStub, context),
-		);
+		await Effect.runPromise(handleShareSubscribeEvent({}, supabaseStub, context));
 
 		expect(methods.addReceivedShare).not.toHaveBeenCalled();
 		expect(methods.addSentShare).not.toHaveBeenCalled();
@@ -106,9 +101,7 @@ describe("handleShareSubscribeEvent", () => {
 		const context = makeContext(methods, "received");
 		const payload = { eventType: "INSERT", new: validShareRecord };
 
-		await Effect.runPromise(
-			handleShareSubscribeEvent(payload, supabaseStub, context),
-		);
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
 
 		expect(methods.addReceivedShare).toHaveBeenCalledTimes(ONCE);
 		expect(methods.addReceivedShare).toHaveBeenCalledWith(
@@ -133,9 +126,7 @@ describe("handleShareSubscribeEvent", () => {
 		const context = makeContext(methods, "sent");
 		const payload = { eventType: "INSERT", new: validShareRecord };
 
-		await Effect.runPromise(
-			handleShareSubscribeEvent(payload, supabaseStub, context),
-		);
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
 
 		expect(methods.addSentShare).toHaveBeenCalledTimes(ONCE);
 		expect(methods.addSentShare).toHaveBeenCalledWith(
@@ -152,9 +143,7 @@ describe("handleShareSubscribeEvent", () => {
 		const context = makeContext(methods, "received");
 		const payload = { eventType: "UPDATE", new: validShareRecord };
 
-		await Effect.runPromise(
-			handleShareSubscribeEvent(payload, supabaseStub, context),
-		);
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
 
 		expect(methods.updateReceivedShare).toHaveBeenCalledTimes(ONCE);
 		expect(methods.updateReceivedShare).toHaveBeenCalledWith(
@@ -171,9 +160,7 @@ describe("handleShareSubscribeEvent", () => {
 		const context = makeContext(methods, "sent");
 		const payload = { eventType: "UPDATE", new: validShareRecord };
 
-		await Effect.runPromise(
-			handleShareSubscribeEvent(payload, supabaseStub, context),
-		);
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
 
 		expect(methods.updateSentShare).toHaveBeenCalledTimes(ONCE);
 		expect(methods.updateSentShare).toHaveBeenCalledWith(
@@ -192,9 +179,7 @@ describe("handleShareSubscribeEvent", () => {
 			old: { share_id: SHARE_ID },
 		};
 
-		await Effect.runPromise(
-			handleShareSubscribeEvent(payload, supabaseStub, context),
-		);
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
 
 		expect(methods.removeReceivedShare).toHaveBeenCalledTimes(ONCE);
 		expect(methods.removeReceivedShare).toHaveBeenCalledWith(SHARE_ID);
@@ -209,9 +194,7 @@ describe("handleShareSubscribeEvent", () => {
 			old: { share_id: SHARE_ID },
 		};
 
-		await Effect.runPromise(
-			handleShareSubscribeEvent(payload, supabaseStub, context),
-		);
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
 
 		expect(methods.removeSentShare).toHaveBeenCalledTimes(ONCE);
 		expect(methods.removeSentShare).toHaveBeenCalledWith(SHARE_ID);
@@ -223,9 +206,7 @@ describe("handleShareSubscribeEvent", () => {
 		const context = makeContext(methods, "received");
 		const payload = { eventType: "INSERT", new: undefined };
 
-		await Effect.runPromise(
-			handleShareSubscribeEvent(payload, supabaseStub, context),
-		);
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
 
 		expect(methods.addReceivedShare).not.toHaveBeenCalled();
 		expect(methods.updateReceivedShare).not.toHaveBeenCalled();
@@ -237,9 +218,7 @@ describe("handleShareSubscribeEvent", () => {
 		const invalidRecord = { ...validShareRecord, share_id: 123 };
 		const payload = { eventType: "INSERT", new: invalidRecord };
 
-		await Effect.runPromise(
-			handleShareSubscribeEvent(payload, supabaseStub, context),
-		);
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
 
 		expect(methods.addReceivedShare).not.toHaveBeenCalled();
 		expect(methods.updateReceivedShare).not.toHaveBeenCalled();
@@ -250,9 +229,7 @@ describe("handleShareSubscribeEvent", () => {
 		const context = makeContext(methods, "received");
 		const payload = { eventType: "DELETE", old: {} };
 
-		await Effect.runPromise(
-			handleShareSubscribeEvent(payload, supabaseStub, context),
-		);
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
 
 		expect(methods.removeReceivedShare).not.toHaveBeenCalled();
 		expect(methods.removeSentShare).not.toHaveBeenCalled();
@@ -267,9 +244,7 @@ describe("handleShareSubscribeEvent", () => {
 		};
 		const payload = { eventType: "INSERT", new: recordWithNullMessage };
 
-		await Effect.runPromise(
-			handleShareSubscribeEvent(payload, supabaseStub, context),
-		);
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
 
 		expect(methods.addReceivedShare).toHaveBeenCalledWith(
 			expect.objectContaining({ message: undefined }),

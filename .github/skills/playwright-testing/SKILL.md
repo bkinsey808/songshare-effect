@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Adding or updating Playwright specs under `e2e/`.
 - Debugging flaky end-to-end tests or stabilizing CI/browser behavior.
 
 Execution workflow:
+
 1. Use project helpers and stable role-based locators first.
 2. Mock network boundaries intentionally and keep waits deterministic.
 3. Run the narrowest spec while iterating, then broaden test coverage.
 4. Validate with `npm run test:e2e:dev` (or targeted Playwright command) before finalizing.
 
 Output requirements:
+
 - Report scenarios covered and any new mocks or helpers introduced.
 - Report exact Playwright command(s) run.
 

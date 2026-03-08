@@ -1,9 +1,8 @@
 import { Effect } from "effect";
 
-import type { FetchOpts } from "@/api/oauth/FetchOpts.type";
-
 import { ProviderError, ValidationError } from "@/api/api-errors";
 import exchangeCodeForToken from "@/api/oauth/exchangeCodeForToken";
+import type { FetchOpts } from "@/api/oauth/FetchOpts.type";
 import fetchUserInfo from "@/api/user/fetchUserInfo";
 import { type OauthUserData, OauthUserDataSchema } from "@/shared/oauth/oauthUserData";
 import isRecord from "@/shared/type-guards/isRecord";

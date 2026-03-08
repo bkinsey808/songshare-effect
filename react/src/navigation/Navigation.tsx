@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-
 import { useNavigate } from "react-router-dom";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import Button from "@/react/lib/design-system/Button";
 import MenuIcon from "@/react/lib/design-system/icons/MenuIcon";
 import SongLibraryIcon from "@/react/lib/design-system/icons/SongLibraryIcon";
@@ -9,7 +9,6 @@ import XIcon from "@/react/lib/design-system/icons/XIcon";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { aboutPath, dashboardPath, songLibraryPath } from "@/shared/paths";
 
-import useAppStore from "@/react/app-store/useAppStore";
 import useLocale from "../lib/language/locale/useLocale";
 import ActionsMenu from "./ActionsMenu";
 import useNavigation from "./useNavigation";

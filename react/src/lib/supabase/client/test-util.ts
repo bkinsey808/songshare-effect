@@ -1,5 +1,4 @@
 import type { createClient } from "@supabase/supabase-js";
-
 /* oxlint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion */
 import { vi } from "vitest";
 

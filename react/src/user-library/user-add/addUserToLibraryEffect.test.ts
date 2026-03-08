@@ -3,9 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import mockFetchResponse from "@/react/lib/test-utils/mockFetchResponse";
 
-import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
-
 import makeUserLibrarySlice from "../slice/makeUserLibrarySlice.mock";
+import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 import makeUserLibraryEntry from "../test-utils/makeUserLibraryEntry.mock";
 import addUserToLibraryEffect from "./addUserToLibraryEffect";
 

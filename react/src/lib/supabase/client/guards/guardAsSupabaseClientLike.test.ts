@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { SupabaseClientLike } from "../SupabaseClientLike";
-
 import guardAsSupabaseClientLike from "./guardAsSupabaseClientLike";
 
 /**

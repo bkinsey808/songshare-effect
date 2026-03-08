@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import { Effect, type Schema } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
@@ -34,12 +33,16 @@ export default function communitySongRemove(
 				i18nMessageKey: "COMMUNITY_SONG_REMOVE",
 			}).pipe(
 				Effect.mapError((errs) => {
-					const first = Array.isArray(errs) && errs.length > ZERO ? errs.find(() => true) : undefined;
+					const first =
+						Array.isArray(errs) && errs.length > ZERO ? errs.find(() => true) : undefined;
 					return new ValidationError({ message: first?.message ?? "Validation failed" });
 				}),
 			),
 		);
-		const supabase = createClient<Database>(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
+		const supabase = createClient<Database>(
+			ctx.env.VITE_SUPABASE_URL,
+			ctx.env.SUPABASE_SERVICE_KEY,
+		);
 		const requesterRole = yield* $(
 			Effect.tryPromise({
 				try: () =>
@@ -49,14 +52,21 @@ export default function communitySongRemove(
 						.eq("community_id", validated.community_id)
 						.eq("user_id", requesterId)
 						.single(),
-				catch: (err) => new DatabaseError({ message: extractErrorMessage(err, "Failed to verify permissions") }),
+				catch: (err) =>
+					new DatabaseError({ message: extractErrorMessage(err, "Failed to verify permissions") }),
 			}),
 		);
 		if (requesterRole.error) {
-			return yield* $(Effect.fail(new ValidationError({ message: "Community not found or not manageable" })));
+			return yield* $(
+				Effect.fail(new ValidationError({ message: "Community not found or not manageable" })),
+			);
 		}
 		if (!getCommunityRoleCapabilities(requesterRole.data?.role).canManageEvents) {
-			return yield* $(Effect.fail(new ValidationError({ message: "Only community owners and admins can remove songs" })));
+			return yield* $(
+				Effect.fail(
+					new ValidationError({ message: "Only community owners and admins can remove songs" }),
+				),
+			);
 		}
 		const deleteResult = yield* $(
 			Effect.tryPromise({
@@ -66,11 +76,20 @@ export default function communitySongRemove(
 						.delete()
 						.eq("community_id", validated.community_id)
 						.eq("song_id", validated.song_id),
-				catch: (err) => new DatabaseError({ message: extractErrorMessage(err, "Failed to remove song from community") }),
+				catch: (err) =>
+					new DatabaseError({
+						message: extractErrorMessage(err, "Failed to remove song from community"),
+					}),
 			}),
 		);
 		if (deleteResult.error) {
-			return yield* $(Effect.fail(new DatabaseError({ message: deleteResult.error.message ?? "Failed to remove song from community" })));
+			return yield* $(
+				Effect.fail(
+					new DatabaseError({
+						message: deleteResult.error.message ?? "Failed to remove song from community",
+					}),
+				),
+			);
 		}
 		return { success: true };
 	});

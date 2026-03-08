@@ -102,9 +102,7 @@ export default function DateTimePickerCalendar({
 			<div className="grid grid-cols-7 gap-0">
 				{days.map((day) => {
 					const dayKey =
-						day === undefined
-							? `empty-day-${String(emptyDayCellCount++)}`
-							: `day-${String(day)}`;
+						day === undefined ? `empty-day-${String(emptyDayCellCount++)}` : `day-${String(day)}`;
 					const isSelected =
 						day !== undefined &&
 						selectedDateObj !== undefined &&

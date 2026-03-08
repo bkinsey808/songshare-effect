@@ -4,9 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { apiSongLibraryRemovePath } from "@/shared/paths";
 
-import type { RemoveSongFromSongLibraryRequest } from "../song-library-types";
-
 import makeSongLibrarySlice from "../makeSongLibrarySlice.mock";
+import type { RemoveSongFromSongLibraryRequest } from "../song-library-types";
 import removeSongFromSongLibrary from "./removeSongFromLibrary";
 
 const SONG_ID = "song-123";
@@ -94,9 +93,11 @@ describe("removeSongFromSongLibrary", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal(
 			"fetch",
-			vi.fn().mockResolvedValue(
-				Response.json({ message: "Permission denied" }, { status: 403, statusText: "Forbidden" }),
-			),
+			vi
+				.fn()
+				.mockResolvedValue(
+					Response.json({ message: "Permission denied" }, { status: 403, statusText: "Forbidden" }),
+				),
 		);
 
 		const baseGet = makeSongLibrarySlice();
@@ -153,7 +154,11 @@ describe("removeSongFromSongLibrary", () => {
 		);
 
 		const baseGet = makeSongLibrarySlice();
-		const mockSlice = { ...baseGet(), isInSongLibrary: vi.fn(() => true), songLibraryError: "Previous error" };
+		const mockSlice = {
+			...baseGet(),
+			isInSongLibrary: vi.fn(() => true),
+			songLibraryError: "Previous error",
+		};
 		const get = vi.fn(() => mockSlice);
 
 		await Effect.runPromise(removeSongFromSongLibrary(VALID_REQUEST, get));

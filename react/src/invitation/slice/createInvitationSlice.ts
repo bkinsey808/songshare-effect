@@ -1,20 +1,19 @@
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
-
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
-
-import type {
-	InvitationSlice,
-	InvitationState,
-	PendingCommunityInvitation,
-	PendingEventInvitation,
-} from "./InvitationSlice.type";
+import type { AuthState } from "@/react/auth/slice/auth-slice.types";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import acceptCommunityInvitationFn from "../accept/acceptCommunityInvitation";
 import acceptEventInvitationFn from "../accept/acceptEventInvitation";
 import declineCommunityInvitationFn from "../decline/declineCommunityInvitation";
 import declineEventInvitationFn from "../decline/declineEventInvitation";
 import fetchPendingInvitationsFn from "../fetchPendingInvitations";
+import type {
+	InvitationSlice,
+	InvitationState,
+	PendingCommunityInvitation,
+	PendingEventInvitation,
+} from "./InvitationSlice.type";
 
 const invitationSliceInitialState: InvitationState = {
 	pendingCommunityInvitations: [],
@@ -30,13 +29,13 @@ const invitationSliceInitialState: InvitationState = {
  * Provides setters for realtime updates and async actions for accept/decline.
  *
  * @param set - store setter helper
- * @param get - store getter helper
+ * @param get - store getter helper (typed both for this slice and auth for session access)
  * @param api - unused API arg (required by slice interface)
  * @returns fully formed `InvitationSlice` object
  */
 export default function createInvitationSlice(
 	set: Set<InvitationSlice>,
-	get: Get<InvitationSlice>,
+	get: Get<InvitationSlice & AuthState>,
 	api: Api<InvitationSlice>,
 ): InvitationSlice {
 	void api;

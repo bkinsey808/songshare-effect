@@ -2,11 +2,10 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { EventEntry } from "@/react/event/event-types";
-
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
+import type { EventEntry } from "@/react/event/event-types";
 import fetchEventCommunitiesFn from "@/react/event/fetch/fetchEventCommunities";
 import subscribeToCommunityEventByEvent from "@/react/event/subscribe/subscribeToCommunityEventByEvent";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";

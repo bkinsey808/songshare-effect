@@ -1,6 +1,5 @@
-import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import buildSetCookieHeader from "@/api/cookie/buildSetCookieHeader";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
 type BuildSessionCookieParams = Readonly<{
 	ctx: ReadonlyContext;

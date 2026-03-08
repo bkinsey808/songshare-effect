@@ -18,6 +18,7 @@ export default function CommunityForm(): ReactElement {
 	const {
 		formValues,
 		isEditing,
+		isLoadingData,
 		isSaving,
 		error,
 		onNameChange,
@@ -32,6 +33,14 @@ export default function CommunityForm(): ReactElement {
 		formRef,
 		submitButtonLabel,
 	} = useCommunityForm();
+
+	if (isLoadingData) {
+		return (
+			<div className="mx-auto max-w-2xl px-4 py-6 text-gray-300">
+				{t("common.loading", "Loading...")}
+			</div>
+		);
+	}
 
 	return (
 		<div className="mx-auto max-w-2xl px-4 py-6">

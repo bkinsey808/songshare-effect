@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
-
 import type { SharedItem, ShareStatus } from "@/react/share/slice/share-types";
 
 type StatusFilter = "all" | ShareStatus;
@@ -47,9 +46,7 @@ export default function useSharedItemSection(): UseSharedItemSectionReturn {
 
 	function getFilteredShares(): SharedItem[] {
 		const shares =
-			activeTab === "received"
-				? Object.values(receivedShares)
-				: Object.values(sentShares);
+			activeTab === "received" ? Object.values(receivedShares) : Object.values(sentShares);
 
 		if (statusFilter === "all") {
 			return shares;
@@ -109,12 +106,8 @@ export default function useSharedItemSection(): UseSharedItemSectionReturn {
 			}
 
 			try {
-				receivedCleanup = await Effect.runPromise(
-					subscribeToReceivedShares(currentUserId),
-				);
-				sentCleanup = await Effect.runPromise(
-					subscribeToSentShares(currentUserId),
-				);
+				receivedCleanup = await Effect.runPromise(subscribeToReceivedShares(currentUserId));
+				sentCleanup = await Effect.runPromise(subscribeToSentShares(currentUserId));
 			} catch (error) {
 				console.error("Failed to set up share subscriptions:", error);
 			}

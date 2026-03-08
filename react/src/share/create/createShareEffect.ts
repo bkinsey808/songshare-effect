@@ -1,9 +1,8 @@
 import { Effect } from "effect";
 
 import type { Get } from "@/react/app-store/app-store-types";
-import type { ShareSlice } from "@/react/share/slice/ShareSlice.type";
 import type { ShareCreateRequest } from "@/react/share/slice/share-types";
-
+import type { ShareSlice } from "@/react/share/slice/ShareSlice.type";
 import postJsonWithResult from "@/shared/fetch/postJsonWithResult";
 import { apiShareCreatePath } from "@/shared/paths";
 
@@ -25,12 +24,7 @@ export default function createShareEffect(
 	get: Get<ShareSlice>,
 ): Effect.Effect<{ shareId: string }, Error> {
 	return Effect.gen(function* createShareGen($) {
-		const {
-			setSharesLoading,
-			setShareError,
-			setLoadingShareId,
-			addSentShare,
-		} = get();
+		const { setSharesLoading, setShareError, setLoadingShareId, addSentShare } = get();
 
 		// Set loading state
 		setSharesLoading(true);
@@ -39,8 +33,7 @@ export default function createShareEffect(
 		// Make API call
 		const { shareId } = yield* $(
 			Effect.tryPromise({
-				try: () =>
-					postJsonWithResult<{ shareId: string }>(apiShareCreatePath, request),
+				try: () => postJsonWithResult<{ shareId: string }>(apiShareCreatePath, request),
 				catch: (error) => new Error(`Failed to create share: ${String(error)}`),
 			}),
 		);

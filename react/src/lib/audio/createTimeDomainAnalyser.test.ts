@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { MinimalMediaStream, MinimalMediaStreamTrack } from "./audio-types";
-
 import createTimeDomainAnalyser from "./createTimeDomainAnalyser";
 
 class MediaStreamMock implements MinimalMediaStream {

@@ -75,10 +75,7 @@ function installStore(opts: {
  * - isSharesLoading for loading state
  */
 function Harness(): ReactElement {
-	const { currentUserId, itemShares, isSharesLoading } = useSharedUsersSection(
-		ITEM_TYPE,
-		ITEM_ID,
-	);
+	const { currentUserId, itemShares, isSharesLoading } = useSharedUsersSection(ITEM_TYPE, ITEM_ID);
 
 	return (
 		<div data-testid="harness-root">
@@ -109,9 +106,7 @@ describe("useSharedUsersSection — renderHook", () => {
 		vi.mocked(useCurrentUserId).mockReturnValue(CURRENT_USER_ID);
 		installStore({});
 
-		const { result } = renderHook(() =>
-			useSharedUsersSection(ITEM_TYPE, ITEM_ID),
-		);
+		const { result } = renderHook(() => useSharedUsersSection(ITEM_TYPE, ITEM_ID));
 
 		expect(result.current.currentUserId).toBe(CURRENT_USER_ID);
 	});
@@ -120,9 +115,7 @@ describe("useSharedUsersSection — renderHook", () => {
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 		installStore({});
 
-		const { result } = renderHook(() =>
-			useSharedUsersSection(ITEM_TYPE, ITEM_ID),
-		);
+		const { result } = renderHook(() => useSharedUsersSection(ITEM_TYPE, ITEM_ID));
 
 		expect(result.current.currentUserId).toBeUndefined();
 	});
@@ -131,9 +124,7 @@ describe("useSharedUsersSection — renderHook", () => {
 		vi.mocked(useCurrentUserId).mockReturnValue(CURRENT_USER_ID);
 		installStore({ isSharesLoading: true });
 
-		const { result } = renderHook(() =>
-			useSharedUsersSection(ITEM_TYPE, ITEM_ID),
-		);
+		const { result } = renderHook(() => useSharedUsersSection(ITEM_TYPE, ITEM_ID));
 
 		expect(result.current.isSharesLoading).toBe(true);
 	});
@@ -148,9 +139,7 @@ describe("useSharedUsersSection — renderHook", () => {
 			},
 		});
 
-		const { result } = renderHook(() =>
-			useSharedUsersSection(ITEM_TYPE, ITEM_ID),
-		);
+		const { result } = renderHook(() => useSharedUsersSection(ITEM_TYPE, ITEM_ID));
 
 		expect(result.current.itemShares).toHaveLength(ONE_MATCHING_SHARE);
 		expect(result.current.itemShares[FIRST_INDEX]).toStrictEqual(MATCHING_SHARE);
@@ -165,9 +154,7 @@ describe("useSharedUsersSection — renderHook", () => {
 			},
 		});
 
-		const { result } = renderHook(() =>
-			useSharedUsersSection(ITEM_TYPE, ITEM_ID),
-		);
+		const { result } = renderHook(() => useSharedUsersSection(ITEM_TYPE, ITEM_ID));
 
 		expect(result.current.itemShares).toStrictEqual([]);
 	});
@@ -182,9 +169,7 @@ describe("useSharedUsersSection — renderHook", () => {
 			},
 		});
 
-		const { result } = renderHook(() =>
-			useSharedUsersSection(ITEM_TYPE, ITEM_ID),
-		);
+		const { result } = renderHook(() => useSharedUsersSection(ITEM_TYPE, ITEM_ID));
 
 		expect(result.current.itemShares).toHaveLength(TWO_MATCHING_SHARES);
 	});

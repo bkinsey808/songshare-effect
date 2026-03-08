@@ -3,10 +3,9 @@
 import { Schema } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import { type ValidationError } from "../validate-types";
 import type validateFormType from "./validateForm";
 import type validateFormEffectType from "./validateFormEffect";
-
-import { type ValidationError } from "../validate-types";
 
 // helper type used by some tests
 type SimpleShape = { foo: string };

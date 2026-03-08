@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Realtime subscriptions connect but no events are delivered.
 - Investigating filter parsing errors or suspected RLS silent rejection.
 
 Execution workflow:
+
 1. Verify replication/publication and subscription filter validity.
 2. Validate RLS behavior directly with SQL/JWT simulation.
 3. Isolate whether failure is client filter, publication, or RLS policy logic.
 4. Confirm fix by reproducing the original realtime scenario.
 
 Output requirements:
+
 - Summarize root cause category (filter/publication/RLS) and fix applied.
 - Include exact SQL/debug checks performed.
 
@@ -79,17 +82,20 @@ Supabase cannot parse `filter: ""`. Either remove the key entirely or provide a 
 channel.on("postgres_changes", { event: "UPDATE", table: "user_public", filter: "" }, cb);
 
 // ✅ Omit filter (all rows) or provide valid expression
-channel.on("postgres_changes", { event: "UPDATE", table: "event_public",
-  filter: `event_id=eq.${eventId}` }, cb);
+channel.on(
+	"postgres_changes",
+	{ event: "UPDATE", table: "event_public", filter: `event_id=eq.${eventId}` },
+	cb,
+);
 ```
 
 ### Step 3 — Add error listener to channel
 
 ```typescript
 channel.on("system", { event: "error" }, (payload: unknown) => {
-  if (isRecord(payload) && payload["status"] !== "ok") {
-    console.error("Realtime error:", payload);
-  }
+	if (isRecord(payload) && payload["status"] !== "ok") {
+		console.error("Realtime error:", payload);
+	}
 });
 ```
 

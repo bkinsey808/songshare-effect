@@ -1,10 +1,9 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { UserSessionData } from "@/shared/userSessionData";
-
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import type { UserSessionData } from "@/shared/userSessionData";
 
 import getUserToken from "./getUserToken";
 

@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Building or editing admin/manage page mutations and feedback flows.
 - Working on realtime-backed updates for community/event management views.
 
 Execution workflow:
+
 1. Use local `actionState` mutation patterns; avoid store-level page-blanking loading flags.
 2. Keep realtime subscriptions as the primary update path with silent refresh fallback.
 3. Reuse shared action helpers (`runCommunityAction`/`runAction`) for mutation lifecycle.
 4. Validate mutation UX and error states with targeted tests/checks.
 
 Output requirements:
+
 - Summarize mutation-flow and realtime integration changes.
 - Note any user-visible loading/success/error behavior changes.
 
@@ -47,18 +50,18 @@ All mutations must go through a local `actionState` object via the `runCommunity
 ```typescript
 // ✅ GOOD: local action state — only a button/banner changes
 function onRemoveEventClick(eventId: string): void {
-  void runCommunityAction({
-    key: `remove-event:${eventId}`,
-    action: () => postJson(apiCommunityEventRemovePath, { community_id, event_id: eventId }),
-    successMessage: "Event removed successfully",
-    setActionState,
-    refreshFn: refreshCommunity,
-  });
+	void runCommunityAction({
+		key: `remove-event:${eventId}`,
+		action: () => postJson(apiCommunityEventRemovePath, { community_id, event_id: eventId }),
+		successMessage: "Event removed successfully",
+		setActionState,
+		refreshFn: refreshCommunity,
+	});
 }
 
 // ❌ BAD: store action that calls setCommunityLoading(true) — blanks the page
 function onSetActiveEventClick(eventId: string | undefined): void {
-  void Effect.runPromise(setActiveEventForCommunity(communityId, eventId));
+	void Effect.runPromise(setActiveEventForCommunity(communityId, eventId));
 }
 ```
 
@@ -77,8 +80,8 @@ After a mutation succeeds, the Supabase realtime subscription updates the UI. Th
 
 ```typescript
 async function refreshCommunity(): Promise<void> {
-  // silent: true prevents isCommunityLoading from going true
-  await Effect.runPromise(fetchCommunityBySlug(community_slug, { silent: true }));
+	// silent: true prevents isCommunityLoading from going true
+	await Effect.runPromise(fetchCommunityBySlug(community_slug, { silent: true }));
 }
 ```
 

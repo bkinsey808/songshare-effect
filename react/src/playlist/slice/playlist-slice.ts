@@ -1,18 +1,16 @@
 import type { Effect } from "effect";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
-
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
-
-import type { PlaylistError, PlaylistErrors } from "../playlist-errors";
-import type { PlaylistEntry, PlaylistSliceBase, SavePlaylistRequest } from "../playlist-types";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import fetchPlaylistFn from "../fetchPlaylist";
 import fetchPlaylistByIdFn from "../fetchPlaylistById";
 import createAddSongToLocalPlaylist from "../optimistic-ui/createAddSongToLocalPlaylist";
 import createRemoveSongFromLocalPlaylist from "../optimistic-ui/createRemoveSongFromLocalPlaylist";
 import createUpdateLocalSongOrder from "../optimistic-ui/createUpdateLocalSongOrder";
+import type { PlaylistError, PlaylistErrors } from "../playlist-errors";
+import type { PlaylistEntry, PlaylistSliceBase, SavePlaylistRequest } from "../playlist-types";
 import savePlaylistFn from "../savePlaylist";
 import playlistSliceInitialState from "./playlistSliceInitialState";
 

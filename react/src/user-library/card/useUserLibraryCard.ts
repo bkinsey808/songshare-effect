@@ -4,7 +4,6 @@ import { useState } from "react";
 import useAppStore from "@/react/app-store/useAppStore";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
-
 import runRemoveUserFromCardEffect from "../user-remove/runRemoveUserFromCardEffect";
 
 /**

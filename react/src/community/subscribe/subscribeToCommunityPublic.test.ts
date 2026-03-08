@@ -1,15 +1,13 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
-
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
-
 import handleCommunityPublicSubscribeEvent from "./handleCommunityPublicSubscribeEvent";
 import subscribeToCommunityPublic from "./subscribeToCommunityPublic";
 

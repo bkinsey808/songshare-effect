@@ -3,11 +3,6 @@ import { getCookie } from "hono/cookie";
 import { verify } from "hono/jwt";
 import { describe, expect, it, vi } from "vitest";
 
-import type { ReadonlySupabaseClient } from "@/api/supabase/ReadonlySupabaseClient.type";
-import type { UserSchema } from "@/shared/generated/supabaseSchemas";
-import type { OauthState } from "@/shared/oauth/oauthState";
-import type { OauthUserData } from "@/shared/oauth/oauthUserData";
-
 import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
@@ -15,9 +10,13 @@ import rateLimit from "@/api/oauth-callback-factory/rateLimit";
 import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
 import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
 import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
+import type { ReadonlySupabaseClient } from "@/api/supabase/ReadonlySupabaseClient.type";
 // helper for creating minimal fake Supabase clients in tests
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
+import type { UserSchema } from "@/shared/generated/supabaseSchemas";
+import type { OauthState } from "@/shared/oauth/oauthState";
+import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 
 import oauthCallbackFactory from "./oauthCallbackFactory";
 import { SEE_OTHER } from "./registrationRedirect";

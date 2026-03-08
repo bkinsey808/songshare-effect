@@ -8,20 +8,20 @@ Technical reference for JWT tokens, RLS policies, Supabase configuration, and Re
 
 ```json
 {
-  "iss": "https://your-project.supabase.co/auth/v1",
-  "sub": "visitor-user-uuid",
-  "aud": "authenticated",
-  "exp": 1707043200,
-  "iat": 1707039600,
-  "email": "visitor@yourdomain.com",
-  "phone": "",
-  "app_metadata": {
-    "provider": "email",
-    "visitor_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-  },
-  "user_metadata": {
-    "visitor_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-  }
+	"iss": "https://your-project.supabase.co/auth/v1",
+	"sub": "visitor-user-uuid",
+	"aud": "authenticated",
+	"exp": 1707043200,
+	"iat": 1707039600,
+	"email": "visitor@yourdomain.com",
+	"phone": "",
+	"app_metadata": {
+		"provider": "email",
+		"visitor_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+	},
+	"user_metadata": {
+		"visitor_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+	}
 }
 ```
 
@@ -29,25 +29,25 @@ Technical reference for JWT tokens, RLS policies, Supabase configuration, and Re
 
 ```json
 {
-  "iss": "https://your-project.supabase.co/auth/v1",
-  "sub": "visitor-user-uuid",
-  "aud": "authenticated",
-  "exp": 1707043200,
-  "iat": 1707039600,
-  "email": "visitor@yourdomain.com",
-  "app_metadata": {
-    "provider": "email",
-    "visitor_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "user": {
-      "user_id": "app-user-uuid-12345"
-    }
-  },
-  "user_metadata": {
-    "visitor_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "user": {
-      "user_id": "app-user-uuid-12345"
-    }
-  }
+	"iss": "https://your-project.supabase.co/auth/v1",
+	"sub": "visitor-user-uuid",
+	"aud": "authenticated",
+	"exp": 1707043200,
+	"iat": 1707039600,
+	"email": "visitor@yourdomain.com",
+	"app_metadata": {
+		"provider": "email",
+		"visitor_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+		"user": {
+			"user_id": "app-user-uuid-12345"
+		}
+	},
+	"user_metadata": {
+		"visitor_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+		"user": {
+			"user_id": "app-user-uuid-12345"
+		}
+	}
 }
 ```
 
@@ -63,14 +63,14 @@ Technical reference for JWT tokens, RLS policies, Supabase configuration, and Re
  * @returns - Parsed JWT payload object with all claims
  */
 function decodeJWT(token: string): Record<string, unknown> {
-  const parts = token.split(".");
-  if (parts.length !== 3) throw new Error("Invalid JWT format");
+	const parts = token.split(".");
+	if (parts.length !== 3) throw new Error("Invalid JWT format");
 
-  const payload = parts[1];
-  // Add padding if needed
-  const padded = payload + "=".repeat(4 - (payload.length % 4));
+	const payload = parts[1];
+	// Add padding if needed
+	const padded = payload + "=".repeat(4 - (payload.length % 4));
 
-  return JSON.parse(atob(padded));
+	return JSON.parse(atob(padded));
 }
 
 // Usage
@@ -167,35 +167,35 @@ import { createClient } from "@supabase/supabase-js";
  * @returns - JWT access token with visitor metadata
  */
 export async function getSupabaseClientToken(): Promise<string> {
-  const client = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+	const client = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-  // Sign in as visitor
-  const { data, error } = await client.auth.signInWithPassword({
-    email: SUPABASE_VISITOR_EMAIL,
-    password: SUPABASE_VISITOR_PASSWORD,
-  });
+	// Sign in as visitor
+	const { data, error } = await client.auth.signInWithPassword({
+		email: SUPABASE_VISITOR_EMAIL,
+		password: SUPABASE_VISITOR_PASSWORD,
+	});
 
-  if (error) throw new Error(`Visitor auth failed: ${error.message}`);
+	if (error) throw new Error(`Visitor auth failed: ${error.message}`);
 
-  // Check and ensure visitor_id in metadata
-  if (!data.user.user_metadata?.visitor_id) {
-    const newVisitorId = crypto.randomUUID();
+	// Check and ensure visitor_id in metadata
+	if (!data.user.user_metadata?.visitor_id) {
+		const newVisitorId = crypto.randomUUID();
 
-    await client.auth.updateUser({
-      data: { visitor_id: newVisitorId },
-    });
+		await client.auth.updateUser({
+			data: { visitor_id: newVisitorId },
+		});
 
-    // Re-sign to get fresh JWT with updated metadata
-    const { data: fresh, error: signError } = await client.auth.signInWithPassword({
-      email: SUPABASE_VISITOR_EMAIL,
-      password: SUPABASE_VISITOR_PASSWORD,
-    });
+		// Re-sign to get fresh JWT with updated metadata
+		const { data: fresh, error: signError } = await client.auth.signInWithPassword({
+			email: SUPABASE_VISITOR_EMAIL,
+			password: SUPABASE_VISITOR_PASSWORD,
+		});
 
-    if (signError) throw signError;
-    return fresh.session.access_token;
-  }
+		if (signError) throw signError;
+		return fresh.session.access_token;
+	}
 
-  return data.session.access_token;
+	return data.session.access_token;
 }
 ```
 
@@ -210,37 +210,37 @@ export async function getSupabaseClientToken(): Promise<string> {
  * @returns - JWT access token with user context in app_metadata
  */
 export async function getUserToken(userId: string): Promise<string> {
-  const client = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+	const client = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-  // Sign in as visitor first
-  let { data, error } = await client.auth.signInWithPassword({
-    email: SUPABASE_VISITOR_EMAIL,
-    password: SUPABASE_VISITOR_PASSWORD,
-  });
+	// Sign in as visitor first
+	let { data, error } = await client.auth.signInWithPassword({
+		email: SUPABASE_VISITOR_EMAIL,
+		password: SUPABASE_VISITOR_PASSWORD,
+	});
 
-  if (error) throw new Error(`Visitor auth failed: ${error.message}`);
+	if (error) throw new Error(`Visitor auth failed: ${error.message}`);
 
-  // Get existing visitor_id or create new one
-  const visitorId = data.user.user_metadata?.visitor_id || crypto.randomUUID();
+	// Get existing visitor_id or create new one
+	const visitorId = data.user.user_metadata?.visitor_id || crypto.randomUUID();
 
-  // Update metadata with user context
-  const { error: updateError } = await client.auth.updateUser({
-    data: {
-      visitor_id: visitorId,
-      user: { user_id: userId },
-    },
-  });
+	// Update metadata with user context
+	const { error: updateError } = await client.auth.updateUser({
+		data: {
+			visitor_id: visitorId,
+			user: { user_id: userId },
+		},
+	});
 
-  if (updateError) throw new Error(`Metadata update failed: ${updateError.message}`);
+	if (updateError) throw new Error(`Metadata update failed: ${updateError.message}`);
 
-  // Re-sign to get fresh JWT with both visitor_id and user context
-  const { data: fresh, error: signError } = await client.auth.signInWithPassword({
-    email: SUPABASE_VISITOR_EMAIL,
-    password: SUPABASE_VISITOR_PASSWORD,
-  });
+	// Re-sign to get fresh JWT with both visitor_id and user context
+	const { data: fresh, error: signError } = await client.auth.signInWithPassword({
+		email: SUPABASE_VISITOR_EMAIL,
+		password: SUPABASE_VISITOR_PASSWORD,
+	});
 
-  if (signError) throw signError;
-  return fresh.session.access_token;
+	if (signError) throw signError;
+	return fresh.session.access_token;
 }
 ```
 
@@ -258,28 +258,28 @@ import useAppStore from "@/react/app/useAppStore";
  * @returns - JWT access token for current auth context (user or visitor), or undefined on error
  */
 export async function getSupabaseAuthToken(): Promise<string | undefined> {
-  const isSignedIn = useAppStore((state) => state.auth.isSignedIn);
+	const isSignedIn = useAppStore((state) => state.auth.isSignedIn);
 
-  try {
-    if (isSignedIn) {
-      // Fetch user token
-      const response = await fetch("/api/auth/user/token");
-      if (!response.ok) throw new Error("Failed to fetch user token");
+	try {
+		if (isSignedIn) {
+			// Fetch user token
+			const response = await fetch("/api/auth/user/token");
+			if (!response.ok) throw new Error("Failed to fetch user token");
 
-      const { access_token } = await response.json();
-      return access_token;
-    } else {
-      // Fetch visitor token
-      const response = await fetch("/api/auth/visitor");
-      if (!response.ok) throw new Error("Failed to fetch visitor token");
+			const { access_token } = await response.json();
+			return access_token;
+		} else {
+			// Fetch visitor token
+			const response = await fetch("/api/auth/visitor");
+			if (!response.ok) throw new Error("Failed to fetch visitor token");
 
-      const { access_token } = await response.json();
-      return access_token;
-    }
-  } catch (error) {
-    console.error("[getSupabaseAuthToken] Error:", error);
-    return undefined;
-  }
+			const { access_token } = await response.json();
+			return access_token;
+		}
+	} catch (error) {
+		console.error("[getSupabaseAuthToken] Error:", error);
+		return undefined;
+	}
 }
 ```
 
@@ -296,24 +296,24 @@ let tokenExpiresAt: number = 0;
  * @returns - Valid JWT access token, refreshing if expired
  */
 export async function getCachedToken(): Promise<string> {
-  const now = Date.now() / 1000; // Current time in seconds
+	const now = Date.now() / 1000; // Current time in seconds
 
-  // Return cached token if still valid (refresh 5 minutes before expiry)
-  if (cachedToken && tokenExpiresAt > now + 300) {
-    return cachedToken;
-  }
+	// Return cached token if still valid (refresh 5 minutes before expiry)
+	if (cachedToken && tokenExpiresAt > now + 300) {
+		return cachedToken;
+	}
 
-  // Fetch fresh token
-  const token = await getSupabaseAuthToken();
-  if (!token) throw new Error("Failed to get authentication token");
+	// Fetch fresh token
+	const token = await getSupabaseAuthToken();
+	if (!token) throw new Error("Failed to get authentication token");
 
-  // Decode expiry time from token
-  const payload = JSON.parse(atob(token.split(".")[1]));
+	// Decode expiry time from token
+	const payload = JSON.parse(atob(token.split(".")[1]));
 
-  cachedToken = token;
-  tokenExpiresAt = payload.exp;
+	cachedToken = token;
+	tokenExpiresAt = payload.exp;
 
-  return token;
+	return token;
 }
 ```
 
@@ -331,19 +331,19 @@ import { createClient } from "@supabase/supabase-js";
  * @returns - Configured Supabase client with auth token, or undefined if no token available
  */
 export async function getSupabaseClientWithAuth() {
-  const token = await getCachedToken();
+	const token = await getCachedToken();
 
-  if (!token) {
-    console.warn("[getSupabaseClientWithAuth] No token available");
-    return undefined;
-  }
+	if (!token) {
+		console.warn("[getSupabaseClientWithAuth] No token available");
+		return undefined;
+	}
 
-  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+	const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Set the token for all future requests
-  client.realtime.setAuth(token);
+	// Set the token for all future requests
+	client.realtime.setAuth(token);
 
-  return client;
+	return client;
 }
 ```
 
@@ -355,29 +355,29 @@ export async function getSupabaseClientWithAuth() {
 const client = await getSupabaseClientWithAuth();
 
 const channel = client
-  .channel("song_library_changes", {
-    config: {
-      broadcast: { self: true },
-      presence: { key: "user" },
-      postgres_changes: {
-        event: "*", // All events: INSERT, UPDATE, DELETE
-        schema: "public",
-        table: "song_library",
-        // RLS automatically filters based on JWT
-      },
-    },
-  })
-  .on("postgres_changes", (payload) => {
-    console.log("[Realtime] Change:", payload);
-    // RLS has already filtered this - user only sees their own data
-  })
-  .subscribe((status) => {
-    console.log("[Realtime] Subscription status:", status);
-  });
+	.channel("song_library_changes", {
+		config: {
+			broadcast: { self: true },
+			presence: { key: "user" },
+			postgres_changes: {
+				event: "*", // All events: INSERT, UPDATE, DELETE
+				schema: "public",
+				table: "song_library",
+				// RLS automatically filters based on JWT
+			},
+		},
+	})
+	.on("postgres_changes", (payload) => {
+		console.log("[Realtime] Change:", payload);
+		// RLS has already filtered this - user only sees their own data
+	})
+	.subscribe((status) => {
+		console.log("[Realtime] Subscription status:", status);
+	});
 
 // Cleanup
 return () => {
-  channel.unsubscribe();
+	channel.unsubscribe();
 };
 ```
 
@@ -385,19 +385,19 @@ return () => {
 
 ```typescript
 const channel = client
-  .channel("user_presence")
-  .on("presence", { event: "sync" }, () => {
-    const presenceState = channel.presenceState() as Record<string, unknown[]>;
-    console.log("Active users:", presenceState);
-  })
-  .subscribe(async (status) => {
-    if (status === "SUBSCRIBED") {
-      await channel.track({
-        user_id: userId,
-        online_at: new Date(),
-      });
-    }
-  });
+	.channel("user_presence")
+	.on("presence", { event: "sync" }, () => {
+		const presenceState = channel.presenceState() as Record<string, unknown[]>;
+		console.log("Active users:", presenceState);
+	})
+	.subscribe(async (status) => {
+		if (status === "SUBSCRIBED") {
+			await channel.track({
+				user_id: userId,
+				online_at: new Date(),
+			});
+		}
+	});
 ```
 
 ## OAuth Configuration
@@ -436,14 +436,14 @@ import Bun from "bun";
 
 const token = process.argv[2];
 if (!token) {
-  console.error("Usage: bun validate-token.ts <token>");
-  process.exit(1);
+	console.error("Usage: bun validate-token.ts <token>");
+	process.exit(1);
 }
 
 const parts = token.split(".");
 if (parts.length !== 3) {
-  console.error("Invalid JWT format");
-  process.exit(1);
+	console.error("Invalid JWT format");
+	process.exit(1);
 }
 
 const header = JSON.parse(atob(parts[0]));

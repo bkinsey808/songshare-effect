@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { warn as sWarn } from "@/scripts/utils/scriptLogger";
+
 import { walkFiles } from "./walkFiles";
 
 export default async function rewriteSharedImports(destShared: string): Promise<void> {
@@ -18,10 +19,7 @@ export default async function rewriteSharedImports(destShared: string): Promise<
 			if (targetSubpath !== undefined) {
 				const fileDir = path.dirname(filePath);
 				const targetAbs = path.join(destShared, targetSubpath);
-				let relPath = path
-					.relative(fileDir, targetAbs)
-					.split(path.sep)
-					.join("/");
+				let relPath = path.relative(fileDir, targetAbs).split(path.sep).join("/");
 				if (!relPath.startsWith(".")) {
 					relPath = `./${relPath}`;
 				}

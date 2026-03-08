@@ -1,6 +1,6 @@
-export type ShareStatus = 'pending' | 'accepted' | 'rejected';
+export type ShareStatus = "pending" | "accepted" | "rejected";
 
-export type SharedItemType = 'song' | 'playlist' | 'event' | 'community' | 'user';
+export type SharedItemType = "song" | "playlist" | "event" | "community" | "user";
 
 export type SharedItem = {
 	share_id: string;
@@ -27,11 +27,11 @@ export type ShareCreateRequest = {
 
 export type ShareUpdateStatusRequest = {
 	share_id: string;
-	status: 'accepted' | 'rejected';
+	status: "accepted" | "rejected";
 };
 
 export type ShareListRequest = {
-	view: 'sent' | 'received';
+	view: "sent" | "received";
 	status?: ShareStatus;
 	item_type?: SharedItemType;
 };

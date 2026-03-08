@@ -55,19 +55,15 @@ describe("defaultCompare", () => {
 		expect(defaultCompare(arr1, arr2)).toBe(true);
 	});
 
-	it("compares plain objects by their string fields", () => {
-		const firstObj = { alpha: "x", beta: "y" };
-		const secondObj = { alpha: "x", beta: "y" };
+	it("compares plain objects by their fields (including non-strings)", () => {
+		const firstObj = { alpha: "x", beta: "y", gamma: 1, delta: true };
+		const secondObj = { alpha: "x", beta: "y", gamma: 1, delta: true };
+		const thirdObj = { alpha: "x", beta: "y", gamma: 2, delta: true };
+		const fourthObj = { alpha: "x", beta: "y", gamma: 1, delta: false };
 
 		expect(defaultCompare(firstObj, secondObj)).toBe(false);
-	});
-
-	it("treats non-string values as undefined when comparing objects", () => {
-		// numeric values are both coerced to undefined, causing them to be considered equal
-		const obj1 = { num: 1 } as unknown;
-		const obj2 = { num: 2 } as unknown;
-
-		expect(defaultCompare(obj1, obj2)).toBe(false);
+		expect(defaultCompare(firstObj, thirdObj)).toBe(true);
+		expect(defaultCompare(firstObj, fourthObj)).toBe(true);
 	});
 
 	it("returns true when comparing object with a primitive", () => {
@@ -75,15 +71,13 @@ describe("defaultCompare", () => {
 		expect(defaultCompare({ alpha: "foo" } as unknown, "foo" as unknown)).toBe(true);
 	});
 
-	it("ignores non-string values when comparing array vs object with numeric keys", () => {
-		// both sides only expose numeric values which are coerced to undefined
-		// therefore they look the same from the helper's point of view
-		// numbers computed from strings to avoid magic-number rule
+	it("compares array vs object with numeric keys correctly", () => {
+		// they are different types/structures and should be treated as different
 		const arrA = [Number("1"), Number("2")] as unknown;
 		const objWithNumericKeys = {
 			[Number("0")]: Number("1"),
 			[Number("1")]: Number("2"),
 		} as unknown;
-		expect(defaultCompare(arrA, objWithNumericKeys)).toBe(false);
+		expect(defaultCompare(arrA, objWithNumericKeys)).toBe(true);
 	});
 });

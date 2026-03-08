@@ -1,6 +1,5 @@
-import type { PlaylistLibrary, PlaylistLibraryInsert } from "@/shared/generated/supabaseSchemas";
-
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+import type { PlaylistLibrary, PlaylistLibraryInsert } from "@/shared/generated/supabaseSchemas";
 
 import type { MockRow, MultiResult, SingleBuilder, SingleResult } from "./supabase-mock-types";
 

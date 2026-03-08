@@ -6,7 +6,6 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import extractSharesFromResponse from "@/react/share/create/extractSharesFromResponse";
 import type { ShareListRequest, SharedItem } from "@/react/share/slice/share-types";
 import type { ShareSlice } from "@/react/share/slice/ShareSlice.type";
-
 import { apiShareListPath } from "@/shared/paths";
 
 import fetchSharesEffect from "./fetchSharesEffect";
@@ -167,9 +166,9 @@ describe("fetchSharesEffect", () => {
 
 	it("rejects when HTTP response is not ok (loading set to true; Effect failure bypasses finally)", async () => {
 		function forbiddenFetchMock(): ReturnType<typeof vi.fn> {
-			return vi.fn().mockResolvedValue(
-				new Response("Forbidden", { status: 403, statusText: "Forbidden" }),
-			);
+			return vi
+				.fn()
+				.mockResolvedValue(new Response("Forbidden", { status: 403, statusText: "Forbidden" }));
 		}
 
 		await withFetchMock(forbiddenFetchMock, async () => {

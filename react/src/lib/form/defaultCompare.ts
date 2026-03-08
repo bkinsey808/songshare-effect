@@ -1,4 +1,4 @@
-import getStringField from "@/shared/utils/getStringField";
+import getUnknownField from "@/shared/utils/getUnknownField";
 
 /**
  * Default deep equality comparison for objects and arrays.
@@ -21,7 +21,10 @@ export default function defaultCompare<StateType>(current: StateType, initial: S
 	}
 
 	// Array comparison
-	if (Array.isArray(current) && Array.isArray(initial)) {
+	if (Array.isArray(current) || Array.isArray(initial)) {
+		if (!Array.isArray(current) || !Array.isArray(initial)) {
+			return true;
+		}
 		if (current.length !== initial.length) {
 			return true;
 		}
@@ -44,8 +47,8 @@ export default function defaultCompare<StateType>(current: StateType, initial: S
 
 		return currentKeys.some((key) => {
 			// Use `getField` helper (centralized) to read the property as `unknown`.
-			const currentValue = getStringField(current, key);
-			const initialValue = getStringField(initial, key);
+			const currentValue = getUnknownField(current, key);
+			const initialValue = getUnknownField(initial, key);
 			return defaultCompare(currentValue, initialValue);
 		});
 	}

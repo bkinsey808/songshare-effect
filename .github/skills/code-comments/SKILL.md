@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Adding or editing comments/JSDoc in `.ts` or `.tsx` files.
 - Reviewing whether comments explain intent clearly without duplicating types or obvious code.
 
 Execution workflow:
+
 1. Prefer concise comments that explain why/intent, not restating code.
 2. Keep JSDoc aligned with repo rules (no repeated types, consistent placement/spacing).
 3. Add inline comments only for non-obvious logic blocks.
 4. Re-check nearby style/lint rules after comment edits.
 
 Output requirements:
+
 - Summarize where comments were added/updated and why.
 - Call out any rule exception and rationale if applicable.
 
@@ -49,8 +52,7 @@ Output requirements:
 **Bad (two blank lines):**
 
 ```ts
-const x = 1
-
+const x = 1;
 
 /**
  * Description...
@@ -61,7 +63,7 @@ function f() {}
 **Good (one blank line):**
 
 ```ts
-const x = 1
+const x = 1;
 
 /**
  * Description...
@@ -87,7 +89,10 @@ function f() {}
  * @param props.somethingElse - Some other thing
  * @returns React element with interactive UI controls
  */
-export default function InteractiveComponent({ title, somethingElse }: InteractiveComponentParams): ReactElement {}
+export default function InteractiveComponent({
+	title,
+	somethingElse,
+}: InteractiveComponentParams): ReactElement {}
 ```
 
 **Good:**
@@ -100,7 +105,10 @@ export default function InteractiveComponent({ title, somethingElse }: Interacti
  * @param somethingElse - Some other thing
  * @returns React element with interactive UI controls
  */
-export default function InteractiveComponent({ title, somethingElse }: InteractiveComponentParams): ReactElement {}
+export default function InteractiveComponent({
+	title,
+	somethingElse,
+}: InteractiveComponentParams): ReactElement {}
 ```
 
 - **Max 100 chars** — Keep lines short; use multi-line JSDoc when necessary.
@@ -158,7 +166,7 @@ function doSomething(): void {}
  * @returns void
  */
 function cacheValue(value: string): void {
-  // implementation
+	// implementation
 }
 ```
 
@@ -169,7 +177,7 @@ function cacheValue(value: string): void {
  * @returns The user id string or `undefined` when not signed in
  */
 function getCurrentUserId(): string | undefined {
-  return store.userId;
+	return store.userId;
 }
 ```
 

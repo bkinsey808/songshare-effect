@@ -5,9 +5,8 @@ import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import { ONE_HOUR_SECONDS } from "@/shared/constants/http";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
-import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
-
 import { DatabaseError } from "../api-errors";
+import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
 import getVerifiedUserSession from "./getVerifiedSession";
 
 type TokenResponse = Readonly<{

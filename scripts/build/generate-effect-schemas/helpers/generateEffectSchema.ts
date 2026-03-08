@@ -59,7 +59,7 @@ export default function generateEffectSchema(table: Readonly<TableDefinition>): 
 			output += `\t${column.name}: ${typeAnnotation};\n`;
 		}
 
-				  output += "}> = Schema.Struct({\n";
+		output += "}> = Schema.Struct({\n";
 
 		for (const column of insertColumns) {
 			let fieldSchema = getEffectType(column);

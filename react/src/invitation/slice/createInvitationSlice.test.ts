@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
-
-import type { InvitationSlice, PendingCommunityInvitation } from "./InvitationSlice.type";
+import type { AuthState } from "@/react/auth/slice/auth-slice.types";
+import forceCast from "@/react/lib/test-utils/forceCast";
 
 import createInvitationSlice from "./createInvitationSlice";
+import type { InvitationSlice, PendingCommunityInvitation } from "./InvitationSlice.type";
 import makeInvitationSlice from "./makeInvitationSlice.test-util";
 
 const MIN_REGISTRATION = 0;
@@ -58,7 +58,7 @@ describe("createInvitationSlice", () => {
 
 		const { set, get, api, calls } = makeStore();
 
-		const slice = createInvitationSlice(set, get, api);
+		const slice = createInvitationSlice(set, forceCast<Get<InvitationSlice & AuthState>>(get), api);
 
 		expect({
 			pendingCommunityInvitations: slice.pendingCommunityInvitations,
@@ -99,7 +99,7 @@ describe("createInvitationSlice", () => {
 
 		const { set, get, api, calls } = makeStore();
 
-		createInvitationSlice(set, get, api);
+		createInvitationSlice(set, forceCast<Get<InvitationSlice & AuthState>>(get), api);
 
 		// One reset function should have been registered
 		expect(sliceResetFns.size).toBeGreaterThan(MIN_REGISTRATION);

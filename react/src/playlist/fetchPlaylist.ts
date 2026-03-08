@@ -7,9 +7,6 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import type { Playlist, PlaylistEntry } from "./playlist-types";
-import type { PlaylistSlice } from "./slice/playlist-slice";
-
 import isPlaylist from "./guards/isPlaylist";
 import isPlaylistPublic from "./guards/isPlaylistPublic";
 import {
@@ -19,6 +16,8 @@ import {
 	PlaylistNotFoundError,
 	QueryError,
 } from "./playlist-errors";
+import type { Playlist, PlaylistEntry } from "./playlist-types";
+import type { PlaylistSlice } from "./slice/playlist-slice";
 
 const ARRAY_EMPTY = 0;
 

@@ -1,5 +1,4 @@
 import type { EventCommunityEntry } from "@/react/event/event-types";
-
 import Button from "@/react/lib/design-system/Button";
 
 export type CommunityRowProps = {

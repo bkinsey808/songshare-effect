@@ -1,18 +1,16 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
-
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 import { ONE_CALL, TEST_AUTH_TOKEN } from "@/react/lib/test-helpers/test-consts";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
-import type { SongLibrarySlice } from "./song-library-slice";
-
 import fetchSongLibrary from "./fetchSongLibrary";
 import makeSongLibrarySlice from "./makeSongLibrarySlice.mock";
+import type { SongLibrarySlice } from "./song-library-slice";
 
 // Auto-mock auth/client modules so we can configure mocks in each test
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");

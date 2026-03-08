@@ -1,7 +1,6 @@
-import type React from "react";
-
 import { renderHook, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
+import type React from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
@@ -10,7 +9,6 @@ import { makeTestPlaylist } from "@/react/playlist/test-utils/makeTestPlaylist.m
 import { makeTestSong } from "@/react/song/test-utils/makeTestSong.mock";
 
 import type { EventFormValues } from "../event-types";
-
 import useSyncActiveSongSelection from "./useSyncActiveSongSelection";
 
 const CALLED_ONCE = 1;

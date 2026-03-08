@@ -1,5 +1,4 @@
 import type { PostgrestResponse } from "@supabase/postgrest-js";
-
 import { Effect } from "effect";
 
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
@@ -9,29 +8,12 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import type { CommunityEntry } from "../community-types";
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
-
 import fetchCommunityEvents from "./fetchCommunityEvents";
 import fetchCommunityMembers from "./fetchCommunityMembers";
 import fetchCommunityPlaylists from "./fetchCommunityPlaylists";
 import fetchCommunityShareRequests from "./fetchCommunityShareRequests";
 import fetchCommunitySongs from "./fetchCommunitySongs";
-
-function normalizeCommunityEntry(communityPublic: CommunityEntry): CommunityEntry {
-	return {
-		community_id: communityPublic.community_id,
-		owner_id: communityPublic.owner_id,
-		name: communityPublic.name,
-		slug: communityPublic.slug,
-		description: communityPublic.description,
-		is_public: communityPublic.is_public,
-		public_notes: communityPublic.public_notes,
-		...(communityPublic.active_event_id === undefined
-			? {}
-			: { active_event_id: communityPublic.active_event_id }),
-		created_at: communityPublic.created_at || new Date().toISOString(),
-		updated_at: communityPublic.updated_at || new Date().toISOString(),
-	};
-}
+import normalizeCommunityEntry from "./normalizeCommunityEntry";
 
 export default function fetchCommunityBySlug(
 	slug: string,
@@ -90,38 +72,12 @@ export default function fetchCommunityBySlug(
 			}
 
 			const members = yield* $(
-				Effect.tryPromise({
-					try: () => fetchCommunityMembers(client, communityPublic.community_id, communityPublic.owner_id),
-					catch: (err) =>
-						new Error(`Failed to fetch members: ${extractErrorMessage(err, "Unknown error")}`),
-				}),
+				fetchCommunityMembers(client, communityPublic.community_id, communityPublic.owner_id),
 			);
-			const communityEvents = yield* $(
-				Effect.tryPromise({
-					try: () => fetchCommunityEvents(client, communityPublic.community_id),
-					catch: (err) =>
-						new Error(
-							`Failed to fetch community events: ${extractErrorMessage(err, "Unknown error")}`,
-						),
-				}),
-			);
-			const communitySongs = yield* $(
-				Effect.tryPromise({
-					try: () => fetchCommunitySongs(client, communityPublic.community_id),
-					catch: (err) =>
-						new Error(
-							`Failed to fetch community songs: ${extractErrorMessage(err, "Unknown error")}`,
-						),
-				}),
-			);
+			const communityEvents = yield* $(fetchCommunityEvents(client, communityPublic.community_id));
+			const communitySongs = yield* $(fetchCommunitySongs(client, communityPublic.community_id));
 			const communityPlaylists = yield* $(
-				Effect.tryPromise({
-					try: () => fetchCommunityPlaylists(client, communityPublic.community_id),
-					catch: (err) =>
-						new Error(
-							`Failed to fetch community playlists: ${extractErrorMessage(err, "Unknown error")}`,
-						),
-				}),
+				fetchCommunityPlaylists(client, communityPublic.community_id),
 			);
 			const communityShareRequests = yield* $(
 				Effect.tryPromise({

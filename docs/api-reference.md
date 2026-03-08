@@ -423,16 +423,13 @@ export function useApi() {
 		setError(null);
 
 		try {
-			const response = await fetch(
-				`${import.meta.env.VITE_API_BASE_URL}${endpoint}`,
-				{
-					...options,
-					headers: {
-						"Content-Type": "application/json",
-						...options?.headers,
-					},
+			const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
+				...options,
+				headers: {
+					"Content-Type": "application/json",
+					...options?.headers,
 				},
-			);
+			});
 
 			const data = await response.json();
 

@@ -1,17 +1,16 @@
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
+import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import Button from "@/react/lib/design-system/Button";
 import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
-import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import useLocale from "@/react/lib/language/locale/useLocale";
+import { ZERO } from "@/shared/constants/shared-constants";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, eventEditPath } from "@/shared/paths";
-import { ZERO } from "@/shared/constants/shared-constants";
-
-import type { EventLibraryEntry } from "./event-library-types";
 
 import EventLibraryCard from "./card/EventLibraryCard";
+import type { EventLibraryEntry } from "./event-library-types";
 import EventLibraryEmptyState from "./EventLibraryEmptyState";
 import EventLibraryErrorState from "./EventLibraryErrorState";
 import EventLibraryLoadingState from "./EventLibraryLoadingState";

@@ -1,7 +1,7 @@
 ---
-description: 'Code Comment Custom Agent: adds high-quality comments to TypeScript and React code without changing logic.'
+description: "Code Comment Custom Agent: adds high-quality comments to TypeScript and React code without changing logic."
 
-tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
+tools: ["vscode", "execute", "read", "edit", "search", "web", "agent", "todo"]
 ---
 
 # Code Comment Custom Agent
@@ -153,7 +153,7 @@ use this:
 for example, instead of this:
 
 ```tsx
- /** Renders the inner TD content for the full-width delete confirmation UI.
+/** Renders the inner TD content for the full-width delete confirmation UI.
  * Maintainers: This avoids alignment shifts seen in separate-row implementations.
  */
 ```

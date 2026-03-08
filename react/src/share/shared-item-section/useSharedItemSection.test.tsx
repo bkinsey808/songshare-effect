@@ -1,11 +1,4 @@
-import {
-	cleanup,
-	fireEvent,
-	render,
-	renderHook,
-	waitFor,
-	within,
-} from "@testing-library/react";
+import { cleanup, fireEvent, render, renderHook, waitFor, within } from "@testing-library/react";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
@@ -64,29 +57,22 @@ function installStore(opts: {
 	subscribeToReceivedShares?: (userId: string) => Effect.Effect<() => void, Error>;
 	subscribeToSentShares?: (userId: string) => Effect.Effect<() => void, Error>;
 }): void {
-	const fetchShares =
-		opts.fetchShares ?? vi.fn().mockReturnValue(Effect.succeed(undefined));
+	const fetchShares = opts.fetchShares ?? vi.fn().mockReturnValue(Effect.succeed(undefined));
 	const updateShareStatus =
 		opts.updateShareStatus ?? vi.fn().mockReturnValue(Effect.succeed(undefined));
 	const subscribeToReceivedShares =
-		opts.subscribeToReceivedShares ??
-		vi.fn().mockReturnValue(Effect.succeed(() => undefined));
+		opts.subscribeToReceivedShares ?? vi.fn().mockReturnValue(Effect.succeed(() => undefined));
 	const subscribeToSentShares =
-		opts.subscribeToSentShares ??
-		vi.fn().mockReturnValue(Effect.succeed(() => undefined));
+		opts.subscribeToSentShares ?? vi.fn().mockReturnValue(Effect.succeed(() => undefined));
 
 	const getReceivedSharesByStatus =
 		opts.getReceivedSharesByStatus ??
 		((status: string): SharedItem[] =>
-			Object.values(opts.receivedShares ?? {}).filter(
-				(sh) => sh.status === status,
-			));
+			Object.values(opts.receivedShares ?? {}).filter((sh) => sh.status === status));
 	const getSentSharesByStatus =
 		opts.getSentSharesByStatus ??
 		((status: string): SharedItem[] =>
-			Object.values(opts.sentShares ?? {}).filter(
-				(sh) => sh.status === status,
-			));
+			Object.values(opts.sentShares ?? {}).filter((sh) => sh.status === status));
 
 	const mockState = forceCast({
 		receivedShares: opts.receivedShares ?? {},
@@ -186,9 +172,7 @@ function Harness(): ReactElement {
 			<ul data-testid="shares-list">
 				{filteredShares.map((share) => (
 					<li key={share.share_id} data-testid={`share-${share.share_id}`}>
-						<span data-testid={`share-name-${share.share_id}`}>
-							{share.shared_item_name}
-						</span>
+						<span data-testid={`share-name-${share.share_id}`}>{share.shared_item_name}</span>
 						{activeTab === "received" && share.status === "pending" && (
 							<>
 								<button
@@ -230,15 +214,11 @@ describe("useSharedItemSection", () => {
 
 			const rendered = render(<Harness />);
 
-			expect(
-				within(rendered.container).getByTestId("active-tab").textContent,
-			).toBe("received");
-			expect(
-				within(rendered.container).getByTestId("status-filter").textContent,
-			).toBe("pending");
-			expect(
-				within(rendered.container).getByTestId("share-count").textContent,
-			).toBe(String(ONE_PENDING_SHARE));
+			expect(within(rendered.container).getByTestId("active-tab").textContent).toBe("received");
+			expect(within(rendered.container).getByTestId("status-filter").textContent).toBe("pending");
+			expect(within(rendered.container).getByTestId("share-count").textContent).toBe(
+				String(ONE_PENDING_SHARE),
+			);
 		});
 
 		it("switches tab when tab button is clicked", () => {
@@ -253,12 +233,10 @@ describe("useSharedItemSection", () => {
 
 			fireEvent.click(within(rendered.container).getByTestId("tab-sent"));
 
-			expect(
-				within(rendered.container).getByTestId("active-tab").textContent,
-			).toBe("sent");
-			expect(
-				within(rendered.container).getByTestId("share-count").textContent,
-			).toBe(String(EMPTY_COUNT));
+			expect(within(rendered.container).getByTestId("active-tab").textContent).toBe("sent");
+			expect(within(rendered.container).getByTestId("share-count").textContent).toBe(
+				String(EMPTY_COUNT),
+			);
 		});
 
 		it("updates status filter when filter button is clicked", () => {
@@ -276,12 +254,10 @@ describe("useSharedItemSection", () => {
 
 			fireEvent.click(within(rendered.container).getByTestId("filter-all"));
 
-			expect(
-				within(rendered.container).getByTestId("status-filter").textContent,
-			).toBe("all");
-			expect(
-				within(rendered.container).getByTestId("share-count").textContent,
-			).toBe(String(TWO_SHARES));
+			expect(within(rendered.container).getByTestId("status-filter").textContent).toBe("all");
+			expect(within(rendered.container).getByTestId("share-count").textContent).toBe(
+				String(TWO_SHARES),
+			);
 		});
 
 		it("calls updateShareStatus when Accept is clicked", async () => {
@@ -296,9 +272,7 @@ describe("useSharedItemSection", () => {
 
 			const rendered = render(<Harness />);
 
-			fireEvent.click(
-				within(rendered.container).getByTestId(`accept-${SHARE_ID_1}`),
-			);
+			fireEvent.click(within(rendered.container).getByTestId(`accept-${SHARE_ID_1}`));
 
 			await waitFor(() => {
 				expect(updateShareStatus).toHaveBeenCalledWith(
@@ -322,9 +296,7 @@ describe("useSharedItemSection", () => {
 
 			const rendered = render(<Harness />);
 
-			fireEvent.click(
-				within(rendered.container).getByTestId(`reject-${SHARE_ID_1}`),
-			);
+			fireEvent.click(within(rendered.container).getByTestId(`reject-${SHARE_ID_1}`));
 
 			await waitFor(() => {
 				expect(updateShareStatus).toHaveBeenCalledWith(
@@ -348,9 +320,7 @@ describe("useSharedItemSection", () => {
 
 			const rendered = render(<Harness />);
 
-			expect(
-				within(rendered.container).getByTestId("share-error").textContent,
-			).toBe(errorMsg);
+			expect(within(rendered.container).getByTestId("share-error").textContent).toBe(errorMsg);
 		});
 	});
 
@@ -449,9 +419,7 @@ describe("useSharedItemSection", () => {
 			result.current.setActiveTab("sent");
 
 			await waitFor(() => {
-				expect(result.current.filteredShares).toHaveLength(
-					ONE_PENDING_SHARE,
-				);
+				expect(result.current.filteredShares).toHaveLength(ONE_PENDING_SHARE);
 				const firstShare = result.current.filteredShares.at(FIRST_INDEX);
 				expect(firstShare?.share_id).toBe(SHARE_ID_1);
 			});
@@ -553,12 +521,8 @@ describe("useSharedItemSection", () => {
 
 		it("calls subscribeToReceivedShares and subscribeToSentShares when currentUserId is defined", async () => {
 			vi.mocked(useCurrentUserId).mockReturnValue(CURRENT_USER_ID);
-			const subscribeToReceivedShares = vi
-				.fn()
-				.mockReturnValue(Effect.succeed(() => undefined));
-			const subscribeToSentShares = vi
-				.fn()
-				.mockReturnValue(Effect.succeed(() => undefined));
+			const subscribeToReceivedShares = vi.fn().mockReturnValue(Effect.succeed(() => undefined));
+			const subscribeToSentShares = vi.fn().mockReturnValue(Effect.succeed(() => undefined));
 			installStore({
 				receivedShares: {},
 				sentShares: {},
@@ -600,12 +564,8 @@ describe("useSharedItemSection", () => {
 			installStore({
 				receivedShares: {},
 				sentShares: {},
-				subscribeToReceivedShares: vi
-					.fn()
-					.mockReturnValue(Effect.succeed(receivedCleanup)),
-				subscribeToSentShares: vi
-					.fn()
-					.mockReturnValue(Effect.succeed(sentCleanup)),
+				subscribeToReceivedShares: vi.fn().mockReturnValue(Effect.succeed(receivedCleanup)),
+				subscribeToSentShares: vi.fn().mockReturnValue(Effect.succeed(sentCleanup)),
 			});
 
 			const { unmount } = renderHook(() => useSharedItemSection());

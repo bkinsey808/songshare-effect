@@ -21,6 +21,10 @@ export type CommunitySlice = CommunityState & {
 		slug: string,
 		options?: { silent?: boolean },
 	) => Effect.Effect<CommunityEntry, Error>;
+	fetchCommunityById: (
+		communityId: string,
+		options?: { silent?: boolean },
+	) => Effect.Effect<CommunityEntry, Error>;
 	saveCommunity: (request: SaveCommunityRequest) => Effect.Effect<CommunityEntry, Error>;
 	joinCommunity: (
 		communityId: string,

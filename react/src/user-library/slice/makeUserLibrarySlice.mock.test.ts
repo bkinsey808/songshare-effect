@@ -2,9 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
 
-import type { UserLibraryEntry } from "./user-library-types";
-
 import makeUserLibrarySlice from "./makeUserLibrarySlice.mock";
+import type { UserLibraryEntry } from "./user-library-types";
 
 describe("makeUserLibrarySlice", () => {
 	it("reflects initial entries and setters update state", () => {

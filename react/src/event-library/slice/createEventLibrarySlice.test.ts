@@ -4,11 +4,10 @@ import { describe, expect, it, vi } from "vitest";
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 
 import type { EventLibraryEntry, EventLibraryState } from "../event-library-types";
-import type { EventLibrarySlice } from "./EventLibrarySlice.type";
-
 import subscribeToEventPublicForLibraryEffect from "../subscribe/subscribeToEventPublicForLibraryEffect";
 import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import createEventLibrarySlice from "./createEventLibrarySlice";
+import type { EventLibrarySlice } from "./EventLibrarySlice.type";
 import makeEventLibrarySlice from "./makeEventLibrarySlice.test-util";
 
 // Mock the subscription effect to avoid network calls and authentication

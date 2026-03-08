@@ -1,11 +1,10 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { SavePlaylistRequest } from "@/react/playlist/playlist-types";
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-
 import { PlaylistError } from "@/react/playlist/playlist-errors";
+import type { SavePlaylistRequest } from "@/react/playlist/playlist-types";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import { dashboardPath, playlistLibraryPath } from "@/shared/paths";
 
 import submitPlaylist from "./submitPlaylist";

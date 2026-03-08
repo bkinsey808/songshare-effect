@@ -1,7 +1,6 @@
 // ReactElement is ambient; no import needed
 
 import type { EventLibraryEntry } from "../event-library-types";
-
 import EventLibraryCardConfirmation from "./EventLibraryCardConfirmation";
 import EventLibraryCardDisplay from "./EventLibraryCardDisplay";
 import useEventLibraryCard from "./useEventLibraryCard";

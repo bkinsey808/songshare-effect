@@ -1,6 +1,5 @@
-import type { Song, SongInsert } from "@/shared/generated/supabaseSchemas";
-
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+import type { Song, SongInsert } from "@/shared/generated/supabaseSchemas";
 
 import type {
 	MaybeSingleBuilder,

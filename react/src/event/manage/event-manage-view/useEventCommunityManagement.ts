@@ -8,7 +8,6 @@ import postJson from "@/shared/fetch/postJson";
 import { apiCommunityEventAddPath, apiCommunityEventRemovePath } from "@/shared/paths";
 
 import type { ActionState } from "../ActionState.type";
-
 import refreshEvent from "../refreshEvent";
 import runAction from "../runAction";
 

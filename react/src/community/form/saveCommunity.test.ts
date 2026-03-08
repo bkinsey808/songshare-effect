@@ -6,7 +6,6 @@ import postJsonWithResult from "@/shared/fetch/postJsonWithResult";
 import { apiCommunitySavePath } from "@/shared/paths";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
-
 import saveCommunity from "./saveCommunity";
 
 vi.mock("@/shared/fetch/postJsonWithResult");

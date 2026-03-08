@@ -1,5 +1,4 @@
 import type { EventParticipant } from "@/react/event/event-entry/EventEntry.type";
-
 import Button from "@/react/lib/design-system/Button";
 
 export type ParticipantRowProps = {

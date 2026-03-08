@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import type { PlacementConfig } from "../popover-types";
-
 import { CENTER_DIVISOR, MIN_MARGIN } from "../popover-constants";
+import type { PlacementConfig } from "../popover-types";
 import adjustTopBottomPosition from "./adjustTopBottomPosition";
 
 describe("adjustTopBottomPosition", () => {

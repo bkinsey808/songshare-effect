@@ -5,7 +5,6 @@ import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 
 import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";
-
 import handleEventLibrarySubscribeEvent from "./handleEventLibrarySubscribeEvent";
 
 /**

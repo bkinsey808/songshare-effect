@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Handling production incidents, rollback decisions, or post-deploy checks.
 - Diagnosing runtime issues immediately after deployment.
 
 Execution workflow:
+
 1. Prioritize safe recovery (rollback/mitigation) before deep root-cause changes.
 2. Validate system health with existing health checks and logs.
 3. Document exact operational commands/actions taken.
 4. After stabilization, identify follow-up fixes to prevent recurrence.
 
 Output requirements:
+
 - Report incident scope, recovery path used, and current health status.
 - Include exact rollback/verification commands used.
 

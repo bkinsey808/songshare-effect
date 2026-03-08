@@ -21,12 +21,14 @@ Full reference: [docs/unit-testing.md](../../../docs/unit-testing.md)
 For **React hook tests**, load the `unit-testing-hooks` skill instead.
 
 Execution workflow:
+
 1. Pick the smallest relevant test scope first (`path/to/file.test.ts`).
 2. Use repo test patterns and mocking helpers before ad-hoc test doubles.
 3. Keep assertions strict and deterministic.
 4. Re-run targeted tests, then broaden as needed.
 
 Output requirements:
+
 - Report which tests were added or changed and why.
 - Report exactly which test commands were run.
 

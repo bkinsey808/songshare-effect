@@ -2,7 +2,6 @@ import { render, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { Slide } from "../song-form-types";
-
 import SlidesGridRow from "./SlidesGridRow";
 
 const GRID_WIDTH = 42;

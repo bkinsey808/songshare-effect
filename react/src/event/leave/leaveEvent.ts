@@ -3,13 +3,12 @@ import { Effect } from "effect";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiEventUserRemovePath } from "@/shared/paths";
 
-import type { EventSlice } from "../slice/EventSlice.type";
-
 import {
 	EventUserLeaveApiError,
 	EventUserLeaveNetworkError,
 	type EventError,
 } from "../event-errors";
+import type { EventSlice } from "../slice/EventSlice.type";
 
 /**
  * Remove a user from an event by calling the API endpoint.

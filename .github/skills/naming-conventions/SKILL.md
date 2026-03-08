@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Naming new files, functions, hooks, types, or variables.
 - Renaming symbols during refactors for clarity and convention compliance.
 
 Execution workflow:
+
 1. Choose names based on behavioral intent (fetch, compute, subscribe, run, etc.).
 2. Ensure hook names (`use*`) only apply when React hooks are called internally.
 3. Keep file and symbol names aligned with nearby project patterns.
 4. Recheck references/imports after renames and validate with `npm run lint`.
 
 Output requirements:
+
 - Call out key symbol/file renames and rationale.
 - Note any convention exceptions that remain.
 
@@ -29,24 +32,24 @@ Output requirements:
 
 The prefix signals the responsibility of the function. Pick the most precise one.
 
-| Prefix | When to use | Example |
-|---|---|---|
-| `use*` | React hook — **must** call at least one React hook internally | `useEventPermissions` → ❌ (no hooks inside); `useActiveEventSync` → ✅ |
-| `compute*` | Pure function that **derives** a value via non-trivial logic | `computeEventPermissions`, `computeSlidePosition` |
-| `get*` | Simple **retrieval** — property access, map lookup, array find | `getErrorMessage`, `getSupabaseClient` |
-| `fetch*` | **Async** data load (network/DB) | `fetchEventBySlug`, `fetchCommunityLibrary` |
-| `subscribe*` | Sets up a **realtime / WebSocket** subscription | `subscribeToCommunityEvent`, `subscribeToPresence` |
-| `run*` | Executes a multi-step **Effect pipeline** or async flow | `runAction`, `runCommunityAction` |
-| `create*` | **Factory** — returns a new instance or slice | `createEventSlice`, `createAuthSlice` |
-| `make*` | Builds a **data structure** or test double | `makeNavigationSliceMock`, `makeUseManageView` |
-| `build*` | Incrementally **assembles** a value (builder pattern) | `buildPathWithLang` |
-| `handle*` | Implements an **event handler** (not a prop name) | `handleSubmit`, `handleSelectCommunity` |
-| `on*` | **Callback prop** passed to a React component | `onInviteClick`, `onKickParticipant` |
-| `set*` | **State setter** (side-effect, void) | `setActionState`, `setCurrentEvent` |
-| `is*` / `has*` / `can*` | **Boolean predicate** — plain value or derived flag | `isOwner`, `canManageEvent`, `hasPermission` |
-| `update*` | **Mutates** existing state (async or sync) | `updateActiveSong`, `updateActiveSlidePosition` |
-| `refresh*` | **Re-fetches** already-loaded data | `refreshEvent`, `refreshCommunity` |
-| `format*` | Pure **string / display** transformation | `formatDate`, `formatDuration` |
+| Prefix                  | When to use                                                    | Example                                                                 |
+| ----------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `use*`                  | React hook — **must** call at least one React hook internally  | `useEventPermissions` → ❌ (no hooks inside); `useActiveEventSync` → ✅ |
+| `compute*`              | Pure function that **derives** a value via non-trivial logic   | `computeEventPermissions`, `computeSlidePosition`                       |
+| `get*`                  | Simple **retrieval** — property access, map lookup, array find | `getErrorMessage`, `getSupabaseClient`                                  |
+| `fetch*`                | **Async** data load (network/DB)                               | `fetchEventBySlug`, `fetchCommunityLibrary`                             |
+| `subscribe*`            | Sets up a **realtime / WebSocket** subscription                | `subscribeToCommunityEvent`, `subscribeToPresence`                      |
+| `run*`                  | Executes a multi-step **Effect pipeline** or async flow        | `runAction`, `runCommunityAction`                                       |
+| `create*`               | **Factory** — returns a new instance or slice                  | `createEventSlice`, `createAuthSlice`                                   |
+| `make*`                 | Builds a **data structure** or test double                     | `makeNavigationSliceMock`, `makeUseManageView`                          |
+| `build*`                | Incrementally **assembles** a value (builder pattern)          | `buildPathWithLang`                                                     |
+| `handle*`               | Implements an **event handler** (not a prop name)              | `handleSubmit`, `handleSelectCommunity`                                 |
+| `on*`                   | **Callback prop** passed to a React component                  | `onInviteClick`, `onKickParticipant`                                    |
+| `set*`                  | **State setter** (side-effect, void)                           | `setActionState`, `setCurrentEvent`                                     |
+| `is*` / `has*` / `can*` | **Boolean predicate** — plain value or derived flag            | `isOwner`, `canManageEvent`, `hasPermission`                            |
+| `update*`               | **Mutates** existing state (async or sync)                     | `updateActiveSong`, `updateActiveSlidePosition`                         |
+| `refresh*`              | **Re-fetches** already-loaded data                             | `refreshEvent`, `refreshCommunity`                                      |
+| `format*`               | Pure **string / display** transformation                       | `formatDate`, `formatDuration`                                          |
 
 ### `use*` vs `compute*` — the most common mistake
 
@@ -132,16 +135,16 @@ function ParticipantRow({ participant }: ParticipantRowProps) { ... }
 
 ## File Naming (Summary)
 
-| What | Convention | Example |
-|---|---|---|
-| React component | PascalCase `.tsx` | `EventManageView.tsx` |
-| Single-symbol util / function | camelCase `.ts` | `computeEventPermissions.ts`, `fetchEventBySlug.ts` |
-| Multi-symbol file | kebab-case `.ts` | `auth-utils.ts` |
-| Type-only file | camelCase or PascalCase `.type.ts` | `EventEntry.type.ts` |
-| Test file | same name + `.test.ts/.tsx` | `computeEventPermissions.test.ts` |
-| Test helper | same name + `.test-util.ts` | `makeUseManageView.test-util.ts` |
-| Directory | kebab-case | `event-manage-view/`, `community-search-input/` |
-| Doc files | kebab-case `.md` | `authentication-system.md` |
+| What                          | Convention                         | Example                                             |
+| ----------------------------- | ---------------------------------- | --------------------------------------------------- |
+| React component               | PascalCase `.tsx`                  | `EventManageView.tsx`                               |
+| Single-symbol util / function | camelCase `.ts`                    | `computeEventPermissions.ts`, `fetchEventBySlug.ts` |
+| Multi-symbol file             | kebab-case `.ts`                   | `auth-utils.ts`                                     |
+| Type-only file                | camelCase or PascalCase `.type.ts` | `EventEntry.type.ts`                                |
+| Test file                     | same name + `.test.ts/.tsx`        | `computeEventPermissions.test.ts`                   |
+| Test helper                   | same name + `.test-util.ts`        | `makeUseManageView.test-util.ts`                    |
+| Directory                     | kebab-case                         | `event-manage-view/`, `community-search-input/`     |
+| Doc files                     | kebab-case `.md`                   | `authentication-system.md`                          |
 
 > For complete file organization rules see [file-organization skill](../file-organization/SKILL.md).
 

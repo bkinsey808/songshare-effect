@@ -15,11 +15,13 @@ SongShare implements a dual authentication system that supports both anonymous v
 2. **Authorization (access control)**: RLS policies check JWT `app_metadata` to determine what data each user can access
 
 **Why not fully open/anonymous?**
+
 - ❌ Realtime subscriptions would not work (requires authenticated connection)
 - ❌ No way to establish WebSocket connections
 - ❌ Cannot filter events server-side
 
 **Why not individual Supabase auth users per app user?**
+
 - ❌ More complex (manage two separate user systems)
 - ❌ Unnecessary overhead (RLS can distinguish users via metadata)
 - ❌ Harder to maintain (sync between Supabase auth + app users)
@@ -78,12 +80,14 @@ The system automatically selects the appropriate token:
 #### **Token Generation**
 
 **Visitor Token** (`api/src/supabase/getSupabaseClientToken.ts`):
+
 1. Sign in to Supabase as visitor user
 2. Check if `app_metadata.visitor_id` exists
 3. If missing, update metadata and re-sign
 4. Return `access_token`
 
 **User Token** (`api/src/user-session/getUserToken.ts`):
+
 1. Verify user session (from session JWT cookie)
 2. Sign in to Supabase as visitor user
 3. Update `app_metadata` to include `user: { user_id: "app-user-uuid" }`
@@ -142,9 +146,7 @@ setIsSignedIn(value: boolean);  // Update auth state
 
 ```typescript
 // Automatically uses appropriate token (user or visitor)
-export async function getSupabaseClientWithAuth(): Promise<
-	SupabaseClient | undefined
->;
+export async function getSupabaseClientWithAuth(): Promise<SupabaseClient | undefined>;
 
 // Manual token specification
 export function getSupabaseClient(token: string): SupabaseClient | undefined;
@@ -192,7 +194,7 @@ import { getSupabaseClientWithAuth } from "@/react/supabase/supabaseClient";
 const client = await getSupabaseClientWithAuth();
 
 if (!client) {
-  throw new Error("Failed to initialize Supabase client");
+	throw new Error("Failed to initialize Supabase client");
 }
 
 // Query will use appropriate authentication context
@@ -206,15 +208,19 @@ const client = await getSupabaseClientWithAuth();
 
 // Subscribe to changes - RLS automatically filters based on JWT
 const channel = client
-  .channel('song_library_changes')
-  .on('postgres_changes', {
-    event: '*',
-    schema: 'public',
-    table: 'song_library'
-  }, (payload) => {
-    console.log('Change received:', payload);
-  })
-  .subscribe();
+	.channel("song_library_changes")
+	.on(
+		"postgres_changes",
+		{
+			event: "*",
+			schema: "public",
+			table: "song_library",
+		},
+		(payload) => {
+			console.log("Change received:", payload);
+		},
+	)
+	.subscribe();
 ```
 
 > 📖 **See [realtime-rls-architecture.md](./realtime-rls-architecture.md)** for detailed Realtime and RLS implementation patterns.
@@ -258,18 +264,18 @@ All database operations automatically enforce access control:
 ```typescript
 // In browser console - decode the current token
 const token = await getSupabaseAuthToken();
-const payload = JSON.parse(atob(token.split('.')[1]));
-console.log('JWT claims:', payload);
-console.log('app_metadata:', payload.app_metadata);
+const payload = JSON.parse(atob(token.split(".")[1]));
+console.log("JWT claims:", payload);
+console.log("app_metadata:", payload.app_metadata);
 ```
 
 ### **Common Debugging**
 
 ```typescript
 // Check current auth state
-import useAppStore from '@/react/app/useAppStore';
+import useAppStore from "@/react/app/useAppStore";
 const isSignedIn = useAppStore((state) => state.auth.isSignedIn);
-console.log('Is signed in:', isSignedIn);
+console.log("Is signed in:", isSignedIn);
 
 // Monitor token fetching
 // Check browser console for "[authSlice]" and "[getSupabaseAuthToken]" logs
@@ -384,18 +390,19 @@ The repository CI workflows already run a preview server (Vite preview) and Play
 ```typescript
 // Check current token and its claims
 const token = await getSupabaseAuthToken();
-const claims = JSON.parse(atob(token.split('.')[1]));
-console.log('Token claims:', claims);
+const claims = JSON.parse(atob(token.split(".")[1]));
+console.log("Token claims:", claims);
 
 // Test database access with current token
 const client = await getSupabaseClientWithAuth();
-const { data, error } = await client.from('song_library').select('*');
-console.log('Library query:', { data, error });
+const { data, error } = await client.from("song_library").select("*");
+console.log("Library query:", { data, error });
 
 // Monitor Realtime connection
-client.channel('test')
-  .on('system', (msg) => console.log('Realtime system:', msg))
-  .subscribe();
+client
+	.channel("test")
+	.on("system", (msg) => console.log("Realtime system:", msg))
+	.subscribe();
 ```
 
 > 📖 **For more debugging techniques**, see [realtime-rls-architecture.md](./realtime-rls-architecture.md#troubleshooting).
@@ -420,6 +427,7 @@ client.channel('test')
 ---
 
 **For detailed technical documentation including:**
+
 - Realtime subscription patterns
 - Complete RLS policy examples
 - Performance optimization strategies

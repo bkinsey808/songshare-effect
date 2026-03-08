@@ -1,6 +1,5 @@
-import type { AlertType } from "@/react/pages/home/AlertState.type";
-
 import { ALL_ALERT_TYPES } from "@/react/pages/home/alert-keys";
+import type { AlertType } from "@/react/pages/home/AlertState.type";
 
 /**
  * Runtime type guard for alert type strings using the shared alert keys.

@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
 import { warn as sWarn } from "@/scripts/utils/scriptLogger";
+
 import { type TableDefinition } from "./generate-effect-schemas-types";
 import generateEffectSchema from "./generateEffectSchema";
 

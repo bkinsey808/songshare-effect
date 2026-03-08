@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import EventPlaylistAccordion from "@/react/event/view/playlist-accordion/EventPlaylistAccordion";
 import useEventView from "@/react/event/view/useEventView";
 import Button from "@/react/lib/design-system/Button";
-import ShareButton from "@/react/lib/design-system/ShareButton";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
+import ShareButton from "@/react/lib/design-system/ShareButton";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {

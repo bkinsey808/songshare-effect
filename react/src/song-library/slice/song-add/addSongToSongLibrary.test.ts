@@ -4,9 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { apiSongLibraryAddPath } from "@/shared/paths";
 
-import type { AddSongToSongLibraryRequest } from "../song-library-types";
-
 import makeSongLibrarySlice from "../makeSongLibrarySlice.mock";
+import type { AddSongToSongLibraryRequest } from "../song-library-types";
 import addSongToSongLibrary from "./addSongToSongLibrary";
 
 // Mock modules

@@ -2,7 +2,6 @@ import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
 import type { Song } from "../song-schema";
-
 import makeSongSubscribeSlice from "./makeSongSubscribeSlice.mock";
 
 describe("makeSongSubscribeSlice", () => {

@@ -4,9 +4,8 @@ import extractNewRecord from "@/react/lib/supabase/subscription/extract/extractN
 import extractStringField from "@/react/lib/supabase/subscription/extract/extractStringField";
 import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isRealtimePayload";
 
-import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";
-
 import isEventLibraryEntry from "../guards/isEventLibraryEntry";
+import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";
 
 /**
  * Handles realtime subscription events for the event_library table.

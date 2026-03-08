@@ -1,15 +1,13 @@
 import { Effect } from "effect";
 
 import type getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
-
 import enrichWithOwnerUsername from "@/react/lib/supabase/enrichment/enrichWithOwnerUsername";
 import extractNewRecord from "@/react/lib/supabase/subscription/extract/extractNewRecord";
 import extractStringField from "@/react/lib/supabase/subscription/extract/extractStringField";
 import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isRealtimePayload";
 
-import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
-
 import isUserLibraryEntry from "../guards/isUserLibraryEntry";
+import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
 
 /**
  * Processes realtime events for the `user_library` subscription. Handles

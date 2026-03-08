@@ -1,6 +1,5 @@
-import type { PlacementConfig, PopoverPosition } from "../popover-types";
-
 import { CENTER_DIVISOR, MIN_MARGIN } from "../popover-constants";
+import type { PlacementConfig, PopoverPosition } from "../popover-types";
 
 /**
  * Adjusts position for left/right placements to fit within viewport

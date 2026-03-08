@@ -3,10 +3,11 @@ import type { Effect } from "effect";
 // Song Library Zustand slice with subscription functionality
 // Zustand StateCreator type is not required here — slices are declared as named functions.
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
+import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
-import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
-
+import fetchSongLibraryFn from "./fetchSongLibrary";
+import addSongToSongLibrary from "./song-add/addSongToSongLibrary";
 import type {
 	AddSongToSongLibraryRequest,
 	RemoveSongFromSongLibraryRequest,
@@ -14,9 +15,6 @@ import type {
 	SongLibrarySliceBase,
 	SongLibraryState,
 } from "./song-library-types";
-
-import fetchSongLibraryFn from "./fetchSongLibrary";
-import addSongToSongLibrary from "./song-add/addSongToSongLibrary";
 import removeSongFromSongLibrary from "./song-remove/removeSongFromLibrary";
 import subscribeToSongLibraryFn from "./subscribe/subscribeToSongLibrary";
 import subscribeToSongPublicFn from "./subscribe/subscribeToSongPublic";

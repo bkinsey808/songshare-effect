@@ -39,10 +39,7 @@ Components include semantic attributes that indicate their purpose:
 
 ```typescript
 // ✅ Robust - tests alert type, not text content
-await expect(alertContainer).toHaveAttribute(
-	"data-alert-type",
-	"deleteSuccess",
-);
+await expect(alertContainer).toHaveAttribute("data-alert-type", "deleteSuccess");
 await expect(alertContainer).toHaveAttribute("data-variant", "success");
 ```
 
@@ -90,10 +87,7 @@ test("shows account deleted success alert", async ({ page }) => {
 	await expect(alertContainer).toBeVisible();
 
 	// ✅ Verify specific alert type
-	await expect(alertContainer).toHaveAttribute(
-		"data-alert-type",
-		ALERT_TYPES.DELETE_SUCCESS,
-	);
+	await expect(alertContainer).toHaveAttribute("data-alert-type", ALERT_TYPES.DELETE_SUCCESS);
 
 	// ✅ Verify alert variant
 	await expect(alertContainer).toHaveAttribute("data-variant", "success");

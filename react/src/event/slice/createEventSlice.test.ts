@@ -1,13 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { EventEntry, EventState } from "../event-types";
-import type { EventSlice } from "./EventSlice.type";
-
 import createEventSlice from "./createEventSlice";
+import type { EventSlice } from "./EventSlice.type";
 
 /**
  * Helper that mimics a minimal zustand store used by the real slice.

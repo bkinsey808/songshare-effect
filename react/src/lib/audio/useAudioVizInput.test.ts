@@ -1,6 +1,5 @@
-import type { RefObject } from "react";
-
 import { renderHook, waitFor } from "@testing-library/react";
+import type { RefObject } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 // helpers extracted to a shared location so they can safely contain the
@@ -15,7 +14,6 @@ import {
 import { ZERO } from "@/shared/constants/shared-constants";
 
 import type { SmoothedAudioLevel } from "./smooth/useSmoothedAudioLevel";
-
 import useAudioVizInput from "./useAudioVizInput";
 
 describe("useAudioVizInput", () => {

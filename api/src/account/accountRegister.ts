@@ -3,8 +3,6 @@ import { Effect } from "effect";
 import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 
-import type { Database } from "@/shared/generated/supabaseTypes";
-
 import { DatabaseError, ServerError, ValidationError } from "@/api/api-errors";
 import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import { registerCookieName, userSessionCookieName } from "@/api/cookie/cookie";
@@ -18,6 +16,7 @@ import { csrfTokenCookieName } from "@/shared/cookies";
 import { getEnvString } from "@/shared/env/getEnv";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { UserPublicSchema, UserSchema } from "@/shared/generated/supabaseSchemas";
+import type { Database } from "@/shared/generated/supabaseTypes";
 import { RegisterFormSchema } from "@/shared/register/register";
 import { UserSessionDataSchema } from "@/shared/userSessionData";
 import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrMap";

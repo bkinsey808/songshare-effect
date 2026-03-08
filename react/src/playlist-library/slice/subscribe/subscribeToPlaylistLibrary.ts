@@ -5,7 +5,6 @@ import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 
 import type { PlaylistLibrarySlice } from "../playlist-library-slice";
-
 import handlePlaylistLibrarySubscribeEvent from "./handlePlaylistLibrarySubscribeEvent";
 
 /**

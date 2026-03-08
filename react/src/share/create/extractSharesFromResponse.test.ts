@@ -45,25 +45,19 @@ describe("extractSharesFromResponse", () => {
 
 	it("extracts from flat { shares } shape", () => {
 		expect(extractSharesFromResponse({ shares: [] })).toStrictEqual([]);
-		expect(extractSharesFromResponse({ shares: [validShare] })).toStrictEqual([
-			validShare,
-		]);
+		expect(extractSharesFromResponse({ shares: [validShare] })).toStrictEqual([validShare]);
 	});
 
 	it("filters out invalid items from flat shape", () => {
 		const invalid = { share_id: "x", not_a_share: true };
-		expect(
-			extractSharesFromResponse({ shares: [validShare, invalid] }),
-		).toStrictEqual([validShare]);
-		expect(extractSharesFromResponse({ shares: [invalid] })).toStrictEqual(
-			[],
-		);
+		expect(extractSharesFromResponse({ shares: [validShare, invalid] })).toStrictEqual([
+			validShare,
+		]);
+		expect(extractSharesFromResponse({ shares: [invalid] })).toStrictEqual([]);
 	});
 
 	it("extracts from nested { data: { shares } } shape", () => {
-		expect(
-			extractSharesFromResponse({ success: true, data: { shares: [] } }),
-		).toStrictEqual([]);
+		expect(extractSharesFromResponse({ success: true, data: { shares: [] } })).toStrictEqual([]);
 		expect(
 			extractSharesFromResponse({
 				success: true,
@@ -73,12 +67,8 @@ describe("extractSharesFromResponse", () => {
 	});
 
 	it("returns empty array when nested data.shares is not an array", () => {
-		expect(
-			extractSharesFromResponse({ data: {} }),
-		).toStrictEqual([]);
-		expect(
-			extractSharesFromResponse({ data: { shares: undefined } }),
-		).toStrictEqual([]);
+		expect(extractSharesFromResponse({ data: {} })).toStrictEqual([]);
+		expect(extractSharesFromResponse({ data: { shares: undefined } })).toStrictEqual([]);
 	});
 
 	it("filters out invalid items from nested shape", () => {

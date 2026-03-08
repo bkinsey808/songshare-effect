@@ -2,7 +2,6 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import type { LookupUserResponse } from "../lookupUserByUsernameEffect";
-
 import { NetworkError } from "../user-library-errors";
 import runAddUserFlow from "./runAddUserFlow";
 

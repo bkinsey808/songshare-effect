@@ -1,5 +1,4 @@
 import type { createClient } from "@supabase/supabase-js";
-
 import { expect, vi } from "vitest";
 
 import type { SupabaseClientLike } from "./SupabaseClientLike";

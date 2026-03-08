@@ -1,9 +1,7 @@
 import type { Schema } from "effect";
-
 import { verify } from "hono/jwt";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import { error as serverError, log as serverLog } from "@/api/logger";
 import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 

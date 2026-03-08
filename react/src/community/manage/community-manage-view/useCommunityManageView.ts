@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import useAppStore from "@/react/app-store/useAppStore";
 import type {
 	CommunityEntry,
 	CommunityEvent,
@@ -9,16 +10,13 @@ import type {
 	CommunitySong,
 	CommunityUser,
 } from "@/react/community/community-types";
-import type { UserSessionData } from "@/shared/userSessionData";
-
-import useAppStore from "@/react/app-store/useAppStore";
 import useLoadCommunityBySlug from "@/react/community/useLoadCommunityBySlug";
 import useLoadCommunityLibraries from "@/react/community/useLoadCommunityLibraries";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
+import type { UserSessionData } from "@/shared/userSessionData";
 
 import type { CommunityActionState } from "./CommunityActionState.type";
-
 import createCommunityManageHandlers from "./createCommunityManageHandlers";
 import getCommunityPermissions from "./getCommunityPermissions";
 import useCommunityManageSubscriptions from "./useCommunityManageSubscriptions";
@@ -107,11 +105,7 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 	});
 
 	useLoadCommunityBySlug(community_slug, fetchCommunityBySlug);
-	useLoadCommunityLibraries(
-		userSessionData?.user?.user_id,
-		fetchSongLibrary,
-		fetchPlaylistLibrary,
-	);
+	useLoadCommunityLibraries(userSessionData?.user?.user_id, fetchSongLibrary, fetchPlaylistLibrary);
 
 	// Realtime subscriptions (community_event + community_public)
 	useCommunityManageSubscriptions(communityId);

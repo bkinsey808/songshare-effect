@@ -5,7 +5,6 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import postJson from "@/shared/fetch/postJson";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
-
 import setActiveEventForCommunity from "./setActiveEventForCommunity";
 
 vi.mock("@/shared/fetch/postJson");

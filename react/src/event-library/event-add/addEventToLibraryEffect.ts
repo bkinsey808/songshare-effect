@@ -5,9 +5,8 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiEventLibraryAddPath } from "@/shared/paths";
 
 import type { AddEventToLibraryRequest } from "../event-library-types";
-import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";
-
 import guardAsEventLibraryEntry from "../guards/guardAsEventLibraryEntry";
+import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";
 
 /**
  * Adds an event to the current user's event library. Validates the input,

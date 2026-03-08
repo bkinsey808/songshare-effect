@@ -103,7 +103,8 @@ export const apiCommunitySongRemovePath = "/api/community-song/remove";
 export const apiCommunityPlaylistAddPath = "/api/community-playlist/add";
 export const apiCommunityPlaylistRemovePath = "/api/community-playlist/remove";
 export const apiCommunityShareRequestCreatePath = "/api/community-share-request/create";
-export const apiCommunityShareRequestUpdateStatusPath = "/api/community-share-request/update-status";
+export const apiCommunityShareRequestUpdateStatusPath =
+	"/api/community-share-request/update-status";
 export const apiCommunitySetActiveEventPath = "/api/community/set-active-event";
 export const apiUploadPath = "/api/upload";
 export const apiHelloPath = "/api/hello";

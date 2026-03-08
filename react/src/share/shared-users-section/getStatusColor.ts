@@ -10,13 +10,13 @@ import type { ShareStatus } from "../slice/share-types";
  */
 export default function getStatusColor(status: ShareStatus): string {
 	switch (status) {
-		case 'pending': {
+		case "pending": {
 			return tw`text-yellow-400`;
 		}
-		case 'accepted': {
+		case "accepted": {
 			return tw`text-green-400`;
 		}
-		case 'rejected': {
+		case "rejected": {
 			return tw`text-red-400`;
 		}
 		default: {

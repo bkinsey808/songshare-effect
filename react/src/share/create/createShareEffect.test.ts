@@ -8,7 +8,6 @@ import { apiShareCreatePath } from "@/shared/paths";
 
 import type { ShareCreateRequest } from "../slice/share-types";
 import type { ShareSlice } from "../slice/ShareSlice.type";
-
 import createShareEffect from "./createShareEffect";
 
 vi.mock("@/shared/fetch/postJsonWithResult");
@@ -115,9 +114,7 @@ describe("createShareEffect", () => {
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/Failed to create share/);
 
 		expect(setSharesLoading).toHaveBeenNthCalledWith(FIRST_CALL, true);
-		expect(setShareError).toHaveBeenCalledWith(
-			expect.stringMatching(new RegExp(errorMessage)),
-		);
+		expect(setShareError).toHaveBeenCalledWith(expect.stringMatching(new RegExp(errorMessage)));
 		expect(addSentShare).not.toHaveBeenCalled();
 		expect(setSharesLoading).toHaveBeenLastCalledWith(false);
 		expect(setLoadingShareId).toHaveBeenCalledWith(undefined);

@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import type { UserSessionData } from "@/shared/userSessionData";
-
 import { appStore } from "@/react/app-store/useAppStore";
 import getCurrentLangFromPath from "@/react/lib/language/path/getCurrentLangFromPath";
 import { clientDebug, clientError, clientWarn } from "@/react/lib/utils/clientLogger";
@@ -17,6 +15,7 @@ import {
 	justSignedOutKey,
 	justUnauthorizedAccessKey,
 } from "@/shared/sessionStorageKeys";
+import type { UserSessionData } from "@/shared/userSessionData";
 
 /**
  * Public shape returned by the hook.

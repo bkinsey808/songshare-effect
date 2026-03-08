@@ -1,5 +1,4 @@
 import type { UseSlideManagerViewResult } from "@/react/event/manage/slide/useSlideManagerView";
-
 import { getMockFn } from "@/react/event/manage/test-utils/mockUseSlideManagerView.test-util";
 
 /**

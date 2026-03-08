@@ -1,7 +1,6 @@
 import { Effect } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import { type Database } from "@/shared/generated/supabaseTypes";
 
 import { DatabaseError, type AppError } from "../api-errors";
@@ -77,6 +76,11 @@ export default function communityLibrary(
 		}
 
 		const communityIds = (membershipQuery.data ?? []).map((membership) => membership.community_id);
+		const INDENT_TWO = 2;
+		console.warn(
+			`[communityLibrary] User ${userId} membership data:`,
+			JSON.stringify(membershipQuery.data, undefined, INDENT_TWO),
+		);
 
 		if (communityIds.length === EMPTY_ARRAY_LENGTH) {
 			return [];
@@ -99,6 +103,9 @@ export default function communityLibrary(
 
 		// 3. Map to frontend-friendly type
 		const rawCommunities = (communityQuery.data ?? []) as CommunityPublicRow[];
+		console.warn(
+			`[communityLibrary] Found ${communityIds.length} joined memberships for user ${userId}. Returning ${rawCommunities.length} community details.`,
+		);
 		const communities: CommunityEntry[] = rawCommunities.map((community) => ({
 			community_id: community.community_id,
 			owner_id: community.owner_id,

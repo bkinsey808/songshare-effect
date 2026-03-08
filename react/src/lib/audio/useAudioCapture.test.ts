@@ -15,7 +15,6 @@ import type {
 	MinimalMediaStreamTrack,
 } from "./audio-types";
 import type createTimeDomainAnalyser from "./createTimeDomainAnalyser";
-
 import useAudioCapture from "./useAudioCapture";
 
 function spyCreateTimeDomainAnalyser(): Promise<SpyLike> {

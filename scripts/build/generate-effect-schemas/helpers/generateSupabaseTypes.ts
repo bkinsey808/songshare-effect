@@ -13,9 +13,7 @@ export type SupabaseGenerationConfig = {
 };
 
 // The config includes NodeJS.ProcessEnv which isn't readonly, so lint rule is disabled.
-export function generateSupabaseTypes(
-	config: Readonly<SupabaseGenerationConfig>,
-): boolean {
+export function generateSupabaseTypes(config: Readonly<SupabaseGenerationConfig>): boolean {
 	sWarn("📥 Generating Supabase TypeScript types...");
 	const NO_LENGTH = 0;
 	if (existsSync(config.tempTypesPath)) {
@@ -23,24 +21,14 @@ export function generateSupabaseTypes(
 	}
 
 	if (config.projectRef === "") {
-		sWarn(
-			"⚠️  SUPABASE_PROJECT_REF not set. Skipping remote Supabase type generation.",
-		);
+		sWarn("⚠️  SUPABASE_PROJECT_REF not set. Skipping remote Supabase type generation.");
 		return false;
 	}
 
 	try {
 		const supabaseOutput = execFileSync(
 			config.cliPath,
-			[
-				"gen",
-				"types",
-				"typescript",
-				"--project-id",
-				config.projectRef,
-				"--schema",
-				"public",
-			],
+			["gen", "types", "typescript", "--project-id", config.projectRef, "--schema", "public"],
 			{
 				cwd: config.projectRoot,
 				env: config.env,

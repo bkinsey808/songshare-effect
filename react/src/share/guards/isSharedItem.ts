@@ -1,5 +1,6 @@
-import type { SharedItem } from "../slice/share-types";
 import isRecord from "@/shared/type-guards/isRecord";
+
+import type { SharedItem } from "../slice/share-types";
 
 /**
  * Type guard to check if an unknown value is a valid SharedItem.
@@ -13,15 +14,17 @@ export default function isSharedItem(value: unknown): value is SharedItem {
 	}
 
 	return (
-		typeof value['share_id'] === "string" &&
-		typeof value['sender_user_id'] === "string" &&
-		typeof value['recipient_user_id'] === "string" &&
-		typeof value['shared_item_type'] === "string" &&
-		typeof value['shared_item_id'] === "string" &&
-		typeof value['shared_item_name'] === "string" &&
-		typeof value['status'] === "string" &&
-		(value['message'] === null || value['message'] === undefined || typeof value['message'] === "string") &&
-		(value['created_at'] === undefined || typeof value['created_at'] === "string") &&
-		(value['updated_at'] === undefined || typeof value['updated_at'] === "string")
+		typeof value["share_id"] === "string" &&
+		typeof value["sender_user_id"] === "string" &&
+		typeof value["recipient_user_id"] === "string" &&
+		typeof value["shared_item_type"] === "string" &&
+		typeof value["shared_item_id"] === "string" &&
+		typeof value["shared_item_name"] === "string" &&
+		typeof value["status"] === "string" &&
+		(value["message"] === null ||
+			value["message"] === undefined ||
+			typeof value["message"] === "string") &&
+		(value["created_at"] === undefined || typeof value["created_at"] === "string") &&
+		(value["updated_at"] === undefined || typeof value["updated_at"] === "string")
 	);
 }

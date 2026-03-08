@@ -50,20 +50,14 @@ export function getSong(ctx: Context<{ Bindings: Bindings }>) {
 	return Effect.gen(function* () {
 		// 1. Validate input
 		if (!songId) {
-			return yield* Effect.fail(
-				new NotFoundError({ message: "Song ID is required" }),
-			);
+			return yield* Effect.fail(new NotFoundError({ message: "Song ID is required" }));
 		}
 
 		// 2. Get Supabase client
 		const supabase = yield* getSupabaseClient(ctx);
 
 		// 3. Query database
-		const { data, error } = await supabase
-			.from("songs")
-			.select("*")
-			.eq("id", songId)
-			.single();
+		const { data, error } = await supabase.from("songs").select("*").eq("id", songId).single();
 
 		if (error) {
 			return yield* Effect.fail(
@@ -72,9 +66,7 @@ export function getSong(ctx: Context<{ Bindings: Bindings }>) {
 		}
 
 		if (!data) {
-			return yield* Effect.fail(
-				new NotFoundError({ message: "Song not found" }),
-			);
+			return yield* Effect.fail(new NotFoundError({ message: "Song not found" }));
 		}
 
 		// 4. Return success response
@@ -156,16 +148,11 @@ import {
 
 // Example usage
 if (!userId) {
-	return (
-		yield * Effect.fail(new ValidationError({ message: "User ID is required" }))
-	);
+	return yield * Effect.fail(new ValidationError({ message: "User ID is required" }));
 }
 
 if (!hasPermission) {
-	return (
-		yield *
-		Effect.fail(new ForbiddenError({ message: "Insufficient permissions" }))
-	);
+	return yield * Effect.fail(new ForbiddenError({ message: "Insufficient permissions" }));
 }
 ```
 
@@ -285,11 +272,7 @@ export function createSong(ctx: Context<{ Bindings: Bindings }>) {
 		const supabase = yield* getSupabaseClient(ctx);
 
 		// 3. Insert into database
-		const { data, error } = await supabase
-			.from("songs")
-			.insert([validatedData])
-			.select()
-			.single();
+		const { data, error } = await supabase.from("songs").insert([validatedData]).select().single();
 
 		if (error) {
 			return yield* Effect.fail(
@@ -371,9 +354,7 @@ export function protectedEndpoint(ctx: Context<{ Bindings: Bindings }>) {
 		// Get user token from request
 		const authHeader = ctx.req.header("Authorization");
 		if (!authHeader) {
-			return yield* Effect.fail(
-				new UnauthorizedError({ message: "Authorization required" }),
-			);
+			return yield* Effect.fail(new UnauthorizedError({ message: "Authorization required" }));
 		}
 
 		// Verify token and get user
@@ -404,18 +385,12 @@ export function getSongById(ctx: Context<{ Bindings: Bindings }>) {
 		const songId = ctx.req.param("id");
 
 		if (!songId?.trim()) {
-			return yield* Effect.fail(
-				new ValidationError({ message: "Song ID is required" }),
-			);
+			return yield* Effect.fail(new ValidationError({ message: "Song ID is required" }));
 		}
 
 		const supabase = yield* getSupabaseClient(ctx);
 
-		const { data, error } = await supabase
-			.from("songs")
-			.select("*")
-			.eq("id", songId)
-			.single();
+		const { data, error } = await supabase.from("songs").select("*").eq("id", songId).single();
 
 		if (error) {
 			return yield* Effect.fail(
@@ -427,9 +402,7 @@ export function getSongById(ctx: Context<{ Bindings: Bindings }>) {
 		}
 
 		if (!data) {
-			return yield* Effect.fail(
-				new NotFoundError({ message: `Song with ID ${songId} not found` }),
-			);
+			return yield* Effect.fail(new NotFoundError({ message: `Song with ID ${songId} not found` }));
 		}
 
 		return yield* Effect.succeed({

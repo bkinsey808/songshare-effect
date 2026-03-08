@@ -15,7 +15,6 @@ import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrM
 
 // Env type not required — ReadonlyContext default covers Bindings
 import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
-
 import { type ReadonlySupabaseClient } from "../supabase/ReadonlySupabaseClient.type";
 
 type ReadonlyUser = ReadonlyDeep<User>;

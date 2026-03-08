@@ -136,12 +136,7 @@ function CustomPopover() {
 				onKeyDown={handleKeyDown}
 				aria-expanded={isOpen}
 			/>
-			<CustomPopover
-				ref={popoverRef}
-				id={popoverId}
-				popover="auto"
-				style={popoverPosition}
-			>
+			<CustomPopover ref={popoverRef} id={popoverId} popover="auto" style={popoverPosition}>
 				Custom content with full control
 			</CustomPopover>
 		</div>
@@ -370,8 +365,7 @@ The component includes sensible defaults with Tailwind CSS:
 
 ```tsx
 // Popover container
-className =
-	"max-w-64 overflow-hidden rounded-lg bg-gray-800 p-4 shadow-lg ring-1 ring-white/10";
+className = "max-w-64 overflow-hidden rounded-lg bg-gray-800 p-4 shadow-lg ring-1 ring-white/10";
 
 // Arrow indicator
 className = "absolute h-2 w-2 rotate-45 bg-gray-800";
@@ -450,14 +444,7 @@ If migrating from libraries like Floating UI or Popper.js:
 **Before (with external library):**
 
 ```tsx
-import {
-	FloatingPortal,
-	autoUpdate,
-	flip,
-	offset,
-	shift,
-	useFloating,
-} from "@floating-ui/react";
+import { FloatingPortal, autoUpdate, flip, offset, shift, useFloating } from "@floating-ui/react";
 
 // Complex setup with multiple hooks and configurations...
 ```

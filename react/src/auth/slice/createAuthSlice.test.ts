@@ -1,12 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
+import fetchSupabaseUserTokenFromApi from "@/react/lib/supabase/auth-token/fetchSupabaseUserTokenFromApi";
 import type { UserSessionData } from "@/shared/userSessionData";
 
-import fetchSupabaseUserTokenFromApi from "@/react/lib/supabase/auth-token/fetchSupabaseUserTokenFromApi";
-
 import type { AuthSlice, AuthState } from "./auth-slice.types";
-
 import createAuthSlice from "./createAuthSlice";
 import makeAuthSlice from "./makeAuthSlice.test-util";
 

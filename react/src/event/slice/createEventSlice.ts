@@ -1,7 +1,6 @@
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
-
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import type {
 	EventCommunityEntry,
@@ -10,13 +9,12 @@ import type {
 	EventUser,
 	SaveEventRequest,
 } from "../event-types";
-import type { EventSlice } from "./EventSlice.type";
-
 import fetchEventBySlugFn from "../fetch/fetchEventBySlug";
 import saveEventFn from "../form/saveEvent";
 import joinEventFn from "../join/joinEvent";
 import leaveEventFn from "../leave/leaveEvent";
 import subscribeToEventFn from "../subscribe/subscribeToEvent";
+import type { EventSlice } from "./EventSlice.type";
 
 const eventSliceInitialState: EventState = {
 	currentEvent: undefined,

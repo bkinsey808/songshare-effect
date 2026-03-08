@@ -1,6 +1,5 @@
-import type { SupportedLanguageType } from "./supported-languages";
-
 import getPathWithoutLang from "./getPathWithoutLang";
+import type { SupportedLanguageType } from "./supported-languages";
 
 /**
  * Prepend the language prefix to a pathname, preserving the non-language path.

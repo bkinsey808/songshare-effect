@@ -2,9 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { SongPublic } from "@/react/song/song-schema";
 
-import type { SongSubscribeSlice } from "../song-slice/song-slice";
-
 import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
+import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import updateStoreWithPublicSongs from "./updateStoreWithPublicSongs";
 
 /**

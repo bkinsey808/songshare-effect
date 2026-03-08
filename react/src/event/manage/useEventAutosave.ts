@@ -1,5 +1,4 @@
 import type { Effect as EffectRuntime } from "effect";
-
 import { useState, type Dispatch, type SetStateAction } from "react";
 
 import useThrottle from "@/react/lib/hooks/useThrottle";
@@ -7,7 +6,6 @@ import postJson from "@/shared/fetch/postJson";
 import { apiEventSavePath } from "@/shared/paths";
 
 import type { ActionState } from "./ActionState.type";
-
 import refreshEvent from "./refreshEvent";
 import runAction from "./runAction";
 

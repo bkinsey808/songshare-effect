@@ -1,5 +1,4 @@
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import { getEnvString } from "@/shared/env/getEnv";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 

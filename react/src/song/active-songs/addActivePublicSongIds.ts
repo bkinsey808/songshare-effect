@@ -1,15 +1,13 @@
 import { Effect } from "effect";
 
-import type { SongPublic } from "@/react/song/song-schema";
-import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
-
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import type { SongPublic } from "@/react/song/song-schema";
 import isRecord from "@/shared/type-guards/isRecord";
+import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
-
 import processSong from "./processSong";
 
 /**

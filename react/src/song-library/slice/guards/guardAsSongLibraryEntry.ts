@@ -1,5 +1,4 @@
 import type { SongLibraryEntry } from "../song-library-types";
-
 import isSongLibraryEntry from "./isSongLibraryEntry";
 
 /**

@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+
 import bundleTopLevelFunctions from "./helpers/bundleTopLevelFunctions";
 import copyAndRewriteShared from "./helpers/copyAndRewriteShared";
 import ensureDir from "./helpers/ensureDir";
@@ -55,8 +56,7 @@ async function prepare(): Promise<void> {
 			// Find all non-relative imports / requires and capture the package
 			// name (the first path segment) so we can decide whether it's
 			// allowed. Example matches: "effect", "effect/Either", "vitest".
-			const externalImportRegex =
-				/(?:from|require\()\s*["'](?!\.\/?|\.\.\/)([^"'/]+)(?:["'/])/gi;
+			const externalImportRegex = /(?:from|require\()\s*["'](?!\.\/?|\.\.\/)([^"'/]+)(?:["'/])/gi;
 			let shouldPrune = false;
 
 			for (const matchItem of contents.matchAll(externalImportRegex)) {
@@ -87,10 +87,7 @@ async function prepare(): Promise<void> {
 			// filesystem operations at once.
 			// oxlint-disable-next-line no-await-in-loop
 			await unlink(filePath);
-			sWarn(
-				"Removed unsupported shared file from functions bundle ->",
-				filePath,
-			);
+			sWarn("Removed unsupported shared file from functions bundle ->", filePath);
 		}
 	} catch (error) {
 		const message = extractErrorMessage(error, "Unknown error");

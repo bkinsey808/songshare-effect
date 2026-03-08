@@ -15,7 +15,7 @@ These skills are automatically loaded when relevant to your task:
 - [**realtime-rls-architecture**](./skills/realtime-rls-architecture/SKILL.md) - RLS policy templates for Realtime tables, JWT validation logic, access control layers
 - [**realtime-rls-debugging**](./skills/realtime-rls-debugging/SKILL.md) - Debugging Realtime subscriptions that connect but deliver no updates, empty filter errors
 - [**file-organization**](./skills/file-organization/SKILL.md) - No barrel files, direct imports, naming conventions
-- [**naming-conventions**](./skills/naming-conventions/SKILL.md) - Function prefix guide (use* vs compute* vs get* etc.), type/variable/file naming rules
+- [**naming-conventions**](./skills/naming-conventions/SKILL.md) - Function prefix guide (use* vs compute* vs get\* etc.), type/variable/file naming rules
 - [**typescript-conventions**](./skills/typescript-conventions/SKILL.md) - Strict typing, no `any`, JSDoc rules
 - [**react-conventions**](./skills/react-conventions/SKILL.md) - React Compiler (no memoization), ReactElement ambient type, useEffect comment rule, component organization
 - [**manage-page-patterns**](./skills/manage-page-patterns/SKILL.md) - Local actionState, runCommunityAction/runAction helpers, realtime update path for admin/manage pages

@@ -1,4 +1,4 @@
-````markdown
+`````markdown
 # Effect-TS Implementation Summary
 
 ## What We've Accomplished
@@ -85,7 +85,7 @@ app.post("/api/songs", async (c) => {
 
 ### After (Effect-TS Approach):
 
-```typescript
+````typescript
 app.post("/api/songs", async (c) => {
 	const createSongEffect = Effect.gen(function* () {
 		const body = yield* Effect.tryPromise({
@@ -138,6 +138,9 @@ app.post("/api/songs", async (c) => {
 The API now serves as a solid foundation for further Effect-TS adoption throughout the application!
 
 ```markdown
+````
+`````
 
 ```
-````
+
+```

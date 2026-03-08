@@ -1,7 +1,6 @@
-import type { Paragraph } from "@/react/lib/language/paragraph";
-
 import useLocale from "@/react/lib/language/locale/useLocale";
 import normalizeTranslationParagraphs from "@/react/lib/language/normalizeTranslationParagraphs";
+import type { Paragraph } from "@/react/lib/language/paragraph";
 import { getEnvValueSafe } from "@/react/lib/utils/env";
 import { reactFeaturesPath, uploadDemoPath } from "@/shared/paths";
 

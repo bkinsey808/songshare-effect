@@ -2,9 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import makeSongLibraryEntry from "@/react/song-library/test-utils/makeSongLibraryEntry.mock";
 
-import type { SongLibraryEntry } from "./song-library-types";
-
 import makeSongLibrarySlice from "./makeSongLibrarySlice.mock";
+import type { SongLibraryEntry } from "./song-library-types";
 
 describe("makeSongLibrarySlice", () => {
 	it("reflects initial entries and setters update state", () => {

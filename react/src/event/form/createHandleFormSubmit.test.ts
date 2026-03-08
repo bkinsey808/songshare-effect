@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { EventFormValues, SaveEventRequest } from "../event-types";
-
 import createHandleFormSubmit from "./createHandleFormSubmit";
 
 const CALLED_ONCE = 1;

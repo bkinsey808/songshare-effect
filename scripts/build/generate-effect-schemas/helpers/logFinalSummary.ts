@@ -11,13 +11,9 @@ export default function logFinalSummary(
 ): void {
 	sLog("✅ Effect-TS schemas generated successfully!");
 	sLog("📁 Generated files:");
-	sLog(
-		`  • ${relative(params.projectRoot, params.schemasPath)} (Effect schemas)`,
-	);
+	sLog(`  • ${relative(params.projectRoot, params.schemasPath)} (Effect schemas)`);
 	if (params.supabaseTypesPath !== undefined) {
-		sLog(
-			`  • ${relative(params.projectRoot, params.supabaseTypesPath)} (Raw Supabase types)`,
-		);
+		sLog(`  • ${relative(params.projectRoot, params.supabaseTypesPath)} (Raw Supabase types)`);
 	}
 	sLog("");
 	sLog("Next steps:");

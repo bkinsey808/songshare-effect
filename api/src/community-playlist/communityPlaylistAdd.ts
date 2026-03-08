@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import { Effect, type Schema } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
@@ -34,12 +33,16 @@ export default function communityPlaylistAdd(
 				i18nMessageKey: "COMMUNITY_PLAYLIST_ADD",
 			}).pipe(
 				Effect.mapError((errs) => {
-					const first = Array.isArray(errs) && errs.length > ZERO ? errs.find(() => true) : undefined;
+					const first =
+						Array.isArray(errs) && errs.length > ZERO ? errs.find(() => true) : undefined;
 					return new ValidationError({ message: first?.message ?? "Validation failed" });
 				}),
 			),
 		);
-		const supabase = createClient<Database>(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
+		const supabase = createClient<Database>(
+			ctx.env.VITE_SUPABASE_URL,
+			ctx.env.SUPABASE_SERVICE_KEY,
+		);
 		const requesterRole = yield* $(
 			Effect.tryPromise({
 				try: () =>
@@ -49,23 +52,42 @@ export default function communityPlaylistAdd(
 						.eq("community_id", validated.community_id)
 						.eq("user_id", requesterId)
 						.single(),
-				catch: (err) => new DatabaseError({ message: extractErrorMessage(err, "Failed to verify permissions") }),
+				catch: (err) =>
+					new DatabaseError({ message: extractErrorMessage(err, "Failed to verify permissions") }),
 			}),
 		);
 		if (requesterRole.error) {
-			return yield* $(Effect.fail(new ValidationError({ message: "Community not found or not manageable" })));
+			return yield* $(
+				Effect.fail(new ValidationError({ message: "Community not found or not manageable" })),
+			);
 		}
 		if (!getCommunityRoleCapabilities(requesterRole.data?.role).canManageEvents) {
-			return yield* $(Effect.fail(new ValidationError({ message: "Only community owners and admins can add playlists" })));
+			return yield* $(
+				Effect.fail(
+					new ValidationError({ message: "Only community owners and admins can add playlists" }),
+				),
+			);
 		}
 		const insertResult = yield* $(
 			Effect.tryPromise({
-				try: () => supabase.from("community_playlist").insert([{ community_id: validated.community_id, playlist_id: validated.playlist_id }]),
-				catch: (err) => new DatabaseError({ message: extractErrorMessage(err, "Failed to add playlist to community") }),
+				try: () =>
+					supabase
+						.from("community_playlist")
+						.insert([{ community_id: validated.community_id, playlist_id: validated.playlist_id }]),
+				catch: (err) =>
+					new DatabaseError({
+						message: extractErrorMessage(err, "Failed to add playlist to community"),
+					}),
 			}),
 		);
 		if (insertResult.error) {
-			return yield* $(Effect.fail(new DatabaseError({ message: insertResult.error.message ?? "Failed to add playlist to community" })));
+			return yield* $(
+				Effect.fail(
+					new DatabaseError({
+						message: insertResult.error.message ?? "Failed to add playlist to community",
+					}),
+				),
+			);
 		}
 		return { success: true };
 	});

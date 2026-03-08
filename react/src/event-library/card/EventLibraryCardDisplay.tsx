@@ -14,7 +14,6 @@ import {
 } from "@/shared/paths";
 
 import type { EventLibraryEntry } from "../event-library-types";
-
 import useEventLibraryCardDisplay from "./useEventLibraryCardDisplay";
 
 type EventLibraryCardDisplayProps = {

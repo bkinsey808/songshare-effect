@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 
+import { NOT_FOUND } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiEventUserJoinPath } from "@/shared/paths";
 
@@ -53,9 +54,14 @@ export default function acceptEventInvitation(
 		}
 
 		// Optimistically mark as accepted so UI can show the link immediately
-		const updated = pendingEventInvitations.map((inv) =>
-			inv.event_id === eventId ? Object.assign(inv, { accepted: true }) : inv,
-		);
+		const updated = [...pendingEventInvitations];
+		const index = updated.findIndex((inv) => inv.event_id === eventId);
+		if (index !== NOT_FOUND) {
+			const existing = updated[index];
+			if (existing !== undefined) {
+				updated[index] = { ...existing, accepted: true };
+			}
+		}
 		setPendingEventInvitations(updated);
 	}).pipe(
 		Effect.tapError((err) =>

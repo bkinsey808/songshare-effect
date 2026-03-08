@@ -1,8 +1,7 @@
 // ReactElement is ambient; no import needed
 
-import type { AlertType } from "@/react/pages/home/AlertState.type";
-
 import tw from "@/react/lib/utils/tw";
+import type { AlertType } from "@/react/pages/home/AlertState.type";
 
 import useDismissibleAlert from "./useDismissibleAlert";
 

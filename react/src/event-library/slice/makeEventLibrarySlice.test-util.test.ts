@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import makeEventLibraryEntry from "@/react/event-library/test-utils/makeEventLibraryEntry.mock";
 
 import type { EventLibraryEntry } from "../event-library-types";
-
 import makeEventLibrarySlice from "./makeEventLibrarySlice.test-util";
 
 describe("makeEventLibrarySlice", () => {

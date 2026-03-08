@@ -2,7 +2,6 @@ import { type SupabaseClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
@@ -13,7 +12,7 @@ import createShareRecord from "./shareCreateRecord";
 
 type ShareCreateRequest = {
 	recipient_user_id: string;
-	shared_item_type: 'song' | 'playlist' | 'event' | 'community' | 'user';
+	shared_item_type: "song" | "playlist" | "event" | "community" | "user";
 	shared_item_id: string;
 	shared_item_name: string;
 	message?: string;
@@ -30,23 +29,37 @@ type ShareCreateRequest = {
  * @throws - `TypeError` when the request is invalid.
  */
 function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
+	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function isValidSharedItemType(value: unknown): value is 'song' | 'playlist' | 'event' | 'community' | 'user' {
-	return typeof value === 'string' && ['song', 'playlist', 'event', 'community', 'user'].includes(value);
+function isValidSharedItemType(
+	value: unknown,
+): value is "song" | "playlist" | "event" | "community" | "user" {
+	return (
+		typeof value === "string" && ["song", "playlist", "event", "community", "user"].includes(value)
+	);
 }
 
 function hasOwnerId(obj: unknown): obj is { owner_id: string } {
-	return typeof obj === 'object' && obj !== null && 'owner_id' in obj && typeof (obj as { owner_id: unknown }).owner_id === 'string';
+	return (
+		typeof obj === "object" &&
+		obj !== null &&
+		"owner_id" in obj &&
+		typeof (obj as { owner_id: unknown }).owner_id === "string"
+	);
 }
 
 function hasUserId(obj: unknown): obj is { user_id: string } {
-	return typeof obj === 'object' && obj !== null && 'user_id' in obj && typeof (obj as { user_id: unknown }).user_id === 'string';
+	return (
+		typeof obj === "object" &&
+		obj !== null &&
+		"user_id" in obj &&
+		typeof (obj as { user_id: unknown }).user_id === "string"
+	);
 }
 
 function isSupabaseResult(value: unknown): value is { data: unknown; error: unknown } {
-	return typeof value === 'object' && value !== null && 'data' in value && 'error' in value;
+	return typeof value === "object" && value !== null && "data" in value && "error" in value;
 }
 
 function extractShareCreateRequest(request: unknown): ShareCreateRequest {
@@ -56,9 +69,9 @@ function extractShareCreateRequest(request: unknown): ShareCreateRequest {
 
 	const requiredFields = [
 		"recipient_user_id",
-		"shared_item_type", 
+		"shared_item_type",
 		"shared_item_id",
-		"shared_item_name"
+		"shared_item_name",
 	] as const;
 
 	for (const field of requiredFields) {
@@ -67,13 +80,8 @@ function extractShareCreateRequest(request: unknown): ShareCreateRequest {
 		}
 	}
 
-	const {
-		recipient_user_id,
-		shared_item_type,
-		shared_item_id,
-		shared_item_name,
-		message
-	} = request;
+	const { recipient_user_id, shared_item_type, shared_item_id, shared_item_name, message } =
+		request;
 
 	if (typeof recipient_user_id !== "string") {
 		throw new TypeError("recipient_user_id must be a string");
@@ -83,9 +91,9 @@ function extractShareCreateRequest(request: unknown): ShareCreateRequest {
 		throw new TypeError("shared_item_type must be one of: song, playlist, event, community, user");
 	}
 
-	const validTypes = ['song', 'playlist', 'event', 'community', 'user'];
+	const validTypes = ["song", "playlist", "event", "community", "user"];
 	if (!validTypes.includes(shared_item_type)) {
-		throw new TypeError(`shared_item_type must be one of: ${validTypes.join(', ')}`);
+		throw new TypeError(`shared_item_type must be one of: ${validTypes.join(", ")}`);
 	}
 
 	if (typeof shared_item_id !== "string") {
@@ -105,7 +113,7 @@ function extractShareCreateRequest(request: unknown): ShareCreateRequest {
 		shared_item_type,
 		shared_item_id,
 		shared_item_name,
-		...(message !== undefined && { message })
+		...(message !== undefined && { message }),
 	};
 }
 
@@ -119,51 +127,33 @@ type ValidateSharedItemAccessParams = {
 /**
  * Validate that the shared item exists and the sender has access to it.
  */
-function validateSharedItemAccess(params: ValidateSharedItemAccessParams): Effect.Effect<boolean, DatabaseError> {
+function validateSharedItemAccess(
+	params: ValidateSharedItemAccessParams,
+): Effect.Effect<boolean, DatabaseError> {
 	const { client, senderUserId, itemType, itemId } = params;
 	return Effect.tryPromise({
 		try: async () => {
 			let query: unknown = undefined;
-			
+
 			switch (itemType) {
-				case 'song': {
-					query = client
-						.from('song')
-						.select('user_id')
-						.eq('song_id', itemId)
-						.single();
+				case "song": {
+					query = client.from("song").select("user_id").eq("song_id", itemId).single();
 					break;
 				}
-				case 'playlist': {
-					query = client
-						.from('playlist')
-						.select('user_id')
-						.eq('playlist_id', itemId)
-						.single();
+				case "playlist": {
+					query = client.from("playlist").select("user_id").eq("playlist_id", itemId).single();
 					break;
 				}
-				case 'event': {
-					query = client
-						.from('event')
-						.select('owner_id')
-						.eq('event_id', itemId)
-						.single();
+				case "event": {
+					query = client.from("event").select("owner_id").eq("event_id", itemId).single();
 					break;
 				}
-				case 'community': {
-					query = client
-						.from('community')
-						.select('owner_id')
-						.eq('community_id', itemId)
-						.single();
+				case "community": {
+					query = client.from("community").select("owner_id").eq("community_id", itemId).single();
 					break;
 				}
-				case 'user': {
-					query = client
-						.from('user')
-						.select('user_id')
-						.eq('user_id', itemId)
-						.single();
+				case "user": {
+					query = client.from("user").select("user_id").eq("user_id", itemId).single();
 					break;
 				}
 				default: {
@@ -173,13 +163,13 @@ function validateSharedItemAccess(params: ValidateSharedItemAccessParams): Effec
 
 			const result: unknown = await query;
 			if (!isSupabaseResult(result)) {
-				throw new Error('Invalid query result format');
+				throw new Error("Invalid query result format");
 			}
-			
+
 			const { data, error } = result;
-			
+
 			if (error !== null && error !== undefined) {
-				throw new Error(error instanceof Error ? error.message : 'Database query failed');
+				throw new Error(error instanceof Error ? error.message : "Database query failed");
 			}
 
 			if (data === null || data === undefined) {
@@ -189,20 +179,20 @@ function validateSharedItemAccess(params: ValidateSharedItemAccessParams): Effec
 			// For songs, playlists: check if sender owns the item
 			// For events, communities: check if sender owns the item
 			// For users: any authenticated user can share any user (following relationship)
-			if (itemType === 'user') {
+			if (itemType === "user") {
 				return true; // Any user can share any other user
 			}
 
-			const ownerField = itemType === 'event' || itemType === 'community' ? 'owner_id' : 'user_id';
-			let ownerId = '';
-			if (ownerField === 'owner_id') {
+			const ownerField = itemType === "event" || itemType === "community" ? "owner_id" : "user_id";
+			let ownerId = "";
+			if (ownerField === "owner_id") {
 				if (!hasOwnerId(data)) {
-					throw new Error('Expected owner_id in data');
+					throw new Error("Expected owner_id in data");
 				}
 				ownerId = data.owner_id;
 			} else {
 				if (!hasUserId(data)) {
-					throw new Error('Expected user_id in data');
+					throw new Error("Expected user_id in data");
 				}
 				ownerId = data.user_id;
 			}
@@ -242,11 +232,11 @@ export default function shareCreateHandler(
 		);
 
 		// Validate request structure
-		let req: ShareCreateRequest = { 
-			recipient_user_id: '', 
-			shared_item_type: 'song', 
-			shared_item_id: '', 
-			shared_item_name: '' 
+		let req: ShareCreateRequest = {
+			recipient_user_id: "",
+			shared_item_type: "song",
+			shared_item_id: "",
+			shared_item_name: "",
 		};
 		try {
 			req = extractShareCreateRequest(requestBody);
@@ -279,12 +269,14 @@ export default function shareCreateHandler(
 		const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
 
 		// Validate shared item exists and sender has access
-		const hasAccess = yield* $(validateSharedItemAccess({
-			client,
-			senderUserId,
-			itemType: req.shared_item_type,
-			itemId: req.shared_item_id,
-		}));
+		const hasAccess = yield* $(
+			validateSharedItemAccess({
+				client,
+				senderUserId,
+				itemType: req.shared_item_type,
+				itemId: req.shared_item_id,
+			}),
+		);
 
 		if (!hasAccess) {
 			return yield* $(

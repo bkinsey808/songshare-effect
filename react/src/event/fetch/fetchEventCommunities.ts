@@ -1,5 +1,4 @@
 import type { PostgrestResponse } from "@supabase/postgrest-js";
-
 import { Effect } from "effect";
 
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";

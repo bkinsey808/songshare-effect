@@ -1,10 +1,14 @@
 import type { Effect } from "effect";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
+import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
-import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
-
+import fetchUserLibraryFn from "../fetch/fetchUserLibraryEffect";
+import subscribeToUserLibraryFn from "../subscribe/subscribeToUserLibraryEffect";
+import subscribeToUserPublicForLibraryFn from "../subscribe/subscribeToUserPublicForLibraryEffect";
+import addUserToLibraryFn from "../user-add/addUserToLibraryEffect";
+import removeUserFromLibraryFn from "../user-remove/removeUserFromLibraryEffect";
 import type {
 	AddUserToLibraryRequest,
 	RemoveUserFromLibraryRequest,
@@ -12,12 +16,6 @@ import type {
 	UserLibraryState,
 } from "./user-library-types";
 import type { UserLibrarySlice } from "./UserLibrarySlice.type";
-
-import fetchUserLibraryFn from "../fetch/fetchUserLibraryEffect";
-import subscribeToUserLibraryFn from "../subscribe/subscribeToUserLibraryEffect";
-import subscribeToUserPublicForLibraryFn from "../subscribe/subscribeToUserPublicForLibraryEffect";
-import addUserToLibraryFn from "../user-add/addUserToLibraryEffect";
-import removeUserFromLibraryFn from "../user-remove/removeUserFromLibraryEffect";
 
 const initialState: UserLibraryState = {
 	userLibraryEntries: {} as Record<string, UserLibraryEntry>,

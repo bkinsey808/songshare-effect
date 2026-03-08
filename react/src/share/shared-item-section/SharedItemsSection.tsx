@@ -7,9 +7,7 @@ import useLocale from "@/react/lib/language/locale/useLocale";
 import getStatusColor from "../shared-users-section/getStatusColor";
 import getItemIcon from "./getItemIcon";
 import getItemLink from "./getItemLink";
-import useSharedItemSection, {
-	type UseSharedItemSectionReturn,
-} from "./useSharedItemSection";
+import useSharedItemSection, { type UseSharedItemSectionReturn } from "./useSharedItemSection";
 
 const FIRST_CHAR_INDEX = 0;
 const SECOND_CHAR_INDEX = 1;
@@ -88,27 +86,24 @@ export default function SharedItemsSection(): ReactElement | null {
 
 			{/* Status Filter */}
 			<div className="flex gap-2 mb-4 overflow-x-auto">
-				{(["all", "pending", "accepted", "rejected"] as const).map(
-					(status) => (
-						<button
-							key={status}
-							type="button"
-							onClick={() => {
-								setStatusFilter(status);
-							}}
-							className={`px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap transition-colors ${
-								statusFilter === status
-									? "bg-blue-600 text-white"
-									: "bg-gray-700 text-gray-300 hover:bg-gray-600"
-							}`}
-						>
-							{status === "all"
-								? "All"
-								: status.charAt(FIRST_CHAR_INDEX).toUpperCase() +
-									status.slice(SECOND_CHAR_INDEX)}
-						</button>
-					),
-				)}
+				{(["all", "pending", "accepted", "rejected"] as const).map((status) => (
+					<button
+						key={status}
+						type="button"
+						onClick={() => {
+							setStatusFilter(status);
+						}}
+						className={`px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap transition-colors ${
+							statusFilter === status
+								? "bg-blue-600 text-white"
+								: "bg-gray-700 text-gray-300 hover:bg-gray-600"
+						}`}
+					>
+						{status === "all"
+							? "All"
+							: status.charAt(FIRST_CHAR_INDEX).toUpperCase() + status.slice(SECOND_CHAR_INDEX)}
+					</button>
+				))}
 			</div>
 
 			{/* Error Display */}
@@ -150,13 +145,9 @@ export default function SharedItemsSection(): ReactElement | null {
 												{share.shared_item_name}
 											</Link>
 										) : (
-											<p className="font-medium text-white truncate">
-												{share.shared_item_name}
-											</p>
+											<p className="font-medium text-white truncate">{share.shared_item_name}</p>
 										)}
-										<span
-											className={`text-xs font-medium ${getStatusColor(share.status)}`}
-										>
+										<span className={`text-xs font-medium ${getStatusColor(share.status)}`}>
 											{share.status}
 										</span>
 									</div>
@@ -212,9 +203,7 @@ export default function SharedItemsSection(): ReactElement | null {
 							{activeTab === "received" ? "📥" : "📤"}
 						</div>
 						<p className="text-gray-400">
-							{activeTab === "received"
-								? "No received shares found"
-								: "No sent shares found"}
+							{activeTab === "received" ? "No received shares found" : "No sent shares found"}
 						</p>
 					</div>
 				)}

@@ -60,17 +60,15 @@ export default function convertApiImports(filePath: string, content: string): st
 	// function focused on converting API import paths.
 
 	// Pattern for ../something -> @/api/something
-	updatedContent = replaceAllWithCallback(updatedContent,
+	updatedContent = replaceAllWithCallback(
+		updatedContent,
 		/import\s+([^'"]*)\s+from\s+["']\.\.\/([^'"]*?)["'];?/g,
 		(fullMatch, maybeImportPart, maybeRelativePath) => {
 			const match = typeof fullMatch === "string" ? fullMatch : "";
 			const importPart = typeof maybeImportPart === "string" ? maybeImportPart : "";
 			const relativePath = typeof maybeRelativePath === "string" ? maybeRelativePath : "";
 			// Don't convert if it's already an alias or going to shared
-			if (
-				relativePath.includes("shared/src") ||
-				relativePath.startsWith("@/")
-			) {
+			if (relativePath.includes("shared/src") || relativePath.startsWith("@/")) {
 				return match;
 			}
 			return `import ${importPart} from "@/api/${relativePath}";`;
@@ -81,16 +79,14 @@ export default function convertApiImports(filePath: string, content: string): st
 	const marker = "api/src/";
 	const NOT_FOUND = -1;
 	const markerIndex = filePath.indexOf(marker);
-	const afterApi =
-		markerIndex === NOT_FOUND
-			? ""
-			: filePath.slice(markerIndex + marker.length);
+	const afterApi = markerIndex === NOT_FOUND ? "" : filePath.slice(markerIndex + marker.length);
 	const parts = afterApi.split("/");
 	// remove the file name segment
 	parts.pop();
 	const currentDir = parts.filter(Boolean).join("/") ?? "";
 	if (currentDir !== "") {
-		updatedContent = replaceAllWithCallback(updatedContent,
+		updatedContent = replaceAllWithCallback(
+			updatedContent,
 			/import\s+([^'"]*)\s+from\s+["']\.\/([^'"]*?)["'];?/g,
 			(fullMatch, maybeImportPart, maybeRelativePath) => {
 				const match = typeof fullMatch === "string" ? fullMatch : "";

@@ -2,12 +2,11 @@ import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { UserSessionData } from "@/shared/userSessionData";
-
 import { AuthenticationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 import getVerifiedSession from "@/api/user-session/getVerifiedSession";
+import type { UserSessionData } from "@/shared/userSessionData";
 
 import songSave from "./songSave";
 

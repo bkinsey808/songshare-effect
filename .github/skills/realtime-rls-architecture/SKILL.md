@@ -12,16 +12,19 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Writing/reviewing RLS policies for tables used by Supabase Realtime.
 - Verifying token-shape assumptions in policy conditions for visitor/user JWT access.
 
 Execution workflow:
+
 1. Define access rules at the table/policy layer first, then verify API/frontend assumptions.
 2. Ensure policies account for both visitor and user token structures where required.
 3. Use proven policy templates and adapt minimally for new tables.
 4. Validate via SQL simulation and realtime behavior checks before rollout.
 
 Output requirements:
+
 - Summarize policy changes and which token paths are allowed.
 - Report SQL verification steps and expected realtime visibility impact.
 

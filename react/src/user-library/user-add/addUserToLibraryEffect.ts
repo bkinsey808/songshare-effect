@@ -4,10 +4,9 @@ import { clientWarn } from "@/react/lib/utils/clientLogger";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiUserLibraryAddPath } from "@/shared/paths";
 
+import guardAsUserLibraryEntry from "../guards/guardAsUserLibraryEntry";
 import type { AddUserToLibraryRequest } from "../slice/user-library-types";
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
-
-import guardAsUserLibraryEntry from "../guards/guardAsUserLibraryEntry";
 
 /**
  * Adds a followed user to the current user's library. Validates the input,

@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { createInterface } from "node:readline/promises";
+
 import { describe, expect, it, vi } from "vitest";
 
 import { error, warn } from "@/scripts/utils/scriptLogger";

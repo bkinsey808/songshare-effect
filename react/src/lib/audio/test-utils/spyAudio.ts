@@ -1,6 +1,5 @@
-import type { AsyncSpy as SharedAsyncSpy } from "@/shared/types/AsyncSpy.type";
-
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import type { AsyncSpy as SharedAsyncSpy } from "@/shared/types/AsyncSpy.type";
 
 // Re-expose the shared `AsyncSpy` type under the same local name so existing
 // imports that reference `spyAudio` keep working.

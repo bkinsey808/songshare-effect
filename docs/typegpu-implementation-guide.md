@@ -45,21 +45,21 @@ device.queue.submit([encoder.finish()]);
 
 ```typescript
 // TypeScript with type checking
-const mainFragment = tgpu['~unstable'].fragmentFn({
-  // Avoid `in: {}` for entry points: some TypeGPU/unplugin versions generate
-  // an empty input struct which is invalid WGSL.
-  in: { fragCoord: d.builtin.position },
-  out: d.vec4f,
+const mainFragment = tgpu["~unstable"].fragmentFn({
+	// Avoid `in: {}` for entry points: some TypeGPU/unplugin versions generate
+	// an empty input struct which is invalid WGSL.
+	in: { fragCoord: d.builtin.position },
+	out: d.vec4f,
 })((input) => {
-  'use gpu';
-  return d.vec4f(1, 0, 0, 1);
+	"use gpu";
+	return d.vec4f(1, 0, 0, 1);
 });
 
 // Automatic binding and rendering
-const pipeline = root['~unstable']
-  .withVertex(mainVertex, {})
-  .withFragment(mainFragment, { format })
-  .createPipeline();
+const pipeline = root["~unstable"]
+	.withVertex(mainVertex, {})
+	.withFragment(mainFragment, { format })
+	.createPipeline();
 
 pipeline.withColorAttachment({ view }).draw(3);
 ```
@@ -93,9 +93,12 @@ device.queue.submit([encoder.finish()]);
 
 ```typescript
 // Created a function with "use gpu"
-const computeColor = tgpu.fn([], vec4f)(() => {
-  'use gpu';
-  return vec4f(0.5, 0.4, 0.5, 1);
+const computeColor = tgpu.fn(
+	[],
+	vec4f,
+)(() => {
+	"use gpu";
+	return vec4f(0.5, 0.4, 0.5, 1);
 });
 
 // But then voided it out!
@@ -121,27 +124,32 @@ const redComponent = 0.5 + 0.5 * Math.sin(timeValue);
 const timeUniform = root.createUniform(d.f32, 0);
 
 // 2. Define reusable GPU function
-const computeColor = tgpu.fn([d.f32], d.vec4f)((time) => {
-  'use gpu';
-  const red = 0.5 + 0.5 * std.sin(time);  // GPU math!
-  return d.vec4f(red, 0.4, 1 - red, 1);
+const computeColor = tgpu.fn(
+	[d.f32],
+	d.vec4f,
+)((time) => {
+	"use gpu";
+	const red = 0.5 + 0.5 * std.sin(time); // GPU math!
+	return d.vec4f(red, 0.4, 1 - red, 1);
 });
 
 // 3. Fragment shader actually calls the function
-const mainFragment = tgpu['~unstable'].fragmentFn({
-  in: { fragCoord: d.builtin.position },
-  out: d.vec4f,
-})((input) => {
-  'use gpu';
-  const time = timeUniform.$;  // Access uniform
-  return computeColor(time);   // Execute GPU function!
-}).$uses({ timeUniform, computeColor });
+const mainFragment = tgpu["~unstable"]
+	.fragmentFn({
+		in: { fragCoord: d.builtin.position },
+		out: d.vec4f,
+	})((input) => {
+		"use gpu";
+		const time = timeUniform.$; // Access uniform
+		return computeColor(time); // Execute GPU function!
+	})
+	.$uses({ timeUniform, computeColor });
 
 // 4. Create pipeline (automatic bind groups)
-const pipeline = root['~unstable']
-  .withVertex(mainVertex, {})
-  .withFragment(mainFragment, { format })
-  .createPipeline();
+const pipeline = root["~unstable"]
+	.withVertex(mainVertex, {})
+	.withFragment(mainFragment, { format })
+	.createPipeline();
 
 // 5. Render with one clean call
 pipeline.withColorAttachment({ view, clearValue, loadOp, storeOp }).draw(3);
@@ -162,11 +170,14 @@ pipeline.withColorAttachment({ view, clearValue, loadOp, storeOp }).draw(3);
 **Example**:
 
 ```typescript
-const myGpuFn = tgpu.fn([d.f32], d.vec4f)((value) => {
-  'use gpu';  // Must be first!
+const myGpuFn = tgpu.fn(
+	[d.f32],
+	d.vec4f,
+)((value) => {
+	"use gpu"; // Must be first!
 
-  const scaled = value * 2;
-  return d.vec4f(scaled, 0, 0, 1);
+	const scaled = value * 2;
+	return d.vec4f(scaled, 0, 0, 1);
 });
 ```
 
@@ -201,7 +212,7 @@ const timeUniform = root.createUniform(d.f32, 0);
 const time = timeUniform.$;
 
 // ❌ AVOID - Manual binding (more boilerplate)
-const timeBuffer = root.createBuffer(d.f32, 0).$usage('uniform');
+const timeBuffer = root.createBuffer(d.f32, 0).$usage("uniform");
 const layout = tgpu.bindGroupLayout({ time: { uniform: d.f32 } });
 const bindGroup = root.createBindGroup(layout, { time: timeBuffer });
 ```
@@ -221,17 +232,22 @@ const from = d.vec3f(1, 0, 0);
 const to = d.vec3f(0, 1, 0);
 
 const getColor = (t: number) => {
-  'use gpu';
-  // References from outer scope
-  return std.mix(from, to, t);
+	"use gpu";
+	// References from outer scope
+	return std.mix(from, to, t);
 };
 // Won't work! Must use $uses
 
 // ✅ CORRECT
-const getColorFn = tgpu.fn([d.f32], d.vec3f)((t) => {
-  'use gpu';
-  return std.mix(from, to, t);
-}).$uses({ from, to });  // Explicit dependency declaration
+const getColorFn = tgpu
+	.fn(
+		[d.f32],
+		d.vec3f,
+	)((t) => {
+		"use gpu";
+		return std.mix(from, to, t);
+	})
+	.$uses({ from, to }); // Explicit dependency declaration
 ```
 
 **Rules**:
@@ -245,34 +261,34 @@ const getColorFn = tgpu.fn([d.f32], d.vec3f)((t) => {
 **Pattern**: Use `tgpu['~unstable'].vertexFn()` and `.fragmentFn()`.
 
 ```typescript
-const mainVertex = tgpu['~unstable'].vertexFn({
-  in: { vertexIndex: d.builtin.vertexIndex },
-  out: { position: d.builtin.position },
+const mainVertex = tgpu["~unstable"].vertexFn({
+	in: { vertexIndex: d.builtin.vertexIndex },
+	out: { position: d.builtin.position },
 })((input, out) => {
-  'use gpu';
+	"use gpu";
 
-  // Full-screen triangle positions indexed by @builtin(vertex_index)
-  // Written without array indexing to avoid type/emit edge cases.
-  const ZERO = 0;
-  const ONE = 1;
-  const MINUS_ONE = -1;
-  const THREE = 3;
+	// Full-screen triangle positions indexed by @builtin(vertex_index)
+	// Written without array indexing to avoid type/emit edge cases.
+	const ZERO = 0;
+	const ONE = 1;
+	const MINUS_ONE = -1;
+	const THREE = 3;
 
-  const vertex0 = d.u32(ZERO);
-  const vertex1 = d.u32(ONE);
+	const vertex0 = d.u32(ZERO);
+	const vertex1 = d.u32(ONE);
 
-  let clipX = d.f32(MINUS_ONE);
-  let clipY = d.f32(MINUS_ONE);
+	let clipX = d.f32(MINUS_ONE);
+	let clipY = d.f32(MINUS_ONE);
 
-  if (input.vertexIndex === vertex1) {
-    clipX = d.f32(THREE);
-    clipY = d.f32(MINUS_ONE);
-  } else if (input.vertexIndex !== vertex0) {
-    clipX = d.f32(MINUS_ONE);
-    clipY = d.f32(THREE);
-  }
+	if (input.vertexIndex === vertex1) {
+		clipX = d.f32(THREE);
+		clipY = d.f32(MINUS_ONE);
+	} else if (input.vertexIndex !== vertex0) {
+		clipX = d.f32(MINUS_ONE);
+		clipY = d.f32(THREE);
+	}
 
-  return out({ position: d.vec4f(clipX, clipY, d.f32(ZERO), d.f32(ONE)) });
+	return out({ position: d.vec4f(clipX, clipY, d.f32(ZERO), d.f32(ONE)) });
 });
 ```
 
@@ -281,9 +297,9 @@ const mainVertex = tgpu['~unstable'].vertexFn({
 If you hit a runtime shader compile error and need a known-good fallback, you can revert just the vertex shader to a raw-WGSL body string.
 
 ```typescript
-const mainVertex = tgpu['~unstable'].vertexFn({
-  in: { vertexIndex: d.builtin.vertexIndex },
-  out: { position: d.builtin.position },
+const mainVertex = tgpu["~unstable"].vertexFn({
+	in: { vertexIndex: d.builtin.vertexIndex },
+	out: { position: d.builtin.position },
 }) /* wgsl */ `{
   var pos = array<vec2f, 3>(
     vec2f(-1.0, -1.0),
@@ -305,20 +321,20 @@ const mainVertex = tgpu['~unstable'].vertexFn({
 **Declarative API**: Chain `.withVertex()` → `.withFragment()` → `.createPipeline()`.
 
 ```typescript
-const pipeline = root['~unstable']
-  .withVertex(mainVertex, {})
-  .withFragment(mainFragment, { format })
-  .createPipeline();
+const pipeline = root["~unstable"]
+	.withVertex(mainVertex, {})
+	.withFragment(mainFragment, { format })
+	.createPipeline();
 
 // Render
 pipeline
-  .withColorAttachment({
-    view: textureView,
-    clearValue: [0, 0, 0, 0],
-    loadOp: 'clear',
-    storeOp: 'store',
-  })
-  .draw(vertexCount);
+	.withColorAttachment({
+		view: textureView,
+		clearValue: [0, 0, 0, 0],
+		loadOp: "clear",
+		storeOp: "store",
+	})
+	.draw(vertexCount);
 ```
 
 **Benefits**:
@@ -341,10 +357,13 @@ const red = 0.5 + 0.5 * Math.sin(timeValue);
 
 ```typescript
 // ✅ GOOD - GPU math in shader
-const computeColor = tgpu.fn([d.f32], d.vec4f)((time) => {
-  'use gpu';
-  const red = 0.5 + 0.5 * std.sin(time);  // GPU math!
-  return d.vec4f(red, 0.4, 1 - red, 1);
+const computeColor = tgpu.fn(
+	[d.f32],
+	d.vec4f,
+)((time) => {
+	"use gpu";
+	const red = 0.5 + 0.5 * std.sin(time); // GPU math!
+	return d.vec4f(red, 0.4, 1 - red, 1);
 });
 ```
 
@@ -353,9 +372,12 @@ const computeColor = tgpu.fn([d.f32], d.vec4f)((time) => {
 ```typescript
 // ❌ BAD - Will throw error or produce incorrect shader
 const color = d.vec4f(1, 0, 0, 1);
-const getFn = tgpu.fn([], d.vec4f)(() => {
-  'use gpu';
-  return color;  // Error: color not in scope!
+const getFn = tgpu.fn(
+	[],
+	d.vec4f,
+)(() => {
+	"use gpu";
+	return color; // Error: color not in scope!
 });
 ```
 
@@ -363,20 +385,25 @@ const getFn = tgpu.fn([], d.vec4f)(() => {
 
 ```typescript
 // ✅ GOOD
-const getFn = tgpu.fn([], d.vec4f)(() => {
-  'use gpu';
-  return color;
-}).$uses({ color });
+const getFn = tgpu
+	.fn(
+		[],
+		d.vec4f,
+	)(() => {
+		"use gpu";
+		return color;
+	})
+	.$uses({ color });
 ```
 
 ### Pitfall 3: Using WGSL Instead of TypeScript
 
 ```typescript
 // ❌ DISCOURAGED - Mixing paradigms
-const mainVertex = tgpu['~unstable'].vertexFn({
-  in: { vertexIndex: d.builtin.vertexIndex },
-  out: { position: d.builtin.position },
-}) /* wgsl */`{
+const mainVertex = tgpu["~unstable"].vertexFn({
+	in: { vertexIndex: d.builtin.vertexIndex },
+	out: { position: d.builtin.position },
+}) /* wgsl */ `{
   return Out(vec4f(0, 0, 0, 1));
 }`;
 ```
@@ -385,12 +412,12 @@ const mainVertex = tgpu['~unstable'].vertexFn({
 
 ```typescript
 // ✅ GOOD - Idiomatic TypeGPU
-const mainVertex = tgpu['~unstable'].vertexFn({
-  in: { vertexIndex: d.builtin.vertexIndex },
-  out: { position: d.builtin.position },
+const mainVertex = tgpu["~unstable"].vertexFn({
+	in: { vertexIndex: d.builtin.vertexIndex },
+	out: { position: d.builtin.position },
 })((input) => {
-  'use gpu';
-  return { position: d.vec4f(0, 0, 0, 1) };
+	"use gpu";
+	return { position: d.vec4f(0, 0, 0, 1) };
 });
 ```
 
@@ -401,7 +428,7 @@ const mainVertex = tgpu['~unstable'].vertexFn({
 ```typescript
 // ❌ BAD - TypeScript complains about undefined
 const pos = positions[input.vertexIndex];
-return { position: d.vec4f(pos.x, pos.y, 0, 1) };  // Error: pos possibly undefined
+return { position: d.vec4f(pos.x, pos.y, 0, 1) }; // Error: pos possibly undefined
 ```
 
 **Solution**: Add type guard (won't execute at runtime, just for TS).
@@ -410,7 +437,7 @@ return { position: d.vec4f(pos.x, pos.y, 0, 1) };  // Error: pos possibly undefi
 // ✅ GOOD
 const pos = positions[input.vertexIndex];
 if (pos === undefined) {
-  return { position: d.vec4f(0, 0, 0, 1) };  // Type guard only
+	return { position: d.vec4f(0, 0, 0, 1) }; // Type guard only
 }
 return { position: d.vec4f(pos.x, pos.y, 0, 1) };
 ```
@@ -441,21 +468,21 @@ Mock TypeGPU's pipeline API:
 
 ```typescript
 const mockPipeline = {
-  withColorAttachment: vi.fn(() => ({ draw: vi.fn() })),
+	withColorAttachment: vi.fn(() => ({ draw: vi.fn() })),
 };
 
 const mockRoot = {
-  device: {},
-  createUniform: vi.fn(() => ({ write: vi.fn(), $: 0 })),
-  '~unstable': {
-    vertexFn: vi.fn(() => vi.fn(() => ({ $uses: vi.fn() }))),
-    fragmentFn: vi.fn(() => vi.fn(() => ({ $uses: vi.fn() }))),
-    withVertex: vi.fn(() => ({
-      withFragment: vi.fn(() => ({
-        createPipeline: vi.fn(() => mockPipeline),
-      })),
-    })),
-  },
+	device: {},
+	createUniform: vi.fn(() => ({ write: vi.fn(), $: 0 })),
+	"~unstable": {
+		vertexFn: vi.fn(() => vi.fn(() => ({ $uses: vi.fn() }))),
+		fragmentFn: vi.fn(() => vi.fn(() => ({ $uses: vi.fn() }))),
+		withVertex: vi.fn(() => ({
+			withFragment: vi.fn(() => ({
+				createPipeline: vi.fn(() => mockPipeline),
+			})),
+		})),
+	},
 };
 ```
 
@@ -607,29 +634,29 @@ const positionLayout = tgpu.vertexLayout(d.arrayOf(d.vec2f), "vertex");
 
 // Create a vertex buffer with explicit position data
 const positionBuffer = root
-  .createBuffer(d.arrayOf(d.vec2f, 3), [d.vec2f(-1, -1), d.vec2f(3, -1), d.vec2f(-1, 3)])
-  .$usage("vertex");
+	.createBuffer(d.arrayOf(d.vec2f, 3), [d.vec2f(-1, -1), d.vec2f(3, -1), d.vec2f(-1, 3)])
+	.$usage("vertex");
 
 // Vertex shader with regular input (not just built-ins)
 const mainVertex = tgpu["~unstable"].vertexFn({
-  in: { position: d.vec2f },  // Regular attribute, not a built-in
-  out: { position: d.builtin.position },
+	in: { position: d.vec2f }, // Regular attribute, not a built-in
+	out: { position: d.builtin.position },
 })((input) => {
-  "use gpu";
-  return { position: d.vec4f(input.position.x, input.position.y, 0, 1) };
+	"use gpu";
+	return { position: d.vec4f(input.position.x, input.position.y, 0, 1) };
 });
 
 // Create pipeline: map shader input name -> vertexLayout attribute
 const pipeline = root["~unstable"]
-  .withVertex(mainVertex, { position: positionLayout.attrib })
-  .withFragment(mainFragment, { format })
-  .createPipeline();
+	.withVertex(mainVertex, { position: positionLayout.attrib })
+	.withFragment(mainFragment, { format })
+	.createPipeline();
 
 // Execute: bind vertex layout + buffer, then draw
 pipeline
-  .with(positionLayout, positionBuffer)
-  .withColorAttachment({ view, loadOp: "clear", storeOp: "store" })
-  .draw(3);
+	.with(positionLayout, positionBuffer)
+	.withColorAttachment({ view, loadOp: "clear", storeOp: "store" })
+	.draw(3);
 ```
 
 ### Reporting to TypeGPU Project

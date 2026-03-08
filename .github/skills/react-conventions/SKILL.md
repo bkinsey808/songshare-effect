@@ -12,10 +12,12 @@ metadata:
 ## Use When
 
 Use this skill when:
+
 - Editing components, pages, or hooks under `react/`.
 - Resolving React lint/style issues tied to repo conventions.
 
 Execution workflow:
+
 1. Apply core rules first: no `memo`/`useMemo`/`useCallback` unless explicitly justified.
 2. Ensure every `useEffect` has a `//` comment directly above it.
 3. Use ambient `ReactElement` conventions and avoid unnecessary type imports.
@@ -23,6 +25,7 @@ Execution workflow:
 5. Run targeted tests where relevant, then `npm run lint`.
 
 Output requirements:
+
 - Summarize which conventions were enforced.
 - Call out any explicit exception and why.
 

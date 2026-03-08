@@ -75,12 +75,10 @@ Both approaches are **equally secure** due to Row Level Security (RLS), but diff
 
 ```typescript
 // Option 1: SELECT * (secure but less performant)
-const { data } = await client.from('song_library').select('*');
+const { data } = await client.from("song_library").select("*");
 
 // Option 2: SELECT with explicit user_id (secure AND performant)
-const { data } = await client.from('song_library')
-  .select('*')
-  .eq('user_id', currentUserId);
+const { data } = await client.from("song_library").select("*").eq("user_id", currentUserId);
 ```
 
 ### ✅ Recommended Approach
@@ -177,10 +175,7 @@ Remember: **RLS is your security layer**, explicit conditions are for performanc
 
 ```typescript
 // Even malicious attempts are blocked by RLS:
-await client
-	.from("song_library")
-	.select("*")
-	.eq("user_id", "someone-elses-user-id"); // ❌ Returns no rows
+await client.from("song_library").select("*").eq("user_id", "someone-elses-user-id"); // ❌ Returns no rows
 
 // RLS automatically transforms queries to:
 // SELECT * FROM song_library
@@ -455,8 +450,8 @@ const subscription = client
    ```typescript
    // Server signs in shared visitor user
    const { data } = await supabaseAdmin.auth.signInWithPassword({
-     email: VISITOR_EMAIL,
-     password: VISITOR_PASSWORD
+   	email: VISITOR_EMAIL,
+   	password: VISITOR_PASSWORD,
    });
    return data.session.access_token; // Real Supabase JWT
    ```
@@ -509,8 +504,8 @@ const subscription = client
    ```typescript
    // Server signs in actual user
    const { data } = await supabaseAdmin.auth.signInWithPassword({
-     email: userEmail,
-     password: userPassword
+   	email: userEmail,
+   	password: userPassword,
    });
    // Ensures app_metadata.user.user_id is set for RLS
    return data.session.access_token;

@@ -20,11 +20,7 @@ export type DrawTiming = Readonly<{
 	dt: number;
 }>;
 
-export type DrawFn = (
-	ctx: CanvasRenderingContext2D,
-	frame: number,
-	timing?: DrawTiming,
-) => void;
+export type DrawFn = (ctx: CanvasRenderingContext2D, frame: number, timing?: DrawTiming) => void;
 
 // -----------------------------------------------------------------------------
 // Hook: useCanvasAnimation

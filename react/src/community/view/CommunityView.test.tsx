@@ -1,17 +1,16 @@
 import { render, screen } from "@testing-library/react";
+import { useTranslation } from "react-i18next";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
-
-import forceCast from "@/react/lib/test-utils/forceCast";
-
-import CommunityView from "./CommunityView";
-import useCommunityView, { type UseCommunityViewReturn } from "./useCommunityView";
 
 import Button from "@/react/lib/design-system/Button";
 import ShareButton from "@/react/lib/design-system/ShareButton";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
+import forceCast from "@/react/lib/test-utils/forceCast";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { useTranslation } from "react-i18next";
-import { MemoryRouter } from "react-router-dom";
+
+import CommunityView from "./CommunityView";
+import useCommunityView, { type UseCommunityViewReturn } from "./useCommunityView";
 
 vi.mock("react-i18next");
 vi.mock("@/react/lib/design-system/Button");
@@ -45,7 +44,9 @@ vi.mocked(Button).mockImplementation(
 
 vi.mocked(ShareButton).mockImplementation((): ReactElement => <button type="button">Share</button>);
 vi.mocked(useCurrentLang).mockReturnValue("en");
-vi.mocked(buildPathWithLang).mockImplementation((path: string, lang: string): string => `/${lang}${path}`);
+vi.mocked(buildPathWithLang).mockImplementation(
+	(path: string, lang: string): string => `/${lang}${path}`,
+);
 
 function makeView(overrides: Partial<UseCommunityViewReturn> = {}): UseCommunityViewReturn {
 	return {

@@ -16,14 +16,10 @@ export default function runLintFix(
 	}
 
 	try {
-		execFileSync(
-			params.cliPath,
-			["--fix", ...params.files],
-			{
-				cwd: params.projectRoot,
-				stdio: "pipe",
-			},
-		);
+		execFileSync(params.cliPath, ["--fix", ...params.files], {
+			cwd: params.projectRoot,
+			stdio: "pipe",
+		});
 		sWarn("✅ oxlint fix completed on generated schemas");
 	} catch (error: unknown) {
 		const message: string | undefined = extractErrorMessage(error, "Unknown error");

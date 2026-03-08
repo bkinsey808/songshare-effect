@@ -11,12 +11,11 @@ import useFullScreen from "@/react/lib/fullscreen/useFullScreen";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import LanguageSwitcher from "@/react/lib/language/switcher/LanguageSwitcher";
 import useWakeLock from "@/react/lib/wake-lock/useWakeLock";
+import useDashboard from "@/react/pages/dashboard/useDashboard";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { dashboardPath, deleteAccountPath } from "@/shared/paths";
-
-import useDashboard from "@/react/pages/dashboard/useDashboard";
 
 /**
  * Card containing settings and account controls.
@@ -91,10 +90,10 @@ export default function SettingsCard(): ReactElement {
 						variant="outlineDanger"
 						icon={<TrashIcon className="size-4" />}
 						onClick={() => {
-							const langForNav = isSupportedLanguage(currentLang)
-								? currentLang
-								: defaultLanguage;
-							void navigate(buildPathWithLang(`/${dashboardPath}/${deleteAccountPath}`, langForNav));
+							const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
+							void navigate(
+								buildPathWithLang(`/${dashboardPath}/${deleteAccountPath}`, langForNav),
+							);
 						}}
 						data-testid="navigation-delete-account"
 						className="rounded-md! whitespace-nowrap"

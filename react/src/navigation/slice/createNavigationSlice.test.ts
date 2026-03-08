@@ -1,13 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-
 import { resetAllSlices, sliceResetFns } from "@/react/app-store/slice-reset-fns";
-
-import type { NavigationSlice } from "./NavigationSlice.type";
 
 import createNavigationSlice from "./createNavigationSlice";
 import makeNavigationSlice from "./makeNavigationSlice.mock";
+import type { NavigationSlice } from "./NavigationSlice.type";
 
 function makeStore(): {
 	set: Set<NavigationSlice>;

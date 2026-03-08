@@ -6,9 +6,8 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import postJsonWithResult from "@/shared/fetch/postJsonWithResult";
 import { apiShareUpdateStatusPath } from "@/shared/paths";
 
-import type { ShareSlice } from "../slice/ShareSlice.type";
 import type { ShareUpdateStatusRequest } from "../slice/share-types";
-
+import type { ShareSlice } from "../slice/ShareSlice.type";
 import updateShareStatusEffect from "./updateShareStatusEffect";
 
 vi.mock("@/shared/fetch/postJsonWithResult");
@@ -78,11 +77,17 @@ describe("updateShareStatusEffect", () => {
 
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/Failed to update share status/);
 
-		expect(updateShareStatusOptimistically).toHaveBeenNthCalledWith(FIRST_CALL, shareId, "accepted");
-		expect(updateShareStatusOptimistically).toHaveBeenNthCalledWith(SECOND_CALL, shareId, "pending");
-		expect(setShareError).toHaveBeenCalledWith(
-			expect.stringMatching(new RegExp(errorMessage)),
+		expect(updateShareStatusOptimistically).toHaveBeenNthCalledWith(
+			FIRST_CALL,
+			shareId,
+			"accepted",
 		);
+		expect(updateShareStatusOptimistically).toHaveBeenNthCalledWith(
+			SECOND_CALL,
+			shareId,
+			"pending",
+		);
+		expect(setShareError).toHaveBeenCalledWith(expect.stringMatching(new RegExp(errorMessage)));
 		expect(setLoadingShareId).toHaveBeenLastCalledWith(undefined);
 	});
 
@@ -97,7 +102,11 @@ describe("updateShareStatusEffect", () => {
 
 		await expect(Effect.runPromise(eff)).rejects.toThrow(/Failed to update share status/);
 
-		expect(updateShareStatusOptimistically).toHaveBeenNthCalledWith(SECOND_CALL, shareId, "pending");
+		expect(updateShareStatusOptimistically).toHaveBeenNthCalledWith(
+			SECOND_CALL,
+			shareId,
+			"pending",
+		);
 	});
 
 	it("handles reject status request", async () => {

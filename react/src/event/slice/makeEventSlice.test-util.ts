@@ -1,7 +1,6 @@
 import { vi } from "vitest";
 
 import type { EventSlice } from "@/react/event/slice/EventSlice.type";
-
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 /**

@@ -1,5 +1,4 @@
 import type { EventEntry } from "@/react/event/event-types";
-
 import {
 	deriveCurrentParticipantStatus,
 	getParticipantPermissions,

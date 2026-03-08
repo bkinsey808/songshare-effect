@@ -1,10 +1,9 @@
 import { Effect } from "effect";
 
 import type { EventPublic } from "@/react/event/event-types";
-import type { RealtimePayload } from "@/react/lib/supabase/subscription/subscription-types";
-
 import extractNewRecord from "@/react/lib/supabase/subscription/extract/extractNewRecord";
 import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isRealtimePayload";
+import type { RealtimePayload } from "@/react/lib/supabase/subscription/subscription-types";
 
 import type { EventLibraryEntry } from "../event-library-types";
 import type { EventLibrarySlice } from "../slice/EventLibrarySlice.type";

@@ -337,9 +337,8 @@ export default function CommunityManageView(): ReactElement {
 			<section className="bg-gray-800 rounded-lg border border-gray-700 p-6 space-y-4">
 				<h2 className="text-2xl font-semibold text-white">Share Requests</h2>
 				<div className="space-y-3">
-					{communityShareRequests.filter((request) => request.status === "pending").length === ZERO && (
-						<p className="text-sm text-gray-400">No pending share requests.</p>
-					)}
+					{communityShareRequests.filter((request) => request.status === "pending").length ===
+						ZERO && <p className="text-sm text-gray-400">No pending share requests.</p>}
 					{communityShareRequests
 						.filter((request) => request.status === "pending")
 						.map((request) => (
@@ -356,9 +355,11 @@ export default function CommunityManageView(): ReactElement {
 										<p className="text-xs text-gray-400">
 											{request.shared_item_name ?? request.shared_item_id}
 										</p>
-										{request.message !== undefined && request.message !== null && request.message !== "" && (
-											<p className="mt-2 text-sm text-gray-300">{request.message}</p>
-										)}
+										{request.message !== undefined &&
+											request.message !== null &&
+											request.message !== "" && (
+												<p className="mt-2 text-sm text-gray-300">{request.message}</p>
+											)}
 									</div>
 									<div className="flex gap-2">
 										<Button

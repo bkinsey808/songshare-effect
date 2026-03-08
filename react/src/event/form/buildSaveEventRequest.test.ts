@@ -4,7 +4,6 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import { clientLocalDateToUtcTimestamp } from "@/shared/utils/formatEventDate";
 
 import type { EventFormValues } from "../event-types";
-
 import buildSaveEventRequest from "./buildSaveEventRequest";
 
 function makeFormValues(overrides: Partial<EventFormValues> = {}): EventFormValues {

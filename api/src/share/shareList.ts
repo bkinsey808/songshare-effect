@@ -2,7 +2,6 @@ import { type SupabaseClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
@@ -11,9 +10,9 @@ import { type AuthenticationError, DatabaseError, ValidationError } from "../api
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 type ShareListRequest = {
-	view: 'sent' | 'received';
-	status?: 'pending' | 'accepted' | 'rejected' | undefined;
-	item_type?: 'song' | 'playlist' | 'event' | 'community' | 'user' | undefined;
+	view: "sent" | "received";
+	status?: "pending" | "accepted" | "rejected" | undefined;
+	item_type?: "song" | "playlist" | "event" | "community" | "user" | undefined;
 };
 
 type ShareItem = {
@@ -34,24 +33,26 @@ type ShareItem = {
 /**
  * Extract and validate query parameters for listing shares.
  */
-function isValidView(value: string): value is 'sent' | 'received' {
-	return ['sent', 'received'].includes(value);
+function isValidView(value: string): value is "sent" | "received" {
+	return ["sent", "received"].includes(value);
 }
 
-function isValidStatus(value: string): value is 'pending' | 'accepted' | 'rejected' {
-	return ['pending', 'accepted', 'rejected'].includes(value);
+function isValidStatus(value: string): value is "pending" | "accepted" | "rejected" {
+	return ["pending", "accepted", "rejected"].includes(value);
 }
 
-function isValidItemType(value: string): value is 'song' | 'playlist' | 'event' | 'community' | 'user' {
-	return ['song', 'playlist', 'event', 'community', 'user'].includes(value);
+function isValidItemType(
+	value: string,
+): value is "song" | "playlist" | "event" | "community" | "user" {
+	return ["song", "playlist", "event", "community", "user"].includes(value);
 }
 
 function extractShareListRequest(url: URL): ShareListRequest {
-	const view = url.searchParams.get('view');
-	const status = url.searchParams.get('status');
-	const item_type = url.searchParams.get('item_type');
+	const view = url.searchParams.get("view");
+	const status = url.searchParams.get("status");
+	const item_type = url.searchParams.get("item_type");
 
-	if (view === null || view === undefined || view === '') {
+	if (view === null || view === undefined || view === "") {
 		throw new TypeError("Query parameter 'view' is required");
 	}
 
@@ -60,7 +61,7 @@ function extractShareListRequest(url: URL): ShareListRequest {
 	}
 
 	const result: ShareListRequest = {
-		view
+		view,
 	};
 
 	if (status !== null && status !== undefined) {
@@ -122,7 +123,7 @@ function getSentShares(
 				throw error;
 			}
 
-			return (data ?? []).map(item => ({
+			return (data ?? []).map((item) => ({
 				share_id: item.share_id,
 				sender_user_id: item.sender_user_id,
 				recipient_user_id: item.recipient_user_id,
@@ -131,8 +132,8 @@ function getSentShares(
 				shared_item_name: item.shared_item_name,
 				status: item.status,
 				message: item.message,
-				created_at: item.created_at ?? '',
-				updated_at: item.updated_at ?? '',
+				created_at: item.created_at ?? "",
+				updated_at: item.updated_at ?? "",
 				recipient_username: item.recipient_user?.username,
 			}));
 		},
@@ -185,7 +186,7 @@ function getReceivedShares(
 				throw error;
 			}
 
-			return (data ?? []).map(item => ({
+			return (data ?? []).map((item) => ({
 				share_id: item.share_id,
 				sender_user_id: item.sender_user_id,
 				recipient_user_id: item.recipient_user_id,
@@ -194,8 +195,8 @@ function getReceivedShares(
 				shared_item_name: item.shared_item_name,
 				status: item.status,
 				message: item.message,
-				created_at: item.created_at ?? '',
-				updated_at: item.updated_at ?? '',
+				created_at: item.created_at ?? "",
+				updated_at: item.updated_at ?? "",
 				sender_username: item.sender_user?.username,
 			}));
 		},
@@ -222,7 +223,7 @@ export default function shareListHandler(
 ): Effect.Effect<{ shares: ShareItem[] }, ValidationError | DatabaseError | AuthenticationError> {
 	return Effect.gen(function* shareListGen($) {
 		// Parse query parameters
-		let req: ShareListRequest = { view: 'received' };
+		let req: ShareListRequest = { view: "received" };
 		try {
 			req = extractShareListRequest(new URL(ctx.req.url));
 		} catch (error) {
@@ -243,9 +244,10 @@ export default function shareListHandler(
 		const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
 
 		// Get shares based on view
-		const shares = req.view === 'sent'
-			? yield* $(getSentShares(client, userId, req))
-			: yield* $(getReceivedShares(client, userId, req));
+		const shares =
+			req.view === "sent"
+				? yield* $(getSentShares(client, userId, req))
+				: yield* $(getReceivedShares(client, userId, req));
 
 		return { shares };
 	});

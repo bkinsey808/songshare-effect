@@ -5,7 +5,6 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import getJson from "@/shared/fetch/getJson";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
-
 import fetchCommunityLibrary from "./fetchCommunityLibrary";
 
 vi.mock("@/shared/fetch/getJson");

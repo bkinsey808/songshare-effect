@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-
 import { HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_INTERNAL } from "@/shared/constants/http";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";

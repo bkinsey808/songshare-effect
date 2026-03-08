@@ -36,10 +36,10 @@ This document explains the pattern we use in SongShare Effect to avoid infinite 
 
 ```ts
 // BAD: Every card calls the page-level hook that performs fetch & subscribes
-function UserLibraryCard(){
-  // Triggers fetch and subscriptions per card -> multiplies effects
-  const { removeFromSongLibrary } = useSongLibrary();
-  // ...render UI
+function UserLibraryCard() {
+	// Triggers fetch and subscriptions per card -> multiplies effects
+	const { removeFromSongLibrary } = useSongLibrary();
+	// ...render UI
 }
 ```
 
@@ -76,9 +76,9 @@ Use a mounted flag with `useRef` to ensure the initialization runs once per moun
 ```ts
 const initializedRef = useRef(false);
 useEffect(() => {
-  if (initializedRef.current) return;
-  initializedRef.current = true;
-  // run fetch and start subscriptions
+	if (initializedRef.current) return;
+	initializedRef.current = true;
+	// run fetch and start subscriptions
 }, [location.pathname]);
 ```
 
