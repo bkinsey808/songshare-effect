@@ -10,16 +10,20 @@ import { useRef } from "react";
  * - `ctx` is a standard Canvas 2D rendering context.
  * - `frame` is an incrementing frame counter (starts at 1 and increments by 1
  *   each RAF tick).
- * - `now` is the high-resolution DOM timestamp (milliseconds) provided by
- *   `requestAnimationFrame` for this tick.
- * - `dt` is the time in milliseconds since the previous frame (0 for the
- *   first frame).
+ * - `timing.now` is the high-resolution DOM timestamp (milliseconds) provided
+ *   by `requestAnimationFrame` for this tick.
+ * - `timing.dt` is the time in milliseconds since the previous frame (0 for
+ *   the first frame).
  */
+export type DrawTiming = Readonly<{
+	now: number;
+	dt: number;
+}>;
+
 export type DrawFn = (
 	ctx: CanvasRenderingContext2D,
 	frame: number,
-	now?: number,
-	dt?: number,
+	timing?: DrawTiming,
 ) => void;
 
 // -----------------------------------------------------------------------------
@@ -125,14 +129,14 @@ export function useCanvasAnimation(): {
 
 		// Animation frame callback. We receive a high-resolution timestamp from
 		// RAF (`now`), compute `dt` since the previous tick, invoke the
-		// user-supplied `draw` callback with (ctx, frame, now, dt) and schedule
+		// user-supplied `draw` callback with (ctx, frame, { now, dt }) and schedule
 		// the next RAF tick.
 		function anim(now: number): void {
 			const dt = lastTime === undefined ? INITIAL_DT : now - lastTime;
 			lastTime = now;
 			frame += FRAME_STEP;
 			// `drawCtx` is a CanvasRenderingContext2D
-			draw(drawCtx, frame, now, dt);
+			draw(drawCtx, frame, { now, dt });
 			rafRef.current = requestAnimationFrame(anim);
 		}
 

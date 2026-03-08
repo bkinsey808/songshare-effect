@@ -20,7 +20,7 @@
 	"useTabs": true,
 
 	// Enable experimental import sorting. Oxfmt's import sorting is experimental
-	// and does not support full Prettier-style Regex group ordering; this configuration
+	// and does not support full regex-group ordering used by some import sorters; this configuration
 	// approximates the trivago plugin behaviour by sorting imports/keeping group
 	// separation and case-insensitive ordering.
 	"experimentalSortImports": {

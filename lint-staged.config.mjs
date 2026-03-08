@@ -10,7 +10,6 @@ const lintStagedConfig = {
 	"api/src/**/*.ts": ["npx oxfmt", "npm run lint"],
 	"shared/src/**/*.{ts,tsx,js}": ["npx oxfmt", "npm run lint"],
 	"scripts/**/*.{js,ts}": ["npx oxfmt", "npm run lint"],
-	"*.{md,json}": ["prettier --write"],
 };
 
 export default lintStagedConfig;

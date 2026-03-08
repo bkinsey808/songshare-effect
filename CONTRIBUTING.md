@@ -13,7 +13,7 @@ Follow these steps when contributing.
 2. Local checks (hooks)
 
 - Husky runs hooks installed by `npm run prepare`.
-- Pre-commit: `lint-staged` will auto-fix staged files (ESLint, Prettier).
+- Pre-commit: `lint-staged` will auto-fix staged files (oxfmt, lint).
 - Commit-msg: `commitlint` validates commit messages.
 
 3. Useful commands

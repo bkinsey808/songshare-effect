@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { describe, expect, it, vi } from "vitest";
 
 import attachFakeCanvas2DContext from "./fakeCanvasContext";
-import { useCanvasAnimation, type DrawFn } from "./useCanvasAnimation";
+import { useCanvasAnimation, type DrawFn, type DrawTiming } from "./useCanvasAnimation";
 
 // Local test-friendly API type for the hook. Using an explicit type avoids
 // linter rules that treat `useCanvasAnimation()` as untyped in the test
@@ -26,6 +26,9 @@ function assertIsCanvas(node: unknown): asserts node is HTMLCanvasElement {
 	expect(node).toBeInstanceOf(HTMLCanvasElement);
 }
 function assertIsApi(node: unknown): asserts node is CanvasAnimationApi {
+	expect(node).toBeDefined();
+}
+function assertIsDrawTiming(node: unknown): asserts node is DrawTiming {
 	expect(node).toBeDefined();
 }
 
@@ -218,17 +221,16 @@ describe("useCanvasAnimation (integration)", () => {
 		const SECOND_INDEX = 1;
 		const MIN_DT_THRESHOLD = 0;
 		const FRAME_INDEX = 1;
-		const NOW_INDEX = 2;
-		const DT_INDEX = 3;
+		const TIMING_INDEX = 2;
 
 		act(() => {
 			api.start(
 				canvas,
 				(...args: unknown[]) => {
 					const frame = Number(args[FRAME_INDEX]);
-					const nowAny = args[NOW_INDEX];
-					const dtAny = args[DT_INDEX];
-					calls.push({ frame, now: nowAny, dt: dtAny });
+					const timingAny = args[TIMING_INDEX];
+					assertIsDrawTiming(timingAny);
+					calls.push({ frame, now: timingAny.now, dt: timingAny.dt });
 				},
 				{ loop: true, duration: DURATION },
 			);

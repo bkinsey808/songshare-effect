@@ -208,7 +208,7 @@ See documentation:
 - ✅ Tailwind CSS for styling
 - ✅ Responsive design
 - ✅ TypeScript support with strict configuration
-- ✅ ESLint + Prettier configuration
+- ✅ ESLint + oxfmt configuration
 - ✅ Shared type definitions across frontend/backend
 - 🚧 File upload functionality to Cloudflare R2
 - 🚧 Song playback

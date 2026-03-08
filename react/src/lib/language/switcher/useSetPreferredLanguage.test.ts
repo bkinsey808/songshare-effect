@@ -1,6 +1,8 @@
 import { renderHook } from "@testing-library/react";
-import { useLocation, useNavigate, type Location } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
+
+import makeMockLocation from "@/react/lib/test-utils/makeMockLocation.test-util";
 
 import setStoredLanguage from "../stored/setStoredLanguage";
 import useSetPreferredLanguage from "./useSetPreferredLanguage";
@@ -12,13 +14,7 @@ describe("useSetPreferredLanguage", () => {
 	it("persists preference and navigates by default", () => {
 		const mockNavigate = vi.fn();
 		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-		vi.mocked(useLocation).mockReturnValue({
-			pathname: "/en/some/path",
-			search: "",
-			hash: "",
-			state: undefined,
-			key: "t",
-		} as Location);
+		vi.mocked(useLocation).mockReturnValue(makeMockLocation("/en/some/path", "t"));
 		vi.mocked(setStoredLanguage).mockResolvedValue(undefined);
 
 		const { result } = renderHook(() => useSetPreferredLanguage());
@@ -31,13 +27,7 @@ describe("useSetPreferredLanguage", () => {
 	it("respects opts and does not navigate when asked", () => {
 		const mockNavigate = vi.fn();
 		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-		vi.mocked(useLocation).mockReturnValue({
-			pathname: "/en/other",
-			search: "",
-			hash: "",
-			state: undefined,
-			key: "u",
-		} as Location);
+		vi.mocked(useLocation).mockReturnValue(makeMockLocation("/en/other", "u"));
 		vi.mocked(setStoredLanguage).mockResolvedValue(undefined);
 
 		const { result } = renderHook(() => useSetPreferredLanguage());

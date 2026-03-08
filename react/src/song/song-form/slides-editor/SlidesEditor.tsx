@@ -76,6 +76,7 @@ export default function SlidesEditor({
 	const JSON_INDENT = 2;
 	const TEXTAREA_MIN_ROWS = 3;
 	const TEXTAREA_MAX_ROWS = 10;
+	const slideDetailKeyCounts = new Map<string, number>();
 
 	return (
 		<div className="@container w-full">
@@ -104,6 +105,8 @@ export default function SlidesEditor({
 			{
 				// One card per position in slideOrder (same order and duplicates as the grid)
 				slideOrder.map((slideId, idx) => {
+					const occurrence = (slideDetailKeyCounts.get(slideId) ?? FIRST_INDEX) + ONE;
+					slideDetailKeyCounts.set(slideId, occurrence);
 					const slide = safeGet(slides, slideId);
 					if (!slide) {
 						return undefined;
@@ -111,7 +114,7 @@ export default function SlidesEditor({
 					const isDuplicate = slideOrder.filter((id) => id === slideId).length > ONE;
 					return (
 						<div
-							key={`slide-detail-${String(idx)}`}
+							key={`slide-detail-${slideId}-${String(occurrence)}`}
 							className="mb-6 rounded-lg border border-gray-600 p-4"
 							{...(isDuplicate
 								? {

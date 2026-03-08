@@ -11,7 +11,12 @@ const rule = {
 		schema: [],
 	},
 	create(context) {
-		const sourceCode = context.getSourceCode();
+		const sourceCode =
+			context.sourceCode ??
+			(typeof context.getSourceCode === "function" ? context.getSourceCode() : undefined);
+		if (!sourceCode) {
+			return {};
+		}
 
 		return {
 			CallExpression(node) {

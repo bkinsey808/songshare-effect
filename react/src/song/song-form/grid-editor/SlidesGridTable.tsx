@@ -128,6 +128,7 @@ export default function SlidesGridTable({
 	const [globalIsDragging, setGlobalIsDragging] = useState(false);
 
 	const duplicateGroupBySlideId = getDuplicateGroupMap(slideOrder);
+	const slideRowKeyCounts = new Map<string, number>();
 
 	function onDragEndWrapper(event: DragEndEvent): void {
 		setGlobalIsDragging(false);
@@ -210,6 +211,8 @@ export default function SlidesGridTable({
 					<SortableContext items={[...sortableItems]}>
 						<tbody>
 							{slideOrder.map((slideId, idx) => {
+								const occurrence = (slideRowKeyCounts.get(slideId) ?? EMPTY_COUNT) + SINGLE_OCCURRENCE;
+								slideRowKeyCounts.set(slideId, occurrence);
 								const slide = safeGet(slides, slideId);
 								if (!slide) {
 									return undefined;
@@ -217,7 +220,7 @@ export default function SlidesGridTable({
 
 								return (
 									<SlidesGridRow
-										key={`${slideId}-grid-${String(idx)}`}
+										key={`${slideId}-grid-${String(occurrence)}`}
 										slideId={slideId}
 										slide={slide}
 										fields={fields}

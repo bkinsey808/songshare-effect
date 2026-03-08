@@ -53,6 +53,7 @@ export default function SlidesGridView({
 
 	// Use slideOrder to maintain the same order as Slides View, including duplicates
 	const gridSlideOrder = slideOrder;
+	const orderChipKeyCounts = new Map<string, number>();
 
 	return (
 		<div className="w-full">
@@ -98,6 +99,8 @@ export default function SlidesGridView({
 					</h3>
 					<div className="flex flex-wrap gap-2">
 						{slideOrder.map((slideId, idx) => {
+							const occurrence = (orderChipKeyCounts.get(slideId) ?? EMPTY_COUNT) + INDEX_OFFSET;
+							orderChipKeyCounts.set(slideId, occurrence);
 							const slide = safeGet(slides, slideId);
 							const isDuplicate = slideOrder.filter((id) => id === slideId).length > INDEX_OFFSET;
 							const chipClass = isDuplicate
@@ -105,7 +108,7 @@ export default function SlidesGridView({
 								: "rounded bg-blue-200 dark:bg-blue-800/30 px-2 py-1 text-sm text-blue-800 dark:text-blue-200";
 							return (
 								<span
-									key={`order-${slideId}-${String(idx)}`}
+									key={`order-${slideId}-${String(occurrence)}`}
 									className={chipClass}
 									{...(isDuplicate
 										? {
