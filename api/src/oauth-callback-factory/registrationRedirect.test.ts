@@ -2,12 +2,12 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import type { Env } from "@/api/env";
-import type buildRegisterJwt from "@/api/register/buildRegisterJwt";
 import type { OauthState } from "@/shared/oauth/oauthState";
 import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 
 import { registerCookieName } from "@/api/cookie/cookie";
 import makeCtx from "@/api/hono/makeCtx.test-util";
+import buildRegisterJwt from "@/api/register/buildRegisterJwt";
 import { registerPath } from "@/shared/paths";
 
 import handleRegistration, {
@@ -16,9 +16,7 @@ import handleRegistration, {
 } from "./registrationRedirect";
 
 // stub buildRegisterJwt so we don't have to construct a real context
-vi.mock("@/api/register/buildRegisterJwt", (): { default: typeof buildRegisterJwt } => ({
-	default: vi.fn(() => Effect.succeed("fake-jwt")),
-}));
+vi.mock("@/api/register/buildRegisterJwt");
 
 function asEnv(val: unknown): Env {
 	/* oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion */
@@ -57,6 +55,7 @@ describe("handleRegistration helper", () => {
 	const baseParams: RegistrationRedirectParams = makeBaseParams();
 
 	it("returns a redirect response and sets a cookie header", async () => {
+		vi.mocked(buildRegisterJwt).mockImplementation(() => Effect.succeed("fake-jwt"));
 		const params = { ...baseParams };
 		const response = await Effect.runPromise(handleRegistration(params));
 
@@ -67,6 +66,7 @@ describe("handleRegistration helper", () => {
 	});
 
 	it("uses client-debug header when env flag is true", async () => {
+		vi.mocked(buildRegisterJwt).mockImplementation(() => Effect.succeed("fake-jwt"));
 		const ctx = makeCtx({ env: { REGISTER_COOKIE_CLIENT_DEBUG: "true" } });
 		const params = addCtxToParams(baseParams, ctx);
 		await Effect.runPromise(handleRegistration(params));

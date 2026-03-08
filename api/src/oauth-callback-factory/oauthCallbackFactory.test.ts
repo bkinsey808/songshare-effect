@@ -26,20 +26,15 @@ import { SEE_OTHER } from "./registrationRedirect";
 const fakeSupabase = makeSupabaseClient();
 
 // mock every external dependency so tests can control their return values
-/* oxlint-disable eslint-plugin-jest/no-untyped-mock-factory */
-vi.mock("@/api/oauth-callback-factory/rateLimit", () => ({ default: vi.fn() }));
-vi.mock("hono/jwt", () => ({ verify: vi.fn() }));
-vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri", () => ({ default: vi.fn() }));
-vi.mock("@/api/oauth-callback-factory/registrationRedirect", () => ({
-	default: vi.fn(),
-	SEE_OTHER: 303,
-}));
-vi.mock("@/api/oauth/fetchAndPrepareUser", () => ({ default: vi.fn() }));
-vi.mock("@/api/user-session/buildUserSessionJwt", () => ({ default: vi.fn() }));
-vi.mock("@/api/cookie/buildSessionCookie", () => ({ default: vi.fn() }));
-vi.mock("@/api/oauth/buildDashboardRedirectUrl", () => ({ default: vi.fn() }));
-vi.mock("hono/cookie", () => ({ getCookie: vi.fn() }));
-/* oxlint-enable eslint-plugin-jest/no-untyped-mock-factory */
+vi.mock("@/api/oauth-callback-factory/rateLimit");
+vi.mock("hono/jwt");
+vi.mock("@/api/oauth-callback-factory/computeStateRedirectUri");
+vi.mock("@/api/oauth-callback-factory/registrationRedirect");
+vi.mock("@/api/oauth/fetchAndPrepareUser");
+vi.mock("@/api/user-session/buildUserSessionJwt");
+vi.mock("@/api/cookie/buildSessionCookie");
+vi.mock("@/api/oauth/buildDashboardRedirectUrl");
+vi.mock("hono/cookie");
 
 const mockedRateLimit = vi.mocked(rateLimit);
 const mockedVerify = vi.mocked(verify);

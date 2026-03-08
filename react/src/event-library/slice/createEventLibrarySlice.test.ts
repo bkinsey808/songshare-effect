@@ -6,24 +6,13 @@ import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import type { EventLibraryEntry, EventLibraryState } from "../event-library-types";
 import type { EventLibrarySlice } from "./EventLibrarySlice.type";
 
+import subscribeToEventPublicForLibraryEffect from "../subscribe/subscribeToEventPublicForLibraryEffect";
 import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import createEventLibrarySlice from "./createEventLibrarySlice";
 import makeEventLibrarySlice from "./makeEventLibrarySlice.test-util";
 
-type SubscribeModule = {
-	default: (get: () => EventLibrarySlice) => Effect.Effect<unknown, never, () => void>;
-};
-
 // Mock the subscription effect to avoid network calls and authentication
-// we only need a typed `vi.fn` so the jest rule is happy; avoid `import()` types
-vi.mock(
-	"../subscribe/subscribeToEventPublicForLibraryEffect",
-	(): SubscribeModule => ({
-		default: vi.fn<(get: () => EventLibrarySlice) => Effect.Effect<unknown, never, () => void>>(
-			(_get) => Effect.succeed(() => undefined),
-		),
-	}),
-);
+vi.mock("../subscribe/subscribeToEventPublicForLibraryEffect");
 
 function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 	state: Partial<EventLibraryState>;
@@ -110,7 +99,14 @@ function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 }
 
 describe("createEventLibrarySlice", () => {
+	function installSubscriptionMock(): void {
+		vi.mocked(subscribeToEventPublicForLibraryEffect).mockImplementation(() =>
+			Effect.succeed(() => undefined),
+		);
+	}
+
 	it("returns initial state", () => {
+		installSubscriptionMock();
 		const store = makeMockStore({
 			isEventLibraryLoading: false,
 			eventLibraryEntries: {},
@@ -126,6 +122,7 @@ describe("createEventLibrarySlice", () => {
 	});
 
 	it("exposes key methods", () => {
+		installSubscriptionMock();
 		const store = makeMockStore({});
 		const { set, get, api } = store;
 		const slice = createEventLibrarySlice(set, get, api);
@@ -138,6 +135,7 @@ describe("createEventLibrarySlice", () => {
 	});
 
 	it("setEventLibraryEntries updates entries", () => {
+		installSubscriptionMock();
 		const store = makeMockStore({ eventLibraryEntries: {} });
 		const setSpy = vi.spyOn(store, "set");
 		const { set, get, state, api } = store;
@@ -153,6 +151,7 @@ describe("createEventLibrarySlice", () => {
 	});
 
 	it("addEventLibraryEntry and removeEventLibraryEntry manage entries", () => {
+		installSubscriptionMock();
 		const store = makeMockStore({ eventLibraryEntries: {} });
 		const setSpy = vi.spyOn(store, "set");
 		const { set, get, state, api } = store;
@@ -176,6 +175,7 @@ describe("createEventLibrarySlice", () => {
 	});
 
 	it("getEventLibraryIds and isInEventLibrary behave correctly", () => {
+		installSubscriptionMock();
 		const store = makeMockStore({ eventLibraryEntries: {} });
 		const { set, get, api } = store;
 
@@ -191,6 +191,7 @@ describe("createEventLibrarySlice", () => {
 	});
 
 	it("setEventLibraryLoading and setEventLibraryError update state", () => {
+		installSubscriptionMock();
 		const store = makeMockStore({ isEventLibraryLoading: false, eventLibraryError: undefined });
 		const setSpy = vi.spyOn(store, "set");
 		const { set, get, state, api } = store;
@@ -207,6 +208,7 @@ describe("createEventLibrarySlice", () => {
 	});
 
 	it("subscribeToEventPublicForLibrary returns a successful effect with a function", async () => {
+		installSubscriptionMock();
 		const store = makeMockStore({});
 		const { set, get, api } = store;
 

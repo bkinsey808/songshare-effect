@@ -96,3 +96,77 @@ export const communitySetActiveEventSchema: Schema.Schema<
 	community_id: Schema.String,
 	event_id: Schema.optional(Schema.String),
 });
+
+/**
+ * Schema for adding a song to a community.
+ */
+export const communitySongAddSchema: Schema.Schema<
+	{
+		readonly community_id: string;
+		readonly song_id: string;
+	},
+	{
+		readonly community_id: string;
+		readonly song_id: string;
+	}
+> = Schema.Struct({
+	community_id: Schema.String,
+	song_id: Schema.String,
+});
+
+/**
+ * Schema for adding a playlist to a community.
+ */
+export const communityPlaylistAddSchema: Schema.Schema<
+	{
+		readonly community_id: string;
+		readonly playlist_id: string;
+	},
+	{
+		readonly community_id: string;
+		readonly playlist_id: string;
+	}
+> = Schema.Struct({
+	community_id: Schema.String,
+	playlist_id: Schema.String,
+});
+
+/**
+ * Schema for creating a community share request.
+ */
+export const communityShareRequestCreateSchema: Schema.Schema<
+	{
+		readonly community_id: string;
+		readonly shared_item_type: "song" | "playlist";
+		readonly shared_item_id: string;
+		readonly message?: string | undefined;
+	},
+	{
+		readonly community_id: string;
+		readonly shared_item_type: "song" | "playlist";
+		readonly shared_item_id: string;
+		readonly message?: string | undefined;
+	}
+> = Schema.Struct({
+	community_id: Schema.String,
+	shared_item_type: Schema.Literal("song", "playlist"),
+	shared_item_id: Schema.String,
+	message: Schema.optional(Schema.String),
+});
+
+/**
+ * Schema for updating a community share request status.
+ */
+export const communityShareRequestUpdateStatusSchema: Schema.Schema<
+	{
+		readonly request_id: string;
+		readonly status: "accepted" | "rejected";
+	},
+	{
+		readonly request_id: string;
+		readonly status: "accepted" | "rejected";
+	}
+> = Schema.Struct({
+	request_id: Schema.String,
+	status: Schema.Literal("accepted", "rejected"),
+});

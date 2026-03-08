@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict xq0iwuaDTa86Sfx5SCPVs7HhYdNy6YjhUQS5XAScBA4KW30jbdmLD9OkNwdKi7g
+\restrict zLSU63SPPipDrOrREMOdLMYC02L19czeFr3v5xjppCVwMVZMkeaF3XfdHXxkba4
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -143,6 +143,24 @@ COMMENT ON TABLE public.community_event IS 'Many-to-many relationship between co
 
 
 --
+-- Name: community_playlist; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.community_playlist (
+    community_id uuid NOT NULL,
+    playlist_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE community_playlist; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.community_playlist IS 'Playlists associated with a community.';
+
+
+--
 -- Name: community_public; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -176,6 +194,45 @@ COMMENT ON TABLE public.community_public IS 'Public community data. Readable by 
 --
 
 COMMENT ON COLUMN public.community_public.active_event_id IS 'The currently active event for this community, shown automatically on the Community View page. Nullable; set/unset by community owners and admins via the API.';
+
+
+--
+-- Name: community_share_request; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.community_share_request (
+    request_id uuid DEFAULT gen_random_uuid() NOT NULL,
+    community_id uuid NOT NULL,
+    sender_user_id uuid NOT NULL,
+    shared_item_type text NOT NULL,
+    shared_item_id uuid NOT NULL,
+    status text DEFAULT 'pending'::text NOT NULL,
+    message text DEFAULT ''::text,
+    reviewed_by_user_id uuid,
+    reviewed_at timestamp with time zone,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT community_share_request_shared_item_type_check CHECK ((shared_item_type = ANY (ARRAY['song'::text, 'playlist'::text]))),
+    CONSTRAINT community_share_request_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'accepted'::text, 'rejected'::text])))
+);
+
+
+--
+-- Name: community_song; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.community_song (
+    community_id uuid NOT NULL,
+    song_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE community_song; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.community_song IS 'Songs associated with a community.';
 
 
 --
@@ -967,6 +1024,14 @@ ALTER TABLE ONLY public.community
 
 
 --
+-- Name: community_playlist community_playlist_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_playlist
+    ADD CONSTRAINT community_playlist_pkey PRIMARY KEY (community_id, playlist_id);
+
+
+--
 -- Name: community_public community_public_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -975,11 +1040,27 @@ ALTER TABLE ONLY public.community_public
 
 
 --
+-- Name: community_share_request community_share_request_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_share_request
+    ADD CONSTRAINT community_share_request_pkey PRIMARY KEY (request_id);
+
+
+--
 -- Name: community_public community_slug_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.community_public
     ADD CONSTRAINT community_slug_unique UNIQUE (slug);
+
+
+--
+-- Name: community_song community_song_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_song
+    ADD CONSTRAINT community_song_pkey PRIMARY KEY (community_id, song_id);
 
 
 --
@@ -1140,6 +1221,20 @@ ALTER TABLE ONLY public.user_public
 
 ALTER TABLE ONLY public.user_public
     ADD CONSTRAINT user_public_username_key UNIQUE (username);
+
+
+--
+-- Name: community_share_request_community_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX community_share_request_community_id_idx ON public.community_share_request USING btree (community_id, status, created_at DESC);
+
+
+--
+-- Name: community_share_request_pending_unique_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX community_share_request_pending_unique_idx ON public.community_share_request USING btree (community_id, sender_user_id, shared_item_type, shared_item_id) WHERE (status = 'pending'::text);
 
 
 --
@@ -1451,6 +1546,13 @@ CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.community_public FOR EACH 
 
 
 --
+-- Name: community_share_request set_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.community_share_request FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+
+--
 -- Name: event set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1538,6 +1640,22 @@ ALTER TABLE ONLY public.community
 
 
 --
+-- Name: community_playlist community_playlist_community_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_playlist
+    ADD CONSTRAINT community_playlist_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.community(community_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_playlist community_playlist_playlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_playlist
+    ADD CONSTRAINT community_playlist_playlist_id_fkey FOREIGN KEY (playlist_id) REFERENCES public.playlist(playlist_id) ON DELETE CASCADE;
+
+
+--
 -- Name: community_public community_public_active_event_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1551,6 +1669,46 @@ ALTER TABLE ONLY public.community_public
 
 ALTER TABLE ONLY public.community_public
     ADD CONSTRAINT community_public_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.community(community_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_share_request community_share_request_community_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_share_request
+    ADD CONSTRAINT community_share_request_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.community(community_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_share_request community_share_request_reviewed_by_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_share_request
+    ADD CONSTRAINT community_share_request_reviewed_by_user_id_fkey FOREIGN KEY (reviewed_by_user_id) REFERENCES public."user"(user_id) ON DELETE SET NULL;
+
+
+--
+-- Name: community_share_request community_share_request_sender_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_share_request
+    ADD CONSTRAINT community_share_request_sender_user_id_fkey FOREIGN KEY (sender_user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_song community_song_community_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_song
+    ADD CONSTRAINT community_song_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.community(community_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_song community_song_song_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_song
+    ADD CONSTRAINT community_song_song_id_fkey FOREIGN KEY (song_id) REFERENCES public.song(song_id) ON DELETE CASCADE;
 
 
 --
@@ -2005,6 +2163,20 @@ CREATE POLICY "Anyone can see community events" ON public.community_event FOR SE
 
 
 --
+-- Name: community_playlist Anyone can see community playlists; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Anyone can see community playlists" ON public.community_playlist FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: community_song Anyone can see community songs; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Anyone can see community songs" ON public.community_song FOR SELECT TO authenticated USING (true);
+
+
+--
 -- Name: community_user Community admins can see all members; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -2173,6 +2345,36 @@ COMMENT ON POLICY "Deny all mutations on share_public" ON public.share_public IS
 
 
 --
+-- Name: community_playlist Deny direct community playlist mutations; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny direct community playlist mutations" ON public.community_playlist TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: community_share_request Deny direct community share request mutations; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny direct community share request mutations" ON public.community_share_request TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: community_song Deny direct community song mutations; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny direct community song mutations" ON public.community_song TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: community_share_request Members can read community share requests they sent or manage; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Members can read community share requests they sent or manage" ON public.community_share_request FOR SELECT TO authenticated USING (((sender_user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) OR (EXISTS ( SELECT 1
+   FROM public.community_user cu
+  WHERE ((cu.community_id = community_share_request.community_id) AND (cu.user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid) AND (cu.role = ANY (ARRAY['owner'::text, 'community_admin'::text])))))));
+
+
+--
 -- Name: community_user Users can access their own community entries; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -2297,10 +2499,28 @@ ALTER TABLE public.community ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.community_event ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: community_playlist; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.community_playlist ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: community_public; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
 ALTER TABLE public.community_public ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: community_share_request; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.community_share_request ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: community_song; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.community_song ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: community_user debug_all_read; Type: POLICY; Schema: public; Owner: -
@@ -2430,5 +2650,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict xq0iwuaDTa86Sfx5SCPVs7HhYdNy6YjhUQS5XAScBA4KW30jbdmLD9OkNwdKi7g
+\unrestrict zLSU63SPPipDrOrREMOdLMYC02L19czeFr3v5xjppCVwMVZMkeaF3XfdHXxkba4
 

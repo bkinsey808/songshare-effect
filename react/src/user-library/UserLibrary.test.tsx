@@ -2,40 +2,20 @@ import { render, screen } from "@testing-library/react";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import UserLibraryCard from "./card/UserLibraryCard";
+import AddUserForm from "./user-add/AddUserForm";
 import UserLibrary from "./UserLibrary";
+import UserLibraryEmptyState from "./UserLibraryEmptyState";
+import UserLibraryErrorState from "./UserLibraryErrorState";
+import UserLibraryLoadingState from "./UserLibraryLoadingState";
 import useUserLibrary from "./useUserLibrary";
 
 vi.mock("./useUserLibrary");
-
-vi.mock("./UserLibraryLoadingState", (): { default: () => ReactElement } => ({
-	default: (): ReactElement => <div data-testid="loading" />,
-}));
-
-vi.mock(
-	"./UserLibraryErrorState",
-	(): { default: ({ error }: { error?: string }) => ReactElement } => ({
-		default: ({ error }: { error?: string }): ReactElement => (
-			<div data-testid="error">{error}</div>
-		),
-	}),
-);
-
-vi.mock("./UserLibraryEmptyState", (): { default: () => ReactElement } => ({
-	default: (): ReactElement => <div data-testid="empty" />,
-}));
-
-vi.mock("./user-add/AddUserForm", (): { default: () => ReactElement } => ({
-	default: (): ReactElement => <div data-testid="add-user" />,
-}));
-
-vi.mock(
-	"./card/UserLibraryCard",
-	(): { default: ({ entry }: { entry: { followed_user_id: string } }) => ReactElement } => ({
-		default: ({ entry }: { entry: { followed_user_id: string } }): ReactElement => (
-			<div data-testid={`card-${entry.followed_user_id}`} />
-		),
-	}),
-);
+vi.mock("./UserLibraryLoadingState");
+vi.mock("./UserLibraryErrorState");
+vi.mock("./UserLibraryEmptyState");
+vi.mock("./user-add/AddUserForm");
+vi.mock("./card/UserLibraryCard");
 
 const MOCK_LOADING = {
 	entries: [],
@@ -83,8 +63,21 @@ const MOCK_WITH_ENTRY = {
 	removeFromUserLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
 } satisfies ReturnType<typeof useUserLibrary>;
 
+function installUiMocks(): void {
+	vi.mocked(UserLibraryLoadingState).mockImplementation(() => <div data-testid="loading" />);
+	vi.mocked(UserLibraryErrorState).mockImplementation(({ error }) => (
+		<div data-testid="error">{error}</div>
+	));
+	vi.mocked(UserLibraryEmptyState).mockImplementation(() => <div data-testid="empty" />);
+	vi.mocked(AddUserForm).mockImplementation(() => <div data-testid="add-user" />);
+	vi.mocked(UserLibraryCard).mockImplementation(({ entry }) => (
+		<div data-testid={`card-${entry.followed_user_id}`} />
+	));
+}
+
 describe("user library component", () => {
 	it("renders loading state when loading", () => {
+		installUiMocks();
 		vi.mocked(useUserLibrary).mockReturnValue(MOCK_LOADING);
 
 		render(<UserLibrary />);
@@ -93,6 +86,7 @@ describe("user library component", () => {
 	});
 
 	it("renders error state when error present", () => {
+		installUiMocks();
 		vi.mocked(useUserLibrary).mockReturnValue(MOCK_ERROR);
 
 		render(<UserLibrary />);
@@ -101,6 +95,7 @@ describe("user library component", () => {
 	});
 
 	it("renders empty state when no entries", () => {
+		installUiMocks();
 		vi.mocked(useUserLibrary).mockReturnValue(MOCK_EMPTY);
 
 		render(<UserLibrary />);
@@ -109,6 +104,7 @@ describe("user library component", () => {
 	});
 
 	it("renders list of entries and add form", () => {
+		installUiMocks();
 		vi.mocked(useUserLibrary).mockReturnValue(MOCK_WITH_ENTRY);
 
 		render(<UserLibrary />);

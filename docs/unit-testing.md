@@ -52,7 +52,7 @@ Loading only this doc is rarely sufficient. Use this as a routing guide before w
 _Helper modules intended solely for unit tests should use the `.test-util.ts` / `.test-util.tsx`
 suffix so their purpose is obvious and they don't get mistaken for production code._
 
-1. Use the included `test-template.test.ts` as a starting point for new tests.
+1. Use the included [`test-template.test.ts`](../.github/skills/unit-testing/test-template.test.ts) as a starting point for new tests.
 2. Prefer descriptive test names and one behavior per test.
 3. Use `vi.useFakeTimers()` only when verifying timer behavior; always restore with
    `vi.useRealTimers()`.
@@ -78,6 +78,8 @@ suffix so their purpose is obvious and they don't get mistaken for production co
   this. All `test`/`it` calls at the top level fail lint.
 - **Use `it` inside `describe`** — `eslint-plugin-jest/consistent-test-it` enforces `it` within
   `describe` blocks.
+- **Prefer `it.each` for input/output matrices** — when the same behavior is asserted across
+  multiple cases, use a table-driven test instead of duplicating near-identical `it` blocks.
 - **Every numeric literal needs a named constant** — `no-magic-numbers` applies even to `0`, `1`,
   and arithmetic offsets like `index + 1`. Define constants at the top of the file
   (e.g. `const LINE_OFFSET = 1`, `const NO_ERRORS = 0`).

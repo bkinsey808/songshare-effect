@@ -1,8 +1,13 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 import Button from "@/react/lib/design-system/Button";
+import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import ShareButton from "@/react/lib/design-system/ShareButton";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { ZERO } from "@/shared/constants/shared-constants";
+import { eventViewPath, playlistViewPath, songViewPath } from "@/shared/paths";
 
 import useCommunityView from "./useCommunityView";
 
@@ -17,10 +22,17 @@ import useCommunityView from "./useCommunityView";
  */
 export default function CommunityView(): ReactElement {
 	const { t } = useTranslation();
+	const lang = useCurrentLang();
+	const [selectedSongId, setSelectedSongId] = useState("");
+	const [selectedPlaylistId, setSelectedPlaylistId] = useState("");
 	const {
 		currentCommunity,
 		members,
 		communityEvents,
+		communitySongs = [],
+		communityPlaylists = [],
+		availableSongOptions = [],
+		availablePlaylistOptions = [],
 		activeEventId,
 		isCommunityLoading,
 		communityError,
@@ -34,6 +46,8 @@ export default function CommunityView(): ReactElement {
 		onLeaveClick,
 		onManageClick,
 		onEditClick,
+		onShareSongClick,
+		onSharePlaylistClick,
 		userSession,
 	} = useCommunityView();
 
@@ -51,12 +65,12 @@ export default function CommunityView(): ReactElement {
 
 	return (
 		<div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
-			<div className="flex justify-between items-start">
+			<div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
 				<div>
 					<h1 className="text-4xl font-bold text-white">{currentCommunity.name}</h1>
 					<p className="text-gray-400 mt-2">{currentCommunity.description}</p>
 				</div>
-				<div className="flex gap-2">
+				<div className="flex flex-wrap gap-2">
 					<ShareButton
 						itemType="community"
 						itemId={currentCommunity.community_id}
@@ -169,13 +183,150 @@ export default function CommunityView(): ReactElement {
 												)}
 											</div>
 											{event.event_slug !== undefined && event.event_slug !== "" && (
-												<p className="text-xs text-gray-400">slug: {event.event_slug}</p>
+												<div className="mt-2 flex items-center justify-between gap-3">
+													<p className="text-xs text-gray-400">slug: {event.event_slug}</p>
+													<Link
+														to={buildPathWithLang(`/${eventViewPath}/${event.event_slug}`, lang)}
+														className="rounded border border-blue-500/50 px-3 py-1 text-xs font-medium text-blue-300 transition hover:bg-blue-500/10 hover:text-white"
+													>
+														{t("communityView.goToEvent", "Go to Event")}
+													</Link>
+												</div>
 											)}
 										</div>
 									);
 								})}
 						</div>
 					)}
+				</section>
+			</div>
+
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+				<section className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+					<h2 className="mb-4 text-2xl font-semibold text-white">
+						{t("communityView.songs", "Songs")}
+					</h2>
+					{isMember === true && (
+						<div className="mb-4 flex gap-2">
+							<select
+								className="flex-1 rounded border border-gray-600 bg-gray-900 px-3 py-2 text-sm text-white"
+								value={selectedSongId}
+								onChange={(event) => {
+									setSelectedSongId(event.target.value);
+								}}
+							>
+								<option value="">{t("communityView.selectSong", "Select a song to share")}</option>
+								{availableSongOptions.map((song) => (
+									<option key={song.song_id} value={song.song_id}>
+										{song.song_name ?? song.song_id}
+									</option>
+								))}
+							</select>
+							<Button
+								variant="secondary"
+								disabled={selectedSongId === ""}
+								onClick={() => {
+									onShareSongClick(selectedSongId);
+									setSelectedSongId("");
+								}}
+							>
+								{t("communityView.shareSong", "Share Song")}
+							</Button>
+						</div>
+					)}
+					<div className="space-y-2">
+						{communitySongs.length === ZERO && (
+							<p className="text-gray-400">{t("communityView.noSongs", "No community songs yet")}</p>
+						)}
+						{communitySongs.map((song) => (
+							<div
+								key={song.song_id}
+								className="flex items-center justify-between gap-3 rounded border border-gray-700 bg-gray-900 px-4 py-3"
+							>
+								<div>
+									<p className="text-white">{song.song_name ?? song.song_id}</p>
+									{song.song_slug !== undefined && song.song_slug !== "" && (
+										<p className="text-xs text-gray-400">slug: {song.song_slug}</p>
+									)}
+								</div>
+								{song.song_slug !== undefined && song.song_slug !== "" && (
+									<Link
+										to={buildPathWithLang(`/${songViewPath}/${song.song_slug}`, lang)}
+										className="rounded border border-blue-500/50 px-3 py-1 text-xs font-medium text-blue-300 transition hover:bg-blue-500/10 hover:text-white"
+									>
+										{t("communityView.goToSong", "Go to Song")}
+									</Link>
+								)}
+							</div>
+						))}
+					</div>
+				</section>
+
+				<section className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+					<h2 className="mb-4 text-2xl font-semibold text-white">
+						{t("communityView.playlists", "Playlists")}
+					</h2>
+					{isMember === true && (
+						<div className="mb-4 flex gap-2">
+							<select
+								className="flex-1 rounded border border-gray-600 bg-gray-900 px-3 py-2 text-sm text-white"
+								value={selectedPlaylistId}
+								onChange={(event) => {
+									setSelectedPlaylistId(event.target.value);
+								}}
+							>
+								<option value="">
+									{t("communityView.selectPlaylist", "Select a playlist to share")}
+								</option>
+								{availablePlaylistOptions.map((playlist) => (
+									<option key={playlist.playlist_id} value={playlist.playlist_id}>
+										{playlist.playlist_name ?? playlist.playlist_id}
+									</option>
+								))}
+							</select>
+							<Button
+								variant="secondary"
+								disabled={selectedPlaylistId === ""}
+								onClick={() => {
+									onSharePlaylistClick(selectedPlaylistId);
+									setSelectedPlaylistId("");
+								}}
+							>
+								{t("communityView.sharePlaylist", "Share Playlist")}
+							</Button>
+						</div>
+					)}
+					<div className="space-y-2">
+						{communityPlaylists.length === ZERO && (
+							<p className="text-gray-400">
+								{t("communityView.noPlaylists", "No community playlists yet")}
+							</p>
+						)}
+						{communityPlaylists.map((playlist) => (
+							<div
+								key={playlist.playlist_id}
+								className="flex items-center justify-between gap-3 rounded border border-gray-700 bg-gray-900 px-4 py-3"
+							>
+								<div>
+									<p className="text-white">{playlist.playlist_name ?? playlist.playlist_id}</p>
+									{playlist.playlist_slug !== undefined && playlist.playlist_slug !== "" && (
+										<p className="text-xs text-gray-400">slug: {playlist.playlist_slug}</p>
+									)}
+								</div>
+								{playlist.playlist_slug !== undefined && playlist.playlist_slug !== "" && (
+									<Link
+										to={buildPathWithLang(
+											`/${playlistViewPath}/${playlist.playlist_slug}`,
+											lang,
+										)}
+										className="rounded border border-blue-500/50 px-3 py-1 text-xs font-medium text-blue-300 transition hover:bg-blue-500/10 hover:text-white"
+									>
+										{t("communityView.goToPlaylist", "Go to Playlist")}
+									</Link>
+								)}
+							</div>
+						))}
+					</div>
 				</section>
 			</div>
 

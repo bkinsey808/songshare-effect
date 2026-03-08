@@ -79,6 +79,39 @@ export type Database = {
           },
         ]
       }
+      community_playlist: {
+        Row: {
+          community_id: string
+          created_at: string
+          playlist_id: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          playlist_id: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          playlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_playlist_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_playlist_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlist"
+            referencedColumns: ["playlist_id"]
+          },
+        ]
+      }
       community_public: {
         Row: {
           active_event_id: string | null
@@ -130,6 +163,103 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "community"
             referencedColumns: ["community_id"]
+          },
+        ]
+      }
+      community_share_request: {
+        Row: {
+          community_id: string
+          created_at: string
+          message: string | null
+          request_id: string
+          reviewed_at: string | null
+          reviewed_by_user_id: string | null
+          sender_user_id: string
+          shared_item_id: string
+          shared_item_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          message?: string | null
+          request_id?: string
+          reviewed_at?: string | null
+          reviewed_by_user_id?: string | null
+          sender_user_id: string
+          shared_item_id: string
+          shared_item_type: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          message?: string | null
+          request_id?: string
+          reviewed_at?: string | null
+          reviewed_by_user_id?: string | null
+          sender_user_id?: string
+          shared_item_id?: string
+          shared_item_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_share_request_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_share_request_reviewed_by_user_id_fkey"
+            columns: ["reviewed_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "community_share_request_sender_user_id_fkey"
+            columns: ["sender_user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      community_song: {
+        Row: {
+          community_id: string
+          created_at: string
+          song_id: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          song_id: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          song_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_song_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_song_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "song"
+            referencedColumns: ["song_id"]
           },
         ]
       }

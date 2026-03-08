@@ -44,11 +44,44 @@ export type CommunityEvent = {
 	event_slug?: string | undefined;
 };
 
+export type CommunitySong = {
+	community_id: string;
+	song_id: string;
+	created_at: string;
+	song_name?: string | undefined;
+	song_slug?: string | undefined;
+};
+
+export type CommunityPlaylist = {
+	community_id: string;
+	playlist_id: string;
+	created_at: string;
+	playlist_name?: string | undefined;
+	playlist_slug?: string | undefined;
+};
+
+export type CommunityShareRequest = {
+	request_id: string;
+	community_id: string;
+	sender_user_id: string;
+	shared_item_type: "song" | "playlist";
+	shared_item_id: string;
+	status: "pending" | "accepted" | "rejected";
+	message?: string | null | undefined;
+	created_at: string;
+	updated_at: string;
+	sender_username?: string | undefined;
+	shared_item_name?: string | undefined;
+};
+
 export type CommunityState = {
 	currentCommunity: CommunityEntry | undefined;
 	communities: readonly CommunityEntry[];
 	members: readonly CommunityUser[];
 	communityEvents: readonly CommunityEvent[];
+	communitySongs: readonly CommunitySong[];
+	communityPlaylists: readonly CommunityPlaylist[];
+	communityShareRequests: readonly CommunityShareRequest[];
 	isCommunityLoading: boolean;
 	communityError: string | undefined;
 	isCommunitySaving: boolean;

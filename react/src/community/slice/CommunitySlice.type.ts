@@ -3,6 +3,9 @@ import type { Effect } from "effect";
 import type {
 	CommunityEntry,
 	CommunityEvent,
+	CommunityPlaylist,
+	CommunityShareRequest,
+	CommunitySong,
 	CommunityState,
 	CommunityUser,
 	SaveCommunityRequest,
@@ -45,6 +48,9 @@ export type CommunitySlice = CommunityState & {
 	setCommunities: (communities: readonly CommunityEntry[]) => void;
 	setMembers: (members: readonly CommunityUser[]) => void;
 	setCommunityEvents: (events: readonly CommunityEvent[]) => void;
+	setCommunitySongs: (songs: readonly CommunitySong[]) => void;
+	setCommunityPlaylists: (playlists: readonly CommunityPlaylist[]) => void;
+	setCommunityShareRequests: (requests: readonly CommunityShareRequest[]) => void;
 	setCommunityLoading: (loading: boolean) => void;
 	setCommunityError: (error: string | undefined) => void;
 	setCommunitySaving: (saving: boolean) => void;

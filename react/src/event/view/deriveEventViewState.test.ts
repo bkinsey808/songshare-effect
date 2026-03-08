@@ -5,18 +5,16 @@ import type { SongPublic } from "@/react/song/song-schema";
 
 import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import { utcTimestampToClientLocalDate } from "@/shared/utils/formatEventDate";
 
 import deriveEventViewState from "./deriveEventViewState";
 
-vi.mock(
-	"@/shared/utils/formatEventDate",
-	(): { utcTimestampToClientLocalDate: (date: string) => string } => ({
-		utcTimestampToClientLocalDate: (date: string): string => `formatted:${date}`,
-	}),
-);
+vi.mock("@/shared/utils/formatEventDate");
 
 describe("deriveEventViewState", () => {
 	it("derives participant ownership and active song display values", () => {
+		vi.mocked(utcTimestampToClientLocalDate).mockImplementation((date) => `formatted:${date}`);
+
 		const participants = [
 			{
 				user_id: "user-2",

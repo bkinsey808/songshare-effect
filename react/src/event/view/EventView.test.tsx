@@ -6,17 +6,13 @@ import type { EventEntry, EventParticipant } from "@/react/event/event-entry/Eve
 
 import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import { utcTimestampToClientLocalDate } from "@/shared/utils/formatEventDate";
 
 import EventView from "./EventView";
 import useEventView from "./useEventView";
 
 vi.mock("./useEventView");
-vi.mock(
-	"@/shared/utils/formatEventDate",
-	(): { utcTimestampToClientLocalDate: (date: string) => string } => ({
-		utcTimestampToClientLocalDate: (date: string): string => date,
-	}),
-);
+vi.mock("@/shared/utils/formatEventDate");
 
 type UseEventViewResult = ReturnType<typeof useEventView>;
 
@@ -95,6 +91,10 @@ function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): Us
 }
 
 describe("event view", () => {
+	function installDateMock(): void {
+		vi.mocked(utcTimestampToClientLocalDate).mockImplementation((date) => `${date}`);
+	}
+
 	function renderEventView(): void {
 		cleanup();
 		render(
@@ -105,6 +105,7 @@ describe("event view", () => {
 	}
 
 	it("does not render Leave Event button for event owner", () => {
+		installDateMock();
 		vi.mocked(useEventView).mockReturnValue(makeUseEventViewResult());
 
 		renderEventView();
@@ -116,6 +117,7 @@ describe("event view", () => {
 	});
 
 	it("shows slide manager for playlist admins even if not full manager", () => {
+		installDateMock();
 		// makeUseEventViewResult computes currentParticipant by looking up
 		// result.currentUserId in result.participants. To simulate a user who
 		// is only an event_playlist_admin without broader event management
@@ -146,6 +148,7 @@ describe("event view", () => {
 	});
 
 	it("renders Leave Event button for participant who is not owner", () => {
+		installDateMock();
 		vi.mocked(useEventView).mockReturnValue(
 			makeUseEventViewResult({
 				isOwner: false,
@@ -161,6 +164,7 @@ describe("event view", () => {
 	});
 
 	it("renders preview-only message for invited users", () => {
+		installDateMock();
 		vi.mocked(useEventView).mockReturnValue(
 			makeUseEventViewResult({
 				participantStatus: "invited",
@@ -184,6 +188,7 @@ describe("event view", () => {
 	});
 
 	it("renders currently playing song name when available in publicSongs", () => {
+		installDateMock();
 		const event = makeEventEntry({
 			public: forceCast<NonNullable<EventEntry["public"]>>({
 				event_name: "Event",
@@ -214,6 +219,7 @@ describe("event view", () => {
 	});
 
 	it("renders participant username in participants card", () => {
+		installDateMock();
 		vi.mocked(useEventView).mockReturnValue(makeUseEventViewResult());
 
 		renderEventView();
@@ -222,6 +228,7 @@ describe("event view", () => {
 	});
 
 	it("does not render participant UUID when username is missing", () => {
+		installDateMock();
 		const participants = [
 			{
 				user_id: "user-uuid-1",

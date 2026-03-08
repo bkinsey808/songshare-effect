@@ -6,6 +6,9 @@ import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 import type {
 	CommunityEntry,
 	CommunityEvent,
+	CommunityPlaylist,
+	CommunityShareRequest,
+	CommunitySong,
 	CommunityState,
 	CommunityUser,
 	SaveCommunityRequest,
@@ -33,6 +36,9 @@ const communitySliceInitialState: CommunityState = {
 	communities: [],
 	members: [],
 	communityEvents: [],
+	communitySongs: [],
+	communityPlaylists: [],
+	communityShareRequests: [],
 	isCommunityLoading: false,
 	communityError: undefined,
 	isCommunitySaving: false,
@@ -100,6 +106,18 @@ export default function createCommunitySlice(
 			set({ communityEvents: events as ReadonlyDeep<CommunityEvent[]> });
 		},
 
+		setCommunitySongs: (songs: readonly CommunitySong[]) => {
+			set({ communitySongs: songs as ReadonlyDeep<CommunitySong[]> });
+		},
+
+		setCommunityPlaylists: (playlists: readonly CommunityPlaylist[]) => {
+			set({ communityPlaylists: playlists as ReadonlyDeep<CommunityPlaylist[]> });
+		},
+
+		setCommunityShareRequests: (requests: readonly CommunityShareRequest[]) => {
+			set({ communityShareRequests: requests as ReadonlyDeep<CommunityShareRequest[]> });
+		},
+
 		setCommunityLoading: (loading: boolean) => {
 			set({ isCommunityLoading: loading });
 		},
@@ -118,6 +136,9 @@ export default function createCommunitySlice(
 				communityError: undefined,
 				members: [],
 				communityEvents: [],
+				communitySongs: [],
+				communityPlaylists: [],
+				communityShareRequests: [],
 			});
 		},
 	};

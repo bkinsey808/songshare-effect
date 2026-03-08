@@ -1,31 +1,30 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
 import { ONE } from "@/shared/constants/shared-constants";
 
 import SongFormFooter from "./SongFormFooter";
 
-vi.mock(
-	"react-i18next",
-	(): {
-		useTranslation: () => {
-			t: (key: string, defaultVal?: string | Record<string, unknown>) => string;
-			i18n: { language: string };
-		};
-	} => ({
-		useTranslation: (): {
-			t: (key: string, defaultVal?: string | Record<string, unknown>) => string;
-			i18n: { language: string };
-		} => ({
-			t: (key: string, defaultVal?: string | Record<string, unknown>): string =>
-				typeof defaultVal === "string" ? defaultVal : key,
-			i18n: { language: "en" },
+vi.mock("react-i18next");
+
+function translateOrDefault(key: string, defaultVal?: string | Record<string, unknown>): string {
+	return typeof defaultVal === "string" ? defaultVal : key;
+}
+
+function installI18nMock(): void {
+	vi.mocked(useTranslation).mockReturnValue(
+		forceCast<ReturnType<typeof useTranslation>>({
+			t: translateOrDefault,
+			i18n: { changeLanguage: vi.fn(), language: "en" },
 		}),
-	}),
-);
+	);
+}
 
 describe("song form footer", () => {
 	it("renders create/reset/cancel buttons", (): void => {
+		installI18nMock();
 		render(
 			<SongFormFooter
 				hasChanges
@@ -44,6 +43,7 @@ describe("song form footer", () => {
 	});
 
 	it("calls handlers when buttons are clicked", (): void => {
+		installI18nMock();
 		const onSave = vi.fn();
 		const onReset = vi.fn();
 		const onCancel = vi.fn();
@@ -72,6 +72,7 @@ describe("song form footer", () => {
 	});
 
 	it("calls onCancel immediately when Cancel clicked and no unsaved changes", (): void => {
+		installI18nMock();
 		const onCancel = vi.fn();
 		render(
 			<SongFormFooter
@@ -91,6 +92,7 @@ describe("song form footer", () => {
 	});
 
 	it("shows leave confirmation when Cancel clicked with unsaved changes; Stay dismisses", (): void => {
+		installI18nMock();
 		const onCancel = vi.fn();
 		render(
 			<SongFormFooter
@@ -114,6 +116,7 @@ describe("song form footer", () => {
 	});
 
 	it("renders update label when editing", (): void => {
+		installI18nMock();
 		render(
 			<SongFormFooter
 				hasChanges={false}
@@ -132,6 +135,7 @@ describe("song form footer", () => {
 	});
 
 	it("applies hasChanges class to footer", (): void => {
+		installI18nMock();
 		const { container, rerender } = render(
 			<SongFormFooter
 				hasChanges
@@ -162,6 +166,7 @@ describe("song form footer", () => {
 	});
 
 	it("does not render delete section when onDelete not provided", (): void => {
+		installI18nMock();
 		render(
 			<SongFormFooter
 				hasChanges={false}
@@ -178,6 +183,7 @@ describe("song form footer", () => {
 	});
 
 	it("shows confirmation when delete clicked and calls cancel/confirm", (): void => {
+		installI18nMock();
 		const onDelete = vi.fn().mockResolvedValue(undefined);
 		render(
 			<SongFormFooter
@@ -213,6 +219,7 @@ describe("song form footer", () => {
 	});
 
 	it("disables buttons while submitting", (): void => {
+		installI18nMock();
 		cleanup();
 		const onDelete = vi.fn();
 		render(

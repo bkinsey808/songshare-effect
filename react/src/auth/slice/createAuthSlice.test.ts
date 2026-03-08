@@ -12,13 +12,7 @@ import makeAuthSlice from "./makeAuthSlice.test-util";
 
 const AUTH_PREFIX = "[authSlice]";
 
-// Mock the token fetcher with an explicit typed factory
-vi.mock(
-	"@/react/lib/supabase/auth-token/fetchSupabaseUserTokenFromApi",
-	(): { default: typeof fetchSupabaseUserTokenFromApi } => ({
-		default: vi.fn(),
-	}),
-);
+vi.mock("@/react/lib/supabase/auth-token/fetchSupabaseUserTokenFromApi");
 
 const SAMPLE_USER_SESSION: UserSessionData = {
 	user: {

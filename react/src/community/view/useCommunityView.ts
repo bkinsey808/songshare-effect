@@ -1,27 +1,36 @@
-import { Effect } from "effect";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import subscribeToCommunityEvent from "@/react/community/subscribe/subscribeToCommunityEvent";
-import subscribeToCommunityPublic from "@/react/community/subscribe/subscribeToCommunityPublic";
+import useLoadCommunityBySlug from "@/react/community/useLoadCommunityBySlug";
+import useLoadCommunityLibraries from "@/react/community/useLoadCommunityLibraries";
 import useLocale from "@/react/lib/language/locale/useLocale";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import {
-	communityEditPath,
-	communityManagePath,
-	communityViewPath,
-	dashboardPath,
-} from "@/shared/paths";
 
-import type { CommunityEntry, CommunityEvent, CommunityUser } from "../community-types";
+import type {
+	CommunityEntry,
+	CommunityEvent,
+	CommunityPlaylist,
+	CommunitySong,
+	CommunityUser,
+} from "../community-types";
+
+import createCommunityViewHandlers from "./createCommunityViewHandlers";
+import useCommunityViewSubscriptions from "./useCommunityViewSubscriptions";
 
 export type UseCommunityViewReturn = {
 	currentCommunity: CommunityEntry | undefined;
 	members: readonly CommunityUser[];
 	communityEvents: readonly CommunityEvent[];
+	communitySongs: readonly CommunitySong[];
+	communityPlaylists: readonly CommunityPlaylist[];
+	availableSongOptions: readonly { song_id: string; song_name?: string; song_slug?: string }[];
+	availablePlaylistOptions: readonly {
+		playlist_id: string;
+		playlist_name?: string;
+		playlist_slug?: string;
+	}[];
 	activeEventId: string | undefined;
 	isCommunityLoading: boolean;
 	communityError: string | undefined;
@@ -35,6 +44,8 @@ export type UseCommunityViewReturn = {
 	onLeaveClick: () => void;
 	onManageClick: () => void;
 	onEditClick: () => void;
+	onShareSongClick: (songId: string) => void;
+	onSharePlaylistClick: (playlistId: string) => void;
 	userSession: UserSessionData | undefined;
 };
 
@@ -57,61 +68,28 @@ export default function useCommunityView(): UseCommunityViewReturn {
 	const currentCommunity = useAppStore((state) => state.currentCommunity);
 	const members = useAppStore((state) => state.members);
 	const communityEvents = useAppStore((state) => state.communityEvents);
+	const communitySongs = useAppStore((state) => state.communitySongs) ?? [];
+	const communityPlaylists = useAppStore((state) => state.communityPlaylists) ?? [];
 	const isCommunityLoading = useAppStore((state) => state.isCommunityLoading);
 	const communityError = useAppStore((state) => state.communityError);
 	const joinCommunity = useAppStore((state) => state.joinCommunity);
 	const leaveCommunity = useAppStore((state) => state.leaveCommunity);
 	const userSessionData = useAppStore((state) => state.userSessionData);
+	const songLibraryEntries = useAppStore((state) => state.songLibraryEntries) ?? {};
+	const playlistLibraryEntries = useAppStore((state) => state.playlistLibraryEntries) ?? {};
+	const fetchSongLibrary = useAppStore((state) => state.fetchSongLibrary);
+	const fetchPlaylistLibrary = useAppStore((state) => state.fetchPlaylistLibrary);
 
 	const communityId = currentCommunity?.community_id;
 	const activeEventId = currentCommunity?.active_event_id;
 
-	// Fetch community data when the slug changes
-	useEffect(() => {
-		if (community_slug !== undefined && community_slug !== "") {
-			void Effect.runPromise(fetchCommunityBySlug(community_slug));
-		}
-	}, [community_slug, fetchCommunityBySlug]);
-
-	// Subscribe to realtime community_event changes
-	useEffect(() => {
-		if (communityId === undefined) {
-			return;
-		}
-		let cleanup: (() => void) | undefined = undefined;
-		void (async (): Promise<void> => {
-			try {
-				cleanup = await Effect.runPromise(
-					subscribeToCommunityEvent(communityId, useAppStore.getState),
-				);
-			} catch (error: unknown) {
-				console.error("[useCommunityView] subscribeToCommunityEvent error:", error);
-			}
-		})();
-		return (): void => {
-			cleanup?.();
-		};
-	}, [communityId]);
-
-	// Subscribe to realtime community_public changes (active_event_id)
-	useEffect(() => {
-		if (communityId === undefined) {
-			return;
-		}
-		let cleanup: (() => void) | undefined = undefined;
-		void (async (): Promise<void> => {
-			try {
-				cleanup = await Effect.runPromise(
-					subscribeToCommunityPublic(communityId, useAppStore.getState),
-				);
-			} catch (error: unknown) {
-				console.error("[useCommunityView] subscribeToCommunityPublic error:", error);
-			}
-		})();
-		return (): void => {
-			cleanup?.();
-		};
-	}, [communityId]);
+	useLoadCommunityBySlug(community_slug, fetchCommunityBySlug);
+	useLoadCommunityLibraries(
+		userSessionData?.user?.user_id,
+		fetchSongLibrary,
+		fetchPlaylistLibrary,
+	);
+	useCommunityViewSubscriptions(communityId);
 
 	// find the current user's membership record, if they are logged in
 	const currentMember =
@@ -131,79 +109,36 @@ export default function useCommunityView(): UseCommunityViewReturn {
 	const canManage = isOwner || currentMember?.role === "community_admin";
 
 	const canEdit = isOwner;
-
-	function onJoinClick(): void {
-		if (currentCommunity) {
-			void (async (): Promise<void> => {
-				setIsJoinLoading(true);
-				let joined = false;
-				try {
-					await Effect.runPromise(joinCommunity(currentCommunity.community_id, { silent: true }));
-					joined = true;
-				} catch {
-					// Error handled by store
-				}
-
-				if (joined && community_slug !== undefined && community_slug !== "") {
-					try {
-						await Effect.runPromise(fetchCommunityBySlug(community_slug, { silent: true }));
-					} catch {
-						// Error handled by store
-					}
-				}
-				setIsJoinLoading(false);
-			})();
-		}
-	}
-
-	function onLeaveClick(): void {
-		if (currentCommunity) {
-			void (async (): Promise<void> => {
-				setIsLeaveLoading(true);
-				let left = false;
-				try {
-					await Effect.runPromise(leaveCommunity(currentCommunity.community_id, { silent: true }));
-					left = true;
-				} catch {
-					// Error handled by store
-				}
-
-				if (left && community_slug !== undefined && community_slug !== "") {
-					try {
-						await Effect.runPromise(fetchCommunityBySlug(community_slug, { silent: true }));
-					} catch {
-						// Error handled by store
-					}
-				}
-				setIsLeaveLoading(false);
-			})();
-		}
-	}
-
-	function onManageClick(): void {
-		if (community_slug !== undefined && community_slug !== "") {
-			const managePath = buildPathWithLang(
-				`/${communityViewPath}/${community_slug}/${communityManagePath}`,
-				lang,
-			);
-			void navigate(managePath);
-		}
-	}
-
-	function onEditClick(): void {
-		if (currentCommunity) {
-			const editPath = buildPathWithLang(
-				`/${dashboardPath}/${communityEditPath}/${currentCommunity.community_id}`,
-				lang,
-			);
-			void navigate(editPath);
-		}
-	}
+	const availableSongOptions = Object.values(songLibraryEntries);
+	const availablePlaylistOptions = Object.values(playlistLibraryEntries);
+	const {
+		onJoinClick,
+		onLeaveClick,
+		onManageClick,
+		onEditClick,
+		onShareSongClick,
+		onSharePlaylistClick,
+	} = createCommunityViewHandlers({
+		lang,
+		navigate,
+		communitySlug: community_slug,
+		communityId,
+		currentCommunity,
+		fetchCommunityBySlug,
+		joinCommunity,
+		leaveCommunity,
+		setIsJoinLoading,
+		setIsLeaveLoading,
+	});
 
 	return {
 		currentCommunity,
 		members,
 		communityEvents,
+		communitySongs,
+		communityPlaylists,
+		availableSongOptions,
+		availablePlaylistOptions,
 		activeEventId,
 		isCommunityLoading,
 		communityError,
@@ -217,6 +152,8 @@ export default function useCommunityView(): UseCommunityViewReturn {
 		onLeaveClick,
 		onManageClick,
 		onEditClick,
+		onShareSongClick,
+		onSharePlaylistClick,
 		userSession: userSessionData,
 	};
 }

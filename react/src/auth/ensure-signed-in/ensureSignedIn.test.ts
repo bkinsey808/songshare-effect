@@ -19,22 +19,12 @@ import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/con
 
 import ensureSignedIn from "./ensureSignedIn";
 
-vi.mock("@/react/app-store/useAppStore", (): { default: { getState: () => unknown } } => ({
-	default: { getState: vi.fn() },
-}));
+vi.mock("@/react/app-store/useAppStore");
 
 // `getCachedUserToken` is a simple exported function; mock via absolute path to match normal imports
 // and keep consistency with the spy helper above.
-vi.mock("@/react/lib/supabase/token/token-cache", (): { getCachedUserToken: () => unknown } => ({
-	getCachedUserToken: vi.fn(),
-}));
-vi.mock(
-	"@/react/lib/utils/clientLogger",
-	(): { clientDebug: (...args: unknown[]) => void; clientError: (...args: unknown[]) => void } => ({
-		clientDebug: vi.fn(),
-		clientError: vi.fn(),
-	}),
-);
+vi.mock("@/react/lib/supabase/token/token-cache");
+vi.mock("@/react/lib/utils/clientLogger");
 
 const SAMPLE_USER_SESSION: UserSessionData = {
 	user: {

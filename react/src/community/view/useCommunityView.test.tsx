@@ -1,20 +1,28 @@
-/* eslint-disable */
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
-import * as Router from "react-router-dom";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { useNavigate, useParams } from "react-router-dom";
+import { describe, expect, it, vi } from "vitest";
 
 import type { UserSessionData } from "@/shared/userSessionData";
 
-import useAppStoreModule from "@/react/app-store/useAppStore";
-import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
+import useAppStore from "@/react/app-store/useAppStore";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import forceCast from "@/react/lib/test-utils/forceCast";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
 
 import type { CommunityEntry, CommunityUser } from "../community-types";
 
+import subscribeToCommunityEvent from "../subscribe/subscribeToCommunityEvent";
+import subscribeToCommunityPublic from "../subscribe/subscribeToCommunityPublic";
 import useCommunityView from "./useCommunityView";
 
-function Harness() {
+function Harness(): ReactElement {
 	const view = useCommunityView();
+	const handleManageClick = view.onManageClick;
+	const handleEditClick = view.onEditClick;
+	const handleJoinClick = view.onJoinClick;
+	const handleLeaveClick = view.onLeaveClick;
+
 	return (
 		<div>
 			<div data-testid="isOwner">{String(view.isOwner)}</div>
@@ -23,16 +31,16 @@ function Harness() {
 			<div data-testid="canEdit">{String(view.canEdit)}</div>
 			<div data-testid="isJoinLoading">{String(view.isJoinLoading)}</div>
 			<div data-testid="isLeaveLoading">{String(view.isLeaveLoading)}</div>
-			<button type="button" onClick={view.onManageClick}>
+			<button type="button" onClick={handleManageClick}>
 				manage
 			</button>
-			<button type="button" onClick={view.onEditClick}>
+			<button type="button" onClick={handleEditClick}>
 				edit
 			</button>
-			<button type="button" onClick={view.onJoinClick}>
+			<button type="button" onClick={handleJoinClick}>
 				join
 			</button>
-			<button type="button" onClick={view.onLeaveClick}>
+			<button type="button" onClick={handleLeaveClick}>
 				leave
 			</button>
 		</div>
@@ -46,6 +54,7 @@ type MockState = {
 	) => Effect.Effect<unknown, unknown, unknown>;
 	currentCommunity?: CommunityEntry | undefined;
 	members: CommunityUser[];
+	communityEvents: [];
 	isCommunityLoading: boolean;
 	communityError?: string | undefined;
 	joinCommunity: (
@@ -59,79 +68,74 @@ type MockState = {
 	userSessionData?: UserSessionData | undefined;
 };
 
-vi.mock("@/react/app-store/useAppStore", () => {
-	let state: MockState = {
-		fetchCommunityBySlug: () => Effect.succeed(undefined),
-		currentCommunity: undefined,
-		members: [],
-		isCommunityLoading: false,
-		communityError: undefined,
-		joinCommunity: () => Effect.succeed(undefined),
-		leaveCommunity: () => Effect.succeed(undefined),
-		userSessionData: undefined,
-	};
+vi.mock("react-router-dom");
+vi.mock("@/react/app-store/useAppStore");
+vi.mock("@/react/lib/language/locale/useLocale");
+vi.mock("@/shared/language/buildPathWithLang");
+vi.mock("../subscribe/subscribeToCommunityEvent");
+vi.mock("../subscribe/subscribeToCommunityPublic");
 
-	const useAppStore = <T,>(selector: (stateParam: MockState) => T): T => selector(state);
+const ONE_CALL = 1;
+const TWO_CALLS = 2;
 
-	const __setMockState = (patch: Partial<MockState>): void => {
-		state = { ...state, ...patch };
-	};
-
-	(useAppStore as unknown as { __setMockState?: (p: Partial<MockState>) => void }).__setMockState =
-		__setMockState;
-
-	return { default: useAppStore } as unknown as { default: typeof useAppStore };
-});
-
-vi.mock("react-router-dom", () => {
-	const useNavigate = vi.fn(() => vi.fn());
+function makeCommunity(overrides: Partial<CommunityEntry> = {}): CommunityEntry {
 	return {
-		useNavigate,
-		useParams: (): { community_slug: string } => ({ community_slug: "test-slug" }),
+		community_id: "community-1",
+		owner_id: "owner-1",
+		name: "Community",
+		slug: "test-slug",
+		description: forceCast<string | null>(undefined),
+		is_public: true,
+		public_notes: forceCast<string | null>(undefined),
+		created_at: "2026-01-01T00:00:00Z",
+		updated_at: "2026-01-01T00:00:00Z",
+		...overrides,
 	};
-});
+}
 
-// ensure DOM is cleaned between tests to avoid duplicate roots
-afterEach(() => {
+function makeUserSession(userId: string): UserSessionData {
+	return forceCast<UserSessionData>({ user: { user_id: userId, username: userId } });
+}
+
+function installBaseMocks(state: MockState): void {
+	const navigateMock = vi.fn();
+
+	vi.mocked(useParams).mockReturnValue({ community_slug: "test-slug" });
+	vi.mocked(useNavigate).mockReturnValue(navigateMock);
+	vi.mocked(useLocale).mockReturnValue(
+		forceCast<ReturnType<typeof useLocale>>({
+			lang: "en",
+			t: (value: string): string => value,
+		}),
+	);
+	vi.mocked(buildPathWithLang).mockImplementation((path, lang) => `BUILT:${path}:${lang}`);
+	vi.mocked(useAppStore).mockImplementation((selector) =>
+		forceCast<(store: MockState) => unknown>(selector)(state),
+	);
+	vi.mocked(subscribeToCommunityEvent).mockReturnValue(Effect.succeed(() => undefined));
+	vi.mocked(subscribeToCommunityPublic).mockReturnValue(Effect.succeed(() => undefined));
+}
+
+function renderHarness(): void {
 	cleanup();
-	vi.restoreAllMocks();
-});
-
-vi.mock("@/react/lib/language/locale/useLocale", () => ({
-	default: (): { lang: string; t: (k: string) => string } => ({
-		lang: "en",
-		t: (k: string) => k,
-	}),
-}));
-
-vi.mock("@/shared/language/buildPathWithLang", () => ({
-	default: (path: string, lang: string): string => `BUILT:${path}:${lang}`,
-}));
-
-const getSetMockState = (): ((p: Partial<MockState>) => void) | undefined =>
-	(useAppStoreModule as unknown as { __setMockState?: (p: Partial<MockState>) => void })
-		.__setMockState;
+	render(<Harness />);
+}
 
 describe("useCommunityView", () => {
 	it("derives flags for owner and member roles", () => {
-		const setMock = getSetMockState();
-		setMock?.({
-			currentCommunity: {
-				community_id: "c1",
-				owner_id: "u1",
-				name: "n",
-				slug: "s",
-				description: undefined as unknown as string | null,
-				is_public: true,
-				public_notes: undefined as unknown as string | null,
-				created_at: new Date().toISOString(),
-				updated_at: new Date().toISOString(),
-			},
-			userSessionData: { user: { user_id: "u1", username: "u1" } } as unknown as UserSessionData,
+		installBaseMocks({
+			fetchCommunityBySlug: () => Effect.succeed(undefined),
+			currentCommunity: makeCommunity({ community_id: "c1", owner_id: "u1", slug: "s" }),
 			members: [],
+			communityEvents: [],
+			isCommunityLoading: false,
+			communityError: undefined,
+			joinCommunity: () => Effect.succeed(undefined),
+			leaveCommunity: () => Effect.succeed(undefined),
+			userSessionData: makeUserSession("u1"),
 		});
 
-		render(<Harness />);
+		renderHarness();
 
 		expect(screen.getByTestId("isOwner").textContent).toBe("true");
 		expect(screen.getByTestId("isMember").textContent).toBe("true");
@@ -140,34 +144,27 @@ describe("useCommunityView", () => {
 	});
 
 	it("grants manage to community_admin and marks member when joined", () => {
-		const setMock = getSetMockState();
-		setMock?.({
-			currentCommunity: {
-				community_id: "c2",
-				owner_id: "owner-x",
-				name: "n",
-				slug: "s",
-				description: undefined as unknown as string | null,
-				is_public: true,
-				public_notes: undefined as unknown as string | null,
-				created_at: new Date().toISOString(),
-				updated_at: new Date().toISOString(),
-			},
-			userSessionData: {
-				user: { user_id: "member-1", username: "member-1" },
-			} as unknown as UserSessionData,
+		installBaseMocks({
+			fetchCommunityBySlug: () => Effect.succeed(undefined),
+			currentCommunity: makeCommunity({ community_id: "c2", owner_id: "owner-x", slug: "s" }),
 			members: [
 				{
 					community_id: "c2",
 					user_id: "member-1",
 					role: "community_admin",
 					status: "joined",
-					joined_at: new Date().toISOString(),
+					joined_at: "2026-01-01T00:00:00Z",
 				},
 			],
+			communityEvents: [],
+			isCommunityLoading: false,
+			communityError: undefined,
+			joinCommunity: () => Effect.succeed(undefined),
+			leaveCommunity: () => Effect.succeed(undefined),
+			userSessionData: makeUserSession("member-1"),
 		});
 
-		render(<Harness />);
+		renderHarness();
 
 		expect(screen.getByTestId("isOwner").textContent).toBe("false");
 		expect(screen.getByTestId("isMember").textContent).toBe("true");
@@ -176,62 +173,54 @@ describe("useCommunityView", () => {
 	});
 
 	it("navigates to manage and edit paths", () => {
-		const setMock = getSetMockState();
 		const navigateMock = vi.fn();
-		vi.mocked(Router.useNavigate).mockReturnValue(navigateMock);
-
-		setMock?.({
-			currentCommunity: {
+		vi.mocked(useNavigate).mockReturnValue(navigateMock);
+		installBaseMocks({
+			fetchCommunityBySlug: () => Effect.succeed(undefined),
+			currentCommunity: makeCommunity({
 				community_id: "c3",
 				owner_id: "owner-y",
-				name: "n",
 				slug: "test-slug",
-				description: undefined as unknown as string | null,
-				is_public: true,
-				public_notes: undefined as unknown as string | null,
-				created_at: new Date().toISOString(),
-				updated_at: new Date().toISOString(),
-			},
+			}),
+			members: [],
+			communityEvents: [],
+			isCommunityLoading: false,
+			communityError: undefined,
+			joinCommunity: () => Effect.succeed(undefined),
+			leaveCommunity: () => Effect.succeed(undefined),
+			userSessionData: undefined,
 		});
+		vi.mocked(useNavigate).mockReturnValue(navigateMock);
 
-		render(<Harness />);
+		renderHarness();
 
 		fireEvent.click(screen.getByText("manage"));
 		expect(navigateMock).toHaveBeenCalledTimes(ONE_CALL);
 
 		fireEvent.click(screen.getByText("edit"));
-		expect(navigateMock).toHaveBeenCalledTimes(ONE_CALL + ONE_CALL);
+		expect(navigateMock).toHaveBeenCalledTimes(TWO_CALLS);
 	});
 
-	it("calls join/leave then refetches and toggles loading state", async () => {
-		const setMock = getSetMockState();
+	it("calls join and leave then refetches and toggles loading state", async () => {
 		const joinMock = vi.fn(() => Effect.succeed(undefined));
 		const leaveMock = vi.fn(() => Effect.succeed(undefined));
 		const fetchMock = vi.fn(() => Effect.succeed(undefined));
 
-		setMock?.({
-			currentCommunity: {
-				community_id: "c5",
-				owner_id: "owner-a",
-				name: "n",
-				slug: "s",
-				description: undefined as unknown as string | null,
-				is_public: true,
-				public_notes: undefined as unknown as string | null,
-				created_at: new Date().toISOString(),
-				updated_at: new Date().toISOString(),
-			},
+		installBaseMocks({
+			fetchCommunityBySlug: fetchMock,
+			currentCommunity: makeCommunity({ community_id: "c5", owner_id: "owner-a", slug: "s" }),
+			members: [],
+			communityEvents: [],
+			isCommunityLoading: false,
+			communityError: undefined,
 			joinCommunity: joinMock,
 			leaveCommunity: leaveMock,
-			fetchCommunityBySlug: fetchMock,
-			userSessionData: { user: { user_id: "uX", username: "uX" } } as unknown as UserSessionData,
-			members: [],
+			userSessionData: makeUserSession("ux"),
 		});
 
-		render(<Harness />);
+		renderHarness();
 
 		const beforeJoinFetchCalls = fetchMock.mock.calls.length;
-
 		fireEvent.click(screen.getByText("join"));
 		expect(screen.getByTestId("isJoinLoading").textContent).toBe("true");
 		await waitFor(() => {
@@ -241,7 +230,6 @@ describe("useCommunityView", () => {
 		expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(beforeJoinFetchCalls + ONE_CALL);
 
 		const beforeLeaveFetchCalls = fetchMock.mock.calls.length;
-
 		fireEvent.click(screen.getByText("leave"));
 		expect(screen.getByTestId("isLeaveLoading").textContent).toBe("true");
 		await waitFor(() => {

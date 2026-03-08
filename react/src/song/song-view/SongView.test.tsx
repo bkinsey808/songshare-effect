@@ -1,10 +1,14 @@
 import { cleanup, render } from "@testing-library/react";
 import { Effect } from "effect";
-import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import ShareButton from "@/react/lib/design-system/ShareButton";
+import forceCast from "@/react/lib/test-utils/forceCast";
+import SharedUsersSection from "@/react/share/SharedUsersSection";
+import useShareSubscription from "@/react/share/useShareSubscription";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
@@ -13,46 +17,12 @@ import SongView from "./SongView";
 // Mock react-router so tests can control `useParams` return values
 vi.mock("react-router-dom");
 // Simplified i18n mock: `t` returns the `defaultVal` when provided, otherwise the key.
-vi.mock(
-	"react-i18next",
-	(): {
-		useTranslation: () => {
-			t: (key: string, defaultVal?: string | Record<string, unknown>) => string;
-			i18n: { language: string };
-		};
-	} => ({
-		useTranslation: (): {
-			t: (key: string, defaultVal?: string | Record<string, unknown>) => string;
-			i18n: { language: string };
-		} => ({
-			t: (key: string, defaultVal?: string | Record<string, unknown>): string =>
-				typeof defaultVal === "string" ? defaultVal : key,
-			i18n: { language: "en" },
-		}),
-	}),
-);
+vi.mock("react-i18next");
 // Mock ShareButton to avoid popover complexity in integration tests
-vi.mock(
-	"@/react/lib/design-system/ShareButton",
-	(): { default: ({ children, ...props }: { children?: ReactNode }) => ReactElement } => ({
-		default: ({ children, ...props }: { children?: ReactNode }): ReactElement => (
-			<button {...props}>{children ?? "Share"}</button>
-		),
-	}),
-);
-vi.mock(
-	import("@/react/share/SharedUsersSection"),
-	() => ({
-		default: (): ReactElement => <div data-testid="shared-users-section" />,
-	}),
-);
+vi.mock("@/react/lib/design-system/ShareButton");
+vi.mock("@/react/share/SharedUsersSection");
 // Avoid coupling SongView tests to share subscription side effects/state shape
-vi.mock(
-	import("@/react/share/useShareSubscription"),
-	() => ({
-		default: vi.fn((): void => undefined),
-	}),
-);
+vi.mock("@/react/share/useShareSubscription");
 // Mock the store module so tests can set implementations
 vi.mock("@/react/app-store/useAppStore");
 // Stub the addUserToLibrary effect used by the view-side auto-follow
@@ -65,6 +35,24 @@ const NO_SLUG = "no-slug";
 const WHITESPACE_SLUG = "   ";
 const MIN_ONE = 1;
 const FIRST_INDEX = 0;
+
+function translateOrDefault(key: string, defaultVal?: string | Record<string, unknown>): string {
+	return typeof defaultVal === "string" ? defaultVal : key;
+}
+
+function installUiMocks(): void {
+	vi.mocked(useTranslation).mockReturnValue(
+		forceCast<ReturnType<typeof useTranslation>>({
+			t: translateOrDefault,
+			i18n: { changeLanguage: vi.fn(), language: "en" },
+		}),
+	);
+	vi.mocked(ShareButton).mockImplementation(() => <button type="button">Share</button>);
+	vi.mocked(SharedUsersSection).mockImplementation(() => (
+		<div data-testid="shared-users-section" />
+	));
+	vi.mocked(useShareSubscription).mockImplementation(() => undefined);
+}
 
 function makeSongPublicLike(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 	return makeSongPublic({
@@ -101,6 +89,7 @@ function installStoreMocks(mockAdd: unknown, mockGet: unknown, mockUserId?: stri
 // Unit tests for `SongView` component: assert slug handling and store interaction
 describe("song view", () => {
 	it("renders 'Song not found' when no song param is present", () => {
+		installUiMocks();
 		vi.mocked(useParams).mockReturnValue({});
 		installStoreMocks(vi.fn(), vi.fn());
 
@@ -111,6 +100,7 @@ describe("song view", () => {
 	});
 
 	it("calls addActivePublicSongSlugs and displays song when valid songPublic is found", () => {
+		installUiMocks();
 		vi.mocked(useParams).mockReturnValue({ song_slug: MY_SLUG });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
 		const songPublic = makeSongPublicLike({ user_id: "owner-1" });
@@ -131,6 +121,7 @@ describe("song view", () => {
 	});
 
 	it("shows Song not found when songPublic is empty or invalid", () => {
+		installUiMocks();
 		vi.mocked(useParams).mockReturnValue({ song_slug: NO_SLUG });
 		const mockAdd = vi.fn();
 		const mockGet = vi.fn().mockReturnValue({ song: {}, songPublic: {} });
@@ -148,6 +139,7 @@ describe("song view", () => {
 
 	// Whitespace-only slug should be treated as missing; ensure no store selectors are invoked
 	it("does not call addActivePublicSongSlugs when slug is only whitespace", () => {
+		installUiMocks();
 		vi.mocked(useParams).mockReturnValue({ song_slug: WHITESPACE_SLUG });
 		const mockAdd = vi.fn();
 		const mockGet = vi.fn().mockReturnValue(undefined);

@@ -1,58 +1,43 @@
 import { render } from "@testing-library/react";
 import { Effect } from "effect";
-import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
-import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import useAppStore from "@/react/app-store/useAppStore";
+import useCurrentUserId from "@/react/auth/useCurrentUserId";
+import ShareButton from "@/react/lib/design-system/ShareButton";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import forceCast from "@/react/lib/test-utils/forceCast";
 import { makeTestPlaylist } from "@/react/playlist/test-utils/makeTestPlaylist.mock";
+import SharedUsersSection from "@/react/share/SharedUsersSection";
+import useShareSubscription from "@/react/share/useShareSubscription";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import PlaylistPage from "./PlaylistPage";
 
 vi.mock("react-router-dom");
-vi.mock(
-	"react-i18next",
-	(): {
-		useTranslation: () => {
-			t: (key: string) => string;
-			i18n: { language: string };
-		};
-	} => ({
-		useTranslation: (): {
-			t: (key: string) => string;
-			i18n: { language: string };
-		} => ({
-			t: (key: string): string => key,
-			i18n: { language: "en" },
-		}),
-	}),
-);
-vi.mock(
-	"@/react/lib/language/locale/useLocale",
-	(): { default: () => { lang: string } } => ({
-		default: (): { lang: string } => ({ lang: "en" }),
-	}),
-);
-vi.mock(
-	"@/react/lib/design-system/ShareButton",
-	(): { default: ({ children, ...props }: { children?: ReactNode }) => ReactElement } => ({
-		default: ({ children, ...props }: { children?: ReactNode }): ReactElement => (
-			<button {...props}>{children ?? "Share"}</button>
-		),
-	}),
-);
+vi.mock("react-i18next");
+vi.mock("@/react/lib/language/locale/useLocale");
+vi.mock("@/react/lib/design-system/ShareButton");
 vi.mock("@/react/app-store/useAppStore");
 vi.mock("@/react/user-library/user-add/addUserToLibraryEffect");
-// oxlint-disable-next-line jest/no-untyped-mock-factory -- share hooks need simple mocks for unit test
-vi.mock("@/react/auth/useCurrentUserId", () => ({ default: vi.fn() }));
-// oxlint-disable-next-line jest/no-untyped-mock-factory -- share hooks need simple mocks for unit test
-vi.mock("@/react/share/useShareSubscription", () => ({ default: vi.fn() }));
-// oxlint-disable-next-line jest/no-untyped-mock-factory -- share hooks need simple mocks for unit test
-vi.mock("@/react/share/SharedUsersSection", () => ({
-	default: vi.fn(() => <div data-testid="shared-users-mock" />),
-}));
+vi.mock("@/react/auth/useCurrentUserId");
+vi.mock("@/react/share/useShareSubscription");
+vi.mock("@/react/share/SharedUsersSection");
+
+function installUiMocks(): void {
+	vi.mocked(useTranslation).mockReturnValue(
+		forceCast<ReturnType<typeof useTranslation>>({
+			t: (key: string): string => key,
+			i18n: { changeLanguage: vi.fn(), language: "en" },
+		}),
+	);
+	vi.mocked(useLocale).mockReturnValue(forceCast<ReturnType<typeof useLocale>>({ lang: "en" }));
+	vi.mocked(ShareButton).mockImplementation(() => <button type="button">Share</button>);
+	vi.mocked(useShareSubscription).mockImplementation(() => undefined);
+	vi.mocked(SharedUsersSection).mockImplementation(() => <div data-testid="shared-users-mock" />);
+}
 
 function installStoreMocks(options: {
 	mockFetch: unknown;
@@ -92,6 +77,7 @@ function installStoreMocks(options: {
 
 describe("playlist page", () => {
 	it("auto-adds playlist owner to user library when viewing playlist", () => {
+		installUiMocks();
 		// Mock useParams to return a playlist_slug
 		vi.mocked(useParams).mockReturnValue({ playlist_slug: "test-playlist" });
 

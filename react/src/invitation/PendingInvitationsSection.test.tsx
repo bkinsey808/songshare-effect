@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
+import LibraryIcon from "@/react/lib/design-system/icons/LibraryIcon";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
@@ -18,9 +19,7 @@ function LibraryIconMock(): ReactElement {
 	return <div data-testid="library-icon" />;
 }
 
-vi.mock("@/react/lib/design-system/icons/LibraryIcon", (): { default: typeof LibraryIconMock } => ({
-	default: LibraryIconMock,
-}));
+vi.mock("@/react/lib/design-system/icons/LibraryIcon");
 
 describe("pendingInvitationsSection", () => {
 	const handleAcceptCommunity = vi.fn();
@@ -31,6 +30,7 @@ describe("pendingInvitationsSection", () => {
 	function setup(): void {
 		cleanup();
 		vi.clearAllMocks();
+		vi.mocked(LibraryIcon).mockImplementation(LibraryIconMock);
 		vi.mocked(useLocale).mockReturnValue(
 			forceCast({
 				lang: "en",

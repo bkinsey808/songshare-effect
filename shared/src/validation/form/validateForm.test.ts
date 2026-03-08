@@ -3,22 +3,33 @@
 import { Schema } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import { type ValidationError } from "../validate-types";
+import type validateFormType from "./validateForm";
+import type validateFormEffectType from "./validateFormEffect";
 
-// We'll import `validateForm` dynamically inside tests so individual cases
-// can choose whether to mock `validateFormEffect` (avoids affecting tests
-// that expect the real implementation).
-// We'll import `validateForm` dynamically inside tests so individual cases
-// can choose whether to mock `validateFormEffect` (avoids affecting tests
-// that expect the real implementation).
+import { type ValidationError } from "../validate-types";
 
 // helper type used by some tests
 type SimpleShape = { foo: string };
 
+async function init(
+	mockValidateFormEffect?: typeof validateFormEffectType,
+): Promise<typeof validateFormType> {
+	vi.resetModules();
+
+	if (mockValidateFormEffect !== undefined) {
+		vi.doMock(import("./validateFormEffect"), () => ({
+			__esModule: true,
+			default: mockValidateFormEffect,
+		}));
+	}
+
+	const { default: validateForm } = await import("./validateForm");
+	return validateForm;
+}
+
 describe("validateForm", () => {
 	it("returns success with typed data when schema passes", async () => {
-		vi.resetModules();
-		const { default: validateForm } = await import("./validateForm");
+		const validateForm = await init();
 
 		const schema = Schema.Struct({ foo: Schema.String });
 		const good: SimpleShape = { foo: "hello" };
@@ -33,8 +44,7 @@ describe("validateForm", () => {
 	});
 
 	it("returns a field-specific error when value is invalid", async () => {
-		vi.resetModules();
-		const { default: validateForm } = await import("./validateForm");
+		const validateForm = await init();
 
 		const schema = Schema.Struct({ foo: Schema.String });
 		const bad = { foo: 123 };
@@ -52,18 +62,14 @@ describe("validateForm", () => {
 	});
 
 	it("handles FiberFailureImpl errors by parsing the message as JSON", async () => {
-		vi.resetModules();
 		const fakeErrors: ValidationError[] = [{ field: "x", message: "msg" }];
 
 		class FiberFailureImpl extends Error {}
-		vi.doMock(import("./validateFormEffect"), () => ({
-			__esModule: true,
-			default: vi.fn(() => {
+		const validateForm = await init(
+			vi.fn(() => {
 				throw new FiberFailureImpl(JSON.stringify(fakeErrors));
 			}),
-		}));
-
-		const { default: validateForm } = await import("./validateForm");
+		);
 
 		const res = validateForm<string>({
 			schema: Schema.String,
@@ -75,16 +81,12 @@ describe("validateForm", () => {
 	});
 
 	it("extracts errors from a plain Error whose message is JSON", async () => {
-		vi.resetModules();
 		const fakeErrors: ValidationError[] = [{ field: "y", message: "m2" }];
-		vi.doMock(import("./validateFormEffect"), () => ({
-			__esModule: true,
-			default: vi.fn(() => {
+		const validateForm = await init(
+			vi.fn(() => {
 				throw new Error(JSON.stringify(fakeErrors));
 			}),
-		}));
-
-		const { default: validateForm } = await import("./validateForm");
+		);
 
 		const res = validateForm<string>({
 			schema: Schema.String,
@@ -96,15 +98,11 @@ describe("validateForm", () => {
 	});
 
 	it("falls back to a generic form error when the thrown value is unrecognised", async () => {
-		vi.resetModules();
-		vi.doMock(import("./validateFormEffect"), () => ({
-			__esModule: true,
-			default: vi.fn(() => {
+		const validateForm = await init(
+			vi.fn(() => {
 				throw new Error("nope");
 			}),
-		}));
-
-		const { default: validateForm } = await import("./validateForm");
+		);
 
 		const res = validateForm<string>({
 			schema: Schema.String,
@@ -119,19 +117,15 @@ describe("validateForm", () => {
 	});
 
 	it("can pull errors out of an arbitrary object with a cause property", async () => {
-		vi.resetModules();
 		const fakeErrors: ValidationError[] = [{ field: "z", message: "m3" }];
 		const thrown = new Error("thrown") as Error & { cause?: unknown };
 		thrown.cause = fakeErrors;
 
-		vi.doMock(import("./validateFormEffect"), () => ({
-			__esModule: true,
-			default: vi.fn(() => {
+		const validateForm = await init(
+			vi.fn(() => {
 				throw thrown;
 			}),
-		}));
-
-		const { default: validateForm } = await import("./validateForm");
+		);
 
 		const res = validateForm<string>({
 			schema: Schema.String,

@@ -8,22 +8,19 @@ import { apiEventLibraryRemovePath } from "@/shared/paths";
 import makeEventLibrarySlice from "../slice/makeEventLibrarySlice.test-util";
 import removeEventFromLibraryEffect from "./removeEventFromLibraryEffect";
 
-vi.mock(
-	"@/shared/error-message/extractErrorMessage",
-	(): { default: (err: unknown, fallback?: string) => string } => ({
-		default: vi
-			.fn<(err: unknown, fallback?: string) => string>()
-			.mockImplementation((_err: unknown, fallback = "Unknown error") => fallback),
-	}),
-);
+vi.mock("@/shared/error-message/extractErrorMessage");
+vi.mock("@/react/lib/utils/clientLogger");
 
-vi.mock("@/react/lib/utils/clientLogger", (): { clientWarn: (...args: unknown[]) => void } => ({
-	clientWarn: vi.fn(),
-}));
+function installErrorMocks(): void {
+	vi.mocked(extractErrorMessage).mockImplementation(
+		(_err: unknown, fallback = "Unknown error") => fallback,
+	);
+}
 
 describe("removeEventFromLibraryEffect", () => {
 	it("rejects on network failure and sets error message", async () => {
 		vi.resetAllMocks();
+		installErrorMocks();
 		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network fail")));
 		vi.mocked(extractErrorMessage).mockReturnValue("Network error");
 
@@ -43,6 +40,7 @@ describe("removeEventFromLibraryEffect", () => {
 
 	it("rejects on non-ok response and sets the extracted message", async () => {
 		vi.resetAllMocks();
+		installErrorMocks();
 		vi.stubGlobal(
 			"fetch",
 			vi
@@ -66,6 +64,7 @@ describe("removeEventFromLibraryEffect", () => {
 
 	it("rejects when server response missing success flag", async () => {
 		vi.resetAllMocks();
+		installErrorMocks();
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({}, { status: 200 })));
 
 		const get = makeEventLibrarySlice();
@@ -78,12 +77,13 @@ describe("removeEventFromLibraryEffect", () => {
 		expect(slice.setEventLibraryError).toHaveBeenCalledTimes(expectedCalls);
 		expect(clientWarn).toHaveBeenCalledWith(
 			expect.stringContaining("[removeEventFromLibrary] Failed to remove event from library:"),
-			undefined,
+			"Unknown error",
 		);
 	});
 
 	it("rejects when success is not boolean", async () => {
 		vi.resetAllMocks();
+		installErrorMocks();
 		vi.stubGlobal(
 			"fetch",
 			vi.fn().mockResolvedValue(Response.json({ success: "yes" }, { status: 200 })),
@@ -99,12 +99,13 @@ describe("removeEventFromLibraryEffect", () => {
 		expect(slice.setEventLibraryError).toHaveBeenCalledTimes(expectedCalls);
 		expect(clientWarn).toHaveBeenCalledWith(
 			expect.stringContaining("[removeEventFromLibrary] Failed to remove event from library:"),
-			undefined,
+			"Unknown error",
 		);
 	});
 
 	it("resolves and removes library entry on success", async () => {
 		vi.resetAllMocks();
+		installErrorMocks();
 		vi.stubGlobal(
 			"fetch",
 			vi.fn().mockResolvedValue(Response.json({ success: true }, { status: 200 })),

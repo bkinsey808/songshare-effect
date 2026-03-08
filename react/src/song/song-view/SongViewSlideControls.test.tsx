@@ -1,5 +1,8 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
+
+import forceCast from "@/react/lib/test-utils/forceCast";
 
 import SongViewSlideControls from "./SongViewSlideControls";
 
@@ -11,49 +14,35 @@ const CALLED_ONCE = 1;
 // Returns the provided `defaultVal` when present so test strings remain readable
 // (e.g. "Slide 1 of 5"). Also supports simple interpolation using
 // `{{ var }}` and `{{var}}` forms so templates behave like the real i18n.
-vi.mock(
-	"react-i18next",
-	(): {
-		useTranslation: () => {
-			t: (
-				key: string,
-				defaultVal?: string | Record<string, unknown>,
-				vars?: Record<string, unknown>,
-			) => string;
-			i18n: { language: string };
-		};
-	} => ({
-		useTranslation(): {
-			t: (
-				key: string,
-				defaultVal?: string | Record<string, unknown>,
-				vars?: Record<string, unknown>,
-			) => string;
-			i18n: { language: string };
-		} {
-			return {
-				t: (
-					key: string,
-					defaultVal?: string | Record<string, unknown>,
-					vars?: Record<string, unknown>,
-				): string => {
-					if (typeof defaultVal === "string") {
-						let out = defaultVal;
-						if (vars && typeof vars === "object") {
-							for (const [entryKey, entryVal] of Object.entries(vars)) {
-								out = out.replaceAll(`{{ ${entryKey} }}`, String(entryVal));
-								out = out.replaceAll(`{{${entryKey}}}`, String(entryVal));
-							}
-						}
-						return out;
-					}
-					return key;
-				},
-				i18n: { language: "en" },
-			};
-		},
-	}),
-);
+vi.mock("react-i18next");
+
+function translateWithInterpolation(
+	key: string,
+	defaultVal?: string | Record<string, unknown>,
+	vars?: Record<string, unknown>,
+): string {
+	if (typeof defaultVal !== "string") {
+		return key;
+	}
+
+	let output = defaultVal;
+	if (vars !== undefined) {
+		for (const [entryKey, entryVal] of Object.entries(vars)) {
+			output = output.replaceAll(`{{ ${entryKey} }}`, String(entryVal));
+			output = output.replaceAll(`{{${entryKey}}}`, String(entryVal));
+		}
+	}
+	return output;
+}
+
+function installI18nMock(): void {
+	vi.mocked(useTranslation).mockReturnValue(
+		forceCast<ReturnType<typeof useTranslation>>({
+			t: translateWithInterpolation,
+			i18n: { changeLanguage: vi.fn(), language: "en" },
+		}),
+	);
+}
 
 // Test suite for `SongViewSlideControls`.
 //
@@ -62,6 +51,7 @@ vi.mock(
 describe("songViewSlideControls", () => {
 	// When there are no slides the controls should not render at all.
 	it("renders nothing when totalSlides is 0", () => {
+		installI18nMock();
 		render(
 			<SongViewSlideControls
 				clampedIndex={0}
@@ -79,6 +69,7 @@ describe("songViewSlideControls", () => {
 	// At the first slide the counter must display "Slide 1 of N" and
 	// the first/prev buttons must be disabled while next/last are enabled.
 	it("shows counter and proper enabled/disabled states at first slide", () => {
+		installI18nMock();
 		const goFirst = vi.fn();
 		const goPrev = vi.fn();
 		const goNext = vi.fn();
@@ -112,6 +103,7 @@ describe("songViewSlideControls", () => {
 
 	// Ensure disabled buttons don't call their handlers while enabled ones do.
 	it("click behavior: disabled buttons don't call and enabled buttons do", () => {
+		installI18nMock();
 		const goFirst = vi.fn();
 		const goPrev = vi.fn();
 		const goNext = vi.fn();
@@ -147,6 +139,7 @@ describe("songViewSlideControls", () => {
 
 	// At the last slide next/last should be disabled; prev/first should be usable.
 	it("disables next/last at final slide and prev/first work", () => {
+		installI18nMock();
 		const goFirst = vi.fn();
 		const goPrev = vi.fn();
 		const goNext = vi.fn();
@@ -180,6 +173,7 @@ describe("songViewSlideControls", () => {
 
 	// Fullscreen button is omitted when no handler is provided; ensure accessible label exists.
 	it("does not render fullscreen button when handler omitted and has aria-label", () => {
+		installI18nMock();
 		const goFirst = vi.fn();
 		const goPrev = vi.fn();
 		const goNext = vi.fn();
@@ -204,6 +198,7 @@ describe("songViewSlideControls", () => {
 	// When a fullscreen toggle handler is passed the button should appear and
 	// respect `isFullScreen` (disabled when already fullscreen).
 	it("fullscreen button appears only when handler provided and respects isFullScreen", () => {
+		installI18nMock();
 		const onToggle = vi.fn();
 		const goFirst = vi.fn();
 		const goPrev = vi.fn();

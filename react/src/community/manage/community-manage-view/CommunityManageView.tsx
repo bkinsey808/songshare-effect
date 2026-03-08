@@ -20,6 +20,11 @@ export default function CommunityManageView(): ReactElement {
 		currentCommunity,
 		members,
 		communityEvents,
+		communitySongs = [],
+		communityPlaylists = [],
+		communityShareRequests = [],
+		availableSongOptions = [],
+		availablePlaylistOptions = [],
 		isCommunityLoading,
 		communityError,
 		canManage,
@@ -30,6 +35,15 @@ export default function CommunityManageView(): ReactElement {
 		addEventIdInput,
 		setAddEventIdInput,
 		onAddEventClick,
+		addSongIdInput,
+		setAddSongIdInput,
+		onAddSongClick,
+		onRemoveSongClick,
+		addPlaylistIdInput,
+		setAddPlaylistIdInput,
+		onAddPlaylistClick,
+		onRemovePlaylistClick,
+		onReviewShareRequestClick,
 		onRemoveEventClick,
 		onSetActiveEventClick,
 		activeEventId,
@@ -200,6 +214,175 @@ export default function CommunityManageView(): ReactElement {
 							<p>Events associated with this community will appear here.</p>
 						</div>
 					)}
+				</div>
+			</section>
+
+			<section className="grid grid-cols-1 gap-8 md:grid-cols-2">
+				<div className="bg-gray-800 rounded-lg border border-gray-700 p-6 space-y-4">
+					<h2 className="text-2xl font-semibold text-white">Manage Songs</h2>
+					<div className="flex gap-2">
+						<select
+							className="flex-1 rounded border border-gray-600 bg-gray-900 px-3 py-2 text-sm text-white"
+							value={addSongIdInput ?? ""}
+							onChange={(event) => {
+								setAddSongIdInput(event.target.value);
+							}}
+						>
+							<option value="">Add Song from Library</option>
+							{availableSongOptions
+								.filter((song) => !communitySongs.some((entry) => entry.song_id === song.song_id))
+								.map((song) => (
+									<option key={song.song_id} value={song.song_id}>
+										{song.song_name ?? song.song_id}
+									</option>
+								))}
+						</select>
+						<Button
+							variant="secondary"
+							disabled={addSongIdInput === undefined || addSongIdInput === ""}
+							onClick={onAddSongClick}
+						>
+							Add Song
+						</Button>
+					</div>
+					<div className="space-y-2">
+						{communitySongs.length === ZERO && (
+							<p className="text-sm text-gray-400">No community songs yet.</p>
+						)}
+						{communitySongs.map((song) => (
+							<div
+								key={song.song_id}
+								className="flex items-center justify-between rounded border border-gray-700 bg-gray-900 px-4 py-3"
+							>
+								<div>
+									<p className="text-white">{song.song_name ?? song.song_id}</p>
+									{song.song_slug !== undefined && song.song_slug !== "" && (
+										<p className="text-xs text-gray-400">slug: {song.song_slug}</p>
+									)}
+								</div>
+								<Button
+									variant="outlineDanger"
+									size="compact"
+									onClick={() => {
+										onRemoveSongClick(song.song_id);
+									}}
+								>
+									Remove
+								</Button>
+							</div>
+						))}
+					</div>
+				</div>
+
+				<div className="bg-gray-800 rounded-lg border border-gray-700 p-6 space-y-4">
+					<h2 className="text-2xl font-semibold text-white">Manage Playlists</h2>
+					<div className="flex gap-2">
+						<select
+							className="flex-1 rounded border border-gray-600 bg-gray-900 px-3 py-2 text-sm text-white"
+							value={addPlaylistIdInput ?? ""}
+							onChange={(event) => {
+								setAddPlaylistIdInput(event.target.value);
+							}}
+						>
+							<option value="">Add Playlist from Library</option>
+							{availablePlaylistOptions
+								.filter(
+									(playlist) =>
+										!communityPlaylists.some((entry) => entry.playlist_id === playlist.playlist_id),
+								)
+								.map((playlist) => (
+									<option key={playlist.playlist_id} value={playlist.playlist_id}>
+										{playlist.playlist_name ?? playlist.playlist_id}
+									</option>
+								))}
+						</select>
+						<Button
+							variant="secondary"
+							disabled={addPlaylistIdInput === undefined || addPlaylistIdInput === ""}
+							onClick={onAddPlaylistClick}
+						>
+							Add Playlist
+						</Button>
+					</div>
+					<div className="space-y-2">
+						{communityPlaylists.length === ZERO && (
+							<p className="text-sm text-gray-400">No community playlists yet.</p>
+						)}
+						{communityPlaylists.map((playlist) => (
+							<div
+								key={playlist.playlist_id}
+								className="flex items-center justify-between rounded border border-gray-700 bg-gray-900 px-4 py-3"
+							>
+								<div>
+									<p className="text-white">{playlist.playlist_name ?? playlist.playlist_id}</p>
+									{playlist.playlist_slug !== undefined && playlist.playlist_slug !== "" && (
+										<p className="text-xs text-gray-400">slug: {playlist.playlist_slug}</p>
+									)}
+								</div>
+								<Button
+									variant="outlineDanger"
+									size="compact"
+									onClick={() => {
+										onRemovePlaylistClick(playlist.playlist_id);
+									}}
+								>
+									Remove
+								</Button>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
+
+			<section className="bg-gray-800 rounded-lg border border-gray-700 p-6 space-y-4">
+				<h2 className="text-2xl font-semibold text-white">Share Requests</h2>
+				<div className="space-y-3">
+					{communityShareRequests.filter((request) => request.status === "pending").length === ZERO && (
+						<p className="text-sm text-gray-400">No pending share requests.</p>
+					)}
+					{communityShareRequests
+						.filter((request) => request.status === "pending")
+						.map((request) => (
+							<div
+								key={request.request_id}
+								className="rounded border border-gray-700 bg-gray-900 px-4 py-3"
+							>
+								<div className="flex items-start justify-between gap-3">
+									<div>
+										<p className="text-white">
+											{request.sender_username ?? request.sender_user_id} shared a{" "}
+											{request.shared_item_type}
+										</p>
+										<p className="text-xs text-gray-400">
+											{request.shared_item_name ?? request.shared_item_id}
+										</p>
+										{request.message !== undefined && request.message !== null && request.message !== "" && (
+											<p className="mt-2 text-sm text-gray-300">{request.message}</p>
+										)}
+									</div>
+									<div className="flex gap-2">
+										<Button
+											variant="secondary"
+											size="compact"
+											onClick={() => {
+												onReviewShareRequestClick(request.request_id, "accepted");
+											}}
+										>
+											Accept
+										</Button>
+										<Button
+											variant="outlineDanger"
+											size="compact"
+											onClick={() => {
+												onReviewShareRequestClick(request.request_id, "rejected");
+											}}
+										>
+											Reject
+										</Button>
+									</div>
+								</div>
+							</div>
+						))}
 				</div>
 			</section>
 

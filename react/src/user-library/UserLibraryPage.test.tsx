@@ -1,24 +1,29 @@
 import { render, screen } from "@testing-library/react";
+import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
+
+import forceCast from "@/react/lib/test-utils/forceCast";
+import UserLibrary from "@/react/user-library/UserLibrary";
 
 import UserLibraryPage from "./UserLibraryPage";
 
-vi.mock(
-	"react-i18next",
-	(): { useTranslation: () => { t: (key: string, defaultValue?: string) => string } } => ({
-		useTranslation: (): { t: (key: string, defaultValue?: string) => string } => ({
-			t: (key: string, defaultValue?: string): string =>
-				typeof defaultValue === "string" ? defaultValue : key,
-		}),
-	}),
-);
+vi.mock("react-i18next");
+vi.mock("@/react/user-library/UserLibrary");
 
-vi.mock("@/react/user-library/UserLibrary", (): { default: () => ReactElement } => ({
-	default: (): ReactElement => <div data-testid="user-library" />,
-}));
+function translateOrDefault(key: string, defaultValue?: string): string {
+	return defaultValue ?? key;
+}
 
 describe("user library page", () => {
 	it("renders title and description and UserLibrary component", () => {
+		vi.mocked(useTranslation).mockReturnValue(
+			forceCast<ReturnType<typeof useTranslation>>({
+				t: translateOrDefault,
+				i18n: { changeLanguage: vi.fn(), language: "en" },
+			}),
+		);
+		vi.mocked(UserLibrary).mockImplementation(() => <div data-testid="user-library" />);
+
 		render(<UserLibraryPage />);
 
 		expect(screen.getByText("User Library")).toBeTruthy();

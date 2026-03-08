@@ -1,6 +1,8 @@
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
+import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 
 import type { SongPublic } from "../song-schema";
@@ -9,50 +11,7 @@ import SongViewSlides from "./SongViewSlides";
 import { useSongViewSlides } from "./useSongViewSlides";
 
 // Simple i18n mock that returns `defaultVal` when provided and supports `{{var}}` interpolation
-vi.mock(
-	"react-i18next",
-	(): {
-		useTranslation: () => {
-			t: (
-				key: string,
-				defaultVal?: string | Record<string, unknown>,
-				vars?: Record<string, unknown>,
-			) => string;
-			i18n: { language: string };
-		};
-	} => ({
-		useTranslation(): {
-			t: (
-				key: string,
-				defaultVal?: string | Record<string, unknown>,
-				vars?: Record<string, unknown>,
-			) => string;
-			i18n: { language: string };
-		} {
-			return {
-				t: (
-					key: string,
-					defaultVal?: string | Record<string, unknown>,
-					vars?: Record<string, unknown>,
-				): string => {
-					if (typeof defaultVal === "string") {
-						let out = defaultVal;
-						if (vars && typeof vars === "object") {
-							for (const [entryKey, entryVal] of Object.entries(vars)) {
-								// support both `{{key}}` and `{{ key }}` forms
-								out = out.replaceAll(`{{ ${entryKey} }}`, String(entryVal));
-								out = out.replaceAll(`{{${entryKey}}}`, String(entryVal));
-							}
-						}
-						return out;
-					}
-					return key;
-				},
-				i18n: { language: "en" },
-			};
-		},
-	}),
-);
+vi.mock("react-i18next");
 
 // Mock the slide hook so tests can provide deterministic slide state
 vi.mock("./useSongViewSlides");
@@ -60,10 +19,39 @@ vi.mock("./useSongViewSlides");
 // Minimal representative `SongPublic` used in tests.
 const DUMMY_SONG: SongPublic = makeSongPublic({ song_slug: "my-slug" });
 
+function translateWithInterpolation(
+	key: string,
+	defaultVal?: string | Record<string, unknown>,
+	vars?: Record<string, unknown>,
+): string {
+	if (typeof defaultVal !== "string") {
+		return key;
+	}
+
+	let output = defaultVal;
+	if (vars !== undefined) {
+		for (const [entryKey, entryVal] of Object.entries(vars)) {
+			output = output.replaceAll(`{{ ${entryKey} }}`, String(entryVal));
+			output = output.replaceAll(`{{${entryKey}}}`, String(entryVal));
+		}
+	}
+	return output;
+}
+
+function installI18nMock(): void {
+	vi.mocked(useTranslation).mockReturnValue(
+		forceCast<ReturnType<typeof useTranslation>>({
+			t: translateWithInterpolation,
+			i18n: { changeLanguage: vi.fn(), language: "en" },
+		}),
+	);
+}
+
 describe("song view slides", () => {
 	// Verifies nav controls and keyboard hint render when slides are available
 	// Also checks fullscreen button is present
 	it("renders controls and keyboard hint", () => {
+		installI18nMock();
 		const mockGo = vi.fn();
 		vi.mocked(useSongViewSlides).mockReturnValue({
 			clampedIndex: 0,
@@ -99,6 +87,7 @@ describe("song view slides", () => {
 	// Ensures fullscreen opens, shows exit UI, and can be closed
 	// via the exit button or the Escape key
 	it("toggles fullscreen and exits via button and Escape key", async () => {
+		installI18nMock();
 		const mockGo = vi.fn();
 		vi.mocked(useSongViewSlides).mockReturnValue({
 			clampedIndex: 0,
@@ -144,6 +133,7 @@ describe("song view slides", () => {
 	// Confirms controls and keyboard hint are hidden when no slides exist
 	// Verifies the 'No slides for this song.' message appears
 	it("does not render controls or keyboard hint when there are no slides", () => {
+		installI18nMock();
 		const mockGo = vi.fn();
 		vi.mocked(useSongViewSlides).mockReturnValue({
 			clampedIndex: 0,

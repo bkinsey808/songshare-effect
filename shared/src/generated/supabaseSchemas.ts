@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-03-04T17:00:35.749Z
+ * Last generated: 2026-03-06T23:57:19.948Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -104,6 +104,43 @@ export type CommunityEventUpdate = Schema.Schema.Type<
 	typeof CommunityEventUpdateSchema
 >;
 
+// community_playlist table schemas
+export const CommunityPlaylistSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	created_at: typeof Schema.NonEmptyString;
+	playlist_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	created_at: Schema.NonEmptyString,
+	playlist_id: Schema.UUID,
+});
+
+export type CommunityPlaylist = Schema.Schema.Type<typeof CommunityPlaylistSchema>;
+
+export const CommunityPlaylistInsertSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	playlist_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	playlist_id: Schema.UUID,
+});
+
+export type CommunityPlaylistInsert = Schema.Schema.Type<
+	typeof CommunityPlaylistInsertSchema
+>;
+
+export const CommunityPlaylistUpdateSchema: Schema.Struct<{
+	community_id: Schema.optional<typeof Schema.UUID>;
+	playlist_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	community_id: Schema.optional(Schema.UUID),
+	playlist_id: Schema.optional(Schema.UUID),
+});
+
+export type CommunityPlaylistUpdate = Schema.Schema.Type<
+	typeof CommunityPlaylistUpdateSchema
+>;
+
 // community_public table schemas
 export const CommunityPublicSchema: Schema.Struct<{
 	active_event_id: Schema.optional<typeof Schema.UUID>;
@@ -177,6 +214,124 @@ export const CommunityPublicUpdateSchema: Schema.Struct<{
 
 export type CommunityPublicUpdate = Schema.Schema.Type<
 	typeof CommunityPublicUpdateSchema
+>;
+
+// community_share_request table schemas
+export const CommunityShareRequestSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	created_at: typeof Schema.NonEmptyString;
+	message: Schema.optional<typeof Schema.String>;
+	request_id: typeof Schema.UUID;
+	reviewed_at: Schema.optional<typeof Schema.String>;
+	reviewed_by_user_id: Schema.optional<typeof Schema.UUID>;
+	sender_user_id: typeof Schema.UUID;
+	shared_item_id: typeof Schema.UUID;
+	shared_item_type: typeof Schema.NonEmptyString;
+	status: typeof Schema.NonEmptyString;
+	updated_at: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	created_at: Schema.NonEmptyString,
+	message: Schema.optional(Schema.String),
+	request_id: Schema.UUID,
+	reviewed_at: Schema.optional(Schema.String),
+	reviewed_by_user_id: Schema.optional(Schema.UUID),
+	sender_user_id: Schema.UUID,
+	shared_item_id: Schema.UUID,
+	shared_item_type: Schema.NonEmptyString,
+	status: Schema.NonEmptyString,
+	updated_at: Schema.NonEmptyString,
+});
+
+export type CommunityShareRequest = Schema.Schema.Type<typeof CommunityShareRequestSchema>;
+
+export const CommunityShareRequestInsertSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	message: Schema.optional<typeof Schema.String>;
+	request_id: Schema.optional<typeof Schema.UUID>;
+	reviewed_at: Schema.optional<typeof Schema.String>;
+	reviewed_by_user_id: Schema.optional<typeof Schema.UUID>;
+	sender_user_id: typeof Schema.UUID;
+	shared_item_id: typeof Schema.UUID;
+	shared_item_type: typeof Schema.NonEmptyString;
+	status: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	message: Schema.optional(Schema.String),
+	request_id: Schema.optional(Schema.UUID),
+	reviewed_at: Schema.optional(Schema.String),
+	reviewed_by_user_id: Schema.optional(Schema.UUID),
+	sender_user_id: Schema.UUID,
+	shared_item_id: Schema.UUID,
+	shared_item_type: Schema.NonEmptyString,
+	status: Schema.optional(Schema.NonEmptyString),
+});
+
+export type CommunityShareRequestInsert = Schema.Schema.Type<
+	typeof CommunityShareRequestInsertSchema
+>;
+
+export const CommunityShareRequestUpdateSchema: Schema.Struct<{
+	community_id: Schema.optional<typeof Schema.UUID>;
+	message: Schema.optional<typeof Schema.String>;
+	request_id: Schema.optional<typeof Schema.UUID>;
+	reviewed_at: Schema.optional<typeof Schema.String>;
+	reviewed_by_user_id: Schema.optional<typeof Schema.UUID>;
+	sender_user_id: Schema.optional<typeof Schema.UUID>;
+	shared_item_id: Schema.optional<typeof Schema.UUID>;
+	shared_item_type: Schema.optional<typeof Schema.NonEmptyString>;
+	status: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	community_id: Schema.optional(Schema.UUID),
+	message: Schema.optional(Schema.String),
+	request_id: Schema.optional(Schema.UUID),
+	reviewed_at: Schema.optional(Schema.String),
+	reviewed_by_user_id: Schema.optional(Schema.UUID),
+	sender_user_id: Schema.optional(Schema.UUID),
+	shared_item_id: Schema.optional(Schema.UUID),
+	shared_item_type: Schema.optional(Schema.NonEmptyString),
+	status: Schema.optional(Schema.NonEmptyString),
+});
+
+export type CommunityShareRequestUpdate = Schema.Schema.Type<
+	typeof CommunityShareRequestUpdateSchema
+>;
+
+// community_song table schemas
+export const CommunitySongSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	created_at: typeof Schema.NonEmptyString;
+	song_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	created_at: Schema.NonEmptyString,
+	song_id: Schema.UUID,
+});
+
+export type CommunitySong = Schema.Schema.Type<typeof CommunitySongSchema>;
+
+export const CommunitySongInsertSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	song_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	song_id: Schema.UUID,
+});
+
+export type CommunitySongInsert = Schema.Schema.Type<
+	typeof CommunitySongInsertSchema
+>;
+
+export const CommunitySongUpdateSchema: Schema.Struct<{
+	community_id: Schema.optional<typeof Schema.UUID>;
+	song_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	community_id: Schema.optional(Schema.UUID),
+	song_id: Schema.optional(Schema.UUID),
+});
+
+export type CommunitySongUpdate = Schema.Schema.Type<
+	typeof CommunitySongUpdateSchema
 >;
 
 // community_user table schemas

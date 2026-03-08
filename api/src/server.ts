@@ -10,7 +10,13 @@ import {
 	apiCommunityEventAddPath,
 	apiCommunityEventRemovePath,
 	apiCommunityLibraryPath,
+	apiCommunityPlaylistAddPath,
+	apiCommunityPlaylistRemovePath,
 	apiCommunitySavePath,
+	apiCommunityShareRequestCreatePath,
+	apiCommunityShareRequestUpdateStatusPath,
+	apiCommunitySongAddPath,
+	apiCommunitySongRemovePath,
 	apiCommunitySetActiveEventPath,
 	apiCommunityUserAddPath,
 	apiCommunityUserJoinPath,
@@ -55,6 +61,12 @@ import signOutHandler from "./auth/signOut";
 import communityEventAdd from "./community-event/communityEventAdd";
 import communityEventRemove from "./community-event/communityEventRemove";
 import communitySetActiveEvent from "./community-event/communitySetActiveEvent";
+import communityPlaylistAdd from "./community-playlist/communityPlaylistAdd";
+import communityPlaylistRemove from "./community-playlist/communityPlaylistRemove";
+import communityShareRequestCreate from "./community-share-request/communityShareRequestCreate";
+import communityShareRequestUpdateStatus from "./community-share-request/communityShareRequestUpdateStatus";
+import communitySongAdd from "./community-song/communitySongAdd";
+import communitySongRemove from "./community-song/communitySongRemove";
 import communityUserAdd from "./community-user/communityUserAdd";
 import communityUserJoin from "./community-user/communityUserJoin";
 import communityUserKick from "./community-user/communityUserKick";
@@ -207,6 +219,21 @@ app.post(apiCommunityUserUpdateRolePath, handleHttpEndpoint(communityUserUpdateR
 app.post(apiCommunityEventAddPath, handleHttpEndpoint(communityEventAdd));
 
 app.post(apiCommunityEventRemovePath, handleHttpEndpoint(communityEventRemove));
+
+app.post(apiCommunitySongAddPath, handleHttpEndpoint(communitySongAdd));
+
+app.post(apiCommunitySongRemovePath, handleHttpEndpoint(communitySongRemove));
+
+app.post(apiCommunityPlaylistAddPath, handleHttpEndpoint(communityPlaylistAdd));
+
+app.post(apiCommunityPlaylistRemovePath, handleHttpEndpoint(communityPlaylistRemove));
+
+app.post(apiCommunityShareRequestCreatePath, handleHttpEndpoint(communityShareRequestCreate));
+
+app.post(
+	apiCommunityShareRequestUpdateStatusPath,
+	handleHttpEndpoint(communityShareRequestUpdateStatus),
+);
 
 app.post(apiCommunitySetActiveEventPath, handleHttpEndpoint(communitySetActiveEvent));
 

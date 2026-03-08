@@ -3,10 +3,9 @@ import { Effect } from "effect";
 import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
-import type addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
-
 import useAppStore from "@/react/app-store/useAppStore";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
+import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import { type SongPublic } from "../song-schema";
 import { useSongView } from "./useSongView";
@@ -15,17 +14,16 @@ vi.mock("react-router-dom");
 // Mock the store module so tests can set implementations
 vi.mock("@/react/app-store/useAppStore");
 // Stub networked effect used by the hook to avoid noisy runtime warnings
-vi.mock(
-	"@/react/user-library/user-add/addUserToLibraryEffect",
-	(): { default: typeof addUserToLibraryEffect } => ({
-		default: vi.fn().mockReturnValue(Effect.sync(() => undefined)),
-	}),
-);
+vi.mock("@/react/user-library/user-add/addUserToLibraryEffect");
 
 const VALID_SLUG = "valid-slug";
 const EMPTY_SLUG = "";
 const WHITESPACE_SLUG = "   ";
 const INVALID_SLUG = "invalid-slug";
+
+function installEffectMock(): void {
+	vi.mocked(addUserToLibraryEffect).mockReturnValue(Effect.sync(() => undefined));
+}
 
 function makeValidSongPublic(overrides: Partial<SongPublic> = {}): SongPublic {
 	return makeSongPublic({ song_slug: VALID_SLUG, ...overrides });
@@ -46,6 +44,7 @@ function installStoreMocks(mockAdd: unknown, mockGet: unknown): void {
 
 describe("useSongView", () => {
 	it("returns not found when no song_slug in params", () => {
+		installEffectMock();
 		vi.mocked(useParams).mockReturnValue({});
 		const mockAdd = vi.fn();
 		const mockGet = vi.fn();
@@ -61,6 +60,7 @@ describe("useSongView", () => {
 	});
 
 	it("returns not found when song_slug is empty string", () => {
+		installEffectMock();
 		vi.mocked(useParams).mockReturnValue({ song_slug: EMPTY_SLUG });
 		const mockAdd = vi.fn();
 		const mockGet = vi.fn();
@@ -76,6 +76,7 @@ describe("useSongView", () => {
 	});
 
 	it("returns not found when song_slug is whitespace", () => {
+		installEffectMock();
 		vi.mocked(useParams).mockReturnValue({ song_slug: WHITESPACE_SLUG });
 		const mockAdd = vi.fn();
 		const mockGet = vi.fn();
@@ -91,6 +92,7 @@ describe("useSongView", () => {
 	});
 
 	it("returns not found when getSongBySlug returns undefined", () => {
+		installEffectMock();
 		vi.mocked(useParams).mockReturnValue({ song_slug: INVALID_SLUG });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
 		const mockGet = vi.fn().mockReturnValue(undefined);
@@ -106,6 +108,7 @@ describe("useSongView", () => {
 	});
 
 	it("returns not found when songPublic is undefined", () => {
+		installEffectMock();
 		vi.mocked(useParams).mockReturnValue({ song_slug: VALID_SLUG });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
 		const mockGet = vi.fn().mockReturnValue({ song: {}, songPublic: undefined });
@@ -121,6 +124,7 @@ describe("useSongView", () => {
 	});
 
 	it("returns found when songPublic decodes successfully", () => {
+		installEffectMock();
 		const songPublic = makeValidSongPublic();
 		vi.mocked(useParams).mockReturnValue({ song_slug: VALID_SLUG });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
@@ -137,6 +141,7 @@ describe("useSongView", () => {
 	});
 
 	it("returns not found when songPublic decode fails", () => {
+		installEffectMock();
 		const invalidSongPublic = { invalid: true };
 		vi.mocked(useParams).mockReturnValue({ song_slug: VALID_SLUG });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
@@ -153,6 +158,7 @@ describe("useSongView", () => {
 	});
 
 	it("throws when getSongBySlug throws", () => {
+		installEffectMock();
 		vi.mocked(useParams).mockReturnValue({ song_slug: VALID_SLUG });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
 		const mockGet = vi.fn(() => {
@@ -164,6 +170,7 @@ describe("useSongView", () => {
 	});
 
 	it("trims surrounding whitespace from slug before passing to store and decoding", () => {
+		installEffectMock();
 		const padded = "  padded-slug  ";
 		const trimmed = "padded-slug";
 		vi.mocked(useParams).mockReturnValue({ song_slug: padded });
@@ -182,6 +189,7 @@ describe("useSongView", () => {
 	});
 
 	it("passes raw slug with surrounding whitespace to store functions", () => {
+		installEffectMock();
 		const padded = "  padded-slug  ";
 		vi.mocked(useParams).mockReturnValue({ song_slug: padded });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
