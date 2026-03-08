@@ -5,11 +5,11 @@ import { Link, useParams } from "react-router-dom";
 
 import useAppStore, { getTypedState } from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
+import PlaylistSongDisplay from "@/react/event/view/playlist-song-display/PlaylistSongDisplay";
 import ShareButton from "@/react/lib/design-system/ShareButton";
 import useLocale from "@/react/lib/language/locale/useLocale";
-import PlaylistSongDisplay from "@/react/event/view/playlist-song-display/PlaylistSongDisplay";
-import SharedUsersSection from "@/react/share/SharedUsersSection";
-import useShareSubscription from "@/react/share/useShareSubscription";
+import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
+import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, songViewPath } from "@/shared/paths";
@@ -71,6 +71,8 @@ export default function PlaylistPage(): ReactElement {
 				}
 			})();
 		}
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fire-and-forget; return fn for React 19 HMR
+		return;
 	}, [currentPlaylist, currentUserId]);
 
 	// Fetch song details so we can display song names (populates publicSongs)
@@ -79,6 +81,8 @@ export default function PlaylistPage(): ReactElement {
 		if (Array.isArray(order) && order.length > SONGS_NONE) {
 			void Effect.runPromise(addActivePublicSongIds(order));
 		}
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
+		return;
 	}, [currentPlaylist, addActivePublicSongIds]);
 
 	if (isLoading) {

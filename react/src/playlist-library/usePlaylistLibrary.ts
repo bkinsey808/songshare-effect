@@ -75,7 +75,8 @@ export default function usePlaylistLibrary(): {
 
 		if (playlistIds.length < MIN_IDS) {
 			publicUnsubRef.current = undefined;
-			return undefined;
+			// oxlint-disable-next-line no-empty-function -- no subscription when empty; return fn for React 19 HMR
+			return;
 		}
 
 		const run = (publicRunRef.current += 1);

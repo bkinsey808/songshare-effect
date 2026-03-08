@@ -7,7 +7,7 @@ import guardAsSupabaseRealtimeClientLike from "@/react/lib/supabase/client/guard
 import { makeFakeClient } from "@/react/lib/supabase/client/test-util";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import makeInvitationSlice from "./slice/makeInvitationSlice.test-util";
+import makeInvitationSlice from "../slice/makeInvitationSlice.test-util";
 import subscribeToPendingInvitations from "./subscribeToPendingInvitations";
 
 vi.mock("@/react/lib/supabase/client/getSupabaseClientWithAuth");
@@ -19,6 +19,11 @@ const mockedGuard = vi.mocked(guardAsSupabaseRealtimeClientLike);
 const mockedIsRecord = vi.mocked(isRecord);
 
 describe("subscribeToPendingInvitations", () => {
+	const EXPECT_TWO_CHANNELS = 2;
+	const FIRST_CHANNEL_INDEX = 0;
+	const SECOND_CHANNEL_INDEX = 1;
+	const ONE_STEP = 1;
+
 	it("handles missing Supabase client gracefully", async () => {
 		vi.resetAllMocks();
 		mockedGetClient.mockResolvedValueOnce(undefined);
@@ -45,34 +50,44 @@ describe("subscribeToPendingInvitations", () => {
 			system: [],
 		};
 
-		let callIndex = 0;
-		const slots = [handlers.community, handlers.event, handlers.system, handlers.system] as const;
-
 		type ChannelLike = {
 			on(event: string, opts: unknown, handler: (payload: unknown) => void): ChannelLike;
 			subscribe(cb: (status: string, err: unknown) => void): void;
 		};
 
-		const channel: ChannelLike = {
-			on(_event: string, _opts: unknown, handler: (payload: unknown) => void): ChannelLike {
-				const target = slots[callIndex++];
-				target?.push(handler);
-				return channel;
-			},
-			subscribe(cb: (status: string, err: unknown) => void): void {
-				cb("SUBSCRIBED", undefined);
-			},
-		} as const;
+		const createdChannels: ChannelLike[] = [];
+		let onCallIndex = 0;
+		const onCallSlots = [
+			handlers.community,
+			handlers.system,
+			handlers.event,
+			handlers.system,
+		] as const;
+
+		function createChannel(): ChannelLike {
+			const channel: ChannelLike = {
+				on(_event: string, _opts: unknown, handler: (payload: unknown) => void): ChannelLike {
+					onCallSlots[onCallIndex]?.push(handler);
+					onCallIndex += ONE_STEP;
+					return channel;
+				},
+				subscribe(cb: (status: string, err: unknown) => void): void {
+					cb("SUBSCRIBED", undefined);
+				},
+			};
+			createdChannels.push(channel);
+			return channel;
+		}
 
 		const realtimeClient: SupabaseRealtimeClientLike = {
 			channel(_name: string) {
-				return channel;
+				return createChannel();
 			},
 			removeChannel: vi.fn(),
 		};
 
 		const fake = makeFakeClient();
-		fake.channel = (_name: string): typeof channel => channel;
+		fake.channel = (_name: string): ChannelLike => createChannel();
 		fake.removeChannel = realtimeClient.removeChannel;
 
 		mockedGetClient.mockResolvedValueOnce(
@@ -123,5 +138,8 @@ describe("subscribeToPendingInvitations", () => {
 		expect(() => {
 			cleanup();
 		}).not.toThrow();
+		expect(realtimeClient.removeChannel).toHaveBeenCalledTimes(EXPECT_TWO_CHANNELS);
+		expect(realtimeClient.removeChannel).toHaveBeenCalledWith(createdChannels[FIRST_CHANNEL_INDEX]);
+		expect(realtimeClient.removeChannel).toHaveBeenCalledWith(createdChannels[SECOND_CHANNEL_INDEX]);
 	});
 });

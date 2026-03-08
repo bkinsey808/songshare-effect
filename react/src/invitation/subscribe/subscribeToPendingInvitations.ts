@@ -8,7 +8,18 @@ import type {
 	InvitationSlice,
 	PendingCommunityInvitation,
 	PendingEventInvitation,
-} from "./slice/InvitationSlice.type";
+} from "../slice/InvitationSlice.type";
+
+function isRealtimeTableNotEnabledError(payload: unknown): boolean {
+	if (!isRecord(payload)) {
+		return false;
+	}
+	const { message } = payload;
+	return (
+		typeof message === "string" &&
+		message.includes("Unable to subscribe to changes with given parameters")
+	);
+}
 
 /**
  * Creates Supabase Realtime subscriptions for pending community and event
@@ -26,7 +37,11 @@ export default function subscribeToPendingInvitations(
 	currentUserId: string,
 	get: () => InvitationSlice,
 ): () => void {
-	let unsubscribeFn: (() => void) | undefined = undefined;
+	const unsubscribeFns: (() => void)[] = [];
+	let isDisposed = false;
+	const uniqueSuffix = typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}`;
+	let hasLoggedCommunityRealtimeUnavailable = false;
+	let hasLoggedEventRealtimeUnavailable = false;
 
 	void (async (): Promise<void> => {
 		try {
@@ -42,11 +57,11 @@ export default function subscribeToPendingInvitations(
 				return;
 			}
 
-			const channelName = `invitations_${currentUserId}_${Date.now()}`;
-			const channel = realtimeClient.channel(channelName);
+			const communityChannelName = `invitations_community_${currentUserId}_${uniqueSuffix}`;
+			const communityChannel = realtimeClient.channel(communityChannelName);
 
 			// Subscribe to community_user changes for this user
-			channel.on(
+			communityChannel.on(
 				"postgres_changes",
 				{
 					event: "*",
@@ -111,8 +126,53 @@ export default function subscribeToPendingInvitations(
 				},
 			);
 
+			communityChannel.on("system", { event: "error" }, (payload: unknown) => {
+				if (isRealtimeTableNotEnabledError(payload)) {
+					if (!hasLoggedCommunityRealtimeUnavailable) {
+						hasLoggedCommunityRealtimeUnavailable = true;
+						console.warn(
+							"⚠️ [subscribeToPendingInvitations] community_user realtime is not enabled; using fetch-only invitation updates.",
+						);
+					}
+					void realtimeClient.removeChannel(communityChannel);
+					return;
+				}
+				if (isRecord(payload) && payload["status"] !== "ok") {
+					console.error(
+						"❌ [subscribeToPendingInvitations] Community realtime channel error:",
+						payload,
+					);
+				}
+			});
+
+			communityChannel.subscribe((status: string, subscribeError: unknown) => {
+				if (status !== (REALTIME_SUBSCRIBE_STATES.SUBSCRIBED as string)) {
+					console.warn(
+						"⚠️ [subscribeToPendingInvitations] Community realtime subscription status:",
+						status,
+					);
+					if (subscribeError !== undefined && subscribeError !== null) {
+						console.error(
+							"❌ [subscribeToPendingInvitations] Community realtime subscription error:",
+							subscribeError,
+						);
+					}
+				}
+			});
+
+			unsubscribeFns.push((): void => {
+				void realtimeClient.removeChannel(communityChannel);
+			});
+			if (isDisposed) {
+				void realtimeClient.removeChannel(communityChannel);
+				return;
+			}
+
+			const eventChannelName = `invitations_event_${currentUserId}_${uniqueSuffix}`;
+			const eventChannel = realtimeClient.channel(eventChannelName);
+
 			// Subscribe to event_user changes for this user
-			channel.on(
+			eventChannel.on(
 				"postgres_changes",
 				{
 					event: "*",
@@ -169,35 +229,55 @@ export default function subscribeToPendingInvitations(
 				},
 			);
 
-			channel.on("system", { event: "error" }, (payload: unknown) => {
+			eventChannel.on("system", { event: "error" }, (payload: unknown) => {
+				if (isRealtimeTableNotEnabledError(payload)) {
+					if (!hasLoggedEventRealtimeUnavailable) {
+						hasLoggedEventRealtimeUnavailable = true;
+						console.warn(
+							"⚠️ [subscribeToPendingInvitations] event_user realtime is not enabled; using fetch-only invitation updates.",
+						);
+					}
+					void realtimeClient.removeChannel(eventChannel);
+					return;
+				}
 				if (isRecord(payload) && payload["status"] !== "ok") {
-					console.error("❌ [subscribeToPendingInvitations] Realtime channel error:", payload);
+					console.error(
+						"❌ [subscribeToPendingInvitations] Event realtime channel error:",
+						payload,
+					);
 				}
 			});
 
-			channel.subscribe((status: string, subscribeError: unknown) => {
+			eventChannel.subscribe((status: string, subscribeError: unknown) => {
 				if (status !== (REALTIME_SUBSCRIBE_STATES.SUBSCRIBED as string)) {
-					console.warn("⚠️ [subscribeToPendingInvitations] Realtime subscription status:", status);
+					console.warn(
+						"⚠️ [subscribeToPendingInvitations] Event realtime subscription status:",
+						status,
+					);
 					if (subscribeError !== undefined && subscribeError !== null) {
 						console.error(
-							"❌ [subscribeToPendingInvitations] Realtime subscription error:",
+							"❌ [subscribeToPendingInvitations] Event realtime subscription error:",
 							subscribeError,
 						);
 					}
 				}
 			});
 
-			unsubscribeFn = (): void => {
-				realtimeClient.removeChannel(channel);
-			};
+			unsubscribeFns.push((): void => {
+				void realtimeClient.removeChannel(eventChannel);
+			});
+			if (isDisposed) {
+				void realtimeClient.removeChannel(eventChannel);
+			}
 		} catch (setupError) {
 			console.error("❌ [subscribeToPendingInvitations] Setup error:", setupError);
 		}
 	})();
 
 	return (): void => {
-		if (unsubscribeFn !== undefined) {
-			unsubscribeFn();
+		isDisposed = true;
+		for (const unsubscribe of unsubscribeFns) {
+			unsubscribe();
 		}
 	};
 }

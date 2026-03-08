@@ -16,6 +16,7 @@ export default function useCommunityViewSubscriptions(
 	// Subscribe to realtime community_event changes for the active community.
 	useEffect(() => {
 		if (communityId === undefined) {
+			// oxlint-disable-next-line no-empty-function -- no subscription when undefined; return fn for React 19 HMR
 			return;
 		}
 		let cleanup: (() => void) | undefined = undefined;
@@ -36,6 +37,7 @@ export default function useCommunityViewSubscriptions(
 	// Subscribe to realtime community_public changes such as active_event_id.
 	useEffect(() => {
 		if (communityId === undefined) {
+			// oxlint-disable-next-line no-empty-function -- no subscription when undefined; return fn for React 19 HMR
 			return;
 		}
 		let cleanup: (() => void) | undefined = undefined;

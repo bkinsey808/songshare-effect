@@ -1,15 +1,15 @@
 import { useTranslation } from "react-i18next";
 
 import useHydration from "@/react/app/useHydration";
-import PendingInvitationsSection from "@/react/invitation/PendingInvitationsSection";
-import useInvitationSubscription from "@/react/invitation/useInvitationSubscription";
+import PendingInvitationsSection from "@/react/invitation/pending-invitation-section/PendingInvitationsSection";
+import useInvitationSubscription from "@/react/invitation/subscribe/useInvitationSubscription";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
-import SharedItemsSection from "@/react/share/SharedItemsSection";
 import {
 	REGISTERED_SUCCESS,
 	SIGNED_IN_SUCCESS,
 	UNAUTHORIZED_ACCESS,
 } from "@/react/pages/home/alert-keys";
+import SharedItemsSection from "@/react/share/shared-item-section/SharedItemsSection";
 
 import SongManagementSection from "./SongManagementSection";
 import useDashboard from "./useDashboard";

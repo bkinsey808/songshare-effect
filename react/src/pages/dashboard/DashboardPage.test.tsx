@@ -16,6 +16,7 @@ import useDashboard from "./useDashboard";
 
 vi.mock("@/react/app/useHydration");
 vi.mock("./useDashboard");
+vi.mock("@/react/share/shared-item-section/SharedItemsSection");
 
 describe("dashboard page", () => {
 	it("renders dashboard content when signed in", async () => {

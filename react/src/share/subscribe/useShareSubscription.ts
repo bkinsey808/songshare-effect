@@ -14,7 +14,7 @@ export default function useShareSubscription(): void {
 	// Fetch sent shares and subscribe to real-time updates when user is logged in
 	useEffect(() => {
 		if (typeof currentUserId !== "string") {
-			return undefined;
+			return;
 		}
 
 		const userId: string = currentUserId;

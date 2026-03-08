@@ -30,16 +30,21 @@ export default function useInvitationSubscription(): void {
 			// Clear state if not signed in
 			setPendingCommunityInvitations([]);
 			setPendingEventInvitations([]);
-			return;
+			return (): void => {
+				// no-op
+			};
 		}
 
+
 		void Effect.runPromise(fetchPendingInvitations());
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR stability
+		return;
 	}, [userId, fetchPendingInvitations, setPendingCommunityInvitations, setPendingEventInvitations]);
 
 	// Realtime subscription
 	useEffect(() => {
 		if (userId === undefined) {
-			return undefined;
+			return;
 		}
 
 		const subscribeCleanup = subscribeToPendingInvitations(userId, useAppStore.getState);

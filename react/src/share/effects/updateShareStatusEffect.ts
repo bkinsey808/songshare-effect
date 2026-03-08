@@ -24,6 +24,9 @@ export default function updateShareStatusEffect(
 	request: Readonly<ShareUpdateStatusRequest>,
 	get: Get<ShareSlice>,
 ): Effect.Effect<void, Error> {
+	const originalStatus =
+		get().receivedShares[request.share_id]?.status || ("pending" as const);
+
 	return Effect.gen(function* updateShareStatusGen($) {
 		const {
 			updateShareStatusOptimistically,
@@ -36,33 +39,29 @@ export default function updateShareStatusEffect(
 		setShareError(undefined);
 
 		// Optimistic update - immediately show the new status
-		const originalStatus = get().receivedShares[request.share_id]?.status || 'pending';
 		updateShareStatusOptimistically(request.share_id, request.status);
 
-		try {
-			// Make API call
-			yield* $(
-				Effect.tryPromise({
-					try: () =>
-						postJsonWithResult<{ success: boolean }>(apiShareUpdateStatusPath, request),
-					catch: (error) => new Error(`Failed to update share status: ${String(error)}`),
-				}),
-			);
+		// Make API call
+		yield* $(
+			Effect.tryPromise({
+				try: () =>
+					postJsonWithResult<{ success: boolean }>(apiShareUpdateStatusPath, request),
+				catch: (error) => new Error(`Failed to update share status: ${String(error)}`),
+			}),
+		);
 
-			// Success - the optimistic update was correct
-			// Real-time subscription will sync any additional changes
-
-		} catch (error) {
-			// Revert optimistic update on error
-			updateShareStatusOptimistically(request.share_id, originalStatus);
-			
-			// Handle error
-			const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-			setShareError(errorMessage);
-			throw error;
-		} finally {
-			// Clear loading state
-			setLoadingShareId(undefined);
-		}
-	});
+		// Success - the optimistic update was correct
+		// Real-time subscription will sync any additional changes
+		setLoadingShareId(undefined);
+	}).pipe(
+		Effect.tapError((err) =>
+			Effect.sync(() => {
+				const { updateShareStatusOptimistically, setShareError, setLoadingShareId } =
+					get();
+				updateShareStatusOptimistically(request.share_id, originalStatus);
+				setShareError(err.message);
+				setLoadingShareId(undefined);
+			}),
+		),
+	);
 }

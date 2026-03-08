@@ -17,6 +17,7 @@ export default function useLoadCommunityLibraries(
 	// Load the signed-in user's libraries used by community share/manage controls.
 	useEffect(() => {
 		if (userId === undefined) {
+			// oxlint-disable-next-line no-empty-function -- no load when undefined; return fn for React 19 HMR
 			return;
 		}
 		void (async (): Promise<void> => {
@@ -31,5 +32,7 @@ export default function useLoadCommunityLibraries(
 				// Keep community screens usable even if playlist library fails to load.
 			}
 		})();
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
+		return;
 	}, [fetchPlaylistLibrary, fetchSongLibrary, userId]);
 }

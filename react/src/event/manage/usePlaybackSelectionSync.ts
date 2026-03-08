@@ -47,6 +47,7 @@ export default function usePlaybackSelectionSync({
 		if (!eventPublic) {
 			// reset when eventPublic becomes undefined
 			prevPlaybackRef.current = undefined;
+			// oxlint-disable-next-line no-empty-function -- no sync when undefined; return fn for React 19 HMR
 			return;
 		}
 
@@ -61,6 +62,7 @@ export default function usePlaybackSelectionSync({
 			prevPlaybackRef.current.songId === currentPlayback.songId &&
 			prevPlaybackRef.current.slidePos === currentPlayback.slidePos
 		) {
+			// oxlint-disable-next-line no-empty-function -- no sync needed; return fn for React 19 HMR
 			return;
 		}
 
@@ -73,6 +75,8 @@ export default function usePlaybackSelectionSync({
 		}
 
 		prevPlaybackRef.current = currentPlayback;
+		// oxlint-disable-next-line no-empty-function -- no cleanup for sync; return fn for React 19 HMR
+		return;
 	}, [
 		eventPublic,
 		selectedSongId,

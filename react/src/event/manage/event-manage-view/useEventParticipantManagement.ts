@@ -53,6 +53,8 @@ export default function useEventParticipantManagement({
 				// Keep manager usable even if user library fails to load
 			}
 		})();
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
+		return;
 	}, [fetchUserLibrary]);
 
 	function onInviteUserSelect(userId: string | undefined): void {

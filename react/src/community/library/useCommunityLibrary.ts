@@ -29,6 +29,8 @@ function useCommunityLibrary(): UseCommunityLibraryReturn {
 	// Fetch the community library when the component mounts
 	useEffect(() => {
 		void Effect.runPromise(fetchCommunityLibrary());
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
+		return;
 	}, [fetchCommunityLibrary]);
 
 	return {

@@ -1,31 +1,11 @@
 import { Effect } from "effect";
 
 import type { Get } from "@/react/app-store/app-store-types";
+import extractSharesFromResponse from "@/react/share/create/extractSharesFromResponse";
 import type { ShareSlice } from "@/react/share/slice/ShareSlice.type";
 import type { ShareListRequest, SharedItem } from "@/react/share/slice/share-types";
-import isSharedItem from "@/react/share/guards/isSharedItem";
-import isRecord from "@/shared/type-guards/isRecord";
 
 import { apiShareListPath } from "@/shared/paths";
-
-/** Unwrap API response - handles { shares } or { success, data: { shares } } */
-function extractSharesFromResponse(value: unknown): SharedItem[] {
-	if (!isRecord(value)) {
-		return [];
-	}
-	const rawShares = value["shares"];
-	if (Array.isArray(rawShares)) {
-		return rawShares.filter((item): item is SharedItem => isSharedItem(item));
-	}
-	const { data } = value;
-	if (isRecord(data)) {
-		const nestedShares = data["shares"];
-		return Array.isArray(nestedShares)
-			? nestedShares.filter((item): item is SharedItem => isSharedItem(item))
-			: [];
-	}
-	return [];
-}
 
 /**
  * Effect for fetching shares from the API.

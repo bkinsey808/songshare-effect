@@ -1,4 +1,5 @@
 import type { SharedItem } from "../slice/share-types";
+import isRecord from "@/shared/type-guards/isRecord";
 
 /**
  * Type guard to check if an unknown value is a valid SharedItem.
@@ -6,10 +7,6 @@ import type { SharedItem } from "../slice/share-types";
  * @param value - The value to check
  * @returns true if the value is a SharedItem, false otherwise
  */
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
 export default function isSharedItem(value: unknown): value is SharedItem {
 	if (!isRecord(value)) {
 		return false;

@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 
 import ShareButton from "@/react/lib/design-system/ShareButton";
-import SharedUsersSection from "@/react/share/SharedUsersSection";
-import useShareSubscription from "@/react/share/useShareSubscription";
+import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
+import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
 import SongViewSlides from "./SongViewSlides";

@@ -80,7 +80,8 @@ export default function useSongLibrary(): {
 		if (songIds.length < MIN_IDS) {
 			// Clear ref so a previous subscription is still cleaned up on unmount
 			publicUnsubRef.current = undefined;
-			return undefined;
+			// oxlint-disable-next-line no-empty-function -- no subscription when empty; return fn for React 19 HMR
+			return;
 		}
 
 		const run = (publicRunRef.current += 1);

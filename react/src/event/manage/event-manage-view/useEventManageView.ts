@@ -114,9 +114,12 @@ export default function useEventManageView(): UseEventManageStateResult {
 	// When active playlist changes, fetch its details
 	useEffect(() => {
 		if (activePlaylistIdForEffect === undefined || activePlaylistIdForEffect === "") {
+			// oxlint-disable-next-line no-empty-function -- no fetch when undefined; return fn for React 19 HMR
 			return;
 		}
 		void EffectRuntime.runPromise(fetchPlaylistById(activePlaylistIdForEffect));
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
+		return;
 	}, [activePlaylistIdForEffect, fetchPlaylistById]);
 
 	function onBackClick(): void {

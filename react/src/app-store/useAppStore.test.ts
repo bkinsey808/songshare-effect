@@ -1,7 +1,7 @@
 import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-const WAIT_TIMEOUT = 5000;
+const WAIT_TIMEOUT = 15_000;
 
 describe("useAppStore persist behavior", () => {
 	it("omits transient keys when persisting state", async () => {

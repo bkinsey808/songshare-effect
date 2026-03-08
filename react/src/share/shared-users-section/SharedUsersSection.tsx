@@ -1,44 +1,12 @@
 import ShareIcon from "@/react/lib/design-system/icons/ShareIcon";
-import { appStore } from "@/react/app-store/useAppStore";
-import useCurrentUserId from "@/react/auth/useCurrentUserId";
 
-import type { SharedItemType, SharedItem } from "./slice/share-types";
+import getStatusColor from "./getStatusColor";
+import getStatusIcon from "./getStatusIcon";
+import useSharedUsersSection from "./useSharedUsersSection";
+
+import type { SharedItemType } from "../slice/share-types";
 
 const EMPTY_LENGTH = 0;
-
-function getStatusColor(status: string): string {
-	switch (status) {
-		case 'accepted': {
-			return 'text-green-400';
-		}
-		case 'rejected': {
-			return 'text-red-400';
-		}
-		case 'pending': {
-			return 'text-yellow-400';
-		}
-		default: {
-			return 'text-gray-400';
-		}
-	}
-}
-
-function getStatusIcon(status: string): string {
-	switch (status) {
-		case 'accepted': {
-			return '✓';
-		}
-		case 'rejected': {
-			return '✗';
-		}
-		case 'pending': {
-			return '⏳';
-		}
-		default: {
-			return '?';
-		}
-	}
-}
 
 type SharedUsersSectionProps = {
 	itemType: SharedItemType;
@@ -55,20 +23,13 @@ export default function SharedUsersSection({
 	itemId,
 	itemName: _itemName,
 }: SharedUsersSectionProps): ReactElement | null {
-	const currentUserId = useCurrentUserId();
-	const sentShares = appStore((state) => state.sentShares);
-	const isSharesLoading = appStore((state) => state.isSharesLoading);
-
-	// Subscription is set up by the page (e.g. SongView via useShareSubscription)
-	// Get shares for this specific item - React Compiler will optimize this
-	const itemShares: SharedItem[] = Object.values(sentShares).filter(share => 
-		share.shared_item_type === itemType && 
-		share.shared_item_id === itemId
-	);
+	const { currentUserId, itemShares, isSharesLoading } =
+		useSharedUsersSection(itemType, itemId);
 
 	// Don't show if user is not signed in
 	if (currentUserId === null || currentUserId === undefined) {
-		return undefined;
+		// oxlint-disable-next-line unicorn/no-null -- React convention for "render nothing"
+		return null;
 	}
 
 	return (

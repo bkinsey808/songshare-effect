@@ -7,8 +7,8 @@ import { describe, expect, it, vi } from "vitest";
 import useAppStore from "@/react/app-store/useAppStore";
 import ShareButton from "@/react/lib/design-system/ShareButton";
 import forceCast from "@/react/lib/test-utils/forceCast";
-import SharedUsersSection from "@/react/share/SharedUsersSection";
-import useShareSubscription from "@/react/share/useShareSubscription";
+import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
+import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
@@ -20,9 +20,9 @@ vi.mock("react-router-dom");
 vi.mock("react-i18next");
 // Mock ShareButton to avoid popover complexity in integration tests
 vi.mock("@/react/lib/design-system/ShareButton");
-vi.mock("@/react/share/SharedUsersSection");
+vi.mock("@/react/share/shared-users-section/SharedUsersSection");
 // Avoid coupling SongView tests to share subscription side effects/state shape
-vi.mock("@/react/share/useShareSubscription");
+vi.mock("@/react/share/subscribe/useShareSubscription");
 // Mock the store module so tests can set implementations
 vi.mock("@/react/app-store/useAppStore");
 // Stub the addUserToLibrary effect used by the view-side auto-follow

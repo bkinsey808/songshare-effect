@@ -21,5 +21,7 @@ export default function useLoadCommunityBySlug(
 		if (communitySlug !== undefined && communitySlug !== "") {
 			void Effect.runPromise(loadCommunityBySlug(communitySlug));
 		}
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
+		return;
 	}, [communitySlug, loadCommunityBySlug]);
 }

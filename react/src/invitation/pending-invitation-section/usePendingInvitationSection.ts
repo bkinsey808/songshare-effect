@@ -6,7 +6,7 @@ import useAppStore from "@/react/app-store/useAppStore";
 import type {
 	PendingCommunityInvitation,
 	PendingEventInvitation,
-} from "./slice/InvitationSlice.type";
+} from "../slice/InvitationSlice.type";
 
 type PendingInvitationSectionHook = {
 	pendingCommunityInvitations: readonly PendingCommunityInvitation[];

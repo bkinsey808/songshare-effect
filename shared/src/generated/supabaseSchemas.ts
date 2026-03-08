@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-03-06T23:57:19.948Z
+ * Last generated: 2026-03-08T11:16:22.878Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate

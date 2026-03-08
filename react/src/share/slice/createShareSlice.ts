@@ -8,8 +8,8 @@ import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
 import type {
 	ShareCreateRequest,
-	ShareListRequest,
 	SharedItem,
+	ShareListRequest,
 	ShareState,
 	ShareStatus,
 	ShareUpdateStatusRequest,
@@ -17,8 +17,8 @@ import type {
 import type { ShareSlice } from "./ShareSlice.type";
 
 // Import effects (will be created later)
-import createShareFn from "../effects/createShareEffect";
-import fetchSharesFn from "../effects/fetchSharesEffect";
+import createShareFn from "../create/createShareEffect";
+import fetchSharesFn from "../create/fetchSharesEffect";
 import updateShareStatusFn from "../effects/updateShareStatusEffect";
 import subscribeToReceivedSharesFn from "../subscribe/subscribeToReceivedShares";
 import subscribeToSentSharesFn from "../subscribe/subscribeToSentShares";

@@ -55,19 +55,25 @@ export default function useEventCommunityManagement({
 				// Keep manager usable even if community library fails to load
 			}
 		})();
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
+		return;
 	}, [fetchCommunityLibrary]);
 
 	// Fetch event communities when event becomes available
 	useEffect(() => {
 		if (currentEventId === undefined) {
+			// oxlint-disable-next-line no-empty-function -- no fetch when undefined; return fn for React 19 HMR
 			return;
 		}
 		void EffectRuntime.runPromise(fetchEventCommunitiesFn(currentEventId, useAppStore.getState));
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
+		return;
 	}, [currentEventId]);
 
 	// Subscribe to realtime community_event changes for this event
 	useEffect(() => {
 		if (currentEventId === undefined) {
+			// oxlint-disable-next-line no-empty-function -- no subscription when undefined; return fn for React 19 HMR
 			return;
 		}
 		let cleanup: (() => void) | undefined = undefined;

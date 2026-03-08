@@ -18,14 +18,18 @@ export default function useActiveEventSync({ eventSlug }: UseActiveEventSyncProp
 	// Fetch event data whenever the slug changes
 	useEffect(() => {
 		if (eventSlug === undefined || eventSlug === "") {
+			// oxlint-disable-next-line no-empty-function -- no fetch when undefined; return fn for React 19 HMR
 			return;
 		}
 		void EffectRuntime.runPromise(fetchEventBySlug(eventSlug));
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
+		return;
 	}, [eventSlug, fetchEventBySlug]);
 
 	// Subscribe to realtime updates for the current event
 	useEffect(() => {
 		if (currentEventId === undefined) {
+			// oxlint-disable-next-line no-empty-function -- no subscription when undefined; return fn for React 19 HMR
 			return;
 		}
 

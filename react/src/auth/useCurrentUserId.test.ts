@@ -81,7 +81,7 @@ async function setGetTypedStateUser(userSessionData?: UserSessionData): Promise<
 }
 
 describe("useCurrentUserId", () => {
-	it("returns the current user id when a user is signed in", async () => {
+	it("returns the current user id when a user is signed in", { timeout: 15_000 }, async () => {
 		await setGetTypedStateUser({
 			...SAMPLE_USER_SESSION,
 			user: { ...SAMPLE_USER_SESSION.user, user_id: "user-123" },

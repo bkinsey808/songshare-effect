@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import { renderHook, waitFor } from "@testing-library/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
@@ -73,7 +74,12 @@ describe("usePlaylistEdit", () => {
 
 			const store: typeof useAppStore = useAppStore;
 			const mockSave = vi.fn();
-			store.setState((prev) => ({ ...prev, savePlaylist: mockSave }));
+			const mockFetchPlaylistById = vi.fn().mockReturnValue(Effect.succeed(undefined));
+			store.setState((prev) => ({
+				...prev,
+				savePlaylist: mockSave,
+				fetchPlaylistById: mockFetchPlaylistById,
+			}));
 
 			const { result } = renderHook(() => usePlaylistForm());
 

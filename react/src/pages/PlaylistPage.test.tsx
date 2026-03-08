@@ -10,8 +10,8 @@ import ShareButton from "@/react/lib/design-system/ShareButton";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { makeTestPlaylist } from "@/react/playlist/test-utils/makeTestPlaylist.mock";
-import SharedUsersSection from "@/react/share/SharedUsersSection";
-import useShareSubscription from "@/react/share/useShareSubscription";
+import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
+import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import PlaylistPage from "./PlaylistPage";
@@ -23,8 +23,8 @@ vi.mock("@/react/lib/design-system/ShareButton");
 vi.mock("@/react/app-store/useAppStore");
 vi.mock("@/react/user-library/user-add/addUserToLibraryEffect");
 vi.mock("@/react/auth/useCurrentUserId");
-vi.mock("@/react/share/useShareSubscription");
-vi.mock("@/react/share/SharedUsersSection");
+vi.mock("@/react/share/subscribe/useShareSubscription");
+vi.mock("@/react/share/shared-users-section/SharedUsersSection");
 
 function installUiMocks(): void {
 	vi.mocked(useTranslation).mockReturnValue(
