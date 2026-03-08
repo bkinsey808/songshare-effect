@@ -39,7 +39,6 @@ export default function addActivePublicSongSlugs(
 		const NO_MISSING_SONGS = 0;
 
 		if (missingSongSlugs.length === NO_MISSING_SONGS) {
-			console.warn("[addActivePublicSongSlugs] All song slugs already active, nothing to do.");
 			return;
 		}
 

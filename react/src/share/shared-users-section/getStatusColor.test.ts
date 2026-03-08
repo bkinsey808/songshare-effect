@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import getStatusColor from "../shared-users-section/getStatusColor";
+import getStatusColor from "./getStatusColor";
 
 describe("getStatusColor", () => {
 	it("returns correct colors for each status", () => {

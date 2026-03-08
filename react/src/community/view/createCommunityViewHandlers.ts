@@ -43,6 +43,8 @@ type CommunityViewHandlers = {
 	onEditClick: () => void;
 	onShareSongClick: (songId: string) => void;
 	onSharePlaylistClick: (playlistId: string) => void;
+	/** Refreshes community data (members, etc.). Call after sharing community to update Pending Invitations. */
+	onRefreshCommunity: () => void;
 };
 
 async function refreshCommunity(
@@ -184,6 +186,10 @@ export default function createCommunityViewHandlers(
 		})();
 	}
 
+	function onRefreshCommunity(): void {
+		void refreshCommunity(communitySlug, fetchCommunityBySlug);
+	}
+
 	return {
 		onJoinClick,
 		onLeaveClick,
@@ -191,5 +197,6 @@ export default function createCommunityViewHandlers(
 		onEditClick,
 		onShareSongClick,
 		onSharePlaylistClick,
+		onRefreshCommunity,
 	};
 }

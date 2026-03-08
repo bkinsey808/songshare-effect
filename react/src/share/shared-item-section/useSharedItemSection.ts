@@ -46,7 +46,9 @@ export default function useSharedItemSection(): UseSharedItemSectionReturn {
 
 	function getFilteredShares(): SharedItem[] {
 		const shares =
-			activeTab === "received" ? Object.values(receivedShares) : Object.values(sentShares);
+			activeTab === "received"
+				? Object.values(receivedShares)
+				: Object.values(sentShares);
 
 		if (statusFilter === "all") {
 			return shares;

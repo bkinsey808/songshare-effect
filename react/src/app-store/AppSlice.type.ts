@@ -4,7 +4,7 @@ import type { EventLibrarySlice } from "@/react/event-library/slice/EventLibrary
 import type { EventSlice } from "@/react/event/slice/EventSlice.type";
 import type { InvitationSlice } from "@/react/invitation/slice/InvitationSlice.type";
 import type { NavigationSlice } from "@/react/navigation/slice/NavigationSlice.type";
-import type { PlaylistLibrarySlice } from "@/react/playlist-library/slice/playlist-library-slice";
+import type { PlaylistLibrarySlice } from "@/react/playlist-library/slice/PlaylistLibrarySlice.type";
 import type { PlaylistSlice } from "@/react/playlist/slice/playlist-slice";
 import type { ShareSlice } from "@/react/share/slice/ShareSlice.type";
 import type { SongLibrarySlice } from "@/react/song-library/slice/song-library-slice";

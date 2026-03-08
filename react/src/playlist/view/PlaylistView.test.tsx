@@ -14,7 +14,7 @@ import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSe
 import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
-import PlaylistPage from "./PlaylistPage";
+import PlaylistView from "./PlaylistView";
 
 vi.mock("react-router-dom");
 vi.mock("react-i18next");
@@ -54,6 +54,9 @@ function installStoreMocks(options: {
 		if (selectorText.includes("isPlaylistLoading")) {
 			return false;
 		}
+		if (selectorText.includes("isPlaylistLibraryLoading")) {
+			return false;
+		}
 		if (selectorText.includes("playlistError")) {
 			return undefined;
 		}
@@ -71,11 +74,23 @@ function installStoreMocks(options: {
 				? { user: { user_id: userId } }
 				: undefined;
 		}
+		if (selectorText.includes("isInPlaylistLibrary")) {
+			return (_playlistId: string): boolean => false;
+		}
+		if (selectorText.includes("addPlaylistToLibrary")) {
+			return (_request: unknown): Effect.Effect<void, Error> => Effect.succeed(undefined);
+		}
+		if (selectorText.includes("removePlaylistFromLibrary")) {
+			return (_request: unknown): Effect.Effect<void, Error> => Effect.succeed(undefined);
+		}
+		if (selectorText.includes("fetchPlaylistLibrary")) {
+			return (): Effect.Effect<void, Error> => Effect.succeed(undefined);
+		}
 		return undefined as unknown;
 	});
 }
 
-describe("playlist page", () => {
+describe("playlist view", () => {
 	it("auto-adds playlist owner to user library when viewing playlist", () => {
 		installUiMocks();
 		// Mock useParams to return a playlist_slug
@@ -102,7 +117,7 @@ describe("playlist page", () => {
 		const mockAutoAdd = vi.mocked(addUserToLibraryEffect);
 		mockAutoAdd.mockReturnValue(Effect.sync(() => undefined));
 
-		render(<PlaylistPage />);
+		render(<PlaylistView />);
 
 		expect(mockAutoAdd).toHaveBeenCalledWith(
 			{ followed_user_id: "owner-123" },

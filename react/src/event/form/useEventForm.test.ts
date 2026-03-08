@@ -113,7 +113,7 @@ describe("useEventForm", () => {
 
 			const store: typeof useAppStore = useAppStore;
 			const mockSave = vi.fn().mockReturnValue(Effect.succeed("e1"));
-			store.setState((prev) => ({ ...prev, saveEvent: mockSave }));
+			store.setState((prev: Record<string, unknown>) => ({ ...prev, saveEvent: mockSave }));
 
 			const { result } = renderHook(() => useEventForm());
 
@@ -158,7 +158,7 @@ describe("useEventForm", () => {
 
 			const store: typeof useAppStore = useAppStore;
 			const mockSave = vi.fn().mockReturnValue(Effect.succeed("ev-1"));
-			store.setState((prev) => ({ ...prev, saveEvent: mockSave }));
+			store.setState((prev: Record<string, unknown>) => ({ ...prev, saveEvent: mockSave }));
 
 			const { result } = renderHook(() => useEventForm());
 
@@ -199,7 +199,7 @@ describe("useEventForm", () => {
 
 			const store: typeof useAppStore = useAppStore;
 			const mockSave = vi.fn().mockReturnValue(Effect.succeed("e2"));
-			store.setState((prev) => ({ ...prev, saveEvent: mockSave }));
+			store.setState((prev: Record<string, unknown>) => ({ ...prev, saveEvent: mockSave }));
 
 			const { result } = renderHook(() => useEventForm());
 
@@ -228,7 +228,7 @@ describe("useEventForm", () => {
 		vi.mocked(useParams).mockReturnValue({});
 
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, eventError: "Invalid event_public data" }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, eventError: "Invalid event_public data" }));
 
 		const { result } = renderHook(() => useEventForm());
 
@@ -245,7 +245,7 @@ describe("useEventForm", () => {
 
 			const store: typeof useAppStore = useAppStore;
 			const mockFetchPlaylistById = vi.fn().mockReturnValue(Effect.succeed(undefined));
-			store.setState((prev) => ({
+			store.setState((prev: Record<string, unknown>) => ({
 				...prev,
 				fetchPlaylistById: mockFetchPlaylistById,
 				currentPlaylist: makeTestPlaylist({
@@ -288,7 +288,7 @@ describe("useEventForm", () => {
 			vi.mocked(useParams).mockReturnValue({});
 
 			const store: typeof useAppStore = useAppStore;
-			store.setState((prev) => ({
+			store.setState((prev: Record<string, unknown>) => ({
 				...prev,
 				currentPlaylist: makeTestPlaylist({
 					playlist_id: "pl-1",

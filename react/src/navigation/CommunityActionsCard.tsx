@@ -40,7 +40,7 @@ export default function CommunityActionsCard(): ReactElement {
 		currentCommunitySlug !== undefined &&
 		userSessionData?.user !== undefined &&
 		members.some(
-			(member) =>
+			(member: { user_id: string; role: string }) =>
 				member.user_id === userSessionData.user?.user_id &&
 				(member.role === "owner" || member.role === "community_admin"),
 		);

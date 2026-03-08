@@ -2,13 +2,23 @@ import { type AppError } from "@/api/api-errors";
 import { HTTP_STATUS } from "@/shared/demo/api";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
+type ErrorToHttpResponseOpts = {
+	/** When "development", DatabaseError returns the actual message for easier debugging */
+	environment?: string;
+};
+
 /**
  * Convert an AppError into an HTTP response payload and status.
  *
  * @param error - The application error to convert (one of the AppError variants)
+ * @param opts - Optional. When `environment === "development"`, DatabaseError
+ *   responses include the actual error message instead of a generic "Internal server error".
  * @returns An object containing `status` and `body` suitable for use with `Response.json`
  */
-export default function errorToHttpResponse(error: Readonly<AppError>): {
+export default function errorToHttpResponse(
+	error: Readonly<AppError>,
+	opts?: Readonly<ErrorToHttpResponseOpts>,
+): {
 	status: number;
 	body: object;
 } {
@@ -63,11 +73,14 @@ export default function errorToHttpResponse(error: Readonly<AppError>): {
 	}
 
 	if (error._tag === "DatabaseError" || error._tag === "FileUploadError") {
+		const isDev = opts?.environment === "development";
+		const message =
+			isDev && typeof error.message === "string" ? error.message : "Internal server error";
 		return {
 			status: HTTP_STATUS.INTERNAL_SERVER_ERROR as number,
 			body: {
 				success: false,
-				error: "Internal server error",
+				error: message,
 			},
 		};
 	}

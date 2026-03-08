@@ -1,19 +1,18 @@
-import type { Effect } from "effect";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
-import addPlaylistToLibraryFn from "./addPlaylistToLibrary";
+import addPlaylistToLibraryFn from "../playlist-add/addPlaylistToLibrary";
+import removePlaylistFromLibraryFn from "../playlist-remove/removePlaylistFromLibrary";
 import fetchPlaylistLibraryFn from "./fetchPlaylistLibrary";
 import type {
 	AddPlaylistToLibraryRequest,
 	PlaylistLibraryEntry,
-	PlaylistLibrarySliceBase,
 	PlaylistLibraryState,
 	RemovePlaylistFromLibraryRequest,
 } from "./playlist-library-types";
-import removePlaylistFromLibraryFn from "./removePlaylistFromLibrary";
+import type { PlaylistLibrarySlice } from "./PlaylistLibrarySlice.type";
 import subscribeToPlaylistLibraryFn from "./subscribe/subscribeToPlaylistLibrary";
 import subscribeToPlaylistPublicFn from "./subscribe/subscribeToPlaylistPublic";
 
@@ -21,35 +20,6 @@ const initialState: PlaylistLibraryState = {
 	playlistLibraryEntries: {} as Record<string, PlaylistLibraryEntry>,
 	isPlaylistLibraryLoading: false,
 	playlistLibraryError: undefined as string | undefined,
-};
-
-export type PlaylistLibrarySlice = PlaylistLibrarySliceBase & {
-	/** Add a playlist to the user's library (via API - also adds all songs to song library) */
-	addPlaylistToLibrary: (
-		request: Readonly<AddPlaylistToLibraryRequest>,
-	) => Effect.Effect<void, Error>;
-	/** Remove a playlist from the user's library (via API) */
-	removePlaylistFromLibrary: (
-		request: Readonly<RemovePlaylistFromLibraryRequest>,
-	) => Effect.Effect<void, Error>;
-	/** Get all playlist IDs in the user's library */
-	getPlaylistLibraryIds: () => string[];
-	/** Fetch the user's complete playlist library from the server */
-	fetchPlaylistLibrary: () => Effect.Effect<void, Error>;
-
-	/** Subscribe to realtime updates for the user's library. Returns an Effect yielding a cleanup function. */
-	subscribeToPlaylistLibrary: () => Effect.Effect<() => void, Error>;
-	/** Internal: holds the current unsubscribe function for the realtime subscription */
-	playlistLibraryUnsubscribe?: () => void;
-	/** Internal: holds the current unsubscribe function for playlist_public subscriptions */
-	playlistLibraryPublicUnsubscribe?: () => void;
-
-	/** Subscribe to realtime updates for the provided playlist IDs in playlist_public */
-	subscribeToPlaylistPublic: (playlistIds: readonly string[]) => Effect.Effect<() => void, Error>;
-
-	/** Internal actions for updating state from subscriptions */
-	setPlaylistLibraryEntries: (entries: ReadonlyDeep<Record<string, PlaylistLibraryEntry>>) => void;
-	setPlaylistLibraryLoading: (loading: boolean) => void;
 };
 
 /**
@@ -66,7 +36,7 @@ export type PlaylistLibrarySlice = PlaylistLibrarySliceBase & {
  * @param api - Slice `api` object (unused but kept for consistency with other slices)
  * @returns PlaylistLibrarySlice - The initialized slice with public and internal methods
  */
-export function createPlaylistLibrarySlice(
+export default function createPlaylistLibrarySlice(
 	set: Set<PlaylistLibrarySlice>,
 	get: Get<PlaylistLibrarySlice>,
 	api: Api<PlaylistLibrarySlice>,

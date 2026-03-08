@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import forceCast from "../lib/test-utils/forceCast";
@@ -75,9 +76,8 @@ async function setGetTypedStateUser(userSessionData?: UserSessionData): Promise<
 	const appStoreModule = await import("@/react/app-store/useAppStore");
 	const newState =
 		userSessionData === undefined ? { userSessionData: undefined } : { userSessionData };
-	// @ts-expect-error return type intentionally broad for test
-	// the exact shape is irrelevant for tests
-	vi.spyOn(appStoreModule, "getTypedState").mockReturnValue(newState as unknown);
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test mock returns partial state
+	vi.spyOn(appStoreModule, "getTypedState").mockReturnValue(newState as AppSlice);
 }
 
 describe("useCurrentUserId", () => {

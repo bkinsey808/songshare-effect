@@ -14,7 +14,7 @@ describe("useActiveSongSelectionState", () => {
 	it("returns empty state when no playlist and no song are selected", () => {
 		vi.resetAllMocks();
 		const store: typeof useAppStore = useAppStore;
-		store.setState((previousState) => ({
+		store.setState((previousState: Record<string, unknown>) => ({
 			...previousState,
 			currentPlaylist: undefined,
 			publicSongs: {},
@@ -42,7 +42,7 @@ describe("useActiveSongSelectionState", () => {
 	it("derives song and slide options for selected playlist and selected song", () => {
 		vi.resetAllMocks();
 		const store: typeof useAppStore = useAppStore;
-		store.setState((previousState) => ({
+		store.setState((previousState: Record<string, unknown>) => ({
 			...previousState,
 			currentPlaylist: makeTestPlaylist({
 				playlist_id: "playlist-1",
@@ -106,7 +106,7 @@ describe("useActiveSongSelectionState", () => {
 	it("falls back to song id when selected song name is empty", () => {
 		vi.resetAllMocks();
 		const store: typeof useAppStore = useAppStore;
-		store.setState((previousState) => ({
+		store.setState((previousState: Record<string, unknown>) => ({
 			...previousState,
 			currentPlaylist: makeTestPlaylist({
 				playlist_id: "playlist-1",
@@ -150,7 +150,7 @@ describe("useActiveSongSelectionState", () => {
 	it("falls back to song id when selected song record is missing", () => {
 		vi.resetAllMocks();
 		const store: typeof useAppStore = useAppStore;
-		store.setState((previousState) => ({
+		store.setState((previousState: Record<string, unknown>) => ({
 			...previousState,
 			currentPlaylist: makeTestPlaylist({
 				playlist_id: "playlist-1",
@@ -189,7 +189,7 @@ describe("useActiveSongSelectionState", () => {
 		vi.resetAllMocks();
 		const nullPlaylistId = forceCast<string | null | undefined>(JSON.parse("null"));
 		const store: typeof useAppStore = useAppStore;
-		store.setState((previousState) => ({
+		store.setState((previousState: Record<string, unknown>) => ({
 			...previousState,
 			currentPlaylist: makeTestPlaylist({
 				playlist_id: "playlist-2",

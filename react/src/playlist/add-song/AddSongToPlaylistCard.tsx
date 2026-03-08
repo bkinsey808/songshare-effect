@@ -39,11 +39,11 @@ export default function AddSongToPlaylistCard({
 
 	// Filter playlists owned by the current user (can only add to own playlists)
 	const ownedPlaylists = Object.values(playlistLibraryEntries).filter(
-		(entry) => entry.playlist_owner_id === currentUserId,
-	);
+		(entry: PlaylistLibraryEntry) => entry.playlist_owner_id === currentUserId,
+	) as PlaylistLibraryEntry[];
 
 	// Filter by search query
-	const filteredPlaylists = ownedPlaylists.filter((entry) => {
+	const filteredPlaylists = ownedPlaylists.filter((entry: PlaylistLibraryEntry) => {
 		if (searchQuery.trim() === "") {
 			return true;
 		}
@@ -140,7 +140,7 @@ export default function AddSongToPlaylistCard({
 								: t("playlist.noMatchingPlaylists", "No playlists match your search")}
 						</div>
 					) : (
-						filteredPlaylists.map((playlist) => (
+						filteredPlaylists.map((playlist: PlaylistLibraryEntry) => (
 							<div
 								key={playlist.playlist_id}
 								className="flex items-center justify-between rounded-lg border border-gray-600 bg-gray-700 p-3"

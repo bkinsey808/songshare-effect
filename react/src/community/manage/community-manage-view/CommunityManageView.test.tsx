@@ -1,44 +1,65 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import type { CommunityEntry } from "@/react/community/community-types";
 import forceCast from "@/react/lib/test-utils/forceCast";
-// CommunityEntry type not needed directly in this test
 
+import useCommunityManageBody from "./body/useCommunityManageBody";
 import CommunityManageView from "./CommunityManageView";
 import useCommunityManageView, {
 	type UseCommunityManageViewReturn,
 } from "./useCommunityManageView";
 
 vi.mock("./useCommunityManageView");
+vi.mock("./body/useCommunityManageBody");
+
+const mockBodyReturn = {
+	members: [],
+	communityEvents: [],
+	communitySongs: [],
+	communityPlaylists: [],
+	communityShareRequests: [],
+	availableSongOptions: [],
+	availablePlaylistOptions: [],
+	actionState: {
+		loadingKey: undefined,
+		error: undefined,
+		errorKey: undefined,
+		success: undefined,
+		successKey: undefined,
+	},
+	inviteUserIdInput: undefined,
+	setInviteUserIdInput: (): void => undefined,
+	onInviteClick: (): void => undefined,
+	addEventIdInput: undefined,
+	setAddEventIdInput: (): void => undefined,
+	onAddEventClick: (): void => undefined,
+	addSongIdInput: undefined,
+	setAddSongIdInput: (): void => undefined,
+	onAddSongClick: (): void => undefined,
+	onRemoveSongClick: (): void => undefined,
+	addPlaylistIdInput: undefined,
+	setAddPlaylistIdInput: (): void => undefined,
+	onAddPlaylistClick: (): void => undefined,
+	onRemovePlaylistClick: (): void => undefined,
+	onReviewShareRequestClick: (): void => undefined,
+	onRemoveEventClick: (): void => undefined,
+	onSetActiveEventClick: (): void => undefined,
+	activeEventId: undefined,
+	onKickClick: (): void => undefined,
+	onBackClick: (): void => undefined,
+	onDismissInviteAlert: (): void => undefined,
+};
 
 describe("communityManageView", () => {
 	it("renders loading state", () => {
 		vi.mocked(useCommunityManageView).mockReturnValue(
 			forceCast<UseCommunityManageViewReturn>({
 				currentCommunity: undefined,
-				members: [],
-				communityEvents: [],
 				isCommunityLoading: true,
-
 				communityError: undefined,
 				canManage: undefined,
-				actionState: {
-					loadingKey: undefined,
-					error: undefined,
-					errorKey: undefined,
-					success: undefined,
-					successKey: undefined,
-				},
-				inviteUserIdInput: undefined,
-				setInviteUserIdInput: () => undefined,
-				onInviteClick: () => undefined,
-				addEventIdInput: undefined,
-				setAddEventIdInput: () => undefined,
-				onAddEventClick: () => undefined,
-				onRemoveEventClick: () => undefined,
-				onKickClick: () => undefined,
-				onBackClick: () => undefined,
-				userSessionData: undefined,
+				onBackClick: (): void => undefined,
 			}),
 		);
 
@@ -50,28 +71,10 @@ describe("communityManageView", () => {
 		vi.mocked(useCommunityManageView).mockReturnValue(
 			forceCast<UseCommunityManageViewReturn>({
 				currentCommunity: undefined,
-				members: [],
-				communityEvents: [],
 				isCommunityLoading: false,
 				communityError: "boom",
 				canManage: undefined,
-				actionState: {
-					loadingKey: undefined,
-					error: undefined,
-					errorKey: undefined,
-					success: undefined,
-					successKey: undefined,
-				},
-				inviteUserIdInput: undefined,
-				setInviteUserIdInput: () => undefined,
-				onInviteClick: () => undefined,
-				addEventIdInput: undefined,
-				setAddEventIdInput: () => undefined,
-				onAddEventClick: () => undefined,
-				onRemoveEventClick: () => undefined,
-				onKickClick: () => undefined,
-				onBackClick: () => undefined,
-				userSessionData: undefined,
+				onBackClick: (): void => undefined,
 			}),
 		);
 
@@ -81,31 +84,24 @@ describe("communityManageView", () => {
 
 	it("shows access denied and calls back on Back click", () => {
 		const onBack = vi.fn();
+		const currentCommunity = forceCast<CommunityEntry>({
+			community_id: "c1",
+			owner_id: "o1",
+			name: "C",
+			slug: "c",
+			description: forceCast<string | null>(undefined),
+			is_public: true,
+			public_notes: forceCast<string | null>(undefined),
+			created_at: "2024-01-01T00:00:00Z",
+			updated_at: "2024-01-01T00:00:00Z",
+		});
 		vi.mocked(useCommunityManageView).mockReturnValue(
 			forceCast<UseCommunityManageViewReturn>({
-				currentCommunity: { community_id: "c1", name: "C" },
-				members: [],
-				communityEvents: [],
+				currentCommunity,
 				isCommunityLoading: false,
 				communityError: undefined,
 				canManage: false,
-				actionState: {
-					loadingKey: undefined,
-					error: undefined,
-					errorKey: undefined,
-					success: undefined,
-					successKey: undefined,
-				},
-				inviteUserIdInput: undefined,
-				setInviteUserIdInput: () => undefined,
-				onInviteClick: () => undefined,
-				addEventIdInput: undefined,
-				setAddEventIdInput: () => undefined,
-				onAddEventClick: () => undefined,
-				onRemoveEventClick: () => undefined,
-				onKickClick: () => undefined,
 				onBackClick: onBack,
-				userSessionData: undefined,
 			}),
 		);
 
@@ -116,32 +112,29 @@ describe("communityManageView", () => {
 	});
 
 	it("renders empty members and events when can manage", () => {
+		const currentCommunity = forceCast<CommunityEntry>({
+			community_id: "c1",
+			owner_id: "o1",
+			name: "C",
+			slug: "c",
+			description: forceCast<string | null>(undefined),
+			is_public: true,
+			public_notes: forceCast<string | null>(undefined),
+			created_at: "2024-01-01T00:00:00Z",
+			updated_at: "2024-01-01T00:00:00Z",
+			active_event_id: undefined,
+		});
 		vi.mocked(useCommunityManageView).mockReturnValue(
 			forceCast<UseCommunityManageViewReturn>({
-				currentCommunity: { community_id: "c1", name: "C" },
-				members: [],
-				communityEvents: [],
+				currentCommunity,
 				isCommunityLoading: false,
 				communityError: undefined,
 				canManage: true,
-				actionState: {
-					loadingKey: undefined,
-					error: undefined,
-					errorKey: undefined,
-					success: undefined,
-					successKey: undefined,
-				},
-				inviteUserIdInput: undefined,
-				setInviteUserIdInput: () => undefined,
-				onInviteClick: () => undefined,
-				addEventIdInput: undefined,
-				setAddEventIdInput: () => undefined,
-				onAddEventClick: () => undefined,
-				onRemoveEventClick: () => undefined,
-				onKickClick: () => undefined,
-				onBackClick: () => undefined,
-				userSessionData: undefined,
+				onBackClick: (): void => undefined,
 			}),
+		);
+		vi.mocked(useCommunityManageBody).mockReturnValue(
+			forceCast<ReturnType<typeof useCommunityManageBody>>(mockBodyReturn),
 		);
 
 		render(<CommunityManageView />);

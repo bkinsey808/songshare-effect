@@ -205,6 +205,68 @@ function validateSharedItemAccess(
 	});
 }
 
+type AddCommunityInviteParams = {
+	communityId: string;
+	recipientUserId: string;
+};
+
+/**
+ * Adds the recipient to community_user with status "invited" when sharing a community.
+ * Skips if they are already joined or invited. Re-invites if they left or were kicked.
+ */
+function addCommunityInviteOnShare(
+	client: SupabaseClient<Database>,
+	params: AddCommunityInviteParams,
+): Effect.Effect<void, DatabaseError> {
+	const { communityId, recipientUserId } = params;
+	return Effect.gen(function* addCommunityInviteGen($) {
+		const existing = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					client
+						.from("community_user")
+						.select("status")
+						.eq("community_id", communityId)
+						.eq("user_id", recipientUserId)
+						.maybeSingle(),
+				catch: (err) =>
+					new DatabaseError({
+						message: extractErrorMessage(err, "Failed to check community membership"),
+					}),
+			}),
+		);
+
+		if (existing.data?.status === "joined" || existing.data?.status === "invited") {
+			return;
+		}
+
+		yield* $(
+			Effect.tryPromise({
+				try: async () => {
+					const result = await client.from("community_user").upsert(
+						[
+							{
+								community_id: communityId,
+								user_id: recipientUserId,
+								role: "member",
+								status: "invited",
+							},
+						],
+						{ onConflict: "community_id,user_id" },
+					);
+					if (result.error !== null) {
+						throw result.error;
+					}
+				},
+				catch: (err) =>
+					new DatabaseError({
+						message: extractErrorMessage(err, "Failed to add community invitation"),
+					}),
+			}),
+		);
+	});
+}
+
 /**
  * Server-side handler for creating a share.
  *
@@ -290,6 +352,27 @@ export default function shareCreateHandler(
 
 		// Create the share record
 		const result = yield* $(createShareRecord(client, senderUserId, req));
+
+		// When sharing a community, also add the recipient to community_user as invited
+		// so they appear in Pending Invitations. Non-blocking: share succeeds even if this fails.
+		if (req.shared_item_type === "community") {
+			yield* $(
+				addCommunityInviteOnShare(client, {
+					communityId: req.shared_item_id,
+					recipientUserId: req.recipient_user_id,
+				}).pipe(
+					Effect.tapError((err) =>
+						Effect.sync(() => {
+							console.error("[shareCreate] Failed to add community invitation:", err.message, {
+								communityId: req.shared_item_id,
+								recipientUserId: req.recipient_user_id,
+							});
+						}),
+					),
+					Effect.catchAll(() => Effect.succeed(undefined)),
+				),
+			);
+		}
 
 		return result;
 	});

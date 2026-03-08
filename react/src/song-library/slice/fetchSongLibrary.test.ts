@@ -129,6 +129,10 @@ describe("fetchSongLibrary", () => {
 			return slice;
 		}
 
+		const getSupabaseAuthTokenMock = await spyImport(
+			"@/react/lib/supabase/auth-token/getSupabaseAuthToken",
+		);
+		getSupabaseAuthTokenMock.mockResolvedValue?.(TEST_AUTH_TOKEN);
 		const getSupabaseClientMock = await spyImport("@/react/lib/supabase/client/getSupabaseClient");
 		getSupabaseClientMock.mockReturnValue(createMockClient({ songLibrary: [] }));
 
@@ -137,6 +141,7 @@ describe("fetchSongLibrary", () => {
 		expect(slice.setSongLibraryEntries).toHaveBeenCalledWith({});
 		expect(slice.setSongLibraryLoading).toHaveBeenLastCalledWith(false);
 
+		vi.mocked(getSupabaseAuthToken).mockReset();
 		vi.mocked(getSupabaseClient).mockReset();
 	});
 
@@ -147,6 +152,10 @@ describe("fetchSongLibrary", () => {
 			return slice;
 		}
 
+		const getSupabaseAuthTokenMock = await spyImport(
+			"@/react/lib/supabase/auth-token/getSupabaseAuthToken",
+		);
+		getSupabaseAuthTokenMock.mockResolvedValue?.(TEST_AUTH_TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
 
 		await expect(Effect.runPromise(fetchSongLibrary(getMock))).rejects.toThrow(
@@ -155,6 +164,7 @@ describe("fetchSongLibrary", () => {
 		expect(slice.setSongLibraryLoading).toHaveBeenCalledWith(true);
 		expect(slice.setSongLibraryLoading).toHaveBeenLastCalledWith(false);
 
+		vi.mocked(getSupabaseAuthToken).mockReset();
 		vi.mocked(getSupabaseClient).mockReset();
 	});
 });

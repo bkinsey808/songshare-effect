@@ -12,7 +12,7 @@ describe("useEventLeave", () => {
 	it("calls leaveEvent when user is authenticated", () => {
 		const mockLeave = vi.fn();
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, leaveEvent: mockLeave }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, leaveEvent: mockLeave }));
 
 		vi.mocked(useCurrentUserId).mockReturnValue("u1");
 
@@ -26,7 +26,7 @@ describe("useEventLeave", () => {
 	it("does not call leaveEvent when user is not authenticated", () => {
 		const mockLeave = vi.fn();
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, leaveEvent: mockLeave }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, leaveEvent: mockLeave }));
 
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 
@@ -40,7 +40,7 @@ describe("useEventLeave", () => {
 	it("does not call leaveEvent when user ID is empty string", () => {
 		const mockLeave = vi.fn();
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, leaveEvent: mockLeave }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, leaveEvent: mockLeave }));
 
 		vi.mocked(useCurrentUserId).mockReturnValue("");
 

@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 
+import rejectAcceptedSharesForItem from "@/react/share/effects/rejectAcceptedSharesForItem";
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityUserRemovePath } from "@/shared/paths";
 
@@ -33,6 +34,13 @@ export default function leaveCommunity(
 				try: () => postJson(apiCommunityUserRemovePath, { community_id: communityId }),
 				catch: (error) => new Error(error instanceof Error ? error.message : String(error)),
 			}),
+		);
+
+		// Reject any accepted shares for this community (non-fatal)
+		yield* $(
+			rejectAcceptedSharesForItem("community", communityId).pipe(
+				Effect.catchAll(() => Effect.succeed(undefined)),
+			),
 		);
 
 		setCommunityLoading(false);

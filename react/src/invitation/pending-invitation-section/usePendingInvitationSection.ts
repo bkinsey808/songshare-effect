@@ -1,4 +1,5 @@
 import { Effect } from "effect";
+import { useState } from "react";
 
 import useAppStore from "@/react/app-store/useAppStore";
 // language is intentionally left to the consuming component
@@ -13,6 +14,8 @@ type PendingInvitationSectionHook = {
 	pendingEventInvitations: readonly PendingEventInvitation[];
 	invitationError: string | undefined;
 	hasInvitations: boolean;
+	acceptingCommunityId: string | undefined;
+	acceptingEventId: string | undefined;
 	handleAcceptCommunity: (communityId: string) => void;
 	handleDeclineCommunity: (communityId: string) => void;
 	handleAcceptEvent: (eventId: string) => void;
@@ -48,13 +51,25 @@ export default function usePendingInvitationSection(): PendingInvitationSectionH
 	const invitationError = useAppStore((state) => state.invitationError);
 	const userSessionData = useAppStore((state) => state.userSessionData);
 
+	const [acceptingCommunityId, setAcceptingCommunityId] = useState<string | undefined>(undefined);
+	const [acceptingEventId, setAcceptingEventId] = useState<string | undefined>(undefined);
+
 	const minInvitations = 0;
 	const hasInvitations =
 		pendingCommunityInvitations.length > minInvitations ||
 		pendingEventInvitations.length > minInvitations;
 
 	function handleAcceptCommunity(communityId: string): void {
-		void Effect.runPromise(acceptCommunityInvitation(communityId));
+		setAcceptingCommunityId(communityId);
+		void (async (): Promise<void> => {
+			try {
+				await Effect.runPromise(acceptCommunityInvitation(communityId));
+			} catch (error) {
+				setAcceptingCommunityId(undefined);
+				throw error;
+			}
+			setAcceptingCommunityId(undefined);
+		})();
 	}
 
 	function handleDeclineCommunity(communityId: string): void {
@@ -62,7 +77,16 @@ export default function usePendingInvitationSection(): PendingInvitationSectionH
 	}
 
 	function handleAcceptEvent(eventId: string): void {
-		void Effect.runPromise(acceptEventInvitation(eventId));
+		setAcceptingEventId(eventId);
+		void (async (): Promise<void> => {
+			try {
+				await Effect.runPromise(acceptEventInvitation(eventId));
+			} catch (error) {
+				setAcceptingEventId(undefined);
+				throw error;
+			}
+			setAcceptingEventId(undefined);
+		})();
 	}
 
 	function handleDeclineEvent(eventId: string): void {
@@ -77,6 +101,8 @@ export default function usePendingInvitationSection(): PendingInvitationSectionH
 		pendingEventInvitations,
 		invitationError,
 		hasInvitations,
+		acceptingCommunityId,
+		acceptingEventId,
 		handleAcceptCommunity,
 		handleDeclineCommunity,
 		handleAcceptEvent,

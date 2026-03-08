@@ -73,7 +73,12 @@ export default function useUserSearchInput({
 	const excludeSet = new Set(excludeUserIds);
 	const usersArray: readonly UserLibraryEntry[] = Object.values(userLibraryEntries).filter(
 		(entry): entry is UserLibraryEntry =>
-			entry !== undefined && !excludeSet.has(entry.followed_user_id),
+			entry !== undefined &&
+			typeof entry === "object" &&
+			// oxlint-disable-next-line unicorn/no-null -- Object.values can yield null from record
+			entry !== null &&
+			"followed_user_id" in entry &&
+			!excludeSet.has(entry.followed_user_id),
 	);
 
 	const activeUser =
@@ -85,7 +90,7 @@ export default function useUserSearchInput({
 	const filteredUsers: readonly UserLibraryEntry[] =
 		trimmedQuery === ""
 			? usersArray
-			: usersArray.filter((entry) => {
+			: usersArray.filter((entry: UserLibraryEntry) => {
 					// entry.owner_username may be null/undefined/empty; cast to
 					// lowercase string only when actually present.
 					const rawName = entry.owner_username;

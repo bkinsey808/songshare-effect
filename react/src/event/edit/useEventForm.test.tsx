@@ -261,7 +261,7 @@ describe("useEventForm", () => {
 				vi.mocked(useParams).mockReturnValue({ lang: "en" });
 
 				const mockSave = vi.fn(() => Effect.succeed("saved-id"));
-				useAppStore.setState((prev) => ({ ...prev, saveEvent: mockSave }));
+				useAppStore.setState((prev: Record<string, unknown>) => ({ ...prev, saveEvent: mockSave }));
 
 				// make date conversion predictable
 				const formatMod = await import("@/shared/utils/formatEventDate");

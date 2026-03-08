@@ -17,6 +17,8 @@ type ShareButtonProps = {
 	size?: "default" | "compact";
 	disabled?: boolean;
 	className?: string;
+	/** Called after a successful share. Use to refresh related data (e.g. community members). */
+	onShareSuccess?: () => void;
 	"data-testid"?: string;
 };
 
@@ -45,6 +47,7 @@ export default function ShareButton({
 	size = "compact",
 	disabled = false,
 	className = "",
+	onShareSuccess,
 	"data-testid": dataTestId,
 }: ShareButtonProps): ReactElement {
 	// Avoid store hook completely during render - get it only when needed
@@ -59,8 +62,11 @@ export default function ShareButton({
 		const state = appStore.getState();
 		const sentShares = state?.sentShares ?? {};
 		return Object.values(sentShares)
-			.filter((share) => share.shared_item_type === itemType && share.shared_item_id === itemId)
-			.map((share) => share.recipient_user_id);
+			.filter(
+				(share: { shared_item_type: string; shared_item_id: string }) =>
+					share.shared_item_type === itemType && share.shared_item_id === itemId,
+			)
+			.map((share: { recipient_user_id: string }) => share.recipient_user_id);
 	}
 
 	// Create excludeUserIds array - exclude current user and already shared users
@@ -101,6 +107,10 @@ export default function ShareButton({
 
 					// Refresh sent shares so SharedUsersSection shows the new share
 					await Effect.runPromise(fetchShares({ view: "sent" }));
+
+					if (onShareSuccess !== undefined) {
+						onShareSuccess();
+					}
 
 					startTransition(() => {
 						setIsSharing(false);

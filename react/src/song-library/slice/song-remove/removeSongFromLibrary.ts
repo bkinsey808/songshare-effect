@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 
+import rejectAcceptedSharesForItem from "@/react/share/effects/rejectAcceptedSharesForItem";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiSongLibraryRemovePath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
@@ -66,6 +67,7 @@ export default function removeSongFromSongLibrary(
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({ song_id: songId }),
+						credentials: "include",
 					}),
 				catch: (err) => new Error(extractErrorMessage(err, "Network error")),
 			}),
@@ -100,6 +102,13 @@ export default function removeSongFromSongLibrary(
 			Effect.sync(() => {
 				removeSongLibraryEntry(songId);
 			}),
+		);
+
+		// Reject any accepted shares for this song (non-fatal)
+		yield* $(
+			rejectAcceptedSharesForItem("song", songId).pipe(
+				Effect.catchAll(() => Effect.succeed(undefined)),
+			),
 		);
 	}).pipe(
 		Effect.tapError((err) =>

@@ -67,16 +67,20 @@ export default function useCommunitySearchInput({
 	const communities = useAppStore((state) => state.communities);
 
 	const excludeSet = new Set(excludeCommunityIds);
-	const availableCommunities = communities.filter((entry) => !excludeSet.has(entry.community_id));
+	const availableCommunities = communities.filter(
+		(entry: CommunityEntry) => !excludeSet.has(entry.community_id),
+	);
 
-	const activeCommunity = communities.find((entry) => entry.community_id === activeCommunityId);
+	const activeCommunity = communities.find(
+		(entry: CommunityEntry) => entry.community_id === activeCommunityId,
+	);
 
 	const inputDisplayValue = searchQuery === "" ? (activeCommunity?.name ?? "") : searchQuery;
 
 	const filteredCommunities =
 		searchQuery === ""
 			? availableCommunities
-			: availableCommunities.filter((entry) => {
+			: availableCommunities.filter((entry: CommunityEntry) => {
 					const query = searchQuery.toLowerCase();
 					const nameMatch = entry.name.toLowerCase().includes(query);
 					const slugMatch = entry.slug.toLowerCase().includes(query);

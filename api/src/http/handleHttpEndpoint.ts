@@ -45,7 +45,9 @@ export default function handleHttpEndpoint<SuccessData, ErrorType extends AppErr
 					);
 				}
 				// `error` can be unknown coming from Effect; format it with our helper
-				const { status, body } = errorToHttpResponse(error);
+				const { status, body } = errorToHttpResponse(error, {
+					environment: ctx.env.ENVIRONMENT,
+				});
 				return Response.json(body, {
 					status,
 					headers: { "Content-Type": "application/json" },

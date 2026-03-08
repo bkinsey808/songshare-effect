@@ -118,7 +118,7 @@ export default function useEventForm(): UseEventFormReturn {
 		field: keyof EventFormValues,
 		value: string | number | boolean | undefined,
 	): void {
-		setFormValuesState((prev) => ({ ...prev, [field]: value }));
+		setFormValuesState((prev: EventFormValues) => ({ ...prev, [field]: value }));
 		if (formRef.current && typeof value === "string") {
 			setFieldValue(formRef.current, field, value);
 		}

@@ -62,6 +62,10 @@ function makeView(overrides: Partial<UseCommunityViewReturn> = {}): UseCommunity
 			updated_at: "2026-01-01T00:00:00Z",
 		},
 		members: [],
+		selectedSongId: "",
+		setSelectedSongId: vi.fn(),
+		selectedPlaylistId: "",
+		setSelectedPlaylistId: vi.fn(),
 		communityEvents: [],
 		communitySongs: [],
 		communityPlaylists: [],
@@ -82,6 +86,7 @@ function makeView(overrides: Partial<UseCommunityViewReturn> = {}): UseCommunity
 		onEditClick: vi.fn(),
 		onShareSongClick: vi.fn(),
 		onSharePlaylistClick: vi.fn(),
+		onRefreshCommunity: vi.fn(),
 		userSession: undefined,
 		...overrides,
 	};

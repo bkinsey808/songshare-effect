@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 
 import { clientWarn } from "@/react/lib/utils/clientLogger";
+import rejectAcceptedSharesForItem from "@/react/share/effects/rejectAcceptedSharesForItem";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiEventLibraryRemovePath } from "@/shared/paths";
 
@@ -82,6 +83,13 @@ export default function removeEventFromLibraryEffect(
 			Effect.sync(() => {
 				removeEventLibraryEntry(input.event_id);
 			}),
+		);
+
+		// Reject any accepted shares for this event (non-fatal)
+		yield* $(
+			rejectAcceptedSharesForItem("event", input.event_id).pipe(
+				Effect.catchAll(() => Effect.succeed(undefined)),
+			),
 		);
 	}).pipe(
 		Effect.tapError((err) =>

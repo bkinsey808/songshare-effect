@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 
 import { clientWarn } from "@/react/lib/utils/clientLogger";
+import acceptPendingSharesForItem from "@/react/share/effects/acceptPendingSharesForItem";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiSongLibraryAddPath } from "@/shared/paths";
 
@@ -61,6 +62,7 @@ export default function addSongToSongLibrary(
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({ song_id: input.song_id, song_owner_id: input.song_owner_id }),
+						credentials: "include",
 					}),
 				catch: (err) => new Error(extractErrorMessage(err, "Network error")),
 			}),
@@ -81,10 +83,16 @@ export default function addSongToSongLibrary(
 			return yield* $(Effect.fail(new Error(errorMsg)));
 		}
 
+		// Extract data from { success, data } response shape
+		const responseData =
+			typeof responseJson === "object" && responseJson !== null && "data" in responseJson
+				? (responseJson as { data: unknown }).data
+				: responseJson;
+
 		// Validate server response shape
 		const output = yield* $(
 			Effect.try({
-				try: () => guardAsSongLibraryEntry(responseJson, "server response"),
+				try: () => guardAsSongLibraryEntry(responseData, "server response"),
 				catch: (err) => new Error(extractErrorMessage(err, "Invalid server response")),
 			}),
 		);
@@ -94,6 +102,13 @@ export default function addSongToSongLibrary(
 			Effect.sync(() => {
 				addSongLibraryEntry(output);
 			}),
+		);
+
+		// Accept any pending shares for this song (non-fatal)
+		yield* $(
+			acceptPendingSharesForItem("song", input.song_id, get).pipe(
+				Effect.catchAll(() => Effect.succeed(undefined)),
+			),
 		);
 	}).pipe(
 		Effect.tapError((err) =>

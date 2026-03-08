@@ -1,13 +1,14 @@
 import { Effect } from "effect";
 
 import { clientWarn } from "@/react/lib/utils/clientLogger";
+import rejectAcceptedSharesForItem from "@/react/share/effects/rejectAcceptedSharesForItem";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiPlaylistLibraryRemovePath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
 
-import type { PlaylistLibrarySlice } from "./playlist-library-slice";
-import type { RemovePlaylistFromLibraryRequest } from "./playlist-library-types";
+import type { PlaylistLibrarySlice } from "../slice/PlaylistLibrarySlice.type";
+import type { RemovePlaylistFromLibraryRequest } from "../slice/playlist-library-types";
 
 /**
  * Remove a playlist from the current user's library (via server endpoint).
@@ -66,12 +67,12 @@ export default function removePlaylistFromLibrary(
 			}),
 		);
 
-		// Perform DELETE request
+		// Perform POST request (server expects POST, consistent with other remove endpoints)
 		const response = yield* $(
 			Effect.tryPromise({
 				try: () =>
 					fetch(apiPlaylistLibraryRemovePath, {
-						method: "DELETE",
+						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({ playlist_id: playlistId }),
 						credentials: "include",
@@ -100,6 +101,13 @@ export default function removePlaylistFromLibrary(
 			Effect.sync(() => {
 				clientWarn("[removePlaylistFromLibrary] Successfully removed playlist:", playlistId);
 			}),
+		);
+
+		// Reject any accepted shares for this playlist (non-fatal)
+		yield* $(
+			rejectAcceptedSharesForItem("playlist", playlistId).pipe(
+				Effect.catchAll(() => Effect.succeed(undefined)),
+			),
 		);
 	}).pipe(
 		Effect.tapError((err) =>

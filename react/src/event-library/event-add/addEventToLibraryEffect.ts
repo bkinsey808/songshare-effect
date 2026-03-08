@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 
 import { clientWarn } from "@/react/lib/utils/clientLogger";
+import acceptPendingSharesForItem from "@/react/share/effects/acceptPendingSharesForItem";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiEventLibraryAddPath } from "@/shared/paths";
 
@@ -104,6 +105,13 @@ export default function addEventToLibraryEffect(
 			Effect.sync(() => {
 				addEventLibraryEntry(output);
 			}),
+		);
+
+		// Accept any pending shares for this event (non-fatal)
+		yield* $(
+			acceptPendingSharesForItem("event", input.event_id, get).pipe(
+				Effect.catchAll(() => Effect.succeed(undefined)),
+			),
 		);
 	}).pipe(
 		Effect.tapError((err) =>

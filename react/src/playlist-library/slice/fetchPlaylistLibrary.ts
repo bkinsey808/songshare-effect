@@ -6,7 +6,7 @@ import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import type { PlaylistLibrarySlice } from "./playlist-library-slice";
+import type { PlaylistLibrarySlice } from "./PlaylistLibrarySlice.type";
 import type { PlaylistLibrary, PlaylistLibraryEntry } from "./playlist-library-types";
 
 /**

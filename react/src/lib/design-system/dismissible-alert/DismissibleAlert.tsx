@@ -1,5 +1,6 @@
 // ReactElement is ambient; no import needed
 
+import XIcon from "@/react/lib/design-system/icons/XIcon";
 import tw from "@/react/lib/utils/tw";
 import type { AlertType } from "@/react/pages/home/AlertState.type";
 
@@ -63,28 +64,27 @@ export default function DismissibleAlert({
 	return (
 		<div
 			data-variant={variant}
-			className={`${base} ${variantClasses} ${animClass} ${className}`}
+			className={`${base} ${variantClasses} ${animClass} ${className} relative`}
 			data-testid="dismissible-alert"
 			data-alert-type={alertType}
 		>
-			<div className="mx-auto max-w-3xl">
+			<button
+				type="button"
+				className="absolute right-3 top-3 rounded p-1 text-white/90 transition-opacity hover:opacity-100"
+				onClick={handleDismiss}
+				aria-label="Close"
+				data-testid="alert-dismiss-button"
+			>
+				<XIcon className="size-4" />
+			</button>
+			<div className="mx-auto max-w-3xl pr-8">
 				{title === undefined ? undefined : (
 					<strong className="block" data-testid="alert-title">
 						{title}
 					</strong>
 				)}
-				<div className="mt-2">
-					<div className="mb-2" data-testid="alert-message">
-						{children}
-					</div>
-					<button
-						type="button"
-						className="rounded px-3 py-1 text-sm text-white/90"
-						onClick={handleDismiss}
-						data-testid="alert-dismiss-button"
-					>
-						Dismiss
-					</button>
+				<div className="mt-2" data-testid="alert-message">
+					{children}
 				</div>
 			</div>
 		</div>

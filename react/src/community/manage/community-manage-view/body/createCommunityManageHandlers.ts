@@ -18,7 +18,7 @@ import {
 	communityViewPath,
 } from "@/shared/paths";
 
-import type { CommunityActionState } from "./CommunityActionState.type";
+import type { CommunityActionState } from "../CommunityActionState.type";
 import runCommunityAction from "./runCommunityAction";
 
 type StateSetter<Value> = (value: Value | ((current: Value) => Value)) => void;

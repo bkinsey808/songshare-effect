@@ -36,11 +36,11 @@ export default function AddSongToPlaylistSection({
 
 	// Filter songs not already in the playlist
 	const availableSongs = Object.values(songLibraryEntries).filter(
-		(entry) => !currentSongOrder.includes(entry.song_id),
-	);
+		(entry: SongLibraryEntry) => !currentSongOrder.includes(entry.song_id),
+	) as SongLibraryEntry[];
 
 	// Filter by search query
-	const filteredSongs = availableSongs.filter((entry) => {
+	const filteredSongs = availableSongs.filter((entry: SongLibraryEntry) => {
 		if (searchQuery.trim() === "") {
 			return true;
 		}
@@ -102,7 +102,7 @@ export default function AddSongToPlaylistSection({
 								: t("playlist.noMatchingSongs", "No songs match your search")}
 						</div>
 					) : (
-						filteredSongs.map((song) => (
+						filteredSongs.map((song: SongLibraryEntry) => (
 							<div
 								key={song.song_id}
 								className="flex items-center justify-between rounded-lg border border-gray-600 bg-gray-700 p-3"

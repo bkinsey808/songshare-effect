@@ -20,6 +20,10 @@ import useCommunityViewSubscriptions from "./useCommunityViewSubscriptions";
 export type UseCommunityViewReturn = {
 	currentCommunity: CommunityEntry | undefined;
 	members: readonly CommunityUser[];
+	selectedSongId: string;
+	setSelectedSongId: (value: string) => void;
+	selectedPlaylistId: string;
+	setSelectedPlaylistId: (value: string) => void;
 	communityEvents: readonly CommunityEvent[];
 	communitySongs: readonly CommunitySong[];
 	communityPlaylists: readonly CommunityPlaylist[];
@@ -44,6 +48,7 @@ export type UseCommunityViewReturn = {
 	onEditClick: () => void;
 	onShareSongClick: (songId: string) => void;
 	onSharePlaylistClick: (playlistId: string) => void;
+	onRefreshCommunity: () => void;
 	userSession: UserSessionData | undefined;
 };
 
@@ -58,6 +63,8 @@ export type UseCommunityViewReturn = {
 export default function useCommunityView(): UseCommunityViewReturn {
 	const [isJoinLoading, setIsJoinLoading] = useState(false);
 	const [isLeaveLoading, setIsLeaveLoading] = useState(false);
+	const [selectedSongId, setSelectedSongId] = useState("");
+	const [selectedPlaylistId, setSelectedPlaylistId] = useState("");
 
 	const { lang } = useLocale();
 	const navigate = useNavigate();
@@ -89,7 +96,7 @@ export default function useCommunityView(): UseCommunityViewReturn {
 	const currentMember =
 		userSessionData?.user === undefined
 			? undefined
-			: members.find((member) => member.user_id === userSessionData.user?.user_id);
+			: members.find((member: CommunityUser) => member.user_id === userSessionData.user?.user_id);
 
 	// user is owner if their ID matches the community's owner_id
 	const isOwner =
@@ -103,8 +110,16 @@ export default function useCommunityView(): UseCommunityViewReturn {
 	const canManage = isOwner || currentMember?.role === "community_admin";
 
 	const canEdit = isOwner;
-	const availableSongOptions = Object.values(songLibraryEntries);
-	const availablePlaylistOptions = Object.values(playlistLibraryEntries);
+	const availableSongOptions = Object.values(songLibraryEntries) as readonly {
+		song_id: string;
+		song_name?: string;
+		song_slug?: string;
+	}[];
+	const availablePlaylistOptions = Object.values(playlistLibraryEntries) as readonly {
+		playlist_id: string;
+		playlist_name?: string;
+		playlist_slug?: string;
+	}[];
 	const {
 		onJoinClick,
 		onLeaveClick,
@@ -112,6 +127,7 @@ export default function useCommunityView(): UseCommunityViewReturn {
 		onEditClick,
 		onShareSongClick,
 		onSharePlaylistClick,
+		onRefreshCommunity,
 	} = createCommunityViewHandlers({
 		lang,
 		navigate,
@@ -128,6 +144,10 @@ export default function useCommunityView(): UseCommunityViewReturn {
 	return {
 		currentCommunity,
 		members,
+		selectedSongId,
+		setSelectedSongId,
+		selectedPlaylistId,
+		setSelectedPlaylistId,
 		communityEvents,
 		communitySongs,
 		communityPlaylists,
@@ -148,6 +168,7 @@ export default function useCommunityView(): UseCommunityViewReturn {
 		onEditClick,
 		onShareSongClick,
 		onSharePlaylistClick,
+		onRefreshCommunity,
 		userSession: userSessionData,
 	};
 }

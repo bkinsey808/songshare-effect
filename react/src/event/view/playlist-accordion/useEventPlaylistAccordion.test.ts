@@ -86,7 +86,7 @@ describe("useEventPlaylistAccordion hooks", () => {
 	describe("useEventPlaylistAccordion", () => {
 		it("returns loading true when currentPlaylist is undefined", () => {
 			const store = useAppStore;
-			store.setState((prev) => ({ ...prev, currentPlaylist: undefined }));
+			store.setState((prev: Record<string, unknown>) => ({ ...prev, currentPlaylist: undefined }));
 
 			const { result } = renderHook(() => useEventPlaylistAccordion("p1"));
 
@@ -95,7 +95,7 @@ describe("useEventPlaylistAccordion hooks", () => {
 
 		it("returns loading true when playlistId mismatch", () => {
 			const store = useAppStore;
-			store.setState((prev) => ({
+			store.setState((prev: Record<string, unknown>) => ({
 				...prev,
 				currentPlaylist: makeTestPlaylist({ playlist_id: "other" }),
 			}));
@@ -107,7 +107,7 @@ describe("useEventPlaylistAccordion hooks", () => {
 
 		it("returns loading true when song_order is missing or not an array", () => {
 			const store = useAppStore;
-			store.setState((prev) => ({
+			store.setState((prev: Record<string, unknown>) => ({
 				...prev,
 				currentPlaylist: makePlaylistWithUndefinedSongOrder(),
 			}));
@@ -119,7 +119,7 @@ describe("useEventPlaylistAccordion hooks", () => {
 
 		it("returns playlist data when loaded", () => {
 			const store = useAppStore;
-			store.setState((prev) => ({
+			store.setState((prev: Record<string, unknown>) => ({
 				...prev,
 				currentPlaylist: makeTestPlaylist({
 					playlist_id: "p1",
@@ -147,7 +147,7 @@ describe("useEventPlaylistAccordion hooks", () => {
 
 		it("uses default playlist name if missing", () => {
 			const store = useAppStore;
-			store.setState((prev) => ({
+			store.setState((prev: Record<string, unknown>) => ({
 				...prev,
 				currentPlaylist: makePlaylistWithUndefinedName(),
 			}));

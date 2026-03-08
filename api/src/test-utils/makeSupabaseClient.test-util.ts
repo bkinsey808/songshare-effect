@@ -34,6 +34,10 @@ import {
 	createSongPublicMock,
 	type SongPublicMockOpts,
 } from "./supabase-mocks/createSongPublicMock.test-util";
+import {
+	createUserLibraryMock,
+	type UserLibraryMockOpts,
+} from "./supabase-mocks/createUserLibraryMock.test-util";
 import { createUserMock, type UserMockOpts } from "./supabase-mocks/createUserMock.test-util";
 import {
 	createUserPublicMock,
@@ -43,7 +47,8 @@ import {
 /**
  * Options to customize the fake Supabase client returned for tests.
  */
-type MakeSupabaseClientOpts = UserPublicMockOpts &
+type MakeSupabaseClientOpts = UserLibraryMockOpts &
+	UserPublicMockOpts &
 	UserMockOpts &
 	EventMockOpts &
 	EventPublicMockOpts &
@@ -60,6 +65,7 @@ function makeSupabaseClient(opts: MakeSupabaseClientOpts = {}): ReturnType<typeo
 	const fake = {
 		from: (table: string): unknown => {
 			const tables: Record<string, unknown> = {
+				user_library: createUserLibraryMock(opts),
 				user_public: createUserPublicMock(opts),
 				user: createUserMock(opts),
 				event: createEventMock(opts),

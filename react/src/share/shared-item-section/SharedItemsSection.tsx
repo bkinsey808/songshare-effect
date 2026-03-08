@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Button from "@/react/lib/design-system/Button";
 import ShareIcon from "@/react/lib/design-system/icons/ShareIcon";
 import useLocale from "@/react/lib/language/locale/useLocale";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
 
 import getStatusColor from "../shared-users-section/getStatusColor";
 import getItemIcon from "./getItemIcon";
@@ -24,7 +25,7 @@ const EMPTY_LENGTH = 0;
  * @returns React element for the shared items section
  */
 export default function SharedItemsSection(): ReactElement | null {
-	const { t } = useLocale();
+	const { t, lang } = useLocale();
 
 	const section: UseSharedItemSectionReturn = useSharedItemSection();
 	const {
@@ -139,7 +140,7 @@ export default function SharedItemsSection(): ReactElement | null {
 									<div className="flex items-center gap-2 mb-1">
 										{itemLink !== null && itemLink !== undefined ? (
 											<Link
-												to={itemLink}
+												to={buildPathWithLang(itemLink, lang)}
 												className="font-medium text-white hover:text-blue-400 transition-colors truncate"
 											>
 												{share.shared_item_name}

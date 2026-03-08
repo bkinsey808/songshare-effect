@@ -21,7 +21,7 @@ const EXPECTED_SINGLE = 1;
 describe("usePlaylistSearchInput", () => {
 	it("returns all playlists when query is empty", () => {
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -39,7 +39,7 @@ describe("usePlaylistSearchInput", () => {
 
 	it("filters playlists by name or slug on input change and opens dropdown", async () => {
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -60,7 +60,7 @@ describe("usePlaylistSearchInput", () => {
 
 	it("handleSelectPlaylist calls onSelect and clears state", async () => {
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -92,7 +92,7 @@ describe("usePlaylistSearchInput", () => {
 
 	it("handleClearSelection calls onSelect with empty string and focuses input if present", () => {
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -111,7 +111,7 @@ describe("usePlaylistSearchInput", () => {
 
 	it("inputDisplayValue shows active playlist name when searchQuery is empty", () => {
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -123,7 +123,7 @@ describe("usePlaylistSearchInput", () => {
 
 	it("handleInputFocus opens dropdown and handleClickOutside closes it", async () => {
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -143,7 +143,7 @@ describe("usePlaylistSearchInput", () => {
 
 	it("closes on outside mousedown and stays open on inside mousedown", async () => {
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, playlistLibraryEntries: makePlaylistLibraryEntries() }));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>

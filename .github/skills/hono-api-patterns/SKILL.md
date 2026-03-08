@@ -167,6 +167,7 @@ npm run dev:api   # Then: curl http://localhost:8787/health
 ## References
 
 - Effect-TS patterns: [../effect-ts-patterns/SKILL.md](../effect-ts-patterns/SKILL.md)
+- API response shape and client integration: [docs/add-song-to-library-lessons.md](../../../docs/add-song-to-library-lessons.md)
 - Unit testing API handlers: [unit-testing skill](../unit-testing/SKILL.md) — see API Handler Testing section in [docs/unit-testing.md](../../../docs/unit-testing.md)
 - Hono docs: https://hono.dev/
 - Project rules: [.agent/rules.md](../../../.agent/rules.md)

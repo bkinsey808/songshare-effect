@@ -30,7 +30,6 @@ export default async function fetchPublicSongsBySlugs(
 			return { data: undefined, error };
 		}
 
-		console.warn("[fetchPublicSongsBySlugs] Fetched data:", data);
 		return { data: data ?? undefined, error: undefined };
 	} catch (error) {
 		console.error("[fetchPublicSongsBySlugs] Unexpected fetch error:", error);

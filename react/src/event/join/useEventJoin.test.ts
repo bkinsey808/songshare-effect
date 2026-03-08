@@ -12,7 +12,7 @@ describe("useEventJoin", () => {
 	it("calls joinEvent when user is authenticated", () => {
 		const mockJoin = vi.fn();
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, joinEvent: mockJoin }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, joinEvent: mockJoin }));
 
 		vi.mocked(useCurrentUserId).mockReturnValue("u1");
 
@@ -26,7 +26,7 @@ describe("useEventJoin", () => {
 	it("does not call joinEvent when user is not authenticated", () => {
 		const mockJoin = vi.fn();
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, joinEvent: mockJoin }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, joinEvent: mockJoin }));
 
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 
@@ -40,7 +40,7 @@ describe("useEventJoin", () => {
 	it("does not call joinEvent when user ID is empty string", () => {
 		const mockJoin = vi.fn();
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev) => ({ ...prev, joinEvent: mockJoin }));
+		store.setState((prev: Record<string, unknown>) => ({ ...prev, joinEvent: mockJoin }));
 
 		vi.mocked(useCurrentUserId).mockReturnValue("");
 

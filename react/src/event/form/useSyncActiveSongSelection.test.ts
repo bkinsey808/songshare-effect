@@ -53,7 +53,7 @@ describe("useSyncActiveSongSelection", () => {
 		const fetchPlaylistById = vi.fn().mockReturnValue(Effect.succeed(undefined));
 		const setFormValuesState = vi.fn<SetFormValuesState>();
 
-		store.setState((prev) => ({
+		store.setState((prev: Record<string, unknown>) => ({
 			...prev,
 			fetchPlaylistById,
 			currentPlaylist: undefined,
@@ -78,7 +78,7 @@ describe("useSyncActiveSongSelection", () => {
 		const fetchPlaylistById = vi.fn().mockReturnValue(Effect.succeed(undefined));
 		const setFormValuesState = vi.fn<SetFormValuesState>();
 
-		store.setState((prev) => ({
+		store.setState((prev: Record<string, unknown>) => ({
 			...prev,
 			fetchPlaylistById,
 			currentPlaylist: undefined,
@@ -108,7 +108,7 @@ describe("useSyncActiveSongSelection", () => {
 			active_slide_position: undefined,
 		});
 
-		store.setState((prev) => ({
+		store.setState((prev: Record<string, unknown>) => ({
 			...prev,
 			fetchPlaylistById,
 			currentPlaylist: makeTestPlaylist({
@@ -157,7 +157,7 @@ describe("useSyncActiveSongSelection", () => {
 		const fetchPlaylistById = vi.fn().mockReturnValue(Effect.succeed(undefined));
 		const setFormValuesState = vi.fn<SetFormValuesState>();
 
-		store.setState((prev) => ({
+		store.setState((prev: Record<string, unknown>) => ({
 			...prev,
 			fetchPlaylistById,
 			currentPlaylist: makeTestPlaylist({
@@ -210,7 +210,7 @@ describe("useSyncActiveSongSelection", () => {
 			active_slide_position: undefined,
 		});
 
-		store.setState((prev) => ({
+		store.setState((prev: Record<string, unknown>) => ({
 			...prev,
 			fetchPlaylistById,
 			currentPlaylist: makeTestPlaylist({
@@ -264,7 +264,7 @@ describe("useSyncActiveSongSelection", () => {
 			active_slide_position: undefined,
 		});
 
-		store.setState((prev) => ({
+		store.setState((prev: Record<string, unknown>) => ({
 			...prev,
 			fetchPlaylistById,
 			currentPlaylist: makeTestPlaylist({
@@ -318,7 +318,7 @@ describe("useSyncActiveSongSelection", () => {
 			active_slide_position: INVALID_NINTH_POSITION,
 		});
 
-		store.setState((prev) => ({
+		store.setState((prev: Record<string, unknown>) => ({
 			...prev,
 			fetchPlaylistById,
 			currentPlaylist: makeTestPlaylist({

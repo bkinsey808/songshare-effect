@@ -28,6 +28,7 @@ type ShareItem = {
 	updated_at: string;
 	sender_username?: string;
 	recipient_username?: string;
+	shared_item_slug?: string;
 };
 
 /**
@@ -79,6 +80,97 @@ function extractShareListRequest(url: URL): ShareListRequest {
 	}
 
 	return result;
+}
+
+/**
+ * Fetches slugs for shared items and enriches each share with shared_item_slug.
+ */
+async function enrichSharesWithSlugs(
+	client: SupabaseClient<Database>,
+	shares: ShareItem[],
+): Promise<ShareItem[]> {
+	const byType = {
+		song: [] as string[],
+		playlist: [] as string[],
+		event: [] as string[],
+		community: [] as string[],
+	};
+	const emptyLength = 0;
+	for (const share of shares) {
+		const id = share.shared_item_id;
+		if (id) {
+			switch (share.shared_item_type) {
+				case "song": {
+					byType.song.push(id);
+					break;
+				}
+				case "playlist": {
+					byType.playlist.push(id);
+					break;
+				}
+				case "event": {
+					byType.event.push(id);
+					break;
+				}
+				case "community": {
+					byType.community.push(id);
+					break;
+				}
+			}
+		}
+	}
+
+	const slugMap = new Map<string, string>();
+
+	if (byType.song.length > emptyLength) {
+		const { data } = await client
+			.from("song_public")
+			.select("song_id, song_slug")
+			.in("song_id", byType.song);
+		for (const row of data ?? []) {
+			if (row.song_id && row.song_slug) {
+				slugMap.set(`song:${row.song_id}`, row.song_slug);
+			}
+		}
+	}
+	if (byType.playlist.length > emptyLength) {
+		const { data } = await client
+			.from("playlist_public")
+			.select("playlist_id, playlist_slug")
+			.in("playlist_id", byType.playlist);
+		for (const row of data ?? []) {
+			if (row.playlist_id && row.playlist_slug) {
+				slugMap.set(`playlist:${row.playlist_id}`, row.playlist_slug);
+			}
+		}
+	}
+	if (byType.event.length > emptyLength) {
+		const { data } = await client
+			.from("event_public")
+			.select("event_id, event_slug")
+			.in("event_id", byType.event);
+		for (const row of data ?? []) {
+			if (row.event_id && row.event_slug) {
+				slugMap.set(`event:${row.event_id}`, row.event_slug);
+			}
+		}
+	}
+	if (byType.community.length > emptyLength) {
+		const { data } = await client
+			.from("community_public")
+			.select("community_id, slug")
+			.in("community_id", byType.community);
+		for (const row of data ?? []) {
+			if (row.community_id && row.slug) {
+				slugMap.set(`community:${row.community_id}`, row.slug);
+			}
+		}
+	}
+
+	return shares.map((share) => {
+		const slug = slugMap.get(`${share.shared_item_type}:${share.shared_item_id}`);
+		return slug === undefined ? share : { ...share, shared_item_slug: slug };
+	});
 }
 
 /**
@@ -244,10 +336,20 @@ export default function shareListHandler(
 		const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
 
 		// Get shares based on view
-		const shares =
+		const rawShares =
 			req.view === "sent"
 				? yield* $(getSentShares(client, userId, req))
 				: yield* $(getReceivedShares(client, userId, req));
+
+		const shares = yield* $(
+			Effect.tryPromise({
+				try: () => enrichSharesWithSlugs(client, rawShares),
+				catch: (error) =>
+					new DatabaseError({
+						message: extractErrorMessage(error, "Failed to enrich shares with slugs"),
+					}),
+			}),
+		);
 
 		return { shares };
 	});

@@ -1,32 +1,33 @@
+import { communityViewPath, eventViewPath, playlistViewPath, songViewPath } from "@/shared/paths";
+
 import type { SharedItem } from "../slice/share-types";
 
 /**
- * Returns a link URL for the shared item, or undefined if no view page exists.
+ * Builds a view path for the shared item when a slug is available.
+ * Caller must prefix with language (e.g. buildPathWithLang).
  *
  * @param share - The shared item to get a link for
- * @returns The link URL, or undefined when no view page exists
+ * @returns The path segment for the item's view (e.g. /songs/my-slug), or undefined
  */
 export default function getItemLink(share: SharedItem): string | undefined {
+	const slug = share.shared_item_slug;
+	if (slug === undefined || slug === "") {
+		return undefined;
+	}
 	switch (share.shared_item_type) {
 		case "song": {
-			// Songs use slug, but we only have ID - would need to fetch slug
-			// For now, return undefined and show item name only
-			return undefined;
+			return `/${songViewPath}/${slug}`;
 		}
 		case "playlist": {
-			// Similar issue with playlist slug
-			return undefined;
+			return `/${playlistViewPath}/${slug}`;
 		}
 		case "event": {
-			// Similar issue with event slug
-			return undefined;
+			return `/${eventViewPath}/${slug}`;
 		}
 		case "community": {
-			// Similar issue with community slug
-			return undefined;
+			return `/${communityViewPath}/${slug}`;
 		}
 		case "user": {
-			// Users don't have a direct view page in this app
 			return undefined;
 		}
 		default: {

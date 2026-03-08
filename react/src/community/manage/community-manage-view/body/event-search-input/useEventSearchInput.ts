@@ -76,7 +76,13 @@ export default function useEventSearchInput({
 	const eventLibraryEntries = useAppStore((state) => state.eventLibraryEntries);
 	const excludeSet = new Set(excludeEventIds);
 	const eventsArray: readonly EventLibraryEntry[] = Object.values(eventLibraryEntries).filter(
-		(entry): entry is EventLibraryEntry => entry !== undefined && !excludeSet.has(entry.event_id),
+		(entry): entry is EventLibraryEntry =>
+			entry !== undefined &&
+			typeof entry === "object" &&
+			// oxlint-disable-next-line unicorn/no-null -- Object.values can yield null from record
+			entry !== null &&
+			"event_id" in entry &&
+			!excludeSet.has(entry.event_id),
 	);
 
 	const activeEvent =
@@ -88,7 +94,7 @@ export default function useEventSearchInput({
 	const filteredEvents: readonly EventLibraryEntry[] =
 		trimmedQuery === ""
 			? eventsArray
-			: eventsArray.filter((entry) => {
+			: eventsArray.filter((entry: EventLibraryEntry) => {
 					const name = entry.event_public?.event_name?.toLowerCase() ?? "";
 					const slug = entry.event_public?.event_slug?.toLowerCase() ?? "";
 					const id = entry.event_id.toLowerCase();

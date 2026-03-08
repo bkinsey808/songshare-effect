@@ -86,7 +86,9 @@ export default function usePlaylistLibrary(): {
 
 		void (async (): Promise<void> => {
 			try {
-				const unsubscribe = await Effect.runPromise(subscribeToPlaylistPublic(playlistIds));
+				const unsubscribe = (await Effect.runPromise(
+					subscribeToPlaylistPublic(playlistIds),
+				)) as () => void;
 				if (run === publicRunRef.current) {
 					publicUnsubRef.current = unsubscribe;
 				} else {
@@ -107,7 +109,7 @@ export default function usePlaylistLibrary(): {
 		};
 	}, [playlistIdsKey, subscribeToPlaylistPublic]);
 
-	const playlistEntries = Object.values(playlistLibraryEntries);
+	const playlistEntries = Object.values(playlistLibraryEntries) as PlaylistLibraryEntry[];
 
 	return {
 		playlistEntries,

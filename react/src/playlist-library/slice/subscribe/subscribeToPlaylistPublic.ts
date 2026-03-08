@@ -16,7 +16,7 @@ import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isReal
 import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import type { PlaylistLibrarySlice } from "../playlist-library-slice";
+import type { PlaylistLibrarySlice } from "../PlaylistLibrarySlice.type";
 import type { PlaylistLibraryEntry } from "../playlist-library-types";
 
 const NO_PLAYLIST_IDS = 0;

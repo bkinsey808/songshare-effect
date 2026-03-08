@@ -10,7 +10,9 @@ import getVerifiedUserSession from "../user-session/getVerifiedSession";
 import type { AddPlaylistRequest } from "./AddPlaylistRequest.type";
 import addPlaylistSongsToUserLibrary from "./addPlaylistSongsToUserLibrary";
 import extractAddPlaylistRequest from "./extractAddPlaylistRequest";
-import performPlaylistLibraryInsert from "./performPlaylistLibraryInsert";
+import performPlaylistLibraryInsert, {
+	type PlaylistLibraryRow,
+} from "./performPlaylistLibraryInsert";
 
 /**
  * Server-side handler for adding a playlist to user's library.
@@ -60,15 +62,67 @@ export default function addPlaylistToLibraryHandler(
 		const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
 
 		// Insert into playlist_library using service key
-		const insertResult = yield* $(performPlaylistLibraryInsert(client, userId, req));
+		const insertResult = yield* $(
+			performPlaylistLibraryInsert(client, userId, req).pipe(
+				Effect.catchAll((dbError) =>
+					// When insert throws (e.g. duplicate key), convert to result for handling
+					Effect.succeed({
+						// oxlint-disable-next-line unicorn/no-null -- DB error shape uses null for absent data
+						data: null,
+						error: dbError,
+					} as { data: PlaylistLibraryRow | null; error: unknown }),
+				),
+			),
+		);
 
 		const { data, error: insertError } = insertResult;
 
 		if (insertError !== null) {
+			const errorMsg = extractErrorMessage(insertError, "Unknown error");
+			// Duplicate key = already in library; treat as idempotent success
+			const isDuplicate =
+				typeof errorMsg === "string" &&
+				(errorMsg.includes("playlist_library_pkey") || errorMsg.includes("duplicate key"));
+			if (isDuplicate) {
+				const existingResult = yield* $(
+					Effect.tryPromise({
+						try: () =>
+							client
+								.from("playlist_library")
+								.select("*")
+								.eq("user_id", userId)
+								.eq("playlist_id", req.playlist_id)
+								.single(),
+						catch: () =>
+							new DatabaseError({
+								message: "Failed to fetch existing library entry",
+							}),
+					}).pipe(
+						Effect.map((res) => res.data),
+						// oxlint-disable-next-line unicorn/no-null -- fetch failed, no data
+						Effect.catchAll(() => Effect.succeed(null)),
+					),
+				);
+				if (existingResult !== null) {
+					return {
+						created_at: existingResult.created_at,
+						playlist_id: existingResult.playlist_id,
+						playlist_owner_id: existingResult.playlist_owner_id,
+						user_id: existingResult.user_id,
+					};
+				}
+				// Fetch failed; return synthetic success so client does not show error
+				return {
+					created_at: new Date().toISOString(),
+					playlist_id: req.playlist_id,
+					playlist_owner_id: req.playlist_owner_id,
+					user_id: userId,
+				};
+			}
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({
-						message: extractErrorMessage(insertError, "Unknown error"),
+						message: errorMsg,
 					}),
 				),
 			);

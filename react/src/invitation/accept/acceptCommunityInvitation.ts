@@ -49,11 +49,13 @@ export default function acceptCommunityInvitation(
 			}
 		}
 		setPendingCommunityInvitations(updated);
+		setInvitationLoading(false);
 	}).pipe(
 		Effect.tapError((err) =>
 			Effect.sync(() => {
-				const { setInvitationError } = get();
+				const { setInvitationError, setInvitationLoading } = get();
 				setInvitationError(err.message);
+				setInvitationLoading(false);
 			}),
 		),
 	);

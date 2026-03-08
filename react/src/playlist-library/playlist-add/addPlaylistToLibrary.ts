@@ -1,62 +1,14 @@
 import { Effect } from "effect";
 
 import { clientWarn } from "@/react/lib/utils/clientLogger";
+import acceptPendingSharesForItem from "@/react/share/effects/acceptPendingSharesForItem";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { apiPlaylistLibraryAddPath } from "@/shared/paths";
-import isRecord from "@/shared/type-guards/isRecord";
 
-import type { PlaylistLibrarySlice } from "./playlist-library-slice";
-import type { AddPlaylistToLibraryRequest, PlaylistLibraryEntry } from "./playlist-library-types";
-
-/**
- * Validates that a value is a valid PlaylistLibraryEntry.
- * @param value - The value to check.
- * @param context - Context for error messages.
- * @returns The validated entry.
- */
-function guardAsPlaylistLibraryEntry(value: unknown, context: string): PlaylistLibraryEntry {
-	if (!isRecord(value)) {
-		throw new TypeError(`${context}: expected object, got ${typeof value}`);
-	}
-	if (typeof value["playlist_id"] !== "string") {
-		throw new TypeError(`${context}: missing or invalid playlist_id`);
-	}
-	if (typeof value["playlist_owner_id"] !== "string") {
-		throw new TypeError(`${context}: missing or invalid playlist_owner_id`);
-	}
-	if (typeof value["user_id"] !== "string") {
-		throw new TypeError(`${context}: missing or invalid user_id`);
-	}
-	if (typeof value["created_at"] !== "string") {
-		throw new TypeError(`${context}: missing or invalid created_at`);
-	}
-
-	const entry: PlaylistLibraryEntry = {
-		playlist_id: value["playlist_id"],
-		playlist_owner_id: value["playlist_owner_id"],
-		user_id: value["user_id"],
-		created_at: value["created_at"],
-		...(typeof value["owner_username"] === "string"
-			? { owner_username: value["owner_username"] }
-			: {}),
-		...(isRecord(value["playlist_public"])
-			? {
-					playlist_public: {
-						playlist_name: String(value["playlist_public"]["playlist_name"]),
-						playlist_slug: String(value["playlist_public"]["playlist_slug"]),
-					},
-				}
-			: {}),
-		...(typeof value["playlist_name"] === "string"
-			? { playlist_name: value["playlist_name"] }
-			: {}),
-		...(typeof value["playlist_slug"] === "string"
-			? { playlist_slug: value["playlist_slug"] }
-			: {}),
-	};
-
-	return entry;
-}
+import guardAsAddPlaylistRequest from "../guards/guardAsAddPlaylistRequest";
+import guardAsPlaylistLibraryEntry from "../guards/guardAsPlaylistLibraryEntry";
+import type { AddPlaylistToLibraryRequest } from "../slice/playlist-library-types";
+import type { PlaylistLibrarySlice } from "../slice/PlaylistLibrarySlice.type";
 
 /**
  * Add a playlist to the current user's library (via server endpoint) using Effect.
@@ -85,10 +37,10 @@ export default function addPlaylistToLibrary(
 			}),
 		);
 
-		// Validate request shape
+		// Validate request shape (client sends playlist_id and playlist_owner_id only)
 		const input = yield* $(
 			Effect.try({
-				try: () => guardAsPlaylistLibraryEntry(request, "addPlaylistToLibrary"),
+				try: () => guardAsAddPlaylistRequest(request, "addPlaylistToLibrary"),
 				catch: (err) => new Error(extractErrorMessage(err, "Invalid request")),
 			}),
 		);
@@ -136,10 +88,16 @@ export default function addPlaylistToLibrary(
 			return yield* $(Effect.fail(new Error(errorMsg)));
 		}
 
+		// Extract data from { success, data } response shape (handleHttpEndpoint wraps success)
+		const responseData =
+			typeof responseJson === "object" && responseJson !== null && "data" in responseJson
+				? (responseJson as { data: unknown }).data
+				: responseJson;
+
 		// Validate server response shape
 		const output = yield* $(
 			Effect.try({
-				try: () => guardAsPlaylistLibraryEntry(responseJson, "server response"),
+				try: () => guardAsPlaylistLibraryEntry(responseData, "server response"),
 				catch: (err) => new Error(extractErrorMessage(err, "Invalid server response")),
 			}),
 		);
@@ -149,6 +107,13 @@ export default function addPlaylistToLibrary(
 			Effect.sync(() => {
 				addPlaylistLibraryEntry(output);
 			}),
+		);
+
+		// Accept any pending shares for this playlist (non-fatal)
+		yield* $(
+			acceptPendingSharesForItem("playlist", input.playlist_id, get).pipe(
+				Effect.catchAll(() => Effect.succeed(undefined)),
+			),
 		);
 	}).pipe(
 		Effect.tapError((err) =>

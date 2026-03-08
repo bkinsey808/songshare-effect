@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 
+import acceptPendingSharesForItem from "@/react/share/effects/acceptPendingSharesForItem";
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityUserJoinPath } from "@/shared/paths";
 
@@ -33,6 +34,13 @@ export default function joinCommunity(
 				try: () => postJson(apiCommunityUserJoinPath, { community_id: communityId }),
 				catch: (error) => new Error(error instanceof Error ? error.message : String(error)),
 			}),
+		);
+
+		// Accept any pending shares for this community (non-fatal)
+		yield* $(
+			acceptPendingSharesForItem("community", communityId, get).pipe(
+				Effect.catchAll(() => Effect.succeed(undefined)),
+			),
 		);
 
 		setCommunityLoading(false);

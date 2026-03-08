@@ -2,6 +2,19 @@
 
 Complete reference for all API endpoints in the SongShare Effect API.
 
+## Response format
+
+Endpoints wrapped with `handleHttpEndpoint` return success responses as:
+
+```json
+{
+  "success": true,
+  "data": { ... }
+}
+```
+
+Clients must extract `data` before validating or using the payload. See [add-song-to-library-lessons.md](./add-song-to-library-lessons.md) for integration details.
+
 ## Base URL
 
 - **Development**: `http://localhost:8787`

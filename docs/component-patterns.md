@@ -66,6 +66,47 @@ export function Toggle({ initialValue = false, onChange }: ToggleProps) {
 
 ## Common Patterns
 
+### Split Hooks Over Prop Spreading
+
+When a parent component has loading/error/permission concerns and a child needs data and handlers for its content, prefer **splitting hooks** over prop drilling or spreading props.
+
+**Example: community manage view**
+
+- **Shell hook** (`useCommunityManageView`): handles route/slug, loading, error, permissions, and a single `onBackClick`. Returns only what the parent view needs for early returns and minimal shell UI.
+- **Body hook** (`useCommunityManageBody`): receives `currentCommunity` as input and owns members, events, songs, playlists, share requests, inputs, action state, and handlers. The body component calls this hook directly and does not receive those values as props from the parent.
+
+```typescript
+// ✅ GOOD: Split hooks — shell resolves shell concerns, body fetches its own
+function CommunityManageView() {
+  const { currentCommunity, isCommunityLoading, communityError, canManage, onBackClick } =
+    useCommunityManageView();
+  if (isCommunityLoading || communityError || !canManage || !currentCommunity) {
+    return <LoadingOrErrorOrDenied {...} />;
+  }
+  return <CommunityManageBody currentCommunity={currentCommunity} />;
+}
+
+function CommunityManageBody({ currentCommunity }: { currentCommunity: CommunityEntry }) {
+  const body = useCommunityManageBody(currentCommunity);
+  return (/* uses body.members, body.events, body.onInviteClick, etc. */);
+}
+```
+
+**Why this beats spreading props**
+
+| Spreading props                                                | Split hooks                                                |
+| -------------------------------------------------------------- | ---------------------------------------------------------- |
+| Parent must fetch and pass 15+ values to the child             | Child fetches its own data and handlers via its hook       |
+| Contract is unclear; child receives whatever the parent passes | Child’s required input is explicit (`currentCommunity`)    |
+| Parent tests must mock all body concerns                       | Shell tests stay narrow; body tests focus on body behavior |
+| Easy to accidentally pass through or overwrite keys            | No prop spread; each prop is intentional                   |
+
+The shell hook owns routing, loading, errors, and permissions. The body hook owns data fetching, subscriptions, and mutations for the body content. Each hook has a focused responsibility, and the body component’s props stay minimal.
+
+See `react/src/community/manage/community-manage-view/` for the implementation.
+
+---
+
 ### Form Component
 
 ```typescript
@@ -537,6 +578,28 @@ export function IconButton({ icon, label, onClick }) {
 See [Add Component Workflow](file:///home/bkinsey/bkinsey808/songshare-effect/.agent/workflows/add-component.md) for testing examples.
 
 ## Anti-Patterns to Avoid
+
+### ❌ Don't Spread Props to Child Components
+
+```typescript
+// ❌ Wrong — unclear contract, easy to pass through unwanted keys
+function CommunityManageView() {
+  const hook = useCommunityManageView();
+  return <CommunityManageBody {...hook} />;
+}
+```
+
+```typescript
+// ✅ Correct — split hooks; child owns its concerns
+function CommunityManageView() {
+  const { currentCommunity, isCommunityLoading, communityError, canManage, onBackClick } =
+    useCommunityManageView();
+  if (!currentCommunity) return null;
+  return <CommunityManageBody currentCommunity={currentCommunity} />;
+}
+```
+
+When a parent and child have different concerns (shell vs body, loading vs content), split the logic into separate hooks and pass only the minimal input the child needs. See [Split Hooks Over Prop Spreading](#split-hooks-over-prop-spreading).
 
 ### ❌ Don't Use Manual Memoization
 

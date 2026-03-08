@@ -21,6 +21,10 @@ vi.mock("react-i18next");
 // Mock ShareButton to avoid popover complexity in integration tests
 vi.mock("@/react/lib/design-system/ShareButton");
 vi.mock("@/react/share/shared-users-section/SharedUsersSection");
+// oxlint-disable-next-line jest/no-untyped-mock-factory -- factory returns simple stub
+vi.mock("./SongViewLibraryAction", () => ({
+	default: (): undefined => undefined,
+}));
 // Avoid coupling SongView tests to share subscription side effects/state shape
 vi.mock("@/react/share/subscribe/useShareSubscription");
 // Mock the store module so tests can set implementations

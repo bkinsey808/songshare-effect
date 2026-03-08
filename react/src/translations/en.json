@@ -70,7 +70,18 @@
 				"title": "Account Deleted",
 				"message": "Your account has been permanently deleted.",
 				"help": "If you change your mind, you'll need to create a new account."
-			}
+			},
+			"pendingInvitations": "Pending Invitations",
+			"communityInvitation": "Community Invitation",
+			"eventInvitation": "Event Invitation",
+			"visitCommunity": "Visit Community →",
+			"visitEvent": "Visit Event →",
+			"viewCommunity": "View →",
+			"viewEvent": "View →",
+			"accept": "Accept",
+			"accepting": "Accepting...",
+			"decline": "Decline",
+			"sharedItems": "Shared Items"
 		},
 		"songEdit": {
 			"createTitle": "Create New Song",
@@ -181,6 +192,20 @@
 		"cancelStay": "Stay",
 		"cancelLeave": "Leave"
 	},
+	"playlist": {
+		"loading": "Loading playlist...",
+		"errorTitle": "Error Loading Playlist",
+		"notFound": "Playlist not found",
+		"by": "by {{username}}",
+		"edit": "Edit Playlist",
+		"songCount": "{{count}} songs",
+		"created": "Created {{date}}",
+		"songs": "Songs",
+		"noSongs": "This playlist has no songs yet.",
+		"viewSong": "View",
+		"addToLibrary": "Add to library",
+		"removeFromLibrary": "Remove from library"
+	},
 	"songView": {
 		"notFound": "Song not found",
 		"untitled": "Untitled",
@@ -201,6 +226,8 @@
 		"scale": "Scale",
 		"createdAt": "Created",
 		"updatedAt": "Updated",
-		"keyboardHints": "Use First / Previous / Next / Last or ← → Home End to change slides."
+		"keyboardHints": "Use First / Previous / Next / Last or ← → Home End to change slides.",
+		"addToLibrary": "Add to library",
+		"removeFromLibrary": "Remove from library"
 	}
 }

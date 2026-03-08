@@ -70,7 +70,7 @@ The `DismissibleAlert` component includes semantic attributes:
 >
 	<strong data-testid="alert-title">{title}</strong>
 	<div data-testid="alert-message">{children}</div>
-	<button data-testid="alert-dismiss-button">Dismiss</button>
+	<button data-testid="alert-dismiss-button" aria-label="Close"><!-- X icon --></button>
 </div>
 ```
 

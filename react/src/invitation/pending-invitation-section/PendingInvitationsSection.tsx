@@ -24,6 +24,8 @@ export default function PendingInvitationsSection(): ReactElement | undefined {
 		pendingEventInvitations,
 		invitationError,
 		hasInvitations,
+		acceptingCommunityId,
+		acceptingEventId,
 		handleAcceptCommunity,
 		handleDeclineCommunity,
 		handleAcceptEvent,
@@ -53,10 +55,10 @@ export default function PendingInvitationsSection(): ReactElement | undefined {
 				{pendingCommunityInvitations.map((inv) => (
 					<div
 						key={inv.community_id}
-						className="flex items-center justify-between gap-4 rounded bg-gray-700/50 p-3"
+						className="flex items-center justify-between gap-4 rounded bg-gray-700/50 p-3 transition-all duration-200 ease-out"
 					>
 						<div className="flex items-center gap-3">
-							<LibraryIcon className="size-5 text-blue-400" />
+							<LibraryIcon className="size-5 shrink-0 text-blue-400" />
 							<div>
 								<p className="font-medium text-white">{inv.community_name}</p>
 								<p className="text-xs text-gray-400">
@@ -65,35 +67,42 @@ export default function PendingInvitationsSection(): ReactElement | undefined {
 							</div>
 						</div>
 
-						{inv.accepted === true ? (
+						<div className="flex items-center gap-2 shrink-0">
 							<Link
 								to={buildPathWithLang(`/${communityViewPath}/${inv.community_slug}`, lang)}
-								className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors"
+								className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors duration-200"
 							>
-								{t("pages.dashboard.visitCommunity", "Visit Community →")}
+								{inv.accepted === true
+									? t("pages.dashboard.visitCommunity", "Visit Community →")
+									: t("pages.dashboard.viewCommunity", "View →")}
 							</Link>
-						) : (
-							<div className="flex gap-2">
-								<Button
-									variant="primary"
-									size="compact"
-									onClick={() => {
-										handleAcceptCommunity(inv.community_id);
-									}}
-								>
-									{t("pages.dashboard.accept", "Accept")}
-								</Button>
-								<Button
-									variant="outlineDanger"
-									size="compact"
-									onClick={() => {
-										handleDeclineCommunity(inv.community_id);
-									}}
-								>
-									{t("pages.dashboard.decline", "Decline")}
-								</Button>
-							</div>
-						)}
+							{inv.accepted !== true && (
+								<>
+									<Button
+										variant="primary"
+										size="compact"
+										disabled={acceptingCommunityId !== undefined}
+										onClick={() => {
+											handleAcceptCommunity(inv.community_id);
+										}}
+									>
+										{acceptingCommunityId === inv.community_id
+											? t("pages.dashboard.accepting", "Accepting...")
+											: t("pages.dashboard.accept", "Accept")}
+									</Button>
+									<Button
+										variant="outlineDanger"
+										size="compact"
+										disabled={acceptingCommunityId !== undefined}
+										onClick={() => {
+											handleDeclineCommunity(inv.community_id);
+										}}
+									>
+										{t("pages.dashboard.decline", "Decline")}
+									</Button>
+								</>
+							)}
+						</div>
 					</div>
 				))}
 
@@ -101,10 +110,10 @@ export default function PendingInvitationsSection(): ReactElement | undefined {
 				{pendingEventInvitations.map((inv) => (
 					<div
 						key={inv.event_id}
-						className="flex items-center justify-between gap-4 rounded bg-gray-700/50 p-3"
+						className="flex items-center justify-between gap-4 rounded bg-gray-700/50 p-3 transition-all duration-200 ease-out"
 					>
 						<div className="flex items-center gap-3">
-							<div className="size-5 rounded flex items-center justify-center bg-purple-500/20 text-purple-400">
+							<div className="size-5 shrink-0 rounded flex items-center justify-center bg-purple-500/20 text-purple-400">
 								📅
 							</div>
 							<div>
@@ -115,35 +124,42 @@ export default function PendingInvitationsSection(): ReactElement | undefined {
 							</div>
 						</div>
 
-						{inv.accepted === true ? (
+						<div className="flex items-center gap-2 shrink-0">
 							<Link
 								to={buildPathWithLang(`/${eventViewPath}/${inv.event_slug}`, lang)}
-								className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
+								className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors duration-200"
 							>
-								{t("pages.dashboard.visitEvent", "Visit Event →")}
+								{inv.accepted === true
+									? t("pages.dashboard.visitEvent", "Visit Event →")
+									: t("pages.dashboard.viewEvent", "View →")}
 							</Link>
-						) : (
-							<div className="flex gap-2">
-								<Button
-									variant="primary"
-									size="compact"
-									onClick={() => {
-										handleAcceptEvent(inv.event_id);
-									}}
-								>
-									{t("pages.dashboard.accept", "Accept")}
-								</Button>
-								<Button
-									variant="outlineDanger"
-									size="compact"
-									onClick={() => {
-										handleDeclineEvent(inv.event_id);
-									}}
-								>
-									{t("pages.dashboard.decline", "Decline")}
-								</Button>
-							</div>
-						)}
+							{inv.accepted !== true && (
+								<>
+									<Button
+										variant="primary"
+										size="compact"
+										disabled={acceptingEventId !== undefined}
+										onClick={() => {
+											handleAcceptEvent(inv.event_id);
+										}}
+									>
+										{acceptingEventId === inv.event_id
+											? t("pages.dashboard.accepting", "Accepting...")
+											: t("pages.dashboard.accept", "Accept")}
+									</Button>
+									<Button
+										variant="outlineDanger"
+										size="compact"
+										disabled={acceptingEventId !== undefined}
+										onClick={() => {
+											handleDeclineEvent(inv.event_id);
+										}}
+									>
+										{t("pages.dashboard.decline", "Decline")}
+									</Button>
+								</>
+							)}
+						</div>
 					</div>
 				))}
 			</div>

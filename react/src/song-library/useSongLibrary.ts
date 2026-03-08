@@ -89,7 +89,9 @@ export default function useSongLibrary(): {
 
 		void (async (): Promise<void> => {
 			try {
-				const unsubscribe = await Effect.runPromise(subscribeToSongPublic(songIds));
+				const unsubscribe = (await Effect.runPromise(
+					subscribeToSongPublic(songIds),
+				)) as () => void;
 				// Only assign if this effect run is still current (no re-run or unmount yet)
 				if (run === publicRunRef.current) {
 					publicUnsubRef.current = unsubscribe;
@@ -112,7 +114,7 @@ export default function useSongLibrary(): {
 	}, [songIdsKey, subscribeToSongPublic]);
 
 	// React Compiler automatically memoizes this value
-	const songEntries = Object.values(songLibraryEntries);
+	const songEntries = Object.values(songLibraryEntries) as SongLibraryEntry[];
 
 	return {
 		songEntries,

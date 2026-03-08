@@ -13,11 +13,11 @@ import {
 	apiCommunityPlaylistAddPath,
 	apiCommunityPlaylistRemovePath,
 	apiCommunitySavePath,
+	apiCommunitySetActiveEventPath,
 	apiCommunityShareRequestCreatePath,
 	apiCommunityShareRequestUpdateStatusPath,
 	apiCommunitySongAddPath,
 	apiCommunitySongRemovePath,
-	apiCommunitySetActiveEventPath,
 	apiCommunityUserAddPath,
 	apiCommunityUserJoinPath,
 	apiCommunityUserKickPath,
@@ -42,6 +42,7 @@ import {
 	apiPlaylistSavePath,
 	apiShareCreatePath,
 	apiShareListPath,
+	apiShareRejectByItemPath,
 	apiShareUpdateStatusPath,
 	apiSongLibraryAddPath,
 	apiSongLibraryRemovePath,
@@ -98,9 +99,10 @@ import playlistDelete from "./playlist/playlistDelete";
 import playlistSave from "./playlist/playlistSave";
 import shareCreateHandler from "./share/shareCreate";
 import shareListHandler from "./share/shareList";
+import shareRejectByItemHandler from "./share/shareRejectByItem";
 import shareUpdateStatusHandler from "./share/shareUpdateStatus";
-import addSongToLibraryHandler from "./song-library/addSongToLibrary";
-import removeSongFromLibraryHandler from "./song-library/removeSongFromLibrary";
+import addSongToLibraryHandler from "./song-library/add/addSongToLibrary";
+import removeSongFromLibraryHandler from "./song-library/remove/removeSongFromLibrary";
 import songDelete from "./song/songDelete";
 import songSave from "./song/songSave";
 import getSupabaseClientTokenHandler from "./supabase/getSupabaseClientTokenHandler";
@@ -172,6 +174,7 @@ app.post(apiUserLibraryLookupPath, handleHttpEndpoint(lookupUserByUsernameHandle
 app.post(apiShareCreatePath, handleHttpEndpoint(shareCreateHandler));
 
 app.post(apiShareUpdateStatusPath, handleHttpEndpoint(shareUpdateStatusHandler));
+app.post(apiShareRejectByItemPath, handleHttpEndpoint(shareRejectByItemHandler));
 
 app.get(apiShareListPath, handleHttpEndpoint(shareListHandler));
 

@@ -114,6 +114,10 @@ The same applies to event participants (`status !== "kicked"`).
 - [ ] Realtime subscription is active on the page
 - [ ] Kicked members are excluded from exclusion lists (not from re-invite eligibility)
 
+## References
+
+- [Split hooks over prop spreading](../../../docs/component-patterns.md#split-hooks-over-prop-spreading) — shell/body hook pattern for manage views
+
 ## Do Not
 
 - Do not violate repo-wide rules in `.agent/rules.md`.

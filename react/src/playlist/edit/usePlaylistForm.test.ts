@@ -26,7 +26,7 @@ describe("usePlaylistEdit", () => {
 
 			const store: typeof useAppStore = useAppStore;
 			const mockSave = vi.fn();
-			store.setState((prev) => ({ ...prev, savePlaylist: mockSave }));
+			store.setState((prev: Record<string, unknown>) => ({ ...prev, savePlaylist: mockSave }));
 
 			const { result } = renderHook(() => usePlaylistForm());
 
@@ -75,7 +75,7 @@ describe("usePlaylistEdit", () => {
 			const store: typeof useAppStore = useAppStore;
 			const mockSave = vi.fn();
 			const mockFetchPlaylistById = vi.fn().mockReturnValue(Effect.succeed(undefined));
-			store.setState((prev) => ({
+			store.setState((prev: Record<string, unknown>) => ({
 				...prev,
 				savePlaylist: mockSave,
 				fetchPlaylistById: mockFetchPlaylistById,

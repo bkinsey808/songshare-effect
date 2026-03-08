@@ -113,6 +113,7 @@ export const healthPath = "/health";
 // Sharing API paths
 export const apiShareCreatePath = "/api/shares/create";
 export const apiShareUpdateStatusPath = "/api/shares/update-status";
+export const apiShareRejectByItemPath = "/api/shares/reject-by-item";
 export const apiShareListPath = "/api/shares/list";
 
 /** Frontend route for account deletion confirmation (nested under dashboard) */

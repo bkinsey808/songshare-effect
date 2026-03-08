@@ -6,7 +6,7 @@ import createEventLibrarySlice from "@/react/event-library/slice/createEventLibr
 import createEventSlice from "@/react/event/slice/createEventSlice";
 import createInvitationSlice from "@/react/invitation/slice/createInvitationSlice";
 import createNavigationSlice from "@/react/navigation/slice/createNavigationSlice";
-import { createPlaylistLibrarySlice } from "@/react/playlist-library/slice/playlist-library-slice";
+import createPlaylistLibrarySlice from "@/react/playlist-library/slice/createPlaylistLibrarySlice";
 import { createPlaylistSlice } from "@/react/playlist/slice/playlist-slice";
 import createShareSlice from "@/react/share/slice/createShareSlice";
 import { createSongLibrarySlice } from "@/react/song-library/slice/song-library-slice";

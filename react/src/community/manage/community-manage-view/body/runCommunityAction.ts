@@ -1,4 +1,4 @@
-import type { CommunityActionState } from "./CommunityActionState.type";
+import type { CommunityActionState } from "../CommunityActionState.type";
 
 type RunCommunityActionArgs = {
 	/** Unique key identifying this action for loading/error/success tracking. */
