@@ -13,6 +13,10 @@ import makeEventLibrarySlice from "./makeEventLibrarySlice.test-util";
 // Mock the subscription effect to avoid network calls and authentication
 vi.mock("../subscribe/subscribeToEventPublicForLibraryEffect");
 
+/**
+ * Mimics a minimal zustand store for createEventLibrarySlice.
+ * Uses makeEventLibrarySlice for base behavior; state is mutable for test control.
+ */
 function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 	state: Partial<EventLibraryState>;
 	set: Set<EventLibrarySlice>;

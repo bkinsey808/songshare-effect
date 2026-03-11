@@ -1,87 +1,83 @@
 import { describe, expect, it } from "vitest";
 
-import type { EventEntry } from "@/react/event/event-types";
 import forceCast from "@/react/lib/test-utils/forceCast";
+
+import type { EventParticipant } from "@/react/event/event-entry/EventEntry.type";
+import type { EventEntry } from "@/react/event/event-types";
 
 import computeEventPermissions from "./computeEventPermissions";
 
+const OWNER_ID = "owner-1";
+const ADMIN_ID = "admin-1";
+const OTHER_ID = "other-1";
+
+function makeParticipant(
+	opts: { user_id: string; role: string; username?: string },
+): EventParticipant {
+	return forceCast({
+		user_id: opts.user_id,
+		role: opts.role,
+		username: opts.username,
+		event_id: "e1",
+		joined_at: "2026-01-01T00:00:00Z",
+		status: "joined",
+	});
+}
+
 describe("computeEventPermissions", () => {
-	it("returns owner permissions when current user is the owner", () => {
-		const participants = forceCast<EventEntry["participants"]>([
-			{ user_id: "user-1", role: "member" },
-			{ user_id: "user-2", role: "event_admin" },
-		]);
-
-		const res = computeEventPermissions({
-			currentUserId: "owner-id",
-			ownerId: "owner-id",
-			participants,
+	it("isOwner is true when currentUserId matches ownerId", () => {
+		const result = computeEventPermissions({
+			currentUserId: OWNER_ID,
+			ownerId: OWNER_ID,
+			participants: [],
 		});
-
-		expect(res.isOwner).toBe(true);
-		expect(res.isEventAdmin).toBe(false);
-		expect(res.canManageEvent).toBe(true);
+		expect(result.isOwner).toBe(true);
+		expect(result.canManageEvent).toBe(true);
 	});
 
-	it("returns admin permissions when participant has role event_admin", () => {
-		const participants = forceCast<EventEntry["participants"]>([
-			{ user_id: "user-1", role: "member" },
-			{ user_id: "admin-id", role: "event_admin" },
-		]);
-
-		const res = computeEventPermissions({
-			currentUserId: "admin-id",
-			ownerId: "owner-id",
-			participants,
+	it("isOwner is false when currentUserId differs from ownerId", () => {
+		const result = computeEventPermissions({
+			currentUserId: OTHER_ID,
+			ownerId: OWNER_ID,
+			participants: [],
 		});
-
-		expect(res.isOwner).toBe(false);
-		expect(res.isEventAdmin).toBe(true);
-		expect(res.canManageEvent).toBe(true);
+		expect(result.isOwner).toBe(false);
 	});
 
-	it("returns no permissions for unrelated user", () => {
-		const participants = forceCast<EventEntry["participants"]>([
-			{ user_id: "user-1", role: "member" },
-			{ user_id: "user-2", role: "member" },
-		]);
-
-		const res = computeEventPermissions({
-			currentUserId: "other-id",
-			ownerId: "owner-id",
+	it("isEventAdmin is true when participant has event_admin role", () => {
+		const participants: EventEntry["participants"] = [
+			makeParticipant({ user_id: ADMIN_ID, role: "event_admin", username: "admin" }),
+		];
+		const result = computeEventPermissions({
+			currentUserId: ADMIN_ID,
+			ownerId: OWNER_ID,
 			participants,
 		});
-
-		expect(res.isOwner).toBe(false);
-		expect(res.isEventAdmin).toBe(false);
-		expect(res.canManageEvent).toBe(false);
+		expect(result.isEventAdmin).toBe(true);
+		expect(result.canManageEvent).toBe(true);
 	});
 
-	it("handles undefined currentUserId gracefully", () => {
-		const participants = forceCast<EventEntry["participants"]>([
-			{ user_id: "user-1", role: "event_admin" },
-		]);
+	it("canManageEvent is false when not owner and not admin", () => {
+		const participants: EventEntry["participants"] = [
+			makeParticipant({ user_id: OTHER_ID, role: "participant", username: "user" }),
+		];
+		const result = computeEventPermissions({
+			currentUserId: OTHER_ID,
+			ownerId: OWNER_ID,
+			participants,
+		});
+		expect(result.isOwner).toBe(false);
+		expect(result.isEventAdmin).toBe(false);
+		expect(result.canManageEvent).toBe(false);
+	});
 
-		const res = computeEventPermissions({
+	it("returns canManageEvent false when currentUserId is undefined", () => {
+		const result = computeEventPermissions({
 			currentUserId: undefined,
-			ownerId: "owner-id",
-			participants,
+			ownerId: OWNER_ID,
+			participants: [],
 		});
-
-		expect(res.isOwner).toBe(false);
-		expect(res.isEventAdmin).toBe(false);
-		expect(res.canManageEvent).toBe(false);
-	});
-
-	it("handles undefined participants gracefully", () => {
-		const res = computeEventPermissions({
-			currentUserId: "user-1",
-			ownerId: "owner-id",
-			participants: forceCast<EventEntry["participants"]>(undefined),
-		});
-
-		expect(res.isOwner).toBe(false);
-		expect(res.isEventAdmin).toBe(false);
-		expect(res.canManageEvent).toBe(false);
+		expect(result.isOwner).toBe(false);
+		expect(result.canManageEvent).toBe(false);
 	});
 });

@@ -42,6 +42,7 @@ const ACCEPTED_SHARE: SharedItem = {
 	status: "accepted",
 };
 
+/** Configures useAppStore with share slice state and Effect mocks for useSharedItemSection tests. */
 function installStore(opts: {
 	receivedShares?: Record<string, SharedItem>;
 	sentShares?: Record<string, SharedItem>;

@@ -2,21 +2,42 @@ import { describe, expect, it } from "vitest";
 
 import { parseOauthState } from "./oauthState";
 
-describe("parseOauthState", () => {
-	it("decodes a valid encoded oauth state string", () => {
-		const state = { csrf: "c", lang: "en", provider: "google", redirect_port: "3000" };
-		const encoded = encodeURIComponent(JSON.stringify(state));
+describe("oauthState", () => {
+	describe("parseOauthState", () => {
+		it("decodes valid encoded oauth state", () => {
+			const state = {
+				csrf: "csrf-token-123",
+				lang: "en",
+				provider: "google",
+			};
+			const encoded = encodeURIComponent(JSON.stringify(state));
+			const result = parseOauthState(encoded);
+			expect(result.csrf).toBe(state.csrf);
+			expect(result.lang).toBe(state.lang);
+			expect(result.provider).toBe(state.provider);
+		});
 
-		expect(parseOauthState(encoded)).toStrictEqual(state);
-	});
+		it("decodes state with optional redirect fields", () => {
+			const state = {
+				csrf: "x",
+				lang: "en",
+				provider: "google",
+				redirect_port: "5173",
+				redirect_origin: "https://localhost:5173",
+			};
+			const encoded = encodeURIComponent(JSON.stringify(state));
+			const result = parseOauthState(encoded);
+			expect(result.redirect_port).toBe("5173");
+			expect(result.redirect_origin).toBe("https://localhost:5173");
+		});
 
-	it("throws for invalid JSON or URI-encoded input", () => {
-		expect(() => parseOauthState("not-json")).toThrow(Error);
-	});
+		it("throws for invalid JSON", () => {
+			expect(() => parseOauthState("not-valid-json")).toThrow(/JSON|SyntaxError/i);
+		});
 
-	it("throws when schema validation fails (invalid lang)", () => {
-		const bad = { csrf: "c", lang: "xx", provider: "google" };
-		const encoded = encodeURIComponent(JSON.stringify(bad));
-		expect(() => parseOauthState(encoded)).toThrow(Error);
+		it("throws for invalid schema (missing required fields)", () => {
+			const invalid = encodeURIComponent(JSON.stringify({ csrf: "x" }));
+			expect(() => parseOauthState(invalid)).toThrow(/decode|parse|required|invalid|lang|provider/i);
+		});
 	});
 });

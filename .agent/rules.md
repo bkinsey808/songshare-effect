@@ -76,6 +76,9 @@ JSDoc type annotations are acceptable in plain JavaScript files only; avoid dupl
 - ✅ **Vitest unit tests**: Place unit tests next to the file they test and name them `*.test.ts` or `*.test.tsx`.
 - ✅ **Playwright specs**: Reserve `*.spec.ts` / `*.spec.tsx` for Playwright end-to-end or integration tests; these should live in `e2e/` or a dedicated `tests/` folder.
 - ✅ **Why**: Colocating unit tests keeps feedback fast and local to the implementation, while reserving `spec` filenames for Playwright avoids confusion between unit and E2E test runners.
+- ❌ **No lint disables in test files**: Do not add `oxlint-disable` or `eslint-disable` in `*.test.ts` or `*.test.tsx`. Fix the code, or extract helpers into `*.test-util.*` files where a disable may be used only when there is no alternative.
+- ✅ **Non-factory `vi.mock`**: Use `vi.mock("path")` without a factory; configure with `vi.mocked(...)` in tests. Avoid `vi.mock("path", () => {...})` unless the non-factory pattern cannot express the setup.
+- ✅ **Hook tests — separate describe blocks**: For hook test files, use two top-level `describe` blocks: `describe("useMyHook — Harness", ...)` and `describe("useMyHook — renderHook", ...)`. Place the Harness block first. See `docs/unit-testing-hooks.md`.
 
 **Examples:**
 

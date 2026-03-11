@@ -3,7 +3,6 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-/* oxlint-disable jest/require-hook */
 import { describe, expect, test } from "vitest";
 
 import { ZERO } from "@/shared/constants/shared-constants";
@@ -15,9 +14,9 @@ function makeTempDir(prefix = "find-missing-jsdoc-"): string {
 // Check availability of bun synchronously at module load time (used to decide whether to run these integration tests)
 const bunCheck = spawnSync("npx", ["bun", "--version"]);
 const bunAvailable = bunCheck.status === ZERO;
-const maybe = bunAvailable ? describe : describe.skip;
+const suite = bunAvailable ? describe : describe.skip;
 
-maybe("find-missing-jsdoc.bun.ts (integration)", () => {
+suite("find-missing-jsdoc.bun.ts (integration)", () => {
 	test("exits zero when no issues found", () => {
 		const dir = makeTempDir("clean-");
 		const filePath = path.join(dir, "ok.ts");

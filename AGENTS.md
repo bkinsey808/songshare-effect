@@ -26,6 +26,8 @@ For task-specific work, also consult docs in `docs/` (especially auth and Effect
 - **Config files use ESM** (`export default`, no CommonJS)
 - **Docs filenames in `docs/` are kebab-case**
 - **Colocate unit tests** next to source files when adding tests
+- **No lint disable comments in test files** (`*.test.ts`, `*.test.tsx`) — fix code or move helpers to `*.test-util.*` files instead. Disables in test-util files are acceptable only when there is absolutely no alternative.
+- **Avoid factory pattern for `vi.mock`** — Use single-argument `vi.mock("path")` and configure behavior with `vi.mocked(...)` in tests. Use factory only when the non-factory pattern cannot express the required setup (e.g. modules exporting constants or complex shapes).
 
 ## Git Safety
 

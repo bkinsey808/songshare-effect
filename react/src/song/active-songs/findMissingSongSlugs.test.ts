@@ -1,86 +1,74 @@
 import { describe, expect, it } from "vitest";
 
-import type { SongPublic } from "@/react/song/song-schema";
-/**
- * Build a minimal `SongPublic` payload for tests.
- *
- * Uses explicit `null` values for optional fields to keep the shape simple and
- * focused on `song_id` / `song_slug` which is relevant to these tests.
- *
- * @param slug - slug to use for both `song_id` and `song_slug`
- * @returns a `SongPublic` shaped object suitable for test assertions
- */
-import makeMalformedPublicSongs from "@/react/song/test-utils/makeMalformedPublicSongs.mock";
+import forceCast from "@/react/lib/test-utils/forceCast";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
+import type { SongPublic } from "@/react/song/song-schema";
 
 import findMissingSongSlugs from "./findMissingSongSlugs";
 
-function makeSong(slug: string): SongPublic {
-	return makeSongPublic({
-		song_id: slug,
-		song_slug: slug,
-		created_at: new Date().toISOString(),
-		updated_at: new Date().toISOString(),
-	});
-}
+const SONG_A = makeSongPublic({ song_id: "id-a", song_slug: "slug-a" });
+const SONG_B = makeSongPublic({ song_id: "id-b", song_slug: "slug-b" });
+const SONG_C = makeSongPublic({ song_id: "id-c", song_slug: "slug-c" });
+const PUBLIC_SONGS: Record<string, SongPublic> = {
+	"id-a": SONG_A,
+	"id-b": SONG_B,
+	"id-c": SONG_C,
+};
 
-// Validate that active slugs are excluded and that when no active songs exist,
-// all requested slugs are returned unchanged.
 describe("findMissingSongSlugs", () => {
-	// Ensures slugs already present in the activePublicSongIds are excluded.
-	it("filters out slugs that are already active", () => {
-		const songSlugs = ["s1", "s3"];
-		const [, missingSlug] = songSlugs;
-		const publicSongs = { s1: makeSong("s1"), s2: makeSong("s2") };
-		const activePublicSongIds = [publicSongs.s1.song_id];
-		const out = findMissingSongSlugs({
-			songSlugs,
-			activePublicSongIds,
-			publicSongs,
+	it("returns all songSlugs when no active public songs", () => {
+		const result = findMissingSongSlugs({
+			songSlugs: ["slug-a", "slug-b"],
+			activePublicSongIds: [],
+			publicSongs: PUBLIC_SONGS,
 		});
-		const expected = [missingSlug];
-		expect(out).toStrictEqual(expected);
+		expect(result).toStrictEqual(["slug-a", "slug-b"]);
 	});
 
-	// When there are no active songs, the function should return all requested
-	// slugs in their original ordering.
-	it("returns all requested slugs when nothing active", () => {
-		const songSlugs = ["a", "b"];
-		const publicSongs = {};
-		expect(findMissingSongSlugs({ songSlugs, activePublicSongIds: [], publicSongs })).toStrictEqual(
-			songSlugs,
-		);
+	it("returns empty when all songSlugs are active", () => {
+		const result = findMissingSongSlugs({
+			songSlugs: ["slug-a", "slug-b"],
+			activePublicSongIds: ["id-a", "id-b"],
+			publicSongs: PUBLIC_SONGS,
+		});
+		expect(result).toStrictEqual([]);
 	});
 
-	// Defensive behavior: malformed or missing `publicSongs` entries should be
-	// ignored rather than causing an exception or accidentally matching a slug.
-	it("ignores malformed publicSongs entries", () => {
-		// Use a helper that centralizes the test-only malformed fixture and its
-		// narrow type assertion so individual tests stay lint-clean.
-		const publicSongs = makeMalformedPublicSongs();
-
-		const songSlugs = ["valid", "maybe"];
-		const [, missingSlug] = songSlugs;
-		const out = findMissingSongSlugs({
-			songSlugs,
-			activePublicSongIds: ["valid", "badUndefined", "badType"],
-			publicSongs,
+	it("returns only slugs not in active set", () => {
+		const result = findMissingSongSlugs({
+			songSlugs: ["slug-a", "slug-b", "slug-c"],
+			activePublicSongIds: ["id-a", "id-c"],
+			publicSongs: PUBLIC_SONGS,
 		});
-
-		expect(out).toStrictEqual([missingSlug]);
+		expect(result).toStrictEqual(["slug-b"]);
 	});
 
-	// Ensure duplicate active public song ids that map to the same slug are
-	// deduplicated and the slug is still excluded from the result.
-	it("deduplicates active slugs mapped from different ids", () => {
-		const publicSongs = { a1: makeSong("dupe"), a2: makeSong("dupe") };
-		const songSlugs = ["dupe", "other"];
-		const [, missingSlug] = songSlugs;
-		const out = findMissingSongSlugs({
-			songSlugs,
-			activePublicSongIds: ["a1", "a2"],
-			publicSongs,
+	it("preserves original order of songSlugs", () => {
+		const result = findMissingSongSlugs({
+			songSlugs: ["slug-c", "slug-a", "slug-b"],
+			activePublicSongIds: ["id-b"],
+			publicSongs: PUBLIC_SONGS,
 		});
-		expect(out).toStrictEqual([missingSlug]);
+		expect(result).toStrictEqual(["slug-c", "slug-a"]);
+	});
+
+	it("ignores active ids not present in publicSongs", () => {
+		const result = findMissingSongSlugs({
+			songSlugs: ["slug-a"],
+			activePublicSongIds: ["id-nonexistent", "id-a"],
+			publicSongs: PUBLIC_SONGS,
+		});
+		expect(result).toStrictEqual([]);
+	});
+
+	it("ignores publicSongs entries without song_slug string", () => {
+		const malformed = forceCast<SongPublic>({ song_id: "id-d" });
+		const songsWithMissingSlug = { ...PUBLIC_SONGS, "id-d": malformed };
+		const result = findMissingSongSlugs({
+			songSlugs: ["slug-a", "slug-d"],
+			activePublicSongIds: ["id-d"],
+			publicSongs: songsWithMissingSlug,
+		});
+		expect(result).toStrictEqual(["slug-a", "slug-d"]);
 	});
 });

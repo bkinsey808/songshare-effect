@@ -2,9 +2,9 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import { registerCookieName } from "@/api/cookie/cookie";
-import type { Env } from "@/api/env";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import buildRegisterJwt from "@/api/register/buildRegisterJwt";
+import { asEnv, asParams } from "@/api/oauth-callback-factory/registrationRedirect.test-util";
 import type { OauthState } from "@/shared/oauth/oauthState";
 import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 import { registerPath } from "@/shared/paths";
@@ -17,16 +17,7 @@ import handleRegistration, {
 // stub buildRegisterJwt so we don't have to construct a real context
 vi.mock("@/api/register/buildRegisterJwt");
 
-function asEnv(val: unknown): Env {
-	/* oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion */
-	return val as Env;
-}
-
-function asParams(val: unknown): RegistrationRedirectParams {
-	/* oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion */
-	return val as RegistrationRedirectParams;
-}
-
+/** Builds minimal valid RegistrationRedirectParams with makeCtx and default oauth data. */
 function makeBaseParams(): RegistrationRedirectParams {
 	const ctx = makeCtx();
 	// build a minimal valid parameter set; return cast to satisfy ctx type
@@ -39,6 +30,7 @@ function makeBaseParams(): RegistrationRedirectParams {
 	});
 }
 
+/** Merges base params with a new ctx and envRecord for tests that need a custom context. */
 function addCtxToParams(
 	base: RegistrationRedirectParams,
 	ctx: ReturnType<typeof makeCtx>,
@@ -46,6 +38,7 @@ function addCtxToParams(
 	return { ...base, ctx, envRecord: ctx.env } as RegistrationRedirectParams;
 }
 
+/** Extracts Set-Cookie header from Hono response for assertions. */
 function getCookieHeader(ctx: ReturnType<typeof makeCtx>): string | null {
 	return ctx.res.headers.get("Set-Cookie");
 }

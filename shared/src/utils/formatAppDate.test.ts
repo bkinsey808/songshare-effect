@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { ZERO } from "@/shared/constants/shared-constants";
 
-import formatAppDate, { formatAppDateTime } from "./formatAppDate";
+import formatAppDate, {
+	formatAppDateTime,
+	fromDatetimeLocalFormat,
+	toDatetimeLocalFormat,
+} from "./formatAppDate";
 
 const JANUARY = 0;
 const MARCH = 2;
@@ -50,5 +54,29 @@ describe("formatAppDateTime", () => {
 		expect(afternoon).toBe("2026/01/19 23:59:59");
 		const midnight = formatAppDateTime(new Date(YEAR_2026, JANUARY, DAY_20, ZERO, ZERO, ZERO));
 		expect(midnight).toBe("2026/01/20 00:00:00");
+	});
+});
+
+describe("toDatetimeLocalFormat", () => {
+	it("converts YYYY/MM/DD HH:mm to YYYY-MM-DDTHH:mm", () => {
+		expect(toDatetimeLocalFormat("2026/01/19 14:30")).toBe("2026-01-19T14:30");
+	});
+
+	it("returns empty string for empty input", () => {
+		expect(toDatetimeLocalFormat("")).toBe("");
+	});
+});
+
+describe("fromDatetimeLocalFormat", () => {
+	it("converts YYYY-MM-DDTHH:mm to YYYY/MM/DD HH:mm", () => {
+		expect(fromDatetimeLocalFormat("2026-01-19T14:30")).toBe("2026/01/19 14:30");
+	});
+
+	it("returns empty string for empty input", () => {
+		expect(fromDatetimeLocalFormat("")).toBe("");
+	});
+
+	it("returns empty string when date part is missing", () => {
+		expect(fromDatetimeLocalFormat("T14:30")).toBe("");
 	});
 });

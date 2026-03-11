@@ -1,15 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
-// helper functions below access and mutate `console` freely.
-// we disable the rule on the first helper declaration so the disable
-// comment is permitted by `no-disable-in-tests`.
-/* oxlint-disable no-console */
-function getConsoleTimeStamp(): unknown {
-	return Reflect.get(console, "timeStamp");
-}
-function setConsoleTimeStamp(value: unknown): void {
-	Reflect.set(console, "timeStamp", value);
-}
+import {
+	deleteConsoleTimeStamp,
+	getConsoleDebug,
+	getConsoleTimeStamp,
+	setConsoleDebug,
+	setConsoleTimeStamp,
+} from "./quiet-client.test-util";
 
 function originalTimeStamp(): void {
 	/* placeholder for original console.timeStamp in tests */
@@ -17,13 +14,13 @@ function originalTimeStamp(): void {
 
 // Store the *true original* console methods before *any* module is imported, including this test file.
 // These are outside hooks so they are truly captured once at module load.
-const actualOriginalConsoleDebug = console.debug;
+const actualOriginalConsoleDebug = getConsoleDebug();
 const actualOriginalConsoleTimeStamp = getConsoleTimeStamp();
 
 // helpers that mirror the old beforeEach/afterEach behavior
 async function importQuietClient(): Promise<void> {
 	// 1. Restore console to its *true original* state for a clean slate.
-	console.debug = actualOriginalConsoleDebug;
+	setConsoleDebug(actualOriginalConsoleDebug);
 	setConsoleTimeStamp(actualOriginalConsoleTimeStamp);
 	Reflect.deleteProperty(globalThis, "__origConsoleDebug");
 
@@ -36,7 +33,7 @@ async function importQuietClient(): Promise<void> {
 
 function restoreConsole(): void {
 	// mirror afterEach cleanup
-	console.debug = actualOriginalConsoleDebug;
+	setConsoleDebug(actualOriginalConsoleDebug);
 	setConsoleTimeStamp(actualOriginalConsoleTimeStamp);
 	Reflect.deleteProperty(globalThis, "__origConsoleDebug");
 	vi.restoreAllMocks();
@@ -57,8 +54,8 @@ describe("quiet-client", () => {
 			// At this point, quiet-client.ts has run and modified console.debug.
 
 			// Assertion 1: console.debug should no longer be the actual original debug function.
-			expect(console.debug).not.toBe(actualOriginalConsoleDebug);
-			expect(typeof console.debug).toBe("function"); // It should be the no-op function
+			expect(getConsoleDebug()).not.toBe(actualOriginalConsoleDebug);
+			expect(typeof getConsoleDebug()).toBe("function"); // It should be the no-op function
 
 			// The key check is that the saved original is correct.
 			expect(Reflect.get(globalThis, "__origConsoleDebug")).toBe(actualOriginalConsoleDebug);
@@ -70,15 +67,15 @@ describe("quiet-client", () => {
 		// verify quiet-client silences it.
 
 		// replicate importQuietClient but allow us to set the stamp beforehand
-		console.debug = actualOriginalConsoleDebug;
+		setConsoleDebug(actualOriginalConsoleDebug);
 		setConsoleTimeStamp(originalTimeStamp);
 		Reflect.deleteProperty(globalThis, "__origConsoleDebug");
 		vi.resetModules();
 
 		await import("./quiet-client");
 
-		expect(Reflect.get(console, "timeStamp")).not.toBe(originalTimeStamp);
-		expect(typeof Reflect.get(console, "timeStamp")).toBe("function");
+		expect(getConsoleTimeStamp()).not.toBe(originalTimeStamp);
+		expect(typeof getConsoleTimeStamp()).toBe("function");
 
 		// cleanup similar to restoreConsole
 		restoreConsole();
@@ -88,24 +85,24 @@ describe("quiet-client", () => {
 		// We mimic the previous self-contained test without hooks.
 
 		// start from clean globals
-		console.debug = actualOriginalConsoleDebug;
+		setConsoleDebug(actualOriginalConsoleDebug);
 		setConsoleTimeStamp(actualOriginalConsoleTimeStamp);
 		Reflect.deleteProperty(globalThis, "__origConsoleDebug");
 		vi.resetModules();
 
 		// temporarily remove timestamp
 		const tempOriginalTimeStamp = getConsoleTimeStamp();
-		Reflect.deleteProperty(console, "timeStamp");
+		deleteConsoleTimeStamp();
 
 		await import("./quiet-client");
 
 		// verify console.debug is silenced
-		expect(console.debug).not.toBe(actualOriginalConsoleDebug);
-		expect(typeof console.debug).toBe("function");
+		expect(getConsoleDebug()).not.toBe(actualOriginalConsoleDebug);
+		expect(typeof getConsoleDebug()).toBe("function");
 		expect(Reflect.get(globalThis, "__origConsoleDebug")).toBe(actualOriginalConsoleDebug);
 
 		// timestamp should remain missing
-		expect(typeof Reflect.get(console, "timeStamp")).not.toBe("function");
+		expect(typeof getConsoleTimeStamp()).not.toBe("function");
 
 		// restore
 		setConsoleTimeStamp(tempOriginalTimeStamp);

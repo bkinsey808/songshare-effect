@@ -14,7 +14,12 @@ export type SongLibraryMockOpts = {
 export type SongLibraryTableMock = {
 	select: (_cols: string) => { eq: (_field: string, _val: unknown) => MultiResult };
 	insert: (rows: SongLibraryInsert[]) => MultiResult & { select: () => SingleBuilder };
-	delete: () => MultiResult & { eq: (_field: string, _val: unknown) => MultiResult };
+	delete: () => {
+		eq: (
+			field: string,
+			val: string,
+		) => { eq?: (field: string, val: string) => MultiResult } & MultiResult;
+	};
 };
 
 export function createSongLibraryMock(opts: SongLibraryMockOpts): SongLibraryTableMock {
@@ -47,20 +52,23 @@ export function createSongLibraryMock(opts: SongLibraryMockOpts): SongLibraryTab
 					single: async (): SingleResult => {
 						await Promise.resolve();
 						if (opts.songLibraryInsertError !== undefined) {
-							const err = opts.songLibraryInsertError;
-							return {
-								data: undefined,
-								error:
-									err instanceof Error ? err : new Error(extractErrorMessage(err, "Mock Error")),
-							};
+							throw opts.songLibraryInsertError instanceof Error
+								? opts.songLibraryInsertError
+								: new Error(extractErrorMessage(opts.songLibraryInsertError, "Mock Error"));
 						}
 						const [firstRow] = opts.songLibraryInsertRows ?? (rows as unknown[]);
-						return { data: firstRow ?? undefined, error: undefined };
+						return {
+							data: firstRow ?? undefined,
+							/* oxlint-disable-next-line unicorn/no-null */
+							error: opts.songLibraryInsertError ?? null,
+						};
 					},
 				}),
 			});
 		},
-		delete: (): MultiResult & { eq: (_field: string, _val: unknown) => MultiResult } => {
+		delete: (): {
+			eq: (field: string, val: string) => { eq?: (field: string, val: string) => MultiResult } & MultiResult;
+		} => {
 			const promise: MultiResult = (async () => {
 				await Promise.resolve();
 				if (opts.songLibraryDeleteError !== undefined) {
@@ -68,11 +76,16 @@ export function createSongLibraryMock(opts: SongLibraryMockOpts): SongLibraryTab
 						? opts.songLibraryDeleteError
 						: new Error(extractErrorMessage(opts.songLibraryDeleteError, "Mock Error"));
 				}
-				return { data: [], error: undefined };
+				return {
+					data: [],
+					/* oxlint-disable-next-line unicorn/no-null */
+					error: null,
+				};
 			})();
-			return Object.assign(promise, {
-				eq: (_field: string, _val: unknown) => promise,
+			const chain = Object.assign(promise, {
+				eq: (): MultiResult => promise,
 			});
+			return { eq: (): typeof chain => chain };
 		},
 	};
 }

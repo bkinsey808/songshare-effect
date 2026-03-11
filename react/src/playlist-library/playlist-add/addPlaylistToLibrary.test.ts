@@ -12,20 +12,19 @@ import type { PlaylistLibrarySlice } from "@/react/playlist-library/slice/Playli
 
 import guardAsAddPlaylistRequest from "../guards/guardAsAddPlaylistRequest";
 import guardAsPlaylistLibraryEntry from "../guards/guardAsPlaylistLibraryEntry";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import addPlaylistToLibrary from "./addPlaylistToLibrary";
 
 vi.mock("@/react/share/effects/acceptPendingSharesForItem");
 vi.mock("@/react/lib/utils/clientLogger");
-// oxlint-disable-next-line jest/no-untyped-mock-factory -- factory returns simple stub
-vi.mock("@/shared/error-message/extractErrorMessage", () => ({
-	default: (err: unknown, def: string): string =>
-		typeof err === "string" ? err : def,
-}));
-// oxlint-disable-next-line jest/no-untyped-mock-factory -- factory returns path constant
-vi.mock("@/shared/paths", () => ({ apiPlaylistLibraryAddPath: "/api/playlist-library/add" }));
+vi.mock("@/shared/error-message/extractErrorMessage");
 vi.mock("../guards/guardAsAddPlaylistRequest");
 vi.mock("../guards/guardAsPlaylistLibraryEntry");
 
+/**
+ * Temporarily replaces global fetch with a mock, runs the test, and restores fetch.
+ * Ensures cleanup even when the test throws.
+ */
 async function withFetchMock(
 	mockImpl: () => ReturnType<typeof vi.fn>,
 	testFn: () => Promise<void>,
@@ -40,6 +39,10 @@ async function withFetchMock(
 	}
 }
 
+/**
+ * Builds a get function that returns a playlist library slice with the given mock methods.
+ * Used to isolate addPlaylistToLibrary from full store setup.
+ */
 function makeGet(
 	setPlaylistLibraryError: ReturnType<typeof vi.fn>,
 	isInPlaylistLibrary: ReturnType<typeof vi.fn>,
@@ -52,6 +55,12 @@ function makeGet(
 			addPlaylistLibraryEntry,
 		});
 	};
+}
+
+function installExtractErrorMessageMock(): void {
+	vi.mocked(extractErrorMessage).mockImplementation(
+		(err: unknown, def: string): string => (typeof err === "string" ? err : def),
+	);
 }
 
 describe("addPlaylistToLibrary", () => {
@@ -77,6 +86,7 @@ describe("addPlaylistToLibrary", () => {
 						Promise.resolve({ data: serverData }),
 				}),
 			async () => {
+				installExtractErrorMessageMock();
 				vi.mocked(guardAsAddPlaylistRequest).mockReturnValue(request);
 				vi.mocked(guardAsPlaylistLibraryEntry).mockReturnValue(serverData);
 				vi.mocked(acceptPendingSharesForItem).mockReturnValue(Effect.succeed(undefined));
@@ -112,6 +122,7 @@ describe("addPlaylistToLibrary", () => {
 		await withFetchMock(
 			() => vi.fn().mockRejectedValue(new Error("should not be called")),
 			async () => {
+				installExtractErrorMessageMock();
 				vi.mocked(guardAsAddPlaylistRequest).mockReturnValue(request);
 				const addSpy = vi.fn();
 				const setError = vi.fn();
@@ -146,6 +157,7 @@ describe("addPlaylistToLibrary", () => {
 						Promise.resolve({ error: "bad" }),
 				}),
 			async () => {
+				installExtractErrorMessageMock();
 				vi.mocked(guardAsAddPlaylistRequest).mockReturnValue(request);
 				const addSpy = vi.fn();
 				const setError = vi.fn();

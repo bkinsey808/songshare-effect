@@ -3,16 +3,35 @@ import type { EventLibrary, EventLibraryInsert } from "@/shared/generated/supaba
 import type { MockRow, MultiResult, SingleBuilder, SingleResult } from "./supabase-mock-types";
 
 export type EventLibraryMockOpts = {
+	eventLibraryDeleteError?: unknown;
 	eventLibraryInsertRows?: (MockRow<EventLibrary> | undefined)[];
 	eventLibraryInsertError?: unknown;
 };
 
 export type EventLibraryTableMock = {
+	delete: () => {
+		eq: () => { eq: () => Promise<{ data: null; error: unknown }> };
+	};
 	insert: (rows: EventLibraryInsert[]) => MultiResult & { select: () => SingleBuilder };
 };
 
 export function createEventLibraryMock(opts: EventLibraryMockOpts): EventLibraryTableMock {
 	return {
+		delete: (): {
+			eq: () => { eq: () => Promise<{ data: null; error: unknown }> };
+		} => ({
+			eq: (): { eq: () => Promise<{ data: null; error: unknown }> } => ({
+				eq: async (): Promise<{ data: null; error: unknown }> => {
+					await Promise.resolve();
+					return {
+						/* oxlint-disable-next-line unicorn/no-null */
+						data: null,
+						/* oxlint-disable-next-line unicorn/no-null */
+						error: opts.eventLibraryDeleteError ?? null,
+					};
+				},
+			}),
+		}),
 		insert: (rows: EventLibraryInsert[]): MultiResult & { select: () => SingleBuilder } => {
 			const promise: MultiResult = (async () => {
 				await Promise.resolve();

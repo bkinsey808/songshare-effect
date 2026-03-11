@@ -1,3 +1,4 @@
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import type { UserLibrary, UserLibraryInsert } from "@/shared/generated/supabaseSchemas";
 
 import type { MockRow, MultiResult, SingleBuilder, SingleResult } from "./supabase-mock-types";
@@ -7,6 +8,7 @@ export type UserLibraryMockOpts = {
 	userLibraryInsertError?: unknown;
 	/** Row returned by select().eq().eq().single() (used for duplicate-key idempotent path) */
 	userLibrarySelectRow?: MockRow<UserLibrary> | undefined;
+	userLibraryDeleteError?: unknown;
 };
 
 export type UserLibraryTableMock = {
@@ -18,6 +20,12 @@ export type UserLibraryTableMock = {
 		) => {
 			eq: (_field2: string, _val2: unknown) => { single: () => SingleResult };
 		};
+	};
+	delete: () => {
+		eq: (
+			field: string,
+			val: string,
+		) => { eq?: (field: string, val: string) => MultiResult } & MultiResult;
 	};
 };
 
@@ -40,16 +48,50 @@ export function createUserLibraryMock(opts: UserLibraryMockOpts): UserLibraryTab
 					single: async (): SingleResult => {
 						await Promise.resolve();
 						if (opts.userLibraryInsertError !== undefined) {
-							return {
-								data: undefined,
-								error: opts.userLibraryInsertError,
-							};
+							const err = opts.userLibraryInsertError;
+							const msg = extractErrorMessage(err, "Mock Error");
+							if (msg.includes("user_library_pkey")) {
+								return { data: undefined, error: err };
+							}
+							throw err instanceof Error
+								? err
+								: new Error(extractErrorMessage(err, "Mock Error"));
 						}
 						const [firstRow] = opts.userLibraryInsertRows ?? (rows as unknown[]);
-						return { data: firstRow ?? undefined, error: undefined };
+						return {
+							data: firstRow ?? undefined,
+							/* oxlint-disable-next-line unicorn/no-null */
+							error: opts.userLibraryInsertError ?? null,
+						};
 					},
 				}),
 			});
+		},
+		delete: (): {
+			eq: (
+				field: string,
+				val: string,
+			) => { eq?: (field: string, val: string) => MultiResult } & MultiResult;
+		} => {
+			const promise: MultiResult = (async () => {
+				await Promise.resolve();
+				if (opts.userLibraryDeleteError !== undefined) {
+					throw opts.userLibraryDeleteError instanceof Error
+						? opts.userLibraryDeleteError
+						: new Error(
+								extractErrorMessage(opts.userLibraryDeleteError, "Mock Error"),
+							);
+				}
+				return {
+					data: [],
+					/* oxlint-disable-next-line unicorn/no-null */
+					error: null,
+				};
+			})();
+			const chain = Object.assign(promise, {
+				eq: (): MultiResult => promise,
+			});
+			return { eq: (): typeof chain => chain };
 		},
 		select: (): { eq: () => { eq: () => { single: () => SingleResult } } } => ({
 			eq: (): { eq: () => { single: () => SingleResult } } => ({

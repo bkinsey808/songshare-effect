@@ -269,23 +269,23 @@ describe("harness (DOM) behavior", () => {
 
 ---
 
-## Test File Structure — Describe Block Ordering
+## Test File Structure — Separate Describe Blocks
 
 Every hook test file that contains both Harness tests and `renderHook` tests **must split them into
-two separate named `describe` blocks**, with the Harness block appearing **first**:
+two separate top-level `describe` blocks**. Use the naming `"useMyHook — Harness"` and
+`"useMyHook — renderHook"`, with the Harness block appearing **first**:
 
 ```tsx
-describe("useMyHook", () => {
-	describe("harness (DOM) behavior", () => {
-		// DOM-interaction and documentation-driven tests using the Harness
-	});
+describe("useMyHook — Harness", () => {
+	// DOM-interaction and documentation-driven tests using the Harness
+});
 
-	describe("renderHook behavior", () => {
-		// Behavioral assertions using renderHook
-	});
+describe("useMyHook — renderHook", () => {
+	// Behavioral assertions using renderHook
 });
 ```
 
+**Why separate blocks:** Keeps renderHook tests and Harness (DOM) tests clearly separated.
 **Why Harness first:** the Harness is documentation — it shows the "shape" of usage before the
 reader encounters lower-level behavioral assertions.
 
@@ -703,6 +703,8 @@ checked.
 Before calling a hook test complete, verify:
 
 - [ ] File is `.test.tsx`
+- [ ] Harness and renderHook tests in **separate describe blocks**: `"useMyHook — Harness"` first,
+      then `"useMyHook — renderHook"`
 - [ ] At least one **Harness component** exists — thoroughly commented
 - [ ] At least one **`renderHook` test** exists — or a code comment explains why it's not possible
 - [ ] `renderHook` used for behavioral assertions; Harness used for DOM-interaction tests

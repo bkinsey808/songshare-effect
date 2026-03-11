@@ -62,6 +62,11 @@ npm run test:unit                            # all tests (before PR)
 - Do not expand scope beyond the requested task without calling it out.
 - Do not reinvent mock guidance in-line; follow the canonical `docs/unit-testing.md` mocking
   section for full `vi.mock` vs `vi.spyOn` patterns.
+  
+If a function or its result is mocked in a test, do not assert that mocked function's own
+implementation in the same spec; instead, assert the system-under-test's observable behavior
+that depends on the mock, or test the function separately without mocking it. It's acceptable
+to assert interactions with the mock (call count, args), but not the mocked implementation.
 - Do not mock `effect` at module level (`vi.mock("effect")` with or without factory). Mock your own
   boundary module and return real `Effect` values.
 - Do not treat `vi.hoisted()` or `vi.importActual()` as baseline patterns; they are exception paths.

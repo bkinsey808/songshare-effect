@@ -1,98 +1,112 @@
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
+
+import type { CommunityActionState } from "../CommunityActionState.type";
+
 import runCommunityAction from "./runCommunityAction";
 
-describe("runCommunityAction", () => {
-	const FIRST_CALL_INDEX = 0;
-	const SECOND_CALL_INDEX = 1;
-	const FIRST_ARG_INDEX = 0;
-	const LAST_INDEX_OFFSET = 1;
-	const EXPECT_TWO_CALLS = 2;
-	const EXPECT_ONE_CALL = 1;
+const ACTION_KEY = "test-action";
+const SUCCESS_MSG = "Done!";
+const LOADING_CALL_INDEX = 0;
+const SUCCESS_OR_ERROR_CALL_INDEX = 1;
+const FIRST_CALL_ARG_INDEX = 0;
+const EXPECTED_SUCCESS_PATH_CALL_COUNT = 2;
 
-	it("sets loading then error when action throws", async () => {
-		const key = "delete-item";
-		const action = vi.fn().mockRejectedValue(new Error("boom"));
+describe("runCommunityAction", () => {
+	it("sets loading state, runs action, refreshes, then sets success on success", async () => {
 		const setActionState = vi.fn();
+		const action = vi.fn().mockResolvedValue(undefined);
+		const refreshFn = vi.fn().mockResolvedValue(undefined);
+
+		await runCommunityAction({
+			key: ACTION_KEY,
+			action,
+			successMessage: SUCCESS_MSG,
+			setActionState,
+			refreshFn,
+		});
+
+		expect(setActionState).toHaveBeenCalledTimes(EXPECTED_SUCCESS_PATH_CALL_COUNT);
+
+		const loadingCall = forceCast<CommunityActionState>(
+			setActionState.mock.calls[LOADING_CALL_INDEX]?.[FIRST_CALL_ARG_INDEX],
+		);
+		expect(loadingCall).toMatchObject({ loadingKey: ACTION_KEY, error: undefined });
+
+		expect(action).toHaveBeenCalledOnce();
+		expect(refreshFn).toHaveBeenCalledOnce();
+
+		const successCall = forceCast<CommunityActionState>(
+			setActionState.mock.calls[SUCCESS_OR_ERROR_CALL_INDEX]?.[FIRST_CALL_ARG_INDEX],
+		);
+		expect(successCall).toMatchObject({
+			success: SUCCESS_MSG,
+			successKey: ACTION_KEY,
+			loadingKey: undefined,
+		});
+	});
+
+	it("sets error state when action throws", async () => {
+		const setActionState = vi.fn();
+		const errorMsg = "Action failed";
+		const action = vi.fn().mockRejectedValue(new Error(errorMsg));
 		const refreshFn = vi.fn();
 
 		await runCommunityAction({
-			key,
+			key: ACTION_KEY,
 			action,
-			successMessage: "Success",
+			successMessage: SUCCESS_MSG,
 			setActionState,
 			refreshFn,
 		});
 
-		expect(setActionState).toHaveBeenCalledTimes(EXPECT_TWO_CALLS);
-		expect(setActionState.mock.calls[FIRST_CALL_INDEX]?.[FIRST_ARG_INDEX]).toStrictEqual({
-			loadingKey: key,
-			error: undefined,
-			errorKey: undefined,
-			success: undefined,
-			successKey: undefined,
-		});
-
-		expect(setActionState.mock.calls[SECOND_CALL_INDEX]?.[FIRST_ARG_INDEX]).toStrictEqual({
-			loadingKey: undefined,
-			error: "boom",
-			errorKey: key,
-			success: undefined,
-			successKey: undefined,
-		});
-
+		expect(setActionState).toHaveBeenCalledTimes(EXPECTED_SUCCESS_PATH_CALL_COUNT);
 		expect(refreshFn).not.toHaveBeenCalled();
+
+		const errorCall = forceCast<CommunityActionState>(
+			setActionState.mock.calls[SUCCESS_OR_ERROR_CALL_INDEX]?.[FIRST_CALL_ARG_INDEX],
+		);
+		expect(errorCall.error).toBe(errorMsg);
+		expect(errorCall.errorKey).toBe(ACTION_KEY);
+		expect(errorCall.loadingKey).toBeUndefined();
 	});
 
-	it("calls refreshFn on success and sets success state", async () => {
-		const key = "invite";
-		const action = vi.fn().mockResolvedValue(undefined);
-		const refreshFn = vi.fn().mockResolvedValue(undefined);
+	it("converts non-Error throw to string in error state", async () => {
 		const setActionState = vi.fn();
+		const action = vi.fn().mockRejectedValue("string error");
 
 		await runCommunityAction({
-			key,
+			key: ACTION_KEY,
 			action,
-			successMessage: "Invited",
+			successMessage: SUCCESS_MSG,
+			setActionState,
+			refreshFn: vi.fn(),
+		});
+
+		const errorCall = forceCast<CommunityActionState>(
+			setActionState.mock.calls[SUCCESS_OR_ERROR_CALL_INDEX]?.[FIRST_CALL_ARG_INDEX],
+		);
+		expect(errorCall.error).toBe("string error");
+	});
+
+	it("sets success state even when refresh fails after successful action", async () => {
+		const setActionState = vi.fn();
+		const action = vi.fn().mockResolvedValue(undefined);
+		const refreshFn = vi.fn().mockRejectedValue(new Error("Refresh failed"));
+
+		await runCommunityAction({
+			key: ACTION_KEY,
+			action,
+			successMessage: SUCCESS_MSG,
 			setActionState,
 			refreshFn,
 		});
 
-		expect(action).toHaveBeenCalledTimes(EXPECT_ONE_CALL);
-		expect(refreshFn).toHaveBeenCalledTimes(EXPECT_ONE_CALL);
-
-		const lastIdx = setActionState.mock.calls.length - LAST_INDEX_OFFSET;
-		expect(setActionState.mock.calls[lastIdx]?.[FIRST_ARG_INDEX]).toStrictEqual({
-			loadingKey: undefined,
-			error: undefined,
-			errorKey: undefined,
-			success: "Invited",
-			successKey: key,
-		});
-	});
-
-	it("swallows refresh errors and still sets success", async () => {
-		const key = "update";
-		const action = vi.fn().mockResolvedValue(undefined);
-		const refreshFn = vi.fn().mockRejectedValue(new Error("refresh fail"));
-		const setActionState = vi.fn();
-
-		await runCommunityAction({
-			key,
-			action,
-			successMessage: "Updated",
-			setActionState,
-			refreshFn,
-		});
-
-		expect(refreshFn).toHaveBeenCalledTimes(EXPECT_ONE_CALL);
-		const lastIdx = setActionState.mock.calls.length - LAST_INDEX_OFFSET;
-		expect(setActionState.mock.calls[lastIdx]?.[FIRST_ARG_INDEX]).toStrictEqual({
-			loadingKey: undefined,
-			error: undefined,
-			errorKey: undefined,
-			success: "Updated",
-			successKey: key,
-		});
+		expect(setActionState).toHaveBeenCalledTimes(EXPECTED_SUCCESS_PATH_CALL_COUNT);
+		const successCall = forceCast<CommunityActionState>(
+			setActionState.mock.calls[SUCCESS_OR_ERROR_CALL_INDEX]?.[FIRST_CALL_ARG_INDEX],
+		);
+		expect(successCall.success).toBe(SUCCESS_MSG);
 	});
 });

@@ -41,6 +41,10 @@ const mockOwnerRow = {
 	username: TEST_OWNER_USERNAME,
 };
 
+/**
+ * Builds a Supabase client mock with configurable song_library, song_public, and user_public responses.
+ * Used to test fetchSongLibrary without hitting the real backend.
+ */
 function createMockClient({
 	songLibrary = [mockSongLibraryRow],
 	songPublic = [mockSongPublicRow],

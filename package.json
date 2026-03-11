@@ -16,7 +16,7 @@
 		"format": "npx oxfmt .",
 		"format:check": "npx oxfmt --check .",
 		"format:list-different": "npx oxfmt --list-different .",
-		"lint": "npx tsc -b . && npx oxlint --config .oxlintrc.json --type-aware . && npx eslint --config eslint.config.js react/src api/src --ext .ts,.tsx && npm run check:skill-line-count",
+		"lint": "npx tsc -b . && npx oxlint --config .oxlintrc.json --type-aware . && npx eslint --config eslint.config.ts --cache react/src api/src --ext .ts,.tsx && npm run check:skill-line-count",
 		"lint:fix": "npx oxlint --config .oxlintrc.json --type-aware --fix .",
 		"lint:list-files": "npx oxlint --format=unix . | awk -F: '{print $1}' | sort -u | sed '/^$/d'",
 		"preview": "vite preview",

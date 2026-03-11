@@ -15,6 +15,7 @@ vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 // Typed mocked helper for callSelect
 const mockedCallSelect = vi.mocked(callSelect);
 
+/** Builds an EventParticipant fixture with defaults; overrides allow per-test customization. */
 function makeParticipant(overrides: Partial<EventParticipant>): EventParticipant {
 	return {
 		event_id: overrides.event_id ?? "event-1",

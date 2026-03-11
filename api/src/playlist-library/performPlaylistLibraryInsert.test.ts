@@ -29,7 +29,7 @@ describe("performPlaylistLibraryInsert", () => {
 			performPlaylistLibraryInsert(client, FAKE_USER, REQUEST),
 		);
 		expect(result.data).toStrictEqual(inserted);
-		expect(result.error).toBeUndefined();
+		expect(result.error).toBeNull();
 	});
 
 	it("returns DatabaseError when insert throws", async () => {

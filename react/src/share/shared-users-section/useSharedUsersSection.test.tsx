@@ -45,6 +45,7 @@ const OTHER_TYPE_SHARE: SharedItem = {
 	shared_item_id: ITEM_ID,
 };
 
+/** Configures appStore mock with sentShares and isSharesLoading for useSharedUsersSection tests. */
 function installStore(opts: {
 	sentShares?: Record<string, SharedItem>;
 	isSharesLoading?: boolean;

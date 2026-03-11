@@ -1,33 +1,37 @@
 import { describe, expect, it } from "vitest";
 
-import { ONE, TWO, ZERO } from "@/shared/constants/shared-constants";
-
 import smoothValue from "./smoothValue";
 
+const PREV = 10;
+const NEXT = 20;
+const ALPHA_ZERO = 0;
+const ALPHA_ONE = 1;
+const ALPHA_HALF = 0.5;
+const LO = 0;
+const HI = 10;
+const MID = 5;
+const PREV2 = 10;
+const NEXT2 = 30;
+const MID2 = 20;
+const ALPHA_OVER = 1.5;
+const ALPHA_UNDER = -0.5;
+
 describe("smoothValue", () => {
-	const PREVIOUS = 10;
-	const NEXT = 20;
-	const ALPHA_HALF = 0.5;
-	const EXPECTED_HALF = 15;
-	const MINUS_ONE = -1;
-
-	it("interpolates correctly with alpha 0.5", () => {
-		expect(smoothValue(PREVIOUS, NEXT, ALPHA_HALF)).toBe(EXPECTED_HALF);
+	it("returns previous when alpha is 0", () => {
+		expect(smoothValue(PREV, NEXT, ALPHA_ZERO)).toBe(PREV);
 	});
 
-	it("returns previous value if alpha is 0", () => {
-		expect(smoothValue(PREVIOUS, NEXT, ZERO)).toBe(PREVIOUS);
+	it("returns next when alpha is 1", () => {
+		expect(smoothValue(PREV, NEXT, ALPHA_ONE)).toBe(NEXT);
 	});
 
-	it("returns next value if alpha is 1", () => {
-		expect(smoothValue(PREVIOUS, NEXT, ONE)).toBe(NEXT);
+	it("returns midpoint when alpha is 0.5", () => {
+		expect(smoothValue(LO, HI, ALPHA_HALF)).toBe(MID);
+		expect(smoothValue(PREV2, NEXT2, ALPHA_HALF)).toBe(MID2);
 	});
 
-	it("clamps alpha > 1 to 1 (returns next)", () => {
-		expect(smoothValue(PREVIOUS, NEXT, TWO)).toBe(NEXT);
-	});
-
-	it("clamps alpha < 0 to 0 (returns previous)", () => {
-		expect(smoothValue(PREVIOUS, NEXT, MINUS_ONE)).toBe(PREVIOUS);
+	it("clamps alpha to [0, 1] and applies formula", () => {
+		expect(smoothValue(LO, HI, ALPHA_OVER)).toBe(HI);
+		expect(smoothValue(LO, HI, ALPHA_UNDER)).toBe(LO);
 	});
 });

@@ -15,6 +15,7 @@ vi.mock("@/shared/utils/formatEventDate");
 
 type UseEventViewResult = ReturnType<typeof useEventView>;
 
+/** Builds a UseEventViewResult fixture with defaults; overrides allow per-test customization. */
 function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): UseEventViewResult {
 	const ownerParticipants: EventParticipant[] = [
 		{

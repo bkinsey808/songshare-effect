@@ -30,6 +30,8 @@ Output requirements:
 
 ## Key Requirements
 
+- Use **separate `describe` blocks** for renderHook tests and Harness tests:
+  `describe("useMyHook — Harness", ...)` and `describe("useMyHook — renderHook", ...)`.
 - Follow hook testing conventions in project docs.
 - Prefer deterministic assertions over timing-based checks.
 - Keep fixtures typed and reusable.

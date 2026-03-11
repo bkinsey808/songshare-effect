@@ -11,6 +11,10 @@ import makeInvitationSlice from "./makeInvitationSlice.test-util";
 
 const MIN_REGISTRATION = 0;
 
+/**
+ * Creates a minimal store with set/get/api and a calls log for createInvitationSlice tests.
+ * Tracks what partials are passed to set for assertions.
+ */
 function makeStore(): {
 	set: Set<InvitationSlice>;
 	get: Get<InvitationSlice>;

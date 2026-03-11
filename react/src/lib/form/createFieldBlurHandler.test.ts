@@ -3,20 +3,19 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { ValidationError } from "@/shared/validation/validate-types";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
+
 import type createFieldBlurHandlerType from "./createFieldBlurHandler";
 
 // stub logging so tests are quiet and we can inspect calls
 vi.mock("@/react/lib/utils/clientLogger");
 
-/**
- * Extract errors from the last mock call. Factored out to keep the test body
- * clean and accommodate lint rules regarding disable comments.
- */
+const NEG_ONE = -1;
+const ZERO = 0;
+
+/** Extract errors from the last mock call. */
 function extractLastCall(calls: unknown[][]): ValidationError[] {
-	const NEG_ONE = -1;
-	const ZERO = 0;
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-	return calls.at(NEG_ONE)?.at(ZERO) as ValidationError[];
+	return forceCast<ValidationError[]>(calls.at(NEG_ONE)?.at(ZERO));
 }
 
 describe("createFieldBlurHandler", () => {

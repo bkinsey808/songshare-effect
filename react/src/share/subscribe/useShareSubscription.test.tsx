@@ -2,6 +2,7 @@ import { cleanup, render, renderHook, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import { appStore } from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
@@ -12,18 +13,11 @@ const mockGetStateReturn = vi.hoisted<{ current: Record<string, unknown> }>(() =
 }));
 
 vi.mock("@/react/auth/useCurrentUserId");
-// oxlint-disable-next-line jest/no-untyped-mock-factory -- partial mock for getState only
-vi.mock("@/react/app-store/useAppStore", () => ({
-	__esModule: true,
-	default: vi.fn(),
-	appStore: {
-		getState: (): Record<string, unknown> => mockGetStateReturn.current,
-	},
-	getTypedState: vi.fn(),
-}));
+vi.mock("@/react/app-store/useAppStore");
 
 const CURRENT_USER_ID = "user-123";
 
+/** Configures useCurrentUserId and app store mocks for share subscription tests. */
 function installMocks(opts: {
 	/** When false, simulates no signed-in user (skips fetch/subscribe) */
 	signedIn?: boolean;
@@ -52,6 +46,10 @@ function installMocks(opts: {
 		sentShares,
 		isSharesLoading: false,
 	};
+
+	vi.mocked(appStore.getState).mockReturnValue(
+		forceCast<ReturnType<typeof appStore.getState>>(mockGetStateReturn.current),
+	);
 }
 
 /**

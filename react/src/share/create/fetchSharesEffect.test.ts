@@ -16,6 +16,7 @@ const FIRST_CALL = 1;
 const FIRST_CALL_INDEX = 0;
 const FIRST_ARG_INDEX = 0;
 
+/** Normalizes URL or string to href string; returns empty string for non-URL values. */
 function toUrlString(value: unknown): string {
 	if (typeof value === "string") {
 		return value;

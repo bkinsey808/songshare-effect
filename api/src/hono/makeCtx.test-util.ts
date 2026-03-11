@@ -90,3 +90,19 @@ export default function makeCtx(opts: MakeCtxOpts = {}): ReadonlyContext {
 		redirect: redirectFn,
 	} as unknown as ReadonlyContext;
 }
+
+/**
+ * Create a ReadonlyContext with json returning Response.json(body).
+ * Required for testing handleHttpEndpoint, which expects ctx.json to return a Response.
+ *
+ * @param opts - Same options as makeCtx
+ * @returns A ReadonlyContext with json returning Response
+ */
+export function makeCtxWithJsonResponse(opts: MakeCtxOpts = {}): ReadonlyContext {
+	const ctx = makeCtx(opts);
+	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test ctx; json override returns Response */
+	return {
+		...ctx,
+		json: (body: unknown) => Response.json(body),
+	} as unknown as ReadonlyContext;
+}

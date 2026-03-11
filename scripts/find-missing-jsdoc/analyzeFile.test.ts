@@ -47,12 +47,7 @@ describe("analyzeFile", () => {
 			.toSorted();
 		expect(missingReturns).toStrictEqual(["baz", "foo"]);
 
-		// Debug output to inspect all reported issues
-		const INDENT = 2;
-		// oxlint-disable-next-line no-console
-		console.warn("issues:", JSON.stringify(issues, undefined, INDENT));
-
-		// Log issues when tests fail to help debugging (kept lightweight)
+		// Sanity check: no duplicate issue names
 		const names = issues.map((i) => i.name);
 		const duplicates = names.filter((val, idx) => names.indexOf(val) !== idx).toSorted();
 		expect(duplicates).toStrictEqual([]);

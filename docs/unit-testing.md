@@ -21,6 +21,10 @@ API handler testing, and common pitfalls. For React hook tests see
 If you find yourself writing a test that asserts an import exists, or that a constant equals itself,
 skip it.
 
+If a function or its result is mocked in a test, avoid adding a separate unit test that asserts
+the mocked function's own implementation; instead, assert the behavior of the system under test
+that depends on that mock.
+
 ---
 
 ## Quick-Start Routing Guide
@@ -95,8 +99,9 @@ suffix so their purpose is obvious and they don't get mistaken for production co
 - **Use `forceCast<T>(value)`** from `@/react/lib/test-utils/forceCast` for type-safe coercion in
   tests; never use inline `as unknown as T`.
 - **Document test helpers with JSDoc**: purpose, params, and why any cast is acceptable.
-- **Localize any `oxlint-disable` to helpers**, never in test bodies. Module-level disables are
-  forbidden in test files.
+- **No lint disable comments in test files** — Do not use `oxlint-disable` or `eslint-disable` in
+  `*.test.ts` or `*.test.tsx`. Fix the code or extract helpers into `*.test-util.*` files. Disables
+  in test-util files are acceptable only when there is no alternative.
 
 ### Script / pure-logic module testing
 
@@ -119,11 +124,9 @@ function, and handles `process.exit` / stream writes. It does **not** need its o
 
 ## Mocking
 
-### Non-Factory `vi.mock` Pattern (Preferred)
+### Non-Factory `vi.mock` Pattern (Required)
 
-Use single-argument `vi.mock("path")` as the default. Then configure behavior with `vi.mocked(...)`
-inside each test. This keeps mocks predictable in ESM-heavy code and avoids brittle hand-built
-module shapes.
+Use single-argument `vi.mock("path")` as the default. Avoid the factory pattern (`vi.mock("path", () => {...})`) except when the non-factory approach cannot express the required setup. Configure behavior with `vi.mocked(...)` in tests or setup helpers. This keeps mocks predictable in ESM-heavy code and avoids brittle hand-built module shapes.
 
 **Preferred - non-factory mock registration + per-test `vi.mocked(...)`:**
 
@@ -140,14 +143,8 @@ it("uses mocked dependencies", () => {
 });
 ```
 
-Prefer non-factory mocks unless you have a specific need that requires a module factory.
-When using a factory, keep it minimal and typed.
-
-```ts
-vi.mock("@/shared/utils/formatEventDate", () => ({
-	clientLocalDateToUtcTimestamp: vi.fn(() => "2026-01-01T00:00:00Z"),
-}));
-```
+Use a factory only when the non-factory pattern cannot express the setup (e.g. modules that export
+constants or require hoisted closure state). When a factory is unavoidable, keep it minimal and typed.
 
 Treat `vi.importActual` as a code smell by default in this repo. In most tests, if you need a
 mocked dependency, prefer non-factory `vi.mock("path")` + `vi.mocked(...)` and avoid partial module
@@ -397,7 +394,7 @@ export async function getValidateFormEffectMock(): Promise<ValidateFormEffectMoc
 
 1. **No top-level `vi.mock` calls in helper modules.** Export a callable function (`mockFoo()`) that
    calls `vi.doMock` when invoked.
-2. **No module-level `oxlint-disable` comments** in test or test-util files.
+2. **No lint disable comments in test files** — test-util files may use disables only when unavoidable.
 3. See real examples in `react/src/form/test-util.ts` and
    `react/src/lib/supabase/client/getSupabaseClient.test-util.ts`.
 
@@ -631,11 +628,9 @@ expect(removeSongFromSongLibrary).toHaveBeenCalledWith({ song_id: songId1 });
 
 ### ⚠️ Lint Disable Comments
 
-- **Avoid file-level `/* oxlint-disable ... */`** in test files.
-- **Prefer narrow, local disables** scoped to small helper functions.
-- **Always add a brief rationale** when you add a disable.
-- A oxlint rule enforces this: disables are only permitted directly above a helper
-  function/constant — not inside `describe`, `test`, or `it` blocks.
+- **No lint disables in test files** — Do not add `oxlint-disable` or `eslint-disable` in
+  `*.test.ts` or `*.test.tsx`. Fix the code to satisfy the linter, or move the problematic logic
+  into a `*.test-util.*` file where a disable may be used only when there is no alternative.
 
 ### 🛠️ Type-Cast Helpers
 

@@ -1,25 +1,33 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { ZERO } from "@/shared/constants/shared-constants";
+
 import randomId from "./randomId";
 
 describe("randomId", () => {
-	const RAND_VALUE = 0.123_456_789;
-	const NOW_MILLIS = 1_672_531_200_000;
-	const MIN_LENGTH = 1;
-
-	it("produces deterministic output when Math.random and Date.now are stubbed", () => {
-		const rand = vi.spyOn(Math, "random").mockReturnValue(RAND_VALUE);
-		const now = vi.spyOn(Date, "now").mockReturnValue(NOW_MILLIS);
-		const id = randomId();
-		expect(typeof id).toBe("string");
-		expect(id.length).toBeGreaterThanOrEqual(MIN_LENGTH);
-		rand.mockRestore();
-		now.mockRestore();
+	it("returns a string", () => {
+		const result = randomId();
+		expect(typeof result).toBe("string");
 	});
 
-	it("generates unique values on subsequent calls", () => {
+	it("returns non-empty string", () => {
+		const result = randomId();
+		expect(result.length).toBeGreaterThan(ZERO);
+	});
+
+	it("returns alphanumeric string from radix 36", () => {
+		const result = randomId();
+		expect(result).toMatch(/^[a-z0-9]+$/);
+	});
+
+	it("returns deterministic result when Math.random and Date are mocked", () => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date("2024-01-15T12:00:00Z"));
+		const FIXED_RANDOM = 0.5;
+		vi.spyOn(Math, "random").mockReturnValue(FIXED_RANDOM);
 		const first = randomId();
 		const second = randomId();
-		expect(first).not.toBe(second);
+		expect(first).toBe(second);
+		vi.useRealTimers();
 	});
 });

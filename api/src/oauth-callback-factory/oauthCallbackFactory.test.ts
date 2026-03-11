@@ -1,4 +1,4 @@
-import { Effect, type Schema } from "effect";
+import { Effect } from "effect";
 import { getCookie } from "hono/cookie";
 import { verify } from "hono/jwt";
 import { describe, expect, it, vi } from "vitest";
@@ -10,14 +10,16 @@ import rateLimit from "@/api/oauth-callback-factory/rateLimit";
 import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
 import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
 import fetchAndPrepareUser from "@/api/oauth/fetchAndPrepareUser";
-import type { ReadonlySupabaseClient } from "@/api/supabase/ReadonlySupabaseClient.type";
 // helper for creating minimal fake Supabase clients in tests
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
-import type { UserSchema } from "@/shared/generated/supabaseSchemas";
 import type { OauthState } from "@/shared/oauth/oauthState";
-import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 
+import {
+	asFetchUserResult,
+	asOauthState,
+	asString,
+} from "@/api/oauth-callback-factory/oauthCallbackFactory.test-util";
 import oauthCallbackFactory from "./oauthCallbackFactory";
 import { SEE_OTHER } from "./registrationRedirect";
 
@@ -47,27 +49,6 @@ const mockedGetCookie = vi.mocked(getCookie);
 
 function getCookieHeader(ctx: ReturnType<typeof makeCtx>): string | null {
 	return ctx.res.headers.get("Set-Cookie");
-}
-
-type FetchUserResult = {
-	supabase: ReadonlySupabaseClient;
-	oauthUserData: OauthUserData;
-	existingUser: Schema.Schema.Type<typeof UserSchema> | undefined;
-};
-
-function asOauthState(val: unknown): OauthState {
-	/* oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion */
-	return val as OauthState;
-}
-
-function asFetchUserResult(val: unknown): FetchUserResult {
-	/* oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion */
-	return val as FetchUserResult;
-}
-
-function asString(val: unknown): string {
-	/* oxlint-disable-next-line typescript-eslint/no-unsafe-type-assertion */
-	return val as string;
 }
 
 /**

@@ -6,6 +6,7 @@ import { clientLocalDateToUtcTimestamp } from "@/shared/utils/formatEventDate";
 import type { EventFormValues } from "../event-types";
 import buildSaveEventRequest from "./buildSaveEventRequest";
 
+/** Builds default EventFormValues with optional overrides for focused assertions. */
 function makeFormValues(overrides: Partial<EventFormValues> = {}): EventFormValues {
 	return {
 		event_id: undefined,

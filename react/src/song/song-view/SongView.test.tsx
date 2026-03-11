@@ -13,6 +13,7 @@ import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import SongView from "./SongView";
+import SongViewLibraryAction from "./SongViewLibraryAction";
 
 // Mock react-router so tests can control `useParams` return values
 vi.mock("react-router-dom");
@@ -21,10 +22,7 @@ vi.mock("react-i18next");
 // Mock ShareButton to avoid popover complexity in integration tests
 vi.mock("@/react/lib/design-system/ShareButton");
 vi.mock("@/react/share/shared-users-section/SharedUsersSection");
-// oxlint-disable-next-line jest/no-untyped-mock-factory -- factory returns simple stub
-vi.mock("./SongViewLibraryAction", () => ({
-	default: (): undefined => undefined,
-}));
+vi.mock("./SongViewLibraryAction");
 // Avoid coupling SongView tests to share subscription side effects/state shape
 vi.mock("@/react/share/subscribe/useShareSubscription");
 // Mock the store module so tests can set implementations
@@ -45,6 +43,7 @@ function translateOrDefault(key: string, defaultVal?: string | Record<string, un
 }
 
 function installUiMocks(): void {
+	vi.mocked(SongViewLibraryAction).mockImplementation(() => undefined);
 	vi.mocked(useTranslation).mockReturnValue(
 		forceCast<ReturnType<typeof useTranslation>>({
 			t: translateOrDefault,

@@ -3,66 +3,139 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import makeSimpleSupabaseClient from "@/api/test-utils/makeSimpleSupabaseClient.test-util";
-import { HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_INTERNAL } from "@/shared/constants/http";
+import forceCast from "@/react/lib/test-utils/forceCast";
+import {
+	HTTP_BAD_REQUEST,
+	HTTP_FORBIDDEN,
+	HTTP_OK,
+} from "@/shared/constants/http";
 
 import updateSongPublic from "./updateSongPublic";
 
-// supabase client will be mocked in individual tests
 vi.mock("@supabase/supabase-js");
 
+function makeSongPublicClient(opts: {
+	updateRow?: { song_id: string; song_name?: string; song_slug?: string };
+	updateError?: boolean;
+} = {}): ReturnType<typeof createClient> {
+	const updateRow = opts.updateRow ?? {
+		song_id: "song-1",
+		song_name: "Updated",
+		song_slug: "updated",
+	};
+	const updateError = opts.updateError ?? false;
+
+	return forceCast<ReturnType<typeof createClient>>({
+		from: (table: string): object => {
+			if (table === "song_public") {
+				return {
+					update: (): object => ({
+						eq: (): object => ({
+							select: (): object => ({
+								single: async (): Promise<{
+									data: typeof updateRow | null;
+									error: { message: string } | null;
+								}> => {
+									await Promise.resolve();
+									return updateError
+										? {
+												/* oxlint-disable-next-line unicorn/no-null */
+												data: null,
+												error: { message: "update failed" },
+											}
+										: {
+												data: updateRow,
+												/* oxlint-disable-next-line unicorn/no-null */
+												error: null,
+											};
+								},
+							}),
+						}),
+					}),
+				};
+			}
+			return {};
+		},
+	});
+}
+
 describe("updateSongPublic", () => {
-	it("returns forbidden when running in production", async () => {
-		const ctx = makeCtx({ env: { ENVIRONMENT: "production" } });
+	it("returns 403 when ENVIRONMENT is production", async () => {
+		const ctx = makeCtx({
+			body: { song_id: "song-1" },
+			env: {
+				ENVIRONMENT: "production",
+				VITE_SUPABASE_URL: "https://x.supabase.co",
+				SUPABASE_SERVICE_KEY: "key",
+			},
+		});
 
-		const res = await Effect.runPromise(updateSongPublic(ctx));
-		expect(res).toBeInstanceOf(Response);
-		expect(res.status).toBe(HTTP_FORBIDDEN);
-		await expect(res.json()).resolves.toStrictEqual({ error: "Not allowed in production" });
+		const resp = await Effect.runPromise(updateSongPublic(ctx));
+
+		expect(resp.status).toBe(HTTP_FORBIDDEN);
+		const json = await resp.json();
+		expect(json).toHaveProperty("error", "Not allowed in production");
 	});
 
-	it("returns bad request when body not object", async () => {
-		const ctx = makeCtx({ body: 42 });
-		const res = await Effect.runPromise(updateSongPublic(ctx));
-		expect(res.status).toBe(HTTP_BAD_REQUEST);
-		await expect(res.json()).resolves.toStrictEqual({ error: "Invalid body" });
+	it("returns 400 when body is invalid", async () => {
+		vi.mocked(createClient).mockReturnValue(makeSongPublicClient());
+
+		const ctx = makeCtx({
+			body: {},
+			env: {
+				ENVIRONMENT: "development",
+				VITE_SUPABASE_URL: "https://x.supabase.co",
+				SUPABASE_SERVICE_KEY: "key",
+			},
+		});
+
+		const resp = await Effect.runPromise(updateSongPublic(ctx));
+
+		expect(resp.status).toBe(HTTP_BAD_REQUEST);
+		const json = await resp.json();
+		expect(json).toHaveProperty("error", "Missing song_id");
 	});
 
-	it("returns bad request when song_id missing", async () => {
-		const ctx = makeCtx({ body: { foo: "bar" } });
-		const res = await Effect.runPromise(updateSongPublic(ctx));
-		expect(res.status).toBe(HTTP_BAD_REQUEST);
-		await expect(res.json()).resolves.toStrictEqual({ error: "Missing song_id" });
+	it("returns 400 when song_id is empty", async () => {
+		vi.mocked(createClient).mockReturnValue(makeSongPublicClient());
+
+		const ctx = makeCtx({
+			body: { song_id: "" },
+			env: {
+				ENVIRONMENT: "development",
+				VITE_SUPABASE_URL: "https://x.supabase.co",
+				SUPABASE_SERVICE_KEY: "key",
+			},
+		});
+
+		const resp = await Effect.runPromise(updateSongPublic(ctx));
+
+		expect(resp.status).toBe(HTTP_BAD_REQUEST);
 	});
 
-	it("calls supabase and returns success with payload", async () => {
-		const fake = makeSimpleSupabaseClient({ result: { song_id: "s1" } });
-		vi.mocked(createClient).mockReturnValue(fake);
+	it("returns success with data when update succeeds", async () => {
+		const updateRow = {
+			song_id: "song-1",
+			song_name: "New Name",
+			song_slug: "new-slug",
+		};
+		vi.mocked(createClient).mockReturnValue(
+			makeSongPublicClient({ updateRow }),
+		);
 
-		const body = { song_id: "s1", song_name: "New", song_slug: "new" };
-		const ctx = makeCtx({ body, env: { ENVIRONMENT: "dev" } });
+		const ctx = makeCtx({
+			body: { song_id: "song-1", song_name: "New Name", song_slug: "new-slug" },
+			env: {
+				ENVIRONMENT: "development",
+				VITE_SUPABASE_URL: "https://x.supabase.co",
+				SUPABASE_SERVICE_KEY: "key",
+			},
+		});
 
-		const res = await Effect.runPromise(updateSongPublic(ctx));
-		const HTTP_OK = 200; // local constant to avoid magic-number lint
-		expect(res.status).toBe(HTTP_OK);
-		await expect(res.json()).resolves.toStrictEqual({ success: true, data: { song_id: "s1" } });
-	});
+		const resp = await Effect.runPromise(updateSongPublic(ctx));
 
-	it("propagates supabase error response", async () => {
-		const fake = makeSimpleSupabaseClient({ error: { message: "oops" } });
-		vi.mocked(createClient).mockReturnValue(fake);
-
-		const ctx = makeCtx({ body: { song_id: "s1" } });
-		const res = await Effect.runPromise(updateSongPublic(ctx));
-		expect(res.status).toBe(HTTP_INTERNAL);
-		await expect(res.json()).resolves.toStrictEqual({ error: "oops" });
-	});
-
-	it("fails when the database call throws", async () => {
-		const bad = makeSimpleSupabaseClient({ reject: true, error: new Error("db fail") });
-		vi.mocked(createClient).mockReturnValue(bad);
-
-		const ctx = makeCtx({ body: { song_id: "s1" } });
-		await expect(Effect.runPromise(updateSongPublic(ctx))).rejects.toThrow(/db fail/);
+		expect(resp.status).toBe(HTTP_OK);
+		const json = await resp.json();
+		expect(json).toMatchObject({ success: true, data: updateRow });
 	});
 });

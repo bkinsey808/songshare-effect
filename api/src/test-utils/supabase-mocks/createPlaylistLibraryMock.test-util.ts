@@ -4,7 +4,7 @@ import type { PlaylistLibrary, PlaylistLibraryInsert } from "@/shared/generated/
 import type { MockRow, MultiResult, SingleBuilder, SingleResult } from "./supabase-mock-types";
 
 export type PlaylistLibraryMockOpts = {
-	playlistLibraryInsertRows?: MockRow<PlaylistLibraryInsert>[];
+	playlistLibraryInsertRows?: MockRow<PlaylistLibrary>[];
 	playlistLibraryInsertError?: unknown;
 	playlistLibraryDeleteError?: unknown;
 	playlistLibraryDeleteRows?: MockRow<PlaylistLibrary>[];
@@ -12,7 +12,12 @@ export type PlaylistLibraryMockOpts = {
 
 export type PlaylistLibraryTableMock = {
 	insert: (rows: PlaylistLibraryInsert[]) => MultiResult & { select: () => SingleBuilder };
-	delete: () => MultiResult & { eq: (_field: string, _val: string) => MultiResult };
+	delete: () => {
+		eq: (
+			field: string,
+			val: string,
+		) => { eq?: (field: string, val: string) => MultiResult } & MultiResult;
+	};
 };
 
 export function createPlaylistLibraryMock(opts: PlaylistLibraryMockOpts): PlaylistLibraryTableMock {
@@ -51,13 +56,16 @@ export function createPlaylistLibraryMock(opts: PlaylistLibraryMockOpts): Playli
 							data: (firstRow === undefined
 								? row
 								: firstRow) as unknown as MockRow<PlaylistLibrary>,
-							error: undefined,
+							/* oxlint-disable-next-line unicorn/no-null */
+							error: opts.playlistLibraryInsertError ?? null,
 						};
 					},
 				}),
 			});
 		},
-		delete: (): MultiResult & { eq: (_field: string, _val: string) => MultiResult } => {
+		delete: (): {
+			eq: (field: string, val: string) => { eq?: (field: string, val: string) => MultiResult } & MultiResult;
+		} => {
 			const promise: MultiResult = (async () => {
 				await Promise.resolve();
 				if (opts.playlistLibraryDeleteError !== undefined) {
@@ -67,12 +75,14 @@ export function createPlaylistLibraryMock(opts: PlaylistLibraryMockOpts): Playli
 				}
 				return {
 					data: opts.playlistLibraryDeleteRows ?? [],
-					error: undefined,
+					/* oxlint-disable-next-line unicorn/no-null */
+					error: null,
 				};
 			})();
-			return Object.assign(promise, {
-				eq: (_field: string, _val: string) => promise,
+			const chain = Object.assign(promise, {
+				eq: (): MultiResult => promise,
 			});
+			return { eq: (): typeof chain => chain };
 		},
 	};
 }

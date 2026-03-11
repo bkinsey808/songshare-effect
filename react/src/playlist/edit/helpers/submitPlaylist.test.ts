@@ -1,68 +1,84 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import { PlaylistError } from "@/react/playlist/playlist-errors";
-import type { SavePlaylistRequest } from "@/react/playlist/playlist-types";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-import { dashboardPath, playlistLibraryPath } from "@/shared/paths";
+import forceCast from "@/react/lib/test-utils/forceCast";
+
+import type { PlaylistError } from "@/react/playlist/playlist-errors";
 
 import submitPlaylist from "./submitPlaylist";
 
+const PLAYLIST_ID = "pl-1";
+const PLAYLIST_NAME = "My Playlist";
+const PLAYLIST_SLUG = "my-playlist";
+
 describe("submitPlaylist", () => {
-	it("navigates and returns id on success", async () => {
-		function savePlaylist(_req: SavePlaylistRequest): Effect.Effect<string, PlaylistError> {
-			return Effect.succeed("playlist-123");
-		}
+	it("returns playlist id and navigates on success", async () => {
+		const mockSave = vi.fn(() => Effect.succeed(PLAYLIST_ID));
+		const mockNavigate = vi.fn();
 
-		const mockNavigateFn = vi.fn();
-		function mockNavigate(to: unknown, options?: unknown): void {
-			mockNavigateFn(to, options);
-		}
-		const lang = "en" as SupportedLanguageType;
+		const result = await submitPlaylist(
+			{
+				savePlaylist: mockSave,
+				navigate: mockNavigate,
+				lang: "en",
+			},
+			{
+				playlistName: PLAYLIST_NAME,
+				playlistSlug: PLAYLIST_SLUG,
+			},
+		);
 
-		const params = {
-			playlistName: "name",
-			playlistSlug: "slug",
-			publicNotes: "pub",
-			privateNotes: "priv",
-			songOrder: ["s1"],
-		};
-
-		const id = await submitPlaylist({ savePlaylist, navigate: mockNavigate, lang }, params);
-
-		expect(id).toBe("playlist-123");
-
-		const expectedPath = buildPathWithLang(`/${dashboardPath}/${playlistLibraryPath}`, lang);
-		expect(mockNavigateFn).toHaveBeenCalledWith(expectedPath, undefined);
+		expect(result).toBe(PLAYLIST_ID);
+		expect(mockSave).toHaveBeenCalledWith(
+			expect.objectContaining({
+				playlist_name: PLAYLIST_NAME,
+				playlist_slug: PLAYLIST_SLUG,
+				public_notes: "",
+				private_notes: "",
+				song_order: [],
+			}),
+		);
+		expect(mockNavigate).toHaveBeenCalledWith("/en/dashboard/playlist-library");
 	});
 
-	it("returns undefined and logs on failure", async () => {
-		function savePlaylist(_req: SavePlaylistRequest): Effect.Effect<string, PlaylistError> {
-			return Effect.fail(new PlaylistError("boom"));
-		}
+	it("returns undefined and does not navigate when save fails", async () => {
+		const mockSave = vi.fn(() =>
+			Effect.fail(forceCast<PlaylistError>(new Error("Save failed"))),
+		);
+		const mockNavigate = vi.fn();
 
-		const mockNavigateFn = vi.fn();
-		function mockNavigate(to: unknown, options?: unknown): void {
-			mockNavigateFn(to, options);
-		}
-		const lang = "en" as SupportedLanguageType;
-		const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+		const result = await submitPlaylist(
+			{
+				savePlaylist: mockSave,
+				navigate: mockNavigate,
+				lang: "en",
+			},
+			{
+				playlistName: PLAYLIST_NAME,
+				playlistSlug: PLAYLIST_SLUG,
+			},
+		);
 
-		const params = {
-			playlistName: "name",
-			playlistSlug: "slug",
-			publicNotes: "pub",
-			privateNotes: "priv",
-			songOrder: ["s1"],
-		};
+		expect(result).toBeUndefined();
+		expect(mockNavigate).not.toHaveBeenCalled();
+	});
 
-		const id = await submitPlaylist({ savePlaylist, navigate: mockNavigate, lang }, params);
+	it("includes playlistId in request when provided", async () => {
+		const mockSave = vi.fn(() => Effect.succeed(PLAYLIST_ID));
+		const mockNavigate = vi.fn();
+		const PLAYLIST_ID_PARAM = "pl-existing";
 
-		expect(id).toBeUndefined();
-		expect(consoleError).toHaveBeenCalledWith("[submitPlaylist] Save failed:", expect.anything());
-		expect(mockNavigateFn).not.toHaveBeenCalled();
+		await submitPlaylist(
+			{ savePlaylist: mockSave, navigate: mockNavigate, lang: "en" },
+			{
+				playlistName: PLAYLIST_NAME,
+				playlistSlug: PLAYLIST_SLUG,
+				playlistId: PLAYLIST_ID_PARAM,
+			},
+		);
 
-		consoleError.mockRestore();
+		expect(mockSave).toHaveBeenCalledWith(
+			expect.objectContaining({ playlist_id: PLAYLIST_ID_PARAM }),
+		);
 	});
 });

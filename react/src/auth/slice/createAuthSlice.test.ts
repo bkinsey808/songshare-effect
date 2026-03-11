@@ -32,6 +32,10 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 	ip: "127.0.0.1",
 };
 
+/**
+ * Mimics a minimal zustand store for createAuthSlice tests.
+ * Uses makeAuthSlice for base behavior; state is mutable for test control.
+ */
 function makeMockStore(initialState: Partial<AuthState> = {}): {
 	state: Partial<AuthState>;
 	set: Set<AuthSlice>;

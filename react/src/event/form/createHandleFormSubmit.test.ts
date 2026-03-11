@@ -7,6 +7,7 @@ import createHandleFormSubmit from "./createHandleFormSubmit";
 
 const CALLED_ONCE = 1;
 
+/** Builds default EventFormValues with optional overrides for focused assertions. */
 function makeFormValues(overrides: Partial<EventFormValues> = {}): EventFormValues {
 	return {
 		event_id: undefined,

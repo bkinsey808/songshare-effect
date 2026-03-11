@@ -1,93 +1,58 @@
 import { describe, expect, it } from "vitest";
 
-import isRecord from "@/shared/type-guards/isRecord";
+import makeNull from "@/shared/test-utils/makeNull.test-util";
+import forceCast from "@/react/lib/test-utils/forceCast";
+
+import {
+	createRowWithAllNullables,
+	createRowWithNulls,
+} from "./normalizeEventPublicRow.test-util";
 
 import normalizeEventPublicRow from "./normalizeEventPublicRow";
 
-const NULL_VALUE: unknown = JSON.parse("null");
-
-/**
- * Narrows unknown values to records for test assertions.
- *
- * @param value - Value to narrow
- * @returns The input value as a record
- */
-function toRecordOrThrow(value: unknown): Record<string, unknown> {
-	if (!isRecord(value)) {
-		throw new TypeError("Expected a record value");
-	}
-
-	return value;
-}
+const NOT_A_RECORD = 42;
 
 describe("normalizeEventPublicRow", () => {
-	it("should return non-record values unchanged", () => {
-		const primitiveValue = "not-a-record";
-		const arrayValue = ["a", "b"];
-
-		const normalizedPrimitive = normalizeEventPublicRow(primitiveValue);
-		const normalizedArray = normalizeEventPublicRow(arrayValue);
-
-		expect(normalizedPrimitive).toBe(primitiveValue);
-		expect(normalizedArray).toBe(arrayValue);
+	it("returns value as-is when not a record", () => {
+		expect(normalizeEventPublicRow(makeNull())).toBeNull();
+		expect(normalizeEventPublicRow(NOT_A_RECORD)).toBe(NOT_A_RECORD);
+		expect(normalizeEventPublicRow("string")).toBe("string");
+		expect(normalizeEventPublicRow([])).toStrictEqual([]);
 	});
 
-	it("should convert known nullable fields from null to undefined", () => {
-		const row: unknown = JSON.parse(`{
-			"active_playlist_id": null,
-			"active_slide_position": null,
-			"active_song_id": null,
-			"event_date": null,
-			"event_description": null,
-			"public_notes": null,
-			"created_at": null,
-			"updated_at": null
-		}`);
-
-		const normalized = toRecordOrThrow(normalizeEventPublicRow(row));
-
-		expect(normalized).toMatchObject({
-			active_playlist_id: undefined,
-			active_slide_position: undefined,
-			active_song_id: undefined,
-			event_date: undefined,
-			event_description: undefined,
-			public_notes: undefined,
-			created_at: undefined,
-			updated_at: undefined,
-		});
+	it("converts null to undefined for nullable keys", () => {
+		const input = createRowWithNulls();
+		const result = forceCast<Record<string, unknown>>(normalizeEventPublicRow(input));
+		expect(result["event_id"]).toBe("evt-1");
+		expect(result["active_playlist_id"]).toBeUndefined();
+		expect(result["active_song_id"]).toBeUndefined();
+		expect(result["event_date"]).toBeUndefined();
 	});
 
-	it("should keep non-null values for known nullable fields", () => {
-		const row = {
-			active_playlist_id: "playlist-1",
-			active_slide_position: undefined,
-			active_song_id: "song-1",
-			event_date: "2026-02-16",
-			event_description: "desc",
-			public_notes: "notes",
-			created_at: "2026-02-16T00:00:00Z",
-			updated_at: "2026-02-16T00:00:00Z",
+	it("preserves non-null values", () => {
+		const input = {
+			event_id: "evt-1",
+			active_playlist_id: "pl-1",
+			event_date: "2026-01-01",
 		};
-
-		const normalized = toRecordOrThrow(normalizeEventPublicRow(row));
-
-		expect(normalized).toMatchObject(row);
+		const result = forceCast<Record<string, unknown>>(normalizeEventPublicRow(input));
+		expect(result["active_playlist_id"]).toBe("pl-1");
+		expect(result["event_date"]).toBe("2026-01-01");
 	});
 
-	it("should not mutate the input and should keep unrelated keys as-is", () => {
-		const row: unknown = JSON.parse(`{
-			"event_description": null,
-			"custom_nullable": null,
-			"event_name": "My Event"
-		}`);
-		const rowRecord = toRecordOrThrow(row);
-		const normalized = toRecordOrThrow(normalizeEventPublicRow(rowRecord));
+	it("normalizes all known nullable keys", () => {
+		const input = createRowWithAllNullables();
+		const result = forceCast<Record<string, unknown>>(normalizeEventPublicRow(input));
+		const keys = Object.keys(result);
+		for (const key of keys) {
+			expect(result[key]).toBeUndefined();
+		}
+	});
 
-		expect(normalized).not.toBe(rowRecord);
-		expect(rowRecord["event_description"]).toStrictEqual(NULL_VALUE);
-		expect(normalized["event_description"]).toBeUndefined();
-		expect(normalized["custom_nullable"]).toStrictEqual(NULL_VALUE);
-		expect(normalized["event_name"]).toBe("My Event");
+	it("does not mutate the input object", () => {
+		const input = createRowWithNulls();
+		normalizeEventPublicRow(input);
+		// Input still has null (Supabase shape); we copy to normalized and convert there
+		expect(input["active_playlist_id"]).toBeNull();
 	});
 });

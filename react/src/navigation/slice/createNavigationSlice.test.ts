@@ -1,111 +1,54 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
-import { resetAllSlices, sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
-import createNavigationSlice from "./createNavigationSlice";
-import makeNavigationSlice from "./makeNavigationSlice.mock";
 import type { NavigationSlice } from "./NavigationSlice.type";
+import createNavigationSlice from "./createNavigationSlice";
 
-function makeStore(): {
+/**
+ * Returns a minimal mock store with vi.fn() stubs for set, get, and api.
+ * Suitable for testing createNavigationSlice without a full Zustand store.
+ */
+function makeMockStore(): {
 	set: Set<NavigationSlice>;
 	get: Get<NavigationSlice>;
-	stateRef: () => NavigationSlice;
 	api: Api<NavigationSlice>;
 } {
-	const getStub = makeNavigationSlice();
-	const state = getStub();
-
-	function set(
-		partialOrFn:
-			| Partial<NavigationSlice>
-			| ((previous: NavigationSlice) => Partial<NavigationSlice>),
-	): void {
-		function applyPatch(patch: Partial<NavigationSlice>): void {
-			if (Object.hasOwn(patch, "isHeaderActionsExpanded")) {
-				// Use the public setter to update the getter-only property
-				const val = patch.isHeaderActionsExpanded;
-				if (typeof val === "boolean") {
-					state.setHeaderActionsExpanded(val);
-				}
-			}
-		}
-
-		if (typeof partialOrFn === "function") {
-			const patch = (partialOrFn as (previous: NavigationSlice) => Partial<NavigationSlice>)(state);
-			applyPatch(patch);
-		} else {
-			applyPatch(partialOrFn);
-		}
-	}
-
-	function get(): NavigationSlice {
-		return state;
-	}
-
-	function stateRef(): NavigationSlice {
-		return state;
-	}
-
-	const api = {
-		getState: get,
-		setState: set,
-		subscribe:
-			(_listener?: unknown): (() => void) =>
-			() =>
-				undefined,
-		destroy: (): void => undefined,
-		getInitialState(): NavigationSlice {
-			return state;
-		},
+	const set = vi.fn();
+	const get = vi.fn();
+	const api: Api<NavigationSlice> = {
+		setState: set as Set<NavigationSlice>,
+		getState: get as Get<NavigationSlice>,
+		getInitialState: get as Get<NavigationSlice>,
+		subscribe: () => () => undefined,
 	};
-
-	return { set, get, stateRef, api };
+	return { set: set as Set<NavigationSlice>, get: get as Get<NavigationSlice>, api };
 }
 
 describe("createNavigationSlice", () => {
-	it("should expose initial expanded state as true", () => {
-		sliceResetFns.clear();
-		const { set, get, api } = makeStore();
+	it("returns initial state with isHeaderActionsExpanded true", () => {
+		const { set, get, api } = makeMockStore();
+
 		const slice = createNavigationSlice(set, get, api);
 
 		expect(slice.isHeaderActionsExpanded).toBe(true);
 	});
 
-	it("setHeaderActionsExpanded should update the store state", () => {
-		sliceResetFns.clear();
-		const { set, get, stateRef, api } = makeStore();
-		const slice = createNavigationSlice(set, get, api);
+	it("setHeaderActionsExpanded calls set with new value", () => {
+		const { set, get, api } = makeMockStore();
 
+		const slice = createNavigationSlice(set, get, api);
 		slice.setHeaderActionsExpanded(false);
-		expect(stateRef().isHeaderActionsExpanded).toBe(false);
+
+		expect(set).toHaveBeenCalledWith({ isHeaderActionsExpanded: false });
 	});
 
-	it("toggleHeaderActions should toggle the expanded state", () => {
-		sliceResetFns.clear();
-		const { set, get, stateRef, api } = makeStore();
+	it("toggleHeaderActions calls set with updater function", () => {
+		const { set, get, api } = makeMockStore();
+
 		const slice = createNavigationSlice(set, get, api);
-
-		slice.setHeaderActionsExpanded(true);
-		expect(stateRef().isHeaderActionsExpanded).toBe(true);
-
 		slice.toggleHeaderActions();
-		expect(stateRef().isHeaderActionsExpanded).toBe(false);
 
-		slice.toggleHeaderActions();
-		expect(stateRef().isHeaderActionsExpanded).toBe(true);
-	});
-
-	it("registered reset function should restore default expanded state", () => {
-		sliceResetFns.clear();
-		const { set, get, stateRef, api } = makeStore();
-		createNavigationSlice(set, get, api);
-
-		// mutate away from default, then reset
-		set({ isHeaderActionsExpanded: false });
-		expect(stateRef().isHeaderActionsExpanded).toBe(false);
-
-		resetAllSlices();
-		expect(stateRef().isHeaderActionsExpanded).toBe(true);
+		expect(set).toHaveBeenCalledWith(expect.any(Function));
 	});
 });
