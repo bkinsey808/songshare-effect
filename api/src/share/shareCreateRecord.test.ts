@@ -23,8 +23,33 @@ const VALID_REQUEST = {
 };
 
 describe("createShareRecord", () => {
-	it("returns existing share_id when share already exists for same sender, recipient, and item", async () => {
-		const client = makeShareCreateRecordClient({ existingShareId: EXISTING_SHARE_ID });
+	it("returns existing share_id when share already exists and is pending", async () => {
+		const client = makeShareCreateRecordClient({
+			existingShareId: EXISTING_SHARE_ID,
+			existingStatus: "pending",
+		});
+
+		const result = await Effect.runPromise(createShareRecord(client, SENDER_ID, VALID_REQUEST));
+
+		expect(result).toStrictEqual({ shareId: EXISTING_SHARE_ID });
+	});
+
+	it("resets rejected share to pending when re-sharing, returns existing share_id", async () => {
+		const client = makeShareCreateRecordClient({
+			existingShareId: EXISTING_SHARE_ID,
+			existingStatus: "rejected",
+		});
+
+		const result = await Effect.runPromise(createShareRecord(client, SENDER_ID, VALID_REQUEST));
+
+		expect(result).toStrictEqual({ shareId: EXISTING_SHARE_ID });
+	});
+
+	it("resets accepted share to pending when re-sharing, returns existing share_id", async () => {
+		const client = makeShareCreateRecordClient({
+			existingShareId: EXISTING_SHARE_ID,
+			existingStatus: "accepted",
+		});
 
 		const result = await Effect.runPromise(createShareRecord(client, SENDER_ID, VALID_REQUEST));
 
@@ -45,7 +70,7 @@ describe("createShareRecord", () => {
 
 		const result = await Effect.runPromise(
 			createShareRecord(client, SENDER_ID, VALID_REQUEST).pipe(
-				Effect.map(() => ({ ok: true } as const)),
+				Effect.map(() => ({ ok: true }) as const),
 				Effect.catchAll((err) => Effect.succeed({ ok: false, err })),
 			),
 		);
@@ -55,7 +80,7 @@ describe("createShareRecord", () => {
 	});
 
 	it("includes message in share_public when provided", async () => {
-		const insertSpy = vi.fn< (rows: unknown[]) => void>();
+		const insertSpy = vi.fn<(rows: unknown[]) => void>();
 		const client = makeShareCreateRecordClientWithInsertSpy(insertSpy);
 
 		await Effect.runPromise(

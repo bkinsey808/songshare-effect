@@ -67,7 +67,7 @@ export default function CommunityManageBody({
 							onSelect={setInviteUserIdInput}
 							disabled={actionState.loadingKey === "invite"}
 							excludeUserIds={members
-								.filter((member) => member.status !== "kicked")
+								.filter((member) => member.status === "joined" || member.status === "invited")
 								.map((member) => member.user_id)}
 						/>
 					</div>
