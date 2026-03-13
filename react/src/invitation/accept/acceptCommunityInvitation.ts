@@ -28,7 +28,6 @@ export default function acceptCommunityInvitation(
 			pendingCommunityInvitations,
 		} = get();
 
-		console.warn(`[acceptCommunityInvitation] Accepting invitation for community: ${communityId}`);
 		setInvitationLoading(true);
 		setInvitationError(undefined);
 

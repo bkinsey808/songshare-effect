@@ -402,10 +402,16 @@ test.describe("Community Invitation", () => {
 	test.beforeEach(async ({ browser }) => {
 		const adminCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH });
 		const adminPage = await adminCtx.newPage();
+		const recipientCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH_2 });
+		const recipientPage = await recipientCtx.newPage();
 		try {
-			await ensureUserNotInCommunity(adminPage);
+			await Promise.all([
+				ensureUserNotInCommunity(adminPage),
+				clearAllPendingPeerShares(recipientPage),
+			]);
 		} finally {
 			await adminCtx.close();
+			await recipientCtx.close();
 		}
 	});
 
@@ -442,7 +448,16 @@ test.describe("Community Invitation", () => {
 			await expect(inviteePage.getByText(/pending invitations/i)).toBeVisible({
 				timeout: REALTIME_WAIT_MS,
 			});
+			const communityJoinP = inviteePage.waitForResponse(/\/api\/community-user\/join/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 			await inviteePage.getByRole("button", { name: "Accept", exact: true }).first().click();
+			const communityJoinResponse = await communityJoinP;
+			const communityJoinBody = await communityJoinResponse.text().catch(() => "(unreadable)");
+			expect(
+				communityJoinResponse.ok(),
+				`Community join API error — status ${String(communityJoinResponse.status())}: ${communityJoinBody}`,
+			).toBe(true);
 
 			// Accept button disappears; "Visit Community →" link appears
 			await expect(
@@ -515,10 +530,16 @@ test.describe("Event Invitation", () => {
 	test.beforeEach(async ({ browser }) => {
 		const adminCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH });
 		const adminPage = await adminCtx.newPage();
+		const recipientCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH_2 });
+		const recipientPage = await recipientCtx.newPage();
 		try {
-			await ensureUserNotInEvent(adminPage);
+			await Promise.all([
+				ensureUserNotInEvent(adminPage),
+				clearAllPendingPeerShares(recipientPage),
+			]);
 		} finally {
 			await adminCtx.close();
+			await recipientCtx.close();
 		}
 	});
 
@@ -563,7 +584,16 @@ test.describe("Event Invitation", () => {
 			await expect(inviteePage.getByText(/pending invitations/i)).toBeVisible({
 				timeout: REALTIME_WAIT_MS,
 			});
+			const eventJoinP = inviteePage.waitForResponse(/\/api\/event-user\/join/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 			await inviteePage.getByRole("button", { name: "Accept", exact: true }).first().click();
+			const eventJoinResponse = await eventJoinP;
+			const eventJoinBody = await eventJoinResponse.text().catch(() => "(unreadable)");
+			expect(
+				eventJoinResponse.ok(),
+				`Event join API error — status ${String(eventJoinResponse.status())}: ${eventJoinBody}`,
+			).toBe(true);
 
 			// Accept button disappears; "Visit Event →" link appears
 			await expect(
