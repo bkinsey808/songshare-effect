@@ -67,9 +67,19 @@ export default function buildUserSessionJwt({
 		);
 		const finalUsername = username ?? existingUser.name;
 
+		// Strip null values from the user object so schema optional fields
+		// (string | undefined) don't fail validation — Supabase returns null for
+		// absent columns but the Effect schema uses Schema.optional which accepts
+		// absent/undefined, not null.
+		const cleanUser = Object.fromEntries(
+			Object.entries(existingUser as Record<string, unknown>).filter(
+				([, val]) => val !== null,
+			),
+		);
+
 		// Create user session data
 		const sessionData = {
-			user: existingUser,
+			user: cleanUser,
 			userPublic: {
 				user_id: existingUser.user_id,
 				username: finalUsername,

@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import forceCast from "@/react/lib/test-utils/forceCast";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
@@ -29,14 +30,20 @@ function makeValidSongPublic(overrides: Partial<SongPublic> = {}): SongPublic {
 	return makeSongPublic({ song_slug: VALID_SLUG, ...overrides });
 }
 
-function installStoreMocks(mockAdd: unknown, mockGet: unknown): void {
+function installStoreMocks(
+	mockAdd: unknown,
+	mockPublicSongs: Record<string, SongPublic> = {},
+	mockPrivateSongs: Record<string, unknown> = {},
+): void {
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
-		const selectorText = String(selector);
-		if (selectorText.includes("addActivePublicSongSlugs")) {
-			return mockAdd;
-		}
-		if (selectorText.includes("getSongBySlug")) {
-			return mockGet;
+		if (typeof selector === "function") {
+			const fakeState = {
+				addActivePublicSongSlugs: mockAdd,
+				publicSongs: mockPublicSongs,
+				privateSongs: mockPrivateSongs,
+				userSessionData: undefined,
+			};
+			return forceCast<(state: typeof fakeState) => unknown>(selector)(fakeState);
 		}
 		return undefined;
 	});
@@ -47,8 +54,7 @@ describe("useSongView", () => {
 		installEffectMock();
 		vi.mocked(useParams).mockReturnValue({});
 		const mockAdd = vi.fn();
-		const mockGet = vi.fn();
-		installStoreMocks(mockAdd, mockGet);
+		installStoreMocks(mockAdd);
 
 		const { result } = renderHook(() => useSongView());
 
@@ -56,15 +62,13 @@ describe("useSongView", () => {
 		expect(result.current.songData).toBeUndefined();
 		expect(result.current.songPublic).toBeUndefined();
 		expect(mockAdd).not.toHaveBeenCalled();
-		expect(mockGet).not.toHaveBeenCalled();
 	});
 
 	it("returns not found when song_slug is empty string", () => {
 		installEffectMock();
 		vi.mocked(useParams).mockReturnValue({ song_slug: EMPTY_SLUG });
 		const mockAdd = vi.fn();
-		const mockGet = vi.fn();
-		installStoreMocks(mockAdd, mockGet);
+		installStoreMocks(mockAdd);
 
 		const { result } = renderHook(() => useSongView());
 
@@ -72,15 +76,13 @@ describe("useSongView", () => {
 		expect(result.current.songData).toBeUndefined();
 		expect(result.current.songPublic).toBeUndefined();
 		expect(mockAdd).not.toHaveBeenCalled();
-		expect(mockGet).not.toHaveBeenCalled();
 	});
 
 	it("returns not found when song_slug is whitespace", () => {
 		installEffectMock();
 		vi.mocked(useParams).mockReturnValue({ song_slug: WHITESPACE_SLUG });
 		const mockAdd = vi.fn();
-		const mockGet = vi.fn();
-		installStoreMocks(mockAdd, mockGet);
+		installStoreMocks(mockAdd);
 
 		const { result } = renderHook(() => useSongView());
 
@@ -88,15 +90,13 @@ describe("useSongView", () => {
 		expect(result.current.songData).toBeUndefined();
 		expect(result.current.songPublic).toBeUndefined();
 		expect(mockAdd).not.toHaveBeenCalled();
-		expect(mockGet).not.toHaveBeenCalled();
 	});
 
-	it("returns not found when getSongBySlug returns undefined", () => {
+	it("returns not found when slug is not in publicSongs", () => {
 		installEffectMock();
 		vi.mocked(useParams).mockReturnValue({ song_slug: INVALID_SLUG });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
-		const mockGet = vi.fn().mockReturnValue(undefined);
-		installStoreMocks(mockAdd, mockGet);
+		installStoreMocks(mockAdd);
 
 		const { result } = renderHook(() => useSongView());
 
@@ -104,23 +104,22 @@ describe("useSongView", () => {
 		expect(result.current.songData).toBeUndefined();
 		expect(result.current.songPublic).toBeUndefined();
 		expect(mockAdd).toHaveBeenCalledWith([INVALID_SLUG]);
-		expect(mockGet).toHaveBeenCalledWith(INVALID_SLUG);
 	});
 
-	it("returns not found when songPublic is undefined", () => {
+	it("returns not found when publicSongs entry fails schema validation", () => {
 		installEffectMock();
+		// Construct a value that has the right slug to be found but fails songPublicSchema.
+		const invalidSong = forceCast<SongPublic>({ song_slug: VALID_SLUG, invalid: true });
 		vi.mocked(useParams).mockReturnValue({ song_slug: VALID_SLUG });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
-		const mockGet = vi.fn().mockReturnValue({ song: {}, songPublic: undefined });
-		installStoreMocks(mockAdd, mockGet);
+		installStoreMocks(mockAdd, { "fake-id": invalidSong });
 
 		const { result } = renderHook(() => useSongView());
 
 		expect(result.current.isNotFound).toBe(true);
-		expect(result.current.songData).toStrictEqual({ song: {}, songPublic: undefined });
+		expect(result.current.songData?.songPublic).toStrictEqual(invalidSong);
 		expect(result.current.songPublic).toBeUndefined();
 		expect(mockAdd).toHaveBeenCalledWith([VALID_SLUG]);
-		expect(mockGet).toHaveBeenCalledWith(VALID_SLUG);
 	});
 
 	it("returns found when songPublic decodes successfully", () => {
@@ -128,45 +127,14 @@ describe("useSongView", () => {
 		const songPublic = makeValidSongPublic();
 		vi.mocked(useParams).mockReturnValue({ song_slug: VALID_SLUG });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
-		const mockGet = vi.fn().mockReturnValue({ song: {}, songPublic });
-		installStoreMocks(mockAdd, mockGet);
+		installStoreMocks(mockAdd, { [songPublic.song_id]: songPublic });
 
 		const { result } = renderHook(() => useSongView());
 
 		expect(result.current.isNotFound).toBe(false);
-		expect(result.current.songData).toStrictEqual({ song: {}, songPublic });
+		expect(result.current.songData?.songPublic).toStrictEqual(songPublic);
 		expect(result.current.songPublic).toStrictEqual(songPublic);
 		expect(mockAdd).toHaveBeenCalledWith([VALID_SLUG]);
-		expect(mockGet).toHaveBeenCalledWith(VALID_SLUG);
-	});
-
-	it("returns not found when songPublic decode fails", () => {
-		installEffectMock();
-		const invalidSongPublic = { invalid: true };
-		vi.mocked(useParams).mockReturnValue({ song_slug: VALID_SLUG });
-		const mockAdd = vi.fn().mockResolvedValue(undefined);
-		const mockGet = vi.fn().mockReturnValue({ song: {}, songPublic: invalidSongPublic });
-		installStoreMocks(mockAdd, mockGet);
-
-		const { result } = renderHook(() => useSongView());
-
-		expect(result.current.isNotFound).toBe(true);
-		expect(result.current.songData).toStrictEqual({ song: {}, songPublic: invalidSongPublic });
-		expect(result.current.songPublic).toBeUndefined();
-		expect(mockAdd).toHaveBeenCalledWith([VALID_SLUG]);
-		expect(mockGet).toHaveBeenCalledWith(VALID_SLUG);
-	});
-
-	it("throws when getSongBySlug throws", () => {
-		installEffectMock();
-		vi.mocked(useParams).mockReturnValue({ song_slug: VALID_SLUG });
-		const mockAdd = vi.fn().mockResolvedValue(undefined);
-		const mockGet = vi.fn(() => {
-			throw new Error("boom");
-		});
-		installStoreMocks(mockAdd, mockGet);
-
-		expect(() => renderHook(() => useSongView())).toThrow("boom");
 	});
 
 	it("trims surrounding whitespace from slug before passing to store and decoding", () => {
@@ -176,32 +144,12 @@ describe("useSongView", () => {
 		vi.mocked(useParams).mockReturnValue({ song_slug: padded });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
 		const songPublic = makeValidSongPublic({ song_slug: trimmed });
-		const mockGet = vi.fn().mockReturnValue({ song: {}, songPublic });
-		installStoreMocks(mockAdd, mockGet);
+		installStoreMocks(mockAdd, { [songPublic.song_id]: songPublic });
 
 		const { result } = renderHook(() => useSongView());
 
 		expect(mockAdd).toHaveBeenCalledWith([trimmed]);
-		expect(mockGet).toHaveBeenCalledWith(trimmed);
-		expect(result.current.songData).toStrictEqual({ song: {}, songPublic });
-		expect(result.current.songPublic).toStrictEqual(songPublic);
-		expect(result.current.isNotFound).toBe(false);
-	});
-
-	it("passes raw slug with surrounding whitespace to store functions", () => {
-		installEffectMock();
-		const padded = "  padded-slug  ";
-		vi.mocked(useParams).mockReturnValue({ song_slug: padded });
-		const mockAdd = vi.fn().mockResolvedValue(undefined);
-		const songPublic = makeValidSongPublic({ song_slug: padded.trim() });
-		const mockGet = vi.fn().mockReturnValue({ song: {}, songPublic });
-		installStoreMocks(mockAdd, mockGet);
-
-		const { result } = renderHook(() => useSongView());
-
-		expect(mockAdd).toHaveBeenCalledWith([padded.trim()]);
-		expect(mockGet).toHaveBeenCalledWith(padded.trim());
-		expect(result.current.songData).toStrictEqual({ song: {}, songPublic });
+		expect(result.current.songData?.songPublic).toStrictEqual(songPublic);
 		expect(result.current.songPublic).toStrictEqual(songPublic);
 		expect(result.current.isNotFound).toBe(false);
 	});

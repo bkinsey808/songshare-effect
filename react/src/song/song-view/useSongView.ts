@@ -12,12 +12,15 @@ import { type SongPublic, songPublicSchema } from "../song-schema";
  *
  * Keeping this shape intentionally small avoids coupling the hook to the
  * entire store API and makes it explicit what the hook depends on.
+ *
+ * `publicSongs` and `privateSongs` are included to enable reactive re-renders
+ * when song data loads from Supabase. Using a stable `getSongBySlug` function
+ * reference alone would not trigger updates when the underlying maps change.
  */
 type SongMethods = {
 	addActivePublicSongSlugs: (slugs: readonly string[]) => Promise<void>;
-	getSongBySlug: (
-		slug: string,
-	) => { song: unknown; songPublic: SongPublic | undefined } | undefined;
+	publicSongs: Readonly<Record<string, SongPublic>>;
+	privateSongs: Readonly<Record<string, unknown>>;
 };
 
 /**
@@ -61,7 +64,24 @@ export function useSongView(): UseSongViewResult {
 	const addActivePublicSongSlugs = useAppStore(
 		(state: Readonly<SongMethods>) => state.addActivePublicSongSlugs,
 	);
-	const getSongBySlug = useAppStore((state: Readonly<SongMethods>) => state.getSongBySlug);
+
+	// Subscribe directly to publicSongs so this hook re-renders when song data
+	// arrives from Supabase. Using getSongBySlug (a stable function reference)
+	// alone would not trigger re-renders when publicSongs changes.
+	const songPublicEntry = useAppStore((state: Readonly<SongMethods>) => {
+		if (songSlug === undefined || songSlug === "") {
+			return undefined;
+		}
+		return Object.values(state.publicSongs).find((song) => song.song_slug === songSlug);
+	});
+
+	const privateSongEntry = useAppStore((state: Readonly<SongMethods>) => {
+		if (songPublicEntry === undefined) {
+			return undefined;
+		}
+		return state.privateSongs[songPublicEntry.song_id];
+	});
+
 	const currentUserId = useAppStore((state) => state.userSessionData?.user?.user_id);
 
 	if (songSlug !== undefined && songSlug !== "") {
@@ -71,7 +91,10 @@ export function useSongView(): UseSongViewResult {
 		void addActivePublicSongSlugs([songSlug]);
 	}
 
-	const songData = songSlug === undefined || songSlug === "" ? undefined : getSongBySlug(songSlug);
+	const songData =
+		songPublicEntry === undefined
+			? undefined
+			: { song: privateSongEntry, songPublic: songPublicEntry as SongPublic | undefined };
 
 	const songPublic: SongPublic | undefined =
 		songData === undefined

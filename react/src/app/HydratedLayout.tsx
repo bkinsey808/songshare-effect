@@ -1,8 +1,10 @@
 import { Outlet } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import useEnsureSignedIn from "@/react/auth/ensure-signed-in/useEnsureSignedIn";
 import Navigation from "@/react/navigation/Navigation";
 import useIsScrolled from "@/react/navigation/useIsScrolled";
+import useInitUserLibrary from "@/react/user-library/useInitUserLibrary";
 
 import ErrorBoundary from "../demo/ErrorBoundary";
 
@@ -16,6 +18,11 @@ import ErrorBoundary from "../demo/ErrorBoundary";
  * @returns - React element rendering hydrated layout with navigation and outlet
  */
 export default function HydratedLayout(): ReactElement {
+	// Initialize auth on every page so public routes (songs, communities, events)
+	// can read userSessionData and userLibraryEntries from the store.
+	useEnsureSignedIn();
+	useInitUserLibrary();
+
 	// Use persisted app store for header actions so the toggle state survives refresh
 	const isActionsExpanded = useAppStore((state) => state.isHeaderActionsExpanded);
 	const setIsActionsExpanded = useAppStore((state) => state.setHeaderActionsExpanded);

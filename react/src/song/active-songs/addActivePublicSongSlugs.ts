@@ -1,6 +1,6 @@
 import type { Get } from "@/react/app-store/app-store-types";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
-import isRecord from "@/shared/type-guards/isRecord";
+import getSupabaseClientToken from "@/react/lib/supabase/auth-token/getSupabaseClientToken";
 import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
@@ -8,7 +8,6 @@ import decodeSongData from "./decodeSongData";
 import fetchPublicSongsBySlugs from "./fetchPublicSongsBySlugs";
 import findMissingSongSlugs from "./findMissingSongSlugs";
 import updateStoreWithPublicSongs from "./updateStoreWithPublicSongs";
-import validateVisitorToken from "./validateVisitorToken";
 
 /**
  * Add public songs to the active subscription list by slug. Fetches missing
@@ -42,14 +41,15 @@ export default function addActivePublicSongSlugs(
 			return;
 		}
 
-		// Validate visitor token — the token lives on the app-level state in practice
-		// but we treat it as an optional unknown here for safety.
-		let visitorToken: unknown = undefined;
-		if (isRecord(state)) {
-			const { visitorToken: vt } = state as Record<string, unknown>;
-			visitorToken = vt;
-		}
-		if (!validateVisitorToken(visitorToken)) {
+		// Fetch visitor token to authenticate the Supabase client
+		const visitorToken = await getSupabaseClientToken().catch((error: unknown) => {
+			console.warn(
+				"[addActivePublicSongSlugs] Could not obtain visitor token. Cannot fetch songs.",
+				error,
+			);
+			return undefined;
+		});
+		if (visitorToken === undefined) {
 			return;
 		}
 

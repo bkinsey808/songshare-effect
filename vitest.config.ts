@@ -71,6 +71,9 @@ export default defineConfig({
 				url: "https://localhost",
 			},
 		},
+		// Enable globals so ESLint RuleTester can find describe/it when running
+		// eslint-rules/*.test.ts files inside Vitest.
+		globals: true,
 		include: ["**/*.test.ts", "**/*.test.tsx"],
 		exclude: ["**/*.spec.ts", "**/*.spec.tsx", "dist/**", "node_modules/**", "e2e/**"],
 		coverage: {

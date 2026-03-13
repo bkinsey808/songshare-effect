@@ -110,3 +110,37 @@ export function createTestUser(overrides: Partial<MockUserSession["user"]> = {})
 		},
 	};
 }
+
+/**
+ * Path to the pre-generated real-user storageState file.
+ *
+ * This file is produced by running:
+ *   bun e2e/utils/create-google-user-session.bun.ts
+ *
+ * Use with `test.use({ storageState: GOOGLE_USER_SESSION_PATH })` in specs
+ * that need a real authenticated session (real DB interactions, RLS, etc.).
+ *
+ * @example
+ * ```typescript
+ * import { GOOGLE_USER_SESSION_PATH } from "./utils/auth-helpers";
+ * test.use({ storageState: GOOGLE_USER_SESSION_PATH });
+ * ```
+ */
+export const GOOGLE_USER_SESSION_PATH = "e2e/.auth/google-user.json";
+
+/**
+ * Path to the pre-generated real-user storageState file for the second test user.
+ *
+ * This file is produced by running:
+ *   npm run e2e:create-session:staging-db:user2
+ *
+ * Used in two-user tests (sharing, invitations) where both a sender and a
+ * recipient need independent authenticated browser contexts.
+ *
+ * @example
+ * ```typescript
+ * import { GOOGLE_USER_SESSION_PATH_2 } from "./utils/auth-helpers";
+ * const recipientCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH_2 });
+ * ```
+ */
+export const GOOGLE_USER_SESSION_PATH_2 = "e2e/.auth/google-user-2.json";

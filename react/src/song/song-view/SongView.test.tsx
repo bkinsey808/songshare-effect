@@ -11,9 +11,11 @@ import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSe
 import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
+import { type SongPublic } from "../song-schema";
 
 import SongView from "./SongView";
 import SongViewLibraryAction from "./SongViewLibraryAction";
+
 
 // Mock react-router so tests can control `useParams` return values
 vi.mock("react-router-dom");
@@ -57,35 +59,20 @@ function installUiMocks(): void {
 	vi.mocked(useShareSubscription).mockImplementation(() => undefined);
 }
 
-function makeSongPublicLike(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-	return makeSongPublic({
-		song_slug: MY_SLUG,
-		...(overrides as Partial<Partial<Record<string, unknown>>>),
-	});
-}
-
-/**
- * Stub `useAppStoreSelector` to return provided mocks depending on which
- * selector is used. Tests reference selectors by their function name, so
- * we stringify the selector and match substrings to decide which mock to
- * return.
- *
- * @param mockAdd - returned value when the selector looks like `addActivePublicSongSlugs`
- * @param mockGet - returned value when the selector looks like `getSongBySlug`
- */
-function installStoreMocks(mockAdd: unknown, mockGet: unknown, mockUserId?: string): void {
+function installStoreMocks(
+	mockAdd: unknown,
+	publicSongs: Record<string, SongPublic> = {},
+	mockUserId?: string,
+): void {
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
-		const selectorText = String(selector);
-		if (selectorText.includes("addActivePublicSongSlugs")) {
-			return mockAdd;
-		}
-		if (selectorText.includes("getSongBySlug")) {
-			return mockGet;
-		}
-		if (selectorText.includes("userSessionData")) {
-			return { user: { user_id: mockUserId } };
-		}
-		return undefined;
+		const fakeState = {
+			addActivePublicSongSlugs: mockAdd,
+			publicSongs,
+			privateSongs: {},
+			userSessionData:
+			mockUserId === undefined ? undefined : { user: { user_id: mockUserId } },
+		};
+		return forceCast<(state: typeof fakeState) => unknown>(selector)(fakeState);
 	});
 }
 
@@ -94,7 +81,7 @@ describe("song view", () => {
 	it("renders 'Song not found' when no song param is present", () => {
 		installUiMocks();
 		vi.mocked(useParams).mockReturnValue({});
-		installStoreMocks(vi.fn(), vi.fn());
+		installStoreMocks(vi.fn());
 
 		const { getByText } = render(<SongView />);
 
@@ -106,9 +93,8 @@ describe("song view", () => {
 		installUiMocks();
 		vi.mocked(useParams).mockReturnValue({ song_slug: MY_SLUG });
 		const mockAdd = vi.fn().mockResolvedValue(undefined);
-		const songPublic = makeSongPublicLike({ user_id: "owner-1" });
-		const mockGet = vi.fn().mockReturnValue({ song: undefined, songPublic });
-		installStoreMocks(mockAdd, mockGet, "not-owner");
+		const songPublic = makeSongPublic({ song_slug: MY_SLUG, user_id: "owner-1" });
+		installStoreMocks(mockAdd, { [songPublic.song_id]: songPublic }, "not-owner");
 		const mockAutoAdd = vi.mocked(addUserToLibraryEffect);
 		vi.mocked(mockAutoAdd).mockReturnValue(Effect.sync(() => undefined));
 
@@ -117,18 +103,16 @@ describe("song view", () => {
 		expect(getByRole("heading", { name: "My Song" })).toBeTruthy();
 		expect(getByText(MY_SLUG)).toBeTruthy();
 		expect(mockAdd).toHaveBeenCalledWith([MY_SLUG]);
-		expect(mockGet).toHaveBeenCalledWith(MY_SLUG);
 		// Auto-add should be called with the owner id as the request shape
 		expect(mockAutoAdd).toHaveBeenCalledWith({ followed_user_id: "owner-1" }, expect.any(Function));
 		cleanup();
 	});
 
-	it("shows Song not found when songPublic is empty or invalid", () => {
+	it("shows Song not found when slug is not in publicSongs", () => {
 		installUiMocks();
 		vi.mocked(useParams).mockReturnValue({ song_slug: NO_SLUG });
 		const mockAdd = vi.fn();
-		const mockGet = vi.fn().mockReturnValue({ song: {}, songPublic: {} });
-		installStoreMocks(mockAdd, mockGet);
+		installStoreMocks(mockAdd);
 
 		const { getAllByText } = render(<SongView />);
 
@@ -136,7 +120,6 @@ describe("song view", () => {
 		expect(matches.length).toBeGreaterThanOrEqual(MIN_ONE);
 		expect(matches[FIRST_INDEX]).toBeTruthy();
 		expect(mockAdd).toHaveBeenCalledWith([NO_SLUG]);
-		expect(mockGet).toHaveBeenCalledWith(NO_SLUG);
 		cleanup();
 	});
 
@@ -145,8 +128,7 @@ describe("song view", () => {
 		installUiMocks();
 		vi.mocked(useParams).mockReturnValue({ song_slug: WHITESPACE_SLUG });
 		const mockAdd = vi.fn();
-		const mockGet = vi.fn().mockReturnValue(undefined);
-		installStoreMocks(mockAdd, mockGet);
+		installStoreMocks(mockAdd);
 
 		const { getAllByText } = render(<SongView />);
 
@@ -154,6 +136,5 @@ describe("song view", () => {
 		const EXPECTED_MATCHES = 1;
 		expect(matches.length).toBeGreaterThanOrEqual(EXPECTED_MATCHES);
 		expect(mockAdd).not.toHaveBeenCalled();
-		expect(mockGet).not.toHaveBeenCalled();
 	});
 });

@@ -234,6 +234,101 @@ See complete examples in:
 - `e2e/authenticated-user.spec.ts` - Various authenticated user scenarios
 - `e2e/dashboard.spec.ts` - Dashboard-specific authentication tests
 
+## Real Session Authentication (Staging DB / Staging URL)
+
+For tests that require a **real authenticated session** (Realtime subscriptions, actual DB rows,
+RLS enforcement), use the pre-signed cookie approach instead of mocking `/api/me`.
+
+### Setup: create `.env.staging` and `.env.staging-local`
+
+Both files are gitignored — copy them from a teammate or from this template:
+
+**`.env.staging`** — staging Supabase + all server vars (get from the project readme)
+
+**`.env.staging-local`** — staging Supabase vars only; `VITE_API_BASE_URL` falls through to
+`.env`'s local value (`http://localhost:8787`):
+```
+VITE_SUPABASE_URL=https://tsqnanlwllbpgytqfwwi.supabase.co
+VITE_SUPABASE_ANON_KEY=<staging anon key>
+```
+
+### Scenario 1 — Localhost servers, staging DB (Realtime included)
+
+```bash
+# Start local servers: frontend uses staging Supabase (Realtime works),
+# API uses staging wrangler config
+npm run dev:all:staging
+
+# Generate session file (valid 7 days)
+npm run e2e:create-session:staging-db
+
+# Run tests as usual
+npm run test:e2e:dev
+```
+
+In your spec:
+```typescript
+import { GOOGLE_USER_SESSION_PATH } from "../utils/auth-helpers";
+test.use({ storageState: GOOGLE_USER_SESSION_PATH });
+```
+
+### Scenario 2 — Tests against staging.bardoshare.com
+
+```bash
+# Generate session with your real public IP embedded
+npm run e2e:create-session:staging-url
+
+# Run tests against the deployed staging URL
+npm run test:e2e:staging
+```
+
+Override IP if needed (e.g. behind a VPN):
+```bash
+E2E_CLIENT_IP=1.2.3.4 npm run e2e:create-session:staging-url
+```
+
+### Re-generating the session file
+
+The JWT expires after 7 days. Re-run the matching `e2e:create-session:*` command to refresh it.
+
+### Two authenticated users (sharing / invitation tests)
+
+For tests that exercise interactions *between* two real users (e.g. sharing a song, accepting a
+community invitation), generate a second session file and open independent `BrowserContext`
+instances backed by each file:
+
+```bash
+# Generate session files (once, valid 7 days)
+npm run e2e:create-session:staging-db        # user 1 → e2e/.auth/google-user.json
+npm run e2e:create-session:staging-db:user2  # user 2 → e2e/.auth/google-user-2.json
+```
+
+In your spec use the `browser` fixture (not `page`) and create two contexts:
+
+```typescript
+import { test, expect, type Browser, type BrowserContext } from "@playwright/test";
+import {
+  GOOGLE_USER_SESSION_PATH,
+  GOOGLE_USER_SESSION_PATH_2,
+} from "../utils/auth-helpers";
+
+test("sender shares a song and recipient accepts", async ({ browser }) => {
+  const senderCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH });
+  const recipientCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH_2 });
+  try {
+    const senderPage = await senderCtx.newPage();
+    const recipientPage = await recipientCtx.newPage();
+    // ... test logic
+  } finally {
+    await senderCtx.close();
+    await recipientCtx.close();
+  }
+});
+```
+
+See `e2e/specs/sharing.spec.ts` for the full set of sharing and invitation tests and the
+`createTwoUserContexts` helper. Full setup guide: `docs/testing/e2e-staging-db.md`.
+
 ## Troubleshooting
 
 ### Test fails with "Not authenticated" error
@@ -315,4 +410,5 @@ test.describe.each([{ authenticated: true }, { authenticated: false }])(
 
 - [Authentication System](../docs/authentication-system.md) - How auth works in the app
 - [Login Flow](../docs/login-flow.md) - OAuth flow details
+- [Staging DB E2E Guide](../docs/testing/e2e-staging-db.md) - Real sessions, two-user sharing tests
 - [Playwright Documentation](https://playwright.dev/docs/intro) - Playwright basics
