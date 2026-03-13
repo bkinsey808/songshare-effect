@@ -63,8 +63,12 @@ export default function ShareButton({
 		const sentShares = state?.sentShares ?? {};
 		return Object.values(sentShares)
 			.filter(
-				(share: { shared_item_type: string; shared_item_id: string }) =>
-					share.shared_item_type === itemType && share.shared_item_id === itemId,
+				(share: { shared_item_type: string; shared_item_id: string; status: string }) =>
+					share.shared_item_type === itemType &&
+					share.shared_item_id === itemId &&
+					// Only exclude users with a pending (awaiting response) share; allow
+					// re-sharing after a rejection or accepted share becomes outdated.
+					share.status === "pending",
 			)
 			.map((share: { recipient_user_id: string }) => share.recipient_user_id);
 	}

@@ -61,11 +61,7 @@ describe("getSupabaseClientWithAuth", () => {
 
 		expect(result).toBeUndefined();
 		// should include final failure message in logged calls
-		expect(errorSpy.mock.calls).toStrictEqual(
-			expect.arrayContaining([
-				expect.arrayContaining([expect.stringContaining("All retry attempts failed")]),
-			]),
-		);
+		expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("All retry attempts failed"));
 		errorSpy.mockRestore();
 	});
 

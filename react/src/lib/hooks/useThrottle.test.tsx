@@ -59,7 +59,11 @@ describe("useThrottle", () => {
 		throttled(FOUR);
 		await delay(SHORT);
 
-		expect(cb.mock.calls).toStrictEqual([[ONE], [TWO], [THREE], [FOUR]]);
+		expect(cb).toHaveBeenCalledTimes(FOUR);
+		expect(cb).toHaveBeenNthCalledWith(ONE, ONE);
+		expect(cb).toHaveBeenNthCalledWith(TWO, TWO);
+		expect(cb).toHaveBeenNthCalledWith(THREE, THREE);
+		expect(cb).toHaveBeenNthCalledWith(FOUR, FOUR);
 	});
 
 	it("flush() immediately invokes pending value and clears timer", async () => {

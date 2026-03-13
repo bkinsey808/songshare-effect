@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+import { Effect } from "effect";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
@@ -72,6 +73,7 @@ export default function useCommunityManageBody(
 	const fetchCommunityBySlug = useAppStore((state) => state.fetchCommunityBySlug);
 	const fetchSongLibrary = useAppStore((state) => state.fetchSongLibrary);
 	const fetchPlaylistLibrary = useAppStore((state) => state.fetchPlaylistLibrary);
+	const fetchUserLibrary = useAppStore((state) => state.fetchUserLibrary);
 
 	const communityId = currentCommunity.community_id;
 	const activeEventId = currentCommunity.active_event_id;
@@ -90,6 +92,21 @@ export default function useCommunityManageBody(
 
 	useLoadCommunityLibraries(userSessionData?.user?.user_id, fetchSongLibrary, fetchPlaylistLibrary);
 	useCommunityManageSubscriptions(communityId);
+
+	// Load user library on mount so the invite search input is populated.
+	// This mirrors useEventParticipantManagement and ensures the dropdown has
+	// data available before the admin types into the invite field.
+	useEffect(() => {
+		void (async (): Promise<void> => {
+			try {
+				await Effect.runPromise(fetchUserLibrary());
+			} catch {
+				// Keep community screens usable even if user library fails to load.
+			}
+		})();
+		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
+		return;
+	}, [fetchUserLibrary]);
 
 	const availableSongOptions = Object.values(songLibraryEntries) as readonly {
 		song_id: string;

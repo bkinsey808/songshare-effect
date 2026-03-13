@@ -225,7 +225,8 @@ describe("useCommunityView", () => {
 			expect(screen.getByTestId("isJoinLoading").textContent).toBe("false");
 		});
 		expect(joinMock).toHaveBeenCalledWith("c5", { silent: true });
-		expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(beforeJoinFetchCalls + ONE_CALL);
+		const afterJoinFetchCalls = fetchMock.mock.calls.length;
+		expect(afterJoinFetchCalls).toBeGreaterThanOrEqual(beforeJoinFetchCalls + ONE_CALL);
 
 		const beforeLeaveFetchCalls = fetchMock.mock.calls.length;
 		fireEvent.click(screen.getByText("leave"));
@@ -234,6 +235,7 @@ describe("useCommunityView", () => {
 			expect(screen.getByTestId("isLeaveLoading").textContent).toBe("false");
 		});
 		expect(leaveMock).toHaveBeenCalledWith("c5", { silent: true });
-		expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(beforeLeaveFetchCalls + ONE_CALL);
+		const afterLeaveFetchCalls = fetchMock.mock.calls.length;
+		expect(afterLeaveFetchCalls).toBeGreaterThanOrEqual(beforeLeaveFetchCalls + ONE_CALL);
 	});
 });

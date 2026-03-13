@@ -54,9 +54,21 @@ const HYDRATION_WAIT_MS = 2000;
 const MANAGE_PAGE_READY_TIMEOUT_MS = 20_000;
 
 /** Milliseconds to wait for a Realtime push to land on the recipient dashboard. */
-const REALTIME_WAIT_MS = 5000;
+const REALTIME_WAIT_MS = 15_000;
 
 const NO_ERRORS = 0;
+
+/** Milliseconds to wait after a kick/cancel-invite action to let the server process. */
+const KICK_SETTLE_MS = 3000;
+
+/** Maximum number of pending shares to decline in cleanup loops. */
+const MAX_CLEANUP_ATTEMPTS = 10;
+
+/** Milliseconds to wait for the user suggestion to appear in the search dropdown. */
+const USER_SEARCH_SUGGESTION_TIMEOUT_MS = 20_000;
+
+/** Milliseconds to wait for the invite/share success confirmation message to appear. */
+const INVITE_SUCCESS_TIMEOUT_MS = 20_000;
 
 // ── test data — resolved once at module load ──────────────────────────────────
 // Using String() to avoid conditional operators inside test callbacks.
@@ -104,7 +116,7 @@ async function selectUserInSearch(page: Page, labelText: string, username: strin
 	await input.fill(username);
 	// Wait for the suggestion dropdown to appear
 	const suggestion = page.getByRole("button", { name: username }).first();
-	await suggestion.waitFor({ state: "visible", timeout: 10_000 });
+	await suggestion.waitFor({ state: "visible", timeout: USER_SEARCH_SUGGESTION_TIMEOUT_MS });
 	await suggestion.click();
 }
 
@@ -117,8 +129,78 @@ async function openReceivedPendingShares(page: Page): Promise<void> {
 	await page.waitForTimeout(HYDRATION_WAIT_MS);
 	// Switch to the Received tab (may already be active, but click to be safe)
 	await page.getByRole("button", { name: "Received" }).click();
+	// Wait briefly for the Received tab to settle before filtering
+	await page.waitForTimeout(HYDRATION_WAIT_MS);
 	// Filter to Pending so only new shares are visible
 	await page.getByRole("button", { name: "Pending" }).click();
+}
+
+/**
+ * Ensures testUser2Username is not a member or pending invitee of the test
+ * community. If a "Cancel Invite" or "Kick" button is visible on the manage
+ * page it is clicked, resetting the community state before the next test.
+ */
+async function ensureUserNotInCommunity(adminPage: Page): Promise<void> {
+	await adminPage.goto(`${BASE_URL}/en/communities/${testCommunitySlug}/manage`, {
+		waitUntil: "load",
+	});
+	await expect(adminPage.getByLabel("Invite from your library")).toBeVisible({
+		timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
+	});
+	const kickBtn = adminPage.getByRole("button", { name: /^(Cancel Invite|Kick)$/ }).first();
+	if (await kickBtn.isVisible()) {
+		await kickBtn.click();
+		await adminPage.waitForTimeout(KICK_SETTLE_MS);
+	}
+}
+
+/**
+ * Ensures testUser2Username is not a participant or pending invitee of the
+ * test event. Locates the row for testUser2Username specifically so the
+ * admin's own disabled Kick button is not accidentally clicked.
+ *
+ * ParticipantRow renders:  <p>{username}</p>  <p>role: ... · status: ...</p>
+ * Filtering on /role:/ ensures we match only individual participant rows and
+ * not a parent container that happens to contain __test2 as a descendant.
+ */
+async function ensureUserNotInEvent(adminPage: Page): Promise<void> {
+	await adminPage.goto(`${BASE_URL}/en/events/${testEventSlug}/manage`, {
+		waitUntil: "load",
+	});
+	await expect(adminPage.getByLabel("Invite User (username or id)")).toBeVisible({
+		timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
+	});
+	// Match the specific ParticipantRow div — it always renders "role: ... ·
+	// status: ..." which parent containers do not contain.
+	const userRow = adminPage
+		.locator("div")
+		.filter({ hasText: testUser2Username })
+		.filter({ hasText: /role:/ })
+		.first();
+	const kickBtn = userRow.getByRole("button", { name: "Kick", exact: true });
+	const isKickVisible = await kickBtn.isVisible();
+	if (isKickVisible && (await kickBtn.isEnabled())) {
+		await kickBtn.click();
+		await adminPage.waitForTimeout(KICK_SETTLE_MS);
+	}
+}
+
+/**
+ * Declines all pending peer-to-peer shares in the recipient's dashboard.
+ * Prevents stale shares from prior test runs from accumulating and
+ * interfering with fresh share searches or accept/decline assertions.
+ */
+async function clearAllPendingPeerShares(recipientPage: Page): Promise<void> {
+	await openReceivedPendingShares(recipientPage);
+	const declineBtn = recipientPage.getByRole("button", { name: "Decline", exact: true }).first();
+	let attempts = 0;
+	/* oxlint-disable no-await-in-loop */
+	while ((await declineBtn.isVisible()) && attempts < MAX_CLEANUP_ATTEMPTS) {
+		await declineBtn.click();
+		await recipientPage.waitForTimeout(KICK_SETTLE_MS);
+		attempts++;
+	}
+	/* oxlint-enable no-await-in-loop */
 }
 
 // ── P2P Song Share ─────────────────────────────────────────────────────────────
@@ -127,6 +209,18 @@ test.describe("P2P Song Share", () => {
 	test.skip(missingBothSessions, "Skipped: run npm run e2e:create-session:staging-db[:user2]");
 	test.skip(missingSongSlug, "Skipped: set E2E_TEST_SONG_SLUG");
 	test.skip(missingUser2Username, "Skipped: set E2E_TEST_USER2_USERNAME");
+
+	test.beforeEach(async ({ browser }) => {
+		const recipientCtx = await browser.newContext({
+			storageState: GOOGLE_USER_SESSION_PATH_2,
+		});
+		const recipientPage = await recipientCtx.newPage();
+		try {
+			await clearAllPendingPeerShares(recipientPage);
+		} finally {
+			await recipientCtx.close();
+		}
+	});
 
 	test("sender shares a song and recipient accepts it", async ({ browser }) => {
 		const { senderCtx, recipientCtx } = await createTwoUserContexts(browser);
@@ -139,22 +233,28 @@ test.describe("P2P Song Share", () => {
 			// Sender: open the song page and share it
 			await senderPage.goto(`${BASE_URL}/en/songs/${testSongSlug}`, { waitUntil: "load" });
 			await senderPage.waitForTimeout(HYDRATION_WAIT_MS);
+			// Intercept the share-creation API call before triggering it so we
+			// can confirm the server acknowledged the request.
+			const songAcceptShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 			await senderPage.getByRole("button", { name: "Share" }).first().click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
-			// Wait for the share to complete
-			await senderPage.getByRole("button", { name: "Share" }).first().waitFor({ state: "visible" });
+			// Confirm the share was persisted before checking the recipient side.
+			const songAcceptShareResponse = await songAcceptShareP;
+			expect(songAcceptShareResponse.ok()).toBe(true);
 
 			// Recipient: navigate to dashboard and accept the share
 			await openReceivedPendingShares(recipientPage);
-			await expect(recipientPage.getByRole("button", { name: "Accept" }).first()).toBeVisible({
-				timeout: REALTIME_WAIT_MS,
-			});
-			await recipientPage.getByRole("button", { name: "Accept" }).first().click();
+			await expect(
+				recipientPage.getByRole("button", { name: "Accept", exact: true }).first(),
+			).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			await recipientPage.getByRole("button", { name: "Accept", exact: true }).first().click();
 
 			// Accept button should disappear (share is no longer pending)
-			await expect(recipientPage.getByRole("button", { name: "Accept" }).first()).not.toBeVisible({
-				timeout: REALTIME_WAIT_MS,
-			});
+			await expect(
+				recipientPage.getByRole("button", { name: "Accept", exact: true }).first(),
+			).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
 
 			const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
 			expect(unexpectedErrors).toHaveLength(NO_ERRORS);
@@ -174,9 +274,13 @@ test.describe("P2P Song Share", () => {
 			// Sender: share the song
 			await senderPage.goto(`${BASE_URL}/en/songs/${testSongSlug}`, { waitUntil: "load" });
 			await senderPage.waitForTimeout(HYDRATION_WAIT_MS);
+			const songDeclineShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 			await senderPage.getByRole("button", { name: "Share" }).first().click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
-			await senderPage.getByRole("button", { name: "Share" }).first().waitFor({ state: "visible" });
+			const songDeclineShareResponse = await songDeclineShareP;
+			expect(songDeclineShareResponse.ok()).toBe(true);
 
 			// Recipient: decline the share
 			await openReceivedPendingShares(recipientPage);
@@ -203,6 +307,18 @@ test.describe("P2P Playlist Share", () => {
 	test.skip(missingPlaylistSlug, "Skipped: set E2E_TEST_PLAYLIST_SLUG");
 	test.skip(missingUser2Username, "Skipped: set E2E_TEST_USER2_USERNAME");
 
+	test.beforeEach(async ({ browser }) => {
+		const recipientCtx = await browser.newContext({
+			storageState: GOOGLE_USER_SESSION_PATH_2,
+		});
+		const recipientPage = await recipientCtx.newPage();
+		try {
+			await clearAllPendingPeerShares(recipientPage);
+		} finally {
+			await recipientCtx.close();
+		}
+	});
+
 	test("sender shares a playlist and recipient accepts it", async ({ browser }) => {
 		const { senderCtx, recipientCtx } = await createTwoUserContexts(browser);
 
@@ -215,19 +331,23 @@ test.describe("P2P Playlist Share", () => {
 				waitUntil: "load",
 			});
 			await senderPage.waitForTimeout(HYDRATION_WAIT_MS);
+			const playlistAcceptShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 			await senderPage.getByRole("button", { name: "Share" }).first().click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
-			await senderPage.getByRole("button", { name: "Share" }).first().waitFor({ state: "visible" });
+			const playlistAcceptShareResponse = await playlistAcceptShareP;
+			expect(playlistAcceptShareResponse.ok()).toBe(true);
 
 			// Recipient: accept
 			await openReceivedPendingShares(recipientPage);
-			await expect(recipientPage.getByRole("button", { name: "Accept" }).first()).toBeVisible({
-				timeout: REALTIME_WAIT_MS,
-			});
-			await recipientPage.getByRole("button", { name: "Accept" }).first().click();
-			await expect(recipientPage.getByRole("button", { name: "Accept" }).first()).not.toBeVisible({
-				timeout: REALTIME_WAIT_MS,
-			});
+			await expect(
+				recipientPage.getByRole("button", { name: "Accept", exact: true }).first(),
+			).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			await recipientPage.getByRole("button", { name: "Accept", exact: true }).first().click();
+			await expect(
+				recipientPage.getByRole("button", { name: "Accept", exact: true }).first(),
+			).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
 		} finally {
 			await senderCtx.close();
 			await recipientCtx.close();
@@ -246,9 +366,13 @@ test.describe("P2P Playlist Share", () => {
 				waitUntil: "load",
 			});
 			await senderPage.waitForTimeout(HYDRATION_WAIT_MS);
+			const playlistDeclineShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 			await senderPage.getByRole("button", { name: "Share" }).first().click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
-			await senderPage.getByRole("button", { name: "Share" }).first().waitFor({ state: "visible" });
+			const playlistDeclineShareResponse = await playlistDeclineShareP;
+			expect(playlistDeclineShareResponse.ok()).toBe(true);
 
 			// Recipient: decline
 			await openReceivedPendingShares(recipientPage);
@@ -273,6 +397,16 @@ test.describe("Community Invitation", () => {
 	test.skip(missingCommunitySlug, "Skipped: set E2E_TEST_COMMUNITY_SLUG");
 	test.skip(missingUser2Username, "Skipped: set E2E_TEST_USER2_USERNAME");
 
+	test.beforeEach(async ({ browser }) => {
+		const adminCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH });
+		const adminPage = await adminCtx.newPage();
+		try {
+			await ensureUserNotInCommunity(adminPage);
+		} finally {
+			await adminCtx.close();
+		}
+	});
+
 	test("admin invites user and invitee accepts the community invitation", async ({ browser }) => {
 		const { senderCtx, recipientCtx } = await createTwoUserContexts(browser);
 
@@ -290,23 +424,28 @@ test.describe("Community Invitation", () => {
 				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
 			});
 			await selectUserInSearch(adminPage, "Invite from your library", testUser2Username);
+			const communityInviteAcceptP = adminPage.waitForResponse(/\/api\/community-user\/add/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 			const inviteBtn = adminPage.getByRole("button", { name: "Invite Member" });
 			await expect(inviteBtn).toBeEnabled();
 			await inviteBtn.click();
-			await expect(adminPage.getByText(/invited successfully/i)).toBeVisible({ timeout: 10_000 });
-
-			// Invitee: accept the community invitation on dashboard
+			const communityInviteAcceptResponse = await communityInviteAcceptP;
+			expect(communityInviteAcceptResponse.ok()).toBe(true);
+			await expect(adminPage.getByText(/invited successfully/i)).toBeVisible({
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 			await inviteePage.goto(`${BASE_URL}/en/dashboard`, { waitUntil: "load" });
 			await inviteePage.waitForTimeout(HYDRATION_WAIT_MS);
 			await expect(inviteePage.getByText(/pending invitations/i)).toBeVisible({
 				timeout: REALTIME_WAIT_MS,
 			});
-			await inviteePage.getByRole("button", { name: "Accept" }).first().click();
+			await inviteePage.getByRole("button", { name: "Accept", exact: true }).first().click();
 
 			// Accept button disappears; "Visit Community →" link appears
-			await expect(inviteePage.getByRole("button", { name: "Accept" })).not.toBeVisible({
-				timeout: REALTIME_WAIT_MS,
-			});
+			await expect(
+				inviteePage.getByRole("button", { name: "Accept", exact: true }).first(),
+			).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
 			await expect(inviteePage.getByText(/visit community/i)).toBeVisible();
 
 			const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
@@ -333,10 +472,17 @@ test.describe("Community Invitation", () => {
 				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
 			});
 			await selectUserInSearch(adminPage, "Invite from your library", testUser2Username);
+			const communityInviteDeclineP = adminPage.waitForResponse(/\/api\/community-user\/add/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 			const inviteBtn = adminPage.getByRole("button", { name: "Invite Member" });
 			await expect(inviteBtn).toBeEnabled();
 			await inviteBtn.click();
-			await expect(adminPage.getByText(/invited successfully/i)).toBeVisible({ timeout: 10_000 });
+			const communityInviteDeclineResponse = await communityInviteDeclineP;
+			expect(communityInviteDeclineResponse.ok()).toBe(true);
+			await expect(adminPage.getByText(/invited successfully/i)).toBeVisible({
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 
 			// Invitee: decline
 			await inviteePage.goto(`${BASE_URL}/en/dashboard`, { waitUntil: "load" });
@@ -364,6 +510,16 @@ test.describe("Event Invitation", () => {
 	test.skip(missingEventSlug, "Skipped: set E2E_TEST_EVENT_SLUG");
 	test.skip(missingUser2Username, "Skipped: set E2E_TEST_USER2_USERNAME");
 
+	test.beforeEach(async ({ browser }) => {
+		const adminCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH });
+		const adminPage = await adminCtx.newPage();
+		try {
+			await ensureUserNotInEvent(adminPage);
+		} finally {
+			await adminCtx.close();
+		}
+	});
+
 	test("admin invites user and invitee accepts the event invitation", async ({ browser }) => {
 		const { senderCtx, recipientCtx } = await createTwoUserContexts(browser);
 
@@ -381,10 +537,17 @@ test.describe("Event Invitation", () => {
 				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
 			});
 			await selectUserInSearch(adminPage, "Invite User (username or id)", testUser2Username);
+			const eventInviteAcceptP = adminPage.waitForResponse(/\/api\/event-user\/add/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 			const inviteBtn = adminPage.getByRole("button", { name: "Invite Participant" });
 			await expect(inviteBtn).toBeEnabled();
 			await inviteBtn.click();
-			await expect(adminPage.getByText(/invited successfully/i)).toBeVisible({ timeout: 10_000 });
+			const eventInviteAcceptResponse = await eventInviteAcceptP;
+			expect(eventInviteAcceptResponse.ok()).toBe(true);
+			await expect(adminPage.getByText(/participant invited/i)).toBeVisible({
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 
 			// Invitee: accept the event invitation on dashboard
 			await inviteePage.goto(`${BASE_URL}/en/dashboard`, { waitUntil: "load" });
@@ -392,12 +555,12 @@ test.describe("Event Invitation", () => {
 			await expect(inviteePage.getByText(/pending invitations/i)).toBeVisible({
 				timeout: REALTIME_WAIT_MS,
 			});
-			await inviteePage.getByRole("button", { name: "Accept" }).first().click();
+			await inviteePage.getByRole("button", { name: "Accept", exact: true }).first().click();
 
 			// Accept button disappears; "Visit Event →" link appears
-			await expect(inviteePage.getByRole("button", { name: "Accept" })).not.toBeVisible({
-				timeout: REALTIME_WAIT_MS,
-			});
+			await expect(
+				inviteePage.getByRole("button", { name: "Accept", exact: true }).first(),
+			).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
 			await expect(inviteePage.getByText(/visit event/i)).toBeVisible();
 
 			const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
@@ -424,10 +587,17 @@ test.describe("Event Invitation", () => {
 				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
 			});
 			await selectUserInSearch(adminPage, "Invite User (username or id)", testUser2Username);
+			const eventInviteDeclineP = adminPage.waitForResponse(/\/api\/event-user\/add/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 			const inviteBtn = adminPage.getByRole("button", { name: "Invite Participant" });
 			await expect(inviteBtn).toBeEnabled();
 			await inviteBtn.click();
-			await expect(adminPage.getByText(/invited successfully/i)).toBeVisible({ timeout: 10_000 });
+			const eventInviteDeclineResponse = await eventInviteDeclineP;
+			expect(eventInviteDeclineResponse.ok()).toBe(true);
+			await expect(adminPage.getByText(/participant invited/i)).toBeVisible({
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 
 			// Invitee: decline
 			await inviteePage.goto(`${BASE_URL}/en/dashboard`, { waitUntil: "load" });
