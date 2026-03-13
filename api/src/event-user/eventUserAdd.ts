@@ -140,18 +140,24 @@ export default function eventUserAdd(
 			);
 		}
 
-		// Add user to event_user table
+		// Add (or re-invite) user to event_user table.
+		// Upsert handles the case where a previously kicked user is re-invited:
+		// the existing row's role and status are updated rather than attempting
+		// a duplicate insert that would violate the (event_id, user_id) PK.
 		const addResult = yield* $(
 			Effect.tryPromise({
 				try: () =>
-					supabase.from("event_user").insert([
-						{
-							event_id,
-							user_id,
-							role,
-							status,
-						},
-					]),
+					supabase.from("event_user").upsert(
+						[
+							{
+								event_id,
+								user_id,
+								role,
+								status,
+							},
+						],
+						{ onConflict: "event_id,user_id" },
+					),
 				catch: (err) =>
 					new DatabaseError({
 						message: `Failed to add user to event: ${extractErrorMessage(err, "Unknown error")}`,

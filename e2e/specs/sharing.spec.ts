@@ -170,6 +170,8 @@ async function ensureUserNotInEvent(adminPage: Page): Promise<void> {
 	await expect(adminPage.getByLabel("Invite User (username or id)")).toBeVisible({
 		timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
 	});
+	// Give the participant list time to render after the invite input appears.
+	await adminPage.waitForTimeout(HYDRATION_WAIT_MS);
 	// Match the specific ParticipantRow div — it always renders "role: ... ·
 	// status: ..." which parent containers do not contain.
 	const userRow = adminPage
@@ -544,7 +546,13 @@ test.describe("Event Invitation", () => {
 			await expect(inviteBtn).toBeEnabled();
 			await inviteBtn.click();
 			const eventInviteAcceptResponse = await eventInviteAcceptP;
-			expect(eventInviteAcceptResponse.ok()).toBe(true);
+			const eventInviteAcceptBody = await eventInviteAcceptResponse
+				.text()
+				.catch(() => "(unreadable)");
+			expect(
+				eventInviteAcceptResponse.ok(),
+				`Event invite API error (accept) — status ${String(eventInviteAcceptResponse.status())}: ${eventInviteAcceptBody}`,
+			).toBe(true);
 			await expect(adminPage.getByText(/participant invited/i)).toBeVisible({
 				timeout: INVITE_SUCCESS_TIMEOUT_MS,
 			});
@@ -594,7 +602,13 @@ test.describe("Event Invitation", () => {
 			await expect(inviteBtn).toBeEnabled();
 			await inviteBtn.click();
 			const eventInviteDeclineResponse = await eventInviteDeclineP;
-			expect(eventInviteDeclineResponse.ok()).toBe(true);
+			const eventInviteDeclineBody = await eventInviteDeclineResponse
+				.text()
+				.catch(() => "(unreadable)");
+			expect(
+				eventInviteDeclineResponse.ok(),
+				`Event invite API error (decline) — status ${String(eventInviteDeclineResponse.status())}: ${eventInviteDeclineBody}`,
+			).toBe(true);
 			await expect(adminPage.getByText(/participant invited/i)).toBeVisible({
 				timeout: INVITE_SUCCESS_TIMEOUT_MS,
 			});
