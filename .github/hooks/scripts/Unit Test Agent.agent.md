@@ -21,7 +21,7 @@ This agent provides extended validation steps and detailed patterns beyond the s
 - [unit-testing skill](../skills/unit-testing/SKILL.md) — Core Vitest setup, mocking strategies, API handler testing, and common pitfalls. Full reference: [docs/unit-testing.md](../../docs/unit-testing.md)
 - [unit-testing-hooks skill](../skills/unit-testing-hooks/SKILL.md) — renderHook, Documentation by Harness, installStore, fixtures, subscriptions, lint traps, pre-completion checklist. Full reference: [docs/unit-testing-hooks.md](../../docs/unit-testing-hooks.md)
 - [.agent/rules.md](../../.agent/rules.md) - Full project rules
-- [VS Code Hooks docs](https://code.visualstudio.com/docs/copilot/customization/hooks) — official PreToolUse/PostToolUse hook reference
+- [unit-test-agent-guard script](../hooks/scripts/unit-test-agent-guard.bun.ts) — PreToolUse hook that blocks file-write tools on non-test paths
 
 ---
 

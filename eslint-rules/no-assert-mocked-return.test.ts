@@ -17,12 +17,8 @@
  *   expect(mock.calls.length).toBeGreaterThan(variableBaseline) — allowed
  */
 import { type JSRuleDefinition, RuleTester } from 'eslint';
-import { describe, it } from 'vitest';
 
 import rule from './no-assert-mocked-return';
-
-RuleTester.describe = describe;
-RuleTester.it = it;
  
 // The rule is purely AST-based; the default espree parser handles all test cases
 // (no TypeScript-specific syntax needed in the code strings).

@@ -118,7 +118,7 @@ export default function Navigation({
 										onClick={() => {
 											void navigate(path);
 										}}
-										className="!rounded-md !items-center [&>span:first-of-type]:!mt-0"
+										className="rounded-md! items-center! [&>span:first-of-type]:mt-0!"
 									>
 										{t(item.labelKey)}
 									</Button>
@@ -126,11 +126,16 @@ export default function Navigation({
 							})}
 						</div>
 
-						{/* Right-side controls - signed-in username + Actions toggle */}
+						{/* Right-side controls - staging badge + signed-in username + Actions toggle */}
 						<div className="ml-4 flex items-center gap-3">
+							{import.meta.env["VITE_ENVIRONMENT"] === "staging" && (
+								<span className="rounded bg-yellow-500/20 px-2 py-0.5 text-xs font-medium text-yellow-300 ring-1 ring-yellow-500/40">
+									staging
+								</span>
+							)}
 							{typeof currentUsername === "string" && currentUsername.trim() !== "" && (
 								<span
-									className="text-sm text-gray-300 truncate max-w-[8rem] sm:max-w-[12rem]"
+									className="text-sm text-gray-300 truncate max-w-32 sm:max-w-48"
 									title={currentUsername}
 								>
 									@{currentUsername}
@@ -154,7 +159,7 @@ export default function Navigation({
 										)
 									}
 									onClick={toggleActions}
-									className="inline-flex !rounded-md"
+									className="inline-flex rounded-md!"
 									aria-expanded={isHeaderActionsExpanded}
 									aria-label={
 										isHeaderActionsExpanded

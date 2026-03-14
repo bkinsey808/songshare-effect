@@ -53,7 +53,7 @@ export default function DateTimePickerCalendar({
 		handleSelectDate,
 		selectedDateObj,
 	} = useDateTimePickerCalendar(selectedDate, onDateSelect);
-	let emptyDayCellCount = 0;
+
 
 	return (
 		<div className="flex flex-col gap-3">
@@ -100,9 +100,9 @@ export default function DateTimePickerCalendar({
 
 			{/* Calendar Grid */}
 			<div className="grid grid-cols-7 gap-0">
-				{days.map((day) => {
+				{days.map((day, index) => {
 					const dayKey =
-						day === undefined ? `empty-day-${String(emptyDayCellCount++)}` : `day-${String(day)}`;
+						day === undefined ? `empty-day-${String(index)}` : `day-${String(day)}`;
 					const isSelected =
 						day !== undefined &&
 						selectedDateObj !== undefined &&
