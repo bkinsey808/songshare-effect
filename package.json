@@ -59,7 +59,7 @@
 		"playwright:install": "npx playwright install",
 		"postinstall": "node ./scripts/playwright/postinstall-playwright-wrapper.mjs",
 		"test:e2e:prod": "PLAYWRIGHT_BASE_URL=https://effect.bardoshare.com npx playwright test --reporter=list",
-		"test:e2e:staging": "dotenv -e .env.staging -- npx playwright test --project=chromium --reporter=list --workers=1",
+		"test:e2e:staging": "dotenv -e .env.staging -- npx playwright test --project=chromium --reporter=list --workers=1 --grep-invert 'Lighthouse'",
 		"test:e2e:lighthouse:local": "PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 npx playwright test e2e/specs/lighthouse.spec.ts --project=chromium --reporter=list",
 		"test:e2e:lighthouse:ci": "LIGHTHOUSE_URL=https://your-preview-url npx playwright test e2e/specs/lighthouse.spec.ts --project=chromium --reporter=list",
 		"smoke:preview": "bun ./scripts/playwright/smoke-preview.bun.ts",
