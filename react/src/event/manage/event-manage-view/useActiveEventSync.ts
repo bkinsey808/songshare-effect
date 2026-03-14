@@ -14,8 +14,10 @@ export default function useActiveEventSync({ eventSlug }: UseActiveEventSyncProp
 	const fetchEventBySlug = useAppStore((state) => state.fetchEventBySlug);
 	const subscribeToEvent = useAppStore((state) => state.subscribeToEvent);
 	const currentEventId = useAppStore((state) => state.currentEvent?.event_id);
+	// Re-fetch when user authenticates so private events load with the correct token.
+	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
 
-	// Fetch event data whenever the slug changes
+	// Fetch event data whenever the slug or authenticated user changes
 	useEffect(() => {
 		if (eventSlug === undefined || eventSlug === "") {
 			// oxlint-disable-next-line no-empty-function -- no fetch when undefined; return fn for React 19 HMR
@@ -24,7 +26,7 @@ export default function useActiveEventSync({ eventSlug }: UseActiveEventSyncProp
 		void EffectRuntime.runPromise(fetchEventBySlug(eventSlug));
 		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
 		return;
-	}, [eventSlug, fetchEventBySlug]);
+	}, [eventSlug, fetchEventBySlug, currentUserId]);
 
 	// Subscribe to realtime updates for the current event
 	useEffect(() => {

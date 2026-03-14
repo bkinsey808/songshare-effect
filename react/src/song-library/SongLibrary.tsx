@@ -85,7 +85,7 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 				>
 					{t("pages.dashboard.createSong", "Create New Song")}
 				</Button>
-				<div className="text-sm text-gray-500">
+				<div className="text-sm text-gray-400">
 					{t(
 						"songLibrary.emptyHint",
 						"Browse songs and click the bookmark icon to add them to your library",

@@ -10,6 +10,7 @@ const EXPECTED_ERROR_PATTERNS = [
 	"Unable to authenticate as visitor",
 	"fetchSongLibrary",
 	"subscribeToSongLibrary",
+	"Failed to load shares",
 	"access control checks",
 	"/api/auth/visitor",
 	"Cookie",

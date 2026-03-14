@@ -21,11 +21,9 @@ export default function fetchSupabaseUserTokenFromApi(): Promise<string | undefi
 
 	// 2. Check if a fetch is already in progress
 	if (inFlightPromise) {
-		console.warn("[fetchSupabaseUserTokenFromApi] waiting for IN-FLIGHT promise...");
 		return inFlightPromise;
 	}
 
-	console.warn("[fetchSupabaseUserTokenFromApi] starting NEW fetch...");
 	inFlightPromise = (async (): Promise<string | undefined> => {
 		const FETCH_TIMEOUT_MS = 10_000;
 		const controller = new AbortController();
@@ -34,7 +32,6 @@ export default function fetchSupabaseUserTokenFromApi(): Promise<string | undefi
 		}, FETCH_TIMEOUT_MS);
 
 		try {
-			console.warn("[fetchSupabaseUserTokenFromApi] calling fetch...");
 			const response = await fetch(apiUserTokenPath as string, {
 				method: "GET",
 				credentials: "include",
@@ -43,11 +40,9 @@ export default function fetchSupabaseUserTokenFromApi(): Promise<string | undefi
 			});
 
 			if (!response.ok) {
-				console.error("[fetchSupabaseUserTokenFromApi] fetch failed with status:", response.status);
 				return undefined;
 			}
 
-			console.warn("[fetchSupabaseUserTokenFromApi] fetch response received, parsing...");
 			const data: unknown = await response.json().catch(() => undefined);
 
 			// Unwrap the response envelope {success: true, data: {...}}

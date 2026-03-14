@@ -41,7 +41,6 @@ export default function fetchEventBySlug(
 
 		yield* $(
 			Effect.sync(() => {
-				console.warn("[fetchEventBySlug] Starting fetch for slug:", eventSlug);
 				setEventLoading(true);
 				setEventError(undefined);
 			}),
@@ -69,9 +68,6 @@ export default function fetchEventBySlug(
 					callSelect(client, "event_public", {
 						cols: "*, owner:user_public!event_public_owner_id_fkey(username)",
 						eq: { col: "event_slug", val: eventSlug },
-					}).then((res) => {
-						console.warn("[fetchEventBySlug] Public query result:", JSON.stringify(res));
-						return res;
 					}),
 				catch: (err) => {
 					const errorMessage = err instanceof Error ? err.message : String(err);
@@ -94,9 +90,6 @@ export default function fetchEventBySlug(
 						callSelect(client, "event_public", {
 							cols: "*",
 							eq: { col: "event_slug", val: eventSlug },
-						}).then((res) => {
-							console.warn("[fetchEventBySlug] Fallback public query result:", JSON.stringify(res));
-							return res;
 						}),
 					catch: (err) => {
 						const errorMessage = err instanceof Error ? err.message : String(err);
@@ -206,13 +199,10 @@ export default function fetchEventBySlug(
 
 		yield* $(
 			Effect.sync(() => {
-				console.warn("[fetchEventBySlug] Setting event:", JSON.stringify(eventEntry));
 				setCurrentEvent(eventEntry);
 				setParticipants(participantsWithOwner as readonly EventUser[]);
 			}),
 		);
-
-		console.warn("[fetchEventBySlug] Complete.");
 	}).pipe(
 		Effect.tapError((err) =>
 			Effect.sync(() => {
