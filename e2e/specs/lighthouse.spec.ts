@@ -129,6 +129,38 @@ const LH_RETRY_ATTEMPTS = 2;
 const LH_RETRY_BASE_DELAY_MS = 1500;
 
 /**
+ * Find Playwright's installed Chromium binary as a fallback
+ * when no system Chrome is available (e.g. on Linux without Chrome installed).
+ */
+async function findPlaywrightChromiumPath(): Promise<string | undefined> {
+	const os = await import("node:os");
+	const fsp = await import("node:fs/promises");
+	const path = await import("node:path");
+	const cacheDir = path.join(os.homedir(), ".cache", "ms-playwright");
+	try {
+		const entries = await fsp.readdir(cacheDir);
+		// Prefer newer versions: sort descending and skip headless_shell builds
+		const candidates = entries
+			.filter((entry) => entry.startsWith("chromium-") && !entry.includes("headless_shell"))
+			.toSorted()
+			.toReversed()
+			.map((dir) => path.join(cacheDir, dir, "chrome-linux64", "chrome"));
+		const results = await Promise.all(
+			candidates.map((chromePath) =>
+				fsp
+					.access(chromePath)
+					.then(() => chromePath)
+					.catch(() => undefined),
+			),
+		);
+		return results.find((result) => result !== undefined);
+	} catch {
+		// cache dir absent or unreadable — no Playwright Chromium found
+	}
+	return undefined;
+}
+
+/**
  * Run Lighthouse runner with retries for transient connection failures.
  */
 async function runLighthouseWithRetries(
@@ -282,6 +314,7 @@ test.describe.serial("Lighthouse audit", () => {
 					chromeFlags: string[];
 					userDataDir?: string;
 					envVars?: Record<string, string>;
+					chromePath?: string;
 				}) => Promise<{ port: number; kill: () => Promise<void> }>;
 			}
 		).launch;
@@ -292,6 +325,9 @@ test.describe.serial("Lighthouse audit", () => {
 		const path = await import("node:path");
 		const tempDir = path.join("/tmp", `lighthouse-chrome-${Date.now()}`);
 		fs.mkdirSync(tempDir, { recursive: true });
+
+		// Use Playwright's bundled Chromium when no system Chrome is installed
+		const playwrightChromiumPath = await findPlaywrightChromiumPath();
 
 		/* oxlint-disable jest/no-conditional-in-test */
 		function skipOnConnRefused(error: unknown): void {
@@ -325,11 +361,14 @@ test.describe.serial("Lighthouse audit", () => {
 					chromeFlags: [
 						"--headless",
 						"--no-sandbox",
+						"--disable-setuid-sandbox",
+						"--disable-dev-shm-usage",
 						"--ignore-certificate-errors",
 						"--allow-insecure-localhost",
 						"--disable-web-security",
 					],
 					userDataDir: tempDir,
+					...(playwrightChromiumPath === undefined ? {} : { chromePath: playwrightChromiumPath }),
 				}).finally(() => {
 					// Restore original working directory
 					process.chdir(originalCwd);
