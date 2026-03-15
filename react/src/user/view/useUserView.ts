@@ -1,9 +1,9 @@
-import type { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import getPublicSupabaseClient from "@/react/lib/supabase/client/getPublicSupabaseClient";
+import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+import isRecord from "@/shared/type-guards/isRecord";
 
 type UserPublic = {
 	user_id: string;
@@ -39,27 +39,36 @@ export default function useUserView(): UseUserViewResult {
 			return;
 		}
 
-		const client = getPublicSupabaseClient();
-		if (client === undefined) {
-			setUserPublic(undefined);
-			setError("User lookup is unavailable.");
-			setIsLoading(false);
-			return;
-		}
-
 		let isActive = true;
 		setIsLoading(true);
 		setError(undefined);
 
 		void (async (): Promise<void> => {
-			let response: PostgrestSingleResponse<UserPublic | null> | undefined = undefined;
+			const client = await getSupabaseClientWithAuth();
+
+			if (!isActive) {
+				return;
+			}
+
+			if (client === undefined) {
+				setUserPublic(undefined);
+				setError("User lookup is unavailable.");
+				setIsLoading(false);
+				return;
+			}
+
+			const query = client.from("user_public").select("user_id, username");
+			if (query.eq === undefined) {
+				setUserPublic(undefined);
+				setError("User lookup is unavailable.");
+				setIsLoading(false);
+				return;
+			}
+
+			let response: unknown = undefined;
 			let caughtError: unknown = undefined;
 			try {
-				response = await client
-					.from("user_public")
-					.select("user_id, username")
-					.eq("username", username)
-					.maybeSingle();
+				response = await query.eq("username", username).single();
 			} catch (error) {
 				caughtError = error;
 			}
@@ -75,7 +84,14 @@ export default function useUserView(): UseUserViewResult {
 				return;
 			}
 
-			const { data, error: queryError } = response ?? { data: undefined, error: undefined };
+			if (!isRecord(response)) {
+				setUserPublic(undefined);
+				setError("Failed to load user");
+				setIsLoading(false);
+				return;
+			}
+
+			const { data, error: queryError } = response;
 
 			if (queryError !== null && queryError !== undefined) {
 				setUserPublic(undefined);
@@ -84,21 +100,24 @@ export default function useUserView(): UseUserViewResult {
 				return;
 			}
 
-			if (data === null || data === undefined) {
+			if (!isRecord(data)) {
 				setUserPublic(undefined);
 				setError("User not found");
 				setIsLoading(false);
 				return;
 			}
 
-			if (typeof data.user_id !== "string" || typeof data.username !== "string") {
+			const userId = data["user_id"];
+			const userName = data["username"];
+
+			if (typeof userId !== "string" || typeof userName !== "string") {
 				setUserPublic(undefined);
 				setError("User not found");
 				setIsLoading(false);
 				return;
 			}
 
-			setUserPublic({ user_id: data.user_id, username: data.username });
+			setUserPublic({ user_id: userId, username: userName });
 			setIsLoading(false);
 		})();
 
