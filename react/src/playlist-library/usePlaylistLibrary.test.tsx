@@ -30,7 +30,7 @@ describe("usePlaylistLibrary — renderHook", () => {
 
 		const { result } = renderHook(() => usePlaylistLibrary(), {
 			wrapper: ({ children }) => (
-				<MemoryRouter initialEntries={["/en/playlists"]}>
+				<MemoryRouter initialEntries={["/en/dashboard/playlist-library"]}>
 					{children}
 				</MemoryRouter>
 			),
@@ -71,7 +71,7 @@ describe("usePlaylistLibrary — Harness", () => {
 		}
 
 		const { getByTestId } = render(
-			<MemoryRouter initialEntries={["/en/playlists"]}>
+			<MemoryRouter initialEntries={["/en/dashboard/playlist-library"]}>
 				<Harness />
 			</MemoryRouter>,
 		);

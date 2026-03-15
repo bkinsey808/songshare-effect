@@ -11,6 +11,7 @@ const EXPECTED_ERROR_PATTERNS = [
 	"fetchSongLibrary",
 	"subscribeToSongLibrary",
 	"Failed to load shares",
+	"[share_public] Channel error",
 	"access control checks",
 	"/api/auth/visitor",
 	"Cookie",

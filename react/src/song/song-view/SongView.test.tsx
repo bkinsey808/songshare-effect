@@ -1,11 +1,12 @@
 import { cleanup, render } from "@testing-library/react";
 import { Effect } from "effect";
-import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import ShareButton from "@/react/lib/design-system/ShareButton";
+import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
 import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
@@ -20,9 +21,10 @@ import SongViewLibraryAction from "./SongViewLibraryAction";
 // Mock react-router so tests can control `useParams` return values
 vi.mock("react-router-dom");
 // Simplified i18n mock: `t` returns the `defaultVal` when provided, otherwise the key.
-vi.mock("react-i18next");
+vi.mock("@/react/lib/language/locale/useLocale");
 // Mock ShareButton to avoid popover complexity in integration tests
-vi.mock("@/react/lib/design-system/ShareButton");
+vi.mock("@/react/lib/design-system/share-button/ShareButton");
+vi.mock("@/react/lib/qr-code/CollapsibleQrCode");
 vi.mock("@/react/share/shared-users-section/SharedUsersSection");
 vi.mock("./SongViewLibraryAction");
 // Avoid coupling SongView tests to share subscription side effects/state shape
@@ -46,12 +48,13 @@ function translateOrDefault(key: string, defaultVal?: string | Record<string, un
 
 function installUiMocks(): void {
 	vi.mocked(SongViewLibraryAction).mockImplementation(() => undefined);
-	vi.mocked(useTranslation).mockReturnValue(
-		forceCast<ReturnType<typeof useTranslation>>({
+	vi.mocked(useLocale).mockReturnValue(
+		forceCast<ReturnType<typeof useLocale>>({
+			lang: "en",
 			t: translateOrDefault,
-			i18n: { changeLanguage: vi.fn(), language: "en" },
 		}),
 	);
+	vi.mocked(CollapsibleQrCode).mockImplementation(() => <div data-testid="qr-code" />);
 	vi.mocked(ShareButton).mockImplementation(() => <button type="button">Share</button>);
 	vi.mocked(SharedUsersSection).mockImplementation(() => (
 		<div data-testid="shared-users-section" />

@@ -21,7 +21,7 @@ describe("useFormSubmission — renderHook", () => {
 				}),
 			{
 				wrapper: ({ children }) => (
-					<RouterWrapper initialEntries={["/en/songs/new/edit"]} path="*">
+					<RouterWrapper initialEntries={["/en/song/new/edit"]} path="*">
 						{children}
 					</RouterWrapper>
 				),
@@ -57,7 +57,7 @@ describe("useFormSubmission — renderHook", () => {
 				}),
 			{
 				wrapper: ({ children }) => (
-					<RouterWrapper initialEntries={["/en/songs/new/edit"]} path="*">
+					<RouterWrapper initialEntries={["/en/song/new/edit"]} path="*">
 						{children}
 					</RouterWrapper>
 				),
@@ -106,7 +106,7 @@ describe("useFormSubmission — renderHook", () => {
 				}),
 			{
 				wrapper: ({ children }) => (
-					<RouterWrapper initialEntries={["/en/songs/new/edit"]} path="*">
+					<RouterWrapper initialEntries={["/en/song/new/edit"]} path="*">
 						{children}
 					</RouterWrapper>
 				),
@@ -165,7 +165,7 @@ describe("useFormSubmission — Harness", () => {
 		}
 
 		const { getByTestId } = render(
-			<RouterWrapper initialEntries={["/en/songs/new/edit"]} path="*">
+			<RouterWrapper initialEntries={["/en/song/new/edit"]} path="*">
 				<Harness />
 			</RouterWrapper>,
 		);

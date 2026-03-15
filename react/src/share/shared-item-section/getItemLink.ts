@@ -1,4 +1,10 @@
-import { communityViewPath, eventViewPath, playlistViewPath, songViewPath } from "@/shared/paths";
+import {
+	communityViewPath,
+	eventViewPath,
+	playlistViewPath,
+	songViewPath,
+	userViewPath,
+} from "@/shared/paths";
 
 import type { SharedItem } from "../slice/share-types";
 
@@ -7,7 +13,7 @@ import type { SharedItem } from "../slice/share-types";
  * Caller must prefix with language (e.g. buildPathWithLang).
  *
  * @param share - The shared item to get a link for
- * @returns The path segment for the item's view (e.g. /songs/my-slug), or undefined
+ * @returns The path segment for the item's view (e.g. /song/my-slug), or undefined
  */
 export default function getItemLink(share: SharedItem): string | undefined {
 	const slug = share.shared_item_slug;
@@ -28,7 +34,7 @@ export default function getItemLink(share: SharedItem): string | undefined {
 			return `/${communityViewPath}/${slug}`;
 		}
 		case "user": {
-			return undefined;
+			return `/${userViewPath}/${slug}`;
 		}
 		default: {
 			return undefined;

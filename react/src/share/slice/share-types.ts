@@ -15,7 +15,7 @@ export type SharedItem = {
 	updated_at: string;
 	sender_username?: string;
 	recipient_username?: string;
-	/** Slug for linking to the item's public view (song, playlist, event, community) */
+	/** Slug for linking to the item's public view (song, playlist, event, community, user) */
 	shared_item_slug?: string;
 };
 

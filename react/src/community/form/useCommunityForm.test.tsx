@@ -108,7 +108,7 @@ describe("useCommunityForm", () => {
 			expect(mockSave).toHaveBeenCalledWith(
 				expect.objectContaining({ name: "My Community", slug: "my-community" }),
 			);
-			expect(mockNavigate).toHaveBeenCalledWith("/en/communities/my-community");
+			expect(mockNavigate).toHaveBeenCalledWith("/en/community/my-community");
 		});
 	});
 

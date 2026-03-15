@@ -18,8 +18,8 @@ export const registerPath = "register";
 export const songEditPath = "song-edit";
 export const songLibraryPath = "song-library";
 
-/** Base path for viewing a song by slug; use as "songs/:song_slug" in routes */
-export const songViewPath = "songs";
+/** Base path for viewing a song by slug; use as "song/:song_slug" in routes */
+export const songViewPath = "song";
 
 // Playlist paths
 export const playlistEditPath = "playlist-edit";
@@ -27,24 +27,24 @@ export const playlistLibraryPath = "playlist-library";
 export const userLibraryPath = "user-library";
 export const shareLibraryPath = "share-library";
 
-/** Base path for viewing a playlist by slug; use as "playlists/:playlist_slug" in routes */
-export const playlistViewPath = "playlists";
+/** Base path for viewing a playlist by slug; use as "playlist/:playlist_slug" in routes */
+export const playlistViewPath = "playlist";
 
 // Event paths
 export const eventEditPath = "event-edit";
 export const eventLibraryPath = "event-library";
 
-/** Base path for viewing an event by slug; use as "events/:event_slug" in routes */
-export const eventViewPath = "events";
+/** Base path for viewing an event by slug; use as "event/:event_slug" in routes */
+export const eventViewPath = "event";
 
-/** Suffix path for event manager view; use as "events/:event_slug/manage" */
+/** Suffix path for event manager view; use as "event/:event_slug/manage" */
 export const eventManagePath = "manage";
 
-/** Suffix path for event slide show view; use as "events/:event_slug/slideshow" */
+/** Suffix path for event slide show view; use as "event/:event_slug/slideshow" */
 export const eventSlideShowPath = "slideshow";
 
 /**
- * Suffix path for event slide *manager* view; use as "events/:event_slug/slide-manager"
+ * Suffix path for event slide *manager* view; use as "event/:event_slug/slide-manager"
  */
 export const eventSlideManagerPath = "slide-manager";
 
@@ -52,10 +52,13 @@ export const eventSlideManagerPath = "slide-manager";
 export const communityEditPath = "community-edit";
 export const communityLibraryPath = "community-library";
 
-/** Base path for viewing a community by slug; use as "communities/:community_slug" in routes */
-export const communityViewPath = "communities";
+/** Base path for viewing a community by slug; use as "community/:community_slug" in routes */
+export const communityViewPath = "community";
 
-/** Suffix path for community manager view; use as "communities/:community_slug/manage" */
+/** Base path for viewing a user by username; use as "user/:username" in routes */
+export const userViewPath = "user";
+
+/** Suffix path for community manager view; use as "community/:community_slug/manage" */
 export const communityManagePath = "manage";
 
 export const apiOauthSignInPath = "/api/oauth/sign-in";

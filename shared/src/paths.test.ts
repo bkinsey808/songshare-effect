@@ -9,6 +9,7 @@ import {
 	eventViewPath,
 	playlistViewPath,
 	songViewPath,
+	userViewPath,
 } from "./paths";
 
 describe("paths", () => {
@@ -18,6 +19,7 @@ describe("paths", () => {
 		["songViewPath", songViewPath],
 		["playlistViewPath", playlistViewPath],
 		["eventViewPath", eventViewPath],
+		["userViewPath", userViewPath],
 		["apiOauthSignInPath", apiOauthSignInPath],
 		["deleteAccountPath", deleteAccountPath],
 	] as const)("exports %s as non-empty string", (_name, value) => {

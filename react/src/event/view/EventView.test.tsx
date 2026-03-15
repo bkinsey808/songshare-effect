@@ -4,6 +4,9 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { EventEntry, EventParticipant } from "@/react/event/event-entry/EventEntry.type";
 import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
+import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
+import useCurrentLang from "@/react/lib/language/useCurrentLang";
+import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { utcTimestampToClientLocalDate } from "@/shared/utils/formatEventDate";
 
@@ -11,7 +14,16 @@ import EventView from "./EventView";
 import useEventView from "./useEventView";
 
 vi.mock("./useEventView");
+vi.mock("@/react/lib/design-system/share-button/ShareButton");
+vi.mock("@/react/lib/language/useCurrentLang");
+vi.mock("@/react/lib/qr-code/CollapsibleQrCode");
 vi.mock("@/shared/utils/formatEventDate");
+
+vi.mocked(ShareButton).mockImplementation((): ReactElement => <button type="button">Share</button>);
+vi.mocked(useCurrentLang).mockReturnValue("en");
+vi.mocked(CollapsibleQrCode).mockImplementation((): ReactElement => (
+	<div data-testid="qr-code" />
+));
 
 type UseEventViewResult = ReturnType<typeof useEventView>;
 
@@ -98,7 +110,7 @@ describe("event view", () => {
 	function renderEventView(): void {
 		cleanup();
 		render(
-			<MemoryRouter initialEntries={["/en/events/event"]}>
+			<MemoryRouter initialEntries={["/en/event/event"]}>
 				<EventView />
 			</MemoryRouter>,
 		);

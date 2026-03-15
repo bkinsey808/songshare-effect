@@ -141,7 +141,7 @@ async function openReceivedPendingShares(page: Page): Promise<void> {
  * page it is clicked, resetting the community state before the next test.
  */
 async function ensureUserNotInCommunity(adminPage: Page): Promise<void> {
-	await adminPage.goto(`${BASE_URL}/en/communities/${testCommunitySlug}/manage`, {
+	await adminPage.goto(`${BASE_URL}/en/community/${testCommunitySlug}/manage`, {
 		waitUntil: "load",
 	});
 	await expect(adminPage.getByLabel("Invite from your library")).toBeVisible({
@@ -164,7 +164,7 @@ async function ensureUserNotInCommunity(adminPage: Page): Promise<void> {
  * not a parent container that happens to contain __test2 as a descendant.
  */
 async function ensureUserNotInEvent(adminPage: Page): Promise<void> {
-	await adminPage.goto(`${BASE_URL}/en/events/${testEventSlug}/manage`, {
+	await adminPage.goto(`${BASE_URL}/en/event/${testEventSlug}/manage`, {
 		waitUntil: "load",
 	});
 	await expect(adminPage.getByLabel("Invite User (username or id)")).toBeVisible({
@@ -233,7 +233,7 @@ test.describe("P2P Song Share", () => {
 			const errors = setupErrorTracking(recipientPage);
 
 			// Sender: open the song page and share it
-			await senderPage.goto(`${BASE_URL}/en/songs/${testSongSlug}`, { waitUntil: "load" });
+			await senderPage.goto(`${BASE_URL}/en/song/${testSongSlug}`, { waitUntil: "load" });
 			await senderPage.waitForTimeout(HYDRATION_WAIT_MS);
 			// Intercept the share-creation API call before triggering it so we
 			// can confirm the server acknowledged the request.
@@ -274,7 +274,7 @@ test.describe("P2P Song Share", () => {
 			const recipientPage = await recipientCtx.newPage();
 
 			// Sender: share the song
-			await senderPage.goto(`${BASE_URL}/en/songs/${testSongSlug}`, { waitUntil: "load" });
+			await senderPage.goto(`${BASE_URL}/en/song/${testSongSlug}`, { waitUntil: "load" });
 			await senderPage.waitForTimeout(HYDRATION_WAIT_MS);
 			const songDeclineShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
 				timeout: INVITE_SUCCESS_TIMEOUT_MS,
@@ -329,7 +329,7 @@ test.describe("P2P Playlist Share", () => {
 			const recipientPage = await recipientCtx.newPage();
 
 			// Sender: open the playlist page and share it
-			await senderPage.goto(`${BASE_URL}/en/playlists/${testPlaylistSlug}`, {
+			await senderPage.goto(`${BASE_URL}/en/playlist/${testPlaylistSlug}`, {
 				waitUntil: "load",
 			});
 			await senderPage.waitForTimeout(HYDRATION_WAIT_MS);
@@ -364,7 +364,7 @@ test.describe("P2P Playlist Share", () => {
 			const recipientPage = await recipientCtx.newPage();
 
 			// Sender: share the playlist
-			await senderPage.goto(`${BASE_URL}/en/playlists/${testPlaylistSlug}`, {
+			await senderPage.goto(`${BASE_URL}/en/playlist/${testPlaylistSlug}`, {
 				waitUntil: "load",
 			});
 			await senderPage.waitForTimeout(HYDRATION_WAIT_MS);
@@ -424,7 +424,7 @@ test.describe("Community Invitation", () => {
 			const errors = setupErrorTracking(inviteePage);
 
 			// Admin: go to the community manage page and invite user 2
-			await adminPage.goto(`${BASE_URL}/en/communities/${testCommunitySlug}/manage`, {
+	await adminPage.goto(`${BASE_URL}/en/community/${testCommunitySlug}/manage`, {
 				waitUntil: "load",
 			});
 			// Wait for auth + community fetch to grant manage access
@@ -481,7 +481,7 @@ test.describe("Community Invitation", () => {
 			const inviteePage = await recipientCtx.newPage();
 
 			// Admin: invite user 2
-			await adminPage.goto(`${BASE_URL}/en/communities/${testCommunitySlug}/manage`, {
+	await adminPage.goto(`${BASE_URL}/en/community/${testCommunitySlug}/manage`, {
 				waitUntil: "load",
 			});
 			// Wait for auth + community fetch to grant manage access
@@ -552,7 +552,7 @@ test.describe("Event Invitation", () => {
 			const errors = setupErrorTracking(inviteePage);
 
 			// Admin: go to the event manage page and invite user 2
-			await adminPage.goto(`${BASE_URL}/en/events/${testEventSlug}/manage`, {
+	await adminPage.goto(`${BASE_URL}/en/event/${testEventSlug}/manage`, {
 				waitUntil: "load",
 			});
 			// Wait for auth + event fetch to grant manage access
@@ -617,7 +617,7 @@ test.describe("Event Invitation", () => {
 			const inviteePage = await recipientCtx.newPage();
 
 			// Admin: invite user 2
-			await adminPage.goto(`${BASE_URL}/en/events/${testEventSlug}/manage`, {
+	await adminPage.goto(`${BASE_URL}/en/event/${testEventSlug}/manage`, {
 				waitUntil: "load",
 			});
 			// Wait for auth + event fetch to grant manage access

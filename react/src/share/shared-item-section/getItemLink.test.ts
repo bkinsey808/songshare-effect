@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
-import { communityViewPath, eventViewPath, playlistViewPath, songViewPath } from "@/shared/paths";
+import {
+	communityViewPath,
+	eventViewPath,
+	playlistViewPath,
+	songViewPath,
+	userViewPath,
+} from "@/shared/paths";
 
 import type { SharedItem } from "../slice/share-types";
 import getItemLink from "./getItemLink";
@@ -41,12 +47,12 @@ describe("getItemLink", () => {
 		expect(getItemLink(share)).toBe(`/${communityViewPath}/${BASE_SLUG}`);
 	});
 
-	it("returns undefined when shared_item_type is user", () => {
+	it("returns user path when shared_item_type is user and slug present", () => {
 		const share = forceCast<SharedItem>({
 			shared_item_type: "user",
 			shared_item_slug: BASE_SLUG,
 		});
-		expect(getItemLink(share)).toBeUndefined();
+		expect(getItemLink(share)).toBe(`/${userViewPath}/${BASE_SLUG}`);
 	});
 
 	it("returns undefined when slug is undefined", () => {

@@ -119,7 +119,7 @@ export const detectInitialLanguage = (): SupportedLanguage => {
     └── LanguageProvider (manages language context)
         └── Layout (shared UI)
             ├── / (HomePage)
-            ├── /songs
+            ├── /song
             ├── /upload
             ├── /about
             └── ... (other pages)
@@ -224,7 +224,7 @@ const { currentLanguage, switchLanguage, getLocalizedPath } = useLanguage();
 switchLanguage("es");
 
 // Get localized URL
-const spanishUrl = getLocalizedPath("/songs", "es"); // → '/es/songs'
+const spanishUrl = getLocalizedPath("/song", "es"); // → '/es/song'
 ```
 
 Convenience wrapper — `useLocale`
@@ -234,7 +234,7 @@ use `useLocale()` for a concise, type-safe pattern:
 
 ```typescript
 const { lang, t } = useLocale();
-<Link to={`/${lang}/songs`}>{t('navigation.home')}</Link>
+<Link to={`/${lang}/song`}>{t('navigation.home')}</Link>
 ```
 
 ### 5. Preference Storage System
@@ -279,7 +279,7 @@ const preference = getStoredLanguage();
 
 ### 🔗 External Link Handling
 
-1. **Shared Link** (`/zh/songs`) → Chinese displayed immediately
+1. **Shared Link** (`/zh/song`) → Chinese displayed immediately
 2. **No Preference Change** → Original preference preserved
 3. **Explicit Choice** → Only updated via language switcher
 
@@ -329,8 +329,8 @@ function LanguageAwareLink() {
   const { getLocalizedPath } = useLanguage();
 
   return (
-    <Link to={getLocalizedPath('/songs')}>
-      {/* Automatically resolves to /zh/songs, /es/songs, etc. */}
+    <Link to={getLocalizedPath('/song')}>
+      {/* Automatically resolves to /zh/song, /es/song, etc. */}
       View Songs
     </Link>
   );
@@ -411,7 +411,7 @@ detectBrowserLanguage("fr-FR,fr;q=0.9");
 
 ### URL Structure
 
-- **Language-Prefixed**: `/zh/about`, `/es/songs`
+- **Language-Prefixed**: `/zh/about`, `/es/song`
 - **Consistent**: Same content structure across languages
 - **Canonical**: Each language version has unique URL
 

@@ -4,8 +4,10 @@ import EventPlaylistAccordion from "@/react/event/view/playlist-accordion/EventP
 import useEventView from "@/react/event/view/useEventView";
 import Button from "@/react/lib/design-system/Button";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
-import ShareButton from "@/react/lib/design-system/ShareButton";
+import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
+import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
+import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {
 	eventManagePath,
@@ -128,6 +130,15 @@ export default function EventView(): React.ReactNode {
 					<p className="text-gray-600">Hosted by {ownerUsername}</p>
 				)}
 			</div>
+
+			{eventPublic.event_slug !== undefined && eventPublic.event_slug !== "" && (
+				<div className="mb-8">
+					<CollapsibleQrCode
+						url={buildPublicWebUrl(`/${eventViewPath}/${eventPublic.event_slug}`, lang)}
+						label={eventPublic.event_name}
+					/>
+				</div>
+			)}
 
 			{/* Event Details */}
 			<div className="mb-8 rounded-lg border border-gray-700 bg-gray-800 p-6">

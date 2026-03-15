@@ -1,4 +1,7 @@
-import { useTranslation } from "react-i18next";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
+import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
+import { communityViewPath } from "@/shared/paths";
 
 import CommunityEventsCard from "./CommunityEventsCard";
 import CommunityMembersCard from "./CommunityMembersCard";
@@ -17,7 +20,7 @@ import useCommunityView from "./useCommunityView";
  * @returns rendered community view element
  */
 export default function CommunityView(): ReactElement {
-	const { t } = useTranslation();
+	const { lang, t } = useLocale();
 	const {
 		currentCommunity,
 		members,
@@ -78,6 +81,13 @@ export default function CommunityView(): ReactElement {
 				onEditClick={onEditClick}
 				onRefreshCommunity={onRefreshCommunity}
 			/>
+
+			{currentCommunity.slug !== "" && (
+				<CollapsibleQrCode
+					url={buildPublicWebUrl(`/${communityViewPath}/${currentCommunity.slug}`, lang)}
+					label={currentCommunity.name}
+				/>
+			)}
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 				<CommunityMembersCard members={members} />

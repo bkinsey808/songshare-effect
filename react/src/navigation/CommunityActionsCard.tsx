@@ -28,7 +28,7 @@ export default function CommunityActionsCard(): ReactElement {
 	const SLUG_OFFSET = 1;
 
 	// Extract community slug from URL if present
-	// Patterns: /communities/:slug, /dashboard/communities/:slug/manage, etc.
+	// Patterns: /community/:slug, /dashboard/communities/:slug/manage, etc.
 	const pathSegments = location.pathname.split("/");
 	const communitiesIndex = pathSegments.indexOf(communityViewPath);
 	const currentCommunitySlug =

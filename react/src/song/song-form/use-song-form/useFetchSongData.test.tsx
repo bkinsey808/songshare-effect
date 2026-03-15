@@ -6,7 +6,7 @@ import makeMockLocation from "@/react/lib/test-utils/makeMockLocation.test-util"
 
 import useFetchSongData from "./useFetchSongData";
 
-const MOCK_LOCATION_NEW = makeMockLocation("/en/songs/new/edit", "default");
+const MOCK_LOCATION_NEW = makeMockLocation("/en/song/new/edit", "default");
 
 const EMPTY_FORM_VALUES = {
 	song_name: "",
@@ -83,7 +83,7 @@ describe("useFetchSongData", () => {
 		const hasPopulatedRef = { current: false };
 		const isFetchingRef = { current: false };
 
-		const locationWithSong = makeMockLocation("/en/songs/song-1/edit", "song-1");
+		const locationWithSong = makeMockLocation("/en/song/song-1/edit", "song-1");
 		renderHook(() => {
 			useFetchSongData({
 				songId: "song-1",

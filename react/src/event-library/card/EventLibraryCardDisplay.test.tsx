@@ -31,6 +31,6 @@ describe("eventLibraryCardDisplay", () => {
 		const slideLink = screen.getByRole("link", { name: "Slide Manager" });
 		expect(slideLink).toBeTruthy();
 		// href contains the slide-manager suffix for this event slug
-		expect(slideLink.getAttribute("href")).toContain("/events/test-event/slide-manager");
+		expect(slideLink.getAttribute("href")).toContain("/event/test-event/slide-manager");
 	});
 });

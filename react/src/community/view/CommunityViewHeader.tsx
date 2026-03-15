@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 
 import type { CommunityEntry } from "@/react/community/community-types";
 import Button from "@/react/lib/design-system/Button";
-import ShareButton from "@/react/lib/design-system/ShareButton";
+import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 type CommunityViewHeaderProps = Readonly<{

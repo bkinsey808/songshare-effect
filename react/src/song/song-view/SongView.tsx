@@ -1,8 +1,10 @@
-import { useTranslation } from "react-i18next";
-
-import ShareButton from "@/react/lib/design-system/ShareButton";
+import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
+import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
+import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
 import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
+import { songViewPath } from "@/shared/paths";
 
 import SongViewDetails from "./SongViewDetails";
 import SongViewLibraryAction from "./SongViewLibraryAction";
@@ -19,7 +21,7 @@ import { useSongView } from "./useSongView";
  * @returns React element (song view or not-found message)
  */
 export default function SongView(): ReactElement {
-	const { t } = useTranslation();
+	const { lang, t } = useLocale();
 	const { isNotFound, songPublic } = useSongView();
 
 	// Fetch and subscribe to sent shares - must be called before any early return
@@ -50,6 +52,13 @@ export default function SongView(): ReactElement {
 					/>
 				</div>
 			</div>
+
+			{songPublic.song_slug !== undefined && songPublic.song_slug !== "" && (
+				<CollapsibleQrCode
+					url={buildPublicWebUrl(`/${songViewPath}/${songPublic.song_slug}`, lang)}
+					label={songPublic.song_name ?? t("songView.untitled", "Untitled")}
+				/>
+			)}
 
 			<SongViewSlides songPublic={songPublic} />
 

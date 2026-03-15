@@ -24,6 +24,7 @@ import {
 	uploadDemoPath,
 	userPublicSubscriptionPath,
 	userSubscriptionDemoPath,
+	userViewPath,
 } from "@/shared/paths";
 
 import withSuspense from "../app/withSuspense";
@@ -34,6 +35,7 @@ const AboutPage = lazy(() => import("../pages/AboutPage"));
 const RegisterPage = lazy(() => import("../pages/RegisterPage"));
 const UploadPage = lazy(() => import("../pages/UploadPage"));
 const SongView = lazy(() => import("../song/song-view/SongView"));
+const UserView = lazy(() => import("../user/view/UserView"));
 const PlaylistPage = lazy(() => import("../pages/PlaylistPage"));
 const EventView = lazy(() => import("../event/view/EventView"));
 const EventManageView = lazy(() => import("../event/manage/event-manage-view/EventManageView"));
@@ -109,6 +111,10 @@ export const publicRoutesWithLayout: RouteObject[] = [
 	{
 		path: `${songViewPath}/:song_slug`,
 		element: withSuspense(SongView),
+	},
+	{
+		path: `${userViewPath}/:username`,
+		element: withSuspense(UserView),
 	},
 	{
 		path: `${playlistViewPath}/:playlist_slug`,

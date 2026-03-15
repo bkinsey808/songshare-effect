@@ -1,127 +1,81 @@
 import { render } from "@testing-library/react";
-import { Effect } from "effect";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
-import useAppStore from "@/react/app-store/useAppStore";
-import useCurrentUserId from "@/react/auth/useCurrentUserId";
-import ShareButton from "@/react/lib/design-system/ShareButton";
+import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import useLocale from "@/react/lib/language/locale/useLocale";
+import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import forceCast from "@/react/lib/test-utils/forceCast";
-import { makeTestPlaylist } from "@/react/playlist/test-utils/makeTestPlaylist.mock";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
-import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
-import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import PlaylistView from "./PlaylistView";
+import usePlaylistView, { type UsePlaylistViewResult } from "./usePlaylistView";
 
-vi.mock("react-router-dom");
 vi.mock("react-i18next");
 vi.mock("@/react/lib/language/locale/useLocale");
-vi.mock("@/react/lib/design-system/ShareButton");
-vi.mock("@/react/app-store/useAppStore");
-vi.mock("@/react/user-library/user-add/addUserToLibraryEffect");
-vi.mock("@/react/auth/useCurrentUserId");
-vi.mock("@/react/share/subscribe/useShareSubscription");
+vi.mock("@/react/lib/qr-code/CollapsibleQrCode");
+vi.mock("@/react/lib/design-system/share-button/ShareButton");
 vi.mock("@/react/share/shared-users-section/SharedUsersSection");
+vi.mock("./usePlaylistView");
 
 function installUiMocks(): void {
 	vi.mocked(useTranslation).mockReturnValue(
 		forceCast<ReturnType<typeof useTranslation>>({
-			t: (key: string): string => key,
+			t: (_key: string, fallback?: string): string => fallback ?? "",
 			i18n: { changeLanguage: vi.fn(), language: "en" },
 		}),
 	);
 	vi.mocked(useLocale).mockReturnValue(forceCast<ReturnType<typeof useLocale>>({ lang: "en" }));
 	vi.mocked(ShareButton).mockImplementation(() => <button type="button">Share</button>);
-	vi.mocked(useShareSubscription).mockImplementation(() => undefined);
+	vi.mocked(CollapsibleQrCode).mockImplementation(() => <div data-testid="qr-code" />);
 	vi.mocked(SharedUsersSection).mockImplementation(() => <div data-testid="shared-users-mock" />);
 }
 
-function installStoreMocks(options: {
-	mockFetch: unknown;
-	mockClear: unknown;
-	currentPlaylistReturn?: unknown;
-	userId?: string;
-}): void {
-	const { mockFetch, mockClear, currentPlaylistReturn, userId } = options;
-	vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
-		const selectorText = String(selector);
-		if (selectorText.includes("currentPlaylist")) {
-			return currentPlaylistReturn;
-		}
-		if (selectorText.includes("isPlaylistLoading")) {
-			return false;
-		}
-		if (selectorText.includes("isPlaylistLibraryLoading")) {
-			return false;
-		}
-		if (selectorText.includes("playlistError")) {
-			return undefined;
-		}
-		if (selectorText.includes("fetchPlaylist")) {
-			return mockFetch;
-		}
-		if (selectorText.includes("clearCurrentPlaylist")) {
-			return mockClear;
-		}
-		if (selectorText.includes("userSessionData") && selectorText.includes("user_id")) {
-			return userId;
-		}
-		if (selectorText.includes("userSessionData")) {
-			return userId !== null && userId !== undefined && userId !== ""
-				? { user: { user_id: userId } }
-				: undefined;
-		}
-		if (selectorText.includes("isInPlaylistLibrary")) {
-			return (_playlistId: string): boolean => false;
-		}
-		if (selectorText.includes("addPlaylistToLibrary")) {
-			return (_request: unknown): Effect.Effect<void, Error> => Effect.succeed(undefined);
-		}
-		if (selectorText.includes("removePlaylistFromLibrary")) {
-			return (_request: unknown): Effect.Effect<void, Error> => Effect.succeed(undefined);
-		}
-		if (selectorText.includes("fetchPlaylistLibrary")) {
-			return (): Effect.Effect<void, Error> => Effect.succeed(undefined);
-		}
-		return undefined as unknown;
-	});
+function installPlaylistViewMock(overrides: Partial<UsePlaylistViewResult>): void {
+	const base: UsePlaylistViewResult = {
+		currentPlaylist: undefined,
+		playlistPublic: undefined,
+		publicSongs: {},
+		isLoading: false,
+		error: undefined,
+		isOwner: false,
+		songOrder: [],
+	};
+	vi.mocked(usePlaylistView).mockReturnValue({ ...base, ...overrides });
 }
 
 describe("playlist view", () => {
-	it("auto-adds playlist owner to user library when viewing playlist", () => {
+	it("renders not found when playlist is missing", () => {
 		installUiMocks();
-		// Mock useParams to return a playlist_slug
-		vi.mocked(useParams).mockReturnValue({ playlist_slug: "test-playlist" });
+		installPlaylistViewMock({});
 
-		const mockFetch = vi.fn(() => Effect.succeed(undefined));
-		const mockClear = vi.fn();
-		// currentPlaylist has owner user_id = 'owner-123'
-		const playlist = {
-			...makeTestPlaylist(),
-			playlist_id: "p1",
-			user_id: "owner-123",
-			public: { ...makeTestPlaylist().public, playlist_name: "Test" },
-		};
+		const { getByText } = render(<PlaylistView />);
 
-		installStoreMocks({
-			mockFetch,
-			mockClear,
-			currentPlaylistReturn: playlist,
-			userId: "not-owner",
+		expect(getByText("Playlist not found")).toBeTruthy();
+	});
+
+	it("renders playlist when data is available", () => {
+		installUiMocks();
+		installPlaylistViewMock({
+			currentPlaylist: forceCast({
+				playlist_id: "p1",
+				user_id: "owner-123",
+				owner_username: "owner",
+				public: {
+					playlist_name: "Test Playlist",
+					playlist_slug: "test-playlist",
+					song_order: [],
+				},
+			}),
+			playlistPublic: forceCast({
+				playlist_name: "Test Playlist",
+				playlist_slug: "test-playlist",
+				song_order: [],
+			}),
 		});
-		vi.mocked(useCurrentUserId).mockReturnValue("not-owner");
 
-		const mockAutoAdd = vi.mocked(addUserToLibraryEffect);
-		mockAutoAdd.mockReturnValue(Effect.sync(() => undefined));
+		const { getByRole } = render(<PlaylistView />);
 
-		render(<PlaylistView />);
-
-		expect(mockAutoAdd).toHaveBeenCalledWith(
-			{ followed_user_id: "owner-123" },
-			expect.any(Function),
-		);
+		expect(getByRole("heading", { name: "Test Playlist" })).toBeTruthy();
 	});
 });
