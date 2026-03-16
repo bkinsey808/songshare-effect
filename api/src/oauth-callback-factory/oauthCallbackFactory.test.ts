@@ -6,6 +6,11 @@ import { describe, expect, it, vi } from "vitest";
 import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
+import {
+	asFetchUserResult,
+	asOauthState,
+	asString,
+} from "@/api/oauth-callback-factory/oauthCallbackFactory.test-util";
 import rateLimit from "@/api/oauth-callback-factory/rateLimit";
 import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
 import buildDashboardRedirectUrl from "@/api/oauth/buildDashboardRedirectUrl";
@@ -15,11 +20,6 @@ import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
 import type { OauthState } from "@/shared/oauth/oauthState";
 
-import {
-	asFetchUserResult,
-	asOauthState,
-	asString,
-} from "@/api/oauth-callback-factory/oauthCallbackFactory.test-util";
 import oauthCallbackFactory from "./oauthCallbackFactory";
 import { SEE_OTHER } from "./registrationRedirect";
 

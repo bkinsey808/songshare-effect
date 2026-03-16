@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import makeNull from "@/shared/test-utils/makeNull.test-util";
 import { preferredLanguageCookieName } from "@/shared/cookies";
+import makeNull from "@/shared/test-utils/makeNull.test-util";
 
 import parseLanguageCookie from "./parseLanguageCookie";
 

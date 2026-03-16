@@ -21,7 +21,11 @@ export default function addImageToLibraryEffect(
 	return Effect.gen(function* addImageGen($) {
 		const { setImageLibraryError, isInImageLibrary, addImageLibraryEntry } = get();
 
-		yield* $(Effect.sync(() => { setImageLibraryError(undefined); }));
+		yield* $(
+			Effect.sync(() => {
+				setImageLibraryError(undefined);
+			}),
+		);
 
 		if (typeof (request as Record<string, unknown>)["image_id"] !== "string") {
 			return yield* $(Effect.fail(new Error("Invalid request: image_id must be a string")));
@@ -53,9 +57,7 @@ export default function addImageToLibraryEffect(
 
 		if (!response.ok) {
 			return yield* $(
-				Effect.fail(
-					new Error(extractErrorMessage(json, `Server returned ${response.status}`)),
-				),
+				Effect.fail(new Error(extractErrorMessage(json, `Server returned ${response.status}`))),
 			);
 		}
 
@@ -72,6 +74,10 @@ export default function addImageToLibraryEffect(
 			}),
 		);
 
-		yield* $(Effect.sync(() => { addImageLibraryEntry(entry); }));
+		yield* $(
+			Effect.sync(() => {
+				addImageLibraryEntry(entry);
+			}),
+		);
 	});
 }

@@ -2,10 +2,10 @@
 
 This guide covers running Playwright tests connected to the **staging Supabase project** in two modes:
 
-| Mode | Frontend | API | Supabase |
-|------|----------|-----|----------|
-| **Local site + staging DB** | `localhost:5173` | `localhost:8787` | staging |
-| **Staging site** | `staging.bardoshare.com` | `staging.bardoshare.com/api` | staging |
+| Mode                        | Frontend                 | API                          | Supabase |
+| --------------------------- | ------------------------ | ---------------------------- | -------- |
+| **Local site + staging DB** | `localhost:5173`         | `localhost:8787`             | staging  |
+| **Staging site**            | `staging.bardoshare.com` | `staging.bardoshare.com/api` | staging  |
 
 Both modes use a pre-signed `userSession` cookie (generated once, valid 7 days) stored in `e2e/.auth/google-user.json`. The script fetches real user data from Supabase, mints a JWT signed with `JWT_SECRET`, and writes a Playwright `storageState` file — no OAuth flow required.
 
@@ -93,6 +93,7 @@ npm run dev:all:staging
 ```
 
 Starts:
+
 - Vite frontend in `staging-local` mode → uses staging `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (Realtime goes to staging)
 - Wrangler API with `wrangler.staging.toml` → all DB queries go to staging Supabase
 
@@ -166,10 +167,10 @@ PLAYWRIGHT_BASE_URL=https://staging.bardoshare.com npx playwright test e2e/specs
 
 ## Available Browsers (`--project`)
 
-| Project name | Description |
-|---|---|
-| `chromium` | Standard Chrome (default for most tests) |
-| `firefox` | Firefox |
+| Project name      | Description                                    |
+| ----------------- | ---------------------------------------------- |
+| `chromium`        | Standard Chrome (default for most tests)       |
+| `firefox`         | Firefox                                        |
 | `chromium-webgpu` | Chrome with WebGPU enabled (TypeGPU demo only) |
 
 Omit `--project` to run all browser projects.
@@ -186,8 +187,8 @@ import { GOOGLE_USER_SESSION_PATH } from "../utils/auth-helpers";
 test.use({ storageState: GOOGLE_USER_SESSION_PATH });
 
 test("real user can see their song library", async ({ page }) => {
-  await page.goto("/en/song-library");
-  await expect(page.getByRole("heading", { name: /song library/i })).toBeVisible();
+	await page.goto("/en/song-library");
+	await expect(page.getByRole("heading", { name: /song library/i })).toBeVisible();
 });
 ```
 
@@ -219,12 +220,12 @@ The file path stays the same so no spec changes are needed.
 
 ### Tests covered
 
-| Describe block | Flows |
-|---|---|
-| `P2P Song Share` | Share a song → accept; Share a song → decline |
-| `P2P Playlist Share` | Share a playlist → accept; Share a playlist → decline |
-| `Community Invitation` | Admin invites to community → accept; → decline |
-| `Event Invitation` | Admin invites to event → accept; → decline |
+| Describe block         | Flows                                                 |
+| ---------------------- | ----------------------------------------------------- |
+| `P2P Song Share`       | Share a song → accept; Share a song → decline         |
+| `P2P Playlist Share`   | Share a playlist → accept; Share a playlist → decline |
+| `Community Invitation` | Admin invites to community → accept; → decline        |
+| `Event Invitation`     | Admin invites to event → accept; → decline            |
 
 ### Setup
 
@@ -284,6 +285,7 @@ PLAYWRIGHT_BASE_URL=https://staging.bardoshare.com \
 ### How skipping works
 
 Each `describe` block skips itself when:
+
 - Either session file is missing (`e2e/.auth/google-user.json` or `e2e/.auth/google-user-2.json`).
 - The relevant slug/username env var is not set.
 

@@ -1,6 +1,6 @@
 import { cleanup, render, renderHook, waitFor } from "@testing-library/react";
-import { createRef } from "react";
 import { Effect, Schema } from "effect";
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppForm from "./useAppForm";
@@ -68,10 +68,7 @@ describe("useAppForm — renderHook", () => {
 			useAppForm<TestFormValues>({ schema: TestSchema, formRef }),
 		);
 
-		const effect = result.current.handleSubmit(
-			{ name: "Bob", age: 25 },
-			vi.fn(),
-		);
+		const effect = result.current.handleSubmit({ name: "Bob", age: 25 }, vi.fn());
 
 		expect(Effect.isEffect(effect)).toBe(true);
 	});

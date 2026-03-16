@@ -66,12 +66,18 @@ if (stagingRef === undefined || stagingRef === "" || stagingPw === undefined || 
 	process.exit(EXIT_FAILURE);
 }
 if (
-	prodRef === undefined || prodRef === "" ||
-	prodPgHost === undefined || prodPgHost === "" ||
-	prodPgUser === undefined || prodPgUser === "" ||
-	prodPgPassword === undefined || prodPgPassword === ""
+	prodRef === undefined ||
+	prodRef === "" ||
+	prodPgHost === undefined ||
+	prodPgHost === "" ||
+	prodPgUser === undefined ||
+	prodPgUser === "" ||
+	prodPgPassword === undefined ||
+	prodPgPassword === ""
 ) {
-	sError("❌ Production DB env vars (PGHOST, PGUSER, PGPASSWORD, SUPABASE_PROJECT_REF) not set in .env");
+	sError(
+		"❌ Production DB env vars (PGHOST, PGUSER, PGPASSWORD, SUPABASE_PROJECT_REF) not set in .env",
+	);
 	process.exit(EXIT_FAILURE);
 }
 

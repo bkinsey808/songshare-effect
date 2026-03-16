@@ -7,10 +7,10 @@ import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import fetchImageLibraryEffect from "../fetch/fetchImageLibraryEffect";
 import addImageToLibraryEffect from "../image-add/addImageToLibraryEffect";
 import type {
-    AddImageToLibraryRequest,
-    ImageLibraryEntry,
-    ImageLibraryState,
-    RemoveImageFromLibraryRequest,
+	AddImageToLibraryRequest,
+	ImageLibraryEntry,
+	ImageLibraryState,
+	RemoveImageFromLibraryRequest,
 } from "../image-library-types";
 import removeImageFromLibraryEffect from "../image-remove/removeImageFromLibraryEffect";
 import subscribeToImageLibraryEffect from "../subscribe/subscribeToImageLibraryEffect";

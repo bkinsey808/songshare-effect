@@ -22,9 +22,7 @@ describe("subscribeToSongLibrary", () => {
 		clientSpy.mockReturnValue(createMinimalSupabaseClient());
 
 		const cleanupFn: () => void = vi.fn();
-		const createRealtimeMock = vi
-			.spyOn(createRealtimeModule, "default")
-			.mockReturnValue(cleanupFn);
+		const createRealtimeMock = vi.spyOn(createRealtimeModule, "default").mockReturnValue(cleanupFn);
 
 		const get = makeSongLibrarySlice();
 

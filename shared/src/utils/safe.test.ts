@@ -1,13 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import forceCast from "@/shared/test-utils/forceCast.test-util";
-import safeDelete, {
-	safeArrayGet,
-	safeArraySet,
-	safeGet,
-	safeSet,
-	superSafeGet,
-} from "./safe";
+
+import safeDelete, { safeArrayGet, safeArraySet, safeGet, safeSet, superSafeGet } from "./safe";
 
 const NUM_ONE = 1;
 const NUM_TWO = 2;

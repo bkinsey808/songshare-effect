@@ -17,9 +17,7 @@ describe("rejectAcceptedSharesForItem", () => {
 			rejected_count: 2,
 		});
 
-		await Effect.runPromise(
-			rejectAcceptedSharesForItem("song", "song-123"),
-		);
+		await Effect.runPromise(rejectAcceptedSharesForItem("song", "song-123"));
 
 		expect(postJsonWithResult).toHaveBeenCalledTimes(FIRST_CALL);
 		expect(postJsonWithResult).toHaveBeenCalledWith(apiShareRejectByItemPath, {

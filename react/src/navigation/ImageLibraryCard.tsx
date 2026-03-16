@@ -31,9 +31,7 @@ export default function ImageLibraryCard(): ReactElement {
 			{/* Image Library - highlights when active */}
 			<Button
 				size="compact"
-				variant={
-					isActive(`${dashboardPath}/${imageLibraryPath}`) ? "primary" : "outlineSecondary"
-				}
+				variant={isActive(`${dashboardPath}/${imageLibraryPath}`) ? "primary" : "outlineSecondary"}
 				icon={<LibraryIcon className="size-4" />}
 				onClick={() => {
 					const libraryPath = buildPathWithLang(`/${dashboardPath}/${imageLibraryPath}`, lang);

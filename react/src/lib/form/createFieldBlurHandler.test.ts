@@ -1,9 +1,8 @@
 import { Schema } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import type { ValidationError } from "@/shared/validation/validate-types";
-
 import forceCast from "@/react/lib/test-utils/forceCast";
+import type { ValidationError } from "@/shared/validation/validate-types";
 
 import type createFieldBlurHandlerType from "./createFieldBlurHandler";
 

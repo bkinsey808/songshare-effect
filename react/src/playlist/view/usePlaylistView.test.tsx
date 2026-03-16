@@ -5,10 +5,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
-import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
-import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { PlaylistPublic } from "@/react/playlist/playlist-types";
+import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
+import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import usePlaylistView from "./usePlaylistView";
 
@@ -29,8 +29,7 @@ type StoreOverrides = {
 };
 
 function installStoreMocks(overrides: StoreOverrides = {}): void {
-	const fetchPlaylist =
-		overrides.fetchPlaylist ?? vi.fn(() => Effect.succeed(undefined));
+	const fetchPlaylist = overrides.fetchPlaylist ?? vi.fn(() => Effect.succeed(undefined));
 	const clearCurrentPlaylist = overrides.clearCurrentPlaylist ?? vi.fn();
 	const addActivePublicSongIds =
 		overrides.addActivePublicSongIds ?? vi.fn(() => Effect.succeed(undefined));

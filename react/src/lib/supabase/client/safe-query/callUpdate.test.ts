@@ -10,7 +10,10 @@ function makeClient(opts: { hasFrom?: boolean; hasUpdate?: boolean }): SupabaseC
 	const hasFrom = opts.hasFrom !== false;
 	const hasUpdate = opts.hasUpdate !== false;
 
-	const emptyResponse = { data: JSON.parse("null") as unknown, error: JSON.parse("null") as unknown };
+	const emptyResponse = {
+		data: JSON.parse("null") as unknown,
+		error: JSON.parse("null") as unknown,
+	};
 	const result = promiseResolved(emptyResponse);
 
 	Object.assign(result as object, {
@@ -63,9 +66,7 @@ describe("callUpdate", () => {
 
 	it("applies eq filter when opts.eq provided", async () => {
 		const client = makeClient({});
-		const eqFn = vi.fn(() =>
-			promiseResolved({ data: {}, error: JSON.parse("null") as unknown }),
-		);
+		const eqFn = vi.fn(() => promiseResolved({ data: {}, error: JSON.parse("null") as unknown }));
 		const updateResult = promiseResolved({ data: {}, error: JSON.parse("null") as unknown });
 		Object.assign(updateResult as object, { eq: eqFn });
 		const tableObj = { update: vi.fn(() => updateResult) };
@@ -83,7 +84,9 @@ describe("callUpdate", () => {
 
 	it("calls select when selectCols provided", async () => {
 		const client = makeClient({});
-		const selectFn = vi.fn(() => promiseResolved({ data: {}, error: JSON.parse("null") as unknown }));
+		const selectFn = vi.fn(() =>
+			promiseResolved({ data: {}, error: JSON.parse("null") as unknown }),
+		);
 		const updateResult = promiseResolved({ data: {}, error: JSON.parse("null") as unknown });
 		Object.assign(updateResult as object, { eq: vi.fn(() => updateResult), select: selectFn });
 		const tableObj = { update: vi.fn(() => updateResult) };

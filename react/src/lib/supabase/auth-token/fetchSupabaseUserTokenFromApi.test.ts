@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 import { apiUserTokenPath } from "@/shared/paths";
+import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 import { cacheUserToken, getCachedUserToken } from "../token/token-cache";
 import fetchSupabaseUserTokenFromApi from "./fetchSupabaseUserTokenFromApi";
@@ -44,10 +44,7 @@ describe("fetchSupabaseUserTokenFromApi", () => {
 			apiUserTokenPath,
 			expect.objectContaining({ method: "GET", credentials: "include" }),
 		);
-		expect(cacheUserToken).toHaveBeenCalledWith(
-			"user-tok-xyz",
-			expect.any(Number),
-		);
+		expect(cacheUserToken).toHaveBeenCalledWith("user-tok-xyz", expect.any(Number));
 
 		vi.unstubAllGlobals();
 	});
@@ -55,10 +52,7 @@ describe("fetchSupabaseUserTokenFromApi", () => {
 	it("returns undefined when response is not ok", async () => {
 		vi.clearAllMocks();
 		vi.mocked(getCachedUserToken).mockReturnValue(undefined);
-		vi.stubGlobal(
-			"fetch",
-			vi.fn().mockResolvedValue({ ok: false, status: 500 }),
-		);
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 }));
 		const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
 		const result = await fetchSupabaseUserTokenFromApi();

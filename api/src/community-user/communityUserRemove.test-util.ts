@@ -2,13 +2,16 @@
  * Test helper for communityUserRemove - builds a Supabase client stub.
  */
 import type { createClient } from "@supabase/supabase-js";
+
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
-export default function makeCommunityUserRemoveClient(opts: {
-	updateError?: boolean;
-} = {}): ReturnType<typeof createClient> {
+export default function makeCommunityUserRemoveClient(
+	opts: {
+		updateError?: boolean;
+	} = {},
+): ReturnType<typeof createClient> {
 	const updateError = opts.updateError ?? false;
 
 	return forceCast<ReturnType<typeof createClient>>({

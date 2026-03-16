@@ -10,7 +10,10 @@ function makeClient(opts: { hasFrom?: boolean; hasInsert?: boolean }): SupabaseC
 	const hasFrom = opts.hasFrom !== false;
 	const hasInsert = opts.hasInsert !== false;
 
-	const emptyResponse = { data: JSON.parse("null") as unknown, error: JSON.parse("null") as unknown };
+	const emptyResponse = {
+		data: JSON.parse("null") as unknown,
+		error: JSON.parse("null") as unknown,
+	};
 	const result = promiseResolved(emptyResponse);
 
 	const insertChain = {
@@ -72,7 +75,9 @@ describe("callInsert", () => {
 
 	it("calls select when selectCols provided", async () => {
 		const client = makeClient({});
-		const selectFn = vi.fn(() => promiseResolved({ data: {}, error: JSON.parse("null") as unknown }));
+		const selectFn = vi.fn(() =>
+			promiseResolved({ data: {}, error: JSON.parse("null") as unknown }),
+		);
 		const insertChain = { select: selectFn, single: vi.fn() };
 		const insertResult = promiseResolved({ data: {}, error: JSON.parse("null") as unknown });
 		Object.assign(insertResult as object, insertChain);

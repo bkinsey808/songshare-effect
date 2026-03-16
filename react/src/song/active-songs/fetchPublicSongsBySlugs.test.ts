@@ -9,10 +9,7 @@ const SONG_SLUG = "my-song";
 
 type SupabaseQueryResult = Promise<{ data: unknown[]; error: unknown }>;
 
-function makeSupabaseClient(opts: {
-	data?: unknown[];
-	error?: unknown;
-}): {
+function makeSupabaseClient(opts: { data?: unknown[]; error?: unknown }): {
 	from: (table: string) => {
 		select: (query: string) => {
 			in: (column: string, values: readonly string[]) => SupabaseQueryResult;

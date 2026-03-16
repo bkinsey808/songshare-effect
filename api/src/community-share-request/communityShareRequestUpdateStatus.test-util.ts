@@ -2,22 +2,25 @@
  * Test helper for communityShareRequestUpdateStatus - builds a Supabase client stub.
  */
 import type { createClient } from "@supabase/supabase-js";
+
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 type SharedItemType = "song" | "playlist";
 
-export default function makeCommunityShareRequestUpdateStatusClient(opts: {
-	requestNotFound?: boolean;
-	requestNotPending?: boolean;
-	requesterRole?: "owner" | "community_admin" | "member";
-	requesterRoleError?: boolean;
-	updateError?: boolean;
-	addSongError?: boolean;
-	addPlaylistError?: boolean;
-	sharedItemType?: SharedItemType;
-} = {}): ReturnType<typeof createClient> {
+export default function makeCommunityShareRequestUpdateStatusClient(
+	opts: {
+		requestNotFound?: boolean;
+		requestNotPending?: boolean;
+		requesterRole?: "owner" | "community_admin" | "member";
+		requesterRoleError?: boolean;
+		updateError?: boolean;
+		addSongError?: boolean;
+		addPlaylistError?: boolean;
+		sharedItemType?: SharedItemType;
+	} = {},
+): ReturnType<typeof createClient> {
 	const requestNotFound = opts.requestNotFound ?? false;
 	const requestNotPending = opts.requestNotPending ?? false;
 	const role = opts.requesterRole ?? "owner";

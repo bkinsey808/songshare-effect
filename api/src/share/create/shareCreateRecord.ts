@@ -1,10 +1,9 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
+import { DatabaseError } from "@/api/api-errors";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
-
-import { DatabaseError } from "@/api/api-errors";
 
 type ShareCreateRequest = {
 	recipient_user_id: string;

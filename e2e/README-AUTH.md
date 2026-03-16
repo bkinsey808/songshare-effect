@@ -247,6 +247,7 @@ Both files are gitignored — copy them from a teammate or from this template:
 
 **`.env.staging-local`** — staging Supabase vars only; `VITE_API_BASE_URL` falls through to
 `.env`'s local value (`http://localhost:8787`):
+
 ```
 VITE_SUPABASE_URL=https://tsqnanlwllbpgytqfwwi.supabase.co
 VITE_SUPABASE_ANON_KEY=<staging anon key>
@@ -267,6 +268,7 @@ npm run test:e2e:dev
 ```
 
 In your spec:
+
 ```typescript
 import { GOOGLE_USER_SESSION_PATH } from "../utils/auth-helpers";
 test.use({ storageState: GOOGLE_USER_SESSION_PATH });
@@ -283,6 +285,7 @@ npm run test:e2e:staging
 ```
 
 Override IP if needed (e.g. behind a VPN):
+
 ```bash
 E2E_CLIENT_IP=1.2.3.4 npm run e2e:create-session:staging-url
 ```
@@ -293,7 +296,7 @@ The JWT expires after 7 days. Re-run the matching `e2e:create-session:*` command
 
 ### Two authenticated users (sharing / invitation tests)
 
-For tests that exercise interactions *between* two real users (e.g. sharing a song, accepting a
+For tests that exercise interactions _between_ two real users (e.g. sharing a song, accepting a
 community invitation), generate a second session file and open independent `BrowserContext`
 instances backed by each file:
 
@@ -307,22 +310,19 @@ In your spec use the `browser` fixture (not `page`) and create two contexts:
 
 ```typescript
 import { test, expect, type Browser, type BrowserContext } from "@playwright/test";
-import {
-  GOOGLE_USER_SESSION_PATH,
-  GOOGLE_USER_SESSION_PATH_2,
-} from "../utils/auth-helpers";
+import { GOOGLE_USER_SESSION_PATH, GOOGLE_USER_SESSION_PATH_2 } from "../utils/auth-helpers";
 
 test("sender shares a song and recipient accepts", async ({ browser }) => {
-  const senderCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH });
-  const recipientCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH_2 });
-  try {
-    const senderPage = await senderCtx.newPage();
-    const recipientPage = await recipientCtx.newPage();
-    // ... test logic
-  } finally {
-    await senderCtx.close();
-    await recipientCtx.close();
-  }
+	const senderCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH });
+	const recipientCtx = await browser.newContext({ storageState: GOOGLE_USER_SESSION_PATH_2 });
+	try {
+		const senderPage = await senderCtx.newPage();
+		const recipientPage = await recipientCtx.newPage();
+		// ... test logic
+	} finally {
+		await senderCtx.close();
+		await recipientCtx.close();
+	}
 });
 ```
 

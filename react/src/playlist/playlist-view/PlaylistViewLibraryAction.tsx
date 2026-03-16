@@ -37,8 +37,7 @@ export default function PlaylistViewLibraryAction({
 	const [isPending, setIsPending] = useState(false);
 
 	const currentUserId = useAppStore((state) => state.userSessionData?.user?.user_id);
-	const playlistLibraryEntries =
-		useAppStore((state) => state.playlistLibraryEntries ?? {}) ?? {};
+	const playlistLibraryEntries = useAppStore((state) => state.playlistLibraryEntries ?? {}) ?? {};
 	const inLibrary = playlistId in playlistLibraryEntries;
 	const isPlaylistLibraryLoading = useAppStore((state) => state.isPlaylistLibraryLoading);
 	const addPlaylistToLibrary = useAppStore((state) => state.addPlaylistToLibrary);

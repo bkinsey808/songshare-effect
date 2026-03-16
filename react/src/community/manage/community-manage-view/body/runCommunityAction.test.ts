@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { CommunityActionState } from "../CommunityActionState.type";
-
 import runCommunityAction from "./runCommunityAction";
 
 const ACTION_KEY = "test-action";

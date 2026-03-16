@@ -74,8 +74,7 @@ if (jwtSecret === undefined || jwtSecret === "") {
 
 const baseUrl = process.env["PLAYWRIGHT_BASE_URL"] ?? "http://127.0.0.1:5173";
 const parsedBase = new URL(baseUrl);
-const isLocalTarget =
-	parsedBase.hostname === "127.0.0.1" || parsedBase.hostname === "localhost";
+const isLocalTarget = parsedBase.hostname === "127.0.0.1" || parsedBase.hostname === "localhost";
 
 async function detectPublicIp(): Promise<string> {
 	const response = await fetch("https://api.ipify.org?format=text");
@@ -125,9 +124,7 @@ const { data: userRows, error: userError } = await supabaseAdmin
 if (userError !== null || userRows === null || userRows.length === EMPTY_LENGTH) {
 	const msg = userError === null ? "no rows returned" : userError.message;
 	console.error("❌  Could not fetch user row:", msg);
-	console.error(
-		"    Make sure the account has signed in at least once and the email matches.",
-	);
+	console.error("    Make sure the account has signed in at least once and the email matches.");
 	process.exit(EXIT_FAILURE);
 }
 
@@ -170,8 +167,7 @@ if (!isStringRecord(rawPublicRow)) {
 	console.error("❌  Unexpected user_public row shape");
 	process.exit(EXIT_FAILURE);
 }
-const username =
-	typeof rawPublicRow["username"] === "string" ? rawPublicRow["username"] : userName;
+const username = typeof rawPublicRow["username"] === "string" ? rawPublicRow["username"] : userName;
 
 // ── build JWT payload ─────────────────────────────────────────────────────────
 
@@ -207,10 +203,7 @@ console.log("🔐  Signing userSession JWT...");
 
 // hono/jwt `sign` uses HMAC-SHA256 by default — same as the API
 const jwtResult = await sign(sessionPayload, jwtSecret).catch((error: unknown) => {
-	console.error(
-		"❌  Failed to sign JWT:",
-		error instanceof Error ? error.message : String(error),
-	);
+	console.error("❌  Failed to sign JWT:", error instanceof Error ? error.message : String(error));
 	process.exit(EXIT_FAILURE);
 });
 
@@ -237,8 +230,7 @@ const storageState = {
 	origins: [] as unknown[],
 };
 
-const sessionOutputRelative =
-	process.env["E2E_SESSION_OUTPUT"] ?? "e2e/.auth/google-user.json";
+const sessionOutputRelative = process.env["E2E_SESSION_OUTPUT"] ?? "e2e/.auth/google-user.json";
 const outputPath = join(process.cwd(), sessionOutputRelative);
 mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, JSON.stringify(storageState, undefined, JSON_INDENT));

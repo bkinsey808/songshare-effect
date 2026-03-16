@@ -2,11 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 
-import {
-	PlaylistFormField,
-	playlistFormFields,
-	playlistFormSchema,
-} from "./playlistSchema";
+import { PlaylistFormField, playlistFormFields, playlistFormSchema } from "./playlistSchema";
 
 describe("playlistSchema", () => {
 	describe("playlistFormField", () => {
@@ -64,9 +60,7 @@ describe("playlistSchema", () => {
 				song_order: "not-an-array",
 			} as unknown;
 
-			expect(() => decodeUnknownSyncOrThrow(playlistFormSchema, input)).toThrow(
-				/array|expected/i,
-			);
+			expect(() => decodeUnknownSyncOrThrow(playlistFormSchema, input)).toThrow(/array|expected/i);
 		});
 	});
 });

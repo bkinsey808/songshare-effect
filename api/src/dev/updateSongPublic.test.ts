@@ -4,20 +4,18 @@ import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import forceCast from "@/react/lib/test-utils/forceCast";
-import {
-	HTTP_BAD_REQUEST,
-	HTTP_FORBIDDEN,
-	HTTP_OK,
-} from "@/shared/constants/http";
+import { HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_OK } from "@/shared/constants/http";
 
 import updateSongPublic from "./updateSongPublic";
 
 vi.mock("@supabase/supabase-js");
 
-function makeSongPublicClient(opts: {
-	updateRow?: { song_id: string; song_name?: string; song_slug?: string };
-	updateError?: boolean;
-} = {}): ReturnType<typeof createClient> {
+function makeSongPublicClient(
+	opts: {
+		updateRow?: { song_id: string; song_name?: string; song_slug?: string };
+		updateError?: boolean;
+	} = {},
+): ReturnType<typeof createClient> {
 	const updateRow = opts.updateRow ?? {
 		song_id: "song-1",
 		song_name: "Updated",
@@ -119,9 +117,7 @@ describe("updateSongPublic", () => {
 			song_name: "New Name",
 			song_slug: "new-slug",
 		};
-		vi.mocked(createClient).mockReturnValue(
-			makeSongPublicClient({ updateRow }),
-		);
+		vi.mocked(createClient).mockReturnValue(makeSongPublicClient({ updateRow }));
 
 		const ctx = makeCtx({
 			body: { song_id: "song-1", song_name: "New Name", song_slug: "new-slug" },

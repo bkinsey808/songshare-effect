@@ -20,7 +20,11 @@ export default function removeImageFromLibraryEffect(
 	return Effect.gen(function* removeImageGen($) {
 		const { setImageLibraryError, removeImageLibraryEntry } = get();
 
-		yield* $(Effect.sync(() => { setImageLibraryError(undefined); }));
+		yield* $(
+			Effect.sync(() => {
+				setImageLibraryError(undefined);
+			}),
+		);
 
 		const response = yield* $(
 			Effect.tryPromise({
@@ -47,6 +51,10 @@ export default function removeImageFromLibraryEffect(
 			);
 		}
 
-		yield* $(Effect.sync(() => { removeImageLibraryEntry(request.image_id); }));
+		yield* $(
+			Effect.sync(() => {
+				removeImageLibraryEntry(request.image_id);
+			}),
+		);
 	});
 }

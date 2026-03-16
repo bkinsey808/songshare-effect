@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-	registerCookieName,
-	userSessionCookieName,
-} from "./cookie";
+import { registerCookieName, userSessionCookieName } from "./cookie";
 
 describe("cookie", () => {
 	it("exports userSessionCookieName", () => {

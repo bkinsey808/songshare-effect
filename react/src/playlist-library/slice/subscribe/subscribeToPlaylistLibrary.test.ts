@@ -4,8 +4,8 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
-import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import type { PlaylistLibrarySlice } from "../PlaylistLibrarySlice.type";
 import subscribeToPlaylistLibrary from "./subscribeToPlaylistLibrary";
@@ -36,9 +36,7 @@ describe("subscribeToPlaylistLibrary", () => {
 		clientSpy.mockReturnValue(createMinimalSupabaseClient());
 
 		const cleanupFn: () => void = vi.fn();
-		const createRealtimeMock = vi
-			.spyOn(createRealtimeModule, "default")
-			.mockReturnValue(cleanupFn);
+		const createRealtimeMock = vi.spyOn(createRealtimeModule, "default").mockReturnValue(cleanupFn);
 
 		const get = makePlaylistLibraryGet();
 

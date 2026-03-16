@@ -25,8 +25,8 @@ const rule: Rule.RuleModule = {
 					isUseEffect = true;
 				} else if (
 					callee.type === "MemberExpression" &&
-					(callee as unknown as { property?: { type: string; name: string } }).property
-						?.type === "Identifier" &&
+					(callee as unknown as { property?: { type: string; name: string } }).property?.type ===
+						"Identifier" &&
 					(callee as unknown as { property: { name: string } }).property.name === "useEffect"
 				) {
 					isUseEffect = true;
@@ -50,8 +50,7 @@ const rule: Rule.RuleModule = {
 				if (commentEndLine !== effectLine - 1) {
 					context.report({
 						node,
-						message:
-							"Comment for useEffect should be on the line immediately above the call.",
+						message: "Comment for useEffect should be on the line immediately above the call.",
 					});
 				}
 			},

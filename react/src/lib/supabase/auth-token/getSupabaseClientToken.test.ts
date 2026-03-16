@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { cacheSupabaseClientToken, clearSupabaseClientToken } from "../token/token-cache";
-import getSupabaseClientToken from "./getSupabaseClientToken";
 import fetchSupabaseClientTokenFromApi from "./fetchSupabaseClientTokenFromApi";
+import getSupabaseClientToken from "./getSupabaseClientToken";
 
 vi.mock("./fetchSupabaseClientTokenFromApi");
 

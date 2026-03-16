@@ -23,9 +23,7 @@ describe("useLoadCommunityBySlug", () => {
 	it("calls loadCommunityBySlug when slug is defined", async () => {
 		const loadCommunityBySlug = vi.fn(() => Effect.void);
 
-		render(
-			<Harness communitySlug={SLUG} loadCommunityBySlug={loadCommunityBySlug} />,
-		);
+		render(<Harness communitySlug={SLUG} loadCommunityBySlug={loadCommunityBySlug} />);
 
 		await waitFor(() => {
 			expect(loadCommunityBySlug).toHaveBeenCalledWith(SLUG);
@@ -35,9 +33,7 @@ describe("useLoadCommunityBySlug", () => {
 	it("does not call loadCommunityBySlug when slug is undefined", () => {
 		const loadCommunityBySlug = vi.fn(() => Effect.void);
 
-		render(
-			<Harness communitySlug={undefined} loadCommunityBySlug={loadCommunityBySlug} />,
-		);
+		render(<Harness communitySlug={undefined} loadCommunityBySlug={loadCommunityBySlug} />);
 
 		expect(loadCommunityBySlug).not.toHaveBeenCalled();
 	});
@@ -45,21 +41,14 @@ describe("useLoadCommunityBySlug", () => {
 	it("does not call loadCommunityBySlug when slug is empty string", () => {
 		const loadCommunityBySlug = vi.fn(() => Effect.void);
 
-		render(
-			<Harness communitySlug="" loadCommunityBySlug={loadCommunityBySlug} />,
-		);
+		render(<Harness communitySlug="" loadCommunityBySlug={loadCommunityBySlug} />);
 
 		expect(loadCommunityBySlug).not.toHaveBeenCalled();
 	});
 
 	it("harness renders slug in DOM", () => {
 		cleanup();
-		render(
-			<Harness
-				communitySlug={SLUG}
-				loadCommunityBySlug={() => Effect.void}
-			/>,
-		);
+		render(<Harness communitySlug={SLUG} loadCommunityBySlug={() => Effect.void} />);
 
 		expect(screen.getByTestId("loader").textContent).toContain(SLUG);
 	});

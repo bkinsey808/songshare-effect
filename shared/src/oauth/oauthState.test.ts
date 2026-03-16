@@ -37,7 +37,9 @@ describe("oauthState", () => {
 
 		it("throws for invalid schema (missing required fields)", () => {
 			const invalid = encodeURIComponent(JSON.stringify({ csrf: "x" }));
-			expect(() => parseOauthState(invalid)).toThrow(/decode|parse|required|invalid|lang|provider/i);
+			expect(() => parseOauthState(invalid)).toThrow(
+				/decode|parse|required|invalid|lang|provider/i,
+			);
 		});
 	});
 });

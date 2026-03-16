@@ -1,14 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import makeNull from "@/shared/test-utils/makeNull.test-util";
 import forceCast from "@/react/lib/test-utils/forceCast";
-
-import {
-	createRowWithAllNullables,
-	createRowWithNulls,
-} from "./normalizeEventPublicRow.test-util";
+import makeNull from "@/shared/test-utils/makeNull.test-util";
 
 import normalizeEventPublicRow from "./normalizeEventPublicRow";
+import { createRowWithAllNullables, createRowWithNulls } from "./normalizeEventPublicRow.test-util";
 
 const NOT_A_RECORD = 42;
 

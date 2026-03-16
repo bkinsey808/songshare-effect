@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 import PlaylistSongDisplay from "@/react/event/view/playlist-song-display/PlaylistSongDisplay";
 import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import useLocale from "@/react/lib/language/locale/useLocale";
-import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
+import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, playlistViewPath, songViewPath } from "@/shared/paths";
@@ -114,10 +114,7 @@ export default function PlaylistView(): ReactElement {
 				{playlistPublic.playlist_slug !== undefined && playlistPublic.playlist_slug !== "" && (
 					<div className="mt-4">
 						<CollapsibleQrCode
-							url={buildPublicWebUrl(
-								`/${playlistViewPath}/${playlistPublic.playlist_slug}`,
-								lang,
-							)}
+							url={buildPublicWebUrl(`/${playlistViewPath}/${playlistPublic.playlist_slug}`, lang)}
 							label={playlistPublic.playlist_name}
 						/>
 					</div>

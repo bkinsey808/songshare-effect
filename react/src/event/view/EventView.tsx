@@ -6,8 +6,8 @@ import Button from "@/react/lib/design-system/Button";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
 import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
-import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
+import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {
 	eventManagePath,

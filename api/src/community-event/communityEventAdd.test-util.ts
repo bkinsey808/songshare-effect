@@ -2,17 +2,20 @@
  * Test helper for communityEventAdd - builds a Supabase client stub.
  */
 import type { createClient } from "@supabase/supabase-js";
+
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
-export default function makeCommunityEventAddClient(opts: {
-	requesterRole?: "owner" | "community_admin" | "member";
-	requesterRoleError?: boolean;
-	insertEventError?: boolean;
-	communityMembers?: { user_id: string }[];
-	eventUserInsertError?: boolean;
-} = {}): ReturnType<typeof createClient> {
+export default function makeCommunityEventAddClient(
+	opts: {
+		requesterRole?: "owner" | "community_admin" | "member";
+		requesterRoleError?: boolean;
+		insertEventError?: boolean;
+		communityMembers?: { user_id: string }[];
+		eventUserInsertError?: boolean;
+	} = {},
+): ReturnType<typeof createClient> {
 	const role = opts.requesterRole ?? "owner";
 	const requesterRoleError = opts.requesterRoleError ?? false;
 	const insertEventError = opts.insertEventError ?? false;

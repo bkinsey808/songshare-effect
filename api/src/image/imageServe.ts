@@ -1,7 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Context } from "hono";
 
-import { HTTP_BAD_REQUEST, HTTP_INTERNAL, HTTP_NOT_FOUND, HTTP_TEMP_REDIRECT } from "@/shared/constants/http";
+import {
+	HTTP_BAD_REQUEST,
+	HTTP_INTERNAL,
+	HTTP_NOT_FOUND,
+	HTTP_TEMP_REDIRECT,
+} from "@/shared/constants/http";
 
 import type { Bindings } from "../env";
 

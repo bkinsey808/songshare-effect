@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import { useState } from "react";
 
 import Button from "@/react/lib/design-system/Button";
 type CollapsibleQrCodeProps = Readonly<{

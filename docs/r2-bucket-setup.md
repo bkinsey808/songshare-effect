@@ -140,18 +140,18 @@ preview_bucket_name = "songshare-images-preview"
 
 ## Summary of changes
 
-| File | Change |
-|---|---|
-| `api/wrangler.toml` | Add `[[r2_buckets]]` block with `binding = "BUCKET"` |
-| `api/wrangler.staging.toml` | Add the same `[[r2_buckets]]` block |
+| File                        | Change                                               |
+| --------------------------- | ---------------------------------------------------- |
+| `api/wrangler.toml`         | Add `[[r2_buckets]]` block with `binding = "BUCKET"` |
+| `api/wrangler.staging.toml` | Add the same `[[r2_buckets]]` block                  |
 
 ---
 
 ## Troubleshooting
 
-| Symptom | Cause | Fix |
-|---|---|---|
-| `500` on `/api/images/upload` | `BUCKET` binding missing or wrangler not restarted | Check `wrangler.toml`, restart dev server |
-| `TypeError: Cannot read properties of undefined (reading 'put')` | Same as above | Same fix |
-| `wrangler r2 bucket create` fails with "already exists" | Name taken | Choose a different name and update `wrangler.toml` |
-| Upload succeeds but image doesn't display | R2 key stored in DB but `imageServe` can't find it | Verify `r2_key` in `image_public` table matches actual key in bucket (`npx wrangler r2 object get <bucket> <key>`) |
+| Symptom                                                          | Cause                                              | Fix                                                                                                                |
+| ---------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `500` on `/api/images/upload`                                    | `BUCKET` binding missing or wrangler not restarted | Check `wrangler.toml`, restart dev server                                                                          |
+| `TypeError: Cannot read properties of undefined (reading 'put')` | Same as above                                      | Same fix                                                                                                           |
+| `wrangler r2 bucket create` fails with "already exists"          | Name taken                                         | Choose a different name and update `wrangler.toml`                                                                 |
+| Upload succeeds but image doesn't display                        | R2 key stored in DB but `imageServe` can't find it | Verify `r2_key` in `image_public` table matches actual key in bucket (`npx wrangler r2 object get <bucket> <key>`) |

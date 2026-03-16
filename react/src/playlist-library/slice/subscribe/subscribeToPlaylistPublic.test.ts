@@ -4,8 +4,8 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
-import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import type { PlaylistLibrarySlice } from "../PlaylistLibrarySlice.type";
 import subscribeToPlaylistPublic from "./subscribeToPlaylistPublic";
@@ -32,16 +32,12 @@ describe("subscribeToPlaylistPublic", () => {
 		clientSpy.mockReturnValue(createMinimalSupabaseClient());
 
 		const cleanupFn: () => void = vi.fn();
-		const createRealtimeMock = vi
-			.spyOn(createRealtimeModule, "default")
-			.mockReturnValue(cleanupFn);
+		const createRealtimeMock = vi.spyOn(createRealtimeModule, "default").mockReturnValue(cleanupFn);
 
 		const get = makePlaylistLibraryGet();
 		const PLAYLIST_ID = "pid-1";
 
-		const cleanup = await Effect.runPromise(
-			subscribeToPlaylistPublic(get, [PLAYLIST_ID]),
-		);
+		const cleanup = await Effect.runPromise(subscribeToPlaylistPublic(get, [PLAYLIST_ID]));
 
 		const CALL_INDEX = 0;
 		const ARG_INDEX = 0;
@@ -82,9 +78,9 @@ describe("subscribeToPlaylistPublic", () => {
 
 		const get = makePlaylistLibraryGet();
 
-		await expect(
-			Effect.runPromise(subscribeToPlaylistPublic(get, ["pid-1"])),
-		).rejects.toThrow(/No Supabase client available/);
+		await expect(Effect.runPromise(subscribeToPlaylistPublic(get, ["pid-1"]))).rejects.toThrow(
+			/No Supabase client available/,
+		);
 
 		vi.restoreAllMocks();
 	});

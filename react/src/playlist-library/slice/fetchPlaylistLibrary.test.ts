@@ -6,11 +6,11 @@ import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinim
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import asNull from "@/react/lib/test-utils/asNull";
 import asPostgrestResponse from "@/react/lib/test-utils/asPostgrestResponse";
-import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
-import type { PlaylistLibrarySlice } from "./PlaylistLibrarySlice.type";
 import fetchPlaylistLibrary from "./fetchPlaylistLibrary";
+import type { PlaylistLibrarySlice } from "./PlaylistLibrarySlice.type";
 
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
 vi.mock("@/react/lib/supabase/client/getSupabaseClient");
@@ -55,15 +55,9 @@ describe("fetchPlaylistLibrary", () => {
 		clientSpy.mockReturnValue?.(createMinimalSupabaseClient());
 
 		mockedCallSelect
-			.mockResolvedValueOnce(
-				asPostgrestResponse({ data: [LIBRARY_ROW], error: asNull() }),
-			)
-			.mockResolvedValueOnce(
-				asPostgrestResponse({ data: [PLAYLIST_PUBLIC_ROW], error: asNull() }),
-			)
-			.mockResolvedValueOnce(
-				asPostgrestResponse({ data: [USER_PUBLIC_ROW], error: asNull() }),
-			);
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [LIBRARY_ROW], error: asNull() }))
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [PLAYLIST_PUBLIC_ROW], error: asNull() }))
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [USER_PUBLIC_ROW], error: asNull() }));
 
 		const get = makePlaylistLibraryGet();
 

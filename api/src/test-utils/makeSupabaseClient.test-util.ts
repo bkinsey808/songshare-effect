@@ -14,6 +14,14 @@ import {
 	type EventUserMockOpts,
 } from "./supabase-mocks/createEventUserMock.test-util";
 import {
+	createImageLibraryMock,
+	type ImageLibraryMockOpts,
+} from "./supabase-mocks/createImageLibraryMock.test-util";
+import {
+	createImagePublicMock,
+	type ImagePublicMockOpts,
+} from "./supabase-mocks/createImagePublicMock.test-util";
+import {
 	createPlaylistLibraryMock,
 	type PlaylistLibraryMockOpts,
 } from "./supabase-mocks/createPlaylistLibraryMock.test-util";
@@ -50,6 +58,8 @@ import {
 type MakeSupabaseClientOpts = UserLibraryMockOpts &
 	UserPublicMockOpts &
 	UserMockOpts &
+	ImagePublicMockOpts &
+	ImageLibraryMockOpts &
 	EventMockOpts &
 	EventPublicMockOpts &
 	EventLibraryMockOpts &
@@ -67,6 +77,8 @@ function makeSupabaseClient(opts: MakeSupabaseClientOpts = {}): ReturnType<typeo
 			const tables: Record<string, unknown> = {
 				user_library: createUserLibraryMock(opts),
 				user_public: createUserPublicMock(opts),
+				image_public: createImagePublicMock(opts),
+				image_library: createImageLibraryMock(opts),
 				user: createUserMock(opts),
 				event: createEventMock(opts),
 				event_public: createEventPublicMock(opts),

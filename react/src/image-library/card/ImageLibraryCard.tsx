@@ -1,14 +1,7 @@
-import { Effect } from "effect";
-
-import type { AppSlice } from "@/react/app-store/AppSlice.type";
-import useAppStore from "@/react/app-store/useAppStore";
-import useLocale from "@/react/lib/language/locale/useLocale";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import getImagePublicUrl from "@/react/image/get-image-public-url";
-import { imageViewPath } from "@/shared/paths";
 import { Link } from "react-router-dom";
 
-import type { ImageLibraryEntry, RemoveImageFromLibraryRequest } from "../image-library-types";
+import type { ImageLibraryEntry } from "../image-library-types";
+import useImageLibraryCard from "./useImageLibraryCard";
 
 type ImageLibraryCardProps = {
 	entry: ImageLibraryEntry;
@@ -29,28 +22,10 @@ export default function ImageLibraryCard({
 	entry,
 	currentUserId,
 }: ImageLibraryCardProps): ReactElement {
-	const { lang } = useLocale();
-	const removeImageFromLibrary = useAppStore<
-		(request: Readonly<RemoveImageFromLibraryRequest>) => Effect.Effect<void, Error>
-	>((state: AppSlice) => state.removeImageFromLibrary);
-
-	const image = entry.image_public;
-	const isOwner = currentUserId !== undefined && currentUserId === entry.image_owner_id;
-	const imageUrl = image === undefined ? undefined : getImagePublicUrl(image.r2_key);
-	const viewUrl =
-		image === undefined
-			? undefined
-			: buildPathWithLang(`/${imageViewPath}/${image.image_slug}`, lang);
-
-	async function handleRemove(): Promise<void> {
-		try {
-			await Effect.runPromise(
-				removeImageFromLibrary({ image_id: entry.image_id }),
-			);
-		} catch (error: unknown) {
-			console.error("[ImageLibraryCard] Failed to remove image:", error);
-		}
-	}
+	const { handleRemove, image, imageUrl, isOwner, viewUrl } = useImageLibraryCard(
+		entry,
+		currentUserId,
+	);
 
 	return (
 		<div className="overflow-hidden rounded-lg border border-gray-700 bg-gray-800 transition-colors hover:border-gray-600">
@@ -82,7 +57,9 @@ export default function ImageLibraryCard({
 					{!isOwner && (
 						<button
 							type="button"
-							onClick={() => { void handleRemove(); }}
+							onClick={() => {
+								void handleRemove();
+							}}
 							className="text-sm text-red-400 hover:text-red-300"
 						>
 							Remove

@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 
-import type { ValidationError } from "./validate-types";
 import extractValidationErrors from "./extractValidationErrors";
 import INVALID_PRIMITIVE from "./extractValidationErrors.test-util";
+import type { ValidationError } from "./validate-types";
 
 const VALID_ERROR: ValidationError = { field: "name", message: "Required" };
 const VALID_ERRORS: ValidationError[] = [VALID_ERROR];

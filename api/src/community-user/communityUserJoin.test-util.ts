@@ -2,18 +2,21 @@
  * Test helper for communityUserJoin - builds a Supabase client stub.
  */
 import type { createClient } from "@supabase/supabase-js";
+
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 type ExistingMember = { status: "joined" | "invited" | "kicked" | "left"; role?: string };
 
-export default function makeCommunityUserJoinClient(opts: {
-	existingMember?: ExistingMember | null;
-	joinUpdateOrInsertError?: boolean;
-	communityEvents?: { event_id: string }[];
-	eventUserInsertError?: boolean;
-} = {}): ReturnType<typeof createClient> {
+export default function makeCommunityUserJoinClient(
+	opts: {
+		existingMember?: ExistingMember | null;
+		joinUpdateOrInsertError?: boolean;
+		communityEvents?: { event_id: string }[];
+		eventUserInsertError?: boolean;
+	} = {},
+): ReturnType<typeof createClient> {
 	const {
 		existingMember,
 		joinUpdateOrInsertError = false,

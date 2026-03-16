@@ -21,9 +21,7 @@ vi.mock("@/shared/utils/formatEventDate");
 
 vi.mocked(ShareButton).mockImplementation((): ReactElement => <button type="button">Share</button>);
 vi.mocked(useCurrentLang).mockReturnValue("en");
-vi.mocked(CollapsibleQrCode).mockImplementation((): ReactElement => (
-	<div data-testid="qr-code" />
-));
+vi.mocked(CollapsibleQrCode).mockImplementation((): ReactElement => <div data-testid="qr-code" />);
 
 type UseEventViewResult = ReturnType<typeof useEventView>;
 

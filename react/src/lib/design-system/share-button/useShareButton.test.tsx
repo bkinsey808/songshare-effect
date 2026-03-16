@@ -73,13 +73,14 @@ function installMocks(opts: {
  * - Shows the excludeUserIds list passed to the user search input
  */
 function Harness({ onShareSuccess }: { onShareSuccess?: () => void }): ReactElement {
-	const { selectedUserId, isSharing, isPending, excludeUserIds, handleUserSelect } =
-		useShareButton({
+	const { selectedUserId, isSharing, isPending, excludeUserIds, handleUserSelect } = useShareButton(
+		{
 			itemType: ITEM_TYPE,
 			itemId: ITEM_ID,
 			itemName: ITEM_NAME,
 			...(onShareSuccess !== undefined && { onShareSuccess }),
-		});
+		},
+	);
 
 	return (
 		<div data-testid="harness-root">

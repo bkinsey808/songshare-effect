@@ -118,9 +118,7 @@ describe("useUserView — renderHook", () => {
 
 	it("returns error when query builder lacks eq", async () => {
 		vi.mocked(useParams).mockReturnValue({ username: "mettaben" });
-		vi.mocked(getSupabaseClientWithAuth).mockResolvedValue(
-			forceCast(makeClientWithMissingEq()),
-		);
+		vi.mocked(getSupabaseClientWithAuth).mockResolvedValue(forceCast(makeClientWithMissingEq()));
 
 		const { result } = renderHook(() => useUserView());
 

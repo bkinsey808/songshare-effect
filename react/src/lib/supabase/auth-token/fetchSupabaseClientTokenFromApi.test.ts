@@ -1,17 +1,14 @@
 import { type Mock, describe, expect, it, vi } from "vitest";
 
-import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 import { apiAuthVisitorPath } from "@/shared/paths";
+import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 import { cacheSupabaseClientToken } from "../token/token-cache";
 import fetchSupabaseClientTokenFromApi from "./fetchSupabaseClientTokenFromApi";
 
-vi.mock(
-	"../token/token-cache",
-	(): { cacheSupabaseClientToken: Mock } => ({
-		cacheSupabaseClientToken: vi.fn(),
-	}),
-);
+vi.mock("../token/token-cache", (): { cacheSupabaseClientToken: Mock } => ({
+	cacheSupabaseClientToken: vi.fn(),
+}));
 
 const VALID_TOKEN_RESPONSE = {
 	access_token: "tok-xyz",
@@ -25,8 +22,7 @@ describe("fetchSupabaseClientTokenFromApi", () => {
 			"fetch",
 			vi.fn().mockResolvedValue({
 				ok: true,
-				json: (): Promise<typeof VALID_TOKEN_RESPONSE> =>
-					promiseResolved(VALID_TOKEN_RESPONSE),
+				json: (): Promise<typeof VALID_TOKEN_RESPONSE> => promiseResolved(VALID_TOKEN_RESPONSE),
 			}),
 		);
 

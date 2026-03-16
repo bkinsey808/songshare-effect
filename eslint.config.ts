@@ -10,9 +10,8 @@
  * having to upgrade or fork oxlint itself.
  */
 
-import type { Linter } from "eslint";
-
 import tsParser from "@typescript-eslint/parser";
+import type { Linter } from "eslint";
 
 import noAssertMockedReturnRule from "./eslint-rules/no-assert-mocked-return";
 import noDisableInTestsRule from "./eslint-rules/no-disable-in-tests";

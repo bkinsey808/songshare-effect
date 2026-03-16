@@ -1,10 +1,10 @@
 import {
-    communityViewPath,
-    eventViewPath,
-    imageViewPath,
-    playlistViewPath,
-    songViewPath,
-    userViewPath,
+	communityViewPath,
+	eventViewPath,
+	imageViewPath,
+	playlistViewPath,
+	songViewPath,
+	userViewPath,
 } from "@/shared/paths";
 
 import type { SharedItem } from "../slice/share-types";

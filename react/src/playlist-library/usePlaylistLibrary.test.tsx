@@ -19,20 +19,14 @@ describe("usePlaylistLibrary — renderHook", () => {
 				isPlaylistLibraryLoading: false,
 				playlistLibraryError: undefined,
 				fetchPlaylistLibrary: vi.fn().mockReturnValue(Effect.sync(() => undefined)),
-				subscribeToPlaylistLibrary: vi.fn().mockReturnValue(
-					Effect.succeed(() => undefined),
-				),
-				subscribeToPlaylistPublic: vi.fn().mockReturnValue(
-					Effect.succeed(() => undefined),
-				),
+				subscribeToPlaylistLibrary: vi.fn().mockReturnValue(Effect.succeed(() => undefined)),
+				subscribeToPlaylistPublic: vi.fn().mockReturnValue(Effect.succeed(() => undefined)),
 			}),
 		);
 
 		const { result } = renderHook(() => usePlaylistLibrary(), {
 			wrapper: ({ children }) => (
-				<MemoryRouter initialEntries={["/en/dashboard/playlist-library"]}>
-					{children}
-				</MemoryRouter>
+				<MemoryRouter initialEntries={["/en/dashboard/playlist-library"]}>{children}</MemoryRouter>
 			),
 		});
 
@@ -51,12 +45,8 @@ describe("usePlaylistLibrary — Harness", () => {
 				isPlaylistLibraryLoading: false,
 				playlistLibraryError: undefined,
 				fetchPlaylistLibrary: vi.fn().mockReturnValue(Effect.sync(() => undefined)),
-				subscribeToPlaylistLibrary: vi.fn().mockReturnValue(
-					Effect.succeed(() => undefined),
-				),
-				subscribeToPlaylistPublic: vi.fn().mockReturnValue(
-					Effect.succeed(() => undefined),
-				),
+				subscribeToPlaylistLibrary: vi.fn().mockReturnValue(Effect.succeed(() => undefined)),
+				subscribeToPlaylistPublic: vi.fn().mockReturnValue(Effect.succeed(() => undefined)),
 			}),
 		);
 

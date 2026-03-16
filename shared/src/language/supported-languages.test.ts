@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-	SupportedLanguage,
-	defaultLanguage,
-	languageNames,
-} from "./supported-languages";
+import { SupportedLanguage, defaultLanguage, languageNames } from "./supported-languages";
 
 describe("supported-languages", () => {
 	it.each([

@@ -34,11 +34,10 @@ const rule: Rule.RuleModule = {
 						name = (callee as unknown as { name: string }).name;
 					} else if (
 						callee.type === "MemberExpression" &&
-						(callee as unknown as { property?: { type: string; name: string } }).property
-							?.type === "Identifier"
+						(callee as unknown as { property?: { type: string; name: string } }).property?.type ===
+							"Identifier"
 					) {
-						name =
-							(callee as unknown as { property: { name: string } }).property.name;
+						name = (callee as unknown as { property: { name: string } }).property.name;
 					}
 					if (name === "describe" || name === "test" || name === "it") {
 						return true;
@@ -95,29 +94,46 @@ const rule: Rule.RuleModule = {
 						(nextBody.type === "FunctionDeclaration" ||
 							nextBody.type === "VariableDeclaration" ||
 							(nextBody.type === "ExpressionStatement" &&
-								(nextBody as unknown as { expression: { type: string; callee: { name?: string; type: string; object?: { name: string }; property?: { name: string } } } }).expression
-									.type === "CallExpression" &&
-								((nextBody as unknown as { expression: { callee: { name?: string } } })
-									.expression.callee.name === "vi.mock" ||
-									((nextBody as unknown as {
+								(
+									nextBody as unknown as {
 										expression: {
+											type: string;
 											callee: {
+												name?: string;
 												type: string;
 												object?: { name: string };
 												property?: { name: string };
 											};
 										};
-									}).expression.callee.type === "MemberExpression" &&
-										(nextBody as unknown as {
+									}
+								).expression.type === "CallExpression" &&
+								((nextBody as unknown as { expression: { callee: { name?: string } } }).expression
+									.callee.name === "vi.mock" ||
+									((
+										nextBody as unknown as {
 											expression: {
-												callee: { object: { name: string }; property: { name: string } };
+												callee: {
+													type: string;
+													object?: { name: string };
+													property?: { name: string };
+												};
 											};
-										}).expression.callee.object.name === "vi" &&
-										(nextBody as unknown as {
-											expression: {
-												callee: { object: { name: string }; property: { name: string } };
-											};
-										}).expression.callee.property.name === "mock"))));
+										}
+									).expression.callee.type === "MemberExpression" &&
+										(
+											nextBody as unknown as {
+												expression: {
+													callee: { object: { name: string }; property: { name: string } };
+												};
+											}
+										).expression.callee.object.name === "vi" &&
+										(
+											nextBody as unknown as {
+												expression: {
+													callee: { object: { name: string }; property: { name: string } };
+												};
+											}
+										).expression.callee.property.name === "mock"))));
 					if (isHelper) {
 						continue;
 					}

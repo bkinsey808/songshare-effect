@@ -6,9 +6,7 @@ import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
-type AddImageRequest = {
-	image_id: string;
-};
+import extractAddImageRequest, { type AddImageRequest } from "./extractAddImageRequest";
 
 type ImageLibraryRow = {
 	user_id: string;
@@ -16,27 +14,6 @@ type ImageLibraryRow = {
 	image_owner_id: string;
 	created_at: string;
 };
-
-/**
- * Extract and validate the add-to-library request.
- *
- * @param request - Raw parsed JSON body.
- * @returns - Validated `AddImageRequest`.
- * @throws - `TypeError` when required fields are missing or invalid.
- */
-function extractAddImageRequest(request: unknown): AddImageRequest {
-	if (typeof request !== "object" || request === null) {
-		throw new TypeError("Request must be a valid object");
-	}
-	if (!("image_id" in request)) {
-		throw new TypeError("Request must contain image_id");
-	}
-	const { image_id } = request as Record<string, unknown>;
-	if (typeof image_id !== "string" || image_id.trim() === "") {
-		throw new TypeError("image_id must be a non-empty string");
-	}
-	return { image_id: image_id.trim() };
-}
 
 /**
  * Server-side handler for adding an image to the current user's library.
@@ -63,7 +40,9 @@ export default function addImageToLibrary(
 			req = extractAddImageRequest(body);
 		} catch (error) {
 			return yield* $(
-				Effect.fail(new ValidationError({ message: extractErrorMessage(error, "Invalid request") })),
+				Effect.fail(
+					new ValidationError({ message: extractErrorMessage(error, "Invalid request") }),
+				),
 			);
 		}
 
@@ -76,11 +55,7 @@ export default function addImageToLibrary(
 		const imageResult = yield* $(
 			Effect.tryPromise({
 				try: () =>
-					client
-						.from("image_public")
-						.select("user_id")
-						.eq("image_id", req.image_id)
-						.single(),
+					client.from("image_public").select("user_id").eq("image_id", req.image_id).single(),
 				catch: (error) =>
 					new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch image") }),
 			}),

@@ -21,9 +21,7 @@ describe("performSongLibraryInsert", () => {
 			songLibraryInsertRows: [inserted],
 		});
 
-		const result = await Effect.runPromise(
-			performSongLibraryInsert(client, FAKE_USER, REQUEST),
-		);
+		const result = await Effect.runPromise(performSongLibraryInsert(client, FAKE_USER, REQUEST));
 		expect(result.data).toStrictEqual(inserted);
 		expect(result.error).toBeNull();
 	});

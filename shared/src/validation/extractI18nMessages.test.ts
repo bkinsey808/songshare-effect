@@ -12,9 +12,9 @@ type ParseErrorArg = Parameters<typeof extractI18nMessages>[typeof FIRST_PARAM];
 describe("extractI18nMessages", () => {
 	it("returns empty record when error has no issue", () => {
 		expect(extractI18nMessages(forceCast<ParseErrorArg>({}), I18N_KEY)).toStrictEqual({});
-		expect(
-			extractI18nMessages(forceCast<ParseErrorArg>({ other: "val" }), I18N_KEY),
-		).toStrictEqual({});
+		expect(extractI18nMessages(forceCast<ParseErrorArg>({ other: "val" }), I18N_KEY)).toStrictEqual(
+			{},
+		);
 	});
 
 	it("extracts i18n message from Refinement issue with annotations", () => {

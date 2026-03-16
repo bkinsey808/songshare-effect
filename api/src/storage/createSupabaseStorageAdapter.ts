@@ -1,23 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { StorageAdapter, StorageUploadOptions } from "./StorageAdapter.type";
+import toStoragePath from "./toStoragePath";
 
 /** Supabase Storage bucket that holds all uploaded images */
 const IMAGES_BUCKET = "images";
-
-/** Prefix in storage keys that corresponds to the bucket name + separator */
-const BUCKET_PREFIX = "images/";
-
-/**
- * Strip the leading "images/" segment from a storage key to get the
- * path within the Supabase "images" bucket.
- *
- * @param key - Full storage key (e.g. "images/userId/imageId.jpg")
- * @returns Path within the bucket (e.g. "userId/imageId.jpg")
- */
-function toStoragePath(key: string): string {
-	return key.startsWith(BUCKET_PREFIX) ? key.slice(BUCKET_PREFIX.length) : key;
-}
 
 /**
  * Creates a StorageAdapter backed by Supabase Storage.
@@ -28,9 +15,7 @@ function toStoragePath(key: string): string {
  * @param supabase - An authenticated Supabase client (service key recommended).
  * @returns A StorageAdapter that reads and writes to Supabase Storage.
  */
-export default function createSupabaseStorageAdapter(
-	supabase: SupabaseClient,
-): StorageAdapter {
+export default function createSupabaseStorageAdapter(supabase: SupabaseClient): StorageAdapter {
 	return {
 		async upload(key: string, data: ArrayBuffer, options: StorageUploadOptions): Promise<void> {
 			const path = toStoragePath(key);
@@ -43,9 +28,7 @@ export default function createSupabaseStorageAdapter(
 		},
 		async remove(key: string): Promise<void> {
 			const path = toStoragePath(key);
-			const { error: removeError } = await supabase.storage
-				.from(IMAGES_BUCKET)
-				.remove([path]);
+			const { error: removeError } = await supabase.storage.from(IMAGES_BUCKET).remove([path]);
 			if (removeError !== null) {
 				throw new Error(removeError.message);
 			}

@@ -14,7 +14,10 @@ describe("userSearchInput component", () => {
 	it("renders a dropdown item using the username when available", async () => {
 		const store = useAppStore;
 		const alice = makeUserLibraryEntry({ followed_user_id: "f1", owner_username: "alice" });
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, userLibraryEntries: { f1: alice } }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			userLibraryEntries: { f1: alice },
+		}));
 
 		const handleSelect = vi.fn();
 		render(<UserSearchInput activeUserId={undefined} onSelect={handleSelect} />);
@@ -32,7 +35,10 @@ describe("userSearchInput component", () => {
 		const store = useAppStore;
 		// makeUserLibraryEntry requires a string, so pass empty and treat it as missing
 		const bob = makeUserLibraryEntry({ followed_user_id: "f2", owner_username: "" });
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, userLibraryEntries: { f2: bob } }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			userLibraryEntries: { f2: bob },
+		}));
 
 		const handleSelect = vi.fn();
 		render(<UserSearchInput activeUserId={undefined} onSelect={handleSelect} />);

@@ -1,10 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
+import { getTypedState } from "@/react/app-store/useAppStore";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import forceCast from "../lib/test-utils/forceCast";
 import makeUserPublic from "../playlist/test-utils/makeUserPublic.mock";
+
+vi.mock("@/react/app-store/useAppStore");
 
 /**
  * A non-string value used to simulate malformed `user_id` values at runtime.
@@ -61,29 +64,17 @@ function makeSampleWithNonStringId(): UserSessionData {
 }
 
 /**
- * Mock `getTypedState()` from the app store to return a test-controlled
- * `userSessionData` value.
- *
- * The test harness imports the real store module and spies on
- * `getTypedState()` so individual tests can simulate signed-in and
- * signed-out scenarios.
- *
- * @param userSessionData - Optional fixture to return from the store
- * @returns Promise that resolves once the module has been mocked
+ * Configure the app store mock to return a test-controlled `userSessionData`.
  */
-async function setGetTypedStateUser(userSessionData?: UserSessionData): Promise<void> {
-	vi.resetModules();
-	const appStoreModule = await import("@/react/app-store/useAppStore");
+function setGetTypedStateUser(userSessionData?: UserSessionData): void {
 	const newState =
 		userSessionData === undefined ? { userSessionData: undefined } : { userSessionData };
-	vi.spyOn(appStoreModule, "getTypedState").mockReturnValue(
-		forceCast<AppSlice>(newState),
-	);
+	vi.mocked(getTypedState).mockReturnValue(forceCast<AppSlice>(newState));
 }
 
 describe("useCurrentUserId", () => {
-	it("returns the current user id when a user is signed in", { timeout: 15_000 }, async () => {
-		await setGetTypedStateUser({
+	it("returns the current user id when a user is signed in", async () => {
+		setGetTypedStateUser({
 			...SAMPLE_USER_SESSION,
 			user: { ...SAMPLE_USER_SESSION.user, user_id: "user-123" },
 		});
@@ -93,7 +84,7 @@ describe("useCurrentUserId", () => {
 	});
 
 	it("returns undefined when there is no user session", async () => {
-		await setGetTypedStateUser(undefined);
+		setGetTypedStateUser(undefined);
 
 		const { default: useCurrentUserId } = await import("./useCurrentUserId");
 		expect(useCurrentUserId()).toBeUndefined();
@@ -101,7 +92,7 @@ describe("useCurrentUserId", () => {
 
 	it("returns undefined when the user_id is not a string", async () => {
 		const sample = makeSampleWithNonStringId();
-		await setGetTypedStateUser(sample);
+		setGetTypedStateUser(sample);
 
 		const { default: useCurrentUserId } = await import("./useCurrentUserId");
 		expect(useCurrentUserId()).toBeUndefined();

@@ -34,14 +34,10 @@ const rule: Rule.RuleModule = {
 				).specifiers;
 
 				for (const specifier of specifiers) {
-					if (
-						specifier.type === "ImportSpecifier" &&
-						specifier.imported.name === "ReactElement"
-					) {
+					if (specifier.type === "ImportSpecifier" && specifier.imported.name === "ReactElement") {
 						context.report({
 							node: specifier as unknown as Rule.Node,
-							message:
-								"ReactElement is an ambient import in this project. Do not use JSX.Element.",
+							message: "ReactElement is an ambient import in this project. Do not use JSX.Element.",
 						});
 					}
 				}
@@ -67,8 +63,7 @@ const rule: Rule.RuleModule = {
 				) {
 					context.report({
 						node,
-						message:
-							"This project uses ReactElement as an ambient type. Do not use JSX.Element.",
+						message: "This project uses ReactElement as an ambient type. Do not use JSX.Element.",
 					});
 				}
 			},

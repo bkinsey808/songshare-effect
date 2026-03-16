@@ -47,13 +47,14 @@ export default function ShareButton({
 	onShareSuccess,
 	"data-testid": dataTestId,
 }: ShareButtonProps): ReactElement {
-	const { selectedUserId, isSharing, isPending, excludeUserIds, handleUserSelect } =
-		useShareButton({
+	const { selectedUserId, isSharing, isPending, excludeUserIds, handleUserSelect } = useShareButton(
+		{
 			itemType,
 			itemId,
 			itemName,
 			...(onShareSuccess !== undefined && { onShareSuccess }),
-		});
+		},
+	);
 
 	const shareContent = (
 		<div className="w-80">

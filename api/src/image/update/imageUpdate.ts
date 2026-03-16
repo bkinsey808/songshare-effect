@@ -1,63 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
+import { type AuthenticationError, DatabaseError, ValidationError } from "@/api/api-errors";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "@/api/api-errors";
-import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
-
-type ImageUpdateRequest = {
-	image_id: string;
-	image_name: string;
-	description: string;
-	alt_text: string;
-};
-
-/**
- * Extract and validate the update request from raw JSON.
- *
- * @param request - Raw parsed JSON body.
- * @returns - Validated `ImageUpdateRequest`.
- * @throws - `TypeError` when required fields are missing or invalid.
- */
-function extractImageUpdateRequest(request: unknown): ImageUpdateRequest {
-	if (typeof request !== "object" || request === null) {
-		throw new TypeError("Request must be a valid object");
-	}
-	if (!("image_id" in request)) {
-		throw new TypeError("image_id must be a non-empty string");
-	}
-	if (!("image_name" in request)) {
-		throw new TypeError("image_name must be a string");
-	}
-	if (!("description" in request)) {
-		throw new TypeError("description must be a string");
-	}
-	if (!("alt_text" in request)) {
-		throw new TypeError("alt_text must be a string");
-	}
-	const { image_id, image_name, description, alt_text } = request;
-	if (typeof image_id !== "string" || image_id.trim() === "") {
-		throw new TypeError("image_id must be a non-empty string");
-	}
-	if (typeof image_name !== "string") {
-		throw new TypeError("image_name must be a string");
-	}
-	if (typeof description !== "string") {
-		throw new TypeError("description must be a string");
-	}
-	if (typeof alt_text !== "string") {
-		throw new TypeError("alt_text must be a string");
-	}
-	return {
-		image_id: image_id.trim(),
-		image_name: image_name.trim(),
-		description: description.trim(),
-		alt_text: alt_text.trim(),
-	};
-}
+import extractImageUpdateRequest, { type ImageUpdateRequest } from "./extractImageUpdateRequest";
 
 /**
  * Server-side handler for updating image metadata.
@@ -76,10 +26,7 @@ function extractImageUpdateRequest(request: unknown): ImageUpdateRequest {
  */
 export default function imageUpdate(
 	ctx: ReadonlyContext,
-): Effect.Effect<
-	Record<string, unknown>,
-	ValidationError | DatabaseError | AuthenticationError
-> {
+): Effect.Effect<Record<string, unknown>, ValidationError | DatabaseError | AuthenticationError> {
 	return Effect.gen(function* imageUpdateGen($) {
 		// 1. Authenticate user
 		const userSession = yield* $(getVerifiedUserSession(ctx));
@@ -106,7 +53,9 @@ export default function imageUpdate(
 			req = extractImageUpdateRequest(body);
 		} catch (error: unknown) {
 			return yield* $(
-				Effect.fail(new ValidationError({ message: extractErrorMessage(error, "Invalid request") })),
+				Effect.fail(
+					new ValidationError({ message: extractErrorMessage(error, "Invalid request") }),
+				),
 			);
 		}
 
@@ -119,11 +68,7 @@ export default function imageUpdate(
 		const ownershipResult = yield* $(
 			Effect.tryPromise({
 				try: () =>
-					supabase
-						.from("image_public")
-						.select("user_id")
-						.eq("image_id", req.image_id)
-						.single(),
+					supabase.from("image_public").select("user_id").eq("image_id", req.image_id).single(),
 				catch: (error) =>
 					new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch image") }),
 			}),
@@ -172,14 +117,11 @@ export default function imageUpdate(
 		// 5. Fetch and return the refreshed image_public row
 		const fetchResult = yield* $(
 			Effect.tryPromise({
-				try: () =>
-					supabase
-						.from("image_public")
-						.select("*")
-						.eq("image_id", req.image_id)
-						.single(),
+				try: () => supabase.from("image_public").select("*").eq("image_id", req.image_id).single(),
 				catch: (error) =>
-					new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch updated image") }),
+					new DatabaseError({
+						message: extractErrorMessage(error, "Failed to fetch updated image"),
+					}),
 			}),
 		);
 

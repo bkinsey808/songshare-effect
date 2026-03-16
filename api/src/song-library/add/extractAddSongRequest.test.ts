@@ -17,9 +17,7 @@ describe("extractAddSongRequest", () => {
 
 	it("throws when given a non-object", () => {
 		expect(() => extractAddSongRequest(makeNull())).toThrow(TypeError);
-		expect(() => extractAddSongRequest(makeNull())).toThrow(
-			"Request must be a valid object",
-		);
+		expect(() => extractAddSongRequest(makeNull())).toThrow("Request must be a valid object");
 		expect(() => extractAddSongRequest(INVALID_NON_OBJECT as unknown)).toThrow(
 			"Request must be a valid object",
 		);

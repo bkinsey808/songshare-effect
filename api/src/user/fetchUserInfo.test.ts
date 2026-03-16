@@ -3,9 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { HTTP_UNAUTHORIZED } from "@/shared/constants/http";
-import promiseResolved, {
-	promiseRejected,
-} from "@/shared/test-utils/promiseResolved.test-util";
+import promiseResolved, { promiseRejected } from "@/shared/test-utils/promiseResolved.test-util";
 
 import fetchUserInfo from "./fetchUserInfo";
 

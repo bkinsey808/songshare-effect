@@ -72,9 +72,7 @@ export default function buildUserSessionJwt({
 		// absent columns but the Effect schema uses Schema.optional which accepts
 		// absent/undefined, not null.
 		const cleanUser = Object.fromEntries(
-			Object.entries(existingUser as Record<string, unknown>).filter(
-				([, val]) => val !== null,
-			),
+			Object.entries(existingUser as Record<string, unknown>).filter(([, val]) => val !== null),
 		);
 
 		// Create user session data

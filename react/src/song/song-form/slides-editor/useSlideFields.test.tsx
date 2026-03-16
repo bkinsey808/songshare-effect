@@ -21,7 +21,9 @@ describe("useSlideFields — Harness", () => {
 			});
 			return (
 				<div data-testid="harness-root">
-					<span data-testid="lyrics">{safeGetField({ slides, slideId: "s1", field: "lyrics" })}</span>
+					<span data-testid="lyrics">
+						{safeGetField({ slides, slideId: "s1", field: "lyrics" })}
+					</span>
 					<button
 						type="button"
 						data-testid="edit"
@@ -56,9 +58,7 @@ describe("useSlideFields — renderHook", () => {
 		const setSlides = vi.fn();
 		const slides = { s1: SLIDE_S1 };
 
-		const { result } = renderHook(() =>
-			useSlideFields({ slides, setSlides }),
-		);
+		const { result } = renderHook(() => useSlideFields({ slides, setSlides }));
 
 		expect(result.current.safeGetField({ slides, slideId: "s1", field: "lyrics" })).toBe("hello");
 		expect(result.current.safeGetField({ slides, slideId: "s1", field: "chords" })).toBe("Am");
@@ -68,9 +68,7 @@ describe("useSlideFields — renderHook", () => {
 		const setSlides = vi.fn();
 		const slides: Record<string, typeof SLIDE_S1> = {};
 
-		const { result } = renderHook(() =>
-			useSlideFields({ slides, setSlides }),
-		);
+		const { result } = renderHook(() => useSlideFields({ slides, setSlides }));
 
 		expect(result.current.safeGetField({ slides, slideId: "missing", field: "lyrics" })).toBe("");
 	});
@@ -79,9 +77,7 @@ describe("useSlideFields — renderHook", () => {
 		const setSlides = vi.fn();
 		const slides = { s1: SLIDE_S1 };
 
-		const { result } = renderHook(() =>
-			useSlideFields({ slides, setSlides }),
-		);
+		const { result } = renderHook(() => useSlideFields({ slides, setSlides }));
 
 		expect(result.current.safeGetField({ slides, slideId: "s1", field: "unknown" })).toBe("");
 	});
@@ -90,9 +86,7 @@ describe("useSlideFields — renderHook", () => {
 		const setSlides = vi.fn();
 		const slides = { s1: SLIDE_S1 };
 
-		const { result } = renderHook(() =>
-			useSlideFields({ slides, setSlides }),
-		);
+		const { result } = renderHook(() => useSlideFields({ slides, setSlides }));
 
 		result.current.editFieldValue({ slideId: "s1", field: "lyrics", value: "new" });
 
@@ -108,9 +102,7 @@ describe("useSlideFields — renderHook", () => {
 		const setSlides = vi.fn();
 		const slides = { s1: SLIDE_S1 };
 
-		const { result } = renderHook(() =>
-			useSlideFields({ slides, setSlides }),
-		);
+		const { result } = renderHook(() => useSlideFields({ slides, setSlides }));
 
 		result.current.editSlideName({ slideId: "s1", newName: "Renamed" });
 

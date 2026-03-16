@@ -14,9 +14,7 @@ describe("attemptSongLibraryRepair", () => {
 			songInsertError: new Error("song insert failed"),
 		});
 
-		const result = await Effect.runPromise(
-			attemptSongLibraryRepair(client, FAKE_USER, REQUEST),
-		);
+		const result = await Effect.runPromise(attemptSongLibraryRepair(client, FAKE_USER, REQUEST));
 
 		expect(result).toBeUndefined();
 	});
@@ -27,9 +25,7 @@ describe("attemptSongLibraryRepair", () => {
 			songLibraryInsertError: new Error("retry failed"),
 		});
 
-		const result = await Effect.runPromise(
-			attemptSongLibraryRepair(client, FAKE_USER, REQUEST),
-		);
+		const result = await Effect.runPromise(attemptSongLibraryRepair(client, FAKE_USER, REQUEST));
 
 		expect(result).toBeUndefined();
 	});
@@ -53,9 +49,7 @@ describe("attemptSongLibraryRepair", () => {
 			songLibraryInsertRows: [libraryRow],
 		});
 
-		const result = await Effect.runPromise(
-			attemptSongLibraryRepair(client, FAKE_USER, REQUEST),
-		);
+		const result = await Effect.runPromise(attemptSongLibraryRepair(client, FAKE_USER, REQUEST));
 
 		expect(result).toStrictEqual(libraryRow);
 	});

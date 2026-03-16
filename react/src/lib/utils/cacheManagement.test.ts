@@ -2,11 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 
-import {
-	checkAppVersion,
-	clearAppCache,
-	checkForUpdates,
-} from "./cacheManagement";
+import { checkAppVersion, clearAppCache, checkForUpdates } from "./cacheManagement";
 
 const VERSION_KEY = "app_version";
 const AUTH_TOKENS_KEY = "auth_tokens";
@@ -47,13 +43,8 @@ describe("cacheManagement", () => {
 
 			checkAppVersion();
 
-			expect(warnSpy).toHaveBeenCalledWith(
-				expect.stringContaining(STORED_VERSION_OLD),
-			);
-			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-				VERSION_KEY,
-				CURRENT_VERSION,
-			);
+			expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining(STORED_VERSION_OLD));
+			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(VERSION_KEY, CURRENT_VERSION);
 			warnSpy.mockRestore();
 			vi.unstubAllGlobals();
 		});
@@ -83,10 +74,7 @@ describe("cacheManagement", () => {
 			await clearAppCache();
 
 			expect(mockLocalStorage.clear).toHaveBeenCalledWith();
-			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-				AUTH_TOKENS_KEY,
-				AUTH_TOKENS_VALUE,
-			);
+			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(AUTH_TOKENS_KEY, AUTH_TOKENS_VALUE);
 			vi.unstubAllGlobals();
 		});
 
@@ -122,13 +110,16 @@ describe("cacheManagement", () => {
 
 		it("returns false when manifest has no version and stored already matches", async () => {
 			const unknownVersion = "unknown";
-			vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
-				ok: true,
-				json: async () => {
-					await Promise.resolve();
-					return {};
-				},
-			}));
+			vi.stubGlobal(
+				"fetch",
+				vi.fn().mockResolvedValue({
+					ok: true,
+					json: async () => {
+						await Promise.resolve();
+						return {};
+					},
+				}),
+			);
 			const mockLocalStorage = {
 				getItem: vi.fn().mockReturnValue(unknownVersion),
 				setItem: vi.fn(),
@@ -141,13 +132,16 @@ describe("cacheManagement", () => {
 
 		it("returns true when stored version differs from manifest version", async () => {
 			const manifestVersion = "2.0.0";
-			vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
-				ok: true,
-				json: async () => {
-					await Promise.resolve();
-					return { version: manifestVersion };
-				},
-			}));
+			vi.stubGlobal(
+				"fetch",
+				vi.fn().mockResolvedValue({
+					ok: true,
+					json: async () => {
+						await Promise.resolve();
+						return { version: manifestVersion };
+					},
+				}),
+			);
 			const mockLocalStorage = {
 				getItem: vi.fn().mockReturnValue(STORED_VERSION_OLD),
 				setItem: vi.fn(),
@@ -155,10 +149,7 @@ describe("cacheManagement", () => {
 			vi.stubGlobal("localStorage", mockLocalStorage);
 			const result = await checkForUpdates();
 			expect(result).toBe(true);
-			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-				MANIFEST_VERSION_KEY,
-				manifestVersion,
-			);
+			expect(mockLocalStorage.setItem).toHaveBeenCalledWith(MANIFEST_VERSION_KEY, manifestVersion);
 			vi.unstubAllGlobals();
 		});
 	});

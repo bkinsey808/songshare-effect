@@ -3,9 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 
-import performUserLibraryInsert, {
-	type UserLibraryRow,
-} from "./performUserLibraryInsert";
+import performUserLibraryInsert, { type UserLibraryRow } from "./performUserLibraryInsert";
 
 describe("performUserLibraryInsert", () => {
 	const FAKE_USER = "user-1";
@@ -22,9 +20,7 @@ describe("performUserLibraryInsert", () => {
 			userLibraryInsertRows: [inserted],
 		});
 
-		const result = await Effect.runPromise(
-			performUserLibraryInsert(client, FAKE_USER, REQUEST),
-		);
+		const result = await Effect.runPromise(performUserLibraryInsert(client, FAKE_USER, REQUEST));
 		expect(result.data).toStrictEqual(inserted);
 		expect(result.error).toBeNull();
 	});

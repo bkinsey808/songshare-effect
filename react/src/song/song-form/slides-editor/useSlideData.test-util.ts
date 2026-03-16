@@ -7,9 +7,7 @@ const ARG_INDEX = 0;
  * Asserts setSlides was called with slides containing the expected addSlide shape.
  * Extracted to test-util to avoid no-unsafe-assignment from Vitest matchers in test files.
  */
-export function expectSetSlidesAddSlideShape(setSlides: {
-	mock: { calls: unknown[][] };
-}): void {
+export function expectSetSlidesAddSlideShape(setSlides: { mock: { calls: unknown[][] } }): void {
 	/* oxlint-disable-next-line typescript/no-unsafe-assignment -- mock.calls typed as any[][] */
 	const arg = setSlides.mock.calls[CALL_INDEX]?.[ARG_INDEX];
 	expect(arg).toMatchObject({

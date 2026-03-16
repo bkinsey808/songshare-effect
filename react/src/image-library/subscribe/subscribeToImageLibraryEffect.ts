@@ -33,8 +33,7 @@ export default function subscribeToImageLibraryEffect(
 		const cleanup = createRealtimeSubscription({
 			client: supabaseClient,
 			tableName: "image_library",
-			onEvent: (payload: unknown) =>
-				handleImageLibraryEvent(payload, supabaseClient, get),
+			onEvent: (payload: unknown) => handleImageLibraryEvent(payload, supabaseClient, get),
 		});
 
 		if (cleanup === undefined) {

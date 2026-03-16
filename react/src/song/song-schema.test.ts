@@ -34,9 +34,9 @@ describe("songNameSchema", () => {
 	});
 
 	it("rejects names longer than 100 chars", () => {
-		expect(() =>
-			Schema.decodeSync(songNameSchema)("x".repeat(NAME_OVER_MAX)),
-		).toThrow(SCHEMA_ERROR);
+		expect(() => Schema.decodeSync(songNameSchema)("x".repeat(NAME_OVER_MAX))).toThrow(
+			SCHEMA_ERROR,
+		);
 	});
 
 	it("rejects consecutive spaces", () => {
@@ -77,12 +77,10 @@ describe("songFieldsSchema", () => {
 	});
 
 	it("rejects invalid field names", () => {
-		expect(() =>
-			Schema.decodeUnknownSync(songFieldsSchema)(["invalid"]),
-		).toThrow(SCHEMA_ERROR);
-		expect(() =>
-			Schema.decodeUnknownSync(songFieldsSchema)(["lyrics", "unknown"]),
-		).toThrow(SCHEMA_ERROR);
+		expect(() => Schema.decodeUnknownSync(songFieldsSchema)(["invalid"])).toThrow(SCHEMA_ERROR);
+		expect(() => Schema.decodeUnknownSync(songFieldsSchema)(["lyrics", "unknown"])).toThrow(
+			SCHEMA_ERROR,
+		);
 	});
 });
 
@@ -130,9 +128,7 @@ describe("songPublicSchema", () => {
 				},
 			},
 		};
-		expect(() =>
-			Schema.decodeUnknownSync(songPublicSchema)(invalid),
-		).toThrow(SCHEMA_ERROR);
+		expect(() => Schema.decodeUnknownSync(songPublicSchema)(invalid)).toThrow(SCHEMA_ERROR);
 	});
 });
 

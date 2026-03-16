@@ -30,9 +30,7 @@ describe("handleCommunityPublicSubscribeEvent", () => {
 			});
 		}
 
-		await Effect.runPromise(
-			handleCommunityPublicSubscribeEvent({ invalid: "payload" }, get),
-		);
+		await Effect.runPromise(handleCommunityPublicSubscribeEvent({ invalid: "payload" }, get));
 
 		expect(setCurrentCommunity).not.toHaveBeenCalled();
 	});
@@ -47,10 +45,7 @@ describe("handleCommunityPublicSubscribeEvent", () => {
 		}
 
 		await Effect.runPromise(
-			handleCommunityPublicSubscribeEvent(
-				{ eventType: "INSERT", new: {}, old: undefined },
-				get,
-			),
+			handleCommunityPublicSubscribeEvent({ eventType: "INSERT", new: {}, old: undefined }, get),
 		);
 
 		expect(setCurrentCommunity).not.toHaveBeenCalled();
@@ -138,10 +133,7 @@ describe("handleCommunityPublicSubscribeEvent", () => {
 		}
 
 		await Effect.runPromise(
-			handleCommunityPublicSubscribeEvent(
-				{ eventType: "UPDATE", new: "not-object", old: {} },
-				get,
-			),
+			handleCommunityPublicSubscribeEvent({ eventType: "UPDATE", new: "not-object", old: {} }, get),
 		);
 
 		expect(setCurrentCommunity).not.toHaveBeenCalled();

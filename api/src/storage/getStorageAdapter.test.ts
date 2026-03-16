@@ -1,79 +1,75 @@
-import { describe, it, expect, vi } from "vitest";
+import { createClient } from "@supabase/supabase-js";
+import { describe, expect, it, vi } from "vitest";
+
+import makeFakeSupabaseClient from "@/react/lib/supabase/client/test-util";
+
 import type { Bindings } from "../env";
-import { makeFakeR2Bucket, mockCreateR2Adapter, mockSupabaseCreateClient, mockCreateSupabaseStorageAdapter } from "./test-utils/mocks.test-util";
+import createR2Adapter from "./createR2Adapter";
+import createSupabaseStorageAdapter from "./createSupabaseStorageAdapter";
+import getStorageAdapter from "./getStorageAdapter";
+import { makeFakeR2Bucket, makeMinimalStorageAdapter } from "./storage.test-util";
+
+vi.mock("./createR2Adapter");
+vi.mock("./createSupabaseStorageAdapter");
+vi.mock("@supabase/supabase-js");
 
 describe("getStorageAdapter", () => {
-  it("returns R2 adapter when STORAGE_BACKEND is 'r2' and BUCKET is provided", async () => {
-    vi.resetModules();
-    vi.clearAllMocks();
+	it("returns R2 adapter when STORAGE_BACKEND is 'r2' and BUCKET is provided", () => {
+		vi.resetAllMocks();
+		const adapter = makeMinimalStorageAdapter();
+		vi.mocked(createR2Adapter).mockReturnValue(adapter);
 
-    const adapter = { kind: "r2" };
+		const fakeBucket = makeFakeR2Bucket();
+		const env: Bindings = {
+			VITE_SUPABASE_URL: "",
+			SUPABASE_SERVICE_KEY: "",
+			SUPABASE_VISITOR_EMAIL: "x",
+			SUPABASE_VISITOR_PASSWORD: "y",
+			ENVIRONMENT: "test",
+			STORAGE_BACKEND: "r2",
+			BUCKET: fakeBucket,
+		};
+		const result = getStorageAdapter(env);
 
-    const { fn: createR2AdapterMock } = await mockCreateR2Adapter(adapter);
-    // Ensure supabase client is not used in this path
-    const { fn: createClientMock } = await mockSupabaseCreateClient({});
+		expect(createR2Adapter).toHaveBeenCalledWith(fakeBucket);
+		expect(result).toBe(adapter);
+		expect(createClient).not.toHaveBeenCalled();
+	});
 
-    const { default: getStorageAdapter } = await import("./getStorageAdapter");
+	it("throws when STORAGE_BACKEND is 'r2' but BUCKET is missing", () => {
+		vi.resetAllMocks();
+		vi.mocked(createR2Adapter).mockReturnValue(makeMinimalStorageAdapter());
 
-    const fakeBucket = makeFakeR2Bucket();
-    const env: Bindings = {
-      VITE_SUPABASE_URL: "",
-      SUPABASE_SERVICE_KEY: "",
-      SUPABASE_VISITOR_EMAIL: "x",
-      SUPABASE_VISITOR_PASSWORD: "y",
-      ENVIRONMENT: "test",
-      STORAGE_BACKEND: "r2",
-      BUCKET: fakeBucket,
-    };
-    const result = getStorageAdapter(env);
+		const env: Bindings = {
+			VITE_SUPABASE_URL: "",
+			SUPABASE_SERVICE_KEY: "",
+			SUPABASE_VISITOR_EMAIL: "x",
+			SUPABASE_VISITOR_PASSWORD: "y",
+			ENVIRONMENT: "test",
+			STORAGE_BACKEND: "r2",
+		};
+		expect(() => getStorageAdapter(env)).toThrow(/no BUCKET binding/);
+	});
 
-    expect(createR2AdapterMock).toHaveBeenCalledWith(fakeBucket);
-    expect(result).toBe(adapter);
-    expect(createClientMock).not.toHaveBeenCalled();
-  });
+	it("returns Supabase adapter by default", () => {
+		vi.resetAllMocks();
+		const fakeClient = makeFakeSupabaseClient();
+		const supAdapter = makeMinimalStorageAdapter();
 
-  it("throws when STORAGE_BACKEND is 'r2' but BUCKET is missing", async () => {
-    vi.resetModules();
-    vi.clearAllMocks();
+		vi.mocked(createClient).mockReturnValue(fakeClient);
+		vi.mocked(createSupabaseStorageAdapter).mockReturnValue(supAdapter);
 
-    await mockCreateR2Adapter({});
-    await mockSupabaseCreateClient({});
-    const { default: getStorageAdapter } = await import("./getStorageAdapter");
+		const env: Bindings = {
+			VITE_SUPABASE_URL: "url",
+			SUPABASE_SERVICE_KEY: "key",
+			SUPABASE_VISITOR_EMAIL: "x",
+			SUPABASE_VISITOR_PASSWORD: "y",
+			ENVIRONMENT: "test",
+		};
+		const result = getStorageAdapter(env);
 
-    const env2: Bindings = {
-      VITE_SUPABASE_URL: "",
-      SUPABASE_SERVICE_KEY: "",
-      SUPABASE_VISITOR_EMAIL: "x",
-      SUPABASE_VISITOR_PASSWORD: "y",
-      ENVIRONMENT: "test",
-      STORAGE_BACKEND: "r2",
-    };
-    expect(() => getStorageAdapter(env2)).toThrow(/no BUCKET binding/);
-  });
-
-  it("returns Supabase adapter by default", async () => {
-    vi.resetModules();
-    vi.clearAllMocks();
-
-    const fakeClient = { id: "c" };
-    const supAdapter = { kind: "supabase" };
-
-    const { fn: createClientMock } = await mockSupabaseCreateClient(fakeClient);
-    const { fn: createSupabaseStorageAdapterMock } = await mockCreateSupabaseStorageAdapter(supAdapter);
-
-    const { default: getStorageAdapter } = await import("./getStorageAdapter");
-
-    const env3: Bindings = {
-      VITE_SUPABASE_URL: "url",
-      SUPABASE_SERVICE_KEY: "key",
-      SUPABASE_VISITOR_EMAIL: "x",
-      SUPABASE_VISITOR_PASSWORD: "y",
-      ENVIRONMENT: "test",
-    };
-    const result = getStorageAdapter(env3);
-
-    expect(createClientMock).toHaveBeenCalledWith("url", "key");
-    expect(createSupabaseStorageAdapterMock).toHaveBeenCalledWith(fakeClient);
-    expect(result).toBe(supAdapter);
-  });
+		expect(createClient).toHaveBeenCalledWith("url", "key");
+		expect(createSupabaseStorageAdapter).toHaveBeenCalledWith(fakeClient);
+		expect(result).toBe(supAdapter);
+	});
 });

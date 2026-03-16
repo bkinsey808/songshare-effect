@@ -1,20 +1,9 @@
-import { Effect } from "effect";
-import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-
-import useAppStore from "@/react/app-store/useAppStore";
-import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
-import useLocale from "@/react/lib/language/locale/useLocale";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
-import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
-import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
-import getImagePublicUrl from "@/react/image/get-image-public-url";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { dashboardPath, imageEditPath, imageViewPath } from "@/shared/paths";
 
 import ImageViewLibraryAction from "./ImageViewLibraryAction";
+import useImageView from "./useImageView";
 
 const BYTES_PER_KB = 1024;
 const ONE_DECIMAL = 1;
@@ -28,25 +17,8 @@ const ONE_DECIMAL = 1;
  * @returns React element for the image view page
  */
 export default function ImageView(): ReactElement {
-	const { image_slug } = useParams<{ image_slug: string }>();
-	const { lang } = useLocale();
-	const navigate = useNavigate();
-	const currentUserId = useCurrentUserId();
-
-	const publicImages = useAppStore((state) => state.publicImages);
-	const isImageLoading = useAppStore((state) => state.isImageLoading);
-	const imageError = useAppStore((state) => state.imageError);
-	const fetchImageBySlug = useAppStore((state) => state.fetchImageBySlug);
-
-	// Fetch share subscriptions so shared-users-section works
-	useShareSubscription();
-
-	// Fetch the image by slug when the slug changes or the fetch function changes
-	useEffect(() => {
-		if (image_slug !== undefined && image_slug !== "") {
-			void Effect.runPromise(fetchImageBySlug(image_slug));
-		}
-	}, [image_slug, fetchImageBySlug]);
+	const { handleEditClick, image, imageError, imageUrl, isImageLoading, isOwner, qrCodeUrl } =
+		useImageView();
 
 	if (isImageLoading) {
 		return (
@@ -69,12 +41,6 @@ export default function ImageView(): ReactElement {
 		);
 	}
 
-	// Find the image by slug in the store
-	const image =
-		image_slug === undefined
-			? undefined
-			: Object.values(publicImages).find((img) => img.image_slug === image_slug);
-
 	if (image === undefined) {
 		return (
 			<div className="mx-auto max-w-4xl px-4 py-6">
@@ -85,9 +51,6 @@ export default function ImageView(): ReactElement {
 			</div>
 		);
 	}
-
-	const isOwner = currentUserId !== undefined && currentUserId === image.user_id;
-	const imageUrl = getImagePublicUrl(image.r2_key);
 
 	return (
 		<div className="mx-auto max-w-4xl px-4 py-6">
@@ -100,53 +63,42 @@ export default function ImageView(): ReactElement {
 						{isOwner && (
 							<button
 								type="button"
-								onClick={() => {
-									void navigate(
-										buildPathWithLang(
-											`/${dashboardPath}/${imageEditPath}/${image.image_slug}`,
-											lang,
-										),
-									);
-								}}
+								onClick={handleEditClick}
 								className="rounded-lg border border-gray-600 px-4 py-2 text-sm text-gray-300 transition-colors hover:border-gray-500 hover:text-white"
 							>
 								Edit
 							</button>
 						)}
 						{!isOwner && (
-							<ImageViewLibraryAction
-								imageId={image.image_id}
-								imageOwnerId={image.user_id}
-							/>
+							<ImageViewLibraryAction imageId={image.image_id} imageOwnerId={image.user_id} />
 						)}
-						<ShareButton
-							itemType="image"
-							itemId={image.image_id}
-							itemName={image.image_name}
-						/>
+						<ShareButton itemType="image" itemId={image.image_id} itemName={image.image_name} />
 					</div>
 				</div>
 
 				<div className="mt-4">
-					<CollapsibleQrCode
-						url={buildPublicWebUrl(`/${imageViewPath}/${image.image_slug}`, lang)}
-						label="Image QR Code"
-					/>
+					<CollapsibleQrCode url={qrCodeUrl ?? ""} label="Image QR Code" />
 				</div>
 			</div>
 
 			{/* Image display */}
 			<div className="mb-6 overflow-hidden rounded-xl border border-gray-700 bg-gray-900">
-				<img
-					src={imageUrl}
-					alt={image.alt_text === "" ? image.image_name : image.alt_text}
-					className="w-full object-contain"
-					style={
-						image.height !== null && image.width !== null
-							? { aspectRatio: `${image.width}/${image.height}` }
-							: undefined
-					}
-				/>
+				{imageUrl === undefined ? (
+					<div className="flex items-center justify-center py-12 text-gray-500">
+						Image unavailable
+					</div>
+				) : (
+					<img
+						src={imageUrl}
+						alt={image.alt_text === "" ? image.image_name : image.alt_text}
+						className="w-full object-contain"
+						style={
+							image.height !== null && image.width !== null
+								? { aspectRatio: `${image.width}/${image.height}` }
+								: undefined
+						}
+					/>
+				)}
 			</div>
 
 			{/* Metadata */}
@@ -169,7 +121,7 @@ export default function ImageView(): ReactElement {
 			</div>
 
 			{/* Shared users */}
-		<SharedUsersSection itemId={image.image_id} itemType="image" itemName={image.image_name} />
+			<SharedUsersSection itemId={image.image_id} itemType="image" itemName={image.image_name} />
 		</div>
 	);
 }

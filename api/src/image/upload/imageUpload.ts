@@ -1,13 +1,19 @@
 import { createClient } from "@supabase/supabase-js";
 import { Effect } from "effect";
 
+import {
+	type AuthenticationError,
+	DatabaseError,
+	FileUploadError,
+	ValidationError,
+} from "@/api/api-errors";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import getStorageAdapter from "@/api/storage/getStorageAdapter";
+import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
-import { type AuthenticationError, DatabaseError, FileUploadError, ValidationError } from "@/api/api-errors";
-import getStorageAdapter from "@/api/storage/getStorageAdapter";
-import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
+import buildImageSlug from "./buildImageSlug";
 
 /** Bytes per kilobyte */
 const BYTES_PER_KB = 1024;
@@ -18,8 +24,6 @@ const MAX_IMAGE_SIZE_MB = 10;
 /** Max image file size: 10 MB */
 const MAX_IMAGE_SIZE = MAX_IMAGE_SIZE_MB * BYTES_PER_MB;
 
-/** Max character length for the URL slug base before appending the unique suffix. */
-const SLUG_BASE_MAX_LENGTH = 50;
 /** Length of the short ID suffix derived from the image UUID. */
 const SHORT_ID_LENGTH = 8;
 /** Start index for string slice operations. */
@@ -52,25 +56,6 @@ type ImageRow = {
 };
 
 /**
- * Build a URL-safe slug from a human-readable name.
- *
- * Converts the name to lowercase, replaces spaces and special characters with
- * hyphens, collapses consecutive hyphens, and trims leading/trailing hyphens.
- *
- * @param name - The display name to slugify.
- * @param suffix - A short suffix (e.g. part of UUID) to ensure uniqueness.
- * @returns - A URL-safe slug string.
- */
-function buildImageSlug(name: string, suffix: string): string {
-	const base = name
-		.toLowerCase()
-		.replaceAll(/[^a-z0-9]+/g, "-")
-		.replaceAll(/^-+|-+$/g, "")
-		.slice(SLICE_START, SLUG_BASE_MAX_LENGTH);
-	return `${base}-${suffix}`;
-}
-
-/**
  * Server-side handler for uploading an image file.
  *
  * Accepts a multipart/form-data POST with the following fields:
@@ -91,7 +76,10 @@ function buildImageSlug(name: string, suffix: string): string {
  */
 export default function imageUpload(
 	ctx: ReadonlyContext,
-): Effect.Effect<ImageRow, ValidationError | DatabaseError | FileUploadError | AuthenticationError> {
+): Effect.Effect<
+	ImageRow,
+	ValidationError | DatabaseError | FileUploadError | AuthenticationError
+> {
 	return Effect.gen(function* imageUploadGen($) {
 		// 1. Authenticate user
 		const userSession = yield* $(getVerifiedUserSession(ctx));
@@ -118,7 +106,9 @@ export default function imageUpload(
 		}
 
 		if (typeof imageName !== "string" || imageName.trim() === "") {
-			return yield* $(Effect.fail(new ValidationError({ message: "Field 'image_name' is required" })));
+			return yield* $(
+				Effect.fail(new ValidationError({ message: "Field 'image_name' is required" })),
+			);
 		}
 
 		if (!ALLOWED_CONTENT_TYPES.has(file.type)) {
@@ -127,7 +117,7 @@ export default function imageUpload(
 					new ValidationError({
 						message: `File type '${file.type}' is not allowed. Allowed types: ${[...ALLOWED_CONTENT_TYPES].join(", ")}`,
 					}),
-),
+				),
 			);
 		}
 
@@ -156,7 +146,8 @@ export default function imageUpload(
 		const fileBuffer = yield* $(
 			Effect.tryPromise({
 				try: () => file.arrayBuffer(),
-				catch: (error) => new FileUploadError({ message: extractErrorMessage(error, "Failed to read file") }),
+				catch: (error) =>
+					new FileUploadError({ message: extractErrorMessage(error, "Failed to read file") }),
 			}),
 		);
 
@@ -188,7 +179,9 @@ export default function imageUpload(
 						.select()
 						.single(),
 				catch: (error) =>
-					new DatabaseError({ message: extractErrorMessage(error, "Failed to create image record") }),
+					new DatabaseError({
+						message: extractErrorMessage(error, "Failed to create image record"),
+					}),
 			}),
 		);
 
@@ -218,7 +211,7 @@ export default function imageUpload(
 								image_slug: imageSlug,
 								description: typeof description === "string" ? description : "",
 								alt_text: typeof altText === "string" ? altText : "",
-							r2_key: storageKey,
+								r2_key: storageKey,
 								content_type: file.type,
 								file_size: file.size,
 							},

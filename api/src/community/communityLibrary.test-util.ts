@@ -2,6 +2,7 @@
  * Test helper for communityLibrary - builds a Supabase client stub.
  */
 import type { createClient } from "@supabase/supabase-js";
+
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
@@ -18,12 +19,14 @@ type CommunityEntry = {
 	updated_at: string;
 };
 
-export default function makeCommunityLibraryClient(opts: {
-	communityUserData?: { community_id: string }[];
-	communityUserError?: boolean;
-	communityPublicData?: CommunityEntry[];
-	communityPublicError?: boolean;
-} = {}): ReturnType<typeof createClient> {
+export default function makeCommunityLibraryClient(
+	opts: {
+		communityUserData?: { community_id: string }[];
+		communityUserError?: boolean;
+		communityPublicData?: CommunityEntry[];
+		communityPublicError?: boolean;
+	} = {},
+): ReturnType<typeof createClient> {
 	const membershipData = opts.communityUserData ?? [];
 	const communityUserError = opts.communityUserError ?? false;
 	const communityPublicData = opts.communityPublicData ?? [];
@@ -35,7 +38,10 @@ export default function makeCommunityLibraryClient(opts: {
 				return {
 					select: (): object => ({
 						eq: (): object => ({
-							eq: (_col: string, _val: string): Promise<{
+							eq: (
+								_col: string,
+								_val: string,
+							): Promise<{
 								data: { community_id: string }[] | null;
 								error: ReturnType<typeof makeNull> | { message: string };
 							}> =>
@@ -49,7 +55,10 @@ export default function makeCommunityLibraryClient(opts: {
 			if (table === "community_public") {
 				return {
 					select: (): object => ({
-						in: (_col: string, _vals: string[]): Promise<{
+						in: (
+							_col: string,
+							_vals: string[],
+						): Promise<{
 							data: CommunityEntry[] | null;
 							error: ReturnType<typeof makeNull> | { message: string };
 						}> =>

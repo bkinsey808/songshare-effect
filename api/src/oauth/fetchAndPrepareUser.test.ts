@@ -24,12 +24,8 @@ const OAUTH_USER_DATA = {
 
 describe("fetchAndPrepareUser", () => {
 	it("returns supabase, oauthUserData, and existingUser when all steps succeed", async () => {
-		vi.mocked(fetchAndParseOauthUserData).mockReturnValue(
-			Effect.succeed(OAUTH_USER_DATA),
-		);
-		vi.mocked(getUserByEmail).mockReturnValue(
-			Effect.succeed(undefined),
-		);
+		vi.mocked(fetchAndParseOauthUserData).mockReturnValue(Effect.succeed(OAUTH_USER_DATA));
+		vi.mocked(getUserByEmail).mockReturnValue(Effect.succeed(undefined));
 
 		const ctx = makeCtx({
 			env: {
@@ -63,12 +59,8 @@ describe("fetchAndPrepareUser", () => {
 			username: "testuser",
 		});
 
-		vi.mocked(fetchAndParseOauthUserData).mockReturnValue(
-			Effect.succeed(OAUTH_USER_DATA),
-		);
-		vi.mocked(getUserByEmail).mockReturnValue(
-			forceCast(Effect.succeed(existingUser)),
-		);
+		vi.mocked(fetchAndParseOauthUserData).mockReturnValue(Effect.succeed(OAUTH_USER_DATA));
+		vi.mocked(getUserByEmail).mockReturnValue(forceCast(Effect.succeed(existingUser)));
 
 		const ctx = makeCtx({
 			env: {

@@ -1,5 +1,6 @@
-import makeNull from "@/shared/test-utils/makeNull.test-util";
 import { describe, expect, it } from "vitest";
+
+import makeNull from "@/shared/test-utils/makeNull.test-util";
 
 import type { SharedItem } from "../slice/share-types";
 import isSharedItem from "./isSharedItem";

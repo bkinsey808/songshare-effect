@@ -2,7 +2,6 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
-
 import type { PlaylistError } from "@/react/playlist/playlist-errors";
 
 import submitPlaylist from "./submitPlaylist";
@@ -42,9 +41,7 @@ describe("submitPlaylist", () => {
 	});
 
 	it("returns undefined and does not navigate when save fails", async () => {
-		const mockSave = vi.fn(() =>
-			Effect.fail(forceCast<PlaylistError>(new Error("Save failed"))),
-		);
+		const mockSave = vi.fn(() => Effect.fail(forceCast<PlaylistError>(new Error("Save failed"))));
 		const mockNavigate = vi.fn();
 
 		const result = await submitPlaylist(

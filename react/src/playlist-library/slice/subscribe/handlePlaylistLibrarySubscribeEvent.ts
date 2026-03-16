@@ -7,8 +7,8 @@ import extractStringField from "@/react/lib/supabase/subscription/extract/extrac
 import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isRealtimePayload";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import type { PlaylistLibrarySlice } from "../PlaylistLibrarySlice.type";
 import type { PlaylistLibrary } from "../playlist-library-types";
+import type { PlaylistLibrarySlice } from "../PlaylistLibrarySlice.type";
 
 /**
  * Validates that a value is a valid PlaylistLibrary record.

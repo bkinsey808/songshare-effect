@@ -2,6 +2,7 @@
  * Test helper for communitySave - builds a Supabase client stub.
  */
 import type { createClient } from "@supabase/supabase-js";
+
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
@@ -16,15 +17,17 @@ type CommunityPublicRow = {
 	public_notes: string;
 };
 
-export default function makeCommunitySaveClient(opts: {
-	userRole?: "owner" | "community_admin" | "member";
-	userRoleError?: boolean;
-	privateUpdateError?: boolean;
-	publicInsertError?: boolean;
-	publicUpdateError?: boolean;
-	communityUserInsertError?: boolean;
-	publicRow?: CommunityPublicRow;
-} = {}): ReturnType<typeof createClient> {
+export default function makeCommunitySaveClient(
+	opts: {
+		userRole?: "owner" | "community_admin" | "member";
+		userRoleError?: boolean;
+		privateUpdateError?: boolean;
+		publicInsertError?: boolean;
+		publicUpdateError?: boolean;
+		communityUserInsertError?: boolean;
+		publicRow?: CommunityPublicRow;
+	} = {},
+): ReturnType<typeof createClient> {
 	const role = opts.userRole ?? "owner";
 	const userRoleError = opts.userRoleError ?? false;
 	const privateUpdateError = opts.privateUpdateError ?? false;
@@ -111,8 +114,7 @@ export default function makeCommunitySaveClient(opts: {
 							single: (): Promise<{
 								data: CommunityPublicRow | ReturnType<typeof makeNull>;
 								error: ReturnType<typeof makeNull>;
-							}> =>
-								promiseResolved({ data: publicRow, error: makeNull() }),
+							}> => promiseResolved({ data: publicRow, error: makeNull() }),
 						}),
 					}),
 					update: (): object => ({

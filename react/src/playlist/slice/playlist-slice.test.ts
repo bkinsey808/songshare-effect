@@ -29,11 +29,7 @@ function makeSetGet(): {
 describe("createPlaylistSlice", () => {
 	it("isSongInPlaylist returns false when no currentPlaylist", () => {
 		const { set, get } = makeSetGet();
-		const slice = createPlaylistSlice(
-			forceCast(set),
-			get,
-			forceCast({}),
-		);
+		const slice = createPlaylistSlice(forceCast(set), get, forceCast({}));
 
 		expect(slice.isSongInPlaylist("s1")).toBe(false);
 	});
@@ -41,11 +37,7 @@ describe("createPlaylistSlice", () => {
 	it("isSongInPlaylist returns false when song_order is absent", () => {
 		const { set, get } = makeSetGet();
 		set({ currentPlaylist: forceCast({ public: {} }) });
-		const slice = createPlaylistSlice(
-			forceCast(set),
-			get,
-			forceCast({}),
-		);
+		const slice = createPlaylistSlice(forceCast(set), get, forceCast({}));
 
 		expect(slice.isSongInPlaylist("s1")).toBe(false);
 	});
@@ -57,11 +49,7 @@ describe("createPlaylistSlice", () => {
 				public: { song_order: ["s1", "s2"] },
 			}),
 		});
-		const slice = createPlaylistSlice(
-			forceCast(set),
-			get,
-			forceCast({}),
-		);
+		const slice = createPlaylistSlice(forceCast(set), get, forceCast({}));
 
 		expect(slice.isSongInPlaylist("s1")).toBe(true);
 		expect(slice.isSongInPlaylist("s2")).toBe(true);
@@ -74,11 +62,7 @@ describe("createPlaylistSlice", () => {
 				public: { song_order: ["s1", "s2"] },
 			}),
 		});
-		const slice = createPlaylistSlice(
-			forceCast(set),
-			get,
-			forceCast({}),
-		);
+		const slice = createPlaylistSlice(forceCast(set), get, forceCast({}));
 
 		expect(slice.isSongInPlaylist("s3")).toBe(false);
 	});
@@ -89,11 +73,7 @@ describe("createPlaylistSlice", () => {
 			currentPlaylist: forceCast({ playlist_id: "p1" }),
 			playlistError: "error",
 		});
-		const slice = createPlaylistSlice(
-			forceCast(set),
-			get,
-			forceCast({}),
-		);
+		const slice = createPlaylistSlice(forceCast(set), get, forceCast({}));
 
 		slice.clearCurrentPlaylist();
 

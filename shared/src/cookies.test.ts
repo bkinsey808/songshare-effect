@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-	csrfTokenCookieName,
-	oauthCsrfCookieName,
-	preferredLanguageCookieName,
-} from "./cookies";
+import { csrfTokenCookieName, oauthCsrfCookieName, preferredLanguageCookieName } from "./cookies";
 
 describe("cookies", () => {
 	it.each([

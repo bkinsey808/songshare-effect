@@ -12,11 +12,10 @@ import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSe
 import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
-import { type SongPublic } from "../song-schema";
 
+import { type SongPublic } from "../song-schema";
 import SongView from "./SongView";
 import SongViewLibraryAction from "./SongViewLibraryAction";
-
 
 // Mock react-router so tests can control `useParams` return values
 vi.mock("react-router-dom");
@@ -72,8 +71,7 @@ function installStoreMocks(
 			addActivePublicSongSlugs: mockAdd,
 			publicSongs,
 			privateSongs: {},
-			userSessionData:
-			mockUserId === undefined ? undefined : { user: { user_id: mockUserId } },
+			userSessionData: mockUserId === undefined ? undefined : { user: { user_id: mockUserId } },
 		};
 		return forceCast<(state: typeof fakeState) => unknown>(selector)(fakeState);
 	});

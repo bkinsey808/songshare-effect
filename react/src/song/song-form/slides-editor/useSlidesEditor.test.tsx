@@ -1,5 +1,5 @@
-import { cleanup, render, renderHook } from "@testing-library/react";
 import type { DragEndEvent } from "@dnd-kit/core";
+import { cleanup, render, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
@@ -119,9 +119,7 @@ describe("useSlidesEditor — renderHook", () => {
 				field_data: { lyrics: "new lyric", script: "", enTranslation: "" },
 			},
 		};
-		expect(setSlides).toHaveBeenCalledWith(
-			expect.objectContaining(expectedSlides),
-		);
+		expect(setSlides).toHaveBeenCalledWith(expect.objectContaining(expectedSlides));
 	});
 
 	it("safeGetField returns value for existing slide and field", () => {

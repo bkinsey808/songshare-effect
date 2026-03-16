@@ -43,9 +43,7 @@ vi.mocked(Button).mockImplementation(
 );
 
 vi.mocked(ShareButton).mockImplementation((): ReactElement => <button type="button">Share</button>);
-vi.mocked(CollapsibleQrCode).mockImplementation((): ReactElement => (
-	<div data-testid="qr-code" />
-));
+vi.mocked(CollapsibleQrCode).mockImplementation((): ReactElement => <div data-testid="qr-code" />);
 vi.mocked(buildPathWithLang).mockImplementation(
 	(path: string, lang: string): string => `/${lang}${path}`,
 );

@@ -53,9 +53,7 @@ export function createUserLibraryMock(opts: UserLibraryMockOpts): UserLibraryTab
 							if (msg.includes("user_library_pkey")) {
 								return { data: undefined, error: err };
 							}
-							throw err instanceof Error
-								? err
-								: new Error(extractErrorMessage(err, "Mock Error"));
+							throw err instanceof Error ? err : new Error(extractErrorMessage(err, "Mock Error"));
 						}
 						const [firstRow] = opts.userLibraryInsertRows ?? (rows as unknown[]);
 						return {
@@ -78,9 +76,7 @@ export function createUserLibraryMock(opts: UserLibraryMockOpts): UserLibraryTab
 				if (opts.userLibraryDeleteError !== undefined) {
 					throw opts.userLibraryDeleteError instanceof Error
 						? opts.userLibraryDeleteError
-						: new Error(
-								extractErrorMessage(opts.userLibraryDeleteError, "Mock Error"),
-							);
+						: new Error(extractErrorMessage(opts.userLibraryDeleteError, "Mock Error"));
 				}
 				return {
 					data: [],

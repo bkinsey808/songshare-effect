@@ -54,6 +54,9 @@ describe("typeGpuDemoPage (TypeGPU integration)", () => {
 		const typegpuImport = await import("typegpu");
 		const typegpuModule = typegpuImport.default;
 		const errorRegex = /typegpu module present but no known demo API found/u;
-		await expect(runTypeGpuDemo(canvas, DURATION, { typegpuModule })).rejects.toThrow(errorRegex);
+
+		const promise = runTypeGpuDemo(canvas, DURATION, { typegpuModule });
+		expect(promise).toBeInstanceOf(Promise);
+		await expect(promise).rejects.toThrow(errorRegex);
 	});
 });

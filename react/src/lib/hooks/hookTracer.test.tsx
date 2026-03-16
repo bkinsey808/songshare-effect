@@ -45,10 +45,7 @@ describe("hookTracer", () => {
 				useLogHookTrace();
 				return undefined;
 			});
-			expect(vi.mocked(clientWarn)).toHaveBeenCalledWith(
-				"HOOK TRACE:",
-				"X",
-			);
+			expect(vi.mocked(clientWarn)).toHaveBeenCalledWith("HOOK TRACE:", "X");
 		});
 
 		it("does not log when buffer is empty", () => {

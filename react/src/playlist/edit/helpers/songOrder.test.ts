@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-	addSongToOrder,
-	moveSongDown,
-	moveSongUp,
-	removeSongFromOrder,
-} from "./songOrder";
+import { addSongToOrder, moveSongDown, moveSongUp, removeSongFromOrder } from "./songOrder";
 
 const SONG_A = "a";
 const SONG_B = "b";
@@ -18,11 +13,7 @@ const INDEX_NEGATIVE_ONE = -1;
 
 describe("addSongToOrder", () => {
 	it("appends song when not present", () => {
-		expect(addSongToOrder([SONG_A, SONG_B], SONG_C)).toStrictEqual([
-			SONG_A,
-			SONG_B,
-			SONG_C,
-		]);
+		expect(addSongToOrder([SONG_A, SONG_B], SONG_C)).toStrictEqual([SONG_A, SONG_B, SONG_C]);
 	});
 
 	it("returns copy when song already present", () => {
@@ -38,10 +29,7 @@ describe("addSongToOrder", () => {
 
 describe("removeSongFromOrder", () => {
 	it("removes song when present", () => {
-		expect(removeSongFromOrder([SONG_A, SONG_B, SONG_C], SONG_B)).toStrictEqual([
-			SONG_A,
-			SONG_C,
-		]);
+		expect(removeSongFromOrder([SONG_A, SONG_B, SONG_C], SONG_B)).toStrictEqual([SONG_A, SONG_C]);
 	});
 
 	it("returns copy when song not present", () => {
@@ -56,11 +44,7 @@ describe("removeSongFromOrder", () => {
 
 describe("moveSongUp", () => {
 	it("moves item up by one position", () => {
-		expect(moveSongUp([SONG_A, SONG_B, SONG_C], INDEX_TWO)).toStrictEqual([
-			SONG_A,
-			SONG_C,
-			SONG_B,
-		]);
+		expect(moveSongUp([SONG_A, SONG_B, SONG_C], INDEX_TWO)).toStrictEqual([SONG_A, SONG_C, SONG_B]);
 	});
 
 	it("returns copy when index is 0", () => {

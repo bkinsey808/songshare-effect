@@ -8,34 +8,7 @@ import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
-// import { type AuthenticationError, DatabaseError, ValidationError } from "../../api-errors";
-// import getStorageAdapter from "../../storage/getStorageAdapter";
-// import getVerifiedUserSession from "../../user-session/getVerifiedSession";
-
-type ImageDeleteRequest = {
-	image_id: string;
-};
-
-/**
- * Extract and validate the delete request from raw JSON.
- *
- * @param request - Raw parsed JSON body.
- * @returns - Validated `ImageDeleteRequest`.
- * @throws - `TypeError` when required fields are missing or invalid.
- */
-function extractImageDeleteRequest(request: unknown): ImageDeleteRequest {
-	if (typeof request !== "object" || request === null) {
-		throw new TypeError("Request must be a valid object");
-	}
-	if (!("image_id" in request)) {
-		throw new TypeError("Request must contain image_id");
-	}
-	const { image_id } = request as Record<string, unknown>;
-	if (typeof image_id !== "string" || image_id.trim() === "") {
-		throw new TypeError("image_id must be a non-empty string");
-	}
-	return { image_id: image_id.trim() };
-}
+import extractImageDeleteRequest, { type ImageDeleteRequest } from "./extractImageDeleteRequest";
 
 /**
  * Server-side handler for deleting an image.
@@ -73,7 +46,9 @@ export default function imageDelete(
 			req = extractImageDeleteRequest(body);
 		} catch (error: unknown) {
 			return yield* $(
-				Effect.fail(new ValidationError({ message: extractErrorMessage(error, "Invalid request") })),
+				Effect.fail(
+					new ValidationError({ message: extractErrorMessage(error, "Invalid request") }),
+				),
 			);
 		}
 
@@ -97,9 +72,7 @@ export default function imageDelete(
 		);
 
 		if (fetchResult.error || fetchResult.data === null) {
-			return yield* $(
-				Effect.fail(new DatabaseError({ message: "Image not found" })),
-			);
+			return yield* $(Effect.fail(new DatabaseError({ message: "Image not found" })));
 		}
 
 		if (fetchResult.data.user_id !== userId) {
@@ -118,7 +91,9 @@ export default function imageDelete(
 			Effect.tryPromise({
 				try: () => storage.remove(r2Key),
 				catch: (error) =>
-					new DatabaseError({ message: extractErrorMessage(error, "Failed to delete from storage") }),
+					new DatabaseError({
+						message: extractErrorMessage(error, "Failed to delete from storage"),
+					}),
 			}).pipe(Effect.orElse(() => Effect.succeed(undefined))),
 		);
 
@@ -128,7 +103,9 @@ export default function imageDelete(
 				try: () =>
 					supabase.from("image").delete().eq("image_id", req.image_id).eq("user_id", userId),
 				catch: (error) =>
-					new DatabaseError({ message: extractErrorMessage(error, "Failed to delete image record") }),
+					new DatabaseError({
+						message: extractErrorMessage(error, "Failed to delete image record"),
+					}),
 			}),
 		);
 

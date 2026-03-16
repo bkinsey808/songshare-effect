@@ -1,6 +1,6 @@
 import useLocale from "@/react/lib/language/locale/useLocale";
-import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
+import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import { communityViewPath } from "@/shared/paths";
 
 import CommunityEventsCard from "./CommunityEventsCard";

@@ -1,13 +1,4 @@
-import { Effect } from "effect";
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-import useAppStore from "@/react/app-store/useAppStore";
-import useLocale from "@/react/lib/language/locale/useLocale";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { dashboardPath, imageLibraryPath, imageViewPath } from "@/shared/paths";
-
-import type { ImagePublic } from "../image-types";
+import useImageUploadForm from "@/react/image/image-upload-form/useImageUploadForm";
 
 /**
  * Form for uploading a new image to Cloudflare R2.
@@ -18,60 +9,22 @@ import type { ImagePublic } from "../image-types";
  * @returns React element rendering the image upload form
  */
 export default function ImageUploadForm(): ReactElement {
-	const { lang } = useLocale();
-	const navigate = useNavigate();
-	const fileInputRef = useRef<HTMLInputElement>(null);
-
-	const [imageName, setImageName] = useState("");
-	const [description, setDescription] = useState("");
-	const [altText, setAltText] = useState("");
-	const [selectedFile, setSelectedFile] = useState<File | undefined>(undefined);
-	const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [uploadError, setUploadError] = useState<string | undefined>(undefined);
-
-	const uploadImage = useAppStore((state) => state.uploadImage);
-
-	function handleFileChange(event: React.ChangeEvent<HTMLInputElement>): void {
-		const [file] = event.target.files ?? [];
-		if (file === undefined) {
-			return;
-		}
-		setSelectedFile(file);
-		setPreviewUrl(URL.createObjectURL(file));
-		if (imageName === "") {
-			setImageName(file.name.replace(/\.[^/.]+$/, ""));
-		}
-	}
-
-	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
-	async function handleSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
-		event.preventDefault();
-		if (selectedFile === undefined) {
-			setUploadError("Please select an image file.");
-			return;
-		}
-
-		const formData = new FormData();
-		formData.append("file", selectedFile);
-		formData.append("image_name", imageName);
-		formData.append("description", description);
-		formData.append("alt_text", altText);
-
-		setIsSubmitting(true);
-		setUploadError(undefined);
-
-		try {
-			const result: ImagePublic = await Effect.runPromise(uploadImage(formData));
-			setIsSubmitting(false);
-			await navigate(
-				buildPathWithLang(`/${imageViewPath}/${result.image_slug}`, lang),
-			);
-		} catch (error: unknown) {
-			setUploadError(error instanceof Error ? error.message : "Upload failed. Please try again.");
-			setIsSubmitting(false);
-		}
-	}
+	const {
+		altText,
+		description,
+		fileInputRef,
+		handleCancel,
+		handleFileChange,
+		handleSubmit,
+		imageName,
+		isSubmitting,
+		previewUrl,
+		selectedFile,
+		setAltText,
+		setDescription,
+		setImageName,
+		uploadError,
+	} = useImageUploadForm();
 
 	return (
 		<form onSubmit={(event) => void handleSubmit(event)} className="space-y-6">
@@ -107,9 +60,11 @@ export default function ImageUploadForm(): ReactElement {
 				</label>
 				<input
 					id="image-name"
-			type="text"
+					type="text"
 					value={imageName}
-					onChange={(event) => { setImageName(event.target.value); }}
+					onChange={(event) => {
+						setImageName(event.target.value);
+					}}
 					placeholder="My Image"
 					className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
 				/>
@@ -124,7 +79,9 @@ export default function ImageUploadForm(): ReactElement {
 					id="image-alt"
 					type="text"
 					value={altText}
-					onChange={(event) => { setAltText(event.target.value); }}
+					onChange={(event) => {
+						setAltText(event.target.value);
+					}}
 					placeholder="Brief description for screen readers"
 					className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
 				/>
@@ -132,16 +89,15 @@ export default function ImageUploadForm(): ReactElement {
 
 			{/* Description */}
 			<div>
-				<label
-					htmlFor="image-description"
-					className="mb-2 block text-sm font-medium text-gray-300"
-				>
+				<label htmlFor="image-description" className="mb-2 block text-sm font-medium text-gray-300">
 					Description
 				</label>
 				<textarea
 					id="image-description"
 					value={description}
-					onChange={(event) => { setDescription(event.target.value); }}
+					onChange={(event) => {
+						setDescription(event.target.value);
+					}}
 					rows={3}
 					placeholder="Optional description"
 					className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -164,9 +120,7 @@ export default function ImageUploadForm(): ReactElement {
 				</button>
 				<button
 					type="button"
-					onClick={() => {
-						void navigate(buildPathWithLang(`/${dashboardPath}/${imageLibraryPath}`, lang));
-					}}
+					onClick={handleCancel}
 					className="rounded-lg border border-gray-600 px-6 py-2 text-gray-300 transition-colors hover:border-gray-500 hover:text-white"
 				>
 					Cancel

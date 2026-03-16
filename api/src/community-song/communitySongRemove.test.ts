@@ -3,8 +3,8 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import forceCast from "@/react/lib/test-utils/forceCast";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
+import forceCast from "@/react/lib/test-utils/forceCast";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import communitySongRemove from "./communitySongRemove";
@@ -44,13 +44,15 @@ describe("communitySongRemove", () => {
 
 		const result = await Effect.runPromise(
 			communitySongRemove(ctx).pipe(
-				Effect.map(() => ({ ok: true } as const)),
+				Effect.map(() => ({ ok: true }) as const),
 				Effect.catchAll((err) => Effect.succeed({ ok: false, err })),
 			),
 		);
 
 		expect(result.ok).toBe(false);
-		expect(forceCast<{ ok: false; err: Error }>(result).err.constructor.name).toBe("ValidationError");
+		expect(forceCast<{ ok: false; err: Error }>(result).err.constructor.name).toBe(
+			"ValidationError",
+		);
 	});
 
 	it("returns ValidationError when user is not owner or admin", async () => {
@@ -66,20 +68,20 @@ describe("communitySongRemove", () => {
 
 		const result = await Effect.runPromise(
 			communitySongRemove(ctx).pipe(
-				Effect.map(() => ({ ok: true } as const)),
+				Effect.map(() => ({ ok: true }) as const),
 				Effect.catchAll((err) => Effect.succeed({ ok: false, err })),
 			),
 		);
 
 		expect(result.ok).toBe(false);
-		expect(forceCast<{ ok: false; err: Error }>(result).err.constructor.name).toBe("ValidationError");
+		expect(forceCast<{ ok: false; err: Error }>(result).err.constructor.name).toBe(
+			"ValidationError",
+		);
 	});
 
 	it("returns DatabaseError when delete fails", async () => {
 		vi.mocked(getVerifiedUserSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));
-		vi.mocked(createClient).mockReturnValue(
-			makeCommunitySongRemoveClient({ deleteError: true }),
-		);
+		vi.mocked(createClient).mockReturnValue(makeCommunitySongRemoveClient({ deleteError: true }));
 
 		const ctx = makeCtx({
 			body: { community_id: COMMUNITY_ID, song_id: SONG_ID },
@@ -88,7 +90,7 @@ describe("communitySongRemove", () => {
 
 		const result = await Effect.runPromise(
 			communitySongRemove(ctx).pipe(
-				Effect.map(() => ({ ok: true } as const)),
+				Effect.map(() => ({ ok: true }) as const),
 				Effect.catchAll((err) => Effect.succeed({ ok: false, err })),
 			),
 		);

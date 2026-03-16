@@ -3,6 +3,7 @@
  * Returns role from community_user select; delete succeeds.
  */
 import type { createClient } from "@supabase/supabase-js";
+
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
@@ -17,8 +18,10 @@ export default function makeCommunityDeleteClient(
 					select: (): object => ({
 						eq: (): object => ({
 							eq: (): object => ({
-								single: (): Promise<{ data: { role: string }; error: ReturnType<typeof makeNull> }> =>
-									promiseResolved({ data: { role: communityUserRole }, error: makeNull() }),
+								single: (): Promise<{
+									data: { role: string };
+									error: ReturnType<typeof makeNull>;
+								}> => promiseResolved({ data: { role: communityUserRole }, error: makeNull() }),
 							}),
 						}),
 					}),

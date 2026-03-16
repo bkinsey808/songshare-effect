@@ -79,7 +79,9 @@ describe("communitySchemas", () => {
 				role: "invalid_role",
 			} as unknown;
 
-			expect(() => decodeUnknownSyncOrThrow(communityUserAddSchema, input)).toThrow(/role|literal/i);
+			expect(() => decodeUnknownSyncOrThrow(communityUserAddSchema, input)).toThrow(
+				/role|literal/i,
+			);
 		});
 	});
 });

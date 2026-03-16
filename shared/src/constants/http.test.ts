@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { ZERO } from "./shared-constants";
 import {
 	HTTP_BAD_REQUEST,
 	HTTP_FORBIDDEN,
@@ -14,6 +13,7 @@ import {
 	ONE_HOUR_SECONDS,
 	SIGNIN_RETRY_DELAYS_MS,
 } from "./http";
+import { ZERO } from "./shared-constants";
 
 describe("http constants", () => {
 	it.each([

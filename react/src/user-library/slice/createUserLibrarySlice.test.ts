@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
-import type { UserLibrarySlice } from "./UserLibrarySlice.type";
 import createUserLibrarySlice from "./createUserLibrarySlice";
+import type { UserLibrarySlice } from "./UserLibrarySlice.type";
 
 /**
  * Returns a minimal mock store with vi.fn() stubs for set/get and a minimal api.

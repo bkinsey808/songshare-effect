@@ -17,6 +17,8 @@ import useDashboard from "./useDashboard";
 vi.mock("@/react/app/useHydration");
 vi.mock("./useDashboard");
 vi.mock("@/react/share/shared-item-section/SharedItemsSection");
+vi.mock("@/react/invitation/subscribe/useInvitationSubscription");
+vi.mock("@/react/invitation/pending-invitation-section/PendingInvitationsSection");
 
 describe("dashboard page", () => {
 	it("renders dashboard content when signed in", async () => {
@@ -61,12 +63,12 @@ describe("dashboard page", () => {
 		};
 		vi.mocked(useDashboard).mockReturnValue(dashboardMockReturn);
 
-		const { getByText } = render(
+		const { findByText } = render(
 			<MemoryRouter>
 				<DashboardPage />
 			</MemoryRouter>,
 		);
 
-		expect(getByText("Song Library")).toBeTruthy();
+		await expect(findByText("Song Library", {}, { timeout: 5000 })).resolves.toBeTruthy();
 	});
 });

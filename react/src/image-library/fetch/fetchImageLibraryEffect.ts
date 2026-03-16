@@ -38,7 +38,11 @@ export default function fetchImageLibraryEffect(
 
 		const client = getSupabaseClient(userToken);
 		if (!client) {
-			yield* $(Effect.sync(() => { setImageLibraryLoading(false); }));
+			yield* $(
+				Effect.sync(() => {
+					setImageLibraryLoading(false);
+				}),
+			);
 			return yield* $(Effect.fail(new Error("No Supabase client available")));
 		}
 
@@ -52,7 +56,11 @@ export default function fetchImageLibraryEffect(
 			}),
 		);
 
-		yield* $(Effect.sync(() => { setImageLibraryLoading(false); }));
+		yield* $(
+			Effect.sync(() => {
+				setImageLibraryLoading(false);
+			}),
+		);
 
 		if (!isRecord(queryRes)) {
 			return yield* $(Effect.fail(new Error("Invalid response from Supabase")));

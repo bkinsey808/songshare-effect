@@ -2,7 +2,6 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
-
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 
 import createCommunityManageHandlers from "./createCommunityManageHandlers";
@@ -85,9 +84,7 @@ describe("createCommunityManageHandlers", () => {
 		const handlers = createCommunityManageHandlers(params);
 		handlers.onBackClick();
 
-		expect(navigate).toHaveBeenCalledWith(
-			expect.stringContaining(`/${SLUG}`),
-		);
+		expect(navigate).toHaveBeenCalledWith(expect.stringContaining(`/${SLUG}`));
 	});
 
 	it("onBackClick does not call navigate when communitySlug is empty", () => {

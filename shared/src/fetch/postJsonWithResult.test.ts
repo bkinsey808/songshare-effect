@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import promiseResolved, {
-	promiseRejected,
-} from "@/shared/test-utils/promiseResolved.test-util";
+import promiseResolved, { promiseRejected } from "@/shared/test-utils/promiseResolved.test-util";
 
 import postJsonWithResult from "./postJsonWithResult";
 

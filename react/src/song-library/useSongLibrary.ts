@@ -89,9 +89,7 @@ export default function useSongLibrary(): {
 
 		void (async (): Promise<void> => {
 			try {
-				const unsubscribe = (await Effect.runPromise(
-					subscribeToSongPublic(songIds),
-				)) as () => void;
+				const unsubscribe = (await Effect.runPromise(subscribeToSongPublic(songIds))) as () => void;
 				// Only assign if this effect run is still current (no re-run or unmount yet)
 				if (run === publicRunRef.current) {
 					publicUnsubRef.current = unsubscribe;

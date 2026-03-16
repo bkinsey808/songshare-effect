@@ -228,7 +228,10 @@ describe("useEventForm", () => {
 		vi.mocked(useParams).mockReturnValue({});
 
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, eventError: "Invalid event_public data" }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			eventError: "Invalid event_public data",
+		}));
 
 		const { result } = renderHook(() => useEventForm());
 

@@ -1,18 +1,18 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import { clientWarn } from "@/react/lib/utils/clientLogger";
-import acceptPendingSharesForItem from "@/react/share/effects/acceptPendingSharesForItem";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import { clientWarn } from "@/react/lib/utils/clientLogger";
 import type {
 	AddPlaylistToLibraryRequest,
 	PlaylistLibraryEntry,
 } from "@/react/playlist-library/slice/playlist-library-types";
 import type { PlaylistLibrarySlice } from "@/react/playlist-library/slice/PlaylistLibrarySlice.type";
+import acceptPendingSharesForItem from "@/react/share/effects/acceptPendingSharesForItem";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import guardAsAddPlaylistRequest from "../guards/guardAsAddPlaylistRequest";
 import guardAsPlaylistLibraryEntry from "../guards/guardAsPlaylistLibraryEntry";
-import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import addPlaylistToLibrary from "./addPlaylistToLibrary";
 
 vi.mock("@/react/share/effects/acceptPendingSharesForItem");
@@ -58,8 +58,8 @@ function makeGet(
 }
 
 function installExtractErrorMessageMock(): void {
-	vi.mocked(extractErrorMessage).mockImplementation(
-		(err: unknown, def: string): string => (typeof err === "string" ? err : def),
+	vi.mocked(extractErrorMessage).mockImplementation((err: unknown, def: string): string =>
+		typeof err === "string" ? err : def,
 	);
 }
 
@@ -103,11 +103,7 @@ describe("addPlaylistToLibrary", () => {
 					"/api/playlist-library/add",
 					expect.any(Object),
 				);
-				expect(vi.mocked(acceptPendingSharesForItem)).toHaveBeenCalledWith(
-					"playlist",
-					"p1",
-					get,
-				);
+				expect(vi.mocked(acceptPendingSharesForItem)).toHaveBeenCalledWith("playlist", "p1", get);
 				expect(vi.mocked(clientWarn)).not.toHaveBeenCalled();
 			},
 		);
@@ -153,8 +149,7 @@ describe("addPlaylistToLibrary", () => {
 					ok: false,
 					status: 500,
 					statusText: "Server Error",
-					json: (): Promise<{ error: string }> =>
-						Promise.resolve({ error: "bad" }),
+					json: (): Promise<{ error: string }> => Promise.resolve({ error: "bad" }),
 				}),
 			async () => {
 				installExtractErrorMessageMock();
@@ -164,9 +159,7 @@ describe("addPlaylistToLibrary", () => {
 				const isInSpy = vi.fn((): boolean => false);
 				const get = makeGet(setError, isInSpy, addSpy);
 
-				await expect(
-					Effect.runPromise(addPlaylistToLibrary(request, get)),
-				).rejects.toBeDefined();
+				await expect(Effect.runPromise(addPlaylistToLibrary(request, get))).rejects.toBeDefined();
 
 				expect(setError).toHaveBeenCalledWith(
 					expect.stringMatching(/Server returned|Unknown error|bad/),

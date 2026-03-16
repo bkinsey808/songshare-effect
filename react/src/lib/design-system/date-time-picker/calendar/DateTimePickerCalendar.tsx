@@ -54,7 +54,6 @@ export default function DateTimePickerCalendar({
 		selectedDateObj,
 	} = useDateTimePickerCalendar(selectedDate, onDateSelect);
 
-
 	return (
 		<div className="flex flex-col gap-3">
 			{/* Month/Year Header with Navigation */}
@@ -101,8 +100,7 @@ export default function DateTimePickerCalendar({
 			{/* Calendar Grid */}
 			<div className="grid grid-cols-7 gap-0">
 				{days.map((day, index) => {
-					const dayKey =
-						day === undefined ? `empty-day-${String(index)}` : `day-${String(day)}`;
+					const dayKey = day === undefined ? `empty-day-${String(index)}` : `day-${String(day)}`;
 					const isSelected =
 						day !== undefined &&
 						selectedDateObj !== undefined &&

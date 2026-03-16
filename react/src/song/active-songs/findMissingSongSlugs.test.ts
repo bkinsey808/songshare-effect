@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
-import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 import type { SongPublic } from "@/react/song/song-schema";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
 
 import findMissingSongSlugs from "./findMissingSongSlugs";
 

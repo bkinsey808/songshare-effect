@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
-
 import type { EventParticipant } from "@/react/event/event-entry/EventEntry.type";
 import type { EventEntry } from "@/react/event/event-types";
+import forceCast from "@/react/lib/test-utils/forceCast";
 
 import computeEventPermissions from "./computeEventPermissions";
 
@@ -11,9 +10,11 @@ const OWNER_ID = "owner-1";
 const ADMIN_ID = "admin-1";
 const OTHER_ID = "other-1";
 
-function makeParticipant(
-	opts: { user_id: string; role: string; username?: string },
-): EventParticipant {
+function makeParticipant(opts: {
+	user_id: string;
+	role: string;
+	username?: string;
+}): EventParticipant {
 	return forceCast({
 		user_id: opts.user_id,
 		role: opts.role,

@@ -17,9 +17,13 @@ type SingleResult = Promise<{
 	error: Error | undefined;
 }>;
 
-export default function makeShareClient(ownerId: string): ReturnType<typeof getSupabaseServerClient> {
+export default function makeShareClient(
+	ownerId: string,
+): ReturnType<typeof getSupabaseServerClient> {
 	const stub = {
-		from: (table: string): {
+		from: (
+			table: string,
+		): {
 			select: () => { eq: () => { single: () => SingleResult } };
 		} => ({
 			select: (): { eq: () => { single: () => SingleResult } } => ({

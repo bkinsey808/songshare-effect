@@ -15,9 +15,7 @@ function makeMockClient(): SupabaseClientLike {
 
 describe("fetchUsername", () => {
 	it("returns username when query returns valid user data", async () => {
-		vi.mocked(callSelect).mockResolvedValue(
-			asPostgrestResponse({ data: { username: "alice" } }),
-		);
+		vi.mocked(callSelect).mockResolvedValue(asPostgrestResponse({ data: { username: "alice" } }));
 
 		const result = await fetchUsername({
 			client: makeMockClient(),
@@ -67,9 +65,7 @@ describe("fetchUsername", () => {
 	});
 
 	it("uses custom column override when usernameColumn provided", async () => {
-		vi.mocked(callSelect).mockResolvedValue(
-			asPostgrestResponse({ data: { username: "bob" } }),
-		);
+		vi.mocked(callSelect).mockResolvedValue(asPostgrestResponse({ data: { username: "bob" } }));
 
 		const result = await fetchUsername({
 			client: makeMockClient(),

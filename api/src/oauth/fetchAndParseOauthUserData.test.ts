@@ -93,9 +93,7 @@ describe("fetchAndParseOauthUserData", () => {
 		vi.mocked(exchangeCodeForToken).mockReturnValue(
 			Effect.succeed({ accessToken: "at", idToken: undefined, raw: {} }),
 		);
-		vi.mocked(fetchUserInfo).mockReturnValue(
-			Effect.fail(new Error("Userinfo fetch failed")),
-		);
+		vi.mocked(fetchUserInfo).mockReturnValue(Effect.fail(new Error("Userinfo fetch failed")));
 
 		await expect(Effect.runPromise(fetchAndParseOauthUserData(OPTS))).rejects.toThrow(
 			/Userinfo fetch failed/,
@@ -107,9 +105,7 @@ describe("fetchAndParseOauthUserData", () => {
 		vi.mocked(exchangeCodeForToken).mockReturnValue(
 			Effect.succeed({ accessToken: "at", idToken: undefined, raw: {} }),
 		);
-		vi.mocked(fetchUserInfo).mockReturnValue(
-			Effect.succeed({ sub: "sub-1" }),
-		);
+		vi.mocked(fetchUserInfo).mockReturnValue(Effect.succeed({ sub: "sub-1" }));
 
 		const result = await Effect.runPromise(fetchAndParseOauthUserData(OPTS));
 

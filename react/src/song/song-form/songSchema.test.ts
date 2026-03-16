@@ -2,12 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 
-import {
-	slideSchema,
-	slidesSchema,
-	songFormFields,
-	songFormSchema,
-} from "./songSchema";
+import { slideSchema, slidesSchema, songFormFields, songFormSchema } from "./songSchema";
 
 describe("songSchema", () => {
 	describe("songFormFields", () => {

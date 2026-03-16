@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { registerCookieName } from "@/api/cookie/cookie";
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import buildRegisterJwt from "@/api/register/buildRegisterJwt";
 import { asEnv, asParams } from "@/api/oauth-callback-factory/registrationRedirect.test-util";
+import buildRegisterJwt from "@/api/register/buildRegisterJwt";
 import type { OauthState } from "@/shared/oauth/oauthState";
 import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 import { registerPath } from "@/shared/paths";

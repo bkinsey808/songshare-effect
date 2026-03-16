@@ -26,9 +26,7 @@ describe("handleUserPublicSubscribeEvent", () => {
 			});
 		}
 
-		await Effect.runPromise(
-			handleUserPublicSubscribeEvent({ invalid: "payload" }, get),
-		);
+		await Effect.runPromise(handleUserPublicSubscribeEvent({ invalid: "payload" }, get));
 
 		expect(setUserLibraryEntries).not.toHaveBeenCalled();
 	});
@@ -43,10 +41,7 @@ describe("handleUserPublicSubscribeEvent", () => {
 		}
 
 		await Effect.runPromise(
-			handleUserPublicSubscribeEvent(
-				{ eventType: "INSERT", new: {}, old: undefined },
-				get,
-			),
+			handleUserPublicSubscribeEvent({ eventType: "INSERT", new: {}, old: undefined }, get),
 		);
 
 		expect(setUserLibraryEntries).not.toHaveBeenCalled();
@@ -111,10 +106,7 @@ describe("handleUserPublicSubscribeEvent", () => {
 		}
 
 		await Effect.runPromise(
-			handleUserPublicSubscribeEvent(
-				{ eventType: "UPDATE", new: {}, old: {} },
-				get,
-			),
+			handleUserPublicSubscribeEvent({ eventType: "UPDATE", new: {}, old: {} }, get),
 		);
 
 		expect(setUserLibraryEntries).not.toHaveBeenCalled();

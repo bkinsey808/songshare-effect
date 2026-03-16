@@ -4,11 +4,10 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
+import ImageEditForm from "@/react/image/image-edit-form/ImageEditForm";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { imageViewPath } from "@/shared/paths";
-
-import ImageEditForm from "@/react/image/image-edit-form/ImageEditForm";
 
 /**
  * Dashboard page for editing an existing image's metadata.

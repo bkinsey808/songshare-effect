@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { getEnvValueSafe } from "@/react/lib/utils/env";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import { getEnvValueSafe } from "@/react/lib/utils/env";
 
 import getPublicWebBaseUrl from "./getPublicWebBaseUrl";
 

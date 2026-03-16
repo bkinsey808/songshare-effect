@@ -1,16 +1,10 @@
-import { useNavigate } from "react-router-dom";
-
-import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import Button from "@/react/lib/design-system/Button";
 import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
-import useLocale from "@/react/lib/language/locale/useLocale";
 import { ZERO } from "@/shared/constants/shared-constants";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { dashboardPath, imageUploadPath } from "@/shared/paths";
 
 import ImageLibraryCard from "./card/ImageLibraryCard";
 import type { ImageLibraryEntry } from "./image-library-types";
-import useImageLibrary from "./useImageLibrary";
+import useImageLibraryPage from "./useImageLibraryPage";
 
 /**
  * Main component for the image library page. Displays the current user's images
@@ -19,10 +13,7 @@ import useImageLibrary from "./useImageLibrary";
  * @returns A React element that displays loading, error, empty, or library states
  */
 export default function ImageLibrary(): ReactElement {
-	const { entries, isLoading, error } = useImageLibrary();
-	const currentUserId = useCurrentUserId();
-	const { lang } = useLocale();
-	const navigate = useNavigate();
+	const { currentUserId, entries, error, handleUploadClick, isLoading } = useImageLibraryPage();
 
 	if (isLoading) {
 		return (
@@ -55,9 +46,7 @@ export default function ImageLibrary(): ReactElement {
 					variant="outlinePrimary"
 					size="compact"
 					icon={<PlusIcon className="size-5" />}
-					onClick={() => {
-						void navigate(buildPathWithLang(`/${dashboardPath}/${imageUploadPath}`, lang));
-					}}
+					onClick={handleUploadClick}
 					data-testid="image-library-upload-image"
 				>
 					Upload Image
@@ -77,9 +66,7 @@ export default function ImageLibrary(): ReactElement {
 					variant="outlinePrimary"
 					size="compact"
 					icon={<PlusIcon className="size-5" />}
-					onClick={() => {
-						void navigate(buildPathWithLang(`/${dashboardPath}/${imageUploadPath}`, lang));
-					}}
+					onClick={handleUploadClick}
 					data-testid="image-library-upload-image"
 				>
 					Upload Image

@@ -3,8 +3,8 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import RouterWrapper from "@/react/lib/test-utils/RouterWrapper";
-import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 import { apiSongsSavePath } from "@/shared/paths";
+import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 import useFormSubmission from "./useFormSubmission";
 
@@ -44,8 +44,8 @@ describe("useFormSubmission — renderHook", () => {
 
 		const resetFormState = vi.fn();
 		const onSaveSuccess = vi.fn();
-		const handleApiResponseEffect = vi.fn(
-			(_res: Response, _onError: () => void) => Effect.succeed(true),
+		const handleApiResponseEffect = vi.fn((_res: Response, _onError: () => void) =>
+			Effect.succeed(true),
 		);
 
 		const { result } = renderHook(
@@ -128,8 +128,8 @@ describe("useFormSubmission — Harness", () => {
 			}),
 		);
 
-		const handleApiResponseEffect = vi.fn(
-			(_res: Response, _onError: () => void) => Effect.succeed(true),
+		const handleApiResponseEffect = vi.fn((_res: Response, _onError: () => void) =>
+			Effect.succeed(true),
 		);
 		const resetFormState = vi.fn();
 

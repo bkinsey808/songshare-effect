@@ -1,6 +1,6 @@
 import type { Get } from "@/react/app-store/app-store-types";
-import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import getSupabaseClientToken from "@/react/lib/supabase/auth-token/getSupabaseClientToken";
+import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import type { SongSubscribeSlice } from "../song-slice/song-slice";

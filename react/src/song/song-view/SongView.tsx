@@ -1,7 +1,7 @@
 import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
-import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
-import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import useLocale from "@/react/lib/language/locale/useLocale";
+import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
+import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
 import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
 import { songViewPath } from "@/shared/paths";

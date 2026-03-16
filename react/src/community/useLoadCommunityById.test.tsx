@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
-import type { CommunityEntry } from "./community-types";
 
+import type { CommunityEntry } from "./community-types";
 import useLoadCommunityById from "./useLoadCommunityById";
 
 vi.mock("@/react/app-store/useAppStore");

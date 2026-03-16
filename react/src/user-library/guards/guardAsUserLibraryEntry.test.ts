@@ -51,9 +51,7 @@ describe("guardAsUserLibraryEntry", () => {
 
 	it("throws for object missing required fields", () => {
 		expect(() => guardAsUserLibraryEntry({}, CONTEXT)).toThrow(TypeError);
-		expect(() =>
-			guardAsUserLibraryEntry({ user_id: VALID_USER_ID }, CONTEXT),
-		).toThrow(TypeError);
+		expect(() => guardAsUserLibraryEntry({ user_id: VALID_USER_ID }, CONTEXT)).toThrow(TypeError);
 		expect(() =>
 			guardAsUserLibraryEntry(
 				{ user_id: VALID_USER_ID, followed_user_id: VALID_FOLLOWED_ID },
@@ -63,11 +61,8 @@ describe("guardAsUserLibraryEntry", () => {
 	});
 
 	it("throws for object with non-string created_at", () => {
-		expect(() =>
-			guardAsUserLibraryEntry(
-				{ ...VALID_ENTRY, created_at: 123 },
-				CONTEXT,
-			),
-		).toThrow(TypeError);
+		expect(() => guardAsUserLibraryEntry({ ...VALID_ENTRY, created_at: 123 }, CONTEXT)).toThrow(
+			TypeError,
+		);
 	});
 });

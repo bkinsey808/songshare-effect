@@ -1,5 +1,5 @@
-import { cleanup, render, renderHook } from "@testing-library/react";
 import type { DragEndEvent } from "@dnd-kit/core";
+import { cleanup, render, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";

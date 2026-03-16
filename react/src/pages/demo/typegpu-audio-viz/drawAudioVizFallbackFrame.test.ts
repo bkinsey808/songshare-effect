@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
+
 import drawAudioVizFallbackFrame from "./drawAudioVizFallbackFrame";
 
 const CANVAS_WIDTH = 320;

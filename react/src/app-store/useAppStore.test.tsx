@@ -1,7 +1,4 @@
-import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-
-const WAIT_TIMEOUT = 15_000;
 
 describe("useAppStore persist behavior", () => {
 	it("omits transient keys when persisting state", async () => {
@@ -16,13 +13,8 @@ describe("useAppStore persist behavior", () => {
 		// Use the slice action to trigger a state change which will be persisted
 		initial.setShowSignedInAlert(true);
 
-		// Wait for persistence to flush (debounced async write)
-		await waitFor(
-			() => {
-				expect(localStorage.getItem("app-store")).not.toBeNull();
-			},
-			{ timeout: WAIT_TIMEOUT },
-		);
+		// Persist middleware writes synchronously for localStorage; allow microtasks to drain
+		await Promise.resolve();
 
 		// Inspect persisted blob and ensure omitted keys are not present
 		const raw = localStorage.getItem("app-store");

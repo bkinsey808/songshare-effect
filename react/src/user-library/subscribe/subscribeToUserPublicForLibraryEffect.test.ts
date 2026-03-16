@@ -22,9 +22,7 @@ describe("subscribeToUserPublicForLibraryEffect", () => {
 		clientSpy.mockReturnValue(createMinimalSupabaseClient());
 
 		const cleanupFn: () => void = vi.fn();
-		const createRealtimeMock = vi
-			.spyOn(createRealtimeModule, "default")
-			.mockReturnValue(cleanupFn);
+		const createRealtimeMock = vi.spyOn(createRealtimeModule, "default").mockReturnValue(cleanupFn);
 
 		const get = makeUserLibrarySlice();
 
@@ -58,9 +56,9 @@ describe("subscribeToUserPublicForLibraryEffect", () => {
 
 		const get = makeUserLibrarySlice();
 
-		await expect(
-			Effect.runPromise(subscribeToUserPublicForLibraryEffect(get)),
-		).rejects.toThrow(/No Supabase client available/);
+		await expect(Effect.runPromise(subscribeToUserPublicForLibraryEffect(get))).rejects.toThrow(
+			/No Supabase client available/,
+		);
 
 		vi.restoreAllMocks();
 	});

@@ -1,11 +1,11 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import { apiPlaylistLibraryRemovePath } from "@/shared/paths";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import { apiPlaylistLibraryRemovePath } from "@/shared/paths";
 
-import type { PlaylistLibrarySlice } from "../slice/PlaylistLibrarySlice.type";
 import type { RemovePlaylistFromLibraryRequest } from "../slice/playlist-library-types";
+import type { PlaylistLibrarySlice } from "../slice/PlaylistLibrarySlice.type";
 import removePlaylistFromLibrary from "./removePlaylistFromLibrary";
 
 const PLAYLIST_ID = "playlist-123";
@@ -30,9 +30,9 @@ describe("removePlaylistFromLibrary", () => {
 
 		const invalidRequest = forceCast<RemovePlaylistFromLibraryRequest>({});
 
-		await expect(
-			Effect.runPromise(removePlaylistFromLibrary(invalidRequest, get)),
-		).rejects.toThrow(/missing playlist_id/);
+		await expect(Effect.runPromise(removePlaylistFromLibrary(invalidRequest, get))).rejects.toThrow(
+			/missing playlist_id/,
+		);
 
 		expect(setPlaylistLibraryError).toHaveBeenCalledWith(expect.any(String));
 	});
@@ -60,10 +60,7 @@ describe("removePlaylistFromLibrary", () => {
 
 	it("removes from local state and calls API when playlist in library", async () => {
 		const removePlaylistLibraryEntry = vi.fn();
-		vi.stubGlobal(
-			"fetch",
-			vi.fn().mockResolvedValue(new Response(undefined, { status: 200 })),
-		);
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(undefined, { status: 200 })));
 		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
 		function get(): PlaylistLibrarySlice {

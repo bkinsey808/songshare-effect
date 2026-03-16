@@ -22,7 +22,10 @@ describe("useUserSearchInput", () => {
 		const store: typeof useAppStore = useAppStore;
 		const u1 = makeUserLibraryEntry({ followed_user_id: "f1", owner_username: "alice" });
 		const u2 = makeUserLibraryEntry({ followed_user_id: "f2", owner_username: "bob" });
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, userLibraryEntries: { f1: u1, f2: u2 } }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			userLibraryEntries: { f1: u1, f2: u2 },
+		}));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -41,7 +44,10 @@ describe("useUserSearchInput", () => {
 		const store: typeof useAppStore = useAppStore;
 		const u1 = makeUserLibraryEntry({ followed_user_id: "f1", owner_username: "alice" });
 		const u2 = makeUserLibraryEntry({ followed_user_id: "bob123", owner_username: "bobby" });
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, userLibraryEntries: { f1: u1, bob123: u2 } }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			userLibraryEntries: { f1: u1, bob123: u2 },
+		}));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -63,7 +69,10 @@ describe("useUserSearchInput", () => {
 		const store: typeof useAppStore = useAppStore;
 		// user with blank username should still be found by id
 		const u1 = makeUserLibraryEntry({ followed_user_id: "f1", owner_username: "" });
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, userLibraryEntries: { f1: u1 } }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			userLibraryEntries: { f1: u1 },
+		}));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -86,7 +95,10 @@ describe("useUserSearchInput", () => {
 		const store = useAppStore;
 		const u1 = makeUserLibraryEntry({ followed_user_id: "f1", owner_username: "alice" });
 		const u2 = makeUserLibraryEntry({ followed_user_id: "f2", owner_username: "bob" });
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, userLibraryEntries: { f1: u1, f2: u2 } }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			userLibraryEntries: { f1: u1, f2: u2 },
+		}));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -112,7 +124,10 @@ describe("useUserSearchInput", () => {
 	it("handleClearSelection calls onSelect with empty string and focuses input if present", () => {
 		const store = useAppStore;
 		const u1 = makeUserLibraryEntry({ followed_user_id: "f1", owner_username: "alice" });
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, userLibraryEntries: { f1: u1 } }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			userLibraryEntries: { f1: u1 },
+		}));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -137,7 +152,10 @@ describe("useUserSearchInput", () => {
 	it("inputDisplayValue shows active user's username when searchQuery is empty", () => {
 		const store = useAppStore;
 		const u1 = makeUserLibraryEntry({ followed_user_id: "f1", owner_username: "charlie" });
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, userLibraryEntries: { f1: u1 } }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			userLibraryEntries: { f1: u1 },
+		}));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>
@@ -150,7 +168,10 @@ describe("useUserSearchInput", () => {
 	it("handleInputFocus opens dropdown and outside mousedown closes it", async () => {
 		const store = useAppStore;
 		const u1 = makeUserLibraryEntry({ followed_user_id: "f1", owner_username: "alice" });
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, userLibraryEntries: { f1: u1 } }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			userLibraryEntries: { f1: u1 },
+		}));
 
 		const onSelect = vi.fn();
 		const { result } = renderHook(() =>

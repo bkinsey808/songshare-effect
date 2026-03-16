@@ -2,6 +2,7 @@
  * Test helper for eventUserKick - builds a Supabase client stub.
  */
 import type { createClient } from "@supabase/supabase-js";
+
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
@@ -41,8 +42,7 @@ export default function makeEventUserKickClient(
 										single: (): Promise<{
 											data: { role: string } | null;
 											error: ReturnType<typeof makeNull> | { message: string };
-										}> =>
-											promiseResolved({ data: { role: requesterRole }, error: makeNull() }),
+										}> => promiseResolved({ data: { role: requesterRole }, error: makeNull() }),
 									};
 								}
 								if (targetError) {
@@ -50,16 +50,14 @@ export default function makeEventUserKickClient(
 										single: (): Promise<{
 											data: { role: string } | null;
 											error: ReturnType<typeof makeNull> | { message: string };
-										}> =>
-											promiseResolved({ data: makeNull(), error: { message: "PGRST116" } }),
+										}> => promiseResolved({ data: makeNull(), error: { message: "PGRST116" } }),
 									};
 								}
 								return {
 									single: (): Promise<{
 										data: { role: string } | null;
 										error: ReturnType<typeof makeNull> | { message: string };
-									}> =>
-										promiseResolved({ data: { role: targetRole }, error: makeNull() }),
+									}> => promiseResolved({ data: { role: targetRole }, error: makeNull() }),
 								};
 							},
 						}),

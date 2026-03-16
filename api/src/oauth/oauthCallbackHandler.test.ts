@@ -1,12 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
-import handleHttpEndpoint from "@/api/http/handleHttpEndpoint";
 import makeCtx from "@/api/hono/makeCtx.test-util";
+import handleHttpEndpoint from "@/api/http/handleHttpEndpoint";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { HTTP_INTERNAL, HTTP_TEMP_REDIRECT } from "@/shared/constants/http";
-import promiseResolved, {
-	promiseRejected,
-} from "@/shared/test-utils/promiseResolved.test-util";
+import promiseResolved, { promiseRejected } from "@/shared/test-utils/promiseResolved.test-util";
 
 import oauthCallbackHandler from "./oauthCallbackHandler";
 
@@ -41,9 +39,7 @@ describe("oauthCallbackHandler", () => {
 			{ ok: true },
 			{ status: HTTP_TEMP_REDIRECT, headers: { Location: "/dashboard" } },
 		);
-		vi.mocked(handleHttpEndpoint).mockReturnValue(() =>
-			promiseResolved(successResponse),
-		);
+		vi.mocked(handleHttpEndpoint).mockReturnValue(() => promiseResolved(successResponse));
 
 		const ctx = makeCtx();
 

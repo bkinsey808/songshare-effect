@@ -46,7 +46,12 @@ export default function createImageSlice(
 			Effect.gen(function* fetchBySlugGen($) {
 				const { setImageLoading, setImageError, setPublicImage } = get();
 
-				yield* $(Effect.sync(() => { setImageLoading(true); setImageError(undefined); }));
+				yield* $(
+					Effect.sync(() => {
+						setImageLoading(true);
+						setImageError(undefined);
+					}),
+				);
 
 				const userToken = yield* $(
 					Effect.tryPromise({
@@ -57,7 +62,11 @@ export default function createImageSlice(
 
 				const queryClient = getSupabaseClient(userToken);
 				if (queryClient === undefined) {
-					yield* $(Effect.sync(() => { setImageLoading(false); }));
+					yield* $(
+						Effect.sync(() => {
+							setImageLoading(false);
+						}),
+					);
 					return yield* $(Effect.fail(new Error("No Supabase client available")));
 				}
 
@@ -68,10 +77,14 @@ export default function createImageSlice(
 								eq: { col: "image_slug", val: slug },
 								single: true,
 							}),
-					catch: (error) => new Error(String(error)),
-				}),
-			);
-				yield* $(Effect.sync(() => { setImageLoading(false); }));
+						catch: (error) => new Error(String(error)),
+					}),
+				);
+				yield* $(
+					Effect.sync(() => {
+						setImageLoading(false);
+					}),
+				);
 
 				if (imageError !== null && imageError !== undefined) {
 					return yield* $(Effect.fail(new Error("Image not found")));
@@ -81,20 +94,28 @@ export default function createImageSlice(
 				// but the runtime value is the single row; handle both shapes
 				const singleImage: ImagePublic | undefined = Array.isArray(imageRows)
 					? imageRows[FIRST_ROW]
-					: (imageRows as ImagePublic | null | undefined) ?? undefined;
+					: ((imageRows as ImagePublic | null | undefined) ?? undefined);
 
 				if (singleImage === undefined) {
 					return yield* $(Effect.fail(new Error("Image not found")));
 				}
 
-				yield* $(Effect.sync(() => { setPublicImage(singleImage); }));
+				yield* $(
+					Effect.sync(() => {
+						setPublicImage(singleImage);
+					}),
+				);
 			}),
 
 		uploadImage: (formData: FormData): Effect.Effect<ImagePublic, Error> =>
 			Effect.gen(function* uploadGen($) {
 				const { setImageError } = get();
 
-				yield* $(Effect.sync(() => { setImageError(undefined); }));
+				yield* $(
+					Effect.sync(() => {
+						setImageError(undefined);
+					}),
+				);
 
 				const response = yield* $(
 					Effect.tryPromise({
@@ -133,7 +154,11 @@ export default function createImageSlice(
 				);
 
 				const { setPublicImage } = get();
-				yield* $(Effect.sync(() => { setPublicImage(imageData); }));
+				yield* $(
+					Effect.sync(() => {
+						setPublicImage(imageData);
+					}),
+				);
 
 				return imageData;
 			}),
@@ -142,7 +167,11 @@ export default function createImageSlice(
 			Effect.gen(function* updateImageGen($) {
 				const { setImageError, setPublicImage } = get();
 
-				yield* $(Effect.sync(() => { setImageError(undefined); }));
+				yield* $(
+					Effect.sync(() => {
+						setImageError(undefined);
+					}),
+				);
 
 				const response = yield* $(
 					Effect.tryPromise({
@@ -181,7 +210,11 @@ export default function createImageSlice(
 					}),
 				);
 
-				yield* $(Effect.sync(() => { setPublicImage(imageData); }));
+				yield* $(
+					Effect.sync(() => {
+						setPublicImage(imageData);
+					}),
+				);
 
 				return imageData;
 			}),
@@ -190,7 +223,11 @@ export default function createImageSlice(
 			Effect.gen(function* deleteGen($) {
 				const { setImageError, removePublicImage } = get();
 
-				yield* $(Effect.sync(() => { setImageError(undefined); }));
+				yield* $(
+					Effect.sync(() => {
+						setImageError(undefined);
+					}),
+				);
 
 				const response = yield* $(
 					Effect.tryPromise({
@@ -216,7 +253,11 @@ export default function createImageSlice(
 					return yield* $(Effect.fail(new Error(errMsg)));
 				}
 
-				yield* $(Effect.sync(() => { removePublicImage(imageId); }));
+				yield* $(
+					Effect.sync(() => {
+						removePublicImage(imageId);
+					}),
+				);
 			}),
 
 		setPublicImage: (image: ImagePublic) => {
@@ -234,8 +275,12 @@ export default function createImageSlice(
 			});
 		},
 
-		setImageLoading: (loading: boolean) => { set({ isImageLoading: loading }); },
+		setImageLoading: (loading: boolean) => {
+			set({ isImageLoading: loading });
+		},
 
-		setImageError: (error: string | undefined) => { set({ imageError: error }); },
+		setImageError: (error: string | undefined) => {
+			set({ imageError: error });
+		},
 	};
 }

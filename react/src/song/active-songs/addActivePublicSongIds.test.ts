@@ -49,9 +49,7 @@ describe("addActivePublicSongIds", () => {
 		await Effect.runPromise(addFn(["s1"]));
 
 		expect(set).toHaveBeenCalledWith(expect.any(Function));
-		expectAddOrUpdatePublicSongsCalledWithS1(
-			vi.mocked(state.addOrUpdatePublicSongs),
-		);
+		expectAddOrUpdatePublicSongsCalledWithS1(vi.mocked(state.addOrUpdatePublicSongs));
 	});
 
 	it("completes without error when no auth token", async () => {

@@ -33,7 +33,7 @@ describe("createAddUserEffect", () => {
 				addUserToLibrary: addUser,
 				t,
 			}).pipe(
-				Effect.map(() => ({ ok: true } as const)),
+				Effect.map(() => ({ ok: true }) as const),
 				Effect.catchAll((err) => Effect.succeed({ ok: false, err })),
 			),
 		);

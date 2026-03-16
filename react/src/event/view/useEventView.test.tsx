@@ -50,13 +50,21 @@ describe("useEventView", () => {
 		const mockFetch = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
 		const mockJoin = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, fetchEventBySlug: mockFetch, joinEvent: mockJoin }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			fetchEventBySlug: mockFetch,
+			joinEvent: mockJoin,
+		}));
 
 		vi.mocked(useParams).mockReturnValue({ event_slug: "my-slug" });
 		vi.mocked(useCurrentUserId).mockReturnValue("u1");
 
 		const currentEvent = makeEventEntry({ owner_id: "owner-1", participants: [] });
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, currentEvent, isEventLoading: false }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			currentEvent,
+			isEventLoading: false,
+		}));
 
 		renderHook(() => useEventView());
 
@@ -76,13 +84,21 @@ describe("useEventView", () => {
 		const mockFetch = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
 		const mockJoin = vi.fn().mockReturnValue(Effect.succeed(undefined as unknown));
 		const store: typeof useAppStore = useAppStore;
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, fetchEventBySlug: mockFetch, joinEvent: mockJoin }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			fetchEventBySlug: mockFetch,
+			joinEvent: mockJoin,
+		}));
 
 		vi.mocked(useParams).mockReturnValue({ event_slug: "my-slug" });
 		vi.mocked(useCurrentUserId).mockReturnValue("owner-1");
 
 		const currentEvent = makeEventEntry({ owner_id: "owner-1", participants: [] });
-		store.setState((prev: Record<string, unknown>) => ({ ...prev, currentEvent, isEventLoading: false }));
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			currentEvent,
+			isEventLoading: false,
+		}));
 
 		renderHook(() => useEventView());
 

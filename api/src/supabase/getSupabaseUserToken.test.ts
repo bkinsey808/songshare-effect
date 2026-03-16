@@ -30,4 +30,3 @@ describe("getUserIdFromAppMetadata", () => {
 		expect(getUserIdFromAppMetadata(meta)).toBeUndefined();
 	});
 });
-

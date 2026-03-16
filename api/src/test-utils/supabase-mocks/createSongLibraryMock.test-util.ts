@@ -67,7 +67,10 @@ export function createSongLibraryMock(opts: SongLibraryMockOpts): SongLibraryTab
 			});
 		},
 		delete: (): {
-			eq: (field: string, val: string) => { eq?: (field: string, val: string) => MultiResult } & MultiResult;
+			eq: (
+				field: string,
+				val: string,
+			) => { eq?: (field: string, val: string) => MultiResult } & MultiResult;
 		} => {
 			const promise: MultiResult = (async () => {
 				await Promise.resolve();

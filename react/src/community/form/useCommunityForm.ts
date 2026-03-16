@@ -168,9 +168,7 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 
 		async function onSubmitValid(): Promise<void> {
 			try {
-				const savedCommunity = await Effect.runPromise(
-					saveCommunity(formValues),
-				);
+				const savedCommunity = await Effect.runPromise(saveCommunity(formValues));
 				clearInitialState();
 				void navigate(
 					buildPathWithLang(`/${communityViewPath}/${savedCommunity.slug}`, langForNav),

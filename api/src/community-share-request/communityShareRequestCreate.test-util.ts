@@ -2,15 +2,18 @@
  * Test helper for communityShareRequestCreate - builds a Supabase client stub.
  */
 import type { createClient } from "@supabase/supabase-js";
+
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
-export default function makeCommunityShareRequestCreateClient(opts: {
-	communityUserStatus?: "joined" | "invited";
-	communityUserError?: boolean;
-	insertError?: boolean;
-} = {}): ReturnType<typeof createClient> {
+export default function makeCommunityShareRequestCreateClient(
+	opts: {
+		communityUserStatus?: "joined" | "invited";
+		communityUserError?: boolean;
+		insertError?: boolean;
+	} = {},
+): ReturnType<typeof createClient> {
 	const status = opts.communityUserStatus ?? "joined";
 	const communityUserError = opts.communityUserError ?? false;
 	const insertError = opts.insertError ?? false;

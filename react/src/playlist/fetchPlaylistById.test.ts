@@ -34,9 +34,7 @@ describe("fetchPlaylistById", () => {
 		const get = makeGetStub();
 
 		mockedCallSelect
-			.mockResolvedValueOnce(
-				asPostgrestResponse({ data: [mockPlaylistPublic], error: asNull() }),
-			)
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [mockPlaylistPublic], error: asNull() }))
 			.mockResolvedValueOnce(asPostgrestResponse({ data: [], error: asNull() }))
 			.mockResolvedValueOnce(asPostgrestResponse({ data: [mockUserPublic], error: asNull() }));
 
@@ -61,9 +59,7 @@ describe("fetchPlaylistById", () => {
 		const get = makeGetStub();
 
 		mockedCallSelect
-			.mockResolvedValueOnce(
-				asPostgrestResponse({ data: [mockPlaylistPublic], error: asNull() }),
-			)
+			.mockResolvedValueOnce(asPostgrestResponse({ data: [mockPlaylistPublic], error: asNull() }))
 			.mockResolvedValueOnce(asPostgrestResponse({ data: [], error: asNull() }))
 			.mockResolvedValueOnce(asPostgrestResponse({ data: [mockUserPublic], error: asNull() }));
 
@@ -90,12 +86,10 @@ describe("fetchPlaylistById", () => {
 
 		const get = makeGetStub();
 
-		await expect(
-			Effect.runPromise(fetchPlaylistById("nonexistent-id", get)),
-		).rejects.toThrow(/Playlist not found: nonexistent-id/);
-		expect(get().setPlaylistError).toHaveBeenCalledWith(
-			expect.stringContaining("not found"),
+		await expect(Effect.runPromise(fetchPlaylistById("nonexistent-id", get))).rejects.toThrow(
+			/Playlist not found: nonexistent-id/,
 		);
+		expect(get().setPlaylistError).toHaveBeenCalledWith(expect.stringContaining("not found"));
 	});
 
 	it("fails with NoSupabaseClientError when client is undefined", async () => {

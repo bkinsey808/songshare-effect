@@ -1,8 +1,8 @@
 import { isLeft, isRight } from "effect/Either";
 import { describe, expect, it } from "vitest";
 
-import makeNull from "@/shared/test-utils/makeNull.test-util";
 import { SupportedLanguage } from "@/shared/language/supported-languages";
+import makeNull from "@/shared/test-utils/makeNull.test-util";
 
 import {
 	guardAsSupportedLanguage,

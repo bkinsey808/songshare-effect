@@ -1,8 +1,8 @@
 import type { RefObject } from "react";
 import { describe, expect, it, vi } from "vitest";
 
-import { SCROLL_HYSTERESIS, SCROLL_THRESHOLD } from "./navigation-constants";
 import createScrollHandler from "./createScrollHandler";
+import { SCROLL_HYSTERESIS, SCROLL_THRESHOLD } from "./navigation-constants";
 
 const RAF_CALLBACK_TIME = 0;
 const FAKE_RAF_ID = 1;

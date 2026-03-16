@@ -48,10 +48,7 @@ export default function handleImageLibraryEvent(
 				}),
 			);
 		} else if (eventType === "DELETE") {
-			const imageId = extractStringField(
-				(payload as Record<string, unknown>)["old"],
-				"image_id",
-			);
+			const imageId = extractStringField((payload as Record<string, unknown>)["old"], "image_id");
 			if (imageId !== undefined) {
 				yield* $(
 					Effect.sync(() => {

@@ -17,7 +17,7 @@ export default function getPublicWebBaseUrl(): string {
 	const hostname = hasWindow ? globalThis.window.location.hostname : undefined;
 	const isLocalhost = hostname !== undefined && LOCAL_HOSTS.has(hostname);
 
-	const rawBase = isLocalhost ? envBase ?? origin : origin ?? envBase;
+	const rawBase = isLocalhost ? (envBase ?? origin) : (origin ?? envBase);
 
 	if (rawBase === undefined || rawBase === "") {
 		return "";

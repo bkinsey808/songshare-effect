@@ -3,10 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 
-import {
-	handleRealtimeEvent,
-	type RealtimeEvent,
-} from "./handleRealtimeEvent";
+import { handleRealtimeEvent, type RealtimeEvent } from "./handleRealtimeEvent";
 import type { UserPublic } from "./isUserPublic";
 
 const USER_ALICE: UserPublic = { user_id: "user-1", username: "alice" };

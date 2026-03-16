@@ -46,8 +46,8 @@ describe("useSchedule — Harness", () => {
 					type="button"
 					data-testid="trigger"
 					onClick={() => {
-					schedule(callback);
-				}}
+						schedule(callback);
+					}}
 				>
 					Schedule
 				</button>

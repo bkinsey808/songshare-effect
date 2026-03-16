@@ -7,8 +7,8 @@ import { apiPlaylistLibraryRemovePath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
 
-import type { PlaylistLibrarySlice } from "../slice/PlaylistLibrarySlice.type";
 import type { RemovePlaylistFromLibraryRequest } from "../slice/playlist-library-types";
+import type { PlaylistLibrarySlice } from "../slice/PlaylistLibrarySlice.type";
 
 /**
  * Remove a playlist from the current user's library (via server endpoint).

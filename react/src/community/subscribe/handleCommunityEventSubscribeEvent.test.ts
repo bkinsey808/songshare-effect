@@ -44,9 +44,7 @@ describe("handleCommunityEventSubscribeEvent", () => {
 			});
 		}
 
-		await Effect.runPromise(
-			handleCommunityEventSubscribeEvent({ invalid: "payload" }, get),
-		);
+		await Effect.runPromise(handleCommunityEventSubscribeEvent({ invalid: "payload" }, get));
 
 		expect(fetchCommunityBySlug).not.toHaveBeenCalled();
 		expect(setCommunityEvents).not.toHaveBeenCalled();
@@ -64,10 +62,7 @@ describe("handleCommunityEventSubscribeEvent", () => {
 		}
 
 		await Effect.runPromise(
-			handleCommunityEventSubscribeEvent(
-				{ eventType: "INSERT", new: {}, old: undefined },
-				get,
-			),
+			handleCommunityEventSubscribeEvent({ eventType: "INSERT", new: {}, old: undefined }, get),
 		);
 
 		expect(fetchCommunityBySlug).toHaveBeenCalledWith(COMMUNITY_SLUG, { silent: true });
@@ -85,10 +80,7 @@ describe("handleCommunityEventSubscribeEvent", () => {
 		}
 
 		await Effect.runPromise(
-			handleCommunityEventSubscribeEvent(
-				{ eventType: "INSERT", new: {}, old: undefined },
-				get,
-			),
+			handleCommunityEventSubscribeEvent({ eventType: "INSERT", new: {}, old: undefined }, get),
 		);
 
 		expect(fetchCommunityBySlug).not.toHaveBeenCalled();
@@ -131,10 +123,7 @@ describe("handleCommunityEventSubscribeEvent", () => {
 		}
 
 		await Effect.runPromise(
-			handleCommunityEventSubscribeEvent(
-				{ eventType: "DELETE", new: undefined, old: {} },
-				get,
-			),
+			handleCommunityEventSubscribeEvent({ eventType: "DELETE", new: undefined, old: {} }, get),
 		);
 
 		expect(setCommunityEvents).not.toHaveBeenCalled();

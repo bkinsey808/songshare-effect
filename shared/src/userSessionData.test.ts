@@ -63,9 +63,9 @@ describe("userSessionData schema", () => {
 			// ip missing
 		};
 
-		expect(() =>
-			Schema.decodeUnknownSync(UserSessionDataSchema)(invalid),
-		).toThrow(/required|decode|parse|invalid|Expected|missing/i);
+		expect(() => Schema.decodeUnknownSync(UserSessionDataSchema)(invalid)).toThrow(
+			/required|decode|parse|invalid|Expected|missing/i,
+		);
 	});
 
 	it("throws when user shape is invalid", () => {
@@ -77,8 +77,8 @@ describe("userSessionData schema", () => {
 			ip: "127.0.0.1",
 		};
 
-		expect(() =>
-			Schema.decodeUnknownSync(UserSessionDataSchema)(invalid),
-		).toThrow(/required|decode|parse|invalid|Expected|missing/i);
+		expect(() => Schema.decodeUnknownSync(UserSessionDataSchema)(invalid)).toThrow(
+			/required|decode|parse|invalid|Expected|missing/i,
+		);
 	});
 });

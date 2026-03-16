@@ -2,18 +2,21 @@
  * Test helper for communityUserAdd - builds a Supabase client stub.
  */
 import type { createClient } from "@supabase/supabase-js";
+
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
-export default function makeCommunityUserAddClient(opts: {
-	requesterRole?: "owner" | "community_admin" | "member";
-	requesterRoleError?: boolean;
-	targetUserExists?: boolean;
-	existingMembership?: { status: "joined" | "invited" | "kicked" | "left" } | null;
-	upsertError?: boolean;
-	communityEvents?: { event_id: string }[];
-} = {}): ReturnType<typeof createClient> {
+export default function makeCommunityUserAddClient(
+	opts: {
+		requesterRole?: "owner" | "community_admin" | "member";
+		requesterRoleError?: boolean;
+		targetUserExists?: boolean;
+		existingMembership?: { status: "joined" | "invited" | "kicked" | "left" } | null;
+		upsertError?: boolean;
+		communityEvents?: { event_id: string }[];
+	} = {},
+): ReturnType<typeof createClient> {
 	const requesterRole = opts.requesterRole ?? "owner";
 	const requesterRoleError = opts.requesterRoleError ?? false;
 	const targetUserExists = opts.targetUserExists ?? true;

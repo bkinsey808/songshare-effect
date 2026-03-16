@@ -14,9 +14,7 @@ describe("logResolvedWgslOnFailure", () => {
 			entryPoints: [],
 			logger,
 		});
-		expect(logger.warn).toHaveBeenCalledWith(
-			expect.stringContaining(EXPECTED_UNAVAILABLE),
-		);
+		expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining(EXPECTED_UNAVAILABLE));
 	});
 
 	it("warns when tgpuLike is null or not an object", () => {
@@ -27,9 +25,7 @@ describe("logResolvedWgslOnFailure", () => {
 			entryPoints: [],
 			logger,
 		});
-		expect(logger.warn).toHaveBeenCalledWith(
-			expect.stringContaining(EXPECTED_UNAVAILABLE),
-		);
+		expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining(EXPECTED_UNAVAILABLE));
 	});
 
 	it("warns when resolve returns non-string", () => {
@@ -57,12 +53,8 @@ describe("logResolvedWgslOnFailure", () => {
 			entryPoints: ["main"],
 			logger,
 		});
-		expect(logger.warn).toHaveBeenCalledWith(
-			expect.stringContaining("Resolved WGSL"),
-		);
-		expect(logger.warn).toHaveBeenCalledWith(
-			expect.stringContaining(WGSL_SNIPPET),
-		);
+		expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining("Resolved WGSL"));
+		expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining(WGSL_SNIPPET));
 	});
 
 	it("warns on resolve throw", () => {

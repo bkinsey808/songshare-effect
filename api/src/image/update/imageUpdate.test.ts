@@ -1,0 +1,147 @@
+import { createClient } from "@supabase/supabase-js";
+import { Effect } from "effect";
+import { describe, expect, it, vi } from "vitest";
+
+import { AuthenticationError } from "@/api/api-errors";
+import makeCtx from "@/api/hono/makeCtx.test-util";
+import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
+import type { UserSessionData } from "@/shared/userSessionData";
+
+import imageUpdate from "./imageUpdate";
+
+vi.mock("@supabase/supabase-js");
+vi.mock("@/api/user-session/getVerifiedSession");
+
+const SAMPLE_USER_ID = "user-123";
+const IMAGE_ID = "img-1";
+
+const SAMPLE_SESSION: UserSessionData = {
+	user: {
+		created_at: "2026-01-01T00:00:00Z",
+		email: "u@example.com",
+		google_calendar_access: "none",
+		google_calendar_refresh_token: undefined,
+		linked_providers: undefined,
+		name: "Test User",
+		role: "user",
+		role_expires_at: undefined,
+		sub: undefined,
+		updated_at: "2026-01-01T00:00:00Z",
+		user_id: SAMPLE_USER_ID,
+	},
+	userPublic: { user_id: SAMPLE_USER_ID, username: "testuser" },
+	oauthUserData: { email: "u@example.com" },
+	oauthState: { csrf: "x", lang: "en", provider: "google" },
+	ip: "127.0.0.1",
+};
+
+const VALID_BODY = {
+	image_id: IMAGE_ID,
+	image_name: "My Image",
+	description: "A description",
+	alt_text: "Alt text",
+};
+
+const UPDATED_ROW = {
+	image_id: IMAGE_ID,
+	image_name: "My Image",
+	description: "A description",
+	alt_text: "Alt text",
+	user_id: SAMPLE_USER_ID,
+};
+
+describe("imageUpdate", () => {
+	it("returns ValidationError when JSON body is invalid", async () => {
+		const ctx = makeCtx({ body: new Error("bad json") });
+		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
+		vi.spyOn(verifiedModule, "default").mockReturnValue(
+			Effect.succeed<UserSessionData>(SAMPLE_SESSION),
+		);
+		await expect(Effect.runPromise(imageUpdate(ctx))).rejects.toThrow(/Invalid JSON body/);
+	});
+
+	it("fails when request is missing image_id", async () => {
+		const ctx = makeCtx({
+			body: { image_name: "Name", description: "Desc", alt_text: "Alt" },
+		});
+		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
+		vi.spyOn(verifiedModule, "default").mockReturnValue(
+			Effect.succeed<UserSessionData>(SAMPLE_SESSION),
+		);
+		await expect(Effect.runPromise(imageUpdate(ctx))).rejects.toThrow(
+			/image_id must be a non-empty string/,
+		);
+	});
+
+	it("propagates authentication failure from getVerifiedUserSession", async () => {
+		vi.resetAllMocks();
+		const ctx = makeCtx({ body: VALID_BODY });
+
+		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
+		vi.spyOn(verifiedModule, "default").mockReturnValue(
+			Effect.fail(new AuthenticationError({ message: "Not authenticated" })),
+		);
+
+		await expect(Effect.runPromise(imageUpdate(ctx))).rejects.toThrow(/Not authenticated/);
+	});
+
+	it("fails when image not found", async () => {
+		vi.resetAllMocks();
+		const ctx = makeCtx({ body: VALID_BODY });
+
+		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
+		vi.spyOn(verifiedModule, "default").mockReturnValue(
+			Effect.succeed<UserSessionData>(SAMPLE_SESSION),
+		);
+
+		const fakeSupabase = makeSupabaseClient({
+			imagePublicSelectSingleRow: undefined,
+		});
+
+		vi.mocked(createClient).mockReturnValue(fakeSupabase);
+
+		await expect(Effect.runPromise(imageUpdate(ctx))).rejects.toThrow(/Image not found/);
+	});
+
+	it("fails when user does not own image", async () => {
+		vi.resetAllMocks();
+		const ctx = makeCtx({ body: VALID_BODY });
+
+		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
+		vi.spyOn(verifiedModule, "default").mockReturnValue(
+			Effect.succeed<UserSessionData>(SAMPLE_SESSION),
+		);
+
+		const fakeSupabase = makeSupabaseClient({
+			imagePublicSelectSingleRow: { user_id: "other-user" },
+			imagePublicSelectFullRow: undefined,
+		});
+
+		vi.mocked(createClient).mockReturnValue(fakeSupabase);
+
+		await expect(Effect.runPromise(imageUpdate(ctx))).rejects.toThrow(
+			/You do not have permission to edit this image/,
+		);
+	});
+
+	it("updates image and returns refreshed row (happy path)", async () => {
+		vi.resetAllMocks();
+		const ctx = makeCtx({ body: VALID_BODY });
+
+		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
+		vi.spyOn(verifiedModule, "default").mockReturnValue(
+			Effect.succeed<UserSessionData>(SAMPLE_SESSION),
+		);
+
+		const fakeSupabase = makeSupabaseClient({
+			imagePublicSelectSingleRow: { user_id: SAMPLE_USER_ID },
+			imagePublicSelectFullRow: UPDATED_ROW,
+		});
+
+		vi.mocked(createClient).mockReturnValue(fakeSupabase);
+
+		const res = await Effect.runPromise(imageUpdate(ctx));
+
+		expect(res).toStrictEqual(UPDATED_ROW);
+	});
+});

@@ -21,26 +21,16 @@ const CLEANUP_FN = vi.fn();
 
 describe("useCommunityViewSubscriptions — renderHook", () => {
 	it("subscribes to community event and public when communityId is set", async () => {
-		vi.mocked(subscribeToCommunityEvent).mockReturnValue(
-			Effect.succeed(CLEANUP_FN),
-		);
-		vi.mocked(subscribeToCommunityPublic).mockReturnValue(
-			Effect.succeed(CLEANUP_FN),
-		);
+		vi.mocked(subscribeToCommunityEvent).mockReturnValue(Effect.succeed(CLEANUP_FN));
+		vi.mocked(subscribeToCommunityPublic).mockReturnValue(Effect.succeed(CLEANUP_FN));
 
 		renderHook(() => {
 			useCommunityViewSubscriptions(COMMUNITY_ID);
 		});
 
 		await waitFor(() => {
-			expect(subscribeToCommunityEvent).toHaveBeenCalledWith(
-				COMMUNITY_ID,
-				expect.any(Function),
-			);
-			expect(subscribeToCommunityPublic).toHaveBeenCalledWith(
-				COMMUNITY_ID,
-				expect.any(Function),
-			);
+			expect(subscribeToCommunityEvent).toHaveBeenCalledWith(COMMUNITY_ID, expect.any(Function));
+			expect(subscribeToCommunityPublic).toHaveBeenCalledWith(COMMUNITY_ID, expect.any(Function));
 		});
 	});
 

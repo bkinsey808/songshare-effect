@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 
-import type { NavigationSlice } from "./NavigationSlice.type";
 import createNavigationSlice from "./createNavigationSlice";
+import type { NavigationSlice } from "./NavigationSlice.type";
 
 /**
  * Returns a minimal mock store with vi.fn() stubs for set, get, and api.

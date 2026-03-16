@@ -92,10 +92,7 @@ describe("supabaseHealthMiddleware", () => {
 		resetHealthCheckGlobal();
 		const next = makeNext();
 		const originalFetch = globalThis.fetch;
-		vi.stubGlobal(
-			"fetch",
-			vi.fn().mockRejectedValue(new Error("network error")),
-		);
+		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network error")));
 
 		const ctx = makeCtx({
 			env: { VITE_SUPABASE_URL: "https://project.supabase.co" },
