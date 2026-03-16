@@ -6,8 +6,8 @@ import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
-import getVerifiedUserSession from "../user-session/getVerifiedSession";
+import { type AuthenticationError, DatabaseError, ValidationError } from "@/api/api-errors";
+import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 
 type ShareListRequest = {
 	view: "sent" | "received";

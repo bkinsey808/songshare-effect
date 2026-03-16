@@ -7,8 +7,8 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
-import getVerifiedUserSession from "../user-session/getVerifiedSession";
+import { type AuthenticationError, DatabaseError, ValidationError } from "@/api/api-errors";
+import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 
 const VALID_ITEM_TYPES = ["song", "playlist", "event", "community", "user"] as const;
 type SharedItemType = (typeof VALID_ITEM_TYPES)[number];

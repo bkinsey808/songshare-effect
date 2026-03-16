@@ -2,29 +2,30 @@ import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 
 import {
-	aboutPath,
-	activityDemoPath,
-	communityManagePath,
-	communityViewPath,
-	eventManagePath,
-	eventSlideManagerPath,
-	eventSlideShowPath,
-	eventViewPath,
-	hookDemoPath,
-	optimizedCounterPath,
-	playlistViewPath,
-	popoverDemoPath,
-	reactFeaturesPath,
-	registerPath,
-	songViewPath,
-	suspenseDemoPath,
-	suspenseUseDemoPath,
-	typegpuAudioVizDemoPath,
-	typegpuDemoPath,
-	uploadDemoPath,
-	userPublicSubscriptionPath,
-	userSubscriptionDemoPath,
-	userViewPath,
+    aboutPath,
+    activityDemoPath,
+    communityManagePath,
+    communityViewPath,
+    eventManagePath,
+    eventSlideManagerPath,
+    eventSlideShowPath,
+    eventViewPath,
+    hookDemoPath,
+    imageViewPath,
+    optimizedCounterPath,
+    playlistViewPath,
+    popoverDemoPath,
+    reactFeaturesPath,
+    registerPath,
+    songViewPath,
+    suspenseDemoPath,
+    suspenseUseDemoPath,
+    typegpuAudioVizDemoPath,
+    typegpuDemoPath,
+    uploadDemoPath,
+    userPublicSubscriptionPath,
+    userSubscriptionDemoPath,
+    userViewPath,
 } from "@/shared/paths";
 
 import withSuspense from "../app/withSuspense";
@@ -43,6 +44,7 @@ const CommunityViewPage = lazy(() => import("../pages/CommunityViewPage"));
 const CommunityManagePage = lazy(() => import("../pages/CommunityManagePage"));
 const EventSlideShowView = lazy(() => import("../event/view/EventSlideShowView"));
 const SlideManagerView = lazy(() => import("../event/manage/slide/SlideManagerView"));
+const ImagePage = lazy(() => import("../pages/ImagePage"));
 const ActivityDemoPage = lazy(() => import("../pages/demo/ActivityDemoPage"));
 const PopoverDemoPage = lazy(() => import("../pages/demo/PopoverDemoPage"));
 const ReactFeaturesDemoPage = lazy(() => import("../pages/demo/ReactFeaturesDemoPage"));
@@ -127,6 +129,10 @@ export const publicRoutesWithLayout: RouteObject[] = [
 	{
 		path: `${eventViewPath}/:event_slug/${eventManagePath}`,
 		element: withSuspense(EventManageView),
+	},
+	{
+		path: `${imageViewPath}/:image_slug`,
+		element: withSuspense(ImagePage),
 	},
 	{
 		path: `${communityViewPath}/:community_slug`,

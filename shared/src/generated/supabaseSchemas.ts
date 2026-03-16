@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-03-08T17:58:18.447Z
+ * Last generated: 2026-03-15T17:57:28.926Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -612,6 +612,183 @@ export const EventUserUpdateSchema: Schema.Struct<{
 });
 
 export type EventUserUpdate = Schema.Schema.Type<typeof EventUserUpdateSchema>;
+
+// image table schemas
+export const ImageSchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	image_id: typeof Schema.UUID;
+	private_notes: typeof Schema.NonEmptyString;
+	updated_at: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	image_id: Schema.UUID,
+	private_notes: Schema.NonEmptyString,
+	updated_at: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+});
+
+export type Image = Schema.Schema.Type<typeof ImageSchema>;
+
+export const ImageInsertSchema: Schema.Struct<{
+	image_id: Schema.optional<typeof Schema.UUID>;
+	private_notes: Schema.optional<typeof Schema.NonEmptyString>;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	image_id: Schema.optional(Schema.UUID),
+	private_notes: Schema.optional(Schema.NonEmptyString),
+	user_id: Schema.UUID,
+});
+
+export type ImageInsert = Schema.Schema.Type<typeof ImageInsertSchema>;
+
+export const ImageUpdateSchema: Schema.Struct<{
+	image_id: Schema.optional<typeof Schema.UUID>;
+	private_notes: Schema.optional<typeof Schema.NonEmptyString>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	image_id: Schema.optional(Schema.UUID),
+	private_notes: Schema.optional(Schema.NonEmptyString),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type ImageUpdate = Schema.Schema.Type<typeof ImageUpdateSchema>;
+
+// image_library table schemas
+export const ImageLibrarySchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	image_id: typeof Schema.UUID;
+	image_owner_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	image_id: Schema.UUID,
+	image_owner_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type ImageLibrary = Schema.Schema.Type<typeof ImageLibrarySchema>;
+
+export const ImageLibraryInsertSchema: Schema.Struct<{
+	image_id: typeof Schema.UUID;
+	image_owner_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	image_id: Schema.UUID,
+	image_owner_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type ImageLibraryInsert = Schema.Schema.Type<
+	typeof ImageLibraryInsertSchema
+>;
+
+export const ImageLibraryUpdateSchema: Schema.Struct<{
+	image_id: Schema.optional<typeof Schema.UUID>;
+	image_owner_id: Schema.optional<typeof Schema.UUID>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	image_id: Schema.optional(Schema.UUID),
+	image_owner_id: Schema.optional(Schema.UUID),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type ImageLibraryUpdate = Schema.Schema.Type<
+	typeof ImageLibraryUpdateSchema
+>;
+
+// image_public table schemas
+export const ImagePublicSchema: Schema.Struct<{
+	alt_text: typeof Schema.NonEmptyString;
+	content_type: typeof Schema.NonEmptyString;
+	created_at: typeof Schema.NonEmptyString;
+	description: typeof Schema.NonEmptyString;
+	file_size: typeof Schema.Number;
+	height: Schema.optional<typeof Schema.Number>;
+	image_id: typeof Schema.UUID;
+	image_name: typeof Schema.NonEmptyString;
+	image_slug: typeof Schema.NonEmptyString;
+	r2_key: typeof Schema.NonEmptyString;
+	updated_at: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+	width: Schema.optional<typeof Schema.Number>;
+}> = Schema.Struct({
+	alt_text: Schema.NonEmptyString,
+	content_type: Schema.NonEmptyString,
+	created_at: Schema.NonEmptyString,
+	description: Schema.NonEmptyString,
+	file_size: Schema.Number,
+	height: Schema.optional(Schema.Number),
+	image_id: Schema.UUID,
+	image_name: Schema.NonEmptyString,
+	image_slug: Schema.NonEmptyString,
+	r2_key: Schema.NonEmptyString,
+	updated_at: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+	width: Schema.optional(Schema.Number),
+});
+
+export type ImagePublic = Schema.Schema.Type<typeof ImagePublicSchema>;
+
+export const ImagePublicInsertSchema: Schema.Struct<{
+	alt_text: Schema.optional<typeof Schema.NonEmptyString>;
+	content_type: Schema.optional<typeof Schema.NonEmptyString>;
+	description: Schema.optional<typeof Schema.NonEmptyString>;
+	file_size: Schema.optional<typeof Schema.Number>;
+	height: Schema.optional<typeof Schema.Number>;
+	image_id: typeof Schema.UUID;
+	image_name: Schema.optional<typeof Schema.NonEmptyString>;
+	image_slug: Schema.optional<typeof Schema.NonEmptyString>;
+	r2_key: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+	width: Schema.optional<typeof Schema.Number>;
+}> = Schema.Struct({
+	alt_text: Schema.optional(Schema.NonEmptyString),
+	content_type: Schema.optional(Schema.NonEmptyString),
+	description: Schema.optional(Schema.NonEmptyString),
+	file_size: Schema.optional(Schema.Number),
+	height: Schema.optional(Schema.Number),
+	image_id: Schema.UUID,
+	image_name: Schema.optional(Schema.NonEmptyString),
+	image_slug: Schema.optional(Schema.NonEmptyString),
+	r2_key: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+	width: Schema.optional(Schema.Number),
+});
+
+export type ImagePublicInsert = Schema.Schema.Type<
+	typeof ImagePublicInsertSchema
+>;
+
+export const ImagePublicUpdateSchema: Schema.Struct<{
+	alt_text: Schema.optional<typeof Schema.NonEmptyString>;
+	content_type: Schema.optional<typeof Schema.NonEmptyString>;
+	description: Schema.optional<typeof Schema.NonEmptyString>;
+	file_size: Schema.optional<typeof Schema.Number>;
+	height: Schema.optional<typeof Schema.Number>;
+	image_id: Schema.optional<typeof Schema.UUID>;
+	image_name: Schema.optional<typeof Schema.NonEmptyString>;
+	image_slug: Schema.optional<typeof Schema.NonEmptyString>;
+	r2_key: Schema.optional<typeof Schema.NonEmptyString>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+	width: Schema.optional<typeof Schema.Number>;
+}> = Schema.Struct({
+	alt_text: Schema.optional(Schema.NonEmptyString),
+	content_type: Schema.optional(Schema.NonEmptyString),
+	description: Schema.optional(Schema.NonEmptyString),
+	file_size: Schema.optional(Schema.Number),
+	height: Schema.optional(Schema.Number),
+	image_id: Schema.optional(Schema.UUID),
+	image_name: Schema.optional(Schema.NonEmptyString),
+	image_slug: Schema.optional(Schema.NonEmptyString),
+	r2_key: Schema.optional(Schema.NonEmptyString),
+	user_id: Schema.optional(Schema.UUID),
+	width: Schema.optional(Schema.Number),
+});
+
+export type ImagePublicUpdate = Schema.Schema.Type<
+	typeof ImagePublicUpdateSchema
+>;
 
 // playlist table schemas
 export const PlaylistSchema: Schema.Struct<{

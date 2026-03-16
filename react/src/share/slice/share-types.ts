@@ -1,6 +1,6 @@
 export type ShareStatus = "pending" | "accepted" | "rejected";
 
-export type SharedItemType = "song" | "playlist" | "event" | "community" | "user";
+export type SharedItemType = "song" | "playlist" | "event" | "community" | "user" | "image";
 
 export type SharedItem = {
 	share_id: string;

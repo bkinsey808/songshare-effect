@@ -2,10 +2,10 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import forceCast from "@/react/lib/test-utils/forceCast";
-import createShareRecord from "@/api/share/shareCreateRecord";
+import createShareRecord from "@/api/share/create/shareCreateRecord";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
+import forceCast from "@/react/lib/test-utils/forceCast";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import shareCreateHandler from "./shareCreate";

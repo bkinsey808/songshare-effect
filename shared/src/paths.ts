@@ -121,3 +121,19 @@ export const apiShareListPath = "/api/shares/list";
 
 /** Frontend route for account deletion confirmation (nested under dashboard) */
 export const deleteAccountPath = "delete-account";
+
+// Image paths
+export const imageLibraryPath = "image-library";
+export const imageUploadPath = "image-upload";
+export const imageEditPath = "image-edit";
+
+/** Base path for viewing an image by slug; use as "image/:image_slug" in routes */
+export const imageViewPath = "image";
+
+// Image API paths
+export const apiImageUploadPath = "/api/images/upload";
+export const apiImageDeletePath = "/api/images/delete";
+export const apiImageUpdatePath = "/api/images/update";
+export const apiImageServeBasePath = "/api/images/serve";
+export const apiImageLibraryAddPath = "/api/image-library/add";
+export const apiImageLibraryRemovePath = "/api/image-library/remove";

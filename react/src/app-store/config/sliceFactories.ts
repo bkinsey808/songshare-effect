@@ -4,6 +4,8 @@ import createAuthSlice from "@/react/auth/slice/createAuthSlice";
 import createCommunitySlice from "@/react/community/slice/createCommunitySlice";
 import createEventLibrarySlice from "@/react/event-library/slice/createEventLibrarySlice";
 import createEventSlice from "@/react/event/slice/createEventSlice";
+import createImageLibrarySlice from "@/react/image-library/slice/createImageLibrarySlice";
+import createImageSlice from "@/react/image/image-slice/createImageSlice";
 import createInvitationSlice from "@/react/invitation/slice/createInvitationSlice";
 import createNavigationSlice from "@/react/navigation/slice/createNavigationSlice";
 import createPlaylistLibrarySlice from "@/react/playlist-library/slice/createPlaylistLibrarySlice";
@@ -31,6 +33,8 @@ const sliceFactories: readonly SliceFactory[] = [
 	createPlaylistLibrarySlice,
 	createEventSlice,
 	createEventLibrarySlice,
+	createImageSlice,
+	createImageLibrarySlice,
 	createCommunitySlice,
 	createInvitationSlice,
 	createNavigationSlice,

@@ -1,9 +1,10 @@
 import {
-	communityViewPath,
-	eventViewPath,
-	playlistViewPath,
-	songViewPath,
-	userViewPath,
+    communityViewPath,
+    eventViewPath,
+    imageViewPath,
+    playlistViewPath,
+    songViewPath,
+    userViewPath,
 } from "@/shared/paths";
 
 import type { SharedItem } from "../slice/share-types";
@@ -35,6 +36,9 @@ export default function getItemLink(share: SharedItem): string | undefined {
 		}
 		case "user": {
 			return `/${userViewPath}/${slug}`;
+		}
+		case "image": {
+			return `/${imageViewPath}/${slug}`;
 		}
 		default: {
 			return undefined;

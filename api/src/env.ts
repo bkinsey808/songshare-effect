@@ -18,9 +18,12 @@ export type Env = {
 	ALLOWED_ORIGINS?: string;
 	// Optional platform bindings to make Env compatible with full worker
 	// `Bindings` used at runtime. These are optional here so that a
-	// `Bindings = Env & { BUCKET: R2Bucket; ENVIRONMENT: string }` type
+	// `Bindings = Env & { BUCKET?: R2Bucket; ENVIRONMENT: string }` type
 	// remains assignable to `Env` in strict TypeScript modes.
-	BUCKET: R2Bucket;
+	// BUCKET is only required when STORAGE_BACKEND is "r2".
+	BUCKET?: R2Bucket;
+	/** Selects the file storage backend: "supabase" (default) | "r2" */
+	STORAGE_BACKEND?: string;
 	ENVIRONMENT: string;
 };
 
@@ -28,6 +31,6 @@ export type Env = {
 // platform bindings (R2 bucket, ENVIRONMENT flag). R2Bucket is provided
 // by the project context (see comments in other files).
 export type Bindings = Env & {
-	BUCKET: R2Bucket;
+	BUCKET?: R2Bucket;
 	ENVIRONMENT: string;
 };

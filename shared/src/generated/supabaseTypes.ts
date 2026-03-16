@@ -500,6 +500,144 @@ export type Database = {
           },
         ]
       }
+      image: {
+        Row: {
+          created_at: string
+          image_id: string
+          private_notes: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          image_id?: string
+          private_notes?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          image_id?: string
+          private_notes?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      image_library: {
+        Row: {
+          created_at: string
+          image_id: string
+          image_owner_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          image_id: string
+          image_owner_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          image_id?: string
+          image_owner_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_library_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "image_public"
+            referencedColumns: ["image_id"]
+          },
+          {
+            foreignKeyName: "image_library_image_owner_id_fkey"
+            columns: ["image_owner_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "image_library_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      image_public: {
+        Row: {
+          alt_text: string
+          content_type: string
+          created_at: string
+          description: string
+          file_size: number
+          height: number | null
+          image_id: string
+          image_name: string
+          image_slug: string
+          r2_key: string
+          updated_at: string
+          user_id: string
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string
+          content_type?: string
+          created_at?: string
+          description?: string
+          file_size?: number
+          height?: number | null
+          image_id: string
+          image_name?: string
+          image_slug?: string
+          r2_key: string
+          updated_at?: string
+          user_id: string
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string
+          content_type?: string
+          created_at?: string
+          description?: string
+          file_size?: number
+          height?: number | null
+          image_id?: string
+          image_name?: string
+          image_slug?: string
+          r2_key?: string
+          updated_at?: string
+          user_id?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_public_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: true
+            referencedRelation: "image"
+            referencedColumns: ["image_id"]
+          },
+          {
+            foreignKeyName: "image_public_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       playlist: {
         Row: {
           created_at: string

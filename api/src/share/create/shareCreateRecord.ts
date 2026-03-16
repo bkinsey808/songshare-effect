@@ -4,11 +4,11 @@ import { Effect } from "effect";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
-import { DatabaseError } from "../api-errors";
+import { DatabaseError } from "@/api/api-errors";
 
 type ShareCreateRequest = {
 	recipient_user_id: string;
-	shared_item_type: "song" | "playlist" | "event" | "community" | "user";
+	shared_item_type: "song" | "playlist" | "event" | "community" | "user" | "image";
 	shared_item_id: string;
 	shared_item_name: string;
 	message?: string;

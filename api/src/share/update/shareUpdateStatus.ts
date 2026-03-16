@@ -6,9 +6,9 @@ import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
-import addPlaylistSongsToUserLibrary from "../playlist-library/addPlaylistSongsToUserLibrary";
-import getVerifiedUserSession from "../user-session/getVerifiedSession";
+import { type AuthenticationError, DatabaseError, ValidationError } from "@/api/api-errors";
+import addPlaylistSongsToUserLibrary from "@/api/playlist-library/addPlaylistSongsToUserLibrary";
+import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 
 type ShareUpdateStatusRequest = {
 	share_id: string;

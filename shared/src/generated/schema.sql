@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict rKJgAq8vLAkPCbClARf3HE0uchGO7uff70ANeXdiNcrp808CMk0JVeczbZIYtIL
+\restrict CHwDKHjzqStHe5a0VEHkaNMORSMKhtHZabLuc3Jf0YgsLFat3WV3E6MVF1FcEPK
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -514,6 +514,140 @@ COMMENT ON COLUMN public.event_user.status IS 'Membership status in this event: 
 
 
 --
+-- Name: image; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.image (
+    image_id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    private_notes text DEFAULT ''::text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE image; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.image IS 'Private image data - only accessible by the image owner';
+
+
+--
+-- Name: COLUMN image.image_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.image.image_id IS 'Unique identifier for the image';
+
+
+--
+-- Name: COLUMN image.user_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.image.user_id IS 'The user who owns this image';
+
+
+--
+-- Name: COLUMN image.private_notes; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.image.private_notes IS 'Private notes visible only to the owner';
+
+
+--
+-- Name: image_library; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.image_library (
+    user_id uuid NOT NULL,
+    image_id uuid NOT NULL,
+    image_owner_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.image_library REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE image_library; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.image_library IS 'User image bookmarks / collection';
+
+
+--
+-- Name: COLUMN image_library.image_owner_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.image_library.image_owner_id IS 'Owner of the image (denormalized for efficient queries)';
+
+
+--
+-- Name: image_public; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.image_public (
+    image_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    image_name text DEFAULT ''::text NOT NULL,
+    image_slug text DEFAULT ''::text NOT NULL,
+    description text DEFAULT ''::text NOT NULL,
+    alt_text text DEFAULT ''::text NOT NULL,
+    r2_key text NOT NULL,
+    content_type text DEFAULT 'image/jpeg'::text NOT NULL,
+    file_size integer DEFAULT 0 NOT NULL,
+    width integer,
+    height integer,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.image_public REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE image_public; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.image_public IS 'Public image metadata - readable by all authenticated users';
+
+
+--
+-- Name: COLUMN image_public.r2_key; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.image_public.r2_key IS 'Cloudflare R2 storage key for the image file';
+
+
+--
+-- Name: COLUMN image_public.content_type; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.image_public.content_type IS 'MIME type of the image (e.g. image/jpeg, image/png)';
+
+
+--
+-- Name: COLUMN image_public.file_size; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.image_public.file_size IS 'File size in bytes';
+
+
+--
+-- Name: COLUMN image_public.width; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.image_public.width IS 'Image width in pixels (optional)';
+
+
+--
+-- Name: COLUMN image_public.height; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.image_public.height IS 'Image height in pixels (optional)';
+
+
+--
 -- Name: playlist; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -769,7 +903,7 @@ CREATE TABLE public.share_public (
     message text DEFAULT ''::text,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
-    CONSTRAINT share_public_shared_item_type_check CHECK ((shared_item_type = ANY (ARRAY['song'::text, 'playlist'::text, 'event'::text, 'community'::text, 'user'::text]))),
+    CONSTRAINT share_public_shared_item_type_check CHECK ((shared_item_type = ANY (ARRAY['song'::text, 'playlist'::text, 'event'::text, 'community'::text, 'user'::text, 'image'::text]))),
     CONSTRAINT share_public_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'accepted'::text, 'rejected'::text])))
 );
 
@@ -837,6 +971,13 @@ COMMENT ON COLUMN public.share_public.status IS 'Share status: pending, accepted
 --
 
 COMMENT ON COLUMN public.share_public.message IS 'Optional message from sender to recipient';
+
+
+--
+-- Name: CONSTRAINT share_public_shared_item_type_check ON share_public; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON CONSTRAINT share_public_shared_item_type_check ON public.share_public IS 'Restrict shared_item_type to known resource types including image';
 
 
 --
@@ -1112,6 +1253,38 @@ ALTER TABLE ONLY public.event_user
 
 
 --
+-- Name: image_library image_library_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_library
+    ADD CONSTRAINT image_library_pkey PRIMARY KEY (user_id, image_id);
+
+
+--
+-- Name: image image_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image
+    ADD CONSTRAINT image_pkey PRIMARY KEY (image_id);
+
+
+--
+-- Name: image_public image_public_image_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_public
+    ADD CONSTRAINT image_public_image_slug_key UNIQUE (image_slug);
+
+
+--
+-- Name: image_public image_public_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_public
+    ADD CONSTRAINT image_public_pkey PRIMARY KEY (image_id);
+
+
+--
 -- Name: playlist_library playlist_library_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1340,6 +1513,41 @@ CREATE INDEX idx_event_library_user_id ON public.event_library USING btree (user
 --
 
 CREATE UNIQUE INDEX idx_user_public_username ON public.user_public USING btree (username);
+
+
+--
+-- Name: image_library_image_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_library_image_id_idx ON public.image_library USING btree (image_id);
+
+
+--
+-- Name: image_library_user_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_library_user_id_idx ON public.image_library USING btree (user_id);
+
+
+--
+-- Name: image_public_image_slug_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_public_image_slug_idx ON public.image_public USING btree (image_slug);
+
+
+--
+-- Name: image_public_user_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_public_user_id_idx ON public.image_public USING btree (user_id);
+
+
+--
+-- Name: image_user_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_user_id_idx ON public.image USING btree (user_id);
 
 
 --
@@ -1837,6 +2045,54 @@ ALTER TABLE ONLY public.event_user
 
 
 --
+-- Name: image_library image_library_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_library
+    ADD CONSTRAINT image_library_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.image_public(image_id) ON DELETE CASCADE;
+
+
+--
+-- Name: image_library image_library_image_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_library
+    ADD CONSTRAINT image_library_image_owner_id_fkey FOREIGN KEY (image_owner_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: image_library image_library_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_library
+    ADD CONSTRAINT image_library_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: image_public image_public_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_public
+    ADD CONSTRAINT image_public_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.image(image_id) ON DELETE CASCADE;
+
+
+--
+-- Name: image_public image_public_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_public
+    ADD CONSTRAINT image_public_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: image image_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image
+    ADD CONSTRAINT image_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
 -- Name: playlist_library playlist_library_playlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2121,6 +2377,13 @@ CREATE POLICY "Allow read access to user_public for visitors or users" ON public
 
 
 --
+-- Name: image_public Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.image_public FOR SELECT TO authenticated USING (true);
+
+
+--
 -- Name: community Allow read for matching owner_id; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -2139,6 +2402,20 @@ CREATE POLICY "Allow read for matching owner_id" ON public.event FOR SELECT TO a
 --
 
 CREATE POLICY "Allow read for matching sender_user_id" ON public.share FOR SELECT TO authenticated USING ((sender_user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: image Allow read for matching user_id; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for matching user_id" ON public.image FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: image_library Allow read for matching user_id; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for matching user_id" ON public.image_library FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
@@ -2314,6 +2591,27 @@ CREATE POLICY "Deny all mutations on community_user" ON public.community_user TO
 --
 
 COMMENT ON POLICY "Deny all mutations on community_user" ON public.community_user IS 'All community membership mutations must go through the API server for proper validation and authorization.';
+
+
+--
+-- Name: image Deny all mutations on image; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on image" ON public.image TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: image_library Deny all mutations on image_library; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on image_library" ON public.image_library TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: image_public Deny all mutations on image_public; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on image_public" ON public.image_public TO authenticated, anon USING (false) WITH CHECK (false);
 
 
 --
@@ -2581,6 +2879,24 @@ ALTER TABLE public.event_public ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_user ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: image; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.image ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: image_library; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.image_library ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: image_public; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.image_public ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: playlist; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -2656,5 +2972,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict rKJgAq8vLAkPCbClARf3HE0uchGO7uff70ANeXdiNcrp808CMk0JVeczbZIYtIL
+\unrestrict CHwDKHjzqStHe5a0VEHkaNMORSMKhtHZabLuc3Jf0YgsLFat3WV3E6MVF1FcEPK
 

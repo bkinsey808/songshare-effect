@@ -129,7 +129,7 @@
 		"nanoid": "^5.1.6",
 		"oxfmt": "^0.36.0",
 		"oxlint": "^1.51.0",
-		"oxlint-tsgolint": "^0.8.1",
+		"oxlint-tsgolint": "^0.17.0",
 		"postcss": "^8.5.6",
 		"puppeteer": "^24.30.0",
 		"react-compiler-healthcheck": "1.0.0",

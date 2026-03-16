@@ -2,16 +2,19 @@ import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 
 import {
-	communityEditPath,
-	communityLibraryPath,
-	deleteAccountPath,
-	eventEditPath,
-	eventLibraryPath,
-	playlistEditPath,
-	playlistLibraryPath,
-	songEditPath,
-	songLibraryPath,
-	userLibraryPath,
+    communityEditPath,
+    communityLibraryPath,
+    deleteAccountPath,
+    eventEditPath,
+    eventLibraryPath,
+    imageEditPath,
+    imageLibraryPath,
+    imageUploadPath,
+    playlistEditPath,
+    playlistLibraryPath,
+    songEditPath,
+    songLibraryPath,
+    userLibraryPath,
 } from "@/shared/paths";
 
 import withSuspense from "../app/withSuspense";
@@ -25,6 +28,9 @@ const PlaylistEditPage = lazy(() => import("@/react/pages/PlaylistEditPage"));
 const PlaylistLibraryPage = lazy(() => import("@/react/pages/PlaylistLibraryPage"));
 const EventEditPage = lazy(() => import("@/react/pages/EventEditPage"));
 const EventLibraryPage = lazy(() => import("@/react/pages/EventLibraryPage"));
+const ImageLibraryPage = lazy(() => import("@/react/pages/ImageLibraryPage"));
+const ImageUploadPage = lazy(() => import("@/react/pages/ImageUploadPage"));
+const ImageEditPage = lazy(() => import("@/react/pages/ImageEditPage"));
 const CommunityEditPage = lazy(() => import("@/react/pages/CommunityEditPage"));
 const CommunityLibraryPage = lazy(() => import("@/react/pages/CommunityLibraryPage"));
 const UserLibraryPage = lazy(() => import("@/react/user-library/UserLibraryPage"));
@@ -97,6 +103,18 @@ const dashboardRoutes: RouteObject[] = [
 	{
 		path: eventLibraryPath,
 		element: withSuspense(EventLibraryPage),
+	},
+	{
+		path: imageLibraryPath,
+		element: withSuspense(ImageLibraryPage),
+	},
+	{
+		path: imageUploadPath,
+		element: withSuspense(ImageUploadPage),
+	},
+	{
+		path: `${imageEditPath}/:image_id`,
+		element: withSuspense(ImageEditPage),
 	},
 	{
 		path: communityLibraryPath,

@@ -2,6 +2,8 @@ import type { AuthSlice } from "@/react/auth/slice/auth-slice.types";
 import type { CommunitySlice } from "@/react/community/slice/CommunitySlice.type";
 import type { EventLibrarySlice } from "@/react/event-library/slice/EventLibrarySlice.type";
 import type { EventSlice } from "@/react/event/slice/EventSlice.type";
+import type { ImageLibrarySlice } from "@/react/image-library/slice/ImageLibrarySlice.type";
+import type { ImageSlice } from "@/react/image/image-slice/ImageSlice.type";
 import type { InvitationSlice } from "@/react/invitation/slice/InvitationSlice.type";
 import type { NavigationSlice } from "@/react/navigation/slice/NavigationSlice.type";
 import type { PlaylistLibrarySlice } from "@/react/playlist-library/slice/PlaylistLibrarySlice.type";
@@ -20,6 +22,8 @@ type AppSlice = AuthSlice &
 	PlaylistLibrarySlice &
 	EventSlice &
 	EventLibrarySlice &
+	ImageSlice &
+	ImageLibrarySlice &
 	CommunitySlice &
 	InvitationSlice &
 	NavigationSlice &

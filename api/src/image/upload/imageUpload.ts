@@ -1,0 +1,253 @@
+import { createClient } from "@supabase/supabase-js";
+import { Effect } from "effect";
+
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+import { type Database } from "@/shared/generated/supabaseTypes";
+
+import { type AuthenticationError, DatabaseError, FileUploadError, ValidationError } from "@/api/api-errors";
+import getStorageAdapter from "@/api/storage/getStorageAdapter";
+import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
+
+/** Bytes per kilobyte */
+const BYTES_PER_KB = 1024;
+/** Bytes per megabyte */
+const BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB;
+/** Max image file size in megabytes */
+const MAX_IMAGE_SIZE_MB = 10;
+/** Max image file size: 10 MB */
+const MAX_IMAGE_SIZE = MAX_IMAGE_SIZE_MB * BYTES_PER_MB;
+
+/** Max character length for the URL slug base before appending the unique suffix. */
+const SLUG_BASE_MAX_LENGTH = 50;
+/** Length of the short ID suffix derived from the image UUID. */
+const SHORT_ID_LENGTH = 8;
+/** Start index for string slice operations. */
+const SLICE_START = 0;
+
+/** Allowed MIME types for image upload */
+const ALLOWED_CONTENT_TYPES = new Set([
+	"image/jpeg",
+	"image/png",
+	"image/gif",
+	"image/webp",
+	"image/avif",
+	"image/svg+xml",
+]);
+
+type ImageRow = {
+	image_id: string;
+	user_id: string;
+	image_name: string;
+	image_slug: string;
+	description: string;
+	alt_text: string;
+	r2_key: string;
+	content_type: string;
+	file_size: number;
+	width: number | null;
+	height: number | null;
+	created_at: string;
+	updated_at: string;
+};
+
+/**
+ * Build a URL-safe slug from a human-readable name.
+ *
+ * Converts the name to lowercase, replaces spaces and special characters with
+ * hyphens, collapses consecutive hyphens, and trims leading/trailing hyphens.
+ *
+ * @param name - The display name to slugify.
+ * @param suffix - A short suffix (e.g. part of UUID) to ensure uniqueness.
+ * @returns - A URL-safe slug string.
+ */
+function buildImageSlug(name: string, suffix: string): string {
+	const base = name
+		.toLowerCase()
+		.replaceAll(/[^a-z0-9]+/g, "-")
+		.replaceAll(/^-+|-+$/g, "")
+		.slice(SLICE_START, SLUG_BASE_MAX_LENGTH);
+	return `${base}-${suffix}`;
+}
+
+/**
+ * Server-side handler for uploading an image file.
+ *
+ * Accepts a multipart/form-data POST with the following fields:
+ * - `file` (File) — the image binary
+ * - `image_name` (string) — human-readable title
+ * - `description` (string, optional) — longer description
+ * - `alt_text` (string, optional) — accessibility alt text
+ *
+ * Flow:
+ * 1. Authenticate the user
+ * 2. Parse and validate the multipart body
+ * 3. Upload the file via the configured StorageAdapter
+ * 4. Create `image` (private) and `image_public` records in Supabase
+ * 5. Return the public image metadata
+ *
+ * @param ctx - The readonly request context provided by the server.
+ * @returns The created `image_public` row, or fails with a typed error.
+ */
+export default function imageUpload(
+	ctx: ReadonlyContext,
+): Effect.Effect<ImageRow, ValidationError | DatabaseError | FileUploadError | AuthenticationError> {
+	return Effect.gen(function* imageUploadGen($) {
+		// 1. Authenticate user
+		const userSession = yield* $(getVerifiedUserSession(ctx));
+		const userId = userSession.user.user_id;
+
+		// 2. Parse multipart body
+		const formData = yield* $(
+			Effect.tryPromise({
+				try: () => ctx.req.formData(),
+				catch: () => new ValidationError({ message: "Expected multipart/form-data body" }),
+			}),
+		);
+
+		// FormData.get() is typed as string|null in @cloudflare/workers-types, but
+		// multipart file uploads arrive as File objects at runtime.
+		// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- @cloudflare/workers-types types FormData.get() as string|null; file uploads are File at runtime
+		const file = formData.get("file") as unknown as File | null;
+		const imageName = formData.get("image_name");
+		const description = formData.get("description") ?? "";
+		const altText = formData.get("alt_text") ?? "";
+
+		if (file === null) {
+			return yield* $(Effect.fail(new ValidationError({ message: "Field 'file' must be a file" })));
+		}
+
+		if (typeof imageName !== "string" || imageName.trim() === "") {
+			return yield* $(Effect.fail(new ValidationError({ message: "Field 'image_name' is required" })));
+		}
+
+		if (!ALLOWED_CONTENT_TYPES.has(file.type)) {
+			return yield* $(
+				Effect.fail(
+					new ValidationError({
+						message: `File type '${file.type}' is not allowed. Allowed types: ${[...ALLOWED_CONTENT_TYPES].join(", ")}`,
+					}),
+),
+			);
+		}
+
+		if (file.size > MAX_IMAGE_SIZE) {
+			return yield* $(
+				Effect.fail(
+					new ValidationError({
+						message: `File size ${file.size} exceeds limit of ${MAX_IMAGE_SIZE} bytes (10 MB)`,
+					}),
+				),
+			);
+		}
+
+		// 3. Generate IDs and storage key
+		// Note: the DB column is named "r2_key" for historical reasons;
+		// it stores the storage path regardless of which backend is active.
+		const imageId = crypto.randomUUID();
+		const shortId = imageId.slice(SLICE_START, SHORT_ID_LENGTH);
+		const imageSlug = buildImageSlug(imageName, shortId);
+		const ext = file.name.includes(".") ? `.${file.name.split(".").pop() ?? "bin"}` : "";
+		const storageKey = `images/${userId}/${imageId}${ext}`;
+
+		// 4. Upload via storage adapter (Supabase Storage or R2)
+		const storage = getStorageAdapter(ctx.env);
+
+		const fileBuffer = yield* $(
+			Effect.tryPromise({
+				try: () => file.arrayBuffer(),
+				catch: (error) => new FileUploadError({ message: extractErrorMessage(error, "Failed to read file") }),
+			}),
+		);
+
+		yield* $(
+			Effect.tryPromise({
+				try: () =>
+					storage.upload(storageKey, fileBuffer, {
+						contentType: file.type,
+						metadata: { imageId, userId },
+					}),
+				catch: (error) =>
+					new FileUploadError({ message: extractErrorMessage(error, "Failed to upload image") }),
+			}),
+		);
+
+		// 5. Create Supabase records using service key (bypasses RLS)
+		const supabase = createClient<Database>(
+			ctx.env.VITE_SUPABASE_URL,
+			ctx.env.SUPABASE_SERVICE_KEY,
+		);
+
+		// Insert private image record
+		const privateInsert = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					supabase
+						.from("image")
+						.insert([{ image_id: imageId, user_id: userId, private_notes: "" }])
+						.select()
+						.single(),
+				catch: (error) =>
+					new DatabaseError({ message: extractErrorMessage(error, "Failed to create image record") }),
+			}),
+		);
+
+		if (privateInsert.error) {
+			// Best-effort cleanup: remove from storage if DB insert failed
+			void storage.remove(storageKey);
+			return yield* $(
+				Effect.fail(
+					new DatabaseError({
+						message: extractErrorMessage(privateInsert.error, "Failed to create image record"),
+					}),
+				),
+			);
+		}
+
+		// Insert public image record
+		const publicInsert = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					supabase
+						.from("image_public")
+						.insert([
+							{
+								image_id: imageId,
+								user_id: userId,
+								image_name: imageName.trim(),
+								image_slug: imageSlug,
+								description: typeof description === "string" ? description : "",
+								alt_text: typeof altText === "string" ? altText : "",
+							r2_key: storageKey,
+								content_type: file.type,
+								file_size: file.size,
+							},
+						])
+						.select()
+						.single(),
+				catch: (error) =>
+					new DatabaseError({
+						message: extractErrorMessage(error, "Failed to create image_public record"),
+					}),
+			}),
+		);
+
+		if (publicInsert.error || publicInsert.data === null) {
+			// Best-effort cleanup
+			void storage.remove(storageKey);
+			void supabase.from("image").delete().eq("image_id", imageId);
+			return yield* $(
+				Effect.fail(
+					new DatabaseError({
+						message: extractErrorMessage(
+							publicInsert.error ?? {},
+							"Failed to create image_public record",
+						),
+					}),
+				),
+			);
+		}
+
+		return publicInsert.data as ImageRow;
+	});
+}

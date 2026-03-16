@@ -6,13 +6,13 @@ import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
-import getVerifiedUserSession from "../user-session/getVerifiedSession";
+import { type AuthenticationError, DatabaseError, ValidationError } from "@/api/api-errors";
+import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import createShareRecord from "./shareCreateRecord";
 
 type ShareCreateRequest = {
 	recipient_user_id: string;
-	shared_item_type: "song" | "playlist" | "event" | "community" | "user";
+	shared_item_type: "song" | "playlist" | "event" | "community" | "user" | "image";
 	shared_item_id: string;
 	shared_item_name: string;
 	message?: string;
@@ -34,9 +34,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isValidSharedItemType(
 	value: unknown,
-): value is "song" | "playlist" | "event" | "community" | "user" {
+): value is "song" | "playlist" | "event" | "community" | "user" | "image" {
 	return (
-		typeof value === "string" && ["song", "playlist", "event", "community", "user"].includes(value)
+		typeof value === "string" &&
+		["song", "playlist", "event", "community", "user", "image"].includes(value)
 	);
 }
 
@@ -91,7 +92,7 @@ function extractShareCreateRequest(request: unknown): ShareCreateRequest {
 		throw new TypeError("shared_item_type must be one of: song, playlist, event, community, user");
 	}
 
-	const validTypes = ["song", "playlist", "event", "community", "user"];
+	const validTypes = ["song", "playlist", "event", "community", "user", "image"];
 	if (!validTypes.includes(shared_item_type)) {
 		throw new TypeError(`shared_item_type must be one of: ${validTypes.join(", ")}`);
 	}
@@ -156,6 +157,10 @@ function validateSharedItemAccess(
 					query = client.from("user").select("user_id").eq("user_id", itemId).single();
 					break;
 				}
+				case "image": {
+					query = client.from("image_public").select("user_id").eq("image_id", itemId).single();
+					break;
+				}
 				default: {
 					throw new Error(`Invalid item type: ${itemType}`);
 				}
@@ -176,7 +181,7 @@ function validateSharedItemAccess(
 				return false;
 			}
 
-			// For songs, playlists: check if sender owns the item
+			// For songs, playlists, images: check if sender owns the item
 			// For events, communities: check if sender owns the item
 			// For users: any authenticated user can share any user (following relationship)
 			if (itemType === "user") {

@@ -33,6 +33,12 @@ import {
 	apiEventUserRemovePath,
 	apiEventUserUpdateRolePath,
 	apiHelloPath,
+	apiImageDeletePath,
+	apiImageLibraryAddPath,
+	apiImageLibraryRemovePath,
+	apiImageServeBasePath,
+	apiImageUpdatePath,
+	apiImageUploadPath,
 	apiMePath,
 	apiOauthCallbackPath,
 	apiOauthSignInPath,
@@ -88,6 +94,12 @@ import eventUserUpdateRoleHandler from "./event-user/eventUserUpdateRole";
 import eventDelete from "./event/eventDelete";
 import eventSave from "./event/eventSave";
 import handleHttpEndpoint from "./http/handleHttpEndpoint";
+import addImageToLibrary from "./image-library/add/addImageToLibrary";
+import removeImageFromLibrary from "./image-library/remove/removeImageFromLibrary";
+import imageDelete from "./image/delete/imageDelete";
+import imageServe from "./image/imageServe";
+import imageUpdate from "./image/update/imageUpdate";
+import imageUpload from "./image/upload/imageUpload";
 import me from "./me";
 import corsMiddleware from "./middleware/cors";
 import handleAppError from "./middleware/handleAppError";
@@ -97,10 +109,10 @@ import addPlaylistToLibraryHandler from "./playlist-library/addPlaylistToLibrary
 import removePlaylistFromLibraryHandler from "./playlist-library/removePlaylistFromLibrary";
 import playlistDelete from "./playlist/playlistDelete";
 import playlistSave from "./playlist/playlistSave";
-import shareCreateHandler from "./share/shareCreate";
-import shareListHandler from "./share/shareList";
-import shareRejectByItemHandler from "./share/shareRejectByItem";
-import shareUpdateStatusHandler from "./share/shareUpdateStatus";
+import shareCreateHandler from "./share/create/shareCreate";
+import shareListHandler from "./share/list/shareList";
+import shareRejectByItemHandler from "./share/reject/shareRejectByItem";
+import shareUpdateStatusHandler from "./share/update/shareUpdateStatus";
 import addSongToLibraryHandler from "./song-library/add/addSongToLibrary";
 import removeSongFromLibraryHandler from "./song-library/remove/removeSongFromLibrary";
 import songDelete from "./song/songDelete";
@@ -240,7 +252,24 @@ app.post(
 
 app.post(apiCommunitySetActiveEventPath, handleHttpEndpoint(communitySetActiveEvent));
 
-// File upload endpoint
+// Image upload endpoint (multipart/form-data)
+app.post(apiImageUploadPath, handleHttpEndpoint(imageUpload));
+
+// Image delete endpoint (owner only)
+app.post(apiImageDeletePath, handleHttpEndpoint(imageDelete));
+
+// Image update endpoint (owner only)
+app.post(apiImageUpdatePath, handleHttpEndpoint(imageUpdate));
+
+// Image serve endpoint — streams file from R2
+app.get(`${apiImageServeBasePath}/*`, imageServe);
+
+// Image library endpoints
+app.post(apiImageLibraryAddPath, handleHttpEndpoint(addImageToLibrary));
+
+app.post(apiImageLibraryRemovePath, handleHttpEndpoint(removeImageFromLibrary));
+
+// File upload endpoint (legacy placeholder)
 app.post(apiUploadPath, (ctx) => ctx.json({ message: "Upload endpoint - to be implemented" }));
 
 // Dev-only helper to update song_public rows and trigger realtime events.
