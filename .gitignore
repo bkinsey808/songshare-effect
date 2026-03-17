@@ -73,3 +73,6 @@ artifacts/
 tmp/
 
 .eslintcache
+
+test-output.txt
+test-output-staging.txt
