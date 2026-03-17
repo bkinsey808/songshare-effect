@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  -  1 [chromium] › e2e/specs/sharing.spec.ts:587:2 › P2P Image Share › sender shares an image and recipient accepts it
+
+  1 skipped

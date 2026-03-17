@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, renderHook, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, renderHook, waitFor, within } from "@testing-library/react";
 import { Effect } from "effect";
 import { useNavigate, useParams } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
@@ -53,12 +53,14 @@ function installStore(opts: {
 	isImageLoading?: boolean;
 	imageError?: string | undefined;
 	fetchImageBySlug?: ReturnType<typeof vi.fn>;
+	deleteImage?: ReturnType<typeof vi.fn>;
 }): void {
 	const {
 		publicImages = {},
 		isImageLoading = false,
 		imageError,
 		fetchImageBySlug = vi.fn().mockReturnValue(Effect.succeed(undefined)),
+		deleteImage = vi.fn().mockReturnValue(Effect.succeed(undefined)),
 	} = opts;
 
 	const mockState = {
@@ -66,6 +68,7 @@ function installStore(opts: {
 		isImageLoading,
 		imageError,
 		fetchImageBySlug,
+		deleteImage,
 	};
 
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) =>
@@ -221,6 +224,61 @@ describe("useImageView — renderHook", () => {
 
 		await waitFor(() => {
 			expect(mockFetch).toHaveBeenCalledWith(IMAGE_SLUG);
+		});
+	});
+
+	it("manages delete confirmation state", () => {
+		vi.resetAllMocks();
+		installLocale();
+		vi.mocked(useParams).mockReturnValue({ image_slug: IMAGE_SLUG });
+		const img = makeImagePublic(IMAGE_SLUG);
+		installStore({ publicImages: { [img.image_id]: img } });
+
+		const { result } = renderHook(() => useImageView());
+
+		expect(result.current.isConfirmingDelete).toBe(false);
+
+		// Click delete to start confirmation
+
+		act(() => {
+			result.current.handleDeleteClick();
+		});
+		expect(result.current.isConfirmingDelete).toBe(true);
+
+		// Cancel confirmation
+		act(() => {
+			result.current.handleDeleteCancel();
+		});
+		expect(result.current.isConfirmingDelete).toBe(false);
+
+		// Confirm deletion
+		act(() => {
+			result.current.handleDeleteClick();
+		});
+		expect(result.current.isConfirmingDelete).toBe(true);
+	});
+
+	it("handleDeleteConfirm calls deleteImage and navigates", async () => {
+		vi.resetAllMocks();
+		installLocale();
+		vi.mocked(useParams).mockReturnValue({ image_slug: IMAGE_SLUG });
+		const mockNavigate = vi.fn();
+		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+		vi.mocked(useCurrentUserId).mockReturnValue(USER_ID);
+		const img = makeImagePublic(IMAGE_SLUG);
+		const mockDelete = vi.fn().mockReturnValue(Effect.succeed(undefined));
+		installStore({
+			publicImages: { [img.image_id]: img },
+			deleteImage: mockDelete,
+		});
+
+		const { result } = renderHook(() => useImageView());
+
+		result.current.handleDeleteConfirm();
+
+		await waitFor(() => {
+			expect(mockDelete).toHaveBeenCalledWith(img.image_id);
+			expect(mockNavigate).toHaveBeenCalledWith("/en/dashboard/image-library");
 		});
 	});
 });

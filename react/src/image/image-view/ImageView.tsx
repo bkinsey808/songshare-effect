@@ -17,8 +17,19 @@ const ONE_DECIMAL = 1;
  * @returns React element for the image view page
  */
 export default function ImageView(): ReactElement {
-	const { handleEditClick, image, imageError, imageUrl, isImageLoading, isOwner, qrCodeUrl } =
-		useImageView();
+	const {
+		handleDeleteCancel,
+		handleDeleteClick,
+		handleDeleteConfirm,
+		handleEditClick,
+		image,
+		imageError,
+		imageUrl,
+		isConfirmingDelete,
+		isImageLoading,
+		isOwner,
+		qrCodeUrl,
+	} = useImageView();
 
 	if (isImageLoading) {
 		return (
@@ -68,6 +79,35 @@ export default function ImageView(): ReactElement {
 							>
 								Edit
 							</button>
+						)}
+						{isOwner && !isConfirmingDelete && (
+							<button
+								type="button"
+								onClick={handleDeleteClick}
+								data-testid="image-view-delete"
+								className="rounded-lg border border-red-600/50 bg-red-900/20 px-4 py-2 text-sm text-red-400 transition-colors hover:border-red-500 hover:bg-red-900/40 hover:text-red-300"
+							>
+								Delete
+							</button>
+						)}
+						{isOwner && isConfirmingDelete && (
+							<div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-950/20 p-1">
+								<span className="px-2 text-xs font-medium text-red-200">Confirm?</span>
+								<button
+									type="button"
+									onClick={handleDeleteCancel}
+									className="rounded-md px-3 py-1 text-xs text-gray-400 hover:bg-gray-800 hover:text-white"
+								>
+									Cancel
+								</button>
+								<button
+									type="button"
+									onClick={handleDeleteConfirm}
+									className="rounded-md bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-500"
+								>
+									Delete
+								</button>
+							</div>
 						)}
 						{!isOwner && (
 							<ImageViewLibraryAction imageId={image.image_id} imageOwnerId={image.user_id} />

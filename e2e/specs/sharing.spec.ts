@@ -35,7 +35,9 @@
  *   E2E_TEST_USER2_USERNAME   username of user 2 (used for the share/invite search)
  *   PLAYWRIGHT_BASE_URL       base URL under test (default: https://127.0.0.1:5173)
  */
-import { existsSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
 
@@ -94,7 +96,6 @@ const testSongSlug = String(process.env["E2E_TEST_SONG_SLUG"] ?? "");
 const testPlaylistSlug = String(process.env["E2E_TEST_PLAYLIST_SLUG"] ?? "");
 const testCommunitySlug = String(process.env["E2E_TEST_COMMUNITY_SLUG"] ?? "");
 const testEventSlug = String(process.env["E2E_TEST_EVENT_SLUG"] ?? "");
-const testImageSlug = String(process.env["E2E_TEST_IMAGE_SLUG"] ?? "");
 
 // ── skip guards — pre-computed outside describe/test bodies ───────────────────
 
@@ -106,7 +107,6 @@ const missingSongSlug = testSongSlug === "";
 const missingPlaylistSlug = testPlaylistSlug === "";
 const missingCommunitySlug = testCommunitySlug === "";
 const missingEventSlug = testEventSlug === "";
-const missingImageSlug = testImageSlug === "";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -242,6 +242,8 @@ async function clearAllPendingPeerShares(recipientPage: Page): Promise<void> {
 	}
 	/* oxlint-enable no-await-in-loop */
 }
+
+
 
 // ── P2P Song Share ─────────────────────────────────────────────────────────────
 
@@ -434,14 +436,170 @@ test.describe("P2P Playlist Share", () => {
 	});
 });
 
+// ── Image Upload and Delete Helpers ────────────────────────────────────────────
+
+const CANVAS_SIZE = 100;
+const DATA_URL_SEPARATOR_INDEX = 1;
+const BYTE_OFFSET_DEFAULT = 0;
+
+/**
+ * Creates a test image and uploads it via the image upload page.
+ * Returns the slug of the created image for use in subsequent tests.
+ *
+ * @param userPage - Authenticated page context of the user uploading
+ * @returns Slug of the uploaded image
+ */
+async function uploadTestImage(userPage: Page): Promise<string> {
+	// Create a test image using canvas and convert to PNG data URL
+	const dataUrl = await userPage.evaluate(({ canvasSize }) => {
+		const canvasEl = document.createElement("canvas");
+		canvasEl.width = canvasSize;
+		canvasEl.height = canvasSize;
+		const ctx = canvasEl.getContext("2d");
+		if (ctx) {
+			ctx.fillStyle = "#FF0000";
+			/* oxlint-disable-next-line no-magic-numbers */
+			ctx.fillRect(0, 0, canvasSize, canvasSize);
+		}
+		return canvasEl.toDataURL("image/png");
+	}, { canvasSize: CANVAS_SIZE });
+
+	// Convert data URL to Buffer and write to temp file
+	const dataParts = dataUrl.split(",");
+	const encodedData = dataParts[DATA_URL_SEPARATOR_INDEX];
+	if (encodedData === undefined) {
+		throw new Error("Invalid canvas data URL");
+	}
+	const binaryString = atob(encodedData);
+	const bytes = new Uint8Array(binaryString.length);
+	/* oxlint-disable-next-line no-magic-numbers */
+	for (let i = 0; i < binaryString.length; i += 1) {
+		const codePoint = binaryString.codePointAt(i);
+		bytes[i] = codePoint ?? BYTE_OFFSET_DEFAULT;
+	}
+	const tempFile = join(tmpdir(), `test-image-${Date.now()}.png`);
+	writeFileSync(tempFile, Buffer.from(bytes));
+
+	// Navigate to the image upload page
+	await userPage.goto(`${BASE_URL}/en/dashboard/image-upload`, { waitUntil: "load" });
+	await userPage.waitForTimeout(HYDRATION_WAIT_MS);
+
+	// Fill in the image name
+	const testImageName = `test-image-${Date.now()}`;
+	await userPage.getByLabel("Image Name").fill(testImageName);
+
+	// Fill in the description
+	await userPage.getByLabel("Description").fill("Test image for E2E sharing tests");
+
+	// Fill in alt text
+	await userPage.getByLabel("Alt Text").fill("Test image");
+
+	// Set the file input using Playwright's setInputFiles method
+	const fileInput = userPage.locator('input[type="file"]');
+	await fileInput.setInputFiles(tempFile);
+
+	// Submit the form
+	const uploadBtn = userPage.getByRole("button", { name: "Upload" });
+	const uploadResponse = userPage.waitForResponse(/\/api\/images\/upload/, {
+		timeout: INVITE_SUCCESS_TIMEOUT_MS,
+	});
+	await uploadBtn.click();
+	const uploadResp = await uploadResponse;
+
+	// Parse response to get slug
+	/* oxlint-disable no-unsafe-type-assertion */
+	const uploadData = (await uploadResp.json()) as Record<string, unknown>;
+	// The API returns the image data nested under `data` key: { success: true, data: { image_slug, ... } }
+	const imageData = uploadData["data"] as Record<string, unknown> | undefined;
+	const imageSlug = imageData?.["image_slug"] as string | undefined;
+	/* oxlint-enable no-unsafe-type-assertion */
+	console.error(`🔍 Upload API response status: ${uploadResp.status()}`);
+	console.error(`🔍 Upload API response data:`, uploadData);
+
+	if (imageSlug === undefined || imageSlug === "") {
+		throw new Error(
+			`Failed to get image slug from upload response. Status: ${uploadResp.status()}, Data: ${JSON.stringify(uploadData)}`,
+		);
+	}
+
+	return imageSlug;
+}
+
+/**
+ * Deletes a test image by navigating to it and clicking the Delete button.
+ *
+ * @param userPage - Authenticated page context of the image owner
+ * @param imageSlug - Slug of the image to delete
+ */
+/**
+ * Deletes a test image by making a direct API call.
+ * 
+ * Note: We use the API directly instead of navigating to the page and clicking
+ * because of occasional timing issues with loading image data in fresh contexts.
+ * 
+ * This function catches deletion errors and logs them rather than failing the test,
+ * since deletion is a cleanup operation and failure shouldn't cause test failure.
+ *
+ * @param userPage - Authenticated page context of the image owner
+ * @param imageSlug - Slug of the image to delete (image ID can be extracted from slug)
+ */
+async function deleteTestImage(userPage: Page, imageSlug: string): Promise<void> {
+	try {
+		// Extract the image ID from the slug (format: "name-8charUUID")
+		// Last element of the slug is the image ID (e.g., "test-image-1773704931754-5110a0a1")
+		const LAST_ELEMENT = -1;
+		const parts = imageSlug.split("-");
+		const imageId = parts.at(LAST_ELEMENT);
+
+		if (imageId === undefined || imageId === "") {
+			console.error(`🔍 Delete image cleanup warning - Could not extract image ID from slug: ${imageSlug}`);
+			return;
+		}
+
+		console.error(`🔍 Deleting image: ${imageSlug} (ID: ${imageId})`);
+
+		// Make a POST request to delete the image via API
+		const deleteResponse = await userPage.request.post(
+			new URL("/api/images/delete", BASE_URL).toString(),
+			{
+				data: { image_id: imageId },
+			},
+		);
+
+		if (deleteResponse.ok()) {
+			console.error(`🔍 Image deleted successfully`);
+		} else {
+			const responseBody = await deleteResponse.text();
+			console.error(`🔍 Delete image cleanup warning - Status: ${deleteResponse.status()}`);
+			console.error(`🔍 Delete image cleanup warning - Body: ${responseBody}`);
+			// Don't throw - just log. This is cleanup and we don't want it to fail the test.
+		}
+	} catch (error: unknown) {
+		// Log cleanup errors but don't fail the test
+		const errorMsg = error instanceof Error ? error.message : String(error);
+		console.error(`🔍 Delete image cleanup error (non-critical): ${errorMsg}`);
+	}
+}
+
 // ── P2P Image Share ─────────────────────────────────────────────────────────────
 
 test.describe("P2P Image Share", () => {
 	test.skip(missingBothSessions, "Skipped: run npm run e2e:create-session:staging-db[:user2]");
-	test.skip(missingImageSlug, "Skipped: set E2E_TEST_IMAGE_SLUG");
 	test.skip(missingUser2Username, "Skipped: set E2E_TEST_USER2_USERNAME");
 
+	let imageSlugForTest = "";
+
 	test.beforeEach(async ({ browser }) => {
+		// Create a fresh test image owned by the sender (user1)
+		const senderCtx = await newContextWithVersion(browser, GOOGLE_USER_SESSION_PATH);
+		const senderPage = await senderCtx.newPage();
+		try {
+			imageSlugForTest = await uploadTestImage(senderPage);
+		} finally {
+			await senderCtx.close();
+		}
+
+		// Clear pending shares for the recipient
 		const recipientCtx = await newContextWithVersion(browser, GOOGLE_USER_SESSION_PATH_2);
 		const recipientPage = await recipientCtx.newPage();
 		try {
@@ -451,22 +609,51 @@ test.describe("P2P Image Share", () => {
 		}
 	});
 
+	test.afterEach(async ({ browser }) => {
+		// Clean up: delete the test image
+		if (imageSlugForTest) {
+			const senderCtx = await newContextWithVersion(browser, GOOGLE_USER_SESSION_PATH);
+			const senderPage = await senderCtx.newPage();
+			try {
+				await deleteTestImage(senderPage, imageSlugForTest);
+			} finally {
+				await senderCtx.close();
+			}
+		}
+	});
+
 	test("sender shares an image and recipient accepts it", async ({ browser }) => {
 		const { senderCtx, recipientCtx } = await createTwoUserContexts(browser);
 
 		try {
 			const senderPage = await senderCtx.newPage();
 			const recipientPage = await recipientCtx.newPage();
+			const senderErrors = setupErrorTracking(senderPage);
 			const errors = setupErrorTracking(recipientPage);
 
 			// Sender: open the image page and share it
-			await senderPage.goto(`${BASE_URL}/en/image/${testImageSlug}`, { waitUntil: "load" });
+			await senderPage.goto(`${BASE_URL}/en/image/${imageSlugForTest}`, { waitUntil: "load" });
 			await senderPage.waitForTimeout(HYDRATION_WAIT_MS);
+
+			// Debug: log page title and URL to verify image page loaded
+			const pageTitle = await senderPage.title();
+			const pageUrl = senderPage.url();
+			console.error(`🔍 Loaded page - URL: ${pageUrl}, Title: ${pageTitle}`);
+
+			// Additional debugging: check what buttons exist
+			const allButtons = await senderPage.locator("button").allTextContents();
+			console.error(`🔍 All buttons on page: [${allButtons.map((btn) => `"${btn}"`).join(", ")}]`);
+
+			// Check if page HTML contains "Share" text
+			const pageContent = await senderPage.content();
+			const hasShareWord = pageContent.includes("Share");
+			console.error(`🔍 Page HTML contains "Share" text: ${hasShareWord}`);
+
+			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
+			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			const imageAcceptShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
 				timeout: INVITE_SUCCESS_TIMEOUT_MS,
 			});
-			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
-			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			await shareBtn.click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
 			// Confirm the share was persisted before checking the recipient side.
@@ -485,7 +672,9 @@ test.describe("P2P Image Share", () => {
 				recipientPage.getByRole("button", { name: "Accept", exact: true }).first(),
 			).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
 
+			const unexpectedSenderErrors = filterExpectedErrors(senderErrors.consoleErrors);
 			const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
+			expect(unexpectedSenderErrors).toHaveLength(NO_ERRORS);
 			expect(unexpectedErrors).toHaveLength(NO_ERRORS);
 		} finally {
 			await senderCtx.close();
@@ -499,15 +688,16 @@ test.describe("P2P Image Share", () => {
 		try {
 			const senderPage = await senderCtx.newPage();
 			const recipientPage = await recipientCtx.newPage();
+			const senderErrors = setupErrorTracking(senderPage);
 
 			// Sender: share the image
-			await senderPage.goto(`${BASE_URL}/en/image/${testImageSlug}`, { waitUntil: "load" });
+			await senderPage.goto(`${BASE_URL}/en/image/${imageSlugForTest}`, { waitUntil: "load" });
 			await senderPage.waitForTimeout(HYDRATION_WAIT_MS);
+			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
+			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			const imageDeclineShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
 				timeout: INVITE_SUCCESS_TIMEOUT_MS,
 			});
-			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
-			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			await shareBtn.click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
 			const imageDeclineShareResponse = await imageDeclineShareP;
@@ -524,6 +714,9 @@ test.describe("P2P Image Share", () => {
 			await expect(recipientPage.getByRole("button", { name: "Decline" }).first()).not.toBeVisible({
 				timeout: REALTIME_WAIT_MS,
 			});
+
+			const unexpectedSenderErrors = filterExpectedErrors(senderErrors.consoleErrors);
+			expect(unexpectedSenderErrors).toHaveLength(NO_ERRORS);
 		} finally {
 			await senderCtx.close();
 			await recipientCtx.close();
@@ -538,16 +731,17 @@ test.describe("P2P Image Share", () => {
 		try {
 			const senderPage = await senderCtx.newPage();
 			const recipientPage = await recipientCtx.newPage();
+			const senderErrors = setupErrorTracking(senderPage);
 			const errors = setupErrorTracking(recipientPage);
 
 			// Sender: open the image page and share it
-			await senderPage.goto(`${BASE_URL}/en/image/${testImageSlug}`, { waitUntil: "load" });
+			await senderPage.goto(`${BASE_URL}/en/image/${imageSlugForTest}`, { waitUntil: "load" });
 			await senderPage.waitForTimeout(HYDRATION_WAIT_MS);
+			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
+			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			const imageShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
 				timeout: INVITE_SUCCESS_TIMEOUT_MS,
 			});
-			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
-			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			await shareBtn.click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
 			const imageShareResponse = await imageShareP;
@@ -575,7 +769,7 @@ test.describe("P2P Image Share", () => {
 			).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
 
 			// Recipient: navigate to the image page and remove it from library
-			await recipientPage.goto(`${BASE_URL}/en/image/${testImageSlug}`, { waitUntil: "load" });
+			await recipientPage.goto(`${BASE_URL}/en/image/${imageSlugForTest}`, { waitUntil: "load" });
 			await recipientPage.waitForTimeout(HYDRATION_WAIT_MS);
 			const imageRemoveP = recipientPage.waitForResponse(/\/api\/image-library\/remove/, {
 				timeout: INVITE_SUCCESS_TIMEOUT_MS,
@@ -596,7 +790,9 @@ test.describe("P2P Image Share", () => {
 				timeout: REALTIME_WAIT_MS,
 			});
 
+			const unexpectedSenderErrors = filterExpectedErrors(senderErrors.consoleErrors);
 			const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
+			expect(unexpectedSenderErrors).toHaveLength(NO_ERRORS);
 			expect(unexpectedErrors).toHaveLength(NO_ERRORS);
 		} finally {
 			await senderCtx.close();

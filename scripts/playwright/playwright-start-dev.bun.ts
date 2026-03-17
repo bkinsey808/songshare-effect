@@ -10,9 +10,9 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-import { warn as sWarn, error as sError, log as sLog } from "../utils/scriptLogger";
+import { error as sError, log as sLog, warn as sWarn } from "../utils/scriptLogger";
 import isPortListening from "./helpers/isPortListening";
-import { CLIENT_LOG, API_LOG, TAIL_LINES } from "./helpers/logPaths";
+import { API_LOG, CLIENT_LOG, TAIL_LINES } from "./helpers/logPaths";
 import probeUrl from "./helpers/probeUrl";
 import whichExists from "./helpers/whichExists";
 
@@ -28,6 +28,7 @@ const WAIT_INDEX = 0;
 const WAIT_VALUE = 0;
 const WAIT_SECONDS = Number(process.env["WAIT_SECONDS"] ?? "60");
 const POLL_MS = 500;
+const API_ENV = process.env["API_ENV"] ?? "dev";
 // TAIL_LINES provided by helpers
 const MS_PER_SECOND = 1000;
 const SHARED_ARRAY_SIZE = 4;
@@ -111,10 +112,10 @@ let apiPid = DEFAULT_PID;
 if (probeApi()) {
 	sWarn(`API already listening on ${API_PORT}; will not start a new wrangler instance`);
 } else {
-	sLog(`Starting API (wrangler dev) -> logs: ${API_LOG}`);
+	sLog(`Starting API (wrangler dev --env ${API_ENV}) -> logs: ${API_LOG}`);
 	// Start wrangler dev in api/ cwd
 	const apiProc = spawn(
-		`env CLOUDFLARE_API_TOKEN="${process.env["CLOUDFLARE_API_TOKEN"] ?? ""}" npx wrangler dev --no-enable-containers --env dev`,
+		`env CLOUDFLARE_API_TOKEN="${process.env["CLOUDFLARE_API_TOKEN"] ?? ""}" npx wrangler dev --no-enable-containers --env ${API_ENV}`,
 		{
 			cwd: path.join(process.cwd(), "api"),
 			stdio: ["ignore", fs.openSync(API_LOG, "a"), fs.openSync(API_LOG, "a")],

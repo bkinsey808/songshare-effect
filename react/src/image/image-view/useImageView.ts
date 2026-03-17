@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
@@ -9,15 +9,31 @@ import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { dashboardPath, imageEditPath, imageViewPath } from "@/shared/paths";
+import { dashboardPath, imageEditPath, imageLibraryPath, imageViewPath } from "@/shared/paths";
 
 import type { ImagePublic } from "../image-types";
 
+/**
+ * Helper function to delete an image and navigate. Defined at module scope
+ * to avoid React Compiler issues with Effect.gen/yield* syntax.
+ */
+async function performImageDelete(
+	deleteEffect: Effect.Effect<void, Error>,
+	onSuccess: () => void,
+): Promise<void> {
+	await Effect.runPromise(deleteEffect);
+	onSuccess();
+}
+
 export type UseImageViewReturn = {
+	handleDeleteCancel: () => void;
+	handleDeleteClick: () => void;
+	handleDeleteConfirm: () => void;
 	handleEditClick: () => void;
 	image: ImagePublic | undefined;
 	imageError: string | undefined;
 	imageUrl: string | undefined;
+	isConfirmingDelete: boolean;
 	isImageLoading: boolean;
 	isOwner: boolean;
 	qrCodeUrl: string | undefined;
@@ -28,11 +44,13 @@ export default function useImageView(): UseImageViewReturn {
 	const { image_slug } = useParams<{ image_slug: string }>();
 	const navigate = useNavigate();
 	const currentUserId = useCurrentUserId();
+	const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
 	const publicImages = useAppStore((state) => state.publicImages);
 	const isImageLoading = useAppStore((state) => state.isImageLoading);
 	const imageError = useAppStore((state) => state.imageError);
 	const fetchImageBySlug = useAppStore((state) => state.fetchImageBySlug);
+	const deleteImage = useAppStore((state) => state.deleteImage);
 
 	useShareSubscription();
 
@@ -67,11 +85,37 @@ export default function useImageView(): UseImageViewReturn {
 		}
 	}
 
+	function handleDeleteClick(): void {
+		setIsConfirmingDelete(true);
+	}
+
+	function handleDeleteCancel(): void {
+		setIsConfirmingDelete(false);
+	}
+
+	function handleDeleteConfirm(): void {
+		if (image === undefined) {
+			return;
+		}
+
+		const destinationPath = buildPathWithLang(`/${dashboardPath}/${imageLibraryPath}`, lang);
+
+		const deleteEffect = deleteImage(image.image_id);
+
+		void performImageDelete(deleteEffect, () => {
+			void navigate(destinationPath);
+		});
+	}
+
 	return {
+		handleDeleteCancel,
+		handleDeleteClick,
+		handleDeleteConfirm,
 		handleEditClick,
 		image,
 		imageError,
 		imageUrl,
+		isConfirmingDelete,
 		isImageLoading,
 		isOwner,
 		qrCodeUrl,

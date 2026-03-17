@@ -2,19 +2,19 @@ import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 
 import {
-	communityEditPath,
-	communityLibraryPath,
-	deleteAccountPath,
-	eventEditPath,
-	eventLibraryPath,
-	imageEditPath,
-	imageLibraryPath,
-	imageUploadPath,
-	playlistEditPath,
-	playlistLibraryPath,
-	songEditPath,
-	songLibraryPath,
-	userLibraryPath,
+    communityEditPath,
+    communityLibraryPath,
+    deleteAccountPath,
+    eventEditPath,
+    eventLibraryPath,
+    imageEditPath,
+    imageLibraryPath,
+    imageUploadPath,
+    playlistEditPath,
+    playlistLibraryPath,
+    songEditPath,
+    songLibraryPath,
+    userLibraryPath,
 } from "@/shared/paths";
 
 import withSuspense from "../app/withSuspense";

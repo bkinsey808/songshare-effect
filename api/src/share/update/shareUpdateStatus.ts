@@ -184,6 +184,16 @@ function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, D
 						]);
 						break;
 					}
+					case "image": {
+						await client.from("image_library").insert([
+							{
+								user_id: recipientUserId,
+								image_id: itemId,
+								image_owner_id: senderUserId,
+							},
+						]);
+						break;
+					}
 					default: {
 						throw new Error(`Invalid item type: ${itemType}`);
 					}
