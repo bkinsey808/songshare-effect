@@ -12,6 +12,11 @@
 	"navigation": {
 		"home": "首页",
 		"songs": "歌曲",
+		"playlists": "播放列表",
+		"users": "用户",
+		"events": "活动",
+		"images": "图片",
+		"communities": "社区",
 		"upload": "上传",
 		"about": "关于",
 		"typegpuAudioViz": "TypeGPU 音频可视化",

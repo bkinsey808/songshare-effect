@@ -27,9 +27,11 @@ export default function SettingsCard(): ReactElement {
 	const { isFullScreen, toggleFullScreen } = useFullScreen();
 	const { isWakeLockActive, toggleWakeLock, isSupported: isWakeLockSupported } = useWakeLock();
 	const { signOut, currentLang, localIsSignedIn } = useDashboard();
+	const actionButtonClassName =
+		"rounded-md! whitespace-nowrap text-xs sm:text-sm data-[size=compact]:px-2 data-[size=compact]:py-1 sm:data-[size=compact]:px-3 sm:data-[size=compact]:py-1.5";
 
 	return (
-		<div className="flex flex-wrap items-center gap-2 rounded-lg bg-slate-800/50 px-3 py-1.5">
+		<div className="flex flex-wrap items-center gap-3 sm:gap-5 rounded-lg bg-slate-800/50 px-3 py-1.5">
 			{/* Full Screen toggle */}
 			<Button
 				size="compact"
@@ -43,7 +45,7 @@ export default function SettingsCard(): ReactElement {
 				}
 				onClick={toggleFullScreen}
 				data-testid="navigation-fullscreen-toggle"
-				className="rounded-md! whitespace-nowrap"
+				className={actionButtonClassName}
 			>
 				{isFullScreen
 					? t("navigation.exitFullScreen", "Exit Full Screen")
@@ -63,7 +65,7 @@ export default function SettingsCard(): ReactElement {
 					}
 					onClick={toggleWakeLock}
 					data-testid="navigation-wakelock-toggle"
-					className="rounded-md! whitespace-nowrap"
+					className={actionButtonClassName}
 				>
 					{t("navigation.wakeLock", "Wake Lock")}
 				</Button>
@@ -81,7 +83,7 @@ export default function SettingsCard(): ReactElement {
 							void signOut();
 						}}
 						data-testid="navigation-sign-out"
-						className="rounded-md! whitespace-nowrap"
+						className={actionButtonClassName}
 					>
 						{t("pages.dashboard.signOut", "Sign Out")}
 					</Button>
@@ -96,7 +98,7 @@ export default function SettingsCard(): ReactElement {
 							);
 						}}
 						data-testid="navigation-delete-account"
-						className="rounded-md! whitespace-nowrap"
+						className={actionButtonClassName}
 					>
 						{t("pages.dashboard.deleteAccount", "Delete Account")}
 					</Button>

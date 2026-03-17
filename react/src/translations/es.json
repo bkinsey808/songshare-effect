@@ -12,6 +12,11 @@
 	"navigation": {
 		"home": "Inicio",
 		"songs": "Canciones",
+		"playlists": "Listas",
+		"users": "Usuarios",
+		"events": "Eventos",
+		"images": "Imágenes",
+		"communities": "Comunidades",
 		"upload": "Subir",
 		"about": "Acerca de",
 		"typegpuAudioViz": "Visualizador de audio TypeGPU",

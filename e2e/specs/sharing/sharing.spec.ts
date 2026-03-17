@@ -41,8 +41,8 @@ import { join } from "node:path";
 
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
 
-import { GOOGLE_USER_SESSION_PATH, GOOGLE_USER_SESSION_PATH_2 } from "../utils/auth-helpers";
-import { filterExpectedErrors, setupErrorTracking } from "../utils/error-helpers";
+import { GOOGLE_USER_SESSION_PATH, GOOGLE_USER_SESSION_PATH_2 } from "@/e2e/utils/auth-helpers";
+import { filterExpectedErrors, setupErrorTracking } from "@/e2e/utils/error-helpers";
 
 // ── configuration ────────────────────────────────────────────────────────────
 

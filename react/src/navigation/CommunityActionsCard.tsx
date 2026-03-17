@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Button from "@/react/lib/design-system/Button";
-import LibraryIcon from "@/react/lib/design-system/icons/LibraryIcon";
+import CommunitiesIcon from "@/react/lib/design-system/icons/CommunitiesIcon";
 import PencilIcon from "@/react/lib/design-system/icons/PencilIcon";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
@@ -14,10 +14,25 @@ import {
 
 import useAppStore from "../app-store/useAppStore";
 
+type CommunityActionsCardProps = {
+	readonly showLibrary?: boolean;
+};
+
+const actionButtonClassName =
+	"rounded-md! whitespace-nowrap text-xs sm:text-sm data-[size=compact]:px-2 data-[size=compact]:py-1 sm:data-[size=compact]:px-3 sm:data-[size=compact]:py-1.5";
+
+function toVariant(active: boolean): "primary" | "outlineSecondary" {
+	return active ? "primary" : "outlineSecondary";
+}
+
 /**
  * Card containing community navigation.
+ * @param props - Component props.
+ * @param props.showLibrary - Whether to show the community library button.
  */
-export default function CommunityActionsCard(): ReactElement {
+export default function CommunityActionsCard({
+	showLibrary = true,
+}: CommunityActionsCardProps): ReactElement | undefined {
 	const { lang, t } = useLocale();
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -45,7 +60,7 @@ export default function CommunityActionsCard(): ReactElement {
 				(member.role === "owner" || member.role === "community_admin"),
 		);
 
-	function isActive(itemPath: string): boolean {
+	function computeIsActive(itemPath: string): boolean {
 		const currentPath = location.pathname;
 		const targetPath = buildPathWithLang(itemPath ? `/${itemPath}` : "/", lang);
 		return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
@@ -66,34 +81,44 @@ export default function CommunityActionsCard(): ReactElement {
 		}
 	}
 
+	const shouldShowManage = canManage && currentCommunitySlug !== undefined;
+
+	const communityLibraryVariant = toVariant(
+		computeIsActive(`${dashboardPath}/${communityLibraryPath}`),
+	);
+	const manageCommunityVariant = toVariant(
+		currentCommunitySlug !== undefined &&
+			computeIsActive(
+				`${dashboardPath}/${communityViewPath}/${currentCommunitySlug}/${communityManagePath}`,
+			),
+	);
+
+	if (!showLibrary && !shouldShowManage) {
+		return undefined;
+	}
+
 	return (
-		<div className="flex items-center gap-2 rounded-lg bg-slate-800/50 px-3 py-1.5">
-			<Button
-				size="compact"
-				variant={
-					isActive(`${dashboardPath}/${communityLibraryPath}`) ? "primary" : "outlineSecondary"
-				}
-				icon={<LibraryIcon className="size-4" />}
-				onClick={handleGoToLibrary}
-				data-testid="navigation-community-library"
-				className="rounded-md! whitespace-nowrap"
-			>
-				{t("navigation.communityLibrary", "Communities")}
-			</Button>
-			{canManage && currentCommunitySlug !== undefined && (
+		<div className="flex items-center gap-3 sm:gap-5 rounded-lg bg-slate-800/50 px-3 py-1.5">
+			{showLibrary && (
 				<Button
 					size="compact"
-					variant={
-						isActive(
-							`${dashboardPath}/${communityViewPath}/${currentCommunitySlug}/${communityManagePath}`,
-						)
-							? "primary"
-							: "outlineSecondary"
-					}
+					variant={communityLibraryVariant}
+					icon={<CommunitiesIcon className="size-4" />}
+					onClick={handleGoToLibrary}
+					data-testid="navigation-community-library"
+					className={actionButtonClassName}
+				>
+					{t("navigation.communityLibrary", "Communities")}
+				</Button>
+			)}
+			{shouldShowManage && (
+				<Button
+					size="compact"
+					variant={manageCommunityVariant}
 					icon={<PencilIcon className="size-4" />}
 					onClick={handleManageCommunity}
 					data-testid="navigation-manage-community"
-					className="rounded-md! whitespace-nowrap"
+					className={actionButtonClassName}
 				>
 					{t("navigation.manageCommunity", "Manage Community")}
 				</Button>

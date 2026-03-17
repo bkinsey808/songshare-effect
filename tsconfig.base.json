@@ -38,7 +38,8 @@
 			"@/shared/*": ["./shared/src/*"],
 			"@/react/*": ["./react/src/*"],
 			"@/api/*": ["./api/src/*"],
-			"@/scripts/*": ["./scripts/*"]
+			"@/scripts/*": ["./scripts/*"],
+			"@/e2e/*": ["./e2e/*"]
 		},
 		"types": ["bun"]
 		// allow the compiler to resolve types from project `types`/ and

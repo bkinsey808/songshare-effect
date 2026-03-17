@@ -1,10 +1,4 @@
-import CommunityActionsCard from "./CommunityActionsCard";
-import EventLibraryCard from "./EventLibraryCard";
-import ImageLibraryCard from "./ImageLibraryCard";
-import PlaylistCard from "./PlaylistCard";
 import SettingsCard from "./SettingsCard";
-import SongActionsCard from "./SongActionsCard";
-import UserLibraryCard from "./UserLibraryCard";
 
 type ActionsMenuProps = {
 	readonly isVisible: boolean;
@@ -12,10 +6,9 @@ type ActionsMenuProps = {
 };
 
 /**
- * Expandable menu containing song actions, playlist actions, and settings controls.
- * @param props - Component props.
- * @param props.isVisible - Whether the menu is visible.
- * @param props.isScrolled - Whether the page has been scrolled.
+ * Expandable menu containing community management and settings controls.
+ * @param isVisible - Whether the menu is visible.
+ * @param isScrolled - Whether the page has been scrolled.
  * @returns The actions menu component.
  */
 export default function ActionsMenu({ isVisible, isScrolled }: ActionsMenuProps): ReactElement {
@@ -37,11 +30,7 @@ export default function ActionsMenu({ isVisible, isScrolled }: ActionsMenuProps)
 							isScrolled ? "px-4 py-0.5" : "px-5 py-1"
 						}`}
 					>
-						<div className="flex flex-wrap items-center justify-between gap-4">
-							<SongActionsCard />
-							<PlaylistCard /> <UserLibraryCard />
-							<EventLibraryCard /> <ImageLibraryCard /> <CommunityActionsCard />
-							<SettingsCard />
+						<div className="flex flex-wrap items-center justify-between gap-4">							<SettingsCard />
 						</div>
 					</div>
 				</div>

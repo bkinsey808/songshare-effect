@@ -4,10 +4,24 @@ import { useNavigate } from "react-router-dom";
 import useAppStore from "@/react/app-store/useAppStore";
 import Button from "@/react/lib/design-system/Button";
 import MenuIcon from "@/react/lib/design-system/icons/MenuIcon";
+import PlaylistLibraryIcon from "@/react/lib/design-system/icons/PlaylistLibraryIcon";
 import SongLibraryIcon from "@/react/lib/design-system/icons/SongLibraryIcon";
+import CommunitiesIcon from "@/react/lib/design-system/icons/CommunitiesIcon";
+import EventsIcon from "@/react/lib/design-system/icons/EventsIcon";
+import ImagesIcon from "@/react/lib/design-system/icons/ImagesIcon";
+import UsersIcon from "@/react/lib/design-system/icons/UsersIcon";
 import XIcon from "@/react/lib/design-system/icons/XIcon";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { aboutPath, dashboardPath, songLibraryPath } from "@/shared/paths";
+import {
+	aboutPath,
+	communityLibraryPath,
+	dashboardPath,
+	eventLibraryPath,
+	imageLibraryPath,
+	playlistLibraryPath,
+	songLibraryPath,
+	userLibraryPath,
+} from "@/shared/paths";
 
 import useLocale from "../lib/language/locale/useLocale";
 import ActionsMenu from "./ActionsMenu";
@@ -22,11 +36,35 @@ const navItems: readonly {
 	labelKey: string;
 	icon: ReactNode;
 }[] = [
-	{ path: "", labelKey: "navigation.home", icon: "🏠" },
 	{
 		path: `${dashboardPath}/${songLibraryPath}`,
-		labelKey: "navigation.songLibrary",
+		labelKey: "navigation.songs",
 		icon: <SongLibraryIcon className="size-4" />,
+	},
+	{
+		path: `${dashboardPath}/${communityLibraryPath}`,
+		labelKey: "navigation.communities",
+		icon: <CommunitiesIcon className="size-4" />,
+	},
+	{
+		path: `${dashboardPath}/${eventLibraryPath}`,
+		labelKey: "navigation.events",
+		icon: <EventsIcon className="size-4" />,
+	},
+	{
+		path: `${dashboardPath}/${playlistLibraryPath}`,
+		labelKey: "navigation.playlists",
+		icon: <PlaylistLibraryIcon className="size-4" />,
+	},
+	{
+		path: `${dashboardPath}/${userLibraryPath}`,
+		labelKey: "navigation.users",
+		icon: <UsersIcon className="size-4" />,
+	},
+	{
+		path: `${dashboardPath}/${imageLibraryPath}`,
+		labelKey: "navigation.images",
+		icon: <ImagesIcon className="size-4" />,
 	},
 	{ path: aboutPath, labelKey: "navigation.about", icon: "ℹ️" },
 ];
@@ -89,7 +127,16 @@ export default function Navigation({
 								isScrolled ? "mb-0 text-2xl" : "mb-1 text-4xl"
 							}`}
 						>
-							🎵 {t("app.title")}
+							<button
+								type="button"
+								onClick={() => {
+									void navigate(buildPathWithLang("/", lang));
+								}}
+								className="inline-flex items-center gap-2"
+								aria-label={t("navigation.home", "Home")}
+							>
+								🎵 {t("app.title")}
+							</button>
 						</h1>
 						{!isScrolled && (
 							<p className="text-gray-400 transition-opacity duration-300">{t("app.subtitle")}</p>
@@ -97,37 +144,35 @@ export default function Navigation({
 					</div>
 
 					{/* Main navigation row */}
-					<div className="flex flex-wrap items-center justify-between gap-5">
-						<div className="flex flex-wrap gap-5">
-							{/* Render primary nav buttons; `isActive` determines button variant and `buildPathWithLang` ensures language-aware routing. */}
-							{navItems.map((item) => {
-								const active = isActive(item.path);
-								const path = buildPathWithLang(item.path ? `/${item.path}` : "/", lang);
-								return (
-									<Button
-										key={item.path}
-										size="compact"
-										variant={active ? "primary" : "outlineSecondary"}
-										icon={
-											typeof item.icon === "string" ? (
-												<span aria-hidden>{item.icon}</span>
-											) : (
-												item.icon
-											)
-										}
-										onClick={() => {
-											void navigate(path);
-										}}
-										className="rounded-md! items-center! [&>span:first-of-type]:mt-0!"
-									>
-										{t(item.labelKey)}
-									</Button>
-								);
-							})}
-						</div>
+					<div className="flex flex-wrap items-center gap-3 sm:gap-5">
+						{/* Render primary nav buttons; `isActive` determines button variant and `buildPathWithLang` ensures language-aware routing. */}
+						{navItems.map((item) => {
+							const active = isActive(item.path);
+							const path = buildPathWithLang(item.path ? `/${item.path}` : "/", lang);
+							return (
+								<Button
+									key={item.path}
+									size="compact"
+									variant={active ? "primary" : "outlineSecondary"}
+									icon={
+										typeof item.icon === "string" ? (
+											<span aria-hidden>{item.icon}</span>
+										) : (
+											item.icon
+										)
+									}
+									onClick={() => {
+										void navigate(path);
+									}}
+									className="rounded-md! items-center! [&>span:first-of-type]:mt-0! text-xs sm:text-sm data-[size=compact]:px-2 data-[size=compact]:py-1 sm:data-[size=compact]:px-3 sm:data-[size=compact]:py-1.5"
+								>
+									{t(item.labelKey)}
+								</Button>
+							);
+						})}
 
 						{/* Right-side controls - staging badge + signed-in username + Actions toggle */}
-						<div className="ml-4 flex items-center gap-3">
+						<div className="ml-auto flex items-center gap-2 sm:gap-3">
 							{import.meta.env["VITE_ENVIRONMENT"] === "staging" && (
 								<span className="rounded bg-yellow-500/20 px-2 py-0.5 text-xs font-medium text-yellow-300 ring-1 ring-yellow-500/40">
 									staging
@@ -159,7 +204,7 @@ export default function Navigation({
 										)
 									}
 									onClick={toggleActions}
-									className="inline-flex rounded-md!"
+									className="inline-flex rounded-md! text-xs sm:text-sm data-[size=compact]:px-2 data-[size=compact]:py-1 sm:data-[size=compact]:px-3 sm:data-[size=compact]:py-1.5"
 									aria-expanded={isHeaderActionsExpanded}
 									aria-label={
 										isHeaderActionsExpanded
