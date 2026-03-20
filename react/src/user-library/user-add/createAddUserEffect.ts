@@ -16,11 +16,11 @@ type CreateAddUserEffectParams = Readonly<{
  * Trims the username, looks it up via API, and adds the found user to the library.
  * Returns structured validation and network errors.
  *
- * @param username - Username to search for and add
- * @param lookupUserByUsername - Effect factory for user lookup
- * @param addUserToLibrary - Effect factory for adding user to library
- * @param t - Translation function for error messages
- * @returns - Effect that completes on success or fails with error message
+ * @param username - Username to search for and add.
+ * @param lookupUserByUsername - Effect factory for user lookup.
+ * @param addUserToLibrary - Effect factory for adding user to library.
+ * @param t - Translation function for error messages.
+ * @returns Effect that completes on success or fails with error message.
  */
 export default function createAddUserEffect(
 	params: CreateAddUserEffectParams,

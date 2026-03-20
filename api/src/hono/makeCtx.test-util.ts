@@ -32,7 +32,7 @@ export default function makeCtx(opts: MakeCtxOpts = {}): ReadonlyContext {
 	const env = {
 		VITE_SUPABASE_URL: "https://supabase.example",
 		SUPABASE_SERVICE_KEY: "service-key",
-		JWT_SECRET: "jwt-secret",
+		SUPABASE_JWT_SECRET: "jwt-secret",
 		SUPABASE_VISITOR_EMAIL: "visitor@example.com",
 		SUPABASE_VISITOR_PASSWORD: "visitor-pass",
 		...opts.env,

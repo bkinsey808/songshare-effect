@@ -28,17 +28,17 @@ export default function buildRegisterJwt({
 }: BuildRegisterJwtParams): Effect.Effect<string, ServerError> {
 	return Effect.gen(function* buildRegisterJwtGen($) {
 		const registerData = { oauthUserData, oauthState };
-		const jwtSecret = ctx.env.JWT_SECRET;
+		const jwtSecret = ctx.env.SUPABASE_JWT_SECRET;
 		if (typeof jwtSecret !== "string" || jwtSecret === "") {
 			yield* $(
 				Effect.sync(() => {
-					console.error("[buildRegisterJwt] Missing JWT_SECRET");
+					console.error("[buildRegisterJwt] Missing SUPABASE_JWT_SECRET");
 				}),
 			);
 			return yield* $(
 				Effect.fail(
 					new ServerError({
-						message: "Server misconfiguration: missing JWT_SECRET",
+						message: "Server misconfiguration: missing SUPABASE_JWT_SECRET",
 					}),
 				),
 			);

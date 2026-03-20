@@ -10,7 +10,7 @@ type EventLibraryEmptyStateProps = {
 /**
  * Displays a message and call-to-action when the event library is empty.
  *
- * @returns - A React element showing the empty state
+ * @returns A React element showing the empty state.
  */
 export default function EventLibraryEmptyState({
 	onCreateClick,

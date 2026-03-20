@@ -17,13 +17,13 @@ type UserLibraryCardConfirmationProps = {
  * Displays an inline confirmation dialog with warnings about what will be
  * removed when deleting a user from the library.
  *
- * @param entry - The user library entry being removed
- * @param isRemoving - Whether a removal operation is in progress
- * @param songsOwnedByUser - Array of song IDs owned by this user
- * @param playlistsOwnedByUser - Array of playlist IDs owned by this user
- * @param onConfirm - Callback when user confirms the removal
- * @param onCancel - Callback when user cancels the removal
- * @returns - A React element displaying the confirmation dialog
+ * @param entry - The user library entry being removed.
+ * @param isRemoving - Whether a removal operation is in progress.
+ * @param songsOwnedByUser - Array of song IDs owned by this user.
+ * @param playlistsOwnedByUser - Array of playlist IDs owned by this user.
+ * @param onConfirm - Callback when the user confirms the removal.
+ * @param onCancel - Callback when the user cancels the removal.
+ * @returns A React element displaying the confirmation dialog.
  */
 export default function UserLibraryCardConfirmation({
 	entry,

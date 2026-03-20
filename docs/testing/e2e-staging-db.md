@@ -5,70 +5,33 @@ This guide covers running Playwright tests connected to the **staging Supabase p
 | Mode                        | Frontend                 | API                          | Supabase |
 | --------------------------- | ------------------------ | ---------------------------- | -------- |
 | **Local site + staging DB** | `localhost:5173`         | `localhost:8787`             | staging  |
-| **Staging site**            | `staging.bardoshare.com` | `staging.bardoshare.com/api` | staging  |
+| **Staging site**            | `<staging-domain>` | `<staging-domain>/api` | staging  |
 
-Both modes use a pre-signed `userSession` cookie (generated once, valid 7 days) stored in `e2e/.auth/google-user.json`. The script fetches real user data from Supabase, mints a JWT signed with `JWT_SECRET`, and writes a Playwright `storageState` file — no OAuth flow required.
+Both modes use a pre-signed `userSession` cookie (generated once, valid 7 days) stored in `e2e/.auth/google-user.json`. The script fetches real user data from Supabase, mints a JWT signed with `SUPABASE_JWT_SECRET`, and writes a Playwright `storageState` file — no OAuth flow required.
 
 ---
 
 ## Prerequisites
 
-Ensure you have both env files in the project root (gitignored):
+All secrets are stored in the OS keyring under the `songshare-staging` service. See [env-vars-and-secrets.md](../env-vars-and-secrets.md) for the full setup guide.
 
-- `.env.staging` — staging Supabase keys + JWT secret + wrangler config
-- `.env.staging-local` — staging Supabase `VITE_*` vars only (for Vite mode)
+The required keys (see `config/env-secrets.staging.list` for the complete list) include:
 
-### `.env.staging` — required keys
-
-The session-generator script (`create-google-user-session.bun.ts`) reads this file via
-`bun --env-file .env.staging` and requires all of the keys below. Get the values from the
-Cloudflare dashboard (Workers → staging project → Settings → Variables & Secrets) or from
-a teammate.
-
-```env
-# ── Supabase ──────────────────────────────────────────────────────────────────
-VITE_SUPABASE_URL=https://<staging-project-ref>.supabase.co
-VITE_SUPABASE_ANON_KEY=<staging anon key>
-SUPABASE_PROJECT_REF=<staging project ref>
-SUPABASE_SERVICE_KEY=<staging service-role key>   # required: admin DB access
-
-# ── JWT ───────────────────────────────────────────────────────────────────────
-# Must match the JWT_SECRET in the staging Cloudflare Worker (wrangler secret).
-# The session generator signs the userSession cookie with this secret.
-JWT_SECRET=<staging jwt secret>
-
-# ── Wrangler / Cloudflare ─────────────────────────────────────────────────────
-CLOUDFLARE_STAGING_PROJECT=<cloudflare pages project name>
-
-# ── Optional overrides ────────────────────────────────────────────────────────
-# Email of the primary test account (defaults to test1@bardoshare.com if unset)
-# E2E_GOOGLE_USER_EMAIL=test1@bardoshare.com
-
-# Override the client IP embedded in the JWT (auto-detected for remote targets)
-# E2E_CLIENT_IP=1.2.3.4
-
-# ── Postgres direct connection (used by scripts, not by session generator) ────
-PGHOST=<staging db host>
-PGPORT=5432
-PGUSER=postgres
-PGPASSWORD=<staging db password>
-PGDATABASE=postgres
+```
+VITE_SUPABASE_URL        VITE_SUPABASE_ANON_KEY   SUPABASE_PROJECT_REF
+SUPABASE_SERVICE_KEY     SUPABASE_JWT_SECRET       PLAYWRIGHT_BASE_URL
+PGHOST  PGPORT  PGUSER  PGPASSWORD  PGDATABASE
 ```
 
-> **Where to find `JWT_SECRET`**: in the Cloudflare dashboard under Workers & Pages →
-> your staging worker → Settings → Variables and Secrets → `JWT_SECRET`. It must be
+Store each value with:
+
+```bash
+echo -n "value" | keyring set songshare-staging VAR_NAME
+```
+
+> **Where to find `SUPABASE_JWT_SECRET`**: in the Cloudflare dashboard under Workers & Pages →
+> your staging worker → Settings → Variables and Secrets → `SUPABASE_JWT_SECRET`. It must be
 > identical to what the deployed API uses, otherwise the minted cookie will be rejected.
-
-### `.env.staging-local` — required keys
-
-Used by Vite in `staging-local` mode so the frontend Realtime client connects to staging Supabase.
-
-```env
-VITE_SUPABASE_URL=https://<staging-project-ref>.supabase.co
-VITE_SUPABASE_ANON_KEY=<staging anon key from .env.staging>
-```
-
-Create it if missing (copy `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` from `.env.staging`).
 
 ---
 
@@ -83,7 +46,7 @@ hit the staging Supabase project.
 npm run e2e:create-session:staging-db
 ```
 
-This reads `.env.staging` for the Supabase admin client and `JWT_SECRET`, and writes
+This reads staging secrets from the keyring (`songshare-staging`) and writes
 `e2e/.auth/google-user.json` with `ip=127.0.0.1`.
 
 ### Start servers
@@ -123,7 +86,7 @@ PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 npx playwright test e2e/specs/song-li
 
 ---
 
-## Mode 2 — Staging Site (staging.bardoshare.com)
+## Mode 2 — Staging Site (<staging-domain>)
 
 All traffic goes to the deployed staging environment. No local servers needed.
 
@@ -148,19 +111,19 @@ npm run test:e2e:staging
 ### Run a single test file
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://staging.bardoshare.com npx playwright test e2e/specs/song-library.spec.ts --reporter=list
+PLAYWRIGHT_BASE_URL=https://<staging-domain> npx playwright test e2e/specs/song-library.spec.ts --reporter=list
 ```
 
 ### Run a single test file with a single browser
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://staging.bardoshare.com npx playwright test e2e/specs/song-library.spec.ts --project=chromium --reporter=list
+PLAYWRIGHT_BASE_URL=https://<staging-domain> npx playwright test e2e/specs/song-library.spec.ts --project=chromium --reporter=list
 ```
 
 ### Run a single test by name
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://staging.bardoshare.com npx playwright test e2e/specs/song-library.spec.ts --project=chromium --reporter=list --grep "user can see their library"
+PLAYWRIGHT_BASE_URL=https://<staging-domain> npx playwright test e2e/specs/song-library.spec.ts --project=chromium --reporter=list --grep "user can see their library"
 ```
 
 ---
@@ -236,25 +199,24 @@ npm run e2e:create-session:staging-db            # user 1 → e2e/.auth/google-u
 npm run e2e:create-session:staging-db:user2      # user 2 → e2e/.auth/google-user-2.json
 ```
 
-For staging URL (running against staging.bardoshare.com):
+For staging URL (running against <staging-domain>):
 
 ```bash
 npm run e2e:create-session:staging-url           # user 1
 npm run e2e:create-session:staging-url:user2     # user 2
 ```
 
-**2. Set required environment variables** (add to your shell or `.env.test.local`):
+**2. Set required environment variables** in the `songshare-staging` keyring:
 
 ```bash
-# username of test user 2 (appears in search results when user 1 searches)
-E2E_TEST_USER2_USERNAME=test2username
-
-# slugs of items owned/managed by user 1 in the staging DB
-E2E_TEST_SONG_SLUG=my-test-song
-E2E_TEST_PLAYLIST_SLUG=my-test-playlist
-E2E_TEST_COMMUNITY_SLUG=my-test-community    # user 1 must be admin/owner
-E2E_TEST_EVENT_SLUG=my-test-event            # user 1 must be admin
+echo -n "test2username"        | keyring set songshare-staging E2E_TEST_USER2_USERNAME
+echo -n "my-test-song"         | keyring set songshare-staging E2E_TEST_SONG_SLUG
+echo -n "my-test-playlist"     | keyring set songshare-staging E2E_TEST_PLAYLIST_SLUG
+echo -n "my-test-community"    | keyring set songshare-staging E2E_TEST_COMMUNITY_SLUG  # user 1 must be admin/owner
+echo -n "my-test-event"        | keyring set songshare-staging E2E_TEST_EVENT_SLUG      # user 1 must be admin
 ```
+
+These are already loaded automatically when running `npm run test:e2e:staging` or any `e2e:create-session:staging-*` command.
 
 **3. User 1 must follow (have in their user library) user 2** so that user 2 appears in the share/invite search dropdown.
 
@@ -275,7 +237,7 @@ PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 \
   --grep "P2P Song Share"
 
 # Against staging site (Mode 2)
-PLAYWRIGHT_BASE_URL=https://staging.bardoshare.com \
+PLAYWRIGHT_BASE_URL=https://<staging-domain> \
   E2E_TEST_USER2_USERNAME=test2username \
   E2E_TEST_COMMUNITY_SLUG=my-test-community \
   npx playwright test e2e/specs/sharing.spec.ts --project=chromium --reporter=list \

@@ -6,7 +6,7 @@ describe("makeCtx helper", () => {
 	it("returns default env values and default request body", async () => {
 		const ctx = makeCtx();
 
-		expect(ctx.env.JWT_SECRET).toBe("jwt-secret");
+		expect(ctx.env.SUPABASE_JWT_SECRET).toBe("jwt-secret");
 		expect(typeof ctx.req.json).toBe("function");
 		await expect(ctx.req.json()).resolves.toStrictEqual({ username: "new-user" });
 		expect(typeof ctx.req.header).toBe("function");
@@ -18,12 +18,12 @@ describe("makeCtx helper", () => {
 		const appendSpy = vi.fn();
 		const ctx = makeCtx({
 			body: { foo: "bar" },
-			env: { JWT_SECRET: "custom-secret" },
+			env: { SUPABASE_JWT_SECRET: "custom-secret" },
 			headers: { "x-test-header": "x-val" },
 			resHeadersAppend: appendSpy,
 		});
 
-		expect(ctx.env.JWT_SECRET).toBe("custom-secret");
+		expect(ctx.env.SUPABASE_JWT_SECRET).toBe("custom-secret");
 		await expect(ctx.req.json()).resolves.toStrictEqual({ foo: "bar" });
 		expect(ctx.req.header("x-test-header")).toBe("x-val");
 

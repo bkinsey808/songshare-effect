@@ -41,7 +41,7 @@ describe("accountRegister cookie integration", () => {
 			env: {
 				VITE_SUPABASE_URL: "url",
 				SUPABASE_SERVICE_KEY: "svc-key",
-				JWT_SECRET: "jwt-secret",
+				SUPABASE_JWT_SECRET: "jwt-secret",
 				ENVIRONMENT: "production",
 				OAUTH_REDIRECT_ORIGIN: "https://app.example",
 			},
@@ -87,7 +87,7 @@ describe("accountRegister cookie integration", () => {
 			env: {
 				VITE_SUPABASE_URL: "url",
 				SUPABASE_SERVICE_KEY: "svc-key",
-				JWT_SECRET: "jwt-secret",
+				SUPABASE_JWT_SECRET: "jwt-secret",
 				ENVIRONMENT: "production",
 				OAUTH_REDIRECT_ORIGIN: "https://app.example",
 			},
@@ -129,7 +129,7 @@ describe("accountRegister cookie integration", () => {
 		const appendSpy = vi.fn();
 		const ctx = makeCtx({
 			body: { username: "intuser" },
-			env: { VITE_SUPABASE_URL: "url", SUPABASE_SERVICE_KEY: "svc-key", JWT_SECRET: "jwt-secret" },
+			env: { VITE_SUPABASE_URL: "url", SUPABASE_SERVICE_KEY: "svc-key", SUPABASE_JWT_SECRET: "jwt-secret" },
 			resHeadersAppend: appendSpy,
 			req: { url: "http://example.test/api/test" },
 		});

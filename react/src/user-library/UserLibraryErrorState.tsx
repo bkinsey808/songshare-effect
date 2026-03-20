@@ -7,8 +7,8 @@ type UserLibraryErrorStateProps = {
 /**
  * Displays an error message when the user library fails to load.
  *
- * @param error - The error message to display
- * @returns - A React element showing the error state
+ * @param error - The error message to display.
+ * @returns A React element showing the error state.
  */
 export default function UserLibraryErrorState({ error }: UserLibraryErrorStateProps): ReactElement {
 	const { t } = useTranslation();

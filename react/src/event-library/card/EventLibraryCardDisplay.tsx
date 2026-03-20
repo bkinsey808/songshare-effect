@@ -28,10 +28,10 @@ type EventLibraryCardDisplayProps = {
  * For owned events: shows a delete button that triggers confirmation
  * For other events: shows a remove button for direct removal
  *
- * @param entry - The event library entry to display
- * @param currentUserId - The ID of the currently authenticated user
- * @param onDeleteClick - Callback when delete button is clicked (for owned events)
- * @returns - A React element displaying the card
+ * @param entry - The event library entry to display.
+ * @param currentUserId - The ID of the currently authenticated user.
+ * @param onDeleteClick - Callback when the delete button is clicked.
+ * @returns A React element displaying the card.
  */
 export default function EventLibraryCardDisplay({
 	entry,

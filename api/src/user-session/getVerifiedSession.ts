@@ -17,10 +17,9 @@ import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrM
  * API handlers that require an authenticated user.
  *
  * @param ctx - The readonly request context providing cookies and environment.
- * @returns - An Effect that resolves to validated `UserSessionData` on success.
- *   If the session is missing or invalid the Effect fails with an
- *   `AuthenticationError`. If required server configuration is missing the
- *   Effect fails with a `DatabaseError`.
+ * @returns An Effect that resolves to validated `UserSessionData` on success.
+ *   If the session is missing or invalid the Effect fails with an `AuthenticationError`.
+ *   If required server configuration is missing the Effect fails with a `DatabaseError`.
  */
 export default function getVerifiedUserSession(
 	ctx: ReadonlyContext,
@@ -34,9 +33,9 @@ export default function getVerifiedUserSession(
 		}
 
 		// 2) ensure JWT secret present
-		const jwtSecret = ctx.env.JWT_SECRET;
+		const jwtSecret = ctx.env.SUPABASE_JWT_SECRET;
 		if (jwtSecret === undefined || jwtSecret === "") {
-			console.error("Missing JWT_SECRET in environment");
+			console.error("Missing SUPABASE_JWT_SECRET in environment");
 			return yield* $(Effect.fail(new DatabaseError({ message: "Server configuration error" })));
 		}
 

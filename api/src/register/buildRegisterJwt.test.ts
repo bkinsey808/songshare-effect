@@ -14,9 +14,9 @@ function installCreateJwtMock(): void {
 }
 
 describe("buildRegisterJwt", () => {
-	it("fails when JWT_SECRET is missing", async () => {
+	it("fails when SUPABASE_JWT_SECRET is missing", async () => {
 		installCreateJwtMock();
-		const ctx = makeCtx({ env: { JWT_SECRET: "" } });
+		const ctx = makeCtx({ env: { SUPABASE_JWT_SECRET: "" } });
 		const oauthUserData = { email: "a@b.com" };
 		const oauthState = parseOauthState(
 			encodeURIComponent(JSON.stringify({ csrf: "x", lang: "en", provider: "google" })),
@@ -29,9 +29,9 @@ describe("buildRegisterJwt", () => {
 		expect(result._tag).toBe("Failure");
 	});
 
-	it("succeeds when JWT_SECRET is set", async () => {
+	it("succeeds when SUPABASE_JWT_SECRET is set", async () => {
 		installCreateJwtMock();
-		const ctx = makeCtx({ env: { JWT_SECRET: "secret" } });
+		const ctx = makeCtx({ env: { SUPABASE_JWT_SECRET: "secret" } });
 		const oauthUserData = { email: "a@b.com" };
 		const oauthState = parseOauthState(
 			encodeURIComponent(JSON.stringify({ csrf: "x", lang: "en", provider: "google" })),

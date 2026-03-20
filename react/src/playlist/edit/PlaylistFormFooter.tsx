@@ -18,11 +18,15 @@ type PlaylistFormFooterProps = {
 };
 
 /**
- * Footer section for the playlist form providing Save/Reset/Cancel actions
- * and an inline confirmation prompt when attempting to cancel with unsaved changes.
+ * Render the playlist form footer actions and cancel confirmation prompt.
  *
- * @param props - PlaylistFormFooterProps
- * @returns A footer React element containing form action buttons
+ * @param hasChanges - Whether the form has unsaved changes.
+ * @param isSubmitting - Whether form submission is in progress.
+ * @param isEditing - Whether the form is editing an existing playlist.
+ * @param onSave - Save handler.
+ * @param onReset - Reset handler.
+ * @param onCancel - Cancel navigation handler.
+ * @returns A footer React element containing form action buttons.
  */
 export default function PlaylistFormFooter({
 	hasChanges,

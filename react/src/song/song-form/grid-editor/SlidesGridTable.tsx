@@ -70,23 +70,22 @@ type SlidesGridTableProps = Readonly<
 >;
 
 /**
- * SlidesGridTable
+ * Render the sortable slides grid table and drag-and-drop container.
  *
- * Extracted table + DnD container for the Slides Grid View.
- * This component manages column resizing and DnD (drag & drop) concerns for the table.
+ * Owns the column width state, drag sensors, and duplicate-row grouping used
+ * by the grid editor.
  *
- * @param props - component props
- * @param props.fields - The dynamic field columns to render as table columns
- * @param props.slideOrder - Ordered list of slide ids to render in the table
- * @param props.slides - Lookup of slide objects by id
- * @param props.horizontalScrollThreshold - Pixel threshold to force horizontal scrolling
- * @param props.editSlideName - Callback to update a slide's name ({ slideId, newName })
- * @param props.editFieldValue - Callback to update a specific field ({ slideId, field, value })
- * @param props.safeGetField - Safe accessor to read a field value for rendering
- * @param props.setSlideOrder - Setter for the presentation's slide order array
- * @param props.duplicateSlide - Duplicate the slide by id
- * @param props.deleteSlide - Delete the slide by id
- * @returns React element rendering the slides grid table and DnD container
+ * @param fields - Dynamic field columns rendered as table columns.
+ * @param slideOrder - Ordered list of slide ids to render.
+ * @param slides - Lookup of slide objects by id.
+ * @param horizontalScrollThreshold - Pixel threshold that forces horizontal scrolling.
+ * @param editSlideName - Handler that updates a slide name.
+ * @param editFieldValue - Handler that updates a field value.
+ * @param safeGetField - Safe accessor that returns display text for a field.
+ * @param setSlideOrder - Setter for the presentation's slide order array.
+ * @param duplicateSlide - Handler that duplicates the slide by id.
+ * @param deleteSlide - Handler that deletes the slide by id.
+ * @returns React element for the slides grid table and DnD container.
  */
 export default function SlidesGridTable({
 	fields,

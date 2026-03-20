@@ -6,8 +6,7 @@ import UserLibrary from "@/react/user-library/UserLibrary";
  * Page that displays the current user's followed users and provides
  * high-level UI (title and description) for managing the user library.
  *
- * @returns - A React element containing the page layout and the
- *   `UserLibrary` component.
+ * @returns A React element containing the page layout and the `UserLibrary` component.
  */
 export default function UserLibraryPage(): ReactElement {
 	const { t } = useTranslation();

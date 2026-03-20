@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import {
-	mockHonoJwtVerifyFailure,
-	mockHonoJwtVerifySuccess,
+    mockHonoJwtVerifyFailure,
+    mockHonoJwtVerifySuccess,
 } from "@/api/hono/makeHonoJwt.test-util";
 import mockDecodeThrow from "@/api/test-utils/makeDecodeUnknownSync.test-util";
 import mockDecodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow.test-util";
@@ -23,7 +23,7 @@ describe("parseDataFromCookie", () => {
 
 		const ctx = makeCtx({
 			headers: { Cookie: "mycookie=tok-abc;" },
-			env: { JWT_SECRET: "jwt-secret" },
+			env: { SUPABASE_JWT_SECRET: "jwt-secret" },
 		});
 
 		mockHonoJwtVerifySuccess({ foo: "bar" });
@@ -37,7 +37,7 @@ describe("parseDataFromCookie", () => {
 	it("returns undefined when cookie missing and allowMissing is true", async () => {
 		vi.resetAllMocks();
 
-		const ctx = makeCtx({ headers: { Cookie: "other=1;" }, env: { JWT_SECRET: "jwt-secret" } });
+		const ctx = makeCtx({ headers: { Cookie: "other=1;" }, env: { SUPABASE_JWT_SECRET: "jwt-secret" } });
 
 		const res = await parseDataFromCookie({
 			ctx,
@@ -51,7 +51,7 @@ describe("parseDataFromCookie", () => {
 	it("throws when cookie missing and allowMissing is false", async () => {
 		vi.resetAllMocks();
 
-		const ctx = makeCtx({ headers: { Cookie: "" }, env: { JWT_SECRET: "jwt-secret" } });
+		const ctx = makeCtx({ headers: { Cookie: "" }, env: { SUPABASE_JWT_SECRET: "jwt-secret" } });
 
 		await expect(
 			parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema }),
@@ -70,7 +70,7 @@ describe("parseDataFromCookie", () => {
 
 		const ctx = makeCtx({
 			headers: { Cookie: "mycookie=badtok;" },
-			env: { JWT_SECRET: "jwt-secret" },
+			env: { SUPABASE_JWT_SECRET: "jwt-secret" },
 		});
 
 		mockHonoJwtVerifyFailure(new Error("invalid token"));
@@ -89,7 +89,7 @@ describe("parseDataFromCookie", () => {
 
 		const ctx = makeCtx({
 			headers: { Cookie: "mycookie=badtok;" },
-			env: { JWT_SECRET: "jwt-secret" },
+			env: { SUPABASE_JWT_SECRET: "jwt-secret" },
 		});
 
 		mockHonoJwtVerifyFailure(new Error("invalid token"));
@@ -104,7 +104,7 @@ describe("parseDataFromCookie", () => {
 
 		const ctx = makeCtx({
 			headers: { Cookie: "mycookie=tok;" },
-			env: { JWT_SECRET: "jwt-secret" },
+			env: { SUPABASE_JWT_SECRET: "jwt-secret" },
 		});
 
 		mockHonoJwtVerifySuccess({ bad: "payload" });
@@ -124,7 +124,7 @@ describe("parseDataFromCookie", () => {
 
 		const ctx = makeCtx({
 			headers: { Cookie: "mycookie=tok;" },
-			env: { JWT_SECRET: "jwt-secret" },
+			env: { SUPABASE_JWT_SECRET: "jwt-secret" },
 		});
 
 		mockHonoJwtVerifySuccess({ bad: "payload" });

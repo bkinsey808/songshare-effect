@@ -16,11 +16,11 @@ type UserLibraryCardProps = {
  * clicked, displays an inline confirmation dialog with warnings about what
  * will be removed.
  *
- * @param entry - The user library entry to display
- * @param currentUserId - The ID of the currently authenticated user
- * @param songsOwnedByUser - Array of song IDs owned by this user in the library
- * @param playlistsOwnedByUser - Array of playlist IDs owned by this user in the library
- * @returns - A React element displaying the card or confirmation dialog
+ * @param entry - The user library entry to display.
+ * @param currentUserId - The ID of the currently authenticated user.
+ * @param songsOwnedByUser - Array of song IDs owned by this user in the library.
+ * @param playlistsOwnedByUser - Array of playlist IDs owned by this user in the library.
+ * @returns A React element displaying the card or confirmation dialog.
  */
 export default function UserLibraryCard({
 	entry,

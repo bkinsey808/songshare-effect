@@ -19,16 +19,15 @@ type SlidesViewManagerProps = Readonly<
 >;
 
 /**
- * Manager that renders both the Slides view and the Slides Grid view and exposes
- * controls to toggle visibility of each section.
+ * Render the slide editor and grid sections with independent collapse state.
  *
- * @param fields - Dynamic fields enabled for slides
- * @param toggleField - Toggle handler for available fields
- * @param slideOrder - Presentation order array
- * @param setSlideOrder - Setter to update the order
- * @param slides - Map of slide id to slide data
- * @param setSlides - Setter to update slides map
- * @returns React element that composes Slides Editor and Slides Grid sections
+ * @param fields - Dynamic fields enabled for slides.
+ * @param toggleField - Handler that toggles a field on or off.
+ * @param slideOrder - Current presentation order array.
+ * @param setSlideOrder - Setter used to update the slide order.
+ * @param slides - Map of slide id to slide data.
+ * @param setSlides - Setter used to update the slides map.
+ * @returns React element containing the editor and grid sections.
  */
 export default function SlidesViewManager({
 	fields,

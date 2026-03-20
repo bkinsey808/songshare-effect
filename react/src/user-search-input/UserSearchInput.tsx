@@ -9,10 +9,14 @@ type UserSearchInputProps = {
 };
 
 /**
- * Searchable selector for choosing a user by username or user id.
+ * Render a searchable selector for choosing a user by username or user id.
  *
- * @param props - Component props
- * @returns User search input with dropdown suggestions
+ * @param activeUserId - Currently selected user id.
+ * @param onSelect - Callback invoked when a user is selected.
+ * @param disabled - Whether the input is disabled.
+ * @param label - Input label text.
+ * @param excludeUserIds - User ids to exclude from results.
+ * @returns User search input with dropdown suggestions.
  */
 export default function UserSearchInput({
 	activeUserId,

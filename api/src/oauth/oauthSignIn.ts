@@ -16,10 +16,10 @@ import { type OauthState } from "@/shared/oauth/oauthState";
 import { apiOauthCallbackPath } from "@/shared/paths";
 import { ProviderSchema, type ProviderType } from "@/shared/providers";
 import {
-	langQueryParam,
-	redirectPortQueryParam,
-	signinErrorQueryParam,
-	SigninErrorToken,
+    langQueryParam,
+    redirectPortQueryParam,
+    signinErrorQueryParam,
+    SigninErrorToken,
 } from "@/shared/queryParams";
 import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrMap";
 
@@ -206,14 +206,14 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 			}),
 		);
 
-		// Sign the state using JWT-style sign. Prefer STATE_HMAC_SECRET, fall back to JWT_SECRET.
-		const stateSecret = envRecord.STATE_HMAC_SECRET ?? envRecord.JWT_SECRET;
+		// Sign the state using JWT-style sign. Prefer STATE_HMAC_SECRET, fall back to SUPABASE_JWT_SECRET.
+		const stateSecret = envRecord.STATE_HMAC_SECRET ?? envRecord.SUPABASE_JWT_SECRET;
 		if (stateSecret === undefined || stateSecret === null || stateSecret === "") {
 			// Log and redirect with a generic serverError token
 			yield* $(
 				Effect.sync(() => {
 					// Localized: server-side error log
-					serverError("[oauthSignIn] Missing STATE_HMAC_SECRET or JWT_SECRET for signing state");
+					serverError("[oauthSignIn] Missing STATE_HMAC_SECRET or SUPABASE_JWT_SECRET for signing state");
 				}),
 			);
 			return yield* $(

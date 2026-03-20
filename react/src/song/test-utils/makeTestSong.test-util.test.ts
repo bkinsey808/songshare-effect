@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { SongPublic } from "@/react/song/song-schema";
 
-import { makeSongWithUndefinedName, makeTestSong } from "./makeTestSong.mock";
+import { makeSongWithUndefinedName, makeTestSong } from "./makeTestSong.test-util";
 
 describe("makeTestSong helper", () => {
 	it("provides sensible default identifiers and text", () => {

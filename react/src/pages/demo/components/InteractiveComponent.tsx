@@ -8,11 +8,10 @@ type InteractiveComponentParams = Readonly<{
 }>;
 
 /**
- * Small interactive demo component with a text input and counter.
+ * Render a small interactive demo card with a text input and counter.
  *
- * @param props - Component props
- * @param props.title - Title to display in the demo card
- * @returns React element with interactive UI controls
+ * @param title - Title to display in the demo card.
+ * @returns React element with interactive UI controls.
  */
 export default function InteractiveComponent({ title }: InteractiveComponentParams): ReactElement {
 	const [inputValue, setInputValue] = useState("");

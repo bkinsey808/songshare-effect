@@ -5,15 +5,12 @@ import formatAppDate from "@/shared/utils/formatAppDate";
 import type { SongPublic } from "../song-schema";
 
 /**
- * DetailRow
+ * Render a labeled detail row inside the song metadata grid.
  *
- * Simple labelled detail row (DT / DD) used inside the song details grid.
- * Keeps markup consistent and avoids duplication for each metadata entry.
- *
- * @param label - the label displayed in the term cell (DT)
- * @param value - the detail text displayed in the definition cell (DD)
- * @param className - optional container classes (used to span columns, etc.)
- * @returns React element (wrapper DIV containing DT/DD)
+ * @param label - Label displayed in the term cell.
+ * @param value - Detail text displayed in the definition cell.
+ * @param className - Optional container classes.
+ * @returns React element containing the detail row markup.
  */
 function DetailRow({
 	label,
@@ -33,9 +30,9 @@ type SongViewDetailsProps = Readonly<{
 }>;
 
 /**
- * Renders the public song details section (metadata grid).
+ * Render the public song details section.
  *
- * @returns React element
+ * @returns React element for the metadata grid.
  */
 export default function SongViewDetails({ songPublic }: SongViewDetailsProps): ReactElement {
 	const { t } = useTranslation();

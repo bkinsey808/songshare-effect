@@ -21,10 +21,25 @@ type Props = {
 };
 
 /**
- * Presentational demo view for TypeGPU audio visualization controls and canvas.
+ * Render the TypeGPU audio visualization demo view.
  *
- * @param props - View props including control callbacks and canvas refs
- * @returns React element rendering the audio viz demo UI
+ * @param title - Demo title.
+ * @param subtitle - Demo subtitle.
+ * @param status - Current audio/viz status string.
+ * @param levelUiValue - Display value for the current audio level.
+ * @param levelDecimals - Number of decimals to show for the level display.
+ * @param renderInfo - Optional render status details.
+ * @param errorMessage - Optional error message for the demo.
+ * @param selectedAudioInputDeviceId - Currently selected input device id.
+ * @param onChangeSelectedAudioInputDeviceId - Handler for device selection changes.
+ * @param audioInputDevicesRefreshKey - Key used to refresh the input device list.
+ * @param onStartMic - Handler that starts microphone capture.
+ * @param onStartDeviceAudio - Handler that starts tab or device audio capture.
+ * @param onStop - Handler that stops capture and rendering.
+ * @param canvasRef - Ref callback for the output canvas element.
+ * @param canvasWidth - Canvas width in pixels.
+ * @param canvasHeight - Canvas height in pixels.
+ * @returns React element rendering the audio viz demo UI.
  */
 export default function TypegpuAudioVizDemoView({
 	title,

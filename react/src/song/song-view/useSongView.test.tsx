@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
-import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 
 import { type SongPublic } from "../song-schema";
@@ -16,6 +16,8 @@ vi.mock("react-router-dom");
 vi.mock("@/react/app-store/useAppStore");
 // Stub networked effect used by the hook to avoid noisy runtime warnings
 vi.mock("@/react/user-library/user-add/addUserToLibraryEffect");
+// Avoid coupling useSongView tests to share subscription side effects
+vi.mock("@/react/share/subscribe/useShareSubscription");
 
 const VALID_SLUG = "valid-slug";
 const EMPTY_SLUG = "";

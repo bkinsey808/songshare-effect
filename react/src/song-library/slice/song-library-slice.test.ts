@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import makeSongLibraryEntry from "@/react/song-library/test-utils/makeSongLibraryEntry.mock";
-import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
 
 import isSongLibraryEntry from "./guards/isSongLibraryEntry";
 

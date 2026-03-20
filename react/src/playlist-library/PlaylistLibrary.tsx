@@ -20,13 +20,14 @@ export type PlaylistLibraryProps = {
 };
 
 /**
- * PlaylistLibrary component — renders the current user's playlist library.
+ * Render the current user's playlist library.
  *
- * This component selects library state from the app store, and renders
- * loading, error, empty, or the playlist grid. Each entry exposes actions
- * to view the playlist or remove it from the library.
+ * Selects library state from the app store and renders loading, error, empty,
+ * or populated states. Each entry exposes actions to view or remove the playlist.
  *
- * @param props - Component props.
+ * @param lang - Current language code.
+ * @param t - Translation function.
+ * @param navigate - Navigation callback.
  * @returns The playlist library UI.
  */
 export default function PlaylistLibrary({ lang, t, navigate }: PlaylistLibraryProps): ReactElement {

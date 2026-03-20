@@ -3,7 +3,6 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import makeEventEntry from "@/react/event/event-entry/makeEventEntry.test-util";
 import type { EventEntry } from "@/react/event/event-types";
 import fetchEventCommunitiesFn from "@/react/event/fetch/fetchEventCommunities";
@@ -21,7 +20,6 @@ const CALL_COUNT_MIN = 1;
 const FIRST_SPY_INDEX = 0;
 
 vi.mock("@/react/app-store/useAppStore");
-vi.mock("@/react/auth/useCurrentUserId");
 vi.mock("@/react/lib/language/useCurrentLang");
 vi.mock("@/shared/fetch/postJson");
 vi.mock("@/react/event/fetch/fetchEventCommunities");
@@ -32,6 +30,7 @@ vi.mocked(subscribeToCommunityEventByEvent).mockReturnValue(Effect.succeed(() =>
 
 type StoreMocksOverrides = {
 	currentEvent?: EventEntry | undefined;
+	currentUserId?: string | undefined;
 	isEventLoading?: boolean;
 	eventError?: string | undefined;
 	playlistLibraryEntries?: Record<string, { playlist_id: string }>;
@@ -43,6 +42,7 @@ function installEventStoreMocks(overrides: StoreMocksOverrides = {}): {
 } {
 	const {
 		currentEvent = undefined,
+		currentUserId = undefined,
 		isEventLoading = false,
 		eventError = undefined,
 		playlistLibraryEntries = {},
@@ -93,6 +93,9 @@ function installEventStoreMocks(overrides: StoreMocksOverrides = {}): {
 		if (selectorText.includes("eventError")) {
 			return eventError;
 		}
+		if (selectorText.includes("userSessionData")) {
+			return currentUserId;
+		}
 		return undefined;
 	});
 
@@ -103,7 +106,6 @@ describe("useEventManageState", () => {
 	it("returns default state when no event is loaded", () => {
 		installEventStoreMocks();
 
-		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
 		// smoke check helper usage
@@ -129,8 +131,7 @@ describe("useEventManageState", () => {
 				active_slide_position: undefined,
 			}),
 		});
-		installEventStoreMocks({ currentEvent: event });
-		vi.mocked(useCurrentUserId).mockReturnValue("u1");
+		installEventStoreMocks({ currentEvent: event, currentUserId: "u1" });
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
 		const { result } = renderHook(() => useEventManageView(), { wrapper: RouterWrapper });
@@ -142,7 +143,6 @@ describe("useEventManageState", () => {
 	it("subscribes to playlist library on mount", async () => {
 		const { playlistSubSpy } = installEventStoreMocks();
 		expect(playlistSubSpy).toBeDefined();
-		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
 		renderHook(() => useEventManageView(), { wrapper: RouterWrapper });
@@ -156,7 +156,6 @@ describe("useEventManageState", () => {
 		const sampleEntries = { p1: { playlist_id: "p1" } };
 		const { playlistPublicSpy } = installEventStoreMocks({ playlistLibraryEntries: sampleEntries });
 		expect(playlistPublicSpy).toBeDefined();
-		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 
 		renderHook(() => useEventManageView(), { wrapper: RouterWrapper });
@@ -179,8 +178,7 @@ describe("useEventManageState", () => {
 				active_slide_position: undefined,
 			}),
 		});
-		installEventStoreMocks({ currentEvent: event });
-		vi.mocked(useCurrentUserId).mockReturnValue("u1");
+		installEventStoreMocks({ currentEvent: event, currentUserId: "u1" });
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 		const mockPostJson = vi.mocked(postJson);
 		mockPostJson.mockResolvedValue();
@@ -208,8 +206,7 @@ describe("useEventManageState", () => {
 				active_slide_position: undefined,
 			}),
 		});
-		installEventStoreMocks({ currentEvent: event });
-		vi.mocked(useCurrentUserId).mockReturnValue("u1");
+		installEventStoreMocks({ currentEvent: event, currentUserId: "u1" });
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 		const mockPostJson = vi.mocked(postJson);
 		mockPostJson.mockResolvedValue();

@@ -10,6 +10,12 @@ const EXPECTED_ERROR_PATTERNS = [
 	"Unable to authenticate as visitor",
 	"fetchSongLibrary",
 	"subscribeToSongLibrary",
+	// Supabase Realtime JWT verification failures — infrastructure/config issue in
+	// staging-db mode, not a code bug. App falls back to fetch-only updates.
+	// Chromium serializes the error class name ("JwtSignerError"), Firefox just says "Error".
+	"subscribeToPendingInvitations",
+	"JwtSignerError",
+	"[song_library] Channel error",
 	"Failed to load shares",
 	"[share_public] Channel error",
 	"access control checks",

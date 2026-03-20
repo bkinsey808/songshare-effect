@@ -14,7 +14,7 @@ import useUserLibrary from "./useUserLibrary";
  * Main component for the user library page. Displays the current user's followed
  * users and allows them to remove individual entries and all associated songs/playlists.
  *
- * @returns - A React element that displays loading, error, empty, or library states
+ * @returns A React element that displays loading, error, empty, or library states.
  */
 export default function UserLibrary(): ReactElement {
 	const { entries, isLoading, error, songLibraryEntries, playlistLibraryEntries } =

@@ -80,11 +80,11 @@ describe("buildUserSessionJwt", () => {
 		expect(res).toBe("signed-jwt-abc");
 	});
 
-	it("fails with ServerError when JWT_SECRET missing", async () => {
+	it("fails with ServerError when SUPABASE_JWT_SECRET missing", async () => {
 		vi.resetAllMocks();
 
 		const supabase = makeSupabaseClient();
-		const ctx = makeCtx({ env: { JWT_SECRET: "" } });
+		const ctx = makeCtx({ env: { SUPABASE_JWT_SECRET: "" } });
 
 		// ensure validation would pass if reached
 		const decodeModule = await import("@/shared/validation/decodeUnknownEffectOrMap");
@@ -103,7 +103,7 @@ describe("buildUserSessionJwt", () => {
 					oauthState: SAMPLE_OAUTH_STATE,
 				}),
 			),
-		).rejects.toThrow(/Server misconfiguration: missing JWT_SECRET/);
+		).rejects.toThrow(/Server misconfiguration: missing SUPABASE_JWT_SECRET/);
 	});
 
 	it("propagates ValidationError when session validation fails", async () => {

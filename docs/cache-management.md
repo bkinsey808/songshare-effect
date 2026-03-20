@@ -101,13 +101,14 @@ npm run deploy:full
    - Go to your domain dashboard in Cloudflare
    - Copy Zone ID from the sidebar
 
-3. **Add to Environment**
+3. **Store in keyring**
 
 ```bash
-# Add to your .env file
-CLOUDFLARE_API_TOKEN=your_api_token
-CLOUDFLARE_ZONE_ID=your_zone_id
+echo -n "your_api_token" | keyring set songshare-production CLOUDFLARE_API_TOKEN
+echo -n "your_zone_id"   | keyring set songshare-production CLOUDFLARE_ZONE_ID
 ```
+
+These are automatically injected when running `npm run cache:purge` (via `run-with-env.bun.ts`). See [env-vars-and-secrets.md](env-vars-and-secrets.md) for details.
 
 ## Troubleshooting Cache Issues
 
@@ -119,7 +120,7 @@ npm run build:all
 npm run deploy:full
 
 # Check cache headers
-curl -I https://effect.bardoshare.com/
+curl -I https://<your-domain>/
 
 # Force cache purge
 npm run cache:purge

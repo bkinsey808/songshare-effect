@@ -10,7 +10,7 @@ export { isUserLibraryEntry };
  *
  * @param input - Value to assert as `UserLibraryEntry`.
  * @param where - Optional context string used in the thrown error message.
- * @returns - The validated `UserLibraryEntry`.
+ * @returns The validated `UserLibraryEntry`.
  */
 export default function guardAsUserLibraryEntry(input: unknown, where = "value"): UserLibraryEntry {
 	if (!isUserLibraryEntry(input)) {

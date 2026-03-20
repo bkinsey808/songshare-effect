@@ -3,7 +3,7 @@ export type Env = {
 	SUPABASE_SERVICE_KEY: string;
 	SUPABASE_VISITOR_EMAIL: string;
 	SUPABASE_VISITOR_PASSWORD: string;
-	JWT_SECRET?: string;
+	SUPABASE_JWT_SECRET?: string;
 	// HMAC secret used for state verification in OAuth callback flows
 	STATE_HMAC_SECRET?: string;
 	// Optional debug flag used by cookie helpers to output client-side cookie
@@ -11,11 +11,20 @@ export type Env = {
 	// in development and controlled via env var when testing cookie behavior.
 	REGISTER_COOKIE_CLIENT_DEBUG?: string;
 	OAUTH_REDIRECT_ORIGIN?: string;
-	OAUTH_REDIRECT_PATH?: string;
 	ALLOWED_REDIRECT_ORIGINS?: string;
 	// Comma-separated list used by CORS middleware tests and runtime config
 	// (credentials require explicit origins; wildcard "*" is ignored).
 	ALLOWED_ORIGINS?: string;
+	// Optional: enables response header inspection in the /api/me endpoint.
+	DEBUG_API_HEADERS?: string;
+	// OAuth provider credentials — accessed dynamically via getEnvString() using
+	// clientIdEnvVar / clientSecretEnvVar from providerBackEndData.ts.
+	GOOGLE_CLIENT_ID?: string;
+	GOOGLE_CLIENT_SECRET?: string;
+	MS_CLIENT_ID?: string;
+	MS_CLIENT_SECRET?: string;
+	AMAZON_CLIENT_ID?: string;
+	AMAZON_CLIENT_SECRET?: string;
 	// Optional platform bindings to make Env compatible with full worker
 	// `Bindings` used at runtime. These are optional here so that a
 	// `Bindings = Env & { BUCKET?: R2Bucket; ENVIRONMENT: string }` type

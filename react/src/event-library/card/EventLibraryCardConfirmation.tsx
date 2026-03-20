@@ -10,10 +10,10 @@ type EventLibraryCardConfirmationProps = {
  * Displays an inline confirmation dialog for deleting an owned event.
  * Warns about the irreversible nature of the deletion.
  *
- * @param isDeleting - Whether a deletion operation is in progress
- * @param onConfirm - Callback when user confirms the deletion
- * @param onCancel - Callback when user cancels the deletion
- * @returns - A React element displaying the confirmation dialog
+ * @param isDeleting - Whether a deletion operation is in progress.
+ * @param onConfirm - Callback when the user confirms the deletion.
+ * @param onCancel - Callback when the user cancels the deletion.
+ * @returns A React element displaying the confirmation dialog.
  */
 export default function EventLibraryCardConfirmation({
 	isDeleting,

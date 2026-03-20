@@ -472,7 +472,7 @@ const rule: RuleModule<MessageIds> = {
 							DELTA_MATCHERS.has(parentMember.property.name) &&
 							outerCall?.type === "CallExpression" &&
 							outerCall.arguments.length > 0 &&
-							outerCall.arguments[0].type === "Identifier"
+							outerCall.arguments[0]?.type === "Identifier"
 						) {
 							return;
 						}

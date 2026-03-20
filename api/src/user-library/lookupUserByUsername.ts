@@ -25,8 +25,8 @@ type LookupUserResponse = {
  * property of type string with non-empty value.
  *
  * @param request - The raw request payload (typically parsed JSON).
- * @returns - A validated `LookupUserRequest` containing `username`.
- * @throws - `TypeError` when validation fails.
+ * @returns A validated `LookupUserRequest` containing `username`.
+ * @throws `TypeError` when validation fails.
  */
 function extractLookupUserRequest(request: unknown): LookupUserRequest {
 	if (typeof request !== "object" || request === null) {
@@ -60,8 +60,8 @@ function extractLookupUserRequest(request: unknown): LookupUserRequest {
  * - returns the user_id and username if found
  * - returns a validation error if not found
  *
- * @param ctx - The readonly request context provided by the server
- * @returns The user ID and username, or fails with an error
+ * @param ctx - The readonly request context provided by the server.
+ * @returns The user ID and username, or fails with an error.
  */
 export default function lookupUserByUsernameHandler(
 	ctx: ReadonlyContext,

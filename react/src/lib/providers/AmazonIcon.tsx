@@ -5,21 +5,22 @@ type IconProps = Readonly<{
 }>;
 
 /**
- * Amazon brand icon used for provider sign-in buttons.
+ * Render the Amazon brand icon used for provider sign-in buttons.
  *
- * @param props - Icon properties (optional width, height, className)
- * @returns React element rendering the Amazon icon
+ * @param className - Optional CSS class name.
+ * @param width - Optional width override.
+ * @param height - Optional height override.
+ * @returns React element rendering the Amazon icon.
  */
-export default function AmazonIcon(props: IconProps): ReactElement {
+export default function AmazonIcon({ className, width, height }: IconProps): ReactElement {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
-			width={props.width ?? "20"}
-			height={props.height ?? "20"}
+			width={width ?? "20"}
+			height={height ?? "20"}
 			viewBox="0 0 32 32"
-			className={props.className}
+			className={className}
 			fillRule="evenodd"
-			{...props}
 		>
 			<g>
 				<path

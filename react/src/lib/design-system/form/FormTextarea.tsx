@@ -21,26 +21,36 @@ function handleInputEvent(formEvent: React.FormEvent<HTMLTextAreaElement>): void
 }
 
 /**
- * A simple controlled textarea used within forms. Supports an optional
- * `autoExpand` mode that grows the textarea as the user types.
+ * Render a simple controlled textarea used within forms.
  *
- * @param autoExpand - When true, the textarea auto-expands to fit content
- * @param className - Additional CSS classes to apply
- * @param rows - Initial number of rows (defaults to 2)
- * @param props - Other native textarea props such as `value` and `onChange`
- * @returns A textarea React element suitable for form usage
+ * Supports an optional `autoExpand` mode that grows the textarea as the user types.
+ *
+ * @param autoExpand - Whether the textarea auto-expands to fit content.
+ * @param className - Additional CSS classes to apply.
+ * @param rows - Initial number of rows.
+ * @param name - Textarea name.
+ * @param placeholder - Placeholder text.
+ * @param value - Controlled textarea value.
+ * @param onChange - Change handler.
+ * @returns A textarea React element suitable for form usage.
  */
 export default function FormTextarea({
 	autoExpand = false,
 	className = "",
 	rows = DEFAULT_ROWS,
-	...props
+	name,
+	placeholder,
+	value,
+	onChange,
 }: FormTextareaProps): ReactElement {
 	const handleInput = autoExpand ? handleInputEvent : undefined;
 
 	return (
 		<textarea
-			{...props}
+			name={name}
+			placeholder={placeholder}
+			value={value}
+			onChange={onChange}
 			rows={rows}
 			className={`w-full rounded border px-2 py-1 ${autoExpand ? "resize-none overflow-hidden" : ""} ${className}`}
 			onInput={handleInput}

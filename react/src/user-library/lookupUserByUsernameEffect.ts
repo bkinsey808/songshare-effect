@@ -26,8 +26,8 @@ const ApiResponseSchema = Schema.Struct({
  * Makes a POST request with the username and validates the response structure.
  * Returns structured errors for network failures or invalid response format.
  *
- * @param username - Username to search for
- * @returns - Effect that resolves to user ID and username on success
+ * @param username - Username to search for.
+ * @returns Effect that resolves to user ID and username on success.
  */
 export default function lookupUserByUsernameEffect(
 	username: string,

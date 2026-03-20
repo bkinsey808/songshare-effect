@@ -12,18 +12,15 @@ type DeleteConfirmationRowProps = Readonly<{
 }>;
 
 /**
- * DeleteConfirmationRow
+ * Render the full-width delete confirmation row content.
  *
- * Renders the inner TD content for the full-width delete confirmation UI.
- * The parent is responsible for rendering the surrounding <tr> and applying
- * any drag-related attributes (style, aria-hidden, z-index).
+ * The parent table row owns the surrounding `<tr>` and drag-related styling.
  *
- * @param props - component props
- * @param props.colSpan - number of columns to span across the grid
- * @param props.onCancel - cancel callback
- * @param props.onConfirm - confirm callback
- * @param props.isFaded - whether the controls should be visually disabled
- * @returns React element (TD)
+ * @param colSpan - Number of columns to span across the grid.
+ * @param onCancel - Handler that cancels deletion.
+ * @param onConfirm - Handler that confirms deletion.
+ * @param isFaded - Whether the controls should appear disabled.
+ * @returns React element for the confirmation table cell.
  */
 export default function DeleteConfirmationRow({
 	colSpan,

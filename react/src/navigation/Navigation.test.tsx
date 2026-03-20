@@ -26,7 +26,7 @@ describe("navigation - language-aware links", () => {
 			</MemoryRouter>,
 		);
 
-		const homeButton = screen.getByRole("button", { name: "navigation.home" });
+		const homeButton = screen.getByTestId("navigation-home");
 		expect(homeButton).toBeTruthy();
 
 		// Verify programmatic navigate returns the expected path (sanity check)

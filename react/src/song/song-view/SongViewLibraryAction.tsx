@@ -24,11 +24,13 @@ const RemoveIcon = (
 );
 
 /**
- * Renders an Add to Library or Remove from Library button on the song view
- * when the user is signed in and the song is not owned by them.
+ * Render the library action for a song when the current user can modify it.
  *
- * - Add: shown when the song is not in the user's library
- * - Remove: shown when the song is in the library but the user does not own it
+ * Shows Add to Library when the song is not in the library and Remove from
+ * Library when the song is in the library but owned by someone else.
+ *
+ * @param songPublic - Public song payload used to determine ownership.
+ * @returns React element for the library action, or `undefined` when hidden.
  */
 export default function SongViewLibraryAction({
 	songPublic,

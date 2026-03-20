@@ -64,9 +64,9 @@ export async function parseDataFromCookie<
 	}
 
 	try {
-		const jwtSecret = ctx.env.JWT_SECRET;
+		const jwtSecret = ctx.env.SUPABASE_JWT_SECRET;
 		if (jwtSecret === undefined || jwtSecret === "") {
-			throw new Error("Missing JWT_SECRET in environment");
+			throw new Error("Missing SUPABASE_JWT_SECRET in environment");
 		}
 
 		// Hono's `verify` requires the alg/options param — tokens in this app use HS256

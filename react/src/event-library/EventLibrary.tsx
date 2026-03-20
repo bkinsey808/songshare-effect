@@ -21,7 +21,7 @@ import useEventLibrary from "./useEventLibrary";
  * (owned or added to library) and allows them to manage entries, including
  * confirming deletion for owned events.
  *
- * @returns - A React element that displays loading, error, empty, or library states
+ * @returns A React element that displays loading, error, empty, or library states.
  */
 export default function EventLibrary(): ReactElement {
 	const { entries, isLoading, error } = useEventLibrary();

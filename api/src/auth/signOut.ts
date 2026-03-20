@@ -8,11 +8,8 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 /**
  * Sign-out handler: clears the user session cookie and returns success.
  *
- * @param ctx - Hono request context used to perform CSRF
- *   validation and to modify the outgoing response headers (e.g., clearing
- *   the user session cookie).
- * @returns - a JSON HTTP response with `{ success: true }` on
- *   success, or a JSON error response with HTTP 500 on failure.
+ * @param ctx - Hono request context used to perform CSRF validation and modify response headers.
+ * @returns A JSON HTTP response with `{ success: true }` on success, or a JSON error response on failure.
  */
 export default function signOutHandler(ctx: ReadonlyContext): Response {
 	try {

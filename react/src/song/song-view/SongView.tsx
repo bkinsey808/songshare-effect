@@ -1,31 +1,21 @@
 import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import useLocale from "@/react/lib/language/locale/useLocale";
-import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
-import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
-import { songViewPath } from "@/shared/paths";
 
+import SongViewSlides from "./slides/SongViewSlides";
 import SongViewDetails from "./SongViewDetails";
 import SongViewLibraryAction from "./SongViewLibraryAction";
-import SongViewSlides from "./SongViewSlides";
 import { useSongView } from "./useSongView";
 
 /**
- * SongView
+ * Render the public song view or a not-found state when lookup fails.
  *
- * Renders the public view of a song including slides and metadata.
- * When the song slug did not resolve or server-side validation failed this
- * component shows a friendly not-found message instead of the details view.
- *
- * @returns React element (song view or not-found message)
+ * @returns React element for the song view or the not-found message.
  */
 export default function SongView(): ReactElement {
-	const { lang, t } = useLocale();
-	const { isNotFound, songPublic } = useSongView();
-
-	// Fetch and subscribe to sent shares - must be called before any early return
-	useShareSubscription();
+	const { t } = useLocale();
+	const { isNotFound, isSignedIn, songPublic, songName, qrUrl } = useSongView();
 
 	// Show friendly not-found UI when the slug did not resolve or the payload
 	// failed validation — keeps the UI resilient to missing or invalid data.
@@ -40,35 +30,22 @@ export default function SongView(): ReactElement {
 	return (
 		<div className="mx-auto max-w-3xl space-y-6">
 			<div className="flex items-center justify-between gap-4">
-				<h1 className="text-2xl font-bold text-white">
-					{songPublic.song_name ?? t("songView.untitled", "Untitled")}
-				</h1>
+				<h1 className="text-2xl font-bold text-white">{songName}</h1>
 				<div className="flex items-center gap-2">
 					<SongViewLibraryAction songPublic={songPublic} />
-					<ShareButton
-						itemType="song"
-						itemId={songPublic.song_id}
-						itemName={songPublic.song_name ?? "Untitled"}
-					/>
+					{isSignedIn === true && (
+						<ShareButton itemType="song" itemId={songPublic.song_id} itemName={songName} />
+					)}
 				</div>
 			</div>
 
-			{songPublic.song_slug !== undefined && songPublic.song_slug !== "" && (
-				<CollapsibleQrCode
-					url={buildPublicWebUrl(`/${songViewPath}/${songPublic.song_slug}`, lang)}
-					label={songPublic.song_name ?? t("songView.untitled", "Untitled")}
-				/>
-			)}
+			{qrUrl !== undefined && <CollapsibleQrCode url={qrUrl} label={songName} />}
 
 			<SongViewSlides songPublic={songPublic} />
 
 			<SongViewDetails songPublic={songPublic} />
 
-			<SharedUsersSection
-				itemType="song"
-				itemId={songPublic.song_id}
-				itemName={songPublic.song_name ?? "Untitled"}
-			/>
+			<SharedUsersSection itemType="song" itemId={songPublic.song_id} itemName={songName} />
 		</div>
 	);
 }

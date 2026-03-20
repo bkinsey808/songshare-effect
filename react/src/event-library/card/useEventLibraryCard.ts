@@ -13,8 +13,8 @@ type UseEventLibraryCardParams = {
  * Hook for managing the state of an event library card with optional
  * confirmation dialog and async deletion/removal handling.
  *
- * @param entry - The event library entry
- * @returns - Card state and action handlers
+ * @param entry - The event library entry.
+ * @returns Card state and action handlers.
  */
 export default function useEventLibraryCard({ entry }: UseEventLibraryCardParams): {
 	isConfirming: boolean;

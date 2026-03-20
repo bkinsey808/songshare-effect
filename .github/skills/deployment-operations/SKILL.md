@@ -69,7 +69,7 @@ wrangler rollback --env production
 
 ```bash
 npm run health:check
-curl https://effect.bardoshare.com/api/health
+curl https://<your-domain>/api/health
 wrangler tail --env production
 ```
 
@@ -80,7 +80,7 @@ wrangler tail --env production
 ### Health Check Endpoint
 
 ```bash
-curl https://effect.bardoshare.com/api/health
+curl https://<your-domain>/api/health
 # Expected: { "status": "ok", "environment": "production", "timestamp": "..." }
 ```
 

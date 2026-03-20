@@ -12,16 +12,15 @@ type SongViewCurrentSlideProps = Readonly<{
 }>;
 
 /**
- * SongViewCurrentSlide
+ * Render the current slide title and configured field values.
  *
- * Renders the currently selected slide's title and configured fields. When
- * there are no slides it renders a localized "No slides" message. When the
- * provided `currentSlide` is missing or not an object no content is rendered.
+ * When there are no slides it renders a localized empty-state message. If the
+ * slide payload is missing or not a plain record, nothing is rendered.
  *
- * @param currentSlide - raw slide payload (may be undefined or unvalidated)
- * @param displayFields - ordered list of field keys to render from `field_data`
- * @param totalSlides - total number of slides for this song
- * @returns React element or `undefined` when no slide content should render
+ * @param currentSlide - Raw slide payload that may still need validation.
+ * @param displayFields - Ordered field keys to render from `field_data`.
+ * @param totalSlides - Total number of slides for this song.
+ * @returns React element or `undefined` when no slide content should render.
  */
 export default function SongViewCurrentSlide({
 	currentSlide,

@@ -4,7 +4,7 @@ import type { SongPublic } from "../song-schema";
  * Build a test `SongPublic` object with sensible defaults that tests can override.
  *
  * @param overrides - Partial properties to override the default fixture
- * @returns A `SongPublic` fixture object
+ * @returns A `SongPublic` fixture object.
  */
 export default function makeSongPublic(overrides: Partial<SongPublic> = {}): SongPublic {
 	// oxlint-disable-next-line unicorn/no-null

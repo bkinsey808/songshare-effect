@@ -9,7 +9,7 @@ import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
  *
  * @param ctx - Readonly Hono request context. Accepts a readonly wrapper so
  *   the function is compatible with both `Context` and `ReadonlyContext`.
- * @returns - The determined IP address as a string.
+ * @returns The determined IP address as a string.
  */
 export default function getIpAddress(ctx: ReadonlyContext): string {
 	// headers.get can return string | null. Read each header explicitly

@@ -9,11 +9,11 @@ type PlaylistSongDisplayProps = {
 };
 
 /**
- * Displays a single song row inside the event playlist accordion.
- * @param props - Component props.
- * @param props.songId - The song identifier for lookup and fallback display.
- * @param props.index - The zero-based position of the song in the playlist.
- * @param props.publicSongs - Public song records keyed by song id.
+ * Render a single song row inside the event playlist accordion.
+ *
+ * @param songId - Song identifier used for lookup and fallback display.
+ * @param index - Zero-based position of the song in the playlist.
+ * @param publicSongs - Public song records keyed by song id.
  * @returns A rendered playlist song row.
  */
 export default function PlaylistSongDisplay({

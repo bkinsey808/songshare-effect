@@ -13,8 +13,7 @@ import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
  *
  * @param request - Request with `followed_user_id` to remove.
  * @param get - Getter for the `UserLibrarySlice` used to mutate state.
- * @returns - An Effect that resolves when the operation completes, or fails
- *   with an Error on network/server errors.
+ * @returns An Effect that resolves when the operation completes, or fails with an Error.
  */
 export default function removeUserFromLibraryEffect(
 	request: Readonly<RemoveUserFromLibraryRequest>,

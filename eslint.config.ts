@@ -11,7 +11,7 @@
  */
 
 import tsParser from "@typescript-eslint/parser";
-import type { Linter } from "eslint";
+import type { Linter, Rule } from "eslint";
 
 import noAssertMockedReturnRule from "./eslint-rules/no-assert-mocked-return";
 import noDisableInTestsRule from "./eslint-rules/no-disable-in-tests";
@@ -92,7 +92,8 @@ const config: Linter.Config[] = [
 			},
 			"no-assert-mocked-return": {
 				rules: {
-					"no-assert-mocked-return": noAssertMockedReturnRule,
+					// oxlint-disable-next-line no-unsafe-type-assertion -- @typescript-eslint RuleModule is structurally compatible but not assignable to eslint flat config's Rule.RuleModule
+					"no-assert-mocked-return": noAssertMockedReturnRule as unknown as Rule.RuleModule,
 				},
 			},
 		},

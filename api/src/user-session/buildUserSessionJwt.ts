@@ -107,18 +107,18 @@ export default function buildUserSessionJwt({
 			),
 		);
 
-		const jwtSecretFinal = ctx.env.JWT_SECRET;
+		const jwtSecretFinal = ctx.env.SUPABASE_JWT_SECRET;
 
 		if (typeof jwtSecretFinal !== "string" || jwtSecretFinal === "") {
 			yield* $(
 				Effect.sync(() => {
-					console.error("[buildUserSessionJwt] Missing JWT_SECRET");
+					console.error("[buildUserSessionJwt] Missing SUPABASE_JWT_SECRET");
 				}),
 			);
 			return yield* $(
 				Effect.fail(
 					new ServerError({
-						message: "Server misconfiguration: missing JWT_SECRET",
+						message: "Server misconfiguration: missing SUPABASE_JWT_SECRET",
 					}),
 				),
 			);

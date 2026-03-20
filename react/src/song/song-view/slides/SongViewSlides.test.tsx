@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
-import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
+import type { SongPublic } from "@/react/song/song-schema";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
 
-import type { SongPublic } from "../song-schema";
 import SongViewSlides from "./SongViewSlides";
 import { useSongViewSlides } from "./useSongViewSlides";
 

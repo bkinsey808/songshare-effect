@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import postJson from "@/shared/fetch/postJson";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
@@ -34,7 +33,7 @@ export default function useEventManageView(): UseEventManageStateResult {
 	const eventError = useAppStore((state) => state.eventError);
 	const fetchPlaylistById = useAppStore((state) => state.fetchPlaylistById);
 	const eventCommunities = useAppStore((state) => state.eventCommunities);
-	const currentUserId = useCurrentUserId();
+	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
 
 	const currentEventId = currentEvent?.event_id;
 	const eventPublic = currentEvent?.public;

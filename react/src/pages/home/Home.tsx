@@ -11,7 +11,7 @@ import useHome from "./useHome";
  * The component computes its own localization context and paragraph content
  * so callers don't need to pass runtime props.
  *
- * @returns - Localized home page content
+ * @returns Localized home page content.
  */
 export default function Home(): ReactElement {
 	const { lang, t, homeParagraphs, reactFeaturesPath, uploadDemoPath } = useHome();

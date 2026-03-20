@@ -75,7 +75,14 @@ export default defineConfig({
 		// eslint-rules/*.test.ts files inside Vitest.
 		globals: true,
 		include: ["**/*.test.ts", "**/*.test.tsx"],
-		exclude: ["**/*.spec.ts", "**/*.spec.tsx", "dist/**", "node_modules/**", "e2e/**"],
+		exclude: [
+			"**/*.spec.ts",
+			"**/*.spec.tsx",
+			"dist/**",
+			"node_modules/**",
+			"e2e/**",
+			"scripts/env/**",
+		],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "lcov"],

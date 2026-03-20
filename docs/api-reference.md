@@ -18,7 +18,7 @@ Clients must extract `data` before validating or using the payload. See [add-son
 ## Base URL
 
 - **Development**: `http://localhost:8787`
-- **Production**: `https://api.effect.bardoshare.com` (or your configured domain)
+- **Production**: `https://<your-domain>/api` (Worker is routed at `$DOMAIN/api/*`)
 
 ## Authentication
 

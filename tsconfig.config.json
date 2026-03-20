@@ -1,19 +1,15 @@
 {
 	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"composite": true,
+		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.config.tsbuildinfo",
+		"types": ["node", "vitest"]
+	},
 	"include": [
-		"eslint-rules/**/*.ts",
+		"vite.config.ts",
+		"vitest.config.ts",
 		"eslint.config.ts",
-		"*.config.ts",
-		"*.config.js",
-		"*.cjs",
-		"*.mjs",
-		"*.cts",
-		"*.mts",
-		"scripts/**/*.ts",
-		"scripts/**/*.js",
-		"api/**/*.ts",
-		"react/**/*.ts",
-		"react/**/*.tsx"
-	],
-	"exclude": ["node_modules", "dist", "build", "shared/generated"]
+		"eslint-rules/**/*",
+		"types/**/*"
+	]
 }

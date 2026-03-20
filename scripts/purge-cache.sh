@@ -26,7 +26,7 @@ if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ZONE_ID" ]; then
 fi
 
 # Purge cache for the entire zone
-echo -e "${YELLOW}🧹 Purging cache for effect.bardoshare.com...${NC}"
+echo -e "${YELLOW}🧹 Purging cache...${NC}"
 
 RESPONSE=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 /**
  * Displays a loading spinner with a message while the user library is being fetched.
  *
- * @returns - A React element showing the loading state
+ * @returns A React element showing the loading state.
  */
 export default function UserLibraryLoadingState(): ReactElement {
 	const { t } = useTranslation();

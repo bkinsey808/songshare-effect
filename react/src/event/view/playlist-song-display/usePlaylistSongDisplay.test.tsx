@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import fetchUsername from "@/react/lib/supabase/enrichment/fetchUsername";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
-import { makeTestSong } from "@/react/song/test-utils/makeTestSong.mock";
+import { makeTestSong } from "@/react/song/test-utils/makeTestSong.test-util";
 
 import usePlaylistSongDisplay from "./usePlaylistSongDisplay";
 

@@ -24,11 +24,11 @@ import { defaultLanguage } from "@/shared/language/supported-languages";
 import { OauthStateSchema } from "@/shared/oauth/oauthState";
 import { dashboardPath } from "@/shared/paths";
 import {
-	codeQueryParam,
-	providerQueryParam,
-	signinErrorQueryParam,
-	SigninErrorToken,
-	stateQueryParam,
+    codeQueryParam,
+    providerQueryParam,
+    signinErrorQueryParam,
+    SigninErrorToken,
+    stateQueryParam,
 } from "@/shared/queryParams";
 import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrMap";
 
@@ -119,13 +119,13 @@ export default function oauthCallbackFactory(
 		// elsewhere in the function and to make subsequent reads explicit.
 		// Use Env type for environment variables
 		const envRecord: Env = ctx.env;
-		const stateSecret = envRecord.STATE_HMAC_SECRET ?? envRecord.JWT_SECRET;
+		const stateSecret = envRecord.STATE_HMAC_SECRET ?? envRecord.SUPABASE_JWT_SECRET;
 		if (stateSecret === undefined || stateSecret === null || stateSecret === "") {
 			yield* $(
 				Effect.sync(() => {
 					// Localized: server-side error log
 					serverError(
-						"[oauthCallback] Missing STATE_HMAC_SECRET or JWT_SECRET for verifying state",
+						"[oauthCallback] Missing STATE_HMAC_SECRET or SUPABASE_JWT_SECRET for verifying state",
 					);
 				}),
 			);

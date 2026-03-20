@@ -11,8 +11,8 @@ import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
  * Non-realtime payloads are ignored.
  *
  * @param payload - Raw realtime payload from Supabase.
- * @param get - Getter for the UserLibrarySlice.
- * @returns - An Effect that completes after applying the change locally.
+ * @param get - Getter for the `UserLibrarySlice`.
+ * @returns An Effect that completes after applying the change locally.
  */
 export default function handleUserPublicSubscribeEvent(
 	payload: unknown,

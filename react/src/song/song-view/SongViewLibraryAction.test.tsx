@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
-import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
 
 import SongViewLibraryAction from "./SongViewLibraryAction";
 

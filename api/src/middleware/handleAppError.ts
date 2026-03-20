@@ -8,7 +8,7 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
  *
  * @param err - The error thrown by route handlers (may be any value).
  * @param _ctx - Hono request context (not used directly here).
- * @returns - A JSON HTTP response with a generic 500 error message.
+ * @returns A JSON HTTP response with a generic 500 error message.
  */
 export default function handleAppError(err: unknown, _ctx: unknown): Response {
 	try {

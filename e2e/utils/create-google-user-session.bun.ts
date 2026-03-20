@@ -9,13 +9,13 @@
  *     `user_public` tables by email.
  *  2. Constructs a `UserSessionData` JWT payload (same shape the OAuth callback
  *     builds after Google login).
- *  3. Signs the JWT with `JWT_SECRET` using HMAC-SHA256 (identical to the API).
+ *  3. Signs the JWT with `SUPABASE_JWT_SECRET` using HMAC-SHA256 (identical to the API).
  *  4. Writes `e2e/.auth/google-user.json` in Playwright storageState format.
  *
  * Run once before tests (valid for 7 days):
  *   bun e2e/utils/create-google-user-session.bun.ts           # local dev (.env)
  *   npm run e2e:create-session:staging-db                      # local servers + staging DB
- *   npm run e2e:create-session:staging-url                     # against staging.bardoshare.com
+ *   npm run e2e:create-session:staging-url                     # against staging URL (from keyring)
  *
  * Then in your spec:
  *   test.use({ storageState: "e2e/.auth/google-user.json" });
@@ -23,14 +23,14 @@
  * Environment variables (read from .env automatically by Bun, or pass --env-file):
  *   VITE_SUPABASE_URL      — Supabase project URL (local or staging)
  *   SUPABASE_SERVICE_KEY   — Supabase service-role key (admin access)
- *   JWT_SECRET             — Secret used to sign/verify userSession JWTs
- *   E2E_GOOGLE_USER_EMAIL  — Email of the Google test account (default: test1@bardoshare.com)
+ *   SUPABASE_JWT_SECRET             — Secret used to sign/verify userSession JWTs
+ *   E2E_GOOGLE_USER_EMAIL  — Email of the Google test account (required — no default)
  *   PLAYWRIGHT_BASE_URL    — Target URL for tests (affects cookie domain and IP detection)
  *   E2E_CLIENT_IP          — Override the IP embedded in the JWT (auto-detected if unset)
  *
  * IP behaviour:
  *   - localhost / 127.0.0.1 target  →  JWT ip = "127.0.0.1"
- *   - Remote target (e.g. staging.bardoshare.com)  →  public outbound IP auto-detected
+ *   - Remote target (e.g. staging domain)  →  public outbound IP auto-detected
  *     via https://api.ipify.org, or set E2E_CLIENT_IP to skip the network call.
  */
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -53,8 +53,8 @@ const JSON_INDENT = 2;
 
 const supabaseUrl = process.env["VITE_SUPABASE_URL"];
 const serviceKey = process.env["SUPABASE_SERVICE_KEY"];
-const jwtSecret = process.env["JWT_SECRET"];
-const testEmail = process.env["E2E_GOOGLE_USER_EMAIL"] ?? "test1@bardoshare.com";
+const jwtSecret = process.env["SUPABASE_JWT_SECRET"];
+const testEmail = process.env["E2E_GOOGLE_USER_EMAIL"];
 
 if (supabaseUrl === undefined || supabaseUrl === "") {
 	console.error("❌  Missing required env var: VITE_SUPABASE_URL");
@@ -66,7 +66,11 @@ if (serviceKey === undefined || serviceKey === "") {
 	process.exit(EXIT_FAILURE);
 }
 if (jwtSecret === undefined || jwtSecret === "") {
-	console.error("❌  Missing required env var: JWT_SECRET");
+	console.error("❌  Missing required env var: SUPABASE_JWT_SECRET");
+	process.exit(EXIT_FAILURE);
+}
+if (testEmail === undefined || testEmail === "") {
+	console.error("❌  Missing required env var: E2E_GOOGLE_USER_EMAIL");
 	process.exit(EXIT_FAILURE);
 }
 

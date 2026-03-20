@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 /**
  * Displays a loading spinner with a message while the event library is being fetched.
  *
- * @returns - A React element showing the loading state
+ * @returns A React element showing the loading state.
  */
 export default function EventLibraryLoadingState(): ReactElement {
 	const { t } = useTranslation();

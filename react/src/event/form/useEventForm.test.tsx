@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import useAppStore from "@/react/app-store/useAppStore";
 import mockLocaleWithLang from "@/react/lib/test-utils/mockLocaleWithLang";
 import { makeTestPlaylist } from "@/react/playlist/test-utils/makeTestPlaylist.mock";
-import { makeTestSong } from "@/react/song/test-utils/makeTestSong.mock";
+import { makeTestSong } from "@/react/song/test-utils/makeTestSong.test-util";
 
 import useEventForm from "./useEventForm";
 

@@ -1,11 +1,11 @@
-import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
 
 /**
  * Build a simple song fixture from a list of ids (test utility).
  *
- * @param ids - Array of song ids
- * @param fields - Which fields to include on each slide
- * @returns Test object representing a song collection
+ * @param ids - Song ids to include in the fixture.
+ * @param fields - Field keys to include on each slide.
+ * @returns A `SongPublic` fixture built from the provided ids.
  */
 export default function makeSongFromIds(
 	ids: string[],

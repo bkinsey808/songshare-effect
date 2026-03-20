@@ -18,8 +18,8 @@ type RemoveUserRequest = {
  * property of type string. On success a sanitized `RemoveUserRequest` is returned.
  *
  * @param request - The raw request payload (typically parsed JSON).
- * @returns - A validated `RemoveUserRequest` containing `followed_user_id`.
- * @throws - `TypeError` when the request is not an object, is missing required
+ * @returns A validated `RemoveUserRequest` containing `followed_user_id`.
+ * @throws `TypeError` when the request is not an object, is missing required
  *   properties, or when `followed_user_id` is not a string.
  */
 function extractRemoveUserRequest(request: unknown): RemoveUserRequest {
@@ -48,8 +48,8 @@ function extractRemoveUserRequest(request: unknown): RemoveUserRequest {
  * - verifies user authentication
  * - deletes the entry from user_library using service key (bypass RLS)
  *
- * @param ctx - The readonly request context provided by the server
- * @returns Success indicator, or fails with an error
+ * @param ctx - The readonly request context provided by the server.
+ * @returns Success indicator, or fails with an error.
  */
 export default function removeUserFromLibraryHandler(
 	ctx: ReadonlyContext,

@@ -20,7 +20,7 @@ import Home from "./Home";
  * Public landing page that surfaces sign-in options, feature demos, and
  * transient success alerts (e.g., after account deletion or sign-out).
  *
- * @returns - A React element for the localized home page content.
+ * @returns A React element for the localized home page content.
  */
 export default function HomePage(): ReactElement {
 	const { lang, t } = useLocale();

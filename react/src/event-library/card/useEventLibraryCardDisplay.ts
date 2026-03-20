@@ -22,9 +22,9 @@ type UseEventLibraryCardDisplayReturn = {
 /**
  * Hook that encapsulates display logic for an event library card.
  *
- * @param entry - Event library entry displayed in the card
- * @param onDeleteClick - Callback invoked when owner deletes their event
- * @returns - Computed values and handlers for the card
+ * @param entry - Event library entry displayed in the card.
+ * @param onDeleteClick - Callback invoked when the owner deletes their event.
+ * @returns Computed values and handlers for the card.
  */
 export default function useEventLibraryCardDisplay({
 	entry,

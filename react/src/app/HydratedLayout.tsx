@@ -9,13 +9,13 @@ import useInitUserLibrary from "@/react/user-library/useInitUserLibrary";
 import ErrorBoundary from "../demo/ErrorBoundary";
 
 /**
- * HydratedLayout
- * Initialize auth state first so the order of Hooks is stable even
- * when the component suspends during hydration.
+ * Render the hydrated application layout.
  *
- * Uses persisted app store for header actions so the toggle state survives refresh.
+ * Initializes auth state first so hook order stays stable even when the
+ * component suspends during hydration. The persisted app store keeps header
+ * action state across refreshes.
  *
- * @returns - React element rendering hydrated layout with navigation and outlet
+ * @returns React element rendering the hydrated layout with navigation and outlet.
  */
 export default function HydratedLayout(): ReactElement {
 	// Initialize auth on every page so public routes (songs, communities, events)

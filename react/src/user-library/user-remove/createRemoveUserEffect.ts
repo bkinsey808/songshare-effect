@@ -24,13 +24,13 @@ type CreateRemoveUserEffectParams = Readonly<{
  * individual songs and playlists. Individual song/playlist removal failures are
  * caught and logged but don't prevent the overall operation from completing.
  *
- * @param entry - User library entry being removed
- * @param songsOwnedByUser - List of song IDs owned by the user
- * @param playlistsOwnedByUser - List of playlist IDs owned by the user
- * @param removeFromUserLibrary - Effect factory for removing user from library
- * @param removeSongFromSongLibrary - Effect factory for removing a song
- * @param removePlaylistFromLibrary - Effect factory for removing a playlist
- * @returns - Effect that performs cascade deletion (resolves on success, rejects on top-level failure)
+ * @param entry - User library entry being removed.
+ * @param songsOwnedByUser - List of song IDs owned by the user.
+ * @param playlistsOwnedByUser - List of playlist IDs owned by the user.
+ * @param removeFromUserLibrary - Effect factory for removing user from library.
+ * @param removeSongFromSongLibrary - Effect factory for removing a song.
+ * @param removePlaylistFromLibrary - Effect factory for removing a playlist.
+ * @returns Effect that performs cascade deletion and rejects on top-level failure.
  */
 export default function createRemoveUserEffect({
 	entry,

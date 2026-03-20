@@ -8,12 +8,12 @@ import runTypeGpuDemo from "@/react/lib/typegpu/runTypeGpuDemo";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 /**
- * TypeGpuDemoPage
+ * Render the TypeGPU demo page.
  *
- * Interactive demo that exercises TypeGPU / WebGPU rendering paths with
- * a canvas-based visualization and demo controls.
+ * Exercises TypeGPU and WebGPU rendering paths with a canvas-based visualization
+ * and demo controls.
  *
- * @returns - A React element containing the TypeGPU demo UI and canvas.
+ * @returns A React element containing the TypeGPU demo UI and canvas.
  */
 export default function TypeGpuDemoPage(): ReactElement {
 	const { t } = useTranslation();

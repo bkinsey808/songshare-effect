@@ -12,10 +12,9 @@ import SongFormFooter from "./SongFormFooter";
 import useSongForm from "./use-song-form/useSongForm";
 
 /**
- * Top-level Song form page used for creating and editing songs.
- * Composes fields, slides editor, grid view and footer actions.
+ * Render the song creation and edit page.
  *
- * @returns React element containing the full song editor UI
+ * @returns React element containing the full song editor UI.
  */
 export default function SongForm(): ReactElement {
 	const { t } = useTranslation();

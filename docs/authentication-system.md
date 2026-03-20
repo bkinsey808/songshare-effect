@@ -285,19 +285,21 @@ console.log("Is signed in:", isSignedIn);
 
 ### **Required Environment Variables**
 
-```env
-# Supabase Configuration
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_KEY=your-service-key
+All secrets are stored in the OS keyring — no `.env` files. See [env-vars-and-secrets.md](env-vars-and-secrets.md) for the full reference and setup instructions.
 
-# Visitor Account (create in Supabase Auth)
-SUPABASE_VISITOR_EMAIL=visitor@yourdomain.com
-SUPABASE_VISITOR_PASSWORD=secure-visitor-password
+Key vars required for the auth system (store via `keyring set songshare-<env> VAR_NAME value`):
 
-# Frontend Configuration
-API_BASE_URL=http://localhost:8787  # Development API URL
-```
+| Variable | Purpose |
+|----------|---------|
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key (frontend) |
+| `SUPABASE_SERVICE_KEY` | Supabase service-role key (Worker only) |
+| `SUPABASE_JWT_SECRET` | JWT signing secret |
+| `STATE_HMAC_SECRET` | HMAC secret for OAuth state verification |
+| `SUPABASE_VISITOR_EMAIL` | Visitor/anonymous account email |
+| `SUPABASE_VISITOR_PASSWORD` | Visitor/anonymous account password |
+| `OAUTH_REDIRECT_ORIGIN` | Origin for OAuth redirect URIs (e.g. `https://localhost:5173` in dev) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth credentials |
 
 ### Local development: Google OAuth redirect URIs
 

@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import Button from "@/react/lib/design-system/Button";
-import MenuIcon from "@/react/lib/design-system/icons/MenuIcon";
-import PlaylistLibraryIcon from "@/react/lib/design-system/icons/PlaylistLibraryIcon";
-import SongLibraryIcon from "@/react/lib/design-system/icons/SongLibraryIcon";
 import CommunitiesIcon from "@/react/lib/design-system/icons/CommunitiesIcon";
 import EventsIcon from "@/react/lib/design-system/icons/EventsIcon";
 import ImagesIcon from "@/react/lib/design-system/icons/ImagesIcon";
+import MenuIcon from "@/react/lib/design-system/icons/MenuIcon";
+import PlaylistLibraryIcon from "@/react/lib/design-system/icons/PlaylistLibraryIcon";
+import SongLibraryIcon from "@/react/lib/design-system/icons/SongLibraryIcon";
 import UsersIcon from "@/react/lib/design-system/icons/UsersIcon";
 import XIcon from "@/react/lib/design-system/icons/XIcon";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
@@ -134,6 +134,7 @@ export default function Navigation({
 								}}
 								className="inline-flex items-center gap-2"
 								aria-label={t("navigation.home", "Home")}
+								data-testid="navigation-home"
 							>
 								🎵 {t("app.title")}
 							</button>
@@ -155,11 +156,7 @@ export default function Navigation({
 									size="compact"
 									variant={active ? "primary" : "outlineSecondary"}
 									icon={
-										typeof item.icon === "string" ? (
-											<span aria-hidden>{item.icon}</span>
-										) : (
-											item.icon
-										)
+										typeof item.icon === "string" ? <span aria-hidden>{item.icon}</span> : item.icon
 									}
 									onClick={() => {
 										void navigate(path);
@@ -208,12 +205,12 @@ export default function Navigation({
 									aria-expanded={isHeaderActionsExpanded}
 									aria-label={
 										isHeaderActionsExpanded
-											? t("navigation.hideActions", "Hide actions")
-											: t("navigation.showActions", "Show actions")
+											? t("navigation.hideMenu", "Hide menu")
+											: t("navigation.showMenu", "Show menu")
 									}
 									data-testid="navigation-header-actions-toggle"
 								>
-									{t("navigation.actions", "Actions")}
+									{t("navigation.menu", "Menu")}
 								</Button>
 							</div>
 						</div>

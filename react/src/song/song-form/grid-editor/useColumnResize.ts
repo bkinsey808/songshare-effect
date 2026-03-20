@@ -23,19 +23,12 @@ export type UseColumnResizeReturn = Readonly<
 >;
 
 /**
- * useColumnResize
+ * Build the column resize state for the slides grid table.
  *
- * Hook to manage resizable columns for the slides grid editor.
- *
- * Responsibilities:
- * - Initialize per-field widths and provide a getter for current widths
- * - Handle mouse-driven resize start/move/up and enforce a minimum width
- * - Compute the table's total width including the fixed slide name column
- *
- * @param props.fields - The dynamic field keys rendered as table columns
- * @param props.defaultFieldWidth - Default width (px) to apply to fields
- * @param props.slideNameWidth - Width (px) for the fixed slide name column
- * @returns An object with helpers: `getColumnWidth`, `isResizing`, `startResize`, and `totalWidth`
+ * @param fields - Dynamic field keys rendered as table columns.
+ * @param defaultFieldWidth - Default width in pixels used for fields.
+ * @param slideNameWidth - Width in pixels for the fixed slide name column.
+ * @returns Resize helpers and state for the grid table columns.
  */
 export default function useColumnResize({
 	fields,

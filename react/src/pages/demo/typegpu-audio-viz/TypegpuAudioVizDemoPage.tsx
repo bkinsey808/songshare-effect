@@ -12,13 +12,9 @@ const CANVAS_HEIGHT = 360;
 const LEVEL_DECIMALS = 3;
 
 /**
- * TypegpuAudioVizDemoPage
+ * Render the TypeGPU audio visualization demo page.
  *
- * Demonstrates audio capture and GPU-driven visualization using TypeGPU.
- * Provides controls to select input devices and render live audio visuals.
- *
- * @returns - A React element that hosts the audio viz demo view and
- *   associated controls.
+ * @returns A React element hosting the demo view and associated controls.
  */
 export default function TypegpuAudioVizDemoPage(): ReactElement {
 	const { t } = useTranslation();

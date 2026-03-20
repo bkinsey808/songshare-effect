@@ -12,17 +12,16 @@ type EventFormFooterProps = {
 };
 
 /**
- * Renders the fixed bottom action footer for the event form.
+ * Render the fixed bottom action footer for the event form.
  *
- * @param props - Component props
- * @param props.isSaving - Whether event save operation is in progress
- * @param props.isSubmitting - Whether form validation/submission is in progress
- * @param props.submitLabel - Localized submit button text
- * @param props.hasUnsavedChanges - Whether form has unsaved changes
- * @param props.handleFormSubmit - Submit trigger callback
- * @param props.resetForm - Form reset callback
- * @param props.handleCancel - Cancel navigation callback
- * @returns Footer action buttons UI
+ * @param isSaving - Whether event save operation is in progress.
+ * @param isSubmitting - Whether form validation or submission is in progress.
+ * @param submitLabel - Localized submit button text.
+ * @param hasUnsavedChanges - Whether the form has unsaved changes.
+ * @param handleFormSubmit - Submit trigger callback.
+ * @param resetForm - Form reset callback.
+ * @param handleCancel - Cancel navigation callback.
+ * @returns Footer action buttons UI.
  */
 export default function EventFormFooter({
 	isSaving,

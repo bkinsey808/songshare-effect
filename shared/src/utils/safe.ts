@@ -9,7 +9,7 @@ import { ZERO } from "@/shared/constants/shared-constants";
  *
  * @param obj - The object to read from.
  * @param key - The key to read (must be a direct property of `obj`).
- * @returns - The property value when present, otherwise `undefined` or the provided default value.
+ * @returns The property value when present, otherwise `undefined` or the provided default value.
  */
 export function safeGet<TValue extends Record<string, unknown>, Key extends keyof TValue>(
 	obj: TValue,
@@ -86,10 +86,7 @@ export default function safeDelete(obj: Readonly<Record<string, unknown>>, key: 
  * @param arr - The array to index
  * @param idx - Index to read
  * @param defaultValue - Optional default value if index is invalid
- * @returns The element at `idx` or the provided default/undefined
- * Typed overload: safely get an element from a typed array by index.
- *
- * @returns The element at `idx` or the provided default/undefined
+ * @returns The element at `idx` or the provided default value.
  */
 export function safeArrayGet<TItem>(
 	arr: readonly TItem[],
@@ -100,7 +97,7 @@ export function safeArrayGet<TItem>(
 /**
  * Untyped overload: safely get an element from an unknown array by index.
  *
- * @returns The element at `idx` or the provided default/undefined
+ * @returns The element at `idx` or the provided default value.
  */
 export function safeArrayGet(arr: readonly unknown[], idx: number, defaultValue?: unknown): unknown;
 
@@ -110,7 +107,7 @@ export function safeArrayGet(arr: readonly unknown[], idx: number, defaultValue?
  * @param arr - The array to index
  * @param idx - Index to read
  * @param defaultValue - Optional default value if index is invalid
- * @returns The element at `idx` or the provided default/undefined
+ * @returns The element at `idx` or the provided default value.
  */
 export function safeArrayGet(
 	arr: readonly unknown[],
@@ -135,7 +132,7 @@ export function safeArrayGet(
  * @param arr - The original readonly array
  * @param idx - Index to set
  * @param value - Value to set at `idx`
- * @returns New array with the value set when valid, otherwise the original array
+ * @returns New array with the value set when valid, otherwise the original array.
  
 
 

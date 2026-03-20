@@ -20,10 +20,9 @@ import getVerifiedUserSession from "./user-session/getVerifiedSession";
  * incoming request headers to help debug cookie propagation and OAuth flows.
  *
  * @param ctx - Readonly request context providing cookies and environment.
- * @returns - An Effect that resolves to validated `UserSessionData` on success.
- *   Fails with an `AuthenticationError` when the user is not authenticated or
- *   when the IP addresses do not match. Fails with a `DatabaseError` if
- *   required server configuration is missing.
+ * @returns An Effect that resolves to validated `UserSessionData` on success.
+ *   Fails with an `AuthenticationError` when the user is not authenticated or when IPs do not match.
+ *   Fails with a `DatabaseError` if required server configuration is missing.
  */
 export default function me(
 	ctx: ReadonlyContext,

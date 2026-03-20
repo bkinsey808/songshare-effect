@@ -7,12 +7,10 @@ import getPathWithoutLang from "@/shared/language/getPathWithoutLang";
 import { dashboardPath } from "@/shared/paths";
 
 /**
- * Props for `useNavigation`.
+ * Configuration for `useNavigation`.
  *
  * `actionsExpanded` is an optional controlled value. When omitted, the hook
- * manages an internal boolean state (`internalActionsExpanded`). `onActionsExpandedChange`
- * is called for both controlled and uncontrolled flows to notify callers of a
- * change in the expanded state.
+ * uses the persisted store state and notifies callers through the change callback.
  */
 type UseNavigationProps = {
 	readonly actionsExpanded?: boolean | undefined;
@@ -22,11 +20,8 @@ type UseNavigationProps = {
 /**
  * Return shape of `useNavigation`.
  *
- * - `isHeaderActionsExpanded`: whether the header's actions area is expanded.
- * - `isActionsVisible`: semantic alias for visibility (kept separate for clarity
- *    in consuming UI code).
- * - `isActive`: function that determines active state for a nav item.
- * - `toggleActions`: toggles the expanded/visible state and notifies consumer.
+ * `isHeaderActionsExpanded` and `isActionsVisible` both reflect the current
+ * expanded state, while `isActive` and `toggleActions` provide navigation helpers.
  */
 type UseNavigationReturn = {
 	readonly isHeaderActionsExpanded: boolean;
@@ -36,16 +31,11 @@ type UseNavigationReturn = {
 };
 
 /**
- * useNavigation
+ * Encapsulate navigation-related state and helpers used by the header.
  *
- * Hook encapsulating navigation-related state/helpers used by the header/nav
- * components. It centralizes active-link detection and controlled/uncontrolled
- * expansion logic for the header actions area.
- *
- * @param props - hook configuration
- * @param props.actionsExpanded - optional controlled expanded state
- * @param props.onActionsExpandedChange - callback invoked when expanded state changes
- * @returns navigation helpers and state
+ * @param actionsExpanded - Optional controlled expanded state.
+ * @param onActionsExpandedChange - Callback invoked when expanded state changes.
+ * @returns Navigation helpers and state.
  */
 export default function useNavigation({
 	actionsExpanded,

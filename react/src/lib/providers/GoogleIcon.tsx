@@ -5,20 +5,22 @@ type IconProps = Readonly<{
 }>;
 
 /**
- * Google brand icon used for provider sign-in buttons.
+ * Render the Google brand icon used for provider sign-in buttons.
  *
- * @param props - Icon properties (optional width, height, className)
- * @returns React element rendering the Google icon
+ * @param className - Optional CSS class name.
+ * @param width - Optional width override.
+ * @param height - Optional height override.
+ * @returns React element rendering the Google icon.
  */
-export default function GoogleIcon(props: IconProps): ReactElement {
+export default function GoogleIcon({ className, width, height }: IconProps): ReactElement {
 	return (
 		<svg
-			width={props.width ?? "20"}
-			height={props.height ?? "20"}
+			width={width ?? "20"}
+			height={height ?? "20"}
 			viewBox="-0.5 0 48 48"
 			version="1.1"
 			xmlns="http://www.w3.org/2000/svg"
-			className={props.className}
+			className={className}
 		>
 			<title>Google-color</title>
 			<desc>Created with Sketch.</desc>

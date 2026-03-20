@@ -1,10 +1,11 @@
 import type { IconProps } from "./IconProps";
 
 /**
- * Icon for "create playlist" actions.
+ * Render the create playlist icon.
+ *
  * Combines a plus sign with a list/playlist symbol.
- * @param props - Icon props.
- * @param props.className - CSS class name.
+ *
+ * @param className - Optional CSS class name.
  * @returns The create playlist icon.
  */
 export default function CreatePlaylistIcon({ className = "" }: IconProps): ReactElement {

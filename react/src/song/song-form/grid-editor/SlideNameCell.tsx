@@ -35,26 +35,26 @@ type SlideNameCellProps = Readonly<{
 }>;
 
 /**
- * SlideNameCell
+ * Render the fixed slide-name cell and row actions.
  *
- * Renders the fixed-width slide name column cell (<td>) including the drag
- * handle and action buttons (duplicate, remove/delete, and confirm/cancel).
+ * Includes the drag handle, editable name input, duplicate action, and delete
+ * or remove-from-presentation controls depending on row state.
  *
- * @param props - component props
- * @param props.slideId - Unique identifier for the slide
- * @param props.slide - Slide data object
- * @param props.editSlideName - Callback to update the slide's name
- * @param props.setSlideOrder - Setter for the presentation's slide order
- * @param props.slideOrder - Current slide order array
- * @param props.duplicateSlide - Duplicate the slide by id
- * @param props.deleteSlide - Delete the slide record
- * @param props.idx - Index of this row within the slideOrder array
- * @param props.confirmingDelete - Whether delete confirmation UI is visible
- * @param props.setConfirmingDelete - Setter to toggle delete confirmation
- * @param props.globalIsDragging - Higher-level flag used to fade/disable controls during any drag
- * @param props.attributes - Draggable attributes from useSortable (forwarded to handle)
- * @param props.listeners - Drag listeners from useSortable (forwarded to handle)
- * @returns ReactElement
+ * @param slideId - Unique identifier for the slide.
+ * @param slide - Slide data object.
+ * @param editSlideName - Handler that updates the slide name.
+ * @param setSlideOrder - Setter for the presentation's slide order.
+ * @param slideOrder - Current slide order array.
+ * @param duplicateSlide - Handler that duplicates the slide by id.
+ * @param deleteSlide - Handler that deletes the slide record.
+ * @param idx - Index of this row within the slide order array.
+ * @param confirmingDelete - Whether delete confirmation UI is visible.
+ * @param setConfirmingDelete - Setter that toggles delete confirmation.
+ * @param globalIsDragging - Whether any row is currently being dragged.
+ * @param attributes - Draggable attributes from `useSortable`.
+ * @param listeners - Drag listeners from `useSortable`.
+ * @param isDuplicateRow - Whether this row belongs to a duplicate slide group.
+ * @returns React element for the slide name cell.
  */
 export default function SlideNameCell({
 	slideId,

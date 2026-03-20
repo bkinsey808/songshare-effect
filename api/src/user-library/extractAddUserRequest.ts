@@ -7,8 +7,8 @@ import type { AddUserRequest } from "./AddUserRequest.type";
  * property of type string. Returns a sanitized `AddUserRequest` on success.
  *
  * @param request - The raw request payload (typically parsed JSON).
- * @returns - A validated `AddUserRequest` containing `followed_user_id`.
- * @throws - `TypeError` when the request is not an object, is missing required
+ * @returns A validated `AddUserRequest` containing `followed_user_id`.
+ * @throws `TypeError` when the request is not an object, is missing required
  *   properties, or when `followed_user_id` is not a string.
  */
 export default function extractAddUserRequest(request: unknown): AddUserRequest {

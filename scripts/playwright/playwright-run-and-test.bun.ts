@@ -25,7 +25,8 @@ try {
 	// Ignore log file creation errors
 }
 
-const dev = spawn("npm", ["run", "dev"], { shell: true });
+const DEV_SCRIPT = process.env["PLAYWRIGHT_DEV_SCRIPT"] ?? "dev";
+const dev = spawn("npm", ["run", DEV_SCRIPT], { shell: true });
 const clientStream = fs.createWriteStream(CLIENT_LOG, { flags: "a" });
 const apiStream = fs.createWriteStream(API_LOG, { flags: "a" });
 

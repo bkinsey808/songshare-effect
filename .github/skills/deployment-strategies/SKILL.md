@@ -82,7 +82,7 @@ Use `deploy:full` whenever updating UI components, API behavior, or fixing bugs 
 
 ```bash
 # Check API is healthy
-curl https://effect.bardoshare.com/api/health
+curl https://<your-domain>/api/health
 
 # Tail live logs for errors
 wrangler tail --env production

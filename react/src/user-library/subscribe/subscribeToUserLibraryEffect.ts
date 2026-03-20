@@ -14,7 +14,7 @@ import handleUserLibrarySubscribeEvent from "./handleUserLibrarySubscribeEvent";
  * Effect error channel.
  *
  * @param get - Getter for the `UserLibrarySlice` used by event handlers.
- * @returns - An Effect that resolves to a `() => void` cleanup function.
+ * @returns An Effect that resolves to a `() => void` cleanup function.
  */
 export default function subscribeToUserLibraryEffect(
 	get: () => UserLibrarySlice,

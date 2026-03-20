@@ -18,21 +18,20 @@ type SongViewSlideControlsProps = Readonly<{
 }>;
 
 /**
- * SongViewSlideControls
+ * Render slide navigation controls and an optional full-screen toggle.
  *
- * Renders slide navigation controls (first/prev/next/last) and an optional
- * full-screen toggle. Uses `clampedIndex` (0-based) to enable/disable buttons
- * and shows a localized slide counter.
+ * Uses the clamped slide index to enable and disable buttons, and hides the
+ * whole control set when there are no slides.
  *
- * @param clampedIndex - 0-based, clamped current slide index
- * @param goFirst - navigate to the first slide
- * @param goLast - navigate to the last slide
- * @param goNext - navigate to the next slide
- * @param goPrev - navigate to the previous slide
- * @param isFullScreen - true when presentation is already full-screen
- * @param onToggleFullScreen - optional handler to toggle full-screen mode
- * @param totalSlides - total number of slides (used to hide controls when zero)
- * @returns React element or undefined when there are no slides to show
+ * @param clampedIndex - Clamped current slide index.
+ * @param goFirst - Handler that jumps to the first slide.
+ * @param goLast - Handler that jumps to the last slide.
+ * @param goNext - Handler that advances to the next slide.
+ * @param goPrev - Handler that moves to the previous slide.
+ * @param isFullScreen - Whether the presentation is currently full screen.
+ * @param onToggleFullScreen - Optional handler that toggles full screen mode.
+ * @param totalSlides - Total number of slides available.
+ * @returns React element or `undefined` when there are no slides to show.
  */
 export default function SongViewSlideControls({
 	clampedIndex,

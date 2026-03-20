@@ -21,11 +21,18 @@ const INDEX_FIRST = 0;
 const INDEX_LAST_OFFSET = 1;
 
 /**
- * Card showing a single song entry within the playlist editor.
+ * Render a single song entry within the playlist editor.
+ *
  * Includes controls to move or remove the song and displays owner info.
  *
- * @param props - PlaylistSongCardProps
- * @returns A React element rendering the song card
+ * @param songId - Song id used for lookup and removal.
+ * @param index - Zero-based position within the playlist.
+ * @param totalSongs - Total number of songs in the playlist.
+ * @param onMoveUp - Handler that moves the song up one position.
+ * @param onMoveDown - Handler that moves the song down one position.
+ * @param onRemove - Handler that removes the song from the playlist.
+ * @param dragHandle - Optional drag handle element.
+ * @returns A React element rendering the song card.
  */
 export default function PlaylistSongCard({
 	songId,

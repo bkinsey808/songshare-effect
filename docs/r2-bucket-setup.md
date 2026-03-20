@@ -40,7 +40,7 @@ npx wrangler r2 bucket list
 
 You should see both `songshare-images` and `songshare-images-preview` in the output.
 
-> **Naming note:** Bucket names must be globally unique within your Cloudflare account. If `songshare-images` is taken, try `bardoshare-images` or any name you prefer — just use the same name in wrangler.toml below.
+> **Naming note:** Bucket names must be globally unique within your Cloudflare account. If `songshare-images` is taken, try `<your-project>-images` or any name you prefer — just use the same name in wrangler.toml below.
 
 ---
 
@@ -71,16 +71,34 @@ binding = "BUCKET"
 bucket_name = "songshare-images"
 preview_bucket_name = "songshare-images-preview"
 
-[env.dev]
-port = 8787
-# ... rest of file unchanged
+[env.staging]
+
+[env.production]
 ```
 
 > The `preview_bucket_name` is used by `wrangler dev` and Pages preview deployments. Using a separate bucket keeps dev uploads isolated from production data.
 
 ---
 
-## Step 4 — Restart the local API server
+## Step 4 — Enable R2 mode via environment variable
+
+The Worker and frontend both check `STORAGE_BACKEND` / `VITE_STORAGE_BACKEND` to decide whether to use R2 or Supabase storage. Set these in the keyring for each environment:
+
+```bash
+# Enable R2 for local dev:
+echo -n "r2" | keyring set songshare-dev STORAGE_BACKEND
+echo -n "r2" | keyring set songshare-dev VITE_STORAGE_BACKEND
+
+# Enable R2 for production:
+echo -n "r2" | keyring set songshare-production STORAGE_BACKEND
+echo -n "r2" | keyring set songshare-production VITE_STORAGE_BACKEND
+```
+
+Then regenerate `.dev.vars`: `npm run generate:dev-vars`
+
+---
+
+## Step 5 — Restart the local API server
 
 The wrangler dev process must be restarted to pick up the new binding:
 
@@ -95,7 +113,7 @@ After restart, wrangler will automatically connect to the local R2 simulator bac
 
 ---
 
-## Step 5 — Verify the binding works
+## Step 6 — Verify the binding works
 
 Test a quick upload via curl (while dev servers are running):
 
@@ -111,7 +129,7 @@ A successful response returns a JSON object with `image_slug` and other fields. 
 
 ---
 
-## Step 6 — Add the binding for the production Worker
+## Step 7 — Add the binding for the production Worker
 
 The production Worker also needs the binding. Add `[[r2_buckets]]` to the root of `api/wrangler.toml` (as done in Step 3) — Wrangler inherits the top-level binding for all environments including `[env.production]`.
 
@@ -119,13 +137,13 @@ No additional change is needed; the single `[[r2_buckets]]` block at the top lev
 
 ---
 
-## Step 7 — (Optional) Configure CORS on the bucket
+## Step 8 — (Optional) Configure CORS on the bucket
 
 If you ever serve images directly from the R2 public URL (rather than through the `/api/images/serve/:image_key` proxy), you may need a CORS policy. Currently the app proxies all image reads through the API, so this is not required.
 
 ---
 
-## Step 8 — Add the binding to the staging Worker config
+## Step 9 — Add the binding to the staging Worker config
 
 Open `api/wrangler.staging.toml` and add the same `[[r2_buckets]]` block:
 
@@ -140,10 +158,13 @@ preview_bucket_name = "songshare-images-preview"
 
 ## Summary of changes
 
-| File                        | Change                                               |
-| --------------------------- | ---------------------------------------------------- |
-| `api/wrangler.toml`         | Add `[[r2_buckets]]` block with `binding = "BUCKET"` |
-| `api/wrangler.staging.toml` | Add the same `[[r2_buckets]]` block                  |
+| File / Location                  | Change                                               |
+| -------------------------------- | ---------------------------------------------------- |
+| `api/wrangler.toml`              | Add `[[r2_buckets]]` block with `binding = "BUCKET"` |
+| `api/wrangler.staging.toml`      | Add the same `[[r2_buckets]]` block                  |
+| `songshare-dev` keyring          | `STORAGE_BACKEND=r2`, `VITE_STORAGE_BACKEND=r2`     |
+| `songshare-staging` keyring      | `STORAGE_BACKEND=r2`, `VITE_STORAGE_BACKEND=r2`     |
+| `songshare-production` keyring   | `STORAGE_BACKEND=r2`, `VITE_STORAGE_BACKEND=r2`     |
 
 ---
 

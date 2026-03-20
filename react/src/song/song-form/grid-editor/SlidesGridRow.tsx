@@ -59,28 +59,27 @@ type SortableGridRowProps = Readonly<{
 }>;
 
 /**
- * SortableGridRow
+ * Render a single sortable song slide row.
  *
- * Renders a single row in the slides grid editor. Supports reordering via drag
- * and drop, duplicating, removing an instance from the presentation, and
- * deleting the slide (with confirmation when deleting the last instance).
+ * Handles reordering, duplication, removal, and delete confirmation for the
+ * current slide row while delegating cell rendering to child components.
  *
- * @param props - component props
- * @param props.slideId - Unique identifier for the slide
- * @param props.slide - Slide data object
- * @param props.fields - The dynamic field columns to render for this row
- * @param props.editSlideName - Callback to update the slide's name
- * @param props.editFieldValue - Callback to update a specific field value
- * @param props.safeGetField - Safe accessor to get field text for rendering
- * @param props.setSlideOrder - Setter for the presentation's slide order array
- * @param props.slideOrder - Current slide order array (may contain duplicates)
- * @param props.duplicateSlide - Duplicate the slide by id
- * @param props.deleteSlide - Delete the slide record
- * @param props.slides - Lookup of all slides by id
- * @param props.idx - Index of this row within the slideOrder array
- * @param props.getColumnWidth - Function that returns width (px) for a given field
- * @param props.globalIsDragging - Higher-level flag used to fade/disable controls during any drag
- * @returns ReactElement
+ * @param slideId - Unique identifier for the slide.
+ * @param slide - Slide data object.
+ * @param fields - Dynamic field columns rendered for this row.
+ * @param editSlideName - Handler that updates the slide name.
+ * @param editFieldValue - Handler that updates a field value.
+ * @param safeGetField - Safe accessor that returns display text for a field.
+ * @param setSlideOrder - Setter for the presentation's slide order array.
+ * @param slideOrder - Current slide order array, including duplicates.
+ * @param duplicateSlide - Handler that duplicates the slide by id.
+ * @param deleteSlide - Handler that deletes the slide record.
+ * @param slides - Lookup of all slides by id.
+ * @param idx - Index of this row within the slide order array.
+ * @param getColumnWidth - Returns the width in pixels for a given field.
+ * @param globalIsDragging - Whether any row is currently being dragged.
+ * @param isDuplicateRow - Whether this row belongs to a duplicate slide group.
+ * @returns React element for the table row.
  */
 export default function SlidesGridRow({
 	slideId,

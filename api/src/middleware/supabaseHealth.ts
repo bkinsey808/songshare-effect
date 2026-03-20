@@ -12,8 +12,7 @@ declare global {
 /**
  * Returns whether the Supabase startup health check has already run.
  *
- * @returns - true if the one-time startup health check has already run, false
- *   otherwise.
+ * @returns `true` if the one-time startup health check has already run, otherwise `false`.
  */
 function isSupabaseHealthChecked(): boolean {
 	return Boolean(globalThis.__songshare_supabase_health_checked === true);
@@ -23,7 +22,7 @@ function isSupabaseHealthChecked(): boolean {
  * Marks that the Supabase startup health check has been completed so it does
  * not run again for the lifetime of the process.
  *
- * @returns - nothing.
+ * @returns void.
  */
 function markSupabaseHealthChecked(): void {
 	globalThis.__songshare_supabase_health_checked = true;
@@ -33,9 +32,8 @@ function markSupabaseHealthChecked(): void {
  * Perform a one-off health check against the Supabase host by sending a
  * HEAD request to the configured Supabase origin with a short timeout.
  *
- * @param url - The VITE_SUPABASE_URL value to parse and use for the health
- *   check.
- * @returns - Resolves when the check completes (no value returned).
+ * @param url - The `VITE_SUPABASE_URL` value to parse and use for the health check.
+ * @returns Resolves when the check completes.
  */
 async function runSupabaseHealthCheck(url: string): Promise<void> {
 	try {
@@ -75,7 +73,7 @@ async function runSupabaseHealthCheck(url: string): Promise<void> {
  *
  * @param ctx - Hono request context providing `env` for configuration.
  * @param next - The next middleware/handler to invoke.
- * @returns - Resolves when middleware completes.
+ * @returns Resolves when middleware completes.
  */
 export default async function supabaseHealthMiddleware(
 	ctx: ReadonlyContext,

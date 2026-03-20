@@ -64,35 +64,31 @@ type SortableGridRowInnerProps = Readonly<{
 }>;
 
 /**
- * SortableGridRowInner
+ * Render the editable cells for a sortable song slide row.
  *
- * The extracted row renderer used by `SortableGridRow`. This keeps the JSX
- * focused and easier to test / maintain while the parent retains drag-related
- * state and logic.
+ * Keeps the row layout focused on the table cells while the parent component
+ * owns the drag and delete state.
  *
- * @param props - component props
- * @param props.slideId - Unique identifier for the slide
- * @param props.slide - Slide data object
- * @param props.fields - The dynamic field columns to render for this row
- * @param props.editSlideName - Callback to update the slide's name
- * @param props.editFieldValue - Callback to update a specific field value
- * @param props.safeGetField - Safe accessor to get field text for rendering
- * @param props.setSlideOrder - Setter for the presentation's slide order array
- * @param props.slideOrder - Current slide order array (may contain duplicates)
- * @param props.duplicateSlide - Duplicate the slide
- * @param props.deleteSlide - Delete the slide record (used when last instance is removed)
- * @param props.slides - Lookup of all slides by id
- * @param props.idx - Index of this row within the slideOrder array
- * @param props.getColumnWidth - Function that returns width (px) for a given field
- * @param props.attributes - Draggable attributes from `useSortable` (aria/role/etc.)
- * @param props.listeners - Listener map from `useSortable` (pointer/mouse/touch handlers)
- * @param props.rowRef - Ref callback to attach the sortable DOM node
- * @param props.style - Inline style with transform/transition for drag
- * @param props.isDragging - Whether this row is being dragged
- * @param props.confirmingDelete - Whether delete confirmation UI is visible
- * @param props.setConfirmingDelete - Setter to toggle delete confirmation state
- * @param props.globalIsDragging - Higher-level flag used to fade/disable controls during any drag
- * @returns React element
+ * @param slideId - Unique identifier for the slide.
+ * @param slide - Slide data object.
+ * @param fields - Dynamic field columns rendered for this row.
+ * @param editSlideName - Handler that updates the slide name.
+ * @param editFieldValue - Handler that updates a field value.
+ * @param safeGetField - Safe accessor that returns display text for a field.
+ * @param setSlideOrder - Setter for the presentation's slide order array.
+ * @param slideOrder - Current slide order array, including duplicates.
+ * @param duplicateSlide - Handler that duplicates the slide.
+ * @param deleteSlide - Handler that deletes the slide record.
+ * @param slides - Lookup of all slides by id.
+ * @param idx - Index of this row within the slide order array.
+ * @param getColumnWidth - Returns the width in pixels for a given field.
+ * @param attributes - Draggable attributes from `useSortable`.
+ * @param listeners - Listener map from `useSortable`.
+ * @param confirmingDelete - Whether delete confirmation UI is visible.
+ * @param setConfirmingDelete - Setter that toggles delete confirmation state.
+ * @param globalIsDragging - Whether any row is currently being dragged.
+ * @param isDuplicateRow - Whether this row belongs to a duplicate slide group.
+ * @returns React element containing the slide name and field cells.
  */
 export default function SortableGridCells({
 	slideId,

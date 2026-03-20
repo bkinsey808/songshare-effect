@@ -108,7 +108,7 @@ export default function fetchAndPrepareUser({
 			const isProdFlag = (getEnvString(ctx.env, "ENVIRONMENT") ?? "") === "production";
 			const opts = requestOrigin ? { requestOrigin, isProd: isProdFlag } : { isProd: isProdFlag };
 			const originForRedirect = resolveRedirectOrigin(envRedirectOrigin || undefined, opts);
-			redirectUri = `${originForRedirect}${getEnvString(ctx.env, "OAUTH_REDIRECT_PATH") ?? apiOauthCallbackPath}`;
+			redirectUri = `${originForRedirect}${apiOauthCallbackPath}`;
 		}
 		yield* $(
 			Effect.sync(() => {

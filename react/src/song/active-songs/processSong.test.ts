@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import makeSongPublic from "@/react/song/test-utils/makeSongPublic.mock";
+import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
 
 import processSong from "./processSong";
 

@@ -14,10 +14,11 @@ type AddSongToPlaylistCardProps = {
 };
 
 /**
- * Expandable card for adding a song to a playlist.
- * Shows user's playlists with search functionality.
+ * Render an expandable card for adding a song to a playlist.
  *
- * @param props - Component props.
+ * Shows the user's playlists with search functionality.
+ *
+ * @param songId - The song id to add to a playlist.
  * @returns The add song to playlist card.
  */
 export default function AddSongToPlaylistCard({

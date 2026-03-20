@@ -39,7 +39,7 @@ not warrant being a hook at all.
 ## `renderHook` — the Default Approach
 
 `renderHook` wraps the hook in a minimal React tree and gives you `result.current` to inspect
-return values. It handles re-renders automatically.
+|return values. It handles re-renders automatically.
 
 ```tsx
 import { renderHook, waitFor } from "@testing-library/react";
@@ -77,9 +77,6 @@ await waitFor(() => {
 	expect(result.current.isOpen).toBe(true);
 });
 ```
-
-- Do **not** use `act()` — `waitFor` from `@testing-library/react` already wraps assertions in the
-  correct React flush cycle.
 
 ---
 
@@ -721,7 +718,7 @@ Before calling a hook test complete, verify:
       `expect.any(Object)`
 - [ ] Filter queries narrow the list — not a wildcard that matches everything
 - [ ] Harness destructures hook return; only bindings used in JSX are included
-- [ ] `waitFor` used for async assertions — `act` never used
+- [ ] `act` / `waitFor` usage follows the general guidance in [unit-testing.md](./unit-testing.md#act-vs-waitfor)
 - [ ] No `eslint-disable` comments in the test file
 - [ ] No custom `assertDefined` helpers — use singular `getBy*` variants
 - [ ] `toHaveBeenCalledWith(expect.objectContaining({...}))` used instead of a side-effect

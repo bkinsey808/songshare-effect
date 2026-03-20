@@ -21,16 +21,16 @@ type SongFormFooterProps = {
 };
 
 /**
- * Footer UI for the Song form providing save/reset/cancel/delete controls
+ * Render the fixed footer actions for the song form.
  *
- * @param hasChanges - Whether the form has unsaved changes
- * @param isSubmitting - True when the form is currently being submitted
- * @param isEditing - True when editing an existing song (enables delete)
- * @param onSave - Save handler
- * @param onReset - Reset handler
- * @param onCancel - Cancel handler
- * @param onDelete - Optional delete handler for existing songs
- * @returns React element rendering the footer controls
+ * @param hasChanges - Whether the form has unsaved changes.
+ * @param isSubmitting - Whether the form is currently submitting.
+ * @param isEditing - Whether the form is editing an existing song.
+ * @param onSave - Handler for save or create actions.
+ * @param onReset - Handler that resets the form.
+ * @param onCancel - Handler that cancels editing.
+ * @param onDelete - Optional handler that deletes the song.
+ * @returns React element rendering the footer controls.
  */
 export default function SongFormFooter({
 	hasChanges,

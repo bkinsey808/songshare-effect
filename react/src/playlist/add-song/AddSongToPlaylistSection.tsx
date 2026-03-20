@@ -17,10 +17,12 @@ const SONGS_NONE = 0;
 const SEARCH_QUERY_EMPTY = "";
 
 /**
- * Expandable section for adding songs to the current playlist.
- * Shows user's song library with search functionality.
+ * Render an expandable section for adding songs to the current playlist.
  *
- * @param props - Component props.
+ * Shows the user's song library with search functionality.
+ *
+ * @param currentSongOrder - Current song ids already in the playlist.
+ * @param onSongAdded - Callback invoked when a song is added.
  * @returns The add song to playlist section.
  */
 export default function AddSongToPlaylistSection({

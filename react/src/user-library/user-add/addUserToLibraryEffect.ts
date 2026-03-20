@@ -17,8 +17,7 @@ import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
  *
  * @param request - Request object containing `followed_user_id`.
  * @param get - Getter for the `UserLibrarySlice` used to read and mutate state.
- * @returns - An Effect that resolves when the operation completes or fails
- *   with an Error.
+ * @returns An Effect that resolves when the operation completes or fails with an Error.
  */
 export default function addUserToLibraryEffect(
 	request: Readonly<AddUserToLibraryRequest>,

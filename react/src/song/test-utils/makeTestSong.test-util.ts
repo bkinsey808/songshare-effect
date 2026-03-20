@@ -2,7 +2,10 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import type { SongPublic } from "@/react/song/song-schema";
 
 /**
- * Helper to create a minimal SongPublic for testing.
+ * Build a minimal `SongPublic` fixture for tests.
+ *
+ * @param overrides - Partial properties to merge into the default fixture.
+ * @returns A `SongPublic` object ready for assertions.
  */
 export function makeTestSong(overrides: Partial<SongPublic> = {}): SongPublic {
 	// avoid explicit null literals (unicorn/no-null) by parsing at runtime
@@ -28,7 +31,10 @@ export function makeTestSong(overrides: Partial<SongPublic> = {}): SongPublic {
 }
 
 /**
- * Helper for testing malformed song data with missing name.
+ * Build a `SongPublic` fixture with an intentionally missing song name.
+ *
+ * @param overrides - Partial properties to merge into the default fixture.
+ * @returns A `SongPublic` object whose `song_name` is `undefined`.
  */
 export function makeSongWithUndefinedName(overrides: Partial<SongPublic> = {}): SongPublic {
 	const base = makeTestSong(overrides);

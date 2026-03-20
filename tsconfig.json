@@ -6,10 +6,16 @@
 			"path": "./shared"
 		},
 		{
-			"path": "./tsconfig.app.json"
+			"path": "./react"
 		},
 		{
-			"path": "./tsconfig.node.json"
+			"path": "./e2e"
+		},
+		{
+			"path": "./tsconfig.config.json"
+		},
+		{
+			"path": "./scripts"
 		},
 		{
 			"path": "./tsconfig.functions.json"

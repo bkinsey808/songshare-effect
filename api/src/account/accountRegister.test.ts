@@ -117,8 +117,8 @@ describe("accountRegister", () => {
 		);
 	});
 
-	it("fails when JWT_SECRET is missing (server misconfiguration)", async () => {
-		const ctx = makeCtx({ body: { username: "freshuser" }, env: { JWT_SECRET: "" } });
+	it("fails when SUPABASE_JWT_SECRET is missing (server misconfiguration)", async () => {
+		const ctx = makeCtx({ body: { username: "freshuser" }, env: { SUPABASE_JWT_SECRET: "" } });
 
 		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
 			oauthUserData: { email: "u@example.com" },
@@ -131,6 +131,6 @@ describe("accountRegister", () => {
 			userInsertRows: [RAW_INSERTED_USER],
 		});
 
-		await expect(Effect.runPromise(accountRegister(ctx))).rejects.toThrow(/missing JWT_SECRET/);
+		await expect(Effect.runPromise(accountRegister(ctx))).rejects.toThrow(/missing SUPABASE_JWT_SECRET/);
 	});
 });

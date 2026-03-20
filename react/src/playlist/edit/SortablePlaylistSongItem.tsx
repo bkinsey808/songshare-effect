@@ -16,11 +16,17 @@ type SortablePlaylistSongItemProps = {
 };
 
 /**
- * Sortable wrapper for `PlaylistSongCard` used by the playlist editor.
- * Applies drag transform/transition styles and provides a handle to the card.
+ * Render a sortable wrapper for `PlaylistSongCard` used by the playlist editor.
  *
- * @param props - SortablePlaylistSongItemProps
- * @returns Sortable React element for the song
+ * Applies drag transform and transition styles and provides a handle to the card.
+ *
+ * @param songId - Song id for the sortable item.
+ * @param index - Zero-based index of the song.
+ * @param totalSongs - Total number of songs in the playlist.
+ * @param onMoveUp - Handler that moves the song up.
+ * @param onMoveDown - Handler that moves the song down.
+ * @param onRemove - Handler that removes the song.
+ * @returns Sortable React element for the song.
  */
 export default function SortablePlaylistSongItem(
 	props: SortablePlaylistSongItemProps,

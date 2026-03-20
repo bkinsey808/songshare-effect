@@ -15,8 +15,7 @@ import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
  * loading and error state on the slice and logs diagnostic information.
  *
  * @param get - Getter for the `UserLibrarySlice` used to set state.
- * @returns - An Effect that resolves when fetching and setting complete or
- *   fails with an Error.
+ * @returns An Effect that resolves when fetching and setting completes or fails with an Error.
  */
 export default function fetchUserLibraryEffect(
 	get: () => UserLibrarySlice,

@@ -87,7 +87,7 @@ console.log("User ID:", claims.app_metadata.user?.user_id);
 ```typescript
 import { jwtVerify } from "@supabase/supabase-js";
 
-const secret = process.env.SUPABASE_JWT_SECRET;
+const secret = process.env.SUPABASE_SUPABASE_JWT_SECRET;
 const token = request.headers.get("Authorization")?.split(" ")[1];
 
 if (!token) throw new Error("Missing token");

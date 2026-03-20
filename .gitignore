@@ -16,13 +16,18 @@ dist-ssr
 .env
 .env.local
 .env.staging
+.env.staging.backup
 .env.staging-local
+.env.staging-local.backup
 .env.development.local
 .env.test.local
 .env.production.local
+.env.backup
 
 # Wrangler (Cloudflare Workers)
 .wrangler
+api/.dev.vars
+api/vars/
 
 # Generated files
 public/manifest.json
@@ -38,8 +43,6 @@ public/manifest.json
 *.sln
 *.sw?
 
-wrangler.toml
-wrangler.staging.toml
 
 scripts/mcp/mcp.pid
 
@@ -74,5 +77,6 @@ tmp/
 
 .eslintcache
 
-test-output.txt
+test_output.txt
 test-output-staging.txt
+tmpfile

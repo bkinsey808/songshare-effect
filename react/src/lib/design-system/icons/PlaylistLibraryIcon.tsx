@@ -1,11 +1,19 @@
 import type { SVGProps } from "react";
 
 /**
- * Playlist Library icon - represents a collection of playlists.
- * @param props - SVG element properties.
+ * Render the playlist library icon.
+ *
+ * @param className - Optional CSS class name.
+ * @param width - Optional width override.
+ * @param height - Optional height override.
  * @returns A playlist library icon component.
  */
-export default function PlaylistLibraryIcon(props: SVGProps<SVGSVGElement>): ReactElement {
+export default function PlaylistLibraryIcon({
+	className,
+	width,
+	height,
+	...props
+}: SVGProps<SVGSVGElement>): ReactElement {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -15,6 +23,9 @@ export default function PlaylistLibraryIcon(props: SVGProps<SVGSVGElement>): Rea
 			strokeWidth="2"
 			strokeLinecap="round"
 			strokeLinejoin="round"
+			className={className}
+			width={width}
+			height={height}
 			{...props}
 		>
 			{/* Three stacked horizontal lines representing lists */}

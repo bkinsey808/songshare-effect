@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { makeTestPlaylist } from "@/react/playlist/test-utils/makeTestPlaylist.mock";
-import { makeTestSong } from "@/react/song/test-utils/makeTestSong.mock";
+import { makeTestSong } from "@/react/song/test-utils/makeTestSong.test-util";
 
 import useActiveSongSelectionState from "./useActiveSongSelectionState";
 

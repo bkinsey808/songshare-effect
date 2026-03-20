@@ -10,10 +10,10 @@ import runRemoveUserFromCardEffect from "../user-remove/runRemoveUserFromCardEff
  * Encapsulates the removal confirmation and removal flow for a single user
  * library card.
  *
- * @param entry - The user library entry represented by the card
- * @param songsOwnedByUser - Array of song IDs owned by this user in the library
- * @param playlistsOwnedByUser - Array of playlist IDs owned by this user in the library
- * @returns - State and handlers for the card (confirm/cancel/remove)
+ * @param entry - The user library entry represented by the card.
+ * @param songsOwnedByUser - Array of song IDs owned by this user in the library.
+ * @param playlistsOwnedByUser - Array of playlist IDs owned by this user in the library.
+ * @returns State and handlers for the card.
  */
 export default function useUserLibraryCard({
 	entry,

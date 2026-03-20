@@ -20,7 +20,7 @@ import { type Database } from "@/shared/generated/supabaseTypes";
  * and `500` for internal or database errors.
  *
  * @param ctx - Readonly request context providing environment variables and request body.
- * @returns - An Effect that resolves to a `Response` representing the operation result.
+ * @returns An Effect that resolves to a `Response` representing the operation result.
  */
 export default function updateSongPublic(ctx: ReadonlyContext): Effect.Effect<Response, Error> {
 	return Effect.gen(function* updateSongPublicGen($) {

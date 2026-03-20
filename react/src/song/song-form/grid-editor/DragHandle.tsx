@@ -20,15 +20,13 @@ type DragHandleProps = Readonly<{
 }>;
 
 /**
- * DragHandle
+ * Render the interactive drag handle used by sortable rows.
  *
- * Small presentational component that forwards dnd-kit `attributes` and
- * `listeners` to an interactive drag handle element.
+ * Forwards the dnd-kit attributes and listeners onto a small grab target.
  *
- * @param props - component props
- * @param props.attributes - attributes object from `useSortable` (aria, role, etc.)
- * @param props.listeners - listeners map from `useSortable` (pointer/mouse/touch handlers)
- * @returns React element
+ * @param attributes - Attributes object from `useSortable`.
+ * @param listeners - Listener map from `useSortable`.
+ * @returns React element for the drag handle.
  */
 export default function DragHandle({ attributes, listeners }: DragHandleProps): ReactElement {
 	const { t } = useTranslation();

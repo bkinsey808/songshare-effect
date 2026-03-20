@@ -17,7 +17,7 @@ import { safeSet } from "@/shared/utils/safe";
  * Renders the user registration form and handles submission, validation,
  * and successful registration redirect behavior.
  *
- * @returns - A React element containing the registration UI and form logic.
+ * @returns A React element containing the registration UI and form logic.
  */
 export default function RegisterPage(): ReactElement {
 	const { lang, t } = useLocale();

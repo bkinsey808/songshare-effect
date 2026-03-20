@@ -53,7 +53,7 @@ npm run test:e2e:dev:once
 npm run test:e2e:prod
 ```
 
-This runs tests against `https://effect.bardoshare.com`.
+This runs tests against `https://<your-domain>`.
 
 ## Playwright Installation
 

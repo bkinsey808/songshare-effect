@@ -7,8 +7,8 @@ type EventLibraryErrorStateProps = {
 /**
  * Displays an error message when the event library fails to load.
  *
- * @param error - The error message to display
- * @returns - A React element showing the error state
+ * @param error - The error message to display.
+ * @returns A React element showing the error state.
  */
 export default function EventLibraryErrorState({
 	error,

@@ -10,7 +10,10 @@ import {
 	makePlaylistWithUndefinedSongOrder,
 	makeTestPlaylist,
 } from "@/react/playlist/test-utils/makeTestPlaylist.mock";
-import { makeSongWithUndefinedName, makeTestSong } from "@/react/song/test-utils/makeTestSong.mock";
+import {
+	makeSongWithUndefinedName,
+	makeTestSong,
+} from "@/react/song/test-utils/makeTestSong.test-util";
 
 import usePlaylistSongDisplay from "../playlist-song-display/usePlaylistSongDisplay";
 import useEventPlaylistAccordion from "./useEventPlaylistAccordion";

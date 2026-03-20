@@ -8,10 +8,11 @@ type EventPlaylistAccordionProps = {
 };
 
 /**
- * Displays a playlist in a collapsible accordion within the event view.
+ * Render a playlist in a collapsible accordion within the event view.
+ *
  * Shows the playlist name and lists all songs, with owner information for each.
- * @param props - Component props.
- * @param props.playlistId - The ID of the playlist to display.
+ *
+ * @param playlistId - The ID of the playlist to display.
  * @returns A React element displaying the playlist accordion.
  */
 export default function EventPlaylistAccordion({

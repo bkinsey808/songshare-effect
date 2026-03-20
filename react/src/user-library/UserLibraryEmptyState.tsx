@@ -5,7 +5,7 @@ import AddUserForm from "./user-add/AddUserForm";
 /**
  * Displays a message and call-to-action when the user library is empty.
  *
- * @returns - A React element showing the empty state
+ * @returns A React element showing the empty state.
  */
 export default function UserLibraryEmptyState(): ReactElement {
 	const { t } = useTranslation();

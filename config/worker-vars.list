@@ -1,0 +1,35 @@
+# All Cloudflare Worker variable names — secrets and non-secrets alike.
+# Values are stored per-environment in the system keyring:
+#   keyring set songshare-dev      ENVIRONMENT development
+#   keyring set songshare-staging  ENVIRONMENT staging
+#   keyring set songshare-production ENVIRONMENT production
+#
+# Push to Cloudflare: bun run scripts/set-cloudflare-secrets.bun.ts --env production
+# Generate local dev vars: bun run scripts/env/generate-dev-vars.bun.ts
+
+# Environment config
+ENVIRONMENT
+OAUTH_REDIRECT_ORIGIN
+ALLOWED_ORIGINS
+ALLOWED_REDIRECT_ORIGINS
+STORAGE_BACKEND
+
+# Supabase
+VITE_SUPABASE_URL
+SUPABASE_SERVICE_KEY
+SUPABASE_JWT_SECRET
+SUPABASE_VISITOR_EMAIL
+SUPABASE_VISITOR_PASSWORD
+
+# Debug / optional runtime flags
+REGISTER_COOKIE_CLIENT_DEBUG
+DEBUG_API_HEADERS
+
+# Auth / OAuth
+STATE_HMAC_SECRET
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+MS_CLIENT_ID
+MS_CLIENT_SECRET
+AMAZON_CLIENT_ID
+AMAZON_CLIENT_SECRET

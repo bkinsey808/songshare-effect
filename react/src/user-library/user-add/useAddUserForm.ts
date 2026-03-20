@@ -23,7 +23,7 @@ type UseAddUserFormReturn = {
 /**
  * Hook that manages the state and handlers for the add user form.
  *
- * @returns - Object containing form state and handler functions.
+ * @returns Object containing form state and handler functions.
  */
 export default function useAddUserForm(): UseAddUserFormReturn {
 	const { t } = useTranslation();

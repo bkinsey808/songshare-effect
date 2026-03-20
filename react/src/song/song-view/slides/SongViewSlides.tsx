@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 import Button from "@/react/lib/design-system/Button";
 import XIcon from "@/react/lib/design-system/icons/XIcon";
 
-import { type SongPublic } from "../song-schema";
-import SongViewCurrentSlide from "./SongViewCurrentSlide";
+import { type SongPublic } from "@/react/song/song-schema";
+import SongViewCurrentSlide from "../SongViewCurrentSlide";
 import SongViewSlideControls from "./SongViewSlideControls";
 import { useSongViewSlides } from "./useSongViewSlides";
 
@@ -18,14 +18,10 @@ type SongViewSlidesProps = Readonly<{
 }>;
 
 /**
- * SongViewSlides
+ * Render the current slide, navigation controls, and optional full-screen view.
  *
- * Renders the current slide, keyboard hints and controls. Supports a full-screen
- * dialog that can be exited with Escape or the UI close button.
- *
- * @param props - component props
- * @param props.songPublic - public song payload used to derive slides
- * @returns React element rendering slides and controls
+ * @param songPublic - Public song payload used to derive slides.
+ * @returns React element rendering slides and controls.
  */
 export default function SongViewSlides({ songPublic }: SongViewSlidesProps): ReactElement {
 	const { t } = useTranslation();

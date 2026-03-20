@@ -274,7 +274,7 @@ import { GOOGLE_USER_SESSION_PATH } from "../utils/auth-helpers";
 test.use({ storageState: GOOGLE_USER_SESSION_PATH });
 ```
 
-### Scenario 2 — Tests against staging.bardoshare.com
+### Scenario 2 — Tests against <staging-domain>
 
 ```bash
 # Generate session with your real public IP embedded

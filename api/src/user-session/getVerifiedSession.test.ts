@@ -45,7 +45,7 @@ describe("getVerifiedUserSession", () => {
 
 		const ctx = makeCtx({
 			headers: { Cookie: "userSession=tok-abc;" },
-			env: { JWT_SECRET: "jwt-secret" },
+			env: { SUPABASE_JWT_SECRET: "jwt-secret" },
 		});
 
 		const res = await Effect.runPromise(getVerifiedUserSession(ctx));
@@ -59,11 +59,11 @@ describe("getVerifiedUserSession", () => {
 		vi.spyOn(extractModule2, "default").mockReturnValue(Effect.succeed(undefined));
 
 		await expect(
-			Effect.runPromise(getVerifiedUserSession(makeCtx({ env: { JWT_SECRET: "jwt-secret" } }))),
+			Effect.runPromise(getVerifiedUserSession(makeCtx({ env: { SUPABASE_JWT_SECRET: "jwt-secret" } }))),
 		).rejects.toThrow(/Not authenticated/);
 	});
 
-	it("throws DatabaseError when JWT_SECRET missing", async () => {
+	it("throws DatabaseError when SUPABASE_JWT_SECRET missing", async () => {
 		vi.resetAllMocks();
 
 		const extractModule3 = await import("@/api/user-session/extractUserSessionTokenFromContext");
@@ -71,7 +71,7 @@ describe("getVerifiedUserSession", () => {
 
 		// jwt secret intentionally missing from env
 		await expect(
-			Effect.runPromise(getVerifiedUserSession(makeCtx({ env: { JWT_SECRET: "" } }))),
+			Effect.runPromise(getVerifiedUserSession(makeCtx({ env: { SUPABASE_JWT_SECRET: "" } }))),
 		).rejects.toThrow(/Server configuration error/);
 	});
 
@@ -88,7 +88,7 @@ describe("getVerifiedUserSession", () => {
 		);
 
 		await expect(
-			Effect.runPromise(getVerifiedUserSession(makeCtx({ env: { JWT_SECRET: "x" } }))),
+			Effect.runPromise(getVerifiedUserSession(makeCtx({ env: { SUPABASE_JWT_SECRET: "x" } }))),
 		).rejects.toThrow(/Invalid token/);
 	});
 
@@ -108,7 +108,7 @@ describe("getVerifiedUserSession", () => {
 		);
 
 		await expect(
-			Effect.runPromise(getVerifiedUserSession(makeCtx({ env: { JWT_SECRET: "x" } }))),
+			Effect.runPromise(getVerifiedUserSession(makeCtx({ env: { SUPABASE_JWT_SECRET: "x" } }))),
 		).rejects.toThrow(/Invalid session/);
 	});
 });

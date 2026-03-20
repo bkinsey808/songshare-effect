@@ -26,9 +26,10 @@ function toVariant(active: boolean): "primary" | "outlineSecondary" {
 }
 
 /**
- * Card containing community navigation.
- * @param props - Component props.
- * @param props.showLibrary - Whether to show the community library button.
+ * Render the community navigation actions card.
+ *
+ * @param showLibrary - Whether to show the community library button.
+ * @returns React element or `undefined` when no actions should be shown.
  */
 export default function CommunityActionsCard({
 	showLibrary = true,

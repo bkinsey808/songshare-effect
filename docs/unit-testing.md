@@ -151,6 +151,77 @@ mocked dependency, prefer non-factory `vi.mock("path")` + `vi.mocked(...)` and a
 merging. Use `vi.importActual` only for explicit, documented partial-mock exceptions where the
 non-factory pattern cannot express the behavior under test.
 
+### When to Use the `vi.mock` Factory Pattern (Required Guidance)
+
+There are exactly two cases in this repo where the factory pattern is tolerated for new code. Always
+add a comment explaining why the factory is required when you use it.
+
+**Case 1: Module-level initialization**
+
+Use a factory when a mocked function is called during another module's top-level initialization.
+This happens at import time, before a test can call `mockReturnValue`.
+
+```typescript
+// api-client.ts (source module under test)
+import { getConfig } from "./config";
+
+// Runs ONCE at import time — not inside any function
+export const BASE_URL = getConfig().apiUrl;
+```
+
+```typescript
+// api-client.test.ts
+// ❌ Non-factory fails: auto-mock returns undefined, BASE_URL is already frozen
+vi.mock("./config");
+const mockGetConfig = vi.mocked(getConfig);
+// Too late — api-client already ran getConfig() during import
+mockGetConfig.mockReturnValue({ apiUrl: "https://test.example.com" });
+
+// ✅ Factory works: runs at hoist time, before api-client.ts initializes
+vi.mock("./config", () => ({
+	getConfig: vi.fn().mockReturnValue({ apiUrl: "https://test.example.com" }),
+}));
+import { fetchData } from "./api-client"; // BASE_URL is set correctly ✅
+import { getConfig } from "./config";
+
+const mockGetConfig = vi.mocked(getConfig);
+```
+
+This pattern is rare in React codebases — components and hooks call things at render or effect time,
+not during module initialization.
+
+**Case 2: Auto-mock cannot produce a spy-able export**
+
+Vitest's auto-mock replaces exports with `vi.fn()`. This works for plain functions and hooks, but
+fails for exports that are not plain functions, such as `forwardRef` components, class instances, or
+re-exports from complex package internals. In those cases,
+`vi.mocked(export).mockImplementation` is not a function at runtime.
+
+The canonical example in this codebase is `Link` from `react-router-dom`:
+
+```typescript
+// ❌ Auto-mock fails: Link is a forwardRef component, not a plain function.
+// vi.mocked(Link).mockImplementation is not a function at runtime.
+vi.mock("react-router-dom");
+vi.mocked(Link).mockImplementation((props) => <a href={props.to}>{props.children}</a>);
+
+// ✅ Factory works: the export is defined directly, bypassing auto-mock.
+// The comment explaining WHY the factory is needed is required.
+// The Link is weird in how it comes out of the router-dom so a factory is required.
+vi.mock("react-router-dom", () => ({
+	Link: (props: React.ComponentProps<typeof Link>) => (
+		<a href={props.to as string}>{props.children}</a>
+	),
+}));
+```
+
+**How to tell which case you're in:** try `vi.mock("module")` first and run the tests. If you see
+`vi.mocked(...).mockImplementation is not a function`, the export is not a plain function and you
+need the factory. If tests pass but produce wrong behavior, you likely have a module-init timing
+issue (Case 1).
+
+These are the only two cases in this project where the factory pattern is tolerated for new code.
+
 ### Supabase / Postgrest Mocking
 
 Centralize unsafe casts in `asPostgrestResponse(value)` under `react/src/lib/test-utils`. Never
@@ -610,10 +681,40 @@ it("fetches data", async () => {
 });
 ```
 
-### ⚠️ Avoid `act` from @testing-library/react
+### `act` vs `waitFor`
 
-`act` calls lead to deprecation warnings and brittle tests. For async behavior, use `waitFor`
-instead of wrapping updates in `act()`. For synchronous state, set hook state directly.
+Choose between `act` and `waitFor` based on whether the state change is synchronous or
+asynchronous.
+
+**Use `act` for synchronous state updates** triggered by an imperative call outside RTL utilities
+(`render`, `userEvent`, or `fireEvent` are not involved):
+
+```tsx
+act(() => {
+	result.current.clearErrors();
+});
+```
+
+**Use `waitFor` for async or timing-uncertain completion**, such as effects, data fetching, or
+timers:
+
+```tsx
+await waitFor(() => {
+	expect(result.current.loading).toBe(false);
+});
+```
+
+**Rule of thumb:**
+
+| Scenario | Use |
+| --- | --- |
+| Direct `setState` call / imperative hook method | `act` |
+| `useEffect` side effects | `waitFor` |
+| Async mutations / data fetching | `await act(async () => { ... })` or `waitFor` |
+| Timer-dependent updates | `waitFor` (with fake timers if needed) |
+
+> Using `waitFor` for a synchronous update works but implies async intent, adds polling overhead,
+> and makes the test harder to reason about. Prefer `act` when the update is immediate.
 
 ### ❌ Duplicated Literal Test Data
 

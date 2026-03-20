@@ -5,10 +5,9 @@ import isRecord from "@/shared/type-guards/isRecord";
  * Perform a POST with a JSON body and return the JSON response.
  * If the response matches the ApiResponse<T> shape, the 'data' field is returned.
  *
- * @param path - Request path or full URL
- * @param body - Value to JSON.stringify and send as the request body
- * @returns - Resolves with the response data (unwrapped if it's an ApiResponse);
- *             rejects with an Error when the response is not ok
+ * @param path - Request path or full URL.
+ * @param body - Value to JSON.stringify and send as the request body.
+ * @returns Resolves with the response data, unwrapped when it matches ApiResponse.
  */
 export default async function postJsonWithResult<TResult>(
 	path: string,

@@ -7,12 +7,11 @@ type EventFormHeaderProps = {
 };
 
 /**
- * Renders event form title and top-level error alert.
+ * Render the event form title and top-level error alert.
  *
- * @param props - Component props
- * @param props.isEditing - Whether form is in edit mode
- * @param props.error - Optional top-level error message
- * @returns Header and optional error UI
+ * @param isEditing - Whether the form is in edit mode.
+ * @param error - Optional top-level error message.
+ * @returns Header and optional error UI.
  */
 export default function EventFormHeader({ isEditing, error }: EventFormHeaderProps): ReactElement {
 	const { t } = useTranslation();

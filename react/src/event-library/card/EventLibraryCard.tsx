@@ -17,9 +17,9 @@ type EventLibraryCardProps = {
  * (deletion is irreversible).
  * For other events: shows a remove button for removal from library.
  *
- * @param entry - The event library entry to display
- * @param currentUserId - The ID of the currently authenticated user
- * @returns - A React element displaying the card or confirmation dialog
+ * @param entry - The event library entry to display.
+ * @param currentUserId - The ID of the currently authenticated user.
+ * @returns A React element displaying the card or confirmation dialog.
  */
 export default function EventLibraryCard({
 	entry,

@@ -3,7 +3,11 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 import useAppStore, { getTypedState } from "@/react/app-store/useAppStore";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
+import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
+import { songViewPath } from "@/shared/paths";
 
 import { type SongPublic, songPublicSchema } from "../song-schema";
 
@@ -24,38 +28,37 @@ type SongMethods = {
 };
 
 /**
- * Return value from `useSongView`.
+ * Shape returned by the song view hook.
  *
- * - `isNotFound`: true when the slug didn't resolve to a song or the public
- *   metadata failed validation (treat as "not found" for the view).
- * - `songData`: raw data returned from the store (may contain unvalidated fields).
- * - `songPublic`: the validated `SongPublic` payload, or `undefined` if validation failed.
+ * `songData` is the raw store payload, while `songPublic` is the validated
+ * version used by the view. `isNotFound` treats missing or invalid public data
+ * as a not-found state.
  */
 export type UseSongViewResult = {
 	isNotFound: boolean;
+	isSignedIn: boolean | undefined;
 	songData: { song: unknown; songPublic: SongPublic | undefined } | undefined;
+	songName: string;
 	songPublic: SongPublic | undefined;
+	qrUrl: string | undefined;
 };
 
 /**
- * Hook that resolves a song based on the current route `song_slug`.
+ * Resolve the current song from the route slug and derive view state.
  *
- * Responsibilities:
- * - Normalize the route slug
- * - Register the slug with the app store to activate background fetching/caching
- * - Retrieve the song data from the store and validate the `songPublic` payload
+ * Normalizes the route slug, registers it for background fetching, validates
+ * the public song payload, subscribes to shared data, and derives the name and
+ * QR code URL used by the view.
  *
- * The hook treats missing or schema-invalid `songPublic` as "not found" so the
- * caller can render an appropriate UI.
- *
- * @returns isNotFound - true when the slug did not resolve to a song or the
- *   `songPublic` payload failed schema validation
- * @returns songData - the raw store payload (`{ song, songPublic }`) or
- *   `undefined` when the slug is missing or the song was not found
- * @returns songPublic - the validated `SongPublic` payload, or `undefined`
- *   if validation failed
+ * @returns isNotFound - `true` when the slug did not resolve or validation failed.
+ * @returns isSignedIn - Whether the current user is authenticated.
+ * @returns songData - Raw store payload, or `undefined` when nothing matched.
+ * @returns songName - Display name with the Untitled fallback.
+ * @returns songPublic - Validated public song payload, or `undefined` on failure.
+ * @returns qrUrl - Public song URL for the QR code, or `undefined` when absent.
  */
 export function useSongView(): UseSongViewResult {
+	const { lang, t } = useLocale();
 	const { song_slug: rawSongSlug } = useParams<{ song_slug?: string }>();
 	// Normalize `song_slug` from route params by trimming whitespace.
 	// Treat empty or whitespace-only slugs as missing to avoid spurious lookups.
@@ -83,6 +86,10 @@ export function useSongView(): UseSongViewResult {
 	});
 
 	const currentUserId = useAppStore((state) => state.userSessionData?.user?.user_id);
+	const isSignedIn = useAppStore((state) => state.isSignedIn);
+
+	// Fetch and subscribe to sent shares - must be called before any early return
+	useShareSubscription();
 
 	if (songSlug !== undefined && songSlug !== "") {
 		// Register the slug with the app store so background fetching / caching can start.
@@ -126,10 +133,20 @@ export function useSongView(): UseSongViewResult {
 		}
 	}, [songPublic, songPublic?.user_id, currentUserId]);
 
+	const qrUrl =
+		songPublic?.song_slug !== undefined && songPublic.song_slug !== ""
+			? buildPublicWebUrl(`/${songViewPath}/${songPublic.song_slug}`, lang)
+			: undefined;
+
+	const songName = songPublic?.song_name ?? t("songView.untitled", "Untitled");
+
 	// Consider "not found" when there's no song data or the public metadata failed validation.
 	return {
 		isNotFound: songData === undefined || songPublic === undefined,
+		isSignedIn,
 		songData,
+		songName,
 		songPublic,
+		qrUrl,
 	};
 }

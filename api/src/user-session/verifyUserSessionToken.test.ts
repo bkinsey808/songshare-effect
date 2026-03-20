@@ -3,8 +3,8 @@ import { verify } from "hono/jwt";
 import { describe, expect, it, vi } from "vitest";
 
 import {
-	mockHonoJwtVerifyFailure,
-	mockHonoJwtVerifySuccess,
+    mockHonoJwtVerifyFailure,
+    mockHonoJwtVerifySuccess,
 } from "@/api/hono/makeHonoJwt.test-util";
 
 import verifyUserSessionToken from "./verifyUserSessionToken";
@@ -19,23 +19,23 @@ describe("verifyUserSessionToken", () => {
 		mockHonoJwtVerifySuccess(payload);
 
 		const result = await Effect.runPromise(
-			verifyUserSessionToken("token-abc", { JWT_SECRET: "s3cr3t" }),
+			verifyUserSessionToken("token-abc", { SUPABASE_JWT_SECRET: "s3cr3t" }),
 		);
 
 		expect(result).toStrictEqual(payload);
 		expect(vi.mocked(verify)).toHaveBeenCalledWith("token-abc", "s3cr3t", "HS256");
 	});
 
-	it("fails with AuthenticationError when JWT_SECRET is missing", async () => {
+	it("fails with AuthenticationError when SUPABASE_JWT_SECRET is missing", async () => {
 		vi.resetAllMocks();
 
 		await expect(
 			Effect.runPromise(
 				verifyUserSessionToken("token-abc", {
-					/* no JWT_SECRET */
+					/* no SUPABASE_JWT_SECRET */
 				}),
 			),
-		).rejects.toThrow(/Missing JWT_SECRET/);
+		).rejects.toThrow(/Missing SUPABASE_JWT_SECRET/);
 
 		expect(vi.mocked(verify)).not.toHaveBeenCalled();
 	});
@@ -46,7 +46,7 @@ describe("verifyUserSessionToken", () => {
 		mockHonoJwtVerifyFailure(new Error("invalid token"));
 
 		await expect(
-			Effect.runPromise(verifyUserSessionToken("token-abc", { JWT_SECRET: "s3cr3t" })),
+			Effect.runPromise(verifyUserSessionToken("token-abc", { SUPABASE_JWT_SECRET: "s3cr3t" })),
 		).rejects.toThrow(/invalid token/);
 
 		expect(vi.mocked(verify)).toHaveBeenCalledWith("token-abc", "s3cr3t", "HS256");
@@ -58,7 +58,7 @@ describe("verifyUserSessionToken", () => {
 		mockHonoJwtVerifyFailure("string-error");
 
 		await expect(
-			Effect.runPromise(verifyUserSessionToken("token-abc", { JWT_SECRET: "s3cr3t" })),
+			Effect.runPromise(verifyUserSessionToken("token-abc", { SUPABASE_JWT_SECRET: "s3cr3t" })),
 		).rejects.toThrow(/string-error/);
 	});
 });

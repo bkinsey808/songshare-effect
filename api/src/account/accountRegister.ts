@@ -265,12 +265,12 @@ export default function accountRegister(
 		);
 
 		// Sign session JWT
-		const jwtSecret = getEnvString(ctx.env, "JWT_SECRET");
+		const jwtSecret = getEnvString(ctx.env, "SUPABASE_JWT_SECRET");
 		if (jwtSecret === undefined || jwtSecret === "") {
 			return yield* $(
 				Effect.fail(
 					new ServerError({
-						message: "Server misconfiguration: missing JWT_SECRET",
+						message: "Server misconfiguration: missing SUPABASE_JWT_SECRET",
 					}),
 				),
 			);

@@ -1,0 +1,15 @@
+name = "songshare-effect-api"
+main = "src/server.ts"
+
+compatibility_date = "2024-09-23"
+
+# All vars (secrets and non-secrets) are stored in the system keyring per environment.
+# Push to Cloudflare: bun run scripts/set-cloudflare-secrets.bun.ts --env production
+# Generate local dev vars: bun run scripts/env/generate-dev-vars.bun.ts
+
+[dev]
+port = 8787
+
+[env.staging]
+
+[env.production]

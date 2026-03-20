@@ -6,13 +6,12 @@ import getConnectionStatusClass from "./getConnectionStatusClass";
 import useUserPublicSubscriptionPage from "./useUserPublicSubscriptionPage";
 
 /**
- * UserPublicSubscriptionPage
+ * Render the user public subscription demo page.
  *
  * Demonstrates subscribing to the `user_public` table via Supabase Realtime
- * and displays live user insert/update events for demo/debugging purposes.
+ * and displays live user insert and update events.
  *
- * @returns - A React element that shows the current users list and realtime
- *   event stream for the demo subscription.
+ * @returns A React element showing the current users list and realtime stream.
  */
 // oxlint-disable-next-line max-lines-per-function
 export default function UserPublicSubscriptionPage(): ReactElement {
