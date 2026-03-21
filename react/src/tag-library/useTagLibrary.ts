@@ -37,11 +37,14 @@ export default function useTagLibrary(): {
 	const subscribeToTagLibrary = useAppStore<() => Effect.Effect<() => void, Error>>(
 		(state: AppSlice) => state.subscribeToTagLibrary,
 	);
+	const subscribeToTagCounts = useAppStore<() => Effect.Effect<() => void, Error>>(
+		(state: AppSlice) => state.subscribeToTagCounts,
+	);
 
 	const location = useLocation();
 
 	// Fetch the tag library on mount and subscribe to realtime updates.
-	// Subscription is torn down on unmount or location change.
+	// Subscriptions are torn down on unmount or location change.
 	useEffect(() => {
 		void (async (): Promise<void> => {
 			try {
@@ -53,20 +56,35 @@ export default function useTagLibrary(): {
 		})();
 
 		let unsubscribeTagLibrary: (() => void) | undefined = undefined;
+		let unsubscribeTagCounts: (() => void) | undefined = undefined;
+
 		void (async (): Promise<void> => {
 			try {
 				unsubscribeTagLibrary = await Effect.runPromise(subscribeToTagLibrary());
 			} catch (error: unknown) {
-				console.error("[useTagLibrary] Failed to subscribe:", error);
+				console.error("[useTagLibrary] Failed to subscribe to tag library:", error);
+			}
+		})();
+
+		void (async (): Promise<void> => {
+			try {
+				unsubscribeTagCounts = await Effect.runPromise(subscribeToTagCounts());
+			} catch (error: unknown) {
+				console.error("[useTagLibrary] Failed to subscribe to tag counts:", error);
 			}
 		})();
 
 		return (): void => {
-			if (unsubscribeTagLibrary !== undefined) {
-				unsubscribeTagLibrary();
-			}
+			unsubscribeTagLibrary?.();
+			unsubscribeTagCounts?.();
 		};
-	}, [location.pathname, fetchTagLibrary, fetchTagLibraryCounts, subscribeToTagLibrary]);
+	}, [
+		location.pathname,
+		fetchTagLibrary,
+		fetchTagLibraryCounts,
+		subscribeToTagLibrary,
+		subscribeToTagCounts,
+	]);
 
 	const slugs = Object.keys(tagLibraryEntries).toSorted();
 

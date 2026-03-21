@@ -7,6 +7,7 @@ import fetchTagLibraryCountsFn from "../fetch/fetchTagLibraryCountsEffect";
 import fetchTagLibraryFn from "../fetch/fetchTagLibraryEffect";
 import type { TagItemCounts } from "../fetch/TagItemCounts.type";
 import removeTagFromLibraryFn from "../removeTagFromLibraryEffect";
+import subscribeToTagCountsFn from "../subscribe/subscribeToTagCountsEffect";
 import subscribeToTagLibraryFn from "../subscribe/subscribeToTagLibraryEffect";
 import type { TagLibraryEntry } from "./TagLibraryEntry.type";
 import type { TagLibrarySlice } from "./TagLibrarySlice.type";
@@ -54,6 +55,17 @@ export default function createTagLibrarySlice(
 			removeTagFromLibraryFn(get, tagSlug),
 
 		subscribeToTagLibrary: (): Effect.Effect<() => void, Error> => subscribeToTagLibraryFn(get),
+
+		subscribeToTagCounts: (): Effect.Effect<() => void, Error> => subscribeToTagCountsFn(get),
+
+		removeTagCounts: (tagSlug: string) => {
+			set((state) => {
+				const newCounts = Object.fromEntries(
+					Object.entries(state.tagLibraryCounts).filter(([slug]) => slug !== tagSlug),
+				);
+				return { tagLibraryCounts: newCounts };
+			});
+		},
 
 		isInTagLibrary: (tagSlug: string) => {
 			const { tagLibraryEntries } = get();

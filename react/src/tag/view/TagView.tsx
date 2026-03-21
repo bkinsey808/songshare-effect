@@ -1,15 +1,24 @@
+import { Link } from "react-router-dom";
+
+import EventLibraryCard from "@/react/event-library/card/EventLibraryCard";
 import ImageLibraryCard from "@/react/image-library/card/ImageLibraryCard";
+import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import { ZERO } from "@/shared/constants/shared-constants";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import { playlistViewPath, songViewPath } from "@/shared/paths";
 
 import useTagView from "./useTagView";
 
 /**
- * Displays images tagged with the slug from the current route.
+ * Displays items from the current user's libraries that are tagged with the
+ * slug from the current route, grouped by item type.
  *
- * @returns A React element showing the tagged images grid.
+ * @returns A React element showing the tagged items grid.
  */
 export default function TagView(): ReactElement {
-	const { currentUserId, entries, error, isLoading, tag_slug } = useTagView();
+	const { currentUserId, imageEntries, songEntries, playlistEntries, eventEntries, error, isLoading, tag_slug } =
+		useTagView();
+	const lang = useCurrentLang();
 
 	if (isLoading) {
 		return (
@@ -30,25 +39,107 @@ export default function TagView(): ReactElement {
 		);
 	}
 
-	if (entries.length === ZERO) {
+	const totalCount =
+		imageEntries.length + songEntries.length + playlistEntries.length + eventEntries.length;
+
+	if (totalCount === ZERO) {
 		return (
 			<div className="py-12 text-center text-gray-400">
-				No images tagged with &ldquo;{tag_slug}&rdquo;.
+				No items tagged with &ldquo;{tag_slug}&rdquo; in your libraries.
 			</div>
 		);
 	}
 
 	return (
-		<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-			{entries.map((entry) => (
-				<ImageLibraryCard
-					key={entry.image_id}
-					entry={entry}
-					{...(currentUserId !== undefined && currentUserId !== ""
-						? { currentUserId }
-						: {})}
-				/>
-			))}
+		<div className="space-y-8">
+			{imageEntries.length > ZERO && (
+				<section>
+					<h2 className="mb-4 text-lg font-semibold text-white">Images</h2>
+					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						{imageEntries.map((entry) => (
+							<ImageLibraryCard
+								key={entry.image_id}
+								entry={entry}
+								{...(currentUserId !== undefined && currentUserId !== ""
+									? { currentUserId }
+									: {})}
+							/>
+						))}
+					</div>
+				</section>
+			)}
+
+			{songEntries.length > ZERO && (
+				<section>
+					<h2 className="mb-4 text-lg font-semibold text-white">Songs</h2>
+					<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+						{songEntries.map((entry) => (
+							<div
+								key={entry.song_id}
+								className="group hover:bg-gray-750 rounded-lg border border-gray-700 bg-gray-800 p-4 transition-colors hover:border-gray-600"
+							>
+								<h3 className="mb-2 line-clamp-2 font-semibold text-white">
+									{entry.song_name}
+								</h3>
+								{entry.song_slug !== undefined && entry.song_slug.trim() !== "" ? (
+									<Link
+										to={buildPathWithLang(`/${songViewPath}/${entry.song_slug}`, lang)}
+										className="text-sm text-blue-400 transition-colors hover:text-blue-300"
+									>
+										View Song
+									</Link>
+								) : undefined}
+							</div>
+						))}
+					</div>
+				</section>
+			)}
+
+			{playlistEntries.length > ZERO && (
+				<section>
+					<h2 className="mb-4 text-lg font-semibold text-white">Playlists</h2>
+					<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+						{playlistEntries.map((entry) => (
+							<div
+								key={entry.playlist_id}
+								className="group hover:bg-gray-750 rounded-lg border border-gray-700 bg-gray-800 p-4 transition-colors hover:border-gray-600"
+							>
+								<h3 className="mb-2 line-clamp-2 font-semibold text-white">
+									{entry.playlist_name}
+								</h3>
+								{entry.playlist_slug !== undefined && entry.playlist_slug.trim() !== "" ? (
+									<Link
+										to={buildPathWithLang(
+											`/${playlistViewPath}/${entry.playlist_slug}`,
+											lang,
+										)}
+										className="text-sm text-blue-400 transition-colors hover:text-blue-300"
+									>
+										View Playlist
+									</Link>
+								) : undefined}
+							</div>
+						))}
+					</div>
+				</section>
+			)}
+
+			{eventEntries.length > ZERO && (
+				<section>
+					<h2 className="mb-4 text-lg font-semibold text-white">Events</h2>
+					<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+						{eventEntries.map((entry) => (
+							<EventLibraryCard
+								key={entry.event_id}
+								entry={entry}
+								{...(currentUserId !== undefined && currentUserId !== ""
+									? { currentUserId }
+									: {})}
+							/>
+						))}
+					</div>
+				</section>
+			)}
 		</div>
 	);
 }

@@ -11,10 +11,22 @@ vi.mock("@/react/tag-library/searchTagsRequest");
 
 const DEBOUNCE_DELAY_MS = 250;
 
+/**
+ * Creates a synthetic change event for an input with the specified value.
+ *
+ * @param value - the input value to set on the event's target
+ * @returns a React change event with the given value set as the target value
+ */
 function makeChangeEvent(value: string): React.ChangeEvent<HTMLInputElement> {
 	return forceCast<React.ChangeEvent<HTMLInputElement>>({ target: { value } });
 }
 
+/**
+ * Creates a synthetic keydown event for an input with the given key.
+ *
+ * @param key - key value to simulate (e.g., 'Enter', 'Escape')
+ * @returns a React keyboard event with a mocked `preventDefault`
+ */
 function makeKeyDownEvent(key: string): React.KeyboardEvent<HTMLInputElement> {
 	return forceCast<React.KeyboardEvent<HTMLInputElement>>({ key, preventDefault: vi.fn() });
 }
@@ -28,6 +40,21 @@ function makeKeyDownEvent(key: string): React.KeyboardEvent<HTMLInputElement> {
  * - Escape closes suggestions
  * - Suggestion click adds a tag
  * - Badge remove button removes a tag
+ */
+/**
+ * Harness for `useTagInput` — a lightweight UI used in tests.
+ *
+ * Shows how `useTagInput` integrates into a tag input component:
+ * - Typing triggers debounced autocomplete
+ * - Enter/blur add the current input value as a tag
+ * - Escape closes suggestions
+ * - Suggestion click adds a tag
+ * - Badge remove button removes a tag
+ *
+ * @param props - component props
+ * @param props.value - current list of tag slugs
+ * @param props.onChange - callback invoked with the updated list of tags
+ * @returns React element rendering the harness UI
  */
 function Harness(props: {
 	value: readonly string[];

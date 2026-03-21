@@ -5,13 +5,19 @@ import { describe, expect, it, vi } from "vitest";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import fetchEventsByTagRequest from "@/react/tag-library/event/fetchEventsByTagRequest";
 import fetchImagesByTagRequest from "@/react/tag-library/image/fetchImagesByTagRequest";
+import fetchPlaylistsByTagRequest from "@/react/tag-library/playlist/fetchPlaylistsByTagRequest";
+import fetchSongsByTagRequest from "@/react/tag-library/song/fetchSongsByTagRequest";
 
 import useTagView from "./useTagView";
 
 vi.mock("react-router-dom");
 vi.mock("@/react/auth/useCurrentUserId");
 vi.mock("@/react/tag-library/image/fetchImagesByTagRequest");
+vi.mock("@/react/tag-library/song/fetchSongsByTagRequest");
+vi.mock("@/react/tag-library/playlist/fetchPlaylistsByTagRequest");
+vi.mock("@/react/tag-library/event/fetchEventsByTagRequest");
 
 const TAG_SLUG = "test";
 const USER_ID = "usr-1";
@@ -26,16 +32,23 @@ function makeEntry(): ImageLibraryEntry {
 	};
 }
 
+function mockAllFetchesEmpty(): void {
+	vi.mocked(fetchImagesByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+	vi.mocked(fetchSongsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+	vi.mocked(fetchPlaylistsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+	vi.mocked(fetchEventsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+}
+
 /**
  * Harness for useTagView — "Documentation by Harness".
  *
  * Shows how useTagView integrates into a tag view page:
  * - Loading indicator while fetching
- * - Entries list after successful fetch
+ * - Image entries list after successful fetch
  * - Error message on failure
  */
 function Harness(): ReactElement {
-	const { currentUserId, entries, error, isLoading, tag_slug } = useTagView();
+	const { currentUserId, imageEntries, error, isLoading, tag_slug } = useTagView();
 
 	return (
 		<div data-testid="harness">
@@ -44,7 +57,7 @@ function Harness(): ReactElement {
 			<div data-testid="is-loading">{String(isLoading)}</div>
 			{error !== undefined && <div data-testid="error">{error}</div>}
 			<ul data-testid="entries">
-				{entries.map((entry) => (
+				{imageEntries.map((entry) => (
 					<li key={entry.image_id} data-testid={`entry-${entry.image_id}`}>
 						{entry.image_id}
 					</li>
@@ -62,6 +75,9 @@ describe("useTagView — Harness", () => {
 		vi.mocked(useCurrentUserId).mockReturnValue(USER_ID);
 		const entry = makeEntry();
 		vi.mocked(fetchImagesByTagRequest).mockResolvedValue({ ok: true, entries: [entry] });
+		vi.mocked(fetchSongsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+		vi.mocked(fetchPlaylistsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+		vi.mocked(fetchEventsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
 
 		const { container } = render(<Harness />);
 
@@ -85,6 +101,9 @@ describe("useTagView — Harness", () => {
 			ok: false,
 			error: "Failed to load images for this tag.",
 		});
+		vi.mocked(fetchSongsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+		vi.mocked(fetchPlaylistsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+		vi.mocked(fetchEventsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
 
 		const { container } = render(<Harness />);
 
@@ -113,7 +132,7 @@ describe("useTagView — renderHook", () => {
 		});
 
 		expect(fetchImagesByTagRequest).not.toHaveBeenCalled();
-		expect(result.current.entries).toStrictEqual([]);
+		expect(result.current.imageEntries).toStrictEqual([]);
 		expect(result.current.error).toBeUndefined();
 		expect(result.current.tag_slug).toBeUndefined();
 	});
@@ -122,7 +141,7 @@ describe("useTagView — renderHook", () => {
 		vi.resetAllMocks();
 		vi.mocked(useParams).mockReturnValue({ tag_slug: TAG_SLUG });
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
-		vi.mocked(fetchImagesByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+		mockAllFetchesEmpty();
 
 		renderHook(() => useTagView());
 
@@ -131,12 +150,15 @@ describe("useTagView — renderHook", () => {
 		});
 	});
 
-	it("populates entries on success", async () => {
+	it("populates imageEntries on success", async () => {
 		vi.resetAllMocks();
 		vi.mocked(useParams).mockReturnValue({ tag_slug: TAG_SLUG });
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
 		const entry = makeEntry();
 		vi.mocked(fetchImagesByTagRequest).mockResolvedValue({ ok: true, entries: [entry] });
+		vi.mocked(fetchSongsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+		vi.mocked(fetchPlaylistsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+		vi.mocked(fetchEventsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
 
 		const { result } = renderHook(() => useTagView());
 
@@ -144,7 +166,7 @@ describe("useTagView — renderHook", () => {
 			expect(result.current.isLoading).toBe(false);
 		});
 
-		expect(result.current.entries).toStrictEqual([entry]);
+		expect(result.current.imageEntries).toStrictEqual([entry]);
 		expect(result.current.error).toBeUndefined();
 	});
 
@@ -156,6 +178,9 @@ describe("useTagView — renderHook", () => {
 			ok: false,
 			error: "Failed to load images for this tag.",
 		});
+		vi.mocked(fetchSongsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+		vi.mocked(fetchPlaylistsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+		vi.mocked(fetchEventsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
 
 		const { result } = renderHook(() => useTagView());
 
@@ -164,14 +189,14 @@ describe("useTagView — renderHook", () => {
 		});
 
 		expect(result.current.error).toBe("Failed to load images for this tag.");
-		expect(result.current.entries).toStrictEqual([]);
+		expect(result.current.imageEntries).toStrictEqual([]);
 	});
 
 	it("forwards currentUserId from useCurrentUserId", () => {
 		vi.resetAllMocks();
 		vi.mocked(useParams).mockReturnValue({ tag_slug: TAG_SLUG });
 		vi.mocked(useCurrentUserId).mockReturnValue(USER_ID);
-		vi.mocked(fetchImagesByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+		mockAllFetchesEmpty();
 
 		const { result } = renderHook(() => useTagView());
 
@@ -182,7 +207,7 @@ describe("useTagView — renderHook", () => {
 		vi.resetAllMocks();
 		vi.mocked(useParams).mockReturnValue({ tag_slug: TAG_SLUG });
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
-		vi.mocked(fetchImagesByTagRequest).mockResolvedValue({ ok: true, entries: [] });
+		mockAllFetchesEmpty();
 
 		const { result } = renderHook(() => useTagView());
 

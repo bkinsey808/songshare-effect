@@ -21,7 +21,8 @@ export default function handleTagLibrarySubscribeEvent(
 	get: () => TagLibrarySlice,
 ): Effect.Effect<void, Error> {
 	return Effect.gen(function* handleEventGen($) {
-		const { addTagLibraryEntry, removeTagLibraryEntry } = get();
+		const { addTagLibraryEntry, removeTagLibraryEntry, fetchTagLibraryCounts, removeTagCounts } =
+			get();
 
 		if (!isRealtimePayload(payload)) {
 			return;
@@ -44,6 +45,8 @@ export default function handleTagLibrarySubscribeEvent(
 						addTagLibraryEntry(newEntry);
 					}),
 				);
+				// Initialise counts for the newly added tag.
+				yield* $(fetchTagLibraryCounts());
 				break;
 			}
 			case "DELETE": {
@@ -53,6 +56,7 @@ export default function handleTagLibrarySubscribeEvent(
 					yield* $(
 						Effect.sync(() => {
 							removeTagLibraryEntry(tagSlug);
+							removeTagCounts(tagSlug);
 						}),
 					);
 				}

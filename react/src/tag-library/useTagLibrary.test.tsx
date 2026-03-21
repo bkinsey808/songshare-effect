@@ -170,7 +170,9 @@ describe("useTagLibrary", () => {
 		store.setState(
 			makeAppSlice({
 				fetchTagLibrary: () => Effect.sync(() => undefined),
+				fetchTagLibraryCounts: () => Effect.sync(() => undefined),
 				subscribeToTagLibrary,
+				subscribeToTagCounts: () => Effect.sync((): (() => void) => () => undefined),
 			}),
 		);
 
@@ -183,7 +185,7 @@ describe("useTagLibrary", () => {
 
 		expect(unsubscribe).not.toHaveBeenCalled();
 		expect(consoleSpy).toHaveBeenCalledWith(
-			"[useTagLibrary] Failed to subscribe:",
+			"[useTagLibrary] Failed to subscribe to tag library:",
 			expect.any(Error),
 		);
 

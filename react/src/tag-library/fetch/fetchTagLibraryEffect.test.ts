@@ -13,8 +13,6 @@ vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
 vi.mock("@/react/lib/supabase/client/getSupabaseClient");
 vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 
-// Use shared `makeTagLibraryGet` to create spies and a fake slice.
-
 const TOKEN = "test-token";
 const fakeClient = forceCast<ReturnType<typeof getSupabaseClient>>({});
 const selectOk = forceCast<Awaited<ReturnType<typeof callSelect>>>({ data: [], error: undefined });

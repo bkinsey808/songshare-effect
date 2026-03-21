@@ -11,7 +11,9 @@ import { dashboardPath, tagViewPath } from "@/shared/paths";
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
 
-import { ITEM_TYPES, type ItemType, type TagItemCounts } from "./fetch/TagItemCounts.type";
+import { ITEM_TYPES, type ItemType } from "@/react/tag/item-type";
+
+import type { TagItemCounts } from "./fetch/TagItemCounts.type";
 import useTagLibrary from "./useTagLibrary";
 
 const ITEM_TYPE_LABEL: Record<ItemType, string> = {
@@ -39,12 +41,9 @@ export default function TagLibrary(): ReactElement {
 	function handleRemoveConfirm(slug: string): void {
 		setRemovingSlug(slug);
 		void (async (): Promise<void> => {
-			try {
-				await Effect.runPromise(removeTagFromLibrary(slug));
-			} finally {
-				setRemovingSlug(undefined);
-				setConfirmingSlug(undefined);
-			}
+			await Effect.runPromise(Effect.ignore(removeTagFromLibrary(slug)));
+			setRemovingSlug(undefined);
+			setConfirmingSlug(undefined);
 		})();
 	}
 

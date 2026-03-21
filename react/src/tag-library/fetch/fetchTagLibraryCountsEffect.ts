@@ -2,66 +2,18 @@ import { Effect } from "effect";
 
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
-import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
-import isRecord from "@/shared/type-guards/isRecord";
-import isString from "@/shared/type-guards/isString";
 import { ZERO } from "@/shared/constants/shared-constants";
 
 import type { TagLibrarySlice } from "../slice/TagLibrarySlice.type";
-import { ITEM_TYPES, type ItemType, type TagItemCounts } from "./TagItemCounts.type";
+import { ITEM_TYPES, type ItemType } from "@/react/tag/item-type";
+
+import type { TagItemCounts } from "./TagItemCounts.type";
+import { fetchLibraryItemIds, fetchSlugsByItemType } from "./fetchSlugsByItemType";
 
 /**
- * Maps an `ItemType` to its Supabase junction table name.
- * Used to query which tags are attached to a given item type.
- */
-const ITEM_TYPE_TABLE_MAP: Record<ItemType, string> = {
-	song: "song_tag",
-	playlist: "playlist_tag",
-	event: "event_tag",
-	community: "community_tag",
-	image: "image_tag",
-};
-
-type TagSlugRow = { tag_slug: string };
-
-/**
- * Fetches tag slugs that exist for a specific `itemType` from its junction table.
- *
- * @param client - Supabase client configured with the current user's token
- * @param itemType - which item type's junction table to query (song, playlist, etc.)
- * @param slugs - array of tag slugs to filter the junction table by
- * @returns An Effect that resolves to an array of matching tag slugs (may be empty)
- */
-function fetchSlugsByItemType(
-	client: NonNullable<ReturnType<typeof getSupabaseClient>>,
-	itemType: ItemType,
-	slugs: string[],
-): Effect.Effect<string[]> {
-	return Effect.tryPromise({
-		try: () =>
-			callSelect<TagSlugRow>(client, ITEM_TYPE_TABLE_MAP[itemType], {
-				cols: "tag_slug",
-				in: { col: "tag_slug", vals: slugs },
-			}),
-		catch: (error) => new Error(String(error)),
-	}).pipe(
-		Effect.map((result) => {
-			if (!isRecord(result) || result.error) {
-				return [] as string[];
-			}
-			const rows: unknown[] = Array.isArray(result.data) ? result.data : [];
-			return rows
-				.filter((row): row is TagSlugRow => isRecord(row) && isString(row["tag_slug"]))
-				.map((row) => row.tag_slug);
-		}),
-		Effect.orElseSucceed(() => [] as string[]),
-	);
-}
-
-/**
- * Fetches per-item-type counts for each tag in the user's tag library.
- * Runs one parallel query per item type against its junction table, then
- * aggregates the results into a counts record stored on the slice.
+ * Fetches per-item-type counts for each tag in the user's tag library,
+ * restricted to items that are also in the user's corresponding library.
+ * Runs library-id and count queries in parallel, then aggregates results.
  *
  * @param get - Getter for the `TagLibrarySlice`.
  * @returns An Effect that resolves when counts are stored, or fails with an Error.
@@ -94,12 +46,40 @@ export default function fetchTagLibraryCountsEffect(
 			return yield* $(Effect.fail(new Error("No Supabase client available")));
 		}
 
+		// Fetch each library's item IDs in parallel (RLS-filtered to current user).
+		// Community has no library so it always yields [].
+		const libraryIdsRecord = yield* $(
+			Effect.all(
+				{
+					song: fetchLibraryItemIds(client, "song"),
+					playlist: fetchLibraryItemIds(client, "playlist"),
+					event: fetchLibraryItemIds(client, "event"),
+					community: Effect.succeed([] as string[]),
+					image: fetchLibraryItemIds(client, "image"),
+				},
+				{ concurrency: "unbounded" },
+			),
+		);
+
+		// Fetch tag slugs for each item type, filtered by the user's library IDs.
 		const effectsRecord: Record<ItemType, Effect.Effect<string[]>> = {
-			song: fetchSlugsByItemType(client, "song", slugs),
-			playlist: fetchSlugsByItemType(client, "playlist", slugs),
-			event: fetchSlugsByItemType(client, "event", slugs),
-			community: fetchSlugsByItemType(client, "community", slugs),
-			image: fetchSlugsByItemType(client, "image", slugs),
+			song: fetchSlugsByItemType(client, "song", {
+				slugs,
+				libraryItemIds: libraryIdsRecord.song,
+			}),
+			playlist: fetchSlugsByItemType(client, "playlist", {
+				slugs,
+				libraryItemIds: libraryIdsRecord.playlist,
+			}),
+			event: fetchSlugsByItemType(client, "event", {
+				slugs,
+				libraryItemIds: libraryIdsRecord.event,
+			}),
+			community: Effect.succeed([]),
+			image: fetchSlugsByItemType(client, "image", {
+				slugs,
+				libraryItemIds: libraryIdsRecord.image,
+			}),
 		};
 
 		const tagSlugsByItemType = yield* $(

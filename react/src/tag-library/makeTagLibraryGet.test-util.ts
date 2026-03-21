@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import { vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
@@ -20,6 +21,7 @@ export default function makeTagLibraryGet(
     "fetchTagLibrary",
     "fetchTagLibraryCounts",
     "removeTagFromLibrary",
+    "removeTagCounts",
     "subscribeToTagLibrary",
     "tagLibraryUnsubscribe",
     "setTagLibraryEntries",
@@ -39,7 +41,10 @@ export default function makeTagLibraryGet(
     fns[name] = vi.fn();
   }
 
-  // Provide a sensible default for tag slugs used in many tests.
+  // Provide sensible defaults for functions that return Effects or specific values.
+  if (fns["fetchTagLibraryCounts"]) {
+    fns["fetchTagLibraryCounts"].mockReturnValue(Effect.void);
+  }
   if (fns["getTagLibrarySlugs"]) {
     fns["getTagLibrarySlugs"].mockReturnValue(["rock", "jazz"]);
   }

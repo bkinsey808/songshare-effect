@@ -1,5 +1,3 @@
-export const ITEM_TYPES = ["song", "playlist", "event", "community", "image"] as const;
-
-export type ItemType = (typeof ITEM_TYPES)[number];
+import type { ItemType } from "@/react/tag/item-type";
 
 export type TagItemCounts = Record<ItemType, number>;

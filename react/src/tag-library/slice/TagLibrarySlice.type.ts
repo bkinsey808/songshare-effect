@@ -9,6 +9,8 @@ export type TagLibrarySlice = TagLibraryState & {
 	fetchTagLibraryCounts: () => Effect.Effect<void, Error>;
 	removeTagFromLibrary: (tagSlug: string) => Effect.Effect<void, Error>;
 	subscribeToTagLibrary: () => Effect.Effect<() => void, Error>;
+	subscribeToTagCounts: () => Effect.Effect<() => void, Error>;
+	removeTagCounts: (tagSlug: string) => void;
 	tagLibraryUnsubscribe?: () => void;
 	setTagLibraryEntries: (entries: Record<string, TagLibraryEntry>) => void;
 	setTagLibraryCounts: (counts: Record<string, TagItemCounts>) => void;
