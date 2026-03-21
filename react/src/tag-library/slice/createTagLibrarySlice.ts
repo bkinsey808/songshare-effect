@@ -3,14 +3,18 @@ import type { Effect } from "effect";
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
+import fetchTagLibraryCountsFn from "../fetch/fetchTagLibraryCountsEffect";
 import fetchTagLibraryFn from "../fetch/fetchTagLibraryEffect";
+import type { TagItemCounts } from "../fetch/TagItemCounts.type";
+import removeTagFromLibraryFn from "../removeTagFromLibraryEffect";
 import subscribeToTagLibraryFn from "../subscribe/subscribeToTagLibraryEffect";
 import type { TagLibraryEntry } from "./TagLibraryEntry.type";
-import type { TagLibraryState } from "./TagLibraryState.type";
 import type { TagLibrarySlice } from "./TagLibrarySlice.type";
+import type { TagLibraryState } from "./TagLibraryState.type";
 
 const initialState: TagLibraryState = {
 	tagLibraryEntries: {} as Record<string, TagLibraryEntry>,
+	tagLibraryCounts: {} as Record<string, TagItemCounts>,
 	isTagLibraryLoading: false,
 	tagLibraryError: undefined,
 };
@@ -44,6 +48,11 @@ export default function createTagLibrarySlice(
 
 		fetchTagLibrary: (): Effect.Effect<void, Error> => fetchTagLibraryFn(get),
 
+		fetchTagLibraryCounts: (): Effect.Effect<void, Error> => fetchTagLibraryCountsFn(get),
+
+		removeTagFromLibrary: (tagSlug: string): Effect.Effect<void, Error> =>
+			removeTagFromLibraryFn(get, tagSlug),
+
 		subscribeToTagLibrary: (): Effect.Effect<() => void, Error> => subscribeToTagLibraryFn(get),
 
 		isInTagLibrary: (tagSlug: string) => {
@@ -58,6 +67,10 @@ export default function createTagLibrarySlice(
 
 		setTagLibraryEntries: (entries: Record<string, TagLibraryEntry>) => {
 			set({ tagLibraryEntries: entries });
+		},
+
+		setTagLibraryCounts: (counts: Record<string, TagItemCounts>) => {
+			set({ tagLibraryCounts: counts });
 		},
 
 		addTagLibraryEntry: (entry: TagLibraryEntry) => {

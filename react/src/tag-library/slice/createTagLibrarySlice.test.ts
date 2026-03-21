@@ -7,8 +7,21 @@ import createTagLibrarySlice from "./createTagLibrarySlice";
 import type { TagLibraryEntry } from "./TagLibraryEntry.type";
 import type { TagLibrarySlice } from "./TagLibrarySlice.type";
 
+/** Expected number of entries when a single entry is present. */
 const SINGLE_ENTRY_COUNT = 1;
 
+/**
+ * Creates a minimal mock store slice for testing `createTagLibrarySlice`.
+ *
+ * Returns an object with:
+ * - `slice`: the slice API produced by `createTagLibrarySlice`.
+ * - `getState`: returns the current raw store state used by the slice.
+ * - `setRawState`: apply a partial raw state patch to the store.
+ *
+ * The fixture wires simple `set`/`get` helpers and seeds `state` with the
+ * slice's initial exported values so tests can assert on the resulting
+ * state after invoking slice methods.
+ */
 function makeSlice(): {
 	slice: TagLibrarySlice;
 	getState: () => Record<string, unknown>;
@@ -52,6 +65,11 @@ describe("createTagLibrarySlice", () => {
 			expect(getState()["tagLibraryEntries"]).toStrictEqual({});
 		});
 
+		it("has empty tagLibraryCounts", () => {
+			const { getState } = makeSlice();
+			expect(getState()["tagLibraryCounts"]).toStrictEqual({});
+		});
+
 		it("has isTagLibraryLoading false", () => {
 			const { getState } = makeSlice();
 			expect(getState()["isTagLibraryLoading"]).toBe(false);
@@ -69,6 +87,27 @@ describe("createTagLibrarySlice", () => {
 			slice.setTagLibraryEntries({ rock: { user_id: "u1", tag_slug: "rock" } });
 			expect(getState()["tagLibraryEntries"]).toStrictEqual({
 				rock: { user_id: "u1", tag_slug: "rock" },
+			});
+		});
+	});
+
+	describe("setTagLibraryCounts", () => {
+		it("replaces tagLibraryCounts", () => {
+			const { slice, getState } = makeSlice();
+			slice.setTagLibraryCounts({
+				rock: { song: 3, playlist: 1, event: 0, community: 0, image: 2 },
+			});
+			expect(getState()["tagLibraryCounts"]).toStrictEqual({
+				rock: { song: 3, playlist: 1, event: 0, community: 0, image: 2 },
+			});
+		});
+
+		it("replaces previous counts", () => {
+			const { slice, getState } = makeSlice();
+			slice.setTagLibraryCounts({ rock: { song: 1, playlist: 0, event: 0, community: 0, image: 0 } });
+			slice.setTagLibraryCounts({ jazz: { song: 2, playlist: 0, event: 0, community: 0, image: 0 } });
+			expect(getState()["tagLibraryCounts"]).toStrictEqual({
+				jazz: { song: 2, playlist: 0, event: 0, community: 0, image: 0 },
 			});
 		});
 	});
@@ -183,10 +222,24 @@ describe("createTagLibrarySlice", () => {
 		});
 	});
 
-	describe("fetchTagLibrary / subscribeToTagLibrary", () => {
+	describe("fetchTagLibrary / fetchTagLibraryCounts / removeTagFromLibrary / subscribeToTagLibrary", () => {
 		it("fetchTagLibrary returns an Effect", () => {
 			const { slice } = makeSlice();
 			const effect = slice.fetchTagLibrary();
+			expect(effect).toBeDefined();
+			expect(typeof effect).toBe("object");
+		});
+
+		it("fetchTagLibraryCounts returns an Effect", () => {
+			const { slice } = makeSlice();
+			const effect = slice.fetchTagLibraryCounts();
+			expect(effect).toBeDefined();
+			expect(typeof effect).toBe("object");
+		});
+
+		it("removeTagFromLibrary returns an Effect", () => {
+			const { slice } = makeSlice();
+			const effect = slice.removeTagFromLibrary("rock");
 			expect(effect).toBeDefined();
 			expect(typeof effect).toBe("object");
 		});

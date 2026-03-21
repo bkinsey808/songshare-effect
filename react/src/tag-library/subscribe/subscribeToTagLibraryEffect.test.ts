@@ -6,7 +6,7 @@ import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
-import type { TagLibrarySlice } from "../slice/TagLibrarySlice.type";
+import makeTagLibraryGet from "../makeTagLibraryGet.test-util";
 import subscribeToTagLibraryEffect from "./subscribeToTagLibraryEffect";
 
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
@@ -17,9 +17,7 @@ const TOKEN = "test-token";
 const fakeClient = forceCast<ReturnType<typeof getSupabaseClient>>({});
 const fakeCleanup = vi.fn();
 
-function makeGet(): () => TagLibrarySlice {
-	return () => forceCast<TagLibrarySlice>({});
-}
+// Use shared helper; call `.get` when a getter function is required.
 
 describe("subscribeToTagLibraryEffect", () => {
 	it("returns a cleanup function on success", async () => {
@@ -28,7 +26,7 @@ describe("subscribeToTagLibraryEffect", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 		vi.mocked(createRealtimeSubscription).mockReturnValue(fakeCleanup);
 
-		const cleanup = await Effect.runPromise(subscribeToTagLibraryEffect(makeGet()));
+		const cleanup = await Effect.runPromise(subscribeToTagLibraryEffect(makeTagLibraryGet().get));
 
 		expect(typeof cleanup).toBe("function");
 	});
@@ -39,7 +37,7 @@ describe("subscribeToTagLibraryEffect", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 		vi.mocked(createRealtimeSubscription).mockReturnValue(fakeCleanup);
 
-		await Effect.runPromise(subscribeToTagLibraryEffect(makeGet()));
+		await Effect.runPromise(subscribeToTagLibraryEffect(makeTagLibraryGet().get));
 
 		expect(getSupabaseClient).toHaveBeenCalledWith(TOKEN);
 	});
@@ -50,7 +48,7 @@ describe("subscribeToTagLibraryEffect", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 		vi.mocked(createRealtimeSubscription).mockReturnValue(fakeCleanup);
 
-		await Effect.runPromise(subscribeToTagLibraryEffect(makeGet()));
+		await Effect.runPromise(subscribeToTagLibraryEffect(makeTagLibraryGet().get));
 
 		expect(createRealtimeSubscription).toHaveBeenCalledWith(
 			expect.objectContaining({ client: fakeClient, tableName: "tag_library" }),
@@ -64,7 +62,7 @@ describe("subscribeToTagLibraryEffect", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 		vi.mocked(createRealtimeSubscription).mockReturnValue(innerCleanup);
 
-		const cleanup = await Effect.runPromise(subscribeToTagLibraryEffect(makeGet()));
+		const cleanup = await Effect.runPromise(subscribeToTagLibraryEffect(makeTagLibraryGet().get));
 		cleanup();
 
 		expect(innerCleanup).toHaveBeenCalledWith();
@@ -74,7 +72,7 @@ describe("subscribeToTagLibraryEffect", () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockRejectedValue(new Error("auth error"));
 
-		await expect(Effect.runPromise(subscribeToTagLibraryEffect(makeGet()))).rejects.toThrow(
+		await expect(Effect.runPromise(subscribeToTagLibraryEffect(makeTagLibraryGet().get))).rejects.toThrow(
 			/auth error/,
 		);
 	});
@@ -84,7 +82,7 @@ describe("subscribeToTagLibraryEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
 
-		await expect(Effect.runPromise(subscribeToTagLibraryEffect(makeGet()))).rejects.toThrow(
+		await expect(Effect.runPromise(subscribeToTagLibraryEffect(makeTagLibraryGet().get))).rejects.toThrow(
 			/No Supabase client available/,
 		);
 	});

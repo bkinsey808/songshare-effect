@@ -6,29 +6,14 @@ import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
-import type { TagLibrarySlice } from "../slice/TagLibrarySlice.type";
+import makeTagLibraryGet from "../makeTagLibraryGet.test-util";
 import fetchTagLibraryEffect from "./fetchTagLibraryEffect";
 
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
 vi.mock("@/react/lib/supabase/client/getSupabaseClient");
 vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 
-function makeGet(): {
-	get: () => TagLibrarySlice;
-	setTagLibraryEntries: ReturnType<typeof vi.fn>;
-	setTagLibraryLoading: ReturnType<typeof vi.fn>;
-	setTagLibraryError: ReturnType<typeof vi.fn>;
-} {
-	const setTagLibraryEntries = vi.fn();
-	const setTagLibraryLoading = vi.fn();
-	const setTagLibraryError = vi.fn();
-	const slice = forceCast<TagLibrarySlice>({
-		setTagLibraryEntries,
-		setTagLibraryLoading,
-		setTagLibraryError,
-	});
-	return { get: () => slice, setTagLibraryEntries, setTagLibraryLoading, setTagLibraryError };
-}
+// Use shared `makeTagLibraryGet` to create spies and a fake slice.
 
 const TOKEN = "test-token";
 const fakeClient = forceCast<ReturnType<typeof getSupabaseClient>>({});
@@ -40,7 +25,10 @@ describe("fetchTagLibraryEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 		vi.mocked(callSelect).mockResolvedValue(selectOk);
-		const { get, setTagLibraryLoading, setTagLibraryError } = makeGet();
+		const { get, setTagLibraryLoading, setTagLibraryError } = makeTagLibraryGet([
+			"setTagLibraryLoading",
+			"setTagLibraryError",
+		]);
 
 		await Effect.runPromise(fetchTagLibraryEffect(get));
 
@@ -61,7 +49,10 @@ describe("fetchTagLibraryEffect", () => {
 				error: undefined,
 			}),
 		);
-		const { get, setTagLibraryLoading, setTagLibraryEntries } = makeGet();
+		const { get, setTagLibraryLoading, setTagLibraryEntries } = makeTagLibraryGet([
+			"setTagLibraryLoading",
+			"setTagLibraryEntries",
+		]);
 
 		await Effect.runPromise(fetchTagLibraryEffect(get));
 
@@ -77,7 +68,7 @@ describe("fetchTagLibraryEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 		vi.mocked(callSelect).mockResolvedValue(selectOk);
-		const { get } = makeGet();
+		const { get } = makeTagLibraryGet();
 
 		await Effect.runPromise(fetchTagLibraryEffect(get));
 
@@ -89,7 +80,7 @@ describe("fetchTagLibraryEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 		vi.mocked(callSelect).mockResolvedValue(selectOk);
-		const { get } = makeGet();
+		const { get } = makeTagLibraryGet();
 
 		await Effect.runPromise(fetchTagLibraryEffect(get));
 
@@ -102,7 +93,7 @@ describe("fetchTagLibraryEffect", () => {
 	it("fails and wraps error when getSupabaseAuthToken rejects", async () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockRejectedValue(new Error("auth error"));
-		const { get } = makeGet();
+		const { get } = makeTagLibraryGet();
 
 		await expect(Effect.runPromise(fetchTagLibraryEffect(get))).rejects.toThrow(/auth error/);
 	});
@@ -111,7 +102,7 @@ describe("fetchTagLibraryEffect", () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
-		const { get, setTagLibraryLoading } = makeGet();
+		const { get, setTagLibraryLoading } = makeTagLibraryGet(["setTagLibraryLoading"]);
 
 		await expect(Effect.runPromise(fetchTagLibraryEffect(get))).rejects.toThrow(
 			/No Supabase client available/,
@@ -125,7 +116,7 @@ describe("fetchTagLibraryEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 		vi.mocked(callSelect).mockRejectedValue(new Error("query failed"));
-		const { get } = makeGet();
+		const { get } = makeTagLibraryGet();
 
 		await expect(Effect.runPromise(fetchTagLibraryEffect(get))).rejects.toThrow(/query failed/);
 	});
@@ -135,7 +126,7 @@ describe("fetchTagLibraryEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 		vi.mocked(callSelect).mockResolvedValue(forceCast(undefined));
-		const { get } = makeGet();
+		const { get } = makeTagLibraryGet();
 
 		await expect(Effect.runPromise(fetchTagLibraryEffect(get))).rejects.toThrow(
 			/Invalid response from Supabase/,
@@ -157,7 +148,7 @@ describe("fetchTagLibraryEffect", () => {
 				error: undefined,
 			}),
 		);
-		const { get, setTagLibraryEntries } = makeGet();
+		const { get, setTagLibraryEntries } = makeTagLibraryGet();
 
 		await Effect.runPromise(fetchTagLibraryEffect(get));
 
@@ -171,7 +162,7 @@ describe("fetchTagLibraryEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 		vi.mocked(callSelect).mockResolvedValue(forceCast({ data: undefined, error: undefined }));
-		const { get, setTagLibraryEntries } = makeGet();
+		const { get, setTagLibraryEntries } = makeTagLibraryGet();
 
 		await Effect.runPromise(fetchTagLibraryEffect(get));
 
