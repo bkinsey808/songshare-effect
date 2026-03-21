@@ -1,3 +1,5 @@
+import { Effect } from "effect";
+
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
@@ -30,14 +32,20 @@ type TagRow = { tag_slug: string };
  *
  * @param itemType - The type of item to fetch tags for
  * @param itemId - The UUID of the item
- * @returns Array of tag slugs currently applied to the item
+ * @returns An Effect that resolves to an array of tag slugs (never fails)
  */
-export default async function fetchItemTagsRequest(
+export default function fetchItemTagsEffect(
 	itemType: ItemType,
 	itemId: string,
-): Promise<string[]> {
-	try {
-		const userToken = await getSupabaseAuthToken();
+): Effect.Effect<string[]> {
+	return Effect.gen(function* fetchItemTagsGen($) {
+		const userToken = yield* $(
+			Effect.tryPromise({
+				try: () => getSupabaseAuthToken(),
+				catch: (error) => new Error(String(error)),
+			}),
+		);
+
 		const client = getSupabaseClient(userToken);
 		if (client === undefined) {
 			return [];
@@ -46,10 +54,16 @@ export default async function fetchItemTagsRequest(
 		const tableName = ITEM_TYPE_TABLE_MAP[itemType];
 		const idColumn = ITEM_TYPE_ID_COLUMN_MAP[itemType];
 
-		const result = await callSelect<TagRow>(client, tableName, {
-			cols: "tag_slug",
-			eq: { col: idColumn, val: itemId },
-		});
+		const result = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					callSelect<TagRow>(client, tableName, {
+						cols: "tag_slug",
+						eq: { col: idColumn, val: itemId },
+					}),
+				catch: (error) => new Error(String(error)),
+			}),
+		);
 
 		if (!isRecord(result) || result.error) {
 			return [];
@@ -59,7 +73,5 @@ export default async function fetchItemTagsRequest(
 		return rows
 			.filter((row): row is TagRow => isRecord(row) && isString(row["tag_slug"]))
 			.map((row) => row.tag_slug);
-	} catch {
-		return [];
-	}
+	}).pipe(Effect.orElseSucceed(() => []));
 }

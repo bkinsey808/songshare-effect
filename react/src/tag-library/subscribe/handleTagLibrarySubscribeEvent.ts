@@ -4,7 +4,7 @@ import extractNewRecord from "@/react/lib/supabase/subscription/extract/extractN
 import extractStringField from "@/react/lib/supabase/subscription/extract/extractStringField";
 import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isRealtimePayload";
 
-import isTagLibraryEntry from "../guards/isTagLibraryEntry";
+import isTagLibraryEntry from "../fetch/isTagLibraryEntry";
 import type { TagLibrarySlice } from "../slice/TagLibrarySlice.type";
 
 /**

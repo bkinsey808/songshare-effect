@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
-import TagInput from "@/react/tag-library/TagInput";
+import TagInput from "@/react/tag/input/TagInput";
 
 import useCommunityForm from "./useCommunityForm";
 

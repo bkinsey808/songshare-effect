@@ -1,3 +1,5 @@
+import { Effect } from "effect";
+
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 /*
@@ -13,6 +15,24 @@ export async function setMockResolvedValue(
 ): Promise<void> {
 	const spy = await spyImport(modulePath, exportName);
 	spy.mockResolvedValue(value);
+}
+
+export async function setMockEffectSucceedValue(
+	modulePath: string,
+	value: unknown,
+	exportName = "default",
+): Promise<void> {
+	const spy = await spyImport(modulePath, exportName);
+	spy.mockReturnValue(Effect.succeed(value));
+}
+
+export async function setMockEffectFailValue(
+	modulePath: string,
+	error: unknown,
+	exportName = "default",
+): Promise<void> {
+	const spy = await spyImport(modulePath, exportName);
+	spy.mockReturnValue(Effect.fail(error));
 }
 
 export async function setMockRejectedValue(

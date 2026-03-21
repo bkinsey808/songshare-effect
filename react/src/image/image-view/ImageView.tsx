@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
-import fetchItemTagsRequest from "@/react/tag-library/fetchItemTagsRequest";
+import { Effect } from "effect";
+
+import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
 import TagList from "@/react/tag-library/TagList";
 
 import ImageViewLibraryAction from "./ImageViewLibraryAction";
@@ -40,7 +42,7 @@ export default function ImageView(): ReactElement {
 	useEffect(() => {
 		if (image === undefined) { return; }
 		void (async (): Promise<void> => {
-			setTags(await fetchItemTagsRequest("image", image.image_id));
+			setTags(await Effect.runPromise(fetchItemTagsEffect("image", image.image_id)));
 		})();
 	}, [image]);
 

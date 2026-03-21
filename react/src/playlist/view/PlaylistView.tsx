@@ -12,7 +12,9 @@ import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, playlistViewPath, songViewPath } from "@/shared/paths";
 import formatAppDate from "@/shared/utils/formatAppDate";
 
-import fetchItemTagsRequest from "@/react/tag-library/fetchItemTagsRequest";
+import { Effect } from "effect";
+
+import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
 import TagList from "@/react/tag-library/TagList";
 
 import PlaylistViewLibraryAction from "../playlist-view/PlaylistViewLibraryAction";
@@ -39,7 +41,7 @@ export default function PlaylistView(): ReactElement {
 	useEffect(() => {
 		if (currentPlaylist === undefined) { return; }
 		void (async (): Promise<void> => {
-			setTags(await fetchItemTagsRequest("playlist", currentPlaylist.playlist_id));
+			setTags(await Effect.runPromise(fetchItemTagsEffect("playlist", currentPlaylist.playlist_id)));
 		})();
 	}, [currentPlaylist]);
 

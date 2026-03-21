@@ -1,6 +1,6 @@
 import isRecord from "@/shared/type-guards/isRecord";
 
-import type { TagLibraryEntry } from "../slice/tag-library-types";
+import type { TagLibraryEntry } from "../slice/TagLibraryEntry.type";
 
 /**
  * Type guard that verifies an unknown value has the shape of a

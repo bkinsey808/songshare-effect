@@ -3,7 +3,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 
 import AddSongToPlaylistSection from "@/react/playlist/add-song/AddSongToPlaylistSection";
 import usePlaylistForm from "@/react/playlist/edit/usePlaylistForm";
-import TagInput from "@/react/tag-library/TagInput";
+import TagInput from "@/react/tag/input/TagInput";
 
 import PlaylistFormFooter from "./PlaylistFormFooter";
 import SortablePlaylistSongItem from "./SortablePlaylistSongItem";

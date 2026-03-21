@@ -1,5 +1,5 @@
 import useImageUploadForm from "@/react/image/image-upload-form/useImageUploadForm";
-import TagInput from "@/react/tag-library/TagInput";
+import TagInput from "@/react/tag/input/TagInput";
 
 /**
  * Form for uploading a new image to Cloudflare R2.
@@ -40,7 +40,7 @@ export default function ImageUploadForm(): ReactElement {
 					id="image-file"
 					ref={fileInputRef}
 					type="file"
-					accept="image/jpeg,image/png,image/gif,image/webp,image/avif,image/svg+xml"
+					accept="image/jpeg,.jpg,.jpeg,image/png,.png,image/gif,.gif,image/webp,.webp,image/avif,.avif,image/svg+xml,.svg"
 					onChange={handleFileChange}
 					required
 					className="block w-full cursor-pointer rounded-lg border border-gray-600 bg-gray-700 text-sm text-gray-400 file:mr-4 file:cursor-pointer file:rounded-l-lg file:border-0 file:bg-blue-600 file:py-2 file:pl-3 file:pr-4 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700"

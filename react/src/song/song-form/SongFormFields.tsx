@@ -4,7 +4,7 @@ import FormField from "@/react/lib/design-system/form/FormField";
 import FormInput from "@/react/lib/design-system/form/FormInput";
 import FormSection from "@/react/lib/design-system/form/FormSection";
 import FormTextarea from "@/react/lib/design-system/form/FormTextarea";
-import TagInput from "@/react/tag-library/TagInput";
+import TagInput from "@/react/tag/input/TagInput";
 
 type SongFormFieldsProps = Readonly<{
 	getFieldError: (

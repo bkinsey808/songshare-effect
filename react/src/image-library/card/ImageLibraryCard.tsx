@@ -22,7 +22,7 @@ export default function ImageLibraryCard({
 	entry,
 	currentUserId,
 }: ImageLibraryCardProps): ReactElement {
-	const { handleRemove, image, imageUrl, isOwner, viewUrl } = useImageLibraryCard(
+	const { editUrl, handleRemove, image, imageUrl, isOwner, viewUrl } = useImageLibraryCard(
 		entry,
 		currentUserId,
 	);
@@ -52,6 +52,14 @@ export default function ImageLibraryCard({
 							className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
 						>
 							View
+						</Link>
+					)}
+					{editUrl !== undefined && (
+						<Link
+							to={editUrl}
+							className="text-sm text-gray-400 hover:text-white hover:underline"
+						>
+							Edit
 						</Link>
 					)}
 					{!isOwner && (

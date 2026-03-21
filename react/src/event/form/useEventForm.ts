@@ -8,7 +8,7 @@ import useAppForm from "@/react/lib/form/useAppForm";
 import useFormChanges from "@/react/lib/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import setFieldValue from "@/react/song/song-form/use-song-form/setFieldValue";
-import useItemTags from "@/react/tag-library/useItemTags";
+import useItemTags from "@/react/tag/useItemTags";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";

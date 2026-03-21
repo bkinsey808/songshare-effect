@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 
 import useLocale from "@/react/lib/language/locale/useLocale";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { ZERO } from "@/shared/constants/shared-constants";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, tagViewPath } from "@/shared/paths";
 
-import TagBadge from "./TagBadge";
+import TagBadge from "../tag/TagBadge";
 
 type TagListProps = Readonly<{
 	slugs: readonly string[];

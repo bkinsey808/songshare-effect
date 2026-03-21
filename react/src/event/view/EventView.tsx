@@ -9,7 +9,9 @@ import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
-import fetchItemTagsRequest from "@/react/tag-library/fetchItemTagsRequest";
+import { Effect } from "effect";
+
+import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
 import TagList from "@/react/tag-library/TagList";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {
@@ -69,7 +71,7 @@ export default function EventView(): React.ReactNode {
 	useEffect(() => {
 		if (currentEvent === undefined) { return; }
 		void (async (): Promise<void> => {
-			setTags(await fetchItemTagsRequest("event", currentEvent.event_id));
+			setTags(await Effect.runPromise(fetchItemTagsEffect("event", currentEvent.event_id)));
 		})();
 	}, [currentEvent]);
 

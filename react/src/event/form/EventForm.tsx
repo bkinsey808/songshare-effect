@@ -2,7 +2,7 @@
 import { useTranslation } from "react-i18next";
 
 import DateTimePicker from "@/react/lib/design-system/date-time-picker/DateTimePicker";
-import TagInput from "@/react/tag-library/TagInput";
+import TagInput from "@/react/tag/input/TagInput";
 
 import PlaylistSearchInput from "../playlist-search-input/PlaylistSearchInput";
 import ActiveSongSelectionSection from "./ActiveSongSelectionSection";

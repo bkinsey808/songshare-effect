@@ -1,6 +1,6 @@
 import useImageEditForm from "@/react/image/image-edit-form/useImageEditForm";
-import TagInput from "@/react/tag-library/TagInput";
-import useItemTags from "@/react/tag-library/useItemTags";
+import TagInput from "@/react/tag/input/TagInput";
+import useItemTags from "@/react/tag/useItemTags";
 
 import type { ImagePublic } from "../image-types";
 
@@ -91,7 +91,7 @@ export default function ImageEditForm({ image }: ImageEditFormProps): ReactEleme
 				</div>
 			)}
 
-				{/* Tags */}
+			{/* Tags */}
 			<div>
 				<p className="mb-2 text-sm font-medium text-gray-300">Tags</p>
 				<TagInput value={tags} onChange={setTags} />

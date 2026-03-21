@@ -1,35 +1,36 @@
+import { Effect } from "effect";
 import { useEffect, useRef, useState } from "react";
 
+import searchTagsEffect from "@/react/tag-library/searchTagsRequest";
 import { ZERO } from "@/shared/constants/shared-constants";
-
-import searchTagsRequest from "./searchTagsRequest";
-import TagBadge from "./TagBadge";
 
 const DEBOUNCE_DELAY_MS = 250;
 const ENTER_KEY = "Enter";
 const ESCAPE_KEY = "Escape";
 
-type TagInputProps = Readonly<{
-	value: readonly string[];
-	onChange: (tags: string[]) => void;
-	placeholder?: string;
-}>;
+export type UseTagInputReturn = {
+	addTag: (slug: string) => void;
+	handleBlur: () => void;
+	handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	handleKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+	inputRef: React.RefObject<HTMLInputElement | null>;
+	inputValue: string;
+	isOpen: boolean;
+	removeTag: (slug: string) => void;
+	suggestions: string[];
+};
 
 /**
- * Tag input with autocomplete. Displays current tags as removable pill badges
- * and a text input for adding new tags. Autocomplete suggestions come from the
- * user's tag library via the search API.
+ * State and handlers for the TagInput component.
  *
  * @param value - Current list of tag slugs
  * @param onChange - Called when the tag list changes
- * @param placeholder - Placeholder text for the text input
- * @returns A React element rendering the tag input
+ * @returns Input state and event handlers
  */
-export default function TagInput({
-	value,
-	onChange,
-	placeholder = "Add tags…",
-}: TagInputProps): ReactElement {
+export default function useTagInput(
+	value: readonly string[],
+	onChange: (tags: string[]) => void,
+): UseTagInputReturn {
 	const [inputValue, setInputValue] = useState("");
 	const [suggestions, setSuggestions] = useState<string[]>([]);
 	const [isOpen, setIsOpen] = useState(false);
@@ -46,6 +47,12 @@ export default function TagInput({
 		[],
 	);
 
+	/**
+	 * Normalizes and adds a tag slug to the list, then resets input state.
+	 * No-ops if the slug is empty or already present.
+	 *
+	 * @param slug - The raw tag slug to add
+	 */
 	function addTag(slug: string): void {
 		const normalized = slug.trim().toLowerCase();
 		if (normalized === "" || value.includes(normalized)) {
@@ -58,10 +65,21 @@ export default function TagInput({
 		inputRef.current?.focus();
 	}
 
+	/**
+	 * Removes a tag slug from the list.
+	 *
+	 * @param slug - The tag slug to remove
+	 */
 	function removeTag(slug: string): void {
 		onChange(value.filter((existing) => existing !== slug));
 	}
 
+	/**
+	 * Updates input value and debounces an autocomplete search.
+	 * Clears suggestions immediately when the query is empty.
+	 *
+	 * @param event - The input change event
+	 */
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		const query = event.target.value;
 		setInputValue(query);
@@ -75,7 +93,7 @@ export default function TagInput({
 		}
 		debounceRef.current = setTimeout((): void => {
 			void (async (): Promise<void> => {
-				const results = await searchTagsRequest(query);
+				const results = await Effect.runPromise(searchTagsEffect(query));
 				const filtered = results.filter((slug) => !value.includes(slug));
 				setSuggestions(filtered);
 				setIsOpen(filtered.length > ZERO);
@@ -83,6 +101,11 @@ export default function TagInput({
 		}, DEBOUNCE_DELAY_MS);
 	}
 
+	/**
+	 * Adds the current input value on Enter; closes suggestions on Escape.
+	 *
+	 * @param event - The keyboard event
+	 */
 	function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
 		if (event.key === ENTER_KEY) {
 			event.preventDefault();
@@ -93,59 +116,22 @@ export default function TagInput({
 		}
 	}
 
+	/**
+	 * Adds the current input value when the input loses focus.
+	 */
 	function handleBlur(): void {
 		addTag(inputValue);
 	}
 
-	return (
-		<div className="space-y-2">
-			{value.length > ZERO && (
-				<div className="flex flex-wrap gap-1.5">
-					{value.map((slug) => (
-						<TagBadge
-							key={slug}
-							slug={slug}
-							onRemove={(): void => {
-								removeTag(slug);
-							}}
-						/>
-					))}
-				</div>
-			)}
-			<div className="relative">
-				<input
-					ref={inputRef}
-					type="text"
-					value={inputValue}
-					onChange={handleInputChange}
-					onKeyDown={handleKeyDown}
-					onBlur={handleBlur}
-					placeholder={placeholder}
-					className="w-full rounded border border-gray-600 bg-gray-800 px-2 py-1 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-				/>
-				{isOpen && suggestions.length > ZERO && (
-					<ul
-						role="listbox"
-						className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded border border-gray-600 bg-gray-800 shadow-lg"
-					>
-						{suggestions.map((slug) => (
-							<li key={slug}>
-								<button
-									type="button"
-									onMouseDown={(event): void => {
-										// Use mouseDown to fire before the input blur event.
-										event.preventDefault();
-										addTag(slug);
-									}}
-									className="flex w-full items-center gap-1.5 px-3 py-1.5 text-sm text-blue-300 hover:bg-gray-700"
-								>
-									{slug}
-								</button>
-							</li>
-						))}
-					</ul>
-				)}
-			</div>
-		</div>
-	);
+	return {
+		addTag,
+		handleBlur,
+		handleInputChange,
+		handleKeyDown,
+		inputRef,
+		inputValue,
+		isOpen,
+		removeTag,
+		suggestions,
+	};
 }

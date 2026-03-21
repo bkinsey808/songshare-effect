@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 
-import fetchItemTagsRequest from "@/react/tag-library/fetchItemTagsRequest";
-import TagList from "@/react/tag-library/TagList";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
+import { Effect } from "effect";
+
+import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
+import TagList from "@/react/tag-library/TagList";
 import { communityViewPath } from "@/shared/paths";
 
 import CommunityEventsCard from "./CommunityEventsCard";
@@ -61,7 +63,7 @@ export default function CommunityView(): ReactElement {
 	useEffect(() => {
 		if (currentCommunity === undefined) { return; }
 		void (async (): Promise<void> => {
-			setTags(await fetchItemTagsRequest("community", currentCommunity.community_id));
+			setTags(await Effect.runPromise(fetchItemTagsEffect("community", currentCommunity.community_id)));
 		})();
 	}, [currentCommunity]);
 

@@ -5,11 +5,12 @@ import useAppStore from "@/react/app-store/useAppStore";
 import getImagePublicUrl from "@/react/image/getImagePublicUrl";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { imageViewPath } from "@/shared/paths";
+import { dashboardPath, imageEditPath, imageViewPath } from "@/shared/paths";
 
 import type { ImageLibraryEntry, RemoveImageFromLibraryRequest } from "../image-library-types";
 
 export type UseImageLibraryCardReturn = {
+	editUrl: string | undefined;
 	handleRemove: () => Promise<void>;
 	image: ImageLibraryEntry["image_public"];
 	imageUrl: string | undefined;
@@ -33,6 +34,10 @@ export default function useImageLibraryCard(
 		image === undefined
 			? undefined
 			: buildPathWithLang(`/${imageViewPath}/${image.image_slug}`, lang);
+	const editUrl =
+		isOwner && image !== undefined
+			? buildPathWithLang(`/${dashboardPath}/${imageEditPath}/${image.image_slug}`, lang)
+			: undefined;
 
 	async function handleRemove(): Promise<void> {
 		try {
@@ -43,6 +48,7 @@ export default function useImageLibraryCard(
 	}
 
 	return {
+		editUrl,
 		handleRemove,
 		image,
 		imageUrl,

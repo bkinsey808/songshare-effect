@@ -4,7 +4,9 @@ import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
-import fetchItemTagsRequest from "@/react/tag-library/fetchItemTagsRequest";
+import { Effect } from "effect";
+
+import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
 import TagList from "@/react/tag-library/TagList";
 
 import SongViewSlides from "./slides/SongViewSlides";
@@ -26,7 +28,7 @@ export default function SongView(): ReactElement {
 	useEffect(() => {
 		if (songPublic === undefined) { return; }
 		void (async (): Promise<void> => {
-			setTags(await fetchItemTagsRequest("song", songPublic.song_id));
+			setTags(await Effect.runPromise(fetchItemTagsEffect("song", songPublic.song_id)));
 		})();
 	}, [songPublic]);
 

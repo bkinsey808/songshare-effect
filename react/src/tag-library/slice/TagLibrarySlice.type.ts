@@ -1,6 +1,7 @@
 import type { Effect } from "effect";
 
-import type { TagLibraryEntry, TagLibraryState } from "./tag-library-types";
+import type { TagLibraryEntry } from "./TagLibraryEntry.type";
+import type { TagLibraryState } from "./TagLibraryState.type";
 
 export type TagLibrarySlice = TagLibraryState & {
 	fetchTagLibrary: () => Effect.Effect<void, Error>;

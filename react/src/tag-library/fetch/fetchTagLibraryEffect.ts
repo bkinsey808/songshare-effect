@@ -5,9 +5,9 @@ import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import isTagLibraryEntry from "../guards/isTagLibraryEntry";
-import type { TagLibraryEntry } from "../slice/tag-library-types";
+import type { TagLibraryEntry } from "../slice/TagLibraryEntry.type";
 import type { TagLibrarySlice } from "../slice/TagLibrarySlice.type";
+import isTagLibraryEntry from "./isTagLibraryEntry";
 
 /**
  * Fetches the current user's tag library from Supabase and populates

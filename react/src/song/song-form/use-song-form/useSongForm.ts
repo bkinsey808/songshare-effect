@@ -7,7 +7,7 @@ import useAppForm from "@/react/lib/form/useAppForm";
 import useFormChanges from "@/react/lib/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import { type SongPublic, songPublicSchema } from "@/react/song/song-schema";
-import useItemTags from "@/react/tag-library/useItemTags";
+import useItemTags from "@/react/tag/useItemTags";
 
 import {
 	type FormState,

@@ -5,7 +5,8 @@ import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 
 import fetchTagLibraryFn from "../fetch/fetchTagLibraryEffect";
 import subscribeToTagLibraryFn from "../subscribe/subscribeToTagLibraryEffect";
-import type { TagLibraryEntry, TagLibraryState } from "./tag-library-types";
+import type { TagLibraryEntry } from "./TagLibraryEntry.type";
+import type { TagLibraryState } from "./TagLibraryState.type";
 import type { TagLibrarySlice } from "./TagLibrarySlice.type";
 
 const initialState: TagLibraryState = {

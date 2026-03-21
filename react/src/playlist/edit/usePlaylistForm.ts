@@ -12,7 +12,7 @@ import useFormChanges from "@/react/lib/form/useFormChanges";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import setFieldValue from "@/react/song/song-form/use-song-form/setFieldValue";
-import useItemTags from "@/react/tag-library/useItemTags";
+import useItemTags from "@/react/tag/useItemTags";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
 import {
