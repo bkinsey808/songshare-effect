@@ -20,7 +20,7 @@ export const communityRoleSchema: Schema.Schema<CanonicalCommunityRole> = Schema
 /**
  * Type guard that checks whether a value matches the canonical role schema.
  *
- * @param v - unknown value to test
+ * @param value - unknown value to test
  * @returns `true` if the value is a valid community role
  */
 export function isCommunityRole(value: unknown): value is CanonicalCommunityRole {

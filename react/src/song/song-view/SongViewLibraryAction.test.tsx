@@ -12,6 +12,11 @@ import SongViewLibraryAction from "./SongViewLibraryAction";
 vi.mock("react-i18next");
 vi.mock("@/react/app-store/useAppStore");
 
+/**
+ * @param key - translation key
+ * @param defaultVal - fallback value
+ * @returns translated value or default
+ */
 function translateOrDefault(key: string, defaultVal?: string): string {
 	return typeof defaultVal === "string" ? defaultVal : key;
 }

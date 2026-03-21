@@ -9,6 +9,7 @@ import subscribeToCommunityPublic from "@/react/community/subscribe/subscribeToC
  * Registers realtime subscriptions needed by the public community view.
  *
  * @param communityId - current community id
+ * @returns void
  */
 export default function useCommunityViewSubscriptions(communityId: string | undefined): void {
 	// Subscribe to realtime community_event changes for the active community.

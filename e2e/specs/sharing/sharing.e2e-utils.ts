@@ -13,8 +13,20 @@ export const BASE_URL = process.env["PLAYWRIGHT_BASE_URL"] ?? "https://127.0.0.1
 /**
  * Milliseconds to wait for the user library to be fetched and the manage page
  * access guard to resolve after auth hydration.
+ *
+ * 75 s accounts for wrangler-dev cold-start: on the first request the worker
+ * TypeScript must be compiled (up to ~60 s on WSL2). The Supabase user-token
+ * fetch has a 10 s hard abort, so it times out and falls back to the visitor
+ * token. Auth re-hydrates once wrangler responds to /api/me (no timeout), then
+ * the event/community is re-fetched with the correct token. Total latency can
+ * reach ~65 s on a cold run; 75 s gives comfortable headroom while staying
+ * within the 90 s test timeout (30 s × 3 from test.slow()) so the test timeout
+ * does not fire before this assertion can complete.
+ *
+ * Tests that have a large beforeEach cost (e.g. event-invitation) should call
+ * `testInfo.setTimeout(200_000)` to extend their individual timeout.
  */
-export const MANAGE_PAGE_READY_TIMEOUT_MS = 60_000;
+export const MANAGE_PAGE_READY_TIMEOUT_MS = 75_000;
 
 /** Milliseconds to wait for a Realtime push to land on the recipient dashboard. */
 export const REALTIME_WAIT_MS = 20_000;
@@ -118,11 +130,18 @@ export async function selectUserInSearch(
 /**
  * Navigates to the recipient's dashboard, switches to the "Received" tab in the
  * Shared Items section, and filters for "Pending" shares only.
+ *
+ * The "Received" button lives inside SharedItemsSection, which only renders
+ * after auth hydration completes (including wrangler cold-start on the first
+ * request, which can take up to ~65 s on WSL2). Use MANAGE_PAGE_READY_TIMEOUT_MS
+ * (75 s) as the explicit visibility timeout so WebKit — which is slower than
+ * Chromium/Firefox — doesn't time out on the default 60 s actionTimeout.
  */
 export async function openReceivedPendingShares(page: Page): Promise<void> {
 	await page.goto(`${BASE_URL}/en/dashboard`, { waitUntil: "load" });
-	// Playwright auto-waits for each button to be actionable before clicking
-	await page.getByRole("button", { name: "Received" }).click();
+	const receivedBtn = page.getByRole("button", { name: "Received" });
+	await expect(receivedBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
+	await receivedBtn.click();
 	await page.getByRole("button", { name: "Pending" }).click();
 }
 

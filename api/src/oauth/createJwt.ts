@@ -5,7 +5,12 @@ import { ServerError } from "@/api/api-errors";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import isRecordStringUnknown from "@/shared/utils/isRecordStringUnknown";
 
-// Helper: create JWT (wrap sign)
+/**
+ * Helper: create JWT (wrap sign)
+ * @param payload - object to sign
+ * @param secret - signing secret
+ * @returns Effect yielding the signed JWT
+ */
 export default function createJwt<PayloadType>(
 	payload: PayloadType,
 	secret: string,
@@ -15,6 +20,10 @@ export default function createJwt<PayloadType>(
 	// and fall back to a `{ payload: string }` record on failure.
 	return Effect.tryPromise<string, ServerError>({
 		try: () => {
+			/**
+			 * @param payloadCandidate - candidate to sign
+			 * @returns plain record
+			 */
 			function computeToSign(payloadCandidate: PayloadType): Record<string, unknown> {
 				try {
 					const parsed: unknown = structuredClone(payloadCandidate);

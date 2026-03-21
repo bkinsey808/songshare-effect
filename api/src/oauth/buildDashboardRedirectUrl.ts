@@ -15,12 +15,11 @@ type BuildDashboardRedirectUrlParams = Readonly<{
 /**
  * Computes the dashboard redirect URL after OAuth sign-in, including support for custom redirect ports.
  *
- * @param params - Parameters object
- * @param params.ctx - Hono context (for env and request info)
- * @param params.url - The current request URL (as a URL object)
- * @param params.redirectPort - Optional port string from OAuth state
- * @param params.lang - Language code for the dashboard path
- * @param params.dashboardPath - The dashboard path (e.g. 'dashboard')
+ * @param ctx - Hono context (for env and request info)
+ * @param url - The current request URL (as a URL object)
+ * @param redirectPort - Optional port string from OAuth state
+ * @param lang - Language code for the dashboard path
+ * @param dashboardPath - The dashboard path (e.g. 'dashboard')
  * @returns The computed dashboard redirect URL
  */
 export default function buildDashboardRedirectUrl({

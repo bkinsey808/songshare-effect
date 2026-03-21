@@ -2,12 +2,12 @@
 import type { EventUser, EventUserInsert } from "@/shared/generated/supabaseSchemas";
 
 import type {
-	MaybeSingleBuilder,
-	MaybeSingleResult,
-	MockRow,
-	MultiResult,
-	SingleBuilder,
-	SingleResult,
+    MaybeSingleBuilder,
+    MaybeSingleResult,
+    MockRow,
+    MultiResult,
+    SingleBuilder,
+    SingleResult,
 } from "./supabase-mock-types";
 
 export type EventUserMockOpts = {
@@ -40,7 +40,17 @@ export type EventUserTableMock = {
 	delete: () => MultiResult & { eq: (_field: string, _val: string) => MultiResult };
 };
 
+/**
+ * Creates a mock for the `event_user` Supabase table.
+ * @param opts - Mock configuration options.
+ * @returns A mock event user table object.
+ */
 export function createEventUserMock(opts: EventUserMockOpts): EventUserTableMock {
+	/**
+	 * Helper to create a write result (insert/upsert) with a select builder.
+	 * @param rows - The rows being written.
+	 * @returns A mock write result with a select method.
+	 */
 	function makeWriteResult(rows: EventUserInsert[]): MultiResult & { select: () => SingleBuilder } {
 		// we wrap the result in an async IIFE so we can `await` something and satisfy
 		// both `require-await` and `prefer-await-to-then` rules without file-level

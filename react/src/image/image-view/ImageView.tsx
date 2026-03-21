@@ -1,6 +1,10 @@
+import { useEffect, useState } from "react";
+
 import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
+import fetchItemTagsRequest from "@/react/tag-library/fetchItemTagsRequest";
+import TagList from "@/react/tag-library/TagList";
 
 import ImageViewLibraryAction from "./ImageViewLibraryAction";
 import useImageView from "./useImageView";
@@ -30,6 +34,15 @@ export default function ImageView(): ReactElement {
 		isOwner,
 		qrCodeUrl,
 	} = useImageView();
+	const [tags, setTags] = useState<string[]>([]);
+
+	// Load the image's tags for display.
+	useEffect(() => {
+		if (image === undefined) { return; }
+		void (async (): Promise<void> => {
+			setTags(await fetchItemTagsRequest("image", image.image_id));
+		})();
+	}, [image]);
 
 	if (isImageLoading) {
 		return (
@@ -159,6 +172,8 @@ export default function ImageView(): ReactElement {
 					</span>
 				)}
 			</div>
+
+			<TagList slugs={tags} />
 
 			{/* Shared users */}
 			<SharedUsersSection itemId={image.image_id} itemType="image" itemName={image.image_name} />

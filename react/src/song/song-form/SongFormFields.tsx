@@ -4,6 +4,7 @@ import FormField from "@/react/lib/design-system/form/FormField";
 import FormInput from "@/react/lib/design-system/form/FormInput";
 import FormSection from "@/react/lib/design-system/form/FormSection";
 import FormTextarea from "@/react/lib/design-system/form/FormTextarea";
+import TagInput from "@/react/tag-library/TagInput";
 
 type SongFormFieldsProps = Readonly<{
 	getFieldError: (
@@ -26,6 +27,8 @@ type SongFormFieldsProps = Readonly<{
 		private_notes: string;
 	};
 	setFormValue: (field: keyof SongFormFieldsProps["formValues"], value: string) => void;
+	tags: readonly string[];
+	setTags: (tags: string[]) => void;
 }>;
 
 /**
@@ -46,6 +49,8 @@ export default function SongFormFields({
 	songSlugRef,
 	formValues,
 	setFormValue,
+	tags,
+	setTags,
 }: SongFormFieldsProps): ReactElement {
 	const { t } = useTranslation();
 
@@ -159,6 +164,10 @@ export default function SongFormFields({
 					placeholder="Enter private notes..."
 					autoExpand
 				/>
+			</FormField>
+
+			<FormField label={t("song.tags", "Tags")}>
+				<TagInput value={tags} onChange={setTags} />
 			</FormField>
 		</FormSection>
 	);

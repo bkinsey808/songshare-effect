@@ -23,6 +23,8 @@ type DeleteEqChain = { eq: (_field2: string, _val2: string) => Promise<ImageDele
 
 /**
  * Builds a fake Supabase client for imageDelete tests.
+ * @param opts - Mock configuration options.
+ * @returns A mock Supabase client.
  */
 export default function makeImageDeleteClient(
 	opts: ImageDeleteTestClientOpts = {},

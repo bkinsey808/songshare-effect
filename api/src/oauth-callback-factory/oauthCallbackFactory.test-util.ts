@@ -15,14 +15,26 @@ export type FetchUserResult = {
 	existingUser: Schema.Schema.Type<typeof UserSchema> | undefined;
 };
 
+/**
+ * @param val - candidate object
+ * @returns casted OauthState
+ */
 export function asOauthState(val: unknown): OauthState {
 	return forceCast<OauthState>(val);
 }
 
+/**
+ * @param val - candidate object
+ * @returns casted FetchUserResult
+ */
 export function asFetchUserResult(val: unknown): FetchUserResult {
 	return forceCast<FetchUserResult>(val);
 }
 
+/**
+ * @param val - candidate string
+ * @returns casted string
+ */
 export function asString(val: unknown): string {
 	return forceCast<string>(val);
 }

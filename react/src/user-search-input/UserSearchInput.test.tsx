@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
+import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.test-util";
 
 import UserSearchInput from "./UserSearchInput";
 

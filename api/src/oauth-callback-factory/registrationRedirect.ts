@@ -39,6 +39,13 @@ export type RegistrationRedirectParams = Readonly<{
  * Any errors from the underlying helpers (e.g. `buildRegisterJwt`) propagate
  * through the returned Effect, matching the union used by
  * `oauthCallbackFactory`.
+ *
+ * @param ctx - The Hono request context
+ * @param envRecord - Environment variables
+ * @param oauthUserData - Data from the OAuth provider
+ * @param oauthState - The decoded and verified OAuth state
+ * @param lang - Target language for the redirect
+ * @returns An effect that yields a redirect response on success
  */
 export default function handleRegistration({
 	ctx,

@@ -21,6 +21,7 @@ describe("extractImageUpdateRequest", () => {
 			image_name: "My Image",
 			description: "A description",
 			alt_text: "Alt text",
+			tags: undefined,
 		});
 	});
 
@@ -36,6 +37,7 @@ describe("extractImageUpdateRequest", () => {
 			image_name: "Name",
 			description: "Desc",
 			alt_text: "Alt",
+			tags: undefined,
 		});
 	});
 

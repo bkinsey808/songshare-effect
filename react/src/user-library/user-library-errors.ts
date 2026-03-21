@@ -3,9 +3,9 @@ import { Data } from "effect";
 /**
  * Network error from user lookup API operations.
  * Indicates fetch failure, HTTP errors, or response parsing issues.
+ * @returns N/A (TaggedError constructor)
  */
-// oxlint-disable-next-line new-cap
-export class NetworkError extends Data.TaggedError("NetworkError") {
+export class NetworkError extends Data.TaggedError("NetworkError") { // oxlint-disable-line new-cap
 	constructor(
 		override readonly message: string,
 		readonly statusCode?: number,
@@ -17,9 +17,9 @@ export class NetworkError extends Data.TaggedError("NetworkError") {
 /**
  * Parse error from user lookup API operations.
  * Indicates invalid response format or schema validation failures.
+ * @returns N/A (TaggedError constructor)
  */
-// oxlint-disable-next-line new-cap
-export class ParseError extends Data.TaggedError("ParseError") {
+export class ParseError extends Data.TaggedError("ParseError") { // oxlint-disable-line new-cap
 	constructor(override readonly message: string) {
 		super();
 	}

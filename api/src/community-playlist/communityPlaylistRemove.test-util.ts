@@ -7,6 +7,14 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
+/**
+ * Test helper for communityPlaylistRemove - builds a Supabase client stub.
+ *
+ * @param requesterRole - Role of the user requesting the remove
+ * @param requesterRoleError - Whether to simulate an error fetching the requester role
+ * @param deleteError - Whether to simulate an error during the remove operation
+ * @returns A mocked Supabase client
+ */
 export default function makeCommunityPlaylistRemoveClient(
 	opts: {
 		requesterRole?: "owner" | "community_admin" | "member";

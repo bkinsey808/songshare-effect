@@ -12,6 +12,13 @@ import type { StorageAdapter, StorageUploadOptions } from "./StorageAdapter.type
  */
 export default function createR2Adapter(bucket: Pick<R2Bucket, "put" | "delete">): StorageAdapter {
 	return {
+		/**
+		 * @param key - object key
+		 * @param data - file data
+		 * @param contentType - the MIME type of the file
+		 * @param metadata - optional custom metadata
+		 * @returns promise
+		 */
 		async upload(
 			key: string,
 			data: ArrayBuffer,
@@ -22,6 +29,10 @@ export default function createR2Adapter(bucket: Pick<R2Bucket, "put" | "delete">
 				...(metadata === undefined ? {} : { customMetadata: metadata }),
 			});
 		},
+		/**
+		 * @param key - object key
+		 * @returns promise
+		 */
 		async remove(key: string): Promise<void> {
 			await bucket.delete(key);
 		},

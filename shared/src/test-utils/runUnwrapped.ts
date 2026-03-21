@@ -2,6 +2,10 @@
 /* eslint-disable @typescript-eslint/no-throw-literal, @typescript-eslint/only-throw-error */
 import { Effect } from "effect";
 
+/**
+ * @param value - value to check
+ * @returns true if value is a non-null object
+ */
 function isObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
 }
@@ -9,6 +13,10 @@ function isObject(value: unknown): value is Record<string, unknown> {
 const NOT_FOUND = -1;
 const SLICE_OFFSET = 1;
 
+/**
+ * @param str - string to parse
+ * @returns parsed value or undefined
+ */
 function tryParseJSONFromString(str: string): unknown {
 	const trimmed = str.trim();
 	try {
@@ -31,6 +39,9 @@ function tryParseJSONFromString(str: string): unknown {
 /**
  * Run an Effect and unwrap FiberFailure stringified payloads when present.
  * Returns the effect result or throws the original or parsed payload.
+ *
+ * @param effect - The effect to run and unwrap
+ * @returns Result of the effect
  */
 export default async function runUnwrapped(
 	effect: Effect.Effect<unknown, unknown>,

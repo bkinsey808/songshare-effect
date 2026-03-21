@@ -5,10 +5,10 @@ import { describe, expect, it, vi } from "vitest";
 import type { Bindings } from "@/api/env";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import {
-	HTTP_BAD_REQUEST,
-	HTTP_INTERNAL,
-	HTTP_NOT_FOUND,
-	HTTP_TEMP_REDIRECT,
+    HTTP_BAD_REQUEST,
+    HTTP_INTERNAL,
+    HTTP_NOT_FOUND,
+    HTTP_TEMP_REDIRECT,
 } from "@/shared/constants/http";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
@@ -20,6 +20,11 @@ vi.mock("@supabase/supabase-js");
 const SAMPLE_URL = "https://cdn.supabase.co/storage/...";
 const SAMPLE_KEY = "images/user/img-1.png";
 
+/**
+ * Helper to create a Hono context for image tests.
+ * @param opts - Options to customize the context.
+ * @returns A mock Hono context.
+ */
 function makeCtx(opts: {
 	imageKey?: string;
 	storageBackend?: string;

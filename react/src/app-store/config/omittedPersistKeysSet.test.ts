@@ -10,6 +10,7 @@ const EXPECTED_KEYS = [
 	"playlistLibraryUnsubscribe",
 	"playlistLibraryPublicUnsubscribe",
 	"userLibraryUnsubscribe",
+	"tagLibraryUnsubscribe",
 	"communities",
 	"currentCommunity",
 	"members",

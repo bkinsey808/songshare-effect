@@ -5,6 +5,8 @@ import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThr
 /**
  * Helper for tests that want `decodeUnknownSyncOrThrow` to throw.  The
  * shared implementation keeps the necessary ESLint disables in one place.
+ * @param err - The optional error value to throw.
+ * @returns void
  */
 export default function mockDecodeThrow(err?: unknown): void {
 	// ensure we throw an Error instance (satisfies `only-throw-error`)

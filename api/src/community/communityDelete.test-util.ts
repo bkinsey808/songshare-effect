@@ -8,6 +8,12 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
+/**
+ * Test helper for communityDelete - builds a Supabase client stub.
+ *
+ * @param communityUserRole - Role associated with the requesting user in the community
+ * @returns A mocked Supabase client
+ */
 export default function makeCommunityDeleteClient(
 	communityUserRole: "owner" | "member",
 ): ReturnType<typeof createClient> {

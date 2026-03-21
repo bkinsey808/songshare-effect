@@ -7,6 +7,11 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
+/**
+ * Mock Supabase client for testing community song removals.
+ * @param opts - Mock configuration options.
+ * @returns A mock Supabase client.
+ */
 export default function makeCommunitySongRemoveClient(
 	opts: {
 		requesterRole?: "owner" | "community_admin" | "member";

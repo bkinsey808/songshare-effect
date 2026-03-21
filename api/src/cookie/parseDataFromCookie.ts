@@ -22,13 +22,28 @@ type ParseDataFromCookieParams<
 // the Schema generic parameter `SchemaT`.
 
 // Overloads: when allowMissing is true the return includes undefined
+/**
+ * Extract and verify a JWT from a cookie, then decode it using the provided schema.
+ * @param params - Configuration options.
+ * @returns The decoded data or undefined if allowMissing is true and data is absent.
+ */
 export async function parseDataFromCookie<SchemaT extends Schema.Schema.AnyNoContext>(
 	params: ParseDataFromCookieParams<SchemaT, true>,
 ): Promise<Schema.Schema.Type<SchemaT> | undefined>;
+/**
+ * Extract and verify a JWT from a cookie, then decode it using the provided schema.
+ * @param params - Configuration options.
+ * @returns The decoded data.
+ */
 export async function parseDataFromCookie<SchemaT extends Schema.Schema.AnyNoContext>(
 	params: ParseDataFromCookieParams<SchemaT, false>,
 ): Promise<Schema.Schema.Type<SchemaT>>;
 
+/**
+ * Extract and verify a JWT from a cookie, then decode it using the provided schema.
+ * @param params - Configuration options.
+ * @returns The decoded data or undefined.
+ */
 export async function parseDataFromCookie<
 	SchemaT extends Schema.Schema.AnyNoContext,
 	AllowMissing extends boolean | undefined = false,

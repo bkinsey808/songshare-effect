@@ -14,6 +14,10 @@ import isRecord from "@/shared/type-guards/isRecord";
  * @returns The same structure with all `null` values replaced by `undefined`.
  */
 export default function normalizeNullsTopLevel(input: unknown): unknown {
+	/**
+	 * @param value - current node to normalize
+	 * @returns normalized value
+	 */
 	function normalize(value: unknown): unknown {
 		if (value === null) {
 			return undefined;

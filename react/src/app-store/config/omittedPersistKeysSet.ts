@@ -11,6 +11,7 @@ const omittedPersistKeys = [
 	"playlistLibraryUnsubscribe",
 	"playlistLibraryPublicUnsubscribe",
 	"userLibraryUnsubscribe",
+	"tagLibraryUnsubscribe",
 	"communities",
 	"currentCommunity",
 	"members",

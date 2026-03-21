@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
 
 import CreateSongIcon from "@/react/lib/design-system/icons/CreateSongIcon";
 import EditSongIcon from "@/react/lib/design-system/icons/EditSongIcon";
@@ -18,15 +17,12 @@ import useSongForm from "./use-song-form/useSongForm";
  */
 export default function SongForm(): ReactElement {
 	const { t } = useTranslation();
-	const { song_id } = useParams<{ song_id?: string }>();
-
-	// treat a trimmed empty string as not-editing without using numeric literals
-	const isEditing = (song_id?.trim() ?? "") !== "";
 
 	const {
 		getFieldError,
 		isSubmitting,
 		isLoadingData,
+		isEditing,
 		slideOrder,
 		slides,
 		fields,
@@ -58,13 +54,12 @@ export default function SongForm(): ReactElement {
 		handleSave,
 		handleCancel,
 		handleDelete,
-		hasUnsavedChanges,
-	} = useSongForm();
+		hasChanges,
 
-	// Check if there are unsaved changes for styling
-	// Only check for changes when not loading to avoid flash during initial load
-	// React Compiler automatically memoizes this value
-	const hasChanges = isLoadingData ? false : hasUnsavedChanges();
+		// Tag state
+		tags,
+		setTags,
+	} = useSongForm();
 
 	return (
 		<>
@@ -133,6 +128,8 @@ export default function SongForm(): ReactElement {
 											songSlugRef={songSlugRef}
 											formValues={formValues}
 											setFormValue={setFormValue}
+											tags={tags}
+											setTags={setTags}
 										/>
 									</CollapsibleSection>
 								</div>

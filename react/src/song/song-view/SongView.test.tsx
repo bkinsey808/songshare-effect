@@ -45,6 +45,11 @@ const WHITESPACE_SLUG = "   ";
 const MIN_ONE = 1;
 const FIRST_INDEX = 0;
 
+/**
+ * @param key - translation key
+ * @param defaultVal - fallback value
+ * @returns translated value or default
+ */
 function translateOrDefault(key: string, defaultVal?: string | Record<string, unknown>): string {
 	return typeof defaultVal === "string" ? defaultVal : key;
 }

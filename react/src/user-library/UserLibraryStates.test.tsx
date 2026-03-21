@@ -12,6 +12,11 @@ import UserLibraryLoadingState from "./UserLibraryLoadingState";
 vi.mock("react-i18next");
 vi.mock("./user-add/AddUserForm");
 
+/**
+ * @param key - translation key
+ * @param defaultValue - fallback value
+ * @returns translated value or default
+ */
 function translateOrDefault(key: string, defaultValue?: string): string {
 	return defaultValue ?? key;
 }

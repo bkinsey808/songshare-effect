@@ -23,6 +23,11 @@ type ShareRow = {
 
 const RECIPIENT_ID = "recipient-1";
 
+/**
+ * Creates a mock Supabase client for share update status tests.
+ * @param shareDetails - The share details to return for the mock.
+ * @returns A mock Supabase server client.
+ */
 function makeShareUpdateStatusClient(shareDetails: {
 	shared_item_type: string;
 	shared_item_id: string;

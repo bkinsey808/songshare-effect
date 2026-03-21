@@ -14,6 +14,11 @@ import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 type CommunitySongRemoveData = Schema.Schema.Type<typeof communitySongAddSchema>;
 
+/**
+ * Server-side handler for removing a song from a community.
+ * @param ctx - The request context.
+ * @returns An Effect that succeeds with success status or fails with an error.
+ */
 export default function communitySongRemove(
 	ctx: ReadonlyContext,
 ): Effect.Effect<{ success: boolean }, ValidationError | DatabaseError | AuthenticationError> {

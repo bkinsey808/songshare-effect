@@ -24,10 +24,13 @@ export type UseImageUploadFormReturn = {
 	setAltText: (value: string) => void;
 	setDescription: (value: string) => void;
 	setImageName: (value: string) => void;
+	tags: readonly string[];
+	setTags: (tags: readonly string[]) => void;
 	uploadError: string | undefined;
 };
 
 export default function useImageUploadForm(): UseImageUploadFormReturn {
+	const MIN_TAGS = 1;
 	const { lang } = useLocale();
 	const navigate = useNavigate();
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,6 +42,10 @@ export default function useImageUploadForm(): UseImageUploadFormReturn {
 	const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [uploadError, setUploadError] = useState<string | undefined>(undefined);
+	const [tags, setTagsInternal] = useState<string[]>([]);
+	function setTags(nextTags: readonly string[]): void {
+		setTagsInternal([...nextTags]);
+	}
 
 	const uploadImage = useAppStore((state) => state.uploadImage);
 
@@ -65,6 +72,9 @@ export default function useImageUploadForm(): UseImageUploadFormReturn {
 		formData.append("image_name", imageName);
 		formData.append("description", description);
 		formData.append("alt_text", altText);
+		if (tags.length >= MIN_TAGS) {
+			formData.append("tags", JSON.stringify(tags));
+		}
 
 		setIsSubmitting(true);
 		setUploadError(undefined);
@@ -97,6 +107,8 @@ export default function useImageUploadForm(): UseImageUploadFormReturn {
 		setAltText,
 		setDescription,
 		setImageName,
+		tags,
+		setTags,
 		uploadError,
 	};
 }

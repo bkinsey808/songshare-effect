@@ -17,6 +17,18 @@ type CommunityPublicRow = {
 	public_notes: string;
 };
 
+/**
+ * Test helper for communitySave - builds a Supabase client stub.
+ *
+ * @param userRole - Role of the requesting user
+ * @param userRoleError - Whether to simulate an error fetching the user role
+ * @param privateUpdateError - Whether to simulate an error updating the private community table
+ * @param publicInsertError - Whether to simulate an error inserting into the public community table
+ * @param publicUpdateError - Whether to simulate an error updating the public community table
+ * @param communityUserInsertError - Whether to simulate an error inserting into the community_user table
+ * @param publicRow - Initial row for the public community table
+ * @returns A mocked Supabase client
+ */
 export default function makeCommunitySaveClient(
 	opts: {
 		userRole?: "owner" | "community_admin" | "member";

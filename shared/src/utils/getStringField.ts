@@ -7,6 +7,10 @@
  *
  * Note: `Reflect.get` returns `any`; we centralize a single narrow eslint
  * exception here and validate the runtime type before returning.
+ *
+ * @param obj - unknown object to read from
+ * @param key - property key to read
+ * @returns string value or undefined
  */
 export default function getStringField(obj: unknown, key: string): string | undefined {
 	if (typeof obj !== "object" || obj === null) {

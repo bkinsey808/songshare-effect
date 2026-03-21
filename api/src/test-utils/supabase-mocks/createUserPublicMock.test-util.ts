@@ -17,6 +17,11 @@ export type UserPublicTableMock = {
 	insert: (rows: UserPublicInsert[]) => MultiResult & { select: () => MultiResult };
 };
 
+/**
+ * Creates a mock for the `user_public` Supabase table.
+ * @param opts - Mock configuration options.
+ * @returns A mock user public table object.
+ */
 export function createUserPublicMock(opts: UserPublicMockOpts): UserPublicTableMock {
 	return {
 		select: (

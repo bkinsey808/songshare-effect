@@ -32,18 +32,8 @@ type Params = Readonly<{
  * deletion to `runRemoveUserWithContentEffect`, and maps/logs errors
  * inside Effect context so the UI component can stay declarative.
  *
- * @param entry - user library entry to remove
- * @param songsOwnedByUser - song IDs owned by the user
- * @param playlistsOwnedByUser - playlist IDs owned by the user
- * @param removeFromUserLibrary - Effect action to remove the user from the
- *   user library (called with `{ followed_user_id }`)
- * @param removeSongFromSongLibrary - Effect action to remove a song from
- *   the song library
- * @param removePlaylistFromLibrary - Effect action to remove a playlist from
- *   the playlist library
- * @param setIsConfirming - setter to toggle confirmation UI state
- * @param setIsRemoving - setter to toggle removing UI state
- * @returns Effect that performs the removal and updates UI state
+ * @param params - Configuration options including entry, content IDs, and UI setters.
+ * @returns Effect that performs the removal and updates UI state.
  */
 export default function runRemoveUserFromCardEffect(params: Params): Effect.Effect<void, Error> {
 	const { setIsConfirming, setIsRemoving } = params;

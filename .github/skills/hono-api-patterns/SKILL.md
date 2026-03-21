@@ -4,7 +4,7 @@ description: Hono API route handlers, middleware patterns, request/response hand
 compatibility: Hono 4.x, Effect 3.x, TypeScript 5.x, Node.js 20+
 metadata:
   author: bkinsey808
-  version: "1.1"
+  version: "1.2"
 ---
 
 # Hono API Patterns Skill
@@ -18,173 +18,183 @@ Use this skill when:
 
 Execution workflow:
 
-1. Keep endpoint logic in Effect and route through shared HTTP helpers.
-2. Validate request input with feature-local schemas and map failures to typed errors.
-3. Reuse existing middleware and error mapping patterns before creating new abstractions.
-4. Validate with `npm run lint` and targeted tests for changed handlers/middleware.
+1. Read the full workflow doc: [`.agent/workflows/add-api-endpoint.md`](../../../.agent/workflows/add-api-endpoint.md) before writing any code.
+2. Keep endpoint logic in Effect and route through shared HTTP helpers.
+3. Validate request input using `decodeUnknownSyncOrThrow` + shared schemas.
+4. Reuse existing middleware and error mapping patterns before creating new abstractions.
+5. Run `npm run lint` — do not skip it.
 
-Output requirements:
+## File & Registration Pattern
 
-- Summarize endpoint/middleware changes and which shared patterns were used.
-- Note any new error mapping or validation behavior introduced.
-
-## Key Patterns
-
-### 1. Integration with Effect-TS
-
-The project provides `handleHttpEndpoint` (in `api/src/http/`) which runs an Effect and converts typed errors to HTTP `Response` objects via `errorToHttpResponse`:
+Handlers live in `api/src/<feature>/<action>/<handlerName>.ts` and are registered in `api/src/server.ts`:
 
 ```typescript
-// api/src/song/songHandler.ts
+// api/src/server.ts
+import { apiMyFeaturePath } from "@/shared/paths";
+import myHandler from "./my-feature/action/myHandler";
+
+app.post(apiMyFeaturePath, handleHttpEndpoint(myHandler));
+app.get(apiMyFeaturePath, handleHttpEndpoint(myHandler));
+```
+
+## Handler Signature
+
+Always use `ReadonlyContext`, not `Context<{ Bindings: Bindings }>`:
+
+```typescript
 import { Effect } from "effect";
-import { handleHttpEndpoint } from "@/api/http/handleHttpEndpoint";
-import { ValidationError } from "@/api/api-errors";
+import { type AuthenticationError, DatabaseError, ValidationError } from "@/api/api-errors";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
-app.post("/songs", async (c: Context) => {
-	const songEffect = Effect.gen(function* () {
-		const body = yield* Effect.tryPromise({
-			try: () => c.req.json(),
-			catch: () => new ValidationError({ message: "Invalid JSON" }),
-		});
-		// ... rest of effect
-		return result;
-	});
-
-	return handleHttpEndpoint(() => songEffect)(c);
-});
-```
-
-### 2. Request Validation with Effect Schema
-
-Schemas live per feature (e.g. `api/src/song/songSchemas.ts`), not in a central file:
-
-```typescript
-// api/src/song/songSchemas.ts
-import { Schema } from "effect";
-
-export const CreateSongSchema = Schema.Struct({
-	title: Schema.String.pipe(Schema.minLength(1)),
-	artist: Schema.String.pipe(Schema.minLength(1)),
-	duration: Schema.Number.pipe(Schema.positive()),
-});
-```
-
-Decode in the handler:
-
-```typescript
-const validated =
-	yield *
-	Schema.decodeUnknown(CreateSongSchema)(body).pipe(
-		Effect.mapError((error) => new ValidationError({ message: error.message })),
-	);
-```
-
-### 3. Error Types
-
-Typed errors live in `api/src/api-errors.ts` (not `errors.ts`):
-
-```typescript
-// api/src/api-errors.ts
-import { Data } from "effect";
-
-export class ValidationError extends Data.TaggedError("ValidationError") {
-	constructor(readonly message: string) {
-		super();
-	}
-}
-
-export class NotFoundError extends Data.TaggedError("NotFoundError") {
-	constructor(
-		readonly resource: string,
-		readonly id: string,
-	) {
-		super();
-	}
+export default function myHandler(
+  ctx: ReadonlyContext,
+): Effect.Effect<{ success: boolean }, ValidationError | DatabaseError | AuthenticationError> {
+  return Effect.gen(function* myHandlerGen($) {
+    // ...
+  });
 }
 ```
 
-Map in `app.onError`:
+## Request Validation — Extract Function Pattern
+
+Schemas live in `shared/src/validation/`, not in the API feature folder. Use `decodeUnknownSyncOrThrow`:
 
 ```typescript
-app.onError((error, c: Context) => {
-	if (error instanceof ValidationError) return c.json({ error: error.message }, 400);
-	if (error instanceof NotFoundError)
-		return c.json({ error: `${error.resource} ${error.id} not found` }, 404);
-	return c.json({ error: "Internal server error" }, 500);
+// shared/src/validation/mySchemas.ts
+export const myActionSchema: Schema.Schema<OutputType, OutputType> = Schema.Struct({
+  item_id: Schema.String,
+  name: Schema.String.pipe(Schema.minLength(1)),
 });
-```
 
-### 4. Middleware
+// api/src/my-feature/action/extractMyActionRequest.ts
+import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
+import { myActionSchema } from "@/shared/validation/mySchemas";
 
-Existing middleware lives in `api/src/middleware/` — currently `cors.ts` and `handleAppError.ts`. Pattern:
+export type MyActionRequest = { item_id: string; name: string };
 
-```typescript
-// api/src/middleware/handleAppError.ts
-import { type Context, type Next } from "hono";
-
-export async function handleAppError(c: Context, next: Next): Promise<void> {
-	await next();
-	// post-processing
+export default function extractMyActionRequest(request: unknown): MyActionRequest {
+  return decodeUnknownSyncOrThrow(myActionSchema, request);
 }
 ```
 
-### 5. JSON Parsing — Always Wrap in Effect
+In the handler:
 
 ```typescript
-// ❌ Bad: can throw
-const body = c.req.json();
-
-// ✅ Good: typed error
-const body =
-	yield *
-	Effect.tryPromise({
-		try: () => c.req.json(),
-		catch: () => new ValidationError({ message: "Invalid JSON" }),
-	});
+let req: MyActionRequest = { item_id: "", name: "" };
+try {
+  req = extractMyActionRequest(body);
+} catch (error: unknown) {
+  return yield* $(Effect.fail(new ValidationError({ message: extractErrorMessage(error, "Invalid request") })));
+}
 ```
 
-## Response Conventions
+**Never** do manual field-by-field validation — it triggers `no-unsafe-type-assertion` and `id-length` lint errors.
 
-| Situation    | Status | Example                         |
-| ------------ | ------ | ------------------------------- |
-| Created      | 201    | `c.json({ data: song }, 201)`   |
-| No content   | 204    | `c.text("", 204)`               |
-| Bad input    | 400    | `c.json({ error: "..." }, 400)` |
-| Not found    | 404    | `c.json({ error: "..." }, 404)` |
-| Server error | 500    | `c.json({ error: "..." }, 500)` |
+## Authentication & Supabase Client
 
-Keep response shapes consistent — define schemas and reuse them.
+```typescript
+import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
+import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
+
+const userSession = yield* $(getVerifiedUserSession(ctx));
+const userId = userSession.user.user_id;
+
+// Service-role client bypasses RLS — enforce ownership in code
+const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
+```
+
+## Supabase Error Handling
+
+Supabase returns errors in the response object; throw inside `try` so `catch` handles everything:
+
+```typescript
+// ✅ correct — no repeated error checks per branch
+yield* $(Effect.tryPromise({
+  try: async () => {
+    const result = await client.from("my_table").insert([{ ... }]);
+    if (result.error) { throw result.error; }
+  },
+  catch: (error: unknown) =>
+    new DatabaseError({ message: extractErrorMessage(error, "Failed to insert") }),
+}));
+
+// ❌ wrong — "all if blocks contain same code" lint error
+const result = yield* $(Effect.tryPromise({ try: () => ..., catch: ... }));
+if (result.error) { return yield* $(Effect.fail(new DatabaseError(...))); }
+```
+
+## Ownership Check
+
+```typescript
+const itemResult = yield* $(Effect.tryPromise({
+  try: () => client.from("song_public").select("user_id").eq("song_id", req.song_id).single(),
+  catch: (error) => new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch song") }),
+}));
+if (itemResult.error || itemResult.data === null) {
+  return yield* $(Effect.fail(new DatabaseError({ message: "Song not found" })));
+}
+if (itemResult.data.user_id !== userId) {
+  return yield* $(Effect.fail(new ValidationError({ message: "You do not have permission" })));
+}
+```
+
+## Dynamic Table Names — Never Use `as any`
+
+When an endpoint spans multiple item types, **never** use `client as any` — use a typed `if/else` chain or a shared helper (see `api/src/tags/getTagItemOwner.ts`):
+
+```typescript
+// ❌ triggers no-unsafe-assignment, no-unsafe-call, no-unsafe-member-access
+const anyClient = client as any;
+anyClient.from(dynamicTable).select("user_id");
+
+// ✅ typed if/else per item type
+if (itemType === "song") {
+  const result = yield* $(Effect.tryPromise({
+    try: () => client.from("song_public").select("user_id").eq("song_id", itemId).single(),
+    catch: ...
+  }));
+  return result.data.user_id;
+} else if (itemType === "playlist") { /* ... */ }
+```
+
+## GET Endpoint — Query Params
+
+Use descriptive variable names (min 2 chars — `id-length` rule):
+
+```typescript
+const searchQuery = ctx.req.query("q") ?? "";   // ✅ not: const q = ...
+const limitParam = ctx.req.query("limit");
+const parsedLimit = limitParam === undefined ? DEFAULT_LIMIT : Number.parseInt(limitParam, 10);
+```
+
+## Error Classes (`api/src/api-errors.ts`)
+
+```
+ValidationError   → 400   bad input, failed ownership check
+AuthenticationError → 401  missing/invalid token
+NotFoundError     → 404
+DatabaseError     → 500   Supabase errors
+AuthorizationError → 403
+```
 
 ## Validation Commands
 
 ```bash
-npx tsc -b api/   # Type check
-npm run lint
-npm run test:unit
-npm run dev:api   # Then: curl http://localhost:8787/health
+npx tsc -p api/tsconfig.json --noEmit  # type-check API only
+npm run lint                            # full suite
 ```
 
 ## References
 
+- Full endpoint workflow: [`.agent/workflows/add-api-endpoint.md`](../../../.agent/workflows/add-api-endpoint.md)
 - Effect-TS patterns: [../effect-ts-patterns/SKILL.md](../effect-ts-patterns/SKILL.md)
-- API response shape and client integration: [docs/add-song-to-library-lessons.md](../../../docs/add-song-to-library-lessons.md)
-- Unit testing API handlers: [unit-testing skill](../unit-testing/SKILL.md) — see API Handler Testing section in [docs/unit-testing.md](../../../docs/unit-testing.md)
-- Hono docs: https://hono.dev/
-- Project rules: [.agent/rules.md](../../../.agent/rules.md)
+- Unit testing API handlers: [../unit-testing/SKILL.md](../unit-testing/SKILL.md)
+- Project rules: [`.agent/rules.md`](../../../.agent/rules.md)
 
 ## Do Not
 
+- Do not use `Context<{ Bindings: Bindings }>` — use `ReadonlyContext`.
+- Do not put schemas in `api/src/` — they belong in `shared/src/validation/`.
+- Do not use `client as any` for dynamic table names.
 - Do not violate repo-wide rules in `.agent/rules.md`.
 - Do not add broad lint/type suppressions without explicit justification.
-- Do not expand scope beyond the requested task without calling it out.
-
-## Success Criteria
-
-- Changes follow this skill's conventions and project rules.
-- Relevant validation commands are run, or skipped with a clear reason.
-- Results clearly summarize behavior impact and remaining risks.
-
-## Skill Handoffs
-
-- If handlers/services use Effect composition, also load `effect-ts-patterns`.
-- If endpoints depend on auth token semantics, also load `authentication-system`.

@@ -9,6 +9,11 @@ import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 type SharedItemType = "song" | "playlist";
 
+/**
+ * Mock Supabase client for testing community share request status updates.
+ * @param opts - Mock configuration options.
+ * @returns A mock Supabase client.
+ */
 export default function makeCommunityShareRequestUpdateStatusClient(
 	opts: {
 		requestNotFound?: boolean;

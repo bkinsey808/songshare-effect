@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import makeUserLibraryEntry from "./makeUserLibraryEntry.mock";
+import makeUserLibraryEntry from "./makeUserLibraryEntry.test-util";
 
 describe("makeUserLibraryEntry", () => {
 	it("returns default row and accepts overrides", () => {

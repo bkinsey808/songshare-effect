@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, renderHook, waitFor, within } from "@testin
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import { appStore } from "@/react/app-store/useAppStore";
+import useAppStore, { appStore } from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { ShareCreateRequest, SharedItemType } from "@/react/share/slice/share-types";
@@ -61,6 +61,14 @@ function installMocks(opts: {
 			fetchShares,
 			sentShares,
 		}),
+	);
+
+	// useShareButton now subscribes to sentShares reactively via useAppStore.
+	vi.mocked(useAppStore).mockImplementation(
+		forceCast<typeof useAppStore>(
+			(selector: (state: { sentShares: Record<string, SentShare> }) => unknown) =>
+				selector({ sentShares }),
+		),
 	);
 }
 

@@ -10,7 +10,10 @@ vi.mock("@/shared/language/buildPathWithLang");
 const DASHBOARD_PATH = "dashboard";
 const LANG = "en";
 
-/** Configures buildPathWithLang mock to return `/en` + pathname for each call. */
+/**
+ * Configures buildPathWithLang mock to return `/en` + pathname for each call.
+ * @returns void
+ */
 function setupBuildPathWithLangMock(): void {
 	vi.mocked(buildPathWithLang).mockImplementation((pathname: string) => `/en${pathname}`);
 }

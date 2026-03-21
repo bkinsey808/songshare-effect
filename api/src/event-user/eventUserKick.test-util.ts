@@ -7,20 +7,30 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
+/**
+ * Test helper for eventUserKick - builds a Supabase client stub.
+ *
+ * @param requesterId - ID of the user performing the kick
+ * @param requesterRole - role of the requester in the event
+ * @param targetRole - current role of the target participant
+ * @param targetError - whether to simulate a fetch error for the target user
+ * @param updateError - whether to simulate an update error
+ * @returns A mocked Supabase client
+ */
 export default function makeEventUserKickClient(
 	requesterId: string,
-	opts: {
+	{
+		requesterRole = "owner",
+		targetRole = "participant",
+		targetError = false,
+		updateError = false,
+	}: {
 		requesterRole?: "owner" | "event_admin" | "event_playlist_admin" | "participant";
 		targetRole?: "owner" | "event_admin" | "event_playlist_admin" | "participant";
 		targetError?: boolean;
 		updateError?: boolean;
 	} = {},
 ): ReturnType<typeof createClient> {
-	const requesterRole = opts.requesterRole ?? "owner";
-	const targetRole = opts.targetRole ?? "participant";
-	const targetError = opts.targetError ?? false;
-	const updateError = opts.updateError ?? false;
-
 	return forceCast<ReturnType<typeof createClient>>({
 		from: (table: string): object => {
 			if (table === "event_user") {

@@ -12,6 +12,7 @@ import type { EventFormValues, SaveEventRequest } from "../event-types";
 export default function buildSaveEventRequest(
 	formValues: EventFormValues,
 	isEditing: boolean,
+	tags?: readonly string[],
 ): SaveEventRequest {
 	const request: SaveEventRequest = {
 		event_name: formValues.event_name,
@@ -52,6 +53,10 @@ export default function buildSaveEventRequest(
 
 	if (formValues.private_notes !== undefined && formValues.private_notes !== "") {
 		request.private_notes = formValues.private_notes;
+	}
+
+	if (tags !== undefined) {
+		request.tags = tags;
 	}
 
 	return request;

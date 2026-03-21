@@ -17,6 +17,12 @@ const IMAGES_BUCKET = "images";
  */
 export default function createSupabaseStorageAdapter(supabase: SupabaseClient): StorageAdapter {
 	return {
+		/**
+		 * @param key - the destination path
+		 * @param data - the binary data to upload
+		 * @param options - upload options (contentType, etc.)
+		 * @returns promise that resolves on success
+		 */
 		async upload(key: string, data: ArrayBuffer, options: StorageUploadOptions): Promise<void> {
 			const path = toStoragePath(key);
 			const { error } = await supabase.storage
@@ -26,6 +32,10 @@ export default function createSupabaseStorageAdapter(supabase: SupabaseClient): 
 				throw new Error(error.message);
 			}
 		},
+		/**
+		 * @param key - the path to remove
+		 * @returns promise that resolves on success
+		 */
 		async remove(key: string): Promise<void> {
 			const path = toStoragePath(key);
 			const { error: removeError } = await supabase.storage.from(IMAGES_BUCKET).remove([path]);

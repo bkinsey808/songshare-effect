@@ -23,4 +23,5 @@ export type ImageUpdatePatch = {
 	image_name: string;
 	description: string;
 	alt_text: string;
+	tags?: readonly string[];
 };

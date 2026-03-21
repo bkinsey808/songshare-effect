@@ -80,52 +80,49 @@ ALTER TABLE public.song
 ALTER COLUMN title SET NOT NULL;
 ```
 
-### 3. Run Migration Locally (Dry Run)
+### 3. Apply Migration to Staging First
 
-Test the migration against your local database first:
-
-```bash
-# Check what migrations will run
-npm run supabase:migrate
-```
-
-Review the output carefully before proceeding.
-
-### 4. Apply Migration
-
-Apply the migration to your database:
+Run the migration against the staging database to verify it before touching production:
 
 ```bash
-npm run supabase:migrate
+npm run supabase:migrate:staging
 ```
+
+This links the Supabase CLI to the staging project, pushes all pending migrations, then exports the staging schema and regenerates TypeScript types from staging — so you can verify the types are correct before touching production.
 
 **If migration fails:**
 
 1. Check the error message
 2. Fix the SQL in the migration file
-3. Rollback if needed (manually or create a new migration)
-4. Run migration again
+3. Rollback if needed (manually or create a new rollback migration)
+4. Run again
 
-### 5. Export Updated Schema
+Verify the changes look correct on the staging Supabase dashboard before proceeding.
 
-Export the updated schema from the database:
+### 4. Apply Migration to Production
 
-// turbo
+Once staging looks good, push to production. This also exports the updated schema and regenerates TypeScript types:
 
 ```bash
-npm run supabase:export
+npm run supabase:migrate
 ```
 
-This creates/updates `shared/src/generated/schema.sql`.
+This explicitly re-links the Supabase CLI to production, runs `supabase db push --linked`, then automatically runs `supabase:export` and `supabase:generate`. Safe to run after staging migration (which leaves the CLI linked to staging).
 
-### 6. Generate TypeScript Types
+**If migration fails:**
 
-Generate TypeScript types and Effect schemas from the updated schema:
+1. Check the error message
+2. Fix the SQL in the migration file
+3. Rollback if needed (manually or create a new rollback migration)
+4. Re-run staging verification, then production
 
-// turbo
+### 5. Export and Type Generation (automatic)
+
+`npm run supabase:migrate` already runs these automatically, but you can run them individually if needed:
 
 ```bash
-npm run supabase:generate
+npm run supabase:export   # → shared/src/generated/schema.sql
+npm run supabase:generate # → database.types.ts + supabaseSchema.ts
 ```
 
 This updates:
@@ -133,7 +130,7 @@ This updates:
 - `shared/src/generated/database.types.ts` - TypeScript types
 - `shared/src/generated/supabaseSchema.ts` - Effect schemas
 
-### 7. Verify Generated Types
+### 6. Verify Generated Types
 
 Check the generated files to ensure types are correct:
 
@@ -145,7 +142,7 @@ cat shared/src/generated/database.types.ts | grep -A 10 "export interface"
 cat shared/src/generated/supabaseSchema.ts | grep -A 5 "export const"
 ```
 
-### 8. Update Code to Use New Types
+### 7. Update Code to Use New Types
 
 Update your code to use the new types:
 
@@ -159,7 +156,7 @@ interface ArtistCardProps {
 }
 ```
 
-### 9. Test Locally
+### 8. Test Locally
 
 // turbo
 
@@ -177,7 +174,7 @@ Test the changes in your application:
 2. Verify types are correct
 3. Test RLS policies
 
-### 10. Commit Changes
+### 9. Commit Changes
 
 Commit the migration and generated files:
 
@@ -277,22 +274,20 @@ DROP TABLE IF EXISTS public.artist CASCADE;
 
 ### Before Deploying:
 
-1. ✅ Test migration locally
-2. ✅ Review migration SQL carefully
-3. ✅ Backup production database
-4. ✅ Test rollback migration
-5. ✅ Verify generated types are committed
+1. ✅ Review migration SQL carefully
+2. ✅ Run migration on staging and verify (`npm run supabase:migrate:staging`)
+3. ✅ Verify generated types are committed
 
 ### Deploy Migration:
 
 ```bash
-# Run migration on production database
-# (Usually done through Supabase dashboard or CI/CD)
+# Push to production, export schema, regenerate TS types
+npm run supabase:migrate
 ```
 
 ### After Deploying:
 
-1. ✅ Verify tables/columns exist
+1. ✅ Verify tables/columns exist (Supabase dashboard)
 2. ✅ Test RLS policies
 3. ✅ Check indexes are created
 4. ✅ Monitor for errors

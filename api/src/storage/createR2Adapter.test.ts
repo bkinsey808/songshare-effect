@@ -8,6 +8,12 @@ describe("createR2Adapter", () => {
 	it("upload calls bucket.put with httpMetadata only when metadata is undefined", async () => {
 		const putSpy = vi.fn();
 
+		/**
+		 * @param key - key
+		 * @param value - value
+		 * @param options - options
+		 * @returns mocked object
+		 */
 		function put(
 			key: string,
 			value: string | ArrayBuffer | ArrayBufferView | Blob | ReadableStream<unknown> | null,
@@ -18,6 +24,10 @@ describe("createR2Adapter", () => {
 		}
 
 		const deleteSpy = vi.fn();
+		/**
+		 * @param key - key
+		 * @returns promise
+		 */
 		function del(key: string): Promise<void> {
 			deleteSpy(key);
 			return Promise.resolve();
@@ -40,6 +50,12 @@ describe("createR2Adapter", () => {
 	it("upload includes customMetadata when provided", async () => {
 		const putSpy = vi.fn();
 
+		/**
+		 * @param key - key
+		 * @param value - value
+		 * @param options - options
+		 * @returns mocked object
+		 */
 		function put(
 			key: string,
 			value: string | ArrayBuffer | ArrayBufferView | Blob | ReadableStream<unknown> | null,
@@ -50,6 +66,10 @@ describe("createR2Adapter", () => {
 		}
 
 		const deleteSpy = vi.fn();
+		/**
+		 * @param key - key
+		 * @returns promise
+		 */
 		function del(key: string): Promise<void> {
 			deleteSpy(key);
 			return Promise.resolve();
@@ -74,6 +94,12 @@ describe("createR2Adapter", () => {
 	it("remove calls bucket.delete with key", async () => {
 		const deleteSpy = vi.fn();
 
+		/**
+		 * @param _key - key
+		 * @param _value - value
+		 * @param _options - options
+		 * @returns mocked object
+		 */
 		function put(
 			_key: string,
 			_value: string | ArrayBuffer | ArrayBufferView | Blob | ReadableStream<unknown> | null,
@@ -82,6 +108,10 @@ describe("createR2Adapter", () => {
 			return Promise.resolve(createFakeR2Object("k"));
 		}
 
+		/**
+		 * @param key - key
+		 * @returns promise
+		 */
 		function del(key: string): Promise<void> {
 			deleteSpy(key);
 			return Promise.resolve();

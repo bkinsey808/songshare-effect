@@ -21,6 +21,7 @@ import isRecord from "@/shared/type-guards/isRecord";
 /**
  * Extract an error message from a payload or return `undefined` when none present.
  *
+ * @param payload - The parsed response
  * @returns The extracted message or `undefined`
  */
 export default function extractErrorMessage(payload: unknown): string | undefined;
@@ -28,6 +29,8 @@ export default function extractErrorMessage(payload: unknown): string | undefine
 /**
  * Extract an error message from a payload or return the provided `fallback`.
  *
+ * @param payload - The parsed response
+ * @param fallback - Fallback string
  * @returns The extracted message or the provided fallback
  */
 export default function extractErrorMessage(payload: unknown, fallback: string): string;

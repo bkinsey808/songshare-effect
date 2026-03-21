@@ -34,11 +34,21 @@ export default function useAddUserForm(): UseAddUserFormReturn {
 
 	const addUserToLibrary = useAppStore((state) => state.addUserToLibrary);
 
+	/**
+	 * Handler for username input changes.
+	 * @param event - The input change event.
+	 * @returns void
+	 */
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		setUsername(event.currentTarget.value);
 		setError(undefined);
 	}
 
+	/**
+	 * Handler for form submission.
+	 * @param event - The form submission event.
+	 * @returns void
+	 */
 	// oxlint-disable-next-line typescript/no-deprecated
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>): void {
 		event.preventDefault();
@@ -57,16 +67,28 @@ export default function useAddUserForm(): UseAddUserFormReturn {
 		);
 	}
 
+	/**
+	 * Handler for closing the form.
+	 * @returns void
+	 */
 	function handleClose(): void {
 		setIsOpen(false);
 		setUsername("");
 		setError(undefined);
 	}
 
+	/**
+	 * Opens the form.
+	 * @returns void
+	 */
 	function openForm(): void {
 		setIsOpen(true);
 	}
 
+	/**
+	 * Dismisses the error message.
+	 * @returns void
+	 */
 	function dismissError(): void {
 		setError(undefined);
 	}

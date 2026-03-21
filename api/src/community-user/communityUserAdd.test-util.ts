@@ -7,6 +7,17 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
+/**
+ * Test helper for communityUserAdd - builds a Supabase client stub.
+ *
+ * @param requesterRole - Role of the user requesting the add
+ * @param requesterRoleError - Whether to simulate an error fetching requester role
+ * @param targetUserExists - Whether to simulate the target user existing in the system
+ * @param existingMembership - Existing membership status for the target user
+ * @param upsertError - Whether to simulate an error during upsert
+ * @param communityEvents - List of events in the community to auto-add the user to
+ * @returns A mocked Supabase client
+ */
 export default function makeCommunityUserAddClient(
 	opts: {
 		requesterRole?: "owner" | "community_admin" | "member";

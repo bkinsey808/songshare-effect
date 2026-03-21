@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-03-15T17:57:28.926Z
+ * Last generated: 2026-03-20T21:59:35.263Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -334,6 +334,43 @@ export type CommunitySongUpdate = Schema.Schema.Type<
 	typeof CommunitySongUpdateSchema
 >;
 
+// community_tag table schemas
+export const CommunityTagSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	created_at: typeof Schema.NonEmptyString;
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	created_at: Schema.NonEmptyString,
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type CommunityTag = Schema.Schema.Type<typeof CommunityTagSchema>;
+
+export const CommunityTagInsertSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type CommunityTagInsert = Schema.Schema.Type<
+	typeof CommunityTagInsertSchema
+>;
+
+export const CommunityTagUpdateSchema: Schema.Struct<{
+	community_id: Schema.optional<typeof Schema.UUID>;
+	tag_slug: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	community_id: Schema.optional(Schema.UUID),
+	tag_slug: Schema.optional(Schema.NonEmptyString),
+});
+
+export type CommunityTagUpdate = Schema.Schema.Type<
+	typeof CommunityTagUpdateSchema
+>;
+
 // community_user table schemas
 export const CommunityUserSchema: Schema.Struct<{
 	community_id: typeof Schema.UUID;
@@ -564,6 +601,39 @@ export type EventPublicUpdate = Schema.Schema.Type<
 	typeof EventPublicUpdateSchema
 >;
 
+// event_tag table schemas
+export const EventTagSchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	event_id: typeof Schema.UUID;
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	event_id: Schema.UUID,
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type EventTag = Schema.Schema.Type<typeof EventTagSchema>;
+
+export const EventTagInsertSchema: Schema.Struct<{
+	event_id: typeof Schema.UUID;
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	event_id: Schema.UUID,
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type EventTagInsert = Schema.Schema.Type<typeof EventTagInsertSchema>;
+
+export const EventTagUpdateSchema: Schema.Struct<{
+	event_id: Schema.optional<typeof Schema.UUID>;
+	tag_slug: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	event_id: Schema.optional(Schema.UUID),
+	tag_slug: Schema.optional(Schema.NonEmptyString),
+});
+
+export type EventTagUpdate = Schema.Schema.Type<typeof EventTagUpdateSchema>;
+
 // event_user table schemas
 export const EventUserSchema: Schema.Struct<{
 	event_id: typeof Schema.UUID;
@@ -790,6 +860,39 @@ export type ImagePublicUpdate = Schema.Schema.Type<
 	typeof ImagePublicUpdateSchema
 >;
 
+// image_tag table schemas
+export const ImageTagSchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	image_id: typeof Schema.UUID;
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	image_id: Schema.UUID,
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type ImageTag = Schema.Schema.Type<typeof ImageTagSchema>;
+
+export const ImageTagInsertSchema: Schema.Struct<{
+	image_id: typeof Schema.UUID;
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	image_id: Schema.UUID,
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type ImageTagInsert = Schema.Schema.Type<typeof ImageTagInsertSchema>;
+
+export const ImageTagUpdateSchema: Schema.Struct<{
+	image_id: Schema.optional<typeof Schema.UUID>;
+	tag_slug: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	image_id: Schema.optional(Schema.UUID),
+	tag_slug: Schema.optional(Schema.NonEmptyString),
+});
+
+export type ImageTagUpdate = Schema.Schema.Type<typeof ImageTagUpdateSchema>;
+
 // playlist table schemas
 export const PlaylistSchema: Schema.Struct<{
 	created_at: typeof Schema.NonEmptyString;
@@ -935,6 +1038,43 @@ export const PlaylistPublicUpdateSchema: Schema.Struct<{
 
 export type PlaylistPublicUpdate = Schema.Schema.Type<
 	typeof PlaylistPublicUpdateSchema
+>;
+
+// playlist_tag table schemas
+export const PlaylistTagSchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	playlist_id: typeof Schema.UUID;
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	playlist_id: Schema.UUID,
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type PlaylistTag = Schema.Schema.Type<typeof PlaylistTagSchema>;
+
+export const PlaylistTagInsertSchema: Schema.Struct<{
+	playlist_id: typeof Schema.UUID;
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	playlist_id: Schema.UUID,
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type PlaylistTagInsert = Schema.Schema.Type<
+	typeof PlaylistTagInsertSchema
+>;
+
+export const PlaylistTagUpdateSchema: Schema.Struct<{
+	playlist_id: Schema.optional<typeof Schema.UUID>;
+	tag_slug: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	playlist_id: Schema.optional(Schema.UUID),
+	tag_slug: Schema.optional(Schema.NonEmptyString),
+});
+
+export type PlaylistTagUpdate = Schema.Schema.Type<
+	typeof PlaylistTagUpdateSchema
 >;
 
 // share table schemas
@@ -1271,6 +1411,103 @@ export const SongPublicUpdateSchema: Schema.Struct<{
 
 export type SongPublicUpdate = Schema.Schema.Type<
 	typeof SongPublicUpdateSchema
+>;
+
+// song_tag table schemas
+export const SongTagSchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	song_id: typeof Schema.UUID;
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	song_id: Schema.UUID,
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type SongTag = Schema.Schema.Type<typeof SongTagSchema>;
+
+export const SongTagInsertSchema: Schema.Struct<{
+	song_id: typeof Schema.UUID;
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	song_id: Schema.UUID,
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type SongTagInsert = Schema.Schema.Type<typeof SongTagInsertSchema>;
+
+export const SongTagUpdateSchema: Schema.Struct<{
+	song_id: Schema.optional<typeof Schema.UUID>;
+	tag_slug: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	song_id: Schema.optional(Schema.UUID),
+	tag_slug: Schema.optional(Schema.NonEmptyString),
+});
+
+export type SongTagUpdate = Schema.Schema.Type<typeof SongTagUpdateSchema>;
+
+// tag table schemas
+export const TagSchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type Tag = Schema.Schema.Type<typeof TagSchema>;
+
+export const TagInsertSchema: Schema.Struct<{
+	tag_slug: typeof Schema.NonEmptyString;
+}> = Schema.Struct({
+	tag_slug: Schema.NonEmptyString,
+});
+
+export type TagInsert = Schema.Schema.Type<typeof TagInsertSchema>;
+
+export const TagUpdateSchema: Schema.Struct<{
+	tag_slug: Schema.optional<typeof Schema.NonEmptyString>;
+}> = Schema.Struct({
+	tag_slug: Schema.optional(Schema.NonEmptyString),
+});
+
+export type TagUpdate = Schema.Schema.Type<typeof TagUpdateSchema>;
+
+// tag_library table schemas
+export const TagLibrarySchema: Schema.Struct<{
+	created_at: typeof Schema.NonEmptyString;
+	tag_slug: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	created_at: Schema.NonEmptyString,
+	tag_slug: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+});
+
+export type TagLibrary = Schema.Schema.Type<typeof TagLibrarySchema>;
+
+export const TagLibraryInsertSchema: Schema.Struct<{
+	tag_slug: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	tag_slug: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+});
+
+export type TagLibraryInsert = Schema.Schema.Type<
+	typeof TagLibraryInsertSchema
+>;
+
+export const TagLibraryUpdateSchema: Schema.Struct<{
+	tag_slug: Schema.optional<typeof Schema.NonEmptyString>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	tag_slug: Schema.optional(Schema.NonEmptyString),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type TagLibraryUpdate = Schema.Schema.Type<
+	typeof TagLibraryUpdateSchema
 >;
 
 // user table schemas

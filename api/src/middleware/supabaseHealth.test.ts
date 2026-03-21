@@ -6,11 +6,19 @@ import { HTTP_OK } from "@/shared/constants/http";
 
 import supabaseHealthMiddleware from "./supabaseHealth";
 
+/**
+ * Reset health check state between tests.
+ * @returns void
+ */
 function resetHealthCheckGlobal(): void {
 	const glob = forceCast<{ __songshare_supabase_health_checked?: boolean }>(globalThis);
 	delete glob.__songshare_supabase_health_checked;
 }
 
+/**
+ * Creates a mocked 'next' function for Hono middleware.
+ * @returns Mocked function
+ */
 function makeNext(): ReturnType<typeof vi.fn> {
 	return vi.fn().mockResolvedValue(undefined);
 }

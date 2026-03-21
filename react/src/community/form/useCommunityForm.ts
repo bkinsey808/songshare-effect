@@ -8,6 +8,7 @@ import useLoadCommunityById from "@/react/community/useLoadCommunityById";
 import useAppForm from "@/react/lib/form/useAppForm";
 import useFormChanges from "@/react/lib/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
+import useItemTags from "@/react/tag-library/useItemTags";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
@@ -18,6 +19,8 @@ import type { ValidationError } from "@/shared/validation/validate-types";
 import type { CommunityFormValues } from "../community-types";
 
 export type UseCommunityFormReturn = {
+	tags: readonly string[];
+	setTags: (tags: readonly string[]) => void;
 	formValues: CommunityFormValues;
 	isEditing: boolean;
 	isLoadingData: boolean;
@@ -50,6 +53,7 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { community_id, lang } = useParams<{ community_id: string; lang: string }>();
+	const { tags, setTags } = useItemTags("community", community_id);
 	const langForNav = isSupportedLanguage(lang) ? lang : defaultLanguage;
 
 	const formRef = useRef<HTMLFormElement | null>(null);
@@ -168,7 +172,9 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 
 		async function onSubmitValid(): Promise<void> {
 			try {
-				const savedCommunity = await Effect.runPromise(saveCommunity(formValues));
+				const savedCommunity = await Effect.runPromise(
+					saveCommunity({ ...formValues, tags: [...tags] }),
+				);
 				clearInitialState();
 				void navigate(
 					buildPathWithLang(`/${communityViewPath}/${savedCommunity.slug}`, langForNav),
@@ -198,6 +204,8 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 	}
 
 	return {
+		tags,
+		setTags,
 		formValues,
 		isEditing,
 		isLoadingData: isEditing && isCommunityLoading,

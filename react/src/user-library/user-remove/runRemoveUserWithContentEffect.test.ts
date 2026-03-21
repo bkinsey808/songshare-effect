@@ -2,7 +2,7 @@ import { Effect, type Effect as EffectType } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
-import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
+import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.test-util";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
 import runRemoveUserWithContentEffect from "./runRemoveUserWithContentEffect";

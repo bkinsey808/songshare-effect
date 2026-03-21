@@ -7,6 +7,10 @@
 const PAD_LENGTH = 2;
 const MONTH_OFFSET = 1; // JavaScript getMonth() is 0-based; add 1 for display.
 
+/**
+ * @param num - number to pad
+ * @returns 2-digit padded string
+ */
 function pad2(num: number): string {
 	return String(num).padStart(PAD_LENGTH, "0");
 }

@@ -14,6 +14,12 @@ import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 type CommunityPlaylistRemoveData = Schema.Schema.Type<typeof communityPlaylistAddSchema>;
 
+/**
+ * Remove a playlist from a community's library.
+ *
+ * @param ctx - The request context containing environment and user info
+ * @returns An effect that resolves to a success object or fails with an error
+ */
 export default function communityPlaylistRemove(
 	ctx: ReadonlyContext,
 ): Effect.Effect<{ success: boolean }, ValidationError | DatabaseError | AuthenticationError> {

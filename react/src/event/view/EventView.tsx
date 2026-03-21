@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import EventPlaylistAccordion from "@/react/event/view/playlist-accordion/EventPlaylistAccordion";
@@ -8,6 +9,8 @@ import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
+import fetchItemTagsRequest from "@/react/tag-library/fetchItemTagsRequest";
+import TagList from "@/react/tag-library/TagList";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {
 	eventManagePath,
@@ -60,6 +63,15 @@ export default function EventView(): React.ReactNode {
 		clearActionError,
 		clearActionSuccess,
 	} = useEventView();
+	const [tags, setTags] = useState<string[]>([]);
+
+	// Load the event's tags for display.
+	useEffect(() => {
+		if (currentEvent === undefined) { return; }
+		void (async (): Promise<void> => {
+			setTags(await fetchItemTagsRequest("event", currentEvent.event_id));
+		})();
+	}, [currentEvent]);
 
 	if (isEventLoading) {
 		return (
@@ -163,6 +175,8 @@ export default function EventView(): React.ReactNode {
 					</div>
 				)}
 			</div>
+
+			<TagList slugs={tags} />
 
 			{/* Alerts */}
 			{actionError !== undefined && (

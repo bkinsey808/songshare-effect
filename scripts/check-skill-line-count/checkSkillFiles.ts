@@ -9,7 +9,7 @@ export type CheckResult = {
 	errors: string[];
 };
 
-/** Default max lines; mirrors the CLI script. */
+/** Default max lines; mirrors the CLI script. DO NOT EDIT! */
 export const DEFAULT_MAX_LINES = 300;
 
 /** Default search dirs; mirrors the CLI script. */

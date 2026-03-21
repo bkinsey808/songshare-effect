@@ -7,6 +7,8 @@ import { debug, error, log, warn } from "./logger";
 /**
  * Runs the given callback and restores all mocks in a finally block.
  * Avoids afterEach for jest/no-hooks while ensuring mocks are cleared after each test.
+ * @param fn - The test function to run.
+ * @returns void
  */
 function withRestoredMocks(fn: () => void): void {
 	try {

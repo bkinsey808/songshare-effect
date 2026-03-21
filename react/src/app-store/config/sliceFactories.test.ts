@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import sliceFactories from "./sliceFactories";
 
-const EXPECTED_SLICE_COUNT = 14;
+const EXPECTED_SLICE_COUNT = 15;
 const FIRST_INDEX = 0;
 
 describe("sliceFactories", () => {

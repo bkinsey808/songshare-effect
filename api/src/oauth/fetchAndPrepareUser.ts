@@ -17,6 +17,10 @@ import { apiOauthCallbackPath } from "@/shared/paths";
 import { type ProviderType } from "@/shared/providers";
 import { safeSet } from "@/shared/utils/safe";
 
+/**
+ * @param referer - referer URL string
+ * @returns origin or empty string
+ */
 function computeDerivedFromReferer(referer: string): string {
 	try {
 		return referer ? new URL(referer).origin : "";
@@ -40,7 +44,6 @@ type FetchAndPrepareUserParams = Readonly<{
  * @param provider - Provider identifier used for token exchange
  * @param redirectUri - Optional redirect URI from the caller
  * @returns An Effect that yields `{ supabase, oauthUserData, existingUser }` on success
- * @throws ValidationError or DatabaseError on failure
  */
 export default function fetchAndPrepareUser({
 	ctx,

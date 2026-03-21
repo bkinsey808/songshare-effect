@@ -15,11 +15,23 @@ export function safeGet<TValue extends Record<string, unknown>, Key extends keyo
 	obj: TValue,
 	key: Key,
 ): TValue[Key] | undefined;
+/**
+ * @param obj - The object to read from.
+ * @param key - The key to read.
+ * @param defaultValue - Value to return if key is missing.
+ * @returns The property value or default value.
+ */
 export function safeGet<TValue extends Record<string, unknown>, Key extends keyof TValue, Value>(
 	obj: TValue,
 	key: Key,
 	defaultValue: Value,
 ): TValue[Key] | Value;
+/**
+ * @param obj - The object to read from.
+ * @param key - The key to read.
+ * @param defaultValue - Optional default value.
+ * @returns The property value or default value.
+ */
 export function safeGet<TValue extends Record<string, unknown>, Key extends keyof TValue, Value>(
 	obj: TValue,
 	key: Key,
@@ -36,6 +48,10 @@ export function safeGet<TValue extends Record<string, unknown>, Key extends keyo
  * Use this when you are certain the key exists on the object (e.g., after schema validation or with enum-like objects).
  * Unlike safeGet, this will not return undefined and does not require a default value or optional chaining.
  * Prefer superSafeGet for cases where the key is guaranteed valid at compile time for stricter type safety and cleaner code.
+ *
+ * @param obj - The object to read from
+ * @param key - The key to read
+ * @returns The property value
  */
 export function superSafeGet<TValue extends Record<string, unknown>, Key extends keyof TValue>(
 	obj: TValue,
@@ -97,6 +113,9 @@ export function safeArrayGet<TItem>(
 /**
  * Untyped overload: safely get an element from an unknown array by index.
  *
+ * @param arr - The array to index
+ * @param idx - Index to read
+ * @param defaultValue - Optional default value if index is invalid
  * @returns The element at `idx` or the provided default value.
  */
 export function safeArrayGet(arr: readonly unknown[], idx: number, defaultValue?: unknown): unknown;
@@ -133,11 +152,13 @@ export function safeArrayGet(
  * @param idx - Index to set
  * @param value - Value to set at `idx`
  * @returns New array with the value set when valid, otherwise the original array.
- 
-
-
+ */
+/**
  * Typed overload: safely set an element in a typed array by index.
  *
+ * @param arr - The original readonly array
+ * @param idx - Index to set
+ * @param value - Value to set at `idx`
  * @returns New array with the value set when valid, otherwise the original array
  */
 export function safeArraySet<TItem>(
@@ -149,6 +170,9 @@ export function safeArraySet<TItem>(
 /**
  * Untyped overload: safely set an element in an unknown array by index.
  *
+ * @param arr - The original readonly array
+ * @param idx - Index to set
+ * @param value - Value to set at `idx`
  * @returns New array with the value set when valid, otherwise the original array
  */
 export function safeArraySet(

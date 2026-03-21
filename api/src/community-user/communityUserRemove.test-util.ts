@@ -7,6 +7,12 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
+/**
+ * Test helper for communityUserRemove - builds a Supabase client stub.
+ *
+ * @param updateError - Whether to simulate a database error during update
+ * @returns A mocked Supabase client
+ */
 export default function makeCommunityUserRemoveClient(
 	opts: {
 		updateError?: boolean;

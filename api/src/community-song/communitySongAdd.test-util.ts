@@ -7,6 +7,11 @@ import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 /**
  * Test helper for communitySongAdd - builds a Supabase client stub.
  */
+/**
+ * Mock Supabase client for testing community song additions.
+ * @param opts - Mock configuration options.
+ * @returns A mock Supabase client.
+ */
 export default function makeCommunitySongAddClient(
 	opts: {
 		requesterRole?: "owner" | "community_admin" | "member";

@@ -10,6 +10,10 @@ import { type ValidationError } from "./validate-types";
  */
 export default function extractValidationErrors(input: unknown): readonly ValidationError[] {
 	// Local runtime guard to validate array items look like ValidationError
+	/**
+	 * @param value - unknown value to check
+	 * @returns true if value is an array of ValidationError
+	 */
 	function isValidationErrorArray(value: unknown): value is ValidationError[] {
 		if (!Array.isArray(value)) {
 			return false;

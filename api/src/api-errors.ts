@@ -83,6 +83,7 @@ export class ServerError extends Error {
 
 /**
  * Error indicating an external provider (OAuth, etc.) is unavailable or failed.
+ * @returns N/A (constructor)
  */
 export class ProviderError extends Error {
 	readonly _tag = "ProviderError";
@@ -124,6 +125,7 @@ export class FileUploadError extends Error {
 
 /**
  * Error used when authentication fails or is required.
+ * @returns N/A (constructor)
  */
 export class AuthenticationError extends Error {
 	readonly _tag = "AuthenticationError";

@@ -17,6 +17,11 @@ type RejectByItemRequest = {
 	shared_item_id: string;
 };
 
+/**
+ * Extract and validate a share rejection by item request.
+ * @param body - The raw request body.
+ * @returns A validated RejectByItemRequest.
+ */
 function extractRejectByItemRequest(body: unknown): RejectByItemRequest {
 	if (!isRecord(body)) {
 		throw new TypeError("Request must be an object");
@@ -41,6 +46,11 @@ type RejectByItemParams = {
 	itemId: string;
 };
 
+/**
+ * Performs rejection of all shares for a specific item received by a user.
+ * @param params - The rejection parameters.
+ * @returns An Effect that succeeds with the count of rejected shares.
+ */
 function performRejectByItem(params: RejectByItemParams): Effect.Effect<number, DatabaseError> {
 	const { client, recipientUserId, itemType, itemId } = params;
 	return Effect.tryPromise({
@@ -79,6 +89,8 @@ function performRejectByItem(params: RejectByItemParams): Effect.Effect<number, 
 /**
  * Rejects all accepted received shares that match the given item.
  * Called when the user removes an item from their library.
+ * @param ctx - The request context.
+ * @returns An Effect that succeeds with success status and rejected count.
  */
 export default function shareRejectByItemHandler(
 	ctx: ReadonlyContext,

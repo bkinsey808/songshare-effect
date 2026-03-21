@@ -11,12 +11,23 @@ import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 const NEW_SHARE_ID = "new-share-123";
 const EXISTING_SHARE_ID = "existing-share";
 
+/**
+ * Converts an unknown value to an Error object.
+ * @param value - The value to convert.
+ * @returns An Error object.
+ */
 function toError(value: unknown): Error {
 	return value instanceof Error ? value : new Error(JSON.stringify(value));
 }
 
 type ShareSingleResult = { data: unknown; error: ReturnType<typeof makeNull> };
 
+/**
+ * Creates a mock implementation of the `single` method for a Supabase query.
+ * @param shareInsertError - Optional error to reject with.
+ * @param senderId - The sender's user ID.
+ * @returns A function that returns a promise resolving to a mock result.
+ */
 function makeShareSingleResolve(
 	shareInsertError: unknown,
 	senderId: string,
@@ -32,6 +43,11 @@ function makeShareSingleResolve(
 	};
 }
 
+/**
+ * Creates a mock Supabase client for testing share record creation.
+ * @param opts - Options for configuring the mock client.
+ * @returns A mock Supabase client.
+ */
 function makeShareCreateRecordClient(opts: {
 	existingShareId?: string;
 	existingStatus?: string;
@@ -45,6 +61,10 @@ function makeShareCreateRecordClient(opts: {
 		senderId = "sender-1",
 	} = opts;
 
+	/**
+	 * Mock implementation of `maybeSingle` for the `share_public` table.
+	 * @returns A promise resolving to a mock result.
+	 */
 	function sharePublicMaybeSingle(): Promise<{
 		data: { share_id: string; status: string } | undefined;
 		error: ReturnType<typeof makeNull>;
@@ -56,6 +76,10 @@ function makeShareCreateRecordClient(opts: {
 		return promiseResolved({ data, error: makeNull() });
 	}
 
+	/**
+	 * Mock implementation of `insert` for the `share_public` table.
+	 * @returns A promise resolving to a mock result.
+	 */
 	function sharePublicInsert(): Promise<{ error: ReturnType<typeof makeNull> }> {
 		if (shareInsertError === undefined) {
 			return promiseResolved({ error: makeNull() });
@@ -63,6 +87,10 @@ function makeShareCreateRecordClient(opts: {
 		return Promise.reject(toError(shareInsertError));
 	}
 
+	/**
+	 * Mock implementation of `update` for the `share_public` table.
+	 * @returns A promise resolving to a mock result.
+	 */
 	function sharePublicUpdate(): Promise<{ error: ReturnType<typeof makeNull> }> {
 		return promiseResolved({ error: makeNull() });
 	}
@@ -114,6 +142,11 @@ function makeShareCreateRecordClient(opts: {
 	});
 }
 
+/**
+ * Creates a mock Supabase client with an insertion spy for testing.
+ * @param insertSpy - A function to be called when an insertion is performed.
+ * @returns A mock Supabase client.
+ */
 function makeShareCreateRecordClientWithInsertSpy(
 	insertSpy: (rows: unknown[]) => void,
 ): SupabaseClient<Database> {
@@ -169,8 +202,9 @@ function makeShareCreateRecordClientWithInsertSpy(
 }
 
 export {
-	EXISTING_SHARE_ID,
-	makeShareCreateRecordClient,
-	makeShareCreateRecordClientWithInsertSpy,
-	NEW_SHARE_ID,
+    EXISTING_SHARE_ID,
+    makeShareCreateRecordClient,
+    makeShareCreateRecordClientWithInsertSpy,
+    NEW_SHARE_ID
 };
+

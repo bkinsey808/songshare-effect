@@ -26,6 +26,12 @@ type CommunityPlaylistsCardProps = Readonly<{
  *
  * When the user is a member, shows a dropdown to share playlists with the community.
  *
+ * @param communityPlaylists - List of playlists shared with the community
+ * @param isMember - Whether the current user is a member of the community
+ * @param selectedPlaylistId - The ID of the currently selected playlist to share
+ * @param setSelectedPlaylistId - Callback to update the selected playlist ID
+ * @param availablePlaylistOptions - List of playlists available to share
+ * @param onSharePlaylistClick - Callback to share the selected playlist
  * @returns React element for the playlists card
  */
 export default function CommunityPlaylistsCard({

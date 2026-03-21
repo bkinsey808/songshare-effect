@@ -19,6 +19,7 @@ const ARRAY_EMPTY = 0;
  * @param client - Supabase client
  * @param userId - User ID
  * @param playlistId - Playlist ID to get songs from
+ * @returns An Effect that resolves when operation is complete.
  */
 export default function addPlaylistSongsToUserLibrary(
 	client: SupabaseClient<Database>,

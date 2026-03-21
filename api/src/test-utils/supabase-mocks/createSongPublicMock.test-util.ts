@@ -2,12 +2,12 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import type { SongPublic, SongPublicInsert } from "@/shared/generated/supabaseSchemas";
 
 import type {
-	MaybeSingleBuilder,
-	MaybeSingleResult,
-	MockRow,
-	MultiResult,
-	SingleBuilder,
-	SingleResult,
+    MaybeSingleBuilder,
+    MaybeSingleResult,
+    MockRow,
+    MultiResult,
+    SingleBuilder,
+    SingleResult,
 } from "./supabase-mock-types";
 
 export type SongPublicMockOpts = {
@@ -33,7 +33,17 @@ export type SongPublicTableMock = {
 	};
 };
 
+/**
+ * Creates a mock for the `song_public` Supabase table.
+ * @param opts - Mock configuration options.
+ * @returns A mock song public table object.
+ */
 export function createSongPublicMock(opts: SongPublicMockOpts): SongPublicTableMock {
+	/**
+	 * Helper to create a write result (insert/update) with a select builder.
+	 * @param rows - The rows being written.
+	 * @returns A mock write result with a select method.
+	 */
 	function makeWriteResult(
 		rows: SongPublicInsert[],
 	): MultiResult & { select: () => SingleBuilder } {

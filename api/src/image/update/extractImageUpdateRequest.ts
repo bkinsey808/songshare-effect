@@ -3,6 +3,7 @@ export type ImageUpdateRequest = {
 	image_name: string;
 	description: string;
 	alt_text: string;
+	tags: string[] | undefined;
 };
 
 /**
@@ -28,7 +29,7 @@ export default function extractImageUpdateRequest(request: unknown): ImageUpdate
 	if (!("alt_text" in request)) {
 		throw new TypeError("alt_text must be a string");
 	}
-	const { image_id, image_name, description, alt_text } = request as Record<string, unknown>;
+	const { image_id, image_name, description, alt_text, tags } = request as Record<string, unknown>;
 	if (typeof image_id !== "string" || image_id.trim() === "") {
 		throw new TypeError("image_id must be a non-empty string");
 	}
@@ -41,10 +42,14 @@ export default function extractImageUpdateRequest(request: unknown): ImageUpdate
 	if (typeof alt_text !== "string") {
 		throw new TypeError("alt_text must be a string");
 	}
+	const parsedTags: string[] | undefined = Array.isArray(tags)
+		? tags.filter((t): t is string => typeof t === "string")
+		: undefined;
 	return {
 		image_id: image_id.trim(),
 		image_name: image_name.trim(),
 		description: description.trim(),
 		alt_text: alt_text.trim(),
+		tags: parsedTags,
 	};
 }

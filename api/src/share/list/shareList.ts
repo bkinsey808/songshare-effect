@@ -33,20 +33,40 @@ type ShareItem = {
 /**
  * Extract and validate query parameters for listing shares.
  */
+/**
+ * Validates the view parameter.
+ * @param value - The view string to check.
+ * @returns true if value is 'sent' or 'received'.
+ */
 function isValidView(value: string): value is "sent" | "received" {
 	return ["sent", "received"].includes(value);
 }
 
+/**
+ * Validates the status parameter.
+ * @param value - The status string to check.
+ * @returns true if status is one of the valid share statuses.
+ */
 function isValidStatus(value: string): value is "pending" | "accepted" | "rejected" {
 	return ["pending", "accepted", "rejected"].includes(value);
 }
 
+/**
+ * Validates the shared item type parameter.
+ * @param value - The item type string to check.
+ * @returns true if the string is a valid item type.
+ */
 function isValidItemType(
 	value: string,
 ): value is "song" | "playlist" | "event" | "community" | "user" {
 	return ["song", "playlist", "event", "community", "user"].includes(value);
 }
 
+/**
+ * Extract and validate query parameters for listing shares.
+ * @param url - The request URL containing query parameters.
+ * @returns A validated ShareListRequest object.
+ */
 function extractShareListRequest(url: URL): ShareListRequest {
 	const view = url.searchParams.get("view");
 	const status = url.searchParams.get("status");
@@ -83,6 +103,9 @@ function extractShareListRequest(url: URL): ShareListRequest {
 
 /**
  * Fetches slugs for shared items and enriches each share with shared_item_slug.
+ * @param client - Supabase client.
+ * @param shares - Array of share items to enrich.
+ * @returns A promise resolving to the enriched share items.
  */
 async function enrichSharesWithSlugs(
 	client: SupabaseClient<Database>,
@@ -174,6 +197,10 @@ async function enrichSharesWithSlugs(
 
 /**
  * Get shares sent by the user.
+ * @param client - Supabase client.
+ * @param userId - ID of the sender.
+ * @param filters - List filters (status, item_type).
+ * @returns An Effect resolving to share items.
  */
 function getSentShares(
 	client: SupabaseClient<Database>,
@@ -237,6 +264,10 @@ function getSentShares(
 
 /**
  * Get shares received by the user.
+ * @param client - Supabase client.
+ * @param userId - ID of the recipient.
+ * @param filters - List filters (status, item_type).
+ * @returns An Effect resolving to share items.
  */
 function getReceivedShares(
 	client: SupabaseClient<Database>,

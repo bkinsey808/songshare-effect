@@ -13,6 +13,11 @@ import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 type CommunityShareRequestCreateData = Schema.Schema.Type<typeof communityShareRequestCreateSchema>;
 
+/**
+ * Server-side handler for creating a community share request.
+ * @param ctx - The request context.
+ * @returns An Effect that succeeds with success status or fails with an error.
+ */
 export default function communityShareRequestCreate(
 	ctx: ReadonlyContext,
 ): Effect.Effect<{ success: boolean }, ValidationError | DatabaseError | AuthenticationError> {

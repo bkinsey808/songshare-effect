@@ -16,12 +16,19 @@ type ShareUpdateStatusRequest = {
 
 type ShareStatus = "pending" | "accepted" | "rejected";
 
+/**
+ * Validates whether the provided string is a valid update status.
+ * @param value - The status string to validate.
+ * @returns true if the status is 'accepted' or 'rejected'.
+ */
 function isValidUpdateStatus(value: string): value is "accepted" | "rejected" {
 	return ["accepted", "rejected"].includes(value);
 }
 
 /**
  * Extract and validate the request payload for updating share status.
+ * @param request - The raw request body.
+ * @returns A validated ShareUpdateStatusRequest object.
  */
 function extractShareUpdateStatusRequest(request: unknown): ShareUpdateStatusRequest {
 	if (typeof request !== "object" || request === null) {
@@ -62,6 +69,10 @@ function extractShareUpdateStatusRequest(request: unknown): ShareUpdateStatusReq
 
 /**
  * Get share details and verify recipient authorization.
+ * @param client - The Supabase client.
+ * @param shareId - The ID of the share to retrieve.
+ * @param recipientUserId - The ID of the user who should have received the share.
+ * @returns An Effect that succeeds with share details or fails with a DatabaseError.
  */
 function getShareForRecipient(
 	client: SupabaseClient<Database>,
@@ -126,6 +137,8 @@ type AddItemToLibraryParams = {
 
 /**
  * Add accepted item to recipient's appropriate library.
+ * @param params - The parameters for adding the item to the library.
+ * @returns An Effect that succeeds when the item is added.
  */
 function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, DatabaseError> {
 	const { client, recipientUserId, itemType, itemId, senderUserId } = params;
@@ -217,6 +230,10 @@ function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, D
 
 /**
  * Update the share status in the database.
+ * @param client - The Supabase client.
+ * @param shareId - The ID of the share to update.
+ * @param status - The new status to set.
+ * @returns An Effect that succeeds when the status is updated.
  */
 function updateShareStatus(
 	client: SupabaseClient<Database>,

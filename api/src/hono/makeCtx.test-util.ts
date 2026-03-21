@@ -27,6 +27,11 @@ type MakeCtxOpts = {
 	redirect?: (location: string, status?: number) => Response;
 };
 
+/**
+ * Create a minimal ReadonlyContext for tests.
+ * @param opts - Configuration options for the test context.
+ * @returns A lightweight `ReadonlyContext` suitable for unit tests.
+ */
 export default function makeCtx(opts: MakeCtxOpts = {}): ReadonlyContext {
 	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast for Env */
 	const env = {

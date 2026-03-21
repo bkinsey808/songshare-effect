@@ -6,10 +6,12 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import errorToHttpResponse from "./errorToHttpResponse";
 
-// HTTP endpoint handler utility
-// We need to accept a function that takes a Hono `Context`—it's difficult to
-// express as `readonly` inside nested function signatures, so disable the
-// prefer-readonly-parameter-types rule for this function.
+/**
+ * Unified entry point for API endpoints.
+ * @param effectFactory - Function to create the Effect for this endpoint.
+ * @param userOnSuccess - Optional callback to customize the success Response.
+ * @returns A function that takes a Hono context and returns a Promise<Response>.
+ */
 export default function handleHttpEndpoint<SuccessData, ErrorType extends AppError>(
 	// Mark the incoming function reference as `Readonly<>` so the linter
 	// `prefer-readonly-parameter-types` rule recognizes it as immutable.

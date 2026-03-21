@@ -16,6 +16,10 @@ type ShareCreateRequest = {
 /**
  * Find an existing share for the same sender, recipient, and item.
  * Returns the share_id and status if one exists, otherwise undefined.
+ * @param client - Supabase client.
+ * @param senderUserId - ID of the user sending the share.
+ * @param req - The share creation request data.
+ * @returns An Effect that succeeds with the share record details or undefined, or fails with a DatabaseError.
  */
 function findExistingShare(
 	client: SupabaseClient<Database>,
@@ -53,6 +57,10 @@ function findExistingShare(
 /**
  * Reset an existing share back to pending status so it can be re-shared after
  * rejection or acceptance.
+ * @param client - Supabase client.
+ * @param shareId - The ID of the existing share record.
+ * @param req - The share creation request data.
+ * @returns An Effect that succeeds or fails with a DatabaseError.
  */
 function resetShareToPending(
 	client: SupabaseClient<Database>,
@@ -86,6 +94,10 @@ function resetShareToPending(
  * If a share already exists for the same sender, recipient, and item it is
  * reset to "pending" (re-share after rejection or acceptance) rather than
  * creating a duplicate.
+ * @param client - Supabase client.
+ * @param senderUserId - ID of the user sending the share.
+ * @param req - The share creation request data.
+ * @returns An Effect that succeeds with the created/updated share ID or fails with a DatabaseError.
  */
 export default function createShareRecord(
 	client: SupabaseClient<Database>,

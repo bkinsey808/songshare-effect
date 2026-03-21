@@ -7,20 +7,30 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
-export default function makeCommunityEventAddClient(
-	opts: {
-		requesterRole?: "owner" | "community_admin" | "member";
-		requesterRoleError?: boolean;
-		insertEventError?: boolean;
-		communityMembers?: { user_id: string }[];
-		eventUserInsertError?: boolean;
-	} = {},
-): ReturnType<typeof createClient> {
-	const role = opts.requesterRole ?? "owner";
-	const requesterRoleError = opts.requesterRoleError ?? false;
-	const insertEventError = opts.insertEventError ?? false;
-	const communityMembers = opts.communityMembers ?? [];
-	const eventUserInsertError = opts.eventUserInsertError ?? false;
+/**
+ * Test helper for communityEventAdd - builds a Supabase client stub.
+ *
+ * @param requesterRole - role of the user (owner, admin, member)
+ * @param requesterRoleError - whether to simulate a fetch error for the role
+ * @param insertEventError - whether to simulate an event insert error
+ * @param communityMembers - mock community member list
+ * @param eventUserInsertError - whether to simulate a participant insert error
+ * @returns A mocked Supabase client
+ */
+export default function makeCommunityEventAddClient({
+	requesterRole = "owner",
+	requesterRoleError = false,
+	insertEventError = false,
+	communityMembers = [],
+	eventUserInsertError = false,
+}: {
+	requesterRole?: "owner" | "community_admin" | "member";
+	requesterRoleError?: boolean;
+	insertEventError?: boolean;
+	communityMembers?: { user_id: string }[];
+	eventUserInsertError?: boolean;
+} = {}): ReturnType<typeof createClient> {
+	const role = requesterRole;
 
 	return forceCast<ReturnType<typeof createClient>>({
 		from: (table: string): object => {

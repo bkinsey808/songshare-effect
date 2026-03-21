@@ -26,6 +26,7 @@ export type SavePlaylistRequest = {
 	public_notes?: string;
 	private_notes?: string;
 	song_order?: string[];
+	tags?: readonly string[];
 };
 
 /** Supabase realtime payload type for playlist */

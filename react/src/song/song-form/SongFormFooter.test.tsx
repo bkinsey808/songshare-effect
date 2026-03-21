@@ -9,6 +9,11 @@ import SongFormFooter from "./SongFormFooter";
 
 vi.mock("react-i18next");
 
+/**
+ * @param key - translation key
+ * @param defaultVal - fallback value
+ * @returns translated value or default
+ */
 function translateOrDefault(key: string, defaultVal?: string | Record<string, unknown>): string {
 	return typeof defaultVal === "string" ? defaultVal : key;
 }

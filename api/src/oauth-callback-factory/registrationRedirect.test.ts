@@ -10,14 +10,17 @@ import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 import { registerPath } from "@/shared/paths";
 
 import handleRegistration, {
-	type RegistrationRedirectParams,
-	SEE_OTHER,
+    type RegistrationRedirectParams,
+    SEE_OTHER,
 } from "./registrationRedirect";
 
 // stub buildRegisterJwt so we don't have to construct a real context
 vi.mock("@/api/register/buildRegisterJwt");
 
-/** Builds minimal valid RegistrationRedirectParams with makeCtx and default oauth data. */
+/**
+ * Builds minimal valid RegistrationRedirectParams with makeCtx and default oauth data.
+ * @returns minimal valid params
+ */
 function makeBaseParams(): RegistrationRedirectParams {
 	const ctx = makeCtx();
 	// build a minimal valid parameter set; return cast to satisfy ctx type
@@ -30,7 +33,12 @@ function makeBaseParams(): RegistrationRedirectParams {
 	});
 }
 
-/** Merges base params with a new ctx and envRecord for tests that need a custom context. */
+/**
+ * Merges base params with a new ctx and envRecord for tests that need a custom context.
+ * @param base - base params
+ * @param ctx - new context
+ * @returns updated params
+ */
 function addCtxToParams(
 	base: RegistrationRedirectParams,
 	ctx: ReturnType<typeof makeCtx>,
@@ -38,7 +46,11 @@ function addCtxToParams(
 	return { ...base, ctx, envRecord: ctx.env } as RegistrationRedirectParams;
 }
 
-/** Extracts Set-Cookie header from Hono response for assertions. */
+/**
+ * Extracts Set-Cookie header from Hono response for assertions.
+ * @param ctx - request context
+ * @returns cookie header value
+ */
 function getCookieHeader(ctx: ReturnType<typeof makeCtx>): string | null {
 	return ctx.res.headers.get("Set-Cookie");
 }

@@ -57,13 +57,14 @@ test.describe("P2P Song Share", () => {
 
 			// Sender: open the song page and share it
 			await senderPage.goto(`${BASE_URL}/en/song/${testSongSlug}`, { waitUntil: "load" });
-			// Intercept the share-creation API call before triggering it so we
-			// can confirm the server acknowledged the request.
+			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
+			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
+			// Set up the response interceptor only after auth has hydrated and the
+			// Share button is ready so the INVITE_SUCCESS_TIMEOUT_MS timer starts
+			// just before the click, not during the cold-start auth delay.
 			const songAcceptShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
 				timeout: INVITE_SUCCESS_TIMEOUT_MS,
 			});
-			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
-			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			await shareBtn.click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
 			// Confirm the share was persisted before checking the recipient side.
@@ -99,11 +100,14 @@ test.describe("P2P Song Share", () => {
 
 			// Sender: share the song
 			await senderPage.goto(`${BASE_URL}/en/song/${testSongSlug}`, { waitUntil: "load" });
+			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
+			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
+			// Set up the response interceptor only after auth has hydrated and the
+			// Share button is ready so the INVITE_SUCCESS_TIMEOUT_MS timer starts
+			// just before the click, not during the cold-start auth delay.
 			const songDeclineShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
 				timeout: INVITE_SUCCESS_TIMEOUT_MS,
 			});
-			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
-			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			await shareBtn.click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
 			const songDeclineShareResponse = await songDeclineShareP;

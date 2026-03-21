@@ -20,6 +20,13 @@ export type PlaylistLibraryTableMock = {
 	};
 };
 
+/**
+ * Create a mock for the `playlist_library` view in Supabase.
+ *
+ * @param playlistLibrarySelectRows - Mock rows for multi-select
+ * @param playlistLibrarySelectError - Mock error for multi-select
+ * @returns A mocked Supabase table/view object
+ */
 export function createPlaylistLibraryMock(opts: PlaylistLibraryMockOpts): PlaylistLibraryTableMock {
 	return {
 		insert: (rows: PlaylistLibraryInsert[]): MultiResult & { select: () => SingleBuilder } => {

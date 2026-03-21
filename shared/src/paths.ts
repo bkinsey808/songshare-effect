@@ -137,3 +137,17 @@ export const apiImageUpdatePath = "/api/images/update";
 export const apiImageServeBasePath = "/api/images/serve";
 export const apiImageLibraryAddPath = "/api/image-library/add";
 export const apiImageLibraryRemovePath = "/api/image-library/remove";
+
+// Tag paths
+/** Tag library list page (accessible from header menu); full path: /dashboard/tag-library */
+export const tagLibraryPath = "tag-library";
+
+/** Base path for viewing a tag; use as "tag/:tag_slug" in routes; full path: /dashboard/tag/:tag_slug */
+export const tagViewPath = "tag";
+
+// Tag API paths
+export const apiTagAddToItemPath = "/api/tags/add-to-item";
+export const apiTagRemoveFromItemPath = "/api/tags/remove-from-item";
+export const apiTagSearchPath = "/api/tags/search";
+export const apiTagLibraryAddPath = "/api/tag-library/add";
+export const apiTagLibraryRemovePath = "/api/tag-library/remove";

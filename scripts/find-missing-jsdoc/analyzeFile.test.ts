@@ -35,6 +35,9 @@ describe("analyzeFile", () => {
 
 		const file = writeTempFile(contents);
 		const issues = analyzeFile(file);
+		// TEMP: debug output
+		// eslint-disable-next-line no-console
+		console.log('TEST_ISSUES:', issues.map((i) => ({ name: i.name, kind: i.kind })));
 
 		// We expect issues for: bar (no JSDoc), qux (no JSDoc), MyClass (no JSDoc)
 		// and foo/baz should be reported as missing-returns (they have JSDoc but no @returns tag)

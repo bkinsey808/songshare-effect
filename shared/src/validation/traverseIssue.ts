@@ -18,6 +18,11 @@ export default function createTraverseIssue(
 	i18nMessageKey: symbol | string,
 	onFound: OnFound,
 ): (issue: unknown, path?: string[]) => void {
+	/**
+	 * @param issue - the issue to traverse
+	 * @param path - current field path
+	 * @returns void
+	 */
 	function traverseIssue(issue: unknown, path: string[] = []): void {
 		if (!isRecord(issue)) {
 			return;

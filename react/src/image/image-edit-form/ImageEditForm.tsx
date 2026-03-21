@@ -1,4 +1,6 @@
 import useImageEditForm from "@/react/image/image-edit-form/useImageEditForm";
+import TagInput from "@/react/tag-library/TagInput";
+import useItemTags from "@/react/tag-library/useItemTags";
 
 import type { ImagePublic } from "../image-types";
 
@@ -16,6 +18,7 @@ type ImageEditFormProps = {
  * @returns React element rendering the image edit form
  */
 export default function ImageEditForm({ image }: ImageEditFormProps): ReactElement {
+	const { tags, setTags } = useItemTags("image", image.image_id);
 	const {
 		altText,
 		description,
@@ -27,7 +30,7 @@ export default function ImageEditForm({ image }: ImageEditFormProps): ReactEleme
 		setAltText,
 		setDescription,
 		setImageName,
-	} = useImageEditForm(image);
+	} = useImageEditForm(image, tags);
 
 	return (
 		<form onSubmit={(event) => void handleSubmit(event)} className="space-y-6">
@@ -87,6 +90,12 @@ export default function ImageEditForm({ image }: ImageEditFormProps): ReactEleme
 					<p className="text-sm text-red-400">{saveError}</p>
 				</div>
 			)}
+
+				{/* Tags */}
+			<div>
+				<p className="mb-2 text-sm font-medium text-gray-300">Tags</p>
+				<TagInput value={tags} onChange={setTags} />
+			</div>
 
 			<div className="flex gap-3">
 				<button

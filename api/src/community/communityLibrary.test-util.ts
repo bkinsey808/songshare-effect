@@ -19,6 +19,15 @@ type CommunityEntry = {
 	updated_at: string;
 };
 
+/**
+ * Test helper for communityLibrary - builds a Supabase client stub.
+ *
+ * @param communityUserData - Mocked membership data for community_user
+ * @param communityUserError - Whether to simulate an error for community_user
+ * @param communityPublicData - Mocked community records for community_public
+ * @param communityPublicError - Whether to simulate an error for community_public
+ * @returns A mocked Supabase client
+ */
 export default function makeCommunityLibraryClient(
 	opts: {
 		communityUserData?: { community_id: string }[];

@@ -27,7 +27,17 @@ export type EventPublicTableMock = {
 	delete: () => MultiResult & { eq: (_field: string, _val: string) => MultiResult };
 };
 
+/**
+ * Creates a mock for the `event_public` Supabase table.
+ * @param opts - Mock configuration options.
+ * @returns A mock event public table object.
+ */
 export function createEventPublicMock(opts: EventPublicMockOpts): EventPublicTableMock {
+	/**
+	 * Helper to create a write result (insert/update) with a select builder.
+	 * @param rows - The rows being written.
+	 * @returns A mock write result with a select method.
+	 */
 	function makeWriteResult(
 		rows: EventPublicInsert[],
 	): MultiResult & { select: () => SingleBuilder } {

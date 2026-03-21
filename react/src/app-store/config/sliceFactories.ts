@@ -13,6 +13,7 @@ import { createPlaylistSlice } from "@/react/playlist/slice/playlist-slice";
 import createShareSlice from "@/react/share/slice/createShareSlice";
 import { createSongLibrarySlice } from "@/react/song-library/slice/song-library-slice";
 import { createSongSubscribeSlice } from "@/react/song/song-slice/song-slice";
+import createTagLibrarySlice from "@/react/tag-library/slice/createTagLibrarySlice";
 import createUserLibrarySlice from "@/react/user-library/slice/createUserLibrarySlice";
 
 // Keep this as a simple, ordered array of slice factory functions. The
@@ -39,6 +40,7 @@ const sliceFactories: readonly SliceFactory[] = [
 	createInvitationSlice,
 	createNavigationSlice,
 	createShareSlice,
+	createTagLibrarySlice,
 ];
 
 export type { SliceFactory };

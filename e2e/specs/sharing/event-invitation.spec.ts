@@ -38,16 +38,23 @@ test.describe("Event Invitation", () => {
 	test.skip(missingEventSlug, "Skipped: set E2E_TEST_EVENT_SLUG");
 	test.skip(missingUser2Username, "Skipped: set E2E_TEST_USER2_USERNAME");
 
-	test.beforeEach(async ({ browser }) => {
+	// 200 s covers: cold-start wrangler compile (~65 s) + MANAGE_PAGE_READY_TIMEOUT_MS
+	// (75 s) + test body actions, which together can exceed the default 90 s
+	// (30 s × test.slow() tripling from --timeout=30000).
+	const COLD_START_TEST_TIMEOUT_MS = 200_000;
+
+	test.beforeEach(async ({ browser }, testInfo) => {
+		testInfo.setTimeout(COLD_START_TEST_TIMEOUT_MS);
 		const adminCtx = await newSenderContext(browser);
 		const adminPage = await adminCtx.newPage();
 		const recipientCtx = await newRecipientContext(browser);
 		const recipientPage = await recipientCtx.newPage();
 		try {
-			await Promise.all([
-				ensureUserNotInEvent(adminPage),
-				clearAllPendingPeerShares(recipientPage),
-			]);
+			// Sequential: avoid server contention between two contexts hitting the
+			// wrangler worker simultaneously, which can push the 75 s timeout on the
+			// event manage page past its limit in Firefox / WebKit.
+			await ensureUserNotInEvent(adminPage);
+			await clearAllPendingPeerShares(recipientPage);
 		} finally {
 			await adminCtx.close();
 			await recipientCtx.close();

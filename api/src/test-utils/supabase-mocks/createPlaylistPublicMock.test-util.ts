@@ -2,12 +2,12 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import type { PlaylistPublic, PlaylistPublicInsert } from "@/shared/generated/supabaseSchemas";
 
 import type {
-	MaybeSingleBuilder,
-	MaybeSingleResult,
-	MockRow,
-	MultiResult,
-	SingleBuilder,
-	SingleResult,
+    MaybeSingleBuilder,
+    MaybeSingleResult,
+    MockRow,
+    MultiResult,
+    SingleBuilder,
+    SingleResult,
 } from "./supabase-mock-types";
 
 export type PlaylistPublicMockOpts = {
@@ -31,7 +31,22 @@ export type PlaylistPublicTableMock = {
 	delete: () => MultiResult & { eq: (_field: string, _val: string) => MultiResult };
 };
 
+/**
+ * Create a mock for the `playlist_public` table in Supabase.
+ *
+ * @param playlistPublicInsertRows - Mock rows to return after insert
+ * @param playlistPublicInsertError - Mock error to return on insert
+ * @param playlistPublicSelectSingleRow - Mock row to return for single select
+ * @param playlistPublicSelectSingleError - Mock error to return for single select
+ * @param playlistPublicUpdateSelectRow - Mock row to return after update
+ * @param playlistPublicUpdateSelectError - Mock error to return after update
+ * @returns A mocked Supabase table object
+ */
 export function createPlaylistPublicMock(opts: PlaylistPublicMockOpts): PlaylistPublicTableMock {
+	/**
+	 * @param rows - rows to write
+	 * @returns promise with results
+	 */
 	function makeWriteResult(
 		rows: PlaylistPublicInsert[],
 	): MultiResult & { select: () => SingleBuilder } {

@@ -11,6 +11,9 @@ type DeleteHandler = (...args: unknown[]) => Promise<unknown>;
 /**
  * Patches a fake Supabase client so calls to `.from('song').delete().eq(...).eq(...)`
  * return the provided response or invoke the handler when configured.
+ * @param client - The fake Supabase client to patch.
+ * @param resp - The mock response or handler.
+ * @returns The patched Supabase client.
  */
 export default function patchSongDelete(
 	client: unknown,

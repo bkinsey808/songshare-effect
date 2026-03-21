@@ -14,6 +14,10 @@ type SongInsertFallback = { data: undefined; error: { message: string } };
  * On song_library FK violation (song_id missing from song), insert the song row
  * and retry. Uses song_owner_id from the request as song.user_id. Returns the
  * library entry on success, undefined otherwise.
+ * @param client - Supabase client.
+ * @param userId - ID of the user whose library is being updated.
+ * @param req - The add song request.
+ * @returns An Effect that succeeds with the SongLibrary entry or undefined if repair fails.
  */
 export default function attemptSongLibraryRepair(
 	client: SupabaseClient<Database>,

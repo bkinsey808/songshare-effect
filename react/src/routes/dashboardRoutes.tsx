@@ -14,6 +14,8 @@ import {
     playlistLibraryPath,
     songEditPath,
     songLibraryPath,
+    tagLibraryPath,
+    tagViewPath,
     userLibraryPath,
 } from "@/shared/paths";
 
@@ -34,6 +36,8 @@ const ImageEditPage = lazy(() => import("@/react/pages/ImageEditPage"));
 const CommunityEditPage = lazy(() => import("@/react/pages/CommunityEditPage"));
 const CommunityLibraryPage = lazy(() => import("@/react/pages/CommunityLibraryPage"));
 const UserLibraryPage = lazy(() => import("@/react/user-library/UserLibraryPage"));
+const TagLibraryPage = lazy(() => import("@/react/pages/TagLibraryPage"));
+const TagViewPage = lazy(() => import("@/react/pages/TagViewPage"));
 
 /**
  * Dashboard route configuration used by the app router.
@@ -119,6 +123,14 @@ const dashboardRoutes: RouteObject[] = [
 	{
 		path: communityLibraryPath,
 		element: withSuspense(CommunityLibraryPage),
+	},
+	{
+		path: tagLibraryPath,
+		element: withSuspense(TagLibraryPage),
+	},
+	{
+		path: `${tagViewPath}/:tag_slug`,
+		element: withSuspense(TagViewPage),
 	},
 ];
 

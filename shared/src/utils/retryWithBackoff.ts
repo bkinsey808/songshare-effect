@@ -9,6 +9,14 @@ type RetryResultInternal<TValue> = {
 	readonly succeeded: boolean;
 };
 
+/**
+ * Retries an asynchronous function with exponential backoff or similar delay strategies.
+ *
+ * @param fn - the function to retry (should return undefined to continue retrying)
+ * @param delays - an array of millisecond delays between attempts
+ * @param options - optional configurations (shouldAbort, onError, defaultDelayMs)
+ * @returns a promise resolving to the RetryResult structure (value, lastError, aborted, succeeded)
+ */
 export async function retryWithBackoff<TValue>(
 	fn: () => Promise<TValue | undefined>,
 	delays: readonly number[],

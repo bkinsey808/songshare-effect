@@ -23,7 +23,10 @@ export type UseImageEditFormReturn = {
 	setImageName: (value: string) => void;
 };
 
-export default function useImageEditForm(image: ImagePublic): UseImageEditFormReturn {
+export default function useImageEditForm(
+	image: ImagePublic,
+	tags: readonly string[] = [],
+): UseImageEditFormReturn {
 	const { lang } = useLocale();
 	const navigate = useNavigate();
 
@@ -38,7 +41,6 @@ export default function useImageEditForm(image: ImagePublic): UseImageEditFormRe
 	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
 		event.preventDefault();
-
 		setIsSubmitting(true);
 		setSaveError(undefined);
 
@@ -48,6 +50,7 @@ export default function useImageEditForm(image: ImagePublic): UseImageEditFormRe
 					image_name: imageName,
 					description,
 					alt_text: altText,
+					tags,
 				}),
 			);
 			setIsSubmitting(false);

@@ -7,6 +7,14 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
+/**
+ * Test helper for communityPlaylistAdd - builds a Supabase client stub.
+ *
+ * @param requesterRole - Role of the user requesting the add
+ * @param requesterRoleError - Whether to simulate an error fetching the requester role
+ * @param insertError - Whether to simulate an error during the add operation
+ * @returns A mocked Supabase client
+ */
 export default function makeCommunityPlaylistAddClient(
 	opts: {
 		requesterRole?: "owner" | "community_admin" | "member";

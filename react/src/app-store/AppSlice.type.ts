@@ -11,6 +11,7 @@ import type { PlaylistSlice } from "@/react/playlist/slice/playlist-slice";
 import type { ShareSlice } from "@/react/share/slice/ShareSlice.type";
 import type { SongLibrarySlice } from "@/react/song-library/slice/song-library-slice";
 import type { SongSubscribeSlice } from "@/react/song/song-slice/song-slice";
+import type { TagLibrarySlice } from "@/react/tag-library/slice/TagLibrarySlice.type";
 import type { UserLibrarySlice } from "@/react/user-library/slice/UserLibrarySlice.type";
 
 // Compose slices
@@ -27,6 +28,7 @@ type AppSlice = AuthSlice &
 	CommunitySlice &
 	InvitationSlice &
 	NavigationSlice &
-	ShareSlice;
+	ShareSlice &
+	TagLibrarySlice;
 
 export type { AppSlice };

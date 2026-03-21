@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -10,6 +11,9 @@ import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSe
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, playlistViewPath, songViewPath } from "@/shared/paths";
 import formatAppDate from "@/shared/utils/formatAppDate";
+
+import fetchItemTagsRequest from "@/react/tag-library/fetchItemTagsRequest";
+import TagList from "@/react/tag-library/TagList";
 
 import PlaylistViewLibraryAction from "../playlist-view/PlaylistViewLibraryAction";
 import usePlaylistView from "./usePlaylistView";
@@ -29,6 +33,15 @@ export default function PlaylistView(): ReactElement {
 	const { lang } = useLocale();
 	const { currentPlaylist, playlistPublic, publicSongs, isLoading, error, isOwner, songOrder } =
 		usePlaylistView();
+	const [tags, setTags] = useState<string[]>([]);
+
+	// Load the playlist's tags for display.
+	useEffect(() => {
+		if (currentPlaylist === undefined) { return; }
+		void (async (): Promise<void> => {
+			setTags(await fetchItemTagsRequest("playlist", currentPlaylist.playlist_id));
+		})();
+	}, [currentPlaylist]);
 
 	if (isLoading) {
 		return (
@@ -139,6 +152,8 @@ export default function PlaylistView(): ReactElement {
 					)}
 				</div>
 			</div>
+
+			<TagList slugs={tags} />
 
 			{/* Song List */}
 			<div className="space-y-2">

@@ -37,6 +37,11 @@ import {
 	apiImageLibraryAddPath,
 	apiImageLibraryRemovePath,
 	apiImageServeBasePath,
+	apiTagAddToItemPath,
+	apiTagLibraryAddPath,
+	apiTagLibraryRemovePath,
+	apiTagRemoveFromItemPath,
+	apiTagSearchPath,
 	apiImageUpdatePath,
 	apiImageUploadPath,
 	apiMePath,
@@ -96,6 +101,11 @@ import eventSave from "./event/eventSave";
 import handleHttpEndpoint from "./http/handleHttpEndpoint";
 import addImageToLibrary from "./image-library/add/addImageToLibrary";
 import removeImageFromLibrary from "./image-library/remove/removeImageFromLibrary";
+import addTagToLibrary from "./tag-library/add/addTagToLibrary";
+import removeTagFromLibrary from "./tag-library/remove/removeTagFromLibrary";
+import addTagToItem from "./tags/add-to-item/addTagToItem";
+import removeTagFromItem from "./tags/remove-from-item/removeTagFromItem";
+import tagSearch from "./tags/search/tagSearch";
 import imageDelete from "./image/delete/imageDelete";
 import imageServe from "./image/imageServe";
 import imageUpdate from "./image/update/imageUpdate";
@@ -268,6 +278,17 @@ app.get(`${apiImageServeBasePath}/*`, imageServe);
 app.post(apiImageLibraryAddPath, handleHttpEndpoint(addImageToLibrary));
 
 app.post(apiImageLibraryRemovePath, handleHttpEndpoint(removeImageFromLibrary));
+
+// Tag endpoints
+app.post(apiTagAddToItemPath, handleHttpEndpoint(addTagToItem));
+
+app.post(apiTagRemoveFromItemPath, handleHttpEndpoint(removeTagFromItem));
+
+app.get(apiTagSearchPath, handleHttpEndpoint(tagSearch));
+
+app.post(apiTagLibraryAddPath, handleHttpEndpoint(addTagToLibrary));
+
+app.post(apiTagLibraryRemovePath, handleHttpEndpoint(removeTagFromLibrary));
 
 // File upload endpoint (legacy placeholder)
 app.post(apiUploadPath, (ctx) => ctx.json({ message: "Upload endpoint - to be implemented" }));

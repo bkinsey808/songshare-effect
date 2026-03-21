@@ -87,4 +87,4 @@ export type CommunityState = {
 	isCommunitySaving: boolean;
 };
 
-export type SaveCommunityRequest = CommunityFormValues;
+export type SaveCommunityRequest = CommunityFormValues & { tags?: readonly string[] };

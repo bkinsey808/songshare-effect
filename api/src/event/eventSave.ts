@@ -7,6 +7,7 @@ import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/form/validateFormEffect";
+import { tagSlugSchema } from "@/shared/validation/tagSchemas";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import { getEventRoleCapabilities } from "../event-user/eventRoleCapabilities";
@@ -30,6 +31,7 @@ const EventFormSchema = Schema.Struct({
 	active_slide_position: Schema.optional(Schema.NullishOr(Schema.Number)),
 	public_notes: Schema.optional(Schema.String),
 	private_notes: Schema.optional(Schema.String),
+	tags: Schema.optional(Schema.Array(Schema.String)),
 });
 
 type EventFormData = Schema.Schema.Type<typeof EventFormSchema>;
@@ -335,6 +337,43 @@ export default function eventSave(
 						message: publicResult.error?.message ?? "Unknown DB error",
 					}),
 				),
+			);
+		}
+
+		// Save tags if provided: replace all existing event_tag rows and update tag_library.
+		if (validated.tags !== undefined && eventId !== undefined) {
+			const validSlugs = validated.tags.filter((slug) => Schema.is(tagSlugSchema)(slug));
+			yield* $(
+				Effect.tryPromise({
+					try: async () => {
+						if (validSlugs.length > ZERO) {
+							await supabase
+								.from("tag")
+								.upsert(
+									validSlugs.map((slug) => ({ tag_slug: slug })),
+									{ onConflict: "tag_slug", ignoreDuplicates: true },
+								);
+						}
+						await supabase.from("event_tag").delete().eq("event_id", eventId);
+						if (validSlugs.length > ZERO) {
+							await supabase
+								.from("event_tag")
+								.insert(
+									validSlugs.map((slug) => ({
+										event_id: eventId,
+										tag_slug: slug,
+									})),
+								);
+							await supabase
+								.from("tag_library")
+								.upsert(
+									validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
+									{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
+								);
+						}
+					},
+					catch: () => new DatabaseError({ message: "Failed to save tags" }),
+				}).pipe(Effect.orElse(() => Effect.void)),
 			);
 		}
 

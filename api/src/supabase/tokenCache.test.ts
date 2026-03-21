@@ -3,15 +3,17 @@ import { describe, expect, it } from "vitest";
 import { ONE } from "@/shared/constants/shared-constants";
 
 import {
-	clearCachedClientToken,
-	getCachedClientToken,
-	setCachedClientToken,
-	userTokenCache,
+    clearCachedClientToken,
+    getCachedClientToken,
+    setCachedClientToken,
+    userTokenCache,
 } from "./tokenCache";
 
 /**
  * Runs the given callback and restores token cache state in a finally block.
  * Ensures each test runs with a clean cache and cleanup runs even if the test throws.
+ * @param fn - The test function to run.
+ * @returns void
  */
 function withCleanCache(fn: () => void): void {
 	try {

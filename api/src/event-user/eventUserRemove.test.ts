@@ -35,6 +35,10 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 /**
  * Patch a fake supabase client so `from('event_user').select(...).eq(...).single()`
  * returns per-user responses based on the `user_id` value passed to `eq`.
+ *
+ * @param client - existing mock client
+ * @param responses - map of user_id to mock responses
+ * @returns the patched client
  */
 function patchEventUserSelect(
 	client: ReturnType<typeof createClient>,
@@ -104,7 +108,14 @@ function patchEventUserSelect(
 	return typed;
 }
 
-/** Patch event_user.delete to return the provided deleteResult */
+/**
+ * Patch event_user.delete to return the provided deleteResult.
+ *
+ * @param client - existing mock client
+ * @param deleteResult - result to return on delete
+ * @param selectResponses - optional responses for select
+ * @returns the patched client
+ */
 function patchEventUserDelete(
 	client: ReturnType<typeof createClient>,
 	deleteResult: { data: unknown[] | undefined; error: unknown },

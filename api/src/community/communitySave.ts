@@ -1,12 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
-import { Effect, type Schema } from "effect";
+import { Effect, Schema } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
+import isRecord from "@/shared/type-guards/isRecord";
 import { communityFormSchema } from "@/shared/validation/communitySchemas";
 import validateFormEffect from "@/shared/validation/form/validateFormEffect";
+import { tagSlugSchema } from "@/shared/validation/tagSchemas";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getCommunityRoleCapabilities from "../community-user/getCommunityRoleCapabilities";
@@ -234,6 +236,50 @@ export default function communitySave(
 						message: publicResult.error?.message ?? "Unknown DB error",
 					}),
 				),
+			);
+		}
+
+		// Extract tags from body (not in communityFormSchema) and save them.
+		const rawTags = isRecord(body) ? body.tags : undefined;
+		if (rawTags !== undefined) {
+			const tagSlugs: string[] = Array.isArray(rawTags)
+				? rawTags.filter((val): val is string => typeof val === "string")
+				: [];
+			const validSlugs = tagSlugs.filter((slug) => Schema.is(tagSlugSchema)(slug));
+			yield* $(
+				Effect.tryPromise({
+					try: async () => {
+						if (validSlugs.length > ZERO) {
+							await supabase
+								.from("tag")
+								.upsert(
+									validSlugs.map((slug) => ({ tag_slug: slug })),
+									{ onConflict: "tag_slug", ignoreDuplicates: true },
+								);
+						}
+						await supabase
+							.from("community_tag")
+							.delete()
+							.eq("community_id", communityId);
+						if (validSlugs.length > ZERO) {
+							await supabase
+								.from("community_tag")
+								.insert(
+									validSlugs.map((slug) => ({
+										community_id: communityId,
+										tag_slug: slug,
+									})),
+								);
+							await supabase
+								.from("tag_library")
+								.upsert(
+									validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
+									{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
+								);
+						}
+					},
+					catch: () => new DatabaseError({ message: "Failed to save tags" }),
+				}).pipe(Effect.orElse(() => Effect.void)),
 			);
 		}
 

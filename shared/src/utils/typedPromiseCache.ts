@@ -7,6 +7,11 @@ export type CacheKey<TValue> = Readonly<{
 	__type?: TValue;
 }>;
 
+/**
+ * Creates a factory for CacheKey objects with a given prefix.
+ * @param prefix - optional prefix for symbol names
+ * @returns a function that takes an id and returns a CacheKey
+ */
 export function createCacheKeyFactory<TValue>(prefix?: string): (id: string) => CacheKey<TValue> {
 	const map = new Map<string, symbol>();
 	return (id: string): CacheKey<TValue> => {
@@ -30,23 +35,46 @@ export type TypedCache<TValue> = Readonly<{
 	get(id: string, fetcher: () => Promise<TValue>): Promise<TValue>;
 }>;
 
+/**
+ * Creates a cache for typed values that supports concurrent fetching.
+ * @param prefix - optional prefix for keys
+ * @returns a TypedCache instance
+ */
 export function createTypedCache<TValue>(prefix?: string): TypedCache<TValue> {
 	const keyFactory: (id: string) => CacheKey<TValue> = createCacheKeyFactory<TValue>(prefix);
 	const internal = new Map<symbol, Promise<TValue>>();
 
 	return {
 		key: keyFactory,
+		/**
+		 * @param id - unique key within the cache
+		 * @returns true if the key exists in the cache
+		 */
 		has(id: string): boolean {
 			const cacheKey = keyFactory(id);
 			return internal.has(cacheKey.id);
 		},
+		/**
+		 * @param id - unique key within the cache
+		 * @returns true if the key was deleted
+		 */
 		delete(id: string): boolean {
 			const cacheKey = keyFactory(id);
 			return internal.delete(cacheKey.id);
 		},
+		/**
+		 * Clears all values from the cache.
+		 * @returns void
+		 */
 		clear(): void {
 			internal.clear();
 		},
+		/**
+		 * Gets the value or fetches it if missing.
+		 * @param id - unique key within the cache
+		 * @param fetcher - function to fetch the value if missing
+		 * @returns a promise resolving to the value
+		 */
 		async get(id: string, fetcher: () => Promise<TValue>): Promise<TValue> {
 			const cacheKey = keyFactory(id);
 
@@ -88,6 +116,11 @@ export type SuspenseCache<TValue> = Readonly<{
 	clear(): void;
 }>;
 
+/**
+ * Creates a cache for typed values that supports React Suspense.
+ * @param prefix - optional prefix for keys
+ * @returns a SuspenseCache instance
+ */
 export function createSuspenseCache<TValue>(prefix?: string): SuspenseCache<TValue> {
 	const keyFactory = createCacheKeyFactory<TValue>(prefix);
 	const internal = new Map<symbol, Promise<TValue> | TValue>();
@@ -98,7 +131,14 @@ export function createSuspenseCache<TValue>(prefix?: string): SuspenseCache<TVal
 	/* The thenable pattern is intentionally required so React Suspense will accept
 		 thrown values. Keep just the specific rule disabled for this localized class. */
 	/* oxlint-disable-next-line unicorn/no-thenable */
+	/**
+	 * A thenable `Error` wrapper for React Suspense.
+	 * @returns N/A (constructor)
+	 */
 	class ThenableError<TValue> extends Error implements PromiseLike<TValue> {
+		/**
+		 * @param promise - the promise being awaited
+		 */
 		constructor(private readonly promise: Promise<TValue>) {
 			super("SuspenseThenable");
 			// Maintain prototype chain for instanceof checks
@@ -111,6 +151,13 @@ export function createSuspenseCache<TValue>(prefix?: string): SuspenseCache<TVal
 		// to the wrapped promise. We disable the `promise-function-async` rule
 		// for this method because it needs to mirror PromiseLike semantics.
 		// The method is intentionally non-async and mirrors PromiseLike.then
+		// oxlint-disable-next-line promise-function-async, no-thenable, promise/prefer-await-to-callbacks
+		/**
+		 * Delegates to the inner promise.
+		 * @param onfulfilled - fulfillment callback
+		 * @param onrejected - rejection callback
+		 * @returns a promise that resolves to the result of the callbacks
+		 */
 		// oxlint-disable-next-line promise-function-async, no-thenable, promise/prefer-await-to-callbacks
 		public then<TResult1 = TValue, TResult2 = never>(
 			onfulfilled?: ((value: TValue) => TResult1 | PromiseLike<TResult1>) | null,
@@ -131,20 +178,42 @@ export function createSuspenseCache<TValue>(prefix?: string): SuspenseCache<TVal
 	}
 
 	return {
+		/**
+		 * @param id - unique key within the cache
+		 * @returns a CacheKey instance
+		 */
 		key(id: string) {
 			return keyFactory(id);
 		},
+		/**
+		 * @param id - unique key within the cache
+		 * @returns true if the key exists in the cache
+		 */
 		has(id: string) {
 			const cacheKey = keyFactory(id);
 			return internal.has(cacheKey.id);
 		},
+		/**
+		 * @param id - unique key within the cache
+		 * @returns true if the key was deleted
+		 */
 		delete(id: string) {
 			const cacheKey = keyFactory(id);
 			return internal.delete(cacheKey.id);
 		},
+		/**
+		 * Clears all values from the cache.
+		 * @returns void
+		 */
 		clear() {
 			internal.clear();
 		},
+		/**
+		 * Gets the value or throws a thenable for Suspense.
+		 * @param id - unique key within the cache
+		 * @param fetcher - function to fetch the value if missing
+		 * @returns the cached value
+		 */
 		getOrThrow(id: string, fetcher: () => Promise<TValue>) {
 			const cacheKey = keyFactory(id);
 			if (internal.has(cacheKey.id)) {

@@ -1,11 +1,10 @@
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-// ReactElement is ambient; no import needed
 
 import AddSongToPlaylistSection from "@/react/playlist/add-song/AddSongToPlaylistSection";
 import usePlaylistForm from "@/react/playlist/edit/usePlaylistForm";
+import TagInput from "@/react/tag-library/TagInput";
 
-import usePlaylistDragAndDrop from "./helpers/usePlaylistDragAndDrop";
 import PlaylistFormFooter from "./PlaylistFormFooter";
 import SortablePlaylistSongItem from "./SortablePlaylistSongItem";
 
@@ -37,19 +36,17 @@ export default function PlaylistForm(): ReactElement {
 		handleSongRemoved, // kept for convenience
 		handleMoveSongUp, // kept for convenience
 		handleMoveSongDown, // kept for convenience
-		updateSongOrder,
 		handleCancel,
 		resetForm,
 		hasUnsavedChanges,
 		formRef,
 		t,
+		tags,
+		setTags,
+		sensors,
+		handleDragEnd,
+		sortableItems,
 	} = usePlaylistForm();
-
-	// Handle DnD
-	const { sensors, handleDragEnd, sortableItems } = usePlaylistDragAndDrop({
-		songOrder: formValues.song_order,
-		setSongOrder: updateSongOrder,
-	});
 
 	if (isLoadingData) {
 		return (
@@ -162,6 +159,14 @@ export default function PlaylistForm(): ReactElement {
 							placeholder={t("playlistEdit.privateNotesPlaceholder", "Notes only you can see")}
 							rows={3}
 						/>
+					</div>
+
+					{/* Tags */}
+					<div>
+						<p className="mb-2 text-sm font-medium text-white">
+							{t("playlistEdit.tags", "Tags")}
+						</p>
+						<TagInput value={tags} onChange={setTags} />
 					</div>
 
 					{/* Song Management Section */}

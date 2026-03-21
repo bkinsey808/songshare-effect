@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { useState, useTransition } from "react";
 
-import { appStore } from "@/react/app-store/useAppStore";
+import useAppStore, { appStore } from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import type { ShareCreateRequest, SharedItemType } from "@/react/share/slice/share-types";
 
@@ -38,24 +38,21 @@ export default function useShareButton({
 	const [isSharing, setIsSharing] = useState(false);
 	const [isPending, startTransition] = useTransition();
 
-	function getSharedUserIds(): string[] {
-		const state = appStore.getState();
-		const sentShares = state?.sentShares ?? {};
-		return Object.values(sentShares)
-			.filter(
-				(share: SentShare) =>
-					share.shared_item_type === itemType &&
-					share.shared_item_id === itemId &&
-					// Only exclude users with a pending (awaiting response) share; allow
-					// re-sharing after a rejection or accepted share becomes outdated.
-					share.status === "pending",
-			)
-			.map((share: SentShare) => share.recipient_user_id);
-	}
-
+	// Subscribe reactively so the exclusion list updates when fetchShares completes
+	// (e.g. stale persisted "pending" shares are replaced by the current server state).
+	const sentShares = useAppStore((state) => state.sentShares);
 	const baseExcludeIds =
 		currentUserId !== undefined && currentUserId !== null ? [currentUserId] : [];
-	const sharedUserIds = getSharedUserIds();
+	const sharedUserIds = Object.values(sentShares)
+		.filter(
+			(share: SentShare) =>
+				share.shared_item_type === itemType &&
+				share.shared_item_id === itemId &&
+				// Only exclude users with a pending (awaiting response) share; allow
+				// re-sharing after a rejection or accepted share becomes outdated.
+				share.status === "pending",
+		)
+		.map((share: SentShare) => share.recipient_user_id);
 	const excludeUserIds = [...baseExcludeIds, ...sharedUserIds];
 
 	function handleUserSelect(userId: string): void {

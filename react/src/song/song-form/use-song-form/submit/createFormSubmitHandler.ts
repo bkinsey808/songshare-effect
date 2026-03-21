@@ -9,6 +9,7 @@ type CreateFormSubmitHandlerParams<FormData> = {
 	readonly fields: readonly string[];
 	readonly slideOrder: readonly string[];
 	readonly slides: Record<string, Slide>;
+	readonly tags?: readonly string[];
 	readonly handleSubmit: (
 		formData: Readonly<Record<string, unknown>>,
 		onSubmit: (data: Readonly<FormData>) => Promise<void> | void,
@@ -25,6 +26,7 @@ export default function createFormSubmitHandler<FormData>({
 	fields,
 	slideOrder,
 	slides,
+	tags,
 	handleSubmit,
 	onSubmit,
 }: CreateFormSubmitHandlerParams<FormData>): (
@@ -58,6 +60,9 @@ export default function createFormSubmitHandler<FormData>({
 		currentFormData["fields"] = toStringArray(fields);
 		currentFormData["slide_order"] = toStringArray(slideOrder);
 		currentFormData["slides"] = slides;
+		if (tags !== undefined) {
+			currentFormData["tags"] = [...tags];
+		}
 
 		try {
 			await Effect.runPromise(handleSubmit(currentFormData, onSubmit));

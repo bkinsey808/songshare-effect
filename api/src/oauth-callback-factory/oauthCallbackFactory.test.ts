@@ -7,9 +7,9 @@ import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
 import {
-	asFetchUserResult,
-	asOauthState,
-	asString,
+    asFetchUserResult,
+    asOauthState,
+    asString,
 } from "@/api/oauth-callback-factory/oauthCallbackFactory.test-util";
 import rateLimit from "@/api/oauth-callback-factory/rateLimit";
 import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";
@@ -47,6 +47,10 @@ const mockedBuildSessionCookie = vi.mocked(buildSessionCookie);
 const mockedBuildDashboardRedirectUrl = vi.mocked(buildDashboardRedirectUrl);
 const mockedGetCookie = vi.mocked(getCookie);
 
+/**
+ * @param ctx - test context
+ * @returns the Set-Cookie header value
+ */
 function getCookieHeader(ctx: ReturnType<typeof makeCtx>): string | null {
 	return ctx.res.headers.get("Set-Cookie");
 }
@@ -55,11 +59,17 @@ function getCookieHeader(ctx: ReturnType<typeof makeCtx>): string | null {
  * Provide an explicit undefined value for mocks that avoids "confusing void expression"
  * lint errors by returning a non-void type.
  */
+/**
+ * @returns undefined (typed for mocks)
+ */
 function getMockUndefined(): string | undefined {
 	return undefined;
 }
 
-// helper to reset mocks and set defaults (no hooks)
+/**
+ * Resets mocks and sets defaults for tests.
+ * @returns void
+ */
 function setup(): void {
 	vi.clearAllMocks();
 	// default mocks

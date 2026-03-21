@@ -1,3 +1,7 @@
+import { useEffect, useState } from "react";
+
+import fetchItemTagsRequest from "@/react/tag-library/fetchItemTagsRequest";
+import TagList from "@/react/tag-library/TagList";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
@@ -51,6 +55,15 @@ export default function CommunityView(): ReactElement {
 		onRefreshCommunity,
 		userSession,
 	} = useCommunityView();
+	const [tags, setTags] = useState<string[]>([]);
+
+	// Load the community's tags for display.
+	useEffect(() => {
+		if (currentCommunity === undefined) { return; }
+		void (async (): Promise<void> => {
+			setTags(await fetchItemTagsRequest("community", currentCommunity.community_id));
+		})();
+	}, [currentCommunity]);
 
 	if (isCommunityLoading) {
 		return <div className="max-w-4xl mx-auto px-6 py-8 text-gray-300">Loading community...</div>;
@@ -81,6 +94,8 @@ export default function CommunityView(): ReactElement {
 				onEditClick={onEditClick}
 				onRefreshCommunity={onRefreshCommunity}
 			/>
+
+			<TagList slugs={tags} />
 
 			{currentCommunity.slug !== "" && (
 				<CollapsibleQrCode

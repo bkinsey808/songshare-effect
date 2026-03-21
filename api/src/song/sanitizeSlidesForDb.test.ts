@@ -5,7 +5,11 @@ import sanitizeSlidesForDb from "./sanitizeSlidesForDb";
 // constant used instead of magic literal
 const NON_RECORD_INPUT = Symbol("not a record") as unknown;
 
-// helper that lets us safely extract keys from the Json return value
+/**
+ * Helper that lets us safely extract keys from the Json return value.
+ * @param json - The object to extract keys from.
+ * @returns An array of keys.
+ */
 function getKeys(json: unknown): string[] {
 	if (typeof json === "object" && json !== null) {
 		// `Object.keys` wants object; we've already narrowed at runtime

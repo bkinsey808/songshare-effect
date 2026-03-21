@@ -37,14 +37,26 @@ export default function useUserLibraryCard({
 	const removeFromSongLibrary = useAppStore((state) => state.removeSongFromSongLibrary);
 	const removeFromPlaylistLibrary = useAppStore((state) => state.removePlaylistFromLibrary);
 
+	/**
+	 * Sets confirming state to true.
+	 * @returns void
+	 */
 	function startConfirming(): void {
 		setIsConfirming(true);
 	}
 
+	/**
+	 * Sets confirming state to false.
+	 * @returns void
+	 */
 	function cancelConfirming(): void {
 		setIsConfirming(false);
 	}
 
+	/**
+	 * Invokes the removal Effect.
+	 * @returns void
+	 */
 	function handleConfirm(): void {
 		void Effect.runPromise(
 			runRemoveUserFromCardEffect({

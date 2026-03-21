@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
+import TagInput from "@/react/tag-library/TagInput";
 
 import useCommunityForm from "./useCommunityForm";
 
@@ -15,7 +16,10 @@ import useCommunityForm from "./useCommunityForm";
  */
 export default function CommunityForm(): ReactElement {
 	const { t } = useTranslation();
+
 	const {
+		tags,
+		setTags,
 		formValues,
 		isEditing,
 		isLoadingData,
@@ -143,7 +147,14 @@ export default function CommunityForm(): ReactElement {
 					/>
 				</div>
 
-				<div className="flex justify-end space-x-4">
+				<div>
+				<p className="mb-2 text-sm font-medium text-white">
+					{t("communityEdit.tags", "Tags")}
+				</p>
+				<TagInput value={tags} onChange={setTags} />
+			</div>
+
+			<div className="flex justify-end space-x-4">
 					<Button variant="outlineSecondary" onClick={onCancelClick}>
 						{t("common.cancel", "Cancel")}
 					</Button>

@@ -2,12 +2,12 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import type { Playlist, PlaylistInsert } from "@/shared/generated/supabaseSchemas";
 
 import type {
-	MaybeSingleBuilder,
-	MaybeSingleResult,
-	MockRow,
-	MultiResult,
-	SingleBuilder,
-	SingleResult,
+    MaybeSingleBuilder,
+    MaybeSingleResult,
+    MockRow,
+    MultiResult,
+    SingleBuilder,
+    SingleResult,
 } from "./supabase-mock-types";
 
 export type PlaylistMockOpts = {
@@ -31,7 +31,17 @@ export type PlaylistTableMock = {
 	delete: () => MultiResult & { eq: (_field: string, _val: string) => MultiResult };
 };
 
+/**
+ * Creates a mock for the `playlist` Supabase table.
+ * @param opts - Mock configuration options.
+ * @returns A mock playlist table object.
+ */
 export function createPlaylistMock(opts: PlaylistMockOpts): PlaylistTableMock {
+	/**
+	 * Helper to create a write result (insert/update) with a select builder.
+	 * @param rows - The rows being written.
+	 * @returns A mock write result with a select method.
+	 */
 	function makeWriteResult(rows: PlaylistInsert[]): MultiResult & { select: () => SingleBuilder } {
 		const promise: MultiResult = (async () => {
 			await Promise.resolve();

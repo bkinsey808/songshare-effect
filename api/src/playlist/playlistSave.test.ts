@@ -33,12 +33,20 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 	ip: "127.0.0.1",
 };
 
-/** Replaces global crypto.randomUUID with a stub that returns the given uuid. */
+/**
+ * Replaces global crypto.randomUUID with a stub that returns the given uuid.
+ * @param uuid - The UUID to return.
+ * @returns void
+ */
 function stubCryptoUuid(uuid: string): void {
 	vi.stubGlobal("crypto", { randomUUID: () => uuid });
 }
 
-/** Extracts public_notes from a response-like object; returns undefined if absent. */
+/**
+ * Extracts public_notes from a response-like object.
+ * @param res - The response object.
+ * @returns The public notes or undefined.
+ */
 function publicNotes(res: unknown): unknown {
 	if (typeof res === "object" && res !== null && "public_notes" in res) {
 		return (res as { public_notes: unknown }).public_notes;

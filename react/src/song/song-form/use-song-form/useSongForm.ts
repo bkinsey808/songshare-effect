@@ -7,6 +7,7 @@ import useAppForm from "@/react/lib/form/useAppForm";
 import useFormChanges from "@/react/lib/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import { type SongPublic, songPublicSchema } from "@/react/song/song-schema";
+import useItemTags from "@/react/tag-library/useItemTags";
 
 import {
 	type FormState,
@@ -35,6 +36,7 @@ const NAVIGATE_BACK = -1;
  */
 export default function useSongForm(): UseSongFormReturn {
 	const songId = useParams<{ song_id?: string }>().song_id;
+	const { tags, setTags } = useItemTags("song", songId);
 	const location = useLocation();
 	const navigate = useNavigate();
 	const formRef = useRef<HTMLFormElement | null>(null);
@@ -225,6 +227,7 @@ export default function useSongForm(): UseSongFormReturn {
 		fields,
 		slideOrder,
 		slides,
+		tags,
 		handleSubmit,
 		onSubmit,
 	});
@@ -299,6 +302,8 @@ export default function useSongForm(): UseSongFormReturn {
 		}
 	}
 
+	const hasChanges = isLoadingData ? false : hasUnsavedChanges();
+
 	return {
 		getFieldError,
 		isSubmitting,
@@ -334,6 +339,13 @@ export default function useSongForm(): UseSongFormReturn {
 		handleSave,
 		handleCancel,
 		handleDelete,
-		hasUnsavedChanges,
+		hasChanges,
+
+		// Tag state
+		tags,
+		setTags,
+
+		// Editing state
+		isEditing,
 	};
 }

@@ -35,10 +35,22 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 /**
  * Small helper to patch `event_user` behavior so tests can return different
  * rows for the requester vs the target user and control `update` results.
+ *
+ * @param client - existing mock client
+ * @param requesterRole - role of the user making the request
+ * @param targetRole - role of the target user
+ * @param updateRows - rows to return after update
+ * @param updateError - error to return on update
+ * @returns the patched client
  */
 function patchEventUserClient(
 	client: ReturnType<typeof createClient>,
-	opts: {
+	{
+		requesterRole,
+		targetRole,
+		updateRows,
+		updateError,
+	}: {
 		requesterRole?: unknown;
 		targetRole?: unknown;
 		updateRows?: unknown[] | undefined;
@@ -80,12 +92,12 @@ function patchEventUserClient(
 								await Promise.resolve();
 								// if querying for the requester (owner), return requesterRole
 								if (val2 === SAMPLE_USER_SESSION.user.user_id) {
-									return { data: opts.requesterRole, error: undefined };
+									return { data: requesterRole, error: undefined };
 								}
 								// otherwise return the targetRole (may be undefined to simulate not found)
 								return {
-									data: opts.targetRole,
-									error: opts.targetRole === undefined ? { message: "not found" } : undefined,
+									data: targetRole,
+									error: targetRole === undefined ? { message: "not found" } : undefined,
 								};
 							},
 						}),
@@ -107,8 +119,8 @@ function patchEventUserClient(
 						): Promise<{ data: unknown[] | undefined; error: unknown }> => {
 							await Promise.resolve();
 							return {
-								data: opts.updateRows === undefined ? [] : opts.updateRows,
-								error: opts.updateError ?? undefined,
+								data: updateRows === undefined ? [] : updateRows,
+								error: updateError ?? undefined,
 							};
 						},
 					}),

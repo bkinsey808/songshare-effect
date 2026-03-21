@@ -5,6 +5,9 @@ import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThr
 /**
  * Centralize mock for `decodeUnknownSyncOrThrow` return value so tests don't
  * need to include inline `oxlint-disable` comments for unsafe assignments.
+ *
+ * @param value - Mocked value to return
+ * @returns void
  */
 export default function mockDecodeUnknownSyncOrThrow(value: unknown): void {
 	// test-only cast: convert `unknown` into the function's return type

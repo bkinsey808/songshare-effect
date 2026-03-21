@@ -1,6 +1,11 @@
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { UserLibraryEntry } from "@/react/user-library/slice/user-library-types";
 
+/**
+ * Factory for creating mock UserLibraryEntry objects.
+ * @param overrides - Optional property overrides.
+ * @returns A mocked UserLibraryEntry.
+ */
 export default function makeUserLibraryEntry(
 	overrides: Partial<UserLibraryEntry> = {},
 ): UserLibraryEntry {

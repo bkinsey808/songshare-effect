@@ -6,6 +6,11 @@ import computeStateRedirectUri from "./computeStateRedirectUri";
 
 const basePath = "/api/oauth/callback"; // same as shared/paths value in tests environment
 
+/**
+ * Creates a mock environment for testing.
+ * @param environment - The environment name (e.g., 'production', 'development').
+ * @returns A mock Env object.
+ */
 function makeEnv(environment: string): Env {
 	return {
 		VITE_SUPABASE_URL: "",

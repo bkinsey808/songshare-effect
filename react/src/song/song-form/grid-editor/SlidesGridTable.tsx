@@ -154,7 +154,7 @@ export default function SlidesGridTable({
 				onDragEnd={onDragEndWrapper}
 			>
 				<table
-					className="min-w-[var(--table-min-width)] border-collapse border border-gray-300 dark:border-gray-600"
+					className="min-w-(--table-min-width) border-collapse border border-gray-300 dark:border-gray-600"
 					style={cssVars({
 						"slide-name-width": `${SLIDE_NAME_WIDTH}px`,
 						"table-min-width": `${totalWidth}px`,
@@ -181,7 +181,7 @@ export default function SlidesGridTable({
 					<thead className="bg-gray-50 dark:bg-gray-800">
 						<tr>
 							{/* Fixed Slide Name Column */}
-							<th className="relative border border-gray-300 dark:border-gray-600 px-4 py-2 text-left font-semibold dark:text-white w-[var(--slide-name-width)] min-w-[var(--slide-name-width)] max-w-[var(--slide-name-width)]">
+							<th className="relative border border-gray-300 dark:border-gray-600 px-4 py-2 text-left font-semibold dark:text-white w-(--slide-name-width) min-w-(--slide-name-width) max-w-(--slide-name-width)">
 								{t("song.slideName", "Slide Name")}
 							</th>
 							{/* Resizable Field Columns */}
@@ -192,7 +192,7 @@ export default function SlidesGridTable({
 								return (
 									<th
 										key={field}
-										className={`relative border border-gray-300 dark:border-gray-600 px-4 py-2 text-left font-semibold dark:text-white w-[var(--field-${safeName}-width)] min-w-[var(--field-${safeName}-width)] max-w-[var(--field-${safeName}-width)]`}
+										className={`relative border border-gray-300 dark:border-gray-600 px-4 py-2 text-left font-semibold dark:text-white w-(--field-${safeName}-width) min-w-(--field-${safeName}-width) max-w-(--field-${safeName}-width)`}
 										style={thStyle}
 									>
 										{t(`song.${field}`, field)}

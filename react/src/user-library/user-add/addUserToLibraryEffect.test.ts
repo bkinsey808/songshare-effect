@@ -5,7 +5,7 @@ import mockFetchResponse from "@/react/lib/test-utils/mockFetchResponse";
 
 import makeUserLibrarySlice from "../slice/makeUserLibrarySlice.mock";
 import type { UserLibrarySlice } from "../slice/UserLibrarySlice.type";
-import makeUserLibraryEntry from "../test-utils/makeUserLibraryEntry.mock";
+import makeUserLibraryEntry from "../test-utils/makeUserLibraryEntry.test-util";
 import addUserToLibraryEffect from "./addUserToLibraryEffect";
 
 // Use `makeUserLibrarySlice` directly in tests to get a stateful slice
@@ -22,6 +22,10 @@ describe("addUserToLibraryEffect", () => {
 		const setUserLibraryError = vi.fn();
 		const addUserLibraryEntry = vi.fn();
 
+		/**
+		 * Mock for Zustand `get` function.
+		 * @returns The mocked `UserLibrarySlice`.
+		 */
 		function get(): UserLibrarySlice {
 			const baseGet = makeUserLibrarySlice();
 			const slice = {
@@ -50,6 +54,11 @@ describe("addUserToLibraryEffect", () => {
 
 		const setUserLibraryError = vi.fn();
 		const addUserLibraryEntry = vi.fn();
+
+		/**
+		 * Mock for Zustand `get` function.
+		 * @returns The mocked `UserLibrarySlice`.
+		 */
 		function get(): UserLibrarySlice {
 			const baseGet = makeUserLibrarySlice();
 			const slice = {

@@ -1,10 +1,17 @@
-import { type Schema } from "effect";
+import { Schema } from "effect";
 
 /**
- * Return a dummy schema for typing in tests.  The cast is intentionally
- * unsafe; the disable comment keeps the warning out of test files.
+ * Create a dummy schema that represents a record with key 'id' and value '123'.
+ *
+ * @param i18nMessageKey - The i18n message key to associate with the schema
+ * @returns A dummy schema for testing
  */
-export default function makeDummySchema<TValue>(): Schema.Schema<TValue> {
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-type-assertion
-	return {} as unknown as Schema.Schema<TValue>;
+export default function makeDummySchema(i18nMessageKey: string): Schema.Schema<{ readonly id: string }> {
+	return Schema.Struct({
+		id: Schema.String,
+	}).pipe(
+		Schema.annotations({
+			[i18nMessageKey]: { message: "dummy" },
+		}),
+	);
 }

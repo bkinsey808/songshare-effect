@@ -15,6 +15,9 @@ export type CookieAttrs = Readonly<{
  * registration branch) and `registrationRedirect` where the debug cookie
  * header is assembled manually.  We extract it here so the factory can stay
  * lean and the values can be easily unit‑tested.
+ *
+ * @param ctx - Hono request context
+ * @returns computed cookie attributes
  */
 export default function computeCookieAttributes(ctx: ReadonlyContext): CookieAttrs {
 	const isProd = getEnvString(ctx.env, "ENVIRONMENT") === "production";

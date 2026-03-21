@@ -23,6 +23,7 @@ export type SubmitPlaylistParams = {
 	privateNotes?: string;
 	songOrder?: string[];
 	playlistId?: string;
+	tags?: readonly string[];
 };
 
 /**
@@ -53,6 +54,10 @@ export default async function submitPlaylist(
 
 	if (params.playlistId !== undefined) {
 		request.playlist_id = params.playlistId;
+	}
+
+	if (params.tags !== undefined) {
+		request.tags = params.tags;
 	}
 
 	try {

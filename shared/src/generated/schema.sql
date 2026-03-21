@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict CHwDKHjzqStHe5a0VEHkaNMORSMKhtHZabLuc3Jf0YgsLFat3WV3E6MVF1FcEPK
+\restrict X0QBli4q9zfvsLFqSGLMO6XYMOikzMiizhsLCGn90gofcfuSIvpFjtbTdg9thRU
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -236,6 +236,26 @@ COMMENT ON TABLE public.community_song IS 'Songs associated with a community.';
 
 
 --
+-- Name: community_tag; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.community_tag (
+    community_id uuid NOT NULL,
+    tag_slug text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.community_tag REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE community_tag; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.community_tag IS 'Tags applied to communities by the community owner';
+
+
+--
 -- Name: community_user; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -455,6 +475,26 @@ COMMENT ON COLUMN public.event_public.active_slide_position IS '1-based active s
 
 
 --
+-- Name: event_tag; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.event_tag (
+    event_id uuid NOT NULL,
+    tag_slug text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.event_tag REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE event_tag; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.event_tag IS 'Tags applied to events by the event owner';
+
+
+--
 -- Name: event_user; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -648,6 +688,26 @@ COMMENT ON COLUMN public.image_public.height IS 'Image height in pixels (optiona
 
 
 --
+-- Name: image_tag; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.image_tag (
+    image_id uuid NOT NULL,
+    tag_slug text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.image_tag REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE image_tag; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.image_tag IS 'Tags applied to images by the image owner';
+
+
+--
 -- Name: playlist; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -804,6 +864,26 @@ COMMENT ON COLUMN public.playlist_public.public_notes IS 'Public notes visible t
 --
 
 COMMENT ON COLUMN public.playlist_public.song_order IS 'Ordered array of song_ids in this playlist';
+
+
+--
+-- Name: playlist_tag; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.playlist_tag (
+    playlist_id uuid NOT NULL,
+    tag_slug text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.playlist_tag REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE playlist_tag; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.playlist_tag IS 'Tags applied to playlists by the playlist owner';
 
 
 --
@@ -1076,6 +1156,86 @@ COMMENT ON TABLE public.song_public IS 'Public song metadata. Realtime enabled f
 
 
 --
+-- Name: song_tag; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.song_tag (
+    song_id uuid NOT NULL,
+    tag_slug text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.song_tag REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE song_tag; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.song_tag IS 'Tags applied to songs by the song owner';
+
+
+--
+-- Name: tag; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.tag (
+    tag_slug text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.tag REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE tag; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.tag IS 'Global tag registry — tags are identified by their kebab-case slug';
+
+
+--
+-- Name: COLUMN tag.tag_slug; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tag.tag_slug IS 'Kebab-case slug, e.g. "indie-rock". Acts as the primary key.';
+
+
+--
+-- Name: tag_library; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.tag_library (
+    user_id uuid NOT NULL,
+    tag_slug text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.tag_library REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE tag_library; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.tag_library IS 'User''s personal bookmarked tags — for quick navigation and autocomplete';
+
+
+--
+-- Name: COLUMN tag_library.user_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tag_library.user_id IS 'The user who bookmarked this tag';
+
+
+--
+-- Name: COLUMN tag_library.tag_slug; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.tag_library.tag_slug IS 'The bookmarked tag slug';
+
+
+--
 -- Name: user; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1205,6 +1365,14 @@ ALTER TABLE ONLY public.community_song
 
 
 --
+-- Name: community_tag community_tag_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_tag
+    ADD CONSTRAINT community_tag_pkey PRIMARY KEY (community_id, tag_slug);
+
+
+--
 -- Name: community_user community_user_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1242,6 +1410,14 @@ ALTER TABLE ONLY public.event_public
 
 ALTER TABLE ONLY public.event_public
     ADD CONSTRAINT event_slug_unique UNIQUE (event_slug);
+
+
+--
+-- Name: event_tag event_tag_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_tag
+    ADD CONSTRAINT event_tag_pkey PRIMARY KEY (event_id, tag_slug);
 
 
 --
@@ -1285,6 +1461,14 @@ ALTER TABLE ONLY public.image_public
 
 
 --
+-- Name: image_tag image_tag_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_tag
+    ADD CONSTRAINT image_tag_pkey PRIMARY KEY (image_id, tag_slug);
+
+
+--
 -- Name: playlist_library playlist_library_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1314,6 +1498,14 @@ ALTER TABLE ONLY public.playlist_public
 
 ALTER TABLE ONLY public.playlist_public
     ADD CONSTRAINT playlist_slug_unique UNIQUE (playlist_slug);
+
+
+--
+-- Name: playlist_tag playlist_tag_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.playlist_tag
+    ADD CONSTRAINT playlist_tag_pkey PRIMARY KEY (playlist_id, tag_slug);
 
 
 --
@@ -1365,6 +1557,30 @@ ALTER TABLE ONLY public.song_public
 
 
 --
+-- Name: song_tag song_tag_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.song_tag
+    ADD CONSTRAINT song_tag_pkey PRIMARY KEY (song_id, tag_slug);
+
+
+--
+-- Name: tag_library tag_library_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tag_library
+    ADD CONSTRAINT tag_library_pkey PRIMARY KEY (user_id, tag_slug);
+
+
+--
+-- Name: tag tag_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tag
+    ADD CONSTRAINT tag_pkey PRIMARY KEY (tag_slug);
+
+
+--
 -- Name: user_library user_library_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1408,6 +1624,20 @@ CREATE INDEX community_share_request_community_id_idx ON public.community_share_
 --
 
 CREATE UNIQUE INDEX community_share_request_pending_unique_idx ON public.community_share_request USING btree (community_id, sender_user_id, shared_item_type, shared_item_id) WHERE (status = 'pending'::text);
+
+
+--
+-- Name: community_tag_community_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX community_tag_community_id_idx ON public.community_tag USING btree (community_id);
+
+
+--
+-- Name: community_tag_tag_slug_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX community_tag_tag_slug_idx ON public.community_tag USING btree (tag_slug);
 
 
 --
@@ -1457,6 +1687,20 @@ CREATE INDEX event_public_is_public_idx ON public.event_public USING btree (is_p
 --
 
 CREATE INDEX event_public_owner_id_idx ON public.event_public USING btree (owner_id);
+
+
+--
+-- Name: event_tag_event_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX event_tag_event_id_idx ON public.event_tag USING btree (event_id);
+
+
+--
+-- Name: event_tag_tag_slug_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX event_tag_tag_slug_idx ON public.event_tag USING btree (tag_slug);
 
 
 --
@@ -1544,6 +1788,20 @@ CREATE INDEX image_public_user_id_idx ON public.image_public USING btree (user_i
 
 
 --
+-- Name: image_tag_image_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_tag_image_id_idx ON public.image_tag USING btree (image_id);
+
+
+--
+-- Name: image_tag_tag_slug_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_tag_tag_slug_idx ON public.image_tag USING btree (tag_slug);
+
+
+--
 -- Name: image_user_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1590,6 +1848,20 @@ CREATE INDEX playlist_public_playlist_slug_idx ON public.playlist_public USING b
 --
 
 CREATE INDEX playlist_public_user_id_idx ON public.playlist_public USING btree (user_id);
+
+
+--
+-- Name: playlist_tag_playlist_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX playlist_tag_playlist_id_idx ON public.playlist_tag USING btree (playlist_id);
+
+
+--
+-- Name: playlist_tag_tag_slug_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX playlist_tag_tag_slug_idx ON public.playlist_tag USING btree (tag_slug);
 
 
 --
@@ -1709,6 +1981,34 @@ CREATE INDEX song_library_user_id_idx ON public.song_library USING btree (user_i
 --
 
 CREATE INDEX song_public_song_slug_idx ON public.song_public USING btree (song_slug);
+
+
+--
+-- Name: song_tag_song_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX song_tag_song_id_idx ON public.song_tag USING btree (song_id);
+
+
+--
+-- Name: song_tag_tag_slug_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX song_tag_tag_slug_idx ON public.song_tag USING btree (tag_slug);
+
+
+--
+-- Name: tag_library_tag_slug_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX tag_library_tag_slug_idx ON public.tag_library USING btree (tag_slug);
+
+
+--
+-- Name: tag_library_user_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX tag_library_user_id_idx ON public.tag_library USING btree (user_id);
 
 
 --
@@ -1920,6 +2220,22 @@ ALTER TABLE ONLY public.community_song
 
 
 --
+-- Name: community_tag community_tag_community_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_tag
+    ADD CONSTRAINT community_tag_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.community_public(community_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_tag community_tag_tag_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_tag
+    ADD CONSTRAINT community_tag_tag_slug_fkey FOREIGN KEY (tag_slug) REFERENCES public.tag(tag_slug) ON DELETE CASCADE;
+
+
+--
 -- Name: community_user community_user_community_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2029,6 +2345,22 @@ COMMENT ON CONSTRAINT event_public_owner_id_fkey ON public.event_public IS 'Refe
 
 
 --
+-- Name: event_tag event_tag_event_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_tag
+    ADD CONSTRAINT event_tag_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.event_public(event_id) ON DELETE CASCADE;
+
+
+--
+-- Name: event_tag event_tag_tag_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_tag
+    ADD CONSTRAINT event_tag_tag_slug_fkey FOREIGN KEY (tag_slug) REFERENCES public.tag(tag_slug) ON DELETE CASCADE;
+
+
+--
 -- Name: event_user event_user_event_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2085,6 +2417,22 @@ ALTER TABLE ONLY public.image_public
 
 
 --
+-- Name: image_tag image_tag_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_tag
+    ADD CONSTRAINT image_tag_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.image_public(image_id) ON DELETE CASCADE;
+
+
+--
+-- Name: image_tag image_tag_tag_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_tag
+    ADD CONSTRAINT image_tag_tag_slug_fkey FOREIGN KEY (tag_slug) REFERENCES public.tag(tag_slug) ON DELETE CASCADE;
+
+
+--
 -- Name: image image_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2130,6 +2478,22 @@ ALTER TABLE ONLY public.playlist_public
 
 ALTER TABLE ONLY public.playlist_public
     ADD CONSTRAINT playlist_public_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: playlist_tag playlist_tag_playlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.playlist_tag
+    ADD CONSTRAINT playlist_tag_playlist_id_fkey FOREIGN KEY (playlist_id) REFERENCES public.playlist_public(playlist_id) ON DELETE CASCADE;
+
+
+--
+-- Name: playlist_tag playlist_tag_tag_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.playlist_tag
+    ADD CONSTRAINT playlist_tag_tag_slug_fkey FOREIGN KEY (tag_slug) REFERENCES public.tag(tag_slug) ON DELETE CASCADE;
 
 
 --
@@ -2229,11 +2593,43 @@ ALTER TABLE ONLY public.song_public
 
 
 --
+-- Name: song_tag song_tag_song_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.song_tag
+    ADD CONSTRAINT song_tag_song_id_fkey FOREIGN KEY (song_id) REFERENCES public.song_public(song_id) ON DELETE CASCADE;
+
+
+--
+-- Name: song_tag song_tag_tag_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.song_tag
+    ADD CONSTRAINT song_tag_tag_slug_fkey FOREIGN KEY (tag_slug) REFERENCES public.tag(tag_slug) ON DELETE CASCADE;
+
+
+--
 -- Name: song song_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.song
     ADD CONSTRAINT song_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: tag_library tag_library_tag_slug_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tag_library
+    ADD CONSTRAINT tag_library_tag_slug_fkey FOREIGN KEY (tag_slug) REFERENCES public.tag(tag_slug) ON DELETE CASCADE;
+
+
+--
+-- Name: tag_library tag_library_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tag_library
+    ADD CONSTRAINT tag_library_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
 
 
 --
@@ -2377,10 +2773,52 @@ CREATE POLICY "Allow read access to user_public for visitors or users" ON public
 
 
 --
+-- Name: community_tag Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.community_tag FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: event_tag Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.event_tag FOR SELECT TO authenticated USING (true);
+
+
+--
 -- Name: image_public Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
 --
 
 CREATE POLICY "Allow read for authenticated users" ON public.image_public FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: image_tag Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.image_tag FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: playlist_tag Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.playlist_tag FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: song_tag Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.song_tag FOR SELECT TO authenticated USING (true);
+
+
+--
+-- Name: tag Allow read for authenticated users; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for authenticated users" ON public.tag FOR SELECT TO authenticated USING (true);
 
 
 --
@@ -2430,6 +2868,13 @@ CREATE POLICY "Allow read for matching user_id" ON public.playlist FOR SELECT TO
 --
 
 CREATE POLICY "Allow read for matching user_id" ON public.song FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: tag_library Allow read for matching user_id; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Allow read for matching user_id" ON public.tag_library FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
 
 
 --
@@ -2580,6 +3025,13 @@ COMMENT ON POLICY "Deny all mutations on community_public" ON public.community_p
 
 
 --
+-- Name: community_tag Deny all mutations on community_tag; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on community_tag" ON public.community_tag TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
 -- Name: community_user Deny all mutations on community_user; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -2591,6 +3043,13 @@ CREATE POLICY "Deny all mutations on community_user" ON public.community_user TO
 --
 
 COMMENT ON POLICY "Deny all mutations on community_user" ON public.community_user IS 'All community membership mutations must go through the API server for proper validation and authorization.';
+
+
+--
+-- Name: event_tag Deny all mutations on event_tag; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on event_tag" ON public.event_tag TO authenticated, anon USING (false) WITH CHECK (false);
 
 
 --
@@ -2612,6 +3071,20 @@ CREATE POLICY "Deny all mutations on image_library" ON public.image_library TO a
 --
 
 CREATE POLICY "Deny all mutations on image_public" ON public.image_public TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: image_tag Deny all mutations on image_tag; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on image_tag" ON public.image_tag TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: playlist_tag Deny all mutations on playlist_tag; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on playlist_tag" ON public.playlist_tag TO authenticated, anon USING (false) WITH CHECK (false);
 
 
 --
@@ -2640,6 +3113,27 @@ CREATE POLICY "Deny all mutations on share_public" ON public.share_public TO aut
 --
 
 COMMENT ON POLICY "Deny all mutations on share_public" ON public.share_public IS 'All share mutations must go through the API server for proper validation and authorization.';
+
+
+--
+-- Name: song_tag Deny all mutations on song_tag; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on song_tag" ON public.song_tag TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: tag Deny all mutations on tag; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on tag" ON public.tag TO authenticated, anon USING (false) WITH CHECK (false);
+
+
+--
+-- Name: tag_library Deny all mutations on tag_library; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY "Deny all mutations on tag_library" ON public.tag_library TO authenticated, anon USING (false) WITH CHECK (false);
 
 
 --
@@ -2821,6 +3315,12 @@ ALTER TABLE public.community_share_request ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.community_song ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: community_tag; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.community_tag ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: community_user; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -2873,6 +3373,12 @@ CREATE POLICY event_library_select_own_entries ON public.event_library FOR SELEC
 ALTER TABLE public.event_public ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: event_tag; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.event_tag ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: event_user; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -2897,6 +3403,12 @@ ALTER TABLE public.image_library ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.image_public ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: image_tag; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.image_tag ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: playlist; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -2913,6 +3425,12 @@ ALTER TABLE public.playlist_library ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.playlist_public ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: playlist_tag; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.playlist_tag ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: share; Type: ROW SECURITY; Schema: public; Owner: -
@@ -2951,6 +3469,24 @@ ALTER TABLE public.song_library ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.song_public ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: song_tag; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.song_tag ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: tag; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.tag ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: tag_library; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.tag_library ENABLE ROW LEVEL SECURITY;
+
+--
 -- Name: user; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -2972,5 +3508,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict CHwDKHjzqStHe5a0VEHkaNMORSMKhtHZabLuc3Jf0YgsLFat3WV3E6MVF1FcEPK
+\unrestrict X0QBli4q9zfvsLFqSGLMO6XYMOikzMiizhsLCGn90gofcfuSIvpFjtbTdg9thRU
 

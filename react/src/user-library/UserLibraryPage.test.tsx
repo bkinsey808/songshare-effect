@@ -10,6 +10,11 @@ import UserLibraryPage from "./UserLibraryPage";
 vi.mock("react-i18next");
 vi.mock("@/react/user-library/UserLibrary");
 
+/**
+ * @param key - translation key
+ * @param defaultValue - fallback value
+ * @returns translated value or default
+ */
 function translateOrDefault(key: string, defaultValue?: string): string {
 	return defaultValue ?? key;
 }

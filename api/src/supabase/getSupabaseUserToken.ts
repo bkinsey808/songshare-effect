@@ -37,13 +37,11 @@ export function getUserIdFromAppMetadata(meta: unknown): string | undefined {
  * Will reuse cached token until it expires.
  * Ensures the token has app_metadata.user.user_id structure for RLS policies.
  *
- * @param params - Object with `env`, `email`, and `password` used to sign in.
- * @param params.env - Environment variables containing Supabase URL and keys
- *   used to perform the sign-in and metadata update.
- * @param params.email - The user's email address to authenticate.
- * @param params.password - The user's password to authenticate.
- * @returns - A valid Supabase access token string for the user.
- * @throws - Throws an Error when sign-in or metadata update fails.
+ * @param env - Environment variables containing Supabase URL and keys.
+ * @param email - The user's email address to authenticate.
+ * @param password - The user's password to authenticate.
+ * @returns A valid Supabase access token string for the user.
+ * @throws Throws an Error when sign-in or metadata update fails.
  */
 export default async function getSupabaseUserToken({
 	env,

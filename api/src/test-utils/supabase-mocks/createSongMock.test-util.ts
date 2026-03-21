@@ -2,12 +2,12 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import type { Song, SongInsert } from "@/shared/generated/supabaseSchemas";
 
 import type {
-	MaybeSingleBuilder,
-	MaybeSingleResult,
-	MockRow,
-	MultiResult,
-	SingleBuilder,
-	SingleResult,
+    MaybeSingleBuilder,
+    MaybeSingleResult,
+    MockRow,
+    MultiResult,
+    SingleBuilder,
+    SingleResult,
 } from "./supabase-mock-types";
 
 export type SongMockOpts = {
@@ -31,7 +31,22 @@ export type SongTableMock = {
 	delete: () => MultiResult & { eq: (_field: string, _val: string) => MultiResult };
 };
 
+/**
+ * Create a mock for the `song_public` table in Supabase.
+ *
+ * @param songPublicInsertRows - Mock rows to return after insert
+ * @param songPublicInsertError - Mock error to return on insert
+ * @param songPublicSelectSingleRow - Mock row to return for single select
+ * @param songPublicSelectSingleError - Mock error to return for single select
+ * @param songPublicUpdateSelectRow - Mock row to return after update
+ * @param songPublicUpdateSelectError - Mock error to return after update
+ * @returns A mocked Supabase table object
+ */
 export function createSongMock(opts: SongMockOpts): SongTableMock {
+	/**
+	 * @param rows - rows to write
+	 * @returns promise with results
+	 */
 	function makeWriteResult(rows: SongInsert[]): MultiResult & { select: () => SingleBuilder } {
 		const promise: MultiResult = (async () => {
 			await Promise.resolve();

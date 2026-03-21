@@ -29,7 +29,10 @@ import walk from "./walk";
  */
 function main(): void {
 	const { dirs, format } = parseArgs();
-	const found: Record<string, { line: number; col: number; name: string; kind: string }[]> = {};
+	const found: Record<
+		string,
+		{ line: number; col: number; name: string; kind: string; detail?: string }[]
+	> = {};
 
 	for (const scanDir of dirs) {
 		if (existsSync(scanDir)) {
@@ -58,7 +61,7 @@ function main(): void {
 		for (const [file, items] of Object.entries(found)) {
 			for (const it of items) {
 				console.warn(
-					`${file}:${it.line}:${it.col}: Missing JSDoc for exported ${it.kind} '${it.name}'`,
+					`${file}:${it.line}:${it.col}: Improper JSDoc for ${it.kind} '${it.name}': ${it.detail ?? "Missing"}`,
 				);
 			}
 		}
@@ -66,8 +69,12 @@ function main(): void {
 		console.warn(`Found ${total} exported symbols missing JSDoc:`);
 		for (const [file, items] of Object.entries(found)) {
 			console.warn(`\n${file}:`);
+			const PAD_KIND = 14;
+			const PAD_NAME = 25;
 			for (const it of items) {
-				console.warn(`  line ${it.line}:${it.col}  ${it.kind}  ${it.name}`);
+				console.warn(
+					`  line ${it.line}:${it.col}  ${it.kind.padEnd(PAD_KIND)}  ${it.name.padEnd(PAD_NAME)}  ${it.detail ?? ""}`,
+				);
 			}
 		}
 	}

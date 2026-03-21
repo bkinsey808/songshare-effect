@@ -1,3 +1,4 @@
+import NavigationLinksCard from "./NavigationLinksCard";
 import SettingsCard from "./SettingsCard";
 
 type ActionsMenuProps = {
@@ -30,7 +31,9 @@ export default function ActionsMenu({ isVisible, isScrolled }: ActionsMenuProps)
 							isScrolled ? "px-4 py-0.5" : "px-5 py-1"
 						}`}
 					>
-						<div className="flex flex-wrap items-center justify-between gap-4">							<SettingsCard />
+						<div className="flex flex-wrap items-center justify-between gap-4">
+							<NavigationLinksCard />
+							<SettingsCard />
 						</div>
 					</div>
 				</div>

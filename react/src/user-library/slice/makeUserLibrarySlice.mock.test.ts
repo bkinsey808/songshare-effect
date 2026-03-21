@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
+import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.test-util";
 
 import makeUserLibrarySlice from "./makeUserLibrarySlice.mock";
 import type { UserLibraryEntry } from "./user-library-types";

@@ -2,7 +2,15 @@
  * Shared constants used by the find-missing-jsdoc scripts.
  */
 export const DEFAULT_DIRS: string[] = ["react", "shared", "api"];
-export const IGNORED = new Set(["node_modules", "dist", "build", "coverage", ".git", "tmp"]);
+export const IGNORED = new Set([
+	"node_modules",
+	"dist",
+	"build",
+	"coverage",
+	".git",
+	"tmp",
+	"generated",
+]);
 export const TS_EXTS = new Set([".ts", ".tsx"]);
 
 // Config / constants

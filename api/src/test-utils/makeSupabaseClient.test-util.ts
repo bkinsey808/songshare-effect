@@ -1,55 +1,55 @@
 import type { createClient } from "@supabase/supabase-js";
 
 import {
-	createEventLibraryMock,
-	type EventLibraryMockOpts,
+    createEventLibraryMock,
+    type EventLibraryMockOpts,
 } from "./supabase-mocks/createEventLibraryMock.test-util";
 import { createEventMock, type EventMockOpts } from "./supabase-mocks/createEventMock.test-util";
 import {
-	createEventPublicMock,
-	type EventPublicMockOpts,
+    createEventPublicMock,
+    type EventPublicMockOpts,
 } from "./supabase-mocks/createEventPublicMock.test-util";
 import {
-	createEventUserMock,
-	type EventUserMockOpts,
+    createEventUserMock,
+    type EventUserMockOpts,
 } from "./supabase-mocks/createEventUserMock.test-util";
 import {
-	createImageLibraryMock,
-	type ImageLibraryMockOpts,
+    createImageLibraryMock,
+    type ImageLibraryMockOpts,
 } from "./supabase-mocks/createImageLibraryMock.test-util";
 import {
-	createImagePublicMock,
-	type ImagePublicMockOpts,
+    createImagePublicMock,
+    type ImagePublicMockOpts,
 } from "./supabase-mocks/createImagePublicMock.test-util";
 import {
-	createPlaylistLibraryMock,
-	type PlaylistLibraryMockOpts,
+    createPlaylistLibraryMock,
+    type PlaylistLibraryMockOpts,
 } from "./supabase-mocks/createPlaylistLibraryMock.test-util";
 import {
-	createPlaylistMock,
-	type PlaylistMockOpts,
+    createPlaylistMock,
+    type PlaylistMockOpts,
 } from "./supabase-mocks/createPlaylistMock.test-util";
 import {
-	createPlaylistPublicMock,
-	type PlaylistPublicMockOpts,
+    createPlaylistPublicMock,
+    type PlaylistPublicMockOpts,
 } from "./supabase-mocks/createPlaylistPublicMock.test-util";
 import {
-	createSongLibraryMock,
-	type SongLibraryMockOpts,
+    createSongLibraryMock,
+    type SongLibraryMockOpts,
 } from "./supabase-mocks/createSongLibraryMock.test-util";
 import { createSongMock, type SongMockOpts } from "./supabase-mocks/createSongMock.test-util";
 import {
-	createSongPublicMock,
-	type SongPublicMockOpts,
+    createSongPublicMock,
+    type SongPublicMockOpts,
 } from "./supabase-mocks/createSongPublicMock.test-util";
 import {
-	createUserLibraryMock,
-	type UserLibraryMockOpts,
+    createUserLibraryMock,
+    type UserLibraryMockOpts,
 } from "./supabase-mocks/createUserLibraryMock.test-util";
 import { createUserMock, type UserMockOpts } from "./supabase-mocks/createUserMock.test-util";
 import {
-	createUserPublicMock,
-	type UserPublicMockOpts,
+    createUserPublicMock,
+    type UserPublicMockOpts,
 } from "./supabase-mocks/createUserPublicMock.test-util";
 
 /**
@@ -71,6 +71,11 @@ type MakeSupabaseClientOpts = UserLibraryMockOpts &
 	SongPublicMockOpts &
 	SongLibraryMockOpts;
 
+/**
+ * Creates a mock Supabase client for testing.
+ * @param opts - Mock configuration options.
+ * @returns A mock Supabase client.
+ */
 function makeSupabaseClient(opts: MakeSupabaseClientOpts = {}): ReturnType<typeof createClient> {
 	const fake = {
 		from: (table: string): unknown => {

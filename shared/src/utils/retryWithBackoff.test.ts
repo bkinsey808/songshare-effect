@@ -3,21 +3,28 @@ import { describe, expect, it, vi } from "vitest";
 import { ONE, TWO, ZERO } from "@/shared/constants/shared-constants";
 import { retryWithBackoff } from "@/shared/utils/retryWithBackoff";
 
-// simple base function used by the first test
+/**
+ * @returns "ok"
+ */
 async function base(): Promise<string> {
 	// Keep an await to avoid `require-await` warnings while still being trivial
 	await Promise.resolve();
 	return "ok";
 }
 
-// Return a rejected promise to simulate an aborting error. Kept at module scope
-// so the test body remains free of conditionals and function-scoping warnings.
+/**
+ * @returns a rejected promise
+ */
 function abortingFn(): Promise<never> {
 	const errObj = new Error("abort");
 	errObj.name = "AbortError";
 	return Promise.reject(errObj);
 }
 
+/**
+ * @param err - error to check
+ * @returns true if it is an abort error
+ */
 function isAbortError(err: unknown): boolean {
 	return err instanceof Error && err.name === "AbortError";
 }

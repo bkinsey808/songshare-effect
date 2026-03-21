@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import { makeChangeEvent, makeMouseEvent } from "@/react/lib/test-utils/dom-events";
-import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
+import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.test-util";
 
 import useUserSearchInput from "./useUserSearchInput";
 

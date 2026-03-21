@@ -34,6 +34,10 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 
 /**
  * Helper to shim `community_user` table behaviour for tests.
+ *
+ * @param client - The Supabase client to patch
+ * @param opts - Patch options
+ * @returns The patched Supabase client
  */
 function patchCommunityUserClient(
 	client: ReturnType<typeof createClient>,

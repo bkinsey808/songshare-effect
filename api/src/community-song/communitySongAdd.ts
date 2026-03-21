@@ -14,6 +14,11 @@ import getVerifiedUserSession from "../user-session/getVerifiedSession";
 
 type CommunitySongAddData = Schema.Schema.Type<typeof communitySongAddSchema>;
 
+/**
+ * Server-side handler for adding a song to a community.
+ * @param ctx - The request context.
+ * @returns An Effect that succeeds with success status or fails with an error.
+ */
 export default function communitySongAdd(
 	ctx: ReadonlyContext,
 ): Effect.Effect<{ success: boolean }, ValidationError | DatabaseError | AuthenticationError> {

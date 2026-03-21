@@ -9,7 +9,7 @@ import { resetAllSlices } from "@/react/app-store/slice-reset-fns";
 import useAppStore from "@/react/app-store/useAppStore";
 import { ONE_CALL } from "@/react/lib/test-helpers/test-consts";
 import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
-import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
+import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.test-util";
 import delay from "@/shared/utils/delay";
 
 import useUserLibrary from "./useUserLibrary";
@@ -20,9 +20,13 @@ const TEST_CREATED_AT = new Date().toISOString();
 const REMOVE_REQUEST = { followed_user_id: TEST_USER_ID } as const;
 
 describe("useUserLibrary", () => {
-	function RouterWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
-		return React.createElement(MemoryRouter, undefined, children);
-	}
+	/**
+	 * @param children - children to wrap
+	 * @returns the children wrapped in a Router
+	 */
+	 function RouterWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
+	 	return React.createElement(MemoryRouter, undefined, children);
+	 }
 
 	it("calls fetchUserLibrary and subscribes/unsubscribes", async () => {
 		const fetchUserLibrary = vi.fn().mockReturnValue(Effect.sync(() => undefined));
@@ -147,9 +151,13 @@ describe("useUserLibrary", () => {
 
 		store.setState(makeAppSlice({ fetchUserLibrary, subscribeToUserLibrary }));
 
-		function StrictWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
-			return React.createElement(React.StrictMode, undefined, children);
-		}
+		/**
+		 * @param children - children to wrap
+		 * @returns the children wrapped in StrictMode
+		 */
+		 function StrictWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
+		 	return React.createElement(React.StrictMode, undefined, children);
+		 }
 
 		let unmountHook: (() => void) | undefined = undefined;
 		try {

@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "@/api/api-errors";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
@@ -7,7 +7,11 @@ import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
 
+import { tagSlugSchema } from "@/shared/validation/tagSchemas";
+
 import extractImageUpdateRequest, { type ImageUpdateRequest } from "./extractImageUpdateRequest";
+
+const EMPTY_COUNT = 0;
 
 /**
  * Server-side handler for updating image metadata.
@@ -48,6 +52,7 @@ export default function imageUpdate(
 			image_name: "",
 			description: "",
 			alt_text: "",
+			tags: undefined,
 		};
 		try {
 			req = extractImageUpdateRequest(body);
@@ -127,6 +132,43 @@ export default function imageUpdate(
 
 		if (fetchResult.error || fetchResult.data === null) {
 			return yield* $(Effect.fail(new DatabaseError({ message: "Image not found after update" })));
+		}
+
+		// Save tags if provided: replace all existing image_tag rows and update tag_library.
+		if (req.tags !== undefined) {
+			const validSlugs = req.tags.filter((slug) => Schema.is(tagSlugSchema)(slug));
+			yield* $(
+				Effect.tryPromise({
+					try: async () => {
+						// Upsert new tag slugs into the global registry
+						if (validSlugs.length > EMPTY_COUNT) {
+							await supabase
+								.from("tag")
+								.upsert(
+									validSlugs.map((slug) => ({ tag_slug: slug })),
+									{ onConflict: "tag_slug", ignoreDuplicates: true },
+								);
+						}
+						// Replace all tags for this image
+						await supabase.from("image_tag").delete().eq("image_id", req.image_id);
+						if (validSlugs.length > EMPTY_COUNT) {
+							await supabase
+								.from("image_tag")
+								.insert(validSlugs.map((slug) => ({ image_id: req.image_id, tag_slug: slug })));
+						}
+						// Best-effort: add tags to the user's tag library for autocomplete
+						if (validSlugs.length > EMPTY_COUNT) {
+							await supabase
+								.from("tag_library")
+								.upsert(
+									validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
+									{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
+								);
+						}
+					},
+					catch: () => new DatabaseError({ message: "Failed to save tags" }),
+				}).pipe(Effect.orElse(() => Effect.void)),
+			);
 		}
 
 		return fetchResult.data as Record<string, unknown>;

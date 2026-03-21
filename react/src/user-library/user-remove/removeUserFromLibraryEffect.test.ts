@@ -17,6 +17,10 @@ describe("removeUserFromLibraryEffect", () => {
 		const setUserLibraryError = vi.fn();
 		const removeUserLibraryEntry = vi.fn();
 
+		/**
+		 * Mock for Zustand `get` function.
+		 * @returns The mocked `UserLibrarySlice`.
+		 */
 		function get(): UserLibrarySlice {
 			const baseGet = makeUserLibrarySlice();
 			const slice = { ...baseGet(), setUserLibraryError, removeUserLibraryEntry };
@@ -49,6 +53,11 @@ describe("removeUserFromLibraryEffect", () => {
 		const followedUserId = "followed-2";
 		const setUserLibraryError = vi.fn();
 		const removeUserLibraryEntry = vi.fn();
+
+		/**
+		 * Mock for Zustand `get` function.
+		 * @returns The mocked `UserLibrarySlice`.
+		 */
 		function get(): UserLibrarySlice {
 			const baseGet = makeUserLibrarySlice();
 			const slice = { ...baseGet(), setUserLibraryError, removeUserLibraryEntry };
@@ -80,6 +89,11 @@ describe("removeUserFromLibraryEffect", () => {
 		const followedUserId = "followed-3";
 		const setUserLibraryError = vi.fn();
 		const removeUserLibraryEntry = vi.fn();
+
+		/**
+		 * Mock for Zustand `get` function.
+		 * @returns The mocked `UserLibrarySlice`.
+		 */
 		function get(): UserLibrarySlice {
 			const baseGet = makeUserLibrarySlice();
 			const slice = { ...baseGet(), setUserLibraryError, removeUserLibraryEntry };

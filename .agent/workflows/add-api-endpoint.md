@@ -4,429 +4,357 @@ description: Add a new API endpoint
 
 # Add a New API Endpoint
 
-This workflow guides you through adding a new API endpoint to the Hono server.
+This workflow covers the complete, lint-safe pattern for adding API endpoints. Follow it exactly to avoid common pitfalls — the lint rules are strict and non-obvious.
 
-## Steps
+---
 
-### 1. Define the Endpoint
+## Directory & File Structure
 
-Decide on:
+Feature-based folders with action subfolders under `api/src/`:
 
-- **HTTP method**: GET, POST, PUT, DELETE
-- **Path**: e.g., `/api/songs/:id`, `/api/auth/signin`
-- **Purpose**: What does this endpoint do?
-- **Authentication**: Does it require user/visitor token?
-
-### 2. Create Handler Function
-
-Create a new file in the appropriate feature directory:
-
-```bash
-# For song-related endpoints:
-api/src/song/[handlerName].ts
-
-# For auth endpoints:
-api/src/auth/[handlerName].ts
-
-# For user endpoints:
-api/src/user/[handlerName].ts
+```
+api/src/
+└── <feature>/
+    └── <action>/
+        ├── extract<Action><Feature>Request.ts   # validation only
+        └── <action><Feature>.ts                 # main handler
 ```
 
-### 3. Implement Handler with Effect-TS
+Examples from the codebase:
+- `api/src/image-library/add/addImageToLibrary.ts`
+- `api/src/tags/remove-from-item/removeTagFromItem.ts`
+- `api/src/community/communityLibrary.ts` (GET with no body)
 
-Use Effect-TS for structured error handling:
+---
+
+## Step 1 — Add Path Constants
+
+Add to `shared/src/paths.ts`:
 
 ```typescript
-// Example: api/src/song/getSong.ts
+// Use full /api/ prefix for API paths
+export const apiMyFeatureDoSomethingPath = "/api/my-feature/do-something";
+```
+
+---
+
+## Step 2 — Add Shared Schema (if mutations)
+
+For endpoints that accept a request body, define a schema in `shared/src/validation/`:
+
+```typescript
+// shared/src/validation/myFeatureSchemas.ts
+import { Schema } from "effect";
+
+export const myFeatureDoSomethingSchema: Schema.Schema<
+  { readonly item_id: string; readonly name: string },
+  { readonly item_id: string; readonly name: string }
+> = Schema.Struct({
+  item_id: Schema.String,
+  name: Schema.String.pipe(Schema.minLength(1)),
+});
+```
+
+**Important:** Always add explicit type annotations — `--isolatedDeclarations` is enabled:
+
+```typescript
+// ✅ correct
+export const mySchema: Schema.Schema<OutputType, InputType> = Schema.Struct({ ... });
+
+// ❌ wrong — will fail tsc
+export const mySchema = Schema.Literal("a", "b", "c");
+```
+
+---
+
+## Step 3 — Write the Extract Function
+
+Use `decodeUnknownSyncOrThrow` with the shared schema. **Never do manual field-by-field validation** — it triggers `no-unsafe-type-assertion` and `id-length` lint errors.
+
+```typescript
+// api/src/my-feature/do-something/extractDoSomethingRequest.ts
+import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
+import { myFeatureDoSomethingSchema } from "@/shared/validation/myFeatureSchemas";
+
+export type DoSomethingRequest = {
+  item_id: string;
+  name: string;
+};
+
+/**
+ * Extract and validate the do-something request using the shared schema.
+ *
+ * @param request - Raw parsed JSON body.
+ * @returns Validated `DoSomethingRequest`.
+ * @throws Schema `ParseError` when required fields are missing or invalid.
+ */
+export default function extractDoSomethingRequest(request: unknown): DoSomethingRequest {
+  return decodeUnknownSyncOrThrow(myFeatureDoSomethingSchema, request);
+}
+```
+
+---
+
+## Step 4 — Write the Handler
+
+### POST (mutation) handler template
+
+```typescript
 import { Effect } from "effect";
-import { type Context } from "hono";
-import { type Bindings } from "@/api/env";
-import { NotFoundError, DatabaseError } from "@/api/errors";
-import { getSupabaseClient } from "@/api/supabase/getSupabaseClient";
 
-export function getSong(ctx: Context<{ Bindings: Bindings }>) {
-	const songId = ctx.req.param("id");
+import { type AuthenticationError, DatabaseError, ValidationError } from "@/api/api-errors";
+import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
+import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
+import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
-	return Effect.gen(function* () {
-		// 1. Validate input
-		if (!songId) {
-			return yield* Effect.fail(new NotFoundError({ message: "Song ID is required" }));
-		}
+import extractDoSomethingRequest, {
+  type DoSomethingRequest,
+} from "./extractDoSomethingRequest";
 
-		// 2. Get Supabase client
-		const supabase = yield* getSupabaseClient(ctx);
+/**
+ * Server-side handler for doing something.
+ *
+ * @param ctx - The readonly request context provided by the server.
+ * @returns `{ success: true }` on success, or fails with a typed error.
+ */
+export default function doSomething(
+  ctx: ReadonlyContext,
+): Effect.Effect<{ success: boolean }, ValidationError | DatabaseError | AuthenticationError> {
+  return Effect.gen(function* doSomethingGen($) {
+    // 1. Parse JSON body
+    const body: unknown = yield* $(
+      Effect.tryPromise({
+        try: async () => {
+          const parsed: unknown = await ctx.req.json();
+          return parsed;
+        },
+        catch: () => new ValidationError({ message: "Invalid JSON body" }),
+      }),
+    );
 
-		// 3. Query database
-		const { data, error } = await supabase.from("songs").select("*").eq("id", songId).single();
+    // 2. Validate request
+    let req: DoSomethingRequest = { item_id: "", name: "" };
+    try {
+      req = extractDoSomethingRequest(body);
+    } catch (error: unknown) {
+      return yield* $(
+        Effect.fail(
+          new ValidationError({ message: extractErrorMessage(error, "Invalid request") }),
+        ),
+      );
+    }
 
-		if (error) {
-			return yield* Effect.fail(
-				new DatabaseError({ message: "Failed to fetch song", cause: error }),
-			);
-		}
+    // 3. Authenticate
+    const userSession = yield* $(getVerifiedUserSession(ctx));
+    const userId = userSession.user.user_id;
 
-		if (!data) {
-			return yield* Effect.fail(new NotFoundError({ message: "Song not found" }));
-		}
+    // 4. Get service-role client (bypasses RLS — owner checks must be done in code)
+    const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
 
-		// 4. Return success response
-		return yield* Effect.succeed({
-			success: true,
-			data,
-		});
-	});
+    // 5. Database operation — throw Supabase errors inside `try` so `catch` handles them
+    yield* $(
+      Effect.tryPromise({
+        try: async () => {
+          const result = await client
+            .from("my_table")
+            .insert([{ user_id: userId, item_id: req.item_id, name: req.name }]);
+          if (result.error) { throw result.error; }
+        },
+        catch: (error: unknown) =>
+          new DatabaseError({ message: extractErrorMessage(error, "Failed to do something") }),
+      }),
+    );
+
+    return { success: true };
+  });
 }
 ```
 
-### 4. Add Route to Server
-
-Open `api/src/server.ts` and add your route:
+### GET handler template (query params, no body)
 
 ```typescript
-// Import the handler
-import { getSong } from "./song/getSong";
-import handleHttpEndpoint from "./http/handleHttpEndpoint";
+export default function listThings(
+  ctx: ReadonlyContext,
+): Effect.Effect<{ items: string[] }, DatabaseError | AuthenticationError> {
+  return Effect.gen(function* listThingsGen($) {
+    const userSession = yield* $(getVerifiedUserSession(ctx));
+    const userId = userSession.user.user_id;
 
-// Add the route (find the appropriate section in the file)
-app.get(
-	"/api/songs/:id",
-	handleHttpEndpoint((ctx) => getSong(ctx)),
-);
-```
+    // Query params — use descriptive names (id-length rule: min 2 chars)
+    const searchQuery = ctx.req.query("q") ?? "";
+    const limitParam = ctx.req.query("limit");
 
-### 5. Add Types to Shared (if needed)
+    const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
 
-If the endpoint uses new types, add them to shared:
+    const queryResult = yield* $(
+      Effect.tryPromise({
+        try: () =>
+          client
+            .from("my_table")
+            .select("name")
+            .eq("user_id", userId)
+            .ilike("name", `%${searchQuery}%`),
+        catch: (error) =>
+          new DatabaseError({ message: extractErrorMessage(error, "Failed to list things") }),
+      }),
+    );
 
-```typescript
-// shared/src/types/api.ts
-export interface GetSongResponse {
-	success: boolean;
-	data: Song;
+    if (queryResult.error) {
+      return yield* $(
+        Effect.fail(
+          new DatabaseError({
+            message: extractErrorMessage(queryResult.error, "Failed to list things"),
+          }),
+        ),
+      );
+    }
+
+    return { items: (queryResult.data ?? []).map((row) => row.name) };
+  });
 }
-
-export interface GetSongRequest {
-	id: string;
-}
 ```
 
-### 6. Test the Endpoint Locally
+---
 
-// turbo
-Start the dev server:
-
-```bash
-npm run dev
-```
-
-Test with curl:
-
-```bash
-# GET example
-curl http://localhost:8787/api/songs/123
-
-# POST example
-curl -X POST http://localhost:8787/api/songs \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Test Song","artist":"Test Artist"}'
-```
-
-Or use a tool like Postman, Insomnia, or Thunder Client.
-
-### 7. Add Error Handling
-
-Use proper Effect-TS error types from `api/src/errors.ts`:
+## Step 5 — Register in server.ts
 
 ```typescript
+// 1. Add to the import block from "@/shared/paths"
 import {
-	NotFoundError,
-	ValidationError,
-	DatabaseError,
-	UnauthorizedError,
-	ForbiddenError,
-} from "@/api/errors";
+  // ...existing...
+  apiMyFeatureDoSomethingPath,
+} from "@/shared/paths";
 
-// Example usage
-if (!userId) {
-	return yield * Effect.fail(new ValidationError({ message: "User ID is required" }));
-}
+// 2. Import the handler
+import doSomething from "./my-feature/do-something/doSomething";
 
-if (!hasPermission) {
-	return yield * Effect.fail(new ForbiddenError({ message: "Insufficient permissions" }));
-}
+// 3. Register the route
+app.post(apiMyFeatureDoSomethingPath, handleHttpEndpoint(doSomething));
+// or for GET:
+app.get(apiMyFeatureDoSomethingPath, handleHttpEndpoint(listThings));
 ```
 
-### 8. Add CSRF Protection (for mutations)
+---
 
-For POST, PUT, DELETE endpoints that modify data:
+## Ownership Checks
+
+The service-role client **bypasses RLS**. Always verify ownership in code before mutating:
 
 ```typescript
-import { verifySameOriginOrThrow } from "@/api/csrf/verifySameOriginOrThrow";
-
-app.post("/api/songs", (ctx) => {
-	// Verify same-origin to prevent CSRF
-	verifySameOriginOrThrow(ctx);
-
-	return handleHttpEndpoint((ctx) => createSong(ctx))(ctx);
-});
-```
-
-### 9. Document the Endpoint
-
-Add to `docs/api-reference.md`:
-
-````markdown
-### GET /api/songs/:id
-
-Get a song by ID.
-
-**Authentication**: Visitor or User token
-
-**Parameters**:
-
-- `id` (path): Song ID
-
-**Response**:
-
-```json
-{
-	"success": true,
-	"data": {
-		"id": "123",
-		"title": "Song Title",
-		"artist": "Artist Name"
-	}
-}
-```
-````
-
-**Errors**:
-
-- `404`: Song not found
-- `500`: Database error
-
-````
-
-### 10. Lint and Format
-
-// turbo
-```bash
-npm run lint:fix
-npm run format
-````
-
-### 11. Build and Test
-
-// turbo
-
-```bash
-npm run build:api
-```
-
-## Common Patterns
-
-### GET Endpoint (List)
-
-```typescript
-export function listSongs(ctx: Context<{ Bindings: Bindings }>) {
-	return Effect.gen(function* () {
-		const supabase = yield* getSupabaseClient(ctx);
-
-		const { data, error } = await supabase
-			.from("songs")
-			.select("*")
-			.order("created_at", { ascending: false });
-
-		if (error) {
-			return yield* Effect.fail(
-				new DatabaseError({ message: "Failed to fetch songs", cause: error }),
-			);
-		}
-
-		return yield* Effect.succeed({
-			success: true,
-			data: data ?? [],
-		});
-	});
-}
-```
-
-### POST Endpoint (Create)
-
-```typescript
-import { Effect, Schema } from "effect";
-
-// Define schema for validation
-const CreateSongSchema = Schema.Struct({
-	title: Schema.String,
-	artist: Schema.optional(Schema.String),
-});
-
-export function createSong(ctx: Context<{ Bindings: Bindings }>) {
-	return Effect.gen(function* () {
-		// 1. Parse and validate request body
-		const body = await ctx.req.json();
-		const validatedData = yield* Schema.decodeUnknown(CreateSongSchema)(body);
-
-		// 2. Get Supabase client
-		const supabase = yield* getSupabaseClient(ctx);
-
-		// 3. Insert into database
-		const { data, error } = await supabase.from("songs").insert([validatedData]).select().single();
-
-		if (error) {
-			return yield* Effect.fail(
-				new DatabaseError({ message: "Failed to create song", cause: error }),
-			);
-		}
-
-		return yield* Effect.succeed({
-			success: true,
-			data,
-		});
-	});
-}
-```
-
-### PUT Endpoint (Update)
-
-```typescript
-export function updateSong(ctx: Context<{ Bindings: Bindings }>) {
-	return Effect.gen(function* () {
-		const songId = ctx.req.param("id");
-		const updates = await ctx.req.json();
-
-		const supabase = yield* getSupabaseClient(ctx);
-
-		const { data, error } = await supabase
-			.from("songs")
-			.update(updates)
-			.eq("id", songId)
-			.select()
-			.single();
-
-		if (error) {
-			return yield* Effect.fail(
-				new DatabaseError({ message: "Failed to update song", cause: error }),
-			);
-		}
-
-		return yield* Effect.succeed({
-			success: true,
-			data,
-		});
-	});
-}
-```
-
-### DELETE Endpoint
-
-```typescript
-export function deleteSong(ctx: Context<{ Bindings: Bindings }>) {
-	return Effect.gen(function* () {
-		const songId = ctx.req.param("id");
-
-		const supabase = yield* getSupabaseClient(ctx);
-
-		const { error } = await supabase.from("songs").delete().eq("id", songId);
-
-		if (error) {
-			return yield* Effect.fail(
-				new DatabaseError({ message: "Failed to delete song", cause: error }),
-			);
-		}
-
-		return yield* Effect.succeed({
-			success: true,
-			message: "Song deleted",
-		});
-	});
-}
-```
-
-### With Authentication
-
-```typescript
-import getSupabaseUserToken from "@/api/supabase/getSupabaseUserToken";
-
-export function protectedEndpoint(ctx: Context<{ Bindings: Bindings }>) {
-	return Effect.gen(function* () {
-		// Get user token from request
-		const authHeader = ctx.req.header("Authorization");
-		if (!authHeader) {
-			return yield* Effect.fail(new UnauthorizedError({ message: "Authorization required" }));
-		}
-
-		// Verify token and get user
-		const token = authHeader.replace("Bearer ", "");
-		const user = yield* verifyUserToken(token);
-
-		// Continue with authenticated logic
-		// ...
-	});
-}
-```
-
-## Complete Example
-
-Here's a complete example with all parts:
-
-**File: `api/src/song/getSongById.ts`**
-
-```typescript
-import { Effect } from "effect";
-import { type Context } from "hono";
-import { type Bindings } from "@/api/env";
-import { NotFoundError, DatabaseError, ValidationError } from "@/api/errors";
-import { getSupabaseClient } from "@/api/supabase/getSupabaseClient";
-
-export function getSongById(ctx: Context<{ Bindings: Bindings }>) {
-	return Effect.gen(function* () {
-		const songId = ctx.req.param("id");
-
-		if (!songId?.trim()) {
-			return yield* Effect.fail(new ValidationError({ message: "Song ID is required" }));
-		}
-
-		const supabase = yield* getSupabaseClient(ctx);
-
-		const { data, error } = await supabase.from("songs").select("*").eq("id", songId).single();
-
-		if (error) {
-			return yield* Effect.fail(
-				new DatabaseError({
-					message: "Failed to fetch song",
-					cause: error,
-				}),
-			);
-		}
-
-		if (!data) {
-			return yield* Effect.fail(new NotFoundError({ message: `Song with ID ${songId} not found` }));
-		}
-
-		return yield* Effect.succeed({
-			success: true,
-			data,
-		});
-	});
-}
-```
-
-**Add to `api/src/server.ts`:**
-
-```typescript
-import { getSongById } from "./song/getSongById";
-
-app.get(
-	"/api/songs/:id",
-	handleHttpEndpoint((ctx) => getSongById(ctx)),
+// ✅ correct ownership check
+const itemResult = yield* $(
+  Effect.tryPromise({
+    try: () =>
+      client.from("song_public").select("user_id").eq("song_id", req.song_id).single(),
+    catch: (error) =>
+      new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch song") }),
+  }),
 );
+
+if (itemResult.error || itemResult.data === null) {
+  return yield* $(Effect.fail(new DatabaseError({ message: "Song not found" })));
+}
+
+if (itemResult.data.user_id !== userId) {
+  return yield* $(
+    Effect.fail(new ValidationError({ message: "You do not have permission to modify this item" })),
+  );
+}
 ```
 
-## References
+### Dynamic table ownership (multiple item types)
 
-- [Effect-TS Documentation](https://effect.website/)
-- [Hono Documentation](https://hono.dev/)
-- [API Reference](file:///home/bkinsey/bkinsey808/songshare-effect/docs/api-reference.md)
-- [Project Rules](file:///home/bkinsey/bkinsey808/songshare-effect/.agent/rules.md)
+When an endpoint operates on multiple item types, **never** use `client as any` or dynamic table name strings — the Supabase typed client rejects them and `any` triggers multiple lint errors. Use a typed `if/else` chain or a shared helper:
+
+```typescript
+// ✅ correct — shared helper (see api/src/tags/getTagItemOwner.ts for a real example)
+import getTagItemOwner from "../getTagItemOwner";
+const ownerId = yield* $(getTagItemOwner(client, req.item_type, req.item_id));
+
+// ❌ wrong — triggers no-unsafe-assignment, no-unsafe-call, no-unsafe-member-access
+const anyClient = client as any;
+anyClient.from(dynamicTableName).select("user_id");
+```
+
+When writing the helper, use an `if/else` chain with fully-typed calls for each case:
+
+```typescript
+if (itemType === "song") {
+  const result = yield* $(Effect.tryPromise({
+    try: () => client.from("song_public").select("user_id").eq("song_id", itemId).single(),
+    catch: ...
+  }));
+  return result.data.user_id;
+} else if (itemType === "playlist") {
+  // ...
+}
+```
+
+---
+
+## Supabase Error Handling Pattern
+
+Supabase returns errors in the response object, not as thrown exceptions. Throw inside `try` to let `catch` handle everything uniformly — this avoids the "all if blocks contain the same code" lint error:
+
+```typescript
+// ✅ correct — throw inside try, no trailing error check needed
+yield* $(
+  Effect.tryPromise({
+    try: async () => {
+      const result = await client.from("my_table").insert([{ ... }]);
+      if (result.error) { throw result.error; }
+    },
+    catch: (error: unknown) =>
+      new DatabaseError({ message: extractErrorMessage(error, "Failed to insert") }),
+  }),
+);
+
+// ❌ wrong — repeating the same error check in every branch triggers lint
+const result = yield* $(Effect.tryPromise({ try: () => client.from("...").insert([...]), catch: ... }));
+if (result.error) {
+  return yield* $(Effect.fail(new DatabaseError({ ... })));
+}
+```
+
+---
+
+## Lint Rules Quick Reference
+
+These rules trip up code generation. Know them upfront:
+
+| Rule | ❌ Wrong | ✅ Right |
+|------|----------|----------|
+| `id-length` | `const r = ...`, `const q = ...` | `const requestObj = ...`, `const searchQuery = ...` |
+| `no-unsafe-type-assertion` | `request as Record<string, unknown>` | Use `decodeUnknownSyncOrThrow` + schema |
+| `no-unsafe-assignment` / `no-unsafe-call` | `const c = client as any; c.from(...)` | Typed `if/else` chain per table |
+| `no-magic-numbers` | `limit <= 0`, `parseInt(x, 10)` | `const MIN = 1; limit < MIN` |
+| `no-negated-condition` | `x !== undefined ? a : b` | `x === undefined ? b : a` |
+| `prefer-number-properties` | `parseInt(x, 10)` | `Number.parseInt(x, 10)` |
+| `consistent-type-imports` | `import Foo from "..."` (type only) | `import type Foo from "..."` |
+| `curly` | `if (x) throw err;` | `if (x) { throw err; }` |
+| `no-null` | `JSON.stringify(x, null, 2)` | Avoid `null` literals |
+| Duplicate branch endings | Same `if (result.error) {...}` at end of every branch | Throw inside `try`; one `catch` handles all |
+
+---
+
+## Error Classes
+
+From `api/src/api-errors.ts`:
+
+```typescript
+ValidationError   // 400 — bad input, failed ownership check
+AuthenticationError // 401 — missing/invalid token
+NotFoundError     // 404
+DatabaseError     // 500 — Supabase errors
+AuthorizationError // 403
+```
+
+---
+
+## Verify Before Committing
+
+```bash
+npm run lint        # tsc + oxlint + eslint
+npm run format      # oxfmt
+```

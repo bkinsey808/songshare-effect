@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import usePlaylistLibrary from "@/react/playlist-library/usePlaylistLibrary";
 import useSongLibrary from "@/react/song-library/useSongLibrary";
-import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.mock";
+import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.test-util";
 import useUserLibrary from "@/react/user-library/useUserLibrary";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
@@ -17,6 +17,10 @@ vi.mock("@/react/user-library/useUserLibrary");
 vi.mock("@/react/song-library/useSongLibrary");
 vi.mock("@/react/playlist-library/usePlaylistLibrary");
 
+/**
+ * Installs mocks for hooks used by useUserLibraryCard.
+ * @returns void
+ */
 function installHookMocks(): void {
 	vi.mocked(runRemoveUserFromCardEffect).mockImplementation(() => Effect.succeed(undefined));
 	vi.mocked(useUserLibrary).mockReturnValue(

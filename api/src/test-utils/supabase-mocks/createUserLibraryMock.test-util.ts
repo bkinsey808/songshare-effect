@@ -29,6 +29,11 @@ export type UserLibraryTableMock = {
 	};
 };
 
+/**
+ * Creates a mock for the `user_library` Supabase table.
+ * @param opts - Mock configuration options.
+ * @returns A mock user library table object.
+ */
 export function createUserLibraryMock(opts: UserLibraryMockOpts): UserLibraryTableMock {
 	return {
 		insert: (rows: UserLibraryInsert[]): MultiResult & { select: () => SingleBuilder } => {

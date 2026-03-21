@@ -10,6 +10,17 @@ import type validateFormEffectType from "./validateFormEffect";
 // helper type used by some tests
 type SimpleShape = { foo: string };
 
+/**
+ * Mock implementation of FiberFailureImpl for testing error parsing.
+ * @returns N/A (constructor)
+ */
+class FiberFailureImpl extends Error {}
+
+/**
+ * Initializes validateForm for tests, optionally mocking validateFormEffect.
+ * @param mockValidateFormEffect - optional mock implementation
+ * @returns the validateForm function
+ */
 async function init(
 	mockValidateFormEffect?: typeof validateFormEffectType,
 ): Promise<typeof validateFormType> {
@@ -63,7 +74,6 @@ describe("validateForm", () => {
 	it("handles FiberFailureImpl errors by parsing the message as JSON", async () => {
 		const fakeErrors: ValidationError[] = [{ field: "x", message: "msg" }];
 
-		class FiberFailureImpl extends Error {}
 		const validateForm = await init(
 			vi.fn(() => {
 				throw new FiberFailureImpl(JSON.stringify(fakeErrors));

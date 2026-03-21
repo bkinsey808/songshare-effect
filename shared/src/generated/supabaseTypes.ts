@@ -263,6 +263,39 @@ export type Database = {
           },
         ]
       }
+      community_tag: {
+        Row: {
+          community_id: string
+          created_at: string
+          tag_slug: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          tag_slug: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          tag_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_tag_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_public"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_tag_tag_slug_fkey"
+            columns: ["tag_slug"]
+            isOneToOne: false
+            referencedRelation: "tag"
+            referencedColumns: ["tag_slug"]
+          },
+        ]
+      }
       community_user: {
         Row: {
           community_id: string
@@ -461,6 +494,39 @@ export type Database = {
           },
         ]
       }
+      event_tag: {
+        Row: {
+          created_at: string
+          event_id: string
+          tag_slug: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          tag_slug: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          tag_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_tag_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event_public"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_tag_tag_slug_fkey"
+            columns: ["tag_slug"]
+            isOneToOne: false
+            referencedRelation: "tag"
+            referencedColumns: ["tag_slug"]
+          },
+        ]
+      }
       event_user: {
         Row: {
           event_id: string
@@ -638,6 +704,39 @@ export type Database = {
           },
         ]
       }
+      image_tag: {
+        Row: {
+          created_at: string
+          image_id: string
+          tag_slug: string
+        }
+        Insert: {
+          created_at?: string
+          image_id: string
+          tag_slug: string
+        }
+        Update: {
+          created_at?: string
+          image_id?: string
+          tag_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_tag_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "image_public"
+            referencedColumns: ["image_id"]
+          },
+          {
+            foreignKeyName: "image_tag_tag_slug_fkey"
+            columns: ["tag_slug"]
+            isOneToOne: false
+            referencedRelation: "tag"
+            referencedColumns: ["tag_slug"]
+          },
+        ]
+      }
       playlist: {
         Row: {
           created_at: string
@@ -758,6 +857,39 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      playlist_tag: {
+        Row: {
+          created_at: string
+          playlist_id: string
+          tag_slug: string
+        }
+        Insert: {
+          created_at?: string
+          playlist_id: string
+          tag_slug: string
+        }
+        Update: {
+          created_at?: string
+          playlist_id?: string
+          tag_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_tag_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlist_public"
+            referencedColumns: ["playlist_id"]
+          },
+          {
+            foreignKeyName: "playlist_tag_tag_slug_fkey"
+            columns: ["tag_slug"]
+            isOneToOne: false
+            referencedRelation: "tag"
+            referencedColumns: ["tag_slug"]
           },
         ]
       }
@@ -1021,6 +1153,87 @@ export type Database = {
           },
           {
             foreignKeyName: "song_public_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      song_tag: {
+        Row: {
+          created_at: string
+          song_id: string
+          tag_slug: string
+        }
+        Insert: {
+          created_at?: string
+          song_id: string
+          tag_slug: string
+        }
+        Update: {
+          created_at?: string
+          song_id?: string
+          tag_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "song_tag_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "song_public"
+            referencedColumns: ["song_id"]
+          },
+          {
+            foreignKeyName: "song_tag_tag_slug_fkey"
+            columns: ["tag_slug"]
+            isOneToOne: false
+            referencedRelation: "tag"
+            referencedColumns: ["tag_slug"]
+          },
+        ]
+      }
+      tag: {
+        Row: {
+          created_at: string
+          tag_slug: string
+        }
+        Insert: {
+          created_at?: string
+          tag_slug: string
+        }
+        Update: {
+          created_at?: string
+          tag_slug?: string
+        }
+        Relationships: []
+      }
+      tag_library: {
+        Row: {
+          created_at: string
+          tag_slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          tag_slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          tag_slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tag_library_tag_slug_fkey"
+            columns: ["tag_slug"]
+            isOneToOne: false
+            referencedRelation: "tag"
+            referencedColumns: ["tag_slug"]
+          },
+          {
+            foreignKeyName: "tag_library_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user"

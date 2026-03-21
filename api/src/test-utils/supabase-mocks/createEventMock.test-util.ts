@@ -1,12 +1,12 @@
 import type { Event, EventInsert } from "@/shared/generated/supabaseSchemas";
 
 import type {
-	MaybeSingleBuilder,
-	MaybeSingleResult,
-	MockRow,
-	MultiResult,
-	SingleBuilder,
-	SingleResult,
+    MaybeSingleBuilder,
+    MaybeSingleResult,
+    MockRow,
+    MultiResult,
+    SingleBuilder,
+    SingleResult,
 } from "./supabase-mock-types";
 
 export type EventMockOpts = {
@@ -27,7 +27,22 @@ export type EventTableMock = {
 	delete: () => MultiResult & { eq: (_field: string, _val: string) => MultiResult };
 };
 
+/**
+ * Create a mock for the `event` table in Supabase.
+ *
+ * @param eventInsertRows - Mock rows to return after insert
+ * @param eventInsertError - Mock error to return on insert
+ * @param eventSelectSingleRow - Mock row to return for single select
+ * @param eventSelectSingleError - Mock error to return for single select
+ * @param eventUpdateSelectRow - Mock row to return after update
+ * @param eventUpdateSelectError - Mock error to return after update
+ * @returns A mocked Supabase table object
+ */
 export function createEventMock(opts: EventMockOpts): EventTableMock {
+	/**
+	 * @param rows - rows to write
+	 * @returns promise with results
+	 */
 	function makeWriteResult(rows: EventInsert[]): MultiResult & { select: () => SingleBuilder } {
 		const promise: MultiResult = (async () => {
 			await Promise.resolve();

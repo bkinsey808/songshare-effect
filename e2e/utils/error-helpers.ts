@@ -16,6 +16,7 @@ const EXPECTED_ERROR_PATTERNS = [
 	"subscribeToPendingInvitations",
 	"JwtSignerError",
 	"[song_library] Channel error",
+	"[tag_library] Channel error",
 	"Failed to load shares",
 	"[share_public] Channel error",
 	"access control checks",

@@ -17,6 +17,8 @@ type CommunityEventsCardProps = Readonly<{
  *
  * Shows the active event with a badge and sorts by creation date.
  *
+ * @param communityEvents - List of events in the community
+ * @param activeEventId - ID of the currently active event in the community
  * @returns React element for the events card
  */
 export default function CommunityEventsCard({

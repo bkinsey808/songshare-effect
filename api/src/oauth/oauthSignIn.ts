@@ -27,6 +27,10 @@ import { type Env } from "../env";
 // Removed unused safeGet import
 import type { ReadonlyContext } from "../hono/ReadonlyContext.type";
 
+/**
+ * @param reqUrl - the URL of the request
+ * @returns the origin (protocol + host + port)
+ */
 function computeRequestOrigin(reqUrl: string): string {
 	try {
 		return new URL(reqUrl).origin;
@@ -38,11 +42,16 @@ function computeRequestOrigin(reqUrl: string): string {
 /**
  * Effect-based handler for OAuth sign-in initiation.
  * Produces a redirect Response and sets a CSRF cookie.
+ * @param ctx - Hono context
+ * @returns Effect yielding a redirect Response
  */
 function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppError> {
 	return Effect.gen(function* oauthSignInGen($) {
 		// Parse provider param using Effect Schema decoder (as an Effect)
 		// Parse provider param synchronously and redirect on invalid provider.
+		/**
+		 * @returns the provider type decoded from the request param
+		 */
 		function computeProv(): ProviderType | undefined {
 			try {
 				// decodeUnknownSync will return a ProviderType or throw on
@@ -101,6 +110,9 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 		// the request URL preserves behavior when no headers are present.
 		const headerOrigin = ctx.req.header("origin") ?? "";
 		const headerReferer = ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
+		/**
+		 * @returns the origin derived from the referer header
+		 */
 		function computeDerivedFromReferer(): string {
 			try {
 				return headerReferer ? new URL(headerReferer).origin : "";

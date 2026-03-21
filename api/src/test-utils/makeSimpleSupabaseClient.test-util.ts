@@ -31,6 +31,15 @@ type SimpleClientOpts<TData> = {
 	reject?: boolean;
 };
 
+/**
+ * Build a fake client whose `single()` call resolves with the provided result
+ * or error. The returned object is cast to the full Supabase client type.
+ *
+ * @param result - Mock data to return from single()
+ * @param error - Mock error to return from single()
+ * @param reject - If true, single() promise will reject
+ * @returns A mocked Supabase client
+ */
 export default function makeSimpleSupabaseClient<TData = unknown>(
 	opts: SimpleClientOpts<TData> = {},
 ): ReturnType<typeof createClient> {

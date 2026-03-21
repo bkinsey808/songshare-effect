@@ -54,6 +54,9 @@ export function findInnerError(
  *
  * This checks `cause`, `error`, and `failure.cause` shapes after attempting
  * deep traversal with `findInnerError`.
+ *
+ * @param err - error to unwrap
+ * @returns unwrapped error or the original value
  */
 export function unwrapError(err: unknown): unknown {
 	const inner = findInnerError(err);

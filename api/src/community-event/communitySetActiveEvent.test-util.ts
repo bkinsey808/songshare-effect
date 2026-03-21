@@ -7,16 +7,24 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
-export default function makeCommunitySetActiveEventClient(
-	opts: {
-		requesterRole?: "owner" | "community_admin" | "member";
-		requesterRoleError?: boolean;
-		updateError?: boolean;
-	} = {},
-): ReturnType<typeof createClient> {
-	const role = opts.requesterRole ?? "owner";
-	const requesterRoleError = opts.requesterRoleError ?? false;
-	const updateError = opts.updateError ?? false;
+/**
+ * Test helper for communitySetActiveEvent - builds a Supabase client stub.
+ *
+ * @param requesterRole - role of the user (owner, admin, member)
+ * @param requesterRoleError - whether to simulate a fetch error for the role
+ * @param updateError - whether to simulate an update error
+ * @returns A mocked Supabase client
+ */
+export default function makeCommunitySetActiveEventClient({
+	requesterRole = "owner",
+	requesterRoleError = false,
+	updateError = false,
+}: {
+	requesterRole?: "owner" | "community_admin" | "member";
+	requesterRoleError?: boolean;
+	updateError?: boolean;
+} = {}): ReturnType<typeof createClient> {
+	const role = requesterRole;
 
 	return forceCast<ReturnType<typeof createClient>>({
 		from: (table: string): object => {

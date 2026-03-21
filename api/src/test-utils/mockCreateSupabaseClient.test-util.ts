@@ -10,6 +10,7 @@ import makeSupabaseClient, { type MakeSupabaseClientOpts } from "./makeSupabaseC
  *
  * @param mockedFn - vi.mocked(createClient)
  * @param opts - Options for the fake client
+ * @returns void
  */
 /* oxlint-disable typescript-eslint/no-explicit-any, typescript-eslint/explicit-module-boundary-types */
 // oxlint-disable-next-line @typescript-eslint/no-explicit-any

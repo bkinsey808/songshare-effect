@@ -9,6 +9,9 @@ import buildRegisterJwt from "./buildRegisterJwt";
 
 vi.mock("@/api/oauth/createJwt");
 
+/**
+ * @returns void
+ */
 function installCreateJwtMock(): void {
 	vi.mocked(createJwt).mockImplementation(() => Effect.succeed("mocked-jwt-token"));
 }

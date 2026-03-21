@@ -22,6 +22,11 @@ export type SongLibraryTableMock = {
 	};
 };
 
+/**
+ * Creates a mock for the `song_library` Supabase table.
+ * @param opts - Mock configuration options.
+ * @returns A mock song library table object.
+ */
 export function createSongLibraryMock(opts: SongLibraryMockOpts): SongLibraryTableMock {
 	return {
 		select: (_cols: string) => ({

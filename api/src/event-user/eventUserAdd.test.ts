@@ -32,7 +32,13 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 	ip: "127.0.0.1",
 };
 
-/** Helper to patch a fake supabase client so `.from('user').select(...).eq(...).single()` works */
+/**
+ * Helper to patch a fake supabase client so `.from('user').select(...).eq(...).single()` works.
+ *
+ * @param client - existing mock client
+ * @param resp - response to return from single()
+ * @returns the patched client
+ */
 function patchUserSingle(
 	client: ReturnType<typeof createClient>,
 	resp: { data: unknown; error: unknown },

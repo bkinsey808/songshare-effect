@@ -16,6 +16,11 @@ type CommunityShareRequestUpdateStatusData = Schema.Schema.Type<
 	typeof communityShareRequestUpdateStatusSchema
 >;
 
+/**
+ * Server-side handler for updating the status of a community share request.
+ * @param ctx - The request context.
+ * @returns An Effect that succeeds with success status or fails with an error.
+ */
 export default function communityShareRequestUpdateStatus(
 	ctx: ReadonlyContext,
 ): Effect.Effect<{ success: boolean }, ValidationError | DatabaseError | AuthenticationError> {

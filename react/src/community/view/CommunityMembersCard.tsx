@@ -15,6 +15,12 @@ type CommunityMembersCardProps = Readonly<{
  *
  * @returns React element for the members card
  */
+/**
+ * Card displaying community members with their avatars and roles.
+ *
+ * @param members - List of community members to display
+ * @returns React element for the members card
+ */
 export default function CommunityMembersCard({ members }: CommunityMembersCardProps): ReactElement {
 	const { t } = useTranslation();
 

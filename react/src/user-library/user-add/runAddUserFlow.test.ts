@@ -12,10 +12,19 @@ describe("runAddUserFlow", () => {
 		const setIsLoading = vi.fn();
 		const setError = vi.fn();
 
+		/**
+		 * @param _username - user to look up
+		 * @returns a successful lookup response
+		 */
 		function lookup(_username: string): Effect.Effect<LookupUserResponse> {
 			return Effect.succeed({ user_id: "user-1", username: "user-1" });
 		}
 
+		/**
+		 * Mock for adding a user to the library.
+		 * @param _params - The parameters for the operation.
+		 * @returns An Effect that succeeds.
+		 */
 		function addUserToLibrary(_params: {
 			readonly followed_user_id: string;
 		}): Effect.Effect<void, Error> {
@@ -48,10 +57,19 @@ describe("runAddUserFlow", () => {
 		const setIsLoading = vi.fn();
 		const setError = vi.fn();
 
+		/**
+		 * @param _username - user to look up
+		 * @returns a failed lookup response
+		 */
 		function lookup(_username: string): Effect.Effect<LookupUserResponse, NetworkError> {
 			return Effect.fail(new NetworkError("not found"));
 		}
 
+		/**
+		 * Mock for adding a user to the library (failure test).
+		 * @param _params - The parameters for the operation.
+		 * @returns An Effect that succeeds.
+		 */
 		function addUserToLibrary(_params: {
 			readonly followed_user_id: string;
 		}): Effect.Effect<void, Error> {

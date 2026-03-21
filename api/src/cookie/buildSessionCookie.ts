@@ -11,7 +11,10 @@ type BuildSessionCookieParams = Readonly<{
 /**
  * Build a session cookie header value using `buildSetCookieHeader`.
  *
- * @param params - Parameters with ctx/name/value and optional opts
+ * @param ctx - The request context.
+ * @param name - The cookie name.
+ * @param value - The cookie value.
+ * @param opts - The cookie options.
  * @returns The Set-Cookie header value for the session cookie
  */
 export default function buildSessionCookie({

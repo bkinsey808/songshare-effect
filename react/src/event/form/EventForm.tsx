@@ -2,6 +2,7 @@
 import { useTranslation } from "react-i18next";
 
 import DateTimePicker from "@/react/lib/design-system/date-time-picker/DateTimePicker";
+import TagInput from "@/react/tag-library/TagInput";
 
 import PlaylistSearchInput from "../playlist-search-input/PlaylistSearchInput";
 import ActiveSongSelectionSection from "./ActiveSongSelectionSection";
@@ -25,6 +26,8 @@ export default function EventForm(): ReactElement {
 	const { t } = useTranslation();
 
 	const {
+		tags,
+		setTags,
 		formValues,
 		isEditing,
 		isSaving,
@@ -207,6 +210,14 @@ export default function EventForm(): ReactElement {
 							placeholder={t("eventEdit.privateNotesPlaceholder", "Notes only you can see")}
 							rows={3}
 						/>
+					</div>
+
+					{/* Tags */}
+					<div>
+						<p className="mb-2 text-sm font-medium text-white">
+							{t("eventEdit.tags", "Tags")}
+						</p>
+						<TagInput value={tags} onChange={setTags} />
 					</div>
 				</form>
 			</div>

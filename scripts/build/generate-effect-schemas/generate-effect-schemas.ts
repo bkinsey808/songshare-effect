@@ -30,10 +30,6 @@ function main(): void {
 	sLog("🚀 Generating Effect-TS schemas from Supabase...");
 
 	const envPath = join(projectRoot, ".env");
-	assertPathExists({
-		path: envPath,
-		errorMessage: "❌ .env file not found. Please create one with SUPABASE_PROJECT_REF",
-	});
 
 	const supabaseCliPath = join(projectRoot, "node_modules", ".bin", "supabase");
 	assertPathExists({
@@ -53,8 +49,8 @@ function main(): void {
 		errorMessage: "❌ oxfmt binary not found. Install it with: npm install -D oxfmt",
 	});
 
-	const envFromFile = loadEnvVariables(envPath);
-	const mergedEnv = { ...process.env, ...envFromFile } as NodeJS.ProcessEnv;
+	const envFromFile = existsSync(envPath) ? loadEnvVariables(envPath) : {};
+	const mergedEnv = { ...envFromFile, ...process.env } as NodeJS.ProcessEnv;
 	const projectRef = mergedEnv["SUPABASE_PROJECT_REF"] ?? "";
 
 	const supabaseTypesGenerated = generateSupabaseTypes({

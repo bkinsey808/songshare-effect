@@ -15,6 +15,11 @@ export type EventLibraryTableMock = {
 	insert: (rows: EventLibraryInsert[]) => MultiResult & { select: () => SingleBuilder };
 };
 
+/**
+ * Creates a mock for the `event_library` Supabase table.
+ * @param opts - Mock configuration options.
+ * @returns A mock event library table object.
+ */
 export function createEventLibraryMock(opts: EventLibraryMockOpts): EventLibraryTableMock {
 	return {
 		delete: (): {

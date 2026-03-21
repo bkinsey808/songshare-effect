@@ -7,18 +7,27 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
-export default function makeCommunityEventRemoveClient(
-	opts: {
-		requesterRole?: "owner" | "community_admin" | "member";
-		requesterRoleError?: boolean;
-		deleteError?: boolean;
-		clearActiveError?: boolean;
-	} = {},
-): ReturnType<typeof createClient> {
-	const role = opts.requesterRole ?? "owner";
-	const requesterRoleError = opts.requesterRoleError ?? false;
-	const deleteError = opts.deleteError ?? false;
-	const clearActiveError = opts.clearActiveError ?? false;
+/**
+ * Test helper for communityEventRemove - builds a Supabase client stub.
+ *
+ * @param requesterRole - role of the user (owner, admin, member)
+ * @param requesterRoleError - whether to simulate a fetch error for the role
+ * @param deleteError - whether to simulate a delete error
+ * @param clearActiveError - whether to simulate an update error
+ * @returns A mocked Supabase client
+ */
+export default function makeCommunityEventRemoveClient({
+	requesterRole = "owner",
+	requesterRoleError = false,
+	deleteError = false,
+	clearActiveError = false,
+}: {
+	requesterRole?: "owner" | "community_admin" | "member";
+	requesterRoleError?: boolean;
+	deleteError?: boolean;
+	clearActiveError?: boolean;
+} = {}): ReturnType<typeof createClient> {
+	const role = requesterRole;
 
 	return forceCast<ReturnType<typeof createClient>>({
 		from: (table: string): object => {

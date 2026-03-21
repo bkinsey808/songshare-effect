@@ -6,6 +6,7 @@ import buildSaveEventRequest from "./buildSaveEventRequest";
 type CreateHandleFormSubmitArgs = {
 	formValues: EventFormValues;
 	isEditing: boolean;
+	tags?: readonly string[];
 	runValidatedSubmit: (onSubmitValid: () => Promise<void>) => Promise<void>;
 	runSaveEvent: (request: SaveEventRequest) => Promise<string>;
 	clearInitialState: () => void;
@@ -26,6 +27,7 @@ type CreateHandleFormSubmitArgs = {
 export default function createHandleFormSubmit({
 	formValues,
 	isEditing,
+	tags,
 	runValidatedSubmit,
 	runSaveEvent,
 	clearInitialState,
@@ -49,7 +51,7 @@ export default function createHandleFormSubmit({
 		}
 
 		await runValidatedSubmit(async () => {
-			const request: SaveEventRequest = buildSaveEventRequest(formValues, isEditing);
+			const request: SaveEventRequest = buildSaveEventRequest(formValues, isEditing, tags);
 			const eventId = await runSaveEvent(request);
 
 			if (eventId !== "") {

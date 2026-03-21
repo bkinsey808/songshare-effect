@@ -7,6 +7,14 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
+/**
+ * Test helper for communityUserKick - builds a Supabase client stub.
+ *
+ * @param requesterRole - Role of the user requesting the kick
+ * @param requesterRoleError - Whether to simulate an error fetching the requester's role
+ * @param updateError - Whether to simulate an error during the kick operation
+ * @returns A mocked Supabase client
+ */
 export default function makeCommunityUserKickClient(
 	opts: {
 		requesterRole?: "owner" | "community_admin" | "member";

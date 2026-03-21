@@ -38,12 +38,11 @@ type BuildUserSessionJwtParams = ReadonlyDeep<{
  * - Validates the session data using Effect Schema
  * - Signs and returns the JWT
  *
- * @param params Parameters object
- * @param params.ctx Hono context (for env and request info)
- * @param params.supabase Supabase client instance
- * @param params.existingUser The authenticated user object
- * @param params.oauthUserData OAuth user data
- * @param params.oauthState OAuth state
+ * @param ctx - Hono context (for env and request info)
+ * @param supabase - Supabase client instance
+ * @param existingUser - The authenticated user object
+ * @param oauthUserData - OAuth user data
+ * @param oauthState - OAuth state
  * @returns Effect yielding the session JWT string
  */
 export default function buildUserSessionJwt({

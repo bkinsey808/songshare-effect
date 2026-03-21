@@ -11,6 +11,11 @@ const DEFAULT_MESSAGE = "Please enter a username";
 const USER_ID = "user-123";
 const USERNAME = "testuser";
 
+/**
+ * Mock translation function factory for tests.
+ * @param defaultMessage - The message to return for the specific translation key.
+ * @returns A mock translation function.
+ */
 function makeT(defaultMessage: string): (key: string, fallback: string) => string {
 	return vi.fn((key: string, fallback: string) => {
 		if (key === TRANSLATION_KEY) {

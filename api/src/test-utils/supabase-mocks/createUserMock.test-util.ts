@@ -20,6 +20,11 @@ export type UserTableMock = {
 	delete: () => MultiMaybeResult & { eq: (_field: string, _val: string) => MultiMaybeResult };
 };
 
+/**
+ * Creates a mock for the `user` Supabase table.
+ * @param opts - Mock configuration options.
+ * @returns A mock user table object.
+ */
 export function createUserMock(opts: UserMockOpts): UserTableMock {
 	return {
 		select: (

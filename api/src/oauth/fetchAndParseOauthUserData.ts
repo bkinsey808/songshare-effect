@@ -61,6 +61,10 @@ export default function fetchAndParseOauthUserData(
 		);
 		const infoObj: Record<string, unknown> = isRecord(infoRaw) ? infoRaw : {};
 
+		/**
+		 * @param key - property key to read
+		 * @returns non-empty string value or undefined
+		 */
 		function getStr(key: string): string | undefined {
 			if (!Object.hasOwn(infoObj, key)) {
 				return undefined;

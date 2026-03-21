@@ -1,4 +1,5 @@
 import useImageUploadForm from "@/react/image/image-upload-form/useImageUploadForm";
+import TagInput from "@/react/tag-library/TagInput";
 
 /**
  * Form for uploading a new image to Cloudflare R2.
@@ -23,6 +24,8 @@ export default function ImageUploadForm(): ReactElement {
 		setAltText,
 		setDescription,
 		setImageName,
+		tags,
+		setTags,
 		uploadError,
 	} = useImageUploadForm();
 
@@ -102,6 +105,12 @@ export default function ImageUploadForm(): ReactElement {
 					placeholder="Optional description"
 					className="w-full rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
 				/>
+			</div>
+
+			{/* Tags */}
+			<div>
+				<p className="mb-2 text-sm font-medium text-gray-300">Tags</p>
+				<TagInput value={tags} onChange={setTags} />
 			</div>
 
 			{uploadError !== undefined && (

@@ -10,18 +10,22 @@ import updateSongPublic from "./updateSongPublic";
 
 vi.mock("@supabase/supabase-js");
 
-function makeSongPublicClient(
-	opts: {
-		updateRow?: { song_id: string; song_name?: string; song_slug?: string };
-		updateError?: boolean;
-	} = {},
-): ReturnType<typeof createClient> {
-	const updateRow = opts.updateRow ?? {
+/**
+ * @param updateRow - row returned after update
+ * @param updateError - whether to simulate an update error
+ * @returns A mocked Supabase client
+ */
+function makeSongPublicClient({
+	updateRow = {
 		song_id: "song-1",
 		song_name: "Updated",
 		song_slug: "updated",
-	};
-	const updateError = opts.updateError ?? false;
+	},
+	updateError = false,
+}: {
+	updateRow?: { song_id: string; song_name?: string; song_slug?: string };
+	updateError?: boolean;
+} = {}): ReturnType<typeof createClient> {
 
 	return forceCast<ReturnType<typeof createClient>>({
 		from: (table: string): object => {

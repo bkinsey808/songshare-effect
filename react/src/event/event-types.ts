@@ -29,6 +29,7 @@ export type SaveEventRequest = {
 	active_slide_position?: number | null;
 	public_notes?: string;
 	private_notes?: string;
+	tags?: readonly string[];
 };
 
 /**

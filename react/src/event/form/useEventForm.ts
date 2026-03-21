@@ -8,6 +8,7 @@ import useAppForm from "@/react/lib/form/useAppForm";
 import useFormChanges from "@/react/lib/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import setFieldValue from "@/react/song/song-form/use-song-form/setFieldValue";
+import useItemTags from "@/react/tag-library/useItemTags";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
@@ -27,6 +28,10 @@ const PLAYLISTS_NONE = 0;
 export type UseEventFormReturn = {
 	getFieldError: (field: keyof EventFormValues) => ValidationError | undefined;
 	isSubmitting: boolean;
+
+	// Tag State
+	tags: readonly string[];
+	setTags: (tags: readonly string[]) => void;
 
 	// Form State
 	formValues: EventFormValues;
@@ -73,6 +78,7 @@ export default function useEventForm(): UseEventFormReturn {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { event_id, lang } = useParams<{ event_id: string; lang: string }>();
+	const { tags, setTags } = useItemTags("event", event_id);
 	const langForNav = isSupportedLanguage(lang) ? lang : defaultLanguage;
 
 	const formRef = useRef<HTMLFormElement | null>(null);
@@ -152,6 +158,7 @@ export default function useEventForm(): UseEventFormReturn {
 	const handleFormSubmit = createHandleFormSubmit({
 		formValues,
 		isEditing,
+		tags,
 		runValidatedSubmit: (onSubmitValid: () => Promise<void>): Promise<void> =>
 			Effect.runPromise(handleSubmit(formValues, onSubmitValid)),
 		runSaveEvent,
@@ -232,6 +239,8 @@ export default function useEventForm(): UseEventFormReturn {
 	});
 
 	return {
+		tags,
+		setTags,
 		formValues,
 		setFormValue,
 		handleFormSubmit,

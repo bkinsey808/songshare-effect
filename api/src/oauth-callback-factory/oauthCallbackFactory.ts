@@ -59,6 +59,7 @@ const SEE_OTHER = 303;
  * - Callers receive an Effect that, when executed, yields a Response or one
  * of the typed errors above.
  *
+ * @param ctx - The Hono request context
  * @returns An Effect that yields a `Response` on success or a typed error on
  * failure.
  */

@@ -1,3 +1,4 @@
+import { type DragEndEvent, type SensorDescriptor, type SensorOptions } from "@dnd-kit/core";
 import { Effect } from "effect";
 import { type TFunction } from "i18next";
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +12,7 @@ import useFormChanges from "@/react/lib/form/useFormChanges";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import generateSlug from "@/react/lib/slug/generateSlug";
 import setFieldValue from "@/react/song/song-form/use-song-form/setFieldValue";
+import useItemTags from "@/react/tag-library/useItemTags";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
 import {
@@ -25,6 +27,7 @@ import {
 	removeSongFromOrder,
 } from "./helpers/songOrder";
 import submitPlaylist, { type SubmitPlaylistParams } from "./helpers/submitPlaylist";
+import usePlaylistDragAndDrop from "./helpers/usePlaylistDragAndDrop";
 import useFetchPlaylist from "./useFetchPlaylist";
 import usePopulatePlaylistForm from "./usePopulatePlaylistForm";
 
@@ -64,6 +67,15 @@ export type UsePlaylistFormReturn = {
 	hasUnsavedChanges: boolean;
 	isSaving: boolean;
 	t: TFunction;
+
+	// Tag state
+	tags: readonly string[];
+	setTags: (tags: readonly string[]) => void;
+
+	// DnD
+	sensors: SensorDescriptor<SensorOptions>[];
+	handleDragEnd: (event: DragEndEvent) => void;
+	sortableItems: string[];
 };
 
 /**
@@ -80,6 +92,7 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 	const { lang } = useLocale();
 	const navigate = useNavigate();
 	const { playlist_id } = useParams<{ playlist_id: string }>();
+	const { tags, setTags } = useItemTags("playlist", playlist_id);
 
 	const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -219,6 +232,7 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 					publicNotes: formValues.public_notes ?? "",
 					privateNotes: formValues.private_notes ?? "",
 					songOrder: [...formValues.song_order],
+					tags,
 				};
 
 				if (isEditing && playlist_id) {
@@ -255,6 +269,11 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 	} else {
 		submitLabel = t("playlistEdit.create", "Create Playlist");
 	}
+
+	const { sensors, handleDragEnd, sortableItems } = usePlaylistDragAndDrop({
+		songOrder: formValues.song_order,
+		setSongOrder: updateSongOrder,
+	});
 
 	// Use store methods
 	const addActivePublicSongIds: (songIds: readonly string[]) => Effect.Effect<void, Error> =
@@ -302,5 +321,10 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 		hasUnsavedChanges: hasUnsavedChanges(),
 		isSaving,
 		t,
+		tags,
+		setTags,
+		sensors,
+		handleDragEnd,
+		sortableItems,
 	};
 }

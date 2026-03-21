@@ -62,5 +62,12 @@ export type UseSongFormReturn = {
 	handleSave: () => void;
 	handleCancel: () => void;
 	handleDelete: () => Promise<void>;
-	hasUnsavedChanges: () => boolean;
+	hasChanges: boolean;
+
+	// Tag state
+	tags: readonly string[];
+	setTags: (tags: readonly string[]) => void;
+
+	// Editing state
+	isEditing: boolean;
 };

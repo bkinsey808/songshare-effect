@@ -26,6 +26,16 @@ export type ImagePublicTableMock = {
 	};
 };
 
+/**
+ * Create a mock for the `image_public` table in Supabase.
+ *
+ * @param imagePublicSelectSingleRow - Mock row to return for single select
+ * @param imagePublicSelectFullRow - Mock row to return for * select
+ * @param imagePublicSelectSingleError - Mock error to return for single select
+ * @param imagePublicSelectThrows - Error to throw during select
+ * @param imagePublicUpdateError - Mock error to return on update
+ * @returns A mocked Supabase table object
+ */
 export function createImagePublicMock(opts: ImagePublicMockOpts): ImagePublicTableMock {
 	return {
 		select: (cols: string) => ({

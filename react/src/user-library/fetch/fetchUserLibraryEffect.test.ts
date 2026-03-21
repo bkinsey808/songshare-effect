@@ -10,7 +10,7 @@ import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 
 import makeUserLibrarySlice from "../slice/makeUserLibrarySlice.mock";
-import makeUserLibraryEntry from "../test-utils/makeUserLibraryEntry.mock";
+import makeUserLibraryEntry from "../test-utils/makeUserLibraryEntry.test-util";
 import fetchUserLibrary from "./fetchUserLibraryEffect";
 
 vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
