@@ -8,7 +8,6 @@ export default function makeEventLibraryEntry(
 	return forceCast<EventLibraryEntry>({
 		user_id: "u1",
 		event_id: "e1",
-		event_owner_id: "owner-1",
 		created_at: now,
 		event_public: overrides.event_public ?? {
 			event_id: "e1",

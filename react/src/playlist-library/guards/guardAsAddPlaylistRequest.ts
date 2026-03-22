@@ -15,11 +15,7 @@ export default function guardAsAddPlaylistRequest(
 	if (typeof value["playlist_id"] !== "string") {
 		throw new TypeError(`${context}: missing or invalid playlist_id`);
 	}
-	if (typeof value["playlist_owner_id"] !== "string") {
-		throw new TypeError(`${context}: missing or invalid playlist_owner_id`);
-	}
 	return {
 		playlist_id: value["playlist_id"],
-		playlist_owner_id: value["playlist_owner_id"],
 	};
 }

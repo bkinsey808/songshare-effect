@@ -4,7 +4,6 @@ export type ItemType = (typeof ITEM_TYPES)[number];
 
 /**
  * Per-item-type configuration: junction table, item ID column, and library table.
- * `libraryTable` is `undefined` for item types that have no user library (community).
  */
 export const ITEM_TYPE_CONFIG = {
 	song: {
@@ -25,7 +24,7 @@ export const ITEM_TYPE_CONFIG = {
 	community: {
 		tagTable: "community_tag",
 		idCol: "community_id",
-		libraryTable: undefined,
+		libraryTable: "community_library",
 	},
 	image: {
 		tagTable: "image_tag",
@@ -34,5 +33,5 @@ export const ITEM_TYPE_CONFIG = {
 	},
 } as const satisfies Record<
 	ItemType,
-	{ tagTable: string; idCol: string; libraryTable: string | undefined }
+	{ tagTable: string; idCol: string; libraryTable: string }
 >;

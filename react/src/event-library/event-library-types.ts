@@ -10,7 +10,6 @@ import type { EventPublic } from "@/react/event/event-types";
 export type EventLibrary = {
 	user_id: string;
 	event_id: string;
-	event_owner_id: string;
 	created_at: string;
 };
 

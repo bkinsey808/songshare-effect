@@ -24,7 +24,6 @@ describe("handleEventLibrarySubscribeEvent", () => {
 		const newEntry = makeEventLibraryEntry({
 			event_id: "e1",
 			user_id: "u1",
-			event_owner_id: "owner-1",
 			created_at: "2022-01-01T00:00:00Z",
 		});
 		const payload = { eventType, new: newEntry } as const;

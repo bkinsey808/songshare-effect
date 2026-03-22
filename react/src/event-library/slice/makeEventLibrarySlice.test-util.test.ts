@@ -11,7 +11,6 @@ describe("makeEventLibrarySlice", () => {
 			e1: makeEventLibraryEntry({
 				user_id: "u1",
 				event_id: "e1",
-				event_owner_id: "o",
 				created_at: "t",
 			}),
 		};
@@ -37,7 +36,6 @@ describe("makeEventLibrarySlice", () => {
 		const entry = makeEventLibraryEntry({
 			user_id: "u2",
 			event_id: "e2",
-			event_owner_id: "o",
 			created_at: "t",
 		});
 
@@ -56,7 +54,6 @@ describe("makeEventLibrarySlice", () => {
 		slice.addEventLibraryEntry({
 			user_id: "u3",
 			event_id: "e3",
-			event_owner_id: "o",
 			created_at: "t",
 		});
 		expect(slice.addEventLibraryEntry).toHaveBeenCalledWith(

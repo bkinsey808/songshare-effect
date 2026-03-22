@@ -64,7 +64,7 @@ export default function fetchSongLibrary(get: () => SongLibrarySlice): Effect.Ef
 			Effect.tryPromise({
 				try: () =>
 					callSelect(client, "song_public", {
-						cols: "song_id, song_name, song_slug",
+						cols: "song_id, song_name, song_slug, user_id",
 						in: { col: "song_id", vals: songIds },
 					}),
 				catch: (err) => new Error(String(err)),
@@ -89,18 +89,23 @@ export default function fetchSongLibrary(get: () => SongLibrarySlice): Effect.Ef
 				}
 				const songName = guardAsString(song["song_name"]);
 				const songSlug = guardAsString(song["song_slug"]);
-				return [maybeId, { song_name: songName, song_slug: songSlug }] as [
+				const userId = typeof song["user_id"] === "string" ? song["user_id"] : undefined;
+				return [maybeId, { song_name: songName, song_slug: songSlug, user_id: userId }] as [
 					string,
-					{ song_name: string; song_slug: string },
+					{ song_name: string; song_slug: string; user_id: string | undefined },
 				];
 			})
 			.filter(
-				(entry): entry is [string, { song_name: string; song_slug: string }] => entry !== undefined,
+				(entry): entry is [string, { song_name: string; song_slug: string; user_id: string | undefined }] => entry !== undefined,
 			);
-		const songMap = new Map<string, { song_name: string; song_slug: string }>(songMapEntries);
+		const songMap = new Map<string, { song_name: string; song_slug: string; user_id: string | undefined }>(songMapEntries);
 
 		const ownerIds = [
-			...new Set(filteredEntriesArray.map((entry: SongLibrary) => entry.song_owner_id)),
+			...new Set(
+				filteredEntriesArray
+					.map((entry: SongLibrary) => songMap.get(entry.song_id)?.user_id)
+					.filter((id): id is string => id !== undefined),
+			),
 		];
 		const rawOwnerResult = yield* $(
 			Effect.tryPromise({
@@ -131,12 +136,13 @@ export default function fetchSongLibrary(get: () => SongLibrarySlice): Effect.Ef
 
 		const entriesRecord = filteredEntriesArray.reduce<Record<string, SongLibraryEntry>>(
 			(acc: Record<string, SongLibraryEntry>, entry: SongLibrary) => {
-				const ownerUsername: string | undefined = ownerMap.get(entry.song_owner_id);
-				const songDetails: { song_name?: string; song_slug?: string } | undefined = songMap.get(
-					entry.song_id,
-				);
+				const songDetails = songMap.get(entry.song_id);
+				const songOwnerId: string | undefined = songDetails?.user_id;
+				const ownerUsername: string | undefined =
+					songOwnerId === undefined ? undefined : ownerMap.get(songOwnerId);
 				const libraryEntry: SongLibraryEntry = {
 					...entry,
+					...(songOwnerId !== undefined && { song_owner_id: songOwnerId }),
 					...(ownerUsername !== undefined && {
 						owner_username: ownerUsername,
 					}),

@@ -192,7 +192,7 @@ export default function eventUserAdd(
 		);
 
 		if (eventData.data) {
-			const { active_playlist_id, active_song_id, owner_id } = eventData.data;
+			const { active_playlist_id, active_song_id } = eventData.data;
 
 			// Add active playlist to user's library if it exists
 			const activePlaylistId = active_playlist_id ?? undefined;
@@ -204,8 +204,7 @@ export default function eventUserAdd(
 								{
 									user_id,
 									playlist_id: activePlaylistId,
-									playlist_owner_id: owner_id,
-								},
+											},
 							]),
 						catch: (err) => {
 							// Non-fatal: user might already have it in their library
@@ -221,37 +220,24 @@ export default function eventUserAdd(
 			// Add active song to user's library if it exists
 			const activeSongId = active_song_id ?? undefined;
 			if (activeSongId !== undefined && activeSongId !== "") {
-				// First get the song owner
-				const songData = yield* $(
+				yield* $(
 					Effect.tryPromise({
 						try: () =>
-							supabase.from("song_public").select("user_id").eq("song_id", activeSongId).single(),
-						catch: () => undefined,
-					}).pipe(Effect.catchAll(() => Effect.succeed({ data: undefined }))),
+							supabase.from("song_library").insert([
+								{
+									user_id,
+									song_id: activeSongId,
+								},
+							]),
+						catch: (err) => {
+							// Non-fatal: user might already have it in their library
+							console.warn(
+								`Failed to add song to user library (non-fatal): ${extractErrorMessage(err, "Unknown error")}`,
+							);
+							return undefined;
+						},
+					}).pipe(Effect.catchAll(() => Effect.succeed(undefined))),
 				);
-
-				const songOwnerId = songData.data?.user_id ?? undefined;
-				if (songOwnerId !== undefined && songOwnerId !== "") {
-					yield* $(
-						Effect.tryPromise({
-							try: () =>
-								supabase.from("song_library").insert([
-									{
-										user_id,
-										song_id: activeSongId,
-										song_owner_id: songOwnerId,
-									},
-								]),
-							catch: (err) => {
-								// Non-fatal: user might already have it in their library
-								console.warn(
-									`Failed to add song to user library (non-fatal): ${extractErrorMessage(err, "Unknown error")}`,
-								);
-								return undefined;
-							},
-						}).pipe(Effect.catchAll(() => Effect.succeed(undefined))),
-					);
-				}
 			}
 		}
 

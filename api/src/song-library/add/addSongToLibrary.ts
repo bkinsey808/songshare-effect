@@ -21,7 +21,7 @@ import performSongLibraryInsert from "./performSongLibraryInsert";
  * - inserts the entry into song_library using service key (bypass RLS for trusted operation)
  *
  * @param ctx - The readonly request context provided by the server
- * @param request - The request body containing song_id and song_owner_id
+ * @param request - The request body containing song_id
  * @returns The inserted song library entry, or fails with an error
  */
 export default function addSongToLibraryHandler(
@@ -39,7 +39,7 @@ export default function addSongToLibraryHandler(
 		);
 
 		// Validate request structure
-		let req: AddSongRequest = { song_id: "", song_owner_id: "" };
+		let req: AddSongRequest = { song_id: "" };
 		try {
 			req = extractAddSongRequest(requestBody);
 		} catch (error) {
@@ -59,6 +59,20 @@ export default function addSongToLibraryHandler(
 		// Get Supabase admin client (service key - allows bypassing RLS)
 		const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
 
+		// Fetch song owner from song_public before inserting
+		const songPublicResult = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					client.from("song_public").select("user_id").eq("song_id", req.song_id).single(),
+				catch: (error) =>
+					new DatabaseError({
+						message: extractErrorMessage(error, "Failed to fetch song"),
+					}),
+			}),
+		);
+
+		const songOwnerId: string | undefined = songPublicResult.data?.user_id ?? undefined;
+
 		// Insert into song_library using service key
 		const insertResult = yield* $(performSongLibraryInsert(client, userId, req));
 
@@ -69,14 +83,13 @@ export default function addSongToLibraryHandler(
 			const isSongFkViolation =
 				typeof errorMsg === "string" && errorMsg.includes("song_library_song_id_fkey");
 			if (isSongFkViolation) {
-				const repaired = yield* $(attemptSongLibraryRepair(client, userId, req));
+				const repaired = yield* $(attemptSongLibraryRepair(client, userId, { req, songOwnerId }));
 				if (repaired !== undefined) {
 					return repaired;
 				}
 			}
 			console.error("[addSongToLibrary] Insert failed:", errorMsg, {
 				song_id: req.song_id,
-				song_owner_id: req.song_owner_id,
 				user_id: userId,
 			});
 			return yield* $(
@@ -92,11 +105,11 @@ export default function addSongToLibraryHandler(
 			return yield* $(Effect.fail(new DatabaseError({ message: "No data returned from insert" })));
 		}
 
-		const libraryEntry: SongLibrary = {
+		const libraryEntry: SongLibrary & { song_owner_id?: string } = {
 			created_at: data.created_at,
 			song_id: data.song_id,
-			song_owner_id: data.song_owner_id,
 			user_id: data.user_id,
+			...(songOwnerId === undefined ? {} : { song_owner_id: songOwnerId }),
 		};
 
 		return libraryEntry;

@@ -10,7 +10,6 @@ vi.mock("@/react/lib/utils/clientLogger");
 const VALID_ENTRY = {
 	user_id: "u1",
 	event_id: "e1",
-	event_owner_id: "o1",
 	created_at: "2024-01-01T00:00:00Z",
 };
 

@@ -190,8 +190,7 @@ export default function eventUserJoin(
 							{
 								user_id: userId,
 								event_id: validated.event_id,
-								event_owner_id: eventExists.data.owner_id,
-							},
+									},
 						],
 						{ onConflict: "user_id,event_id", ignoreDuplicates: true },
 					),

@@ -32,7 +32,6 @@ describe("toImageLibraryEntry", () => {
 		expect(result).toStrictEqual({
 			user_id: "user-1",
 			image_id: "img-1",
-			image_owner_id: "user-1",
 			created_at: "2025-01-01T00:00:00Z",
 			image_public: baseImagePublic,
 		});
@@ -44,7 +43,6 @@ describe("toImageLibraryEntry", () => {
 		expect(result).toStrictEqual({
 			user_id: "",
 			image_id: "img-2",
-			image_owner_id: "",
 			created_at: "",
 		});
 		expect(result.image_public).toBeUndefined();

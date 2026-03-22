@@ -32,7 +32,7 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 	ip: "127.0.0.1",
 };
 
-const VALID_BODY = { playlist_id: "pl-1", playlist_owner_id: "owner-1" };
+const VALID_BODY = { playlist_id: "pl-1" };
 
 describe("addPlaylistToLibraryHandler", () => {
 	it("returns ValidationError when JSON body is invalid", async () => {
@@ -42,21 +42,21 @@ describe("addPlaylistToLibraryHandler", () => {
 		);
 	});
 
-	it("fails when request is missing playlist_id and playlist_owner_id", async () => {
+	it("fails when request is missing playlist_id", async () => {
 		vi.resetAllMocks();
 		const ctx = makeCtx({ body: {} });
 
 		await expect(Effect.runPromise(addPlaylistToLibraryHandler(ctx))).rejects.toThrow(
-			/Request must contain playlist_id and playlist_owner_id/,
+			/Request must contain playlist_id/,
 		);
 	});
 
 	it("fails when playlist_id is not a string", async () => {
 		vi.resetAllMocks();
-		const ctx = makeCtx({ body: { playlist_id: 123, playlist_owner_id: "owner-1" } });
+		const ctx = makeCtx({ body: { playlist_id: 123 } });
 
 		await expect(Effect.runPromise(addPlaylistToLibraryHandler(ctx))).rejects.toThrow(
-			/playlist_id and playlist_owner_id must be strings/,
+			/playlist_id must be a string/,
 		);
 	});
 
@@ -89,7 +89,6 @@ describe("addPlaylistToLibraryHandler", () => {
 				{
 					created_at: createdAt,
 					playlist_id: "pl-1",
-					playlist_owner_id: "owner-1",
 					user_id: "user-123",
 				},
 			],

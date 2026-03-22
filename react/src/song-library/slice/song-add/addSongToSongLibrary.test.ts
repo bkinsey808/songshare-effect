@@ -13,7 +13,6 @@ vi.mock("@/react/utils/clientLogger");
 
 // Test constants
 const SONG_ID = "song-123";
-const OWNER_ID = "owner-456";
 const USER_ID = "user-789";
 const CREATED_AT = "2024-01-01T00:00:00Z";
 const ERROR_NETWORK = "Network error";
@@ -24,12 +23,10 @@ const ERROR_SERVER_500 = "Internal Server Error";
 
 const VALID_REQUEST: AddSongToSongLibraryRequest = {
 	song_id: SONG_ID,
-	song_owner_id: OWNER_ID,
 };
 
 const VALID_RESPONSE = {
 	song_id: SONG_ID,
-	song_owner_id: OWNER_ID,
 	user_id: USER_ID,
 	created_at: CREATED_AT,
 };
@@ -78,7 +75,7 @@ describe("addSongToSongLibrary", () => {
 		const get = makeSongLibrarySlice();
 		const mockSlice = get();
 
-		const invalidRequest = forceCast<AddSongToSongLibraryRequest>({ song_id: SONG_ID }); // Missing song_owner_id
+		const invalidRequest = forceCast<AddSongToSongLibraryRequest>({}); // Missing song_id
 
 		await expect(Effect.runPromise(addSongToSongLibrary(invalidRequest, get))).rejects.toThrow(
 			Error,
@@ -163,7 +160,7 @@ describe("addSongToSongLibrary", () => {
 			Response.json(
 				{
 					song_id: "song-123",
-					// Missing song_owner_id
+					// Missing user_id
 				},
 				{
 					status: 200,
@@ -202,7 +199,6 @@ describe("addSongToSongLibrary", () => {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					song_id: VALID_REQUEST.song_id,
-					song_owner_id: VALID_REQUEST.song_owner_id,
 				}),
 			}),
 		);

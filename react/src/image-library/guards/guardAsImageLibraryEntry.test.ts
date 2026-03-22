@@ -7,13 +7,11 @@ vi.mock("@/react/lib/utils/clientLogger");
 const CONTEXT = "test-context";
 const IMAGE_ID = "img-1";
 const USER_ID = "user-1";
-const IMAGE_OWNER_ID = "owner-1";
 const NOT_A_STRING_NUM = 42;
 
 const validEntry = {
 	user_id: USER_ID,
 	image_id: IMAGE_ID,
-	image_owner_id: IMAGE_OWNER_ID,
 	created_at: "2026-01-01T00:00:00Z",
 };
 
@@ -36,13 +34,13 @@ describe("guardAsImageLibraryEntry", () => {
 	it("throws TypeError with context when value lacks user_id", () => {
 		expect(() =>
 			guardAsImageLibraryEntry(
-				{ image_id: IMAGE_ID, image_owner_id: IMAGE_OWNER_ID, created_at: "" },
+				{ image_id: IMAGE_ID, created_at: "" },
 				CONTEXT,
 			),
 		).toThrow(TypeError);
 		expect(() =>
 			guardAsImageLibraryEntry(
-				{ image_id: IMAGE_ID, image_owner_id: IMAGE_OWNER_ID, created_at: "" },
+				{ image_id: IMAGE_ID, created_at: "" },
 				CONTEXT,
 			),
 		).toThrow(/test-context/);
@@ -51,7 +49,7 @@ describe("guardAsImageLibraryEntry", () => {
 	it("throws TypeError with context when value lacks image_id", () => {
 		expect(() =>
 			guardAsImageLibraryEntry(
-				{ user_id: USER_ID, image_owner_id: IMAGE_OWNER_ID, created_at: "" },
+				{ user_id: USER_ID, created_at: "" },
 				CONTEXT,
 			),
 		).toThrow(TypeError);
@@ -63,7 +61,6 @@ describe("guardAsImageLibraryEntry", () => {
 				{
 					user_id: NOT_A_STRING_NUM,
 					image_id: IMAGE_ID,
-					image_owner_id: IMAGE_OWNER_ID,
 					created_at: "",
 				},
 				CONTEXT,
@@ -77,7 +74,6 @@ describe("guardAsImageLibraryEntry", () => {
 				{
 					user_id: USER_ID,
 					image_id: NOT_A_STRING_NUM,
-					image_owner_id: IMAGE_OWNER_ID,
 					created_at: "",
 				},
 				CONTEXT,

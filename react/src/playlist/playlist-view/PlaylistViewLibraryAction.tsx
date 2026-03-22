@@ -70,7 +70,6 @@ export default function PlaylistViewLibraryAction({
 			await Effect.runPromise(
 				addPlaylistToLibrary({
 					playlist_id: playlistId,
-					playlist_owner_id: playlistOwnerId,
 				}),
 			);
 		} catch {

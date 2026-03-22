@@ -83,19 +83,19 @@ export default function fetchEventCommunities(
 			const communityIds = rawRows.map((row) => row.community_id);
 			const publicRes: PostgrestResponse<{
 				community_id: string;
-				name: string;
-				slug: string;
+				community_name: string;
+				community_slug: string;
 			}> = yield* $(
 				Effect.tryPromise<
-					PostgrestResponse<{ community_id: string; name: string; slug: string }>,
+					PostgrestResponse<{ community_id: string; community_name: string; community_slug: string }>,
 					Error
 				>({
 					try: () =>
-						callSelect<{ community_id: string; name: string; slug: string }>(
+						callSelect<{ community_id: string; community_name: string; community_slug: string }>(
 							client,
 							"community_public",
 							{
-								cols: "community_id, name, slug",
+								cols: "community_id, community_name, community_slug",
 								in: { col: "community_id", vals: communityIds },
 							},
 						),
@@ -115,11 +115,11 @@ export default function fetchEventCommunities(
 					event_id: row.event_id,
 					created_at: row.created_at,
 				};
-				if (detail?.name !== undefined) {
-					base.community_name = detail.name;
+				if (detail?.community_name !== undefined) {
+					base.community_name = detail.community_name;
 				}
-				if (detail?.slug !== undefined) {
-					base.community_slug = detail.slug;
+				if (detail?.community_slug !== undefined) {
+					base.community_slug = detail.community_slug;
 				}
 				return base;
 			});

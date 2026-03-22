@@ -12,8 +12,7 @@ function isPlaylistLibrary(value: unknown): value is PlaylistLibrary {
 	return (
 		isRecord(value) &&
 		typeof value["user_id"] === "string" &&
-		typeof value["playlist_id"] === "string" &&
-		typeof value["playlist_owner_id"] === "string"
+		typeof value["playlist_id"] === "string"
 	);
 }
 

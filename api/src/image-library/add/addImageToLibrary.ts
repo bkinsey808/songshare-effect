@@ -11,7 +11,6 @@ import extractAddImageRequest, { type AddImageRequest } from "./extractAddImageR
 type ImageLibraryRow = {
 	user_id: string;
 	image_id: string;
-	image_owner_id: string;
 	created_at: string;
 };
 
@@ -51,22 +50,6 @@ export default function addImageToLibrary(
 
 		const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
 
-		// Fetch the image owner from image_public
-		const imageResult = yield* $(
-			Effect.tryPromise({
-				try: () =>
-					client.from("image_public").select("user_id").eq("image_id", req.image_id).single(),
-				catch: (error) =>
-					new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch image") }),
-			}),
-		);
-
-		if (imageResult.error || imageResult.data === null) {
-			return yield* $(Effect.fail(new DatabaseError({ message: "Image not found" })));
-		}
-
-		const imageOwnerId: string = imageResult.data.user_id;
-
 		// Insert into image_library
 		const insertResult = yield* $(
 			Effect.tryPromise({
@@ -77,7 +60,6 @@ export default function addImageToLibrary(
 							{
 								user_id: userId,
 								image_id: req.image_id,
-								image_owner_id: imageOwnerId,
 							},
 						])
 						.select()

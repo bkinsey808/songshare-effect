@@ -5,7 +5,6 @@ import type { MockRow, MultiResult, SingleBuilder, SingleResult } from "./supaba
 type ImageLibraryInsertRow = {
 	user_id: string;
 	image_id: string;
-	image_owner_id: string;
 	created_at?: string;
 };
 

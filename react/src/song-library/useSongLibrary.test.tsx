@@ -86,7 +86,6 @@ describe("useSongLibrary", () => {
 		const entriesRecord: AppSlice["songLibraryEntries"] = {
 			[TEST_SONG_ID]: makeSongLibraryEntry({
 				song_id: TEST_SONG_ID,
-				song_owner_id: TEST_OWNER_ID,
 				user_id: TEST_OWNER_ID,
 				created_at: TEST_CREATED_AT,
 			}),
@@ -205,7 +204,6 @@ describe("useSongLibrary", () => {
 					song_id: "visible-1",
 					created_at: TEST_CREATED_AT,
 					user_id: TEST_OWNER_ID,
-					song_owner_id: TEST_OWNER_ID,
 				}),
 			},
 		});
@@ -222,13 +220,11 @@ describe("useSongLibrary", () => {
 					song_id: "visible-2",
 					created_at: TEST_CREATED_AT,
 					user_id: TEST_OWNER_ID,
-					song_owner_id: TEST_OWNER_ID,
 				}),
 				"visible-3": makeSongLibraryEntry({
 					song_id: "visible-3",
 					created_at: TEST_CREATED_AT,
 					user_id: TEST_OWNER_ID,
-					song_owner_id: TEST_OWNER_ID,
 				}),
 			},
 		});

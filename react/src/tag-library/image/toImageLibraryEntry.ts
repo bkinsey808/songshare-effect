@@ -10,7 +10,6 @@ import type { ImageTagRow } from "@/react/tag-library/image/ImageTagRow.type";
  * @param row - row returned from the tag-library image query
  * @returns user_id - owner id or empty string when unknown
  * @returns image_id - id from the tag row
- * @returns image_owner_id - owner id copied from `image_public` when present
  * @returns created_at - creation timestamp or empty string when unknown
  * @returns image_public - original `image_public` payload, included only when present
  */
@@ -21,7 +20,6 @@ export default function toImageLibraryEntry(row: ImageTagRow): ImageLibraryEntry
 	const entry: ImageLibraryEntry = {
 		user_id: ownerId,
 		image_id: row.image_id,
-		image_owner_id: ownerId,
 		created_at: createdAt,
 	};
 	if (ip !== undefined) {

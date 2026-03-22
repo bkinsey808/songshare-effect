@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict Eoa0biwf1wJ25IDQRugrufeBze465TyU311W9bUFzF3cE7OesefMsKbgsQPTVkp
+\restrict 9QncWbdIJ3PwRItHxwksPym9CppKXIoWEhvQmPC1ahL3iA0DhRGmItHFGyXytsj
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -182,7 +182,6 @@ COMMENT ON TABLE public.community_event IS 'Many-to-many relationship between co
 CREATE TABLE public.community_library (
     user_id uuid NOT NULL,
     community_id uuid NOT NULL,
-    community_owner_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -208,13 +207,6 @@ COMMENT ON COLUMN public.community_library.user_id IS 'The user who has saved th
 --
 
 COMMENT ON COLUMN public.community_library.community_id IS 'References the community being saved.';
-
-
---
--- Name: COLUMN community_library.community_owner_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.community_library.community_owner_id IS 'The original owner of the community (denormalized for easier querying).';
 
 
 --
@@ -409,7 +401,6 @@ COMMENT ON COLUMN public.event.private_notes IS 'Private notes visible only to t
 CREATE TABLE public.event_library (
     user_id uuid NOT NULL,
     event_id uuid NOT NULL,
-    event_owner_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -433,13 +424,6 @@ COMMENT ON COLUMN public.event_library.user_id IS 'The user who has saved this e
 --
 
 COMMENT ON COLUMN public.event_library.event_id IS 'References the event being saved.';
-
-
---
--- Name: COLUMN event_library.event_owner_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.event_library.event_owner_id IS 'The original owner of the event (denormalized for easier querying).';
 
 
 --
@@ -683,7 +667,6 @@ COMMENT ON COLUMN public.image.private_notes IS 'Private notes visible only to t
 CREATE TABLE public.image_library (
     user_id uuid NOT NULL,
     image_id uuid NOT NULL,
-    image_owner_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -695,13 +678,6 @@ ALTER TABLE ONLY public.image_library REPLICA IDENTITY FULL;
 --
 
 COMMENT ON TABLE public.image_library IS 'User image bookmarks / collection';
-
-
---
--- Name: COLUMN image_library.image_owner_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.image_library.image_owner_id IS 'Owner of the image (denormalized for efficient queries)';
 
 
 --
@@ -837,7 +813,6 @@ COMMENT ON COLUMN public.playlist.private_notes IS 'Private notes visible only t
 CREATE TABLE public.playlist_library (
     user_id uuid NOT NULL,
     playlist_id uuid NOT NULL,
-    playlist_owner_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -863,13 +838,6 @@ COMMENT ON COLUMN public.playlist_library.user_id IS 'The user who owns this lib
 --
 
 COMMENT ON COLUMN public.playlist_library.playlist_id IS 'Reference to the playlist being added to library';
-
-
---
--- Name: COLUMN playlist_library.playlist_owner_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.playlist_library.playlist_owner_id IS 'The original owner/creator of the playlist';
 
 
 --
@@ -1162,7 +1130,6 @@ CREATE TABLE public.song (
 CREATE TABLE public.song_library (
     user_id uuid NOT NULL,
     song_id uuid NOT NULL,
-    song_owner_id uuid NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -1188,13 +1155,6 @@ COMMENT ON COLUMN public.song_library.user_id IS 'The user who owns this library
 --
 
 COMMENT ON COLUMN public.song_library.song_id IS 'Reference to the song being added to library';
-
-
---
--- Name: COLUMN song_library.song_owner_id; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.song_library.song_owner_id IS 'The original owner/creator of the song';
 
 
 --
@@ -1927,13 +1887,6 @@ CREATE INDEX playlist_library_playlist_id_idx ON public.playlist_library USING b
 
 
 --
--- Name: playlist_library_playlist_owner_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX playlist_library_playlist_owner_id_idx ON public.playlist_library USING btree (playlist_owner_id);
-
-
---
 -- Name: playlist_library_user_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2064,13 +2017,6 @@ CREATE INDEX song_library_created_at_idx ON public.song_library USING btree (cre
 --
 
 CREATE INDEX song_library_song_id_idx ON public.song_library USING btree (song_id);
-
-
---
--- Name: song_library_song_owner_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX song_library_song_owner_id_idx ON public.song_library USING btree (song_owner_id);
 
 
 --
@@ -2252,21 +2198,6 @@ ALTER TABLE ONLY public.community_library
 
 
 --
--- Name: community_library community_library_community_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.community_library
-    ADD CONSTRAINT community_library_community_owner_id_fkey FOREIGN KEY (community_owner_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
-
-
---
--- Name: CONSTRAINT community_library_community_owner_id_fkey ON community_library; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON CONSTRAINT community_library_community_owner_id_fkey ON public.community_library IS 'Ensures community_owner_id references a valid user. Cascades deletion if the owner is deleted.';
-
-
---
 -- Name: community_library community_library_community_public_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2410,21 +2341,6 @@ ALTER TABLE ONLY public.event_library
 
 
 --
--- Name: event_library event_library_event_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.event_library
-    ADD CONSTRAINT event_library_event_owner_id_fkey FOREIGN KEY (event_owner_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
-
-
---
--- Name: CONSTRAINT event_library_event_owner_id_fkey ON event_library; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON CONSTRAINT event_library_event_owner_id_fkey ON public.event_library IS 'Ensures event_owner_id references a valid user. Cascades deletion if the owner is deleted.';
-
-
---
 -- Name: event_library event_library_event_public_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2535,14 +2451,6 @@ ALTER TABLE ONLY public.image_library
 
 
 --
--- Name: image_library image_library_image_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.image_library
-    ADD CONSTRAINT image_library_image_owner_id_fkey FOREIGN KEY (image_owner_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
-
-
---
 -- Name: image_library image_library_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2596,14 +2504,6 @@ ALTER TABLE ONLY public.image
 
 ALTER TABLE ONLY public.playlist_library
     ADD CONSTRAINT playlist_library_playlist_id_fkey FOREIGN KEY (playlist_id) REFERENCES public.playlist(playlist_id) ON DELETE CASCADE;
-
-
---
--- Name: playlist_library playlist_library_playlist_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.playlist_library
-    ADD CONSTRAINT playlist_library_playlist_owner_id_fkey FOREIGN KEY (playlist_owner_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
 
 
 --
@@ -2708,14 +2608,6 @@ ALTER TABLE ONLY public.share
 
 ALTER TABLE ONLY public.song_library
     ADD CONSTRAINT song_library_song_id_fkey FOREIGN KEY (song_id) REFERENCES public.song(song_id) ON DELETE CASCADE;
-
-
---
--- Name: song_library song_library_song_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.song_library
-    ADD CONSTRAINT song_library_song_owner_id_fkey FOREIGN KEY (song_owner_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
 
 
 --
@@ -3685,5 +3577,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Eoa0biwf1wJ25IDQRugrufeBze465TyU311W9bUFzF3cE7OesefMsKbgsQPTVkp
+\unrestrict 9QncWbdIJ3PwRItHxwksPym9CppKXIoWEhvQmPC1ahL3iA0DhRGmItHFGyXytsj
 

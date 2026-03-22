@@ -33,7 +33,6 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 };
 
 const VALID_IMAGE_ID = "img-1";
-const IMAGE_OWNER_ID = "owner-1";
 const CREATED_AT = "2026-01-01T00:00:00Z";
 
 describe("addImageToLibrary", () => {
@@ -72,25 +71,6 @@ describe("addImageToLibrary", () => {
 		await expect(Effect.runPromise(addImageToLibrary(ctx))).rejects.toThrow(/Not authenticated/);
 	});
 
-	it("fails when image is not found in image_public", async () => {
-		vi.resetAllMocks();
-		const ctx = makeCtx({ body: { image_id: VALID_IMAGE_ID } });
-
-		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
-		vi.spyOn(verifiedModule, "default").mockReturnValue(
-			Effect.succeed<UserSessionData>(SAMPLE_USER_SESSION),
-		);
-
-		const fakeSupabase = makeSupabaseClient({
-			imagePublicSelectSingleRow: undefined,
-		});
-
-		const mockGet = await spyImport("@/api/supabase/getSupabaseServerClient");
-		mockGet.mockReturnValue(fakeSupabase);
-
-		await expect(Effect.runPromise(addImageToLibrary(ctx))).rejects.toThrow(/Image not found/);
-	});
-
 	it("inserts into image_library and returns created entry (happy path)", async () => {
 		vi.resetAllMocks();
 		const ctx = makeCtx({ body: { image_id: VALID_IMAGE_ID } });
@@ -101,12 +81,10 @@ describe("addImageToLibrary", () => {
 		);
 
 		const fakeSupabase = makeSupabaseClient({
-			imagePublicSelectSingleRow: { user_id: IMAGE_OWNER_ID },
 			imageLibraryInsertRows: [
 				{
 					user_id: "user-123",
 					image_id: VALID_IMAGE_ID,
-					image_owner_id: IMAGE_OWNER_ID,
 					created_at: CREATED_AT,
 				},
 			],
@@ -120,7 +98,6 @@ describe("addImageToLibrary", () => {
 		expect(res).toStrictEqual({
 			user_id: "user-123",
 			image_id: VALID_IMAGE_ID,
-			image_owner_id: IMAGE_OWNER_ID,
 			created_at: CREATED_AT,
 		});
 	});

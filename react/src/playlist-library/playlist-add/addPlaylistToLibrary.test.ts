@@ -67,14 +67,12 @@ describe("addPlaylistToLibrary", () => {
 	it("posts to API and adds entry when server returns a valid playlist entry", async () => {
 		const request: AddPlaylistToLibraryRequest = {
 			playlist_id: "p1",
-			playlist_owner_id: "u1",
 		};
-		const serverData: PlaylistLibraryEntry = {
+		const serverData = forceCast<PlaylistLibraryEntry>({
 			playlist_id: "p1",
-			playlist_owner_id: "u1",
 			user_id: "u1",
 			created_at: "2025-01-01T00:00:00Z",
-		};
+		});
 
 		await withFetchMock(
 			() =>
@@ -112,7 +110,6 @@ describe("addPlaylistToLibrary", () => {
 	it("early-exits when playlist already in library", async () => {
 		const request: AddPlaylistToLibraryRequest = {
 			playlist_id: "p2",
-			playlist_owner_id: "u2",
 		};
 
 		await withFetchMock(
@@ -140,7 +137,6 @@ describe("addPlaylistToLibrary", () => {
 	it("sets playlist library error when server responds non-ok", async () => {
 		const request: AddPlaylistToLibraryRequest = {
 			playlist_id: "p3",
-			playlist_owner_id: "u3",
 		};
 
 		await withFetchMock(

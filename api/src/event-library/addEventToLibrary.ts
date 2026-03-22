@@ -59,36 +59,17 @@ function performInsert(
 	req: AddEventRequest,
 ): Effect.Effect<PostgrestSingleResponse<EventLibraryRow>, DatabaseError> {
 	return Effect.tryPromise({
-		try: async () => {
-			// First fetch the event to get event_owner_id
-			const eventResult = await client
-				.from("event_public")
-				.select("owner_id")
-				.eq("event_id", req.event_id)
-				.single();
-
-			if (eventResult.error) {
-				throw new Error(`Event not found: ${eventResult.error.message}`);
-			}
-
-			const eventOwnerId = eventResult.data?.owner_id;
-			if (!eventOwnerId) {
-				throw new Error("Event owner not found");
-			}
-
-			// Now insert into event_library
-			return client
+		try: () =>
+			client
 				.from("event_library")
 				.insert([
 					{
 						user_id: userId,
 						event_id: req.event_id,
-						event_owner_id: eventOwnerId,
 					},
 				])
 				.select()
-				.single();
-		},
+				.single(),
 		catch: (error) =>
 			new DatabaseError({
 				message: extractErrorMessage(error, "Failed to add event to library"),
@@ -165,7 +146,6 @@ export default function addEventToLibraryHandler(
 			created_at: data.created_at,
 			event_id: data.event_id,
 			user_id: data.user_id,
-			event_owner_id: data.event_owner_id,
 		};
 
 		return libraryEntry;

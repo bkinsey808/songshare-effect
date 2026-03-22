@@ -7,13 +7,12 @@ import performSongLibraryInsert from "./performSongLibraryInsert";
 
 describe("performSongLibraryInsert", () => {
 	const FAKE_USER = "user-1";
-	const REQUEST = { song_id: "song-1", song_owner_id: "owner-1" };
+	const REQUEST = { song_id: "song-1" };
 
 	it("succeeds when supabase returns a row", async () => {
 		const inserted = {
 			created_at: "2020-01-01T00:00:00Z",
 			song_id: REQUEST.song_id,
-			song_owner_id: REQUEST.song_owner_id,
 			user_id: FAKE_USER,
 		};
 

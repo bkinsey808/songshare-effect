@@ -36,19 +36,24 @@ export default function addSongToSongLibrary(
 		);
 
 		// Validate request shape
-		const input = yield* $(
+		const songId = yield* $(
 			Effect.try({
-				try: () => guardAsSongLibraryEntry(request, "addSongToSongLibrary"),
+				try: () => {
+					if (typeof request.song_id !== "string" || request.song_id === "") {
+						throw new Error("addSongToSongLibrary: invalid request");
+					}
+					return request.song_id;
+				},
 				catch: (err) => new Error(extractErrorMessage(err, "Invalid request")),
 			}),
 		);
 
 		// Early exit if already present
-		const alreadyInLibrary = yield* $(Effect.sync(() => isInSongLibrary(input.song_id)));
+		const alreadyInLibrary = yield* $(Effect.sync(() => isInSongLibrary(songId)));
 		if (alreadyInLibrary) {
 			yield* $(
 				Effect.sync(() => {
-					clientWarn("[addSongToSongLibrary] Song already in song library:", input.song_id);
+					clientWarn("[addSongToSongLibrary] Song already in song library:", songId);
 				}),
 			);
 			return;
@@ -61,7 +66,7 @@ export default function addSongToSongLibrary(
 					fetch(apiSongLibraryAddPath, {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify({ song_id: input.song_id, song_owner_id: input.song_owner_id }),
+						body: JSON.stringify({ song_id: songId }),
 						credentials: "include",
 					}),
 				catch: (err) => new Error(extractErrorMessage(err, "Network error")),
@@ -106,7 +111,7 @@ export default function addSongToSongLibrary(
 
 		// Accept any pending shares for this song (non-fatal)
 		yield* $(
-			acceptPendingSharesForItem("song", input.song_id, get).pipe(
+			acceptPendingSharesForItem("song", songId, get).pipe(
 				Effect.catchAll(() => Effect.succeed(undefined)),
 			),
 		);

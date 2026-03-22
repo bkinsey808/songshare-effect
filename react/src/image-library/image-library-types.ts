@@ -10,7 +10,6 @@ import type { ImagePublic } from "@/react/image/image-types";
 export type ImageLibrary = {
 	user_id: string;
 	image_id: string;
-	image_owner_id: string;
 	created_at: string;
 };
 

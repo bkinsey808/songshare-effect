@@ -8,6 +8,8 @@ export type { SongLibrary, SongLibraryInsert };
 
 /** Extended types for UI state management with owner username and song details */
 export type SongLibraryEntry = SongLibrary & {
+	/** Owner user ID, derived from song_public.user_id (not stored in song_library) */
+	song_owner_id?: string;
 	/** Username of the song owner */
 	owner_username?: string;
 	/** Song details from joined song_public table */
@@ -23,7 +25,6 @@ export type SongLibraryEntry = SongLibrary & {
 /** For adding songs to library (client-side) */
 export type AddSongToSongLibraryRequest = {
 	song_id: string;
-	song_owner_id: string;
 };
 
 /** For removing songs from library (client-side) */

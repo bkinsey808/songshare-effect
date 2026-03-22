@@ -132,7 +132,6 @@ type AddItemToLibraryParams = {
 	recipientUserId: string;
 	itemType: string;
 	itemId: string;
-	senderUserId: string;
 };
 
 /**
@@ -141,7 +140,7 @@ type AddItemToLibraryParams = {
  * @returns An Effect that succeeds when the item is added.
  */
 function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, DatabaseError> {
-	const { client, recipientUserId, itemType, itemId, senderUserId } = params;
+	const { client, recipientUserId, itemType, itemId } = params;
 	return Effect.tryPromise({
 		try: async () => {
 			try {
@@ -151,8 +150,7 @@ function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, D
 							{
 								user_id: recipientUserId,
 								song_id: itemId,
-								song_owner_id: senderUserId,
-							},
+									},
 						]);
 						break;
 					}
@@ -161,8 +159,7 @@ function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, D
 							{
 								user_id: recipientUserId,
 								playlist_id: itemId,
-								playlist_owner_id: senderUserId,
-							},
+									},
 						]);
 						break;
 					}
@@ -172,8 +169,7 @@ function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, D
 							{
 								user_id: recipientUserId,
 								event_id: itemId,
-								event_owner_id: senderUserId,
-							},
+									},
 						]);
 						break;
 					}
@@ -202,8 +198,7 @@ function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, D
 							{
 								user_id: recipientUserId,
 								image_id: itemId,
-								image_owner_id: senderUserId,
-							},
+									},
 						]);
 						break;
 					}
@@ -316,7 +311,6 @@ export default function shareUpdateStatusHandler(
 					recipientUserId,
 					itemType: shareDetails.shared_item_type,
 					itemId: shareDetails.shared_item_id,
-					senderUserId: shareDetails.sender_user_id,
 				}),
 			);
 

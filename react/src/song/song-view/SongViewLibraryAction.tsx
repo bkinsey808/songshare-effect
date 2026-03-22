@@ -69,7 +69,6 @@ export default function SongViewLibraryAction({
 			await Effect.runPromise(
 				addSongToSongLibrary({
 					song_id: songPublic.song_id,
-					song_owner_id: songPublic.user_id,
 				}),
 			);
 		} catch {

@@ -7,5 +7,4 @@
  */
 export type AddSongRequest = {
 	song_id: string;
-	song_owner_id: string;
 };

@@ -427,8 +427,7 @@ export default function eventSave(
 							{
 								user_id: userId,
 								event_id: eventId,
-								event_owner_id: userId,
-							},
+									},
 						]),
 					catch: (err) =>
 						new DatabaseError({

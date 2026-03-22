@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 
 import type getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import enrichWithOwnerUsername from "@/react/lib/supabase/enrichment/enrichWithOwnerUsername";
 import extractNewRecord from "@/react/lib/supabase/subscription/extract/extractNewRecord";
 import extractStringField from "@/react/lib/supabase/subscription/extract/extractStringField";
@@ -19,11 +20,16 @@ function isPlaylistLibraryEntry(value: unknown): value is PlaylistLibrary {
 	if (!isRecord(value)) {
 		return false;
 	}
-	return (
-		typeof value["user_id"] === "string" &&
-		typeof value["playlist_id"] === "string" &&
-		typeof value["playlist_owner_id"] === "string"
-	);
+	return typeof value["user_id"] === "string" && typeof value["playlist_id"] === "string";
+}
+
+function extractOwnerIdFromResult(result: unknown): string | undefined {
+	if (!isRecord(result) || !Array.isArray(result["data"])) {
+		return undefined;
+	}
+	const rows: unknown[] = result["data"];
+	const firstRow = rows.find((row) => isRecord(row));
+	return typeof firstRow?.["user_id"] === "string" ? firstRow["user_id"] : undefined;
 }
 
 /**
@@ -62,10 +68,29 @@ export default function handlePlaylistLibrarySubscribeEvent(
 					break;
 				}
 
+				// Fetch playlist owner from playlist_public to derive playlist_owner_id
+				const playlistPublicRes = yield* $(
+					Effect.tryPromise({
+						try: () =>
+							callSelect(supabaseClient, "playlist_public", {
+								cols: "user_id",
+								eq: { col: "playlist_id", val: newEntry.playlist_id },
+							}),
+						catch: (err) => new Error(String(err)),
+					}).pipe(Effect.catchAll(() => Effect.succeed(undefined))),
+				);
+				const playlistOwnerId = extractOwnerIdFromResult(playlistPublicRes);
+
+				const entryWithOwner = {
+					...newEntry,
+					...(playlistOwnerId === undefined ? {} : { playlist_owner_id: playlistOwnerId }),
+				};
+
 				// Enrich with owner username if available
 				const enrichedEntry = yield* $(
 					Effect.tryPromise({
-						try: () => enrichWithOwnerUsername(supabaseClient, newEntry, "playlist_owner_id"),
+						try: () =>
+							enrichWithOwnerUsername(supabaseClient, entryWithOwner, "playlist_owner_id"),
 						catch: (err) => new Error(String(err)),
 					}),
 				);

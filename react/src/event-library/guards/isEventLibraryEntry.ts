@@ -1,12 +1,13 @@
-import { type EventLibrary } from "@/shared/generated/supabaseSchemas";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
+
+import type { EventLibrary } from "../event-library-types";
 
 /**
  * Type guard for EventLibrary.
  *
  * Checks if the given value is a valid EventLibrary object with the required
- * properties: user_id, event_id, event_owner_id, created_at.
+ * properties: user_id, event_id, created_at.
  *
  * @param value - The value to check
  * @returns true if the value is a valid EventLibrary
@@ -19,7 +20,6 @@ export function isEventLibrary(value: unknown): value is EventLibrary {
 	return (
 		isString(value["user_id"]) &&
 		isString(value["event_id"]) &&
-		isString(value["event_owner_id"]) &&
 		isString(value["created_at"])
 	);
 }

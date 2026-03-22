@@ -311,8 +311,7 @@ export default function songSave(
 							{
 								user_id: userId,
 								song_id: songId,
-								song_owner_id: userId,
-							},
+									},
 						]),
 					catch: (err) => {
 						// Log error but don't fail the song creation

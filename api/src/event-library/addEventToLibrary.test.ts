@@ -72,44 +72,6 @@ describe("addEventToLibraryHandler", () => {
 		);
 	});
 
-	it("fails when event lookup returns an error", async () => {
-		vi.resetAllMocks();
-		const ctx = makeCtx({ body: { event_id: "evt-1" } });
-
-		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
-		vi.spyOn(verifiedModule, "default").mockReturnValue(
-			Effect.succeed<UserSessionData>(SAMPLE_USER_SESSION),
-		);
-
-		const fakeSupabase = makeSupabaseClient({ eventPublicSelectError: { message: "not found" } });
-
-		const mockGet = await spyImport("@/api/supabase/getSupabaseServerClient");
-		mockGet.mockReturnValue(fakeSupabase);
-
-		await expect(Effect.runPromise(addEventToLibraryHandler(ctx))).rejects.toThrow(
-			/Event not found/,
-		);
-	});
-
-	it("fails when event owner is missing", async () => {
-		vi.resetAllMocks();
-		const ctx = makeCtx({ body: { event_id: "evt-1" } });
-
-		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
-		vi.spyOn(verifiedModule, "default").mockReturnValue(
-			Effect.succeed<UserSessionData>(SAMPLE_USER_SESSION),
-		);
-
-		const fakeSupabase = makeSupabaseClient({ eventPublicSelectRow: {} });
-
-		const mockGet = await spyImport("@/api/supabase/getSupabaseServerClient");
-		mockGet.mockReturnValue(fakeSupabase);
-
-		await expect(Effect.runPromise(addEventToLibraryHandler(ctx))).rejects.toThrow(
-			/Event owner not found/,
-		);
-	});
-
 	it("fails when insert returns an error", async () => {
 		vi.resetAllMocks();
 		const ctx = makeCtx({ body: { event_id: "evt-1" } });
@@ -120,7 +82,6 @@ describe("addEventToLibraryHandler", () => {
 		);
 
 		const fakeSupabase = makeSupabaseClient({
-			eventPublicSelectRow: { owner_id: "owner-1" },
 			eventLibraryInsertError: { message: "duplicate" },
 		});
 
@@ -140,7 +101,6 @@ describe("addEventToLibraryHandler", () => {
 		);
 
 		const fakeSupabase = makeSupabaseClient({
-			eventPublicSelectRow: { owner_id: "owner-1" },
 			eventLibraryInsertRows: [undefined],
 		});
 
@@ -163,13 +123,11 @@ describe("addEventToLibraryHandler", () => {
 
 		const createdAt = "2026-01-01T00:00:00Z";
 		const fakeSupabase = makeSupabaseClient({
-			eventPublicSelectRow: { owner_id: "owner-1" },
 			eventLibraryInsertRows: [
 				{
 					created_at: createdAt,
 					event_id: "evt-1",
 					user_id: "user-123",
-					event_owner_id: "owner-1",
 				},
 			],
 		});
@@ -183,7 +141,6 @@ describe("addEventToLibraryHandler", () => {
 			created_at: createdAt,
 			event_id: "evt-1",
 			user_id: "user-123",
-			event_owner_id: "owner-1",
 		});
 	});
 });

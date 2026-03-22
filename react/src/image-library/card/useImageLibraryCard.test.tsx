@@ -26,7 +26,6 @@ function makeEntry(opts?: Partial<ImageLibraryEntry>): ImageLibraryEntry {
 	return {
 		user_id: OWNER_ID,
 		image_id: IMAGE_ID,
-		image_owner_id: OWNER_ID,
 		created_at: "2026-01-01T00:00:00Z",
 		image_public: {
 			image_id: IMAGE_ID,
@@ -147,7 +146,6 @@ describe("useImageLibraryCard — renderHook", () => {
 		const entry: ImageLibraryEntry = {
 			user_id: OWNER_ID,
 			image_id: IMAGE_ID,
-			image_owner_id: OWNER_ID,
 			created_at: "2026-01-01T00:00:00Z",
 		};
 
@@ -171,7 +169,7 @@ describe("useImageLibraryCard — renderHook", () => {
 		expect(result.current.viewUrl).toBe(buildPathWithLang(`/image/${IMAGE_SLUG}`, "en"));
 	});
 
-	it("isOwner is true when currentUserId matches image_owner_id", () => {
+	it("isOwner is true when currentUserId matches image_public.user_id", () => {
 		vi.resetAllMocks();
 		installLocale();
 		installStore({});

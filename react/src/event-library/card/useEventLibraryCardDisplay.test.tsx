@@ -21,7 +21,7 @@ describe("useEventLibraryCardDisplay", () => {
 		mockUseTranslation();
 
 		// Mock current user and set only the functions we need on the store
-		vi.mocked(useCurrentUserId).mockReturnValue(entry.event_owner_id);
+		vi.mocked(useCurrentUserId).mockReturnValue(entry.event_public?.owner_id);
 		useAppStore.setState(
 			makeAppSlice({
 				setShowSignedInAlert: vi.fn(),

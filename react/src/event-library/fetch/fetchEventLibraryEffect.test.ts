@@ -28,7 +28,6 @@ describe("fetchEventLibraryEffect", () => {
 		const libRow = makeEventLibraryEntry({
 			event_id: "e1",
 			user_id: "u1",
-			event_owner_id: "owner-1",
 			created_at: "2020-01-01T00:00:00.000Z",
 		});
 
@@ -128,7 +127,6 @@ describe("fetchEventLibraryEffect", () => {
 		const valid = makeEventLibraryEntry({
 			event_id: "e1",
 			user_id: "u1",
-			event_owner_id: "owner-1",
 		});
 		const invalid = { nope: "bad" };
 

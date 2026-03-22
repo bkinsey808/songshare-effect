@@ -47,7 +47,7 @@ describe("fetchEventCommunities", () => {
 		mockedGetClient.mockReturnValue(forceCast(createMinimalSupabaseClient()));
 
 		const rawRows = [{ community_id: "c1", event_id: "e1", created_at: "2020-01-01" }];
-		const publicRows = [{ community_id: "c1", name: "Community One", slug: "community-one" }];
+		const publicRows = [{ community_id: "c1", community_name: "Community One", community_slug: "community-one" }];
 
 		// callSelect is called twice: community_event then community_public
 		mockedCallSelect.mockResolvedValueOnce(asPostgrestResponse({ data: rawRows }));

@@ -7,6 +7,8 @@ export type { PlaylistLibrary, PlaylistLibraryInsert };
 
 /** Extended types for UI state management with owner username and playlist details */
 export type PlaylistLibraryEntry = PlaylistLibrary & {
+	/** Owner user ID, derived from playlist_public.user_id (not stored in playlist_library) */
+	playlist_owner_id?: string;
 	/** Username of the playlist owner */
 	owner_username?: string;
 	/** Playlist details from joined playlist_public table */
@@ -22,7 +24,6 @@ export type PlaylistLibraryEntry = PlaylistLibrary & {
 /** For adding playlists to library (client-side) */
 export type AddPlaylistToLibraryRequest = {
 	playlist_id: string;
-	playlist_owner_id: string;
 };
 
 /** For removing playlists from library (client-side) */

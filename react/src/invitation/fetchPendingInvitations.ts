@@ -91,7 +91,7 @@ export default function fetchPendingInvitations<TState extends InvitationSlice &
 				Effect.tryPromise({
 					try: () =>
 						callSelect(client, "community_public", {
-							cols: "community_id, name, slug",
+							cols: "community_id, community_name, community_slug",
 							in: { col: "community_id", vals: communityIds },
 						}),
 					catch: (err) =>

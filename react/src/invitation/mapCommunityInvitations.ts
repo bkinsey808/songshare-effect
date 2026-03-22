@@ -13,12 +13,12 @@ export default function mapCommunityInvitations(
 	userData: unknown[],
 	publicData: unknown[],
 ): PendingCommunityInvitation[] {
-	const publicDataMap = new Map<string, { name: string; slug: string }>();
+	const publicDataMap = new Map<string, { community_name: string; community_slug: string }>();
 	for (const row of publicData) {
 		if (isRecord(row)) {
 			publicDataMap.set(String(row["community_id"]), {
-				name: String(row["name"]),
-				slug: String(row["slug"]),
+				community_name: String(row["community_name"]),
+				community_slug: String(row["community_slug"]),
 			});
 		}
 	}
@@ -31,8 +31,8 @@ export default function mapCommunityInvitations(
 			if (pub !== undefined) {
 				invitations.push({
 					community_id: communityId,
-					community_name: pub.name,
-					community_slug: pub.slug,
+					community_name: pub.community_name,
+					community_slug: pub.community_slug,
 				});
 			}
 		}

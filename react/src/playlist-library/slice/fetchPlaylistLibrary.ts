@@ -18,11 +18,7 @@ function isPlaylistLibraryEntry(value: unknown): value is PlaylistLibrary {
 	if (!isRecord(value)) {
 		return false;
 	}
-	return (
-		typeof value["user_id"] === "string" &&
-		typeof value["playlist_id"] === "string" &&
-		typeof value["playlist_owner_id"] === "string"
-	);
+	return typeof value["user_id"] === "string" && typeof value["playlist_id"] === "string";
 }
 
 /**
@@ -101,7 +97,7 @@ export default function fetchPlaylistLibrary(
 			Effect.tryPromise({
 				try: () =>
 					callSelect(client, "playlist_public", {
-						cols: "playlist_id, playlist_name, playlist_slug",
+						cols: "playlist_id, playlist_name, playlist_slug, user_id",
 						in: { col: "playlist_id", vals: playlistIds },
 					}),
 				catch: (err) => new Error(String(err)),
@@ -131,23 +127,28 @@ export default function fetchPlaylistLibrary(
 				}
 				const playlistName = guardAsString(playlist["playlist_name"]);
 				const playlistSlug = guardAsString(playlist["playlist_slug"]);
-				return [maybeId, { playlist_name: playlistName, playlist_slug: playlistSlug }] as [
+				const userId = typeof playlist["user_id"] === "string" ? playlist["user_id"] : undefined;
+				return [maybeId, { playlist_name: playlistName, playlist_slug: playlistSlug, user_id: userId }] as [
 					string,
-					{ playlist_name: string; playlist_slug: string },
+					{ playlist_name: string; playlist_slug: string; user_id: string | undefined },
 				];
 			})
 			.filter(
-				(entry): entry is [string, { playlist_name: string; playlist_slug: string }] =>
+				(entry): entry is [string, { playlist_name: string; playlist_slug: string; user_id: string | undefined }] =>
 					entry !== undefined,
 			);
 
-		const playlistMap = new Map<string, { playlist_name: string; playlist_slug: string }>(
+		const playlistMap = new Map<string, { playlist_name: string; playlist_slug: string; user_id: string | undefined }>(
 			playlistMapEntries,
 		);
 
 		// Fetch owner usernames
 		const ownerIds = [
-			...new Set(filteredEntriesArray.map((entry: PlaylistLibrary) => entry.playlist_owner_id)),
+			...new Set(
+				filteredEntriesArray
+					.map((entry: PlaylistLibrary) => playlistMap.get(entry.playlist_id)?.user_id)
+					.filter((id): id is string => id !== undefined),
+			),
 		];
 
 		const rawOwnerResult = yield* $(
@@ -181,12 +182,14 @@ export default function fetchPlaylistLibrary(
 		// Build the entries record
 		const entriesRecord = filteredEntriesArray.reduce<Record<string, PlaylistLibraryEntry>>(
 			(acc: Record<string, PlaylistLibraryEntry>, entry: PlaylistLibrary) => {
-				const ownerUsername: string | undefined = ownerMap.get(entry.playlist_owner_id);
-				const playlistDetails: { playlist_name?: string; playlist_slug?: string } | undefined =
-					playlistMap.get(entry.playlist_id);
+				const playlistDetails = playlistMap.get(entry.playlist_id);
+				const playlistOwnerId: string | undefined = playlistDetails?.user_id;
+				const ownerUsername: string | undefined =
+					playlistOwnerId === undefined ? undefined : ownerMap.get(playlistOwnerId);
 
 				const libraryEntry: PlaylistLibraryEntry = {
 					...entry,
+					...(playlistOwnerId !== undefined && { playlist_owner_id: playlistOwnerId }),
 					...(ownerUsername !== undefined && {
 						owner_username: ownerUsername,
 					}),

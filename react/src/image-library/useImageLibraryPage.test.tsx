@@ -112,7 +112,6 @@ describe("useImageLibraryPage — renderHook", () => {
 			{
 				user_id: USER_ID,
 				image_id: "img-1",
-				image_owner_id: USER_ID,
 				created_at: "2026-01-01T00:00:00Z",
 			},
 		];

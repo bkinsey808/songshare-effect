@@ -21,13 +21,13 @@ export type PlaylistLibraryRow = Database["public"]["Tables"]["playlist_library"
  *
  * @param client - Supabase client typed with Database
  * @param userId - User ID to insert
- * @param req - Request containing playlist_id and playlist_owner_id
+ * @param req - Request containing playlist_id
  * @returns Insert result or error
  */
 export default function performPlaylistLibraryInsert(
 	client: SupabaseClient<Database>,
 	userId: string,
-	req: { playlist_id: string; playlist_owner_id: string },
+	req: { playlist_id: string },
 ): Effect.Effect<PostgrestSingleResponse<PlaylistLibraryRow>, DatabaseError> {
 	return Effect.tryPromise({
 		try: () =>
@@ -37,7 +37,6 @@ export default function performPlaylistLibraryInsert(
 					{
 						user_id: userId,
 						playlist_id: req.playlist_id,
-						playlist_owner_id: req.playlist_owner_id,
 					},
 				])
 				.select()

@@ -4,7 +4,6 @@ import guardAsPlaylistLibraryEntry from "./guardAsPlaylistLibraryEntry";
 
 const validEntry = {
 	playlist_id: "p1",
-	playlist_owner_id: "o1",
 	user_id: "u1",
 	created_at: "2024-01-01T00:00:00Z",
 };
@@ -36,7 +35,7 @@ describe("guardAsPlaylistLibraryEntry", () => {
 			"test: missing or invalid playlist_id",
 		);
 		expect(() =>
-			guardAsPlaylistLibraryEntry({ playlist_id: "p1", playlist_owner_id: "o1" }, "test"),
+			guardAsPlaylistLibraryEntry({ playlist_id: "p1" }, "test"),
 		).toThrow("test: missing or invalid user_id");
 		expect(() => guardAsPlaylistLibraryEntry({ ...validEntry, created_at: 123 }, "test")).toThrow(
 			"test: missing or invalid created_at",

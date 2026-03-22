@@ -284,8 +284,7 @@ export default function playlistSave(
 							{
 								user_id: userId,
 								playlist_id: playlistId,
-								playlist_owner_id: userId,
-							},
+									},
 						]),
 					catch: (err) => {
 						console.warn(

@@ -82,19 +82,16 @@ export type Database = {
       community_library: {
         Row: {
           community_id: string
-          community_owner_id: string
           created_at: string
           user_id: string
         }
         Insert: {
           community_id: string
-          community_owner_id: string
           created_at?: string
           user_id: string
         }
         Update: {
           community_id?: string
-          community_owner_id?: string
           created_at?: string
           user_id?: string
         }
@@ -105,13 +102,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "community"
             referencedColumns: ["community_id"]
-          },
-          {
-            foreignKeyName: "community_library_community_owner_id_fkey"
-            columns: ["community_owner_id"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "community_library_community_public_fkey"
@@ -421,19 +411,16 @@ export type Database = {
         Row: {
           created_at: string
           event_id: string
-          event_owner_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           event_id: string
-          event_owner_id: string
           user_id: string
         }
         Update: {
           created_at?: string
           event_id?: string
-          event_owner_id?: string
           user_id?: string
         }
         Relationships: [
@@ -443,13 +430,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "event"
             referencedColumns: ["event_id"]
-          },
-          {
-            foreignKeyName: "event_library_event_owner_id_fkey"
-            columns: ["event_owner_id"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "event_library_event_public_fkey"
@@ -652,19 +632,16 @@ export type Database = {
         Row: {
           created_at: string
           image_id: string
-          image_owner_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           image_id: string
-          image_owner_id: string
           user_id: string
         }
         Update: {
           created_at?: string
           image_id?: string
-          image_owner_id?: string
           user_id?: string
         }
         Relationships: [
@@ -674,13 +651,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "image_public"
             referencedColumns: ["image_id"]
-          },
-          {
-            foreignKeyName: "image_library_image_owner_id_fkey"
-            columns: ["image_owner_id"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "image_library_user_id_fkey"
@@ -823,19 +793,16 @@ export type Database = {
         Row: {
           created_at: string
           playlist_id: string
-          playlist_owner_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           playlist_id: string
-          playlist_owner_id: string
           user_id: string
         }
         Update: {
           created_at?: string
           playlist_id?: string
-          playlist_owner_id?: string
           user_id?: string
         }
         Relationships: [
@@ -845,13 +812,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "playlist"
             referencedColumns: ["playlist_id"]
-          },
-          {
-            foreignKeyName: "playlist_library_playlist_owner_id_fkey"
-            columns: ["playlist_owner_id"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "playlist_library_user_id_fkey"
@@ -1105,19 +1065,16 @@ export type Database = {
         Row: {
           created_at: string
           song_id: string
-          song_owner_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           song_id: string
-          song_owner_id: string
           user_id: string
         }
         Update: {
           created_at?: string
           song_id?: string
-          song_owner_id?: string
           user_id?: string
         }
         Relationships: [
@@ -1127,13 +1084,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "song"
             referencedColumns: ["song_id"]
-          },
-          {
-            foreignKeyName: "song_library_song_owner_id_fkey"
-            columns: ["song_owner_id"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "song_library_user_id_fkey"

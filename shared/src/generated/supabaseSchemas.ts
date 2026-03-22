@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-03-22T04:59:54.127Z
+ * Last generated: 2026-03-22T07:34:29.040Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -107,12 +107,10 @@ export type CommunityEventUpdate = Schema.Schema.Type<
 // community_library table schemas
 export const CommunityLibrarySchema: Schema.Struct<{
 	community_id: typeof Schema.UUID;
-	community_owner_id: typeof Schema.UUID;
 	created_at: typeof Schema.NonEmptyString;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	community_id: Schema.UUID,
-	community_owner_id: Schema.UUID,
 	created_at: Schema.NonEmptyString,
 	user_id: Schema.UUID,
 });
@@ -121,11 +119,9 @@ export type CommunityLibrary = Schema.Schema.Type<typeof CommunityLibrarySchema>
 
 export const CommunityLibraryInsertSchema: Schema.Struct<{
 	community_id: typeof Schema.UUID;
-	community_owner_id: typeof Schema.UUID;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	community_id: Schema.UUID,
-	community_owner_id: Schema.UUID,
 	user_id: Schema.UUID,
 });
 
@@ -135,11 +131,9 @@ export type CommunityLibraryInsert = Schema.Schema.Type<
 
 export const CommunityLibraryUpdateSchema: Schema.Struct<{
 	community_id: Schema.optional<typeof Schema.UUID>;
-	community_owner_id: Schema.optional<typeof Schema.UUID>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
 	community_id: Schema.optional(Schema.UUID),
-	community_owner_id: Schema.optional(Schema.UUID),
 	user_id: Schema.optional(Schema.UUID),
 });
 
@@ -512,12 +506,10 @@ export type EventUpdate = Schema.Schema.Type<typeof EventUpdateSchema>;
 export const EventLibrarySchema: Schema.Struct<{
 	created_at: typeof Schema.NonEmptyString;
 	event_id: typeof Schema.UUID;
-	event_owner_id: typeof Schema.UUID;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	created_at: Schema.NonEmptyString,
 	event_id: Schema.UUID,
-	event_owner_id: Schema.UUID,
 	user_id: Schema.UUID,
 });
 
@@ -525,11 +517,9 @@ export type EventLibrary = Schema.Schema.Type<typeof EventLibrarySchema>;
 
 export const EventLibraryInsertSchema: Schema.Struct<{
 	event_id: typeof Schema.UUID;
-	event_owner_id: typeof Schema.UUID;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	event_id: Schema.UUID,
-	event_owner_id: Schema.UUID,
 	user_id: Schema.UUID,
 });
 
@@ -539,11 +529,9 @@ export type EventLibraryInsert = Schema.Schema.Type<
 
 export const EventLibraryUpdateSchema: Schema.Struct<{
 	event_id: Schema.optional<typeof Schema.UUID>;
-	event_owner_id: Schema.optional<typeof Schema.UUID>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
 	event_id: Schema.optional(Schema.UUID),
-	event_owner_id: Schema.optional(Schema.UUID),
 	user_id: Schema.optional(Schema.UUID),
 });
 
@@ -771,12 +759,10 @@ export type ImageUpdate = Schema.Schema.Type<typeof ImageUpdateSchema>;
 export const ImageLibrarySchema: Schema.Struct<{
 	created_at: typeof Schema.NonEmptyString;
 	image_id: typeof Schema.UUID;
-	image_owner_id: typeof Schema.UUID;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	created_at: Schema.NonEmptyString,
 	image_id: Schema.UUID,
-	image_owner_id: Schema.UUID,
 	user_id: Schema.UUID,
 });
 
@@ -784,11 +770,9 @@ export type ImageLibrary = Schema.Schema.Type<typeof ImageLibrarySchema>;
 
 export const ImageLibraryInsertSchema: Schema.Struct<{
 	image_id: typeof Schema.UUID;
-	image_owner_id: typeof Schema.UUID;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	image_id: Schema.UUID,
-	image_owner_id: Schema.UUID,
 	user_id: Schema.UUID,
 });
 
@@ -798,11 +782,9 @@ export type ImageLibraryInsert = Schema.Schema.Type<
 
 export const ImageLibraryUpdateSchema: Schema.Struct<{
 	image_id: Schema.optional<typeof Schema.UUID>;
-	image_owner_id: Schema.optional<typeof Schema.UUID>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
 	image_id: Schema.optional(Schema.UUID),
-	image_owner_id: Schema.optional(Schema.UUID),
 	user_id: Schema.optional(Schema.UUID),
 });
 
@@ -981,12 +963,10 @@ export type PlaylistUpdate = Schema.Schema.Type<typeof PlaylistUpdateSchema>;
 export const PlaylistLibrarySchema: Schema.Struct<{
 	created_at: typeof Schema.NonEmptyString;
 	playlist_id: typeof Schema.UUID;
-	playlist_owner_id: typeof Schema.UUID;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	created_at: Schema.NonEmptyString,
 	playlist_id: Schema.UUID,
-	playlist_owner_id: Schema.UUID,
 	user_id: Schema.UUID,
 });
 
@@ -994,11 +974,9 @@ export type PlaylistLibrary = Schema.Schema.Type<typeof PlaylistLibrarySchema>;
 
 export const PlaylistLibraryInsertSchema: Schema.Struct<{
 	playlist_id: typeof Schema.UUID;
-	playlist_owner_id: typeof Schema.UUID;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	playlist_id: Schema.UUID,
-	playlist_owner_id: Schema.UUID,
 	user_id: Schema.UUID,
 });
 
@@ -1008,11 +986,9 @@ export type PlaylistLibraryInsert = Schema.Schema.Type<
 
 export const PlaylistLibraryUpdateSchema: Schema.Struct<{
 	playlist_id: Schema.optional<typeof Schema.UUID>;
-	playlist_owner_id: Schema.optional<typeof Schema.UUID>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
 	playlist_id: Schema.optional(Schema.UUID),
-	playlist_owner_id: Schema.optional(Schema.UUID),
 	user_id: Schema.optional(Schema.UUID),
 });
 
@@ -1318,12 +1294,10 @@ export type SongUpdate = Schema.Schema.Type<typeof SongUpdateSchema>;
 export const SongLibrarySchema: Schema.Struct<{
 	created_at: typeof Schema.NonEmptyString;
 	song_id: typeof Schema.UUID;
-	song_owner_id: typeof Schema.UUID;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	created_at: Schema.NonEmptyString,
 	song_id: Schema.UUID,
-	song_owner_id: Schema.UUID,
 	user_id: Schema.UUID,
 });
 
@@ -1331,11 +1305,9 @@ export type SongLibrary = Schema.Schema.Type<typeof SongLibrarySchema>;
 
 export const SongLibraryInsertSchema: Schema.Struct<{
 	song_id: typeof Schema.UUID;
-	song_owner_id: typeof Schema.UUID;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	song_id: Schema.UUID,
-	song_owner_id: Schema.UUID,
 	user_id: Schema.UUID,
 });
 
@@ -1345,11 +1317,9 @@ export type SongLibraryInsert = Schema.Schema.Type<
 
 export const SongLibraryUpdateSchema: Schema.Struct<{
 	song_id: Schema.optional<typeof Schema.UUID>;
-	song_owner_id: Schema.optional<typeof Schema.UUID>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
 	song_id: Schema.optional(Schema.UUID),
-	song_owner_id: Schema.optional(Schema.UUID),
 	user_id: Schema.optional(Schema.UUID),
 });
 

@@ -55,7 +55,6 @@ describe("fetchImagesByTagRequest", () => {
 					{
 						user_id: "user-1",
 						image_id: "img-1",
-						image_owner_id: "user-1",
 						created_at: "2024-01-01",
 						image_public: mockImagePublic,
 					},
@@ -72,7 +71,6 @@ describe("fetchImagesByTagRequest", () => {
 				{
 					user_id: "user-1",
 					image_id: "img-1",
-					image_owner_id: "user-1",
 					created_at: "2024-01-01",
 					image_public: mockImagePublic,
 				},
@@ -91,7 +89,7 @@ describe("fetchImagesByTagRequest", () => {
 		vi.mocked(callSelect).mockResolvedValueOnce(
 			forceCast({
 				data: [
-					{ user_id: "", image_id: "img-1", image_owner_id: "", created_at: "" },
+					{ user_id: "", image_id: "img-1", created_at: "" },
 					{ not_an_image_row: true },
 				],
 				error: JSON.parse("null") as unknown,
@@ -106,7 +104,6 @@ describe("fetchImagesByTagRequest", () => {
 				{
 					user_id: "",
 					image_id: "img-1",
-					image_owner_id: "",
 					created_at: "",
 				},
 			],

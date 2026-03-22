@@ -153,8 +153,7 @@ export default function communityUserJoin(
 							{
 								user_id: userId,
 								community_id,
-								community_owner_id: communityExists.data.owner_id,
-							},
+										},
 						],
 						{ onConflict: "user_id,community_id", ignoreDuplicates: true },
 					),

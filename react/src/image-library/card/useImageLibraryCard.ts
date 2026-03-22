@@ -28,7 +28,7 @@ export default function useImageLibraryCard(
 	>((state: AppSlice) => state.removeImageFromLibrary);
 
 	const image = entry.image_public;
-	const isOwner = currentUserId !== undefined && currentUserId === entry.image_owner_id;
+	const isOwner = currentUserId !== undefined && currentUserId === entry.image_public?.user_id;
 	const imageUrl = image === undefined ? undefined : getImagePublicUrl(image.r2_key);
 	const viewUrl =
 		image === undefined

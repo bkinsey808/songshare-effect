@@ -6,7 +6,6 @@ import isImageLibraryEntry from "./isImageLibraryEntry";
 
 const IMAGE_ID = "img-1";
 const USER_ID = "user-1";
-const IMAGE_OWNER_ID = "owner-1";
 const NOT_A_STRING_NUM = 42;
 
 describe("isImageLibraryEntry", () => {
@@ -15,7 +14,6 @@ describe("isImageLibraryEntry", () => {
 			isImageLibraryEntry({
 				user_id: USER_ID,
 				image_id: IMAGE_ID,
-				image_owner_id: IMAGE_OWNER_ID,
 				created_at: "2026-01-01T00:00:00Z",
 			}),
 		).toBe(true);
@@ -32,7 +30,7 @@ describe("isImageLibraryEntry", () => {
 	it("returns false when value is an array", () => {
 		expect(
 			isImageLibraryEntry([
-				{ user_id: USER_ID, image_id: IMAGE_ID, image_owner_id: IMAGE_OWNER_ID, created_at: "" },
+				{ user_id: USER_ID, image_id: IMAGE_ID, created_at: "" },
 			]),
 		).toBe(false);
 	});
@@ -47,13 +45,13 @@ describe("isImageLibraryEntry", () => {
 
 	it("returns false when user_id is missing", () => {
 		expect(
-			isImageLibraryEntry({ image_id: IMAGE_ID, image_owner_id: IMAGE_OWNER_ID, created_at: "" }),
+			isImageLibraryEntry({ image_id: IMAGE_ID, created_at: "" }),
 		).toBe(false);
 	});
 
 	it("returns false when image_id is missing", () => {
 		expect(
-			isImageLibraryEntry({ user_id: USER_ID, image_owner_id: IMAGE_OWNER_ID, created_at: "" }),
+			isImageLibraryEntry({ user_id: USER_ID, created_at: "" }),
 		).toBe(false);
 	});
 
@@ -62,7 +60,6 @@ describe("isImageLibraryEntry", () => {
 			isImageLibraryEntry({
 				user_id: NOT_A_STRING_NUM,
 				image_id: IMAGE_ID,
-				image_owner_id: IMAGE_OWNER_ID,
 				created_at: "",
 			}),
 		).toBe(false);
@@ -73,7 +70,6 @@ describe("isImageLibraryEntry", () => {
 			isImageLibraryEntry({
 				user_id: USER_ID,
 				image_id: NOT_A_STRING_NUM,
-				image_owner_id: IMAGE_OWNER_ID,
 				created_at: "",
 			}),
 		).toBe(false);

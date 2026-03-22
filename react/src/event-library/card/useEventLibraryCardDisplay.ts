@@ -38,7 +38,7 @@ export default function useEventLibraryCardDisplay({
 		request: Readonly<RemoveEventFromLibraryRequest>,
 	) => Effect.Effect<void, Error>;
 
-	const isOwned = currentUserId === entry.event_owner_id;
+	const isOwned = currentUserId !== undefined && currentUserId === entry.event_public?.owner_id;
 	const ownerUsername =
 		typeof entry.event_public?.owner?.username === "string" &&
 		entry.event_public.owner.username !== ""

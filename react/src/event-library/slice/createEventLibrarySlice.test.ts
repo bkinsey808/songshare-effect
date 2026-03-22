@@ -161,9 +161,9 @@ describe("createEventLibrarySlice", () => {
 
 		const slice = createEventLibrarySlice(set, get, api);
 
-		const entry1 = makeEventLibraryEntry({ user_id: "u1", event_id: "e1", event_owner_id: "o1" });
+		const entry1 = makeEventLibraryEntry({ user_id: "u1", event_id: "e1" });
 
-		const entry2 = makeEventLibraryEntry({ user_id: "u2", event_id: "e2", event_owner_id: "o2" });
+		const entry2 = makeEventLibraryEntry({ user_id: "u2", event_id: "e2" });
 
 		slice.addEventLibraryEntry(entry1);
 		expect(setSpy).toHaveBeenCalledWith(expect.any(Function));
@@ -184,7 +184,7 @@ describe("createEventLibrarySlice", () => {
 
 		const slice = createEventLibrarySlice(set, get, api);
 
-		const entry1 = makeEventLibraryEntry({ user_id: "u1", event_id: "e1", event_owner_id: "o1" });
+		const entry1 = makeEventLibraryEntry({ user_id: "u1", event_id: "e1" });
 
 		slice.addEventLibraryEntry(entry1);
 

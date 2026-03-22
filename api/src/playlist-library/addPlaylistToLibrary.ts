@@ -41,7 +41,7 @@ export default function addPlaylistToLibraryHandler(
 		);
 
 		// Validate request structure
-		let req: AddPlaylistRequest = { playlist_id: "", playlist_owner_id: "" };
+		let req: AddPlaylistRequest = { playlist_id: "" };
 		try {
 			req = extractAddPlaylistRequest(requestBody);
 		} catch (error) {
@@ -60,6 +60,25 @@ export default function addPlaylistToLibraryHandler(
 
 		// Get Supabase admin client (service key - allows bypassing RLS)
 		const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
+
+		// Fetch playlist owner from playlist_public before inserting
+		const playlistPublicResult = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					client
+						.from("playlist_public")
+						.select("user_id")
+						.eq("playlist_id", req.playlist_id)
+						.single(),
+				catch: (error) =>
+					new DatabaseError({
+						message: extractErrorMessage(error, "Failed to fetch playlist"),
+					}),
+			}),
+		);
+
+		const playlistOwnerId: string | undefined =
+			playlistPublicResult.data?.user_id ?? undefined;
 
 		// Insert into playlist_library using service key
 		const insertResult = yield* $(
@@ -107,16 +126,16 @@ export default function addPlaylistToLibraryHandler(
 					return {
 						created_at: existingResult.created_at,
 						playlist_id: existingResult.playlist_id,
-						playlist_owner_id: existingResult.playlist_owner_id,
 						user_id: existingResult.user_id,
+						...(playlistOwnerId === undefined ? {} : { playlist_owner_id: playlistOwnerId }),
 					};
 				}
 				// Fetch failed; return synthetic success so client does not show error
 				return {
 					created_at: new Date().toISOString(),
 					playlist_id: req.playlist_id,
-					playlist_owner_id: req.playlist_owner_id,
 					user_id: userId,
+					...(playlistOwnerId === undefined ? {} : { playlist_owner_id: playlistOwnerId }),
 				};
 			}
 			return yield* $(
@@ -136,11 +155,11 @@ export default function addPlaylistToLibraryHandler(
 		// This is done after the playlist is added so we don't leave partial state
 		yield* $(addPlaylistSongsToUserLibrary(client, userId, req.playlist_id));
 
-		const libraryEntry: PlaylistLibrary = {
+		const libraryEntry: PlaylistLibrary & { playlist_owner_id?: string } = {
 			created_at: data.created_at,
 			playlist_id: data.playlist_id,
-			playlist_owner_id: data.playlist_owner_id,
 			user_id: data.user_id,
+			...(playlistOwnerId === undefined ? {} : { playlist_owner_id: playlistOwnerId }),
 		};
 
 		return libraryEntry;

@@ -1,13 +1,24 @@
 import { Effect } from "effect";
 
 import type getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import enrichWithOwnerUsername from "@/react/lib/supabase/enrichment/enrichWithOwnerUsername";
 import extractNewRecord from "@/react/lib/supabase/subscription/extract/extractNewRecord";
 import extractStringField from "@/react/lib/supabase/subscription/extract/extractStringField";
 import isRealtimePayload from "@/react/lib/supabase/subscription/realtime/isRealtimePayload";
+import isRecord from "@/shared/type-guards/isRecord";
 
 import isSongLibraryEntry from "../guards/isSongLibraryEntry";
 import type { SongLibrarySlice } from "../song-library-slice";
+
+function extractOwnerIdFromResult(result: unknown): string | undefined {
+	if (!isRecord(result) || !Array.isArray(result["data"])) {
+		return undefined;
+	}
+	const rows: unknown[] = result["data"];
+	const firstRow = rows.find((row) => isRecord(row));
+	return typeof firstRow?.["user_id"] === "string" ? firstRow["user_id"] : undefined;
+}
 
 /**
  * Handle a realtime subscription event payload for the song_library table.
@@ -41,10 +52,28 @@ export default function handleSongLibrarySubscribeEvent(
 					break;
 				}
 
+				// Fetch song owner from song_public to derive song_owner_id
+				const songPublicRes = yield* $(
+					Effect.tryPromise({
+						try: () =>
+							callSelect(supabaseClient, "song_public", {
+								cols: "user_id",
+								eq: { col: "song_id", val: newEntry.song_id },
+							}),
+						catch: (err) => new Error(String(err)),
+					}).pipe(Effect.catchAll(() => Effect.succeed(undefined))),
+				);
+				const songOwnerId = extractOwnerIdFromResult(songPublicRes);
+
+				const entryWithOwner = {
+					...newEntry,
+					...(songOwnerId === undefined ? {} : { song_owner_id: songOwnerId }),
+				};
+
 				// Enrich with owner username if available
 				const enrichedEntry = yield* $(
 					Effect.tryPromise({
-						try: () => enrichWithOwnerUsername(supabaseClient, newEntry, "song_owner_id"),
+						try: () => enrichWithOwnerUsername(supabaseClient, entryWithOwner, "song_owner_id"),
 						catch: (err) => new Error(String(err)),
 					}),
 				);

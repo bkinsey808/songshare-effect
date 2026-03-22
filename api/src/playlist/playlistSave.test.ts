@@ -105,7 +105,7 @@ describe("playlistSave handler", () => {
 			playlistInsertRows: [{ playlist_id: uuid, user_id: SAMPLE_USER_ID, private_notes: "" }],
 			playlistPublicInsertRows: [publicRow],
 			playlistLibraryInsertRows: [
-				{ user_id: SAMPLE_USER_ID, playlist_id: uuid, playlist_owner_id: SAMPLE_USER_ID },
+				{ user_id: SAMPLE_USER_ID, playlist_id: uuid },
 			],
 		});
 

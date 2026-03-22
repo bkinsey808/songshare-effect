@@ -12,7 +12,6 @@ type TagSlugRow = { tag_slug: string };
 /**
  * Fetches all item IDs from the current user's library for the given item type.
  * RLS ensures only the authenticated user's rows are returned.
- * Returns an empty array when no library exists for the item type.
  *
  * @param client - Supabase client configured with the current user's token
  * @param itemType - which item type's library table to query
@@ -23,9 +22,6 @@ export function fetchLibraryItemIds(
 	itemType: ItemType,
 ): Effect.Effect<string[]> {
 	const { libraryTable, idCol: itemIdCol } = ITEM_TYPE_CONFIG[itemType];
-	if (libraryTable === undefined) {
-		return Effect.succeed([]);
-	}
 
 	return Effect.tryPromise({
 		try: () => callSelect(client, libraryTable, { cols: itemIdCol }),

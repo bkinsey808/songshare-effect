@@ -32,7 +32,7 @@ const SAMPLE_USER_SESSION: UserSessionData = {
 	ip: "127.0.0.1",
 };
 
-const VALID_BODY = { song_id: "song-1", song_owner_id: "owner-1" };
+const VALID_BODY = { song_id: "song-1" };
 
 describe("addSongToLibraryHandler", () => {
 	it("returns ValidationError when JSON body is invalid", async () => {
@@ -42,21 +42,21 @@ describe("addSongToLibraryHandler", () => {
 		);
 	});
 
-	it("fails when request is missing song_id and song_owner_id", async () => {
+	it("fails when request is missing song_id", async () => {
 		vi.resetAllMocks();
 		const ctx = makeCtx({ body: {} });
 
 		await expect(Effect.runPromise(addSongToLibraryHandler(ctx))).rejects.toThrow(
-			/Request must contain song_id and song_owner_id/,
+			/Request must contain song_id/,
 		);
 	});
 
 	it("fails when song_id is not a string", async () => {
 		vi.resetAllMocks();
-		const ctx = makeCtx({ body: { song_id: 123, song_owner_id: "owner-1" } });
+		const ctx = makeCtx({ body: { song_id: 123 } });
 
 		await expect(Effect.runPromise(addSongToLibraryHandler(ctx))).rejects.toThrow(
-			/song_id and song_owner_id must be strings/,
+			/song_id must be a string/,
 		);
 	});
 
@@ -89,7 +89,6 @@ describe("addSongToLibraryHandler", () => {
 				{
 					created_at: createdAt,
 					song_id: "song-1",
-					song_owner_id: "owner-1",
 					user_id: "user-123",
 				},
 			],
@@ -103,7 +102,6 @@ describe("addSongToLibraryHandler", () => {
 		expect(res).toStrictEqual({
 			created_at: createdAt,
 			song_id: "song-1",
-			song_owner_id: "owner-1",
 			user_id: "user-123",
 		});
 	});

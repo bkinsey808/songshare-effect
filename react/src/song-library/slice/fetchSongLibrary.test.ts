@@ -26,7 +26,6 @@ const TEST_OWNER_USERNAME = "owner_user";
 const mockSongLibraryRow = {
 	user_id: TEST_USER_ID,
 	song_id: TEST_SONG_ID,
-	song_owner_id: TEST_OWNER_ID,
 	created_at: "2020-01-01T00:00:00.000Z",
 };
 
@@ -34,6 +33,7 @@ const mockSongPublicRow = {
 	song_id: TEST_SONG_ID,
 	song_name: TEST_SONG_NAME,
 	song_slug: TEST_SONG_SLUG,
+	user_id: TEST_OWNER_ID,
 };
 
 const mockOwnerRow = {

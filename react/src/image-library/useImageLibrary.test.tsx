@@ -19,7 +19,6 @@ function makeEntry(): ImageLibraryEntry {
 	return {
 		user_id: USER_ID,
 		image_id: IMAGE_ID,
-		image_owner_id: USER_ID,
 		created_at: "2026-01-01T00:00:00Z",
 	};
 }

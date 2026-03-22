@@ -65,7 +65,6 @@ export default function addPlaylistToLibrary(
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({
 							playlist_id: input.playlist_id,
-							playlist_owner_id: input.playlist_owner_id,
 						}),
 						credentials: "include",
 					}),

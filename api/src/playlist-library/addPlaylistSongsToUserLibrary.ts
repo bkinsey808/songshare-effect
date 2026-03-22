@@ -102,7 +102,6 @@ export default function addPlaylistSongsToUserLibrary(
 		const libraryEntries = songsToAdd.map((song) => ({
 			user_id: userId,
 			song_id: song.song_id,
-			song_owner_id: song.user_id,
 		}));
 
 		yield* $(

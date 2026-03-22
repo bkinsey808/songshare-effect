@@ -30,7 +30,6 @@ export default function performSongLibraryInsert(
 					{
 						user_id: userId,
 						song_id: req.song_id,
-						song_owner_id: req.song_owner_id,
 					},
 				])
 				.select()

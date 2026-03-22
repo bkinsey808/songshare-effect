@@ -14,7 +14,7 @@ import isSongLibraryEntry from "./guards/isSongLibraryEntry";
  * suite and to comply with repository linting rules.
  */
 function transformSongLibraryEntries(
-	libraryRows: { song_id: string; song_owner_id: string }[],
+	libraryRows: { song_id: string; song_owner_id?: string }[],
 	songRows: { song_id: string; song_name?: string; song_slug?: string }[],
 	userRows: { user_id: string; username?: string }[],
 ): Record<string, { song_name?: string; song_slug?: string; owner_username?: string }> {
@@ -31,7 +31,7 @@ function transformSongLibraryEntries(
 	>((acc, row) => {
 		const entry: { song_name?: string; song_slug?: string; owner_username?: string } = {};
 		const songDetails = songMap.get(row.song_id);
-		const ownerUsername = ownerMap.get(row.song_owner_id);
+		const ownerUsername = row.song_owner_id === undefined ? undefined : ownerMap.get(row.song_owner_id);
 
 		if (
 			songDetails?.song_name !== null &&
@@ -101,7 +101,7 @@ describe("transformSongLibraryEntries", () => {
 		const songs = [{ song_id: "s1", song_name: "Song 1", song_slug: "song-1" }];
 		const owners = [{ user_id: "u1", username: "owner1" }];
 
-		const filtered = library.filter((row): row is { song_id: string; song_owner_id: string } =>
+		const filtered = library.filter((row): row is { song_id: string; song_owner_id?: string } =>
 			isSongLibraryEntry(row),
 		);
 		const result = transformSongLibraryEntries(filtered, songs, owners);

@@ -19,9 +19,6 @@ export default function guardAsPlaylistLibraryEntry(
 	if (typeof value["playlist_id"] !== "string") {
 		throw new TypeError(`${context}: missing or invalid playlist_id`);
 	}
-	if (typeof value["playlist_owner_id"] !== "string") {
-		throw new TypeError(`${context}: missing or invalid playlist_owner_id`);
-	}
 	if (typeof value["user_id"] !== "string") {
 		throw new TypeError(`${context}: missing or invalid user_id`);
 	}
@@ -31,9 +28,11 @@ export default function guardAsPlaylistLibraryEntry(
 
 	const entry: PlaylistLibraryEntry = {
 		playlist_id: value["playlist_id"],
-		playlist_owner_id: value["playlist_owner_id"],
 		user_id: value["user_id"],
 		created_at: value["created_at"],
+		...(typeof value["playlist_owner_id"] === "string"
+			? { playlist_owner_id: value["playlist_owner_id"] }
+			: {}),
 		...(typeof value["owner_username"] === "string"
 			? { owner_username: value["owner_username"] }
 			: {}),

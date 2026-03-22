@@ -12,7 +12,6 @@ const PLAYLIST_ID = "playlist-1";
 const VALID_INSERT = {
 	user_id: "u1",
 	playlist_id: PLAYLIST_ID,
-	playlist_owner_id: "owner-1",
 };
 const ENRICHED_ENTRY = { ...VALID_INSERT, owner_username: "alice" };
 
@@ -22,7 +21,6 @@ vi.mock(
 		default: vi.fn().mockResolvedValue({
 			user_id: "u1",
 			playlist_id: "playlist-1",
-			playlist_owner_id: "owner-1",
 			owner_username: "alice",
 		}),
 	}),

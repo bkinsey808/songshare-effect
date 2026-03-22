@@ -332,8 +332,7 @@ export default function communitySave(
 							{
 								user_id: userId,
 								community_id: communityId,
-								community_owner_id: userId,
-							},
+									},
 						]),
 					catch: (err) =>
 						new DatabaseError({

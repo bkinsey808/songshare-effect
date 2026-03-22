@@ -7,5 +7,4 @@
  */
 export type AddPlaylistRequest = {
 	playlist_id: string;
-	playlist_owner_id: string;
 };

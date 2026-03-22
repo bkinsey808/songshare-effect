@@ -93,10 +93,10 @@ describe("handleSongLibrarySubscribeEvent", () => {
 		vi.resetAllMocks();
 		const get = makeSongLibrarySlice();
 		const slice = get();
-		const newEntry = makeSongLibraryEntry({ song_id: "song-123", song_owner_id: "owner-456" });
+		const newEntry = makeSongLibraryEntry({ song_id: "song-123", user_id: "user-456" });
 		const enrichedEntry = {
 			song_id: newEntry.song_id,
-			song_owner_id: newEntry.song_owner_id,
+			user_id: newEntry.user_id,
 			owner_username: "test-user",
 		};
 		const mockEnrichWithOwnerUsername = await spyImport(
@@ -104,13 +104,13 @@ describe("handleSongLibrarySubscribeEvent", () => {
 		);
 		const payload = {
 			eventType,
-			new: { song_id: newEntry.song_id, song_owner_id: newEntry.song_owner_id },
+			new: { song_id: newEntry.song_id, user_id: newEntry.user_id },
 		};
 		mockEnrichWithOwnerUsername.mockResolvedValue(enrichedEntry);
 		await Effect.runPromise(handleSongLibrarySubscribeEvent(payload, supabaseClient, get));
 		expect(mockEnrichWithOwnerUsername).toHaveBeenCalledWith(
 			supabaseClient,
-			expect.objectContaining({ song_id: newEntry.song_id, song_owner_id: newEntry.song_owner_id }),
+			expect.objectContaining({ song_id: newEntry.song_id, user_id: newEntry.user_id }),
 			"song_owner_id",
 		);
 		expect(slice.addSongLibraryEntry).toHaveBeenCalledWith(enrichedEntry);
@@ -142,7 +142,7 @@ describe("handleSongLibrarySubscribeEvent", () => {
 		const mockEnrichWithOwnerUsername = await spyImport(
 			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
 		);
-		const malformedEntry = { song_id: "song-123", song_owner_id: 42 };
+		const malformedEntry = { song_id: "song-123", user_id: 42 };
 
 		const payload = { eventType: "UPDATE" as const, new: malformedEntry };
 
@@ -197,7 +197,7 @@ describe("handleSongLibrarySubscribeEvent", () => {
 		vi.resetAllMocks();
 		const get = makeSongLibrarySlice();
 		const slice = get();
-		const newEntry = makeSongLibraryEntry({ song_id: "song-999", song_owner_id: "owner-000" });
+		const newEntry = makeSongLibraryEntry({ song_id: "song-999", user_id: "user-000" });
 		const mockEnrichWithOwnerUsername = await spyImport(
 			"@/react/lib/supabase/enrichment/enrichWithOwnerUsername",
 		);
@@ -205,7 +205,7 @@ describe("handleSongLibrarySubscribeEvent", () => {
 
 		const payload = {
 			eventType: "INSERT" as const,
-			new: { song_id: newEntry.song_id, song_owner_id: newEntry.song_owner_id },
+			new: { song_id: newEntry.song_id, user_id: newEntry.user_id },
 		};
 
 		await expect(() =>

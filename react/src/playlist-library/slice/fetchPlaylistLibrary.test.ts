@@ -33,13 +33,13 @@ function makePlaylistLibraryGet(): () => PlaylistLibrarySlice {
 const LIBRARY_ROW = {
 	user_id: "u1",
 	playlist_id: "p1",
-	playlist_owner_id: "o1",
 };
 
 const PLAYLIST_PUBLIC_ROW = {
 	playlist_id: "p1",
 	playlist_name: "My Playlist",
 	playlist_slug: "my-playlist",
+	user_id: "o1",
 };
 
 const USER_PUBLIC_ROW = {

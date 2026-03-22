@@ -10,27 +10,36 @@ import performSongLibraryInsert from "./performSongLibraryInsert";
 type SongLibraryRow = Database["public"]["Tables"]["song_library"]["Row"];
 type SongInsertFallback = { data: undefined; error: { message: string } };
 
+type RepairOptions = {
+	req: AddSongRequest;
+	songOwnerId: string | undefined;
+};
+
 /**
  * On song_library FK violation (song_id missing from song), insert the song row
- * and retry. Uses song_owner_id from the request as song.user_id. Returns the
+ * and retry. Uses songOwnerId as song.user_id. Returns the
  * library entry on success, undefined otherwise.
  * @param client - Supabase client.
  * @param userId - ID of the user whose library is being updated.
- * @param req - The add song request.
+ * @param options - The add song request and song owner ID.
  * @returns An Effect that succeeds with the SongLibrary entry or undefined if repair fails.
  */
 export default function attemptSongLibraryRepair(
 	client: SupabaseClient<Database>,
 	userId: string,
-	req: AddSongRequest,
-): Effect.Effect<SongLibrary | undefined> {
+	options: RepairOptions,
+): Effect.Effect<(SongLibrary & { song_owner_id?: string }) | undefined> {
+	const { req, songOwnerId } = options;
 	return Effect.gen(function* repair($) {
+		if (songOwnerId === undefined) {
+			return undefined;
+		}
 		const insertSongRes = yield* $(
 			Effect.promise(() =>
 				client.from("song").insert([
 					{
 						song_id: req.song_id,
-						user_id: req.song_owner_id,
+						user_id: songOwnerId,
 						private_notes: "",
 					},
 				]),
@@ -62,8 +71,8 @@ export default function attemptSongLibraryRepair(
 		return {
 			created_at: data.created_at,
 			song_id: data.song_id,
-			song_owner_id: data.song_owner_id,
 			user_id: data.user_id,
+			...(songOwnerId === undefined ? {} : { song_owner_id: songOwnerId }),
 		};
 	});
 }

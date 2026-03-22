@@ -9,12 +9,10 @@ import handleImageLibraryEvent from "./handleImageLibraryEvent";
 
 const IMAGE_ID = "img-1";
 const USER_ID = "usr-1";
-const IMAGE_OWNER_ID = "owner-1";
 
 const validEntry: ImageLibraryEntry = {
 	user_id: USER_ID,
 	image_id: IMAGE_ID,
-	image_owner_id: IMAGE_OWNER_ID,
 	created_at: "2026-01-01T00:00:00Z",
 };
 
