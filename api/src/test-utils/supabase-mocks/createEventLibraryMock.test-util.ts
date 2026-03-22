@@ -6,6 +6,7 @@ export type EventLibraryMockOpts = {
 	eventLibraryDeleteError?: unknown;
 	eventLibraryInsertRows?: (MockRow<EventLibrary> | undefined)[];
 	eventLibraryInsertError?: unknown;
+	eventLibraryUpsertError?: unknown;
 };
 
 export type EventLibraryTableMock = {
@@ -13,6 +14,7 @@ export type EventLibraryTableMock = {
 		eq: () => { eq: () => Promise<{ data: null; error: unknown }> };
 	};
 	insert: (rows: EventLibraryInsert[]) => MultiResult & { select: () => SingleBuilder };
+	upsert: (rows: EventLibraryInsert[]) => MultiResult;
 };
 
 /**
@@ -37,6 +39,15 @@ export function createEventLibraryMock(opts: EventLibraryMockOpts): EventLibrary
 				},
 			}),
 		}),
+		upsert: (_rows: EventLibraryInsert[]): MultiResult =>
+			(async (): Promise<{ data: null; error: unknown }> => {
+				await Promise.resolve();
+				return {
+					/* oxlint-disable-next-line unicorn/no-null */
+					data: null,
+					error: opts.eventLibraryUpsertError ?? undefined,
+				};
+			})(),
 		insert: (rows: EventLibraryInsert[]): MultiResult & { select: () => SingleBuilder } => {
 			const promise: MultiResult = (async () => {
 				await Promise.resolve();

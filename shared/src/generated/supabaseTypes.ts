@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
@@ -79,6 +79,56 @@ export type Database = {
           },
         ]
       }
+      community_library: {
+        Row: {
+          community_id: string
+          community_owner_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          community_owner_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          community_owner_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_library_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_library_community_owner_id_fkey"
+            columns: ["community_owner_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "community_library_community_public_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "community_public"
+            referencedColumns: ["community_id"]
+          },
+          {
+            foreignKeyName: "community_library_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       community_playlist: {
         Row: {
           community_id: string
@@ -116,37 +166,37 @@ export type Database = {
         Row: {
           active_event_id: string | null
           community_id: string
+          community_name: string
+          community_slug: string
           created_at: string | null
           description: string | null
           is_public: boolean
-          name: string
           owner_id: string
           public_notes: string | null
-          slug: string
           updated_at: string | null
         }
         Insert: {
           active_event_id?: string | null
           community_id: string
+          community_name: string
+          community_slug: string
           created_at?: string | null
           description?: string | null
           is_public?: boolean
-          name: string
           owner_id: string
           public_notes?: string | null
-          slug: string
           updated_at?: string | null
         }
         Update: {
           active_event_id?: string | null
           community_id?: string
+          community_name?: string
+          community_slug?: string
           created_at?: string | null
           description?: string | null
           is_public?: boolean
-          name?: string
           owner_id?: string
           public_notes?: string | null
-          slug?: string
           updated_at?: string | null
         }
         Relationships: [

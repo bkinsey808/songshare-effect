@@ -15,8 +15,8 @@ type CommunityPublicRow = Database["public"]["Tables"]["community_public"]["Row"
 type CommunityEntry = {
 	community_id: string;
 	owner_id: string;
-	name: string;
-	slug: string;
+	community_name: string;
+	community_slug: string;
 	description: string | null;
 	is_public: boolean;
 	public_notes: string | null;
@@ -109,8 +109,8 @@ export default function communityLibrary(
 		const communities: CommunityEntry[] = rawCommunities.map((community) => ({
 			community_id: community.community_id,
 			owner_id: community.owner_id,
-			name: community.name,
-			slug: community.slug,
+			community_name: community.community_name,
+			community_slug: community.community_slug,
 			description: community.description,
 			is_public: community.is_public,
 			public_notes: community.public_notes,

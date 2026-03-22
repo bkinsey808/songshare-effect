@@ -56,7 +56,7 @@ export default function fetchCommunityBySlug(
 					try: () =>
 						callSelect<CommunityEntry>(client, "community_public", {
 							cols: "*",
-							eq: { col: "slug", val: slug },
+							eq: { col: "community_slug", val: slug },
 						}),
 					catch: (err) =>
 						new Error(

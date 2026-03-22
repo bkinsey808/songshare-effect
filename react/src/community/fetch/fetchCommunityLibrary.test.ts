@@ -17,8 +17,8 @@ describe("fetchCommunityLibrary", () => {
 			{
 				community_id: "c1",
 				owner_id: "o1",
-				name: "C",
-				slug: "c",
+				community_name: "C",
+				community_slug: "c",
 				description: "d",
 				is_public: true,
 				public_notes: undefined,

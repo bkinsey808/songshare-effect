@@ -1,11 +1,11 @@
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import Button from "@/react/lib/design-system/Button";
 import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { communityEditPath, communityViewPath, dashboardPath } from "@/shared/paths";
+import { communityViewPath } from "@/shared/paths";
 
 import useCommunityLibrary from "./useCommunityLibrary";
 
@@ -24,8 +24,8 @@ const EMPTY_LIST_LENGTH = 0;
 export default function CommunityLibrary(): ReactElement {
 	const { t } = useTranslation();
 	const { lang } = useLocale();
-	const navigate = useNavigate();
-	const { communities, isCommunityLoading, communityError } = useCommunityLibrary();
+	const { communities, isCommunityLoading, communityError, onCreateCommunityClick } =
+		useCommunityLibrary();
 
 	if (isCommunityLoading) {
 		return <div className="text-gray-400 py-8">Loading communities...</div>;
@@ -45,9 +45,7 @@ export default function CommunityLibrary(): ReactElement {
 					variant="primary"
 					size="default"
 					icon={<PlusIcon className="size-5" />}
-					onClick={() => {
-						void navigate(buildPathWithLang(`/${dashboardPath}/${communityEditPath}`, lang));
-					}}
+					onClick={onCreateCommunityClick}
 					data-testid="community-library-create-community"
 				>
 					{t("navigation.createCommunity", "Create Community")}
@@ -64,9 +62,7 @@ export default function CommunityLibrary(): ReactElement {
 					variant="outlinePrimary"
 					size="compact"
 					icon={<PlusIcon className="size-5" />}
-					onClick={() => {
-						void navigate(buildPathWithLang(`/${dashboardPath}/${communityEditPath}`, lang));
-					}}
+					onClick={onCreateCommunityClick}
 					data-testid="community-library-create-community"
 				>
 					{t("navigation.createCommunity", "Create Community")}
@@ -76,11 +72,11 @@ export default function CommunityLibrary(): ReactElement {
 				{communities.map((community) => (
 					<Link
 						key={community.community_id}
-						to={buildPathWithLang(`/${communityViewPath}/${community.slug}`, lang)}
+						to={buildPathWithLang(`/${communityViewPath}/${community.community_slug}`, lang)}
 						className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-blue-500 transition-colors group"
 					>
 						<h3 className="text-xl font-semibold text-white group-hover:text-blue-400 transition-colors">
-							{community.name}
+							{community.community_name}
 						</h3>
 						{community.description !== null && community.description !== "" && (
 							<p className="text-gray-400 mt-2 line-clamp-2 text-sm">{community.description}</p>

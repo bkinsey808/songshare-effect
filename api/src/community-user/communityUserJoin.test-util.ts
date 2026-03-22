@@ -66,6 +66,28 @@ export default function makeCommunityUserJoinClient(
 							: promiseResolved({ error: makeNull() }),
 				};
 			}
+			if (table === "community_public") {
+				return {
+					select: (): object => ({
+						eq: (): object => ({
+							single: (): Promise<{
+								data: { community_id: string; owner_id: string } | null;
+								error: ReturnType<typeof makeNull>;
+							}> =>
+								promiseResolved({
+									data: { community_id: "comm-1", owner_id: "comm-owner-1" },
+									error: makeNull(),
+								}),
+						}),
+					}),
+				};
+			}
+			if (table === "community_library") {
+				return {
+					upsert: (): Promise<{ error: ReturnType<typeof makeNull> }> =>
+						promiseResolved({ error: makeNull() }),
+				};
+			}
 			if (table === "community_event") {
 				return {
 					select: (): object => ({

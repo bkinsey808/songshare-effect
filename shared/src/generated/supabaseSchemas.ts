@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-03-20T21:59:35.263Z
+ * Last generated: 2026-03-22T04:59:54.127Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -104,6 +104,49 @@ export type CommunityEventUpdate = Schema.Schema.Type<
 	typeof CommunityEventUpdateSchema
 >;
 
+// community_library table schemas
+export const CommunityLibrarySchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	community_owner_id: typeof Schema.UUID;
+	created_at: typeof Schema.NonEmptyString;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	community_owner_id: Schema.UUID,
+	created_at: Schema.NonEmptyString,
+	user_id: Schema.UUID,
+});
+
+export type CommunityLibrary = Schema.Schema.Type<typeof CommunityLibrarySchema>;
+
+export const CommunityLibraryInsertSchema: Schema.Struct<{
+	community_id: typeof Schema.UUID;
+	community_owner_id: typeof Schema.UUID;
+	user_id: typeof Schema.UUID;
+}> = Schema.Struct({
+	community_id: Schema.UUID,
+	community_owner_id: Schema.UUID,
+	user_id: Schema.UUID,
+});
+
+export type CommunityLibraryInsert = Schema.Schema.Type<
+	typeof CommunityLibraryInsertSchema
+>;
+
+export const CommunityLibraryUpdateSchema: Schema.Struct<{
+	community_id: Schema.optional<typeof Schema.UUID>;
+	community_owner_id: Schema.optional<typeof Schema.UUID>;
+	user_id: Schema.optional<typeof Schema.UUID>;
+}> = Schema.Struct({
+	community_id: Schema.optional(Schema.UUID),
+	community_owner_id: Schema.optional(Schema.UUID),
+	user_id: Schema.optional(Schema.UUID),
+});
+
+export type CommunityLibraryUpdate = Schema.Schema.Type<
+	typeof CommunityLibraryUpdateSchema
+>;
+
 // community_playlist table schemas
 export const CommunityPlaylistSchema: Schema.Struct<{
 	community_id: typeof Schema.UUID;
@@ -145,24 +188,24 @@ export type CommunityPlaylistUpdate = Schema.Schema.Type<
 export const CommunityPublicSchema: Schema.Struct<{
 	active_event_id: Schema.optional<typeof Schema.UUID>;
 	community_id: typeof Schema.UUID;
+	community_name: typeof Schema.NonEmptyString;
+	community_slug: typeof Schema.NonEmptyString;
 	created_at: Schema.optional<typeof Schema.String>;
 	description: Schema.optional<typeof Schema.String>;
 	is_public: typeof Schema.Boolean;
-	name: typeof Schema.NonEmptyString;
 	owner_id: typeof Schema.UUID;
 	public_notes: Schema.optional<typeof Schema.String>;
-	slug: typeof Schema.NonEmptyString;
 	updated_at: Schema.optional<typeof Schema.String>;
 }> = Schema.Struct({
 	active_event_id: Schema.optional(Schema.UUID),
 	community_id: Schema.UUID,
+	community_name: Schema.NonEmptyString,
+	community_slug: Schema.NonEmptyString,
 	created_at: Schema.optional(Schema.String),
 	description: Schema.optional(Schema.String),
 	is_public: Schema.Boolean,
-	name: Schema.NonEmptyString,
 	owner_id: Schema.UUID,
 	public_notes: Schema.optional(Schema.String),
-	slug: Schema.NonEmptyString,
 	updated_at: Schema.optional(Schema.String),
 });
 
@@ -171,21 +214,21 @@ export type CommunityPublic = Schema.Schema.Type<typeof CommunityPublicSchema>;
 export const CommunityPublicInsertSchema: Schema.Struct<{
 	active_event_id: Schema.optional<typeof Schema.UUID>;
 	community_id: typeof Schema.UUID;
+	community_name: typeof Schema.NonEmptyString;
+	community_slug: typeof Schema.NonEmptyString;
 	description: Schema.optional<typeof Schema.String>;
 	is_public: Schema.optional<typeof Schema.Boolean>;
-	name: typeof Schema.NonEmptyString;
 	owner_id: typeof Schema.UUID;
 	public_notes: Schema.optional<typeof Schema.String>;
-	slug: typeof Schema.NonEmptyString;
 }> = Schema.Struct({
 	active_event_id: Schema.optional(Schema.UUID),
 	community_id: Schema.UUID,
+	community_name: Schema.NonEmptyString,
+	community_slug: Schema.NonEmptyString,
 	description: Schema.optional(Schema.String),
 	is_public: Schema.optional(Schema.Boolean),
-	name: Schema.NonEmptyString,
 	owner_id: Schema.UUID,
 	public_notes: Schema.optional(Schema.String),
-	slug: Schema.NonEmptyString,
 });
 
 export type CommunityPublicInsert = Schema.Schema.Type<
@@ -195,21 +238,21 @@ export type CommunityPublicInsert = Schema.Schema.Type<
 export const CommunityPublicUpdateSchema: Schema.Struct<{
 	active_event_id: Schema.optional<typeof Schema.UUID>;
 	community_id: Schema.optional<typeof Schema.UUID>;
+	community_name: Schema.optional<typeof Schema.NonEmptyString>;
+	community_slug: Schema.optional<typeof Schema.NonEmptyString>;
 	description: Schema.optional<typeof Schema.String>;
 	is_public: Schema.optional<typeof Schema.Boolean>;
-	name: Schema.optional<typeof Schema.NonEmptyString>;
 	owner_id: Schema.optional<typeof Schema.UUID>;
 	public_notes: Schema.optional<typeof Schema.String>;
-	slug: Schema.optional<typeof Schema.NonEmptyString>;
 }> = Schema.Struct({
 	active_event_id: Schema.optional(Schema.UUID),
 	community_id: Schema.optional(Schema.UUID),
+	community_name: Schema.optional(Schema.NonEmptyString),
+	community_slug: Schema.optional(Schema.NonEmptyString),
 	description: Schema.optional(Schema.String),
 	is_public: Schema.optional(Schema.Boolean),
-	name: Schema.optional(Schema.NonEmptyString),
 	owner_id: Schema.optional(Schema.UUID),
 	public_notes: Schema.optional(Schema.String),
-	slug: Schema.optional(Schema.NonEmptyString),
 });
 
 export type CommunityPublicUpdate = Schema.Schema.Type<

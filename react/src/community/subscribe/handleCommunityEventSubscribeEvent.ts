@@ -32,7 +32,7 @@ export default function handleCommunityEventSubscribeEvent(
 		if (eventType === "INSERT") {
 			// Trigger a silent refetch to get full event data (name, slug)
 			if (currentCommunity !== undefined) {
-				yield* $(fetchCommunityBySlug(currentCommunity.slug, { silent: true }));
+				yield* $(fetchCommunityBySlug(currentCommunity.community_slug, { silent: true }));
 			}
 		} else if (eventType === "DELETE") {
 			const eventId = extractStringField((payload as Record<string, unknown>)["old"], "event_id");

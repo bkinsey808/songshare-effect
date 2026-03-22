@@ -10,8 +10,8 @@ export type CommunityFormValues = Schema.Schema.Type<typeof communityFormSchema>
 export type CommunityEntry = {
 	community_id: string;
 	owner_id: string;
-	name: string;
-	slug: string;
+	community_name: string;
+	community_slug: string;
 	description: string | null;
 	is_public: boolean;
 	public_notes: string | null;

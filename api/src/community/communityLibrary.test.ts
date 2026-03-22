@@ -76,8 +76,8 @@ describe("communityLibrary", () => {
 			{
 				community_id: "comm-1",
 				owner_id: "owner-1",
-				name: "Test Community",
-				slug: "test-community",
+				community_name: "Test Community",
+				community_slug: "test-community",
 				description: "A test",
 				is_public: true,
 				public_notes: "",

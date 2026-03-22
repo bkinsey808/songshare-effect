@@ -29,8 +29,8 @@ const regularSession: UserSessionData = forceCast<UserSessionData>({
 const ownedCommunity: CommunityEntry = {
 	community_id: COMMUNITY_ID,
 	owner_id: OWNER_ID,
-	name: "Test Community",
-	slug: "test-community",
+	community_name: "Test Community",
+	community_slug: "test-community",
 	description: forceCast<string | null>(undefined),
 	is_public: true,
 	public_notes: forceCast<string | null>(undefined),

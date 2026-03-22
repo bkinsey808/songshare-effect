@@ -61,7 +61,7 @@ describe("useCommunityForm", () => {
 		vi.mocked(useParams).mockReturnValue({});
 
 		const store: typeof useAppStore = useAppStore;
-		const mockSave = vi.fn().mockReturnValue(Effect.succeed({ slug: "my-community" }));
+		const mockSave = vi.fn().mockReturnValue(Effect.succeed({ community_slug: "my-community" }));
 		store.setState((prev: Record<string, unknown>) => ({ ...prev, saveCommunity: mockSave }));
 
 		function TestCompSubmit(): ReactElement {

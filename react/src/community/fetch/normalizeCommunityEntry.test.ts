@@ -6,8 +6,8 @@ import normalizeCommunityEntry from "./normalizeCommunityEntry";
 const baseCommunity: CommunityEntry = {
 	community_id: "c1",
 	owner_id: "owner1",
-	name: "Test Community",
-	slug: "test-community",
+	community_name: "Test Community",
+	community_slug: "test-community",
 	description: "A test",
 	is_public: true,
 	public_notes: "Notes",

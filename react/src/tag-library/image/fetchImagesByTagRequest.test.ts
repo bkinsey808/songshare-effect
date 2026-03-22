@@ -44,9 +44,22 @@ describe("fetchImagesByTagRequest", () => {
 	it("returns mapped entries on success", async () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValueOnce(undefined);
 		vi.mocked(getSupabaseClient).mockReturnValueOnce(mockClient);
+		// Step 1: image_tag returns the image ID
+		vi.mocked(callSelect).mockResolvedValueOnce(
+			forceCast({ data: [{ image_id: "img-1" }], error: JSON.parse("null") as unknown }),
+		);
+		// Step 2: image_library returns the full entry for that image ID
 		vi.mocked(callSelect).mockResolvedValueOnce(
 			forceCast({
-				data: [{ image_id: "img-1", image_public: mockImagePublic }],
+				data: [
+					{
+						user_id: "user-1",
+						image_id: "img-1",
+						image_owner_id: "user-1",
+						created_at: "2024-01-01",
+						image_public: mockImagePublic,
+					},
+				],
 				error: JSON.parse("null") as unknown,
 			}),
 		);
@@ -70,10 +83,15 @@ describe("fetchImagesByTagRequest", () => {
 	it("skips rows that fail isImageTagRow", async () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValueOnce(undefined);
 		vi.mocked(getSupabaseClient).mockReturnValueOnce(mockClient);
+		// Step 1: image_tag returns the image ID
+		vi.mocked(callSelect).mockResolvedValueOnce(
+			forceCast({ data: [{ image_id: "img-1" }], error: JSON.parse("null") as unknown }),
+		);
+		// Step 2: image_library returns one valid row and one invalid row
 		vi.mocked(callSelect).mockResolvedValueOnce(
 			forceCast({
 				data: [
-					{ image_id: "img-1", image_public: JSON.parse("null") as unknown },
+					{ user_id: "", image_id: "img-1", image_owner_id: "", created_at: "" },
 					{ not_an_image_row: true },
 				],
 				error: JSON.parse("null") as unknown,

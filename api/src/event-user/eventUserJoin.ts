@@ -78,7 +78,11 @@ export default function eventUserJoin(
 		const eventExists = yield* $(
 			Effect.tryPromise({
 				try: () =>
-					supabase.from("event").select("event_id").eq("event_id", validated.event_id).single(),
+					supabase
+						.from("event")
+						.select("event_id, owner_id")
+						.eq("event_id", validated.event_id)
+						.single(),
 				catch: (err) =>
 					new DatabaseError({
 						message: `Failed to verify event: ${extractErrorMessage(err, "Unknown error")}`,
@@ -174,6 +178,35 @@ export default function eventUserJoin(
 						message: addResult.error?.message ?? "Failed to join event",
 					}),
 				),
+			);
+		}
+
+		// Automatically add joined event to user's library (owner_id already fetched above)
+		const eventLibraryResult = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					supabase.from("event_library").upsert(
+						[
+							{
+								user_id: userId,
+								event_id: validated.event_id,
+								event_owner_id: eventExists.data.owner_id,
+							},
+						],
+						{ onConflict: "user_id,event_id", ignoreDuplicates: true },
+					),
+				catch: (err) =>
+					new DatabaseError({
+						message: `Failed to add event to user's library: ${extractErrorMessage(err, "Unknown error")}`,
+					}),
+			}),
+		);
+
+		if (eventLibraryResult.error) {
+			// Non-fatal: log but don't fail the event join
+			console.warn(
+				`Failed to add event ${validated.event_id} to user's library (non-fatal):`,
+				eventLibraryResult.error.message,
 			);
 		}
 

@@ -10,8 +10,8 @@ export default function normalizeCommunityEntry(communityPublic: CommunityEntry)
 	return {
 		community_id: communityPublic.community_id,
 		owner_id: communityPublic.owner_id,
-		name: communityPublic.name,
-		slug: communityPublic.slug,
+		community_name: communityPublic.community_name,
+		community_slug: communityPublic.community_slug,
 		description: communityPublic.description,
 		is_public: communityPublic.is_public,
 		public_notes: communityPublic.public_notes,

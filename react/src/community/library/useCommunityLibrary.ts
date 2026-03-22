@@ -1,7 +1,11 @@
 import { Effect } from "effect";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import { communityEditPath, dashboardPath } from "@/shared/paths";
 
 import type { CommunityEntry } from "../community-types";
 
@@ -9,6 +13,7 @@ type UseCommunityLibraryReturn = {
 	readonly communities: readonly CommunityEntry[];
 	readonly isCommunityLoading: boolean;
 	readonly communityError: string | undefined;
+	readonly onCreateCommunityClick: () => void;
 };
 
 /**
@@ -21,6 +26,8 @@ type UseCommunityLibraryReturn = {
  * @returns communityError - error message when fetching the community data fails
  */
 function useCommunityLibrary(): UseCommunityLibraryReturn {
+	const navigate = useNavigate();
+	const { lang } = useLocale();
 	const fetchCommunityLibrary = useAppStore((state) => state.fetchCommunityLibrary);
 	const communities = useAppStore((state) => state.communities);
 	const isCommunityLoading = useAppStore((state) => state.isCommunityLoading);
@@ -33,10 +40,15 @@ function useCommunityLibrary(): UseCommunityLibraryReturn {
 		return;
 	}, [fetchCommunityLibrary]);
 
+	function onCreateCommunityClick(): void {
+		void navigate(buildPathWithLang(`/${dashboardPath}/${communityEditPath}`, lang));
+	}
+
 	return {
 		communities,
 		isCommunityLoading,
 		communityError,
+		onCreateCommunityClick,
 	};
 }
 

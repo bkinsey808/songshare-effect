@@ -2,9 +2,9 @@
 -- PostgreSQL database dump
 --
 
-\restrict X0QBli4q9zfvsLFqSGLMO6XYMOikzMiizhsLCGn90gofcfuSIvpFjtbTdg9thRU
+\restrict Eoa0biwf1wJ25IDQRugrufeBze465TyU311W9bUFzF3cE7OesefMsKbgsQPTVkp
 
--- Dumped from database version 17.4
+-- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
 
 SET statement_timeout = 0;
@@ -85,6 +85,39 @@ $$;
 
 
 --
+-- Name: rls_auto_enable(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.rls_auto_enable() RETURNS event_trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'pg_catalog'
+    AS $$
+DECLARE
+  cmd record;
+BEGIN
+  FOR cmd IN
+    SELECT *
+    FROM pg_event_trigger_ddl_commands()
+    WHERE command_tag IN ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
+      AND object_type IN ('table','partitioned table')
+  LOOP
+     IF cmd.schema_name IS NOT NULL AND cmd.schema_name IN ('public') AND cmd.schema_name NOT IN ('pg_catalog','information_schema') AND cmd.schema_name NOT LIKE 'pg_toast%' AND cmd.schema_name NOT LIKE 'pg_temp%' THEN
+      BEGIN
+        EXECUTE format('alter table if exists %s enable row level security', cmd.object_identity);
+        RAISE LOG 'rls_auto_enable: enabled RLS on %', cmd.object_identity;
+      EXCEPTION
+        WHEN OTHERS THEN
+          RAISE LOG 'rls_auto_enable: failed to enable RLS on %', cmd.object_identity;
+      END;
+     ELSE
+        RAISE LOG 'rls_auto_enable: skip % (either system schema or not in enforced list: %.)', cmd.object_identity, cmd.schema_name;
+     END IF;
+  END LOOP;
+END;
+$$;
+
+
+--
 -- Name: update_updated_at_column(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -143,6 +176,55 @@ COMMENT ON TABLE public.community_event IS 'Many-to-many relationship between co
 
 
 --
+-- Name: community_library; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.community_library (
+    user_id uuid NOT NULL,
+    community_id uuid NOT NULL,
+    community_owner_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE ONLY public.community_library REPLICA IDENTITY FULL;
+
+
+--
+-- Name: TABLE community_library; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.community_library IS 'Stores communities that users have added to their personal library. Supports owned communities, joined communities, and discovered communities.';
+
+
+--
+-- Name: COLUMN community_library.user_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.community_library.user_id IS 'The user who has saved this community to their library.';
+
+
+--
+-- Name: COLUMN community_library.community_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.community_library.community_id IS 'References the community being saved.';
+
+
+--
+-- Name: COLUMN community_library.community_owner_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.community_library.community_owner_id IS 'The original owner of the community (denormalized for easier querying).';
+
+
+--
+-- Name: COLUMN community_library.created_at; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.community_library.created_at IS 'Timestamp when the community was added to the user library.';
+
+
+--
 -- Name: community_playlist; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -167,16 +249,16 @@ COMMENT ON TABLE public.community_playlist IS 'Playlists associated with a commu
 CREATE TABLE public.community_public (
     community_id uuid NOT NULL,
     owner_id uuid NOT NULL,
-    name text NOT NULL,
-    slug text NOT NULL,
+    community_name text NOT NULL,
+    community_slug text NOT NULL,
     description text DEFAULT ''::text,
     is_public boolean DEFAULT false NOT NULL,
     public_notes text DEFAULT ''::text,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
     active_event_id uuid,
-    CONSTRAINT community_name_format CHECK (((length(name) >= 2) AND (length(name) <= 100) AND (name = btrim(name)) AND (POSITION(('  '::text) IN (name)) = 0))),
-    CONSTRAINT community_slug_format CHECK (((slug ~ '^[a-z0-9-]+$'::text) AND (slug !~ '^-'::text) AND (slug !~ '-$'::text) AND (POSITION(('--'::text) IN (slug)) = 0)))
+    CONSTRAINT community_name_format CHECK (((length(community_name) >= 2) AND (length(community_name) <= 100) AND (community_name = btrim(community_name)) AND (POSITION(('  '::text) IN (community_name)) = 0))),
+    CONSTRAINT community_slug_format CHECK (((community_slug ~ '^[a-z0-9-]+$'::text) AND (community_slug !~ '^-'::text) AND (community_slug !~ '-$'::text) AND (POSITION(('--'::text) IN (community_slug)) = 0)))
 );
 
 ALTER TABLE ONLY public.community_public REPLICA IDENTITY FULL;
@@ -1317,6 +1399,14 @@ ALTER TABLE ONLY public.community_event
 
 
 --
+-- Name: community_library community_library_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_library
+    ADD CONSTRAINT community_library_pkey PRIMARY KEY (user_id, community_id);
+
+
+--
 -- Name: community community_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1353,7 +1443,7 @@ ALTER TABLE ONLY public.community_share_request
 --
 
 ALTER TABLE ONLY public.community_public
-    ADD CONSTRAINT community_slug_unique UNIQUE (slug);
+    ADD CONSTRAINT community_slug_unique UNIQUE (community_slug);
 
 
 --
@@ -1736,6 +1826,20 @@ CREATE INDEX event_user_status_idx ON public.event_user USING btree (status);
 --
 
 CREATE INDEX event_user_user_id_idx ON public.event_user USING btree (user_id);
+
+
+--
+-- Name: idx_community_library_community_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_community_library_community_id ON public.community_library USING btree (community_id);
+
+
+--
+-- Name: idx_community_library_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_community_library_user_id ON public.community_library USING btree (user_id);
 
 
 --
@@ -2137,6 +2241,52 @@ ALTER TABLE ONLY public.community_event
 
 ALTER TABLE ONLY public.community_event
     ADD CONSTRAINT community_event_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.event(event_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_library community_library_community_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_library
+    ADD CONSTRAINT community_library_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.community(community_id) ON DELETE CASCADE;
+
+
+--
+-- Name: community_library community_library_community_owner_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_library
+    ADD CONSTRAINT community_library_community_owner_id_fkey FOREIGN KEY (community_owner_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
+
+
+--
+-- Name: CONSTRAINT community_library_community_owner_id_fkey ON community_library; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON CONSTRAINT community_library_community_owner_id_fkey ON public.community_library IS 'Ensures community_owner_id references a valid user. Cascades deletion if the owner is deleted.';
+
+
+--
+-- Name: community_library community_library_community_public_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_library
+    ADD CONSTRAINT community_library_community_public_fkey FOREIGN KEY (community_id) REFERENCES public.community_public(community_id) ON DELETE CASCADE;
+
+
+--
+-- Name: CONSTRAINT community_library_community_public_fkey ON community_library; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON CONSTRAINT community_library_community_public_fkey ON public.community_library IS 'Enables PostgREST to join community_library with community_public for fetching community data.';
+
+
+--
+-- Name: community_library community_library_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.community_library
+    ADD CONSTRAINT community_library_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(user_id) ON DELETE CASCADE;
 
 
 --
@@ -3291,6 +3441,33 @@ ALTER TABLE public.community ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.community_event ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: community_library; Type: ROW SECURITY; Schema: public; Owner: -
+--
+
+ALTER TABLE public.community_library ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: community_library community_library_delete_own_entries; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY community_library_delete_own_entries ON public.community_library FOR DELETE TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: community_library community_library_insert_own_entries; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY community_library_insert_own_entries ON public.community_library FOR INSERT TO authenticated WITH CHECK ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
+-- Name: community_library community_library_select_own_entries; Type: POLICY; Schema: public; Owner: -
+--
+
+CREATE POLICY community_library_select_own_entries ON public.community_library FOR SELECT TO authenticated USING ((user_id = ((((auth.jwt() -> 'app_metadata'::text) -> 'user'::text) ->> 'user_id'::text))::uuid));
+
+
+--
 -- Name: community_playlist; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -3508,5 +3685,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict X0QBli4q9zfvsLFqSGLMO6XYMOikzMiizhsLCGn90gofcfuSIvpFjtbTdg9thRU
+\unrestrict Eoa0biwf1wJ25IDQRugrufeBze465TyU311W9bUFzF3cE7OesefMsKbgsQPTVkp
 

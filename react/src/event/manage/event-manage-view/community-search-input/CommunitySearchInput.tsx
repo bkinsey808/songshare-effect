@@ -87,8 +87,8 @@ export default function CommunitySearchInput({
 											isSelected ? "bg-blue-600 text-white" : "text-gray-300 hover:bg-gray-700"
 										}`}
 									>
-										<span className="font-medium">{entry.name}</span>
-										<span className="text-xs opacity-70">{entry.slug}</span>
+										<span className="font-medium">{entry.community_name}</span>
+										<span className="text-xs opacity-70">{entry.community_slug}</span>
 									</button>
 								);
 							})

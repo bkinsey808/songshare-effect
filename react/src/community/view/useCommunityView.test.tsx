@@ -80,8 +80,8 @@ function makeCommunity(overrides: Partial<CommunityEntry> = {}): CommunityEntry 
 	return {
 		community_id: "community-1",
 		owner_id: "owner-1",
-		name: "Community",
-		slug: "test-slug",
+		community_name: "Community",
+		community_slug: "test-slug",
 		description: forceCast<string | null>(undefined),
 		is_public: true,
 		public_notes: forceCast<string | null>(undefined),
@@ -123,7 +123,7 @@ describe("useCommunityView", () => {
 	it("derives flags for owner and member roles", () => {
 		installBaseMocks({
 			fetchCommunityBySlug: () => Effect.succeed(undefined),
-			currentCommunity: makeCommunity({ community_id: "c1", owner_id: "u1", slug: "s" }),
+			currentCommunity: makeCommunity({ community_id: "c1", owner_id: "u1", community_slug: "s" }),
 			members: [],
 			communityEvents: [],
 			isCommunityLoading: false,
@@ -144,7 +144,7 @@ describe("useCommunityView", () => {
 	it("grants manage to community_admin and marks member when joined", () => {
 		installBaseMocks({
 			fetchCommunityBySlug: () => Effect.succeed(undefined),
-			currentCommunity: makeCommunity({ community_id: "c2", owner_id: "owner-x", slug: "s" }),
+			currentCommunity: makeCommunity({ community_id: "c2", owner_id: "owner-x", community_slug: "s" }),
 			members: [
 				{
 					community_id: "c2",
@@ -178,7 +178,7 @@ describe("useCommunityView", () => {
 			currentCommunity: makeCommunity({
 				community_id: "c3",
 				owner_id: "owner-y",
-				slug: "test-slug",
+				community_slug: "test-slug",
 			}),
 			members: [],
 			communityEvents: [],
@@ -206,7 +206,7 @@ describe("useCommunityView", () => {
 
 		installBaseMocks({
 			fetchCommunityBySlug: fetchMock,
-			currentCommunity: makeCommunity({ community_id: "c5", owner_id: "owner-a", slug: "s" }),
+			currentCommunity: makeCommunity({ community_id: "c5", owner_id: "owner-a", community_slug: "s" }),
 			members: [],
 			communityEvents: [],
 			isCommunityLoading: false,

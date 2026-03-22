@@ -75,15 +75,15 @@ export default function useCommunitySearchInput({
 		(entry: CommunityEntry) => entry.community_id === activeCommunityId,
 	);
 
-	const inputDisplayValue = searchQuery === "" ? (activeCommunity?.name ?? "") : searchQuery;
+	const inputDisplayValue = searchQuery === "" ? (activeCommunity?.community_name ?? "") : searchQuery;
 
 	const filteredCommunities =
 		searchQuery === ""
 			? availableCommunities
 			: availableCommunities.filter((entry: CommunityEntry) => {
 					const query = searchQuery.toLowerCase();
-					const nameMatch = entry.name.toLowerCase().includes(query);
-					const slugMatch = entry.slug.toLowerCase().includes(query);
+					const nameMatch = entry.community_name.toLowerCase().includes(query);
+					const slugMatch = entry.community_slug.toLowerCase().includes(query);
 					const idMatch = entry.community_id.toLowerCase().includes(query);
 					return nameMatch || slugMatch || idMatch;
 				});

@@ -48,14 +48,14 @@ export default function CommunityViewHeader({
 	return (
 		<div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
 			<div>
-				<h1 className="text-4xl font-bold text-white">{currentCommunity.name}</h1>
+				<h1 className="text-4xl font-bold text-white">{currentCommunity.community_name}</h1>
 				<p className="text-gray-400 mt-2">{currentCommunity.description}</p>
 			</div>
 			<div className="flex flex-wrap gap-2">
 				<ShareButton
 					itemType="community"
 					itemId={currentCommunity.community_id}
-					itemName={currentCommunity.name}
+					itemName={currentCommunity.community_name}
 					onShareSuccess={onRefreshCommunity}
 				/>
 				{userSession !== undefined && isMember === false && (

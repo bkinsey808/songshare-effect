@@ -99,10 +99,10 @@ export default function CommunityView(): ReactElement {
 
 			<TagList slugs={tags} />
 
-			{currentCommunity.slug !== "" && (
+			{currentCommunity.community_slug !== "" && (
 				<CollapsibleQrCode
-					url={buildPublicWebUrl(`/${communityViewPath}/${currentCommunity.slug}`, lang)}
-					label={currentCommunity.name}
+					url={buildPublicWebUrl(`/${communityViewPath}/${currentCommunity.community_slug}`, lang)}
+					label={currentCommunity.community_name}
 				/>
 			)}
 

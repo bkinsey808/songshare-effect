@@ -28,8 +28,8 @@ describe("fetchCommunityBySlug", () => {
 		const communityRow: CommunityEntry = {
 			community_id: "cid",
 			owner_id: "owner1",
-			name: "Name",
-			slug: "cslug",
+			community_name: "Name",
+			community_slug: "cslug",
 			description: "d",
 			is_public: true,
 			public_notes: "",

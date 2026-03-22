@@ -139,6 +139,7 @@ describe("fetchSlugsByItemType", () => {
 	});
 
 	it("returns empty array and skips callSelect when libraryItemIds is empty", async () => {
+		vi.resetAllMocks();
 		vi.mocked(callSelect).mockResolvedValue(forceCast({ data: [], error: undefined }));
 
 		const result = await Effect.runPromise(

@@ -10,8 +10,8 @@ import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 type CommunityEntry = {
 	community_id: string;
 	owner_id: string;
-	name: string;
-	slug: string;
+	community_name: string;
+	community_slug: string;
 	description: string | null;
 	is_public: boolean;
 	public_notes: string | null;

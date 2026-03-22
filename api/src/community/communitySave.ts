@@ -164,13 +164,13 @@ export default function communitySave(
 						const updateData: Record<string, unknown> = {};
 
 						if (validated.name !== undefined) {
-							updateData.name = validated.name;
+							updateData.community_name = validated.name;
 						}
 						if (validated.description !== undefined) {
 							updateData.description = validated.description;
 						}
 						if (validated.slug !== undefined) {
-							updateData.slug = validated.slug;
+							updateData.community_slug = validated.slug;
 						}
 						if (validated.is_public !== undefined) {
 							updateData.is_public = validated.is_public;
@@ -200,8 +200,8 @@ export default function communitySave(
 							{
 								community_id: communityId,
 								owner_id: userId,
-								name: validated.name ?? "",
-								slug: validated.slug ?? "",
+								community_name: validated.name ?? "",
+								community_slug: validated.slug ?? "",
 								description: validated.description ?? "",
 								is_public: validated.is_public ?? false,
 								public_notes: validated.public_notes ?? "",
@@ -321,6 +321,32 @@ export default function communitySave(
 								communityUserResult.error?.message ?? "Failed to create community owner entry",
 						}),
 					),
+				);
+			}
+
+			// Automatically add newly created community to owner's library
+			const communityLibraryResult = yield* $(
+				Effect.tryPromise({
+					try: () =>
+						supabase.from("community_library").insert([
+							{
+								user_id: userId,
+								community_id: communityId,
+								community_owner_id: userId,
+							},
+						]),
+					catch: (err) =>
+						new DatabaseError({
+							message: `Failed to add community to owner's library: ${extractErrorMessage(err, "Unknown error")}`,
+						}),
+				}),
+			);
+
+			if (communityLibraryResult.error) {
+				// Non-fatal: log but don't fail the community creation
+				console.warn(
+					`Failed to add community ${communityId} to owner's library (non-fatal):`,
+					communityLibraryResult.error.message,
 				);
 			}
 		}

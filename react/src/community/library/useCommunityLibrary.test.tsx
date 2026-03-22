@@ -12,6 +12,8 @@ import getJson from "@/shared/fetch/getJson";
 import type { CommunityEntry } from "../community-types";
 import useCommunityLibrary from "./useCommunityLibrary";
 
+vi.mock("react-router-dom");
+vi.mock("@/react/language/locale/useLocale");
 vi.mock("@/shared/fetch/getJson");
 
 // Default mock ensures accidental calls to the real network helper don't run.
@@ -47,8 +49,8 @@ describe("useCommunityLibrary", () => {
 		const entry: CommunityEntry = {
 			community_id: TEST_COMM_ID,
 			owner_id: "o1",
-			name: "Test Community",
-			slug: "test-community",
+			community_name: "Test Community",
+			community_slug: "test-community",
 			description: makeNull(),
 			is_public: true,
 			public_notes: makeNull(),

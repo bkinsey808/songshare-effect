@@ -16,8 +16,8 @@ const mockCommunities: CommunityEntry[] = [
 	{
 		community_id: "c1",
 		owner_id: "owner1",
-		name: "Alpha",
-		slug: "alpha",
+		community_name: "Alpha",
+		community_slug: "alpha",
 		description: forceCast<string | null>(undefined),
 		is_public: true,
 		public_notes: forceCast<string | null>(undefined),
@@ -27,8 +27,8 @@ const mockCommunities: CommunityEntry[] = [
 	{
 		community_id: "c2",
 		owner_id: "owner2",
-		name: "Beta",
-		slug: "beta",
+		community_name: "Beta",
+		community_slug: "beta",
 		description: forceCast<string | null>(undefined),
 		is_public: true,
 		public_notes: forceCast<string | null>(undefined),
@@ -38,8 +38,8 @@ const mockCommunities: CommunityEntry[] = [
 	{
 		community_id: "c3",
 		owner_id: "owner3",
-		name: "Gamma",
-		slug: "gamma",
+		community_name: "Gamma",
+		community_slug: "gamma",
 		description: forceCast<string | null>(undefined),
 		is_public: true,
 		public_notes: forceCast<string | null>(undefined),
@@ -117,7 +117,7 @@ function Harness(props: {
 			<div ref={containerRef} data-testid="container">
 				{/* Shows the currently selected community name above the input */}
 				{activeCommunity !== undefined && (
-					<span data-testid="active-community-name">{activeCommunity.name}</span>
+					<span data-testid="active-community-name">{activeCommunity.community_name}</span>
 				)}
 
 				{/* inputRef: allows external consumers to focus the input programmatically */}
@@ -167,7 +167,7 @@ function Harness(props: {
 									}
 								}}
 							>
-								{entry.name}
+								{entry.community_name}
 							</li>
 						))}
 					</ul>

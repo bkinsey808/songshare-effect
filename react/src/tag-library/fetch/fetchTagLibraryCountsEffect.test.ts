@@ -59,7 +59,23 @@ describe("fetchTagLibraryCountsEffect", () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
-		mockedCallSelect.mockResolvedValue(selectOk);
+		// Library tables must return at least one ID so fetchSlugsByItemType proceeds to query tag tables.
+		const libraryData: Record<string, unknown[]> = {
+			song_library: [{ song_id: "s1" }],
+			playlist_library: [{ playlist_id: "p1" }],
+			event_library: [{ event_id: "e1" }],
+			image_library: [{ image_id: "i1" }],
+			song_tag: [],
+			playlist_tag: [],
+			event_tag: [],
+			image_tag: [],
+			community_tag: [],
+		};
+		mockedCallSelect.mockImplementation(
+			forceCast((_client: unknown, table: string) =>
+				promiseResolved({ data: libraryData[table], error: undefined }),
+			),
+		);
 		const { get } = makeTagLibraryGet();
 
 		await Effect.runPromise(fetchTagLibraryCountsEffect(get));
@@ -68,7 +84,7 @@ describe("fetchTagLibraryCountsEffect", () => {
 		expect(tables).toContain("song_tag");
 		expect(tables).toContain("playlist_tag");
 		expect(tables).toContain("event_tag");
-		expect(tables).toContain("community_tag");
+		// community_tag is not queried until the community_library feature is fully implemented
 		expect(tables).toContain("image_tag");
 	});
 
@@ -77,10 +93,21 @@ describe("fetchTagLibraryCountsEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(fakeClient);
 
-		// Use a lookup table to avoid conditionals: song_tag → rock x2 + jazz, playlist_tag → jazz, rest empty
-		const tableData: Record<string, { tag_slug: string }[]> = {
-			song_tag: [{ tag_slug: "rock" }, { tag_slug: "rock" }, { tag_slug: "jazz" }],
-			playlist_tag: [{ tag_slug: "jazz" }],
+		const SONG_ID_1 = "s1";
+		const SONG_ID_2 = "s2";
+		const PLAYLIST_ID_1 = "p1";
+		// Library tables return IDs; tag tables return (tag_slug, item_id) rows for two-phase fetch.
+		const tableData: Record<string, unknown[]> = {
+			song_library: [{ song_id: SONG_ID_1 }, { song_id: SONG_ID_2 }],
+			playlist_library: [{ playlist_id: PLAYLIST_ID_1 }],
+			event_library: [],
+			image_library: [],
+			song_tag: [
+				{ tag_slug: "rock", song_id: SONG_ID_1 },
+				{ tag_slug: "rock", song_id: SONG_ID_2 },
+				{ tag_slug: "jazz", song_id: SONG_ID_1 },
+			],
+			playlist_tag: [{ tag_slug: "jazz", playlist_id: PLAYLIST_ID_1 }],
 			event_tag: [],
 			community_tag: [],
 			image_tag: [],

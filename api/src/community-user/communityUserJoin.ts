@@ -46,6 +46,28 @@ export default function communityUserJoin(
 
 		console.warn(`[communityUserJoin] User ${userId} is joining community ${community_id}`);
 
+		// Verify community exists and fetch owner_id in one query
+		const communityExists = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					supabase
+						.from("community_public")
+						.select("community_id, owner_id")
+						.eq("community_id", community_id)
+						.single(),
+				catch: (err) =>
+					new DatabaseError({
+						message: `Failed to verify community: ${extractErrorMessage(err, "Unknown error")}`,
+					}),
+			}),
+		);
+
+		if (communityExists.error) {
+			return yield* $(
+				Effect.fail(new ValidationError({ message: "Community not found" })),
+			);
+		}
+
 		// Check if user is already a member or has been kicked
 		const existingUser = yield* $(
 			Effect.tryPromise({
@@ -119,6 +141,35 @@ export default function communityUserJoin(
 						message: joinResult.error?.message ?? "Failed to join community",
 					}),
 				),
+			);
+		}
+
+		// Automatically add joined community to user's library (owner_id already fetched above)
+		const communityLibraryResult = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					supabase.from("community_library").upsert(
+						[
+							{
+								user_id: userId,
+								community_id,
+								community_owner_id: communityExists.data.owner_id,
+							},
+						],
+						{ onConflict: "user_id,community_id", ignoreDuplicates: true },
+					),
+				catch: (err) =>
+					new DatabaseError({
+						message: `Failed to add community to user's library: ${extractErrorMessage(err, "Unknown error")}`,
+					}),
+			}),
+		);
+
+		if (communityLibraryResult.error) {
+			// Non-fatal: log but don't fail the community join
+			console.warn(
+				`Failed to add community ${community_id} to user's library (non-fatal):`,
+				communityLibraryResult.error.message,
 			);
 		}
 

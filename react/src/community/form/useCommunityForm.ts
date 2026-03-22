@@ -98,8 +98,8 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 		) {
 			const loadedValues: CommunityFormValues = {
 				community_id: currentCommunity.community_id,
-				name: currentCommunity.name,
-				slug: currentCommunity.slug,
+				name: currentCommunity.community_name,
+				slug: currentCommunity.community_slug,
 				description: currentCommunity.description ?? "",
 				is_public: currentCommunity.is_public,
 				public_notes: currentCommunity.public_notes ?? "",
@@ -177,7 +177,7 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 				);
 				clearInitialState();
 				void navigate(
-					buildPathWithLang(`/${communityViewPath}/${savedCommunity.slug}`, langForNav),
+					buildPathWithLang(`/${communityViewPath}/${savedCommunity.community_slug}`, langForNav),
 				);
 			} catch {
 				// Error handled by store

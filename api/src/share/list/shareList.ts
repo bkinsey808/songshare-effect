@@ -180,11 +180,11 @@ async function enrichSharesWithSlugs(
 	if (byType.community.length > emptyLength) {
 		const { data } = await client
 			.from("community_public")
-			.select("community_id, slug")
+			.select("community_id, community_slug")
 			.in("community_id", byType.community);
 		for (const row of data ?? []) {
-			if (row.community_id && row.slug) {
-				slugMap.set(`community:${row.community_id}`, row.slug);
+			if (row.community_id && row.community_slug) {
+				slugMap.set(`community:${row.community_id}`, row.community_slug);
 			}
 		}
 	}

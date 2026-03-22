@@ -22,10 +22,10 @@ const EVENT_2: CommunityEvent = {
 const CURRENT_COMMUNITY = forceCast<CommunityEntry>({
 	community_id: "c1",
 	owner_id: "owner-1",
-	slug: COMMUNITY_SLUG,
+	community_slug: COMMUNITY_SLUG,
 	created_at: "2024-01-01T00:00:00Z",
 	updated_at: "2024-01-01T00:00:00Z",
-	name: "Test",
+	community_name: "Test",
 	description: undefined,
 	is_public: true,
 	public_notes: undefined,

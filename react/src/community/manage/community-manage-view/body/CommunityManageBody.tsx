@@ -54,7 +54,7 @@ export default function CommunityManageBody({
 		<div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
 			<div>
 				<h1 className="text-4xl font-bold text-white">Community Manager</h1>
-				<p className="text-gray-400 mt-2">{currentCommunity.name}</p>
+				<p className="text-gray-400 mt-2">{currentCommunity.community_name}</p>
 			</div>
 
 			<section className="bg-gray-800 rounded-lg p-6 border border-gray-700 space-y-4">
