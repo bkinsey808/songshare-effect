@@ -1,11 +1,7 @@
-import { useEffect, useState } from "react";
 
 import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
-import { Effect } from "effect";
-
-import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
 import TagList from "@/react/tag-library/TagList";
 
 import ImageViewLibraryAction from "./ImageViewLibraryAction";
@@ -35,16 +31,8 @@ export default function ImageView(): ReactElement {
 		isImageLoading,
 		isOwner,
 		qrCodeUrl,
+		tags,
 	} = useImageView();
-	const [tags, setTags] = useState<string[]>([]);
-
-	// Load the image's tags for display.
-	useEffect(() => {
-		if (image === undefined) { return; }
-		void (async (): Promise<void> => {
-			setTags(await Effect.runPromise(fetchItemTagsEffect("image", image.image_id)));
-		})();
-	}, [image]);
 
 	if (isImageLoading) {
 		return (

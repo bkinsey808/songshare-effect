@@ -80,3 +80,5 @@ tmp/
 test_output.txt
 test-output-staging.txt
 tmpfile
+
+debug-screenshot.png

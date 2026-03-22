@@ -1,11 +1,7 @@
-import { useEffect, useState } from "react";
 
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
-import { Effect } from "effect";
-
-import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
 import TagList from "@/react/tag-library/TagList";
 import { communityViewPath } from "@/shared/paths";
 
@@ -56,16 +52,8 @@ export default function CommunityView(): ReactElement {
 		onSharePlaylistClick,
 		onRefreshCommunity,
 		userSession,
+		tags,
 	} = useCommunityView();
-	const [tags, setTags] = useState<string[]>([]);
-
-	// Load the community's tags for display.
-	useEffect(() => {
-		if (currentCommunity === undefined) { return; }
-		void (async (): Promise<void> => {
-			setTags(await Effect.runPromise(fetchItemTagsEffect("community", currentCommunity.community_id)));
-		})();
-	}, [currentCommunity]);
 
 	if (isCommunityLoading) {
 		return <div className="max-w-4xl mx-auto px-6 py-8 text-gray-300">Loading community...</div>;

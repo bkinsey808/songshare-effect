@@ -85,6 +85,7 @@ function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): Us
 		handleLeaveEvent: vi.fn(),
 		clearActionError: vi.fn(),
 		clearActionSuccess: vi.fn(),
+		tags: [],
 	};
 
 	const result = { ...base, ...overrides } as UseEventViewResult;

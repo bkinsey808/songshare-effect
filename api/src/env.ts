@@ -4,6 +4,13 @@ export type Env = {
 	SUPABASE_VISITOR_EMAIL: string;
 	SUPABASE_VISITOR_PASSWORD: string;
 	SUPABASE_JWT_SECRET?: string;
+	/**
+	 * Legacy HS256 HMAC secret from the Supabase dashboard (Settings → API → JWT Keys →
+	 * Legacy JWT Secret). After rotating to ECC P-256, GoTrue issues ES256 tokens but
+	 * Realtime still verifies using this HS256 secret. When set, visitor and user tokens
+	 * are re-signed with HS256 so Realtime can accept them.
+	 */
+	SUPABASE_LEGACY_JWT_SECRET?: string;
 	// HMAC secret used for state verification in OAuth callback flows
 	STATE_HMAC_SECRET?: string;
 	// Optional debug flag used by cookie helpers to output client-side cookie

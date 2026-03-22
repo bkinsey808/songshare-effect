@@ -1,13 +1,9 @@
-import { useEffect, useState } from "react";
-
 import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
-import { Effect } from "effect";
-
-import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
 import TagList from "@/react/tag-library/TagList";
+import useItemTagsDisplay from "@/react/tag/useItemTagsDisplay";
 
 import SongViewSlides from "./slides/SongViewSlides";
 import SongViewDetails from "./SongViewDetails";
@@ -22,15 +18,7 @@ import { useSongView } from "./useSongView";
 export default function SongView(): ReactElement {
 	const { t } = useLocale();
 	const { isNotFound, isSignedIn, songPublic, songName, qrUrl } = useSongView();
-	const [tags, setTags] = useState<string[]>([]);
-
-	// Load the song's tags for display.
-	useEffect(() => {
-		if (songPublic === undefined) { return; }
-		void (async (): Promise<void> => {
-			setTags(await Effect.runPromise(fetchItemTagsEffect("song", songPublic.song_id)));
-		})();
-	}, [songPublic]);
+	const tags = useItemTagsDisplay("song", songPublic?.song_id);
 
 	// Show friendly not-found UI when the slug did not resolve or the payload
 	// failed validation — keeps the UI resilient to missing or invalid data.

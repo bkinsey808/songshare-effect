@@ -8,6 +8,7 @@ import getImagePublicUrl from "@/react/image/getImagePublicUrl";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
+import useItemTagsDisplay from "@/react/tag/useItemTagsDisplay";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, imageEditPath, imageLibraryPath, imageViewPath } from "@/shared/paths";
 
@@ -37,6 +38,7 @@ export type UseImageViewReturn = {
 	isImageLoading: boolean;
 	isOwner: boolean;
 	qrCodeUrl: string | undefined;
+	tags: string[];
 };
 
 export default function useImageView(): UseImageViewReturn {
@@ -65,6 +67,8 @@ export default function useImageView(): UseImageViewReturn {
 		image_slug === undefined
 			? undefined
 			: Object.values(publicImages).find((img) => img.image_slug === image_slug);
+
+	const tags = useItemTagsDisplay("image", image?.image_id);
 
 	const isOwner =
 		image !== undefined && currentUserId !== undefined && currentUserId === image.user_id;
@@ -119,5 +123,6 @@ export default function useImageView(): UseImageViewReturn {
 		isImageLoading,
 		isOwner,
 		qrCodeUrl,
+		tags,
 	};
 }

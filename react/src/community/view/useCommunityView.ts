@@ -5,6 +5,7 @@ import useAppStore from "@/react/app-store/useAppStore";
 import useLoadCommunityBySlug from "@/react/community/useLoadCommunityBySlug";
 import useLoadCommunityLibraries from "@/react/community/useLoadCommunityLibraries";
 import useLocale from "@/react/lib/language/locale/useLocale";
+import useItemTagsDisplay from "@/react/tag/useItemTagsDisplay";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import type {
@@ -50,6 +51,7 @@ export type UseCommunityViewReturn = {
 	onSharePlaylistClick: (playlistId: string) => void;
 	onRefreshCommunity: () => void;
 	userSession: UserSessionData | undefined;
+	tags: string[];
 };
 
 /**
@@ -91,6 +93,8 @@ export default function useCommunityView(): UseCommunityViewReturn {
 	useLoadCommunityBySlug(community_slug, fetchCommunityBySlug);
 	useLoadCommunityLibraries(userSessionData?.user?.user_id, fetchSongLibrary, fetchPlaylistLibrary);
 	useCommunityViewSubscriptions(communityId);
+
+	const tags = useItemTagsDisplay("community", communityId);
 
 	// find the current user's membership record, if they are logged in
 	const currentMember =
@@ -170,5 +174,6 @@ export default function useCommunityView(): UseCommunityViewReturn {
 		onSharePlaylistClick,
 		onRefreshCommunity,
 		userSession: userSessionData,
+		tags,
 	};
 }

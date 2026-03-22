@@ -40,6 +40,7 @@ function installPlaylistViewMock(overrides: Partial<UsePlaylistViewResult>): voi
 		error: undefined,
 		isOwner: false,
 		songOrder: [],
+		tags: [],
 	};
 	vi.mocked(usePlaylistView).mockReturnValue({ ...base, ...overrides });
 }

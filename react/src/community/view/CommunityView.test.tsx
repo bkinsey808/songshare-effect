@@ -89,6 +89,7 @@ function makeView(overrides: Partial<UseCommunityViewReturn> = {}): UseCommunity
 		onSharePlaylistClick: vi.fn(),
 		onRefreshCommunity: vi.fn(),
 		userSession: undefined,
+		tags: [],
 		...overrides,
 	};
 }

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import EventPlaylistAccordion from "@/react/event/view/playlist-accordion/EventPlaylistAccordion";
@@ -9,9 +8,6 @@ import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
-import { Effect } from "effect";
-
-import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
 import TagList from "@/react/tag-library/TagList";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import {
@@ -64,16 +60,8 @@ export default function EventView(): React.ReactNode {
 		handleLeaveEvent,
 		clearActionError,
 		clearActionSuccess,
+		tags,
 	} = useEventView();
-	const [tags, setTags] = useState<string[]>([]);
-
-	// Load the event's tags for display.
-	useEffect(() => {
-		if (currentEvent === undefined) { return; }
-		void (async (): Promise<void> => {
-			setTags(await Effect.runPromise(fetchItemTagsEffect("event", currentEvent.event_id)));
-		})();
-	}, [currentEvent]);
 
 	if (isEventLoading) {
 		return (

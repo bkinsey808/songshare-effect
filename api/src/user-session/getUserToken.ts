@@ -2,7 +2,8 @@ import { Effect } from "effect";
 
 import { log as serverLog } from "@/api/logger";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
-import { ONE_HOUR_SECONDS } from "@/shared/constants/http";
+import signSupabaseJwtWithLegacySecret from "@/api/supabase/signSupabaseJwtWithLegacySecret";
+import { MS_PER_SECOND, ONE_HOUR_SECONDS } from "@/shared/constants/http";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import { DatabaseError } from "../api-errors";
@@ -145,8 +146,37 @@ export default function getUserToken(
 			return yield* $(Effect.fail(new DatabaseError({ message: "No access token in response" })));
 		}
 
+		// When the legacy HS256 secret is configured, re-sign the token with HS256 so
+		// that both PostgREST and Realtime (which still use the legacy secret for JWT
+		// verification) can accept it. GoTrue issues ES256 tokens after ECC key rotation.
+		const legacySecret = ctx.env.SUPABASE_LEGACY_JWT_SECRET;
+		let accessToken = "";
+		if (legacySecret !== undefined && legacySecret !== "") {
+			const now = Math.floor(Date.now() / MS_PER_SECOND);
+			const jwtPayload: Record<string, unknown> = {
+				iss: `${ctx.env.VITE_SUPABASE_URL}/auth/v1`,
+				sub: data.user.id,
+				aud: "authenticated",
+				role: "authenticated",
+				iat: now,
+				exp: now + ONE_HOUR_SECONDS,
+				app_metadata: newAppMetadata,
+			};
+			accessToken = yield* $(
+				Effect.tryPromise({
+					try: () => signSupabaseJwtWithLegacySecret(jwtPayload, legacySecret),
+					catch: (err) =>
+						new DatabaseError({
+							message: extractErrorMessage(err, "Failed to sign HS256 JWT"),
+						}),
+				}),
+			);
+		} else {
+			accessToken = refreshData.session.access_token;
+		}
+
 		return {
-			access_token: refreshData.session.access_token,
+			access_token: accessToken,
 			token_type: "bearer",
 			expires_in: refreshData.session.expires_in ?? ONE_HOUR_SECONDS,
 		};

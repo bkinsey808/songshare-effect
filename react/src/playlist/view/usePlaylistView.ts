@@ -7,6 +7,7 @@ import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import type { PlaylistEntry, PlaylistPublic } from "@/react/playlist/playlist-types";
 import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
 import type { SongPublic } from "@/react/song/song-schema";
+import useItemTagsDisplay from "@/react/tag/useItemTagsDisplay";
 import addUserToLibraryEffect from "@/react/user-library/user-add/addUserToLibraryEffect";
 import type { ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
@@ -20,6 +21,7 @@ export type UsePlaylistViewResult = {
 	error: string | undefined;
 	isOwner: boolean;
 	songOrder: readonly string[];
+	tags: string[];
 };
 
 /**
@@ -89,6 +91,7 @@ export default function usePlaylistView(): UsePlaylistViewResult {
 	const playlistPublic = currentPlaylist?.public;
 	const songOrder = playlistPublic?.song_order ?? [];
 	const isOwner = currentUserId !== undefined && currentUserId === currentPlaylist?.user_id;
+	const tags = useItemTagsDisplay("playlist", currentPlaylist?.playlist_id);
 
 	return {
 		currentPlaylist,
@@ -98,5 +101,6 @@ export default function usePlaylistView(): UsePlaylistViewResult {
 		error,
 		isOwner,
 		songOrder,
+		tags,
 	};
 }

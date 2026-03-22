@@ -18,6 +18,9 @@ STORAGE_BACKEND
 VITE_SUPABASE_URL
 SUPABASE_SERVICE_KEY
 SUPABASE_JWT_SECRET
+# Legacy HS256 secret from Supabase dashboard → Settings → JWT Keys → Legacy JWT Secret.
+# Required when GoTrue has rotated to ECC P-256 but Realtime still uses HS256 verification.
+SUPABASE_LEGACY_JWT_SECRET
 SUPABASE_VISITOR_EMAIL
 SUPABASE_VISITOR_PASSWORD
 

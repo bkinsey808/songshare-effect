@@ -9,6 +9,7 @@ import deriveEventViewState from "@/react/event/view/deriveEventViewState";
 import useEventActions from "@/react/event/view/useEventActions";
 import useEventDataSync from "@/react/event/view/useEventDataSync";
 import useEventRealtimeSync from "@/react/event/view/useEventRealtimeSync";
+import useItemTagsDisplay from "@/react/tag/useItemTagsDisplay";
 
 /**
  * Hook for managing event view state and actions.
@@ -52,6 +53,7 @@ export default function useEventView(): {
 	handleLeaveEvent: () => void;
 	clearActionError: () => void;
 	clearActionSuccess: () => void;
+	tags: string[];
 } {
 	const { event_slug } = useParams<{ event_slug: string }>();
 	const currentEvent = useAppStore((state) => state.currentEvent);
@@ -85,6 +87,8 @@ export default function useEventView(): {
 		currentUserId,
 		fetchEventBySlug,
 	});
+
+	const tags = useItemTagsDisplay("event", currentEvent?.event_id);
 
 	const actionState = useEventActions({
 		currentEvent,
@@ -141,5 +145,6 @@ export default function useEventView(): {
 						(participant) =>
 							participant.user_id === currentUserId && participant.role === "event_admin",
 					)),
+		tags,
 	};
 }
