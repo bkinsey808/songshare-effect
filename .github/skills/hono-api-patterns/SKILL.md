@@ -47,11 +47,11 @@ import { type AuthenticationError, DatabaseError, ValidationError } from "@/api/
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 
 export default function myHandler(
-  ctx: ReadonlyContext,
+	ctx: ReadonlyContext,
 ): Effect.Effect<{ success: boolean }, ValidationError | DatabaseError | AuthenticationError> {
-  return Effect.gen(function* myHandlerGen($) {
-    // ...
-  });
+	return Effect.gen(function* myHandlerGen($) {
+		// ...
+	});
 }
 ```
 
@@ -62,8 +62,8 @@ Schemas live in `shared/src/validation/`, not in the API feature folder. Use `de
 ```typescript
 // shared/src/validation/mySchemas.ts
 export const myActionSchema: Schema.Schema<OutputType, OutputType> = Schema.Struct({
-  item_id: Schema.String,
-  name: Schema.String.pipe(Schema.minLength(1)),
+	item_id: Schema.String,
+	name: Schema.String.pipe(Schema.minLength(1)),
 });
 
 // api/src/my-feature/action/extractMyActionRequest.ts
@@ -73,7 +73,7 @@ import { myActionSchema } from "@/shared/validation/mySchemas";
 export type MyActionRequest = { item_id: string; name: string };
 
 export default function extractMyActionRequest(request: unknown): MyActionRequest {
-  return decodeUnknownSyncOrThrow(myActionSchema, request);
+	return decodeUnknownSyncOrThrow(myActionSchema, request);
 }
 ```
 
@@ -82,9 +82,12 @@ In the handler:
 ```typescript
 let req: MyActionRequest = { item_id: "", name: "" };
 try {
-  req = extractMyActionRequest(body);
+	req = extractMyActionRequest(body);
 } catch (error: unknown) {
-  return yield* $(Effect.fail(new ValidationError({ message: extractErrorMessage(error, "Invalid request") })));
+	return (
+		yield *
+		$(Effect.fail(new ValidationError({ message: extractErrorMessage(error, "Invalid request") })))
+	);
 }
 ```
 
@@ -96,7 +99,7 @@ try {
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 
-const userSession = yield* $(getVerifiedUserSession(ctx));
+const userSession = yield * $(getVerifiedUserSession(ctx));
 const userId = userSession.user.user_id;
 
 // Service-role client bypasses RLS — enforce ownership in code
@@ -126,15 +129,20 @@ if (result.error) { return yield* $(Effect.fail(new DatabaseError(...))); }
 ## Ownership Check
 
 ```typescript
-const itemResult = yield* $(Effect.tryPromise({
-  try: () => client.from("song_public").select("user_id").eq("song_id", req.song_id).single(),
-  catch: (error) => new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch song") }),
-}));
+const itemResult =
+	yield *
+	$(
+		Effect.tryPromise({
+			try: () => client.from("song_public").select("user_id").eq("song_id", req.song_id).single(),
+			catch: (error) =>
+				new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch song") }),
+		}),
+	);
 if (itemResult.error || itemResult.data === null) {
-  return yield* $(Effect.fail(new DatabaseError({ message: "Song not found" })));
+	return yield * $(Effect.fail(new DatabaseError({ message: "Song not found" })));
 }
 if (itemResult.data.user_id !== userId) {
-  return yield* $(Effect.fail(new ValidationError({ message: "You do not have permission" })));
+	return yield * $(Effect.fail(new ValidationError({ message: "You do not have permission" })));
 }
 ```
 
@@ -162,7 +170,7 @@ if (itemType === "song") {
 Use descriptive variable names (min 2 chars — `id-length` rule):
 
 ```typescript
-const searchQuery = ctx.req.query("q") ?? "";   // ✅ not: const q = ...
+const searchQuery = ctx.req.query("q") ?? ""; // ✅ not: const q = ...
 const limitParam = ctx.req.query("limit");
 const parsedLimit = limitParam === undefined ? DEFAULT_LIMIT : Number.parseInt(limitParam, 10);
 ```

@@ -21,6 +21,7 @@ api/src/
 ```
 
 Examples from the codebase:
+
 - `api/src/image-library/add/addImageToLibrary.ts`
 - `api/src/tags/remove-from-item/removeTagFromItem.ts`
 - `api/src/community/communityLibrary.ts` (GET with no body)
@@ -47,11 +48,11 @@ For endpoints that accept a request body, define a schema in `shared/src/validat
 import { Schema } from "effect";
 
 export const myFeatureDoSomethingSchema: Schema.Schema<
-  { readonly item_id: string; readonly name: string },
-  { readonly item_id: string; readonly name: string }
+	{ readonly item_id: string; readonly name: string },
+	{ readonly item_id: string; readonly name: string }
 > = Schema.Struct({
-  item_id: Schema.String,
-  name: Schema.String.pipe(Schema.minLength(1)),
+	item_id: Schema.String,
+	name: Schema.String.pipe(Schema.minLength(1)),
 });
 ```
 
@@ -77,8 +78,8 @@ import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThr
 import { myFeatureDoSomethingSchema } from "@/shared/validation/myFeatureSchemas";
 
 export type DoSomethingRequest = {
-  item_id: string;
-  name: string;
+	item_id: string;
+	name: string;
 };
 
 /**
@@ -89,7 +90,7 @@ export type DoSomethingRequest = {
  * @throws Schema `ParseError` when required fields are missing or invalid.
  */
 export default function extractDoSomethingRequest(request: unknown): DoSomethingRequest {
-  return decodeUnknownSyncOrThrow(myFeatureDoSomethingSchema, request);
+	return decodeUnknownSyncOrThrow(myFeatureDoSomethingSchema, request);
 }
 ```
 
@@ -108,9 +109,7 @@ import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
-import extractDoSomethingRequest, {
-  type DoSomethingRequest,
-} from "./extractDoSomethingRequest";
+import extractDoSomethingRequest, { type DoSomethingRequest } from "./extractDoSomethingRequest";
 
 /**
  * Server-side handler for doing something.
@@ -119,55 +118,57 @@ import extractDoSomethingRequest, {
  * @returns `{ success: true }` on success, or fails with a typed error.
  */
 export default function doSomething(
-  ctx: ReadonlyContext,
+	ctx: ReadonlyContext,
 ): Effect.Effect<{ success: boolean }, ValidationError | DatabaseError | AuthenticationError> {
-  return Effect.gen(function* doSomethingGen($) {
-    // 1. Parse JSON body
-    const body: unknown = yield* $(
-      Effect.tryPromise({
-        try: async () => {
-          const parsed: unknown = await ctx.req.json();
-          return parsed;
-        },
-        catch: () => new ValidationError({ message: "Invalid JSON body" }),
-      }),
-    );
+	return Effect.gen(function* doSomethingGen($) {
+		// 1. Parse JSON body
+		const body: unknown = yield* $(
+			Effect.tryPromise({
+				try: async () => {
+					const parsed: unknown = await ctx.req.json();
+					return parsed;
+				},
+				catch: () => new ValidationError({ message: "Invalid JSON body" }),
+			}),
+		);
 
-    // 2. Validate request
-    let req: DoSomethingRequest = { item_id: "", name: "" };
-    try {
-      req = extractDoSomethingRequest(body);
-    } catch (error: unknown) {
-      return yield* $(
-        Effect.fail(
-          new ValidationError({ message: extractErrorMessage(error, "Invalid request") }),
-        ),
-      );
-    }
+		// 2. Validate request
+		let req: DoSomethingRequest = { item_id: "", name: "" };
+		try {
+			req = extractDoSomethingRequest(body);
+		} catch (error: unknown) {
+			return yield* $(
+				Effect.fail(
+					new ValidationError({ message: extractErrorMessage(error, "Invalid request") }),
+				),
+			);
+		}
 
-    // 3. Authenticate
-    const userSession = yield* $(getVerifiedUserSession(ctx));
-    const userId = userSession.user.user_id;
+		// 3. Authenticate
+		const userSession = yield* $(getVerifiedUserSession(ctx));
+		const userId = userSession.user.user_id;
 
-    // 4. Get service-role client (bypasses RLS — owner checks must be done in code)
-    const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
+		// 4. Get service-role client (bypasses RLS — owner checks must be done in code)
+		const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
 
-    // 5. Database operation — throw Supabase errors inside `try` so `catch` handles them
-    yield* $(
-      Effect.tryPromise({
-        try: async () => {
-          const result = await client
-            .from("my_table")
-            .insert([{ user_id: userId, item_id: req.item_id, name: req.name }]);
-          if (result.error) { throw result.error; }
-        },
-        catch: (error: unknown) =>
-          new DatabaseError({ message: extractErrorMessage(error, "Failed to do something") }),
-      }),
-    );
+		// 5. Database operation — throw Supabase errors inside `try` so `catch` handles them
+		yield* $(
+			Effect.tryPromise({
+				try: async () => {
+					const result = await client
+						.from("my_table")
+						.insert([{ user_id: userId, item_id: req.item_id, name: req.name }]);
+					if (result.error) {
+						throw result.error;
+					}
+				},
+				catch: (error: unknown) =>
+					new DatabaseError({ message: extractErrorMessage(error, "Failed to do something") }),
+			}),
+		);
 
-    return { success: true };
-  });
+		return { success: true };
+	});
 }
 ```
 
@@ -175,43 +176,43 @@ export default function doSomething(
 
 ```typescript
 export default function listThings(
-  ctx: ReadonlyContext,
+	ctx: ReadonlyContext,
 ): Effect.Effect<{ items: string[] }, DatabaseError | AuthenticationError> {
-  return Effect.gen(function* listThingsGen($) {
-    const userSession = yield* $(getVerifiedUserSession(ctx));
-    const userId = userSession.user.user_id;
+	return Effect.gen(function* listThingsGen($) {
+		const userSession = yield* $(getVerifiedUserSession(ctx));
+		const userId = userSession.user.user_id;
 
-    // Query params — use descriptive names (id-length rule: min 2 chars)
-    const searchQuery = ctx.req.query("q") ?? "";
-    const limitParam = ctx.req.query("limit");
+		// Query params — use descriptive names (id-length rule: min 2 chars)
+		const searchQuery = ctx.req.query("q") ?? "";
+		const limitParam = ctx.req.query("limit");
 
-    const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
+		const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
 
-    const queryResult = yield* $(
-      Effect.tryPromise({
-        try: () =>
-          client
-            .from("my_table")
-            .select("name")
-            .eq("user_id", userId)
-            .ilike("name", `%${searchQuery}%`),
-        catch: (error) =>
-          new DatabaseError({ message: extractErrorMessage(error, "Failed to list things") }),
-      }),
-    );
+		const queryResult = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					client
+						.from("my_table")
+						.select("name")
+						.eq("user_id", userId)
+						.ilike("name", `%${searchQuery}%`),
+				catch: (error) =>
+					new DatabaseError({ message: extractErrorMessage(error, "Failed to list things") }),
+			}),
+		);
 
-    if (queryResult.error) {
-      return yield* $(
-        Effect.fail(
-          new DatabaseError({
-            message: extractErrorMessage(queryResult.error, "Failed to list things"),
-          }),
-        ),
-      );
-    }
+		if (queryResult.error) {
+			return yield* $(
+				Effect.fail(
+					new DatabaseError({
+						message: extractErrorMessage(queryResult.error, "Failed to list things"),
+					}),
+				),
+			);
+		}
 
-    return { items: (queryResult.data ?? []).map((row) => row.name) };
-  });
+		return { items: (queryResult.data ?? []).map((row) => row.name) };
+	});
 }
 ```
 
@@ -222,8 +223,8 @@ export default function listThings(
 ```typescript
 // 1. Add to the import block from "@/shared/paths"
 import {
-  // ...existing...
-  apiMyFeatureDoSomethingPath,
+	// ...existing...
+	apiMyFeatureDoSomethingPath,
 } from "@/shared/paths";
 
 // 2. Import the handler
@@ -243,23 +244,29 @@ The service-role client **bypasses RLS**. Always verify ownership in code before
 
 ```typescript
 // ✅ correct ownership check
-const itemResult = yield* $(
-  Effect.tryPromise({
-    try: () =>
-      client.from("song_public").select("user_id").eq("song_id", req.song_id).single(),
-    catch: (error) =>
-      new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch song") }),
-  }),
-);
+const itemResult =
+	yield *
+	$(
+		Effect.tryPromise({
+			try: () => client.from("song_public").select("user_id").eq("song_id", req.song_id).single(),
+			catch: (error) =>
+				new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch song") }),
+		}),
+	);
 
 if (itemResult.error || itemResult.data === null) {
-  return yield* $(Effect.fail(new DatabaseError({ message: "Song not found" })));
+	return yield * $(Effect.fail(new DatabaseError({ message: "Song not found" })));
 }
 
 if (itemResult.data.user_id !== userId) {
-  return yield* $(
-    Effect.fail(new ValidationError({ message: "You do not have permission to modify this item" })),
-  );
+	return (
+		yield *
+		$(
+			Effect.fail(
+				new ValidationError({ message: "You do not have permission to modify this item" }),
+			),
+		)
+	);
 }
 ```
 
@@ -270,7 +277,7 @@ When an endpoint operates on multiple item types, **never** use `client as any` 
 ```typescript
 // ✅ correct — shared helper (see api/src/tags/getTagItemOwner.ts for a real example)
 import getTagItemOwner from "../getTagItemOwner";
-const ownerId = yield* $(getTagItemOwner(client, req.item_type, req.item_id));
+const ownerId = yield * $(getTagItemOwner(client, req.item_type, req.item_id));
 
 // ❌ wrong — triggers no-unsafe-assignment, no-unsafe-call, no-unsafe-member-access
 const anyClient = client as any;
@@ -323,18 +330,18 @@ if (result.error) {
 
 These rules trip up code generation. Know them upfront:
 
-| Rule | ❌ Wrong | ✅ Right |
-|------|----------|----------|
-| `id-length` | `const r = ...`, `const q = ...` | `const requestObj = ...`, `const searchQuery = ...` |
-| `no-unsafe-type-assertion` | `request as Record<string, unknown>` | Use `decodeUnknownSyncOrThrow` + schema |
-| `no-unsafe-assignment` / `no-unsafe-call` | `const c = client as any; c.from(...)` | Typed `if/else` chain per table |
-| `no-magic-numbers` | `limit <= 0`, `parseInt(x, 10)` | `const MIN = 1; limit < MIN` |
-| `no-negated-condition` | `x !== undefined ? a : b` | `x === undefined ? b : a` |
-| `prefer-number-properties` | `parseInt(x, 10)` | `Number.parseInt(x, 10)` |
-| `consistent-type-imports` | `import Foo from "..."` (type only) | `import type Foo from "..."` |
-| `curly` | `if (x) throw err;` | `if (x) { throw err; }` |
-| `no-null` | `JSON.stringify(x, null, 2)` | Avoid `null` literals |
-| Duplicate branch endings | Same `if (result.error) {...}` at end of every branch | Throw inside `try`; one `catch` handles all |
+| Rule                                      | ❌ Wrong                                              | ✅ Right                                            |
+| ----------------------------------------- | ----------------------------------------------------- | --------------------------------------------------- |
+| `id-length`                               | `const r = ...`, `const q = ...`                      | `const requestObj = ...`, `const searchQuery = ...` |
+| `no-unsafe-type-assertion`                | `request as Record<string, unknown>`                  | Use `decodeUnknownSyncOrThrow` + schema             |
+| `no-unsafe-assignment` / `no-unsafe-call` | `const c = client as any; c.from(...)`                | Typed `if/else` chain per table                     |
+| `no-magic-numbers`                        | `limit <= 0`, `parseInt(x, 10)`                       | `const MIN = 1; limit < MIN`                        |
+| `no-negated-condition`                    | `x !== undefined ? a : b`                             | `x === undefined ? b : a`                           |
+| `prefer-number-properties`                | `parseInt(x, 10)`                                     | `Number.parseInt(x, 10)`                            |
+| `consistent-type-imports`                 | `import Foo from "..."` (type only)                   | `import type Foo from "..."`                        |
+| `curly`                                   | `if (x) throw err;`                                   | `if (x) { throw err; }`                             |
+| `no-null`                                 | `JSON.stringify(x, null, 2)`                          | Avoid `null` literals                               |
+| Duplicate branch endings                  | Same `if (result.error) {...}` at end of every branch | Throw inside `try`; one `catch` handles all         |
 
 ---
 
@@ -343,11 +350,11 @@ These rules trip up code generation. Know them upfront:
 From `api/src/api-errors.ts`:
 
 ```typescript
-ValidationError   // 400 — bad input, failed ownership check
-AuthenticationError // 401 — missing/invalid token
-NotFoundError     // 404
-DatabaseError     // 500 — Supabase errors
-AuthorizationError // 403
+ValidationError; // 400 — bad input, failed ownership check
+AuthenticationError; // 401 — missing/invalid token
+NotFoundError; // 404
+DatabaseError; // 500 — Supabase errors
+AuthorizationError; // 403
 ```
 
 ---

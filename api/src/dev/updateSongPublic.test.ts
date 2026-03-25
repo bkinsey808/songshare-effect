@@ -26,7 +26,6 @@ function makeSongPublicClient({
 	updateRow?: { song_id: string; song_name?: string; song_slug?: string };
 	updateError?: boolean;
 } = {}): ReturnType<typeof createClient> {
-
 	return forceCast<ReturnType<typeof createClient>>({
 		from: (table: string): object => {
 			if (table === "song_public") {

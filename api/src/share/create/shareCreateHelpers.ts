@@ -285,11 +285,6 @@ function addCommunityInviteOnShare(
 	});
 }
 
-export type {
-    AddCommunityInviteParams,
-    ShareCreateRequest,
-    ValidateSharedItemAccessParams
-};
+export type { AddCommunityInviteParams, ShareCreateRequest, ValidateSharedItemAccessParams };
 
-    export { addCommunityInviteOnShare, extractShareCreateRequest, validateSharedItemAccess };
-
+export { addCommunityInviteOnShare, extractShareCreateRequest, validateSharedItemAccess };

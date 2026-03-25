@@ -48,12 +48,12 @@ export default function useItemTags(
 		setTagsInternal([...nextTags]);
 	}
 
-/**
- * Replace the current tag list.
- *
- * @param nextTags - New tag list (readonly) to set into local state.
- * @returns void
- */
+	/**
+	 * Replace the current tag list.
+	 *
+	 * @param nextTags - New tag list (readonly) to set into local state.
+	 * @returns void
+	 */
 
 	// Fetch the item's existing tags when editing (itemId is defined).
 	useEffect(() => {
@@ -72,7 +72,12 @@ export default function useItemTags(
 	async function saveTags(id: string): Promise<SaveTagsResult> {
 		try {
 			await Effect.runPromise(
-				saveItemTagsEffect({ itemType, itemId: id, originalTags: originalTagsRef.current, nextTags: tags }),
+				saveItemTagsEffect({
+					itemType,
+					itemId: id,
+					originalTags: originalTagsRef.current,
+					nextTags: tags,
+				}),
 			);
 			return { success: true };
 		} catch (error: unknown) {
@@ -83,15 +88,15 @@ export default function useItemTags(
 		}
 	}
 
-/**
- * Persist tag changes for the specified item id.
- *
- * The function sends the original tags (from mount) and the current local
- * `tags` so the server can compute and apply the minimal update.
- *
- * @param id - UUID of the item to save tags for.
- * @returns A `SaveTagsResult` indicating success or failure with an error message.
- */
+	/**
+	 * Persist tag changes for the specified item id.
+	 *
+	 * The function sends the original tags (from mount) and the current local
+	 * `tags` so the server can compute and apply the minimal update.
+	 *
+	 * @param id - UUID of the item to save tags for.
+	 * @returns A `SaveTagsResult` indicating success or failure with an error message.
+	 */
 
 	return { tags, setTags, saveTags, isLoadingTags };
 }

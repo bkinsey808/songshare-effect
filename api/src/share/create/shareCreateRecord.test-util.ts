@@ -202,9 +202,8 @@ function makeShareCreateRecordClientWithInsertSpy(
 }
 
 export {
-    EXISTING_SHARE_ID,
-    makeShareCreateRecordClient,
-    makeShareCreateRecordClientWithInsertSpy,
-    NEW_SHARE_ID
+	EXISTING_SHARE_ID,
+	makeShareCreateRecordClient,
+	makeShareCreateRecordClientWithInsertSpy,
+	NEW_SHARE_ID,
 };
-

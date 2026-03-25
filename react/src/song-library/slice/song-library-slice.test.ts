@@ -31,7 +31,8 @@ function transformSongLibraryEntries(
 	>((acc, row) => {
 		const entry: { song_name?: string; song_slug?: string; owner_username?: string } = {};
 		const songDetails = songMap.get(row.song_id);
-		const ownerUsername = row.song_owner_id === undefined ? undefined : ownerMap.get(row.song_owner_id);
+		const ownerUsername =
+			row.song_owner_id === undefined ? undefined : ownerMap.get(row.song_owner_id);
 
 		if (
 			songDetails?.song_name !== null &&

@@ -5,10 +5,10 @@ import { describe, expect, it, vi } from "vitest";
 import type { Bindings } from "@/api/env";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import {
-    HTTP_BAD_REQUEST,
-    HTTP_INTERNAL,
-    HTTP_NOT_FOUND,
-    HTTP_TEMP_REDIRECT,
+	HTTP_BAD_REQUEST,
+	HTTP_INTERNAL,
+	HTTP_NOT_FOUND,
+	HTTP_TEMP_REDIRECT,
 } from "@/shared/constants/http";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";

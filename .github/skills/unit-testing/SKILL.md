@@ -9,9 +9,7 @@ metadata:
 
 # Unit Testing
 
-Full reference: [docs/unit-testing.md](../../../docs/unit-testing.md)
-
----
+## Full reference: [docs/unit-testing.md](../../../docs/unit-testing.md)
 
 ## Use When
 
@@ -54,6 +52,10 @@ npm run test:unit -- path/to/file.test.ts   # targeted (fastest)
 npm run test:unit                            # all tests (before PR)
 
 ```
+
+## AAA pattern
+
+see the AAA Testing Pattern in the docs: https://github.com/bkinsey808/songshare-effect/blob/main/docs/unit-testing.md#L106
 
 ## Do Not
 

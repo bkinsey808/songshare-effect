@@ -144,7 +144,11 @@ describe("useCommunityView", () => {
 	it("grants manage to community_admin and marks member when joined", () => {
 		installBaseMocks({
 			fetchCommunityBySlug: () => Effect.succeed(undefined),
-			currentCommunity: makeCommunity({ community_id: "c2", owner_id: "owner-x", community_slug: "s" }),
+			currentCommunity: makeCommunity({
+				community_id: "c2",
+				owner_id: "owner-x",
+				community_slug: "s",
+			}),
 			members: [
 				{
 					community_id: "c2",
@@ -206,7 +210,11 @@ describe("useCommunityView", () => {
 
 		installBaseMocks({
 			fetchCommunityBySlug: fetchMock,
-			currentCommunity: makeCommunity({ community_id: "c5", owner_id: "owner-a", community_slug: "s" }),
+			currentCommunity: makeCommunity({
+				community_id: "c5",
+				owner_id: "owner-a",
+				community_slug: "s",
+			}),
 			members: [],
 			communityEvents: [],
 			isCommunityLoading: false,

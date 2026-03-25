@@ -89,8 +89,7 @@ export default function handlePlaylistLibrarySubscribeEvent(
 				// Enrich with owner username if available
 				const enrichedEntry = yield* $(
 					Effect.tryPromise({
-						try: () =>
-							enrichWithOwnerUsername(supabaseClient, entryWithOwner, "playlist_owner_id"),
+						try: () => enrichWithOwnerUsername(supabaseClient, entryWithOwner, "playlist_owner_id"),
 						catch: (err) => new Error(String(err)),
 					}),
 				);

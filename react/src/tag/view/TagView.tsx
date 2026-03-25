@@ -16,8 +16,16 @@ import useTagView from "./useTagView";
  * @returns A React element showing the tagged items grid.
  */
 export default function TagView(): ReactElement {
-	const { currentUserId, imageEntries, songEntries, playlistEntries, eventEntries, error, isLoading, tag_slug } =
-		useTagView();
+	const {
+		currentUserId,
+		imageEntries,
+		songEntries,
+		playlistEntries,
+		eventEntries,
+		error,
+		isLoading,
+		tag_slug,
+	} = useTagView();
 	const lang = useCurrentLang();
 
 	if (isLoading) {
@@ -60,9 +68,7 @@ export default function TagView(): ReactElement {
 							<ImageLibraryCard
 								key={entry.image_id}
 								entry={entry}
-								{...(currentUserId !== undefined && currentUserId !== ""
-									? { currentUserId }
-									: {})}
+								{...(currentUserId !== undefined && currentUserId !== "" ? { currentUserId } : {})}
 							/>
 						))}
 					</div>
@@ -78,9 +84,7 @@ export default function TagView(): ReactElement {
 								key={entry.song_id}
 								className="group hover:bg-gray-750 rounded-lg border border-gray-700 bg-gray-800 p-4 transition-colors hover:border-gray-600"
 							>
-								<h3 className="mb-2 line-clamp-2 font-semibold text-white">
-									{entry.song_name}
-								</h3>
+								<h3 className="mb-2 line-clamp-2 font-semibold text-white">{entry.song_name}</h3>
 								{entry.song_slug !== undefined && entry.song_slug.trim() !== "" ? (
 									<Link
 										to={buildPathWithLang(`/${songViewPath}/${entry.song_slug}`, lang)}
@@ -109,10 +113,7 @@ export default function TagView(): ReactElement {
 								</h3>
 								{entry.playlist_slug !== undefined && entry.playlist_slug.trim() !== "" ? (
 									<Link
-										to={buildPathWithLang(
-											`/${playlistViewPath}/${entry.playlist_slug}`,
-											lang,
-										)}
+										to={buildPathWithLang(`/${playlistViewPath}/${entry.playlist_slug}`, lang)}
 										className="text-sm text-blue-400 transition-colors hover:text-blue-300"
 									>
 										View Playlist
@@ -132,9 +133,7 @@ export default function TagView(): ReactElement {
 							<EventLibraryCard
 								key={entry.event_id}
 								entry={entry}
-								{...(currentUserId !== undefined && currentUserId !== ""
-									? { currentUserId }
-									: {})}
+								{...(currentUserId !== undefined && currentUserId !== "" ? { currentUserId } : {})}
 							/>
 						))}
 					</div>

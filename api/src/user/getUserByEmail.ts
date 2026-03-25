@@ -7,7 +7,7 @@ import parseMaybeSingle from "@/api/supabase/parseMaybeSingle";
 import { type ReadonlySupabaseClient } from "@/api/supabase/ReadonlySupabaseClient.type";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { UserSchema } from "@/shared/generated/supabaseSchemas";
-import isRecordStringUnknown from "@/shared/utils/isRecordStringUnknown";
+import isRecordStringUnknown from "@/shared/type-guards/isRecordStringUnknown";
 import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 
 // Supabase response shape handled via `parseMaybeSingle`

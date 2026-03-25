@@ -277,24 +277,20 @@ export default function songSave(
 				Effect.tryPromise({
 					try: async () => {
 						if (validSlugs.length > ZERO) {
-							await supabase
-								.from("tag")
-								.upsert(
-									validSlugs.map((slug) => ({ tag_slug: slug })),
-									{ onConflict: "tag_slug", ignoreDuplicates: true },
-								);
+							await supabase.from("tag").upsert(
+								validSlugs.map((slug) => ({ tag_slug: slug })),
+								{ onConflict: "tag_slug", ignoreDuplicates: true },
+							);
 						}
 						await supabase.from("song_tag").delete().eq("song_id", songId);
 						if (validSlugs.length > ZERO) {
 							await supabase
 								.from("song_tag")
 								.insert(validSlugs.map((slug) => ({ song_id: songId, tag_slug: slug })));
-							await supabase
-								.from("tag_library")
-								.upsert(
-									validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
-									{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
-								);
+							await supabase.from("tag_library").upsert(
+								validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
+								{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
+							);
 						}
 					},
 					catch: () => new DatabaseError({ message: "Failed to save tags" }),
@@ -311,7 +307,7 @@ export default function songSave(
 							{
 								user_id: userId,
 								song_id: songId,
-									},
+							},
 						]),
 					catch: (err) => {
 						// Log error but don't fail the song creation

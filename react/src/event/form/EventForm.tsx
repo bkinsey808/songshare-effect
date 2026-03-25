@@ -214,9 +214,7 @@ export default function EventForm(): ReactElement {
 
 					{/* Tags */}
 					<div>
-						<p className="mb-2 text-sm font-medium text-white">
-							{t("eventEdit.tags", "Tags")}
-						</p>
+						<p className="mb-2 text-sm font-medium text-white">{t("eventEdit.tags", "Tags")}</p>
 						<TagInput value={tags} onChange={setTags} />
 					</div>
 				</form>

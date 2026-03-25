@@ -11,6 +11,7 @@ const STATUS_SERVER = 500;
 
 describe("postJsonWithResult", () => {
 	it("returns parsed JSON when response is ok and not ApiResponse shape", async () => {
+		// Arrange
 		const data = { id: "123", name: "test" };
 		const originalFetch = globalThis.fetch;
 		vi.stubGlobal(
@@ -21,7 +22,10 @@ describe("postJsonWithResult", () => {
 			}),
 		);
 		try {
+			// Act
 			const result = await postJsonWithResult<typeof data>(PATH, BODY);
+
+			// Assert
 			expect(result).toStrictEqual(data);
 			expect(globalThis.fetch).toHaveBeenCalledWith(PATH, {
 				method: "POST",
@@ -35,6 +39,7 @@ describe("postJsonWithResult", () => {
 	});
 
 	it("unwraps data when response matches ApiResponse shape", async () => {
+		// Arrange
 		const wrapped = { success: true, data: { count: 3 } };
 		const originalFetch = globalThis.fetch;
 		vi.stubGlobal(
@@ -45,7 +50,10 @@ describe("postJsonWithResult", () => {
 			}),
 		);
 		try {
+			// Act
 			const result = await postJsonWithResult<{ count: number }>(PATH, BODY);
+
+			// Assert
 			expect(result).toStrictEqual({ count: 3 });
 		} finally {
 			vi.stubGlobal("fetch", originalFetch);
@@ -53,6 +61,7 @@ describe("postJsonWithResult", () => {
 	});
 
 	it("throws with extracted message when response is not ok and body is JSON with error", async () => {
+		// Arrange
 		const errorPayload = { error: "Bad request message" };
 		const originalFetch = globalThis.fetch;
 		vi.stubGlobal(
@@ -64,6 +73,7 @@ describe("postJsonWithResult", () => {
 			}),
 		);
 		try {
+			// Assert
 			await expect(postJsonWithResult(PATH, BODY)).rejects.toThrow("Bad request message");
 		} finally {
 			vi.stubGlobal("fetch", originalFetch);
@@ -71,6 +81,7 @@ describe("postJsonWithResult", () => {
 	});
 
 	it("throws with raw text when response is not ok and body is not JSON", async () => {
+		// Arrange
 		const plainText = "Plain error text";
 		const originalFetch = globalThis.fetch;
 		vi.stubGlobal(
@@ -82,6 +93,7 @@ describe("postJsonWithResult", () => {
 			}),
 		);
 		try {
+			// Assert
 			await expect(postJsonWithResult(PATH, BODY)).rejects.toThrow(plainText);
 		} finally {
 			vi.stubGlobal("fetch", originalFetch);
@@ -89,6 +101,7 @@ describe("postJsonWithResult", () => {
 	});
 
 	it("throws with status when response is not ok and body cannot be read", async () => {
+		// Arrange
 		const originalFetch = globalThis.fetch;
 		vi.stubGlobal(
 			"fetch",
@@ -99,6 +112,7 @@ describe("postJsonWithResult", () => {
 			}),
 		);
 		try {
+			// Assert
 			await expect(postJsonWithResult(PATH, BODY)).rejects.toThrow(/Request failed \(500\)/);
 		} finally {
 			vi.stubGlobal("fetch", originalFetch);

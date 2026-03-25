@@ -68,7 +68,9 @@ export default function removeTagFromItem(
 							.delete()
 							.eq("song_id", req.item_id)
 							.eq("tag_slug", req.tag_slug);
-						if (result.error) { throw result.error; }
+						if (result.error) {
+							throw result.error;
+						}
 					},
 					catch: (error: unknown) =>
 						new DatabaseError({
@@ -85,7 +87,9 @@ export default function removeTagFromItem(
 							.delete()
 							.eq("playlist_id", req.item_id)
 							.eq("tag_slug", req.tag_slug);
-						if (result.error) { throw result.error; }
+						if (result.error) {
+							throw result.error;
+						}
 					},
 					catch: (error: unknown) =>
 						new DatabaseError({
@@ -102,7 +106,9 @@ export default function removeTagFromItem(
 							.delete()
 							.eq("event_id", req.item_id)
 							.eq("tag_slug", req.tag_slug);
-						if (result.error) { throw result.error; }
+						if (result.error) {
+							throw result.error;
+						}
 					},
 					catch: (error: unknown) =>
 						new DatabaseError({
@@ -119,7 +125,9 @@ export default function removeTagFromItem(
 							.delete()
 							.eq("community_id", req.item_id)
 							.eq("tag_slug", req.tag_slug);
-						if (result.error) { throw result.error; }
+						if (result.error) {
+							throw result.error;
+						}
 					},
 					catch: (error: unknown) =>
 						new DatabaseError({
@@ -137,7 +145,9 @@ export default function removeTagFromItem(
 							.delete()
 							.eq("image_id", req.item_id)
 							.eq("tag_slug", req.tag_slug);
-						if (result.error) { throw result.error; }
+						if (result.error) {
+							throw result.error;
+						}
 					},
 					catch: (error: unknown) =>
 						new DatabaseError({

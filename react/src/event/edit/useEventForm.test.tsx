@@ -264,7 +264,7 @@ describe("useEventForm", () => {
 				useAppStore.setState((prev: Record<string, unknown>) => ({ ...prev, saveEvent: mockSave }));
 
 				// make date conversion predictable
-				const formatMod = await import("@/shared/utils/formatEventDate");
+				const formatMod = await import("@/shared/utils/date/formatEventDate");
 				vi.spyOn(formatMod, "clientLocalDateToUtcTimestamp").mockReturnValue(
 					"2026-03-02T12:00:00Z",
 				);

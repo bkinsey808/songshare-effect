@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import isEmpty from "./isEmpty";
 
@@ -8,31 +8,31 @@ const TEST_ARRAY: number[] = [ARRAY_ITEM_A, ARRAY_ITEM_B];
 const ZERO_NUMBER = 0;
 
 describe("isEmpty", () => {
-	it("returns true for undefined", () => {
-		expect(isEmpty(undefined)).toBe(true);
+	const truthyCases = [
+		[undefined],
+		[""],
+		["   \t\n"],
+		[[]],
+		[new Map()],
+		[new Set()],
+		[{}],
+	] as const;
+
+	it.each(truthyCases)("isEmpty(%o) => true", (value: unknown) => {
+		// Act
+		const got = isEmpty(value);
+
+		// Assert
+		expect(got).toBe(true);
 	});
 
-	it("handles strings (empty and whitespace-only)", () => {
-		expect(isEmpty("")).toBe(true);
-		expect(isEmpty("   \t\n")).toBe(true);
-		expect(isEmpty("hello")).toBe(false);
-	});
+	const falsyCases = [["hello"], [TEST_ARRAY], [{ foo: "bar" }], [ZERO_NUMBER], [false]] as const;
 
-	it("handles arrays and containers", () => {
-		expect(isEmpty([])).toBe(true);
-		expect(isEmpty(TEST_ARRAY)).toBe(false);
+	it.each(falsyCases)("isEmpty(%o) => false", (value: unknown) => {
+		// Act
+		const got = isEmpty(value);
 
-		expect(isEmpty(new Map())).toBe(true);
-		expect(isEmpty(new Set())).toBe(true);
-	});
-
-	it("handles objects", () => {
-		expect(isEmpty({})).toBe(true);
-		expect(isEmpty({ foo: "bar" })).toBe(false);
-	});
-
-	it("returns false for primitives like numbers", () => {
-		expect(isEmpty(ZERO_NUMBER)).toBe(false);
-		expect(isEmpty(false)).toBe(false);
+		// Assert
+		expect(got).toBe(false);
 	});
 });

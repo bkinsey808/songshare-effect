@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 
+import { type SongPublic, songFields } from "@/react/song/song-schema";
 import { ONE } from "@/shared/constants/shared-constants";
 import { safeGet } from "@/shared/utils/safe";
-
-import { type SongPublic, songFields } from "@/react/song/song-schema";
 
 /** Minimum allowed slide index (keeps bounds explicit and avoids magic numbers) */
 const MIN_SLIDE_INDEX = 0;

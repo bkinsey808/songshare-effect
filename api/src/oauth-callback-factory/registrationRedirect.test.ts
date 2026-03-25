@@ -10,8 +10,8 @@ import type { OauthUserData } from "@/shared/oauth/oauthUserData";
 import { registerPath } from "@/shared/paths";
 
 import handleRegistration, {
-    type RegistrationRedirectParams,
-    SEE_OTHER,
+	type RegistrationRedirectParams,
+	SEE_OTHER,
 } from "./registrationRedirect";
 
 // stub buildRegisterJwt so we don't have to construct a real context

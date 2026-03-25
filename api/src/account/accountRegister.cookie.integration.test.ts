@@ -33,6 +33,7 @@ const RAW_INSERTED_USER = {
 
 describe("accountRegister cookie integration", () => {
 	it("appends a secure, HttpOnly session cookie (production)", async () => {
+		// Arrange
 		vi.resetAllMocks();
 
 		const appendSpy = vi.fn();
@@ -63,7 +64,10 @@ describe("accountRegister cookie integration", () => {
 		vi.mocked(sign).mockResolvedValue("session-jwt");
 		vi.mocked(nanoid).mockReturnValue("csrf-token");
 
+		// Act
 		const res = await Effect.runPromise(accountRegister(ctx));
+
+		// Assert
 		expect(res).toStrictEqual({ success: true });
 
 		// Collect cookie header values
@@ -79,6 +83,7 @@ describe("accountRegister cookie integration", () => {
 	});
 
 	it("appends a readable csrf cookie (production)", async () => {
+		// Arrange
 		vi.resetAllMocks();
 
 		const appendSpy = vi.fn();
@@ -109,7 +114,10 @@ describe("accountRegister cookie integration", () => {
 		vi.mocked(sign).mockResolvedValue("session-jwt");
 		vi.mocked(nanoid).mockReturnValue("csrf-token");
 
+		// Act
 		const res = await Effect.runPromise(accountRegister(ctx));
+
+		// Assert
 		expect(res).toStrictEqual({ success: true });
 
 		const cookieHeaders = getCookieHeaders(appendSpy);
@@ -124,12 +132,17 @@ describe("accountRegister cookie integration", () => {
 	});
 
 	it("produces non-secure SameSite=Lax cookie when request URL is non-https", async () => {
+		// Arrange
 		vi.resetAllMocks();
 
 		const appendSpy = vi.fn();
 		const ctx = makeCtx({
 			body: { username: "intuser" },
-			env: { VITE_SUPABASE_URL: "url", SUPABASE_SERVICE_KEY: "svc-key", SUPABASE_JWT_SECRET: "jwt-secret" },
+			env: {
+				VITE_SUPABASE_URL: "url",
+				SUPABASE_SERVICE_KEY: "svc-key",
+				SUPABASE_JWT_SECRET: "jwt-secret",
+			},
 			resHeadersAppend: appendSpy,
 			req: { url: "http://example.test/api/test" },
 		});
@@ -149,7 +162,10 @@ describe("accountRegister cookie integration", () => {
 		vi.mocked(sign).mockResolvedValue("session-jwt");
 		vi.mocked(nanoid).mockReturnValue("csrf-token");
 
+		// Act
 		const res = await Effect.runPromise(accountRegister(ctx));
+
+		// Assert
 		expect(res).toStrictEqual({ success: true });
 
 		const cookieHeaders = getCookieHeaders(appendSpy);

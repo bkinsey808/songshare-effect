@@ -9,7 +9,7 @@ import { ZERO } from "@/shared/constants/shared-constants";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import { dashboardPath, songEditPath, songViewPath } from "@/shared/paths";
-import formatAppDate from "@/shared/utils/formatAppDate";
+import formatAppDate from "@/shared/utils/date/formatAppDate";
 
 import useSongLibrary from "./useSongLibrary";
 

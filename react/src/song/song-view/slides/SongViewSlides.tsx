@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
 import XIcon from "@/react/lib/design-system/icons/XIcon";
-
 import { type SongPublic } from "@/react/song/song-schema";
+
 import SongViewCurrentSlide from "../SongViewCurrentSlide";
 import SongViewSlideControls from "./SongViewSlideControls";
 import { useSongViewSlides } from "./useSongViewSlides";

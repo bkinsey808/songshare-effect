@@ -9,4 +9,3 @@ export function parseWorkerVarNames(text: string): string[] {
 export function resolveServiceName(envArg: string, serviceArg: string | undefined): string {
 	return serviceArg === undefined || serviceArg === "" ? `songshare-${envArg}` : serviceArg;
 }
-

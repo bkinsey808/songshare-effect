@@ -31,34 +31,44 @@ function isAbortError(err: unknown): boolean {
 
 describe("retryWithBackoff", () => {
 	it("succeeds immediately when fn returns a value", async () => {
+		// Arrange
 		const fn = vi.fn(base);
+
+		// Act
 		const res = await retryWithBackoff(fn, [ZERO]);
+
+		// Assert
 		expect(res.succeeded).toBe(true);
 		expect(res.value).toBe("ok");
 		expect(fn).toHaveBeenCalledTimes(ONE);
 	});
 
 	it("retries after an error then succeeds", async () => {
-		// Simulate first call failing then subsequent calls succeeding
+		// Arrange: first call fails, then succeeds
 		const fn = vi.fn().mockRejectedValueOnce(new Error("boom")).mockResolvedValue("ok");
 
+		// Act
 		const res = await retryWithBackoff(fn, [ZERO, ZERO], {
 			onError: () => undefined,
 		});
 
+		// Assert
 		expect(res.succeeded).toBe(true);
 		expect(res.value).toBe("ok");
 		expect(fn).toHaveBeenCalledTimes(TWO);
 	});
 
 	it("returns aborted when shouldAbort signals an abort", async () => {
+		// Arrange
 		const fn = abortingFn;
 
+		// Act
 		const res = await retryWithBackoff(fn, [ZERO, ZERO], {
 			// `shouldAbort` should return true when the error indicates an abort.
 			shouldAbort: isAbortError,
 		});
 
+		// Assert
 		expect(res.aborted).toBe(true);
 		expect(res.succeeded).toBe(false);
 	});

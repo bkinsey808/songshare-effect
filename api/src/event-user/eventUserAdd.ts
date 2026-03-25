@@ -204,7 +204,7 @@ export default function eventUserAdd(
 								{
 									user_id,
 									playlist_id: activePlaylistId,
-											},
+								},
 							]),
 						catch: (err) => {
 							// Non-fatal: user might already have it in their library

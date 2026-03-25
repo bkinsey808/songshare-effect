@@ -24,8 +24,17 @@ export default function TagInput({
 	onChange,
 	placeholder = "Add tags…",
 }: TagInputProps): ReactElement {
-	const { addTag, handleBlur, handleInputChange, handleKeyDown, inputRef, inputValue, isOpen, removeTag, suggestions } =
-		useTagInput(value, onChange);
+	const {
+		addTag,
+		handleBlur,
+		handleInputChange,
+		handleKeyDown,
+		inputRef,
+		inputValue,
+		isOpen,
+		removeTag,
+		suggestions,
+	} = useTagInput(value, onChange);
 
 	return (
 		<div className="space-y-2">

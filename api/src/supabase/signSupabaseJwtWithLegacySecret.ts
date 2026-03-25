@@ -25,8 +25,9 @@ export default async function signSupabaseJwtWithLegacySecret(
 	// key.
 	const FIRST_CHAR_INDEX = 0;
 	const FALLBACK_CHAR_CODE = 0;
-	const keyBytes = Uint8Array.from(atob(legacyBase64Secret), (char) =>
-		char.codePointAt(FIRST_CHAR_INDEX) ?? FALLBACK_CHAR_CODE,
+	const keyBytes = Uint8Array.from(
+		atob(legacyBase64Secret),
+		(char) => char.codePointAt(FIRST_CHAR_INDEX) ?? FALLBACK_CHAR_CODE,
 	);
 	const cryptoKey = await crypto.subtle.importKey(
 		"raw",

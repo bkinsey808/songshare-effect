@@ -4,4 +4,3 @@ export type ImageTagRow = {
 	image_id: string;
 	image_public: ImagePublic | null;
 };
-

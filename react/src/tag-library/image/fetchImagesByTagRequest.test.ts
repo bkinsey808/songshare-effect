@@ -88,10 +88,7 @@ describe("fetchImagesByTagRequest", () => {
 		// Step 2: image_library returns one valid row and one invalid row
 		vi.mocked(callSelect).mockResolvedValueOnce(
 			forceCast({
-				data: [
-					{ user_id: "", image_id: "img-1", created_at: "" },
-					{ not_an_image_row: true },
-				],
+				data: [{ user_id: "", image_id: "img-1", created_at: "" }, { not_an_image_row: true }],
 				error: JSON.parse("null") as unknown,
 			}),
 		);

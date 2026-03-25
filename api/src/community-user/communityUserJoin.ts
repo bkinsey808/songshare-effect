@@ -63,9 +63,7 @@ export default function communityUserJoin(
 		);
 
 		if (communityExists.error) {
-			return yield* $(
-				Effect.fail(new ValidationError({ message: "Community not found" })),
-			);
+			return yield* $(Effect.fail(new ValidationError({ message: "Community not found" })));
 		}
 
 		// Check if user is already a member or has been kicked
@@ -153,7 +151,7 @@ export default function communityUserJoin(
 							{
 								user_id: userId,
 								community_id,
-										},
+							},
 						],
 						{ onConflict: "user_id,community_id", ignoreDuplicates: true },
 					),

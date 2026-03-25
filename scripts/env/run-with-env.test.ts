@@ -22,11 +22,13 @@ describe("parseRunWithEnvArgs", () => {
 		expect(result.configFiles).toStrictEqual(["config/app.list"]);
 		expect(result.envNames).toStrictEqual(["production"]);
 		expect(result.services).toStrictEqual(["songshare-production", "custom-service"]);
-		expect(result.secretsLists).toStrictEqual(["config/env-secrets.production.list", "config/custom.list"]);
+		expect(result.secretsLists).toStrictEqual([
+			"config/env-secrets.production.list",
+			"config/custom.list",
+		]);
 	});
 
 	it("throws when the separator is missing", () => {
 		expect(() => parseRunWithEnvArgs(["--env", "production"])).toThrow();
 	});
 });
-

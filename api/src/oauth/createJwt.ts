@@ -3,7 +3,7 @@ import { sign } from "hono/jwt";
 
 import { ServerError } from "@/api/api-errors";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
-import isRecordStringUnknown from "@/shared/utils/isRecordStringUnknown";
+import isRecordStringUnknown from "@/shared/type-guards/isRecordStringUnknown";
 
 /**
  * Helper: create JWT (wrap sign)

@@ -79,18 +79,13 @@ export default async function fetchPlaylistsByTagRequest(
 			cols: "playlist_id, playlist_name, playlist_slug",
 			in: { col: "playlist_id", vals: libraryPlaylistIds },
 		});
-		const playlistPublicMap = new Map<
-			string,
-			{ playlist_name: string; playlist_slug: string }
-		>();
+		const playlistPublicMap = new Map<string, { playlist_name: string; playlist_slug: string }>();
 		if (isRecord(playlistPublicResult) && Array.isArray(playlistPublicResult.data)) {
 			for (const row of playlistPublicResult.data) {
 				if (isRecord(row) && typeof row["playlist_id"] === "string") {
 					playlistPublicMap.set(row["playlist_id"], {
-						playlist_name:
-							typeof row["playlist_name"] === "string" ? row["playlist_name"] : "",
-						playlist_slug:
-							typeof row["playlist_slug"] === "string" ? row["playlist_slug"] : "",
+						playlist_name: typeof row["playlist_name"] === "string" ? row["playlist_name"] : "",
+						playlist_slug: typeof row["playlist_slug"] === "string" ? row["playlist_slug"] : "",
 					});
 				}
 			}

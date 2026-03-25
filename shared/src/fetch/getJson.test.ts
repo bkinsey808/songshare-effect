@@ -13,6 +13,7 @@ const ITEM_C = 3;
 
 describe("getJson", () => {
 	it("returns parsed JSON when response is ok and not ApiResponse shape", async () => {
+		// Arrange
 		const data = { items: [ITEM_A, ITEM_B, ITEM_C] };
 		const originalFetch = globalThis.fetch;
 		vi.stubGlobal(
@@ -23,7 +24,10 @@ describe("getJson", () => {
 			}),
 		);
 		try {
+			// Act
 			const result = await getJson<typeof data>(PATH);
+
+			// Assert
 			expect(result).toStrictEqual(data);
 			expect(globalThis.fetch).toHaveBeenCalledWith(PATH, {
 				method: "GET",
@@ -36,6 +40,7 @@ describe("getJson", () => {
 	});
 
 	it("unwraps data when response matches ApiResponse shape", async () => {
+		// Arrange
 		const wrapped = { success: true, data: { list: [] } };
 		const originalFetch = globalThis.fetch;
 		vi.stubGlobal(
@@ -46,7 +51,10 @@ describe("getJson", () => {
 			}),
 		);
 		try {
+			// Act
 			const result = await getJson<{ list: unknown[] }>(PATH);
+
+			// Assert
 			expect(result).toStrictEqual({ list: [] });
 		} finally {
 			vi.stubGlobal("fetch", originalFetch);
@@ -54,6 +62,7 @@ describe("getJson", () => {
 	});
 
 	it("throws when response is not ok", async () => {
+		// Arrange
 		const errorPayload = { message: "Not found" };
 		const originalFetch = globalThis.fetch;
 		vi.stubGlobal(
@@ -66,6 +75,7 @@ describe("getJson", () => {
 			}),
 		);
 		try {
+			// Assert
 			await expect(getJson(PATH)).rejects.toThrow("Not found");
 		} finally {
 			vi.stubGlobal("fetch", originalFetch);
@@ -73,10 +83,12 @@ describe("getJson", () => {
 	});
 
 	it("throws with extracted message when fetch rejects", async () => {
+		// Arrange
 		const fetchError = new Error("Network error");
 		const originalFetch = globalThis.fetch;
 		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(fetchError));
 		try {
+			// Assert
 			await expect(getJson(PATH)).rejects.toThrow("Network error");
 		} finally {
 			vi.stubGlobal("fetch", originalFetch);

@@ -28,7 +28,9 @@ describe("mapCommunityInvitations", () => {
 
 	it("skips user data without corresponding public data", () => {
 		const userData = [{ community_id: "1" }, { community_id: "3" }];
-		const publicData = [{ community_id: "1", community_name: "Community One", community_slug: "com-1" }];
+		const publicData = [
+			{ community_id: "1", community_name: "Community One", community_slug: "com-1" },
+		];
 
 		const result = mapCommunityInvitations(userData, publicData);
 

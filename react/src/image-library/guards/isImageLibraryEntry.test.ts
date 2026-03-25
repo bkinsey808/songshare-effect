@@ -28,11 +28,9 @@ describe("isImageLibraryEntry", () => {
 	});
 
 	it("returns false when value is an array", () => {
-		expect(
-			isImageLibraryEntry([
-				{ user_id: USER_ID, image_id: IMAGE_ID, created_at: "" },
-			]),
-		).toBe(false);
+		expect(isImageLibraryEntry([{ user_id: USER_ID, image_id: IMAGE_ID, created_at: "" }])).toBe(
+			false,
+		);
 	});
 
 	it("returns false when value is a string", () => {
@@ -44,15 +42,11 @@ describe("isImageLibraryEntry", () => {
 	});
 
 	it("returns false when user_id is missing", () => {
-		expect(
-			isImageLibraryEntry({ image_id: IMAGE_ID, created_at: "" }),
-		).toBe(false);
+		expect(isImageLibraryEntry({ image_id: IMAGE_ID, created_at: "" })).toBe(false);
 	});
 
 	it("returns false when image_id is missing", () => {
-		expect(
-			isImageLibraryEntry({ user_id: USER_ID, created_at: "" }),
-		).toBe(false);
+		expect(isImageLibraryEntry({ user_id: USER_ID, created_at: "" })).toBe(false);
 	});
 
 	it("returns false when user_id is not a string", () => {

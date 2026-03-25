@@ -2,9 +2,9 @@
 
 This guide covers running Playwright tests connected to the **staging Supabase project** in two modes:
 
-| Mode                        | Frontend                 | API                          | Supabase |
-| --------------------------- | ------------------------ | ---------------------------- | -------- |
-| **Local site + staging DB** | `localhost:5173`         | `localhost:8787`             | staging  |
+| Mode                        | Frontend           | API                    | Supabase |
+| --------------------------- | ------------------ | ---------------------- | -------- |
+| **Local site + staging DB** | `localhost:5173`   | `localhost:8787`       | staging  |
 | **Staging site**            | `<staging-domain>` | `<staging-domain>/api` | staging  |
 
 Both modes use a pre-signed `userSession` cookie (generated once, valid 7 days) stored in `e2e/.auth/google-user.json`. The script fetches real user data from Supabase, mints a JWT signed with `SUPABASE_JWT_SECRET`, and writes a Playwright `storageState` file — no OAuth flow required.

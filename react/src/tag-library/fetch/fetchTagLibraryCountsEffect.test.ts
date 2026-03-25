@@ -34,8 +34,11 @@ const selectOk = forceCast<Awaited<ReturnType<typeof callSelect>>>({ data: [], e
 describe("fetchTagLibraryCountsEffect", () => {
 	it("calls setTagLibraryCounts with empty object when no slugs", async () => {
 		vi.resetAllMocks();
-			const { get, setTagLibraryCounts } = makeTagLibraryGet(["setTagLibraryCounts", "getTagLibrarySlugs"]);
-			forceCast<ReturnType<typeof vi.fn>>(get().getTagLibrarySlugs).mockReturnValue([]);
+		const { get, setTagLibraryCounts } = makeTagLibraryGet([
+			"setTagLibraryCounts",
+			"getTagLibrarySlugs",
+		]);
+		forceCast<ReturnType<typeof vi.fn>>(get().getTagLibrarySlugs).mockReturnValue([]);
 
 		await Effect.runPromise(fetchTagLibraryCountsEffect(get));
 

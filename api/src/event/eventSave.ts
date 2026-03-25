@@ -347,29 +347,23 @@ export default function eventSave(
 				Effect.tryPromise({
 					try: async () => {
 						if (validSlugs.length > ZERO) {
-							await supabase
-								.from("tag")
-								.upsert(
-									validSlugs.map((slug) => ({ tag_slug: slug })),
-									{ onConflict: "tag_slug", ignoreDuplicates: true },
-								);
+							await supabase.from("tag").upsert(
+								validSlugs.map((slug) => ({ tag_slug: slug })),
+								{ onConflict: "tag_slug", ignoreDuplicates: true },
+							);
 						}
 						await supabase.from("event_tag").delete().eq("event_id", eventId);
 						if (validSlugs.length > ZERO) {
-							await supabase
-								.from("event_tag")
-								.insert(
-									validSlugs.map((slug) => ({
-										event_id: eventId,
-										tag_slug: slug,
-									})),
-								);
-							await supabase
-								.from("tag_library")
-								.upsert(
-									validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
-									{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
-								);
+							await supabase.from("event_tag").insert(
+								validSlugs.map((slug) => ({
+									event_id: eventId,
+									tag_slug: slug,
+								})),
+							);
+							await supabase.from("tag_library").upsert(
+								validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
+								{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
+							);
 						}
 					},
 					catch: () => new DatabaseError({ message: "Failed to save tags" }),
@@ -427,7 +421,7 @@ export default function eventSave(
 							{
 								user_id: userId,
 								event_id: eventId,
-									},
+							},
 						]),
 					catch: (err) =>
 						new DatabaseError({

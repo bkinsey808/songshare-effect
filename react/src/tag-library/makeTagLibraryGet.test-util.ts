@@ -13,46 +13,46 @@ import type { TagLibrarySlice } from "./slice/TagLibrarySlice.type";
  * @returns an object with `get` and the requested spy functions
  */
 export default function makeTagLibraryGet(
-  spies: string[] = [],
-  overrides: Partial<TagLibrarySlice> = {},
+	spies: string[] = [],
+	overrides: Partial<TagLibrarySlice> = {},
 ): Record<string, unknown> & { get: () => TagLibrarySlice } {
-  // Default spies commonly used across tests when none are provided.
-  const DEFAULT_SPIES = [
-    "fetchTagLibrary",
-    "fetchTagLibraryCounts",
-    "removeTagFromLibrary",
-    "removeTagCounts",
-    "subscribeToTagLibrary",
-    "tagLibraryUnsubscribe",
-    "setTagLibraryEntries",
-    "setTagLibraryCounts",
-    "addTagLibraryEntry",
-    "removeTagLibraryEntry",
-    "setTagLibraryLoading",
-    "setTagLibraryError",
-    "isInTagLibrary",
-    "getTagLibrarySlugs",
-  ];
+	// Default spies commonly used across tests when none are provided.
+	const DEFAULT_SPIES = [
+		"fetchTagLibrary",
+		"fetchTagLibraryCounts",
+		"removeTagFromLibrary",
+		"removeTagCounts",
+		"subscribeToTagLibrary",
+		"tagLibraryUnsubscribe",
+		"setTagLibraryEntries",
+		"setTagLibraryCounts",
+		"addTagLibraryEntry",
+		"removeTagLibraryEntry",
+		"setTagLibraryLoading",
+		"setTagLibraryError",
+		"isInTagLibrary",
+		"getTagLibrarySlugs",
+	];
 
-  const names = [...new Set([...DEFAULT_SPIES, ...spies])];
+	const names = [...new Set([...DEFAULT_SPIES, ...spies])];
 
-  const fns: Record<string, ReturnType<typeof vi.fn>> = {};
-  for (const name of names) {
-    fns[name] = vi.fn();
-  }
+	const fns: Record<string, ReturnType<typeof vi.fn>> = {};
+	for (const name of names) {
+		fns[name] = vi.fn();
+	}
 
-  // Provide sensible defaults for functions that return Effects or specific values.
-  if (fns["fetchTagLibraryCounts"]) {
-    fns["fetchTagLibraryCounts"].mockReturnValue(Effect.void);
-  }
-  if (fns["getTagLibrarySlugs"]) {
-    fns["getTagLibrarySlugs"].mockReturnValue(["rock", "jazz"]);
-  }
+	// Provide sensible defaults for functions that return Effects or specific values.
+	if (fns["fetchTagLibraryCounts"]) {
+		fns["fetchTagLibraryCounts"].mockReturnValue(Effect.void);
+	}
+	if (fns["getTagLibrarySlugs"]) {
+		fns["getTagLibrarySlugs"].mockReturnValue(["rock", "jazz"]);
+	}
 
-  const slice = forceCast<TagLibrarySlice>({ ...fns, ...overrides });
-  const result: Record<string, unknown> & { get: () => TagLibrarySlice } = { get: () => slice };
-  for (const key of names) {
-    result[key] = fns[key];
-  }
-  return result;
+	const slice = forceCast<TagLibrarySlice>({ ...fns, ...overrides });
+	const result: Record<string, unknown> & { get: () => TagLibrarySlice } = { get: () => slice };
+	for (const key of names) {
+		result[key] = fns[key];
+	}
+	return result;
 }

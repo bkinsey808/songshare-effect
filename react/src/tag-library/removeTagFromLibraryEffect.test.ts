@@ -51,13 +51,15 @@ describe("removeTagFromLibraryEffect", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal(
 			"fetch",
-			vi.fn().mockResolvedValue(
-				mockFetchResponse({ error: "Not found" }, { ok: false, status: 404 }),
-			),
+			vi
+				.fn()
+				.mockResolvedValue(mockFetchResponse({ error: "Not found" }, { ok: false, status: 404 })),
 		);
 		const { get, removeTagLibraryEntry } = makeTagLibraryGet(["removeTagLibraryEntry"]);
 
-		await expect(Effect.runPromise(removeTagFromLibraryEffect(get, SLUG))).rejects.toThrow(/Not found/i);
+		await expect(Effect.runPromise(removeTagFromLibraryEffect(get, SLUG))).rejects.toThrow(
+			/Not found/i,
+		);
 		expect(removeTagLibraryEntry).not.toHaveBeenCalled();
 	});
 

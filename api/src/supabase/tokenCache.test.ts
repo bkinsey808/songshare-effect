@@ -3,10 +3,10 @@ import { describe, expect, it } from "vitest";
 import { ONE } from "@/shared/constants/shared-constants";
 
 import {
-    clearCachedClientToken,
-    getCachedClientToken,
-    setCachedClientToken,
-    userTokenCache,
+	clearCachedClientToken,
+	getCachedClientToken,
+	setCachedClientToken,
+	userTokenCache,
 } from "./tokenCache";
 
 /**

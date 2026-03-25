@@ -38,33 +38,33 @@ function hasAnyJsDoc(node: Node, sourceFile?: SourceFile): boolean {
 		return false;
 	}
 
-		const text = sourceFile.getFullText();
-		const start = node.getStart();
+	const text = sourceFile.getFullText();
+	const start = node.getStart();
 
-		const MIN_WINDOW_START = 0;
-		const NO_INDEX = -1;
-		const COMMENT_END_LEN = 2;
+	const MIN_WINDOW_START = 0;
+	const NO_INDEX = -1;
+	const COMMENT_END_LEN = 2;
 
-		// Find the last block comment end before the node start.
-		const beforeText = text.slice(MIN_WINDOW_START, start);
-		const lastEnd = beforeText.lastIndexOf("*/");
-		if (lastEnd === NO_INDEX) {
-			return false;
-		}
+	// Find the last block comment end before the node start.
+	const beforeText = text.slice(MIN_WINDOW_START, start);
+	const lastEnd = beforeText.lastIndexOf("*/");
+	if (lastEnd === NO_INDEX) {
+		return false;
+	}
 
-		// Ensure only whitespace exists between the comment end and the node start.
-		const between = beforeText.slice(lastEnd + COMMENT_END_LEN);
-		if (/\S/.test(between)) {
-			return false;
-		}
+	// Ensure only whitespace exists between the comment end and the node start.
+	const between = beforeText.slice(lastEnd + COMMENT_END_LEN);
+	if (/\S/.test(between)) {
+		return false;
+	}
 
-		// Check that the comment is a JSDoc-style comment (starts with '/**').
-		const lastStart = beforeText.lastIndexOf("/**", lastEnd);
-		if (lastStart === NO_INDEX) {
-			return false;
-		}
+	// Check that the comment is a JSDoc-style comment (starts with '/**').
+	const lastStart = beforeText.lastIndexOf("/**", lastEnd);
+	if (lastStart === NO_INDEX) {
+		return false;
+	}
 
-		return true;
+	return true;
 }
 
 /**
@@ -185,7 +185,11 @@ export default function analyzeFile(filePath: string): Issue[] {
 		} else if (isClassDeclaration(node)) {
 			targetNode = node;
 			name = node.name ? node.name.text : "default";
-		} else if (isVariableDeclaration(node) && node.initializer && isArrowFunction(node.initializer)) {
+		} else if (
+			isVariableDeclaration(node) &&
+			node.initializer &&
+			isArrowFunction(node.initializer)
+		) {
 			targetNode = node.parent.parent; // Check JSDoc on the VariableStatement
 			name = node.name.getText(sourceFile);
 		}
@@ -193,7 +197,13 @@ export default function analyzeFile(filePath: string): Issue[] {
 		if (targetNode) {
 			const { line, character } = getLineAndCharacterOfPosition(sourceFile, node.getStart());
 			if (!hasAnyJsDoc(targetNode, sourceFile)) {
-				issues.push({ line: line + ONE, col: character, name, kind: "missing-jsdoc", detail: "Missing JSDoc entirely" });
+				issues.push({
+					line: line + ONE,
+					col: character,
+					name,
+					kind: "missing-jsdoc",
+					detail: "Missing JSDoc entirely",
+				});
 			} else if (!isClassDeclaration(node)) {
 				// Checks for functions/methods
 				if (!hasReturnsTag(targetNode)) {
@@ -205,7 +215,8 @@ export default function analyzeFile(filePath: string): Issue[] {
 						detail: "Has JSDoc but no @returns tag",
 					});
 				}
-				const arrowOrFunc = isVariableDeclaration(node) && node.initializer ? node.initializer : node;
+				const arrowOrFunc =
+					isVariableDeclaration(node) && node.initializer ? node.initializer : node;
 				const missingParams = getMissingParams(arrowOrFunc, sourceFile);
 				for (const paramName of missingParams) {
 					issues.push({

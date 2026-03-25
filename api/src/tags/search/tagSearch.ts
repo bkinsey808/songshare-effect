@@ -29,8 +29,7 @@ export default function tagSearch(
 
 		const searchQuery = ctx.req.query("q") ?? "";
 		const limitParam = ctx.req.query("limit");
-		const parsedLimit =
-			limitParam === undefined ? DEFAULT_LIMIT : Number.parseInt(limitParam, 10);
+		const parsedLimit = limitParam === undefined ? DEFAULT_LIMIT : Number.parseInt(limitParam, 10);
 		const safeLimit =
 			Number.isNaN(parsedLimit) || parsedLimit < MIN_LIMIT ? DEFAULT_LIMIT : parsedLimit;
 

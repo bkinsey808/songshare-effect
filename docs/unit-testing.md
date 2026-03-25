@@ -103,6 +103,116 @@ suffix so their purpose is obvious and they don't get mistaken for production co
   `*.test.ts` or `*.test.tsx`. Fix the code or extract helpers into `*.test-util.*` files. Disables
   in test-util files are acceptable only when there is no alternative.
 
+## AAA Testing Pattern (Arrange, Act, Assert)
+
+We recommend the AAA pattern for unit tests: Arrange (set up data, mocks, and the system under
+test), Act (exercise the behavior), Assert (verify outcomes). Using explicit AAA sections or
+comments keeps tests focused, readable, and easy to reason about.
+
+Example (Vitest + TypeScript):
+
+```ts
+it("calculates total price", () => {
+	// Arrange
+	const items = [{ price: 10 }, { price: 5 }];
+
+	// Act
+	const total = calculateTotal(items);
+
+	// Assert
+	expect(total).toBe(15);
+});
+```
+
+Guidance:
+
+- Keep `Arrange` minimal and local to the test; extract reusable setup into `*.test-util.*` helpers.
+- Configure mock return values in the `Arrange` step (e.g. `vi.mocked(api).mockResolvedValue(...)`).
+- Put the single invocation under test in `Act` — avoid splitting the action across multiple
+  statements unless the scenario explicitly requires it.
+
+- Prefer separating `Act` and `Assert`: compute the result(s) in a distinct `// Act` step,
+  then verify them in a dedicated `// Assert` step. Avoid `// Act & Assert` except when the
+  action is performed inline inside the assertion (for example `await expect(sut()).resolves...`).
+  - `Act` placement: the `// Act` comment should appear immediately above the statement that
+    exercises the system under test (the single invocation). Do not place `// Act` above the
+    first `expect` — that is an assertion, not the action.
+
+When using table-driven tests with `it.each`, prefer using the supplied row values directly
+inside the test callback and avoid adding `// Arrange` comments within the callback body.
+Because each row explicitly documents the inputs, an additional `// Arrange` section for
+each case often adds noise without improving clarity. Keep the row handler concise: accept
+the parameters, perform the action, then assert.
+
+Example (preferred):
+
+```ts
+it.each([
+	["non-empty", "a"],
+	["two-chars", "ab"],
+])("returns true for %s", (label, input) => {
+	// Act
+	const result = isString(input);
+
+	// Assert
+	expect(result).toBe(true);
+});
+
+it.each([["empty", ""]])("returns false for %s", (label, input) => {
+	// Act
+	const result = isString(input);
+
+	// Assert
+	expect(result).toBe(false);
+});
+```
+
+Avoid adding a repeated `// Arrange` block inside `it.each` callbacks. If setup is shared
+across rows, extract it to the top of the `describe` or into a `*.test-util.*` helper.
+
+    - Avoid empty sections: do not add a `// Arrange` or `// Act` comment unless that section
+    	actually contains setup or the action. Empty markers create noise and should be omitted.
+
+- Prefer clear `Assert` statements that verify behavior (return values, side effects, calls that are
+  part of the contract) rather than implementation details.
+- For async behavior, perform the `Act` with `await` and assert afterwards (or use `await act(...)`
+  / `waitFor` where appropriate).
+
+#### AAA placement conventions
+
+- Arrange: place setup and fixture variables at the top of the test body, immediately after the `it(...)` opening. If you need to configure mocks or install stubs, the `// Arrange` comment should appear before those statements.
+- Act: place `// Act` immediately above the single statement that exercises the system under test (the invocation under test). If the action is wrapped in `act(...)`, place `// Act (using act())` above that call.
+- Assert: place `// Assert` directly before the assertions. For tests that perform the action inline inside an assertion (e.g. `await expect(sut()).resolves.toBe(...)`), the action is considered part of the assertion and you may omit a separate `// Act` comment — use `// Arrange` and `// Assert` only.
+- Table-driven tests: when using `it.each`, prefer a single `// Assert` section inside the row handler when each case only needs assertions. Avoid duplicating empty `// Arrange` markers for each row; extract common setup to the top of the `describe` or into a helper.
+- Avoid empty markers: do not leave `// Arrange`, `// Act`, or `// Assert` comments with no code beneath them — empty markers create noise and reduce readability.
+
+Example — explicit AAA:
+
+```ts
+it("calculates total price", () => {
+	// Arrange
+	const items = [{ price: 10 }, { price: 5 }];
+
+	// Act
+	const total = calculateTotal(items);
+
+	// Assert
+	expect(total).toBe(15);
+});
+```
+
+Example — `resolves` inline action (no separate Act):
+
+```ts
+it("saves data and returns id", async () => {
+	// Arrange
+	vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response('{"id":"x"}', { status: 200 })));
+
+	// Assert
+	await expect(saveData({ a: 1 })).resolves.toMatchObject({ id: "x" });
+});
+```
+
 ### Script / pure-logic module testing
 
 When a `.bun.ts` entry-point script contains non-trivial logic, extract that logic into a **pure,
@@ -706,12 +816,12 @@ await waitFor(() => {
 
 **Rule of thumb:**
 
-| Scenario | Use |
-| --- | --- |
-| Direct `setState` call / imperative hook method | `act` |
-| `useEffect` side effects | `waitFor` |
-| Async mutations / data fetching | `await act(async () => { ... })` or `waitFor` |
-| Timer-dependent updates | `waitFor` (with fake timers if needed) |
+| Scenario                                        | Use                                           |
+| ----------------------------------------------- | --------------------------------------------- |
+| Direct `setState` call / imperative hook method | `act`                                         |
+| `useEffect` side effects                        | `waitFor`                                     |
+| Async mutations / data fetching                 | `await act(async () => { ... })` or `waitFor` |
+| Timer-dependent updates                         | `waitFor` (with fake timers if needed)        |
 
 > Using `waitFor` for a synchronous update works but implies async intent, adds polling overhead,
 > and makes the test harder to reason about. Prefer `act` when the update is immediate.

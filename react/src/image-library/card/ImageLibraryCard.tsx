@@ -55,10 +55,7 @@ export default function ImageLibraryCard({
 						</Link>
 					)}
 					{editUrl !== undefined && (
-						<Link
-							to={editUrl}
-							className="text-sm text-gray-400 hover:text-white hover:underline"
-						>
+						<Link to={editUrl} className="text-sm text-gray-400 hover:text-white hover:underline">
 							Edit
 						</Link>
 					)}

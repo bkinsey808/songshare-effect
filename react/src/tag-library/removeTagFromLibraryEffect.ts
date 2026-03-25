@@ -25,7 +25,10 @@ export default function removeTagFromLibraryEffect(
 			const body: unknown = yield* $(
 				Effect.promise(() => response.json().catch(() => undefined) as Promise<unknown>),
 			);
-			const message = extractErrorMessage(body, `Failed to remove tag (${response.status.toString()})`);
+			const message = extractErrorMessage(
+				body,
+				`Failed to remove tag (${response.status.toString()})`,
+			);
 			return yield* $(Effect.fail(new Error(message)));
 		}
 

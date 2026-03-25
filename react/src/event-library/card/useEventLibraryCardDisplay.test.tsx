@@ -6,7 +6,7 @@ import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import makeAppSlice from "@/react/lib/test-utils/makeAppSlice";
 import mockUseTranslation from "@/react/lib/test-utils/mockUseTranslation";
-import formatAppDate from "@/shared/utils/formatAppDate";
+import formatAppDate from "@/shared/utils/date/formatAppDate";
 
 import makeEventLibraryEntry from "../test-utils/makeEventLibraryEntry.mock";
 import useEventLibraryCardDisplay from "./useEventLibraryCardDisplay";

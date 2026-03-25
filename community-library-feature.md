@@ -44,12 +44,12 @@ Both subscriptions are cleaned up on unmount or route change. RLS ensures each s
 
 Creates the `community_library` table with:
 
-| Column | Type | Notes |
-|---|---|---|
-| `user_id` | `uuid NOT NULL` | FK → `user(user_id)` CASCADE |
-| `community_id` | `uuid NOT NULL` | FK → `community(community_id)` CASCADE; FK → `community_public(community_id)` CASCADE (for PostgREST joins) |
-| `community_owner_id` | `uuid NOT NULL` | Denormalized owner; FK → `user(user_id)` CASCADE |
-| `created_at` | `timestamptz DEFAULT now()` | |
+| Column               | Type                        | Notes                                                                                                       |
+| -------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `user_id`            | `uuid NOT NULL`             | FK → `user(user_id)` CASCADE                                                                                |
+| `community_id`       | `uuid NOT NULL`             | FK → `community(community_id)` CASCADE; FK → `community_public(community_id)` CASCADE (for PostgREST joins) |
+| `community_owner_id` | `uuid NOT NULL`             | Denormalized owner; FK → `user(user_id)` CASCADE                                                            |
+| `created_at`         | `timestamptz DEFAULT now()` |                                                                                                             |
 
 - Primary key: `(user_id, community_id)`
 - `REPLICA IDENTITY FULL`
@@ -75,17 +75,17 @@ constraint changes needed.
 **TypeScript impact** — every reference to `community.name` or `community.slug` must be updated
 to `community.community_name` / `community.community_slug`. Exact files:
 
-| File | What to change |
-|---|---|
-| `react/src/community/community-types.ts` | `CommunityEntry.name` → `community_name`, `CommunityEntry.slug` → `community_slug` |
-| `react/src/community/fetch/normalizeCommunityEntry.ts` | mapping keys |
-| `react/src/community/view/CommunityViewHeader.tsx` | field references |
-| `react/src/community/view/CommunityView.tsx` | field references |
-| `react/src/community/library/CommunityLibrary.tsx` | field references (membership component) |
-| `react/src/community/manage/community-manage-view/body/CommunityManageBody.tsx` | field references |
-| `react/src/community/form/useCommunityForm.ts` | field reads/writes |
-| `react/src/community/form/CommunityForm.tsx` | field references |
-| `api/src/community/communityLibrary.ts` | column name in query result mapping |
+| File                                                                            | What to change                                                                     |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `react/src/community/community-types.ts`                                        | `CommunityEntry.name` → `community_name`, `CommunityEntry.slug` → `community_slug` |
+| `react/src/community/fetch/normalizeCommunityEntry.ts`                          | mapping keys                                                                       |
+| `react/src/community/view/CommunityViewHeader.tsx`                              | field references                                                                   |
+| `react/src/community/view/CommunityView.tsx`                                    | field references                                                                   |
+| `react/src/community/library/CommunityLibrary.tsx`                              | field references (membership component)                                            |
+| `react/src/community/manage/community-manage-view/body/CommunityManageBody.tsx` | field references                                                                   |
+| `react/src/community/form/useCommunityForm.ts`                                  | field reads/writes                                                                 |
+| `react/src/community/form/CommunityForm.tsx`                                    | field references                                                                   |
+| `api/src/community/communityLibrary.ts`                                         | column name in query result mapping                                                |
 
 Note: Several event-side files (`react/src/event/fetch/fetchEventCommunities.ts`,
 `react/src/invitation/mapCommunityInvitations.ts`, `react/src/event/manage/...CommunityRow.tsx`)
@@ -115,33 +115,33 @@ Full directory mirroring `react/src/event-library/`.
 
 ```ts
 export type CommunityLibrary = {
-    user_id: string;
-    community_id: string;
-    community_owner_id: string;
-    created_at: string;
+	user_id: string;
+	community_id: string;
+	community_owner_id: string;
+	created_at: string;
 };
 
 export type CommunityLibraryEntry = CommunityLibrary & {
-    community_public?: {
-        community_id: string;
-        community_name: string;
-        community_slug: string;
-        owner_id: string;
-        owner?: { username: string };
-    };
+	community_public?: {
+		community_id: string;
+		community_name: string;
+		community_slug: string;
+		owner_id: string;
+		owner?: { username: string };
+	};
 };
 
 export type AddCommunityToLibraryRequest = { community_id: string };
 export type RemoveCommunityFromLibraryRequest = { community_id: string };
 
 export type CommunityLibraryState = {
-    communityLibraryEntries: Record<string, CommunityLibraryEntry>;
-    isCommunityLibraryLoading: boolean;
-    communityLibraryError?: string | undefined;
+	communityLibraryEntries: Record<string, CommunityLibraryEntry>;
+	isCommunityLibraryLoading: boolean;
+	communityLibraryError?: string | undefined;
 };
 
 export type CommunityLibrarySliceBase = {
-    isInCommunityLibrary: (communityId: string) => boolean;
+	isInCommunityLibrary: (communityId: string) => boolean;
 };
 ```
 
@@ -212,13 +212,15 @@ react/src/community-library/
 ### Key implementation notes
 
 **`fetchCommunityLibraryEffect.ts`** — Supabase query:
+
 ```ts
 callSelect(client, "community_library", {
-    cols: "*, community_public!inner(community_id, community_name, community_slug, owner_id, owner:user_public!owner_id(username))",
-})
+	cols: "*, community_public!inner(community_id, community_name, community_slug, owner_id, owner:user_public!owner_id(username))",
+});
 ```
 
 **`CommunityLibraryCardDisplay.tsx`** — action links (community has no slideshow/slide-manager):
+
 - "View Community" → `/${communityViewPath}/${entry.community_public?.slug}`
 - "Manage" → `/${communityViewPath}/${entry.community_public?.slug}/${communityManagePath}`
 - "Edit" (if owned) → `/${dashboardPath}/${communityEditPath}/${entry.community_id}`
@@ -231,6 +233,7 @@ callSelect(client, "community_library", {
 ### `addCommunityToLibrary.ts`
 
 Mirrors `addEventToLibrary.ts`:
+
 1. Parse + validate `{ community_id: string }` from request body
 2. Verify user session → get `userId`
 3. Look up `community_owner_id` from `community_public` where `community_id = req.community_id`
@@ -240,6 +243,7 @@ Mirrors `addEventToLibrary.ts`:
 ### `removeCommunityFromLibrary.ts`
 
 Mirrors `removeEventFromLibrary.ts`:
+
 1. Parse + validate `{ community_id: string }`
 2. Verify user session
 3. Delete from `community_library` where `user_id = userId AND community_id = req.community_id`
@@ -249,6 +253,7 @@ Mirrors `removeEventFromLibrary.ts`:
 ## Layer 5 — API route registration
 
 **`api/src/server.ts`**:
+
 - Import `apiCommunityLibraryAddPath`, `apiCommunityLibraryRemovePath` from paths
 - Import `addCommunityToLibraryHandler`, `removeCommunityFromLibraryHandler`
 - Register:
@@ -262,10 +267,12 @@ Mirrors `removeEventFromLibrary.ts`:
 ## Layer 6 — App store wiring
 
 **`react/src/app-store/AppSlice.type.ts`**:
+
 - Add `import type { CommunityLibrarySlice } from "@/react/community-library/slice/CommunityLibrarySlice.type";`
 - Add `CommunityLibrarySlice` to the `AppSlice` intersection type (after `CommunitySlice`)
 
 **`react/src/app-store/config/sliceFactories.ts`**:
+
 - Import `createCommunityLibrarySlice`
 - Add it to `sliceFactories` after `createCommunitySlice`
 
@@ -274,6 +281,7 @@ Mirrors `removeEventFromLibrary.ts`:
 ## Layer 7 — Update `CommunityLibraryPage`
 
 **`react/src/pages/CommunityLibraryPage.tsx`**:
+
 - Replace import of `CommunityLibrary` from `@/react/community/library/CommunityLibrary`
   with `@/react/community-library/CommunityLibrary`
 
@@ -282,6 +290,7 @@ Mirrors `removeEventFromLibrary.ts`:
 ## Layer 8 — Fix item-type and tag counts
 
 **`react/src/tag/item-type.ts`**:
+
 ```ts
 community: {
     tagTable: "community_tag",
@@ -292,13 +301,17 @@ community: {
 
 **`react/src/tag-library/fetch/fetchTagLibraryCountsEffect.ts`**:
 Replace:
+
 ```ts
 community: Effect.succeed([] as string[]),
 ```
+
 with:
+
 ```ts
 community: fetchLibraryItemIds(client, "community"),
 ```
+
 (Valid now that `ITEM_TYPE_CONFIG.community.libraryTable` is no longer `undefined`.)
 
 Also update the `satisfies` constraint check in `fetchSlugsByItemType.ts` if it infers `undefined` for community's library — it should resolve automatically once `item-type.ts` is fixed.
@@ -307,14 +320,14 @@ Also update the `satisfies` constraint check in `fetchSlugsByItemType.ts` if it 
 
 ## File count summary
 
-| Layer | New files | Modified files |
-|---|---|---|
-| Migrations | 2 | 0 |
-| Shared paths | 0 | 1 (`paths.ts`) |
-| React module | ~26 | 1 (`CommunityLibraryPage.tsx`) |
-| API handlers | 2 | 1 (`server.ts`) |
-| App store | 0 | 2 (`AppSlice.type.ts`, `sliceFactories.ts`) |
-| `item-type` / tag counts | 0 | 2 (`item-type.ts`, `fetchTagLibraryCountsEffect.ts`) |
+| Layer                    | New files | Modified files                                       |
+| ------------------------ | --------- | ---------------------------------------------------- |
+| Migrations               | 2         | 0                                                    |
+| Shared paths             | 0         | 1 (`paths.ts`)                                       |
+| React module             | ~26       | 1 (`CommunityLibraryPage.tsx`)                       |
+| API handlers             | 2         | 1 (`server.ts`)                                      |
+| App store                | 0         | 2 (`AppSlice.type.ts`, `sliceFactories.ts`)          |
+| `item-type` / tag counts | 0         | 2 (`item-type.ts`, `fetchTagLibraryCountsEffect.ts`) |
 
 **~30 new files, ~7 modified files**
 

@@ -6,14 +6,13 @@ import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
-import createShareRecord from "./shareCreateRecord";
-
 import {
 	addCommunityInviteOnShare,
 	extractShareCreateRequest,
 	type ShareCreateRequest,
 	validateSharedItemAccess,
 } from "./shareCreateHelpers";
+import createShareRecord from "./shareCreateRecord";
 
 /**
  * Server-side handler for creating a share.

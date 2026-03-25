@@ -1,6 +1,6 @@
 /* oxlint-disable max-lines */
 import { ZERO } from "@/shared/constants/shared-constants";
-import { formatAppDateTime } from "@/shared/utils/formatAppDate";
+import { formatAppDateTime } from "@/shared/utils/date/formatAppDate";
 
 import getConnectionStatusClass from "./getConnectionStatusClass";
 import useUserPublicSubscriptionPage from "./useUserPublicSubscriptionPage";

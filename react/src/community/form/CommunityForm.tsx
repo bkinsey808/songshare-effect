@@ -148,13 +148,11 @@ export default function CommunityForm(): ReactElement {
 				</div>
 
 				<div>
-				<p className="mb-2 text-sm font-medium text-white">
-					{t("communityEdit.tags", "Tags")}
-				</p>
-				<TagInput value={tags} onChange={setTags} />
-			</div>
+					<p className="mb-2 text-sm font-medium text-white">{t("communityEdit.tags", "Tags")}</p>
+					<TagInput value={tags} onChange={setTags} />
+				</div>
 
-			<div className="flex justify-end space-x-4">
+				<div className="flex justify-end space-x-4">
 					<Button variant="outlineSecondary" onClick={onCancelClick}>
 						{t("common.cancel", "Cancel")}
 					</Button>

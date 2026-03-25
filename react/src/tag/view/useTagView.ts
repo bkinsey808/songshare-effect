@@ -67,10 +67,18 @@ export default function useTagView(): UseTagViewReturn {
 			if (firstError !== undefined && !firstError.ok) {
 				setError(firstError.error);
 			} else {
-				if (imagesResult.ok) { setImageEntries(imagesResult.entries); }
-				if (songsResult.ok) { setSongEntries(songsResult.entries); }
-				if (playlistsResult.ok) { setPlaylistEntries(playlistsResult.entries); }
-				if (eventsResult.ok) { setEventEntries(eventsResult.entries); }
+				if (imagesResult.ok) {
+					setImageEntries(imagesResult.entries);
+				}
+				if (songsResult.ok) {
+					setSongEntries(songsResult.entries);
+				}
+				if (playlistsResult.ok) {
+					setPlaylistEntries(playlistsResult.entries);
+				}
+				if (eventsResult.ok) {
+					setEventEntries(eventsResult.entries);
+				}
 			}
 			setIsLoading(false);
 		})();

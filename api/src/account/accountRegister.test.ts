@@ -35,6 +35,7 @@ const RAW_INSERTED_USER = {
 
 describe("accountRegister", () => {
 	it("creates user, sets cookies and returns success (happy path)", async () => {
+		// Arrange
 		vi.resetAllMocks();
 
 		const appendSpy = vi.fn();
@@ -60,8 +61,10 @@ describe("accountRegister", () => {
 		vi.mocked(nanoid).mockReturnValue("csrf-token");
 		vi.mocked(getIpAddress).mockReturnValue("127.0.0.1");
 
+		// Act
 		const res = await Effect.runPromise(accountRegister(ctx));
 
+		// Assert
 		expect(res).toStrictEqual({ success: true });
 		const EXPECTED_COOKIE_COUNT = 2;
 		expect(appendSpy).toHaveBeenCalledTimes(EXPECTED_COOKIE_COUNT);
@@ -72,6 +75,7 @@ describe("accountRegister", () => {
 	});
 
 	it("fails when username already exists", async () => {
+		// Arrange
 		const ctx = makeCtx({ body: { username: "taken" }, resHeadersAppend: vi.fn() });
 
 		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
@@ -81,24 +85,38 @@ describe("accountRegister", () => {
 
 		mockCreateSupabaseClient(vi.mocked(createClient), { userPublicMaybe: { user_id: "u-exists" } });
 
-		await expect(Effect.runPromise(accountRegister(ctx))).rejects.toThrow(/Username already taken/);
+		// Act
+		const promise = Effect.runPromise(accountRegister(ctx));
+
+		// Assert
+		await expect(promise).rejects.toThrow(/Username already taken/);
 	});
 
 	it("fails when register cookie is missing or invalid", async () => {
+		// Arrange
 		const ctx = makeCtx({ body: { username: "freshuser" }, resHeadersAppend: vi.fn() });
 		vi.mocked(parseDataFromCookie).mockResolvedValueOnce(undefined);
 
-		await expect(Effect.runPromise(accountRegister(ctx))).rejects.toThrow(
-			/Invalid register cookie/,
-		);
+		// Act
+		const promise = Effect.runPromise(accountRegister(ctx));
+
+		// Assert
+		await expect(promise).rejects.toThrow(/Invalid register cookie/);
 	});
 
 	it("fails with ValidationError when request JSON is invalid", async () => {
+		// Arrange
 		const ctx = makeCtx({ body: new Error("bad json"), resHeadersAppend: vi.fn() });
-		await expect(Effect.runPromise(accountRegister(ctx))).rejects.toThrow(/Invalid JSON body/);
+
+		// Act
+		const promise = Effect.runPromise(accountRegister(ctx));
+
+		// Assert
+		await expect(promise).rejects.toThrow(/Invalid JSON body/);
 	});
 
 	it("fails when DB insert for user returns an error", async () => {
+		// Arrange
 		const ctx = makeCtx({ body: { username: "freshuser" }, resHeadersAppend: vi.fn() });
 
 		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
@@ -112,12 +130,15 @@ describe("accountRegister", () => {
 			userInsertError: { message: "insert failed" },
 		});
 
-		await expect(Effect.runPromise(accountRegister(ctx))).rejects.toThrow(
-			/Failed to insert user record/,
-		);
+		// Act
+		const promise = Effect.runPromise(accountRegister(ctx));
+
+		// Assert
+		await expect(promise).rejects.toThrow(/Failed to insert user record/);
 	});
 
 	it("fails when SUPABASE_JWT_SECRET is missing (server misconfiguration)", async () => {
+		// Arrange
 		const ctx = makeCtx({ body: { username: "freshuser" }, env: { SUPABASE_JWT_SECRET: "" } });
 
 		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
@@ -131,6 +152,10 @@ describe("accountRegister", () => {
 			userInsertRows: [RAW_INSERTED_USER],
 		});
 
-		await expect(Effect.runPromise(accountRegister(ctx))).rejects.toThrow(/missing SUPABASE_JWT_SECRET/);
+		// Act
+		const promise = Effect.runPromise(accountRegister(ctx));
+
+		// Assert
+		await expect(promise).rejects.toThrow(/missing SUPABASE_JWT_SECRET/);
 	});
 });

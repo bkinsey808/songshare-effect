@@ -13,7 +13,7 @@ import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { eventViewPath } from "@/shared/paths";
-import { clientLocalDateToUtcTimestamp } from "@/shared/utils/formatEventDate";
+import { clientLocalDateToUtcTimestamp } from "@/shared/utils/date/formatEventDate";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
 import type { EventFormValues, EventFormValuesFromSchema, SaveEventRequest } from "../event-types";

@@ -3,9 +3,8 @@ import { Effect } from "effect";
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
-
-
 import { ITEM_TYPE_CONFIG, ITEM_TYPES } from "@/react/tag/item-type";
+
 import type { TagLibrarySlice } from "../slice/TagLibrarySlice.type";
 import handleTagCountsSubscribeEvent from "./handleTagCountsSubscribeEvent";
 

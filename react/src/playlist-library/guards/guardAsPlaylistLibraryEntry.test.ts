@@ -34,9 +34,9 @@ describe("guardAsPlaylistLibraryEntry", () => {
 		expect(() => guardAsPlaylistLibraryEntry({}, "test")).toThrow(
 			"test: missing or invalid playlist_id",
 		);
-		expect(() =>
-			guardAsPlaylistLibraryEntry({ playlist_id: "p1" }, "test"),
-		).toThrow("test: missing or invalid user_id");
+		expect(() => guardAsPlaylistLibraryEntry({ playlist_id: "p1" }, "test")).toThrow(
+			"test: missing or invalid user_id",
+		);
 		expect(() => guardAsPlaylistLibraryEntry({ ...validEntry, created_at: 123 }, "test")).toThrow(
 			"test: missing or invalid created_at",
 		);

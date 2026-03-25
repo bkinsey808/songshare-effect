@@ -23,18 +23,18 @@ const SECOND_5 = 5;
 const SECOND_59 = 59;
 
 describe("formatAppDate", () => {
-	it("formats as YYYY/MM/DD (e.g. 2026/01/19 for 19 January 2026)", () => {
-		// Use (year, monthIndex, day) to avoid timezone issues: month 0 = January
-		expect(formatAppDate(new Date(YEAR_2026, JANUARY, DAY_19))).toBe("2026/01/19");
-	});
+	const cases: [Date | string, string][] = [
+		[new Date(YEAR_2026, JANUARY, DAY_19), "2026/01/19"],
+		[new Date(YEAR_2025, MARCH, DAY_5), "2025/03/05"],
+		["2026-01-19T12:00:00.000Z", "2026/01/19"],
+	];
 
-	it("pads month and day with leading zeros", () => {
-		expect(formatAppDate(new Date(YEAR_2025, MARCH, DAY_5))).toBe("2025/03/05");
-	});
+	it.each(cases)("formats %p -> %s", (input: Date | string, expected: string) => {
+		// Act
+		const got = formatAppDate(input);
 
-	it("accepts ISO date strings", () => {
-		// Use noon UTC so the date is 19 Jan in all common timezones (avoids TZ-dependent failures)
-		expect(formatAppDate("2026-01-19T12:00:00.000Z")).toBe("2026/01/19");
+		// Assert
+		expect(got).toBe(expected);
 	});
 });
 

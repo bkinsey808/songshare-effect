@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
-import { clientLocalDateToUtcTimestamp } from "@/shared/utils/formatEventDate";
+import { clientLocalDateToUtcTimestamp } from "@/shared/utils/date/formatEventDate";
 
 import type { EventFormValues } from "../event-types";
 import buildSaveEventRequest from "./buildSaveEventRequest";

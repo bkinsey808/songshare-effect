@@ -24,8 +24,8 @@ describe("extractAddPlaylistRequest", () => {
 	});
 
 	it("throws when playlist_id is not a string", () => {
-		expect(() =>
-			extractAddPlaylistRequest({ playlist_id: 123 } as unknown),
-		).toThrow("playlist_id must be a string");
+		expect(() => extractAddPlaylistRequest({ playlist_id: 123 } as unknown)).toThrow(
+			"playlist_id must be a string",
+		);
 	});
 });

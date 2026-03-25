@@ -2,11 +2,11 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
-import forceCast from "@/react/lib/test-utils/forceCast";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
+import forceCast from "@/react/lib/test-utils/forceCast";
+import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
 
 import useItemTagsDisplay from "./useItemTagsDisplay";
 
@@ -99,9 +99,7 @@ describe("useItemTagsDisplay", () => {
 		const onEventInsert = forceCast<OnEventFn>(capture.fn);
 
 		await act(async () => {
-			await Effect.runPromise(
-				onEventInsert({ eventType: "INSERT", new: { tag_slug: SLUG_B } }),
-			);
+			await Effect.runPromise(onEventInsert({ eventType: "INSERT", new: { tag_slug: SLUG_B } }));
 		});
 
 		expect(result.current).toStrictEqual([SLUG_A, SLUG_B]);
@@ -122,9 +120,7 @@ describe("useItemTagsDisplay", () => {
 		const onEventDelete = forceCast<OnEventFn>(capture.fn);
 
 		await act(async () => {
-			await Effect.runPromise(
-				onEventDelete({ eventType: "DELETE", old: { tag_slug: SLUG_A } }),
-			);
+			await Effect.runPromise(onEventDelete({ eventType: "DELETE", old: { tag_slug: SLUG_A } }));
 		});
 
 		expect(result.current).toStrictEqual([SLUG_B]);
@@ -145,9 +141,7 @@ describe("useItemTagsDisplay", () => {
 		const onEventDupe = forceCast<OnEventFn>(capture.fn);
 
 		await act(async () => {
-			await Effect.runPromise(
-				onEventDupe({ eventType: "INSERT", new: { tag_slug: SLUG_A } }),
-			);
+			await Effect.runPromise(onEventDupe({ eventType: "INSERT", new: { tag_slug: SLUG_A } }));
 		});
 
 		expect(result.current).toStrictEqual([SLUG_A]);

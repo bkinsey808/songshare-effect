@@ -77,8 +77,7 @@ export default function addPlaylistToLibraryHandler(
 			}),
 		);
 
-		const playlistOwnerId: string | undefined =
-			playlistPublicResult.data?.user_id ?? undefined;
+		const playlistOwnerId: string | undefined = playlistPublicResult.data?.user_id ?? undefined;
 
 		// Insert into playlist_library using service key
 		const insertResult = yield* $(

@@ -5,7 +5,8 @@ import { Data } from "effect";
  * Indicates fetch failure, HTTP errors, or response parsing issues.
  * @returns N/A (TaggedError constructor)
  */
-export class NetworkError extends Data.TaggedError("NetworkError") { // oxlint-disable-line new-cap
+/* oxlint-disable-next-line new-cap */
+export class NetworkError extends Data.TaggedError("NetworkError") {
 	constructor(
 		override readonly message: string,
 		readonly statusCode?: number,
@@ -19,7 +20,8 @@ export class NetworkError extends Data.TaggedError("NetworkError") { // oxlint-d
  * Indicates invalid response format or schema validation failures.
  * @returns N/A (TaggedError constructor)
  */
-export class ParseError extends Data.TaggedError("ParseError") { // oxlint-disable-line new-cap
+/* oxlint-disable-next-line new-cap */
+export class ParseError extends Data.TaggedError("ParseError") {
 	constructor(override readonly message: string) {
 		super();
 	}

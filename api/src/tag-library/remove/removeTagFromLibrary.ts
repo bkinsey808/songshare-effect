@@ -49,11 +49,7 @@ export default function removeTagFromLibrary(
 		const deleteResult = yield* $(
 			Effect.tryPromise({
 				try: () =>
-					client
-						.from("tag_library")
-						.delete()
-						.eq("user_id", userId)
-						.eq("tag_slug", req.tag_slug),
+					client.from("tag_library").delete().eq("user_id", userId).eq("tag_slug", req.tag_slug),
 				catch: (error) =>
 					new DatabaseError({
 						message: extractErrorMessage(error, "Failed to remove tag from library"),
@@ -65,10 +61,7 @@ export default function removeTagFromLibrary(
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({
-						message: extractErrorMessage(
-							deleteResult.error,
-							"Failed to remove tag from library",
-						),
+						message: extractErrorMessage(deleteResult.error, "Failed to remove tag from library"),
 					}),
 				),
 			);

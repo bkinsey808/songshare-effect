@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import formatAppDate from "@/shared/utils/formatAppDate";
+import formatAppDate from "@/shared/utils/date/formatAppDate";
 
 import type { SongPublic } from "../song-schema";
 

@@ -7,11 +7,10 @@ import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";
+import TagList from "@/react/tag-library/TagList";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, playlistEditPath, playlistViewPath, songViewPath } from "@/shared/paths";
-import formatAppDate from "@/shared/utils/formatAppDate";
-
-import TagList from "@/react/tag-library/TagList";
+import formatAppDate from "@/shared/utils/date/formatAppDate";
 
 import PlaylistViewLibraryAction from "../playlist-view/PlaylistViewLibraryAction";
 import usePlaylistView from "./usePlaylistView";
@@ -29,8 +28,16 @@ const SONGS_NONE = 0;
 export default function PlaylistView(): ReactElement {
 	const { t } = useTranslation();
 	const { lang } = useLocale();
-	const { currentPlaylist, playlistPublic, publicSongs, isLoading, error, isOwner, songOrder, tags } =
-		usePlaylistView();
+	const {
+		currentPlaylist,
+		playlistPublic,
+		publicSongs,
+		isLoading,
+		error,
+		isOwner,
+		songOrder,
+		tags,
+	} = usePlaylistView();
 
 	if (isLoading) {
 		return (

@@ -28,11 +28,13 @@ describe("http constants", () => {
 		["MS_PER_SECOND", MS_PER_SECOND],
 		["ONE_HOUR_SECONDS", ONE_HOUR_SECONDS],
 	] as const)("exports %s as number", (_name, value) => {
+		// Assert
 		expect(value).toBeDefined();
 		expect(typeof value).toBe("number");
 	});
 
 	it("signin retry delays ms is non-empty number array", () => {
+		// Assert
 		expect(SIGNIN_RETRY_DELAYS_MS).toBeDefined();
 		expect(Array.isArray(SIGNIN_RETRY_DELAYS_MS)).toBe(true);
 		expect(SIGNIN_RETRY_DELAYS_MS.length).toBeGreaterThan(ZERO);

@@ -150,7 +150,7 @@ function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, D
 							{
 								user_id: recipientUserId,
 								song_id: itemId,
-									},
+							},
 						]);
 						break;
 					}
@@ -159,7 +159,7 @@ function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, D
 							{
 								user_id: recipientUserId,
 								playlist_id: itemId,
-									},
+							},
 						]);
 						break;
 					}
@@ -169,7 +169,7 @@ function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, D
 							{
 								user_id: recipientUserId,
 								event_id: itemId,
-									},
+							},
 						]);
 						break;
 					}
@@ -198,7 +198,7 @@ function addItemToLibrary(params: AddItemToLibraryParams): Effect.Effect<void, D
 							{
 								user_id: recipientUserId,
 								image_id: itemId,
-									},
+							},
 						]);
 						break;
 					}

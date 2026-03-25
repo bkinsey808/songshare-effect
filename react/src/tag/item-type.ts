@@ -31,7 +31,4 @@ export const ITEM_TYPE_CONFIG = {
 		idCol: "image_id",
 		libraryTable: "image_library",
 	},
-} as const satisfies Record<
-	ItemType,
-	{ tagTable: string; idCol: string; libraryTable: string }
->;
+} as const satisfies Record<ItemType, { tagTable: string; idCol: string; libraryTable: string }>;

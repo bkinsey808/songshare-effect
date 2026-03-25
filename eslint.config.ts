@@ -15,6 +15,7 @@ import type { Linter, Rule } from "eslint";
 
 import noAssertMockedReturnRule from "./eslint-rules/no-assert-mocked-return";
 import noDisableInTestsRule from "./eslint-rules/no-disable-in-tests";
+import noEmptyArrangeRule from "./eslint-rules/no-empty-arrange";
 import noReactElementRule from "./eslint-rules/no-reactelement-import";
 import useeffectRule from "./eslint-rules/require-useeffect-comment";
 
@@ -96,10 +97,17 @@ const config: Linter.Config[] = [
 					"no-assert-mocked-return": noAssertMockedReturnRule as unknown as Rule.RuleModule,
 				},
 			},
+			"no-empty-arrange": {
+				rules: {
+					// oxlint-disable-next-line no-unsafe-type-assertion -- same pattern as other rules
+					"no-empty-arrange": noEmptyArrangeRule as unknown as Rule.RuleModule,
+				},
+			},
 		},
 		rules: {
 			"no-disable-in-tests/no-disable-in-tests": "error",
 			"no-assert-mocked-return/no-assert-mocked-return": "error",
+			"no-empty-arrange/no-empty-arrange": "error",
 		},
 	},
 ];

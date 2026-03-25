@@ -2,13 +2,12 @@ import { Effect } from "effect";
 
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import { ITEM_TYPES, type ItemType } from "@/react/tag/item-type";
 import { ZERO } from "@/shared/constants/shared-constants";
 
 import type { TagLibrarySlice } from "../slice/TagLibrarySlice.type";
-import { ITEM_TYPES, type ItemType } from "@/react/tag/item-type";
-
-import type { TagItemCounts } from "./TagItemCounts.type";
 import { fetchLibraryItemIds, fetchSlugsByItemType } from "./fetchSlugsByItemType";
+import type { TagItemCounts } from "./TagItemCounts.type";
 
 /**
  * Fetches per-item-type counts for each tag in the user's tag library,
@@ -82,9 +81,7 @@ export default function fetchTagLibraryCountsEffect(
 			}),
 		};
 
-		const tagSlugsByItemType = yield* $(
-			Effect.all(effectsRecord, { concurrency: "unbounded" }),
-		);
+		const tagSlugsByItemType = yield* $(Effect.all(effectsRecord, { concurrency: "unbounded" }));
 
 		const counts: Record<string, TagItemCounts> = {};
 		for (const slug of slugs) {

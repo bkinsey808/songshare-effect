@@ -81,9 +81,9 @@ describe("useTagView — Harness", () => {
 		const { container } = render(<Harness />);
 
 		await waitFor(() => {
-			expect(
-				forceCast<HTMLElement>(within(container).getByTestId("is-loading")).textContent,
-			).toBe("false");
+			expect(forceCast<HTMLElement>(within(container).getByTestId("is-loading")).textContent).toBe(
+				"false",
+			);
 		});
 
 		expect(
@@ -107,14 +107,14 @@ describe("useTagView — Harness", () => {
 		const { container } = render(<Harness />);
 
 		await waitFor(() => {
-			expect(
-				forceCast<HTMLElement>(within(container).getByTestId("is-loading")).textContent,
-			).toBe("false");
+			expect(forceCast<HTMLElement>(within(container).getByTestId("is-loading")).textContent).toBe(
+				"false",
+			);
 		});
 
-		expect(
-			forceCast<HTMLElement>(within(container).getByTestId("error")).textContent,
-		).toBe("Failed to load images for this tag.");
+		expect(forceCast<HTMLElement>(within(container).getByTestId("error")).textContent).toBe(
+			"Failed to load images for this tag.",
+		);
 	});
 });
 

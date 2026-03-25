@@ -72,9 +72,9 @@ describe("subscribeToTagLibraryEffect", () => {
 		vi.resetAllMocks();
 		vi.mocked(getSupabaseAuthToken).mockRejectedValue(new Error("auth error"));
 
-		await expect(Effect.runPromise(subscribeToTagLibraryEffect(makeTagLibraryGet().get))).rejects.toThrow(
-			/auth error/,
-		);
+		await expect(
+			Effect.runPromise(subscribeToTagLibraryEffect(makeTagLibraryGet().get)),
+		).rejects.toThrow(/auth error/);
 	});
 
 	it("fails with 'No Supabase client available' when getSupabaseClient returns undefined", async () => {
@@ -82,8 +82,8 @@ describe("subscribeToTagLibraryEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
 
-		await expect(Effect.runPromise(subscribeToTagLibraryEffect(makeTagLibraryGet().get))).rejects.toThrow(
-			/No Supabase client available/,
-		);
+		await expect(
+			Effect.runPromise(subscribeToTagLibraryEffect(makeTagLibraryGet().get)),
+		).rejects.toThrow(/No Supabase client available/);
 	});
 });

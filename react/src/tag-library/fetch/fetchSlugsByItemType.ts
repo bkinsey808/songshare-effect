@@ -33,10 +33,7 @@ export function fetchLibraryItemIds(
 			}
 			const rows: unknown[] = Array.isArray(result.data) ? result.data : [];
 			return rows
-				.filter(
-					(row): row is Record<string, string> =>
-						isRecord(row) && isString(row[itemIdCol]),
-				)
+				.filter((row): row is Record<string, string> => isRecord(row) && isString(row[itemIdCol]))
 				.map((row) => row[itemIdCol])
 				.filter((id): id is string => id !== undefined);
 		}),

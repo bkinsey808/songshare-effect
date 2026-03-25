@@ -31,9 +31,7 @@ export default async function getSupabaseClientTokenHandler(
 			SUPABASE_SERVICE_KEY,
 			SUPABASE_VISITOR_EMAIL,
 			SUPABASE_VISITOR_PASSWORD,
-			...(SUPABASE_LEGACY_JWT_SECRET === undefined
-				? {}
-				: { SUPABASE_LEGACY_JWT_SECRET }),
+			...(SUPABASE_LEGACY_JWT_SECRET === undefined ? {} : { SUPABASE_LEGACY_JWT_SECRET }),
 		};
 
 		const accessToken = await getSupabaseClientToken(env);

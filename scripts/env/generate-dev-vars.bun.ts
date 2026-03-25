@@ -19,7 +19,9 @@ if (!existsSync(workerVarsFile)) {
 
 const serviceIdx = process.argv.indexOf("--service");
 const service =
-	serviceIdx === NOT_FOUND ? DEFAULT_SERVICE : (process.argv[serviceIdx + NEXT_ARG] ?? DEFAULT_SERVICE);
+	serviceIdx === NOT_FOUND
+		? DEFAULT_SERVICE
+		: (process.argv[serviceIdx + NEXT_ARG] ?? DEFAULT_SERVICE);
 const varNames = parseWorkerVarNames(readFileSync(workerVarsFile, "utf8"));
 const values: Record<string, string> = {};
 

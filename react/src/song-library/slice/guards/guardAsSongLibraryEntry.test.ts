@@ -24,9 +24,7 @@ describe("guardAsSongLibraryEntry", () => {
 
 	it("throws for missing fields", () => {
 		expect(() => guardAsSongLibraryEntry({ song_id: "s1" })).toThrow("Invalid SongLibraryEntry");
-		expect(() => guardAsSongLibraryEntry({ user_id: "u1" })).toThrow(
-			"Invalid SongLibraryEntry",
-		);
+		expect(() => guardAsSongLibraryEntry({ user_id: "u1" })).toThrow("Invalid SongLibraryEntry");
 	});
 
 	it("throws for non-string fields", () => {

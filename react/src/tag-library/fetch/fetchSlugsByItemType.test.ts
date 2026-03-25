@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from "vitest";
 import type getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import forceCast from "@/react/lib/test-utils/forceCast";
-
 import { ITEM_TYPE_CONFIG } from "@/react/tag/item-type";
 
 import { fetchSlugsByItemType } from "./fetchSlugsByItemType";
@@ -18,9 +17,7 @@ const LIBRARY_IDS = ["song-1", "song-2"];
 describe("itemTypeConfig", () => {
 	it("maps each item type to the expected tag table name", () => {
 		expect(
-			Object.fromEntries(
-				Object.entries(ITEM_TYPE_CONFIG).map(([key, val]) => [key, val.tagTable]),
-			),
+			Object.fromEntries(Object.entries(ITEM_TYPE_CONFIG).map(([key, val]) => [key, val.tagTable])),
 		).toStrictEqual({
 			song: "song_tag",
 			playlist: "playlist_tag",

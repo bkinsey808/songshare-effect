@@ -24,101 +24,152 @@ const KEY_B = "b";
 
 describe("safeGet", () => {
 	it("returns value when key exists", () => {
+		// Arrange
 		const obj: Record<string, unknown> = { [KEY_A]: NUM_ONE, [KEY_B]: "two" };
+
+		// Act & Assert
 		expect(safeGet(obj, KEY_A)).toBe(NUM_ONE);
 		expect(safeGet(obj, KEY_B)).toBe("two");
 	});
 
 	it("returns undefined when key is absent", () => {
+		// Arrange
 		const obj: Record<string, unknown> = { [KEY_A]: NUM_ONE };
+
+		// Act & Assert
 		expect(safeGet(obj, KEY_B)).toBeUndefined();
 	});
 
 	it("returns default when key is absent and default provided", () => {
+		// Arrange
 		const obj: Record<string, unknown> = { [KEY_A]: NUM_ONE };
+
+		// Act & Assert
 		expect(safeGet(obj, KEY_B, NUM_NINETY_NINE)).toBe(NUM_NINETY_NINE);
 		expect(safeGet(obj, KEY_B, "default")).toBe("default");
 	});
 
 	it("does not read from prototype", () => {
+		// Arrange
 		const obj = forceCast<Record<string, unknown>>(Object.create({ inherited: "x" }));
+
+		// Act & Assert
 		expect(safeGet(obj, "inherited")).toBeUndefined();
 	});
 });
 
 describe("superSafeGet", () => {
 	it("returns value when key exists", () => {
+		// Arrange
 		const obj: Record<string, unknown> = { [KEY_A]: NUM_ONE };
+
+		// Act & Assert
 		expect(superSafeGet(obj, KEY_A)).toBe(NUM_ONE);
 	});
 
 	it("throws when key is absent", () => {
+		// Arrange
 		const obj: Record<string, unknown> = { [KEY_A]: NUM_ONE };
+
+		// Act & Assert
 		expect(() => superSafeGet(obj, KEY_B)).toThrow(/missing key b/);
 	});
 });
 
 describe("safeSet", () => {
 	it("sets property on object", () => {
+		// Arrange
 		const obj: Record<string, unknown> = {};
+
+		// Act
 		safeSet(obj, "key", "value");
+
+		// Assert
 		expect(obj["key"]).toBe("value");
 	});
 
 	it("refuses to set prototype-polluting keys", () => {
+		// Arrange
 		const obj: Record<string, unknown> = {};
+
+		// Act
 		safeSet(obj, "__proto__", "ignored");
 		safeSet(obj, "constructor", "ignored");
 		safeSet(obj, "prototype", "ignored");
+
+		// Assert
 		expect(Object.keys(obj)).toHaveLength(EXPECTED_KEYS_LENGTH);
 	});
 });
 
 describe("safeDelete", () => {
 	it("returns true and deletes when key exists", () => {
+		// Arrange
 		const obj: Record<string, unknown> = { [KEY_A]: NUM_ONE };
+
+		// Act & Assert
 		expect(safeDelete(obj, KEY_A)).toBe(true);
 		expect(Object.hasOwn(obj, KEY_A)).toBe(false);
 	});
 
 	it("returns false when key does not exist", () => {
+		// Arrange
 		const obj: Record<string, unknown> = {};
+
+		// Act & Assert
 		expect(safeDelete(obj, KEY_A)).toBe(false);
 	});
 });
 
 describe("safeArrayGet", () => {
 	it("returns element at valid index", () => {
+		// Arrange
 		const arr = [NUM_TEN, NUM_TWENTY, NUM_THIRTY];
+
+		// Act & Assert
 		expect(safeArrayGet(arr, INDEX_ZERO)).toBe(NUM_TEN);
 		expect(safeArrayGet(arr, INDEX_ONE)).toBe(NUM_TWENTY);
 		expect(safeArrayGet(arr, INDEX_TWO)).toBe(NUM_THIRTY);
 	});
 
 	it("returns undefined for out-of-bounds index", () => {
+		// Arrange
 		const arr = [NUM_TEN, NUM_TWENTY];
+
+		// Act & Assert
 		expect(safeArrayGet(arr, NEGATIVE_INDEX)).toBeUndefined();
 		expect(safeArrayGet(arr, INDEX_TWO)).toBeUndefined();
 		expect(safeArrayGet(arr, INDEX_OUT_OF_BOUNDS)).toBeUndefined();
 	});
 
 	it("returns default when provided and index invalid", () => {
+		// Arrange
 		const arr = [NUM_TEN];
+
+		// Act & Assert
 		expect(safeArrayGet(arr, NUM_FIVE, INDEX_ZERO)).toBe(INDEX_ZERO);
 	});
 });
 
 describe("safeArraySet", () => {
 	it("returns new array with value set at valid index", () => {
+		// Arrange
 		const arr = [NUM_ONE, NUM_TWO, NUM_THREE];
+
+		// Act
 		const result = safeArraySet(arr, INDEX_ONE, NUM_NINETY_NINE);
+
+		// Assert
 		expect(result).not.toBe(arr);
 		expect(result[INDEX_ONE]).toBe(NUM_NINETY_NINE);
 		expect(arr[INDEX_ONE]).toBe(NUM_TWO);
 	});
 
 	it("returns original array for invalid index", () => {
+		// Arrange
 		const arr = [NUM_ONE, NUM_TWO];
+
+		// Act & Assert
 		expect(safeArraySet(arr, NEGATIVE_INDEX, INDEX_ZERO)).toBe(arr);
 		expect(safeArraySet(arr, INDEX_TWO, INDEX_ZERO)).toBe(arr);
 	});

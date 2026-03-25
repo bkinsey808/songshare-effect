@@ -1,12 +1,12 @@
 import type { Event, EventInsert } from "@/shared/generated/supabaseSchemas";
 
 import type {
-    MaybeSingleBuilder,
-    MaybeSingleResult,
-    MockRow,
-    MultiResult,
-    SingleBuilder,
-    SingleResult,
+	MaybeSingleBuilder,
+	MaybeSingleResult,
+	MockRow,
+	MultiResult,
+	SingleBuilder,
+	SingleResult,
 } from "./supabase-mock-types";
 
 export type EventMockOpts = {

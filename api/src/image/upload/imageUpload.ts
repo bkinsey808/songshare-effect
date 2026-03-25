@@ -12,7 +12,6 @@ import getStorageAdapter from "@/api/storage/getStorageAdapter";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
-
 import { tagSlugSchema } from "@/shared/validation/tagSchemas";
 
 import buildImageSlug from "./buildImageSlug";
@@ -112,7 +111,9 @@ export default function imageUpload(
 				if (!Array.isArray(parsed)) {
 					return [];
 				}
-				return parsed.filter((val): val is string => typeof val === "string" && Schema.is(tagSlugSchema)(val));
+				return parsed.filter(
+					(val): val is string => typeof val === "string" && Schema.is(tagSlugSchema)(val),
+				);
 			} catch {
 				return [];
 			}
@@ -265,24 +266,18 @@ export default function imageUpload(
 			yield* $(
 				Effect.tryPromise({
 					try: async () => {
-						await supabase
-							.from("tag")
-							.upsert(
-								tagSlugs.map((slug) => ({ tag_slug: slug })),
-								{ onConflict: "tag_slug", ignoreDuplicates: true },
-							);
-						await supabase
-							.from("image_tag")
-							.upsert(
-								tagSlugs.map((slug) => ({ image_id: imageId, tag_slug: slug })),
-								{ onConflict: "image_id,tag_slug", ignoreDuplicates: true },
-							);
-						await supabase
-							.from("tag_library")
-							.upsert(
-								tagSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
-								{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
-							);
+						await supabase.from("tag").upsert(
+							tagSlugs.map((slug) => ({ tag_slug: slug })),
+							{ onConflict: "tag_slug", ignoreDuplicates: true },
+						);
+						await supabase.from("image_tag").upsert(
+							tagSlugs.map((slug) => ({ image_id: imageId, tag_slug: slug })),
+							{ onConflict: "image_id,tag_slug", ignoreDuplicates: true },
+						);
+						await supabase.from("tag_library").upsert(
+							tagSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
+							{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
+						);
 					},
 					catch: () => new DatabaseError({ message: "Failed to save tags" }),
 				}).pipe(Effect.orElse(() => Effect.void)),

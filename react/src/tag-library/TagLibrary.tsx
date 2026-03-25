@@ -2,16 +2,15 @@ import { Effect } from "effect";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import useLocale from "@/react/lib/language/locale/useLocale";
-import TagIcon from "@/react/lib/design-system/icons/TagIcon";
-import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { ZERO } from "@/shared/constants/shared-constants";
-import { dashboardPath, tagViewPath } from "@/shared/paths";
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
-
+import TagIcon from "@/react/lib/design-system/icons/TagIcon";
+import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import { ITEM_TYPES, type ItemType } from "@/react/tag/item-type";
+import { ZERO } from "@/shared/constants/shared-constants";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import { dashboardPath, tagViewPath } from "@/shared/paths";
 
 import type { TagItemCounts } from "./fetch/TagItemCounts.type";
 import useTagLibrary from "./useTagLibrary";
@@ -94,10 +93,7 @@ export default function TagLibrary(): ReactElement {
 
 					if (isConfirming) {
 						return (
-							<div
-								key={slug}
-								className="rounded-lg border border-red-600 bg-red-900/20 px-4 py-3"
-							>
+							<div key={slug} className="rounded-lg border border-red-600 bg-red-900/20 px-4 py-3">
 								<p className="mb-2 text-sm text-red-300">
 									Remove <span className="font-medium">#{slug}</span> from your library?
 								</p>

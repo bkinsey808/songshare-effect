@@ -17,11 +17,7 @@ export function isEventLibrary(value: unknown): value is EventLibrary {
 		return false;
 	}
 
-	return (
-		isString(value["user_id"]) &&
-		isString(value["event_id"]) &&
-		isString(value["created_at"])
-	);
+	return isString(value["user_id"]) && isString(value["event_id"]) && isString(value["created_at"]);
 }
 
 /**

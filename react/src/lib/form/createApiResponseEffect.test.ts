@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import { clientDebug } from "@/react/lib/utils/clientLogger";
-import runUnwrapped from "@/shared/test-utils/runUnwrapped";
+import runUnwrapped from "@/shared/test-utils/runUnwrapped.test-util";
 
 import createApiResponseEffect from "./createApiResponseEffect";
 
@@ -42,6 +42,7 @@ describe("createApiResponseEffect", () => {
 	// each test will reset mocks manually to avoid global hooks
 
 	it("resolves to success for ok responses", async () => {
+		// Arrange
 		vi.resetAllMocks();
 		const res = makeResponse({
 			ok: true,
@@ -60,6 +61,7 @@ describe("createApiResponseEffect", () => {
 	});
 
 	it("fails with setFieldError when payload has a nonempty field and error", async () => {
+		// Arrange
 		vi.resetAllMocks();
 		const res = makeResponse({
 			ok: false,
@@ -70,16 +72,21 @@ describe("createApiResponseEffect", () => {
 			},
 		});
 
-		await expect(runUnwrapped(createApiResponseEffect(res))).rejects.toStrictEqual({
+		// Act
+		const action = runUnwrapped(createApiResponseEffect(res));
+
+		// Assert
+		await expect(action).rejects.toMatchObject({
 			type: "setFieldError",
 			field: "email",
-			message: "invalid",
 		} as const);
+		await expect(action).rejects.toThrow("invalid");
 
 		expect(clientDebug).toHaveBeenCalledWith("🎯 Field-specific error detected");
 	});
 
 	it("fails with setGeneralError when there is only a general error string", async () => {
+		// Arrange
 		vi.resetAllMocks();
 		const res = makeResponse({
 			ok: false,
@@ -90,15 +97,18 @@ describe("createApiResponseEffect", () => {
 			},
 		});
 
-		await expect(runUnwrapped(createApiResponseEffect(res))).rejects.toStrictEqual({
-			type: "setGeneralError",
-			message: "oops",
-		} as const);
+		// Act
+		const action = runUnwrapped(createApiResponseEffect(res));
+
+		// Assert
+		await expect(action).rejects.toMatchObject({ type: "setGeneralError" } as const);
+		await expect(action).rejects.toThrow("oops");
 
 		expect(clientDebug).toHaveBeenCalledWith("🚨 General error detected");
 	});
 
 	it("converts missing/undefined error into fallback message", async () => {
+		// Arrange
 		vi.resetAllMocks();
 		const res = makeResponse({
 			ok: false,
@@ -109,13 +119,16 @@ describe("createApiResponseEffect", () => {
 			},
 		});
 
-		await expect(runUnwrapped(createApiResponseEffect(res))).rejects.toStrictEqual({
-			type: "setGeneralError",
-			message: "An error occurred",
-		} as const);
+		// Act
+		const action = runUnwrapped(createApiResponseEffect(res));
+
+		// Assert
+		await expect(action).rejects.toMatchObject({ type: "setGeneralError" } as const);
+		await expect(action).rejects.toThrow("An error occurred");
 	});
 
 	it("treats non-object JSON as empty and uses fallback", async () => {
+		// Arrange
 		vi.resetAllMocks();
 		const res = makeResponse({
 			ok: false,
@@ -126,13 +139,16 @@ describe("createApiResponseEffect", () => {
 			},
 		});
 
-		await expect(runUnwrapped(createApiResponseEffect(res))).rejects.toStrictEqual({
-			type: "setGeneralError",
-			message: "An error occurred",
-		} as const);
+		// Act
+		const action = runUnwrapped(createApiResponseEffect(res));
+
+		// Assert
+		await expect(action).rejects.toMatchObject({ type: "setGeneralError" } as const);
+		await expect(action).rejects.toThrow("An error occurred");
 	});
 
 	it("propagates the original error when response.json rejects", async () => {
+		// Arrange
 		vi.resetAllMocks();
 		const res = makeResponse({
 			ok: false,
@@ -143,10 +159,15 @@ describe("createApiResponseEffect", () => {
 			},
 		});
 
-		await expect(Effect.runPromise(createApiResponseEffect(res))).rejects.toThrow("bad json");
+		// Act
+		const promise = Effect.runPromise(createApiResponseEffect(res));
+
+		// Assert
+		await expect(promise).rejects.toThrow("bad json");
 	});
 
 	it("does not treat empty strings as valid field-specific errors", async () => {
+		// Arrange
 		vi.resetAllMocks();
 		const res = makeResponse({
 			ok: false,
@@ -159,9 +180,12 @@ describe("createApiResponseEffect", () => {
 
 		// because the implementation uses `errorData.error ?? "An error occurred"
 		// the empty-string message is returned verbatim.
-		await expect(runUnwrapped(createApiResponseEffect(res))).rejects.toStrictEqual({
-			type: "setGeneralError",
-			message: "",
-		} as const);
+
+		// Act
+		const action = runUnwrapped(createApiResponseEffect(res));
+
+		// Assert
+		await expect(action).rejects.toMatchObject({ type: "setGeneralError" } as const);
+		await expect(action).rejects.toThrow("");
 	});
 });

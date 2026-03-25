@@ -6,7 +6,9 @@ import { Schema } from "effect";
  * @param i18nMessageKey - The i18n message key to associate with the schema
  * @returns A dummy schema for testing
  */
-export default function makeDummySchema(i18nMessageKey: string): Schema.Schema<{ readonly id: string }> {
+export default function makeDummySchema(
+	i18nMessageKey: string,
+): Schema.Schema<{ readonly id: string }> {
 	return Schema.Struct({
 		id: Schema.String,
 	}).pipe(

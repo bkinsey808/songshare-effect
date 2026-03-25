@@ -20,7 +20,7 @@ metadata:
 ## Core Rules
 
 1. **Skills must be ≤ 300 lines.** The CI check (`npm run check:skill-line-count`) enforces this. If you're over, move detail to `docs/` and deep-link.
-2. **Skills are pointers, not encyclopedias.** A skill tells an agent *what to do* and *where to look*. Full examples, reference tables, and historical context belong in `docs/`.
+2. **Skills are pointers, not encyclopedias.** A skill tells an agent _what to do_ and _where to look_. Full examples, reference tables, and historical context belong in `docs/`.
 3. **Docs are the source of truth.** Skills defer to `docs/` via deep links. Update the doc when you learn something new; then update the skill to point at it.
 
 ---
@@ -67,13 +67,13 @@ metadata:
 
 ## What Goes Where
 
-| Content type | Where it lives |
-|---|---|
-| Step-by-step task workflow | `.agent/workflows/<name>.md` |
-| Full pattern reference with many examples | `docs/<topic>.md` |
-| Quick lookup table / rule summary | `docs/lint-quick-reference.md` or similar |
-| "Use this when X, do Y, see Z" | `SKILL.md` |
-| Project background / motivation | `docs/` |
+| Content type                              | Where it lives                            |
+| ----------------------------------------- | ----------------------------------------- |
+| Step-by-step task workflow                | `.agent/workflows/<name>.md`              |
+| Full pattern reference with many examples | `docs/<topic>.md`                         |
+| Quick lookup table / rule summary         | `docs/lint-quick-reference.md` or similar |
+| "Use this when X, do Y, see Z"            | `SKILL.md`                                |
+| Project background / motivation           | `docs/`                                   |
 
 ---
 
@@ -83,6 +83,7 @@ Skills should link into `docs/` at the heading level using GitHub-flavored Markd
 
 ```markdown
 <!-- From a skill, linking into a doc section -->
+
 See [→ Foo Bar pattern](../../../docs/my-doc.md#foo-bar)
 ```
 

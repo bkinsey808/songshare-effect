@@ -7,47 +7,7 @@
  * `oxlint-disable` comments throughout the codebase.
  */
 
-const DEFAULT_FIND_ERROR_DEPTH = 3;
-const FIND_INNER_ERROR_MIN = 0;
-const FIND_INNER_ERROR_STEP = 1;
-
-/**
- * Recursively search an arbitrary value for an inner Error instance.
- *
- * @param obj - Value to inspect
- * @param depth - Remaining recursion depth
- * @returns an Error when found, otherwise undefined
- */
-export function findInnerError(
-	obj: unknown,
-	depth: number = DEFAULT_FIND_ERROR_DEPTH,
-): Error | undefined {
-	if (obj instanceof Error) {
-		return obj;
-	}
-	if (depth <= FIND_INNER_ERROR_MIN) {
-		return undefined;
-	}
-	if (typeof obj !== "object" || obj === null) {
-		return undefined;
-	}
-	// Localized, documented assertion: we only need the object's values to
-	// traverse for inner Error instances. Keep the cast and single-line
-	// eslint exception localized here rather than repeating it where used.
-	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- runtime traversal of unknown object */
-	const values = Object.values(obj as Record<string, unknown>);
-	for (const value of values) {
-		try {
-			const found = findInnerError(value, depth - FIND_INNER_ERROR_STEP);
-			if (found) {
-				return found;
-			}
-		} catch {
-			// ignore and continue
-		}
-	}
-	return undefined;
-}
+import findInnerError from "./findInnerError";
 
 /**
  * Unwrap common error wrapper shapes or return the original value.
@@ -58,7 +18,7 @@ export function findInnerError(
  * @param err - error to unwrap
  * @returns unwrapped error or the original value
  */
-export function unwrapError(err: unknown): unknown {
+export default function unwrapError(err: unknown): unknown {
 	const inner = findInnerError(err);
 	if (inner) {
 		return inner;

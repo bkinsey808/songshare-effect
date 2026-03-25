@@ -24,11 +24,11 @@ import { defaultLanguage } from "@/shared/language/supported-languages";
 import { OauthStateSchema } from "@/shared/oauth/oauthState";
 import { dashboardPath } from "@/shared/paths";
 import {
-    codeQueryParam,
-    providerQueryParam,
-    signinErrorQueryParam,
-    SigninErrorToken,
-    stateQueryParam,
+	codeQueryParam,
+	providerQueryParam,
+	signinErrorQueryParam,
+	SigninErrorToken,
+	stateQueryParam,
 } from "@/shared/queryParams";
 import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrMap";
 

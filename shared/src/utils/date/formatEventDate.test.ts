@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { clientLocalDateToUtcTimestamp, utcTimestampToClientLocalDate } from "./formatEventDate";
 
@@ -25,31 +25,23 @@ describe("clientLocalDateToUtcTimestamp", () => {
 		expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:00\.000Z$/);
 	});
 
-	it("returns undefined for empty string", () => {
-		expect(clientLocalDateToUtcTimestamp("")).toBeUndefined();
-	});
+	const invalidLocalInputs: (string | undefined)[] = [
+		"",
+		undefined,
+		"invalid",
+		"2026-01-01",
+		"01/01/2026",
+		"2026/13/01",
+		"2026/00/01",
+		"2026/01/01 14",
+	];
 
-	it("returns undefined for null", () => {
-		expect(clientLocalDateToUtcTimestamp(undefined)).toBeUndefined();
-	});
+	it.each(invalidLocalInputs)("clientLocalDateToUtcTimestamp(%p) => undefined", (input) => {
+		// Act
+		const got = clientLocalDateToUtcTimestamp(input);
 
-	it("returns undefined for undefined", () => {
-		expect(clientLocalDateToUtcTimestamp(undefined)).toBeUndefined();
-	});
-
-	it("returns undefined for invalid date format", () => {
-		expect(clientLocalDateToUtcTimestamp("invalid")).toBeUndefined();
-		expect(clientLocalDateToUtcTimestamp("2026-01-01")).toBeUndefined();
-		expect(clientLocalDateToUtcTimestamp("01/01/2026")).toBeUndefined();
-	});
-
-	it("returns undefined for invalid date values", () => {
-		expect(clientLocalDateToUtcTimestamp("2026/13/01")).toBeUndefined();
-		expect(clientLocalDateToUtcTimestamp("2026/00/01")).toBeUndefined();
-	});
-
-	it("returns undefined if missing time components", () => {
-		expect(clientLocalDateToUtcTimestamp("2026/01/01 14")).toBeUndefined();
+		// Assert
+		expect(got).toBeUndefined();
 	});
 });
 
@@ -65,22 +57,20 @@ describe("utcTimestampToClientLocalDate", () => {
 		expect(result).toContain("2026");
 	});
 
-	it("returns empty string for empty input", () => {
-		expect(utcTimestampToClientLocalDate("")).toBe("");
-	});
+	const invalidUtcInputs: (string | undefined)[] = [
+		"",
+		undefined,
+		"invalid",
+		"2026-01-01",
+		"not-a-date",
+	];
 
-	it("returns empty string for null", () => {
-		expect(utcTimestampToClientLocalDate(undefined)).toBe("");
-	});
+	it.each(invalidUtcInputs)("utcTimestampToClientLocalDate(%p) => empty string", (input) => {
+		// Act
+		const got = utcTimestampToClientLocalDate(input);
 
-	it("returns empty string for undefined", () => {
-		expect(utcTimestampToClientLocalDate(undefined)).toBe("");
-	});
-
-	it("returns empty string for invalid timestamp", () => {
-		expect(utcTimestampToClientLocalDate("invalid")).toBe("");
-		expect(utcTimestampToClientLocalDate("2026-01-01")).toBe("");
-		expect(utcTimestampToClientLocalDate("not-a-date")).toBe("");
+		// Assert
+		expect(got).toBe("");
 	});
 
 	it("handles timestamps with milliseconds", () => {

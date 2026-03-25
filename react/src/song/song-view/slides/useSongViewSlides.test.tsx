@@ -1,11 +1,11 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { songFields } from "@/react/song/song-schema";
 import makeSongFromIds from "@/react/song/test-utils/makeSongFromIds.test-util";
 // Numeric constants used in assertions to make expected values explicit.
 import { ONE, THREE, TWO, ZERO } from "@/shared/constants/shared-constants";
 
-import { songFields } from "@/react/song/song-schema";
 import { useSongViewSlides } from "./useSongViewSlides";
 
 /**

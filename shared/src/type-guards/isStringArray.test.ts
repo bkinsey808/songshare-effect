@@ -1,20 +1,35 @@
-/* oxlint-disable id-length, no-magic-numbers */
 import { describe, expect, it } from "vitest";
 
 import isStringArray from "./isStringArray";
 
+const FIRST_NUM = 1;
+const SECOND_NUM = 2;
+const THIRD_NUM = 3;
+
 describe("isStringArray", () => {
-	it("returns true for arrays of strings", () => {
-		expect(isStringArray(["a", "b"])).toBe(true);
+	const truthyCases = [
+		[["a", "b"], true],
+		[[], true],
+	] as const;
+
+	it.each(truthyCases)("returns true for %o", (value, expected) => {
+		// Act
+		const result = isStringArray(value);
+
+		// Assert
+		expect(result).toBe(expected);
 	});
 
-	it("returns false for non-arrays or arrays with non-strings", () => {
-		expect(isStringArray("not an array")).toBe(false);
-		const numericArray = [1, 2, 3];
-		expect(isStringArray(numericArray)).toBe(false);
-	});
+	const falsyCases = [
+		["not an array", false],
+		[[FIRST_NUM, SECOND_NUM, THIRD_NUM], false],
+	] as const;
 
-	it("handles empty arrays", () => {
-		expect(isStringArray([])).toBe(true);
+	it.each(falsyCases)("returns false for %o", (value, expected) => {
+		// Act
+		const result = isStringArray(value);
+
+		// Assert
+		expect(result).toBe(expected);
 	});
 });

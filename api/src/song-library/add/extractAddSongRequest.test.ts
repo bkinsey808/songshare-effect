@@ -23,15 +23,13 @@ describe("extractAddSongRequest", () => {
 	});
 
 	it("throws when song_id is missing", () => {
-		expect(() => extractAddSongRequest({} as unknown)).toThrow(
-			"Request must contain song_id",
-		);
+		expect(() => extractAddSongRequest({} as unknown)).toThrow("Request must contain song_id");
 	});
 
 	it("throws when song_id is not a string", () => {
-		expect(() =>
-			extractAddSongRequest({ song_id: INVALID_SONG_ID } as unknown),
-		).toThrow("song_id must be a string");
+		expect(() => extractAddSongRequest({ song_id: INVALID_SONG_ID } as unknown)).toThrow(
+			"song_id must be a string",
+		);
 	});
 
 	it("accepts empty string for song_id", () => {

@@ -6,7 +6,6 @@ import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
-
 import { tagSlugSchema } from "@/shared/validation/tagSchemas";
 
 import extractImageUpdateRequest, { type ImageUpdateRequest } from "./extractImageUpdateRequest";
@@ -142,12 +141,10 @@ export default function imageUpdate(
 					try: async () => {
 						// Upsert new tag slugs into the global registry
 						if (validSlugs.length > EMPTY_COUNT) {
-							await supabase
-								.from("tag")
-								.upsert(
-									validSlugs.map((slug) => ({ tag_slug: slug })),
-									{ onConflict: "tag_slug", ignoreDuplicates: true },
-								);
+							await supabase.from("tag").upsert(
+								validSlugs.map((slug) => ({ tag_slug: slug })),
+								{ onConflict: "tag_slug", ignoreDuplicates: true },
+							);
 						}
 						// Replace all tags for this image
 						await supabase.from("image_tag").delete().eq("image_id", req.image_id);
@@ -158,12 +155,10 @@ export default function imageUpdate(
 						}
 						// Best-effort: add tags to the user's tag library for autocomplete
 						if (validSlugs.length > EMPTY_COUNT) {
-							await supabase
-								.from("tag_library")
-								.upsert(
-									validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
-									{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
-								);
+							await supabase.from("tag_library").upsert(
+								validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
+								{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
+							);
 						}
 					},
 					catch: () => new DatabaseError({ message: "Failed to save tags" }),

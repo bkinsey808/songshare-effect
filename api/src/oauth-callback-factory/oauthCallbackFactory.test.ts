@@ -7,9 +7,9 @@ import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import computeStateRedirectUri from "@/api/oauth-callback-factory/computeStateRedirectUri";
 import {
-    asFetchUserResult,
-    asOauthState,
-    asString,
+	asFetchUserResult,
+	asOauthState,
+	asString,
 } from "@/api/oauth-callback-factory/oauthCallbackFactory.test-util";
 import rateLimit from "@/api/oauth-callback-factory/rateLimit";
 import handleRegistration from "@/api/oauth-callback-factory/registrationRedirect";

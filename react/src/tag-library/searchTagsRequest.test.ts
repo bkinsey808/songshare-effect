@@ -8,10 +8,7 @@ import searchTagsEffect from "./searchTagsRequest";
 describe("searchTagsEffect", () => {
 	it("returns matching tag slugs on a successful response", async () => {
 		vi.resetAllMocks();
-		vi.stubGlobal(
-			"fetch",
-			vi.fn().mockResolvedValue(mockFetchResponse({ tags: ["rock", "pop"] })),
-		);
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockFetchResponse({ tags: ["rock", "pop"] })));
 
 		const result = await Effect.runPromise(searchTagsEffect("ro"));
 
@@ -20,9 +17,7 @@ describe("searchTagsEffect", () => {
 
 	it("calls fetch with the encoded query and credentials:include", async () => {
 		vi.resetAllMocks();
-		const fetchMock = vi
-			.fn()
-			.mockResolvedValue(mockFetchResponse({ tags: [] }));
+		const fetchMock = vi.fn().mockResolvedValue(mockFetchResponse({ tags: [] }));
 		vi.stubGlobal("fetch", fetchMock);
 
 		await Effect.runPromise(searchTagsEffect("hello world"));
@@ -58,11 +53,7 @@ describe("searchTagsEffect", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal(
 			"fetch",
-			vi
-				.fn()
-				.mockResolvedValue(
-					mockFetchResponse({}, { jsonError: new Error("invalid json") }),
-				),
+			vi.fn().mockResolvedValue(mockFetchResponse({}, { jsonError: new Error("invalid json") })),
 		);
 
 		const result = await Effect.runPromise(searchTagsEffect("rock"));
@@ -93,7 +84,11 @@ describe("searchTagsEffect", () => {
 		vi.resetAllMocks();
 		vi.stubGlobal(
 			"fetch",
-			vi.fn().mockResolvedValue(mockFetchResponse({ tags: ["rock", NON_STRING_NUMBER, undefined, "pop", true] })),
+			vi
+				.fn()
+				.mockResolvedValue(
+					mockFetchResponse({ tags: ["rock", NON_STRING_NUMBER, undefined, "pop", true] }),
+				),
 		);
 
 		const result = await Effect.runPromise(searchTagsEffect("rock"));

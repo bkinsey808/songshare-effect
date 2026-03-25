@@ -75,7 +75,8 @@ export default function useCommunitySearchInput({
 		(entry: CommunityEntry) => entry.community_id === activeCommunityId,
 	);
 
-	const inputDisplayValue = searchQuery === "" ? (activeCommunity?.community_name ?? "") : searchQuery;
+	const inputDisplayValue =
+		searchQuery === "" ? (activeCommunity?.community_name ?? "") : searchQuery;
 
 	const filteredCommunities =
 		searchQuery === ""

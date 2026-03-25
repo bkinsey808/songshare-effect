@@ -62,8 +62,7 @@ export default function addSongToLibraryHandler(
 		// Fetch song owner from song_public before inserting
 		const songPublicResult = yield* $(
 			Effect.tryPromise({
-				try: () =>
-					client.from("song_public").select("user_id").eq("song_id", req.song_id).single(),
+				try: () => client.from("song_public").select("user_id").eq("song_id", req.song_id).single(),
 				catch: (error) =>
 					new DatabaseError({
 						message: extractErrorMessage(error, "Failed to fetch song"),

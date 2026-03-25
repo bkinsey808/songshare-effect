@@ -32,27 +32,18 @@ describe("guardAsImageLibraryEntry", () => {
 	});
 
 	it("throws TypeError with context when value lacks user_id", () => {
-		expect(() =>
-			guardAsImageLibraryEntry(
-				{ image_id: IMAGE_ID, created_at: "" },
-				CONTEXT,
-			),
-		).toThrow(TypeError);
-		expect(() =>
-			guardAsImageLibraryEntry(
-				{ image_id: IMAGE_ID, created_at: "" },
-				CONTEXT,
-			),
-		).toThrow(/test-context/);
+		expect(() => guardAsImageLibraryEntry({ image_id: IMAGE_ID, created_at: "" }, CONTEXT)).toThrow(
+			TypeError,
+		);
+		expect(() => guardAsImageLibraryEntry({ image_id: IMAGE_ID, created_at: "" }, CONTEXT)).toThrow(
+			/test-context/,
+		);
 	});
 
 	it("throws TypeError with context when value lacks image_id", () => {
-		expect(() =>
-			guardAsImageLibraryEntry(
-				{ user_id: USER_ID, created_at: "" },
-				CONTEXT,
-			),
-		).toThrow(TypeError);
+		expect(() => guardAsImageLibraryEntry({ user_id: USER_ID, created_at: "" }, CONTEXT)).toThrow(
+			TypeError,
+		);
 	});
 
 	it("throws TypeError with context when user_id is not a string", () => {

@@ -96,9 +96,17 @@ export default function fetchSongLibrary(get: () => SongLibrarySlice): Effect.Ef
 				];
 			})
 			.filter(
-				(entry): entry is [string, { song_name: string; song_slug: string; user_id: string | undefined }] => entry !== undefined,
+				(
+					entry,
+				): entry is [
+					string,
+					{ song_name: string; song_slug: string; user_id: string | undefined },
+				] => entry !== undefined,
 			);
-		const songMap = new Map<string, { song_name: string; song_slug: string; user_id: string | undefined }>(songMapEntries);
+		const songMap = new Map<
+			string,
+			{ song_name: string; song_slug: string; user_id: string | undefined }
+		>(songMapEntries);
 
 		const ownerIds = [
 			...new Set(

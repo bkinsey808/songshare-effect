@@ -59,7 +59,9 @@ describe("getVerifiedUserSession", () => {
 		vi.spyOn(extractModule2, "default").mockReturnValue(Effect.succeed(undefined));
 
 		await expect(
-			Effect.runPromise(getVerifiedUserSession(makeCtx({ env: { SUPABASE_JWT_SECRET: "jwt-secret" } }))),
+			Effect.runPromise(
+				getVerifiedUserSession(makeCtx({ env: { SUPABASE_JWT_SECRET: "jwt-secret" } })),
+			),
 		).rejects.toThrow(/Not authenticated/);
 	});
 

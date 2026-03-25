@@ -8,10 +8,10 @@ const validEntry = { user_id: "u1", tag_slug: "rock" };
 
 describe("handleTagLibrarySubscribeEvent", () => {
 	it("ignores non-realtime payloads", async () => {
-			const { get, addTagLibraryEntry, removeTagLibraryEntry } = makeTagLibraryGet([
-				"addTagLibraryEntry",
-				"removeTagLibraryEntry",
-			]);
+		const { get, addTagLibraryEntry, removeTagLibraryEntry } = makeTagLibraryGet([
+			"addTagLibraryEntry",
+			"removeTagLibraryEntry",
+		]);
 
 		await Effect.runPromise(handleTagLibrarySubscribeEvent(undefined, get));
 		await Effect.runPromise(handleTagLibrarySubscribeEvent("string", get));

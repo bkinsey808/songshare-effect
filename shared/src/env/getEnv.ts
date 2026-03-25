@@ -1,4 +1,4 @@
-import isRecordStringUnknown from "@/shared/utils/isRecordStringUnknown";
+import isRecordStringUnknown from "@/shared/type-guards/isRecordStringUnknown";
 
 // Narrow once at this small trusted boundary. This avoids unsafe casts at
 // every call site while keeping the runtime check in one place.

@@ -1,4 +1,3 @@
-
 import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import SharedUsersSection from "@/react/share/shared-users-section/SharedUsersSection";

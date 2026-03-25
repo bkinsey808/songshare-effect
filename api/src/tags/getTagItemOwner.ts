@@ -25,8 +25,7 @@ export default function getTagItemOwner(
 		if (itemType === "song") {
 			const result = yield* $(
 				Effect.tryPromise({
-					try: () =>
-						client.from("song_public").select("user_id").eq("song_id", itemId).single(),
+					try: () => client.from("song_public").select("user_id").eq("song_id", itemId).single(),
 					catch: (error) =>
 						new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch song") }),
 				}),
@@ -41,11 +40,7 @@ export default function getTagItemOwner(
 			const result = yield* $(
 				Effect.tryPromise({
 					try: () =>
-						client
-							.from("playlist_public")
-							.select("user_id")
-							.eq("playlist_id", itemId)
-							.single(),
+						client.from("playlist_public").select("user_id").eq("playlist_id", itemId).single(),
 					catch: (error) =>
 						new DatabaseError({
 							message: extractErrorMessage(error, "Failed to fetch playlist"),
@@ -61,8 +56,7 @@ export default function getTagItemOwner(
 		if (itemType === "event") {
 			const result = yield* $(
 				Effect.tryPromise({
-					try: () =>
-						client.from("event_public").select("owner_id").eq("event_id", itemId).single(),
+					try: () => client.from("event_public").select("owner_id").eq("event_id", itemId).single(),
 					catch: (error) =>
 						new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch event") }),
 				}),
@@ -77,11 +71,7 @@ export default function getTagItemOwner(
 			const result = yield* $(
 				Effect.tryPromise({
 					try: () =>
-						client
-							.from("community_public")
-							.select("owner_id")
-							.eq("community_id", itemId)
-							.single(),
+						client.from("community_public").select("owner_id").eq("community_id", itemId).single(),
 					catch: (error) =>
 						new DatabaseError({
 							message: extractErrorMessage(error, "Failed to fetch community"),
@@ -97,8 +87,7 @@ export default function getTagItemOwner(
 		// image
 		const result = yield* $(
 			Effect.tryPromise({
-				try: () =>
-					client.from("image_public").select("user_id").eq("image_id", itemId).single(),
+				try: () => client.from("image_public").select("user_id").eq("image_id", itemId).single(),
 				catch: (error) =>
 					new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch image") }),
 			}),

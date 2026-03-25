@@ -22,7 +22,7 @@ import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThr
 import { mySchema } from "@/shared/validation/mySchemas";
 
 export default function extractMyRequest(request: unknown): MyRequest {
-  return decodeUnknownSyncOrThrow(mySchema, request);
+	return decodeUnknownSyncOrThrow(mySchema, request);
 }
 ```
 
@@ -39,13 +39,18 @@ anyClient.from(dynamicTable).select("user_id");
 
 // ✅ GOOD — typed if/else per item type
 if (itemType === "song") {
-  const result = yield* $(Effect.tryPromise({
-    try: () => client.from("song_public").select("user_id").eq("song_id", itemId).single(),
-    catch: (error) => new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch song") }),
-  }));
-  return result.data.user_id;
+	const result =
+		yield *
+		$(
+			Effect.tryPromise({
+				try: () => client.from("song_public").select("user_id").eq("song_id", itemId).single(),
+				catch: (error) =>
+					new DatabaseError({ message: extractErrorMessage(error, "Failed to fetch song") }),
+			}),
+		);
+	return result.data.user_id;
 } else if (itemType === "playlist") {
-  // ...
+	// ...
 }
 ```
 
@@ -160,7 +165,9 @@ Number.isNaN(parsedLimit);
 if (result.error) throw result.error;
 
 // ✅ GOOD
-if (result.error) { throw result.error; }
+if (result.error) {
+	throw result.error;
+}
 ```
 
 ### `consistent-type-imports` — type-only imports
@@ -183,8 +190,11 @@ When `isolatedDeclarations` is enabled, TypeScript cannot infer exported types f
 export const mySchema = Schema.Literal("a", "b", "c");
 
 // ✅ GOOD — explicit annotation
-export const mySchema: Schema.Schema<"a" | "b" | "c", "a" | "b" | "c"> =
-  Schema.Literal("a", "b", "c");
+export const mySchema: Schema.Schema<"a" | "b" | "c", "a" | "b" | "c"> = Schema.Literal(
+	"a",
+	"b",
+	"c",
+);
 ```
 
 ### `no-unsafe-type-assertion` — general code (non-API)
@@ -197,9 +207,11 @@ const data = response as UserData;
 
 // ✅ GOOD
 function isUserData(value: unknown): value is UserData {
-  return typeof value === "object" && value !== null && "id" in value;
+	return typeof value === "object" && value !== null && "id" in value;
 }
-if (!isUserData(response)) { throw new Error("Invalid data"); }
+if (!isUserData(response)) {
+	throw new Error("Invalid data");
+}
 const data = response;
 ```
 
@@ -207,10 +219,12 @@ const data = response;
 
 ```typescript
 // ❌ BAD — implicit truthiness
-if (nullableString) { }
+if (nullableString) {
+}
 
 // ✅ GOOD — explicit check
-if (nullableString !== null && nullableString !== undefined) { }
+if (nullableString !== null && nullableString !== undefined) {
+}
 ```
 
 ### `exactOptionalPropertyTypes`
@@ -248,13 +262,19 @@ onClick={() => { setLoading(true); }}
 ```typescript
 // ❌ BAD — inner function recreated on every call
 function parent() {
-  function helper() { return true; }
-  return helper;
+	function helper() {
+		return true;
+	}
+	return helper;
 }
 
 // ✅ GOOD — move to module scope
-function helper() { return true; }
-function parent() { return helper; }
+function helper() {
+	return true;
+}
+function parent() {
+	return helper;
+}
 ```
 
 ---
@@ -298,13 +318,13 @@ Every `useEffect` call must be preceded by a comment explaining its purpose:
 ```typescript
 // ❌ BAD
 useEffect(() => {
-  void fetchData();
+	void fetchData();
 }, [fetchData]);
 
 // ✅ GOOD
 // Fetch data on mount and re-fetch when the location changes.
 useEffect(() => {
-  void fetchData();
+	void fetchData();
 }, [fetchData]);
 ```
 
@@ -326,15 +346,15 @@ import type { Song } from "@/shared/generated/database.types";
 
 ```typescript
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function isString(value: unknown): value is string {
-  return typeof value === "string";
+	return typeof value === "string";
 }
 
 function isSupabaseResult(value: unknown): value is { data: unknown; error: unknown } {
-  return isRecord(value) && "data" in value && "error" in value;
+	return isRecord(value) && "data" in value && "error" in value;
 }
 ```
 
@@ -342,23 +362,23 @@ function isSupabaseResult(value: unknown): value is { data: unknown; error: unkn
 
 ## Quick Reference Table
 
-| Rule | ❌ Wrong | ✅ Right |
-|------|----------|----------|
-| `id-length` | `const q = ...` | `const searchQuery = ...` |
-| `no-unsafe-type-assertion` (API) | `request as Record<...>` | `decodeUnknownSyncOrThrow(schema, request)` |
-| `no-unsafe-assignment` / `no-unsafe-call` | `(client as any).from(...)` | Typed `if/else` chain per table |
-| Duplicate Supabase branch endings | `if (result.error) {...}` in every branch | Throw inside `try`; one `catch` |
-| `SupabaseFromLike` optional chain | `.select().order(...)` | `callSelect(..., { order: ... })` |
-| `no-magic-numbers` | `limit <= 0` | `const MIN = 1; limit < MIN` |
-| `no-negated-condition` | `x !== undefined ? a : b` | `x === undefined ? b : a` |
-| `prefer-number-properties` | `parseInt(x, 10)` | `Number.parseInt(x, 10)` |
-| `consistent-type-imports` | `import Foo from "..."` (type only) | `import type Foo from "..."` |
-| `curly` | `if (x) throw err;` | `if (x) { throw err; }` |
-| `isolatedDeclarations` | `export const s = Schema.Literal(...)` | `export const s: Schema.Schema<...> = ...` |
-| `no-array-sort` | `.sort()` | `.toSorted()` |
-| `catch-error-name` | `catch (err)` | `catch (error)` |
-| `require-useeffect-comment` | bare `useEffect(...)` | comment above `useEffect(...)` |
-| `no-null` | `JSON.stringify(x, null, 2)` | avoid `null` literals |
+| Rule                                      | ❌ Wrong                                  | ✅ Right                                    |
+| ----------------------------------------- | ----------------------------------------- | ------------------------------------------- |
+| `id-length`                               | `const q = ...`                           | `const searchQuery = ...`                   |
+| `no-unsafe-type-assertion` (API)          | `request as Record<...>`                  | `decodeUnknownSyncOrThrow(schema, request)` |
+| `no-unsafe-assignment` / `no-unsafe-call` | `(client as any).from(...)`               | Typed `if/else` chain per table             |
+| Duplicate Supabase branch endings         | `if (result.error) {...}` in every branch | Throw inside `try`; one `catch`             |
+| `SupabaseFromLike` optional chain         | `.select().order(...)`                    | `callSelect(..., { order: ... })`           |
+| `no-magic-numbers`                        | `limit <= 0`                              | `const MIN = 1; limit < MIN`                |
+| `no-negated-condition`                    | `x !== undefined ? a : b`                 | `x === undefined ? b : a`                   |
+| `prefer-number-properties`                | `parseInt(x, 10)`                         | `Number.parseInt(x, 10)`                    |
+| `consistent-type-imports`                 | `import Foo from "..."` (type only)       | `import type Foo from "..."`                |
+| `curly`                                   | `if (x) throw err;`                       | `if (x) { throw err; }`                     |
+| `isolatedDeclarations`                    | `export const s = Schema.Literal(...)`    | `export const s: Schema.Schema<...> = ...`  |
+| `no-array-sort`                           | `.sort()`                                 | `.toSorted()`                               |
+| `catch-error-name`                        | `catch (err)`                             | `catch (error)`                             |
+| `require-useeffect-comment`               | bare `useEffect(...)`                     | comment above `useEffect(...)`              |
+| `no-null`                                 | `JSON.stringify(x, null, 2)`              | avoid `null` literals                       |
 
 ---
 

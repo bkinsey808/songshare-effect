@@ -22,13 +22,7 @@ export const tagSlugSchema: Schema.Schema<string, string> = Schema.String.pipe(
 export const tagItemTypeSchema: Schema.Schema<
 	"song" | "playlist" | "event" | "community" | "image",
 	"song" | "playlist" | "event" | "community" | "image"
-> = Schema.Literal(
-	"song",
-	"playlist",
-	"event",
-	"community",
-	"image",
-);
+> = Schema.Literal("song", "playlist", "event", "community", "image");
 
 /**
  * Schema for adding a tag to an item (POST /api/tags/add-to-item).

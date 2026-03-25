@@ -31,7 +31,10 @@ export function parseRunWithEnvArgs(args: readonly string[]): RunWithEnvArgs {
 			...envNames.map((name) => `config/env-secrets.${name}.list`),
 			...collectFlagValues(optArgs, "--secrets"),
 		],
-		services: [...envNames.map((name) => `songshare-${name}`), ...collectFlagValues(optArgs, "--service")],
+		services: [
+			...envNames.map((name) => `songshare-${name}`),
+			...collectFlagValues(optArgs, "--service"),
+		],
 	};
 }
 

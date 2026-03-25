@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
-import formatAppDate from "@/shared/utils/formatAppDate";
+import formatAppDate from "@/shared/utils/date/formatAppDate";
 
 import type { EventLibraryEntry, RemoveEventFromLibraryRequest } from "../event-library-types";
 

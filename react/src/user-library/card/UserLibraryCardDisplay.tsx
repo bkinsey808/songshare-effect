@@ -5,7 +5,7 @@ import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { userViewPath } from "@/shared/paths";
-import formatAppDate from "@/shared/utils/formatAppDate";
+import formatAppDate from "@/shared/utils/date/formatAppDate";
 
 import type { UserLibraryEntry } from "../slice/user-library-types";
 

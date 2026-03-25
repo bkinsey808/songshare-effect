@@ -7,9 +7,7 @@ import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import getTagItemOwner from "../getTagItemOwner";
-import extractAddTagToItemRequest, {
-	type AddTagToItemRequest,
-} from "./extractAddTagToItemRequest";
+import extractAddTagToItemRequest, { type AddTagToItemRequest } from "./extractAddTagToItemRequest";
 
 /**
  * Server-side handler for adding a tag to an item.
@@ -66,7 +64,9 @@ export default function addTagToItem(
 					const result = await client
 						.from("tag")
 						.upsert({ tag_slug: req.tag_slug }, { onConflict: "tag_slug", ignoreDuplicates: true });
-					if (result.error) { throw result.error; }
+					if (result.error) {
+						throw result.error;
+					}
 				},
 				catch: (error: unknown) =>
 					new DatabaseError({ message: extractErrorMessage(error, "Failed to upsert tag") }),
@@ -84,7 +84,9 @@ export default function addTagToItem(
 								{ song_id: req.item_id, tag_slug: req.tag_slug },
 								{ onConflict: "song_id,tag_slug", ignoreDuplicates: true },
 							);
-						if (result.error) { throw result.error; }
+						if (result.error) {
+							throw result.error;
+						}
 					},
 					catch: (error: unknown) =>
 						new DatabaseError({ message: extractErrorMessage(error, "Failed to tag item") }),
@@ -100,7 +102,9 @@ export default function addTagToItem(
 								{ playlist_id: req.item_id, tag_slug: req.tag_slug },
 								{ onConflict: "playlist_id,tag_slug", ignoreDuplicates: true },
 							);
-						if (result.error) { throw result.error; }
+						if (result.error) {
+							throw result.error;
+						}
 					},
 					catch: (error: unknown) =>
 						new DatabaseError({ message: extractErrorMessage(error, "Failed to tag item") }),
@@ -116,7 +120,9 @@ export default function addTagToItem(
 								{ event_id: req.item_id, tag_slug: req.tag_slug },
 								{ onConflict: "event_id,tag_slug", ignoreDuplicates: true },
 							);
-						if (result.error) { throw result.error; }
+						if (result.error) {
+							throw result.error;
+						}
 					},
 					catch: (error: unknown) =>
 						new DatabaseError({ message: extractErrorMessage(error, "Failed to tag item") }),
@@ -132,7 +138,9 @@ export default function addTagToItem(
 								{ community_id: req.item_id, tag_slug: req.tag_slug },
 								{ onConflict: "community_id,tag_slug", ignoreDuplicates: true },
 							);
-						if (result.error) { throw result.error; }
+						if (result.error) {
+							throw result.error;
+						}
 					},
 					catch: (error: unknown) =>
 						new DatabaseError({ message: extractErrorMessage(error, "Failed to tag item") }),
@@ -149,7 +157,9 @@ export default function addTagToItem(
 								{ image_id: req.item_id, tag_slug: req.tag_slug },
 								{ onConflict: "image_id,tag_slug", ignoreDuplicates: true },
 							);
-						if (result.error) { throw result.error; }
+						if (result.error) {
+							throw result.error;
+						}
 					},
 					catch: (error: unknown) =>
 						new DatabaseError({ message: extractErrorMessage(error, "Failed to tag item") }),

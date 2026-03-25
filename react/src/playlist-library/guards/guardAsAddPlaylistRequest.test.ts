@@ -26,8 +26,8 @@ describe("guardAsAddPlaylistRequest", () => {
 	});
 
 	it("throws for non-string fields", () => {
-		expect(() =>
-			guardAsAddPlaylistRequest({ playlist_id: 123 }, "test"),
-		).toThrow("test: missing or invalid playlist_id");
+		expect(() => guardAsAddPlaylistRequest({ playlist_id: 123 }, "test")).toThrow(
+			"test: missing or invalid playlist_id",
+		);
 	});
 });

@@ -32,23 +32,23 @@ Full patterns with examples live in **[docs/lint-quick-reference.md](../../../do
 
 Deep links by topic:
 
-| Error | Doc section |
-|-------|------------|
-| `no-unsafe-type-assertion` in API handlers | [→ API Handler Patterns](../../../docs/lint-quick-reference.md#no-unsafe-type-assertion--request-validation) |
-| `no-unsafe-assignment` / dynamic Supabase tables | [→ Dynamic Tables](../../../docs/lint-quick-reference.md#no-unsafe-assignment--no-unsafe-call--no-unsafe-member-access--dynamic-supabase-tables) |
-| "All if-else branches same code" (Supabase) | [→ Supabase Error Check](../../../docs/lint-quick-reference.md#all-if-else-branches-contain-same-code--supabase-error-check) |
-| `SupabaseFromLike` optional method chain | [→ Use callSelect](../../../docs/lint-quick-reference.md#supabasefromlike-optional-method-chain--use-callselect) |
-| `id-length` | [→ id-length](../../../docs/lint-quick-reference.md#id-length--variable-names-too-short) |
-| `no-magic-numbers` | [→ no-magic-numbers](../../../docs/lint-quick-reference.md#no-magic-numbers) |
-| `no-negated-condition` | [→ no-negated-condition](../../../docs/lint-quick-reference.md#no-negated-condition) |
-| `prefer-number-properties` | [→ prefer-number-properties](../../../docs/lint-quick-reference.md#prefer-number-properties) |
-| `curly` | [→ curly](../../../docs/lint-quick-reference.md#curly--always-use-braces) |
-| `consistent-type-imports` | [→ type imports](../../../docs/lint-quick-reference.md#consistent-type-imports--type-only-imports) |
-| `--isolatedDeclarations` | [→ isolatedDeclarations](../../../docs/lint-quick-reference.md#--isolateddeclarations--explicit-type-annotations-on-exports) |
-| `unicorn/no-array-sort` | [→ toSorted](../../../docs/lint-quick-reference.md#unicornno-array-sort--use-tosorted) |
-| `unicorn/catch-error-name` | [→ catch name](../../../docs/lint-quick-reference.md#unicorncatch-error-name--name-catch-parameter-error) |
-| `require-useeffect-comment` | [→ useEffect comment](../../../docs/lint-quick-reference.md#require-useeffect-comment--comment-before-useeffect) |
-| `strict-boolean-expressions` / `exactOptionalPropertyTypes` | [→ General TS Rules](../../../docs/lint-quick-reference.md#general-typescript--eslint-rules) |
+| Error                                                       | Doc section                                                                                                                                      |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `no-unsafe-type-assertion` in API handlers                  | [→ API Handler Patterns](../../../docs/lint-quick-reference.md#no-unsafe-type-assertion--request-validation)                                     |
+| `no-unsafe-assignment` / dynamic Supabase tables            | [→ Dynamic Tables](../../../docs/lint-quick-reference.md#no-unsafe-assignment--no-unsafe-call--no-unsafe-member-access--dynamic-supabase-tables) |
+| "All if-else branches same code" (Supabase)                 | [→ Supabase Error Check](../../../docs/lint-quick-reference.md#all-if-else-branches-contain-same-code--supabase-error-check)                     |
+| `SupabaseFromLike` optional method chain                    | [→ Use callSelect](../../../docs/lint-quick-reference.md#supabasefromlike-optional-method-chain--use-callselect)                                 |
+| `id-length`                                                 | [→ id-length](../../../docs/lint-quick-reference.md#id-length--variable-names-too-short)                                                         |
+| `no-magic-numbers`                                          | [→ no-magic-numbers](../../../docs/lint-quick-reference.md#no-magic-numbers)                                                                     |
+| `no-negated-condition`                                      | [→ no-negated-condition](../../../docs/lint-quick-reference.md#no-negated-condition)                                                             |
+| `prefer-number-properties`                                  | [→ prefer-number-properties](../../../docs/lint-quick-reference.md#prefer-number-properties)                                                     |
+| `curly`                                                     | [→ curly](../../../docs/lint-quick-reference.md#curly--always-use-braces)                                                                        |
+| `consistent-type-imports`                                   | [→ type imports](../../../docs/lint-quick-reference.md#consistent-type-imports--type-only-imports)                                               |
+| `--isolatedDeclarations`                                    | [→ isolatedDeclarations](../../../docs/lint-quick-reference.md#--isolateddeclarations--explicit-type-annotations-on-exports)                     |
+| `unicorn/no-array-sort`                                     | [→ toSorted](../../../docs/lint-quick-reference.md#unicornno-array-sort--use-tosorted)                                                           |
+| `unicorn/catch-error-name`                                  | [→ catch name](../../../docs/lint-quick-reference.md#unicorncatch-error-name--name-catch-parameter-error)                                        |
+| `require-useeffect-comment`                                 | [→ useEffect comment](../../../docs/lint-quick-reference.md#require-useeffect-comment--comment-before-useeffect)                                 |
+| `strict-boolean-expressions` / `exactOptionalPropertyTypes` | [→ General TS Rules](../../../docs/lint-quick-reference.md#general-typescript--eslint-rules)                                                     |
 
 ---
 

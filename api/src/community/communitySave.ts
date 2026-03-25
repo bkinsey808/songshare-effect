@@ -250,32 +250,23 @@ export default function communitySave(
 				Effect.tryPromise({
 					try: async () => {
 						if (validSlugs.length > ZERO) {
-							await supabase
-								.from("tag")
-								.upsert(
-									validSlugs.map((slug) => ({ tag_slug: slug })),
-									{ onConflict: "tag_slug", ignoreDuplicates: true },
-								);
+							await supabase.from("tag").upsert(
+								validSlugs.map((slug) => ({ tag_slug: slug })),
+								{ onConflict: "tag_slug", ignoreDuplicates: true },
+							);
 						}
-						await supabase
-							.from("community_tag")
-							.delete()
-							.eq("community_id", communityId);
+						await supabase.from("community_tag").delete().eq("community_id", communityId);
 						if (validSlugs.length > ZERO) {
-							await supabase
-								.from("community_tag")
-								.insert(
-									validSlugs.map((slug) => ({
-										community_id: communityId,
-										tag_slug: slug,
-									})),
-								);
-							await supabase
-								.from("tag_library")
-								.upsert(
-									validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
-									{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
-								);
+							await supabase.from("community_tag").insert(
+								validSlugs.map((slug) => ({
+									community_id: communityId,
+									tag_slug: slug,
+								})),
+							);
+							await supabase.from("tag_library").upsert(
+								validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
+								{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
+							);
 						}
 					},
 					catch: () => new DatabaseError({ message: "Failed to save tags" }),
@@ -332,7 +323,7 @@ export default function communitySave(
 							{
 								user_id: userId,
 								community_id: communityId,
-									},
+							},
 						]),
 					catch: (err) =>
 						new DatabaseError({

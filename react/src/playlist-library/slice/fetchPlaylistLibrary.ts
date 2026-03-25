@@ -128,19 +128,27 @@ export default function fetchPlaylistLibrary(
 				const playlistName = guardAsString(playlist["playlist_name"]);
 				const playlistSlug = guardAsString(playlist["playlist_slug"]);
 				const userId = typeof playlist["user_id"] === "string" ? playlist["user_id"] : undefined;
-				return [maybeId, { playlist_name: playlistName, playlist_slug: playlistSlug, user_id: userId }] as [
+				return [
+					maybeId,
+					{ playlist_name: playlistName, playlist_slug: playlistSlug, user_id: userId },
+				] as [
 					string,
 					{ playlist_name: string; playlist_slug: string; user_id: string | undefined },
 				];
 			})
 			.filter(
-				(entry): entry is [string, { playlist_name: string; playlist_slug: string; user_id: string | undefined }] =>
-					entry !== undefined,
+				(
+					entry,
+				): entry is [
+					string,
+					{ playlist_name: string; playlist_slug: string; user_id: string | undefined },
+				] => entry !== undefined,
 			);
 
-		const playlistMap = new Map<string, { playlist_name: string; playlist_slug: string; user_id: string | undefined }>(
-			playlistMapEntries,
-		);
+		const playlistMap = new Map<
+			string,
+			{ playlist_name: string; playlist_slug: string; user_id: string | undefined }
+		>(playlistMapEntries);
 
 		// Fetch owner usernames
 		const ownerIds = [

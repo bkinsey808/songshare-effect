@@ -11,13 +11,14 @@ import {
 
 describe("sessionStorageKeys", () => {
 	it.each([
-		["displayedKey", displayedKey, "alertDisplayed"],
-		["typeKey", typeKey, "alertType"],
-		["justDeletedAccountKey", justDeletedAccountKey, "justDeletedAccount"],
-		["justSignedOutKey", justSignedOutKey, "justSignedOut"],
-		["justRegisteredKey", justRegisteredKey, "justRegistered"],
-		["justUnauthorizedAccessKey", justUnauthorizedAccessKey, "justUnauthorizedAccess"],
-	] as const)("exports %s as %s", (_name, actual, expected) => {
+		[displayedKey, "alertDisplayed"],
+		[typeKey, "alertType"],
+		[justDeletedAccountKey, "justDeletedAccount"],
+		[justSignedOutKey, "justSignedOut"],
+		[justRegisteredKey, "justRegistered"],
+		[justUnauthorizedAccessKey, "justUnauthorizedAccess"],
+	] as const)("exports %s as %s", (actual, expected) => {
+		// Assert
 		expect(actual).toBe(expected);
 	});
 });

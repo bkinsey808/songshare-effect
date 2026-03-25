@@ -1,8 +1,8 @@
 import { Effect } from "effect";
 
 import type { Slide } from "@/react/song/song-form/song-form-types";
-import toStringArray from "@/shared/type-guards/toStringArray";
 import { safeSet } from "@/shared/utils/safe";
+import toStringArray from "@/shared/utils/toStringArray";
 
 type CreateFormSubmitHandlerParams<FormData> = {
 	readonly songId: string | undefined;
@@ -18,8 +18,20 @@ type CreateFormSubmitHandlerParams<FormData> = {
 };
 
 /**
- * Creates a form submit handler that collects form data from both DOM and React state.
- * Handles form submission with data collection from FormData and controlled state values.
+ * Creates a form submit handler that collects form data from both the DOM
+ * `FormData` and controlled React state, then invokes the provided
+ * `handleSubmit`/`onSubmit` pipeline.
+ *
+ * @param params - configuration object for the submit handler
+ * @param params.songId - optional song id to include when editing
+ * @param params.fields - list of field keys to include
+ * @param params.slideOrder - ordered list of slide ids
+ * @param params.slides - map of slide id to `Slide` objects
+ * @param params.tags - optional list of tag strings
+ * @param params.handleSubmit - wrapper that executes the actual submit logic and returns an Effect
+ * @param params.onSubmit - user-provided callback invoked with the final form data
+ * @returns A function that accepts an `HTMLFormElement | null` and returns a `Promise<void>` which
+ * resolves after `handleSubmit` completes (or logs an error on failure).
  */
 export default function createFormSubmitHandler<FormData>({
 	songId,

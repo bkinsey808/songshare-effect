@@ -40,8 +40,6 @@ describe("fetchTagEffect", () => {
 	it("wraps non-Error thrown values in an Error", async () => {
 		vi.stubGlobal("fetch", vi.fn().mockRejectedValue("timeout"));
 
-		await expect(
-			Effect.runPromise(fetchTagEffect("/api/tags/get", {})),
-		).rejects.toThrow(/timeout/);
+		await expect(Effect.runPromise(fetchTagEffect("/api/tags/get", {}))).rejects.toThrow(/timeout/);
 	});
 });

@@ -1,6 +1,7 @@
 # Deploying
 
 This project deploys as two Cloudflare components:
+
 - **Frontend** — React/Vite app on Cloudflare Pages
 - **API** — Hono Worker on Cloudflare Workers, handling all `/api/*` routes
 

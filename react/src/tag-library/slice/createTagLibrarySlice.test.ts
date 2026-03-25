@@ -104,8 +104,12 @@ describe("createTagLibrarySlice", () => {
 
 		it("replaces previous counts", () => {
 			const { slice, getState } = makeSlice();
-			slice.setTagLibraryCounts({ rock: { song: 1, playlist: 0, event: 0, community: 0, image: 0 } });
-			slice.setTagLibraryCounts({ jazz: { song: 2, playlist: 0, event: 0, community: 0, image: 0 } });
+			slice.setTagLibraryCounts({
+				rock: { song: 1, playlist: 0, event: 0, community: 0, image: 0 },
+			});
+			slice.setTagLibraryCounts({
+				jazz: { song: 2, playlist: 0, event: 0, community: 0, image: 0 },
+			});
 			expect(getState()["tagLibraryCounts"]).toStrictEqual({
 				jazz: { song: 2, playlist: 0, event: 0, community: 0, image: 0 },
 			});
@@ -116,7 +120,9 @@ describe("createTagLibrarySlice", () => {
 		it("adds a new entry keyed by tag_slug", () => {
 			const { slice, getState } = makeSlice();
 			slice.addTagLibraryEntry({ user_id: "u1", tag_slug: "jazz" });
-			expect(forceCast<Record<string, TagLibraryEntry>>(getState()["tagLibraryEntries"])["jazz"]).toStrictEqual({
+			expect(
+				forceCast<Record<string, TagLibraryEntry>>(getState()["tagLibraryEntries"])["jazz"],
+			).toStrictEqual({
 				user_id: "u1",
 				tag_slug: "jazz",
 			});
@@ -135,7 +141,9 @@ describe("createTagLibrarySlice", () => {
 			const { slice, getState } = makeSlice();
 			slice.addTagLibraryEntry({ user_id: "u1", tag_slug: "rock" });
 			slice.addTagLibraryEntry({ user_id: "u2", tag_slug: "rock" });
-			expect(forceCast<Record<string, TagLibraryEntry>>(getState()["tagLibraryEntries"])["rock"]).toStrictEqual({
+			expect(
+				forceCast<Record<string, TagLibraryEntry>>(getState()["tagLibraryEntries"])["rock"],
+			).toStrictEqual({
 				user_id: "u2",
 				tag_slug: "rock",
 			});
@@ -159,7 +167,9 @@ describe("createTagLibrarySlice", () => {
 			const { slice, getState } = makeSlice();
 			slice.setTagLibraryEntries({ jazz: { user_id: "u1", tag_slug: "jazz" } });
 			slice.removeTagLibraryEntry("nonexistent");
-			expect(Object.keys(forceCast<Record<string, TagLibraryEntry>>(getState()["tagLibraryEntries"]))).toHaveLength(SINGLE_ENTRY_COUNT);
+			expect(
+				Object.keys(forceCast<Record<string, TagLibraryEntry>>(getState()["tagLibraryEntries"])),
+			).toHaveLength(SINGLE_ENTRY_COUNT);
 		});
 	});
 
@@ -259,7 +269,11 @@ describe("createTagLibrarySlice", () => {
 			let unsubscribeCalled = false;
 			const { slice, setRawState } = makeSlice();
 
-			setRawState({ tagLibraryUnsubscribe: (): void => { unsubscribeCalled = true; } });
+			setRawState({
+				tagLibraryUnsubscribe: (): void => {
+					unsubscribeCalled = true;
+				},
+			});
 
 			slice.setTagLibraryEntries({ rock: { user_id: "u1", tag_slug: "rock" } });
 			slice.setTagLibraryLoading(true);

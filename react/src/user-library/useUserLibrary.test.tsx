@@ -24,9 +24,9 @@ describe("useUserLibrary", () => {
 	 * @param children - children to wrap
 	 * @returns the children wrapped in a Router
 	 */
-	 function RouterWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
-	 	return React.createElement(MemoryRouter, undefined, children);
-	 }
+	function RouterWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
+		return React.createElement(MemoryRouter, undefined, children);
+	}
 
 	it("calls fetchUserLibrary and subscribes/unsubscribes", async () => {
 		const fetchUserLibrary = vi.fn().mockReturnValue(Effect.sync(() => undefined));
@@ -155,9 +155,9 @@ describe("useUserLibrary", () => {
 		 * @param children - children to wrap
 		 * @returns the children wrapped in StrictMode
 		 */
-		 function StrictWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
-		 	return React.createElement(React.StrictMode, undefined, children);
-		 }
+		function StrictWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
+			return React.createElement(React.StrictMode, undefined, children);
+		}
 
 		let unmountHook: (() => void) | undefined = undefined;
 		try {

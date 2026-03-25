@@ -158,13 +158,13 @@ preview_bucket_name = "songshare-images-preview"
 
 ## Summary of changes
 
-| File / Location                  | Change                                               |
-| -------------------------------- | ---------------------------------------------------- |
-| `api/wrangler.toml`              | Add `[[r2_buckets]]` block with `binding = "BUCKET"` |
-| `api/wrangler.staging.toml`      | Add the same `[[r2_buckets]]` block                  |
-| `songshare-dev` keyring          | `STORAGE_BACKEND=r2`, `VITE_STORAGE_BACKEND=r2`     |
-| `songshare-staging` keyring      | `STORAGE_BACKEND=r2`, `VITE_STORAGE_BACKEND=r2`     |
-| `songshare-production` keyring   | `STORAGE_BACKEND=r2`, `VITE_STORAGE_BACKEND=r2`     |
+| File / Location                | Change                                               |
+| ------------------------------ | ---------------------------------------------------- |
+| `api/wrangler.toml`            | Add `[[r2_buckets]]` block with `binding = "BUCKET"` |
+| `api/wrangler.staging.toml`    | Add the same `[[r2_buckets]]` block                  |
+| `songshare-dev` keyring        | `STORAGE_BACKEND=r2`, `VITE_STORAGE_BACKEND=r2`      |
+| `songshare-staging` keyring    | `STORAGE_BACKEND=r2`, `VITE_STORAGE_BACKEND=r2`      |
+| `songshare-production` keyring | `STORAGE_BACKEND=r2`, `VITE_STORAGE_BACKEND=r2`      |
 
 ---
 

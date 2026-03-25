@@ -104,9 +104,7 @@ describe("playlistSave handler", () => {
 		mockCreateSupabaseClient(vi.mocked(createClient), {
 			playlistInsertRows: [{ playlist_id: uuid, user_id: SAMPLE_USER_ID, private_notes: "" }],
 			playlistPublicInsertRows: [publicRow],
-			playlistLibraryInsertRows: [
-				{ user_id: SAMPLE_USER_ID, playlist_id: uuid },
-			],
+			playlistLibraryInsertRows: [{ user_id: SAMPLE_USER_ID, playlist_id: uuid }],
 		});
 
 		const res = await Effect.runPromise(playlistSaveHandler(ctx));

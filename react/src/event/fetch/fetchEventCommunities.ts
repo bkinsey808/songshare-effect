@@ -87,7 +87,11 @@ export default function fetchEventCommunities(
 				community_slug: string;
 			}> = yield* $(
 				Effect.tryPromise<
-					PostgrestResponse<{ community_id: string; community_name: string; community_slug: string }>,
+					PostgrestResponse<{
+						community_id: string;
+						community_name: string;
+						community_slug: string;
+					}>,
 					Error
 				>({
 					try: () =>

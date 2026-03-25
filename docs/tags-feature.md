@@ -20,15 +20,15 @@ Tags are global, kebab-cased slugs (e.g. `indie-rock`, `worship-2024`) that can 
 
 Seven tables underpin the feature:
 
-| Table | Purpose |
-|---|---|
-| `tag` | Global tag registry. A row is created (upserted) on first use of a slug. |
-| `song_tag` | Junction: song ↔ tag |
-| `playlist_tag` | Junction: playlist ↔ tag |
-| `event_tag` | Junction: event ↔ tag |
-| `community_tag` | Junction: community ↔ tag |
-| `image_tag` | Junction: image ↔ tag |
-| `tag_library` | Per-user bookmark list of tags (`user_id`, `tag_slug`) |
+| Table           | Purpose                                                                  |
+| --------------- | ------------------------------------------------------------------------ |
+| `tag`           | Global tag registry. A row is created (upserted) on first use of a slug. |
+| `song_tag`      | Junction: song ↔ tag                                                     |
+| `playlist_tag`  | Junction: playlist ↔ tag                                                 |
+| `event_tag`     | Junction: event ↔ tag                                                    |
+| `community_tag` | Junction: community ↔ tag                                                |
+| `image_tag`     | Junction: image ↔ tag                                                    |
+| `tag_library`   | Per-user bookmark list of tags (`user_id`, `tag_slug`)                   |
 
 All junction tables cascade-delete when the parent item or tag is deleted. RLS allows any authenticated user to read; only the item owner can insert/delete junction rows. `tag_library` rows are private to each user.
 
@@ -38,13 +38,13 @@ Migration: `supabase/migrations/20260320000000_create_tag_tables.sql`
 
 ## API Endpoints
 
-| Method | Path | Purpose |
-|---|---|---|
-| `POST` | `/api/tags/add-to-item` | Upsert tag into `tag`, insert into `*_tag`. Auth: item owner only. |
-| `POST` | `/api/tags/remove-from-item` | Delete from `*_tag`. Auth: item owner only. |
-| `GET` | `/api/tags/search?q=` | Search the caller's own `tag_library` by slug substring. Used for autocomplete. |
-| `POST` | `/api/tag-library/add` | Add a tag slug to the user's tag library. |
-| `POST` | `/api/tag-library/remove` | Remove a tag slug from the user's tag library. |
+| Method | Path                         | Purpose                                                                         |
+| ------ | ---------------------------- | ------------------------------------------------------------------------------- |
+| `POST` | `/api/tags/add-to-item`      | Upsert tag into `tag`, insert into `*_tag`. Auth: item owner only.              |
+| `POST` | `/api/tags/remove-from-item` | Delete from `*_tag`. Auth: item owner only.                                     |
+| `GET`  | `/api/tags/search?q=`        | Search the caller's own `tag_library` by slug substring. Used for autocomplete. |
+| `POST` | `/api/tag-library/add`       | Add a tag slug to the user's tag library.                                       |
+| `POST` | `/api/tag-library/remove`    | Remove a tag slug from the user's tag library.                                  |
 
 ---
 
@@ -79,6 +79,7 @@ react/src/lib/design-system/icons/
 ### Edit pages
 
 Each edit form (song, playlist, event, community, image) uses `useItemTags(itemType, itemId)` to load and save tags. The hook:
+
 1. Fetches existing tags from the `*_tag` table on mount
 2. Tracks the original snapshot in a ref
 3. Exposes `saveTags(itemId)` which diffs original vs. current and fires the add/remove API calls
@@ -97,10 +98,10 @@ The `tag-library` slice lives in the global app store and mirrors the `song-libr
 
 ## Routes
 
-| Path | Component |
-|---|---|
-| `/en/dashboard/tag-library` | `TagLibraryPage` |
-| `/en/dashboard/tag/:tag_slug` | `TagViewPage` |
+| Path                          | Component        |
+| ----------------------------- | ---------------- |
+| `/en/dashboard/tag-library`   | `TagLibraryPage` |
+| `/en/dashboard/tag/:tag_slug` | `TagViewPage`    |
 
 Navigation entry is in `NavigationLinksCard` (`data-testid="navigation-tag-library"`).
 

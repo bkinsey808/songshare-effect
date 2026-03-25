@@ -163,9 +163,7 @@ export default function PlaylistForm(): ReactElement {
 
 					{/* Tags */}
 					<div>
-						<p className="mb-2 text-sm font-medium text-white">
-							{t("playlistEdit.tags", "Tags")}
-						</p>
+						<p className="mb-2 text-sm font-medium text-white">{t("playlistEdit.tags", "Tags")}</p>
 						<TagInput value={tags} onChange={setTags} />
 					</div>
 

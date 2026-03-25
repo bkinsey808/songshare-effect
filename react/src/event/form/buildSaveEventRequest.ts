@@ -1,4 +1,4 @@
-import { clientLocalDateToUtcTimestamp } from "@/shared/utils/formatEventDate";
+import { clientLocalDateToUtcTimestamp } from "@/shared/utils/date/formatEventDate";
 
 import type { EventFormValues, SaveEventRequest } from "../event-types";
 

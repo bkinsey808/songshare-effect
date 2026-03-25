@@ -12,8 +12,6 @@ export type RemoveTagLibraryRequest = {
  * @returns Validated `RemoveTagLibraryRequest`.
  * @throws Schema `ParseError` when required fields are missing or invalid.
  */
-export default function extractRemoveTagLibraryRequest(
-	request: unknown,
-): RemoveTagLibraryRequest {
+export default function extractRemoveTagLibraryRequest(request: unknown): RemoveTagLibraryRequest {
 	return decodeUnknownSyncOrThrow(tagLibraryRemoveSchema, request);
 }

@@ -23,6 +23,7 @@ describe("paths", () => {
 		["apiOauthSignInPath", apiOauthSignInPath],
 		["deleteAccountPath", deleteAccountPath],
 	] as const)("exports %s as non-empty string", (_name, value) => {
+		// Assert
 		expect(value).toBeDefined();
 		expect(typeof value).toBe("string");
 		expect(value.length).toBeGreaterThan(ZERO);

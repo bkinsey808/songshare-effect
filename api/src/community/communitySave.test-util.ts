@@ -120,12 +120,12 @@ export default function makeCommunitySaveClient(
 				};
 			}
 			if (table === "community_library") {
-			return {
-				insert: (): Promise<{ error: ReturnType<typeof makeNull> }> =>
-					promiseResolved({ error: makeNull() }),
-			};
-		}
-		if (table === "community_public") {
+				return {
+					insert: (): Promise<{ error: ReturnType<typeof makeNull> }> =>
+						promiseResolved({ error: makeNull() }),
+				};
+			}
+			if (table === "community_public") {
 				return {
 					select: (): object => ({
 						eq: (): object => ({

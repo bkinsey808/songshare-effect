@@ -10,6 +10,7 @@ describe("shared-constants", () => {
 		["THREE", THREE],
 		["NOT_FOUND", NOT_FOUND],
 	] as const)("exports %s", (_name, value) => {
+		// Assert
 		expect(value).toBeDefined();
 		expect(typeof value).toBe("number");
 	});

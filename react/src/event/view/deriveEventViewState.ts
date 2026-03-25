@@ -5,7 +5,7 @@ import {
 	type ParticipantStatus,
 } from "@/react/event/participant-status/participantStatusMachine";
 import { songFields, type SongPublic } from "@/react/song/song-schema";
-import { utcTimestampToClientLocalDate } from "@/shared/utils/formatEventDate";
+import { utcTimestampToClientLocalDate } from "@/shared/utils/date/formatEventDate";
 
 const ZERO = 0;
 const FIRST_POSITION = 1;
