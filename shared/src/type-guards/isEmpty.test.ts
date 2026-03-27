@@ -9,16 +9,16 @@ const ZERO_NUMBER = 0;
 
 describe("isEmpty", () => {
 	const truthyCases = [
-		[undefined],
-		[""],
-		["   \t\n"],
-		[[]],
-		[new Map()],
-		[new Set()],
-		[{}],
+		{ name: "undefined", value: undefined },
+		{ name: "empty string", value: "" },
+		{ name: "whitespace string", value: "   \t\n" },
+		{ name: "empty array", value: [] },
+		{ name: "empty map", value: new Map() },
+		{ name: "empty set", value: new Set() },
+		{ name: "empty object", value: {} },
 	] as const;
 
-	it.each(truthyCases)("isEmpty(%o) => true", (value: unknown) => {
+	it.each(truthyCases)("isEmpty: $name => true", ({ value }: { value: unknown }) => {
 		// Act
 		const got = isEmpty(value);
 
@@ -26,9 +26,15 @@ describe("isEmpty", () => {
 		expect(got).toBe(true);
 	});
 
-	const falsyCases = [["hello"], [TEST_ARRAY], [{ foo: "bar" }], [ZERO_NUMBER], [false]] as const;
+	const falsyCases = [
+		{ name: "non-empty string", value: "hello" },
+		{ name: "array with items", value: TEST_ARRAY },
+		{ name: "object with prop", value: { foo: "bar" } },
+		{ name: "zero number", value: ZERO_NUMBER },
+		{ name: "false boolean", value: false },
+	] as const;
 
-	it.each(falsyCases)("isEmpty(%o) => false", (value: unknown) => {
+	it.each(falsyCases)("isEmpty: $name => false", ({ value }: { value: unknown }) => {
 		// Act
 		const got = isEmpty(value);
 

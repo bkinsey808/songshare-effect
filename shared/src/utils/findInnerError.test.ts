@@ -4,9 +4,13 @@ import findInnerError from "./findInnerError";
 
 describe("findInnerError", () => {
 	const NUMBER_VAL = 1;
-	const undefinedCases: [unknown][] = [["str"], [NUMBER_VAL], [undefined]];
+	const undefinedCases = [
+		{ name: "string input", input: "str" },
+		{ name: "number input", input: NUMBER_VAL },
+		{ name: "undefined input", input: undefined },
+	];
 
-	it.each(undefinedCases)("returns undefined for %s", (input) => {
+	it.each(undefinedCases)("returns undefined for $name", ({ input }) => {
 		// Act
 		const got = findInnerError(input);
 

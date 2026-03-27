@@ -36,7 +36,12 @@ describe("clientLocalDateToUtcTimestamp", () => {
 		"2026/01/01 14",
 	];
 
-	it.each(invalidLocalInputs)("clientLocalDateToUtcTimestamp(%p) => undefined", (input) => {
+	const invalidLocalCases = invalidLocalInputs.map((input, idx) => ({
+		name: `invalid-local-${idx}`,
+		input,
+	}));
+
+	it.each(invalidLocalCases)("clientLocalDateToUtcTimestamp($name) => undefined", ({ input }) => {
 		// Act
 		const got = clientLocalDateToUtcTimestamp(input);
 
@@ -65,7 +70,12 @@ describe("utcTimestampToClientLocalDate", () => {
 		"not-a-date",
 	];
 
-	it.each(invalidUtcInputs)("utcTimestampToClientLocalDate(%p) => empty string", (input) => {
+	const invalidUtcCases = invalidUtcInputs.map((input, idx) => ({
+		name: `invalid-utc-${idx}`,
+		input,
+	}));
+
+	it.each(invalidUtcCases)("utcTimestampToClientLocalDate($name) => empty string", ({ input }) => {
 		// Act
 		const got = utcTimestampToClientLocalDate(input);
 

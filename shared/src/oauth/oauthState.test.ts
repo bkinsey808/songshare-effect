@@ -5,6 +5,7 @@ import { parseOauthState } from "./oauthState";
 describe("oauthState", () => {
 	describe("parseOauthState", () => {
 		it("decodes valid encoded oauth state", () => {
+			// Act
 			const state = {
 				csrf: "csrf-token-123",
 				lang: "en",
@@ -12,12 +13,14 @@ describe("oauthState", () => {
 			};
 			const encoded = encodeURIComponent(JSON.stringify(state));
 			const result = parseOauthState(encoded);
+			// Assert
 			expect(result.csrf).toBe(state.csrf);
 			expect(result.lang).toBe(state.lang);
 			expect(result.provider).toBe(state.provider);
 		});
 
 		it("decodes state with optional redirect fields", () => {
+			// Act
 			const state = {
 				csrf: "x",
 				lang: "en",
@@ -27,16 +30,20 @@ describe("oauthState", () => {
 			};
 			const encoded = encodeURIComponent(JSON.stringify(state));
 			const result = parseOauthState(encoded);
+			// Assert
 			expect(result.redirect_port).toBe("5173");
 			expect(result.redirect_origin).toBe("https://localhost:5173");
 		});
 
 		it("throws for invalid JSON", () => {
+			// Assert
 			expect(() => parseOauthState("not-valid-json")).toThrow(/JSON|SyntaxError/i);
 		});
 
 		it("throws for invalid schema (missing required fields)", () => {
+			// Act
 			const invalid = encodeURIComponent(JSON.stringify({ csrf: "x" }));
+			// Assert
 			expect(() => parseOauthState(invalid)).toThrow(
 				/decode|parse|required|invalid|lang|provider/i,
 			);

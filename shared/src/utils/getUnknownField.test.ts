@@ -3,33 +3,62 @@ import { describe, expect, it } from "vitest";
 import getUnknownField from "./getUnknownField";
 
 describe("getUnknownField", () => {
-	it("returns value of existing field", () => {
+	const FORTY_TWO = Number("42");
+	const sampleObj = { string: "foo", number: FORTY_TWO, boolean: true, object: { nested: true } };
+
+	const presentFieldCases = [
+		{ name: "string field", obj: sampleObj, key: "string", expected: "foo" },
+		{ name: "number field", obj: sampleObj, key: "number", expected: FORTY_TWO },
+		{ name: "boolean field", obj: sampleObj, key: "boolean", expected: true },
+		{ name: "object field", obj: sampleObj, key: "object", expected: { nested: true } },
+	];
+
+	it.each(presentFieldCases)(
+		"returns value for $name",
+		({ obj, key, expected }: { obj: unknown; key: string; expected: unknown }) => {
+			// Arrange: inputs provided by the case row
+			const inputObj = obj;
+			const inputKey = key;
+
+			// Act
+			const got = getUnknownField(inputObj, inputKey);
+
+			// Assert
+			expect(got).toStrictEqual(expected);
+		},
+	);
+
+	const missingFieldCases = [{ name: "non-existent field", obj: { foo: "bar" }, key: "baz" }];
+
+	it.each(missingFieldCases)(
+		"returns undefined for $name",
+		({ obj, key }: { obj: unknown; key: string }) => {
+			// Arrange
+			const inputObj = obj;
+			const inputKey = key;
+
+			// Act
+			const got = getUnknownField(inputObj, inputKey);
+
+			// Assert
+			expect(got).toBeUndefined();
+		},
+	);
+
+	const nonObjectCases = [
+		{ name: "string input", value: "not an object" },
+		{ name: "undefined input", value: undefined },
+		{ name: "number input", value: FORTY_TWO },
+	];
+
+	it.each(nonObjectCases)("returns undefined for $name", ({ value }: { value: unknown }) => {
 		// Arrange
-		const FORTY_TWO = Number("42");
-		const obj = { string: "foo", number: FORTY_TWO, boolean: true, object: { nested: true } };
+		const inputValue = value;
 
-		// Act & Assert
-		expect(getUnknownField(obj, "string")).toBe("foo");
-		expect(getUnknownField(obj, "number")).toBe(FORTY_TWO);
-		expect(getUnknownField(obj, "boolean")).toBe(true);
-		expect(getUnknownField(obj, "object")).toStrictEqual({ nested: true });
-	});
+		// Act
+		const got = getUnknownField(inputValue, "foo");
 
-	it("returns undefined for non-existent field", () => {
-		// Arrange
-		const obj = { foo: "bar" };
-
-		// Act & Assert
-		expect(getUnknownField(obj, "baz")).toBeUndefined();
-	});
-
-	it("returns undefined for non-object", () => {
-		// Arrange
-		const FORTY_TWO = Number("42");
-
-		// Act & Assert
-		expect(getUnknownField("not an object", "foo")).toBeUndefined();
-		expect(getUnknownField(undefined, "foo")).toBeUndefined();
-		expect(getUnknownField(FORTY_TWO, "foo")).toBeUndefined();
+		// Assert
+		expect(got).toBeUndefined();
 	});
 });

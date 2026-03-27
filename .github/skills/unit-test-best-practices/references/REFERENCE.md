@@ -20,10 +20,10 @@ This file contains more detailed guidance, patterns, and edge-cases for unit tes
 
 ```bash
 # Run a single test file
-.github/skills/unit-testing/scripts/run-unit-tests.sh path/to/foo.test.ts
+.github/skills/unit-test-best-practices/scripts/run-unit-tests.sh path/to/foo.test.ts
 
 # Run the full check (lints + types + all unit tests)
-.github/skills/unit-testing/scripts/run-unit-tests.sh
+.github/skills/unit-test-best-practices/scripts/run-unit-tests.sh
 ```
 
 ## Edge cases

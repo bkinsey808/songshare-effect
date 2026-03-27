@@ -1,11 +1,9 @@
 ---
 name: deployment-strategies
 description: Core Cloudflare Pages/Workers deployment workflow, environment variable configuration, and secrets management. Use when deploying code, configuring environments, or managing secrets.
-compatibility: Cloudflare Pages, Cloudflare Workers, Node.js 20+
-metadata:
-  author: bkinsey808
-  version: "1.1"
 ---
+
+**Requires:** file-read, terminal (Wrangler/Cloudflare CLI). No network access needed.
 
 # Deployment Strategies Skill
 
@@ -134,14 +132,14 @@ Local development secrets go in `.env` files (gitignored).
 
 ## Sub-Skills
 
-- [Cache management + GitHub Actions CI/CD](../cloudflare-cache-cicd/SKILL.md)
-- [Rollback, monitoring, troubleshooting](../deployment-operations/SKILL.md)
+- [Cache management + GitHub Actions CI/CD](/.github/skills/cloudflare-cache-cicd/SKILL.md)
+- [Rollback, monitoring, troubleshooting](/.github/skills/deployment-operations/SKILL.md)
 
 ## References
 
-- [docs/DEPLOY.md](../../../docs/DEPLOY.md)
-- [docs/cache-management.md](../../../docs/cache-management.md)
-- [docs/github-actions-workflows.md](../../../docs/github-actions-workflows.md)
+- [docs/DEPLOY.md](/docs/DEPLOY.md)
+- [docs/cache-management.md](/docs/cache-management.md)
+- [docs/github-actions-workflows.md](/docs/github-actions-workflows.md)
 
 ## Do Not
 

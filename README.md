@@ -173,11 +173,11 @@ The API is built with **Effect-TS** for functional programming, providing:
 
 See documentation:
 
-- [SHARED_CODE_GUIDE.md](./docs/SHARED_CODE_GUIDE.md) - Shared code structure
-- [EFFECT_IMPLEMENTATION.md](./docs/EFFECT_IMPLEMENTATION.md) - Effect-TS implementation details
-- [SUPABASE_EFFECT_SCHEMAS.md](./docs/SUPABASE_EFFECT_SCHEMAS.md) - Database schema integration
-- [AUTHENTICATION_SYSTEM.md](./docs/AUTHENTICATION_SYSTEM.md) - Complete authentication guide
-- [GITHUB_ACTIONS_WORKFLOWS.md](./docs/github-actions-workflows.md) - CI workflows, Playwright e2e, and debugging with the GitHub Actions extension
+- [SHARED_CODE_GUIDE.md](/docs/SHARED_CODE_GUIDE.md) - Shared code structure
+- [EFFECT_IMPLEMENTATION.md](/docs/EFFECT_IMPLEMENTATION.md) - Effect-TS implementation details
+- [SUPABASE_EFFECT_SCHEMAS.md](/docs/SUPABASE_EFFECT_SCHEMAS.md) - Database schema integration
+- [AUTHENTICATION_SYSTEM.md](/docs/AUTHENTICATION_SYSTEM.md) - Complete authentication guide
+- [GITHUB_ACTIONS_WORKFLOWS.md](/docs/github-actions-workflows.md) - CI workflows, Playwright e2e, and debugging with the GitHub Actions extension
 
 ## API Endpoints
 

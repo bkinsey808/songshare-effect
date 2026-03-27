@@ -13,16 +13,18 @@ import {
 } from "./paths";
 
 describe("paths", () => {
-	it.each([
-		["aboutPath", aboutPath],
-		["dashboardPath", dashboardPath],
-		["songViewPath", songViewPath],
-		["playlistViewPath", playlistViewPath],
-		["eventViewPath", eventViewPath],
-		["userViewPath", userViewPath],
-		["apiOauthSignInPath", apiOauthSignInPath],
-		["deleteAccountPath", deleteAccountPath],
-	] as const)("exports %s as non-empty string", (_name, value) => {
+	const exportCases = [
+		{ name: "aboutPath", value: aboutPath },
+		{ name: "dashboardPath", value: dashboardPath },
+		{ name: "songViewPath", value: songViewPath },
+		{ name: "playlistViewPath", value: playlistViewPath },
+		{ name: "eventViewPath", value: eventViewPath },
+		{ name: "userViewPath", value: userViewPath },
+		{ name: "apiOauthSignInPath", value: apiOauthSignInPath },
+		{ name: "deleteAccountPath", value: deleteAccountPath },
+	];
+
+	it.each(exportCases)("exports $name as non-empty string", ({ value }) => {
 		// Assert
 		expect(value).toBeDefined();
 		expect(typeof value).toBe("string");

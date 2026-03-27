@@ -9,30 +9,39 @@ const LENGTH_ONE = 1;
 
 describe("register", () => {
 	describe("register form schema", () => {
-		it.each([
-			["alice", "valid 5-char"],
-			["user123", "valid with digits"],
-			["a_b-c", "valid with underscore and hyphen"],
-			["abc", "valid min length"],
-			["a".repeat(USERNAME_MAX_LENGTH), "valid max length"],
-		] as const)("decodes valid username: %s", (username, _description) => {
+		const validUsernames = [
+			{ name: "valid 5-char", username: "alice" },
+			{ name: "valid with digits", username: "user123" },
+			{ name: "valid with underscore and hyphen", username: "a_b-c" },
+			{ name: "valid min length", username: "abc" },
+			{ name: "valid max length", username: "a".repeat(USERNAME_MAX_LENGTH) },
+		] as const;
+
+		it.each(validUsernames)("decodes valid username: $name", ({ username }) => {
+			// Act
 			const decoded = Schema.decodeSync(RegisterFormSchema)({ username });
+			// Assert
 			expect(decoded.username).toBe(username);
 		});
 
-		it.each([
-			["ab", "too short"],
-			["", "empty"],
-			["a".repeat(OVER_MAX_LENGTH), "too long"],
-			["user@mail", "invalid chars"],
-			["space in", "invalid chars"],
-		] as const)("rejects invalid username: %s", (username, _description) => {
+		const invalidUsernames = [
+			{ name: "too short", username: "ab" },
+			{ name: "empty", username: "" },
+			{ name: "too long", username: "a".repeat(OVER_MAX_LENGTH) },
+			{ name: "invalid chars - at symbol", username: "user@mail" },
+			{ name: "invalid chars - space", username: "space in" },
+		] as const;
+
+		it.each(invalidUsernames)("rejects invalid username: $name", ({ username }) => {
+			// Act
 			const result = Schema.decodeUnknownEither(RegisterFormSchema)({ username });
+			// Assert
 			expect(result._tag).toBe("Left");
 		});
 	});
 
 	it("register form fields contains username", () => {
+		// Assert
 		expect(RegisterFormFields).toContain("username");
 		expect(RegisterFormFields).toHaveLength(LENGTH_ONE);
 	});

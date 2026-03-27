@@ -8,11 +8,11 @@ const THIRD_NUM = 3;
 
 describe("isStringArray", () => {
 	const truthyCases = [
-		[["a", "b"], true],
-		[[], true],
+		{ name: "string array", value: ["a", "b"], expected: true },
+		{ name: "empty array", value: [], expected: true },
 	] as const;
 
-	it.each(truthyCases)("returns true for %o", (value, expected) => {
+	it.each(truthyCases)("returns true for $name", ({ value, expected }) => {
 		// Act
 		const result = isStringArray(value);
 
@@ -21,11 +21,11 @@ describe("isStringArray", () => {
 	});
 
 	const falsyCases = [
-		["not an array", false],
-		[[FIRST_NUM, SECOND_NUM, THIRD_NUM], false],
+		{ name: "non-array", value: "not an array", expected: false },
+		{ name: "number array", value: [FIRST_NUM, SECOND_NUM, THIRD_NUM], expected: false },
 	] as const;
 
-	it.each(falsyCases)("returns false for %o", (value, expected) => {
+	it.each(falsyCases)("returns false for $name", ({ value, expected }) => {
 		// Act
 		const result = isStringArray(value);
 

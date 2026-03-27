@@ -1,11 +1,9 @@
 ---
 name: file-organization
 description: File organization, naming conventions, and import patterns (no barrel files, direct imports, kebab-case docs, ESM config). Use when creating new files, modules, refactoring imports, or setting up directory structures.
-compatibility: Node.js 20+, TypeScript 5.x, ESM modules
-metadata:
-  author: bkinsey808
-  version: "1.1"
 ---
+
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
 # File Organization Skill
 
@@ -193,10 +191,10 @@ npm run lint
 
 ## References
 
-- Reference guide: [references/REFERENCE.md](references/REFERENCE.md)
-- Project rules: [.agent/rules.md](../../../.agent/rules.md)
-- TypeScript conventions: [../typescript-conventions/SKILL.md](../typescript-conventions/SKILL.md)
-- Source refactoring: [../source-refactoring/SKILL.md](../source-refactoring/SKILL.md)
+- Reference guide: [references/REFERENCE.md](/.github/skills/file-organization/references/REFERENCE.md)
+- Project rules: [.agent/rules.md](/.agent/rules.md)
+- TypeScript conventions: [../typescript-conventions/SKILL.md](/.github/skills/typescript-conventions/SKILL.md)
+- Source refactoring: [../source-refactoring/SKILL.md](/.github/skills/source-refactoring/SKILL.md)
 
 ## Do Not
 

@@ -13,6 +13,7 @@ type CollectedItem = { msg: unknown; field: string };
 
 describe("createTraverseIssue", () => {
 	it("invokes onFound when Refinement issue has i18n annotations", () => {
+		// Arrange
 		const collected: CollectedItem[] = [];
 		const traverse = createTraverseIssue(I18N_KEY, (msg, field) => {
 			collected.push({ msg, field });
@@ -26,13 +27,16 @@ describe("createTraverseIssue", () => {
 			ast: { annotations },
 		};
 
+		// Act
 		traverse(issue);
 
+		// Assert
 		expect(collected).toHaveLength(LENGTH_ONE);
 		expect(collected[FIRST_INDEX]).toStrictEqual({ msg, field: "" });
 	});
 
 	it("appends Pointer path to field name", () => {
+		// Arrange
 		const collected: CollectedItem[] = [];
 		const traverse = createTraverseIssue(I18N_KEY, (msg, field) => {
 			collected.push({ msg, field });
@@ -50,13 +54,16 @@ describe("createTraverseIssue", () => {
 			},
 		};
 
+		// Act
 		traverse(issue);
 
+		// Assert
 		expect(collected).toHaveLength(LENGTH_ONE);
 		expect(collected.at(FIRST_INDEX)?.field).toBe("email");
 	});
 
 	it("traverses all Composite sub-issues", () => {
+		// Arrange
 		const collected: CollectedItem[] = [];
 		const traverse = createTraverseIssue(I18N_KEY, (msg, field) => {
 			collected.push({ msg, field });
@@ -72,20 +79,26 @@ describe("createTraverseIssue", () => {
 			],
 		};
 
+		// Act
 		traverse(issue);
 
+		// Assert
 		expect(collected).toHaveLength(LENGTH_TWO);
 		expect(collected.at(FIRST_INDEX)?.field).toBe("");
 		expect(collected.at(SECOND_INDEX)?.field).toBe("");
 	});
 
 	it("ignores non-record issue", () => {
+		// Arrange
 		const collected: unknown[] = [];
 		const traverse = createTraverseIssue(I18N_KEY, (msg) => {
 			collected.push(msg);
 		});
 
+		// Act
 		traverse("string");
+
+		// Assert
 		expect(collected).toHaveLength(LENGTH_ZERO);
 	});
 });

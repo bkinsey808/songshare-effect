@@ -16,18 +16,20 @@ import {
 import { ZERO } from "./shared-constants";
 
 describe("http constants", () => {
-	it.each([
-		["HTTP_TEMP_REDIRECT", HTTP_TEMP_REDIRECT],
-		["HTTP_NOT_FOUND", HTTP_NOT_FOUND],
-		["HTTP_UNAUTHORIZED", HTTP_UNAUTHORIZED],
-		["HTTP_BAD_REQUEST", HTTP_BAD_REQUEST],
-		["HTTP_FORBIDDEN", HTTP_FORBIDDEN],
-		["HTTP_OK", HTTP_OK],
-		["HTTP_REDIRECT_LOWER", HTTP_REDIRECT_LOWER],
-		["HTTP_REDIRECT_UPPER", HTTP_REDIRECT_UPPER],
-		["MS_PER_SECOND", MS_PER_SECOND],
-		["ONE_HOUR_SECONDS", ONE_HOUR_SECONDS],
-	] as const)("exports %s as number", (_name, value) => {
+	const numericExportCases = [
+		{ name: "HTTP_TEMP_REDIRECT", value: HTTP_TEMP_REDIRECT },
+		{ name: "HTTP_NOT_FOUND", value: HTTP_NOT_FOUND },
+		{ name: "HTTP_UNAUTHORIZED", value: HTTP_UNAUTHORIZED },
+		{ name: "HTTP_BAD_REQUEST", value: HTTP_BAD_REQUEST },
+		{ name: "HTTP_FORBIDDEN", value: HTTP_FORBIDDEN },
+		{ name: "HTTP_OK", value: HTTP_OK },
+		{ name: "HTTP_REDIRECT_LOWER", value: HTTP_REDIRECT_LOWER },
+		{ name: "HTTP_REDIRECT_UPPER", value: HTTP_REDIRECT_UPPER },
+		{ name: "MS_PER_SECOND", value: MS_PER_SECOND },
+		{ name: "ONE_HOUR_SECONDS", value: ONE_HOUR_SECONDS },
+	];
+
+	it.each(numericExportCases)("exports $name as number", ({ value }) => {
 		// Assert
 		expect(value).toBeDefined();
 		expect(typeof value).toBe("number");

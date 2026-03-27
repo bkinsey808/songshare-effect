@@ -7,9 +7,12 @@ import isString from "./isString";
 const NUM_PRIMITIVE = 42;
 
 describe("isString", () => {
-	const truthyCases = [[""], ["hello"]] as const;
+	const truthyCases = [
+		{ name: "empty string", value: "" },
+		{ name: "hello string", value: "hello" },
+	] as const;
 
-	it.each(truthyCases)("returns true for %s", (value) => {
+	it.each(truthyCases)("returns true for $name", ({ value }) => {
 		// Act
 		const result = isString(value as unknown);
 
@@ -17,9 +20,16 @@ describe("isString", () => {
 		expect(result).toBe(true);
 	});
 
-	const falsyCases = [[makeNull()], [undefined], [NUM_PRIMITIVE], [true], [{}], [[]]] as const;
+	const falsyCases = [
+		{ name: "null-like", value: makeNull() },
+		{ name: "undefined", value: undefined },
+		{ name: "number", value: NUM_PRIMITIVE },
+		{ name: "boolean true", value: true },
+		{ name: "object", value: {} },
+		{ name: "array", value: [] },
+	] as const;
 
-	it.each(falsyCases)("returns false for %o", (value) => {
+	it.each(falsyCases)("returns false for $name", ({ value }) => {
 		// Act
 		const result = isString(value as unknown);
 

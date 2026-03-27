@@ -1,11 +1,9 @@
 ---
 name: internationalization
 description: i18n patterns for this project — useLocale/useLanguage/useCurrentLang hooks, URL-based language routing, adding translation keys, SupportedLanguageType. Use when adding UI text, building localized links, or working with language switching.
-compatibility: react-i18next 13.x, i18next 23.x, React Router 6.x
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
 # Internationalization Skill
 
@@ -139,8 +137,8 @@ const lang = getCurrentLangFromPath("/zz/foo"); // → "en" (falls back to defau
 ## References
 
 - Supported languages: `@/shared/language/supported-languages`
-- Full i18n documentation: [docs/internationalization-system.md](../../../docs/internationalization-system.md)
-- React conventions: [../react-conventions/SKILL.md](../react-conventions/SKILL.md)
+- Full i18n documentation: [docs/internationalization-system.md](/docs/internationalization-system.md)
+- React conventions: [../react-conventions/SKILL.md](/.github/skills/react-conventions/SKILL.md)
 
 ## Success Criteria
 

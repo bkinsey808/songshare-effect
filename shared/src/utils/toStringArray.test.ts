@@ -5,24 +5,25 @@ import toStringArray from "./toStringArray";
 const FIRST_NUM = 1;
 
 describe("toStringArray", () => {
-	it("converts array items to strings", () => {
-		// Arrange
-		const input = [FIRST_NUM, true, "a"] as const;
+	const cases = [
+		{
+			name: "converts items",
+			input: [FIRST_NUM, true, "a"] as const,
+			expected: ["1", "true", "a"],
+		},
+		{ name: "non-array input", input: "nope" as unknown, expected: [] },
+	];
 
-		// Act
-		const result = toStringArray(input);
+	it.each(cases)(
+		"$name",
+		({ input, expected }: { input: unknown; expected: readonly string[] }) => {
+			// Act
+			const got = toStringArray(input);
 
-		// Assert
-		expect(result).toStrictEqual(["1", "true", "a"]);
-	});
-
-	it("returns empty array for non-arrays", () => {
-		// Act
-		const result = toStringArray("nope");
-
-		// Assert
-		expect(result).toStrictEqual([]);
-	});
+			// Assert
+			expect(got).toStrictEqual(expected);
+		},
+	);
 
 	it("produces a mutable string array and coerces values from readonly input", () => {
 		// Arrange

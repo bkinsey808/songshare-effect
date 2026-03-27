@@ -447,8 +447,8 @@ npm run dev
 
 ### Get Help
 
-1. Check [documentation](file:///home/bkinsey/bkinsey808/songshare-effect/docs/)
-2. Review [`.agent/workflows/`](file:///home/bkinsey/bkinsey808/songshare-effect/.agent/workflows/) for common tasks
+1. Check [documentation](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/docs)
+2. Review [`.agent/workflows/`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/workflows) for common tasks
 3. Search [GitHub issues](https://github.com/bkinsey808/songshare-effect/issues)
 4. Check Cloudflare/Supabase status pages
 

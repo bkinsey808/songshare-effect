@@ -408,7 +408,7 @@ test.describe.each([{ authenticated: true }, { authenticated: false }])(
 
 ## Related Documentation
 
-- [Authentication System](../docs/authentication-system.md) - How auth works in the app
-- [Login Flow](../docs/login-flow.md) - OAuth flow details
-- [Staging DB E2E Guide](../docs/testing/e2e-staging-db.md) - Real sessions, two-user sharing tests
+- [Authentication System](/docs/authentication-system.md) - How auth works in the app
+- [Login Flow](/docs/login-flow.md) - OAuth flow details
+- [Staging DB E2E Guide](/docs/testing/e2e-staging-db.md) - Real sessions, two-user sharing tests
 - [Playwright Documentation](https://playwright.dev/docs/intro) - Playwright basics

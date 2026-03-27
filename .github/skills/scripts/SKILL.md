@@ -1,11 +1,9 @@
 ---
 name: scripts
 description: Conventions for repository scripts (naming, execution, linting, testing).
-compatibility: Bun, Node.js 20+, TypeScript 5.x
-metadata:
-  author: bkinsey808
-  version: "1.1"
 ---
+
+**Requires:** file-read, terminal (Bun). No network access needed.
 
 # Scripts Skill
 
@@ -166,4 +164,4 @@ Before submitting a PR run:
 ## Skill Handoffs
 
 - If script files are being decomposed into smaller modules, also load `file-splitting`.
-- If script tests are being added/updated, also load `unit-testing`.
+- If script tests are being added/updated, also load `unit-test-best-practices`.

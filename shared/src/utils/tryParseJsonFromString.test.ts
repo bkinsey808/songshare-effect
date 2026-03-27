@@ -4,13 +4,17 @@ import tryParseJsonFromString from "./tryParseJsonFromString";
 
 describe("tryParseJsonFromString", () => {
 	// Arrange - parsed inputs table
-	const parsedCases: [string, unknown][] = [
-		['  {"first":1}  ', { first: 1 }],
-		['error: {"second":"x"} (details)', { second: "x" }],
-		['info => {"outer":{"inner":2}} <--', { outer: { inner: 2 } }],
+	const parsedCases = [
+		{ name: "trimmed object", input: '  {"first":1}  ', expected: { first: 1 } },
+		{ name: "embedded json", input: 'error: {"second":"x"} (details)', expected: { second: "x" } },
+		{
+			name: "nested json",
+			input: 'info => {"outer":{"inner":2}} <--',
+			expected: { outer: { inner: 2 } },
+		},
 	];
 
-	it.each(parsedCases)("parses %s", (input, expected) => {
+	it.each(parsedCases)("$name returns parsed object", ({ input, expected }) => {
 		// Act
 		const got = tryParseJsonFromString(input);
 
@@ -18,9 +22,12 @@ describe("tryParseJsonFromString", () => {
 		expect(got).toStrictEqual(expected);
 	});
 
-	const undefinedCases: [string][] = [["no json here"], ["prefix {not:valid} suffix"]];
+	const undefinedCases = [
+		{ name: "no json", input: "no json here" },
+		{ name: "invalid braces", input: "prefix {not:valid} suffix" },
+	];
 
-	it.each(undefinedCases)("returns undefined for %s", (input) => {
+	it.each(undefinedCases)("$name returns undefined", ({ input }) => {
 		// Act
 		const got = tryParseJsonFromString(input);
 

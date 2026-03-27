@@ -10,14 +10,24 @@ import {
 } from "./sessionStorageKeys";
 
 describe("sessionStorageKeys", () => {
-	it.each([
-		[displayedKey, "alertDisplayed"],
-		[typeKey, "alertType"],
-		[justDeletedAccountKey, "justDeletedAccount"],
-		[justSignedOutKey, "justSignedOut"],
-		[justRegisteredKey, "justRegistered"],
-		[justUnauthorizedAccessKey, "justUnauthorizedAccess"],
-	] as const)("exports %s as %s", (actual, expected) => {
+	const keyCases = [
+		{ name: "displayedKey", actual: displayedKey, expected: "alertDisplayed" },
+		{ name: "typeKey", actual: typeKey, expected: "alertType" },
+		{
+			name: "justDeletedAccountKey",
+			actual: justDeletedAccountKey,
+			expected: "justDeletedAccount",
+		},
+		{ name: "justSignedOutKey", actual: justSignedOutKey, expected: "justSignedOut" },
+		{ name: "justRegisteredKey", actual: justRegisteredKey, expected: "justRegistered" },
+		{
+			name: "justUnauthorizedAccessKey",
+			actual: justUnauthorizedAccessKey,
+			expected: "justUnauthorizedAccess",
+		},
+	];
+
+	it.each(keyCases)("exports $name as expected value", ({ actual, expected }) => {
 		// Assert
 		expect(actual).toBe(expected);
 	});

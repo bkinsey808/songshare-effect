@@ -18,9 +18,13 @@ describe("isObject module shape diagnostics", () => {
 });
 
 describe("isObject behavior", () => {
-	const truthyCases = [[{ key: NUM_PRIMITIVE }], [[]], [new Date()]] as const;
+	const truthyCases = [
+		{ name: "plain object", value: { key: NUM_PRIMITIVE } },
+		{ name: "empty array instance", value: [] },
+		{ name: "date instance", value: new Date() },
+	] as const;
 
-	it.each(truthyCases)("returns true for %o", (value) => {
+	it.each(truthyCases)("returns true for $name", ({ value }) => {
 		// Act
 		const result = isObject(value);
 
@@ -28,9 +32,14 @@ describe("isObject behavior", () => {
 		expect(result).toBe(true);
 	});
 
-	const falsyCases = [[makeNull()], [NUM_PRIMITIVE], [fn], [undefined]] as const;
+	const falsyCases = [
+		{ name: "null-like", value: makeNull() },
+		{ name: "number primitive", value: NUM_PRIMITIVE },
+		{ name: "function", value: fn },
+		{ name: "undefined", value: undefined },
+	] as const;
 
-	it.each(falsyCases)("returns false for %o", (value) => {
+	it.each(falsyCases)("returns false for $name", ({ value }) => {
 		// Act
 		const result = isObject(value as unknown);
 

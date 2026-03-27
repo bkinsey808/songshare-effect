@@ -1,11 +1,9 @@
 ---
 name: effect-ts-patterns
 description: Effect-TS API patterns for Hono server (error handling, schema validation, service composition, dependency injection). Use when building API handlers, services, or working with structured error types.
-compatibility: Node.js 20+, Effect 3.x, Hono 4.x
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
 # Effect-TS Patterns Skill
 
@@ -251,7 +249,7 @@ const data =
 
 ## Deep Reference
 
-For detailed technical reference on Effect combinators, dependency injection, schema validation, and HTTP integration patterns, see [the reference guide](references/REFERENCE.md).
+For detailed technical reference on Effect combinators, dependency injection, schema validation, and HTTP integration patterns, see [the reference guide](/.github/skills/effect-ts-patterns/references/REFERENCE.md).
 
 ## Validation Commands
 
@@ -273,8 +271,8 @@ npm run build:api
 
 ## References
 
-- Reference guide: [references/REFERENCE.md](references/REFERENCE.md) - Detailed Effect patterns
-- Complete implementation guide: [docs/effect-implementation.md](../../../docs/effect-implementation.md)
+- Reference guide: [references/REFERENCE.md](/.github/skills/effect-ts-patterns/references/REFERENCE.md) - Detailed Effect patterns
+- Complete implementation guide: [docs/effect-implementation.md](/docs/effect-implementation.md)
 - Effect documentation: https://effect.website/
 - Hono API integration: See `api/src/server.ts`
 - Error types: See `api/src/api-errors.ts`

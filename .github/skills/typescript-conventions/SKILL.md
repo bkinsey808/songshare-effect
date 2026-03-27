@@ -1,11 +1,9 @@
 ---
 name: typescript-conventions
 description: TypeScript conventions for this repo (strict typing, no `any`, JSDoc rules, exactOptionalPropertyTypes, ambient types). Use when authoring or editing any TypeScript or TSX file.
-compatibility: TypeScript 5.x, Node.js 20+
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
 # TypeScript Conventions Skill
 
@@ -229,9 +227,9 @@ npm run test:unit
 
 ## References
 
-- Complete project rules: [.agent/rules.md](../../../.agent/rules.md)
-- JSDoc conventions: [code-comments skill](../code-comments/SKILL.md)
-- React conventions: [react-conventions skill](../react-conventions/SKILL.md) (for React-specific typing patterns)
+- Complete project rules: [.agent/rules.md](/.agent/rules.md)
+- JSDoc conventions: [code-comments skill](/.github/skills/code-comments/SKILL.md)
+- React conventions: [react-conventions skill](/.github/skills/react-conventions/SKILL.md) (for React-specific typing patterns)
 - TypeScript handbook: [https://www.typescriptlang.org/docs/handbook/](https://www.typescriptlang.org/docs/handbook/)
 
 ## Do Not

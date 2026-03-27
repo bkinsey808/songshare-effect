@@ -393,6 +393,6 @@ npm run format                      # format with oxfmt
 
 ## Further Reading
 
-- [Linting and Formatting](./linting-and-formatting.md) — tools, config, workflows
-- [Strict TypeScript Patterns](./strict-typescript-patterns.md) — deeper type safety guidance
-- [Add API Endpoint workflow](../.agent/workflows/add-api-endpoint.md) — lint-safe API patterns
+- [Linting and Formatting](/docs/linting-and-formatting.md) — tools, config, workflows
+- [Strict TypeScript Patterns](/docs/strict-typescript-patterns.md) — deeper type safety guidance
+- [Add API Endpoint workflow](/.agent/workflows/add-api-endpoint.md) — lint-safe API patterns

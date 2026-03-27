@@ -19,15 +19,26 @@ describe("signinTokens exports", () => {
 	) as readonly SigninErrorTokenType[];
 	const invalidNumber = 123;
 
-	it("type guard accepts valid tokens", () => {
-		for (const t of allValues) {
-			expect(isSigninErrorToken(t)).toBe(true);
-		}
+	const VALID_ROWS = allValues.map((token) => ({ token }));
+	const INVALID_ROWS = [
+		{ value: "not-a-token" },
+		{ value: undefined },
+		{ value: invalidNumber as unknown },
+	];
+
+	it.each(VALID_ROWS)("accepts valid token $token", ({ token }) => {
+		// Act
+		const result = isSigninErrorToken(token);
+
+		// Assert
+		expect(result).toBe(true);
 	});
 
-	it("type guard rejects bad values", () => {
-		expect(isSigninErrorToken("not-a-token")).toBe(false);
-		expect(isSigninErrorToken(undefined)).toBe(false);
-		expect(isSigninErrorToken(invalidNumber as unknown)).toBe(false);
+	it.each(INVALID_ROWS)("rejects invalid value %#", ({ value }) => {
+		// Act
+		const result = isSigninErrorToken(value);
+
+		// Assert
+		expect(result).toBe(false);
 	});
 });

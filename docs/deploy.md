@@ -5,7 +5,7 @@ This project deploys as two Cloudflare components:
 - **Frontend** — React/Vite app on Cloudflare Pages
 - **API** — Hono Worker on Cloudflare Workers, handling all `/api/*` routes
 
-All secrets are managed via the OS keyring. See [env-vars-and-secrets.md](env-vars-and-secrets.md) for the full secrets setup.
+All secrets are managed via the OS keyring. See [env-vars-and-secrets.md](/docs/env-vars-and-secrets.md) for the full secrets setup.
 
 ---
 

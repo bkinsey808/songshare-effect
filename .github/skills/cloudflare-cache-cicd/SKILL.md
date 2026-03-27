@@ -1,11 +1,9 @@
 ---
 name: cloudflare-cache-cicd
 description: Cloudflare CDN cache management and GitHub Actions CI/CD workflows. Use when setting up or debugging CI/CD pipelines, handling cache invalidation, or troubleshooting workflow failures.
-compatibility: Cloudflare Pages, GitHub Actions
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read, terminal (Cloudflare/GitHub CLI). No network access needed.
 
 # Cloudflare Cache & CI/CD Skill
 
@@ -126,11 +124,11 @@ npm run test:e2e:dev   # interactive Playwright
 
 ## References
 
-- [docs/DEPLOY.md](../../../docs/DEPLOY.md)
-- [docs/cache-management.md](../../../docs/cache-management.md)
-- [docs/github-actions-workflows.md](../../../docs/github-actions-workflows.md)
-- Core deploy workflow: [deployment-strategies skill](../deployment-strategies/SKILL.md)
-- Rollback / monitoring: [deployment-operations skill](../deployment-operations/SKILL.md)
+- [docs/DEPLOY.md](/docs/DEPLOY.md)
+- [docs/cache-management.md](/docs/cache-management.md)
+- [docs/github-actions-workflows.md](/docs/github-actions-workflows.md)
+- Core deploy workflow: [deployment-strategies skill](/.github/skills/deployment-strategies/SKILL.md)
+- Rollback / monitoring: [deployment-operations skill](/.github/skills/deployment-operations/SKILL.md)
 
 ## Do Not
 

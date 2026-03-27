@@ -1,11 +1,9 @@
 ---
-name: unit-testing-hooks
-description: Complete guide for testing React hooks — renderHook, Documentation by Harness, installStore, fixtures, subscription patterns, lint/compiler traps, and pre-completion checklist. Read docs/unit-testing-hooks.md for the full reference.
-compatibility: Vitest 1.x, @testing-library/react 14+, React 18+, React Compiler
-metadata:
-  author: bkinsey808
-  version: "2.0"
+name: unit-test-hook-best-practices
+description: Complete guide for testing React hooks — renderHook, Documentation by Harness, installStore, fixtures, subscription patterns, lint/compiler traps, and pre-completion checklist. Read docs/unit-test-hook-best-practices.md for the full reference.
 ---
+
+**Requires:** file-read, terminal (test runner). No network access needed.
 
 # Unit Testing — React Hooks
 
@@ -38,9 +36,9 @@ Output requirements:
 
 ## References
 
-- Full hook testing guide: [docs/unit-testing-hooks.md](../../../docs/unit-testing-hooks.md)
-- General testing guide: [docs/unit-testing.md](../../../docs/unit-testing.md)
-- Non-hook tests: [../unit-testing/SKILL.md](../unit-testing/SKILL.md)
+- Full hook testing guide: [docs/unit-test-hook-best-practices.md](/docs/unit-test-hook-best-practices.md)
+- General testing guide: [docs/unit-test-best-practices.md](/docs/unit-test-best-practices.md)
+- Non-hook tests: [../unit-test-best-practices/SKILL.md](/.github/skills/unit-test-best-practices/SKILL.md)
 
 ## Validation
 
@@ -64,5 +62,5 @@ npm run test:unit
 
 ## Skill Handoffs
 
-- For non-hook tests in the same task, also load `unit-testing`.
+- For non-hook tests in the same task, also load `unit-test-best-practices`.
 - If hook behavior depends on routing or page components, also load `react-conventions`.

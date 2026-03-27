@@ -5,37 +5,30 @@ import isSupabaseClientLike from "./isSupabaseClientLike";
 const WRONG_FROM_VALUE = 123;
 
 describe("isSupabaseClientLike", () => {
-	it("returns true for objects with a `from` function", () => {
-		// Arrange
-		const client = {
-			from: (): { select: () => { in: () => { data: unknown[]; error: unknown } } } => ({
-				select: (): { in: () => { data: unknown[]; error: unknown } } => ({
-					in: (): { data: unknown[]; error: unknown } => ({ data: [], error: undefined }),
+	const truthyCases = [
+		{
+			name: "object with from function",
+			value: {
+				from: (): { select: () => { in: () => { data: unknown[]; error: unknown } } } => ({
+					select: (): { in: () => { data: unknown[]; error: unknown } } => ({
+						in: (): { data: unknown[]; error: unknown } => ({ data: [], error: undefined }),
+					}),
 				}),
-			}),
-		} as unknown;
+			} as unknown,
+		},
+	];
 
-		// Act
-		const result = isSupabaseClientLike(client);
-
-		// Assert
-		expect(result).toBe(true);
+	it.each(truthyCases)("returns true for $name", ({ value }: { value: unknown }) => {
+		expect(isSupabaseClientLike(value)).toBe(true);
 	});
 
-	it("returns false when `from` is missing or not a function", () => {
-		// Arrange
-		const missing = undefined;
-		const empty = {};
-		const wrongFrom = { from: WRONG_FROM_VALUE };
+	const falsyCases = [
+		{ name: "missing", value: undefined },
+		{ name: "empty object", value: {} },
+		{ name: "wrong from type", value: { from: WRONG_FROM_VALUE } as unknown },
+	];
 
-		// Act
-		const resMissing = isSupabaseClientLike(missing);
-		const resEmpty = isSupabaseClientLike(empty);
-		const resWrongFrom = isSupabaseClientLike(wrongFrom as unknown);
-
-		// Assert
-		expect(resMissing).toBe(false);
-		expect(resEmpty).toBe(false);
-		expect(resWrongFrom).toBe(false);
+	it.each(falsyCases)("returns false for $name", ({ value }: { value: unknown }) => {
+		expect(isSupabaseClientLike(value)).toBe(false);
 	});
 });

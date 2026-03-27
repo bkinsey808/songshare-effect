@@ -2,8 +2,8 @@
 
 This document captures comprehensive patterns and solutions for working with strict TypeScript configurations, particularly when dealing with external APIs, JSON parsing, and database clients.
 
-> **Quick Reference**: For common lint errors, see [lint-quick-reference.md](./lint-quick-reference.md)
-> **Cursor Rule**: For concise guidance, see [.cursor/rules/lint-resolution-agent.mdc](../.cursor/rules/lint-resolution-agent.mdc)
+> **Quick Reference**: For common lint errors, see [lint-quick-reference.md](/docs/lint-quick-reference.md)
+> **Cursor Rule**: For concise guidance, see [.cursor/rules/lint-resolution-agent.mdc](/.cursor/rules/lint-resolution-agent.mdc)
 
 ## Project Configuration Context
 

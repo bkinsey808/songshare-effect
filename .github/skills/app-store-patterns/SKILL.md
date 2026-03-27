@@ -1,11 +1,9 @@
 ---
 name: app-store-patterns
 description: Zustand app store architecture — slice pattern, createXxxSlice factories, AppSlice type, useAppStore selectors, getTypedState for non-React code. Use when adding state to the store, creating new slices, or reading/writing store state in components or hooks.
-compatibility: Zustand 4.x, React 18+, TypeScript 5.x
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
 # App Store Patterns Skill
 
@@ -204,9 +202,9 @@ vi.mocked(useAppStore).mockImplementation((selector) =>
 
 ## References
 
-- Project rules: [.agent/rules.md](../../../.agent/rules.md)
-- Authentication slice example: [react/src/auth/slice/createAuthSlice.ts](../../../react/src/auth/slice/createAuthSlice.ts)
-- Unit testing mocking: [../unit-testing/SKILL.md](../unit-testing/SKILL.md)
+- Project rules: [.agent/rules.md](/.agent/rules.md)
+- Authentication slice example: [react/src/auth/slice/createAuthSlice.ts](/react/src/auth/slice/createAuthSlice.ts)
+- Unit testing mocking: [../unit-test-best-practices/SKILL.md](/.github/skills/unit-test-best-practices/SKILL.md)
 
 ## Do Not
 

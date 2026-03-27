@@ -1,11 +1,9 @@
 ---
 name: authentication-system
 description: Dual JWT authentication system (visitor + user tokens) with Supabase. Use when implementing auth flows, token management, client-side token selection/caching, or working with auth state in React components.
-compatibility: Supabase, Node.js 20+, React 18+
-metadata:
-  author: bkinsey808
-  version: "1.1"
 ---
+
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
 # Authentication System Skill
 
@@ -37,7 +35,7 @@ Covers SongShare's dual authentication architecture:
 - **In-memory token caching** — `react/src/lib/supabase/token/token-cache.ts`
 - **Automatic token selection** — `getSupabaseAuthToken` resolves the right token without hooks
 
-RLS policies and Realtime subscription patterns are in [realtime-rls-architecture skill](../realtime-rls-architecture/SKILL.md).
+RLS policies and Realtime subscription patterns are in [realtime-rls-architecture skill](/.github/skills/realtime-rls-architecture/SKILL.md).
 
 ## Common Scenarios
 
@@ -197,9 +195,9 @@ Check the token cache or fetch from the API directly instead.
 
 ## References
 
-- Full auth guide: [docs/authentication-system.md](../../../docs/authentication-system.md)
-- RLS policy templates: [realtime-rls-architecture skill](../realtime-rls-architecture/SKILL.md)
-- Realtime debugging: [realtime-rls-debugging skill](../realtime-rls-debugging/SKILL.md)
+- Full auth guide: [docs/authentication-system.md](/docs/authentication-system.md)
+- RLS policy templates: [realtime-rls-architecture skill](/.github/skills/realtime-rls-architecture/SKILL.md)
+- Realtime debugging: [realtime-rls-debugging skill](/.github/skills/realtime-rls-debugging/SKILL.md)
 
 ## Do Not
 

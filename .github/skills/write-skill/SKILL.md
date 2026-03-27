@@ -1,11 +1,9 @@
 ---
 name: write-skill
 description: How to write, update, or split skill files in this repo. Use when creating a new SKILL.md, updating an existing one, or deciding whether to put content in a skill vs. docs/.
-compatibility: Claude Code, agent workflows
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read. No terminal or network access needed.
 
 # Write Skill
 
@@ -33,10 +31,6 @@ Every skill needs these sections in order:
 ---
 name: <kebab-case-name>
 description: <one sentence — what this covers and when to use it>
-compatibility: <relevant versions>
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
 
 # <Title>

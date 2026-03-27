@@ -11,13 +11,17 @@ type ParseErrorArg = Parameters<typeof extractI18nMessages>[typeof FIRST_PARAM];
 
 describe("extractI18nMessages", () => {
 	it("returns empty record when error has no issue", () => {
-		expect(extractI18nMessages(forceCast<ParseErrorArg>({}), I18N_KEY)).toStrictEqual({});
-		expect(extractI18nMessages(forceCast<ParseErrorArg>({ other: "val" }), I18N_KEY)).toStrictEqual(
-			{},
-		);
+		// Act
+		const r1 = extractI18nMessages(forceCast<ParseErrorArg>({}), I18N_KEY);
+		const r2 = extractI18nMessages(forceCast<ParseErrorArg>({ other: "val" }), I18N_KEY);
+
+		// Assert
+		expect(r1).toStrictEqual({});
+		expect(r2).toStrictEqual({});
 	});
 
 	it("extracts i18n message from Refinement issue with annotations", () => {
+		// Arrange
 		const msg = { key: "errors.required", params: {} };
 		const annotations: Record<string, unknown> = { [I18N_KEY]: msg };
 		const error = {
@@ -27,12 +31,18 @@ describe("extractI18nMessages", () => {
 				ast: { annotations },
 			},
 		};
-		expect(extractI18nMessages(forceCast<ParseErrorArg>(error), I18N_KEY)).toStrictEqual({
+
+		// Act
+		const result = extractI18nMessages(forceCast<ParseErrorArg>(error), I18N_KEY);
+
+		// Assert
+		expect(result).toStrictEqual({
 			"": msg,
 		});
 	});
 
 	it("extracts from Pointer with nested Refinement and path", () => {
+		// Arrange
 		const msg = { key: "errors.email" };
 		const annotations: Record<string, unknown> = { [I18N_KEY]: msg };
 		const error = {
@@ -46,12 +56,18 @@ describe("extractI18nMessages", () => {
 				},
 			},
 		};
-		expect(extractI18nMessages(forceCast<ParseErrorArg>(error), I18N_KEY)).toStrictEqual({
+
+		// Act
+		const result = extractI18nMessages(forceCast<ParseErrorArg>(error), I18N_KEY);
+
+		// Assert
+		expect(result).toStrictEqual({
 			email: msg,
 		});
 	});
 
 	it("extracts from Composite with nested Refinement", () => {
+		// Arrange
 		const msg = { key: "errors.required" };
 		const annotations: Record<string, unknown> = { [I18N_KEY]: msg };
 		const error = {
@@ -66,13 +82,24 @@ describe("extractI18nMessages", () => {
 				],
 			},
 		};
-		expect(extractI18nMessages(forceCast<ParseErrorArg>(error), I18N_KEY)).toStrictEqual({
+
+		// Act
+		const result = extractI18nMessages(forceCast<ParseErrorArg>(error), I18N_KEY);
+
+		// Assert
+		expect(result).toStrictEqual({
 			"": msg,
 		});
 	});
 
 	it("ignores non-Record issue", () => {
+		// Arrange
 		const error = { issue: "string" };
-		expect(extractI18nMessages(forceCast<ParseErrorArg>(error), I18N_KEY)).toStrictEqual({});
+
+		// Act
+		const result = extractI18nMessages(forceCast<ParseErrorArg>(error), I18N_KEY);
+
+		// Assert
+		expect(result).toStrictEqual({});
 	});
 });

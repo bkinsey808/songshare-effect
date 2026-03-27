@@ -575,7 +575,7 @@ export function IconButton({ icon, label, onClick }) {
 
 ## Testing Patterns
 
-See [Add Component Workflow](file:///home/bkinsey/bkinsey808/songshare-effect/.agent/workflows/add-component.md) for testing examples.
+See [Add Component Workflow](/docs/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/workflows/add-component.md) for testing examples.
 
 ## Anti-Patterns to Avoid
 
@@ -683,7 +683,7 @@ Prefer `unknown` and runtime checks over `any` where possible.
 
 ## References
 
-- [Project Rules](file:///home/bkinsey/bkinsey808/songshare-effect/.agent/rules.md)
-- [Add Component Workflow](file:///home/bkinsey/bkinsey808/songshare-effect/.agent/workflows/add-component.md)
+- [Project Rules](/docs/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/rules.md)
+- [Add Component Workflow](/docs/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/workflows/add-component.md)
 - [React Documentation](https://react.dev/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/)

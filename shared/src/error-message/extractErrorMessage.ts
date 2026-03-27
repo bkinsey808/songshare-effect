@@ -1,24 +1,6 @@
 import isRecord from "@/shared/type-guards/isRecord";
 
 /**
- * Extracts an error message from a parsed JSON response, if present.
- *
- * Checks common properties (`error`, `message`) and returns the first
- * string value found. Returns `undefined` when no string message is present.
- *
- * @param payload - The parsed JSON response (unknown)
- * @returns The extracted error message, or `undefined` if none found
- */
-
-/**
- * Extracts an error message from a parsed payload with optional fallback.
- *
- * @param payload - The parsed JSON response (unknown)
- * @param fallback - Fallback string when no message is present
- * @returns Extracted message or the provided fallback
- */
-
-/**
  * Extract an error message from a payload or return `undefined` when none present.
  *
  * @param payload - The parsed response

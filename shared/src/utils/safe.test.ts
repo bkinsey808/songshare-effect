@@ -23,31 +23,89 @@ const KEY_A = "a";
 const KEY_B = "b";
 
 describe("safeGet", () => {
-	it("returns value when key exists", () => {
-		// Arrange
-		const obj: Record<string, unknown> = { [KEY_A]: NUM_ONE, [KEY_B]: "two" };
+	const presentCases = [
+		{
+			name: "numeric value",
+			obj: { [KEY_A]: NUM_ONE, [KEY_B]: "two" },
+			key: KEY_A,
+			expected: NUM_ONE,
+		},
+		{
+			name: "string value",
+			obj: { [KEY_A]: NUM_ONE, [KEY_B]: "two" },
+			key: KEY_B,
+			expected: "two",
+		},
+	];
 
-		// Act & Assert
-		expect(safeGet(obj, KEY_A)).toBe(NUM_ONE);
-		expect(safeGet(obj, KEY_B)).toBe("two");
-	});
+	it.each(presentCases)(
+		"returns value when $name",
+		({ obj, key, expected }: { obj: Record<string, unknown>; key: string; expected: unknown }) => {
+			// Arrange
+			const input = obj;
+			const inputKey = key;
+
+			// Act
+			const got = safeGet(input, inputKey);
+
+			// Assert
+			expect(got).toBe(expected);
+		},
+	);
 
 	it("returns undefined when key is absent", () => {
 		// Arrange
 		const obj: Record<string, unknown> = { [KEY_A]: NUM_ONE };
 
-		// Act & Assert
-		expect(safeGet(obj, KEY_B)).toBeUndefined();
+		// Act
+		const got = safeGet(obj, KEY_B);
+
+		// Assert
+		expect(got).toBeUndefined();
 	});
 
-	it("returns default when key is absent and default provided", () => {
-		// Arrange
-		const obj: Record<string, unknown> = { [KEY_A]: NUM_ONE };
+	const defaultCases = [
+		{
+			name: "numeric default",
+			obj: { [KEY_A]: NUM_ONE },
+			key: KEY_B,
+			def: NUM_NINETY_NINE,
+			expected: NUM_NINETY_NINE,
+		},
+		{
+			name: "string default",
+			obj: { [KEY_A]: NUM_ONE },
+			key: KEY_B,
+			def: "default",
+			expected: "default",
+		},
+	];
 
-		// Act & Assert
-		expect(safeGet(obj, KEY_B, NUM_NINETY_NINE)).toBe(NUM_NINETY_NINE);
-		expect(safeGet(obj, KEY_B, "default")).toBe("default");
-	});
+	it.each(defaultCases)(
+		"returns default when absent for $name",
+		({
+			obj,
+			key,
+			def,
+			expected,
+		}: {
+			obj: Record<string, unknown>;
+			key: string;
+			def: unknown;
+			expected: unknown;
+		}) => {
+			// Arrange
+			const input = obj;
+			const inputKey = key;
+			const defaultValue = def;
+
+			// Act
+			const got = safeGet(input, inputKey, defaultValue);
+
+			// Assert
+			expect(got).toBe(expected);
+		},
+	);
 
 	it("does not read from prototype", () => {
 		// Arrange
@@ -122,32 +180,72 @@ describe("safeDelete", () => {
 });
 
 describe("safeArrayGet", () => {
-	it("returns element at valid index", () => {
-		// Arrange
-		const arr = [NUM_TEN, NUM_TWENTY, NUM_THIRTY];
+	const validIndexCases = [
+		{
+			name: "index 0",
+			arr: [NUM_TEN, NUM_TWENTY, NUM_THIRTY],
+			index: INDEX_ZERO,
+			expected: NUM_TEN,
+		},
+		{
+			name: "index 1",
+			arr: [NUM_TEN, NUM_TWENTY, NUM_THIRTY],
+			index: INDEX_ONE,
+			expected: NUM_TWENTY,
+		},
+		{
+			name: "index 2",
+			arr: [NUM_TEN, NUM_TWENTY, NUM_THIRTY],
+			index: INDEX_TWO,
+			expected: NUM_THIRTY,
+		},
+	];
 
-		// Act & Assert
-		expect(safeArrayGet(arr, INDEX_ZERO)).toBe(NUM_TEN);
-		expect(safeArrayGet(arr, INDEX_ONE)).toBe(NUM_TWENTY);
-		expect(safeArrayGet(arr, INDEX_TWO)).toBe(NUM_THIRTY);
-	});
+	it.each(validIndexCases)(
+		"returns element at valid $name",
+		({ arr, index, expected }: { arr: number[]; index: number; expected: number }) => {
+			// Arrange
+			const input = arr;
+			const i = index;
 
-	it("returns undefined for out-of-bounds index", () => {
-		// Arrange
-		const arr = [NUM_TEN, NUM_TWENTY];
+			// Act
+			const got = safeArrayGet(input, i);
 
-		// Act & Assert
-		expect(safeArrayGet(arr, NEGATIVE_INDEX)).toBeUndefined();
-		expect(safeArrayGet(arr, INDEX_TWO)).toBeUndefined();
-		expect(safeArrayGet(arr, INDEX_OUT_OF_BOUNDS)).toBeUndefined();
-	});
+			// Assert
+			expect(got).toBe(expected);
+		},
+	);
+
+	const outOfBoundsCases = [
+		{ name: "negative index", arr: [NUM_TEN, NUM_TWENTY], index: NEGATIVE_INDEX },
+		{ name: "index two", arr: [NUM_TEN, NUM_TWENTY], index: INDEX_TWO },
+		{ name: "far out", arr: [NUM_TEN, NUM_TWENTY], index: INDEX_OUT_OF_BOUNDS },
+	];
+
+	it.each(outOfBoundsCases)(
+		"returns undefined for $name",
+		({ arr, index }: { arr: number[]; index: number }) => {
+			// Arrange
+			const input = arr;
+			const i = index;
+
+			// Act
+			const got = safeArrayGet(input, i);
+
+			// Assert
+			expect(got).toBeUndefined();
+		},
+	);
 
 	it("returns default when provided and index invalid", () => {
 		// Arrange
 		const arr = [NUM_TEN];
 
-		// Act & Assert
-		expect(safeArrayGet(arr, NUM_FIVE, INDEX_ZERO)).toBe(INDEX_ZERO);
+		// Act
+		const got = safeArrayGet(arr, NUM_FIVE, INDEX_ZERO);
+
+		// Assert
+		expect(got).toBe(INDEX_ZERO);
 	});
 });
 
@@ -165,12 +263,19 @@ describe("safeArraySet", () => {
 		expect(arr[INDEX_ONE]).toBe(NUM_TWO);
 	});
 
-	it("returns original array for invalid index", () => {
-		// Arrange
-		const arr = [NUM_ONE, NUM_TWO];
+	const invalidSetCases = [
+		{ name: "negative index", arr: [NUM_ONE, NUM_TWO], index: NEGATIVE_INDEX, value: INDEX_ZERO },
+		{ name: "index two", arr: [NUM_ONE, NUM_TWO], index: INDEX_TWO, value: INDEX_ZERO },
+	];
 
-		// Act & Assert
-		expect(safeArraySet(arr, NEGATIVE_INDEX, INDEX_ZERO)).toBe(arr);
-		expect(safeArraySet(arr, INDEX_TWO, INDEX_ZERO)).toBe(arr);
-	});
+	it.each(invalidSetCases)(
+		"returns original array for $name",
+		({ arr, index, value }: { arr: number[]; index: number; value: number }) => {
+			// Arrange
+			const input = arr;
+
+			// Act & Assert
+			expect(safeArraySet(input, index, value)).toBe(input);
+		},
+	);
 });

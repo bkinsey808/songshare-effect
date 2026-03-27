@@ -3,78 +3,47 @@ description: "Custom agent for making TypeScript and React code changes in this 
 tools: ["vscode", "execute", "read", "edit", "search", "web", "agent", "todo"]
 ---
 
-## Quick Reference
+## Skills (load for detailed guidance)
 
-**For quick guidance**, see the corresponding Agent Skills:
-
-- [typescript-conventions skill](../skills/typescript-conventions/SKILL.md) - TypeScript patterns
-- [react-conventions skill](../skills/react-conventions/SKILL.md) - React & React Compiler patterns
-- [manage-page-patterns skill](../skills/manage-page-patterns/SKILL.md) - Local actionState, runCommunityAction/runAction for admin/manage pages
-- [app-store-patterns skill](../skills/app-store-patterns/SKILL.md) - Zustand slice pattern, createXxxSlice factories, useAppStore selectors, getTypedState
-- [.agent/rules.md](../../.agent/rules.md) - Full project rules
-
-This agent provides extended operational guidance and mandatory validation steps beyond the skills.
+- [typescript-conventions skill](/.github/skills/typescript-conventions/SKILL.md) — strict typing, no `any`, JSDoc rules
+- [react-conventions skill](/.github/skills/react-conventions/SKILL.md) — React Compiler (no manual memoization), hooks, component organization
+- [file-organization skill](/.github/skills/file-organization/SKILL.md) — no barrel files, direct imports, naming conventions
+- [source-refactoring skill](/.github/skills/source-refactoring/SKILL.md) — splitting files, default exports, test colocation
+- [lint-error-resolution skill](/.github/skills/lint-error-resolution/SKILL.md) — fix root causes; never suppress broadly
+- [unit-test-best-practices skill](/.github/skills/unit-test-best-practices/SKILL.md) — Vitest, mocking, API handler tests
+- [code-comments skill](/.github/skills/code-comments/SKILL.md) — JSDoc and inline comment conventions
+- [manage-page-patterns skill](/.github/skills/manage-page-patterns/SKILL.md) — actionState, runCommunityAction/runAction for admin pages
+- [app-store-patterns skill](/.github/skills/app-store-patterns/SKILL.md) — Zustand slice pattern, useAppStore selectors
+- [.agent/rules.md](/.agent/rules.md) — project-wide rules
 
 ---
 
-This custom agent helps make small-to-medium TypeScript and React changes in this repository. It's intended for code edits, lint/test runs, basic refactors, and developer guidance. It is NOT permitted to run git write operations (commits, pushes) or make large architectural changes without explicit human approval.
+Handles small-to-medium TypeScript and React changes: code edits, lint/test runs, basic refactors, and developer guidance. Not permitted to run git write operations or make large architectural changes without explicit human approval.
 
-## TypeScript Rules
+## Mandatory validation (run after every change)
 
-- Try to avoid the `any` type. Prefer `unknown` if unsure, and always aim for precise types.
-- Use strict null checks and avoid non-null assertions (`!`) unless absolutely necessary.
-- Prefer `type` over `interface` for object shapes unless extending existing interfaces.
-- Prefer using effect ts instead of promises, especially at the top level of modules and functions.
-- Use async/await syntax for asynchronous code instead of `.then()` chains.
-- Follow existing project conventions for naming, file structure, and module organization.
-- Unit tests should be written using Vitest, following existing test patterns in the codebase and colocated with the code they test.
-- This project does not use ESLint. Use `oxlint`, including for disable comments.
-- No barrel files. Import directly from source files (do not add `index.ts` re-exports).
-- `export { something } from "./somefile"` is strongly discouraged. Don't re-export from other modules.
-- All functions should have JSDoc comments that include parameter and return **descriptions** (no types in the JSDoc for TypeScript files).
-- **Never** put types in JSDoc for `*.ts` / `*.tsx` files — TypeScript carries the types. Use plain descriptions instead, for example:
+1. **Format:** `npm run format:check` — if changes needed, apply with `npm run format` and report edits.
+2. **Lint:** `npm run lint` — auto-fix safe issues; report failures and stop for direction.
+3. **Tests:** run tests for edited files (`npx vitest run <path>`); if unsure, run `npm run test:unit`.
 
-```ts
-/**
- * @param ctx - Hono request context (no type in JSDoc)
- * @returns - JSON response indicating success
- */
-```
-
-## Project-specific rules (required)
-
-- **React Compiler project:** The repository uses the React Compiler and prefers to avoid manual memoization. **Do not introduce or rely on** `useCallback`, `useMemo`, or `memo` unless there is a documented performance reason and a human reviewer approves the change.
-- Prefer plain function declarations or inline functions for event handlers and local callbacks. Follow existing lint rules that often prefer `function foo(): void {}` with explicit return types.
-
-## Linting / Formatting / Tests (mandatory)
-
-Before returning control to the user after making code changes, the agent must:
-
-1. Run formatting checks and fixes:
-   - Prefer project scripts: `npm run format:check` (or `npx oxfmt --check .`). If formatting changes are required, apply them (`npm run format`) and report the edits.
-2. Run linting checks:
-   - `npm run lint` (or `npx oxlint --config .oxlintrc.json --type-aware .`). Fixable issues should be auto-fixed when safe; otherwise report failures and ask the user for direction.
-3. Run relevant unit tests (Vitest):
-   - Run tests related to edited files when possible (e.g., `npx vitest run <path-to-test>`). If unsure, run `npm run test:unit`.
-
-If any of the above steps fail, the agent must report the failure, summarize the errors, and stop further changes until the user instructs how to proceed.
+If any step fails: report the error verbatim, summarize, and stop until the user instructs how to proceed.
 
 ## Operational guidance
 
-- When making edits, prefer small, focused changes with corresponding unit tests where applicable.
-- Use `oxfmt` (format) and `oxlint` (lint) outputs to justify formatting or typing choices in comments.
+- Prefer small, focused changes with corresponding unit tests.
 - When proposing changes that affect public APIs, ask the user first.
+- Use lint/format output to justify choices in comments.
 
-## Reporting and preambles
+## Reporting
 
-- For each edit batch, provide a short preamble summarizing the change and next steps (one sentence of findings/plans + one sentence of next action).
-- After completing edits and running the mandatory checks, provide a concise wrap-up preamble stating success or listing outstanding issues.
+- Per edit batch: one sentence of findings/plan + one sentence of next action.
+- After all checks pass: concise wrap-up stating success or listing outstanding issues.
 
-## Examples
+## Example
 
-- If converting `const handle = useCallback(...)` to a plain function, prefer `function handle(): void {}` and ensure tests/lint/format pass before returning.
+Converting `const handle = useCallback(...)` → prefer `function handle(): void {}`, then ensure lint/format/tests pass before returning.
 
-## Edges / limits
+## Limits
 
-- The agent will not run `git commit` / `git push` / branch creation. It will propose exact commands and wait for a human to run them.
-- The agent will not modify server configs or deploy without human confirmation.
+- Will not run `git commit` / `git push` / branch operations — proposes commands for the human to run.
+- Will not modify server configs or trigger deploys without human confirmation.

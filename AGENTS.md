@@ -131,5 +131,5 @@ Codex (and all other models) should treat GitHub skills in this repository as av
 - `source-refactoring` (`.github/skills/source-refactoring/SKILL.md`)
 - `supabase-client-patterns` (`.github/skills/supabase-client-patterns/SKILL.md`)
 - `typescript-conventions` (`.github/skills/typescript-conventions/SKILL.md`)
-- `unit-testing-hooks` (`.github/skills/unit-testing-hooks/SKILL.md`)
-- `unit-testing` (`.github/skills/unit-testing/SKILL.md`)
+- `unit-test-hook-best-practices` (`.github/skills/unit-test-hook-best-practices/SKILL.md`)
+- `unit-test-best-practices` (`.github/skills/unit-test-best-practices/SKILL.md`)

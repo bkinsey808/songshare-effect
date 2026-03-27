@@ -6,6 +6,10 @@ import { describe, expect, it } from "vitest";
 
 describe("validate types", () => {
 	it("module loads without error", async () => {
-		await expect(import("./validate-types")).resolves.toBeDefined();
+		// Act
+		const modPromise = import("./validate-types");
+
+		// Assert
+		await expect(modPromise).resolves.toBeDefined();
 	});
 });

@@ -1,58 +1,50 @@
 ---
 name: realtime-rls-architecture
-description: RLS policy architecture for Supabase Realtime subscriptions — access control layers, JWT validation logic for visitor/user tokens, verified production policy templates. Use when writing or reviewing RLS policies for tables used with Realtime.
-compatibility: Supabase Realtime, PostgreSQL RLS
-metadata:
-  author: bkinsey808
-  version: "1.0"
+description: >
+  RLS policy architecture for Supabase Realtime subscriptions — access control
+  layers, JWT validation logic for visitor/user tokens, verified production
+  policy templates. Use when writing or reviewing RLS policies for tables used
+  with Realtime. Do NOT use for debugging active subscription failures — load
+  realtime-rls-debugging instead.
 ---
 
-# Realtime + RLS Architecture Skill
+**Requires:** file-read. No terminal or network access needed.
 
-## Use When
+**Depends on:** [`authentication-system/SKILL.md`](/.github/skills/authentication-system/SKILL.md) — load when token-claim behavior or JWT structure is in scope. [`realtime-rls-debugging/SKILL.md`](/.github/skills/realtime-rls-debugging/SKILL.md) — load when the issue is active breakage (messages not arriving).
 
-Use this skill when:
+## When invoked
 
-- Writing/reviewing RLS policies for tables used by Supabase Realtime.
-- Verifying token-shape assumptions in policy conditions for visitor/user JWT access.
+**Preconditions:**
+- If writing a new policy, read the relevant existing migration files under `supabase/migrations/` to understand the table shape.
+- Check the authentication-system skill for token structure if unfamiliar with the dual visitor/user JWT format.
 
-Execution workflow:
+**Clarifying questions:**
+- **Defaults (proceed without asking):** apply both visitor and user token conditions to any public-readable SELECT policy; use proven templates from this skill.
+- **Always ask:** which table and which operation(s) (SELECT/UPDATE/DELETE) if not specified.
+- State assumptions when proceeding: "Writing a public SELECT policy for `song_public` — covering both visitor and user tokens. Let me know if owner-only access was intended."
 
-1. Define access rules at the table/policy layer first, then verify API/frontend assumptions.
-2. Ensure policies account for both visitor and user token structures where required.
-3. Use proven policy templates and adapt minimally for new tables.
-4. Validate via SQL simulation and realtime behavior checks before rollout.
+**Output format:**
+- Output SQL `CREATE POLICY` statement(s) in a fenced SQL code block.
+- Follow with a brief bullet list: which token paths are allowed, and what Realtime visibility impact to expect.
 
-Output requirements:
+**Error handling:**
+- If the table schema is unknown, stop and ask for the column list before writing policies.
+- If the task involves debugging (messages not arriving, empty filter errors), defer to the `realtime-rls-debugging` skill.
 
-- Summarize policy changes and which token paths are allowed.
-- Report SQL verification steps and expected realtime visibility impact.
+## Access control layers
 
-## Common Scenarios
+| Layer | Mechanism | Purpose |
+| ----- | --------- | ------- |
+| **Database RLS** | Row-level policies enforce owner/admin/participant access | Primary protection |
+| **API** | Service role with business-logic validation | Secondary check |
+| **Frontend** | Hide edit/delete UI for non-owners | UX safety |
+| **Realtime filtering** | RLS SELECT policies filter per-subscriber | Real-time safety |
 
-- Writing or modifying RLS policies on tables used with Realtime
-- Understanding why the dual visitor/user JWT structure requires two policy conditions
-- Copying verified SELECT/UPDATE/DELETE policy templates
-- Reviewing security layers for event_public or similar tables
-
----
-
-## Access Control Layers
-
-| Layer                  | Mechanism                                                 | Purpose            |
-| ---------------------- | --------------------------------------------------------- | ------------------ |
-| **Database RLS**       | Row-level policies enforce owner/admin/participant access | Primary protection |
-| **API**                | Service role with business-logic validation               | Secondary check    |
-| **Frontend**           | Hide edit/delete UI for non-owners                        | UX safety          |
-| **Realtime filtering** | RLS SELECT policies filter per-subscriber                 | Real-time safety   |
-
-**Key principle**: Realtime respects RLS. Subscriptions succeed regardless, but message delivery is silently filtered — a client without SELECT permission receives nothing, no error.
+**Key principle:** Realtime respects RLS. Subscriptions succeed regardless, but message delivery is silently filtered — a client without SELECT permission receives nothing, no error.
 
 The API uses the service role (bypasses RLS) for writes. Realtime then broadcasts, and RLS filters each subscriber independently.
 
----
-
-## JWT Validation in RLS Policies
+## JWT validation in RLS policies
 
 This project uses two token types. Any SELECT policy on a public-readable table must handle both:
 
@@ -66,17 +58,15 @@ This project uses two token types. Any SELECT policy on a public-readable table 
 )
 ```
 
-| Token type          | `visitor_id` | `user.user_id` | Result                        |
-| ------------------- | ------------ | -------------- | ----------------------------- |
-| Visitor (anonymous) | ✅ set       | null           | `TRUE OR FALSE` → access ✅   |
-| User (signed in)    | null         | ✅ set         | `FALSE OR TRUE` → access ✅   |
-| Invalid/malformed   | null         | null           | `FALSE OR FALSE` → blocked ❌ |
+| Token type | `visitor_id` | `user.user_id` | Result |
+| ---------- | ------------ | -------------- | ------ |
+| Visitor (anonymous) | ✅ set | null | `TRUE OR FALSE` → access ✅ |
+| User (signed in) | null | ✅ set | `FALSE OR TRUE` → access ✅ |
+| Invalid/malformed | null | null | `FALSE OR FALSE` → blocked ❌ |
 
-See [authentication-system skill](../authentication-system/SKILL.md) for full token generation details.
+See [authentication-system skill](/.github/skills/authentication-system/SKILL.md) for full token generation details.
 
----
-
-## Verified Production Policy Templates (`event_public`)
+## Verified production policy templates (`event_public`)
 
 ### SELECT — public events (visitors + users)
 
@@ -157,37 +147,34 @@ USING (
 );
 ```
 
----
-
-## Key Insights
+## Key insights
 
 1. **A missing SELECT policy = silent broadcast blackout** — the subscriber never knows.
 2. **`WITH CHECK` on UPDATE** must also pass for Realtime to deliver the post-update row.
 3. **Service role bypasses RLS** by design — safe when RLS is the primary guard.
 4. Private events only broadcast to participants because their SELECT policy restricts it.
 
----
+## Evaluations (I/O examples)
+
+**Input:** "Write RLS policies for `song_public` so both visitors and authenticated users can read public songs"
+**Expected:** Agent outputs a fenced SQL `CREATE POLICY` for SELECT using the dual JWT template (`visitor_id IS NOT NULL OR user.user_id IS NOT NULL`), scoped to `is_public = true`. Follows with a bullet list: visitors and users both receive Realtime broadcasts for public songs; users without a valid token are silently filtered out.
+
+**Input:** "Why is my visitor seeing events in the UI but the Realtime subscription delivers nothing?"
+**Expected:** Agent identifies this as an active debugging task, defers to `realtime-rls-debugging` skill for root cause workflow. May note that a missing or malformed SELECT policy is the most common cause (see Key insight #1).
+
+**Input:** "Add owner-only UPDATE access to the `song_public` table"
+**Expected:** Agent outputs the UPDATE policy template using `owner_id = user.user_id::uuid`, includes both `USING` and `WITH CHECK` clauses, notes that `WITH CHECK` is required for Realtime to deliver the post-update row.
 
 ## References
 
-- Debugging subscriptions: [realtime-rls-debugging skill](../realtime-rls-debugging/SKILL.md)
-- JWT token structure: [authentication-system skill](../authentication-system/SKILL.md)
+- Debugging subscriptions: [realtime-rls-debugging skill](/.github/skills/realtime-rls-debugging/SKILL.md)
+- JWT token structure: [authentication-system skill](/.github/skills/authentication-system/SKILL.md)
 - Project migration: `supabase/migrations/20260220000011_re_enable_rls_on_event_public.sql`
-- [docs/realtime-rls-architecture.md](../../../docs/realtime-rls-architecture.md)
+- [docs/realtime-rls-architecture.md](/docs/realtime-rls-architecture.md)
 
-## Do Not
+## Do not
 
 - Do not violate repo-wide rules in `.agent/rules.md`.
-- Do not add broad lint/type suppressions without explicit justification.
+- Do not write a SELECT policy without handling both visitor and user token paths.
+- Do not omit `WITH CHECK` on UPDATE policies — Realtime requires it to deliver the updated row.
 - Do not expand scope beyond the requested task without calling it out.
-
-## Success Criteria
-
-- Changes follow this skill's conventions and project rules.
-- Relevant validation commands are run, or skipped with a clear reason.
-- Results clearly summarize behavior impact and remaining risks.
-
-## Skill Handoffs
-
-- If the issue is active breakage (messages not arriving), also load `realtime-rls-debugging`.
-- If token-claim behavior changes are in scope, also load `authentication-system`.

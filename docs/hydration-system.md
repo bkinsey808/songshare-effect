@@ -170,22 +170,22 @@ import useHydration from "@/react/app/useHydration";
 
 ### File Locations
 
-- **[react/src/app/useHydration.ts](../react/src/app/useHydration.ts)** — Main public hook
+- **[react/src/app/useHydration.ts](/react/src/app/useHydration.ts)** — Main public hook
   - Default export: `useHydration()`
   - JSDoc with examples
   - Wraps `useAppStoreHydrated()` and `awaitAppStoreHydration`
 
-- **[react/src/app/useHydration.test.tsx](../react/src/app/useHydration.test.tsx)** — Unit tests
+- **[react/src/app/useHydration.test.tsx](/react/src/app/useHydration.test.tsx)** — Unit tests
   - Tests hook behavior and return shape
   - Verifies store dependency is called
   - Validates function reference stability across renders
 
-- **[react/src/zustand/useAppStore.ts](../react/src/zustand/useAppStore.ts)** — Store definition
+- **[react/src/zustand/useAppStore.ts](/react/src/zustand/useAppStore.ts)** — Store definition
   - Exports: `useAppStoreHydrated` (hook), `awaitAppStoreHydration` (async function), `resetAllSlices`, etc.
   - `persist` middleware handles localStorage sync
   - `persist` middleware calls `onRehydrateStorage` to signal completion
 
-- **[react/src/app/AppHydrationBoundary.tsx](../react/src/app/AppHydrationBoundary.tsx)** — Suspense wrapper
+- **[react/src/app/AppHydrationBoundary.tsx](/react/src/app/AppHydrationBoundary.tsx)** — Suspense wrapper
   - Renders at app root level
   - Shows loading fallback until store hydrates
   - Works alongside `useHydration()` for fine-grained control
@@ -353,10 +353,10 @@ localStorage.removeItem("app-store");
 
 ## Related Files
 
-- [react/src/zustand/useAppStore.ts](../react/src/zustand/useAppStore.ts) — Store definition
-- [react/src/app/AppHydrationBoundary.tsx](../react/src/app/AppHydrationBoundary.tsx) — Suspense boundary
-- [react/src/pages/dashboard/DashboardPage.tsx](../react/src/pages/dashboard/DashboardPage.tsx) — Example consumer
-- [authentication-system.md](./authentication-system.md) — Auth patterns that depend on hydration
+- [react/src/zustand/useAppStore.ts](/react/src/zustand/useAppStore.ts) — Store definition
+- [react/src/app/AppHydrationBoundary.tsx](/react/src/app/AppHydrationBoundary.tsx) — Suspense boundary
+- [react/src/pages/dashboard/DashboardPage.tsx](/react/src/pages/dashboard/DashboardPage.tsx) — Example consumer
+- [authentication-system.md](/docs/authentication-system.md) — Auth patterns that depend on hydration
 
 ---
 

@@ -2,9 +2,24 @@
 
 Comprehensive guide for Vitest unit tests in this repo. Covers core setup, mocking strategies,
 API handler testing, and common pitfalls. For React hook tests see
-[unit-testing-hooks.md](./unit-testing-hooks.md).
+[unit-test-hook-best-practices.md](/docs/unit-test-hook-best-practices.md).
+
+## Table of contents
+
+- [When to write a test (and when not to)](#when-to-write)
+- [Quick-start routing guide](#routing-guide)
+- [Core setup](#core-setup)
+- [AAA testing pattern](#aaa-testing-pattern)
+- [Mocking](#mocking)
+- [API handler testing](#api-handler-testing)
+- [Common pitfalls](#common-pitfalls)
+- [Advanced tradeoffs](#advanced-tradeoffs)
+- [Validation commands](#validation-commands)
+- [References](#references)
 
 ---
+
+<a id="when-to-write"></a>
 
 ## When to Write a Test (and When NOT to)
 
@@ -27,13 +42,15 @@ that depends on that mock.
 
 ---
 
+<a id="routing-guide"></a>
+
 ## Quick-Start Routing Guide
 
 Loading only this doc is rarely sufficient. Use this as a routing guide before writing any code:
 
 **Hook test** (any `use*.ts` / `use*.tsx` file):
 
-- Read [unit-testing-hooks.md](./unit-testing-hooks.md) — renderHook, installStore, Harness
+- Read [unit-test-hook-best-practices.md](/docs/unit-test-hook-best-practices.md) — renderHook, installStore, Harness
   requirement, fixtures, subscriptions, lint traps, and pre-completion checklist
 
 **API handler test** (`api/src/**/*.test.ts`):
@@ -51,12 +68,14 @@ Loading only this doc is rarely sufficient. Use this as a routing guide before w
 
 ---
 
+<a id="core-setup"></a>
+
 ## Core Setup
 
 _Helper modules intended solely for unit tests should use the `.test-util.ts` / `.test-util.tsx`
 suffix so their purpose is obvious and they don't get mistaken for production code._
 
-1. Use the included [`test-template.test.ts`](../.github/skills/unit-testing/test-template.test.ts) as a starting point for new tests.
+1. Use the included [`test-template.test.ts`](/.github/skills/unit-test-best-practices/test-template.test.ts) as a starting point for new tests.
 2. Prefer descriptive test names and one behavior per test.
 3. Use `vi.useFakeTimers()` only when verifying timer behavior; always restore with
    `vi.useRealTimers()`.
@@ -84,6 +103,58 @@ suffix so their purpose is obvious and they don't get mistaken for production co
   `describe` blocks.
 - **Prefer `it.each` for input/output matrices** — when the same behavior is asserted across
   multiple cases, use a table-driven test instead of duplicating near-identical `it` blocks.
+  - Prefer named-case rows (objects with a `name` field) for clearer failure messages and
+    better documentation of each scenario. This makes test failures readable without opening
+    the table data and serves as lightweight documentation for the behavior under test.
+
+  - Example (preferred):
+
+    ```ts
+    const cases = [
+    	{ name: "root pathname", input: "/", expected: "/" },
+    	{ name: "empty pathname", input: "", expected: "/" },
+    ];
+
+    it.each(cases)("$name", ({ input, expected }) => {
+    	// Act
+    	const result = getPathWithoutLang(input);
+
+    	// Assert
+    	expect(result).toBe(expected);
+    });
+    ```
+
+  - Use `%s` placeholders only when the scenario name is already descriptive, or when the
+
+  - Named object rows support named placeholders in titles (Vitest/Jest-style `$var`).
+    Prefer this when rows have multiple fields or when you want clearer, parameterized
+    failure messages. Example using a `$role` placeholder and object rows:
+
+    ```ts
+    it.each([{ role: "owner" }, { role: "community_admin" }, { role: "member" }])(
+    	"decodes input and preserves role $role in the decoded output",
+    	({ role }) => {
+    		// Arrange
+    		const input = { community_id: ID1, user_id: ID2, role } as unknown;
+
+    		// Act
+    		const result = decodeUnknownSyncOrThrow(communityUserAddSchema, input);
+
+    		// Assert
+    		expect(result.role).toBe(role);
+    	},
+    );
+    ```
+
+    Notes:
+    - Object rows let you name each column (`{ role, desc, expected }`) and use `$col`
+      interpolation in the test title. This reads very well in test output.
+    - If your rows are simple tuples (e.g. `[["empty",""], ["two","ab"]]`) you
+      can still use `%s` positional placeholders, but prefer object rows for clarity.
+    - Keep `Arrange` shared when possible (move common setup to the `describe` scope)
+      and perform only the `Act` + `Assert` inside the row callback to avoid noise.
+      table rows are simple tuples; otherwise prefer the named-case pattern above.
+
 - **Every numeric literal needs a named constant** — `no-magic-numbers` applies even to `0`, `1`,
   and arithmetic offsets like `index + 1`. Define constants at the top of the file
   (e.g. `const LINE_OFFSET = 1`, `const NO_ERRORS = 0`).
@@ -102,6 +173,8 @@ suffix so their purpose is obvious and they don't get mistaken for production co
 - **No lint disable comments in test files** — Do not use `oxlint-disable` or `eslint-disable` in
   `*.test.ts` or `*.test.tsx`. Fix the code or extract helpers into `*.test-util.*` files. Disables
   in test-util files are acceptable only when there is no alternative.
+
+<a id="aaa-testing-pattern"></a>
 
 ## AAA Testing Pattern (Arrange, Act, Assert)
 
@@ -170,8 +243,39 @@ it.each([["empty", ""]])("returns false for %s", (label, input) => {
 Avoid adding a repeated `// Arrange` block inside `it.each` callbacks. If setup is shared
 across rows, extract it to the top of the `describe` or into a `*.test-util.*` helper.
 
-    - Avoid empty sections: do not add a `// Arrange` or `// Act` comment unless that section
-    	actually contains setup or the action. Empty markers create noise and should be omitted.
+    	- Avoid empty sections: do not add a `// Arrange` or `// Act` comment unless that section
+    			actually contains non-trivial setup or the action. Empty markers create noise and should be omitted.
+
+    	- Do NOT add trivial `// Arrange` blocks that only copy the row value into a local variable.
+    		This is an anti-pattern because it increases noise and triggers lint rules that prohibit
+    		empty or meaningless `Arrange` sections. Instead, use the row value directly in the `Act`.
+
+    		Bad (anti-pattern):
+
+    		```ts
+    		it.each([{ token: "a" }])("does something $token", ({ token }) => {
+    			// Arrange
+    			const input = token;
+
+    			// Act
+    			const result = doThing(input);
+
+    			// Assert
+    			expect(result).toBe(true);
+    		});
+    		```
+
+    		Good (preferred):
+
+    		```ts
+    		it.each([{ token: "a" }])("does something $token", ({ token }) => {
+    			// Act
+    			const result = doThing(token);
+
+    			// Assert
+    			expect(result).toBe(true);
+    		});
+    		```
 
 - Prefer clear `Assert` statements that verify behavior (return values, side effects, calls that are
   part of the contract) rather than implementation details.
@@ -232,7 +336,11 @@ function, and handles `process.exit` / stream writes. It does **not** need its o
 
 ---
 
+<a id="mocking"></a>
+
 ## Mocking
+
+<a id="non-factory-mock"></a>
 
 ### Non-Factory `vi.mock` Pattern (Required)
 
@@ -260,6 +368,8 @@ Treat `vi.importActual` as a code smell by default in this repo. In most tests, 
 mocked dependency, prefer non-factory `vi.mock("path")` + `vi.mocked(...)` and avoid partial module
 merging. Use `vi.importActual` only for explicit, documented partial-mock exceptions where the
 non-factory pattern cannot express the behavior under test.
+
+<a id="mock-factory-pattern"></a>
 
 ### When to Use the `vi.mock` Factory Pattern (Required Guidance)
 
@@ -354,6 +464,8 @@ response format, especially for error cases:
 return Promise.resolve({ data: null, error: { message: "Database failure" } });
 ```
 
+<a id="mock-vs-spyon"></a>
+
 ### `vi.mock()` vs `vi.spyOn()` - Default to `vi.mock()`
 
 In this repository, use `vi.mock()` as the default for dependencies imported by the SUT. This is
@@ -380,6 +492,8 @@ vi.spyOn(mod, "clientLocalDateToUtcTimestamp").mockReturnValue("2026-01-01T00:00
 | One-off partial override on a stable object reference | `vi.spyOn(object, "method")`         |
 
 Use `vi.spyOn()` as an escape hatch, not the baseline pattern.
+
+<a id="domock"></a>
 
 ### `vi.doMock()` - Runtime Exception Path
 
@@ -605,6 +719,8 @@ event objects, synthetic event stubs, partial store states, etc. **Never** use i
 
 ---
 
+<a id="api-handler-testing"></a>
+
 ## API Handler Testing
 
 Focused guidance for testing Effect-based Hono API handlers in `api/src/`.
@@ -733,6 +849,8 @@ function makeCtxForCsrf(headerValue?: string, cookieValue?: string): ReadonlyCon
 ```
 
 ---
+
+<a id="common-pitfalls"></a>
 
 ## Common Pitfalls
 
@@ -896,6 +1014,8 @@ differences.
 
 ---
 
+<a id="advanced-tradeoffs"></a>
+
 ## Advanced Tradeoffs
 
 ### Behavior vs Implementation Assertions
@@ -935,6 +1055,8 @@ creates indirection and makes tests harder to read.
 
 ---
 
+<a id="validation-commands"></a>
+
 ## Validation Commands
 
 **When working on a single file, run tests only for that file** to get faster feedback:
@@ -958,10 +1080,12 @@ npm run test:unit -- --coverage
 
 ---
 
+<a id="references"></a>
+
 ## References
 
-- [unit-testing-hooks.md](./unit-testing-hooks.md) — Hook-specific patterns
-- [effect-implementation.md](./effect-implementation.md) — Effect-TS patterns used in API
+- [unit-test-hook-best-practices.md](/docs/unit-test-hook-best-practices.md) — Hook-specific patterns
+- [effect-implementation.md](/docs/effect-implementation.md) — Effect-TS patterns used in API
 - Vitest documentation: https://vitest.dev/
 - Testing Library: https://testing-library.com/
 - Agent guidance: `.github/agents/Unit Test Agent.agent.md`

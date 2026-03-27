@@ -6,21 +6,21 @@ A quick orientation guide to the SongShare Effect project structure.
 
 ### Frontend Entry
 
-- **Main entry**: [`react/src/main.tsx`](file:///home/bkinsey/bkinsey808/songshare-effect/react/src/main.tsx) - React app initialization
-- **Root component**: [`react/src/App.tsx`](file:///home/bkinsey/bkinsey808/songshare-effect/react/src/App.tsx) - Routing and app structure
-- **Navigation**: [`react/src/Navigation.tsx`](file:///home/bkinsey/bkinsey808/songshare-effect/react/src/Navigation.tsx) - Main navigation component
+- **Main entry**: [`react/src/main.tsx`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/react/src/main.tsx) - React app initialization
+- **Root component**: [`react/src/App.tsx`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/react/src/App.tsx) - Routing and app structure
+- **Navigation**: [`react/src/Navigation.tsx`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/react/src/Navigation.tsx) - Main navigation component
 
 ### API Entry
 
-- **Server**: [`api/src/server.ts`](file:///home/bkinsey/bkinsey808/songshare-effect/api/src/server.ts) - Hono API server with all routes
-- **Environment**: [`api/src/env.ts`](file:///home/bkinsey/bkinsey808/songshare-effect/api/src/env.ts) - Environment variable types
-- **Errors**: [`api/src/errors.ts`](file:///home/bkinsey/bkinsey808/songshare-effect/api/src/errors.ts) - Effect-TS error definitions
+- **Server**: [`api/src/server.ts`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/api/src/server.ts) - Hono API server with all routes
+- **Environment**: [`api/src/env.ts`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/api/src/env.ts) - Environment variable types
+- **Errors**: [`api/src/errors.ts`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/api/src/errors.ts) - Effect-TS error definitions
 
 ### Shared Code
 
-- **Generated types**: [`shared/src/generated/`](file:///home/bkinsey/bkinsey808/songshare-effect/shared/src/generated/) - Supabase-generated schemas
-- **Paths**: [`shared/src/paths.ts`](file:///home/bkinsey/bkinsey808/songshare-effect/shared/src/paths.ts) - Route path constants
-- **Constants**: [`shared/src/constants/`](file:///home/bkinsey/bkinsey808/songshare-effect/shared/src/constants/)
+- **Generated types**: [`shared/src/generated/`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/shared/src/generated) - Supabase-generated schemas
+- **Paths**: [`shared/src/paths.ts`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/shared/src/paths.ts) - Route path constants
+- **Constants**: [`shared/src/constants/`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/shared/src/constants)
 
 ## 📁 Directory Structure
 
@@ -228,7 +228,7 @@ npm run deploy:pages   # Deploy frontend to Cloudflare Pages
 npm run deploy:api     # Deploy API to Cloudflare Workers
 ```
 
-See [workflows](file:///home/bkinsey/bkinsey808/songshare-effect/.agent/workflows/) for detailed workflow instructions.
+See [workflows](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/workflows) for detailed workflow instructions.
 
 ## 🔑 Key Technologies
 
@@ -242,10 +242,10 @@ See [workflows](file:///home/bkinsey/bkinsey808/songshare-effect/.agent/workflow
 
 ## 📚 Key Documentation
 
-- [`.agent/rules.md`](file:///home/bkinsey/bkinsey808/songshare-effect/.agent/rules.md) - **START HERE** - Coding guidelines
-- [`README.md`](file:///home/bkinsey/bkinsey808/songshare-effect/README.md) - Project overview and setup
-- [`docs/authentication-system.md`](file:///home/bkinsey/bkinsey808/songshare-effect/docs/authentication-system.md) - Auth architecture
-- [`CONTRIBUTING.md`](file:///home/bkinsey/bkinsey808/songshare-effect/CONTRIBUTING.md) - Contribution guidelines
+- [`.agent/rules.md`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/rules.md) - **START HERE** - Coding guidelines
+- [`README.md`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/README.md) - Project overview and setup
+- [`docs/authentication-system.md`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/docs/authentication-system.md) - Auth architecture
+- [`CONTRIBUTING.md`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/CONTRIBUTING.md) - Contribution guidelines
 
 ## 💡 Tips for AI Assistants
 

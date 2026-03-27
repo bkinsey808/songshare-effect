@@ -1,11 +1,9 @@
 ---
 name: form-patterns
 description: Project-specific form patterns using useAppForm, createFormSubmitHandler, and createApiResponseHandlerEffect. Use when building or editing any form with validation, submission, or API response handling in React.
-compatibility: React 18+, Effect 3.x, TypeScript 5.x
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
 # Form Patterns Skill
 
@@ -159,7 +157,7 @@ export type SongFormValues = Schema.Schema.Type<typeof SongFormSchema>;
 
 ## References
 
-- Effect Schema: [../effect-ts-patterns/SKILL.md](../effect-ts-patterns/SKILL.md)
+- Effect Schema: [../effect-ts-patterns/SKILL.md](/.github/skills/effect-ts-patterns/SKILL.md)
 - Source: `@/react/lib/form/useAppForm.ts`
 
 ## Success Criteria

@@ -1,11 +1,9 @@
 ---
 name: deployment-operations
 description: Cloudflare deployment rollback, health monitoring, and production troubleshooting. Use when recovering from a failed deployment, checking deployment health, or diagnosing production issues.
-compatibility: Cloudflare Pages, Cloudflare Workers, GitHub Actions
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read, terminal (Wrangler/Cloudflare CLI). No network access needed.
 
 # Deployment Operations Skill
 
@@ -141,9 +139,9 @@ npm run deploy
 
 ## References
 
-- [docs/DEPLOY.md](../../../docs/DEPLOY.md)
-- Core deploy workflow: [deployment-strategies skill](../deployment-strategies/SKILL.md)
-- Cache + CI/CD: [cloudflare-cache-cicd skill](../cloudflare-cache-cicd/SKILL.md)
+- [docs/DEPLOY.md](/docs/DEPLOY.md)
+- Core deploy workflow: [deployment-strategies skill](/.github/skills/deployment-strategies/SKILL.md)
+- Cache + CI/CD: [cloudflare-cache-cicd skill](/.github/skills/cloudflare-cache-cicd/SKILL.md)
 
 ## Do Not
 

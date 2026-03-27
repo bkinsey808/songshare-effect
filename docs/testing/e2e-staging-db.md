@@ -13,7 +13,7 @@ Both modes use a pre-signed `userSession` cookie (generated once, valid 7 days) 
 
 ## Prerequisites
 
-All secrets are stored in the OS keyring under the `songshare-staging` service. See [env-vars-and-secrets.md](../env-vars-and-secrets.md) for the full setup guide.
+All secrets are stored in the OS keyring under the `songshare-staging` service. See [env-vars-and-secrets.md](/docs/env-vars-and-secrets.md) for the full setup guide.
 
 The required keys (see `config/env-secrets.staging.list` for the complete list) include:
 

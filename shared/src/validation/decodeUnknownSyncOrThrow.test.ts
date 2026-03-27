@@ -15,14 +15,18 @@ import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThr
 
 describe("decodeUnknownSyncOrThrow", () => {
 	it("returns the decoded value when the schema matches", () => {
+		// Arrange
 		const schema = Schema.String;
 
+		// Act
 		const result = decodeUnknownSyncOrThrow(schema, "hello world");
 
+		// Assert
 		expect(result).toBe("hello world");
 	});
 
 	it("preserves the inferred type of the schema", () => {
+		// Arrange
 		const schema = Schema.Struct({
 			id: Schema.Number,
 			name: Schema.String,
@@ -31,8 +35,10 @@ describe("decodeUnknownSyncOrThrow", () => {
 		const validId = 42;
 		const input = { id: validId, name: "alice" } as unknown;
 
+		// Act
 		const result = decodeUnknownSyncOrThrow(schema, input);
 
+		// Assert
 		// TypeScript should know `result` has `id` and `name` properties.
 		const { id, name } = result;
 		expect(id).toBe(validId);
@@ -40,8 +46,19 @@ describe("decodeUnknownSyncOrThrow", () => {
 	});
 
 	it("throws when the value does not satisfy the schema", () => {
+		// Arrange
 		const schema = Schema.Number;
 
-		expect(() => decodeUnknownSyncOrThrow(schema, "not a number")).toThrow(/number/);
+		// Act
+		let thrown: unknown = undefined;
+		try {
+			decodeUnknownSyncOrThrow(schema, "not a number");
+		} catch (error) {
+			thrown = error;
+		}
+
+		// Assert
+		expect(thrown).toBeDefined();
+		expect(String(thrown)).toMatch(/number/);
 	});
 });

@@ -1,11 +1,9 @@
 ---
 name: manage-page-patterns
 description: Patterns for admin/manage pages (community manage, event manage) — local actionState, runCommunityAction/runAction helpers, realtime as primary update path. Use when building manage pages with mutations like invite, kick, add, or remove.
-compatibility: React 18+, Effect-TS, Supabase Realtime
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read. No terminal or network access needed.
 
 # Manage-Page Patterns Skill
 
@@ -116,7 +114,7 @@ The same applies to event participants (`status !== "kicked"`).
 
 ## References
 
-- [Split hooks over prop spreading](../../../docs/component-patterns.md#split-hooks-over-prop-spreading) — shell/body hook pattern for manage views
+- [Split hooks over prop spreading](/docs/component-patterns.md#split-hooks-over-prop-spreading) — shell/body hook pattern for manage views
 
 ## Do Not
 

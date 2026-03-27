@@ -5,12 +5,12 @@ import guardAsString from "./guardAsString";
 describe("guardAsString", () => {
 	const NOT_STRING = 123;
 
-	const cases: readonly [unknown, string][] = [
-		["ok", "ok"],
-		[NOT_STRING, ""],
+	const cases: readonly { name: string; value: unknown; expected: string }[] = [
+		{ name: "valid string", value: "ok", expected: "ok" },
+		{ name: "non-string input", value: NOT_STRING, expected: "" },
 	];
 
-	it.each(cases)("guardAsString(%o) => %s", (value, expected) => {
+	it.each(cases)("guardAsString: $name", ({ value, expected }) => {
 		// Act
 		const res = guardAsString(value);
 

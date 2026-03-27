@@ -289,6 +289,6 @@ export function SongDetail() {
 
 ## References
 
-- [Component Documentation](file:///home/bkinsey/bkinsey808/songshare-effect/docs/component-patterns.md)
-- [Project Rules](file:///home/bkinsey/bkinsey808/songshare-effect/.agent/rules.md)
+- [Component Documentation](/.agent/workflows/file:/home/bkinsey/bkinsey808/songshare-effect/docs/component-patterns.md)
+- [Project Rules](/.agent/workflows/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/rules.md)
 - [React Documentation](https://react.dev/)

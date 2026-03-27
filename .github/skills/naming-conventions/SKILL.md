@@ -1,11 +1,9 @@
 ---
 name: naming-conventions
 description: Symbol and file naming conventions for functions, types, variables, and React components. Use when naming a new function, hook, type, file, or variable, or when reviewing whether an existing name is appropriate.
-compatibility: TypeScript 5.x, React 18+
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
 # Naming Conventions Skill
 
@@ -146,7 +144,7 @@ function ParticipantRow({ participant }: ParticipantRowProps) { ... }
 | Directory                     | kebab-case                         | `event-manage-view/`, `community-search-input/`     |
 | Doc files                     | kebab-case `.md`                   | `authentication-system.md`                          |
 
-> For complete file organization rules see [file-organization skill](../file-organization/SKILL.md).
+> For complete file organization rules see [file-organization skill](/.github/skills/file-organization/SKILL.md).
 
 ## Validation Checklist
 
@@ -160,10 +158,10 @@ Before finalizing a name, ask:
 
 ## References
 
-- [file-organization skill](../file-organization/SKILL.md) — full file/directory naming rules
-- [react-conventions skill](../react-conventions/SKILL.md) — React-specific patterns
-- [typescript-conventions skill](../typescript-conventions/SKILL.md) — type declaration conventions
-- [.agent/rules.md](../../../.agent/rules.md) — canonical project rules
+- [file-organization skill](/.github/skills/file-organization/SKILL.md) — full file/directory naming rules
+- [react-conventions skill](/.github/skills/react-conventions/SKILL.md) — React-specific patterns
+- [typescript-conventions skill](/.github/skills/typescript-conventions/SKILL.md) — type declaration conventions
+- [.agent/rules.md](/.agent/rules.md) — canonical project rules
 
 ## Do Not
 

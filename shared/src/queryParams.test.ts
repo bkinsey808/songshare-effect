@@ -12,21 +12,25 @@ import {
 } from "./queryParams";
 
 describe("queryParams", () => {
-	it.each([
-		["justSignedInQueryParam", justSignedInQueryParam, "justSignedIn"],
-		["signinErrorQueryParam", signinErrorQueryParam, "signinError"],
-		["providerQueryParam", providerQueryParam, "provider"],
-		["codeQueryParam", codeQueryParam, "code"],
-		["stateQueryParam", stateQueryParam, "state"],
-		["redirectPortQueryParam", redirectPortQueryParam, "redirect_port"],
-		["langQueryParam", langQueryParam, "lang"],
-	] as const)("exports %s as %s", (_name, actual, expected) => {
+	const paramCases = [
+		{ name: "justSignedInQueryParam", actual: justSignedInQueryParam, expected: "justSignedIn" },
+		{ name: "signinErrorQueryParam", actual: signinErrorQueryParam, expected: "signinError" },
+		{ name: "providerQueryParam", actual: providerQueryParam, expected: "provider" },
+		{ name: "codeQueryParam", actual: codeQueryParam, expected: "code" },
+		{ name: "stateQueryParam", actual: stateQueryParam, expected: "state" },
+		{ name: "redirectPortQueryParam", actual: redirectPortQueryParam, expected: "redirect_port" },
+		{ name: "langQueryParam", actual: langQueryParam, expected: "lang" },
+	] as const;
+
+	it.each(paramCases)("exports $name as expected", ({ actual, expected }) => {
+		// Assert
 		expect(actual).toBe(expected);
 	});
 
 	const SIGNIN_TOKEN_COUNT = 8;
 
 	it("signin error token contains expected token values", () => {
+		// Assert
 		expect(SigninErrorToken.providerMismatch).toBe("providerMismatch");
 		expect(SigninErrorToken.rateLimit).toBe("rateLimit");
 		expect(SigninErrorToken.unknown).toBe("unknown");

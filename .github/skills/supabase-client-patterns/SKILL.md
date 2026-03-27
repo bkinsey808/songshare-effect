@@ -1,11 +1,9 @@
 ---
 name: supabase-client-patterns
 description: Which Supabase client to use in React (public vs token-auth vs withAuth), safe-query helpers (callSelect/callInsert/callUpdate), and SupabaseClientLike type. Use when querying Supabase from a React component, hook, or fetch function.
-compatibility: Supabase JS 2.x, TypeScript 5.x
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
 # Supabase Client Patterns (React)
 
@@ -131,8 +129,8 @@ For the client itself use `getSupabaseClient.test-util` from `@/react/lib/supaba
 
 ## References
 
-- Authentication skill: [../authentication-system/SKILL.md](../authentication-system/SKILL.md)
-- Unit testing mocking: [../unit-testing/SKILL.md](../unit-testing/SKILL.md)
+- Authentication skill: [../authentication-system/SKILL.md](/.github/skills/authentication-system/SKILL.md)
+- Unit testing mocking: [../unit-test-best-practices/SKILL.md](/.github/skills/unit-test-best-practices/SKILL.md)
 - Generated types: `@/shared/generated/supabaseTypes`
 
 ## Success Criteria

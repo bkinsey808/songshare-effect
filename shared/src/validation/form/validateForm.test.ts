@@ -39,32 +39,36 @@ async function init(
 
 describe("validateForm", () => {
 	it("returns success with typed data when schema passes", async () => {
+		// Arrange
 		const validateForm = await init();
-
 		const schema = Schema.Struct({ foo: Schema.String });
 		const good: SimpleShape = { foo: "hello" };
 
+		// Act
 		const result = validateForm<SimpleShape>({
 			schema,
 			data: good,
 			i18nMessageKey: Symbol("irrelevant"),
 		});
 
+		// Assert
 		expect(result).toStrictEqual({ success: true, data: good });
 	});
 
 	it("returns a field-specific error when value is invalid", async () => {
+		// Arrange
 		const validateForm = await init();
-
 		const schema = Schema.Struct({ foo: Schema.String });
 		const bad = { foo: 123 };
 
+		// Act
 		const result = validateForm<SimpleShape>({
 			schema,
 			data: bad,
 			i18nMessageKey: Symbol("irrelevant"),
 		});
 
+		// Assert
 		expect(result).toMatchObject({
 			success: false,
 			errors: [{ field: "foo" }],
@@ -72,6 +76,7 @@ describe("validateForm", () => {
 	});
 
 	it("handles FiberFailureImpl errors by parsing the message as JSON", async () => {
+		// Arrange
 		const fakeErrors: ValidationError[] = [{ field: "x", message: "msg" }];
 
 		const validateForm = await init(
@@ -80,16 +85,19 @@ describe("validateForm", () => {
 			}),
 		);
 
+		// Act
 		const res = validateForm<string>({
 			schema: Schema.String,
 			data: "whatever",
 			i18nMessageKey: Symbol("irrelevant"),
 		});
 
+		// Assert
 		expect(res).toStrictEqual({ success: false, errors: fakeErrors });
 	});
 
 	it("extracts errors from a plain Error whose message is JSON", async () => {
+		// Arrange
 		const fakeErrors: ValidationError[] = [{ field: "y", message: "m2" }];
 		const validateForm = await init(
 			vi.fn(() => {
@@ -97,28 +105,33 @@ describe("validateForm", () => {
 			}),
 		);
 
+		// Act
 		const res = validateForm<string>({
 			schema: Schema.String,
 			data: "anything",
 			i18nMessageKey: Symbol("irrelevant"),
 		});
 
+		// Assert
 		expect(res).toStrictEqual({ success: false, errors: fakeErrors });
 	});
 
 	it("falls back to a generic form error when the thrown value is unrecognised", async () => {
+		// Arrange
 		const validateForm = await init(
 			vi.fn(() => {
 				throw new Error("nope");
 			}),
 		);
 
+		// Act
 		const res = validateForm<string>({
 			schema: Schema.String,
 			data: "whatever",
 			i18nMessageKey: Symbol("irrelevant"),
 		});
 
+		// Assert
 		expect(res).toStrictEqual({
 			success: false,
 			errors: [{ field: "form", message: "Validation failed" }],
@@ -126,6 +139,7 @@ describe("validateForm", () => {
 	});
 
 	it("can pull errors out of an arbitrary object with a cause property", async () => {
+		// Arrange
 		const fakeErrors: ValidationError[] = [{ field: "z", message: "m3" }];
 		const thrown = new Error("thrown") as Error & { cause?: unknown };
 		thrown.cause = fakeErrors;
@@ -136,12 +150,14 @@ describe("validateForm", () => {
 			}),
 		);
 
+		// Act
 		const res = validateForm<string>({
 			schema: Schema.String,
 			data: "whatever",
 			i18nMessageKey: Symbol("irrelevant"),
 		});
 
+		// Assert
 		expect(res).toStrictEqual({ success: false, errors: fakeErrors });
 	});
 });

@@ -1,226 +1,79 @@
 ---
 name: code-comments
-description: Code comment conventions and examples (JSDoc vs inline comments, when to explain why vs what, max line length, and placement rules). Use when adding comments to TypeScript/React code or reviewing PR comments.
-compatibility: TypeScript 5.x, React 18+
-metadata:
-  author: bkinsey808
-  version: "1.0"
+description: >
+  Code comment conventions for TypeScript/React — JSDoc vs inline, when to
+  explain why vs what, params/returns rules, spacing, placement, and test
+  comment rules. Use when adding, updating, or reviewing comments in .ts or
+  .tsx files. Do NOT use for general documentation questions unrelated to
+  in-code comments.
 ---
 
-# Code Comments Skill
+**Requires:** file-read. No terminal needed unless validating after edits.
 
-## Use When
+**Depends on:** [`typescript-conventions/SKILL.md`](/.github/skills/typescript-conventions/SKILL.md) — load when comment changes are driven by API clarity or type changes.
 
-Use this skill when:
+## Full reference
 
-- Adding or editing comments/JSDoc in `.ts` or `.tsx` files.
-- Reviewing whether comments explain intent clearly without duplicating types or obvious code.
+[docs/code-comment-best-practices.md](/docs/code-comment-best-practices.md) — load on demand for
+detailed formatting patterns, examples, and edge cases.
 
-Execution workflow:
+## When invoked
 
-1. Prefer concise comments that explain why/intent, not restating code.
-2. Keep JSDoc aligned with repo rules (no repeated types, consistent placement/spacing).
-3. Add inline comments only for non-obvious logic blocks.
-4. Re-check nearby style/lint rules after comment edits.
+**Preconditions:**
+- Read the file being commented before making changes.
+- Check `.agent/rules.md` for repo-wide constraints.
 
-Output requirements:
+**Clarifying questions:**
+- **Defaults (proceed without asking):** add/update comments in the file already open; follow all rules below.
+- **Always ask:** which file if not specified.
 
-- Summarize where comments were added/updated and why.
-- Call out any rule exception and rationale if applicable.
+**Output format:**
+- Write changes directly; after edits output a brief bullet list of what was added/changed and why.
+- For question-answering: concise prose with inline code, referencing the relevant doc section.
 
-**What this skill does**
+**Error handling:**
+- If lint or tsc fails after comment edits, report verbatim and fix before declaring success.
 
-- Documents comment conventions used across the repo, including JSDoc rules for TypeScript files and inline `//` rules for implementation notes and tests.
-- Provides guidance to maintainers and contributors on where and how to add comments.
+## Quick rules
 
-**When to use**
+Core philosophy: explain the "why," not the "what." ([philosophy](/docs/code-comment-best-practices.md#1-philosophy))
 
-- When adding JSDoc above functions/components, or when clarifying non-obvious implementation choices.
-- When writing test comments that explain intent or complex setup.
-
-**Rules & Examples**
-
-- **No types in JSDoc** — TypeScript types should not be repeated in comments. Use `@param name - description` and `@returns - description` only.
-- **JSDoc for symbols** — Functions, components, and exported types should have JSDoc above them.
-- **Don't repeat symbol names in JSDoc** — Do not start the JSDoc with the function or symbol name. The symbol name is already declared by the code; begin with a concise description of purpose and behavior instead.
-- **Always include `@returns`** — Every function should include an `@returns` tag. For functions that return `void`, document `@returns void` so the intent is explicit.
-- **Inline `//` for logic** — Use `//` above non-symbol blocks like `useEffect` or complex conditionals.
-- **Placement** — Comments must be on the line(s) immediately above target code, never on the same line.
-
-- **JSDoc spacing** — Always leave exactly one blank line (a single empty line) above a JSDoc block to visually separate it from preceding code, unless the JSDoc is at the top of the file. Exception: when a JSDoc sits at the top of a code block (for example, immediately after a line ending with `{`), formatters may compress blank lines; in these cases a preceding blank line is optional and either form is acceptable. **Do not** add multiple blank lines — tools and readers expect a single separating line. This makes docs easier to scan and avoids subtle parser/tooling issues that rely on a blank line before doc blocks.
-
-**Bad (two blank lines):**
-
-```ts
-const x = 1;
-
-/**
- * Description...
- */
-function f() {}
-```
-
-**Good (one blank line):**
-
-```ts
-const x = 1;
-
-/**
- * Description...
- */
-function f() {}
-```
-
-- **Separation between JSDoc and `//` comments** — A JSDoc block must be immediately above the symbol it documents (no blank lines or comments between the JSDoc and the symbol). If you need an explanatory single-line `//` comment, place it _above_ the JSDoc and keep a single blank line between the `//` comment and the JSDoc block (never put `//` comments between a JSDoc block and the symbol). This avoids ambiguous or squished comment layouts and makes tooling more reliable.
-- **Prefer integrating notes into JSDoc** — In most cases, concise implementation notes or warnings should be part of the JSDoc text (an extra sentence or an `@remarks` section) rather than a separate `//` comment. This keeps the API documentation cohesive and ensures important notes are captured by documentation tools.
-
-- **Single-object params (props) — document fields directly** — When a function or component accepts a single object (often named `props`), do **not** create a standalone `@param props` entry. Instead, list each destructured field as its own `@param`. The `props` wrapper adds noise and can mislead readers into thinking they should pass an object rather than using destructuring.
-
-  This rule applies even when there are only one or two fields; being explicit makes the documentation clearer and matches common call-site usage.
-
-**Bad:**
-
-```ts
-/**
- * Small interactive demo component with a text input and counter.
- *
- * @param props - Component props
- * @param props.title - Title to display in the demo card
- * @param props.somethingElse - Some other thing
- * @returns React element with interactive UI controls
- */
-export default function InteractiveComponent({
-	title,
-	somethingElse,
-}: InteractiveComponentParams): ReactElement {}
-```
-
-**Good:**
-
-```ts
-/**
- * Small interactive demo component with a text input and counter.
- *
- * @param title - Title to display in the demo card
- * @param somethingElse - Some other thing
- * @returns React element with interactive UI controls
- */
-export default function InteractiveComponent({
-	title,
-	somethingElse,
-}: InteractiveComponentParams): ReactElement {}
-```
-
-- **Max 100 chars** — Keep lines short; use multi-line JSDoc when necessary.
-
-**Examples**
-
-**Bad (squished - INVALID):**
-
-```ts
-/**
- * Does something important.
- *
- * @returns void
- */
-// Internal note: this touches global state (do not refactor)
-function doSomething(): void {}
-```
-
-**Acceptable (separated - VALID):**
-
-```ts
-// Internal note: this touches global state (do not refactor)
-
-/**
- * Does something important.
- *
- * @returns void
- */
-function doSomething(): void {}
-```
-
-**Better (prefer integrated note - PREFERRED):**
-
-```ts
-/**
- * Does something important.
- *
- * @remarks
- * Internal note: this touches global state (do not refactor)
- *
- * @returns void
- */
-function doSomething(): void {}
-```
-
-- See project comment agent: `/.cursor/rules/comment-agent.mdc` and `.github/agents/Comment Agent.agent.md` for canonical examples.
-
-### JSDoc examples
-
-```ts
-/**
- * Store a value in the cache for later use.
- *
- * @param value - The value to cache
- * @returns void
- */
-function cacheValue(value: string): void {
-	// implementation
-}
-```
-
-```ts
-/**
- * Return the currently signed-in user's id, or `undefined` if not signed in.
- *
- * @returns The user id string or `undefined` when not signed in
- */
-function getCurrentUserId(): string | undefined {
-	return store.userId;
-}
-```
-
-```ts
-/**
- * Small interactive demo component with a text input and counter.
- *
- * @param title - Title to display in the demo card
- * @param somethingElse - Some other thing
- * @returns React element with interactive UI controls
- */
-export default function InteractiveComponent({ title, somethingElse }: InteractiveComponentParams): ReactElement {
-  return <div />;
-}
-```
+- **JSDoc (`/** */`)** for exported functions, components, and types. ([when to use](/docs/code-comment-best-practices.md#jsdoc-when))
+- **`//`** for logic blocks (`useEffect`, complex conditionals), test descriptions, and grouped constants. ([inline comments](/docs/code-comment-best-practices.md#inline-comments))
+- **No types in JSDoc** — TypeScript provides them. Use `@param name - description` only. ([formatting](/docs/code-comment-best-practices.md#jsdoc-formatting))
+- **Always `@returns`** — write `@returns void` for void functions. ([params & returns](/docs/code-comment-best-practices.md#jsdoc-params-returns))
+- **Props: document fields directly** — no `@param props` wrapper; list each destructured field. ([params & returns](/docs/code-comment-best-practices.md#jsdoc-params-returns))
+- **Multi-line JSDoc:** `/**` and `*/` each on their own line. ([formatting](/docs/code-comment-best-practices.md#jsdoc-formatting))
+- **One blank line above** a JSDoc block; no blank lines between JSDoc and its symbol. ([spacing & placement](/docs/code-comment-best-practices.md#spacing-placement))
+- **No JSDoc above `describe`/`it`/`test`** — use `//` only when the name isn't self-explanatory. ([test comments](/docs/code-comment-best-practices.md#test-comments))
+- **Grouped constants** — use `//` above the group, not JSDoc spanning multiple symbols. ([constants](/docs/code-comment-best-practices.md#constants))
+- **Max 100 chars per line.** ([formatting](/docs/code-comment-best-practices.md#jsdoc-formatting))
 
 ## Validation
 
-Run these to check formatting and types after adding comments:
-
 ```bash
 npm run lint
-npx tsc -b .
 ```
 
-## References
-
-- Agent guidance: [.github/agents/Comment Agent.agent.md](../../agents/Comment%20Agent.agent.md)
-- Project rules: [.agent/rules.md](../../../.agent/rules.md)
-
-## Do Not
+## Do not
 
 - Do not violate repo-wide rules in `.agent/rules.md`.
-- Do not add broad lint/type suppressions without explicit justification.
+- Do not change logic — comments only.
+- Do not add types in JSDoc for `.ts`/`.tsx` files.
 - Do not expand scope beyond the requested task without calling it out.
 
-## Success Criteria
+## Skill handoffs
 
-- Changes follow this skill's conventions and project rules.
-- Relevant validation commands are run, or skipped with a clear reason.
-- Results clearly summarize behavior impact and remaining risks.
+- For TypeScript API clarity issues, also load `typescript-conventions`.
+- For React hook or component comments, also load `react-conventions`.
 
-## Skill Handoffs
+## Evaluations (I/O examples)
 
-- If comment updates are driven by TypeScript API clarity, also load `typescript-conventions`.
-- If comments are for React hooks/components, also load `react-conventions`.
+**Input:** "Add JSDoc to all exported functions in `src/utils/format.ts`"
+**Expected:** Agent reads the file, adds JSDoc with correct param/returns rules (no types, destructured props, `@returns void` where applicable), runs lint + tsc, reports what was added.
+
+**Input:** "How should I comment a `useEffect` block?"
+**Expected:** Agent answers in prose: use `//` above the `useEffect`, explain the why not the what, never on the same line. References [§5 of the doc](/docs/code-comment-best-practices.md#inline-comments).
+
+**Input:** "Add comments" (no file specified)
+**Expected:** Agent asks which file before proceeding.

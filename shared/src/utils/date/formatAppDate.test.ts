@@ -23,19 +23,30 @@ const SECOND_5 = 5;
 const SECOND_59 = 59;
 
 describe("formatAppDate", () => {
-	const cases: [Date | string, string][] = [
-		[new Date(YEAR_2026, JANUARY, DAY_19), "2026/01/19"],
-		[new Date(YEAR_2025, MARCH, DAY_5), "2025/03/05"],
-		["2026-01-19T12:00:00.000Z", "2026/01/19"],
+	const cases: { name: string; input: Date | string; expected: string }[] = [
+		{
+			name: "date object 2026-01-19",
+			input: new Date(YEAR_2026, JANUARY, DAY_19),
+			expected: "2026/01/19",
+		},
+		{
+			name: "date object 2025-03-05",
+			input: new Date(YEAR_2025, MARCH, DAY_5),
+			expected: "2025/03/05",
+		},
+		{ name: "ISO string", input: "2026-01-19T12:00:00.000Z", expected: "2026/01/19" },
 	];
 
-	it.each(cases)("formats %p -> %s", (input: Date | string, expected: string) => {
-		// Act
-		const got = formatAppDate(input);
+	it.each(cases)(
+		"formats $name",
+		({ input, expected }: { input: Date | string; expected: string }) => {
+			// Act
+			const got = formatAppDate(input);
 
-		// Assert
-		expect(got).toBe(expected);
-	});
+			// Assert
+			expect(got).toBe(expected);
+		},
+	);
 });
 
 describe("formatAppDateTime", () => {

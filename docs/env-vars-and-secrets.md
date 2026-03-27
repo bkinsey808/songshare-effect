@@ -223,7 +223,7 @@ keyring get songshare-dev VAR_NAME
 keyring list songshare-dev
 ```
 
-See [docs/wsl-keyring.md](wsl-keyring.md) for setup instructions on WSL.
+See [docs/wsl-keyring.md](/docs/wsl-keyring.md) for setup instructions on WSL.
 
 ---
 

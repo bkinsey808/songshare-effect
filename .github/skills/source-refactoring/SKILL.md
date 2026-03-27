@@ -1,11 +1,9 @@
 ---
 name: source-refactoring
 description: Patterns for splitting functions and components into their own files. Ensures consistent exports, JSDoc preservation, and test colocation. Use when refactoring large files or extracting reusable logic.
-compatibility: TypeScript 5.x, React 18+, Vitest 1.x
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
 # Source Refactoring Skill
 
@@ -75,7 +73,7 @@ For test helper files created during refactoring, **always use absolute imports*
 
 Test helper files should export **callable setup functions**, not auto-execute at import time. Use `vi.hoisted()` for shared mock state.
 
-See [unit-testing skill](../unit-testing/SKILL.md) for full mocking patterns and examples.
+See [unit-test-best-practices skill](/.github/skills/unit-test-best-practices/SKILL.md) for full mocking patterns and examples.
 
 ### 4. Preserve JSDoc
 

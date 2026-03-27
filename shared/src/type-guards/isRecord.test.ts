@@ -15,9 +15,12 @@ describe("isRecord module shape diagnostics", () => {
 });
 
 describe("isRecord behavior", () => {
-	const truthyCases = [[{}], [{ key: NUM_ONE }]] as const;
+	const truthyCases = [
+		{ name: "empty object", value: {} },
+		{ name: "object with key", value: { key: NUM_ONE } },
+	] as const;
 
-	it.each(truthyCases)("returns true for %o", (value) => {
+	it.each(truthyCases)("returns true for $name", ({ value }) => {
 		// Act
 		const result = isRecord(value);
 
@@ -26,16 +29,16 @@ describe("isRecord behavior", () => {
 	});
 
 	const falsyCases = [
-		[[]],
-		[[NUM_ONE, NUM_TWO, NUM_THREE]],
-		[undefined],
-		[NOT_RECORD_PRIMITIVE],
-		["hello"],
+		{ name: "array", value: [] },
+		{ name: "tuple-like array", value: [NUM_ONE, NUM_TWO, NUM_THREE] },
+		{ name: "undefined", value: undefined },
+		{ name: "primitive number", value: NOT_RECORD_PRIMITIVE },
+		{ name: "string", value: "hello" },
 	] as const;
 
-	it.each(falsyCases)("returns false for %o", (value) => {
+	it.each(falsyCases)("returns false for $name", ({ value }) => {
 		// Act
-		const result = isRecord(value);
+		const result = isRecord(value as unknown);
 
 		// Assert
 		expect(result).toBe(false);

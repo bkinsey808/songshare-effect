@@ -1,11 +1,9 @@
 ---
 name: hono-api-patterns
 description: Hono API route handlers, middleware patterns, request/response handling, and integration with Effect-TS. Use when building API endpoints, implementing middleware, handling errors, or validating request data.
-compatibility: Hono 4.x, Effect 3.x, TypeScript 5.x, Node.js 20+
-metadata:
-  author: bkinsey808
-  version: "1.2"
 ---
+
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
 # Hono API Patterns Skill
 
@@ -18,7 +16,7 @@ Use this skill when:
 
 Execution workflow:
 
-1. Read the full workflow doc: [`.agent/workflows/add-api-endpoint.md`](../../../.agent/workflows/add-api-endpoint.md) before writing any code.
+1. Read the full workflow doc: [`.agent/workflows/add-api-endpoint.md`](/.agent/workflows/add-api-endpoint.md) before writing any code.
 2. Keep endpoint logic in Effect and route through shared HTTP helpers.
 3. Validate request input using `decodeUnknownSyncOrThrow` + shared schemas.
 4. Reuse existing middleware and error mapping patterns before creating new abstractions.
@@ -194,10 +192,10 @@ npm run lint                            # full suite
 
 ## References
 
-- Full endpoint workflow: [`.agent/workflows/add-api-endpoint.md`](../../../.agent/workflows/add-api-endpoint.md)
-- Effect-TS patterns: [../effect-ts-patterns/SKILL.md](../effect-ts-patterns/SKILL.md)
-- Unit testing API handlers: [../unit-testing/SKILL.md](../unit-testing/SKILL.md)
-- Project rules: [`.agent/rules.md`](../../../.agent/rules.md)
+- Full endpoint workflow: [`.agent/workflows/add-api-endpoint.md`](/.agent/workflows/add-api-endpoint.md)
+- Effect-TS patterns: [../effect-ts-patterns/SKILL.md](/.github/skills/effect-ts-patterns/SKILL.md)
+- Unit testing API handlers: [../unit-test-best-practices/SKILL.md](/.github/skills/unit-test-best-practices/SKILL.md)
+- Project rules: [`.agent/rules.md`](/.agent/rules.md)
 
 ## Do Not
 

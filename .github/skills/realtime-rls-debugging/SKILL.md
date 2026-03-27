@@ -1,11 +1,9 @@
 ---
 name: realtime-rls-debugging
 description: Debugging Supabase Realtime subscriptions that connect but deliver no updates, empty filter errors, and RLS silent-rejection diagnosis. Use when Realtime subscriptions are not delivering messages or updates.
-compatibility: Supabase Realtime, PostgreSQL RLS
-metadata:
-  author: bkinsey808
-  version: "1.1"
 ---
+
+**Requires:** file-read, terminal (Supabase CLI/SQL). No network access needed.
 
 # Realtime + RLS Debugging Skill
 
@@ -124,7 +122,7 @@ WHERE schemaname = 'public' AND tablename = 'event_public' AND policyname LIKE '
 Common mistakes:
 
 - Wrong JWT path (`{ user_id: "..." }` at root instead of inside `app_metadata`)
-- Missing visitor token branch (see [realtime-rls-architecture skill](../realtime-rls-architecture/SKILL.md))
+- Missing visitor token branch (see [realtime-rls-architecture skill](/.github/skills/realtime-rls-architecture/SKILL.md))
 - `WITH CHECK` clause blocks the UPDATE/change notification row
 
 ---
@@ -133,7 +131,7 @@ Common mistakes:
 
 ### Subscription connects, no updates
 
-Most likely RLS is silently filtering the subscriber. Confirm with the SQL simulation (Step 4), then verify the SELECT policy includes both visitor and user JWT paths. See [realtime-rls-architecture skill](../realtime-rls-architecture/SKILL.md) for the verified production policy templates.
+Most likely RLS is silently filtering the subscriber. Confirm with the SQL simulation (Step 4), then verify the SELECT policy includes both visitor and user JWT paths. See [realtime-rls-architecture skill](/.github/skills/realtime-rls-architecture/SKILL.md) for the verified production policy templates.
 
 ### Updates reach some users, not others
 
@@ -159,8 +157,8 @@ Manual two-tab smoke test:
 
 ## References
 
-- Architecture + policy templates: [realtime-rls-architecture skill](../realtime-rls-architecture/SKILL.md)
-- JWT token structure: [authentication-system skill](../authentication-system/SKILL.md)
+- Architecture + policy templates: [realtime-rls-architecture skill](/.github/skills/realtime-rls-architecture/SKILL.md)
+- JWT token structure: [authentication-system skill](/.github/skills/authentication-system/SKILL.md)
 - [Supabase Realtime docs](https://supabase.com/docs/guides/realtime)
 - [Supabase RLS docs](https://supabase.com/docs/guides/auth/row-level-security)
 - Project migration: `supabase/migrations/20260220000011_re_enable_rls_on_event_public.sql`

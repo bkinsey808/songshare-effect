@@ -4,7 +4,7 @@ Comprehensive guide for testing React hooks with Vitest + Testing Library. Cover
 the "Documentation by Harness" pattern, fixtures, subscriptions, lint traps, and a pre-completion
 checklist.
 
-For general Vitest setup (mocking, pitfalls, API testing) see [unit-testing.md](./unit-testing.md).
+For general Vitest setup (mocking, pitfalls, API testing) see [unit-test-best-practices.md](/docs/unit-test-best-practices.md).
 
 ---
 
@@ -103,7 +103,7 @@ Call `installStore(...)` as the **first line of each test**, not in `beforeEach`
 store state immediately visible at the test call site and avoids shared setup that obscures what a
 failing test depends on.
 
-See [unit-testing.md — forceCast and installStore](./unit-testing.md#forceCast-and-the-installStore-selector-dispatch-pattern)
+See [unit-test-best-practices.md — forceCast and installStore](/docs/unit-test-best-practices.md#forceCast-and-the-installStore-selector-dispatch-pattern)
 for the full pattern and why `String(selector).includes(...)` string dispatch is avoided.
 
 ---
@@ -718,7 +718,7 @@ Before calling a hook test complete, verify:
       `expect.any(Object)`
 - [ ] Filter queries narrow the list — not a wildcard that matches everything
 - [ ] Harness destructures hook return; only bindings used in JSX are included
-- [ ] `act` / `waitFor` usage follows the general guidance in [unit-testing.md](./unit-testing.md#act-vs-waitfor)
+- [ ] `act` / `waitFor` usage follows the general guidance in [unit-test-best-practices.md](/docs/unit-test-best-practices.md#act-vs-waitfor)
 - [ ] No `eslint-disable` comments in the test file
 - [ ] No custom `assertDefined` helpers — use singular `getBy*` variants
 - [ ] `toHaveBeenCalledWith(expect.objectContaining({...}))` used instead of a side-effect
@@ -736,8 +736,8 @@ Before calling a hook test complete, verify:
 
 ## References
 
-- [unit-testing.md](./unit-testing.md) — Core Vitest setup, mocking, pitfalls, API testing
-- [react-conventions.md](./component-patterns.md) — React Compiler rules
+- [unit-test-best-practices.md](/docs/unit-test-best-practices.md) — Core Vitest setup, mocking, pitfalls, API testing
+- [react-conventions.md](/docs/component-patterns.md) — React Compiler rules
 - Agent guidance: `.github/agents/Unit Test Agent.agent.md`
 - `@testing-library/react` docs: https://testing-library.com/docs/react-testing-library/api/#renderhook
 - Vitest documentation: https://vitest.dev/

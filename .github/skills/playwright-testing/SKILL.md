@@ -1,11 +1,9 @@
 ---
 name: playwright-testing
 description: Playwright testing workflows, templates, and tips for stable, non-flaky E2E tests in dev and CI environments. Use when writing Playwright specs for critical user flows (auth, navigation, features).
-compatibility: Playwright 1.x, Node.js 20+, Chrome/Firefox/Safari browsers
-metadata:
-  author: bkinsey808
-  version: "1.0"
 ---
+
+**Requires:** file-read, terminal (test runner). No network access needed.
 
 # Playwright Testing Skill
 
@@ -48,7 +46,7 @@ Output requirements:
 
 ## Examples
 
-- See [example.spec.ts](./example.spec.ts) for a templated test showing auth, navigation, and assertions.
+- See [example.spec.ts](/.github/skills/playwright-testing/example.spec.ts) for a templated test showing auth, navigation, and assertions.
 
 ## Common Pitfalls
 
@@ -128,5 +126,5 @@ npx playwright show-report
 
 ## Skill Handoffs
 
-- If you need unit-level coverage in addition to E2E, also load `unit-testing`.
+- If you need unit-level coverage in addition to E2E, also load `unit-test-best-practices`.
 - If E2E failures involve auth behavior, also load `authentication-system`.

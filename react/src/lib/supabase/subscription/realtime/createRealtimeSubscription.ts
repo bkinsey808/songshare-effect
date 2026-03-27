@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 
-import unwrapError from "@/shared/utils/unwrap-error";
+import unwrapError from "@/shared/utils/unwrapError";
 
 import handleSubscriptionStatus from "../status/handleSubscriptionStatus";
 import isSubscriptionStatus from "../status/isSubscriptionStatus";

@@ -1,45 +1,49 @@
 ---
 name: react-conventions
-description: React 18+ conventions for this project — React Compiler (no manual memoization), ReactElement ambient type, useEffect comment rule, component organization. Use when authoring or editing any React component, hook, or page.
-compatibility: React 18+, React Compiler enabled, TypeScript 5.x
-metadata:
-  author: bkinsey808
-  version: "1.1"
+description: >
+  React 18+ conventions for this project — React Compiler (no manual
+  memoization), ReactElement ambient type, useEffect comment rule, component
+  organization. Use when authoring or editing any React component, hook, or
+  page. Do NOT use for general TypeScript-only utilities with no React imports
+  — load typescript-conventions instead.
 ---
 
-# React Conventions Skill
+**Requires:** file-read, terminal (linting/testing). No network access needed.
 
-## Use When
+**Depends on:** [`manage-page-patterns/SKILL.md`](/.github/skills/manage-page-patterns/SKILL.md) — load when the task involves admin/manage page mutations. [`supabase-client-patterns/SKILL.md`](/.github/skills/supabase-client-patterns/SKILL.md) — load when the task involves React-side Supabase queries.
 
-Use this skill when:
+## Full reference
 
-- Editing components, pages, or hooks under `react/`.
-- Resolving React lint/style issues tied to repo conventions.
+- React conventions: [references/REFERENCE.md](/.github/skills/react-conventions/references/REFERENCE.md) — load on demand for deep dives
+- Zustand in React: [references/ZUSTAND.md](/.github/skills/react-conventions/references/ZUSTAND.md) — load when the task involves store selectors or slices
 
-Execution workflow:
+## When invoked
 
-1. Apply core rules first: no `memo`/`useMemo`/`useCallback` unless explicitly justified.
-2. Ensure every `useEffect` has a `//` comment directly above it.
-3. Use ambient `ReactElement` conventions and avoid unnecessary type imports.
-4. Keep one primary component per file and colocate tests.
-5. Run targeted tests where relevant, then `npm run lint`.
+**Preconditions:**
+- Read the component/hook file before editing.
+- Check `.agent/rules.md` for repo-wide constraints.
 
-Output requirements:
+**Clarifying questions:**
+- **Defaults (proceed without asking):** apply all core rules below; edit the file already open or mentioned.
+- **Always ask:** which file if not specified and cannot be inferred.
 
-- Summarize which conventions were enforced.
-- Call out any explicit exception and why.
+**Output format:**
+- Write code changes directly. After edits, output a brief bullet list of which conventions were applied and why, and which validation commands were run.
+- For question-answering: concise prose with inline code.
 
-## Core Rules
+**Error handling:**
+- If `npm run lint` or `npx tsc -b .` fails after changes, report verbatim and fix before declaring success.
+- If the task would require memoization with documented justification, flag it and ask the user to confirm before adding it.
 
-- Do not manually memoize by default; React Compiler handles optimization.
-- Keep `useEffect` dependency arrays complete.
-- Use shared test wrappers (for example `RouterWrapper`) in hook/component tests.
-- Prefer clear component boundaries and direct imports.
+## Core rules
 
-## References
-
-- Deep reference: [references/REFERENCE.md](references/REFERENCE.md)
-- Manage page mutation pattern: [../manage-page-patterns/SKILL.md](../manage-page-patterns/SKILL.md)
+- **No manual memoization** — React Compiler handles optimization. Do not introduce `useCallback`, `useMemo`, or `memo` unless there is a documented performance reason and explicit human approval.
+- **`useEffect` comment** — every `useEffect` block must have a `//` comment on the line directly above it explaining why the effect exists.
+- **Complete dependency arrays** — keep `useEffect` dependency arrays complete; do not suppress the lint rule.
+- **`ReactElement` is ambient** — do not import it from `react`; it is available globally in this project.
+- **One component per file** — keep one primary component per file; colocate its tests.
+- **Direct imports** — no barrel re-exports; import directly from source files.
+- **Prefer plain function declarations** for event handlers and local callbacks (e.g. `function handleClick(): void {}`).
 
 ## Validation
 
@@ -48,19 +52,20 @@ npx tsc -b .
 npm run lint
 ```
 
-## Do Not
+## Evaluations (I/O examples)
+
+**Input:** "Remove the useCallback from this event handler in `MyComponent.tsx`"
+**Expected:** Agent reads the file, removes `useCallback` wrapper, converts to a plain `function handle(): void {}` declaration, runs `npm run lint` and `npx tsc -b .`, reports what changed and that React Compiler now handles memoization automatically.
+
+**Input:** "Add a useEffect that syncs `selectedId` to localStorage"
+**Expected:** Agent adds `useEffect` with a `//` comment above it explaining why, includes `selectedId` in the dependency array, runs lint. Does not add `useCallback` to the setter.
+
+**Input:** "Write tests for `useMyHook.ts`"
+**Expected:** Agent loads `unit-test-hook-best-practices` skill and proceeds per that skill's guidance, not this one.
+
+## Do not
 
 - Do not violate repo-wide rules in `.agent/rules.md`.
 - Do not add broad lint/type suppressions without explicit justification.
+- Do not introduce `useCallback`/`useMemo`/`memo` without documented justification and user approval.
 - Do not expand scope beyond the requested task without calling it out.
-
-## Success Criteria
-
-- Changes follow this skill's conventions and project rules.
-- Relevant validation commands are run, or skipped with a clear reason.
-- Results clearly summarize behavior impact and remaining risks.
-
-## Skill Handoffs
-
-- If the task is primarily form submission/validation, also load `form-patterns`.
-- If the task includes React-side Supabase querying, also load `supabase-client-patterns`.
