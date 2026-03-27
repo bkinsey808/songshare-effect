@@ -3,6 +3,7 @@
 // Cached shared visitor token
 let cachedSupabaseClientToken: string | undefined = undefined;
 let tokenExpiry: number | undefined = undefined;
+let cachedRealtimeToken: string | undefined = undefined;
 
 /**
  * Cache for user-specific tokens keyed by user email. Each entry contains the
@@ -23,8 +24,9 @@ export const userTokenCache: Map<string, { token: string; expiry: number }> = ne
 export function getCachedClientToken(): {
 	token: string | undefined;
 	expiry: number | undefined;
+	realtimeToken: string | undefined;
 } {
-	return { token: cachedSupabaseClientToken, expiry: tokenExpiry };
+	return { token: cachedSupabaseClientToken, expiry: tokenExpiry, realtimeToken: cachedRealtimeToken };
 }
 
 /**
@@ -35,9 +37,10 @@ export function getCachedClientToken(): {
  *   invalid.
  * @returns - nothing.
  */
-export function setCachedClientToken(token: string, expiry: number): void {
+export function setCachedClientToken(token: string, expiry: number, realtimeToken?: string): void {
 	cachedSupabaseClientToken = token;
 	tokenExpiry = expiry;
+	cachedRealtimeToken = realtimeToken;
 }
 
 /**
@@ -48,4 +51,5 @@ export function setCachedClientToken(token: string, expiry: number): void {
 export function clearCachedClientToken(): void {
 	cachedSupabaseClientToken = undefined;
 	tokenExpiry = undefined;
+	cachedRealtimeToken = undefined;
 }

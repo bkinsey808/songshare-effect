@@ -34,13 +34,14 @@ export default async function getSupabaseClientTokenHandler(
 			...(SUPABASE_LEGACY_JWT_SECRET === undefined ? {} : { SUPABASE_LEGACY_JWT_SECRET }),
 		};
 
-		const accessToken = await getSupabaseClientToken(env);
+		const { accessToken, realtimeToken } = await getSupabaseClientToken(env);
 
 		return ctx.json({
 			access_token: accessToken,
 			token_type: "bearer",
 			// 1 hour
 			expires_in: ONE_HOUR_SECONDS,
+			...(realtimeToken === undefined ? {} : { realtime_token: realtimeToken }),
 		});
 	} catch (error) {
 		console.error(

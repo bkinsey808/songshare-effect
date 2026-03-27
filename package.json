@@ -44,7 +44,7 @@
 		"dev:servers:bg": "bash -lc '\n  nohup npm run dev:all > /tmp/dev-servers.log 2>&1 & echo $!\n'",
 		"dev:servers:detached": "bash -lc 'setsid npm run dev:all > /tmp/dev-servers.log 2>&1 < /dev/null & echo $!'",
 		"deploy:pages": "npm run build:client && bun run scripts/build/prepare-functions/prepare-functions.ts && npm run check:functions-dist-imports && bun run scripts/env/run-with-env.bun.ts --env production -- bash -lc 'cd dist && npx wrangler pages deploy . --project-name=\"$CLOUDFLARE_PROJECT\" --branch=main --commit-dirty=true'",
-		"deploy:pages:staging": "bun run scripts/env/run-with-env.bun.ts --env staging -- bash -lc 'npm run build:client && bun run scripts/build/prepare-functions/prepare-functions.ts && npm run check:functions-dist-imports && cd dist && npx wrangler pages deploy . --project-name=\"$CLOUDFLARE_STAGING_PROJECT\" --branch=main --commit-dirty=true'",
+		"deploy:pages:staging": "bun run scripts/env/run-with-env.bun.ts --env staging -- bash -lc 'tsc -b && vite build && bun run scripts/build/prepare-functions/prepare-functions.ts && npm run check:functions-dist-imports && cd dist && npx wrangler pages deploy . --project-name=\"$CLOUDFLARE_STAGING_PROJECT\" --branch=main --commit-dirty=true'",
 		"check:skill-line-count": "bun run ./scripts/check-skill-line-count/check-skill-line-count.bun.ts",
 		"check:functions-dist-imports": "bun ./scripts/check-dist-functions-imports.ts dist/functions",
 		"test:functions-dist": "bun run scripts/build/prepare-functions/prepare-functions.ts && npm run check:functions-dist-imports",

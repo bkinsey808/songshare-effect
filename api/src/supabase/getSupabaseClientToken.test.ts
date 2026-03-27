@@ -29,11 +29,12 @@ describe("getSupabaseClientToken", () => {
 		vi.mocked(tokenCache.getCachedClientToken).mockReturnValue({
 			token: MOCK_TOKEN,
 			expiry: nowSec + ONE_HOUR_SECONDS,
+			realtimeToken: undefined,
 		});
 
 		const result = await getSupabaseClientToken(ENV);
 
-		expect(result).toBe(MOCK_TOKEN);
+		expect(result.accessToken).toBe(MOCK_TOKEN);
 		expect(tokenCache.setCachedClientToken).not.toHaveBeenCalled();
 	});
 
@@ -44,6 +45,7 @@ describe("getSupabaseClientToken", () => {
 		vi.mocked(tokenCache.getCachedClientToken).mockReturnValue({
 			token: MOCK_TOKEN,
 			expiry: nowSec + TOKEN_CACHE_SKEW_SECONDS - ONE,
+			realtimeToken: undefined,
 		});
 
 		const signInWithPassword = vi.fn().mockResolvedValue({
@@ -62,7 +64,7 @@ describe("getSupabaseClientToken", () => {
 
 		const result = await getSupabaseClientToken(ENV);
 
-		expect(result).toBe(MOCK_TOKEN);
+		expect(result.accessToken).toBe(MOCK_TOKEN);
 		expect(signInWithPassword).toHaveBeenCalledWith({
 			email: VISITOR_EMAIL,
 			password: VISITOR_PASSWORD,

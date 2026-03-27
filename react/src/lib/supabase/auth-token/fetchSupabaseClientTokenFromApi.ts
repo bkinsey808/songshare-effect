@@ -1,7 +1,7 @@
 import { apiAuthVisitorPath } from "@/shared/paths";
 
 import isTokenResponse from "../token/isTokenResponse";
-import { cacheSupabaseClientToken } from "../token/token-cache";
+import { cacheRealtimeToken, cacheSupabaseClientToken } from "../token/token-cache";
 
 // Time constants used locally
 const MS_IN_SECOND = 1000;
@@ -37,6 +37,9 @@ export default async function fetchSupabaseClientTokenFromApi(): Promise<string>
 		// Cache the token in memory (more secure than cookies)
 		const expiryTime = Date.now() + data.expires_in * MS_IN_SECOND;
 		cacheSupabaseClientToken(data.access_token, expiryTime);
+		if ("realtime_token" in data && typeof data.realtime_token === "string") {
+			cacheRealtimeToken(data.realtime_token);
+		}
 
 		return data.access_token;
 	} catch (error) {

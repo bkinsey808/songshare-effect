@@ -18,6 +18,9 @@ let tokenExpirationTime: number | undefined = undefined;
 let cachedUserToken: string | undefined = undefined;
 let userTokenExpirationTime: number | undefined = undefined;
 
+// Realtime HS256 token cache (used for Supabase Realtime WebSocket auth)
+let cachedRealtimeToken: string | undefined = undefined;
+
 // Time constants
 const TOKEN_EXPIRY_BUFFER_MINUTES = 5;
 const SECONDS_IN_MINUTE = 60;
@@ -125,6 +128,34 @@ export function getCachedSupabaseClientToken(): string | undefined {
  */
 export function isUserSignedIn(): boolean {
 	return getCachedUserToken() !== undefined;
+}
+
+/**
+ * Returns the cached Realtime HS256 token, or `undefined` when not set.
+ *
+ * @returns The cached Realtime token string, or `undefined`.
+ */
+export function getCachedRealtimeToken(): string | undefined {
+	return cachedRealtimeToken;
+}
+
+/**
+ * Cache the Realtime HS256 token.
+ *
+ * @param token - The HS256-signed token for Supabase Realtime WebSocket auth.
+ * @returns void
+ */
+export function cacheRealtimeToken(token: string): void {
+	cachedRealtimeToken = token;
+}
+
+/**
+ * Clears the cached Realtime token.
+ *
+ * @returns void
+ */
+export function clearRealtimeToken(): void {
+	cachedRealtimeToken = undefined;
 }
 
 // tokenCache has no dependency on the token response shape — that belongs in the

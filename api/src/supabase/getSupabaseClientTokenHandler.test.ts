@@ -16,7 +16,7 @@ const EXPECTED_CALL_COUNT = 1;
 describe("getSupabaseClientTokenHandler", () => {
 	it("returns JSON with token on success", async () => {
 		const getSupabaseClientToken = await import("./getSupabaseClientToken");
-		vi.mocked(getSupabaseClientToken.default).mockResolvedValue(MOCK_TOKEN);
+		vi.mocked(getSupabaseClientToken.default).mockResolvedValue({ accessToken: MOCK_TOKEN });
 
 		const ctx = makeCtxWithJsonResponse({
 			env: {

@@ -25,7 +25,7 @@ type UsePopulateSongFormParams = {
 	readonly publicSongs: Record<string, unknown>;
 	readonly privateSongs: Record<string, unknown>;
 	readonly currentUserId: string | undefined;
-	readonly isFetchingRef: React.RefObject<boolean>;
+	readonly isFetching: boolean;
 	readonly hasPopulatedRef: React.RefObject<boolean>;
 	readonly formRef: React.RefObject<HTMLFormElement | null>;
 	readonly songNameRef: React.RefObject<HTMLInputElement | null>;
@@ -50,7 +50,7 @@ export default function usePopulateSongForm({
 	publicSongs,
 	privateSongs,
 	currentUserId,
-	isFetchingRef,
+	isFetching,
 	hasPopulatedRef,
 	formRef,
 	songNameRef,
@@ -75,9 +75,9 @@ export default function usePopulateSongForm({
 
 		// Only populate if fetch has completed (or if we're not currently fetching)
 		// This ensures we only use fresh data from the completed fetch
-		if (isFetchingRef.current) {
+		if (isFetching) {
 			// Still fetching - wait for it to complete
-			// The effect will re-run when the store updates after fetch completes
+			// The effect will re-run when isFetching transitions to false
 			return;
 		}
 
@@ -278,7 +278,7 @@ export default function usePopulateSongForm({
 		navigate,
 		setIsLoadingData,
 		initialSlideId,
-		isFetchingRef,
+		isFetching,
 		hasPopulatedRef,
 		formRef,
 		songNameRef,

@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 import { type SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
+import { getCachedRealtimeToken } from "@/react/lib/supabase/token/token-cache";
 import { getEnvValueSafe } from "@/react/lib/utils/env";
 import type { Database } from "@/shared/generated/supabaseTypes";
 
@@ -58,9 +59,12 @@ export default function getSupabaseClient(
 		},
 	});
 
-	// Set the auth token for real-time WebSocket connections after client creation
-	// This must be done after client creation to ensure proper binding
-	void client.realtime.setAuth(supabaseClientToken);
+	// Set the auth token for real-time WebSocket connections after client creation.
+	// Use the cached HS256 Realtime token when available (Supabase Realtime still uses
+	// the legacy HS256 secret after GoTrue rotated to ES256). Fall back to the ES256
+	// PostgREST token if no Realtime-specific token is cached.
+	const realtimeToken = getCachedRealtimeToken() ?? supabaseClientToken;
+	void client.realtime.setAuth(realtimeToken);
 
 	// Cache client for this token
 	// supabaseClientToken is defined here (checked above)

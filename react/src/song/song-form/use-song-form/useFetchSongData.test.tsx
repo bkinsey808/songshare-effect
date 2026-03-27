@@ -21,9 +21,9 @@ describe("useFetchSongData", () => {
 	it("resets form and refs when songId is undefined", async () => {
 		const setFormValuesState = vi.fn();
 		const setIsLoadingData = vi.fn();
+		const setIsFetching = vi.fn();
 		const clearInitialState = vi.fn();
 		const hasPopulatedRef = { current: true };
-		const isFetchingRef = { current: true };
 
 		renderHook(() => {
 			useFetchSongData({
@@ -31,7 +31,7 @@ describe("useFetchSongData", () => {
 				location: MOCK_LOCATION_NEW,
 				addActivePrivateSongIds: vi.fn(() => Effect.void),
 				addActivePublicSongIds: vi.fn(() => Effect.void),
-				isFetchingRef,
+				setIsFetching,
 				hasPopulatedRef,
 				setIsLoadingData,
 				setFormValuesState,
@@ -41,7 +41,7 @@ describe("useFetchSongData", () => {
 
 		await waitFor(() => {
 			expect(hasPopulatedRef.current).toBe(false);
-			expect(isFetchingRef.current).toBe(false);
+			expect(setIsFetching).toHaveBeenCalledWith(false);
 			expect(setIsLoadingData).toHaveBeenCalledWith(false);
 			expect(setFormValuesState).toHaveBeenCalledWith(EMPTY_FORM_VALUES);
 			expect(clearInitialState).toHaveBeenCalledWith();
@@ -51,9 +51,9 @@ describe("useFetchSongData", () => {
 	it("resets form when songId is empty string", async () => {
 		const setFormValuesState = vi.fn();
 		const setIsLoadingData = vi.fn();
+		const setIsFetching = vi.fn();
 		const clearInitialState = vi.fn();
 		const hasPopulatedRef = { current: false };
-		const isFetchingRef = { current: false };
 
 		renderHook(() => {
 			useFetchSongData({
@@ -61,7 +61,7 @@ describe("useFetchSongData", () => {
 				location: MOCK_LOCATION_NEW,
 				addActivePrivateSongIds: vi.fn(() => Effect.void),
 				addActivePublicSongIds: vi.fn(() => Effect.void),
-				isFetchingRef,
+				setIsFetching,
 				hasPopulatedRef,
 				setIsLoadingData,
 				setFormValuesState,
@@ -79,9 +79,9 @@ describe("useFetchSongData", () => {
 		const addActivePublicSongIds = vi.fn(() => Effect.void);
 		const setFormValuesState = vi.fn();
 		const setIsLoadingData = vi.fn();
+		const setIsFetching = vi.fn();
 		const clearInitialState = vi.fn();
 		const hasPopulatedRef = { current: false };
-		const isFetchingRef = { current: false };
 
 		const locationWithSong = makeMockLocation("/en/song/song-1/edit", "song-1");
 		renderHook(() => {
@@ -90,7 +90,7 @@ describe("useFetchSongData", () => {
 				location: locationWithSong,
 				addActivePrivateSongIds,
 				addActivePublicSongIds,
-				isFetchingRef,
+				setIsFetching,
 				hasPopulatedRef,
 				setIsLoadingData,
 				setFormValuesState,

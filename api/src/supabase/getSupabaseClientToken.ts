@@ -15,21 +15,31 @@ type SupabaseClientEnv = Readonly<{
 	SUPABASE_LEGACY_JWT_SECRET?: string;
 }>;
 
+export type ClientTokenResult = Readonly<{
+	accessToken: string;
+	realtimeToken?: string | undefined;
+}>;
+
 /**
  * Returns a valid JWT token for the shared visitor user to use in Supabase clients.
  * Will reuse cached token until it expires.
  * On first run, will ensure the visitor user has the `visitor_id` claim.
  *
- * When `SUPABASE_LEGACY_JWT_SECRET` is set, the token is re-signed with HS256 using
- * that secret instead of returning the GoTrue ES256 token. This is necessary after
- * Supabase rotates JWT keys to ECC P-256: GoTrue issues ES256 tokens but both
- * PostgREST and Realtime still verify using the legacy HS256 secret.
+ * GoTrue issues ES256 tokens (ECC P-256). PostgREST now also verifies ES256, so
+ * the raw GoTrue token is returned as `accessToken` for HTTP requests.
+ *
+ * When `SUPABASE_LEGACY_JWT_SECRET` is set, an additional HS256-signed `realtimeToken`
+ * is also returned for use with Supabase Realtime WebSocket connections, which still
+ * verify using the legacy HS256 secret after ECC key rotation.
  *
  * @param env - Environment variables containing Supabase URL, service key, and
  *   the visitor account credentials used to obtain and refresh the token.
- * @returns - A valid Supabase access token (HS256 when legacy secret configured).
+ * @returns - An object with `accessToken` (ES256, for PostgREST) and optionally
+ *   `realtimeToken` (HS256, for Realtime WebSocket).
  */
-export default async function getSupabaseClientToken(env: SupabaseClientEnv): Promise<string> {
+export default async function getSupabaseClientToken(
+	env: SupabaseClientEnv,
+): Promise<ClientTokenResult> {
 	const now = Math.floor(Date.now() / MS_PER_SECOND);
 
 	// Reuse cached token if still valid
@@ -39,7 +49,10 @@ export default async function getSupabaseClientToken(env: SupabaseClientEnv): Pr
 		cached.expiry !== undefined &&
 		now < cached.expiry - TOKEN_CACHE_SKEW_SECONDS
 	) {
-		return cached.token;
+		return {
+			accessToken: cached.token,
+			...(cached.realtimeToken === undefined ? {} : { realtimeToken: cached.realtimeToken }),
+		};
 	}
 
 	const client = getSupabaseServerClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_KEY);
@@ -118,11 +131,15 @@ export default async function getSupabaseClientToken(env: SupabaseClientEnv): Pr
 		expiry = now + ONE_HOUR_SECONDS;
 	}
 
-	// When the legacy HS256 secret is configured, re-sign the token with HS256 so that
-	// both PostgREST and Realtime (which still use the legacy secret for JWT verification)
-	// can accept it. GoTrue issues ES256 tokens after ECC key rotation.
+	// GoTrue issues ES256 tokens; PostgREST now also verifies ES256. Return the
+	// raw token directly — no HS256 re-signing needed for PostgREST.
+	const accessToken = data.session.access_token;
+
+	// When the legacy HS256 secret is configured, also produce an HS256-signed token
+	// for Realtime WebSocket auth. Supabase Realtime still uses the legacy secret for
+	// JWT verification after GoTrue rotated to ES256.
+	let realtimeToken: string | undefined = undefined;
 	const legacySecret = env.SUPABASE_LEGACY_JWT_SECRET;
-	let accessToken = "";
 	if (legacySecret !== undefined && legacySecret !== "") {
 		const jwtPayload: Record<string, unknown> = {
 			iss: `${env.VITE_SUPABASE_URL}/auth/v1`,
@@ -133,12 +150,13 @@ export default async function getSupabaseClientToken(env: SupabaseClientEnv): Pr
 			exp: expiry,
 			app_metadata: data.user.app_metadata,
 		};
-		accessToken = await signSupabaseJwtWithLegacySecret(jwtPayload, legacySecret);
-	} else {
-		accessToken = data.session.access_token;
+		realtimeToken = await signSupabaseJwtWithLegacySecret(jwtPayload, legacySecret);
 	}
 
-	setCachedClientToken(accessToken, expiry);
+	setCachedClientToken(accessToken, expiry, realtimeToken);
 
-	return accessToken;
+	return {
+		accessToken,
+		...(realtimeToken === undefined ? {} : { realtimeToken }),
+	};
 }

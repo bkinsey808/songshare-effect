@@ -47,8 +47,8 @@ export default function useSongForm(): UseSongFormReturn {
 
 	// Track if form has been populated to avoid re-populating
 	const hasPopulatedRef = useRef(false);
-	// Track if we're currently fetching fresh data
-	const isFetchingRef = useRef<boolean>(false);
+	// Track if we're currently fetching fresh data (state so changes trigger re-renders)
+	const [isFetching, setIsFetching] = useState(false);
 
 	// Loading state - true when editing and waiting for fresh data
 	// Initialize to true if we're editing (songId exists) to prevent flash of stale data
@@ -184,7 +184,7 @@ export default function useSongForm(): UseSongFormReturn {
 		location,
 		addActivePrivateSongIds,
 		addActivePublicSongIds,
-		isFetchingRef,
+		setIsFetching,
 		hasPopulatedRef,
 		setIsLoadingData,
 		setFormValuesState,
@@ -196,7 +196,7 @@ export default function useSongForm(): UseSongFormReturn {
 		publicSongs,
 		privateSongs,
 		currentUserId,
-		isFetchingRef,
+		isFetching,
 		hasPopulatedRef,
 		formRef,
 		songNameRef,

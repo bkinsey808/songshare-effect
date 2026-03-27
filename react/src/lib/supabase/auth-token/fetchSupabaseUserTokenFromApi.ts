@@ -1,6 +1,6 @@
 import { apiUserTokenPath } from "@/shared/paths";
 
-import { cacheUserToken, getCachedUserToken } from "../token/token-cache";
+import { cacheRealtimeToken, cacheUserToken, getCachedUserToken } from "../token/token-cache";
 
 let inFlightPromise: Promise<string | undefined> | undefined = undefined;
 
@@ -68,6 +68,12 @@ export default function fetchSupabaseUserTokenFromApi(): Promise<string | undefi
 				const MS_IN_SECOND = 1000;
 				const expiryTime = Date.now() + tokenData.expires_in * MS_IN_SECOND;
 				cacheUserToken(tokenData.access_token, expiryTime);
+				if (
+					"realtime_token" in tokenData &&
+					typeof tokenData.realtime_token === "string"
+				) {
+					cacheRealtimeToken(tokenData.realtime_token);
+				}
 				return tokenData.access_token;
 			}
 

@@ -14,6 +14,7 @@ type TokenResponse = Readonly<{
 	access_token: string;
 	token_type: string;
 	expires_in: number;
+	realtime_token?: string | undefined;
 }>;
 
 /**
@@ -146,23 +147,27 @@ export default function getUserToken(
 			return yield* $(Effect.fail(new DatabaseError({ message: "No access token in response" })));
 		}
 
-		// When the legacy HS256 secret is configured, re-sign the token with HS256 so
-		// that both PostgREST and Realtime (which still use the legacy secret for JWT
-		// verification) can accept it. GoTrue issues ES256 tokens after ECC key rotation.
+		// GoTrue issues ES256 tokens; PostgREST now also verifies ES256. Return the
+		// raw token directly for PostgREST HTTP requests.
+		const accessToken = refreshData.session.access_token;
+		const now = Math.floor(Date.now() / MS_PER_SECOND);
+		const expiresIn = refreshData.session.expires_in ?? ONE_HOUR_SECONDS;
+
+		// When the legacy HS256 secret is configured, also produce an HS256-signed token
+		// for Realtime WebSocket auth. Supabase Realtime still uses the legacy secret.
 		const legacySecret = ctx.env.SUPABASE_LEGACY_JWT_SECRET;
-		let accessToken = "";
+		let realtimeToken: string | undefined = undefined;
 		if (legacySecret !== undefined && legacySecret !== "") {
-			const now = Math.floor(Date.now() / MS_PER_SECOND);
 			const jwtPayload: Record<string, unknown> = {
 				iss: `${ctx.env.VITE_SUPABASE_URL}/auth/v1`,
 				sub: data.user.id,
 				aud: "authenticated",
 				role: "authenticated",
 				iat: now,
-				exp: now + ONE_HOUR_SECONDS,
+				exp: now + expiresIn,
 				app_metadata: newAppMetadata,
 			};
-			accessToken = yield* $(
+			realtimeToken = yield* $(
 				Effect.tryPromise({
 					try: () => signSupabaseJwtWithLegacySecret(jwtPayload, legacySecret),
 					catch: (err) =>
@@ -171,14 +176,13 @@ export default function getUserToken(
 						}),
 				}),
 			);
-		} else {
-			accessToken = refreshData.session.access_token;
 		}
 
 		return {
 			access_token: accessToken,
 			token_type: "bearer",
-			expires_in: refreshData.session.expires_in ?? ONE_HOUR_SECONDS,
+			expires_in: expiresIn,
+			...(realtimeToken === undefined ? {} : { realtime_token: realtimeToken }),
 		};
 	}).pipe(
 		Effect.catchTag("AuthenticationError", (err) =>
