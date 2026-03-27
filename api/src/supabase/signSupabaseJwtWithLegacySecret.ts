@@ -1,34 +1,27 @@
 import { sign } from "hono/jwt";
 
 /**
- * Signs a Supabase-compatible HS256 JWT using the legacy base64-encoded HMAC secret.
+ * Signs a Supabase-compatible HS256 JWT using the legacy JWT secret.
  *
- * Supabase's legacy JWT secret is stored as a base64 string in the dashboard.
- * Supabase infrastructure (Realtime, PostgREST) base64-decodes the secret before
- * using it as the raw HMAC-SHA256 key. This function does the same, producing a
- * token that Supabase Realtime will successfully verify.
+ * GoTrue (supabase/auth) and Supabase Realtime both use the JWT secret
+ * as raw UTF-8 bytes for HMAC-SHA256 signing/verification — they do NOT
+ * base64-decode it. This function does the same, producing a token that
+ * Supabase Realtime will successfully verify.
  *
  * Use this when GoTrue is issuing ES256 tokens (after ECC key rotation) but
  * Supabase Realtime still uses the legacy HS256 secret for JWT verification.
  *
  * @param payload - JWT claims to sign (must include `sub`, `role`, `exp`, etc.)
- * @param legacyBase64Secret - The legacy JWT secret as shown in the Supabase dashboard
+ * @param legacySecret - The legacy JWT secret as shown in the Supabase dashboard
  * @returns Signed HS256 JWT string
  */
 export default async function signSupabaseJwtWithLegacySecret(
 	payload: Record<string, unknown>,
-	legacyBase64Secret: string,
+	legacySecret: string,
 ): Promise<string> {
-	// The Supabase dashboard shows the HMAC key as a base64 string.
-	// Supabase infrastructure decodes it to raw bytes before HMAC — we must do the same.
-	// Using the base64 string directly as UTF-8 would produce a different
-	// key.
-	const FIRST_CHAR_INDEX = 0;
-	const FALLBACK_CHAR_CODE = 0;
-	const keyBytes = Uint8Array.from(
-		atob(legacyBase64Secret),
-		(char) => char.codePointAt(FIRST_CHAR_INDEX) ?? FALLBACK_CHAR_CODE,
-	);
+	// GoTrue and Realtime use the raw secret string as UTF-8 bytes for HMAC —
+	// not base64-decoded. Match that behavior exactly.
+	const keyBytes = new TextEncoder().encode(legacySecret);
 	const cryptoKey = await crypto.subtle.importKey(
 		"raw",
 		keyBytes,
