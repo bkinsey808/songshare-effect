@@ -50,6 +50,7 @@ export default function createRealtimeSubscription(config: SubscriptionConfig): 
 
 	const channel = channelBuilder
 		.on("postgres_changes", postgresChanges, (payload: unknown) => {
+			console.warn(`[${tableName}] event received:`, JSON.stringify(payload));
 			if (DEV_VERBOSE_SUBSCRIBE) {
 				console.warn(`[${tableName}][dev] event payload raw:`, payload);
 			}

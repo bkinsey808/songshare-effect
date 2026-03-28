@@ -6,6 +6,9 @@ import saveItemTagsEffect from "../tag-library/saveItemTagsRequest";
 
 type ItemType = "song" | "playlist" | "event" | "community" | "image";
 
+const ZERO_TAGS = 0;
+const TAG_FETCH_RETRY_DELAY_MS = 1500;
+
 /** Result of attempting to persist tag changes. */
 type SaveTagsResult = { success: true } | { success: false; errorMessage: string };
 
@@ -17,6 +20,7 @@ type SaveTagsResult = { success: true } | { success: false; errorMessage: string
  */
 type UseItemTagsReturn = {
 	tags: readonly string[];
+	getTags: () => readonly string[];
 	setTags: (tags: readonly string[]) => void;
 	saveTags: (itemId: string) => Promise<SaveTagsResult>;
 	isLoadingTags: boolean;
@@ -40,33 +44,69 @@ export default function useItemTags(
 	itemType: ItemType,
 	itemId: string | undefined,
 ): UseItemTagsReturn {
+	const hasExistingItem = itemId !== undefined && itemId.trim() !== "";
 	const [tags, setTagsInternal] = useState<string[]>([]);
-	const [isLoadingTags, setIsLoadingTags] = useState(false);
+	const [isLoadingTags, setIsLoadingTags] = useState(hasExistingItem);
 	const originalTagsRef = useRef<string[]>([]);
+	const currentTagsRef = useRef<string[]>([]);
+	const hasLocalTagEditsRef = useRef(false);
 
 	function setTags(nextTags: readonly string[]): void {
-		setTagsInternal([...nextTags]);
+		hasLocalTagEditsRef.current = true;
+		const next = [...nextTags];
+		currentTagsRef.current = next;
+		setTagsInternal(next);
 	}
 
-	/**
-	 * Replace the current tag list.
-	 *
-	 * @param nextTags - New tag list (readonly) to set into local state.
-	 * @returns void
-	 */
+	function getTags(): readonly string[] {
+		return currentTagsRef.current;
+	}
 
 	// Fetch the item's existing tags when editing (itemId is defined).
 	useEffect(() => {
 		if (itemId === undefined || itemId.trim() === "") {
 			return;
 		}
+		const stableItemId = itemId;
+		hasLocalTagEditsRef.current = false;
 		setIsLoadingTags(true);
-		void (async (): Promise<void> => {
-			const fetched = await Effect.runPromise(fetchItemTagsEffect(itemType, itemId));
-			setTags(fetched);
-			originalTagsRef.current = fetched;
-			setIsLoadingTags(false);
-		})();
+		let isActive = true;
+		let retryTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+
+		function loadTags(allowRetry: boolean): void {
+			void (async (): Promise<void> => {
+				const fetched = await Effect.runPromise(fetchItemTagsEffect(itemType, stableItemId));
+				if (!isActive) {
+					return;
+				}
+				originalTagsRef.current = fetched;
+				if (!hasLocalTagEditsRef.current) {
+					currentTagsRef.current = fetched;
+					setTagsInternal(fetched);
+				}
+				setIsLoadingTags(false);
+				if (
+					allowRetry &&
+					fetched.length === ZERO_TAGS &&
+					!hasLocalTagEditsRef.current &&
+					retryTimeoutId === undefined
+				) {
+					retryTimeoutId = setTimeout(() => {
+						retryTimeoutId = undefined;
+						loadTags(false);
+					}, TAG_FETCH_RETRY_DELAY_MS);
+				}
+			})();
+		}
+
+		loadTags(true);
+
+		return (): void => {
+			isActive = false;
+			if (retryTimeoutId !== undefined) {
+				clearTimeout(retryTimeoutId);
+			}
+		};
 	}, [itemType, itemId]);
 
 	async function saveTags(id: string): Promise<SaveTagsResult> {
@@ -76,7 +116,7 @@ export default function useItemTags(
 					itemType,
 					itemId: id,
 					originalTags: originalTagsRef.current,
-					nextTags: tags,
+					nextTags: currentTagsRef.current,
 				}),
 			);
 			return { success: true };
@@ -98,5 +138,5 @@ export default function useItemTags(
 	 * @returns A `SaveTagsResult` indicating success or failure with an error message.
 	 */
 
-	return { tags, setTags, saveTags, isLoadingTags };
+	return { tags, getTags, setTags, saveTags, isLoadingTags };
 }

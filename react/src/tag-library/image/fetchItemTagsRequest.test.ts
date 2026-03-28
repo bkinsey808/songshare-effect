@@ -1,23 +1,20 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import fetchItemTagsEffect from "./fetchItemTagsRequest";
 
-vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-vi.mock("@/react/lib/supabase/client/getSupabaseClient");
+vi.mock("@/react/lib/supabase/client/getSupabaseClientWithAuth");
 vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 
-const mockClient = forceCast<ReturnType<typeof getSupabaseClient>>({});
+const mockClient = forceCast<Awaited<ReturnType<typeof getSupabaseClientWithAuth>>>({});
 
 describe("fetchItemTagsEffect", () => {
 	it("returns [] when client is undefined", async () => {
-		vi.mocked(getSupabaseAuthToken).mockResolvedValueOnce(undefined);
-		vi.mocked(getSupabaseClient).mockReturnValueOnce(undefined);
+		vi.mocked(getSupabaseClientWithAuth).mockResolvedValueOnce(undefined);
 
 		const result = await Effect.runPromise(fetchItemTagsEffect("song", "song-1"));
 
@@ -26,8 +23,7 @@ describe("fetchItemTagsEffect", () => {
 	});
 
 	it("returns tag slugs on success", async () => {
-		vi.mocked(getSupabaseAuthToken).mockResolvedValueOnce(undefined);
-		vi.mocked(getSupabaseClient).mockReturnValueOnce(mockClient);
+		vi.mocked(getSupabaseClientWithAuth).mockResolvedValueOnce(mockClient);
 		vi.mocked(callSelect).mockResolvedValueOnce(
 			forceCast({
 				data: [{ tag_slug: "rock" }, { tag_slug: "jazz" }],
@@ -41,8 +37,7 @@ describe("fetchItemTagsEffect", () => {
 	});
 
 	it("calls callSelect with the correct table and id column per item type", async () => {
-		vi.mocked(getSupabaseAuthToken).mockResolvedValueOnce(undefined);
-		vi.mocked(getSupabaseClient).mockReturnValueOnce(mockClient);
+		vi.mocked(getSupabaseClientWithAuth).mockResolvedValueOnce(mockClient);
 		vi.mocked(callSelect).mockResolvedValueOnce(
 			forceCast({ data: [], error: JSON.parse("null") as unknown }),
 		);
@@ -56,8 +51,7 @@ describe("fetchItemTagsEffect", () => {
 	});
 
 	it("skips rows missing tag_slug", async () => {
-		vi.mocked(getSupabaseAuthToken).mockResolvedValueOnce(undefined);
-		vi.mocked(getSupabaseClient).mockReturnValueOnce(mockClient);
+		vi.mocked(getSupabaseClientWithAuth).mockResolvedValueOnce(mockClient);
 		vi.mocked(callSelect).mockResolvedValueOnce(
 			forceCast({
 				data: [{ tag_slug: "valid" }, { not_a_tag: true }, JSON.parse("null") as unknown],
@@ -71,8 +65,7 @@ describe("fetchItemTagsEffect", () => {
 	});
 
 	it("returns [] when callSelect returns an error", async () => {
-		vi.mocked(getSupabaseAuthToken).mockResolvedValueOnce(undefined);
-		vi.mocked(getSupabaseClient).mockReturnValueOnce(mockClient);
+		vi.mocked(getSupabaseClientWithAuth).mockResolvedValueOnce(mockClient);
 		vi.mocked(callSelect).mockResolvedValueOnce(
 			forceCast({ data: [], error: { message: "db error" } }),
 		);
@@ -83,8 +76,7 @@ describe("fetchItemTagsEffect", () => {
 	});
 
 	it("returns [] when callSelect throws", async () => {
-		vi.mocked(getSupabaseAuthToken).mockResolvedValueOnce(undefined);
-		vi.mocked(getSupabaseClient).mockReturnValueOnce(mockClient);
+		vi.mocked(getSupabaseClientWithAuth).mockResolvedValueOnce(mockClient);
 		vi.mocked(callSelect).mockRejectedValueOnce(new Error("network error"));
 
 		const result = await Effect.runPromise(fetchItemTagsEffect("song", "song-1"));
@@ -92,8 +84,8 @@ describe("fetchItemTagsEffect", () => {
 		expect(result).toStrictEqual([]);
 	});
 
-	it("returns [] when getSupabaseAuthToken throws", async () => {
-		vi.mocked(getSupabaseAuthToken).mockRejectedValueOnce(new Error("auth error"));
+	it("returns [] when authenticated client creation throws", async () => {
+		vi.mocked(getSupabaseClientWithAuth).mockRejectedValueOnce(new Error("auth error"));
 
 		const result = await Effect.runPromise(fetchItemTagsEffect("song", "song-1"));
 

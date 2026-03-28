@@ -35,14 +35,11 @@ import {
 	REALTIME_WAIT_MS,
 	createTwoUserContexts,
 	missingBothSessions,
-	missingSongSlug,
+	missingCommunitySlug,
 	newSenderContext,
-	testSongSlug,
+	testCommunitySlug,
 } from "../sharing/helpers/sharing.e2e-utils.ts";
 
-// These tests use real shared accounts on staging/local DB and MUST NOT run in parallel
-// across multiple workers. Even with 'serial' mode, different browser projects
-// will collide. RUN WITH: --workers=1
 test.describe.configure({ mode: "serial" });
 
 test.slow();
@@ -52,60 +49,43 @@ test.use({
 	navigationTimeout: 60_000,
 });
 
-// ── constants ─────────────────────────────────────────────────────────────────
-
-/**
- * Tag slug used exclusively by these tests. Unique enough to avoid colliding
- * with any legitimate user tags in the staging DB.
- */
 const TEST_TAG_SLUG = "e2e-cross-user-tag";
 
-// ── helpers ───────────────────────────────────────────────────────────────────
-
 /**
- * Navigates to the song library and clicks "Edit" on the card that contains
- * a "View Song" link matching `testSongSlug`. Waits for the tag input to be
- * visible so callers know the form is fully loaded.
+ * Opens the owner community page and navigates to edit mode.
  *
- * Assumes the page is already authenticated as the song owner.
+ * Returns the community id parsed from the edit URL.
  *
- * @param ownerPage Owner page authenticated to edit songs.
- * @return Effect that resolves with the target song id.
+ * @param ownerPage Owner page authenticated to edit communities.
+ * @return Effect that resolves with the target community id.
  */
-function navigateToSongEditPage(ownerPage: Page): Effect.Effect<string, Error> {
-	return Effect.gen(function* navigateToSongEditPageEffect($) {
-		yield* $(fromPromiseVoid(() => ownerPage.goto(`${BASE_URL}/en/dashboard/song-library`, { waitUntil: "load" })));
+function navigateToCommunityEditPage(ownerPage: Page): Effect.Effect<string, Error> {
+	return Effect.gen(function* navigateToCommunityEditPageEffect($) {
+		yield* $(fromPromiseVoid(() => ownerPage.goto(`${BASE_URL}/en/community/${testCommunitySlug}`, { waitUntil: "load" })));
 
-		// Locate the specific song card via its "View Song" link href
-		const songCard = ownerPage
-			.locator("div")
-			.filter({ has: ownerPage.locator(`a[href*="${testSongSlug}"]`) })
-			.first();
-
-		const editBtn = songCard.getByRole("button", { name: "Edit" });
+		const editBtn = ownerPage.getByRole("button", { name: "Edit" });
 		yield* $(expectVisibleEffect(editBtn, { timeout: MANAGE_PAGE_READY_TIMEOUT_MS }));
 		yield* $(clickEffect(editBtn));
 
-		// Form is ready when the tag input is visible
 		yield* $(
 			expectVisibleEffect(ownerPage.getByPlaceholder("Add tags\u2026"), {
 				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
 			}),
 		);
 
-		return getIdFromEditUrl(ownerPage.url(), "song");
+		return getIdFromEditUrl(ownerPage.url(), "community");
 	});
 }
 
 
 /**
- * Adds the test tag via the song edit UI and saves the song.
+ * Adds the test tag through the edit UI and saves the community.
  *
- * @param ownerPage Owner page currently on the song edit screen.
+ * @param ownerPage Owner page currently on the community edit screen.
  * @return Effect that resolves after save succeeds and navigation completes.
  */
 function addTagAndSaveViaUi(ownerPage: Page): Effect.Effect<void, Error> {
-	return Effect.gen(function* addSongTagAndSaveViaUiEffect($) {
+	return Effect.gen(function* addCommunityTagAndSaveViaUiEffect($) {
 		yield* $(
 			addTagInEditUi({
 				page: ownerPage,
@@ -117,9 +97,9 @@ function addTagAndSaveViaUi(ownerPage: Page): Effect.Effect<void, Error> {
 		const saveResponse = yield* $(
 			waitForResponseAndURLAfter({
 				page: ownerPage,
-				responseMatcher: /\/api\/songs\/save/,
-				urlMatcher: /\/en\/dashboard\/song-library/,
-				action: () => ownerPage.getByTestId("create-song-button").click(),
+				responseMatcher: /\/api\/communities\/save/,
+				urlMatcher: new RegExp(`/en/community/${testCommunitySlug}$`),
+				action: () => ownerPage.getByRole("button", { name: /save/i }).click(),
 				responseOptions: { timeout: MANAGE_PAGE_READY_TIMEOUT_MS },
 				urlOptions: { timeout: MANAGE_PAGE_READY_TIMEOUT_MS },
 			}),
@@ -129,13 +109,13 @@ function addTagAndSaveViaUi(ownerPage: Page): Effect.Effect<void, Error> {
 }
 
 /**
- * Removes the test tag via the song edit UI and saves the song.
+ * Removes the test tag through the edit UI and saves the community.
  *
- * @param ownerPage Owner page currently on the song edit screen.
+ * @param ownerPage Owner page currently on the community edit screen.
  * @return Effect that resolves after save succeeds and navigation completes.
  */
 function removeTagAndSaveViaUi(ownerPage: Page): Effect.Effect<void, Error> {
-	return Effect.gen(function* removeSongTagAndSaveViaUiEffect($) {
+	return Effect.gen(function* removeCommunityTagAndSaveViaUiEffect($) {
 		yield* $(
 			removeTagInEditUi({
 				page: ownerPage,
@@ -147,9 +127,9 @@ function removeTagAndSaveViaUi(ownerPage: Page): Effect.Effect<void, Error> {
 		const saveResponse = yield* $(
 			waitForResponseAndURLAfter({
 				page: ownerPage,
-				responseMatcher: /\/api\/songs\/save/,
-				urlMatcher: /\/en\/dashboard\/song-library/,
-				action: () => ownerPage.getByTestId("create-song-button").click(),
+				responseMatcher: /\/api\/communities\/save/,
+				urlMatcher: new RegExp(`/en/community/${testCommunitySlug}$`),
+				action: () => ownerPage.getByRole("button", { name: /save/i }).click(),
 				responseOptions: { timeout: MANAGE_PAGE_READY_TIMEOUT_MS },
 				urlOptions: { timeout: MANAGE_PAGE_READY_TIMEOUT_MS },
 			}),
@@ -159,20 +139,19 @@ function removeTagAndSaveViaUi(ownerPage: Page): Effect.Effect<void, Error> {
 }
 
 /**
- * Ensures the test tag is absent from the song, saving only if a removal was
- * needed. Call in `beforeEach` to guarantee a clean starting state.
+ * Ensures the test tag does not exist before each test starts.
  *
- * @param ownerPage Owner page authenticated to edit songs.
+ * @param ownerPage Owner page authenticated to edit communities.
  * @return Effect that resolves once the test tag is removed.
  */
 function ensureTestTagAbsent(ownerPage: Page): Effect.Effect<void, Error> {
-	return Effect.gen(function* ensureSongTagAbsentEffect($) {
-		const songId = yield* $(navigateToSongEditPage(ownerPage));
+	return Effect.gen(function* ensureCommunityTagAbsentEffect($) {
+		const communityId = yield* $(navigateToCommunityEditPage(ownerPage));
 		yield* $(
 			mutateTagViaApi({
 				page: ownerPage,
-				itemId: songId,
-				itemType: "song",
+				itemId: communityId,
+				itemType: "community",
 				tagSlug: TEST_TAG_SLUG,
 				action: "remove",
 			}),
@@ -180,17 +159,14 @@ function ensureTestTagAbsent(ownerPage: Page): Effect.Effect<void, Error> {
 	});
 }
 
-// ── tests ─────────────────────────────────────────────────────────────────────
-
-test.describe("Song Tagging: Real-Time Cross-User Visibility", () => {
+test.describe("Community Tagging: Real-Time Cross-User Visibility", () => {
 	test.skip(missingBothSessions, "Skipped: run npm run e2e:create-session:staging-db[:user2]");
-	test.skip(missingSongSlug, "Skipped: set E2E_TEST_SONG_SLUG");
+	test.skip(missingCommunitySlug, "Skipped: set E2E_TEST_COMMUNITY_SLUG");
 
-	// Guarantee a clean state (no test tag) before each test.
 test.beforeEach(async ({ browser }) => {
 	await runEffect(
 		Effect.scoped(
-			Effect.gen(function* songBeforeEachEffect($) {
+			Effect.gen(function* communityBeforeEachEffect($) {
 				const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
 				const ownerPage = yield* $(acquirePage(ownerCtx));
 				yield* $(ensureTestTagAbsent(ownerPage));
@@ -199,27 +175,12 @@ test.beforeEach(async ({ browser }) => {
 	);
 });
 
-	/**
-	 * Full real-time lifecycle test.
-	 *
-	 * The viewer's page stays open throughout. Tags added or removed by the
-	 * owner are pushed via a Supabase Realtime postgres_changes subscription
-	 * (useItemTagsDisplay) and reflected in the viewer's UI without any
-	 * navigation or reload.
-	 *
-	 * Flow:
-	 *   1. Viewer opens the song page (no tags yet).
-	 *   2. Owner adds the tag and saves.
-	 *   3. Viewer's open page shows the tag appear in real time.
-	 *   4. Owner removes the tag and saves.
-	 *   5. Viewer's open page shows the tag disappear in real time.
-	 */
-test("tags appear and disappear on the viewer's open page without refresh", async ({
+test("tags appear and disappear on the viewer's open community page without refresh", async ({
 	browser,
 }) => {
 	await runEffect(
 		Effect.scoped(
-			Effect.gen(function* songRealtimeEffect($) {
+			Effect.gen(function* communityRealtimeEffect($) {
 				const contexts = yield* $(acquireTwoUserContexts(() => createTwoUserContexts(browser)));
 				const ownerPage = yield* $(acquirePage(contexts.senderCtx));
 				const viewerPage = yield* $(acquirePage(contexts.recipientCtx));
@@ -227,12 +188,10 @@ test("tags appear and disappear on the viewer's open page without refresh", asyn
 
 				const viewerConsole = captureConsole(viewerPage);
 
-				// Viewer: open the song page and wait for auth + subscription to be ready.
-				// The tag list is empty at this point (beforeEach guarantees no test tag).
 				yield* $(
 					openViewerPage({
 						page: viewerPage,
-						url: `${BASE_URL}/en/song/${testSongSlug}`,
+						url: `${BASE_URL}/en/community/${testCommunitySlug}`,
 						timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
 					}),
 				);
@@ -240,41 +199,35 @@ test("tags appear and disappear on the viewer's open page without refresh", asyn
 					waitForTagRealtimeReady({
 						page: viewerPage,
 						viewerConsole,
-						channelLabel: "song_tag",
+						channelLabel: "community_tag",
 						timeoutMs: REALTIME_WAIT_MS,
 						headingTimeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
 					}),
 				);
 
-				// ── Step 1: owner adds the tag ──────────────────────────────────────
-
-				const songId = yield* $(navigateToSongEditPage(ownerPage));
+				const communityId = yield* $(navigateToCommunityEditPage(ownerPage));
 				yield* $(
 					mutateTagViaApi({
 						page: ownerPage,
-						itemId: songId,
-						itemType: "song",
+						itemId: communityId,
+						itemType: "community",
 						tagSlug: TEST_TAG_SLUG,
 						action: "add",
 					}),
 				);
 
-				// Viewer: the tag badge should appear in real time (no navigation)
 				yield* $(expectTagBadgeVisible(viewerPage, TEST_TAG_SLUG, REALTIME_WAIT_MS));
-
-				// ── Step 2: owner removes the tag ───────────────────────────────────
 
 				yield* $(
 					mutateTagViaApi({
 						page: ownerPage,
-						itemId: songId,
-						itemType: "song",
+						itemId: communityId,
+						itemType: "community",
 						tagSlug: TEST_TAG_SLUG,
 						action: "remove",
 					}),
 				);
 
-				// Viewer: the tag badge should disappear in real time (no navigation)
 				yield* $(expectTagBadgeHidden(viewerPage, TEST_TAG_SLUG, REALTIME_WAIT_MS));
 
 				const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
@@ -284,18 +237,18 @@ test("tags appear and disappear on the viewer's open page without refresh", asyn
 	);
 });
 
-test("owner can add and remove a tag in the edit UI and the change persists", async ({
+test("owner can add and remove a tag in the community edit UI and the change persists", async ({
 	browser,
 }) => {
 	await runEffect(
 		Effect.scoped(
-			Effect.gen(function* songUiEffect($) {
+			Effect.gen(function* communityUiEffect($) {
 				const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
 				const ownerPage = yield* $(acquirePage(ownerCtx));
-				yield* $(navigateToSongEditPage(ownerPage));
+				yield* $(navigateToCommunityEditPage(ownerPage));
 				yield* $(addTagAndSaveViaUi(ownerPage));
 
-				yield* $(navigateToSongEditPage(ownerPage));
+				yield* $(navigateToCommunityEditPage(ownerPage));
 				yield* $(
 					expectTagInEditUi({
 						page: ownerPage,
@@ -306,7 +259,7 @@ test("owner can add and remove a tag in the edit UI and the change persists", as
 
 				yield* $(removeTagAndSaveViaUi(ownerPage));
 
-				yield* $(navigateToSongEditPage(ownerPage));
+				yield* $(navigateToCommunityEditPage(ownerPage));
 				yield* $(
 					expectTagNotInEditUi({
 						page: ownerPage,

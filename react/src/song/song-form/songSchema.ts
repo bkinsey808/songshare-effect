@@ -11,6 +11,7 @@ const SongFormField = {
 	public_notes: "public_notes",
 	fields: "fields",
 	slide_order: "slide_order",
+	tags: "tags",
 	slides: "slides",
 } as const;
 
@@ -24,6 +25,7 @@ export const songFormFields = [
 	"public_notes",
 	"fields",
 	"slide_order",
+	"tags",
 	"slides",
 ] as const;
 
@@ -39,6 +41,7 @@ export const songFormFieldSchema: unknown = Schema.Literal(
 	"public_notes",
 	"fields",
 	"slide_order",
+	"tags",
 	"slides",
 );
 
@@ -71,6 +74,7 @@ export type SongFormValues = {
 	public_notes?: string | undefined;
 	fields: readonly string[];
 	slide_order: readonly string[];
+	tags?: readonly string[] | undefined;
 	slides: Record<string, SlideShape>;
 };
 
@@ -84,6 +88,7 @@ export const songFormSchema: Schema.Schema<SongFormValues> = Schema.Struct({
 	[SongFormField.public_notes]: Schema.optional(Schema.String),
 	[SongFormField.fields]: Schema.Array(Schema.String),
 	[SongFormField.slide_order]: Schema.Array(Schema.String),
+	[SongFormField.tags]: Schema.optional(Schema.Array(Schema.String)),
 	[SongFormField.slides]: slidesSchema,
 });
 

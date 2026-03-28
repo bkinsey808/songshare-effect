@@ -18,7 +18,7 @@ import {
 	selectUserInSearch,
 	testSongSlug,
 	testUser2Username,
-} from "./sharing.e2e-utils.ts";
+} from "./helpers/sharing.e2e-utils.ts";
 
 // These tests use real shared accounts on staging/local DB and MUST NOT run in parallel
 // across multiple workers. Even with 'serial' mode, different browser projects

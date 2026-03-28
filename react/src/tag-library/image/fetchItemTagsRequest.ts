@@ -1,8 +1,7 @@
 import { Effect } from "effect";
 
-import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
+import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
 
@@ -39,14 +38,12 @@ export default function fetchItemTagsEffect(
 	itemId: string,
 ): Effect.Effect<string[]> {
 	return Effect.gen(function* fetchItemTagsGen($) {
-		const userToken = yield* $(
+		const client = yield* $(
 			Effect.tryPromise({
-				try: () => getSupabaseAuthToken(),
+				try: () => getSupabaseClientWithAuth(),
 				catch: (error) => new Error(String(error)),
 			}),
 		);
-
-		const client = getSupabaseClient(userToken);
 		if (client === undefined) {
 			return [];
 		}

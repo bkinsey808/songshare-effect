@@ -36,7 +36,7 @@ const NAVIGATE_BACK = -1;
  */
 export default function useSongForm(): UseSongFormReturn {
 	const songId = useParams<{ song_id?: string }>().song_id;
-	const { tags, setTags } = useItemTags("song", songId);
+	const { tags, getTags, setTags } = useItemTags("song", songId);
 	const location = useLocation();
 	const navigate = useNavigate();
 	const formRef = useRef<HTMLFormElement | null>(null);
@@ -117,6 +117,7 @@ export default function useSongForm(): UseSongFormReturn {
 		formValues,
 		fields,
 		slideOrder,
+		tags,
 		slides,
 	};
 
@@ -140,6 +141,7 @@ export default function useSongForm(): UseSongFormReturn {
 		public_notes: "",
 		fields: ["lyrics"],
 		slide_order: [initialSlideId],
+		tags: [],
 		slides: {
 			[initialSlideId]: {
 				slide_name: "Slide 1",
@@ -215,6 +217,7 @@ export default function useSongForm(): UseSongFormReturn {
 		formValues,
 		fields,
 		slideOrder,
+		tags,
 		slides,
 		isLoadingData,
 		hasPopulatedRef,
@@ -227,7 +230,7 @@ export default function useSongForm(): UseSongFormReturn {
 		fields,
 		slideOrder,
 		slides,
-		tags,
+		getTags,
 		handleSubmit,
 		onSubmit,
 	});
@@ -276,6 +279,7 @@ export default function useSongForm(): UseSongFormReturn {
 			formValues: emptyFormValues,
 			fields: ["lyrics"],
 			slideOrder: [newFirstId],
+			tags: [],
 			slides: {
 				[newFirstId]: {
 					slide_name: "Slide 1",

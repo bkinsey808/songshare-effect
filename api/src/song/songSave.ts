@@ -277,24 +277,50 @@ export default function songSave(
 				Effect.tryPromise({
 					try: async () => {
 						if (validSlugs.length > ZERO) {
-							await supabase.from("tag").upsert(
+							const tagUpsertResult = await supabase.from("tag").upsert(
 								validSlugs.map((slug) => ({ tag_slug: slug })),
 								{ onConflict: "tag_slug", ignoreDuplicates: true },
 							);
+							if (tagUpsertResult.error) {
+								throw new DatabaseError({
+									message: tagUpsertResult.error.message ?? "Failed to upsert tags",
+								});
+							}
 						}
-						await supabase.from("song_tag").delete().eq("song_id", songId);
+						const deleteResult = await supabase.from("song_tag").delete().eq("song_id", songId);
+						if (deleteResult.error) {
+							throw new DatabaseError({
+								message: deleteResult.error.message ?? "Failed to clear existing song tags",
+							});
+						}
 						if (validSlugs.length > ZERO) {
-							await supabase
+							const songTagInsertResult = await supabase
 								.from("song_tag")
 								.insert(validSlugs.map((slug) => ({ song_id: songId, tag_slug: slug })));
-							await supabase.from("tag_library").upsert(
+							if (songTagInsertResult.error) {
+								throw new DatabaseError({
+									message: songTagInsertResult.error.message ?? "Failed to insert song tags",
+								});
+							}
+							const tagLibraryUpsertResult = await supabase.from("tag_library").upsert(
 								validSlugs.map((slug) => ({ user_id: userId, tag_slug: slug })),
 								{ onConflict: "user_id,tag_slug", ignoreDuplicates: true },
 							);
+							if (tagLibraryUpsertResult.error) {
+								throw new DatabaseError({
+									message:
+										tagLibraryUpsertResult.error.message ?? "Failed to update tag library",
+								});
+							}
 						}
 					},
-					catch: () => new DatabaseError({ message: "Failed to save tags" }),
-				}).pipe(Effect.orElse(() => Effect.void)),
+					catch: (err) =>
+						err instanceof DatabaseError
+							? err
+							: new DatabaseError({
+									message: extractErrorMessage(err, "Failed to save tags"),
+								}),
+				}),
 			);
 		}
 

@@ -9,6 +9,7 @@ describe("songSchema", () => {
 		it("has expected field names", () => {
 			expect(songFormFields).toContain("song_id");
 			expect(songFormFields).toContain("song_name");
+			expect(songFormFields).toContain("tags");
 			expect(songFormFields).toContain("slides");
 		});
 	});
@@ -49,6 +50,7 @@ describe("songSchema", () => {
 				song_slug: "my-song",
 				fields: ["verse", "chorus"],
 				slide_order: ["s1", "s2"],
+				tags: ["worship", "fast"],
 				slides: { s1: { slide_name: "Verse", field_data: {} } },
 			} as unknown;
 
@@ -58,6 +60,7 @@ describe("songSchema", () => {
 			expect(result.song_slug).toBe("my-song");
 			expect(result.fields).toStrictEqual(["verse", "chorus"]);
 			expect(result.slide_order).toStrictEqual(["s1", "s2"]);
+			expect(result.tags).toStrictEqual(["worship", "fast"]);
 			expect(result.slides["s1"]?.slide_name).toBe("Verse");
 		});
 

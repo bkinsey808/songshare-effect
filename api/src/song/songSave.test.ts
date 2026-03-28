@@ -6,6 +6,8 @@ import { AuthenticationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 import getVerifiedSession from "@/api/user-session/getVerifiedSession";
+import forceCast from "@/react/lib/test-utils/forceCast";
+import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import songSave from "./songSave";
@@ -14,6 +16,7 @@ vi.mock("@supabase/supabase-js");
 vi.mock("@/api/user-session/getVerifiedSession");
 
 const SAMPLE_USER_ID = "00000000-0000-4000-8000-000000000001";
+const EMPTY_ROWS: [] = [];
 
 describe("songSave handler", () => {
 	const SAMPLE_SESSION: UserSessionData = {
@@ -151,5 +154,72 @@ describe("songSave handler", () => {
 		vi.mocked(createClient).mockReturnValue(fake);
 
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/pub fail/);
+	});
+
+	it("fails when song tag persistence fails during save", async () => {
+		vi.resetAllMocks();
+		const ctx = makeCtx({
+			body: {
+				song_id: "old",
+				song_name: "n",
+				song_slug: "s",
+				fields: [],
+				slide_order: [],
+				slides: {},
+				tags: ["live-tag"],
+			},
+		});
+		vi.mocked(getVerifiedSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));
+
+		const fake = makeSupabaseClient({
+			songPublicSelectSingleRow: { user_id: SAMPLE_USER_ID },
+			songUpdateRow: { song_id: "old" },
+			songPublicUpdateRow: { song_id: "old" },
+		});
+
+		type ErrorResult = Promise<{ data: undefined; error: { message: string } }>;
+		type DeleteResult = Promise<{ data: []; error: undefined }> & {
+			eq: (_field: string, _val: string) => Promise<{ data: []; error: undefined }>;
+		};
+
+		const tagUpsert = vi.fn((): Promise<{ data: []; error: undefined }> =>
+			promiseResolved({ data: EMPTY_ROWS, error: undefined }),
+		);
+		const songTagDeletePromise: Promise<{ data: []; error: undefined }> = promiseResolved({
+			data: EMPTY_ROWS,
+			error: undefined,
+		});
+		const songTagDelete: DeleteResult = Object.assign(songTagDeletePromise, {
+			eq: (): Promise<{ data: []; error: undefined }> =>
+				promiseResolved({ data: EMPTY_ROWS, error: undefined }),
+		});
+		const songTagInsert = vi.fn((): ErrorResult =>
+			promiseResolved({
+				data: undefined,
+				error: { message: "song_tag insert failed" },
+			}),
+		);
+		const tagLibraryUpsert = vi.fn((): Promise<{ data: []; error: undefined }> =>
+			promiseResolved({ data: EMPTY_ROWS, error: undefined }),
+		);
+		const tableOverrides: Record<string, unknown> = {
+			song: fake.from("song"),
+			song_public: fake.from("song_public"),
+			tag: { upsert: tagUpsert },
+			song_tag: {
+				delete: (): DeleteResult => songTagDelete,
+				insert: songTagInsert,
+			},
+			tag_library: { upsert: tagLibraryUpsert },
+		};
+		const fakeWithTagFailure = forceCast<ReturnType<typeof createClient>>({
+			from: (table: string): unknown => tableOverrides[table],
+		});
+
+		vi.mocked(createClient).mockReturnValue(fakeWithTagFailure);
+
+		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/song_tag insert failed/);
+		expect(songTagInsert).toHaveBeenCalledOnce();
+		expect(tagLibraryUpsert).not.toHaveBeenCalled();
 	});
 });

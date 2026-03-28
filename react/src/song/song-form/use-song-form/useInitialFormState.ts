@@ -7,6 +7,7 @@ type UseInitialFormStateParams = {
 	readonly formValues: FormState["formValues"];
 	readonly fields: FormState["fields"];
 	readonly slideOrder: FormState["slideOrder"];
+	readonly tags: FormState["tags"];
 	readonly slides: FormState["slides"];
 	readonly isLoadingData: boolean;
 	readonly hasPopulatedRef: React.RefObject<boolean>;
@@ -24,6 +25,7 @@ export default function useInitialFormState({
 	formValues,
 	fields,
 	slideOrder,
+	tags,
 	slides,
 	isLoadingData,
 	hasPopulatedRef,
@@ -52,6 +54,7 @@ export default function useInitialFormState({
 				formValues: { ...formValues },
 				fields: [...fields],
 				slideOrder: [...slideOrder],
+				tags: [...tags],
 				slides: Object.fromEntries(
 					Object.entries(slides).map(([key, slide]) => [
 						key,
@@ -82,6 +85,7 @@ export default function useInitialFormState({
 			formValues: { ...formValues },
 			fields: [...fields],
 			slideOrder: [...slideOrder],
+			tags: [...tags],
 			slides: Object.fromEntries(
 				Object.entries(slides).map(([key, slide]) => [
 					key,
@@ -97,6 +101,7 @@ export default function useInitialFormState({
 		formValues,
 		fields,
 		slideOrder,
+		tags,
 		slides,
 		songId,
 		isLoadingData,

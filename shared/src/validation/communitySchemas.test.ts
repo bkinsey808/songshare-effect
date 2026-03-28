@@ -35,6 +35,18 @@ describe("communitySchemas", () => {
 			expect(result.is_public).toBe(true);
 		});
 
+		it("accepts tags", () => {
+			const input = {
+				name: "Tagged Community",
+				slug: "tagged-community",
+				tags: ["music", "kids"],
+			} as unknown;
+
+			const result = decodeUnknownSyncOrThrow(communityFormSchema, input);
+
+			expect(result.tags).toStrictEqual(["music", "kids"]);
+		});
+
 		it("throws when name is too short", () => {
 			// Arrange
 			const input = { name: "x", slug: "valid-slug" } as unknown;

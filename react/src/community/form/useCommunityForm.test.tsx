@@ -6,16 +6,29 @@ import { describe, expect, it, vi } from "vitest";
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import mockLocaleWithLang from "@/react/lib/test-utils/mockLocaleWithLang";
+import useItemTags from "@/react/tag/useItemTags";
 
 import useCommunityForm from "./useCommunityForm";
 
 vi.mock("react-router-dom");
 vi.mock("@/react/language/locale/useLocale");
+vi.mock("@/react/tag/useItemTags");
+
+function mockUseItemTags(tags: readonly string[] = []): void {
+	vi.mocked(useItemTags).mockReturnValue({
+		tags,
+		getTags: () => tags,
+		setTags: vi.fn(),
+		saveTags: vi.fn(),
+		isLoadingTags: false,
+	});
+}
 
 describe("useCommunityForm", () => {
 	it("auto-generates slug on name change when creating", async () => {
 		vi.resetAllMocks();
 		mockLocaleWithLang("en");
+		mockUseItemTags();
 
 		vi.mocked(useParams).mockReturnValue({});
 
@@ -55,6 +68,7 @@ describe("useCommunityForm", () => {
 	it("submits and navigates on successful create", async () => {
 		vi.resetAllMocks();
 		mockLocaleWithLang("en");
+		mockUseItemTags();
 
 		const mockNavigate = vi.fn();
 		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
@@ -115,6 +129,7 @@ describe("useCommunityForm", () => {
 	it("clears stale community error when opening create form", async () => {
 		vi.resetAllMocks();
 		mockLocaleWithLang("en");
+		mockUseItemTags();
 		vi.mocked(useParams).mockReturnValue({});
 
 		const store: typeof useAppStore = useAppStore;
@@ -129,6 +144,135 @@ describe("useCommunityForm", () => {
 
 		await waitFor(() => {
 			expect(getByTestId("err").textContent).toBe("");
+		});
+	});
+
+	it("treats tag-only edits as unsaved changes in edit mode", async () => {
+		vi.resetAllMocks();
+		mockLocaleWithLang("en");
+
+		const setTags = vi.fn();
+		vi.mocked(useItemTags).mockReturnValue({
+			tags: ["existing-tag"],
+			getTags: () => ["existing-tag"],
+			setTags,
+			saveTags: vi.fn(),
+			isLoadingTags: false,
+		});
+		vi.mocked(useParams).mockReturnValue({ community_id: "comm-1" });
+
+		const store: typeof useAppStore = useAppStore;
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			isCommunityLoading: false,
+			currentCommunity: {
+				community_id: "comm-1",
+				owner_id: "user-1",
+				community_name: "Community 1",
+				community_slug: "community-1",
+				description: "",
+				is_public: false,
+				public_notes: "",
+				private_notes: "",
+				created_at: "2026-01-01T00:00:00Z",
+				updated_at: "2026-01-01T00:00:00Z",
+			},
+		}));
+
+		function TestComp(): ReactElement {
+			const hook = useCommunityForm();
+			return (
+				<div>
+					<div data-testid="unsaved">{String(hook.hasUnsavedChanges)}</div>
+					<button
+						type="button"
+						onClick={() => {
+							hook.setTags(["existing-tag", "new-tag"]);
+						}}
+					>
+						Add Tag
+					</button>
+				</div>
+			);
+		}
+
+		const { getByRole, getByTestId, rerender } = render(<TestComp />);
+
+		await waitFor(() => {
+			expect(getByTestId("unsaved").textContent).toBe("false");
+		});
+
+		fireEvent.click(getByRole("button", { name: "Add Tag" }));
+
+		vi.mocked(useItemTags).mockReturnValue({
+			tags: ["existing-tag", "new-tag"],
+			getTags: () => ["existing-tag", "new-tag"],
+			setTags,
+			saveTags: vi.fn(),
+			isLoadingTags: false,
+		});
+		rerender(<TestComp />);
+
+		await waitFor(() => {
+			expect(getByTestId("unsaved").textContent).toBe("true");
+		});
+	});
+
+	it("waits for tag hydration before setting the edit baseline", async () => {
+		vi.resetAllMocks();
+		mockLocaleWithLang("en");
+
+		const setTags = vi.fn();
+		vi.mocked(useItemTags)
+			.mockReturnValueOnce({
+				tags: [],
+				getTags: () => [],
+				setTags,
+				saveTags: vi.fn(),
+				isLoadingTags: true,
+			})
+			.mockReturnValue({
+				tags: ["existing-tag"],
+				getTags: () => ["existing-tag"],
+				setTags,
+				saveTags: vi.fn(),
+				isLoadingTags: false,
+			});
+		vi.mocked(useParams).mockReturnValue({ community_id: "comm-1" });
+
+		const store: typeof useAppStore = useAppStore;
+		store.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			isCommunityLoading: false,
+			currentCommunity: {
+				community_id: "comm-1",
+				owner_id: "user-1",
+				community_name: "Community 1",
+				community_slug: "community-1",
+				description: "",
+				is_public: false,
+				public_notes: "",
+				private_notes: "",
+				created_at: "2026-01-01T00:00:00Z",
+				updated_at: "2026-01-01T00:00:00Z",
+			},
+		}));
+
+		function TestComp(): ReactElement {
+			const hook = useCommunityForm();
+			return <div data-testid="unsaved">{String(hook.hasUnsavedChanges)}</div>;
+		}
+
+		const { getByTestId, rerender } = render(<TestComp />);
+
+		await waitFor(() => {
+			expect(getByTestId("unsaved").textContent).toBe("false");
+		});
+
+		rerender(<TestComp />);
+
+		await waitFor(() => {
+			expect(getByTestId("unsaved").textContent).toBe("false");
 		});
 	});
 });

@@ -102,7 +102,7 @@ export default function EventForm(): ReactElement {
 							className="w-full rounded-lg border border-gray-600 bg-gray-800 px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
 							placeholder={t("eventEdit.slugPlaceholder", "event-url-slug")}
 							required
-							pattern="^[a-z0-9-]+$"
+							pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
 						/>
 						<p className="mt-1 text-xs text-gray-400">
 							{t("eventEdit.slugHint", "Only lowercase letters, numbers, and hyphens")}

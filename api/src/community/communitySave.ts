@@ -5,7 +5,6 @@ import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
-import isRecord from "@/shared/type-guards/isRecord";
 import { communityFormSchema } from "@/shared/validation/communitySchemas";
 import validateFormEffect from "@/shared/validation/form/validateFormEffect";
 import { tagSlugSchema } from "@/shared/validation/tagSchemas";
@@ -239,13 +238,8 @@ export default function communitySave(
 			);
 		}
 
-		// Extract tags from body (not in communityFormSchema) and save them.
-		const rawTags = isRecord(body) ? body.tags : undefined;
-		if (rawTags !== undefined) {
-			const tagSlugs: string[] = Array.isArray(rawTags)
-				? rawTags.filter((val): val is string => typeof val === "string")
-				: [];
-			const validSlugs = tagSlugs.filter((slug) => Schema.is(tagSlugSchema)(slug));
+		if (validated.tags !== undefined) {
+			const validSlugs = validated.tags.filter((slug) => Schema.is(tagSlugSchema)(slug));
 			yield* $(
 				Effect.tryPromise({
 					try: async () => {
@@ -270,7 +264,7 @@ export default function communitySave(
 						}
 					},
 					catch: () => new DatabaseError({ message: "Failed to save tags" }),
-				}).pipe(Effect.orElse(() => Effect.void)),
+				}),
 			);
 		}
 

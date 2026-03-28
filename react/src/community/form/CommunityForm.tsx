@@ -88,7 +88,7 @@ export default function CommunityForm(): ReactElement {
 						onChange={onSlugChange}
 						className="w-full rounded-lg border border-gray-600 bg-gray-800 px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
 						required
-						pattern="^[a-z0-9-]+$"
+						pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
 					/>
 				</div>
 

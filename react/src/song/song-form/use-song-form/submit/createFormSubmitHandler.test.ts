@@ -22,6 +22,7 @@ describe("createFormSubmitHandler", () => {
 			fields: FIELDS,
 			slideOrder: SLIDE_ORDER,
 			slides: SLIDES,
+			getTags: () => undefined,
 			handleSubmit,
 			onSubmit,
 		});
@@ -54,6 +55,7 @@ describe("createFormSubmitHandler", () => {
 			fields: FIELDS,
 			slideOrder: SLIDE_ORDER,
 			slides: SLIDES,
+			getTags: () => ["rock", "pop"],
 			handleSubmit,
 			onSubmit,
 		});
@@ -69,6 +71,7 @@ describe("createFormSubmitHandler", () => {
 			fields: [...FIELDS],
 			slide_order: [...SLIDE_ORDER],
 			slides: SLIDES,
+			tags: ["rock", "pop"],
 		});
 
 		form.remove();
@@ -90,6 +93,7 @@ describe("createFormSubmitHandler", () => {
 			fields: FIELDS,
 			slideOrder: SLIDE_ORDER,
 			slides: SLIDES,
+			getTags: () => undefined,
 			handleSubmit,
 			onSubmit: vi.fn(),
 		});
@@ -99,6 +103,38 @@ describe("createFormSubmitHandler", () => {
 		expect(capturedFormData).toBeDefined();
 		const data = forceCast<Record<string, unknown>>(capturedFormData);
 		expect(Object.hasOwn(data, "song_id")).toBe(false);
+
+		form.remove();
+	});
+
+	it("reads tags at submit time from getTags", async () => {
+		let capturedFormData: Record<string, unknown> | undefined = undefined;
+		const handleSubmit = vi.fn((formData: Record<string, unknown>) =>
+			Effect.sync(() => {
+				capturedFormData = formData;
+			}),
+		);
+		let currentTags: readonly string[] = ["initial"];
+
+		const form = document.createElement("form");
+		document.body.append(form);
+
+		const handler = createFormSubmitHandler({
+			songId: SONG_ID,
+			fields: FIELDS,
+			slideOrder: SLIDE_ORDER,
+			slides: SLIDES,
+			getTags: () => currentTags,
+			handleSubmit,
+			onSubmit: vi.fn(),
+		});
+
+		currentTags = ["latest-tag"];
+		await handler(form);
+
+		expect(forceCast<Record<string, unknown>>(capturedFormData)["tags"]).toStrictEqual([
+			"latest-tag",
+		]);
 
 		form.remove();
 	});

@@ -17,6 +17,7 @@ describe("getDefaultEventFormValues", () => {
 			active_slide_position: undefined,
 			public_notes: "",
 			private_notes: "",
+			tags: [],
 		});
 	});
 
@@ -25,5 +26,6 @@ describe("getDefaultEventFormValues", () => {
 		const result = getDefaultEventFormValues(EVENT_ID);
 		expect(result.event_id).toBe(EVENT_ID);
 		expect(result.event_name).toBe("");
+		expect(result.tags).toStrictEqual([]);
 	});
 });

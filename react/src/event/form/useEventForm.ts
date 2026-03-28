@@ -78,7 +78,7 @@ export default function useEventForm(): UseEventFormReturn {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { event_id, lang } = useParams<{ event_id: string; lang: string }>();
-	const { tags, setTags } = useItemTags("event", event_id);
+	const { tags, getTags, setTags } = useItemTags("event", event_id);
 	const langForNav = isSupportedLanguage(lang) ? lang : defaultLanguage;
 
 	const formRef = useRef<HTMLFormElement | null>(null);
@@ -92,6 +92,7 @@ export default function useEventForm(): UseEventFormReturn {
 	const playlistLibraryEntries = useAppStore((state) => state.playlistLibraryEntries);
 	const isPlaylistLibraryLoading = useAppStore((state) => state.isPlaylistLibraryLoading);
 	const saveEvent = useAppStore((state) => state.saveEvent);
+	const currentEvent = useAppStore((state) => state.currentEvent);
 
 	const isEditing = event_id !== undefined && event_id !== "";
 	const hasNoPlaylists = Object.keys(playlistLibraryEntries).length === PLAYLISTS_NONE;
@@ -135,6 +136,33 @@ export default function useEventForm(): UseEventFormReturn {
 		setFormValuesState,
 	});
 
+	// Hydrates edit-mode form fields from the persisted current event snapshot.
+	useEffect(() => {
+		if (
+			!isEditing ||
+			currentEvent === undefined ||
+			currentEvent.event_id !== event_id ||
+			currentEvent.public === undefined
+		) {
+			return;
+		}
+
+		setFormValuesState({
+			event_id,
+			event_name: currentEvent.public.event_name,
+			event_slug: currentEvent.public.event_slug,
+			event_description: currentEvent.public.event_description ?? "",
+			event_date: currentEvent.public.event_date ?? "",
+			is_public: currentEvent.public.is_public ?? false,
+			active_playlist_id: currentEvent.public.active_playlist_id ?? undefined,
+			active_song_id: currentEvent.public.active_song_id ?? undefined,
+			active_slide_position: currentEvent.public.active_slide_position ?? undefined,
+			public_notes: currentEvent.public.public_notes ?? "",
+			private_notes: currentEvent.private_notes ?? "",
+			tags: [...tags],
+		});
+	}, [currentEvent, event_id, isEditing, tags]);
+
 	// Form Changes Tracking
 	const { hasUnsavedChanges: hasUnsavedChangesFn, clearInitialState } =
 		useFormChanges<EventFormValues>({
@@ -158,7 +186,7 @@ export default function useEventForm(): UseEventFormReturn {
 	const handleFormSubmit = createHandleFormSubmit({
 		formValues,
 		isEditing,
-		tags,
+		getTags,
 		runValidatedSubmit: (onSubmitValid: () => Promise<void>): Promise<void> =>
 			Effect.runPromise(handleSubmit(formValues, onSubmitValid)),
 		runSaveEvent,

@@ -1,8 +1,7 @@
 import { Effect } from "effect";
 import { useEffect, useState } from "react";
 
-import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 import handleSubscriptionStatus from "@/react/lib/supabase/subscription/status/handleSubscriptionStatus";
 import isSubscriptionStatus from "@/react/lib/supabase/subscription/status/isSubscriptionStatus";
@@ -51,14 +50,13 @@ export default function useItemTagsDisplay(
 		let subCleanup: (() => void) | undefined = undefined;
 
 		void (async (): Promise<void> => {
-			let userToken: Awaited<ReturnType<typeof getSupabaseAuthToken>> | undefined = undefined;
+			let client: Awaited<ReturnType<typeof getSupabaseClientWithAuth>> | undefined = undefined;
 			try {
-				userToken = await getSupabaseAuthToken();
+				client = await getSupabaseClientWithAuth();
 			} catch {
 				return;
 			}
 
-			const client = getSupabaseClient(userToken);
 			if (client === undefined) {
 				return;
 			}

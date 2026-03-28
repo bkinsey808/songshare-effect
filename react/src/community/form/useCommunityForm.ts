@@ -53,7 +53,7 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { community_id, lang } = useParams<{ community_id: string; lang: string }>();
-	const { tags, setTags } = useItemTags("community", community_id);
+	const { tags, getTags, setTags, isLoadingTags } = useItemTags("community", community_id);
 	const langForNav = isSupportedLanguage(lang) ? lang : defaultLanguage;
 
 	const formRef = useRef<HTMLFormElement | null>(null);
@@ -80,7 +80,10 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 	useLoadCommunityById(isEditing ? community_id : undefined);
 
 	const { hasUnsavedChanges, setInitialState, clearInitialState } = useFormChanges({
-		currentState: formValues,
+		currentState: {
+			formValues,
+			tags,
+		},
 		enabled: !isCommunityLoading,
 	});
 
@@ -94,6 +97,7 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 			isEditing &&
 			currentCommunity &&
 			currentCommunity.community_id === community_id &&
+			!isLoadingTags &&
 			!hasLoadedRef.current
 		) {
 			const loadedValues: CommunityFormValues = {
@@ -106,19 +110,25 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 				private_notes: currentCommunity.private_notes ?? "",
 			};
 			setFormValues(loadedValues);
-			setInitialState(loadedValues);
+			setInitialState({
+				formValues: loadedValues,
+				tags,
+			});
 			hasLoadedRef.current = true;
 		}
-	}, [isEditing, currentCommunity, community_id, setInitialState]);
+	}, [isEditing, currentCommunity, community_id, isLoadingTags, setInitialState, tags]);
 
 	// Initialize the baseline state for Create flow immediately; prevents the
 	// unsaved-changes tracker from thinking the form has already been altered.
 	useEffect(() => {
 		if (!isEditing && !hasLoadedRef.current) {
-			setInitialState(formValues);
+			setInitialState({
+				formValues,
+				tags,
+			});
 			hasLoadedRef.current = true;
 		}
-	}, [isEditing, setInitialState, formValues]);
+	}, [isEditing, setInitialState, formValues, tags]);
 
 	// Clear community error when creating a new community
 	useEffect(() => {
@@ -173,7 +183,7 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 		async function onSubmitValid(): Promise<void> {
 			try {
 				const savedCommunity = await Effect.runPromise(
-					saveCommunity({ ...formValues, tags: [...tags] }),
+					saveCommunity({ ...formValues, tags: [...getTags()] }),
 				);
 				clearInitialState();
 				void navigate(
@@ -208,7 +218,7 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 		setTags,
 		formValues,
 		isEditing,
-		isLoadingData: isEditing && isCommunityLoading,
+		isLoadingData: isEditing && (isCommunityLoading || isLoadingTags),
 		isSaving,
 		error: communityError,
 		onNameChange,

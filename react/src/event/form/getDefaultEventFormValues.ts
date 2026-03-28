@@ -19,5 +19,6 @@ export default function getDefaultEventFormValues(eventId: string | undefined): 
 		active_slide_position: undefined,
 		public_notes: "",
 		private_notes: "",
+		tags: [],
 	};
 }

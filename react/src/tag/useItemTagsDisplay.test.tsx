@@ -2,8 +2,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
-import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
+import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest";
@@ -11,8 +10,7 @@ import fetchItemTagsEffect from "@/react/tag-library/image/fetchItemTagsRequest"
 import useItemTagsDisplay from "./useItemTagsDisplay";
 
 vi.mock("@/react/tag-library/image/fetchItemTagsRequest");
-vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
-vi.mock("@/react/lib/supabase/client/getSupabaseClient");
+vi.mock("@/react/lib/supabase/client/getSupabaseClientWithAuth");
 vi.mock("@/react/lib/supabase/subscription/realtime/createRealtimeSubscription");
 vi.mock("@/react/lib/supabase/subscription/status/handleSubscriptionStatus");
 vi.mock("@/react/lib/supabase/subscription/status/isSubscriptionStatus");
@@ -21,9 +19,8 @@ const ITEM_ID = "item-uuid-123";
 const PLAYLIST_ID = "playlist-uuid-456";
 const SLUG_A = "rock";
 const SLUG_B = "pop";
-const AUTH_TOKEN = "test-auth-token";
 
-const MOCK_CLIENT = forceCast<ReturnType<typeof getSupabaseClient>>({});
+const MOCK_CLIENT = forceCast<Awaited<ReturnType<typeof getSupabaseClientWithAuth>>>({});
 
 type OnEventFn = (payload: unknown) => Effect.Effect<void, Error>;
 
@@ -32,8 +29,7 @@ type OnEventCapture = { fn: OnEventFn | undefined };
 function setupDefaultMocks(capture?: OnEventCapture): void {
 	vi.clearAllMocks();
 	vi.mocked(fetchItemTagsEffect).mockReturnValue(Effect.succeed([]));
-	vi.mocked(getSupabaseAuthToken).mockResolvedValue(AUTH_TOKEN);
-	vi.mocked(getSupabaseClient).mockReturnValue(MOCK_CLIENT);
+	vi.mocked(getSupabaseClientWithAuth).mockResolvedValue(MOCK_CLIENT);
 	if (capture) {
 		vi.mocked(createRealtimeSubscription).mockImplementation((config) => {
 			capture.fn = config.onEvent as OnEventFn;
@@ -168,14 +164,14 @@ describe("useItemTagsDisplay", () => {
 		expect(result.current).toStrictEqual([SLUG_A]);
 	});
 
-	it("skips subscription when auth token fetch fails", async () => {
+	it("skips subscription when authenticated client creation fails", async () => {
 		setupDefaultMocks();
-		vi.mocked(getSupabaseAuthToken).mockRejectedValue(new Error("auth failed"));
+		vi.mocked(getSupabaseClientWithAuth).mockRejectedValue(new Error("auth failed"));
 
 		renderHook(() => useItemTagsDisplay("song", ITEM_ID));
 
 		await waitFor(() => {
-			expect(getSupabaseAuthToken).toHaveBeenCalledWith();
+			expect(getSupabaseClientWithAuth).toHaveBeenCalledWith();
 		});
 
 		expect(createRealtimeSubscription).not.toHaveBeenCalled();
@@ -183,12 +179,12 @@ describe("useItemTagsDisplay", () => {
 
 	it("skips subscription when supabase client is undefined", async () => {
 		setupDefaultMocks();
-		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
+		vi.mocked(getSupabaseClientWithAuth).mockResolvedValue(undefined);
 
 		renderHook(() => useItemTagsDisplay("song", ITEM_ID));
 
 		await waitFor(() => {
-			expect(getSupabaseClient).toHaveBeenCalledWith(AUTH_TOKEN);
+			expect(getSupabaseClientWithAuth).toHaveBeenCalledWith();
 		});
 
 		expect(createRealtimeSubscription).not.toHaveBeenCalled();

@@ -25,6 +25,7 @@ const eventFormSchema = Schema.Struct({
 	active_slide_position: Schema.optional(Schema.NullishOr(Schema.Number)),
 	public_notes: Schema.optional(Schema.String),
 	private_notes: Schema.optional(Schema.String),
+	tags: Schema.optional(Schema.Array(Schema.String)),
 });
 
 export default eventFormSchema;

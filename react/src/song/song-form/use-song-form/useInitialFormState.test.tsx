@@ -16,6 +16,7 @@ const DEFAULT_FORM_STATE = {
 	formValues: DEFAULT_FORM_VALUES,
 	fields: ["lyrics"] as readonly string[],
 	slideOrder: ["slide-1"] as readonly string[],
+	tags: [] as readonly string[],
 	slides: {
 		"slide-1": { slide_name: "Slide 1", field_data: {} },
 	} as Record<string, { slide_name: string; field_data: Record<string, string> }>,
@@ -32,6 +33,7 @@ describe("useInitialFormState", () => {
 				formValues: DEFAULT_FORM_STATE.formValues,
 				fields: DEFAULT_FORM_STATE.fields,
 				slideOrder: DEFAULT_FORM_STATE.slideOrder,
+				tags: DEFAULT_FORM_STATE.tags,
 				slides: DEFAULT_FORM_STATE.slides,
 				isLoadingData: false,
 				hasPopulatedRef,
@@ -48,6 +50,7 @@ describe("useInitialFormState", () => {
 					formValues: DEFAULT_FORM_STATE.formValues,
 					fields: DEFAULT_FORM_STATE.fields,
 					slideOrder: DEFAULT_FORM_STATE.slideOrder,
+					tags: DEFAULT_FORM_STATE.tags,
 				}),
 			);
 		});
@@ -63,6 +66,7 @@ describe("useInitialFormState", () => {
 				formValues: DEFAULT_FORM_STATE.formValues,
 				fields: DEFAULT_FORM_STATE.fields,
 				slideOrder: DEFAULT_FORM_STATE.slideOrder,
+				tags: DEFAULT_FORM_STATE.tags,
 				slides: DEFAULT_FORM_STATE.slides,
 				isLoadingData: true,
 				hasPopulatedRef,
@@ -88,6 +92,7 @@ describe("useInitialFormState", () => {
 				formValues: DEFAULT_FORM_STATE.formValues,
 				fields: DEFAULT_FORM_STATE.fields,
 				slideOrder: DEFAULT_FORM_STATE.slideOrder,
+				tags: DEFAULT_FORM_STATE.tags,
 				slides: DEFAULT_FORM_STATE.slides,
 				isLoadingData: false,
 				hasPopulatedRef,
@@ -105,6 +110,7 @@ describe("useInitialFormState", () => {
 				expect.objectContaining({
 					formValues: DEFAULT_FORM_STATE.formValues,
 					slideOrder: DEFAULT_FORM_STATE.slideOrder,
+					tags: DEFAULT_FORM_STATE.tags,
 				}),
 			);
 		});
@@ -121,6 +127,7 @@ describe("useInitialFormState", () => {
 				formValues: DEFAULT_FORM_STATE.formValues,
 				fields: DEFAULT_FORM_STATE.fields,
 				slideOrder: DEFAULT_FORM_STATE.slideOrder,
+				tags: DEFAULT_FORM_STATE.tags,
 				slides: DEFAULT_FORM_STATE.slides,
 				isLoadingData: false,
 				hasPopulatedRef,

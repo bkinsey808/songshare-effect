@@ -15,6 +15,7 @@ export const communityFormSchema: Schema.Schema<
 		readonly is_public?: boolean | undefined;
 		readonly public_notes?: string | undefined;
 		readonly private_notes?: string | undefined;
+		readonly tags?: readonly string[] | undefined;
 	},
 	{
 		readonly name: string;
@@ -24,6 +25,7 @@ export const communityFormSchema: Schema.Schema<
 		readonly is_public?: boolean | undefined;
 		readonly public_notes?: string | undefined;
 		readonly private_notes?: string | undefined;
+		readonly tags?: readonly string[] | undefined;
 	}
 > = Schema.Struct({
 	community_id: Schema.optional(Schema.String),
@@ -37,6 +39,7 @@ export const communityFormSchema: Schema.Schema<
 	is_public: Schema.optional(Schema.Boolean),
 	public_notes: Schema.optional(Schema.String),
 	private_notes: Schema.optional(Schema.String),
+	tags: Schema.optional(Schema.Array(Schema.String)),
 });
 
 /**

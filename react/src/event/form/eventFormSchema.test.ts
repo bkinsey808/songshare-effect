@@ -55,6 +55,18 @@ describe("eventFormSchema", () => {
 		expect(result.active_slide_position).toBeNull();
 	});
 
+	it("accepts tags", () => {
+		const input = {
+			event_name: "Tagged Event",
+			event_slug: "tagged-event",
+			tags: ["worship", "youth"],
+		} as unknown;
+
+		const result = decodeUnknownSyncOrThrow(eventFormSchema, input);
+
+		expect(result.tags).toStrictEqual(["worship", "youth"]);
+	});
+
 	it("throws when event_name is too short", () => {
 		const input = { event_name: "x", event_slug: "valid-slug" } as unknown;
 

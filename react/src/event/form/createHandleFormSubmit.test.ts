@@ -30,6 +30,7 @@ describe("createHandleFormSubmit", () => {
 		const formValues = makeFormValues();
 		const clearInitialState = vi.fn();
 		const navigateToEvent = vi.fn();
+		const getTags = vi.fn(() => ["tag-a"]);
 		const runSaveEvent = vi.fn(async (_request: SaveEventRequest) => {
 			const eventId = await Promise.resolve("event-1");
 			return eventId;
@@ -42,6 +43,7 @@ describe("createHandleFormSubmit", () => {
 		const handleFormSubmit = createHandleFormSubmit({
 			formValues,
 			isEditing: false,
+			getTags,
 			runValidatedSubmit,
 			runSaveEvent,
 			clearInitialState,
@@ -61,6 +63,7 @@ describe("createHandleFormSubmit", () => {
 				event_name: "My Event",
 				event_slug: "my-event",
 				is_public: false,
+				tags: ["tag-a"],
 			}),
 		);
 		expect(clearInitialState).toHaveBeenCalledTimes(CALLED_ONCE);
@@ -71,6 +74,7 @@ describe("createHandleFormSubmit", () => {
 		const formValues = makeFormValues();
 		const clearInitialState = vi.fn();
 		const navigateToEvent = vi.fn();
+		const getTags = vi.fn(() => ["tag-b"]);
 		const runSaveEvent = vi.fn(async (_request: SaveEventRequest) => {
 			const eventId = await Promise.resolve("");
 			return eventId;
@@ -82,6 +86,7 @@ describe("createHandleFormSubmit", () => {
 		const handleFormSubmit = createHandleFormSubmit({
 			formValues,
 			isEditing: false,
+			getTags,
 			runValidatedSubmit,
 			runSaveEvent,
 			clearInitialState,

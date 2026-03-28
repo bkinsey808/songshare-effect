@@ -23,6 +23,7 @@ export type FormState = {
 	formValues: SongFormValues;
 	fields: readonly string[];
 	slideOrder: readonly string[];
+	tags: readonly string[];
 	slides: Record<string, Slide>;
 };
 
