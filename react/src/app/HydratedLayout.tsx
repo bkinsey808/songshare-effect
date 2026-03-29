@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import useCurrentUserRealtimeSync from "@/react/auth/current-user/useCurrentUserRealtimeSync";
 import useEnsureSignedIn from "@/react/auth/ensure-signed-in/useEnsureSignedIn";
 import Navigation from "@/react/navigation/Navigation";
 import useIsScrolled from "@/react/navigation/useIsScrolled";
@@ -21,6 +22,7 @@ export default function HydratedLayout(): ReactElement {
 	// Initialize auth on every page so public routes (songs, communities, events)
 	// can read userSessionData and userLibraryEntries from the store.
 	useEnsureSignedIn();
+	useCurrentUserRealtimeSync();
 	useInitUserLibrary();
 
 	// Use persisted app store for header actions so the toggle state survives refresh

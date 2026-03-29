@@ -12,6 +12,7 @@ import useLocale from "@/react/lib/language/locale/useLocale";
 import LanguageSwitcher from "@/react/lib/language/switcher/LanguageSwitcher";
 import useWakeLock from "@/react/lib/wake-lock/useWakeLock";
 import useDashboard from "@/react/pages/dashboard/useDashboard";
+import SlideOrientationToggle from "@/react/slide-orientation/SlideOrientationToggle";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
@@ -72,6 +73,7 @@ export default function SettingsCard(): ReactElement {
 			)}
 			{/* Language selector */}
 			<LanguageSwitcher />
+			<SlideOrientationToggle showLabel />
 			{/* Sign Out and Delete Account - only when signed in */}
 			{localIsSignedIn === true && (
 				<>

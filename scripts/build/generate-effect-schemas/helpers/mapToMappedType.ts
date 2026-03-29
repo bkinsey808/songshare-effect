@@ -2,7 +2,7 @@
  * Map a cleaned Supabase field type and field name to the simplified mapped type
  * used by the schema generator.
  */
-export default function mapToMappedType(cleanType: string, fieldNameLocal: string): string {
+function mapToMappedType(cleanType: string, fieldNameLocal: string): string {
 	if (cleanType.endsWith("[]")) {
 		return cleanType;
 	}
@@ -18,8 +18,14 @@ export default function mapToMappedType(cleanType: string, fieldNameLocal: strin
 	if (cleanType.includes("Json")) {
 		return "Json";
 	}
-	if (fieldNameLocal.includes("id") && cleanType === "string") {
+	if (isUuidLikeIdentifierField(fieldNameLocal) && cleanType === "string") {
 		return "uuid";
 	}
 	return "string";
 }
+
+function isUuidLikeIdentifierField(fieldName: string): boolean {
+	return fieldName === "id" || fieldName.endsWith("_id");
+}
+
+export default mapToMappedType;

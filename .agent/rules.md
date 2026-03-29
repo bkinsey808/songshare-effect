@@ -32,6 +32,12 @@ Safe to auto-run (`SafeToAutoRun: true`):
 
 Never auto-run: git write operations, deployments, system-level package installs.
 
+## Environment Safety
+
+- **Staging first for migrations and deploys**: Always use the staging workflow before any production migration or deployment.
+- **Production requires explicit confirmation**: Do not run production-linked commands such as `npm run supabase:migrate`, `npm run deploy`, `npm run deploy:api`, or `npm run deploy:pages` unless a human explicitly asks for production.
+- **Prefer staging commands by default**: Use commands such as `npm run supabase:migrate:staging`, `npm run deploy:staging`, and other staging-targeted workflows for verification first.
+
 ## Git Usage
 
 Do not run git write commands (`git commit`, `git push`, `git mv`, `git reset`, `git checkout` that modifies branches, etc.). Read-only commands (`git status`, `git log`, `git diff`, `git show`, `git grep`) are allowed. Propose write commands and wait for a human to execute them.

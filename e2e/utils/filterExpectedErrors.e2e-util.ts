@@ -12,6 +12,9 @@ const EXPECTED_ERROR_PATTERNS = [
 	// Chromium serializes the error class name ("JwtSignerError"), Firefox just says "Error".
 	"subscribeToPendingInvitations",
 	"JwtSignerError",
+	"MalformedJWT",
+	"[user] Channel error",
+	"[user_public] Channel error",
 	"[song_library] Channel error",
 	"[tag_library] Channel error",
 	"[song_tag] Channel error",

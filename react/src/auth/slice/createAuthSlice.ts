@@ -61,5 +61,35 @@ export default function createAuthSlice(
 			}
 			set({ showSignedInAlert: value });
 		},
+		updateUserSessionUser: (userPatch) => {
+			const currentSession = get().userSessionData;
+			if (currentSession === undefined) {
+				return;
+			}
+			set({
+				userSessionData: {
+					...currentSession,
+					user: {
+						...currentSession.user,
+						...userPatch,
+					},
+				},
+			});
+		},
+		updateUserSessionUserPublic: (userPublicPatch) => {
+			const currentSession = get().userSessionData;
+			if (currentSession === undefined) {
+				return;
+			}
+			set({
+				userSessionData: {
+					...currentSession,
+					userPublic: {
+						...currentSession.userPublic,
+						...userPublicPatch,
+					},
+				},
+			});
+		},
 	};
 }

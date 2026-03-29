@@ -2,26 +2,24 @@ import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
 import { Provider } from "@/shared/providers";
+import makeUser from "@/shared/test-utils/makeUser.test-util";
+import makeUserPublic from "@/shared/test-utils/makeUserPublic.test-util";
 
 import { UserSessionDataSchema } from "./userSessionData";
 
 const VALID_UUID = "550e8400-e29b-41d4-a716-446655440000";
 
-const MINIMAL_USER = {
+const MINIMAL_USER = makeUser({
 	user_id: VALID_UUID,
-	email: "u@example.com",
 	linked_providers: [],
 	created_at: "2024-01-01T00:00:00Z",
 	updated_at: "2024-01-01T00:00:00Z",
-	google_calendar_access: "none",
-	name: "User",
-	role: "user",
-};
+});
 
-const MINIMAL_USER_PUBLIC = {
+const MINIMAL_USER_PUBLIC = makeUserPublic({
 	user_id: VALID_UUID,
 	username: "alice",
-};
+});
 
 const MINIMAL_OAUTH_USER_DATA = {
 	email: "u@example.com",
@@ -71,7 +69,6 @@ describe("userSessionData schema", () => {
 				userPublic: MINIMAL_USER_PUBLIC,
 				oauthUserData: MINIMAL_OAUTH_USER_DATA,
 				oauthState: MINIMAL_OAUTH_STATE,
-				ip: "127.0.0.1",
 			},
 			error: ERROR_RE,
 		},

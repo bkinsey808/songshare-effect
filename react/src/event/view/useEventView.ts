@@ -1,4 +1,5 @@
-import { useParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
@@ -9,7 +10,15 @@ import deriveEventViewState from "@/react/event/view/deriveEventViewState";
 import useEventActions from "@/react/event/view/useEventActions";
 import useEventDataSync from "@/react/event/view/useEventDataSync";
 import useEventRealtimeSync from "@/react/event/view/useEventRealtimeSync";
+import useCurrentLang from "@/react/lib/language/useCurrentLang";
+import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
+import getSlideOrientationContainerClassName from "@/react/slide-orientation/getSlideOrientationContainerClassName";
+import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
 import useItemTagsDisplay from "@/react/tag/useItemTagsDisplay";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import { eventViewPath } from "@/shared/paths";
+
+const TOP_BAR_TRIGGER_Y = 96;
 
 /**
  * Hook for managing event view state and actions.
@@ -46,6 +55,13 @@ export default function useEventView(): {
 	currentUserId: string | undefined;
 	currentParticipant: EventParticipant | undefined;
 	canManageEvent: boolean;
+	eventUrl: string | undefined;
+	navigateToEventSubpage: (subpagePath: string) => void;
+	isTopBarVisible: boolean;
+	slideContainerClassName: string;
+	handleBackToEventClick: () => void;
+	handleSlideShowMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void;
+	handleSlideShowMouseLeave: () => void;
 	actionLoading: boolean;
 	actionError: string | undefined;
 	actionSuccess: string | undefined;
@@ -56,6 +72,9 @@ export default function useEventView(): {
 	tags: string[];
 } {
 	const { event_slug } = useParams<{ event_slug: string }>();
+	const navigate = useNavigate();
+	const lang = useCurrentLang();
+	const [isTopBarVisible, setIsTopBarVisible] = useState(false);
 	const currentEvent = useAppStore((state) => state.currentEvent);
 	const isEventLoading = useAppStore((state) => state.isEventLoading);
 	const eventError = useAppStore((state) => state.eventError);
@@ -67,6 +86,8 @@ export default function useEventView(): {
 	const publicSongs = useAppStore((state) => state.publicSongs);
 	const currentUsername = useAppStore((state) => state.userSessionData?.userPublic.username);
 	const currentUserId = useCurrentUserId();
+	const { effectiveSlideOrientation } = useSlideOrientationPreference();
+	const slideContainerClassName = getSlideOrientationContainerClassName(effectiveSlideOrientation);
 
 	const derivedState = deriveEventViewState({
 		currentEvent,
@@ -98,6 +119,30 @@ export default function useEventView(): {
 		joinEvent: appStoreJoinEvent,
 		leaveEvent: appStoreLeaveEvent,
 	});
+
+	const eventSlug = derivedState.eventPublic?.event_slug;
+	const eventUrl =
+		eventSlug === undefined ? undefined : buildPublicWebUrl(`/${eventViewPath}/${eventSlug}`, lang);
+
+	function navigateToEventSubpage(subpagePath: string): void {
+		if (eventSlug !== undefined) {
+			void navigate(buildPathWithLang(`/${eventViewPath}/${eventSlug}/${subpagePath}`, lang));
+		}
+	}
+
+	function handleBackToEventClick(): void {
+		if (eventSlug !== undefined) {
+			void navigate(buildPathWithLang(`/${eventViewPath}/${eventSlug}`, lang));
+		}
+	}
+
+	function handleSlideShowMouseMove(event: React.MouseEvent<HTMLDivElement>): void {
+		setIsTopBarVisible(event.clientY <= TOP_BAR_TRIGGER_Y);
+	}
+
+	function handleSlideShowMouseLeave(): void {
+		setIsTopBarVisible(false);
+	}
 
 	return {
 		event_slug,
@@ -145,6 +190,13 @@ export default function useEventView(): {
 						(participant) =>
 							participant.user_id === currentUserId && participant.role === "event_admin",
 					)),
+		eventUrl,
+		navigateToEventSubpage,
+		isTopBarVisible,
+		slideContainerClassName,
+		handleBackToEventClick,
+		handleSlideShowMouseMove,
+		handleSlideShowMouseLeave,
 		tags,
 	};
 }

@@ -1,5 +1,6 @@
 import type { EventLibrary, EventLibraryInsert } from "@/shared/generated/supabaseSchemas";
 
+import mergeMockInsertRows from "./mergeMockInsertRows.test-util";
 import type { MockRow, MultiResult, SingleBuilder, SingleResult } from "./supabase-mock-types";
 
 export type EventLibraryMockOpts = {
@@ -49,11 +50,12 @@ export function createEventLibraryMock(opts: EventLibraryMockOpts): EventLibrary
 				};
 			})(),
 		insert: (rows: EventLibraryInsert[]): MultiResult & { select: () => SingleBuilder } => {
+			const mergedRows = mergeMockInsertRows(rows, opts.eventLibraryInsertRows);
 			const promise: MultiResult = (async () => {
 				await Promise.resolve();
 				const data: unknown[] | null =
 					opts.eventLibraryInsertError === undefined
-						? opts.eventLibraryInsertRows || rows
+						? mergedRows
 						: /* oxlint-disable-next-line unicorn/no-null */ null;
 				const error: unknown = opts.eventLibraryInsertError ?? undefined;
 				return { data, error };
@@ -67,7 +69,7 @@ export function createEventLibraryMock(opts: EventLibraryMockOpts): EventLibrary
 						if (opts.eventLibraryInsertError !== undefined) {
 							return { data: undefined, error: opts.eventLibraryInsertError };
 						}
-						const [firstRow] = opts.eventLibraryInsertRows ?? rows;
+						const [firstRow] = mergedRows;
 						return { data: firstRow, error: undefined };
 					},
 				}),

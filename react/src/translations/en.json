@@ -237,5 +237,11 @@
 		"keyboardHints": "Use First / Previous / Next / Last or ← → Home End to change slides.",
 		"addToLibrary": "Add to library",
 		"removeFromLibrary": "Remove from library"
+	},
+	"slideOrientation": {
+		"label": "Slides",
+		"landscape": "Landscape",
+		"portrait": "Portrait",
+		"system": "System"
 	}
 }

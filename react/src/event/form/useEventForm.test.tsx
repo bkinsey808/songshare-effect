@@ -188,6 +188,30 @@ describe("useEventForm", () => {
 		});
 	});
 
+	it("fetches the event by id when edit mode opens without a hydrated current event", async () => {
+		await withAuthFetchMock(async () => {
+			vi.resetAllMocks();
+			mockLocaleWithLang("en");
+
+			vi.mocked(useNavigate).mockReturnValue(vi.fn());
+			vi.mocked(useParams).mockReturnValue({ event_id: "ev-1" });
+
+			const store: typeof useAppStore = useAppStore;
+			const fetchEventById = vi.fn().mockReturnValue(Effect.succeed(undefined));
+			store.setState((prev: Record<string, unknown>) => ({
+				...prev,
+				currentEvent: undefined,
+				fetchEventById,
+			}));
+
+			renderHook(() => useEventForm());
+
+			await waitFor(() => {
+				expect(fetchEventById).toHaveBeenCalledWith("ev-1");
+			});
+		});
+	});
+
 	it("sends is_public false when creating with unchecked visibility", async () => {
 		await withAuthFetchMock(async () => {
 			vi.resetAllMocks();

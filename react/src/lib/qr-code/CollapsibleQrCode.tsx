@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import Button from "@/react/lib/design-system/Button";
 type CollapsibleQrCodeProps = Readonly<{
-	url: string;
+	url: string | undefined;
 	label: string;
 	className?: string;
 }>;
@@ -20,8 +20,12 @@ export default function CollapsibleQrCode({
 	url,
 	label,
 	className = "",
-}: CollapsibleQrCodeProps): ReactElement {
+}: CollapsibleQrCodeProps): ReactElement | undefined {
 	const [isOpen, setIsOpen] = useState(false);
+	if (url === undefined) {
+		return undefined;
+	}
+
 	return (
 		<section className={`rounded-lg border border-gray-700 bg-gray-800 p-4 ${className}`.trim()}>
 			<div className="flex flex-wrap items-center justify-between gap-3">

@@ -1,6 +1,7 @@
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import type { SongLibrary, SongLibraryInsert } from "@/shared/generated/supabaseSchemas";
 
+import mergeMockInsertRows from "./mergeMockInsertRows.test-util";
 import type { MockRow, MultiResult, SingleBuilder, SingleResult } from "./supabase-mock-types";
 
 export type SongLibraryMockOpts = {
@@ -42,11 +43,12 @@ export function createSongLibraryMock(opts: SongLibraryMockOpts): SongLibraryTab
 				})(),
 		}),
 		insert: (rows: SongLibraryInsert[]): MultiResult & { select: () => SingleBuilder } => {
+			const mergedRows = mergeMockInsertRows(rows, opts.songLibraryInsertRows);
 			const promise: MultiResult = (async () => {
 				await Promise.resolve();
 				const data: unknown[] | null =
 					opts.songLibraryInsertError === undefined
-						? ((opts.songLibraryInsertRows ?? rows) as unknown[])
+						? mergedRows
 						: /* oxlint-disable-next-line unicorn/no-null */ null;
 				const error: unknown = opts.songLibraryInsertError ?? undefined;
 				return { data, error };
@@ -61,7 +63,7 @@ export function createSongLibraryMock(opts: SongLibraryMockOpts): SongLibraryTab
 								? opts.songLibraryInsertError
 								: new Error(extractErrorMessage(opts.songLibraryInsertError, "Mock Error"));
 						}
-						const [firstRow] = opts.songLibraryInsertRows ?? (rows as unknown[]);
+						const [firstRow] = mergedRows;
 						return {
 							data: firstRow ?? undefined,
 							/* oxlint-disable-next-line unicorn/no-null */

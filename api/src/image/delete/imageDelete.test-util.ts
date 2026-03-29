@@ -5,6 +5,7 @@ import type { createClient } from "@supabase/supabase-js";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 
 type ImagePublicSelectResp = {
 	data: { r2_key: string; user_id: string } | null;
@@ -30,7 +31,7 @@ export default function makeImageDeleteClient(
 	opts: ImageDeleteTestClientOpts = {},
 ): ReturnType<typeof createClient> {
 	const imagePublicSelect = opts.imagePublicSelect ?? {
-		data: { r2_key: "images/user/img-1.png", user_id: "user-123" },
+		data: { r2_key: "images/user/img-1.png", user_id: TEST_USER_ID },
 		error: undefined,
 	};
 	const imageDeleteResp = opts.imageDelete ?? { error: undefined };

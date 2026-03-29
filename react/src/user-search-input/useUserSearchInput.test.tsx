@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from "@testing-library/react";
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
@@ -6,6 +7,8 @@ import { makeChangeEvent, makeMouseEvent } from "@/react/lib/test-utils/dom-even
 import makeUserLibraryEntry from "@/react/user-library/test-utils/makeUserLibraryEntry.test-util";
 
 import useUserSearchInput from "./useUserSearchInput";
+
+const SINGLE_FETCH_CALL = 1;
 
 function requireDefined<Item>(
 	value: Item | undefined,
@@ -201,5 +204,27 @@ describe("useUserSearchInput", () => {
 		});
 
 		container.remove();
+	});
+
+	it("fetches the user library when opened signed in with no loaded entries", async () => {
+		const fetchUserLibrary = vi.fn(() => Effect.succeed(undefined));
+		useAppStore.setState((prev: Record<string, unknown>) => ({
+			...prev,
+			userLibraryEntries: {},
+			isSignedIn: true,
+			isUserLibraryLoading: false,
+			fetchUserLibrary,
+		}));
+
+		const onSelect = vi.fn();
+		const { result } = renderHook(() =>
+			useUserSearchInput({ activeUserId: undefined, onSelect, excludeUserIds: [] }),
+		);
+
+		result.current.handleInputFocus();
+
+		await waitFor(() => {
+			expect(fetchUserLibrary).toHaveBeenCalledTimes(SINGLE_FETCH_CALL);
+		});
 	});
 });

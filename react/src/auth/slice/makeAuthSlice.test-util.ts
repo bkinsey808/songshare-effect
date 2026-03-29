@@ -32,6 +32,32 @@ export default function makeAuthSlice(initial: Partial<AuthState> = {}): () => A
 	const setShowSignedInAlert = vi.fn((value: boolean) => {
 		state.showSignedInAlert = value;
 	});
+	const updateUserSessionUser = vi.fn((userPatch: Partial<NonNullable<AuthState["userSessionData"]>["user"]>) => {
+		if (state.userSessionData === undefined) {
+			return;
+		}
+		state.userSessionData = {
+			...state.userSessionData,
+			user: {
+				...state.userSessionData.user,
+				...userPatch,
+			},
+		};
+	});
+	const updateUserSessionUserPublic = vi.fn(
+		(userPublicPatch: Partial<NonNullable<AuthState["userSessionData"]>["userPublic"]>) => {
+			if (state.userSessionData === undefined) {
+				return;
+			}
+			state.userSessionData = {
+				...state.userSessionData,
+				userPublic: {
+					...state.userSessionData.userPublic,
+					...userPublicPatch,
+				},
+			};
+		},
+	);
 
 	const stub = {
 		get isSignedIn(): boolean | undefined {
@@ -48,6 +74,8 @@ export default function makeAuthSlice(initial: Partial<AuthState> = {}): () => A
 		signIn,
 		signOut,
 		setShowSignedInAlert,
+		updateUserSessionUser,
+		updateUserSessionUserPublic,
 	};
 
 	return () => forceCast<AuthSlice>(stub);

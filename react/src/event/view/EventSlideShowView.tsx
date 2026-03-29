@@ -1,15 +1,8 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 import Button from "@/react/lib/design-system/Button";
-import useCurrentLang from "@/react/lib/language/useCurrentLang";
+import SlideOrientationToggle from "@/react/slide-orientation/SlideOrientationToggle";
 import SongViewCurrentSlide from "@/react/song/song-view/SongViewCurrentSlide";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import { eventViewPath } from "@/shared/paths";
 
 import useEventView from "./useEventView";
-
-const TOP_BAR_TRIGGER_Y = 96;
 
 /**
  * Displays only the current slide of the event's currently active song.
@@ -20,10 +13,6 @@ const TOP_BAR_TRIGGER_Y = 96;
  * @returns Slide-only event view content
  */
 export default function EventSlideShowView(): React.ReactNode {
-	const navigate = useNavigate();
-	const lang = useCurrentLang();
-	const [isTopBarVisible, setIsTopBarVisible] = useState(false);
-
 	const {
 		isEventLoading,
 		eventError,
@@ -32,6 +21,11 @@ export default function EventSlideShowView(): React.ReactNode {
 		canViewSlides,
 		activeSlide,
 		activeSlideDisplayFields,
+		isTopBarVisible,
+		slideContainerClassName,
+		handleBackToEventClick,
+		handleSlideShowMouseMove,
+		handleSlideShowMouseLeave,
 	} = useEventView();
 
 	if (isEventLoading) {
@@ -77,12 +71,8 @@ export default function EventSlideShowView(): React.ReactNode {
 	return (
 		<div
 			className="min-h-screen w-full bg-gray-900 px-8 py-12"
-			onMouseMove={(event) => {
-				setIsTopBarVisible(event.clientY <= TOP_BAR_TRIGGER_Y);
-			}}
-			onMouseLeave={() => {
-				setIsTopBarVisible(false);
-			}}
+			onMouseMove={handleSlideShowMouseMove}
+			onMouseLeave={handleSlideShowMouseLeave}
 		>
 			<div
 				className={`fixed inset-x-0 top-0 z-10 border-b border-gray-700 bg-gray-900/95 px-4 py-3 transition-all duration-300 ease-out ${
@@ -91,20 +81,15 @@ export default function EventSlideShowView(): React.ReactNode {
 						: "-translate-y-full opacity-0 pointer-events-none"
 				}`}
 			>
-				<div className="mx-auto flex w-full max-w-5xl items-center justify-start">
-					<Button
-						variant="outlineSecondary"
-						size="compact"
-						onClick={() => {
-							void navigate(buildPathWithLang(`/${eventViewPath}/${eventPublic.event_slug}`, lang));
-						}}
-					>
+				<div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3">
+					<Button variant="outlineSecondary" size="compact" onClick={handleBackToEventClick}>
 						Back to Event
 					</Button>
+					<SlideOrientationToggle />
 				</div>
 			</div>
 
-			<div className="mx-auto w-full max-w-5xl">
+			<div className={slideContainerClassName}>
 				<SongViewCurrentSlide
 					currentSlide={activeSlide}
 					displayFields={activeSlideDisplayFields}

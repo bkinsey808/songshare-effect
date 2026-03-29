@@ -1,6 +1,7 @@
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import type { PlaylistLibrary, PlaylistLibraryInsert } from "@/shared/generated/supabaseSchemas";
 
+import mergeMockInsertRows from "./mergeMockInsertRows.test-util";
 import type { MockRow, MultiResult, SingleBuilder, SingleResult } from "./supabase-mock-types";
 
 export type PlaylistLibraryMockOpts = {
@@ -30,6 +31,7 @@ export type PlaylistLibraryTableMock = {
 export function createPlaylistLibraryMock(opts: PlaylistLibraryMockOpts): PlaylistLibraryTableMock {
 	return {
 		insert: (rows: PlaylistLibraryInsert[]): MultiResult & { select: () => SingleBuilder } => {
+			const mergedRows = mergeMockInsertRows(rows, opts.playlistLibraryInsertRows);
 			const promise: MultiResult = (async () => {
 				await Promise.resolve();
 				if (opts.playlistLibraryInsertError !== undefined) {
@@ -38,7 +40,7 @@ export function createPlaylistLibraryMock(opts: PlaylistLibraryMockOpts): Playli
 						: new Error(extractErrorMessage(opts.playlistLibraryInsertError, "Mock Error"));
 				}
 				return {
-					data: opts.playlistLibraryInsertRows ?? (rows as MockRow<PlaylistLibraryInsert>[]),
+					data: mergedRows,
 					error: undefined,
 				};
 			})();
@@ -57,7 +59,7 @@ export function createPlaylistLibraryMock(opts: PlaylistLibraryMockOpts): Playli
 								: new Error(extractErrorMessage(opts.playlistLibraryInsertError, "Mock Error"));
 						}
 						const [row] = rows;
-						const [firstRow] = opts.playlistLibraryInsertRows ?? [];
+						const [firstRow] = mergedRows;
 						return {
 							/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test helper */
 							data: (firstRow === undefined

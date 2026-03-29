@@ -3,12 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { NetworkError } from "@/react/user-library/user-library-errors";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 
 import createAddUserEffect from "./createAddUserEffect";
 
 const TRANSLATION_KEY = "addUserForm.emptyUsername";
 const DEFAULT_MESSAGE = "Please enter a username";
-const USER_ID = "user-123";
 const USERNAME = "testuser";
 
 /**
@@ -27,7 +27,7 @@ function makeT(defaultMessage: string): (key: string, fallback: string) => strin
 
 describe("createAddUserEffect", () => {
 	it("fails when username is empty after trim", async () => {
-		const lookup = vi.fn(() => Effect.succeed({ user_id: USER_ID, username: USERNAME }));
+		const lookup = vi.fn(() => Effect.succeed({ user_id: TEST_USER_ID, username: USERNAME }));
 		const addUser = vi.fn(() => Effect.void);
 		const t = makeT(DEFAULT_MESSAGE);
 
@@ -72,7 +72,7 @@ describe("createAddUserEffect", () => {
 
 	it("fails when addUserToLibrary fails", async () => {
 		const addError = new Error("Add failed");
-		const lookup = vi.fn(() => Effect.succeed({ user_id: USER_ID, username: USERNAME }));
+		const lookup = vi.fn(() => Effect.succeed({ user_id: TEST_USER_ID, username: USERNAME }));
 		const addUser = vi.fn(() => Effect.fail(addError));
 		const t = makeT(DEFAULT_MESSAGE);
 
@@ -88,11 +88,11 @@ describe("createAddUserEffect", () => {
 		).rejects.toThrow("Add failed");
 
 		expect(lookup).toHaveBeenCalledWith(USERNAME);
-		expect(addUser).toHaveBeenCalledWith({ followed_user_id: USER_ID });
+		expect(addUser).toHaveBeenCalledWith({ followed_user_id: TEST_USER_ID });
 	});
 
 	it("succeeds when lookup and add succeed", async () => {
-		const lookup = vi.fn(() => Effect.succeed({ user_id: USER_ID, username: USERNAME }));
+		const lookup = vi.fn(() => Effect.succeed({ user_id: TEST_USER_ID, username: USERNAME }));
 		const addUser = vi.fn(() => Effect.void);
 		const t = makeT(DEFAULT_MESSAGE);
 
@@ -106,6 +106,6 @@ describe("createAddUserEffect", () => {
 		);
 
 		expect(lookup).toHaveBeenCalledWith(USERNAME);
-		expect(addUser).toHaveBeenCalledWith({ followed_user_id: USER_ID });
+		expect(addUser).toHaveBeenCalledWith({ followed_user_id: TEST_USER_ID });
 	});
 });

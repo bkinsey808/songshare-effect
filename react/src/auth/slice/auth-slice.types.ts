@@ -12,6 +12,10 @@ type AuthSlice = AuthState & {
 	signIn: (userSessionData: UserSessionData) => void;
 	signOut: () => void;
 	setShowSignedInAlert: (value: boolean) => void;
+	updateUserSessionUser: (userPatch: Partial<NonNullable<UserSessionData["user"]>>) => void;
+	updateUserSessionUserPublic: (
+		userPublicPatch: Partial<NonNullable<UserSessionData["userPublic"]>>,
+	) => void;
 };
 
 export type { AuthSlice, AuthState };

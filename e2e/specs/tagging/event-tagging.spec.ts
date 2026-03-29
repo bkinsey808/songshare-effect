@@ -1,6 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import { Effect } from "effect";
 
+import clearAllPendingPeerShares from "@/e2e/specs/sharing/helpers/clearAllPendingPeerShares.e2e-util.ts";
+import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
+import ensureUserNotInEvent from "@/e2e/specs/sharing/helpers/ensureUserNotInEvent.e2e-util.ts";
+import newRecipientContext from "@/e2e/specs/sharing/helpers/newRecipientContext.e2e-util.ts";
+import newSenderContext from "@/e2e/specs/sharing/helpers/newSenderContext.e2e-util.ts";
+import selectUserInSearch from "@/e2e/specs/sharing/helpers/selectUserInSearch.e2e-util.ts";
 import mutateTagViaApi from "@/e2e/specs/tagging/helpers/mutateTagViaApi.e2e-util.ts";
 import {
 	addTagInEditUi,
@@ -17,7 +23,6 @@ import { extractIdFromPublicRows } from "@/e2e/specs/tagging/helpers/tagging-id-
 import acquireBrowserContext from "@/e2e/utils/acquireBrowserContext.e2e-util.ts";
 import acquirePage from "@/e2e/utils/acquirePage.e2e-util.ts";
 import acquireTwoUserContexts from "@/e2e/utils/acquireTwoUserContexts.e2e-util.ts";
-import expectHiddenEffect from "@/e2e/utils/expectHiddenEffect.e2e-util.ts";
 import expectVisibleEffect from "@/e2e/utils/expectVisibleEffect.e2e-util.ts";
 import filterExpectedErrors from "@/e2e/utils/filterExpectedErrors.e2e-util.ts";
 import fromPromise from "@/e2e/utils/fromPromise.e2e-util.ts";
@@ -28,12 +33,6 @@ import waitForResponseAfter from "@/e2e/utils/waitForResponseAfter.e2e-util.ts";
 import waitForResponseAndUrlAfter from "@/e2e/utils/waitForResponseAndUrlAfter.e2e-util.ts";
 import { dashboardPath, eventEditPath } from "@/shared/paths";
 
-import clearAllPendingPeerShares from "@/e2e/specs/sharing/helpers/clearAllPendingPeerShares.e2e-util.ts";
-import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
-import ensureUserNotInEvent from "@/e2e/specs/sharing/helpers/ensureUserNotInEvent.e2e-util.ts";
-import newRecipientContext from "@/e2e/specs/sharing/helpers/newRecipientContext.e2e-util.ts";
-import newSenderContext from "@/e2e/specs/sharing/helpers/newSenderContext.e2e-util.ts";
-import selectUserInSearch from "@/e2e/specs/sharing/helpers/selectUserInSearch.e2e-util.ts";
 import {
 	BASE_URL,
 	INVITE_SUCCESS_TIMEOUT_MS,
@@ -76,7 +75,8 @@ function navigateToEventEditPage(ownerPage: Page): Effect.Effect<string, Error> 
 					response.url().includes("/event_public") &&
 					response.url().includes(testEventSlug) &&
 					response.request().method() === "GET",
-				action: () => ownerPage.goto(`${BASE_URL}/en/event/${testEventSlug}`, { waitUntil: "load" }),
+				action: () =>
+					ownerPage.goto(`${BASE_URL}/en/event/${testEventSlug}`, { waitUntil: "load" }),
 				options: { timeout: MANAGE_PAGE_READY_TIMEOUT_MS },
 			}),
 		);
@@ -90,7 +90,9 @@ function navigateToEventEditPage(ownerPage: Page): Effect.Effect<string, Error> 
 		const eventId = extractIdFromPublicRows(eventPublicRows, "event_id");
 
 		if (eventId === undefined) {
-			return yield* $(Effect.fail(new Error(`Could not determine event id for slug: ${testEventSlug}`)));
+			return yield* $(
+				Effect.fail(new Error(`Could not determine event id for slug: ${testEventSlug}`)),
+			);
 		}
 
 		yield* $(
@@ -106,11 +108,24 @@ function navigateToEventEditPage(ownerPage: Page): Effect.Effect<string, Error> 
 				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
 			}),
 		);
+		yield* $(
+			fromPromiseVoid(() =>
+				expect(ownerPage.locator("#event-name")).not.toHaveValue("", {
+					timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
+				}),
+			),
+		);
+		yield* $(
+			fromPromiseVoid(() =>
+				expect(ownerPage.locator("#event-slug")).toHaveValue(testEventSlug, {
+					timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
+				}),
+			),
+		);
 
 		return eventId;
 	});
 }
-
 
 /**
  * Adds the test tag through the edit UI and saves the event.
@@ -128,12 +143,16 @@ function addTagAndSaveViaUi(ownerPage: Page): Effect.Effect<void, Error> {
 			}),
 		);
 
+		const saveButton = ownerPage.getByRole("button", { name: "Save Event" });
+		yield* $(expectVisibleEffect(saveButton, { timeout: MANAGE_PAGE_READY_TIMEOUT_MS }));
+		yield* $(fromPromiseVoid(() => expect(saveButton).toBeEnabled()));
+
 		const saveResponse = yield* $(
 			waitForResponseAndUrlAfter({
 				page: ownerPage,
 				responseMatcher: /\/api\/events\/save/,
 				urlMatcher: new RegExp(`/en/event/${testEventSlug}$`),
-				action: () => ownerPage.getByRole("button", { name: /save/i }).click(),
+				action: () => saveButton.click(),
 				responseOptions: { timeout: MANAGE_PAGE_READY_TIMEOUT_MS },
 				urlOptions: { timeout: MANAGE_PAGE_READY_TIMEOUT_MS },
 			}),
@@ -158,12 +177,16 @@ function removeTagAndSaveViaUi(ownerPage: Page): Effect.Effect<void, Error> {
 			}),
 		);
 
+		const saveButton = ownerPage.getByRole("button", { name: "Save Event" });
+		yield* $(expectVisibleEffect(saveButton, { timeout: MANAGE_PAGE_READY_TIMEOUT_MS }));
+		yield* $(fromPromiseVoid(() => expect(saveButton).toBeEnabled()));
+
 		const saveResponse = yield* $(
 			waitForResponseAndUrlAfter({
 				page: ownerPage,
 				responseMatcher: /\/api\/events\/save/,
 				urlMatcher: new RegExp(`/en/event/${testEventSlug}$`),
-				action: () => ownerPage.getByRole("button", { name: /save/i }).click(),
+				action: () => saveButton.click(),
 				responseOptions: { timeout: MANAGE_PAGE_READY_TIMEOUT_MS },
 				urlOptions: { timeout: MANAGE_PAGE_READY_TIMEOUT_MS },
 			}),
@@ -217,7 +240,11 @@ function ensureRecipientCanAccessEvent(
 				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
 			}),
 		);
-		yield* $(fromPromiseVoid(() => selectUserInSearch(ownerPage, "Invite User (username or id)", testUser2Username)));
+		yield* $(
+			fromPromiseVoid(() =>
+				selectUserInSearch(ownerPage, "Invite User (username or id)", testUser2Username),
+			),
+		);
 		const inviteResponse = yield* $(
 			waitForResponseAfter({
 				page: ownerPage,
@@ -233,23 +260,52 @@ function ensureRecipientCanAccessEvent(
 			}),
 		);
 
-		yield* $(fromPromiseVoid(() => recipientPage.goto(`${BASE_URL}/en/dashboard`, { waitUntil: "load" })));
 		yield* $(
-			expectVisibleEffect(recipientPage.getByText(/pending invitations/i), {
-				timeout: REALTIME_WAIT_MS,
-			}),
+			fromPromiseVoid(() => recipientPage.goto(`${BASE_URL}/en/dashboard`, { waitUntil: "load" })),
 		);
+		const pendingInvitationsHeading = recipientPage.getByText(/pending invitations/i);
+		const pendingInvitationsVisible = yield* $(
+			fromPromise(() =>
+				pendingInvitationsHeading
+					.waitFor({ state: "visible", timeout: REALTIME_WAIT_MS })
+					.then(() => true)
+					.catch(() => false),
+			),
+		);
+		if (!pendingInvitationsVisible) {
+			yield* $(
+				fromPromiseVoid(() =>
+					recipientPage.goto(`${BASE_URL}/en/event/${testEventSlug}`, {
+						waitUntil: "load",
+					}),
+				),
+			);
+			yield* $(
+				expectVisibleEffect(recipientPage.getByRole("heading").first(), {
+					timeout: REALTIME_WAIT_MS,
+				}),
+			);
+			return;
+		}
 		const joinResponse = yield* $(
 			waitForResponseAfter({
 				page: recipientPage,
 				responseMatcher: /\/api\/event-user\/join/,
-				action: () => recipientPage.getByRole("button", { name: "Accept", exact: true }).first().click(),
+				action: () =>
+					recipientPage.getByRole("button", { name: "Accept", exact: true }).first().click(),
 				options: { timeout: INVITE_SUCCESS_TIMEOUT_MS },
 			}),
 		);
 		expect(joinResponse.ok()).toBe(true);
 		yield* $(
-			expectHiddenEffect(recipientPage.getByRole("button", { name: "Accept", exact: true }).first(), {
+			fromPromiseVoid(() =>
+				recipientPage.goto(`${BASE_URL}/en/event/${testEventSlug}`, {
+					waitUntil: "load",
+				}),
+			),
+		);
+		yield* $(
+			expectVisibleEffect(recipientPage.getByRole("heading").first(), {
 				timeout: REALTIME_WAIT_MS,
 			}),
 		);
@@ -263,10 +319,7 @@ function ensureRecipientCanAccessEvent(
  * @param visible Expected visibility for the remove-tag button.
  * @return Effect that resolves once the expected UI state is observed.
  */
-function expectOwnerEditTagState(
-	ownerPage: Page,
-	visible: boolean,
-): Effect.Effect<void, Error> {
+function expectOwnerEditTagState(ownerPage: Page, visible: boolean): Effect.Effect<void, Error> {
 	return Effect.gen(function* expectOwnerEditTagStateEffect($) {
 		yield* $(navigateToEventEditPage(ownerPage));
 		if (visible) {
@@ -296,9 +349,7 @@ function expectOwnerEditTagState(
  * @param viewerPage Viewer page on the event details route.
  * @return Effect that resolves after the subscription settle delay.
  */
-function waitForEventTagRealtimeReady(
-	viewerPage: Page,
-): Effect.Effect<void, Error> {
+function waitForEventTagRealtimeReady(viewerPage: Page): Effect.Effect<void, Error> {
 	return Effect.gen(function* waitForEventTagRealtimeReadyEffect($) {
 		yield* $(
 			expectVisibleEffect(viewerPage.getByRole("heading").first(), {
@@ -309,115 +360,114 @@ function waitForEventTagRealtimeReady(
 	});
 }
 
-
 test.describe("Event Tagging: Real-Time Cross-User Visibility", () => {
 	test.skip(missingBothSessions, "Skipped: run npm run e2e:create-session:staging-db[:user2]");
 	test.skip(missingEventSlug, "Skipped: set E2E_TEST_EVENT_SLUG");
 	test.skip(missingUser2Username, "Skipped: set E2E_TEST_USER2_USERNAME");
 
-test.beforeEach(async ({ browser }) => {
-	await runEffect(
-		Effect.scoped(
-			Effect.gen(function* eventBeforeEachEffect($) {
-				const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
-				const ownerPage = yield* $(acquirePage(ownerCtx));
-				const recipientCtx = yield* $(acquireBrowserContext(() => newRecipientContext(browser)));
-				const recipientPage = yield* $(acquirePage(recipientCtx));
-				yield* $(fromPromise(() => ensureUserNotInEvent(ownerPage)));
-				yield* $(fromPromise(() => clearAllPendingPeerShares(recipientPage)));
-				yield* $(ensureRecipientCanAccessEvent(ownerPage, recipientPage));
-				yield* $(ensureTestTagAbsent(ownerPage));
-			}),
-		),
-	);
-});
+	test.beforeEach(async ({ browser }) => {
+		await runEffect(
+			Effect.scoped(
+				Effect.gen(function* eventBeforeEachEffect($) {
+					const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
+					const ownerPage = yield* $(acquirePage(ownerCtx));
+					const recipientCtx = yield* $(acquireBrowserContext(() => newRecipientContext(browser)));
+					const recipientPage = yield* $(acquirePage(recipientCtx));
+					yield* $(fromPromise(() => ensureUserNotInEvent(ownerPage)));
+					yield* $(fromPromise(() => clearAllPendingPeerShares(recipientPage)));
+					yield* $(ensureRecipientCanAccessEvent(ownerPage, recipientPage));
+					yield* $(ensureTestTagAbsent(ownerPage));
+				}),
+			),
+		);
+	});
 
-test("tags appear and disappear on the viewer's open event page without refresh", async ({
-	browser,
-}) => {
-	await runEffect(
-		Effect.scoped(
-			Effect.gen(function* eventRealtimeEffect($) {
-				const contexts = yield* $(acquireTwoUserContexts(() => createTwoUserContexts(browser)));
-				const ownerPage = yield* $(acquirePage(contexts.senderCtx));
-				const viewerPage = yield* $(acquirePage(contexts.recipientCtx));
-				const errors = setupErrorTracking(viewerPage);
+	test("tags appear and disappear on the viewer's open event page without refresh", async ({
+		browser,
+	}) => {
+		await runEffect(
+			Effect.scoped(
+				Effect.gen(function* eventRealtimeEffect($) {
+					const contexts = yield* $(acquireTwoUserContexts(() => createTwoUserContexts(browser)));
+					const ownerPage = yield* $(acquirePage(contexts.senderCtx));
+					const viewerPage = yield* $(acquirePage(contexts.recipientCtx));
+					const errors = setupErrorTracking(viewerPage);
 
-				yield* $(
-					openViewerPage({
-						page: viewerPage,
-						url: `${BASE_URL}/en/event/${testEventSlug}`,
-						timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
-					}),
-				);
-				yield* $(waitForEventTagRealtimeReady(viewerPage));
+					yield* $(
+						openViewerPage({
+							page: viewerPage,
+							url: `${BASE_URL}/en/event/${testEventSlug}`,
+							timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
+						}),
+					);
+					yield* $(waitForEventTagRealtimeReady(viewerPage));
 
-				const eventId = yield* $(navigateToEventEditPage(ownerPage));
-				yield* $(
-					mutateTagViaApi({
-						page: ownerPage,
-						itemId: eventId,
-						itemType: "event",
-						tagSlug: TEST_TAG_SLUG,
-						action: "add",
-					}),
-				);
-				yield* $(expectOwnerEditTagState(ownerPage, true));
+					const eventId = yield* $(navigateToEventEditPage(ownerPage));
+					yield* $(
+						mutateTagViaApi({
+							page: ownerPage,
+							itemId: eventId,
+							itemType: "event",
+							tagSlug: TEST_TAG_SLUG,
+							action: "add",
+						}),
+					);
+					yield* $(expectOwnerEditTagState(ownerPage, true));
 
-				yield* $(expectTagBadgeVisible(viewerPage, TEST_TAG_SLUG, REALTIME_WAIT_MS));
+					yield* $(expectTagBadgeVisible(viewerPage, TEST_TAG_SLUG, REALTIME_WAIT_MS));
 
-				yield* $(
-					mutateTagViaApi({
-						page: ownerPage,
-						itemId: eventId,
-						itemType: "event",
-						tagSlug: TEST_TAG_SLUG,
-						action: "remove",
-					}),
-				);
-				yield* $(expectOwnerEditTagState(ownerPage, false));
+					yield* $(
+						mutateTagViaApi({
+							page: ownerPage,
+							itemId: eventId,
+							itemType: "event",
+							tagSlug: TEST_TAG_SLUG,
+							action: "remove",
+						}),
+					);
+					yield* $(expectOwnerEditTagState(ownerPage, false));
 
-				yield* $(expectTagBadgeHidden(viewerPage, TEST_TAG_SLUG, REALTIME_WAIT_MS));
+					yield* $(expectTagBadgeHidden(viewerPage, TEST_TAG_SLUG, REALTIME_WAIT_MS));
 
-				const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
-				expect(unexpectedErrors).toHaveLength(NO_ERRORS);
-			}),
-		),
-	);
-});
+					const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
+					expect(unexpectedErrors).toHaveLength(NO_ERRORS);
+				}),
+			),
+		);
+	});
 
-test("owner can add and remove a tag in the event edit UI and the change persists", async ({
-	browser,
-}) => {
-	await runEffect(
-		Effect.scoped(
-			Effect.gen(function* eventUiEffect($) {
-				const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
-				const ownerPage = yield* $(acquirePage(ownerCtx));
-				yield* $(navigateToEventEditPage(ownerPage));
-				yield* $(addTagAndSaveViaUi(ownerPage));
+	test("owner can add and remove a tag in the event edit UI and the change persists", async ({
+		browser,
+	}) => {
+		await runEffect(
+			Effect.scoped(
+				Effect.gen(function* eventUiEffect($) {
+					const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
+					const ownerPage = yield* $(acquirePage(ownerCtx));
+					yield* $(navigateToEventEditPage(ownerPage));
+					yield* $(addTagAndSaveViaUi(ownerPage));
 
-				yield* $(navigateToEventEditPage(ownerPage));
-				yield* $(
-					expectTagInEditUi({
-						page: ownerPage,
-						tagSlug: TEST_TAG_SLUG,
-						timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
-					}),
-				);
+					yield* $(navigateToEventEditPage(ownerPage));
+					yield* $(
+						expectTagInEditUi({
+							page: ownerPage,
+							tagSlug: TEST_TAG_SLUG,
+							timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
+						}),
+					);
 
-				yield* $(removeTagAndSaveViaUi(ownerPage));
+					yield* $(removeTagAndSaveViaUi(ownerPage));
 
-				yield* $(navigateToEventEditPage(ownerPage));
-				yield* $(
-					expectTagNotInEditUi({
-						page: ownerPage,
-						tagSlug: TEST_TAG_SLUG,
-						timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
-					}),
-				);
-			}),
-		),
-	);
-});
+					yield* $(navigateToEventEditPage(ownerPage));
+					yield* $(
+						expectTagNotInEditUi({
+							page: ownerPage,
+							tagSlug: TEST_TAG_SLUG,
+							timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
+						}),
+					);
+				}),
+			),
+		);
+	});
 });

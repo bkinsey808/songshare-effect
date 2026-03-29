@@ -7,7 +7,9 @@ import makeCtx from "@/api/hono/makeCtx.test-util";
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 import getVerifiedSession from "@/api/user-session/getVerifiedSession";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import songSave from "./songSave";
@@ -15,29 +17,15 @@ import songSave from "./songSave";
 vi.mock("@supabase/supabase-js");
 vi.mock("@/api/user-session/getVerifiedSession");
 
-const SAMPLE_USER_ID = "00000000-0000-4000-8000-000000000001";
+const SAMPLE_USER_ID = TEST_USER_ID;
 const EMPTY_ROWS: [] = [];
 
 describe("songSave handler", () => {
-	const SAMPLE_SESSION: UserSessionData = {
+	const SAMPLE_SESSION: UserSessionData = makeUserSessionData({
 		user: {
-			created_at: "2026-01-01T00:00:00Z",
-			email: "u@example.com",
-			google_calendar_access: "none",
-			google_calendar_refresh_token: undefined,
-			linked_providers: undefined,
-			name: "Test User",
-			role: "user",
-			role_expires_at: undefined,
-			sub: undefined,
-			updated_at: "2026-01-01T00:00:00Z",
 			user_id: SAMPLE_USER_ID,
 		},
-		userPublic: { user_id: SAMPLE_USER_ID, username: "testuser" },
-		oauthUserData: { email: "u@example.com" },
-		oauthState: { csrf: "x", lang: "en", provider: "google" },
-		ip: "127.0.0.1",
-	};
+	});
 
 	it("returns ValidationError when JSON body is invalid", async () => {
 		vi.resetAllMocks();
@@ -182,8 +170,9 @@ describe("songSave handler", () => {
 			eq: (_field: string, _val: string) => Promise<{ data: []; error: undefined }>;
 		};
 
-		const tagUpsert = vi.fn((): Promise<{ data: []; error: undefined }> =>
-			promiseResolved({ data: EMPTY_ROWS, error: undefined }),
+		const tagUpsert = vi.fn(
+			(): Promise<{ data: []; error: undefined }> =>
+				promiseResolved({ data: EMPTY_ROWS, error: undefined }),
 		);
 		const songTagDeletePromise: Promise<{ data: []; error: undefined }> = promiseResolved({
 			data: EMPTY_ROWS,
@@ -193,14 +182,16 @@ describe("songSave handler", () => {
 			eq: (): Promise<{ data: []; error: undefined }> =>
 				promiseResolved({ data: EMPTY_ROWS, error: undefined }),
 		});
-		const songTagInsert = vi.fn((): ErrorResult =>
-			promiseResolved({
-				data: undefined,
-				error: { message: "song_tag insert failed" },
-			}),
+		const songTagInsert = vi.fn(
+			(): ErrorResult =>
+				promiseResolved({
+					data: undefined,
+					error: { message: "song_tag insert failed" },
+				}),
 		);
-		const tagLibraryUpsert = vi.fn((): Promise<{ data: []; error: undefined }> =>
-			promiseResolved({ data: EMPTY_ROWS, error: undefined }),
+		const tagLibraryUpsert = vi.fn(
+			(): Promise<{ data: []; error: undefined }> =>
+				promiseResolved({ data: EMPTY_ROWS, error: undefined }),
 		);
 		const tableOverrides: Record<string, unknown> = {
 			song: fake.from("song"),

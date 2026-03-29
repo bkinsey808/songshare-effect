@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { MS_PER_SECOND, ONE_HOUR_SECONDS, TOKEN_CACHE_SKEW_SECONDS } from "@/shared/constants/http";
+import { TEST_VISITOR_ID } from "@/shared/test-utils/testUserConstants";
 
 import getSupabaseClientToken from "./getSupabaseClientToken";
 
@@ -54,7 +55,7 @@ describe("getSupabaseClientToken", () => {
 					access_token: MOCK_TOKEN,
 					expires_at: nowSec + ONE_HOUR_SECONDS,
 				},
-				user: { id: "u1", app_metadata: { visitor_id: "u1" } },
+				user: { id: TEST_VISITOR_ID, app_metadata: { visitor_id: TEST_VISITOR_ID } },
 			},
 			error: undefined,
 		});

@@ -2,12 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
+import makeSupabaseAppMetadata from "@/shared/test-utils/makeSupabaseAppMetadata.test-util";
 
 import { getUserIdFromAppMetadata } from "./getSupabaseUserToken";
 
 describe("getUserIdFromAppMetadata", () => {
 	it("returns user_id when app_metadata has user.user_id", () => {
-		const meta = { user: { user_id: "usr-123" } };
+		const meta = makeSupabaseAppMetadata({ user: { user_id: "usr-123" } });
 		expect(getUserIdFromAppMetadata(meta)).toBe("usr-123");
 	});
 

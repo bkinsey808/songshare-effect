@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { AuthenticationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import mockCreateSupabaseClient from "@/api/test-utils/mockCreateSupabaseClient.test-util";
+import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import eventUserAddHandler from "./eventUserAdd";
@@ -12,25 +13,7 @@ import eventUserAddHandler from "./eventUserAdd";
 vi.mock("@supabase/supabase-js");
 vi.mock("@/api/user-session/getVerifiedSession");
 
-const SAMPLE_USER_SESSION: UserSessionData = {
-	user: {
-		created_at: "2026-01-01T00:00:00Z",
-		email: "u@example.com",
-		google_calendar_access: "none",
-		google_calendar_refresh_token: undefined,
-		linked_providers: undefined,
-		name: "Test User",
-		role: "user",
-		role_expires_at: undefined,
-		sub: undefined,
-		updated_at: "2026-01-01T00:00:00Z",
-		user_id: "requester-1",
-	},
-	userPublic: { user_id: "requester-1", username: "testuser" },
-	oauthUserData: { email: "u@example.com" },
-	oauthState: { csrf: "x", lang: "en", provider: "google" },
-	ip: "127.0.0.1",
-};
+const SAMPLE_USER_SESSION: UserSessionData = makeUserSessionData({});
 
 /**
  * Helper to patch a fake supabase client so `.from('user').select(...).eq(...).single()` works.

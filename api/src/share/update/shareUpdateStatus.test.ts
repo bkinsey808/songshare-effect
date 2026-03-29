@@ -6,6 +6,7 @@ import addPlaylistSongsToUserLibrary from "@/api/playlist-library/addPlaylistSon
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import shareUpdateStatusHandler from "./shareUpdateStatus";
@@ -18,25 +19,15 @@ vi.mock("@/api/playlist-library/addPlaylistSongsToUserLibrary");
 const SHARE_ID = "share-123";
 const FIRST_CALL = 1;
 
-const SAMPLE_SESSION: UserSessionData = {
+const SAMPLE_SESSION: UserSessionData = makeUserSessionData({
 	user: {
-		created_at: "2026-01-01T00:00:00Z",
 		email: "r@example.com",
-		google_calendar_access: "",
-		google_calendar_refresh_token: undefined,
-		linked_providers: undefined,
 		name: "Recipient",
-		role: "user",
-		role_expires_at: undefined,
-		sub: undefined,
-		updated_at: "2026-01-01T00:00:00Z",
 		user_id: RECIPIENT_ID,
 	},
 	userPublic: { user_id: RECIPIENT_ID, username: "recipient" },
 	oauthUserData: { email: "r@example.com" },
-	oauthState: { csrf: "x", lang: "en", provider: "google" },
-	ip: "127.0.0.1",
-};
+});
 
 describe("shareUpdateStatusHandler", () => {
 	it("returns ValidationError when request is not an object", async () => {

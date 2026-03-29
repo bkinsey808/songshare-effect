@@ -14,6 +14,7 @@ import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
 // lint-disable comments. A custom rule (`no-disable-in-tests`) enforces the
 // separation.
 import { HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_UNAUTHORIZED } from "@/shared/constants/http";
+import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import ensureSignedIn from "./ensureSignedIn";
@@ -25,25 +26,12 @@ vi.mock("@/react/app-store/useAppStore");
 vi.mock("@/react/lib/supabase/token/token-cache");
 vi.mock("@/react/lib/utils/clientLogger");
 
-const SAMPLE_USER_SESSION: UserSessionData = {
+const SAMPLE_USER_SESSION: UserSessionData = makeUserSessionData({
 	user: {
-		created_at: "2026-01-01T00:00:00Z",
-		email: "u@example.com",
-		google_calendar_access: "none",
-		google_calendar_refresh_token: undefined,
-		linked_providers: undefined,
-		name: "Test User",
-		role: "user",
-		role_expires_at: undefined,
-		sub: undefined,
-		updated_at: "2026-01-01T00:00:00Z",
 		user_id: "u1",
 	},
 	userPublic: forceCast(makeUserPublic({ user_id: "u1", username: "u1" })),
-	oauthUserData: { email: "u@example.com" },
-	oauthState: { csrf: "x", lang: "en", provider: "google" },
-	ip: "127.0.0.1",
-};
+});
 
 const mockedUseAppStore = vi.mocked(useAppStore);
 

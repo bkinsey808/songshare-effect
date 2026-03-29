@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import { useEffect, useRef, useState } from "react";
 
 import useAppStore from "@/react/app-store/useAppStore";
@@ -41,6 +42,7 @@ export default function useUserSearchInput({
 	const [isOpen, setIsOpen] = useState(false);
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const inputRef = useRef<HTMLInputElement | null>(null);
+	const hasRequestedLibraryRef = useRef(false);
 
 	// Handle clicks outside the container to close the search dropdown
 	useEffect(() => {
@@ -70,6 +72,9 @@ export default function useUserSearchInput({
 	}, []);
 
 	const userLibraryEntries = useAppStore((state) => state.userLibraryEntries);
+	const fetchUserLibrary = useAppStore((state) => state.fetchUserLibrary);
+	const isSignedIn = useAppStore((state) => state.isSignedIn);
+	const isUserLibraryLoading = useAppStore((state) => state.isUserLibraryLoading);
 	const excludeSet = new Set(excludeUserIds);
 	const usersArray: readonly UserLibraryEntry[] = Object.values(userLibraryEntries).filter(
 		(entry): entry is UserLibraryEntry =>
@@ -101,6 +106,28 @@ export default function useUserSearchInput({
 					const userId = entry.followed_user_id.toLowerCase();
 					return username.includes(trimmedQuery) || userId.includes(trimmedQuery);
 				});
+
+	// Fetch the user library the first time the signed-in search dropdown opens with no loaded entries.
+	useEffect(() => {
+		if (
+			!isOpen ||
+			isSignedIn !== true ||
+			isUserLibraryLoading ||
+			usersArray.length > USERS_NONE ||
+			hasRequestedLibraryRef.current
+		) {
+			return;
+		}
+
+		hasRequestedLibraryRef.current = true;
+		void (async (): Promise<void> => {
+			try {
+				await Effect.runPromise(fetchUserLibrary());
+			} catch {
+				hasRequestedLibraryRef.current = false;
+			}
+		})();
+	}, [fetchUserLibrary, isOpen, isSignedIn, isUserLibraryLoading, usersArray.length]);
 
 	function handleSelectUser(entry: UserLibraryEntry): void {
 		// Close dropdown and clear search first

@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import makeNull from "@/shared/test-utils/makeNull.test-util";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 
 import isPlaylist from "./isPlaylist";
 
-const VALID_UUID = "00000000-0000-4000-8000-000000000001";
+const VALID_UUID = TEST_USER_ID;
 const VALID_PLAYLIST = {
 	playlist_id: VALID_UUID,
 	user_id: VALID_UUID,

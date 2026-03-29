@@ -5,6 +5,8 @@ import { AuthenticationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import addUserToLibraryHandler from "./addUserToLibrary";
@@ -12,25 +14,7 @@ import addUserToLibraryHandler from "./addUserToLibrary";
 vi.mock("@/api/user-session/getVerifiedSession");
 vi.mock("@/api/supabase/getSupabaseServerClient");
 
-const SAMPLE_USER_SESSION: UserSessionData = {
-	user: {
-		created_at: "2026-01-01T00:00:00Z",
-		email: "u@example.com",
-		google_calendar_access: "none",
-		google_calendar_refresh_token: undefined,
-		linked_providers: undefined,
-		name: "Test User",
-		role: "user",
-		role_expires_at: undefined,
-		sub: undefined,
-		updated_at: "2026-01-01T00:00:00Z",
-		user_id: "user-123",
-	},
-	userPublic: { user_id: "user-123", username: "testuser" },
-	oauthUserData: { email: "u@example.com" },
-	oauthState: { csrf: "x", lang: "en", provider: "google" },
-	ip: "127.0.0.1",
-};
+const SAMPLE_USER_SESSION: UserSessionData = makeUserSessionData({});
 
 describe("addUserToLibraryHandler", () => {
 	it("returns ValidationError when JSON body is invalid", async () => {
@@ -110,7 +94,7 @@ describe("addUserToLibraryHandler", () => {
 			userLibrarySelectRow: {
 				created_at: createdAt,
 				followed_user_id: "followed-1",
-				user_id: "user-123",
+				user_id: SAMPLE_USER_SESSION.user.user_id,
 			},
 		});
 
@@ -122,7 +106,7 @@ describe("addUserToLibraryHandler", () => {
 		expect(res).toStrictEqual({
 			created_at: createdAt,
 			followed_user_id: "followed-1",
-			user_id: "user-123",
+			user_id: SAMPLE_USER_SESSION.user.user_id,
 		});
 	});
 
@@ -148,7 +132,7 @@ describe("addUserToLibraryHandler", () => {
 		const res = await Effect.runPromise(addUserToLibraryHandler(ctx));
 
 		expect(res.followed_user_id).toBe("followed-1");
-		expect(res.user_id).toBe("user-123");
+		expect(res.user_id).toBe(TEST_USER_ID);
 		expect(typeof res.created_at).toBe("string");
 	});
 
@@ -188,7 +172,6 @@ describe("addUserToLibraryHandler", () => {
 				{
 					created_at: createdAt,
 					followed_user_id: "followed-1",
-					user_id: "user-123",
 				},
 			],
 		});
@@ -201,7 +184,7 @@ describe("addUserToLibraryHandler", () => {
 		expect(res).toStrictEqual({
 			created_at: createdAt,
 			followed_user_id: "followed-1",
-			user_id: "user-123",
+			user_id: SAMPLE_USER_SESSION.user.user_id,
 		});
 	});
 });

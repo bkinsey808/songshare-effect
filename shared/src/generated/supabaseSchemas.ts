@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-03-28T09:43:31.822Z
+ * Last generated: 2026-03-29T03:38:24.153Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -1533,6 +1533,7 @@ export const UserSchema: Schema.Struct<{
 	name: typeof Schema.NonEmptyString;
 	role: typeof Schema.NonEmptyString;
 	role_expires_at: Schema.optional<typeof Schema.String>;
+	slide_orientation_preference: typeof Schema.NonEmptyString;
 	sub: Schema.optional<typeof Schema.String>;
 	updated_at: typeof Schema.NonEmptyString;
 	user_id: typeof Schema.UUID;
@@ -1545,6 +1546,7 @@ export const UserSchema: Schema.Struct<{
 	name: Schema.NonEmptyString,
 	role: Schema.NonEmptyString,
 	role_expires_at: Schema.optional(Schema.String),
+	slide_orientation_preference: Schema.NonEmptyString,
 	sub: Schema.optional(Schema.String),
 	updated_at: Schema.NonEmptyString,
 	user_id: Schema.UUID,
@@ -1560,6 +1562,7 @@ export const UserInsertSchema: Schema.Struct<{
 	name: typeof Schema.NonEmptyString;
 	role: Schema.optional<typeof Schema.NonEmptyString>;
 	role_expires_at: Schema.optional<typeof Schema.String>;
+	slide_orientation_preference: Schema.optional<typeof Schema.NonEmptyString>;
 	sub: Schema.optional<typeof Schema.String>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
@@ -1570,6 +1573,7 @@ export const UserInsertSchema: Schema.Struct<{
 	name: Schema.NonEmptyString,
 	role: Schema.optional(Schema.NonEmptyString),
 	role_expires_at: Schema.optional(Schema.String),
+	slide_orientation_preference: Schema.optional(Schema.NonEmptyString),
 	sub: Schema.optional(Schema.String),
 	user_id: Schema.optional(Schema.UUID),
 });
@@ -1584,6 +1588,7 @@ export const UserUpdateSchema: Schema.Struct<{
 	name: Schema.optional<typeof Schema.NonEmptyString>;
 	role: Schema.optional<typeof Schema.NonEmptyString>;
 	role_expires_at: Schema.optional<typeof Schema.String>;
+	slide_orientation_preference: Schema.optional<typeof Schema.NonEmptyString>;
 	sub: Schema.optional<typeof Schema.String>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
@@ -1594,6 +1599,7 @@ export const UserUpdateSchema: Schema.Struct<{
 	name: Schema.optional(Schema.NonEmptyString),
 	role: Schema.optional(Schema.NonEmptyString),
 	role_expires_at: Schema.optional(Schema.String),
+	slide_orientation_preference: Schema.optional(Schema.NonEmptyString),
 	sub: Schema.optional(Schema.String),
 	user_id: Schema.optional(Schema.UUID),
 });

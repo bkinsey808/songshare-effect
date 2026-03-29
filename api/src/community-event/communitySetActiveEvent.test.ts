@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import communitySetActiveEvent from "./communitySetActiveEvent";
@@ -13,29 +14,10 @@ import makeCommunitySetActiveEventClient from "./communitySetActiveEvent.test-ut
 vi.mock("@supabase/supabase-js");
 vi.mock("@/api/user-session/getVerifiedSession");
 
-const USER_ID = "user-123";
 const COMMUNITY_ID = "community-456";
 const EVENT_ID = "event-789";
 
-const SAMPLE_SESSION: UserSessionData = {
-	user: {
-		created_at: "2026-01-01T00:00:00Z",
-		email: "u@example.com",
-		google_calendar_access: "",
-		google_calendar_refresh_token: undefined,
-		linked_providers: undefined,
-		name: "User",
-		role: "user",
-		role_expires_at: undefined,
-		sub: undefined,
-		updated_at: "2026-01-01T00:00:00Z",
-		user_id: USER_ID,
-	},
-	userPublic: { user_id: USER_ID, username: "user" },
-	oauthUserData: { email: "u@example.com" },
-	oauthState: { csrf: "x", lang: "en", provider: "google" },
-	ip: "127.0.0.1",
-};
+const SAMPLE_SESSION: UserSessionData = makeUserSessionData({});
 
 describe("communitySetActiveEvent", () => {
 	it("returns ValidationError when request body is invalid json", async () => {

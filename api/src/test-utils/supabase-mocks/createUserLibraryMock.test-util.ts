@@ -1,6 +1,7 @@
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import type { UserLibrary, UserLibraryInsert } from "@/shared/generated/supabaseSchemas";
 
+import mergeMockInsertRows from "./mergeMockInsertRows.test-util";
 import type { MockRow, MultiResult, SingleBuilder, SingleResult } from "./supabase-mock-types";
 
 export type UserLibraryMockOpts = {
@@ -37,12 +38,13 @@ export type UserLibraryTableMock = {
 export function createUserLibraryMock(opts: UserLibraryMockOpts): UserLibraryTableMock {
 	return {
 		insert: (rows: UserLibraryInsert[]): MultiResult & { select: () => SingleBuilder } => {
+			const mergedRows = mergeMockInsertRows(rows, opts.userLibraryInsertRows);
 			const promise: MultiResult = (async () => {
 				await Promise.resolve();
 				// On error, Supabase returns null for data; use empty array to avoid null literal
 				const data: unknown[] =
 					opts.userLibraryInsertError === undefined
-						? (opts.userLibraryInsertRows ?? (rows as unknown[]))
+						? mergedRows
 						: [];
 				const error: unknown = opts.userLibraryInsertError ?? undefined;
 				return { data, error };
@@ -60,7 +62,7 @@ export function createUserLibraryMock(opts: UserLibraryMockOpts): UserLibraryTab
 							}
 							throw err instanceof Error ? err : new Error(extractErrorMessage(err, "Mock Error"));
 						}
-						const [firstRow] = opts.userLibraryInsertRows ?? (rows as unknown[]);
+						const [firstRow] = mergedRows;
 						return {
 							data: firstRow ?? undefined,
 							/* oxlint-disable-next-line unicorn/no-null */

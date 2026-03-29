@@ -72,6 +72,11 @@ For task-specific work, also consult docs in `docs/` (especially auth and Effect
 
 Do not fix unrelated failing tests/lint unless requested.
 
+## Environment Safety
+
+- Always use staging first for migrations and deployments.
+- Do not run production migration or deployment commands unless a human explicitly confirms production is intended.
+
 ## Auth and API Notes
 
 - The project uses a dual-token auth model (visitor + user JWTs) with Supabase RLS.

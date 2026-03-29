@@ -2,6 +2,7 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
+import makeUser from "@/shared/test-utils/makeUser.test-util";
 
 import getUserByEmail from "./getUserByEmail";
 
@@ -44,19 +45,9 @@ describe("getUserByEmail (core behavior)", () => {
 	});
 
 	it("returns validated user and normalizes nulls + linked_providers -> []", async () => {
-		const sampleUser = {
-			created_at: "2026-01-01T00:00:00Z",
-			email: "u@example.com",
-			google_calendar_access: "none",
-			google_calendar_refresh_token: undefined,
-			linked_providers: undefined,
+		const sampleUser = makeUser({
 			name: "Name",
-			role: "user",
-			role_expires_at: undefined,
-			sub: undefined,
-			updated_at: "2026-01-01T00:00:00Z",
-			user_id: "00000000-0000-4000-8000-000000000001",
-		};
+		});
 
 		const supabase = makeSupabaseClient({ userMaybe: sampleUser });
 
@@ -66,19 +57,12 @@ describe("getUserByEmail (core behavior)", () => {
 	});
 
 	it("falls back to [] when normalizeLinkedProviders throws", async () => {
-		const sampleUser = {
-			created_at: "2026-01-01T00:00:00Z",
+		const sampleUser = makeUser({
 			email: "u2@example.com",
-			google_calendar_access: "none",
-			google_calendar_refresh_token: undefined,
 			linked_providers: ["google"],
 			name: "Name",
-			role: "user",
-			role_expires_at: undefined,
-			sub: undefined,
-			updated_at: "2026-01-01T00:00:00Z",
 			user_id: "00000000-0000-4000-8000-000000000002",
-		};
+		});
 
 		const supabase = makeSupabaseClient({ userMaybe: sampleUser });
 

@@ -58,9 +58,12 @@ test.describe("P2P Song Share", () => {
 			const errors = setupErrorTracking(recipientPage);
 
 			// Sender: open the song page and share it
-			await senderPage.goto(`${BASE_URL}/en/song/${testSongSlug}`, { waitUntil: "load" });
 			await ensureUserInLibraryByUsername(senderPage, testUser2Username);
-			await senderPage.reload({ waitUntil: "load" });
+			await senderPage.goto(`${BASE_URL}/en/dashboard/user-library`, { waitUntil: "load" });
+			await expect(senderPage.getByRole("link", { name: testUser2Username, exact: true })).toBeVisible({
+				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
+			});
+			await senderPage.goto(`${BASE_URL}/en/song/${testSongSlug}`, { waitUntil: "load" });
 			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
 			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			// Set up the response interceptor only after auth has hydrated and the
@@ -117,9 +120,12 @@ test.describe("P2P Song Share", () => {
 			const recipientPage = await recipientCtx.newPage();
 
 			// Sender: share the song
-			await senderPage.goto(`${BASE_URL}/en/song/${testSongSlug}`, { waitUntil: "load" });
 			await ensureUserInLibraryByUsername(senderPage, testUser2Username);
-			await senderPage.reload({ waitUntil: "load" });
+			await senderPage.goto(`${BASE_URL}/en/dashboard/user-library`, { waitUntil: "load" });
+			await expect(senderPage.getByRole("link", { name: testUser2Username, exact: true })).toBeVisible({
+				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
+			});
+			await senderPage.goto(`${BASE_URL}/en/song/${testSongSlug}`, { waitUntil: "load" });
 			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
 			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			// Set up the response interceptor only after auth has hydrated and the

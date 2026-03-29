@@ -1,17 +1,25 @@
-import type { MockUserSession } from "@/e2e/utils/MockUserSession.type.e2e-util.ts";
 import { type Page } from "@playwright/test";
+
+import type { MockUserSession } from "@/e2e/utils/MockUserSession.type.e2e-util.ts";
+import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
+
+type MockUserOverrides = Partial<MockUserSession["user"]> & {
+	username?: string;
+};
 
 /**
  * Default test user for E2E tests.
  */
-export const DEFAULT_TEST_USER: MockUserSession = {
+export const DEFAULT_TEST_USER: MockUserSession = makeUserSessionData({
 	user: {
 		user_id: "test-user-id-12345",
 		email: "test@example.com",
 		name: "Test User",
+	},
+	userPublic: {
 		username: "testuser",
 	},
-};
+});
 
 /**
  * Authenticates a test user by mocking the /api/me endpoint.
@@ -89,13 +97,13 @@ export async function mockSignedOutUser(page: Page): Promise<void> {
  * await authenticateTestUser(page, adminUser);
  * ```
  */
-export function createTestUser(overrides: Partial<MockUserSession["user"]> = {}): MockUserSession {
-	return {
-		user: {
-			...DEFAULT_TEST_USER.user,
-			...overrides,
-		},
-	};
+export function createTestUser(overrides: MockUserOverrides = {}): MockUserSession {
+	const { username, ...userOverrides } = overrides;
+
+	return makeUserSessionData({
+		user: userOverrides,
+		...(username === undefined ? {} : { userPublic: { username } }),
+	});
 }
 
 /**

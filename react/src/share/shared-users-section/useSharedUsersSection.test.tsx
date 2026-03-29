@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { appStore } from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 
 import type { SharedItem } from "../slice/share-types";
 import useSharedUsersSection from "./useSharedUsersSection";
@@ -11,7 +12,7 @@ import useSharedUsersSection from "./useSharedUsersSection";
 vi.mock("@/react/app-store/useAppStore");
 vi.mock("@/react/auth/useCurrentUserId");
 
-const CURRENT_USER_ID = "user-123";
+const CURRENT_USER_ID = TEST_USER_ID;
 const ITEM_TYPE = "song";
 const ITEM_ID = "song-456";
 const FIRST_INDEX = 0;

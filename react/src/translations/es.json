@@ -164,5 +164,11 @@
 			"cancel": "Cancelar",
 			"confirm": "Eliminar"
 		}
+	},
+	"slideOrientation": {
+		"label": "Diapositivas",
+		"landscape": "Horizontal",
+		"portrait": "Vertical",
+		"system": "Sistema"
 	}
 }

@@ -1,6 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 import { Effect } from "effect";
 
+import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
+import newSenderContext from "@/e2e/specs/sharing/helpers/newSenderContext.e2e-util.ts";
 import mutateTagViaApi from "@/e2e/specs/tagging/helpers/mutateTagViaApi.e2e-util.ts";
 import {
 	addTagInEditUi,
@@ -27,8 +29,6 @@ import runEffect from "@/e2e/utils/runEffect.e2e-util.ts";
 import setupErrorTracking from "@/e2e/utils/setupErrorTracking.e2e-util.ts";
 import waitForResponseAndUrlAfter from "@/e2e/utils/waitForResponseAndUrlAfter.e2e-util.ts";
 
-import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
-import newSenderContext from "@/e2e/specs/sharing/helpers/newSenderContext.e2e-util.ts";
 import {
 	BASE_URL,
 	MANAGE_PAGE_READY_TIMEOUT_MS,
@@ -73,13 +73,17 @@ const TEST_TAG_SLUG = "e2e-cross-user-tag";
  */
 function navigateToSongEditPage(ownerPage: Page): Effect.Effect<string, Error> {
 	return Effect.gen(function* navigateToSongEditPageEffect($) {
-		yield* $(fromPromiseVoid(() => ownerPage.goto(`${BASE_URL}/en/dashboard/song-library`, { waitUntil: "load" })));
+		yield* $(
+			fromPromiseVoid(() =>
+				ownerPage.goto(`${BASE_URL}/en/dashboard/song-library`, { waitUntil: "load" }),
+			),
+		);
 
-		// Locate the specific song card via its "View Song" link href
-		const songCard = ownerPage
-			.locator("div")
-			.filter({ has: ownerPage.locator(`a[href*="${testSongSlug}"]`) })
-			.first();
+		const viewSongLink = ownerPage.locator(`a[href*="${testSongSlug}"]`).first();
+		yield* $(expectVisibleEffect(viewSongLink, { timeout: MANAGE_PAGE_READY_TIMEOUT_MS }));
+		const songCard = viewSongLink.locator(
+			"xpath=ancestor::div[.//button[normalize-space()='Edit']][1]",
+		);
 
 		const editBtn = songCard.getByRole("button", { name: "Edit" });
 		yield* $(expectVisibleEffect(editBtn, { timeout: MANAGE_PAGE_READY_TIMEOUT_MS }));
@@ -95,7 +99,6 @@ function navigateToSongEditPage(ownerPage: Page): Effect.Effect<string, Error> {
 		return getIdFromEditUrl(ownerPage.url(), "song");
 	});
 }
-
 
 /**
  * Adds the test tag via the song edit UI and saves the song.
@@ -186,17 +189,17 @@ test.describe("Song Tagging: Real-Time Cross-User Visibility", () => {
 	test.skip(missingSongSlug, "Skipped: set E2E_TEST_SONG_SLUG");
 
 	// Guarantee a clean state (no test tag) before each test.
-test.beforeEach(async ({ browser }) => {
-	await runEffect(
-		Effect.scoped(
-			Effect.gen(function* songBeforeEachEffect($) {
-				const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
-				const ownerPage = yield* $(acquirePage(ownerCtx));
-				yield* $(ensureTestTagAbsent(ownerPage));
-			}),
-		),
-	);
-});
+	test.beforeEach(async ({ browser }) => {
+		await runEffect(
+			Effect.scoped(
+				Effect.gen(function* songBeforeEachEffect($) {
+					const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
+					const ownerPage = yield* $(acquirePage(ownerCtx));
+					yield* $(ensureTestTagAbsent(ownerPage));
+				}),
+			),
+		);
+	});
 
 	/**
 	 * Full real-time lifecycle test.
@@ -213,108 +216,108 @@ test.beforeEach(async ({ browser }) => {
 	 *   4. Owner removes the tag and saves.
 	 *   5. Viewer's open page shows the tag disappear in real time.
 	 */
-test("tags appear and disappear on the viewer's open page without refresh", async ({
-	browser,
-}) => {
-	await runEffect(
-		Effect.scoped(
-			Effect.gen(function* songRealtimeEffect($) {
-				const contexts = yield* $(acquireTwoUserContexts(() => createTwoUserContexts(browser)));
-				const ownerPage = yield* $(acquirePage(contexts.senderCtx));
-				const viewerPage = yield* $(acquirePage(contexts.recipientCtx));
-				const errors = setupErrorTracking(viewerPage);
+	test("tags appear and disappear on the viewer's open page without refresh", async ({
+		browser,
+	}) => {
+		await runEffect(
+			Effect.scoped(
+				Effect.gen(function* songRealtimeEffect($) {
+					const contexts = yield* $(acquireTwoUserContexts(() => createTwoUserContexts(browser)));
+					const ownerPage = yield* $(acquirePage(contexts.senderCtx));
+					const viewerPage = yield* $(acquirePage(contexts.recipientCtx));
+					const errors = setupErrorTracking(viewerPage);
 
-				const viewerConsole = captureConsole(viewerPage);
+					const viewerConsole = captureConsole(viewerPage);
 
-				// Viewer: open the song page and wait for auth + subscription to be ready.
-				// The tag list is empty at this point (beforeEach guarantees no test tag).
-				yield* $(
-					openViewerPage({
-						page: viewerPage,
-						url: `${BASE_URL}/en/song/${testSongSlug}`,
-						timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
-					}),
-				);
-				yield* $(
-					waitForTagRealtimeReady({
-						page: viewerPage,
-						viewerConsole,
-						channelLabel: "song_tag",
-						timeoutMs: REALTIME_WAIT_MS,
-						headingTimeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
-					}),
-				);
+					// Viewer: open the song page and wait for auth + subscription to be ready.
+					// The tag list is empty at this point (beforeEach guarantees no test tag).
+					yield* $(
+						openViewerPage({
+							page: viewerPage,
+							url: `${BASE_URL}/en/song/${testSongSlug}`,
+							timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
+						}),
+					);
+					yield* $(
+						waitForTagRealtimeReady({
+							page: viewerPage,
+							viewerConsole,
+							channelLabel: "song_tag",
+							timeoutMs: REALTIME_WAIT_MS,
+							headingTimeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
+						}),
+					);
 
-				// ── Step 1: owner adds the tag ──────────────────────────────────────
+					// ── Step 1: owner adds the tag ──────────────────────────────────────
 
-				const songId = yield* $(navigateToSongEditPage(ownerPage));
-				yield* $(
-					mutateTagViaApi({
-						page: ownerPage,
-						itemId: songId,
-						itemType: "song",
-						tagSlug: TEST_TAG_SLUG,
-						action: "add",
-					}),
-				);
+					const songId = yield* $(navigateToSongEditPage(ownerPage));
+					yield* $(
+						mutateTagViaApi({
+							page: ownerPage,
+							itemId: songId,
+							itemType: "song",
+							tagSlug: TEST_TAG_SLUG,
+							action: "add",
+						}),
+					);
 
-				// Viewer: the tag badge should appear in real time (no navigation)
-				yield* $(expectTagBadgeVisible(viewerPage, TEST_TAG_SLUG, REALTIME_WAIT_MS));
+					// Viewer: the tag badge should appear in real time (no navigation)
+					yield* $(expectTagBadgeVisible(viewerPage, TEST_TAG_SLUG, REALTIME_WAIT_MS));
 
-				// ── Step 2: owner removes the tag ───────────────────────────────────
+					// ── Step 2: owner removes the tag ───────────────────────────────────
 
-				yield* $(
-					mutateTagViaApi({
-						page: ownerPage,
-						itemId: songId,
-						itemType: "song",
-						tagSlug: TEST_TAG_SLUG,
-						action: "remove",
-					}),
-				);
+					yield* $(
+						mutateTagViaApi({
+							page: ownerPage,
+							itemId: songId,
+							itemType: "song",
+							tagSlug: TEST_TAG_SLUG,
+							action: "remove",
+						}),
+					);
 
-				// Viewer: the tag badge should disappear in real time (no navigation)
-				yield* $(expectTagBadgeHidden(viewerPage, TEST_TAG_SLUG, REALTIME_WAIT_MS));
+					// Viewer: the tag badge should disappear in real time (no navigation)
+					yield* $(expectTagBadgeHidden(viewerPage, TEST_TAG_SLUG, REALTIME_WAIT_MS));
 
-				const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
-				expect(unexpectedErrors).toHaveLength(NO_ERRORS);
-			}),
-		),
-	);
-});
+					const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
+					expect(unexpectedErrors).toHaveLength(NO_ERRORS);
+				}),
+			),
+		);
+	});
 
-test("owner can add and remove a tag in the edit UI and the change persists", async ({
-	browser,
-}) => {
-	await runEffect(
-		Effect.scoped(
-			Effect.gen(function* songUiEffect($) {
-				const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
-				const ownerPage = yield* $(acquirePage(ownerCtx));
-				yield* $(navigateToSongEditPage(ownerPage));
-				yield* $(addTagAndSaveViaUi(ownerPage));
+	test("owner can add and remove a tag in the edit UI and the change persists", async ({
+		browser,
+	}) => {
+		await runEffect(
+			Effect.scoped(
+				Effect.gen(function* songUiEffect($) {
+					const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
+					const ownerPage = yield* $(acquirePage(ownerCtx));
+					yield* $(navigateToSongEditPage(ownerPage));
+					yield* $(addTagAndSaveViaUi(ownerPage));
 
-				yield* $(navigateToSongEditPage(ownerPage));
-				yield* $(
-					expectTagInEditUi({
-						page: ownerPage,
-						tagSlug: TEST_TAG_SLUG,
-						timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
-					}),
-				);
+					yield* $(navigateToSongEditPage(ownerPage));
+					yield* $(
+						expectTagInEditUi({
+							page: ownerPage,
+							tagSlug: TEST_TAG_SLUG,
+							timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
+						}),
+					);
 
-				yield* $(removeTagAndSaveViaUi(ownerPage));
+					yield* $(removeTagAndSaveViaUi(ownerPage));
 
-				yield* $(navigateToSongEditPage(ownerPage));
-				yield* $(
-					expectTagNotInEditUi({
-						page: ownerPage,
-						tagSlug: TEST_TAG_SLUG,
-						timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
-					}),
-				);
-			}),
-		),
-	);
-});
+					yield* $(navigateToSongEditPage(ownerPage));
+					yield* $(
+						expectTagNotInEditUi({
+							page: ownerPage,
+							tagSlug: TEST_TAG_SLUG,
+							timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
+						}),
+					);
+				}),
+			),
+		);
+	});
 });

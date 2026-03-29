@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import mockCreateSupabaseClient from "@/api/test-utils/mockCreateSupabaseClient.test-util";
+import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import playlistSaveHandler from "./playlistSave";
@@ -11,27 +13,13 @@ import playlistSaveHandler from "./playlistSave";
 vi.mock("@supabase/supabase-js");
 vi.mock("@/api/user-session/getVerifiedSession");
 
-const SAMPLE_USER_ID = "00000000-0000-4000-8000-000000000001";
+const SAMPLE_USER_ID = TEST_USER_ID;
 
-const SAMPLE_USER_SESSION: UserSessionData = {
+const SAMPLE_USER_SESSION: UserSessionData = makeUserSessionData({
 	user: {
-		created_at: "2026-01-01T00:00:00Z",
-		email: "u@example.com",
-		google_calendar_access: "none",
-		google_calendar_refresh_token: undefined,
-		linked_providers: undefined,
-		name: "Test User",
-		role: "user",
-		role_expires_at: undefined,
-		sub: undefined,
-		updated_at: "2026-01-01T00:00:00Z",
 		user_id: SAMPLE_USER_ID,
 	},
-	userPublic: { user_id: SAMPLE_USER_ID, username: "testuser" },
-	oauthUserData: { email: "u@example.com" },
-	oauthState: { csrf: "x", lang: "en", provider: "google" },
-	ip: "127.0.0.1",
-};
+});
 
 /**
  * Replaces global crypto.randomUUID with a stub that returns the given uuid.
@@ -71,25 +59,13 @@ describe("playlistSave handler", () => {
 
 		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
 		vi.spyOn(verifiedModule, "default").mockReturnValue(
-			Effect.succeed<UserSessionData>({
-				user: {
-					created_at: "2026-01-01T00:00:00Z",
-					email: "u@example.com",
-					google_calendar_access: "none",
-					google_calendar_refresh_token: undefined,
-					linked_providers: undefined,
-					name: "Test User",
-					role: "user",
-					role_expires_at: undefined,
-					sub: undefined,
-					updated_at: "2026-01-01T00:00:00Z",
-					user_id: SAMPLE_USER_ID,
-				},
-				userPublic: { user_id: SAMPLE_USER_ID, username: "testuser" },
-				oauthUserData: { email: "u@example.com" },
-				oauthState: { csrf: "x", lang: "en", provider: "google" },
-				ip: "127.0.0.1",
-			}),
+			Effect.succeed<UserSessionData>(
+				makeUserSessionData({
+					user: {
+						user_id: SAMPLE_USER_ID,
+					},
+				}),
+			),
 		);
 
 		const publicRow = {
@@ -119,25 +95,13 @@ describe("playlistSave handler", () => {
 
 		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
 		vi.spyOn(verifiedModule, "default").mockReturnValue(
-			Effect.succeed<UserSessionData>({
-				user: {
-					created_at: "2026-01-01T00:00:00Z",
-					email: "u@example.com",
-					google_calendar_access: "none",
-					google_calendar_refresh_token: undefined,
-					linked_providers: undefined,
-					name: "Test User",
-					role: "user",
-					role_expires_at: undefined,
-					sub: undefined,
-					updated_at: "2026-01-01T00:00:00Z",
-					user_id: SAMPLE_USER_ID,
-				},
-				userPublic: { user_id: SAMPLE_USER_ID, username: "testuser" },
-				oauthUserData: { email: "u@example.com" },
-				oauthState: { csrf: "x", lang: "en", provider: "google" },
-				ip: "127.0.0.1",
-			}),
+			Effect.succeed<UserSessionData>(
+				makeUserSessionData({
+					user: {
+						user_id: SAMPLE_USER_ID,
+					},
+				}),
+			),
 		);
 
 		await expect(Effect.runPromise(playlistSaveHandler(ctx))).rejects.toThrow(/Invalid JSON body/);
@@ -149,25 +113,13 @@ describe("playlistSave handler", () => {
 
 		const verifiedModule = await import("@/api/user-session/getVerifiedSession");
 		vi.spyOn(verifiedModule, "default").mockReturnValue(
-			Effect.succeed<UserSessionData>({
-				user: {
-					created_at: "2026-01-01T00:00:00Z",
-					email: "u@example.com",
-					google_calendar_access: "none",
-					google_calendar_refresh_token: undefined,
-					linked_providers: undefined,
-					name: "Test User",
-					role: "user",
-					role_expires_at: undefined,
-					sub: undefined,
-					updated_at: "2026-01-01T00:00:00Z",
-					user_id: SAMPLE_USER_ID,
-				},
-				userPublic: { user_id: SAMPLE_USER_ID, username: "testuser" },
-				oauthUserData: { email: "u@example.com" },
-				oauthState: { csrf: "x", lang: "en", provider: "google" },
-				ip: "127.0.0.1",
-			}),
+			Effect.succeed<UserSessionData>(
+				makeUserSessionData({
+					user: {
+						user_id: SAMPLE_USER_ID,
+					},
+				}),
+			),
 		);
 
 		await expect(Effect.runPromise(playlistSaveHandler(ctx))).rejects.toThrow(/is missing/);

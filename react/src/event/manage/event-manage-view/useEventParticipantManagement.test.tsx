@@ -1,11 +1,11 @@
-// no explicit ReactElement import — use inferred types
-
 import { cleanup, fireEvent, render, renderHook, waitFor, within } from "@testing-library/react";
+// no explicit ReactElement import — use inferred types
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 
 import runAction from "../runAction";
 import useEventParticipantManagement from "./useEventParticipantManagement";
@@ -35,7 +35,7 @@ const EVENT_SLUG_X = "slug-x";
 const USER_ID_U1 = "u1";
 const USER_ID_U2 = "u2";
 const USER_ID_9 = "user-9";
-const USER_ID_123 = "user-123";
+const USER_ID_123 = TEST_USER_ID;
 const USER_ID_Z = "uZ";
 const INVITED_USER_INPUT = " invited-user ";
 const BLANK_INPUT = "   ";

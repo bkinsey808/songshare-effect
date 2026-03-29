@@ -3,29 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import makeSupabaseAppMetadata from "@/shared/test-utils/makeSupabaseAppMetadata.test-util";
+import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
+import { TEST_USER_ID, TEST_VISITOR_ID } from "@/shared/test-utils/testUserConstants";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import getUserToken from "./getUserToken";
 
-const SAMPLE_USER_SESSION: UserSessionData = {
-	user: {
-		created_at: "2026-01-01T00:00:00Z",
-		email: "u@example.com",
-		google_calendar_access: "none",
-		google_calendar_refresh_token: undefined,
-		linked_providers: undefined,
-		name: "Test User",
-		role: "user",
-		role_expires_at: undefined,
-		sub: undefined,
-		updated_at: "2026-01-01T00:00:00Z",
-		user_id: "user-123",
-	},
-	userPublic: { user_id: "user-123", username: "testuser" },
-	oauthUserData: { email: "u@example.com" },
-	oauthState: { csrf: "x", lang: "en", provider: "google" },
-	ip: "127.0.0.1",
-};
+const SAMPLE_USER_SESSION: UserSessionData = makeUserSessionData({});
 
 describe("getUserToken", () => {
 	it("returns a token when sign-in and metadata update succeed", async () => {
@@ -39,14 +24,17 @@ describe("getUserToken", () => {
 
 		// Mock supabase client behavior
 		const firstSignInResponse = {
-			data: { session: { access_token: undefined }, user: { id: "visitor-1", app_metadata: {} } },
+			data: {
+				session: { access_token: undefined },
+				user: { id: TEST_VISITOR_ID, app_metadata: {} },
+			},
 			error: undefined,
 		};
 
 		const secondSignInResponse = {
 			data: {
 				session: { access_token: "fresh-token-abc", expires_in: 3600 },
-				user: { id: "visitor-1", app_metadata: { user: { user_id: "user-123" } } },
+				user: { id: TEST_VISITOR_ID, app_metadata: makeSupabaseAppMetadata() },
 			},
 			error: undefined,
 		};
@@ -75,9 +63,9 @@ describe("getUserToken", () => {
 			expires_in: 3600,
 		});
 		expect(mockSignIn).toHaveBeenCalledTimes(EXPECTED_SIGNIN_CALLS);
-		expect(mockUpdate).toHaveBeenCalledWith("visitor-1", {
+		expect(mockUpdate).toHaveBeenCalledWith(TEST_VISITOR_ID, {
 			app_metadata: {
-				user: { user_id: "user-123" },
+				user: { user_id: TEST_USER_ID },
 				userPublic: SAMPLE_USER_SESSION.userPublic,
 			},
 		});
@@ -116,7 +104,10 @@ describe("getUserToken", () => {
 		);
 
 		const firstSignInResponse = {
-			data: { session: { access_token: undefined }, user: { id: "visitor-1", app_metadata: {} } },
+			data: {
+				session: { access_token: undefined },
+				user: { id: TEST_VISITOR_ID, app_metadata: {} },
+			},
 			error: undefined as unknown,
 		};
 		const secondSignInResponse = {

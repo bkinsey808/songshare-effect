@@ -5,22 +5,13 @@ import { DatabaseError, ValidationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 import type { User } from "@/shared/generated/supabaseSchemas";
+import makeUser from "@/shared/test-utils/makeUser.test-util";
 
 import buildUserSessionJwt from "./buildUserSessionJwt";
 
-const SAMPLE_USER: User = {
-	created_at: "2026-01-01T00:00:00Z",
-	email: "u@example.com",
-	google_calendar_access: "none",
-	google_calendar_refresh_token: undefined,
-	linked_providers: undefined,
+const SAMPLE_USER: User = makeUser({
 	name: "Existing Name",
-	role: "user",
-	role_expires_at: undefined,
-	sub: undefined,
-	updated_at: "2026-01-01T00:00:00Z",
-	user_id: "00000000-0000-4000-8000-000000000001",
-};
+});
 
 const SAMPLE_OAUTH_USER = { email: "u@example.com" };
 const SAMPLE_OAUTH_STATE = { csrf: "x", lang: "en", provider: "google" } as const;

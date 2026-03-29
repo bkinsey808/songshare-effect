@@ -2,9 +2,9 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import useLoadCommunityLibraries from "./useLoadCommunityLibraries";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 
-const USER_ID = "user-123";
+import useLoadCommunityLibraries from "./useLoadCommunityLibraries";
 
 /**
  * Harness for useLoadCommunityLibraries.
@@ -27,7 +27,7 @@ describe("useLoadCommunityLibraries", () => {
 
 		render(
 			<Harness
-				userId={USER_ID}
+				userId={TEST_USER_ID}
 				fetchSongLibrary={fetchSongLibrary}
 				fetchPlaylistLibrary={fetchPlaylistLibrary}
 			/>,
@@ -59,12 +59,12 @@ describe("useLoadCommunityLibraries", () => {
 		cleanup();
 		render(
 			<Harness
-				userId={USER_ID}
+				userId={TEST_USER_ID}
 				fetchSongLibrary={() => Effect.void}
 				fetchPlaylistLibrary={() => Effect.void}
 			/>,
 		);
 
-		expect(screen.getByTestId("loader").textContent).toContain(USER_ID);
+		expect(screen.getByTestId("loader").textContent).toContain(TEST_USER_ID);
 	});
 });

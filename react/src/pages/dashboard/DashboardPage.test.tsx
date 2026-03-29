@@ -6,7 +6,7 @@ import useHydration from "@/react/app/useHydration";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import mockReactRouter from "@/react/lib/test-utils/mockReactRouter";
 import mockTranslation from "@/react/lib/test-utils/mockTranslation";
-import makeUserPublic from "@/react/playlist/test-utils/makeUserPublic.mock";
+import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 
 // DashboardPage (and its hooks) will be imported inside each test
 // after applying our router mock. This avoids early imports that would
@@ -31,26 +31,22 @@ describe("dashboard page", () => {
 
 		const dashboardMockReturn: ReturnType<typeof useDashboard> = {
 			localIsSignedIn: true,
-			localUser: {
-				user: {
-					created_at: new Date().toISOString(),
-					email: "test@example.com",
-					google_calendar_access: "",
-					name: "Test User",
-					role: "user",
-					updated_at: new Date().toISOString(),
-					user_id: "00000000-0000-0000-0000-000000000000",
-				},
-				userPublic: forceCast(
-					makeUserPublic({
+			localUser: forceCast(
+				makeUserSessionData({
+					user: {
+						created_at: new Date().toISOString(),
+						email: "test@example.com",
+						updated_at: new Date().toISOString(),
+						user_id: "00000000-0000-0000-0000-000000000000",
+					},
+					userPublic: {
 						user_id: "00000000-0000-0000-0000-000000000000",
 						username: "testuser",
-					}),
-				),
-				oauthUserData: { email: "test@example.com" },
-				oauthState: { csrf: "csrf", lang: "en", provider: "google" },
-				ip: "127.0.0.1",
-			},
+					},
+					oauthUserData: { email: "test@example.com" },
+					oauthState: { csrf: "csrf", lang: "en", provider: "google" },
+				}),
+			),
 			signOutRef: { current: () => undefined },
 			signOut: vi.fn(),
 			showSignedInAlert: false,

@@ -9,6 +9,10 @@ import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
 import getIpAddress from "@/api/getIpAddress";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import mockCreateSupabaseClient from "@/api/test-utils/mockCreateSupabaseClient.test-util";
+import makeOauthState from "@/shared/test-utils/makeOauthState.test-util";
+import makeOauthUserData from "@/shared/test-utils/makeOauthUserData.test-util";
+import makeUser from "@/shared/test-utils/makeUser.test-util";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 
 import accountRegister from "./accountRegister";
 
@@ -19,19 +23,13 @@ vi.mock("@/api/getIpAddress");
 vi.mock("hono/jwt");
 vi.mock("nanoid");
 
-const SAMPLE_USER_ID = "00000000-0000-4000-8000-000000000001";
+const SAMPLE_USER_ID = TEST_USER_ID;
 
-const RAW_INSERTED_USER = {
+const RAW_INSERTED_USER = makeUser({
 	user_id: SAMPLE_USER_ID,
-	email: "u@example.com",
-	name: "Test User",
 	sub: "sub-1",
 	linked_providers: ["google"],
-	created_at: "2026-01-01T00:00:00Z",
-	updated_at: "2026-01-01T00:00:00Z",
-	google_calendar_access: "none",
-	role: "user",
-} as const;
+});
 
 describe("accountRegister", () => {
 	it("creates user, sets cookies and returns success (happy path)", async () => {
@@ -42,8 +40,8 @@ describe("accountRegister", () => {
 		const ctx = makeCtx({ body: { username: "freshuser" }, resHeadersAppend: appendSpy });
 
 		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
-			oauthUserData: { email: "u@example.com", name: "Test User", sub: "sub-1" },
-			oauthState: { csrf: "x", lang: "en", provider: "google" },
+			oauthUserData: makeOauthUserData(),
+			oauthState: makeOauthState(),
 		});
 
 		const rawUserPublic = { user_id: SAMPLE_USER_ID, username: "freshuser" };
@@ -79,8 +77,8 @@ describe("accountRegister", () => {
 		const ctx = makeCtx({ body: { username: "taken" }, resHeadersAppend: vi.fn() });
 
 		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
-			oauthUserData: { email: "u@example.com" },
-			oauthState: { csrf: "x", lang: "en", provider: "google" },
+			oauthUserData: makeOauthUserData({ name: undefined, sub: undefined }),
+			oauthState: makeOauthState(),
 		});
 
 		mockCreateSupabaseClient(vi.mocked(createClient), { userPublicMaybe: { user_id: "u-exists" } });
@@ -120,8 +118,8 @@ describe("accountRegister", () => {
 		const ctx = makeCtx({ body: { username: "freshuser" }, resHeadersAppend: vi.fn() });
 
 		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
-			oauthUserData: { email: "u@example.com" },
-			oauthState: { csrf: "x", lang: "en", provider: "google" },
+			oauthUserData: makeOauthUserData({ name: undefined, sub: undefined }),
+			oauthState: makeOauthState(),
 		});
 
 		mockCreateSupabaseClient(vi.mocked(createClient), {
@@ -142,8 +140,8 @@ describe("accountRegister", () => {
 		const ctx = makeCtx({ body: { username: "freshuser" }, env: { SUPABASE_JWT_SECRET: "" } });
 
 		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
-			oauthUserData: { email: "u@example.com" },
-			oauthState: { csrf: "x", lang: "en", provider: "google" },
+			oauthUserData: makeOauthUserData({ name: undefined, sub: undefined }),
+			oauthState: makeOauthState(),
 		});
 
 		mockCreateSupabaseClient(vi.mocked(createClient), {

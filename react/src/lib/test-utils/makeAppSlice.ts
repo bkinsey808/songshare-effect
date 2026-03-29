@@ -41,6 +41,8 @@ export default function makeAppSlice(overrides: Partial<AppSlice> = {}): AppSlic
 	});
 
 	const setShowSignedInAlert = vi.fn();
+	const updateUserSessionUser = vi.fn();
+	const updateUserSessionUserPublic = vi.fn();
 
 	// Common no-op defaults used across tests to avoid repetitive overrides.
 	const removeEventFromLibrary = vi.fn(() => Effect.succeed(undefined));
@@ -72,6 +74,8 @@ export default function makeAppSlice(overrides: Partial<AppSlice> = {}): AppSlic
 		signIn,
 		signOut,
 		setShowSignedInAlert,
+		updateUserSessionUser,
+		updateUserSessionUserPublic,
 		removeEventFromLibrary,
 		removeUserFromLibrary,
 		removeSongFromSongLibrary,

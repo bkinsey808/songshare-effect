@@ -9,6 +9,7 @@ import type {
 	EventUser,
 	SaveEventRequest,
 } from "../event-types";
+import fetchEventByIdFn from "../fetch/fetchEventById";
 import fetchEventBySlugFn from "../fetch/fetchEventBySlug";
 import saveEventFn from "../form/saveEvent";
 import joinEventFn from "../join/joinEvent";
@@ -58,6 +59,8 @@ export default function createEventSlice(
 		...eventSliceInitialState,
 
 		// Public API methods
+		fetchEventById: (eventId: string) => fetchEventByIdFn(eventId, get),
+
 		fetchEventBySlug: (eventSlug: string) => fetchEventBySlugFn(eventSlug, get),
 
 		saveEvent: (request: Readonly<SaveEventRequest>) => saveEventFn(request, get),

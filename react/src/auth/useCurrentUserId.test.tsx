@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import { getTypedState } from "@/react/app-store/useAppStore";
+import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 import type { UserSessionData } from "@/shared/userSessionData";
 
 import forceCast from "../lib/test-utils/forceCast";
@@ -21,26 +23,13 @@ const NON_STRING_ID = 999;
  * Tests may clone or override fields from this object to simulate different
  * signed-in states without repeating the full shape each time.
  */
-const SAMPLE_USER_SESSION: UserSessionData = {
+const SAMPLE_USER_SESSION: UserSessionData = makeUserSessionData({
 	user: {
 		created_at: new Date().toISOString(),
-		email: "u@example.com",
-		google_calendar_access: "",
-		google_calendar_refresh_token: undefined,
-		linked_providers: undefined,
-		name: "Test User",
-		role: "user",
-		role_expires_at: undefined,
-		sub: undefined,
 		updated_at: new Date().toISOString(),
-		user_id: "u1",
 	},
-	userPublic: forceCast(makeUserPublic({ user_id: "u1", username: "u1" })),
-
-	oauthUserData: { email: "u@example.com" },
-	oauthState: { csrf: "x", lang: "en", provider: "google" },
-	ip: "127.0.0.1",
-};
+	userPublic: forceCast(makeUserPublic({ username: "u1" })),
+});
 
 /**
  * Create a copy of `SAMPLE_USER_SESSION` where the `user.user_id` is a
@@ -74,13 +63,10 @@ function setGetTypedStateUser(userSessionData?: UserSessionData): void {
 
 describe("useCurrentUserId", () => {
 	it("returns the current user id when a user is signed in", async () => {
-		setGetTypedStateUser({
-			...SAMPLE_USER_SESSION,
-			user: { ...SAMPLE_USER_SESSION.user, user_id: "user-123" },
-		});
+		setGetTypedStateUser(SAMPLE_USER_SESSION);
 
 		const { default: useCurrentUserId } = await import("./useCurrentUserId");
-		expect(useCurrentUserId()).toBe("user-123");
+		expect(useCurrentUserId()).toBe(TEST_USER_ID);
 	});
 
 	it("returns undefined when there is no user session", async () => {

@@ -1,12 +1,7 @@
+import type { UserSessionData } from "@/shared/userSessionData";
+
 /**
  * Mock user session data for testing.
- * Matches the UserSessionData type from shared/userSessionData.ts
+ * Matches the runtime `UserSessionData` shape returned by `/api/me`.
  */
-export type MockUserSession = Readonly<{
-	user: Readonly<{
-		user_id: string;
-		email: string;
-		name: string;
-		username?: string;
-	}>;
-}>;
+export type MockUserSession = UserSessionData;

@@ -14,6 +14,7 @@ type SongViewSlideControlsProps = Readonly<{
 	goPrev: () => void;
 	isFullScreen?: boolean;
 	onToggleFullScreen?: () => void;
+	slideOrientationToggle?: ReactElement;
 	totalSlides: number;
 }>;
 
@@ -41,6 +42,7 @@ export default function SongViewSlideControls({
 	goPrev,
 	isFullScreen = false,
 	onToggleFullScreen,
+	slideOrientationToggle,
 	totalSlides,
 }: SongViewSlideControlsProps): ReactElement | undefined {
 	const { t } = useTranslation();
@@ -110,6 +112,7 @@ export default function SongViewSlideControls({
 					{t("songView.fullScreen", "Full screen")}
 				</Button>
 			)}
+			{slideOrientationToggle}
 		</nav>
 	);
 }

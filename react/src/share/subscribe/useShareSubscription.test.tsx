@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { appStore } from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 
 import useShareSubscription from "./useShareSubscription";
 
@@ -15,7 +16,7 @@ const mockGetStateReturn = vi.hoisted<{ current: Record<string, unknown> }>(() =
 vi.mock("@/react/auth/useCurrentUserId");
 vi.mock("@/react/app-store/useAppStore");
 
-const CURRENT_USER_ID = "user-123";
+const CURRENT_USER_ID = TEST_USER_ID;
 
 /** Configures useCurrentUserId and app store mocks for share subscription tests. */
 function installMocks(opts: {

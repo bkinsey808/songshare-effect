@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import makeSupabaseAppMetadata from "@/shared/test-utils/makeSupabaseAppMetadata.test-util";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 
 import { getUserIdFromAppMetadata } from "./getSupabaseUserToken";
@@ -8,7 +9,7 @@ const USER_ID = "usr-123";
 
 describe("getUserIdFromAppMetadata", () => {
 	it("returns user_id when structure is valid", () => {
-		const meta = { user: { user_id: USER_ID } };
+		const meta = makeSupabaseAppMetadata({ user: { user_id: USER_ID } });
 		expect(getUserIdFromAppMetadata(meta)).toBe(USER_ID);
 	});
 

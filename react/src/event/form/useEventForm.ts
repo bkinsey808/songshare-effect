@@ -93,6 +93,7 @@ export default function useEventForm(): UseEventFormReturn {
 	const isPlaylistLibraryLoading = useAppStore((state) => state.isPlaylistLibraryLoading);
 	const saveEvent = useAppStore((state) => state.saveEvent);
 	const currentEvent = useAppStore((state) => state.currentEvent);
+	const fetchEventById = useAppStore((state) => state.fetchEventById);
 
 	const isEditing = event_id !== undefined && event_id !== "";
 	const hasNoPlaylists = Object.keys(playlistLibraryEntries).length === PLAYLISTS_NONE;
@@ -114,6 +115,26 @@ export default function useEventForm(): UseEventFormReturn {
 			}
 		})();
 	}, [fetchPlaylistLibrary]);
+
+	// Ensure edit routes can hydrate when opened directly by id.
+	useEffect(() => {
+		if (
+			!isEditing ||
+			event_id === undefined ||
+			event_id === "" ||
+			(currentEvent !== undefined && currentEvent.event_id === event_id)
+		) {
+			return;
+		}
+
+		void (async (): Promise<void> => {
+			try {
+				await Effect.runPromise(fetchEventById(event_id));
+			} catch (error: unknown) {
+				console.error("[useEventForm] Failed to fetch event by id:", error);
+			}
+		})();
+	}, [currentEvent, event_id, fetchEventById, isEditing]);
 
 	// Controlled form field values
 	const [formValues, setFormValuesState] = useState<EventFormValues>(() =>

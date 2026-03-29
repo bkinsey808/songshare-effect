@@ -3,6 +3,9 @@ import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
 import XIcon from "@/react/lib/design-system/icons/XIcon";
+import getSlideOrientationContainerClassName from "@/react/slide-orientation/getSlideOrientationContainerClassName";
+import SlideOrientationToggle from "@/react/slide-orientation/SlideOrientationToggle";
+import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
 import { type SongPublic } from "@/react/song/song-schema";
 
 import SongViewCurrentSlide from "../SongViewCurrentSlide";
@@ -26,6 +29,8 @@ type SongViewSlidesProps = Readonly<{
 export default function SongViewSlides({ songPublic }: SongViewSlidesProps): ReactElement {
 	const { t } = useTranslation();
 	const [isFullScreen, setIsFullScreen] = useState(false);
+	const { effectiveSlideOrientation } = useSlideOrientationPreference();
+	const slideContainerClassName = getSlideOrientationContainerClassName(effectiveSlideOrientation);
 	// Hook that provides derived slide state and navigation helpers
 	const {
 		clampedIndex,
@@ -59,7 +64,7 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 	return (
 		<>
 			<section
-				className="rounded-lg border border-gray-600 bg-gray-800 p-6"
+				className={`${slideContainerClassName} rounded-lg border border-gray-600 bg-gray-800 p-6`}
 				aria-label={t("songView.currentSlide", "Current slide")}
 			>
 				<SongViewCurrentSlide
@@ -80,6 +85,7 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 				onToggleFullScreen={() => {
 					setIsFullScreen((prev) => !prev);
 				}}
+				slideOrientationToggle={<SlideOrientationToggle />}
 				totalSlides={totalSlides}
 			/>
 
@@ -116,7 +122,7 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 					<p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-500">
 						{t("songView.pressEscToExit", "Press Esc to exit")}
 					</p>
-					<div className="mx-auto max-w-3xl px-6">
+					<div className={`${slideContainerClassName} px-6`}>
 						<SongViewCurrentSlide
 							currentSlide={currentSlide}
 							displayFields={displayFields}

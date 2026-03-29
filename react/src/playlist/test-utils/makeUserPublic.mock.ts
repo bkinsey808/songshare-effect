@@ -1,3 +1,5 @@
+import makeSharedUserPublic from "@/shared/test-utils/makeUserPublic.test-util";
+
 /**
  * Create a realistic `user_public` record for tests containing an owner username.
  *
@@ -7,9 +9,9 @@
 export default function makeUserPublic(
 	attrs: Partial<Record<string, unknown>> = {},
 ): Record<string, unknown> {
-	return {
+	return makeSharedUserPublic({
 		user_id: "00000000-0000-0000-0000-000000000002",
 		username: "owner_user",
 		...attrs,
-	};
+	});
 }

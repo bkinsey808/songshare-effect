@@ -4,6 +4,8 @@ import type { EventError } from "../event-errors";
 import type { EventSliceBase, SaveEventRequest } from "../event-types";
 
 export type EventSlice = EventSliceBase & {
+	/** Fetch an event by id */
+	fetchEventById: (eventId: string) => Effect.Effect<void, EventError>;
 	/** Fetch an event by slug */
 	fetchEventBySlug: (eventSlug: string) => Effect.Effect<void, EventError>;
 	/** Save an event (create or update) */

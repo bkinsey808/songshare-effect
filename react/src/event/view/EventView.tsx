@@ -1,21 +1,12 @@
-import { useNavigate } from "react-router-dom";
-
+import EventActionContent from "@/react/event/view/EventActionContent";
 import EventPlaylistAccordion from "@/react/event/view/playlist-accordion/EventPlaylistAccordion";
 import useEventView from "@/react/event/view/useEventView";
 import Button from "@/react/lib/design-system/Button";
 import DismissibleAlert from "@/react/lib/design-system/dismissible-alert/DismissibleAlert";
 import ShareButton from "@/react/lib/design-system/share-button/ShareButton";
-import useCurrentLang from "@/react/lib/language/useCurrentLang";
-import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import CollapsibleQrCode from "@/react/lib/qr-code/CollapsibleQrCode";
 import TagList from "@/react/tag-library/TagList";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import {
-	eventManagePath,
-	eventSlideManagerPath,
-	eventSlideShowPath,
-	eventViewPath,
-} from "@/shared/paths";
+import { eventManagePath, eventSlideManagerPath, eventSlideShowPath } from "@/shared/paths";
 
 const MIN_PARTICIPANTS = 0;
 
@@ -31,8 +22,6 @@ const MIN_PARTICIPANTS = 0;
  * @returns Event view component or loading/error state
  */
 export default function EventView(): React.ReactNode {
-	const navigate = useNavigate();
-	const lang = useCurrentLang();
 	const {
 		currentEvent,
 		eventPublic,
@@ -49,6 +38,8 @@ export default function EventView(): React.ReactNode {
 		isOwner,
 		canManageEvent,
 		shouldShowActions,
+		eventUrl,
+		navigateToEventSubpage,
 		activeSongName,
 		activeSlidePosition,
 		activeSlideName,
@@ -93,29 +84,6 @@ export default function EventView(): React.ReactNode {
 		);
 	}
 
-	let actionContent: React.ReactNode = undefined;
-	if (canLeave && isParticipant && !isOwner) {
-		actionContent = (
-			<Button variant="danger" onClick={handleLeaveEvent} disabled={actionLoading}>
-				{actionLoading ? "Leaving..." : "Leave Event"}
-			</Button>
-		);
-	} else if (canJoin) {
-		actionContent = (
-			<Button variant="primary" onClick={handleJoinEvent} disabled={actionLoading}>
-				{actionLoading ? "Joining..." : "Join Event"}
-			</Button>
-		);
-	} else {
-		actionContent = (
-			<p className="text-sm text-gray-400">
-				{participantStatus === "kicked"
-					? "You have been removed from this event and cannot rejoin."
-					: "You cannot join this event."}
-			</p>
-		);
-	}
-
 	return (
 		<div className="max-w-4xl mx-auto px-6 py-8">
 			{/* Header */}
@@ -135,10 +103,7 @@ export default function EventView(): React.ReactNode {
 
 			{eventPublic.event_slug !== undefined && eventPublic.event_slug !== "" && (
 				<div className="mb-8">
-					<CollapsibleQrCode
-						url={buildPublicWebUrl(`/${eventViewPath}/${eventPublic.event_slug}`, lang)}
-						label={eventPublic.event_name}
-					/>
+					<CollapsibleQrCode url={eventUrl} label={eventPublic.event_name} />
 				</div>
 			)}
 
@@ -192,7 +157,20 @@ export default function EventView(): React.ReactNode {
 			)}
 
 			{/* Actions */}
-			{shouldShowActions && <div className="mb-8 flex gap-4">{actionContent}</div>}
+			{shouldShowActions && (
+				<div className="mb-8 flex gap-4">
+					<EventActionContent
+						canJoin={canJoin}
+						canLeave={canLeave}
+						isParticipant={isParticipant}
+						isOwner={isOwner}
+						actionLoading={actionLoading}
+						participantStatus={participantStatus}
+						handleJoinEvent={handleJoinEvent}
+						handleLeaveEvent={handleLeaveEvent}
+					/>
+				</div>
+			)}
 
 			{canViewFullEvent ? (
 				<>
@@ -200,12 +178,7 @@ export default function EventView(): React.ReactNode {
 						<Button
 							variant="outlinePrimary"
 							onClick={() => {
-								void navigate(
-									buildPathWithLang(
-										`/${eventViewPath}/${eventPublic.event_slug}/${eventSlideShowPath}`,
-										lang,
-									),
-								);
+								navigateToEventSubpage(eventSlideShowPath);
 							}}
 						>
 							View Slide Show
@@ -214,12 +187,7 @@ export default function EventView(): React.ReactNode {
 							<Button
 								variant="outlineSecondary"
 								onClick={() => {
-									void navigate(
-										buildPathWithLang(
-											`/${eventViewPath}/${eventPublic.event_slug}/${eventManagePath}`,
-											lang,
-										),
-									);
+									navigateToEventSubpage(eventManagePath);
 								}}
 							>
 								Manage Event
@@ -229,12 +197,7 @@ export default function EventView(): React.ReactNode {
 							<Button
 								variant="outlineSecondary"
 								onClick={() => {
-									void navigate(
-										buildPathWithLang(
-											`/${eventViewPath}/${eventPublic.event_slug}/${eventSlideManagerPath}`,
-											lang,
-										),
-									);
+									navigateToEventSubpage(eventSlideManagerPath);
 								}}
 							>
 								Slide Manager

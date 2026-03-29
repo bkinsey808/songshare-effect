@@ -164,5 +164,11 @@
 			"cancel": "取消",
 			"confirm": "删除"
 		}
+	},
+	"slideOrientation": {
+		"label": "幻灯片",
+		"landscape": "横向",
+		"portrait": "纵向",
+		"system": "系统"
 	}
 }

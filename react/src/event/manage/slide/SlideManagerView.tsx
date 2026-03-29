@@ -1,3 +1,5 @@
+import SlideOrientationToggle from "@/react/slide-orientation/SlideOrientationToggle";
+
 import useSlideManagerView from "./useSlideManagerView";
 
 export default function SlideManagerView(): ReactElement {
@@ -28,6 +30,9 @@ export default function SlideManagerView(): ReactElement {
 
 	return (
 		<div className="slide-manager p-4">
+			<div className="mb-4 flex justify-center">
+				<SlideOrientationToggle />
+			</div>
 			<div className="current-slide text-[4rem] text-center">{activeSlidePosition ?? "-"}</div>
 
 			<div className="controls slide-controls flex flex-wrap justify-center gap-2 mt-4">
