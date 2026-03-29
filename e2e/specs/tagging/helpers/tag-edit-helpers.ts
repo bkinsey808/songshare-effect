@@ -1,13 +1,11 @@
 import type { Page } from "@playwright/test";
 import { Effect } from "effect";
 
-import {
-	clickEffect,
-	expectHiddenEffect,
-	expectVisibleEffect,
-	fillEffect,
-	pressEffect,
-} from "@/e2e/utils/effect-test-helpers";
+import clickEffect from "@/e2e/utils/clickEffect.e2e-util.ts";
+import expectHiddenEffect from "@/e2e/utils/expectHiddenEffect.e2e-util.ts";
+import expectVisibleEffect from "@/e2e/utils/expectVisibleEffect.e2e-util.ts";
+import fillEffect from "@/e2e/utils/fillEffect.e2e-util.ts";
+import pressEffect from "@/e2e/utils/pressEffect.e2e-util.ts";
 
 type TagEditOptions = {
 	page: Page;

@@ -22,8 +22,15 @@ import ensureAllFieldsPresent from "./ensureAllFieldsPresent";
  */
 export default function sanitizeSlidesForDb(slides: unknown, fields: readonly string[] = []): Json {
 	if (isRecord(slides)) {
-		const sanitized: Record<string, { slide_name: string; field_data: Record<string, string> }> =
-			{};
+		const sanitized: Record<
+			string,
+			{
+				slide_name: string;
+				field_data: Record<string, string>;
+				background_image_id?: string | undefined;
+				background_image_url?: string | undefined;
+			}
+		> = {};
 
 		// Normalize fields array - ensure it's an array of strings
 		const normalizedFields = Array.isArray(fields)
@@ -45,10 +52,18 @@ export default function sanitizeSlidesForDb(slides: unknown, fields: readonly st
 				// CRITICAL: Ensure all fields from the fields array are present in field_data
 				// This prevents decode failures when reading the data back
 				const fieldData = ensureAllFieldsPresent(existingFieldData, normalizedFields);
+				const backgroundImageId = isString(slideVal["background_image_id"])
+					? slideVal["background_image_id"]
+					: undefined;
+				const backgroundImageUrl = isString(slideVal["background_image_url"])
+					? slideVal["background_image_url"]
+					: undefined;
 
 				sanitized[String(slideKey)] = {
 					slide_name: slideName,
 					field_data: fieldData,
+					...(backgroundImageId === undefined ? {} : { background_image_id: backgroundImageId }),
+					...(backgroundImageUrl === undefined ? {} : { background_image_url: backgroundImageUrl }),
 				};
 			}
 		}

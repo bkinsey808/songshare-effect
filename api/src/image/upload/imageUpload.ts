@@ -259,6 +259,37 @@ export default function imageUpload(
 			);
 		}
 
+		// Auto-add owner uploads to their image library so new uploads are visible
+		// immediately in /dashboard/image-library.
+		const libraryInsert = yield* $(
+			Effect.tryPromise({
+				try: () =>
+					supabase.from("image_library").insert([
+						{
+							user_id: userId,
+							image_id: imageId,
+						},
+					]),
+				catch: (error) =>
+					new DatabaseError({
+						message: extractErrorMessage(error, "Failed to add image to library"),
+					}),
+			}),
+		);
+
+		if (libraryInsert.error) {
+			// Best-effort cleanup to avoid orphaned image rows when library insert fails.
+			void storage.remove(storageKey);
+			void supabase.from("image").delete().eq("image_id", imageId);
+			return yield* $(
+				Effect.fail(
+					new DatabaseError({
+						message: extractErrorMessage(libraryInsert.error, "Failed to add image to library"),
+					}),
+				),
+			);
+		}
+
 		const EMPTY_COUNT = 0;
 
 		// 6. Save tags (best-effort: don't fail the upload if tag saving fails)

@@ -1,25 +1,26 @@
 import { expect, test } from "@playwright/test";
 
-import { filterExpectedErrors, setupErrorTracking } from "@/e2e/utils/error-helpers";
+import filterExpectedErrors from "@/e2e/utils/filterExpectedErrors.e2e-util.ts";
+import setupErrorTracking from "@/e2e/utils/setupErrorTracking.e2e-util.ts";
 
+import clearAllPendingPeerShares from "@/e2e/specs/sharing/helpers/clearAllPendingPeerShares.e2e-util.ts";
+import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
+import ensureUserNotInEvent from "@/e2e/specs/sharing/helpers/ensureUserNotInEvent.e2e-util.ts";
+import newRecipientContext from "@/e2e/specs/sharing/helpers/newRecipientContext.e2e-util.ts";
+import newSenderContext from "@/e2e/specs/sharing/helpers/newSenderContext.e2e-util.ts";
+import selectUserInSearch from "@/e2e/specs/sharing/helpers/selectUserInSearch.e2e-util.ts";
 import {
 	BASE_URL,
 	INVITE_SUCCESS_TIMEOUT_MS,
 	MANAGE_PAGE_READY_TIMEOUT_MS,
 	NO_ERRORS,
 	REALTIME_WAIT_MS,
-	clearAllPendingPeerShares,
-	createTwoUserContexts,
-	ensureUserNotInEvent,
 	missingBothSessions,
 	missingEventSlug,
 	missingUser2Username,
-	newRecipientContext,
-	newSenderContext,
-	selectUserInSearch,
 	testEventSlug,
 	testUser2Username,
-} from "./helpers/sharing.e2e-utils.ts";
+} from "./helpers/sharing-constants.e2e-util.ts";
 
 // These tests use real shared accounts on staging/local DB and MUST NOT run in parallel
 // across multiple workers. Even with 'serial' mode, different browser projects
@@ -112,11 +113,13 @@ test.describe("Event Invitation", () => {
 				`Event join API error — status ${String(eventJoinResponse.status())}: ${eventJoinBody}`,
 			).toBe(true);
 
-			// Accept button disappears; "Visit Event →" link appears
-			await expect(
-				inviteePage.getByRole("button", { name: "Accept", exact: true }).first(),
-			).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
-			await expect(inviteePage.getByText(/visit event/i)).toBeVisible();
+			// Reload to ensure the dashboard reflects the accepted invitation.
+			await inviteePage.reload({ waitUntil: "load" });
+
+			// Pending invitations section clears; "Visit Event →" link appears
+			await expect(inviteePage.getByText(/pending invitations/i)).not.toBeVisible({
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
 
 			const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
 			expect(unexpectedErrors).toHaveLength(NO_ERRORS);

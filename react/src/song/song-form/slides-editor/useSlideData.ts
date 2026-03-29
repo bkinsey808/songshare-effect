@@ -77,6 +77,7 @@ export default function useSlideData({
 		setSlides({
 			...slides,
 			[newId]: {
+				...originalSlide,
 				slide_name: newSlideName,
 				field_data: {
 					// Copy all field data from the original slide

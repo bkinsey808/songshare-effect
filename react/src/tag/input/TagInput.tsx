@@ -35,6 +35,7 @@ export default function TagInput({
 		removeTag,
 		suggestions,
 	} = useTagInput(value, onChange);
+	const canAddTag = inputValue.trim() !== "";
 
 	return (
 		<div className="space-y-2">
@@ -52,16 +53,30 @@ export default function TagInput({
 				</div>
 			)}
 			<div className="relative">
-				<input
-					ref={inputRef}
-					type="text"
-					value={inputValue}
-					onChange={handleInputChange}
-					onKeyDown={handleKeyDown}
-					onBlur={handleBlur}
-					placeholder={placeholder}
-					className="w-full rounded border border-gray-600 bg-gray-800 px-2 py-1 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-				/>
+				<div className="flex gap-2">
+					<input
+						ref={inputRef}
+						type="text"
+						value={inputValue}
+						onChange={handleInputChange}
+						onKeyDown={handleKeyDown}
+						onBlur={handleBlur}
+						placeholder={placeholder}
+						className="w-full rounded border border-gray-600 bg-gray-800 px-2 py-1 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+					/>
+					<button
+						type="button"
+						onMouseDown={(event): void => {
+							// Use mouseDown so add fires before input blur clears state.
+							event.preventDefault();
+							addTag(inputValue);
+						}}
+						disabled={!canAddTag}
+						className="rounded border border-gray-600 bg-gray-700 px-3 py-1 text-sm font-medium text-gray-200 transition-colors hover:border-gray-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						Add
+					</button>
+				</div>
 				{isOpen && suggestions.length > ZERO && (
 					<ul
 						role="listbox"

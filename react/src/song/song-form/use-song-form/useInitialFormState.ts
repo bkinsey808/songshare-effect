@@ -59,7 +59,7 @@ export default function useInitialFormState({
 					Object.entries(slides).map(([key, slide]) => [
 						key,
 						{
-							slide_name: slide.slide_name,
+							...slide,
 							field_data: { ...slide.field_data },
 						},
 					]),
@@ -90,7 +90,7 @@ export default function useInitialFormState({
 				Object.entries(slides).map(([key, slide]) => [
 					key,
 					{
-						slide_name: slide.slide_name,
+						...slide,
 						field_data: { ...slide.field_data },
 					},
 				]),

@@ -4,6 +4,8 @@ import type { SongFormValuesFromSchema as SongFormData } from "./songSchema";
 export type Slide = Readonly<{
 	slide_name: string;
 	field_data: Readonly<Record<string, string>>;
+	background_image_id?: string | undefined;
+	background_image_url?: string | undefined;
 }>;
 
 export type SongFormValues = {

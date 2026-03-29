@@ -4,24 +4,26 @@ import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 
-import { filterExpectedErrors, setupErrorTracking } from "@/e2e/utils/error-helpers";
+import filterExpectedErrors from "@/e2e/utils/filterExpectedErrors.e2e-util.ts";
+import setupErrorTracking from "@/e2e/utils/setupErrorTracking.e2e-util.ts";
 
+import clearAllPendingPeerShares from "@/e2e/specs/sharing/helpers/clearAllPendingPeerShares.e2e-util.ts";
+import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
+import newRecipientContext from "@/e2e/specs/sharing/helpers/newRecipientContext.e2e-util.ts";
+import newSenderContext from "@/e2e/specs/sharing/helpers/newSenderContext.e2e-util.ts";
+import openReceivedPendingShares from "@/e2e/specs/sharing/helpers/openReceivedPendingShares.e2e-util.ts";
+import selectUserInSearch from "@/e2e/specs/sharing/helpers/selectUserInSearch.e2e-util.ts";
 import {
 	BASE_URL,
 	INVITE_SUCCESS_TIMEOUT_MS,
 	MANAGE_PAGE_READY_TIMEOUT_MS,
 	NO_ERRORS,
 	REALTIME_WAIT_MS,
-	clearAllPendingPeerShares,
-	createTwoUserContexts,
+	SHARE_CREATE_TIMEOUT_MS,
 	missingBothSessions,
 	missingUser2Username,
-	newRecipientContext,
-	newSenderContext,
-	openReceivedPendingShares,
-	selectUserInSearch,
 	testUser2Username,
-} from "./helpers/sharing.e2e-utils.ts";
+} from "./helpers/sharing-constants.e2e-util.ts";
 
 // These tests use real shared accounts on staging/local DB and MUST NOT run in parallel
 // across multiple workers. Even with 'serial' mode, different browser projects
@@ -211,7 +213,7 @@ test.describe("P2P Image Share", () => {
 			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
 			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			const imageAcceptShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
-				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+				timeout: SHARE_CREATE_TIMEOUT_MS,
 			});
 			await shareBtn.click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
@@ -221,15 +223,37 @@ test.describe("P2P Image Share", () => {
 
 			// Recipient: navigate to dashboard and accept the share
 			await openReceivedPendingShares(recipientPage);
-			await expect(
-				recipientPage.getByRole("button", { name: "Accept", exact: true }).first(),
-			).toBeVisible({ timeout: REALTIME_WAIT_MS });
-			await recipientPage.getByRole("button", { name: "Accept", exact: true }).first().click();
+			const acceptButton = recipientPage.getByRole("button", { name: "Accept", exact: true }).first();
+			await expect(acceptButton).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			const pendingRow = acceptButton.locator(
+				"xpath=ancestor::div[.//button[normalize-space()='Accept'] and (.//a or .//span[contains(@class,'font-medium')])][1]",
+			);
+			const sharedItemNameLocator = pendingRow.locator("a.font-medium, p.font-medium").first();
+			await expect(sharedItemNameLocator).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			const sharedItemNameRaw = await sharedItemNameLocator.textContent();
+			const sharedItemName = sharedItemNameRaw?.trim();
+			expect(sharedItemName).not.toBeUndefined();
+			expect(sharedItemName).not.toBeNull();
+			expect(sharedItemName).not.toBe("");
+			const sharedItemNameText = String(sharedItemName);
+			const imageAcceptP = recipientPage.waitForResponse(/\/api\/shares\/update-status/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
+			await acceptButton.click();
+			const imageAcceptResponse = await imageAcceptP;
+			expect(imageAcceptResponse.ok()).toBe(true);
+			await recipientPage.reload({ waitUntil: "load" });
+			await openReceivedPendingShares(recipientPage);
 
-			// Accept button should disappear (share is no longer pending)
-			await expect(
-				recipientPage.getByRole("button", { name: "Accept", exact: true }).first(),
-			).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
+			// Accepted item should no longer present an Accept action in pending view.
+			const pendingAcceptForItem = recipientPage
+				.locator("div")
+				.filter({ hasText: sharedItemNameText })
+				.getByRole("button", { name: "Accept", exact: true })
+				.first();
+			await expect(pendingAcceptForItem).not.toBeVisible({
+				timeout: REALTIME_WAIT_MS,
+			});
 
 			const unexpectedSenderErrors = filterExpectedErrors(senderErrors.consoleErrors);
 			const unexpectedErrors = filterExpectedErrors(errors.consoleErrors);
@@ -254,7 +278,7 @@ test.describe("P2P Image Share", () => {
 			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
 			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			const imageDeclineShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
-				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+				timeout: SHARE_CREATE_TIMEOUT_MS,
 			});
 			await shareBtn.click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
@@ -263,13 +287,36 @@ test.describe("P2P Image Share", () => {
 
 			// Recipient: decline the share
 			await openReceivedPendingShares(recipientPage);
-			await expect(recipientPage.getByRole("button", { name: "Decline" }).first()).toBeVisible({
+			const declineButton = recipientPage.getByRole("button", { name: "Decline", exact: true }).first();
+			await expect(declineButton).toBeVisible({
 				timeout: REALTIME_WAIT_MS,
 			});
-			await recipientPage.getByRole("button", { name: "Decline" }).first().click();
+			const pendingRow = declineButton.locator(
+				"xpath=ancestor::div[.//button[normalize-space()='Decline'] and (.//a or .//span[contains(@class,'font-medium')])][1]",
+			);
+			const sharedItemNameLocator = pendingRow.locator("a.font-medium, p.font-medium").first();
+			await expect(sharedItemNameLocator).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			const sharedItemNameRaw = await sharedItemNameLocator.textContent();
+			const sharedItemName = sharedItemNameRaw?.trim();
+			expect(sharedItemName).not.toBeUndefined();
+			expect(sharedItemName).not.toBeNull();
+			expect(sharedItemName).not.toBe("");
+			const sharedItemNameText = String(sharedItemName);
+			const imageDeclineP = recipientPage.waitForResponse(/\/api\/shares\/update-status/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
+			await declineButton.click();
+			const imageDeclineResponse = await imageDeclineP;
+			expect(imageDeclineResponse.ok()).toBe(true);
+			await recipientPage.reload({ waitUntil: "load" });
+			await openReceivedPendingShares(recipientPage);
 
-			// Decline button should disappear
-			await expect(recipientPage.getByRole("button", { name: "Decline" }).first()).not.toBeVisible({
+			const pendingDeclineForItem = recipientPage
+				.locator("div")
+				.filter({ hasText: sharedItemNameText })
+				.getByRole("button", { name: "Decline", exact: true })
+				.first();
+			await expect(pendingDeclineForItem).not.toBeVisible({
 				timeout: REALTIME_WAIT_MS,
 			});
 
@@ -306,19 +353,39 @@ test.describe("P2P Image Share", () => {
 
 			// Recipient: accept the share from the dashboard
 			await openReceivedPendingShares(recipientPage);
-			await expect(
-				recipientPage.getByRole("button", { name: "Accept", exact: true }).first(),
-			).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			const acceptButton = recipientPage.getByRole("button", { name: "Accept", exact: true }).first();
+			await expect(acceptButton).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			const pendingRow = acceptButton.locator(
+				"xpath=ancestor::div[.//button[normalize-space()='Accept'] and (.//a or .//span[contains(@class,'font-medium')])][1]",
+			);
+			const sharedItemNameLocator = pendingRow.locator("a.font-medium, p.font-medium").first();
+			await expect(sharedItemNameLocator).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			const sharedItemNameRaw = await sharedItemNameLocator.textContent();
+			const sharedItemName = sharedItemNameRaw?.trim();
+			expect(sharedItemName).not.toBeUndefined();
+			expect(sharedItemName).not.toBeNull();
+			expect(sharedItemName).not.toBe("");
+			const sharedItemNameText = String(sharedItemName);
 			const imageAcceptP = recipientPage.waitForResponse(/\/api\/shares\/update-status/, {
 				timeout: INVITE_SUCCESS_TIMEOUT_MS,
 			});
-			await recipientPage.getByRole("button", { name: "Accept", exact: true }).first().click();
+			await acceptButton.click();
 			const imageAcceptResponse = await imageAcceptP;
 			const imageAcceptBody = await imageAcceptResponse.text().catch(() => "(unreadable)");
 			expect(
 				imageAcceptResponse.ok(),
 				`Share accept API error — status ${String(imageAcceptResponse.status())}: ${imageAcceptBody}`,
 			).toBe(true);
+			await recipientPage.reload({ waitUntil: "load" });
+			await openReceivedPendingShares(recipientPage);
+			const pendingAcceptForItem = recipientPage
+				.locator("div")
+				.filter({ hasText: sharedItemNameText })
+				.getByRole("button", { name: "Accept", exact: true })
+				.first();
+			await expect(pendingAcceptForItem).not.toBeVisible({
+				timeout: REALTIME_WAIT_MS,
+			});
 
 			// Recipient: navigate to the image page and remove it from library
 			await recipientPage.goto(`${BASE_URL}/en/image/${imageSlugForTest}`, { waitUntil: "load" });

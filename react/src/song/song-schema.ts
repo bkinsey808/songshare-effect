@@ -98,9 +98,13 @@ export const slidesOrderSchema: Schema.Array$<typeof Schema.String> = Schema.Arr
 export const slideSchema: Schema.Struct<{
 	slide_name: typeof Schema.String;
 	field_data: Schema.Record$<typeof Schema.String, typeof Schema.String>;
+	background_image_id: Schema.optional<typeof Schema.String>;
+	background_image_url: Schema.optional<typeof Schema.String>;
 }> = Schema.Struct({
 	slide_name: Schema.String,
 	field_data: Schema.Record({ key: Schema.String, value: Schema.String }),
+	background_image_id: Schema.optional(Schema.String),
+	background_image_url: Schema.optional(Schema.String),
 });
 
 /** Map of slide keys to slide objects for a song. */

@@ -30,9 +30,17 @@ export default function computeSlides(pub?: Record<string, unknown>): Record<str
 	for (const [key, value] of Object.entries(pub["slides"])) {
 		if (isRecord(value) && isString(value["slide_name"])) {
 			const fieldData = buildFieldData(value["field_data"]);
+			const backgroundImageId =
+				typeof value["background_image_id"] === "string" ? value["background_image_id"] : undefined;
+			const backgroundImageUrl =
+				typeof value["background_image_url"] === "string"
+					? value["background_image_url"]
+					: undefined;
 			slidesRecord[key] = {
 				slide_name: String(value["slide_name"]),
 				field_data: fieldData,
+				...(backgroundImageId === undefined ? {} : { background_image_id: backgroundImageId }),
+				...(backgroundImageUrl === undefined ? {} : { background_image_url: backgroundImageUrl }),
 			};
 		} else {
 			/* empty */

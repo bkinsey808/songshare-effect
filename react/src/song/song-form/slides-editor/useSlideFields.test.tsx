@@ -110,4 +110,25 @@ describe("useSlideFields — renderHook", () => {
 			s1: { ...SLIDE_S1, slide_name: "Renamed" },
 		});
 	});
+
+	it("editSlideBackgroundImage updates background metadata via setSlides", () => {
+		const setSlides = vi.fn();
+		const slides = { s1: SLIDE_S1 };
+
+		const { result } = renderHook(() => useSlideFields({ slides, setSlides }));
+
+		result.current.editSlideBackgroundImage({
+			slideId: "s1",
+			backgroundImageId: "img-1",
+			backgroundImageUrl: "/api/images/serve/images/u1/img-1.png",
+		});
+
+		expect(setSlides).toHaveBeenCalledWith({
+			s1: {
+				...SLIDE_S1,
+				background_image_id: "img-1",
+				background_image_url: "/api/images/serve/images/u1/img-1.png",
+			},
+		});
+	});
 });

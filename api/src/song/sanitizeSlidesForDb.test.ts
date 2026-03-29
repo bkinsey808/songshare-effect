@@ -90,4 +90,44 @@ describe("sanitizeSlidesForDb", () => {
 			"0": { slide_name: "zero", field_data: {} },
 		});
 	});
+
+	it("preserves background image metadata when values are strings", () => {
+		const input = {
+			slideOne: {
+				slide_name: "s1",
+				field_data: {},
+				background_image_id: "img-1",
+				background_image_url: "/api/images/serve/images/user-1/img-1.png",
+			},
+		};
+
+		const result = sanitizeSlidesForDb(input, []);
+		expect(result).toStrictEqual({
+			slideOne: {
+				slide_name: "s1",
+				field_data: {},
+				background_image_id: "img-1",
+				background_image_url: "/api/images/serve/images/user-1/img-1.png",
+			},
+		});
+	});
+
+	it("drops non-string background image metadata", () => {
+		const input = {
+			slideOne: {
+				slide_name: "s1",
+				field_data: {},
+				background_image_id: 123,
+				background_image_url: true,
+			},
+		};
+
+		const result = sanitizeSlidesForDb(input, []);
+		expect(result).toStrictEqual({
+			slideOne: {
+				slide_name: "s1",
+				field_data: {},
+			},
+		});
+	});
 });

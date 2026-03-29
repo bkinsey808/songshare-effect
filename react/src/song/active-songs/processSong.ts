@@ -50,7 +50,12 @@ export default function processSong(song: unknown, out: Record<string, SongPubli
 		const allRequiredFields = ["lyrics", "script", "enTranslation"] as const;
 		const normalizedSlides: Record<
 			string,
-			{ slide_name: string; field_data: Record<string, string> }
+			{
+				slide_name: string;
+				field_data: Record<string, string>;
+				background_image_id?: string | undefined;
+				background_image_url?: string | undefined;
+			}
 		> = {};
 		for (const key of Object.keys(rawSlides)) {
 			const slide = isRecord(rawSlides[key]) ? rawSlides[key] : {};
@@ -62,6 +67,13 @@ export default function processSong(song: unknown, out: Record<string, SongPubli
 			normalizedSlides[key] = {
 				slide_name: typeof slide["slide_name"] === "string" ? slide["slide_name"] : "",
 				field_data,
+				...(typeof slide["background_image_id"] === "string" &&
+				typeof slide["background_image_url"] === "string"
+					? {
+							background_image_id: slide["background_image_id"],
+							background_image_url: slide["background_image_url"],
+						}
+					: {}),
 			};
 		}
 

@@ -49,6 +49,8 @@ export const songFormFieldSchema: unknown = Schema.Literal(
 export type SlideShape = {
 	slide_name: string;
 	field_data: Record<string, string>;
+	background_image_id?: string | undefined;
+	background_image_url?: string | undefined;
 };
 
 export const slideSchema: Schema.Schema<SlideShape> = Schema.Struct({
@@ -57,6 +59,8 @@ export const slideSchema: Schema.Schema<SlideShape> = Schema.Struct({
 		key: Schema.String,
 		value: Schema.String,
 	}),
+	background_image_id: Schema.optional(Schema.String),
+	background_image_url: Schema.optional(Schema.String),
 });
 
 export const slidesSchema: Schema.Schema<Record<string, SlideShape>> = Schema.Record({

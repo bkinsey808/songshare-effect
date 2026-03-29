@@ -53,4 +53,22 @@ describe("computeSlides", () => {
 		const result = computeSlides(pub);
 		expect(result["s1"]?.field_data).toStrictEqual({ title: "T" });
 	});
+
+	it("extracts background image metadata when present", () => {
+		const pub = {
+			slides: {
+				s1: {
+					slide_name: "Slide",
+					field_data: { lyrics: "Text" },
+					background_image_id: "img-1",
+					background_image_url: "/api/images/serve/images/u1/img-1.png",
+				},
+			},
+		};
+		const result = computeSlides(pub);
+		expect(result["s1"]).toMatchObject({
+			background_image_id: "img-1",
+			background_image_url: "/api/images/serve/images/u1/img-1.png",
+		});
+	});
 });

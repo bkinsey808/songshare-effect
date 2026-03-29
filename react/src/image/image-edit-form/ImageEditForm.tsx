@@ -94,6 +94,7 @@ export default function ImageEditForm({ image }: ImageEditFormProps): ReactEleme
 			{/* Tags */}
 			<div>
 				<p className="mb-2 text-sm font-medium text-gray-300">Tags</p>
+				<p className="mb-2 text-xs text-gray-400">Type a tag and press Enter or click Add.</p>
 				<TagInput value={tags} onChange={setTags} />
 			</div>
 

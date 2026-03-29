@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { Effect } from "effect";
 
-import mutateTagViaApi from "@/e2e/specs/tagging/helpers/tag-api-helpers.ts";
+import mutateTagViaApi from "@/e2e/specs/tagging/helpers/mutateTagViaApi.e2e-util.ts";
 import {
 	addTagInEditUi,
 	expectTagInEditUi,
@@ -20,33 +20,32 @@ import {
 	waitForTagRealtimeReady,
 } from "@/e2e/specs/tagging/helpers/tagging-e2e-helpers.ts";
 import { extractIdFromPublicRows } from "@/e2e/specs/tagging/helpers/tagging-id-helpers.ts";
-import {
-	acquireBrowserContext,
-	acquirePage,
-	acquireTwoUserContexts,
-	clickEffect,
-	expectVisibleEffect,
-	fillEffect,
-	fromPromise,
-	fromPromiseVoid,
-	runEffect,
-	waitForResponseAfter,
-	waitForResponseAndURLAfter,
-} from "@/e2e/utils/effect-test-helpers";
-import { filterExpectedErrors, setupErrorTracking } from "@/e2e/utils/error-helpers";
+import acquireBrowserContext from "@/e2e/utils/acquireBrowserContext.e2e-util.ts";
+import acquirePage from "@/e2e/utils/acquirePage.e2e-util.ts";
+import acquireTwoUserContexts from "@/e2e/utils/acquireTwoUserContexts.e2e-util.ts";
+import clickEffect from "@/e2e/utils/clickEffect.e2e-util.ts";
+import expectVisibleEffect from "@/e2e/utils/expectVisibleEffect.e2e-util.ts";
+import fillEffect from "@/e2e/utils/fillEffect.e2e-util.ts";
+import filterExpectedErrors from "@/e2e/utils/filterExpectedErrors.e2e-util.ts";
+import fromPromise from "@/e2e/utils/fromPromise.e2e-util.ts";
+import fromPromiseVoid from "@/e2e/utils/fromPromiseVoid.e2e-util.ts";
+import runEffect from "@/e2e/utils/runEffect.e2e-util.ts";
+import setupErrorTracking from "@/e2e/utils/setupErrorTracking.e2e-util.ts";
+import waitForResponseAfter from "@/e2e/utils/waitForResponseAfter.e2e-util.ts";
+import waitForResponseAndUrlAfter from "@/e2e/utils/waitForResponseAndUrlAfter.e2e-util.ts";
 import { apiImageDeletePath, apiImageUploadPath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
 
+import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
+import newSenderContext from "@/e2e/specs/sharing/helpers/newSenderContext.e2e-util.ts";
 import {
 	BASE_URL,
 	INVITE_SUCCESS_TIMEOUT_MS,
 	MANAGE_PAGE_READY_TIMEOUT_MS,
 	NO_ERRORS,
 	REALTIME_WAIT_MS,
-	createTwoUserContexts,
 	missingBothSessions,
-	newSenderContext,
-} from "../sharing/helpers/sharing.e2e-utils.ts";
+} from "../sharing/helpers/sharing-constants.e2e-util.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -242,7 +241,7 @@ function addTagAndSaveViaUi(ownerPage: Page, imageSlug: string): Effect.Effect<v
 		);
 
 		const saveResponse = yield* $(
-			waitForResponseAndURLAfter({
+			waitForResponseAndUrlAfter({
 				page: ownerPage,
 				responseMatcher: /\/api\/images\/update/,
 				urlMatcher: new RegExp(`/en/image/${imageSlug}$`),
@@ -273,7 +272,7 @@ function removeTagAndSaveViaUi(ownerPage: Page, imageSlug: string): Effect.Effec
 		);
 
 		const saveResponse = yield* $(
-			waitForResponseAndURLAfter({
+			waitForResponseAndUrlAfter({
 				page: ownerPage,
 				responseMatcher: /\/api\/images\/update/,
 				urlMatcher: new RegExp(`/en/image/${imageSlug}$`),

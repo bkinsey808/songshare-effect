@@ -1,7 +1,7 @@
 import { expect, type Page } from "@playwright/test";
 import { Effect } from "effect";
 
-import { fromPromise } from "@/e2e/utils/effect-test-helpers";
+import fromPromise from "@/e2e/utils/fromPromise.e2e-util.ts";
 import { apiTagAddToItemPath, apiTagRemoveFromItemPath } from "@/shared/paths";
 
 type TagMutationAction = "add" | "remove";
@@ -20,7 +20,7 @@ type TagMutationOptions = {
  * @param options Parameters for the tag mutation request.
  * @return Effect that resolves when the API mutation succeeds.
  */
-function mutateTagViaApi(options: TagMutationOptions): Effect.Effect<void, Error> {
+export default function mutateTagViaApi(options: TagMutationOptions): Effect.Effect<void, Error> {
 	return Effect.gen(function* mutateTagViaApiEffect($) {
 		const apiPath = options.action === "add" ? apiTagAddToItemPath : apiTagRemoveFromItemPath;
 		const result = yield* $(
@@ -58,5 +58,3 @@ function mutateTagViaApi(options: TagMutationOptions): Effect.Effect<void, Error
 		expect(result.ok, JSON.stringify(result.body)).toBe(true);
 	});
 }
-
-export default mutateTagViaApi;

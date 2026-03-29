@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import type { ImageLibraryEntry } from "../image-library-types";
@@ -12,7 +13,10 @@ type ImageLibraryCardProps = {
  * Renders a single image library entry card.
  *
  * Shows the image thumbnail and title.
- * Displays a remove button for non-owners and a link to the image view page.
+ * Displays:
+ * - Delete + inline confirmation for owned images
+ * - Remove for non-owned images
+ * - View/Edit links when available
  *
  * @param entry - The image library entry to display
  * @param currentUserId - The ID of the currently authenticated user
@@ -22,10 +26,22 @@ export default function ImageLibraryCard({
 	entry,
 	currentUserId,
 }: ImageLibraryCardProps): ReactElement {
-	const { editUrl, handleRemove, image, imageUrl, isOwner, viewUrl } = useImageLibraryCard(
-		entry,
-		currentUserId,
-	);
+	const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+	const { editUrl, handleDelete, handleRemove, image, imageUrl, isOwner, viewUrl } =
+		useImageLibraryCard(entry, currentUserId);
+
+	function handleDeleteClick(): void {
+		setIsConfirmingDelete(true);
+	}
+
+	function handleDeleteCancel(): void {
+		setIsConfirmingDelete(false);
+	}
+
+	function handleDeleteConfirm(): void {
+		void handleDelete();
+		setIsConfirmingDelete(false);
+	}
 
 	return (
 		<div className="overflow-hidden rounded-lg border border-gray-700 bg-gray-800 transition-colors hover:border-gray-600">
@@ -69,6 +85,34 @@ export default function ImageLibraryCard({
 						>
 							Remove
 						</button>
+					)}
+					{isOwner && !isConfirmingDelete && (
+						<button
+							type="button"
+							onClick={handleDeleteClick}
+							className="text-sm text-red-400 hover:text-red-300"
+						>
+							Delete
+						</button>
+					)}
+					{isOwner && isConfirmingDelete && (
+						<div className="flex items-center gap-1">
+							<span className="text-xs text-red-300">Confirm?</span>
+							<button
+								type="button"
+								onClick={handleDeleteCancel}
+								className="text-xs text-gray-400 hover:text-white"
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								onClick={handleDeleteConfirm}
+								className="text-xs text-red-400 hover:text-red-300"
+							>
+								Delete
+							</button>
+						</div>
 					)}
 				</div>
 			</div>

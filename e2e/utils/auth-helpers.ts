@@ -1,17 +1,5 @@
+import type { MockUserSession } from "@/e2e/utils/MockUserSession.type.e2e-util.ts";
 import { type Page } from "@playwright/test";
-
-/**
- * Mock user session data for testing.
- * Matches the UserSessionData type from shared/userSessionData.ts
- */
-export type MockUserSession = Readonly<{
-	user: Readonly<{
-		user_id: string;
-		email: string;
-		name: string;
-		username?: string;
-	}>;
-}>;
 
 /**
  * Default test user for E2E tests.
@@ -53,7 +41,6 @@ export async function authenticateTestUser(
 	page: Page,
 	userSession: MockUserSession = DEFAULT_TEST_USER,
 ): Promise<void> {
-	// Mock the /api/me endpoint to return a successful auth response
 	await page.route("**/api/me", async (route) => {
 		await route.fulfill({
 			status: 200,

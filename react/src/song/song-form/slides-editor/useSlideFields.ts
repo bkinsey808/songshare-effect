@@ -36,6 +36,15 @@ type UseSlideFieldsParams = Readonly<{
 type UseSlideFieldsReturn = {
 	editFieldValue: EditFieldValue;
 	editSlideName: EditSlideName;
+	editSlideBackgroundImage: ({
+		slideId,
+		backgroundImageId,
+		backgroundImageUrl,
+	}: Readonly<{
+		slideId: string;
+		backgroundImageId: string | undefined;
+		backgroundImageUrl: string | undefined;
+	}>) => void;
 	safeGetField: SafeGetField;
 };
 
@@ -117,9 +126,34 @@ export default function useSlideFields({
 		});
 	}
 
+	function editSlideBackgroundImage({
+		slideId,
+		backgroundImageId,
+		backgroundImageUrl,
+	}: Readonly<{
+		slideId: string;
+		backgroundImageId: string | undefined;
+		backgroundImageUrl: string | undefined;
+	}>): void {
+		const currentSlide = safeGet(slides, slideId);
+		if (!currentSlide) {
+			return;
+		}
+
+		setSlides({
+			...slides,
+			[slideId]: {
+				...currentSlide,
+				background_image_id: backgroundImageId,
+				background_image_url: backgroundImageUrl,
+			},
+		});
+	}
+
 	return {
 		editFieldValue,
 		editSlideName,
+		editSlideBackgroundImage,
 		safeGetField,
 	};
 }

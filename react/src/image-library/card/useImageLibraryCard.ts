@@ -11,6 +11,7 @@ import type { ImageLibraryEntry, RemoveImageFromLibraryRequest } from "../image-
 
 export type UseImageLibraryCardReturn = {
 	editUrl: string | undefined;
+	handleDelete: () => Promise<void>;
 	handleRemove: () => Promise<void>;
 	image: ImageLibraryEntry["image_public"];
 	imageUrl: string | undefined;
@@ -26,6 +27,9 @@ export default function useImageLibraryCard(
 	const removeImageFromLibrary = useAppStore<
 		(request: Readonly<RemoveImageFromLibraryRequest>) => Effect.Effect<void, Error>
 	>((state: AppSlice) => state.removeImageFromLibrary);
+	const deleteImage = useAppStore<(imageId: string) => Effect.Effect<void, Error>>(
+		(state: AppSlice) => state.deleteImage,
+	);
 
 	const image = entry.image_public;
 	const isOwner = currentUserId !== undefined && currentUserId === entry.image_public?.user_id;
@@ -47,8 +51,17 @@ export default function useImageLibraryCard(
 		}
 	}
 
+	async function handleDelete(): Promise<void> {
+		try {
+			await Effect.runPromise(deleteImage(entry.image_id));
+		} catch (error: unknown) {
+			console.error("[ImageLibraryCard] Failed to delete image:", error);
+		}
+	}
+
 	return {
 		editUrl,
+		handleDelete,
 		handleRemove,
 		image,
 		imageUrl,

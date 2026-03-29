@@ -1,21 +1,22 @@
 import { expect, test } from "@playwright/test";
 
+import clearAllPendingPeerShares from "@/e2e/specs/sharing/helpers/clearAllPendingPeerShares.e2e-util.ts";
+import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
+import newRecipientContext from "@/e2e/specs/sharing/helpers/newRecipientContext.e2e-util.ts";
+import openReceivedPendingShares from "@/e2e/specs/sharing/helpers/openReceivedPendingShares.e2e-util.ts";
+import selectUserInSearch from "@/e2e/specs/sharing/helpers/selectUserInSearch.e2e-util.ts";
 import {
 	BASE_URL,
 	INVITE_SUCCESS_TIMEOUT_MS,
 	MANAGE_PAGE_READY_TIMEOUT_MS,
 	REALTIME_WAIT_MS,
-	clearAllPendingPeerShares,
-	createTwoUserContexts,
+	SHARE_CREATE_TIMEOUT_MS,
 	missingBothSessions,
 	missingPlaylistSlug,
 	missingUser2Username,
-	newRecipientContext,
-	openReceivedPendingShares,
-	selectUserInSearch,
 	testPlaylistSlug,
 	testUser2Username,
-} from "./helpers/sharing.e2e-utils.ts";
+} from "./helpers/sharing-constants.e2e-util.ts";
 
 // These tests use real shared accounts on staging/local DB and MUST NOT run in parallel
 // across multiple workers. Even with 'serial' mode, different browser projects
@@ -56,7 +57,7 @@ test.describe("P2P Playlist Share", () => {
 				waitUntil: "load",
 			});
 			const playlistAcceptShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
-				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+				timeout: SHARE_CREATE_TIMEOUT_MS,
 			});
 			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
 			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
@@ -67,13 +68,35 @@ test.describe("P2P Playlist Share", () => {
 
 			// Recipient: accept
 			await openReceivedPendingShares(recipientPage);
-			await expect(
-				recipientPage.getByRole("button", { name: "Accept", exact: true }).first(),
-			).toBeVisible({ timeout: REALTIME_WAIT_MS });
-			await recipientPage.getByRole("button", { name: "Accept", exact: true }).first().click();
-			await expect(
-				recipientPage.getByRole("button", { name: "Accept", exact: true }).first(),
-			).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
+			const acceptButton = recipientPage.getByRole("button", { name: "Accept", exact: true }).first();
+			await expect(acceptButton).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			const pendingRow = acceptButton.locator(
+				"xpath=ancestor::div[.//button[normalize-space()='Accept'] and (.//a or .//span[contains(@class,'font-medium')])][1]",
+			);
+			const sharedItemNameLocator = pendingRow.locator("a.font-medium, p.font-medium").first();
+			await expect(sharedItemNameLocator).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			const sharedItemNameRaw = await sharedItemNameLocator.textContent();
+			const sharedItemName = sharedItemNameRaw?.trim();
+			expect(sharedItemName).not.toBeUndefined();
+			expect(sharedItemName).not.toBeNull();
+			expect(sharedItemName).not.toBe("");
+			const sharedItemNameText = String(sharedItemName);
+			const playlistAcceptP = recipientPage.waitForResponse(/\/api\/shares\/update-status/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
+			await acceptButton.click();
+			const playlistAcceptResponse = await playlistAcceptP;
+			expect(playlistAcceptResponse.ok()).toBe(true);
+			await recipientPage.reload({ waitUntil: "load" });
+			await openReceivedPendingShares(recipientPage);
+			const pendingAcceptForItem = recipientPage
+				.locator("div")
+				.filter({ hasText: sharedItemNameText })
+				.getByRole("button", { name: "Accept", exact: true })
+				.first();
+			await expect(pendingAcceptForItem).not.toBeVisible({
+				timeout: REALTIME_WAIT_MS,
+			});
 		} finally {
 			await senderCtx.close();
 			await recipientCtx.close();
@@ -91,23 +114,42 @@ test.describe("P2P Playlist Share", () => {
 			await senderPage.goto(`${BASE_URL}/en/playlist/${testPlaylistSlug}`, {
 				waitUntil: "load",
 			});
-			const playlistDeclineShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
-				timeout: INVITE_SUCCESS_TIMEOUT_MS,
-			});
 			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
 			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			await shareBtn.click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
-			const playlistDeclineShareResponse = await playlistDeclineShareP;
-			expect(playlistDeclineShareResponse.ok()).toBe(true);
 
 			// Recipient: decline
 			await openReceivedPendingShares(recipientPage);
-			await expect(recipientPage.getByRole("button", { name: "Decline" }).first()).toBeVisible({
+			const declineButton = recipientPage.getByRole("button", { name: "Decline", exact: true }).first();
+			await expect(declineButton).toBeVisible({
 				timeout: REALTIME_WAIT_MS,
 			});
-			await recipientPage.getByRole("button", { name: "Decline" }).first().click();
-			await expect(recipientPage.getByRole("button", { name: "Decline" }).first()).not.toBeVisible({
+			const pendingRow = declineButton.locator(
+				"xpath=ancestor::div[.//button[normalize-space()='Decline'] and (.//a or .//span[contains(@class,'font-medium')])][1]",
+			);
+			const sharedItemNameLocator = pendingRow.locator("a.font-medium, p.font-medium").first();
+			await expect(sharedItemNameLocator).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			const sharedItemNameRaw = await sharedItemNameLocator.textContent();
+			const sharedItemName = sharedItemNameRaw?.trim();
+			expect(sharedItemName).not.toBeUndefined();
+			expect(sharedItemName).not.toBeNull();
+			expect(sharedItemName).not.toBe("");
+			const sharedItemNameText = String(sharedItemName);
+			const playlistDeclineP = recipientPage.waitForResponse(/\/api\/shares\/update-status/, {
+				timeout: INVITE_SUCCESS_TIMEOUT_MS,
+			});
+			await declineButton.click();
+			const playlistDeclineResponse = await playlistDeclineP;
+			expect(playlistDeclineResponse.ok()).toBe(true);
+			await recipientPage.reload({ waitUntil: "load" });
+			await openReceivedPendingShares(recipientPage);
+			const pendingDeclineForItem = recipientPage
+				.locator("div")
+				.filter({ hasText: sharedItemNameText })
+				.getByRole("button", { name: "Decline", exact: true })
+				.first();
+			await expect(pendingDeclineForItem).not.toBeVisible({
 				timeout: REALTIME_WAIT_MS,
 			});
 		} finally {

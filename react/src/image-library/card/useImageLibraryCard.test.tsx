@@ -52,12 +52,22 @@ function installLocale(): void {
 	);
 }
 
-function installStore(opts: { removeImageFromLibrary?: ReturnType<typeof vi.fn> }): void {
+function installStore(opts: {
+	removeImageFromLibrary?: ReturnType<typeof vi.fn>;
+	deleteImage?: ReturnType<typeof vi.fn>;
+}): void {
 	const mockRemove =
 		opts.removeImageFromLibrary ?? vi.fn().mockReturnValue(Effect.succeed(undefined));
+	const mockDelete = opts.deleteImage ?? vi.fn().mockReturnValue(Effect.succeed(undefined));
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) =>
-		forceCast<(state: { removeImageFromLibrary: typeof mockRemove }) => unknown>(selector)({
+		forceCast<
+			(state: {
+				removeImageFromLibrary: typeof mockRemove;
+				deleteImage: typeof mockDelete;
+			}) => unknown
+		>(selector)({
 			removeImageFromLibrary: mockRemove,
+			deleteImage: mockDelete,
 		}),
 	);
 }
@@ -91,6 +101,24 @@ function Harness(props: {
 			)}
 			<button type="button" data-testid="remove-btn" onClick={() => void handleRemove()}>
 				Remove
+			</button>
+		</div>
+	);
+}
+
+/**
+ * Harness for delete behavior in useImageLibraryCard.
+ */
+function DeleteHarness(props: {
+	entry: ImageLibraryEntry;
+	currentUserId: string | undefined;
+}): ReactElement {
+	const { handleDelete } = useImageLibraryCard(props.entry, props.currentUserId);
+
+	return (
+		<div data-testid="harness">
+			<button type="button" data-testid="delete-btn" onClick={() => void handleDelete()}>
+				Delete
 			</button>
 		</div>
 	);
@@ -194,5 +222,40 @@ describe("useImageLibraryCard — renderHook", () => {
 		await result.current.handleRemove();
 
 		expect(mockRemove).toHaveBeenCalledWith({ image_id: IMAGE_ID });
+	});
+
+	it("handleDelete calls deleteImage with image_id", async () => {
+		vi.resetAllMocks();
+		installLocale();
+		const mockDelete = vi.fn().mockReturnValue(Effect.succeed(undefined));
+		installStore({ deleteImage: mockDelete });
+		vi.mocked(getImagePublicUrl).mockReturnValue(CDN_URL);
+
+		const entry = makeEntry();
+		const { result } = renderHook(() => useImageLibraryCard(entry, OWNER_ID));
+
+		await result.current.handleDelete();
+
+		expect(mockDelete).toHaveBeenCalledWith(IMAGE_ID);
+	});
+});
+
+describe("useImageLibraryCard delete harness", () => {
+	it("calls deleteImage when delete clicked", async () => {
+		cleanup();
+		vi.resetAllMocks();
+		installLocale();
+		const mockDelete = vi.fn().mockReturnValue(Effect.succeed(undefined));
+		installStore({ deleteImage: mockDelete });
+		vi.mocked(getImagePublicUrl).mockReturnValue(CDN_URL);
+
+		const entry = makeEntry();
+		const { container } = render(<DeleteHarness entry={entry} currentUserId={OWNER_ID} />);
+
+		fireEvent.click(within(container).getByTestId("delete-btn"));
+
+		await waitFor(() => {
+			expect(mockDelete).toHaveBeenCalledWith(IMAGE_ID);
+		});
 	});
 });

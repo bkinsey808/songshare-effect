@@ -1,7 +1,9 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { Effect } from "effect";
 
-import { expectEffect, expectHiddenEffect, expectVisibleEffect } from "@/e2e/utils/effect-test-helpers";
+import expectEffect from "@/e2e/utils/expectEffect.e2e-util.ts";
+import expectHiddenEffect from "@/e2e/utils/expectHiddenEffect.e2e-util.ts";
+import expectVisibleEffect from "@/e2e/utils/expectVisibleEffect.e2e-util.ts";
 
 type TagRealtimeReadyOptions = {
 	page: Page;
