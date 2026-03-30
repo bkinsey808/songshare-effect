@@ -3,6 +3,10 @@
  * Test helper to mock a fetch Response object.
  *
  * Localizing the ESLint disables here keeps test files clean.
+ *
+ * @param data - Response body returned by `json()` and optionally `text()`.
+ * @param options - Partial response overrides plus optional JSON/text errors.
+ * @returns A mocked `Response` object.
  */
 export default function mockFetchResponse<TValue>(
 	data: TValue,

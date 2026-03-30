@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import getImagePublicUrl from "@/react/image/getImagePublicUrl";
+import useImagePublicSubscription from "@/react/image/realtime/useImagePublicSubscription";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
 import useShareSubscription from "@/react/share/subscribe/useShareSubscription";
@@ -69,6 +70,7 @@ export default function useImageView(): UseImageViewReturn {
 			: Object.values(publicImages).find((img) => img.image_slug === image_slug);
 
 	const tags = useItemTagsDisplay("image", image?.image_id);
+	useImagePublicSubscription(image?.image_id);
 
 	const isOwner =
 		image !== undefined && currentUserId !== undefined && currentUserId === image.user_id;

@@ -5,6 +5,11 @@ import type { UseLocaleResult } from "@/react/lib/language/locale/useLocale";
 // Helper: identity `t` translation function typed to the runtime
 // `useTranslation()` signature. Defined at module scope to avoid recreating
 // it on every call.
+/**
+ * Build an identity translation function for locale-related tests.
+ *
+ * @returns A `t` function that falls back to the default or key.
+ */
 function makeIdentityT(): UseLocaleResult["t"] {
 	// Narrow cast kept localized in the helper so tests don't need inline disables.
 	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion

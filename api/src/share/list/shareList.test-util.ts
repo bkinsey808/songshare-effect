@@ -12,6 +12,7 @@ type Chain = {
 /**
  * Returns a fake Supabase client whose from().select().eq().order() chain resolves to empty shares.
  * Used when share_public is not in makeSupabaseClient's table map.
+ *
  * @returns A mock Supabase client object.
  */
 export default function createShareListSupabaseMock(): { from: () => Chain } {

@@ -1,10 +1,25 @@
-export type ImageUpdateRequest = {
+type ImageUpdateRequest = {
 	image_id: string;
 	image_name: string;
 	description: string;
 	alt_text: string;
+	focal_point_x: number;
+	focal_point_y: number;
 	tags: string[] | undefined;
 };
+
+const MIN_FOCAL_POINT = 0;
+const MAX_FOCAL_POINT = 100;
+
+function parseFocalPoint(value: unknown, fieldName: string): number {
+	if (typeof value !== "number" || !Number.isFinite(value)) {
+		throw new TypeError(`${fieldName} must be a number between 0 and 100`);
+	}
+	if (value < MIN_FOCAL_POINT || value > MAX_FOCAL_POINT) {
+		throw new TypeError(`${fieldName} must be a number between 0 and 100`);
+	}
+	return value;
+}
 
 /**
  * Extract and validate the update request from raw JSON.
@@ -29,7 +44,14 @@ export default function extractImageUpdateRequest(request: unknown): ImageUpdate
 	if (!("alt_text" in request)) {
 		throw new TypeError("alt_text must be a string");
 	}
-	const { image_id, image_name, description, alt_text, tags } = request as Record<string, unknown>;
+	if (!("focal_point_x" in request)) {
+		throw new TypeError("focal_point_x must be a number between 0 and 100");
+	}
+	if (!("focal_point_y" in request)) {
+		throw new TypeError("focal_point_y must be a number between 0 and 100");
+	}
+	const { image_id, image_name, description, alt_text, focal_point_x, focal_point_y, tags } =
+		request as Record<string, unknown>;
 	if (typeof image_id !== "string" || image_id.trim() === "") {
 		throw new TypeError("image_id must be a non-empty string");
 	}
@@ -42,6 +64,8 @@ export default function extractImageUpdateRequest(request: unknown): ImageUpdate
 	if (typeof alt_text !== "string") {
 		throw new TypeError("alt_text must be a string");
 	}
+	const parsedFocalPointX = parseFocalPoint(focal_point_x, "focal_point_x");
+	const parsedFocalPointY = parseFocalPoint(focal_point_y, "focal_point_y");
 	const parsedTags: string[] | undefined = Array.isArray(tags)
 		? tags.filter((t): t is string => typeof t === "string")
 		: undefined;
@@ -50,6 +74,10 @@ export default function extractImageUpdateRequest(request: unknown): ImageUpdate
 		image_name: image_name.trim(),
 		description: description.trim(),
 		alt_text: alt_text.trim(),
+		focal_point_x: parsedFocalPointX,
+		focal_point_y: parsedFocalPointY,
 		tags: parsedTags,
 	};
 }
+
+export type { ImageUpdateRequest };

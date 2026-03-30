@@ -1,6 +1,12 @@
 import type { EventLibraryEntry } from "@/react/event-library/event-library-types";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
+/**
+ * Create an `EventLibraryEntry` fixture for tests.
+ *
+ * @param overrides - Partial event library entry fields to override.
+ * @returns An `EventLibraryEntry` fixture.
+ */
 export default function makeEventLibraryEntry(
 	overrides: Partial<EventLibraryEntry> = {},
 ): EventLibraryEntry {

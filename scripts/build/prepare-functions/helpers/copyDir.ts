@@ -4,6 +4,13 @@ import path from "node:path";
 import copyFileSafe from "./copyFileSafe";
 import ensureDir from "./ensureDir";
 
+/**
+ * Recursively copy a directory tree into a destination directory.
+ *
+ * @param srcDir - Source directory to copy.
+ * @param destDir - Destination directory to create and populate.
+ * @returns A promise that resolves after the recursive copy completes.
+ */
 export default async function copyDir(srcDir: string, destDir: string): Promise<void> {
 	await ensureDir(destDir);
 	const entries = await readdir(srcDir, { withFileTypes: true });

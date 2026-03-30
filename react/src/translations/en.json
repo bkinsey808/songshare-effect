@@ -168,6 +168,21 @@
 		"unknownOwner": "Unknown User",
 		"addedOn": "Added {{date}}"
 	},
+	"imageEdit": {
+		"save": "Save Changes",
+		"saving": "Saving...",
+		"reset": "Reset",
+		"cancel": "Cancel",
+		"cancelUnsavedPrompt": "You have unsaved changes. Leave without saving?",
+		"cancelStay": "Stay",
+		"cancelLeave": "Leave",
+		"deleteImage": {
+			"button": "Delete image",
+			"confirmPrompt": "Delete this image permanently?",
+			"cancel": "Cancel",
+			"confirm": "Delete image"
+		}
+	},
 	"song": {
 		"songName": "Song Name",
 		"songSlug": "Song Slug",

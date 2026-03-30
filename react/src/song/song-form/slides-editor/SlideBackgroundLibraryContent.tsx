@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 
+import getImageObjectPosition from "@/react/image/focal-point/getImageObjectPosition";
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import getImagePublicUrl from "@/react/image/getImagePublicUrl";
 
@@ -11,6 +12,8 @@ type SlideBackgroundLibraryContentProps = Readonly<{
 		backgroundImageId: string;
 		backgroundImageUrl: string;
 	}) => void;
+	gridClassName?: string;
+	imageClassName?: string;
 }>;
 
 /**
@@ -20,6 +23,8 @@ type SlideBackgroundLibraryContentProps = Readonly<{
  * @param imageLibraryEntryList - Image library entries available for selection
  * @param selectedBackgroundImageId - Currently selected image id for the slide
  * @param onSelectBackgroundImage - Callback when an image is selected
+ * @param gridClassName - Optional layout override for the image grid
+ * @param imageClassName - Optional size override for preview images
  * @returns React element with loading, empty state, or image grid
  */
 export default function SlideBackgroundLibraryContent({
@@ -27,6 +32,8 @@ export default function SlideBackgroundLibraryContent({
 	imageLibraryEntryList,
 	selectedBackgroundImageId,
 	onSelectBackgroundImage,
+	gridClassName,
+	imageClassName,
 }: SlideBackgroundLibraryContentProps): ReactElement {
 	const { t } = useTranslation();
 
@@ -49,7 +56,7 @@ export default function SlideBackgroundLibraryContent({
 	}
 
 	return (
-		<div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+		<div className={gridClassName ?? "grid grid-cols-2 gap-2 md:grid-cols-3"}>
 			{imageLibraryEntryList.map((entry) => {
 				const image = entry.image_public;
 				if (image === undefined) {
@@ -76,7 +83,8 @@ export default function SlideBackgroundLibraryContent({
 						<img
 							src={getImagePublicUrl(image.r2_key)}
 							alt={image.alt_text || image.image_name}
-							className="h-24 w-full object-cover"
+							className={imageClassName ?? "h-24 w-full object-cover"}
+							style={{ objectPosition: getImageObjectPosition(image) }}
 						/>
 						<div className="truncate px-2 py-1 text-xs text-gray-200">{image.image_name}</div>
 					</button>

@@ -26,6 +26,9 @@ type FakeClient = SupabaseClientLike & {
  * centralize the unsafe code here where the test-utils module already disables
  * the relevant lint rules. Consumer tests can stay clean and free of
  * `oxlint-disable` comments.
+ *
+ * @param client - Minimal fake client to cast.
+ * @returns The client cast to `createClient`'s return type.
  */
 export function toCreateClientReturn(client: FakeClient): ReturnType<typeof createClient> {
 	// oxlint-disable-next-line typescript/no-unsafe-type-assertion
@@ -37,6 +40,9 @@ export function toCreateClientReturn(client: FakeClient): ReturnType<typeof crea
  *
  * The matcher logic lives here to keep `no-unsafe-assignment` disables out of
  * the test file itself; this module already globally disables the rule.
+ *
+ * @param token - Bearer token expected in the createClient options.
+ * @returns A Vitest matcher for the expected options object.
  */
 export function createClientOptionsMatcher(token: string): object {
 	// oxlint-disable-next-line typescript/no-unsafe-return
@@ -50,6 +56,11 @@ export function createClientOptionsMatcher(token: string): object {
 	});
 }
 
+/**
+ * Create a fake client with the minimal realtime surface used by tests.
+ *
+ * @returns A minimal fake client.
+ */
 export function makeFakeClient(): FakeClient {
 	const realtime = { setAuth: vi.fn() };
 	// return a partial object and assert to satisfy supabase type
@@ -57,6 +68,11 @@ export function makeFakeClient(): FakeClient {
 	return { realtime } as unknown as FakeClient;
 }
 
+/**
+ * Reset module mocks and return typed handles used by `getSupabaseClient` tests.
+ *
+ * @returns Mock references and the shared global cache map for the test.
+ */
 export async function setup(): Promise<{
 	envMockInternal: ReturnType<typeof vi.fn>;
 	cacheMockInternal: ReturnType<typeof vi.fn>;

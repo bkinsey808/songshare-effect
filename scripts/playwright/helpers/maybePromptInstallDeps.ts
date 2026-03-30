@@ -4,6 +4,13 @@ import readlinePromises from "node:readline/promises";
 import { error as sError, warn as sWarn } from "@/scripts/utils/scriptLogger";
 import { ZERO } from "@/shared/constants/shared-constants";
 
+/**
+ * Prompt an interactive user to install missing Playwright system dependencies.
+ *
+ * @param isCI - Whether the current process is running in CI mode.
+ * @param exePath - Browser executable path used in the prompt message.
+ * @returns A promise that resolves after the prompt flow completes or is skipped.
+ */
 export default async function maybePromptInstallDeps(
 	isCI: boolean,
 	exePath: string,

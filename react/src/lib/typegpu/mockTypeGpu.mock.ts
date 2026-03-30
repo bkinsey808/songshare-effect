@@ -4,6 +4,11 @@ declare global {
 	var __TYPEGPU_CALLED: boolean | undefined;
 }
 
+/**
+ * Build the Vitest factory used for the `typegpu` module mock.
+ *
+ * @returns A module factory returning a minimal default export.
+ */
 function typegpuFactory(): { default: Record<string, unknown> } {
 	return { default: {} };
 }

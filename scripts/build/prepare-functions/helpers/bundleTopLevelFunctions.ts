@@ -4,6 +4,12 @@ import path from "node:path";
 import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
+/**
+ * Bundle top-level Cloudflare Pages function entrypoints with esbuild.
+ *
+ * @param outDir - Directory that contains the generated top-level function sources.
+ * @returns A promise that resolves after bundling attempts have completed.
+ */
 export default async function bundleTopLevelFunctions(outDir: string): Promise<void> {
 	try {
 		// dynamic import so script still works if esbuild isn't available

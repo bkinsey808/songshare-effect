@@ -3,6 +3,9 @@ import type { PostgrestResponse } from "@supabase/postgrest-js";
 /**
  * Test helper to coerce a value into the `PostgrestResponse<T>` shape expected
  * by the runtime helpers (which import the type from `@supabase/postgrest-js`).
+ *
+ * @param value - Candidate response payload or partial response object.
+ * @returns A minimal `PostgrestResponse<T>`-shaped value.
  */
 export default function asPostgrestResponse<TRows = unknown>(
 	value: unknown,

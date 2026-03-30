@@ -212,6 +212,37 @@ describe("useEventForm", () => {
 		});
 	});
 
+	it("fetches the event by id when currentEvent matches the route id but lacks public data", async () => {
+		await withAuthFetchMock(async () => {
+			vi.resetAllMocks();
+			mockLocaleWithLang("en");
+
+			vi.mocked(useNavigate).mockReturnValue(vi.fn());
+			vi.mocked(useParams).mockReturnValue({ event_id: "ev-1" });
+
+			const store: typeof useAppStore = useAppStore;
+			const fetchEventById = vi.fn().mockReturnValue(Effect.succeed(undefined));
+			store.setState((prev: Record<string, unknown>) => ({
+				...prev,
+				currentEvent: {
+					event_id: "ev-1",
+					owner_id: "owner-1",
+					private_notes: "",
+					created_at: "2026-01-01T00:00:00.000Z",
+					updated_at: "2026-01-01T00:00:00.000Z",
+					participants: [],
+				},
+				fetchEventById,
+			}));
+
+			renderHook(() => useEventForm());
+
+			await waitFor(() => {
+				expect(fetchEventById).toHaveBeenCalledWith("ev-1");
+			});
+		});
+	});
+
 	it("sends is_public false when creating with unchecked visibility", async () => {
 		await withAuthFetchMock(async () => {
 			vi.resetAllMocks();

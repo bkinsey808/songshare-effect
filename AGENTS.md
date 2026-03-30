@@ -26,6 +26,8 @@ For task-specific work, also consult docs in `docs/` (especially auth and Effect
 - **Config files use ESM** (`export default`, no CommonJS)
 - **Docs filenames in `docs/` are kebab-case**
 - **Colocate unit tests** next to source files when adding tests
+- **Tailwind string marker**: prefer `tw\`\`` for static Tailwind utility strings
+- **Dynamic Tailwind values**: do not interpolate runtime values into `tw\`\``; prefer CSS custom properties with `cssVars(...)` and stable classes like `w-[var(--field-width)]`
 - **No lint disable comments in test files** (`*.test.ts`, `*.test.tsx`) — fix code or move helpers to `*.test-util.*` files instead. Disables in test-util files are acceptable only when there is absolutely no alternative.
 - **Avoid factory pattern for `vi.mock`** — Use single-argument `vi.mock("path")` and configure behavior with `vi.mocked(...)` in tests. Use factory only when the non-factory pattern cannot express the required setup (e.g. modules exporting constants or complex shapes).
 

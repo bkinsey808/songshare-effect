@@ -7,6 +7,10 @@ import rewriteSharedImports from "./rewriteSharedImports";
 /**
  * Copy shared sources into destination and attempt to rewrite imports there.
  * Errors are logged but non-fatal so the prepare script can continue.
+ *
+ * @param sourceDir - Source shared directory to copy from.
+ * @param destDir - Destination directory to populate and rewrite.
+ * @returns A promise that resolves after both copy and rewrite steps finish.
  */
 export default async function copyAndRewriteShared(
 	sourceDir: string,

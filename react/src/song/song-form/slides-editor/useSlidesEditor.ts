@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
+import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import { clientDebug } from "@/react/lib/utils/clientLogger";
 
 import { type Slide } from "../song-form-types";
@@ -86,6 +87,8 @@ export default function useSlidesEditor({
 	backgroundPickerSlideId: string | undefined;
 	toggleBackgroundPicker: (slideId: string) => void;
 	closeBackgroundPicker: () => void;
+	isImageLibraryLoading: boolean;
+	imageLibraryEntryList: readonly ImageLibraryEntry[];
 	selectSlideBackgroundImage: ({
 		slideId,
 		backgroundImageId,
@@ -102,9 +105,12 @@ export default function useSlidesEditor({
 	const [backgroundPickerSlideId, setBackgroundPickerSlideId] = useState<string | undefined>(
 		undefined,
 	);
+	const imageLibraryEntries = useAppStore((state: AppSlice) => state.imageLibraryEntries);
+	const isImageLibraryLoading = useAppStore((state: AppSlice) => state.isImageLibraryLoading);
 	const fetchImageLibrary = useAppStore<() => Effect.Effect<void, Error>>(
 		(state: AppSlice) => state.fetchImageLibrary,
 	);
+	const imageLibraryEntryList = Object.values(imageLibraryEntries);
 
 	// Use specialized hooks for different concerns
 	const { sensors, handleDragEnd, sortableItems } = useSlideDragAndDrop({
@@ -188,6 +194,8 @@ export default function useSlidesEditor({
 		backgroundPickerSlideId,
 		toggleBackgroundPicker,
 		closeBackgroundPicker,
+		isImageLibraryLoading,
+		imageLibraryEntryList,
 		selectSlideBackgroundImage,
 		clearSlideBackgroundImage,
 	};

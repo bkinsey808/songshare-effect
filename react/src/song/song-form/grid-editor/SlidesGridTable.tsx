@@ -1,41 +1,22 @@
-import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
+import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import cssVars from "@/react/lib/utils/cssVars";
 import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { safeGet } from "@/shared/utils/safe";
 
 import { type Slide } from "../song-form-types";
+import SlidesGridRow from "./grid-row/SlidesGridRow";
 import ResizeHandle from "./ResizeHandle";
-import SlidesGridRow from "./SlidesGridRow";
-import useColumnResize from "./useColumnResize";
-import useGridDragAndDrop from "./useGridDragAndDrop";
+import useSlidesGridTable from "./useSlidesGridTable";
 
 const DEFAULT_FIELD_WIDTH = 300;
 const SLIDE_NAME_WIDTH = 144;
+const SLIDE_BACKGROUND_WIDTH = 240;
 const EMPTY_COUNT = 0;
 const SINGLE_OCCURRENCE = 1;
-
-/** Build a map from slideId -> group index for slide IDs that appear more than once in order. */
-function getDuplicateGroupMap(slideOrder: readonly string[]): Map<string, number> {
-	const counts = new Map<string, number>();
-	for (const id of slideOrder) {
-		counts.set(id, (counts.get(id) ?? EMPTY_COUNT) + SINGLE_OCCURRENCE);
-	}
-	const map = new Map<string, number>();
-	let groupIndex = EMPTY_COUNT;
-	const seen = new Set<string>();
-	for (const id of slideOrder) {
-		if ((counts.get(id) ?? EMPTY_COUNT) > SINGLE_OCCURRENCE && !seen.has(id)) {
-			seen.add(id);
-			map.set(id, groupIndex);
-			groupIndex += SINGLE_OCCURRENCE;
-		}
-	}
-	return map;
-}
 
 type SlidesGridTableProps = Readonly<
 	ReadonlyDeep<{
@@ -66,6 +47,18 @@ type SlidesGridTableProps = Readonly<
 		setSlideOrder: (newOrder: readonly string[]) => void;
 		duplicateSlide: (slideId: string) => void;
 		deleteSlide: (slideId: string) => void;
+		backgroundPickerSlideId: string | undefined;
+		isImageLibraryLoading: boolean;
+		imageLibraryEntryList: readonly ImageLibraryEntry[];
+		toggleBackgroundPicker: (slideId: string) => void;
+		selectSlideBackgroundImage: (
+			params: Readonly<{
+				slideId: string;
+				backgroundImageId: string;
+				backgroundImageUrl: string;
+			}>,
+		) => void;
+		clearSlideBackgroundImage: (slideId: string) => void;
 	}>
 >;
 
@@ -85,6 +78,12 @@ type SlidesGridTableProps = Readonly<
  * @param setSlideOrder - Setter for the presentation's slide order array.
  * @param duplicateSlide - Handler that duplicates the slide by id.
  * @param deleteSlide - Handler that deletes the slide by id.
+ * @param backgroundPickerSlideId - Currently open background picker slide id.
+ * @param isImageLibraryLoading - Whether image library data is loading.
+ * @param imageLibraryEntryList - Available image library entries.
+ * @param toggleBackgroundPicker - Toggles the inline background picker.
+ * @param selectSlideBackgroundImage - Applies a background image to the slide.
+ * @param clearSlideBackgroundImage - Clears the current slide background image.
  * @returns React element for the slides grid table and DnD container.
  */
 export default function SlidesGridTable({
@@ -98,66 +97,57 @@ export default function SlidesGridTable({
 	setSlideOrder,
 	duplicateSlide,
 	deleteSlide,
+	backgroundPickerSlideId,
+	isImageLibraryLoading,
+	imageLibraryEntryList,
+	toggleBackgroundPicker,
+	selectSlideBackgroundImage,
+	clearSlideBackgroundImage,
 }: SlidesGridTableProps): ReactElement {
 	const { t } = useTranslation();
-
-	// Column resizing functionality — colocated with the table for easier composition
-	const { getColumnWidth, isResizing, startResize, totalWidth } = useColumnResize({
+	const {
+		duplicateGroupBySlideId,
+		fieldWidthVars,
+		globalIsDragging,
+		handleDragCancel,
+		handleDragEnd,
+		handleDragStart,
+		isResizing,
+		sensors,
+		sortableItems,
+		startResize,
+		totalWidth,
+	} = useSlidesGridTable({
 		fields,
+		slideOrder,
+		setSlideOrder,
 		defaultFieldWidth: DEFAULT_FIELD_WIDTH,
 		slideNameWidth: SLIDE_NAME_WIDTH,
 	});
-
-	// Build CSS vars for all field widths so cells can reference them with Tailwind
-	const fieldWidthVars: Record<string, string> = {};
-	for (const field of fields) {
-		const safeName = String(field).replaceAll(/[^a-zA-Z0-9_-]/g, "-");
-		fieldWidthVars[`field-${safeName}-width`] = `${getColumnWidth(field)}px`;
-	}
-
-	// Initialize drag-and-drop locally so this component manages DnD concerns
-	const { sensors, handleDragEnd, sortableItems } = useGridDragAndDrop({
-		slideIds: slideOrder,
-		setSlidesOrder: (newOrder) => {
-			setSlideOrder(newOrder);
-		},
-	});
-
-	// Track global dragging to allow rows to cancel delete confirmations when any drag starts
-	const [globalIsDragging, setGlobalIsDragging] = useState(false);
-
-	const duplicateGroupBySlideId = getDuplicateGroupMap(slideOrder);
 	const slideRowKeyCounts = new Map<string, number>();
-
-	function onDragEndWrapper(event: DragEndEvent): void {
-		setGlobalIsDragging(false);
-		handleDragEnd(event);
-	}
 
 	return (
 		<div
 			className="overflow-x-auto"
 			style={{
 				maxWidth: "100%",
-				overflowX: totalWidth > horizontalScrollThreshold ? "scroll" : "auto",
+				overflowX:
+					totalWidth + SLIDE_BACKGROUND_WIDTH > horizontalScrollThreshold ? "scroll" : "auto",
 			}}
 		>
 			<DndContext
 				sensors={sensors}
 				collisionDetection={closestCenter}
-				onDragStart={() => {
-					setGlobalIsDragging(true);
-				}}
-				onDragCancel={() => {
-					setGlobalIsDragging(false);
-				}}
-				onDragEnd={onDragEndWrapper}
+				onDragStart={handleDragStart}
+				onDragCancel={handleDragCancel}
+				onDragEnd={handleDragEnd}
 			>
 				<table
 					className="min-w-(--table-min-width) border-collapse border border-gray-300 dark:border-gray-600"
 					style={cssVars({
 						"slide-name-width": `${SLIDE_NAME_WIDTH}px`,
-						"table-min-width": `${totalWidth}px`,
+						"slide-background-width": `${SLIDE_BACKGROUND_WIDTH}px`,
+						"table-min-width": `${totalWidth + SLIDE_BACKGROUND_WIDTH}px`,
 						/*
 						 * Baseline alignment: slide-name input and first line of lyrics share the same
 						 * baseline. We use em so spacing scales with font-size and works across fonts.
@@ -188,11 +178,13 @@ export default function SlidesGridTable({
 							{fields.map((field) => {
 								const safeName = String(field).replaceAll(/[^a-zA-Z0-9_-]/g, "-");
 								const varName = `field-${safeName}-width`;
-								const thStyle = cssVars({ [varName]: `${getColumnWidth(field)}px` });
+								const thStyle = cssVars({
+									"slides-grid-field-width": `var(--${varName})`,
+								});
 								return (
 									<th
 										key={field}
-										className={`relative border border-gray-300 dark:border-gray-600 px-4 py-2 text-left font-semibold dark:text-white w-(--field-${safeName}-width) min-w-(--field-${safeName}-width) max-w-(--field-${safeName}-width)`}
+										className="relative border border-gray-300 dark:border-gray-600 px-4 py-2 text-left font-semibold dark:text-white w-(--slides-grid-field-width) min-w-(--slides-grid-field-width) max-w-(--slides-grid-field-width)"
 										style={thStyle}
 									>
 										{t(`song.${field}`, field)}
@@ -203,8 +195,11 @@ export default function SlidesGridTable({
 											isResizing={isResizing}
 										/>
 									</th>
-								);
-							})}
+									);
+								})}
+							<th className="relative border border-gray-300 px-4 py-2 text-left font-semibold dark:border-gray-600 dark:text-white w-(--slide-background-width) min-w-(--slide-background-width) max-w-(--slide-background-width)">
+								{t("song.slideBackgroundImage", "Background Image")}
+							</th>
 						</tr>
 					</thead>
 					<SortableContext items={[...sortableItems]}>
@@ -233,9 +228,14 @@ export default function SlidesGridTable({
 										deleteSlide={deleteSlide}
 										slides={slides}
 										idx={idx}
-										getColumnWidth={getColumnWidth}
 										globalIsDragging={globalIsDragging}
 										isDuplicateRow={duplicateGroupBySlideId.has(slideId)}
+										backgroundPickerSlideId={backgroundPickerSlideId}
+										isImageLibraryLoading={isImageLibraryLoading}
+										imageLibraryEntryList={imageLibraryEntryList}
+										toggleBackgroundPicker={toggleBackgroundPicker}
+										selectSlideBackgroundImage={selectSlideBackgroundImage}
+										clearSlideBackgroundImage={clearSlideBackgroundImage}
 									/>
 								);
 							})}

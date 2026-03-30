@@ -10,6 +10,14 @@
 // change tsconfig/lib or add global augmentations.
 
 // Helper moved to module scope to avoid re-creating it on every call.
+/**
+ * Replace regex matches while keeping callback argument typing localized.
+ *
+ * @param input - Source string to transform.
+ * @param regex - Pattern used to find matches.
+ * @param replacer - Callback that returns the replacement text.
+ * @returns Updated string after applying the replacements.
+ */
 function replaceAllWithCallback(
 	input: string,
 	regex: RegExp,
@@ -47,6 +55,13 @@ function replaceAllWithCallback(
 	return out;
 }
 
+/**
+ * Rewrite relative API imports to use the `@/api` alias.
+ *
+ * @param filePath - Absolute or relative path to the file being transformed.
+ * @param content - File contents prior to transformation.
+ * @returns Updated file contents with API aliases applied.
+ */
 export default function convertApiImports(filePath: string, content: string): string {
 	if (!filePath.includes("api/src/")) {
 		return content;

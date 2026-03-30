@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import Button from "@/react/lib/design-system/Button";
 import XIcon from "@/react/lib/design-system/icons/XIcon";
 import getSlideOrientationContainerClassName from "@/react/slide-orientation/getSlideOrientationContainerClassName";
-import SlideOrientationToggle from "@/react/slide-orientation/SlideOrientationToggle";
+import SlideOrientationSelect from "@/react/slide-orientation/SlideOrientationSelect";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
 import { type SongPublic } from "@/react/song/song-schema";
 
@@ -85,7 +85,7 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 				onToggleFullScreen={() => {
 					setIsFullScreen((prev) => !prev);
 				}}
-				slideOrientationToggle={<SlideOrientationToggle />}
+				slideOrientationToggle={<SlideOrientationSelect />}
 				totalSlides={totalSlides}
 			/>
 

@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import type { ImagePublic } from "@/react/image/image-types";
+import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
@@ -15,34 +16,11 @@ vi.mock("react-router-dom");
 vi.mock("@/react/lib/language/locale/useLocale");
 vi.mock("@/react/app-store/useAppStore");
 vi.mock("@/react/auth/useCurrentUserId");
+vi.mock("@/react/image/realtime/useImagePublicSubscription");
 
 const IMAGE_SLUG = "my-image";
 const OWNER_ID = "usr-owner";
 const OTHER_USER_ID = "usr-other";
-
-/**
- * Builds a valid `ImagePublic` fixture for tests.
- *
- * @param slug - Public image slug for route matching tests.
- * @returns An `ImagePublic` object with stable test defaults.
- */
-function makeImagePublic(slug: string): ImagePublic {
-	return {
-		image_id: "img-1",
-		user_id: OWNER_ID,
-		image_name: "My Image",
-		image_slug: slug,
-		description: "desc",
-		alt_text: "alt",
-		r2_key: "images/usr-owner/img-1.jpg",
-		content_type: "image/jpeg",
-		file_size: 1024,
-		width: 800,
-		height: 600,
-		created_at: "2026-01-01T00:00:00Z",
-		updated_at: "2026-01-01T00:00:00Z",
-	};
-}
 
 /**
  * Installs a predictable locale mock for hook tests.
@@ -128,7 +106,11 @@ describe("useImageEdit — Harness", () => {
 	it("shows image name when route slug matches loaded image", () => {
 		vi.resetAllMocks();
 		cleanup();
-		const image = makeImagePublic(IMAGE_SLUG);
+		const image = makeImagePublic({
+			image_slug: IMAGE_SLUG,
+			user_id: OWNER_ID,
+			r2_key: "images/usr-owner/img-1.jpg",
+		});
 		installStore({ publicImages: { [image.image_id]: image } });
 		installLocale();
 		vi.mocked(useParams).mockReturnValue({ image_id: IMAGE_SLUG });
@@ -160,7 +142,6 @@ describe("useImageEdit — renderHook", () => {
 		expect(result.current.image).toBeUndefined();
 		expect(result.current.isImageLoading).toBe(false);
 		expect(result.current.isOwner).toBe(false);
-		expect(result.current.isConfirmingDelete).toBe(false);
 	});
 
 	it("calls fetchImageBySlug when image_id is present", async () => {
@@ -181,7 +162,11 @@ describe("useImageEdit — renderHook", () => {
 
 	it("returns image when route slug matches store entry", () => {
 		vi.resetAllMocks();
-		const image = makeImagePublic(IMAGE_SLUG);
+		const image = makeImagePublic({
+			image_slug: IMAGE_SLUG,
+			user_id: OWNER_ID,
+			r2_key: "images/usr-owner/img-1.jpg",
+		});
 		installStore({ publicImages: { [image.image_id]: image } });
 		installLocale();
 		vi.mocked(useParams).mockReturnValue({ image_id: IMAGE_SLUG });
@@ -196,7 +181,11 @@ describe("useImageEdit — renderHook", () => {
 
 	it("redirects non-owners to image view when loaded", async () => {
 		vi.resetAllMocks();
-		const image = makeImagePublic(IMAGE_SLUG);
+		const image = makeImagePublic({
+			image_slug: IMAGE_SLUG,
+			user_id: OWNER_ID,
+			r2_key: "images/usr-owner/img-1.jpg",
+		});
 		installStore({ publicImages: { [image.image_id]: image }, isImageLoading: false });
 		installLocale();
 		vi.mocked(useParams).mockReturnValue({ image_id: IMAGE_SLUG });
@@ -213,7 +202,11 @@ describe("useImageEdit — renderHook", () => {
 
 	it("does not redirect while loading", () => {
 		vi.resetAllMocks();
-		const image = makeImagePublic(IMAGE_SLUG);
+		const image = makeImagePublic({
+			image_slug: IMAGE_SLUG,
+			user_id: OWNER_ID,
+			r2_key: "images/usr-owner/img-1.jpg",
+		});
 		installStore({ publicImages: { [image.image_id]: image }, isImageLoading: true });
 		installLocale();
 		vi.mocked(useParams).mockReturnValue({ image_id: IMAGE_SLUG });
@@ -226,33 +219,13 @@ describe("useImageEdit — renderHook", () => {
 		expect(navigate).not.toHaveBeenCalled();
 	});
 
-	it("manages delete confirmation state", () => {
-		vi.resetAllMocks();
-		const image = makeImagePublic(IMAGE_SLUG);
-		installStore({ publicImages: { [image.image_id]: image }, isImageLoading: false });
-		installLocale();
-		vi.mocked(useParams).mockReturnValue({ image_id: IMAGE_SLUG });
-		vi.mocked(useNavigate).mockReturnValue(vi.fn());
-		vi.mocked(useCurrentUserId).mockReturnValue(OWNER_ID);
-
-		const { result } = renderHook(() => useImageEdit());
-
-		expect(result.current.isConfirmingDelete).toBe(false);
-
-		act(() => {
-			result.current.handleDeleteClick();
-		});
-		expect(result.current.isConfirmingDelete).toBe(true);
-
-		act(() => {
-			result.current.handleDeleteCancel();
-		});
-		expect(result.current.isConfirmingDelete).toBe(false);
-	});
-
 	it("handleDeleteConfirm calls deleteImage and navigates", async () => {
 		vi.resetAllMocks();
-		const image = makeImagePublic(IMAGE_SLUG);
+		const image = makeImagePublic({
+			image_slug: IMAGE_SLUG,
+			user_id: OWNER_ID,
+			r2_key: "images/usr-owner/img-1.jpg",
+		});
 		const deleteImage = vi.fn().mockReturnValue(Effect.succeed(undefined));
 		installStore({
 			publicImages: { [image.image_id]: image },

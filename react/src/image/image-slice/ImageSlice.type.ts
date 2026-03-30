@@ -23,5 +23,7 @@ export type ImageUpdatePatch = {
 	image_name: string;
 	description: string;
 	alt_text: string;
+	focal_point_x: number;
+	focal_point_y: number;
 	tags?: readonly string[];
 };

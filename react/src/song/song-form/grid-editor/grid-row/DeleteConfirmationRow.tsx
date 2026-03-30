@@ -22,6 +22,8 @@ type DeleteConfirmationRowProps = Readonly<{
  * @param isFaded - Whether the controls should appear disabled.
  * @returns React element for the confirmation table cell.
  */
+export type { DeleteConfirmationRowProps };
+
 export default function DeleteConfirmationRow({
 	colSpan,
 	onCancel,

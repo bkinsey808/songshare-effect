@@ -39,6 +39,8 @@ function makeEntry(opts?: Partial<ImageLibraryEntry>): ImageLibraryEntry {
 			file_size: 1024,
 			width: 800,
 			height: 600,
+			focal_point_x: 0,
+			focal_point_y: 0,
 			created_at: "2026-01-01T00:00:00Z",
 			updated_at: "2026-01-01T00:00:00Z",
 		},

@@ -5,8 +5,13 @@
  * `vi.stubGlobal("fetch", ...)`. By centralizing the logic here we avoid
  * duplicating the `Reflect.set` call and keep the intent obvious in each test
  * file.
+ *
+ * @param originalFetch - Original global fetch implementation captured by the test.
+ * @returns void
  */
-// oxlint-disable-next-line eslint/prefer-default-export -- small helper keeps import form consistent
-export function restoreFetch(originalFetch: unknown): void {
+function restoreFetch(originalFetch: unknown): void {
 	Reflect.set(globalThis, "fetch", originalFetch);
 }
+
+export { restoreFetch };
+export default restoreFetch;

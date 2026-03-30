@@ -11,6 +11,8 @@ const mockState = vi.hoisted(() => ({
  * `useSlideManagerView`. Returns the mock function for direct access if needed.
  *
  * No module-level side effects—only mocks when explicitly called.
+ *
+ * @returns The mock function installed for `useSlideManagerView`.
  */
 export default function mockUseSlideManagerView(): ReturnType<typeof vi.fn> {
 	// Clear module cache to ensure vi.doMock() takes effect
@@ -26,6 +28,11 @@ export default function mockUseSlideManagerView(): ReturnType<typeof vi.fn> {
 	return mockState.mockFn;
 }
 
+/**
+ * Read the currently installed mock for `useSlideManagerView`.
+ *
+ * @returns The current mock function, if one has been installed.
+ */
 export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
 	// Return the stored mock function (set up by mockUseSlideManagerView())
 	return mockState.mockFn;

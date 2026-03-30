@@ -6,6 +6,9 @@ import { getMockFn } from "@/react/event/manage/test-utils/mockUseSlideManagerVi
  *
  * Must be called after `mockUseSlideManagerView()` has been invoked.
  * Sets the return value for the mock.
+ *
+ * @param val - Mock return value to install.
+ * @returns void
  */
 export default function setUseSlideManagerViewReturn(val: UseSlideManagerViewResult): void {
 	const mockFn = getMockFn();

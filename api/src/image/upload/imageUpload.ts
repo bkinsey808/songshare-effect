@@ -47,6 +47,8 @@ type ImageRow = {
 	image_slug: string;
 	description: string;
 	alt_text: string;
+	focal_point_x: number;
+	focal_point_y: number;
 	r2_key: string;
 	content_type: string;
 	file_size: number;

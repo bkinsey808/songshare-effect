@@ -21,6 +21,8 @@ export type FakeClient = SupabaseClientLike & {
  * Factory that returns the minimal fake client.  Properties can be extended by
  * individual tests when necessary; the base implementation only includes the
  * realtime API because that covers the majority of current uses.
+ *
+ * @returns A minimal fake Supabase client for tests.
  */
 export function makeFakeClient(): FakeClient {
 	const realtime = { setAuth: vi.fn() };
@@ -32,6 +34,8 @@ export function makeFakeClient(): FakeClient {
  * only care about passing an object through the public API and verifying the
  * original factory was called with correct arguments, so the internal shape is
  * irrelevant.
+ *
+ * @returns A minimal value cast to `createClient`'s return type.
  */
 export default function makeFakeSupabaseClient(): ReturnType<typeof createClient> {
 	// two-step cast prevents "more narrow than" errors

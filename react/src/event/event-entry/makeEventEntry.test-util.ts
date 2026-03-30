@@ -4,6 +4,9 @@ import type { EventEntry } from "./EventEntry.type";
 
 /**
  * Test helper to construct a minimal EventEntry.
+ *
+ * @param overrides - Partial event entry fields to override.
+ * @returns A minimal `EventEntry` fixture.
  */
 export default function makeEventEntry(overrides: Partial<EventEntry> = {}): EventEntry {
 	return forceCast<EventEntry>({

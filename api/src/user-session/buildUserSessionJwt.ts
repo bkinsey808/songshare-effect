@@ -86,16 +86,6 @@ export default function buildUserSessionJwt({
 			ip,
 		};
 
-		// Validate using Effect Schema (throws if invalid)
-		yield* $(
-			Effect.sync(() => {
-				console.warn(
-					"[buildUserSessionJwt] Validating sessionData for user:",
-					existingUser?.user_id,
-				);
-			}),
-		);
-
 		// The decode may produce an error value typed as unknown; map to a
 		// ValidationError. We intentionally discard the original error shape.
 		yield* $(

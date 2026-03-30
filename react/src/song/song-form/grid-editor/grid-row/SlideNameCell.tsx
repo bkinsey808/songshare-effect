@@ -2,9 +2,9 @@ import type { DraggableAttributes } from "@dnd-kit/core";
 import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { useTranslation } from "react-i18next";
 
-import { type Slide } from "../song-form-types";
+import { type Slide } from "@/react/song/song-form/song-form-types";
 import DragHandle from "./DragHandle";
-import hashToHue from "./duplicateTint";
+import hashToHue from "../duplicateTint";
 
 const REMOVE_COUNT = 1;
 const EMPTY_COUNT = 0;

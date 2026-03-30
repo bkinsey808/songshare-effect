@@ -4,7 +4,7 @@ import { nanoid } from "nanoid";
 
 import { type AppError, ServerError, ValidationError } from "@/api/api-errors";
 import handleHttpEndpoint from "@/api/http/handleHttpEndpoint";
-import { debug as serverDebug, error as serverError } from "@/api/logger";
+import { error as serverError } from "@/api/logger";
 import resolveRedirectOrigin from "@/api/oauth/resolveRedirectOrigin";
 import getBackEndProviderData from "@/api/provider/getBackEndProviderData";
 import { oauthCsrfCookieName } from "@/shared/cookies";
@@ -87,12 +87,6 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 
 		// Generate CSRF state and set cookie (wrapped in Effect.sync)
 		const csrfState = nanoid();
-		yield* $(
-			Effect.sync(() => {
-				// Localized: debug-only server-side log
-				serverDebug("[oauthSignIn] Generated CSRF state:", csrfState);
-			}),
-		);
 
 		// Determine whether to set the Secure attribute on the cookie.
 		// Use a type guard for envRecord to avoid unsafe assertion
@@ -149,13 +143,6 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 				() => new ValidationError({ message: "Invalid language" }),
 			).pipe(Effect.orElse(() => Effect.succeed(defaultLanguage))),
 		);
-		yield* $(
-			Effect.sync(() => {
-				// Localized: debug-only server-side log
-				serverDebug("[oauthSignIn] Language:", lang);
-			}),
-		);
-
 		// Build redirect URI using apiOauthCallbackPath for local and production.
 		// Normalize origin to avoid accidental double slashes. When a redirect_port
 		// is provided for developer flows and the origin points at localhost we
@@ -185,17 +172,6 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 			redirect_uri = `https://localhost:${redirectPortQuery}${apiOauthCallbackPath ?? ""}`;
 		}
 
-		yield* $(
-			Effect.sync(() => {
-				serverDebug(
-					"[oauthSignIn] redirect_uri aimed at provider:",
-					redirect_uri,
-					"trimmedOrigin:",
-					trimmedOrigin,
-				);
-			}),
-		);
-
 		// Encode state, include redirect_port and redirect_origin so the callback
 		// handler can reconstruct the exact redirect_uri used during the initial
 		// sign-in request. Having this in the signed state prevents relying on
@@ -211,13 +187,6 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 					: undefined,
 			redirect_origin: trimmedOrigin || undefined,
 		};
-		yield* $(
-			Effect.sync(() => {
-				// Localized: debug-only server-side log
-				serverDebug("[oauthSignIn] oauthState:", oauthState);
-			}),
-		);
-
 		// Sign the state using JWT-style sign. Prefer STATE_HMAC_SECRET, fall back to SUPABASE_JWT_SECRET.
 		const stateSecret = envRecord.STATE_HMAC_SECRET ?? envRecord.SUPABASE_JWT_SECRET;
 		if (stateSecret === undefined || stateSecret === null || stateSecret === "") {
@@ -247,13 +216,6 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 			Effect.tryPromise<string, ServerError>({
 				try: () => sign(oauthState, stateSecret),
 				catch: (err) => new ServerError({ message: extractErrorMessage(err, "Unknown error") }),
-			}),
-		);
-
-		yield* $(
-			Effect.sync(() => {
-				// Localized: debug-only server-side log
-				serverDebug("[oauthSignIn] redirect_uri:", redirect_uri);
 			}),
 		);
 
@@ -291,12 +253,6 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 			);
 		}
 
-		yield* $(
-			Effect.sync(() => {
-				// Localized: debug-only server-side log
-				serverDebug("[oauthSignIn] client_id:", client_id);
-			}),
-		);
 		const params = new URLSearchParams({
 			client_id: String(client_id),
 			redirect_uri: String(redirect_uri),
@@ -306,12 +262,6 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 			hl: String(lang),
 		}).toString();
 		const authUrl = `${authBaseUrl}?${params}`;
-		yield* $(
-			Effect.sync(() => {
-				// Localized: debug-only server-side log
-				serverDebug("[oauthSignIn] authUrl:", authUrl);
-			}),
-		);
 
 		// Return redirect Response (wrapped in Effect.sync)
 		return yield* $(Effect.sync(() => ctx.redirect(authUrl)));

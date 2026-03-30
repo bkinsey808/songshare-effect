@@ -9,6 +9,11 @@
  */
 import makePlaylistPublic from "./makePlaylistPublic.mock";
 
+/**
+ * Create a valid `PlaylistPublic`-like object with the required guard fields.
+ *
+ * @returns A shallow object shaped like a `PlaylistPublic` record.
+ */
 export default function makeValidPlaylistPublic(): Record<string, unknown> {
 	// Delegate to the full fixture and override only the minimal fields
 	return makePlaylistPublic({

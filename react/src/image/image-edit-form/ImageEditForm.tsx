@@ -1,3 +1,8 @@
+import { useTranslation } from "react-i18next";
+
+import getImagePublicUrl from "@/react/image/getImagePublicUrl";
+import ImageEditFormFooter from "@/react/image/image-edit-form/ImageEditFormFooter";
+import ImageFocalPointPicker from "@/react/image/image-edit-form/ImageFocalPointPicker";
 import useImageEditForm from "@/react/image/image-edit-form/useImageEditForm";
 import TagInput from "@/react/tag/input/TagInput";
 import useItemTags from "@/react/tag/useItemTags";
@@ -6,6 +11,7 @@ import type { ImagePublic } from "../image-types";
 
 type ImageEditFormProps = {
 	image: ImagePublic;
+	onDelete?: () => void | Promise<void>;
 };
 
 /**
@@ -15,25 +21,37 @@ type ImageEditFormProps = {
  * and navigates back to the image view page on successful save.
  *
  * @param image - The current image record to edit
+ * @param onDelete - Optional delete handler for existing images
  * @returns React element rendering the image edit form
  */
-export default function ImageEditForm({ image }: ImageEditFormProps): ReactElement {
-	const { tags, setTags } = useItemTags("image", image.image_id);
+export default function ImageEditForm({ image, onDelete }: ImageEditFormProps): ReactElement {
+	const { t } = useTranslation();
+	const { isLoadingTags, tags, setTags } = useItemTags("image", image.image_id);
 	const {
 		altText,
 		description,
+		handleReset,
+		focalPointX,
+		focalPointY,
 		handleCancel,
 		handleSubmit,
+		hasChanges,
 		imageName,
 		isSubmitting,
 		saveError,
 		setAltText,
 		setDescription,
+		setFocalPointX,
+		setFocalPointY,
 		setImageName,
-	} = useImageEditForm(image, tags);
+	} = useImageEditForm(image, {
+		isTagsReady: !isLoadingTags,
+		setTags,
+		tags,
+	});
 
 	return (
-		<form onSubmit={(event) => void handleSubmit(event)} className="space-y-6">
+		<form onSubmit={(event) => void handleSubmit(event)} className="space-y-6 pb-32">
 			{/* Image name */}
 			<div>
 				<label htmlFor="image-name" className="mb-2 block text-sm font-medium text-gray-300">
@@ -85,6 +103,18 @@ export default function ImageEditForm({ image }: ImageEditFormProps): ReactEleme
 				/>
 			</div>
 
+			<ImageFocalPointPicker
+				altText={altText}
+				imageName={imageName}
+				imageUrl={getImagePublicUrl(image.r2_key)}
+				focal_point_x={focalPointX}
+				focal_point_y={focalPointY}
+				onChange={({ focal_point_x, focal_point_y }) => {
+					setFocalPointX(focal_point_x);
+					setFocalPointY(focal_point_y);
+				}}
+			/>
+
 			{saveError !== undefined && (
 				<div className="rounded-lg border border-red-600 bg-red-900/20 p-3">
 					<p className="text-sm text-red-400">{saveError}</p>
@@ -98,22 +128,14 @@ export default function ImageEditForm({ image }: ImageEditFormProps): ReactEleme
 				<TagInput value={tags} onChange={setTags} />
 			</div>
 
-			<div className="flex gap-3">
-				<button
-					type="submit"
-					disabled={isSubmitting}
-					className="rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-				>
-					{isSubmitting ? "Saving..." : "Save Changes"}
-				</button>
-				<button
-					type="button"
-					onClick={handleCancel}
-					className="rounded-lg border border-gray-600 px-6 py-2 text-gray-300 transition-colors hover:border-gray-500 hover:text-white"
-				>
-					Cancel
-				</button>
-			</div>
+			<ImageEditFormFooter
+				hasChanges={hasChanges}
+				isSubmitting={isSubmitting}
+				onCancel={handleCancel}
+				onReset={handleReset}
+				saveLabel={t("imageEdit.save", "Save Changes")}
+				{...(onDelete === undefined ? {} : { onDelete })}
+			/>
 		</form>
 	);
 }

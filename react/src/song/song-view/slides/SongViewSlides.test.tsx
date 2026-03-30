@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
+import SlideOrientationSelect from "@/react/slide-orientation/SlideOrientationSelect";
 import type { SongPublic } from "@/react/song/song-schema";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
 
@@ -14,6 +15,7 @@ vi.mock("react-i18next");
 
 // Mock the slide hook so tests can provide deterministic slide state
 vi.mock("./useSongViewSlides");
+vi.mock("@/react/slide-orientation/SlideOrientationSelect");
 
 // Minimal representative `SongPublic` used in tests.
 const DUMMY_SONG: SongPublic = makeSongPublic({ song_slug: "my-slug" });
@@ -44,6 +46,9 @@ function installI18nMock(): void {
 			i18n: { changeLanguage: vi.fn(), language: "en" },
 		}),
 	);
+	vi.mocked(SlideOrientationSelect).mockImplementation(() => (
+		<select data-testid="slide-orientation-select" />
+	));
 }
 
 describe("song view slides", () => {
@@ -80,6 +85,7 @@ describe("song view slides", () => {
 
 		// full screen button is present
 		expect(getByTestId("song-view-fullscreen")).toBeTruthy();
+		expect(getByTestId("slide-orientation-select")).toBeTruthy();
 		cleanup();
 	});
 

@@ -1,8 +1,8 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-// ReactElement is ambient; no import needed
 
-import DragHandle from "@/react/song/song-form/grid-editor/DragHandle";
+import cssVars from "@/react/lib/utils/cssVars";
+import DragHandle from "@/react/song/song-form/grid-editor/grid-row/DragHandle";
 
 import PlaylistSongCard from "./PlaylistSongCard";
 
@@ -35,20 +35,21 @@ export default function SortablePlaylistSongItem(
 		id: props.songId,
 	});
 
-	const Z_INDEX_DRAGGING = 50;
-	const OPACITY_DRAGGING = 0.5;
-	const OPACITY_DEFAULT = 1;
-
-	const style = {
+	const style: React.CSSProperties = {
 		transform: CSS.Transform.toString(transform),
 		transition,
-		zIndex: isDragging ? Z_INDEX_DRAGGING : "auto",
-		opacity: isDragging ? OPACITY_DRAGGING : OPACITY_DEFAULT,
-		position: isDragging ? ("relative" as const) : undefined,
+		...cssVars({
+			"drag-opacity": isDragging ? "0.5" : "1",
+			"drag-z": isDragging ? "50" : "auto",
+		}),
 	};
 
 	return (
-		<div ref={setNodeRef} style={style} className="mb-2 touch-none">
+		<div
+			ref={setNodeRef}
+			style={style}
+			className="relative mb-2 touch-none opacity-(--drag-opacity) z-(--drag-z)"
+		>
 			<PlaylistSongCard
 				{...props}
 				dragHandle={<DragHandle attributes={attributes} listeners={listeners} />}

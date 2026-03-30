@@ -17,8 +17,8 @@ type TagMutationOptions = {
 /**
  * Mutates a tag via the tag API inside an authenticated browser session.
  *
- * @param options Parameters for the tag mutation request.
- * @return Effect that resolves when the API mutation succeeds.
+ * @param options - Parameters for the tag mutation request.
+ * @returns Effect that resolves when the API mutation succeeds.
  */
 export default function mutateTagViaApi(options: TagMutationOptions): Effect.Effect<void, Error> {
 	return Effect.gen(function* mutateTagViaApiEffect($) {

@@ -6,6 +6,9 @@ const ARG_INDEX = 0;
 /**
  * Asserts addOrUpdatePublicSongs was called with an argument that has an "s1" key.
  * Extracted to test-util to avoid no-unsafe-assignment from Vitest matchers in test files.
+ *
+ * @param mock - Mock function wrapper whose first call should include `s1`.
+ * @returns void
  */
 export default function expectAddOrUpdatePublicSongsCalledWithS1(mock: {
 	mock: { calls: unknown[][] };

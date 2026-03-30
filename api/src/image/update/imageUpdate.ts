@@ -51,6 +51,8 @@ export default function imageUpdate(
 			image_name: "",
 			description: "",
 			alt_text: "",
+			focal_point_x: 50,
+			focal_point_y: 50,
 			tags: undefined,
 		};
 		try {
@@ -100,6 +102,8 @@ export default function imageUpdate(
 							image_name: req.image_name,
 							description: req.description,
 							alt_text: req.alt_text,
+							focal_point_x: req.focal_point_x,
+							focal_point_y: req.focal_point_y,
 						})
 						.eq("image_id", req.image_id)
 						.eq("user_id", userId),

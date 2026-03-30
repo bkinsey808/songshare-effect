@@ -6,6 +6,12 @@ export type ErrorCollector = {
 };
 
 /* oxlint-disable jest/no-conditional-in-test */
+/**
+ * Attach console and page error listeners to a Playwright page.
+ *
+ * @param page - Page whose runtime errors should be collected.
+ * @returns A mutable collector populated by the registered listeners.
+ */
 export default function setupErrorTracking(page: Page): ErrorCollector {
 	const collector: ErrorCollector = {
 		consoleErrors: [],

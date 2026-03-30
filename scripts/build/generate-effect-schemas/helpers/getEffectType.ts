@@ -28,6 +28,12 @@ const typeMapping: Record<string, string> = {
 	bytea: "Schema.Uint8Array",
 };
 
+/**
+ * Maps a simplified column definition to the matching Effect schema expression.
+ *
+ * @param column - Column metadata used to choose the schema representation.
+ * @returns Effect schema expression string for the column.
+ */
 export default function getEffectType(column: Readonly<ColumnDefinition>): string {
 	let effectType = typeMapping[column.type];
 	if (effectType === undefined) {

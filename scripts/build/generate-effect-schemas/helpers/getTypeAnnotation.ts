@@ -1,3 +1,9 @@
+/**
+ * Converts a schema expression string into the corresponding schema type annotation.
+ *
+ * @param effectType - Effect schema expression string.
+ * @returns Schema type annotation string for generated source output.
+ */
 export default function getTypeAnnotation(effectType: string): string {
 	const END_INDEX_OFFSET = 1; // skip trailing closing parenthesis
 	const ARRAY_PREFIX_LENGTH = "Schema.Array(".length;

@@ -1,9 +1,12 @@
-/**
- * Helper to create a minimal PlaylistEntry for testing.
- */
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { PlaylistEntry } from "@/react/playlist/playlist-types";
 
+/**
+ * Helper to create a minimal PlaylistEntry for testing.
+ *
+ * @param overrides - Partial playlist entry fields to override.
+ * @returns A `PlaylistEntry` fixture for tests.
+ */
 export function makeTestPlaylist(overrides: Partial<PlaylistEntry> = {}): PlaylistEntry {
 	return forceCast<PlaylistEntry>({
 		playlist_id: "p1",
@@ -27,6 +30,8 @@ export function makeTestPlaylist(overrides: Partial<PlaylistEntry> = {}): Playli
 
 /**
  * Helper for testing malformed playlist data with missing song order.
+ *
+ * @returns A playlist fixture whose `song_order` is intentionally `undefined`.
  */
 export function makePlaylistWithUndefinedSongOrder(): PlaylistEntry {
 	const base = makeTestPlaylist();
@@ -41,6 +46,8 @@ export function makePlaylistWithUndefinedSongOrder(): PlaylistEntry {
 
 /**
  * Helper for testing malformed playlist data with missing name.
+ *
+ * @returns A playlist fixture whose `playlist_name` is intentionally `undefined`.
  */
 export function makePlaylistWithUndefinedName(): PlaylistEntry {
 	const base = makeTestPlaylist();

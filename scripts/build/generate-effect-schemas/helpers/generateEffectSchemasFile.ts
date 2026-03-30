@@ -6,6 +6,13 @@ import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 import { type TableDefinition } from "./generate-effect-schemas-types";
 import generateEffectSchema from "./generateEffectSchema";
 
+/**
+ * Writes the generated Effect schemas file for the provided tables.
+ *
+ * @param tables - Table metadata to render into Effect schema source.
+ * @param outputPath - Absolute file path where the generated source should be written.
+ * @returns void
+ */
 export default function generateEffectSchemasFile(
 	tables: TableDefinition[],
 	outputPath: string,

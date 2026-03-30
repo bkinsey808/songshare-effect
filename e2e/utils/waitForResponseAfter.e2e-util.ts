@@ -7,6 +7,12 @@ type WaitForResponseMatcher = Parameters<Page["waitForResponse"]> extends [infer
 	? Matcher
 	: never;
 
+/**
+ * Start waiting for a response, run an action, then resolve with the response.
+ *
+ * @param args - Page, matcher, action, and optional wait configuration.
+ * @returns An Effect that resolves with the matched response.
+ */
 export default function waitForResponseAfter(args: {
 	page: Page;
 	responseMatcher: WaitForResponseMatcher;

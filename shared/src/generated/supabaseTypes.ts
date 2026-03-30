@@ -668,6 +668,8 @@ export type Database = {
           created_at: string
           description: string
           file_size: number
+          focal_point_x: number
+          focal_point_y: number
           height: number | null
           image_id: string
           image_name: string
@@ -683,6 +685,8 @@ export type Database = {
           created_at?: string
           description?: string
           file_size?: number
+          focal_point_x?: number
+          focal_point_y?: number
           height?: number | null
           image_id: string
           image_name?: string
@@ -698,6 +702,8 @@ export type Database = {
           created_at?: string
           description?: string
           file_size?: number
+          focal_point_x?: number
+          focal_point_y?: number
           height?: number | null
           image_id?: string
           image_name?: string

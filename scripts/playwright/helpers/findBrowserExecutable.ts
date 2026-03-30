@@ -1,6 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 
+/**
+ * Recursively search a directory tree for a likely browser executable.
+ *
+ * @param rootPath - Directory to scan.
+ * @returns The first matching executable path, or `undefined` when none is found.
+ */
 function walk(rootPath: string): string | undefined {
 	try {
 		const files = fs.readdirSync(rootPath, { withFileTypes: true });
@@ -27,6 +33,12 @@ function walk(rootPath: string): string | undefined {
 	return undefined;
 }
 
+/**
+ * Find a browser executable inside a Playwright cache root.
+ *
+ * @param cacheRoot - Root directory that contains cached browser installs.
+ * @returns The discovered executable path, or `undefined` when no browser is found.
+ */
 export default function findBrowserExecutable(cacheRoot: string): string | undefined {
 	try {
 		const entries = fs.readdirSync(cacheRoot, { withFileTypes: true });

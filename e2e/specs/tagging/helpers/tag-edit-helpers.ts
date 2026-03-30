@@ -19,8 +19,8 @@ const DEFAULT_TAG_PLACEHOLDER = "Add tags\u2026";
 /**
  * Adds a tag in the edit UI and waits for the remove button to appear.
  *
- * @param options Tag edit options for the current page.
- * @return Effect that resolves once the tag chip is visible.
+ * @param options - Tag edit options for the current page.
+ * @returns Effect that resolves once the tag chip is visible.
  */
 export function addTagInEditUi(options: TagEditOptions): Effect.Effect<void, Error> {
 	return Effect.gen(function* addTagInEditUiEffect($) {
@@ -39,8 +39,8 @@ export function addTagInEditUi(options: TagEditOptions): Effect.Effect<void, Err
 /**
  * Removes a tag in the edit UI and waits for the remove button to disappear.
  *
- * @param options Tag edit options for the current page.
- * @return Effect that resolves once the tag chip is removed.
+ * @param options - Tag edit options for the current page.
+ * @returns Effect that resolves once the tag chip is removed.
  */
 export function removeTagInEditUi(options: TagEditOptions): Effect.Effect<void, Error> {
 	return Effect.gen(function* removeTagInEditUiEffect($) {
@@ -54,8 +54,8 @@ export function removeTagInEditUi(options: TagEditOptions): Effect.Effect<void, 
 /**
  * Asserts that the tag chip is visible in the edit UI.
  *
- * @param options Tag edit options for the current page.
- * @return Effect that resolves once the tag chip is visible.
+ * @param options - Tag edit options for the current page.
+ * @returns Effect that resolves once the tag chip is visible.
  */
 export function expectTagInEditUi(options: TagEditOptions): Effect.Effect<void, Error> {
 	return Effect.gen(function* expectTagInEditUiEffect($) {
@@ -70,8 +70,8 @@ export function expectTagInEditUi(options: TagEditOptions): Effect.Effect<void, 
 /**
  * Asserts that the tag chip is not visible in the edit UI.
  *
- * @param options Tag edit options for the current page.
- * @return Effect that resolves once the tag chip is hidden.
+ * @param options - Tag edit options for the current page.
+ * @returns Effect that resolves once the tag chip is hidden.
  */
 export function expectTagNotInEditUi(options: TagEditOptions): Effect.Effect<void, Error> {
 	return Effect.gen(function* expectTagNotInEditUiEffect($) {

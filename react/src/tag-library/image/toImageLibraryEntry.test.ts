@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { ImageTagRow } from "@/react/tag-library/image/ImageTagRow.type";
+import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 
 import toImageLibraryEntry from "./toImageLibraryEntry";
 
@@ -9,21 +10,16 @@ function nullImagePublicRow(imageId: string): ImageTagRow {
 	return forceCast<ImageTagRow>({ image_id: imageId, image_public: JSON.parse("null") as unknown });
 }
 
-const baseImagePublic = {
-	image_id: "img-1",
+const baseImagePublic = makeImagePublic({
 	user_id: "user-1",
 	image_name: "Test Image",
 	image_slug: "test-image",
 	description: "A test image",
 	alt_text: "Alt text",
 	r2_key: "r2/test-image",
-	content_type: "image/jpeg",
-	file_size: 1024,
-	width: 800,
-	height: 600,
 	created_at: "2025-01-01T00:00:00Z",
 	updated_at: "2025-01-02T00:00:00Z",
-};
+});
 
 describe("toImageLibraryEntry", () => {
 	it("maps row with image_public to ImageLibraryEntry", () => {

@@ -11,6 +11,9 @@ import type { UserLibrarySlice } from "./UserLibrarySlice.type";
  * The returned getter exposes stateful behavior for `setUserLibraryEntries`,
  * `addUserLibraryEntry`, and `removeUserLibraryEntry` so tests can assert
  * against `slice.userLibraryEntries` after actions run.
+ *
+ * @param initialEntries - Initial library entries to seed into the mock slice.
+ * @returns A getter that returns the live mock slice instance.
  */
 export default function makeUserLibrarySlice(
 	initialEntries: Record<string, UserLibraryEntry> = {},

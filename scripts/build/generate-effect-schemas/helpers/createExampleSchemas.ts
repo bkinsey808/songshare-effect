@@ -1,5 +1,10 @@
 import { type TableDefinition } from "./generate-effect-schemas-types";
 
+/**
+ * Builds fallback table definitions used when generated Supabase types are unavailable.
+ *
+ * @returns Example table metadata that keeps schema generation working offline.
+ */
 export default function createExampleSchemas(): TableDefinition[] {
 	return [
 		{

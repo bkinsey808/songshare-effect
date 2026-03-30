@@ -1,17 +1,16 @@
-import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useState } from "react";
 
-import { type Slide } from "../song-form-types";
+import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
+import tw from "@/react/lib/utils/tw";
+import { type Slide } from "@/react/song/song-form/song-form-types";
+
 import DeleteConfirmationRow from "./DeleteConfirmationRow";
 import SortableGridCells from "./SortableGridCells";
+import useSlidesGridRow from "./useSlidesGridRow";
 
 const DRAG_OPACITY = 0.5;
 const NORMAL_OPACITY = 1;
 const REMOVE_COUNT = 1;
-const SINGLE_INSTANCE = 1;
-// Number of fixed columns before the dynamic fields (slide name column)
-const SLIDE_NAME_COL_COUNT = 1;
 
 type EditSlideName = ({
 	slideId,
@@ -52,10 +51,21 @@ type SortableGridRowProps = Readonly<{
 	deleteSlide: (slideId: string) => void;
 	slides: Readonly<Record<string, Slide>>;
 	idx: number;
-	getColumnWidth: (field: string) => number;
 	globalIsDragging: boolean;
 	/** When true, this row is part of a duplicate set and uses a hash-of-slideId tint. */
 	isDuplicateRow: boolean;
+	backgroundPickerSlideId: string | undefined;
+	isImageLibraryLoading: boolean;
+	imageLibraryEntryList: readonly ImageLibraryEntry[];
+	toggleBackgroundPicker: (slideId: string) => void;
+	selectSlideBackgroundImage: (
+		params: Readonly<{
+			slideId: string;
+			backgroundImageId: string;
+			backgroundImageUrl: string;
+		}>,
+	) => void;
+	clearSlideBackgroundImage: (slideId: string) => void;
 }>;
 
 /**
@@ -79,6 +89,12 @@ type SortableGridRowProps = Readonly<{
  * @param getColumnWidth - Returns the width in pixels for a given field.
  * @param globalIsDragging - Whether any row is currently being dragged.
  * @param isDuplicateRow - Whether this row belongs to a duplicate slide group.
+ * @param backgroundPickerSlideId - Currently open background picker slide id.
+ * @param isImageLibraryLoading - Whether image library data is loading.
+ * @param imageLibraryEntryList - Available image library entries.
+ * @param toggleBackgroundPicker - Toggles the inline background picker.
+ * @param selectSlideBackgroundImage - Applies a background image to the slide.
+ * @param clearSlideBackgroundImage - Clears the current slide background image.
  * @returns React element for the table row.
  */
 export default function SlidesGridRow({
@@ -94,15 +110,32 @@ export default function SlidesGridRow({
 	deleteSlide,
 	slides,
 	idx,
-	getColumnWidth,
 	globalIsDragging,
 	isDuplicateRow,
+	backgroundPickerSlideId,
+	isImageLibraryLoading,
+	imageLibraryEntryList,
+	toggleBackgroundPicker,
+	selectSlideBackgroundImage,
+	clearSlideBackgroundImage,
 }: SortableGridRowProps): ReactElement {
-	const [confirmingDelete, setConfirmingDelete] = useState(false);
-	const instancesCount = slideOrder.filter((id) => id === slideId).length;
-	const isSingleInstance = instancesCount === SINGLE_INSTANCE;
-	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-		id: slideId,
+	const {
+		confirmingDelete,
+		setConfirmingDelete,
+		isSingleInstance,
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+		totalColumns,
+		faded,
+	} = useSlidesGridRow({
+		slideId,
+		slideOrder,
+		fields,
+		globalIsDragging,
 	});
 
 	const style: React.CSSProperties = {
@@ -111,27 +144,15 @@ export default function SlidesGridRow({
 		opacity: isDragging ? DRAG_OPACITY : NORMAL_OPACITY,
 	};
 
-	// Compute total columns safely — guard against unexpected non-array `fields` which can lead to NaN colSpan
-	const BASE_FIELDS_LENGTH = 0;
-	const safeFieldsLength = Array.isArray(fields) ? fields.length : BASE_FIELDS_LENGTH;
-	if (!Array.isArray(fields)) {
-		// Log diagnostic info in development to help track down the root cause
-		// oxlint-disable-next-line no-console
-		console.error("SortableGridRow: unexpected fields value (expected array)", { fields });
-	}
-	const totalColumns = SLIDE_NAME_COL_COUNT + safeFieldsLength;
-
-	// Render a single <tr> for both normal and delete-confirmation states.
-	const faded = isSingleInstance && confirmingDelete ? Boolean(globalIsDragging) : false;
-
-	const rowClass = "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700";
+	const rowClass = tw`bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700`;
+	const draggingClass = tw`z-10`;
 
 	return (
 		<tr
 			ref={setNodeRef}
 			key={`${slideId}-grid-${String(idx)}`}
 			style={style}
-			className={`${rowClass} ${isDragging ? "z-10" : ""}`}
+			className={`${rowClass} ${isDragging ? draggingClass : ""}`}
 			aria-hidden={faded ? "true" : "false"}
 		>
 			{isSingleInstance && confirmingDelete ? (
@@ -166,10 +187,15 @@ export default function SlidesGridRow({
 					deleteSlide={deleteSlide}
 					slides={slides}
 					idx={idx}
-					getColumnWidth={getColumnWidth}
 					attributes={attributes}
 					listeners={listeners}
 					isDuplicateRow={isDuplicateRow}
+					backgroundPickerSlideId={backgroundPickerSlideId}
+					isImageLibraryLoading={isImageLibraryLoading}
+					imageLibraryEntryList={imageLibraryEntryList}
+					toggleBackgroundPicker={toggleBackgroundPicker}
+					selectSlideBackgroundImage={selectSlideBackgroundImage}
+					clearSlideBackgroundImage={clearSlideBackgroundImage}
 				/>
 			)}
 		</tr>

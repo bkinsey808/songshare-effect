@@ -7,6 +7,7 @@ import useAppStore from "@/react/app-store/useAppStore";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import { makeFormEventWithPreventDefault } from "@/react/lib/test-utils/dom-events";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 
 import type { ImagePublic } from "../image-types";
 import useImageEditForm from "./useImageEditForm";
@@ -15,27 +16,12 @@ vi.mock("react-router-dom");
 vi.mock("@/react/lib/language/locale/useLocale");
 vi.mock("@/react/app-store/useAppStore");
 
-const IMAGE_SLUG = "my-image";
 const SAVE_ERR = "Save failed";
-
-function makeImagePublic(overrides?: Partial<ImagePublic>): ImagePublic {
-	return {
-		image_id: "img-1",
-		user_id: "usr-1",
-		image_name: "Original Name",
-		image_slug: IMAGE_SLUG,
-		description: "Original desc",
-		alt_text: "Original alt",
-		r2_key: "images/usr-1/img-1.jpg",
-		content_type: "image/jpeg",
-		file_size: 1024,
-		width: 800,
-		height: 600,
-		created_at: "2026-01-01T00:00:00Z",
-		updated_at: "2026-01-01T00:00:00Z",
-		...overrides,
-	};
-}
+const DEFAULT_FOCAL_POINT = 50;
+const UPDATED_FOCAL_POINT_X = 30;
+const UPDATED_FOCAL_POINT_Y = 70;
+const DECIMAL_FOCAL_POINT_X = 30.1;
+const DECIMAL_FOCAL_POINT_Y = 70.9;
 
 function installLocale(): void {
 	vi.mocked(useLocale).mockReturnValue(
@@ -45,8 +31,7 @@ function installLocale(): void {
 
 function installStore(opts: { updateImage?: ReturnType<typeof vi.fn> }): void {
 	const mockUpdate =
-		opts.updateImage ??
-		vi.fn().mockReturnValue(Effect.succeed(makeImagePublic({ image_slug: IMAGE_SLUG })));
+		opts.updateImage ?? vi.fn().mockReturnValue(Effect.succeed(makeImagePublic()));
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) =>
 		forceCast<(state: { updateImage: typeof mockUpdate }) => unknown>(selector)({
 			updateImage: mockUpdate,
@@ -66,13 +51,19 @@ function Harness(props: { image: ImagePublic }): ReactElement {
 	const {
 		altText,
 		description,
+		focalPointX,
+		focalPointY,
 		handleCancel,
+		handleReset,
 		handleSubmit,
+		hasChanges,
 		imageName,
 		isSubmitting,
 		saveError,
 		setAltText,
 		setDescription,
+		setFocalPointX,
+		setFocalPointY,
 		setImageName,
 	} = useImageEditForm(props.image);
 
@@ -99,6 +90,21 @@ function Harness(props: { image: ImagePublic }): ReactElement {
 					setAltText(ev.target.value);
 				}}
 			/>
+			<input
+				data-testid="focal-point-x"
+				value={String(focalPointX)}
+				onChange={(ev) => {
+					setFocalPointX(Number(ev.target.value));
+				}}
+			/>
+			<input
+				data-testid="focal-point-y"
+				value={String(focalPointY)}
+				onChange={(ev) => {
+					setFocalPointY(Number(ev.target.value));
+				}}
+			/>
+			<span data-testid="has-changes">{String(hasChanges)}</span>
 			<form
 				data-testid="edit-form"
 				onSubmit={(ev) => {
@@ -111,6 +117,9 @@ function Harness(props: { image: ImagePublic }): ReactElement {
 			</form>
 			<button type="button" data-testid="cancel-btn" onClick={handleCancel}>
 				Cancel
+			</button>
+			<button type="button" data-testid="reset-btn" onClick={handleReset}>
+				Reset
 			</button>
 			{saveError !== undefined && <span data-testid="save-error">{saveError}</span>}
 		</div>
@@ -140,6 +149,12 @@ describe("useImageEditForm — Harness", () => {
 		);
 		expect(forceCast<HTMLInputElement>(within(container).getByTestId("alt-text")).value).toBe(
 			"Test alt",
+		);
+		expect(forceCast<HTMLInputElement>(within(container).getByTestId("focal-point-x")).value).toBe(
+			"50",
+		);
+		expect(forceCast<HTMLInputElement>(within(container).getByTestId("focal-point-y")).value).toBe(
+			"50",
 		);
 		expect(within(container).queryByTestId("save-error")).toBeNull();
 	});
@@ -197,6 +212,39 @@ describe("useImageEditForm — Harness", () => {
 			expect(within(rendered.container).getByTestId("save-error").textContent).toContain(SAVE_ERR);
 		});
 	});
+
+	it("tracks and resets unsaved changes", async () => {
+		cleanup();
+		vi.resetAllMocks();
+		installLocale();
+		vi.mocked(useNavigate).mockReturnValue(vi.fn());
+		installStore({});
+
+		const image = makeImagePublic({
+			image_name: "Original Name",
+			description: "Original desc",
+			alt_text: "Original alt",
+		});
+		const rendered = render(<Harness image={image} />);
+
+		expect(within(rendered.container).getByTestId("has-changes").textContent).toBe("false");
+
+		fireEvent.change(within(rendered.container).getByTestId("image-name"), {
+			target: { value: "Updated Name" },
+		});
+
+		await waitFor(() => {
+			expect(within(rendered.container).getByTestId("has-changes").textContent).toBe("true");
+		});
+
+		fireEvent.click(within(rendered.container).getByTestId("reset-btn"));
+
+		await waitFor(() => {
+			expect(forceCast<HTMLInputElement>(within(rendered.container).getByTestId("image-name")).value).toBe(
+				"Original Name",
+			);
+		});
+	});
 });
 
 describe("useImageEditForm — renderHook", () => {
@@ -206,16 +254,16 @@ describe("useImageEditForm — renderHook", () => {
 		vi.mocked(useNavigate).mockReturnValue(vi.fn());
 		installStore({});
 
-		const image = makeImagePublic({
-			image_name: "Hook Test",
-			description: "Desc",
-			alt_text: "Alt",
-		});
+		const image = makeImagePublic();
 		const { result } = renderHook(() => useImageEditForm(image));
 
-		expect(result.current.imageName).toBe("Hook Test");
-		expect(result.current.description).toBe("Desc");
-		expect(result.current.altText).toBe("Alt");
+		expect(result.current.imageName).toBe("My Image");
+		expect(result.current.description).toBe("desc");
+		expect(result.current.altText).toBe("alt");
+		expect(result.current).toMatchObject({
+			focalPointX: DEFAULT_FOCAL_POINT,
+			focalPointY: DEFAULT_FOCAL_POINT,
+		});
 		expect(result.current.saveError).toBeUndefined();
 		expect(result.current.isSubmitting).toBe(false);
 	});
@@ -243,20 +291,17 @@ describe("useImageEditForm — renderHook", () => {
 		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
 		const mockUpdate = vi
 			.fn()
-			.mockReturnValue(Effect.succeed(makeImagePublic({ image_slug: IMAGE_SLUG })));
+			.mockReturnValue(Effect.succeed(makeImagePublic()));
 		installStore({ updateImage: mockUpdate });
 
-		const image = makeImagePublic({
-			image_id: "img-99",
-			image_name: "Name",
-			description: "Desc",
-			alt_text: "Alt",
-		});
+		const image = makeImagePublic();
 		const { result } = renderHook(() => useImageEditForm(image));
 
 		result.current.setImageName("New Name");
 		result.current.setDescription("New desc");
 		result.current.setAltText("New alt");
+		result.current.setFocalPointX(UPDATED_FOCAL_POINT_X);
+		result.current.setFocalPointY(UPDATED_FOCAL_POINT_Y);
 
 		await waitFor(() => {
 			expect(result.current.imageName).toBe("New Name");
@@ -267,11 +312,45 @@ describe("useImageEditForm — renderHook", () => {
 
 		await waitFor(() => {
 			expect(mockUpdate).toHaveBeenCalledWith(
-				"img-99",
+				image.image_id,
 				expect.objectContaining({
 					image_name: "New Name",
 					description: "New desc",
 					alt_text: "New alt",
+					focal_point_x: UPDATED_FOCAL_POINT_X,
+					focal_point_y: UPDATED_FOCAL_POINT_Y,
+				}),
+			);
+		});
+	});
+
+	it("preserves decimal focal point values when saving", async () => {
+		vi.resetAllMocks();
+		installLocale();
+		vi.mocked(useNavigate).mockReturnValue(vi.fn());
+		const mockUpdate = vi.fn().mockReturnValue(Effect.succeed(makeImagePublic()));
+		installStore({ updateImage: mockUpdate });
+
+		const image = makeImagePublic();
+		const { result } = renderHook(() => useImageEditForm(image));
+
+		result.current.setFocalPointX(DECIMAL_FOCAL_POINT_X);
+		result.current.setFocalPointY(DECIMAL_FOCAL_POINT_Y);
+
+		await waitFor(() => {
+			expect(result.current.focalPointX).toBe(DECIMAL_FOCAL_POINT_X);
+			expect(result.current.focalPointY).toBe(DECIMAL_FOCAL_POINT_Y);
+		});
+
+		const { event } = makeFormEventWithPreventDefault();
+		await result.current.handleSubmit(event);
+
+		await waitFor(() => {
+			expect(mockUpdate).toHaveBeenCalledWith(
+				image.image_id,
+				expect.objectContaining({
+					focal_point_x: DECIMAL_FOCAL_POINT_X,
+					focal_point_y: DECIMAL_FOCAL_POINT_Y,
 				}),
 			);
 		});

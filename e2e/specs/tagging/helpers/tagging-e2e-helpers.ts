@@ -27,8 +27,8 @@ const DEFAULT_WAIT_UNTIL: NonNullable<OpenViewerPageOptions["waitUntil"]> = "loa
 /**
  * Captures console messages from a page in a simple string array.
  *
- * @param page Page to attach the console listener to.
- * @return Array that is appended to as console events fire.
+ * @param page - Page to attach the console listener to.
+ * @returns Array that is appended to as console events fire.
  */
 export function captureConsole(page: Page): string[] {
 	const entries: string[] = [];
@@ -41,9 +41,9 @@ export function captureConsole(page: Page): string[] {
 /**
  * Returns the tag badge locator for a given tag slug.
  *
- * @param page Page that renders the tag badge.
- * @param tagSlug Tag slug rendered in the aria-label.
- * @return Locator for the tag badge.
+ * @param page - Page that renders the tag badge.
+ * @param tagSlug - Tag slug rendered in the aria-label.
+ * @returns Locator for the tag badge.
  */
 export function tagBadgeLocator(page: Page, tagSlug: string): Locator {
 	return page.getByLabel(`View tag ${tagSlug}`);
@@ -52,10 +52,10 @@ export function tagBadgeLocator(page: Page, tagSlug: string): Locator {
 /**
  * Asserts that a tag badge is visible on a viewer page.
  *
- * @param page Viewer page that renders the tag badge.
- * @param tagSlug Tag slug rendered in the aria-label.
- * @param timeoutMs Optional timeout override.
- * @return Effect that resolves once the badge is visible.
+ * @param page - Viewer page that renders the tag badge.
+ * @param tagSlug - Tag slug rendered in the aria-label.
+ * @param timeoutMs - Optional timeout override.
+ * @returns Effect that resolves once the badge is visible.
  */
 export function expectTagBadgeVisible(
 	page: Page,
@@ -69,10 +69,10 @@ export function expectTagBadgeVisible(
 /**
  * Asserts that a tag badge is hidden on a viewer page.
  *
- * @param page Viewer page that renders the tag badge.
- * @param tagSlug Tag slug rendered in the aria-label.
- * @param timeoutMs Optional timeout override.
- * @return Effect that resolves once the badge is hidden.
+ * @param page - Viewer page that renders the tag badge.
+ * @param tagSlug - Tag slug rendered in the aria-label.
+ * @param timeoutMs - Optional timeout override.
+ * @returns Effect that resolves once the badge is hidden.
  */
 export function expectTagBadgeHidden(
 	page: Page,
@@ -86,8 +86,8 @@ export function expectTagBadgeHidden(
 /**
  * Waits until the realtime subscription for the tag channel is ready.
  *
- * @param options Parameters for the realtime readiness check.
- * @return Effect that resolves when the subscription readiness is observed.
+ * @param options - Parameters for the realtime readiness check.
+ * @returns Effect that resolves when the subscription readiness is observed.
  */
 export function waitForTagRealtimeReady(
 	options: TagRealtimeReadyOptions,
@@ -124,8 +124,8 @@ export function waitForTagRealtimeReady(
 /**
  * Opens a viewer page and waits for the primary heading to be visible.
  *
- * @param options Navigation and timeout options.
- * @return Effect that resolves once the page is loaded and ready.
+ * @param options - Navigation and timeout options.
+ * @returns Effect that resolves once the page is loaded and ready.
  */
 export function openViewerPage(
 	options: OpenViewerPageOptions,

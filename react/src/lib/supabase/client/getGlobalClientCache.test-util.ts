@@ -2,6 +2,11 @@
 export const SYMBOL_KEY = Symbol.for("__supabaseClients__");
 
 // helper that explicitly clears the cached map so each test starts cleanly
+/**
+ * Clear the global Supabase client cache between tests.
+ *
+ * @returns void
+ */
 export function clearGlobalCache(): void {
 	// use Reflect.deleteProperty to remove the symbol from globalThis without
 	// tripping the no-dynamic-delete lint rule.  casting through `unknown` gives
@@ -16,6 +21,8 @@ export function clearGlobalCache(): void {
 /**
  * Read the current cached map from globalThis. Using a function ensures tests
  * can observe updates that happen after the module loads.
+ *
+ * @returns The cached client map from global state, if present.
  */
 export function supabaseClientsValue(): Map<string, unknown> | undefined {
 	// narrow typing here is safe for our testing needs; disable lint on these

@@ -10,6 +10,9 @@
  *
  * The implementation lives outside of a `.test.ts` file so we can retain a
  * few eslint/TS disables without tripping the no-disable-in-tests rule.
+ *
+ * @param opts - Partial response fields plus a required `json` implementation.
+ * @returns A minimal `Response` object for tests.
  */
 export default function makeResponse(
 	opts: Partial<Pick<Response, "ok" | "status">> & {

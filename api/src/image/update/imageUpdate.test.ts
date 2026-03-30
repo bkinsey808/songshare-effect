@@ -28,6 +28,8 @@ const VALID_BODY = {
 	image_name: "My Image",
 	description: "A description",
 	alt_text: "Alt text",
+	focal_point_x: 20,
+	focal_point_y: 80,
 };
 
 const UPDATED_ROW = {
@@ -35,6 +37,8 @@ const UPDATED_ROW = {
 	image_name: "My Image",
 	description: "A description",
 	alt_text: "Alt text",
+	focal_point_x: 20,
+	focal_point_y: 80,
 	user_id: SAMPLE_USER_ID,
 };
 

@@ -24,6 +24,8 @@ vi.mock("@/shared/error-message/extractErrorMessage", () => ({
  * The returned spy lets callers inspect or override the default behaviour
  * if a test needs more control.  Placing this logic in a helper keeps
  * disabling lint rules out of test files and centralizes the pattern.
+ *
+ * @returns The typed mock spy for `extractErrorMessage`.
  */
 export function mockExtractErrorMessage(): typeof extractSpy {
 	return vi.mocked(extractSpy);

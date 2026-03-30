@@ -6,6 +6,9 @@ const ARG_INDEX = 0;
 /**
  * Asserts setSlides was called with slides containing the expected addSlide shape.
  * Extracted to test-util to avoid no-unsafe-assignment from Vitest matchers in test files.
+ *
+ * @param setSlides - Mocked `setSlides` function whose first call is asserted.
+ * @returns void
  */
 export function expectSetSlidesAddSlideShape(setSlides: { mock: { calls: unknown[][] } }): void {
 	/* oxlint-disable-next-line typescript/no-unsafe-assignment -- mock.calls typed as any[][] */
@@ -18,6 +21,9 @@ export function expectSetSlidesAddSlideShape(setSlides: { mock: { calls: unknown
 /**
  * Asserts setSlides was called with slides containing the expected duplicateSlide shape.
  * Extracted to test-util to avoid no-unsafe-assignment from Vitest matchers in test files.
+ *
+ * @param setSlides - Mocked `setSlides` function whose first call is asserted.
+ * @returns void
  */
 export function expectSetSlidesDuplicateSlideShape(setSlides: {
 	mock: { calls: unknown[][] };

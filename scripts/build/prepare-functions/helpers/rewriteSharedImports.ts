@@ -5,6 +5,12 @@ import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 
 import { walkFiles } from "./walkFiles";
 
+/**
+ * Rewrite copied `@/shared/*` imports to relative paths inside a destination tree.
+ *
+ * @param destShared - Destination shared directory whose files should be rewritten.
+ * @returns A promise that resolves after all matching files have been processed.
+ */
 export default async function rewriteSharedImports(destShared: string): Promise<void> {
 	const NO_REPLACEMENTS = 0;
 	const REPLACEMENT_INCREMENT = 1;

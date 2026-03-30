@@ -3,6 +3,12 @@ import getEffectType from "./getEffectType";
 import getTypeAnnotation from "./getTypeAnnotation";
 import toPascalCase from "./toPascalCase";
 
+/**
+ * Generates Effect schema source for a single table definition.
+ *
+ * @param table - Table metadata used to derive row, insert, and update schemas.
+ * @returns TypeScript source code containing the generated Effect schemas.
+ */
 export default function generateEffectSchema(table: Readonly<TableDefinition>): string {
 	const NO_ITEMS = 0;
 	const MAX_LINE_LENGTH = 80;

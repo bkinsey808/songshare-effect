@@ -8,6 +8,9 @@ import { type TableDefinition } from "./generate-effect-schemas-types";
 
 /**
  * Parse Supabase generated TypeScript types and return simplified table/column metadata.
+ *
+ * @param filePath - Absolute path to the generated Supabase types file.
+ * @returns Table metadata parsed from the file, or fallback example schemas.
  */
 export default function parseSupabaseTypes(filePath: string): TableDefinition[] {
 	if (!existsSync(filePath)) {

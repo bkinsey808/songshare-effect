@@ -9,6 +9,8 @@ import { vi } from "vitest";
  *
  * Uses `doMock` so the call is not hoisted; that way consumers can call this
  * helper at runtime if they want to re-mock differently per-test.
+ *
+ * @returns void
  */
 export default function mockReactRouter(): void {
 	vi.doMock("react-router-dom", async () => {

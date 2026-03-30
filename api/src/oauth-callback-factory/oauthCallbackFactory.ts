@@ -86,20 +86,6 @@ export default function oauthCallbackFactory(
 		}
 
 		const requestUrl = new URL(ctx.req.url);
-		// Debug: log full request URL so we can see the hostname the API sees
-		yield* $(
-			Effect.sync(() => {
-				// Localized: debug-only server-side log
-				serverDebug(
-					"[oauthCallback] ctx.req.url:",
-					ctx.req.url,
-					"requestUrl.href:",
-					requestUrl.href,
-					"requestUrl.hostname:",
-					requestUrl.hostname,
-				);
-			}),
-		);
 		const code = requestUrl.searchParams.get(codeQueryParam);
 		const oauthStateParamsString = requestUrl.searchParams.get(stateQueryParam);
 		if (code === null || oauthStateParamsString === null) {
@@ -201,20 +187,6 @@ export default function oauthCallbackFactory(
 			envRecord,
 		);
 
-		yield* $(
-			Effect.sync(() => {
-				serverDebug(
-					"[oauthCallback] Redirect URI diagnostics:",
-					"computedStateRedirectUri:",
-					computedStateRedirectUri,
-					"stateRedirectOrigin:",
-					stateRedirectOrigin,
-					"stateRedirectPort:",
-					stateRedirectPort,
-				);
-			}),
-		);
-
 		const { supabase, oauthUserData, existingUser } = yield* $(
 			fetchAndPrepareUser({
 				ctx,
@@ -289,8 +261,6 @@ export default function oauthCallbackFactory(
 					},
 				});
 				ctx.res.headers.append("Set-Cookie", headerValue);
-				// Localized: debug-only server-side log
-				serverDebug("[oauthCallback] Set-Cookie header:", headerValue);
 			}),
 		);
 
@@ -309,8 +279,6 @@ export default function oauthCallbackFactory(
 					},
 				});
 				ctx.res.headers.append("Set-Cookie", csrfHeader);
-				// Localized: debug-only server-side log
-				serverDebug("[oauthCallback] Set-Cookie header (csrf-token):", csrfHeader);
 			}),
 		);
 

@@ -4,6 +4,13 @@ import { join } from "node:path";
 
 export type FileCallback = (filePath: string) => Promise<void>;
 
+/**
+ * Walk a directory tree and invoke a callback for each file encountered.
+ *
+ * @param dir - Root directory to traverse.
+ * @param cb - Async callback invoked for each file path.
+ * @returns A promise that resolves after the full traversal completes.
+ */
 export async function walkFiles(dir: string, cb: FileCallback): Promise<void> {
 	const entries = await readdir(dir, { withFileTypes: true });
 	for (const entry of entries) {

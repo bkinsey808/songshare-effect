@@ -6,6 +6,11 @@ let currentMockAudioLevel: SmoothedAudioLevel | undefined = undefined;
 
 // Factory used to create the module mock. Defined so the runtime mock can close over
 // the `currentMockAudioLevel` variable.
+/**
+ * Build the internal Vitest module factory for `useSmoothedAudioLevel`.
+ *
+ * @returns A module factory that reads the current mocked audio level.
+ */
 function makeUseSmoothedAudioLevelMockFactoryInternal(): () => {
 	__esModule: true;
 	default: (_refs: unknown, _options: unknown) => SmoothedAudioLevel | undefined;
@@ -56,7 +61,7 @@ export function clearMockUseSmoothedAudioLevel(): void {
 /**
  * Create a factory that returns a mock `useSmoothedAudioLevel` function.
  *
- * @returns Factory that produces the mock hook implementation
+ * @returns Factory that produces the mock hook implementation.
  */
 export function makeUseSmoothedAudioLevelMockFactory(): () => {
 	__esModule: true;

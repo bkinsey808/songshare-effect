@@ -11,8 +11,7 @@ import forceCast from "@/react/lib/test-utils/forceCast";
  * appropriate. Use this when tests only need a stable, lightweight slice
  * instance without invoking real effects or network calls.
  *
- * @returns getter function that returns a stubbed `EventSlice` suitable for
- * unit tests
+ * @returns A getter function that returns a stubbed `EventSlice` suitable for unit tests.
  */
 export default function makeEventSlice(): () => EventSlice {
 	const stub = {

@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
+import useImageLibraryPublicSubscription from "@/react/image/realtime/useImageLibraryPublicSubscription";
 
 import type { ImageLibraryEntry, RemoveImageFromLibraryRequest } from "./image-library-types";
 
@@ -65,6 +66,7 @@ export default function useImageLibrary(): {
 	}, [location.pathname, fetchImageLibrary, subscribeToImageLibrary]);
 
 	const entries = Object.values(imageLibraryEntries);
+	useImageLibraryPublicSubscription(Object.keys(imageLibraryEntries));
 
 	return {
 		entries,

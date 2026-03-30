@@ -5,7 +5,8 @@ import type useEventManageView from "@/react/event/manage/event-manage-view/useE
 /**
  * Create a minimal fake return value for `useEventManageView`.
  *
- * @param overrides - partial properties to merge into the default fake
+ * @param overrides - Partial properties to merge into the default fake.
+ * @returns A fake `useEventManageView` result.
  */
 export default function makeUseManageView(
 	overrides: Partial<ReturnType<typeof useEventManageView>> = {},

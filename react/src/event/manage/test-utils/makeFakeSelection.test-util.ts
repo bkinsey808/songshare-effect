@@ -3,7 +3,8 @@ import type useActiveSongSelectionState from "@/react/event/form/useActiveSongSe
 /**
  * Fake data for `useActiveSongSelectionState`.
  *
- * @param overrides - partial payload to merge
+ * @param overrides - Partial payload to merge.
+ * @returns A fake `useActiveSongSelectionState` result.
  */
 export default function makeFakeSelection(
 	overrides: Partial<ReturnType<typeof useActiveSongSelectionState>> = {},

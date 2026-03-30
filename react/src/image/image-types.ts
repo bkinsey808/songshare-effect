@@ -4,7 +4,12 @@
  * Mirrors the `image_public` table columns returned by the API.
  */
 
-export type ImagePublic = {
+export type ImageFocalPoint = {
+	focal_point_x: number;
+	focal_point_y: number;
+};
+
+export type ImagePublic = ImageFocalPoint & {
 	image_id: string;
 	user_id: string;
 	image_name: string;

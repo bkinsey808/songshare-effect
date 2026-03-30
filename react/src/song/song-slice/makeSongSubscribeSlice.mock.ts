@@ -10,6 +10,12 @@ import type { SongSubscribeSlice } from "./song-slice";
  * Return a getter for a minimal, test-friendly SongSubscribeSlice.
  * The getter exposes stateful behavior and vi.fn spies so tests can assert
  * against `slice` state after actions run.
+ *
+ * @param initialPrivate - Initial private songs keyed by id.
+ * @param initialPublic - Initial public songs keyed by id.
+ * @param initialActivePrivateSongIds - Initial active private song ids.
+ * @param initialActivePublicSongIds - Initial active public song ids.
+ * @returns A getter that returns the live mock `SongSubscribeSlice`.
  */
 export default function makeSongSubscribeSlice({
 	initialPrivate = {},

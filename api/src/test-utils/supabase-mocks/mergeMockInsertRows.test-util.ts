@@ -1,5 +1,12 @@
 import type { MockRow } from "./supabase-mock-types";
 
+/**
+ * Merge base insert rows with optional per-row overrides for mock builders.
+ *
+ * @param rows - Base rows used by the mock table.
+ * @param overrideRows - Optional row overrides aligned by index.
+ * @returns Merged rows preserving explicit `undefined` overrides.
+ */
 function mergeMockInsertRows<TRow extends object>(
 	rows: readonly TRow[],
 	overrideRows?: readonly (MockRow<TRow> | undefined)[],

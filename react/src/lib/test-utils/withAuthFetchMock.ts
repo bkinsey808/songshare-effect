@@ -1,11 +1,20 @@
 /**
  * Prevent background auth fetches from starting during tests by stubbing
  * network responses for the auth endpoints used by getSupabaseAuthToken.
+ *
+ * @param input - Candidate fetch input to inspect.
+ * @returns Whether the value exposes a request-like `url` property.
  */
 function isRequestLike(input: unknown): input is Request {
 	return typeof input === "object" && input !== null && "url" in input;
 }
 
+/**
+ * Run a task while auth-related fetches are intercepted with canned responses.
+ *
+ * @param task - Task to run with the temporary fetch mock installed.
+ * @returns A promise that resolves with the task result.
+ */
 export default async function withAuthFetchMock<TReturnType>(
 	task: () => Promise<TReturnType> | TReturnType,
 ): Promise<TReturnType> {

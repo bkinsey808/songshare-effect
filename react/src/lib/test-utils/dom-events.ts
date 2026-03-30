@@ -6,6 +6,12 @@ import forceCast from "@/react/lib/test-utils/forceCast";
    These helpers contain the required narrow casts in one place so tests don't
    need to repeat oxlint-disable comments.
 */
+/**
+ * Build a typed input change event for tests.
+ *
+ * @param value - Input value to expose on the event target.
+ * @returns A `React.ChangeEvent<HTMLInputElement>` carrying the provided value.
+ */
 export function makeChangeEvent(value: string): React.ChangeEvent<HTMLInputElement> {
 	// Construct a minimal, fully-typed event object to avoid unsafe assertions.
 	// Use a real input element so `currentTarget` has the right DOM type.
@@ -33,6 +39,11 @@ export function makeChangeEvent(value: string): React.ChangeEvent<HTMLInputEleme
 	return event;
 }
 
+/**
+ * Build a typed form event with a spy-able `preventDefault`.
+ *
+ * @returns A form event plus the `preventDefault` spy used by the event.
+ */
 export function makeFormEventWithPreventDefault(): {
 	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow test helper; FormEvent shape is intentional here
 	event: React.FormEvent<HTMLFormElement>;
@@ -64,6 +75,12 @@ export function makeFormEventWithPreventDefault(): {
 	return { event, preventDefault };
 }
 
+/**
+ * Build a typed keyboard event with a spy-able `preventDefault`.
+ *
+ * @param key - Keyboard key to expose on the event.
+ * @returns A keyboard event plus the `preventDefault` spy used by the event.
+ */
 export function makeKeyboardEventWithPreventDefault(key: string): {
 	event: React.KeyboardEvent;
 	preventDefault: ReturnType<typeof vi.fn>;
@@ -97,7 +114,7 @@ export function makeKeyboardEventWithPreventDefault(key: string): {
 /**
  * Build a minimal `MouseEvent` with spies for preventDefault/stopPropagation.
  *
- * @returns well-typed React.MouseEvent<HTMLButtonElement>
+ * @returns A well-typed `React.MouseEvent<HTMLButtonElement>`.
  */
 export function makeMouseEvent(): React.MouseEvent<HTMLButtonElement> {
 	const preventDefault = vi.fn();

@@ -2,6 +2,8 @@ import { vi } from "vitest";
 
 /**
  * Test helper to mock react-i18next useTranslation.
+ *
+ * @returns void
  */
 export default function mockTranslation(): void {
 	vi.doMock("react-i18next", () => ({

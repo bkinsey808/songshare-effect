@@ -5,6 +5,9 @@
  * exercise failure or malformed-module paths. This is inherently unsafe in
  * TypeScript; keep the single narrow cast localized to this helper and keep
  * calls throughout tests clean and lint-friendly.
+ *
+ * @param value - Arbitrary value to coerce into `never`.
+ * @returns The provided value typed as `never`.
  */
 export default function asNever(value: unknown): never {
 	/* oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- test-only narrow cast for malformed module input */

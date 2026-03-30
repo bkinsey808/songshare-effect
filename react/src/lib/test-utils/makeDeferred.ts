@@ -8,6 +8,8 @@
  * resolvers. Several lint rules fire on the implementation, so we
  * turn them off here in one place rather than scattering disables across
  * multiple tests.
+ *
+ * @returns An object containing the deferred promise and its resolve/reject functions.
  */
 export default function makeDeferred<TValue>(): {
 	promise: Promise<TValue>;

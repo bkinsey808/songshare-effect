@@ -32,6 +32,12 @@ const EXPECTED_ERROR_PATTERNS = [
 	"Failed to request wake lock",
 ];
 
+/**
+ * Remove known noisy infrastructure errors from captured test logs.
+ *
+ * @param errors - Raw error strings captured during an E2E run.
+ * @returns Only the unexpected error messages that should fail the test.
+ */
 export default function filterExpectedErrors(errors: readonly string[]): string[] {
 	return errors.filter(
 		(error) => !EXPECTED_ERROR_PATTERNS.some((pattern) => error.includes(pattern)),

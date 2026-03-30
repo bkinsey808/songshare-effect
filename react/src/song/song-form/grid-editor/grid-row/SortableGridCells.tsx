@@ -1,10 +1,11 @@
 import type { DraggableAttributes } from "@dnd-kit/core";
 import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 
-import AutoExpandingTextarea from "@/react/lib/design-system/auto-expanding-textarea/AutoExpandingTextarea";
-import cssVars from "@/react/lib/utils/cssVars";
+import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
+import { type Slide } from "@/react/song/song-form/song-form-types";
 
-import { type Slide } from "../song-form-types";
+import SlideBackgroundImageCell from "./SlideBackgroundImageCell";
+import SlideFieldCell from "./SlideFieldCell";
 import SlideNameCell from "./SlideNameCell";
 
 type EditSlideName = ({
@@ -53,7 +54,6 @@ type SortableGridRowInnerProps = Readonly<{
 	deleteSlide: (slideId: string) => void;
 	slides: Readonly<Record<string, Slide>>;
 	idx: number;
-	getColumnWidth: (field: string) => number;
 	attributes: DraggableAttributes;
 	listeners: SyntheticListenerMap | undefined;
 	confirmingDelete: boolean;
@@ -61,6 +61,18 @@ type SortableGridRowInnerProps = Readonly<{
 	globalIsDragging: boolean;
 	/** When true, the slide name cell (left column) uses the duplicate tint. */
 	isDuplicateRow: boolean;
+	backgroundPickerSlideId: string | undefined;
+	isImageLibraryLoading: boolean;
+	imageLibraryEntryList: readonly ImageLibraryEntry[];
+	toggleBackgroundPicker: (slideId: string) => void;
+	selectSlideBackgroundImage: (
+		params: Readonly<{
+			slideId: string;
+			backgroundImageId: string;
+			backgroundImageUrl: string;
+		}>,
+	) => void;
+	clearSlideBackgroundImage: (slideId: string) => void;
 }>;
 
 /**
@@ -88,8 +100,16 @@ type SortableGridRowInnerProps = Readonly<{
  * @param setConfirmingDelete - Setter that toggles delete confirmation state.
  * @param globalIsDragging - Whether any row is currently being dragged.
  * @param isDuplicateRow - Whether this row belongs to a duplicate slide group.
+ * @param backgroundPickerSlideId - Currently open background picker slide id.
+ * @param isImageLibraryLoading - Whether image library data is loading.
+ * @param imageLibraryEntryList - Available image library entries.
+ * @param toggleBackgroundPicker - Toggles the inline background picker.
+ * @param selectSlideBackgroundImage - Applies a background image to the slide.
+ * @param clearSlideBackgroundImage - Clears the current slide background image.
  * @returns React element containing the slide name and field cells.
  */
+export type { SortableGridRowInnerProps };
+
 export default function SortableGridCells({
 	slideId,
 	slide,
@@ -103,13 +123,18 @@ export default function SortableGridCells({
 	deleteSlide,
 	slides,
 	idx,
-	getColumnWidth,
 	attributes,
 	listeners,
 	confirmingDelete,
 	setConfirmingDelete,
 	globalIsDragging,
 	isDuplicateRow,
+	backgroundPickerSlideId,
+	isImageLibraryLoading,
+	imageLibraryEntryList,
+	toggleBackgroundPicker,
+	selectSlideBackgroundImage,
+	clearSlideBackgroundImage,
 }: SortableGridRowInnerProps): ReactElement {
 	return (
 		<>
@@ -129,31 +154,27 @@ export default function SortableGridCells({
 				listeners={listeners}
 				isDuplicateRow={isDuplicateRow}
 			/>
-
 			{/* Dynamic Field Columns with resizable widths */}
-			{fields.map((field) => {
-				const safeName = String(field).replaceAll(/[^a-zA-Z0-9_-]/g, "-");
-				const varName = `field-${safeName}-width`;
-				// Only set the CSS custom property via inline styles; avoid direct width/minWidth/maxWidth
-				const colStyle = cssVars({ [varName]: `${getColumnWidth(field)}px` });
-				const tdClass = `border border-gray-300 dark:border-gray-600 p-0 group-hover:border-gray-300 dark:group-hover:border-gray-400 w-[var(--${varName})] min-w-[var(--${varName})] max-w-[var(--${varName})]`;
-
-				// Baseline alignment: textarea padding-top = baseline-offset − textarea-baseline-correction. Browsers put the first line of a <textarea> lower than an <input> for the same padding; the correction moves this first line up so its baseline matches the slide-name input. text-base leading-normal must match SlideNameCell. Variables live on the table (SlidesGridTable).
-				return (
-					<td key={field} className={tdClass} style={colStyle}>
-						<AutoExpandingTextarea
-							value={safeGetField({ slides, slideId, field })}
-							onChange={(event) => {
-								editFieldValue({ slideId, field, value: event.target.value });
-							}}
-							className="h-full w-full border-none text-base leading-normal pt-[calc(var(--slides-grid-baseline-offset) - var(--slides-grid-textarea-baseline-correction))] px-2 pb-2 focus:outline-none text-black dark:text-white bg-transparent"
-							placeholder={`Enter ${field}...`}
-							minRows={2}
-							maxRows={8}
-						/>
-					</td>
-				);
-			})}
+			{fields.map((field) => (
+				<SlideFieldCell
+					key={field}
+					field={field}
+					slideId={slideId}
+					slides={slides}
+					safeGetField={safeGetField}
+					editFieldValue={editFieldValue}
+				/>
+			))}
+			<SlideBackgroundImageCell
+				slideId={slideId}
+				slide={slide}
+				isBackgroundPickerOpen={backgroundPickerSlideId === slideId}
+				isImageLibraryLoading={isImageLibraryLoading}
+				imageLibraryEntryList={imageLibraryEntryList}
+				toggleBackgroundPicker={toggleBackgroundPicker}
+				selectSlideBackgroundImage={selectSlideBackgroundImage}
+				clearSlideBackgroundImage={clearSlideBackgroundImage}
+			/>
 		</>
 	);
 }

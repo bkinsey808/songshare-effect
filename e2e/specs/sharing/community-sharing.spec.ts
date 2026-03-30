@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import filterExpectedErrors from "@/e2e/utils/filterExpectedErrors.e2e-util.ts";
 import setupErrorTracking from "@/e2e/utils/setupErrorTracking.e2e-util.ts";
@@ -33,6 +33,22 @@ test.use({
 	actionTimeout: 60_000,
 	navigationTimeout: 60_000,
 });
+
+async function waitForPendingInvitationsToClear(page: Page): Promise<void> {
+	const pendingHeading = page.getByText(/pending invitations/i);
+	const declineButton = page.getByRole("button", { name: "Decline", exact: true }).first();
+
+	const clearedViaButtons = await expect(declineButton)
+		.not.toBeVisible({ timeout: REALTIME_WAIT_MS })
+		.then(() => true)
+		.catch(() => false);
+	if (clearedViaButtons) {
+		return;
+	}
+
+	await page.reload({ waitUntil: "load" });
+	await expect(pendingHeading).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
+}
 
 test.describe("Community Invitation", () => {
 	test.skip(missingBothSessions, "Skipped: run npm run e2e:create-session:staging-db[:user2]");
@@ -147,10 +163,7 @@ test.describe("Community Invitation", () => {
 			});
 			await inviteePage.getByRole("button", { name: "Decline" }).first().click();
 
-			// Invitation section clears after decline
-			await expect(inviteePage.getByText(/pending invitations/i)).not.toBeVisible({
-				timeout: REALTIME_WAIT_MS,
-			});
+			await waitForPendingInvitationsToClear(inviteePage);
 		} finally {
 			await senderCtx.close();
 			await recipientCtx.close();

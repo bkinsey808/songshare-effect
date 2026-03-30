@@ -8,6 +8,9 @@ import type { NavigationSlice } from "./NavigationSlice.type";
  * Return a getter for a minimal, test-friendly NavigationSlice.
  * The getter returns a live stub whose methods mutate internal state so
  * tests can assert against the returned object reference.
+ *
+ * @param initialExpanded - Initial expanded state for the header actions.
+ * @returns A getter that returns the live mock navigation slice.
  */
 export default function makeNavigationSlice(initialExpanded = true): () => NavigationSlice {
 	const state = {

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+import getImageObjectPosition from "@/react/image/focal-point/getImageObjectPosition";
+
 import type { ImageLibraryEntry } from "../image-library-types";
 import useImageLibraryCard from "./useImageLibraryCard";
 
@@ -44,13 +46,18 @@ export default function ImageLibraryCard({
 	}
 
 	return (
-		<div className="overflow-hidden rounded-lg border border-gray-700 bg-gray-800 transition-colors hover:border-gray-600">
+		<div
+			data-testid={`image-library-card-${entry.image_id}`}
+			className="overflow-hidden rounded-lg border border-gray-700 bg-gray-800 transition-colors hover:border-gray-600"
+		>
 			{imageUrl !== undefined && (
 				<div className="aspect-video w-full overflow-hidden bg-gray-900">
 					<img
 						src={imageUrl}
 						alt={image?.alt_text ?? image?.image_name ?? "Image"}
+						data-testid={`image-library-card-image-${entry.image_id}`}
 						className="h-full w-full object-cover"
+						style={image === undefined ? undefined : { objectPosition: getImageObjectPosition(image) }}
 					/>
 				</div>
 			)}

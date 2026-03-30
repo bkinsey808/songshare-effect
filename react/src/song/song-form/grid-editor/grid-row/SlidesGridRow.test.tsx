@@ -1,32 +1,55 @@
 import { render, waitFor } from "@testing-library/react";
+import { CSS } from "@dnd-kit/utilities";
+import { useSortable } from "@dnd-kit/sortable";
 import { describe, expect, it, vi } from "vitest";
 
-import type { Slide } from "../song-form-types";
+import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
+import forceCast from "@/react/lib/test-utils/forceCast";
+import type { Slide } from "@/react/song/song-form/song-form-types";
+import DeleteConfirmationRow, {
+	type DeleteConfirmationRowProps,
+} from "./DeleteConfirmationRow";
 import SlidesGridRow from "./SlidesGridRow";
+import SortableGridCells, {
+	type SortableGridRowInnerProps,
+} from "./SortableGridCells";
 
-const GRID_WIDTH = 42;
-const BASE_COL_SPAN = 1; // matches SLIDE_NAME_COL_COUNT in component
+const BASE_COL_SPAN = 2; // matches FIXED_COLUMN_COUNT in component
 
-// mocks for third-party hooks used in SlidesGridRow
-// @ts-expect-error - vitest helper types are slightly off
-vi.mock<unknown>("@dnd-kit/sortable", () => ({
-	useSortable: vi.fn(() => ({
+vi.mock("@dnd-kit/sortable");
+vi.mock("@dnd-kit/utilities");
+vi.mock("./SortableGridCells");
+vi.mock("./DeleteConfirmationRow");
+
+vi.mocked(useSortable).mockReturnValue(
+	forceCast<ReturnType<typeof useSortable>>({
 		attributes: {},
 		listeners: {},
 		setNodeRef: vi.fn(),
 		transform: undefined,
 		transition: "",
 		isDragging: false,
-	})),
-}));
+	}),
+);
 
-// @ts-expect-error - vitest helper types are slightly off
-vi.mock<unknown>("@dnd-kit/utilities", () => ({
-	CSS: { Transform: { toString: (): string => "" } },
-}));
+vi.spyOn(CSS.Transform, "toString").mockReturnValue("");
 
-// helper for narrowing delete props while keeping lint comments out of tests
-// we avoid non-null assertions by throwing when undefined
+type SortableGridCellsProps = SortableGridRowInnerProps;
+type DeleteRowProps = DeleteConfirmationRowProps;
+
+let latestGridCellsProps: SortableGridCellsProps | undefined = undefined;
+let latestDeleteProps: DeleteRowProps | undefined = undefined;
+
+vi.mocked(SortableGridCells).mockImplementation((props) => {
+	latestGridCellsProps = props;
+	return <div />;
+});
+
+vi.mocked(DeleteConfirmationRow).mockImplementation((props) => {
+	latestDeleteProps = props;
+	return <div />;
+});
+
 function assumeDeleteProps(val: DeleteRowProps | undefined): DeleteRowProps {
 	if (!val) {
 		throw new Error("expected delete props");
@@ -34,60 +57,18 @@ function assumeDeleteProps(val: DeleteRowProps | undefined): DeleteRowProps {
 	return val;
 }
 
-// stubs for child components that capture props
-// we only need the type once
-
-// helper to call the optional setter without triggering unsafe-any errors
-function callSetConfirm(props: SortableGridCellsProps | undefined, value: boolean): void {
-	if (props && typeof props.setConfirmingDelete === "function") {
-		// cast necessary because index signature makes prop type unknown
-		(props.setConfirmingDelete as (confirm: boolean) => void)(value);
+function assumeGridCellsProps(val: SortableGridCellsProps | undefined): SortableGridCellsProps {
+	if (!val) {
+		throw new Error("expected grid cell props");
 	}
+	return val;
 }
-
-type SortableGridCellsProps = {
-	setConfirmingDelete?: (confirm: boolean) => void;
-	[key: string]: unknown;
-};
-
-let latestGridCellsProps: SortableGridCellsProps | undefined = undefined;
-
-// capture delete row props during render
-
-type DeleteRowProps = {
-	colSpan: number;
-	isFaded: boolean;
-	onCancel: () => void;
-	onConfirm: () => void;
-};
-let latestDeleteProps: DeleteRowProps | undefined = undefined;
-
-// @ts-expect-error - vitest helper types are slightly off
-vi.mock<unknown>("./SortableGridCells", () => ({
-	__esModule: true,
-	default: (props: SortableGridCellsProps): unknown => {
-		// capture props for assertions
-		latestGridCellsProps = props;
-		return <div />;
-	},
-}));
-
-// @ts-expect-error - vitest helper types are slightly off
-vi.mock<unknown>("./DeleteConfirmationRow", () => ({
-	__esModule: true,
-	default: (props: DeleteRowProps): unknown => {
-		latestDeleteProps = props;
-		return <div />;
-	},
-}));
-
-// mocks are hoisted by Vitest, so we can import normally
 
 type Props = React.ComponentProps<typeof SlidesGridRow>;
 
 function makeProps(overrides: Partial<Props> = {}): Props {
-	// test fixture only needs name; cast through unknown to avoid any
 	const baseSlide: Slide = { slide_name: "Test slide", field_data: {} };
+	const imageLibraryEntryList: readonly ImageLibraryEntry[] = [];
 
 	const defaultProps: Props = {
 		slideId: "slide-1",
@@ -102,9 +83,14 @@ function makeProps(overrides: Partial<Props> = {}): Props {
 		deleteSlide: vi.fn(),
 		slides: { "slide-1": baseSlide },
 		idx: 0,
-		getColumnWidth: vi.fn(() => GRID_WIDTH),
 		globalIsDragging: false,
 		isDuplicateRow: false,
+		backgroundPickerSlideId: undefined,
+		isImageLibraryLoading: false,
+		imageLibraryEntryList,
+		toggleBackgroundPicker: vi.fn(),
+		selectSlideBackgroundImage: vi.fn(),
+		clearSlideBackgroundImage: vi.fn(),
 	};
 
 	return { ...defaultProps, ...overrides };
@@ -120,9 +106,8 @@ describe("slidesGridRow", () => {
 		// React complains about <tr> in <div>; ignore it
 		render(<SlidesGridRow {...props} />);
 
-		expect(latestGridCellsProps).toBeDefined();
-		// we checked props presence above so we can index safely
-		expect(latestGridCellsProps?.["slideId"]).toBe(props.slideId);
+		const gridCellsProps = assumeGridCellsProps(latestGridCellsProps);
+		expect(gridCellsProps.slideId).toBe(props.slideId);
 		expect(latestDeleteProps).toBeUndefined();
 	});
 
@@ -131,7 +116,6 @@ describe("slidesGridRow", () => {
 		latestGridCellsProps = undefined;
 		latestDeleteProps = undefined;
 
-		// override fields with wrong type to trigger error path
 		// @ts-expect-error passing invalid type intentionally
 		const props = makeProps({ fields: undefined });
 		const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {
@@ -157,10 +141,8 @@ describe("slidesGridRow", () => {
 
 		render(<SlidesGridRow {...props} />);
 
-		// trigger confirm flow via the mocked SortableGridCells
-		expect(latestGridCellsProps).toBeDefined();
-		// invoke setter; waitFor will handle the re-render
-		callSetConfirm(latestGridCellsProps, true);
+		const gridCellsProps = assumeGridCellsProps(latestGridCellsProps);
+		gridCellsProps.setConfirmingDelete(true);
 		const expectedColSpan = BASE_COL_SPAN + props.fields.length;
 		await waitFor(() => {
 			expect(latestDeleteProps).toBeDefined();

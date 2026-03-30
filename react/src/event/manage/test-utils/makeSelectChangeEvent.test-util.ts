@@ -6,6 +6,9 @@ import type { ChangeEvent } from "react";
  * Tests often need to simulate an onChange on a <select>. Instead of
  * repeating an unsafe assertion in every spec, this helper isolates the
  * lint-disable. Callers simply import and use it, keeping test files clean.
+ *
+ * @param value - Select value to expose on the mocked event target.
+ * @returns A minimal `ChangeEvent<HTMLSelectElement>`.
  */
 export default function makeSelectChangeEvent(value: string): ChangeEvent<HTMLSelectElement> {
 	// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion

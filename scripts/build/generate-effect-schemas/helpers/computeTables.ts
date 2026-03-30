@@ -5,6 +5,9 @@ import mapToMappedType from "./mapToMappedType";
 
 /**
  * Compute table definitions from Supabase-generated types file contents.
+ *
+ * @param file - Raw generated Supabase types file contents.
+ * @returns Simplified table metadata extracted from the generated types.
  */
 export default function computeTables(file: string): TableDefinition[] {
 	const tableRegex = /(\w+):\s*{\s*Row:\s*{([^}]+)}\s*Insert:\s*{([^}]+)}/gs;

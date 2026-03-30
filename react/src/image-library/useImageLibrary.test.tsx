@@ -11,6 +11,7 @@ import useImageLibrary from "./useImageLibrary";
 
 vi.mock("react-router-dom");
 vi.mock("@/react/app-store/useAppStore");
+vi.mock("@/react/image/realtime/useImageLibraryPublicSubscription");
 
 const IMAGE_ID = "img-1";
 const USER_ID = "usr-1";

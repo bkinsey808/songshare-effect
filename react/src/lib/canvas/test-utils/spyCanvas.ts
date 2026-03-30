@@ -6,6 +6,11 @@ export type ResizeSpy = (canvas: HTMLCanvasElement) => void;
 // Dynamically import the module under test.  This file lives outside of a
 // test so we can freely use the necessary `as unknown as` cast instead of
 // sprinkling oxlint-disable comments throughout spec files.
+/**
+ * Create a spy handle for the `resizeCanvasToDisplaySize` module export.
+ *
+ * @returns A promise that resolves to the imported resize spy.
+ */
 export function spyResizeCanvasToDisplaySize(): Promise<ResizeSpy> {
 	// the underlying spyImport helper is now generic, so we can request the
 	// precise callback type directly without an unsafe narrowing cast.

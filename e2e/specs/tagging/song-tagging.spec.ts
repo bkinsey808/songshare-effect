@@ -58,6 +58,34 @@ test.use({
  * with any legitimate user tags in the staging DB.
  */
 const TEST_TAG_SLUG = "e2e-cross-user-tag";
+const SONG_LIBRARY_RELOAD_ATTEMPTS = 4;
+const FIRST_ATTEMPT = 0;
+const NEXT_ATTEMPT_STEP = 1;
+const SONG_LIBRARY_LINK_RETRY_TIMEOUT_MS = 5000;
+
+function waitForSongLibraryLink(ownerPage: Page): Promise<void> {
+	const viewSongLink = ownerPage.locator(`a[href*="${testSongSlug}"]`).first();
+
+	async function tryOnce(attempt: number): Promise<void> {
+		const linkVisible = await viewSongLink
+			.waitFor({ state: "visible", timeout: SONG_LIBRARY_LINK_RETRY_TIMEOUT_MS })
+			.then(() => true)
+			.catch(() => false);
+		if (linkVisible) {
+			return;
+		}
+
+		if (attempt >= SONG_LIBRARY_RELOAD_ATTEMPTS - NEXT_ATTEMPT_STEP) {
+			await expect(viewSongLink).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
+			return;
+		}
+
+		await ownerPage.reload({ waitUntil: "load" });
+		return tryOnce(attempt + NEXT_ATTEMPT_STEP);
+	}
+
+	return tryOnce(FIRST_ATTEMPT);
+}
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -80,7 +108,7 @@ function navigateToSongEditPage(ownerPage: Page): Effect.Effect<string, Error> {
 		);
 
 		const viewSongLink = ownerPage.locator(`a[href*="${testSongSlug}"]`).first();
-		yield* $(expectVisibleEffect(viewSongLink, { timeout: MANAGE_PAGE_READY_TIMEOUT_MS }));
+		yield* $(fromPromiseVoid(() => waitForSongLibraryLink(ownerPage)));
 		const songCard = viewSongLink.locator(
 			"xpath=ancestor::div[.//button[normalize-space()='Edit']][1]",
 		);

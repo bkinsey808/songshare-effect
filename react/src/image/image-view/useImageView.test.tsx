@@ -14,11 +14,12 @@ import { describe, expect, it, vi } from "vitest";
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import getImagePublicUrl from "@/react/image/getImagePublicUrl";
+import type { ImagePublic } from "@/react/image/image-types";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
+import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 import forceCast from "@/react/lib/test-utils/forceCast";
-
-import type { ImagePublic } from "../image-types";
+import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 import useImageView from "./useImageView";
 
 vi.mock("react-router-dom");
@@ -26,29 +27,11 @@ vi.mock("@/react/lib/language/locale/useLocale");
 vi.mock("@/react/app-store/useAppStore");
 vi.mock("@/react/auth/useCurrentUserId");
 vi.mock("@/react/image/getImagePublicUrl");
+vi.mock("@/react/image/realtime/useImagePublicSubscription");
 vi.mock("@/react/lib/qr-code/buildPublicWebUrl");
 vi.mock("@/react/share/subscribe/useShareSubscription");
 
 const IMAGE_SLUG = "my-image";
-const USER_ID = "usr-1";
-
-function makeImagePublic(slug: string): ImagePublic {
-	return {
-		image_id: "img-1",
-		user_id: USER_ID,
-		image_name: "My Image",
-		image_slug: slug,
-		description: "desc",
-		alt_text: "alt",
-		r2_key: "images/usr-1/img-1.jpg",
-		content_type: "image/jpeg",
-		file_size: 1024,
-		width: 800,
-		height: 600,
-		created_at: "2026-01-01T00:00:00Z",
-		updated_at: "2026-01-01T00:00:00Z",
-	};
-}
 
 function installLocale(): void {
 	vi.mocked(useLocale).mockReturnValue(
@@ -135,8 +118,8 @@ describe("useImageView — Harness", () => {
 		vi.mocked(useParams).mockReturnValue({ image_slug: IMAGE_SLUG });
 		const mockNavigate = vi.fn();
 		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-		vi.mocked(useCurrentUserId).mockReturnValue(USER_ID);
-		const img = makeImagePublic(IMAGE_SLUG);
+		vi.mocked(useCurrentUserId).mockReturnValue(TEST_USER_ID);
+		const img = makeImagePublic();
 		installStore({ publicImages: { [img.image_id]: img } });
 
 		const rendered = render(<Harness />);
@@ -176,7 +159,7 @@ describe("useImageView — renderHook", () => {
 		vi.mocked(useParams).mockReturnValue({ image_slug: IMAGE_SLUG });
 		vi.mocked(useNavigate).mockReturnValue(vi.fn());
 		vi.mocked(useCurrentUserId).mockReturnValue(undefined);
-		const img = makeImagePublic(IMAGE_SLUG);
+		const img = makeImagePublic();
 		installStore({ publicImages: { [img.image_id]: img } });
 		vi.mocked(getImagePublicUrl).mockReturnValue("https://cdn.example.com/img.jpg");
 		vi.mocked(buildPublicWebUrl).mockReturnValue("https://qr.example.com");
@@ -193,8 +176,8 @@ describe("useImageView — renderHook", () => {
 		installLocale();
 		vi.mocked(useParams).mockReturnValue({ image_slug: IMAGE_SLUG });
 		vi.mocked(useNavigate).mockReturnValue(vi.fn());
-		vi.mocked(useCurrentUserId).mockReturnValue(USER_ID);
-		const img = makeImagePublic(IMAGE_SLUG);
+		vi.mocked(useCurrentUserId).mockReturnValue(TEST_USER_ID);
+		const img = makeImagePublic();
 		installStore({ publicImages: { [img.image_id]: img } });
 
 		const { result } = renderHook(() => useImageView());
@@ -208,8 +191,8 @@ describe("useImageView — renderHook", () => {
 		vi.mocked(useParams).mockReturnValue({ image_slug: IMAGE_SLUG });
 		const mockNavigate = vi.fn();
 		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-		vi.mocked(useCurrentUserId).mockReturnValue(USER_ID);
-		const img = makeImagePublic(IMAGE_SLUG);
+		vi.mocked(useCurrentUserId).mockReturnValue(TEST_USER_ID);
+		const img = makeImagePublic();
 		installStore({ publicImages: { [img.image_id]: img } });
 
 		const { result } = renderHook(() => useImageView());
@@ -239,7 +222,7 @@ describe("useImageView — renderHook", () => {
 		vi.resetAllMocks();
 		installLocale();
 		vi.mocked(useParams).mockReturnValue({ image_slug: IMAGE_SLUG });
-		const img = makeImagePublic(IMAGE_SLUG);
+		const img = makeImagePublic();
 		installStore({ publicImages: { [img.image_id]: img } });
 
 		const { result } = renderHook(() => useImageView());
@@ -272,8 +255,8 @@ describe("useImageView — renderHook", () => {
 		vi.mocked(useParams).mockReturnValue({ image_slug: IMAGE_SLUG });
 		const mockNavigate = vi.fn();
 		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-		vi.mocked(useCurrentUserId).mockReturnValue(USER_ID);
-		const img = makeImagePublic(IMAGE_SLUG);
+		vi.mocked(useCurrentUserId).mockReturnValue(TEST_USER_ID);
+		const img = makeImagePublic();
 		const mockDelete = vi.fn().mockReturnValue(Effect.succeed(undefined));
 		installStore({
 			publicImages: { [img.image_id]: img },

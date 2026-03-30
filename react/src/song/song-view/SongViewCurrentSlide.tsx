@@ -1,5 +1,7 @@
 import { useTranslation } from "react-i18next";
 
+import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
+import { ResolvedSlideOrientation } from "@/shared/user/slideOrientationPreference";
 import isRecord from "@/shared/type-guards/isRecord";
 
 /** Minimum allowed slide index (keeps bounds explicit and avoids magic numbers) */
@@ -28,6 +30,11 @@ export default function SongViewCurrentSlide({
 	totalSlides,
 }: SongViewCurrentSlideProps): ReactElement | undefined {
 	const { t } = useTranslation();
+	const { effectiveSlideOrientation } = useSlideOrientationPreference();
+	const slideAspectClassName =
+		effectiveSlideOrientation === ResolvedSlideOrientation.portrait
+			? "aspect-[9/16]"
+			: "aspect-video";
 
 	// Show a helpful, localized placeholder when there are no slides to display.
 	if (totalSlides === MIN_SLIDE_INDEX) {
@@ -55,17 +62,22 @@ export default function SongViewCurrentSlide({
 					backgroundSize: "cover",
 					backgroundPosition: "center",
 				};
+	const slideStyle: React.CSSProperties = {
+		aspectRatio:
+			effectiveSlideOrientation === ResolvedSlideOrientation.portrait ? "9 / 16" : "16 / 9",
+		...backgroundStyle,
+	};
 	const textGlowStyle: React.CSSProperties = {
 		textShadow: "0 2px 10px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 0, 0, 0.85)",
 	};
 
 	return (
 		<div
-			className="rounded-md p-4"
-			style={backgroundStyle}
+			className={`rounded-md p-4 ${slideAspectClassName}`}
+			style={slideStyle}
 			data-testid="song-current-slide"
 		>
-			<div className="space-y-4 rounded-md border border-white/15 bg-black/45 p-4 backdrop-blur-[1px]">
+			<div className="flex h-full flex-col space-y-4 rounded-md border border-white/15 bg-black/45 p-4 backdrop-blur-[1px]">
 				{slideNameStr.trim() === "" ? undefined : (
 					<h2 className="text-lg font-semibold text-white" style={textGlowStyle}>
 						{slideNameStr}

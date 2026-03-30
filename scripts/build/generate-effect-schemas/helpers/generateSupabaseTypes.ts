@@ -13,6 +13,12 @@ export type SupabaseGenerationConfig = {
 };
 
 // The config includes NodeJS.ProcessEnv which isn't readonly, so lint rule is disabled.
+/**
+ * Invokes the Supabase CLI to generate TypeScript types for the configured project.
+ *
+ * @param config - CLI paths, environment, and output targets used for generation.
+ * @returns Whether type generation succeeded and wrote a temporary types file.
+ */
 export function generateSupabaseTypes(config: Readonly<SupabaseGenerationConfig>): boolean {
 	sWarn("📥 Generating Supabase TypeScript types...");
 	const NO_LENGTH = 0;

@@ -6,6 +6,11 @@ import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 
 import findBrowserExecutable from "./findBrowserExecutable";
 
+/**
+ * Check whether a Playwright browser cache already contains usable binaries.
+ *
+ * @returns Whether at least one candidate cache directory contains a browser executable.
+ */
 export default function browsersAlreadyInstalled(): boolean {
 	const repoPath: string | undefined =
 		typeof process.env["PLAYWRIGHT_BROWSERS_PATH"] === "string" &&

@@ -3,7 +3,8 @@ import type useEventView from "@/react/event/view/useEventView";
 /**
  * Fake data for `useEventView`.
  *
- * @param overrides - partial payload to merge
+ * @param overrides - Partial payload to merge.
+ * @returns A fake `useEventView` result.
  */
 export default function makeFakeView(
 	overrides: Partial<ReturnType<typeof useEventView>> = {},

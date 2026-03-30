@@ -1,8 +1,15 @@
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
 
 import { warn as sWarn } from "@/scripts/utils/scriptLogger";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
+/**
+ * Runs lint autofixes for generated files that currently exist.
+ *
+ * @param params - Linter CLI path, project root, and candidate files to fix.
+ * @returns void
+ */
 export default function runLintFix(
 	params: Readonly<{
 		projectRoot: string;
@@ -11,12 +18,13 @@ export default function runLintFix(
 	}>,
 ): void {
 	const NO_FILES = 0;
-	if (params.files.length === NO_FILES) {
+	const existingFiles = params.files.filter((filePath) => existsSync(filePath));
+	if (existingFiles.length === NO_FILES) {
 		return;
 	}
 
 	try {
-		execFileSync(params.cliPath, ["--fix", ...params.files], {
+		execFileSync(params.cliPath, ["--fix", ...existingFiles], {
 			cwd: params.projectRoot,
 			stdio: "pipe",
 		});

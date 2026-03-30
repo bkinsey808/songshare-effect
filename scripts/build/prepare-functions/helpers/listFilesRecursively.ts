@@ -1,6 +1,12 @@
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 
+/**
+ * Collect every file path beneath a directory tree.
+ *
+ * @param dir - Root directory to traverse.
+ * @returns A promise that resolves to all discovered file paths.
+ */
 export default async function listFilesRecursively(dir: string): Promise<string[]> {
 	const entries = await readdir(dir, { withFileTypes: true });
 	const files: string[] = [];

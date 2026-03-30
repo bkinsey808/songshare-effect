@@ -1,9 +1,10 @@
 import { Effect } from "effect";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
+import useImagePublicSubscription from "@/react/image/realtime/useImagePublicSubscription";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { dashboardPath, imageLibraryPath, imageViewPath } from "@/shared/paths";
@@ -11,11 +12,8 @@ import { dashboardPath, imageLibraryPath, imageViewPath } from "@/shared/paths";
 import type { ImagePublic } from "../image-types";
 
 type UseImageEditReturn = {
-	handleDeleteCancel: () => void;
-	handleDeleteClick: () => void;
 	handleDeleteConfirm: () => void;
 	image: ImagePublic | undefined;
-	isConfirmingDelete: boolean;
 	isImageLoading: boolean;
 	isOwner: boolean;
 };
@@ -33,7 +31,6 @@ export default function useImageEdit(): UseImageEditReturn {
 	const { lang } = useLocale();
 	const navigate = useNavigate();
 	const currentUserId = useCurrentUserId();
-	const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
 	const publicImages = useAppStore((state) => state.publicImages);
 	const isImageLoading = useAppStore((state) => state.isImageLoading);
@@ -54,6 +51,8 @@ export default function useImageEdit(): UseImageEditReturn {
 	const isOwner =
 		image !== undefined && currentUserId !== undefined && image.user_id === currentUserId;
 
+	useImagePublicSubscription(image?.image_id);
+
 	// Redirect non-owners back to the view page once loading completes.
 	useEffect(() => {
 		if (!isImageLoading && image !== undefined && currentUserId !== undefined && !isOwner) {
@@ -61,20 +60,11 @@ export default function useImageEdit(): UseImageEditReturn {
 		}
 	}, [isImageLoading, image, currentUserId, isOwner, navigate, lang]);
 
-	function handleDeleteClick(): void {
-		setIsConfirmingDelete(true);
-	}
-
-	function handleDeleteCancel(): void {
-		setIsConfirmingDelete(false);
-	}
-
 	function handleDeleteConfirm(): void {
 		if (image === undefined || !isOwner) {
 			return;
 		}
 
-		setIsConfirmingDelete(false);
 		const destinationPath = buildPathWithLang(`/${dashboardPath}/${imageLibraryPath}`, lang);
 		void (async (): Promise<void> => {
 			try {
@@ -87,11 +77,8 @@ export default function useImageEdit(): UseImageEditReturn {
 	}
 
 	return {
-		handleDeleteCancel,
-		handleDeleteClick,
 		handleDeleteConfirm,
 		image,
-		isConfirmingDelete,
 		isImageLoading,
 		isOwner,
 	};

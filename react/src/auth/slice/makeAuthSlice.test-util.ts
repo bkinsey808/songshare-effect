@@ -7,6 +7,9 @@ import type { AuthSlice, AuthState } from "./auth-slice.types";
 /**
  * Minimal, test-friendly `AuthSlice` getter. Exposes stateful behavior and
  * vi.fn spies for methods so tests can assert on side-effects and state.
+ *
+ * @param initial - Partial initial auth state to seed into the mock.
+ * @returns A getter that returns the live mock auth slice.
  */
 export default function makeAuthSlice(initial: Partial<AuthState> = {}): () => AuthSlice {
 	const state: Partial<AuthState> = {

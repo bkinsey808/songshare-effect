@@ -1,6 +1,11 @@
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { PlaylistLibraryEntry } from "@/react/playlist-library/slice/playlist-library-types";
 
+/**
+ * Create a record of playlist library fixtures keyed by playlist id.
+ *
+ * @returns Playlist library entry fixtures keyed by id.
+ */
 export default function makePlaylistLibraryEntries(): Record<string, PlaylistLibraryEntry> {
 	const now = new Date().toISOString();
 	return {

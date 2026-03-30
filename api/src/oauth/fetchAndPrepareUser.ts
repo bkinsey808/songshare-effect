@@ -3,7 +3,7 @@ import { Effect, type Schema } from "effect";
 
 import { DatabaseError, ValidationError } from "@/api/api-errors";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-import { debug as serverDebug, error as serverError } from "@/api/logger";
+import { error as serverError } from "@/api/logger";
 import fetchAndParseOauthUserData from "@/api/oauth/fetchAndParseOauthUserData";
 import resolveRedirectOrigin from "@/api/oauth/resolveRedirectOrigin";
 import getBackEndProviderData from "@/api/provider/getBackEndProviderData";
@@ -113,12 +113,6 @@ export default function fetchAndPrepareUser({
 			const originForRedirect = resolveRedirectOrigin(envRedirectOrigin || undefined, opts);
 			redirectUri = `${originForRedirect}${apiOauthCallbackPath}`;
 		}
-		yield* $(
-			Effect.sync(() => {
-				// Localized: debug-only server-side log
-				serverDebug("[fetchAndPrepareUser] Using redirectUri:", redirectUri);
-			}),
-		);
 		const { accessTokenUrl, clientIdEnvVar, clientSecretEnvVar, userInfoUrl } =
 			getBackEndProviderData(provider);
 		// Read env vars via the safe helper (no call-site casting necessary).
@@ -151,16 +145,6 @@ export default function fetchAndPrepareUser({
 			getUserByEmail({ supabase, email: oauthUserData.email }),
 		);
 
-		// Additional debug logging to aid in locating 500 errors during dev
-		yield* $(
-			Effect.sync(() => {
-				// Localized: debug-only server-side log
-				serverDebug(
-					"[oauthCallback] fetchAndPrepareUser completed. existingUser:",
-					existingUser ? { user_id: existingUser.user_id } : undefined,
-				);
-			}),
-		);
 		return { supabase, oauthUserData, existingUser };
 	});
 }

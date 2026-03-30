@@ -7,8 +7,8 @@ import useAppStore from "@/react/app-store/useAppStore";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import { makeFormEventWithPreventDefault } from "@/react/lib/test-utils/dom-events";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 
-import type { ImagePublic } from "../image-types";
 import useImageUploadForm from "./useImageUploadForm";
 
 vi.mock("react-router-dom");
@@ -18,24 +18,6 @@ vi.mock("@/react/app-store/useAppStore");
 const IMAGE_SLUG = "my-uploaded-image";
 const UPLOAD_ERR = "Network error";
 
-function makeImagePublic(slug: string): ImagePublic {
-	return {
-		image_id: "img-1",
-		user_id: "usr-1",
-		image_name: "My Image",
-		image_slug: slug,
-		description: "desc",
-		alt_text: "alt",
-		r2_key: "images/usr-1/img-1.jpg",
-		content_type: "image/jpeg",
-		file_size: 1024,
-		width: 800,
-		height: 600,
-		created_at: "2026-01-01T00:00:00Z",
-		updated_at: "2026-01-01T00:00:00Z",
-	};
-}
-
 function installLocale(): void {
 	vi.mocked(useLocale).mockReturnValue(
 		forceCast<ReturnType<typeof useLocale>>({ lang: "en", t: (key: string) => key }),
@@ -44,7 +26,8 @@ function installLocale(): void {
 
 function installStore(opts: { uploadImage?: ReturnType<typeof vi.fn> }): void {
 	const mockUpload =
-		opts.uploadImage ?? vi.fn().mockReturnValue(Effect.succeed(makeImagePublic(IMAGE_SLUG)));
+		opts.uploadImage ??
+		vi.fn().mockReturnValue(Effect.succeed(makeImagePublic({ image_slug: IMAGE_SLUG })));
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) =>
 		forceCast<(state: { uploadImage: typeof mockUpload }) => unknown>(selector)({
 			uploadImage: mockUpload,

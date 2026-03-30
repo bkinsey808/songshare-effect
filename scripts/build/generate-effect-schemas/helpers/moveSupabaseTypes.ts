@@ -10,6 +10,12 @@ export type MoveSupabaseTypesConfig = {
 	generated: boolean;
 };
 
+/**
+ * Moves the generated Supabase types file into the shared generated directory.
+ *
+ * @param config - Source, destination, and generation state for the move.
+ * @returns The destination path when the move succeeds, otherwise `undefined`.
+ */
 export function moveSupabaseTypes(config: Readonly<MoveSupabaseTypesConfig>): string | undefined {
 	if (!config.generated || !existsSync(config.tempPath)) {
 		sWarn("📁 No types file to move (using fallback schemas)");

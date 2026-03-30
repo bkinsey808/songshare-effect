@@ -11,6 +11,9 @@ import type { SongLibraryEntry } from "./song-library-types";
  * The returned getter exposes stateful behavior for `setSongLibraryEntries`,
  * `addSongLibraryEntry`, and `removeSongLibraryEntry` so tests can assert
  * against `slice.songLibraryEntries` after actions run.
+ *
+ * @param initialEntries - Initial library entries to seed into the mock slice.
+ * @returns A getter that returns the live mock slice instance.
  */
 export default function makeSongLibrarySlice(
 	initialEntries: Record<string, SongLibraryEntry> = {},

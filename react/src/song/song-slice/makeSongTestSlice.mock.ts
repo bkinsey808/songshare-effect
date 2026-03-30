@@ -3,6 +3,12 @@ import type { Api } from "@/react/app-store/app-store-types";
 import makeSongSubscribeSlice from "./makeSongSubscribeSlice.mock";
 import { createSongSubscribeSlice, type SongSubscribeSlice } from "./song-slice";
 
+/**
+ * Create a mutable `SongSubscribeSlice` harness for tests.
+ *
+ * @param initialState - Optional partial state to merge into the base slice.
+ * @returns The created slice plus `getState` and `setState` helpers.
+ */
 export default function makeSongTestSlice(initialState?: Partial<SongSubscribeSlice>): {
 	slice: SongSubscribeSlice;
 	getState: () => SongSubscribeSlice;

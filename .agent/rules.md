@@ -12,6 +12,8 @@ Quick-reference coding guidelines. Follow skill links for detailed guidance.
 - **JSDoc in TypeScript**: never include type annotations in JSDoc for `.ts` / `.tsx` — TypeScript provides the types. OK in plain `.js` files only.
 - **No lint disables in test files**: do not add `oxlint-disable` or `eslint-disable` in `*.test.ts` / `*.test.tsx`. Fix the code, or extract helpers into `*.test-util.*` files.
 - **Strict TypeScript**: project uses `exactOptionalPropertyTypes` and `noPropertyAccessFromIndexSignature`. See [docs/strict-typescript-patterns.md](/docs/strict-typescript-patterns.md).
+- **Tailwind string marker**: prefer `tw\`\`` for static Tailwind utility strings so they are clearly compiler-targeted.
+- **No `tw\`\`` interpolation**: do not interpolate runtime values inside `tw\`\``; use CSS custom properties via `cssVars(...)` plus stable classes like `w-[var(--field-width)]` instead.
 
 ## Skills (load for detailed guidance)
 

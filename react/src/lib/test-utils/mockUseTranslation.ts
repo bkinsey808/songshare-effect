@@ -10,6 +10,7 @@ import forceCast from "@/react/lib/test-utils/forceCast";
  * language and a simple `t` implementation. Keeps tests free of inline
  * unsafe type assertions and avoids repeated oxlint-disable comments.
  *
+ * @param lang - Language code to expose from the mocked hook.
  * @returns void
  */
 export default function mockUseTranslation(lang = "en"): void {

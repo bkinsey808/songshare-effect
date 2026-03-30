@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-03-29T03:38:24.153Z
+ * Last generated: 2026-03-29T22:02:21.644Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -799,6 +799,8 @@ export const ImagePublicSchema: Schema.Struct<{
 	created_at: typeof Schema.NonEmptyString;
 	description: typeof Schema.NonEmptyString;
 	file_size: typeof Schema.Number;
+	focal_point_x: typeof Schema.Number;
+	focal_point_y: typeof Schema.Number;
 	height: Schema.optional<typeof Schema.Number>;
 	image_id: typeof Schema.UUID;
 	image_name: typeof Schema.NonEmptyString;
@@ -813,6 +815,8 @@ export const ImagePublicSchema: Schema.Struct<{
 	created_at: Schema.NonEmptyString,
 	description: Schema.NonEmptyString,
 	file_size: Schema.Number,
+	focal_point_x: Schema.Number,
+	focal_point_y: Schema.Number,
 	height: Schema.optional(Schema.Number),
 	image_id: Schema.UUID,
 	image_name: Schema.NonEmptyString,
@@ -830,6 +834,8 @@ export const ImagePublicInsertSchema: Schema.Struct<{
 	content_type: Schema.optional<typeof Schema.NonEmptyString>;
 	description: Schema.optional<typeof Schema.NonEmptyString>;
 	file_size: Schema.optional<typeof Schema.Number>;
+	focal_point_x: Schema.optional<typeof Schema.Number>;
+	focal_point_y: Schema.optional<typeof Schema.Number>;
 	height: Schema.optional<typeof Schema.Number>;
 	image_id: typeof Schema.UUID;
 	image_name: Schema.optional<typeof Schema.NonEmptyString>;
@@ -842,6 +848,8 @@ export const ImagePublicInsertSchema: Schema.Struct<{
 	content_type: Schema.optional(Schema.NonEmptyString),
 	description: Schema.optional(Schema.NonEmptyString),
 	file_size: Schema.optional(Schema.Number),
+	focal_point_x: Schema.optional(Schema.Number),
+	focal_point_y: Schema.optional(Schema.Number),
 	height: Schema.optional(Schema.Number),
 	image_id: Schema.UUID,
 	image_name: Schema.optional(Schema.NonEmptyString),
@@ -860,6 +868,8 @@ export const ImagePublicUpdateSchema: Schema.Struct<{
 	content_type: Schema.optional<typeof Schema.NonEmptyString>;
 	description: Schema.optional<typeof Schema.NonEmptyString>;
 	file_size: Schema.optional<typeof Schema.Number>;
+	focal_point_x: Schema.optional<typeof Schema.Number>;
+	focal_point_y: Schema.optional<typeof Schema.Number>;
 	height: Schema.optional<typeof Schema.Number>;
 	image_id: Schema.optional<typeof Schema.UUID>;
 	image_name: Schema.optional<typeof Schema.NonEmptyString>;
@@ -872,6 +882,8 @@ export const ImagePublicUpdateSchema: Schema.Struct<{
 	content_type: Schema.optional(Schema.NonEmptyString),
 	description: Schema.optional(Schema.NonEmptyString),
 	file_size: Schema.optional(Schema.Number),
+	focal_point_x: Schema.optional(Schema.Number),
+	focal_point_y: Schema.optional(Schema.Number),
 	height: Schema.optional(Schema.Number),
 	image_id: Schema.optional(Schema.UUID),
 	image_name: Schema.optional(Schema.NonEmptyString),

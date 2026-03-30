@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { ImagePublic } from "@/react/image/image-types";
+import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAuthToken";
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
@@ -14,21 +15,15 @@ vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 
 const mockClient = forceCast<ReturnType<typeof getSupabaseClient>>({});
 
-const mockImagePublic: ImagePublic = {
-	image_id: "img-1",
+const mockImagePublic: ImagePublic = makeImagePublic({
 	user_id: "user-1",
 	image_name: "Test Image",
 	image_slug: "test-image",
-	description: "desc",
-	alt_text: "alt",
 	r2_key: "key",
-	content_type: "image/jpeg",
 	file_size: 1000,
-	width: 800,
-	height: 600,
 	created_at: "2024-01-01",
 	updated_at: "2024-01-01",
-};
+});
 
 describe("fetchImagesByTagRequest", () => {
 	it("returns empty entries when client is undefined", async () => {

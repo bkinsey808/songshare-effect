@@ -4,6 +4,9 @@ import { vi } from "vitest";
  * Test helper that stubs `react-router-dom` with a typed factory and a
  * mocked `useNavigate()` so tests can assert navigation calls. Keeps the
  * necessary TypeScript/ESLint deviations in one place.
+ *
+ * @param mockNavigate - Optional navigate spy to expose from the mock.
+ * @returns void
  */
 export default function mockReactRouterWithNavigate(mockNavigate = vi.fn()): void {
 	// Use `doMock` so the mock factory is applied at runtime when the helper is

@@ -2,6 +2,12 @@ import { relative } from "node:path";
 
 import { log as sLog } from "@/scripts/utils/scriptLogger";
 
+/**
+ * Logs a summary of generated schema outputs and suggested follow-up steps.
+ *
+ * @param params - Project paths used to render relative output locations.
+ * @returns void
+ */
 export default function logFinalSummary(
 	params: Readonly<{
 		projectRoot: string;

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict EOSMZ1XsmXr49fQybjW0VcMgCYKsuClqy6xoBeQG17JKSfOF5EbwLjFA2fMtKyp
+\restrict Imsdu5V5dBPrcUXFe7SZLRbSTpn115bek773vXTTUH4AYs2bGSNqVRlzS64wcTk
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -666,7 +666,9 @@ CREATE TABLE public.image_public (
     width integer,
     height integer,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    focal_point_x double precision DEFAULT 50 NOT NULL,
+    focal_point_y double precision DEFAULT 50 NOT NULL
 );
 
 ALTER TABLE ONLY public.image_public REPLICA IDENTITY FULL;
@@ -712,6 +714,20 @@ COMMENT ON COLUMN public.image_public.width IS 'Image width in pixels (optional)
 --
 
 COMMENT ON COLUMN public.image_public.height IS 'Image height in pixels (optional)';
+
+
+--
+-- Name: COLUMN image_public.focal_point_x; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.image_public.focal_point_x IS 'Horizontal focal point percentage for cropped renders (0 = left, 100 = right)';
+
+
+--
+-- Name: COLUMN image_public.focal_point_y; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.image_public.focal_point_y IS 'Vertical focal point percentage for cropped renders (0 = top, 100 = bottom)';
 
 
 --
@@ -3564,5 +3580,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict EOSMZ1XsmXr49fQybjW0VcMgCYKsuClqy6xoBeQG17JKSfOF5EbwLjFA2fMtKyp
+\unrestrict Imsdu5V5dBPrcUXFe7SZLRbSTpn115bek773vXTTUH4AYs2bGSNqVRlzS64wcTk
 

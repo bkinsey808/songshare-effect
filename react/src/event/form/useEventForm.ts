@@ -122,7 +122,9 @@ export default function useEventForm(): UseEventFormReturn {
 			!isEditing ||
 			event_id === undefined ||
 			event_id === "" ||
-			(currentEvent !== undefined && currentEvent.event_id === event_id)
+			(currentEvent !== undefined &&
+				currentEvent.event_id === event_id &&
+				currentEvent.public !== undefined)
 		) {
 			return;
 		}

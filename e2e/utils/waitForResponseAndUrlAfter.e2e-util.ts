@@ -10,6 +10,12 @@ type WaitForURLMatcher = Parameters<Page["waitForURL"]> extends [infer Matcher, 
 	? Matcher
 	: never;
 
+/**
+ * Wait for both a network response and URL change triggered by an action.
+ *
+ * @param args - Page, matchers, triggering action, and optional wait settings.
+ * @returns An Effect that resolves with the matched network response.
+ */
 export default function waitForResponseAndUrlAfter(args: {
 	page: Page;
 	responseMatcher: WaitForResponseMatcher;

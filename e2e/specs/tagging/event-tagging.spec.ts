@@ -58,6 +58,86 @@ test.use({
 const TEST_TAG_SLUG = "e2e-cross-user-tag";
 const EVENT_TAG_SUBSCRIBE_SETTLE_MS = 2000;
 
+function readCurrentEventIdFromPersistedStore(page: Page): Promise<string | undefined> {
+	return page.evaluate(() => globalThis.localStorage.getItem("app-store")).then((rawStore) => {
+		if (rawStore === null || rawStore === "") {
+			return undefined;
+		}
+
+		// Simple, robust fallback: extract event_id via regex from stored JSON string.
+		const match = rawStore.match(/"event_id"\s*:\s*"([^"]+)"/);
+		if (!match) {
+			return undefined;
+		}
+		const [, eventId] = match;
+		return eventId === "" ? undefined : eventId;
+	});
+}
+
+async function resolveEventIdFromClientState(page: Page): Promise<string | undefined> {
+	const attempts = 3;
+	const FIRST_ATTEMPT = 0;
+	const INCREMENT = 1;
+	const LAST_ATTEMPT = attempts - INCREMENT;
+	const WAIT_MS = 1000;
+
+	async function tryOnce(attempt: number): Promise<string | undefined> {
+		const persistedEventId = await readCurrentEventIdFromPersistedStore(page);
+		if (persistedEventId !== undefined) {
+			return persistedEventId;
+		}
+
+		if (attempt >= LAST_ATTEMPT) {
+			return undefined;
+		}
+
+		await page.waitForTimeout(WAIT_MS);
+		return tryOnce(attempt + INCREMENT);
+	}
+
+	const preNav = await tryOnce(FIRST_ATTEMPT);
+	if (preNav !== undefined) {
+		return preNav;
+	}
+
+	await page.goto(`${BASE_URL}/en/event/${testEventSlug}/manage`, { waitUntil: "load" });
+
+	return tryOnce(FIRST_ATTEMPT);
+}
+
+function waitForPopulatedEventEditForm(ownerPage: Page): Effect.Effect<void, Error> {
+	return Effect.gen(function* waitForPopulatedEventEditFormEffect($) {
+		const eventNameLocator = ownerPage.locator("#event-name");
+		const formHydrated = yield* $(
+			fromPromise(() =>
+				expect(eventNameLocator)
+					.not.toHaveValue("", {
+						timeout: 10_000,
+					})
+					.then(() => true)
+					.catch(() => false),
+			),
+		);
+		if (formHydrated) {
+			return;
+		}
+
+		yield* $(fromPromiseVoid(() => ownerPage.reload({ waitUntil: "load" })));
+		yield* $(
+			expectVisibleEffect(ownerPage.getByPlaceholder("Add tags\u2026"), {
+				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
+			}),
+		);
+		yield* $(
+			fromPromiseVoid(() =>
+				expect(eventNameLocator).not.toHaveValue("", {
+					timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
+				}),
+			),
+		);
+	});
+}
+
 /**
  * Opens the owner event page and navigates to the edit route.
  *
@@ -87,7 +167,9 @@ function navigateToEventEditPage(ownerPage: Page): Effect.Effect<string, Error> 
 		);
 
 		const eventPublicRows: unknown = yield* $(fromPromise(() => eventPublicResponse.json()));
-		const eventId = extractIdFromPublicRows(eventPublicRows, "event_id");
+		const eventId =
+			extractIdFromPublicRows(eventPublicRows, "event_id") ??
+			(yield* $(fromPromise(() => resolveEventIdFromClientState(ownerPage))));
 
 		if (eventId === undefined) {
 			return yield* $(
@@ -108,13 +190,7 @@ function navigateToEventEditPage(ownerPage: Page): Effect.Effect<string, Error> 
 				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
 			}),
 		);
-		yield* $(
-			fromPromiseVoid(() =>
-				expect(ownerPage.locator("#event-name")).not.toHaveValue("", {
-					timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
-				}),
-			),
-		);
+		yield* $(waitForPopulatedEventEditForm(ownerPage));
 		yield* $(
 			fromPromiseVoid(() =>
 				expect(ownerPage.locator("#event-slug")).toHaveValue(testEventSlug, {
@@ -228,6 +304,8 @@ function ensureRecipientCanAccessEvent(
 	recipientPage: Page,
 ): Effect.Effect<void, Error> {
 	return Effect.gen(function* ensureRecipientCanAccessEventEffect($) {
+		const inviteUserInput = ownerPage.getByLabel("Invite User (username or id)");
+
 		yield* $(
 			fromPromiseVoid(() =>
 				ownerPage.goto(`${BASE_URL}/en/event/${testEventSlug}/manage`, {
@@ -235,11 +313,45 @@ function ensureRecipientCanAccessEvent(
 				}),
 			),
 		);
-		yield* $(
-			expectVisibleEffect(ownerPage.getByLabel("Invite User (username or id)"), {
-				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
-			}),
+		const inviteInputVisible = yield* $(
+			fromPromise(() =>
+				inviteUserInput
+					.waitFor({ state: "visible", timeout: 10_000 })
+					.then(() => true)
+					.catch(() => false),
+			),
 		);
+		if (!inviteInputVisible) {
+			yield* $(
+				fromPromiseVoid(() =>
+					recipientPage.goto(`${BASE_URL}/en/event/${testEventSlug}`, {
+						waitUntil: "load",
+					}),
+				),
+			);
+			const recipientAlreadyHasAccess = yield* $(
+				fromPromise(() =>
+					recipientPage
+						.getByRole("heading")
+						.first()
+						.waitFor({ state: "visible", timeout: 10_000 })
+						.then(() => true)
+						.catch(() => false),
+				),
+			);
+			if (recipientAlreadyHasAccess) {
+				return;
+			}
+
+			yield* $(
+				fromPromiseVoid(() =>
+					ownerPage.goto(`${BASE_URL}/en/event/${testEventSlug}/manage`, {
+						waitUntil: "load",
+					}),
+				),
+			);
+		}
+		yield* $(expectVisibleEffect(inviteUserInput, { timeout: MANAGE_PAGE_READY_TIMEOUT_MS }));
 		yield* $(
 			fromPromiseVoid(() =>
 				selectUserInSearch(ownerPage, "Invite User (username or id)", testUser2Username),

@@ -43,13 +43,26 @@ export default function SlidesGridView({
 	setSlides,
 }: SlidesGridViewProps): ReactElement {
 	const { t } = useTranslation();
-	const { addSlide, deleteSlide, duplicateSlide, editFieldValue, editSlideName, safeGetField } =
-		useSlidesEditor({
-			slideOrder,
-			setSlideOrder,
-			slides,
-			setSlides,
-		});
+	const {
+		addSlide,
+		deleteSlide,
+		duplicateSlide,
+		editFieldValue,
+		editSlideName,
+		safeGetField,
+		backgroundPickerSlideId,
+		toggleBackgroundPicker,
+		isImageLibraryLoading,
+		imageLibraryEntryList,
+		selectSlideBackgroundImage,
+		clearSlideBackgroundImage,
+	} = useSlidesEditor({
+		slideOrder,
+		setSlideOrder,
+		slides,
+		setSlides,
+		enableBackgroundLibrary: true,
+	});
 
 	// Use slideOrder to maintain the same order as Slides View, including duplicates
 	const gridSlideOrder = slideOrder;
@@ -79,6 +92,12 @@ export default function SlidesGridView({
 				setSlideOrder={setSlideOrder}
 				duplicateSlide={duplicateSlide}
 				deleteSlide={deleteSlide}
+				backgroundPickerSlideId={backgroundPickerSlideId}
+				isImageLibraryLoading={isImageLibraryLoading}
+				imageLibraryEntryList={imageLibraryEntryList}
+				toggleBackgroundPicker={toggleBackgroundPicker}
+				selectSlideBackgroundImage={selectSlideBackgroundImage}
+				clearSlideBackgroundImage={clearSlideBackgroundImage}
 			/>
 			{/* Add New Slide Button */}
 			<div className="mt-4 flex justify-start">
