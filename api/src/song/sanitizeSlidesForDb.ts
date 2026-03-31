@@ -29,6 +29,10 @@ export default function sanitizeSlidesForDb(slides: unknown, fields: readonly st
 				field_data: Record<string, string>;
 				background_image_id?: string | undefined;
 				background_image_url?: string | undefined;
+				background_image_width?: number | undefined;
+				background_image_height?: number | undefined;
+				background_image_focal_point_x?: number | undefined;
+				background_image_focal_point_y?: number | undefined;
 			}
 		> = {};
 
@@ -58,12 +62,36 @@ export default function sanitizeSlidesForDb(slides: unknown, fields: readonly st
 				const backgroundImageUrl = isString(slideVal["background_image_url"])
 					? slideVal["background_image_url"]
 					: undefined;
+				const backgroundImageWidth =
+					typeof slideVal["background_image_width"] === "number"
+						? slideVal["background_image_width"]
+						: undefined;
+				const backgroundImageHeight =
+					typeof slideVal["background_image_height"] === "number"
+						? slideVal["background_image_height"]
+						: undefined;
+				const backgroundImageFocalPointX =
+					typeof slideVal["background_image_focal_point_x"] === "number"
+						? slideVal["background_image_focal_point_x"]
+						: undefined;
+				const backgroundImageFocalPointY =
+					typeof slideVal["background_image_focal_point_y"] === "number"
+						? slideVal["background_image_focal_point_y"]
+						: undefined;
 
 				sanitized[String(slideKey)] = {
 					slide_name: slideName,
 					field_data: fieldData,
 					...(backgroundImageId === undefined ? {} : { background_image_id: backgroundImageId }),
 					...(backgroundImageUrl === undefined ? {} : { background_image_url: backgroundImageUrl }),
+					...(backgroundImageWidth === undefined ? {} : { background_image_width: backgroundImageWidth }),
+					...(backgroundImageHeight === undefined ? {} : { background_image_height: backgroundImageHeight }),
+					...(backgroundImageFocalPointX === undefined
+						? {}
+						: { background_image_focal_point_x: backgroundImageFocalPointX }),
+					...(backgroundImageFocalPointY === undefined
+						? {}
+						: { background_image_focal_point_y: backgroundImageFocalPointY }),
 				};
 			}
 		}

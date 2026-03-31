@@ -59,10 +59,18 @@ export default function useSlidesEditor({
 		slideId,
 		backgroundImageId,
 		backgroundImageUrl,
+		backgroundImageWidth,
+		backgroundImageHeight,
+		backgroundImageFocalPointX,
+		backgroundImageFocalPointY,
 	}: Readonly<{
 		slideId: string;
 		backgroundImageId: string | undefined;
 		backgroundImageUrl: string | undefined;
+		backgroundImageWidth: number | undefined;
+		backgroundImageHeight: number | undefined;
+		backgroundImageFocalPointX: number | undefined;
+		backgroundImageFocalPointY: number | undefined;
 	}>) => void;
 	safeGetField: (
 		params: Readonly<{
@@ -160,10 +168,15 @@ export default function useSlidesEditor({
 		backgroundImageId: string;
 		backgroundImageUrl: string;
 	}>): void {
+		const selectedImage = imageLibraryEntries[backgroundImageId]?.image_public;
 		editSlideBackgroundImage({
 			slideId,
 			backgroundImageId,
 			backgroundImageUrl,
+			backgroundImageWidth: selectedImage?.width ?? undefined,
+			backgroundImageHeight: selectedImage?.height ?? undefined,
+			backgroundImageFocalPointX: selectedImage?.focal_point_x ?? undefined,
+			backgroundImageFocalPointY: selectedImage?.focal_point_y ?? undefined,
 		});
 		closeBackgroundPicker();
 	}
@@ -173,6 +186,10 @@ export default function useSlidesEditor({
 			slideId,
 			backgroundImageId: undefined,
 			backgroundImageUrl: undefined,
+			backgroundImageWidth: undefined,
+			backgroundImageHeight: undefined,
+			backgroundImageFocalPointX: undefined,
+			backgroundImageFocalPointY: undefined,
 		});
 	}
 

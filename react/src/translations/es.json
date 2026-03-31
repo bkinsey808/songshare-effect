@@ -170,5 +170,10 @@
 		"landscape": "Horizontal",
 		"portrait": "Vertical",
 		"system": "Sistema"
+	},
+	"slideNumber": {
+		"label": "N.º diap.",
+		"show": "Mostrar",
+		"hide": "Ocultar"
 	}
 }

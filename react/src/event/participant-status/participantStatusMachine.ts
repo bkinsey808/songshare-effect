@@ -130,10 +130,6 @@ function deriveCurrentParticipantStatus(
 		return "kicked";
 	}
 
-	if (currentParticipant.role === "kicked") {
-		return "kicked";
-	}
-
 	return "joined";
 }
 

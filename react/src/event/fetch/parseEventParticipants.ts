@@ -2,6 +2,7 @@ import guardAsString from "@/shared/type-guards/guardAsString";
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type { EventParticipant } from "../event-entry/EventEntry.type";
+import type { EventUser } from "../event-types";
 import type { ParticipantStatus } from "../participant-status/participantStatusMachine";
 
 const ARRAY_EMPTY = 0;
@@ -90,7 +91,8 @@ export default function parseEventParticipants(
 			participants.push({
 				event_id: eventId,
 				user_id: guardAsString(participant["user_id"]),
-				role: guardAsString(participant["role"]),
+				// oxlint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+				role: guardAsString(participant["role"]) as unknown as EventUser["role"],
 				status,
 				joined_at: guardAsString(participant["joined_at"]),
 				participantStatus: status,

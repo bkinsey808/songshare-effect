@@ -27,7 +27,9 @@ deep dives into mocking patterns, API handler setup, or advanced tradeoffs.
 
 **Clarifying questions:**
 - **Defaults (proceed without asking):** add tests in the same file as
-  existing tests; use AAA pattern; follow the mocking order below.
+  existing tests; use explicit AAA sections by default (`// Arrange`,
+  `// Act`, `// Assert`) and only omit a section when the linked docs
+  explicitly allow it; follow the mocking order below.
 - **Always ask:** which file to test if not specified; which behavior to
   cover if the request is "add tests" with no further detail.
 - State assumptions when proceeding: "Adding tests to `foo.test.ts` — let
@@ -49,9 +51,10 @@ deep dives into mocking patterns, API handler setup, or advanced tradeoffs.
 ## Execution workflow
 
 1. Pick the smallest relevant test scope first (`path/to/file.test.ts`).
-2. Use repo test patterns and mocking helpers before ad-hoc test doubles.
-3. Keep assertions strict and deterministic.
-4. Re-run targeted tests, then broaden as needed.
+2. Structure each test using the repo AAA conventions from the linked doc.
+3. Use repo test patterns and mocking helpers before ad-hoc test doubles.
+4. Keep assertions strict and deterministic.
+5. Re-run targeted tests, then broaden as needed.
 
 ## What the full reference covers
 
@@ -107,8 +110,8 @@ npm run test:unit                            # all tests (before PR)
 
 **Input:** "Add unit tests for `shared/src/utils/safe.ts`"
 **Expected:** Agent reads `safe.ts` and any existing `safe.test.ts`, writes
-tests using AAA pattern, runs targeted test command, reports which cases were
-added and the full test output.
+tests using explicit AAA sections by default, runs targeted test command,
+reports which cases were added and the full test output.
 
 **Input:** "How should I mock a Supabase query in this repo?"
 **Expected:** Agent answers in prose with inline code referencing the Supabase

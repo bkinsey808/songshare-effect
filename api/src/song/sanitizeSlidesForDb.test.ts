@@ -98,6 +98,10 @@ describe("sanitizeSlidesForDb", () => {
 				field_data: {},
 				background_image_id: "img-1",
 				background_image_url: "/api/images/serve/images/user-1/img-1.png",
+				background_image_width: 1200,
+				background_image_height: 800,
+				background_image_focal_point_x: 20,
+				background_image_focal_point_y: 80,
 			},
 		};
 
@@ -108,6 +112,10 @@ describe("sanitizeSlidesForDb", () => {
 				field_data: {},
 				background_image_id: "img-1",
 				background_image_url: "/api/images/serve/images/user-1/img-1.png",
+				background_image_width: 1200,
+				background_image_height: 800,
+				background_image_focal_point_x: 20,
+				background_image_focal_point_y: 80,
 			},
 		});
 	});

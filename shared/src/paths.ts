@@ -70,6 +70,7 @@ export const apiUserTokenPath = "/api/auth/user/token";
 export const apiAuthVisitorPath = "/api/auth/visitor";
 export const apiAuthSignOutPath = "/api/auth/signout";
 export const apiUserSlideOrientationPreferencePath = "/api/user/slide-orientation-preference";
+export const apiUserSlideNumberPreferencePath = "/api/user/slide-number-preference";
 export const apiSongsSavePath = "/api/songs/save";
 export const apiSongsDeletePath = "/api/songs/delete";
 export const apiSongLibraryAddPath = "/api/song-library/add";

@@ -62,5 +62,10 @@ export default function getEffectType(column: Readonly<ColumnDefinition>): strin
 		effectType = "Schema.NonEmptyString";
 	}
 
+	const NO_VALUES = 0;
+	if (column.allowedValues !== undefined && column.allowedValues.length > NO_VALUES) {
+		effectType = `Schema.Literal(${column.allowedValues.map((val) => `"${val}"`).join(", ")})`;
+	}
+
 	return effectType;
 }

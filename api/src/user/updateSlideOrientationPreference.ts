@@ -1,12 +1,17 @@
 import { Effect, Schema } from "effect";
 
-import { type AuthenticationError, DatabaseError, ValidationError } from "@/api/api-errors";
+import { type AuthenticationError, DatabaseError, type ServerError, ValidationError } from "@/api/api-errors";
+import buildSessionCookie from "@/api/cookie/buildSessionCookie";
+import { userSessionCookieName } from "@/api/cookie/cookie";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
+import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { SlideOrientationPreferenceSchema } from "@/shared/user/slideOrientationPreference";
 import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrMap";
+
+const SESSION_COOKIE_MAX_AGE_SECONDS = 604_800;
 
 const UpdateSlideOrientationPreferenceRequestSchema: Schema.Schema<{
 	slideOrientationPreference: Schema.Schema.Type<typeof SlideOrientationPreferenceSchema>;
@@ -22,7 +27,7 @@ export default function updateSlideOrientationPreference(ctx: ReadonlyContext): 
 	{
 		slideOrientationPreference: UpdateSlideOrientationPreferenceRequest["slideOrientationPreference"];
 	},
-	ValidationError | DatabaseError | AuthenticationError
+	ValidationError | DatabaseError | AuthenticationError | ServerError
 > {
 	return Effect.gen(function* updateSlideOrientationPreferenceGen($) {
 		const body = yield* $(
@@ -71,6 +76,29 @@ export default function updateSlideOrientationPreference(ctx: ReadonlyContext): 
 				),
 			);
 		}
+
+		const sessionJwt = yield* $(
+			buildUserSessionJwt({
+				ctx,
+				supabase: client,
+				existingUser: {
+					...userSession.user,
+					slide_orientation_preference: request.slideOrientationPreference,
+				},
+				oauthUserData: userSession.oauthUserData,
+				oauthState: userSession.oauthState,
+			}),
+		);
+		const cookieHeader = buildSessionCookie({
+			ctx,
+			name: userSessionCookieName,
+			value: sessionJwt,
+			opts: {
+				maxAge: SESSION_COOKIE_MAX_AGE_SECONDS,
+				httpOnly: true,
+			},
+		});
+		ctx.res.headers.append("Set-Cookie", cookieHeader);
 
 		return {
 			slideOrientationPreference: request.slideOrientationPreference,

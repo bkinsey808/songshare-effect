@@ -36,9 +36,15 @@ test.use({
 });
 
 async function hasPendingSongShareForUser(senderPage: Page): Promise<boolean> {
+	// Wait for async share data to load before checking — the "Shared with" section
+	// is populated by a fetch that completes after page navigation. Using isVisible()
+	// immediately would return false before the data arrives, causing a race condition
+	// where the share check passes (no pending found) but the Share search then excludes
+	// the recipient because the data loaded just before the dropdown opened.
 	const sharedWithHeadingVisible = await senderPage
 		.getByRole("heading", { name: /shared with \([1-9]/i })
-		.isVisible()
+		.waitFor({ state: "visible", timeout: MANAGE_PAGE_READY_TIMEOUT_MS })
+		.then(() => true)
 		.catch(() => false);
 	if (!sharedWithHeadingVisible) {
 		return false;

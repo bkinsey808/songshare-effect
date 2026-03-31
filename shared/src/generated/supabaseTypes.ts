@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
@@ -216,8 +216,8 @@ export type Database = {
           reviewed_by_user_id: string | null
           sender_user_id: string
           shared_item_id: string
-          shared_item_type: string
-          status: string
+          shared_item_type: "song" | "playlist"
+          status: "pending" | "accepted" | "rejected"
           updated_at: string
         }
         Insert: {
@@ -229,8 +229,8 @@ export type Database = {
           reviewed_by_user_id?: string | null
           sender_user_id: string
           shared_item_id: string
-          shared_item_type: string
-          status?: string
+          shared_item_type: "song" | "playlist"
+          status?: "pending" | "accepted" | "rejected"
           updated_at?: string
         }
         Update: {
@@ -242,8 +242,8 @@ export type Database = {
           reviewed_by_user_id?: string | null
           sender_user_id?: string
           shared_item_id?: string
-          shared_item_type?: string
-          status?: string
+          shared_item_type?: "song" | "playlist"
+          status?: "pending" | "accepted" | "rejected"
           updated_at?: string
         }
         Relationships: [
@@ -340,22 +340,22 @@ export type Database = {
         Row: {
           community_id: string
           joined_at: string
-          role: string
-          status: string
+          role: "owner" | "community_admin" | "member"
+          status: "invited" | "joined" | "left" | "kicked"
           user_id: string
         }
         Insert: {
           community_id: string
           joined_at?: string
-          role: string
-          status?: string
+          role: "owner" | "community_admin" | "member"
+          status?: "invited" | "joined" | "left" | "kicked"
           user_id: string
         }
         Update: {
           community_id?: string
           joined_at?: string
-          role?: string
-          status?: string
+          role?: "owner" | "community_admin" | "member"
+          status?: "invited" | "joined" | "left" | "kicked"
           user_id?: string
         }
         Relationships: [
@@ -561,22 +561,22 @@ export type Database = {
         Row: {
           event_id: string
           joined_at: string
-          role: string
-          status: string
+          role: "owner" | "event_admin" | "event_playlist_admin" | "participant"
+          status: "invited" | "joined" | "left" | "kicked"
           user_id: string
         }
         Insert: {
           event_id: string
           joined_at?: string
-          role: string
-          status?: string
+          role: "owner" | "event_admin" | "event_playlist_admin" | "participant"
+          status?: "invited" | "joined" | "left" | "kicked"
           user_id: string
         }
         Update: {
           event_id?: string
           joined_at?: string
-          role?: string
-          status?: string
+          role?: "owner" | "event_admin" | "event_playlist_admin" | "participant"
+          status?: "invited" | "joined" | "left" | "kicked"
           user_id?: string
         }
         Relationships: [
@@ -983,8 +983,8 @@ export type Database = {
           share_id: string
           shared_item_id: string
           shared_item_name: string
-          shared_item_type: string
-          status: string
+          shared_item_type: "song" | "playlist" | "event" | "community" | "user" | "image"
+          status: "pending" | "accepted" | "rejected"
           updated_at: string | null
         }
         Insert: {
@@ -995,8 +995,8 @@ export type Database = {
           share_id: string
           shared_item_id: string
           shared_item_name: string
-          shared_item_type: string
-          status?: string
+          shared_item_type: "song" | "playlist" | "event" | "community" | "user" | "image"
+          status?: "pending" | "accepted" | "rejected"
           updated_at?: string | null
         }
         Update: {
@@ -1007,8 +1007,8 @@ export type Database = {
           share_id?: string
           shared_item_id?: string
           shared_item_name?: string
-          shared_item_type?: string
-          status?: string
+          shared_item_type?: "song" | "playlist" | "event" | "community" | "user" | "image"
+          status?: "pending" | "accepted" | "rejected"
           updated_at?: string | null
         }
         Relationships: [
@@ -1255,9 +1255,10 @@ export type Database = {
           google_calendar_refresh_token: string | null
           linked_providers: string[] | null
           name: string
-          role: string
+          role: "free" | "patron" | "admin"
           role_expires_at: string | null
-          slide_orientation_preference: string
+          slide_number_preference: "show" | "hide"
+          slide_orientation_preference: "landscape" | "portrait" | "system"
           sub: string | null
           updated_at: string
           user_id: string
@@ -1269,9 +1270,10 @@ export type Database = {
           google_calendar_refresh_token?: string | null
           linked_providers?: string[] | null
           name: string
-          role?: string
+          role?: "free" | "patron" | "admin"
           role_expires_at?: string | null
-          slide_orientation_preference?: string
+          slide_number_preference?: "show" | "hide"
+          slide_orientation_preference?: "landscape" | "portrait" | "system"
           sub?: string | null
           updated_at?: string
           user_id?: string
@@ -1283,9 +1285,10 @@ export type Database = {
           google_calendar_refresh_token?: string | null
           linked_providers?: string[] | null
           name?: string
-          role?: string
+          role?: "free" | "patron" | "admin"
           role_expires_at?: string | null
-          slide_orientation_preference?: string
+          slide_number_preference?: "show" | "hide"
+          slide_orientation_preference?: "landscape" | "portrait" | "system"
           sub?: string | null
           updated_at?: string
           user_id?: string

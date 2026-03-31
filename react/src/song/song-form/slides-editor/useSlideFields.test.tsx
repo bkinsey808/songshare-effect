@@ -121,6 +121,10 @@ describe("useSlideFields — renderHook", () => {
 			slideId: "s1",
 			backgroundImageId: "img-1",
 			backgroundImageUrl: "/api/images/serve/images/u1/img-1.png",
+			backgroundImageWidth: 1200,
+			backgroundImageHeight: 800,
+			backgroundImageFocalPointX: 20,
+			backgroundImageFocalPointY: 80,
 		});
 
 		expect(setSlides).toHaveBeenCalledWith({
@@ -128,6 +132,10 @@ describe("useSlideFields — renderHook", () => {
 				...SLIDE_S1,
 				background_image_id: "img-1",
 				background_image_url: "/api/images/serve/images/u1/img-1.png",
+				background_image_width: 1200,
+				background_image_height: 800,
+				background_image_focal_point_x: 20,
+				background_image_focal_point_y: 80,
 			},
 		});
 	});

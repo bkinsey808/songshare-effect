@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import { userSessionCookieName } from "@/api/cookie/cookie";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import asNull from "@/react/lib/test-utils/asNull";
 import forceCast from "@/react/lib/test-utils/forceCast";
@@ -12,8 +13,10 @@ import updateSlideOrientationPreference from "./updateSlideOrientationPreference
 
 vi.mock("@/api/supabase/getSupabaseServerClient");
 vi.mock("@/api/user-session/getVerifiedSession");
+vi.mock("@/api/user-session/buildUserSessionJwt");
 
 const SAMPLE_SESSION: UserSessionData = makeUserSessionData({});
+const SESSION_JWT = "session-jwt";
 
 describe("updateSlideOrientationPreference", () => {
 	it("returns ValidationError when JSON body is invalid", async () => {
@@ -42,6 +45,8 @@ describe("updateSlideOrientationPreference", () => {
 				from,
 			}),
 		);
+		const buildUserSessionJwtModule = await import("@/api/user-session/buildUserSessionJwt");
+		vi.mocked(buildUserSessionJwtModule.default).mockReturnValue(Effect.succeed(SESSION_JWT));
 
 		const ctx = makeCtx({
 			body: {
@@ -56,6 +61,19 @@ describe("updateSlideOrientationPreference", () => {
 			slide_orientation_preference: "portrait",
 		});
 		expect(eq).toHaveBeenCalledWith("user_id", TEST_USER_ID);
+		expect(vi.mocked(buildUserSessionJwtModule.default)).toHaveBeenCalledWith({
+			ctx,
+			supabase: forceCast<ReturnType<typeof getSupabaseServerClientModule.default>>({
+				from,
+			}),
+			existingUser: {
+				...SAMPLE_SESSION.user,
+				slide_orientation_preference: "portrait",
+			},
+			oauthUserData: SAMPLE_SESSION.oauthUserData,
+			oauthState: SAMPLE_SESSION.oauthState,
+		});
+		expect(ctx.res.headers.get("Set-Cookie")).toContain(`${userSessionCookieName}=${SESSION_JWT}`);
 		expect(result).toStrictEqual({
 			slideOrientationPreference: "portrait",
 		});

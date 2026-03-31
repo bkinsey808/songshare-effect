@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { createPortal } from "react-dom";
 
 import Button from "@/react/lib/design-system/Button";
 import XIcon from "@/react/lib/design-system/icons/XIcon";
-import getSlideOrientationContainerClassName from "@/react/slide-orientation/getSlideOrientationContainerClassName";
 import SlideOrientationSelect from "@/react/slide-orientation/SlideOrientationSelect";
-import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
 import { type SongPublic } from "@/react/song/song-schema";
 
 import SongViewCurrentSlide from "../SongViewCurrentSlide";
@@ -28,11 +26,8 @@ type SongViewSlidesProps = Readonly<{
  */
 export default function SongViewSlides({ songPublic }: SongViewSlidesProps): ReactElement {
 	const { t } = useTranslation();
-	const [isFullScreen, setIsFullScreen] = useState(false);
-	const { effectiveSlideOrientation } = useSlideOrientationPreference();
-	const slideContainerClassName = getSlideOrientationContainerClassName(effectiveSlideOrientation);
-	// Hook that provides derived slide state and navigation helpers
 	const {
+		canPortalFullScreen,
 		clampedIndex,
 		currentSlide,
 		displayFields,
@@ -40,26 +35,12 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 		goLast,
 		goNext,
 		goPrev,
+		isFullScreen,
+		setIsFullScreen,
+		slideContainerClassName,
 		totalSlides,
+		viewportAspectRatio,
 	} = useSongViewSlides(songPublic);
-
-	// When in full-screen mode, listen for Escape to exit. Listener is
-	// removed on unmount or when `isFullScreen` changes.
-	useEffect(() => {
-		if (!isFullScreen) {
-			return;
-		}
-		function onKeyDown(event: KeyboardEvent): void {
-			if (event.key === "Escape") {
-				event.preventDefault();
-				setIsFullScreen(false);
-			}
-		}
-		globalThis.addEventListener("keydown", onKeyDown);
-		return function cleanup(): void {
-			globalThis.removeEventListener("keydown", onKeyDown);
-		};
-	}, [isFullScreen]);
 
 	return (
 		<>
@@ -69,6 +50,7 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 			>
 				<SongViewCurrentSlide
 					currentSlide={currentSlide}
+					currentSlideIndex={clampedIndex}
 					displayFields={displayFields}
 					totalSlides={totalSlides}
 				/>
@@ -99,9 +81,10 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 				</p>
 			)}
 
-			{isFullScreen && totalSlides > MIN_SLIDE_INDEX && (
+			{isFullScreen && totalSlides > MIN_SLIDE_INDEX && canPortalFullScreen
+				? createPortal(
 				<div
-					className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900"
+					className="fixed inset-0 z-50 overflow-hidden bg-gray-900"
 					role="dialog"
 					aria-modal="true"
 					aria-label={t("songView.fullScreenSlide", "Slide in full screen")}
@@ -122,15 +105,24 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 					<p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-500">
 						{t("songView.pressEscToExit", "Press Esc to exit")}
 					</p>
-					<div className={`${slideContainerClassName} px-6`}>
+					<div
+						className="absolute inset-0"
+						data-testid="song-view-fullscreen-slide-frame"
+					>
 						<SongViewCurrentSlide
+							containerAspectRatioOverride={viewportAspectRatio}
 							currentSlide={currentSlide}
+							currentSlideIndex={clampedIndex}
 							displayFields={displayFields}
+							isFullScreen
 							totalSlides={totalSlides}
 						/>
 					</div>
 				</div>
-			)}
+					,
+					document.body,
+				)
+				: undefined}
 		</>
 	);
 }

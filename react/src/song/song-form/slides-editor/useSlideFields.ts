@@ -40,10 +40,18 @@ type UseSlideFieldsReturn = {
 		slideId,
 		backgroundImageId,
 		backgroundImageUrl,
+		backgroundImageWidth,
+		backgroundImageHeight,
+		backgroundImageFocalPointX,
+		backgroundImageFocalPointY,
 	}: Readonly<{
 		slideId: string;
 		backgroundImageId: string | undefined;
 		backgroundImageUrl: string | undefined;
+		backgroundImageWidth: number | undefined;
+		backgroundImageHeight: number | undefined;
+		backgroundImageFocalPointX: number | undefined;
+		backgroundImageFocalPointY: number | undefined;
 	}>) => void;
 	safeGetField: SafeGetField;
 };
@@ -130,10 +138,18 @@ export default function useSlideFields({
 		slideId,
 		backgroundImageId,
 		backgroundImageUrl,
+		backgroundImageWidth,
+		backgroundImageHeight,
+		backgroundImageFocalPointX,
+		backgroundImageFocalPointY,
 	}: Readonly<{
 		slideId: string;
 		backgroundImageId: string | undefined;
 		backgroundImageUrl: string | undefined;
+		backgroundImageWidth: number | undefined;
+		backgroundImageHeight: number | undefined;
+		backgroundImageFocalPointX: number | undefined;
+		backgroundImageFocalPointY: number | undefined;
 	}>): void {
 		const currentSlide = safeGet(slides, slideId);
 		if (!currentSlide) {
@@ -146,6 +162,10 @@ export default function useSlideFields({
 				...currentSlide,
 				background_image_id: backgroundImageId,
 				background_image_url: backgroundImageUrl,
+				background_image_width: backgroundImageWidth,
+				background_image_height: backgroundImageHeight,
+				background_image_focal_point_x: backgroundImageFocalPointX,
+				background_image_focal_point_y: backgroundImageFocalPointY,
 			},
 		});
 	}

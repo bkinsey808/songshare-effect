@@ -1,188 +1,448 @@
-import { renderHook, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, renderHook, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-import { songFields } from "@/react/song/song-schema";
+import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
+import { type SongPublic, songFields } from "@/react/song/song-schema";
 import makeSongFromIds from "@/react/song/test-utils/makeSongFromIds.test-util";
-// Numeric constants used in assertions to make expected values explicit.
-import { ONE, THREE, TWO, ZERO } from "@/shared/constants/shared-constants";
+import { ONE, TWO, ZERO } from "@/shared/constants/shared-constants";
+import isRecord from "@/shared/type-guards/isRecord";
+import { ResolvedSlideOrientation, SlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
 
 import { useSongViewSlides } from "./useSongViewSlides";
 
-/**
- * Convert an array of slide ids into a SongPublic fixture using the shared
- * `makeSongPublic` factory. This keeps tests concise while avoiding inline
- * eslint disables — the nullables and schema shapes are handled centrally.
- */
+vi.mock("@/react/slide-orientation/useSlideOrientationPreference");
+
+const DEFAULT_VIEWPORT_WIDTH = 1600;
+const DEFAULT_VIEWPORT_HEIGHT = 900;
+const UPDATED_VIEWPORT_WIDTH = 900;
+const UPDATED_VIEWPORT_HEIGHT = 1600;
+const LANDSCAPE_CONTAINER_CLASS_NAME = "mx-auto w-full max-w-5xl";
+const PORTRAIT_CONTAINER_CLASS_NAME = "mx-auto w-full max-w-xl";
+const LYRICS_FIELD = "lyrics";
+const SCRIPT_FIELD = "script";
+const FIRST_SLIDE_ID = "a";
+const SECOND_SLIDE_ID = "b";
+const THIRD_SLIDE_ID = "c";
+const FIRST_SLIDE_NAME = "Slide a";
+const EMPTY_TEXT = "";
+const ARROW_RIGHT_KEY = "ArrowRight";
+const ARROW_LEFT_KEY = "ArrowLeft";
+const END_KEY = "End";
+const HOME_KEY = "Home";
+const ESCAPE_KEY = "Escape";
+const UNUSED_KEY = "A";
+const ENTER_KEY = "Enter";
+const FULL_SCREEN_FALSE = "false";
+const FULL_SCREEN_TRUE = "true";
+const DEFAULT_VIEWPORT_ASPECT_RATIO = DEFAULT_VIEWPORT_WIDTH / DEFAULT_VIEWPORT_HEIGHT;
+const UPDATED_VIEWPORT_ASPECT_RATIO = UPDATED_VIEWPORT_WIDTH / UPDATED_VIEWPORT_HEIGHT;
+
+vi.stubGlobal("document", document);
+
+function installSlideOrientationPreferenceMock(
+	effectiveSlideOrientation: "landscape" | "portrait" = ResolvedSlideOrientation.landscape,
+): void {
+	vi.mocked(useSlideOrientationPreference).mockReturnValue({
+		effectiveSlideOrientation,
+		isSystemSlideOrientation: false,
+		slideOrientationPreference:
+			effectiveSlideOrientation === ResolvedSlideOrientation.portrait
+				? SlideOrientationPreference.portrait
+				: SlideOrientationPreference.landscape,
+	});
+}
+
+function installViewportDimensions({
+	height = DEFAULT_VIEWPORT_HEIGHT,
+	width = DEFAULT_VIEWPORT_WIDTH,
+}: Readonly<{
+	height?: number;
+	width?: number;
+}> = {}): void {
+	vi.stubGlobal("innerWidth", width);
+	vi.stubGlobal("innerHeight", height);
+}
 
 /**
- * Unit tests for `useSongViewSlides`.
+ * Harness for `useSongViewSlides`.
  *
- * Tests include default behavior, navigation helpers, keyboard handling,
- * cleanup on unmount, and clamping behavior when the slide list shrinks.
+ * Shows the hook in real UI wiring:
+ * - navigation buttons call each slide movement handler
+ * - a fullscreen button toggles `isFullScreen`
+ * - test ids expose every returned value for assertions
  */
-describe("useSongViewSlides", () => {
-	it("defaults when no songPublic", () => {
+function Harness(props: { songPublic: SongPublic | undefined }): ReactElement {
+	const hook = useSongViewSlides(props.songPublic);
+	const currentSlideName =
+		isRecord(hook.currentSlide) && typeof hook.currentSlide["slide_name"] === "string"
+			? hook.currentSlide["slide_name"]
+			: EMPTY_TEXT;
+
+	return (
+		<div>
+			<div data-testid="clamped-index">{String(hook.clampedIndex)}</div>
+			<div data-testid="current-slide-name">{currentSlideName}</div>
+			<div data-testid="display-fields">{hook.displayFields.join(",")}</div>
+			<div data-testid="effective-slide-orientation">{hook.effectiveSlideOrientation}</div>
+			<div data-testid="is-full-screen">{String(hook.isFullScreen)}</div>
+			<div data-testid="slide-container-class-name">{hook.slideContainerClassName}</div>
+			<div data-testid="total-slides">{String(hook.totalSlides)}</div>
+			<div data-testid="viewport-aspect-ratio">{String(hook.viewportAspectRatio)}</div>
+			<div data-testid="can-portal-full-screen">{String(hook.canPortalFullScreen)}</div>
+			<button
+				type="button"
+				data-testid="go-first"
+				onClick={() => {
+					hook.goFirst();
+				}}
+			>
+				first
+			</button>
+			<button
+				type="button"
+				data-testid="go-prev"
+				onClick={() => {
+					hook.goPrev();
+				}}
+			>
+				prev
+			</button>
+			<button
+				type="button"
+				data-testid="go-next"
+				onClick={() => {
+					hook.goNext();
+				}}
+			>
+				next
+			</button>
+			<button
+				type="button"
+				data-testid="go-last"
+				onClick={() => {
+					hook.goLast();
+				}}
+			>
+				last
+			</button>
+			<button
+				type="button"
+				data-testid="toggle-full-screen"
+				onClick={() => {
+					hook.setIsFullScreen((prev) => !prev);
+				}}
+			>
+				fullscreen
+			</button>
+		</div>
+	);
+}
+
+describe("useSongViewSlides — Harness", () => {
+	it("documents the initial landscape state and visible hook outputs", () => {
+		cleanup();
+		installSlideOrientationPreferenceMock();
+		installViewportDimensions();
+
+		// Arrange
+		const song = makeSongFromIds([FIRST_SLIDE_ID, SECOND_SLIDE_ID]);
+
+		// Act
+		const { getByTestId } = render(<Harness songPublic={song} />);
+
+		// Assert
+		expect({
+			canPortalFullScreen: getByTestId("can-portal-full-screen").textContent,
+			clampedIndex: getByTestId("clamped-index").textContent,
+			currentSlideName: getByTestId("current-slide-name").textContent,
+			displayFields: getByTestId("display-fields").textContent,
+			effectiveSlideOrientation: getByTestId("effective-slide-orientation").textContent,
+			isFullScreen: getByTestId("is-full-screen").textContent,
+			slideContainerClassName: getByTestId("slide-container-class-name").textContent,
+			totalSlides: getByTestId("total-slides").textContent,
+			viewportAspectRatio: getByTestId("viewport-aspect-ratio").textContent,
+		}).toStrictEqual({
+			canPortalFullScreen: "true",
+			clampedIndex: "0",
+			currentSlideName: FIRST_SLIDE_NAME,
+			displayFields: LYRICS_FIELD,
+			effectiveSlideOrientation: ResolvedSlideOrientation.landscape,
+			isFullScreen: FULL_SCREEN_FALSE,
+			slideContainerClassName: LANDSCAPE_CONTAINER_CLASS_NAME,
+			totalSlides: "2",
+			viewportAspectRatio: String(DEFAULT_VIEWPORT_ASPECT_RATIO),
+		});
+	});
+
+	it("wires every navigation and full-screen handler through real UI controls", async () => {
+		cleanup();
+		installSlideOrientationPreferenceMock(ResolvedSlideOrientation.portrait);
+		installViewportDimensions();
+
+		// Arrange
+		const song = makeSongFromIds([FIRST_SLIDE_ID, SECOND_SLIDE_ID, THIRD_SLIDE_ID], [
+			SCRIPT_FIELD,
+			LYRICS_FIELD,
+		]);
+		const { getByTestId } = render(<Harness songPublic={song} />);
+
+		// Act
+		fireEvent.click(getByTestId("go-next"));
+		await waitFor(() => {
+			expect(getByTestId("clamped-index").textContent).toBe("1");
+		});
+
+		fireEvent.click(getByTestId("go-last"));
+		await waitFor(() => {
+			expect(getByTestId("clamped-index").textContent).toBe("2");
+		});
+
+		fireEvent.click(getByTestId("go-prev"));
+		await waitFor(() => {
+			expect(getByTestId("clamped-index").textContent).toBe("1");
+		});
+
+		fireEvent.click(getByTestId("go-first"));
+		await waitFor(() => {
+			expect(getByTestId("clamped-index").textContent).toBe("0");
+		});
+
+		fireEvent.click(getByTestId("toggle-full-screen"));
+		await waitFor(() => {
+			expect(getByTestId("is-full-screen").textContent).toBe(FULL_SCREEN_TRUE);
+		});
+
+		globalThis.dispatchEvent(new KeyboardEvent("resize"));
+
+		// Assert
+		expect({
+			displayFields: getByTestId("display-fields").textContent,
+			effectiveSlideOrientation: getByTestId("effective-slide-orientation").textContent,
+			isFullScreen: getByTestId("is-full-screen").textContent,
+			slideContainerClassName: getByTestId("slide-container-class-name").textContent,
+			totalSlides: getByTestId("total-slides").textContent,
+		}).toStrictEqual({
+			displayFields: `${SCRIPT_FIELD},${LYRICS_FIELD}`,
+			effectiveSlideOrientation: ResolvedSlideOrientation.portrait,
+			isFullScreen: FULL_SCREEN_TRUE,
+			slideContainerClassName: PORTRAIT_CONTAINER_CLASS_NAME,
+			totalSlides: "3",
+		});
+	});
+});
+
+describe("useSongViewSlides — renderHook", () => {
+	it("defaults when no song is available", () => {
+		installSlideOrientationPreferenceMock();
+		installViewportDimensions();
+
+		// Act
 		const { result } = renderHook(() => useSongViewSlides(undefined));
-		expect(result.current.totalSlides).toBe(ZERO);
-		expect(result.current.clampedIndex).toBe(ZERO);
-		expect(result.current.currentSlide).toBeUndefined();
-		expect(result.current.displayFields).toStrictEqual(songFields);
+
+		// Assert
+		expect(result.current).toMatchObject({
+			clampedIndex: ZERO,
+			currentSlide: undefined,
+			displayFields: songFields,
+			effectiveSlideOrientation: ResolvedSlideOrientation.landscape,
+			isFullScreen: false,
+			slideContainerClassName: LANDSCAPE_CONTAINER_CLASS_NAME,
+			totalSlides: ZERO,
+			viewportAspectRatio: DEFAULT_VIEWPORT_ASPECT_RATIO,
+		});
 	});
 
-	it("handles empty slide_order with defined songPublic", () => {
+	it("handles empty slide order and missing current slides safely", () => {
+		installSlideOrientationPreferenceMock();
+		installViewportDimensions();
+
+		// Arrange
 		const song = makeSongFromIds([]);
-		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
-			useSongViewSlides(song),
-		);
+
+		// Act
+		const { result } = renderHook(() => useSongViewSlides(song));
+
+		// Assert
 		expect(result.current.currentSlide).toBeUndefined();
-		expect(result.current.displayFields).toStrictEqual(["lyrics"]);
+		expect(result.current.displayFields).toStrictEqual([LYRICS_FIELD]);
+		expect(result.current.totalSlides).toBe(ZERO);
 	});
 
-	it("uses custom fields array", () => {
-		const song = makeSongFromIds(["a"], ["script", "lyrics"]);
-		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
-			useSongViewSlides(song),
-		);
-		expect(result.current.displayFields).toStrictEqual(["script", "lyrics"]);
+	it("uses custom fields and resolves the first slide initially", () => {
+		installSlideOrientationPreferenceMock();
+		installViewportDimensions();
+
+		// Arrange
+		const song = makeSongFromIds([FIRST_SLIDE_ID], [SCRIPT_FIELD, LYRICS_FIELD]);
+
+		// Act
+		const { result } = renderHook(() => useSongViewSlides(song));
+
+		// Assert
+		expect(result.current.currentSlide).toStrictEqual(song.slides[FIRST_SLIDE_ID]);
+		expect(result.current.displayFields).toStrictEqual([SCRIPT_FIELD, LYRICS_FIELD]);
+		expect(result.current.totalSlides).toBe(ONE);
 	});
 
-	it("initial state and displayFields with slides", () => {
-		const song = makeSongFromIds(["a", "b"]);
-		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
-			useSongViewSlides(song),
-		);
+	it("moves through slides with the navigation helpers", async () => {
+		installSlideOrientationPreferenceMock();
+		installViewportDimensions();
 
-		expect(result.current.totalSlides).toBe(TWO);
-		expect(result.current.clampedIndex).toBe(ZERO);
-		expect(result.current.currentSlide).toStrictEqual(song.slides["a"]);
-		expect(result.current.displayFields).toStrictEqual(["lyrics"]);
-	});
+		// Arrange
+		const song = makeSongFromIds([FIRST_SLIDE_ID, SECOND_SLIDE_ID]);
+		const { result } = renderHook(() => useSongViewSlides(song));
 
-	it("navigation functions behave correctly", async () => {
-		const song = makeSongFromIds(["a", "b"]);
-		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
-			useSongViewSlides(song),
-		);
-
-		// goNext
+		// Act
 		result.current.goNext();
 		await waitFor(() => {
 			expect(result.current.clampedIndex).toBe(ONE);
 		});
 
-		// goPrev
 		result.current.goPrev();
 		await waitFor(() => {
 			expect(result.current.clampedIndex).toBe(ZERO);
 		});
 
-		// goLast
 		result.current.goLast();
 		await waitFor(() => {
 			expect(result.current.clampedIndex).toBe(ONE);
 		});
 
-		// goFirst
 		result.current.goFirst();
+
+		// Assert
 		await waitFor(() => {
 			expect(result.current.clampedIndex).toBe(ZERO);
 		});
 	});
 
-	it("keyboard navigation works for slides", async () => {
-		const song = makeSongFromIds(["a", "b", "c"]);
-		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
-			useSongViewSlides(song),
-		);
+	it("handles keyboard navigation and ignores unrelated keys", async () => {
+		installSlideOrientationPreferenceMock();
+		installViewportDimensions();
 
-		expect(result.current.totalSlides).toBe(THREE);
+		// Arrange
+		const song = makeSongFromIds([FIRST_SLIDE_ID, SECOND_SLIDE_ID, THIRD_SLIDE_ID]);
+		const { result } = renderHook(() => useSongViewSlides(song));
 
-		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
+		// Act
+		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: ARROW_RIGHT_KEY }));
 		await waitFor(() => {
 			expect(result.current.clampedIndex).toBe(ONE);
 		});
 
-		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft" }));
+		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: ARROW_LEFT_KEY }));
 		await waitFor(() => {
 			expect(result.current.clampedIndex).toBe(ZERO);
 		});
 
-		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "End" }));
+		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: END_KEY }));
 		await waitFor(() => {
 			expect(result.current.clampedIndex).toBe(TWO);
 		});
 
-		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "Home" }));
+		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: HOME_KEY }));
+		await waitFor(() => {
+			expect(result.current.clampedIndex).toBe(ZERO);
+		});
+
+		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: UNUSED_KEY }));
+		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: ENTER_KEY }));
+
+		// Assert
 		await waitFor(() => {
 			expect(result.current.clampedIndex).toBe(ZERO);
 		});
 	});
 
-	it("ignores non-navigation keyboard keys", async () => {
-		const song = makeSongFromIds(["a", "b"]);
-		const { result } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(() =>
-			useSongViewSlides(song),
-		);
+	it("removes keyboard listeners on unmount", async () => {
+		installSlideOrientationPreferenceMock();
+		installViewportDimensions();
 
-		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "A" }));
-		await waitFor(() => {
-			expect(result.current.clampedIndex).toBe(ZERO);
-		}); // No change
+		// Arrange
+		const song = makeSongFromIds([FIRST_SLIDE_ID, SECOND_SLIDE_ID]);
+		const { result, unmount } = renderHook(() => useSongViewSlides(song));
 
-		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: ARROW_RIGHT_KEY }));
 		await waitFor(() => {
-			expect(result.current.clampedIndex).toBe(ZERO);
-		}); // No change
+			expect(result.current.clampedIndex).toBe(ONE);
+		});
+		const previousIndex = result.current.clampedIndex;
+
+		// Act
+		unmount();
+		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: ARROW_LEFT_KEY }));
+
+		// Assert
+		expect(result.current.clampedIndex).toBe(previousIndex);
 	});
 
-	it("ignores keyboard when no slides and cleans up on unmount", async () => {
-		const { result } = renderHook(() => useSongViewSlides(undefined));
-		expect(result.current.totalSlides).toBe(ZERO);
+	it("clamps the current slide index when the song shrinks", async () => {
+		installSlideOrientationPreferenceMock();
+		installViewportDimensions();
 
-		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
-		await waitFor(() => {
-			expect(result.current.clampedIndex).toBe(ZERO);
-		});
-
-		// verify unmount removes listeners (no state changes occur after)
-		const song = makeSongFromIds(["a", "b"]);
-		const { result: r2, unmount: u2 } = renderHook<ReturnType<typeof useSongViewSlides>, unknown>(
-			() => useSongViewSlides(song),
-		);
-		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
-		await waitFor(() => {
-			expect(r2.current.clampedIndex).toBe(ONE);
-		});
-		u2();
-		const prev = r2.current.clampedIndex;
-		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft" }));
-		await waitFor(() => {
-			expect(r2.current.clampedIndex).toBe(prev);
-		});
-	});
-
-	it("clamps index when song slides shrink", async () => {
-		const large = makeSongFromIds(["a", "b", "c"]);
-		const small = makeSongFromIds(["a"]);
-
+		// Arrange
+		const largeSong = makeSongFromIds([FIRST_SLIDE_ID, SECOND_SLIDE_ID, THIRD_SLIDE_ID]);
+		const smallSong = makeSongFromIds([FIRST_SLIDE_ID]);
 		const { result, rerender } = renderHook(({ songPublic }) => useSongViewSlides(songPublic), {
-			initialProps: { songPublic: large },
+			initialProps: { songPublic: largeSong },
 		});
 
-		// move to last index
 		result.current.goLast();
 		await waitFor(() => {
 			expect(result.current.clampedIndex).toBe(TWO);
 		});
 
-		// When the available slides shrink, the current index should be clamped
-		// to the highest valid index for the new slide set.
-		rerender({ songPublic: small });
+		// Act
+		rerender({ songPublic: smallSong });
 
-		// wait for effect to sync the state
+		// Assert
 		await waitFor(() => {
 			expect(result.current.clampedIndex).toBe(ZERO);
 		});
-		expect(result.current.currentSlide).toStrictEqual(small.slides["a"]);
+		expect(result.current.currentSlide).toStrictEqual(smallSong.slides[FIRST_SLIDE_ID]);
+	});
+
+	it("tracks orientation-derived view state", () => {
+		installSlideOrientationPreferenceMock(ResolvedSlideOrientation.portrait);
+		installViewportDimensions();
+
+		// Arrange
+		const song = makeSongFromIds([FIRST_SLIDE_ID]);
+
+		// Act
+		const { result } = renderHook(() => useSongViewSlides(song));
+
+		// Assert
+		expect(result.current.effectiveSlideOrientation).toBe(ResolvedSlideOrientation.portrait);
+		expect(result.current.slideContainerClassName).toBe(PORTRAIT_CONTAINER_CLASS_NAME);
+		expect(result.current.canPortalFullScreen).toBe(true);
+	});
+
+	it("updates full-screen state and viewport ratio, then exits on Escape", async () => {
+		installSlideOrientationPreferenceMock();
+		installViewportDimensions();
+
+		// Arrange
+		const song = makeSongFromIds([FIRST_SLIDE_ID, SECOND_SLIDE_ID]);
+		const { result } = renderHook(() => useSongViewSlides(song));
+
+		// Act
+		result.current.setIsFullScreen(true);
+		await waitFor(() => {
+			expect(result.current.isFullScreen).toBe(true);
+		});
+
+		installViewportDimensions({
+			height: UPDATED_VIEWPORT_HEIGHT,
+			width: UPDATED_VIEWPORT_WIDTH,
+		});
+		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: ESCAPE_KEY }));
+		globalThis.dispatchEvent(new KeyboardEvent("resize"));
+
+		// Assert
+		await waitFor(() => {
+			expect(result.current.isFullScreen).toBe(false);
+		});
+		expect(result.current.viewportAspectRatio).toBe(UPDATED_VIEWPORT_ASPECT_RATIO);
 	});
 });

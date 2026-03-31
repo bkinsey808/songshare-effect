@@ -92,6 +92,7 @@ export default function EventSlideShowView(): React.ReactNode {
 			<div className={slideContainerClassName}>
 				<SongViewCurrentSlide
 					currentSlide={activeSlide}
+					currentSlideIndex={0}
 					displayFields={activeSlideDisplayFields}
 					totalSlides={1}
 				/>

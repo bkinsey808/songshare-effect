@@ -114,10 +114,15 @@ test.describe("P2P Playlist Share", () => {
 			await senderPage.goto(`${BASE_URL}/en/playlist/${testPlaylistSlug}`, {
 				waitUntil: "load",
 			});
+			const playlistDeclineShareP = senderPage.waitForResponse(/\/api\/shares\/create/, {
+				timeout: SHARE_CREATE_TIMEOUT_MS,
+			});
 			const shareBtn = senderPage.getByRole("button", { name: "Share" }).first();
 			await expect(shareBtn).toBeVisible({ timeout: MANAGE_PAGE_READY_TIMEOUT_MS });
 			await shareBtn.click();
 			await selectUserInSearch(senderPage, "Share with user", testUser2Username);
+			const playlistDeclineShareResponse = await playlistDeclineShareP;
+			expect(playlistDeclineShareResponse.ok()).toBe(true);
 
 			// Recipient: decline
 			await openReceivedPendingShares(recipientPage);

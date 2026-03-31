@@ -3,19 +3,22 @@
  * Enhanced script to generate Effect-TS schemas from Supabase generated types
  * This version includes a proper TypeScript AST parser to extract table definitions
  */
-import { existsSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
 import { log as sLog } from "@/scripts/utils/scriptLogger";
 
 import assertPathExists from "./helpers/assertPathExists";
+import enrichTablesWithConstraints from "./helpers/enrichTablesWithConstraints";
 import generateEffectSchemasFile from "./helpers/generateEffectSchemasFile";
 import { generateSupabaseTypes } from "./helpers/generateSupabaseTypes";
 import loadEnvVariables from "./helpers/loadEnvVariables";
 import logFinalSummary from "./helpers/logFinalSummary";
 import logGeneratedTables from "./helpers/logGeneratedTables";
 import { moveSupabaseTypes } from "./helpers/moveSupabaseTypes";
+import parseSchemaConstraints from "./helpers/parseSchemaConstraints";
 import parseSupabaseTypes from "./helpers/parseSupabaseTypes";
+import rewriteSupabaseTypesConstraints from "./helpers/rewriteSupabaseTypesConstraints";
 import runFormatterWrite from "./helpers/runFormatterWrite";
 import runLintFix from "./helpers/runLintFix";
 
@@ -64,6 +67,17 @@ function main(): void {
 	sLog("⚡ Converting to Effect-TS schemas...");
 	sLog("🔄 Parsing Supabase types...");
 	const tables = parseSupabaseTypes(tempSupabaseTypesPath);
+
+	const schemaFilePath = join(sharedGeneratedDir, "schema.sql");
+	const constraintMap = existsSync(schemaFilePath)
+		? parseSchemaConstraints(readFileSync(schemaFilePath, "utf8"))
+		: undefined;
+
+	if (constraintMap !== undefined) {
+		sLog("🔍 Enriching schemas with CHECK constraints from schema.sql...");
+		enrichTablesWithConstraints(tables, constraintMap);
+	}
+
 	logGeneratedTables(tables);
 
 	sLog("⚡ Generating Effect schemas...");
@@ -74,6 +88,10 @@ function main(): void {
 		destinationPath: supabaseTypesDestination,
 		generated: supabaseTypesGenerated,
 	});
+
+	if (supabaseTypesFinalPath !== undefined && constraintMap !== undefined) {
+		rewriteSupabaseTypesConstraints(supabaseTypesFinalPath, constraintMap);
+	}
 
 	const lintTargets: readonly string[] =
 		supabaseTypesFinalPath === undefined

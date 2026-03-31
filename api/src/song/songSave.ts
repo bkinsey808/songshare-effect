@@ -40,6 +40,10 @@ const SongFormSchema = Schema.Struct({
 			}),
 			background_image_id: Schema.optional(Schema.String),
 			background_image_url: Schema.optional(Schema.String),
+			background_image_width: Schema.optional(Schema.Number),
+			background_image_height: Schema.optional(Schema.Number),
+			background_image_focal_point_x: Schema.optional(Schema.Number),
+			background_image_focal_point_y: Schema.optional(Schema.Number),
 		}),
 	}),
 });

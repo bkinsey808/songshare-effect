@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-03-29T22:02:21.644Z
+ * Last generated: 2026-03-30T18:42:27.666Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -263,8 +263,8 @@ export const CommunityShareRequestSchema: Schema.Struct<{
 	reviewed_by_user_id: Schema.optional<typeof Schema.UUID>;
 	sender_user_id: typeof Schema.UUID;
 	shared_item_id: typeof Schema.UUID;
-	shared_item_type: typeof Schema.NonEmptyString;
-	status: typeof Schema.NonEmptyString;
+	shared_item_type: Schema.Literal<["song", "playlist"]>;
+	status: Schema.Literal<["pending", "accepted", "rejected"]>;
 	updated_at: typeof Schema.NonEmptyString;
 }> = Schema.Struct({
 	community_id: Schema.UUID,
@@ -275,8 +275,8 @@ export const CommunityShareRequestSchema: Schema.Struct<{
 	reviewed_by_user_id: Schema.optional(Schema.UUID),
 	sender_user_id: Schema.UUID,
 	shared_item_id: Schema.UUID,
-	shared_item_type: Schema.NonEmptyString,
-	status: Schema.NonEmptyString,
+	shared_item_type: Schema.Literal("song", "playlist"),
+	status: Schema.Literal("pending", "accepted", "rejected"),
 	updated_at: Schema.NonEmptyString,
 });
 
@@ -290,8 +290,8 @@ export const CommunityShareRequestInsertSchema: Schema.Struct<{
 	reviewed_by_user_id: Schema.optional<typeof Schema.UUID>;
 	sender_user_id: typeof Schema.UUID;
 	shared_item_id: typeof Schema.UUID;
-	shared_item_type: typeof Schema.NonEmptyString;
-	status: Schema.optional<typeof Schema.NonEmptyString>;
+	shared_item_type: Schema.Literal<["song", "playlist"]>;
+	status: Schema.optional<Schema.Literal<["pending", "accepted", "rejected"]>>;
 }> = Schema.Struct({
 	community_id: Schema.UUID,
 	message: Schema.optional(Schema.String),
@@ -300,8 +300,8 @@ export const CommunityShareRequestInsertSchema: Schema.Struct<{
 	reviewed_by_user_id: Schema.optional(Schema.UUID),
 	sender_user_id: Schema.UUID,
 	shared_item_id: Schema.UUID,
-	shared_item_type: Schema.NonEmptyString,
-	status: Schema.optional(Schema.NonEmptyString),
+	shared_item_type: Schema.Literal("song", "playlist"),
+	status: Schema.optional(Schema.Literal("pending", "accepted", "rejected")),
 });
 
 export type CommunityShareRequestInsert = Schema.Schema.Type<
@@ -316,8 +316,8 @@ export const CommunityShareRequestUpdateSchema: Schema.Struct<{
 	reviewed_by_user_id: Schema.optional<typeof Schema.UUID>;
 	sender_user_id: Schema.optional<typeof Schema.UUID>;
 	shared_item_id: Schema.optional<typeof Schema.UUID>;
-	shared_item_type: Schema.optional<typeof Schema.NonEmptyString>;
-	status: Schema.optional<typeof Schema.NonEmptyString>;
+	shared_item_type: Schema.optional<Schema.Literal<["song", "playlist"]>>;
+	status: Schema.optional<Schema.Literal<["pending", "accepted", "rejected"]>>;
 }> = Schema.Struct({
 	community_id: Schema.optional(Schema.UUID),
 	message: Schema.optional(Schema.String),
@@ -326,8 +326,8 @@ export const CommunityShareRequestUpdateSchema: Schema.Struct<{
 	reviewed_by_user_id: Schema.optional(Schema.UUID),
 	sender_user_id: Schema.optional(Schema.UUID),
 	shared_item_id: Schema.optional(Schema.UUID),
-	shared_item_type: Schema.optional(Schema.NonEmptyString),
-	status: Schema.optional(Schema.NonEmptyString),
+	shared_item_type: Schema.optional(Schema.Literal("song", "playlist")),
+	status: Schema.optional(Schema.Literal("pending", "accepted", "rejected")),
 });
 
 export type CommunityShareRequestUpdate = Schema.Schema.Type<
@@ -412,14 +412,14 @@ export type CommunityTagUpdate = Schema.Schema.Type<
 export const CommunityUserSchema: Schema.Struct<{
 	community_id: typeof Schema.UUID;
 	joined_at: typeof Schema.NonEmptyString;
-	role: typeof Schema.NonEmptyString;
-	status: typeof Schema.NonEmptyString;
+	role: Schema.Literal<["owner", "community_admin", "member"]>;
+	status: Schema.Literal<["invited", "joined", "left", "kicked"]>;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	community_id: Schema.UUID,
 	joined_at: Schema.NonEmptyString,
-	role: Schema.NonEmptyString,
-	status: Schema.NonEmptyString,
+	role: Schema.Literal("owner", "community_admin", "member"),
+	status: Schema.Literal("invited", "joined", "left", "kicked"),
 	user_id: Schema.UUID,
 });
 
@@ -428,14 +428,14 @@ export type CommunityUser = Schema.Schema.Type<typeof CommunityUserSchema>;
 export const CommunityUserInsertSchema: Schema.Struct<{
 	community_id: typeof Schema.UUID;
 	joined_at: Schema.optional<typeof Schema.NonEmptyString>;
-	role: typeof Schema.NonEmptyString;
-	status: Schema.optional<typeof Schema.NonEmptyString>;
+	role: Schema.Literal<["owner", "community_admin", "member"]>;
+	status: Schema.optional<Schema.Literal<["invited", "joined", "left", "kicked"]>>;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	community_id: Schema.UUID,
 	joined_at: Schema.optional(Schema.NonEmptyString),
-	role: Schema.NonEmptyString,
-	status: Schema.optional(Schema.NonEmptyString),
+	role: Schema.Literal("owner", "community_admin", "member"),
+	status: Schema.optional(Schema.Literal("invited", "joined", "left", "kicked")),
 	user_id: Schema.UUID,
 });
 
@@ -446,14 +446,14 @@ export type CommunityUserInsert = Schema.Schema.Type<
 export const CommunityUserUpdateSchema: Schema.Struct<{
 	community_id: Schema.optional<typeof Schema.UUID>;
 	joined_at: Schema.optional<typeof Schema.NonEmptyString>;
-	role: Schema.optional<typeof Schema.NonEmptyString>;
-	status: Schema.optional<typeof Schema.NonEmptyString>;
+	role: Schema.optional<Schema.Literal<["owner", "community_admin", "member"]>>;
+	status: Schema.optional<Schema.Literal<["invited", "joined", "left", "kicked"]>>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
 	community_id: Schema.optional(Schema.UUID),
 	joined_at: Schema.optional(Schema.NonEmptyString),
-	role: Schema.optional(Schema.NonEmptyString),
-	status: Schema.optional(Schema.NonEmptyString),
+	role: Schema.optional(Schema.Literal("owner", "community_admin", "member")),
+	status: Schema.optional(Schema.Literal("invited", "joined", "left", "kicked")),
 	user_id: Schema.optional(Schema.UUID),
 });
 
@@ -669,14 +669,14 @@ export type EventTagUpdate = Schema.Schema.Type<typeof EventTagUpdateSchema>;
 export const EventUserSchema: Schema.Struct<{
 	event_id: typeof Schema.UUID;
 	joined_at: typeof Schema.NonEmptyString;
-	role: typeof Schema.NonEmptyString;
-	status: typeof Schema.NonEmptyString;
+	role: Schema.Literal<["owner", "event_admin", "event_playlist_admin", "participant"]>;
+	status: Schema.Literal<["invited", "joined", "left", "kicked"]>;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	event_id: Schema.UUID,
 	joined_at: Schema.NonEmptyString,
-	role: Schema.NonEmptyString,
-	status: Schema.NonEmptyString,
+	role: Schema.Literal("owner", "event_admin", "event_playlist_admin", "participant"),
+	status: Schema.Literal("invited", "joined", "left", "kicked"),
 	user_id: Schema.UUID,
 });
 
@@ -685,14 +685,14 @@ export type EventUser = Schema.Schema.Type<typeof EventUserSchema>;
 export const EventUserInsertSchema: Schema.Struct<{
 	event_id: typeof Schema.UUID;
 	joined_at: Schema.optional<typeof Schema.NonEmptyString>;
-	role: typeof Schema.NonEmptyString;
-	status: Schema.optional<typeof Schema.NonEmptyString>;
+	role: Schema.Literal<["owner", "event_admin", "event_playlist_admin", "participant"]>;
+	status: Schema.optional<Schema.Literal<["invited", "joined", "left", "kicked"]>>;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	event_id: Schema.UUID,
 	joined_at: Schema.optional(Schema.NonEmptyString),
-	role: Schema.NonEmptyString,
-	status: Schema.optional(Schema.NonEmptyString),
+	role: Schema.Literal("owner", "event_admin", "event_playlist_admin", "participant"),
+	status: Schema.optional(Schema.Literal("invited", "joined", "left", "kicked")),
 	user_id: Schema.UUID,
 });
 
@@ -701,14 +701,14 @@ export type EventUserInsert = Schema.Schema.Type<typeof EventUserInsertSchema>;
 export const EventUserUpdateSchema: Schema.Struct<{
 	event_id: Schema.optional<typeof Schema.UUID>;
 	joined_at: Schema.optional<typeof Schema.NonEmptyString>;
-	role: Schema.optional<typeof Schema.NonEmptyString>;
-	status: Schema.optional<typeof Schema.NonEmptyString>;
+	role: Schema.optional<Schema.Literal<["owner", "event_admin", "event_playlist_admin", "participant"]>>;
+	status: Schema.optional<Schema.Literal<["invited", "joined", "left", "kicked"]>>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
 	event_id: Schema.optional(Schema.UUID),
 	joined_at: Schema.optional(Schema.NonEmptyString),
-	role: Schema.optional(Schema.NonEmptyString),
-	status: Schema.optional(Schema.NonEmptyString),
+	role: Schema.optional(Schema.Literal("owner", "event_admin", "event_playlist_admin", "participant")),
+	status: Schema.optional(Schema.Literal("invited", "joined", "left", "kicked")),
 	user_id: Schema.optional(Schema.UUID),
 });
 
@@ -1195,8 +1195,8 @@ export const SharePublicSchema: Schema.Struct<{
 	share_id: typeof Schema.UUID;
 	shared_item_id: typeof Schema.UUID;
 	shared_item_name: typeof Schema.NonEmptyString;
-	shared_item_type: typeof Schema.NonEmptyString;
-	status: typeof Schema.NonEmptyString;
+	shared_item_type: Schema.Literal<["song", "playlist", "event", "community", "user", "image"]>;
+	status: Schema.Literal<["pending", "accepted", "rejected"]>;
 	updated_at: Schema.optional<typeof Schema.String>;
 }> = Schema.Struct({
 	created_at: Schema.optional(Schema.String),
@@ -1206,8 +1206,8 @@ export const SharePublicSchema: Schema.Struct<{
 	share_id: Schema.UUID,
 	shared_item_id: Schema.UUID,
 	shared_item_name: Schema.NonEmptyString,
-	shared_item_type: Schema.NonEmptyString,
-	status: Schema.NonEmptyString,
+	shared_item_type: Schema.Literal("song", "playlist", "event", "community", "user", "image"),
+	status: Schema.Literal("pending", "accepted", "rejected"),
 	updated_at: Schema.optional(Schema.String),
 });
 
@@ -1220,8 +1220,8 @@ export const SharePublicInsertSchema: Schema.Struct<{
 	share_id: typeof Schema.UUID;
 	shared_item_id: typeof Schema.UUID;
 	shared_item_name: typeof Schema.NonEmptyString;
-	shared_item_type: typeof Schema.NonEmptyString;
-	status: Schema.optional<typeof Schema.NonEmptyString>;
+	shared_item_type: Schema.Literal<["song", "playlist", "event", "community", "user", "image"]>;
+	status: Schema.optional<Schema.Literal<["pending", "accepted", "rejected"]>>;
 }> = Schema.Struct({
 	message: Schema.optional(Schema.String),
 	recipient_user_id: Schema.UUID,
@@ -1229,8 +1229,8 @@ export const SharePublicInsertSchema: Schema.Struct<{
 	share_id: Schema.UUID,
 	shared_item_id: Schema.UUID,
 	shared_item_name: Schema.NonEmptyString,
-	shared_item_type: Schema.NonEmptyString,
-	status: Schema.optional(Schema.NonEmptyString),
+	shared_item_type: Schema.Literal("song", "playlist", "event", "community", "user", "image"),
+	status: Schema.optional(Schema.Literal("pending", "accepted", "rejected")),
 });
 
 export type SharePublicInsert = Schema.Schema.Type<
@@ -1244,8 +1244,8 @@ export const SharePublicUpdateSchema: Schema.Struct<{
 	share_id: Schema.optional<typeof Schema.UUID>;
 	shared_item_id: Schema.optional<typeof Schema.UUID>;
 	shared_item_name: Schema.optional<typeof Schema.NonEmptyString>;
-	shared_item_type: Schema.optional<typeof Schema.NonEmptyString>;
-	status: Schema.optional<typeof Schema.NonEmptyString>;
+	shared_item_type: Schema.optional<Schema.Literal<["song", "playlist", "event", "community", "user", "image"]>>;
+	status: Schema.optional<Schema.Literal<["pending", "accepted", "rejected"]>>;
 }> = Schema.Struct({
 	message: Schema.optional(Schema.String),
 	recipient_user_id: Schema.optional(Schema.UUID),
@@ -1253,8 +1253,8 @@ export const SharePublicUpdateSchema: Schema.Struct<{
 	share_id: Schema.optional(Schema.UUID),
 	shared_item_id: Schema.optional(Schema.UUID),
 	shared_item_name: Schema.optional(Schema.NonEmptyString),
-	shared_item_type: Schema.optional(Schema.NonEmptyString),
-	status: Schema.optional(Schema.NonEmptyString),
+	shared_item_type: Schema.optional(Schema.Literal("song", "playlist", "event", "community", "user", "image")),
+	status: Schema.optional(Schema.Literal("pending", "accepted", "rejected")),
 });
 
 export type SharePublicUpdate = Schema.Schema.Type<
@@ -1543,9 +1543,10 @@ export const UserSchema: Schema.Struct<{
 	google_calendar_refresh_token: Schema.optional<typeof Schema.String>;
 	linked_providers: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	name: typeof Schema.NonEmptyString;
-	role: typeof Schema.NonEmptyString;
+	role: Schema.Literal<["free", "patron", "admin"]>;
 	role_expires_at: Schema.optional<typeof Schema.String>;
-	slide_orientation_preference: typeof Schema.NonEmptyString;
+	slide_number_preference: Schema.Literal<["show", "hide"]>;
+	slide_orientation_preference: Schema.Literal<["landscape", "portrait", "system"]>;
 	sub: Schema.optional<typeof Schema.String>;
 	updated_at: typeof Schema.NonEmptyString;
 	user_id: typeof Schema.UUID;
@@ -1556,9 +1557,10 @@ export const UserSchema: Schema.Struct<{
 	google_calendar_refresh_token: Schema.optional(Schema.String),
 	linked_providers: Schema.optional(Schema.Array(Schema.String)),
 	name: Schema.NonEmptyString,
-	role: Schema.NonEmptyString,
+	role: Schema.Literal("free", "patron", "admin"),
 	role_expires_at: Schema.optional(Schema.String),
-	slide_orientation_preference: Schema.NonEmptyString,
+	slide_number_preference: Schema.Literal("show", "hide"),
+	slide_orientation_preference: Schema.Literal("landscape", "portrait", "system"),
 	sub: Schema.optional(Schema.String),
 	updated_at: Schema.NonEmptyString,
 	user_id: Schema.UUID,
@@ -1572,9 +1574,10 @@ export const UserInsertSchema: Schema.Struct<{
 	google_calendar_refresh_token: Schema.optional<typeof Schema.String>;
 	linked_providers: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	name: typeof Schema.NonEmptyString;
-	role: Schema.optional<typeof Schema.NonEmptyString>;
+	role: Schema.optional<Schema.Literal<["free", "patron", "admin"]>>;
 	role_expires_at: Schema.optional<typeof Schema.String>;
-	slide_orientation_preference: Schema.optional<typeof Schema.NonEmptyString>;
+	slide_number_preference: Schema.optional<Schema.Literal<["show", "hide"]>>;
+	slide_orientation_preference: Schema.optional<Schema.Literal<["landscape", "portrait", "system"]>>;
 	sub: Schema.optional<typeof Schema.String>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
@@ -1583,9 +1586,10 @@ export const UserInsertSchema: Schema.Struct<{
 	google_calendar_refresh_token: Schema.optional(Schema.String),
 	linked_providers: Schema.optional(Schema.Array(Schema.String)),
 	name: Schema.NonEmptyString,
-	role: Schema.optional(Schema.NonEmptyString),
+	role: Schema.optional(Schema.Literal("free", "patron", "admin")),
 	role_expires_at: Schema.optional(Schema.String),
-	slide_orientation_preference: Schema.optional(Schema.NonEmptyString),
+	slide_number_preference: Schema.optional(Schema.Literal("show", "hide")),
+	slide_orientation_preference: Schema.optional(Schema.Literal("landscape", "portrait", "system")),
 	sub: Schema.optional(Schema.String),
 	user_id: Schema.optional(Schema.UUID),
 });
@@ -1598,9 +1602,10 @@ export const UserUpdateSchema: Schema.Struct<{
 	google_calendar_refresh_token: Schema.optional<typeof Schema.String>;
 	linked_providers: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	name: Schema.optional<typeof Schema.NonEmptyString>;
-	role: Schema.optional<typeof Schema.NonEmptyString>;
+	role: Schema.optional<Schema.Literal<["free", "patron", "admin"]>>;
 	role_expires_at: Schema.optional<typeof Schema.String>;
-	slide_orientation_preference: Schema.optional<typeof Schema.NonEmptyString>;
+	slide_number_preference: Schema.optional<Schema.Literal<["show", "hide"]>>;
+	slide_orientation_preference: Schema.optional<Schema.Literal<["landscape", "portrait", "system"]>>;
 	sub: Schema.optional<typeof Schema.String>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
@@ -1609,9 +1614,10 @@ export const UserUpdateSchema: Schema.Struct<{
 	google_calendar_refresh_token: Schema.optional(Schema.String),
 	linked_providers: Schema.optional(Schema.Array(Schema.String)),
 	name: Schema.optional(Schema.NonEmptyString),
-	role: Schema.optional(Schema.NonEmptyString),
+	role: Schema.optional(Schema.Literal("free", "patron", "admin")),
 	role_expires_at: Schema.optional(Schema.String),
-	slide_orientation_preference: Schema.optional(Schema.NonEmptyString),
+	slide_number_preference: Schema.optional(Schema.Literal("show", "hide")),
+	slide_orientation_preference: Schema.optional(Schema.Literal("landscape", "portrait", "system")),
 	sub: Schema.optional(Schema.String),
 	user_id: Schema.optional(Schema.UUID),
 });

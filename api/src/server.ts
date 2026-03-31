@@ -63,6 +63,7 @@ import {
 	apiUserLibraryAddPath,
 	apiUserLibraryLookupPath,
 	apiUserLibraryRemovePath,
+	apiUserSlideNumberPreferencePath,
 	apiUserSlideOrientationPreferencePath,
 	apiUserTokenPath,
 	healthPath,
@@ -133,6 +134,7 @@ import addUserToLibraryHandler from "./user-library/addUserToLibrary";
 import lookupUserByUsernameHandler from "./user-library/lookupUserByUsername";
 import removeUserFromLibraryHandler from "./user-library/removeUserFromLibrary";
 import getUserToken from "./user-session/getUserToken";
+import updateSlideNumberPreference from "./user/updateSlideNumberPreference";
 import updateSlideOrientationPreference from "./user/updateSlideOrientationPreference";
 
 const app: Hono<{ Bindings: Bindings }> = new Hono<{ Bindings: Bindings }>();
@@ -197,6 +199,7 @@ app.post(
 	apiUserSlideOrientationPreferencePath,
 	handleHttpEndpoint(updateSlideOrientationPreference),
 );
+app.post(apiUserSlideNumberPreferencePath, handleHttpEndpoint(updateSlideNumberPreference));
 
 // Share endpoints
 app.post(apiShareCreatePath, handleHttpEndpoint(shareCreateHandler));

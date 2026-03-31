@@ -6,6 +6,8 @@ export type ColumnDefinition = {
 	isForeignKey?: boolean;
 	referencedTable?: string;
 	isRequiredForInsert?: boolean;
+	/** Allowed literal values from a database CHECK (col = ANY (ARRAY[...])) constraint. */
+	allowedValues?: readonly string[];
 };
 
 export type TableDefinition = {

@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
+import { SlideNumberPreference } from "@/shared/user/slideNumberPreference";
 import { SlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
 import type { UserSessionData } from "@/shared/userSessionData";
 
@@ -47,6 +48,7 @@ function Harness(): ReactElement {
 			<div data-testid="email">{currentUser?.email ?? ""}</div>
 			<div data-testid="name">{currentUser?.name ?? ""}</div>
 			<div data-testid="role">{currentUser?.role ?? ""}</div>
+			<div data-testid="slide-number-preference">{currentUser?.slideNumberPreference ?? ""}</div>
 			<div data-testid="slide-orientation-preference">
 				{currentUser?.slideOrientationPreference ?? ""}
 			</div>
@@ -82,6 +84,7 @@ describe("useCurrentUser — Harness", () => {
 			isSignedIn: getByTestId("is-signed-in").textContent,
 			name: getByTestId("name").textContent,
 			role: getByTestId("role").textContent,
+			slideNumberPreference: getByTestId("slide-number-preference").textContent,
 			slideOrientationPreference: getByTestId("slide-orientation-preference").textContent,
 			userId: getByTestId("user-id").textContent,
 			username: getByTestId("username").textContent,
@@ -93,6 +96,7 @@ describe("useCurrentUser — Harness", () => {
 			isSignedIn: "true",
 			name: USER_NAME,
 			role: USER_ROLE,
+			slideNumberPreference: SlideNumberPreference.hide,
 			slideOrientationPreference: SlideOrientationPreference.portrait,
 			userId: USER_ID,
 			username: USERNAME,
@@ -137,6 +141,7 @@ describe("useCurrentUser — renderHook", () => {
 			email: USER_EMAIL,
 			name: USER_NAME,
 			role: USER_ROLE,
+			slideNumberPreference: SlideNumberPreference.hide,
 			slideOrientationPreference: SlideOrientationPreference.landscape,
 			userId: USER_ID,
 			username: USERNAME,

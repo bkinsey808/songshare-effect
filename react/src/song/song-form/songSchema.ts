@@ -51,6 +51,10 @@ export type SlideShape = {
 	field_data: Record<string, string>;
 	background_image_id?: string | undefined;
 	background_image_url?: string | undefined;
+	background_image_width?: number | undefined;
+	background_image_height?: number | undefined;
+	background_image_focal_point_x?: number | undefined;
+	background_image_focal_point_y?: number | undefined;
 };
 
 export const slideSchema: Schema.Schema<SlideShape> = Schema.Struct({
@@ -61,6 +65,10 @@ export const slideSchema: Schema.Schema<SlideShape> = Schema.Struct({
 	}),
 	background_image_id: Schema.optional(Schema.String),
 	background_image_url: Schema.optional(Schema.String),
+	background_image_width: Schema.optional(Schema.Number),
+	background_image_height: Schema.optional(Schema.Number),
+	background_image_focal_point_x: Schema.optional(Schema.Number),
+	background_image_focal_point_y: Schema.optional(Schema.Number),
 });
 
 export const slidesSchema: Schema.Schema<Record<string, SlideShape>> = Schema.Record({

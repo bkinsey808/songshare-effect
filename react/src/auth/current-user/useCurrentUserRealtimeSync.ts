@@ -7,6 +7,7 @@ import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAut
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 import isRecord from "@/shared/type-guards/isRecord";
+import { coerceSlideNumberPreference } from "@/shared/user/slideNumberPreference";
 import { coerceSlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
 
 export default function useCurrentUserRealtimeSync(): void {
@@ -50,10 +51,18 @@ export default function useCurrentUserRealtimeSync(): void {
 							return;
 						}
 
-						const nextPreference = payload["new"]["slide_orientation_preference"];
-						if (typeof nextPreference === "string") {
+						const nextSlideOrientation = payload["new"]["slide_orientation_preference"];
+						if (typeof nextSlideOrientation === "string") {
 							updateUserSessionUser({
-								slide_orientation_preference: coerceSlideOrientationPreference(nextPreference),
+								slide_orientation_preference:
+									coerceSlideOrientationPreference(nextSlideOrientation),
+							});
+						}
+
+						const nextSlideNumber = payload["new"]["slide_number_preference"];
+						if (typeof nextSlideNumber === "string") {
+							updateUserSessionUser({
+								slide_number_preference: coerceSlideNumberPreference(nextSlideNumber),
 							});
 						}
 					}),

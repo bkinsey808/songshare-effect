@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
+import { SlideNumberPreference } from "@/shared/user/slideNumberPreference";
 import { SlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
 
 import computeCurrentUser from "./computeCurrentUser";
@@ -44,6 +46,7 @@ describe("computeCurrentUser", () => {
 			email: USER_EMAIL,
 			name: USER_NAME,
 			role: USER_ROLE,
+			slideNumberPreference: SlideNumberPreference.hide,
 			slideOrientationPreference: SlideOrientationPreference.portrait,
 			userId: USER_ID,
 			username: USERNAME,
@@ -69,7 +72,7 @@ describe("computeCurrentUser", () => {
 			// Arrange
 			const userSessionData = makeUserSessionData({
 				user: {
-					slide_orientation_preference: storedPreference,
+					slide_orientation_preference: forceCast<"landscape">(storedPreference),
 				},
 			});
 

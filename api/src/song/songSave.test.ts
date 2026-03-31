@@ -27,36 +27,46 @@ describe("songSave handler", () => {
 		},
 	});
 
-	it("returns ValidationError when JSON body is invalid", async () => {
+	// Helper to perform per-test reset and default session stub.
+	function initDefaultMocks(): void {
 		vi.resetAllMocks();
+		vi.mocked(getVerifiedSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));
+	}
+
+	const ONE_CALL = 1;
+
+	it("returns ValidationError when JSON body is invalid", async () => {
+		// Arrange
+		initDefaultMocks();
 		const ctx = makeCtx({ body: new Error("bad json") });
 
-		vi.mocked(getVerifiedSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));
-
+		// Act & Assert
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/Invalid JSON body/);
 	});
 
 	it("fails when required fields are missing", async () => {
-		vi.resetAllMocks();
+		// Arrange
+		initDefaultMocks();
 		const ctx = makeCtx({ body: { song_slug: "s" } });
 
-		vi.mocked(getVerifiedSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));
-
+		// Act & Assert: validation error
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/is missing/);
 
+		// Arrange (auth failure)
 		vi.mocked(getVerifiedSession).mockReturnValue(
 			Effect.fail(new AuthenticationError({ message: "No auth" })),
 		);
 
+		// Act & Assert: auth error bubbles
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/No auth/);
 	});
 
 	it("creates a new song successfully", async () => {
-		vi.resetAllMocks();
+		// Arrange
+		initDefaultMocks();
 		const ctx = makeCtx({
 			body: { song_name: "n", song_slug: "s", fields: [], slide_order: [], slides: {} },
 		});
-		vi.mocked(getVerifiedSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));
 
 		const fake = makeSupabaseClient({
 			songInsertRows: [{ song_id: "new", user_id: SAMPLE_USER_ID }],
@@ -64,12 +74,16 @@ describe("songSave handler", () => {
 		});
 		vi.mocked(createClient).mockReturnValue(fake);
 
+		// Act
 		const res = await Effect.runPromise(songSave(ctx));
+
+		// Assert
 		expect(res).toStrictEqual({ song_id: "new", user_id: SAMPLE_USER_ID });
 	});
 
 	it("fails update when user does not own the song", async () => {
-		vi.resetAllMocks();
+		// Arrange
+		initDefaultMocks();
 		const ctx = makeCtx({
 			body: {
 				song_id: "old",
@@ -80,17 +94,19 @@ describe("songSave handler", () => {
 				slides: {},
 			},
 		});
-		vi.mocked(getVerifiedSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));
 
 		const fake = makeSupabaseClient({
 			songPublicSelectSingleRow: { user_id: "other" },
 		});
 		vi.mocked(createClient).mockReturnValue(fake);
 
+		// Act & Assert
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/permission to update/);
 	});
 
 	it("updates existing song successfully", async () => {
+		// Arrange
+		initDefaultMocks();
 		const ctx = makeCtx({
 			body: {
 				song_id: "old",
@@ -101,7 +117,6 @@ describe("songSave handler", () => {
 				slides: {},
 			},
 		});
-		vi.mocked(getVerifiedSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));
 
 		const fake = makeSupabaseClient({
 			songPublicSelectSingleRow: { user_id: SAMPLE_USER_ID },
@@ -110,42 +125,49 @@ describe("songSave handler", () => {
 		});
 		vi.mocked(createClient).mockReturnValue(fake);
 
+		// Act
 		const res = await Effect.runPromise(songSave(ctx));
+
+		// Assert
 		expect(res).toStrictEqual({ song_id: "old" });
 	});
 
 	it("fails when private insert errors", async () => {
-		vi.resetAllMocks();
+		// Arrange
+		initDefaultMocks();
 		const ctx = makeCtx({
 			body: { song_name: "n", song_slug: "s", fields: [], slide_order: [], slides: {} },
 		});
-		vi.mocked(getVerifiedSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));
 
 		const fake = makeSupabaseClient({
 			songInsertError: { message: "oops" },
 		});
 		vi.mocked(createClient).mockReturnValue(fake);
+
+		// Act & Assert
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/oops/);
 	});
 
 	it("fails when public insert errors and cleans up", async () => {
-		vi.resetAllMocks();
+		// Arrange
+		initDefaultMocks();
 		const ctx = makeCtx({
 			body: { song_name: "n", song_slug: "s", fields: [], slide_order: [], slides: {} },
 		});
-		vi.mocked(getVerifiedSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));
 
+		initDefaultMocks();
 		const fake = makeSupabaseClient({
 			songInsertRows: [{ song_id: "new" }],
 			songPublicInsertError: { message: "pub fail" },
 		});
 		vi.mocked(createClient).mockReturnValue(fake);
 
+		// Act & Assert
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/pub fail/);
 	});
 
 	it("fails when song tag persistence fails during save", async () => {
-		vi.resetAllMocks();
+		// Arrange
 		const ctx = makeCtx({
 			body: {
 				song_id: "old",
@@ -157,7 +179,6 @@ describe("songSave handler", () => {
 				tags: ["live-tag"],
 			},
 		});
-		vi.mocked(getVerifiedSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));
 
 		const fake = makeSupabaseClient({
 			songPublicSelectSingleRow: { user_id: SAMPLE_USER_ID },
@@ -209,8 +230,11 @@ describe("songSave handler", () => {
 
 		vi.mocked(createClient).mockReturnValue(fakeWithTagFailure);
 
+		// Act & Assert
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/song_tag insert failed/);
-		expect(songTagInsert).toHaveBeenCalledOnce();
+
+		// Assert side-effects
+		expect(songTagInsert).toHaveBeenCalledTimes(ONE_CALL);
 		expect(tagLibraryUpsert).not.toHaveBeenCalled();
 	});
 });

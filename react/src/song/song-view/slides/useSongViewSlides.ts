@@ -1,11 +1,27 @@
 import { useEffect, useState } from "react";
 
+import getSlideOrientationContainerClassName from "@/react/slide-orientation/getSlideOrientationContainerClassName";
+import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
 import { type SongPublic, songFields } from "@/react/song/song-schema";
 import { ONE } from "@/shared/constants/shared-constants";
 import { safeGet } from "@/shared/utils/safe";
 
 /** Minimum allowed slide index (keeps bounds explicit and avoids magic numbers) */
 const MIN_SLIDE_INDEX = 0;
+const FALLBACK_VIEWPORT_ASPECT_WIDTH = 16;
+const FALLBACK_VIEWPORT_ASPECT_HEIGHT = 9;
+const FALLBACK_VIEWPORT_ASPECT_RATIO =
+	FALLBACK_VIEWPORT_ASPECT_WIDTH / FALLBACK_VIEWPORT_ASPECT_HEIGHT;
+
+function getViewportAspectRatio(): number {
+	if (typeof globalThis === "undefined") {
+		return FALLBACK_VIEWPORT_ASPECT_RATIO;
+	}
+	if (globalThis.innerWidth <= MIN_SLIDE_INDEX || globalThis.innerHeight <= MIN_SLIDE_INDEX) {
+		return FALLBACK_VIEWPORT_ASPECT_RATIO;
+	}
+	return globalThis.innerWidth / globalThis.innerHeight;
+}
 
 /**
  * Result object returned by `useSongViewSlides`.
@@ -13,14 +29,20 @@ const MIN_SLIDE_INDEX = 0;
  * Contains the current slide state, navigation helpers, and computed fields for rendering.
  */
 export type UseSongViewSlidesResult = {
+	canPortalFullScreen: boolean;
 	clampedIndex: number;
 	currentSlide: unknown;
 	displayFields: readonly string[];
+	effectiveSlideOrientation: "landscape" | "portrait";
 	goFirst: () => void;
 	goLast: () => void;
 	goNext: () => void;
 	goPrev: () => void;
+	isFullScreen: boolean;
+	setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
+	slideContainerClassName: string;
 	totalSlides: number;
+	viewportAspectRatio: number;
 };
 
 /**
@@ -47,6 +69,11 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 	const totalSlides = slideOrder.length;
 
 	const [currentIndex, setCurrentIndex] = useState(MIN_SLIDE_INDEX);
+	const [isFullScreen, setIsFullScreen] = useState(false);
+	const [viewportAspectRatio, setViewportAspectRatio] = useState(getViewportAspectRatio);
+	const { effectiveSlideOrientation } = useSlideOrientationPreference();
+	const slideContainerClassName = getSlideOrientationContainerClassName(effectiveSlideOrientation);
+	const canPortalFullScreen = typeof document !== "undefined" && document.body !== null;
 
 	/**
 	 * Clamp the current index into the valid slide range [0, totalSlides - 1].
@@ -124,6 +151,41 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 		};
 	}, [totalSlides]);
 
+	// When in full-screen mode, listen for Escape to exit. Listener is
+	// removed on unmount or when `isFullScreen` changes.
+	useEffect(() => {
+		if (!isFullScreen) {
+			return;
+		}
+		function onKeyDown(event: KeyboardEvent): void {
+			if (event.key === "Escape") {
+				event.preventDefault();
+				setIsFullScreen(false);
+			}
+		}
+		globalThis.addEventListener("keydown", onKeyDown);
+		return function cleanup(): void {
+			globalThis.removeEventListener("keydown", onKeyDown);
+		};
+	}, [isFullScreen]);
+
+	// Keep the full-screen slide sized against the current viewport ratio.
+	useEffect(() => {
+		if (!isFullScreen) {
+			return;
+		}
+
+		function handleResize(): void {
+			setViewportAspectRatio(getViewportAspectRatio());
+		}
+
+		handleResize();
+		globalThis.addEventListener("resize", handleResize);
+		return function cleanup(): void {
+			globalThis.removeEventListener("resize", handleResize);
+		};
+	}, [isFullScreen]);
+
 	/**
 	 * Resolve the current slide id (if any).
 	 * Use `safeGet` to avoid throwing if the slide is missing.
@@ -142,13 +204,19 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 	const displayFields = fields.length > MIN_SLIDE_INDEX ? [...fields] : [...songFields];
 
 	return {
+		canPortalFullScreen,
 		clampedIndex,
 		currentSlide,
 		displayFields,
+		effectiveSlideOrientation,
 		goFirst,
 		goLast,
 		goNext,
 		goPrev,
+		isFullScreen,
+		setIsFullScreen,
+		slideContainerClassName,
 		totalSlides,
+		viewportAspectRatio,
 	};
 }

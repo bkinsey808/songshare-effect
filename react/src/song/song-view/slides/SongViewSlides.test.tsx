@@ -1,9 +1,11 @@
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 import SlideOrientationSelect from "@/react/slide-orientation/SlideOrientationSelect";
+import { ResolvedSlideOrientation } from "@/shared/user/slideOrientationPreference";
 import type { SongPublic } from "@/react/song/song-schema";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
 
@@ -16,6 +18,12 @@ vi.mock("react-i18next");
 // Mock the slide hook so tests can provide deterministic slide state
 vi.mock("./useSongViewSlides");
 vi.mock("@/react/slide-orientation/SlideOrientationSelect");
+
+const DEFAULT_SET_IS_FULLSCREEN = vi.fn();
+const DEFAULT_VIEWPORT_ASPECT_WIDTH = 16;
+const DEFAULT_VIEWPORT_ASPECT_HEIGHT = 9;
+const DEFAULT_VIEWPORT_ASPECT_RATIO =
+	DEFAULT_VIEWPORT_ASPECT_WIDTH / DEFAULT_VIEWPORT_ASPECT_HEIGHT;
 
 // Minimal representative `SongPublic` used in tests.
 const DUMMY_SONG: SongPublic = makeSongPublic({ song_slug: "my-slug" });
@@ -58,14 +66,20 @@ describe("song view slides", () => {
 		installI18nMock();
 		const mockGo = vi.fn();
 		vi.mocked(useSongViewSlides).mockReturnValue({
+			canPortalFullScreen: true,
 			clampedIndex: 0,
 			currentSlide: { slide_name: "Verse 1", field_data: { lyrics: "Hello" } },
 			displayFields: ["lyrics"],
+			effectiveSlideOrientation: ResolvedSlideOrientation.landscape,
 			goFirst: mockGo,
 			goLast: mockGo,
 			goNext: mockGo,
 			goPrev: mockGo,
+			isFullScreen: false,
+			setIsFullScreen: DEFAULT_SET_IS_FULLSCREEN,
+			slideContainerClassName: "mx-auto w-full max-w-5xl",
 			totalSlides: 2,
+			viewportAspectRatio: DEFAULT_VIEWPORT_ASPECT_RATIO,
 		});
 
 		const { getByLabelText, getByTestId, getByText } = render(
@@ -90,19 +104,28 @@ describe("song view slides", () => {
 	});
 
 	// Ensures fullscreen opens, shows exit UI, and can be closed
-	// via the exit button or the Escape key
-	it("toggles fullscreen and exits via button and Escape key", async () => {
+	// via the exit button.
+	it("toggles fullscreen and exits via button", async () => {
 		installI18nMock();
 		const mockGo = vi.fn();
-		vi.mocked(useSongViewSlides).mockReturnValue({
-			clampedIndex: 0,
-			currentSlide: { slide_name: "Verse 1", field_data: { lyrics: "Hello" } },
-			displayFields: ["lyrics"],
-			goFirst: mockGo,
-			goLast: mockGo,
-			goNext: mockGo,
-			goPrev: mockGo,
-			totalSlides: 2,
+		vi.mocked(useSongViewSlides).mockImplementation(() => {
+			const [isFullScreen, setIsFullScreen] = useState(false);
+			return {
+				canPortalFullScreen: true,
+				clampedIndex: 0,
+				currentSlide: { slide_name: "Verse 1", field_data: { lyrics: "Hello" } },
+				displayFields: ["lyrics"],
+				effectiveSlideOrientation: ResolvedSlideOrientation.landscape,
+				goFirst: mockGo,
+				goLast: mockGo,
+				goNext: mockGo,
+				goPrev: mockGo,
+				isFullScreen,
+				setIsFullScreen,
+				slideContainerClassName: "mx-auto w-full max-w-5xl",
+				totalSlides: 2,
+				viewportAspectRatio: DEFAULT_VIEWPORT_ASPECT_RATIO,
+			};
 		});
 
 		const { getByTestId, getByText, queryByTestId } = render(
@@ -116,6 +139,7 @@ describe("song view slides", () => {
 		// full screen overlay should show exit button and hint
 		expect(getByTestId("song-view-exit-fullscreen")).toBeTruthy();
 		expect(getByText("Press Esc to exit")).toBeTruthy();
+		expect(getByTestId("song-view-fullscreen-slide-frame").className).toBe("absolute inset-0");
 
 		// clicking exit button closes fullscreen
 		fireEvent.click(getByTestId("song-view-exit-fullscreen"));
@@ -126,12 +150,6 @@ describe("song view slides", () => {
 		// reopen fullscreen
 		fireEvent.click(getByTestId("song-view-fullscreen"));
 		expect(getByTestId("song-view-exit-fullscreen")).toBeTruthy();
-
-		// pressing Escape closes it
-		globalThis.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-		await waitFor(() => {
-			expect(queryByTestId("song-view-exit-fullscreen")).toBeNull();
-		});
 		cleanup();
 	});
 
@@ -141,14 +159,20 @@ describe("song view slides", () => {
 		installI18nMock();
 		const mockGo = vi.fn();
 		vi.mocked(useSongViewSlides).mockReturnValue({
+			canPortalFullScreen: true,
 			clampedIndex: 0,
 			currentSlide: undefined,
 			displayFields: [],
+			effectiveSlideOrientation: ResolvedSlideOrientation.landscape,
 			goFirst: mockGo,
 			goLast: mockGo,
 			goNext: mockGo,
 			goPrev: mockGo,
+			isFullScreen: false,
+			setIsFullScreen: DEFAULT_SET_IS_FULLSCREEN,
+			slideContainerClassName: "mx-auto w-full max-w-5xl",
 			totalSlides: 0,
+			viewportAspectRatio: DEFAULT_VIEWPORT_ASPECT_RATIO,
 		});
 
 		const { queryByLabelText, queryByText, getByText } = render(

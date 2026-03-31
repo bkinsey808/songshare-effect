@@ -258,5 +258,10 @@
 		"landscape": "Landscape",
 		"portrait": "Portrait",
 		"system": "System"
+	},
+	"slideNumber": {
+		"label": "Slide #",
+		"show": "Show",
+		"hide": "Hide"
 	}
 }

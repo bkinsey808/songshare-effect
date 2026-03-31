@@ -1,15 +1,25 @@
 import { useTranslation } from "react-i18next";
 
-import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
+import FocalPointCoverImage from "@/react/image/focal-point/FocalPointCoverImage";
 import { ResolvedSlideOrientation } from "@/shared/user/slideOrientationPreference";
-import isRecord from "@/shared/type-guards/isRecord";
 
-/** Minimum allowed slide index (keeps bounds explicit and avoids magic numbers) */
-const MIN_SLIDE_INDEX = 0;
+import useSongViewCurrentSlide from "./useSongViewCurrentSlide";
+
+/** Offset to convert a 0-based index to a 1-based slide number for display */
+const SLIDE_NUMBER_OFFSET = 1;
+const LANDSCAPE_ASPECT_WIDTH = 16;
+const LANDSCAPE_ASPECT_HEIGHT = 9;
+const PORTRAIT_ASPECT_WIDTH = 9;
+const PORTRAIT_ASPECT_HEIGHT = 16;
+const LANDSCAPE_ASPECT_RATIO = LANDSCAPE_ASPECT_WIDTH / LANDSCAPE_ASPECT_HEIGHT;
+const PORTRAIT_ASPECT_RATIO = PORTRAIT_ASPECT_WIDTH / PORTRAIT_ASPECT_HEIGHT;
 
 type SongViewCurrentSlideProps = Readonly<{
+	containerAspectRatioOverride?: number;
 	currentSlide: unknown;
+	currentSlideIndex: number;
 	displayFields: readonly string[];
+	isFullScreen?: boolean;
 	totalSlides: number;
 }>;
 
@@ -25,80 +35,107 @@ type SongViewCurrentSlideProps = Readonly<{
  * @returns React element or `undefined` when no slide content should render.
  */
 export default function SongViewCurrentSlide({
+	containerAspectRatioOverride,
 	currentSlide,
+	currentSlideIndex,
 	displayFields,
+	isFullScreen = false,
 	totalSlides,
 }: SongViewCurrentSlideProps): ReactElement | undefined {
 	const { t } = useTranslation();
-	const { effectiveSlideOrientation } = useSlideOrientationPreference();
-	const slideAspectClassName =
-		effectiveSlideOrientation === ResolvedSlideOrientation.portrait
-			? "aspect-[9/16]"
-			: "aspect-video";
+	const {
+		backgroundImageDimensions,
+		backgroundImageUrl,
+		effectiveSlideOrientation,
+		focalPoint,
+		getFieldLabel,
+		getFieldText,
+		isEmpty,
+		isRenderable,
+		showSlideNumber,
+		slideAspectClassName,
+		slideNameStr,
+	} = useSongViewCurrentSlide({
+		currentSlide,
+		totalSlides,
+	});
+	const slideStyle: React.CSSProperties | undefined = isFullScreen
+		? undefined
+		: {
+				aspectRatio:
+					effectiveSlideOrientation === ResolvedSlideOrientation.portrait ? "9 / 16" : "16 / 9",
+			};
+	const containerAspectRatio =
+		containerAspectRatioOverride ??
+		(effectiveSlideOrientation === ResolvedSlideOrientation.portrait
+			? PORTRAIT_ASPECT_RATIO
+			: LANDSCAPE_ASPECT_RATIO);
+	const textGlowClassName =
+		"[-webkit-text-stroke:1.5px_rgba(0,0,0,1)] [paint-order:stroke_fill] [text-shadow:0_4px_14px_rgba(0,0,0,1),0_0_36px_rgba(0,0,0,1)]";
+	const slideClassName = isFullScreen
+		? "relative h-full w-full overflow-hidden bg-gray-900"
+		: `relative overflow-hidden rounded-md p-4 ${slideAspectClassName}`;
+	const slideContentClassName = isFullScreen
+		? "relative z-10 flex h-full flex-col justify-end space-y-4 p-6"
+		: "relative z-10 flex h-full flex-col justify-end space-y-4 rounded-md p-4";
+	const backgroundFrameClassName = isFullScreen
+		? "absolute inset-0 overflow-hidden"
+		: "absolute inset-0 overflow-hidden rounded-md";
 
 	// Show a helpful, localized placeholder when there are no slides to display.
-	if (totalSlides === MIN_SLIDE_INDEX) {
+	if (isEmpty) {
 		return <p className="text-gray-400">{t("songView.noSlides", "No slides for this song.")}</p>;
 	}
 
 	// If the slide payload is missing or not a plain record, render nothing.
 	// Parent callers rely on `undefined` to mean "no content" here.
-	if (currentSlide === undefined || !isRecord(currentSlide)) {
+	if (!isRenderable) {
 		return undefined;
 	}
 
-	// Slide title may be missing or non-string; coerce to an empty string.
-	const slideNameStr =
-		typeof currentSlide["slide_name"] === "string" ? currentSlide["slide_name"] : "";
-	const backgroundImageUrl =
-		typeof currentSlide["background_image_url"] === "string"
-			? currentSlide["background_image_url"]
-			: undefined;
-	const backgroundStyle =
-		backgroundImageUrl === undefined
-			? undefined
-			: {
-					backgroundImage: `linear-gradient(rgba(2,6,23,0.82), rgba(2,6,23,0.70)), radial-gradient(circle at center, rgba(2,6,23,0.18), rgba(2,6,23,0.72)), url("${backgroundImageUrl}")`,
-					backgroundSize: "cover",
-					backgroundPosition: "center",
-				};
-	const slideStyle: React.CSSProperties = {
-		aspectRatio:
-			effectiveSlideOrientation === ResolvedSlideOrientation.portrait ? "9 / 16" : "16 / 9",
-		...backgroundStyle,
-	};
-	const textGlowStyle: React.CSSProperties = {
-		textShadow: "0 2px 10px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 0, 0, 0.85)",
-	};
-
 	return (
 		<div
-			className={`rounded-md p-4 ${slideAspectClassName}`}
+			className={slideClassName}
 			style={slideStyle}
 			data-testid="song-current-slide"
 		>
-			<div className="flex h-full flex-col space-y-4 rounded-md border border-white/15 bg-black/45 p-4 backdrop-blur-[1px]">
+			{backgroundImageUrl !== undefined && (
+				<div className={backgroundFrameClassName} aria-hidden="true">
+					<FocalPointCoverImage
+						src={backgroundImageUrl}
+						alt=""
+						containerAspectRatio={containerAspectRatio}
+						focalPoint={focalPoint}
+						imageDimensions={backgroundImageDimensions}
+						slideOrientation={effectiveSlideOrientation}
+						data-testid="song-current-slide-image"
+					/>
+				</div>
+			)}
+			<div className={slideContentClassName}>
+				{showSlideNumber && (
+					<span
+						className={`absolute right-3 top-3 text-xs font-semibold text-white ${textGlowClassName}`}
+					>
+						{currentSlideIndex + SLIDE_NUMBER_OFFSET}/{totalSlides}
+					</span>
+				)}
 				{slideNameStr.trim() === "" ? undefined : (
-					<h2 className="text-lg font-semibold text-white" style={textGlowStyle}>
+					<h2 className={`text-lg font-semibold text-white ${textGlowClassName}`}>
 						{slideNameStr}
 					</h2>
 				)}
 
 				{/* Render each configured field. Fallbacks: missing `field_data` -> undefined, missing text -> "—" */}
 				{displayFields.map((field) => {
-					// `field_data` may be absent or not an object depending on the stored slide
-					const fieldData = isRecord(currentSlide["field_data"])
-						? currentSlide["field_data"][field]
-						: undefined;
-					const text = typeof fieldData === "string" ? fieldData : "";
-					// Use a translation key `song.<field>` with a fallback to the raw field name
-					const label = t(`song.${field}`, field);
+					const text = getFieldText(field);
+					const label = getFieldLabel(field);
 					return (
 						<div key={field}>
-							<span className="text-sm font-semibold text-white/90" style={textGlowStyle}>
+							<span className={`text-sm font-semibold text-white/90 ${textGlowClassName}`}>
 								{label}
 							</span>
-							<div className="mt-1 whitespace-pre-wrap text-white" style={textGlowStyle}>
+							<div className={`mt-1 whitespace-pre-wrap text-white ${textGlowClassName}`}>
 								{text || "—"}
 							</div>
 						</div>

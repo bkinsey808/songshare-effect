@@ -98,7 +98,7 @@ describe("eventUserJoinHandler", () => {
 
 		mockCreateSupabaseClient(vi.mocked(createClient), {
 			eventSelectSingleRow: { event_id: "evt-1" },
-			eventUserSelectRow: { role: "kicked" },
+			eventUserSelectRow: { status: "kicked" },
 		});
 
 		await expect(Effect.runPromise(eventUserJoinHandler(ctx))).rejects.toThrow(/cannot rejoin/);

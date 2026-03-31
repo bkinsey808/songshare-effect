@@ -36,11 +36,35 @@ export default function computeSlides(pub?: Record<string, unknown>): Record<str
 				typeof value["background_image_url"] === "string"
 					? value["background_image_url"]
 					: undefined;
+			const backgroundImageWidth =
+				typeof value["background_image_width"] === "number"
+					? value["background_image_width"]
+					: undefined;
+			const backgroundImageHeight =
+				typeof value["background_image_height"] === "number"
+					? value["background_image_height"]
+					: undefined;
+			const backgroundImageFocalPointX =
+				typeof value["background_image_focal_point_x"] === "number"
+					? value["background_image_focal_point_x"]
+					: undefined;
+			const backgroundImageFocalPointY =
+				typeof value["background_image_focal_point_y"] === "number"
+					? value["background_image_focal_point_y"]
+					: undefined;
 			slidesRecord[key] = {
 				slide_name: String(value["slide_name"]),
 				field_data: fieldData,
 				...(backgroundImageId === undefined ? {} : { background_image_id: backgroundImageId }),
 				...(backgroundImageUrl === undefined ? {} : { background_image_url: backgroundImageUrl }),
+				...(backgroundImageWidth === undefined ? {} : { background_image_width: backgroundImageWidth }),
+				...(backgroundImageHeight === undefined ? {} : { background_image_height: backgroundImageHeight }),
+				...(backgroundImageFocalPointX === undefined
+					? {}
+					: { background_image_focal_point_x: backgroundImageFocalPointX }),
+				...(backgroundImageFocalPointY === undefined
+					? {}
+					: { background_image_focal_point_y: backgroundImageFocalPointY }),
 			};
 		} else {
 			/* empty */

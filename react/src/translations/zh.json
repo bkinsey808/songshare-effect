@@ -170,5 +170,10 @@
 		"landscape": "横向",
 		"portrait": "纵向",
 		"system": "系统"
+	},
+	"slideNumber": {
+		"label": "幻灯片编号",
+		"show": "显示",
+		"hide": "隐藏"
 	}
 }

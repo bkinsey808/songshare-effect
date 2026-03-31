@@ -100,11 +100,19 @@ export const slideSchema: Schema.Struct<{
 	field_data: Schema.Record$<typeof Schema.String, typeof Schema.String>;
 	background_image_id: Schema.optional<typeof Schema.String>;
 	background_image_url: Schema.optional<typeof Schema.String>;
+	background_image_width: Schema.optional<typeof Schema.Number>;
+	background_image_height: Schema.optional<typeof Schema.Number>;
+	background_image_focal_point_x: Schema.optional<typeof Schema.Number>;
+	background_image_focal_point_y: Schema.optional<typeof Schema.Number>;
 }> = Schema.Struct({
 	slide_name: Schema.String,
 	field_data: Schema.Record({ key: Schema.String, value: Schema.String }),
 	background_image_id: Schema.optional(Schema.String),
 	background_image_url: Schema.optional(Schema.String),
+	background_image_width: Schema.optional(Schema.Number),
+	background_image_height: Schema.optional(Schema.Number),
+	background_image_focal_point_x: Schema.optional(Schema.Number),
+	background_image_focal_point_y: Schema.optional(Schema.Number),
 });
 
 /** Map of slide keys to slide objects for a song. */

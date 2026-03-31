@@ -55,6 +55,10 @@ export default function processSong(song: unknown, out: Record<string, SongPubli
 				field_data: Record<string, string>;
 				background_image_id?: string | undefined;
 				background_image_url?: string | undefined;
+				background_image_width?: number | undefined;
+				background_image_height?: number | undefined;
+				background_image_focal_point_x?: number | undefined;
+				background_image_focal_point_y?: number | undefined;
 			}
 		> = {};
 		for (const key of Object.keys(rawSlides)) {
@@ -64,6 +68,22 @@ export default function processSong(song: unknown, out: Record<string, SongPubli
 			for (const field of allRequiredFields) {
 				field_data[field] = typeof rawFieldData[field] === "string" ? rawFieldData[field] : "";
 			}
+			const backgroundImageWidth =
+				typeof slide["background_image_width"] === "number"
+					? slide["background_image_width"]
+					: undefined;
+			const backgroundImageHeight =
+				typeof slide["background_image_height"] === "number"
+					? slide["background_image_height"]
+					: undefined;
+			const backgroundImageFocalPointX =
+				typeof slide["background_image_focal_point_x"] === "number"
+					? slide["background_image_focal_point_x"]
+					: undefined;
+			const backgroundImageFocalPointY =
+				typeof slide["background_image_focal_point_y"] === "number"
+					? slide["background_image_focal_point_y"]
+					: undefined;
 			normalizedSlides[key] = {
 				slide_name: typeof slide["slide_name"] === "string" ? slide["slide_name"] : "",
 				field_data,
@@ -74,6 +94,14 @@ export default function processSong(song: unknown, out: Record<string, SongPubli
 							background_image_url: slide["background_image_url"],
 						}
 					: {}),
+				...(backgroundImageWidth === undefined ? {} : { background_image_width: backgroundImageWidth }),
+				...(backgroundImageHeight === undefined ? {} : { background_image_height: backgroundImageHeight }),
+				...(backgroundImageFocalPointX === undefined
+					? {}
+					: { background_image_focal_point_x: backgroundImageFocalPointX }),
+				...(backgroundImageFocalPointY === undefined
+					? {}
+					: { background_image_focal_point_y: backgroundImageFocalPointY }),
 			};
 		}
 

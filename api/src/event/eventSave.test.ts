@@ -262,7 +262,7 @@ describe("eventSave", () => {
 			),
 		);
 
-		mockCreateSupabaseClient(vi.mocked(createClient), { eventUserSelectRow: { role: "member" } });
+		mockCreateSupabaseClient(vi.mocked(createClient), { eventUserSelectRow: { role: "participant" } });
 
 		await expect(Effect.runPromise(eventSave(ctx))).rejects.toThrow(/permission to update/);
 	});

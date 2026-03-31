@@ -139,7 +139,7 @@ export default function eventUserJoin(
 				? membershipData["status"]
 				: undefined;
 
-		if (membershipStatus === "kicked" || existingMembership.data?.role === "kicked") {
+		if (membershipStatus === "kicked") {
 			return yield* $(
 				Effect.fail(
 					new ValidationError({
