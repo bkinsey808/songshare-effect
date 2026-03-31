@@ -132,6 +132,61 @@ describe("songSave handler", () => {
 		expect(res).toStrictEqual({ song_id: "old" });
 	});
 
+	it("fails when public insert errors due to slug conflict and cleans up", async () => {
+		// Arrange
+		initDefaultMocks();
+		const ctx = makeCtx({
+			body: {
+				song_name: "n",
+				song_slug: "duplicate-slug",
+				fields: [],
+				slide_order: [],
+				slides: {},
+			},
+		});
+
+		const fake = makeSupabaseClient({
+			songInsertRows: [{ song_id: "new-dup" }],
+			songPublicInsertError: { message: "duplicate key value violates unique constraint" },
+		});
+
+		const eqSpy = vi.fn(() => promiseResolved({ data: [], error: undefined }));
+		const deleteSpy = vi.fn(() => ({ eq: eqSpy }));
+		const tableOverrides: Record<string, unknown> = {
+			song: { ...(fake.from("song") as object), delete: deleteSpy },
+			song_public: fake.from("song_public"),
+		};
+		const fakeWithDeleteSpy = forceCast<ReturnType<typeof createClient>>({
+			from: (table: string): unknown => tableOverrides[table],
+		});
+
+		vi.mocked(createClient).mockReturnValue(fakeWithDeleteSpy);
+
+		// Act & Assert
+		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/duplicate key value/);
+
+		// Assert cleanup called for created private song
+		expect(deleteSpy).toHaveBeenCalledTimes(ONE_CALL);
+		expect(eqSpy).toHaveBeenCalledWith("song_id", expect.any(String));
+	});
+
+	it("returns ValidationError for malformed slides payload", async () => {
+		// Arrange
+		initDefaultMocks();
+		const ctx = makeCtx({
+			body: {
+				song_name: "n",
+				song_slug: "s",
+				fields: [],
+				slide_order: [],
+				slides: "not-an-object",
+			},
+		});
+
+		// Act & Assert
+		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/Expected/);
+	});
+
 	it("fails when private insert errors", async () => {
 		// Arrange
 		initDefaultMocks();
@@ -155,15 +210,29 @@ describe("songSave handler", () => {
 			body: { song_name: "n", song_slug: "s", fields: [], slide_order: [], slides: {} },
 		});
 
-		initDefaultMocks();
 		const fake = makeSupabaseClient({
 			songInsertRows: [{ song_id: "new" }],
 			songPublicInsertError: { message: "pub fail" },
 		});
-		vi.mocked(createClient).mockReturnValue(fake);
+
+		const eqSpy = vi.fn(() => promiseResolved({ data: [], error: undefined }));
+		const deleteSpy = vi.fn(() => ({ eq: eqSpy }));
+		const tableOverrides: Record<string, unknown> = {
+			song: { ...(fake.from("song") as object), delete: deleteSpy },
+			song_public: fake.from("song_public"),
+		};
+		const fakeWithDeleteSpy = forceCast<ReturnType<typeof createClient>>({
+			from: (table: string): unknown => tableOverrides[table],
+		});
+
+		vi.mocked(createClient).mockReturnValue(fakeWithDeleteSpy);
 
 		// Act & Assert
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/pub fail/);
+
+		// Assert cleanup called for created private song
+		expect(deleteSpy).toHaveBeenCalledTimes(ONE_CALL);
+		expect(eqSpy).toHaveBeenCalledWith("song_id", expect.any(String));
 	});
 
 	it("fails when song tag persistence fails during save", async () => {
