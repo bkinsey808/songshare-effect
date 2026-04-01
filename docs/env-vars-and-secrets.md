@@ -12,9 +12,9 @@ OS Keyring (per environment)
         │
         ├─ run-with-env.bun.ts ──► subprocess env  ──► vite build / scripts / playwright
         │
-        └─ generate-dev-vars.bun.ts ──► api/.dev.vars ──► wrangler dev (local Worker)
+        └─ generate-dev-vars/generate-dev-vars.bun.ts ──► api/.dev.vars ──► wrangler dev (local Worker)
                                                                │
-        set-cloudflare-secrets.bun.ts ──────────────────► Cloudflare Secrets (deployed Worker)
+        set-cloudflare-secrets/set-cloudflare-secrets.bun.ts ──────────────────► Cloudflare Secrets (deployed Worker)
 ```
 
 There are three keyring services — one per deployment environment:
@@ -58,10 +58,10 @@ Lists the subset of vars that are pushed to **Cloudflare Workers** as secrets. T
 
 ```bash
 # Uses production keyring for Vite env vars:
-bun run scripts/env/run-with-env.bun.ts --env production -- vite
+bun run scripts/env/run-with-env/run-with-env.bun.ts --env production -- vite
 
 # Uses staging keyring:
-bun run scripts/env/run-with-env.bun.ts --env staging -- vite --mode staging-local
+bun run scripts/env/run-with-env/run-with-env.bun.ts --env staging -- vite --mode staging-local
 ```
 
 Secrets are injected into the subprocess environment. Vite automatically picks up `VITE_*` vars from the environment and embeds them in the built JS bundle.
@@ -70,17 +70,17 @@ Secrets are injected into the subprocess environment. Vite automatically picks u
 
 ```bash
 # Push all worker-vars.list entries from production keyring to Cloudflare:
-bun run scripts/env/set-cloudflare-secrets.bun.ts --env production
+bun run scripts/env/set-cloudflare-secrets/set-cloudflare-secrets.bun.ts --env production
 
 # For staging:
-bun run scripts/env/set-cloudflare-secrets.bun.ts --env staging
+bun run scripts/env/set-cloudflare-secrets/set-cloudflare-secrets.bun.ts --env staging
 ```
 
 ### Scripts and E2E tests
 
 ```bash
 # Run any command with env vars from keyring:
-bun run scripts/env/run-with-env.bun.ts --env <dev|staging|production> -- <command>
+bun run scripts/env/run-with-env/run-with-env.bun.ts --env <dev|staging|production> -- <command>
 ```
 
 The `--env <name>` shorthand expands to:
@@ -94,7 +94,7 @@ The `--env <name>` shorthand expands to:
 
 ### 1. Worker runtime vars (`config/worker-vars.list`)
 
-Read by the Cloudflare Worker at request time via `ctx.env.VAR_NAME` or `getEnvString(ctx.env, "VAR_NAME")`. Typed in `api/src/env.ts`. Deployed via `set-cloudflare-secrets.bun.ts`.
+Read by the Cloudflare Worker at request time via `ctx.env.VAR_NAME` or `getEnvString(ctx.env, "VAR_NAME")`. Typed in `api/src/env.ts`. Deployed via `set-cloudflare-secrets/set-cloudflare-secrets.bun.ts`.
 
 ### 2. Build-time vars (`VITE_*` in env-secrets lists, not in worker-vars.list)
 
@@ -192,7 +192,7 @@ Note: helpers automatically prepend `VITE_` — pass the name _without_ the pref
 2. Add it to `api/src/env.ts` (`Env` type) — required or optional as appropriate
 3. Add it to all three `config/env-secrets.*.list` files
 4. Store the value in each keyring: `keyring set songshare-<env> VAR_NAME value`
-5. For deployed Workers: `bun run scripts/env/set-cloudflare-secrets.bun.ts --env <env>`
+5. For deployed Workers: `bun run scripts/env/set-cloudflare-secrets/set-cloudflare-secrets.bun.ts --env <env>`
 6. Regenerate `.dev.vars`: `npm run generate:dev-vars`
 
 ### New Vite build-time var

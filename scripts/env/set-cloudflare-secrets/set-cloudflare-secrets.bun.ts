@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { parseWorkerVarNames, resolveServiceName } from "./set-cloudflare-secrets";
+import parseListLines from "../utils/parseListLines";
+import resolveServiceName from "./resolveServiceName";
 
 const DEFAULT_ENV = "production";
 const NOT_FOUND = -1;
@@ -23,7 +24,7 @@ if (!existsSync(workerVarsFile)) {
 	throw new Error(`config/worker-vars.list not found: ${workerVarsFile}`);
 }
 
-const varNames: string[] = parseWorkerVarNames(readFileSync(workerVarsFile, "utf8"));
+const varNames: string[] = parseListLines(readFileSync(workerVarsFile, "utf8"));
 
 console.warn(
 	`Pushing worker vars to Cloudflare env "${envArg}" from keyring service "${serviceArg}"`,

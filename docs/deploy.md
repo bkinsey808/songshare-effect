@@ -67,7 +67,7 @@ Store all required values in the keyring and push to Cloudflare:
 echo -n "value" | keyring set songshare-production VAR_NAME
 
 # Push Worker secrets to Cloudflare:
-bun run scripts/env/set-cloudflare-secrets.bun.ts --env production
+bun run scripts/env/set-cloudflare-secrets/set-cloudflare-secrets.bun.ts --env production
 
 # Generate local .dev.vars for wrangler dev:
 npm run generate:dev-vars
@@ -97,14 +97,14 @@ Point your domain at the Cloudflare Pages project via CNAME or use Cloudflare-ma
 
 - **Frontend:** Cloudflare Pages keeps all previous builds — revert via the Pages dashboard.
 - **API:** Redeploy a previous commit, or use the Workers dashboard to roll back to a prior version.
-- **Secrets:** Rotate a secret with `echo -n "new-value" | keyring set songshare-production VAR_NAME`, then re-run `set-cloudflare-secrets.bun.ts` and redeploy.
+- **Secrets:** Rotate a secret with `echo -n "new-value" | keyring set songshare-production VAR_NAME`, then re-run `set-cloudflare-secrets/set-cloudflare-secrets.bun.ts` and redeploy.
 
 ---
 
 ## Deployment checklist
 
 - [ ] `npm run lint && npm run test:unit && npm run build:all` passed
-- [ ] Secrets pushed: `bun run scripts/env/set-cloudflare-secrets.bun.ts --env production`
+- [ ] Secrets pushed: `bun run scripts/env/set-cloudflare-secrets/set-cloudflare-secrets.bun.ts --env production`
 - [ ] Frontend deployed to Pages
 - [ ] Worker deployed with correct route
 - [ ] `/api/health` returns OK

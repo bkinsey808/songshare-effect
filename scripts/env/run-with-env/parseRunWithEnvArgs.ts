@@ -1,10 +1,10 @@
-import { collectFlagValues, parseKeyValueLines } from "./env-utils";
+import collectFlagValues from "./collectFlagValues";
 
 const NEXT_IDX = 1;
 const SLICE_START = 0;
 const MISSING = -1;
 
-export type RunWithEnvArgs = Readonly<{
+type RunWithEnvArgs = Readonly<{
 	commandArgs: readonly string[];
 	configFiles: readonly string[];
 	envNames: readonly string[];
@@ -12,7 +12,22 @@ export type RunWithEnvArgs = Readonly<{
 	services: readonly string[];
 }>;
 
-export function parseRunWithEnvArgs(args: readonly string[]): RunWithEnvArgs {
+/**
+ * Parses `run-with-env.bun.ts` CLI arguments into structured fields.
+ *
+ * Expects a `--` separator with at least one command argument after it.
+ * Before `--`, recognises:
+ * - `--env <name>` — environment name; expands to a keyring service
+ *   (`songshare-<name>`) and a secrets list (`config/env-secrets.<name>.list`)
+ * - `--config <file>` — additional `.env`-style config file to merge
+ * - `--service <name>` — explicit keyring service override
+ * - `--secrets <list>` — explicit secrets list file override
+ *
+ * @param args - `process.argv` slice starting after the node/bun executable.
+ * @returns Parsed fields ready for use by the runner script.
+ * @throws If `--` is absent or no command follows it.
+ */
+export default function parseRunWithEnvArgs(args: readonly string[]): RunWithEnvArgs {
 	const separatorIdx = args.indexOf("--");
 	if (separatorIdx === MISSING || separatorIdx + NEXT_IDX >= args.length) {
 		throw new Error(
@@ -36,8 +51,4 @@ export function parseRunWithEnvArgs(args: readonly string[]): RunWithEnvArgs {
 			...collectFlagValues(optArgs, "--service"),
 		],
 	};
-}
-
-export function parseConfigFile(text: string): Record<string, string> {
-	return parseKeyValueLines(text);
 }

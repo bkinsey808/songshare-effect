@@ -1,7 +1,8 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { buildDevVarsContent, parseWorkerVarNames } from "./generate-dev-vars";
+import parseListLines from "../utils/parseListLines";
+import buildDevVarsContent from "./buildDevVarsContent";
 
 const DEFAULT_SERVICE = "songshare-dev";
 const NOT_FOUND = -1;
@@ -10,8 +11,8 @@ const SUCCESS_EXIT_CODE = 0;
 const EMPTY_STRING = "";
 
 const scriptDir = dirname(import.meta.path || import.meta.url.replace("file://", ""));
-const workerVarsFile = join(scriptDir, "../../config/worker-vars.list");
-const devVarsFile = join(scriptDir, "../../api/.dev.vars");
+const workerVarsFile = join(scriptDir, "../../../config/worker-vars.list");
+const devVarsFile = join(scriptDir, "../../../api/.dev.vars");
 
 if (!existsSync(workerVarsFile)) {
 	throw new Error(`config/worker-vars.list not found: ${workerVarsFile}`);
@@ -22,7 +23,7 @@ const service =
 	serviceIdx === NOT_FOUND
 		? DEFAULT_SERVICE
 		: (process.argv[serviceIdx + NEXT_ARG] ?? DEFAULT_SERVICE);
-const varNames = parseWorkerVarNames(readFileSync(workerVarsFile, "utf8"));
+const varNames = parseListLines(readFileSync(workerVarsFile, "utf8"));
 const values: Record<string, string> = {};
 
 for (const varName of varNames) {

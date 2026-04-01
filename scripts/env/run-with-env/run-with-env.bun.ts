@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { parseConfigFile, parseRunWithEnvArgs } from "./run-with-env";
+import parseKeyValueLines from "./parseKeyValueLines";
+import parseRunWithEnvArgs from "./parseRunWithEnvArgs";
 
 const ARGV_START = 2;
 const SECRETS_MIN_LINE_LENGTH = 2;
@@ -10,7 +11,7 @@ const FAILURE_EXIT_CODE = 1;
 const EMPTY_STRING = "";
 
 const parsed = parseRunWithEnvArgs(process.argv.slice(ARGV_START));
-const root = join(import.meta.dir, "../..");
+const root = join(import.meta.dir, "../../..");
 
 const env: Record<string, string> = {};
 for (const [key, value] of Object.entries(process.env)) {
@@ -24,7 +25,7 @@ for (const configFile of parsed.configFiles) {
 	if (!existsSync(fullPath)) {
 		throw new Error(`Config file not found: ${fullPath}`);
 	}
-	Object.assign(env, parseConfigFile(readFileSync(fullPath, "utf8")));
+	Object.assign(env, parseKeyValueLines(readFileSync(fullPath, "utf8")));
 }
 
 for (let i = 0; i < parsed.services.length; i++) {

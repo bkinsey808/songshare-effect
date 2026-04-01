@@ -4,7 +4,7 @@
 #   keyring set songshare-staging  ENVIRONMENT staging
 #   keyring set songshare-production ENVIRONMENT production
 #
-# Push to Cloudflare: bun run scripts/set-cloudflare-secrets.bun.ts --env production
+# Push to Cloudflare: bun run scripts/set-cloudflare-secrets/set-cloudflare-secrets.bun.ts --env production
 # Generate local dev vars: bun run scripts/env/generate-dev-vars.bun.ts
 
 # Environment config
