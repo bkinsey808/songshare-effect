@@ -1,8 +1,11 @@
 import { Effect } from "effect";
 import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import useLocale from "@/react/lib/language/locale/useLocale";
+import buildPathWithLang from "@/shared/language/buildPathWithLang";
+import { dashboardPath, songEditPath } from "@/shared/paths";
 
 import type {
 	RemoveSongFromSongLibraryRequest,
@@ -24,6 +27,7 @@ export default function useSongLibrary(): {
 	removeFromSongLibrary: (
 		request: Readonly<RemoveSongFromSongLibraryRequest>,
 	) => Effect.Effect<void, Error>;
+	handleCreateSongClick: () => void;
 } {
 	// Standard Zustand selector pattern. Calling useAppStore directly
 	// ensures React and the compiler see a standard hook name.
@@ -37,6 +41,8 @@ export default function useSongLibrary(): {
 
 	// Track location to refresh when navigating to the library page
 	const location = useLocation();
+	const navigate = useNavigate();
+	const { lang } = useLocale();
 
 	// 1. Initial fetch and library subscription
 	// Refresh whenever the location changes (user navigates to/back to this page)
@@ -114,10 +120,15 @@ export default function useSongLibrary(): {
 	// React Compiler automatically memoizes this value
 	const songEntries = Object.values(songLibraryEntries) as SongLibraryEntry[];
 
+	function handleCreateSongClick(): void {
+		void navigate(buildPathWithLang(`/${dashboardPath}/${songEditPath}`, lang));
+	}
+
 	return {
 		songEntries,
 		isLoading,
 		error,
 		removeFromSongLibrary,
+		handleCreateSongClick,
 	};
 }

@@ -1,24 +1,11 @@
-import { Effect } from "effect";
-import type { TFunction } from "i18next";
-import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
-import useAppStore from "@/react/app-store/useAppStore";
 import Button from "@/react/lib/design-system/Button";
 import CreateSongIcon from "@/react/lib/design-system/icons/CreateSongIcon";
 import { ZERO } from "@/shared/constants/shared-constants";
-import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
-import { dashboardPath, songEditPath, songViewPath } from "@/shared/paths";
-import formatAppDate from "@/shared/utils/date/formatAppDate";
 
+import SongLibraryCard from "./card/SongLibraryCard";
 import useSongLibrary from "./useSongLibrary";
-
-export type SongLibraryProps = {
-	lang: SupportedLanguageType;
-	/** Translation function `t` from i18next */
-	t: TFunction;
-	navigate: (to: string) => void;
-};
 
 /**
  * SongLibrary component — renders the current user's song library.
@@ -29,9 +16,9 @@ export type SongLibraryProps = {
  *
  * @returns The song library UI
  */
-export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): ReactElement {
-	const { songEntries, isLoading, error, removeFromSongLibrary } = useSongLibrary();
-	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
+export default function SongLibrary(): ReactElement {
+	const { t } = useTranslation();
+	const { songEntries, isLoading, error, handleCreateSongClick } = useSongLibrary();
 
 	if (isLoading) {
 		return (
@@ -77,9 +64,7 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 					variant="primary"
 					size="default"
 					icon={<CreateSongIcon className="size-5" />}
-					onClick={() => {
-						navigate(buildPathWithLang(`/${dashboardPath}/${songEditPath}`, lang));
-					}}
+					onClick={handleCreateSongClick}
 					data-testid="song-library-create-song"
 					className="mb-4"
 				>
@@ -111,9 +96,7 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 					variant="outlinePrimary"
 					size="compact"
 					icon={<CreateSongIcon className="size-5" />}
-					onClick={() => {
-						navigate(buildPathWithLang(`/${dashboardPath}/${songEditPath}`, lang));
-					}}
+					onClick={handleCreateSongClick}
 					data-testid="song-library-create-song"
 				>
 					{t("pages.dashboard.createSong", "Create New Song")}
@@ -123,70 +106,7 @@ export default function SongLibrary({ lang, t, navigate }: SongLibraryProps): Re
 			{/* Song Grid */}
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{songEntries.map((entry) => (
-					<div
-						key={entry.song_id}
-						className="group hover:bg-gray-750 rounded-lg border border-gray-700 bg-gray-800 p-4 transition-colors hover:border-gray-600"
-					>
-						{/* Song Title */}
-						<h3 className="mb-2 line-clamp-2 font-semibold text-white">{entry.song_name}</h3>
-
-						{/* Owner Info */}
-						<div className="mb-3 flex items-center space-x-2">
-							<div className="flex items-center space-x-1 text-sm text-gray-400">
-								<span>👤</span>
-								<span>
-									{typeof entry.owner_username === "string" && entry.owner_username !== ""
-										? entry.owner_username
-										: t("songLibrary.unknownOwner", "Unknown User")}
-								</span>
-							</div>
-						</div>
-
-						{/* Added Date */}
-						<div className="mb-4 text-xs text-gray-400">
-							{t("songLibrary.addedOn", "Added {{date}}", {
-								date: formatAppDate(entry.created_at),
-							})}
-						</div>
-
-						{/* Action Buttons */}
-						<div className="flex items-center justify-between gap-2">
-							{entry.song_slug !== undefined && entry.song_slug.trim() !== "" ? (
-								<Link
-									to={buildPathWithLang(`/${songViewPath}/${entry.song_slug}`, lang)}
-									className="text-sm text-blue-400 transition-colors hover:text-blue-300"
-								>
-									{t("songLibrary.viewSong", "View Song")}
-								</Link>
-							) : (
-								<span className="cursor-not-allowed text-sm text-gray-500">
-									{t("songLibrary.viewSong", "View Song")}
-								</span>
-							)}
-							{currentUserId !== undefined && currentUserId === entry.song_owner_id ? (
-								<button
-									type="button"
-									className="text-sm text-green-400 transition-colors hover:text-green-300"
-									onClick={() => {
-										navigate(`/${lang}/${dashboardPath}/${songEditPath}/${entry.song_id}`);
-									}}
-								>
-									{t("songLibrary.editSong", "Edit")}
-								</button>
-							) : undefined}
-							{currentUserId !== undefined && currentUserId !== entry.song_owner_id ? (
-								<button
-									type="button"
-									className="text-sm text-red-400 transition-colors hover:text-red-300"
-									onClick={() => {
-										void Effect.runPromise(removeFromSongLibrary({ song_id: entry.song_id }));
-									}}
-								>
-									{t("songLibrary.removeSong", "Remove")}
-								</button>
-							) : undefined}
-						</div>
-					</div>
+					<SongLibraryCard key={entry.song_id} entry={entry} />
 				))}
 			</div>
 		</div>

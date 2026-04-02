@@ -1,23 +1,16 @@
-import type { TFunction } from "i18next";
-import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Link, useNavigate } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import Button from "@/react/lib/design-system/Button";
 import CreatePlaylistIcon from "@/react/lib/design-system/icons/CreatePlaylistIcon";
+import useLocale from "@/react/lib/language/locale/useLocale";
 import { ZERO } from "@/shared/constants/shared-constants";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
-import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import { dashboardPath, playlistEditPath, playlistViewPath } from "@/shared/paths";
 import formatAppDate from "@/shared/utils/date/formatAppDate";
 
 import usePlaylistLibrary from "./usePlaylistLibrary";
-
-export type PlaylistLibraryProps = {
-	lang: SupportedLanguageType;
-	/** Translation function `t` from i18next */
-	t: TFunction;
-	navigate: (to: string) => void;
-};
 
 /**
  * Render the current user's playlist library.
@@ -25,14 +18,26 @@ export type PlaylistLibraryProps = {
  * Selects library state from the app store and renders loading, error, empty,
  * or populated states. Each entry exposes actions to view or remove the playlist.
  *
- * @param lang - Current language code.
- * @param t - Translation function.
- * @param navigate - Navigation callback.
  * @returns The playlist library UI.
  */
-export default function PlaylistLibrary({ lang, t, navigate }: PlaylistLibraryProps): ReactElement {
+export default function PlaylistLibrary(): ReactElement {
 	const { playlistEntries, isLoading, error, removeFromPlaylistLibrary } = usePlaylistLibrary();
 	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
+	const { t } = useTranslation();
+	const { lang } = useLocale();
+	const navigate = useNavigate();
+
+	function handleCreatePlaylistClick(): void {
+		void navigate(buildPathWithLang(`/${dashboardPath}/${playlistEditPath}`, lang));
+	}
+
+	function handleEditPlaylistClick(playlistId: string): void {
+		void navigate(`/${lang}/${dashboardPath}/${playlistEditPath}/${playlistId}`);
+	}
+
+	function handleRemovePlaylistClick(playlistId: string): void {
+		void removeFromPlaylistLibrary({ playlist_id: playlistId });
+	}
 
 	if (isLoading) {
 		return (
@@ -78,9 +83,7 @@ export default function PlaylistLibrary({ lang, t, navigate }: PlaylistLibraryPr
 					variant="primary"
 					size="default"
 					icon={<CreatePlaylistIcon className="size-5" />}
-					onClick={() => {
-						navigate(buildPathWithLang(`/${dashboardPath}/${playlistEditPath}`, lang));
-					}}
+					onClick={handleCreatePlaylistClick}
 					data-testid="playlist-library-create-playlist"
 					className="mb-4"
 				>
@@ -114,9 +117,7 @@ export default function PlaylistLibrary({ lang, t, navigate }: PlaylistLibraryPr
 					variant="outlinePrimary"
 					size="compact"
 					icon={<CreatePlaylistIcon className="size-5" />}
-					onClick={() => {
-						navigate(buildPathWithLang(`/${dashboardPath}/${playlistEditPath}`, lang));
-					}}
+					onClick={handleCreatePlaylistClick}
 					data-testid="playlist-library-create-playlist"
 				>
 					{t("pages.dashboard.createPlaylist", "Create Playlist")}
@@ -173,7 +174,7 @@ export default function PlaylistLibrary({ lang, t, navigate }: PlaylistLibraryPr
 									type="button"
 									className="text-sm text-green-400 transition-colors hover:text-green-300"
 									onClick={() => {
-										navigate(`/${lang}/${dashboardPath}/${playlistEditPath}/${entry.playlist_id}`);
+										handleEditPlaylistClick(entry.playlist_id);
 									}}
 								>
 									{t("playlistLibrary.editPlaylist", "Edit")}
@@ -184,7 +185,7 @@ export default function PlaylistLibrary({ lang, t, navigate }: PlaylistLibraryPr
 									type="button"
 									className="text-sm text-red-400 transition-colors hover:text-red-300"
 									onClick={() => {
-										void removeFromPlaylistLibrary({ playlist_id: entry.playlist_id });
+										handleRemovePlaylistClick(entry.playlist_id);
 									}}
 								>
 									{t("playlistLibrary.removePlaylist", "Remove")}

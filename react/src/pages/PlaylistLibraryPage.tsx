@@ -1,7 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 
-import useLocale from "@/react/lib/language/locale/useLocale";
 import PlaylistLibrary from "@/react/playlist-library/PlaylistLibrary";
 
 /**
@@ -10,8 +8,6 @@ import PlaylistLibrary from "@/react/playlist-library/PlaylistLibrary";
  */
 export default function PlaylistLibraryPage(): ReactElement {
 	const { t } = useTranslation();
-	const { lang } = useLocale();
-	const navigate = useNavigate();
 
 	return (
 		<div className="mx-auto max-w-6xl px-4 py-6">
@@ -24,7 +20,7 @@ export default function PlaylistLibraryPage(): ReactElement {
 				</p>
 			</div>
 
-			<PlaylistLibrary lang={lang} t={t} navigate={(path) => void navigate(path)} />
+			<PlaylistLibrary />
 		</div>
 	);
 }
