@@ -31,6 +31,9 @@ export default function rewriteSupabaseTypesConstraints(
 
 			for (const [colName, values] of Object.entries(columns)) {
 				const unionType = values.map((val) => `"${val}"`).join(" | ");
+				const nullableColRegex = new RegExp(`(\\b${colName})(\\??): string \\| null\\b`, "g");
+				modifiedBlock = modifiedBlock.replace(nullableColRegex, `$1$2: ${unionType} | null`);
+
 				// Matches both `colName: string` (Row) and `colName?: string` (Insert/Update).
 				const colRegex = new RegExp(`(\\b${colName})(\\??): string\\b`, "g");
 				modifiedBlock = modifiedBlock.replace(colRegex, `$1$2: ${unionType}`);

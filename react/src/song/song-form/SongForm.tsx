@@ -1,14 +1,19 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import CreateSongIcon from "@/react/lib/design-system/icons/CreateSongIcon";
 import EditSongIcon from "@/react/lib/design-system/icons/EditSongIcon";
 
 import CollapsibleSection from "./CollapsibleSection";
+import ChordPickerPage from "./chord-picker/ChordPickerPage";
 import SlidesGridView from "./grid-editor/SlidesGridView";
 import SlidesEditor from "./slides-editor/SlidesEditor";
 import SongFormFields from "./SongFormFields";
 import SongFormFooter from "./SongFormFooter";
+import type { SongFormChordPickerRequest } from "./song-form-types";
 import useSongForm from "./use-song-form/useSongForm";
+
+const NO_PENDING_CHORD_PICKER_REQUEST = undefined;
 
 /**
  * Render the song creation and edit page.
@@ -17,6 +22,9 @@ import useSongForm from "./use-song-form/useSongForm";
  */
 export default function SongForm(): ReactElement {
 	const { t } = useTranslation();
+	const [pendingChordPickerRequest, setPendingChordPickerRequest] = useState<
+		SongFormChordPickerRequest | undefined
+	>(NO_PENDING_CHORD_PICKER_REQUEST);
 
 	const {
 		getFieldError,
@@ -60,6 +68,19 @@ export default function SongForm(): ReactElement {
 		tags,
 		setTags,
 	} = useSongForm();
+
+	function openChordPicker(request: SongFormChordPickerRequest): void {
+		setPendingChordPickerRequest(request);
+	}
+
+	function closeChordPicker(): void {
+		setPendingChordPickerRequest(NO_PENDING_CHORD_PICKER_REQUEST);
+	}
+
+	function insertChordFromPicker(token: string): void {
+		pendingChordPickerRequest?.submitChord(token);
+		setPendingChordPickerRequest(NO_PENDING_CHORD_PICKER_REQUEST);
+	}
 
 	return (
 		<>
@@ -151,6 +172,7 @@ export default function SongForm(): ReactElement {
 											setSlideOrder={setSlideOrder}
 											slides={slides}
 											setSlides={setSlides}
+											openChordPicker={openChordPicker}
 										/>
 									</CollapsibleSection>
 								</div>
@@ -190,6 +212,20 @@ export default function SongForm(): ReactElement {
 				onCancel={handleCancel}
 				onDelete={handleDelete}
 			/>
+			{pendingChordPickerRequest === undefined ? undefined : (
+				<ChordPickerPage
+					songKey={formValues.key}
+					hasPendingInsertTarget
+					{...(pendingChordPickerRequest.initialChordToken === undefined
+						? {}
+						: { initialChordToken: pendingChordPickerRequest.initialChordToken })}
+					{...(pendingChordPickerRequest.isEditingChord === undefined
+						? {}
+						: { isEditingChord: pendingChordPickerRequest.isEditingChord })}
+					closeChordPicker={closeChordPicker}
+					insertChordFromPicker={insertChordFromPicker}
+				/>
+			)}
 		</>
 	);
 }

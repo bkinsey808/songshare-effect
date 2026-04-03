@@ -7,7 +7,7 @@
  * @returns void
  *
  * @remarks
- * - Only works with HTMLInputElement and HTMLTextAreaElement fields.
+ * - Works with HTMLInputElement, HTMLTextAreaElement, and HTMLSelectElement fields.
  * - Logs a warning to the console when the field is successfully set.
  * - Logs a warning if the field cannot be found, including available form element names for debugging.
  */
@@ -23,7 +23,11 @@ export default function setFieldValue(
 		return;
 	}
 	const element = form.elements.namedItem(name);
-	if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+	if (
+		element instanceof HTMLInputElement ||
+		element instanceof HTMLTextAreaElement ||
+		element instanceof HTMLSelectElement
+	) {
 		element.value = value;
 		console.warn(`[setFieldValue] Set field ${name} to:`, value);
 	} else {

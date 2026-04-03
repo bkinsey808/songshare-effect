@@ -144,7 +144,7 @@ export default function SlidesGridRow({
 		opacity: isDragging ? DRAG_OPACITY : NORMAL_OPACITY,
 	};
 
-	const rowClass = tw`bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700`;
+	const rowClass = tw`bg-white dark:bg-gray-800`;
 	const draggingClass = tw`z-10`;
 
 	return (

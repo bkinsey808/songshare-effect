@@ -11,6 +11,7 @@ const MOCK_LOCATION_NEW = makeMockLocation("/en/song/new/edit", "default");
 const EMPTY_FORM_VALUES = {
 	song_name: "",
 	song_slug: "",
+	key: "",
 	short_credit: "",
 	long_credit: "",
 	public_notes: "",

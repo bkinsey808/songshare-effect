@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import { MS_PER_SECOND, ONE_HOUR_SECONDS, TOKEN_CACHE_SKEW_SECONDS } from "@/shared/constants/http";
 import { TEST_VISITOR_ID } from "@/shared/test-utils/testUserConstants";
 

@@ -1,10 +1,13 @@
 // src/features/song-form/schema.ts
 import { Schema } from "effect";
 
+import { SongPublicInsertSchema, type SongPublicInsert } from "@/shared/generated/supabaseSchemas";
+
 const SongFormField = {
 	song_id: "song_id",
 	song_name: "song_name",
 	song_slug: "song_slug",
+	key: "key",
 	short_credit: "short_credit",
 	long_credit: "long_credit",
 	private_notes: "private_notes",
@@ -19,6 +22,7 @@ export const songFormFields = [
 	"song_id",
 	"song_name",
 	"song_slug",
+	"key",
 	"short_credit",
 	"long_credit",
 	"private_notes",
@@ -35,6 +39,7 @@ export const songFormFieldSchema: unknown = Schema.Literal(
 	"song_id",
 	"song_name",
 	"song_slug",
+	"key",
 	"short_credit",
 	"long_credit",
 	"private_notes",
@@ -80,6 +85,7 @@ export type SongFormValues = {
 	song_id?: string | undefined;
 	song_name: string;
 	song_slug: string;
+	key?: SongPublicInsert["key"];
 	short_credit?: string | undefined;
 	long_credit?: string | undefined;
 	private_notes?: string | undefined;
@@ -94,6 +100,7 @@ export const songFormSchema: Schema.Schema<SongFormValues> = Schema.Struct({
 	[SongFormField.song_id]: Schema.optional(Schema.String),
 	[SongFormField.song_name]: Schema.String,
 	[SongFormField.song_slug]: Schema.String,
+	[SongFormField.key]: SongPublicInsertSchema.fields.key,
 	[SongFormField.short_credit]: Schema.optional(Schema.String),
 	[SongFormField.long_credit]: Schema.optional(Schema.String),
 	[SongFormField.private_notes]: Schema.optional(Schema.String),

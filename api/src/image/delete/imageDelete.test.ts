@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { AuthenticationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";

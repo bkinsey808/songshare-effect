@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
+import { ChordDisplayMode } from "@/shared/user/chordDisplayMode";
 import { SlideNumberPreference } from "@/shared/user/slideNumberPreference";
 import { SlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
 
@@ -12,6 +13,7 @@ const USER_NAME = "Current User";
 const USER_ROLE = "admin";
 const USER_ID = "user-123";
 const USERNAME = "currentuser";
+const INVALID_CHORD_DISPLAY_MODE = "movable-do";
 const INVALID_SLIDE_ORIENTATION_PREFERENCE = "diagonal";
 
 describe("computeCurrentUser", () => {
@@ -43,6 +45,7 @@ describe("computeCurrentUser", () => {
 
 		// Assert
 		expect(result).toStrictEqual({
+			chordDisplayMode: ChordDisplayMode.roman,
 			email: USER_EMAIL,
 			name: USER_NAME,
 			role: USER_ROLE,
@@ -51,6 +54,34 @@ describe("computeCurrentUser", () => {
 			userId: USER_ID,
 			username: USERNAME,
 		});
+	});
+
+	const chordDisplayModeCases = [
+		{
+			name: "keeps a stored german mode",
+			storedMode: ChordDisplayMode.german,
+			expectedMode: ChordDisplayMode.german,
+		},
+		{
+			name: "falls back to roman for an invalid stored mode",
+			storedMode: INVALID_CHORD_DISPLAY_MODE,
+			expectedMode: ChordDisplayMode.roman,
+		},
+	] as const;
+
+	it.each(chordDisplayModeCases)("coerces chordDisplayMode when it $name", ({
+		expectedMode,
+		storedMode,
+	}) => {
+		const userSessionData = makeUserSessionData({
+			user: {
+				chord_display_mode: forceCast<"german">(storedMode),
+			},
+		});
+
+		const result = computeCurrentUser(userSessionData);
+
+		expect(result?.chordDisplayMode).toBe(expectedMode);
 	});
 
 	const slideOrientationCases = [
@@ -92,6 +123,7 @@ describe("computeCurrentUser", () => {
 		const result = computeCurrentUser(userSessionData);
 
 		// Assert
+		expect(result?.chordDisplayMode).toBe(ChordDisplayMode.roman);
 		expect(result?.slideOrientationPreference).toBe(SlideOrientationPreference.system);
 	});
 });

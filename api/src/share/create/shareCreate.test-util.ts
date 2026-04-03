@@ -3,7 +3,7 @@
  * Returns { user_id } or { owner_id } so validateSharedItemAccess returns true.
  */
 import type getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 
 /**
  * Helper to resolve a Promise with a mock Row-like object.

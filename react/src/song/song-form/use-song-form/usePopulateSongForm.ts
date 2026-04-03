@@ -7,6 +7,7 @@ import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { dashboardPath } from "@/shared/paths";
 import { justUnauthorizedAccessKey } from "@/shared/sessionStorageKeys";
+import { isSongKey } from "@/shared/song/songKeyOptions";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
 import { safeGet } from "@/shared/utils/safe";
@@ -140,9 +141,10 @@ export default function usePopulateSongForm({
 		// Public song has song_name, song_slug, etc. Private song only has private_notes
 		if (isRecord(songPublic)) {
 			// Update form values state from public song data
-			const newFormValues = {
+			const newFormValues: SongFormValues = {
 				song_name: isString(songPublic["song_name"]) ? songPublic["song_name"] : "",
 				song_slug: isString(songPublic["song_slug"]) ? songPublic["song_slug"] : "",
+				key: isSongKey(songPublic["key"]) ? songPublic["key"] : "",
 				short_credit: isString(songPublic["short_credit"]) ? songPublic["short_credit"] : "",
 				long_credit: isString(songPublic["long_credit"]) ? songPublic["long_credit"] : "",
 				public_notes: isString(songPublic["public_notes"]) ? songPublic["public_notes"] : "",
@@ -206,6 +208,10 @@ export default function usePopulateSongForm({
 						"short_credit",
 						isString(shortCredit) ? shortCredit : undefined,
 					);
+				}
+				if ("key" in songPublic) {
+					const songKey = songPublic["key"];
+					setFieldValue(formRef.current, "key", isSongKey(songKey) ? songKey : undefined);
 				}
 				if ("long_credit" in songPublic) {
 					const longCredit = songPublic["long_credit"];

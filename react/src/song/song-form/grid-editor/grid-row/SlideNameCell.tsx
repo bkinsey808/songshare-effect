@@ -75,10 +75,10 @@ export default function SlideNameCell({
 	const { t } = useTranslation();
 
 	const tdClass =
-		"border border-gray-300 dark:border-gray-600 pl-2 pr-2 pt-[var(--slides-grid-baseline-offset)] pb-2 w-[var(--slide-name-width)] min-w-[var(--slide-name-width)] max-w-[var(--slide-name-width)] group-hover:border-gray-300 dark:group-hover:border-gray-400";
+		"border border-gray-300 dark:border-gray-600 pl-2 pr-2 pt-[var(--slides-grid-baseline-offset)] pb-2 align-top w-[var(--slide-name-width)] min-w-[var(--slide-name-width)] max-w-[var(--slide-name-width)] group-hover:border-gray-300 dark:group-hover:border-gray-400";
 	const inputClass = isDuplicateRow
-		? "w-full rounded border border-gray-600 bg-gray-800 px-2 pt-0 pb-1 text-base leading-normal text-white focus:border-blue-500 focus:outline-none"
-		: "w-full rounded border border-gray-200 px-2 pt-0 pb-1 text-base leading-normal focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-transparent dark:text-white";
+		? "w-full rounded border border-gray-600 bg-gray-800 px-2 pt-0 pb-1 text-base leading-normal text-white focus:border-white/45 focus:outline-none"
+		: "w-full rounded border border-gray-200 px-2 pt-0 pb-1 text-base leading-normal focus:border-white/45 focus:outline-none dark:border-gray-600 dark:bg-transparent dark:text-white";
 
 	/*
 	 * Baseline alignment with lyrics column: this td uses pt-[var(--slides-grid-baseline-offset)]

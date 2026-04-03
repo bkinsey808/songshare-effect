@@ -1,0 +1,11 @@
+/**
+ * Test helper to return null while bypassing unicorn/no-null.
+ *
+ * Use this when an API explicitly requires null.
+ *
+ * @returns Literal `null`.
+ */
+export default function asNull(): null {
+	/* oxlint-disable-next-line unicorn/no-null -- explicit bypass for APIs requiring null */
+	return null;
+}

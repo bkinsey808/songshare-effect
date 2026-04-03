@@ -165,6 +165,7 @@ export default function SlidesGridTable({
 						 */
 						"slides-grid-baseline-offset": "0.25em",
 						"slides-grid-textarea-baseline-correction": "0.2em",
+						"slides-grid-focus-ring": "inset 0 0 0 1px rgb(255 255 255 / 0.45)",
 						...fieldWidthVars,
 					})}
 				>

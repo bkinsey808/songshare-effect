@@ -60,6 +60,7 @@ function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): Us
 		isOwner: true,
 		shouldShowActions: false,
 		activeSongName: "Song",
+		activeSongKey: undefined,
 		activeSlidePosition: 1,
 		activeSlideName: "Verse",
 		activeSlide: {

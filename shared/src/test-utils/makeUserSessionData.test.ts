@@ -8,6 +8,7 @@ describe("makeUserSessionData", () => {
 	it("fills in complete user and user_public defaults", () => {
 		const session = makeUserSessionData();
 
+		expect(session.user.chord_display_mode).toBe("roman");
 		expect(session.user.slide_orientation_preference).toBe("system");
 		expect(session.userPublic.user_id).toBe(session.user.user_id);
 		expect(session.oauthUserData.email).toBe(session.user.email);
@@ -22,6 +23,7 @@ describe("makeUserSessionData", () => {
 
 		expect(session.user.user_id).toBe(TEST_USER_ID);
 		expect(session.user.name).toBe("Custom User");
+		expect(session.user.chord_display_mode).toBe("roman");
 		expect(session.user.slide_orientation_preference).toBe("system");
 		expect(session.userPublic).toStrictEqual({
 			user_id: TEST_USER_ID,

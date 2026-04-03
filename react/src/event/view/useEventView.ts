@@ -44,6 +44,7 @@ export default function useEventView(): {
 	isOwner: boolean;
 	shouldShowActions: boolean;
 	activeSongName: string | undefined;
+	activeSongKey?: ReturnType<typeof deriveEventViewState>["activeSongKey"];
 	activeSlidePosition: number | undefined;
 	activeSlideName: string | undefined;
 	activeSlide: EventEntry["public"] extends undefined
@@ -161,6 +162,7 @@ export default function useEventView(): {
 		isOwner: derivedState.isOwner,
 		shouldShowActions: derivedState.shouldShowActions,
 		activeSongName: derivedState.activeSongName,
+		activeSongKey: derivedState.activeSongKey,
 		activeSlidePosition: derivedState.activeSlidePosition,
 		activeSlideName: derivedState.activeSlideName,
 		activeSlide: derivedState.activeSlide,

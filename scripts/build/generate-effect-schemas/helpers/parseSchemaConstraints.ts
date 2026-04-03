@@ -1,12 +1,18 @@
+const MIN_VALUES = 1;
+const NO_CONSTRAINTS = 0;
+const constraintPatterns = [
+	/CONSTRAINT\s+\w+\s+CHECK\s+\(\((\w+)\s*=\s*ANY\s*\(ARRAY\[([^\]]+)\]\)\)\)/g,
+	/CONSTRAINT\s+\w+\s+CHECK\s+\(\(\((\w+)\s+IS\s+NULL\)\s+OR\s+\(\1\s*=\s*ANY\s*\(ARRAY\[([^\]]+)\]\)\)\)\)/g,
+];
+
 /**
  * Parse a pg_dump schema SQL file and extract columns whose values are
- * constrained to a fixed set of literals via CHECK (col = ANY (ARRAY[...])).
+ * constrained to a fixed set of literals via CHECK (col = ANY (ARRAY[...]))
+ * or CHECK ((col IS NULL) OR (col = ANY (ARRAY[...]))).
  *
  * @param schemaSql - Full contents of the exported schema.sql file.
  * @returns A two-level map: tableName → columnName → allowed string values.
  */
-const MIN_VALUES = 1;
-const NO_CONSTRAINTS = 0;
 
 /**
  * Parse `CHECK (col = ANY (ARRAY[...]))` constraints from a CREATE TABLE body
@@ -17,15 +23,14 @@ const NO_CONSTRAINTS = 0;
  */
 function extractTableConstraints(tableBody: string): Record<string, readonly string[]> {
 	const constraintsForTable: Record<string, readonly string[]> = {};
-	const constraintRegex =
-		/CONSTRAINT\s+\w+\s+CHECK\s+\(\((\w+)\s*=\s*ANY\s*\(ARRAY\[([^\]]+)\]\)\)\)/g;
-
-	for (const constraintMatch of tableBody.matchAll(constraintRegex)) {
-		const [, colName, arrayContent] = constraintMatch as RegExpMatchArray;
-		if (typeof colName === "string" && typeof arrayContent === "string") {
-			const values = extractArrayValues(arrayContent);
-			if (values.length >= MIN_VALUES) {
-				constraintsForTable[colName] = values;
+	for (const constraintPattern of constraintPatterns) {
+		for (const constraintMatch of tableBody.matchAll(constraintPattern)) {
+			const [, colName, arrayContent] = constraintMatch as RegExpMatchArray;
+			if (typeof colName === "string" && typeof arrayContent === "string") {
+				const values = extractArrayValues(arrayContent);
+				if (values.length >= MIN_VALUES) {
+					constraintsForTable[colName] = values;
+				}
 			}
 		}
 	}

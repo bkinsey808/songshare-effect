@@ -5,7 +5,7 @@
 import { vi } from "vitest";
 
 import type getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 

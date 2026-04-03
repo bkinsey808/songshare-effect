@@ -1,4 +1,6 @@
 // src/features/song-form/types.ts
+import type { SongKey } from "@/shared/song/songKeyOptions";
+
 import type { SongFormValuesFromSchema as SongFormData } from "./songSchema";
 
 export type Slide = Readonly<{
@@ -15,6 +17,7 @@ export type Slide = Readonly<{
 export type SongFormValues = {
 	song_name: string;
 	song_slug: string;
+	key: SongKey | "";
 	short_credit: string;
 	long_credit: string;
 	public_notes: string;
@@ -54,7 +57,10 @@ export type UseSongFormReturn = {
 
 	// Controlled form field values
 	formValues: SongFormValues;
-	setFormValue: (field: keyof SongFormValues, value: string) => void;
+	setFormValue: <Field extends keyof SongFormValues>(
+		field: Field,
+		value: SongFormValues[Field],
+	) => void;
 
 	// Collapsible section state
 	isFormFieldsExpanded: boolean;
@@ -78,3 +84,11 @@ export type UseSongFormReturn = {
 	// Editing state
 	isEditing: boolean;
 };
+
+export type SongFormChordPickerRequest = Readonly<{
+	submitChord: (token: string) => void;
+	initialChordToken?: string;
+	isEditingChord?: boolean;
+}>;
+
+export type OpenChordPicker = (request: SongFormChordPickerRequest) => void;

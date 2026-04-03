@@ -77,6 +77,7 @@ function makeUseEventViewResult(overrides: Partial<UseEventViewResult> = {}): Us
 		isOwner: true,
 		shouldShowActions: false,
 		activeSongName: undefined,
+		activeSongKey: undefined,
 		activeSlidePosition: undefined,
 		activeSlideName: undefined,
 		activeSlide: undefined,

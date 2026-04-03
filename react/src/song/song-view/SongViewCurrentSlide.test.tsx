@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
+import useChordDisplayModePreference from "@/react/chord-display-mode/useChordDisplayModePreference";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import useSlideNumberPreference from "@/react/slide-number/useSlideNumberPreference";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
@@ -13,6 +14,7 @@ import SongViewCurrentSlide from "./SongViewCurrentSlide";
 
 vi.mock("react-i18next");
 vi.mock("@/react/app-store/useAppStore");
+vi.mock("@/react/chord-display-mode/useChordDisplayModePreference");
 vi.mock("@/react/slide-number/useSlideNumberPreference");
 vi.mock("@/react/slide-orientation/useSlideOrientationPreference");
 
@@ -56,6 +58,12 @@ function installSlideNumberPreferenceMock(showSlideNumber = false): void {
 	});
 }
 
+function installChordDisplayModeMock(chordDisplayMode: "letters" | "german" | "indian" | "roman" | "solfege" = "letters"): void {
+	vi.mocked(useChordDisplayModePreference).mockReturnValue({
+		chordDisplayMode,
+	});
+}
+
 function installAppStoreMock({
 	imageLibraryEntries = {},
 	publicImages = {},
@@ -75,6 +83,7 @@ describe("song view current slide", () => {
 	it("renders a background image element when slide has background_image_url", () => {
 		installI18nMock();
 		installAppStoreMock();
+		installChordDisplayModeMock();
 		installSlideOrientationMock();
 		installSlideNumberPreferenceMock();
 
@@ -99,6 +108,7 @@ describe("song view current slide", () => {
 	it("does not render a background image style when background is missing", () => {
 		installI18nMock();
 		installAppStoreMock();
+		installChordDisplayModeMock();
 		installSlideOrientationMock();
 		installSlideNumberPreferenceMock();
 
@@ -121,6 +131,7 @@ describe("song view current slide", () => {
 	it("uses a portrait aspect ratio when portrait orientation is active", () => {
 		installI18nMock();
 		installAppStoreMock();
+		installChordDisplayModeMock();
 		installSlideOrientationMock(ResolvedSlideOrientation.portrait);
 		installSlideNumberPreferenceMock();
 
@@ -144,6 +155,7 @@ describe("song view current slide", () => {
 	it("renders the slide number without parentheses", () => {
 		installI18nMock();
 		installAppStoreMock();
+		installChordDisplayModeMock();
 		installSlideOrientationMock();
 		installSlideNumberPreferenceMock(true);
 
@@ -191,6 +203,7 @@ describe("song view current slide", () => {
 				}),
 			},
 		});
+		installChordDisplayModeMock();
 		installSlideOrientationMock(ResolvedSlideOrientation.portrait);
 		installSlideNumberPreferenceMock();
 
@@ -243,6 +256,7 @@ describe("song view current slide", () => {
 				}),
 			},
 		});
+		installChordDisplayModeMock();
 		installSlideOrientationMock(ResolvedSlideOrientation.landscape);
 		installSlideNumberPreferenceMock();
 
@@ -265,5 +279,28 @@ describe("song view current slide", () => {
 		expect(image.getAttribute("style")).toContain(`top: ${LANDSCAPE_IMAGE_TOP}`);
 		expect(image.getAttribute("style")).toContain(`width: ${LANDSCAPE_IMAGE_WIDTH}`);
 		expect(image.getAttribute("style")).toContain(`height: ${LANDSCAPE_IMAGE_HEIGHT}`);
+	});
+
+	it("renders transformed lyric chords using the selected display mode", () => {
+		installI18nMock();
+		installAppStoreMock();
+		installChordDisplayModeMock("solfege");
+		installSlideOrientationMock();
+		installSlideNumberPreferenceMock();
+
+		render(
+			<SongViewCurrentSlide
+				currentSlide={{
+					slide_name: "Verse",
+					field_data: { lyrics: "Hello [C -]" },
+				}}
+				currentSlideIndex={0}
+				displayFields={["lyrics"]}
+				songKey="C"
+				totalSlides={1}
+			/>,
+		);
+
+		expect(screen.getByText("Hello [Do -]")).toBeTruthy();
 	});
 });

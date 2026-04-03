@@ -4,6 +4,7 @@ import { Effect, Schema } from "effect";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+import { SongPublicInsertSchema } from "@/shared/generated/supabaseSchemas";
 import { type Database, type Json } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/form/validateFormEffect";
 import { tagSlugSchema } from "@/shared/validation/tagSchemas";
@@ -23,6 +24,7 @@ const SongFormSchema = Schema.Struct({
 	song_id: Schema.optional(Schema.String),
 	song_name: Schema.String,
 	song_slug: Schema.String,
+	key: SongPublicInsertSchema.fields.key,
 	short_credit: Schema.optional(Schema.String),
 	long_credit: Schema.optional(Schema.String),
 	private_notes: Schema.optional(Schema.String),
@@ -112,6 +114,8 @@ export default function songSave(
 		const slideOrderForDb: string[] = Array.isArray(validated.slide_order)
 			? validated.slide_order.map(String)
 			: [];
+		/* oxlint-disable-next-line unicorn/no-null */
+		const keyForDb = validated.key === undefined ? null : validated.key;
 		// CRITICAL: Pass fields array to sanitizeSlidesForDb so it can normalize field_data
 		// to ensure all fields are present in every slide's field_data
 		const slidesForDb: Json = sanitizeSlidesForDb(validated.slides, validated.fields);
@@ -212,6 +216,8 @@ export default function songSave(
 							.update({
 								song_name: validated.song_name,
 								song_slug: validated.song_slug,
+								/* oxlint-disable-next-line unicorn/no-null */
+								key: keyForDb,
 								fields: fieldsForDb,
 								slide_order: slideOrderForDb,
 								slides: slidesForDb,
@@ -234,6 +240,7 @@ export default function songSave(
 								user_id: userId,
 								song_name: validated.song_name,
 								song_slug: validated.song_slug,
+								key: keyForDb,
 								fields: fieldsForDb,
 								slide_order: slideOrderForDb,
 								slides: slidesForDb,

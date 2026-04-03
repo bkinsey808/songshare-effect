@@ -2,8 +2,11 @@ import { useTranslation } from "react-i18next";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
+import useChordDisplayModePreference from "@/react/chord-display-mode/useChordDisplayModePreference";
 import useSlideNumberPreference from "@/react/slide-number/useSlideNumberPreference";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
+import { transformChordTextForDisplay } from "@/shared/music/chord-display";
+import type { SongKey } from "@/shared/song/songKeyOptions";
 import isRecord from "@/shared/type-guards/isRecord";
 import { ResolvedSlideOrientation } from "@/shared/user/slideOrientationPreference";
 
@@ -11,6 +14,7 @@ const MIN_SLIDE_INDEX = 0;
 
 type UseSongViewCurrentSlideArgs = Readonly<{
 	currentSlide: unknown;
+	songKey?: SongKey | "" | null;
 	totalSlides: number;
 }>;
 
@@ -30,10 +34,12 @@ type UseSongViewCurrentSlideResult = Readonly<{
 
 export default function useSongViewCurrentSlide({
 	currentSlide,
+	songKey,
 	totalSlides,
 }: UseSongViewCurrentSlideArgs): UseSongViewCurrentSlideResult {
 	const { t } = useTranslation();
 	const { effectiveSlideOrientation } = useSlideOrientationPreference();
+	const { chordDisplayMode } = useChordDisplayModePreference();
 	const { showSlideNumber } = useSlideNumberPreference();
 	const payloadFocalPoint =
 		isRecord(currentSlide) &&
@@ -117,7 +123,16 @@ export default function useSongViewCurrentSlide({
 			return "";
 		}
 		const fieldData = isRecord(currentSlide["field_data"]) ? currentSlide["field_data"][field] : undefined;
-		return typeof fieldData === "string" ? fieldData : "";
+		if (typeof fieldData !== "string") {
+			return "";
+		}
+
+		return field === "lyrics"
+			? transformChordTextForDisplay(fieldData, {
+					chordDisplayMode,
+					songKey,
+				})
+			: fieldData;
 	}
 
 	return {

@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
+import useChordDisplayModePreference from "@/react/chord-display-mode/useChordDisplayModePreference";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import useSlideNumberPreference from "@/react/slide-number/useSlideNumberPreference";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
@@ -13,6 +14,7 @@ import useSongViewCurrentSlide from "./useSongViewCurrentSlide";
 
 vi.mock("react-i18next");
 vi.mock("@/react/app-store/useAppStore");
+vi.mock("@/react/chord-display-mode/useChordDisplayModePreference");
 vi.mock("@/react/slide-number/useSlideNumberPreference");
 vi.mock("@/react/slide-orientation/useSlideOrientationPreference");
 
@@ -67,6 +69,12 @@ function installSlideNumberPreferenceMock(showSlideNumber = false): void {
 	vi.mocked(useSlideNumberPreference).mockReturnValue({
 		showSlideNumber,
 		slideNumberPreference: showSlideNumber ? "show" : "hide",
+	});
+}
+
+function installChordDisplayModeMock(chordDisplayMode: "letters" | "german" | "indian" | "roman" | "solfege" = "letters"): void {
+	vi.mocked(useChordDisplayModePreference).mockReturnValue({
+		chordDisplayMode,
 	});
 }
 
@@ -173,6 +181,7 @@ describe("useSongViewCurrentSlide — Harness", () => {
 				[IMAGE_ID]: makeImageLibraryEntry(),
 			},
 		});
+		installChordDisplayModeMock();
 		installSlideOrientationMock(ResolvedSlideOrientation.portrait);
 		installSlideNumberPreferenceMock(true);
 
@@ -224,6 +233,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 	it("returns an empty-state result when there are no slides", () => {
 		installI18nMock();
 		installAppStoreMock();
+		installChordDisplayModeMock();
 		installSlideOrientationMock();
 		installSlideNumberPreferenceMock();
 
@@ -245,6 +255,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 	it("leaves focalPoint undefined when focal-point metadata is unavailable", () => {
 		installI18nMock();
 		installAppStoreMock();
+		installChordDisplayModeMock();
 		installSlideOrientationMock(ResolvedSlideOrientation.portrait);
 		installSlideNumberPreferenceMock();
 
@@ -264,6 +275,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 				[IMAGE_ID]: forceCast<AppSlice["publicImages"][string]>(makeImageLibraryEntry().image_public),
 			},
 		});
+		installChordDisplayModeMock();
 		installSlideOrientationMock();
 		installSlideNumberPreferenceMock();
 
@@ -287,6 +299,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 	it("prefers focal point and dimensions from the slide payload", () => {
 		installI18nMock();
 		installAppStoreMock();
+		installChordDisplayModeMock();
 		installSlideOrientationMock();
 		installSlideNumberPreferenceMock();
 
@@ -316,6 +329,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 	it("returns empty strings for missing slide text fields", () => {
 		installI18nMock();
 		installAppStoreMock();
+		installChordDisplayModeMock();
 		installSlideOrientationMock();
 		installSlideNumberPreferenceMock();
 
@@ -337,6 +351,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 	it("preserves the configured slide number preference", () => {
 		installI18nMock();
 		installAppStoreMock();
+		installChordDisplayModeMock();
 		installSlideOrientationMock();
 		installSlideNumberPreferenceMock(true);
 
@@ -352,5 +367,28 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 		expect(result.current.effectiveSlideOrientation).toBe(ResolvedSlideOrientation.landscape);
 		expect(result.current.slideAspectClassName).toBe("aspect-video");
 		expect(FIRST_SLIDE_INDEX).toBe(ZERO_NUMBER);
+	});
+
+	it("transforms lyric chord tokens according to the selected display mode", () => {
+		installI18nMock();
+		installAppStoreMock();
+		installChordDisplayModeMock("roman");
+		installSlideOrientationMock();
+		installSlideNumberPreferenceMock();
+
+		const { result } = renderHook(() =>
+			useSongViewCurrentSlide({
+				currentSlide: {
+					slide_name: SLIDE_NAME,
+					field_data: {
+						[LYRICS_FIELD]: "Line [C -] line [G 7]",
+					},
+				},
+				songKey: "C",
+				totalSlides: SINGLE_SLIDE_TOTAL,
+			}),
+		);
+
+		expect(result.current.getFieldText(LYRICS_FIELD)).toBe("Line [I -] line [V 7]");
 	});
 });

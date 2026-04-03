@@ -1,3 +1,4 @@
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import AutoExpandingTextarea from "@/react/lib/design-system/auto-expanding-textarea/AutoExpandingTextarea";
@@ -6,14 +7,17 @@ import FormField from "@/react/lib/design-system/form/FormField";
 import ChevronDownIcon from "@/react/lib/design-system/icons/ChevronDownIcon";
 import ChevronUpIcon from "@/react/lib/design-system/icons/ChevronUpIcon";
 import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
-import { type Slide } from "@/react/song/song-form/song-form-types";
+import InsertChordButton from "@/react/song/song-form/chord-picker/InsertChordButton";
+import findChordTokenAtSelection from "@/react/song/song-form/chord-picker/findChordTokenAtSelection";
+import insertTextAtSelection from "@/react/song/song-form/chord-picker/insertTextAtSelection";
+import { type OpenChordPicker, type Slide } from "@/react/song/song-form/song-form-types";
 import { safeGet } from "@/shared/utils/safe";
 
 import SlideBackgroundLibraryContent from "../SlideBackgroundLibraryContent";
 import useSlideDetailCard from "./useSlideDetailCard";
 
 const TEXTAREA_MIN_ROWS = 3;
-const TEXTAREA_MAX_ROWS = 10;
+const DEFAULT_SELECTION_POSITION = 0;
 
 type SlideDetailCardProps = Readonly<{
 	slideId: string;
@@ -21,6 +25,7 @@ type SlideDetailCardProps = Readonly<{
 	fields: readonly string[];
 	slideOrder: readonly string[];
 	slides: Readonly<Record<string, Slide>>;
+	openChordPicker: OpenChordPicker;
 	confirmingDeleteSlideId: string | undefined;
 	setConfirmingDeleteSlideId: (slideId: string | undefined) => void;
 	backgroundPickerSlideId: string | undefined;
@@ -53,6 +58,7 @@ export default function SlideDetailCard({
 	fields,
 	slideOrder,
 	slides,
+	openChordPicker,
 	confirmingDeleteSlideId,
 	setConfirmingDeleteSlideId,
 	backgroundPickerSlideId,
@@ -67,6 +73,11 @@ export default function SlideDetailCard({
 	removeSlideOrder,
 }: SlideDetailCardProps): ReactElement | undefined {
 	const { t } = useTranslation();
+	const lyricsTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+	const [lyricsSelection, setLyricsSelection] = useState({
+		selectionStart: DEFAULT_SELECTION_POSITION,
+		selectionEnd: DEFAULT_SELECTION_POSITION,
+	});
 
 	const {
 		slide,
@@ -113,6 +124,74 @@ export default function SlideDetailCard({
 		return undefined;
 	}
 
+	const lyricsValue = safeGet(slide.field_data, "lyrics") ?? "";
+	const selectedChordToken = findChordTokenAtSelection({
+		value: lyricsValue,
+		selectionStart: lyricsSelection.selectionStart,
+		selectionEnd: lyricsSelection.selectionEnd,
+	});
+
+	function handleInsertChord(token: string, selectionStart?: number, selectionEnd?: number): void {
+		const currentSlide = slide;
+		if (currentSlide === undefined) {
+			return;
+		}
+
+		const currentLyrics = safeGet(currentSlide.field_data, "lyrics") ?? "";
+		const insertionResult = insertTextAtSelection({
+			value: currentLyrics,
+			insertion: token,
+			...(selectionStart === undefined ? {} : { selectionStart }),
+			...(selectionEnd === undefined ? {} : { selectionEnd }),
+		});
+
+		onEditFieldValue({
+			field: "lyrics",
+			value: insertionResult.nextValue,
+		});
+
+		requestAnimationFrame(() => {
+			lyricsTextareaRef.current?.focus();
+			lyricsTextareaRef.current?.setSelectionRange(
+				insertionResult.nextSelectionStart,
+				insertionResult.nextSelectionStart,
+			);
+		});
+	}
+
+	function handleOpenChordPicker(): void {
+		const selectionStart = lyricsTextareaRef.current?.selectionStart;
+		const selectionEnd = lyricsTextareaRef.current?.selectionEnd;
+		const chordTokenAtSelection = findChordTokenAtSelection({
+			value: lyricsValue,
+			selectionStart,
+			selectionEnd,
+		});
+
+		openChordPicker({
+			submitChord: (token) => {
+				handleInsertChord(
+					token,
+					chordTokenAtSelection?.tokenStart ?? selectionStart,
+					chordTokenAtSelection?.tokenEnd ?? selectionEnd,
+				);
+			},
+			...(chordTokenAtSelection === undefined
+				? {}
+				: {
+						initialChordToken: chordTokenAtSelection.token,
+						isEditingChord: true,
+					}),
+		});
+	}
+
+	function syncLyricsSelection(): void {
+		setLyricsSelection({
+			selectionStart: lyricsTextareaRef.current?.selectionStart ?? DEFAULT_SELECTION_POSITION,
+			selectionEnd: lyricsTextareaRef.current?.selectionEnd ?? DEFAULT_SELECTION_POSITION,
+		});
+	}
+
 	return (
 		<div className="mb-6 rounded-lg border border-gray-600 p-4" {...duplicateTintProps}>
 			<div className="mb-6">
@@ -131,20 +210,55 @@ export default function SlideDetailCard({
 
 			{fields.map((field) => (
 				<div key={field} className="mb-6">
-					<FormField label={t(`song.${field}`, field)}>
-						<AutoExpandingTextarea
-							value={safeGet(slide.field_data, field) ?? ""}
-							onChange={(event) => {
-								onEditFieldValue({
-									field,
-									value: event.target.value,
-								});
-							}}
-							className="mt-1 w-full rounded border border-gray-600 bg-gray-800 px-2 py-1 text-white"
-							minRows={TEXTAREA_MIN_ROWS}
-							maxRows={TEXTAREA_MAX_ROWS}
-						/>
-					</FormField>
+					{field === "lyrics" ? (
+						<div className="flex flex-col gap-2">
+							<div className="flex flex-wrap items-center justify-between gap-2">
+								<span className="text-sm font-bold text-gray-300">{t("song.lyrics", "Lyrics")}</span>
+								<InsertChordButton
+									isEditingChord={selectedChordToken !== undefined}
+									onOpenChordPicker={handleOpenChordPicker}
+								/>
+							</div>
+							<AutoExpandingTextarea
+								textareaRef={lyricsTextareaRef}
+								value={lyricsValue}
+								onChange={(event) => {
+									onEditFieldValue({
+										field,
+										value: event.target.value,
+									});
+									setLyricsSelection({
+										selectionStart: event.target.selectionStart,
+										selectionEnd: event.target.selectionEnd,
+									});
+								}}
+								onClick={syncLyricsSelection}
+								onFocus={syncLyricsSelection}
+								onKeyUp={syncLyricsSelection}
+								onSelect={syncLyricsSelection}
+								className="mt-1 w-full rounded border border-gray-600 bg-gray-800 px-2 py-1 text-white"
+								minRows={TEXTAREA_MIN_ROWS}
+								growWithContent
+								resizeOnExternalValueChange={false}
+							/>
+						</div>
+					) : (
+						<FormField label={t(`song.${field}`, field)}>
+							<AutoExpandingTextarea
+								value={safeGet(slide.field_data, field) ?? ""}
+								onChange={(event) => {
+									onEditFieldValue({
+										field,
+										value: event.target.value,
+									});
+								}}
+								className="mt-1 w-full rounded border border-gray-600 bg-gray-800 px-2 py-1 text-white"
+								minRows={TEXTAREA_MIN_ROWS}
+								growWithContent
+								resizeOnExternalValueChange={false}
+							/>
+						</FormField>
+					)}
 				</div>
 			))}
 			<div className="mb-6">

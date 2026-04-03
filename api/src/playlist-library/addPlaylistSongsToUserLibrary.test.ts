@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 // reuse shared supabase client mock and patch for song tables
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
-import makeNull from "@/react/lib/test-utils/makeNull.test-util";
+import makeNull from "@/shared/test-utils/makeNull.test-util";
 
 import addPlaylistSongsToUserLibrary from "./addPlaylistSongsToUserLibrary";
 import extendWithSongMocks from "./addPlaylistSongsToUserLibrary.test-util";

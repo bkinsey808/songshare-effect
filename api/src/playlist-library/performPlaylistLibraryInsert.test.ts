@@ -4,7 +4,7 @@ import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 
 import performPlaylistLibraryInsert, {
 	type PlaylistLibraryRow,

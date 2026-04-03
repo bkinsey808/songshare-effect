@@ -45,7 +45,7 @@ export default function SlideFieldCell({
 
 	return (
 		<td
-			className="border border-gray-300 dark:border-gray-600 p-0 group-hover:border-gray-300 dark:group-hover:border-gray-400 w-(--slides-grid-field-width) min-w-(--slides-grid-field-width) max-w-(--slides-grid-field-width)"
+			className="relative border border-gray-300 dark:border-gray-600 p-0 align-top transition-shadow focus-within:shadow-(--slides-grid-focus-ring) w-(--slides-grid-field-width) min-w-(--slides-grid-field-width) max-w-(--slides-grid-field-width)"
 			style={colStyle}
 		>
 			{/* Baseline alignment: textarea padding-top = baseline-offset − textarea-baseline-correction. Browsers put the first line of a <textarea> lower than an <input> for the same padding; the correction moves this first line up so its baseline matches the slide-name input. text-base leading-normal must match SlideNameCell. Variables live on the table (SlidesGridTable). */}
@@ -54,10 +54,11 @@ export default function SlideFieldCell({
 				onChange={(event) => {
 					editFieldValue({ slideId, field, value: event.target.value });
 				}}
-				className="h-full w-full border-none text-base leading-normal pt-[calc(var(--slides-grid-baseline-offset) - var(--slides-grid-textarea-baseline-correction))] px-2 pb-2 focus:outline-none text-black dark:text-white bg-transparent"
+				className="block h-full w-full border-none text-base leading-normal pt-[calc(var(--slides-grid-baseline-offset) - var(--slides-grid-textarea-baseline-correction))] px-2 pb-2 focus:outline-none text-black dark:text-white bg-transparent"
 				placeholder={`Enter ${field}...`}
 				minRows={2}
-				maxRows={8}
+				fillParentHeight
+				growWithContent
 			/>
 		</td>
 	);

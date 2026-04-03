@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { makeCtxWithJsonResponse } from "@/api/hono/makeCtx.test-util";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import { HTTP_INTERNAL, ONE_HOUR_SECONDS } from "@/shared/constants/http";
 
 import getSupabaseClientTokenHandler from "./getSupabaseClientTokenHandler";

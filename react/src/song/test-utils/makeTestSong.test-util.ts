@@ -9,7 +9,7 @@ import type { SongPublic } from "@/react/song/song-schema";
  */
 export function makeTestSong(overrides: Partial<SongPublic> = {}): SongPublic {
 	// avoid explicit null literals (unicorn/no-null) by parsing at runtime
-	const parsedNull = forceCast<string | null>(JSON.parse("null"));
+	const parsedNull = forceCast<SongPublic["key"]>(JSON.parse("null"));
 	const base: SongPublic = {
 		song_id: "s1",
 		song_name: "Test Song",

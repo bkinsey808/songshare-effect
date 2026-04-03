@@ -29,7 +29,9 @@
 		"typegpuAudioViz": "TypeGPU Audio Viz",
 		"suspenseUse": "Suspense Use",
 		"userSubscription": "User Subscription",
-		"switchLanguage": "Switch Language"
+		"switchLanguage": "Switch Language",
+		"settings": "Settings",
+		"displaySettings": "Display"
 	},
 	"pages": {
 		"home": {
@@ -186,6 +188,8 @@
 	"song": {
 		"songName": "Song Name",
 		"songSlug": "Song Slug",
+		"key": "Key",
+		"noKey": "No key",
 		"shortCredit": "Short Credit",
 		"longCredit": "Long Credit",
 		"publicNotes": "Public Notes",
@@ -193,6 +197,18 @@
 		"slideName": "Slide Name",
 		"fields": "Fields",
 		"lyrics": "Lyrics",
+		"editChord": "Edit Chord",
+		"editChordConfirm": "Update",
+		"insertChord": "Insert Chord",
+		"insertChordPageDescription": "Choose a root and chord shape, then insert it into the lyrics without leaving your song draft.",
+		"insertChordConfirm": "Insert",
+		"insertChordMissingTarget": "Open this picker from a lyrics field to insert the selected chord.",
+		"chordRoot": "Root",
+		"chordPreview": "Preview",
+		"chordSearch": "Search Shapes",
+		"chordSearchPlaceholder": "Search by name, code, or b3",
+		"chordMaxNotes": "Max Notes",
+		"chordNoResults": "No chord shapes match this search.",
 		"script": "Script",
 		"enTranslation": "English Translation",
 		"slidesGridDescription": "These are the slides as you actually see them and can include the same slide more than once. If you edit a slide that is displayed more than once, it will edit all instances of the slide. If you don't want this behavior, you can duplicate an existing slide or add a new one.",
@@ -263,5 +279,13 @@
 		"label": "Slide #",
 		"show": "Show",
 		"hide": "Hide"
+	},
+	"chordDisplayMode": {
+		"label": "Chords",
+		"letters": "Letters",
+		"solfege": "Solfège",
+		"indian": "Indian",
+		"german": "German",
+		"roman": "Roman Numerals"
 	}
 }

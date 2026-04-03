@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { userSessionCookieName } from "@/api/cookie/cookie";
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import asNull from "@/react/lib/test-utils/asNull";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import asNull from "@/api/test-utils/asNull";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 import type { UserSessionData } from "@/shared/userSessionData";

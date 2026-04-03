@@ -25,7 +25,9 @@
 		"typegpuAudioViz": "TypeGPU 音频可视化",
 		"suspenseUse": "使用悬挂",
 		"userSubscription": "用户订阅",
-		"switchLanguage": "切换语言"
+		"switchLanguage": "切换语言",
+		"settings": "设置",
+		"displaySettings": "显示"
 	},
 	"pages": {
 		"home": {
@@ -153,6 +155,18 @@
 		"slideName": "幻灯片名称",
 		"fields": "字段",
 		"lyrics": "歌词",
+		"editChord": "编辑和弦",
+		"editChordConfirm": "更新",
+		"insertChord": "插入和弦",
+		"insertChordPageDescription": "选择根音和和弦结构，然后在不离开歌曲草稿的情况下将其插入歌词。",
+		"insertChordConfirm": "插入",
+		"insertChordMissingTarget": "请从歌词字段打开此选择器，以插入所选和弦。",
+		"chordRoot": "根音",
+		"chordPreview": "预览",
+		"chordSearch": "搜索和弦结构",
+		"chordSearchPlaceholder": "按名称、代码或 b3 搜索",
+		"chordMaxNotes": "最多音数",
+		"chordNoResults": "没有匹配此搜索的和弦结构。",
 		"script": "脚本",
 		"enTranslation": "英文翻译",
 		"slidesGridDescription": "这些是您实际看到的幻灯片，可以包含同一幻灯片多次。如果您编辑了显示多次的幻灯片，所有实例都会被编辑。如果不希望这样，请复制现有幻灯片或添加一个新幻灯片。",
@@ -175,5 +189,13 @@
 		"label": "幻灯片编号",
 		"show": "显示",
 		"hide": "隐藏"
+	},
+	"chordDisplayMode": {
+		"label": "和弦",
+		"letters": "Letters",
+		"solfege": "Solfège",
+		"indian": "Indian",
+		"german": "German",
+		"roman": "Roman Numerals"
 	}
 }

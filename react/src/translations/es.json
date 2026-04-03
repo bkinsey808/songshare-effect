@@ -25,7 +25,9 @@
 		"typegpuAudioViz": "Visualizador de audio TypeGPU",
 		"suspenseUse": "Usar Suspense",
 		"userSubscription": "Suscripción de Usuario",
-		"switchLanguage": "Cambiar idioma"
+		"switchLanguage": "Cambiar idioma",
+		"settings": "Configuración",
+		"displaySettings": "Pantalla"
 	},
 	"pages": {
 		"home": {
@@ -153,6 +155,18 @@
 		"slideName": "Nombre de la Diapositiva",
 		"fields": "Campos",
 		"lyrics": "Letras",
+		"editChord": "Editar acorde",
+		"editChordConfirm": "Actualizar",
+		"insertChord": "Insertar acorde",
+		"insertChordPageDescription": "Elige una tónica y una forma de acorde, luego insértala en la letra sin salir del borrador de la canción.",
+		"insertChordConfirm": "Insertar",
+		"insertChordMissingTarget": "Abre este selector desde un campo de letra para insertar el acorde seleccionado.",
+		"chordRoot": "Tónica",
+		"chordPreview": "Vista previa",
+		"chordSearch": "Buscar formas",
+		"chordSearchPlaceholder": "Buscar por nombre, código o b3",
+		"chordMaxNotes": "Notas máx.",
+		"chordNoResults": "Ninguna forma de acorde coincide con esta búsqueda.",
 		"script": "Guión",
 		"enTranslation": "Traducción al Inglés",
 		"slidesGridDescription": "Estas son las diapositivas tal como las ves y pueden incluir la misma diapositiva más de una vez. Si editas una diapositiva que se muestra más de una vez, se editarán todas las instancias de esa diapositiva. Si no quieres este comportamiento, puedes duplicar una diapositiva existente o añadir una nueva.",
@@ -175,5 +189,13 @@
 		"label": "N.º diap.",
 		"show": "Mostrar",
 		"hide": "Ocultar"
+	},
+	"chordDisplayMode": {
+		"label": "Acordes",
+		"letters": "Letters",
+		"solfege": "Solfège",
+		"indian": "Indian",
+		"german": "German",
+		"roman": "Roman Numerals"
 	}
 }

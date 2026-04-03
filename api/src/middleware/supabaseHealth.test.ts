@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import { HTTP_OK } from "@/shared/constants/http";
 
 import supabaseHealthMiddleware from "./supabaseHealth";

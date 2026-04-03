@@ -1,5 +1,6 @@
+import DisplaySettingsCard from "./DisplaySettingsCard";
 import NavigationLinksCard from "./NavigationLinksCard";
-import SettingsCard from "./SettingsCard";
+import SettingsCard from "./settings-card/SettingsCard";
 
 type ActionsMenuProps = {
 	readonly isVisible: boolean;
@@ -31,9 +32,12 @@ export default function ActionsMenu({ isVisible, isScrolled }: ActionsMenuProps)
 							isScrolled ? "px-4 py-0.5" : "px-5 py-1"
 						}`}
 					>
-						<div className="flex flex-wrap items-center justify-between gap-4">
+						<div className="flex flex-wrap items-start justify-between gap-4">
 							<NavigationLinksCard />
-							<SettingsCard />
+							<div className="flex flex-wrap items-start gap-4">
+								<DisplaySettingsCard />
+								<SettingsCard />
+							</div>
 						</div>
 					</div>
 				</div>

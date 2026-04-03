@@ -43,6 +43,7 @@ export default function useFetchSongData({
 			const emptyFormValues: SongFormValues = {
 				song_name: "",
 				song_slug: "",
+				key: "",
 				short_credit: "",
 				long_credit: "",
 				public_notes: "",
@@ -63,6 +64,7 @@ export default function useFetchSongData({
 		setFormValuesState({
 			song_name: "",
 			song_slug: "",
+			key: "",
 			short_credit: "",
 			long_credit: "",
 			public_notes: "",

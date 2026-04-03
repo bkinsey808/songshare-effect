@@ -1,5 +1,6 @@
 import type { CurrentUser } from "@/react/auth/current-user/CurrentUser.type";
 import type { UserSessionData } from "@/shared/userSessionData";
+import { coerceChordDisplayMode } from "@/shared/user/chordDisplayMode";
 import { coerceSlideNumberPreference } from "@/shared/user/slideNumberPreference";
 import { coerceSlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
 
@@ -11,6 +12,7 @@ export default function computeCurrentUser(
 	}
 
 	return {
+		chordDisplayMode: coerceChordDisplayMode(userSessionData.user.chord_display_mode),
 		email: userSessionData.user.email,
 		name: userSessionData.user.name,
 		role: userSessionData.user.role,

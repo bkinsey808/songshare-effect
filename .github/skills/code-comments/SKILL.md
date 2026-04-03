@@ -39,6 +39,7 @@ detailed formatting patterns, examples, and edge cases.
 Core philosophy: explain the "why," not the "what." ([philosophy](/docs/code-comment-best-practices.md#1-philosophy))
 
 - **JSDoc (`/** */`)** for exported functions, components, and types. ([when to use](/docs/code-comment-best-practices.md#jsdoc-when))
+- **Default to JSDoc for named functions you add** — not just exports. Helper functions, local utility functions, test helpers, and hook-internal handlers should usually get concise JSDoc unless the name and body are truly trivial. This repo prefers documenting function purpose proactively rather than only at module boundaries.
 - **`//`** for logic blocks (`useEffect`, complex conditionals), test descriptions, and grouped constants. ([inline comments](/docs/code-comment-best-practices.md#inline-comments))
 - **No types in JSDoc** — TypeScript provides them. Use `@param name - description` only. ([formatting](/docs/code-comment-best-practices.md#jsdoc-formatting))
 - **Always `@returns`** — write `@returns void` for void functions. ([params & returns](/docs/code-comment-best-practices.md#jsdoc-params-returns))

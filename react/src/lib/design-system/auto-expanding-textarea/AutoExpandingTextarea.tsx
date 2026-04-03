@@ -1,12 +1,22 @@
-import { useEffect, useRef } from "react";
+import cssVars from "@/react/lib/utils/cssVars";
+
+import useAutoExpandingTextarea from "./useAutoExpandingTextarea";
 
 type AutoExpandingTextareaProps = Readonly<{
 	value: string;
 	onChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+	onClick?: (event: React.MouseEvent<HTMLTextAreaElement>) => void;
+	onFocus?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
+	onKeyUp?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+	onSelect?: (event: React.SyntheticEvent<HTMLTextAreaElement>) => void;
 	placeholder?: string;
 	className?: string;
+	textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
 	minRows?: number;
 	maxRows?: number;
+	fillParentHeight?: boolean;
+	growWithContent?: boolean;
+	resizeOnExternalValueChange?: boolean;
 }>;
 
 const DEFAULT_MIN_ROWS = 2;
@@ -28,78 +38,58 @@ const FALLBACK_LINE_HEIGHT = 20;
 export default function AutoExpandingTextarea({
 	value,
 	onChange,
+	onClick,
+	onFocus,
+	onKeyUp,
+	onSelect,
 	placeholder,
 	className = "",
+	textareaRef: externalTextareaRef,
 	minRows = DEFAULT_MIN_ROWS,
 	maxRows = DEFAULT_MAX_ROWS,
+	fillParentHeight = false,
+	growWithContent = false,
+	resizeOnExternalValueChange = true,
 }: AutoExpandingTextareaProps): ReactElement {
-	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const { textareaRef, handleFocus, handleInput } = useAutoExpandingTextarea({
+		value,
+		minRows,
+		maxRows,
+		fillParentHeight,
+		growWithContent,
+		resizeOnExternalValueChange,
+	});
 
-	// Adjust height when value changes or on mount
-	useEffect(() => {
-		const textarea = textareaRef.current;
-		if (textarea === null) {
-			return;
+	const textareaStyle = cssVars({
+		// Fallback if line height calculation fails before JS resizes the element.
+		"auto-expanding-textarea-min-height": `${minRows * FALLBACK_LINE_HEIGHT}px`,
+	});
+
+	function handleTextareaRef(node: HTMLTextAreaElement | null): void {
+		textareaRef.current = node;
+		if (externalTextareaRef !== undefined) {
+			externalTextareaRef.current = node;
 		}
+	}
 
-		// Reset height to auto to get the correct scrollHeight
-		textarea.style.height = "auto";
-
-		// Calculate the line height
-		const style = globalThis.getComputedStyle(textarea);
-		const lineHeight = Number.parseInt(style.lineHeight, 10) || FALLBACK_LINE_HEIGHT;
-
-		// Calculate min and max heights
-		const minHeight = lineHeight * minRows;
-		const maxHeight = lineHeight * maxRows;
-
-		// Set the height based on content, but within min/max bounds
-		const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight);
-		textarea.style.height = `${newHeight}px`;
-
-		// Show scrollbar if content exceeds maxRows
-		textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
-	}, [value, minRows, maxRows]);
-
-	// Handle input events to adjust height in real-time
-	function handleInput(): void {
-		const textarea = textareaRef.current;
-		if (textarea === null) {
-			return;
-		}
-
-		// Reset height to auto to get the correct scrollHeight
-		textarea.style.height = "auto";
-
-		// Calculate the line height
-		const style = globalThis.getComputedStyle(textarea);
-		const lineHeight = Number.parseInt(style.lineHeight, 10) || FALLBACK_LINE_HEIGHT;
-
-		// Calculate min and max heights
-		const minHeight = lineHeight * minRows;
-		const maxHeight = lineHeight * maxRows;
-
-		// Set the height based on content, but within min/max bounds
-		const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight);
-		textarea.style.height = `${newHeight}px`;
-
-		// Show scrollbar if content exceeds maxRows
-		textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
+	function handleTextareaFocus(event: React.FocusEvent<HTMLTextAreaElement>): void {
+		handleFocus();
+		onFocus?.(event);
 	}
 
 	return (
 		<textarea
-			ref={textareaRef}
+			ref={handleTextareaRef}
 			value={value}
 			onChange={onChange}
 			placeholder={placeholder}
-			className={className}
-			style={{
-				resize: "none",
-				// fallback if line height calculation fails
-				minHeight: `${minRows * FALLBACK_LINE_HEIGHT}px`,
-			}}
+			className={`resize-none min-h-(--auto-expanding-textarea-min-height) ${className}`}
+			style={textareaStyle}
+			onFocus={handleTextareaFocus}
 			onInput={handleInput}
+			onClick={onClick}
+			onKeyUp={onKeyUp}
+			onSelect={onSelect}
 		/>
 	);
 }

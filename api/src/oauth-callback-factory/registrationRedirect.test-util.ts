@@ -2,7 +2,7 @@ import type { Env } from "@/api/env";
 /**
  * Test helpers for registrationRedirect tests.
  */
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 
 import type { RegistrationRedirectParams } from "./registrationRedirect";
 

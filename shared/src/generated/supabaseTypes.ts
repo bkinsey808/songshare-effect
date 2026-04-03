@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.4"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
@@ -1104,7 +1104,7 @@ export type Database = {
         Row: {
           created_at: string | null
           fields: string[]
-          key: string | null
+          key: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit: string | null
           public_notes: string | null
           scale: string | null
@@ -1120,7 +1120,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           fields: string[]
-          key?: string | null
+          key?: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit?: string | null
           public_notes?: string | null
           scale?: string | null
@@ -1136,7 +1136,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           fields?: string[]
-          key?: string | null
+          key?: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit?: string | null
           public_notes?: string | null
           scale?: string | null
@@ -1249,6 +1249,7 @@ export type Database = {
       }
       user: {
         Row: {
+          chord_display_mode: "letters" | "solfege" | "indian" | "german" | "roman"
           created_at: string
           email: string
           google_calendar_access: string
@@ -1264,6 +1265,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          chord_display_mode?: "letters" | "solfege" | "indian" | "german" | "roman"
           created_at?: string
           email: string
           google_calendar_access?: string
@@ -1279,6 +1281,7 @@ export type Database = {
           user_id?: string
         }
         Update: {
+          chord_display_mode?: "letters" | "solfege" | "indian" | "german" | "roman"
           created_at?: string
           email?: string
           google_calendar_access?: string

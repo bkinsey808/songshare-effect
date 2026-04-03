@@ -1,6 +1,8 @@
 import { Schema } from "effect";
 /* oxlint-disable import/exports-last, unicorn/no-array-method-this-argument */
 
+import { songKeys, type SongKey } from "@/shared/song/songKeyOptions";
+
 /** Minimum allowed characters for a song name (inclusive). */
 const NAME_MIN_LENGTH = 2;
 
@@ -127,7 +129,10 @@ export type Slide = Schema.Schema.Type<typeof slideSchema>;
  * Accepts `string` or `null`. Used for DB nullable string columns that are optional.
  */
 const nullableStringSchema: Schema.Schema<string | null> = Schema.Union(Schema.String, Schema.Null);
-
+const nullableSongKeySchema: Schema.Schema<SongKey | null> = Schema.Union(
+	Schema.Literal(...songKeys),
+	Schema.Null,
+);
 /**
  * Base schema for a public song payload from the DB.
  * Contains validated sub-schemas for `song_name`, `song_slug`, `slides`, and other fields.
@@ -140,7 +145,7 @@ const baseSongPublicSchema: Schema.Struct<{
 	fields: typeof songFieldsSchema;
 	slide_order: typeof slidesOrderSchema;
 	slides: typeof slidesSchema;
-	key: typeof nullableStringSchema;
+	key: typeof nullableSongKeySchema;
 	scale: typeof nullableStringSchema;
 	user_id: typeof Schema.String;
 	short_credit: typeof nullableStringSchema;
@@ -155,7 +160,7 @@ const baseSongPublicSchema: Schema.Struct<{
 	fields: songFieldsSchema,
 	slide_order: slidesOrderSchema,
 	slides: slidesSchema,
-	key: nullableStringSchema,
+	key: nullableSongKeySchema,
 	scale: nullableStringSchema,
 	user_id: Schema.String,
 	short_credit: nullableStringSchema,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import makeSupabaseAppMetadata from "@/shared/test-utils/makeSupabaseAppMetadata.test-util";
 

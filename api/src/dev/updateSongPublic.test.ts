@@ -3,7 +3,7 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import { HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_OK } from "@/shared/constants/http";
 
 import updateSongPublic from "./updateSongPublic";

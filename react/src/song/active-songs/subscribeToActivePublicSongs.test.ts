@@ -17,6 +17,8 @@ import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import subscribeToActivePublicSongs from "./subscribeToActivePublicSongs";
 
+const DB_NULL = forceCast<null>(JSON.parse("null"));
+
 // Mock the supabase client factory before importing the module under test
 vi.mock("@/react/lib/supabase/client/getSupabaseClientWithAuth");
 
@@ -161,7 +163,7 @@ describe("subscribeToActivePublicSongs", () => {
 			fields: ["lyrics" as const],
 			slide_order: [],
 			slides: {},
-			key: "",
+			key: DB_NULL,
 			scale: "",
 			user_id: "user-1",
 			short_credit: "",

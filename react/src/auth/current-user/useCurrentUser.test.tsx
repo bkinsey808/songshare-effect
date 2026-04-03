@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
+import { ChordDisplayMode } from "@/shared/user/chordDisplayMode";
 import { SlideNumberPreference } from "@/shared/user/slideNumberPreference";
 import { SlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
 import type { UserSessionData } from "@/shared/userSessionData";
@@ -45,6 +46,7 @@ function Harness(): ReactElement {
 	return (
 		<div data-testid="harness-root">
 			<div data-testid="is-signed-in">{String(currentUser !== undefined)}</div>
+			<div data-testid="chord-display-mode">{currentUser?.chordDisplayMode ?? ""}</div>
 			<div data-testid="email">{currentUser?.email ?? ""}</div>
 			<div data-testid="name">{currentUser?.name ?? ""}</div>
 			<div data-testid="role">{currentUser?.role ?? ""}</div>
@@ -80,6 +82,7 @@ describe("useCurrentUser — Harness", () => {
 		// Act
 		const { getByTestId } = render(<Harness />);
 		const renderedValues = {
+			chordDisplayMode: getByTestId("chord-display-mode").textContent,
 			email: getByTestId("email").textContent,
 			isSignedIn: getByTestId("is-signed-in").textContent,
 			name: getByTestId("name").textContent,
@@ -92,6 +95,7 @@ describe("useCurrentUser — Harness", () => {
 
 		// Assert
 		expect(renderedValues).toStrictEqual({
+			chordDisplayMode: ChordDisplayMode.roman,
 			email: USER_EMAIL,
 			isSignedIn: "true",
 			name: USER_NAME,
@@ -138,6 +142,7 @@ describe("useCurrentUser — renderHook", () => {
 
 		// Assert
 		expect(result.current).toStrictEqual({
+			chordDisplayMode: ChordDisplayMode.roman,
 			email: USER_EMAIL,
 			name: USER_NAME,
 			role: USER_ROLE,

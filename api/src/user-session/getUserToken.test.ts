@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import spyImport from "@/api/test-utils/spyImport";
 import makeSupabaseAppMetadata from "@/shared/test-utils/makeSupabaseAppMetadata.test-util";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import { TEST_USER_ID, TEST_VISITOR_ID } from "@/shared/test-utils/testUserConstants";

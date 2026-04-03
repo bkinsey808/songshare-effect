@@ -52,6 +52,7 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 					currentSlide={currentSlide}
 					currentSlideIndex={clampedIndex}
 					displayFields={displayFields}
+					songKey={songPublic.key}
 					totalSlides={totalSlides}
 				/>
 			</section>
@@ -115,6 +116,7 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 							currentSlideIndex={clampedIndex}
 							displayFields={displayFields}
 							isFullScreen
+							songKey={songPublic.key}
 							totalSlides={totalSlides}
 						/>
 					</div>

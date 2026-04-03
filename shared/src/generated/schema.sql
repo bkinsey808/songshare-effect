@@ -2,9 +2,9 @@
 -- PostgreSQL database dump
 --
 
-\restrict WwXgp0t4HUl1tf6xQTmVUtm2nScrQejKLiIHXZjfTTMTcAupSDGVV9OakHFL8qq
+\restrict sdslOjyyD6HWixznlbjMhuVtjsC0U6PKKWSW22tkaiBthWVsUgyemdbGSf6PuWc
 
--- Dumped from database version 17.6
+-- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
 
 SET statement_timeout = 0;
@@ -80,39 +80,6 @@ BEGIN
     WHERE community_id = p_community_id
     AND owner_id = p_user_id
   );
-END;
-$$;
-
-
---
--- Name: rls_auto_enable(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.rls_auto_enable() RETURNS event_trigger
-    LANGUAGE plpgsql SECURITY DEFINER
-    SET search_path TO 'pg_catalog'
-    AS $$
-DECLARE
-  cmd record;
-BEGIN
-  FOR cmd IN
-    SELECT *
-    FROM pg_event_trigger_ddl_commands()
-    WHERE command_tag IN ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
-      AND object_type IN ('table','partitioned table')
-  LOOP
-     IF cmd.schema_name IS NOT NULL AND cmd.schema_name IN ('public') AND cmd.schema_name NOT IN ('pg_catalog','information_schema') AND cmd.schema_name NOT LIKE 'pg_toast%' AND cmd.schema_name NOT LIKE 'pg_temp%' THEN
-      BEGIN
-        EXECUTE format('alter table if exists %s enable row level security', cmd.object_identity);
-        RAISE LOG 'rls_auto_enable: enabled RLS on %', cmd.object_identity;
-      EXCEPTION
-        WHEN OTHERS THEN
-          RAISE LOG 'rls_auto_enable: failed to enable RLS on %', cmd.object_identity;
-      END;
-     ELSE
-        RAISE LOG 'rls_auto_enable: skip % (either system schema or not in enforced list: %.)', cmd.object_identity, cmd.schema_name;
-     END IF;
-  END LOOP;
 END;
 $$;
 
@@ -1202,6 +1169,7 @@ CREATE TABLE public.song_public (
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
     CONSTRAINT song_name_format CHECK (((length(song_name) >= 2) AND (length(song_name) <= 100) AND (song_name = btrim(song_name)) AND (POSITION(('  '::text) IN (song_name)) = 0))),
+    CONSTRAINT song_public_key_allowed_values CHECK (((key IS NULL) OR (key = ANY (ARRAY['C'::text, 'C#'::text, 'Db'::text, 'D'::text, 'D#'::text, 'Eb'::text, 'E'::text, 'F'::text, 'F#'::text, 'Gb'::text, 'G'::text, 'G#'::text, 'Ab'::text, 'A'::text, 'A#'::text, 'Bb'::text, 'B'::text])))),
     CONSTRAINT song_slug_format CHECK (((song_slug ~ '^[a-z0-9-]+$'::text) AND (song_slug !~ '-%'::text) AND (song_slug !~ '%-'::text) AND (POSITION(('--'::text) IN (song_slug)) = 0)))
 );
 
@@ -1313,6 +1281,8 @@ CREATE TABLE public."user" (
     linked_providers text[],
     slide_orientation_preference text DEFAULT 'system'::text NOT NULL,
     slide_number_preference text DEFAULT 'hide'::text NOT NULL,
+    chord_display_mode text DEFAULT 'letters'::text NOT NULL,
+    CONSTRAINT user_chord_display_mode_check CHECK ((chord_display_mode = ANY (ARRAY['letters'::text, 'solfege'::text, 'indian'::text, 'german'::text, 'roman'::text]))),
     CONSTRAINT user_role_check CHECK ((role = ANY (ARRAY['free'::text, 'patron'::text, 'admin'::text]))),
     CONSTRAINT user_slide_number_preference_check CHECK ((slide_number_preference = ANY (ARRAY['show'::text, 'hide'::text]))),
     CONSTRAINT user_slide_orientation_preference_check CHECK ((slide_orientation_preference = ANY (ARRAY['landscape'::text, 'portrait'::text, 'system'::text])))
@@ -1333,6 +1303,13 @@ COMMENT ON COLUMN public."user".slide_orientation_preference IS 'Global slide or
 --
 
 COMMENT ON COLUMN public."user".slide_number_preference IS 'Global slide number preference for the signed-in user: show or hide.';
+
+
+--
+-- Name: COLUMN "user".chord_display_mode; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public."user".chord_display_mode IS 'Global chord display mode for the signed-in user: letters, solfege, indian, german, or roman.';
 
 
 --
@@ -3622,5 +3599,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict WwXgp0t4HUl1tf6xQTmVUtm2nScrQejKLiIHXZjfTTMTcAupSDGVV9OakHFL8qq
+\unrestrict sdslOjyyD6HWixznlbjMhuVtjsC0U6PKKWSW22tkaiBthWVsUgyemdbGSf6PuWc
 

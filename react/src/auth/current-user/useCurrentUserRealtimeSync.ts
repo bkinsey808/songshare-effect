@@ -7,6 +7,7 @@ import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAut
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 import isRecord from "@/shared/type-guards/isRecord";
+import { coerceChordDisplayMode } from "@/shared/user/chordDisplayMode";
 import { coerceSlideNumberPreference } from "@/shared/user/slideNumberPreference";
 import { coerceSlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
 
@@ -56,6 +57,13 @@ export default function useCurrentUserRealtimeSync(): void {
 							updateUserSessionUser({
 								slide_orientation_preference:
 									coerceSlideOrientationPreference(nextSlideOrientation),
+							});
+						}
+
+						const nextChordDisplayMode = payload["new"]["chord_display_mode"];
+						if (typeof nextChordDisplayMode === "string") {
+							updateUserSessionUser({
+								chord_display_mode: coerceChordDisplayMode(nextChordDisplayMode),
 							});
 						}
 

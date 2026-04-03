@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-03-30T18:42:27.666Z
+ * Last generated: 2026-04-02T21:25:30.111Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -1343,7 +1343,7 @@ export type SongLibraryUpdate = Schema.Schema.Type<
 export const SongPublicSchema: Schema.Struct<{
 	created_at: Schema.optional<typeof Schema.String>;
 	fields: Schema.Array$<typeof Schema.String>;
-	key: Schema.optional<typeof Schema.String>;
+	key: Schema.optional<Schema.Literal<["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"]>>;
 	long_credit: Schema.optional<typeof Schema.String>;
 	public_notes: Schema.optional<typeof Schema.String>;
 	scale: Schema.optional<typeof Schema.String>;
@@ -1358,7 +1358,7 @@ export const SongPublicSchema: Schema.Struct<{
 }> = Schema.Struct({
 	created_at: Schema.optional(Schema.String),
 	fields: Schema.Array(Schema.String),
-	key: Schema.optional(Schema.String),
+	key: Schema.optional(Schema.Literal("C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B")),
 	long_credit: Schema.optional(Schema.String),
 	public_notes: Schema.optional(Schema.String),
 	scale: Schema.optional(Schema.String),
@@ -1376,7 +1376,7 @@ export type SongPublic = Schema.Schema.Type<typeof SongPublicSchema>;
 
 export const SongPublicInsertSchema: Schema.Struct<{
 	fields: Schema.Array$<typeof Schema.String>;
-	key: Schema.optional<typeof Schema.String>;
+	key: Schema.optional<Schema.Literal<["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"]>>;
 	long_credit: Schema.optional<typeof Schema.String>;
 	public_notes: Schema.optional<typeof Schema.String>;
 	scale: Schema.optional<typeof Schema.String>;
@@ -1389,7 +1389,7 @@ export const SongPublicInsertSchema: Schema.Struct<{
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
 	fields: Schema.Array(Schema.String),
-	key: Schema.optional(Schema.String),
+	key: Schema.optional(Schema.Literal("C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B")),
 	long_credit: Schema.optional(Schema.String),
 	public_notes: Schema.optional(Schema.String),
 	scale: Schema.optional(Schema.String),
@@ -1408,7 +1408,7 @@ export type SongPublicInsert = Schema.Schema.Type<
 
 export const SongPublicUpdateSchema: Schema.Struct<{
 	fields: Schema.optional<Schema.Array$<typeof Schema.String>>;
-	key: Schema.optional<typeof Schema.String>;
+	key: Schema.optional<Schema.Literal<["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"]>>;
 	long_credit: Schema.optional<typeof Schema.String>;
 	public_notes: Schema.optional<typeof Schema.String>;
 	scale: Schema.optional<typeof Schema.String>;
@@ -1421,7 +1421,7 @@ export const SongPublicUpdateSchema: Schema.Struct<{
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
 	fields: Schema.optional(Schema.Array(Schema.String)),
-	key: Schema.optional(Schema.String),
+	key: Schema.optional(Schema.Literal("C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B")),
 	long_credit: Schema.optional(Schema.String),
 	public_notes: Schema.optional(Schema.String),
 	scale: Schema.optional(Schema.String),
@@ -1537,6 +1537,7 @@ export type TagLibraryUpdate = Schema.Schema.Type<
 
 // user table schemas
 export const UserSchema: Schema.Struct<{
+	chord_display_mode: Schema.Literal<["letters", "solfege", "indian", "german", "roman"]>;
 	created_at: typeof Schema.NonEmptyString;
 	email: typeof EmailSchema;
 	google_calendar_access: typeof Schema.NonEmptyString;
@@ -1551,6 +1552,7 @@ export const UserSchema: Schema.Struct<{
 	updated_at: typeof Schema.NonEmptyString;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
+	chord_display_mode: Schema.Literal("letters", "solfege", "indian", "german", "roman"),
 	created_at: Schema.NonEmptyString,
 	email: EmailSchema,
 	google_calendar_access: Schema.NonEmptyString,
@@ -1569,6 +1571,7 @@ export const UserSchema: Schema.Struct<{
 export type User = Schema.Schema.Type<typeof UserSchema>;
 
 export const UserInsertSchema: Schema.Struct<{
+	chord_display_mode: Schema.optional<Schema.Literal<["letters", "solfege", "indian", "german", "roman"]>>;
 	email: typeof EmailSchema;
 	google_calendar_access: Schema.optional<typeof Schema.NonEmptyString>;
 	google_calendar_refresh_token: Schema.optional<typeof Schema.String>;
@@ -1581,6 +1584,7 @@ export const UserInsertSchema: Schema.Struct<{
 	sub: Schema.optional<typeof Schema.String>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
+	chord_display_mode: Schema.optional(Schema.Literal("letters", "solfege", "indian", "german", "roman")),
 	email: EmailSchema,
 	google_calendar_access: Schema.optional(Schema.NonEmptyString),
 	google_calendar_refresh_token: Schema.optional(Schema.String),
@@ -1597,6 +1601,7 @@ export const UserInsertSchema: Schema.Struct<{
 export type UserInsert = Schema.Schema.Type<typeof UserInsertSchema>;
 
 export const UserUpdateSchema: Schema.Struct<{
+	chord_display_mode: Schema.optional<Schema.Literal<["letters", "solfege", "indian", "german", "roman"]>>;
 	email: Schema.optional<typeof EmailSchema>;
 	google_calendar_access: Schema.optional<typeof Schema.NonEmptyString>;
 	google_calendar_refresh_token: Schema.optional<typeof Schema.String>;
@@ -1609,6 +1614,7 @@ export const UserUpdateSchema: Schema.Struct<{
 	sub: Schema.optional<typeof Schema.String>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
+	chord_display_mode: Schema.optional(Schema.Literal("letters", "solfege", "indian", "german", "roman")),
 	email: Schema.optional(EmailSchema),
 	google_calendar_access: Schema.optional(Schema.NonEmptyString),
 	google_calendar_refresh_token: Schema.optional(Schema.String),

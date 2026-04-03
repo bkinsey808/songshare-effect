@@ -61,6 +61,7 @@ import {
 	apiSongsSavePath,
 	apiUploadPath,
 	apiUserLibraryAddPath,
+	apiUserChordDisplayModePath,
 	apiUserLibraryLookupPath,
 	apiUserLibraryRemovePath,
 	apiUserSlideNumberPreferencePath,
@@ -134,6 +135,7 @@ import addUserToLibraryHandler from "./user-library/addUserToLibrary";
 import lookupUserByUsernameHandler from "./user-library/lookupUserByUsername";
 import removeUserFromLibraryHandler from "./user-library/removeUserFromLibrary";
 import getUserToken from "./user-session/getUserToken";
+import updateChordDisplayMode from "./user/updateChordDisplayMode";
 import updateSlideNumberPreference from "./user/updateSlideNumberPreference";
 import updateSlideOrientationPreference from "./user/updateSlideOrientationPreference";
 
@@ -200,6 +202,7 @@ app.post(
 	handleHttpEndpoint(updateSlideOrientationPreference),
 );
 app.post(apiUserSlideNumberPreferencePath, handleHttpEndpoint(updateSlideNumberPreference));
+app.post(apiUserChordDisplayModePath, handleHttpEndpoint(updateChordDisplayMode));
 
 // Share endpoints
 app.post(apiShareCreatePath, handleHttpEndpoint(shareCreateHandler));

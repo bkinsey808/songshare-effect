@@ -54,6 +54,24 @@ CREATE TABLE public."user" (
 		});
 	});
 
+	it("extracts nullable enum-like checks that allow null or ANY array values", () => {
+		const schemaSql = `
+CREATE TABLE public.song_public (
+    song_id uuid NOT NULL,
+    key text,
+    CONSTRAINT song_public_key_allowed_values CHECK (((key IS NULL) OR (key = ANY (ARRAY['C'::text, 'C#'::text, 'Bb'::text]))))
+);
+`;
+
+		const result = parseSchemaConstraints(schemaSql);
+
+		expect(result).toStrictEqual({
+			song_public: {
+				key: ["C", "C#", "Bb"],
+			},
+		});
+	});
+
 	it("ignores tables without matching array check constraints", () => {
 		// Arrange
 		const schemaSql = `

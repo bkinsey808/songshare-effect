@@ -1,10 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
 import type { SongPublic } from "@/react/song/song-schema";
 
 import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import updateStoreWithPublicSongs from "./updateStoreWithPublicSongs";
+
+const DB_NULL = forceCast<null>(JSON.parse("null"));
 
 /**
  * Create a minimal {@link SongSubscribeSlice} for tests.
@@ -50,7 +53,7 @@ describe("updateStoreWithPublicSongs", () => {
 				fields: ["lyrics" as const],
 				slide_order: [],
 				slides: {},
-				key: "",
+				key: DB_NULL,
 				scale: "",
 				user_id: "u1",
 				short_credit: "",
@@ -66,7 +69,7 @@ describe("updateStoreWithPublicSongs", () => {
 				fields: ["lyrics" as const],
 				slide_order: [],
 				slides: {},
-				key: "",
+				key: DB_NULL,
 				scale: "",
 				user_id: "u1",
 				short_credit: "",
@@ -116,7 +119,7 @@ describe("updateStoreWithPublicSongs", () => {
 				fields: ["lyrics" as const],
 				slide_order: [],
 				slides: {},
-				key: "",
+				key: DB_NULL,
 				scale: "",
 				user_id: "u1",
 				short_credit: "",

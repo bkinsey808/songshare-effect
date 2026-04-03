@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import { HTTP_BAD_REQUEST } from "@/shared/constants/http";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 

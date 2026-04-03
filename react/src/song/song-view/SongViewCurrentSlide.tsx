@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import FocalPointCoverImage from "@/react/image/focal-point/FocalPointCoverImage";
+import type { SongKey } from "@/shared/song/songKeyOptions";
 import { ResolvedSlideOrientation } from "@/shared/user/slideOrientationPreference";
 
 import useSongViewCurrentSlide from "./useSongViewCurrentSlide";
@@ -20,6 +21,7 @@ type SongViewCurrentSlideProps = Readonly<{
 	currentSlideIndex: number;
 	displayFields: readonly string[];
 	isFullScreen?: boolean;
+	songKey?: SongKey | "" | null | undefined;
 	totalSlides: number;
 }>;
 
@@ -40,6 +42,7 @@ export default function SongViewCurrentSlide({
 	currentSlideIndex,
 	displayFields,
 	isFullScreen = false,
+	songKey,
 	totalSlides,
 }: SongViewCurrentSlideProps): ReactElement | undefined {
 	const { t } = useTranslation();
@@ -57,6 +60,7 @@ export default function SongViewCurrentSlide({
 		slideNameStr,
 	} = useSongViewCurrentSlide({
 		currentSlide,
+		...(songKey === undefined ? {} : { songKey }),
 		totalSlides,
 	});
 	const slideStyle: React.CSSProperties | undefined = isFullScreen
@@ -94,11 +98,7 @@ export default function SongViewCurrentSlide({
 	}
 
 	return (
-		<div
-			className={slideClassName}
-			style={slideStyle}
-			data-testid="song-current-slide"
-		>
+		<div className={slideClassName} style={slideStyle} data-testid="song-current-slide">
 			{backgroundImageUrl !== undefined && (
 				<div className={backgroundFrameClassName} aria-hidden="true">
 					<FocalPointCoverImage

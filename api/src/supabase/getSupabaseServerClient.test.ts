@@ -1,7 +1,7 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 
 import getSupabaseServerClient from "./getSupabaseServerClient";
 

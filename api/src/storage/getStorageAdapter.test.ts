@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 
-import makeFakeSupabaseClient from "@/react/lib/supabase/client/test-util";
+import makeFakeSupabaseClient from "@/api/test-utils/makeFakeSupabaseClient.test-util";
 
 import type { Bindings } from "../env";
 import createR2Adapter from "./createR2Adapter";

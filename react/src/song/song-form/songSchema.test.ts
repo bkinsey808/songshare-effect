@@ -9,6 +9,7 @@ describe("songSchema", () => {
 		it("has expected field names", () => {
 			expect(songFormFields).toContain("song_id");
 			expect(songFormFields).toContain("song_name");
+			expect(songFormFields).toContain("key");
 			expect(songFormFields).toContain("tags");
 			expect(songFormFields).toContain("slides");
 		});
@@ -48,6 +49,7 @@ describe("songSchema", () => {
 			const input = {
 				song_name: "My Song",
 				song_slug: "my-song",
+				key: "Bb",
 				fields: ["verse", "chorus"],
 				slide_order: ["s1", "s2"],
 				tags: ["worship", "fast"],
@@ -58,10 +60,23 @@ describe("songSchema", () => {
 
 			expect(result.song_name).toBe("My Song");
 			expect(result.song_slug).toBe("my-song");
-			expect(result.fields).toStrictEqual(["verse", "chorus"]);
+			expect(result.key).toBe("Bb");
 			expect(result.slide_order).toStrictEqual(["s1", "s2"]);
 			expect(result.tags).toStrictEqual(["worship", "fast"]);
 			expect(result.slides["s1"]?.slide_name).toBe("Verse");
+		});
+
+		it("throws when key is not in the allowed list", () => {
+			const input = {
+				song_name: "My Song",
+				song_slug: "my-song",
+				key: "H",
+				fields: [],
+				slide_order: [],
+				slides: {},
+			} as unknown;
+
+			expect(() => decodeUnknownSyncOrThrow(songFormSchema, input)).toThrow(/key|literal|decode/i);
 		});
 
 		it("throws when song_name is missing", () => {

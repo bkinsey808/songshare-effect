@@ -6,7 +6,7 @@ import { AuthenticationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 import getVerifiedSession from "@/api/user-session/getVerifiedSession";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
@@ -79,6 +79,75 @@ describe("songSave handler", () => {
 
 		// Assert
 		expect(res).toStrictEqual({ song_id: "new", user_id: SAMPLE_USER_ID });
+	});
+
+	it("persists an allowed key when creating a song", async () => {
+		initDefaultMocks();
+		const ctx = makeCtx({
+			body: {
+				song_name: "n",
+				song_slug: "s",
+				key: "Bb",
+				fields: [],
+				slide_order: [],
+				slides: {},
+			},
+		});
+
+		const songPublicInsert = vi.fn((rows: unknown[]) => {
+			const [firstRow] = rows;
+			return {
+				select: (): {
+					single: () => Promise<{ data: unknown; error: undefined }>;
+				} => ({
+					single: (): Promise<{ data: unknown; error: undefined }> =>
+						promiseResolved({ data: firstRow, error: undefined }),
+				}),
+			};
+		});
+		const baseClient = makeSupabaseClient({
+			songInsertRows: [{ song_id: "new", user_id: SAMPLE_USER_ID }],
+		});
+		const songPublicTable = {
+			select: (
+				_cols: string,
+			): {
+				eq: (
+					_field: string,
+					_val: string,
+				) => {
+					single: () => Promise<{ data: undefined; error: undefined }>;
+				};
+			} => ({
+				eq: (
+					_field: string,
+					_val: string,
+				): {
+					single: () => Promise<{ data: undefined; error: undefined }>;
+				} => ({
+					single: (): Promise<{ data: undefined; error: undefined }> =>
+						promiseResolved({ data: undefined, error: undefined }),
+				}),
+			}),
+			insert: songPublicInsert,
+		};
+		const tableOverrides: Record<string, unknown> = {
+			song: baseClient.from("song"),
+			song_public: songPublicTable,
+			song_library: baseClient.from("song_library"),
+		};
+		const fake = forceCast<ReturnType<typeof createClient>>({
+			from: (table: string): unknown => tableOverrides[table],
+		});
+		vi.mocked(createClient).mockReturnValue(fake);
+
+		await Effect.runPromise(songSave(ctx));
+
+		expect(songPublicInsert).toHaveBeenCalledWith([
+			expect.objectContaining({
+				key: "Bb",
+			}),
+		]);
 	});
 
 	it("fails update when user does not own the song", async () => {
@@ -185,6 +254,22 @@ describe("songSave handler", () => {
 
 		// Act & Assert
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/Expected/);
+	});
+
+	it("rejects a key outside the allowed list", async () => {
+		initDefaultMocks();
+		const ctx = makeCtx({
+			body: {
+				song_name: "n",
+				song_slug: "s",
+				key: "H",
+				fields: [],
+				slide_order: [],
+				slides: {},
+			},
+		});
+
+		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/key|Expected|Validation/i);
 	});
 
 	it("fails when private insert errors", async () => {

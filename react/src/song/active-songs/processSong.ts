@@ -1,6 +1,7 @@
 import { Schema } from "effect";
 
 import { songPublicSchema, type SongPublic } from "@/react/song/song-schema";
+import { isSongKey } from "@/shared/song/songKeyOptions";
 import isRecord from "@/shared/type-guards/isRecord";
 
 /**
@@ -130,7 +131,8 @@ export default function processSong(song: unknown, out: Record<string, SongPubli
 			fields: normalizedFields,
 			slide_order: slideOrder,
 			slides: normalizedSlides,
-			key: typeof song["key"] === "string" ? song["key"] : "",
+			/* oxlint-disable-next-line unicorn/no-null */
+			key: isSongKey(song["key"]) ? song["key"] : null,
 			scale: typeof song["scale"] === "string" ? song["scale"] : "",
 			user_id: userId,
 			short_credit: typeof song["short_credit"] === "string" ? song["short_credit"] : "",
@@ -190,7 +192,8 @@ export default function processSong(song: unknown, out: Record<string, SongPubli
 			const longCredit = typeof song["long_credit"] === "string" ? song["long_credit"] : "";
 			const publicNotes = typeof song["public_notes"] === "string" ? song["public_notes"] : "";
 			const userId2 = typeof song["user_id"] === "string" ? song["user_id"] : "";
-			const key = typeof song["key"] === "string" ? song["key"] : "";
+			/* oxlint-disable-next-line unicorn/no-null */
+			const key = isSongKey(song["key"]) ? song["key"] : null;
 			const scale = typeof song["scale"] === "string" ? song["scale"] : "";
 			const createdAt =
 				typeof song["created_at"] === "string" ? song["created_at"] : new Date().toISOString();
@@ -239,7 +242,8 @@ export default function processSong(song: unknown, out: Record<string, SongPubli
 						field_data: minimalFieldData,
 					},
 				},
-				key: "",
+				/* oxlint-disable-next-line unicorn/no-null */
+				key: null,
 				scale: "",
 				user_id: userId2,
 				short_credit: shortCredit,

@@ -29,6 +29,7 @@ type DerivedEventViewState = {
 	isOwner: boolean;
 	shouldShowActions: boolean;
 	activeSongName: string | undefined;
+	activeSongKey: SongPublic["key"] | undefined;
 	activeSlidePosition: number | undefined;
 	activeSlideName: string | undefined;
 	activeSlide: SongPublic["slides"][string] | undefined;
@@ -80,6 +81,7 @@ export default function deriveEventViewState(
 		eventPublic?.active_song_id !== undefined && eventPublic.active_song_id !== null
 			? publicSongs[eventPublic.active_song_id]
 			: undefined;
+	const activeSongKey = activeSong?.key ?? undefined;
 	const activeSlideId =
 		activeSong !== undefined && activeSlidePosition !== undefined
 			? activeSong.slide_order?.[activeSlidePosition - FIRST_POSITION]
@@ -118,6 +120,7 @@ export default function deriveEventViewState(
 		isOwner,
 		shouldShowActions,
 		activeSongName,
+		activeSongKey,
 		activeSlidePosition,
 		activeSlideName,
 		activeSlide,

@@ -93,6 +93,33 @@ function validateSong(data: unknown): Effect.Effect<Song, ValidationError> {
 }
 ```
 
+### 3b. Add JSDoc To Functions You Introduce
+
+When you add or materially change a named function in this repo, prefer adding JSDoc even for
+non-exported helpers:
+
+```typescript
+/**
+ * Maps the raw response into the lightweight shape used by the picker list.
+ *
+ * @param response - raw API response object
+ * @returns simplified picker options
+ */
+function mapPickerOptions(response: ApiResponse): PickerOption[] {
+	// ...
+}
+```
+
+This is especially important for:
+
+- helper functions
+- local utility functions
+- test helpers
+- hook-internal handlers with non-obvious behavior
+
+Keep the JSDoc concise, omit type annotations, and document the purpose rather than restating the
+implementation.
+
 ### 4. Ambient Types
 
 Some types don't need to be imported (they're globally available):

@@ -5,12 +5,16 @@ import FormInput from "@/react/lib/design-system/form/FormInput";
 import FormSection from "@/react/lib/design-system/form/FormSection";
 import FormTextarea from "@/react/lib/design-system/form/FormTextarea";
 import TagInput from "@/react/tag/input/TagInput";
+import type { SongKey } from "@/shared/song/songKeyOptions";
+
+import SongKeyFormField from "./SongKeyFormField";
 
 type SongFormFieldsProps = Readonly<{
 	getFieldError: (
 		fieldName: keyof {
 			song_name: string;
 			song_slug: string;
+			key?: SongKey;
 			short_credit?: string;
 			long_credit?: string;
 		},
@@ -21,12 +25,16 @@ type SongFormFieldsProps = Readonly<{
 	formValues: {
 		song_name: string;
 		song_slug: string;
+		key: SongKey | "";
 		short_credit: string;
 		long_credit: string;
 		public_notes: string;
 		private_notes: string;
 	};
-	setFormValue: (field: keyof SongFormFieldsProps["formValues"], value: string) => void;
+	setFormValue: <Field extends keyof SongFormFieldsProps["formValues"]>(
+		field: Field,
+		value: SongFormFieldsProps["formValues"][Field],
+	) => void;
 	tags: readonly string[];
 	setTags: (tags: string[]) => void;
 }>;
@@ -116,6 +124,14 @@ export default function SongFormFields({
 					onChange={handleSongSlugChange}
 				/>
 			</FormField>
+
+			<SongKeyFormField
+				getFieldError={getFieldError}
+				value={formValues.key}
+				onChange={(nextValue) => {
+					setFormValue("key", nextValue);
+				}}
+			/>
 
 			<FormField
 				label={t("song.shortCredit", "Short Credit")}

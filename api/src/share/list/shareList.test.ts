@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { AuthenticationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
-import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
+import spyImport from "@/api/test-utils/spyImport";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import type { UserSessionData } from "@/shared/userSessionData";
 

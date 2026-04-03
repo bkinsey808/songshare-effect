@@ -59,6 +59,7 @@ export default function useSongForm(): UseSongFormReturn {
 	const [formValues, setFormValuesState] = useState<SongFormValues>({
 		song_name: "",
 		song_slug: "",
+		key: "",
 		short_credit: "",
 		long_credit: "",
 		public_notes: "",
@@ -66,7 +67,10 @@ export default function useSongForm(): UseSongFormReturn {
 	});
 
 	// Helper to update form values
-	function setFormValue(field: keyof typeof formValues, value: string): void {
+	function setFormValue<Field extends keyof SongFormValues>(
+		field: Field,
+		value: SongFormValues[Field],
+	): void {
 		setFormValuesState((prev) => ({ ...prev, [field]: value }));
 		// React will update the DOM automatically via the value prop
 		// But we also update the DOM element for form submission compatibility
@@ -264,9 +268,10 @@ export default function useSongForm(): UseSongFormReturn {
 	// Wrapper for resetForm that also resets form values
 	function resetForm(): void {
 		const newFirstId = resetFormState();
-		const emptyFormValues = {
+		const emptyFormValues: SongFormValues = {
 			song_name: "",
 			song_slug: "",
+			key: "",
 			short_credit: "",
 			long_credit: "",
 			public_notes: "",

@@ -3,7 +3,7 @@
  */
 import type { createClient } from "@supabase/supabase-js";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 

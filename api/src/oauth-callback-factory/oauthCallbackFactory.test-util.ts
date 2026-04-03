@@ -4,7 +4,7 @@
 import type { Schema } from "effect";
 
 import type { ReadonlySupabaseClient } from "@/api/supabase/ReadonlySupabaseClient.type";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import type { UserSchema } from "@/shared/generated/supabaseSchemas";
 import type { OauthState } from "@/shared/oauth/oauthState";
 import type { OauthUserData } from "@/shared/oauth/oauthUserData";

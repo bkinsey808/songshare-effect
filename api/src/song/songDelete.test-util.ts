@@ -3,7 +3,7 @@
  */
 import type { createClient } from "@supabase/supabase-js";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 
 type DeleteResponse = { data?: unknown; error?: unknown };
 type DeleteHandler = (...args: unknown[]) => Promise<unknown>;

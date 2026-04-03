@@ -7,7 +7,7 @@ import { songFields } from "@/react/song/song-schema";
 import { ONE } from "@/shared/constants/shared-constants";
 import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
-import { type Slide } from "../song-form-types";
+import { type OpenChordPicker, type Slide } from "../song-form-types";
 import SlideDetailCard from "./slide-detail-card/SlideDetailCard";
 import useSlidesEditor from "./useSlidesEditor";
 
@@ -19,8 +19,13 @@ type SlidesEditorProps = Readonly<
 		setSlideOrder: (newOrder: readonly string[]) => void;
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
+		openChordPicker?: OpenChordPicker;
 	}>
 >;
+
+function noopOpenChordPicker(): void {
+	return undefined;
+}
 
 /**
  * Slides editor UI that renders slide detail cards and per-field editors.
@@ -41,6 +46,7 @@ export default function SlidesEditor({
 	setSlideOrder,
 	slides,
 	setSlides,
+	openChordPicker = noopOpenChordPicker,
 }: SlidesEditorProps): ReactElement {
 	const { t } = useTranslation();
 
@@ -109,6 +115,7 @@ export default function SlidesEditor({
 							fields={fields}
 							slideOrder={slideOrder}
 							slides={slides}
+							openChordPicker={openChordPicker}
 							confirmingDeleteSlideId={confirmingDeleteSlideId}
 							setConfirmingDeleteSlideId={setConfirmingDeleteSlideId}
 							backgroundPickerSlideId={backgroundPickerSlideId}

@@ -3,7 +3,7 @@ import type { Context } from "hono";
 import { describe, expect, it, vi } from "vitest";
 
 import type { Bindings } from "@/api/env";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import {
 	HTTP_BAD_REQUEST,
 	HTTP_INTERNAL,

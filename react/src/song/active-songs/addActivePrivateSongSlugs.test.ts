@@ -1,8 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
+
 import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import addActivePrivateSongSlugs from "./addActivePrivateSongSlugs";
+
+const DB_NULL = forceCast<null>(JSON.parse("null"));
 
 function makeGetWithActiveSlug(): SongSubscribeSlice {
 	const get = makeSongSubscribeSlice({
@@ -14,7 +18,7 @@ function makeGetWithActiveSlug(): SongSubscribeSlice {
 				fields: ["lyrics", "script", "enTranslation"],
 				slide_order: [],
 				slides: {},
-				key: "",
+				key: DB_NULL,
 				scale: "",
 				user_id: "",
 				short_credit: "",

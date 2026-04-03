@@ -5,7 +5,7 @@ import makeCtx from "@/api/hono/makeCtx.test-util";
 import addPlaylistSongsToUserLibrary from "@/api/playlist-library/addPlaylistSongsToUserLibrary";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import type { UserSessionData } from "@/shared/userSessionData";
 

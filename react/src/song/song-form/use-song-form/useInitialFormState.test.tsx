@@ -1,11 +1,13 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import type { SongFormValues } from "../song-form-types";
 import useInitialFormState from "./useInitialFormState";
 
-const DEFAULT_FORM_VALUES = {
+const DEFAULT_FORM_VALUES: SongFormValues = {
 	song_name: "Test",
 	song_slug: "test",
+	key: "",
 	short_credit: "",
 	long_credit: "",
 	public_notes: "",

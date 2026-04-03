@@ -20,6 +20,7 @@ export default function EventSlideShowView(): React.ReactNode {
 		eventPublic,
 		canViewSlides,
 		activeSlide,
+		activeSongKey,
 		activeSlideDisplayFields,
 		isTopBarVisible,
 		slideContainerClassName,
@@ -94,6 +95,7 @@ export default function EventSlideShowView(): React.ReactNode {
 					currentSlide={activeSlide}
 					currentSlideIndex={0}
 					displayFields={activeSlideDisplayFields}
+					songKey={activeSongKey}
 					totalSlides={1}
 				/>
 			</div>

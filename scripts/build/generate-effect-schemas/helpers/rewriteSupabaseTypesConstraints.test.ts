@@ -66,6 +66,45 @@ describe("rewriteSupabaseTypesConstraints", () => {
 		}
 	});
 
+	it("rewrites nullable constrained string columns to literal unions plus null", () => {
+		const filePath = createTempFilePath("supabaseTypes.ts");
+		const initialContent = `export type Database = {
+  public: {
+    Tables: {
+      song_public: {
+        Row: {
+          key: string | null
+        }
+        Insert: {
+          key?: string | null
+        }
+        Update: {
+          key?: string | null
+        }
+      }
+    }
+  }
+};
+`;
+		const constraintMap = {
+			song_public: {
+				key: ["C", "C#", "Bb"],
+			},
+		};
+
+		try {
+			writeFileSync(filePath, initialContent, "utf8");
+
+			rewriteSupabaseTypesConstraints(filePath, constraintMap);
+			const result = readFileSync(filePath, "utf8");
+
+			expect(result).toContain('key: "C" | "C#" | "Bb" | null');
+			expect(result).toContain('key?: "C" | "C#" | "Bb" | null');
+		} finally {
+			removeTempDirectoryForFile(filePath);
+		}
+	});
+
 	it("rewrites multiple constrained columns across multiple tables", () => {
 		// Arrange
 		const filePath = createTempFilePath("supabaseTypes.ts");

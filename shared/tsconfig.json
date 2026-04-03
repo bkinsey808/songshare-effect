@@ -9,6 +9,6 @@
 		"declaration": true,
 		"declarationMap": true
 	},
-	"include": ["**/*"],
+	"include": ["**/*", "**/*.json"],
 	"exclude": ["node_modules", "dist"]
 }

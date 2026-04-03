@@ -5,7 +5,7 @@ import { ValidationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import fetchAndParseOauthUserData from "@/api/oauth/fetchAndParseOauthUserData";
 import getUserByEmail from "@/api/user/getUserByEmail";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 
 import fetchAndPrepareUser from "./fetchAndPrepareUser";
 

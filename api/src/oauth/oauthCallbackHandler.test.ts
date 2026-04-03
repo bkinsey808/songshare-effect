@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import handleHttpEndpoint from "@/api/http/handleHttpEndpoint";
-import forceCast from "@/react/lib/test-utils/forceCast";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import { HTTP_INTERNAL, HTTP_TEMP_REDIRECT } from "@/shared/constants/http";
 import promiseResolved, { promiseRejected } from "@/shared/test-utils/promiseResolved.test-util";
 

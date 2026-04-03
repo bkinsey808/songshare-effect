@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 
 import type { Slide } from "@/react/song/song-form/song-form-types";
-import { safeSet } from "@/shared/utils/safe";
+import safeDelete, { safeSet } from "@/shared/utils/safe";
 import toStringArray from "@/shared/utils/toStringArray";
 
 type CreateFormSubmitHandlerParams<FormData> = {
@@ -60,6 +60,9 @@ export default function createFormSubmitHandler<FormData>({
 			} else {
 				safeSet(currentFormData, key, String(value));
 			}
+		}
+		if (currentFormData["key"] === "") {
+			safeDelete(currentFormData, "key");
 		}
 
 		// Add controlled state values that aren't captured by FormData
