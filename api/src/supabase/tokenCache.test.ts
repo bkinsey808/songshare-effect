@@ -64,14 +64,15 @@ describe("tokenCache", () => {
 			expect(userTokenCache).toBeInstanceOf(Map);
 		});
 
-		it("stores token and expiry by email", () => {
+		it("stores token and expiry by cache key", () => {
 			withCleanCache(() => {
 				const expiry = 1_700_000_000;
-				userTokenCache.set("a@b.com", { token: "user-token", expiry });
+				userTokenCache.set("test-user", { token: "user-token", expiry, realtimeToken: "rt" });
 
-				const entry = userTokenCache.get("a@b.com");
+				const entry = userTokenCache.get("test-user");
 				expect(entry?.token).toBe("user-token");
 				expect(entry?.expiry).toBe(expiry);
+				expect(entry?.realtimeToken).toBe("rt");
 			});
 		});
 	});

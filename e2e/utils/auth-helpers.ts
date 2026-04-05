@@ -6,6 +6,8 @@ import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-ut
 type MockUserOverrides = Partial<MockUserSession["user"]> & {
 	username?: string;
 };
+const FAKE_SUPABASE_TOKEN = "fake-supabase-token-for-testing";
+const FAKE_TOKEN_EXPIRES_IN = 3600;
 
 /**
  * Default test user for E2E tests.
@@ -54,6 +56,19 @@ export async function authenticateTestUser(
 			status: 200,
 			contentType: "application/json",
 			body: JSON.stringify(userSession),
+		});
+	});
+	await page.route("**/api/auth/user/token", async (route) => {
+		await route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({
+				success: true,
+				data: {
+					access_token: FAKE_SUPABASE_TOKEN,
+					expires_in: FAKE_TOKEN_EXPIRES_IN,
+				},
+			}),
 		});
 	});
 }

@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
+import ChordIcon from "@/react/lib/design-system/icons/ChordIcon";
 
 type InsertChordButtonProps = Readonly<{
 	isEditingChord: boolean;
@@ -21,6 +22,7 @@ export default function InsertChordButton({
 
 	return (
 		<Button
+			icon={<ChordIcon className="size-4" />}
 			size="compact"
 			variant="outlineSecondary"
 			onClick={onOpenChordPicker}

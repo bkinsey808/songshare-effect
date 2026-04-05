@@ -3,7 +3,8 @@ import { Effect } from "effect";
 import { log as serverLog } from "@/api/logger";
 import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import signSupabaseJwtWithLegacySecret from "@/api/supabase/signSupabaseJwtWithLegacySecret";
-import { MS_PER_SECOND, ONE_HOUR_SECONDS } from "@/shared/constants/http";
+import { userTokenCache } from "@/api/supabase/tokenCache";
+import { MS_PER_SECOND, ONE_HOUR_SECONDS, TOKEN_CACHE_SKEW_SECONDS } from "@/shared/constants/http";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import { DatabaseError } from "../api-errors";
@@ -16,6 +17,33 @@ type TokenResponse = Readonly<{
 	expires_in: number;
 	realtime_token?: string | undefined;
 }>;
+const NO_EXPIRY_SECONDS = 0;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null;
+}
+
+function metadataMatchesUser(
+	appMetadata: unknown,
+	userId: string,
+	username: string,
+): appMetadata is Record<string, unknown> {
+	if (!isRecord(appMetadata)) {
+		return false;
+	}
+
+	const userValue = appMetadata["user"];
+	const userPublicValue = appMetadata["userPublic"];
+	if (!isRecord(userValue) || !isRecord(userPublicValue)) {
+		return false;
+	}
+
+	return (
+		userValue["user_id"] === userId &&
+		userPublicValue["user_id"] === userId &&
+		userPublicValue["username"] === username
+	);
+}
 
 /**
  * Get a Supabase-compatible JWT token for the currently authenticated user.
@@ -39,6 +67,16 @@ export default function getUserToken(
 		// Verify the user session first
 		const userSessionData = yield* $(getVerifiedUserSession(ctx));
 		const userId = userSessionData.user.user_id;
+		const now = Math.floor(Date.now() / MS_PER_SECOND);
+		const cached = userTokenCache.get(userId);
+		if (cached !== undefined && now < cached.expiry - TOKEN_CACHE_SKEW_SECONDS) {
+			return {
+				access_token: cached.token,
+				token_type: "bearer",
+				expires_in: Math.max(cached.expiry - now, NO_EXPIRY_SECONDS),
+				...(cached.realtimeToken === undefined ? {} : { realtime_token: cached.realtimeToken }),
+			};
+		}
 
 		// Get Supabase admin client
 		const client = getSupabaseServerClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
@@ -91,67 +129,78 @@ export default function getUserToken(
 		};
 		newAppMetadata.userPublic = userSessionData.userPublic;
 
-		serverLog(
-			`[getUserToken] Syncing metadata for user: ${userId} (${userSessionData.userPublic.username})`,
-		);
+		let tokenAppMetadata: Record<string, unknown> = newAppMetadata;
+		let sessionData = data.session;
 
-		const updateResult = yield* $(
-			Effect.tryPromise({
-				try: () =>
-					client.auth.admin.updateUserById(data.user.id, {
-						app_metadata: newAppMetadata,
-					}),
-				catch: (error) =>
-					new DatabaseError({
-						message: extractErrorMessage(error, "Failed to update metadata"),
-					}),
-			}),
-		);
-
-		if (updateResult.error) {
-			return yield* $(
-				Effect.fail(
-					new DatabaseError({
-						message: `Failed to update metadata: ${updateResult.error.message}`,
-					}),
-				),
+		if (metadataMatchesUser(existingMetadata, userId, userSessionData.userPublic.username)) {
+			tokenAppMetadata = existingMetadata;
+		} else {
+			const updateResult = yield* $(
+				Effect.tryPromise({
+					try: () =>
+						client.auth.admin.updateUserById(data.user.id, {
+							app_metadata: newAppMetadata,
+						}),
+					catch: (error) =>
+						new DatabaseError({
+							message: extractErrorMessage(error, "Failed to update metadata"),
+						}),
+				}),
 			);
-		}
 
-		// Sign in again to get a fresh token with the updated metadata
-		const refreshSignInResponse = yield* $(
-			Effect.tryPromise({
-				try: () =>
-					client.auth.signInWithPassword({
-						email: ctx.env.SUPABASE_VISITOR_EMAIL,
-						password: ctx.env.SUPABASE_VISITOR_PASSWORD,
-					}),
-				catch: (error) =>
-					new DatabaseError({
-						message: extractErrorMessage(error, "Failed to refresh sign-in"),
-					}),
-			}),
-		);
+			if (updateResult.error) {
+				return yield* $(
+					Effect.fail(
+						new DatabaseError({
+							message: `Failed to update metadata: ${updateResult.error.message}`,
+						}),
+					),
+				);
+			}
 
-		const { data: refreshData, error: refreshError } = refreshSignInResponse;
-
-		if (refreshError) {
-			return yield* $(
-				Effect.fail(
-					new DatabaseError({ message: `Refresh sign-in failed: ${refreshError.message}` }),
-				),
+			// Sign in again to get a fresh token with the updated metadata
+			const refreshSignInResponse = yield* $(
+				Effect.tryPromise({
+					try: () =>
+						client.auth.signInWithPassword({
+							email: ctx.env.SUPABASE_VISITOR_EMAIL,
+							password: ctx.env.SUPABASE_VISITOR_PASSWORD,
+						}),
+					catch: (error) =>
+						new DatabaseError({
+							message: extractErrorMessage(error, "Failed to refresh sign-in"),
+						}),
+				}),
 			);
-		}
 
-		if (!refreshData.session?.access_token) {
-			return yield* $(Effect.fail(new DatabaseError({ message: "No access token in response" })));
+			const { data: refreshData, error: refreshError } = refreshSignInResponse;
+
+			if (refreshError) {
+				return yield* $(
+					Effect.fail(
+						new DatabaseError({ message: `Refresh sign-in failed: ${refreshError.message}` }),
+					),
+				);
+			}
+
+			if (!refreshData.session?.access_token) {
+				return yield* $(Effect.fail(new DatabaseError({ message: "No access token in response" })));
+			}
+
+			sessionData = refreshData.session;
 		}
 
 		// GoTrue issues ES256 tokens; PostgREST now also verifies ES256. Return the
 		// raw token directly for PostgREST HTTP requests.
-		const accessToken = refreshData.session.access_token;
-		const now = Math.floor(Date.now() / MS_PER_SECOND);
-		const expiresIn = refreshData.session.expires_in ?? ONE_HOUR_SECONDS;
+		const accessToken = sessionData.access_token;
+		const expiresIn = sessionData.expires_in ?? ONE_HOUR_SECONDS;
+		const expiresAtRaw = sessionData.expires_at;
+		let expiry = now + expiresIn;
+		if (typeof expiresAtRaw === "number") {
+			expiry = expiresAtRaw;
+		} else if (typeof expiresAtRaw === "string") {
+			expiry = Number.parseInt(expiresAtRaw, 10) || now + expiresIn;
+		}
 
 		// When the legacy HS256 secret is configured, also produce an HS256-signed token
 		// for Realtime WebSocket auth. Supabase Realtime still uses the legacy secret.
@@ -165,7 +214,7 @@ export default function getUserToken(
 				role: "authenticated",
 				iat: now,
 				exp: now + expiresIn,
-				app_metadata: newAppMetadata,
+				app_metadata: tokenAppMetadata,
 			};
 			realtimeToken = yield* $(
 				Effect.tryPromise({
@@ -177,6 +226,12 @@ export default function getUserToken(
 				}),
 			);
 		}
+
+		userTokenCache.set(userId, {
+			token: accessToken,
+			expiry,
+			...(realtimeToken === undefined ? {} : { realtimeToken }),
+		});
 
 		return {
 			access_token: accessToken,

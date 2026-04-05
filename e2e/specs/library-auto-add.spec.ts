@@ -29,10 +29,6 @@ const PNG_PIXEL_BASE64 =
 const RADIX_BASE36 = 36;
 const RANDOM_SLICE_START = 2;
 const RANDOM_SLICE_END = 10;
-const ZERO_COUNT = 0;
-const MAX_IMAGE_LIBRARY_CHECK_ATTEMPTS = 8;
-const RETRY_INDEX_OFFSET = 1;
-const LIBRARY_RETRY_WAIT_MS = 2000;
 
 /**
  * Creates a lowercase slug-safe suffix for this test run.
@@ -310,107 +306,6 @@ function uploadImage(page: Page, imageName: string): Effect.Effect<string, Error
 }
 
 /**
- * Navigates to image library and retries until uploaded image slug appears.
- *
- * @param page Authenticated test page.
- * @param imageSlug Image slug returned by upload API.
- * @returns Effect that resolves once a matching image link is visible.
- */
-function expectImageInLibraryBySlug(
-	page: Page,
-	imageSlug: string,
-	imageName: string,
-): Effect.Effect<void, Error> {
-	return Effect.gen(function* expectImageInLibraryBySlugEffect($) {
-		const imageLinkSelector = `a[href*="/image/${imageSlug}"]`;
-		const pageLoadingText = page.getByText(/^Loading\.\.\.$/);
-		const pageHeading = page.getByRole("heading", { name: /image library/i }).first();
-		const loadingText = page.getByText(/loading image library/i);
-		const imageNameHeading = page.getByRole("heading", { name: imageName, exact: false });
-
-		for (
-			let attempt = 0;
-			attempt < MAX_IMAGE_LIBRARY_CHECK_ATTEMPTS;
-			attempt += RETRY_INDEX_OFFSET
-		) {
-			yield* $(
-				fromPromiseVoid(() =>
-					page.goto(`${BASE_URL}/en/dashboard/image-library`, {
-						waitUntil: "load",
-					}),
-				),
-			);
-
-			const pageLoadingCount = yield* $(fromPromise(() => pageLoadingText.count()));
-			if (pageLoadingCount > ZERO_COUNT) {
-				yield* $(
-					fromPromiseVoid(() =>
-						expect(pageLoadingText).toBeHidden({
-							timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
-						}),
-					),
-				);
-			}
-
-			yield* $(
-				fromPromiseVoid(() =>
-					expect(pageHeading).toBeVisible({
-						timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
-					}),
-				),
-			);
-
-			const loadingIndicatorCount = yield* $(fromPromise(() => loadingText.count()));
-			if (loadingIndicatorCount > ZERO_COUNT) {
-				yield* $(
-					fromPromiseVoid(() =>
-						expect(loadingText).toBeHidden({
-							timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
-						}),
-					),
-				);
-			}
-
-			const imageNameCount = yield* $(fromPromise(() => imageNameHeading.count()));
-			if (imageNameCount > ZERO_COUNT) {
-				yield* $(
-					fromPromiseVoid(() =>
-						expect(imageNameHeading.first()).toBeVisible({
-							timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
-						}),
-					),
-				);
-				return;
-			}
-
-			const linkCount = yield* $(fromPromise(() => page.locator(imageLinkSelector).count()));
-			if (linkCount > ZERO_COUNT) {
-				yield* $(
-					fromPromiseVoid(() =>
-						expect(page.locator(imageLinkSelector).first()).toBeVisible({
-							timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
-						}),
-					),
-				);
-				return;
-			}
-
-			if (attempt < MAX_IMAGE_LIBRARY_CHECK_ATTEMPTS - RETRY_INDEX_OFFSET) {
-				yield* $(fromPromiseVoid(() => page.waitForTimeout(LIBRARY_RETRY_WAIT_MS)));
-			}
-		}
-
-		return yield* $(
-			Effect.fail(
-				new Error(
-					`Image slug '${imageSlug}' did not appear in image library after ${String(MAX_IMAGE_LIBRARY_CHECK_ATTEMPTS)} attempts`,
-				),
-			),
-		);
-	});
-}
-
-/**
  * Creates a tag by adding it to an existing song.
  *
  * @param page Authenticated test page.
@@ -461,13 +356,14 @@ test.describe("Library Auto-Add", () => {
 	});
 
 	test("creating an image auto-adds it to image library", async ({ page }) => {
+		test.slow();
 		await runEffect(
 			Effect.gen(function* imageAutoAddEffect($) {
 				const suffix = makeUniqueSuffix();
 				const imageName = `e2e image ${suffix}`;
 
-				const imageSlug = yield* $(uploadImage(page, imageName));
-				yield* $(expectImageInLibraryBySlug(page, imageSlug, imageName));
+				yield* $(uploadImage(page, imageName));
+				yield* $(expectItemInLibrary(page, "image-library", imageName));
 			}),
 		);
 	});

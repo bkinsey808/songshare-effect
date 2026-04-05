@@ -7,7 +7,7 @@ import cssVars from "@/react/lib/utils/cssVars";
 import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { safeGet } from "@/shared/utils/safe";
 
-import { type Slide } from "../song-form-types";
+import { type OpenChordPicker, type Slide } from "../song-form-types";
 import SlidesGridRow from "./grid-row/SlidesGridRow";
 import ResizeHandle from "./ResizeHandle";
 import useSlidesGridTable from "./useSlidesGridTable";
@@ -59,6 +59,7 @@ type SlidesGridTableProps = Readonly<
 			}>,
 		) => void;
 		clearSlideBackgroundImage: (slideId: string) => void;
+		openChordPicker: OpenChordPicker;
 	}>
 >;
 
@@ -103,6 +104,7 @@ export default function SlidesGridTable({
 	toggleBackgroundPicker,
 	selectSlideBackgroundImage,
 	clearSlideBackgroundImage,
+	openChordPicker,
 }: SlidesGridTableProps): ReactElement {
 	const { t } = useTranslation();
 	const {
@@ -237,6 +239,7 @@ export default function SlidesGridTable({
 										toggleBackgroundPicker={toggleBackgroundPicker}
 										selectSlideBackgroundImage={selectSlideBackgroundImage}
 										clearSlideBackgroundImage={clearSlideBackgroundImage}
+										openChordPicker={openChordPicker}
 									/>
 								);
 							})}

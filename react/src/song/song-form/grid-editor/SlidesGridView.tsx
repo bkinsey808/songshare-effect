@@ -6,7 +6,7 @@ import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { safeGet } from "@/shared/utils/safe";
 
 import useSlidesEditor from "../slides-editor/useSlidesEditor";
-import { type Slide } from "../song-form-types";
+import { type OpenChordPicker, type Slide } from "../song-form-types";
 import hashToHue from "./duplicateTint";
 import SlidesGridTable from "./SlidesGridTable";
 
@@ -21,6 +21,7 @@ type SlidesGridViewProps = Readonly<
 		readonly setSlideOrder: (newOrder: readonly string[]) => void;
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
+		openChordPicker?: OpenChordPicker;
 	}>
 >;
 
@@ -35,12 +36,17 @@ type SlidesGridViewProps = Readonly<
  * @param setSlides - Setter to update slides map
  * @returns React element rendering the slides grid view
  */
+function noopOpenChordPicker(): void {
+	return undefined;
+}
+
 export default function SlidesGridView({
 	fields,
 	slideOrder,
 	setSlideOrder,
 	slides,
 	setSlides,
+	openChordPicker = noopOpenChordPicker,
 }: SlidesGridViewProps): ReactElement {
 	const { t } = useTranslation();
 	const {
@@ -98,6 +104,7 @@ export default function SlidesGridView({
 				toggleBackgroundPicker={toggleBackgroundPicker}
 				selectSlideBackgroundImage={selectSlideBackgroundImage}
 				clearSlideBackgroundImage={clearSlideBackgroundImage}
+				openChordPicker={openChordPicker}
 			/>
 			{/* Add New Slide Button */}
 			<div className="mt-4 flex justify-start">

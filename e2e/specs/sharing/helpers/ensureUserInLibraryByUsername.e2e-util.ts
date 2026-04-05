@@ -1,12 +1,41 @@
-import { BASE_URL, MANAGE_PAGE_READY_TIMEOUT_MS } from "@/e2e/specs/sharing/helpers/sharing-constants.e2e-util.ts";
+import { BASE_URL, KICK_SETTLE_MS, MANAGE_PAGE_READY_TIMEOUT_MS } from "@/e2e/specs/sharing/helpers/sharing-constants.e2e-util.ts";
 import { apiUserLibraryAddPath, apiUserLibraryLookupPath } from "@/shared/paths";
-import { expect, type Page } from "@playwright/test";
+import { expect, type APIResponse, type Page } from "@playwright/test";
 
 const LIBRARY_SYNC_ATTEMPTS = 4;
+const LOOKUP_RETRY_ATTEMPTS = 3;
+const FIRST_ATTEMPT = 0;
+
+/**
+ * Looks up a user by username with retries to handle transient API errors.
+ *
+ * @param page Authenticated page performing the request.
+ * @param username Username to look up.
+ * @param attempt Current attempt index (0-based).
+ * @returns Successful API response.
+ */
+async function lookupUserWithRetry(
+	page: Page,
+	username: string,
+	attempt: number,
+): Promise<APIResponse> {
+	const INCREMENT = 1;
+	const LAST_ATTEMPT = LOOKUP_RETRY_ATTEMPTS - INCREMENT;
+
+	const response = await page.request.post(apiUserLibraryLookupPath, {
+		data: { username },
+	});
+
+	if (response.ok() || attempt >= LAST_ATTEMPT) {
+		return response;
+	}
+
+	await page.waitForTimeout(KICK_SETTLE_MS);
+	return lookupUserWithRetry(page, username, attempt + INCREMENT);
+}
 
 function syncUserLibraryPage(page: Page, username: string): Promise<void> {
 	const attempts = LIBRARY_SYNC_ATTEMPTS;
-	const FIRST_ATTEMPT = 0;
 	const INCREMENT = 1;
 	const LAST_ATTEMPT = attempts - INCREMENT;
 
@@ -50,9 +79,7 @@ export default async function ensureUserInLibraryByUsername(
 	page: Page,
 	username: string,
 ): Promise<void> {
-	const lookupResponse = await page.request.post(apiUserLibraryLookupPath, {
-		data: { username },
-	});
+	const lookupResponse = await lookupUserWithRetry(page, username, FIRST_ATTEMPT);
 	expect(lookupResponse.ok()).toBe(true);
 	const lookupBody: unknown = await lookupResponse.json();
 	const followedUserId =

@@ -6,8 +6,8 @@ import { ZERO } from "@/shared/constants/shared-constants";
 
 import { error as sError, warn as sWarn } from "../utils/scriptLogger";
 
-// Cross-platform timeout wrapper for running bun Playwright test script.
-// Usage: PLAYWRIGHT_BASE_URL=https://localhost:5173 bun ./scripts/playwright/run-playwright-with-timeout.bun.ts [bun args]
+// Cross-platform timeout wrapper for running the local Playwright preview runner.
+// Usage: PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 bun ./scripts/playwright/run-playwright-with-timeout.bun.ts [bun args]
 
 const DEFAULT_TIMEOUT_SECONDS = 180;
 const ARGV_FILE_INDEX = 2;
@@ -29,7 +29,7 @@ const bunArgs = [bunScriptPath, ...process.argv.slice(ARGV_FILE_INDEX)];
 
 // Ensure PLAYWRIGHT_BASE_URL has a sensible default for convenience
 if ((process.env["PLAYWRIGHT_BASE_URL"] ?? "").length === ZERO) {
-	process.env["PLAYWRIGHT_BASE_URL"] = "https://localhost:5173";
+	process.env["PLAYWRIGHT_BASE_URL"] = "https://127.0.0.1:5173";
 }
 
 sWarn(`Starting Playwright tests with a ${timeoutSeconds}s timeout`);

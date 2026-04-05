@@ -2,9 +2,10 @@ import type { DraggableAttributes } from "@dnd-kit/core";
 import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { useTranslation } from "react-i18next";
 
+import InsertChordButton from "@/react/song/song-form/chord-picker/InsertChordButton";
 import { type Slide } from "@/react/song/song-form/song-form-types";
-import DragHandle from "./DragHandle";
 import hashToHue from "../duplicateTint";
+import DragHandle from "./DragHandle";
 
 const REMOVE_COUNT = 1;
 const EMPTY_COUNT = 0;
@@ -32,6 +33,9 @@ type SlideNameCellProps = Readonly<{
 	listeners: SyntheticListenerMap | undefined;
 	/** When true, this cell uses the duplicate tint bg; the input keeps default dark bg. */
 	isDuplicateRow: boolean;
+	hasLyrics: boolean;
+	isEditingChord: boolean;
+	onOpenChordPicker: () => void;
 }>;
 
 /**
@@ -71,6 +75,9 @@ export default function SlideNameCell({
 	attributes,
 	listeners,
 	isDuplicateRow,
+	hasLyrics,
+	isEditingChord,
+	onOpenChordPicker,
 }: SlideNameCellProps): ReactElement {
 	const { t } = useTranslation();
 
@@ -110,6 +117,9 @@ export default function SlideNameCell({
 						placeholder="Slide name"
 					/>
 				</div>
+				{hasLyrics && (
+					<InsertChordButton isEditingChord={isEditingChord} onOpenChordPicker={onOpenChordPicker} />
+				)}
 				<div className="flex gap-1">
 					<DragHandle attributes={attributes} listeners={listeners} />
 					<button

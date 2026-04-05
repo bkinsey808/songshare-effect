@@ -62,6 +62,26 @@ const SONG_LIBRARY_RELOAD_ATTEMPTS = 4;
 const FIRST_ATTEMPT = 0;
 const NEXT_ATTEMPT_STEP = 1;
 const SONG_LIBRARY_LINK_RETRY_TIMEOUT_MS = 5000;
+const NON_EMPTY_FIELD_MIN_LENGTH = 1;
+
+function waitForSongEditFormData(page: Page): Promise<void> {
+	return page
+		.waitForFunction(
+			(minLength: number) => {
+				const songNameInput = document.querySelector<HTMLInputElement>('input[name="song_name"]');
+				const songSlugInput = document.querySelector<HTMLInputElement>('input[name="song_slug"]');
+				return (
+					songNameInput !== null &&
+					songSlugInput !== null &&
+					songNameInput.value.trim().length >= minLength &&
+					songSlugInput.value.trim().length >= minLength
+				);
+			},
+			NON_EMPTY_FIELD_MIN_LENGTH,
+			{ timeout: MANAGE_PAGE_READY_TIMEOUT_MS },
+		)
+		.then(() => undefined);
+}
 
 function waitForSongLibraryLink(ownerPage: Page): Promise<void> {
 	const viewSongLink = ownerPage.locator(`a[href*="${testSongSlug}"]`).first();
@@ -117,12 +137,15 @@ function navigateToSongEditPage(ownerPage: Page): Effect.Effect<string, Error> {
 		yield* $(expectVisibleEffect(editBtn, { timeout: MANAGE_PAGE_READY_TIMEOUT_MS }));
 		yield* $(clickEffect(editBtn));
 
-		// Form is ready when the tag input is visible
+		// The edit form shell can render before the fetched song data populates.
+		// Wait for both the tag input and the loaded song fields to avoid saving
+		// a temporarily empty song name/slug during slow E2E runs.
 		yield* $(
 			expectVisibleEffect(ownerPage.getByPlaceholder("Add tags\u2026"), {
 				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
 			}),
 		);
+		yield* $(fromPromiseVoid(() => waitForSongEditFormData(ownerPage)));
 
 		return getIdFromEditUrl(ownerPage.url(), "song");
 	});

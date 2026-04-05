@@ -326,7 +326,7 @@ test("sender shares a song and recipient accepts", async ({ browser }) => {
 });
 ```
 
-See `e2e/specs/sharing.spec.ts` for the full set of sharing and invitation tests and the
+See `e2e/specs/sharing/` for the full set of sharing and invitation tests and the
 `createTwoUserContexts` helper. Full setup guide: `docs/testing/e2e-staging-db.md`.
 
 ## Troubleshooting
@@ -344,12 +344,14 @@ await page.goto("/en/dashboard");
 
 ### User data not showing up
 
-Add a wait for hydration if the app needs time to load:
+Use a web-first assertion with a timeout — Playwright retries automatically until the element
+appears or the timeout expires. Never use `page.waitForTimeout` (arbitrary sleep), which is
+brittle and slows tests down:
 
 ```typescript
 await page.goto("/en/dashboard");
-await page.waitForTimeout(2000); // Wait for React hydration
-await expect(page.getByText(/welcome/i)).toBeVisible();
+// ✅ Playwright retries until visible or times out
+await expect(page.getByText(/welcome/i)).toBeVisible({ timeout: 10_000 });
 ```
 
 ### Route mock not working

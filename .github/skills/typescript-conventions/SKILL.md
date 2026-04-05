@@ -14,6 +14,8 @@ Use this skill when:
 - Editing any `.ts` or `.tsx` file.
 - Resolving TypeScript strictness or lint errors related to typing quality.
 
+See also: React-specific best practices are in [docs/react-best-practices.md](/docs/react-best-practices.md).
+
 Execution workflow:
 
 1. Prefer precise types (`unknown`, type guards, discriminated unions) over `any`.

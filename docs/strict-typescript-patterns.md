@@ -125,7 +125,9 @@ function MyComponent({ optionalProp }: { optionalProp?: string }) {
 }
 ```
 
-### 5. Index Signature Access
+For UI-specific best-practices (component props, prop patterns, and React conventions), see [docs/react-best-practices.md](react-best-practices.md).
+
+### 6. Index Signature Access
 
 **Challenge**: `noPropertyAccessFromIndexSignature` requires bracket notation.
 

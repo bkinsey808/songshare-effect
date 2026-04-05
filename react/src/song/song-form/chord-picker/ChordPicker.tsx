@@ -6,6 +6,7 @@ import type { SongKey } from "@/shared/song/songKeyOptions";
 
 import SongKeyPicker from "../song-key-picker/SongKeyPicker";
 import ChordPreview from "./preview/ChordPreview";
+import ChordIcon from "@/react/lib/design-system/icons/ChordIcon";
 import ChordSearchResultCard from "./result-card/ChordSearchResultCard";
 import ChordRootPicker from "./root-picker/ChordRootPicker";
 import useChordPicker from "./useChordPicker";
@@ -32,8 +33,8 @@ type ChordPickerProps = Readonly<{
 	songKey: SongKey | "";
 	setSongKey: (value: SongKey | "") => void;
 	hasPendingInsertTarget: boolean;
-	initialChordToken?: string;
-	isEditingChord?: boolean;
+		initialChordToken: string | undefined;
+		isEditingChord: boolean;
 	closeChordPicker: () => void;
 	insertChordFromPicker: (token: string) => void;
 }>;
@@ -55,7 +56,7 @@ export default function ChordPicker({
 	setSongKey,
 	hasPendingInsertTarget,
 	initialChordToken,
-	isEditingChord = false,
+	isEditingChord,
 	closeChordPicker,
 	insertChordFromPicker,
 }: ChordPickerProps): ReactElement {
@@ -203,6 +204,7 @@ export default function ChordPicker({
 					<div className="sticky bottom-0 border-t border-gray-800 bg-gray-900/95 px-4 py-4 backdrop-blur sm:px-6">
 						<div className="flex items-center gap-2">
 							<Button
+								icon={<ChordIcon className="size-4" />}
 								size="compact"
 								variant="primary"
 								onClick={handleInsert}

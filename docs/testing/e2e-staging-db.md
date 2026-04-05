@@ -49,39 +49,32 @@ npm run e2e:create-session:staging-db
 This reads staging secrets from the keyring (`songshare-staging`) and writes
 `e2e/.auth/google-user.json` with `ip=127.0.0.1`.
 
-### Start servers
-
-```bash
-npm run dev:all:staging
-```
-
-Starts:
-
-- Vite frontend in `staging-local` mode → uses staging `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (Realtime goes to staging)
-- Wrangler API with `wrangler.staging.toml` → all DB queries go to staging Supabase
-
 ### Run all tests
 
 ```bash
-npm run test:e2e:dev
+npm run test:e2e:dev:staging-db
 ```
+
+This single command handles everything: refreshes sessions, builds the frontend, starts the
+preview server and Wrangler API, then runs Playwright. Do not start servers separately first —
+the wrapper kills and re-starts ports 5173 and 8787 itself.
 
 ### Run a single test file
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 npx playwright test e2e/specs/song-library.spec.ts --reporter=list
+npm run test:e2e:dev:staging-db:file -- e2e/specs/song-library.spec.ts
 ```
 
 ### Run a single test file with a single browser
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 npx playwright test e2e/specs/song-library.spec.ts --project=chromium --reporter=list
+npm run test:e2e:dev:staging-db:file -- e2e/specs/song-library.spec.ts --project=chromium
 ```
 
 ### Run a single test by name
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 npx playwright test e2e/specs/song-library.spec.ts --project=chromium --reporter=list --grep "user can see their library"
+npm run test:e2e:dev:staging-db:file -- e2e/specs/song-library.spec.ts --project=chromium --grep "user can see their library"
 ```
 
 ---
@@ -134,6 +127,7 @@ PLAYWRIGHT_BASE_URL=https://<staging-domain> npx playwright test e2e/specs/song-
 | ----------------- | ---------------------------------------------- |
 | `chromium`        | Standard Chrome (default for most tests)       |
 | `firefox`         | Firefox                                        |
+| `webkit`          | Safari / WebKit                                |
 | `chromium-webgpu` | Chrome with WebGPU enabled (TypeGPU demo only) |
 
 Omit `--project` to run all browser projects.
@@ -179,16 +173,17 @@ The file path stays the same so no spec changes are needed.
 
 ## Two-User Sharing and Invitation Tests
 
-`e2e/specs/sharing.spec.ts` tests end-to-end sharing and invitation flows between **two real users**. Each test opens two independent browser contexts — a sender/admin context and a recipient context — both backed by real staging-DB sessions.
+The specs under `e2e/specs/sharing/` test end-to-end sharing and invitation flows between **two real users**. Each test opens two independent browser contexts — a sender/admin context and a recipient context — both backed by real staging-DB sessions.
 
 ### Tests covered
 
-| Describe block         | Flows                                                 |
-| ---------------------- | ----------------------------------------------------- |
-| `P2P Song Share`       | Share a song → accept; Share a song → decline         |
-| `P2P Playlist Share`   | Share a playlist → accept; Share a playlist → decline |
-| `Community Invitation` | Admin invites to community → accept; → decline        |
-| `Event Invitation`     | Admin invites to event → accept; → decline            |
+| Spec file                   | Describe block         | Flows                                                 |
+| --------------------------- | ---------------------- | ----------------------------------------------------- |
+| `song-sharing.spec.ts`      | `P2P Song Share`       | Share a song → accept; Share a song → decline         |
+| `image-sharing.spec.ts`     | `P2P Image Share`      | Share an image → accept; → decline; → accept + remove |
+| `playlist-sharing.spec.ts`  | `P2P Playlist Share`   | Share a playlist → accept; Share a playlist → decline |
+| `community-sharing.spec.ts` | `Community Invitation` | Admin invites to community → accept; → decline        |
+| `event-sharing.spec.ts`     | `Event Invitation`     | Admin invites to event → accept; → decline            |
 
 ### Setup
 
@@ -223,24 +218,18 @@ These are already loaded automatically when running `npm run test:e2e:staging` o
 ### Running the sharing tests
 
 ```bash
-# All sharing tests, all browsers — Mode 1 (local + staging DB)
-PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 \
-  E2E_TEST_USER2_USERNAME=test2username \
-  E2E_TEST_SONG_SLUG=my-test-song \
-  npx playwright test e2e/specs/sharing.spec.ts --reporter=list
+# All sharing tests — Mode 1 (local + staging DB)
+npm run test:e2e:dev:staging-db:file -- e2e/specs/sharing/
 
-# Single describe block, chromium only
-PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 \
-  E2E_TEST_USER2_USERNAME=test2username \
-  E2E_TEST_SONG_SLUG=my-test-song \
-  npx playwright test e2e/specs/sharing.spec.ts --project=chromium --reporter=list \
-  --grep "P2P Song Share"
+# Single spec file, chromium only
+npm run test:e2e:dev:staging-db:file -- e2e/specs/sharing/song-sharing.spec.ts --project=chromium
 
-# Against staging site (Mode 2)
-PLAYWRIGHT_BASE_URL=https://<staging-domain> \
-  E2E_TEST_USER2_USERNAME=test2username \
-  E2E_TEST_COMMUNITY_SLUG=my-test-community \
-  npx playwright test e2e/specs/sharing.spec.ts --project=chromium --reporter=list \
+# Single describe block by name
+npm run test:e2e:dev:staging-db:file -- e2e/specs/sharing/song-sharing.spec.ts --project=chromium --grep "P2P Song Share"
+
+# Against staging site (Mode 2) — servers already deployed, pass the URL directly
+PLAYWRIGHT_BASE_URL=https://<staging-domain> npx playwright test \
+  e2e/specs/sharing/community-sharing.spec.ts --project=chromium --reporter=list \
   --grep "Community Invitation"
 ```
 

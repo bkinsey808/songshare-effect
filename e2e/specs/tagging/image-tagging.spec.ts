@@ -5,6 +5,8 @@ import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { Effect } from "effect";
 
+import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
+import newSenderContext from "@/e2e/specs/sharing/helpers/newSenderContext.e2e-util.ts";
 import mutateTagViaApi from "@/e2e/specs/tagging/helpers/mutateTagViaApi.e2e-util.ts";
 import {
 	addTagInEditUi,
@@ -36,8 +38,6 @@ import waitForResponseAndUrlAfter from "@/e2e/utils/waitForResponseAndUrlAfter.e
 import { apiImageDeletePath, apiImageUploadPath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
 
-import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
-import newSenderContext from "@/e2e/specs/sharing/helpers/newSenderContext.e2e-util.ts";
 import {
 	BASE_URL,
 	INVITE_SUCCESS_TIMEOUT_MS,
@@ -61,16 +61,20 @@ const DATA_URL_SEPARATOR_INDEX = 1;
 const BYTE_OFFSET_DEFAULT = 0;
 const FILL_RECT_START = 0;
 const LOOP_STEP = 1;
-const LAST_SEGMENT_INDEX = -1;
 const TEST_TAG_SLUG = "e2e-cross-user-tag";
 
+type UploadedImage = Readonly<{
+	imageId: string;
+	imageSlug: string;
+}>;
+
 /**
- * Uploads a temporary test image and returns its slug.
+ * Uploads a temporary test image and returns its identifiers.
  *
  * @param ownerPage Owner page authenticated to upload images.
  * @return Effect that resolves with the uploaded image slug.
  */
-function uploadTestImage(ownerPage: Page): Effect.Effect<string, Error> {
+function uploadTestImage(ownerPage: Page): Effect.Effect<UploadedImage, Error> {
 	return Effect.gen(function* uploadTestImageEffect($) {
 		const dataUrl = yield* $(
 			fromPromise(() =>
@@ -107,13 +111,19 @@ function uploadTestImage(ownerPage: Page): Effect.Effect<string, Error> {
 		const tempFile = join(tmpdir(), `test-image-${Date.now()}.png`);
 		writeFileSync(tempFile, Buffer.from(bytes));
 
-		yield* $(fromPromiseVoid(() => ownerPage.goto(`${BASE_URL}/en/dashboard/image-upload`, { waitUntil: "load" })));
+		yield* $(
+			fromPromiseVoid(() =>
+				ownerPage.goto(`${BASE_URL}/en/dashboard/image-upload`, { waitUntil: "load" }),
+			),
+		);
 
 		const testImageName = `test-image-${Date.now()}`;
 		yield* $(fillEffect(ownerPage.getByLabel("Image Name"), testImageName));
 		yield* $(fillEffect(ownerPage.getByLabel("Description"), "Test image for E2E tagging tests"));
 		yield* $(fillEffect(ownerPage.getByLabel("Alt Text"), "Test image"));
-		yield* $(fromPromiseVoid(() => ownerPage.locator('input[type="file"]').setInputFiles(tempFile)));
+		yield* $(
+			fromPromiseVoid(() => ownerPage.locator('input[type="file"]').setInputFiles(tempFile)),
+		);
 
 		const uploadResponse = yield* $(
 			waitForResponseAfter({
@@ -126,7 +136,9 @@ function uploadTestImage(ownerPage: Page): Effect.Effect<string, Error> {
 		const uploadJson: unknown = yield* $(fromPromise(() => uploadResponse.json()));
 		if (!isRecord(uploadJson)) {
 			return yield* $(
-				Effect.fail(new TypeError(`Failed to read uploaded image payload: ${JSON.stringify(uploadJson)}`)),
+				Effect.fail(
+					new TypeError(`Failed to read uploaded image payload: ${JSON.stringify(uploadJson)}`),
+				),
 			);
 		}
 
@@ -134,7 +146,9 @@ function uploadTestImage(ownerPage: Page): Effect.Effect<string, Error> {
 		const imageData = uploadData["data"];
 		if (!isRecord(imageData)) {
 			return yield* $(
-				Effect.fail(new Error(`Failed to read uploaded image payload: ${JSON.stringify(uploadData)}`)),
+				Effect.fail(
+					new Error(`Failed to read uploaded image payload: ${JSON.stringify(uploadData)}`),
+				),
 			);
 		}
 
@@ -147,22 +161,30 @@ function uploadTestImage(ownerPage: Page): Effect.Effect<string, Error> {
 			);
 		}
 
-		return imageSlug;
+		const imageId = imageData["image_id"];
+		if (typeof imageId !== "string" || imageId === "") {
+			return yield* $(
+				Effect.fail(
+					new Error(`Failed to get image id from upload response: ${JSON.stringify(uploadData)}`),
+				),
+			);
+		}
+
+		return { imageId, imageSlug };
 	});
 }
 
 /**
- * Best-effort cleanup helper that deletes a test image by slug-derived id.
+ * Best-effort cleanup helper that deletes a test image by id.
  *
  * @param ownerPage Owner page authenticated to delete images.
- * @param imageSlug Uploaded test image slug.
+ * @param imageId Uploaded test image id.
  * @return Effect that resolves when cleanup attempt completes.
  */
-function deleteTestImage(ownerPage: Page, imageSlug: string): Effect.Effect<void, Error> {
+function deleteTestImage(ownerPage: Page, imageId: string): Effect.Effect<void, Error> {
 	return Effect.gen(function* deleteTestImageEffect($) {
 		try {
-			const imageId = imageSlug.split("-").at(LAST_SEGMENT_INDEX);
-			if (imageId === undefined || imageId === "") {
+			if (imageId === "") {
 				return;
 			}
 
@@ -215,13 +237,14 @@ function navigateToImageEditPage(ownerPage: Page, imageSlug: string): Effect.Eff
 		const imageRows: unknown = yield* $(fromPromise(() => imageEditResponse.json()));
 		const imageId = extractIdFromPublicRows(imageRows, "image_id");
 		if (typeof imageId !== "string" || imageId === "") {
-			return yield* $(Effect.fail(new Error(`Could not determine image id for slug: ${imageSlug}`)));
+			return yield* $(
+				Effect.fail(new Error(`Could not determine image id for slug: ${imageSlug}`)),
+			);
 		}
 
 		return imageId;
 	});
 }
-
 
 /**
  * Adds the test tag through the edit UI and saves the image.
@@ -308,7 +331,7 @@ function waitForImageTagRealtimeReady(
 test.describe("Image Tagging: Real-Time Cross-User Visibility", () => {
 	test.skip(missingBothSessions, "Skipped: run npm run e2e:create-session:staging-db[:user2]");
 
-	let imageSlugForTest = "";
+	let imageForTest: UploadedImage = { imageId: "", imageSlug: "" };
 
 	test.beforeEach(async ({ browser }) => {
 		await runEffect(
@@ -316,14 +339,14 @@ test.describe("Image Tagging: Real-Time Cross-User Visibility", () => {
 				Effect.gen(function* imageBeforeEachEffect($) {
 					const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
 					const ownerPage = yield* $(acquirePage(ownerCtx));
-					imageSlugForTest = yield* $(uploadTestImage(ownerPage));
+					imageForTest = yield* $(uploadTestImage(ownerPage));
 				}),
 			),
 		);
 	});
 
 	test.afterEach(async ({ browser }) => {
-		if (imageSlugForTest === "") {
+		if (imageForTest.imageId === "") {
 			return;
 		}
 
@@ -332,7 +355,7 @@ test.describe("Image Tagging: Real-Time Cross-User Visibility", () => {
 				Effect.gen(function* imageAfterEachEffect($) {
 					const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
 					const ownerPage = yield* $(acquirePage(ownerCtx));
-					yield* $(deleteTestImage(ownerPage, imageSlugForTest));
+					yield* $(deleteTestImage(ownerPage, imageForTest.imageId));
 				}),
 			),
 		);
@@ -354,13 +377,13 @@ test.describe("Image Tagging: Real-Time Cross-User Visibility", () => {
 					yield* $(
 						openViewerPage({
 							page: viewerPage,
-							url: `${BASE_URL}/en/image/${imageSlugForTest}`,
+							url: `${BASE_URL}/en/image/${imageForTest.imageSlug}`,
 							timeoutMs: MANAGE_PAGE_READY_TIMEOUT_MS,
 						}),
 					);
 					yield* $(waitForImageTagRealtimeReady(viewerPage, viewerConsole));
 
-					const imageId = yield* $(navigateToImageEditPage(ownerPage, imageSlugForTest));
+					const imageId = yield* $(navigateToImageEditPage(ownerPage, imageForTest.imageSlug));
 					yield* $(
 						mutateTagViaApi({
 							page: ownerPage,
@@ -400,10 +423,10 @@ test.describe("Image Tagging: Real-Time Cross-User Visibility", () => {
 				Effect.gen(function* imageUiEffect($) {
 					const ownerCtx = yield* $(acquireBrowserContext(() => newSenderContext(browser)));
 					const ownerPage = yield* $(acquirePage(ownerCtx));
-					yield* $(navigateToImageEditPage(ownerPage, imageSlugForTest));
-					yield* $(addTagAndSaveViaUi(ownerPage, imageSlugForTest));
+					yield* $(navigateToImageEditPage(ownerPage, imageForTest.imageSlug));
+					yield* $(addTagAndSaveViaUi(ownerPage, imageForTest.imageSlug));
 
-					yield* $(navigateToImageEditPage(ownerPage, imageSlugForTest));
+					yield* $(navigateToImageEditPage(ownerPage, imageForTest.imageSlug));
 					yield* $(
 						expectTagInEditUi({
 							page: ownerPage,
@@ -412,9 +435,9 @@ test.describe("Image Tagging: Real-Time Cross-User Visibility", () => {
 						}),
 					);
 
-					yield* $(removeTagAndSaveViaUi(ownerPage, imageSlugForTest));
+					yield* $(removeTagAndSaveViaUi(ownerPage, imageForTest.imageSlug));
 
-					yield* $(navigateToImageEditPage(ownerPage, imageSlugForTest));
+					yield* $(navigateToImageEditPage(ownerPage, imageForTest.imageSlug));
 					yield* $(
 						expectTagNotInEditUi({
 							page: ownerPage,

@@ -44,8 +44,6 @@ export default function communityUserJoin(
 			ctx.env.SUPABASE_SERVICE_KEY,
 		);
 
-		console.warn(`[communityUserJoin] User ${userId} is joining community ${community_id}`);
-
 		// Verify community exists and fetch owner_id in one query
 		const communityExists = yield* $(
 			Effect.tryPromise({

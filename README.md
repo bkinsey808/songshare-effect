@@ -177,6 +177,7 @@ See documentation:
 - [EFFECT_IMPLEMENTATION.md](/docs/EFFECT_IMPLEMENTATION.md) - Effect-TS implementation details
 - [SUPABASE_EFFECT_SCHEMAS.md](/docs/SUPABASE_EFFECT_SCHEMAS.md) - Database schema integration
 - [AUTHENTICATION_SYSTEM.md](/docs/AUTHENTICATION_SYSTEM.md) - Complete authentication guide
+- [playwright-how-it-works.md](/docs/playwright-how-it-works.md) - How Playwright is wired up in this repo
 - [GITHUB_ACTIONS_WORKFLOWS.md](/docs/github-actions-workflows.md) - CI workflows, Playwright e2e, and debugging with the GitHub Actions extension
 
 ## API Endpoints
@@ -252,8 +253,10 @@ ENVIRONMENT=development
 - `npm run dev:api` - Start API development server
 - `npm run dev:all` - Start both servers concurrently
 - `npm run build:client` - Build frontend for production
+- `npm run build:client:staging` - Build frontend for the staging/local E2E environment
 - `npm run build:api` - Build API for production
 - `npm run build:all` - Build everything
+- `npm run test:e2e:dev` - Run local E2E against compiled preview + local API
 - `npm run deploy:api` - Deploy API to Cloudflare Workers
 - `npm run supabase:generate` - Generate Effect schemas from Supabase
 

@@ -1,10 +1,11 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import clearAllPendingPeerShares from "@/e2e/specs/sharing/helpers/clearAllPendingPeerShares.e2e-util.ts";
 import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
 import newRecipientContext from "@/e2e/specs/sharing/helpers/newRecipientContext.e2e-util.ts";
 import openReceivedPendingShares from "@/e2e/specs/sharing/helpers/openReceivedPendingShares.e2e-util.ts";
 import selectUserInSearch from "@/e2e/specs/sharing/helpers/selectUserInSearch.e2e-util.ts";
+
 import {
 	BASE_URL,
 	INVITE_SUCCESS_TIMEOUT_MS,
@@ -29,6 +30,39 @@ test.use({
 	actionTimeout: 60_000,
 	navigationTimeout: 60_000,
 });
+
+function waitForRecipientShareAction(
+	page: Page,
+	actionName: "Accept" | "Decline",
+): Promise<Locator> {
+	const attempts = 4;
+	const FIRST_ATTEMPT = 0;
+	const INCREMENT = 1;
+	const LAST_ATTEMPT = attempts - INCREMENT;
+
+	async function tryOnce(attempt: number): Promise<Locator> {
+		await openReceivedPendingShares(page);
+		const actionButton = page.getByRole("button", { name: actionName, exact: true }).first();
+		const actionVisible = await actionButton
+			.waitFor({ state: "visible", timeout: 5000 })
+			.then(() => true)
+			.catch(() => false);
+
+		if (actionVisible) {
+			return actionButton;
+		}
+
+		if (attempt >= LAST_ATTEMPT) {
+			await expect(actionButton).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			return actionButton;
+		}
+
+		await page.reload({ waitUntil: "load" });
+		return tryOnce(attempt + INCREMENT);
+	}
+
+	return tryOnce(FIRST_ATTEMPT);
+}
 
 test.describe("P2P Playlist Share", () => {
 	test.skip(missingBothSessions, "Skipped: run npm run e2e:create-session:staging-db[:user2]");
@@ -67,9 +101,7 @@ test.describe("P2P Playlist Share", () => {
 			expect(playlistAcceptShareResponse.ok()).toBe(true);
 
 			// Recipient: accept
-			await openReceivedPendingShares(recipientPage);
-			const acceptButton = recipientPage.getByRole("button", { name: "Accept", exact: true }).first();
-			await expect(acceptButton).toBeVisible({ timeout: REALTIME_WAIT_MS });
+			const acceptButton = await waitForRecipientShareAction(recipientPage, "Accept");
 			const pendingRow = acceptButton.locator(
 				"xpath=ancestor::div[.//button[normalize-space()='Accept'] and (.//a or .//span[contains(@class,'font-medium')])][1]",
 			);
@@ -125,11 +157,7 @@ test.describe("P2P Playlist Share", () => {
 			expect(playlistDeclineShareResponse.ok()).toBe(true);
 
 			// Recipient: decline
-			await openReceivedPendingShares(recipientPage);
-			const declineButton = recipientPage.getByRole("button", { name: "Decline", exact: true }).first();
-			await expect(declineButton).toBeVisible({
-				timeout: REALTIME_WAIT_MS,
-			});
+			const declineButton = await waitForRecipientShareAction(recipientPage, "Decline");
 			const pendingRow = declineButton.locator(
 				"xpath=ancestor::div[.//button[normalize-space()='Decline'] and (.//a or .//span[contains(@class,'font-medium')])][1]",
 			);
@@ -147,6 +175,9 @@ test.describe("P2P Playlist Share", () => {
 			await declineButton.click();
 			const playlistDeclineResponse = await playlistDeclineP;
 			expect(playlistDeclineResponse.ok()).toBe(true);
+			// Wait for the current view to reflect the decline before reloading,
+			// to avoid a race where Firefox reloads before the DB write commits.
+			await expect(declineButton).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
 			await recipientPage.reload({ waitUntil: "load" });
 			await openReceivedPendingShares(recipientPage);
 			const pendingDeclineForItem = recipientPage

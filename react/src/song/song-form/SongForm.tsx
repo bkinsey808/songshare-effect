@@ -211,6 +211,7 @@ export default function SongForm(): ReactElement {
 										setSlideOrder={setSlideOrder}
 										slides={slides}
 										setSlides={setSlides}
+										openChordPicker={openChordPicker}
 									/>
 								</CollapsibleSection>
 							</div>
@@ -236,12 +237,8 @@ export default function SongForm(): ReactElement {
 						setFormValue("key", nextValue);
 					}}
 					hasPendingInsertTarget
-					{...(pendingChordPickerRequest.initialChordToken === undefined
-						? {}
-						: { initialChordToken: pendingChordPickerRequest.initialChordToken })}
-					{...(pendingChordPickerRequest.isEditingChord === undefined
-						? {}
-						: { isEditingChord: pendingChordPickerRequest.isEditingChord })}
+					initialChordToken={pendingChordPickerRequest.initialChordToken}
+					isEditingChord={Boolean(pendingChordPickerRequest.isEditingChord)}
 					closeChordPicker={closeChordPicker}
 					insertChordFromPicker={insertChordFromPicker}
 				/>

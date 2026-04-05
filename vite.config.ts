@@ -29,6 +29,30 @@ function extractErrorMessageLocal(err: unknown, fallback = "Unknown error"): str
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const apiProxy: NonNullable<ServerOptions["proxy"]> = {
+	"/api": {
+		target: "http://localhost:8787",
+		// Important: preserve the browser "Origin" header so the API sees the
+		// front-end origin (https://localhost:5173). When changeOrigin is
+		// true proxies often rewrite the Origin/Host to the target which can
+		// cause OAuth redirect_uri to be built using the backend port (e.g.
+		// http://localhost:8787) and lead to redirect_uri_mismatch errors.
+		changeOrigin: false,
+		secure: false,
+		// Ensure Set-Cookie headers from the backend are forwarded to the
+		// browser in development. Many dev proxies rewrite or drop cookie
+		// domains; cookieDomainRewrite forces cookies to be usable on
+		// localhost during local testing.
+		cookieDomainRewrite: {
+			localhost: "localhost",
+			"127.0.0.1": "localhost",
+		},
+		// Keep verbose proxy logs in dev to help debugging captured traffic
+		// (Note: `logLevel` is not part of Vite's typed ProxyOptions and
+		// was removed to satisfy the TypeScript config. Use runtime
+		// logging or the proxy server's own logs for verbose output.)
+	},
+};
 
 // https://vite.dev/config/
 const config: UserConfig = defineConfig({
@@ -97,6 +121,9 @@ const config: UserConfig = defineConfig({
 		// Ensure assets are properly fingerprinted
 		assetsInlineLimit: 0,
 	},
+	preview: {
+		proxy: apiProxy,
+	},
 
 	// Development server proxy to forward API requests to the
 	// local API dev server (wrangler). This keeps client code using
@@ -110,30 +137,7 @@ const config: UserConfig = defineConfig({
 			host: "localhost",
 			port: 5173,
 			strictPort: true,
-			proxy: {
-				"/api": {
-					target: "http://localhost:8787",
-					// Important: preserve the browser "Origin" header so the API sees the
-					// front-end origin (https://localhost:5173). When changeOrigin is
-					// true proxies often rewrite the Origin/Host to the target which can
-					// cause OAuth redirect_uri to be built using the backend port (e.g.
-					// http://localhost:8787) and lead to redirect_uri_mismatch errors.
-					changeOrigin: false,
-					secure: false,
-					// Ensure Set-Cookie headers from the backend are forwarded to the
-					// browser in development. Many dev proxies rewrite or drop cookie
-					// domains; cookieDomainRewrite forces cookies to be usable on
-					// localhost during local testing.
-					cookieDomainRewrite: {
-						localhost: "localhost",
-						"127.0.0.1": "localhost",
-					},
-					// Keep verbose proxy logs in dev to help debugging captured traffic
-					// (Note: `logLevel` is not part of Vite's typed ProxyOptions and
-					// was removed to satisfy the TypeScript config. Use runtime
-					// logging or the proxy server's own logs for verbose output.)
-				},
-			},
+			proxy: apiProxy,
 		};
 
 		// Allow opt-out of HTTPS when Playwright attempts to start our dev

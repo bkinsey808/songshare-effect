@@ -2,10 +2,10 @@ import { CSS } from "@dnd-kit/utilities";
 
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import tw from "@/react/lib/utils/tw";
-import { type Slide } from "@/react/song/song-form/song-form-types";
+import { type OpenChordPicker, type Slide } from "@/react/song/song-form/song-form-types";
 
 import DeleteConfirmationRow from "./DeleteConfirmationRow";
-import SortableGridCells from "./SortableGridCells";
+import SortableGridCells from "./sortable-grid-cells/SortableGridCells";
 import useSlidesGridRow from "./useSlidesGridRow";
 
 const DRAG_OPACITY = 0.5;
@@ -66,6 +66,7 @@ type SortableGridRowProps = Readonly<{
 		}>,
 	) => void;
 	clearSlideBackgroundImage: (slideId: string) => void;
+	openChordPicker: OpenChordPicker;
 }>;
 
 /**
@@ -118,6 +119,7 @@ export default function SlidesGridRow({
 	toggleBackgroundPicker,
 	selectSlideBackgroundImage,
 	clearSlideBackgroundImage,
+	openChordPicker,
 }: SortableGridRowProps): ReactElement {
 	const {
 		confirmingDelete,
@@ -196,6 +198,7 @@ export default function SlidesGridRow({
 					toggleBackgroundPicker={toggleBackgroundPicker}
 					selectSlideBackgroundImage={selectSlideBackgroundImage}
 					clearSlideBackgroundImage={clearSlideBackgroundImage}
+					openChordPicker={openChordPicker}
 				/>
 			)}
 		</tr>

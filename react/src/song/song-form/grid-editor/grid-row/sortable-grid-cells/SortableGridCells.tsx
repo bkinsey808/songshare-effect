@@ -2,11 +2,18 @@ import type { DraggableAttributes } from "@dnd-kit/core";
 import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
-import { type Slide } from "@/react/song/song-form/song-form-types";
+import { type OpenChordPicker, type Slide } from "@/react/song/song-form/song-form-types";
 
-import SlideBackgroundImageCell from "./SlideBackgroundImageCell";
-import SlideFieldCell from "./SlideFieldCell";
-import SlideNameCell from "./SlideNameCell";
+import { useRef } from "react";
+
+import SlideBackgroundImageCell from "../SlideBackgroundImageCell";
+import SlideFieldCell from "../SlideFieldCell";
+import SlideNameCell from "../SlideNameCell";
+import useSortableGridCells from "./useSortableGridCells";
+
+function noop(): void {
+	/* no-op */
+}
 
 type EditSlideName = ({
 	slideId,
@@ -73,6 +80,7 @@ type SortableGridRowInnerProps = Readonly<{
 		}>,
 	) => void;
 	clearSlideBackgroundImage: (slideId: string) => void;
+	openChordPicker: OpenChordPicker;
 }>;
 
 /**
@@ -135,7 +143,13 @@ export default function SortableGridCells({
 	toggleBackgroundPicker,
 	selectSlideBackgroundImage,
 	clearSlideBackgroundImage,
+	openChordPicker,
 }: SortableGridRowInnerProps): ReactElement {
+	const { lyricsTextareaRef, isEditingChord, hasLyrics, onSyncLyricsSelection, onOpenChordPicker } =
+		useSortableGridCells({ slideId, fields, slides, safeGetField, editFieldValue, openChordPicker });
+
+	const fallbackTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+
 	return (
 		<>
 			<SlideNameCell
@@ -153,6 +167,9 @@ export default function SortableGridCells({
 				attributes={attributes}
 				listeners={listeners}
 				isDuplicateRow={isDuplicateRow}
+				hasLyrics={hasLyrics}
+				isEditingChord={isEditingChord}
+				onOpenChordPicker={onOpenChordPicker}
 			/>
 			{/* Dynamic Field Columns with resizable widths */}
 			{fields.map((field) => (
@@ -163,6 +180,8 @@ export default function SortableGridCells({
 					slides={slides}
 					safeGetField={safeGetField}
 					editFieldValue={editFieldValue}
+					textareaRef={field === "lyrics" ? lyricsTextareaRef : fallbackTextareaRef}
+					onSyncSelection={field === "lyrics" ? onSyncLyricsSelection : noop}
 				/>
 			))}
 			<SlideBackgroundImageCell

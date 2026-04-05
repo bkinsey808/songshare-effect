@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 /* oxlint-disable jest/require-hook */
 import { spawn, spawnSync } from "node:child_process";
-import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
@@ -12,26 +11,16 @@ import { stripAnsi } from "../utils/stripAnsi";
 import browsersAlreadyInstalled from "./helpers/browsersAlreadyInstalled";
 import findBrowserExecutable from "./helpers/findBrowserExecutable";
 import libsMissingForExecutable from "./helpers/libsMissingForExecutable";
-import { API_LOG, CLIENT_LOG } from "./helpers/logPaths";
 import maybePromptInstallDeps from "./helpers/maybePromptInstallDeps";
+const START_SCRIPT = path.join("scripts", "playwright", "playwright-start-preview.bun.ts");
+const READY_MARKER = "PLAYWRIGHT_WRAPPER: READY";
 
-// LOG_DIR, CLIENT_LOG, API_LOG are provided by shared helpers
+const localStack = spawn("bun", [START_SCRIPT], {
+	stdio: ["ignore", "pipe", "pipe"],
+	env: { ...process.env },
+});
 
-// Truncate/create logs
-try {
-	fs.writeFileSync(CLIENT_LOG, "", { flag: "w" });
-	fs.writeFileSync(API_LOG, "", { flag: "w" });
-} catch {
-	// Ignore log file creation errors
-}
-
-const DEV_SCRIPT = process.env["PLAYWRIGHT_DEV_SCRIPT"] ?? "dev";
-const dev = spawn("npm", ["run", DEV_SCRIPT], { shell: true });
-const clientStream = fs.createWriteStream(CLIENT_LOG, { flags: "a" });
-const apiStream = fs.createWriteStream(API_LOG, { flags: "a" });
-
-let frontendReady = false;
-let apiReady = false;
+let ready = false;
 let startedPlaywright = false;
 let playwrightProcess: ReturnType<typeof spawn> | undefined = undefined;
 
@@ -42,6 +31,9 @@ const EXIT_NON_ZERO = 1;
 const INTERVAL_MS = 500;
 
 const TIMEOUT = Number(process.env["PLAYWRIGHT_DEV_TIMEOUT"] ?? DEFAULT_TIMEOUT);
+const VERBOSE =
+	typeof process.env["PLAYWRIGHT_VERBOSE"] === "string" &&
+	process.env["PLAYWRIGHT_VERBOSE"] !== "";
 
 // Module-scope helpers for Playwright browser detection and system lib checks
 // browser detection helpers and LOG constants are imported from ./helpers
@@ -115,13 +107,12 @@ async function installBrowsers(): Promise<void> {
 }
 
 function startPlaywrightIfReady(): void {
-	if (!frontendReady || !apiReady || startedPlaywright) {
+	if (!ready || startedPlaywright) {
 		return;
 	}
 	startedPlaywright = true;
 
-	// Dev servers ready — starting Playwright tests
-	sWarn("Dev servers ready — starting Playwright tests");
+	sWarn("Local preview/API stack ready — starting Playwright tests");
 
 	const args = ["playwright", "test", ...process.argv.slice(ARGV_FILE_INDEX)];
 
@@ -136,8 +127,8 @@ function startPlaywrightIfReady(): void {
 
 		proc.on("exit", (code: number | null, signal: NodeJS.Signals | null) => {
 			try {
-				if (!dev.killed) {
-					dev.kill();
+				if (!localStack.killed) {
+					localStack.kill();
 				}
 			} catch {
 				// Ignore kill errors
@@ -154,61 +145,53 @@ function startPlaywrightIfReady(): void {
 	})();
 }
 
-function handleLine(raw: string): void {
-	clientStream.write(`${raw}\n`);
-	apiStream.write(`${raw}\n`);
+/**
+ * Handles log output from the local preview wrapper.
+ *
+ * @param raw - Output chunk from the wrapper process.
+ */
+function handleOutput(raw: string): void {
 	const line = stripAnsi(raw).trim();
-
-	if (
-		!frontendReady &&
-		/(Local:.*5173|https?:\/\/127\.0\.0\.1:5173|https?:\/\/localhost:5173)/.test(line)
-	) {
-		frontendReady = true;
-
-		// Detected frontend ready -> output
-		sWarn("Detected frontend ready ->", line);
+	if (!VERBOSE && line.startsWith("[wrangler:info]")) {
+		return;
 	}
-
-	if (!apiReady && /Ready on .*:8787/.test(line)) {
-		apiReady = true;
-
-		// Detected API ready -> output
-		sWarn("Detected API ready ->", line);
+	process.stdout.write(raw);
+	if (!ready && line.includes(READY_MARKER)) {
+		ready = true;
+		startPlaywrightIfReady();
 	}
-
-	startPlaywrightIfReady();
 }
 
-if (dev.stdout !== undefined) {
-	dev.stdout.setEncoding("utf8");
+if (localStack.stdout !== undefined) {
+	localStack.stdout.setEncoding("utf8");
 	let buf = "";
-	dev.stdout.on("data", (chunk: string) => {
+	localStack.stdout.on("data", (chunk: string) => {
 		buf += chunk;
 		const lines = buf.split(/\r?\n/);
 		buf = lines.pop() ?? "";
 		for (const line of lines) {
-			handleLine(line);
+			handleOutput(`${line}\n`);
 		}
 	});
 }
 
-if (dev.stderr !== undefined) {
-	dev.stderr.setEncoding("utf8");
+if (localStack.stderr !== undefined) {
+	localStack.stderr.setEncoding("utf8");
 	let buf2 = "";
-	dev.stderr.on("data", (chunk: string) => {
+	localStack.stderr.on("data", (chunk: string) => {
 		buf2 += chunk;
 		const lines = buf2.split(/\r?\n/);
 		buf2 = lines.pop() ?? "";
 		for (const line of lines) {
-			handleLine(line);
+			handleOutput(`${line}\n`);
 		}
 	});
 }
 
-dev.on("exit", () => {
-	sError("Dev process exited");
+localStack.on("exit", () => {
+	sError("Local preview/API wrapper exited");
 	if (!startedPlaywright) {
-		sError("Dev servers exited before Playwright started. Check logs:", CLIENT_LOG, API_LOG);
+		sError("Local preview/API stack exited before Playwright started.");
 		process.exit(EXIT_NON_ZERO);
 	}
 });
@@ -219,11 +202,10 @@ const interval = setInterval(() => {
 		return;
 	}
 	if (Date.now() - startTime > TIMEOUT) {
-		sError("Timed out waiting for dev servers to become ready (ms):", TIMEOUT);
-		sError("Last output written to:", CLIENT_LOG, API_LOG);
+		sError("Timed out waiting for the local preview/API stack to become ready (ms):", TIMEOUT);
 		try {
-			if (!dev.killed) {
-				dev.kill();
+			if (!localStack.killed) {
+				localStack.kill();
 			}
 		} catch {
 			// Ignore kill errors
@@ -241,8 +223,8 @@ function shutdown(): void {
 		// Ignore kill errors
 	}
 	try {
-		if (!dev.killed) {
-			dev.kill();
+		if (!localStack.killed) {
+			localStack.kill();
 		}
 	} catch {
 		// Ignore kill errors
@@ -253,5 +235,4 @@ function shutdown(): void {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
-// Playwright dev+test: logs -> output
-sWarn(`Playwright dev+test: logs -> ${CLIENT_LOG}, ${API_LOG}`);
+sWarn("Playwright preview+api test wrapper started");

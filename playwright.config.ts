@@ -1,9 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const CI = typeof process.env.CI === "string" && process.env.CI !== "";
+const CI = typeof process.env["CI"] === "string" && process.env["CI"] !== "";
 const PLAYWRIGHT_BASE_URL =
-	typeof process.env.PLAYWRIGHT_BASE_URL === "string" && process.env.PLAYWRIGHT_BASE_URL !== ""
-		? process.env.PLAYWRIGHT_BASE_URL
+	typeof process.env["PLAYWRIGHT_BASE_URL"] === "string" &&
+	process.env["PLAYWRIGHT_BASE_URL"] !== ""
+		? process.env["PLAYWRIGHT_BASE_URL"]
 		: undefined;
 
 // Named numeric constants to avoid magic numbers in config
@@ -36,7 +37,7 @@ const computedWebServer: PlaywrightWebServer | undefined = (() => {
 		return {
 			// Ensure PLAYWRIGHT_BASE_URL is exported when Playwright spawns the
 			// dev servers so the tests and any helper code reading
-			// process.env.PLAYWRIGHT_BASE_URL will see the HTTP base URL and
+			// process.env.PLAYWRIGHT_BASE_URL will see the dev base URL and
 			// not default back to the HTTPS fallback.
 			command:
 				"bash -lc 'PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 bun ./scripts/playwright/playwright-start-dev.bun.ts'",
@@ -47,18 +48,17 @@ const computedWebServer: PlaywrightWebServer | undefined = (() => {
 			stderr: "pipe",
 		} as PlaywrightWebServer;
 	}
-	// When Playwright auto-starts local dev servers we prefer to run the
-	// frontend over plain HTTP so the Node readiness probe does not fail on
-	// self-signed certs. We set PLAYWRIGHT_DISABLE_HTTPS=1 in the command so
-	// Vite serves over HTTP and the webServer.url uses http://127.0.0.1:5173
-	// which is a stable loopback address Playwright can probe reliably.
+	// When Playwright auto-starts locally we prefer the compiled frontend via
+	// `vite preview`, plus the local API dev server behind Vite's preview
+	// proxy. This is closer to production and avoids flakiness from the
+	// front-end dev server / HMR stack during local E2E runs.
 	return {
-		// Export PLAYWRIGHT_BASE_URL when starting the dev servers so the
-		// test code (which looks at process.env.PLAYWRIGHT_BASE_URL) will
-		// use the same HTTP URL the auto-started server uses.
+		// Export PLAYWRIGHT_BASE_URL when starting the local preview stack so
+		// the test code (which looks at process.env.PLAYWRIGHT_BASE_URL) uses
+		// the same HTTPS URL the preview server serves.
 		command:
-			"bash -lc 'PLAYWRIGHT_DISABLE_HTTPS=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 npm run dev:all'",
-		url: "http://127.0.0.1:5173",
+			"bash -lc 'PLAYWRIGHT_BUILD_SCRIPT=build:client:staging PLAYWRIGHT_API_SCRIPT=dev:api:staging PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 bun ./scripts/playwright/playwright-start-preview.bun.ts'",
+		url: "https://127.0.0.1:5173",
 		reuseExistingServer: !CI,
 		timeout: WEBSERVER_TIMEOUT_MS,
 		stdout: "pipe",
@@ -73,20 +73,19 @@ const computedBaseURL: string = (() => {
 	if (CI) {
 		return "http://127.0.0.1:5173";
 	}
-	// When computedWebServer is defined Playwright will auto-start local
-	// dev servers and we prefer a plain HTTP base URL so node probes succeed
-	// against a non-HTTPS server.
+	// When computedWebServer is defined Playwright will auto-start the local
+	// preview server and proxy /api to the local API server.
 	if (computedWebServer) {
-		return "http://127.0.0.1:5173";
+		return "https://127.0.0.1:5173";
 	}
 	return "https://localhost:5173";
 })();
 
 // Ensure the Playwright test runner process sees the computed base URL so
 // tests that read process.env.PLAYWRIGHT_BASE_URL (our test helpers) will
-// use the same URL the webServer will start at (HTTP when auto-starting).
-if (process.env.PLAYWRIGHT_BASE_URL === undefined) {
-	process.env.PLAYWRIGHT_BASE_URL = computedBaseURL;
+// use the same URL the webServer will start at when auto-starting.
+if (process.env["PLAYWRIGHT_BASE_URL"] === undefined) {
+	process.env["PLAYWRIGHT_BASE_URL"] = computedBaseURL;
 }
 
 export default defineConfig({
@@ -95,18 +94,16 @@ export default defineConfig({
 	fullyParallel: true,
 	forbidOnly: CI,
 	retries: CI ? CI_RETRIES : NO_RETRIES,
-	workers: CI ? CI_WORKERS : undefined,
+	...(CI ? { workers: CI_WORKERS } : {}),
 	reporter: "html",
 	// Increased to 60 seconds for service worker tests
 	timeout: DEFAULT_TIMEOUT_MS,
 	use: {
 		// Tests target a deployed URL when PLAYWRIGHT_BASE_URL is set.
-		// For local dev we usually use HTTPS (Vite serves HTTPS by default),
-		// and ignore self-signed TLS errors in the browser. However when
-		// Playwright auto-starts the dev servers (webServer configured) it will
-		// run the frontend over HTTP so the Node reachability probe succeeds
-		// (self-signed certs are rejected by Node). Use the HTTP baseURL in
-		// that case to keep browser navigation in sync with the launched server.
+		// For local manual browsing we often use HTTPS, and ignore self-signed
+		// TLS errors in the browser. However when Playwright auto-starts the
+		// local preview stack it runs over HTTPS. Use that baseURL in this case to keep browser
+		// navigation in sync with the launched server.
 		baseURL: computedBaseURL,
 		ignoreHTTPSErrors: true,
 		trace: "on-first-retry",
@@ -203,25 +200,15 @@ export default defineConfig({
 			},
 		},
 	],
-	// Automatically start dev server for E2E tests
+	// Automatically start the local preview stack for E2E tests
 	// For preview server tests, use: PLAYWRIGHT_BASE_URL=http://localhost:8787 playwright test
 	// For deployed tests, use: PLAYWRIGHT_BASE_URL=https://your-domain.com playwright test
-	// Auto-start disabled: prefer explicit server start to avoid flaky
-	// environment-dependent behavior when Playwright attempts to manage
-	// backgrounded dev servers. When running tests locally, start the dev
-	// servers first (see README or package.json scripts) and then set
-	// PLAYWRIGHT_BASE_URL to point at the running server.
-	// Automatically start dev server for E2E tests when PLAYWRIGHT_BASE_URL
-	// is not set. We use the foreground `npm run dev:all` command so Playwright
-	// spawns the dev servers directly (no background processes/nohup). This keeps the
-	// processes in the same process tree Playwright controls and avoids races
-	// caused by detached background processes.
-	// Prefer a non-interactive, logging-friendly wrapper when running in CI.
-	// Local development keeps using `npm run dev:all` (foreground) which works
-	// well with dev certificates and local HTTPS flows.
-	// Choose a webServer config below. We compute it in a typed variable
+	// When PLAYWRIGHT_BASE_URL is not set, use the local preview wrapper so
+	// Playwright owns the compiled frontend and API lifecycle without detached
+	// background processes. Choose a webServer config below. We compute it in
+	// a typed variable
 	// before passing to defineConfig so ESLint/TS rules are satisfied.
-	webServer: computedWebServer,
+	...(computedWebServer === undefined ? {} : { webServer: computedWebServer }),
 });
 
 // (webServer set above via computedWebServer)

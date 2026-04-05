@@ -30,11 +30,12 @@ const DATA_URL_SEPARATOR_INDEX = 1;
 const BYTE_OFFSET_DEFAULT = 0;
 const LOOP_STEP = 1;
 const FILL_RECT_START = 0;
-const LAST_SEGMENT_INDEX = -1;
 const UPDATED_FOCAL_POINT_X = 12.3;
 const UPDATED_FOCAL_POINT_Y = 87.6;
 const DEFAULT_OBJECT_POSITION = "50% 50%";
 const CARD_VISIBILITY_RELOAD_ATTEMPTS = 4;
+const PERCENT_ROUND_PRECISION = 10;
+const FOCAL_POINT_TEST_TIMEOUT_MS = 180_000;
 
 const missingSession = !existsSync(GOOGLE_USER_SESSION_PATH);
 
@@ -133,19 +134,15 @@ async function uploadTestImage(page: Page): Promise<UploadedImage> {
 }
 
 /**
- * Deletes a test image by id derived from its slug.
+ * Deletes a test image by id.
  *
  * @param page Authenticated owner page.
- * @param imageSlug Uploaded image slug.
+ * @param imageId Uploaded image id.
  * @returns Nothing.
  */
-async function deleteTestImage(page: Page, imageSlug: string): Promise<void> {
+async function deleteTestImage(page: Page, imageId: string): Promise<void> {
 	try {
-		if (imageSlug === "") {
-			return;
-		}
-		const imageId = imageSlug.split("-").at(LAST_SEGMENT_INDEX);
-		if (imageId === undefined || imageId === "") {
+		if (imageId === "") {
 			return;
 		}
 
@@ -175,35 +172,39 @@ async function deleteTestImage(page: Page, imageSlug: string): Promise<void> {
  * @returns Computed object-position value.
  */
 function getLibraryCardObjectPosition(page: Page, imageId: string): Promise<string> {
-	return page.getByTestId(`image-library-card-image-${imageId}`).evaluate((element) => {
+	return page.getByTestId(`image-library-card-image-${imageId}`).evaluate((element, precision) => {
 		if (!(element instanceof HTMLImageElement)) {
 			throw new Error("Expected image library card preview to be an image element");
 		}
-		return globalThis.getComputedStyle(element).objectPosition;
-	});
+		const raw = globalThis.getComputedStyle(element).objectPosition;
+		// Normalize to 1 decimal place to handle cross-browser float precision
+		// differences (e.g. WebKit returns "87.599998%" instead of "87.6%").
+		return raw.replaceAll(/[\d.]+%/g, (match) => `${Math.round(Number.parseFloat(match) * precision) / precision}%`);
+	}, PERCENT_ROUND_PRECISION);
 }
 
-async function setFocalPointFromPreview(page: Page, xPercent: number, yPercent: number): Promise<void> {
+async function setFocalPointFromPreview(
+	page: Page,
+	xPercent: number,
+	yPercent: number,
+): Promise<void> {
 	await setRangeValue(page, "#focal-point-x", xPercent);
 	await setRangeValue(page, "#focal-point-y", yPercent);
 }
 
 async function setRangeValue(page: Page, selector: string, value: number): Promise<void> {
-	await page.locator(selector).evaluate(
-		(element, nextValue) => {
-			if (!(element instanceof HTMLInputElement)) {
-				throw new Error(`Expected ${selector} to resolve to an input element`);
-			}
+	await page.locator(selector).evaluate((element, nextValue) => {
+		if (!(element instanceof HTMLInputElement)) {
+			throw new Error(`Expected ${selector} to resolve to an input element`);
+		}
 
-			Object.getOwnPropertyDescriptor(
-				HTMLInputElement.prototype,
-				"value",
-			)?.set?.call(element, String(nextValue));
-			element.dispatchEvent(new Event("input", { bubbles: true }));
-			element.dispatchEvent(new Event("change", { bubbles: true }));
-		},
-		value,
-	);
+		Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set?.call(
+			element,
+			String(nextValue),
+		);
+		element.dispatchEvent(new Event("input", { bubbles: true }));
+		element.dispatchEvent(new Event("change", { bubbles: true }));
+	}, value);
 }
 
 function readRangeValue(page: Page, selector: string): Promise<string> {
@@ -299,9 +300,13 @@ test.describe("Image focal point realtime", () => {
 	test("updates image library thumbnails in real time after focal point save", async ({
 		browser,
 	}) => {
+		// waitForUpdatedObjectPosition can use a 20s realtime attempt + 75s reload fallback.
+		// Set an explicit 3-minute timeout to cover the full worst-case path.
+		test.setTimeout(FOCAL_POINT_TEST_TIMEOUT_MS);
 		const ownerContext = await newContextWithVersion(browser, GOOGLE_USER_SESSION_PATH);
 		const watcherContext = await newContextWithVersion(browser, GOOGLE_USER_SESSION_PATH);
 
+		let imageId = "";
 		let imageSlug = "";
 
 		try {
@@ -311,13 +316,12 @@ test.describe("Image focal point realtime", () => {
 			const watcherErrors = setupErrorTracking(watcherPage);
 
 			const uploadedImage = await uploadTestImage(ownerPage);
-			const { imageId, imageSlug: uploadedSlug } = uploadedImage;
+			const { imageId: uploadedImageId, imageSlug: uploadedSlug } = uploadedImage;
+			imageId = uploadedImageId;
 			imageSlug = uploadedSlug;
 
 			await watcherPage.goto(`${BASE_URL}/en/dashboard/image-library`, { waitUntil: "load" });
-			await expect(
-				watcherPage.getByRole("heading", { name: /my image library/i }),
-			).toBeVisible({
+			await expect(watcherPage.getByRole("heading", { name: /my image library/i })).toBeVisible({
 				timeout: MANAGE_PAGE_READY_TIMEOUT_MS,
 			});
 			await waitForImageLibraryCard(watcherPage, imageId);
@@ -376,7 +380,7 @@ test.describe("Image focal point realtime", () => {
 		} finally {
 			const cleanupPage = await ownerContext.newPage();
 			try {
-				await deleteTestImage(cleanupPage, imageSlug);
+				await deleteTestImage(cleanupPage, imageId);
 			} finally {
 				await cleanupPage.close();
 			}

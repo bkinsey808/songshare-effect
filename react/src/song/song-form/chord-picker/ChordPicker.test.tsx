@@ -69,8 +69,8 @@ function renderChordPicker({
 			songKey={songKey}
 			setSongKey={setSongKey}
 			hasPendingInsertTarget={hasPendingInsertTarget}
-			{...(initialChordToken === undefined ? {} : { initialChordToken })}
-			{...(isEditingChord ? { isEditingChord } : {})}
+			initialChordToken={initialChordToken}
+			isEditingChord={isEditingChord}
 			closeChordPicker={closeChordPicker}
 			insertChordFromPicker={insertChordFromPicker}
 		/>,

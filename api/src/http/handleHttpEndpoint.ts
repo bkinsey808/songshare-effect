@@ -6,6 +6,10 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import errorToHttpResponse from "./errorToHttpResponse";
 
+function shouldLogAuthenticationError(message: string): boolean {
+	return message !== "Not authenticated";
+}
+
 /**
  * Unified entry point for API endpoints.
  * @param effectFactory - Function to create the Effect for this endpoint.
@@ -25,12 +29,11 @@ export default function handleHttpEndpoint<SuccessData, ErrorType extends AppErr
 				// (401) we keep logging minimal to avoid noisy stack traces for
 				// unauthenticated visitors during normal app usage.
 				try {
-					// If this is an AuthenticationError, log a concise message only
 					if (error instanceof AuthenticationError) {
-						console.warn(
-							"[handleHttpEndpoint] AuthenticationError:",
-							extractErrorMessage(error.message, "Unknown error"),
-						);
+						const errorMessage = extractErrorMessage(error.message, "Unknown error");
+						if (shouldLogAuthenticationError(errorMessage)) {
+							console.warn("[handleHttpEndpoint] AuthenticationError:", errorMessage);
+						}
 					} else if (error instanceof Error) {
 						console.error("[handleHttpEndpoint] Unhandled error:", error.stack ?? error.message);
 					} else {

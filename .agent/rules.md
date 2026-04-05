@@ -15,6 +15,8 @@ Quick-reference coding guidelines. Follow skill links for detailed guidance.
 - **Tailwind string marker**: prefer `tw\`\`` for static Tailwind utility strings so they are clearly compiler-targeted.
 - **No `tw\`\`` interpolation**: do not interpolate runtime values inside `tw\`\``; use CSS custom properties via `cssVars(...)` plus stable classes like `w-[var(--field-width)]` instead.
 
+- **React props**: prefer required component props and explicit presence flags; see [docs/react-best-practices.md](/docs/react-best-practices.md).
+
 ## Skills (load for detailed guidance)
 
 - [**file-organization**](/.github/skills/file-organization/SKILL.md) — no barrel files, direct imports, naming conventions

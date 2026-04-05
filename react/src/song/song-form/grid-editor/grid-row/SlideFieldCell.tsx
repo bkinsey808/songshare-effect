@@ -26,14 +26,18 @@ type SlideFieldCellProps = Readonly<{
 	slides: Readonly<Record<string, Slide>>;
 	safeGetField: SafeSetGetField;
 	editFieldValue: EditFieldValue;
+	textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+	onSyncSelection: () => void;
 }>;
 
 export default function SlideFieldCell({
-	field,
-	slideId,
-	slides,
-	safeGetField,
-	editFieldValue,
+ 	field,
+ 	slideId,
+ 	slides,
+ 	safeGetField,
+ 	editFieldValue,
+ 	textareaRef,
+ 	onSyncSelection,
 }: SlideFieldCellProps): ReactElement {
 	const safeName = String(field).replaceAll(/[^a-zA-Z0-9_-]/g, "-");
 	const varName = `field-${safeName}-width`;
@@ -59,6 +63,11 @@ export default function SlideFieldCell({
 				minRows={2}
 				fillParentHeight
 				growWithContent
+				textareaRef={textareaRef}
+				onClick={onSyncSelection}
+				onFocus={onSyncSelection}
+				onKeyUp={onSyncSelection}
+				onSelect={onSyncSelection}
 			/>
 		</td>
 	);

@@ -84,4 +84,15 @@ describe("handleHttpEndpoint", () => {
 		);
 		warnSpy.mockRestore();
 	});
+
+	it("does not log the expected unauthenticated visitor case", async () => {
+		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+		const ctx = makeCtxWithJsonResponse({ env: { ENVIRONMENT: "development" } });
+		const err = new AuthenticationError({ message: "Not authenticated" });
+		const handler = handleHttpEndpoint(() => Effect.fail(err));
+		await handler(ctx);
+
+		expect(warnSpy).not.toHaveBeenCalled();
+		warnSpy.mockRestore();
+	});
 });

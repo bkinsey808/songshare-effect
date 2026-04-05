@@ -1,18 +1,18 @@
-import { render, waitFor } from "@testing-library/react";
-import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { render, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { Slide } from "@/react/song/song-form/song-form-types";
 import DeleteConfirmationRow, {
-	type DeleteConfirmationRowProps,
+    type DeleteConfirmationRowProps,
 } from "./DeleteConfirmationRow";
 import SlidesGridRow from "./SlidesGridRow";
 import SortableGridCells, {
-	type SortableGridRowInnerProps,
-} from "./SortableGridCells";
+    type SortableGridRowInnerProps,
+} from "./sortable-grid-cells/SortableGridCells";
 
 const BASE_COL_SPAN = 2; // matches FIXED_COLUMN_COUNT in component
 
@@ -91,6 +91,7 @@ function makeProps(overrides: Partial<Props> = {}): Props {
 		toggleBackgroundPicker: vi.fn(),
 		selectSlideBackgroundImage: vi.fn(),
 		clearSlideBackgroundImage: vi.fn(),
+		openChordPicker: vi.fn(),
 	};
 
 	return { ...defaultProps, ...overrides };

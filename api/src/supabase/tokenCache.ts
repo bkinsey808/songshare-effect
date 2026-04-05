@@ -6,12 +6,21 @@ let tokenExpiry: number | undefined = undefined;
 let cachedRealtimeToken: string | undefined = undefined;
 
 /**
- * Cache for user-specific tokens keyed by user email. Each entry contains the
- * `token` string and its numeric `expiry` time (epoch seconds).
+ * Cached user-token entry keyed by a caller-chosen identity string.
  */
-export const userTokenCache: Map<string, { token: string; expiry: number }> = new Map<
+export type UserTokenCacheEntry = Readonly<{
+	token: string;
+	expiry: number;
+	realtimeToken?: string | undefined;
+}>;
+
+/**
+ * Cache for user-specific tokens keyed by a stable identity string such as
+ * email or `user_id`.
+ */
+export const userTokenCache: Map<string, UserTokenCacheEntry> = new Map<
 	string,
-	{ token: string; expiry: number }
+	UserTokenCacheEntry
 >();
 
 /**
@@ -26,7 +35,11 @@ export function getCachedClientToken(): {
 	expiry: number | undefined;
 	realtimeToken: string | undefined;
 } {
-	return { token: cachedSupabaseClientToken, expiry: tokenExpiry, realtimeToken: cachedRealtimeToken };
+	return {
+		token: cachedSupabaseClientToken,
+		expiry: tokenExpiry,
+		realtimeToken: cachedRealtimeToken,
+	};
 }
 
 /**
