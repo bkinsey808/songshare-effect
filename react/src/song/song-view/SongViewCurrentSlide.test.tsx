@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
 import useChordDisplayModePreference from "@/react/chord-display-mode/useChordDisplayModePreference";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import mockUseTranslation from "@/react/lib/test-utils/mockUseTranslation";
 import useSlideNumberPreference from "@/react/slide-number/useSlideNumberPreference";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
 import { ResolvedSlideOrientation, SlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
@@ -29,15 +29,6 @@ const LANDSCAPE_IMAGE_HEIGHT = "118.52%";
 const LANDSCAPE_FOCAL_POINT_X = 20;
 const LANDSCAPE_FOCAL_POINT_Y = 50;
 
-function installI18nMock(): void {
-	vi.mocked(useTranslation).mockReturnValue(
-		forceCast<ReturnType<typeof useTranslation>>({
-			t: (_key: string, fallback?: string) => fallback ?? "",
-			i18n: { changeLanguage: vi.fn(), language: "en" },
-		}),
-	);
-}
-
 function installSlideOrientationMock(
 	effectiveSlideOrientation: "landscape" | "portrait" = ResolvedSlideOrientation.landscape,
 ): void {
@@ -58,9 +49,14 @@ function installSlideNumberPreferenceMock(showSlideNumber = false): void {
 	});
 }
 
-function installChordDisplayModeMock(chordDisplayMode: "letters" | "german" | "indian" | "roman" | "solfege" = "letters"): void {
+function installChordDisplayModeMock(
+	chordDisplayMode: "letters" | "german" | "roman" | "sargam" | "solfege" = "letters",
+): void {
 	vi.mocked(useChordDisplayModePreference).mockReturnValue({
+		chordDisplayCategory: "letters",
+		chordLetterDisplay: "standard",
 		chordDisplayMode,
+		chordScaleDegreeDisplay: "roman",
 	});
 }
 
@@ -81,7 +77,7 @@ function installAppStoreMock({
 
 describe("song view current slide", () => {
 	it("renders a background image element when slide has background_image_url", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock();
 		installSlideOrientationMock();
@@ -106,7 +102,7 @@ describe("song view current slide", () => {
 	});
 
 	it("does not render a background image style when background is missing", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock();
 		installSlideOrientationMock();
@@ -129,7 +125,7 @@ describe("song view current slide", () => {
 	});
 
 	it("uses a portrait aspect ratio when portrait orientation is active", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock();
 		installSlideOrientationMock(ResolvedSlideOrientation.portrait);
@@ -153,7 +149,7 @@ describe("song view current slide", () => {
 	});
 
 	it("renders the slide number without parentheses", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock();
 		installSlideOrientationMock();
@@ -176,7 +172,7 @@ describe("song view current slide", () => {
 	});
 
 	it("centers the focal point exactly when image dimensions are available", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock({
 			imageLibraryEntries: {
 				"img-1": forceCast<AppSlice["imageLibraryEntries"][string]>({
@@ -229,7 +225,7 @@ describe("song view current slide", () => {
 	});
 
 	it("centers the focal point vertically in landscape when image dimensions are available", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock({
 			imageLibraryEntries: {
 				"img-1": forceCast<AppSlice["imageLibraryEntries"][string]>({
@@ -282,7 +278,7 @@ describe("song view current slide", () => {
 	});
 
 	it("renders transformed lyric chords using the selected display mode", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock("solfege");
 		installSlideOrientationMock();

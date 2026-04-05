@@ -1,9 +1,18 @@
 import type { CurrentUser } from "@/react/auth/current-user/CurrentUser.type";
-import type { UserSessionData } from "@/shared/userSessionData";
-import { coerceChordDisplayMode } from "@/shared/user/chordDisplayMode";
+import {
+	coerceChordDisplayPreferences,
+	getChordDisplayModeFromPreferences,
+} from "@/shared/user/chord-display/chordDisplayPreferences";
 import { coerceSlideNumberPreference } from "@/shared/user/slideNumberPreference";
 import { coerceSlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
+import type { UserSessionData } from "@/shared/userSessionData";
 
+/**
+ * Converts stored session data into the normalized current-user shape consumed by the React app.
+ *
+ * @param userSessionData - Session payload from the app store, if present
+ * @returns Normalized current user data, or `undefined` when there is no active session
+ */
 export default function computeCurrentUser(
 	userSessionData: UserSessionData | undefined,
 ): CurrentUser | undefined {
@@ -11,8 +20,17 @@ export default function computeCurrentUser(
 		return undefined;
 	}
 
+	const chordDisplayPreferences = coerceChordDisplayPreferences({
+		chordDisplayCategory: userSessionData.user.chord_display_category,
+		chordLetterDisplay: userSessionData.user.chord_letter_display,
+		chordScaleDegreeDisplay: userSessionData.user.chord_scale_degree_display,
+	});
+
 	return {
-		chordDisplayMode: coerceChordDisplayMode(userSessionData.user.chord_display_mode),
+		chordDisplayCategory: chordDisplayPreferences.chordDisplayCategory,
+		chordLetterDisplay: chordDisplayPreferences.chordLetterDisplay,
+		chordDisplayMode: getChordDisplayModeFromPreferences(chordDisplayPreferences),
+		chordScaleDegreeDisplay: chordDisplayPreferences.chordScaleDegreeDisplay,
 		email: userSessionData.user.email,
 		name: userSessionData.user.name,
 		role: userSessionData.user.role,

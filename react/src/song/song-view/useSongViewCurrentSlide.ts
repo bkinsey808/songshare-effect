@@ -5,7 +5,7 @@ import useAppStore from "@/react/app-store/useAppStore";
 import useChordDisplayModePreference from "@/react/chord-display-mode/useChordDisplayModePreference";
 import useSlideNumberPreference from "@/react/slide-number/useSlideNumberPreference";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
-import { transformChordTextForDisplay } from "@/shared/music/chord-display";
+import transformChordTextForDisplay from "@/shared/music/chord-display/transformChordTextForDisplay";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 import isRecord from "@/shared/type-guards/isRecord";
 import { ResolvedSlideOrientation } from "@/shared/user/slideOrientationPreference";
@@ -108,7 +108,9 @@ export default function useSongViewCurrentSlide({
 	const isEmpty = totalSlides === MIN_SLIDE_INDEX;
 	const isRenderable = currentSlide !== undefined && isRecord(currentSlide);
 	const slideNameStr =
-		isRenderable && typeof currentSlide["slide_name"] === "string" ? currentSlide["slide_name"] : "";
+		isRenderable && typeof currentSlide["slide_name"] === "string"
+			? currentSlide["slide_name"]
+			: "";
 	const backgroundImageUrl =
 		isRenderable && typeof currentSlide["background_image_url"] === "string"
 			? currentSlide["background_image_url"]
@@ -122,7 +124,9 @@ export default function useSongViewCurrentSlide({
 		if (!isRenderable) {
 			return "";
 		}
-		const fieldData = isRecord(currentSlide["field_data"]) ? currentSlide["field_data"][field] : undefined;
+		const fieldData = isRecord(currentSlide["field_data"])
+			? currentSlide["field_data"][field]
+			: undefined;
 		if (typeof fieldData !== "string") {
 			return "";
 		}

@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-04-02T21:25:30.111Z
+ * Last generated: 2026-04-05T06:45:14.733Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -1537,7 +1537,9 @@ export type TagLibraryUpdate = Schema.Schema.Type<
 
 // user table schemas
 export const UserSchema: Schema.Struct<{
-	chord_display_mode: Schema.Literal<["letters", "solfege", "indian", "german", "roman"]>;
+	chord_display_category: Schema.Literal<["letters", "scale_degree"]>;
+	chord_letter_display: Schema.Literal<["standard", "german"]>;
+	chord_scale_degree_display: Schema.Literal<["roman", "solfege", "sargam"]>;
 	created_at: typeof Schema.NonEmptyString;
 	email: typeof EmailSchema;
 	google_calendar_access: typeof Schema.NonEmptyString;
@@ -1552,7 +1554,9 @@ export const UserSchema: Schema.Struct<{
 	updated_at: typeof Schema.NonEmptyString;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
-	chord_display_mode: Schema.Literal("letters", "solfege", "indian", "german", "roman"),
+	chord_display_category: Schema.Literal("letters", "scale_degree"),
+	chord_letter_display: Schema.Literal("standard", "german"),
+	chord_scale_degree_display: Schema.Literal("roman", "solfege", "sargam"),
 	created_at: Schema.NonEmptyString,
 	email: EmailSchema,
 	google_calendar_access: Schema.NonEmptyString,
@@ -1571,7 +1575,9 @@ export const UserSchema: Schema.Struct<{
 export type User = Schema.Schema.Type<typeof UserSchema>;
 
 export const UserInsertSchema: Schema.Struct<{
-	chord_display_mode: Schema.optional<Schema.Literal<["letters", "solfege", "indian", "german", "roman"]>>;
+	chord_display_category: Schema.optional<Schema.Literal<["letters", "scale_degree"]>>;
+	chord_letter_display: Schema.optional<Schema.Literal<["standard", "german"]>>;
+	chord_scale_degree_display: Schema.optional<Schema.Literal<["roman", "solfege", "sargam"]>>;
 	email: typeof EmailSchema;
 	google_calendar_access: Schema.optional<typeof Schema.NonEmptyString>;
 	google_calendar_refresh_token: Schema.optional<typeof Schema.String>;
@@ -1584,7 +1590,9 @@ export const UserInsertSchema: Schema.Struct<{
 	sub: Schema.optional<typeof Schema.String>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
-	chord_display_mode: Schema.optional(Schema.Literal("letters", "solfege", "indian", "german", "roman")),
+	chord_display_category: Schema.optional(Schema.Literal("letters", "scale_degree")),
+	chord_letter_display: Schema.optional(Schema.Literal("standard", "german")),
+	chord_scale_degree_display: Schema.optional(Schema.Literal("roman", "solfege", "sargam")),
 	email: EmailSchema,
 	google_calendar_access: Schema.optional(Schema.NonEmptyString),
 	google_calendar_refresh_token: Schema.optional(Schema.String),
@@ -1601,7 +1609,9 @@ export const UserInsertSchema: Schema.Struct<{
 export type UserInsert = Schema.Schema.Type<typeof UserInsertSchema>;
 
 export const UserUpdateSchema: Schema.Struct<{
-	chord_display_mode: Schema.optional<Schema.Literal<["letters", "solfege", "indian", "german", "roman"]>>;
+	chord_display_category: Schema.optional<Schema.Literal<["letters", "scale_degree"]>>;
+	chord_letter_display: Schema.optional<Schema.Literal<["standard", "german"]>>;
+	chord_scale_degree_display: Schema.optional<Schema.Literal<["roman", "solfege", "sargam"]>>;
 	email: Schema.optional<typeof EmailSchema>;
 	google_calendar_access: Schema.optional<typeof Schema.NonEmptyString>;
 	google_calendar_refresh_token: Schema.optional<typeof Schema.String>;
@@ -1614,7 +1624,9 @@ export const UserUpdateSchema: Schema.Struct<{
 	sub: Schema.optional<typeof Schema.String>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
-	chord_display_mode: Schema.optional(Schema.Literal("letters", "solfege", "indian", "german", "roman")),
+	chord_display_category: Schema.optional(Schema.Literal("letters", "scale_degree")),
+	chord_letter_display: Schema.optional(Schema.Literal("standard", "german")),
+	chord_scale_degree_display: Schema.optional(Schema.Literal("roman", "solfege", "sargam")),
 	email: Schema.optional(EmailSchema),
 	google_calendar_access: Schema.optional(Schema.NonEmptyString),
 	google_calendar_refresh_token: Schema.optional(Schema.String),

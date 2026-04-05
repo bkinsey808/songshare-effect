@@ -1,35 +1,16 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
+import mockUseTranslation from "@/react/lib/test-utils/mockUseTranslation";
 import { ONE } from "@/shared/constants/shared-constants";
 
 import ImageEditFormFooter from "./ImageEditFormFooter";
 
 vi.mock("react-i18next");
 
-/**
- * @param key - translation key
- * @param defaultVal - fallback value
- * @returns translated value or default
- */
-function translateOrDefault(key: string, defaultVal?: string | Record<string, unknown>): string {
-	return typeof defaultVal === "string" ? defaultVal : key;
-}
-
-function installI18nMock(): void {
-	vi.mocked(useTranslation).mockReturnValue(
-		forceCast<ReturnType<typeof useTranslation>>({
-			t: translateOrDefault,
-			i18n: { changeLanguage: vi.fn(), language: "en" },
-		}),
-	);
-}
-
 describe("image edit form footer", () => {
 	it("renders save, reset, cancel, and delete buttons", () => {
-		installI18nMock();
+		mockUseTranslation();
 
 		render(
 			<ImageEditFormFooter
@@ -50,7 +31,7 @@ describe("image edit form footer", () => {
 	});
 
 	it("prompts before leaving when there are unsaved changes", () => {
-		installI18nMock();
+		mockUseTranslation();
 		const onCancel = vi.fn();
 
 		render(
@@ -79,7 +60,7 @@ describe("image edit form footer", () => {
 	});
 
 	it("calls cancel immediately when nothing changed", () => {
-		installI18nMock();
+		mockUseTranslation();
 		const onCancel = vi.fn();
 
 		render(
@@ -100,7 +81,7 @@ describe("image edit form footer", () => {
 	});
 
 	it("applies the unsaved footer color state", () => {
-		installI18nMock();
+		mockUseTranslation();
 		const { container, rerender } = render(
 			<ImageEditFormFooter
 				hasChanges
@@ -131,7 +112,7 @@ describe("image edit form footer", () => {
 	});
 
 	it("prompts before deleting and confirms the delete action", () => {
-		installI18nMock();
+		mockUseTranslation();
 		const onDelete = vi.fn().mockResolvedValue(undefined);
 
 		render(

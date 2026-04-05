@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict sdslOjyyD6HWixznlbjMhuVtjsC0U6PKKWSW22tkaiBthWVsUgyemdbGSf6PuWc
+\restrict UhsbFEOEMt2OMnZuBQ0ARBH1uCEwMmPJsV0rnUdsjA8Q8GlH0zbMaqKSMvOPhdz
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -1281,8 +1281,12 @@ CREATE TABLE public."user" (
     linked_providers text[],
     slide_orientation_preference text DEFAULT 'system'::text NOT NULL,
     slide_number_preference text DEFAULT 'hide'::text NOT NULL,
-    chord_display_mode text DEFAULT 'letters'::text NOT NULL,
-    CONSTRAINT user_chord_display_mode_check CHECK ((chord_display_mode = ANY (ARRAY['letters'::text, 'solfege'::text, 'indian'::text, 'german'::text, 'roman'::text]))),
+    chord_display_category text DEFAULT 'scale_degree'::text NOT NULL,
+    chord_letter_display text DEFAULT 'standard'::text NOT NULL,
+    chord_scale_degree_display text DEFAULT 'roman'::text NOT NULL,
+    CONSTRAINT user_chord_display_category_check CHECK ((chord_display_category = ANY (ARRAY['letters'::text, 'scale_degree'::text]))),
+    CONSTRAINT user_chord_letter_display_check CHECK ((chord_letter_display = ANY (ARRAY['standard'::text, 'german'::text]))),
+    CONSTRAINT user_chord_scale_degree_display_check CHECK ((chord_scale_degree_display = ANY (ARRAY['roman'::text, 'solfege'::text, 'sargam'::text]))),
     CONSTRAINT user_role_check CHECK ((role = ANY (ARRAY['free'::text, 'patron'::text, 'admin'::text]))),
     CONSTRAINT user_slide_number_preference_check CHECK ((slide_number_preference = ANY (ARRAY['show'::text, 'hide'::text]))),
     CONSTRAINT user_slide_orientation_preference_check CHECK ((slide_orientation_preference = ANY (ARRAY['landscape'::text, 'portrait'::text, 'system'::text])))
@@ -1306,10 +1310,24 @@ COMMENT ON COLUMN public."user".slide_number_preference IS 'Global slide number 
 
 
 --
--- Name: COLUMN "user".chord_display_mode; Type: COMMENT; Schema: public; Owner: -
+-- Name: COLUMN "user".chord_display_category; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON COLUMN public."user".chord_display_mode IS 'Global chord display mode for the signed-in user: letters, solfege, indian, german, or roman.';
+COMMENT ON COLUMN public."user".chord_display_category IS 'Active chord display category for the signed-in user: letters or scale_degree.';
+
+
+--
+-- Name: COLUMN "user".chord_letter_display; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public."user".chord_letter_display IS 'Preferred chord letter display for the signed-in user: standard or german.';
+
+
+--
+-- Name: COLUMN "user".chord_scale_degree_display; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public."user".chord_scale_degree_display IS 'Preferred chord scale degree display for the signed-in user: roman, solfege, or sargam.';
 
 
 --
@@ -3599,5 +3617,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict sdslOjyyD6HWixznlbjMhuVtjsC0U6PKKWSW22tkaiBthWVsUgyemdbGSf6PuWc
+\unrestrict UhsbFEOEMt2OMnZuBQ0ARBH1uCEwMmPJsV0rnUdsjA8Q8GlH0zbMaqKSMvOPhdz
 

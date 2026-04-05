@@ -1,16 +1,23 @@
+import { useRef, useState } from "react";
+
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
+import findChordTokenAtSelection from "@/react/song/song-form/chord-picker/findChordTokenAtSelection";
+import insertTextAtSelection from "@/react/song/song-form/chord-picker/insertTextAtSelection";
 import hashToHue from "@/react/song/song-form/grid-editor/duplicateTint";
-import { type Slide } from "@/react/song/song-form/song-form-types";
+import { type OpenChordPicker, type Slide } from "@/react/song/song-form/song-form-types";
 import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import { safeGet } from "@/shared/utils/safe";
+
+const DEFAULT_SELECTION_POSITION = 0;
 
 type UseSlideDetailCardParams = Readonly<{
 	slideId: string;
 	idx: number;
 	slideOrder: readonly string[];
 	slides: Readonly<Record<string, Slide>>;
+	openChordPicker: OpenChordPicker;
 	confirmingDeleteSlideId: string | undefined;
 	setConfirmingDeleteSlideId: (slideId: string | undefined) => void;
 	backgroundPickerSlideId: string | undefined;
@@ -53,6 +60,8 @@ type UseSlideDetailCardReturn = Readonly<{
 				style: React.CSSProperties & Record<"--duplicate-row-hue", string>;
 		  }>
 		| undefined;
+	lyricsTextareaRef: React.RefObject<HTMLTextAreaElement | null>;
+	selectedChordToken: ReturnType<typeof findChordTokenAtSelection>;
 	onEditSlideName: (newName: string) => void;
 	onEditFieldValue: (
 		params: Readonly<{
@@ -60,6 +69,7 @@ type UseSlideDetailCardReturn = Readonly<{
 			value: string;
 		}>,
 	) => void;
+	onLyricsChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 	onToggleBackgroundPicker: () => void;
 	onSelectBackgroundImage: (
 		params: Readonly<{
@@ -67,6 +77,7 @@ type UseSlideDetailCardReturn = Readonly<{
 			backgroundImageUrl: string;
 		}>,
 	) => void;
+	onOpenChordPicker: () => void;
 	onClearSlideBackgroundImage: () => void;
 	onMoveUp: () => void;
 	onMoveDown: () => void;
@@ -74,6 +85,7 @@ type UseSlideDetailCardReturn = Readonly<{
 	onConfirmDelete: () => void;
 	onRemoveFromPresentation: () => void;
 	onRequestDelete: () => void;
+	onSyncLyricsSelection: () => void;
 }>;
 
 /**
@@ -89,6 +101,7 @@ export default function useSlideDetailCard({
 	idx,
 	slideOrder,
 	slides,
+	openChordPicker,
 	confirmingDeleteSlideId,
 	setConfirmingDeleteSlideId,
 	backgroundPickerSlideId,
@@ -112,6 +125,17 @@ export default function useSlideDetailCard({
 	const canMoveDown = idx !== slideOrder.length - ONE;
 	const hasMultipleSlides = slideOrder.length > ONE;
 	const slide = safeGet(slides, slideId);
+	const lyricsTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+	const [lyricsSelection, setLyricsSelection] = useState({
+		selectionStart: DEFAULT_SELECTION_POSITION,
+		selectionEnd: DEFAULT_SELECTION_POSITION,
+	});
+	const lyricsValue = slide?.field_data["lyrics"] ?? "";
+	const selectedChordToken = findChordTokenAtSelection({
+		value: lyricsValue,
+		selectionStart: lyricsSelection.selectionStart,
+		selectionEnd: lyricsSelection.selectionEnd,
+	});
 	const duplicateTintProps = isDuplicate
 		? {
 				"data-duplicate-tint": "" as const,
@@ -145,6 +169,106 @@ export default function useSlideDetailCard({
 		value: string;
 	}>): void {
 		editFieldValue({ slideId, field, value });
+	}
+
+	/**
+	 * Updates the lyrics field and keeps the local selection snapshot in sync.
+	 *
+	 * @param event - Textarea change event from the lyrics editor
+	 * @returns Nothing
+	 */
+	function onLyricsChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
+		onEditFieldValue({
+			field: "lyrics",
+			value: event.target.value,
+		});
+		setLyricsSelection({
+			selectionStart: event.target.selectionStart,
+			selectionEnd: event.target.selectionEnd,
+		});
+	}
+
+	/**
+	 * Inserts or replaces the selected chord token and restores the caret after the edit.
+	 *
+	 * @param token - Chord token to insert into the lyrics
+	 * @param selectionStart - Optional insertion or replacement start offset
+	 * @param selectionEnd - Optional insertion or replacement end offset
+	 * @returns Nothing
+	 */
+	function handleInsertChord(token: string, selectionStart?: number, selectionEnd?: number): void {
+		const currentSlide = slide;
+		if (currentSlide === undefined) {
+			return;
+		}
+
+		const currentLyrics = currentSlide.field_data["lyrics"] ?? "";
+		const insertionResult = insertTextAtSelection({
+			value: currentLyrics,
+			insertion: token,
+			...(selectionStart === undefined ? {} : { selectionStart }),
+			...(selectionEnd === undefined ? {} : { selectionEnd }),
+		});
+
+		onEditFieldValue({
+			field: "lyrics",
+			value: insertionResult.nextValue,
+		});
+		setLyricsSelection({
+			selectionStart: insertionResult.nextSelectionStart,
+			selectionEnd: insertionResult.nextSelectionStart,
+		});
+
+		requestAnimationFrame(() => {
+			lyricsTextareaRef.current?.focus();
+			lyricsTextareaRef.current?.setSelectionRange(
+				insertionResult.nextSelectionStart,
+				insertionResult.nextSelectionStart,
+			);
+		});
+	}
+
+	/**
+	 * Opens the chord picker with either insert or replace behavior based on the current selection.
+	 *
+	 * @returns Nothing
+	 */
+	function onOpenChordPicker(): void {
+		const selectionStart = lyricsTextareaRef.current?.selectionStart;
+		const selectionEnd = lyricsTextareaRef.current?.selectionEnd;
+		const chordTokenAtSelection = findChordTokenAtSelection({
+			value: lyricsValue,
+			selectionStart,
+			selectionEnd,
+		});
+
+		openChordPicker({
+			submitChord: (token) => {
+				handleInsertChord(
+					token,
+					chordTokenAtSelection?.tokenStart ?? selectionStart,
+					chordTokenAtSelection?.tokenEnd ?? selectionEnd,
+				);
+			},
+			...(chordTokenAtSelection === undefined
+				? {}
+				: {
+						initialChordToken: chordTokenAtSelection.token,
+						isEditingChord: true,
+					}),
+		});
+	}
+
+	/**
+	 * Copies the live textarea selection into local state used by chord-edit affordances.
+	 *
+	 * @returns Nothing
+	 */
+	function onSyncLyricsSelection(): void {
+		setLyricsSelection({
+			selectionStart: lyricsTextareaRef.current?.selectionStart ?? DEFAULT_SELECTION_POSITION,
+			selectionEnd: lyricsTextareaRef.current?.selectionEnd ?? DEFAULT_SELECTION_POSITION,
+		});
 	}
 
 	/**
@@ -247,10 +371,14 @@ export default function useSlideDetailCard({
 		isImageLibraryLoading,
 		imageLibraryEntryList,
 		duplicateTintProps,
+		lyricsTextareaRef,
+		selectedChordToken,
 		onEditSlideName,
 		onEditFieldValue,
+		onLyricsChange,
 		onToggleBackgroundPicker,
 		onSelectBackgroundImage,
+		onOpenChordPicker,
 		onClearSlideBackgroundImage,
 		onMoveUp,
 		onMoveDown,
@@ -258,5 +386,6 @@ export default function useSlideDetailCard({
 		onConfirmDelete,
 		onRemoveFromPresentation,
 		onRequestDelete,
+		onSyncLyricsSelection,
 	};
 }

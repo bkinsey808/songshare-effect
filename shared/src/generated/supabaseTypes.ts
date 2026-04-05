@@ -1249,7 +1249,9 @@ export type Database = {
       }
       user: {
         Row: {
-          chord_display_mode: "letters" | "solfege" | "indian" | "german" | "roman"
+          chord_display_category: "letters" | "scale_degree"
+          chord_letter_display: "standard" | "german"
+          chord_scale_degree_display: "roman" | "solfege" | "sargam"
           created_at: string
           email: string
           google_calendar_access: string
@@ -1265,7 +1267,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          chord_display_mode?: "letters" | "solfege" | "indian" | "german" | "roman"
+          chord_display_category?: "letters" | "scale_degree"
+          chord_letter_display?: "standard" | "german"
+          chord_scale_degree_display?: "roman" | "solfege" | "sargam"
           created_at?: string
           email: string
           google_calendar_access?: string
@@ -1281,7 +1285,9 @@ export type Database = {
           user_id?: string
         }
         Update: {
-          chord_display_mode?: "letters" | "solfege" | "indian" | "german" | "roman"
+          chord_display_category?: "letters" | "scale_degree"
+          chord_letter_display?: "standard" | "german"
+          chord_scale_degree_display?: "roman" | "solfege" | "sargam"
           created_at?: string
           email?: string
           google_calendar_access?: string

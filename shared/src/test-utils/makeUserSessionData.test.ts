@@ -8,11 +8,23 @@ describe("makeUserSessionData", () => {
 	it("fills in complete user and user_public defaults", () => {
 		const session = makeUserSessionData();
 
-		expect(session.user.chord_display_mode).toBe("roman");
-		expect(session.user.slide_orientation_preference).toBe("system");
-		expect(session.userPublic.user_id).toBe(session.user.user_id);
-		expect(session.oauthUserData.email).toBe(session.user.email);
-		expect(session.ip).toBe("127.0.0.1");
+		expect({
+			chordDisplayCategory: session.user.chord_display_category,
+			chordLetterDisplay: session.user.chord_letter_display,
+			chordScaleDegreeDisplay: session.user.chord_scale_degree_display,
+			ip: session.ip,
+			oauthEmail: session.oauthUserData.email,
+			slideOrientationPreference: session.user.slide_orientation_preference,
+			userPublicUserId: session.userPublic.user_id,
+		}).toStrictEqual({
+			chordDisplayCategory: "scale_degree",
+			chordLetterDisplay: "standard",
+			chordScaleDegreeDisplay: "roman",
+			ip: "127.0.0.1",
+			oauthEmail: session.user.email,
+			slideOrientationPreference: "system",
+			userPublicUserId: session.user.user_id,
+		});
 	});
 
 	it("applies nested overrides while preserving defaults", () => {
@@ -21,13 +33,25 @@ describe("makeUserSessionData", () => {
 			userPublic: { username: "customuser" },
 		});
 
-		expect(session.user.user_id).toBe(TEST_USER_ID);
-		expect(session.user.name).toBe("Custom User");
-		expect(session.user.chord_display_mode).toBe("roman");
-		expect(session.user.slide_orientation_preference).toBe("system");
-		expect(session.userPublic).toStrictEqual({
-			user_id: TEST_USER_ID,
-			username: "customuser",
+		expect({
+			chordDisplayCategory: session.user.chord_display_category,
+			chordLetterDisplay: session.user.chord_letter_display,
+			chordScaleDegreeDisplay: session.user.chord_scale_degree_display,
+			name: session.user.name,
+			slideOrientationPreference: session.user.slide_orientation_preference,
+			userId: session.user.user_id,
+			userPublic: session.userPublic,
+		}).toStrictEqual({
+			chordDisplayCategory: "scale_degree",
+			chordLetterDisplay: "standard",
+			chordScaleDegreeDisplay: "roman",
+			name: "Custom User",
+			slideOrientationPreference: "system",
+			userId: TEST_USER_ID,
+			userPublic: {
+				user_id: TEST_USER_ID,
+				username: "customuser",
+			},
 		});
 	});
 });

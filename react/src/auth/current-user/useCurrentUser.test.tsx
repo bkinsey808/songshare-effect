@@ -4,7 +4,10 @@ import { describe, expect, it, vi } from "vitest";
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
-import { ChordDisplayMode } from "@/shared/user/chordDisplayMode";
+import { ChordDisplayCategory } from "@/shared/user/chord-display/chordDisplayCategory";
+import { ChordDisplayMode } from "@/shared/user/chord-display/effectiveChordDisplayMode";
+import { ChordLetterDisplay } from "@/shared/user/chordLetterDisplay";
+import { ChordScaleDegreeDisplay } from "@/shared/user/chordScaleDegreeDisplay";
 import { SlideNumberPreference } from "@/shared/user/slideNumberPreference";
 import { SlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
 import type { UserSessionData } from "@/shared/userSessionData";
@@ -142,7 +145,10 @@ describe("useCurrentUser — renderHook", () => {
 
 		// Assert
 		expect(result.current).toStrictEqual({
+			chordDisplayCategory: ChordDisplayCategory.scaleDegree,
+			chordLetterDisplay: ChordLetterDisplay.standard,
 			chordDisplayMode: ChordDisplayMode.roman,
+			chordScaleDegreeDisplay: ChordScaleDegreeDisplay.roman,
 			email: USER_EMAIL,
 			name: USER_NAME,
 			role: USER_ROLE,

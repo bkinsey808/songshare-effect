@@ -7,10 +7,18 @@ import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAut
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import createRealtimeSubscription from "@/react/lib/supabase/subscription/realtime/createRealtimeSubscription";
 import isRecord from "@/shared/type-guards/isRecord";
-import { coerceChordDisplayMode } from "@/shared/user/chordDisplayMode";
+import { coerceChordDisplayCategory } from "@/shared/user/chord-display/chordDisplayCategory";
+import { coerceChordLetterDisplay } from "@/shared/user/chordLetterDisplay";
+import { coerceChordScaleDegreeDisplay } from "@/shared/user/chordScaleDegreeDisplay";
 import { coerceSlideNumberPreference } from "@/shared/user/slideNumberPreference";
 import { coerceSlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
 
+/**
+ * Keeps the signed-in user's profile and preference fields synchronized from Supabase realtime
+ * updates.
+ *
+ * @returns void
+ */
 export default function useCurrentUserRealtimeSync(): void {
 	const currentUser = useCurrentUser();
 	const updateUserSessionUser = useAppStore((state) => state.updateUserSessionUser);
@@ -60,10 +68,26 @@ export default function useCurrentUserRealtimeSync(): void {
 							});
 						}
 
-						const nextChordDisplayMode = payload["new"]["chord_display_mode"];
-						if (typeof nextChordDisplayMode === "string") {
+						const nextChordDisplayCategory = payload["new"]["chord_display_category"];
+						if (typeof nextChordDisplayCategory === "string") {
 							updateUserSessionUser({
-								chord_display_mode: coerceChordDisplayMode(nextChordDisplayMode),
+								chord_display_category: coerceChordDisplayCategory(nextChordDisplayCategory),
+							});
+						}
+
+						const nextChordLetterDisplay = payload["new"]["chord_letter_display"];
+						if (typeof nextChordLetterDisplay === "string") {
+							updateUserSessionUser({
+								chord_letter_display: coerceChordLetterDisplay(nextChordLetterDisplay),
+							});
+						}
+
+						const nextChordScaleDegreeDisplay = payload["new"]["chord_scale_degree_display"];
+						if (typeof nextChordScaleDegreeDisplay === "string") {
+							updateUserSessionUser({
+								chord_scale_degree_display: coerceChordScaleDegreeDisplay(
+									nextChordScaleDegreeDisplay,
+								),
 							});
 						}
 

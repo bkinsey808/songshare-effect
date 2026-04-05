@@ -281,11 +281,15 @@
 		"hide": "Hide"
 	},
 	"chordDisplayMode": {
-		"label": "Chords",
-		"letters": "Letters",
+		"label": "Chord Display",
+		"lettersCategory": "Letter",
+		"scaleDegreeCategory": "Scale Degree",
+		"letterDisplay": "Letter Display",
+		"scaleDegreeDisplay": "Scale Degree Display",
+		"letters": "Standard Letters",
 		"solfege": "Solfège",
-		"indian": "Indian",
-		"german": "German",
+		"sargam": "Sargam",
+		"german": "German Letters",
 		"roman": "Roman Numerals"
 	}
 }

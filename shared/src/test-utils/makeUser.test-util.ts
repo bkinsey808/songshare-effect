@@ -10,8 +10,10 @@ const DEFAULT_TIMESTAMP = "2026-01-01T00:00:00Z";
  */
 export default function makeUser(overrides: Partial<User> = {}): User {
 	const base: User = {
+		chord_display_category: "scale_degree",
 		user_id: TEST_USER_ID,
-		chord_display_mode: "roman",
+		chord_letter_display: "standard",
+		chord_scale_degree_display: "roman",
 		email: "u@example.com",
 		google_calendar_access: "none",
 		google_calendar_refresh_token: undefined,

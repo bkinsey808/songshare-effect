@@ -4,11 +4,11 @@ import { describe, expect, it, vi } from "vitest";
 import { userSessionCookieName } from "@/api/cookie/cookie";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import forceCast from "@/shared/test-utils/forceCast.test-util";
+import makeNull from "@/shared/test-utils/makeNull.test-util";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 import type { UserSessionData } from "@/shared/userSessionData";
 
-import makeNull from "@/shared/test-utils/makeNull.test-util";
 import updateChordDisplayMode from "./updateChordDisplayMode";
 
 vi.mock("@/api/supabase/getSupabaseServerClient");
@@ -42,7 +42,9 @@ describe("updateChordDisplayMode", () => {
 
 		const ctx = makeCtx({
 			body: {
-				chordDisplayMode: "roman",
+				chordDisplayCategory: "scale_degree",
+				chordLetterDisplay: "standard",
+				chordScaleDegreeDisplay: "solfege",
 			},
 		});
 
@@ -50,7 +52,9 @@ describe("updateChordDisplayMode", () => {
 
 		expect(from).toHaveBeenCalledWith("user");
 		expect(update).toHaveBeenCalledWith({
-			chord_display_mode: "roman",
+			chord_display_category: "scale_degree",
+			chord_letter_display: "standard",
+			chord_scale_degree_display: "solfege",
 		});
 		expect(eq).toHaveBeenCalledWith("user_id", TEST_USER_ID);
 		expect(vi.mocked(buildUserSessionJwtModule.default)).toHaveBeenCalledWith({
@@ -58,14 +62,18 @@ describe("updateChordDisplayMode", () => {
 			supabase: client,
 			existingUser: {
 				...SAMPLE_SESSION.user,
-				chord_display_mode: "roman",
+				chord_display_category: "scale_degree",
+				chord_letter_display: "standard",
+				chord_scale_degree_display: "solfege",
 			},
 			oauthUserData: SAMPLE_SESSION.oauthUserData,
 			oauthState: SAMPLE_SESSION.oauthState,
 		});
 		expect(ctx.res.headers.get("Set-Cookie")).toContain(`${userSessionCookieName}=${SESSION_JWT}`);
 		expect(result).toStrictEqual({
-			chordDisplayMode: "roman",
+			chordDisplayCategory: "scale_degree",
+			chordLetterDisplay: "standard",
+			chordScaleDegreeDisplay: "solfege",
 		});
 	});
 });

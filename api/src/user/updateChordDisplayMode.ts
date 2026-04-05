@@ -13,22 +13,36 @@ import getSupabaseServerClient from "@/api/supabase/getSupabaseServerClient";
 import buildUserSessionJwt from "@/api/user-session/buildUserSessionJwt";
 import getVerifiedUserSession from "@/api/user-session/getVerifiedSession";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
-import { ChordDisplayModeSchema } from "@/shared/user/chordDisplayMode";
+import { ChordDisplayCategorySchema } from "@/shared/user/chord-display/chordDisplayCategory";
+import { ChordLetterDisplaySchema } from "@/shared/user/chordLetterDisplay";
+import { ChordScaleDegreeDisplaySchema } from "@/shared/user/chordScaleDegreeDisplay";
 import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrMap";
 
 const SESSION_COOKIE_MAX_AGE_SECONDS = 604_800;
 
 const UpdateChordDisplayModeRequestSchema: Schema.Schema<{
-	chordDisplayMode: Schema.Schema.Type<typeof ChordDisplayModeSchema>;
+	chordDisplayCategory: Schema.Schema.Type<typeof ChordDisplayCategorySchema>;
+	chordLetterDisplay: Schema.Schema.Type<typeof ChordLetterDisplaySchema>;
+	chordScaleDegreeDisplay: Schema.Schema.Type<typeof ChordScaleDegreeDisplaySchema>;
 }> = Schema.Struct({
-	chordDisplayMode: ChordDisplayModeSchema,
+	chordDisplayCategory: ChordDisplayCategorySchema,
+	chordLetterDisplay: ChordLetterDisplaySchema,
+	chordScaleDegreeDisplay: ChordScaleDegreeDisplaySchema,
 });
 
 type UpdateChordDisplayModeRequest = Schema.Schema.Type<typeof UpdateChordDisplayModeRequestSchema>;
 
+/**
+ * Persists the user's chord display preferences and refreshes the session cookie payload.
+ *
+ * @param ctx - Read-only Hono request context
+ * @returns Effect that validates, stores, and returns the saved chord display preferences
+ */
 export default function updateChordDisplayMode(ctx: ReadonlyContext): Effect.Effect<
 	{
-		chordDisplayMode: UpdateChordDisplayModeRequest["chordDisplayMode"];
+		chordDisplayCategory: UpdateChordDisplayModeRequest["chordDisplayCategory"];
+		chordLetterDisplay: UpdateChordDisplayModeRequest["chordLetterDisplay"];
+		chordScaleDegreeDisplay: UpdateChordDisplayModeRequest["chordScaleDegreeDisplay"];
 	},
 	ValidationError | DatabaseError | AuthenticationError | ServerError
 > {
@@ -57,12 +71,14 @@ export default function updateChordDisplayMode(ctx: ReadonlyContext): Effect.Eff
 					client
 						.from("user")
 						.update({
-							chord_display_mode: request.chordDisplayMode,
+							chord_display_category: request.chordDisplayCategory,
+							chord_letter_display: request.chordLetterDisplay,
+							chord_scale_degree_display: request.chordScaleDegreeDisplay,
 						})
 						.eq("user_id", userSession.user.user_id),
 				catch: (error) =>
 					new DatabaseError({
-						message: extractErrorMessage(error, "Failed to update chord display mode"),
+						message: extractErrorMessage(error, "Failed to update chord display preferences"),
 					}),
 			}),
 		);
@@ -71,7 +87,10 @@ export default function updateChordDisplayMode(ctx: ReadonlyContext): Effect.Eff
 			return yield* $(
 				Effect.fail(
 					new DatabaseError({
-						message: extractErrorMessage(updateResult.error, "Failed to update chord display mode"),
+						message: extractErrorMessage(
+							updateResult.error,
+							"Failed to update chord display preferences",
+						),
 					}),
 				),
 			);
@@ -83,7 +102,9 @@ export default function updateChordDisplayMode(ctx: ReadonlyContext): Effect.Eff
 				supabase: client,
 				existingUser: {
 					...userSession.user,
-					chord_display_mode: request.chordDisplayMode,
+					chord_display_category: request.chordDisplayCategory,
+					chord_letter_display: request.chordLetterDisplay,
+					chord_scale_degree_display: request.chordScaleDegreeDisplay,
 				},
 				oauthUserData: userSession.oauthUserData,
 				oauthState: userSession.oauthState,
@@ -101,7 +122,9 @@ export default function updateChordDisplayMode(ctx: ReadonlyContext): Effect.Eff
 		ctx.res.headers.append("Set-Cookie", cookieHeader);
 
 		return {
-			chordDisplayMode: request.chordDisplayMode,
+			chordDisplayCategory: request.chordDisplayCategory,
+			chordLetterDisplay: request.chordLetterDisplay,
+			chordScaleDegreeDisplay: request.chordScaleDegreeDisplay,
 		};
 	});
 }

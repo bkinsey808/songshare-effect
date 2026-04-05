@@ -1,14 +1,17 @@
 import { cleanup, render, renderHook, within } from "@testing-library/react";
-import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
 
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
 import useChordDisplayModePreference from "@/react/chord-display-mode/useChordDisplayModePreference";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import mockUseTranslation from "@/react/lib/test-utils/mockUseTranslation";
 import useSlideNumberPreference from "@/react/slide-number/useSlideNumberPreference";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
-import { ResolvedSlideOrientation, SlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
+import {
+	ResolvedSlideOrientation,
+	SlideOrientationPreference,
+} from "@/shared/user/slideOrientationPreference";
 
 import useSongViewCurrentSlide from "./useSongViewCurrentSlide";
 
@@ -43,15 +46,6 @@ const EMPTY_TEXT = "";
 const ROOT_CLASS_NAME = "aspect-[9/16]";
 const ZERO_NUMBER = 0;
 
-function installI18nMock(): void {
-	vi.mocked(useTranslation).mockReturnValue(
-		forceCast<ReturnType<typeof useTranslation>>({
-			t: (_key: string, fallback?: string) => fallback ?? EMPTY_TEXT,
-			i18n: { changeLanguage: vi.fn(), language: "en" },
-		}),
-	);
-}
-
 function installSlideOrientationMock(
 	effectiveSlideOrientation: "landscape" | "portrait" = ResolvedSlideOrientation.landscape,
 ): void {
@@ -72,9 +66,14 @@ function installSlideNumberPreferenceMock(showSlideNumber = false): void {
 	});
 }
 
-function installChordDisplayModeMock(chordDisplayMode: "letters" | "german" | "indian" | "roman" | "solfege" = "letters"): void {
+function installChordDisplayModeMock(
+	chordDisplayMode: "letters" | "german" | "roman" | "sargam" | "solfege" = "letters",
+): void {
 	vi.mocked(useChordDisplayModePreference).mockReturnValue({
+		chordDisplayCategory: "letters",
+		chordLetterDisplay: "standard",
 		chordDisplayMode,
+		chordScaleDegreeDisplay: "roman",
 	});
 }
 
@@ -82,14 +81,13 @@ function installAppStoreMock({
 	imageLibraryEntries = {},
 	publicImages = {},
 }: Partial<Pick<AppSlice, "imageLibraryEntries" | "publicImages">> = {}): void {
-	vi.mocked(useAppStore).mockImplementation(
-		(selector: (state: AppSlice) => unknown) =>
-			selector(
-				forceCast<AppSlice>({
-					imageLibraryEntries,
-					publicImages,
-				}),
-			),
+	vi.mocked(useAppStore).mockImplementation((selector: (state: AppSlice) => unknown) =>
+		selector(
+			forceCast<AppSlice>({
+				imageLibraryEntries,
+				publicImages,
+			}),
+		),
 	);
 }
 
@@ -161,8 +159,12 @@ function Harness({
 			<div data-testid="show-slide-number">{String(hook.showSlideNumber)}</div>
 			<div data-testid="slide-name">{hook.slideNameStr}</div>
 			<div data-testid="background-image-url">{hook.backgroundImageUrl ?? EMPTY_TEXT}</div>
-			<div data-testid="image-width">{String(hook.backgroundImageDimensions?.width ?? EMPTY_TEXT)}</div>
-			<div data-testid="image-height">{String(hook.backgroundImageDimensions?.height ?? EMPTY_TEXT)}</div>
+			<div data-testid="image-width">
+				{String(hook.backgroundImageDimensions?.width ?? EMPTY_TEXT)}
+			</div>
+			<div data-testid="image-height">
+				{String(hook.backgroundImageDimensions?.height ?? EMPTY_TEXT)}
+			</div>
 			<div data-testid="effective-orientation">{hook.effectiveSlideOrientation}</div>
 			<div data-testid="focal-point-x">{String(hook.focalPoint?.focal_point_x ?? EMPTY_TEXT)}</div>
 			<div data-testid="focal-point-y">{String(hook.focalPoint?.focal_point_y ?? EMPTY_TEXT)}</div>
@@ -175,7 +177,7 @@ function Harness({
 describe("useSongViewCurrentSlide — Harness", () => {
 	it("renders the current slide view state with focal-point data", () => {
 		cleanup();
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock({
 			imageLibraryEntries: {
 				[IMAGE_ID]: makeImageLibraryEntry(),
@@ -191,23 +193,26 @@ describe("useSongViewCurrentSlide — Harness", () => {
 
 		const harnessValues = {
 			isEmpty: forceCast<HTMLElement>(within(container).getByTestId("is-empty")).textContent,
-			isRenderable: forceCast<HTMLElement>(within(container).getByTestId("is-renderable")).textContent,
-			showSlideNumber: forceCast<HTMLElement>(
-				within(container).getByTestId("show-slide-number"),
-			).textContent,
+			isRenderable: forceCast<HTMLElement>(within(container).getByTestId("is-renderable"))
+				.textContent,
+			showSlideNumber: forceCast<HTMLElement>(within(container).getByTestId("show-slide-number"))
+				.textContent,
 			slideName: forceCast<HTMLElement>(within(container).getByTestId("slide-name")).textContent,
 			backgroundImageUrl: forceCast<HTMLElement>(
 				within(container).getByTestId("background-image-url"),
 			).textContent,
 			imageWidth: forceCast<HTMLElement>(within(container).getByTestId("image-width")).textContent,
-			imageHeight: forceCast<HTMLElement>(within(container).getByTestId("image-height")).textContent,
+			imageHeight: forceCast<HTMLElement>(within(container).getByTestId("image-height"))
+				.textContent,
 			fieldLabel: forceCast<HTMLElement>(within(container).getByTestId("field-label")).textContent,
 			fieldText: forceCast<HTMLElement>(within(container).getByTestId("field-text")).textContent,
 			effectiveOrientation: forceCast<HTMLElement>(
 				within(container).getByTestId("effective-orientation"),
 			).textContent,
-			focalPointX: forceCast<HTMLElement>(within(container).getByTestId("focal-point-x")).textContent,
-			focalPointY: forceCast<HTMLElement>(within(container).getByTestId("focal-point-y")).textContent,
+			focalPointX: forceCast<HTMLElement>(within(container).getByTestId("focal-point-x"))
+				.textContent,
+			focalPointY: forceCast<HTMLElement>(within(container).getByTestId("focal-point-y"))
+				.textContent,
 		};
 		expect(harnessValues).toStrictEqual({
 			isEmpty: FALSE_TEXT,
@@ -231,7 +236,7 @@ describe("useSongViewCurrentSlide — Harness", () => {
 
 describe("useSongViewCurrentSlide — renderHook", () => {
 	it("returns an empty-state result when there are no slides", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock();
 		installSlideOrientationMock();
@@ -253,14 +258,17 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 	});
 
 	it("leaves focalPoint undefined when focal-point metadata is unavailable", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock();
 		installSlideOrientationMock(ResolvedSlideOrientation.portrait);
 		installSlideNumberPreferenceMock();
 
 		const { result } = renderHook(() =>
-			useSongViewCurrentSlide({ currentSlide: makeCurrentSlide(), totalSlides: SINGLE_SLIDE_TOTAL }),
+			useSongViewCurrentSlide({
+				currentSlide: makeCurrentSlide(),
+				totalSlides: SINGLE_SLIDE_TOTAL,
+			}),
 		);
 
 		expect(result.current.effectiveSlideOrientation).toBe(ResolvedSlideOrientation.portrait);
@@ -269,10 +277,12 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 	});
 
 	it("reads focal point from publicImages when the library entry is absent", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock({
 			publicImages: {
-				[IMAGE_ID]: forceCast<AppSlice["publicImages"][string]>(makeImageLibraryEntry().image_public),
+				[IMAGE_ID]: forceCast<AppSlice["publicImages"][string]>(
+					makeImageLibraryEntry().image_public,
+				),
 			},
 		});
 		installChordDisplayModeMock();
@@ -280,7 +290,10 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 		installSlideNumberPreferenceMock();
 
 		const { result } = renderHook(() =>
-			useSongViewCurrentSlide({ currentSlide: makeCurrentSlide(), totalSlides: SINGLE_SLIDE_TOTAL }),
+			useSongViewCurrentSlide({
+				currentSlide: makeCurrentSlide(),
+				totalSlides: SINGLE_SLIDE_TOTAL,
+			}),
 		);
 
 		expect(result.current.backgroundImageDimensions).toStrictEqual({
@@ -297,7 +310,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 	});
 
 	it("prefers focal point and dimensions from the slide payload", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock();
 		installSlideOrientationMock();
@@ -327,7 +340,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 	});
 
 	it("returns empty strings for missing slide text fields", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock();
 		installSlideOrientationMock();
@@ -349,7 +362,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 	});
 
 	it("preserves the configured slide number preference", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock();
 		installSlideOrientationMock();
@@ -370,7 +383,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 	});
 
 	it("transforms lyric chord tokens according to the selected display mode", () => {
-		installI18nMock();
+		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock("roman");
 		installSlideOrientationMock();

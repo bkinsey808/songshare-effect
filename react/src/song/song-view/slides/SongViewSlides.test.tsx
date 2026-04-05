@@ -1,13 +1,12 @@
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
 
-import forceCast from "@/react/lib/test-utils/forceCast";
+import mockUseTranslation from "@/react/lib/test-utils/mockUseTranslation";
 import SlideOrientationSelect from "@/react/slide-orientation/SlideOrientationSelect";
-import { ResolvedSlideOrientation } from "@/shared/user/slideOrientationPreference";
 import type { SongPublic } from "@/react/song/song-schema";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
+import { ResolvedSlideOrientation } from "@/shared/user/slideOrientationPreference";
 
 import SongViewSlides from "./SongViewSlides";
 import { useSongViewSlides } from "./useSongViewSlides";
@@ -28,32 +27,8 @@ const DEFAULT_VIEWPORT_ASPECT_RATIO =
 // Minimal representative `SongPublic` used in tests.
 const DUMMY_SONG: SongPublic = makeSongPublic({ song_slug: "my-slug" });
 
-function translateWithInterpolation(
-	key: string,
-	defaultVal?: string | Record<string, unknown>,
-	vars?: Record<string, unknown>,
-): string {
-	if (typeof defaultVal !== "string") {
-		return key;
-	}
-
-	let output = defaultVal;
-	if (vars !== undefined) {
-		for (const [entryKey, entryVal] of Object.entries(vars)) {
-			output = output.replaceAll(`{{ ${entryKey} }}`, String(entryVal));
-			output = output.replaceAll(`{{${entryKey}}}`, String(entryVal));
-		}
-	}
-	return output;
-}
-
 function installI18nMock(): void {
-	vi.mocked(useTranslation).mockReturnValue(
-		forceCast<ReturnType<typeof useTranslation>>({
-			t: translateWithInterpolation,
-			i18n: { changeLanguage: vi.fn(), language: "en" },
-		}),
-	);
+	mockUseTranslation();
 	vi.mocked(SlideOrientationSelect).mockImplementation(() => (
 		<select data-testid="slide-orientation-select" />
 	));

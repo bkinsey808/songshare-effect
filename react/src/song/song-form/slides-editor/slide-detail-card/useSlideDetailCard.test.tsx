@@ -6,6 +6,7 @@ import type { ImageLibraryEntry } from "@/react/image-library/image-library-type
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { type Slide } from "@/react/song/song-form/song-form-types";
 import { ONE, TWO, ZERO } from "@/shared/constants/shared-constants";
+import { safeGet } from "@/shared/utils/safe";
 
 import useSlideDetailCard from "./useSlideDetailCard";
 
@@ -32,6 +33,7 @@ type StoreState = Readonly<{
 }>;
 
 type HookActions = Readonly<{
+	openChordPicker: HookParams["openChordPicker"];
 	setConfirmingDeleteSlideId: (slideId: string | undefined) => void;
 	editSlideName: (params: Readonly<{ slideId: string; newName: string }>) => void;
 	editFieldValue: (
@@ -80,6 +82,42 @@ const IMAGE_LIBRARY_ENTRIES: Record<string, ImageLibraryEntry> = {
 
 const EDIT_NAME_BUTTON = "edit-name";
 const MOVE_UP_BUTTON = "move-up";
+const CARET_INSIDE_CHORD_INDEX = 8;
+
+/**
+ * Resolves the rendered lyrics textarea and narrows it to the expected element type.
+ *
+ * @param container - Rendered test container holding the harness output
+ * @returns Lyrics textarea element
+ */
+function getLyricsTextarea(container: HTMLElement): HTMLTextAreaElement {
+	const lyricsTextarea = within(container).getByTestId("lyrics-textarea");
+	if (!(lyricsTextarea instanceof HTMLTextAreaElement)) {
+		throw new TypeError("Expected lyrics textarea to be an HTMLTextAreaElement");
+	}
+
+	return lyricsTextarea;
+}
+
+/**
+ * Returns the first chord-picker request passed to the mocked open handler.
+ *
+ * @param openChordPicker - Mocked openChordPicker action
+ * @returns First submitted picker request
+ */
+function getFirstOpenChordPickerRequest(
+	openChordPicker: HookActions["openChordPicker"],
+): HookParams["openChordPicker"] extends (request: infer Request) => void ? Request : never {
+	const [firstCallArgs] = vi.mocked(openChordPicker).mock.calls;
+	if (firstCallArgs === undefined) {
+		throw new TypeError("Expected openChordPicker to be called at least once");
+	}
+
+	const [firstRequest] = firstCallArgs;
+	return forceCast<
+		HookParams["openChordPicker"] extends (request: infer Request) => void ? Request : never
+	>(firstRequest);
+}
 
 /**
  * Installs deterministic mocked Zustand selector behavior for this test.
@@ -100,6 +138,7 @@ function installStore(state: StoreState): void {
  */
 function makeActions(): HookActions {
 	return {
+		openChordPicker: vi.fn(),
 		setConfirmingDeleteSlideId: vi.fn(),
 		editSlideName: vi.fn(),
 		editFieldValue: vi.fn(),
@@ -150,12 +189,34 @@ function makeParams(
  * @returns Rendered harness UI
  */
 function Harness({ params }: Readonly<{ params: HookParams }>): ReactElement {
-	const { isConfirmingDelete, canMoveUp, onEditSlideName, onMoveUp } = useSlideDetailCard(params);
+	const {
+		slide,
+		isConfirmingDelete,
+		canMoveUp,
+		lyricsTextareaRef,
+		selectedChordToken,
+		onEditSlideName,
+		onLyricsChange,
+		onMoveUp,
+		onOpenChordPicker,
+		onSyncLyricsSelection,
+	} = useSlideDetailCard(params);
+	const lyricsValue = safeGet(slide?.field_data ?? {}, "lyrics") ?? "";
 
 	return (
 		<div>
 			<div data-testid="is-confirming-delete">{String(isConfirmingDelete)}</div>
 			<div data-testid="can-move-up">{String(canMoveUp)}</div>
+			<div data-testid="lyrics-value">{lyricsValue}</div>
+			<div data-testid="is-editing-chord">{String(selectedChordToken !== undefined)}</div>
+			<textarea
+				ref={lyricsTextareaRef}
+				data-testid="lyrics-textarea"
+				value={lyricsValue}
+				onChange={onLyricsChange}
+				onSelect={onSyncLyricsSelection}
+				readOnly={false}
+			/>
 			<button
 				type="button"
 				data-testid={EDIT_NAME_BUTTON}
@@ -173,6 +234,9 @@ function Harness({ params }: Readonly<{ params: HookParams }>): ReactElement {
 				}}
 			>
 				Move up
+			</button>
+			<button type="button" data-testid="open-chord-picker" onClick={onOpenChordPicker}>
+				Open chord picker
 			</button>
 		</div>
 	);
@@ -217,6 +281,40 @@ describe("useSlideDetailCard — Harness", () => {
 			slideId: SLIDE_ID,
 			newName: UPDATED_NAME,
 		});
+	});
+
+	it("opens the chord picker in edit mode when the lyrics selection is inside a chord token", () => {
+		// Arrange
+		cleanup();
+		installStore({
+			imageLibraryEntries: IMAGE_LIBRARY_ENTRIES,
+			isImageLibraryLoading: false,
+		});
+		const actions = makeActions();
+		const { params } = makeParams({
+			actions,
+			overrides: {
+				slides: {
+					[SLIDE_ID]: {
+						slide_name: "Slide One",
+						field_data: { lyrics: "Hello [C -]" },
+					},
+				},
+			},
+		});
+		const rendered = render(<Harness params={params} />);
+		const lyricsTextarea = getLyricsTextarea(rendered.container);
+
+		// Act
+		lyricsTextarea.setSelectionRange(CARET_INSIDE_CHORD_INDEX, CARET_INSIDE_CHORD_INDEX);
+		fireEvent.select(lyricsTextarea);
+		fireEvent.click(within(rendered.container).getByTestId("open-chord-picker"));
+
+		// Assert
+		const firstCall = getFirstOpenChordPickerRequest(actions.openChordPicker);
+		expect(firstCall?.initialChordToken).toBe("[C -]");
+		expect(firstCall?.isEditingChord).toBe(true);
+		expect(typeof firstCall?.submitChord).toBe("function");
 	});
 });
 

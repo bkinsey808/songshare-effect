@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
-import { ChordDisplayMode } from "@/shared/user/chordDisplayMode";
+import { ChordDisplayCategory } from "@/shared/user/chord-display/chordDisplayCategory";
+import { ChordDisplayMode } from "@/shared/user/chord-display/effectiveChordDisplayMode";
+import { ChordLetterDisplay } from "@/shared/user/chordLetterDisplay";
+import { ChordScaleDegreeDisplay } from "@/shared/user/chordScaleDegreeDisplay";
 import { SlideNumberPreference } from "@/shared/user/slideNumberPreference";
 import { SlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
 
@@ -45,7 +48,10 @@ describe("computeCurrentUser", () => {
 
 		// Assert
 		expect(result).toStrictEqual({
+			chordDisplayCategory: ChordDisplayCategory.scaleDegree,
+			chordLetterDisplay: ChordLetterDisplay.standard,
 			chordDisplayMode: ChordDisplayMode.roman,
+			chordScaleDegreeDisplay: ChordScaleDegreeDisplay.roman,
 			email: USER_EMAIL,
 			name: USER_NAME,
 			role: USER_ROLE,
@@ -58,24 +64,32 @@ describe("computeCurrentUser", () => {
 
 	const chordDisplayModeCases = [
 		{
-			name: "keeps a stored german mode",
-			storedMode: ChordDisplayMode.german,
+			name: "keeps stored split german-letter preferences",
+			storedCategory: ChordDisplayCategory.letters,
+			storedLetterDisplay: ChordLetterDisplay.german,
+			storedScaleDegreeDisplay: ChordScaleDegreeDisplay.solfege,
 			expectedMode: ChordDisplayMode.german,
 		},
 		{
-			name: "falls back to roman for an invalid stored mode",
-			storedMode: INVALID_CHORD_DISPLAY_MODE,
+			name: "falls back to roman defaults for invalid split preferences",
+			storedCategory: INVALID_CHORD_DISPLAY_MODE,
+			storedLetterDisplay: INVALID_CHORD_DISPLAY_MODE,
+			storedScaleDegreeDisplay: INVALID_CHORD_DISPLAY_MODE,
 			expectedMode: ChordDisplayMode.roman,
 		},
 	] as const;
 
 	it.each(chordDisplayModeCases)("coerces chordDisplayMode when it $name", ({
 		expectedMode,
-		storedMode,
+		storedCategory,
+		storedLetterDisplay,
+		storedScaleDegreeDisplay,
 	}) => {
 		const userSessionData = makeUserSessionData({
 			user: {
-				chord_display_mode: forceCast<"german">(storedMode),
+				chord_display_category: forceCast<"letters">(storedCategory),
+				chord_letter_display: forceCast<"german">(storedLetterDisplay),
+				chord_scale_degree_display: forceCast<"solfege">(storedScaleDegreeDisplay),
 			},
 		});
 
@@ -123,6 +137,7 @@ describe("computeCurrentUser", () => {
 		const result = computeCurrentUser(userSessionData);
 
 		// Assert
+		expect(result?.chordDisplayCategory).toBe(ChordDisplayCategory.scaleDegree);
 		expect(result?.chordDisplayMode).toBe(ChordDisplayMode.roman);
 		expect(result?.slideOrientationPreference).toBe(SlideOrientationPreference.system);
 	});

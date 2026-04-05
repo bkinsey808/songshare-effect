@@ -1,4 +1,5 @@
-import { parseChordTokenBody, type ParsedChordToken } from "@/shared/music/chord-display";
+import parseChordTokenBody from "@/shared/music/chord-display/parseChordTokenBody";
+import type { ParsedChordToken } from "@/shared/music/chord-display/ParsedChordToken.type";
 
 const CHORD_TOKEN_PATTERN = /\[([^[\]]+?)\]/g;
 
@@ -48,5 +49,3 @@ export default function findChordTokenAtSelection({
 
 	return undefined;
 }
-
-export type { ChordTokenSelection };

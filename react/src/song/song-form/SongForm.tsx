@@ -4,13 +4,13 @@ import { useTranslation } from "react-i18next";
 import CreateSongIcon from "@/react/lib/design-system/icons/CreateSongIcon";
 import EditSongIcon from "@/react/lib/design-system/icons/EditSongIcon";
 
+import ChordPicker from "./chord-picker/ChordPicker";
 import CollapsibleSection from "./CollapsibleSection";
-import ChordPickerPage from "./chord-picker/ChordPickerPage";
 import SlidesGridView from "./grid-editor/SlidesGridView";
 import SlidesEditor from "./slides-editor/SlidesEditor";
+import type { SongFormChordPickerRequest } from "./song-form-types";
 import SongFormFields from "./SongFormFields";
 import SongFormFooter from "./SongFormFooter";
-import type { SongFormChordPickerRequest } from "./song-form-types";
 import useSongForm from "./use-song-form/useSongForm";
 
 const NO_PENDING_CHORD_PICKER_REQUEST = undefined;
@@ -69,14 +69,31 @@ export default function SongForm(): ReactElement {
 		setTags,
 	} = useSongForm();
 
+	/**
+	 * Opens the chord picker with the callback details needed for the active editor target.
+	 *
+	 * @param request - Pending picker request from a lyrics field
+	 * @returns void
+	 */
 	function openChordPicker(request: SongFormChordPickerRequest): void {
 		setPendingChordPickerRequest(request);
 	}
 
+	/**
+	 * Closes the chord picker and clears any pending insertion target.
+	 *
+	 * @returns void
+	 */
 	function closeChordPicker(): void {
 		setPendingChordPickerRequest(NO_PENDING_CHORD_PICKER_REQUEST);
 	}
 
+	/**
+	 * Sends the selected chord token back to the requesting field and clears picker state.
+	 *
+	 * @param token - Canonical chord token chosen in the picker
+	 * @returns void
+	 */
 	function insertChordFromPicker(token: string): void {
 		pendingChordPickerRequest?.submitChord(token);
 		setPendingChordPickerRequest(NO_PENDING_CHORD_PICKER_REQUEST);
@@ -213,8 +230,11 @@ export default function SongForm(): ReactElement {
 				onDelete={handleDelete}
 			/>
 			{pendingChordPickerRequest === undefined ? undefined : (
-				<ChordPickerPage
+				<ChordPicker
 					songKey={formValues.key}
+					setSongKey={(nextValue) => {
+						setFormValue("key", nextValue);
+					}}
 					hasPendingInsertTarget
 					{...(pendingChordPickerRequest.initialChordToken === undefined
 						? {}

@@ -73,6 +73,23 @@ export default function SlidesEditor({
 	const [confirmingDeleteSlideId, setConfirmingDeleteSlideId] = useState<string | undefined>(
 		undefined,
 	);
+	const slideDetailUiState = {
+		confirmingDeleteSlideId,
+		setConfirmingDeleteSlideId,
+		backgroundPickerSlideId,
+	} as const;
+	const slideDetailActions = {
+		openChordPicker,
+		editSlideName,
+		editFieldValue,
+		toggleBackgroundPicker,
+		selectSlideBackgroundImage,
+		clearSlideBackgroundImage,
+		moveSlideUp,
+		moveSlideDown,
+		deleteSlide,
+		removeSlideOrder,
+	} as const;
 
 	const slideDetailKeyCounts = new Map<string, number>();
 
@@ -115,19 +132,8 @@ export default function SlidesEditor({
 							fields={fields}
 							slideOrder={slideOrder}
 							slides={slides}
-							openChordPicker={openChordPicker}
-							confirmingDeleteSlideId={confirmingDeleteSlideId}
-							setConfirmingDeleteSlideId={setConfirmingDeleteSlideId}
-							backgroundPickerSlideId={backgroundPickerSlideId}
-							editSlideName={editSlideName}
-							editFieldValue={editFieldValue}
-							toggleBackgroundPicker={toggleBackgroundPicker}
-							selectSlideBackgroundImage={selectSlideBackgroundImage}
-							clearSlideBackgroundImage={clearSlideBackgroundImage}
-							moveSlideUp={moveSlideUp}
-							moveSlideDown={moveSlideDown}
-							deleteSlide={deleteSlide}
-							removeSlideOrder={removeSlideOrder}
+							uiState={slideDetailUiState}
+							actions={slideDetailActions}
 						/>
 					);
 				})
