@@ -9,6 +9,8 @@ import type { SharedItem } from "../slice/share-types";
 import type { ShareSlice } from "../slice/ShareSlice.type";
 import handleShareSubscribeEvent from "./handleShareSubscribeEvent";
 
+type PartialShareRecord = Record<string, SharedItem>;
+
 const ONCE = 1;
 const SHARE_ID = "share-abc";
 const SENDER_ID = "sender-1";
@@ -64,17 +66,21 @@ type ShareEventContext = {
 
 /**
  * Builds ShareEventContext for tests, wiring mock slice methods to the getter.
+ * Optionally include store state (receivedShares / sentShares) so UPDATE
+ * guard checks (`share_id in get().receivedShares`) behave correctly.
  *
  * @param sliceMethods - Mock slice methods from makeSliceMethods
  * @param shareType - Whether the subscription is for sent or received shares
+ * @param storeState - Additional store state to merge (e.g. receivedShares, sentShares)
  * @returns Context suitable for handleShareSubscribeEvent
  */
 function makeContext(
 	sliceMethods: ReturnType<typeof makeSliceMethods>,
 	shareType: "sent" | "received",
+	storeState: Partial<ShareSlice> = {},
 ): ShareEventContext {
 	function get(): ShareSlice {
-		return forceCast<ShareSlice>(sliceMethods);
+		return forceCast<ShareSlice>({ ...sliceMethods, ...storeState });
 	}
 	return { get, shareType };
 }
@@ -138,9 +144,11 @@ describe("handleShareSubscribeEvent", () => {
 		expect(methods.addReceivedShare).not.toHaveBeenCalled();
 	});
 
-	it("calls updateReceivedShare on UPDATE for received shares", async () => {
+	it("calls updateReceivedShare on UPDATE for received shares when share is in store", async () => {
 		const methods = makeSliceMethods();
-		const context = makeContext(methods, "received");
+		const context = makeContext(methods, "received", {
+			receivedShares: forceCast<PartialShareRecord>({ [SHARE_ID]: { share_id: SHARE_ID } }),
+		});
 		const payload = { eventType: "UPDATE", new: validShareRecord };
 
 		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
@@ -155,9 +163,11 @@ describe("handleShareSubscribeEvent", () => {
 		expect(methods.addReceivedShare).not.toHaveBeenCalled();
 	});
 
-	it("calls updateSentShare on UPDATE for sent shares", async () => {
+	it("calls updateSentShare on UPDATE for sent shares when share is in store", async () => {
 		const methods = makeSliceMethods();
-		const context = makeContext(methods, "sent");
+		const context = makeContext(methods, "sent", {
+			sentShares: forceCast<PartialShareRecord>({ [SHARE_ID]: { share_id: SHARE_ID } }),
+		});
 		const payload = { eventType: "UPDATE", new: validShareRecord };
 
 		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
@@ -199,6 +209,30 @@ describe("handleShareSubscribeEvent", () => {
 		expect(methods.removeSentShare).toHaveBeenCalledTimes(ONCE);
 		expect(methods.removeSentShare).toHaveBeenCalledWith(SHARE_ID);
 		expect(methods.removeReceivedShare).not.toHaveBeenCalled();
+	});
+
+	it("does not call updateReceivedShare on UPDATE when share is not in store", async () => {
+		const methods = makeSliceMethods();
+		// receivedShares is empty — the share has been filtered out (e.g. after fetchShares)
+		const context = makeContext(methods, "received", { receivedShares: {} });
+		const payload = { eventType: "UPDATE", new: validShareRecord };
+
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
+
+		expect(methods.updateReceivedShare).not.toHaveBeenCalled();
+		expect(methods.addReceivedShare).not.toHaveBeenCalled();
+	});
+
+	it("does not call updateSentShare on UPDATE when share is not in store", async () => {
+		const methods = makeSliceMethods();
+		// sentShares is empty — the share has been filtered out
+		const context = makeContext(methods, "sent", { sentShares: {} });
+		const payload = { eventType: "UPDATE", new: validShareRecord };
+
+		await Effect.runPromise(handleShareSubscribeEvent(payload, supabaseStub, context));
+
+		expect(methods.updateSentShare).not.toHaveBeenCalled();
+		expect(methods.addSentShare).not.toHaveBeenCalled();
 	});
 
 	it("does not call add/update when INSERT payload has no new record", async () => {

@@ -25,16 +25,25 @@ describe("transformChordTextForDisplay", () => {
 		expect(result).toBe("[H dim]");
 	});
 
-	it("returns plain text unchanged when no chord tokens are present", () => {
-		const plainText = "No chords here";
-
+	it("transforms slash-chord bass notes for display alongside the root", () => {
 		// Act
-		const result = transformChordTextForDisplay(plainText, {
+		const result = transformChordTextForDisplay("[C M/E]", {
+			chordDisplayMode: "roman",
+			songKey: "C",
+		});
+
+		// Assert — root becomes I, bass note E becomes III
+		expect(result).toBe("[I M/III]");
+	});
+
+	it("leaves a slash chord unchanged when the bass note is not a recognised SongKey", () => {
+		// Act
+		const result = transformChordTextForDisplay("[C M/xyz]", {
 			chordDisplayMode: "roman",
 			songKey: "C",
 		});
 
 		// Assert
-		expect(result).toBe(plainText);
+		expect(result).toBe("[I M/xyz]");
 	});
 });

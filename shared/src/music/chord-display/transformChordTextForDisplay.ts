@@ -1,10 +1,14 @@
-import type { SongKey } from "@/shared/song/songKeyOptions";
+import { isSongKey, type SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
 import formatParsedChordRootForDisplay from "./formatParsedChordRootForDisplay";
 import parseChordTokenBody from "./parseChordTokenBody";
 
 const CHORD_TOKEN_PATTERN = /\[([^[\]]+?)\]/g;
+const BASS_NOTE_SEPARATOR = "/";
+const BASS_NOTE_OFFSET = 1;
+const NOT_FOUND = -1;
+const SHAPE_START = 0;
 
 /**
  * Rewrites each chord token in a text block for the requested display mode.
@@ -36,8 +40,27 @@ export default function transformChordTextForDisplay(
 			songKey: params.songKey,
 		});
 
-		return parsed.shapeCode === ""
-			? `[${displayedRoot}]`
-			: `[${displayedRoot} ${parsed.shapeCode}]`;
+		if (parsed.shapeCode === "") {
+			return `[${displayedRoot}]`;
+		}
+
+		const slashIndex = parsed.shapeCode.indexOf(BASS_NOTE_SEPARATOR);
+		if (slashIndex === NOT_FOUND) {
+			return `[${displayedRoot} ${parsed.shapeCode}]`;
+		}
+
+		const baseShapeCode = parsed.shapeCode.slice(SHAPE_START, slashIndex);
+		const bassNoteStr = parsed.shapeCode.slice(slashIndex + BASS_NOTE_OFFSET);
+		if (!isSongKey(bassNoteStr)) {
+			return `[${displayedRoot} ${parsed.shapeCode}]`;
+		}
+
+		const displayedBassNote = formatParsedChordRootForDisplay({
+			token: { root: bassNoteStr, rootType: "absolute", shapeCode: "" },
+			chordDisplayMode: params.chordDisplayMode,
+			songKey: params.songKey,
+		});
+
+		return `[${displayedRoot} ${baseShapeCode}${BASS_NOTE_SEPARATOR}${displayedBassNote}]`;
 	});
 }

@@ -10,6 +10,15 @@ type ChordTokenSelection = Readonly<{
 	parsedToken: ParsedChordToken;
 }>;
 
+/**
+ * Finds the chord token at or overlapping the current text selection.
+ * Returns undefined if no chord token overlaps the selection range.
+ *
+ * @param value - The full text content to search for chord tokens
+ * @param selectionStart - The start index of the cursor/selection, or undefined if unavailable
+ * @param selectionEnd - The end index of the cursor/selection, or undefined if unavailable
+ * @returns The matched chord token with its position and parsed data, or undefined
+ */
 export default function findChordTokenAtSelection({
 	value,
 	selectionStart,

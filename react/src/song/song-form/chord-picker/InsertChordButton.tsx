@@ -28,9 +28,7 @@ export default function InsertChordButton({
 			onClick={onOpenChordPicker}
 			data-testid="insert-chord-button"
 		>
-			{isEditingChord
-				? t("song.editChord", "Edit Chord")
-				: t("song.insertChord", "Insert Chord")}
+			{isEditingChord ? t("song.editChord", "Edit Chord") : t("song.insertChord", "Insert Chord")}
 		</Button>
 	);
 }

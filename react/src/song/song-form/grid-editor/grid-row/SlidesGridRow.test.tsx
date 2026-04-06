@@ -18,7 +18,7 @@ const BASE_COL_SPAN = 2; // matches FIXED_COLUMN_COUNT in component
 
 vi.mock("@dnd-kit/sortable");
 vi.mock("@dnd-kit/utilities");
-vi.mock("./SortableGridCells");
+vi.mock("./sortable-grid-cells/SortableGridCells");
 vi.mock("./DeleteConfirmationRow");
 
 vi.mocked(useSortable).mockReturnValue(

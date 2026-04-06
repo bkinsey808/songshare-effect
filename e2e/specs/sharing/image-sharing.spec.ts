@@ -14,15 +14,15 @@ import filterExpectedErrors from "@/e2e/utils/filterExpectedErrors.e2e-util.ts";
 import setupErrorTracking from "@/e2e/utils/setupErrorTracking.e2e-util.ts";
 
 import {
-	BASE_URL,
-	INVITE_SUCCESS_TIMEOUT_MS,
-	MANAGE_PAGE_READY_TIMEOUT_MS,
-	NO_ERRORS,
-	REALTIME_WAIT_MS,
-	SHARE_CREATE_TIMEOUT_MS,
-	missingBothSessions,
-	missingUser2Username,
-	testUser2Username,
+    BASE_URL,
+    INVITE_SUCCESS_TIMEOUT_MS,
+    MANAGE_PAGE_READY_TIMEOUT_MS,
+    NO_ERRORS,
+    REALTIME_WAIT_MS,
+    SHARE_CREATE_TIMEOUT_MS,
+    missingBothSessions,
+    missingUser2Username,
+    testUser2Username,
 } from "./helpers/sharing-constants.e2e-util.ts";
 
 // These tests use real shared accounts on staging/local DB and MUST NOT run in parallel
@@ -251,6 +251,9 @@ test.describe("P2P Image Share", () => {
 			await acceptButton.click();
 			const imageAcceptResponse = await imageAcceptP;
 			expect(imageAcceptResponse.ok()).toBe(true);
+			// Wait for the current view to reflect the accept before reloading,
+			// to avoid a race where Firefox reloads before the DB write commits.
+			await expect(acceptButton).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
 			await recipientPage.reload({ waitUntil: "load" });
 			await openReceivedPendingShares(recipientPage);
 

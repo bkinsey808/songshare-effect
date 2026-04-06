@@ -1,14 +1,14 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
-import filterExpectedErrors from "@/e2e/utils/filterExpectedErrors.e2e-util.ts";
-import setupErrorTracking from "@/e2e/utils/setupErrorTracking.e2e-util.ts";
-
 import clearAllPendingPeerShares from "@/e2e/specs/sharing/helpers/clearAllPendingPeerShares.e2e-util.ts";
 import createTwoUserContexts from "@/e2e/specs/sharing/helpers/createTwoUserContexts.e2e-util.ts";
 import ensureUserInLibraryByUsername from "@/e2e/specs/sharing/helpers/ensureUserInLibraryByUsername.e2e-util.ts";
 import newRecipientContext from "@/e2e/specs/sharing/helpers/newRecipientContext.e2e-util.ts";
 import openReceivedPendingShares from "@/e2e/specs/sharing/helpers/openReceivedPendingShares.e2e-util.ts";
 import selectUserInSearch from "@/e2e/specs/sharing/helpers/selectUserInSearch.e2e-util.ts";
+import filterExpectedErrors from "@/e2e/utils/filterExpectedErrors.e2e-util.ts";
+import setupErrorTracking from "@/e2e/utils/setupErrorTracking.e2e-util.ts";
+
 import {
 	BASE_URL,
 	INVITE_SUCCESS_TIMEOUT_MS,
@@ -58,10 +58,17 @@ async function hasPendingSongShareForUser(senderPage: Page): Promise<boolean> {
 		return false;
 	}
 
-	return senderPage.getByText(/pending/i).first().isVisible().catch(() => false);
+	return senderPage
+		.getByText(/pending/i)
+		.first()
+		.isVisible()
+		.catch(() => false);
 }
 
-function waitForRecipientShareAction(page: Page, actionName: "Accept" | "Decline"): Promise<Locator> {
+function waitForRecipientShareAction(
+	page: Page,
+	actionName: "Accept" | "Decline",
+): Promise<Locator> {
 	const attempts = 4;
 	const FIRST_ATTEMPT = 0;
 	const INCREMENT = 1;
@@ -153,6 +160,9 @@ test.describe("P2P Song Share", () => {
 			await acceptButton.click();
 			const songAcceptResponse = await songAcceptP;
 			expect(songAcceptResponse.ok()).toBe(true);
+			// Wait for the current view to reflect the accept before reloading,
+			// to avoid a race where Firefox reloads before the DB write commits.
+			await expect(acceptButton).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
 			await recipientPage.reload({ waitUntil: "load" });
 			await openReceivedPendingShares(recipientPage);
 

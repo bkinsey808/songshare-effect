@@ -1,3 +1,4 @@
+import toUnicodeAccidentals from "@/react/music/toUnicodeAccidentals";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
 type SongKeyButtonProps = Readonly<{
@@ -33,7 +34,7 @@ export default function SongKeyButton({
 				onChange(songKey);
 			}}
 		>
-			{songKey.replaceAll("#", "♯").replaceAll("b", "♭")}
+			{toUnicodeAccidentals(songKey)}
 		</button>
 	);
 }

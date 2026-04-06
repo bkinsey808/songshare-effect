@@ -2,14 +2,16 @@ import { useTranslation } from "react-i18next";
 
 import ChordDisplayModeSelect from "@/react/chord-display-mode/ChordDisplayModeSelect";
 import Button from "@/react/lib/design-system/Button";
+import ChordIcon from "@/react/lib/design-system/icons/ChordIcon";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
 import SongKeyPicker from "../song-key-picker/SongKeyPicker";
+import ChordInversionsSection from "./inversions/ChordInversionsSection";
+import NotePicker from "./note-picker/NotePicker";
 import ChordPreview from "./preview/ChordPreview";
-import ChordIcon from "@/react/lib/design-system/icons/ChordIcon";
 import ChordSearchResultCard from "./result-card/ChordSearchResultCard";
 import ChordRootPicker from "./root-picker/ChordRootPicker";
-import useChordPicker from "./useChordPicker";
+import useChordPicker from "./use-chord-picker/useChordPicker";
 
 const DYAD_NOTE_COUNT = 2;
 const TRIAD_NOTE_COUNT = 3;
@@ -33,8 +35,8 @@ type ChordPickerProps = Readonly<{
 	songKey: SongKey | "";
 	setSongKey: (value: SongKey | "") => void;
 	hasPendingInsertTarget: boolean;
-		initialChordToken: string | undefined;
-		isEditingChord: boolean;
+	initialChordToken: string | undefined;
+	isEditingChord: boolean;
 	closeChordPicker: () => void;
 	insertChordFromPicker: (token: string) => void;
 }>;
@@ -65,10 +67,17 @@ export default function ChordPicker({
 		alternatePreviewLabel,
 		alternatePreviewToken,
 		canonicalToken,
+		chordDisplayCategory,
+		chordInversions,
 		displayedShapes,
+		inversionPreviewTokens,
 		handleInsert,
+		handleNoteToggle,
+		handleSelectInversion,
+		selectedBassNote,
 		maxNotes,
 		maxNotesInputId,
+		notePickerEntries,
 		previewToken,
 		query,
 		rootPickerDisplayMode,
@@ -122,7 +131,14 @@ export default function ChordPicker({
 							selectedShapeSpelling={selectedShape?.spelling}
 							selectedShapeAltNames={selectedShape?.altNames ?? ""}
 						/>
-
+						<NotePicker entries={notePickerEntries} onToggle={handleNoteToggle} />
+						<ChordInversionsSection
+							inversions={chordInversions}
+							originalShapeName={selectedShape?.name ?? ""}
+							chordDisplayCategory={chordDisplayCategory}
+							songKey={songKey}
+							selectedBassNote={selectedBassNote}								inversionPreviewTokens={inversionPreviewTokens}							onSelectInversion={handleSelectInversion}
+						/>
 						<div className="flex flex-col gap-4 min-[520px]:flex-row min-[520px]:items-end">
 							<ChordRootPicker
 								selectedRoot={selectedRoot}

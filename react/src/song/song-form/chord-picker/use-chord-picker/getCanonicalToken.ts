@@ -1,7 +1,7 @@
 import formatStoredChordToken from "@/shared/music/chord-display/formatStoredChordToken";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
-import type { SelectedRoot } from "./root-picker/chordPickerRootOptionTypes";
+import type { SelectedRoot } from "../root-picker/chordPickerRootOptionTypes";
 
 /**
  * Converts the current picker selection into the canonical stored chord token.

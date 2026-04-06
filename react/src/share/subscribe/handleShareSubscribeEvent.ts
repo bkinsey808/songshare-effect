@@ -85,12 +85,17 @@ export default function handleShareSubscribeEvent(
 						if (shareType === "received") {
 							if (eventType === "INSERT") {
 								addReceivedShare(shareItem);
-							} else {
+							// For UPDATE events, only apply if the share is already in the store.
+							// Ignoring UPDATE events for absent shares prevents delayed realtime
+							// events (e.g. a "pending" reset from the sender) from re-adding a
+							// share that was intentionally removed by a fresh fetchShares call.
+							} else if (shareItem.share_id in get().receivedShares) {
 								updateReceivedShare(shareItem);
 							}
 						} else if (eventType === "INSERT") {
 							addSentShare(shareItem);
-						} else {
+						// Same guard for sent shares: only update if already in the store.
+						} else if (shareItem.share_id in get().sentShares) {
 							updateSentShare(shareItem);
 						}
 					}),

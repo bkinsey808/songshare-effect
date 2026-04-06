@@ -31,13 +31,13 @@ type SlideFieldCellProps = Readonly<{
 }>;
 
 export default function SlideFieldCell({
- 	field,
- 	slideId,
- 	slides,
- 	safeGetField,
- 	editFieldValue,
- 	textareaRef,
- 	onSyncSelection,
+	field,
+	slideId,
+	slides,
+	safeGetField,
+	editFieldValue,
+	textareaRef,
+	onSyncSelection,
 }: SlideFieldCellProps): ReactElement {
 	const safeName = String(field).replaceAll(/[^a-zA-Z0-9_-]/g, "-");
 	const varName = `field-${safeName}-width`;

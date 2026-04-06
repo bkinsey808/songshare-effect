@@ -1,3 +1,4 @@
+import toUnicodeAccidentals from "@/react/music/toUnicodeAccidentals";
 import { useTranslation } from "react-i18next";
 
 import ChevronDownIcon from "@/react/lib/design-system/icons/ChevronDownIcon";
@@ -30,10 +31,6 @@ const songKeyOptionRows: readonly SongKeyOptionRow[] = [
 	{ primary: "B" },
 ] as const;
 
-function formatSongKeyLabel(songKey: SongKey): string {
-	return songKey.replaceAll("#", "♯").replaceAll("b", "♭");
-}
-
 export default function SongKeyPicker({ value, onChange }: SongKeyPickerProps): ReactElement {
 	const { t } = useTranslation();
 	const { isOpen, setIsOpen, containerRef } = useSongKeyPicker();
@@ -52,7 +49,7 @@ export default function SongKeyPicker({ value, onChange }: SongKeyPickerProps): 
 				aria-haspopup="dialog"
 			>
 				<span className={value === "" ? "text-gray-400" : "text-white"}>
-					{value === "" ? t("song.noKey", "No key") : formatSongKeyLabel(value)}
+					{value === "" ? t("song.noKey", "No key") : toUnicodeAccidentals(value)}
 				</span>
 				<ChevronDownIcon
 					className={`size-4 text-gray-300 transition ${isOpen ? "rotate-180" : ""}`}

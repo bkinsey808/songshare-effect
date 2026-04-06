@@ -7,16 +7,16 @@ import openReceivedPendingShares from "@/e2e/specs/sharing/helpers/openReceivedP
 import selectUserInSearch from "@/e2e/specs/sharing/helpers/selectUserInSearch.e2e-util.ts";
 
 import {
-	BASE_URL,
-	INVITE_SUCCESS_TIMEOUT_MS,
-	MANAGE_PAGE_READY_TIMEOUT_MS,
-	REALTIME_WAIT_MS,
-	SHARE_CREATE_TIMEOUT_MS,
-	missingBothSessions,
-	missingPlaylistSlug,
-	missingUser2Username,
-	testPlaylistSlug,
-	testUser2Username,
+    BASE_URL,
+    INVITE_SUCCESS_TIMEOUT_MS,
+    MANAGE_PAGE_READY_TIMEOUT_MS,
+    REALTIME_WAIT_MS,
+    SHARE_CREATE_TIMEOUT_MS,
+    missingBothSessions,
+    missingPlaylistSlug,
+    missingUser2Username,
+    testPlaylistSlug,
+    testUser2Username,
 } from "./helpers/sharing-constants.e2e-util.ts";
 
 // These tests use real shared accounts on staging/local DB and MUST NOT run in parallel
@@ -119,6 +119,9 @@ test.describe("P2P Playlist Share", () => {
 			await acceptButton.click();
 			const playlistAcceptResponse = await playlistAcceptP;
 			expect(playlistAcceptResponse.ok()).toBe(true);
+			// Wait for the current view to reflect the accept before reloading,
+			// to avoid a race where Firefox reloads before the DB write commits.
+			await expect(acceptButton).not.toBeVisible({ timeout: REALTIME_WAIT_MS });
 			await recipientPage.reload({ waitUntil: "load" });
 			await openReceivedPendingShares(recipientPage);
 			const pendingAcceptForItem = recipientPage
