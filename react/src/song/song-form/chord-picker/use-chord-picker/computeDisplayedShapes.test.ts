@@ -11,73 +11,82 @@ const M7_QUERY = "M7";
 const SUS4_QUERY = "sus4";
 const MAX_NOTES = 4;
 const FIRST_INDEX = 0;
+const UNKNOWN_CODE = "completely_unknown_xyz";
+// Comma-containing code: not a catalog code, triggers the synthetic-shape path
+const SYNTHETIC_SHAPE_CODE = "b3,5";
+// "b3,5".split(",").length + 1 (root)
+const SYNTHETIC_NOTE_COUNT = 3;
 
 describe("computeDisplayedShapes", () => {
-	it("pins the selected shape M first when it appears in the empty-query results", () => {
-		// Arrange
-		const params = {
+	it.each([
+		{
+			name: "selected shape M is pinned first on empty query",
 			query: EMPTY_QUERY,
-			maxNotes: MAX_NOTES,
 			selectedShapeCode: MAJOR_SHAPE_CODE,
-		} as const;
-
-		// Act
-		const { displayedShapes, selectedShape } = computeDisplayedShapes(params);
-
-		// Assert
-		expect(displayedShapes[FIRST_INDEX]?.code).toStrictEqual(MAJOR_SHAPE_CODE);
-		expect(selectedShape?.code).toStrictEqual(MAJOR_SHAPE_CODE);
-	});
-
-	it("pins the selected shape M7 first when it appears in the M7-query results", () => {
-		// Arrange
-		const params = {
+		},
+		{
+			name: "selected shape M7 is pinned first on M7 query",
 			query: M7_QUERY,
-			maxNotes: MAX_NOTES,
 			selectedShapeCode: MAJOR_SEVEN_SHAPE_CODE,
-		} as const;
-
+		},
+	])("$name", ({ query, selectedShapeCode }) => {
 		// Act
-		const { displayedShapes, selectedShape } = computeDisplayedShapes(params);
+		const { displayedShapes, selectedShape } = computeDisplayedShapes({
+			query,
+			maxNotes: MAX_NOTES,
+			selectedShapeCode,
+		});
 
 		// Assert
-		expect(displayedShapes[FIRST_INDEX]?.code).toStrictEqual(MAJOR_SEVEN_SHAPE_CODE);
-		expect(selectedShape?.code).toStrictEqual(MAJOR_SEVEN_SHAPE_CODE);
+		expect(displayedShapes[FIRST_INDEX]?.code).toStrictEqual(selectedShapeCode);
+		expect(selectedShape?.code).toStrictEqual(selectedShapeCode);
 	});
 
-	it("does not pin M when M is absent from the sus4 search results", () => {
+	it("does not pin selected shape when it is absent from search results", () => {
 		// Arrange
-		const params = {
+		const sus4Shapes = searchChordShapes({ query: SUS4_QUERY, maxNotes: MAX_NOTES });
+
+		// Act — M is selected but not in the sus4 results
+		const { displayedShapes, selectedShape } = computeDisplayedShapes({
 			query: SUS4_QUERY,
 			maxNotes: MAX_NOTES,
 			selectedShapeCode: MAJOR_SHAPE_CODE,
-		} as const;
-		const sus4Shapes = searchChordShapes({ query: SUS4_QUERY, maxNotes: MAX_NOTES });
+		});
 
-		// Act
-		const { displayedShapes, selectedShape } = computeDisplayedShapes(params);
-
-		// Assert – displayed order matches the raw search results (M is not pinned to first)
+		// Assert — raw order preserved; selectedShape still resolves to M via getChordShapeByCode
 		expect(displayedShapes[FIRST_INDEX]?.code).toStrictEqual(sus4Shapes[FIRST_INDEX]?.code);
-		// selectedShape is still resolved to M via getChordShapeByCode
 		expect(selectedShape).toStrictEqual(getChordShapeByCode(MAJOR_SHAPE_CODE));
 	});
 
-	it("falls back to the first search result when selectedShapeCode is not a valid chord code", () => {
+	it("falls back to first search result when shape code is unknown", () => {
 		// Arrange
-		const UNKNOWN_CODE = "completely_unknown_xyz";
-		const params = {
+		const allShapes = searchChordShapes({ query: EMPTY_QUERY, maxNotes: MAX_NOTES });
+
+		// Act — getChordShapeByCode returns undefined; no comma in code; falls back to displayedShapes[0]
+		const { displayedShapes, selectedShape } = computeDisplayedShapes({
 			query: EMPTY_QUERY,
 			maxNotes: MAX_NOTES,
 			selectedShapeCode: UNKNOWN_CODE,
-		} as const;
-		const allShapes = searchChordShapes({ query: EMPTY_QUERY, maxNotes: MAX_NOTES });
-
-		// Act – getChordShapeByCode returns undefined so fallback is displayedShapes[0]
-		const { displayedShapes, selectedShape } = computeDisplayedShapes(params);
+		});
 
 		// Assert
 		expect(displayedShapes[FIRST_INDEX]?.code).toStrictEqual(allShapes[FIRST_INDEX]?.code);
 		expect(selectedShape).toStrictEqual(allShapes[FIRST_INDEX]);
+	});
+
+	it("resolves a synthetic shape when the shape code contains a comma", () => {
+		// Act — comma-containing code is not found by getChordShapeByCode, triggering the
+		// synthetic-shape construction branch
+		const { selectedShape } = computeDisplayedShapes({
+			query: EMPTY_QUERY,
+			maxNotes: MAX_NOTES,
+			selectedShapeCode: SYNTHETIC_SHAPE_CODE,
+		});
+
+		// Assert
+		expect(selectedShape?.code).toBe(SYNTHETIC_SHAPE_CODE);
+		expect(selectedShape?.spelling).toBe(SYNTHETIC_SHAPE_CODE);
+		expect(selectedShape?.prefer).toBe(false);
+		expect(selectedShape?.noteCount).toBe(SYNTHETIC_NOTE_COUNT);
 	});
 });

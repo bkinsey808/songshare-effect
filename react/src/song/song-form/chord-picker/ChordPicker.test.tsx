@@ -193,7 +193,7 @@ describe("chordPicker", () => {
 
 		expect(screen.getByRole("heading", { name: "Edit Chord" })).toBeTruthy();
 		expect(screen.getByTestId("chord-root-select").textContent).toContain("B♭");
-		expect(screen.getByText(/\[B♭ -\]/)).toBeTruthy();
+		expect(screen.getAllByText(/\[B♭ -\]/)).toBeTruthy();
 		expect(screen.getByTestId("confirm-insert-chord").textContent).toBe("Update");
 	});
 
@@ -324,7 +324,7 @@ describe("chordPicker", () => {
 		});
 
 		expect(screen.getByText(/Perfect Seventh/)).toBeTruthy();
-		expect(screen.getByText(/P7/)).toBeTruthy();
+		expect(screen.getAllByText(/P7/)).toBeTruthy();
 	});
 
 	it("moves the selected chord shape to the top of the search results", () => {

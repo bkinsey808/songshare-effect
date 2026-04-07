@@ -1,9 +1,12 @@
-import toUnicodeAccidentals from "@/react/music/toUnicodeAccidentals";
 import { useTranslation } from "react-i18next";
+
+import toUnicodeAccidentals from "@/react/music/toUnicodeAccidentals";
 
 type NotePickerEntry = Readonly<{
 	/** Interval name relative to the chord root, e.g. "1", "b3", "5". */
 	interval: string;
+	/** Display form of the interval — may prefer sharp over flat based on context, e.g. "#4" instead of "b5". */
+	displayInterval: string;
 	/** Semitone offset from the chord root (0–11). */
 	semitoneOffset: number;
 	/** Whether this note is currently in the selected chord shape. */
@@ -53,7 +56,7 @@ export default function NotePicker({ entries, onToggle }: NotePickerProps): Reac
 		<div className="flex flex-col gap-2">
 			<span className="text-sm text-gray-300">{t("song.notePicker", "Note Picker")}</span>
 			<div className="flex flex-wrap gap-1.5">
-				{entries.map(({ interval, semitoneOffset, isActive, letterName }) => {
+				{entries.map(({ displayInterval, semitoneOffset, isActive, letterName }) => {
 					const isRoot = semitoneOffset === ROOT_SEMITONE_OFFSET;
 
 					return (
@@ -66,7 +69,9 @@ export default function NotePicker({ entries, onToggle }: NotePickerProps): Reac
 							}}
 							className={getNoteButtonClasses(isRoot, isActive)}
 						>
-							<span className="font-semibold leading-tight">{toUnicodeAccidentals(interval)}</span>
+							<span className="font-semibold leading-tight">
+								{toUnicodeAccidentals(displayInterval)}
+							</span>
 							{letterName !== undefined && (
 								<span className="leading-tight text-gray-400">
 									{toUnicodeAccidentals(letterName)}

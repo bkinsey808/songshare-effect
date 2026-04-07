@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next";
 import formatRomanDegree from "@/shared/music/chord-display/formatRomanDegree";
 import { isSongKey, type SongKey } from "@/shared/song/songKeyOptions";
 import {
-    ChordDisplayCategory,
-    type ChordDisplayCategoryType,
+	ChordDisplayCategory,
+	type ChordDisplayCategoryType,
 } from "@/shared/user/chord-display/chordDisplayCategory";
 
-import type { ChordInversion } from "../use-chord-picker/getChordInversions";
+import preferSharpIntervals from "../preferSharpIntervals";
 import formatChordSearchDisplayText from "../result-card/formatChordSearchDisplayText";
+import type { ChordInversion } from "../use-chord-picker/getChordInversions";
 
 const EMPTY_INVERSIONS_COUNT = 0;
 
@@ -24,6 +25,8 @@ type ChordInversionsSectionProps = Readonly<{
 	selectedBassNote: SongKey | undefined;
 	/** Display preview token (letter or scale degree) keyed by bass root */
 	inversionPreviewTokens: ReadonlyMap<SongKey, string>;
+	/** Slash-form preview token (original shape, no SCI matching) keyed by bass root */
+	slashPreviewTokens: ReadonlyMap<SongKey, string>;
 	/** Called when the user selects or deselects an inversion card */
 	onSelectInversion: (inversion: ChordInversion) => void;
 }>;
@@ -44,6 +47,7 @@ export default function ChordInversionsSection({
 	songKey,
 	selectedBassNote,
 	inversionPreviewTokens,
+	slashPreviewTokens,
 	onSelectInversion,
 }: ChordInversionsSectionProps): ReactElement | undefined {
 	const { t } = useTranslation();
@@ -63,12 +67,15 @@ export default function ChordInversionsSection({
 
 	return (
 		<div className="space-y-2">
-			<p className="text-sm font-medium text-gray-300">
-				{t("song.chordInversions", "Inversions")}
-			</p>
-			<div className="grid grid-cols-1 gap-2 min-[900px]:grid-cols-2" data-testid="chord-inversions">
+			<p className="text-sm font-medium text-gray-300">{t("song.chordInversions", "Inversions")}</p>
+			<div
+				className="grid grid-cols-1 gap-2 min-[900px]:grid-cols-2"
+				data-testid="chord-inversions"
+			>
 				{inversions.map((inversion) => {
-					const description = formatChordSearchDisplayText(inversion.reRootedSpelling);
+					const description = formatChordSearchDisplayText(
+						preferSharpIntervals(inversion.reRootedSpelling),
+					);
 
 					return (
 						<button
@@ -88,21 +95,26 @@ export default function ChordInversionsSection({
 								<div className="flex items-center justify-between gap-3">
 									<div className="min-w-0 font-medium">
 										<span className="font-mono text-base">
-										{inversionPreviewTokens.get(inversion.bassRoot) ??
-											`${displayRoot(inversion.originalRoot)}/${displayRoot(inversion.bassRoot)}`}
+											{inversionPreviewTokens.get(inversion.bassRoot) ??
+												`${displayRoot(inversion.originalRoot)}/${displayRoot(inversion.bassRoot)}`}
 										</span>
 										<span className="px-1 text-gray-500">•</span>
-										{originalShapeName}
+										{inversion.matchedShape === undefined
+											? originalShapeName
+											: inversion.matchedShape.name}
 									</div>
 									<span className="shrink-0 rounded bg-gray-800 px-1.5 py-0.5 text-xs text-gray-400">
 										{inversion.ordinalLabel}
 									</span>
 								</div>
-								{inversion.matchedShape !== undefined && (
-									<div className="mt-1 text-sm text-blue-400">
-										≈ {inversion.matchedShape.name} ({inversion.matchedShape.code})
-									</div>
-								)}
+								{inversion.matchedShape !== undefined &&
+									inversion.matchedShape.name !== originalShapeName && (
+										<div className="mt-1 text-sm text-blue-400">
+											{slashPreviewTokens.get(inversion.bassRoot) ??
+												`${displayRoot(inversion.originalRoot)}/${displayRoot(inversion.bassRoot)}`}{" "}
+											• {originalShapeName}
+										</div>
+									)}
 								<div className="mt-1 text-sm text-gray-400">{description}</div>
 							</div>
 						</button>

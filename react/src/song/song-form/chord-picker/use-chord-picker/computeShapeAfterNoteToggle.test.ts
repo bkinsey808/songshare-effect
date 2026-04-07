@@ -6,96 +6,81 @@ import { getChordShapeByCode, type ChordShape } from "@/shared/music/chord-shape
 import computeShapeAfterNoteToggle from "./computeShapeAfterNoteToggle";
 
 const ROOT_SEMITONE_OFFSET = 0;
-const MAJOR_THIRD_SEMITONE_OFFSET = 4;
-const DOMINANT_SEVENTH_SEMITONE_OFFSET = 10;
-const OUT_OF_RANGE_SEMITONE_OFFSET = 12;
+const MAJOR_THIRD_OFFSET = 4;
+const TRITONE_OFFSET = 6;
+const DOMINANT_SEVENTH_OFFSET = 10;
+const OUT_OF_RANGE_OFFSET = 12;
+
 const MAJOR_SHAPE_CODE = "M";
-const DOM7_SPELLING = "3,5,b7";
 const POWER_CHORD_SPELLING = "5";
-const MAJOR_THIRD_INTERVAL_SPELLING = "3";
+const DOM7_SPELLING = "3,5,b7";
+const MAJOR_THIRD_SPELLING = "3";
+// "3,b5,5" has no catalog entry — adding b5 to major "3,5" triggers the synthetic-shape path
+const SYNTHETIC_SPELLING = "3,b5,5";
 
 describe("computeShapeAfterNoteToggle", () => {
-	it("returns undefined when the root semitone offset is toggled", () => {
-		// Arrange
+	it.each([
+		{
+			name: "root semitone offset is toggled",
+			selectedShape: getChordShapeByCode(MAJOR_SHAPE_CODE),
+			semitoneOffset: ROOT_SEMITONE_OFFSET,
+		},
+		{
+			name: "semitone offset is out of the label range",
+			selectedShape: getChordShapeByCode(MAJOR_SHAPE_CODE),
+			semitoneOffset: OUT_OF_RANGE_OFFSET,
+		},
+	])("returns undefined when $name", ({ selectedShape, semitoneOffset }) => {
+		// Act
+		const result = computeShapeAfterNoteToggle({ selectedShape, semitoneOffset });
+
+		// Assert
+		expect(result).toBeUndefined();
+	});
+
+	it.each([
+		{
+			name: "major third removed from major chord leaves a power chord",
+			selectedShape: getChordShapeByCode(MAJOR_SHAPE_CODE),
+			semitoneOffset: MAJOR_THIRD_OFFSET,
+			expectedSpelling: POWER_CHORD_SPELLING,
+		},
+		{
+			name: "b7 added to major chord produces dominant seventh",
+			selectedShape: getChordShapeByCode(MAJOR_SHAPE_CODE),
+			semitoneOffset: DOMINANT_SEVENTH_OFFSET,
+			expectedSpelling: DOM7_SPELLING,
+		},
+		{
+			name: "major third added to empty-spelling shape",
+			selectedShape: forceCast<ChordShape>({ spelling: "" }),
+			semitoneOffset: MAJOR_THIRD_OFFSET,
+			expectedSpelling: MAJOR_THIRD_SPELLING,
+		},
+		{
+			name: "major third toggled with undefined shape treated as empty",
+			selectedShape: undefined,
+			semitoneOffset: MAJOR_THIRD_OFFSET,
+			expectedSpelling: MAJOR_THIRD_SPELLING,
+		},
+	])("returns catalog shape: $name", ({ selectedShape, semitoneOffset, expectedSpelling }) => {
+		// Act
+		const result = computeShapeAfterNoteToggle({ selectedShape, semitoneOffset });
+
+		// Assert
+		expect(result?.spelling).toStrictEqual(expectedSpelling);
+	});
+
+	it("returns a synthetic shape when no catalog entry matches the resulting spelling", () => {
+		// Arrange — adding b5 (tritone) to major "3,5" produces "3,b5,5" which has no catalog entry
 		const selectedShape = getChordShapeByCode(MAJOR_SHAPE_CODE);
 
 		// Act
-		const result = computeShapeAfterNoteToggle({
-			selectedShape,
-			semitoneOffset: ROOT_SEMITONE_OFFSET,
-		});
+		const result = computeShapeAfterNoteToggle({ selectedShape, semitoneOffset: TRITONE_OFFSET });
 
 		// Assert
-		expect(result).toBeUndefined();
-	});
-
-	it("returns undefined when semitoneOffset is out of the SEMITONE_INTERVAL_LABELS range", () => {
-		// Arrange
-		const selectedShape = getChordShapeByCode(MAJOR_SHAPE_CODE);
-
-		// Act – SEMITONE_INTERVAL_LABELS only has indices 0–11; 12 has no label
-		const result = computeShapeAfterNoteToggle({
-			selectedShape,
-			semitoneOffset: OUT_OF_RANGE_SEMITONE_OFFSET,
-		});
-
-		// Assert
-		expect(result).toBeUndefined();
-	});
-
-	it("returns the power-chord shape when the major third is removed from a major chord", () => {
-		// Arrange
-		const selectedShape = getChordShapeByCode(MAJOR_SHAPE_CODE); // spelling: "3,5"
-
-		// Act – "3" IS in the set so it is deleted, leaving spelling "5"
-		const result = computeShapeAfterNoteToggle({
-			selectedShape,
-			semitoneOffset: MAJOR_THIRD_SEMITONE_OFFSET,
-		});
-
-		// Assert
-		expect(result).toBeDefined();
-		expect(result?.spelling).toStrictEqual(POWER_CHORD_SPELLING);
-	});
-
-	it("returns the dominant-seventh shape when b7 is added to a major chord", () => {
-		// Arrange
-		const selectedShape = getChordShapeByCode(MAJOR_SHAPE_CODE); // spelling: "3,5"
-
-		// Act – "b7" is NOT in the set so it is added, producing "3,5,b7"
-		const result = computeShapeAfterNoteToggle({
-			selectedShape,
-			semitoneOffset: DOMINANT_SEVENTH_SEMITONE_OFFSET,
-		});
-
-		// Assert
-		expect(result).toBeDefined();
-		expect(result?.spelling).toStrictEqual(DOM7_SPELLING);
-	});
-
-	it("returns a shape from an empty-spelling shape after toggling a non-root interval", () => {
-		// Arrange – simulate a single-note chord with no spelling
-		const selectedShape = forceCast<ChordShape>({ spelling: "" });
-
-		// Act – empty spelling treated as no intervals; "3" is added; "3" alone is a known shape
-		const result = computeShapeAfterNoteToggle({
-			selectedShape,
-			semitoneOffset: MAJOR_THIRD_SEMITONE_OFFSET,
-		});
-
-		// Assert
-		expect(result?.spelling).toStrictEqual(MAJOR_THIRD_INTERVAL_SPELLING);
-	});
-
-	it("returns a shape when selectedShape is undefined and a non-root interval is toggled", () => {
-		// Act – undefined shape treated as empty intervals; "3" is added
-		const result = computeShapeAfterNoteToggle({
-			selectedShape: undefined,
-			semitoneOffset: MAJOR_THIRD_SEMITONE_OFFSET,
-		});
-
-		// Assert
-		expect(result?.spelling).toStrictEqual(MAJOR_THIRD_INTERVAL_SPELLING);
+		expect(result?.spelling).toBe(SYNTHETIC_SPELLING);
+		expect(result?.code).toBe(SYNTHETIC_SPELLING);
+		expect(result?.prefer).toBe(false);
 	});
 });
-

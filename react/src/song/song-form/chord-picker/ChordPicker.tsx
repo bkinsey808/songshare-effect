@@ -68,12 +68,19 @@ export default function ChordPicker({
 		alternatePreviewToken,
 		canonicalToken,
 		chordDisplayCategory,
+		chordDisplayMode,
 		chordInversions,
+		inversionBaseShapeName,
 		displayedShapes,
 		inversionPreviewTokens,
+		inversionSlashPreviewTokens,
+		slashPreviewToken,
+		slashPreviewShapeName,
+		previewShapeSpelling,
 		handleInsert,
 		handleNoteToggle,
 		handleSelectInversion,
+		isShapeSelected,
 		selectedBassNote,
 		maxNotes,
 		maxNotesInputId,
@@ -128,16 +135,21 @@ export default function ChordPicker({
 							alternatePreviewLabel={alternatePreviewLabel}
 							alternatePreviewToken={alternatePreviewToken}
 							selectedShapeName={selectedShape?.name}
-							selectedShapeSpelling={selectedShape?.spelling}
+							selectedShapeSpelling={previewShapeSpelling}
 							selectedShapeAltNames={selectedShape?.altNames ?? ""}
+							slashPreviewToken={slashPreviewToken}
+							slashPreviewShapeName={slashPreviewShapeName}
 						/>
 						<NotePicker entries={notePickerEntries} onToggle={handleNoteToggle} />
 						<ChordInversionsSection
 							inversions={chordInversions}
-							originalShapeName={selectedShape?.name ?? ""}
+							originalShapeName={inversionBaseShapeName}
 							chordDisplayCategory={chordDisplayCategory}
 							songKey={songKey}
-							selectedBassNote={selectedBassNote}								inversionPreviewTokens={inversionPreviewTokens}							onSelectInversion={handleSelectInversion}
+							selectedBassNote={selectedBassNote}
+							inversionPreviewTokens={inversionPreviewTokens}
+							slashPreviewTokens={inversionSlashPreviewTokens}
+							onSelectInversion={handleSelectInversion}
 						/>
 						<div className="flex flex-col gap-4 min-[520px]:flex-row min-[520px]:items-end">
 							<ChordRootPicker
@@ -207,10 +219,11 @@ export default function ChordPicker({
 									<ChordSearchResultCard
 										key={shape.id}
 										shape={shape}
-										isSelected={selectedShape?.id === shape.id}
-										onSelect={(shapeCode) => {
-											setSelectedShapeCode(shapeCode);
-										}}
+										isSelected={isShapeSelected(shape.id)}
+										onSelect={setSelectedShapeCode}
+										selectedRoot={selectedRoot}
+										chordDisplayMode={chordDisplayMode}
+										songKey={songKey}
 									/>
 								))
 							)}

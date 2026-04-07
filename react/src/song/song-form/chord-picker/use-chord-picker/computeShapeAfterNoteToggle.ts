@@ -5,6 +5,8 @@ import { SEMITONE_INTERVAL_LABELS } from "../chordPickerConstants";
 const ROOT_SEMITONE_OFFSET = 0;
 /** Start index for slicing SEMITONE_INTERVAL_LABELS to exclude the root interval. */
 const NON_ROOT_INTERVAL_START = 1;
+/** The root note is always counted, adding one to the interval count for total note count. */
+const ROOT_NOTE_COUNT = 1;
 
 /**
  * Derives the chord shape that results from toggling a chromatic note in or out.
@@ -16,7 +18,8 @@ const NON_ROOT_INTERVAL_START = 1;
  *
  * @param selectedShape - The current chord shape
  * @param semitoneOffset - Chromatic position to toggle (0 = root, always returns undefined)
- * @returns Matching chord shape, or undefined if the result is not a known shape
+ * @returns Matching chord shape from the catalog, a synthetic shape when no catalog match exists,
+ *   or undefined when toggling the root or an out-of-range offset
  */
 export default function computeShapeAfterNoteToggle({
 	selectedShape,
@@ -51,5 +54,22 @@ export default function computeShapeAfterNoteToggle({
 		.filter((iv) => currentNonRootIntervals.has(iv))
 		.join(",");
 
-	return getChordShapes().find((shape) => shape.spelling === newSpelling);
+	const catalogShape = getChordShapes().find((shape) => shape.spelling === newSpelling);
+	if (catalogShape !== undefined) {
+		return catalogShape;
+	}
+
+	// No catalog match — return a synthetic shape so the note picker reflects the toggled state.
+	return {
+		id: 0,
+		name: newSpelling,
+		code: newSpelling,
+		prefer: false,
+		noteCount: currentNonRootIntervals.size + ROOT_NOTE_COUNT,
+		spelling: newSpelling,
+		ordering: 0,
+		intervalForm: "",
+		altNames: "",
+		searchText: newSpelling,
+	};
 }

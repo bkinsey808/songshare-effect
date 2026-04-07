@@ -7,7 +7,7 @@ const romanDegreeBySemitone: Readonly<Record<number, RomanDegree>> = {
 	3: "bIII",
 	4: "III",
 	5: "IV",
-	6: "#IV",
+	6: "bV",
 	7: "V",
 	8: "bVI",
 	9: "VI",

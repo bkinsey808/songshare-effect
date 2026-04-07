@@ -7,7 +7,7 @@ const songKeysBySemitone: Readonly<Record<number, SongKey>> = {
 	3: "Eb",
 	4: "E",
 	5: "F",
-	6: "F#",
+	6: "Gb",
 	7: "G",
 	8: "Ab",
 	9: "A",

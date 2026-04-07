@@ -24,6 +24,12 @@ export default function getCanonicalToken({
 		return undefined;
 	}
 
+	// Synthetic shape codes use the spelling as the code (contains commas).
+	// These have no catalog entry and cannot produce a valid stored token.
+	if (selectedShapeCode.includes(",")) {
+		return undefined;
+	}
+
 	if (selectedRoot.rootType === "roman") {
 		return formatStoredChordToken({
 			root: selectedRoot.root,

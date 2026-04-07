@@ -10,8 +10,24 @@ import {
 	OCTAVE_SEMITONE_COUNT,
 	ROOT_INTERVAL,
 } from "../chordPickerConstants";
-import getAbsoluteSelectedRoot from "./getAbsoluteSelectedRoot";
 import type { SelectedRoot } from "../root-picker/chordPickerRootOptionTypes";
+import getAbsoluteSelectedRoot from "./getAbsoluteSelectedRoot";
+
+type FlatNoteEntry = Readonly<{
+	sameNatural: string;
+	lowerNatural: string;
+	sharpEquiv: SongKey;
+}>;
+
+const NOTE_NOT_FOUND = -1;
+const SEQUENCE_START = 0;
+
+const FLAT_NOTE_MAP: Readonly<Record<string, FlatNoteEntry>> = {
+	Db: { sameNatural: "D", lowerNatural: "C", sharpEquiv: "C#" },
+	Eb: { sameNatural: "E", lowerNatural: "D", sharpEquiv: "D#" },
+	Ab: { sameNatural: "A", lowerNatural: "G", sharpEquiv: "G#" },
+	Bb: { sameNatural: "B", lowerNatural: "A", sharpEquiv: "A#" },
+};
 
 /**
  * Builds a space-separated string of note names for the chord's letter-form preview.
@@ -30,11 +46,13 @@ export default function formatLetterFormPreview({
 	selectedShape,
 	chordDisplayMode,
 	songKey,
+	bassNote,
 }: Readonly<{
 	selectedRoot: SelectedRoot;
 	selectedShape: ChordShape | undefined;
 	chordDisplayMode: ChordDisplayModeType;
 	songKey: SongKey | "";
+	bassNote?: SongKey | undefined;
 }>): string {
 	const absoluteRoot = getAbsoluteSelectedRoot(selectedRoot, songKey);
 	if (absoluteRoot === undefined) {
@@ -49,14 +67,34 @@ export default function formatLetterFormPreview({
 		.map((interval) => INTERVAL_SEMITONE_OFFSET[interval])
 		.filter((offset): offset is number => offset !== undefined)
 		.map((offset) => songKeysBySemitone[(rootSemitone + offset) % OCTAVE_SEMITONE_COUNT])
-		.filter((root): root is SongKey => root !== undefined)
+		.filter((root): root is SongKey => root !== undefined);
+
+	const noteSet = new Set<string>(noteSequence);
+	// When a slash chord is active, rotate the sequence to start from the bass note
+	// so the display shows e.g. "Eb Gb B C" instead of "C Eb Gb B".
+	const rawBassIndex = bassNote === undefined ? NOTE_NOT_FOUND : noteSequence.indexOf(bassNote);
+	const startIndex = rawBassIndex === NOTE_NOT_FOUND ? SEQUENCE_START : rawBassIndex;
+	const orderedSequence = [
+		...noteSequence.slice(startIndex),
+		...noteSequence.slice(SEQUENCE_START, startIndex),
+	];
+	const displaySequence = orderedSequence.map((note) => {
+		const entry = FLAT_NOTE_MAP[note];
+		if (entry === undefined) {
+			return note;
+		}
+		return noteSet.has(entry.sameNatural) && !noteSet.has(entry.lowerNatural)
+			? entry.sharpEquiv
+			: note;
+	});
+
+	return displaySequence
 		.map((root) =>
 			formatChordRootForDisplay({
 				root,
 				chordDisplayMode,
 				songKey,
 			}),
-		);
-
-	return noteSequence.join(" ");
+		)
+		.join(" ");
 }

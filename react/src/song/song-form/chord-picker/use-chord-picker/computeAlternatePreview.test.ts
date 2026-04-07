@@ -50,6 +50,7 @@ describe("computeAlternatePreview", () => {
 			canonicalToken: CANONICAL_TOKEN_I_M,
 			selectedRoot: ABSOLUTE_ROOT_G,
 			selectedShape,
+			selectedBassNote: undefined,
 			t: stubT,
 		});
 
@@ -70,6 +71,7 @@ describe("computeAlternatePreview", () => {
 			canonicalToken: CANONICAL_TOKEN_I_M,
 			selectedRoot: ROMAN_ROOT_I,
 			selectedShape,
+			selectedBassNote: undefined,
 			t: stubT,
 		});
 
@@ -91,6 +93,7 @@ describe("computeAlternatePreview", () => {
 			canonicalToken: CANONICAL_TOKEN_I_M,
 			selectedRoot: ABSOLUTE_ROOT_G,
 			selectedShape,
+			selectedBassNote: undefined,
 			t: stubT,
 		});
 
@@ -112,6 +115,7 @@ describe("computeAlternatePreview", () => {
 			canonicalToken: undefined,
 			selectedRoot: ABSOLUTE_ROOT_G,
 			selectedShape,
+			selectedBassNote: undefined,
 			t: stubT,
 		});
 

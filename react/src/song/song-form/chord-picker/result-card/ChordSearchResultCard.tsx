@@ -1,11 +1,20 @@
+import transformChordTextForDisplay from "@/shared/music/chord-display/transformChordTextForDisplay";
 import type { ChordShape } from "@/shared/music/chord-shapes";
+import type { SongKey } from "@/shared/song/songKeyOptions";
+import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
+import preferSharpIntervals from "../preferSharpIntervals";
+import type { SelectedRoot } from "../root-picker/chordPickerRootOptionTypes";
+import getCanonicalToken from "../use-chord-picker/getCanonicalToken";
 import formatChordSearchDisplayText from "./formatChordSearchDisplayText";
 
 type ChordSearchResultCardProps = Readonly<{
 	shape: ChordShape;
 	isSelected: boolean;
 	onSelect: (shapeCode: string) => void;
+	selectedRoot: SelectedRoot;
+	chordDisplayMode: ChordDisplayModeType;
+	songKey: SongKey | "";
 }>;
 
 /**
@@ -20,12 +29,22 @@ export default function ChordSearchResultCard({
 	shape,
 	isSelected,
 	onSelect,
+	selectedRoot,
+	chordDisplayMode,
+	songKey,
 }: ChordSearchResultCardProps): ReactElement {
+	const spellingDescription = formatChordSearchDisplayText(preferSharpIntervals(shape.spelling));
 	const description =
 		shape.altNames === ""
-			? formatChordSearchDisplayText(shape.spelling)
-			: `${formatChordSearchDisplayText(shape.spelling)} • ${formatChordSearchDisplayText(shape.altNames)}`;
+			? spellingDescription
+			: `${spellingDescription} • ${formatChordSearchDisplayText(shape.altNames)}`;
 	const displayCode = formatChordSearchDisplayText(shape.code);
+
+	const token = getCanonicalToken({ selectedRoot, selectedShapeCode: shape.code, songKey });
+	const previewToken =
+		token === undefined
+			? undefined
+			: transformChordTextForDisplay(token, { chordDisplayMode, songKey });
 
 	return (
 		<button
@@ -43,12 +62,14 @@ export default function ChordSearchResultCard({
 			<div className="min-w-0">
 				<div className="flex items-center justify-between gap-3">
 					<div className="min-w-0 font-medium">
-						<span className="font-mono text-base">{displayCode}</span>
+						<span className="font-mono text-base">{previewToken ?? displayCode}</span>
 						<span className="px-1 text-gray-500">•</span>
 						{shape.name}
 					</div>
 				</div>
-				<div className="mt-1 text-sm text-gray-400">{description}</div>
+				<div className="mt-1 text-sm text-gray-400">
+					{previewToken === undefined ? description : `${displayCode} • ${description}`}
+				</div>
 			</div>
 		</button>
 	);

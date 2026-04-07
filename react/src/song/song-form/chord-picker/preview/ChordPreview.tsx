@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 
+import preferSharpIntervals from "../preferSharpIntervals";
 import formatChordPreviewDisplayText from "./formatChordPreviewDisplayText";
 
 type ChordPreviewProps = Readonly<{
@@ -9,6 +10,8 @@ type ChordPreviewProps = Readonly<{
 	selectedShapeName: string | undefined;
 	selectedShapeSpelling: string | undefined;
 	selectedShapeAltNames: string;
+	slashPreviewToken: string;
+	slashPreviewShapeName: string;
 }>;
 
 /**
@@ -29,6 +32,8 @@ export default function ChordPreview({
 	selectedShapeName,
 	selectedShapeSpelling,
 	selectedShapeAltNames,
+	slashPreviewToken,
+	slashPreviewShapeName,
 }: ChordPreviewProps): ReactElement {
 	const { t } = useTranslation();
 
@@ -60,10 +65,16 @@ export default function ChordPreview({
 					<div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
 						{selectedShapeName === undefined
 							? "—"
-							: `${selectedShapeName} · ${formatChordPreviewDisplayText(selectedShapeSpelling ?? "")}`}
+							: `${selectedShapeName} · ${formatChordPreviewDisplayText(preferSharpIntervals(selectedShapeSpelling ?? ""))}`}
 					</div>
 					{selectedShapeAltNames === "" ? undefined : (
 						<div className="mt-2 text-sm text-gray-400">{selectedShapeAltNames}</div>
+					)}
+					{slashPreviewToken !== "" && slashPreviewShapeName !== "" && (
+						<div className="mt-2 font-mono text-sm text-blue-400">
+							{formatChordPreviewDisplayText(slashPreviewToken)}
+							<span className="font-sans"> · {slashPreviewShapeName}</span>
+						</div>
 					)}
 				</div>
 			</div>

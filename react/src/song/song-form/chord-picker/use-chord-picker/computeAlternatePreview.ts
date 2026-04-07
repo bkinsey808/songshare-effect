@@ -20,6 +20,7 @@ type ComputeAlternatePreviewParams = Readonly<{
 	canonicalToken: string | undefined;
 	selectedRoot: SelectedRoot;
 	selectedShape: ChordShape | undefined;
+	selectedBassNote: SongKey | undefined;
 	t: (key: string, defaultValue: string) => string;
 }>;
 
@@ -49,6 +50,7 @@ export default function computeAlternatePreview({
 	canonicalToken,
 	selectedRoot,
 	selectedShape,
+	selectedBassNote,
 	t,
 }: ComputeAlternatePreviewParams): ComputeAlternatePreviewResult {
 	const alternatePreviewCategory: ChordDisplayCategoryType =
@@ -87,6 +89,7 @@ export default function computeAlternatePreview({
 				selectedShape,
 				chordDisplayMode: alternatePreviewMode,
 				songKey,
+				bassNote: selectedBassNote,
 			}),
 		]
 			.filter((part) => part !== "")

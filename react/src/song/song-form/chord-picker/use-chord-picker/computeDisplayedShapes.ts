@@ -1,6 +1,12 @@
-import { getChordShapeByCode, searchChordShapes, type ChordShape } from "@/shared/music/chord-shapes";
+import {
+	getChordShapeByCode,
+	searchChordShapes,
+	type ChordShape,
+} from "@/shared/music/chord-shapes";
 
 const FIRST_SHAPE_INDEX = 0;
+/** The root note is always counted, adding one to the interval count for total note count. */
+const ROOT_NOTE_COUNT = 1;
 
 /**
  * Derives the ordered shape list and currently selected shape for the chord picker.
@@ -34,6 +40,24 @@ export default function computeDisplayedShapes({
 					selectedShapeInResults,
 					...availableShapes.filter((shape) => shape.code !== selectedShapeInResults.code),
 				];
-	const selectedShape = getChordShapeByCode(selectedShapeCode) ?? displayedShapes[FIRST_SHAPE_INDEX];
+	const selectedShape =
+		getChordShapeByCode(selectedShapeCode) ??
+		// Synthetic shape: code is the spelling itself (contains commas), used when toggling
+		// a note produces an interval combination that has no catalog entry.
+		(selectedShapeCode.includes(",")
+			? {
+					id: 0,
+					name: selectedShapeCode,
+					code: selectedShapeCode,
+					prefer: false,
+					noteCount: selectedShapeCode.split(",").length + ROOT_NOTE_COUNT,
+					spelling: selectedShapeCode,
+					ordering: 0,
+					intervalForm: "",
+					altNames: "",
+					searchText: selectedShapeCode,
+				}
+			: undefined) ??
+		displayedShapes[FIRST_SHAPE_INDEX];
 	return { displayedShapes, selectedShape };
 }
