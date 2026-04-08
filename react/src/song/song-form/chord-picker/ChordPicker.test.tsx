@@ -6,8 +6,8 @@ import useChordDisplayModePreference from "@/react/chord-display-mode/useChordDi
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
 import ChordPicker from "./ChordPicker";
-import type { SelectedRoot } from "./root-picker/chordPickerRootOptionTypes";
-import formatSelectedRootLabel from "./root-picker/formatSelectedRootLabel";
+import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import formatSelectedRootLabel from "@/react/music/root-picker/formatSelectedRootLabel";
 
 const ONE_CALL = 1;
 const MIN_INTERVAL_MATCH_COUNT = 0;

@@ -1,4 +1,4 @@
-import toUnicodeAccidentals from "@/react/music/toUnicodeAccidentals";
+import toUnicodeAccidentals from "@/react/music/intervals/toUnicodeAccidentals";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
 type SongKeyButtonProps = Readonly<{

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
-import type { SelectedRoot } from "../root-picker/chordPickerRootOptionTypes";
+import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
 import useSongKeyRootSync from "./useSongKeyRootSync";
 
 const HARNESS_TEST_ID = "harness";

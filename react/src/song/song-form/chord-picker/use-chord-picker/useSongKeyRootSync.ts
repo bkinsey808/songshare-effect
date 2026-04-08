@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import getAbsoluteRootFromRomanDegree from "@/shared/music/chord-display/getAbsoluteRootFromRomanDegree";
 import { isSongKey, type SongKey } from "@/shared/song/songKeyOptions";
 
-import type { SelectedRoot } from "../root-picker/chordPickerRootOptionTypes";
+import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
 
 /**
  * Converts a roman-numeral root back to an absolute note when the song key is cleared.

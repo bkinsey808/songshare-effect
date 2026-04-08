@@ -1,19 +1,19 @@
 import { useState } from "react";
 
+import computeSciInversions, { type SciInversion } from "@/react/music/inversions/computeSciInversions";
 import transformChordTextForDisplay from "@/shared/music/chord-display/transformChordTextForDisplay";
 import { getChordShapeByCode, type ChordShape } from "@/shared/music/chord-shapes";
 import { type SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
-import type { SelectedRoot } from "../root-picker/chordPickerRootOptionTypes";
-import getAbsoluteSelectedRoot from "./getAbsoluteSelectedRoot";
-import getCanonicalToken from "./getCanonicalToken";
-import getChordInversions, { type ChordInversion } from "./getChordInversions";
-import getInitialBassNote from "./getInitialBassNote";
-import getInversionPreviewTokens from "./getInversionPreviewTokens";
+import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
+import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
+import computeInitialBassNote from "@/react/music/sci/computeInitialBassNote";
+import computeInversionPreviewTokens from "@/react/music/inversions/computeInversionPreviewTokens";
 import useSongKeyRootSync from "./useSongKeyRootSync";
 
-type UseChordInversionsParams = Readonly<{
+type UseSciInversionsParams = Readonly<{
 	selectedRoot: SelectedRoot;
 	setSelectedRoot: (root: SelectedRoot) => void;
 	selectedShapeCode: string;
@@ -23,16 +23,17 @@ type UseChordInversionsParams = Readonly<{
 	initialChordToken: string | undefined;
 }>;
 
-type UseChordInversionsResult = Readonly<{
+type UseSciInversionsResult = Readonly<{
 	selectedBassNote: SongKey | undefined;
 	absoluteRoot: SongKey | undefined;
-	activeInversion: ChordInversion | undefined;
+	activeInversion: SciInversion | undefined;
 	inversionBaseShape: ChordShape | undefined;
 	inversionBaseShapeName: string;
-	displayChordInversions: readonly ChordInversion[];
+	displaySciInversions: readonly SciInversion[];
 	displayInversionPreviewTokens: ReadonlyMap<SongKey, string>;
 	slashPreviewTokens: ReadonlyMap<SongKey, string>;
-	handleSelectInversion: (inversion: ChordInversion) => void;
+	handleSelectInversion: (inversion: SciInversion) => void;
+	handleSelectShapeInversion: (sourceShapeCode: string, inversion: SciInversion) => void;
 	clearInversion: () => void;
 	/** Sets the active bass note directly, used when note-picker toggling resolves to an inversion. */
 	selectBassNote: (note: SongKey) => void;
@@ -54,7 +55,7 @@ type UseChordInversionsResult = Readonly<{
  * @param initialChordToken - Existing chord token when editing a chord
  * @returns Inversion state, derived display lists, handler, and clear helper
  */
-export default function useChordInversions({
+export default function useSciInversions({
 	selectedRoot,
 	setSelectedRoot,
 	selectedShapeCode,
@@ -62,13 +63,13 @@ export default function useChordInversions({
 	songKey,
 	chordDisplayMode,
 	initialChordToken,
-}: UseChordInversionsParams): UseChordInversionsResult {
+}: UseSciInversionsParams): UseSciInversionsResult {
 	// Remembers the shape code before an inversion is selected so it can be restored on deselect.
 	const [inversionBaseShapeCode, setInversionBaseShapeCode] = useState<string | undefined>(
 		undefined,
 	);
 	const [selectedBassNote, setSelectedBassNote] = useState<SongKey | undefined>(() =>
-		getInitialBassNote({ initialChordToken }),
+		computeInitialBassNote({ initialChordToken }),
 	);
 
 	// When the song key is cleared, convert any selected roman root back to an absolute note.
@@ -79,19 +80,19 @@ export default function useChordInversions({
 		setSelectedBassNote,
 	});
 
-	const absoluteRoot = getAbsoluteSelectedRoot(selectedRoot, songKey);
+	const absoluteRoot = computeAbsoluteSelectedRoot(selectedRoot, songKey);
 	const inversionBaseShape = getChordShapeByCode(inversionBaseShapeCode ?? selectedShapeCode);
 
 	const chordInversions =
 		absoluteRoot !== undefined && inversionBaseShape !== undefined
-			? getChordInversions(absoluteRoot, inversionBaseShape.code)
+			? computeSciInversions(absoluteRoot, inversionBaseShape.code)
 			: [];
 	const activeInversion =
 		selectedBassNote === undefined
 			? undefined
 			: chordInversions.find((inv) => inv.bassRoot === selectedBassNote);
 
-	const inversionPreviewTokens = getInversionPreviewTokens({
+	const inversionPreviewTokens = computeInversionPreviewTokens({
 		inversions: chordInversions,
 		selectedRoot,
 		inversionBaseShape,
@@ -101,7 +102,7 @@ export default function useChordInversions({
 
 	// Slash-form tokens always use the original shape without SCI matching, used in the
 	// inversion card subtitle to show e.g. "A -/C" when the heading shows "C I6".
-	const slashPreviewTokens = getInversionPreviewTokens({
+	const slashPreviewTokens = computeInversionPreviewTokens({
 		inversions: chordInversions.map(({ matchedShape: _matchedShape, ...rest }) => rest),
 		selectedRoot,
 		inversionBaseShape,
@@ -112,7 +113,7 @@ export default function useChordInversions({
 	// When an inversion is active, replace its card with a root-position entry so the user
 	// sees how to return to root position rather than the chord they already selected.
 	// bassRoot === originalRoot distinguishes this synthetic entry from real inversions.
-	const rootPositionEntry: ChordInversion | undefined =
+	const rootPositionEntry: SciInversion | undefined =
 		selectedBassNote === undefined || absoluteRoot === undefined || inversionBaseShape === undefined
 			? undefined
 			: {
@@ -123,7 +124,7 @@ export default function useChordInversions({
 					reRootedSpelling: inversionBaseShape.spelling,
 					matchedShape: inversionBaseShape,
 				};
-	const displayChordInversions: readonly ChordInversion[] =
+	const displaySciInversions: readonly SciInversion[] =
 		rootPositionEntry === undefined
 			? chordInversions
 			: chordInversions.map((inv) => (inv.bassRoot === selectedBassNote ? rootPositionEntry : inv));
@@ -131,7 +132,7 @@ export default function useChordInversions({
 		if (rootPositionEntry === undefined) {
 			return undefined;
 		}
-		const token = getCanonicalToken({
+		const token = computeCanonicalToken({
 			selectedRoot,
 			selectedShapeCode: rootPositionEntry.matchedShape?.code,
 			songKey,
@@ -156,7 +157,19 @@ export default function useChordInversions({
 		setSelectedBassNote(note);
 	}
 
-	function handleSelectInversion(inversion: ChordInversion): void {
+	function handleSelectShapeInversion(sourceShapeCode: string, inversion: SciInversion): void {
+		const activeBase = inversionBaseShapeCode ?? selectedShapeCode;
+		if (selectedBassNote === inversion.bassRoot && activeBase === sourceShapeCode) {
+			onShapeCodeChange(sourceShapeCode);
+			clearInversion();
+			return;
+		}
+		setInversionBaseShapeCode(sourceShapeCode);
+		setSelectedBassNote(inversion.bassRoot);
+		onShapeCodeChange(inversion.matchedShape?.code ?? sourceShapeCode);
+	}
+
+	function handleSelectInversion(inversion: SciInversion): void {
 		// Deselect when clicking the active inversion again, or when clicking the root-position
 		// entry (identified by bassRoot === originalRoot — synthetic entries only).
 		if (selectedBassNote === inversion.bassRoot || inversion.bassRoot === inversion.originalRoot) {
@@ -182,10 +195,11 @@ export default function useChordInversions({
 		activeInversion,
 		inversionBaseShape,
 		inversionBaseShapeName: inversionBaseShape?.name ?? "",
-		displayChordInversions,
+		displaySciInversions,
 		displayInversionPreviewTokens,
 		slashPreviewTokens,
 		handleSelectInversion,
+		handleSelectShapeInversion,
 		clearInversion,
 		selectBassNote,
 	};

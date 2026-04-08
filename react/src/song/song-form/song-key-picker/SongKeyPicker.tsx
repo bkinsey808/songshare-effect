@@ -1,4 +1,4 @@
-import toUnicodeAccidentals from "@/react/music/toUnicodeAccidentals";
+import toUnicodeAccidentals from "@/react/music/intervals/toUnicodeAccidentals";
 import { useTranslation } from "react-i18next";
 
 import ChevronDownIcon from "@/react/lib/design-system/icons/ChevronDownIcon";

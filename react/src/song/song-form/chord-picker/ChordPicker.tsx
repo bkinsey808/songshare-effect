@@ -2,12 +2,14 @@ import { useTranslation } from "react-i18next";
 
 import ChordDisplayModeSelect from "@/react/chord-display-mode/ChordDisplayModeSelect";
 import Button from "@/react/lib/design-system/Button";
-import ChordIcon from "@/react/lib/design-system/icons/ChordIcon";
+import formatAccidentals from "@/react/music/intervals/formatAccidentals";
+import preferSharpIntervals from "@/react/music/intervals/preferSharpIntervals";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
 import SongKeyPicker from "../song-key-picker/SongKeyPicker";
-import ChordInversionsSection from "./inversions/ChordInversionsSection";
+import SciInversionsSection from "./inversions/ChordInversionsSection";
 import NotePicker from "./note-picker/NotePicker";
+import NoteSearch from "./note-search/NoteSearch";
 import ChordPreview from "./preview/ChordPreview";
 import ChordSearchResultCard from "./result-card/ChordSearchResultCard";
 import ChordRootPicker from "./root-picker/ChordRootPicker";
@@ -21,7 +23,7 @@ const SIX_NOTE_COUNT = 6;
 const SEVEN_NOTE_COUNT = 7;
 const EIGHT_NOTE_COUNT = 8;
 const EMPTY_SHAPE_COUNT = 0;
-const MAX_NOTE_OPTIONS = [
+const NOTE_COUNT_OPTIONS = [
 	DYAD_NOTE_COUNT,
 	TRIAD_NOTE_COUNT,
 	TETRAD_NOTE_COUNT,
@@ -66,7 +68,6 @@ export default function ChordPicker({
 	const {
 		alternatePreviewLabel,
 		alternatePreviewToken,
-		canonicalToken,
 		chordDisplayCategory,
 		chordDisplayMode,
 		chordInversions,
@@ -77,20 +78,31 @@ export default function ChordPicker({
 		slashPreviewToken,
 		slashPreviewShapeName,
 		previewShapeSpelling,
-		handleInsert,
+		allShapeInversions,
+		directShapeOrdinals,
+		getNoteSearchRoot,
 		handleNoteToggle,
+		handleNoteSearchToggle,
 		handleSelectInversion,
+		handleSelectShapeInversion,
+		includeInversions,
+		includeInversionsInputId,
 		isShapeSelected,
 		selectedBassNote,
+		minNotes,
+		minNotesInputId,
 		maxNotes,
 		maxNotesInputId,
 		notePickerEntries,
+		noteSearchEntries,
 		previewToken,
 		query,
 		rootPickerDisplayMode,
 		searchInputId,
 		selectedRoot,
 		selectedShape,
+		setIncludeInversions,
+		setMinNotes,
 		setMaxNotes,
 		setQuery,
 		setSelectedRoot,
@@ -140,8 +152,15 @@ export default function ChordPicker({
 							slashPreviewToken={slashPreviewToken}
 							slashPreviewShapeName={slashPreviewShapeName}
 						/>
+						<ChordRootPicker
+							selectedRoot={selectedRoot}
+							setSelectedRoot={setSelectedRoot}
+							chordDisplayMode={rootPickerDisplayMode}
+							songKey={songKey}
+						/>
 						<NotePicker entries={notePickerEntries} onToggle={handleNoteToggle} />
-						<ChordInversionsSection
+						<NoteSearch entries={noteSearchEntries} onToggle={handleNoteSearchToggle} />
+						<SciInversionsSection
 							inversions={chordInversions}
 							originalShapeName={inversionBaseShapeName}
 							chordDisplayCategory={chordDisplayCategory}
@@ -151,16 +170,31 @@ export default function ChordPicker({
 							slashPreviewTokens={inversionSlashPreviewTokens}
 							onSelectInversion={handleSelectInversion}
 						/>
-						<div className="flex flex-col gap-4 min-[520px]:flex-row min-[520px]:items-end">
-							<ChordRootPicker
-								selectedRoot={selectedRoot}
-								setSelectedRoot={setSelectedRoot}
-								chordDisplayMode={rootPickerDisplayMode}
-								songKey={songKey}
-							/>
+						<div className="flex flex-col gap-4 min-[520px]:flex-row min-[520px]:items-start">
+							<label
+								className="flex flex-col gap-1 text-sm text-gray-300"
+								htmlFor={minNotesInputId}
+							>
+								<span>{t("song.chordMinNotes", "Min Notes")}</span>
+								<select
+									id={minNotesInputId}
+									value={String(minNotes)}
+									onChange={(event) => {
+										setMinNotes(Number(event.target.value));
+									}}
+									className="rounded border border-gray-600 bg-gray-950 px-3 py-2 text-sm text-white"
+									data-testid="chord-min-notes"
+								>
+									{NOTE_COUNT_OPTIONS.map((noteCount) => (
+										<option key={noteCount} value={String(noteCount)}>
+											{noteCount}
+										</option>
+									))}
+								</select>
+							</label>
 
 							<label
-								className="flex flex-col gap-1 text-sm text-gray-300 min-[520px]:min-w-44"
+								className="flex flex-col gap-1 text-sm text-gray-300"
 								htmlFor={maxNotesInputId}
 							>
 								<span>{t("song.chordMaxNotes", "Max Notes")}</span>
@@ -173,12 +207,40 @@ export default function ChordPicker({
 									className="rounded border border-gray-600 bg-gray-950 px-3 py-2 text-sm text-white"
 									data-testid="chord-max-notes"
 								>
-									{MAX_NOTE_OPTIONS.map((noteCount) => (
+									{NOTE_COUNT_OPTIONS.map((noteCount) => (
 										<option key={noteCount} value={String(noteCount)}>
 											{noteCount}
 										</option>
 									))}
 								</select>
+							</label>
+
+							<label
+								className="flex cursor-pointer flex-col gap-1 text-sm text-gray-300"
+								htmlFor={includeInversionsInputId}
+							>
+								<span>{t("song.includeInversions", "Include inversions")}</span>
+								<input
+									id={includeInversionsInputId}
+									type="checkbox"
+									checked={includeInversions}
+									onChange={(event) => {
+										setIncludeInversions(event.target.checked);
+									}}
+									className="h-9.5 w-9.5 cursor-pointer appearance-none rounded border border-gray-600 bg-gray-950"
+									style={
+										includeInversions
+											? {
+													backgroundImage:
+														"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' d='M1.5 8 L4 12 L14.5 3'/%3E%3C/svg%3E\")",
+													backgroundRepeat: "no-repeat",
+													backgroundPosition: "center",
+													backgroundSize: "14px 14px",
+												}
+											: undefined
+									}
+									data-testid="include-inversions-checkbox"
+								/>
 							</label>
 						</div>
 
@@ -210,44 +272,75 @@ export default function ChordPicker({
 							className="grid grid-cols-1 gap-2 min-[900px]:grid-cols-2"
 							data-testid="chord-shape-results"
 						>
-							{displayedShapes.length === EMPTY_SHAPE_COUNT ? (
+							{displayedShapes.length === EMPTY_SHAPE_COUNT &&
+							allShapeInversions.length === EMPTY_SHAPE_COUNT ? (
 								<div className="rounded-lg border border-dashed border-gray-700 px-3 py-4 text-sm text-gray-400">
 									{t("song.chordNoResults", "No chord shapes match this search.")}
 								</div>
 							) : (
-								displayedShapes.map((shape) => (
-									<ChordSearchResultCard
-										key={shape.id}
-										shape={shape}
-										isSelected={isShapeSelected(shape.id)}
-										onSelect={setSelectedShapeCode}
-										selectedRoot={selectedRoot}
-										chordDisplayMode={chordDisplayMode}
-										songKey={songKey}
-									/>
-								))
+								<>
+									{displayedShapes.map((shape) => {
+										const noteSearchMatchRoot = getNoteSearchRoot(shape.spelling);
+										const cardRoot =
+											noteSearchMatchRoot === undefined
+												? selectedRoot
+												: {
+														root: noteSearchMatchRoot,
+														rootType: "absolute" as const,
+														label: noteSearchMatchRoot,
+													};
+										return (
+											<ChordSearchResultCard
+												key={shape.id}
+												shape={shape}
+												isSelected={isShapeSelected(shape.id)}
+												onSelect={setSelectedShapeCode}
+												selectedRoot={cardRoot}
+												chordDisplayMode={chordDisplayMode}
+												songKey={songKey}
+												inversionInfo={directShapeOrdinals.get(shape.code)}
+											/>
+										);
+									})}
+									{allShapeInversions.map(
+										({ inversion, sourceShapeCode, sourceShapeName, displayToken }) => (
+											<button
+												key={`inv-${sourceShapeCode}-${inversion.bassRoot}-${String(inversion.inversionNumber)}`}
+												type="button"
+												className={`w-full rounded-xl border px-4 py-3 text-left transition ${
+													selectedBassNote === inversion.bassRoot
+														? "border-blue-400 bg-blue-500/20 text-white"
+														: "border-gray-700 bg-gray-900 text-gray-200 hover:border-gray-500 hover:bg-gray-800"
+												}`}
+												data-testid={`chord-inversion-result-${sourceShapeCode}-${String(inversion.inversionNumber)}`}
+												onClick={() => {
+													handleSelectShapeInversion(sourceShapeCode, inversion);
+												}}
+											>
+												<div className="min-w-0">
+													<div className="flex items-center justify-between gap-3">
+														<div className="min-w-0 font-medium">
+															<span className="font-mono text-base">{displayToken}</span>
+															<span className="px-1 text-gray-500">•</span>
+															{inversion.matchedShape?.name ?? sourceShapeName}
+														</div>
+														<span className="shrink-0 rounded bg-gray-800 px-1.5 py-0.5 text-xs text-gray-400">
+															{inversion.ordinalLabel}
+														</span>
+													</div>
+													<div className="mt-1 text-sm text-gray-400">
+														{formatAccidentals(preferSharpIntervals(inversion.reRootedSpelling))}
+													</div>
+												</div>
+											</button>
+										),
+									)}
+								</>
 							)}
 						</div>
-					</div>
-
-					<div className="sticky bottom-0 border-t border-gray-800 bg-gray-900/95 px-4 py-4 backdrop-blur sm:px-6">
-						<div className="flex items-center gap-2">
-							<Button
-								icon={<ChordIcon className="size-4" />}
-								size="compact"
-								variant="primary"
-								onClick={handleInsert}
-								disabled={canonicalToken === undefined || !hasPendingInsertTarget}
-								data-testid="confirm-insert-chord"
-							>
-								{isEditingChord
-									? t("song.editChordConfirm", "Update")
-									: t("song.insertChordConfirm", "Insert")}
-							</Button>
-							<Button size="compact" variant="outlineSecondary" onClick={closeChordPicker}>
-								{t("common.cancel", "Cancel")}
-							</Button>
-						</div>
+						<Button size="compact" variant="outlineSecondary" onClick={closeChordPicker}>
+							{t("common.cancel", "Cancel")}
+						</Button>
 					</div>
 				</div>
 			</div>

@@ -9,8 +9,7 @@ export default function useSlideNumberPreference(): {
 	showSlideNumber: boolean;
 } {
 	const currentUser = useCurrentUser();
-	const slideNumberPreference =
-		currentUser?.slideNumberPreference ?? SlideNumberPreference.hide;
+	const slideNumberPreference = currentUser?.slideNumberPreference ?? SlideNumberPreference.hide;
 
 	return {
 		slideNumberPreference,

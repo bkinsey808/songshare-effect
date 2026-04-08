@@ -2,6 +2,7 @@ import sciListRaw from "@/shared/music/sci-list.json";
 
 const MINIMUM_CHORD_NOTE_COUNT = 2;
 const PREFERRED_FLAG = 1;
+const DEFAULT_MIN_CHORD_NOTES = 2;
 const DEFAULT_MAX_CHORD_NOTES = 4;
 const SORT_LEFT_FIRST = -1;
 const SORT_RIGHT_FIRST = 1;
@@ -86,16 +87,18 @@ function getChordShapeByCode(code: string): ChordShape | undefined {
  */
 function searchChordShapes({
 	query,
+	minNotes = DEFAULT_MIN_CHORD_NOTES,
 	maxNotes = DEFAULT_MAX_CHORD_NOTES,
 }: Readonly<{
 	query: string;
+	minNotes?: number;
 	maxNotes?: number;
 }>): readonly ChordShape[] {
 	const normalizedQuery = normalizeSearchText([query]);
 	const queryTokens = normalizedQuery === "" ? [] : normalizedQuery.split(" ");
 
 	return chordShapes.filter((shape) => {
-		if (shape.noteCount > maxNotes) {
+		if (shape.noteCount < minNotes || shape.noteCount > maxNotes) {
 			return false;
 		}
 
@@ -141,10 +144,7 @@ function compareChordShapes(left: ChordShape, right: ChordShape): number {
 	return left.name.localeCompare(right.name);
 }
 
-function insertChordShape(
-	sortedShapes: readonly ChordShape[],
-	shape: ChordShape,
-): ChordShape[] {
+function insertChordShape(sortedShapes: readonly ChordShape[], shape: ChordShape): ChordShape[] {
 	const insertionIndex = sortedShapes.findIndex(
 		(existingShape) => compareChordShapes(shape, existingShape) < ZERO_INDEX,
 	);
@@ -160,6 +160,7 @@ function insertChordShape(
 }
 
 export {
+	DEFAULT_MIN_CHORD_NOTES,
 	DEFAULT_MAX_CHORD_NOTES,
 	getChordShapeByCode,
 	getChordShapes,

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
-import preferSharpIntervals from "../preferSharpIntervals";
-import formatChordPreviewDisplayText from "./formatChordPreviewDisplayText";
+import preferSharpIntervals from "@/react/music/intervals/preferSharpIntervals";
+import formatAccidentals from "@/react/music/intervals/formatAccidentals";
 
 type ChordPreviewProps = Readonly<{
 	previewToken: string;
@@ -45,7 +45,7 @@ export default function ChordPreview({
 						{t("song.chordPreview", "Preview")}
 					</div>
 					<div className="mt-2 font-mono text-lg text-white">
-						{previewToken === "" ? "—" : formatChordPreviewDisplayText(previewToken)}
+						{previewToken === "" ? "—" : formatAccidentals(previewToken)}
 					</div>
 				</div>
 				<div className="min-w-0">
@@ -58,21 +58,21 @@ export default function ChordPreview({
 					>
 						{alternatePreviewToken === ""
 							? "—"
-							: formatChordPreviewDisplayText(alternatePreviewToken)}
+							: formatAccidentals(alternatePreviewToken)}
 					</div>
 				</div>
 				<div className="min-w-0">
 					<div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
 						{selectedShapeName === undefined
 							? "—"
-							: `${selectedShapeName} · ${formatChordPreviewDisplayText(preferSharpIntervals(selectedShapeSpelling ?? ""))}`}
+							: `${selectedShapeName} · ${formatAccidentals(preferSharpIntervals(selectedShapeSpelling ?? ""))}`}
 					</div>
 					{selectedShapeAltNames === "" ? undefined : (
 						<div className="mt-2 text-sm text-gray-400">{selectedShapeAltNames}</div>
 					)}
 					{slashPreviewToken !== "" && slashPreviewShapeName !== "" && (
 						<div className="mt-2 font-mono text-sm text-blue-400">
-							{formatChordPreviewDisplayText(slashPreviewToken)}
+							{formatAccidentals(slashPreviewToken)}
 							<span className="font-sans"> · {slashPreviewShapeName}</span>
 						</div>
 					)}

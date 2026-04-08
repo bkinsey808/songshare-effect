@@ -3,11 +3,11 @@ import songKeysBySemitone from "@/shared/music/chord-display/songKeysBySemitone"
 import type { ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
-import { OCTAVE_SEMITONE_COUNT } from "../chordPickerConstants";
-import type { SelectedRoot } from "../root-picker/chordPickerRootOptionTypes";
-import computeShapeAfterNoteToggle from "./computeShapeAfterNoteToggle";
-import findShapeByInversion from "./findShapeByInversion";
-import type { ChordInversion } from "./getChordInversions";
+import { OCTAVE_SEMITONE_COUNT } from "@/react/music/intervals/sciIntervalConstants";
+import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import computeShapeAfterNoteToggle from "@/react/music/intervals/computeShapeAfterNoteToggle";
+import findShapeByInversion from "@/react/music/inversions/findShapeByInversion";
+import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
 
 const ROOT_SEMITONE_OFFSET = 0;
 /** Synthetic shapes produced by computeShapeAfterNoteToggle always use id=0; catalog shapes use positive ids. */
@@ -16,7 +16,7 @@ const SYNTHETIC_CHORD_ID = 0;
 const ROOT_NOTE_COUNT = 1;
 
 type CreateNoteToggleHandlerParams = Readonly<{
-	activeInversion: ChordInversion | undefined;
+	activeInversion: SciInversion | undefined;
 	notePickerShape: ChordShape | undefined;
 	notePickerRoot: SongKey | undefined;
 	absoluteRoot: SongKey | undefined;

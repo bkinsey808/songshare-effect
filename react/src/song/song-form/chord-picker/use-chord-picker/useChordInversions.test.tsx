@@ -1,11 +1,11 @@
 import { act, cleanup, fireEvent, render, renderHook, screen } from "@testing-library/react";
 import { assert, describe, expect, it, vi } from "vitest";
 
+import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
+import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
 import { ChordDisplayMode } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
-import type { SelectedRoot } from "../root-picker/chordPickerRootOptionTypes";
-import type { ChordInversion } from "./getChordInversions";
-import useChordInversions from "./useChordInversions";
+import useSciInversions from "./useChordInversions";
 
 // ── Fixture constants ──────────────────────────────────────────────────────────
 
@@ -36,7 +36,7 @@ const INITIAL_TOKEN_A_MINOR_SLASH_E = "[A -/E]";
 
 // ── Default hook params ────────────────────────────────────────────────────────
 
-type HookParams = Readonly<Parameters<typeof useChordInversions>[number]>;
+type HookParams = Readonly<Parameters<typeof useSciInversions>[number]>;
 
 function makeParams(overrides: Partial<HookParams> = {}): HookParams {
 	return {
@@ -58,14 +58,14 @@ type HarnessProps = Readonly<{
 }>;
 
 /**
- * Harness for useChordInversions.
+ * Harness for useSciInversions.
  *
  * Shows how the hook integrates into a chord inversion UI:
  * - `selectedBassNote` — current bass note, displayed when set
  * - `absoluteRoot` — resolved absolute root note
  * - `activeInversion` — currently selected inversion entry, or undefined
  * - `inversionBaseShapeName` — name of the original base chord shape
- * - `displayChordInversions` — list of computed inversions to render
+ * - `displaySciInversions` — list of computed inversions to render
  * - `displayInversionPreviewTokens` — preview token map keyed by bass root
  * - `slashPreviewTokens` — slash-notation tokens (never SCI names) keyed by bass root
  * - `handleSelectInversion` — selects/deselects a specific inversion
@@ -79,12 +79,12 @@ function Harness({ params }: HarnessProps): ReactElement {
 		absoluteRoot,
 		activeInversion,
 		inversionBaseShapeName,
-		displayChordInversions,
+		displaySciInversions,
 		displayInversionPreviewTokens,
 		slashPreviewTokens,
 		handleSelectInversion,
 		clearInversion,
-	} = useChordInversions(params);
+	} = useSciInversions(params);
 
 	return (
 		<div data-testid="harness">
@@ -105,10 +105,10 @@ function Harness({ params }: HarnessProps): ReactElement {
 			{/* inversionBaseShapeName: name of the pre-inversion chord shape */}
 			<div data-testid="inversion-base-shape-name">{inversionBaseShapeName}</div>
 
-			{/* displayChordInversions: count and each inversion's ordinal label */}
-			<div data-testid="inversion-count">{String(displayChordInversions.length)}</div>
+			{/* displaySciInversions: count and each inversion's ordinal label */}
+			<div data-testid="inversion-count">{String(displaySciInversions.length)}</div>
 			<ul>
-				{displayChordInversions.map((inv) => (
+				{displaySciInversions.map((inv) => (
 					<li
 						key={`${inv.bassRoot}-${String(inv.inversionNumber)}`}
 						data-testid={`inversion-${inv.bassRoot}`}
@@ -125,7 +125,7 @@ function Harness({ params }: HarnessProps): ReactElement {
 			<div data-testid="slash-token-c">{slashPreviewTokens.get(BASS_C) ?? ""}</div>
 
 			{/* handleSelectInversion: buttons for each inversion */}
-			{displayChordInversions.map((inv) => (
+			{displaySciInversions.map((inv) => (
 				<button
 					key={`btn-${inv.bassRoot}`}
 					type="button"
@@ -154,7 +154,7 @@ function Harness({ params }: HarnessProps): ReactElement {
 
 // ── Harness tests ──────────────────────────────────────────────────────────────
 
-describe("useChordInversions — Harness", () => {
+describe("useSciInversions — Harness", () => {
 	it("renders without errors and shows root-position state initially", () => {
 		// Arrange
 		cleanup();
@@ -284,24 +284,24 @@ describe("useChordInversions — Harness", () => {
 
 // ── renderHook tests ──────────────────────────────────────────────────────────────
 
-describe("useChordInversions — renderHook", () => {
+describe("useSciInversions — renderHook", () => {
 	it("returns no active inversion and all inversions displayed on initial render", () => {
 		// Arrange / Act
-		const { result } = renderHook(() => useChordInversions(makeParams()));
+		const { result } = renderHook(() => useSciInversions(makeParams()));
 
 		// Assert
 		expect(result.current.selectedBassNote).toBeUndefined();
 		expect(result.current.activeInversion).toBeUndefined();
-		expect(result.current.displayChordInversions).toHaveLength(INV_COUNT_MINOR_A);
+		expect(result.current.displaySciInversions).toHaveLength(INV_COUNT_MINOR_A);
 		expect(result.current.absoluteRoot).toBe(BASS_A);
 		expect(result.current.inversionBaseShapeName).toBe(SHAPE_NAME_MINOR);
 	});
 
 	it("activeInversion reflects the selected inversion after handleSelectInversion", () => {
 		// Arrange
-		const { result } = renderHook(() => useChordInversions(makeParams()));
-		const cInversion = result.current.displayChordInversions.find(
-			(inv: ChordInversion) => inv.bassRoot === BASS_C,
+		const { result } = renderHook(() => useSciInversions(makeParams()));
+		const cInversion = result.current.displaySciInversions.find(
+			(inv: SciInversion) => inv.bassRoot === BASS_C,
 		);
 		expect(cInversion).toBeDefined();
 		assert(cInversion !== undefined);
@@ -319,7 +319,7 @@ describe("useChordInversions — renderHook", () => {
 	it("initialises selectedBassNote from initialChordToken when editing a slash chord", () => {
 		// Arrange / Act — pre-selects bass E from "[A -/E]"
 		const { result } = renderHook(() =>
-			useChordInversions(makeParams({ initialChordToken: INITIAL_TOKEN_A_MINOR_SLASH_E })),
+			useSciInversions(makeParams({ initialChordToken: INITIAL_TOKEN_A_MINOR_SLASH_E })),
 		);
 
 		// Assert
@@ -330,17 +330,17 @@ describe("useChordInversions — renderHook", () => {
 		// Arrange / Act — cannot resolve an absolute root
 		const romanRoot: SelectedRoot = { root: "I", rootType: "roman", label: "I" };
 		const { result } = renderHook(() =>
-			useChordInversions(makeParams({ selectedRoot: romanRoot, songKey: EMPTY_SONG_KEY })),
+			useSciInversions(makeParams({ selectedRoot: romanRoot, songKey: EMPTY_SONG_KEY })),
 		);
 
 		// Assert
 		expect(result.current.absoluteRoot).toBeUndefined();
-		expect(result.current.displayChordInversions).toHaveLength(ZERO_LENGTH);
+		expect(result.current.displaySciInversions).toHaveLength(ZERO_LENGTH);
 	});
 
 	it("slashPreviewTokens uses slash notation while displayInversionPreviewTokens may use SCI", () => {
 		// Arrange / Act — no interaction needed; maps are computed on initial render
-		const { result } = renderHook(() => useChordInversions(makeParams()));
+		const { result } = renderHook(() => useSciInversions(makeParams()));
 
 		// The 1st inversion (C bass) matches Italian Six via SCI.
 		// displayInversionPreviewTokens may show "[C I6]" but slashPreviewTokens must use "[A -/C]".
@@ -353,11 +353,11 @@ describe("useChordInversions — renderHook", () => {
 		expect(slashToken).not.toBe(previewToken);
 	});
 
-	it("replaces active inversion slot with a root-position entry in displayChordInversions", () => {
+	it("replaces active inversion slot with a root-position entry in displaySciInversions", () => {
 		// Arrange
-		const { result } = renderHook(() => useChordInversions(makeParams()));
-		const cInversion = result.current.displayChordInversions.find(
-			(inv: ChordInversion) => inv.bassRoot === BASS_C,
+		const { result } = renderHook(() => useSciInversions(makeParams()));
+		const cInversion = result.current.displaySciInversions.find(
+			(inv: SciInversion) => inv.bassRoot === BASS_C,
 		);
 		expect(cInversion).toBeDefined();
 		assert(cInversion !== undefined);
@@ -368,13 +368,13 @@ describe("useChordInversions — renderHook", () => {
 		});
 
 		// Assert — C slot gone; A slot with "Root" label appeared
-		const rootSlot = result.current.displayChordInversions.find(
-			(inv: ChordInversion) => inv.ordinalLabel === ORDINAL_ROOT,
+		const rootSlot = result.current.displaySciInversions.find(
+			(inv: SciInversion) => inv.ordinalLabel === ORDINAL_ROOT,
 		);
 		expect(rootSlot?.bassRoot).toBe(BASS_A);
 		// The C bass-root entry must no longer appear in the inversions list
-		const cSlot = result.current.displayChordInversions.find(
-			(inv: ChordInversion) => inv.bassRoot === BASS_C,
+		const cSlot = result.current.displaySciInversions.find(
+			(inv: SciInversion) => inv.bassRoot === BASS_C,
 		);
 		expect(cSlot).toBeUndefined();
 	});

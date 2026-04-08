@@ -6,12 +6,12 @@ import songKeysBySemitone from "@/shared/music/chord-display/songKeysBySemitone"
 import { getChordShapeByCode, getChordShapes, type ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
-import { OCTAVE_SEMITONE_COUNT } from "../chordPickerConstants";
-import type { SelectedRoot } from "../root-picker/chordPickerRootOptionTypes";
-import computeShapeAfterNoteToggle from "./computeShapeAfterNoteToggle";
+import { OCTAVE_SEMITONE_COUNT } from "@/react/music/intervals/sciIntervalConstants";
+import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import computeShapeAfterNoteToggle from "@/react/music/intervals/computeShapeAfterNoteToggle";
 import createNoteToggleHandler from "./createNoteToggleHandler";
-import findShapeByInversion from "./findShapeByInversion";
-import type { ChordInversion } from "./getChordInversions";
+import findShapeByInversion from "@/react/music/inversions/findShapeByInversion";
+import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
 
 // Semitone offsets for intervals referenced in these tests
 const ROOT_OFFSET = 0;
@@ -206,7 +206,7 @@ describe("createNoteToggleHandler", () => {
 		// Arrange
 		const { clearInversion, setSelectedRoot, setSelectedShapeCode, selectBassNote } =
 			makeCallbacks();
-		const activeInversion = forceCast<ChordInversion>({ reRootedSpelling: "3" });
+		const activeInversion = forceCast<SciInversion>({ reRootedSpelling: "3" });
 		const handler = createNoteToggleHandler({
 			activeInversion,
 			notePickerShape: undefined,
@@ -236,7 +236,7 @@ describe("createNoteToggleHandler", () => {
 		// Arrange
 		const { clearInversion, setSelectedRoot, setSelectedShapeCode, selectBassNote } =
 			makeCallbacks();
-		const activeInversion = forceCast<ChordInversion>({ reRootedSpelling: "3" });
+		const activeInversion = forceCast<SciInversion>({ reRootedSpelling: "3" });
 		const handler = createNoteToggleHandler({
 			activeInversion,
 			notePickerShape: undefined,

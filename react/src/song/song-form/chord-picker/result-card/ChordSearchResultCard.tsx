@@ -1,12 +1,11 @@
+import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
+import formatAccidentals from "@/react/music/intervals/formatAccidentals";
+import preferSharpIntervals from "@/react/music/intervals/preferSharpIntervals";
+import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
 import transformChordTextForDisplay from "@/shared/music/chord-display/transformChordTextForDisplay";
 import type { ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
-
-import preferSharpIntervals from "../preferSharpIntervals";
-import type { SelectedRoot } from "../root-picker/chordPickerRootOptionTypes";
-import getCanonicalToken from "../use-chord-picker/getCanonicalToken";
-import formatChordSearchDisplayText from "./formatChordSearchDisplayText";
 
 type ChordSearchResultCardProps = Readonly<{
 	shape: ChordShape;
@@ -15,6 +14,7 @@ type ChordSearchResultCardProps = Readonly<{
 	selectedRoot: SelectedRoot;
 	chordDisplayMode: ChordDisplayModeType;
 	songKey: SongKey | "";
+	inversionInfo?: Readonly<{ ordinalLabel: string; sourceShapeName: string }> | undefined;
 }>;
 
 /**
@@ -32,15 +32,20 @@ export default function ChordSearchResultCard({
 	selectedRoot,
 	chordDisplayMode,
 	songKey,
+	inversionInfo,
 }: ChordSearchResultCardProps): ReactElement {
-	const spellingDescription = formatChordSearchDisplayText(preferSharpIntervals(shape.spelling));
+	const spellingDescription = formatAccidentals(preferSharpIntervals(shape.spelling));
 	const description =
 		shape.altNames === ""
 			? spellingDescription
-			: `${spellingDescription} • ${formatChordSearchDisplayText(shape.altNames)}`;
-	const displayCode = formatChordSearchDisplayText(shape.code);
+			: `${spellingDescription} • ${formatAccidentals(shape.altNames)}`;
+	const inversionDescription =
+		inversionInfo === undefined
+			? undefined
+			: `${inversionInfo.ordinalLabel} inversion of ${inversionInfo.sourceShapeName}`;
+	const displayCode = formatAccidentals(shape.code);
 
-	const token = getCanonicalToken({ selectedRoot, selectedShapeCode: shape.code, songKey });
+	const token = computeCanonicalToken({ selectedRoot, selectedShapeCode: shape.code, songKey });
 	const previewToken =
 		token === undefined
 			? undefined
@@ -66,8 +71,14 @@ export default function ChordSearchResultCard({
 						<span className="px-1 text-gray-500">•</span>
 						{shape.name}
 					</div>
+					{inversionInfo !== undefined && (
+						<span className="shrink-0 rounded bg-gray-800 px-1.5 py-0.5 text-xs text-gray-400">
+							{inversionInfo.ordinalLabel}
+						</span>
+					)}
 				</div>
 				<div className="mt-1 text-sm text-gray-400">
+					{inversionDescription !== undefined && <span>{inversionDescription} • </span>}
 					{previewToken === undefined ? description : `${displayCode} • ${description}`}
 				</div>
 			</div>

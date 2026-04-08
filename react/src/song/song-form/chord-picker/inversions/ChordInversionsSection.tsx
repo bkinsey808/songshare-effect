@@ -7,14 +7,14 @@ import {
 	type ChordDisplayCategoryType,
 } from "@/shared/user/chord-display/chordDisplayCategory";
 
-import preferSharpIntervals from "../preferSharpIntervals";
-import formatChordSearchDisplayText from "../result-card/formatChordSearchDisplayText";
-import type { ChordInversion } from "../use-chord-picker/getChordInversions";
+import preferSharpIntervals from "@/react/music/intervals/preferSharpIntervals";
+import formatAccidentals from "@/react/music/intervals/formatAccidentals";
+import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
 
 const EMPTY_INVERSIONS_COUNT = 0;
 
-type ChordInversionsSectionProps = Readonly<{
-	inversions: readonly ChordInversion[];
+type SciInversionsSectionProps = Readonly<{
+	inversions: readonly SciInversion[];
 	/** Human-friendly name of the original chord shape, e.g. "Major" */
 	originalShapeName: string;
 	/** Current chord display category, used to show scale degree symbols */
@@ -28,7 +28,7 @@ type ChordInversionsSectionProps = Readonly<{
 	/** Slash-form preview token (original shape, no SCI matching) keyed by bass root */
 	slashPreviewTokens: ReadonlyMap<SongKey, string>;
 	/** Called when the user selects or deselects an inversion card */
-	onSelectInversion: (inversion: ChordInversion) => void;
+	onSelectInversion: (inversion: SciInversion) => void;
 }>;
 
 /**
@@ -40,7 +40,7 @@ type ChordInversionsSectionProps = Readonly<{
  * @param originalShapeName - Name of the original chord shape shown in each card
  * @returns Inversions section with one card per inversion, or undefined when there are none
  */
-export default function ChordInversionsSection({
+export default function SciInversionsSection({
 	inversions,
 	originalShapeName,
 	chordDisplayCategory,
@@ -49,7 +49,7 @@ export default function ChordInversionsSection({
 	inversionPreviewTokens,
 	slashPreviewTokens,
 	onSelectInversion,
-}: ChordInversionsSectionProps): ReactElement | undefined {
+}: SciInversionsSectionProps): ReactElement | undefined {
 	const { t } = useTranslation();
 	const useScaleDegrees =
 		chordDisplayCategory === ChordDisplayCategory.scaleDegree && isSongKey(songKey);
@@ -73,7 +73,7 @@ export default function ChordInversionsSection({
 				data-testid="chord-inversions"
 			>
 				{inversions.map((inversion) => {
-					const description = formatChordSearchDisplayText(
+					const description = formatAccidentals(
 						preferSharpIntervals(inversion.reRootedSpelling),
 					);
 
