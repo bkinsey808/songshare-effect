@@ -1,7 +1,7 @@
 import rootSemitoneMap from "@/shared/music/chord-display/rootSemitoneMap";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
-import { OCTAVE_SEMITONE_COUNT } from "@/react/music/intervals/sciIntervalConstants";
+import { OCTAVE_SEMITONE_COUNT } from "@/react/music/intervals/interval-constants";
 import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
 
 const FALLBACK_SEMITONE = 0;

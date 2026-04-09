@@ -2,18 +2,18 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import useChordDisplayModePreference from "@/react/chord-display-mode/useChordDisplayModePreference";
+import { type SciInversion } from "@/react/music/inversions/computeSciInversions";
 import type {
 	DirectShapeOrdinal,
 	ShapeInversion,
-} from "@/react/music/inversions/computeAllShapeInversions";
-import { type SciInversion } from "@/react/music/inversions/computeSciInversions";
+} from "@/react/music/inversions/shape-inversion.type";
 import computeNotePickerEntries from "@/react/music/note-picker/computeNotePickerEntries";
 import type { NotePickerEntry } from "@/react/music/note-picker/NotePickerEntry.type";
 import type { NoteSearchEntry } from "@/react/music/note-picker/NoteSearchEntry.type";
 import computePreviewValues from "@/react/music/preview/computePreviewValues";
 import computeInitialSelectedRoot from "@/react/music/root-picker/computeInitialSelectedRoot";
 import computeRootPickerDisplayMode from "@/react/music/root-picker/computeRootPickerDisplayMode";
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import computeCanonicalRootAndShape from "@/react/music/sci/computeCanonicalRootAndShape";
 import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
 import computeInitialShapeCode from "@/react/music/sci/computeInitialShapeCode";

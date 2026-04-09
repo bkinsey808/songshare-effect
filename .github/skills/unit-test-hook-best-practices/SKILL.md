@@ -5,6 +5,10 @@ description: Complete guide for testing React hooks — renderHook, Documentatio
 
 **Requires:** file-read, terminal (test runner). No network access needed.
 
+**Also load:** [`unit-test-best-practices/SKILL.md`](/.github/skills/unit-test-best-practices/SKILL.md)
+— hook tests must follow all conventions from the general skill (AAA pattern, named constants,
+mocking order, `toStrictEqual`, lint rules) in addition to the hook-specific rules here.
+
 # Unit Testing — React Hooks
 
 ## Use When
@@ -33,6 +37,17 @@ Output requirements:
 - Follow hook testing conventions in project docs.
 - Prefer deterministic assertions over timing-based checks.
 - Keep fixtures typed and reusable.
+- **Always use the AAA pattern** — every `it` block must have explicit `// Arrange`, `// Act`,
+  `// Assert` comments. For tests that only verify initial state, use `// Arrange + Act` on the
+  setup line and `// Assert — no Act: verifying initial render state only`. For multi-step tests,
+  label each step `// Act — cycle 1`, `// Act — cycle 2`, etc.
+- **`vi.resetAllMocks()` in shared setup helpers** — any `setup*()` helper shared across tests
+  must call `vi.resetAllMocks()` as its first line to prevent mock call-count leakage.
+- **Mocked sub-hook setters** — when the hook under test calls a mocked sub-hook (e.g.
+  `useItemTags`), its returned setters are `vi.fn()` stubs that don't update React state. Assert
+  on a module-level named spy instead of expecting DOM changes.
+- **`no-negated-condition` in JSX** — write `x === undefined ? "absent" : "present"`, not
+  `x !== undefined ? "present" : "absent"`.
 
 ## References
 
@@ -62,5 +77,5 @@ npm run test:unit
 
 ## Skill Handoffs
 
-- For non-hook tests in the same task, also load `unit-test-best-practices`.
+- The general skill is a hard dependency — it must always be loaded alongside this one (see **Also load** at the top).
 - If hook behavior depends on routing or page components, also load `react-conventions`.

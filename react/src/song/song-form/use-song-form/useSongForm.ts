@@ -12,6 +12,7 @@ import useItemTags from "@/react/tag/useItemTags";
 import {
 	type FormState,
 	type Slide,
+	type SongFormChordPickerRequest,
 	type SongFormValues,
 	type UseSongFormReturn,
 } from "../song-form-types";
@@ -313,6 +314,23 @@ export default function useSongForm(): UseSongFormReturn {
 
 	const hasChanges = isLoadingData ? false : hasUnsavedChanges();
 
+	const [pendingChordPickerRequest, setPendingChordPickerRequest] = useState<
+		SongFormChordPickerRequest | undefined
+	>(undefined);
+
+	function openChordPicker(request: SongFormChordPickerRequest): void {
+		setPendingChordPickerRequest(request);
+	}
+
+	function closeChordPicker(): void {
+		setPendingChordPickerRequest(undefined);
+	}
+
+	function insertChordFromPicker(token: string): void {
+		pendingChordPickerRequest?.submitChord(token);
+		setPendingChordPickerRequest(undefined);
+	}
+
 	return {
 		getFieldError,
 		isSubmitting,
@@ -356,5 +374,11 @@ export default function useSongForm(): UseSongFormReturn {
 
 		// Editing state
 		isEditing,
+
+		// Chord picker state
+		pendingChordPickerRequest,
+		openChordPicker,
+		closeChordPicker,
+		insertChordFromPicker,
 	};
 }

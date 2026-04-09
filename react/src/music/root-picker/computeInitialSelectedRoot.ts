@@ -3,10 +3,10 @@ import getRomanDegreeForStorage from "@/shared/music/chord-display/getRomanDegre
 import { isSongKey, type SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
-import parseInitialSciToken from "@/react/music/sci/parseInitialSciToken";
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
-import DEFAULT_ROOT from "@/react/music/root-picker/defaultRoot";
 import computePickerSongKey from "@/react/music/root-picker/computePickerSongKey";
+import DEFAULT_ROOT from "@/react/music/root-picker/defaultRoot";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
+import parseInitialSciToken from "@/react/music/sci/parseInitialSciToken";
 
 /**
  * Chooses the initial picker root from the existing token, song key, and display mode.

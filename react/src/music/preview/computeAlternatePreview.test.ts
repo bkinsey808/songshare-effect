@@ -5,8 +5,8 @@ import { ChordDisplayCategory } from "@/shared/user/chord-display/chordDisplayCa
 import { ChordLetterDisplay } from "@/shared/user/chordLetterDisplay";
 import { ChordScaleDegreeDisplay } from "@/shared/user/chordScaleDegreeDisplay";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
 import computeAlternatePreview from "@/react/music/preview/computeAlternatePreview";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 const SONG_KEY_G = "G" as const;
 const EMPTY_SONG_KEY = "" as const;

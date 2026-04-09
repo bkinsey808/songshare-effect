@@ -1,29 +1,20 @@
+import computeInversionPreviewTokens from "@/react/music/inversions/computeInversionPreviewTokens";
+import computeSciInversions from "@/react/music/inversions/computeSciInversions";
+import type {
+	DirectShapeOrdinal,
+	ShapeInversion,
+} from "@/react/music/inversions/shape-inversion.type";
+import computeNoteSearchRoot from "@/react/music/note-picker/computeNoteSearchRoot";
+import filterShapeByNoteSearch from "@/react/music/note-picker/filterShapeByNoteSearch";
+import filterSpellingByNoteSearch from "@/react/music/note-picker/filterSpellingByNoteSearch";
+import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import rootSemitoneMap from "@/shared/music/chord-display/rootSemitoneMap";
 import { searchChordShapes, type ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
-import computeNoteSearchRoot from "@/react/music/note-picker/computeNoteSearchRoot";
-import filterShapeByNoteSearch, { filterSpellingByNoteSearch } from "@/react/music/note-picker/filterShapeByNoteSearch";
-import computeSciInversions, { type SciInversion } from "@/react/music/inversions/computeSciInversions";
-import computeInversionPreviewTokens from "@/react/music/inversions/computeInversionPreviewTokens";
-import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
-
 const FALLBACK_SEMITONE = 0;
-
-type ShapeInversion = Readonly<{
-	inversion: SciInversion;
-	sourceShapeCode: string;
-	sourceShapeName: string;
-	displayToken: string;
-}>;
-
-/** Ordinal and source shape info for a direct-result shape that is also a known inversion. */
-type DirectShapeOrdinal = Readonly<{
-	ordinalLabel: string;
-	sourceShapeName: string;
-}>;
 
 type ComputeAllShapeInversionsResult = Readonly<{
 	inversions: readonly ShapeInversion[];
@@ -116,5 +107,3 @@ export default function computeAllShapeInversions({
 
 	return { inversions, directShapeOrdinals };
 }
-
-export type { DirectShapeOrdinal, ShapeInversion };

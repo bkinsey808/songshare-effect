@@ -1,22 +1,23 @@
 import { useDeferredValue, useId, useState } from "react";
 
+import computeAllShapeInversions from "@/react/music/inversions/computeAllShapeInversions";
+import type {
+	DirectShapeOrdinal,
+	ShapeInversion,
+} from "@/react/music/inversions/shape-inversion.type";
+import computeNoteSearchEntries from "@/react/music/note-picker/computeNoteSearchEntries";
 import computeNoteSearchRoot from "@/react/music/note-picker/computeNoteSearchRoot";
+import type { NoteSearchEntry } from "@/react/music/note-picker/NoteSearchEntry.type";
 import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
+import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
+import computeInitialSelectedRoot from "@/react/music/root-picker/computeInitialSelectedRoot";
+import computeDisplayedShapes from "@/react/music/sci/computeDisplayedShapes";
+import computeInitialMaxNotes from "@/react/music/sci/computeInitialMaxNotes";
 import rootSemitoneMap from "@/shared/music/chord-display/rootSemitoneMap";
 import { DEFAULT_MIN_CHORD_NOTES, type ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
-import type { NoteSearchEntry } from "@/react/music/note-picker/NoteSearchEntry.type";
-import computeInitialSelectedRoot from "@/react/music/root-picker/computeInitialSelectedRoot";
-import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
-import computeAllShapeInversions, {
-	type DirectShapeOrdinal,
-	type ShapeInversion,
-} from "@/react/music/inversions/computeAllShapeInversions";
-import computeDisplayedShapes from "@/react/music/sci/computeDisplayedShapes";
-import computeInitialMaxNotes from "@/react/music/sci/computeInitialMaxNotes";
-import computeNoteSearchEntries from "@/react/music/note-picker/computeNoteSearchEntries";
 import createNoteSearchToggleHandler from "./createNoteSearchToggleHandler";
 
 type UseChordSearchParams = Readonly<{
@@ -72,7 +73,7 @@ export default function useChordSearch({
 	const [query, setQuery] = useState("");
 	const [minNotes, setMinNotes] = useState(DEFAULT_MIN_CHORD_NOTES);
 	const [maxNotes, setMaxNotes] = useState(() => computeInitialMaxNotes({ initialChordToken }));
-	const [includeInversions, setIncludeInversions] = useState(true);
+	const [includeInversions, setIncludeInversions] = useState(false);
 	const deferredIncludeInversions = useDeferredValue(includeInversions);
 	const includeInversionsInputId = useId();
 

@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import { getChordShapeByCode } from "@/shared/music/chord-shapes";
 import { ChordDisplayMode } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
-import computeSciInversions from "@/react/music/inversions/computeSciInversions";
 import computeInversionPreviewTokens from "@/react/music/inversions/computeInversionPreviewTokens";
+import computeSciInversions from "@/react/music/inversions/computeSciInversions";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 const C_MAJOR_ROOT = "C" as const;
 const SONG_KEY_C = "C" as const;

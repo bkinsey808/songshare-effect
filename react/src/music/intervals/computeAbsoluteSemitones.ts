@@ -1,4 +1,4 @@
-import { INTERVAL_SEMITONE_OFFSET, OCTAVE_SEMITONE_COUNT } from "./sciIntervalConstants";
+import { INTERVAL_SEMITONE_OFFSET, OCTAVE_SEMITONE_COUNT } from "./interval-constants";
 
 const ROOT_INTERVAL_OFFSET = 0;
 

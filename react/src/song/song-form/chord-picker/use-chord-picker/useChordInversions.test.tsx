@@ -2,7 +2,7 @@ import { act, cleanup, fireEvent, render, renderHook, screen } from "@testing-li
 import { assert, describe, expect, it, vi } from "vitest";
 
 import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import { ChordDisplayMode } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
 import useSciInversions from "./useChordInversions";

@@ -1,9 +1,12 @@
+import {
+	INTERVAL_SEMITONE_OFFSET,
+	OCTAVE_SEMITONE_COUNT,
+	SEMITONE_INTERVAL_LABELS,
+} from "@/react/music/intervals/interval-constants";
 import rootSemitoneMap from "@/shared/music/chord-display/rootSemitoneMap";
 import songKeysBySemitone from "@/shared/music/chord-display/songKeysBySemitone";
 import { getChordShapeByCode, getChordShapes, type ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
-
-import { INTERVAL_SEMITONE_OFFSET, OCTAVE_SEMITONE_COUNT, SEMITONE_INTERVAL_LABELS } from "@/react/music/intervals/sciIntervalConstants";
 
 const ORDINAL_LABELS = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"] as const;
 const ROOT_OFFSET = 0;

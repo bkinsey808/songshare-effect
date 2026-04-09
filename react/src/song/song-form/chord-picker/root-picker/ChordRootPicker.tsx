@@ -2,9 +2,9 @@ import { useId } from "react";
 import { useTranslation } from "react-i18next";
 
 import ChevronDownIcon from "@/react/lib/design-system/icons/ChevronDownIcon";
-import formatSelectedRootLabel from "@/react/music/root-picker/formatSelectedRootLabel";
 import computeRootRows from "@/react/music/root-picker/computeRootRows";
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import formatSelectedRootLabel from "@/react/music/root-picker/formatSelectedRootLabel";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import useSongKeyPicker from "@/react/song/song-form/song-key-picker/useSongKeyPicker";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";

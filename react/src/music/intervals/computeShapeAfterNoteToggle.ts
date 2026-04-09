@@ -1,6 +1,6 @@
 import { getChordShapes, type ChordShape } from "@/shared/music/chord-shapes";
 
-import { SEMITONE_INTERVAL_LABELS } from "./sciIntervalConstants";
+import { SEMITONE_INTERVAL_LABELS } from "./interval-constants";
 
 const ROOT_SEMITONE_OFFSET = 0;
 /** Start index for slicing SEMITONE_INTERVAL_LABELS to exclude the root interval. */

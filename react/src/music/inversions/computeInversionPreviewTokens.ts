@@ -3,10 +3,10 @@ import type { ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import computeCanonicalRootAndShape from "@/react/music/sci/computeCanonicalRootAndShape";
 import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
-import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
 
 /**
  * Computes a display preview token for each inversion.

@@ -106,6 +106,75 @@ failing test depends on.
 See [unit-test-best-practices.md — forceCast and installStore](/docs/unit-test-best-practices.md#forceCast-and-the-installStore-selector-dispatch-pattern)
 for the full pattern and why `String(selector).includes(...)` string dispatch is avoided.
 
+### `vi.resetAllMocks()` in shared setup helpers
+
+When multiple tests share a setup function (e.g. `setupCreateMode()`, `setupEditMode()`), call
+`vi.resetAllMocks()` at the **top of that helper** to prevent mock call-count from leaking between
+tests. Without this, a `.not.toHaveBeenCalled()` assertion in test B will fail because test A
+already called the same mock.
+
+```tsx
+// ❌ Call history from prior tests contaminates this assertion
+function setupCreateMode(): void {
+	installStore();
+	mockUseItemTags();
+	vi.mocked(useParams).mockReturnValue({});
+}
+
+// ✅ Each test starts with a clean mock slate
+function setupCreateMode(): void {
+	vi.resetAllMocks(); // ← must be first
+	installStore();
+	mockUseItemTags();
+	vi.mocked(useParams).mockReturnValue({});
+}
+```
+
+> This is only needed when a helper is **shared across multiple tests**. A test that calls
+> `vi.resetAllMocks()` directly at its own top is fine as-is.
+
+### Mocked sub-hooks and state updates
+
+When the hook under test calls a **mocked sub-hook** (e.g. `useItemTags`, `useFormChanges`), any
+functions returned by that mock (like `setTags`) are `vi.fn()` stubs — they do not update React
+state or trigger re-renders.
+
+**Consequence:** Harness tests that click a button wired to a mocked setter will not see DOM
+changes. Assert on the spy call instead:
+
+```tsx
+// ❌ setTags is mocked — DOM won't update
+await waitFor(() => {
+	expect(within(rendered.container).getByTestId("tags").textContent).toBe("rock");
+});
+
+// ✅ Assert that the spy was forwarded the correct argument
+await waitFor(() => {
+	expect(SET_TAGS_SPY).toHaveBeenCalledWith(["rock"]);
+});
+```
+
+To keep spy assertions readable, declare the spy at module level:
+
+```tsx
+// Module-level — shared by all tests; reset via vi.resetAllMocks() in setup helper
+const SET_TAGS_SPY = vi.fn();
+
+function mockUseItemTags(tags: readonly string[] = []): void {
+	vi.mocked(useItemTags).mockReturnValue({
+		tags,
+		getTags: () => [...tags],
+		setTags: SET_TAGS_SPY, // ← use the named spy
+		saveTags: vi.fn().mockResolvedValue({ success: true }),
+		isLoadingTags: false,
+	});
+}
+```
+
+> **When to make the mock stateful instead:** if you need the Harness to show that the rendered
+> tags list _changes_ as a result of calling `setTags`, implement a stateful mock — but this adds
+> significant complexity and is rarely necessary. Prefer the spy-assertion pattern above.
+
 ---
 
 ## Documentation by Harness
@@ -412,6 +481,22 @@ import type { ReactElement } from "react";
 function Harness(): ReactElement { ... }
 ```
 
+### Negated conditions in JSX — `no-negated-condition`
+
+Rendering boolean-derived strings with a negated check violates `no-negated-condition`. Swap the
+branches so the positive case comes first:
+
+```tsx
+// ❌ lint error: negated condition in ternary
+<span>{pendingRequest !== undefined ? "open" : "closed"}</span>
+
+// ✅ positive case first
+<span>{pendingRequest === undefined ? "closed" : "open"}</span>
+```
+
+This applies to any `!== undefined`, `!== null`, `!someFlag`, etc. in JSX expressions.
+See [docs/lint-quick-reference.md#no-negated-condition](/docs/lint-quick-reference.md#no-negated-condition).
+
 ---
 
 ## Fixtures
@@ -707,6 +792,8 @@ Before calling a hook test complete, verify:
 - [ ] `renderHook` used for behavioral assertions; Harness used for DOM-interaction tests
 - [ ] `result.current` read in assertions, not a snapshot alias
 - [ ] `installStore(...)` called explicitly inside each test, not in `beforeEach`
+- [ ] If a shared `setup*()` helper is used, `vi.resetAllMocks()` is its **first line**
+- [ ] Mocked sub-hook setters (e.g. `setTags`) asserted via named module-level spy, not DOM state changes
 - [ ] Mock data uses the real domain type — `forceCast` used instead of `as unknown as T`
 - [ ] Fixture data is a module-level constant; not re-declared inline in each test
 - [ ] Each `it` block asserts exactly one behavior

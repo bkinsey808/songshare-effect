@@ -1,7 +1,7 @@
-import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
 import formatAccidentals from "@/react/music/intervals/formatAccidentals";
 import preferSharpIntervals from "@/react/music/intervals/preferSharpIntervals";
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
+import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
 import transformChordTextForDisplay from "@/shared/music/chord-display/transformChordTextForDisplay";
 import type { ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";

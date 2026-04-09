@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { ChordShape } from "@/shared/music/chord-shapes";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
-import computeCanonicalRootAndShape from "@/react/music/sci/computeCanonicalRootAndShape";
 import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
+import computeCanonicalRootAndShape from "@/react/music/sci/computeCanonicalRootAndShape";
 
 const SELECTED_ROOT_C: SelectedRoot = {
 	root: "C",

@@ -1,10 +1,12 @@
+import {
+	OCTAVE_SEMITONE_COUNT,
+	SEMITONE_ROMAN_LABELS,
+} from "@/react/music/intervals/interval-constants";
+import type { NoteSearchEntry } from "@/react/music/note-picker/NoteSearchEntry.type";
+import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
 import rootSemitoneMap from "@/shared/music/chord-display/rootSemitoneMap";
 import songKeysBySemitone from "@/shared/music/chord-display/songKeysBySemitone";
 import type { SongKey } from "@/shared/song/songKeyOptions";
-
-import { OCTAVE_SEMITONE_COUNT, SEMITONE_ROMAN_LABELS } from "@/react/music/intervals/sciIntervalConstants";
-import type { NoteSearchEntry } from "@/react/music/note-picker/NoteSearchEntry.type";
-import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
 
 /**
  * Builds the 12 chromatic note entries for the Note Search filter control.

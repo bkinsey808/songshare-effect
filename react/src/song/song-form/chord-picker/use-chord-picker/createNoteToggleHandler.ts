@@ -3,11 +3,11 @@ import songKeysBySemitone from "@/shared/music/chord-display/songKeysBySemitone"
 import type { ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
-import { OCTAVE_SEMITONE_COUNT } from "@/react/music/intervals/sciIntervalConstants";
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
 import computeShapeAfterNoteToggle from "@/react/music/intervals/computeShapeAfterNoteToggle";
-import findShapeByInversion from "@/react/music/inversions/findShapeByInversion";
+import { OCTAVE_SEMITONE_COUNT } from "@/react/music/intervals/interval-constants";
 import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
+import findShapeByInversion from "@/react/music/inversions/findShapeByInversion";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 const ROOT_SEMITONE_OFFSET = 0;
 /** Synthetic shapes produced by computeShapeAfterNoteToggle always use id=0; catalog shapes use positive ids. */

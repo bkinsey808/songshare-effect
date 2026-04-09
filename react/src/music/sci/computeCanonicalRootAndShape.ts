@@ -1,8 +1,8 @@
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
-import type { ChordShape } from "@/shared/music/chord-shapes";
 import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
+import type { ChordShape } from "@/shared/music/chord-shapes";
 
 /**
  * Resolves the canonical root and shape code for the current picker selection.
@@ -30,6 +30,7 @@ export default function computeCanonicalRootAndShape({
 }>): Readonly<{ root: SelectedRoot; shapeCode: string | undefined }> {
 	if (activeInversion?.matchedShape !== undefined && selectedBassNote !== undefined) {
 		return {
+			// "absolute" means a fixed pitch name (e.g. "C", "F#"), not a roman-numeral scale degree
 			root: { root: selectedBassNote, rootType: "absolute", label: selectedBassNote },
 			shapeCode: activeInversion.matchedShape.code,
 		};

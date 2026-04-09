@@ -73,6 +73,7 @@ export default function ChordPicker({
 		chordInversions,
 		inversionBaseShapeName,
 		displayedShapes,
+		handleInsert,
 		inversionPreviewTokens,
 		inversionSlashPreviewTokens,
 		slashPreviewToken,
@@ -338,9 +339,19 @@ export default function ChordPicker({
 								</>
 							)}
 						</div>
-						<Button size="compact" variant="outlineSecondary" onClick={closeChordPicker}>
-							{t("common.cancel", "Cancel")}
-						</Button>
+						<div className="flex gap-2">
+							<Button size="compact" variant="outlineSecondary" onClick={closeChordPicker}>
+								{t("common.cancel", "Cancel")}
+							</Button>
+							<Button
+								size="compact"
+								variant="primary"
+								onClick={handleInsert}
+								data-testid="confirm-insert-chord"
+							>
+								{isEditingChord ? t("common.update", "Update") : t("song.insert", "Insert")}
+							</Button>
+						</div>
 					</div>
 				</div>
 			</div>

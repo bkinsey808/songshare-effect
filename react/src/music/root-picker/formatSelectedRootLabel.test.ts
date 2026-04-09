@@ -1,63 +1,32 @@
 import { describe, expect, it } from "vitest";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
 import formatSelectedRootLabel from "@/react/music/root-picker/formatSelectedRootLabel";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 describe("formatSelectedRootLabel", () => {
-	it("formats roman roots as roman labels in roman mode without a song key", () => {
-		// Arrange
-		const selectedRoot: SelectedRoot = {
-			root: "bIII",
-			rootType: "roman",
-			label: "bIII",
-		};
-
-		// Act
-		const result = formatSelectedRootLabel({
-			selectedRoot,
-			chordDisplayMode: "roman",
-			songKey: "",
-		});
-
-		// Assert
-		expect(result).toBe("♭III");
-	});
-
-	it("formats roman roots with letter suffix in roman mode when song key is set", () => {
-		// Arrange
-		const selectedRoot: SelectedRoot = {
-			root: "bIII",
-			rootType: "roman",
-			label: "bIII",
-		};
-
-		// Act
-		const result = formatSelectedRootLabel({
-			selectedRoot,
-			chordDisplayMode: "roman",
-			songKey: "C",
-		});
-
-		// Assert
-		expect(result).toBe("♭III (E♭)");
-	});
-
-	it("formats roman roots as absolute notes in letter mode", () => {
-		// Arrange
-		const selectedRoot: SelectedRoot = {
-			root: "V",
-			rootType: "roman",
-			label: "V",
-		};
-
-		// Act
-		const result = formatSelectedRootLabel({
-			selectedRoot,
-			chordDisplayMode: "letters",
-			songKey: "G",
-		});
-
-		// Assert
-		expect(result).toBe("D");
+	it.each([
+		{
+			name: "formats roman roots as roman labels in roman mode without a song key",
+			selectedRoot: { root: "bIII", rootType: "roman", label: "bIII" } satisfies SelectedRoot,
+			chordDisplayMode: "roman" as const,
+			songKey: "" as const,
+			expected: "♭III",
+		},
+		{
+			name: "formats roman roots with letter suffix in roman mode when song key is set",
+			selectedRoot: { root: "bIII", rootType: "roman", label: "bIII" } satisfies SelectedRoot,
+			chordDisplayMode: "roman" as const,
+			songKey: "C" as const,
+			expected: "♭III (E♭)",
+		},
+		{
+			name: "formats roman roots as absolute notes in letter mode",
+			selectedRoot: { root: "V", rootType: "roman", label: "V" } satisfies SelectedRoot,
+			chordDisplayMode: "letters" as const,
+			songKey: "G" as const,
+			expected: "D",
+		},
+	])("$name", ({ selectedRoot, chordDisplayMode, songKey, expected }) => {
+		expect(formatSelectedRootLabel({ selectedRoot, chordDisplayMode, songKey })).toBe(expected);
 	});
 });

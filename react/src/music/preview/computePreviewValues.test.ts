@@ -4,22 +4,22 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import { getChordShapeByCode, type ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 import {
-	ChordDisplayCategory,
-	type ChordDisplayCategoryType,
+    ChordDisplayCategory,
+    type ChordDisplayCategoryType,
 } from "@/shared/user/chord-display/chordDisplayCategory";
 import {
-	ChordDisplayMode,
-	type ChordDisplayModeType,
+    ChordDisplayMode,
+    type ChordDisplayModeType,
 } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 import { ChordLetterDisplay, type ChordLetterDisplayType } from "@/shared/user/chordLetterDisplay";
 import {
-	ChordScaleDegreeDisplay,
-	type ChordScaleDegreeDisplayType,
+    ChordScaleDegreeDisplay,
+    type ChordScaleDegreeDisplayType,
 } from "@/shared/user/chordScaleDegreeDisplay";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
-import computePreviewValues from "@/react/music/preview/computePreviewValues";
 import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
+import computePreviewValues from "@/react/music/preview/computePreviewValues";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 const SONG_KEY_G = "G" as const;
 const MAJOR_SHAPE_CODE = "M";

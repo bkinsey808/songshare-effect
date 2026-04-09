@@ -6,9 +6,9 @@ import type { ChordDisplayModeType } from "@/shared/user/chord-display/effective
 import type { ChordLetterDisplayType } from "@/shared/user/chordLetterDisplay";
 import type { ChordScaleDegreeDisplayType } from "@/shared/user/chordScaleDegreeDisplay";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
-import computeAlternatePreview from "@/react/music/preview/computeAlternatePreview";
 import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
+import computeAlternatePreview from "@/react/music/preview/computeAlternatePreview";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 type ComputePreviewValuesParams = Readonly<{
 	canonicalToken: string | undefined;

@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
+import formatLetterFormPreview from "@/react/music/preview/formatLetterFormPreview";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import type { ChordShape } from "@/shared/music/chord-shapes";
 import { ChordDisplayMode } from "@/shared/user/chord-display/effectiveChordDisplayMode";
-
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
-import formatLetterFormPreview from "@/react/music/preview/formatLetterFormPreview";
 
 const SONG_KEY_G = "G" as const;
 const SONG_KEY_C = "C" as const;

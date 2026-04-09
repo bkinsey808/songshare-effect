@@ -4,7 +4,7 @@ import type { SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
 import formatRootOptionLabel from "@/react/music/root-picker/formatRootOptionLabel";
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 /**
  * Formats the currently selected root for the collapsed picker button label.

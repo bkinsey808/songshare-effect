@@ -1,9 +1,9 @@
 import { act, cleanup, render, renderHook, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
 import useSongKeyRootSync from "./useSongKeyRootSync";
 
 const HARNESS_TEST_ID = "harness";

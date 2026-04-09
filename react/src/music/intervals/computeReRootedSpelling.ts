@@ -1,4 +1,4 @@
-import { OCTAVE_SEMITONE_COUNT, SEMITONE_INTERVAL_LABELS } from "./sciIntervalConstants";
+import { OCTAVE_SEMITONE_COUNT, SEMITONE_INTERVAL_LABELS } from "./interval-constants";
 
 /**
  * Derives the interval spelling when the note set is re-rooted on a different tone.

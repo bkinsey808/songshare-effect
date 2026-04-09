@@ -1,7 +1,6 @@
-import { getChordShapes, type ChordShape } from "@/shared/music/chord-shapes";
-
-import { INTERVAL_SEMITONE_OFFSET } from "@/react/music/intervals/sciIntervalConstants";
 import computeReRootedSpelling from "@/react/music/intervals/computeReRootedSpelling";
+import { INTERVAL_SEMITONE_OFFSET } from "@/react/music/intervals/interval-constants";
+import { getChordShapes, type ChordShape } from "@/shared/music/chord-shapes";
 
 /** Semitone offset of the chord root (always zero relative to itself). */
 const ROOT_SEMITONE_OFFSET = 0;

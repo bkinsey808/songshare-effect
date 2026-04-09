@@ -6,11 +6,11 @@ import { getChordShapeByCode, type ChordShape } from "@/shared/music/chord-shape
 import { type SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import computeInversionPreviewTokens from "@/react/music/inversions/computeInversionPreviewTokens";
 import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
 import computeInitialBassNote from "@/react/music/sci/computeInitialBassNote";
-import computeInversionPreviewTokens from "@/react/music/inversions/computeInversionPreviewTokens";
 import useSongKeyRootSync from "./useSongKeyRootSync";
 
 type UseSciInversionsParams = Readonly<{

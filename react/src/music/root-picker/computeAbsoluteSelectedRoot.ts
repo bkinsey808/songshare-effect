@@ -1,7 +1,7 @@
 import getAbsoluteRootFromRomanDegree from "@/shared/music/chord-display/getAbsoluteRootFromRomanDegree";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 /**
  * Resolves a SelectedRoot to an absolute SongKey.

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
 import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 const SONG_KEY_C = "C" as const;
 const SONG_KEY_G = "G" as const;

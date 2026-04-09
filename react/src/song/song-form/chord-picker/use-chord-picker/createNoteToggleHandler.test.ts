@@ -1,17 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
+import computeShapeAfterNoteToggle from "@/react/music/intervals/computeShapeAfterNoteToggle";
+import { OCTAVE_SEMITONE_COUNT } from "@/react/music/intervals/interval-constants";
+import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
+import findShapeByInversion from "@/react/music/inversions/findShapeByInversion";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import rootSemitoneMap from "@/shared/music/chord-display/rootSemitoneMap";
 import songKeysBySemitone from "@/shared/music/chord-display/songKeysBySemitone";
 import { getChordShapeByCode, getChordShapes, type ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
-import { OCTAVE_SEMITONE_COUNT } from "@/react/music/intervals/sciIntervalConstants";
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
-import computeShapeAfterNoteToggle from "@/react/music/intervals/computeShapeAfterNoteToggle";
 import createNoteToggleHandler from "./createNoteToggleHandler";
-import findShapeByInversion from "@/react/music/inversions/findShapeByInversion";
-import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
 
 // Semitone offsets for intervals referenced in these tests
 const ROOT_OFFSET = 0;

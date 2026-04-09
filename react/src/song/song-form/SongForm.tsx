@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import CreateSongIcon from "@/react/lib/design-system/icons/CreateSongIcon";
@@ -8,12 +7,9 @@ import ChordPicker from "./chord-picker/ChordPicker";
 import CollapsibleSection from "./CollapsibleSection";
 import SlidesGridView from "./grid-editor/SlidesGridView";
 import SlidesEditor from "./slides-editor/SlidesEditor";
-import type { SongFormChordPickerRequest } from "./song-form-types";
 import SongFormFields from "./SongFormFields";
 import SongFormFooter from "./SongFormFooter";
 import useSongForm from "./use-song-form/useSongForm";
-
-const NO_PENDING_CHORD_PICKER_REQUEST = undefined;
 
 /**
  * Render the song creation and edit page.
@@ -22,9 +18,6 @@ const NO_PENDING_CHORD_PICKER_REQUEST = undefined;
  */
 export default function SongForm(): ReactElement {
 	const { t } = useTranslation();
-	const [pendingChordPickerRequest, setPendingChordPickerRequest] = useState<
-		SongFormChordPickerRequest | undefined
-	>(NO_PENDING_CHORD_PICKER_REQUEST);
 
 	const {
 		getFieldError,
@@ -67,37 +60,13 @@ export default function SongForm(): ReactElement {
 		// Tag state
 		tags,
 		setTags,
+
+		// Chord picker state
+		pendingChordPickerRequest,
+		openChordPicker,
+		closeChordPicker,
+		insertChordFromPicker,
 	} = useSongForm();
-
-	/**
-	 * Opens the chord picker with the callback details needed for the active editor target.
-	 *
-	 * @param request - Pending picker request from a lyrics field
-	 * @returns void
-	 */
-	function openChordPicker(request: SongFormChordPickerRequest): void {
-		setPendingChordPickerRequest(request);
-	}
-
-	/**
-	 * Closes the chord picker and clears any pending insertion target.
-	 *
-	 * @returns void
-	 */
-	function closeChordPicker(): void {
-		setPendingChordPickerRequest(NO_PENDING_CHORD_PICKER_REQUEST);
-	}
-
-	/**
-	 * Sends the selected chord token back to the requesting field and clears picker state.
-	 *
-	 * @param token - Canonical chord token chosen in the picker
-	 * @returns void
-	 */
-	function insertChordFromPicker(token: string): void {
-		pendingChordPickerRequest?.submitChord(token);
-		setPendingChordPickerRequest(NO_PENDING_CHORD_PICKER_REQUEST);
-	}
 
 	return (
 		<>

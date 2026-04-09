@@ -83,6 +83,12 @@ export type UseSongFormReturn = {
 
 	// Editing state
 	isEditing: boolean;
+
+	// Chord picker state
+	pendingChordPickerRequest: SongFormChordPickerRequest | undefined;
+	openChordPicker: (request: SongFormChordPickerRequest) => void;
+	closeChordPicker: () => void;
+	insertChordFromPicker: (token: string) => void;
 };
 
 export type SongFormChordPickerRequest = Readonly<{

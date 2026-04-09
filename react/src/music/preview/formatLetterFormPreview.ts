@@ -6,12 +6,12 @@ import type { SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
 import {
-	INTERVAL_SEMITONE_OFFSET,
-	OCTAVE_SEMITONE_COUNT,
-	ROOT_INTERVAL,
-} from "@/react/music/intervals/sciIntervalConstants";
-import type { SelectedRoot } from "@/react/music/root-picker/SelectedRoot.type";
+    INTERVAL_SEMITONE_OFFSET,
+    OCTAVE_SEMITONE_COUNT,
+    ROOT_INTERVAL,
+} from "@/react/music/intervals/interval-constants";
 import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 type FlatNoteEntry = Readonly<{
 	sameNatural: string;

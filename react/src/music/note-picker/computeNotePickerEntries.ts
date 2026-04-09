@@ -1,17 +1,16 @@
+import computeActiveSpellingIntervals from "@/react/music/intervals/computeActiveSpellingIntervals";
+import {
+	FLAT_INTERVAL_MAP,
+	OCTAVE_SEMITONE_COUNT,
+	ROOT_INTERVAL,
+	SEMITONE_INTERVAL_LABELS,
+} from "@/react/music/intervals/interval-constants";
+import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
+import type { NotePickerEntry } from "@/react/music/note-picker/NotePickerEntry.type";
 import rootSemitoneMap from "@/shared/music/chord-display/rootSemitoneMap";
 import songKeysBySemitone from "@/shared/music/chord-display/songKeysBySemitone";
 import type { ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
-
-import {
-	OCTAVE_SEMITONE_COUNT,
-	ROOT_INTERVAL,
-	SEMITONE_INTERVAL_LABELS,
-} from "@/react/music/intervals/sciIntervalConstants";
-import type { NotePickerEntry } from "@/react/music/note-picker/NotePickerEntry.type";
-import { FLAT_INTERVAL_MAP } from "@/react/music/intervals/preferSharpIntervals";
-import computeActiveSpellingIntervals from "@/react/music/intervals/computeActiveSpellingIntervals";
-import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
 
 /**
  * Builds the 12 chromatic note entries for the note picker wheel.
