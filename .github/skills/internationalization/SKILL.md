@@ -137,8 +137,8 @@ const lang = getCurrentLangFromPath("/zz/foo"); // → "en" (falls back to defau
 ## References
 
 - Supported languages: `@/shared/language/supported-languages`
-- Full i18n documentation: [docs/internationalization-system.md](/docs/internationalization-system.md)
-- React conventions: [../react-conventions/SKILL.md](/.github/skills/react-conventions/SKILL.md)
+- Full i18n documentation: [docs/internationalization-system.md](/docs/client/internationalization-system.md)
+- React conventions: [../react-best-practices/SKILL.md](/.github/skills/react-best-practices/SKILL.md)
 
 ## Success Criteria
 
@@ -148,5 +148,5 @@ const lang = getCurrentLangFromPath("/zz/foo"); // → "en" (falls back to defau
 
 ## Skill Handoffs
 
-- If task is mostly UI component implementation, also load `react-conventions`.
+- If task is mostly UI component implementation, also load `react-best-practices`.
 - If refactor includes key/path naming decisions, also load `naming-conventions`.

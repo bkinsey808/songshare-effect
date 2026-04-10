@@ -105,7 +105,7 @@ npx playwright test --ui         # interactive mode
 ## Validation (run before and after changes)
 
 ```bash
-npm run lint && npx tsc -b . && npm run test:e2e:dev -- [filename]
+npm run lint && npm run test:e2e:dev -- [filename]
 ```
 
 ## Workflow

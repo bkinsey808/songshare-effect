@@ -139,7 +139,7 @@ Before submitting a PR run:
 
 1. `npx oxfmt --check .` or `npm run format:check`
 2. `npx oxlint --config .oxlintrc.json --type-aware .` or `npm run lint`
-3. `npx tsc -b .` (typecheck)
+3. `npm run lint`
 4. `npm run test:unit -- <path-to-test>` (tests related to your changes)
 
 ## Rationale 💡

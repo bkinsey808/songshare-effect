@@ -195,7 +195,7 @@ Check the token cache or fetch from the API directly instead.
 
 ## References
 
-- Full auth guide: [docs/authentication-system.md](/docs/authentication-system.md)
+- Full auth guide: [docs/authentication-system.md](/docs/auth/authentication-system.md)
 - RLS policy templates: [realtime-rls-architecture skill](/.github/skills/realtime-rls-architecture/SKILL.md)
 - Realtime debugging: [realtime-rls-debugging skill](/.github/skills/realtime-rls-debugging/SKILL.md)
 

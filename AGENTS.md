@@ -82,7 +82,7 @@ Do not fix unrelated failing tests/lint unless requested.
 ## Auth and API Notes
 
 - The project uses a dual-token auth model (visitor + user JWTs) with Supabase RLS.
-- Review `docs/authentication-system.md` before changing auth behavior.
+- Review `docs/auth/authentication-system.md` before changing auth behavior.
 - For API handler/service work, follow Effect-TS error and schema patterns described in `docs/effect-implementation.md`.
 
 ## When Creating or Refactoring Files
@@ -118,9 +118,10 @@ Codex (and all other models) should treat GitHub skills in this repository as av
 - `app-store-patterns` (`.github/skills/app-store-patterns/SKILL.md`)
 - `authentication-system` (`.github/skills/authentication-system/SKILL.md`)
 - `cloudflare-cache-cicd` (`.github/skills/cloudflare-cache-cicd/SKILL.md`)
-- `code-comments` (`.github/skills/code-comments/SKILL.md`)
+- `code-comment-best-practices` (`.github/skills/code-comment-best-practices/SKILL.md`)
 - `deployment-operations` (`.github/skills/deployment-operations/SKILL.md`)
 - `deployment-strategies` (`.github/skills/deployment-strategies/SKILL.md`)
+- `doc-best-practices` (`.github/skills/doc-best-practices/SKILL.md`)
 - `effect-ts-patterns` (`.github/skills/effect-ts-patterns/SKILL.md`)
 - `file-organization` (`.github/skills/file-organization/SKILL.md`)
 - `file-splitting` (`.github/skills/file-splitting/SKILL.md`)
@@ -128,15 +129,16 @@ Codex (and all other models) should treat GitHub skills in this repository as av
 - `hono-api-patterns` (`.github/skills/hono-api-patterns/SKILL.md`)
 - `internationalization` (`.github/skills/internationalization/SKILL.md`)
 - `lint-error-resolution` (`.github/skills/lint-error-resolution/SKILL.md`)
+- `lint-first-authoring` (`.github/skills/lint-first-authoring/SKILL.md`)
 - `manage-page-patterns` (`.github/skills/manage-page-patterns/SKILL.md`)
 - `naming-conventions` (`.github/skills/naming-conventions/SKILL.md`)
 - `playwright-testing` (`.github/skills/playwright-testing/SKILL.md`)
-- `react-conventions` (`.github/skills/react-conventions/SKILL.md`)
+- `react-best-practices` (`.github/skills/react-best-practices/SKILL.md`)
 - `realtime-rls-architecture` (`.github/skills/realtime-rls-architecture/SKILL.md`)
 - `realtime-rls-debugging` (`.github/skills/realtime-rls-debugging/SKILL.md`)
 - `scripts` (`.github/skills/scripts/SKILL.md`)
 - `source-refactoring` (`.github/skills/source-refactoring/SKILL.md`)
 - `supabase-client-patterns` (`.github/skills/supabase-client-patterns/SKILL.md`)
-- `typescript-conventions` (`.github/skills/typescript-conventions/SKILL.md`)
+- `typescript-best-practices` (`.github/skills/typescript-best-practices/SKILL.md`)
 - `unit-test-hook-best-practices` (`.github/skills/unit-test-hook-best-practices/SKILL.md`)
 - `unit-test-best-practices` (`.github/skills/unit-test-best-practices/SKILL.md`)

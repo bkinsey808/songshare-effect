@@ -14,11 +14,9 @@ FILE=${1:-}
 if [ -n "$FILE" ]; then
   echo "Running lint, typecheck, and vitest for file: $FILE"
   npm run lint
-  npx tsc -b .
   npx vitest run "$FILE"
 else
   echo "Running lint, typecheck, and all vitest tests"
   npm run lint
-  npx tsc -b .
   npm run test:unit --silent
 fi

@@ -16,24 +16,26 @@ These skills are automatically loaded when relevant to your task:
 - [**realtime-rls-debugging**](/.github/skills/realtime-rls-debugging/SKILL.md) - Debugging Realtime subscriptions that connect but deliver no updates, empty filter errors
 - [**file-organization**](/.github/skills/file-organization/SKILL.md) - No barrel files, direct imports, naming conventions
 - [**naming-conventions**](/.github/skills/naming-conventions/SKILL.md) - Function prefix guide (use* vs compute* vs get\* etc.), type/variable/file naming rules
-- [**typescript-conventions**](/.github/skills/typescript-conventions/SKILL.md) - Strict typing, no `any`, JSDoc rules
-- [**react-conventions**](/.github/skills/react-conventions/SKILL.md) - React Compiler (no memoization), ReactElement ambient type, useEffect comment rule, component organization
+- [**typescript-best-practices**](/.github/skills/typescript-best-practices/SKILL.md) - Strict typing, no `any`, JSDoc rules
+- [**react-best-practices**](/.github/skills/react-best-practices/SKILL.md) - React Compiler (no memoization), ReactElement ambient type, useEffect comment rule, component organization
 - [**manage-page-patterns**](/.github/skills/manage-page-patterns/SKILL.md) - Local actionState, runCommunityAction/runAction helpers, realtime update path for admin/manage pages
 - [**app-store-patterns**](/.github/skills/app-store-patterns/SKILL.md) - Zustand slice pattern, createXxxSlice factories, AppSlice type, useAppStore selectors, getTypedState
 - [**supabase-client-patterns**](/.github/skills/supabase-client-patterns/SKILL.md) - Which Supabase client to use in React (public/token/withAuth), safe-query helpers, SupabaseClientLike type
 - [**form-patterns**](/.github/skills/form-patterns/SKILL.md) - useAppForm hook, Effect-based form validation, handleSubmit, handleApiResponseEffect
 - [**internationalization**](/.github/skills/internationalization/SKILL.md) - useLocale/useLanguage hooks, URL-path language routing, adding translation keys
-- [**code-comments**](/.github/skills/code-comments/SKILL.md) - Comment conventions, JSDoc guidelines
+- [**code-comment-best-practices**](/.github/skills/code-comment-best-practices/SKILL.md) - Comment conventions, JSDoc guidelines
 - [**lint-error-resolution**](/.github/skills/lint-error-resolution/SKILL.md) - Guide for resolving ESLint, TypeScript, and oxlint errors in strict environments
-- [**unit-test-best-practices**](/.github/skills/unit-test-best-practices/SKILL.md) - Core Vitest setup, mocking strategies, API handler testing, and common pitfalls. Full reference: docs/unit-test-best-practices.md
-- [**unit-test-hook-best-practices**](/.github/skills/unit-test-hook-best-practices/SKILL.md) - React hook testing: renderHook, Documentation by Harness, installStore, fixtures, subscriptions, lint/compiler traps, pre-completion checklist. Full reference: docs/unit-test-hook-best-practices.md
+- [**lint-first-authoring**](/.github/skills/lint-first-authoring/SKILL.md) - Lint-first code authoring workflow for producing repo-consistent changes that are more likely to pass lint on first try
+- [**unit-test-best-practices**](/.github/skills/unit-test-best-practices/SKILL.md) - Core Vitest setup, mocking strategies, API handler testing, and common pitfalls. Full reference: docs/testing/unit-test-best-practices.md
+- [**unit-test-hook-best-practices**](/.github/skills/unit-test-hook-best-practices/SKILL.md) - React hook testing: renderHook, Documentation by Harness, installStore, fixtures, subscriptions, lint/compiler traps, pre-completion checklist. Full reference: docs/testing/unit-test-hook-best-practices.md
 - [**source-refactoring**](/.github/skills/source-refactoring/SKILL.md) - Splitting files, default exports, test colocation
 - [**file-splitting**](/.github/skills/file-splitting/SKILL.md) - Step-by-step guide for breaking consolidated files into single-function files
-- [**hono-api-patterns**](/.github/skills/hono-api-patterns/SKILL.md) - Hono route handlers, Effect integration, error mapping, middleware patterns
+- [**hono-best-practices**](/.github/skills/hono-best-practices/SKILL.md) - Hono route handlers, Effect integration, error mapping, middleware patterns, architectural conventions
 - [**scripts**](/.github/skills/scripts/SKILL.md) - Bun script conventions, naming, linting, testing scripts
 - [**playwright-testing**](/.github/skills/playwright-testing/SKILL.md) - E2E test patterns and stability tips
 - [**deployment-strategies**](/.github/skills/deployment-strategies/SKILL.md) - Core Cloudflare Pages/Workers deploy workflow, env vars, secrets management
 - [**cloudflare-cache-cicd**](/.github/skills/cloudflare-cache-cicd/SKILL.md) - CDN cache invalidation and GitHub Actions CI/CD workflows
+- [**`doc-best-practices`**](/.github/skills/doc-best-practices/SKILL.md) - File naming, structure, writing style, formatting, skill+doc pairs, placement, and maintenance for Markdown docs
 - [**deployment-operations**](/.github/skills/deployment-operations/SKILL.md) - Rollback, health monitoring, and production troubleshooting
 
 ### Master Rules
@@ -62,10 +64,10 @@ npm run dev:all
 
 - [**README.md**](/README.md) - Project setup and architecture overview
 - [**CONTRIBUTING.md**](/CONTRIBUTING.md) - Commit message conventions and pre-commit hooks
-- [**docs/authentication-system.md**](/docs/authentication-system.md) - Complete auth guide (JWT, RLS, tokens)
+- [**docs/authentication-system.md**](/docs/auth/authentication-system.md) - Complete auth guide (JWT, RLS, tokens)
 - [**docs/effect-implementation.md**](/docs/effect-implementation.md) - Effect-TS patterns used in API
-- [**docs/unit-test-best-practices.md**](/docs/unit-test-best-practices.md) - Unit testing reference (mocking, pitfalls, API handler testing)
-- [**docs/unit-test-hook-best-practices.md**](/docs/unit-test-hook-best-practices.md) - React hook testing reference (Harness, fixtures, subscriptions, checklist)
+- [**docs/unit-test-best-practices.md**](/docs/testing/unit-test-best-practices.md) - Unit testing reference (mocking, pitfalls, API handler testing)
+- [**docs/unit-test-hook-best-practices.md**](/docs/testing/unit-test-hook-best-practices.md) - React hook testing reference (Harness, fixtures, subscriptions, checklist)
 
 ## ✅ Golden Rules (See `.agent/rules.md` for Complete List)
 

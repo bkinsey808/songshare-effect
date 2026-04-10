@@ -15,7 +15,7 @@ description: >
 
 ## Full reference
 
-[docs/unit-test-best-practices.md](/docs/unit-test-best-practices.md) — load on demand for
+[docs/unit-test-best-practices.md](/docs/testing/unit-test-best-practices.md) — load on demand for
 deep dives into mocking patterns, API handler setup, or advanced tradeoffs.
 
 ## When invoked
@@ -61,7 +61,7 @@ deep dives into mocking patterns, API handler setup, or advanced tradeoffs.
 - **When NOT to write a test** (trivial getters, generated code, test-util helpers)
 - **Routing guide** — hook vs. API vs. utility tests
 - **Core setup** — file naming, `describe`/`it` rules, named constants, `toStrictEqual`, lint rules
-- **AAA pattern** — [docs/unit-test-best-practices.md#aaa-testing-pattern](/docs/unit-test-best-practices.md#aaa-testing-pattern)
+- **AAA pattern** — [docs/unit-test-best-practices.md#aaa-testing-pattern](/docs/testing/unit-test-best-practices.md#aaa-testing-pattern)
 - **Mocking** — non-factory `vi.mock` + `vi.mocked`, `vi.spyOn` escape hatch, `vi.doMock`
   exception flow, Supabase stubs, ESM/Effect patterns, shared helpers, `vi.hoisted`, `forceCast`
 - **API handler testing** — `makeCtx`, `makeSupabaseClient`, `MockRow<T>`, `Effect.runPromise`
@@ -70,21 +70,21 @@ deep dives into mocking patterns, API handler setup, or advanced tradeoffs.
 ## Mocking order (quick reference)
 
 1. Use non-factory `vi.mock("path")` + `vi.mocked(...)` by default.
-   ([docs](/docs/unit-test-best-practices.md#non-factory-mock))
+   ([docs](/docs/testing/unit-test-best-practices.md#non-factory-mock))
 2. Use `vi.spyOn(...)` only for one-off partial overrides on stable references.
-   ([docs](/docs/unit-test-best-practices.md#mock-vs-spyon))
+   ([docs](/docs/testing/unit-test-best-practices.md#mock-vs-spyon))
 3. Use `vi.doMock(...)` only when runtime-dependent per-test mocking is required before
-   importing the SUT. ([docs](/docs/unit-test-best-practices.md#domock))
+   importing the SUT. ([docs](/docs/testing/unit-test-best-practices.md#domock))
 4. Use factory mocks / `vi.importActual` / `vi.hoisted` only for explicit advanced cases
    that cannot be expressed with the default pattern.
-   ([docs](/docs/unit-test-best-practices.md#mock-factory-pattern))
+   ([docs](/docs/testing/unit-test-best-practices.md#mock-factory-pattern))
 
 ## Do not
 
 - Do not violate repo-wide rules in `.agent/rules.md`.
 - Do not add broad lint/type suppressions without explicit justification.
 - Do not expand scope beyond the requested task without calling it out.
-- Do not reinvent mock guidance inline — follow `docs/unit-test-best-practices.md` for full patterns.
+- Do not reinvent mock guidance inline — follow `docs/testing/unit-test-best-practices.md` for full patterns.
 - Do not assert a mocked function's own implementation in the same spec that mocks it;
   assert observable behavior of the system under test instead.
 - Do not mock `effect` at module level. Mock your own boundary module and return real
@@ -115,7 +115,7 @@ reports which cases were added and the full test output.
 
 **Input:** "How should I mock a Supabase query in this repo?"
 **Expected:** Agent answers in prose with inline code referencing the Supabase
-mocking section of `docs/unit-test-best-practices.md`. No test file modified.
+mocking section of `docs/testing/unit-test-best-practices.md`. No test file modified.
 
 **Input:** "Write tests for my hook `useEventList.ts`"
 **Expected:** Agent loads `unit-test-hook-best-practices` skill and proceeds per that

@@ -159,8 +159,8 @@ Before finalizing a name, ask:
 ## References
 
 - [file-organization skill](/.github/skills/file-organization/SKILL.md) — full file/directory naming rules
-- [react-conventions skill](/.github/skills/react-conventions/SKILL.md) — React-specific patterns
-- [typescript-conventions skill](/.github/skills/typescript-conventions/SKILL.md) — type declaration conventions
+- [react-best-practices skill](/.github/skills/react-best-practices/SKILL.md) — React-specific patterns
+- [typescript-best-practices skill](/.github/skills/typescript-best-practices/SKILL.md) — type declaration conventions
 - [.agent/rules.md](/.agent/rules.md) — canonical project rules
 
 ## Do Not

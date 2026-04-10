@@ -204,7 +204,7 @@ songshare-effect/
 │   └── dev/
 ├── .github/
 │   ├── skills/                   # Agent Skills
-│   │   └── react-conventions/
+│   │   └── react-best-practices/
 │   │       ├── SKILL.md
 │   │       └── references/
 │   │           └── REFERENCE.md

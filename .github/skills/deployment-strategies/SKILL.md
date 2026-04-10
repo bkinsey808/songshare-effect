@@ -57,7 +57,6 @@ Always run before pushing to production:
 
 ```bash
 npm run lint
-npx tsc -b .
 npm run test:unit
 ```
 
@@ -137,9 +136,9 @@ Local development secrets go in `.env` files (gitignored).
 
 ## References
 
-- [docs/DEPLOY.md](/docs/DEPLOY.md)
-- [docs/cache-management.md](/docs/cache-management.md)
-- [docs/github-actions-workflows.md](/docs/github-actions-workflows.md)
+- [docs/devops/deploy.md](/docs/devops/deploy.md)
+- [docs/devops/cache-management.md](/docs/devops/cache-management.md)
+- [docs/devops/github-actions-workflows.md](/docs/devops/github-actions-workflows.md)
 
 ## Do Not
 

@@ -256,9 +256,6 @@ For detailed technical reference on Effect combinators, dependency injection, sc
 Run these after writing Effect code:
 
 ```bash
-# Type check
-npx tsc -b .
-
 # Lint
 npm run lint
 
@@ -272,7 +269,7 @@ npm run build:api
 ## References
 
 - Reference guide: [references/REFERENCE.md](/.github/skills/effect-ts-patterns/references/REFERENCE.md) - Detailed Effect patterns
-- Complete implementation guide: [docs/effect-implementation.md](/docs/effect-implementation.md)
+- Complete implementation guide: [docs/effect-ts-best-practices.md](/docs/effect-ts-best-practices.md)
 - Effect documentation: https://effect.website/
 - Hono API integration: See `api/src/server.ts`
 - Error types: See `api/src/api-errors.ts`
@@ -291,5 +288,5 @@ npm run build:api
 
 ## Skill Handoffs
 
-- If editing Hono routes/middleware, also load `hono-api-patterns`.
+- If editing Hono routes/middleware, also load `hono-best-practices`.
 - If auth token behavior is involved, also load `authentication-system`.

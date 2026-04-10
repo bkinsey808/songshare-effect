@@ -102,9 +102,9 @@ Example description with effective trigger language:
 
 ```yaml
 description: >
-    Generate MSW handlers for GraphQL queries and mutations. Use when the user
-    asks to add, update, or scaffold mock API handlers. Do NOT use for REST
-    endpoints or non-MSW mocking libraries.
+    Generate Effect Schema validators from TypeScript types. Use when the user
+    asks to add or update runtime validation for an existing type. Do NOT use
+    for Supabase RLS policies or non-Effect-Schema validation.
 ```
 
 Sources: [Agent Skills — description & triggers](https://agentskills.io/skill-creation/best-practices#:~:text=description), [Claude — skill discovery](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#:~:text=discovery).
@@ -335,8 +335,8 @@ Sources: [Agent Skills — maintenance & versioning](https://agentskills.io/skil
 - Declare required companion skills near the top of the skill body:
 
     ```markdown
-    **Depends on:** [`create-msw-handler/SKILL.md`](../create-msw-handler/SKILL.md)
-    — load it when the task requires scaffolding a new handler.
+    **Depends on:** [`effect-schema/SKILL.md`](/.github/skills/effect-schema/SKILL.md)
+    — load it when the task requires defining or updating a schema.
     ```
 
 - Test the _combined_ invocation when composing skills — the cumulative token
@@ -461,9 +461,9 @@ description: Help with TypeScript code.
 
 # Good
 description: >
-  Generate Zod schemas from TypeScript interfaces. Use when the user asks to
-  add or update Zod validation for an existing type. Do NOT use for runtime
-  validation unrelated to Zod.
+  Generate Effect Schema validators from TypeScript types. Use when the user
+  asks to add or update runtime validation for an existing type. Do NOT use
+  for Supabase RLS policies or non-Effect-Schema validation.
 ```
 
 **Vague output instructions (inconsistent results):**

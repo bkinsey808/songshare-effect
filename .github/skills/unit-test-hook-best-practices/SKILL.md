@@ -1,6 +1,6 @@
 ---
 name: unit-test-hook-best-practices
-description: Complete guide for testing React hooks — renderHook, Documentation by Harness, installStore, fixtures, subscription patterns, lint/compiler traps, and pre-completion checklist. Read docs/unit-test-hook-best-practices.md for the full reference.
+description: Complete guide for testing React hooks — renderHook, Documentation by Harness, installStore, fixtures, subscription patterns, lint/compiler traps, and pre-completion checklist. Read docs/testing/unit-test-hook-best-practices.md for the full reference.
 ---
 
 **Requires:** file-read, terminal (test runner). No network access needed.
@@ -20,7 +20,7 @@ Use this skill when:
 
 Execution workflow:
 
-1. Cover behavior with both `renderHook` tests and Harness-style tests when applicable.
+1. Cover behavior with both `renderHook` tests and a Harness component. **A Harness is always required** — even when `renderHook` covers all behavior (see "Documentation by Harness" in the full reference).
 2. Keep tests colocated and use shared wrappers/utilities.
 3. Verify async behavior and cleanup paths explicitly.
 4. Run targeted hook tests first, then broader checks.
@@ -51,8 +51,8 @@ Output requirements:
 
 ## References
 
-- Full hook testing guide: [docs/unit-test-hook-best-practices.md](/docs/unit-test-hook-best-practices.md)
-- General testing guide: [docs/unit-test-best-practices.md](/docs/unit-test-best-practices.md)
+- Full hook testing guide: [docs/testing/unit-test-hook-best-practices.md](/docs/testing/unit-test-hook-best-practices.md)
+- General testing guide: [docs/unit-test-best-practices.md](/docs/testing/unit-test-best-practices.md)
 - Non-hook tests: [../unit-test-best-practices/SKILL.md](/.github/skills/unit-test-best-practices/SKILL.md)
 
 ## Validation
@@ -78,4 +78,4 @@ npm run test:unit
 ## Skill Handoffs
 
 - The general skill is a hard dependency — it must always be loaded alongside this one (see **Also load** at the top).
-- If hook behavior depends on routing or page components, also load `react-conventions`.
+- If hook behavior depends on routing or page components, also load `react-best-practices`.

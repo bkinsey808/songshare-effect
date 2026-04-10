@@ -193,7 +193,7 @@ npm run lint
 
 - Reference guide: [references/REFERENCE.md](/.github/skills/file-organization/references/REFERENCE.md)
 - Project rules: [.agent/rules.md](/.agent/rules.md)
-- TypeScript conventions: [../typescript-conventions/SKILL.md](/.github/skills/typescript-conventions/SKILL.md)
+- TypeScript conventions: [../typescript-best-practices/SKILL.md](/.github/skills/typescript-best-practices/SKILL.md)
 - Source refactoring: [../source-refactoring/SKILL.md](/.github/skills/source-refactoring/SKILL.md)
 
 ## Do Not

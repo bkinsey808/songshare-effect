@@ -150,6 +150,6 @@ const legacyData = oldLibrary.getData();
 
 ## References
 
-- **Full Documentation**: [docs/strict-typescript-patterns.md](../docs/strict-typescript-patterns.md)
+- **Full Documentation**: [docs/typescript-best-practices.md](../docs/typescript-best-practices.md)
 - **Quick Reference**: [docs/lint-quick-reference.md](../docs/lint-quick-reference.md)
 - **Project Rules**: [.agent/rules.md](../.agent/rules.md)

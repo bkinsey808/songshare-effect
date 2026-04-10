@@ -177,8 +177,8 @@ See documentation:
 - [EFFECT_IMPLEMENTATION.md](/docs/EFFECT_IMPLEMENTATION.md) - Effect-TS implementation details
 - [SUPABASE_EFFECT_SCHEMAS.md](/docs/SUPABASE_EFFECT_SCHEMAS.md) - Database schema integration
 - [AUTHENTICATION_SYSTEM.md](/docs/AUTHENTICATION_SYSTEM.md) - Complete authentication guide
-- [playwright-how-it-works.md](/docs/playwright-how-it-works.md) - How Playwright is wired up in this repo
-- [GITHUB_ACTIONS_WORKFLOWS.md](/docs/github-actions-workflows.md) - CI workflows, Playwright e2e, and debugging with the GitHub Actions extension
+- [playwright-best-practices.md](/docs/testing/playwright-best-practices.md) - How Playwright is wired up in this repo
+- [github-actions-workflows.md](/docs/devops/github-actions-workflows.md) - CI workflows, Playwright e2e, and debugging with the GitHub Actions extension
 
 ## API Endpoints
 

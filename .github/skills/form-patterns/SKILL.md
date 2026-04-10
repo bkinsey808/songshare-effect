@@ -169,4 +169,4 @@ export type SongFormValues = Schema.Schema.Type<typeof SongFormSchema>;
 ## Skill Handoffs
 
 - If form logic includes Effect-style response handling, also load `effect-ts-patterns`.
-- If the form sits in React-heavy component work, also load `react-conventions`.
+- If the form sits in React-heavy component work, also load `react-best-practices`.

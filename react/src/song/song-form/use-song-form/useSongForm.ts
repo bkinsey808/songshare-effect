@@ -1,8 +1,9 @@
-import { type Effect, Schema } from "effect";
+import { Effect, Schema } from "effect";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import useAppForm from "@/react/lib/form/useAppForm";
 import useFormChanges from "@/react/lib/form/useFormChanges";
 import generateSlug from "@/react/lib/slug/generateSlug";
@@ -12,15 +13,15 @@ import useItemTags from "@/react/tag/useItemTags";
 import {
 	type FormState,
 	type Slide,
-	type SongFormChordPickerRequest,
 	type SongFormValues,
 	type UseSongFormReturn,
 } from "../song-form-types";
 import { type SongFormValuesFromSchema as SongFormData, songFormSchema } from "../songSchema";
 import setFieldValue from "./setFieldValue";
 import createFormSubmitHandler from "./submit/createFormSubmitHandler";
-import deleteSongRequest from "./submit/deleteSongRequest";
+import deleteSongEffect from "./submit/deleteSongRequest";
 import useFormSubmission from "./submit/useFormSubmission";
+import useChordPickerRequest from "./useChordPickerRequest";
 import useCollapsibleSections from "./useCollapsibleSections";
 import useFetchSongData from "./useFetchSongData";
 import useFormState from "./useFormState";
@@ -300,36 +301,22 @@ export default function useSongForm(): UseSongFormReturn {
 		if (id === undefined || id === "") {
 			return;
 		}
-		const result = await deleteSongRequest(id);
-		if (result.success) {
+		try {
+			await Effect.runPromise(deleteSongEffect(id));
 			removeActivePrivateSongIds([id]);
 			removeActivePublicSongIds([id]);
 			removeSongsFromCache([id]);
 			removeSongLibraryEntry(id);
 			void navigate(NAVIGATE_BACK);
-		} else {
-			console.error("[useSongForm] Delete failed:", result.errorMessage);
+		} catch (error) {
+			console.error("[useSongForm] Delete failed:", extractErrorMessage(error, "Failed to delete song"));
 		}
 	}
 
 	const hasChanges = isLoadingData ? false : hasUnsavedChanges();
 
-	const [pendingChordPickerRequest, setPendingChordPickerRequest] = useState<
-		SongFormChordPickerRequest | undefined
-	>(undefined);
-
-	function openChordPicker(request: SongFormChordPickerRequest): void {
-		setPendingChordPickerRequest(request);
-	}
-
-	function closeChordPicker(): void {
-		setPendingChordPickerRequest(undefined);
-	}
-
-	function insertChordFromPicker(token: string): void {
-		pendingChordPickerRequest?.submitChord(token);
-		setPendingChordPickerRequest(undefined);
-	}
+	const { pendingChordPickerRequest, openChordPicker, closeChordPicker, insertChordFromPicker } =
+		useChordPickerRequest();
 
 	return {
 		getFieldError,

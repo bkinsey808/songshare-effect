@@ -1,25 +1,30 @@
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import { apiSongsDeletePath } from "@/shared/paths";
 
-import deleteSongRequest from "./deleteSongRequest";
+import deleteSongEffect from "./deleteSongRequest";
 
-describe("deleteSongRequest", () => {
+describe("deleteSongEffect", () => {
 	const SONG_ID = "song-123";
+	const REQUEST_BODY = JSON.stringify({ song_id: SONG_ID });
 
-	it("returns success when response is ok", async () => {
+	it("resolves when response is ok", async () => {
+		// Arrange
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
-		const result = await deleteSongRequest(SONG_ID);
-		expect(result).toStrictEqual({ success: true });
+
+		// Act + Assert
+		await expect(Effect.runPromise(deleteSongEffect(SONG_ID))).resolves.toBeUndefined();
 		expect(fetch).toHaveBeenCalledWith(apiSongsDeletePath, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ song_id: SONG_ID }),
+			body: REQUEST_BODY,
 			credentials: "include",
 		});
 	});
 
-	it("returns error message when response is not ok", async () => {
+	it("fails with error message when response is not ok", async () => {
+		// Arrange
 		const errorPayload = { error: "Song not found" };
 		vi.stubGlobal(
 			"fetch",
@@ -32,19 +37,16 @@ describe("deleteSongRequest", () => {
 				statusText: "Not Found",
 			}),
 		);
-		const result = await deleteSongRequest(SONG_ID);
-		expect(result).toStrictEqual({
-			success: false,
-			errorMessage: "Song not found",
-		});
+
+		// Act + Assert
+		await expect(Effect.runPromise(deleteSongEffect(SONG_ID))).rejects.toThrow("Song not found");
 	});
 
-	it("returns error message on fetch rejection", async () => {
+	it("fails with error message on fetch rejection", async () => {
+		// Arrange
 		vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("Network error")));
-		const result = await deleteSongRequest(SONG_ID);
-		expect(result).toStrictEqual({
-			success: false,
-			errorMessage: "Network error",
-		});
+
+		// Act + Assert
+		await expect(Effect.runPromise(deleteSongEffect(SONG_ID))).rejects.toThrow("Network error");
 	});
 });

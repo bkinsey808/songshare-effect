@@ -118,15 +118,17 @@ scripts/
 
 ```
 docs/
-├── DEPLOY.md                             # Deployment instructions
-├── authentication-system.md              # Auth system complete guide
-├── effect-implementation.md              # Effect-TS implementation
-├── internationalization-system.md        # i18n system guide
-├── login-flow.md                         # Login flow documentation
-├── github-actions-workflows.md           # CI/CD workflows
-├── cache-management.md                   # Cache strategy
-├── commit-message-instructions.md        # Commit conventions
-└── implementation-summary.md             # Feature implementation summary
+├── auth/                                 # Authentication docs
+├── client/                               # Frontend docs
+├── devops/                               # Deployment and operations docs
+│   ├── deploy.md                         # Deployment instructions
+│   ├── github-actions-workflows.md       # CI/CD workflows
+│   ├── cache-management.md               # Cache strategy
+│   ├── branch-protection.md              # Branch protection guidance
+│   └── r2-bucket-setup.md                # Cloudflare R2 setup
+├── server/                               # API and backend docs
+├── testing/                              # Testing docs
+└── commit-message-instructions.md        # Commit conventions
 ```
 
 ### `/.agent/` - AI Assistant Configuration
@@ -244,7 +246,7 @@ See [workflows](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/wo
 
 - [`.agent/rules.md`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/rules.md) - **START HERE** - Coding guidelines
 - [`README.md`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/README.md) - Project overview and setup
-- [`docs/authentication-system.md`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/docs/authentication-system.md) - Auth architecture
+- [`docs/auth/authentication-system.md`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/docs/auth/authentication-system.md) - Auth architecture
 - [`CONTRIBUTING.md`](/.agent/file:/home/bkinsey/bkinsey808/songshare-effect/CONTRIBUTING.md) - Contribution guidelines
 
 ## 💡 Tips for AI Assistants

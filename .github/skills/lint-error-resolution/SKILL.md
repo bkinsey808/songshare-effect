@@ -24,31 +24,31 @@ description: >
 - Run `npm run lint` to confirm clean; report result.
 
 **Error handling:**
-- If the error pattern is not in the lookup table, load [docs/lint-quick-reference.md](/docs/lint-quick-reference.md) for the full reference.
+- If the error pattern is not in the lookup table, load [docs/lint-best-practices.md](/docs/lint-best-practices.md) for the full reference.
 - If the fix requires a type change that cascades across multiple files, report the scope before proceeding and ask for direction.
 - If a rule disable is genuinely the only option, output the exact disable comment with a `-- reason` annotation and explain why.
 
 ## Quick lookup — common errors
 
-Full patterns with examples: **[docs/lint-quick-reference.md](/docs/lint-quick-reference.md)**
+Full patterns with examples: **[docs/lint-best-practices.md](/docs/lint-best-practices.md)**
 
 | Error | Doc section |
 | ----- | ----------- |
-| `no-unsafe-type-assertion` in API handlers | [→ API Handler Patterns](/docs/lint-quick-reference.md#no-unsafe-type-assertion--request-validation) |
-| `no-unsafe-assignment` / dynamic Supabase tables | [→ Dynamic Tables](/docs/lint-quick-reference.md#no-unsafe-assignment--no-unsafe-call--no-unsafe-member-access--dynamic-supabase-tables) |
-| "All if-else branches same code" (Supabase) | [→ Supabase Error Check](/docs/lint-quick-reference.md#all-if-else-branches-contain-same-code--supabase-error-check) |
-| `SupabaseFromLike` optional method chain | [→ Use callSelect](/docs/lint-quick-reference.md#supabasefromlike-optional-method-chain--use-callselect) |
-| `id-length` | [→ id-length](/docs/lint-quick-reference.md#id-length--variable-names-too-short) |
-| `no-magic-numbers` | [→ no-magic-numbers](/docs/lint-quick-reference.md#no-magic-numbers) |
-| `no-negated-condition` | [→ no-negated-condition](/docs/lint-quick-reference.md#no-negated-condition) |
-| `prefer-number-properties` | [→ prefer-number-properties](/docs/lint-quick-reference.md#prefer-number-properties) |
-| `curly` | [→ curly](/docs/lint-quick-reference.md#curly--always-use-braces) |
-| `consistent-type-imports` | [→ type imports](/docs/lint-quick-reference.md#consistent-type-imports--type-only-imports) |
-| `--isolatedDeclarations` | [→ isolatedDeclarations](/docs/lint-quick-reference.md#--isolateddeclarations--explicit-type-annotations-on-exports) |
-| `unicorn/no-array-sort` | [→ toSorted](/docs/lint-quick-reference.md#unicornno-array-sort--use-tosorted) |
-| `unicorn/catch-error-name` | [→ catch name](/docs/lint-quick-reference.md#unicorncatch-error-name--name-catch-parameter-error) |
-| `require-useeffect-comment` | [→ useEffect comment](/docs/lint-quick-reference.md#require-useeffect-comment--comment-before-useeffect) |
-| `strict-boolean-expressions` / `exactOptionalPropertyTypes` | [→ General TS Rules](/docs/lint-quick-reference.md#general-typescript--eslint-rules) |
+| `no-unsafe-type-assertion` in API handlers | [→ API Handler Patterns](/docs/lint-best-practices.md#no-unsafe-type-assertion--request-validation) |
+| `no-unsafe-assignment` / dynamic Supabase tables | [→ Dynamic Tables](/docs/lint-best-practices.md#no-unsafe-assignment--no-unsafe-call--no-unsafe-member-access--dynamic-supabase-tables) |
+| "All if-else branches same code" (Supabase) | [→ Supabase Error Check](/docs/lint-best-practices.md#all-if-else-branches-contain-same-code--supabase-error-check) |
+| `SupabaseFromLike` optional method chain | [→ Use callSelect](/docs/lint-best-practices.md#supabasefromlike-optional-method-chain--use-callselect) |
+| `id-length` | [→ id-length](/docs/lint-best-practices.md#id-length--variable-names-too-short) |
+| `no-magic-numbers` | [→ no-magic-numbers](/docs/lint-best-practices.md#no-magic-numbers) |
+| `no-negated-condition` | [→ no-negated-condition](/docs/lint-best-practices.md#no-negated-condition) |
+| `prefer-number-properties` | [→ prefer-number-properties](/docs/lint-best-practices.md#prefer-number-properties) |
+| `curly` | [→ curly](/docs/lint-best-practices.md#curly--always-use-braces) |
+| `consistent-type-imports` | [→ type imports](/docs/lint-best-practices.md#consistent-type-imports--type-only-imports) |
+| `--isolatedDeclarations` | [→ isolatedDeclarations](/docs/lint-best-practices.md#--isolateddeclarations--explicit-type-annotations-on-exports) |
+| `unicorn/no-array-sort` | [→ toSorted](/docs/lint-best-practices.md#unicornno-array-sort--use-tosorted) |
+| `unicorn/catch-error-name` | [→ catch name](/docs/lint-best-practices.md#unicorncatch-error-name--name-catch-parameter-error) |
+| `require-useeffect-comment` | [→ useEffect comment](/docs/lint-best-practices.md#require-useeffect-comment--comment-before-useeffect) |
+| `strict-boolean-expressions` / `exactOptionalPropertyTypes` | [→ General TS Rules](/docs/lint-best-practices.md#general-typescript-and-eslint-rules) |
 
 ## When to disable rules (rare)
 
@@ -72,9 +72,9 @@ const legacyData = oldLibrary.getData();
 
 ## References
 
-- **Full patterns**: [docs/lint-quick-reference.md](/docs/lint-quick-reference.md)
-- **Tools & config**: [docs/linting-and-formatting.md](/docs/linting-and-formatting.md)
-- **Hono patterns**: [../hono-api-patterns/SKILL.md](/.github/skills/hono-api-patterns/SKILL.md)
+- **Full patterns**: [docs/lint-best-practices.md](/docs/lint-best-practices.md)
+- **Tools & config**: [docs/lint-best-practices.md](/docs/lint-best-practices.md)
+- **Hono patterns**: [../hono-best-practices/SKILL.md](/.github/skills/hono-best-practices/SKILL.md)
 - **Project rules**: [.agent/rules.md](/.agent/rules.md)
 
 ## Do not

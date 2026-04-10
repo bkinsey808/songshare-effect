@@ -139,7 +139,7 @@ npm run deploy
 
 ## References
 
-- [docs/DEPLOY.md](/docs/DEPLOY.md)
+- [docs/devops/deploy.md](/docs/devops/deploy.md)
 - Core deploy workflow: [deployment-strategies skill](/.github/skills/deployment-strategies/SKILL.md)
 - Cache + CI/CD: [cloudflare-cache-cicd skill](/.github/skills/cloudflare-cache-cicd/SKILL.md)
 

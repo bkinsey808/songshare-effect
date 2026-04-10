@@ -9,7 +9,7 @@ import makeMockLocation from "@/react/lib/test-utils/makeMockLocation.test-util"
 import useItemTags from "@/react/tag/useItemTags";
 
 import type { SongFormChordPickerRequest } from "../song-form-types";
-import deleteSongRequest from "./submit/deleteSongRequest";
+import deleteSongEffect from "./submit/deleteSongRequest";
 import useSongForm from "./useSongForm";
 
 vi.mock("react-router-dom");
@@ -628,7 +628,7 @@ describe("useSongForm — renderHook", () => {
 		vi.mocked(useParams).mockReturnValue({ song_id: MOCK_SONG_ID });
 		vi.mocked(useLocation).mockReturnValue(MOCK_LOCATION_EDIT);
 		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-		vi.mocked(deleteSongRequest).mockResolvedValue({ success: true });
+		vi.mocked(deleteSongEffect).mockReturnValue(Effect.void);
 
 		const { result } = renderHook(() => useSongForm());
 
@@ -652,6 +652,6 @@ describe("useSongForm — renderHook", () => {
 		await result.current.handleDelete();
 
 		// Assert — deleteSongRequest is never called in create mode
-		expect(vi.mocked(deleteSongRequest)).not.toHaveBeenCalled();
+		expect(vi.mocked(deleteSongEffect)).not.toHaveBeenCalled();
 	});
 });

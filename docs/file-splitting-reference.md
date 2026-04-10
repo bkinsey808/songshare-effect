@@ -34,7 +34,6 @@ This document provides the detailed checklist for larger file-splitting refactor
 
 ```bash
 npm run test:unit -- path/to/changed.test.ts
-npx tsc -b .
 npm run lint
 ```
 

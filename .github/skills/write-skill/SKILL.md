@@ -65,7 +65,7 @@ description: <one sentence — what this covers and when to use it>
 | ----------------------------------------- | ----------------------------------------- |
 | Step-by-step task workflow                | `.agent/workflows/<name>.md`              |
 | Full pattern reference with many examples | `docs/<topic>.md`                         |
-| Quick lookup table / rule summary         | `docs/lint-quick-reference.md` or similar |
+| Quick lookup table / rule summary         | `docs/lint-best-practices.md` or similar  |
 | "Use this when X, do Y, see Z"            | `SKILL.md`                                |
 | Project background / motivation           | `docs/`                                   |
 

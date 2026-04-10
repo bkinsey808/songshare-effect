@@ -124,9 +124,9 @@ npm run test:e2e:dev   # interactive Playwright
 
 ## References
 
-- [docs/DEPLOY.md](/docs/DEPLOY.md)
-- [docs/cache-management.md](/docs/cache-management.md)
-- [docs/github-actions-workflows.md](/docs/github-actions-workflows.md)
+- [docs/devops/deploy.md](/docs/devops/deploy.md)
+- [docs/devops/cache-management.md](/docs/devops/cache-management.md)
+- [docs/devops/github-actions-workflows.md](/docs/devops/github-actions-workflows.md)
 - Core deploy workflow: [deployment-strategies skill](/.github/skills/deployment-strategies/SKILL.md)
 - Rollback / monitoring: [deployment-operations skill](/.github/skills/deployment-operations/SKILL.md)
 

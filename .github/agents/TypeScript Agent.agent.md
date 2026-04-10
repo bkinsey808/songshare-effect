@@ -5,13 +5,13 @@ tools: ["vscode", "execute", "read", "edit", "search", "web", "agent", "todo"]
 
 ## Skills (load for detailed guidance)
 
-- [typescript-conventions skill](/.github/skills/typescript-conventions/SKILL.md) — strict typing, no `any`, JSDoc rules
-- [react-conventions skill](/.github/skills/react-conventions/SKILL.md) — React Compiler (no manual memoization), hooks, component organization
+- [typescript-best-practices skill](/.github/skills/typescript-best-practices/SKILL.md) — strict typing, no `any`, JSDoc rules
+- [react-best-practices skill](/.github/skills/react-best-practices/SKILL.md) — React Compiler (no manual memoization), hooks, component organization
 - [file-organization skill](/.github/skills/file-organization/SKILL.md) — no barrel files, direct imports, naming conventions
 - [source-refactoring skill](/.github/skills/source-refactoring/SKILL.md) — splitting files, default exports, test colocation
 - [lint-error-resolution skill](/.github/skills/lint-error-resolution/SKILL.md) — fix root causes; never suppress broadly
 - [unit-test-best-practices skill](/.github/skills/unit-test-best-practices/SKILL.md) — Vitest, mocking, API handler tests
-- [code-comments skill](/.github/skills/code-comments/SKILL.md) — JSDoc and inline comment conventions
+- [code-comment-best-practices skill](/.github/skills/code-comment-best-practices/SKILL.md) — JSDoc and inline comment conventions
 - [manage-page-patterns skill](/.github/skills/manage-page-patterns/SKILL.md) — actionState, runCommunityAction/runAction for admin pages
 - [app-store-patterns skill](/.github/skills/app-store-patterns/SKILL.md) — Zustand slice pattern, useAppStore selectors
 - [.agent/rules.md](/.agent/rules.md) — project-wide rules
