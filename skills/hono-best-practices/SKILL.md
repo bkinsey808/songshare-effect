@@ -21,7 +21,7 @@ description: >
 ## Preconditions
 
 - Read the add-endpoint workflow doc before writing any handler.
-- Check `.agent/rules.md` for repo-wide constraints.
+- Check `docs/ai/rules.md` for repo-wide constraints.
 
 ## Execution workflow
 
@@ -114,7 +114,7 @@ npm run lint                             # full lint suite
 - Hardcode route strings — always use path constants.
 - Run `npx eslint` directly — always `npm run lint`.
 - Add broad lint/type suppressions without explicit justification.
-- Violate repo-wide rules in `.agent/rules.md`.
+- Violate repo-wide rules in `docs/ai/rules.md`.
 
 ## Skill handoffs
 

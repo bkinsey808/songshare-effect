@@ -11,7 +11,7 @@ Use the shared repo AI system instead of maintaining Cursor-only guidance here.
 Before making changes, load:
 
 - `AGENTS.md`
-- `.agent/rules.md`
+- `docs/ai/rules.md`
 - `agents/Code Comment Agent.agent.md`
 - `skills/code-comment-best-practices/SKILL.md`
 

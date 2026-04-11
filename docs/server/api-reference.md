@@ -523,7 +523,7 @@ Planned additions:
 
 For API issues:
 
-1. Check [Troubleshooting Guide](/.agent/troubleshooting.md)
+1. Check [Troubleshooting Guide](/docs/troubleshooting.md)
 2. Review [Authentication System Docs](/docs/auth/authentication-system.md)
 3. Check server logs
 4. File an issue on GitHub

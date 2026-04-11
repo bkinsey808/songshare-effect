@@ -8,6 +8,7 @@ fix patterns used in this strict TypeScript project.
 
 - [Tooling and Config](#tooling-and-config)
 - [Commands and Workflow](#commands-and-workflow)
+- [Markdown And AI-Doc Checks](#markdown-and-ai-doc-checks)
 - [Core Practices](#core-practices)
 - [API Handler Patterns](#api-handler-patterns)
 - [General TypeScript and ESLint Rules](#general-typescript-and-eslint-rules)
@@ -84,6 +85,41 @@ Recommended workflow:
 3. Make manual fixes where needed
 4. Re-run `npm run lint`
 5. Run `npm run format` if the edits touched formatting-sensitive code
+
+<a id="markdown-and-ai-doc-checks"></a>
+
+## Markdown And AI-Doc Checks
+
+`npm run lint` in this repo is broader than code linting alone. In addition to
+TypeScript, oxlint, and ESLint checks, it also runs:
+
+- `npm run check:md`
+- `npm run check:ai-system`
+
+For markdown and AI-related files, the main repo checks are:
+
+- `npm run check:md` for `textlint`-based markdown and instruction-file limits
+- `npm run check:links` for markdown link and fragment validation
+- `npm run check:ai-system` for shared AI-system path and structure validation
+
+This matters because docs, skills, shared agent prompts, `.agent/` workflow
+files, and top-level instruction files are all part of the lint surface in this
+repo, not "optional docs-only" content.
+
+Use `docs/ai/ai-system.md` as the canonical reference for:
+
+- which file groups each markdown check covers
+- how the `textlint` configs are split
+- what `remark` validates in `check:links`
+- how AI-system-specific validation differs from normal markdown linting
+
+Quick rule of thumb:
+
+- `npm run lint` for the full repo lint pipeline
+- `npm run check:md` when you mainly changed markdown or instruction files
+- `npm run check:links` when you changed links, anchors, or moved docs
+- `npm run check:ai-system` when you changed AI-system docs, adapters, skills,
+  agents, or `.agent/` workflows
 
 <a id="core-practices"></a>
 
@@ -506,7 +542,7 @@ try, point it at the repo rules and make validation part of the task.
 Recommended prompt:
 
 ```text
-Read AGENTS.md, .agent/rules.md, and the relevant docs before editing.
+Read AGENTS.md, docs/ai/rules.md, and the relevant docs before editing.
 
 For this task, read:
 - docs/lint-best-practices.md
@@ -534,7 +570,7 @@ Before finishing:
 Short version:
 
 ```text
-Read AGENTS.md, .agent/rules.md, and docs/lint-best-practices.md first.
+Read AGENTS.md, docs/ai/rules.md, and docs/lint-best-practices.md first.
 Match surrounding patterns exactly.
 No any, no barrel files, no test-file lint disables, and no unnecessary memoization.
 Use explicit types, safe validation, direct imports, and useEffect comments.
@@ -570,7 +606,7 @@ Add one or two extra lines when the task touches a specialized area:
 ## See Also
 
 - [AGENTS.md](/AGENTS.md)
-- [.agent/rules.md](/.agent/rules.md)
+- [docs/ai/rules.md](/docs/ai/rules.md)
 - [typescript-best-practices.md](/docs/typescript-best-practices.md)
 - [testing/unit-test-best-practices.md](/docs/testing/unit-test-best-practices.md)
 - [server/hono-best-practices.md](/docs/server/hono-best-practices.md)

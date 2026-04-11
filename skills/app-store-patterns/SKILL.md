@@ -202,13 +202,13 @@ vi.mocked(useAppStore).mockImplementation((selector) =>
 
 ## References
 
-- Project rules: [.agent/rules.md](/.agent/rules.md)
+- Project rules: [docs/ai/rules.md](/docs/ai/rules.md)
 - Authentication slice example: [react/src/auth/slice/createAuthSlice.ts](/react/src/auth/slice/createAuthSlice.ts)
 - Unit testing mocking: [../unit-test-best-practices/SKILL.md](/skills/unit-test-best-practices/SKILL.md)
 
 ## Do Not
 
-- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not violate repo-wide rules in `docs/ai/rules.md`.
 - Do not add broad lint/type suppressions without explicit justification.
 - Do not expand scope beyond the requested task without calling it out.
 

@@ -161,11 +161,11 @@ Before finalizing a name, ask:
 - [file-organization skill](/skills/file-organization/SKILL.md) — full file/directory naming rules
 - [react-best-practices skill](/skills/react-best-practices/SKILL.md) — React-specific patterns
 - [typescript-best-practices skill](/skills/typescript-best-practices/SKILL.md) — type declaration conventions
-- [.agent/rules.md](/.agent/rules.md) — canonical project rules
+- [docs/ai/rules.md](/docs/ai/rules.md) — canonical project rules
 
 ## Do Not
 
-- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not violate repo-wide rules in `docs/ai/rules.md`.
 - Do not add broad lint/type suppressions without explicit justification.
 - Do not expand scope beyond the requested task without calling it out.
 

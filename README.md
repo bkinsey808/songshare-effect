@@ -9,10 +9,11 @@ A modern song sharing platform built with React, Vite, and Hono for Cloudflare d
 ## For AI Agents
 
 - Read `AGENTS.md` for repository workflow and guardrails.
-- Treat `.agent/rules.md` as the canonical source of coding standards.
-- Read `docs/ai-system.md` for the shared cross-tool AI-system layout.
-- Treat `skills/` and `agents/` as the shared, model-agnostic AI system.
-- Use `.github/copilot-instructions.md`, `CLAUDE.md`, and `.cursor/rules/` as thin tool-specific adapters.
+- Treat `docs/ai/rules.md` as the canonical source of coding standards.
+- Read `docs/ai/ai-system.md` for the shared cross-tool AI-system layout.
+- Treat `skills/` and `agents/` as shared, model-agnostic AI assets, while noting that not every tool consumes both layers the same way.
+- Treat `.agent/workflows/` as Antigravity-specific workflow playbooks that complement the shared `skills/` layer, not replace it.
+- Use `.github/copilot-instructions.md`, `CLAUDE.md`, `GEMINI.md`, and `.cursor/rules/` as thin tool-specific adapters.
 
 ## Architecture
 
@@ -129,7 +130,10 @@ npm run build:all
 
 ```
 songshare-effect/
-├── .agent/                 # Shared rules, workflows, and troubleshooting notes
+├── .agent/                 # Antigravity-specific workflow playbooks and notes
+├── .cursor/                # Cursor-specific adapters and project-rule files
+├── .github/                # GitHub-native automation plus Copilot adapter files
+├── docs/ai/                # Shared AI rules, codebase map, and AI-system docs
 ├── agents/                 # Shared custom agent prompts and hook configs
 ├── api/                    # Hono API server with Effect-TS
 │   ├── src/
@@ -159,7 +163,10 @@ The API is built with **Effect-TS** for functional programming, providing:
 
 See documentation:
 
-- [ai-system.md](/docs/ai-system.md) - Shared AI-system layout for Codex, Copilot, Claude, Gemini, and Cursor
+- [ai-system.md](/docs/ai/ai-system.md) - Shared AI-system layout for Codex, Copilot, Claude, Gemini, and Cursor
+- [.agent/README.md](/.agent/README.md) - Antigravity-specific workflow and playbook notes
+- [.cursor/README.md](/.cursor/README.md) - Cursor-specific rules, skills wiring, and adapter notes
+- [.github/README.md](/.github/README.md) - What in `.github/` is GitHub-native versus adapter-only
 - [effect-ts-best-practices.md](/docs/effect-ts-best-practices.md) - Effect-TS implementation details
 - [authentication-system.md](/docs/auth/authentication-system.md) - Complete authentication guide
 - [api-reference.md](/docs/server/api-reference.md) - Server endpoints and API behavior
@@ -251,7 +258,7 @@ ENVIRONMENT=development
 
 1. Fork the repository
 2. Read `CONTRIBUTING.md` for commit message guidelines, pre-commit hooks, and local setup steps (Husky / Commitlint / Commitizen).
-3. If you use an AI coding agent, read `AGENTS.md` and `.agent/rules.md` before making changes.
+3. If you use an AI coding agent, read `AGENTS.md` and `docs/ai/rules.md` before making changes.
 4. Create a feature branch
 5. Make your changes
 6. Add tests if applicable

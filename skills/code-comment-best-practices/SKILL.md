@@ -22,7 +22,7 @@ detailed formatting patterns, examples, and edge cases.
 
 **Preconditions:**
 - Read the file being commented before making changes.
-- Check `.agent/rules.md` for repo-wide constraints.
+- Check `docs/ai/rules.md` for repo-wide constraints.
 
 **Clarifying questions:**
 - **Defaults (proceed without asking):** add/update comments in the file already open; follow all rules below.
@@ -64,7 +64,7 @@ npm run lint
 
 ## Do not
 
-- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not violate repo-wide rules in `docs/ai/rules.md`.
 - Do not change logic — comments only.
 - Do not add types in JSDoc for `.ts`/`.tsx` files.
 - Do not expand scope beyond the requested task without calling it out.

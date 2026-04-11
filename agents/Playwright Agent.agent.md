@@ -8,7 +8,7 @@ tools: ["vscode", "execute", "read", "edit", "search", "web", "agent", "todo"]
 
 - [playwright-testing skill](/skills/playwright-testing/SKILL.md) — e2e test patterns, auth helpers, hydration waits, and stability guidance
 - [code-comment-best-practices skill](/skills/code-comment-best-practices/SKILL.md) — comment conventions when explanatory comments are needed
-- [.agent/rules.md](/.agent/rules.md) — project-wide rules
+- [docs/ai/rules.md](/docs/ai/rules.md) — project-wide rules
 
 ---
 

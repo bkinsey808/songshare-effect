@@ -131,17 +131,17 @@ docs/
 └── commit-message-instructions.md        # Commit conventions
 ```
 
-### `/.agent/` - AI Assistant Configuration
+### `/docs/ai/` - Shared AI Documentation
 
 ```
-.agent/
+docs/ai/
 ├── rules.md                   # Coding guidelines for AI assistants
-└── workflows/                 # Common workflow instructions
+├── rules.md                   # Coding guidelines for AI assistants
+└── workflows/                 # Common workflow instructions (automation)
     ├── run-dev-servers.md    # Start development servers
     ├── lint-and-format.md    # Linting and formatting
     ├── commit-code.md        # Commit using conventions
     ├── deploy.md             # Deployment workflow
-    ├── database-migrations.md # Database migration workflow
     └── run-tests.md          # Testing workflow
 ```
 
@@ -230,7 +230,7 @@ npm run deploy:pages   # Deploy frontend to Cloudflare Pages
 npm run deploy:api     # Deploy API to Cloudflare Workers
 ```
 
-See [workflows](/.agent/workflows) for detailed workflow instructions.
+See [workflows](/.agent/workflows/) for detailed workflow instructions.
 
 ## 🔑 Key Technologies
 
@@ -244,18 +244,18 @@ See [workflows](/.agent/workflows) for detailed workflow instructions.
 
 ## 📚 Key Documentation
 
-- [`.agent/rules.md`](/.agent/rules.md) - **START HERE** - Coding guidelines
+- [`docs/ai/rules.md`](/docs/ai/rules.md) - **START HERE** - Coding guidelines
 - [`README.md`](/README.md) - Project overview and setup
 - [`docs/auth/authentication-system.md`](/docs/auth/authentication-system.md) - Auth architecture
 - [`CONTRIBUTING.md`](/CONTRIBUTING.md) - Contribution guidelines
 
 ## 💡 Tips for AI Assistants
 
-1. **Always check** `.agent/rules.md` for coding preferences
+1. **Always check** `docs/ai/rules.md` for coding preferences
 2. **No barrel files** - import directly from source files
 3. **React Compiler is enabled** - don't add `useCallback`, `useMemo`, or `memo`
 4. **Effect-TS for API** - use structured error handling
 5. **Unit tests** use `.test.ts`, **E2E tests** use `.spec.ts`
 6. **Path aliases** are configured - use `@/shared/`, `@/react/`, `@/api/`
 7. **Only humans run git** - don't run git commands that modify the repo
-8. **Use workflows** - Check `.agent/workflows/` for common tasks
+8. **Use workflows** - Check [`.agent/workflows/`](/.agent/workflows/) for common tasks

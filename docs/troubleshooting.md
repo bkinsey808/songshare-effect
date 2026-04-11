@@ -2,7 +2,55 @@
 
 Common issues and solutions for the SongShare Effect project.
 
+## Table of Contents
+
+- [Development Server Issues](#development-server-issues)
+    - [Port Already in Use](#port-already-in-use)
+    - [Frontend Can't Connect to API](#frontend-cant-connect-to-api)
+    - [Hot Reload Not Working](#hot-reload-not-working)
+- [Database Issues](#database-issues)
+    - [Connection Refused / Can't Connect to Supabase](#connection-refused--cant-connect-to-supabase)
+    - [Schema Generation Fails](#schema-generation-fails)
+    - [Migration Fails](#migration-fails)
+- [Build Issues](#build-issues)
+    - [TypeScript Errors](#typescript-errors)
+    - [Vite Build Fails](#vite-build-fails)
+    - [Functions Dist Import Check Fails](#functions-dist-import-check-fails)
+- [Testing Issues](#testing-issues)
+    - [Playwright Tests Fail to Start](#playwright-tests-fail-to-start)
+    - [Vitest Tests Fail](#vitest-tests-fail)
+    - [E2E Tests Timeout](#e2e-tests-timeout)
+- [Linting/Formatting Issues](#lintingformatting-issues)
+    - [Oxlint Errors Won't Auto-Fix](#oxlint-errors-wont-auto-fix)
+    - [Formatting Conflicts](#formatting-conflicts)
+    - [Pre-commit Hook Fails](#pre-commit-hook-fails)
+- [Authentication Issues](#authentication-issues)
+    - [Visitor Token Not Working](#visitor-token-not-working)
+    - [OAuth Sign-In Fails](#oauth-sign-in-fails)
+    - [Session Cookie Not Set](#session-cookie-not-set)
+- [Deployment Issues](#deployment-issues)
+    - [Cloudflare Pages Deploy Fails](#cloudflare-pages-deploy-fails)
+    - [Cloudflare Workers Deploy Fails](#cloudflare-workers-deploy-fails)
+    - [Environment Variables Not Working in Production](#environment-variables-not-working-in-production)
+- [Dependency Issues](#dependency-issues)
+    - [npm install Fails](#npm-install-fails)
+    - [Playwright Install Fails](#playwright-install-fails)
+- [Environment Setup Issues](#environment-setup-issues)
+    - [Missing PostgreSQL Tools](#missing-postgresql-tools)
+    - [Wrong Node Version](#wrong-node-version)
+- [General Tips](#general-tips)
+    - [Check Logs](#check-logs)
+    - [Fresh Start](#fresh-start)
+    - [Get Help](#get-help)
+- [Reporting Issues](#reporting-issues)
+
+---
+
+<a id="development-server-issues"></a>
+
 ## 🚨 Development Server Issues
+
+<a id="port-already-in-use"></a>
 
 ### Port Already in Use
 
@@ -17,6 +65,8 @@ npx kill-port 5173 8787
 npm run dev
 ```
 
+<a id="frontend-cant-connect-to-api"></a>
+
 ### Frontend Can't Connect to API
 
 **Problem**: Network errors when calling API from frontend
@@ -28,6 +78,8 @@ npm run dev
 3. ✅ Verify `VITE_API_BASE_URL` in `.env` (should be `http://localhost:8787`)
 4. ✅ Check browser console for CORS errors
 5. ✅ Ensure both servers are running: `npm run dev`
+
+<a id="hot-reload-not-working"></a>
 
 ### Hot Reload Not Working
 
@@ -49,7 +101,13 @@ rm -rf node_modules/.vite
 npm run dev
 ```
 
+---
+
+<a id="database-issues"></a>
+
 ## 🗄️ Database Issues
+
+<a id="connection-refused--cant-connect-to-supabase"></a>
 
 ### Connection Refused / Can't Connect to Supabase
 
@@ -61,6 +119,8 @@ npm run dev
 2. ✅ Verify Supabase project is active (not paused)
 3. ✅ Check if IP is allowed in Supabase dashboard
 4. ✅ Test connection with: `npm run supabase:keep-alive`
+
+<a id="schema-generation-fails"></a>
 
 ### Schema Generation Fails
 
@@ -85,6 +145,8 @@ npm run supabase:export
 npm run supabase:generate
 ```
 
+<a id="migration-fails"></a>
+
 ### Migration Fails
 
 **Problem**: Migration script errors
@@ -102,7 +164,13 @@ npm run supabase:migrate
 npm run supabase:migrate:single -- path/to/migration.sql
 ```
 
+---
+
+<a id="build-issues"></a>
+
 ## 🛠️ Build Issues
+
+<a id="typescript-errors"></a>
 
 ### TypeScript Errors
 
@@ -124,6 +192,8 @@ npm run build
 npm run supabase:generate
 ```
 
+<a id="vite-build-fails"></a>
+
 ### Vite Build Fails
 
 **Problem**: Build errors with Vite
@@ -138,6 +208,8 @@ npm run build:client
 # Check for circular dependencies
 # Review import statements in error logs
 ```
+
+<a id="functions-dist-import-check-fails"></a>
 
 ### Functions Dist Import Check Fails
 
@@ -157,7 +229,13 @@ npm run check:functions-dist-imports
 # - Missing dependencies in functions package.json
 ```
 
+---
+
+<a id="testing-issues"></a>
+
 ## 🧪 Testing Issues
+
+<a id="playwright-tests-fail-to-start"></a>
 
 ### Playwright Tests Fail to Start
 
@@ -178,6 +256,8 @@ npm run test:e2e:dev
 npx kill-port 5173 8787
 ```
 
+<a id="vitest-tests-fail"></a>
+
 ### Vitest Tests Fail
 
 **Problem**: Unit tests failing
@@ -193,6 +273,8 @@ npx vitest path/to/test.test.ts
 
 # Check test setup in vitest.config.ts
 ```
+
+<a id="e2e-tests-timeout"></a>
 
 ### E2E Tests Timeout
 
@@ -214,7 +296,13 @@ PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 npx playwright test --headed
 PLAYWRIGHT_BASE_URL=https://127.0.0.1:5173 npx playwright test --debug
 ```
 
+---
+
+<a id="lintingformatting-issues"></a>
+
 ## 🎨 Linting/Formatting Issues
+
+<a id="oxlint-errors-wont-auto-fix"></a>
 
 ### Oxlint Errors Won't Auto-Fix
 
@@ -230,6 +318,8 @@ npm run lint:list-files
 npm run lint
 ```
 
+<a id="formatting-conflicts"></a>
+
 ### Formatting Conflicts
 
 **Problem**: oxfmt and editor formatting conflict
@@ -239,6 +329,8 @@ npm run lint
 1. Ensure VS Code is using oxfmt (check `.vscode/settings.json`)
 2. Disable other formatters (Prettier, etc.) for this workspace
 3. Run format manually: `npm run format`
+
+<a id="pre-commit-hook-fails"></a>
 
 ### Pre-commit Hook Fails
 
@@ -260,7 +352,13 @@ npm run format
 git commit --no-verify -m "message"
 ```
 
+---
+
+<a id="authentication-issues"></a>
+
 ## 🔐 Authentication Issues
+
+<a id="visitor-token-not-working"></a>
 
 ### Visitor Token Not Working
 
@@ -273,6 +371,8 @@ git commit --no-verify -m "message"
 3. ✅ Check API endpoint: `curl http://localhost:8787/api/auth/visitor`
 4. ✅ Review browser console for token errors
 
+<a id="oauth-sign-in-fails"></a>
+
 ### OAuth Sign-In Fails
 
 **Problem**: OAuth redirect issues
@@ -283,6 +383,8 @@ git commit --no-verify -m "message"
 2. ✅ Verify redirect URLs are configured correctly
 3. ✅ Check cookie settings (Secure/SameSite) in `api/src/cookie/`
 4. ✅ Review CORS settings for OAuth callback
+
+<a id="session-cookie-not-set"></a>
 
 ### Session Cookie Not Set
 
@@ -295,7 +397,13 @@ git commit --no-verify -m "message"
 3. SameSite=None requires Secure flag
 4. Browser blocking third-party cookies
 
+---
+
+<a id="deployment-issues"></a>
+
 ## 🚀 Deployment Issues
+
+<a id="cloudflare-pages-deploy-fails"></a>
 
 ### Cloudflare Pages Deploy Fails
 
@@ -318,6 +426,8 @@ npx wrangler auth list
 npx wrangler login
 ```
 
+<a id="cloudflare-workers-deploy-fails"></a>
+
 ### Cloudflare Workers Deploy Fails
 
 **Problem**: `npm run deploy:api` fails
@@ -339,6 +449,8 @@ cd api
 npx wrangler whoami
 ```
 
+<a id="environment-variables-not-working-in-production"></a>
+
 ### Environment Variables Not Working in Production
 
 **Problem**: App works locally but not in production
@@ -350,7 +462,13 @@ npx wrangler whoami
 3. ✅ Verify variable names match (case-sensitive)
 4. ✅ Check that `VITE_*` prefix is used for client-side vars
 
+---
+
+<a id="dependency-issues"></a>
+
 ## 📦 Dependency Issues
+
+<a id="npm-install-fails"></a>
 
 ### npm install Fails
 
@@ -373,6 +491,8 @@ node --version
 nvm use
 ```
 
+<a id="playwright-install-fails"></a>
+
 ### Playwright Install Fails
 
 **Problem**: Playwright browser installation fails
@@ -387,7 +507,13 @@ npx playwright install --with-deps
 npx playwright install chromium
 ```
 
+---
+
+<a id="environment-setup-issues"></a>
+
 ## 🔧 Environment Setup Issues
+
+<a id="missing-postgresql-tools"></a>
 
 ### Missing PostgreSQL Tools
 
@@ -406,6 +532,8 @@ sudo apt-get install postgresql-client
 # Download from https://www.postgresql.org/download/windows/
 ```
 
+<a id="wrong-node-version"></a>
+
 ### Wrong Node Version
 
 **Problem**: Compatibility issues with Node.js version
@@ -419,7 +547,13 @@ nvm use
 nvm install
 ```
 
+---
+
+<a id="general-tips"></a>
+
 ## 💡 General Tips
+
+<a id="check-logs"></a>
 
 ### Check Logs
 
@@ -434,6 +568,8 @@ nvm install
 npm run build:all 2>&1 | tee build.log
 ```
 
+<a id="fresh-start"></a>
+
 ### Fresh Start
 
 When all else fails:
@@ -445,12 +581,18 @@ npm install
 npm run dev
 ```
 
+<a id="get-help"></a>
+
 ### Get Help
 
 1. Check [documentation](/docs)
-2. Review [`.agent/workflows/`](/.agent/workflows) for common tasks
+2. Review [`.agent/workflows/`](/.agent/workflows/) for common tasks
 3. Search [GitHub issues](https://github.com/bkinsey808/songshare-effect/issues)
 4. Check Cloudflare/Supabase status pages
+
+---
+
+<a id="reporting-issues"></a>
 
 ## 🐛 Reporting Issues
 

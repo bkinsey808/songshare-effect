@@ -10,7 +10,7 @@ tools: ["vscode", "execute", "read", "edit", "search", "web", "agent", "todo"]
 
 **Related:**
 - [code-comment-best-practices skill](/skills/code-comment-best-practices/SKILL.md) — quick rules summary
-- [.agent/rules.md](/.agent/rules.md) — project-wide rules
+- [docs/ai/rules.md](/docs/ai/rules.md) — project-wide rules
 
 ---
 

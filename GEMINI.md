@@ -6,8 +6,8 @@ repository.
 ## Shared Entry Points
 
 - Read `AGENTS.md` for repository workflow and guardrails.
-- Treat `.agent/rules.md` as the canonical coding-rules reference.
-- Read `docs/ai-system.md` for the shared cross-tool AI-system layout.
+- Treat `docs/ai/rules.md` as the canonical coding-rules reference.
+- Read `docs/ai/ai-system.md` for the shared cross-tool AI-system layout.
 - Load task-specific guidance from `skills/*/SKILL.md` and `agents/*.agent.md`.
 
 ## Gemini-Specific Notes
@@ -15,7 +15,7 @@ repository.
 - If this file and the shared files disagree, the shared files win.
 - Keep Gemini-only instructions minimal and move reusable guidance into the
   shared system.
-- Safe command behavior should follow the repo rules in `.agent/rules.md`.
+- Safe command behavior should follow the repo rules in `docs/ai/rules.md`.
 
 ## Configuration
 

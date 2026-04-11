@@ -15,7 +15,7 @@ tools: ["vscode", "execute", "read", "edit", "search", "web", "agent", "todo"]
 - [code-comment-best-practices skill](/skills/code-comment-best-practices/SKILL.md) — JSDoc and inline comment conventions
 - [manage-page-patterns skill](/skills/manage-page-patterns/SKILL.md) — actionState, runCommunityAction/runAction for admin pages
 - [app-store-patterns skill](/skills/app-store-patterns/SKILL.md) — Zustand slice pattern, useAppStore selectors
-- [.agent/rules.md](/.agent/rules.md) — project-wide rules
+- [docs/ai/rules.md](/docs/ai/rules.md) — project-wide rules
 
 ---
 

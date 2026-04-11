@@ -290,5 +290,5 @@ export function SongDetail() {
 ## References
 
 - [Component Documentation](/docs/component-patterns.md)
-- [Project Rules](/.agent/rules.md)
+- [Project Rules](/docs/ai/rules.md)
 - [React Documentation](https://react.dev/)

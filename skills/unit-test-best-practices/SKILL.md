@@ -23,7 +23,7 @@ deep dives into mocking patterns, API handler setup, or advanced tradeoffs.
 **Preconditions:**
 - Read the existing test file (if any) before modifying it.
 - Read the source file under test to understand its imports and structure.
-- Check `.agent/rules.md` for repo-wide constraints before proceeding.
+- Check `docs/ai/rules.md` for repo-wide constraints before proceeding.
 
 **Clarifying questions:**
 - **Defaults (proceed without asking):** add tests in the same file as
@@ -81,7 +81,7 @@ deep dives into mocking patterns, API handler setup, or advanced tradeoffs.
 
 ## Do not
 
-- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not violate repo-wide rules in `docs/ai/rules.md`.
 - Do not add broad lint/type suppressions without explicit justification.
 - Do not expand scope beyond the requested task without calling it out.
 - Do not reinvent mock guidance inline — follow `docs/testing/unit-test-best-practices.md` for full patterns.

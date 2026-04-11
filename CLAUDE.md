@@ -8,9 +8,10 @@ This file is a Claude-specific adapter for the shared AI system in `AGENTS.md`,
 ## Shared Context
 
 - Read `AGENTS.md` for repository workflow and guardrails.
-- Treat `.agent/rules.md` as the canonical source of coding standards.
-- Read `docs/ai-system.md` for the shared cross-tool AI-system layout.
+- Treat `docs/ai/rules.md` as the canonical source of coding standards.
+- Read `docs/ai/ai-system.md` for the shared cross-tool AI-system layout.
 - Load reusable task guidance from `skills/*/SKILL.md`.
+- Load shared focused agent prompts from `agents/*.agent.md` when a task matches one of the repo's custom agent roles.
 
 ## Linting
 

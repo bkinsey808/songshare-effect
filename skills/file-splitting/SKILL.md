@@ -21,7 +21,7 @@ description: >
 **Preconditions:**
 - Read the file to be split before starting.
 - Identify all import sites for each symbol being moved (`grep` or search).
-- Check `.agent/rules.md` for repo-wide constraints.
+- Check `docs/ai/rules.md` for repo-wide constraints.
 
 **Clarifying questions:**
 - **Defaults (proceed without asking):** split all symbols into separate files; follow naming conventions from `file-organization` skill; colocate tests with source.
@@ -65,7 +65,7 @@ npm run lint
 
 ## Do not
 
-- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not violate repo-wide rules in `docs/ai/rules.md`.
 - Do not create barrel `index.ts` re-exports.
 - Do not drop JSDoc when moving symbols.
 - Do not expand scope beyond the requested task without calling it out.

@@ -25,7 +25,7 @@ description: >
 
 ## Preconditions
 
-- Read `AGENTS.md` and `.agent/rules.md`.
+- Read `AGENTS.md` and `docs/ai/rules.md`.
 - Read the file being changed and at least one nearby file that already follows the local pattern.
 - Load the most relevant companion skill for the area being edited.
 
@@ -52,7 +52,7 @@ description: >
 Use this prompt when the user wants an agent to write lint-clean code:
 
 ```text
-Read AGENTS.md, .agent/rules.md, and docs/lint-best-practices.md first.
+Read AGENTS.md, docs/ai/rules.md, and docs/lint-best-practices.md first.
 Match surrounding patterns exactly.
 No any, no barrel files, no test-file lint disables, and no unnecessary memoization.
 Use explicit types, safe validation, direct imports, and useEffect comments.

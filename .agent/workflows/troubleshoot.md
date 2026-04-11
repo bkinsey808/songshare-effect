@@ -253,7 +253,7 @@ nvm use
 
 For detailed troubleshooting steps, see:
 
-- [Troubleshooting Guide](/.agent/troubleshooting.md)
+- [Troubleshooting Guide](/docs/troubleshooting.md)
 
 ## Get Help
 

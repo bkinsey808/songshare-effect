@@ -14,7 +14,7 @@ hooks:
 - [unit-test-best-practices skill](/skills/unit-test-best-practices/SKILL.md) — mocking patterns, AAA, API handler tests, common pitfalls. Full reference: [docs/unit-test-best-practices.md](/docs/testing/unit-test-best-practices.md)
 - [unit-test-hook-best-practices skill](/skills/unit-test-hook-best-practices/SKILL.md) — renderHook, Harness, installStore, fixtures, subscriptions. Full reference: [docs/unit-test-hook-best-practices.md](/docs/testing/unit-test-hook-best-practices.md)
 - [code-comment-best-practices skill](/skills/code-comment-best-practices/SKILL.md) — JSDoc and inline comment rules
-- [.agent/rules.md](/.agent/rules.md) — project-wide rules
+- [docs/ai/rules.md](/docs/ai/rules.md) — project-wide rules
 
 ---
 

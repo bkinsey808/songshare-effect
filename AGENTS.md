@@ -4,13 +4,15 @@ Repo-wide instructions for AI coding agents working in SongShare Effect.
 
 ## Read First
 
-1. `.agent/rules.md` for canonical coding rules.
+1. `docs/ai/rules.md` for canonical coding rules.
 2. `README.md` for product architecture and common commands.
-3. `docs/ai-system.md` for the shared cross-tool AI-system layout.
+3. `docs/ai/ai-system.md` for the shared cross-tool AI-system layout.
 4. `skills/*/SKILL.md` and `agents/*.agent.md` for task-specific guidance.
+5. `.agent/workflows/*.md` when you are using Antigravity-specific workflow playbooks alongside the shared skills system.
 
 Model-specific files such as `.github/copilot-instructions.md`, `CLAUDE.md`,
-and `.cursor/rules/` should stay thin and point back to this shared system.
+`GEMINI.md`, and `.cursor/rules/` should stay thin and point back to this
+shared system.
 
 ## Core Rules
 
@@ -41,12 +43,16 @@ and `.cursor/rules/` should stay thin and point back to this shared system.
 ## Skills And Agents
 
 - All shared skills live under `skills/*/SKILL.md`.
+- Shared skills are intended for Copilot, Claude, Codex, Antigravity, Cursor, and Gemini.
 - All shared agent prompts live under `agents/*.agent.md`.
+- Shared agent prompts are intended for Copilot, Claude, Codex, Antigravity, Cursor, and Gemini.
+- Antigravity-specific workflow playbooks live under `.agent/workflows/` and complement the shared skills layer.
 - If a user names a skill, load it before making changes.
 - If the task clearly matches a skill, load the smallest relevant set.
 
 ### Available Skills
 
+- `ai-system`
 - `app-store-patterns`
 - `authentication-system`
 - `cloudflare-cache-cicd`

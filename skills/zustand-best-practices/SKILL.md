@@ -15,7 +15,7 @@ description: >
 ## Preconditions
 
 - Read the store file before editing.
-- Check `.agent/rules.md` for repo-wide constraints.
+- Check `docs/ai/rules.md` for repo-wide constraints.
 
 ## Defaults (proceed without asking)
 

@@ -2,6 +2,8 @@
 description: Lint and format code with oxlint and oxfmt
 ---
 
+// turbo-all
+
 # Lint and Format Code
 
 This project uses oxlint for linting and oxfmt for formatting.

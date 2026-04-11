@@ -21,7 +21,7 @@ full formatting rules, ✅/❌ examples, rationale, and edge cases.
 
 **Preconditions:**
 - Read the target file before modifying it.
-- Check `.agent/rules.md` for repo-wide constraints before proceeding.
+- Check `docs/ai/rules.md` for repo-wide constraints before proceeding.
 
 **Clarifying questions:**
 - **Defaults (proceed without asking):** assume the task is creating a new doc

@@ -116,7 +116,25 @@ This explicitly re-links the Supabase CLI to production, runs `supabase db push 
 3. Rollback if needed (manually or create a new rollback migration)
 4. Re-run staging verification, then production
 
-### 5. Export and Type Generation (automatic)
+### 5. Advanced Migration Options
+
+#### Run Single Migration
+
+To run a specific migration file:
+
+```bash
+npm run supabase:migrate:single path/to/migration.sql
+```
+
+#### TypeScript Migrations
+
+Run migrations using TypeScript:
+
+```bash
+npm run supabase:migrate:ts
+```
+
+### 6. Export and Type Generation (automatic)
 
 `npm run supabase:migrate` already runs these automatically, but you can run them individually if needed:
 
@@ -130,7 +148,7 @@ This updates:
 - `shared/src/generated/database.types.ts` - TypeScript types
 - `shared/src/generated/supabaseSchema.ts` - Effect schemas
 
-### 6. Verify Generated Types
+### 7. Verify Generated Types
 
 Check the generated files to ensure types are correct:
 
@@ -142,7 +160,7 @@ cat shared/src/generated/database.types.ts | grep -A 10 "export interface"
 cat shared/src/generated/supabaseSchema.ts | grep -A 5 "export const"
 ```
 
-### 7. Update Code to Use New Types
+### 8. Update Code to Use New Types
 
 Update your code to use the new types:
 
@@ -156,7 +174,7 @@ interface ArtistCardProps {
 }
 ```
 
-### 8. Test Locally
+### 9. Test Locally
 
 // turbo
 
@@ -174,7 +192,7 @@ Test the changes in your application:
 2. Verify types are correct
 3. Test RLS policies
 
-### 9. Commit Changes
+### 10. Commit Changes
 
 Commit the migration and generated files:
 
@@ -332,6 +350,5 @@ npm run supabase:generate
 
 ## References
 
-- [Database Migrations Workflow](/.agent/workflows/database-migrations.md)
 - [Supabase Migration Docs](https://supabase.com/docs/guides/local-development/overview)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)

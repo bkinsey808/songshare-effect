@@ -36,6 +36,7 @@ public/manifest.json
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json.example
+!.vscode/README.md
 .idea
 .DS_Store
 *.suo

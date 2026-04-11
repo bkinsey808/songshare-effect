@@ -104,7 +104,7 @@ Split when the skill covers two clearly distinct audiences or task types. Exampl
 ## References
 
 - Skill line-count check: `scripts/check-skill-line-count/`
-- Workflows: `.agent/workflows/`
+- Workflows: [`.agent/workflows/`](/.agent/workflows/)
 - Docs directory: `docs/`
 
 ## Do Not

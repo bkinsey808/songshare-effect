@@ -165,7 +165,7 @@ Manual two-tab smoke test:
 
 ## Do Not
 
-- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not violate repo-wide rules in `docs/ai/rules.md`.
 - Do not add broad lint/type suppressions without explicit justification.
 - Do not expand scope beyond the requested task without calling it out.
 

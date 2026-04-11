@@ -21,12 +21,17 @@ const GUIDANCE_ROOT_FILES = [
 	"CLAUDE.md",
 	"GEMINI.md",
 	".github/copilot-instructions.md",
-	"docs/ai-system.md",
+	"docs/ai/ai-system.md",
 ] as const;
 
-const GUIDANCE_DIRS = [".agent", ".cursor/rules", "agents", "skills"] as const;
+const GUIDANCE_DIRS = [".cursor/rules", ".agent/workflows", "agents", "docs/ai", "skills"] as const;
 
 const FORBIDDEN_PATTERNS: ForbiddenPattern[] = [
+	{
+		pattern: /\.agent\/(rules|codebase-map|troubleshooting)\.md/,
+		message:
+			"legacy .agent docs should be moved to /docs/ai/ equivalents",
+	},
 	{
 		pattern: /\.github\/skills\//,
 		message: "use /skills/ instead of the removed .github/skills/ path",
@@ -171,6 +176,6 @@ async function checkAiSystem(repoRoot: string): Promise<CheckAiSystemResult> {
 	};
 }
 
-export type { CheckAiSystemResult };
 export { checkAiSystem };
+export type { CheckAiSystemResult };
 export default checkAiSystem;

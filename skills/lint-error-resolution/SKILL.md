@@ -75,10 +75,10 @@ const legacyData = oldLibrary.getData();
 - **Full patterns**: [docs/lint-best-practices.md](/docs/lint-best-practices.md)
 - **Tools & config**: [docs/lint-best-practices.md](/docs/lint-best-practices.md)
 - **Hono patterns**: [../hono-best-practices/SKILL.md](/skills/hono-best-practices/SKILL.md)
-- **Project rules**: [.agent/rules.md](/.agent/rules.md)
+- **Project rules**: [docs/ai/rules.md](/docs/ai/rules.md)
 
 ## Do not
 
 - Do not suppress lint rules without explicit justification and `-- reason` annotation.
 - Do not expand scope beyond the requested task.
-- Do not violate repo-wide rules in `.agent/rules.md`.
+- Do not violate repo-wide rules in `docs/ai/rules.md`.
