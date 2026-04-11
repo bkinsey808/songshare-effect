@@ -1,6 +1,6 @@
 # React Best Practices
 
-> **Note:** For TypeScript-specific best practices (type definitions, return types, type safety), see [TypeScript Best Practices](typescript-best-practices.md).
+> **Note:** For TypeScript-specific best practices (type definitions, return types, type safety), see [TypeScript Best Practices](/docs/typescript-best-practices.md).
 
 <a id="toc"></a>
 
@@ -58,7 +58,7 @@ const fallbackRef = useRef<HTMLTextAreaElement | null>(null);
 <Cell textareaRef={isLyrics ? lyricsRef : fallbackRef} onSyncSelection={isLyrics ? sync : noop} />;
 ```
 
-This also avoids `foo?: T` vs `T | undefined` confusion under `exactOptionalPropertyTypes` — see [TypeScript Best Practices](typescript-best-practices.md#exactoptionalpropertytypes-handling).
+This also avoids `foo?: T` vs `T | undefined` confusion under `exactOptionalPropertyTypes` — see [TypeScript Best Practices](/docs/typescript-best-practices.md#exactoptionalpropertytypes-handling).
 
 <a id="common-prop-types"></a>
 
@@ -669,4 +669,4 @@ export function MyComponent({ prop }: MyComponentProps): ReactElement { ... }
 
 ---
 
-See also: [docs/typescript-best-practices.md](typescript-best-practices.md)
+See also: [docs/typescript-best-practices.md](/docs/typescript-best-practices.md)

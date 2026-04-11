@@ -253,11 +253,11 @@ nvm use
 
 For detailed troubleshooting steps, see:
 
-- [Troubleshooting Guide](/.agent/workflows/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/troubleshooting.md)
+- [Troubleshooting Guide](/.agent/troubleshooting.md)
 
 ## Get Help
 
-1. Check [documentation](/.agent/workflows/file:/home/bkinsey/bkinsey808/songshare-effect/docs)
-2. Review [workflows](/.agent/workflows/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/workflows)
+1. Check [documentation](/docs)
+2. Review [workflows](/.agent/workflows)
 3. Search GitHub issues
 4. Check service status pages (Cloudflare, Supabase)

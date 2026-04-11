@@ -164,7 +164,7 @@ pipeline.withColorAttachment({ view, clearValue, loadOp, storeOp }).draw(3);
 **Requirements**:
 
 - Must be the first statement in the function body
-- Requires [unplugin-typegpu](https://docs.swmansion.com/TypeGPU/tooling/unplugin-typegpu) build plugin
+- Requires [unplugin-typegpu](https://docs.swmansion.com/TypeGPU/tooling/unplugin-typegpu/) build plugin
 - Function can still be called from JavaScript (runs on CPU in that case)
 
 **Example**:

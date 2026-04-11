@@ -10,7 +10,9 @@ A modern song sharing platform built with React, Vite, and Hono for Cloudflare d
 
 - Read `AGENTS.md` for repository workflow and guardrails.
 - Treat `.agent/rules.md` as the canonical source of coding standards.
-- Review `.github/copilot-instructions.md` for available skills and project orientation.
+- Read `docs/ai-system.md` for the shared cross-tool AI-system layout.
+- Treat `skills/` and `agents/` as the shared, model-agnostic AI system.
+- Use `.github/copilot-instructions.md`, `CLAUDE.md`, and `.cursor/rules/` as thin tool-specific adapters.
 
 ## Architecture
 
@@ -65,24 +67,24 @@ npm install
 
 ```bash
 npm run dev:all
-# Frontend will be available at http://localhost:5173
+# Frontend will be available at https://127.0.0.1:5173
 # API will be available at http://localhost:8787
 ```
 
 #### Or start them individually:
 
-1. Start the API server:
+1. Start the staging API server:
 
 ```bash
-npm run dev:api
+npm run dev:api:staging
 # API will be available at http://localhost:8787
 ```
 
-2. Start the frontend (in a new terminal):
+2. Start the staging frontend (in a new terminal):
 
 ```bash
 npm run dev
-# Frontend will be available at http://localhost:5173
+# Frontend will be available at https://127.0.0.1:5173
 ```
 
 ## Deployment
@@ -127,37 +129,21 @@ npm run build:all
 
 ```
 songshare-effect/
+├── .agent/                 # Shared rules, workflows, and troubleshooting notes
+├── agents/                 # Shared custom agent prompts and hook configs
 ├── api/                    # Hono API server with Effect-TS
 │   ├── src/
-│   │   ├── server.ts       # API routes and handlers
-│   │   ├── errors.ts      # Effect-TS error definitions
-│   │   ├── http/         # HTTP utilities for Effect (handleHttpEndpoint, errorToHttpResponse)
-│   │   ├── schemas.ts     # Effect Schema definitions
-│   │   └── services.ts    # Service layer with dependency injection
-│   ├── wrangler.toml      # Cloudflare Workers config
-│   ├── package.json       # API dependencies (Effect, Hono)
-│   └── tsconfig.json
-├── shared/                 # Shared code between API and frontend
-│   ├── types/             # TypeScript interfaces and types
-│   ├── utils/             # Utility functions and constants
-│   ├── schemas/           # Shared schema definitions
-│   ├── generated/         # Generated Supabase types and schemas
-│   └── index.ts           # Main exports
+│   └── src/               # Routes, services, middleware, and server helpers
+├── docs/                  # Human-facing project and architecture docs
 ├── react/                 # React frontend with React Compiler
-│   └── src/               # React source code
-│       ├── App.tsx        # Main app component with routing
-│       ├── main.tsx       # App entry point
-│       ├── components/    # Reusable React components
-│       └── pages/         # Page components
-├── docs/                  # Project documentation
-│   ├── EFFECT_IMPLEMENTATION.md    # Effect-TS implementation guide
-│   ├── SHARED_CODE_GUIDE.md       # Shared code documentation
-│   └── SUPABASE_EFFECT_SCHEMAS.md # Supabase schema documentation
+│   └── src/               # Components, hooks, pages, and client-side state
+├── shared/                # Shared code between API and frontend
+│   └── src/               # Types, schemas, utilities, and generated SQL/types
+├── skills/                # Shared model-agnostic task guidance
 ├── scripts/               # Build and utility scripts
-├── supabase/             # Supabase configuration
-├── package.json          # Main dependencies and scripts
-├── vite.config.ts        # Vite configuration with aliases
-└── tailwind.config.js    # Tailwind CSS configuration
+├── supabase/              # Supabase configuration
+├── AGENTS.md              # Shared AI entry point
+└── package.json           # Main dependencies and scripts
 ```
 
 ### Shared Code & Effect-TS Integration
@@ -173,10 +159,10 @@ The API is built with **Effect-TS** for functional programming, providing:
 
 See documentation:
 
-- [SHARED_CODE_GUIDE.md](/docs/SHARED_CODE_GUIDE.md) - Shared code structure
-- [EFFECT_IMPLEMENTATION.md](/docs/EFFECT_IMPLEMENTATION.md) - Effect-TS implementation details
-- [SUPABASE_EFFECT_SCHEMAS.md](/docs/SUPABASE_EFFECT_SCHEMAS.md) - Database schema integration
-- [AUTHENTICATION_SYSTEM.md](/docs/AUTHENTICATION_SYSTEM.md) - Complete authentication guide
+- [ai-system.md](/docs/ai-system.md) - Shared AI-system layout for Codex, Copilot, Claude, Gemini, and Cursor
+- [effect-ts-best-practices.md](/docs/effect-ts-best-practices.md) - Effect-TS implementation details
+- [authentication-system.md](/docs/auth/authentication-system.md) - Complete authentication guide
+- [api-reference.md](/docs/server/api-reference.md) - Server endpoints and API behavior
 - [playwright-best-practices.md](/docs/testing/playwright-best-practices.md) - How Playwright is wired up in this repo
 - [github-actions-workflows.md](/docs/devops/github-actions-workflows.md) - CI workflows, Playwright e2e, and debugging with the GitHub Actions extension
 
@@ -250,7 +236,8 @@ ENVIRONMENT=development
 ### Available Scripts
 
 - `npm run dev` - Start frontend development server
-- `npm run dev:api` - Start API development server
+- `npm run dev:api:staging` - Start the staging API development server
+- `npm run dev:api:prod` - Start the production-config API development server locally
 - `npm run dev:all` - Start both servers concurrently
 - `npm run build:client` - Build frontend for production
 - `npm run build:client:staging` - Build frontend for the staging/local E2E environment

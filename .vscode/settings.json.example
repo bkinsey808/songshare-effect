@@ -1,0 +1,39 @@
+{
+  "tailwindCSS.experimental.classRegex": [
+    ["tw`([^`]*)`", 1],
+    ["tw\\(['\"]([^'\"]*)['\"]\\)", 1],
+    ["tw\\(([^)]*)\\)", 1]
+  ],
+  "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.includeLanguages": {
+    "typescriptreact": "html",
+    "typescript": "html",
+    "javascript": "html",
+    "javascriptreact": "html"
+  },
+  "tailwindCSS.trace.server": "verbose",
+  "editor.quickSuggestions": { "strings": true },
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSaveMode": "file",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    "source.organizeImports": "always"
+  },
+  "oxc.fixKind": "safe_fix",
+  "oxc.typeAware": true,
+  "oxc.tsConfigPath": "tsconfig.json",
+  "oxc.enable": true,
+  "oxc.trace.server": "verbose",
+  "oxc.path.oxfmt": "${workspaceFolder}/node_modules/.bin/oxfmt",
+  "oxc.fmt.configPath": ".oxfmtrc.json",
+  "chat.agentFilesLocations": { "agents/": true },
+  "chat.useCustomAgentHooks": true,
+  "chat.agentSkillsLocations": { "skills/": true },
+  "chat.tools.terminal.autoApprove": {
+    "npm run -s test:unit": true,
+    "/^nl /": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
+}

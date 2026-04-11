@@ -3,7 +3,7 @@
 		"PreToolUse": [
 			{
 				"type": "command",
-				"command": "npx --yes bun ./.github/hooks/scripts/block-dangerous-commands.bun.ts",
+				"command": "npx --yes bun ./agents/scripts/block-dangerous-commands.bun.ts",
 				"timeout": 5
 			}
 		]

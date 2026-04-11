@@ -6,63 +6,19 @@ alwaysApply: false
 
 # Comment Agent
 
-Add/update comments to provide context and clarity. **Never refactor or modify functional logic.**
+Use the shared repo AI system instead of maintaining Cursor-only guidance here.
 
-## Core Rules
+Before making changes, load:
 
-1. **No Logic Changes**: Only add or update comments. Never modify source code.
-2. **TypeScript Native**: Never include types in JSDoc (e.g., use `@param props`, not `@param {Props} props`).
-3. **Placement**: Always place comments immediately **above** the target code, never on the same line.
-4. **Explain "Why," Not "What"**: Avoid redundant descriptions of obvious code. Focus on the reason/context.
-5. **Max Line Length**: Keep JSDoc and `//` lines under **100 characters**.
-6. **Professionalism**: Avoid unprofessional language, blame, or "hazard lights" (apologizing for bad code).
+- `AGENTS.md`
+- `.agent/rules.md`
+- `agents/Code Comment Agent.agent.md`
+- `skills/code-comment-best-practices/SKILL.md`
 
-## Comment Styles
+Treat those files as the canonical instructions. If this rule and the shared
+files ever disagree, the shared files win.
 
-### JSDoc (`/** */`)
-Use for **symbols** (functions, components, types, constants).
+Cursor-specific responsibility:
 
-- **Multi-line format**: Start with `/**` on its own line and end with `*/` on its own line.
-- **Don't repeat names**: Do not start JSDoc with the function or symbol name.
-- **Param naming**: Use `@param propertyName`, not `@param props.propertyName`.
-- **Always include `@returns`**: Every function must have a `@returns` tag. Use `@returns void` for void functions.
-- **Object returns**: Document each returned property with its own `@returns` tag (no need for a top-level object description).
-- **Single-line**: Use `/** description */` for short symbol descriptions.
-
-### Inline (`//`)
-Use for **non-symbol code** (logic groups, `useEffect`, complex setup).
-
-- Use for groups of related constants (don't use one JSDoc for multiple symbols).
-- In **test files**: Use `//` style only. Never use JSDoc above `describe` or `it/test` blocks. Keep test comments extremely concise.
-
-## Examples
-
-### Component JSDoc
-```tsx
-/**
- * Renders the inner TD content for the full-width delete confirmation UI.
- * Maintainers: This avoids alignment shifts seen in separate-row implementations.
- *
- * @param colSpan - number of columns to span across the grid
- * @returns React element (TD)
- */
-```
-
-### Function with Object Return
-```ts
-/**
- * Fetches and validates song data from the store.
- *
- * @param slug - unique song identifier
- * @returns isNotFound - true when the slug did not resolve
- * @returns songData - raw store payload or undefined
- * @returns songPublic - validated SongPublic payload
- */
-```
-
-### Related Constants
-```ts
-// Numeric constants used in assertions to make expected values explicit.
-const ZERO = 0;
-const ONE = 1;
-```
+- apply this rule to `*.ts` and `*.tsx` files via the glob above
+- route comment-only work into the shared agent + skill listed above

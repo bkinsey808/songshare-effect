@@ -75,7 +75,7 @@ Loading only this doc is rarely sufficient. Use this as a routing guide before w
 _Helper modules intended solely for unit tests should use the `.test-util.ts` / `.test-util.tsx`
 suffix so their purpose is obvious and they don't get mistaken for production code._
 
-1. Use the included [`test-template.test.ts`](/.github/skills/unit-test-best-practices/test-template.test.ts) as a starting point for new tests.
+1. Use the included [`test-template.test.ts`](/skills/unit-test-best-practices/test-template.test.ts) as a starting point for new tests.
 2. Prefer descriptive test names and one behavior per test.
 3. Use `vi.useFakeTimers()` only when verifying timer behavior; always restore with
    `vi.useRealTimers()`.
@@ -84,7 +84,7 @@ suffix so their purpose is obvious and they don't get mistaken for production co
 5. Mock only external dependencies (network calls, browser APIs). Simple, deterministic pure
    functions should be tested with their real implementations. **Never mock Node.js built-ins**
    (`node:fs/promises`, `node:path`, etc.); use real `mkdtemp`/`rm` temp directories instead (see
-   [Mocking Node.js Built-ins](#-mocking-nodejs-built-ins-nodefs-nodepath-etc)).
+   [Mocking Node.js Built-ins](#mocking-nodejs-built-ins)).
 6. Use shared helpers under `react/src/lib/test-utils` (`asNull`, `asNever`, `asPostgrestResponse`,
    `waitForAsync`, `makeChangeEvent`, `spyImport`, `makeAppSlice`).
 7. Before running your spec, **make sure lint passes**. New test files will fail to execute if the
@@ -126,34 +126,7 @@ suffix so their purpose is obvious and they don't get mistaken for production co
 
   - Use `%s` placeholders only when the scenario name is already descriptive, or when the
 
-  - Named object rows support named placeholders in titles (Vitest/Jest-style `$var`).
-    Prefer this when rows have multiple fields or when you want clearer, parameterized
-    failure messages. Example using a `$role` placeholder and object rows:
-
-    ```ts
-    it.each([{ role: "owner" }, { role: "community_admin" }, { role: "member" }])(
-    	"decodes input and preserves role $role in the decoded output",
-    	({ role }) => {
-    		// Arrange
-    		const input = { community_id: ID1, user_id: ID2, role } as unknown;
-
-    		// Act
-    		const result = decodeUnknownSyncOrThrow(communityUserAddSchema, input);
-
-    		// Assert
-    		expect(result.role).toBe(role);
-    	},
-    );
-    ```
-
-    Notes:
-    - Object rows let you name each column (`{ role, desc, expected }`) and use `$col`
-      interpolation in the test title. This reads very well in test output.
-    - If your rows are simple tuples (e.g. `[["empty",""], ["two","ab"]]`) you
-      can still use `%s` positional placeholders, but prefer object rows for clarity.
-    - Keep `Arrange` shared when possible (move common setup to the `describe` scope)
-      and perform only the `Act` + `Assert` inside the row callback to avoid noise.
-      table rows are simple tuples; otherwise prefer the named-case pattern above.
+  - Use `$var` placeholders for object-row columns (e.g. `"preserves role $role"`) for clear test output. Use `%s` for simple tuples.
 
 - **Every numeric literal needs a named constant** — `no-magic-numbers` applies even to `0`, `1`,
   and arithmetic offsets like `index + 1`. Define constants at the top of the file
@@ -211,71 +184,7 @@ Guidance:
     exercises the system under test (the single invocation). Do not place `// Act` above the
     first `expect` — that is an assertion, not the action.
 
-When using table-driven tests with `it.each`, prefer using the supplied row values directly
-inside the test callback and avoid adding `// Arrange` comments within the callback body.
-Because each row explicitly documents the inputs, an additional `// Arrange` section for
-each case often adds noise without improving clarity. Keep the row handler concise: accept
-the parameters, perform the action, then assert.
-
-Example (preferred):
-
-```ts
-it.each([
-	["non-empty", "a"],
-	["two-chars", "ab"],
-])("returns true for %s", (label, input) => {
-	// Act
-	const result = isString(input);
-
-	// Assert
-	expect(result).toBe(true);
-});
-
-it.each([["empty", ""]])("returns false for %s", (label, input) => {
-	// Act
-	const result = isString(input);
-
-	// Assert
-	expect(result).toBe(false);
-});
-```
-
-Avoid adding a repeated `// Arrange` block inside `it.each` callbacks. If setup is shared
-across rows, extract it to the top of the `describe` or into a `*.test-util.*` helper.
-
-    	- Avoid empty sections: do not add a `// Arrange` or `// Act` comment unless that section
-    			actually contains non-trivial setup or the action. Empty markers create noise and should be omitted.
-
-    	- Do NOT add trivial `// Arrange` blocks that only copy the row value into a local variable.
-    		This is an anti-pattern because it increases noise and triggers lint rules that prohibit
-    		empty or meaningless `Arrange` sections. Instead, use the row value directly in the `Act`.
-
-    		Bad (anti-pattern):
-
-    		```ts
-    		it.each([{ token: "a" }])("does something $token", ({ token }) => {
-    			// Arrange
-    			const input = token;
-
-    			// Act
-    			const result = doThing(input);
-
-    			// Assert
-    			expect(result).toBe(true);
-    		});
-    		```
-
-    		Good (preferred):
-
-    		```ts
-    		it.each([{ token: "a" }])("does something $token", ({ token }) => {
-    			// Act
-    			const result = doThing(token);
-
-    			// Assert
-    			expect(result).toBe(true);
-    		});
-    		```
+In `it.each` callbacks use row values directly in `// Act`. Omit `// Arrange` unless there is non-trivial shared setup. Never copy a row value into a local variable just to mark an Arrange step.
 
 - Prefer clear `Assert` statements that verify behavior (return values, side effects, calls that are
   part of the contract) rather than implementation details.
@@ -654,36 +563,7 @@ export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
 }
 ```
 
-**Global mock storage with `vi.hoisted()`** when multiple helper files share one mock:
-
-```typescript
-const mockState = vi.hoisted(() => ({
-	mockFn: undefined as ReturnType<typeof vi.fn> | undefined,
-}));
-
-export default function mockUseSlideManagerView(): ReturnType<typeof vi.fn> {
-	vi.resetModules();
-	mockState.mockFn = vi.fn();
-	vi.doMock("@/react/event/manage/slide/useSlideManagerView", () => ({
-		default: mockState.mockFn,
-	}));
-	return mockState.mockFn;
-}
-
-export function getMockFn(): ReturnType<typeof vi.fn> | undefined {
-	return mockState.mockFn;
-}
-```
-
-**Typed mock retrieval helpers** for generic modules:
-
-```ts
-export async function getValidateFormEffectMock(): Promise<ValidateFormEffectMock> {
-	const { default: validateFormEffect } = await import("@/shared/validation/validateFormEffect");
-	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion
-	return vi.mocked(validateFormEffect) as unknown as ValidateFormEffectMock;
-}
-```
+**Global mock storage with `vi.hoisted()`** — use `vi.hoisted(() => ({ mockFn: undefined }))` to share mock state across helper files. See real examples in `react/src/form/test-util.ts`.
 
 **Helper module rules:**
 
@@ -967,6 +847,8 @@ The repo provides `asNull`, `asNever`, `asPostgrestResponse` in `react/src/lib/t
 contains its own `oxlint-disable` and JSDoc explanation so callers stay lint-friendly. Use them
 instead of writing `as any` in tests.
 
+<a id="mocking-nodejs-built-ins"></a>
+
 ### ❌ Mocking Node.js Built-ins (`node:fs/promises`, `node:path`, etc.)
 
 Do **not** try to mock `node:fs/promises` or other Node.js core modules with `vi.mock`. Use the
@@ -1088,4 +970,4 @@ npm run test:unit -- --coverage
 - [effect-implementation.md](/docs/effect-implementation.md) — Effect-TS patterns used in API
 - Vitest documentation: https://vitest.dev/
 - Testing Library: https://testing-library.com/
-- Agent guidance: `.github/agents/Unit Test Agent.agent.md`
+- Agent guidance: `agents/Unit Test Agent.agent.md`

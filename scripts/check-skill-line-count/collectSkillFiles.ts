@@ -2,10 +2,10 @@ import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
 
 /**
- * Recursively collects all SKILL.md file paths under a directory.
+ * Recursively collects shared skill and custom-agent markdown files.
  *
  * @param dir - The absolute directory path to walk.
- * @returns A flat array of absolute file paths for every SKILL.md file found.
+ * @returns A flat array of absolute file paths for every matching file found.
  */
 export default async function collectSkillFiles(dir: string): Promise<string[]> {
 	const results: string[] = [];
@@ -26,7 +26,10 @@ export default async function collectSkillFiles(dir: string): Promise<string[]> 
 			for (const item of nested) {
 				results.push(item);
 			}
-		} else if (info.isFile() && name === "SKILL.md") {
+		} else if (
+			info.isFile() &&
+			(name === "SKILL.md" || name.endsWith(".agent.md"))
+		) {
 			results.push(full);
 		}
 	}

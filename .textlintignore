@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+api/.wrangler/
+.wrangler/
+tmp/
+playwright-report/
+test-results/

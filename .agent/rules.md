@@ -19,13 +19,13 @@ Quick-reference coding guidelines. Follow skill links for detailed guidance.
 
 ## Skills (load for detailed guidance)
 
-- [**file-organization**](/.github/skills/file-organization/SKILL.md) — no barrel files, direct imports, naming conventions
-- [**source-refactoring**](/.github/skills/source-refactoring/SKILL.md) — splitting files, default exports, test colocation, updating imports
-- [**typescript-best-practices**](/.github/skills/typescript-best-practices/SKILL.md) — strict typing, no `any`, JSDoc rules
-- [**react-best-practices**](/.github/skills/react-best-practices/SKILL.md) — React Compiler (no manual memoization), hooks, component organization
-- [**lint-error-resolution**](/.github/skills/lint-error-resolution/SKILL.md) — fix root causes; never suppress broadly
-- [**unit-test-best-practices**](/.github/skills/unit-test-best-practices/SKILL.md) — Vitest setup, mocking patterns, API handler tests, common pitfalls
-- [**unit-test-hook-best-practices**](/.github/skills/unit-test-hook-best-practices/SKILL.md) — renderHook, Harness, installStore, fixtures, subscriptions
+- [**file-organization**](/skills/file-organization/SKILL.md) — no barrel files, direct imports, naming conventions
+- [**source-refactoring**](/skills/source-refactoring/SKILL.md) — splitting files, default exports, test colocation, updating imports
+- [**typescript-best-practices**](/skills/typescript-best-practices/SKILL.md) — strict typing, no `any`, JSDoc rules
+- [**react-best-practices**](/skills/react-best-practices/SKILL.md) — React Compiler (no manual memoization), hooks, component organization
+- [**lint-error-resolution**](/skills/lint-error-resolution/SKILL.md) — fix root causes; never suppress broadly
+- [**unit-test-best-practices**](/skills/unit-test-best-practices/SKILL.md) — Vitest setup, mocking patterns, API handler tests, common pitfalls
+- [**unit-test-hook-best-practices**](/skills/unit-test-hook-best-practices/SKILL.md) — renderHook, Harness, installStore, fixtures, subscriptions
 
 ## Command Execution Safety
 
@@ -51,4 +51,4 @@ Do not run git write commands (`git commit`, `git push`, `git mv`, `git reset`, 
 React + Vite frontend (Cloudflare Pages) · Hono API server (Cloudflare Workers) · Supabase (RLS + Realtime).
 
 - Auth: dual visitor/user JWT system with RLS — see [docs/authentication-system.md](/docs/auth/authentication-system.md)
-- Full skill index and key docs: [`.github/copilot-instructions.md`](/.github/copilot-instructions.md)
+- Shared AI system entrypoints: [`AGENTS.md`](/AGENTS.md), [`CLAUDE.md`](/CLAUDE.md), and [`.github/copilot-instructions.md`](/.github/copilot-instructions.md)

@@ -19,7 +19,7 @@ describe("checkSkillFiles", () => {
 	it("returns no errors when SKILL.md files are under the limit", async () => {
 		const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "check-skill-"));
 		try {
-			const skillDir = path.join(tmp, ".github", "skills", "s1");
+			const skillDir = path.join(tmp, "skills", "s1");
 			await fs.mkdir(skillDir, { recursive: true });
 			const content = Array.from(
 				{ length: SMALL_LINES },
@@ -39,7 +39,7 @@ describe("checkSkillFiles", () => {
 	it("returns errors when SKILL.md exceeds the limit", async () => {
 		const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "check-skill-"));
 		try {
-			const skillDir = path.join(tmp, ".github", "skills", "s2");
+			const skillDir = path.join(tmp, "skills", "s2");
 			await fs.mkdir(skillDir, { recursive: true });
 			const content = Array.from(
 				{ length: LARGE_LINES },
@@ -52,6 +52,30 @@ describe("checkSkillFiles", () => {
 			expect(res.checkedCount).toBe(EXPECTED_COUNT);
 			expect(res.errors.length).toBeGreaterThanOrEqual(MIN_ERRORS);
 			expect(res.errors[FIRST_INDEX]).toContain("SKILL.md");
+		} finally {
+			await fs.rm(tmp, { recursive: true, force: true });
+		}
+	});
+
+	it("counts .agent.md files under the agents directory", async () => {
+		const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "check-skill-"));
+		try {
+			const agentDir = path.join(tmp, "agents");
+			await fs.mkdir(agentDir, { recursive: true });
+			const content = Array.from(
+				{ length: SMALL_LINES },
+				(_el, index) => `line ${index + LINE_OFFSET}`,
+			).join(NEWLINE);
+			await fs.writeFile(
+				path.join(agentDir, "Playwright Agent.agent.md"),
+				content,
+				"utf8",
+			);
+
+			const res = await checkSkillFiles(tmp);
+			expect(res.hasError).toBe(false);
+			expect(res.checkedCount).toBe(EXPECTED_COUNT);
+			expect(res.errors).toHaveLength(NO_ERRORS);
 		} finally {
 			await fs.rm(tmp, { recursive: true, force: true });
 		}

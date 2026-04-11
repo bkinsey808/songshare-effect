@@ -13,10 +13,10 @@ export type CheckResult = {
 export const DEFAULT_MAX_LINES = 300;
 
 /** Default search dirs; mirrors the CLI script. */
-export const DEFAULT_SEARCH_DIRS = [".github/agents", ".github/skills"];
+export const DEFAULT_SEARCH_DIRS = ["agents", "skills"];
 
 /**
- * Pure function that checks SKILL.md files under the given repo root.
+ * Pure function that checks shared skill and agent markdown files.
  * Returns found errors and a checked count instead of calling process.exit.
  */
 export type CheckOptions = {
@@ -51,10 +51,10 @@ export async function checkSkillFiles(
 		if (lineCount > maxLines) {
 			const rel = path.relative(repoRoot, file);
 			errors.push(
-				`error: ${rel} has ${lineCount} lines (max ${maxLines}). Please split or trim this skill file.`,
-			);
+					`error: ${rel} has ${lineCount} lines (max ${maxLines}). Please split or trim this guidance file.`,
+				);
+			}
 		}
-	}
 
 	const ZERO = 0;
 	return {

@@ -520,4 +520,4 @@ describe("Counter", () => {
 
 ---
 
-See also: [docs/client/react-best-practices.md](../client/react-best-practices.md)
+See also: [docs/client/react-best-practices.md](/docs/client/react-best-practices.md)

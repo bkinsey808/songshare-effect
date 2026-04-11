@@ -6,40 +6,19 @@ alwaysApply: false
 
 # TypeScript Agent
 
-Small-to-medium TypeScript and React changes following project conventions. **Never run git write operations (commits, pushes) or make large architectural changes without explicit approval.**
+Use the shared repo AI system instead of maintaining Cursor-only guidance here.
 
-## TypeScript Rules
+Before making changes, load:
 
-- **Avoid `any`**: Prefer `unknown` if unsure, and aim for precise types.
-- **Strict Null Checks**: Avoid non-null assertions (`!`) unless absolutely necessary.
-- **Prefer `type` over `interface`**: For object shapes, unless extending existing interfaces.
-- **Prefer Effect-TS**: Use Effect-TS instead of promises at module and function top levels.
-- **Async/Await**: Use `async/await` syntax instead of `.then()` chains.
-- **Module Organization**: No barrel files. Import directly from source files. Do not use `export { x } from "./file"`.
+- `AGENTS.md`
+- `.agent/rules.md`
+- `agents/TypeScript Agent.agent.md`
+- any task-specific file under `skills/*/SKILL.md`
 
-## React & React Compiler
+Treat those files as the canonical instructions. If this rule and the shared
+files ever disagree, the shared files win.
 
-- **No Manual Memoization**: This project uses the React Compiler. **Do not** use `useCallback`, `useMemo`, or `memo` unless there is a documented performance reason and human approval.
-- **Event Handlers**: Prefer plain `function` declarations (e.g., `function handle(): void {}`) with explicit return types over arrow functions for handlers and local callbacks.
+Cursor-specific responsibility:
 
-## Documentation & Comments
-
-- **JSDoc Mandatory**: All functions must have JSDoc comments with `@param` and `@returns` descriptions.
-- **No Types in JSDoc**: **Never** put types in JSDoc (e.g., use `@param ctx - description`, NOT `@param {Context} ctx`). TypeScript already carries the types.
-- **Placement**: Comments must be placed **above** the target code, never on the same line.
-
-## Validation Commands
-
-Before returning control, you must run and pass:
-1. **Formatting**: `npm run format:check` (or `npx oxfmt --check .`)
-2. **Linting**: `npm run lint` (or `npx oxlint --config .oxlintrc.json --type-aware .`)
-3. **Tests**: `npx vitest run <path-to-test>` (or `npm run test:unit`)
-
-If any validation step fails, report the errors and stop further changes until the user provides direction.
-
-## Workflow
-
-- **Focused Changes**: Make small, targeted edits with corresponding unit tests.
-- **Public APIs**: Ask the user before proposing changes that affect public APIs.
-- **Reporting**: Provide a short preamble (one sentence plan + one sentence next action).
-- **Git Safety**: Do not run `git commit`, `git push`, or branch creation. Propose the exact commands for the human to run.
+- apply this rule to `*.ts` and `*.tsx` files via the glob above
+- route TypeScript and React tasks into the shared agent + skills listed above

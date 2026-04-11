@@ -332,6 +332,6 @@ npm run supabase:generate
 
 ## References
 
-- [Database Migrations Workflow](/.agent/workflows/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/workflows/database-migrations.md)
-- [Supabase Migration Docs](https://supabase.com/docs/guides/cli/local-development#database-migrations)
+- [Database Migrations Workflow](/.agent/workflows/database-migrations.md)
+- [Supabase Migration Docs](https://supabase.com/docs/guides/local-development/overview)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)

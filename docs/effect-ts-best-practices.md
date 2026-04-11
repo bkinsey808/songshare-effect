@@ -633,11 +633,11 @@ When writing or reviewing Effect-TS code:
 
 - [TypeScript Best Practices](typescript-best-practices.md) — strict types, `as const satisfies`,
   schema type extraction
-- [Effect-TS Patterns Skill](../.github/skills/effect-ts-patterns/SKILL.md) — concise agent guide
-- [Effect-TS Reference](../.github/skills/effect-ts-patterns/references/REFERENCE.md) — combinator
+- [Effect-TS Patterns Skill](/skills/effect-ts-patterns/SKILL.md) — concise agent guide
+- [Effect-TS Reference](/skills/effect-ts-patterns/references/REFERENCE.md) — combinator
   reference and service composition examples
 - [Effect Documentation](https://effect.website/)
-- [api/src/api-errors.ts](../api/src/api-errors.ts) — typed error classes
-- [api/src/http/handleHttpEndpoint.ts](../api/src/http/handleHttpEndpoint.ts) — HTTP handler wrapper
-- [api/src/http/errorToHttpResponse.ts](../api/src/http/errorToHttpResponse.ts) — error-to-status
+- [api/src/api-errors.ts](/api/src/api-errors.ts) — typed error classes
+- [api/src/http/handleHttpEndpoint.ts](/api/src/http/handleHttpEndpoint.ts) — HTTP handler wrapper
+- [api/src/http/errorToHttpResponse.ts](/api/src/http/errorToHttpResponse.ts) — error-to-status
   mapping

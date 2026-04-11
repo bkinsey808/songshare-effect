@@ -523,13 +523,13 @@ Planned additions:
 
 For API issues:
 
-1. Check [Troubleshooting Guide](/docs/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/troubleshooting.md)
-2. Review [Authentication System Docs](/docs/file:/home/bkinsey/bkinsey808/songshare-effect/docs/auth/authentication-system.md)
+1. Check [Troubleshooting Guide](/.agent/troubleshooting.md)
+2. Review [Authentication System Docs](/docs/auth/authentication-system.md)
 3. Check server logs
 4. File an issue on GitHub
 
 ## References
 
-- [Effect-TS Implementation](/docs/file:/home/bkinsey/bkinsey808/songshare-effect/docs/effect-implementation.md)
-- [Authentication System](/docs/file:/home/bkinsey/bkinsey808/songshare-effect/docs/auth/authentication-system.md)
-- [Add API Endpoint Workflow](/docs/file:/home/bkinsey/bkinsey808/songshare-effect/.agent/workflows/add-api-endpoint.md)
+- [Effect-TS Implementation](/docs/effect-ts-best-practices.md)
+- [Authentication System](/docs/auth/authentication-system.md)
+- [Add API Endpoint Workflow](/.agent/workflows/add-api-endpoint.md)

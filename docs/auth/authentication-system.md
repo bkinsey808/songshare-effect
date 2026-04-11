@@ -28,7 +28,7 @@ SongShare implements a dual authentication system that supports both anonymous v
 
 The single visitor account is essentially a **"transport layer"** that makes Realtime work while RLS handles security.
 
-> 📖 **For detailed technical documentation** on Realtime subscriptions, RLS policies, and implementation patterns, see [realtime-rls-architecture.md](./realtime-rls-architecture.md).
+> 📖 **For detailed technical documentation** on Realtime subscriptions, RLS policies, and implementation patterns, see [realtime-rls-architecture.md](/docs/realtime-rls-architecture.md).
 
 ## 🏗️ **Architecture**
 
@@ -223,7 +223,7 @@ const channel = client
 	.subscribe();
 ```
 
-> 📖 **See [realtime-rls-architecture.md](./realtime-rls-architecture.md)** for detailed Realtime and RLS implementation patterns.
+> 📖 **See [realtime-rls-architecture.md](/docs/realtime-rls-architecture.md)**  for detailed Realtime and RLS implementation patterns.
 
 ## 🔒 **Security Model**
 
@@ -323,7 +323,7 @@ The repository CI workflows already run a preview server (Vite preview) and Play
    - Password: Secure random password (set in env vars)
    - This is the **only** Supabase auth user needed
 
-2. **Set up RLS policies** using the SQL templates in [realtime-rls-architecture.md](./realtime-rls-architecture.md)
+2. **Set up RLS policies** using the SQL templates in [realtime-rls-architecture.md](/docs/realtime-rls-architecture.md)
 
 3. **Configure environment variables** with your project credentials
 
@@ -407,7 +407,7 @@ client
 	.subscribe();
 ```
 
-> 📖 **For more debugging techniques**, see [realtime-rls-architecture.md](./realtime-rls-architecture.md#troubleshooting).
+> 📖 **For more debugging techniques**, see [realtime-rls-architecture.md](/docs/realtime-rls-architecture.md#troubleshooting).
 
 ## 🔮 **Future Enhancements**
 
@@ -436,7 +436,7 @@ client
 - Security best practices
 - Migration guides
 
-**See:** [realtime-rls-architecture.md](./realtime-rls-architecture.md)
+**See:** [realtime-rls-architecture.md](/docs/realtime-rls-architecture.md)
 
 ---
 

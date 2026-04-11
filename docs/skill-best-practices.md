@@ -157,7 +157,7 @@ Sources: [Claude — one-level references & TOC guidance](https://platform.claud
   of where the linking file lives (example: `/docs/operational-guides.md#api-errors`).
 - Root-relative links (starting with `/`) are consistent — they work the same
   whether the linking file is at the repo root or nested three levels deep in
-  `.github/skills/`. No traversal arithmetic needed.
+  `skills/`. No traversal arithmetic needed.
 - **GitHub resolves root-relative links from the repository root.** Per GitHub's
   official documentation: "Links starting with `/` will be relative to the
   repository root." A link like `/docs/bar.md` in any nested file correctly
@@ -178,7 +178,7 @@ Sources: [Claude — one-level references & TOC guidance](https://platform.claud
 - Fragment-only links within the same file (e.g., `[Section 6](#examples-templates)`)
   are fine as-is.
 
-Sources: [WHATWG — fragment identifiers](https://html.spec.whatwg.org/multipage/browsing-the-web.html#fragment-identifiers), [GitHub — relative links in markup files](https://github.blog/news-insights/product-news/relative-links-in-markup-files/), [GitHub — linking to headings](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/linking-to-headings), [Agent Skills — explicit anchors](https://agentskills.io/skill-creation/best-practices#:~:text=Prefer%20explicit%20HTML%20anchors)
+Sources: [WHATWG — fragment identifiers](https://html.spec.whatwg.org/multipage/browsing-the-web.html#fragment-identifiers), [GitHub — relative links in markup files](https://github.blog/news-insights/product-news/relative-links-in-markup-files/), [GitHub — linking to headings](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links), [Agent Skills — explicit anchors](https://agentskills.io/skill-creation/best-practices#:~:text=Prefer%20explicit%20HTML%20anchors)
 
 <a id="examples-templates"></a>
 
@@ -257,7 +257,7 @@ Sources: [Agent Skills — spending context & avoiding time-sensitive info](http
 - Treat skill files as public: assume they will be version-controlled, shared,
   and read by people outside your immediate team.
 
-Sources: [OWASP — Secrets management](https://owasp.org/www-project-developer-guide/draft/design/web_app_checklist/protect_data/), [Claude — safety guidelines](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+Sources: [OWASP Developer Guide](https://devguide.owasp.org/), [Claude — safety guidelines](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 <a id="tool-permission-declarations"></a>
 
@@ -335,7 +335,7 @@ Sources: [Agent Skills — maintenance & versioning](https://agentskills.io/skil
 - Declare required companion skills near the top of the skill body:
 
     ```markdown
-    **Depends on:** [`effect-schema/SKILL.md`](/.github/skills/effect-schema/SKILL.md)
+    **Depends on:** [`effect-schema/SKILL.md`](/skills/effect-schema/SKILL.md)
     — load it when the task requires defining or updating a schema.
     ```
 
@@ -580,9 +580,9 @@ adding more prose.
 - [CommonMark spec](https://spec.commonmark.org/)
 - [WHATWG HTML — fragment identifiers](https://html.spec.whatwg.org/multipage/browsing-the-web.html#fragment-identifiers)
 - [RFC 3986 — URI/fragment syntax](https://datatracker.ietf.org/doc/html/rfc3986#section-3.5)
-- [GitHub — linking to headings guidance](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/linking-to-headings)
+- [GitHub — linking to headings guidance](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links)
 
 ## Files
 
 - This canonical guidance is saved at [/docs/skill-best-practices.md](/docs/skill-best-practices.md).
-- Short guidance SKILL remains at [/.github/skills/skill-best-practices/SKILL.md](/.github/skills/skill-best-practices/SKILL.md).
+- Short guidance SKILL remains at [/skills/skill-best-practices/SKILL.md](/skills/skill-best-practices/SKILL.md).

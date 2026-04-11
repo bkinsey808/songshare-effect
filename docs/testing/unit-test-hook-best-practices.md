@@ -825,6 +825,6 @@ Before calling a hook test complete, verify:
 
 - [unit-test-best-practices.md](/docs/testing/unit-test-best-practices.md) — Core Vitest setup, mocking, pitfalls, API testing
 - [react-best-practices.md](/docs/component-patterns.md) — React Compiler rules
-- Agent guidance: `.github/agents/Unit Test Agent.agent.md`
+- Agent guidance: `agents/Unit Test Agent.agent.md`
 - `@testing-library/react` docs: https://testing-library.com/docs/react-testing-library/api/#renderhook
 - Vitest documentation: https://vitest.dev/

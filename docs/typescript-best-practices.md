@@ -449,7 +449,7 @@ function MyComponent({ optionalProp }: { optionalProp?: string }) {
 }
 ```
 
-For UI-specific best-practices (component props, prop patterns, and React conventions), see [docs/client/react-best-practices.md](../client/react-best-practices.md).
+For UI-specific best-practices (component props, prop patterns, and React conventions), see [docs/client/react-best-practices.md](/docs/client/react-best-practices.md).
 
 <a id="index-signature-access"></a>
 
@@ -812,5 +812,5 @@ When creating or reviewing TypeScript code:
 
 - [TypeScript Handbook - Type Guards](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)
 - [ESLint TypeScript Rules](https://typescript-eslint.io/rules/)
-- [exactOptionalPropertyTypes](https://www.typescriptlang.org/tsconfig#exactOptionalPropertyTypes)
-- [Effect-TS Schema](https://effect.website/docs/schema/introduction)
+- [exactOptionalPropertyTypes](https://www.typescriptlang.org/tsconfig/#exactOptionalPropertyTypes)
+- [Effect-TS Schema](https://effect.website/docs/schema/introduction/)

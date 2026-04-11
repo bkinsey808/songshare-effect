@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 /**
- * Checks that no SKILL.md file under .github/agents or .github/skills exceeds
- * the maximum allowed line count. This keeps agent skill files concise and
- * easy to read.
+ * Checks that no shared skill or custom-agent markdown file exceeds
+ * the maximum allowed line count. This keeps shared guidance concise and easy
+ * to read.
  *
  * Exit codes:
  *   0 — all files are within the limit

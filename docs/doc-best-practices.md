@@ -26,6 +26,7 @@ This guide establishes documentation standards for this project, following indus
     - [Tables](#tables)
     - [Section Separators](#section-separators)
     - [Line Length](#line-length)
+    - [File Length](#file-length)
 - [Content Organization](#content-organization)
     - [Cross-Reference Pattern](#cross-reference-pattern)
     - [Skill and Doc Pairing](#skill-and-doc-pairing)
@@ -89,7 +90,7 @@ Where should this documentation live?
 ├─ Coding standards & patterns → /docs/*-best-practices.md
 ├─ Feature/component deep dive → /docs/[feature-name].md
 ├─ Code-level implementation details → Inline JSDoc/TSDoc comments
-└─ Skill definitions for AI agents → /.github/skills/[name]/SKILL.md
+└─ Skill definitions for AI agents → /skills/[name]/SKILL.md
 ```
  
 ---
@@ -176,23 +177,6 @@ Use explicit `<a id="...">` tags for all headings that appear in the Table of Co
 - Remove punctuation (except hyphens)
 - Strip leading numbers if auto-generated
  
-**Example:**
- 
-```markdown
-## Table of Contents
- 
-- [Component Props](#component-props)
-- [Naming Conventions](#naming-conventions)
- 
-<a id="component-props"></a>
- 
-## Component Props
- 
-<a id="naming-conventions"></a>
- 
-## Naming Conventions
-```
- 
 **Rationale:** Explicit anchors ensure consistency across Markdown renderers. GitHub auto-generates anchors, but they can change if heading text is modified. Explicit anchors are stable and renderer-agnostic.
  
 ---
@@ -239,18 +223,7 @@ Assume the reader is a competent developer but may be new to this project.
 Use `vi.mocked()` to cast mocked functions with proper types.
 ```
  
-**❌ Condescending:**
- 
-```markdown
-Obviously, you should use `vi.mocked()` because that's the only sensible way.
-```
- 
-**❌ Over-explaining basics:**
- 
-```markdown
-TypeScript is a typed superset of JavaScript. Functions in TypeScript
-can have return types. To specify a return type, use a colon...
-```
+**❌ Avoid:** Condescending tone (`"Obviously..."`) or over-explaining basics that TypeScript developers already know.
  
 <a id="active-vs-passive-voice"></a>
  
@@ -270,10 +243,7 @@ The test fails when the mock returns `undefined`.
 The test is failed when `undefined` is returned by the mock.
 ```
  
-**When passive is acceptable:**
- 
-- Emphasizing the action over the actor: "The file is generated from the schema."
-- The actor is unknown or irrelevant: "The issue was reported last week."
+Use passive only when the actor is unknown or irrelevant.
  
 <a id="avoid-jargon-unless-necessary"></a>
  
@@ -288,11 +258,7 @@ Use the non-factory `vi.mock()` pattern (calling `vi.mock()` without
 a factory function) for most cases.
 ```
  
-**❌ Assumes too much:**
- 
-```markdown
-Use non-factory mocking.
-```
+**❌ Avoid:** `"Use non-factory mocking."` — no definition given.
  
 ---
  
@@ -367,37 +333,9 @@ Use non-factory mocking.
 - Avoid generic names like "Summary" or "Example" repeated under different parents
 - Since anchor links are generated from heading text, unique names ensure stable, intuitive anchors
  
-**✅ Good:**
- 
-```markdown
-## Foo
- 
-### Foo Summary
- 
-### Foo Example
- 
-## Bar
- 
-### Bar Summary
- 
-### Bar Example
-```
- 
-**❌ Avoid:**
- 
-```markdown
-## Foo
- 
-### Summary
- 
-### Example
- 
-## Bar
- 
-### Summary
- 
-### Example
-```
+**✅ Good:** Use `### Foo Summary` / `### Bar Summary` — scoped names.
+
+**❌ Avoid:** Repeating `### Summary` under different parent sections — creates ambiguous anchors.
  
 <a id="lists"></a>
  
@@ -464,14 +402,6 @@ Use non-factory mocking.
 - orange
 ```
  
-**✅ Also good:**
- 
-```markdown
-- Go to the store.
-- Buy some fruit. Look for fresh produce.
-- Return home.
-```
- 
 <a id="code-blocks"></a>
  
 ### Code Blocks
@@ -493,12 +423,6 @@ const value: string = 'example';
 const value: string = "example";
 ```
 ````
- 
-**❌ Avoid (indented code blocks):**
- 
-```markdown
-    const value: string = "example";
-```
  
 **Rationale:** Fenced blocks with language specifiers enable syntax highlighting and are easier to edit.
  
@@ -570,14 +494,7 @@ Use tables when presenting tabular data that benefits from scanning across two d
 | `toEqual`       | Intentionally loose comparison |
 ```
  
-**❌ Avoid (data better as a list):**
- 
-```markdown
-| Fruit  | Description                                             |
-| ------ | ------------------------------------------------------- |
-| Apple  | A red fruit that is juicy and firm and very popular...  |
-| Banana | A yellow fruit that is convenient and soft and sweet... |
-```
+**❌ Avoid** using tables for prose-heavy data — use a list instead.
  
 <a id="section-separators"></a>
  
@@ -637,8 +554,14 @@ a comma or at the end of a complete clause.
  
 **Note:** This project does not enforce strict line length for Markdown, but aim for readability.
  
----
- 
+<a id="file-length"></a>
+
+### File Length
+
+**Target:** 1000 lines or fewer per documentation file.
+
+If a doc grows beyond 1000 lines, consider splitting it into focused sub-documents and cross-linking them.
+
 <a id="content-organization"></a>
  
 ## Content Organization
@@ -674,7 +597,7 @@ When a document has a closely related companion doc, add a cross-reference callo
  
 When a topic area has enough depth to warrant best-practices documentation, pair it with an AI agent skill. This is an established pattern in the project:
  
-| Skill (`.github/skills/`)       | Comprehensive Doc (`/docs/`)             |
+| Skill (`skills/`)       | Comprehensive Doc (`/docs/`)             |
 | ------------------------------- | ---------------------------------------- |
 | `unit-test-best-practices`      | `unit-test-best-practices.md`            |
 | `unit-test-hook-best-practices` | `unit-test-hook-best-practices.md`       |
@@ -793,19 +716,6 @@ Basic usage for 80% of cases.
 ### Advanced: Handling Edge Case Y
  
 Details for unusual scenarios.
-```
- 
-**❌ Avoid:**
- 
-```markdown
-## Using Feature X
- 
-Feature X was created in 2024 to solve problem Z. It uses algorithm A
-and has 17 configuration options...
- 
-### Basic Usage
- 
-Import the module...
 ```
  
 **Rationale:** Most readers want the "how" before the "why" or deep background.
@@ -937,17 +847,12 @@ Update the `package.json` file. See [package.json](../package.json) for the sche
  
 ```
 What am I linking to?
-├─ Same directory → Relative: [file.md](file.md)
-├─ Different directory in same repo → Relative: [file.md](../other/file.md)
-├─ External web resource → Absolute: https://example.com
+├─ Any file in the same repo → Root-relative: [file.md](/docs/other/file.md)
+├─ External web resource    → Absolute: https://example.com
 └─ Could move independently → Absolute repo URL (rare)
 ```
- 
-**Rationale:** Relative links work offline, in forks, and across branches. Absolute URLs are only needed for external resources.
- 
----
- 
-<a id="maintenance"></a>
+
+**Rationale:** Root-relative links work across directories without needing to count `../` hops, making them easier to read and refactor. Absolute URLs are only needed for external resources.
  
 ## Maintenance
  
@@ -975,14 +880,7 @@ When making code changes:
  
 When functionality changes:
  
-**Option 1: Update in place**
- 
-```markdown
-## Using Feature X
- 
-~~Previously, Feature X required manual setup.~~ As of v3.0, Feature X
-is auto-configured.
-```
+**Option 1: Update in place** — Use `~~strikethrough~~` then state the current behavior.
  
 **Option 2: Remove entirely**
  
@@ -1069,25 +967,7 @@ See https://www.w3.org/WAI/ for more information.
 - Don't skip levels (H1 → H3)
 - Use semantic headers, not bold text for emphasis
  
-**Lists:**
- 
-- Use actual Markdown lists (`-` or `1.`), not manual formatting
- 
-**✅ Good:**
- 
-```markdown
-- Item one
-- Item two
-```
- 
-**❌ Avoid:**
- 
-```markdown
-• Item one
-• Item two
-```
- 
-**Rationale:** Screen readers announce semantic list structures, improving navigation.
+**Lists:** Use actual Markdown lists (`-` or `1.`), not manual characters (`•`). Screen readers announce semantic list structures.
  
 ---
  
@@ -1096,8 +976,8 @@ See https://www.w3.org/WAI/ for more information.
 - [Google Markdown Style Guide](https://google.github.io/styleguide/docguide/style.html)
 - [Ciro Santilli's Markdown Style Guide](https://cirosantilli.com/markdown-style-guide/)
 - [CommonMark Specification](https://commonmark.org/)
-- [React Best Practices](react-best-practices.md) — Example of this guide in practice
-- [Unit Test Best Practices](unit-test-best-practices.md) — Another example with decision trees
+- [React Best Practices](client/react-best-practices.md) — Example of this guide in practice
+- [Unit Test Best Practices](testing/unit-test-best-practices.md) — Another example with decision trees
 - [Skill Best Practices](skill-best-practices.md) — Guide for authoring SKILL.md files
 - [Lint Best Practices](lint-best-practices.md) — Lint rules, formatter config, and common fix patterns
  

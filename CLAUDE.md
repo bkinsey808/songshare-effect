@@ -1,6 +1,16 @@
-# Project Notes
+# Claude Notes
 
 Keep this file under 50 lines. Move detailed context to memory files or code comments instead.
+
+This file is a Claude-specific adapter for the shared AI system in `AGENTS.md`,
+`skills/`, and `agents/`.
+
+## Shared Context
+
+- Read `AGENTS.md` for repository workflow and guardrails.
+- Treat `.agent/rules.md` as the canonical source of coding standards.
+- Read `docs/ai-system.md` for the shared cross-tool AI-system layout.
+- Load reusable task guidance from `skills/*/SKILL.md`.
 
 ## Linting
 
@@ -13,5 +23,5 @@ Always add JSDoc to new hook files, following the pattern in existing hooks (e.g
 ## Unit Tests
 
 Before writing unit tests, always read the relevant skill files:
-- `.github/skills/unit-test-best-practices/SKILL.md` (all tests)
-- `.github/skills/unit-test-hook-best-practices/SKILL.md` (hook tests: `use*.ts` / `use*.tsx`)
+- `skills/unit-test-best-practices/SKILL.md` (all tests)
+- `skills/unit-test-hook-best-practices/SKILL.md` (hook tests: `use*.ts` / `use*.tsx`)
