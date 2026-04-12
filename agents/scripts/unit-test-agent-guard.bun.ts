@@ -19,9 +19,13 @@ type HookOutput = {
 };
 
 const FILE_WRITE_TOOLS = new Set([
+	// Cursor / Copilot tool names
 	"create_file",
 	"replace_string_in_file",
 	"multi_replace_string_in_file",
+	// Claude Code tool names
+	"Write",
+	"Edit",
 ]);
 
 const TEST_FILE_PATTERN = /\.(test-util|test)\.[cm]?tsx?$/;
@@ -64,7 +68,10 @@ if (!FILE_WRITE_TOOLS.has(toolName)) {
 }
 
 const toolInput = parsed["tool_input"];
-const filePath = isRecord(toolInput) ? str(toolInput, "filePath") : "";
+// Claude Code uses snake_case (file_path); Cursor/Copilot use camelCase (filePath)
+const filePath = isRecord(toolInput)
+	? (str(toolInput, "file_path") || str(toolInput, "filePath"))
+	: "";
 
 if (TEST_FILE_PATTERN.test(filePath)) {
 	process.exit(EXIT_OK);

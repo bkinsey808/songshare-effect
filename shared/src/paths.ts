@@ -115,6 +115,7 @@ export const apiCommunitySetActiveEventPath = "/api/community/set-active-event";
 export const apiUploadPath = "/api/upload";
 export const apiHelloPath = "/api/hello";
 export const healthPath = "/health";
+export const apiLLMSubscriptionPath = "/api/llm/subscription";
 
 // Sharing API paths
 export const apiShareCreatePath = "/api/shares/create";

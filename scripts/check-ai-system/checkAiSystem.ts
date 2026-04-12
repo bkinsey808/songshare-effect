@@ -20,11 +20,21 @@ const GUIDANCE_ROOT_FILES = [
 	"README.md",
 	"CLAUDE.md",
 	"GEMINI.md",
+	"api/AGENTS.md",
+	"react/AGENTS.md",
+	"shared/AGENTS.md",
 	".github/copilot-instructions.md",
 	"docs/ai/ai-system.md",
 ] as const;
 
-const GUIDANCE_DIRS = [".cursor/rules", ".agent/workflows", "agents", "docs/ai", "skills"] as const;
+const GUIDANCE_DIRS = [
+	".cursor/rules",
+	".agent/workflows",
+	".codex",
+	"agents",
+	"docs/ai",
+	"skills",
+] as const;
 
 const FORBIDDEN_PATTERNS: ForbiddenPattern[] = [
 	{

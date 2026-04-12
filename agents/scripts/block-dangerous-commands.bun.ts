@@ -1,8 +1,9 @@
 #!/usr/bin/env bun
 // Block dangerous terminal commands from agent PreToolUse hook calls.
 //
-// Receives JSON on stdin (VS Code PreToolUse format) and exits 2 with a deny
-// decision if the run_in_terminal tool is about to execute a blocked command.
+// Receives JSON on stdin (VS Code, Claude, or Codex PreToolUse format) and
+// exits 2 with a deny decision if the terminal/Bash tool is about to execute a
+// blocked command.
 //
 // Categories blocked: destructive git writes, sudo/system-level ops,
 // recursive deletes, deployments, and database resets.
@@ -138,8 +139,8 @@ if (!isRecord(parsed)) {
 
 const toolName = str(parsed, "tool_name") || str(parsed, "toolName");
 
-// Only inspect the terminal tool
-if (toolName !== "run_in_terminal") {
+// Only inspect terminal/Bash tool calls.
+if (toolName !== "run_in_terminal" && toolName !== "Bash") {
 	process.exit(EXIT_OK);
 }
 
@@ -157,7 +158,7 @@ const cmdLower = cmd.trim().toLowerCase();
 const blocked = BLOCKED_PREFIXES.find((prefix) => cmdLower.startsWith(prefix));
 
 if (blocked !== undefined) {
-	const reason = `Git write operations are disabled for agents. Blocked command: ${cmd}`;
+	const reason = `Dangerous command blocked by repo agent policy: ${cmd}`;
 
 	process.stderr.write(`${reason}\n`);
 

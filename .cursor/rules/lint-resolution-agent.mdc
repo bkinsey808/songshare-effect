@@ -12,6 +12,7 @@ Before making changes, load:
 
 - `AGENTS.md`
 - `docs/ai/rules.md`
+- `agents/Lint Resolution Agent.agent.md`
 - `skills/lint-error-resolution/SKILL.md`
 - `skills/lint-first-authoring/SKILL.md`
 
@@ -21,4 +22,4 @@ files ever disagree, the shared files win.
 Cursor-specific responsibility:
 
 - apply this rule to `*.ts` and `*.tsx` files via the glob above
-- route lint-resolution work into the shared skills listed above
+- route lint-resolution work into the shared agent + skills listed above

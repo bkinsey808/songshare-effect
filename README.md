@@ -12,6 +12,7 @@ A modern song sharing platform built with React, Vite, and Hono for Cloudflare d
 - Treat `docs/ai/rules.md` as the canonical source of coding standards.
 - Read `docs/ai/ai-system.md` for the shared cross-tool AI-system layout.
 - Treat `skills/` and `agents/` as shared, model-agnostic AI assets, while noting that not every tool consumes both layers the same way.
+- Treat `.codex/agents/`, `.codex/hooks.json`, and `.codex/config.toml` as Codex-specific wrappers and guardrails, while keeping reusable instructions in `agents/` and `skills/`.
 - Treat `.agent/workflows/` as Antigravity-specific workflow playbooks that complement the shared `skills/` layer, not replace it.
 - Use `.github/copilot-instructions.md`, `CLAUDE.md`, `GEMINI.md`, and `.cursor/rules/` as thin tool-specific adapters.
 
@@ -131,6 +132,7 @@ npm run build:all
 ```
 songshare-effect/
 ├── .agent/                 # Antigravity-specific workflow playbooks and notes
+├── .codex/                 # Codex-native config, hooks, and custom-agent wrappers
 ├── .cursor/                # Cursor-specific adapters and project-rule files
 ├── .github/                # GitHub-native automation plus Copilot adapter files
 ├── docs/ai/                # Shared AI rules, codebase map, and AI-system docs

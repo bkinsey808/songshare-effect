@@ -26,6 +26,7 @@ smallest possible amount of tool-specific wiring around it.
 - [Gemini](#gemini)
 - [Shared Custom Agents](#shared-custom-agents)
 - [Skills](#skills)
+- [Commands](#commands)
 - [GitHub-Native Vs Tool-Specific `.github/`](#github-native-vs-tool-specific-github)
 - [How To Change The AI System](#how-to-change-the-ai-system)
   - [Change a repo-wide coding rule](#change-a-repo-wide-coding-rule)
@@ -36,7 +37,9 @@ smallest possible amount of tool-specific wiring around it.
   - [Add Gemini-only wiring](#add-gemini-only-wiring)
   - [Add Cursor-only attachment or routing behavior](#add-cursor-only-attachment-or-routing-behavior)
   - [Add Antigravity or workflow-automation playbooks](#add-antigravity-or-workflow-automation-playbooks)
+  - [Add a Claude Code custom command](#add-a-claude-code-custom-command)
   - [Add GitHub automation](#add-github-automation)
+- [Workflows and Commands](#workflows-and-commands)
 - [Validation](#validation)
   - [Markdown Validation Scope](#markdown-validation-scope)
   - [Textlint Config Split](#textlint-config-split)
@@ -150,8 +153,16 @@ This table is the fastest way to orient yourself:
 | `skills/*/SKILL.md` | Reusable task guidance | Shared |
 | `agents/*.agent.md` | Reusable custom-agent prompts | Shared |
 | `agents/scripts/*` | Helper scripts used by shared custom agents and hooks | Shared |
+| `.codex/config.toml` | Codex project config | Tool-specific |
+| `.codex/hooks.json` | Codex repo-local lifecycle hooks | Tool-specific |
+| `.codex/agents/*.toml` | Codex project-scoped custom-agent wrappers | Tool-specific |
+| `.codex/README.md` | Human-facing explanation of `.codex/` wiring | Tool-specific docs |
+| `api/AGENTS.md`, `react/AGENTS.md`, `shared/AGENTS.md` | Nested instruction layers for directory-specific Codex guidance | Tool-specific wiring |
 | `.github/copilot-instructions.md` | Copilot adapter | Tool-specific |
-| `CLAUDE.md` | Claude adapter | Tool-specific |
+| `CLAUDE.md` | Claude adapter (auto-loaded at session start) | Tool-specific |
+| `.claude/settings.json` | Claude Code project hooks and permissions | Tool-specific |
+| `.claude/settings.local.json` | Local permission overrides; usually gitignored | Tool-specific |
+| `.claude/README.md` | Human-facing explanation of `.claude/` wiring | Tool-specific docs |
 | `GEMINI.md` | Gemini adapter | Tool-specific |
 | `.cursor/rules/*.mdc` | Cursor project-rule adapters | Tool-specific |
 | `.cursor/README.md` | Human-facing explanation of Cursor wiring | Tool-specific docs |
@@ -180,7 +191,7 @@ Those absences are part of the design, not an accident.
 | --- | --- | --- |
 | Copilot | `AGENTS.md`, `docs/ai/rules.md`, `skills/`, `agents/`, `.github/copilot-instructions.md` | Uses shared skills and shared custom agents through a thin adapter under `.github/` |
 | Claude | `AGENTS.md`, `docs/ai/rules.md`, `skills/`, `agents/`, `CLAUDE.md` | Uses shared skills and shared custom agents through a thin root adapter file |
-| Codex | `AGENTS.md`, `docs/ai/rules.md`, `skills/`, `agents/` | Uses shared skills and shared custom agents directly; no dedicated repo adapter file is committed |
+| Codex | `AGENTS.md`, `docs/ai/rules.md`, `skills/`, `agents/`, `.codex/`, nested `AGENTS.md` files | Uses the shared layers as canonical content, plus Codex project config, Bash hooks, custom-agent wrappers, and layered directory-specific `AGENTS.md` guidance |
 | Antigravity | `AGENTS.md`, `docs/ai/rules.md`, `skills/`, `.agent/workflows/*.md`, `.agent/README.md` | Uses shared skills plus `.agent/workflows/` playbooks with slash-command and `// turbo` semantics |
 | Cursor | Shared layers plus `.cursor/rules/*.mdc`, `.cursor/README.md`, `.vscode/settings.json` | Uses shared skills and shared custom agents through `.mdc` rule attachment plus workspace settings |
 | Gemini | `AGENTS.md`, `docs/ai/rules.md`, `skills/`, `agents/`, `GEMINI.md` | Uses shared skills and shared custom agents through a thin root adapter file |
@@ -235,14 +246,14 @@ This file is intentionally short and says so explicitly. Its role is to add the
 smallest possible amount of Claude-specific guidance on top of the shared
 system.
 
-Today it adds a few Claude-specific reminders:
+Today it adds:
 
-- always run `npm run lint` from the project root
-- do not use `npx eslint` directly
+- run `npm run lint` from the project root; never use `npx eslint` directly
 - add JSDoc to new hook files
 - read the unit-test skills before writing tests
+- an **Agent Routing** table that maps task types to specific agent files
 
-Everything else should still come from the shared system:
+Everything else comes from the shared system:
 
 - [`AGENTS.md`](/AGENTS.md)
 - [`docs/ai/rules.md`](/docs/ai/rules.md)
@@ -251,6 +262,44 @@ Everything else should still come from the shared system:
 
 If Claude needs more reusable guidance, add it to the shared layer first and
 only keep the Claude adapter as an entry point.
+
+### Skill and agent discovery
+
+Claude does not process `chat.agentSkillsLocations`, `chat.agentFilesLocations`,
+or `chat.useCustomAgentHooks` from `.vscode/settings.json`. Those settings are
+read by Cursor and Copilot, not Claude Code.
+
+Instead, Claude finds skills and agents through prose:
+
+- the `## Available Skills` list in [`AGENTS.md`](/AGENTS.md)
+- the `## Agent Routing` table in [`CLAUDE.md`](/CLAUDE.md)
+
+The routing table gives Claude the same signal that Cursor gets from `.mdc` glob
+rules and that Copilot gets from `chat.agentFilesLocations`.
+
+### Hook system
+
+Claude Code has its own hook mechanism in
+[`.claude/settings.json`](/.claude/settings.json) using `PreToolUse` and
+`PostToolUse` event keys. This is completely separate from the `hooks:` field in
+`*.agent.md` frontmatter, which is processed by Cursor and Copilot via
+`chat.useCustomAgentHooks: true` but ignored by Claude Code.
+
+Current Claude Code hooks in this repo:
+
+- `PostToolUse` on `Write` — reminds Claude to add JSDoc to new `.ts` files
+
+Agent-level hooks such as the `unit-test-agent-guard` only fire for Cursor and
+Copilot when those agents are active. Claude enforces equivalent boundaries
+through the instructions in the agent files rather than hard hook enforcement.
+
+### Memory
+
+Claude Code maintains a persistent memory store at
+`~/.claude/projects/<repo>/memory/`. A memory index (`MEMORY.md`) is loaded
+automatically at session start alongside `CLAUDE.md`. It records project
+decisions, user preferences, and cross-session context. This is a Claude Code
+native feature with no equivalent in the other tools.
 
 ---
 
@@ -261,7 +310,16 @@ only keep the Claude adapter as an entry point.
 Codex does not currently have a committed repo-specific adapter file such as
 `CODEX.md`.
 
-That is an intentional shape the repo can support well:
+Instead, this repo uses Codex's repo-local configuration surfaces alongside the
+shared cross-tool layers:
+
+- [`/.codex/config.toml`](/.codex/config.toml)
+- [`/.codex/hooks.json`](/.codex/hooks.json)
+- [`/.codex/agents/*.toml`](/.codex)
+- nested `AGENTS.md` files in [`/api/`](/api), [`/react/`](/react), and
+  [`/shared/`](/shared)
+
+Codex should still start from the shared system:
 
 - Codex should start from [`AGENTS.md`](/AGENTS.md).
 - Codex should treat [`docs/ai/rules.md`](/docs/ai/rules.md) as canonical.
@@ -269,14 +327,53 @@ That is an intentional shape the repo can support well:
 - Codex should use `agents/*.agent.md` when a focused shared custom-agent prompt
   is relevant.
 
-This means Codex is expected to consume the shared system directly rather than
-through a Codex-only wrapper file.
+The shared files remain canonical:
+
+- [`AGENTS.md`](/AGENTS.md) explicitly lists `skills/*/SKILL.md` and
+  `agents/*.agent.md` as Codex-relevant shared layers.
+- the `skills/` and `agents/` trees are committed at the repo root, so a Codex
+  session with workspace file access can read them directly
+- this document, `AGENTS.md`, and the shared layers themselves all name Codex
+  as an intended consumer
+
+What the new Codex layer adds in this repo:
+
+- repo-local Bash guardrails through [`.codex/hooks.json`](/.codex/hooks.json)
+- a session-start context reminder through
+  [`.codex/hooks/session-start-context.sh`](/.codex/hooks/session-start-context.sh)
+- project-scoped custom-agent wrappers under [`.codex/agents/`](/.codex/agents)
+  that point back to the shared [`/agents/`](/agents) prompts
+- layered directory-specific guidance through [`api/AGENTS.md`](/api/AGENTS.md),
+  [`react/AGENTS.md`](/react/AGENTS.md), and
+  [`shared/AGENTS.md`](/shared/AGENTS.md)
+
+What Codex still does **not** get from this repo's wiring:
+
+- `.vscode/settings.json` `chat.agentSkillsLocations`
+- `.vscode/settings.json` `chat.agentFilesLocations`
+- `.vscode/settings.json` `chat.useCustomAgentHooks`
+- `.cursor/rules/*.mdc` attachment behavior
+- `hooks:` frontmatter in `*.agent.md`
+- `.claude/settings.json` hooks or `.claude/commands/` slash commands
+- `.agent/workflows/` slash-command or `// turbo` automation semantics
+
+So the accurate current-state summary is:
+
+- Codex is supported by the shared AI system
+- Codex does have access to the repo's shared skills and agent files
+- Codex now has a real repo-local support layer through `.codex/` and nested
+  `AGENTS.md` files, even though its routing and hook semantics still differ
+  from Cursor, Copilot, Claude, and Antigravity
+
+This means Codex now consumes the shared system through a mix of direct shared
+files, repo-local Codex wrappers, and directory-specific `AGENTS.md` layering.
 
 If a Codex-specific adapter is added later, it should follow the same rule as
 the others:
 
 - keep it thin
 - point back to shared files
+- document only Codex-specific nuances that the shared files cannot express
 - do not duplicate large rule lists
 
 ---
@@ -312,6 +409,9 @@ ideas:
   execution
 - the workflow file itself is meant to be followed linearly as a mission
   playbook
+
+> [!NOTE]
+> **Terminology**: In this repository, **Workflow** refers to the Antigravity system and automation engine, while **Playbook** refers to the specific Markdown file containing the task-specific steps. The terms are often used interchangeably to describe the multi-step execution files in [`.agent/workflows/`](/.agent/workflows/).
 
 Important current-state detail:
 
@@ -368,21 +468,24 @@ the source of truth.
 
 ### `.vscode/settings.json`
 
-This workspace settings file is part of Cursor wiring in this repo because it
-declares where shared AI files live:
+This workspace settings file is part of Cursor and Copilot wiring in this repo
+because it declares where shared AI files live:
 
 - `"chat.agentSkillsLocations": { "skills/": true }`
 - `"chat.agentFilesLocations": { "agents/": true }`
 - `"chat.useCustomAgentHooks": true`
 
+These `chat.*` settings are read by both Cursor and GitHub Copilot in VS Code.
+They are not read by Claude Code, Codex, Gemini, or Antigravity.
+
 That means this repo intentionally uses:
 
 - root `skills/` instead of `.cursor/skills/`
-- root `agents/` instead of a Cursor-only custom-agent location
+- root `agents/` instead of a Cursor-only or Copilot-only custom-agent location
 
 This is one of the most important AI-system decisions in the repo. It keeps
-Cursor aligned with the shared cross-tool layout instead of creating a separate
-Cursor-only skills tree.
+Cursor and Copilot aligned with the shared cross-tool layout instead of creating
+separate tool-specific skills trees.
 
 <a id="cursor-readme"></a>
 
@@ -444,6 +547,7 @@ In this repo, the shared `agents/` tree is intended for:
 Current committed agent files:
 
 - [`Code Comment Agent.agent.md`](/agents/Code%20Comment%20Agent.agent.md)
+- [`Lint Resolution Agent.agent.md`](/agents/Lint%20Resolution%20Agent.agent.md)
 - [`Playwright Agent.agent.md`](/agents/Playwright%20Agent.agent.md)
 - [`TypeScript Agent.agent.md`](/agents/TypeScript%20Agent.agent.md)
 - [`Unit Test Agent.agent.md`](/agents/Unit%20Test%20Agent.agent.md)
@@ -457,6 +561,17 @@ agents and their hooks:
 
 - [`block-dangerous-commands.bun.ts`](/agents/scripts/block-dangerous-commands.bun.ts)
 - [`unit-test-agent-guard.bun.ts`](/agents/scripts/unit-test-agent-guard.bun.ts)
+
+#### Agent frontmatter hooks
+
+The `hooks:` field in `*.agent.md` frontmatter is processed by Cursor and
+Copilot via `chat.useCustomAgentHooks: true` in `.vscode/settings.json`. It is
+not processed by Claude Code, Codex, Gemini, or Antigravity.
+
+Claude Code has its own hook system in `.claude/settings.json`. Codex, Gemini,
+and Antigravity each have their own hook or automation mechanisms that are
+separate from the agent frontmatter. In this repo, Codex uses
+[`.codex/hooks.json`](/.codex/hooks.json) for repo-local hook wiring.
 
 Use `agents/*.agent.md` when the task benefits from a bounded persona or tool
 policy. Use `skills/` when the task needs reusable procedural guidance.
@@ -497,6 +612,54 @@ Skills are not meant to be giant encyclopedias. For long-form reference:
 This repo deliberately uses root `skills/` as the shared skills location. Do
 not create a second skills tree under `.cursor/skills/` unless you explicitly
 want Cursor-only skills that diverge from the shared system.
+
+---
+
+<a id="commands"></a>
+
+## Commands
+
+"Commands" here means on-demand, invocable prompt templates that a user triggers
+by name during a session — as opposed to always-on instructions (like `CLAUDE.md`)
+or manually loaded guidance (like skills and agents).
+
+Two tools in this repo have a file-based command model:
+
+### Claude Code — `.claude/commands/`
+
+Claude Code recognizes `.md` files in [`.claude/commands/`](/.claude/) as custom
+slash commands. A file named `review.md` becomes `/review` in the chat. The file
+content is the prompt; `$ARGUMENTS` is substituted with any text that follows the
+command name at invocation time.
+
+This repo does not currently commit any custom commands. If commands are added:
+
+- prefer loading the matching `agents/*.agent.md` or `skills/*/SKILL.md` as the
+  command body rather than duplicating instructions
+- keep them Claude-only shortcuts; shared guidance belongs in the shared layers
+- see [`/.claude/README.md`](/.claude/README.md) for the full `.claude/commands/`
+  details
+
+### Antigravity — `.agent/workflows/`
+
+Antigravity's [`.agent/workflows/*.md`](/.agent/workflows/) files serve the same
+on-demand invocation role. A file named `deploy.md` can be triggered as `/deploy`.
+See the [Antigravity](#antigravity) section and [`/.agent/README.md`](/.agent/README.md)
+for full details.
+
+### Other tools
+
+Cursor, Copilot, Codex, and Gemini do not have a direct file-based
+`/command-name` invocation model in this repo.
+
+In practice:
+
+- Cursor and Copilot can still route into shared `skills/` and `agents/`
+  through `.cursor/rules/*.mdc` and `.vscode/settings.json`
+- Codex uses `.codex/hooks.json`, `.codex/agents/*.toml`, and layered
+  `AGENTS.md` files instead of slash-command files
+- Gemini relies on shared entry-point prose plus manual loading of the relevant
+  `skills/` and `agents/` files
 
 ---
 
@@ -604,6 +767,19 @@ Update:
 
 Do not move shared coding rules into `.agent/workflows/`.
 
+<a id="add-a-claude-code-custom-command"></a>
+
+### Add a Claude Code custom command
+
+Create:
+
+- `.claude/commands/<name>.md`
+
+Use `$ARGUMENTS` in the file body to accept inline text at invocation time.
+Prefer loading an existing `agents/*.agent.md` or `skills/*/SKILL.md` by
+reference rather than duplicating instructions. Custom commands are Claude-only;
+if the guidance should be shared across tools, add it to the shared layer first.
+
 <a id="add-github-automation"></a>
 
 ### Add GitHub automation
@@ -613,6 +789,51 @@ Update:
 - `.github/workflows/*.yml`
 
 That is GitHub Actions infrastructure, not AI instructions.
+
+---
+
+<a id="workflows-and-commands"></a>
+
+## Workflows and Commands
+
+While all tools share the same core rules, they differ in how they trigger multi-step procedures or custom commands. This repository uses Antigravity's `.agent/workflows/` as the primary engine for complex, repo-specific playbooks.
+
+### Tool Comparison
+
+| Feature | Antigravity | Claude Code | Copilot | Cursor | Codex |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Engine** | Multi-step Mission engine | Slash-command runner | Instructions-only | Rule-based attachment | Repo-local config + custom agents + layered instructions |
+| **Location** | [`.agent/workflows/`](/.agent/workflows/) | [`.claude/commands/`](/.claude/commands/) | [`.github/copilot-instructions.md`](/.github/copilot-instructions.md) | [`.cursor/rules/*.mdc`](/.cursor/rules/) | [`AGENTS.md`](/AGENTS.md), [`.codex/`](/.codex), nested `AGENTS.md` |
+| **Automation** | `// turbo` autonomous steps | `Pre/PostToolUse` hooks | Manual orchestration | Suggested actions | `SessionStart` + `Bash` hooks, custom-agent spawning |
+| **Invocation** | Slash commands (`/deploy`) | Slash commands (`/review`) | `@workspace` + prose | Globs + prose | Terminal/Chat prose |
+| **State** | Sequential mission tracking | Transactional command | Generic chat state | Document context | Generic chat state |
+
+### Antigravity Optimization
+
+Antigravity is specifically optimized in this repo via:
+- **Playbooks**: High-fidelity step sequences that prevent "hallucinating" the release process.
+- **Turbo**: Acceleration of deterministic steps like `npm run lint` or `npm test`.
+- **Mission Context**: The agent maintains a strict "checklist" state that survives across turns.
+
+### Claude Code Equivalents
+
+Claude Code's custom commands are the closest equivalent to Antigravity workflows. While they lack a native sequential "mission engine," they support:
+- **Argument Passing**: `$ARGUMENTS` lets you parameterize commands.
+- **Lifecycle Hooks**: Automated checks that fire before or after writing files.
+
+### Other Tools
+
+Copilot and Cursor rely more on **Routing and Attachment**. They "load" the
+right guidance (skills/agents) automatically based on the file you are editing,
+but they do not typically follow a strict, multi-file execution playbook unless
+guided by prose.
+
+Codex sits in a different spot. In this repo it can read the same shared
+`skills/` and `agents/` assets, but it now also has a repo-local Codex layer:
+`.codex` for config, hooks, and custom-agent wrappers, plus nested `AGENTS.md`
+files for tighter directory-specific guidance. That still does not make Codex
+identical to Cursor, Copilot, Claude, or Antigravity, because Codex uses
+different product semantics for hooks, commands, and agent routing.
 
 ---
 
@@ -669,6 +890,7 @@ The markdown and AI-doc linting pipeline is split across `lint`,
 1. General markdown with the default config:
    - `docs/**/*.md`
    - `.agent/**/*.md`
+   - `.codex/**/*.md`
    - `supabase/**/*.md`
    - `react/**/*.md`
    - `types/**/*.md`
@@ -681,6 +903,9 @@ The markdown and AI-doc linting pipeline is split across `lint`,
    - `AGENTS.md`
    - `CLAUDE.md`
    - `GEMINI.md`
+   - `api/AGENTS.md`
+   - `react/AGENTS.md`
+   - `shared/AGENTS.md`
 
 Today, these configs mainly enforce line-count budgets:
 
@@ -701,12 +926,16 @@ types to different size budgets.
 
 - `docs/**/*.md`
 - `.agent/**/*.md`
+- `.codex/**/*.md`
 - `skills/**/*.md`
 - `agents/**/*.md`
 - `.github/*.md`
 - `AGENTS.md`
 - `CLAUDE.md`
 - `GEMINI.md`
+- `api/AGENTS.md`
+- `react/AGENTS.md`
+- `shared/AGENTS.md`
 
 The default remark config in `.remarkrc.mjs` does three important things:
 

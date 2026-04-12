@@ -46,6 +46,7 @@ shared system.
 - Shared skills are intended for Copilot, Claude, Codex, Antigravity, Cursor, and Gemini.
 - All shared agent prompts live under `agents/*.agent.md`.
 - Shared agent prompts are intended for Copilot, Claude, Codex, Antigravity, Cursor, and Gemini.
+- Codex project-scoped custom-agent wrappers live under `.codex/agents/*.toml` and should point back to the shared `agents/*.agent.md` files instead of duplicating them.
 - Antigravity-specific workflow playbooks live under `.agent/workflows/` and complement the shared skills layer.
 - If a user names a skill, load it before making changes.
 - If the task clearly matches a skill, load the smallest relevant set.

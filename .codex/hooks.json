@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$(git rev-parse --show-toplevel)/.codex/hooks/session-start-context.sh\"",
+            "statusMessage": "Loading SongShare Codex context"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx --yes bun \"$(git rev-parse --show-toplevel)/agents/scripts/block-dangerous-commands.bun.ts\"",
+            "statusMessage": "Checking Bash command"
+          }
+        ]
+      }
+    ]
+  }
+}

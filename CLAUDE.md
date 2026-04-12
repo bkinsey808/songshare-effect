@@ -11,7 +11,6 @@ This file is a Claude-specific adapter for the shared AI system in `AGENTS.md`,
 - Treat `docs/ai/rules.md` as the canonical source of coding standards.
 - Read `docs/ai/ai-system.md` for the shared cross-tool AI-system layout.
 - Load reusable task guidance from `skills/*/SKILL.md`.
-- Load shared focused agent prompts from `agents/*.agent.md` when a task matches one of the repo's custom agent roles.
 
 ## Linting
 
@@ -26,3 +25,15 @@ Always add JSDoc to new hook files, following the pattern in existing hooks (e.g
 Before writing unit tests, always read the relevant skill files:
 - `skills/unit-test-best-practices/SKILL.md` (all tests)
 - `skills/unit-test-hook-best-practices/SKILL.md` (hook tests: `use*.ts` / `use*.tsx`)
+
+## Agent Routing
+
+Load the matching agent file when the task fits one of these roles:
+
+| Task type | Agent file |
+|---|---|
+| TypeScript / React edits | `agents/TypeScript Agent.agent.md` |
+| Unit tests only | `agents/Unit Test Agent.agent.md` |
+| JSDoc / comments only | `agents/Code Comment Agent.agent.md` |
+| Lint error resolution | `agents/Lint Resolution Agent.agent.md` |
+| Playwright e2e tests | `agents/Playwright Agent.agent.md` |

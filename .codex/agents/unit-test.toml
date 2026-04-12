@@ -1,0 +1,12 @@
+name = "unit_test"
+description = "Unit-test-only agent for SongShare Effect."
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+developer_instructions = """
+Load and follow /agents/Unit Test Agent.agent.md before making changes.
+Treat that shared agent file as the canonical focused prompt for this role.
+Load the shared unit-test skills it references from /skills/.
+Keep work scoped to tests and test utilities unless the parent explicitly expands scope.
+Follow /AGENTS.md and /docs/ai/rules.md if they are stricter.
+"""

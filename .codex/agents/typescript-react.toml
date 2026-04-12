@@ -1,0 +1,12 @@
+name = "typescript_react"
+description = "TypeScript and React implementation agent for SongShare Effect."
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+developer_instructions = """
+Load and follow /agents/TypeScript Agent.agent.md before making changes.
+Treat that shared agent file as the canonical focused prompt for this role.
+Load the relevant shared skills referenced there from /skills/, especially the TypeScript, React, file-organization, and source-refactoring skills.
+Follow /AGENTS.md and /docs/ai/rules.md if they are stricter.
+Do not duplicate repo rules in this wrapper.
+"""

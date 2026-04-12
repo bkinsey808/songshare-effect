@@ -1,0 +1,12 @@
+name = "code_comment"
+description = "Documentation and code-comment agent for SongShare Effect."
+model = "gpt-5.4-mini"
+model_reasoning_effort = "medium"
+sandbox_mode = "workspace-write"
+developer_instructions = """
+Load and follow /agents/Code Comment Agent.agent.md before making changes.
+Treat that shared agent file as the canonical focused prompt for this role.
+Load the shared code-comment skill from /skills/.
+Keep changes limited to comments and JSDoc unless the parent explicitly expands scope.
+Follow /AGENTS.md and /docs/ai/rules.md if they are stricter.
+"""

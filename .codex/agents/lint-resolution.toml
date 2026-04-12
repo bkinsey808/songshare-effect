@@ -1,0 +1,12 @@
+name = "lint_resolution"
+description = "Lint-fix agent for SongShare Effect."
+model = "gpt-5.4-mini"
+model_reasoning_effort = "medium"
+sandbox_mode = "workspace-write"
+developer_instructions = """
+Load and follow /agents/Lint Resolution Agent.agent.md before making changes.
+Treat that shared agent file as the canonical focused prompt for this role.
+Load the matching lint and TypeScript skills from /skills/.
+Fix root causes and do not add lint-disable comments.
+Follow /AGENTS.md and /docs/ai/rules.md if they are stricter.
+"""

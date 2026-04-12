@@ -74,6 +74,7 @@ reports/
 
 .cache
 artifacts/
+.agents
 
 tmp/
 

@@ -51,4 +51,4 @@ Do not run git write commands (`git commit`, `git push`, `git mv`, `git reset`, 
 React + Vite frontend (Cloudflare Pages) · Hono API server (Cloudflare Workers) · Supabase (RLS + Realtime).
 
 - Auth: dual visitor/user JWT system with RLS — see [docs/authentication-system.md](/docs/auth/authentication-system.md)
-- Shared AI system entrypoints: [`AGENTS.md`](/AGENTS.md), [`CLAUDE.md`](/CLAUDE.md), and [`.github/copilot-instructions.md`](/.github/copilot-instructions.md)
+- Shared AI system entrypoints: [`AGENTS.md`](/AGENTS.md), [`CLAUDE.md`](/CLAUDE.md), [`GEMINI.md`](/GEMINI.md), [`.github/copilot-instructions.md`](/.github/copilot-instructions.md), and [`.agent/README.md`](/.agent/README.md)
