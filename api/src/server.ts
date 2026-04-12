@@ -68,7 +68,6 @@ import {
 	apiUserSlideOrientationPreferencePath,
 	apiUserTokenPath,
 	healthPath,
-	    apiLLMSubscriptionPath,
 } from "@/shared/paths";
 
 import accountDelete from "./account/accountDelete";
@@ -109,7 +108,6 @@ import imageDelete from "./image/delete/imageDelete";
 import imageServe from "./image/imageServe";
 import imageUpdate from "./image/update/imageUpdate";
 import imageUpload from "./image/upload/imageUpload";
-import llmSubscriptionHandler from './subscription/llmSubscription';
 import me from "./me";
 import corsMiddleware from "./middleware/cors";
 import handleAppError from "./middleware/handleAppError";
@@ -162,8 +160,6 @@ app.get(healthPath, (ctx) =>
 
 // Lightweight hello endpoint used by some E2E tests
 app.get(apiHelloPath, (ctx) => ctx.json({ message: "Hello from custom API endpoint!" }));
-
-app.post(apiLLMSubscriptionPath, llmSubscriptionHandler);
 
 // Supabase client token endpoint - provides a JWT for client-side Supabase operations
 app.get(apiAuthVisitorPath, getSupabaseClientTokenHandler);
