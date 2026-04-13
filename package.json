@@ -4,6 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"qmd": "bash scripts/qmd.sh",
 		"dev:client:staging": "bun run scripts/env/run-with-env/run-with-env.bun.ts --env staging -- vite --mode staging-local",
 		"dev:client:prod": "bun run scripts/env/run-with-env/run-with-env.bun.ts --env production -- vite",
 		"dev:api:staging": "npm run generate:dev-vars:staging && cd api && wrangler dev --no-enable-containers --config wrangler.staging.toml --env staging",
@@ -115,6 +116,7 @@
 		"@tailwindcss/postcss": "^4.1.17",
 		"@testing-library/dom": "^10.4.1",
 		"@testing-library/react": "^16.3.2",
+		"@tobilu/qmd": "^2.1.0",
 		"@types/bun": "^1.3.3",
 		"@types/node": "^24.10.1",
 		"@types/react": "^19.2.14",

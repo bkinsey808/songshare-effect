@@ -6,6 +6,7 @@ import type {
 	ShapeInversion,
 } from "@/react/music/inversions/shape-inversion.type";
 import computeNoteSearchEntries from "@/react/music/note-picker/computeNoteSearchEntries";
+import computeSpellingSearchEntries from "@/react/music/note-picker/computeSpellingSearchEntries";
 import computeNoteSearchRoot from "@/react/music/note-picker/computeNoteSearchRoot";
 import type { NoteSearchEntry } from "@/react/music/note-picker/NoteSearchEntry.type";
 import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
@@ -19,6 +20,7 @@ import type { SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
 import createNoteSearchToggleHandler from "./createNoteSearchToggleHandler";
+import createSpellingSearchToggleHandler from "./createSpellingSearchToggleHandler";
 
 type UseChordSearchParams = Readonly<{
 	initialChordToken: string | undefined;
@@ -46,8 +48,10 @@ type UseChordSearchResult = Readonly<{
 	selectedShape: ChordShape | undefined;
 	allShapeInversions: readonly ShapeInversion[];
 	directShapeOrdinals: ReadonlyMap<string, DirectShapeOrdinal>;
+	spellingSearchEntries: readonly NoteSearchEntry[];
 	noteSearchEntries: readonly NoteSearchEntry[];
 	getNoteSearchRoot: (spelling: string) => SongKey | undefined;
+	handleSpellingSearchToggle: (semitoneOffset: number) => void;
 	handleNoteSearchToggle: (semitoneOffset: number) => void;
 }>;
 
@@ -93,6 +97,9 @@ export default function useChordSearch({
 				: (rootSemitoneMap[initialAbsoluteRoot] ?? FALLBACK_SEMITONE);
 		return new Map<number, NoteSearchToggleState>([[initialRootSemitone, "required"]]);
 	});
+	const [spellingSearchState, setSpellingSearchState] = useState<
+		ReadonlyMap<number, NoteSearchToggleState>
+	>(new Map());
 
 	const searchInputId = useId();
 	const minNotesInputId = useId();
@@ -103,6 +110,7 @@ export default function useChordSearch({
 		minNotes,
 		maxNotes,
 		noteSearchState,
+		spellingSearchState,
 		selectedShapeCode,
 	});
 
@@ -110,8 +118,15 @@ export default function useChordSearch({
 		absoluteRoot,
 		setNoteSearchState,
 	});
+	const handleSpellingSearchToggle = createSpellingSearchToggleHandler({
+		setSpellingSearchState,
+	});
 
 	const noteSearchEntries = computeNoteSearchEntries({ absoluteRoot, songKey, noteSearchState });
+	const spellingSearchEntries = computeSpellingSearchEntries({
+		absoluteRoot,
+		spellingSearchState,
+	});
 
 	const { inversions: allShapeInversions, directShapeOrdinals } = computeAllShapeInversions({
 		deferredIncludeInversions,
@@ -119,6 +134,7 @@ export default function useChordSearch({
 		minNotes,
 		maxNotes,
 		noteSearchState,
+		spellingSearchState,
 		displayedShapes,
 		songKey,
 		chordDisplayMode,
@@ -145,8 +161,10 @@ export default function useChordSearch({
 		selectedShape,
 		allShapeInversions,
 		directShapeOrdinals,
+		spellingSearchEntries,
 		noteSearchEntries,
 		getNoteSearchRoot,
+		handleSpellingSearchToggle,
 		handleNoteSearchToggle,
 	};
 }

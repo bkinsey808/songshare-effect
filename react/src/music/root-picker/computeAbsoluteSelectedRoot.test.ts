@@ -13,6 +13,12 @@ const ABSOLUTE_ROOT_C: SelectedRoot = {
 	label: "C",
 };
 
+const ANY_ROOT: SelectedRoot = {
+	root: "any",
+	rootType: "any",
+	label: "Any",
+};
+
 const ROMAN_ROOT_I: SelectedRoot = {
 	root: "I",
 	rootType: "roman",
@@ -55,6 +61,12 @@ describe("computeAbsoluteSelectedRoot", () => {
 		const result = computeAbsoluteSelectedRoot(ROMAN_ROOT_I, EMPTY_SONG_KEY);
 
 		// Assert
+		expect(result).toBeUndefined();
+	});
+
+	it("returns undefined for the any root selection", () => {
+		const result = computeAbsoluteSelectedRoot(ANY_ROOT, SONG_KEY_C);
+
 		expect(result).toBeUndefined();
 	});
 });

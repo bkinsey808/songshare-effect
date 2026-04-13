@@ -23,6 +23,10 @@ export default function formatSelectedRootLabel({
 	chordDisplayMode: ChordDisplayModeType;
 	songKey: SongKey | "";
 }>): string {
+	if (selectedRoot.rootType === "any") {
+		return selectedRoot.label;
+	}
+
 	if (selectedRoot.rootType === "roman") {
 		if (chordDisplayMode === "roman") {
 			const romanLabel = formatRootOptionLabel(selectedRoot.root);

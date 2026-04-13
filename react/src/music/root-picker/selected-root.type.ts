@@ -15,7 +15,14 @@ type RomanSelectedRoot = Readonly<{
 	label: string;
 }>;
 
-/** Represents the active root selection in either absolute-note or roman-degree form. */
-type SelectedRoot = AbsoluteSelectedRoot | RomanSelectedRoot;
+/** Root left unspecified so the user can browse shapes without anchoring to a pitch. */
+type AnySelectedRoot = Readonly<{
+	root: "any";
+	rootType: "any";
+	label: string;
+}>;
 
-export type { AbsoluteSelectedRoot, RomanSelectedRoot, SelectedRoot };
+/** Represents the active root selection in either absolute-note or roman-degree form. */
+type SelectedRoot = AbsoluteSelectedRoot | RomanSelectedRoot | AnySelectedRoot;
+
+export type { AbsoluteSelectedRoot, RomanSelectedRoot, AnySelectedRoot, SelectedRoot };

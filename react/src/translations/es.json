@@ -164,7 +164,7 @@
 		"chordRoot": "Tónica",
 		"chordPreview": "Vista previa",
 		"chordSearch": "Buscar formas",
-		"chordSearchPlaceholder": "Buscar por nombre, código o b3",
+		"chordSearchPlaceholder": "Buscar por nombre, código o alias",
 		"chordMaxNotes": "Notas máx.",
 		"chordNoResults": "Ninguna forma de acorde coincide con esta búsqueda.",
 		"script": "Guión",

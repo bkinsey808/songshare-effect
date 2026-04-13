@@ -7,6 +7,7 @@ import type {
 import computeNoteSearchRoot from "@/react/music/note-picker/computeNoteSearchRoot";
 import filterShapeByNoteSearch from "@/react/music/note-picker/filterShapeByNoteSearch";
 import filterSpellingByNoteSearch from "@/react/music/note-picker/filterSpellingByNoteSearch";
+import filterSpellingBySpellingSearch from "@/react/music/note-picker/filterSpellingBySpellingSearch";
 import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
 import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import rootSemitoneMap from "@/shared/music/chord-display/rootSemitoneMap";
@@ -27,6 +28,7 @@ type ComputeAllShapeInversionsParams = Readonly<{
 	minNotes: number;
 	maxNotes: number;
 	noteSearchState: ReadonlyMap<number, NoteSearchToggleState>;
+	spellingSearchState: ReadonlyMap<number, NoteSearchToggleState>;
 	displayedShapes: readonly ChordShape[];
 	songKey: SongKey | "";
 	chordDisplayMode: ChordDisplayModeType;
@@ -48,6 +50,7 @@ export default function computeAllShapeInversions({
 	minNotes,
 	maxNotes,
 	noteSearchState,
+	spellingSearchState,
 	displayedShapes,
 	songKey,
 	chordDisplayMode,
@@ -73,7 +76,10 @@ export default function computeAllShapeInversions({
 		};
 		const allMatchingInversions = computeSciInversions(shapeRoot, shape.code).filter((inv) => {
 			const bassRootSemitone = rootSemitoneMap[inv.bassRoot] ?? FALLBACK_SEMITONE;
-			return filterSpellingByNoteSearch(inv.reRootedSpelling, bassRootSemitone, noteSearchState);
+			return (
+				filterSpellingByNoteSearch(inv.reRootedSpelling, bassRootSemitone, noteSearchState) &&
+				filterSpellingBySpellingSearch(inv.reRootedSpelling, spellingSearchState)
+			);
 		});
 
 		const nonDuplicates = allMatchingInversions.filter(

@@ -33,6 +33,7 @@ const BASE_PARAMS = {
 	minNotes: DEFAULT_MIN_CHORD_NOTES,
 	maxNotes: DEFAULT_MAX_CHORD_NOTES,
 	noteSearchState: EMPTY_NOTE_SEARCH,
+	spellingSearchState: EMPTY_NOTE_SEARCH,
 	displayedShapes: [],
 	songKey: "C" as const,
 	chordDisplayMode: "letters" as const,

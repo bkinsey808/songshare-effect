@@ -22,8 +22,10 @@ const INITIAL_TOKEN_C_MAJOR = "[C M]";
 // A major triad (C) has three notes: root, major third, perfect fifth.
 const TRIAD_NOTE_COUNT = 3;
 const NOTE_SEARCH_ENTRY_COUNT = 12;
+const SPELLING_SEARCH_ENTRY_COUNT = 12;
 // Offset 0 is the root button in the note search grid.
 const ROOT_SEMITONE_OFFSET = 0;
+const PERFECT_FIFTH_SEMITONE_OFFSET = 7;
 // Interval spelling for a major triad: major third ("3") + perfect fifth ("5").
 const MAJOR_TRIAD_SPELLING = "3,5";
 const QUERY_MAJOR = "major";
@@ -104,8 +106,10 @@ function Harness({
 		selectedShape,
 		allShapeInversions,
 		directShapeOrdinals,
+		spellingSearchEntries,
 		noteSearchEntries,
 		getNoteSearchRoot,
+		handleSpellingSearchToggle,
 		handleNoteSearchToggle,
 	} = useChordSearch({
 		initialChordToken,
@@ -171,6 +175,23 @@ function Harness({
 			<div data-testid="inversion-count">{String(allShapeInversions.length)}</div>
 			{/* directShapeOrdinals: direct result shapes that are also known inversions */}
 			<div data-testid="direct-ordinal-count">{String(directShapeOrdinals.size)}</div>
+			<ul data-testid="spelling-search-entries">
+				{spellingSearchEntries.map((entry) => (
+					<li
+						key={`spelling-${String(entry.semitoneOffset)}`}
+						data-testid={`spelling-entry-${String(entry.semitoneOffset)}`}
+						data-toggle-state={entry.toggleState}
+						onClick={() => {
+							handleSpellingSearchToggle(entry.semitoneOffset);
+						}}
+						onKeyDown={() => {
+							handleSpellingSearchToggle(entry.semitoneOffset);
+						}}
+					>
+						{entry.displayInterval}
+					</li>
+				))}
+			</ul>
 			{/* noteSearchEntries: 12 chromatic positions whose toggle state cycles on click */}
 			<ul data-testid="note-search-entries">
 				{noteSearchEntries.map((entry) => (
@@ -323,6 +344,34 @@ describe("useChordSearch — Harness", () => {
 			).toBe("excluded");
 		});
 	});
+
+	it("keeps the spelling root entry required when clicked", async () => {
+		cleanup();
+
+		const rendered = render(
+			<Harness
+				initialChordToken={undefined}
+				absoluteRoot={ABSOLUTE_ROOT_C}
+				selectedShapeCode={EMPTY_SHAPE_CODE}
+				songKey={SONG_KEY_C}
+				chordDisplayMode={ChordDisplayMode.letters}
+				rootPickerDisplayMode={ChordDisplayMode.letters}
+			/>,
+		);
+		const rootEntry = within(rendered.container).getByTestId(
+			`spelling-entry-${String(ROOT_SEMITONE_OFFSET)}`,
+		);
+		expect(rootEntry.dataset["toggleState"]).toBe("required");
+
+		fireEvent.click(rootEntry);
+
+		await waitFor(() => {
+			expect(
+				within(rendered.container).getByTestId(`spelling-entry-${String(ROOT_SEMITONE_OFFSET)}`)
+					.dataset["toggleState"],
+			).toBe("required");
+		});
+	});
 });
 
 // ── renderHook tests ───────────────────────────────────────────────────────
@@ -420,6 +469,12 @@ describe("useChordSearch — renderHook", () => {
 		expect(result.current.noteSearchEntries).toHaveLength(NOTE_SEARCH_ENTRY_COUNT);
 	});
 
+	it("spellingSearchEntries contains 12 chromatic spelling entries", () => {
+		const { result } = renderHook(() => useChordSearch(DEFAULT_PARAMS));
+
+		expect(result.current.spellingSearchEntries).toHaveLength(SPELLING_SEARCH_ENTRY_COUNT);
+	});
+
 	it("root note entry is required when initialized with C root and letters display mode", () => {
 		// computeInitialSelectedRoot with letters mode and songKey "C" → root "C" (semitone 0)
 		// noteSearchState initializes to { 0: "required" }, so entry at offset 0 is "required"
@@ -460,6 +515,32 @@ describe("useChordSearch — renderHook", () => {
 		// Assert
 		await waitFor(() => {
 			expect(result.current.noteSearchEntries[ROOT_SEMITONE_OFFSET]?.toggleState).toBe("default");
+		});
+	});
+
+	it("handleSpellingSearchToggle can exclude shapes containing the perfect fifth spelling", async () => {
+		const { result } = renderHook(() => useChordSearch(DEFAULT_PARAMS));
+
+		expect(result.current.displayedShapes.some((shape) => shape.code === MAJOR_SHAPE_CODE)).toBe(true);
+
+		result.current.handleSpellingSearchToggle(PERFECT_FIFTH_SEMITONE_OFFSET);
+		await waitFor(() => {
+			expect(result.current.spellingSearchEntries[PERFECT_FIFTH_SEMITONE_OFFSET]?.toggleState).toBe(
+				"required",
+			);
+		});
+
+		result.current.handleSpellingSearchToggle(PERFECT_FIFTH_SEMITONE_OFFSET);
+		await waitFor(() => {
+			expect(result.current.spellingSearchEntries[PERFECT_FIFTH_SEMITONE_OFFSET]?.toggleState).toBe(
+				"excluded",
+			);
+		});
+
+		await waitFor(() => {
+			expect(result.current.displayedShapes.some((shape) => shape.code === MAJOR_SHAPE_CODE)).toBe(
+				false,
+			);
 		});
 	});
 

@@ -14,6 +14,7 @@ import ChordRootButton from "./ChordRootButton";
 type ChordRootPickerProps = Readonly<{
 	selectedRoot: SelectedRoot;
 	setSelectedRoot: (nextRoot: SelectedRoot) => void;
+	allowAnyRoot?: boolean;
 	chordDisplayMode: ChordDisplayModeType;
 	songKey: SongKey | "";
 }>;
@@ -23,6 +24,7 @@ type ChordRootPickerProps = Readonly<{
  *
  * @param selectedRoot - Currently selected root option
  * @param setSelectedRoot - Updates the selected root
+ * @param allowAnyRoot - Whether to include the `Any` root option in the picker
  * @param chordDisplayMode - Active display mode that controls which root labels are shown
  * @param songKey - Current song key for root conversion and display
  * @returns Root picker control with popover options
@@ -30,6 +32,7 @@ type ChordRootPickerProps = Readonly<{
 export default function ChordRootPicker({
 	selectedRoot,
 	setSelectedRoot,
+	allowAnyRoot = false,
 	chordDisplayMode,
 	songKey,
 }: ChordRootPickerProps): ReactElement {
@@ -41,12 +44,14 @@ export default function ChordRootPicker({
 		setIsOpen: setIsRootPickerOpen,
 	} = useSongKeyPicker();
 	const rootRows = computeRootRows({
+		includeAnyRoot: allowAnyRoot,
+		anyLabel: t("song.chordRootAny", "Any"),
 		chordDisplayMode,
 		songKey,
 	});
 
 	return (
-		<div ref={containerRef} className="relative min-[520px]:w-[16rem]">
+		<div ref={containerRef} className="relative min-[720px]:w-44">
 			<label className="flex flex-col gap-1 text-sm text-gray-300" htmlFor={rootInputId}>
 				<span>{t("song.chordRoot", "Root")}</span>
 				<button

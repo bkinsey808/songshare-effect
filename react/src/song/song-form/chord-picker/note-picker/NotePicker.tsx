@@ -6,6 +6,8 @@ import toUnicodeAccidentals from "@/react/music/intervals/toUnicodeAccidentals";
 type NotePickerProps = Readonly<{
 	entries: readonly NotePickerEntry[];
 	onToggle: (semitoneOffset: number) => void;
+	showLetterNamesOnly?: boolean;
+	hideRootButton?: boolean;
 }>;
 
 const ROOT_SEMITONE_OFFSET = 0;
@@ -35,17 +37,30 @@ function getNoteButtonClasses(isRoot: boolean, isActive: boolean): string {
  *
  * @param entries - One entry per chromatic position (0–11) with active state and display labels
  * @param onToggle - Called with the semitone offset when a non-root button is clicked
+ * @param showLetterNamesOnly - Whether to show only note letters and hide interval spellings
+ * @param hideRootButton - Whether to omit the implied root button from the rendered row
  * @returns Note picker control
  */
-export default function NotePicker({ entries, onToggle }: NotePickerProps): ReactElement {
+export default function NotePicker({
+	entries,
+	onToggle,
+	showLetterNamesOnly = false,
+	hideRootButton = false,
+}: NotePickerProps): ReactElement {
 	const { t } = useTranslation();
+	const visibleEntries = hideRootButton
+		? entries.filter(({ semitoneOffset }) => semitoneOffset !== ROOT_SEMITONE_OFFSET)
+		: entries;
 
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex flex-col gap-2" data-testid="note-picker">
 			<span className="text-sm text-gray-300">{t("song.notePicker", "Note Picker")}</span>
 			<div className="flex flex-wrap gap-1.5">
-				{entries.map(({ displayInterval, semitoneOffset, isActive, letterName }) => {
+				{visibleEntries.map(({ displayInterval, semitoneOffset, isActive, letterName }) => {
 					const isRoot = semitoneOffset === ROOT_SEMITONE_OFFSET;
+					const primaryLabel =
+						showLetterNamesOnly && letterName !== undefined ? letterName : displayInterval;
+					const secondaryLabel = showLetterNamesOnly ? undefined : letterName;
 
 					return (
 						<button
@@ -58,11 +73,11 @@ export default function NotePicker({ entries, onToggle }: NotePickerProps): Reac
 							className={getNoteButtonClasses(isRoot, isActive)}
 						>
 							<span className="font-semibold leading-tight">
-								{toUnicodeAccidentals(displayInterval)}
+								{toUnicodeAccidentals(primaryLabel)}
 							</span>
-							{letterName !== undefined && (
+							{secondaryLabel !== undefined && (
 								<span className="leading-tight text-gray-400">
-									{toUnicodeAccidentals(letterName)}
+									{toUnicodeAccidentals(secondaryLabel)}
 								</span>
 							)}
 						</button>

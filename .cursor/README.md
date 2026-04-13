@@ -22,7 +22,31 @@ Files such as **`README.md`** here are **not** configuration — they are for hu
 
 Only **`rules/`** and this **`README.md`** are committed under `.cursor/`. There is **no** **`.cursor/skills/`** directory — skills live in **[`skills/`](../skills/)** at the repo root. Nothing else is required under `.cursor/` for Cursor to work with the project.
 
-**Skills path:** [`.vscode/settings.json`](../.vscode/settings.json) sets `"chat.agentSkillsLocations": { "skills/": true }` so Cursor loads skills from that workspace folder (not from `.cursor/skills/`). You can still add **`.cursor/mcp.json`** or **`hooks.json`** later without changing the skills layout.
+**Skills path:** [`.vscode/settings.json`](../.vscode/settings.json) sets `"chat.agentSkillsLocations": { "skills/": true }` so Cursor loads skills from that workspace folder (not from `.cursor/skills/`). You can still add **`.cursor/mcp.json`** without changing the skills layout.
+
+**Shared agent hooks (Copilot + Cursor):** This repository **standardizes on [`.github/hooks/`](../.github/hooks/)** for workspace hooks that apply to **both** GitHub Copilot and Cursor (`chat.useCustomAgentHooks`). Do **not** duplicate those hooks under `.cursor/hooks.json` — one definition keeps the two tools aligned. Cursor-only lifecycle hooks may still use [`.cursor/hooks.json`](https://cursor.com/docs/hooks.md) if you add them for behavior that is not shared with Copilot.
+
+QMD automation for Cursor is **not** committed under `.cursor/`; it uses the shared `.github/hooks/` definitions and optionally `.claude/` — see [QMD and Cursor hooks](#qmd-and-cursor-hooks).
+
+## QMD and Cursor hooks
+
+This repo uses [QMD](https://github.com/tobi/qmd) to search `skills/` and `docs/`. CLI usage, collections, and when to re-embed: [`docs/ai/qmd.md`](../docs/ai/qmd.md).
+
+### Where hooks live
+
+| Mechanism | Location | In Cursor |
+| --- | --- | --- |
+| **Shared workspace agent hooks (canonical)** | [`.github/hooks/qmd-session-context.json`](../.github/hooks/qmd-session-context.json) (`SessionStart`), [`.github/hooks/qmd-user-prompt-context.json`](../.github/hooks/qmd-user-prompt-context.json) (`UserPromptSubmit`) | Same files as Copilot. Enabled by `"chat.useCustomAgentHooks": true` in [`.vscode/settings.json`](../.vscode/settings.json). Runs `agents/scripts/qmd-*-context.bun.ts` — **stable guidance** at session start and a **compact BM25 summary** on task-shaped prompts (filtered; not every message). |
+| **Claude Code hooks (optional)** | [`.claude/settings.json`](../.claude/settings.json) → [`.claude/hooks/qmd-context.sh`](../.claude/hooks/qmd-context.sh) (`UserPromptSubmit`) | Loaded by Cursor when **Settings → Features → Third-party skills** is on ([third-party hooks](https://cursor.com/docs/reference/third-party-hooks)). Cursor maps `UserPromptSubmit` to `beforeSubmitPrompt`. Runs **`qmd search`** with **richer excerpt-style** output than the Bun user-prompt hook. Separate from the `.github/hooks/` standard; can overlap with it — see below. |
+| **`.cursor/hooks.json`** | Not used for QMD or other **shared** Copilot/Cursor automation | Add here only for **Cursor-only** hooks. Shared QMD and agent hooks belong under `.github/hooks/`. |
+
+### If two QMD injections feel redundant
+
+**Custom agent hooks** (`.github/hooks/`) and **Third-party skills** (`.claude/settings.json`) can both run on the same prompt — same general goal, different format and verbosity. If that is noisy, use only one: for example turn off Third-party skills and keep `chat.useCustomAgentHooks`, or the reverse if you prefer the Claude-style script only. Check Cursor’s **Hooks** output channel if a hook fails silently.
+
+### Manual search still matters
+
+[`AGENTS.md`](../AGENTS.md) expects `npm run qmd -- search "<task description>"` when hooks miss the task or you need more than the compact summary.
 
 ## Project rules vs skills
 
@@ -50,7 +74,9 @@ See [Project rules](https://cursor.com/docs/context/rules) for the current rule 
 | Location | Role |
 | --- | --- |
 | **`AGENTS.md`** (repo root or nested) | Plain agent instructions Cursor loads alongside project rules. This repo uses root `AGENTS.md` for shared workflow and safety. |
-| **`.vscode/settings.json`** | `chat.agentSkillsLocations` and `chat.agentFilesLocations` — where **skills** and **custom agent** files live in *this* workspace (`skills/`, `agents/`). |
+| **`.vscode/settings.json`** | `chat.agentSkillsLocations`, `chat.agentFilesLocations`, and `chat.useCustomAgentHooks` — skills/agents roots and whether [`.github/hooks/`](../.github/hooks/) agent hooks (including QMD) run. |
+| **`.github/hooks/`** | Workspace **agent hooks** for Copilot/Cursor when `chat.useCustomAgentHooks` is true — QMD and other scripts; **not** executed by GitHub.com. |
+| **`.claude/`** | Claude Code settings and shell hooks; Cursor may load `.claude/settings.json` when **Third-party skills** is enabled ([docs](https://cursor.com/docs/reference/third-party-hooks)). |
 | **`.cursorignore`** (repo root) | Excludes paths from Cursor indexing — not inside `.cursor/`. |
 | **`.cursorrules`** (repo root) | Legacy single-file rules; this project uses **`.cursor/rules/*.mdc`** instead. |
 
@@ -72,4 +98,6 @@ Distributable **plugins** use a manifest at **`.cursor-plugin/plugin.json`** on 
 ## See also
 
 - [`docs/ai/ai-system.md`](../docs/ai/ai-system.md) — Cross-tool layout (Copilot, Claude, Cursor, etc.).
+- [`docs/ai/hooks.md`](../docs/ai/hooks.md) — Map of all AI hooks in this repo.
+- [`docs/ai/qmd.md`](../docs/ai/qmd.md) — QMD commands, indexing, and hook behavior.
 - [`AGENTS.md`](../AGENTS.md) — Workflow and guardrails for agents in this repo.

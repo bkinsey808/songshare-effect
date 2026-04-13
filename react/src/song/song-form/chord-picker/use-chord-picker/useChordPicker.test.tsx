@@ -28,9 +28,15 @@ const ROOT_B_FLAT = "Bb";
 const ROOT_B_FLAT_LABEL = "Bb";
 const ROOT_V = "V";
 const ROOT_V_LABEL = "V";
+const ROOT_ANY_LABEL = "Any";
+const ROOT_E_FLAT = "Eb";
+const ROOT_E_FLAT_LABEL = "Eb";
 const FIRST_RESULT_INDEX = 0;
 const MINIMUM_SECOND_RESULT_INDEX = 1;
 const ONE_CALL = 1;
+const NOTE_BUTTON_E_FLAT = "Eb";
+const NOTE_PICKER_SAMPLE_START = 0;
+const NOTE_PICKER_SAMPLE_END = 3;
 
 /**
  * Returns the displayed shape code at a specific index for deterministic test assertions.
@@ -374,6 +380,74 @@ describe("useChordPicker — renderHook", () => {
 			rootType: "absolute",
 			label: DEFAULT_ROOT,
 		});
+	});
+
+	it("shows a fallback preview chord when the root is any", () => {
+		mockUseTranslation();
+		installChordDisplayModeMock(ChordDisplayMode.letters);
+
+		const { result } = renderHook(() =>
+			useChordPicker({
+				songKey: SONG_KEY_G,
+				initialChordToken: "[C M]",
+				closeChordPicker: vi.fn(),
+				insertChordFromPicker: vi.fn(),
+			}),
+		);
+
+		act(() => {
+			result.current.setSelectedRoot({
+				root: "any",
+				rootType: "any",
+				label: ROOT_ANY_LABEL,
+			});
+			result.current.setSelectedShapeCode("-");
+		});
+
+		expect(result.current.previewToken).toBe("[C -]");
+		expect(result.current.alternatePreviewLabel).toBe(SCALE_DEGREE_FORM);
+		expect(result.current.alternatePreviewToken).toBe("[IV -]");
+	});
+
+	it("keeps the same note-picker notes when switching from a selected root to any", () => {
+		mockUseTranslation();
+		installChordDisplayModeMock(ChordDisplayMode.letters);
+
+		const { result } = renderHook(() =>
+			useChordPicker({
+				songKey: SONG_KEY_G,
+				initialChordToken: "[C M]",
+				closeChordPicker: vi.fn(),
+				insertChordFromPicker: vi.fn(),
+			}),
+		);
+
+		act(() => {
+			result.current.setSelectedRoot({
+				root: ROOT_E_FLAT,
+				rootType: "absolute",
+				label: ROOT_E_FLAT_LABEL,
+			});
+		});
+
+		const noteLabelsBeforeAny = result.current.notePickerEntries
+			.slice(NOTE_PICKER_SAMPLE_START, NOTE_PICKER_SAMPLE_END)
+			.map((entry) => entry.letterName);
+
+		act(() => {
+			result.current.setSelectedRoot({
+				root: "any",
+				rootType: "any",
+				label: ROOT_ANY_LABEL,
+			});
+		});
+
+		expect(noteLabelsBeforeAny[NOTE_PICKER_SAMPLE_START]).toBe(NOTE_BUTTON_E_FLAT);
+		expect(
+			result.current.notePickerEntries
+				.slice(NOTE_PICKER_SAMPLE_START, NOTE_PICKER_SAMPLE_END)
+				.map((entry) => entry.letterName),
+		).toStrictEqual(noteLabelsBeforeAny);
 	});
 
 	it("moves the selected shape to the front of the displayed results", () => {

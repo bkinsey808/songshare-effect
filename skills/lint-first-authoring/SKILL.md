@@ -37,6 +37,10 @@ description: >
 4. Reuse existing helpers and established patterns instead of inventing new ones.
 5. Run `npm run lint` after meaningful changes and fix any issues before finishing.
 
+Validation note:
+- `npm run lint` is the repo-standard lint command.
+- Most project linting comes from `oxlint`; do not swap in `npx eslint` unless a specialized check explicitly requires it.
+
 ## Defaults
 
 - No `any`; use `unknown` plus guards or schema validation.

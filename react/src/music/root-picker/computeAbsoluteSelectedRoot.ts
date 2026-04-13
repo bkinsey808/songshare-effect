@@ -16,6 +16,10 @@ export default function computeAbsoluteSelectedRoot(
 	selectedRoot: SelectedRoot,
 	songKey: SongKey | "",
 ): SongKey | undefined {
+	if (selectedRoot.rootType === "any") {
+		return undefined;
+	}
+
 	if (selectedRoot.rootType === "absolute") {
 		return selectedRoot.root;
 	}

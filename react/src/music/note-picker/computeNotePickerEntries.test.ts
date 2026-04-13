@@ -95,6 +95,22 @@ describe("computeNotePickerEntries", () => {
 		expect(entries[ROOT_OFFSET]?.isActive).toBe(true);
 	});
 
+	it("uses the fallback letter root when provided without a selected root", () => {
+		const selectedShape = getChordShapeByCode(MAJOR_SHAPE_CODE);
+
+		const entries = computeNotePickerEntries({
+			selectedBassNote: undefined,
+			absoluteRoot: undefined,
+			fallbackLetterRoot: ABSOLUTE_ROOT_C,
+			activeInversion: undefined,
+			selectedShape,
+		});
+
+		expect(entries[ROOT_OFFSET]?.letterName).toBe("C");
+		expect(entries[MAJOR_THIRD_OFFSET]?.letterName).toBe("E");
+		expect(entries[PERFECT_FIFTH_OFFSET]?.letterName).toBe("G");
+	});
+
 	it("marks only root as active when selectedShape is undefined", () => {
 		// Act
 		const entries = computeNotePickerEntries({

@@ -10,6 +10,18 @@ repository.
 - Read `docs/ai/ai-system.md` for the shared cross-tool AI-system layout.
 - Load task-specific guidance from `skills/*/SKILL.md` and `agents/*.agent.md`.
 
+## Skill Discovery
+
+Before starting any task, run the QMD search engine to find the most relevant
+guidance files. This ensures you only load what is necessary for the task:
+
+```bash
+npm run qmd -- search "<task description>"
+```
+
+See [Skill Discovery via QMD](docs/ai/ai-system.md#skill-discovery-via-qmd) in the
+AI System docs for full details.
+
 ## Gemini-Specific Notes
 
 - If this file and the shared files disagree, the shared files win.

@@ -30,6 +30,10 @@ export default function computeCanonicalToken({
 		return undefined;
 	}
 
+	if (selectedRoot.rootType === "any") {
+		return undefined;
+	}
+
 	if (selectedRoot.rootType === "roman") {
 		return formatStoredChordToken({
 			root: selectedRoot.root,

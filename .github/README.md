@@ -63,11 +63,22 @@ skills, or agent files rather than being duplicated here.
 This directory is not a GitHub platform convention. GitHub.com does not do
 anything with it by default.
 
+**Repository standard:** Workspace hooks for **GitHub Copilot and Cursor** (VS Code
+`chat.useCustomAgentHooks`) are defined **here** — not duplicated under
+`.cursor/hooks.json` for shared behavior.
+
 In this repo it is used by local agent tooling:
 
 - `hooks/block-dangerous-commands.json` defines a `PreToolUse` hook
 - that hook runs `agents/scripts/block-dangerous-commands.bun.ts`
 - the goal is to stop obviously dangerous shell commands before execution
+- `hooks/qmd-session-context.json` defines a `SessionStart` hook
+- that hook runs `agents/scripts/qmd-session-start-context.bun.ts`
+- the goal is to inject stable QMD usage guidance into VS Code agent sessions
+- `hooks/qmd-user-prompt-context.json` defines a `UserPromptSubmit` hook
+- that hook runs `agents/scripts/qmd-user-prompt-context.bun.ts`
+- the goal is to run a filtered prompt-time QMD search and inject a compact
+  result summary for Copilot/Cursor
 
 So this path has special meaning here, but only because repo tooling is wired
 to it.

@@ -37,6 +37,7 @@ describe("computeDisplayedShapes", () => {
 			minNotes: MIN_NOTES,
 			maxNotes: MAX_NOTES,
 			noteSearchState: new Map(),
+			spellingSearchState: new Map(),
 			selectedShapeCode,
 		});
 
@@ -55,6 +56,7 @@ describe("computeDisplayedShapes", () => {
 			minNotes: MIN_NOTES,
 			maxNotes: MAX_NOTES,
 			noteSearchState: new Map(),
+			spellingSearchState: new Map(),
 			selectedShapeCode: MAJOR_SHAPE_CODE,
 		});
 
@@ -73,6 +75,7 @@ describe("computeDisplayedShapes", () => {
 			minNotes: MIN_NOTES,
 			maxNotes: MAX_NOTES,
 			noteSearchState: new Map(),
+			spellingSearchState: new Map(),
 			selectedShapeCode: UNKNOWN_CODE,
 		});
 
@@ -89,6 +92,7 @@ describe("computeDisplayedShapes", () => {
 			minNotes: MIN_NOTES,
 			maxNotes: MAX_NOTES,
 			noteSearchState: new Map(),
+			spellingSearchState: new Map(),
 			selectedShapeCode: SYNTHETIC_SHAPE_CODE,
 		});
 

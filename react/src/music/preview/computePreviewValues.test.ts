@@ -26,6 +26,8 @@ const MAJOR_SHAPE_CODE = "M";
 // "[I M]" in letters mode with key G transforms to "[G M]"
 const CANONICAL_TOKEN_I_M = "[I M]";
 const DISPLAYED_TOKEN_G_M = "[G M]";
+const DISPLAYED_TOKEN_C_M = "[C M]";
+const CANONICAL_TOKEN_IV_M = "[IV M]";
 const MAJOR_SHAPE_SPELLING = "3,5";
 
 const BASS_NOTE_E = "E" as SongKey;
@@ -33,6 +35,7 @@ const SLASH_TOKEN_E = "E slash preview";
 const INVERSION_BASE_SHAPE_NAME = "Major";
 const RE_ROOTED_SPELLING = "4,b6";
 const EMPTY_STRING = "";
+const ANY_ROOT: SelectedRoot = { root: "any", rootType: "any", label: "Any" };
 
 const SELECTED_ROOT_I: SelectedRoot = { root: "I", rootType: "roman", label: "I" };
 
@@ -91,6 +94,31 @@ describe("computePreviewValues", () => {
 
 		// Assert
 		expect(previewToken).toBe(expectedPreviewToken);
+	});
+
+	it("builds a concrete preview token when the root is any", () => {
+		const { previewToken, alternatePreviewToken } = computePreviewValues({
+			...makeBaseParams(),
+			canonicalToken: undefined,
+			selectedRoot: ANY_ROOT,
+		});
+
+		expect(previewToken).toBe(DISPLAYED_TOKEN_C_M);
+		expect(alternatePreviewToken).toBe(CANONICAL_TOKEN_IV_M);
+	});
+
+	it("uses the fallback preview root for alternate letter-form details when the root is any", () => {
+		const { previewToken, alternatePreviewLabel, alternatePreviewToken } = computePreviewValues({
+			...makeBaseParams(),
+			canonicalToken: undefined,
+			selectedRoot: ANY_ROOT,
+			chordDisplayCategory: ChordDisplayCategory.scaleDegree,
+			chordDisplayMode: ChordDisplayMode.roman,
+		});
+
+		expect(previewToken).toBe(CANONICAL_TOKEN_IV_M);
+		expect(alternatePreviewLabel).toBe("Letter Form");
+		expect(alternatePreviewToken).toBe("[C M] C E G");
 	});
 
 	it.each([

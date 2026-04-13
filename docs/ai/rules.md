@@ -10,6 +10,7 @@ Quick-reference coding guidelines. Follow skill links for detailed guidance.
 - **Bun scripts**: use the `.bun.ts` extension (e.g. `scripts/postinstall-playwright.bun.ts`).
 - **ReactElement is ambient**: do not import it from `react` — it is available globally.
 - **JSDoc in TypeScript**: never include type annotations in JSDoc for `.ts` / `.tsx` — TypeScript provides the types. OK in plain `.js` files only.
+- **Keep JSDoc current**: when you change component props, function parameters, or behavior described by a JSDoc block, update that JSDoc in the same edit.
 - **No lint disables in test files**: do not add `oxlint-disable` or `eslint-disable` in `*.test.ts` / `*.test.tsx`. Fix the code, or extract helpers into `*.test-util.*` files.
 - **Strict TypeScript**: project uses `exactOptionalPropertyTypes` and `noPropertyAccessFromIndexSignature`. See [docs/typescript-best-practices.md](/docs/typescript-best-practices.md).
 - **Tailwind string marker**: prefer `tw\`\`` for static Tailwind utility strings so they are clearly compiler-targeted.
@@ -33,6 +34,11 @@ Safe to auto-run (`SafeToAutoRun: true`):
 - `npm run test:unit` (with any file path arguments)
 - `npm run lint`
 - `npm run format`
+
+Lint rule of thumb:
+- Run `npm run lint` from the project root for lint validation.
+- Do not use `npx eslint` as the default lint command in this repo.
+- Most repo linting flows through `oxlint`; direct `eslint` runs are only for specialized checks that explicitly require it.
 
 Never auto-run: git write operations, deployments, system-level package installs.
 

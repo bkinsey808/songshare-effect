@@ -20,6 +20,7 @@ shared system.
 - Keep TypeScript strict; avoid `any`.
 - Be React Compiler friendly; avoid manual memoization unless clearly needed.
 - Do not repeat types in JSDoc for `.ts` or `.tsx` files.
+- Keep JSDoc in sync with code changes: when props, parameters, or behavior change, update the affected JSDoc in the same edit.
 - Use ESM for config files.
 - Keep docs in `docs/` kebab-case.
 - Colocate unit tests with source files.
@@ -29,6 +30,7 @@ shared system.
 
 ## Workflow
 
+- Before starting any task, run `npm run qmd -- search "<task description>"` to find the relevant skill and doc files. Load only those.
 - Inspect only the files relevant to the task.
 - Prefer minimal, root-cause fixes over surface patches.
 - Run the narrowest relevant validation first, then broader checks if needed.

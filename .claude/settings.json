@@ -1,5 +1,16 @@
 {
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/qmd-context.sh",
+            "statusMessage": "Searching skills and docs..."
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Write",

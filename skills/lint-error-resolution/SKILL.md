@@ -23,6 +23,11 @@ description: >
 - Apply the fix directly. After the change, output one sentence explaining the root cause and what was changed.
 - Run `npm run lint` to confirm clean; report result.
 
+**Lint command policy:**
+- Use `npm run lint` as the default lint entrypoint for this repo.
+- Do not substitute `npx eslint` for normal validation.
+- Most lint enforcement here runs through `oxlint`; direct `eslint` usage is reserved for specialized checks that explicitly call for it.
+
 **Error handling:**
 - If the error pattern is not in the lookup table, load [docs/lint-best-practices.md](/docs/lint-best-practices.md) for the full reference.
 - If the fix requires a type change that cascades across multiple files, report the scope before proceeding and ask for direction.

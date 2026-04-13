@@ -10,9 +10,12 @@ import type {
 import computeNotePickerEntries from "@/react/music/note-picker/computeNotePickerEntries";
 import type { NotePickerEntry } from "@/react/music/note-picker/NotePickerEntry.type";
 import type { NoteSearchEntry } from "@/react/music/note-picker/NoteSearchEntry.type";
+import computePreviewSelectedRoot from "@/react/music/preview/computePreviewSelectedRoot";
 import computePreviewValues from "@/react/music/preview/computePreviewValues";
+import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
 import computeInitialSelectedRoot from "@/react/music/root-picker/computeInitialSelectedRoot";
 import computeRootPickerDisplayMode from "@/react/music/root-picker/computeRootPickerDisplayMode";
+import DEFAULT_ROOT from "@/react/music/root-picker/defaultRoot";
 import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import computeCanonicalRootAndShape from "@/react/music/sci/computeCanonicalRootAndShape";
 import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
@@ -53,6 +56,7 @@ type UseChordPickerResult = Readonly<{
 	absoluteRoot: SongKey | undefined;
 	handleInsert: () => void;
 	handleNoteToggle: (semitoneOffset: number) => void;
+	handleSpellingSearchToggle: (semitoneOffset: number) => void;
 	handleNoteSearchToggle: (semitoneOffset: number) => void;
 	getNoteSearchRoot: (spelling: string) => SongKey | undefined;
 	handleSelectInversion: (inversion: SciInversion) => void;
@@ -66,6 +70,7 @@ type UseChordPickerResult = Readonly<{
 	maxNotes: number;
 	maxNotesInputId: string;
 	notePickerEntries: readonly NotePickerEntry[];
+	spellingSearchEntries: readonly NoteSearchEntry[];
 	noteSearchEntries: readonly NoteSearchEntry[];
 	previewToken: string;
 	query: string;
@@ -106,13 +111,18 @@ export default function useChordPicker({
 		chordScaleDegreeDisplay,
 		chordDisplayMode,
 	});
-	const [selectedRoot, setSelectedRoot] = useState<SelectedRoot>(() =>
-		computeInitialSelectedRoot({
+	function getInitialSelectedRoot(): SelectedRoot {
+		return computeInitialSelectedRoot({
 			chordDisplayMode: rootPickerDisplayMode,
 			initialChordToken,
 			songKey,
-		}),
-	);
+		});
+	}
+	const [selectedRoot, setSelectedRootState] = useState<SelectedRoot>(getInitialSelectedRoot);
+	const [anyRootFallback, setAnyRootFallback] = useState<SongKey>(() => {
+		const initialAbsoluteRoot = computeAbsoluteSelectedRoot(getInitialSelectedRoot(), songKey);
+		return initialAbsoluteRoot ?? DEFAULT_ROOT;
+	});
 	const [selectedShapeCode, setSelectedShapeCode] = useState(() =>
 		computeInitialShapeCode({ initialChordToken }),
 	);
@@ -132,7 +142,7 @@ export default function useChordPicker({
 		selectBassNote,
 	} = useSciInversions({
 		selectedRoot,
-		setSelectedRoot,
+		setSelectedRoot: setSelectedRootState,
 		selectedShapeCode,
 		onShapeCodeChange: setSelectedShapeCode,
 		songKey,
@@ -157,8 +167,10 @@ export default function useChordPicker({
 		selectedShape,
 		allShapeInversions,
 		directShapeOrdinals,
+		spellingSearchEntries,
 		noteSearchEntries,
 		getNoteSearchRoot,
+		handleSpellingSearchToggle,
 		handleNoteSearchToggle,
 	} = useChordSearch({
 		initialChordToken,
@@ -175,8 +187,9 @@ export default function useChordPicker({
 		selectedBassNote,
 		activeInversion,
 	});
+	const effectiveCanonicalRoot = computePreviewSelectedRoot(canonicalRoot, anyRootFallback);
 	const canonicalToken = computeCanonicalToken({
-		selectedRoot: canonicalRoot,
+		selectedRoot: effectiveCanonicalRoot,
 		selectedShapeCode: canonicalShapeCode,
 		songKey,
 	});
@@ -192,6 +205,7 @@ export default function useChordPicker({
 	const notePickerEntries = computeNotePickerEntries({
 		selectedBassNote: undefined,
 		absoluteRoot: notePickerRoot,
+		fallbackLetterRoot: selectedRoot.rootType === "any" ? anyRootFallback : undefined,
 		activeInversion,
 		selectedShape: notePickerShape,
 	});
@@ -202,7 +216,7 @@ export default function useChordPicker({
 		notePickerRoot,
 		absoluteRoot,
 		clearInversion,
-		setSelectedRoot,
+		setSelectedRoot: setSelectedRootState,
 		setSelectedShapeCode,
 		selectBassNote,
 	});
@@ -238,6 +252,7 @@ export default function useChordPicker({
 		chordDisplayMode,
 		inversionBaseShapeName,
 		slashPreviewTokens,
+		fallbackPreviewRoot: anyRootFallback,
 		t,
 	});
 
@@ -268,6 +283,7 @@ export default function useChordPicker({
 		absoluteRoot,
 		handleInsert,
 		handleNoteToggle,
+		handleSpellingSearchToggle,
 		handleNoteSearchToggle,
 		handleSelectInversion,
 		handleSelectShapeInversion,
@@ -279,6 +295,7 @@ export default function useChordPicker({
 		maxNotes,
 		maxNotesInputId,
 		notePickerEntries,
+		spellingSearchEntries,
 		noteSearchEntries,
 		previewToken,
 		query,
@@ -293,7 +310,15 @@ export default function useChordPicker({
 		selectedBassNote,
 		setSelectedRoot: (nextRoot: SelectedRoot): void => {
 			clearInversion();
-			setSelectedRoot(nextRoot);
+			if (nextRoot.rootType === "any") {
+				setAnyRootFallback(notePickerRoot ?? absoluteRoot ?? anyRootFallback);
+			} else {
+				const nextAbsoluteRoot = computeAbsoluteSelectedRoot(nextRoot, songKey);
+				if (nextAbsoluteRoot !== undefined) {
+					setAnyRootFallback(nextAbsoluteRoot);
+				}
+			}
+			setSelectedRootState(nextRoot);
 		},
 		setSelectedShapeCode: (shapeCode: string): void => {
 			clearInversion();

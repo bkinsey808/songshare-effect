@@ -1,10 +1,11 @@
 import {
-    getChordShapeByCode,
-    searchChordShapes,
-    type ChordShape,
+	getChordShapeByCode,
+	searchChordShapes,
+	type ChordShape,
 } from "@/shared/music/chord-shapes";
 
 import filterShapeByNoteSearch from "@/react/music/note-picker/filterShapeByNoteSearch";
+import filterSpellingBySpellingSearch from "@/react/music/note-picker/filterSpellingBySpellingSearch";
 import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
 
 const FIRST_SHAPE_INDEX = 0;
@@ -21,6 +22,7 @@ const ROOT_NOTE_COUNT = 1;
  * @param minNotes - Minimum note count filter
  * @param maxNotes - Maximum note count filter
  * @param noteSearchState - Note search filter: required/excluded states by semitone offset
+ * @param spellingSearchState - Spelling search filter: required/excluded states by interval offset
  * @param selectedShapeCode - Code of the currently selected chord shape
  * @returns Ordered shape list and the resolved selected shape
  */
@@ -29,19 +31,23 @@ export default function computeDisplayedShapes({
 	minNotes,
 	maxNotes,
 	noteSearchState,
+	spellingSearchState,
 	selectedShapeCode,
 }: Readonly<{
 	query: string;
 	minNotes: number;
 	maxNotes: number;
 	noteSearchState: ReadonlyMap<number, NoteSearchToggleState>;
+	spellingSearchState: ReadonlyMap<number, NoteSearchToggleState>;
 	selectedShapeCode: string;
 }>): Readonly<{
 	displayedShapes: readonly ChordShape[];
 	selectedShape: ChordShape | undefined;
 }> {
-	const availableShapes = searchChordShapes({ query, minNotes, maxNotes }).filter((shape) =>
-		filterShapeByNoteSearch(shape, noteSearchState),
+	const availableShapes = searchChordShapes({ query, minNotes, maxNotes }).filter(
+		(shape) =>
+			filterShapeByNoteSearch(shape, noteSearchState) &&
+			filterSpellingBySpellingSearch(shape.spelling, spellingSearchState),
 	);
 	const selectedShapeInResults = availableShapes.find((shape) => shape.code === selectedShapeCode);
 	const displayedShapes =

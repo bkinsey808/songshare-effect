@@ -1,6 +1,8 @@
 import formatRootOptionLabel from "@/react/music/root-picker/formatRootOptionLabel";
+import getAbsoluteRootFromRomanDegree from "@/shared/music/chord-display/getAbsoluteRootFromRomanDegree";
 import type {
 	AbsoluteSelectedRoot,
+	AnySelectedRoot,
 	RomanSelectedRoot,
 	SelectedRoot,
 } from "@/react/music/root-picker/selected-root.type";
@@ -23,6 +25,8 @@ type RootOptionRow = Readonly<{
 	primary: SelectedRoot;
 	secondary?: SelectedRoot;
 }>;
+
+const ANY_ROOT = "any" as const;
 
 const ABSOLUTE_ROOT_ROWS: readonly AbsoluteRootOptionRow[] = [
 	{ primary: { root: "C", rootType: "absolute", label: "C" } },
@@ -84,26 +88,61 @@ const ROMAN_ROOT_ROWS: readonly RomanRootOptionRow[] = [
 	{ primary: { root: "VII", rootType: "roman", label: "VII" } },
 ] as const;
 
+function formatRomanRootOptionLabel(root: RomanSelectedRoot["root"], songKey: SongKey | ""): string {
+	const romanLabel = formatRootOptionLabel(root);
+	if (songKey === "") {
+		return romanLabel;
+	}
+
+	const absoluteRoot = getAbsoluteRootFromRomanDegree(root, songKey);
+	if (absoluteRoot === undefined) {
+		return romanLabel;
+	}
+
+	const letterLabel = formatChordRootForDisplay({
+		root: absoluteRoot,
+		chordDisplayMode: "letters",
+		songKey,
+	});
+	return `${romanLabel} (${letterLabel})`;
+}
+
 /**
  * Builds the selectable root rows for the current display mode.
  *
+ * @param includeAnyRoot - Whether to prepend an "Any" root option
+ * @param anyLabel - Localized label for the Any option
  * @param chordDisplayMode - Active chord display mode for the picker
  * @param songKey - Current song key used to format absolute roots
  * @returns Root option rows for the picker popover
  */
 export default function computeRootRows({
+	includeAnyRoot = false,
+	anyLabel = "Any",
 	chordDisplayMode,
 	songKey,
 }: Readonly<{
+	includeAnyRoot?: boolean;
+	anyLabel?: string;
 	chordDisplayMode: ChordDisplayModeType;
 	songKey: SongKey | "";
 }>): readonly RootOptionRow[] {
+	const anyRow: RootOptionRow | undefined = includeAnyRoot
+		? ({
+				primary: {
+					root: ANY_ROOT,
+					rootType: "any",
+					label: anyLabel,
+				} satisfies AnySelectedRoot,
+			} as const)
+		: undefined;
+
 	if (chordDisplayMode === "roman") {
-		return ROMAN_ROOT_ROWS.map((row) => {
+		const romanRows = ROMAN_ROOT_ROWS.map((row) => {
 			const primary: RomanSelectedRoot = {
 				root: row.primary.root,
 				rootType: row.primary.rootType,
-				label: formatRootOptionLabel(row.primary.label),
+				label: formatRomanRootOptionLabel(row.primary.root, songKey),
 			};
 
 			if (row.secondary === undefined) {
@@ -113,7 +152,7 @@ export default function computeRootRows({
 			const secondary: RomanSelectedRoot = {
 				root: row.secondary.root,
 				rootType: row.secondary.rootType,
-				label: formatRootOptionLabel(row.secondary.label),
+				label: formatRomanRootOptionLabel(row.secondary.root, songKey),
 			};
 
 			return {
@@ -121,9 +160,11 @@ export default function computeRootRows({
 				secondary,
 			};
 		});
+
+		return anyRow === undefined ? romanRows : [anyRow, ...romanRows];
 	}
 
-	return ABSOLUTE_ROOT_ROWS.map((row) => {
+	const absoluteRows = ABSOLUTE_ROOT_ROWS.map((row) => {
 		const primary: AbsoluteSelectedRoot = {
 			...row.primary,
 			label: formatChordRootForDisplay({
@@ -151,4 +192,6 @@ export default function computeRootRows({
 			secondary,
 		};
 	});
+
+	return anyRow === undefined ? absoluteRows : [anyRow, ...absoluteRows];
 }

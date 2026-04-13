@@ -36,6 +36,7 @@ description: >
 
 - **JSDoc on new/changed functions** — concise, purpose-focused, no type annotations in JSDoc.
   [→ code-comment-best-practices skill](/skills/code-comment-best-practices/SKILL.md)
+- **Keep JSDoc in sync** — if you change params, props, or the behavior described by existing JSDoc, update the JSDoc in the same edit.
 
 - **Ambient types** — `ReactElement` is ambient (no import needed); `ReactNode` must be imported.
   [→ full detail](/docs/typescript-best-practices.md#ambient-types)

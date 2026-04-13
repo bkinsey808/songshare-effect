@@ -164,7 +164,7 @@
 		"chordRoot": "根音",
 		"chordPreview": "预览",
 		"chordSearch": "搜索和弦结构",
-		"chordSearchPlaceholder": "按名称、代码或 b3 搜索",
+		"chordSearchPlaceholder": "按名称、代码或别名搜索",
 		"chordMaxNotes": "最多音数",
 		"chordNoResults": "没有匹配此搜索的和弦结构。",
 		"script": "脚本",

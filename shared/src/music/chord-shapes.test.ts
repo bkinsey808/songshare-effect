@@ -2,19 +2,21 @@ import { describe, expect, it } from "vitest";
 
 import { DEFAULT_MAX_CHORD_NOTES, getChordShapeByCode, searchChordShapes } from "./chord-shapes";
 
+const NO_RESULTS = 0;
+
 describe("chord-shapes", () => {
 	it("finds a shape by SCI code", () => {
 		expect(getChordShapeByCode("-")?.name).toBe("Minor Chord");
 		expect(getChordShapeByCode("M7")?.name).toBe("Major Seven");
 	});
 
-	it("searches by interval spelling tokens like b3", () => {
+	it("does not search by interval spelling tokens like b3", () => {
 		const result = searchChordShapes({
 			query: "b3",
 			maxNotes: DEFAULT_MAX_CHORD_NOTES,
 		});
 
-		expect(result.some((shape) => shape.code === "-")).toBe(true);
+		expect(result).toHaveLength(NO_RESULTS);
 		expect(result.every((shape) => shape.noteCount <= DEFAULT_MAX_CHORD_NOTES)).toBe(true);
 	});
 

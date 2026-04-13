@@ -8,7 +8,9 @@ import type { ChordScaleDegreeDisplayType } from "@/shared/user/chordScaleDegree
 
 import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
 import computeAlternatePreview from "@/react/music/preview/computeAlternatePreview";
+import computePreviewSelectedRoot from "@/react/music/preview/computePreviewSelectedRoot";
 import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
+import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
 
 type ComputePreviewValuesParams = Readonly<{
 	canonicalToken: string | undefined;
@@ -23,6 +25,7 @@ type ComputePreviewValuesParams = Readonly<{
 	chordDisplayMode: ChordDisplayModeType;
 	inversionBaseShapeName: string;
 	slashPreviewTokens: ReadonlyMap<SongKey, string>;
+	fallbackPreviewRoot?: SongKey;
 	t: (key: string, defaultValue: string) => string;
 }>;
 
@@ -51,6 +54,7 @@ type ComputePreviewValuesResult = Readonly<{
  * @param chordDisplayMode - Current display mode
  * @param inversionBaseShapeName - Name of the pre-inversion base shape
  * @param slashPreviewTokens - Map of bass note → slash chord display token
+ * @param fallbackPreviewRoot - Concrete preview root to use when the picker root is `Any`
  * @param t - Translation function
  * @returns All derived preview values needed by the chord picker UI
  */
@@ -67,20 +71,34 @@ export default function computePreviewValues({
 	chordDisplayMode,
 	inversionBaseShapeName,
 	slashPreviewTokens,
+	fallbackPreviewRoot,
 	t,
 }: ComputePreviewValuesParams): ComputePreviewValuesResult {
-	const previewToken =
-		canonicalToken === undefined
-			? ""
-			: transformChordTextForDisplay(canonicalToken, { chordDisplayMode, songKey });
+	const previewSelectedRoot = computePreviewSelectedRoot(selectedRoot, fallbackPreviewRoot);
+	const previewCanonicalToken =
+		canonicalToken ??
+		(selectedRoot.rootType === "any"
+			? computeCanonicalToken({
+					selectedRoot: previewSelectedRoot,
+					selectedShapeCode: selectedShape?.code,
+					songKey,
+				})
+			: undefined);
+	let previewToken = "";
+	if (previewCanonicalToken !== undefined) {
+		previewToken = transformChordTextForDisplay(previewCanonicalToken, {
+			chordDisplayMode,
+			songKey,
+		});
+	}
 
 	const { alternatePreviewLabel, alternatePreviewToken } = computeAlternatePreview({
 		chordDisplayCategory,
 		chordLetterDisplay,
 		chordScaleDegreeDisplay,
 		songKey,
-		canonicalToken,
-		selectedRoot,
+		canonicalToken: previewCanonicalToken,
+		selectedRoot: previewSelectedRoot,
 		selectedShape,
 		selectedBassNote,
 		t,

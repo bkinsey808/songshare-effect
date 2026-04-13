@@ -30,7 +30,7 @@ Antigravity-specific mechanics rather than duplicating shared repo rules.
 
 ## How to Use Workflows
 
-1. **Discovery**: Each workflow starts with a `description` in its YAML frontmatter, which helps the agent identify when it is relevant.
+1. **Discovery**: Before starting any task, run `npm run qmd -- search "<task description>"` or use the `/qmd` slash command to find relevant skill and doc files. Each workflow also starts with a `description` in its YAML frontmatter, which helps the agent identify when it is relevant.
 2. **Loading**: You can ask the agent to "follow the X workflow" or use a slash command.
 3. **Execution**: The agent will read the file and execute the steps in sequence, reporting progress as it goes.
 4. **Turbo**: For steps marked with `// turbo`, the agent will execute the command and proceed without waiting for human approval, significantly speeding up routine tasks.

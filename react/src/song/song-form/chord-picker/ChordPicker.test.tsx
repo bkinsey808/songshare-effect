@@ -10,11 +10,37 @@ import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type"
 import ChordPicker from "./ChordPicker";
 
 const ONE_CALL = 1;
-const MIN_INTERVAL_MATCH_COUNT = 0;
 const DEFAULT_MAX_NOTES_VALUE = "4";
 const FIRST_ROOT_INDEX = 0;
 const SECOND_ROOT_INDEX = 1;
 const THIRD_ROOT_INDEX = 2;
+const MAJOR_THIRD_INDEX = 4;
+const PERFECT_FIFTH_INDEX = 7;
+const NOTE_PICKER_BUTTON_COUNT_WITH_EXPLICIT_ROOT = 11;
+
+function renderEditingChordPickerWithAnyRootSelected(): {
+	notePicker: HTMLElement;
+	spellingSearch: HTMLElement;
+} {
+	vi.mocked(ChordDisplayModeSelect).mockReturnValue(
+		<div data-testid="chord-display-mode-select" />,
+	);
+	mockChordDisplayModePreference("letters");
+
+	renderChordPicker({
+		songKey: "C",
+		initialChordToken: "[C M]",
+		isEditingChord: true,
+	});
+
+	const notePicker = screen.getByTestId("note-picker");
+	const spellingSearch = screen.getByTestId("spelling-search");
+
+	fireEvent.click(screen.getByTestId("chord-root-select"));
+	fireEvent.click(screen.getByRole("button", { name: "Any" }));
+
+	return { notePicker, spellingSearch };
+}
 
 function mockChordDisplayModePreference(
 	chordDisplayMode: "letters" | "german" | "roman" | "sargam" | "solfege",
@@ -124,6 +150,19 @@ describe("chordPicker", () => {
 		expect(screen.getByTestId("chord-root-select").textContent).toContain("I");
 	});
 
+	it("shows both roman and letter labels in root options when roman mode has a song key", () => {
+		vi.mocked(ChordDisplayModeSelect).mockReturnValue(
+			<div data-testid="chord-display-mode-select" />,
+		);
+		mockChordDisplayModePreference("roman");
+
+		renderChordPicker({ songKey: "G" });
+
+		fireEvent.click(screen.getByTestId("chord-root-select"));
+
+		expect(screen.getByRole("button", { name: "V (D)" })).toBeTruthy();
+	});
+
 	it("formats roman-selected roots as letters when the display mode changes", () => {
 		const selectedRoot: SelectedRoot = {
 			root: "V",
@@ -197,6 +236,112 @@ describe("chordPicker", () => {
 		expect(screen.getByTestId("confirm-insert-chord").textContent).toBe("Update");
 	});
 
+	it("shows Any as a root option while editing", () => {
+		renderEditingChordPickerWithAnyRootSelected();
+
+		expect(screen.getByTestId("chord-root-select").textContent).toContain("Any");
+		expect(screen.getByTestId("confirm-insert-chord").getAttribute("disabled")).toBeNull();
+	});
+
+	it("updates the edited chord when Any root is selected", () => {
+		const insertChordFromPicker = vi.fn();
+		vi.mocked(ChordDisplayModeSelect).mockReturnValue(
+			<div data-testid="chord-display-mode-select" />,
+		);
+		mockChordDisplayModePreference("letters");
+
+		renderChordPicker({
+			songKey: "C",
+			initialChordToken: "[C M]",
+			isEditingChord: true,
+			insertChordFromPicker,
+		});
+
+		fireEvent.click(screen.getByTestId("chord-root-select"));
+		fireEvent.click(screen.getByRole("button", { name: "Any" }));
+		fireEvent.click(screen.getByTestId("confirm-insert-chord"));
+
+		expect(insertChordFromPicker).toHaveBeenCalledWith("[I M]");
+	});
+
+	it("keeps the picker actions in a sticky footer", () => {
+		vi.mocked(ChordDisplayModeSelect).mockReturnValue(
+			<div data-testid="chord-display-mode-select" />,
+		);
+		mockChordDisplayModePreference("letters");
+
+		renderChordPicker();
+
+		expect(screen.getByTestId("chord-picker-actions").className).toContain("sticky");
+		expect(screen.getByTestId("chord-picker-actions").className).toContain("bottom-0");
+	});
+
+	it("hides the implied root button from the note picker when a root is selected", () => {
+		vi.mocked(ChordDisplayModeSelect).mockReturnValue(
+			<div data-testid="chord-display-mode-select" />,
+		);
+		mockChordDisplayModePreference("letters");
+
+		renderChordPicker({
+			songKey: "C",
+			initialChordToken: "[C M]",
+			isEditingChord: true,
+		});
+
+		const noteButtons = within(screen.getByTestId("note-picker")).getAllByRole("button");
+
+		expect(noteButtons).toHaveLength(NOTE_PICKER_BUTTON_COUNT_WITH_EXPLICIT_ROOT);
+		expect(noteButtons[FIRST_ROOT_INDEX]?.textContent).toBe("♭2D♭");
+	});
+
+	it("toggles the collapsible search section", () => {
+		vi.mocked(ChordDisplayModeSelect).mockReturnValue(
+			<div data-testid="chord-display-mode-select" />,
+		);
+		mockChordDisplayModePreference("letters");
+
+		renderChordPicker();
+
+		expect(screen.getByTestId("chord-shape-search")).toBeTruthy();
+		expect(screen.getByTestId("chord-shape-results")).toBeTruthy();
+
+		fireEvent.click(screen.getByTestId("chord-search-section-toggle"));
+		expect(screen.queryByTestId("chord-shape-search")).toBeNull();
+		expect(screen.queryByTestId("chord-shape-results")).toBeNull();
+
+		fireEvent.click(screen.getByTestId("chord-search-section-toggle"));
+		expect(screen.getByTestId("chord-shape-search")).toBeTruthy();
+		expect(screen.getByTestId("chord-shape-results")).toBeTruthy();
+	});
+
+	it.each([
+		{ expected: "C", noteButtonIndex: FIRST_ROOT_INDEX },
+		{ expected: "E", noteButtonIndex: MAJOR_THIRD_INDEX },
+		{ expected: "G", noteButtonIndex: PERFECT_FIFTH_INDEX },
+	])(
+		"shows $expected on note picker button $noteButtonIndex when Any root is selected",
+		({ expected, noteButtonIndex }) => {
+			const { notePicker } = renderEditingChordPickerWithAnyRootSelected();
+
+			expect(within(notePicker).getAllByRole("button")[noteButtonIndex]?.textContent).toBe(expected);
+		},
+	);
+
+	it.each([
+		{ expected: "1", noteButtonIndex: FIRST_ROOT_INDEX },
+		{ expected: "3", noteButtonIndex: MAJOR_THIRD_INDEX },
+		{ expected: "5", noteButtonIndex: PERFECT_FIFTH_INDEX },
+	])(
+		"hides note letters from spelling search button $noteButtonIndex when Any root is selected",
+		({ expected, noteButtonIndex }) => {
+			const { spellingSearch } = renderEditingChordPickerWithAnyRootSelected();
+
+			expect(within(spellingSearch).getAllByRole("button")[noteButtonIndex]?.textContent).toBe(
+				expected,
+			);
+		},
+	);
+
 	it("shows unicode accidentals in roman preview tokens", () => {
 		vi.mocked(ChordDisplayModeSelect).mockReturnValue(
 			<div data-testid="chord-display-mode-select" />,
@@ -223,7 +368,7 @@ describe("chordPicker", () => {
 		fireEvent.click(screen.getByTestId("chord-root-select"));
 		const rootRows = within(screen.getByTestId("chord-root-options")).getAllByRole("button");
 
-		expect(rootRows[FIRST_ROOT_INDEX]?.textContent).toBe("I");
+		expect(rootRows[FIRST_ROOT_INDEX]?.textContent).toBe("I (G)");
 	});
 
 	it("keeps I as the first roman option even when another degree is selected", () => {
@@ -235,12 +380,12 @@ describe("chordPicker", () => {
 		renderChordPicker({ songKey: "G" });
 
 		fireEvent.click(screen.getByTestId("chord-root-select"));
-		fireEvent.click(screen.getByRole("button", { name: "V" }));
+		fireEvent.click(screen.getByRole("button", { name: "V (D)" }));
 		fireEvent.click(screen.getByTestId("chord-root-select"));
 
 		const rootRows = within(screen.getByTestId("chord-root-options")).getAllByRole("button");
 
-		expect(rootRows[FIRST_ROOT_INDEX]?.textContent).toBe("I");
+		expect(rootRows[FIRST_ROOT_INDEX]?.textContent).toBe("I (G)");
 	});
 
 	it("shows both enharmonic roman root choices", () => {
@@ -272,8 +417,8 @@ describe("chordPicker", () => {
 
 		const rootRows = within(screen.getByTestId("chord-root-options")).getAllByRole("button");
 
-		expect(rootRows[SECOND_ROOT_INDEX]?.textContent).toBe("♯I");
-		expect(rootRows[THIRD_ROOT_INDEX]?.textContent).toBe("♭II");
+		expect(rootRows[SECOND_ROOT_INDEX]?.textContent).toBe("♯I (D♭)");
+		expect(rootRows[THIRD_ROOT_INDEX]?.textContent).toBe("♭II (D♭)");
 	});
 
 	it("shows letter root labels when the song has no key", () => {
@@ -287,28 +432,19 @@ describe("chordPicker", () => {
 		expect(screen.getByTestId("chord-root-select").textContent).toContain("C");
 	});
 
-	it("searches chord shapes by interval spelling and inserts the selected token", () => {
-		const insertChordFromPicker = vi.fn();
+	it("does not search chord shapes by interval spelling in the text query", () => {
 		vi.mocked(ChordDisplayModeSelect).mockReturnValue(
 			<div data-testid="chord-display-mode-select" />,
 		);
 		mockChordDisplayModePreference("letters");
 
-		renderChordPicker({ insertChordFromPicker });
+		renderChordPicker();
 
 		fireEvent.change(screen.getByTestId("chord-shape-search"), {
 			target: { value: "b3" },
 		});
 
-		expect(screen.getByText("Minor Chord")).toBeTruthy();
-		expect(screen.getAllByText(/♭3/).length).toBeGreaterThan(MIN_INTERVAL_MATCH_COUNT);
-
-		fireEvent.click(screen.getByTestId("chord-root-select"));
-		fireEvent.click(screen.getByRole("button", { name: "B♭" }));
-		fireEvent.click(screen.getByText("Minor Chord"));
-		fireEvent.click(screen.getByTestId("confirm-insert-chord"));
-
-		expect(insertChordFromPicker).toHaveBeenCalledWith("[bVII -]");
+		expect(screen.getByText("No chord shapes match this search.")).toBeTruthy();
 	});
 
 	it("shows the chord symbol on search result cards", () => {

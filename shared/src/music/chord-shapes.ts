@@ -49,8 +49,6 @@ const chordShapes: readonly ChordShape[] = (sciListRaw as readonly SciListEntry[
 		searchText: normalizeSearchText([
 			entry.txtName,
 			entry.txtCode,
-			entry.txtSpelling,
-			entry.txtNumIntervalForm,
 			entry.txtAltNames,
 			String(entry.numNote),
 		]),
@@ -77,10 +75,10 @@ function getChordShapeByCode(code: string): ChordShape | undefined {
 }
 
 /**
- * Searches the chord-shape catalog by name, code, interval spelling, aliases, and note count.
+ * Searches the chord-shape catalog by name, code, aliases, and note count.
  *
- * Query tokens are AND-matched, so `b3 7` returns shapes containing both terms. Results are also
- * filtered by the maximum number of notes, which defaults to tetrads.
+ * Query tokens are AND-matched, so `major 7` returns shapes containing both terms. Results are
+ * also filtered by the maximum number of notes, which defaults to tetrads.
  *
  * @param params - Search query and max-note filter
  * @returns Matching chord shapes sorted by preferred/common entries first

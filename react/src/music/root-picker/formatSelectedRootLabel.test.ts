@@ -6,6 +6,13 @@ import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type"
 describe("formatSelectedRootLabel", () => {
 	it.each([
 		{
+			name: "returns the configured label for any roots",
+			selectedRoot: { root: "any", rootType: "any", label: "Any" } satisfies SelectedRoot,
+			chordDisplayMode: "letters" as const,
+			songKey: "C" as const,
+			expected: "Any",
+		},
+		{
 			name: "formats roman roots as roman labels in roman mode without a song key",
 			selectedRoot: { root: "bIII", rootType: "roman", label: "bIII" } satisfies SelectedRoot,
 			chordDisplayMode: "roman" as const,

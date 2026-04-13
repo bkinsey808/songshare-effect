@@ -1,0 +1,11 @@
+{
+	"hooks": {
+		"SessionStart": [
+			{
+				"type": "command",
+				"command": "npx --yes bun ./agents/scripts/qmd-session-start-context.bun.ts",
+				"timeout": 5
+			}
+		]
+	}
+}

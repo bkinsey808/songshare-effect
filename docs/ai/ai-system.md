@@ -11,6 +11,7 @@ smallest possible amount of tool-specific wiring around it.
 ## Table of Contents
 
 - [Purpose](#purpose)
+- [AI hooks (repo map)](hooks.md)
 - [Design Principles](#design-principles)
 - [Shared Layers](#shared-layers)
 - [Directory Map](#directory-map)
@@ -26,6 +27,7 @@ smallest possible amount of tool-specific wiring around it.
 - [Gemini](#gemini)
 - [Shared Custom Agents](#shared-custom-agents)
 - [Skills](#skills)
+- [Skill Discovery via QMD](#skill-discovery-via-qmd)
 - [Commands](#commands)
 - [GitHub-Native Vs Tool-Specific `.github/`](#github-native-vs-tool-specific-github)
 - [How To Change The AI System](#how-to-change-the-ai-system)
@@ -47,10 +49,7 @@ smallest possible amount of tool-specific wiring around it.
   - [Practical Boundary Between Checks](#practical-boundary-between-checks)
 - [See Also](#see-also)
 
----
-
 <a id="purpose"></a>
-
 ## Purpose
 
 The AI system in this repository has two jobs:
@@ -69,10 +68,10 @@ That means this repo intentionally separates:
 Not every file is loaded by every tool. Some files are shared across tools, and
 some only matter to one integration.
 
----
+For a consolidated map of **lifecycle hooks** (`.github/hooks/`, `.claude/`,
+`agents/*.agent.md`, Codex), see [`docs/ai/hooks.md`](hooks.md).
 
 <a id="design-principles"></a>
-
 ## Design Principles
 
 Keep these principles intact when changing the system:
@@ -85,10 +84,7 @@ Keep these principles intact when changing the system:
 - If a rule changes, update the shared layer first.
 - If an adapter disagrees with the shared layer, the shared layer wins.
 
----
-
 <a id="shared-layers"></a>
-
 ## Shared Layers
 
 The cross-tool shared system has four main layers:
@@ -138,10 +134,7 @@ Tool-specific files should mainly do one of three things:
 Tool-specific automation is part of the overall AI system, but it is not part
 of the shared source-of-truth layer.
 
----
-
 <a id="directory-map"></a>
-
 ## Directory Map
 
 This table is the fastest way to orient yourself:
@@ -150,6 +143,7 @@ This table is the fastest way to orient yourself:
 | --- | --- | --- |
 | `AGENTS.md` | Repo-wide AI entry point | Shared |
 | `docs/ai/rules.md` | Canonical coding rules | Shared |
+| `docs/ai/hooks.md` | Lifecycle hook inventory (Copilot, Cursor, Claude Code, Codex) | Shared docs |
 | `skills/*/SKILL.md` | Reusable task guidance | Shared |
 | `agents/*.agent.md` | Reusable custom-agent prompts | Shared |
 | `agents/scripts/*` | Helper scripts used by shared custom agents and hooks | Shared |
@@ -158,9 +152,11 @@ This table is the fastest way to orient yourself:
 | `.codex/agents/*.toml` | Codex project-scoped custom-agent wrappers | Tool-specific |
 | `.codex/README.md` | Human-facing explanation of `.codex/` wiring | Tool-specific docs |
 | `api/AGENTS.md`, `react/AGENTS.md`, `shared/AGENTS.md` | Nested instruction layers for directory-specific Codex guidance | Tool-specific wiring |
+| `.github/hooks/*.json` | Copilot/Cursor workspace agent hooks (`chat.useCustomAgentHooks`) | Tool-specific wiring |
 | `.github/copilot-instructions.md` | Copilot adapter | Tool-specific |
 | `CLAUDE.md` | Claude adapter (auto-loaded at session start) | Tool-specific |
 | `.claude/settings.json` | Claude Code project hooks and permissions | Tool-specific |
+| `.claude/hooks/qmd-context.sh` | Claude Code `UserPromptSubmit` hook — runs `qmd search` and injects matching skill/doc excerpts into context | Tool-specific |
 | `.claude/settings.local.json` | Local permission overrides; usually gitignored | Tool-specific |
 | `.claude/README.md` | Human-facing explanation of `.claude/` wiring | Tool-specific docs |
 | `GEMINI.md` | Gemini adapter | Tool-specific |
@@ -181,10 +177,7 @@ Important absence cases in the current repo:
 
 Those absences are part of the design, not an accident.
 
----
-
 <a id="tool-matrix"></a>
-
 ## Tool Matrix
 
 | Tool | Main Repo Entry Files | Tool-Specific Behavior In This Repo |
@@ -199,10 +192,7 @@ Those absences are part of the design, not an accident.
 The practical takeaway is that all tools share the same core guidance, but they
 do not all load it through the same filenames.
 
----
-
 <a id="copilot"></a>
-
 ## Copilot
 
 GitHub Copilot's repo-specific adapter is
@@ -214,6 +204,11 @@ In this repo, Copilot should use:
 - [`docs/ai/rules.md`](/docs/ai/rules.md) for canonical coding rules
 - this document for the layout of the system
 - `skills/*/SKILL.md` and `agents/*.agent.md` for task-specific shared guidance
+
+Copilot uses the same VS Code hook pipeline as Cursor (workspace hooks under
+`.github/hooks/`, agent frontmatter hooks, and `chat.useCustomAgentHooks` in
+`.vscode/settings.json`). **Full hook map, repository standard, and QMD-related
+hooks:** [`docs/ai/hooks.md`](hooks.md).
 
 The Copilot adapter is intentionally thin. It should not become a second source
 of truth.
@@ -234,10 +229,7 @@ The `.github/` directory has mixed semantics in this repo. GitHub Actions uses
 adapter, not a GitHub Actions file. See
 [`/.github/README.md`](/.github/README.md) for that distinction.
 
----
-
 <a id="claude"></a>
-
 ## Claude
 
 Claude's adapter is [`/CLAUDE.md`](/CLAUDE.md).
@@ -279,19 +271,11 @@ rules and that Copilot gets from `chat.agentFilesLocations`.
 
 ### Hook system
 
-Claude Code has its own hook mechanism in
-[`.claude/settings.json`](/.claude/settings.json) using `PreToolUse` and
-`PostToolUse` event keys. This is completely separate from the `hooks:` field in
-`*.agent.md` frontmatter, which is processed by Cursor and Copilot via
-`chat.useCustomAgentHooks: true` but ignored by Claude Code.
-
-Current Claude Code hooks in this repo:
-
-- `PostToolUse` on `Write` — reminds Claude to add JSDoc to new `.ts` files
-
-Agent-level hooks such as the `unit-test-agent-guard` only fire for Cursor and
-Copilot when those agents are active. Claude enforces equivalent boundaries
-through the instructions in the agent files rather than hard hook enforcement.
+Claude Code registers hooks in [`.claude/settings.json`](/.claude/settings.json).
+That system is separate from the `hooks:` field in `*.agent.md` frontmatter
+(which Cursor and Copilot process via `chat.useCustomAgentHooks` but Claude Code
+does not). **Registered hooks, scripts, and cross-tool comparison:**
+[`docs/ai/hooks.md`](hooks.md).
 
 ### Memory
 
@@ -301,10 +285,7 @@ automatically at session start alongside `CLAUDE.md`. It records project
 decisions, user preferences, and cross-session context. This is a Claude Code
 native feature with no equivalent in the other tools.
 
----
-
 <a id="codex"></a>
-
 ## Codex
 
 Codex does not currently have a committed repo-specific adapter file such as
@@ -338,9 +319,8 @@ The shared files remain canonical:
 
 What the new Codex layer adds in this repo:
 
-- repo-local Bash guardrails through [`.codex/hooks.json`](/.codex/hooks.json)
-- a session-start context reminder through
-  [`.codex/hooks/session-start-context.sh`](/.codex/hooks/session-start-context.sh)
+- repo-local hooks and Bash guardrails — **details:**
+  [`docs/ai/hooks.md`](hooks.md#codexhooksjson--codex)
 - project-scoped custom-agent wrappers under [`.codex/agents/`](/.codex/agents)
   that point back to the shared [`/agents/`](/agents) prompts
 - layered directory-specific guidance through [`api/AGENTS.md`](/api/AGENTS.md),
@@ -376,10 +356,7 @@ the others:
 - document only Codex-specific nuances that the shared files cannot express
 - do not duplicate large rule lists
 
----
-
 <a id="antigravity"></a>
-
 ## Antigravity
 
 Antigravity's repo-specific area is [`/.agent/`](/.agent).
@@ -425,10 +402,7 @@ So for Antigravity in this repo:
 - shared task guidance still lives in [`/skills/`](/skills)
 - the `.agent/` directory adds workflow automation semantics on top
 
----
-
 <a id="cursor"></a>
-
 ## Cursor
 
 Cursor's repo-specific area is [`/.cursor/`](/.cursor).
@@ -440,7 +414,6 @@ There are three important pieces to understand:
 3. `.vscode/settings.json`
 
 <a id="cursor-rules-mdc"></a>
-
 ### `.cursor/rules/*.mdc`
 
 These are Cursor project-rule files. In this repo they are used as routing and
@@ -465,7 +438,6 @@ That is why the Cursor rule files are small. They attach; they do not try to be
 the source of truth.
 
 <a id="vscode-settings-json"></a>
-
 ### `.vscode/settings.json`
 
 This workspace settings file is part of Cursor and Copilot wiring in this repo
@@ -487,8 +459,11 @@ This is one of the most important AI-system decisions in the repo. It keeps
 Cursor and Copilot aligned with the shared cross-tool layout instead of creating
 separate tool-specific skills trees.
 
-<a id="cursor-readme"></a>
+Shared **agent hooks** (QMD, command guards, and similar) are documented in
+[`docs/ai/hooks.md`](hooks.md). Cursor reads the same hook JSON as Copilot; QMD
+nuance is also in [`docs/ai/qmd.md`](qmd.md) and [`.cursor/README.md`](/.cursor/README.md).
 
+<a id="cursor-readme"></a>
 ### `.cursor/README.md`
 
 This README explains the Cursor-specific layout and warns about common points of
@@ -504,10 +479,7 @@ Cursor in this repo should therefore be understood as:
 - `.mdc` files for attachment and routing
 - workspace settings to tell Cursor where the shared content lives
 
----
-
 <a id="gemini"></a>
-
 ## Gemini
 
 Gemini's adapter is [`/GEMINI.md`](/GEMINI.md).
@@ -527,10 +499,7 @@ It also records a small amount of tool-local context:
 If more reusable Gemini guidance is ever needed, it should usually move into
 the shared system first.
 
----
-
 <a id="shared-custom-agents"></a>
-
 ## Shared Custom Agents
 
 Shared custom-agent prompts live under [`/agents/`](/agents).
@@ -556,30 +525,16 @@ These files are shared assets, not Cursor-only or Codex-only prompts. They are
 intended to be reused across the tools listed above anywhere a tool can load a
 focused agent or prompt file.
 
-The `agents/scripts/` directory contains helper scripts used by those shared
-agents and their hooks:
-
-- [`block-dangerous-commands.bun.ts`](/agents/scripts/block-dangerous-commands.bun.ts)
-- [`unit-test-agent-guard.bun.ts`](/agents/scripts/unit-test-agent-guard.bun.ts)
+The `agents/scripts/` directory contains helper scripts used by shared custom
+agents and hooks — see [`docs/ai/hooks.md`](hooks.md#helper-scripts-agentsscripts).
 
 #### Agent frontmatter hooks
 
-The `hooks:` field in `*.agent.md` frontmatter is processed by Cursor and
-Copilot via `chat.useCustomAgentHooks: true` in `.vscode/settings.json`. It is
-not processed by Claude Code, Codex, Gemini, or Antigravity.
-
-Claude Code has its own hook system in `.claude/settings.json`. Codex, Gemini,
-and Antigravity each have their own hook or automation mechanisms that are
-separate from the agent frontmatter. In this repo, Codex uses
-[`.codex/hooks.json`](/.codex/hooks.json) for repo-local hook wiring.
-
-Use `agents/*.agent.md` when the task benefits from a bounded persona or tool
-policy. Use `skills/` when the task needs reusable procedural guidance.
-
----
+See [`docs/ai/hooks.md`](hooks.md#agentsagentmd--agent-scoped-hooks) for which
+tools process `hooks:` in `*.agent.md`, how that differs from Claude Code and
+Codex, and when to use agents versus `skills/`.
 
 <a id="skills"></a>
-
 ## Skills
 
 Shared skills live under [`/skills/`](/skills). They are the reusable,
@@ -613,10 +568,22 @@ This repo deliberately uses root `skills/` as the shared skills location. Do
 not create a second skills tree under `.cursor/skills/` unless you explicitly
 want Cursor-only skills that diverge from the shared system.
 
----
+<a id="skill-discovery-via-qmd"></a>
+## Skill Discovery via QMD
+
+[QMD](https://github.com/tobi/qmd) is a local CLI search engine for markdown.
+This repo uses it to find the relevant skill and doc files for a task, so
+agents load only what they need instead of everything.
+
+**Full reference:** [`docs/ai/qmd.md`](/docs/ai/qmd.md)
+
+Two collections are indexed: `skills/` and `docs/`. **Which tools run QMD via
+hooks versus manually:** [`docs/ai/hooks.md`](hooks.md#qmd-related-hooks-summary).
+The manual `npm run qmd -- search` workflow in [`AGENTS.md`](/AGENTS.md) still
+matters because automated hooks are intentionally limited (filtered, compact,
+or tool-specific).
 
 <a id="commands"></a>
-
 ## Commands
 
 "Commands" here means on-demand, invocable prompt templates that a user triggers
@@ -661,10 +628,7 @@ In practice:
 - Gemini relies on shared entry-point prose plus manual loading of the relevant
   `skills/` and `agents/` files
 
----
-
 <a id="github-native-vs-tool-specific-github"></a>
-
 ## GitHub-Native Vs Tool-Specific `.github/`
 
 The `.github/` directory is easy to misunderstand, so it deserves a dedicated
@@ -676,24 +640,20 @@ Under `.github/` in this repo:
 - `.github/copilot-instructions.md` is a Copilot adapter, not a GitHub Actions
   file
 - `.github/README.md` is human documentation
-- `.github/hooks/` is repo-specific local-tooling configuration, not a
-  GitHub-native directory
+- `.github/hooks/` is local editor/agent tooling (Copilot/Cursor), not something
+  GitHub.com runs — see [`docs/ai/hooks.md`](hooks.md#githubhooks-vs-githubcom)
 
 So "under `.github/`" does not automatically mean "special to GitHub itself."
 
 See [`/.github/README.md`](/.github/README.md) for the directory-specific
 breakdown.
 
----
-
 <a id="how-to-change-the-ai-system"></a>
-
 ## How To Change The AI System
 
 Use this decision guide when updating the system:
 
 <a id="change-a-repo-wide-coding-rule"></a>
-
 ### Change a repo-wide coding rule
 
 Update:
@@ -703,7 +663,6 @@ Update:
 Then update tool adapters only if they need different entry-point wording.
 
 <a id="add-reusable-task-guidance"></a>
-
 ### Add reusable task guidance
 
 Update or create:
@@ -712,7 +671,6 @@ Update or create:
 - a companion doc under `docs/` if the topic needs long-form reference
 
 <a id="add-a-focused-custom-agent-mode"></a>
-
 ### Add a focused custom-agent mode
 
 Update or create:
@@ -721,7 +679,6 @@ Update or create:
 - `agents/scripts/*` if hooks or helper scripts are required
 
 <a id="add-copilot-only-wiring"></a>
-
 ### Add Copilot-only wiring
 
 Update:
@@ -729,7 +686,6 @@ Update:
 - [`/.github/copilot-instructions.md`](/.github/copilot-instructions.md)
 
 <a id="add-claude-only-wiring"></a>
-
 ### Add Claude-only wiring
 
 Update:
@@ -737,7 +693,6 @@ Update:
 - [`/CLAUDE.md`](/CLAUDE.md)
 
 <a id="add-gemini-only-wiring"></a>
-
 ### Add Gemini-only wiring
 
 Update:
@@ -745,7 +700,6 @@ Update:
 - [`/GEMINI.md`](/GEMINI.md)
 
 <a id="add-cursor-only-attachment-or-routing-behavior"></a>
-
 ### Add Cursor-only attachment or routing behavior
 
 Update:
@@ -758,7 +712,6 @@ Do not create Cursor-only duplicates of shared rules unless absolutely
 necessary.
 
 <a id="add-antigravity-or-workflow-automation-playbooks"></a>
-
 ### Add Antigravity or workflow-automation playbooks
 
 Update:
@@ -768,7 +721,6 @@ Update:
 Do not move shared coding rules into `.agent/workflows/`.
 
 <a id="add-a-claude-code-custom-command"></a>
-
 ### Add a Claude Code custom command
 
 Create:
@@ -781,7 +733,6 @@ reference rather than duplicating instructions. Custom commands are Claude-only;
 if the guidance should be shared across tools, add it to the shared layer first.
 
 <a id="add-github-automation"></a>
-
 ### Add GitHub automation
 
 Update:
@@ -790,10 +741,25 @@ Update:
 
 That is GitHub Actions infrastructure, not AI instructions.
 
----
+<a id="update-qmd-index"></a>
+### Update the QMD skill index
+
+After adding or significantly changing a skill or doc file, re-embed:
+
+```bash
+npx qmd embed
+```
+
+If you add a new top-level collection (e.g. a new `agents/` index), register
+it first:
+
+```bash
+npx qmd collection add ./agents --name agents
+npx qmd context add qmd://agents/ "Shared custom-agent prompts for focused task modes"
+npx qmd embed
+```
 
 <a id="workflows-and-commands"></a>
-
 ## Workflows and Commands
 
 While all tools share the same core rules, they differ in how they trigger multi-step procedures or custom commands. This repository uses Antigravity's `.agent/workflows/` as the primary engine for complex, repo-specific playbooks.
@@ -835,10 +801,7 @@ files for tighter directory-specific guidance. That still does not make Codex
 identical to Cursor, Copilot, Claude, or Antigravity, because Codex uses
 different product semantics for hooks, commands, and agent routing.
 
----
-
 <a id="validation"></a>
-
 ## Validation
 
 Use these checks after changing the AI system:
@@ -868,7 +831,6 @@ If you move paths, rename files, or add new adapter layers, run these checks in
 the same change.
 
 <a id="markdown-validation-scope"></a>
-
 ### Markdown Validation Scope
 
 The markdown and AI-doc linting pipeline is split across `lint`,
@@ -882,7 +844,6 @@ The markdown and AI-doc linting pipeline is split across `lint`,
   files to validate internal links and anchors.
 
 <a id="textlint-config-split"></a>
-
 ### Textlint Config Split
 
 `check:md` is intentionally split into three `textlint` passes:
@@ -919,7 +880,6 @@ This split is important because the repo intentionally holds different document
 types to different size budgets.
 
 <a id="link-validation"></a>
-
 ### Link Validation
 
 `check:links` uses `remark` across:
@@ -949,7 +909,6 @@ some known local or dashboard-style URLs such as `localhost`, `127.0.0.1`, and
 `dash.cloudflare.com`.
 
 <a id="practical-boundary-between-checks"></a>
-
 ### Practical Boundary Between Checks
 
 Use this rule of thumb:
@@ -962,13 +921,11 @@ Use this rule of thumb:
 If you touched AI docs, adapter files, skills, `.agent/`, or `agents/`, you
 usually want all three.
 
----
-
 <a id="see-also"></a>
-
 ## See Also
 
 - [AGENTS.md](/AGENTS.md)
+- [docs/ai/hooks.md](hooks.md)
 - [docs/ai/rules.md](/docs/ai/rules.md)
 - [.github/README.md](/.github/README.md)
 - [.cursor/README.md](/.cursor/README.md)
