@@ -278,6 +278,14 @@ mocked dependency, prefer non-factory `vi.mock("path")` + `vi.mocked(...)` and a
 merging. Use `vi.importActual` only for explicit, documented partial-mock exceptions where the
 non-factory pattern cannot express the behavior under test.
 
+**Practical preference:** Prefer the non-factory `vi.mock("path")` pattern over `vi.spyOn()` when
+you can. `vi.spyOn()` is useful as an escape hatch for one-off partial overrides on stable module
+references, but preferring top-level `vi.mock` keeps tests simpler, statically analyzable, and more
+robust in ESM environments. Also prefer static `import` at the top of test files instead of runtime
+`import()` calls; combine static imports with top-level `vi.mock("path")` + per-test
+`vi.mocked(...).mockImplementation(...)` to configure behavior. Only use `import()` when the test
+scenario truly requires runtime module resolution (very rare).
+
 <a id="mock-factory-pattern"></a>
 
 ### When to Use the `vi.mock` Factory Pattern (Required Guidance)

@@ -33,7 +33,7 @@ jobs:
     env:
       # Use a repo-local folder for Playwright browsers so we can cache it
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.playwright-browsers
-      VITE_STORAGE_BACKEND: ${{ vars.VITE_STORAGE_BACKEND || 'supabase' }}
+      VITE_STORAGE_BACKEND: ${{ vars.VITE_STORAGE_BACKEND }}
       VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
       VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
       VITE_ENVIRONMENT: ${{ vars.VITE_ENVIRONMENT }}
