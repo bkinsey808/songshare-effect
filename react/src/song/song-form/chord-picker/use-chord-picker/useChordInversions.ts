@@ -1,16 +1,18 @@
 import { useState } from "react";
 
-import computeSciInversions, { type SciInversion } from "@/react/music/inversions/computeSciInversions";
+import computeInversionPreviewTokens from "@/react/music/inversions/computeInversionPreviewTokens";
+import computeSciInversions, {
+	type SciInversion,
+} from "@/react/music/inversions/computeSciInversions";
+import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
+import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
+import computeInitialBassNote from "@/react/music/sci/computeInitialBassNote";
 import transformChordTextForDisplay from "@/shared/music/chord-display/transformChordTextForDisplay";
 import { getChordShapeByCode, type ChordShape } from "@/shared/music/chord-shapes";
 import { type SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
-import computeInversionPreviewTokens from "@/react/music/inversions/computeInversionPreviewTokens";
-import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
-import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
-import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
-import computeInitialBassNote from "@/react/music/sci/computeInitialBassNote";
 import useSongKeyRootSync from "./useSongKeyRootSync";
 
 type UseSciInversionsParams = Readonly<{
@@ -28,6 +30,7 @@ type UseSciInversionsResult = Readonly<{
 	absoluteRoot: SongKey | undefined;
 	activeInversion: SciInversion | undefined;
 	inversionBaseShape: ChordShape | undefined;
+	inversionBaseShapeCode: string | undefined;
 	inversionBaseShapeName: string;
 	displaySciInversions: readonly SciInversion[];
 	displayInversionPreviewTokens: ReadonlyMap<SongKey, string>;
@@ -194,6 +197,7 @@ export default function useSciInversions({
 		absoluteRoot,
 		activeInversion,
 		inversionBaseShape,
+		inversionBaseShapeCode,
 		inversionBaseShapeName: inversionBaseShape?.name ?? "",
 		displaySciInversions,
 		displayInversionPreviewTokens,

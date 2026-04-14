@@ -8,7 +8,7 @@ import type { ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
-import ChordSearchResultCard from "./result-card/ChordSearchResultCard";
+import ChordSearchResultCard from "./ChordSearchResultCard";
 
 const EMPTY_SHAPE_COUNT = 0;
 
@@ -23,6 +23,7 @@ type ChordSearchResultsProps = Readonly<{
 	setSelectedShapeCode: (shapeCode: string) => void;
 	directShapeOrdinals: ReadonlyMap<string, { ordinalLabel: string; sourceShapeName: string }>;
 	selectedBassNote: SongKey | undefined;
+	inversionBaseShapeCode: string | undefined;
 	handleSelectShapeInversion: (
 		sourceShapeCode: string,
 		inversion: ShapeInversion["inversion"],
@@ -43,6 +44,7 @@ export default function ChordSearchResults({
 	setSelectedShapeCode,
 	directShapeOrdinals,
 	selectedBassNote,
+	inversionBaseShapeCode,
 	handleSelectShapeInversion,
 }: ChordSearchResultsProps): ReactElement {
 	const { t } = useTranslation();
@@ -88,7 +90,8 @@ export default function ChordSearchResults({
 								key={`inv-${sourceShapeCode}-${inversion.bassRoot}-${String(inversion.inversionNumber)}`}
 								type="button"
 								className={`w-full rounded-xl border px-4 py-3 text-left transition ${
-									selectedBassNote === inversion.bassRoot
+									selectedBassNote === inversion.bassRoot &&
+									inversionBaseShapeCode === sourceShapeCode
 										? "border-blue-400 bg-blue-500/20 text-white"
 										: "border-gray-700 bg-gray-900 text-gray-200 hover:border-gray-500 hover:bg-gray-800"
 								}`}

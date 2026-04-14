@@ -6,8 +6,8 @@ import type {
 	ShapeInversion,
 } from "@/react/music/inversions/shape-inversion.type";
 import computeNoteSearchEntries from "@/react/music/note-picker/computeNoteSearchEntries";
-import computeSpellingSearchEntries from "@/react/music/note-picker/computeSpellingSearchEntries";
 import computeNoteSearchRoot from "@/react/music/note-picker/computeNoteSearchRoot";
+import computeSpellingSearchEntries from "@/react/music/note-picker/computeSpellingSearchEntries";
 import type { NoteSearchEntry } from "@/react/music/note-picker/NoteSearchEntry.type";
 import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
 import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
@@ -29,6 +29,8 @@ type UseChordSearchParams = Readonly<{
 	songKey: SongKey | "";
 	chordDisplayMode: ChordDisplayModeType;
 	rootPickerDisplayMode: ChordDisplayModeType;
+	/** True when a shape result card should show a selected highlight. */
+	shapeHighlightActive: boolean;
 }>;
 
 type UseChordSearchResult = Readonly<{
@@ -53,6 +55,7 @@ type UseChordSearchResult = Readonly<{
 	getNoteSearchRoot: (spelling: string) => SongKey | undefined;
 	handleSpellingSearchToggle: (semitoneOffset: number) => void;
 	handleNoteSearchToggle: (semitoneOffset: number) => void;
+	isShapeSelected: (shapeId: number) => boolean;
 }>;
 
 /**
@@ -73,6 +76,7 @@ export default function useChordSearch({
 	songKey,
 	chordDisplayMode,
 	rootPickerDisplayMode,
+	shapeHighlightActive,
 }: UseChordSearchParams): UseChordSearchResult {
 	const [query, setQuery] = useState("");
 	const [minNotes, setMinNotes] = useState(DEFAULT_MIN_CHORD_NOTES);
@@ -144,6 +148,10 @@ export default function useChordSearch({
 		return computeNoteSearchRoot(spelling, noteSearchState);
 	}
 
+	function isShapeSelected(shapeId: number): boolean {
+		return selectedShape?.id === shapeId && shapeHighlightActive;
+	}
+
 	return {
 		query,
 		setQuery,
@@ -166,5 +174,6 @@ export default function useChordSearch({
 		getNoteSearchRoot,
 		handleSpellingSearchToggle,
 		handleNoteSearchToggle,
+		isShapeSelected,
 	};
 }

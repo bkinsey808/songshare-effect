@@ -3,13 +3,8 @@ import { useTranslation } from "react-i18next";
 
 import useChordDisplayModePreference from "@/react/chord-display-mode/useChordDisplayModePreference";
 import { type SciInversion } from "@/react/music/inversions/computeSciInversions";
-import type {
-	DirectShapeOrdinal,
-	ShapeInversion,
-} from "@/react/music/inversions/shape-inversion.type";
 import computeNotePickerEntries from "@/react/music/note-picker/computeNotePickerEntries";
 import type { NotePickerEntry } from "@/react/music/note-picker/NotePickerEntry.type";
-import type { NoteSearchEntry } from "@/react/music/note-picker/NoteSearchEntry.type";
 import computePreviewSelectedRoot from "@/react/music/preview/computePreviewSelectedRoot";
 import computePreviewValues from "@/react/music/preview/computePreviewValues";
 import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
@@ -20,15 +15,17 @@ import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type"
 import computeCanonicalRootAndShape from "@/react/music/sci/computeCanonicalRootAndShape";
 import computeCanonicalToken from "@/react/music/sci/computeCanonicalToken";
 import computeInitialShapeCode from "@/react/music/sci/computeInitialShapeCode";
-import type { ChordShape } from "@/shared/music/chord-shapes";
+import { getChordShapeByCode, type ChordShape } from "@/shared/music/chord-shapes";
 import { type SongKey } from "@/shared/song/songKeyOptions";
 import { type ChordDisplayCategoryType } from "@/shared/user/chord-display/chordDisplayCategory";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
 import createNoteToggleHandler from "./createNoteToggleHandler";
 import useSciInversions from "./useChordInversions";
-import useChordSearch from "./useChordSearch";
 import useEscapeToClose from "./useEscapeToClose";
+
+/** The root note is always counted, adding one to the interval count for total note count. */
+const ROOT_NOTE_COUNT = 1;
 
 type UseChordPickerParams = Readonly<{
 	songKey: SongKey | "";
@@ -42,7 +39,6 @@ type UseChordPickerResult = Readonly<{
 	alternatePreviewToken: string;
 	canonicalToken: string | undefined;
 	chordDisplayCategory: ChordDisplayCategoryType;
-	chordDisplayMode: ReturnType<typeof useChordDisplayModePreference>["chordDisplayMode"];
 	chordInversions: readonly SciInversion[];
 	inversionBaseShapeName: string;
 	inversionPreviewTokens: ReadonlyMap<SongKey, string>;
@@ -50,38 +46,21 @@ type UseChordPickerResult = Readonly<{
 	slashPreviewToken: string;
 	slashPreviewShapeName: string;
 	previewShapeSpelling: string;
-	allShapeInversions: readonly ShapeInversion[];
-	directShapeOrdinals: ReadonlyMap<string, DirectShapeOrdinal>;
-	displayedShapes: readonly ChordShape[];
 	absoluteRoot: SongKey | undefined;
 	handleInsert: () => void;
 	handleNoteToggle: (semitoneOffset: number) => void;
-	handleSpellingSearchToggle: (semitoneOffset: number) => void;
-	handleNoteSearchToggle: (semitoneOffset: number) => void;
-	getNoteSearchRoot: (spelling: string) => SongKey | undefined;
 	handleSelectInversion: (inversion: SciInversion) => void;
 	handleSelectShapeInversion: (sourceShapeCode: string, inversion: SciInversion) => void;
-	includeInversions: boolean;
-	includeInversionsInputId: string;
-	isShapeSelected: (shapeId: number) => boolean;
+	inversionBaseShapeCode: string | undefined;
 	selectedBassNote: SongKey | undefined;
-	minNotes: number;
-	minNotesInputId: string;
-	maxNotes: number;
-	maxNotesInputId: string;
+	/** True when a shape card in search results should show as selected. */
+	shapeHighlightActive: boolean;
 	notePickerEntries: readonly NotePickerEntry[];
-	spellingSearchEntries: readonly NoteSearchEntry[];
-	noteSearchEntries: readonly NoteSearchEntry[];
 	previewToken: string;
-	query: string;
 	rootPickerDisplayMode: ChordDisplayModeType;
-	searchInputId: string;
 	selectedRoot: SelectedRoot;
 	selectedShape: ChordShape | undefined;
-	setMinNotes: (value: number) => void;
-	setMaxNotes: (value: number) => void;
-	setQuery: (value: string) => void;
-	setIncludeInversions: (value: boolean) => void;
+	selectedShapeCode: string;
 	setSelectedRoot: (nextRoot: SelectedRoot) => void;
 	setSelectedShapeCode: (shapeCode: string) => void;
 }>;
@@ -132,6 +111,7 @@ export default function useChordPicker({
 		absoluteRoot,
 		activeInversion,
 		inversionBaseShape,
+		inversionBaseShapeCode,
 		inversionBaseShapeName,
 		displaySciInversions,
 		displayInversionPreviewTokens,
@@ -150,36 +130,29 @@ export default function useChordPicker({
 		initialChordToken,
 	});
 
-	const {
-		query,
-		setQuery,
-		minNotes,
-		setMinNotes,
-		maxNotes,
-		setMaxNotes,
-		includeInversions,
-		setIncludeInversions,
-		searchInputId,
-		minNotesInputId,
-		maxNotesInputId,
-		includeInversionsInputId,
-		displayedShapes,
-		selectedShape,
-		allShapeInversions,
-		directShapeOrdinals,
-		spellingSearchEntries,
-		noteSearchEntries,
-		getNoteSearchRoot,
-		handleSpellingSearchToggle,
-		handleNoteSearchToggle,
-	} = useChordSearch({
-		initialChordToken,
-		absoluteRoot,
-		selectedShapeCode,
-		songKey,
-		chordDisplayMode,
-		rootPickerDisplayMode,
-	});
+	// Resolve the selected shape directly from the catalog. Falls back to a synthetic shape
+	// when the user has toggled an interval combination not found in the catalog (comma-code).
+	const selectedShape: ChordShape | undefined =
+		getChordShapeByCode(selectedShapeCode) ??
+		(selectedShapeCode.includes(",")
+			? {
+					id: 0,
+					name: selectedShapeCode,
+					code: selectedShapeCode,
+					prefer: false,
+					noteCount: selectedShapeCode.split(",").length + ROOT_NOTE_COUNT,
+					spelling: selectedShapeCode,
+					ordering: 0,
+					intervalForm: "",
+					altNames: "",
+					searchText: selectedShapeCode,
+				}
+			: undefined);
+
+	// True when a shape result card should be highlighted: always at root position, and when
+	// an inversion is active only if it resolved to a catalogued SCI shape.
+	const shapeHighlightActive =
+		selectedBassNote === undefined || activeInversion?.matchedShape !== undefined;
 
 	const { root: canonicalRoot, shapeCode: canonicalShapeCode } = computeCanonicalRootAndShape({
 		selectedRoot,
@@ -256,25 +229,13 @@ export default function useChordPicker({
 		t,
 	});
 
-	function isShapeSelected(shapeId: number): boolean {
-		return (
-			selectedShape?.id === shapeId &&
-			(selectedBassNote === undefined || activeInversion?.matchedShape !== undefined)
-		);
-	}
-
 	return {
-		getNoteSearchRoot,
-		allShapeInversions,
-		directShapeOrdinals,
 		alternatePreviewLabel,
 		alternatePreviewToken,
 		canonicalToken,
 		chordDisplayCategory,
-		chordDisplayMode,
 		chordInversions: displaySciInversions,
 		inversionBaseShapeName,
-		displayedShapes,
 		inversionPreviewTokens: displayInversionPreviewTokens,
 		inversionSlashPreviewTokens: slashPreviewTokens,
 		slashPreviewToken,
@@ -283,31 +244,17 @@ export default function useChordPicker({
 		absoluteRoot,
 		handleInsert,
 		handleNoteToggle,
-		handleSpellingSearchToggle,
-		handleNoteSearchToggle,
 		handleSelectInversion,
 		handleSelectShapeInversion,
-		includeInversions,
-		includeInversionsInputId,
-		isShapeSelected,
-		minNotes,
-		minNotesInputId,
-		maxNotes,
-		maxNotesInputId,
+		inversionBaseShapeCode,
+		selectedBassNote,
+		shapeHighlightActive,
 		notePickerEntries,
-		spellingSearchEntries,
-		noteSearchEntries,
 		previewToken,
-		query,
 		rootPickerDisplayMode,
-		searchInputId,
 		selectedRoot: effectiveDisplayRoot,
 		selectedShape,
-		setMinNotes,
-		setMaxNotes,
-		setQuery,
-		setIncludeInversions,
-		selectedBassNote,
+		selectedShapeCode,
 		setSelectedRoot: (nextRoot: SelectedRoot): void => {
 			clearInversion();
 			if (nextRoot.rootType === "any") {

@@ -42,6 +42,7 @@ const DEFAULT_PARAMS: {
 	songKey: SongKey | "";
 	chordDisplayMode: ChordDisplayModeType;
 	rootPickerDisplayMode: ChordDisplayModeType;
+	shapeHighlightActive: boolean;
 } = {
 	initialChordToken: undefined,
 	absoluteRoot: ABSOLUTE_ROOT_C,
@@ -49,6 +50,7 @@ const DEFAULT_PARAMS: {
 	songKey: SONG_KEY_C,
 	chordDisplayMode: ChordDisplayMode.letters,
 	rootPickerDisplayMode: ChordDisplayMode.letters,
+	shapeHighlightActive: true,
 };
 
 // ── Harness ────────────────────────────────────────────────────────────────
@@ -81,6 +83,7 @@ function Harness({
 	songKey,
 	chordDisplayMode,
 	rootPickerDisplayMode,
+	shapeHighlightActive = true,
 }: {
 	initialChordToken: string | undefined;
 	absoluteRoot: SongKey | undefined;
@@ -88,6 +91,7 @@ function Harness({
 	songKey: SongKey | "";
 	chordDisplayMode: ChordDisplayModeType;
 	rootPickerDisplayMode: ChordDisplayModeType;
+	shapeHighlightActive?: boolean;
 }): ReactElement {
 	const {
 		query,
@@ -118,6 +122,7 @@ function Harness({
 		songKey,
 		chordDisplayMode,
 		rootPickerDisplayMode,
+		shapeHighlightActive,
 	});
 
 	return (
@@ -521,7 +526,9 @@ describe("useChordSearch — renderHook", () => {
 	it("handleSpellingSearchToggle can exclude shapes containing the perfect fifth spelling", async () => {
 		const { result } = renderHook(() => useChordSearch(DEFAULT_PARAMS));
 
-		expect(result.current.displayedShapes.some((shape) => shape.code === MAJOR_SHAPE_CODE)).toBe(true);
+		expect(result.current.displayedShapes.some((shape) => shape.code === MAJOR_SHAPE_CODE)).toBe(
+			true,
+		);
 
 		result.current.handleSpellingSearchToggle(PERFECT_FIFTH_SEMITONE_OFFSET);
 		await waitFor(() => {
