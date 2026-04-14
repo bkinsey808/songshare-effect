@@ -1,7 +1,22 @@
-// @ts-nocheck
 import noDeadUrls from "remark-lint-no-dead-urls";
 import remarkValidateLinks from "remark-validate-links";
 import { visit } from "unist-util-visit";
+
+/**
+ * @typedef {import("mdast").HTML} MdastHtml
+ * @typedef {import("mdast").Root} MdastRoot
+ * @typedef {import("unist").Data & {
+ *   hProperties?: {
+ *     id?: string;
+ *   };
+ *   id?: string;
+ * }} HtmlAnchorData
+ * @typedef {MdastHtml & { data?: HtmlAnchorData }} HtmlAnchorNode
+ * @typedef {import("unified").Preset} UnifiedPreset
+ * @typedef {import("vfile").VFile} VFile
+ */
+
+const HTML_ANCHOR_ID_PATTERN = /<a\s[^>]*\bid="(?<anchorId>[^"]+)"/;
 
 /**
  * Remark plugin that recognizes <a id="..."> HTML anchor tags as valid link
@@ -9,19 +24,14 @@ import { visit } from "unist-util-visit";
  * validate-links plugin finds them when checking fragment links.
  */
 function remarkHtmlAnchors() {
+	/**
+	 * @param {MdastRoot} tree
+	 */
 	return (tree) => {
 		visit(tree, "html", (node) => {
-			// oxlint-disable-next-line typescript/no-unsafe-assignment, typescript/no-unsafe-call, typescript/no-unsafe-member-access
-			const [, anchorId] = node.value.match(/<a\s[^>]*\bid="([^"]+)"/) ?? [];
+			const anchorId = getHtmlAnchorId(node);
 			if (anchorId !== undefined) {
-				// oxlint-disable-next-line typescript/no-unsafe-member-access
-				node.data ??= {};
-				// oxlint-disable-next-line typescript/no-unsafe-member-access
-				node.data.hProperties ??= {};
-				// oxlint-disable-next-line typescript/no-unsafe-assignment, typescript/no-unsafe-member-access
-				node.data.hProperties.id = anchorId;
-				// oxlint-disable-next-line typescript/no-unsafe-assignment, typescript/no-unsafe-member-access
-				node.data.id = anchorId;
+				setHtmlAnchorId(node, anchorId);
 			}
 		});
 	};
@@ -32,15 +42,15 @@ function remarkHtmlAnchors() {
  * tools as VS Code file URIs). These should be root-relative paths instead.
  */
 function remarkNoFileLinks() {
+	/**
+	 * @param {MdastRoot} tree
+	 * @param {VFile} file
+	 */
 	return (tree, file) => {
 		visit(tree, "link", (node) => {
-			// oxlint-disable-next-line typescript/no-unsafe-member-access
-			const url = asOptionalString(node.url);
-			if (url !== undefined && url.includes("file:")) {
-				// oxlint-disable-next-line typescript/no-unsafe-call, typescript/no-unsafe-member-access
+			if (node.url.includes("file:")) {
 				file.message(
-					// oxlint-disable-next-line typescript/no-unsafe-member-access
-					`Unexpected file: URL "${url}", use a root-relative path instead`,
+					`Unexpected file: URL "${node.url}", use a root-relative path instead`,
 					node,
 					"no-file-links",
 				);
@@ -50,20 +60,37 @@ function remarkNoFileLinks() {
 }
 
 /**
- * Narrows an unknown value to a string when possible.
+ * Extracts an anchor id from a raw HTML node when present.
  *
- * @param value
+ * @param {MdastHtml} node
+ * @returns {string | undefined}
  */
-function asOptionalString(value) {
-	return typeof value === "string" ? value : undefined;
+function getHtmlAnchorId(node) {
+	return HTML_ANCHOR_ID_PATTERN.exec(node.value)?.groups?.anchorId;
 }
 
+/**
+ * Stores an anchor id in the shape expected by `remark-validate-links`.
+ *
+ * @param {MdastHtml} node
+ * @param {string} anchorId
+ */
+function setHtmlAnchorId(node, anchorId) {
+	/** @type {HtmlAnchorNode} */
+	const htmlNode = node;
+
+	htmlNode.data ??= {};
+	htmlNode.data.hProperties ??= {};
+	htmlNode.data.hProperties.id = anchorId;
+	htmlNode.data.id = anchorId;
+}
+
+/** @type {UnifiedPreset} */
 const config = {
 	plugins: [
 		remarkHtmlAnchors,
 		remarkNoFileLinks,
-		// oxlint-disable-next-line typescript/no-unsafe-assignment, typescript/no-unsafe-call, typescript/no-unsafe-member-access
-		[remarkValidateLinks, { root: process.cwd(), repository: false }],
+		[remarkValidateLinks, { repository: false }],
 		[
 			noDeadUrls,
 			{

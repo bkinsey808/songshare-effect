@@ -147,6 +147,23 @@ jobs:
     needs: lint-and-unit
     permissions:
       contents: read
+    env:
+      VITE_STORAGE_BACKEND: ${{ vars.VITE_STORAGE_BACKEND }}
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+      VITE_ENVIRONMENT: ${{ vars.VITE_ENVIRONMENT }}
+      VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+      VITE_WEB_BASE_URL: ${{ vars.VITE_WEB_BASE_URL }}
+      VITE_BUILD_NUMBER: ${{ vars.VITE_BUILD_NUMBER }}
+      VITE_APP_BRAND: ${{ vars.VITE_APP_BRAND }}
+      VITE_APP_NAME: ${{ vars.VITE_APP_NAME }}
+      VITE_SUPPORT_EMAIL_ADDRESS: ${{ vars.VITE_SUPPORT_EMAIL_ADDRESS }}
+      VITE_SEO_APP_TITLE: ${{ vars.VITE_SEO_APP_TITLE }}
+      VITE_SEO_APP_DESCRIPTION: ${{ vars.VITE_SEO_APP_DESCRIPTION }}
+      VITE_SEO_APP_KEYWORDS: ${{ vars.VITE_SEO_APP_KEYWORDS }}
+      GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+      MS_CLIENT_ID: ${{ vars.MS_CLIENT_ID }}
+      AMAZON_CLIENT_ID: ${{ vars.AMAZON_CLIENT_ID }}
     concurrency:
       group: smoke-pr-${{ github.event.pull_request.number }}
       cancel-in-progress: true
@@ -166,7 +183,7 @@ jobs:
         run: npm ci
 
       - name: Build frontend (client only for fast smoke)
-        run: npm run build:client
+        run: npm run build:client:staging
 
       - name: Start preview server
         run: |

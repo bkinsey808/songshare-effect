@@ -88,6 +88,16 @@ The `--env <name>` shorthand expands to:
 - `--service songshare-<name>` (keyring service)
 - `--secrets config/env-secrets.<name>.list` (var names to read)
 
+### CI / GitHub Actions
+
+`run-with-env.bun.ts` prefers values that are already present in the process
+environment before consulting the OS keyring. This lets CI provide secrets via
+GitHub Actions `env`, repository variables, or repository/environment secrets
+without requiring the `keyring` executable on the runner.
+
+When `keyring` is unavailable in CI, the script skips keyring lookups and
+preserves any environment values GitHub Actions already injected.
+
 ---
 
 ## Two Classes of Vars

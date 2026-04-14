@@ -25,7 +25,7 @@ There are five workflow files in `.github/workflows/` used by this project. Belo
 
 - `e2e.yml` (End-to-end tests using Playwright)
   - Trigger: `push` to `main`, `schedule` (nightly cron), and `workflow_dispatch` for manual execution.
-  - Steps include: checkout, install Node, install dependencies, build frontend & API, start a preview server bound to IPv4 localhost (`--host 127.0.0.1`), wait for it to become ready (we check `localhost` then `127.0.0.1` with a timeout), cache Playwright browser binaries, ensure browsers are installed, run Playwright tests, and upload test reports and logs as artifacts.
+  - Steps include: checkout, install Node, install dependencies, build the staging-flavored frontend and API, start a preview server bound to IPv4 localhost (`--host 127.0.0.1`), wait for it to become ready (we check `localhost` then `127.0.0.1` with a timeout), cache Playwright browser binaries, ensure browsers are installed, run Playwright tests, and upload test reports and logs as artifacts.
   - Purpose: validate end-to-end user flows across the whole app regularly and after changes.
 
 ---
@@ -39,8 +39,9 @@ There are five workflow files in `.github/workflows/` used by this project. Belo
 - Caching: actions like `actions/cache@v4` speed CI by preserving dependencies or heavy binaries (Playwright browsers in this repo).
 - Artifacts: `actions/upload-artifact@v4` stores test reports and logs so you can review them after a run.
 - Secrets and env:
-  - This repo's existing workflows don't rely on repository secrets for builds/tests, but deploys or integrations would use `secrets.*` when needed.
-  - Environment variables are used to configure runtime behavior (e.g., `PLAYWRIGHT_BROWSERS_PATH`).
+  - PR smoke builds use repository-level GitHub Actions variables for public staging-flavored `VITE_*` values and public OAuth client IDs.
+  - The full `e2e.yml` job declares the GitHub `staging` environment so staging-only variables and secrets can be scoped away from production.
+  - Environment variables are also used for runtime behavior inside the jobs (for example `PLAYWRIGHT_BROWSERS_PATH`).
 
 ---
 
