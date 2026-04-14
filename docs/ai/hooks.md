@@ -72,7 +72,7 @@ files through `chat.useCustomAgentHooks: true`. Do **not** duplicate shared
 automation under [`.cursor/hooks.json`](/.cursor/README.md) — use `.cursor/hooks.json`
 only for **Cursor-only** hooks that Copilot does not need.
 
-More context: [`.github/README.md`](/.github/README.md), [`.cursor/README.md`](/.cursor/README.md).
+More context: [`.github/DIRECTORY.md`](/.github/DIRECTORY.md), [`.cursor/README.md`](/.cursor/README.md).
 
 ---
 
@@ -120,12 +120,12 @@ Under [`.github/`](https://github.com/) in this repo:
 
 - `.github/workflows/*.yml` — GitHub Actions (GitHub.com runs these)
 - `.github/copilot-instructions.md` — Copilot adapter (not Actions)
-- `.github/README.md` — human documentation
+- `.github/DIRECTORY.md` — human documentation
 - **`.github/hooks/`** — **local** editor/agent tooling (Copilot/Cursor). GitHub.com
   does **not** execute these hooks.
 
 So “under `.github/`” does not mean “GitHub the platform runs it.” Full directory
-breakdown: [`/.github/README.md`](/.github/README.md).
+breakdown: [`/.github/DIRECTORY.md`](/.github/DIRECTORY.md).
 
 ---
 

@@ -168,7 +168,7 @@ See documentation:
 - [ai-system.md](/docs/ai/ai-system.md) - Shared AI-system layout for Codex, Copilot, Claude, Gemini, and Cursor
 - [.agent/README.md](/.agent/README.md) - Antigravity-specific workflow and playbook notes
 - [.cursor/README.md](/.cursor/README.md) - Cursor-specific rules, skills wiring, and adapter notes
-- [.github/README.md](/.github/README.md) - What in `.github/` is GitHub-native versus adapter-only
+- [.github/DIRECTORY.md](/.github/DIRECTORY.md) - What in `.github/` is GitHub-native versus adapter-only
 - [effect-ts-best-practices.md](/docs/effect-ts-best-practices.md) - Effect-TS implementation details
 - [authentication-system.md](/docs/auth/authentication-system.md) - Complete authentication guide
 - [api-reference.md](/docs/server/api-reference.md) - Server endpoints and API behavior

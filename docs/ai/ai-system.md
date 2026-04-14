@@ -166,7 +166,7 @@ This table is the fastest way to orient yourself:
 | `.agent/workflows/*.md` | Antigravity and workflow-playbook files used by repo-specific agent workflows | Tool-specific |
 | `.agent/README.md` | Human-facing explanation of `.agent/` | Tool-specific docs |
 | `.github/workflows/*.yml` | GitHub Actions, not AI instructions | GitHub-native |
-| `.github/README.md` | Explains what under `.github/` is GitHub-native vs adapter-only | Human-only docs |
+| `.github/DIRECTORY.md` | Explains what under `.github/` is GitHub-native vs adapter-only | Human-only docs |
 
 Important absence cases in the current repo:
 
@@ -227,7 +227,7 @@ What does not belong there:
 The `.github/` directory has mixed semantics in this repo. GitHub Actions uses
 `.github/workflows/`, but `.github/copilot-instructions.md` is a Copilot
 adapter, not a GitHub Actions file. See
-[`/.github/README.md`](/.github/README.md) for that distinction.
+[`/.github/DIRECTORY.md`](/.github/DIRECTORY.md) for that distinction.
 
 <a id="claude"></a>
 ## Claude
@@ -639,13 +639,13 @@ Under `.github/` in this repo:
 - `.github/workflows/*.yml` are GitHub-native GitHub Actions workflows
 - `.github/copilot-instructions.md` is a Copilot adapter, not a GitHub Actions
   file
-- `.github/README.md` is human documentation
+- `.github/DIRECTORY.md` is human documentation
 - `.github/hooks/` is local editor/agent tooling (Copilot/Cursor), not something
   GitHub.com runs — see [`docs/ai/hooks.md`](hooks.md#githubhooks-vs-githubcom)
 
 So "under `.github/`" does not automatically mean "special to GitHub itself."
 
-See [`/.github/README.md`](/.github/README.md) for the directory-specific
+See [`/.github/DIRECTORY.md`](/.github/DIRECTORY.md) for the directory-specific
 breakdown.
 
 <a id="how-to-change-the-ai-system"></a>
@@ -927,7 +927,7 @@ usually want all three.
 - [AGENTS.md](/AGENTS.md)
 - [docs/ai/hooks.md](hooks.md)
 - [docs/ai/rules.md](/docs/ai/rules.md)
-- [.github/README.md](/.github/README.md)
+- [.github/DIRECTORY.md](/.github/DIRECTORY.md)
 - [.cursor/README.md](/.cursor/README.md)
 - [.agent/README.md](/.agent/README.md)
 - [README.md](/README.md)

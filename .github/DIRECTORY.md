@@ -85,7 +85,7 @@ to it.
 
 ## What Is Human-Only
 
-### `.github/README.md`
+### `.github/DIRECTORY.md`
 
 This file is just documentation for contributors. GitHub does not treat it as a
 special configuration file.
