@@ -90,6 +90,7 @@ export async function checkSkillFiles(repoRoot: string, opts: CheckOptions = {})
 
 ## File format & runtime 🔧
 
+- **Complex scripts must be Bun TypeScript**: any non-trivial workflow belongs in a `.bun.ts` entry point executed with `bun` (or `npx bun` in CI). Avoid multi-step Bash scripts; use shell only for tiny wrappers that delegate immediately to Bun.
 - Add a shebang at the top of entry points so scripts can be run directly:
   ```ts
   #!/usr/bin/env bun

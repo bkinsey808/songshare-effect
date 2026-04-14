@@ -226,6 +226,9 @@ Sources: [Agent Skills — examples, templates, gotchas](https://agentskills.io/
 
 - Bundle utility scripts for deterministic operations; prefer execution over
   asking the agent to generate code at runtime.
+- Prefer Bun TypeScript for non-trivial workflows: complex scripts should be
+  `.bun.ts` entry points executed with `bun` (or `npx bun` in CI), not multi-step
+  Bash scripts. Shell is fine only for tiny wrappers that delegate immediately.
 - Make execution intent explicit: say `Run scripts/analyze_form.py` vs `See
 scripts/analyze_form.py for the algorithm` depending on whether to execute
   or reference the script.

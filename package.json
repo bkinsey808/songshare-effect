@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"qmd": "bash scripts/qmd.sh",
+		"qmd": "bun run ./scripts/qmd/qmd.bun.ts",
 		"dev:client:staging": "bun run scripts/env/run-with-env/run-with-env.bun.ts --env staging -- vite --mode staging-local",
 		"dev:client:prod": "bun run scripts/env/run-with-env/run-with-env.bun.ts --env production -- vite",
 		"dev:api:staging": "bun run scripts/env/run-with-env/run-with-env.bun.ts --env staging -- bun run scripts/env/run-worker-dev/run-worker-dev.bun.ts --config wrangler.staging.toml --env staging",

@@ -20,23 +20,25 @@ export default function AccountMenu({ isVisible, isScrolled }: AccountMenuProps)
 			}`}
 			aria-hidden={!isVisible}
 		>
-			<div className="overflow-hidden">
-				<div
-					className={`bg-slate-950 text-white transition-opacity duration-200 ${
-						isVisible ? "opacity-100" : "opacity-0"
-					}`}
-				>
+			{isVisible ? (
+				<div className="overflow-hidden">
 					<div
-						className={`mx-auto max-w-screen-2xl transition-all duration-300 ${
-							isScrolled ? "px-4 py-0.5" : "px-5 py-1"
+						className={`bg-slate-950 text-white transition-opacity duration-200 ${
+							isVisible ? "opacity-100" : "opacity-0"
 						}`}
 					>
-						<div className="flex flex-wrap items-start justify-end gap-4">
-							<SettingsCard />
+						<div
+							className={`mx-auto max-w-screen-2xl transition-all duration-300 ${
+								isScrolled ? "px-4 py-0.5" : "px-5 py-1"
+							}`}
+						>
+							<div className="flex flex-wrap items-start justify-end gap-4">
+								<SettingsCard />
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
+			) : undefined}
 		</div>
 	);
 }

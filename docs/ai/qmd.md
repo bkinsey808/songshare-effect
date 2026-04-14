@@ -186,8 +186,8 @@ npm run qmd -- cleanup
 
 Always use `npm run qmd --` instead of `./node_modules/.bin/qmd` directly.
 
-The npm script runs `scripts/qmd.sh`, which suppresses the cmake/Vulkan build
-noise that `node-llama-cpp` emits on stderr and stdout when it fails to find
+The npm script runs `scripts/qmd/qmd.bun.ts`, which suppresses the cmake/Vulkan
+build noise that `node-llama-cpp` emits on stderr and stdout when it fails to find
 GPU support. Without the wrapper, every invocation prints several hundred lines
 of cmake output before the actual results.
 
@@ -435,7 +435,8 @@ the equivalent for Vulkan. There is no practical path to GPU acceleration for
 `node-llama-cpp` attempts to compile Vulkan support on every cold start and
 fails because the Vulkan SDK build headers (`Vulkan_LIBRARY`, `glslc`) are not
 present, even though the Vulkan runtime is installed. It does not cache this
-failure. The `scripts/qmd.sh` wrapper suppresses the output with `grep -Ev`.
+failure. The `scripts/qmd/qmd.bun.ts` wrapper suppresses the output with a
+line filter before printing results.
 
 ---
 
@@ -446,5 +447,5 @@ failure. The `scripts/qmd.sh` wrapper suppresses the output with `grep -Ev`.
 - [AGENTS.md](/AGENTS.md) — the `qmd search` convention for all tools
 - [.cursor/README.md](/.cursor/README.md) — Cursor adapters (QMD hooks, skills paths, overlap with third-party skills)
 - [.claude/hooks/qmd-context.sh](/.claude/hooks/qmd-context.sh) — the Claude Code hook implementation
-- [scripts/qmd.sh](/scripts/qmd.sh) — the noise-filtering wrapper
+- [scripts/qmd/qmd.bun.ts](/scripts/qmd/qmd.bun.ts) — the noise-filtering wrapper
 - [QMD project](https://github.com/tobi/qmd) — upstream docs and changelog
