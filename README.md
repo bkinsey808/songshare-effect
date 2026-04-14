@@ -6,16 +6,6 @@ A modern song sharing platform built with React, Vite, and Hono for Cloudflare d
 [![E2E Tests](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/e2e.yml)
 [![Coverage (GitHub)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/bkinsey808/songshare-effect/actions/workflows/coverage.yml)
 
-## For AI Agents
-
-- Read `AGENTS.md` for repository workflow and guardrails.
-- Treat `docs/ai/rules.md` as the canonical source of coding standards.
-- Read `docs/ai/ai-system.md` for the shared cross-tool AI-system layout.
-- Treat `skills/` and `agents/` as shared, model-agnostic AI assets, while noting that not every tool consumes both layers the same way.
-- Treat `.codex/agents/`, `.codex/hooks.json`, and `.codex/config.toml` as Codex-specific wrappers and guardrails, while keeping reusable instructions in `agents/` and `skills/`.
-- Treat `.agent/workflows/` as Antigravity-specific workflow playbooks that complement the shared `skills/` layer, not replace it.
-- Use `.github/copilot-instructions.md`, `CLAUDE.md`, `GEMINI.md`, and `.cursor/rules/` as thin tool-specific adapters.
-
 ## Architecture
 
 - **Frontend**: React + TypeScript + Vite with React Compiler (deployed to Cloudflare Pages)
@@ -252,6 +242,12 @@ keyring set songshare-staging SUPABASE_VISITOR_PASSWORD
 6. Add tests if applicable
 7. Submit a pull request
 
-## License
+## For AI Agents
 
-MIT
+- Read `AGENTS.md` for repository workflow and guardrails.
+- Treat `docs/ai/rules.md` as the canonical source of coding standards.
+- Read `docs/ai/ai-system.md` for the shared cross-tool AI-system layout.
+- Treat `skills/` and `agents/` as shared, model-agnostic AI assets, while noting that not every tool consumes both layers the same way.
+- Treat `.codex/agents/`, `.codex/hooks.json`, and `.codex/config.toml` as Codex-specific wrappers and guardrails, while keeping reusable instructions in `agents/` and `skills/`.
+- Treat `.agent/workflows/` as Antigravity-specific workflow playbooks that complement the shared `skills/` layer, not replace it.
+- Use `.github/copilot-instructions.md`, `CLAUDE.md`, `GEMINI.md`, and `.cursor/rules/` as thin tool-specific adapters.
