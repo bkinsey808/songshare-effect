@@ -1,6 +1,8 @@
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
+import { Effect } from "effect";
+
 import bootstrapLocalIndex from "./bootstrapLocalIndex";
 import ensureConfigFile from "./ensureConfigFile";
 import runProcess from "./runProcess";
@@ -11,11 +13,6 @@ const ZERO = 0;
 type RunQmdOptions = {
 	readonly repoRoot: string;
 };
-
-// NOTE: `RunProcessOptions` has been moved to ./runProcess.ts.
-// If you need the type, import it from './runProcess'. Do NOT reintroduce
-// duplicate local type aliases for extracted helpers — keep types colocated
-// with their implementation to avoid drift and duplicate definitions.
 
 function ensureDir(path: string): void {
 	mkdirSync(path, { recursive: true });
@@ -28,52 +25,56 @@ function ensureDir(path: string): void {
  * @param repoRoot - Path to the repository root used to resolve `qmd` and cache/index locations.
  * @returns The qmd exit code.
  */
-export default async function runQmd(
+export default function runQmd(
 	args: readonly string[],
 	options: RunQmdOptions,
-): Promise<number> {
-	const { repoRoot } = options;
-	const qmdBin = resolve(repoRoot, "node_modules/.bin/qmd");
-	const localQmdDir = resolve(repoRoot, ".cache/qmd");
-	const localConfigDir = resolve(localQmdDir, "config");
-	const localIndexPath = resolve(localQmdDir, "index.sqlite");
-	const globalIndexPath = resolve(process.env["HOME"] ?? "/tmp", ".cache/qmd/index.sqlite");
-	const indexPathEnv = process.env["INDEX_PATH"];
-	const configDirEnv = process.env["QMD_CONFIG_DIR"];
+): Effect.Effect<number, Error> {
+	return Effect.gen(function* runQmdGen() {
+		const { repoRoot } = options;
+		const qmdBin = resolve(repoRoot, "node_modules/.bin/qmd");
+		const localQmdDir = resolve(repoRoot, ".cache/qmd");
+		const localConfigDir = resolve(localQmdDir, "config");
+		const localIndexPath = resolve(localQmdDir, "index.sqlite");
+		const globalIndexPath = resolve(process.env["HOME"] ?? "/tmp", ".cache/qmd/index.sqlite");
+		const indexPathEnv = process.env["INDEX_PATH"];
+		const configDirEnv = process.env["QMD_CONFIG_DIR"];
 
-	let usingLocalIndex = false;
-	let usingLocalConfig = false;
+		let usingLocalIndex = false;
+		let usingLocalConfig = false;
 
-	if (indexPathEnv === undefined || indexPathEnv === "") {
-		process.env["INDEX_PATH"] = localIndexPath;
-		usingLocalIndex = true;
-	}
+		if (indexPathEnv === undefined || indexPathEnv === "") {
+			process.env["INDEX_PATH"] = localIndexPath;
+			usingLocalIndex = true;
+		}
 
-	if (configDirEnv === undefined || configDirEnv === "") {
-		process.env["QMD_CONFIG_DIR"] = localConfigDir;
-		usingLocalConfig = true;
-	}
+		if (configDirEnv === undefined || configDirEnv === "") {
+			process.env["QMD_CONFIG_DIR"] = localConfigDir;
+			usingLocalConfig = true;
+		}
 
-	const indexPath = process.env["INDEX_PATH"] ?? localIndexPath;
-	const configDir = process.env["QMD_CONFIG_DIR"] ?? localConfigDir;
+		const indexPath = process.env["INDEX_PATH"] ?? localIndexPath;
+		const configDir = process.env["QMD_CONFIG_DIR"] ?? localConfigDir;
 
-	ensureDir(dirname(indexPath));
-	ensureDir(configDir);
+		ensureDir(dirname(indexPath));
+		ensureDir(configDir);
 
-	if (usingLocalConfig) {
-		ensureConfigFile(configDir, repoRoot);
-	}
+		if (usingLocalConfig) {
+			ensureConfigFile(configDir, repoRoot);
+		}
 
-	if (usingLocalIndex) {
-		await bootstrapLocalIndex({
-			command: args.at(ZERO) ?? "",
-			indexPath,
-			globalIndexPath,
-			qmdBin,
+		if (usingLocalIndex) {
+			yield* bootstrapLocalIndex({
+				command: args.at(ZERO) ?? "",
+				indexPath,
+				globalIndexPath,
+				qmdBin,
+			});
+		}
+
+		const { exitCode, output } = yield* runProcess([qmdBin, ...args], { suppressOutput: false });
+		yield* Effect.sync(() => {
+			writeFilteredOutput(output);
 		});
-	}
-
-	const { exitCode, output } = await runProcess([qmdBin, ...args], { suppressOutput: false });
-	writeFilteredOutput(output);
-	return exitCode;
+		return exitCode;
+	});
 }

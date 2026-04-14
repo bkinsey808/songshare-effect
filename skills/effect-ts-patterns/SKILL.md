@@ -14,6 +14,10 @@ Use this skill when:
 - Editing files under `api/` that use Effect, Hono handlers, schema decoding, or typed API errors.
 - Implementing/refactoring handlers, services, or error mapping in the Effect stack.
 
+Note: Prefer exposing functions that return an `Effect` instead of raw `Promise` results. Convert
+Promise-based boundaries to Effects with `Effect.tryPromise` so downstream code composes and maps
+errors using Effect combinators.
+
 Execution workflow:
 
 1. Identify the feature boundary (handler, service, schema, error type).

@@ -11,11 +11,13 @@ Quick-reference coding guidelines. Follow skill links for detailed guidance.
 - **ReactElement is ambient**: do not import it from `react` — it is available globally.
 - **JSDoc in TypeScript**: never include type annotations in JSDoc for `.ts` / `.tsx` — TypeScript provides the types. OK in plain `.js` files only.
 - **Keep JSDoc current**: when you change component props, function parameters, or behavior described by a JSDoc block, update that JSDoc in the same edit.
- - **Always run lint after code changes**: After making any code change (fix, refactor, new feature, docs that affect code), run `npm run lint` from the project root and fix any failures before marking the work as complete or opening a PR. Do not rely on CI alone — run the lint locally first.
+ - **Always run lint after code changes**: After making any code change (fix, refactor, new feature, creating new files or tests, or docs that affect code), run `npm run lint` from the project root and fix any failures before marking the work as complete or opening a PR. This includes newly added files — creating a file is a code change. Do not rely on CI alone — run the lint locally first.
 - **No lint disables in test files**: do not add `oxlint-disable` or `eslint-disable` in `*.test.ts` / `*.test.tsx`. Fix the code, or extract helpers into `*.test-util.*` files.
 - **Strict TypeScript**: project uses `exactOptionalPropertyTypes` and `noPropertyAccessFromIndexSignature`. See [docs/typescript-best-practices.md](/docs/typescript-best-practices.md).
 - **Tailwind string marker**: prefer `tw\`\`` for static Tailwind utility strings so they are clearly compiler-targeted.
 - **No `tw\`\`` interpolation**: do not interpolate runtime values inside `tw\`\``; use CSS custom properties via `cssVars(...)` plus stable classes like `w-[var(--field-width)]` instead.
+
+- **Prefer Effects over raw Promises for APIs**: For library, service, and shared module APIs that are intended for composition, prefer returning `Effect` types rather than raw `Promise` values. Convert Promise-based boundaries to Effects with `Effect.tryPromise` (always provide a typed `catch`). For CLI/top-level scripts, run Effects at the boundary with `Effect.runPromise` or a similar runtime wrapper. See `docs/effect-ts-best-practices.md` for patterns and examples.
 
 - **React props**: prefer required component props and explicit presence flags; see [docs/react-best-practices.md](/docs/client/react-best-practices.md).
 
@@ -52,6 +54,8 @@ Never auto-run: git write operations, deployments, system-level package installs
 ## Git Usage
 
 Do not run git write commands (`git commit`, `git push`, `git mv`, `git reset`, `git checkout` that modifies branches, etc.). Read-only commands (`git status`, `git log`, `git diff`, `git show`, `git grep`) are allowed. Propose write commands and wait for a human to execute them.
+
+- Never ask the user whether to commit code changes or open a pull request. Do not prompt with messages like "Would you like me to commit these tests and open a PR?" or any variant. Only mention commits or PRs when the user explicitly requests creation or review of a PR; otherwise omit commit/PR prompts entirely.
 
 ## Project Architecture
 

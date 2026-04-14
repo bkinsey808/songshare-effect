@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import { copyFileSync, existsSync } from "node:fs";
 import runProcess from "./runProcess";
 
@@ -16,26 +17,28 @@ const BOOTSTRAP_COMMANDS = new Set(["search", "vsearch", "query", "get", "ls", "
  * @param indexPath - Path to the local index file to create or verify.
  * @param globalIndexPath - Path to a shared/global index file that can be copied into place.
  * @param qmdBin - Path to the `qmd` binary used to run update commands.
- * @returns A promise that resolves when bootstrapping is complete.
+ * @returns An `Effect` that completes when bootstrapping is done.
  */
-export default async function bootstrapLocalIndex(options: {
+export default function bootstrapLocalIndex(options: {
   readonly command: string;
   readonly indexPath: string;
   readonly globalIndexPath: string;
   readonly qmdBin: string;
-}): Promise<void> {
-  if (existsSync(options.indexPath)) {
-    return;
-  }
+}): Effect.Effect<void, Error> {
+  return Effect.gen(function* bootstrapLocalIndexGen() {
+    if (existsSync(options.indexPath)) {
+      return;
+    }
 
-  if (options.globalIndexPath !== options.indexPath && existsSync(options.globalIndexPath)) {
-    copyFileSync(options.globalIndexPath, options.indexPath);
-    return;
-  }
+    if (options.globalIndexPath !== options.indexPath && existsSync(options.globalIndexPath)) {
+      copyFileSync(options.globalIndexPath, options.indexPath);
+      return;
+    }
 
-  if (!BOOTSTRAP_COMMANDS.has(options.command)) {
-    return;
-  }
+    if (!BOOTSTRAP_COMMANDS.has(options.command)) {
+      return;
+    }
 
-  await runProcess([options.qmdBin, "update"], { suppressOutput: true });
+    yield* runProcess([options.qmdBin, "update"], { suppressOutput: true });
+  });
 }

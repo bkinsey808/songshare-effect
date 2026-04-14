@@ -43,6 +43,7 @@ Output requirements:
   label each step `// Act — cycle 1`, `// Act — cycle 2`, etc.
 - **`vi.resetAllMocks()` in shared setup helpers** — any `setup*()` helper shared across tests
   must call `vi.resetAllMocks()` as its first line to prevent mock call-count leakage.
+ - Prefer non-factory `vi.mock("path")` + `vi.mocked(...)` and static top-level imports for test doubles when possible; avoid dynamic `import()` in tests unless the behavior specifically requires runtime module resolution.
 - **Mocked sub-hook setters** — when the hook under test calls a mocked sub-hook (e.g.
   `useItemTags`), its returned setters are `vi.fn()` stubs that don't update React state. Assert
   on a module-level named spy instead of expecting DOM changes.

@@ -39,6 +39,31 @@ This document captures patterns and solutions for working with strict TypeScript
   - [Complex Validation Chains](#complex-validation-chains)
   - [Generic Type Guards](#generic-type-guards)
   - [Effect-TS Integration](#effect-ts-integration)
+
+### Prefer `Effect` for library/service APIs
+
+When designing library or service APIs (modules intended for composition or DI), prefer
+exposing `Effect` return types instead of raw `Promise` values. Benefits:
+
+- Composability: callers can combine, map, and recover using Effect combinators.
+- Typed errors: Effects carry well-typed error channels that are easier to reason about.
+- Testability: Effects are easier to mock and run deterministically in tests.
+
+Convert Promise boundaries to Effects using `Effect.tryPromise` with a typed `catch`:
+
+```typescript
+import { Effect } from "effect";
+
+export function fetchUser(id: string): Effect.Effect<User, Error> {
+	return Effect.tryPromise({
+		try: () => fetch(`/api/users/${id}`).then((r) => r.json()),
+		catch: (e) => (e instanceof Error ? e : new Error(String(e))),
+	});
+}
+```
+
+For CLI or top-level entrypoints, execute Effects with `Effect.runPromise` or an appropriate
+runtime boundary. Document in the module JSDoc whether the function returns an `Effect`.
 - [Project-Specific Patterns](#project-specific-patterns)
   - [`as const` + `satisfies` for Validated Literal Constants](#as-const--satisfies-for-validated-literal-constants)
   - [Union Types from `as const` Arrays](#union-types-from-as-const-arrays)

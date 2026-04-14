@@ -33,7 +33,7 @@ jobs:
     env:
       # Use a repo-local folder for Playwright browsers so we can cache it
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.playwright-browsers
-      VITE_STORAGE_BACKEND: ${{ vars.VITE_STORAGE_BACKEND }}
+      VITE_STORAGE_BACKEND: ${{ vars.VITE_STORAGE_BACKEND || 'supabase' }}
       VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
       VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
       VITE_ENVIRONMENT: ${{ vars.VITE_ENVIRONMENT }}
@@ -49,6 +49,8 @@ jobs:
       GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
       MS_CLIENT_ID: ${{ vars.MS_CLIENT_ID }}
       AMAZON_CLIENT_ID: ${{ vars.AMAZON_CLIENT_ID }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
       E2E_TEST_SONG_SLUG: ${{ vars.E2E_TEST_SONG_SLUG }}
       E2E_TEST_PLAYLIST_SLUG: ${{ vars.E2E_TEST_PLAYLIST_SLUG }}
       E2E_TEST_COMMUNITY_SLUG: ${{ vars.E2E_TEST_COMMUNITY_SLUG }}
@@ -103,6 +105,36 @@ jobs:
           else
             echo "Preview did not become available after ${WAIT_ON_TIMEOUT_MS}ms" >&2
             exit 1
+          fi
+
+      - name: Cache Playwright auth sessions
+        uses: actions/cache@v5
+        id: playwright-auth-cache
+        with:
+          path: e2e/.auth
+          key: ${{ runner.os }}-playwright-auth-${{ hashFiles('e2e/.auth/*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-auth-
+
+      - name: Report auth cache status
+        run: |
+          if [ "${{ steps.playwright-auth-cache.outputs.cache-hit }}" = "true" ]; then
+            echo "Playwright auth cache hit."
+          else
+            echo "Playwright auth cache miss."
+          fi
+
+      - name: Generate Playwright storageState sessions
+        run: |
+          mkdir -p e2e/.auth
+          if [ ! -f "e2e/.auth/google-user.json" ]; then
+            PLAYWRIGHT_BASE_URL="$PREVIEW_URL" E2E_GOOGLE_USER_EMAIL="$E2E_GOOGLE_USER_EMAIL" \
+              npx bun e2e/utils/create-google-user-session.bun.ts
+          fi
+          if [ ! -f "e2e/.auth/google-user-2.json" ]; then
+            PLAYWRIGHT_BASE_URL="$PREVIEW_URL" E2E_GOOGLE_USER_EMAIL="$E2E_GOOGLE_USER2_EMAIL" \
+              E2E_SESSION_OUTPUT="e2e/.auth/google-user-2.json" \
+              npx bun e2e/utils/create-google-user-session.bun.ts
           fi
 
       - name: Cache repo-local Playwright browser binaries

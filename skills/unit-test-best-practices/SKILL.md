@@ -71,6 +71,10 @@ deep dives into mocking patterns, API handler setup, or advanced tradeoffs.
 
 1. Use non-factory `vi.mock("path")` + `vi.mocked(...)` by default.
    ([docs](/docs/testing/unit-test-best-practices.md#non-factory-mock))
+  Prefer this non-factory `vi.mock` pattern over `vi.spyOn` when possible —
+  `vi.spyOn` is intended as an escape hatch for one-off partial overrides on
+  stable references. Mocking the module surface with `vi.mock` keeps tests
+  simpler and easier to statically analyze.
 2. Use `vi.spyOn(...)` only for one-off partial overrides on stable references.
    ([docs](/docs/testing/unit-test-best-practices.md#mock-vs-spyon))
 3. Use `vi.doMock(...)` only when runtime-dependent per-test mocking is required before
@@ -91,6 +95,23 @@ deep dives into mocking patterns, API handler setup, or advanced tradeoffs.
   `Effect` values.
 - Do not treat `vi.hoisted()` or `vi.importActual()` as baseline patterns; they are
   exception paths.
+
+## Lint-first checklist (short)
+
+When writing tests aim to pass the repo lint on the first run. Quick rules for agents:
+
+- Avoid `beforeEach` / `afterEach` hooks; prefer per-test setup or extracted `*.test-util.ts` helpers.
+- Use per-test spies (`vi.spyOn(await import('...'), 'default')`) or `vi.mocked(...)` inside the test.
+- Return correctly typed values from mocks (e.g., Effects must return the expected shape).
+- Replace magic numbers with named constants (`const NONE = 0`, `const ONE = 1`).
+- Use `toStrictEqual()` and `toHaveLength()` for array length assertions.
+- Do not use `any` — prefer `unknown` or `forceCast<T>(value)` from test-utils.
+- Avoid wildcard namespace imports (`import * as mod`) in tests; use named imports or dynamic import.
+ - Avoid wildcard namespace imports (`import * as mod`) in tests; prefer named or default static imports at the top of the file.
+ - Avoid runtime `import()` in tests unless absolutely required. Prefer static imports combined with top-level `vi.mock("path")` and `vi.mocked(...)` implementations to keep test imports predictable and lint-friendly.
+- Initialize variables at declaration to satisfy `init-declarations`.
+- Never add lint-disable comments in test files; refactor instead.
+- Always run `npm run lint` locally before finishing a test change.
 
 ## Validation commands
 

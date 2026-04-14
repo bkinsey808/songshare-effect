@@ -113,3 +113,4 @@ Split when the skill covers two clearly distinct audiences or task types. Exampl
 - Do not exceed 300 lines — the CI check will fail.
 - Do not duplicate content between a skill and a doc — the doc is canonical.
 - Do not create a skill without a `description` frontmatter field — agents use it for relevance matching.
+ - Never ask the user whether to commit code changes or open a pull request. Do not prompt with messages like "Would you like me to commit these tests and open a PR?" or any variant. Only mention commits or PRs when the user explicitly requests creation or review of a PR; otherwise omit commit/PR prompts entirely.

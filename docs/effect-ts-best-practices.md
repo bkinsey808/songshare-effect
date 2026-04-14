@@ -3,8 +3,12 @@
 > **Note:** For TypeScript-specific patterns (strict types, `as const satisfies`, schema type
 > extraction), see [TypeScript Best Practices](typescript-best-practices.md).
 
-This document covers Effect-TS patterns used in the `api/` layer of this project: typed errors,
+This document covers Effect-TS patterns used in this project: typed errors,
 schema validation, service composition, dependency injection, and Hono HTTP integration.
+
+Note: Prefer functions that return an `Effect` instead of raw `Promise` values for library and
+service APIs. Expose Effects from modules and convert Promise boundaries to Effects using
+`Effect.tryPromise` so callers can compose, test, and map errors in the Effect model.
 
 ## Table of Contents
 

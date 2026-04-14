@@ -19,6 +19,14 @@ repository.
 - Keep this file short; add reusable guidance to `skills/`, `agents/`, or
   `docs/ai/rules.md` instead.
 
+## Agent Behavior
+
+- Never ask the user whether to commit code changes or open a pull request. Do not prompt with messages like "Would you like me to commit these tests and open a PR?" or any variant. Only mention commits or PRs when the user explicitly requests creation or review of a PR; otherwise omit commit/PR prompts entirely.
+
+## Effect Guidance for Code Generation
+
+- Prefer emitting functions that return an `Effect` for library/service APIs when appropriate. At async boundaries, convert Promises to Effects with `Effect.tryPromise` and provide a typed `catch`. For CLI or top-level scripts, run Effects via `Effect.runPromise` at the runtime boundary.
+
 ## Common Commands
 
 ```bash
@@ -28,3 +36,5 @@ npm run dev:all
 npm run lint
 npm run test:unit
 ```
+
+Note: Creating a new file (including tests) or modifying existing files is considered a code change — run `npm run lint` locally after such edits and fix any failures before opening a PR.
