@@ -548,7 +548,7 @@ Use real signed sessions (instead of mocked `/api/me`) when tests need Realtime 
 
 ### Prerequisites
 
-All secrets are stored in the OS keyring under the `songshare-staging` service. See [env-vars-and-secrets.md](/docs/auth/env-vars-and-secrets.md) for the full setup guide.
+All secrets are stored in the OS keyring under the `songshare-staging` service. See [env-vars-and-secrets.md](/docs/devops/env-vars-and-secrets.md) for the full setup guide.
 
 Required keys (see `config/env-secrets.staging.list` for the complete list):
 

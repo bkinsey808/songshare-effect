@@ -75,7 +75,7 @@ npm run dev
 
 1. ✅ Is the API server running? Check http://localhost:8787/health
 2. ✅ Check CORS configuration in `api/src/server.ts`
-3. ✅ Verify `VITE_API_BASE_URL` in `.env` (should be `http://localhost:8787`)
+3. ✅ Verify `VITE_API_BASE_URL` in the active keyring environment (should be `http://localhost:8787` for local API dev)
 4. ✅ Check browser console for CORS errors
 5. ✅ Ensure both servers are running: `npm run dev`
 
@@ -115,7 +115,7 @@ npm run dev
 
 **Checklist**:
 
-1. ✅ Check `.env` has correct `PGHOST`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`
+1. ✅ Check the active keyring environment has correct `PGHOST`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`
 2. ✅ Verify Supabase project is active (not paused)
 3. ✅ Check if IP is allowed in Supabase dashboard
 4. ✅ Test connection with: `npm run supabase:keep-alive`
@@ -366,7 +366,7 @@ git commit --no-verify -m "message"
 
 **Checklist**:
 
-1. ✅ Check `SUPABASE_VISITOR_EMAIL` and `SUPABASE_VISITOR_PASSWORD` in `.env`
+1. ✅ Check `SUPABASE_VISITOR_EMAIL` and `SUPABASE_VISITOR_PASSWORD` in the active keyring environment
 2. ✅ Verify visitor account exists in Supabase Auth
 3. ✅ Check API endpoint: `curl http://localhost:8787/api/auth/visitor`
 4. ✅ Review browser console for token errors

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import getAppName from "@/react/lib/branding/getAppName";
 import Button from "@/react/lib/design-system/Button";
 import CommunitiesIcon from "@/react/lib/design-system/icons/CommunitiesIcon";
 import EventsIcon from "@/react/lib/design-system/icons/EventsIcon";
@@ -24,6 +25,7 @@ import {
 } from "@/shared/paths";
 
 import useLocale from "../lib/language/locale/useLocale";
+import AccountMenu from "./AccountMenu";
 import ActionsMenu from "./ActionsMenu";
 import useNavigation from "./useNavigation";
 
@@ -100,12 +102,28 @@ export default function Navigation({
 }: NavigationProps): ReactElement {
 	const navigate = useNavigate();
 	const { t, lang } = useLocale();
+	const appName = getAppName(t);
 	const currentUsername = useAppStore((state) => state.userSessionData?.userPublic?.username);
 
-	const { isHeaderActionsExpanded, isActionsVisible, isActive, toggleActions } = useNavigation({
+	const {
+		isHeaderActionsExpanded,
+		isActionsVisible,
+		isActive,
+		toggleActions,
+		isAccountMenuExpanded,
+		isAccountMenuVisible,
+		toggleAccountMenu,
+	} = useNavigation({
 		actionsExpanded,
 		onActionsExpandedChange,
 	});
+
+	let menuWrapperBg = "bg-transparent";
+	if (isHeaderActionsExpanded) {
+		menuWrapperBg = "bg-slate-950";
+	} else if (isAccountMenuExpanded) {
+		menuWrapperBg = "bg-gray-800";
+	}
 
 	return (
 		// Sticky top navigation that adjusts spacing when scrolled to save vertical space.
@@ -136,7 +154,7 @@ export default function Navigation({
 								aria-label={t("navigation.home", "Home")}
 								data-testid="navigation-home"
 							>
-								🎵 {t("app.title")}
+								🎵 {appName}
 							</button>
 						</h1>
 						{!isScrolled && (
@@ -176,18 +194,32 @@ export default function Navigation({
 								</span>
 							)}
 							{typeof currentUsername === "string" && currentUsername.trim() !== "" && (
-								<span
-									className="text-sm text-gray-300 truncate max-w-32 sm:max-w-48"
-									title={currentUsername}
+								<div
+									className={`inline-flex px-2 py-1 -my-1 transition-colors duration-200 ${
+										isAccountMenuExpanded ? "bg-slate-950" : "bg-transparent"
+									}`}
 								>
-									@{currentUsername}
-								</span>
+									<Button
+										size="compact"
+										variant="outlineSecondary"
+										onClick={toggleAccountMenu}
+										className="inline-flex rounded-md! text-xs sm:text-sm data-[size=compact]:px-2 data-[size=compact]:py-1 sm:data-[size=compact]:px-3 sm:data-[size=compact]:py-1.5 max-w-32 sm:max-w-48 truncate"
+										aria-expanded={isAccountMenuExpanded}
+										aria-label={
+											isAccountMenuExpanded
+												? t("navigation.hideAccountMenu", "Hide account menu")
+												: t("navigation.showAccountMenu", "Show account menu")
+										}
+										data-testid="navigation-account-menu-toggle"
+									>
+										@{currentUsername}
+									</Button>
+								</div>
 							)}
-							{/* Dark background wrapper extends to the right edge of the viewport using large horizontal padding and negative margins. */}
+							{/* Dark background wrapper extends to the right edge of the viewport using large horizontal padding and negative margins.
+							    When the account menu is open, use the nav background color so the account menu's dark extension doesn't bleed through. */}
 							<div
-								className={`pl-2 py-1 -ml-2 -my-1 pr-[50vw] -mr-[50vw] transition-colors duration-200 ${
-									isHeaderActionsExpanded ? "bg-slate-950" : "bg-transparent"
-								}`}
+								className={`pl-2 py-1 -ml-2 -my-1 pr-[50vw] -mr-[50vw] transition-colors duration-200 ${menuWrapperBg}`}
 							>
 								{/* Actions toggle button with accessible `aria-expanded` and localized `aria-label`. */}
 								<Button
@@ -220,6 +252,8 @@ export default function Navigation({
 
 			{/* Actions menu panel is rendered separately; visibility controlled by `isActionsVisible`. */}
 			<ActionsMenu isVisible={isActionsVisible} isScrolled={isScrolled} />
+			{/* Account menu panel; visibility controlled by `isAccountMenuVisible`. */}
+			<AccountMenu isVisible={isAccountMenuVisible} isScrolled={isScrolled} />
 		</nav>
 	);
 }

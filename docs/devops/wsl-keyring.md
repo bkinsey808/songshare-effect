@@ -1,6 +1,6 @@
 # WSL Secret Management: Windows Credential Manager Bridge
 
-This guide explains how to replicate the macOS Keychain experience (`security add-generic-password`) within **WSL** by bridging it to the **Windows Credential Manager**.
+This guide explains how to replicate the macOS Keychain experience (`security add-generic-password`) from **WSL** by bridging it to the **Windows Credential Manager**.
 
 ## 1. Prerequisites
 

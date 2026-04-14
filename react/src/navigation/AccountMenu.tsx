@@ -1,18 +1,18 @@
-import DisplaySettingsCard from "./DisplaySettingsCard";
-import NavigationLinksCard from "./NavigationLinksCard";
+import SettingsCard from "./settings-card/SettingsCard";
 
-type ActionsMenuProps = {
+type AccountMenuProps = {
 	readonly isVisible: boolean;
 	readonly isScrolled: boolean;
 };
 
 /**
- * Expandable menu containing community management and settings controls.
+ * Expandable account panel containing settings and account controls.
+ * Opens when the signed-in username is clicked in the header.
  * @param isVisible - Whether the menu is visible.
  * @param isScrolled - Whether the page has been scrolled.
- * @returns The actions menu component.
+ * @returns The account menu component.
  */
-export default function ActionsMenu({ isVisible, isScrolled }: ActionsMenuProps): ReactElement {
+export default function AccountMenu({ isVisible, isScrolled }: AccountMenuProps): ReactElement {
 	return (
 		<div
 			className={`grid transition-all duration-200 ${
@@ -31,11 +31,8 @@ export default function ActionsMenu({ isVisible, isScrolled }: ActionsMenuProps)
 							isScrolled ? "px-4 py-0.5" : "px-5 py-1"
 						}`}
 					>
-						<div className="flex flex-wrap items-start justify-between gap-4">
-							<NavigationLinksCard />
-							<div className="flex flex-wrap items-start gap-4">
-								<DisplaySettingsCard />
-							</div>
+						<div className="flex flex-wrap items-start justify-end gap-4">
+							<SettingsCard />
 						</div>
 					</div>
 				</div>

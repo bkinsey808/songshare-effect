@@ -153,7 +153,7 @@ docs/ai/
 - **An API endpoint**: Look in `api/src/server.ts` for route definitions, implementation in feature directories
 - **Shared types**: `shared/src/types/` or `shared/src/generated/database.types.ts`
 - **Database schema**: `shared/src/generated/schema.sql` (auto-generated, don't edit)
-- **Environment variables**: `.env` (root), `api/src/env.ts` (type definitions)
+- **Environment variables**: `config/env-secrets.*.list`, `docs/devops/env-vars-and-secrets.md`, `api/src/env.ts`
 - **Styles**: Tailwind CSS in components, global styles in `react/src/index.css`
 - **Tests**:
   - Unit tests (`.test.ts`): Colocated with source files

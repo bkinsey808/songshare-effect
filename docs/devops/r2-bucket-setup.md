@@ -94,7 +94,12 @@ echo -n "r2" | keyring set songshare-production STORAGE_BACKEND
 echo -n "r2" | keyring set songshare-production VITE_STORAGE_BACKEND
 ```
 
-Then regenerate `.dev.vars`: `npm run generate:dev-vars`
+Then restart your local API dev server so Wrangler receives the updated
+process environment from keyring again:
+
+```bash
+npm run dev:api:staging
+```
 
 ---
 

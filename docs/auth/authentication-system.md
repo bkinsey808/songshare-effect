@@ -285,7 +285,7 @@ console.log("Is signed in:", isSignedIn);
 
 ### **Required Environment Variables**
 
-All secrets are stored in the OS keyring — no `.env` files. See [env-vars-and-secrets.md](env-vars-and-secrets.md) for the full reference and setup instructions.
+All secrets are stored in the OS keyring — no `.env` files. See [env-vars-and-secrets.md](/docs/devops/env-vars-and-secrets.md) for the full reference and setup instructions.
 
 Key vars required for the auth system (store via `keyring set songshare-<env> VAR_NAME value`):
 

@@ -22,12 +22,16 @@ type UseNavigationProps = {
  *
  * `isHeaderActionsExpanded` and `isActionsVisible` both reflect the current
  * expanded state, while `isActive` and `toggleActions` provide navigation helpers.
+ * `isAccountMenuExpanded` and `toggleAccountMenu` control the account menu panel.
  */
 type UseNavigationReturn = {
 	readonly isHeaderActionsExpanded: boolean;
 	readonly isActionsVisible: boolean;
 	readonly isActive: (itemPath: string) => boolean;
 	readonly toggleActions: () => void;
+	readonly isAccountMenuExpanded: boolean;
+	readonly isAccountMenuVisible: boolean;
+	readonly toggleAccountMenu: () => void;
 };
 
 /**
@@ -50,8 +54,9 @@ export default function useNavigation({
 	 */
 	const isHeaderActionsExpandedFromStore = useAppStore((state) => state.isHeaderActionsExpanded);
 	const setHeaderActionsExpanded = useAppStore((state) => state.setHeaderActionsExpanded);
-	// toggleHeaderActions available on the store if a caller needs it
-	// const toggleHeaderActions = useAppStore((s) => s.toggleHeaderActions);
+
+	const isAccountMenuExpandedFromStore = useAppStore((state) => state.isAccountMenuExpanded);
+	const setAccountMenuExpanded = useAppStore((state) => state.setAccountMenuExpanded);
 
 	/**
 	 * isActive
@@ -90,20 +95,42 @@ export default function useNavigation({
 	const isHeaderActionsExpanded = actionsExpanded ?? isHeaderActionsExpandedFromStore;
 	const isActionsVisible = isHeaderActionsExpanded;
 
+	const isAccountMenuExpanded = isAccountMenuExpandedFromStore;
+	const isAccountMenuVisible = isAccountMenuExpanded;
+
 	/**
 	 * toggleActions
 	 *
-	 * Toggles the expanded state. When the component is uncontrolled (no
-	 * `actionsExpanded` prop), the hook updates the persisted store. Regardless
-	 * of controlled/uncontrolled mode, it will call `onActionsExpandedChange`
-	 * if provided so parents can react to the change (e.g., local UI sync).
+	 * Toggles the actions menu. Closes the account menu if it is open so only
+	 * one panel is visible at a time. When uncontrolled, updates the persisted
+	 * store; always calls `onActionsExpandedChange` if provided.
 	 */
 	function toggleActions(): void {
 		const next = !isHeaderActionsExpanded;
 		if (actionsExpanded === undefined) {
 			setHeaderActionsExpanded(next);
 		}
+		if (next && isAccountMenuExpanded) {
+			setAccountMenuExpanded(false);
+		}
 		onActionsExpandedChange?.(next);
+	}
+
+	/**
+	 * toggleAccountMenu
+	 *
+	 * Toggles the account menu panel. Closes the actions menu if it is open so
+	 * only one panel is visible at a time.
+	 */
+	function toggleAccountMenu(): void {
+		const next = !isAccountMenuExpanded;
+		setAccountMenuExpanded(next);
+		if (next && isHeaderActionsExpanded) {
+			if (actionsExpanded === undefined) {
+				setHeaderActionsExpanded(false);
+			}
+			onActionsExpandedChange?.(false);
+		}
 	}
 
 	return {
@@ -111,5 +138,8 @@ export default function useNavigation({
 		isActionsVisible,
 		isActive,
 		toggleActions,
+		isAccountMenuExpanded,
+		isAccountMenuVisible,
+		toggleAccountMenu,
 	};
 }

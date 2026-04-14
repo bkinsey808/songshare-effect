@@ -32,7 +32,7 @@ export default function createRealtimeSubscription(config: SubscriptionConfig): 
 		onStatus,
 	} = config;
 
-	// Dev-only verbose logging (enable by setting VITE_DEV_VERBOSE_SUBSCRIBE=true in .env)
+		// Dev-only verbose logging (enable by setting VITE_DEV_VERBOSE_SUBSCRIBE=true in the active env source)
 	const DEV_VERBOSE_SUBSCRIBE = Boolean(
 		import.meta.env.DEV && import.meta.env["VITE_DEV_VERBOSE_SUBSCRIBE"],
 	);

@@ -1,0 +1,40 @@
+name: Daily Health Check
+
+on:
+  schedule:
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-health-check:
+    name: Check production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HEALTH_URL: ${{ secrets.HEALTHCHECK_PRODUCTION_URL }}
+    steps:
+      - name: Request Supabase-backed API endpoint
+        run: |
+          test -n "$HEALTH_URL"
+          status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' "$HEALTH_URL")"
+          echo "Checked $HEALTH_URL"
+          echo "HTTP status: $status"
+          test "$status" = "200"
+
+  staging-health-check:
+    name: Check staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      HEALTH_URL: ${{ secrets.HEALTHCHECK_STAGING_URL }}
+    steps:
+      - name: Request Supabase-backed API endpoint
+        run: |
+          test -n "$HEALTH_URL"
+          status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' "$HEALTH_URL")"
+          echo "Checked $HEALTH_URL"
+          echo "HTTP status: $status"
+          test "$status" = "200"

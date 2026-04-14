@@ -1,10 +1,6 @@
 import Button from "@/react/lib/design-system/Button";
-import ExitFullScreenIcon from "@/react/lib/design-system/icons/ExitFullScreenIcon";
-import FullScreenIcon from "@/react/lib/design-system/icons/FullScreenIcon";
 import LogOutIcon from "@/react/lib/design-system/icons/LogOutIcon";
 import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
-import WakeLockOffIcon from "@/react/lib/design-system/icons/WakeLockOffIcon";
-import WakeLockOnIcon from "@/react/lib/design-system/icons/WakeLockOnIcon";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import LanguageSwitcher from "@/react/lib/language/switcher/LanguageSwitcher";
 import useSettingsCard from "@/react/navigation/settings-card/useSettingsCard";
@@ -15,16 +11,7 @@ import useSettingsCard from "@/react/navigation/settings-card/useSettingsCard";
  */
 export default function SettingsCard(): ReactElement {
 	const { t } = useLocale();
-	const {
-		handleDeleteAccountNavigation,
-		isFullScreen,
-		isWakeLockActive,
-		isWakeLockSupported,
-		localIsSignedIn,
-		signOut,
-		toggleFullScreen,
-		toggleWakeLock,
-	} = useSettingsCard();
+	const { handleDeleteAccountNavigation, localIsSignedIn, signOut } = useSettingsCard();
 
 	const actionButtonClassName =
 		"rounded-md! whitespace-nowrap text-xs sm:text-sm data-[size=compact]:px-2 data-[size=compact]:py-1 sm:data-[size=compact]:px-3 sm:data-[size=compact]:py-1.5";
@@ -35,42 +22,6 @@ export default function SettingsCard(): ReactElement {
 				{t("navigation.settings", "Settings")}
 			</div>
 			<div className="flex flex-wrap items-center gap-3 sm:gap-5">
-				<Button
-					size="compact"
-					variant={isFullScreen ? "primary" : "outlineSecondary"}
-					icon={
-						isFullScreen ? (
-							<ExitFullScreenIcon className="size-4" />
-						) : (
-							<FullScreenIcon className="size-4" />
-						)
-					}
-					onClick={toggleFullScreen}
-					data-testid="navigation-fullscreen-toggle"
-					className={actionButtonClassName}
-				>
-					{isFullScreen
-						? t("navigation.exitFullScreen", "Exit Full Screen")
-						: t("navigation.fullScreen", "Full Screen")}
-				</Button>
-				{isWakeLockSupported && (
-					<Button
-						size="compact"
-						variant={isWakeLockActive ? "primary" : "outlineSecondary"}
-						icon={
-							isWakeLockActive ? (
-								<WakeLockOnIcon className="size-4" />
-							) : (
-								<WakeLockOffIcon className="size-4" />
-							)
-						}
-						onClick={toggleWakeLock}
-						data-testid="navigation-wakelock-toggle"
-						className={actionButtonClassName}
-					>
-						{t("navigation.wakeLock", "Wake Lock")}
-					</Button>
-				)}
 				<LanguageSwitcher />
 				{localIsSignedIn === true && (
 					<>

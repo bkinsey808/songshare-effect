@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
+import getAppName from "@/react/lib/branding/getAppName";
 import mockLocaleWithLang from "@/react/lib/test-utils/mockLocaleWithLang";
 import mockReactRouterWithNavigate from "@/react/lib/test-utils/mockReactRouter";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
@@ -9,10 +10,12 @@ import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import Navigation from "./Navigation";
 
 vi.mock("@/react/language/locale/useLocale");
+vi.mock("@/react/lib/branding/getAppName");
 
 describe("navigation - language-aware links", () => {
 	it("builds links using buildPathWithLang (home + about)", async () => {
 		mockLocaleWithLang("es");
+		vi.mocked(getAppName).mockReturnValue("Env App Name");
 
 		const mockNavigate = vi.fn();
 		// apply the runtime mock for react-router-dom with our custom mockNavigate
@@ -28,6 +31,7 @@ describe("navigation - language-aware links", () => {
 
 		const homeButton = screen.getByTestId("navigation-home");
 		expect(homeButton).toBeTruthy();
+		expect(homeButton.textContent).toContain("Env App Name");
 
 		// Verify programmatic navigate returns the expected path (sanity check)
 		const navigateFromHook = useNavigate();

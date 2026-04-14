@@ -1,7 +1,7 @@
+import getAppName from "@/react/lib/branding/getAppName";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import normalizeTranslationParagraphs from "@/react/lib/language/normalizeTranslationParagraphs";
 import type { Paragraph } from "@/react/lib/language/paragraph";
-import { getEnvValueSafe } from "@/react/lib/utils/env";
 import { reactFeaturesPath, uploadDemoPath } from "@/shared/paths";
 
 export type UseHomeReturn = {
@@ -24,10 +24,7 @@ export type UseHomeReturn = {
  */
 export default function useHome(): UseHomeReturn {
 	const { lang, t } = useLocale();
-	// Prefer any non-null VITE_APP_NAME value (coerce to string) so tests and
-	// runtime environments that set this value in different ways are handled.
-	const rawAppName = getEnvValueSafe("APP_NAME");
-	const appName = rawAppName === undefined ? (t("app.title") ?? "SongShare") : String(rawAppName);
+	const appName = getAppName(t);
 
 	const translationConfig = { returnObjects: true, appName };
 	const homeParagraphsRaw: unknown = t("pages.home.paragraphs", translationConfig);

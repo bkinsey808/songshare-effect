@@ -506,7 +506,7 @@ Otherwise proceed without loading reference files.
 api_key: sk-proj-abc123...
 
 # Good — use env var name only
-api_key: $OPENAI_API_KEY  # set in .env or shell environment
+api_key: $OPENAI_API_KEY  # set in your shell environment or secret manager
 ```
 
 <a id="debugging"></a>

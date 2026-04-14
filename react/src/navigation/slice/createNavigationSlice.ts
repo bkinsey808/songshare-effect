@@ -17,8 +17,7 @@ export default function createNavigationSlice(
 	_api: Api<NavigationSlice>,
 ): NavigationSlice {
 	sliceResetFns.add(() => {
-		// Reset to default expanded state
-		set({ isHeaderActionsExpanded: true });
+		set({ isHeaderActionsExpanded: true, isAccountMenuExpanded: false });
 	});
 
 	return {
@@ -28,6 +27,14 @@ export default function createNavigationSlice(
 		},
 		toggleHeaderActions: () => {
 			set((state) => ({ isHeaderActionsExpanded: !state.isHeaderActionsExpanded }));
+		},
+
+		isAccountMenuExpanded: false,
+		setAccountMenuExpanded: (expanded: boolean) => {
+			set({ isAccountMenuExpanded: expanded });
+		},
+		toggleAccountMenu: () => {
+			set((state) => ({ isAccountMenuExpanded: !state.isAccountMenuExpanded }));
 		},
 	};
 }

@@ -212,34 +212,20 @@ See documentation:
 
 ## Environment Variables
 
-### Root (.env)
+This repo does not use `.env` files for normal development, CI, or deploys.
+Secrets live in the OS keyring and are injected into each command at runtime.
 
-```
-# Supabase Configuration
-VITE_SUPABASE_URL=your-supabase-project-url
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-SUPABASE_PROJECT_REF=your-project-ref
-SUPABASE_SERVICE_KEY=your-service-key
+- Environment names and required keys live in `config/env-secrets.*.list`
+- Worker runtime bindings are documented in `config/worker-vars.list`
+- Full setup and flow are documented in [docs/devops/env-vars-and-secrets.md](/docs/devops/env-vars-and-secrets.md)
 
-# Visitor Authentication (for shared anonymous access)
-SUPABASE_VISITOR_EMAIL=visitor@yourdomain.com
-SUPABASE_VISITOR_PASSWORD=your-visitor-password
+Example local setup:
 
-# Frontend Configuration
-API_BASE_URL=http://localhost:8787  # For development
-
-# Database Connection (for schema generation)
-PGHOST=your-db-host
-PGPORT=6543
-PGUSER=your-db-user
-PGPASSWORD=your-db-password
-PGDATABASE=postgres
-```
-
-### API Environment Variables (via wrangler.toml)
-
-```
-ENVIRONMENT=development
+```bash
+keyring set songshare-staging VITE_SUPABASE_URL
+keyring set songshare-staging VITE_SUPABASE_ANON_KEY
+keyring set songshare-staging SUPABASE_VISITOR_EMAIL
+keyring set songshare-staging SUPABASE_VISITOR_PASSWORD
 ```
 
 ### Available Scripts

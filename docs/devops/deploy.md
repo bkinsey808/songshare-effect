@@ -5,7 +5,7 @@ This project deploys as two Cloudflare components:
 - **Frontend** — React/Vite app on Cloudflare Pages
 - **API** — Hono Worker on Cloudflare Workers, handling all `/api/*` routes
 
-All secrets are managed via the OS keyring. See [env-vars-and-secrets.md](/docs/auth/env-vars-and-secrets.md) for the full secrets setup.
+All secrets are managed via the OS keyring. See [env-vars-and-secrets.md](/docs/devops/env-vars-and-secrets.md) for the full secrets setup.
 
 ---
 
@@ -69,8 +69,8 @@ echo -n "value" | keyring set songshare-production VAR_NAME
 # Push Worker secrets to Cloudflare:
 bun run scripts/env/set-cloudflare-secrets/set-cloudflare-secrets.bun.ts --env production
 
-# Generate local .dev.vars for wrangler dev:
-npm run generate:dev-vars
+# Local API dev reads keyring values directly into the Wrangler process:
+npm run dev:api:prod
 ```
 
 ### 2. Cloudflare Pages

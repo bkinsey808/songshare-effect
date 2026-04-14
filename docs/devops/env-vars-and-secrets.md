@@ -12,9 +12,9 @@ OS Keyring (per environment)
         │
         ├─ run-with-env.bun.ts ──► subprocess env  ──► vite build / scripts / playwright
         │
-        └─ generate-dev-vars/generate-dev-vars.bun.ts ──► api/.dev.vars ──► wrangler dev (local Worker)
-                                                               │
-        set-cloudflare-secrets/set-cloudflare-secrets.bun.ts ──────────────────► Cloudflare Secrets (deployed Worker)
+        ├─ run-worker-dev/run-worker-dev.bun.ts ──► wrangler dev (local Worker via process env)
+        │
+        └─ set-cloudflare-secrets/set-cloudflare-secrets.bun.ts ───────────────► Cloudflare Secrets (deployed Worker)
 ```
 
 There are three keyring services — one per deployment environment:
@@ -50,9 +50,16 @@ Lists the subset of vars that are pushed to **Cloudflare Workers** as secrets. T
 
 ### Local Worker dev (`wrangler dev`)
 
-1. Run `npm run generate:dev-vars` — reads all names from `config/worker-vars.list`, looks each up in the `songshare-dev` keyring, writes `api/.dev.vars`.
-2. `wrangler dev` automatically reads `api/.dev.vars` and injects those as Worker bindings.
-3. `api/.dev.vars` is `.gitignore`d — never committed.
+Normal local API dev no longer needs `.dev.vars` files. The `dev:api:*` scripts:
+
+1. Load the selected environment from keyring via `run-with-env.bun.ts`
+2. Delete stale `api/.dev.vars*` files so Wrangler cannot read them by mistake
+3. Start `wrangler dev` with:
+   - `CLOUDFLARE_INCLUDE_PROCESS_ENV=true`
+   - `CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV=false`
+
+This keeps local Worker secrets in the process environment instead of writing
+them to disk.
 
 ### Vite dev / builds
 
@@ -203,7 +210,7 @@ Note: helpers automatically prepend `VITE_` — pass the name _without_ the pref
 3. Add it to all three `config/env-secrets.*.list` files
 4. Store the value in each keyring: `keyring set songshare-<env> VAR_NAME value`
 5. For deployed Workers: `bun run scripts/env/set-cloudflare-secrets/set-cloudflare-secrets.bun.ts --env <env>`
-6. Regenerate `.dev.vars`: `npm run generate:dev-vars`
+6. Restart the local API dev server so Wrangler picks up the updated process environment
 
 ### New Vite build-time var
 
@@ -233,14 +240,14 @@ keyring get songshare-dev VAR_NAME
 keyring list songshare-dev
 ```
 
-See [docs/wsl-keyring.md](/docs/auth/wsl-keyring.md) for setup instructions on WSL.
+See [docs/wsl-keyring.md](/docs/devops/wsl-keyring.md) for setup instructions on WSL.
 
 ---
 
 ## Security Notes
 
 - **Secrets never touch disk** during normal workflows — `run-with-env.bun.ts` injects them directly into the subprocess environment.
-- **`api/.dev.vars`** is the one exception: it writes Worker secrets to disk for `wrangler dev`. It is `.gitignore`d. Regenerate it with `npm run generate:dev-vars` after any keyring change.
+- **Local Worker dev stays file-free** — the standard `dev:api:*` scripts inject keyring values into the `wrangler dev` process and remove stale `api/.dev.vars*` files before startup.
 - **`VITE_*` vars are public** — they are embedded in the JS bundle and visible to anyone who downloads the app. Only put public/read-only values there (URLs, public keys, feature flags).
 - **Debug flags** (`DEBUG_API_HEADERS`, `REGISTER_COOKIE_CLIENT_DEBUG`) should never be set in production. They are absent from production keyring by default.
 - **OAuth secrets** (`GOOGLE_CLIENT_SECRET` etc.) are read dynamically by the Worker via `getEnvString()` and never logged.

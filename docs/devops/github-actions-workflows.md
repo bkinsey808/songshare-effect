@@ -6,7 +6,7 @@ If you want a quick interactive look at runs, install the GitHub Actions extensi
 
 ## Workflows in this repository (summary)
 
-There are five workflow files in `.github/workflows/` used by this project. Below is a short description of each and why it exists.
+There are six workflow files in `.github/workflows/` used by this project. Below is a short description of each and why it exists.
 
 - `pr-checks.yml` (PR Checks: lint, unit, functions-dist, smoke-e2e)
 - Trigger: `pull_request` (opened, synchronize, reopened)
@@ -27,6 +27,11 @@ There are five workflow files in `.github/workflows/` used by this project. Belo
   - Trigger: `push` to `main`, `schedule` (nightly cron), and `workflow_dispatch` for manual execution.
   - Steps include: checkout, install Node, install dependencies, build the staging-flavored frontend and API, start a preview server bound to IPv4 localhost (`--host 127.0.0.1`), wait for it to become ready (we check `localhost` then `127.0.0.1` with a timeout), cache Playwright browser binaries, ensure browsers are installed, run Playwright tests, and upload test reports and logs as artifacts.
   - Purpose: validate end-to-end user flows across the whole app regularly and after changes.
+
+- `health-check.yml` (Daily synthetic availability check)
+  - Trigger: `schedule` (daily at `15:00` UTC) and `workflow_dispatch`.
+  - Runs separate production and staging jobs, each reading its target URL from GitHub Actions secrets (`HEALTHCHECK_PRODUCTION_URL` and `HEALTHCHECK_STAGING_URL`), then hitting that `/api/auth/visitor` endpoint with `curl` and failing if the response is not HTTP `200`.
+  - Purpose: cheaply verify that the public API path and the backing Supabase project are both reachable, while also creating a small amount of real traffic for environments that may otherwise sit idle.
 
 ---
 
@@ -55,6 +60,7 @@ There are five workflow files in `.github/workflows/` used by this project. Belo
 - PR checks (lint + unit + bundle checks + PR-level smoke E2E) protect `main` from regressions and enforce maintainability.
 - Commitlint keeps commit history consistent, which helps readability and release automation.
 - Nightly & push e2e tests help catch regressions that unit tests miss (interaction, UI, integrations). Artifacts make diagnosis straightforward.
+- The daily health check provides a very cheap synthetic monitor for the live staging and production stacks without installing dependencies or building the app.
 - Bundle checks for `dist/functions` ensure that serverless functions will have valid import semantics at runtime.
 
 ---

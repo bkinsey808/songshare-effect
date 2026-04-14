@@ -62,7 +62,9 @@ const prodPgPassword = envVars["PGPASSWORD"];
 const prodPgDatabase = envVars["PGDATABASE"] ?? "postgres";
 
 if (stagingRef === undefined || stagingRef === "" || stagingPw === undefined || stagingPw === "") {
-	sError("❌ SUPABASE_STAGING_PROJECT_REF or SUPABASE_STAGING_PW not set in .env");
+	sError(
+		"❌ SUPABASE_STAGING_PROJECT_REF or SUPABASE_STAGING_PW not set in the active environment",
+	);
 	process.exit(EXIT_FAILURE);
 }
 if (
@@ -76,7 +78,7 @@ if (
 	prodPgPassword === ""
 ) {
 	sError(
-		"❌ Production DB env vars (PGHOST, PGUSER, PGPASSWORD, SUPABASE_PROJECT_REF) not set in .env",
+		"❌ Production DB env vars (PGHOST, PGUSER, PGPASSWORD, SUPABASE_PROJECT_REF) not set in the active environment",
 	);
 	process.exit(EXIT_FAILURE);
 }
