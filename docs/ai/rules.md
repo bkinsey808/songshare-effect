@@ -11,6 +11,7 @@ Quick-reference coding guidelines. Follow skill links for detailed guidance.
 - **ReactElement is ambient**: do not import it from `react` — it is available globally.
 - **JSDoc in TypeScript**: never include type annotations in JSDoc for `.ts` / `.tsx` — TypeScript provides the types. OK in plain `.js` files only.
 - **Keep JSDoc current**: when you change component props, function parameters, or behavior described by a JSDoc block, update that JSDoc in the same edit.
+ - **Always run lint after code changes**: After making any code change (fix, refactor, new feature, docs that affect code), run `npm run lint` from the project root and fix any failures before marking the work as complete or opening a PR. Do not rely on CI alone — run the lint locally first.
 - **No lint disables in test files**: do not add `oxlint-disable` or `eslint-disable` in `*.test.ts` / `*.test.tsx`. Fix the code, or extract helpers into `*.test-util.*` files.
 - **Strict TypeScript**: project uses `exactOptionalPropertyTypes` and `noPropertyAccessFromIndexSignature`. See [docs/typescript-best-practices.md](/docs/typescript-best-practices.md).
 - **Tailwind string marker**: prefer `tw\`\`` for static Tailwind utility strings so they are clearly compiler-targeted.

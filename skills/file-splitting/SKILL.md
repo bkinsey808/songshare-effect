@@ -40,6 +40,48 @@ description: >
 
 - **No barrel re-exports** — do not create `index.ts` that re-exports the split files.
 - **Preserve JSDoc** — carry over all JSDoc comments when moving symbols.
+- **Default export for single-export files** — when a new file contains a single
+  exported function (or class) make that symbol the `default` export. This
+  reduces churn at call sites when the symbol is renamed or when the file is
+  moved, and it matches repository style where single-export modules are
+  preferred as default exports.
+
+- **Remove leftover "moved" comments** — do not leave behind lines such as
+  `// \\`symbol\\` moved to ./path` after extracting a symbol. Always remove
+  temporary or human-facing comments that reference the refactor location; if
+  a reference is useful, add it to the commit message or PR description
+  instead of leaving it in the codebase.
+
+- **Split large functions into their own files** — if a function is medium or large
+  (subjective, but typically > ~20 or more lines or containing distinct
+  responsibilities), extract it into its own module. Name the file after the
+  function, export the function as the default (single-export modules), and
+  update import sites. This keeps modules small and reviewable and matches the
+  repository's single-export default-export convention.
+
+  Quick validation: after splitting, run
+
+  ```bash
+  git grep -n "\\`\w\+\\` moved to" || true
+  npm run lint
+  ```
+  to ensure no leftover "moved" comments remain and lint passes.
+- **Strict prohibition: do NOT leave "moved" comments in code**
+
+- Never leave temporary refactor comments in source that state a symbol was
+  "moved to" another file (for example: `// ensureConfigFile moved to
+  ./ensureConfigFile.ts`). These lines are forbidden in the codebase and must
+  be removed before committing. If a migration note is needed for reviewers,
+  include it in the PR description or commit message instead.
+
+- Forbidden pattern (grep for it):
+
+  ```bash
+  git grep -nE "^\s*//.*\\bmoved to\\b.*$" || true
+  ```
+
+  If this finds any matches, remove them before committing; treat a match as
+  a blocking issue during code review.
 - **Colocate tests** — move or create a `*.test.ts` next to each new source file.
 - **Absolute imports for shared test helpers** — use `@/` aliases rather than relative paths when helpers are reused across test directories.
 - **No module-level side effects** in test helper modules.

@@ -48,6 +48,9 @@ import { UserProfile } from "./components/UserProfile";
 
 This applies everywhere: no `export { something } from "./somefile"` re-exports.
 
+**Linting requirement:** After making any code change (including refactors and imports), run `npm run lint` from the project root and address any failures before finalizing the change or opening a PR. If lint fails, do not merge — fix or escalate.
+
+
 ### 2. Explicit Type Imports
 
 ```typescript
@@ -212,3 +215,34 @@ npm run lint
 
 - If reorganizing includes splitting large modules, also load `file-splitting`.
 - If symbol naming decisions are part of the reorg, also load `naming-conventions`.
+
+### Constants Placement
+
+For maintainability and discoverability, prefer placing constants close to their single consumers.
+
+- **One file only:** Define the constant in the file that uses it. Prefer a module-level `const` near the top of the file (not in a separate `constants.ts`). This keeps the API surface small and makes the constant easy to refactor.
+- **Two files:** Pause and ask the owner/PR reviewer. If the two callers are tightly coupled (same feature), you may colocate the constant in one file and import relatively; otherwise consider a small shared module but prefer asking.
+- **Three or more files:** Create a dedicated constants module (e.g., `constants.ts` or `feature-name-constants.ts`) and import from it. Name the file descriptively and keep exports grouped.
+
+Examples:
+
+```ts
+// Single-file use (preferred):
+// File: react/src/song/SongForm.tsx
+const DEFAULT_MIN_CHORD_NOTES = 3;
+
+// Shared use (>=3 callers):
+// File: shared/src/music/constants.ts
+export const DEFAULT_MIN_CHORD_NOTES = 3;
+
+// Importing from multiple callers
+import { DEFAULT_MIN_CHORD_NOTES } from "@/shared/music/constants";
+```
+
+Rationale:
+
+- Reduces unnecessary indirection for constants that are implementation details.  
+- Keeps the public/shared API surface minimal.  
+- Makes future extraction explicit and reviewed when usage grows.
+
+When in doubt, ask the reviewer — prefer a short discussion in the PR rather than guessing placement.

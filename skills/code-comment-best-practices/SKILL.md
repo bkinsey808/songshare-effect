@@ -40,6 +40,7 @@ detailed formatting patterns, examples, and edge cases.
 Core philosophy: explain the "why," not the "what." ([philosophy](/docs/code-comment-best-practices.md#1-philosophy))
 
 - **JSDoc (`/** */`)** for exported functions, components, and types. ([when to use](/docs/code-comment-best-practices.md#jsdoc-when))
+ - **JSDoc requirement:** Every exported function must have JSDoc. Additionally, any non-trivial internal function (complex logic, side effects, branching, or >~3 lines) should include concise JSDoc. Prefer documenting intent and side-effects over implementation details.
 - **Default to JSDoc for named functions you add** — not just exports. Helper functions, local utility functions, test helpers, and hook-internal handlers should usually get concise JSDoc unless the name and body are truly trivial. This repo prefers documenting function purpose proactively rather than only at module boundaries.
 - **`//`** for logic blocks (`useEffect`, complex conditionals), test descriptions, and grouped constants. ([inline comments](/docs/code-comment-best-practices.md#inline-comments))
 - **No types in JSDoc** — TypeScript provides them. Use `@param name - description` only. ([formatting](/docs/code-comment-best-practices.md#jsdoc-formatting))
@@ -49,6 +50,8 @@ Core philosophy: explain the "why," not the "what." ([philosophy](/docs/code-com
 - **One blank line above** a JSDoc block; no blank lines between JSDoc and its symbol. ([spacing & placement](/docs/code-comment-best-practices.md#spacing-placement))
 - **No JSDoc above `describe`/`it`/`test`** — use `//` only when the name isn't self-explanatory. ([test comments](/docs/code-comment-best-practices.md#test-comments))
 - **Grouped constants** — use `//` above the group, not JSDoc spanning multiple symbols. ([constants](/docs/code-comment-best-practices.md#constants))
+ - **Symbol comments:** If a comment documents a specific symbol (function, constant, type, class, or exported value), use JSDoc (`/** ... */`) rather than `//`. Reserve `//` for inline implementation notes and small logic comments. This keeps symbol-level documentation consistent and machine-readable.
+ - **Avoid repeating the symbol name:** The first sentence of a symbol's JSDoc should be a concise verb phrase describing its purpose (e.g., "Return the user's profile"), not a restatement of the symbol name (avoid: "User profile: returns..." or "Noise filter: ..."). This keeps inline documentation focused and avoids redundancy.
 - **Max 100 chars per line.** ([formatting](/docs/code-comment-best-practices.md#jsdoc-formatting))
 - **JSDoc for any comment with a URL** — use `@see` for standalone links (URLs, file paths), `{@link}` for inline symbol refs; never `//` for comments containing links. ([links in comments](/docs/code-comment-best-practices.md#links-in-comments))
 - **TODO/FIXME must include context** — `// TODO: [action] — [reason or ticket]`; switch to JSDoc when the comment includes a link. ([inline comments](/docs/code-comment-best-practices.md#inline-comments))

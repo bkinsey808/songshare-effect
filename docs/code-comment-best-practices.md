@@ -48,6 +48,8 @@ Use `/** */` above:
 - Exported types and interfaces
 - Non-obvious constants (single-line `/** description */` is fine)
 
+- Every exported function and any non-trivial internal function (complex logic, side effects, or multiple branches) should include JSDoc describing purpose, side-effects, and usage.
+
 Do **not** use JSDoc:
 - Above `describe` or `it`/`test` blocks in test files (use `//` instead — see [§6](#test-comments))
 - To comment on more than one symbol at a time (see [§7](#constants))
@@ -121,6 +123,35 @@ const MIN_SLIDE_INDEX = 0;
  * @param title - Title to display
  * @param colSpan - Number of columns to span
  * @returns React element
+ */
+```
+
+**Explicit rule:** Never document the wrapper object itself (for example `@param options`) when the function takes a single object — document its fields directly.
+
+Bad and good examples for object-style options:
+
+```ts
+// ❌ — do not do this
+/**
+ * Bootstraps the local QMD index for a command.
+ *
+ * @param options - Configuration for bootstrapping the local index.
+ * @param options.command - The command name used to determine whether bootstrapping is needed.
+ * @param options.indexPath - Path to the local index file to create or verify.
+ * @param options.globalIndexPath - Path to a shared/global index file that can be copied into place.
+ * @param options.qmdBin - Path to the `qmd` binary used to run update commands.
+ * @returns void
+ */
+
+// ✅ — preferred style
+/**
+ * Bootstraps the local QMD index for a command.
+ *
+ * @param command - The command name used to determine whether bootstrapping is needed.
+ * @param indexPath - Path to the local index file to create or verify.
+ * @param globalIndexPath - Path to a shared/global index file that can be copied into place.
+ * @param qmdBin - Path to the `qmd` binary used to run update commands.
+ * @returns void
  */
 ```
 
