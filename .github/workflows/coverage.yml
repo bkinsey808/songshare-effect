@@ -8,6 +8,9 @@ concurrency:
   group: coverage-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
 
@@ -17,13 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     # no elevated permissions required; dynamic run title update removed
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       # display-title update removed
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: "npm"
@@ -36,21 +39,21 @@ jobs:
 
       - name: Upload coverage folder
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage
           path: coverage
 
       - name: Upload LCOV
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: lcov
           path: coverage/lcov.info
 
       - name: Upload unit test JUnit
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: unit-junit
           path: reports/unit-junit.xml

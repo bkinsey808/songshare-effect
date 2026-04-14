@@ -36,12 +36,17 @@ There are five workflow files in `.github/workflows/` used by this project. Belo
 - Triggers: `on: push | pull_request | schedule | workflow_dispatch` decide when a workflow runs.
 - Jobs: a workflow contains one or more jobs that run on a runner (e.g., `ubuntu-latest`). Jobs can run in parallel or depend on others via `needs:`.
 - Steps: inside a job, steps either use actions (`uses:`) or run commands (`run:`). Typical steps: checkout, setup-node, install deps, run tests, upload artifacts.
-- Caching: actions like `actions/cache@v4` speed CI by preserving dependencies or heavy binaries (Playwright browsers in this repo).
-- Artifacts: `actions/upload-artifact@v4` stores test reports and logs so you can review them after a run.
+- Caching: actions like `actions/cache` speed CI by preserving dependencies or heavy binaries (Playwright browsers in this repo).
+- Artifacts: `actions/upload-artifact` stores test reports and logs so you can review them after a run.
 - Secrets and env:
   - PR smoke builds use repository-level GitHub Actions variables for public staging-flavored `VITE_*` values and public OAuth client IDs.
   - The full `e2e.yml` job declares the GitHub `staging` environment so staging-only variables and secrets can be scoped away from production.
   - Environment variables are also used for runtime behavior inside the jobs (for example `PLAYWRIGHT_BROWSERS_PATH`).
+
+### Action runtime policy
+
+- The workflows opt into `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` so GitHub-hosted JavaScript actions run on the Node 24 runtime ahead of the June 2, 2026 platform default change.
+- Core first-party actions should stay on Node 24-capable majors (`actions/checkout@v6`, `actions/setup-node@v5`, `actions/cache@v5`, `actions/upload-artifact@v6`) to avoid Node 20 runtime deprecation warnings.
 
 ---
 
