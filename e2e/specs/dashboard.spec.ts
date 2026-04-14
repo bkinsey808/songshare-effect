@@ -32,6 +32,7 @@ test.describe("Dashboard Page", () => {
 		await page.waitForTimeout(HYDRATION_WAIT_MS);
 
 		await expect(page.getByText(/welcome/i)).toBeVisible();
+		await page.getByTestId("navigation-account-menu-toggle").click();
 		await expect(page.getByRole("button", { name: /sign out/i })).toBeVisible();
 	});
 
