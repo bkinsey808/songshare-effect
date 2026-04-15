@@ -40,6 +40,7 @@ export type UseThrottleResult<Args extends unknown[]> = {
  *
  * @param fn - callback to throttle
  * @param delay - window duration in milliseconds
+ * @returns The throttled function and a flush helper
  */
 // generic parameter `Fn` is broad enough to accept any argument tuple;
 // the implementation uses `Parameters<Fn>` for type-safe handling.
@@ -69,6 +70,11 @@ export default function useThrottle<Args extends unknown[]>(
 		let pending = false;
 		let latestArgs: Args | undefined = undefined;
 
+		/**
+		 * Immediately invoke any pending throttled call and clear the timer.
+		 *
+		 * @returns void
+		 */
 		function doFlush(): void {
 			if (timer !== undefined) {
 				clearTimeout(timer);
@@ -82,6 +88,13 @@ export default function useThrottle<Args extends unknown[]>(
 			}
 		}
 
+		/**
+		 * Throttled wrapper invoked by callers. Executes on the leading edge
+		 * and schedules a trailing invocation when calls occur during the window.
+		 *
+		 * @param args - Arguments forwarded to the underlying callback
+		 * @returns void
+		 */
 		function inner(...args: Args): void {
 			latestArgs = args;
 
@@ -94,6 +107,12 @@ export default function useThrottle<Args extends unknown[]>(
 			fnRef.current(...args);
 			pending = false;
 
+			/**
+			 * Trailing-edge runner that flushes the latest pending arguments after
+			 * the throttle delay, and reschedules itself if more calls arrive.
+			 *
+			 * @returns void
+			 */
 			function runTrailing(): void {
 				// clear current timer immediately so new calls can start a fresh
 				// window.  we only create a new timer if there is still pending work

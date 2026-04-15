@@ -32,14 +32,29 @@ export default function ImageLibraryCard({
 	const { editUrl, handleDelete, handleRemove, image, imageUrl, isOwner, viewUrl } =
 		useImageLibraryCard(entry, currentUserId);
 
+	/**
+	 * Begin delete confirmation flow for this card.
+	 *
+	 * @returns void
+	 */
 	function handleDeleteClick(): void {
 		setIsConfirmingDelete(true);
 	}
 
+	/**
+	 * Cancel the delete confirmation flow.
+	 *
+	 * @returns void
+	 */
 	function handleDeleteCancel(): void {
 		setIsConfirmingDelete(false);
 	}
 
+	/**
+	 * Confirm deletion and invoke the delete handler.
+	 *
+	 * @returns void
+	 */
 	function handleDeleteConfirm(): void {
 		void handleDelete();
 		setIsConfirmingDelete(false);
@@ -57,7 +72,9 @@ export default function ImageLibraryCard({
 						alt={image?.alt_text ?? image?.image_name ?? "Image"}
 						data-testid={`image-library-card-image-${entry.image_id}`}
 						className="h-full w-full object-cover"
-						style={image === undefined ? undefined : { objectPosition: getImageObjectPosition(image) }}
+						style={
+							image === undefined ? undefined : { objectPosition: getImageObjectPosition(image) }
+						}
 					/>
 				</div>
 			)}

@@ -6,6 +6,12 @@ import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 import callInsert from "./callInsert";
 
+/**
+ * Build a minimal supabase-like client used in callInsert tests.
+ *
+ * @param opts - Options to control presence of `.from` and `.insert` functions
+ * @returns A `SupabaseClientLike` stub
+ */
 function makeClient(opts: { hasFrom?: boolean; hasInsert?: boolean }): SupabaseClientLike {
 	const hasFrom = opts.hasFrom !== false;
 	const hasInsert = opts.hasInsert !== false;

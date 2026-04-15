@@ -4,14 +4,20 @@ import { describe, expect, it } from "vitest";
 // Mock the underlying `useSmoothedAudioLevel` hook so we can control what
 // `useSmoothedAudioLevelRef` receives across renders.
 import {
-	clearMockUseSmoothedAudioLevel,
-	mockUseSmoothedAudioLevel,
-	setMockUseSmoothedAudioLevel,
+    clearMockUseSmoothedAudioLevel,
+    mockUseSmoothedAudioLevel,
+    setMockUseSmoothedAudioLevel,
 } from "@/react/lib/audio/smooth/mockUseSmoothedAudioLevel.test-util";
 import type { SmoothedAudioLevel } from "@/react/lib/audio/smooth/useSmoothedAudioLevel";
 
 const DEFAULT_LEVEL = 0;
 
+/**
+ * Create a deterministic `SmoothedAudioLevel` instance for tests.
+ *
+ * @param _id - Identifier used by tests (ignored by the implementation)
+ * @returns A `SmoothedAudioLevel` test instance
+ */
 function makeLevel(_id: string): SmoothedAudioLevel {
 	return {
 		levelUiValue: DEFAULT_LEVEL,
@@ -29,6 +35,11 @@ function makeLevel(_id: string): SmoothedAudioLevel {
 // the hook dynamically below after applying the mock in each test.
 
 describe("useSmoothedAudioLevelRef (behavior)", () => {
+	/**
+	 * Test setup that applies the mocked `useSmoothedAudioLevel` implementation.
+	 *
+	 * @returns Object with `cleanup` and `initial` test fixtures
+	 */
 	function setup(): { cleanup: () => void; initial: SmoothedAudioLevel } {
 		const initial = makeLevel("initial");
 		setMockUseSmoothedAudioLevel(initial);

@@ -54,18 +54,13 @@ function normalizePlaylistPublicPayload(payload: unknown): unknown {
 /**
  * Update a playlist library entry with fields from a playlist_public row.
  *
- * @param params - Update parameters
- * @param params.get - Zustand slice getter
- * @param params.playlistId - ID of the playlist to update
- * @param params.playlistName - Optional playlist name to set (undefined clears)
- * @param params.playlistSlug - Optional playlist slug to set (undefined clears)
+ * @param get - Zustand slice getter
+ * @param playlistId - ID of the playlist to update
+ * @param playlistName - Optional playlist name to set (undefined clears)
+ * @param playlistSlug - Optional playlist slug to set (undefined clears)
+ * @returns void
  */
-function updateEntryFromPlaylistPublic({
-	get,
-	playlistId,
-	playlistName,
-	playlistSlug,
-}: {
+function updateEntryFromPlaylistPublic({ get, playlistId, playlistName, playlistSlug }: {
 	get: () => PlaylistLibrarySlice;
 	playlistId: string;
 	playlistName?: string;

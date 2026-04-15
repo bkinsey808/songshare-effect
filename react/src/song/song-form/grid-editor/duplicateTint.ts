@@ -6,6 +6,7 @@ const LOOP_STEP = 1;
 /**
  * Stable hash of a string to a hue in [0, 360). Gives each duplicate set a distinct, randomish tint.
  *
+ * @param str - Input string to hash into a hue value
  * @returns Hue value in the range [0, 360)
  */
 export default function hashToHue(str: string): number {

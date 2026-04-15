@@ -16,6 +16,12 @@ export default function LanguageTest(): ReactElement {
 	const { lang, t } = useLocale();
 	const setPreferred = useSetPreferredLanguage();
 
+	/**
+	 * Safely translate a key for display in the language test panel.
+	 *
+	 * @param key - translation key to lookup
+	 * @returns The translated string or an error message
+	 */
 	function testTranslation(key: string): string {
 		try {
 			return t(key);
@@ -24,6 +30,12 @@ export default function LanguageTest(): ReactElement {
 		}
 	}
 
+	/**
+	 * Set the preferred language for the app during testing.
+	 *
+	 * @param newLang - language to switch to
+	 * @returns void
+	 */
 	function switchLanguage(newLang: SupportedLanguageType): void {
 		// Centralised persistence + navigation
 		setPreferred(newLang);

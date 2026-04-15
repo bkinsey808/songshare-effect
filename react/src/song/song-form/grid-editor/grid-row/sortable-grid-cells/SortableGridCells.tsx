@@ -11,6 +11,11 @@ import SlideFieldCell from "../SlideFieldCell";
 import SlideNameCell from "../SlideNameCell";
 import useSortableGridCells from "./useSortableGridCells";
 
+/**
+ * No-op helper used for optional callbacks when a real handler isn't provided.
+ *
+ * @returns void
+ */
 function noop(): void {
 	/* no-op */
 }
@@ -118,6 +123,36 @@ type SortableGridRowInnerProps = Readonly<{
  */
 export type { SortableGridRowInnerProps };
 
+/**
+ * Render the editable cells for a sortable song slide row.
+ *
+ * @param slideId - Unique identifier for the slide.
+ * @param slide - Slide data object.
+ * @param fields - Dynamic field columns rendered for this row.
+ * @param editSlideName - Handler that updates the slide name.
+ * @param editFieldValue - Handler that updates a field value.
+ * @param safeGetField - Safe accessor that returns display text for a field.
+ * @param setSlideOrder - Setter for the presentation's slide order array.
+ * @param slideOrder - Current slide order array, including duplicates.
+ * @param duplicateSlide - Handler that duplicates the slide.
+ * @param deleteSlide - Handler that deletes the slide record.
+ * @param slides - Lookup of all slides by id.
+ * @param idx - Index of this row within the slide order array.
+ * @param attributes - Draggable attributes from `useSortable`.
+ * @param listeners - Listener map from `useSortable`.
+ * @param confirmingDelete - Whether delete confirmation UI is visible.
+ * @param setConfirmingDelete - Setter that toggles delete confirmation state.
+ * @param globalIsDragging - Whether any row is currently being dragged.
+ * @param isDuplicateRow - Whether this row belongs to a duplicate slide group.
+ * @param backgroundPickerSlideId - Currently open background picker slide id.
+ * @param isImageLibraryLoading - Whether image library data is loading.
+ * @param imageLibraryEntryList - Available image library entries.
+ * @param toggleBackgroundPicker - Toggles the inline background picker.
+ * @param selectSlideBackgroundImage - Applies a background image to the slide.
+ * @param clearSlideBackgroundImage - Clears the current slide background image.
+ * @param openChordPicker - Callback to open the chord picker.
+ * @returns React element containing the slide name and field cells.
+ */
 export default function SortableGridCells({
 	slideId,
 	slide,

@@ -13,6 +13,11 @@ describe("resizeCanvasToDisplaySize", () => {
 	const EXPECTED_WIDTH_DPR_2 = 200;
 	const EXPECTED_HEIGHT_DPR_2 = 400;
 
+	/**
+	 * Create a canvas element and stub globals for tests.
+	 *
+	 * @returns Object with `canvas` and `cleanup` restore function
+	 */
 	function setup(): { canvas: HTMLCanvasElement; cleanup: () => void } {
 		const canvas = document.createElement("canvas");
 		vi.stubGlobal("devicePixelRatio", DPR_1);

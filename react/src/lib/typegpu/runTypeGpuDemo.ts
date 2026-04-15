@@ -14,10 +14,25 @@ import { ONE, THREE, ZERO } from "@/shared/constants/shared-constants";
 
 type StopFn = () => void;
 
+/**
+ * Log WGSL generation failures for the provided TypeGPU entry points.
+ *
+ * @param tgpuLike - The TypeGPU-like module or object
+ * @param entryPoints - Entry point functions/objects to inspect
+ * @returns void
+ */
 function dumpResolvedWgsl(tgpuLike: unknown, entryPoints: unknown[]): void {
 	logResolvedWgslOnFailure({ prefix: "[TypeGPU Demo]", tgpuLike, entryPoints });
 }
 
+/**
+ * Run a TypeGPU-powered demo on the supplied canvas element.
+ *
+ * @param canvas - Canvas element to render the demo into
+ * @param _duration - Intended duration (currently unused) in milliseconds
+ * @param opts - Optional overrides such as `onFinish` and `typegpuModule`
+ * @returns A promise resolving to a stop function that terminates the demo
+ */
 export default async function runTypeGpuDemo(
 	canvas: HTMLCanvasElement,
 	_duration: number,

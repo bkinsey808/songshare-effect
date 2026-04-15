@@ -47,7 +47,11 @@ export default function AudioInputDeviceSelect({
 			}
 		}
 
-		/** Devicechange event handler that re-loads the device list. */
+		/**
+		 * Devicechange event handler that re-loads the device list.
+		 *
+		 * @returns void
+		 */
 		function onDeviceChange(): void {
 			void load();
 		}

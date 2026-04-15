@@ -21,10 +21,23 @@ export default function useDateTimePicker(
 	const DATE_INDEX = 0;
 	const TIME_INDEX = 1;
 
+	/**
+	 * Forward raw input changes to the parent picker value handler.
+	 *
+	 * @param event - Change event from an input element
+	 * @returns void
+	 */
 	function handleChange(event: ChangeEvent<HTMLInputElement>): void {
 		onChange(event.target.value);
 	}
 
+	/**
+	 * When a date is selected, preserve any existing time portion and emit
+	 * the combined value to the parent via `onChange`.
+	 *
+	 * @param date - Selected date string in YYYY/MM/DD format
+	 * @returns void
+	 */
 	function handleDateSelect(date: string): void {
 		// Preserve the time if it exists, otherwise use just the date
 		if (value !== undefined && value !== "" && value.includes(TIME_SEPARATOR_FULL)) {
@@ -35,6 +48,13 @@ export default function useDateTimePicker(
 		}
 	}
 
+	/**
+	 * When a time is selected, preserve the date portion and emit the
+	 * combined value to the parent via `onChange`.
+	 *
+	 * @param time - Selected time string in HH:mm format
+	 * @returns void
+	 */
 	function handleTimeSelect(time: string): void {
 		// Extract the date part from the current value
 		if (value !== undefined && value !== "") {

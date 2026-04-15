@@ -19,6 +19,17 @@ type SubscribeToImagePublicEffectParams = {
 
 const EMPTY_IMAGE_IDS = 0;
 
+/**
+ * Handle a single realtime payload for `image_public` subscriptions.
+ *
+ * Performs type-guards and invokes the provided upsert/delete callbacks when
+ * appropriate.
+ *
+ * @param payload - Raw realtime payload from the subscription.
+ * @param onDelete - Optional callback invoked with the deleted image id.
+ * @param onUpsert - Callback invoked with a validated `ImagePublic` record.
+ * @returns An Effect that resolves immediately (synchronous handling).
+ */
 function handleImagePublicRealtimeEvent({
 	payload,
 	onDelete,
@@ -53,10 +64,25 @@ function handleImagePublicRealtimeEvent({
 }
 
 /**
+ * Handle a single realtime payload for `image_public` subscriptions.
+ *
+ * Performs type-guards and invokes the provided upsert/delete callbacks when
+ * appropriate.
+ *
+ * @param payload - Raw realtime payload from the subscription.
+ * @param onDelete - Optional callback invoked with the deleted image id.
+ * @param onUpsert - Callback invoked with a validated `ImagePublic` record.
+ * @returns An Effect that resolves immediately (synchronous handling).
+ */
+
+
+/**
  * Subscribe to realtime updates for a scoped set of `image_public` rows.
  *
- * @param params - Subscription parameters.
- * @returns Effect that resolves to the cleanup function.
+ * @param imageIds - Array of image ids to scope the subscription to.
+ * @param onDelete - Optional callback invoked when an image is deleted.
+ * @param onUpsert - Callback invoked when an image is inserted or updated.
+ * @returns Effect that resolves to a cleanup function to cancel the subscription.
  */
 export default function subscribeToImagePublicEffect({
 	imageIds,

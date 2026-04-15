@@ -18,6 +18,15 @@ type UseInitialFormStateParams = {
  * Hook that manages setting the initial form state snapshot after the form is populated.
  * Ensures initial state is only set once per songId after data is loaded.
  *
+ * @param songId - Optional song id being edited
+ * @param formValues - Current controlled form values
+ * @param fields - Currently enabled fields array
+ * @param slideOrder - Current slide order array
+ * @param tags - Current tag list
+ * @param slides - Slide map used to build a deep copy
+ * @param isLoadingData - Whether the form is still loading data
+ * @param hasPopulatedRef - Ref indicating the form has been populated from data
+ * @param setInitialState - Setter to store the initial snapshot of form state
  * @returns void
  */
 export default function useInitialFormState({

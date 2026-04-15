@@ -39,6 +39,11 @@ describe("useSchedule — Harness", () => {
 		cleanup();
 		const callback = vi.fn();
 
+		/**
+		 * Test harness for `useSchedule` that exposes a trigger button which schedules a callback.
+		 *
+		 * @returns ReactElement containing the trigger button
+		 */
 		function Harness(): ReactElement {
 			const schedule = useSchedule();
 			return (

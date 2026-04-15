@@ -17,6 +17,12 @@ const mockEntries: Record<string, unknown> = {
 	e3: { event_id: "e3", event_public: { event_name: "Third Event", event_slug: "third" } },
 };
 
+/**
+ * Install a mocked store with event entries for `useEventSearchInput` tests.
+ *
+ * @param entries - A record of event entries keyed by id.
+ * @returns void
+ */
 function installStore(entries: Record<string, unknown>): void {
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
 		const sel = String(selector);

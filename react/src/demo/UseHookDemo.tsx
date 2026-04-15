@@ -1,10 +1,10 @@
 import { createContext, use, useState } from "react";
 
 import {
-	DEMO_FETCH_USER_DELAY_MS,
-	DEMO_FETCH_SONG_DELAY_MS,
-	DEMO_DEFAULT_USER_ID,
 	DEMO_ALT_USER_ID,
+	DEMO_DEFAULT_USER_ID,
+	DEMO_FETCH_SONG_DELAY_MS,
+	DEMO_FETCH_USER_DELAY_MS,
 } from "@/shared/constants/http";
 import delay from "@/shared/utils/delay";
 import { createTypedCache } from "@/shared/utils/typedPromiseCache";
@@ -25,6 +25,12 @@ const songCache = createTypedCache<{
 }>("demo-song");
 
 // Simulate API calls
+/**
+ * Simulate fetching user data for the demo.
+ *
+ * @param userId - id of the demo user to fetch
+ * @returns A promise resolving to a demo user object
+ */
 async function fetchUserData(userId: number): Promise<{
 	id: number;
 	name: string;
@@ -38,6 +44,12 @@ async function fetchUserData(userId: number): Promise<{
 	};
 }
 
+/**
+ * Simulate fetching song details for the demo.
+ *
+ * @param songName - name of the song to fetch
+ * @returns A promise resolving to song detail information
+ */
 async function fetchSongDetails(songName: string): Promise<{
 	title: string;
 	artist: string;
@@ -54,6 +66,14 @@ async function fetchSongDetails(songName: string): Promise<{
 }
 
 // Helper function to get or create cached promises
+/**
+ * Get or create a cached promise result from the provided typed cache.
+ *
+ * @param cache - typed cache instance
+ * @param id - cache key
+ * @param fetcher - function that returns a promise to populate the cache
+ * @returns The resolved promise value
+ */
 function getCachedPromise<ResultType>(
 	cache: ReturnType<typeof createTypedCache<ResultType>>,
 	id: string,
@@ -67,6 +87,12 @@ type UserProfileParams = Readonly<{
 }>;
 
 // Component that uses the 'use' hook with promises
+/**
+ * Demo user profile component that reads a cached promise via the `use` hook.
+ *
+ * @param props.userId - id of the user to render
+ * @returns ReactElement displaying demo user information
+ */
 function UserProfile({ userId }: UserProfileParams): ReactElement {
 	// Using the 'use' hook to read the promise directly
 	const userPromise = getCachedPromise(userCache, `user-${userId}`, () => fetchUserData(userId));
@@ -109,6 +135,12 @@ type SongDetailsParams = Readonly<{
 }>;
 
 // Component that demonstrates using 'use' hook with dynamic promises
+/**
+ * Demo song details component that reads a cached promise via the `use` hook.
+ *
+ * @param props.songName - name of the song to render
+ * @returns ReactElement displaying demo song details
+ */
 function SongDetails({ songName }: SongDetailsParams): ReactElement {
 	// Create a promise dynamically and use the 'use' hook
 	const songPromise = getCachedPromise(songCache, `song-${songName}`, () =>
@@ -141,6 +173,11 @@ function SongDetails({ songName }: SongDetailsParams): ReactElement {
 }
 
 // Main demo component
+/**
+ * Top-level demo showcasing the `use` hook with cached promises and context.
+ *
+ * @returns ReactElement rendering the use-hook demo UI
+ */
 function UseHookDemo(): ReactElement {
 	const [userId, setUserId] = useState(DEMO_DEFAULT_USER_ID);
 	const [selectedSong, setSelectedSong] = useState<string | undefined>(undefined);

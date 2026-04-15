@@ -24,6 +24,15 @@ type DeleteConfirmationRowProps = Readonly<{
  */
 export type { DeleteConfirmationRowProps };
 
+/**
+ * Render the full-width delete confirmation row content.
+ *
+ * @param colSpan - Number of columns to span across the grid.
+ * @param onCancel - Handler that cancels deletion.
+ * @param onConfirm - Handler that confirms deletion.
+ * @param isFaded - Whether the controls should appear disabled.
+ * @returns React element for the confirmation table cell.
+ */
 export default function DeleteConfirmationRow({
 	colSpan,
 	onCancel,

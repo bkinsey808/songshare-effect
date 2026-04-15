@@ -16,6 +16,7 @@ import { apiShareRejectByItemPath } from "@/shared/paths";
  *
  * @param itemType - shared_item_type (song, playlist, event, community)
  * @param itemId - shared_item_id (song_id, playlist_id, event_id, community_id)
+ * @returns An Effect that resolves when the API call finishes (may log on error).
  */
 export default function rejectAcceptedSharesForItem(
 	itemType: SharedItemType,

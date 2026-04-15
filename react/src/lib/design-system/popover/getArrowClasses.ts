@@ -6,6 +6,7 @@ import { type PlacementOption } from "./popover-types";
  * Returns Tailwind CSS classes for positioning the popover arrow
  * based on the calculated placement
  *
+ * @param placement - Calculated placement used to choose arrow classes
  * @returns Tailwind CSS classes used for positioning the arrow
  */
 export default function getArrowClasses(placement: PlacementOption): string {

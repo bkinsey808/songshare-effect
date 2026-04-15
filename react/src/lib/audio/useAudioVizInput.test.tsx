@@ -7,9 +7,9 @@ import { describe, expect, it, vi } from "vitest";
 // lint rule that applies to test files.
 import makeSmoothedAudioLevelForUiTimer from "@/react/lib/audio/smooth/makeSmoothedAudioLevelForUiTimer.test-util";
 import {
-	spyUseAudioCapture,
-	spyUseSmoothedAudioLevelRef,
-	type AsyncSpy,
+    spyUseAudioCapture,
+    spyUseSmoothedAudioLevelRef,
+    type AsyncSpy,
 } from "@/react/lib/audio/test-utils/spyAudio";
 import { ZERO } from "@/shared/constants/shared-constants";
 
@@ -70,6 +70,12 @@ describe("useAudioVizInput", () => {
 
 	const mockAudioLevelRef: RefObject<SmoothedAudioLevel | undefined> = { current: mockAudioLevel };
 
+	/**
+	 * Test setup that installs spies for audio capture and smoothed audio level
+	 * utilities and prepares shared test fixtures.
+	 *
+	 * @returns Object containing the spies for `useAudioCapture` and `useSmoothedAudioLevelRef`
+	 */
 	async function setup(): Promise<{
 		mockUseAudioCapture: AsyncSpy;
 		mockUseSmoothedAudioLevelRef: AsyncSpy;

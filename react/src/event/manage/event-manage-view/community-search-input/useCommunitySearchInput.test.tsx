@@ -60,6 +60,12 @@ const mockCommunities: CommunityEntry[] = [
  * @param communities - array of entries that the mocked store will supply
  *   whenever the hook reads `state.communities`.
  */
+/**
+ * Install a mocked communities slice for `useCommunitySearchInput` tests.
+ *
+ * @param communities - List of community entries to seed.
+ * @returns void
+ */
 function installStore(communities: CommunityEntry[]): void {
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) => {
 		const sel = String(selector);

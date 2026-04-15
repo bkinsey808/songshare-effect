@@ -22,14 +22,13 @@ type CreateFormSubmitHandlerParams<FormData> = {
  * `FormData` and controlled React state, then invokes the provided
  * `handleSubmit`/`onSubmit` pipeline.
  *
- * @param params - configuration object for the submit handler
- * @param params.songId - optional song id to include when editing
- * @param params.fields - list of field keys to include
- * @param params.slideOrder - ordered list of slide ids
- * @param params.slides - map of slide id to `Slide` objects
- * @param params.tags - optional list of tag strings
- * @param params.handleSubmit - wrapper that executes the actual submit logic and returns an Effect
- * @param params.onSubmit - user-provided callback invoked with the final form data
+ * @param songId - optional song id to include when editing
+ * @param fields - list of field keys to include
+ * @param slideOrder - ordered list of slide ids
+ * @param slides - map of slide id to `Slide` objects
+ * @param getTags - optional callback returning the current tags list
+ * @param handleSubmit - wrapper that executes the actual submit logic and returns an Effect
+ * @param onSubmit - user-provided callback invoked with the final form data
  * @returns A function that accepts an `HTMLFormElement | null` and returns a `Promise<void>` which
  * resolves after `handleSubmit` completes (or logs an error on failure).
  */

@@ -8,6 +8,16 @@ import addActivePrivateSongSlugs from "./addActivePrivateSongSlugs";
 
 const DB_NULL = forceCast<null>(JSON.parse("null"));
 
+/**
+ * Return a `SongSubscribeSlice` pre-populated with an active slug for test assertions.
+ *
+ * @returns Mocked `SongSubscribeSlice` with one active slug
+ */
+/**
+ * Return a `SongSubscribeSlice` pre-populated with an active slug for test assertions.
+ *
+ * @returns Mocked `SongSubscribeSlice` with one active slug
+ */
 function makeGetWithActiveSlug(): SongSubscribeSlice {
 	const get = makeSongSubscribeSlice({
 		initialPublic: {
@@ -33,6 +43,16 @@ function makeGetWithActiveSlug(): SongSubscribeSlice {
 	return get();
 }
 
+/**
+ * Return a `SongSubscribeSlice` without a user token to simulate unauthenticated state.
+ *
+ * @returns Mocked `SongSubscribeSlice` without user token
+ */
+/**
+ * Return a `SongSubscribeSlice` without a user token to simulate unauthenticated state.
+ *
+ * @returns Mocked `SongSubscribeSlice` without user token
+ */
 function makeGetWithoutUserToken(): SongSubscribeSlice {
 	const get = makeSongSubscribeSlice();
 	return get();

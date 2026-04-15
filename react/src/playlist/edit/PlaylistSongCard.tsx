@@ -51,6 +51,11 @@ export default function PlaylistSongCard({
 
 	// Fetch owner username if we have the song data but not the username yet
 	useEffect(() => {
+		/**
+		 * Fetch the owner's username for the displayed song and update local state.
+		 *
+		 * @returns Promise<void>
+		 */
 		async function fetchOwner(): Promise<void> {
 			const userId = song?.user_id;
 			if (userId === undefined || userId === "") {

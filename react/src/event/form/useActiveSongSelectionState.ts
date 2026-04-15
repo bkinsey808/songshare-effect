@@ -35,6 +35,7 @@ const SLIDE_POSITION_OFFSET = 1;
  * Derives active song selection UI state.
  *
  * @param activePlaylistId - Currently selected playlist ID
+ * @param activeSongId - Currently selected song ID (may be undefined/null)
  * @returns Active song options and derived booleans for section rendering states
  */
 export default function useActiveSongSelectionState({

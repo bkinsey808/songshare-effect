@@ -6,13 +6,14 @@ import type { ActionState } from "./ActionState.type";
  * Wrapper that executes an arbitrary action, manages loading/success/error
  * state, and optionally refreshes the event when non-playback fields change.
  *
- * @param loadingKey - key used in `ActionState` to track the current
+ * @param actionKey - key used in `ActionState` to track the current
  *   operation
  * @param successMessage - message to display on successful completion
  * @param action - async function performing the operation (API call,
  *   etc.)
  * @param setActionState - setter returned by `useState<ActionState>`
  * @param refreshFn - function to call when the event should be refreshed
+ * @returns void
  */
 export default async function runAction({
 	actionKey,

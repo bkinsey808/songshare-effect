@@ -16,7 +16,26 @@ import { getWakeLockSentinel, setWakeLockSentinel } from "./sentinel";
  * @param releaseImpl - invoked when `release()` is called
  * @returns a test `WakeLockSentinel`
  */
-function createSentinelWithRelease(releaseImpl: () => Promise<void>): WakeLockSentinel {
+/**
+ * Create a minimal `WakeLockSentinel`-like object for tests.
+ *
+ * This factory returns a small object that satisfies the DOM `WakeLockSentinel`
+ * shape (including the `type` and `onrelease` fields) while delegating the
+ * `release()` implementation to the provided `releaseImpl` callback so tests
+ * can simulate success or failure deterministically.
+ *
+ * Note: This is a test helper only and intentionally minimal.
+ *
+ * @param releaseImpl - invoked when `release()` is called
+ * @returns a test `WakeLockSentinel`
+ */
+	function createSentinelWithRelease(releaseImpl: () => Promise<void>): WakeLockSentinel {
+	/**
+	 * Minimal test sentinel class implementing `WakeLockSentinel`.
+	 *
+	 * @remarks This class is intentionally minimal for tests and provides a
+	 * `release()` method that delegates to the provided `releaseImpl`.
+	 */
 	class DummySentinel extends EventTarget implements WakeLockSentinel {
 		// Match the literal union type expected by the DOM type definitions.
 		type = "screen" as const;
@@ -27,6 +46,11 @@ function createSentinelWithRelease(releaseImpl: () => Promise<void>): WakeLockSe
 			this: WakeLockSentinel,
 			ev: Event,
 		) => unknown;
+		/**
+		 * Invoke the provided release implementation and mark sentinel released.
+		 *
+		 * @returns Promise that resolves when the underlying `releaseImpl` completes
+		 */
 		release(): Promise<void> {
 			// Use `this` so the method qualifies as an instance method per lint rules.
 			this.released = true;

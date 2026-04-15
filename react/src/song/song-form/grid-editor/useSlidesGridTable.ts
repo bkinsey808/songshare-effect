@@ -64,14 +64,30 @@ export default function useSlidesGridTable({
 
 	const [globalIsDragging, setGlobalIsDragging] = useState(false);
 
+	/**
+	 * Mark global dragging state when a drag is initiated.
+	 *
+	 * @returns void
+	 */
 	function handleDragStart(): void {
 		setGlobalIsDragging(true);
 	}
 
+	/**
+	 * Reset global dragging state when a drag is cancelled.
+	 *
+	 * @returns void
+	 */
 	function handleDragCancel(): void {
 		setGlobalIsDragging(false);
 	}
 
+	/**
+	 * Finalize drag operation, clearing global state and delegating grid reordering.
+	 *
+	 * @param event - DnD drag end event
+	 * @returns void
+	 */
 	function handleDragEnd(event: DragEndEvent): void {
 		setGlobalIsDragging(false);
 		handleGridDragEnd(event);

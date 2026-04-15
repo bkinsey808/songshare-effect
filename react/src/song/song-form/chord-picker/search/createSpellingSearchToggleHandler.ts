@@ -11,9 +11,13 @@ type CreateSpellingSearchToggleHandlerParams = Readonly<{
 }>;
 
 /**
- * Returns a handler that cycles the spelling-search toggle state for a semitone offset.
+ * Create a handler that toggles the stored spelling-search state for a given semitone offset.
  *
- * Unlike Note Search, these keys are stored directly as offsets relative to the chord root.
+ * Unlike note-search toggles, spelling-search entries are stored directly by semitone
+ * offset relative to the chord root.
+ *
+ * @param setSpellingSearchState - State setter that accepts an updater for the offset map
+ * @returns A function that toggles the stored state for the provided semitone offset
  */
 export default function createSpellingSearchToggleHandler({
 	setSpellingSearchState,

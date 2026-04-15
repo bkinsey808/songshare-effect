@@ -18,6 +18,11 @@ describe("spyHelpers utilities", () => {
 	const MAGIC_NUMBER = 123;
 	const OTHER_NUMBER = 42;
 
+	/**
+	 * Reset all Vitest mocks and stub `spyImport` to resolve the test spy.
+	 *
+	 * @returns void
+	 */
 	function resetAndStub(): void {
 		vi.resetAllMocks();
 		vi.mocked(spyImport).mockResolvedValue(fakeSpy);

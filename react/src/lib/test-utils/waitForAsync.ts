@@ -7,6 +7,9 @@ const DEFAULT_TICKS = 5;
  *
  * Use this when you need to wait for effects or async operations to complete in tests.
  * This helper isolates the `no-await-in-loop` disable comment away from test files.
+ *
+ * @param ticks - Number of event-loop cycles to await (defaults to 5)
+ * @returns void
  */
 export default async function waitForAsync(ticks = DEFAULT_TICKS): Promise<void> {
 	/* oxlint-disable no-await-in-loop */

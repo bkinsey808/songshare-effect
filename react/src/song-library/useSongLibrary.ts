@@ -120,6 +120,11 @@ export default function useSongLibrary(): {
 	// React Compiler automatically memoizes this value
 	const songEntries = Object.values(songLibraryEntries) as SongLibraryEntry[];
 
+	/**
+	 * Navigate to the song creation page.
+	 *
+	 * @returns void
+	 */
 	function handleCreateSongClick(): void {
 		void navigate(buildPathWithLang(`/${dashboardPath}/${songEditPath}`, lang));
 	}

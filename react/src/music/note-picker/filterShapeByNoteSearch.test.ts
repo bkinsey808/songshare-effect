@@ -16,6 +16,12 @@ const MAJOR_SPELLING = "3,5";
  */
 const WHOLE_STEP_SPELLING = "2";
 
+/**
+ * Create a minimal `ChordShape` for test scenarios.
+ *
+ * @param spelling - Comma-separated interval spelling used by the shape.
+ * @returns A test `ChordShape` object.
+ */
 function shape(spelling: string): ChordShape {
 	return {
 		id: 0,
@@ -31,6 +37,12 @@ function shape(spelling: string): ChordShape {
 	};
 }
 
+/**
+ * Helper to build a readonly note-search map from entries for tests.
+ *
+ * @param entries - Array of semitone index and toggle state tuples.
+ * @returns A readonly Map used as `noteSearchState` in assertions.
+ */
 function state(
 	entries: [number, NoteSearchToggleState][],
 ): ReadonlyMap<number, NoteSearchToggleState> {

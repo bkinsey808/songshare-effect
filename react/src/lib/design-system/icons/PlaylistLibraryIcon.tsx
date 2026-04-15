@@ -6,6 +6,7 @@ import type { SVGProps } from "react";
  * @param className - Optional CSS class name.
  * @param width - Optional width override.
  * @param height - Optional height override.
+ * @param props - Additional SVG props forwarded to the root element
  * @returns A playlist library icon component.
  */
 export default function PlaylistLibraryIcon({

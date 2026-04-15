@@ -16,6 +16,11 @@ vi.mock("@/react/image/realtime/useImageLibraryPublicSubscription");
 const IMAGE_ID = "img-1";
 const USER_ID = "usr-1";
 
+/**
+ * Create a minimal `ImageLibraryEntry` for tests.
+ *
+ * @returns A test image library entry.
+ */
 function makeEntry(): ImageLibraryEntry {
 	return {
 		user_id: USER_ID,
@@ -24,6 +29,12 @@ function makeEntry(): ImageLibraryEntry {
 	};
 }
 
+/**
+ * Install a mocked `useAppStore` implementation for tests.
+ *
+ * @param opts - Options to seed the mocked store selectors and effects.
+ * @returns void
+ */
 function installStore(opts: {
 	imageLibraryEntries?: Record<string, ImageLibraryEntry>;
 	isImageLibraryLoading?: boolean;
@@ -62,6 +73,11 @@ function installStore(opts: {
  * - Entries list
  * - Loading and error display
  * - Remove handler
+ */
+/**
+ * Test harness for `useImageLibrary` demonstrating DOM integration.
+ *
+ * @returns A React element used by tests to assert rendering.
  */
 function Harness(): ReactElement {
 	const { entries, isLoading, error, removeFromImageLibrary } = useImageLibrary();

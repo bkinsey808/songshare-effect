@@ -18,6 +18,7 @@ type CreateHandleFormSubmitArgs = {
  *
  * @param formValues - Current form values
  * @param isEditing - Whether form is in edit mode
+ * @param getTags - Optional function returning tag list for the event
  * @param runValidatedSubmit - Validation runner that executes submit side effects when valid
  * @param runSaveEvent - Async save request executor
  * @param clearInitialState - Resets unsaved-change tracking baseline

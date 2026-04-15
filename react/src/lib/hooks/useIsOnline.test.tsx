@@ -50,6 +50,11 @@ describe("useIsOnline — Harness", () => {
 		cleanup();
 		vi.stubGlobal("navigator", { onLine: true });
 
+		/**
+		 * Test harness component that renders the online status using the hook.
+		 *
+		 * @returns ReactElement showing online status
+		 */
 		function Harness(): ReactElement {
 			const online = useIsOnline();
 			return <div data-testid="status">{String(online)}</div>;

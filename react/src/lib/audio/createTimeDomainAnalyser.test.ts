@@ -3,13 +3,26 @@ import { describe, expect, it, vi } from "vitest";
 import type { MinimalMediaStream, MinimalMediaStreamTrack } from "./audio-types";
 import createTimeDomainAnalyser from "./createTimeDomainAnalyser";
 
+/**
+ * Minimal MediaStream mock used in tests to simulate available tracks.
+ */
 class MediaStreamMock implements MinimalMediaStream {
 	private readonly tracks: MinimalMediaStreamTrack[] = [];
 
+	/**
+	 * Return the list of tracks on the mocked stream.
+	 *
+	 * @returns Array of MinimalMediaStreamTrack
+	 */
 	public getTracks(): MinimalMediaStreamTrack[] {
 		return this.tracks;
 	}
 
+	/**
+	 * Return the audio tracks for the mocked stream.
+	 *
+	 * @returns Array of MinimalMediaStreamTrack
+	 */
 	public getAudioTracks(): MinimalMediaStreamTrack[] {
 		return this.tracks;
 	}

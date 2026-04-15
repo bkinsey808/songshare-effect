@@ -7,6 +7,12 @@ import getPublicWebBaseUrl from "./getPublicWebBaseUrl";
 
 vi.mock("@/react/lib/utils/env");
 
+/**
+ * Replace the global `window` reference for tests.
+ *
+ * @param value - Window instance to install or `undefined` to remove
+ * @returns void
+ */
 function setWindow(value: Window | undefined): void {
 	Object.defineProperty(globalThis, "window", {
 		value,

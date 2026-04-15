@@ -61,6 +61,10 @@ export default function useAutoExpandingTextarea({
 			return;
 		}
 
+		/**
+		 * Handle window scroll events to resize deferred textareas when needed.
+		 * @returns void
+		 */
 		function handleScroll(): void {
 			const textarea = textareaRef.current;
 			if (textarea === null) {
@@ -77,6 +81,10 @@ export default function useAutoExpandingTextarea({
 		};
 	}, [fillParentHeight, growWithContent, maxRows, minRows, resizeOnExternalValueChange, value]);
 
+	/**
+	 * Handle textarea input events and keep height in sync with content.
+	 * @returns void
+	 */
 	function handleInput(): void {
 		const textarea = textareaRef.current;
 		if (textarea === null) {
@@ -86,6 +94,10 @@ export default function useAutoExpandingTextarea({
 		syncTextareaHeight({ textarea, minRows, maxRows, fillParentHeight, growWithContent });
 	}
 
+	/**
+	 * Handle focus events to ensure the textarea is resized when focused.
+	 * @returns void
+	 */
 	function handleFocus(): void {
 		const textarea = textareaRef.current;
 		if (textarea === null) {

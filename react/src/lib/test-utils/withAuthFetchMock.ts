@@ -26,6 +26,14 @@ export default async function withAuthFetchMock<TReturnType>(
 				) => Promise<Response>)
 			: undefined;
 
+	/**
+	 * Intercept fetch calls for auth endpoints and return canned responses.
+	 * For other requests this forwards to the original `fetch` if present.
+	 *
+	 * @param input - RequestInfo or URL for the call
+	 * @param init - Optional RequestInit
+	 * @returns A mocked `Response` for auth endpoints or the original response
+	 */
 	async function authFetchMock(input: URL | RequestInfo, init?: RequestInit): Promise<Response> {
 		let url = "";
 		if (typeof input === "string") {

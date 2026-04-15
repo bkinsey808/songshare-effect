@@ -31,6 +31,7 @@ type SongViewSlideControlsProps = Readonly<{
  * @param goPrev - Handler that moves to the previous slide.
  * @param isFullScreen - Whether the presentation is currently full screen.
  * @param onToggleFullScreen - Optional handler that toggles full screen mode.
+ * @param slideOrientationToggle - Optional UI element to toggle slide orientation
  * @param totalSlides - Total number of slides available.
  * @returns React element or `undefined` when there are no slides to show.
  */

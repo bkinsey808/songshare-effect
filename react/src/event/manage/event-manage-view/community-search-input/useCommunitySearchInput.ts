@@ -30,9 +30,9 @@ export type UseCommunitySearchInputReturn = {
  * Encapsulates state and interaction logic for the searchable community
  * input used in the event manager.
  *
- * @param args - hook arguments
- * @param args.activeCommunityId - id of the currently selected community
- * @param args.onSelect - callback invoked with the new community id when selected
+ * @param activeCommunityId - id of the currently selected community
+ * @param onSelect - callback invoked with the new community id when selected
+ * @param excludeCommunityIds - optional list of community ids to exclude
  * @returns state, refs, filtered list, and event handlers
  */
 export default function useCommunitySearchInput({
@@ -47,6 +47,12 @@ export default function useCommunitySearchInput({
 
 	// Handle clicks outside to close dropdown
 	useEffect(() => {
+		/**
+		 * Document-level pointer handler that closes the dropdown when clicking outside.
+		 *
+		 * @param event - Pointer event (mouse or touch)
+		 * @returns void
+		 */
 		function handleDocumentPointerDown(event: MouseEvent | TouchEvent): void {
 			const container = containerRef.current;
 			if (container === null || !(event.target instanceof Node)) {
@@ -89,21 +95,44 @@ export default function useCommunitySearchInput({
 					return nameMatch || slugMatch || idMatch;
 				});
 
+	/**
+	 * Handle selection of a community entry from the list.
+	 *
+	 * @param entry - Selected community entry
+	 * @returns void
+	 */
 	function handleSelectCommunity(entry: CommunityEntry): void {
 		onSelect(entry.community_id);
 		setSearchQuery("");
 		setIsOpen(false);
 	}
 
+	/**
+	 * Open the dropdown when the input receives focus.
+	 *
+	 * @returns void
+	 */
 	function handleInputFocus(): void {
 		setIsOpen(true);
 	}
 
+	/**
+	 * Update the internal search query and open the dropdown on input changes.
+	 *
+	 * @param event - Input change event
+	 * @returns void
+	 */
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		setSearchQuery(event.target.value);
 		setIsOpen(true);
 	}
 
+	/**
+	 * Clear any selected community and reset the input state.
+	 *
+	 * @param _event - Click event from the clear button
+	 * @returns void
+	 */
 	function handleClearSelection(_event: React.MouseEvent<HTMLButtonElement>): void {
 		onSelect("");
 		setSearchQuery("");

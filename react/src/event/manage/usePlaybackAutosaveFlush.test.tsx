@@ -4,6 +4,11 @@ import { describe, expect, it, vi } from "vitest";
 import usePlaybackAutosaveFlush from "./usePlaybackAutosaveFlush";
 
 describe("usePlaybackAutosaveFlush", () => {
+	/**
+	 * Test setup helper that resets mocks and returns a cleanup function.
+	 *
+	 * @returns cleanup function to call after test
+	 */
 	function setup(): () => void {
 		vi.resetAllMocks();
 		return () => {

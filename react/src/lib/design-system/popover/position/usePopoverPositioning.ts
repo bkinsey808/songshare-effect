@@ -49,6 +49,12 @@ export default function usePopoverPositioning({
 	useEffect(() => {
 		let rafId: number | undefined = undefined;
 
+		/**
+		 * Throttled scroll/resize handler that recalculates popover position
+		 * and hides the popover when the trigger is off-screen.
+		 *
+		 * @returns void
+		 */
 		function handleScrollAndResize(): void {
 			// Use requestAnimationFrame to throttle updates
 			if (rafId !== undefined) {

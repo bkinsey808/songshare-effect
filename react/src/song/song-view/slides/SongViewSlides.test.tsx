@@ -27,6 +27,11 @@ const DEFAULT_VIEWPORT_ASPECT_RATIO =
 // Minimal representative `SongPublic` used in tests.
 const DUMMY_SONG: SongPublic = makeSongPublic({ song_slug: "my-slug" });
 
+/**
+ * Install a simple i18n mock and mock SlideOrientationSelect for tests.
+ *
+ * @returns void
+ */
 function installI18nMock(): void {
 	mockUseTranslation();
 	vi.mocked(SlideOrientationSelect).mockImplementation(() => (

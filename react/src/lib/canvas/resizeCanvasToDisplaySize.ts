@@ -6,6 +6,7 @@ const MIN_DPR = 1;
  *
  * Useful for crisp rendering in WebGPU/Canvas2D when the element is sized via layout.
  *
+ * @param canvas - The canvas element whose backing store should be resized
  * @returns void
  */
 export default function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement): void {

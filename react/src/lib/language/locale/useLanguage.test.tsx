@@ -9,6 +9,12 @@ import useLanguage from "./useLanguage";
 vi.mock("react-i18next");
 
 describe("useLanguage", () => {
+	/**
+	 * Install a mocked `useTranslation()` and return a cleanup function.
+	 *
+	 * @param lang - Language code to expose from the mock
+	 * @returns Cleanup function clearing installed mocks
+	 */
 	function setup(lang: string): () => void {
 		mockUseTranslation(lang);
 		return () => vi.clearAllMocks();

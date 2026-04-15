@@ -1,8 +1,8 @@
 import computeInversionPreviewTokens from "@/react/music/inversions/computeInversionPreviewTokens";
 import computeSciInversions from "@/react/music/inversions/computeSciInversions";
 import type {
-	DirectShapeOrdinal,
-	ShapeInversion,
+    DirectShapeOrdinal,
+    ShapeInversion,
 } from "@/react/music/inversions/shape-inversion.type";
 import computeNoteSearchRoot from "@/react/music/note-picker/computeNoteSearchRoot";
 import filterShapeByNoteSearch from "@/react/music/note-picker/filterShapeByNoteSearch";
@@ -42,6 +42,15 @@ type ComputeAllShapeInversionsParams = Readonly<{
  * Shapes that are both a direct result and an inversion are tracked in `directShapeOrdinals`
  * so the direct result card can show the ordinal badge and inversion label.
  *
+ * @param deferredIncludeInversions - When `false` the function returns empty results immediately.
+ * @param query - Search query to filter shapes.
+ * @param minNotes - Minimum number of notes for matching shapes.
+ * @param maxNotes - Maximum number of notes for matching shapes.
+ * @param noteSearchState - Note search toggle map used to filter spellings.
+ * @param spellingSearchState - Spelling search toggle map used to filter spellings.
+ * @param displayedShapes - Shapes already included as direct results to deduplicate from inversions.
+ * @param songKey - Song key for inversion and preview token generation.
+ * @param chordDisplayMode - Display mode used when formatting preview tokens.
  * @returns inversions for the inversion cards plus ordinal info for augmenting direct result cards.
  */
 export default function computeAllShapeInversions({

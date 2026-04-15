@@ -18,6 +18,10 @@ type CreateNoteSearchToggleHandlerParams = Readonly<{
 /**
  * Returns a handler that cycles the note search toggle state for a given semitone offset.
  * The offset is relative to the current absolute root; the result is stored as an absolute semitone.
+ *
+ * @param absoluteRoot - The current absolute root key (used to compute absolute semitone)
+ * @param setNoteSearchState - Setter for the note-search toggle map
+ * @returns A callback that accepts a positional semitone offset (0-11)
  */
 export default function createNoteSearchToggleHandler({
 	absoluteRoot,

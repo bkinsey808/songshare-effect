@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import { makeFormEventWithPreventDefault } from "@/react/lib/test-utils/dom-events";
 import forceCast from "@/react/lib/test-utils/forceCast";
-import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 
 import type { ImagePublic } from "../image-types";
 import useImageEditForm from "./useImageEditForm";
@@ -23,15 +23,25 @@ const UPDATED_FOCAL_POINT_Y = 70;
 const DECIMAL_FOCAL_POINT_X = 30.1;
 const DECIMAL_FOCAL_POINT_Y = 70.9;
 
+/**
+ * Install a mocked locale for useLocale in tests.
+ *
+ * @returns void
+ */
 function installLocale(): void {
 	vi.mocked(useLocale).mockReturnValue(
 		forceCast<ReturnType<typeof useLocale>>({ lang: "en", t: (key: string) => key }),
 	);
 }
 
+/**
+ * Install a mocked image edit slice for `useImageEditForm` tests.
+ *
+ * @param opts - Optional handlers to seed into the edit slice.
+ * @returns void
+ */
 function installStore(opts: { updateImage?: ReturnType<typeof vi.fn> }): void {
-	const mockUpdate =
-		opts.updateImage ?? vi.fn().mockReturnValue(Effect.succeed(makeImagePublic()));
+	const mockUpdate = opts.updateImage ?? vi.fn().mockReturnValue(Effect.succeed(makeImagePublic()));
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) =>
 		forceCast<(state: { updateImage: typeof mockUpdate }) => unknown>(selector)({
 			updateImage: mockUpdate,
@@ -40,12 +50,11 @@ function installStore(opts: { updateImage?: ReturnType<typeof vi.fn> }): void {
 }
 
 /**
- * Harness for useImageEditForm — "Documentation by Harness".
+ * Test harness for `useImageEditForm` demonstrating DOM integration.
  *
- * Shows how useImageEditForm integrates into an image edit UI:
- * - Text fields for image name, description, alt text
- * - Submit and cancel buttons
- * - Error display
+ * @param props - Harness props
+ * @param props.image - Image public object passed into the hook
+ * @returns A small DOM tree used to validate the hook in tests.
  */
 function Harness(props: { image: ImagePublic }): ReactElement {
 	const {
@@ -240,9 +249,9 @@ describe("useImageEditForm — Harness", () => {
 		fireEvent.click(within(rendered.container).getByTestId("reset-btn"));
 
 		await waitFor(() => {
-			expect(forceCast<HTMLInputElement>(within(rendered.container).getByTestId("image-name")).value).toBe(
-				"Original Name",
-			);
+			expect(
+				forceCast<HTMLInputElement>(within(rendered.container).getByTestId("image-name")).value,
+			).toBe("Original Name");
 		});
 	});
 });
@@ -289,9 +298,7 @@ describe("useImageEditForm — renderHook", () => {
 		installLocale();
 		const mockNavigate = vi.fn();
 		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-		const mockUpdate = vi
-			.fn()
-			.mockReturnValue(Effect.succeed(makeImagePublic()));
+		const mockUpdate = vi.fn().mockReturnValue(Effect.succeed(makeImagePublic()));
 		installStore({ updateImage: mockUpdate });
 
 		const image = makeImagePublic();

@@ -1,6 +1,8 @@
 /**
  * Template-tag helper used to get Tailwind intellisense while composing classnames.
  *
+ * @param strings - Template string array parts
+ * @param values - Interpolated values to splice into the template
  * @returns Final combined string produced by the template
  */
 export default function tw(

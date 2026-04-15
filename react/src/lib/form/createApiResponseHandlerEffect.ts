@@ -9,7 +9,10 @@ import createApiResponseEffect from "./createApiResponseEffect";
 /**
  * Create an Effect that handles API response with side effect callbacks
  *
- * @param params - Handler parameters
+ * @param response - The `Response` object returned from the API call
+ * @param setValidationErrors - Callback to set field validation errors
+ * @param setSubmitError - Callback to set a submit-level error message
+ * @param defaultErrorMessage - Optional default message to use for generic failures
  * @returns Effect resolving to `true` on success and `false` on handled failures
  */
 export default function createApiResponseHandlerEffect({

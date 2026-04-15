@@ -22,14 +22,31 @@ export default function useChordPickerRequest(): UseChordPickerRequestReturn {
 		SongFormChordPickerRequest | undefined
 	>(undefined);
 
+	/**
+	 * Open the chord picker with a pending request payload.
+	 *
+	 * @param request - The chord picker request payload (submit handler + optional initial token)
+	 * @returns void
+	 */
 	function openChordPicker(request: SongFormChordPickerRequest): void {
 		setPendingChordPickerRequest(request);
 	}
 
+	/**
+	 * Close the chord picker without submitting a chord.
+	 *
+	 * @returns void
+	 */
 	function closeChordPicker(): void {
 		setPendingChordPickerRequest(undefined);
 	}
 
+	/**
+	 * Submit a chord token from the picker and clear the pending request.
+	 *
+	 * @param token - The chord token string to insert into the lyrics
+	 * @returns void
+	 */
 	function insertChordFromPicker(token: string): void {
 		pendingChordPickerRequest?.submitChord(token);
 		setPendingChordPickerRequest(undefined);

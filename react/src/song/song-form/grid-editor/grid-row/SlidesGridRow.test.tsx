@@ -7,11 +7,11 @@ import type { ImageLibraryEntry } from "@/react/image-library/image-library-type
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { Slide } from "@/react/song/song-form/song-form-types";
 import DeleteConfirmationRow, {
-    type DeleteConfirmationRowProps,
+	type DeleteConfirmationRowProps,
 } from "./DeleteConfirmationRow";
 import SlidesGridRow from "./SlidesGridRow";
 import SortableGridCells, {
-    type SortableGridRowInnerProps,
+	type SortableGridRowInnerProps,
 } from "./sortable-grid-cells/SortableGridCells";
 
 const BASE_COL_SPAN = 2; // matches FIXED_COLUMN_COUNT in component
@@ -50,6 +50,14 @@ vi.mocked(DeleteConfirmationRow).mockImplementation((props) => {
 	return <div />;
 });
 
+
+
+/**
+ * Assert that delete props are present and return them.
+ *
+ * @param val - Possibly undefined delete props captured from mocks
+ * @returns The validated delete props
+ */
 function assumeDeleteProps(val: DeleteRowProps | undefined): DeleteRowProps {
 	if (!val) {
 		throw new Error("expected delete props");
@@ -57,6 +65,12 @@ function assumeDeleteProps(val: DeleteRowProps | undefined): DeleteRowProps {
 	return val;
 }
 
+/**
+ * Assert that grid cell props are present and return them.
+ *
+ * @param val - Possibly undefined grid cell props captured from mocks
+ * @returns The validated grid cell props
+ */
 function assumeGridCellsProps(val: SortableGridCellsProps | undefined): SortableGridCellsProps {
 	if (!val) {
 		throw new Error("expected grid cell props");
@@ -66,6 +80,12 @@ function assumeGridCellsProps(val: SortableGridCellsProps | undefined): Sortable
 
 type Props = React.ComponentProps<typeof SlidesGridRow>;
 
+/**
+ * Build a full `SlidesGridRow` props object with sensible defaults for tests.
+ *
+ * @param overrides - Partial props to override the defaults
+ * @returns Props suitable for rendering `SlidesGridRow` in tests
+ */
 function makeProps(overrides: Partial<Props> = {}): Props {
 	const baseSlide: Slide = { slide_name: "Test slide", field_data: {} };
 	const imageLibraryEntryList: readonly ImageLibraryEntry[] = [];

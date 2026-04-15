@@ -42,6 +42,12 @@ export default function ImageEditFormFooter({
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 	const isConfirming = confirmingCancel || confirmingDelete;
 
+	/**
+	 * Handle the footer cancel click. If there are unsaved changes this will
+	 * trigger a confirmation UI instead of navigating immediately.
+	 *
+	 * @returns void
+	 */
 	function handleCancelClick(): void {
 		if (hasChanges) {
 			setConfirmingCancel(true);
@@ -51,15 +57,30 @@ export default function ImageEditFormFooter({
 		onCancel();
 	}
 
+	/**
+	 * Cancel the leave confirmation and stay on the form.
+	 *
+	 * @returns void
+	 */
 	function handleStay(): void {
 		setConfirmingCancel(false);
 	}
 
+	/**
+	 * Confirm leaving the form and invoke the provided cancel handler.
+	 *
+	 * @returns void
+	 */
 	function handleConfirmLeave(): void {
 		setConfirmingCancel(false);
 		onCancel();
 	}
 
+	/**
+	 * Show the delete confirmation UI.
+	 *
+	 * @returns void
+	 */
 	function handleDeleteClick(): void {
 		if (onDelete === undefined) {
 			return;
@@ -68,10 +89,20 @@ export default function ImageEditFormFooter({
 		setConfirmingDelete(true);
 	}
 
+	/**
+	 * Cancel the delete confirmation UI.
+	 *
+	 * @returns void
+	 */
 	function handleCancelDelete(): void {
 		setConfirmingDelete(false);
 	}
 
+	/**
+	 * Perform the delete operation and clear confirmation UI when complete.
+	 *
+	 * @returns Promise<void>
+	 */
 	async function handleConfirmDelete(): Promise<void> {
 		if (onDelete === undefined) {
 			return;
@@ -161,6 +192,12 @@ export default function ImageEditFormFooter({
 		}
 	}
 
+	/**
+	 * Render the left side of the footer which contains the save/reset/cancel
+	 * controls or the cancel confirmation UI when active.
+	 *
+	 * @returns A left-side React element or undefined when replaced by delete UI.
+	 */
 	function renderLeftSection(): ReactElement | undefined {
 		if (confirmingCancel) {
 			return cancelConfirmSection;

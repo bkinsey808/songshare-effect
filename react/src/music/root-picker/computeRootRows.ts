@@ -1,12 +1,12 @@
 import formatRootOptionLabel from "@/react/music/root-picker/formatRootOptionLabel";
-import getAbsoluteRootFromRomanDegree from "@/shared/music/chord-display/getAbsoluteRootFromRomanDegree";
 import type {
-	AbsoluteSelectedRoot,
-	AnySelectedRoot,
-	RomanSelectedRoot,
-	SelectedRoot,
+    AbsoluteSelectedRoot,
+    AnySelectedRoot,
+    RomanSelectedRoot,
+    SelectedRoot,
 } from "@/react/music/root-picker/selected-root.type";
 import formatChordRootForDisplay from "@/shared/music/chord-display/formatChordRootForDisplay";
+import getAbsoluteRootFromRomanDegree from "@/shared/music/chord-display/getAbsoluteRootFromRomanDegree";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
@@ -88,7 +88,17 @@ const ROMAN_ROOT_ROWS: readonly RomanRootOptionRow[] = [
 	{ primary: { root: "VII", rootType: "roman", label: "VII" } },
 ] as const;
 
-function formatRomanRootOptionLabel(root: RomanSelectedRoot["root"], songKey: SongKey | ""): string {
+/**
+ * Format a Roman-degree root option label with an absolute-letter hint when a song key is present.
+ *
+ * @param root - Roman numeral root (I, II, III, etc.)
+ * @param songKey - Current song key used to resolve absolute root
+ * @returns A display label for roman root options, optionally including absolute letter.
+ */
+function formatRomanRootOptionLabel(
+	root: RomanSelectedRoot["root"],
+	songKey: SongKey | "",
+): string {
 	const romanLabel = formatRootOptionLabel(root);
 	if (songKey === "") {
 		return romanLabel;

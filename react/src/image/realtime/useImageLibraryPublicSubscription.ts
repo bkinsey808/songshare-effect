@@ -26,6 +26,13 @@ export default function useImageLibraryPublicSubscription(imageIds: readonly str
 
 		let cleanup: (() => void) | undefined = undefined;
 
+		/**
+		 * Update a single image-library entry in the global typed state.
+		 *
+		 * @param imageId - Image id to update.
+		 * @param updater - Updater function that receives the current entry.
+		 * @returns void
+		 */
 		function setImageLibraryEntry(
 			imageId: string,
 			updater: (entry: ImageLibraryEntry) => ImageLibraryEntry,

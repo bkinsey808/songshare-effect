@@ -18,6 +18,7 @@ export type ShareSliceForAccept = {
  * @param itemType - shared_item_type (song, playlist, event, community)
  * @param itemId - shared_item_id (song_id, playlist_id, event_id, community_id)
  * @param get - Function to get share slice (or full app state with ShareSlice)
+ * @returns An Effect that resolves once matching shares have been accepted (or no-op).
  */
 export default function acceptPendingSharesForItem(
 	itemType: SharedItemType,

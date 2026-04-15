@@ -8,3 +8,9 @@ export default function useCurrentUser(): CurrentUser | undefined {
 	return computeCurrentUser(userSessionData);
 }
 
+/**
+ * Returns the currently authenticated user, if any.
+ *
+ * @returns CurrentUser | undefined
+ */
+

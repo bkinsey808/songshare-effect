@@ -20,6 +20,11 @@ vi.mock(
 describe("removePlaylistFromLibrary", () => {
 	it("fails when request has no playlist_id", async () => {
 		const setPlaylistLibraryError = vi.fn();
+		/**
+		 * Return a fake `PlaylistLibrarySlice` for the test where the playlist exists.
+		 *
+		 * @returns Mocked `PlaylistLibrarySlice`
+		 */
 		function get(): PlaylistLibrarySlice {
 			return forceCast({
 				setPlaylistLibraryError,
@@ -42,6 +47,11 @@ describe("removePlaylistFromLibrary", () => {
 		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 		vi.stubGlobal("fetch", vi.fn());
 
+		/**
+		 * Return a fake `PlaylistLibrarySlice` for the test where the playlist is not present.
+		 *
+		 * @returns Mocked `PlaylistLibrarySlice`
+		 */
 		function get(): PlaylistLibrarySlice {
 			return forceCast({
 				setPlaylistLibraryError: vi.fn(),
@@ -63,6 +73,11 @@ describe("removePlaylistFromLibrary", () => {
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(undefined, { status: 200 })));
 		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
+		/**
+		 * Return a fake `PlaylistLibrarySlice` for the test where removal should proceed.
+		 *
+		 * @returns Mocked `PlaylistLibrarySlice`
+		 */
 		function get(): PlaylistLibrarySlice {
 			return forceCast({
 				setPlaylistLibraryError: vi.fn(),

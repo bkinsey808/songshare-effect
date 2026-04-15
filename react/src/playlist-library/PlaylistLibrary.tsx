@@ -27,14 +27,31 @@ export default function PlaylistLibrary(): ReactElement {
 	const { lang } = useLocale();
 	const navigate = useNavigate();
 
+	/**
+	 * Navigate to the create-playlist editor.
+	 *
+	 * @returns void
+	 */
 	function handleCreatePlaylistClick(): void {
 		void navigate(buildPathWithLang(`/${dashboardPath}/${playlistEditPath}`, lang));
 	}
 
+	/**
+	 * Navigate to the playlist edit page for the given playlist id.
+	 *
+	 * @param playlistId - ID of the playlist to edit
+	 * @returns void
+	 */
 	function handleEditPlaylistClick(playlistId: string): void {
 		void navigate(`/${lang}/${dashboardPath}/${playlistEditPath}/${playlistId}`);
 	}
 
+	/**
+	 * Remove a playlist from the user's library.
+	 *
+	 * @param playlistId - ID of the playlist to remove
+	 * @returns void
+	 */
 	function handleRemovePlaylistClick(playlistId: string): void {
 		void removeFromPlaylistLibrary({ playlist_id: playlistId });
 	}

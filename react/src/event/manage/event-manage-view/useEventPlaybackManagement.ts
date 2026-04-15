@@ -28,6 +28,13 @@ type UseEventPlaybackManagementReturn = {
 
 /**
  * Hook to manage playback-related state, refs, and sync for an event.
+ *
+ * @param event_slug - slug of the event (may be undefined while loading)
+ * @param fetchEventBySlug - store action to fetch event details by slug
+ * @param eventPublic - public event payload used for selectors
+ * @param currentEventIdRef - ref to the current event id for stable refs
+ * @param setActionState - setter for shared action state used by autosave
+ * @returns playback state, selectors, and update handlers
  */
 export default function useEventPlaybackManagement({
 	event_slug,

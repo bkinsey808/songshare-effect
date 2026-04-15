@@ -19,6 +19,12 @@ const mockSubscribeToPlaylistPublic = vi.fn((_ids: string[]) =>
 	Effect.sync((): (() => void) => () => undefined),
 );
 
+/**
+ * Install a mocked playlist library slice for management tests.
+ *
+ * @param entries - Optional playlist entries to seed into the store.
+ * @returns void
+ */
 function installStore(entries: Record<string, unknown> = {}): void {
 	mockFetchPlaylistLibrary.mockClear();
 	mockSubscribeToPlaylistLibrary.mockClear();
@@ -103,6 +109,11 @@ describe("usePlaylistLibraryManagement", () => {
 			// flips a local flag so the test can assert it was invoked without
 			// introducing a Mock type that conflicts with strict TS settings.
 			let unsubCalled = false;
+			/**
+			 * Local unsubscribe stub used to assert unsubscribe was invoked.
+			 *
+			 * @returns void
+			 */
 			function unsub(): void {
 				unsubCalled = true;
 			}
@@ -156,6 +167,11 @@ describe("usePlaylistLibraryManagement", () => {
 			installStore({ p1: { name: "one" }, p2: { name: "two" } });
 
 			let publicUnsubCalled = false;
+			/**
+			 * Local unsubscribe stub for public subscription assertions.
+			 *
+			 * @returns void
+			 */
 			function publicUnsub(): void {
 				publicUnsubCalled = true;
 			}
@@ -200,6 +216,11 @@ describe("usePlaylistLibraryManagement", () => {
 			);
 			// ensure subscribe still resolves
 			let unsubCalled = false;
+			/**
+			 * Local unsubscribe stub used to assert unsubscribe was invoked.
+			 *
+			 * @returns void
+			 */
 			function unsub(): void {
 				unsubCalled = true;
 			}

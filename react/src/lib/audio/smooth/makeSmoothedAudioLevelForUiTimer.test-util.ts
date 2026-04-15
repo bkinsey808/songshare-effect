@@ -19,6 +19,11 @@ export default function makeSmoothedAudioLevelForUiTimer(uiIntervalMs: number): 
 
 	// Central helper that clears the internal timer. Place the single narrow
 	// oxlint-disable here so individual methods don't need repeated disables.
+	/**
+	 * Clear the internal UI timer if installed.
+	 *
+	 * @returns void
+	 */
 	function clearTimer(): void {
 		if (timerId !== undefined) {
 			try {
@@ -38,16 +43,31 @@ export default function makeSmoothedAudioLevelForUiTimer(uiIntervalMs: number): 
 			return internalLevel;
 		},
 		readBytesAndSmoothedLevelNow: () => undefined,
+		/**
+		 * Start the mock UI timer that updates `levelUiValue` periodically.
+		 *
+		 * @returns void
+		 */
 		startUiTimer(): void {
 			clearTimer();
 			timerId = globalThis.setInterval((): void => {
 				customAudioLevel.levelUiValue = internalLevel;
 			}, uiIntervalMs);
 		},
+		/**
+		 * Stop the mock UI timer.
+		 *
+		 * @returns void
+		 */
 		stopUiTimer(): void {
 			clearTimer();
 			timerId = undefined;
 		},
+		/**
+		 * Reset the mock audio level internal state and stop timers.
+		 *
+		 * @returns void
+		 */
 		reset(): void {
 			clearTimer();
 			timerId = undefined;

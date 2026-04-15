@@ -16,6 +16,7 @@ type CommunitySearchInputProps = {
  * @param onSelect - callback invoked with the selected community id
  * @param disabled - optional flag to disable interactions
  * @param id - optional DOM id for the text input element
+ * @param excludeCommunityIds - Optional list of community ids to exclude from results
  * @returns React element for the community search control
  */
 export default function CommunitySearchInput({

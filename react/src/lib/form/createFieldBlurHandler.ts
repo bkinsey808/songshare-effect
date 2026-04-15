@@ -14,7 +14,10 @@ type CreateFieldBlurHandlerParams<FormValues extends Record<string, unknown>> = 
 };
 
 /**
- * Create a field blur handler that validates the field and updates errors
+ * Create a field blur handler that validates the field and updates errors.
+ *
+ * @param params - Parameters including schema, current form data and error setters
+ * @returns A function that accepts (field, value) and performs validation/updates
  */
 export default function createFieldBlurHandler<FormValues extends Record<string, unknown>>(
 	params: CreateFieldBlurHandlerParams<FormValues>,

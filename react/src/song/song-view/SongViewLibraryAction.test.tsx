@@ -33,6 +33,12 @@ type Overrides = {
 	isInSongLibrary?: boolean;
 };
 
+/**
+ * Install translation and store mocks for `SongViewLibraryAction` tests.
+ *
+ * @param overrides - Options to control the mocked current user and library state
+ * @returns void
+ */
 function installMocks(overrides: Overrides): void {
 	vi.mocked(useTranslation).mockReturnValue(
 		forceCast<ReturnType<typeof useTranslation>>({

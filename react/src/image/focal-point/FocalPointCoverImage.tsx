@@ -34,6 +34,7 @@ type FocalPointCoverImageProps = Readonly<{
  * @param containerAspectRatio - Target container aspect ratio as width divided by height.
  * @param focalPoint - Stored image focal point percentages.
  * @param imageDimensions - Known source image dimensions when already available.
+ * @param slideOrientation - Slide orientation that decides which axis should stay centered (`landscape` or `portrait`).
  * @param src - Image URL to render.
  * @returns A cover image element with focal-point-aware positioning.
  */

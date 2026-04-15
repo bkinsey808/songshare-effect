@@ -40,6 +40,8 @@ const MACROTASK_DELAY = 0;
  * Advances the JS microtask and macrotask queues to allow the async IIFE
  * inside the subscription factory to start and complete any scheduled work.
  * Waiting two microtask ticks then a macrotask avoids flakiness in tests.
+ *
+ * @returns Promise<void> that resolves after yielding micro/macro ticks
  */
 async function flushPromises(): Promise<void> {
 	// Let microtasks complete then yield to a macrotask in case the async IIFE
@@ -51,6 +53,7 @@ async function flushPromises(): Promise<void> {
 	// Finally yield a macrotask tick for any timers or macrotask-scheduled work.
 	await delay(MACROTASK_DELAY);
 }
+
 
 /**
  * makeGetWithActiveIds
@@ -79,6 +82,11 @@ describe("subscribeToActivePrivateSongs", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
 
 		const set = vi.fn();
+		/**
+		 * Minimal `get` accessor used by the subscription factory in tests.
+		 *
+		 * @returns SongSubscribeSlice prepopulated for this test
+		 */
 		function get(): SongSubscribeSlice {
 			return makeGetWithActiveIds(["song-1"]);
 		}
@@ -110,6 +118,11 @@ describe("subscribeToActivePrivateSongs", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalClient());
 
 		const set = vi.fn();
+		/**
+		 * Minimal `get` accessor used by the subscription factory in tests.
+		 *
+		 * @returns SongSubscribeSlice with no active ids
+		 */
 		function get(): SongSubscribeSlice {
 			return makeGetWithActiveIds([]);
 		}
@@ -137,6 +150,11 @@ describe("subscribeToActivePrivateSongs", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalClient());
 
 		const set = vi.fn();
+		/**
+		 * Minimal `get` accessor used by the subscription factory in tests.
+		 *
+		 * @returns SongSubscribeSlice prepopulated for this test
+		 */
 		function get(): SongSubscribeSlice {
 			return makeGetWithActiveIds(["song-1"]);
 		}
@@ -166,6 +184,11 @@ describe("subscribeToActivePrivateSongs", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalClient());
 
 		const set = vi.fn();
+		/**
+		 * Minimal `get` accessor used by the subscription factory in tests.
+		 *
+		 * @returns SongSubscribeSlice prepopulated for this test
+		 */
 		function get(): SongSubscribeSlice {
 			return makeGetWithActiveIds(["song-1"]);
 		}

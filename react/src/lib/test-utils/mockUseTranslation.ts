@@ -3,6 +3,13 @@ import { vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 
+/**
+ * Interpolate `{{var}}` placeholders in a template string using the provided vars.
+ *
+ * @param template - Template string containing placeholders
+ * @param vars - Optional map of placeholder names to values
+ * @returns The interpolated string
+ */
 function interpolateTemplate(template: string, vars?: Record<string, unknown>): string {
 	if (vars === undefined) {
 		return template;
@@ -31,8 +38,11 @@ export default function mockUseTranslation(lang = "en"): void {
 	// Construct a typed stub matching `useTranslation()` return shape and cast
 	// once to the official return type. Narrowing here keeps tests concise.
 	const stub = {
-		t: (key: string, def?: string | Record<string, unknown>, vars?: Record<string, unknown>): string =>
-			typeof def === "string" ? interpolateTemplate(def, vars) : `X:${key}`,
+		t: (
+			key: string,
+			def?: string | Record<string, unknown>,
+			vars?: Record<string, unknown>,
+		): string => (typeof def === "string" ? interpolateTemplate(def, vars) : `X:${key}`),
 		i18n: { language: lang, languages: ["en", "es"], changeLanguage: vi.fn() },
 	};
 

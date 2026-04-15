@@ -15,6 +15,11 @@ export type CommunityRowProps = {
  * @returns markup for the community row
  */
 export default function CommunityRow({ community, onRemove }: CommunityRowProps): ReactElement {
+	/**
+	 * Click handler to remove the linked community from the event.
+	 *
+	 * @returns void
+	 */
 	function handleRemoveClick(): void {
 		onRemove(community.community_id);
 	}

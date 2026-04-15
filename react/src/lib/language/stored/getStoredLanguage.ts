@@ -4,6 +4,13 @@ import { isSupportedLanguage } from "@/shared/language/supported-languages-effec
 
 import parseLanguageCookie from "./parseLanguageCookie";
 
+/**
+ * Synchronously read the preferred language from localStorage or document
+ * cookies. This helper is used as a fallback when the Cookie Store API is
+ * unavailable.
+ *
+ * @returns The stored supported language, or `undefined` if none found
+ */
 function getStoredLanguageSync(): SupportedLanguageType | undefined {
 	// First try to get from localStorage (client-side)
 	if (typeof globalThis !== "undefined") {
@@ -39,6 +46,11 @@ function getStoredLanguageSync(): SupportedLanguageType | undefined {
  *
  * Callers that can await should prefer this function; sync-only callers
  * should continue to read `localStorage` / `document.cookie` directly.
+ */
+/**
+ * Async public API that resolves the stored supported language.
+ *
+ * @returns A promise resolving to the stored supported language or `undefined`
  */
 export default async function getStoredLanguage(): Promise<SupportedLanguageType | undefined> {
 	// Prefer Cookie Store API when available (async, safer)

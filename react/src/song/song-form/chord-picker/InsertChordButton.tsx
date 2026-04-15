@@ -11,6 +11,7 @@ type InsertChordButtonProps = Readonly<{
 /**
  * Button that opens the chord picker overlay while the parent song form remains mounted.
  *
+ * @param isEditingChord - Whether the editor is currently editing an existing chord
  * @param onOpenChordPicker - Opens the full-screen chord picker
  * @returns Insert button for the lyrics editor
  */

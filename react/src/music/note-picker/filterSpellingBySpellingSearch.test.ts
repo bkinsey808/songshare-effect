@@ -7,6 +7,12 @@ const ROOT_SEMITONE = 0;
 const MAJOR_THIRD_SEMITONE = 4;
 const PERFECT_FIFTH_SEMITONE = 7;
 
+/**
+ * Build a readonly spelling-search map for tests.
+ *
+ * @param entries - Tuples of semitone index and toggle state.
+ * @returns A `ReadonlyMap` for `spellingSearchState` in tests.
+ */
 function state(
 	entries: [number, NoteSearchToggleState][],
 ): ReadonlyMap<number, NoteSearchToggleState> {

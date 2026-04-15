@@ -75,6 +75,8 @@ export function useCanvasAnimation(): {
 	/**
 	 * Stop helper: cancels the active requestAnimationFrame and timeout (if any).
 	 * Uses refs so it's safe to call from callbacks without stale closures.
+	 *
+	 * @returns void
 	 */
 	function stop(): void {
 		// cancel RAF if scheduled
@@ -104,6 +106,11 @@ export function useCanvasAnimation(): {
 	 * - If `options.loop` is false, a timeout is scheduled to stop the
 	 *   animation after `options.duration` milliseconds and call
 	 *   `options.onFinish()` if provided.
+	 *
+	 * @param canvas - Canvas element to draw into
+	 * @param draw - Per-frame draw callback
+	 * @param options - Animation options (loop/duration/onFinish)
+	 * @returns void
 	 */
 	function start(
 		canvas: HTMLCanvasElement,
@@ -127,6 +134,12 @@ export function useCanvasAnimation(): {
 		// RAF (`now`), compute `dt` since the previous tick, invoke the
 		// user-supplied `draw` callback with (ctx, frame, { now, dt }) and schedule
 		// the next RAF tick.
+		/**
+		 * RAF callback that computes delta time and invokes user `draw` callback.
+		 *
+		 * @param now - High-resolution timestamp provided by requestAnimationFrame
+		 * @returns void
+		 */
 		function anim(now: number): void {
 			const dt = lastTime === undefined ? INITIAL_DT : now - lastTime;
 			lastTime = now;

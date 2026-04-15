@@ -10,6 +10,8 @@ import type { PlaylistSlice } from "../slice/playlist-slice";
  * already included. If there is no current playlist or `public` metadata, the
  * updater returns the state unchanged.
  *
+ * @param set - Zustand `set` function used to update the playlist slice.
+ * @param _get - Zustand `get` function to read current slice state.
  * @returns A function `(songId) => void` that appends the song to the local playlist
  */
 export default function createAddSongToLocalPlaylist(

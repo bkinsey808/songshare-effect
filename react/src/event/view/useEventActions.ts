@@ -3,9 +3,9 @@ import { useState } from "react";
 
 import type { EventEntry } from "@/react/event/event-types";
 import {
-	getParticipantPermissions,
-	transitionParticipantStatus,
-	type ParticipantStatus,
+    getParticipantPermissions,
+    transitionParticipantStatus,
+    type ParticipantStatus,
 } from "@/react/event/participant-status/participantStatusMachine";
 
 type UseEventActionsParams = {
@@ -63,6 +63,13 @@ export default function useEventActions(
 	const [actionError, setActionError] = useState<string | undefined>(undefined);
 	const [actionSuccess, setActionSuccess] = useState<string | undefined>(undefined);
 
+	/**
+	 * Trigger the join flow for the current viewer. This performs
+	 * optimistic UI updates via `setCurrentEvent` after the join
+	 * action succeeds.
+	 *
+	 * @returns void
+	 */
 	function handleJoinEvent(): void {
 		if (currentEvent === undefined) {
 			return;
@@ -75,6 +82,12 @@ export default function useEventActions(
 		const event = currentEvent;
 		const eventId = event.event_id;
 
+		/**
+		 * Internal helper that runs the join Effect and updates local state
+		 * accordingly.
+		 *
+		 * @returns void
+		 */
 		async function runJoin(): Promise<void> {
 			try {
 				await EffectRuntime.runPromise(joinEvent(eventId));
@@ -145,6 +158,12 @@ export default function useEventActions(
 		void runJoin();
 	}
 
+	/**
+	 * Trigger the leave flow for the current viewer. Updates local state
+	 * to reflect the departure immediately after the Effect completes.
+	 *
+	 * @returns void
+	 */
 	function handleLeaveEvent(): void {
 		if (currentEvent === undefined || currentUserId === undefined) {
 			return;
@@ -158,6 +177,12 @@ export default function useEventActions(
 		const eventId = event.event_id;
 		const userId = currentUserId;
 
+		/**
+		 * Internal helper that runs the leave Effect and updates local state
+		 * accordingly.
+		 *
+		 * @returns void
+		 */
 		async function runLeave(): Promise<void> {
 			try {
 				await EffectRuntime.runPromise(leaveEvent(eventId, userId));

@@ -25,6 +25,11 @@ describe("addImageToLibraryEffect", () => {
 
 		const addImageLibraryEntry = vi.fn();
 		const isInImageLibrary = vi.fn().mockReturnValue(false);
+		/**
+		 * Return a minimal `ImageLibrarySlice` used by this test.
+		 *
+		 * @returns A mocked slice with required setters and helpers.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				setImageLibraryError: vi.fn(),
@@ -50,6 +55,11 @@ describe("addImageToLibraryEffect", () => {
 
 		const addImageLibraryEntry = vi.fn();
 		const isInImageLibrary = vi.fn().mockReturnValue(true);
+		/**
+		 * Return a minimal `ImageLibrarySlice` for the already-in-library case.
+		 *
+		 * @returns A mocked slice with `isInImageLibrary` set to true.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				setImageLibraryError: vi.fn(),
@@ -68,6 +78,11 @@ describe("addImageToLibraryEffect", () => {
 
 	it("fails when image_id is not a string", async () => {
 		const setImageLibraryError = vi.fn();
+		/**
+		 * Return a minimal `ImageLibrarySlice` for invalid-request handling.
+		 *
+		 * @returns A mocked slice with error setter and no add behavior.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				setImageLibraryError,
@@ -91,6 +106,11 @@ describe("addImageToLibraryEffect", () => {
 			vi.fn().mockResolvedValue(Response.json({ error: "Forbidden" }, { status: 403 })),
 		);
 
+		/**
+		 * Return a minimal `ImageLibrarySlice` for non-OK API response tests.
+		 *
+		 * @returns A mocked slice with error setter.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				setImageLibraryError: vi.fn(),

@@ -7,6 +7,12 @@ import { isSupportedLanguage } from "@/shared/language/supported-languages-effec
 
 import { persistLanguagePreferenceIfMissing } from "./persistLanguagePreference";
 
+/**
+ * Internal provider that applies the URL language to `i18n` and persists a
+ * best-effort stored preference when missing.
+ *
+ * @returns The inner provider element used by `LanguageProvider`
+ */
 function LanguageProviderInner(): ReactElement {
 	const { lang } = useParams<{ lang: string }>();
 	const { i18n } = useTranslation();

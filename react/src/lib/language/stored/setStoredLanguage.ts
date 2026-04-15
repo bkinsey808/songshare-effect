@@ -9,6 +9,7 @@ import type { SupportedLanguageType } from "@/shared/language/supported-language
  * - Always write to `localStorage` as a synchronous fallback for client-side reads.
  *
  * @param language - ISO 2-letter supported language code
+ * @returns void
  */
 function setStoredLanguageSync(language: SupportedLanguageType): void {
 	if (typeof document !== "undefined") {
@@ -36,6 +37,12 @@ function setStoredLanguageSync(language: SupportedLanguageType): void {
  *
  * Callers that can await should prefer this function; sync-only callers
  * should continue to read/write localStorage/document.cookie directly.
+ */
+/**
+ * Async public API that persists the preferred language.
+ *
+ * @param language - ISO 2-letter supported language code
+ * @returns Promise that resolves once persistence is complete
  */
 export default async function setStoredLanguage(language: SupportedLanguageType): Promise<void> {
 	if (typeof document === "undefined") {

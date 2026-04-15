@@ -15,6 +15,11 @@ vi.mock("../stored/getStoredLanguage");
 vi.mock("../stored/setStoredLanguage");
 
 describe("language provider", () => {
+	/**
+	 * Prepare test mocks for LanguageProvider and return a cleanup function.
+	 *
+	 * @returns A function that clears all mocks when called
+	 */
 	function setup(): () => void {
 		vi.mocked(useParams).mockReturnValue({ lang: "es" });
 		// Stub react-i18next runtime used by LanguageProvider

@@ -50,6 +50,13 @@ export default function useEventAutoJoin({
 			return;
 		}
 
+		/**
+		 * Attempt to join the event via the provided action. Errors are
+		 * swallowed since the action manages its own error state.
+		 *
+		 * @param eventId - id of the event to join
+		 * @returns void
+		 */
 		async function autoJoin(eventId: string): Promise<void> {
 			try {
 				await EffectRuntime.runPromise(joinEvent(eventId));

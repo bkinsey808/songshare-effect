@@ -16,6 +16,9 @@ vi.mock("@/react/lib/utils/clientLogger");
  * The implementation uses a double-cast to keep the test focused on
  * behaviour rather than creating a full `Response`.  Disable the unsafe
  * assertion lint rule locally rather than at module scope.
+ *
+ * @param opts - Partial response shape including `json` implementation
+ * @returns Response instance with overridden `json` method for tests
  */
 function makeResponse(
 	opts: Partial<Pick<Response, "ok" | "status">> & {

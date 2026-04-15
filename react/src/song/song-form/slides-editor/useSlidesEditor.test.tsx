@@ -20,6 +20,11 @@ describe("useSlidesEditor — Harness", () => {
 		const setSlideOrder = vi.fn();
 		const setSlides = vi.fn();
 
+		/**
+		 * Test harness for useSlidesEditor hook.
+		 *
+		 * @returns DOM fragment used by tests
+		 */
 		function Harness(): ReactElement {
 			const api = useSlidesEditor({
 				slideOrder: SLIDE_ORDER,

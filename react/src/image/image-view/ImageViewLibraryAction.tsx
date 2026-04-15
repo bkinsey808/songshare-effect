@@ -25,6 +25,10 @@ const RemoveIcon = (
  *
  * - Add: shown when the image is not in the user's image library
  * - Remove: shown when the image is in the library but the user does not own it
+ *
+ * @param imageId - Id of the image to operate on.
+ * @param imageOwnerId - Id of the image owner, used to determine ownership.
+ * @returns A `Button` React element for add/remove actions or `undefined` when no action should be shown.
  */
 export default function ImageViewLibraryAction({
 	imageId,

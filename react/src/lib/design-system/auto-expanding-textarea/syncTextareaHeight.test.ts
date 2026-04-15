@@ -19,6 +19,8 @@ const AUTO_OVERFLOW = "auto";
 
 /**
  * Stubs `getComputedStyle()` so textarea sizing tests use a stable line-height value.
+ *
+ * @returns void
  */
 function mockLineHeight(): void {
 	vi.spyOn(globalThis, "getComputedStyle").mockReturnValue(
@@ -32,6 +34,7 @@ function mockLineHeight(): void {
  * @param target - element that should expose the mocked property
  * @param property - DOM layout property to override
  * @param value - numeric value returned whenever the property is read
+ * @returns void
  */
 function defineReadOnlyNumberProperty({
 	target,
@@ -48,6 +51,11 @@ function defineReadOnlyNumberProperty({
 	});
 }
 
+/**
+ * Create a DOM fixture containing a parent `div` and a `textarea` element.
+ *
+ * @returns An object with `parent` and `textarea` elements for tests
+ */
 function makeTextareaFixture(): Readonly<{
 	parent: HTMLDivElement;
 	textarea: HTMLTextAreaElement;

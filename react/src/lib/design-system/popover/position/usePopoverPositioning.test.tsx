@@ -13,6 +13,12 @@ describe("usePopoverPositioning", () => {
 	const FAKE_RAF_ID = 1;
 	const FAKE_RAF_TIME = 0;
 
+	/**
+	 * Replace requestAnimationFrame and cancelAnimationFrame with synchronous
+	 * test doubles that immediately invoke callbacks and capture cancellations.
+	 *
+	 * @returns An object with `restore()` to revert globals and `getCancelledId()` to inspect cancellations
+	 */
 	function setupFakeRaf(): { restore: () => void; getCancelledId: () => number } {
 		const oldRAF = globalThis.requestAnimationFrame;
 		const oldCancel = globalThis.cancelAnimationFrame;

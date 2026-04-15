@@ -35,6 +35,13 @@ export default function useFormState(): UseFormStateReturn {
 	const [fields, setFields] = useState<readonly string[]>(["lyrics"]);
 
 	// Handle field checkbox changes
+	/**
+	 * Toggle a field on or off in the form state.
+	 *
+	 * @param field - Field key to toggle
+	 * @param checked - Whether the field should be enabled
+	 * @returns void
+	 */
 	function toggleField(field: string, checked: boolean): void {
 		setFields((currentFields) => {
 			if (checked) {
@@ -47,6 +54,11 @@ export default function useFormState(): UseFormStateReturn {
 	}
 
 	// Reset form state to initial values
+	/**
+	 * Reset slides, slide order, and fields to initial defaults.
+	 *
+	 * @returns New first slide id generated for the reset state
+	 */
 	function resetFormState(): string {
 		const newFirstId = generateId();
 		setSlideOrder([newFirstId]);

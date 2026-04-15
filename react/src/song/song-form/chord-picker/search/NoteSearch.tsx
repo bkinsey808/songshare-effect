@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 
+import toUnicodeAccidentals from "@/react/music/intervals/toUnicodeAccidentals";
 import type { NoteSearchEntry } from "@/react/music/note-picker/NoteSearchEntry.type";
 import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
-import toUnicodeAccidentals from "@/react/music/intervals/toUnicodeAccidentals";
 
 type NoteSearchProps = Readonly<{
 	entries: readonly NoteSearchEntry[];
@@ -16,6 +16,12 @@ const DEFAULT_BUTTON_CLASSES =
 const REQUIRED_BUTTON_CLASSES = "border-blue-400 bg-blue-900/30 text-blue-200 hover:bg-blue-900/50";
 const EXCLUDED_BUTTON_CLASSES = "border-red-500 bg-red-900/30 text-red-300 hover:bg-red-900/50";
 
+/**
+ * Compute the CSS classes for a note-search toggle button based on its state.
+ *
+ * @param toggleState - The current toggle state for the note (default|required|excluded)
+ * @returns A Tailwind CSS class string for the button
+ */
 function getNoteSearchButtonClasses(toggleState: NoteSearchToggleState): string {
 	if (toggleState === "required") {
 		return `${BASE_BUTTON_CLASSES} ${REQUIRED_BUTTON_CLASSES}`;

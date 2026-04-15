@@ -93,6 +93,7 @@ type NavigationProps = {
  *
  * @param actionsExpanded - Optional controlled expanded state for header actions.
  * @param onActionsExpandedChange - Optional handler called when the actions expand state changes.
+ * @param isScrolled - Whether the page is scrolled (affects header layout)
  * @returns ReactElement - the rendered navigation/header.
  */
 export default function Navigation({

@@ -103,6 +103,11 @@ describe("useFormState — Harness", () => {
 		cleanup();
 		vi.mocked(generateId).mockReturnValue("fixed-id-1");
 
+		/**
+		 * Harness for useFormState used by tests to expose basic state values.
+		 *
+		 * @returns A small DOM fragment used by the harness test
+		 */
 		function Harness(): ReactElement {
 			const { slideOrder, initialSlideId } = useFormState();
 			return (

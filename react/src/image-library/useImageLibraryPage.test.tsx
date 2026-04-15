@@ -23,6 +23,12 @@ function installLocale(): void {
 	);
 }
 
+/**
+ * Install a mocked `useImageLibrary` return value for tests.
+ *
+ * @param opts - options to override default mock implementations
+ * @returns void
+ */
 function installUseImageLibrary(opts: {
 	entries?: ReturnType<typeof useImageLibrary>["entries"];
 	error?: string | undefined;
@@ -43,6 +49,8 @@ function installUseImageLibrary(opts: {
  * - Upload button for navigation
  * - Loading and error display
  * - List of entries
+ *
+ * @returns A small DOM tree used to exercise the hook in tests.
  */
 function Harness(): ReactElement {
 	const { currentUserId, entries, error, handleUploadClick, isLoading } = useImageLibraryPage();

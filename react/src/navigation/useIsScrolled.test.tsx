@@ -9,6 +9,11 @@ const SCROLL_DELTA_BELOW_THRESHOLD = 1;
 const SCROLL_DELTA_ABOVE_THRESHOLD = 10;
 
 describe("useIsScrolled", () => {
+	/**
+	 * Test setup helper to reset mocks and return a teardown function.
+	 *
+	 * @returns Teardown function to cleanup the DOM after tests.
+	 */
 	function setup(): () => void {
 		vi.resetAllMocks();
 		return function teardown(): void {

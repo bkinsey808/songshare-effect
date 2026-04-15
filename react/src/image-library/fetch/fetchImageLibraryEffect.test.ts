@@ -38,6 +38,11 @@ describe("fetchImageLibraryEffect", () => {
 		const setImageLibraryEntries = vi.fn();
 		const setImageLibraryLoading = vi.fn();
 		const setImageLibraryError = vi.fn();
+		/**
+		 * Test `get` helper returning a minimal `ImageLibrarySlice`.
+		 *
+		 * @returns A test slice with setter mocks.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				setImageLibraryEntries,
@@ -63,6 +68,11 @@ describe("fetchImageLibraryEffect", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
 
 		const setImageLibraryLoading = vi.fn();
+		/**
+		 * Test `get` helper returning a minimal `ImageLibrarySlice` for error scenarios.
+		 *
+		 * @returns A test slice with a loading setter.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				setImageLibraryEntries: vi.fn(),
@@ -85,6 +95,11 @@ describe("fetchImageLibraryEffect", () => {
 		);
 
 		const setImageLibraryLoading = vi.fn();
+		/**
+		 * Test `get` helper returning a minimal `ImageLibrarySlice` when response is invalid.
+		 *
+		 * @returns A test slice with a loading setter.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				setImageLibraryEntries: vi.fn(),

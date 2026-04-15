@@ -26,6 +26,13 @@ vi.mock("@/react/event/fetch/fetchEventCommunities");
 vi.mock("@/react/event/subscribe/subscribeToCommunityEventByEvent");
 
 vi.mocked(fetchEventCommunitiesFn).mockReturnValue(Effect.succeed([]));
+/**
+ * Install a set of mocked selectors and spies for tests that use the
+ * `useEventManageView` hook.
+ *
+ * @param overrides - optional overrides for mocked slices
+ * @returns spies for playlist subscription selectors
+ */
 vi.mocked(subscribeToCommunityEventByEvent).mockReturnValue(Effect.succeed(() => undefined));
 
 type StoreMocksOverrides = {
@@ -40,6 +47,13 @@ function installEventStoreMocks(overrides: StoreMocksOverrides = {}): {
 	playlistSubSpy: ReturnType<typeof vi.fn>;
 	playlistPublicSpy: ReturnType<typeof vi.fn>;
 } {
+/**
+ * Install a set of mocked selectors and spies for tests that use the
+ * `useEventManageView` hook.
+ *
+ * @param overrides - optional overrides for mocked slices
+ * @returns spies for playlist subscription selectors
+ */
 	const {
 		currentEvent = undefined,
 		currentUserId = undefined,

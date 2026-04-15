@@ -13,6 +13,12 @@ describe("useColumnResize — Harness", () => {
 	it("harness renders and exposes getColumnWidth, startResize, isResizing, totalWidth", () => {
 		cleanup();
 
+		/**
+		 * Test harness that renders the hook consumer and exposes controls
+		 * to interact with the resize handlers.
+		 *
+		 * @returns React element for the harness
+		 */
 		function Harness(): ReactElement {
 			const { getColumnWidth, startResize, isResizing, totalWidth } = useColumnResize({
 				fields: FIELDS,

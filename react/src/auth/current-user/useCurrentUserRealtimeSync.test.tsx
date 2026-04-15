@@ -50,6 +50,12 @@ type SubscriptionConfig = Parameters<
  * @param state - Store slice exposed to selectors used by the hook
  * @returns Nothing
  */
+/**
+ * Install a mocked store state for `useCurrentUserRealtimeSync` tests.
+ *
+ * @param state - Partial store state to seed into appStore.
+ * @returns void
+ */
 function installStore(state: StoreState): void {
 	vi.resetAllMocks();
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) =>

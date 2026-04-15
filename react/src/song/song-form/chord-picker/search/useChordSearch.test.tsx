@@ -5,8 +5,8 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import { DEFAULT_MAX_CHORD_NOTES, DEFAULT_MIN_CHORD_NOTES } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 import {
-	ChordDisplayMode,
-	type ChordDisplayModeType,
+    ChordDisplayMode,
+    type ChordDisplayModeType,
 } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
 import useChordSearch from "./useChordSearch";
@@ -75,6 +75,8 @@ const DEFAULT_PARAMS: {
  * @param songKey - Song key used for Roman numeral interval labels in the note search grid
  * @param chordDisplayMode - Display mode controlling how inversion tokens are formatted
  * @param rootPickerDisplayMode - Display mode used to derive the initial note search root
+ * @param shapeHighlightActive - Whether result shapes are highlighted (defaults to true)
+ * @returns void
  */
 function Harness({
 	initialChordToken,

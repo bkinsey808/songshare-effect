@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
+import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import { makeFormEventWithPreventDefault } from "@/react/lib/test-utils/dom-events";
 import forceCast from "@/react/lib/test-utils/forceCast";
-import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 
 import useImageUploadForm from "./useImageUploadForm";
 
@@ -18,12 +18,29 @@ vi.mock("@/react/app-store/useAppStore");
 const IMAGE_SLUG = "my-uploaded-image";
 const UPLOAD_ERR = "Network error";
 
+/**
+ * Mock the locale hooks for tests.
+ *
+ * @returns void
+ */
 function installLocale(): void {
 	vi.mocked(useLocale).mockReturnValue(
 		forceCast<ReturnType<typeof useLocale>>({ lang: "en", t: (key: string) => key }),
 	);
 }
 
+/**
+ * Install a mocked `useAppStore` implementation for upload tests.
+ *
+ * @param opts - options to override default mock implementations
+ * @returns void
+ */
+/**
+ * Install a mocked image upload slice for `useImageUploadForm` tests.
+ *
+ * @param opts - Optional handlers to seed into the upload slice.
+ * @returns void
+ */
 function installStore(opts: { uploadImage?: ReturnType<typeof vi.fn> }): void {
 	const mockUpload =
 		opts.uploadImage ??
@@ -43,6 +60,8 @@ function installStore(opts: { uploadImage?: ReturnType<typeof vi.fn> }): void {
  * - Text fields for image name, description, alt text
  * - Submit and cancel buttons
  * - Preview and error display
+ *
+ * @returns A React element that demonstrates the upload form integrations used by tests.
  */
 function Harness(): ReactElement {
 	const {

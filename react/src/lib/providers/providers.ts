@@ -56,6 +56,12 @@ const providerFrontEndData: Record<ProviderType, ProviderFrontEndData> = {
 	},
 } as const satisfies Record<ProviderType, ProviderFrontEndData>;
 
+/**
+ * Get UI presentation data for a given provider type (colors, icon, etc.).
+ *
+ * @param provider - Provider key to look up
+ * @returns Front-end display data for the provider
+ */
 export default function getFrontEndProviderData<ProviderKey extends ProviderType>(
 	provider: ProviderKey,
 ): (typeof providerFrontEndData)[ProviderKey] {

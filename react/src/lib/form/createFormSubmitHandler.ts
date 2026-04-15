@@ -16,7 +16,10 @@ type FormSubmitHandlerParams<FormValues> = {
 };
 
 /**
- * Create a form submission handler that validates form data and handles submission
+ * Create a form submission handler that validates form data and handles submission.
+ *
+ * @param params - Handler parameters including schema and state setters
+ * @returns Function accepting `formData` and `onSubmit` that returns an Effect
  */
 export default function createFormSubmitHandler<FormValues extends Record<string, unknown>>(
 	params: FormSubmitHandlerParams<FormValues>,

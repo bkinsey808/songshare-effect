@@ -97,6 +97,18 @@ export default function useEventCommunityManagement({
 		setAddCommunityIdInput(communityId === "" ? undefined : communityId);
 	}
 
+	/**
+	 * Select a community id to add to the event.
+	 *
+	 * @param communityId - id of the community or empty string to clear
+	 * @returns void
+	 */
+
+	/**
+	 * Invoked to link the selected community to the current event.
+	 *
+	 * @returns void
+	 */
 	function onAddCommunityClick(): void {
 		if (
 			currentEventId === undefined ||
@@ -120,6 +132,12 @@ export default function useEventCommunityManagement({
 		});
 	}
 
+	/**
+	 * Invoked to remove a community link from the current event.
+	 *
+	 * @param communityId - id of the community to unlink
+	 * @returns void
+	 */
 	function onRemoveCommunityClick(communityId: string): void {
 		if (currentEventId === undefined) {
 			return;

@@ -31,6 +31,13 @@ const songKeyOptionRows: readonly SongKeyOptionRow[] = [
 	{ primary: "B" },
 ] as const;
 
+/**
+ * UI picker for selecting a song key.
+ *
+ * @param value - Currently selected `SongKey` or empty string when none
+ * @param onChange - Change handler invoked with the new value
+ * @returns React element rendering the key picker control
+ */
 export default function SongKeyPicker({ value, onChange }: SongKeyPickerProps): ReactElement {
 	const { t } = useTranslation();
 	const { isOpen, setIsOpen, containerRef } = useSongKeyPicker();

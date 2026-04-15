@@ -2,9 +2,9 @@ import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 
 import {
-	SupportedLanguage,
-	type SupportedLanguageType,
-	languageNames,
+    SupportedLanguage,
+    type SupportedLanguageType,
+    languageNames,
 } from "@/shared/language/supported-languages";
 import { guardAsSupportedLanguage } from "@/shared/language/supported-languages-effect";
 import { safeGet } from "@/shared/utils/safe";
@@ -30,6 +30,12 @@ export default function LanguageSwitcher(): ReactElement {
 	// Use dedicated path util so callers don't need to know LANG_PREFIX_LENGTH
 	const currentPath = getPathWithoutLang(location.pathname);
 
+	/**
+	 * Handle a language change selection from the UI.
+	 *
+	 * @param newLang - Selected language value
+	 * @returns void
+	 */
 	function handleLanguageChange(newLang: SupportedLanguageType): void {
 		if (newLang !== currentLang) {
 			// Centralised persistence + navigation (fire-and-forget)

@@ -32,6 +32,11 @@ describe("handlePlaylistLibrarySubscribeEvent", () => {
 	it("does nothing when payload is not a realtime payload", async () => {
 		const addPlaylistLibraryEntry = vi.fn();
 		const removePlaylistLibraryEntry = vi.fn();
+		/**
+		 * Return a mocked `PlaylistLibrarySlice` for the test.
+		 *
+		 * @returns Mocked `PlaylistLibrarySlice`
+		 */
 		function get(): PlaylistLibrarySlice {
 			return forceCast({
 				addPlaylistLibraryEntry,
@@ -49,6 +54,11 @@ describe("handlePlaylistLibrarySubscribeEvent", () => {
 
 	it("adds enriched entry on INSERT", async () => {
 		const addPlaylistLibraryEntry = vi.fn();
+		/**
+		 * Return a mocked `PlaylistLibrarySlice` for the INSERT test.
+		 *
+		 * @returns Mocked `PlaylistLibrarySlice`
+		 */
 		function get(): PlaylistLibrarySlice {
 			return forceCast({
 				addPlaylistLibraryEntry,
@@ -69,6 +79,11 @@ describe("handlePlaylistLibrarySubscribeEvent", () => {
 
 	it("removes entry on DELETE when playlist_id in old", async () => {
 		const removePlaylistLibraryEntry = vi.fn();
+		/**
+		 * Return a mocked `PlaylistLibrarySlice` for the DELETE test.
+		 *
+		 * @returns Mocked `PlaylistLibrarySlice`
+		 */
 		function get(): PlaylistLibrarySlice {
 			return forceCast({
 				addPlaylistLibraryEntry: vi.fn(),
@@ -89,6 +104,11 @@ describe("handlePlaylistLibrarySubscribeEvent", () => {
 
 	it("does not remove when old has no playlist_id", async () => {
 		const removePlaylistLibraryEntry = vi.fn();
+		/**
+		 * Return a mocked `PlaylistLibrarySlice` for the DELETE missing-id test.
+		 *
+		 * @returns Mocked `PlaylistLibrarySlice`
+		 */
 		function get(): PlaylistLibrarySlice {
 			return forceCast({
 				addPlaylistLibraryEntry: vi.fn(),
@@ -109,6 +129,11 @@ describe("handlePlaylistLibrarySubscribeEvent", () => {
 
 	it("skips INSERT when new entry is malformed", async () => {
 		const addPlaylistLibraryEntry = vi.fn();
+		/**
+		 * Return a mocked `PlaylistLibrarySlice` for the malformed INSERT test.
+		 *
+		 * @returns Mocked `PlaylistLibrarySlice`
+		 */
 		function get(): PlaylistLibrarySlice {
 			return forceCast({
 				addPlaylistLibraryEntry,

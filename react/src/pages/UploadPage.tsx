@@ -27,6 +27,12 @@ function UploadPage(): ReactElement {
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
+	/**
+	 * Handle input and textarea change events and update local form state.
+	 *
+	 * @param ev - change event from form controls
+	 * @returns void
+	 */
 	function handleChange(
 		ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
 	): void {
@@ -35,6 +41,13 @@ function UploadPage(): ReactElement {
 	}
 
 	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
+	/**
+	 * Handle form submission and simulate an API call.
+	 *
+	 * @param ev - form submit event
+	 * @returns Promise<void>
+	 */
+	// oxlint-disable-next-line typescript/no-deprecated
 	async function handleSubmit(ev: React.FormEvent): Promise<void> {
 		ev.preventDefault();
 		setIsSubmitting(true);

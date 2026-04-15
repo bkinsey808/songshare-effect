@@ -5,7 +5,8 @@ import guardAsSupabaseClientLike from "./guardAsSupabaseClientLike";
 
 /**
  * Minimal realtime channel stub used to satisfy SupabaseClientLike in tests.
- * @returns A channel-like object that supports on/subscribe chaining.
+ *
+ * @returns A channel-like object that supports `on`/`subscribe` chaining.
  */
 type RealtimeChannelStub = {
 	on: (event: string, opts: unknown, handler: (payload: unknown) => void) => RealtimeChannelStub;
@@ -13,14 +14,29 @@ type RealtimeChannelStub = {
 };
 
 /**
- * Creates a minimal Supabase-like client with from/auth/channel methods.
- * @returns A client object matching the guard expectations.
+ * Creates a minimal Supabase-like client with `from`, `auth`, and `channel`.
+ *
+ * @returns A client object matching the guard expectations used in tests.
  */
 function createSupabaseClient(): SupabaseClientLike {
 	const channel: RealtimeChannelStub = {
+		/**
+		 * Subscribe handler for the mock channel; returns the channel to allow chaining.
+		 *
+		 * @param _event - Event name (unused in stub)
+		 * @param _opts - Options passed to `on` (unused in stub)
+		 * @param _handler - Event handler to capture (unused in stub)
+		 * @returns The channel stub for chaining
+		 */
 		on(_event: string, _opts: unknown, _handler: (payload: unknown) => void): RealtimeChannelStub {
 			return channel;
 		},
+		/**
+		 * Subscribe method placeholder; returns undefined in this minimal stub.
+		 *
+		 * @param _cb - Subscribe callback (unused)
+		 * @returns undefined
+		 */
 		subscribe(_cb: (status: string, err?: unknown) => void): undefined {
 			return undefined;
 		},

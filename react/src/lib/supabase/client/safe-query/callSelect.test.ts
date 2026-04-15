@@ -6,6 +6,12 @@ import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 import callSelect from "./callSelect";
 
+/**
+ * Create a minimal supabase-like client stub for callSelect tests.
+ *
+ * @param opts - Options to control returned data and shape of client
+ * @returns A `SupabaseClientLike` suitable for tests
+ */
 function makeClient(opts: {
 	data?: unknown[];
 	error?: unknown;

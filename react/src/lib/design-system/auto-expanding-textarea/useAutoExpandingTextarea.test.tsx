@@ -45,6 +45,8 @@ const DEFAULT_HOOK_PROPS: HookProps = {
 
 /**
  * Stubs `getComputedStyle()` so textarea sizing tests use a stable line-height value.
+ *
+ * @returns void
  */
 function mockLineHeight(): void {
 	vi.spyOn(globalThis, "getComputedStyle").mockReturnValue(
@@ -58,6 +60,7 @@ function mockLineHeight(): void {
  * @param target - element that should expose the mocked property
  * @param property - DOM layout property to override
  * @param value - numeric value returned whenever the property is read
+ * @returns void
  */
 function defineReadOnlyNumberProperty({
 	target,
@@ -80,6 +83,7 @@ function defineReadOnlyNumberProperty({
  * @param textarea - textarea element whose sizing measurements should be stubbed
  * @param scrollHeight - scroll height value returned for the textarea content
  * @param parentHeight - optional parent `clientHeight` used for fill-parent-height scenarios
+ * @returns void
  */
 function installTextareaMeasurements({
 	textarea,
@@ -127,6 +131,7 @@ function makeStandaloneTextarea(): Readonly<{
  *
  * @param ref - hook-managed ref object that should point at the textarea
  * @param textarea - textarea element instance to assign into the ref
+ * @returns void
  */
 function assignTextareaRef({
 	ref,
@@ -145,6 +150,12 @@ function assignTextareaRef({
  * - The returned ref is attached to the textarea element
  * - The focus and input handlers are wired to DOM events
  * - Every hook option is passed as a prop so tests document the supported modes
+ */
+/**
+ * Test harness that mounts a textarea wired to the hook for integration-style tests.
+ *
+ * @param props - Hook props used to configure the harness
+ * @returns A React element containing the mounted textarea and debug outputs
  */
 function Harness(props: HookProps): ReactElement {
 	const { textareaRef, handleFocus, handleInput } = useAutoExpandingTextarea(props);

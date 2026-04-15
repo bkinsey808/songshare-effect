@@ -24,6 +24,12 @@ export default function useDismissibleAlert(onDismiss: () => void): {
 	// when closing -> exit state.
 	const animClass = isClosing ? tw`opacity-0 -translate-y-2` : tw`opacity-100 translate-y-0`;
 
+	/**
+	 * Trigger the dismiss animation and call the provided `onDismiss` callback
+	 * after the animation completes.
+	 *
+	 * @returns void
+	 */
 	function handleDismiss(): void {
 		if (isClosing) {
 			return;

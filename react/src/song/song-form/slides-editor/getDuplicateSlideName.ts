@@ -7,10 +7,12 @@ const PARSE_RADIX = 10;
 const COPY_INDEX_START = 2;
 
 /**
- * Generate a smart duplicate name for a slide
+ * Generate a smart duplicate name for a slide.
  * If the original slide follows "Slide N" pattern and "Slide N+1" doesn't exist,
- * use "Slide N+1" instead of "Slide N (Copy)"
+ * use "Slide N+1" instead of "Slide N (Copy)".
  *
+ * @param originalSlideName - The source slide name to duplicate
+ * @param slides - All existing slides used to avoid name collisions
  * @returns The generated duplicate slide name
  */
 export default function getDuplicateSlideName(

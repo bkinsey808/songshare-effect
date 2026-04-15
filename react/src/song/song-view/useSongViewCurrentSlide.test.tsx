@@ -9,8 +9,8 @@ import mockUseTranslation from "@/react/lib/test-utils/mockUseTranslation";
 import useSlideNumberPreference from "@/react/slide-number/useSlideNumberPreference";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
 import {
-	ResolvedSlideOrientation,
-	SlideOrientationPreference,
+    ResolvedSlideOrientation,
+    SlideOrientationPreference,
 } from "@/shared/user/slideOrientationPreference";
 
 import useSongViewCurrentSlide from "./useSongViewCurrentSlide";
@@ -46,6 +46,12 @@ const EMPTY_TEXT = "";
 const ROOT_CLASS_NAME = "aspect-[9/16]";
 const ZERO_NUMBER = 0;
 
+/**
+ * Install a mocked slide orientation preference for tests.
+ *
+ * @param effectiveSlideOrientation - The resolved orientation to return
+ * @returns void
+ */
 function installSlideOrientationMock(
 	effectiveSlideOrientation: "landscape" | "portrait" = ResolvedSlideOrientation.landscape,
 ): void {
@@ -59,6 +65,12 @@ function installSlideOrientationMock(
 	});
 }
 
+/**
+ * Install a mocked slide-number preference.
+ *
+ * @param showSlideNumber - Whether slide numbers should be shown
+ * @returns void
+ */
 function installSlideNumberPreferenceMock(showSlideNumber = false): void {
 	vi.mocked(useSlideNumberPreference).mockReturnValue({
 		showSlideNumber,
@@ -66,6 +78,12 @@ function installSlideNumberPreferenceMock(showSlideNumber = false): void {
 	});
 }
 
+/**
+ * Install a mocked chord display mode preference.
+ *
+ * @param chordDisplayMode - The chord display mode to expose
+ * @returns void
+ */
 function installChordDisplayModeMock(
 	chordDisplayMode: "letters" | "german" | "roman" | "sargam" | "solfege" = "letters",
 ): void {
@@ -77,6 +95,13 @@ function installChordDisplayModeMock(
 	});
 }
 
+/**
+ * Install a mocked `useAppStore` selector that returns image-related state.
+ *
+ * @param imageLibraryEntries - Map of image library entries to expose
+ * @param publicImages - Map of public images to expose
+ * @returns void
+ */
 function installAppStoreMock({
 	imageLibraryEntries = {},
 	publicImages = {},
@@ -91,6 +116,11 @@ function installAppStoreMock({
 	);
 }
 
+/**
+ * Build a minimal current-slide object for harness and hook assertions.
+ *
+ * @returns Current slide shape with required fields
+ */
 function makeCurrentSlide(): {
 	slide_name: string;
 	field_data: Record<string, string>;
@@ -109,6 +139,11 @@ function makeCurrentSlide(): {
 	};
 }
 
+/**
+ * Create a minimal image library entry used by the harness.
+ *
+ * @returns An `imageLibraryEntries` entry suitable for tests
+ */
 function makeImageLibraryEntry(): AppSlice["imageLibraryEntries"][string] {
 	return forceCast<AppSlice["imageLibraryEntries"][string]>({
 		image_id: IMAGE_ID,
@@ -142,6 +177,9 @@ function makeImageLibraryEntry(): AppSlice["imageLibraryEntries"][string] {
  * - slide name, field label, and field text rendered for a configured field
  * - computed aspect class, text styling, and slide style surfaced for assertions
  * - slide-number preference exposed as text for UI wiring
+ * @param currentSlide - The slide object to render in the harness
+ * @param totalSlides - Total number of slides (used for numbering logic)
+ * @returns ReactElement that renders hook-derived values for assertions
  */
 function Harness({
 	currentSlide,

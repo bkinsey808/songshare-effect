@@ -19,6 +19,8 @@ type Options = {
  * - Start/stop microphone / display-audio capture
  * - Provide a `SmoothedAudioLevel` instance and a ref for use by render loops
  * - Surface common values: `levelUiValue`, `audioInputDevicesRefreshKey`, `status`, `errorMessage`, `currentStreamLabel` *
+ * 
+ * @param options - Options controlling UI interval and smoothing
  * @returns Object containing helpers and current audio capture state */
 export default function useAudioVizInput(options: Options): {
 	/** Smoothed audio level helpers */

@@ -18,6 +18,11 @@ vi.mock("@/react/lib/design-system/share-button/ShareButton");
 vi.mock("@/react/share/shared-users-section/SharedUsersSection");
 vi.mock("./usePlaylistView");
 
+/**
+ * Install UI-related mocks for `PlaylistView` tests.
+ *
+ * @returns void
+ */
 function installUiMocks(): void {
 	vi.mocked(useTranslation).mockReturnValue(
 		forceCast<ReturnType<typeof useTranslation>>({
@@ -31,6 +36,12 @@ function installUiMocks(): void {
 	vi.mocked(SharedUsersSection).mockImplementation(() => <div data-testid="shared-users-mock" />);
 }
 
+/**
+ * Install a mocked return value for the `usePlaylistView` hook used in UI tests.
+ *
+ * @param overrides - Partial overrides merged into the base hook return.
+ * @returns void
+ */
 function installPlaylistViewMock(overrides: Partial<UsePlaylistViewResult>): void {
 	const base: UsePlaylistViewResult = {
 		currentPlaylist: undefined,

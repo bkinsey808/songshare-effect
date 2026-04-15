@@ -141,6 +141,11 @@ describe("useFormSubmission — Harness", () => {
 			slides: { s1: { slide_name: "Slide 1", field_data: {} } },
 		};
 
+		/**
+		 * Minimal harness demonstrating `useFormSubmission` handlers.
+		 *
+		 * @returns A small DOM fragment used by the harness test
+		 */
 		function Harness(): ReactElement {
 			const { handleCancel, onSubmit } = useFormSubmission({
 				handleApiResponseEffect,

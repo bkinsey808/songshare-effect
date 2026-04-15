@@ -56,6 +56,12 @@ export default function useEventParticipantManagement({
 		return;
 	}, [fetchUserLibrary]);
 
+	/**
+	 * Select a user id for inviting to the event.
+	 *
+	 * @param userId - user id or undefined to clear selection
+	 * @returns void
+	 */
 	function onInviteUserSelect(userId: string | undefined): void {
 		setInviteUserIdInput(userId);
 	}
@@ -64,6 +70,12 @@ export default function useEventParticipantManagement({
 		if (currentEventId === undefined) {
 			return;
 		}
+
+		/**
+		 * Click handler that sends an invite for the currently selected user id.
+		 *
+		 * @returns void
+		 */
 		const userId = inviteUserIdInput?.trim() ?? "";
 		if (userId === "") {
 			return;
@@ -85,10 +97,23 @@ export default function useEventParticipantManagement({
 		});
 	}
 
+	/**
+	 * Kick a participant by user id.
+	 *
+	 * @param userId - id of the user to remove from the event
+	 * @returns void
+	 */
 	function onKickParticipant(userId: string): void {
 		if (currentEventId === undefined) {
 			return;
 		}
+
+		/**
+		 * Kick a participant by user id.
+		 *
+		 * @param userId - id of the user to remove from the event
+		 * @returns void
+		 */
 		void runAction({
 			actionKey: `kick:${userId}`,
 			successMessage: "Participant kicked",

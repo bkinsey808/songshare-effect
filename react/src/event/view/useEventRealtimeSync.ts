@@ -13,6 +13,14 @@ type UseEventRealtimeSyncParams = {
 	fetchEventBySlug: (eventSlug: string) => Effect.Effect<void, unknown>;
 };
 
+/**
+ * Heuristic to determine whether a realtime participant payload should be
+ * ignored because it represents an operation performed by the current user.
+ *
+ * @param payload - realtime event payload
+ * @param currentUserId - id of the current user to compare against
+ * @returns true when refresh can be skipped for the current user
+ */
 function shouldSkipParticipantRefresh(
 	payload: unknown,
 	currentUserId: string | undefined,
@@ -61,6 +69,12 @@ export default function useEventRealtimeSync({
 		const slug = eventSlug;
 		let cleanup: (() => void) | undefined = undefined;
 
+		/**
+		 * Subscribe to `event_public` realtime updates and trigger a fetch
+		 * for the current event slug when events occur.
+		 *
+		 * @returns void
+		 */
 		async function subscribeToEventPublic(): Promise<void> {
 			try {
 				const userToken = await getSupabaseAuthToken();
@@ -105,7 +119,13 @@ export default function useEventRealtimeSync({
 		const userId = currentUserId;
 		let cleanup: (() => void) | undefined = undefined;
 
-		async function subscribeToParticipants(): Promise<void> {
+				/**
+				 * Subscribe to `event_user` realtime updates and refresh
+				 * participant lists when relevant events occur.
+				 *
+				 * @returns void
+				 */
+				async function subscribeToParticipants(): Promise<void> {
 			try {
 				const userToken = await getSupabaseAuthToken();
 				const client = getSupabaseClient(userToken);

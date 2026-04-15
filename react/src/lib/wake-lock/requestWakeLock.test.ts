@@ -26,6 +26,11 @@ describe("requestWakeLock", () => {
 
 		// Create a small, typed sentinel to avoid unsafe type assertions in tests
 		const releaseSpy = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
+		/**
+		 * Minimal test sentinel implementing `WakeLockSentinel` for request tests.
+		 *
+		 * @remarks This class is intentionally small and used only for testing.
+		 */
 		class DummySentinel extends EventTarget implements WakeLockSentinel {
 			type = "screen" as const;
 			released = false;
@@ -33,6 +38,11 @@ describe("requestWakeLock", () => {
 				this: WakeLockSentinel,
 				ev: Event,
 			) => unknown;
+			/**
+			 * Delegate to the test's `releaseSpy` and mark sentinel released.
+			 *
+			 * @returns Promise that resolves when the spy resolves
+			 */
 			release(): Promise<void> {
 				// use `this` to satisfy `class-methods-use-this` lint rule
 				this.released = true;

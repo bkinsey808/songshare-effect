@@ -46,6 +46,7 @@ const EMPTY_STATE = new Map<number, NoteSearchToggleState>();
  * the captured state updater to a given previous state. The applyUpdater helper
  * is safe to call after asserting toHaveBeenCalledOnce(), which guarantees the
  * mock received exactly one call before the updater is extracted.
+ * @returns An object with a mock `setNoteSearchState` and an `applyUpdater` helper
  */
 function makeSetNoteSearchState(): {
 	setNoteSearchState: ReturnType<typeof vi.fn<(updater: StateUpdater) => void>>;
@@ -54,6 +55,12 @@ function makeSetNoteSearchState(): {
 	) => ReadonlyMap<number, NoteSearchToggleState>;
 } {
 	const setNoteSearchState = vi.fn<(updater: StateUpdater) => void>();
+	/**
+	 * Apply the captured updater function to a previous state map.
+	 *
+	 * @param prev - Previous map of semitone -> toggle state
+	 * @returns The next map after the updater is applied
+	 */
 	function applyUpdater(
 		prev: ReadonlyMap<number, NoteSearchToggleState>,
 	): ReadonlyMap<number, NoteSearchToggleState> {

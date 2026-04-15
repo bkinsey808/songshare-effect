@@ -13,6 +13,12 @@ const FALLBACK_VIEWPORT_ASPECT_HEIGHT = 9;
 const FALLBACK_VIEWPORT_ASPECT_RATIO =
 	FALLBACK_VIEWPORT_ASPECT_WIDTH / FALLBACK_VIEWPORT_ASPECT_HEIGHT;
 
+/**
+ * Compute a safe viewport aspect ratio using `globalThis` when available.
+ * Falls back to a hard-coded 16:9 ratio in non-DOM or degenerate dimensions.
+ *
+ * @returns The viewport width/height aspect ratio
+ */
 function getViewportAspectRatio(): number {
 	if (typeof globalThis === "undefined") {
 		return FALLBACK_VIEWPORT_ASPECT_RATIO;
@@ -92,22 +98,38 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 		}
 	}, [clampedIndex, currentIndex]);
 
-	/** Navigate to the first slide (index 0). */
+	/**
+	 * Navigate to the first slide (index 0).
+	 *
+	 * @returns void
+	 */
 	function goFirst(): void {
 		setCurrentIndex(MIN_SLIDE_INDEX);
 	}
 
-	/** Navigate to the previous slide, clamping at 0 to avoid negative indices. */
+	/**
+	 * Navigate to the previous slide, clamping at 0 to avoid negative indices.
+	 *
+	 * @returns void
+	 */
 	function goPrev(): void {
 		setCurrentIndex((i) => Math.max(MIN_SLIDE_INDEX, i - ONE));
 	}
 
-	/** Navigate to the next slide, clamping at the last index. */
+	/**
+	 * Navigate to the next slide, clamping at the last index.
+	 *
+	 * @returns void
+	 */
 	function goNext(): void {
 		setCurrentIndex((i) => Math.min(totalSlides - ONE, i + ONE));
 	}
 
-	/** Navigate to the last slide safely (handles zero slides). */
+	/**
+	 * Navigate to the last slide safely (handles zero slides).
+	 *
+	 * @returns void
+	 */
 	function goLast(): void {
 		setCurrentIndex(Math.max(MIN_SLIDE_INDEX, totalSlides - ONE));
 	}
@@ -115,6 +137,12 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 	// Add global keyboard handlers for Home/End/Arrow keys to support keyboard navigation.
 	// Prevent default on handled keys to avoid native actions.
 	useEffect(() => {
+		/**
+		 * Global keyboard handler for slide navigation (Home/End/Arrows).
+		 *
+		 * @param event - Keyboard event to inspect for navigation keys
+		 * @returns void
+		 */
 		function onKeyDown(event: KeyboardEvent): void {
 			if (totalSlides === MIN_SLIDE_INDEX) {
 				return;
@@ -157,6 +185,12 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 		if (!isFullScreen) {
 			return;
 		}
+		/**
+		 * Escape key handler to exit full-screen mode when active.
+		 *
+		 * @param event - Keyboard event to inspect for Escape
+		 * @returns void
+		 */
 		function onKeyDown(event: KeyboardEvent): void {
 			if (event.key === "Escape") {
 				event.preventDefault();
@@ -175,6 +209,11 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 			return;
 		}
 
+		/**
+		 * Resize handler to refresh the stored viewport aspect ratio.
+		 *
+		 * @returns void
+		 */
 		function handleResize(): void {
 			setViewportAspectRatio(getViewportAspectRatio());
 		}

@@ -26,6 +26,15 @@ type UseSlidesGridRowResult = Readonly<{
 	faded: boolean;
 }>;
 
+/**
+ * Hook to derive draggable row state for a slide in the slides grid.
+ *
+ * @param slideId - The id of the slide represented by this row.
+ * @param slideOrder - The full slide order array, may contain duplicates.
+ * @param fields - Optional array of dynamic field keys shown for this slide.
+ * @param globalIsDragging - Whether any row is currently being dragged.
+ * @returns A read-only object with sortable attributes, listeners and row state.
+ */
 export default function useSlidesGridRow({
 	slideId,
 	slideOrder,

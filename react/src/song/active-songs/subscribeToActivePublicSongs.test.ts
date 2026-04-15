@@ -7,8 +7,8 @@ import { describe, expect, it, vi } from "vitest";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import type {
-	RealtimeChannelLike,
-	SupabaseClientLike,
+    RealtimeChannelLike,
+    SupabaseClientLike,
 } from "@/react/lib/supabase/client/SupabaseClientLike";
 import asNull from "@/react/lib/test-utils/asNull";
 import forceCast from "@/react/lib/test-utils/forceCast";
@@ -26,6 +26,12 @@ const MACROTASK_DELAY = 0;
 /**
  * Advance microtasks and a macrotask tick so tests can observe async effects
  * that are scheduled to run on the next micro/macro tick (subscriptions, timers, etc.).
+ */
+/**
+ * Advance microtasks and a macrotask tick so tests can observe async effects
+ * that are scheduled to run on the next micro/macro tick (subscriptions, timers, etc.).
+ *
+ * @returns Promise that resolves after yielding micro/macro ticks
  */
 async function flushPromises(): Promise<void> {
 	await Promise.resolve();
@@ -46,7 +52,12 @@ function makeGetWithActiveIds(ids: readonly string[]): SongSubscribeSlice {
 	return get();
 }
 
-/** No-op handler used to initialize handler vars in tests. */
+/**
+ * No-op handler used to initialize handler vars in tests.
+ *
+ * @param _payload - Ignored payload parameter used for handler signature
+ * @returns void
+ */
 function noopHandler(_payload: unknown): void {
 	/* noop */
 }
@@ -54,6 +65,13 @@ function noopHandler(_payload: unknown): void {
 /**
  * Type guard that verifies a value is a `set` updater function that transforms
  * the current `SongSubscribeSlice` into a partial update.
+ */
+/**
+ * Type guard that verifies a value is a `set` updater function that transforms
+ * the current `SongSubscribeSlice` into a partial update.
+ *
+ * @param value - Unknown value to test
+ * @returns True when value is an updater function
  */
 function isUpdater(
 	value: unknown,
@@ -84,6 +102,12 @@ describe("subscribeToActivePublicSongs", () => {
 		vi.mocked(getSupabaseClientWithAuth).mockResolvedValue(mockClient);
 
 		const addOrUpdatePublicSongs = vi.fn();
+		/**
+		 * Minimal `get` accessor used by this test to inject a slice with an
+		 * `addOrUpdatePublicSongs` spy.
+		 *
+		 * @returns SongSubscribeSlice configured for this test
+		 */
 		function get(): SongSubscribeSlice {
 			const state = makeGetWithActiveIds(["abc"]);
 			state.addOrUpdatePublicSongs = addOrUpdatePublicSongs;
@@ -150,6 +174,12 @@ describe("subscribeToActivePublicSongs", () => {
 		vi.mocked(getSupabaseClientWithAuth).mockResolvedValue(mockClient);
 
 		const addOrUpdatePublicSongs = vi.fn();
+		/**
+		 * Minimal `get` accessor used by this test to inject a slice with an
+		 * `addOrUpdatePublicSongs` spy.
+		 *
+		 * @returns SongSubscribeSlice configured for this test
+		 */
 		function get(): SongSubscribeSlice {
 			const state = makeGetWithActiveIds(["abc"]);
 			state.addOrUpdatePublicSongs = addOrUpdatePublicSongs;

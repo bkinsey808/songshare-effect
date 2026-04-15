@@ -45,6 +45,11 @@ export default function SongFormFooter({
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 	const [confirmingCancel, setConfirmingCancel] = useState(false);
 
+	/**
+	 * Handle clicks to cancel editing; prompt if there are unsaved changes.
+	 *
+	 * @returns void
+	 */
 	function handleCancelClick(): void {
 		if (hasChanges) {
 			setConfirmingCancel(true);
@@ -52,16 +57,30 @@ export default function SongFormFooter({
 			onCancel();
 		}
 	}
-
+	/**
+	 * Confirm leaving and invoke the cancel handler.
+	 *
+	 * @returns void
+	 */
 	function handleConfirmLeave(): void {
 		setConfirmingCancel(false);
 		onCancel();
 	}
 
+	/**
+	 * Cancel the pending leave confirmation and keep editing.
+	 *
+	 * @returns void
+	 */
 	function handleStay(): void {
 		setConfirmingCancel(false);
 	}
 
+	/**
+	 * Initiate the delete confirmation UI when delete is supported.
+	 *
+	 * @returns void
+	 */
 	function handleDeleteClick(): void {
 		if (onDelete === undefined) {
 			return;
@@ -69,6 +88,11 @@ export default function SongFormFooter({
 		setConfirmingDelete(true);
 	}
 
+	/**
+	 * Perform the delete action and close the confirmation UI.
+	 *
+	 * @returns Promise<void>
+	 */
 	async function handleConfirmDelete(): Promise<void> {
 		if (onDelete === undefined) {
 			return;
@@ -77,6 +101,11 @@ export default function SongFormFooter({
 		setConfirmingDelete(false);
 	}
 
+	/**
+	 * Cancel the pending delete confirmation and close the dialog.
+	 *
+	 * @returns void
+	 */
 	function handleCancelDelete(): void {
 		setConfirmingDelete(false);
 	}
@@ -163,6 +192,11 @@ export default function SongFormFooter({
 		}
 	}
 
+	/**
+	 * Render the left section of the footer (create/reset/cancel) or confirmation UI.
+	 *
+	 * @returns ReactElement or undefined when a section should be hidden
+	 */
 	function renderLeftSection(): ReactElement | undefined {
 		if (confirmingCancel) {
 			return cancelConfirmSection;

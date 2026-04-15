@@ -42,7 +42,12 @@ const ACCEPTED_SHARE: SharedItem = {
 	status: "accepted",
 };
 
-/** Configures useAppStore with share slice state and Effect mocks for useSharedItemSection tests. */
+/**
+ * Configures `useAppStore` with share slice state and Effect mocks for tests.
+ *
+ * @param opts - Options to configure received/sent shares and mocked effects.
+ * @returns void
+ */
 function installStore(opts: {
 	receivedShares?: Record<string, SharedItem>;
 	sentShares?: Record<string, SharedItem>;
@@ -105,6 +110,11 @@ function installStore(opts: {
  * - filtered shares list
  * - Accept/Reject handlers for pending received shares
  * - Error and loading states
+ */
+/**
+ * Test harness for `useSharedItemSection` demonstrating UI interactions.
+ *
+ * @returns A React element used by DOM-based tests.
  */
 function Harness(): ReactElement {
 	const {

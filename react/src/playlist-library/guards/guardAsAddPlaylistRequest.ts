@@ -4,6 +4,10 @@ import type { AddPlaylistToLibraryRequest } from "../slice/playlist-library-type
 
 /**
  * Validates that a value is a valid AddPlaylistToLibraryRequest (client sends only these fields).
+ *
+ * @param value - The untrusted value to validate
+ * @param context - Description used in thrown errors for debugging
+ * @returns A validated AddPlaylistToLibraryRequest
  */
 export default function guardAsAddPlaylistRequest(
 	value: unknown,

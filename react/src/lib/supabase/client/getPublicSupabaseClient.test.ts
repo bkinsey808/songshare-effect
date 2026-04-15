@@ -23,6 +23,13 @@ describe("getPublicSupabaseClient", () => {
 	 * flags.  Each test can call this with different values instead of
 	 * relying on jest hooks.
 	 */
+	/**
+	 * Reset mocks and configure `getEnvValueSafe` for tests.
+	 *
+	 * @param url - Value to expose for `SUPABASE_URL`
+	 * @param anon - Value to expose for `SUPABASE_ANON_KEY`
+	 * @returns void
+	 */
 	function setupEnv(url?: string, anon?: string): void {
 		vi.resetAllMocks();
 		const envMap: Record<string, string | undefined> = {

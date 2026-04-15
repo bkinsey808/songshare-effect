@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
 
+import computeAlternatePreview from "@/react/music/preview/computeAlternatePreview";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import { getChordShapeByCode } from "@/shared/music/chord-shapes";
 import { ChordDisplayCategory } from "@/shared/user/chord-display/chordDisplayCategory";
 import { ChordLetterDisplay } from "@/shared/user/chordLetterDisplay";
 import { ChordScaleDegreeDisplay } from "@/shared/user/chordScaleDegreeDisplay";
-
-import computeAlternatePreview from "@/react/music/preview/computeAlternatePreview";
-import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 const SONG_KEY_G = "G" as const;
 const EMPTY_SONG_KEY = "" as const;
@@ -30,7 +29,13 @@ const ROMAN_ROOT_I: SelectedRoot = {
 	label: "I",
 };
 
-/** Stub translation function that returns the default value for all keys. */
+/**
+ * Stub translation function that returns the default value for all keys.
+ *
+ * @param key - Translation key (ignored in tests).
+ * @param defaultValue - Fallback text returned by the stub.
+ * @returns The provided `defaultValue`.
+ */
 function stubT(key: string, defaultValue: string): string {
 	void key;
 	return defaultValue;

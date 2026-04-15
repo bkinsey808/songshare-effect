@@ -14,6 +14,11 @@ describe("useSlideFields — Harness", () => {
 		const setSlides = vi.fn();
 		const slides = { s1: SLIDE_S1 };
 
+		/**
+		 * Test harness for slide fields hook.
+		 *
+		 * @returns DOM fragment used by tests
+		 */
 		function Harness(): ReactElement {
 			const { editFieldValue, editSlideName, safeGetField } = useSlideFields({
 				slides,

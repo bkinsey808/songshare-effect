@@ -68,11 +68,16 @@ export default function useFullScreen(): {
 
 	// Listen for fullscreenchange events and update local state accordingly
 	useEffect(() => {
-		function updateFullScreenState(): void {
-			setIsFullScreen(
-				document.fullscreenElement !== null && document.fullscreenElement !== undefined,
-			);
-		}
+			/**
+			 * Update the `isFullScreen` state from `document.fullscreenElement`.
+			 *
+			 * @returns void
+			 */
+			function updateFullScreenState(): void {
+				setIsFullScreen(
+					document.fullscreenElement !== null && document.fullscreenElement !== undefined,
+				);
+			}
 
 		// Keep `isFullScreen` in sync with the browser; `fullscreenchange` fires when state changes.
 		document.addEventListener("fullscreenchange", updateFullScreenState);
@@ -83,6 +88,8 @@ export default function useFullScreen(): {
 
 	/**
 	 * Toggle fullscreen: enter when not fullscreen, exit when currently fullscreen.
+	 *
+	 * @returns void
 	 */
 	function toggleFullScreen(): void {
 		if (isFullScreen) {

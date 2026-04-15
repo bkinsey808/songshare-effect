@@ -67,7 +67,14 @@ export default function useSlideFields({
 	slides,
 	setSlides,
 }: UseSlideFieldsParams): UseSlideFieldsReturn {
-	// Edit field value - preserve all existing field data
+	/**
+	 * Safely retrieve a field value from slides.
+	 *
+	 * @param slides - Slides map to search
+	 * @param slideId - Slide id to lookup
+	 * @param field - Field key to retrieve
+	 * @returns The field value or empty string when missing
+	 */
 	function safeGetField({
 		slides: innerSlides,
 		slideId,
@@ -85,6 +92,14 @@ export default function useSlideFields({
 		return safeGet(slide.field_data, field) ?? "";
 	}
 
+	/**
+	 * Update a single field value for a slide, preserving other fields.
+	 *
+	 * @param slideId - Slide id to update
+	 * @param field - Field key to update
+	 * @param value - New string value for the field
+	 * @returns void
+	 */
 	function editFieldValue({
 		slideId,
 		field,
@@ -112,7 +127,13 @@ export default function useSlideFields({
 		});
 	}
 
-	// Edit slide name inside the slide
+	/**
+	 * Edit the slide's name.
+	 *
+	 * @param slideId - Slide id to rename
+	 * @param newName - New slide name
+	 * @returns void
+	 */
 	function editSlideName({
 		slideId,
 		newName,
@@ -134,6 +155,18 @@ export default function useSlideFields({
 		});
 	}
 
+	/**
+	 * Update slide background image metadata.
+	 *
+	 * @param slideId - Slide id to update
+	 * @param backgroundImageId - Optional image id from library
+	 * @param backgroundImageUrl - Optional image URL
+	 * @param backgroundImageWidth - Optional image width
+	 * @param backgroundImageHeight - Optional image height
+	 * @param backgroundImageFocalPointX - Optional focal X coordinate
+	 * @param backgroundImageFocalPointY - Optional focal Y coordinate
+	 * @returns void
+	 */
 	function editSlideBackgroundImage({
 		slideId,
 		backgroundImageId,

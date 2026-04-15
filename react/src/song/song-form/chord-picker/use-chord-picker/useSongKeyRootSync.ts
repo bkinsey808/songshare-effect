@@ -12,6 +12,7 @@ import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type"
  * @param songKey - Current song key (may be empty string when no key is set)
  * @param setSelectedRoot - Setter for the selected root state
  * @param setSelectedBassNote - Setter to clear the bass note state
+ * @returns void
  */
 export default function useSongKeyRootSync({
 	selectedRoot,

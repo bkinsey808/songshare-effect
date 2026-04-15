@@ -32,6 +32,11 @@ const FIRST_SLIDE = 1;
 const CLAMPED_SLIDE = 2;
 const SECOND_SONG_INDEX = 1;
 
+/**
+ * Initialize mocked hook return values for basic slide manager tests.
+ *
+ * @returns mocked values for manage, view, and selection hooks
+ */
 function initBasicState(): {
 	fakeManage: ReturnType<typeof useEventManageView>;
 	fakeView: ReturnType<typeof useEventView>;

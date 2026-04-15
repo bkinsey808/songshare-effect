@@ -17,6 +17,11 @@ import {
 	userSubscriptionDemoPath,
 } from "@/shared/paths";
 
+/**
+ * Demo navigation panel exposing quick links to demo pages.
+ *
+ * @returns ReactElement rendering the demo navigation links.
+ */
 function DemoNavigation(): ReactElement {
 	const { lang, t } = useLocale();
 

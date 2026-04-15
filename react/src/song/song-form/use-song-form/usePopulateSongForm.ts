@@ -44,6 +44,22 @@ type UsePopulateSongFormParams = {
  * Hook that populates the form when song data becomes available.
  * Handles ownership checks, form value population, and slide/field updates.
  *
+ * @param songId - Optional song id being edited
+ * @param publicSongs - Map of public song payloads used to populate public fields
+ * @param privateSongs - Map of private song payloads used to populate private fields
+ * @param currentUserId - Current authenticated user id for ownership checks
+ * @param isFetching - True while the fetch request is in progress
+ * @param hasPopulatedRef - Ref used to avoid re-populating the form multiple times
+ * @param formRef - Ref to the HTML form element for DOM value syncing
+ * @param songNameRef - Ref to the song name input element
+ * @param songSlugRef - Ref to the song slug input element
+ * @param fields - Currently enabled form fields array
+ * @param setIsLoadingData - Setter to toggle loading spinner state
+ * @param setFormValuesState - Setter for controlled form values state
+ * @param setSlideOrder - Setter to update slide order array
+ * @param setSlides - Setter to replace the slides map
+ * @param toggleField - Handler to enable/disable a field
+ * @param initialSlideId - Initial slide id used as fallback when no slides present
  * @returns void
  */
 export default function usePopulateSongForm({
@@ -268,6 +284,11 @@ export default function usePopulateSongForm({
 		// Note: isLoadingData is already set to false above after populating form values
 		// This ensures the form only shows after all data (including slides) is populated
 
+		/**
+		 * Cleanup side-effects scheduled by this effect (timeouts).
+		 *
+		 * @returns void
+		 */
 		function cleanup(): void {
 			clearTimeout(timeoutId);
 		}

@@ -1,5 +1,5 @@
-import { act, renderHook } from "@testing-library/react";
 import { useSortable } from "@dnd-kit/sortable";
+import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
@@ -22,6 +22,14 @@ vi.mocked(useSortable).mockReturnValue(
 
 type Params = UseSlidesGridRowParams;
 
+ 
+
+/**
+ * Create default `UseSlidesGridRow` params for tests.
+ *
+ * @param overrides - Partial overrides to the default params
+ * @returns A fully populated params object for the hook
+ */
 function makeParams(overrides: Partial<Params> = {}): Params {
 	return {
 		slideId: "slide-1",

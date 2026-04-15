@@ -45,6 +45,13 @@ export type UseImageEditFormReturn = {
 	setImageName: (value: string) => void;
 };
 
+/**
+ * Hook that manages the image edit form state and submit/cancel handlers.
+ *
+ * @param image - The loaded `ImagePublic` object to edit.
+ * @param options - Optional form behavior flags and tag setter.
+ * @returns Form state and handlers consumed by the image edit form.
+ */
 export default function useImageEditForm(
 	image: ImagePublic,
 	options: UseImageEditFormOptions = {},
@@ -71,10 +78,11 @@ export default function useImageEditForm(
 		imageName,
 		tags,
 	};
-	const { getInitialState, hasUnsavedChanges, setInitialState } = useFormChanges<ImageEditFormState>({
-		currentState,
-		enabled: isTagsReady,
-	});
+	const { getInitialState, hasUnsavedChanges, setInitialState } =
+		useFormChanges<ImageEditFormState>({
+			currentState,
+			enabled: isTagsReady,
+		});
 
 	// Capture the loaded image state once so later edits can be compared and reset accurately.
 	useEffect(() => {
@@ -89,9 +97,25 @@ export default function useImageEditForm(
 			});
 			hasSyncedInitialStateRef.current = true;
 		}
-	}, [altText, description, focalPointX, focalPointY, imageName, isTagsReady, setInitialState, tags]);
+	}, [
+		altText,
+		description,
+		focalPointX,
+		focalPointY,
+		imageName,
+		isTagsReady,
+		setInitialState,
+		tags,
+	]);
 
 	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
+	/**
+	 * Submit handler that persists the edited image via the store action.
+	 *
+	 * @param event - form submit event
+	 * @returns Promise<void>
+	 */
+	// oxlint-disable-next-line typescript/no-deprecated
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
 		event.preventDefault();
 		setIsSubmitting(true);
@@ -116,10 +140,20 @@ export default function useImageEditForm(
 		}
 	}
 
+	/**
+	 * Cancel editing and navigate back to the public image view.
+	 *
+	 * @returns void
+	 */
 	function handleCancel(): void {
 		void navigate(buildPathWithLang(`/${imageViewPath}/${image.image_slug}`, lang));
 	}
 
+	/**
+	 * Reset the form to the initially captured image values.
+	 *
+	 * @returns void
+	 */
 	function handleReset(): void {
 		const initialState = getInitialState();
 		if (initialState === undefined) {

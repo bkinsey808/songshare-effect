@@ -10,6 +10,7 @@ import setStoredLanguage from "../stored/setStoredLanguage";
  * errors so callers (render/effect paths) do not fail the UI.
  *
  * @param currentLang - ISO 2-letter supported language code
+ * @returns Promise that resolves when persistence is complete (best-effort)
  */
 export async function persistLanguagePreferenceIfMissing(
 	currentLang: SupportedLanguageType,

@@ -20,6 +20,8 @@ describe("createFormSubmitHandler", () => {
 	 * Prepare fresh modules and mocks for each test. Avoids lifecycle hooks
 	 * so lint rules remain happy; callers just `await init()` at the top of the
 	 * spec body.
+	 *
+	 * @returns Object containing the module under test and helpers used by tests
 	 */
 	async function init(): Promise<{
 		createFormSubmitHandler: typeof createFormSubmitHandlerType;

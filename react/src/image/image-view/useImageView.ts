@@ -16,8 +16,11 @@ import { dashboardPath, imageEditPath, imageLibraryPath, imageViewPath } from "@
 import type { ImagePublic } from "../image-types";
 
 /**
- * Helper function to delete an image and navigate. Defined at module scope
- * to avoid React Compiler issues with Effect.gen/yield* syntax.
+ * Delete an image via the provided effect and invoke `onSuccess` when done.
+ *
+ * @param deleteEffect - effect that performs the delete operation
+ * @param onSuccess - callback to run after successful deletion
+ * @returns void
  */
 async function performImageDelete(
 	deleteEffect: Effect.Effect<void, Error>,
@@ -42,6 +45,12 @@ export type UseImageViewReturn = {
 	tags: string[];
 };
 
+/**
+ * Hook for the image view screen: loads the image, subscribes to updates,
+ * and exposes handlers for edit/delete flows.
+ *
+ * @returns image view state and handlers
+ */
 export default function useImageView(): UseImageViewReturn {
 	const { lang } = useLocale();
 	const { image_slug } = useParams<{ image_slug: string }>();
@@ -83,6 +92,11 @@ export default function useImageView(): UseImageViewReturn {
 			? undefined
 			: buildPublicWebUrl(`/${imageViewPath}/${image.image_slug}`, lang);
 
+	/**
+	 * Navigate to the edit page for the current image when present.
+	 *
+	 * @returns void
+	 */
 	function handleEditClick(): void {
 		if (image !== undefined) {
 			void navigate(
@@ -90,15 +104,27 @@ export default function useImageView(): UseImageViewReturn {
 			);
 		}
 	}
-
+	/**
+	 * Enter confirming delete state.
+	 *
+	 * @returns void
+	 */
 	function handleDeleteClick(): void {
 		setIsConfirmingDelete(true);
 	}
-
+	/**
+	 * Exit confirming delete state.
+	 *
+	 * @returns void
+	 */
 	function handleDeleteCancel(): void {
 		setIsConfirmingDelete(false);
 	}
-
+	/**
+	 * Confirm deletion of the current image and navigate away on success.
+	 *
+	 * @returns void
+	 */
 	function handleDeleteConfirm(): void {
 		if (image === undefined) {
 			return;

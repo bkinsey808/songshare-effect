@@ -53,6 +53,12 @@ export default function useColumnResize({
 
 	const cleanup = useRef<() => void>(() => void ZERO);
 
+	/**
+	 * Mouse move handler used during column resize to update the active column width.
+	 *
+	 * @param event - Native mouse event from the document
+	 * @returns void
+	 */
 	function handleMouseMove(event: MouseEvent): void {
 		if (resizingField.current === undefined) {
 			return;
@@ -70,12 +76,25 @@ export default function useColumnResize({
 		});
 	}
 
+
+	/**
+	 * Mouse up handler to finish a column resize operation and clean up listeners.
+	 *
+	 * @returns void
+	 */
 	function handleMouseUp(): void {
 		setIsResizing(false);
 		resizingField.current = undefined;
 		cleanup.current();
 	}
 
+	/**
+	 * Begin resizing the given column field from the provided client X coordinate.
+	 *
+	 * @param field - Field key for the column being resized
+	 * @param clientX - Initial clientX where the resize started
+	 * @returns void
+	 */
 	function startResize(field: string, clientX: number): void {
 		setIsResizing(true);
 		resizingField.current = field;
@@ -93,6 +112,12 @@ export default function useColumnResize({
 		};
 	}
 
+	/**
+	 * Get the current width for a named column field, falling back to the default.
+	 *
+	 * @param field - Field key for which to retrieve the width
+	 * @returns Column width in pixels
+	 */
 	function getColumnWidth(field: string): number {
 		const fieldWidth = columnWidths.get(field);
 		return fieldWidth ?? DEFAULT_FIELD_WIDTH;

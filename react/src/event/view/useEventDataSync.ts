@@ -38,6 +38,12 @@ export default function useEventDataSync({
 
 		const slug = eventSlug;
 
+		/**
+		 * Load the event via the provided fetch action and ignore errors
+		 * since store state surfaces them to the UI.
+		 *
+		 * @returns void
+		 */
 		async function loadEvent(): Promise<void> {
 			try {
 				await EffectRuntime.runPromise(fetchEventBySlug(slug));

@@ -44,6 +44,14 @@ export default function useImagePickerPopover({
 	const pickerRef = useRef<HTMLDivElement | null>(null);
 	const [pickerPosition, setPickerPosition] = useState<PickerPosition | undefined>(undefined);
 
+	/**
+	 * Compute and set the floating picker's portal position relative to the trigger.
+	 *
+	 * Determines whether the picker opens above or below the trigger and computes
+	 * dimensions constrained to the viewport.
+	 *
+	 * @returns void
+	 */
 	function updatePickerPosition(): void {
 		const triggerElement = triggerRef.current;
 		if (!triggerElement) {
@@ -124,6 +132,11 @@ export default function useImagePickerPopover({
 			updatePickerPosition();
 		});
 
+		/**
+		 * Keep the picker aligned to the trigger when the viewport changes.
+		 *
+		 * @returns void
+		 */
 		function handleViewportChange(): void {
 			updatePickerPosition();
 		}
@@ -144,6 +157,12 @@ export default function useImagePickerPopover({
 			return;
 		}
 
+		/**
+		 * Close the picker when the user clicks outside the trigger and picker.
+		 *
+		 * @param event - Native mouse event from the document.
+		 * @returns void
+		 */
 		function handlePointerDown(event: MouseEvent): void {
 			const { target } = event;
 			if (!(target instanceof Node)) {

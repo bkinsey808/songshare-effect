@@ -17,6 +17,12 @@ const EMPTY_COUNT = 0;
 
 const EMPTY_NOTE_SEARCH = new Map<number, NoteSearchToggleState>();
 
+/**
+ * Lookup a chord shape by code and throw when missing (test helper).
+ *
+ * @param code - Shape code to resolve.
+ * @returns The resolved `ChordShape`.
+ */
 function requireShape(code: string): ChordShape {
 	const shape = getChordShapeByCode(code);
 	if (shape === undefined) {

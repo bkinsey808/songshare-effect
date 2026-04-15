@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import type { useLocation } from "react-router-dom";
 
 import type { SongFormValues } from "../song-form-types";
+import createEmptySongFormValues from "./createEmptySongFormValues";
 
 type UseFetchSongDataParams = {
 	readonly songId: string | undefined;
@@ -20,6 +21,15 @@ type UseFetchSongDataParams = {
  * Hook that fetches song data when editing.
  * Handles resetting form state when not editing and triggering data fetch when editing.
  *
+ * @param songId - Optional song id being edited
+ * @param location - Router location object used to detect navigation changes
+ * @param addActivePrivateSongIds - Effect to fetch/refresh private song data
+ * @param addActivePublicSongIds - Effect to fetch/refresh public song data
+ * @param setIsFetching - Setter to track fetching state
+ * @param hasPopulatedRef - Ref used to avoid re-fetch/populate loops
+ * @param setIsLoadingData - Setter to toggle loading spinner state
+ * @param setFormValuesState - Setter for controlled form values state
+ * @param clearInitialState - Callback to clear the initial state snapshot
  * @returns void
  */
 export default function useFetchSongData({
@@ -40,16 +50,7 @@ export default function useFetchSongData({
 			setIsFetching(false);
 			setIsLoadingData(false);
 			// Reset form values when not editing
-			const emptyFormValues: SongFormValues = {
-				song_name: "",
-				song_slug: "",
-				key: "",
-				short_credit: "",
-				long_credit: "",
-				public_notes: "",
-				private_notes: "",
-			};
-			setFormValuesState(emptyFormValues);
+			setFormValuesState(createEmptySongFormValues());
 			// Reset initial state for new song
 			clearInitialState();
 			return;
@@ -61,15 +62,7 @@ export default function useFetchSongData({
 		clearInitialState();
 
 		// Clear form values to prevent flash of stale data
-		setFormValuesState({
-			song_name: "",
-			song_slug: "",
-			key: "",
-			short_credit: "",
-			long_credit: "",
-			public_notes: "",
-			private_notes: "",
-		});
+		setFormValuesState(createEmptySongFormValues());
 
 		setIsLoadingData(true); // Show loading spinner while fetching fresh data
 

@@ -9,6 +9,16 @@ export type ParticipantRowProps = {
 	readonly onKick: (userId: string) => void;
 };
 
+/**
+ * Row component that displays a participant and optional kick action.
+ *
+ * @param participant - participant record to render
+ * @param ownerId - id of the event owner
+ * @param ownerUsername - optional display name of the owner
+ * @param loadingKey - optional loading key used for button state
+ * @param onKick - callback invoked with a user id to kick
+ * @returns JSX markup for the participant row
+ */
 export default function ParticipantRow({
 	participant,
 	ownerId,
@@ -23,6 +33,12 @@ export default function ParticipantRow({
 		(participant.user_id === ownerId ? ownerUsername : undefined) ??
 		participant.user_id;
 
+	/**
+	 * Handler for the Kick button click. Validates permission before invoking
+	 * the provided `onKick` callback.
+	 *
+	 * @returns void
+	 */
 	function handleKickClick(): void {
 		if (!canKickParticipant) {
 			return;

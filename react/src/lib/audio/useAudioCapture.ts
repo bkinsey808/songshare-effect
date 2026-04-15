@@ -4,10 +4,10 @@ import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import type {
-	MinimalAnalyserNode,
-	MinimalMediaStream,
-	MinimalMediaStreamAudioSourceNode,
-	Status,
+    MinimalAnalyserNode,
+    MinimalMediaStream,
+    MinimalMediaStreamAudioSourceNode,
+    Status,
 } from "./audio-types";
 import closeAudioContextSafely from "./closeAudioContextSafely";
 import createTimeDomainAnalyser from "./createTimeDomainAnalyser";
@@ -18,7 +18,12 @@ import stopMediaStreamTracks from "./stream/stopMediaStreamTracks";
 const FFT_SIZE = 2048;
 const SMOOTHING_TIME_CONSTANT = 0.85;
 
-/** Wait for a specified number of milliseconds. */
+/**
+ * Wait for a specified number of milliseconds.
+ *
+ * @param ms - Milliseconds to wait
+ * @returns Promise that resolves after the delay
+ */
 function delay(ms: number): Promise<void> {
 	// oxlint-disable-next-line promise/avoid-new
 	return new Promise((resolve) => {

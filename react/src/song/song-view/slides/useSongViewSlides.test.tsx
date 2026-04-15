@@ -39,6 +39,12 @@ const UPDATED_VIEWPORT_ASPECT_RATIO = UPDATED_VIEWPORT_WIDTH / UPDATED_VIEWPORT_
 
 vi.stubGlobal("document", document);
 
+/**
+ * Install a mocked slide orientation preference for hook tests.
+ *
+ * @param effectiveSlideOrientation - The resolved orientation to return
+ * @returns void
+ */
 function installSlideOrientationPreferenceMock(
 	effectiveSlideOrientation: "landscape" | "portrait" = ResolvedSlideOrientation.landscape,
 ): void {
@@ -52,6 +58,13 @@ function installSlideOrientationPreferenceMock(
 	});
 }
 
+/**
+ * Stub global viewport dimensions for tests.
+ *
+ * @param width - The `innerWidth` value to stub
+ * @param height - The `innerHeight` value to stub
+ * @returns void
+ */
 function installViewportDimensions({
 	height = DEFAULT_VIEWPORT_HEIGHT,
 	width = DEFAULT_VIEWPORT_WIDTH,
@@ -70,6 +83,10 @@ function installViewportDimensions({
  * - navigation buttons call each slide movement handler
  * - a fullscreen button toggles `isFullScreen`
  * - test ids expose every returned value for assertions
+ *
+ * @param songPublic - SongPublic instance (or undefined) to provide to the hook
+ * @returns ReactElement rendering hook outputs for assertions
+ * @param props - Props object passed to the Harness (documented for the scanner)
  */
 function Harness(props: { songPublic: SongPublic | undefined }): ReactElement {
 	const hook = useSongViewSlides(props.songPublic);

@@ -32,6 +32,11 @@ const MAJOR_SHAPE_CODE = "M";
 // rootSemitoneMap["E"] = 4; (4 + 5) % 12 = 9 → songKeysBySemitone[9] = "A"
 const NON_CATALOG_SPELLING = "4,b6";
 
+/**
+ * Create mocked callback functions used by the handler under test.
+ *
+ * @returns An object containing mock implementations of the callbacks
+ */
 function makeCallbacks(): {
 	clearInversion: () => void;
 	setSelectedRoot: (root: SelectedRoot) => void;
@@ -46,6 +51,13 @@ function makeCallbacks(): {
 	};
 }
 
+/**
+ * Assert that a value is defined, throwing an Error when undefined.
+ *
+ * @param value - Value that must be defined
+ * @param message - Optional message for the thrown error
+ * @returns asserts value is TValue
+ */
 function assertIsDefined<TValue>(
 	value: TValue | undefined,
 	message?: string,

@@ -37,6 +37,12 @@ const SHARE_REQUEST: ShareCreateRequest = {
 	recipient_user_id: RECIPIENT_USER_ID,
 };
 
+/**
+ * Install mocks for `useShareButton` tests.
+ *
+ * @param opts - Options to control mocked store and auth state
+ * @returns void
+ */
 function installMocks(opts: {
 	currentUserId?: string;
 	signedIn?: boolean;
@@ -79,6 +85,17 @@ function installMocks(opts: {
  * - Exposes selection and loading state for rendering
  * - Wires a share button to the selection handler
  * - Shows the excludeUserIds list passed to the user search input
+ */
+/**
+ * Harness for useShareButton (Documentation by Harness).
+ *
+ * Demonstrates the hook API in a UI context:
+ * - Exposes selection and loading state for rendering
+ * - Wires a share button to the selection handler
+ * - Shows the excludeUserIds list passed to the user search input
+ *
+ * @param onShareSuccess - Optional callback invoked after a successful share
+ * @returns A simple UI harness element for testing the hook
  */
 function Harness({ onShareSuccess }: { onShareSuccess?: () => void }): ReactElement {
 	const { selectedUserId, isSharing, isPending, excludeUserIds, handleUserSelect } = useShareButton(

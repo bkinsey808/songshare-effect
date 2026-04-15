@@ -5,6 +5,7 @@ import { ONE, ZERO } from "@/shared/constants/shared-constants";
  *
  * Treats NaN as 0.
  *
+ * @param value - Numeric value to clamp
  * @returns The clamped value in [0, 1]
  */
 export default function clamp01(value: number): number {

@@ -21,6 +21,12 @@ export default function makeSongTestSlice(initialState?: Partial<SongSubscribeSl
 	const getBase = makeSongSubscribeSlice();
 	let state: SongSubscribeSlice = { ...getBase(), ...initialState };
 
+	/**
+	 * Update the internal test slice state.
+	 *
+	 * @param partial - Partial state or updater function to merge into the slice
+	 * @returns void
+	 */
 	function set(
 		partial:
 			| Partial<SongSubscribeSlice>
@@ -36,6 +42,11 @@ export default function makeSongTestSlice(initialState?: Partial<SongSubscribeSl
 		}
 	}
 
+	/**
+	 * Retrieve the current mutable slice state for assertions inside tests.
+	 *
+	 * @returns The current `SongSubscribeSlice` state
+	 */
 	function get(): SongSubscribeSlice {
 		return state;
 	}

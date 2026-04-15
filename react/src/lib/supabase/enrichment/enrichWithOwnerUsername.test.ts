@@ -10,20 +10,44 @@ vi.mock("./fetchUsername");
 const mockedFetch = vi.mocked(fetchUsername);
 
 // Helper implementations for supabase-like query chain used by tests
+/**
+ * Simulate a `.single()` call returning an empty Postgrest-like response.
+ *
+ * @returns A promise resolving to a minimal `{ data, error }` shape
+ */
 function singleFn(): Promise<unknown> {
 	return Promise.resolve({ data: undefined, error: undefined });
 }
 
+/**
+ * Simulate a query `.eq()` step returning an object with `.single()`.
+ *
+ * @param _col - Column name used in the equality comparison (unused in stub)
+ * @param _val - Value compared against (unused in stub)
+ * @returns An object exposing a `.single()` method
+ */
 function eqFn(_col: string, _val: string): { single: () => Promise<unknown> } {
 	return { single: singleFn };
 }
 
+/**
+ * Simulate a query `.select()` step returning an object with `.eq()`.
+ *
+ * @param _column - Column selector passed to `.select()` (unused in stub)
+ * @returns An object exposing an `.eq()` method
+ */
 function selectFn(_column: string): {
 	eq: (col: string, val: string) => { single: () => Promise<unknown> };
 } {
 	return { eq: eqFn };
 }
 
+/**
+ * Simulate the `.from()` call returning an object with `.select()`.
+ *
+ * @param _tableName - Table name passed to `.from()` (unused in stub)
+ * @returns An object exposing a `.select()` method
+ */
 function fromFn(_tableName: string): {
 	select: (column: string) => {
 		eq: (col: string, val: string) => { single: () => Promise<unknown> };
@@ -32,6 +56,11 @@ function fromFn(_tableName: string): {
 	return { select: selectFn };
 }
 
+/**
+ * Create a minimal supabase-like client stub used by the tests.
+ *
+ * @returns A `SupabaseClientLike` with just the members needed by the helpers.
+ */
 function createClient(): SupabaseClientLike {
 	// Minimal supabase client stub implementing the query chain used by code under test.
 	// Returning a small, well-typed object avoids unsafe casts.

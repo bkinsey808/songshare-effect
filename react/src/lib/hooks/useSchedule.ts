@@ -17,7 +17,19 @@ export default function useSchedule(): (fn: () => void) => void {
 		};
 	}, []);
 
+	/**
+	 * Schedule a callback to run on the microtask queue, but drop it if the
+	 * component has unmounted before it runs.
+	 *
+	 * @param fn - Callback to schedule
+	 * @returns void
+	 */
 	function schedule(fn: () => void): void {
+		/**
+		 * Wrapped callback that checks mounted state before invoking the user callback.
+		 *
+		 * @returns void
+		 */
 		function wrapper(): void {
 			if (!mounted.current) {
 				return;

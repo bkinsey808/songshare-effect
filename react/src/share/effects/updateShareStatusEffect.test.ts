@@ -26,6 +26,12 @@ describe("updateShareStatusEffect", () => {
 	const setLoadingShareId = vi.fn();
 	const updateShareStatusOptimistically = vi.fn();
 
+	/**
+	 * Build a `get` helper returning a ShareSlice for tests.
+	 *
+	 * @param receivedShares - Optional map of received shares to expose.
+	 * @returns A `get` function returning the mocked slice.
+	 */
 	function makeGet(receivedShares: Record<string, { status: string }> = {}): Get<ShareSlice> {
 		return () =>
 			forceCast<ShareSlice>({

@@ -16,6 +16,11 @@ type SharedUsersSectionProps = {
 /**
  * Shows a list of users this item has been shared with and their response status.
  * Only shows for the owner/sender of the shares.
+ *
+ * @param itemType - The type of the shared item (e.g. "song", "playlist").
+ * @param itemId - The id of the shared item.
+ * @param itemName - The human readable name of the item.
+ * @returns ReactElement rendering the shared-users list or null when not applicable.
  */
 export default function SharedUsersSection({
 	itemType,

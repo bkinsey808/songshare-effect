@@ -14,6 +14,11 @@ type ComputeEventPermissionsReturn = {
 
 /**
  * Compute permissions for the current user in the context of an event.
+ *
+ * @param currentUserId - The id of the current user (or undefined)
+ * @param ownerId - The id of the event owner (or undefined)
+ * @param participants - The event participants array
+ * @returns Object describing owner/admin/manage permissions
  */
 export default function computeEventPermissions({
 	currentUserId,

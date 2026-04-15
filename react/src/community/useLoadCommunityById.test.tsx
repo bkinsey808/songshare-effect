@@ -12,6 +12,12 @@ vi.mock("@/react/app-store/useAppStore");
 
 const COMMUNITY_ID = "comm-123";
 
+/**
+ * Install a mocked app store for `useLoadCommunityById` tests.
+ *
+ * @param opts - Options to configure the mocked store selectors and effects.
+ * @returns void
+ */
 function installStore(opts: {
 	currentCommunity?: CommunityEntry | null | undefined;
 	fetchCommunityById: (id: string) => Effect.Effect<unknown, Error>;

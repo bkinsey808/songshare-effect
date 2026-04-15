@@ -13,6 +13,9 @@ const CHORD_TOKEN = "Am";
  * - An "open" button that opens the chord picker with a given submitChord callback
  * - A "close" button that dismisses the picker without submitting
  * - An "insert" button that submits CHORD_TOKEN and closes the picker
+ *
+ * @param submitChord - Callback invoked when a chord is submitted
+ * @returns A small DOM fragment used by harness tests
  */
 function Harness({ submitChord }: { submitChord: (token: string) => void }): ReactElement {
 	const { pendingChordPickerRequest, openChordPicker, closeChordPicker, insertChordFromPicker } =

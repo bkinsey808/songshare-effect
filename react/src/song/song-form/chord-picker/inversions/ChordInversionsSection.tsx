@@ -7,8 +7,8 @@ import {
 	type ChordDisplayCategoryType,
 } from "@/shared/user/chord-display/chordDisplayCategory";
 
-import preferSharpIntervals from "@/react/music/intervals/preferSharpIntervals";
 import formatAccidentals from "@/react/music/intervals/formatAccidentals";
+import preferSharpIntervals from "@/react/music/intervals/preferSharpIntervals";
 import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
 
 const EMPTY_INVERSIONS_COUNT = 0;
@@ -38,6 +38,12 @@ type SciInversionsSectionProps = Readonly<{
  *
  * @param inversions - Computed inversions for the active chord
  * @param originalShapeName - Name of the original chord shape shown in each card
+ * @param chordDisplayCategory - Category used to determine label rendering (scaleDegree vs letter)
+ * @param songKey - Song key used for roman-degree rendering (may be empty string)
+ * @param selectedBassNote - Currently active bass note when an inversion is selected
+ * @param inversionPreviewTokens - Map of bass-root -> preview token used when matched
+ * @param slashPreviewTokens - Map of bass-root -> slash-form preview token
+ * @param onSelectInversion - Callback invoked when an inversion card is toggled/selected
  * @returns Inversions section with one card per inversion, or undefined when there are none
  */
 export default function SciInversionsSection({
@@ -54,6 +60,12 @@ export default function SciInversionsSection({
 	const useScaleDegrees =
 		chordDisplayCategory === ChordDisplayCategory.scaleDegree && isSongKey(songKey);
 
+	/**
+	 * Format a root display value either as a letter or a roman degree based on settings.
+	 *
+	 * @param key - The `SongKey` to render
+	 * @returns The label to display for the provided root
+	 */
 	function displayRoot(key: SongKey): string {
 		if (!useScaleDegrees) {
 			return key;

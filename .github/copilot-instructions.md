@@ -19,6 +19,15 @@ repository.
 - Keep this file short; add reusable guidance to `skills/`, `agents/`, or
   `docs/ai/rules.md` instead.
 
+**Project-specific typing note:** This repository exposes `ReactElement` as an
+ambient/ambient-global type (no explicit `import type { ReactElement } from
+"react"` is required). Do not add an import for `ReactElement`; prefer using the ambient type.
+
+**Comments / JSDoc edits:** The Code Comment Agent may add or update comments and
+JSDoc in `.ts` and `.tsx` files (comment-only edits are allowed). Do not modify
+function bodies, implementations, or other runtime logic unless explicitly
+requested by a human reviewer.
+
 ## Agent Behavior
 
 - Never ask the user whether to commit code changes or open a pull request. Do not prompt with messages like "Would you like me to commit these tests and open a PR?" or any variant. Only mention commits or PRs when the user explicitly requests creation or review of a PR; otherwise omit commit/PR prompts entirely.

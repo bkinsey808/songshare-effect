@@ -25,6 +25,11 @@ describe("subscribeToImageLibraryEffect", () => {
 
 		const addImageLibraryEntry = vi.fn();
 		const removeImageLibraryEntry = vi.fn();
+		/**
+		 * Return a minimal `ImageLibrarySlice` used when subscription succeeds.
+		 *
+		 * @returns A mocked slice with add/remove handlers.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				addImageLibraryEntry,
@@ -50,6 +55,11 @@ describe("subscribeToImageLibraryEffect", () => {
 		vi.mocked(getSupabaseAuthToken).mockResolvedValue(TOKEN);
 		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
 
+		/**
+		 * Return a minimal `ImageLibrarySlice` used when no Supabase client is present.
+		 *
+		 * @returns A mocked slice with no-op handlers.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				addImageLibraryEntry: vi.fn(),
@@ -68,6 +78,11 @@ describe("subscribeToImageLibraryEffect", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(FAKE_CLIENT);
 		vi.mocked(createRealtimeSubscription).mockReturnValue(forceCast<() => void>(undefined));
 
+		/**
+		 * Return a minimal `ImageLibrarySlice` for the createRealtimeSubscription undefined case.
+		 *
+		 * @returns A mocked slice with add/remove handlers.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				addImageLibraryEntry: vi.fn(),

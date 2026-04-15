@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 
+import toUnicodeAccidentals from "@/react/music/intervals/toUnicodeAccidentals";
 import type { NoteSearchEntry } from "@/react/music/note-picker/NoteSearchEntry.type";
 import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
-import toUnicodeAccidentals from "@/react/music/intervals/toUnicodeAccidentals";
 
 type SpellingSearchProps = Readonly<{
 	entries: readonly NoteSearchEntry[];
@@ -18,6 +18,13 @@ const REQUIRED_BUTTON_CLASSES = "border-blue-400 bg-blue-900/30 text-blue-200 ho
 const EXCLUDED_BUTTON_CLASSES = "border-red-500 bg-red-900/30 text-red-300 hover:bg-red-900/50";
 const ROOT_BUTTON_CLASSES = "cursor-default border-blue-500 bg-blue-800/50 text-blue-200";
 
+/**
+ * Compute the button classes for a spelling-search toggle button.
+ *
+ * @param isRoot - Whether the button represents the root semitone
+ * @param toggleState - Current toggle state for the semitone
+ * @returns Tailwind CSS class string for the button
+ */
 function getSpellingSearchButtonClasses(
 	isRoot: boolean,
 	toggleState: NoteSearchToggleState,
@@ -39,6 +46,10 @@ function getSpellingSearchButtonClasses(
  *
  * Each button can be neutral, required, or excluded, and optionally shows the absolute
  * note label for the current root when one is available.
+ *
+ * @param entries - The note entries to render as toggle buttons
+ * @param onToggle - Callback invoked with the semitone offset when a button is toggled
+ * @returns A React element containing the spelling-search UI
  */
 export default function SpellingSearch({
 	entries,

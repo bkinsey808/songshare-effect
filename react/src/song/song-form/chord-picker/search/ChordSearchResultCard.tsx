@@ -23,6 +23,10 @@ type ChordSearchResultCardProps = Readonly<{
  * @param shape - Chord shape to present in the search results
  * @param isSelected - Whether this shape is currently selected
  * @param onSelect - Called when the user picks the shape
+ * @param selectedRoot - Current root used to compute preview tokens
+ * @param chordDisplayMode - Display mode used for preview token rendering
+ * @param songKey - Current song key used for preview/token formatting
+ * @param inversionInfo - Optional inversion ordinal/label data to show on the card
  * @returns Search result card button
  */
 export default function ChordSearchResultCard({

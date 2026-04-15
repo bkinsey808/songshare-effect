@@ -23,6 +23,12 @@ function isPlaylistLibraryEntry(value: unknown): value is PlaylistLibrary {
 	return typeof value["user_id"] === "string" && typeof value["playlist_id"] === "string";
 }
 
+/**
+ * Extract the owner `user_id` from a Supabase `select(...).then()` result.
+ *
+ * @param result - The supabase select result object
+ * @returns The extracted `user_id` if present, otherwise `undefined`
+ */
 function extractOwnerIdFromResult(result: unknown): string | undefined {
 	if (!isRecord(result) || !Array.isArray(result["data"])) {
 		return undefined;

@@ -11,6 +11,12 @@ const B_SEMITONE = 11;
 /** Spelling for a major triad (root + major third + perfect fifth). */
 const MAJOR_SPELLING = "3,5";
 
+/**
+ * Build a readonly note-search map for tests.
+ *
+ * @param entries - Tuples of semitone index and toggle state.
+ * @returns A `ReadonlyMap` for `noteSearchState` in tests.
+ */
 function state(
 	entries: [number, NoteSearchToggleState][],
 ): ReadonlyMap<number, NoteSearchToggleState> {

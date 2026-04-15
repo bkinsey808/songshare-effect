@@ -38,6 +38,7 @@ const FIRST_INDEX = 0;
  * Builds a SharedItem fixture for tests.
  *
  * @param overrides - Partial fields to override defaults
+ * @returns A `SharedItem` test fixture.
  */
 function makeSharedItem(overrides: Partial<SharedItem> = {}): SharedItem {
 	return {
@@ -76,6 +77,12 @@ function makeMockStore(initialState: Partial<ShareState> = {}): {
 		loadingShareId: initialState.loadingShareId,
 	};
 
+	/**
+	 * Mock `set` implementation used by the test store to apply partials or updaters.
+	 *
+	 * @param patchOrUpdater - Partial state or updater function applied to the mock store.
+	 * @returns void
+	 */
 	function setState(
 		patchOrUpdater:
 			| Partial<ShareState>
@@ -95,6 +102,11 @@ function makeMockStore(initialState: Partial<ShareState> = {}): {
 	const sliceHolder: { current: ShareSlice } = {
 		current: forceCast<ShareSlice>(undefined),
 	};
+	/**
+	 * Mock `get` function that returns the composed current slice state.
+	 *
+	 * @returns The current `ShareSlice` state used in tests.
+	 */
 	function get(): ShareSlice {
 		return { ...sliceHolder.current, ...state };
 	}
@@ -117,7 +129,11 @@ function makeMockStore(initialState: Partial<ShareState> = {}): {
 	return { state, set: setState, get, api, slice: sliceHolder.current };
 }
 
-/** Configures vi.mocked return values for share effects and subscription modules. */
+/**
+ * Configures vi.mocked return values for share effects and subscription modules.
+ *
+ * @returns void
+ */
 function installMocks(): void {
 	vi.mocked(createShareEffect).mockReturnValue(Effect.succeed({ shareId: "share-1" }));
 	vi.mocked(fetchSharesEffect).mockReturnValue(Effect.succeed(undefined));

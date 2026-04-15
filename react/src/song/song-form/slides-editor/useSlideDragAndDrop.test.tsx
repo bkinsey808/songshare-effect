@@ -15,6 +15,11 @@ describe("useSlideDragAndDrop — Harness", () => {
 		cleanup();
 		const setSlideOrder = vi.fn();
 
+		/**
+		 * Test harness component exposing hook output for DOM assertions.
+		 *
+		 * @returns A small DOM fragment used by the test
+		 */
 		function Harness(): ReactElement {
 			const { sensors, handleDragEnd, sortableItems } = useSlideDragAndDrop({
 				slideOrder: SLIDE_ORDER,

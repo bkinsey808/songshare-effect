@@ -22,16 +22,40 @@ const RAF_MS = 16;
 const DURATION = 1000;
 const DOUBLE_DURATION = DURATION + DURATION;
 
+/**
+ * Assert that the supplied node is a HTMLCanvasElement for test narrowing.
+ *
+ * @param node - Value under test
+ * @returns void
+ */
 function assertIsCanvas(node: unknown): asserts node is HTMLCanvasElement {
 	expect(node).toBeInstanceOf(HTMLCanvasElement);
 }
+/**
+ * Assert the runtime value matches the CanvasAnimationApi test shape.
+ *
+ * @param node - Value under test
+ * @returns void
+ */
 function assertIsApi(node: unknown): asserts node is CanvasAnimationApi {
 	expect(node).toBeDefined();
 }
+/**
+ * Assert that the given value conforms to `DrawTiming` in tests.
+ *
+ * @param node - Value under test
+ * @returns void
+ */
 function assertIsDrawTiming(node: unknown): asserts node is DrawTiming {
 	expect(node).toBeDefined();
 }
 
+/**
+ * Test harness component that mounts a canvas and exposes the hook API to the test.
+ *
+ * @param onApi - Callback invoked with the hook API
+ * @returns Mounted canvas element
+ */
 function TestHarness({ onApi }: { onApi: (api: CanvasAnimationApi) => void }): ReactElement {
 	// The hook is a local runtime value inside the test harness. Narrow it
 	// into the explicit test API using a runtime assertion helper to avoid
@@ -50,6 +74,11 @@ function TestHarness({ onApi }: { onApi: (api: CanvasAnimationApi) => void }): R
 }
 
 describe("useCanvasAnimation (integration)", () => {
+	/**
+	 * Install fake timers and stub RAF/cancelRAF for deterministic tests.
+	 *
+	 * @returns void
+	 */
 	function setupFakeRaf(): void {
 		vi.useFakeTimers();
 		// Use a simple stub for RAF that schedules the callback on the fake timers

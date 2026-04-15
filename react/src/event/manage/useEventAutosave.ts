@@ -39,21 +39,34 @@ export type UseEventAutosaveResult = {
 
 /**
  * Encapsulates the playback autosave logic that lived in
- * `useEventManageState` prior to refactoring.  The hook is intentionally
+ * `useEventManageState` prior to refactoring. The hook is intentionally
  * independent of the global store so it can be tested in isolation.
+ *
+ * @param event_slug - slug used when refreshing the event after a save
+ * @param fetchEventBySlug - effect to fetch an event by slug
+ * @param currentEventIdRef - mutable ref containing the latest event id
+ * @param latestSlidePositionRef - ref tracking last slide position
+ * @param setActionState - updater for parent action state object
+ * @returns hooks for managing autosave selections and flush operations
  */
 export default function useEventAutosave({
-	event_slug,
-	fetchEventBySlug,
-	currentEventIdRef,
-	latestSlidePositionRef,
-	setActionState,
+    event_slug,
+    fetchEventBySlug,
+    currentEventIdRef,
+    latestSlidePositionRef,
+    setActionState,
 }: UseEventAutosaveArgs): UseEventAutosaveResult {
 	const [selectedActiveSongId, setSelectedActiveSongId] = useState<string | undefined>(undefined);
 	const [selectedActiveSlidePosition, setSelectedActiveSlidePosition] = useState<
 		number | undefined
 	>(undefined);
 
+	/**
+	 * Sends the active song save action to the backend.
+	 *
+	 * @param songId - song id to set, or undefined to clear
+	 * @returns void
+	 */
 	function sendSongSave(songId: string | undefined): void {
 		const shouldSetFirstSlide = songId !== "" && latestSlidePositionRef.current === undefined;
 		const payload: {
@@ -80,6 +93,12 @@ export default function useEventAutosave({
 		});
 	}
 
+	/**
+	 * Sends the active slide position save action to the backend.
+	 *
+	 * @param slidePosition - the 1-based slide position or undefined to clear
+	 * @returns void
+	 */
 	function sendSlideSave(slidePosition: number | undefined): void {
 		void runAction({
 			actionKey: "slide",
@@ -102,6 +121,12 @@ export default function useEventAutosave({
 		[number | undefined]
 	>(sendSlideSave, AUTOSAVE_DEBOUNCE_MS);
 
+	/**
+	 * Update local selected song state and schedule a throttled autosave.
+	 *
+	 * @param songId - the selected song id (empty string clears)
+	 * @returns void
+	 */
 	function updateActiveSong(songId: string): void {
 		const shouldSetFirstSlide = songId !== "" && selectedActiveSlidePosition === undefined;
 		if (shouldSetFirstSlide) {
@@ -116,6 +141,12 @@ export default function useEventAutosave({
 		throttledSongSave(songId === "" ? undefined : songId);
 	}
 
+	/**
+	 * Update local selected slide position state and schedule a throttled autosave.
+	 *
+	 * @param slidePosition - new slide position or undefined to clear
+	 * @returns void
+	 */
 	function updateActiveSlidePosition(slidePosition: number | undefined): void {
 		latestSlidePositionRef.current = slidePosition;
 		setSelectedActiveSlidePosition(slidePosition);

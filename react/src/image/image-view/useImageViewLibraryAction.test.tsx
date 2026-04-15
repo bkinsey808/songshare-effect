@@ -13,6 +13,18 @@ const IMAGE_ID = "img-1";
 const OWNER_ID = "owner-1";
 const OTHER_USER_ID = "user-2";
 
+/**
+ * Install a mocked `useAppStore` implementation for tests.
+ *
+ * @param opts - Options to seed the mocked store selectors and effects.
+ * @returns void
+ */
+/**
+ * Install a mocked image view library action slice for tests.
+ *
+ * @param opts - Options to seed handlers and state for the library action.
+ * @returns void
+ */
 function installStore(opts: {
 	userSessionData?: { user?: { user_id?: string } };
 	imageLibraryEntries?: Record<string, unknown>;
@@ -52,6 +64,11 @@ function installStore(opts: {
  * - Add button when not in library
  * - Remove button when in library and not owner
  * - Pending state during operations
+ *
+ * @param props - Harness props
+ * @param props.imageId - Image id passed to the hook
+ * @param props.imageOwnerId - Owner id passed to the hook
+ * @returns A small DOM tree used to exercise the hook in tests.
  */
 function Harness(props: { imageId: string; imageOwnerId: string }): ReactElement {
 	const { handleAdd, handleRemove, isPending, showAdd, showRemove } = useImageViewLibraryAction(
@@ -91,6 +108,10 @@ function Harness(props: { imageId: string; imageOwnerId: string }): ReactElement
 		</div>
 	);
 }
+
+/**
+ * @returns void
+ */
 
 describe("useImageViewLibraryAction — Harness", () => {
 	it("shows add button when logged in, not loading, and not in library", () => {

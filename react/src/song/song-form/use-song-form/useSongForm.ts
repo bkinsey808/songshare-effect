@@ -3,21 +3,14 @@ import { useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
-import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import useAppForm from "@/react/lib/form/useAppForm";
 import useFormChanges from "@/react/lib/form/useFormChanges";
-import generateSlug from "@/react/lib/slug/generateSlug";
 import { type SongPublic, songPublicSchema } from "@/react/song/song-schema";
 import useItemTags from "@/react/tag/useItemTags";
+import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
-import {
-	type FormState,
-	type Slide,
-	type SongFormValues,
-	type UseSongFormReturn,
-} from "../song-form-types";
+import { type FormState, type Slide, type UseSongFormReturn } from "../song-form-types";
 import { type SongFormValuesFromSchema as SongFormData, songFormSchema } from "../songSchema";
-import setFieldValue from "./setFieldValue";
 import createFormSubmitHandler from "./submit/createFormSubmitHandler";
 import deleteSongEffect from "./submit/deleteSongRequest";
 import useFormSubmission from "./submit/useFormSubmission";
@@ -27,6 +20,7 @@ import useFetchSongData from "./useFetchSongData";
 import useFormState from "./useFormState";
 import useInitialFormState from "./useInitialFormState";
 import usePopulateSongForm from "./usePopulateSongForm";
+import useSongFormValues from "./useSongFormValues";
 
 const NAVIGATE_BACK = -1;
 
@@ -57,30 +51,8 @@ export default function useSongForm(): UseSongFormReturn {
 	const isEditing = songId !== undefined && songId.trim() !== "";
 	const [isLoadingData, setIsLoadingData] = useState(isEditing);
 
-	// Controlled form field values
-	const [formValues, setFormValuesState] = useState<SongFormValues>({
-		song_name: "",
-		song_slug: "",
-		key: "",
-		short_credit: "",
-		long_credit: "",
-		public_notes: "",
-		private_notes: "",
-	});
-
-	// Helper to update form values
-	function setFormValue<Field extends keyof SongFormValues>(
-		field: Field,
-		value: SongFormValues[Field],
-	): void {
-		setFormValuesState((prev) => ({ ...prev, [field]: value }));
-		// React will update the DOM automatically via the value prop
-		// But we also update the DOM element for form submission compatibility
-		// (FormData reads from DOM, not React state)
-		if (formRef.current) {
-			setFieldValue(formRef.current, field, value);
-		}
-	}
+	const { formValues, setFormValuesState, setFormValue, handleSongNameBlur, resetFormValues } =
+		useSongFormValues({ formRef });
 
 	// Get store methods for fetching song data
 	const addActivePrivateSongIds: (songIds: readonly string[]) => Effect.Effect<void, Error> =
@@ -242,25 +214,32 @@ export default function useSongForm(): UseSongFormReturn {
 	});
 
 	// Update internal state when form data changes
+	/**
+	 * Replace the current slide order with `newOrder`.
+	 *
+	 * @param newOrder - New ordered array of slide ids
+	 * @returns void
+	 */
 	function updateSlideOrder(newOrder: readonly string[]): void {
 		setSlideOrder(newOrder);
 	}
 
+	/**
+	 * Replace the slides map with `newSlides`.
+	 *
+	 * @param newSlides - New slides map keyed by id
+	 * @returns void
+	 */
 	function updateSlides(newSlides: Readonly<Record<string, Slide>>): void {
 		setSlides(newSlides);
 	}
 
-	// Handle song name blur to generate slug
-	function handleSongNameBlur(): void {
-		const name = formValues.song_name.trim();
-		const currentSlug = formValues.song_slug.trim();
-		if (name !== "" && currentSlug === "") {
-			const generatedSlug = generateSlug(name);
-			setFormValue("song_slug", generatedSlug);
-		}
-	}
-
 	// Handle save button click
+	/**
+	 * Trigger form submission via the form submit handler.
+	 *
+	 * @returns void
+	 */
 	function handleSave(): void {
 		// handleFormSubmit handles null form element internally
 		// Promise is voided since we don't need to wait for completion
@@ -268,18 +247,14 @@ export default function useSongForm(): UseSongFormReturn {
 	}
 
 	// Wrapper for resetForm that also resets form values
+	/**
+	 * Reset the form state and controlled values to their defaults.
+	 *
+	 * @returns void
+	 */
 	function resetForm(): void {
 		const newFirstId = resetFormState();
-		const emptyFormValues: SongFormValues = {
-			song_name: "",
-			song_slug: "",
-			key: "",
-			short_credit: "",
-			long_credit: "",
-			public_notes: "",
-			private_notes: "",
-		};
-		setFormValuesState(emptyFormValues);
+		const emptyFormValues = resetFormValues();
 		hasPopulatedRef.current = false;
 		// Sync initial state with the new reset state so hasUnsavedChanges clears
 		setInitialFormState({
@@ -296,6 +271,11 @@ export default function useSongForm(): UseSongFormReturn {
 		});
 	}
 
+	/**
+	 * Delete the current song by id and clean up local store caches.
+	 *
+	 * @returns Promise<void>
+	 */
 	async function handleDelete(): Promise<void> {
 		const id = songId?.trim();
 		if (id === undefined || id === "") {
@@ -309,7 +289,10 @@ export default function useSongForm(): UseSongFormReturn {
 			removeSongLibraryEntry(id);
 			void navigate(NAVIGATE_BACK);
 		} catch (error) {
-			console.error("[useSongForm] Delete failed:", extractErrorMessage(error, "Failed to delete song"));
+			console.error(
+				"[useSongForm] Delete failed:",
+				extractErrorMessage(error, "Failed to delete song"),
+			);
 		}
 	}
 

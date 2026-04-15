@@ -4,6 +4,13 @@ import type { RealtimePayload } from "../subscription-types";
 import extractOldRecord from "./extractOldRecord";
 
 // helper asserts a value is neither null nor undefined so tests can narrow types
+/**
+ * Assert that a value is defined (not null/undefined) for test narrowing.
+ *
+ * @param value - Value to assert as defined
+ * @returns void
+ * @throws Error when `value` is null or undefined
+ */
 function assertDefined<Type>(value: Type): asserts value is NonNullable<Type> {
 	if (value === undefined || value === null) {
 		throw new Error("expected defined value");

@@ -6,6 +6,11 @@ import getStoredLanguage from "./getStoredLanguage";
 import { missingLanguage } from "./test-util";
 
 describe("getStoredLanguage", () => {
+	/**
+	 * Prepare global stubs and spies for `getStoredLanguage` tests.
+	 *
+	 * @returns A cleanup function that restores mocks and globals
+	 */
 	function setup(): () => void {
 		vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => missingLanguage);
 		vi.stubGlobal("document", { cookie: "" });

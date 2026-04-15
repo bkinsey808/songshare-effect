@@ -18,6 +18,13 @@ type HarnessProps = Readonly<{
 	pickerScrollHeight?: number;
 }>;
 
+/**
+ * Test harness that renders the picker trigger and an optional picker portal.
+ *
+ * @param isOpen - Whether the picker is open in the harness.
+ * @param pickerScrollHeight - Scroll height to apply to the picker element.
+ * @returns A small DOM tree used to assert positioning behavior.
+ */
 function Harness({
 	isOpen = true,
 	pickerScrollHeight = DEFAULT_PICKER_SCROLL_HEIGHT,
@@ -54,6 +61,13 @@ function Harness({
 	);
 }
 
+/**
+ * Set the test viewport `innerWidth` / `innerHeight` values.
+ *
+ * @param width - Window inner width to set.
+ * @param height - Window inner height to set.
+ * @returns void
+ */
 function setViewportSize({
 	width = DEFAULT_VIEWPORT_WIDTH,
 	height = DEFAULT_VIEWPORT_HEIGHT,
@@ -68,6 +82,12 @@ function setViewportSize({
 	});
 }
 
+/**
+ * Mock the trigger's bounding rect for predictable layout tests.
+ *
+ * @param top - Top coordinate to return from `getBoundingClientRect`.
+ * @returns void
+ */
 function mockTriggerRect(top: number): void {
 	vi.spyOn(HTMLButtonElement.prototype, "getBoundingClientRect").mockImplementation(
 		() => new DOMRect(TRIGGER_LEFT, top, TRIGGER_WIDTH, TRIGGER_HEIGHT),

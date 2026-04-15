@@ -79,6 +79,11 @@ function makeContext(
 	shareType: "sent" | "received",
 	storeState: Partial<ShareSlice> = {},
 ): ShareEventContext {
+	/**
+	 * Getter that composes the slice methods with optional store state for tests.
+	 *
+	 * @returns A `ShareSlice` instance usable by the handler under test.
+	 */
 	function get(): ShareSlice {
 		return forceCast<ShareSlice>({ ...sliceMethods, ...storeState });
 	}

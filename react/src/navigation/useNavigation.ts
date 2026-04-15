@@ -65,6 +65,9 @@ export default function useNavigation({
 	 * location. Special handling for the "home" item (empty path) treats both
 	 * the language root and the dashboard as the "home" state so the Home button
 	 * remains highlighted when signed-in users are redirected to the dashboard.
+	 *
+	 * @param itemPath - path to check for active state
+	 * @returns `true` when the item is active, otherwise `false`
 	 */
 	function isActive(itemPath: string): boolean {
 		if (itemPath === "") {
@@ -104,6 +107,8 @@ export default function useNavigation({
 	 * Toggles the actions menu. Closes the account menu if it is open so only
 	 * one panel is visible at a time. When uncontrolled, updates the persisted
 	 * store; always calls `onActionsExpandedChange` if provided.
+	 *
+	 * @returns void
 	 */
 	function toggleActions(): void {
 		const next = !isHeaderActionsExpanded;
@@ -121,6 +126,8 @@ export default function useNavigation({
 	 *
 	 * Toggles the account menu panel. Closes the actions menu if it is open so
 	 * only one panel is visible at a time.
+	 *
+	 * @returns void
 	 */
 	function toggleAccountMenu(): void {
 		const next = !isAccountMenuExpanded;

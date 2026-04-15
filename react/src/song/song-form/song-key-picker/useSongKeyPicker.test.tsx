@@ -16,6 +16,7 @@ const NON_ESCAPE_KEY = "Enter";
  * - Renders `isOpen` so tests can observe the picker state
  * - Wires buttons to `setIsOpen` for opening and closing the picker
  * - Provides an outside element to exercise click-outside behavior
+ * @returns ReactElement used by tests to exercise the hook
  */
 function Harness(): ReactElement {
 	const { isOpen, setIsOpen, containerRef } = useSongKeyPicker();

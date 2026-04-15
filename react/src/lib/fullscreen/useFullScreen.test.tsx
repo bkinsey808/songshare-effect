@@ -23,6 +23,8 @@ type FullscreenDocument = {
  * the tests can spy on them in environments (like jsdom) that don't define
  * these functions by default. Returns a cleanup function that restores the
  * original state.
+ *
+ * @returns Restore function to undo the installation
  */
 function ensureFullscreenMethods(): () => void {
 	const hadReq = "requestFullscreen" in document.documentElement;
@@ -44,6 +46,12 @@ function ensureFullscreenMethods(): () => void {
 	};
 }
 
+/**
+ * Minimal test component that exposes the `useFullScreen` hook actions and state
+ * to the test harness.
+ *
+ * @returns ReactElement used in tests
+ */
 function TestComponent(): ReactElement {
 	const { isFullScreen, toggleFullScreen, enterFullScreen, exitFullScreen } = useFullScreen();
 
@@ -78,6 +86,9 @@ function TestComponent(): ReactElement {
 /**
  * Helper to define `fullscreenElement` on `document` since it's read-only.
  * Returns a restore function.
+ *
+ * @param el - Element or null to set as the `fullscreenElement`
+ * @returns A restore function that returns the descriptor to its original value
  */
 function overrideFullscreenElement(el: Element | null): () => void {
 	const original = Object.getOwnPropertyDescriptor(document, "fullscreenElement");

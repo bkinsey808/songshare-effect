@@ -103,7 +103,11 @@ export default function useSmoothedAudioLevel(
 	// Holds the UI timer id (if any). Cleared on stop/reset/unmount.
 	const uiTimerIdRef = useRef<ReturnType<typeof globalThis.setInterval> | undefined>(undefined);
 
-	/** Stop the UI timer if running. */
+	/**
+	 * Stop the UI timer if running.
+	 *
+	 * @returns void
+	 */
 	function stopUiTimer(): void {
 		const timerId = uiTimerIdRef.current;
 		if (timerId === undefined) {
@@ -113,7 +117,11 @@ export default function useSmoothedAudioLevel(
 		clearInterval(timerId);
 	}
 
-	/** Start the UI timer that periodically updates `levelUiValue`. */
+	/**
+	 * Start the UI timer that periodically updates `levelUiValue`.
+	 *
+	 * @returns void
+	 */
 	function startUiTimer(): void {
 		stopUiTimer();
 		const timerId = globalThis.setInterval(() => {
@@ -199,12 +207,20 @@ export default function useSmoothedAudioLevel(
 		};
 	}
 
-	/** Peek at the last smoothed level without sampling. */
+	/**
+	 * Peek at the last smoothed level without sampling.
+	 *
+	 * @returns The last smoothed level value
+	 */
 	function peekSmoothedLevel(): number {
 		return levelRef.current;
 	}
 
-	/** Reset internal state and stop the UI timer. */
+	/**
+	 * Reset internal state and stop the UI timer.
+	 *
+	 * @returns void
+	 */
 	function reset(): void {
 		// Stop UI updates and clear internal state. Note: this does *not*
 		// stop or close the analyser nor zero the caller-owned buffer — the

@@ -63,6 +63,7 @@ function installStore(): { fetchUserLibrary: typeof mockFetchUserLibrary } {
  * Minimal test harness that renders `useEventParticipantManagement` and
  * exposes its outputs and handlers in a tiny DOM surface used by tests.
  *
+ * @param props - props passed to the harness component
  * @param currentEventId - optional current event id passed to the hook
  * @param event_slug - optional event slug passed to the hook
  * @returns React element containing invite input and action buttons

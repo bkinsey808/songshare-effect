@@ -64,6 +64,11 @@ export default function useDateTimePickerCalendar(
 		days.push(i);
 	}
 
+	/**
+	 * Move the calendar view to the previous month, adjusting year when needed.
+	 *
+	 * @returns void
+	 */
 	function handlePreviousMonth(): void {
 		if (displayMonth === FIRST_MONTH) {
 			setDisplayYear(displayYear + YEAR_DECREMENT);
@@ -73,6 +78,11 @@ export default function useDateTimePickerCalendar(
 		}
 	}
 
+	/**
+	 * Move the calendar view to the next month, adjusting year when needed.
+	 *
+	 * @returns void
+	 */
 	function handleNextMonth(): void {
 		if (displayMonth === LAST_MONTH) {
 			setDisplayYear(displayYear + YEAR_INCREMENT);
@@ -82,6 +92,12 @@ export default function useDateTimePickerCalendar(
 		}
 	}
 
+	/**
+	 * Handle direct year input changes, validating numeric year values.
+	 *
+	 * @param event - Input change event containing the new year value
+	 * @returns void
+	 */
 	function handleYearChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		const newYear = Number(event.target.value);
 		if (!Number.isNaN(newYear) && newYear >= MIN_YEAR) {
@@ -89,6 +105,12 @@ export default function useDateTimePickerCalendar(
 		}
 	}
 
+	/**
+	 * Emit a selected date string in YYYY/MM/DD format when a day cell is chosen.
+	 *
+	 * @param day - Day of month selected
+	 * @returns void
+	 */
 	function handleSelectDate(day: number): void {
 		const paddedMonth = String(displayMonth).padStart(PAD_LENGTH, ZERO_PAD);
 		const paddedDay = String(day).padStart(PAD_LENGTH, ZERO_PAD);

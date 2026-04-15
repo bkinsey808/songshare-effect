@@ -48,6 +48,8 @@ type SongFormFieldsProps = Readonly<{
  * @param songSlugRef - Ref to the song slug input
  * @param formValues - Controlled form values
  * @param setFormValue - Setter for individual form values
+ * @param tags - Current tag values for the song
+ * @param setTags - Setter to update the tag list
  * @returns React element rendering the set of fields for the song form
  */
 export default function SongFormFields({
@@ -63,21 +65,57 @@ export default function SongFormFields({
 	const { t } = useTranslation();
 
 	// Extract onChange handlers to satisfy linter
+	/**
+	 * Handle updates to the song name input.
+	 *
+	 * @param event - Change event from the song name input
+	 * @returns void
+	 */
 	function handleSongNameChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		setFormValue("song_name", event.target.value);
 	}
+	/**
+	 * Handle updates to the song slug input.
+	 *
+	 * @param event - Change event from the song slug input
+	 * @returns void
+	 */
 	function handleSongSlugChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		setFormValue("song_slug", event.target.value);
 	}
+	/**
+	 * Handle updates to the short credit input.
+	 *
+	 * @param event - Change event from the short credit input
+	 * @returns void
+	 */
 	function handleShortCreditChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		setFormValue("short_credit", event.target.value);
 	}
+	/**
+	 * Handle updates to the long credit textarea.
+	 *
+	 * @param event - Change event from the long credit textarea
+	 * @returns void
+	 */
 	function handleLongCreditChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
 		setFormValue("long_credit", event.target.value);
 	}
+	/**
+	 * Handle updates to the public notes textarea.
+	 *
+	 * @param event - Change event from the public notes textarea
+	 * @returns void
+	 */
 	function handlePublicNotesChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
 		setFormValue("public_notes", event.target.value);
 	}
+	/**
+	 * Handle updates to the private notes textarea.
+	 *
+	 * @param event - Change event from the private notes textarea
+	 * @returns void
+	 */
 	function handlePrivateNotesChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
 		setFormValue("private_notes", event.target.value);
 	}

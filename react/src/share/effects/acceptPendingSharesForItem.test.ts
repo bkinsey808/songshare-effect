@@ -6,6 +6,12 @@ import type { SharedItem } from "@/react/share/slice/share-types";
 
 import acceptPendingSharesForItem from "./acceptPendingSharesForItem";
 
+/**
+ * Build a minimal `SharedItem` fixture for tests.
+ *
+ * @param overrides - Partial fields to customize the fixture.
+ * @returns A `SharedItem` test fixture.
+ */
 function makeSharedItem(overrides: Partial<SharedItem> = {}): SharedItem {
 	return {
 		share_id: "share-1",
@@ -26,6 +32,11 @@ const FIRST_CALL = 1;
 
 describe("acceptPendingSharesForItem", () => {
 	it("no-ops when get returns object without getReceivedSharesByStatus", async () => {
+		/**
+		 * Return a minimal slice-like object containing `updateShareStatus`.
+		 *
+		 * @returns An object with `updateShareStatus` mock.
+		 */
 		function get(): unknown {
 			return { updateShareStatus: vi.fn() };
 		}
@@ -38,6 +49,11 @@ describe("acceptPendingSharesForItem", () => {
 
 	it("no-ops when get returns object without updateShareStatus", async () => {
 		const getReceivedSharesByStatus = vi.fn(() => []);
+		/**
+		 * Return a minimal slice-like object exposing `getReceivedSharesByStatus`.
+		 *
+		 * @returns An object with `getReceivedSharesByStatus` mock.
+		 */
 		function get(): unknown {
 			return { getReceivedSharesByStatus };
 		}
@@ -56,6 +72,18 @@ describe("acceptPendingSharesForItem", () => {
 		});
 		const updateShareStatus = vi.fn(() => Effect.void);
 		const getReceivedSharesByStatus = vi.fn(() => [matchingShare] as const);
+		/**
+		 * Return a slice-like object with both `getReceivedSharesByStatus` and
+		 * `updateShareStatus` for matching-share tests.
+		 *
+		 * @returns An object with both mocks.
+		 */
+		/**
+		 * Return a slice-like object with both `getReceivedSharesByStatus` and
+		 * `updateShareStatus` for matching-share tests.
+		 *
+		 * @returns An object with both mocks.
+		 */
 		function get(): unknown {
 			return {
 				getReceivedSharesByStatus,
@@ -82,6 +110,11 @@ describe("acceptPendingSharesForItem", () => {
 		});
 		const updateShareStatus = vi.fn(() => Effect.void);
 		const getReceivedSharesByStatus = vi.fn(() => [otherShare] as const);
+		/**
+		 * Return a slice-like object used for failure path tests.
+		 *
+		 * @returns An object with both mocks.
+		 */
 		function get(): unknown {
 			return {
 				getReceivedSharesByStatus,

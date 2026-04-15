@@ -3,7 +3,10 @@ const START_OF_TEXT = 0;
 /**
  * Inserts text at the current selection within a controlled textarea value.
  *
- * @param params - Current value, insertion text, and optional selection offsets
+ * @param value - Current textarea value
+ * @param insertion - Text to insert at the selection
+ * @param selectionStart - Optional selection start index (defaults to end)
+ * @param selectionEnd - Optional selection end index (defaults to `selectionStart`)
  * @returns Updated text plus the caret position after insertion
  */
 export default function insertTextAtSelection({

@@ -5,6 +5,9 @@ import stopMediaStreamTracks from "./stopMediaStreamTracks";
 
 /**
  * Create a fake MediaStream stub for testing.
+ *
+ * @param tracks - Array of fake tracks to include on the stream
+ * @returns A `MinimalMediaStream` test stub
  */
 function makeFakeMediaStream(tracks: MinimalMediaStreamTrack[]): MinimalMediaStream {
 	return {
@@ -15,6 +18,8 @@ function makeFakeMediaStream(tracks: MinimalMediaStreamTrack[]): MinimalMediaStr
 
 /**
  * Create a fake MediaStreamTrack stub for testing.
+ *
+ * @returns A minimal track stub with `stop` mocked
  */
 function makeFakeTrack(): MinimalMediaStreamTrack {
 	return {

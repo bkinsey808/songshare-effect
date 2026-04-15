@@ -58,6 +58,12 @@ function installStore(opts: {
 		isSharesLoading,
 	});
 
+	/**
+	 * Getter implementation used to emulate `appStore` selection for tests.
+	 *
+	 * @param selector - selector function or value
+	 * @returns The selected slice of mock state
+	 */
 	function impl(selector: unknown): unknown {
 		if (typeof selector === "function") {
 			return forceCast<(state: typeof mockState) => unknown>(selector)(mockState);

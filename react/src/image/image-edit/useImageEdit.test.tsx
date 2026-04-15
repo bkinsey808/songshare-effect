@@ -39,6 +39,12 @@ function installLocale(): void {
  * @param opts - Optional store slices and mocked actions for the current test.
  * @returns Nothing.
  */
+/**
+ * Install a mocked image edit slice for `useImageEdit` tests.
+ *
+ * @param opts - Options to configure the mocked edit handlers and state.
+ * @returns void
+ */
 function installStore(opts: {
 	publicImages?: Record<string, ImagePublic>;
 	isImageLoading?: boolean;
@@ -71,6 +77,7 @@ function installStore(opts: {
  * - loading flag mirrors store loading state
  * - image name appears when route slug matches a loaded image
  * - fallback text when image is missing
+ * @returns void
  */
 function Harness(): ReactElement {
 	const { image, isImageLoading } = useImageEdit();

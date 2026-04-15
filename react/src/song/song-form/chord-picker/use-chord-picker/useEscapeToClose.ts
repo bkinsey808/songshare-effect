@@ -4,10 +4,17 @@ import { useEffect } from "react";
  * Closes the chord picker when the Escape key is pressed.
  *
  * @param closeChordPicker - Callback to close the picker overlay
+ * @returns void
  */
 export default function useEscapeToClose(closeChordPicker: () => void): void {
 	// Close the picker when Escape is pressed so keyboard users can cancel quickly.
 	useEffect(() => {
+		/**
+		 * Keydown handler that closes the picker when Escape is pressed.
+		 *
+		 * @param event - Keyboard event from the document
+		 * @returns void
+		 */
 		function handleKeyDown(event: KeyboardEvent): void {
 			if (event.key !== "Escape") {
 				return;

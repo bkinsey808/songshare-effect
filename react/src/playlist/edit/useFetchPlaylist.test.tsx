@@ -85,6 +85,11 @@ describe("useFetchPlaylist — Harness", () => {
 			}),
 		);
 
+		/**
+		 * Test harness that mounts `useFetchPlaylist` to ensure it runs without error.
+		 *
+		 * @returns A trivial DOM node used as a mounting point.
+		 */
 		function Harness(): ReactElement {
 			useFetchPlaylist("p1");
 			return <div data-testid="harness-root" />;

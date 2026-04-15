@@ -29,6 +29,12 @@ const LANDSCAPE_IMAGE_HEIGHT = "118.52%";
 const LANDSCAPE_FOCAL_POINT_X = 20;
 const LANDSCAPE_FOCAL_POINT_Y = 50;
 
+/**
+ * Install a mocked slide orientation preference for SongViewCurrentSlide tests.
+ *
+ * @param effectiveSlideOrientation - The resolved orientation to return
+ * @returns void
+ */
 function installSlideOrientationMock(
 	effectiveSlideOrientation: "landscape" | "portrait" = ResolvedSlideOrientation.landscape,
 ): void {
@@ -42,6 +48,12 @@ function installSlideOrientationMock(
 	});
 }
 
+/**
+ * Install a mocked slide-number preference for SongViewCurrentSlide tests.
+ *
+ * @param showSlideNumber - Whether slide numbers should be shown
+ * @returns void
+ */
 function installSlideNumberPreferenceMock(showSlideNumber = false): void {
 	vi.mocked(useSlideNumberPreference).mockReturnValue({
 		showSlideNumber,
@@ -49,6 +61,12 @@ function installSlideNumberPreferenceMock(showSlideNumber = false): void {
 	});
 }
 
+/**
+ * Install a mocked chord display mode preference for SongViewCurrentSlide tests.
+ *
+ * @param chordDisplayMode - The chord display mode to expose
+ * @returns void
+ */
 function installChordDisplayModeMock(
 	chordDisplayMode: "letters" | "german" | "roman" | "sargam" | "solfege" = "letters",
 ): void {
@@ -60,6 +78,13 @@ function installChordDisplayModeMock(
 	});
 }
 
+/**
+ * Install a mocked `useAppStore` selector returning image-related state.
+ *
+ * @param imageLibraryEntries - Map of image library entries to expose
+ * @param publicImages - Map of public images to expose
+ * @returns void
+ */
 function installAppStoreMock({
 	imageLibraryEntries = {},
 	publicImages = {},

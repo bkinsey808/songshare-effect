@@ -17,6 +17,11 @@ type UseSlidesGridTableHookResult = RenderHookResult<
 	undefined
 >;
 
+/**
+ * Render the `useSlidesGridTable` hook with sensible defaults for tests.
+ *
+ * @returns The hook `result`, `rerender`, `unmount`, and a `setSlideOrder` spy
+ */
 function renderSlidesGridTableHook(): {
 	result: UseSlidesGridTableHookResult["result"];
 	rerender: UseSlidesGridTableHookResult["rerender"];

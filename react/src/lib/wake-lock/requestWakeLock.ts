@@ -5,6 +5,8 @@ import { setWakeLockSentinel } from "./sentinel";
  *
  * Stores the returned WakeLockSentinel via `setWakeLockSentinel` for later release.
  * Returns `true` when the lock was successfully acquired.
+ *
+ * @returns `true` when the wake lock was acquired, otherwise `false`
  */
 export default async function requestWakeLock(): Promise<boolean> {
 	if (!("wakeLock" in navigator)) {

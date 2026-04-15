@@ -28,6 +28,10 @@ const RemoveIcon = (
  *
  * - Add: shown when the playlist is not in the user's library
  * - Remove: shown when the playlist is in the library but the user does not own it
+ *
+ * @param playlistId - Playlist id under test.
+ * @param playlistOwnerId - Owner id of the playlist used to determine ownership.
+ * @returns A React element for the library action or `undefined` when nothing should render.
  */
 export default function PlaylistViewLibraryAction({
 	playlistId,
@@ -64,6 +68,11 @@ export default function PlaylistViewLibraryAction({
 	const showRemove =
 		currentUserId !== undefined && !isPlaylistLibraryLoading && inLibrary && !isOwner;
 
+	/**
+	 * Add the current playlist to the user's playlist library.
+	 *
+	 * @returns Promise that resolves when the add completes.
+	 */
 	async function handleAdd(): Promise<void> {
 		setIsPending(true);
 		try {
@@ -78,6 +87,11 @@ export default function PlaylistViewLibraryAction({
 		setIsPending(false);
 	}
 
+	/**
+	 * Remove the current playlist from the user's playlist library.
+	 *
+	 * @returns Promise that resolves when the remove completes.
+	 */
 	async function handleRemove(): Promise<void> {
 		setIsPending(true);
 		try {

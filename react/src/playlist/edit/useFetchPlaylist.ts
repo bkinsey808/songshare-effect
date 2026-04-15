@@ -11,6 +11,7 @@ import useAppStore from "@/react/app-store/useAppStore";
  * performs the cleanup on unmount and contains a TODO to implement fetching by
  * id when an API is available.
  *
+ * @param playlistId - Optional playlist id to fetch when present.
  * @returns void
  */
 export default function useFetchPlaylist(playlistId?: string): void {

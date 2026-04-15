@@ -1,16 +1,15 @@
+import formatLetterFormPreview from "@/react/music/preview/formatLetterFormPreview";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import transformChordTextForDisplay from "@/shared/music/chord-display/transformChordTextForDisplay";
 import type { ChordShape } from "@/shared/music/chord-shapes";
 import { isSongKey, type SongKey } from "@/shared/song/songKeyOptions";
 import {
-    ChordDisplayCategory,
-    type ChordDisplayCategoryType,
+	ChordDisplayCategory,
+	type ChordDisplayCategoryType,
 } from "@/shared/user/chord-display/chordDisplayCategory";
 import { getChordDisplayModeFromPreferences } from "@/shared/user/chord-display/chordDisplayPreferences";
 import type { ChordLetterDisplayType } from "@/shared/user/chordLetterDisplay";
 import type { ChordScaleDegreeDisplayType } from "@/shared/user/chordScaleDegreeDisplay";
-
-import formatLetterFormPreview from "@/react/music/preview/formatLetterFormPreview";
-import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 type ComputeAlternatePreviewParams = Readonly<{
 	chordDisplayCategory: ChordDisplayCategoryType;
@@ -39,6 +38,7 @@ type ComputeAlternatePreviewResult = Readonly<{
  * @param canonicalToken - The canonical chord token for display transformation
  * @param selectedRoot - Currently selected chord root
  * @param selectedShape - Currently selected chord shape
+ * @param selectedBassNote - Optional bass note used for slash-chord previews
  * @param t - Translation function
  * @returns Alternate preview label and formatted token
  */

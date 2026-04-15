@@ -29,6 +29,8 @@ export function checkAppVersion(): void {
 
 /**
  * Clear all app-related cache
+ *
+ * @returns Promise<void>
  */
 export async function clearAppCache(): Promise<void> {
 	// Clear localStorage (keep auth tokens if needed)
@@ -64,6 +66,8 @@ export function hardRefresh(): void {
 
 /**
  * Check if page should be reloaded due to new version
+ *
+ * @returns Promise<boolean> - true when a new version is available
  */
 export async function checkForUpdates(): Promise<boolean> {
 	try {

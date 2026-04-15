@@ -27,6 +27,15 @@ type SentShare = {
 	recipient_user_id: string;
 };
 
+/**
+ * Hook to manage share button state and actions.
+ *
+ * @param itemType - Type of the item being shared
+ * @param itemId - Identifier of the item being shared
+ * @param itemName - Display name of the item being shared
+ * @param onShareSuccess - Optional callback invoked after a successful share
+ * @returns Hook state and handlers for use in a share button component
+ */
 export default function useShareButton({
 	itemType,
 	itemId,
@@ -55,6 +64,12 @@ export default function useShareButton({
 		.map((share: SentShare) => share.recipient_user_id);
 	const excludeUserIds = [...baseExcludeIds, ...sharedUserIds];
 
+	/**
+	 * Trigger a share request for the given user id.
+	 *
+	 * @param userId - Recipient user id to share the item with
+	 * @returns void
+	 */
 	function handleUserSelect(userId: string): void {
 		if (currentUserId === null || currentUserId === undefined) {
 			console.warn("Cannot share: user not signed in");

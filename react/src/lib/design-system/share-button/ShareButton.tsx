@@ -34,6 +34,7 @@ type ShareButtonProps = {
  * @param disabled - When true, the button is disabled
  * @param className - Optional extra class names to apply
  * @param data-testid - Optional test id attribute used in tests
+ * @param onShareSuccess - Called after a successful share. Use to refresh related data (e.g. community members).
  * @returns A styled share button React element with inline user picker
  */
 export default function ShareButton({

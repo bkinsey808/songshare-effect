@@ -7,6 +7,8 @@ import useCurrentUserId from "@/react/auth/useCurrentUserId";
 /**
  * Fetches sent shares and subscribes to real-time updates.
  * Call from a page component (e.g. SongView) before any conditional returns.
+ *
+ * @returns void
  */
 export default function useShareSubscription(): void {
 	const currentUserId = useCurrentUserId();
@@ -24,6 +26,12 @@ export default function useShareSubscription(): void {
 
 		const FETCH_TIMEOUT_MS = 10_000;
 
+		/**
+		 * Create a promise that rejects after the provided timeout.
+		 *
+		 * @param ms - Number of milliseconds to wait before rejecting.
+		 * @returns A promise that always rejects after `ms`.
+		 */
 		function createTimeoutPromise(ms: number): Promise<never> {
 			// oxlint-disable-next-line promise/avoid-new
 			return new Promise((_resolve, reject) => {
@@ -33,6 +41,11 @@ export default function useShareSubscription(): void {
 			});
 		}
 
+		/**
+		 * Kick off fetch + subscription setup for sent shares.
+		 *
+		 * @returns Promise that resolves when setup completes.
+		 */
 		async function setup(): Promise<void> {
 			try {
 				const fetchPromise = Effect.runPromise(fetchShares({ view: "sent" }));

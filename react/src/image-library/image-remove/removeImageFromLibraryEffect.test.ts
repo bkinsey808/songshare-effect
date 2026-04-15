@@ -14,6 +14,11 @@ describe("removeImageFromLibraryEffect", () => {
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({})));
 
 		const removeImageLibraryEntry = vi.fn();
+		/**
+		 * Return a minimal `ImageLibrarySlice` for successful remove tests.
+		 *
+		 * @returns A mocked slice with a remove handler.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				setImageLibraryError: vi.fn(),
@@ -40,6 +45,11 @@ describe("removeImageFromLibraryEffect", () => {
 		);
 
 		const removeImageLibraryEntry = vi.fn();
+		/**
+		 * Return a minimal `ImageLibrarySlice` for failing API response tests.
+		 *
+		 * @returns A mocked slice with a remove handler and error setter.
+		 */
 		function get(): ImageLibrarySlice {
 			return forceCast({
 				setImageLibraryError: vi.fn(),

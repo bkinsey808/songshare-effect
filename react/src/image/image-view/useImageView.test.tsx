@@ -15,11 +15,12 @@ import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
 import getImagePublicUrl from "@/react/image/getImagePublicUrl";
 import type { ImagePublic } from "@/react/image/image-types";
+import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import buildPublicWebUrl from "@/react/lib/qr-code/buildPublicWebUrl";
-import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
+
 import useImageView from "./useImageView";
 
 vi.mock("react-router-dom");

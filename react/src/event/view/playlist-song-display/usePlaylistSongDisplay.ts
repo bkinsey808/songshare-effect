@@ -25,6 +25,11 @@ export default function usePlaylistSongDisplay(
 
 	// Resolve and cache the song owner username when it is available and not yet loaded.
 	useEffect(() => {
+		/**
+		 * Fetch the owner's username for the current song and cache it in state.
+		 *
+		 * @returns void
+		 */
 		async function fetchOwner(): Promise<void> {
 			const userId = song?.user_id;
 			if (userId === undefined || userId === "") {

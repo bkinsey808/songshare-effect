@@ -90,6 +90,12 @@ export default function useChordPicker({
 		chordScaleDegreeDisplay,
 		chordDisplayMode,
 	});
+	/**
+	 * Compute the initial selected root for the picker using the provided
+	 * display mode, initial token, and song key.
+	 *
+	 * @returns The initial SelectedRoot for the picker
+	 */
 	function getInitialSelectedRoot(): SelectedRoot {
 		return computeInitialSelectedRoot({
 			chordDisplayMode: rootPickerDisplayMode,
@@ -197,6 +203,14 @@ export default function useChordPicker({
 	// Close the routed picker when Escape is pressed so keyboard users can cancel quickly.
 	useEscapeToClose(closeChordPicker);
 
+	/**
+	 * Insert the currently computed canonical token into the editor.
+	 *
+	 * If no canonical token is available (e.g., invalid selection), the
+	 * operation is a no-op.
+	 *
+	 * @returns void
+	 */
 	function handleInsert(): void {
 		if (canonicalToken === undefined) {
 			return;

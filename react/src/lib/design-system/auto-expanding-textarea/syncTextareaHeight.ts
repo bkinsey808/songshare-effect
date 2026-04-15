@@ -19,6 +19,7 @@ const ZERO_HEIGHT = 0;
  * @param maxRows - maximum visible row count when content growth is capped
  * @param fillParentHeight - whether the textarea should grow to at least its parent height
  * @param growWithContent - whether to ignore the max row cap and expand with content
+ * @returns void
  */
 export default function syncTextareaHeight({
 	textarea,

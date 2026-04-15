@@ -5,7 +5,7 @@ import {
 	DEMO_POSTS_DELAY_MS,
 	DEMO_PROFILE_DELAY_MS,
 } from "@/shared/constants/http";
-import { ZERO, ONE } from "@/shared/constants/shared-constants";
+import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import delay from "@/shared/utils/delay";
 import { createSuspenseCache } from "@/shared/utils/typedPromiseCache";
 
@@ -26,6 +26,15 @@ const postsCache = createSuspenseCache<DemoPost[]>("demo:posts");
 const POST_SAMPLE_COUNT = 3;
 
 // Utility function to create a suspending fetch
+/**
+ * Suspense-friendly fetch helper that returns a resolved value or throws
+ * a thenable that Suspense can catch while the Promise is pending.
+ *
+ * @param cache - suspense cache instance
+ * @param key - cache key
+ * @param fetcher - async function to fetch the value
+ * @returns The resolved value from the cache or fetcher
+ */
 function suspendingFetch<ResultType>(
 	cache: ReturnType<typeof createSuspenseCache<ResultType>>,
 	key: string,
@@ -42,6 +51,12 @@ type UserProfileParams = Readonly<{
 }>;
 
 // Component that fetches user data and suspends
+/**
+ * Demo user profile component used by the Suspense demo.
+ *
+ * @param props.userId - id of the user to render
+ * @returns ReactElement showing user profile information
+ */
 function UserProfile({ userId }: UserProfileParams): ReactElement {
 	const user = suspendingFetch(userCache, `user-${userId}`, async () => {
 		// Simulate API delay
@@ -70,6 +85,12 @@ type UserPostParams = Readonly<{
 }>;
 
 // Component that fetches posts and suspends
+/**
+ * Demo user posts component used by the Suspense demo.
+ *
+ * @param props.userId - id of the user whose posts to render
+ * @returns ReactElement showing a list of posts
+ */
 function UserPosts({ userId }: UserPostParams): ReactElement {
 	const posts = suspendingFetch(postsCache, `posts-${userId}`, async () => {
 		// Simulate API delay
@@ -110,6 +131,11 @@ function UserPosts({ userId }: UserPostParams): ReactElement {
 }
 
 // Loading fallback components
+/**
+ * Loading skeleton for the profile section used as a Suspense fallback.
+ *
+ * @returns ReactElement representing a profile loading state
+ */
 function ProfileSkeleton(): ReactElement {
 	return (
 		<div className="animate-pulse rounded-xl border border-white/10 bg-white/5 p-6">
@@ -120,6 +146,11 @@ function ProfileSkeleton(): ReactElement {
 	);
 }
 
+/**
+ * Loading skeleton for posts used as a Suspense fallback.
+ *
+ * @returns ReactElement representing posts loading state
+ */
 function PostsSkeleton(): ReactElement {
 	return (
 		<div className="space-y-4">

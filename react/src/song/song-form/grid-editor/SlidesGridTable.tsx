@@ -85,6 +85,7 @@ type SlidesGridTableProps = Readonly<
  * @param toggleBackgroundPicker - Toggles the inline background picker.
  * @param selectSlideBackgroundImage - Applies a background image to the slide.
  * @param clearSlideBackgroundImage - Clears the current slide background image.
+ * @param openChordPicker - Callback to open the chord picker for a slide row
  * @returns React element for the slides grid table and DnD container.
  */
 export default function SlidesGridTable({

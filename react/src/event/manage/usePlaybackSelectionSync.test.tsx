@@ -16,6 +16,12 @@ const basePublic: EventPublic = {
 describe("usePlaybackSelectionSync", () => {
 	it("clears song selection when eventPublic.active_song_id changes", () => {
 		let songState: string | undefined = "old";
+		/**
+		 * Test helper that records the latest selected song id.
+		 *
+		 * @param value - new selected song id or undefined to clear
+		 * @returns void
+		 */
 		function setSongState(value: string | undefined): void {
 			songState = value;
 		}
@@ -50,6 +56,12 @@ describe("usePlaybackSelectionSync", () => {
 
 	it("clears slide selection when eventPublic.active_slide_position changes", () => {
 		let slideState: number | undefined = 1;
+		/**
+		 * Test helper that records the latest selected slide position.
+		 *
+		 * @param value - new slide position or undefined to clear
+		 * @returns void
+		 */
 		function setSlideState(value: number | undefined): void {
 			slideState = value;
 		}
@@ -85,9 +97,21 @@ describe("usePlaybackSelectionSync", () => {
 	it("does not clear selection when playback state hasn't changed (even if the event object reference or local choices change)", () => {
 		let songState: string | undefined = "initial";
 		let slideState: number | undefined = 1;
+		/**
+		 * Test helper that records the latest selected song id.
+		 *
+		 * @param value - new selected song id or undefined to clear
+		 * @returns void
+		 */
 		function setSongState(value: string | undefined): void {
 			songState = value;
 		}
+		/**
+		 * Test helper that records the latest selected slide position.
+		 *
+		 * @param value - new slide position or undefined to clear
+		 * @returns void
+		 */
 		function setSlideState(value: number | undefined): void {
 			slideState = value;
 		}

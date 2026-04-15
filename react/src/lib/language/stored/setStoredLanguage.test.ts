@@ -5,6 +5,11 @@ import { preferredLanguageCookieName } from "@/shared/cookies";
 import setStoredLanguage from "./setStoredLanguage";
 
 describe("setStoredLanguage", () => {
+	/**
+	 * Prepare environment and global stubs for `setStoredLanguage` tests.
+	 *
+	 * @returns void
+	 */
 	function setup(): void {
 		vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
 			/* no-op */

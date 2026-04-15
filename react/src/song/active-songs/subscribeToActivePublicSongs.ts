@@ -62,6 +62,7 @@ type SupabaseRealtimeClientLike = {
  *
  * @param deletedPublicSongId - id of the public song that was deleted
  * @param set - Zustand `set` function for the SongSubscribeSlice
+ * @returns void
  */
 function handleSongDeletion(
 	deletedPublicSongId: string,
@@ -112,6 +113,12 @@ export default function subscribeToActivePublicSongs(
 
 		// Type guards are declared here so they can be reused in the async block
 		// without recreating closures on every call.
+		/**
+		 * Runtime type guard for Supabase realtime client shape.
+		 *
+		 * @param value - Unknown value to test
+		 * @returns True when the value provides the minimal realtime client surface
+		 */
 		function isSupabaseRealtimeClientLike(value: unknown): value is SupabaseRealtimeClientLike {
 			if (!isRecord(value)) {
 				return false;
@@ -121,6 +128,12 @@ export default function subscribeToActivePublicSongs(
 			return typeof rec["channel"] === "function" && typeof rec["removeChannel"] === "function";
 		}
 
+		/**
+		 * Runtime type guard for `SongPublic` payloads used by the realtime handlers.
+		 *
+		 * @param value - Unknown value to validate
+		 * @returns True when value looks like a minimal `SongPublic` record
+		 */
 		function isSongPublic(value: unknown): value is SongPublic {
 			if (!isRecord(value)) {
 				return false;

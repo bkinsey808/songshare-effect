@@ -30,7 +30,9 @@ type UseUserSearchInputReturn = {
 /**
  * Encapsulates state and handlers for the user search input.
  *
- * @param args - Hook arguments
+ * @param activeUserId - Currently active/selected user id (optional)
+ * @param onSelect - Callback invoked with a selected user id
+ * @param excludeUserIds - IDs to exclude from the search results
  * @returns State, refs and handlers for the user picker UI
  */
 export default function useUserSearchInput({
@@ -46,6 +48,12 @@ export default function useUserSearchInput({
 
 	// Handle clicks outside the container to close the search dropdown
 	useEffect(() => {
+		/**
+		 * Document-level pointer handler that closes the dropdown when clicking outside.
+		 *
+		 * @param event - Pointer event (mouse or touch)
+		 * @returns void
+		 */
 		function handleDocumentPointerDown(event: MouseEvent | TouchEvent): void {
 			const container = containerRef.current;
 			if (container === null) {
@@ -129,6 +137,12 @@ export default function useUserSearchInput({
 		})();
 	}, [fetchUserLibrary, isOpen, isSignedIn, isUserLibraryLoading, usersArray.length]);
 
+	/**
+	 * Select the provided user entry and close the dropdown.
+	 *
+	 * @param entry - selected user library entry
+	 * @returns void
+	 */
 	function handleSelectUser(entry: UserLibraryEntry): void {
 		// Close dropdown and clear search first
 		setIsOpen(false);
@@ -138,15 +152,32 @@ export default function useUserSearchInput({
 		onSelect(entry.followed_user_id);
 	}
 
+	/**
+	 * Open the search dropdown when the input receives focus.
+	 *
+	 * @returns void
+	 */
 	function handleInputFocus(): void {
 		setIsOpen(true);
 	}
 
+	/**
+	 * Update the internal search query and open the dropdown on input changes.
+	 *
+	 * @param event - input change event
+	 * @returns void
+	 */
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		setSearchQuery(event.target.value);
 		setIsOpen(true);
 	}
 
+	/**
+	 * Clear the current selection and reset the input.
+	 *
+	 * @param event - click event from the clear button
+	 * @returns void
+	 */
 	function handleClearSelection(event: React.MouseEvent<HTMLButtonElement>): void {
 		event.preventDefault();
 		event.stopPropagation();

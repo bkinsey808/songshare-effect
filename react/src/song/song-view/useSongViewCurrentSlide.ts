@@ -32,6 +32,14 @@ type UseSongViewCurrentSlideResult = Readonly<{
 	effectiveSlideOrientation: "landscape" | "portrait";
 }>;
 
+/**
+ * Hook that derives rendering helpers and metadata for the current slide view.
+ *
+ * @param currentSlide - Raw slide payload that may still need validation
+ * @param songKey - Optional song key used when transforming chord text
+ * @param totalSlides - Total number of slides for the song
+ * @returns Helpers and metadata needed to render the current slide
+ */
 export default function useSongViewCurrentSlide({
 	currentSlide,
 	songKey,
@@ -116,10 +124,22 @@ export default function useSongViewCurrentSlide({
 			? currentSlide["background_image_url"]
 			: undefined;
 
+	/**
+	 * Localized label for a slide field key.
+	 *
+	 * @param field - Field key to get a label for
+	 * @returns Localized label string
+	 */
 	function getFieldLabel(field: string): string {
 		return t(`song.${field}`, field);
 	}
 
+	/**
+	 * Renderable text for a given slide field, applying chord transformations when needed.
+	 *
+	 * @param field - Field key to extract text for
+	 * @returns The display text for the field, or empty string when not renderable
+	 */
 	function getFieldText(field: string): string {
 		if (!isRenderable) {
 			return "";

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
+import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
+import computePreviewValues from "@/react/music/preview/computePreviewValues";
+import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 import { getChordShapeByCode, type ChordShape } from "@/shared/music/chord-shapes";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 import {
@@ -16,10 +19,6 @@ import {
     ChordScaleDegreeDisplay,
     type ChordScaleDegreeDisplayType,
 } from "@/shared/user/chordScaleDegreeDisplay";
-
-import type { SciInversion } from "@/react/music/inversions/computeSciInversions";
-import computePreviewValues from "@/react/music/preview/computePreviewValues";
-import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 const SONG_KEY_G = "G" as const;
 const MAJOR_SHAPE_CODE = "M";
@@ -39,11 +38,22 @@ const ANY_ROOT: SelectedRoot = { root: "any", rootType: "any", label: "Any" };
 
 const SELECTED_ROOT_I: SelectedRoot = { root: "I", rootType: "roman", label: "I" };
 
-/** Returns the default value for every key — avoids coupling tests to translation strings. */
+/**
+ * Returns the default value for every key — avoids coupling tests to translation strings.
+ *
+ * @param _key - Translation key (ignored in tests).
+ * @param defaultValue - Fallback text returned by the stub.
+ * @returns The provided `defaultValue`.
+ */
 function stubT(_key: string, defaultValue: string): string {
 	return defaultValue;
 }
 
+/**
+ * Build a minimal params object for `computePreviewValues` tests.
+ *
+ * @returns A params object containing sensible defaults used by tests.
+ */
 function makeBaseParams(): {
 	canonicalToken: string | undefined;
 	selectedBassNote: SongKey | undefined;

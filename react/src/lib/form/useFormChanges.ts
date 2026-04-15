@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import defaultCompare from "./defaultCompare";
 
@@ -51,6 +51,10 @@ type UseFormChangesReturn<State> = {
  * Tracks the current state of a form and compares it to an initial snapshot
  * to determine if there are unsaved changes.
  *
+ * @param currentState - The current form state to compare against baseline
+ * @param compare - Optional custom comparison function
+ * @param enabled - Optional flag to enable or disable change tracking
+ * @returns An object with helpers for tracking form changes
  * @example
  * ```tsx
  * const { hasUnsavedChanges, setInitialState } = useFormChanges({
@@ -79,24 +83,50 @@ export default function useFormChanges<State>({
 		initialStateRef.current = initialState;
 	}, [initialState]);
 
+	/**
+	 * Set the baseline initial state used for change detection.
+	 *
+	 * @param state - Baseline state snapshot
+	 * @returns void
+	 */
 	function setInitialState(state: State): void {
 		setInitialStateState(state);
 		initialStateRef.current = state;
 	}
 
+	/**
+	 * Clear the baseline initial state so change detection is disabled until set again.
+	 *
+	 * @returns void
+	 */
 	function clearInitialState(): void {
 		setInitialStateState(undefined);
 		initialStateRef.current = undefined;
 	}
 
+	/**
+	 * Reset the baseline initial state to the current state value.
+	 *
+	 * @returns void
+	 */
 	function resetInitialState(): void {
 		setInitialState(currentState);
 	}
 
+	/**
+	 * Get the current baseline initial state snapshot.
+	 *
+	 * @returns The baseline state or `undefined` if not set
+	 */
 	function getInitialState(): State | undefined {
 		return initialStateRef.current;
 	}
 
+	/**
+	 * Determine whether the current state differs from the baseline snapshot.
+	 *
+	 * @returns `true` when there are unsaved changes, otherwise `false`
+	 */
 	function hasUnsavedChanges(): boolean {
 		if (!enabled) {
 			return false;

@@ -9,6 +9,12 @@ const SONG_SLUG = "my-song";
 
 type SupabaseQueryResult = Promise<{ data: unknown[]; error: unknown }>;
 
+/**
+ * Create a minimal Supabase-like client for testing query behavior.
+ *
+ * @param opts - Test options to control `data` and `error` returned
+ * @returns Minimal client with `from().select().in()` shape
+ */
 function makeSupabaseClient(opts: { data?: unknown[]; error?: unknown }): {
 	from: (table: string) => {
 		select: (query: string) => {

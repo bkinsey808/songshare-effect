@@ -8,6 +8,14 @@ import createRealtimeSubscription from "./createRealtimeSubscription";
 
 vi.mock("../status/handleSubscriptionStatus");
 
+/**
+ * Invoke a subscribe callback if present, otherwise throw a TypeError.
+ *
+ * @param cb - Subscribe callback captured from the channel
+ * @param status - Status string to pass to the callback
+ * @param err - Optional error payload
+ * @returns void
+ */
 function callSub(
 	cb: ((status: string, err?: unknown) => void) | undefined,
 	status: string,
@@ -21,10 +29,23 @@ function callSub(
 	throw new TypeError("subscribe callback not set");
 }
 
+/**
+ * No-op event handler used by tests.
+ *
+ * @param _payload - Event payload (ignored)
+ * @returns void
+ */
 function noopOnEvent(_payload: unknown): void {
 	// noop
 }
 
+/**
+ * No-op status handler used by tests.
+ *
+ * @param _status - Status string (ignored)
+ * @param _err - Optional error payload (ignored)
+ * @returns void
+ */
 function noopOnStatus(_status: string, _err?: unknown): void {
 	// noop
 }

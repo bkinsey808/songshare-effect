@@ -24,6 +24,12 @@ export default function createScrollHandler(
 	 * the threshold with hysteresis.
 	 * Throttled using requestAnimationFrame to smooth out rapid scroll events.
 	 */
+	/**
+	 * Read the global vertical scroll position and update state when crossing
+	 * the threshold with hysteresis.
+	 *
+	 * @returns void
+	 */
 	function handleScroll(): void {
 		// Skip if a frame is already scheduled
 		if (rafId !== undefined) {
@@ -46,6 +52,11 @@ export default function createScrollHandler(
 
 	/**
 	 * Cancel any pending requestAnimationFrame.
+	 */
+	/**
+	 * Cancel any pending requestAnimationFrame.
+	 *
+	 * @returns void
 	 */
 	function cleanup(): void {
 		if (rafId !== undefined) {

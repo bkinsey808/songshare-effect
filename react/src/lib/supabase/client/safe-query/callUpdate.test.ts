@@ -6,6 +6,12 @@ import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 import callUpdate from "./callUpdate";
 
+/**
+ * Build a minimal supabase-like client used in callUpdate tests.
+ *
+ * @param opts - Options controlling presence of `.from` and `.update`
+ * @returns A `SupabaseClientLike` stub
+ */
 function makeClient(opts: { hasFrom?: boolean; hasUpdate?: boolean }): SupabaseClientLike {
 	const hasFrom = opts.hasFrom !== false;
 	const hasUpdate = opts.hasUpdate !== false;

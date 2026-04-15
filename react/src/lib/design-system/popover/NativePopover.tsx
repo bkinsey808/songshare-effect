@@ -31,6 +31,14 @@ export type NativePopoverProps = Readonly<{
  * Native HTML Popover API component with dual-mode support (hover/click)
  * Features smart positioning, scroll tracking, and auto-close functionality
  *
+ * @param children - The trigger element content
+ * @param content - The popover content to display
+ * @param preferredPlacement - Preferred placement relative to trigger element
+ * @param trigger - How the popover is triggered - hover or click
+ * @param closeOnTriggerClick - Whether clicking the trigger should close the popover when trigger is hover
+ * @param tabIndex - Custom tabIndex for the trigger element
+ * @param allowOverflow - Allow content to overflow the popover bounds
+ * @param triggerContainer - Custom element for the trigger container ("button" or "div")
  * @returns React element rendering the native popover
  */
 export function NativePopover({

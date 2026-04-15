@@ -24,6 +24,12 @@ const ONCE = 1;
  * @param currentEventId - event id to return from the `currentEvent` selector
  * @returns void
  */
+/**
+ * Install a mocked store for `useActiveEventSync` tests.
+ *
+ * @param opts - Options to configure event and active state.
+ * @returns void
+ */
 function installStore(opts: {
 	fetchEventBySlug?: (...args: unknown[]) => unknown;
 	subscribeToEvent?: () => (() => void) | undefined;

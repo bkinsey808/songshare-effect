@@ -32,6 +32,20 @@ type ChordSearchResultsProps = Readonly<{
 
 /**
  * Renders the chord search result cards and inversion result cards for the picker search section.
+ *
+ * @param displayedShapes - Shapes matching the current query
+ * @param allShapeInversions - Computed inversion matches across shapes
+ * @param selectedRoot - Current root selection used for preview token generation
+ * @param chordDisplayMode - Display mode used when rendering chord tokens
+ * @param songKey - Song key used for scale-degree rendering
+ * @param getNoteSearchRoot - Helper to resolve note-search roots from spellings
+ * @param isShapeSelected - Predicate for whether a shape is currently selected
+ * @param setSelectedShapeCode - Setter to choose a shape code
+ * @param directShapeOrdinals - Map of shape codes to ordinal/label info
+ * @param selectedBassNote - Currently selected bass note for inversion highlighting
+ * @param inversionBaseShapeCode - Base shape code when an inversion is active
+ * @param handleSelectShapeInversion - Callback invoked when selecting an inversion result
+ * @returns A React element containing the shape and inversion results
  */
 export default function ChordSearchResults({
 	displayedShapes,

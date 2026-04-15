@@ -21,6 +21,12 @@ type CommunityActionsCardProps = {
 const actionButtonClassName =
 	"rounded-md! whitespace-nowrap text-xs sm:text-sm data-[size=compact]:px-2 data-[size=compact]:py-1 sm:data-[size=compact]:px-3 sm:data-[size=compact]:py-1.5";
 
+/**
+ * Convert boolean active state into a button variant string.
+ *
+ * @param active - whether the button should be treated as active
+ * @returns "primary" when active, otherwise "outlineSecondary"
+ */
 function toVariant(active: boolean): "primary" | "outlineSecondary" {
 	return active ? "primary" : "outlineSecondary";
 }
@@ -61,17 +67,33 @@ export default function CommunityActionsCard({
 				(member.role === "owner" || member.role === "community_admin"),
 		);
 
+	/**
+	 * Compute whether the given item path corresponds to the current location.
+	 *
+	 * @param itemPath - the navigation item path to test
+	 * @returns true when the item is active
+	 */
 	function computeIsActive(itemPath: string): boolean {
 		const currentPath = location.pathname;
 		const targetPath = buildPathWithLang(itemPath ? `/${itemPath}` : "/", lang);
 		return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
 	}
 
+	/**
+	 * Navigate to the community library for the current language.
+	 *
+	 * @returns void
+	 */
 	function handleGoToLibrary(): void {
 		const libraryPath = buildPathWithLang(`/${dashboardPath}/${communityLibraryPath}`, lang);
 		void navigate(libraryPath);
 	}
 
+	/**
+	 * Navigate to the community manage page for the current community slug.
+	 *
+	 * @returns void
+	 */
 	function handleManageCommunity(): void {
 		if (currentCommunitySlug !== undefined) {
 			const managePath = buildPathWithLang(

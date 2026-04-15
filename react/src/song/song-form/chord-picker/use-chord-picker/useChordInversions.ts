@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import computeInversionPreviewTokens from "@/react/music/inversions/computeInversionPreviewTokens";
 import computeSciInversions, {
-	type SciInversion,
+    type SciInversion,
 } from "@/react/music/inversions/computeSciInversions";
 import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
 import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
@@ -151,15 +151,35 @@ export default function useSciInversions({
 		return new Map([...inversionPreviewTokens, [absoluteRoot, rootPositionPreviewToken]]);
 	})();
 
+	/**
+	 * Clear any active inversion selection and reset the stored inversion base shape.
+	 *
+	 * @returns void
+	 */
 	function clearInversion(): void {
 		setSelectedBassNote(undefined);
 		setInversionBaseShapeCode(undefined);
 	}
 
+
+	/**
+	 * Set the active bass note directly (used when toggling leads to an inversion).
+	 *
+	 * @param note - The absolute `SongKey` representing the selected bass note
+	 * @returns void
+	 */
 	function selectBassNote(note: SongKey): void {
 		setSelectedBassNote(note);
 	}
 
+
+	/**
+	 * Handle selection of a specific shape inversion from the inversion results.
+	 *
+	 * @param sourceShapeCode - The originating shape code for the inversion result
+	 * @param inversion - The selected SciInversion payload
+	 * @returns void
+	 */
 	function handleSelectShapeInversion(sourceShapeCode: string, inversion: SciInversion): void {
 		const activeBase = inversionBaseShapeCode ?? selectedShapeCode;
 		if (selectedBassNote === inversion.bassRoot && activeBase === sourceShapeCode) {
@@ -172,6 +192,13 @@ export default function useSciInversions({
 		onShapeCodeChange(inversion.matchedShape?.code ?? sourceShapeCode);
 	}
 
+
+	/**
+	 * Toggle selection of an inversion entry (select or deselect root/inversion).
+	 *
+	 * @param inversion - The inversion to toggle
+	 * @returns void
+	 */
 	function handleSelectInversion(inversion: SciInversion): void {
 		// Deselect when clicking the active inversion again, or when clicking the root-position
 		// entry (identified by bassRoot === originalRoot — synthetic entries only).

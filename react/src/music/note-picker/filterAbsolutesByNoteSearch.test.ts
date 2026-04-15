@@ -11,6 +11,12 @@ const G_SEMITONE = 7;
 /** C major triad: C, E, G */
 const C_MAJOR = new Set([C_SEMITONE, E_SEMITONE, G_SEMITONE]);
 
+/**
+ * Build a readonly note-search map for tests.
+ *
+ * @param entries - Tuples of semitone index and toggle state.
+ * @returns A `ReadonlyMap` used as `noteSearchState` in tests.
+ */
 function state(
 	entries: [number, NoteSearchToggleState][],
 ): ReadonlyMap<number, NoteSearchToggleState> {

@@ -7,6 +7,7 @@ import type { EventFormValues, SaveEventRequest } from "../event-types";
  *
  * @param formValues - Current event form values
  * @param isEditing - Whether the form is editing an existing event
+ * @param tags - optional list of tags to include on the request
  * @returns Request payload for event save API
  */
 export default function buildSaveEventRequest(

@@ -24,14 +24,33 @@ const EMPTY_SLUG = "";
 const WHITESPACE_SLUG = "   ";
 const INVALID_SLUG = "invalid-slug";
 
+/**
+ * Install a mocked `addUserToLibraryEffect` that is synchronous and no-op.
+ *
+ * @returns void
+ */
 function installEffectMock(): void {
 	vi.mocked(addUserToLibraryEffect).mockReturnValue(Effect.sync(() => undefined));
 }
 
+/**
+ * Create a valid `SongPublic` test fixture with an overridable shape.
+ *
+ * @param overrides - Partial fields to override on the generated `SongPublic`
+ * @returns A `SongPublic` object suitable for tests
+ */
 function makeValidSongPublic(overrides: Partial<SongPublic> = {}): SongPublic {
 	return makeSongPublic({ song_slug: VALID_SLUG, ...overrides });
 }
 
+/**
+ * Install store selectors used by `useSongView` tests.
+ *
+ * @param mockAdd - Value to expose as `addActivePublicSongSlugs`
+ * @param mockPublicSongs - Map of public songs to expose
+ * @param mockPrivateSongs - Map of private songs to expose
+ * @returns void
+ */
 function installStoreMocks(
 	mockAdd: unknown,
 	mockPublicSongs: Record<string, SongPublic> = {},

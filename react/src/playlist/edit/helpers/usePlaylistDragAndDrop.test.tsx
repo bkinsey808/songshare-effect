@@ -13,6 +13,11 @@ describe("usePlaylistDragAndDrop — Harness", () => {
 		cleanup();
 		const setSongOrder = vi.fn();
 
+		/**
+		 * Test harness for `usePlaylistDragAndDrop` that exposes sensors and handlers.
+		 *
+		 * @returns A small DOM tree used to validate drag-and-drop behavior.
+		 */
 		function Harness(): ReactElement {
 			const { sensors, handleDragEnd, sortableItems } = usePlaylistDragAndDrop({
 				songOrder: SONG_ORDER,
@@ -39,7 +44,6 @@ describe("usePlaylistDragAndDrop — Harness", () => {
 				</div>
 			);
 		}
-
 		const { getByTestId } = render(<Harness />);
 
 		expect(getByTestId("harness-root")).toBeTruthy();

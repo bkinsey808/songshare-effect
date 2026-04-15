@@ -10,6 +10,11 @@ import adjustTopBottomPosition from "./adjustTopBottomPosition";
  * Calculates optimal popover position relative to trigger element
  * Uses smart fallback algorithm when preferred placement doesn't fit
  *
+ * @param triggerRect - Bounding rectangle of the trigger element
+ * @param popoverWidth - Width of the popover in pixels
+ * @param popoverHeight - Height of the popover in pixels
+ * @param preferredPlacement - Preferred placement option (optional)
+ * @param gap - Gap in pixels between trigger and popover
  * @returns An object with `position` (style object for popover) and `placement` (chosen placement)
  */
 export default function calculatePopoverPosition({

@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import useFormChanges from "./useFormChanges";
 
@@ -23,8 +23,13 @@ const NO_CHANGES = false;
 
 /**
  * Construct options object for `useFormChanges` without accidentally passing
- * `undefined` values.  This keeps us from running afoul of
+ * `undefined` values. This keeps us from running afoul of
  * `exactOptionalPropertyTypes` when we later call the hook.
+ *
+ * @param currentState - Current form state to track
+ * @param enabled - Optional flag to enable tracking
+ * @param compare - Optional custom compare function
+ * @returns Hook options object suitable for `useFormChanges`
  */
 function makeOpts(
 	currentState: DummyState,

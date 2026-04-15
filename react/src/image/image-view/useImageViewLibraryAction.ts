@@ -11,6 +11,13 @@ export type UseImageViewLibraryActionReturn = {
 	showRemove: boolean;
 };
 
+/**
+ * Hook that exposes add/remove handlers for the image library action on the image view.
+ *
+ * @param imageId - Image id for the action context.
+ * @param imageOwnerId - Owner id for the image used to determine ownership.
+ * @returns Handlers and UI state for add/remove actions.
+ */
 export default function useImageViewLibraryAction(
 	imageId: string,
 	imageOwnerId: string,
@@ -43,6 +50,11 @@ export default function useImageViewLibraryAction(
 	const showAdd = currentUserId !== undefined && !isImageLibraryLoading && !inLibrary;
 	const showRemove = currentUserId !== undefined && !isImageLibraryLoading && inLibrary && !isOwner;
 
+	/**
+	 * Add the current image to the user's image library.
+	 *
+	 * @returns Promise that resolves when the action completes.
+	 */
 	async function handleAdd(): Promise<void> {
 		setIsPending(true);
 		try {
@@ -57,6 +69,11 @@ export default function useImageViewLibraryAction(
 		setIsPending(false);
 	}
 
+	/**
+	 * Remove the current image from the user's image library.
+	 *
+	 * @returns Promise that resolves when the action completes.
+	 */
 	async function handleRemove(): Promise<void> {
 		setIsPending(true);
 		try {

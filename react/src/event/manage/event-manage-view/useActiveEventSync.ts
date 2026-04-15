@@ -9,6 +9,9 @@ type UseActiveEventSyncProps = {
 
 /**
  * Hook to manage the active event data: fetching by slug and subscribing to updates.
+ *
+ * @param eventSlug - slug of the event to load and subscribe to
+ * @returns void
  */
 export default function useActiveEventSync({ eventSlug }: UseActiveEventSyncProps): void {
 	const fetchEventBySlug = useAppStore((state) => state.fetchEventBySlug);

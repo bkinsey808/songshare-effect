@@ -2,6 +2,12 @@ import SlideOrientationToggle from "@/react/slide-orientation/SlideOrientationTo
 
 import useSlideManagerView from "./useSlideManagerView";
 
+/**
+ * UI for managing slide playback and song selection during an event.
+ * Renders navigation controls and delegates state to `useSlideManagerView`.
+ *
+ * @returns Slide manager view element
+ */
 export default function SlideManagerView(): ReactElement {
 	const {
 		activeSlidePosition,

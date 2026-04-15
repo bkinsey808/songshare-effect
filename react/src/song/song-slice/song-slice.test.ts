@@ -5,6 +5,11 @@ import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
 import type { SongPublic } from "../song-schema";
 import makeSongTestSlice from "./makeSongTestSlice.mock";
 
+/**
+ * Create a test slice used across song-slice unit tests.
+ *
+ * @returns A test `SongSubscribeSlice` harness with `getState`/`setState`
+ */
 function makeTestSlice(): ReturnType<typeof makeSongTestSlice> {
 	return makeSongTestSlice();
 }

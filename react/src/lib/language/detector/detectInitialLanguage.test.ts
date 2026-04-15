@@ -15,6 +15,8 @@ const mockParseLanguageCookie = vi.mocked(parseLanguageCookie);
 /**
  * Ensure each test starts with a clean, predictable global environment.
  * Returns a cleanup function that must be called at the end of the test.
+ *
+ * @returns A function that restores mocks and globals
  */
 function setup(): () => void {
 	// default to an innocuous pathname

@@ -19,6 +19,13 @@ export type UseImageLibraryCardReturn = {
 	viewUrl: string | undefined;
 };
 
+/**
+ * Hook providing behavior and URLs for an image library card.
+ *
+ * @param entry - The image library entry to render
+ * @param currentUserId - Current signed-in user id, if any
+ * @returns Handlers and derived URLs for the card UI
+ */
 export default function useImageLibraryCard(
 	entry: ImageLibraryEntry,
 	currentUserId: string | undefined,
@@ -43,6 +50,11 @@ export default function useImageLibraryCard(
 			? buildPathWithLang(`/${dashboardPath}/${imageEditPath}/${image.image_slug}`, lang)
 			: undefined;
 
+	/**
+	 * Remove this image from the user's library via the app store effect.
+	 *
+	 * @returns Promise that resolves when the remove effect completes.
+	 */
 	async function handleRemove(): Promise<void> {
 		try {
 			await Effect.runPromise(removeImageFromLibrary({ image_id: entry.image_id }));
@@ -51,6 +63,11 @@ export default function useImageLibraryCard(
 		}
 	}
 
+	/**
+	 * Delete the image owned by the current user via the app store effect.
+	 *
+	 * @returns Promise that resolves when the delete effect completes.
+	 */
 	async function handleDelete(): Promise<void> {
 		try {
 			await Effect.runPromise(deleteImage(entry.image_id));

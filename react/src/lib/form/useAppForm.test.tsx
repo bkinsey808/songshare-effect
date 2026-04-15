@@ -17,6 +17,12 @@ describe("useAppForm — Harness", () => {
 		cleanup();
 		const formRef = createRef<HTMLFormElement>();
 
+		/**
+		 * Test harness component that mounts `useAppForm` and exposes basic
+		 * state values for assertions.
+		 *
+		 * @returns ReactElement containing test hooks output
+		 */
 		function Harness(): ReactElement {
 			const form = useAppForm<TestFormValues>({
 				schema: TestSchema,

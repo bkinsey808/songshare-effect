@@ -4,7 +4,9 @@ import { type PopoverPosition } from "../popover-types";
 /**
  * Ensures horizontal centering doesn't push popover outside viewport
  *
- * @param args - configuration for adjustment
+ * @param position - Initial computed popover position
+ * @param popoverWidth - Width of the popover in pixels
+ * @param viewportWidth - Viewport width in pixels
  * @returns adjusted PopoverPosition
  */
 export default function adjustHorizontalPosition({

@@ -35,10 +35,25 @@ const BLUE_BASE = 0.4;
 const BLUE_INV_GAIN = 0.35;
 const BLUE_LEVEL_GAIN = 0.25;
 
+/**
+ * Helper to log WGSL generation failures for debugging the provided entry points.
+ *
+ * @param tgpuLike - The TypeGPU-like module or object
+ * @param entryPoints - Array of entry point functions/objects to inspect
+ * @returns void
+ */
 function dumpResolvedWgsl(tgpuLike: unknown, entryPoints: unknown[]): void {
 	logResolvedWgslOnFailure({ prefix: "[TypeGPU AudioViz]", tgpuLike, entryPoints });
 }
 
+/**
+ * Run an audio-reactive TypeGPU demo on the provided canvas.
+ *
+ * @param canvas - Canvas element to draw into
+ * @param getLevel - Callback returning current audio level in [0,1]
+ * @param opts - Optional overrides (onFinish, typegpuModule)
+ * @returns A stop function that will cancel the demo when invoked
+ */
 export default async function runTypeGpuAudioVizDemo(
 	canvas: HTMLCanvasElement,
 	getLevel: GetLevelFn,

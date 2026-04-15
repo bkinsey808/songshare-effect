@@ -29,6 +29,11 @@ describe("useInitialFormState", () => {
 		const setInitialState = vi.fn();
 		const hasPopulatedRef = { current: false };
 
+		/**
+		 * Test harness that calls `useInitialFormState` and renders a simple div.
+		 *
+		 * @returns A small DOM fragment used by the test
+		 */
 		function Harness(): ReactElement {
 			useInitialFormState({
 				songId: undefined,
@@ -62,6 +67,11 @@ describe("useInitialFormState", () => {
 		const setInitialState = vi.fn();
 		const hasPopulatedRef = { current: false };
 
+		/**
+		 * Test harness that calls `useInitialFormState` and renders a simple div.
+		 *
+		 * @returns A small DOM fragment used by the test
+		 */
 		function Harness(): ReactElement {
 			useInitialFormState({
 				songId: undefined,
@@ -88,6 +98,11 @@ describe("useInitialFormState", () => {
 		const setInitialState = vi.fn();
 		const hasPopulatedRef = { current: true };
 
+		/**
+		 * Test harness that calls `useInitialFormState` and renders a simple div.
+		 *
+		 * @returns A small DOM fragment used by the test
+		 */
 		function Harness(): ReactElement {
 			useInitialFormState({
 				songId: "song-123",
@@ -123,6 +138,11 @@ describe("useInitialFormState", () => {
 		const setInitialState = vi.fn();
 		const hasPopulatedRef = { current: false };
 
+		/**
+		 * Test harness that calls `useInitialFormState` and renders a simple div.
+		 *
+		 * @returns A small DOM fragment used by the test
+		 */
 		function Harness(): ReactElement {
 			useInitialFormState({
 				songId: undefined,

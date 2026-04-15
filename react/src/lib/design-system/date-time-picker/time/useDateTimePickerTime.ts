@@ -36,6 +36,12 @@ export default function useDateTimePickerTime(
 			: DEFAULT_TIME,
 	);
 
+	/**
+	 * Handle changes to the hours input segment and notify when complete.
+	 *
+	 * @param event - Change event from the hours input
+	 * @returns void
+	 */
 	function handleHoursChange(event: ChangeEvent<HTMLInputElement>): void {
 		const value = event.target.value.slice(HOUR_START, EXPECTED_SEGMENT_LENGTH);
 		setHours(value);
@@ -44,6 +50,12 @@ export default function useDateTimePickerTime(
 		}
 	}
 
+	/**
+	 * Handle changes to the minutes input segment and notify when complete.
+	 *
+	 * @param event - Change event from the minutes input
+	 * @returns void
+	 */
 	function handleMinutesChange(event: ChangeEvent<HTMLInputElement>): void {
 		const value = event.target.value.slice(HOUR_START, EXPECTED_SEGMENT_LENGTH);
 		setMinutes(value);

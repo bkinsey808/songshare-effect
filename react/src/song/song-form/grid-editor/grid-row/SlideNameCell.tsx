@@ -58,6 +58,9 @@ type SlideNameCellProps = Readonly<{
  * @param attributes - Draggable attributes from `useSortable`.
  * @param listeners - Drag listeners from `useSortable`.
  * @param isDuplicateRow - Whether this row belongs to a duplicate slide group.
+ * @param hasLyrics - Whether this slide row contains lyrics (shows chord button)
+ * @param isEditingChord - Whether the parent is in chord-edit mode
+ * @param onOpenChordPicker - Callback to open the chord picker UI
  * @returns React element for the slide name cell.
  */
 export default function SlideNameCell({

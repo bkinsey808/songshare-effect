@@ -13,6 +13,11 @@ export type GetCachedUserTokenSpy = {
 	mockResolvedValue?: (token: string | undefined) => void;
 };
 
+/**
+ * Import the token-cache module and return a typed spy for `getCachedUserToken`.
+ *
+ * @returns A typed spy object for use in tests
+ */
 export async function getCachedUserTokenSpy(): Promise<GetCachedUserTokenSpy> {
 	const mod = await import("./token-cache");
 	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-type-assertion

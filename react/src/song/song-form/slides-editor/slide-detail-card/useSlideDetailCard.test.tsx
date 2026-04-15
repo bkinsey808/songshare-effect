@@ -125,6 +125,12 @@ function getFirstOpenChordPickerRequest(
  * @param state - Store state exposed to selectors
  * @returns Nothing
  */
+/**
+ * Install a mocked store for `useSlideDetailCard` tests.
+ *
+ * @param state - The store state to seed for the test.
+ * @returns void
+ */
 function installStore(state: StoreState): void {
 	vi.mocked(useAppStore).mockImplementation((selector: unknown) =>
 		forceCast<(innerState: StoreState) => unknown>(selector)(state),

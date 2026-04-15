@@ -2,30 +2,50 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
-	setMockRejectedValue,
-	setMockResolvedValue,
+    setMockRejectedValue,
+    setMockResolvedValue,
 } from "@/react/lib/test-utils/spy-import/spyHelpers";
 import spyImport, { type SpyLike } from "@/react/lib/test-utils/spy-import/spyImport";
 
 import type {
-	MinimalAnalyserNode,
-	MinimalBaseAudioContext,
-	MinimalMediaStream,
-	MinimalMediaStreamAudioSourceNode,
-	MinimalMediaStreamTrack,
+    MinimalAnalyserNode,
+    MinimalBaseAudioContext,
+    MinimalMediaStream,
+    MinimalMediaStreamAudioSourceNode,
+    MinimalMediaStreamTrack,
 } from "./audio-types";
 import type createTimeDomainAnalyser from "./createTimeDomainAnalyser";
 import useAudioCapture from "./useAudioCapture";
 
+/**
+ * Spy helper that imports the `createTimeDomainAnalyser` spy at test-time.
+ *
+ * @returns A promise resolving to the spy
+ */
 function spyCreateTimeDomainAnalyser(): Promise<SpyLike> {
 	return spyImport("@/react/lib/audio/createTimeDomainAnalyser");
 }
+/**
+ * Spy helper for `getMicStreamForDevice` import.
+ *
+ * @returns A promise resolving to the spy
+ */
 function spyGetMicStreamForDevice(): Promise<SpyLike> {
 	return spyImport("@/react/lib/audio/stream/getMicStreamForDevice");
 }
+/**
+ * Spy helper for `stopMediaStreamTracks` import.
+ *
+ * @returns A promise resolving to the spy
+ */
 function spyStopMediaStreamTracks(): Promise<SpyLike> {
 	return spyImport("@/react/lib/audio/stream/stopMediaStreamTracks");
 }
+/**
+ * Spy helper for `closeAudioContextSafely` import.
+ *
+ * @returns A promise resolving to the spy
+ */
 function spyCloseAudioContextSafely(): Promise<SpyLike> {
 	return spyImport("@/react/lib/audio/closeAudioContextSafely");
 }
@@ -45,6 +65,9 @@ const FAKE_SMOOTHING_TIME_CONSTANT = 0.8;
 
 /**
  * Create fake test stubs implementing AnalyserNode interface.
+ *
+ * @param context - Optional minimal audio context used for timing
+ * @returns A minimal analyser node stub suitable for tests
  */
 function makeFakeAnalyserNode(context?: MinimalBaseAudioContext): MinimalAnalyserNode {
 	return {
@@ -63,6 +86,9 @@ function makeFakeAnalyserNode(context?: MinimalBaseAudioContext): MinimalAnalyse
 
 /**
  * Create a fake AudioContext stub for testing.
+ *
+ * @param closeMock - Optional function that will be called when `close` is invoked
+ * @returns A minimal audio context with `close` and `resume` implemented
  */
 function makeFakeAudioContext(
 	closeMock?: () => void,
@@ -81,6 +107,9 @@ function makeFakeAudioContext(
 
 /**
  * Create a fake MediaStream stub for testing.
+ *
+ * @param hasTrack - Whether the created stream should include a track
+ * @returns A minimal MediaStream stub
  */
 function makeFakeMediaStream(hasTrack = true): MinimalMediaStream {
 	const track: MinimalMediaStreamTrack = {
@@ -96,6 +125,11 @@ describe("useAudioCapture", () => {
 	const FFT_SIZE = 2048; // from implementation
 
 	// Small helper: clear mocks before each test
+	/**
+	 * Reset mocks and test state for each spec.
+	 *
+	 * @returns void
+	 */
 	function setup(): void {
 		vi.clearAllMocks();
 	}

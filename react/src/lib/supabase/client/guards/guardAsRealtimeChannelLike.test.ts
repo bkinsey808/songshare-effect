@@ -4,18 +4,33 @@ import type { RealtimeChannelLike } from "../SupabaseClientLike";
 import guardAsRealtimeChannelLike from "./guardAsRealtimeChannelLike";
 
 /**
- * Creates a minimal RealtimeChannelLike mock for testing.
- * @returns A mock channel object with on and subscribe methods.
+ * Create a minimal `RealtimeChannelLike` mock for testing.
+ *
+ * @returns A mock channel object with `on` and `subscribe` methods.
  */
 function createMockChannel(): RealtimeChannelLike {
 	// minimal implementation matching `RealtimeChannelLike`; no need for spies.
 	const channel: RealtimeChannelLike = {
+		/**
+		 * Attach an event handler and return the channel for chaining.
+		 *
+		 * @param _event - Event name (unused in stub)
+		 * @param _opts - Options (unused in stub)
+		 * @param _handler - Optional payload handler (unused in stub)
+		 * @returns The channel stub for chaining
+		 */
 		on(_event: string, _opts: unknown, _handler?: (payload: unknown) => void) {
-			return channel;
-		},
-		subscribe(_cb?: (status: string, err?: unknown) => void) {
-			return undefined;
-		},
+				return channel;
+			},
+			/**
+			 * Subscribe placeholder returning undefined in this minimal stub.
+			 *
+			 * @param _cb - Optional subscribe callback (unused)
+			 * @returns undefined
+			 */
+			subscribe(_cb?: (status: string, err?: unknown) => void) {
+				return undefined;
+			},
 	};
 
 	return channel;

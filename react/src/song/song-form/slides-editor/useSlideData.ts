@@ -34,6 +34,11 @@ export default function useSlideData({
 	slides,
 	setSlides,
 }: UseSlideDataParams): UseSlideDataReturn {
+	/**
+	 * Add a new slide with initialized fields and append it to the order.
+	 *
+	 * @returns void
+	 */
 	function addSlide(): void {
 		const id = randomId();
 		const newSlideName = getNextSlideName(slides, slideOrder.length);
@@ -54,7 +59,12 @@ export default function useSlideData({
 		});
 	}
 
-	// Duplicate a slide (creates a new slide with copied data)
+	/**
+	 * Duplicate an existing slide, creating a new slide id and copying field data.
+	 *
+	 * @param slideId - Id of the slide to duplicate
+	 * @returns void
+	 */
 	function duplicateSlide(slideId: string): void {
 		const originalSlide = safeGet(slides, slideId);
 		if (!originalSlide) {
@@ -90,7 +100,12 @@ export default function useSlideData({
 		setSlideOrder([...slideOrder, newId]);
 	}
 
-	// Remove a slide
+	/**
+	 * Delete a slide and remove it from the order.
+	 *
+	 * @param slideId - Slide id to delete
+	 * @returns void
+	 */
 	function deleteSlide(slideId: string): void {
 		if (slideOrder.length === ONE) {
 			return;

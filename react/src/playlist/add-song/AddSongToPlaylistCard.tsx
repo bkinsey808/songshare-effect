@@ -55,6 +55,7 @@ export default function AddSongToPlaylistCard({
 	/**
 	 * Handle adding the song to a playlist.
 	 * @param playlist - The playlist to add the song to.
+	 * @returns Promise<void>
 	 */
 	async function handleAddToPlaylist(playlist: PlaylistLibraryEntry): Promise<void> {
 		if (playlist.playlist_id === undefined) {

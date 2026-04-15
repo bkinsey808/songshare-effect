@@ -13,6 +13,12 @@ type FormTextareaProps = Readonly<{
 
 const DEFAULT_ROWS = 2;
 
+/**
+ * Adjust the textarea height to match its scrollHeight (used for auto-expand).
+ *
+ * @param formEvent - The input form event from the textarea
+ * @returns void
+ */
 // oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for DOM handler at module scope
 function handleInputEvent(formEvent: React.FormEvent<HTMLTextAreaElement>): void {
 	const target = formEvent.currentTarget;

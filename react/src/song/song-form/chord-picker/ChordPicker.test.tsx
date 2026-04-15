@@ -18,6 +18,11 @@ const MAJOR_THIRD_INDEX = 4;
 const PERFECT_FIFTH_INDEX = 7;
 const NOTE_PICKER_BUTTON_COUNT_WITH_EXPLICIT_ROOT = 11;
 
+/**
+ * Render the chord picker in editing mode with the Any-root option selected.
+ *
+ * @returns The note-picker and spelling-search elements for assertions
+ */
 function renderEditingChordPickerWithAnyRootSelected(): {
 	notePicker: HTMLElement;
 	spellingSearch: HTMLElement;
@@ -42,6 +47,12 @@ function renderEditingChordPickerWithAnyRootSelected(): {
 	return { notePicker, spellingSearch };
 }
 
+/**
+ * Mock `useChordDisplayModePreference` return values for tests.
+ *
+ * @param chordDisplayMode - One of the supported display modes
+ * @returns void
+ */
 function mockChordDisplayModePreference(
 	chordDisplayMode: "letters" | "german" | "roman" | "sargam" | "solfege",
 ): void {
@@ -61,6 +72,13 @@ function mockChordDisplayModePreference(
 	});
 }
 
+/**
+ * Return the button at the provided index or throw when missing.
+ *
+ * @param buttons - Array of button elements
+ * @param index - Index of the desired button
+ * @returns The HTMLElement at the index
+ */
 function getButtonAtIndex(buttons: readonly HTMLElement[], index: number): HTMLElement {
 	const button = buttons[index];
 	if (button === undefined) {
@@ -73,6 +91,19 @@ function getButtonAtIndex(buttons: readonly HTMLElement[], index: number): HTMLE
 vi.mock("@/react/chord-display-mode/ChordDisplayModeSelect");
 vi.mock("@/react/chord-display-mode/useChordDisplayModePreference");
 
+/**
+ * Render the chord picker with optional overrides for props.
+ *
+ * @param overrides - Optional props to customize the rendered picker
+ * @param songKey - Song key to render the picker with
+ * @param setSongKey - Optional setter for the song key
+ * @param hasPendingInsertTarget - Whether the editor has a pending insert target
+ * @param initialChordToken - Optional initial token for editing mode
+ * @param isEditingChord - Whether the picker is opened to edit an existing chord
+ * @param closeChordPicker - Optional close handler for the picker overlay
+ * @param insertChordFromPicker - Optional insert handler used by the picker
+ * @returns void
+ */
 function renderChordPicker({
 	songKey = "C",
 	setSongKey = vi.fn(),

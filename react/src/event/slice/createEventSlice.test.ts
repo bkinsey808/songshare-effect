@@ -12,6 +12,9 @@ import type { EventSlice } from "./EventSlice.type";
  * The implementation is intentionally lightweight – it keeps a mutable
  * `state` object and exposes the `set`/`get`/`api` signatures expected
  * by `createEventSlice` so the slice can be exercised in unit tests.
+ *
+ * @param initialState - partial state overrides to seed the mock
+ * @returns mock store utilities (`state`, `set`, `get`, `api`)
  */
 function makeMockStore(initialState: Partial<EventState> = {}): {
 	state: Partial<EventState>;
@@ -31,6 +34,12 @@ function makeMockStore(initialState: Partial<EventState> = {}): {
 
 	let state: Partial<EventState> = { ...initialState };
 
+	/**
+	 * Update the mock state with a patch or updater function.
+	 *
+	 * @param patchOrUpdater - partial state or updater function
+	 * @returns void
+	 */
 	function set(
 		patchOrUpdater:
 			| Partial<EventState>
@@ -46,6 +55,11 @@ function makeMockStore(initialState: Partial<EventState> = {}): {
 		}
 	}
 
+	/**
+	 * Retrieve the current mock state merged with stubbed slice methods.
+	 *
+	 * @returns merged mock state and stubbed slice methods
+	 */
 	function get(): EventState & EventSlice {
 		// stub out the slice methods; tests don't rely on their behavior
 		const base = forceCast<EventSlice>({

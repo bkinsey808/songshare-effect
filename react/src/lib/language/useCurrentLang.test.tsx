@@ -26,6 +26,11 @@ describe("getCurrentLangFromPath (pure)", () => {
 
 describe("useCurrentLang (integration)", () => {
 	it("reads language from router location when mounted inside a Router (strict)", () => {
+		/**
+		 * Test component that mounts `useCurrentLang` inside a router.
+		 *
+		 * @returns A div exposing the resolved language for assertions
+		 */
 		function TestApp(): ReactElement {
 			// `useCurrentLang` uses `useLocation` internally; this integration
 			// test mounts the component inside a `MemoryRouter` so the call is

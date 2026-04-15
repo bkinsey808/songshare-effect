@@ -4,9 +4,13 @@ import getSupabaseClientToken from "./getSupabaseClientToken";
 
 /**
  * Returns a current auth token appropriate for creating a Supabase client.
- * - If a user token is present and valid, return that
- * - If we are likely signed in but token is missing (rehydration), try to fetch it
- * - Otherwise return a Supabase visitor client token (fetched/cached)
+ *
+ * Resolution order:
+ * - Return a cached user token if available
+ * - Attempt to fetch a user token from the API if rehydration likely occurred
+ * - Fall back to a cached visitor client token
+ *
+ * @returns A user or client auth token string, or `undefined` when none available
  */
 export default async function getSupabaseAuthToken(): Promise<string | undefined> {
 	// 1. Try to get cached user token first

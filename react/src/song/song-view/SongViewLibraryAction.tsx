@@ -63,6 +63,11 @@ export default function SongViewLibraryAction({
 	const showAdd = currentUserId !== undefined && !inLibrary;
 	const showRemove = currentUserId !== undefined && inLibrary && !isOwner;
 
+	/**
+	 * Add the current song to the user's song library.
+	 *
+	 * @returns void
+	 */
 	async function handleAdd(): Promise<void> {
 		setIsPending(true);
 		try {
@@ -77,6 +82,11 @@ export default function SongViewLibraryAction({
 		setIsPending(false);
 	}
 
+	/**
+	 * Remove the current song from the user's song library.
+	 *
+	 * @returns void
+	 */
 	async function handleRemove(): Promise<void> {
 		setIsPending(true);
 		try {

@@ -16,6 +16,11 @@ const fakeSpy: AsyncSpy = {
 vi.mock("@/react/lib/test-utils/spy-import/spyImport");
 
 describe("spyAudio helpers", () => {
+	/**
+	 * Prepare test spies and reset mocks for each spec.
+	 *
+	 * @returns void
+	 */
 	function setup(): void {
 		vi.resetAllMocks();
 		// always resolve to our fake spy so callers can invoke methods if

@@ -5,6 +5,12 @@ type ResizeHandleProps = Readonly<{
 }>;
 
 // top-level handler doesn't capture outer-scope values
+/**
+ * Keydown handler for the resize handle; prevents activation on Enter/Space.
+ *
+ * @param event - Keyboard event from the handle
+ * @returns void
+ */
 function handleKeyDown(event: React.KeyboardEvent): void {
 	if (event.key === "Enter" || event.key === " ") {
 		event.preventDefault();
@@ -26,6 +32,12 @@ export default function ResizeHandle({
 	onStartResize,
 	isResizing,
 }: ResizeHandleProps): ReactElement {
+	/**
+	 * Mouse down handler that starts a resize operation for the given field.
+	 *
+	 * @param event - Mouse event from the resize handle
+	 * @returns void
+	 */
 	function handleMouseDown(event: React.MouseEvent): void {
 		event.preventDefault();
 		onStartResize(field, event.clientX);

@@ -19,10 +19,22 @@ const FOCAL_POINT_STEP = 0.1;
 const FOCAL_POINT_ROUNDING_FACTOR = 10;
 const FOCAL_POINT_DECIMAL_PLACES = 1;
 
+/**
+ * Clamp a focal point value to the allowed range [0,100].
+ *
+ * @param value - candidate focal point value
+ * @returns clamped focal point value
+ */
 function clampFocalPointValue(value: number): number {
 	return Math.min(MAX_FOCAL_POINT, Math.max(MIN_FOCAL_POINT, value));
 }
 
+/**
+ * Round a focal point value to the configured precision for UI display.
+ *
+ * @param value - raw focal point value
+ * @returns rounded focal point value
+ */
 function roundFocalPointValue(value: number): number {
 	return (
 		Math.round(clampFocalPointValue(value) * FOCAL_POINT_ROUNDING_FACTOR) /
@@ -30,6 +42,12 @@ function roundFocalPointValue(value: number): number {
 	);
 }
 
+/**
+ * Format a focal point number for display with fixed decimals.
+ *
+ * @param value - focal point value
+ * @returns formatted string with decimal places
+ */
 function formatFocalPointValue(value: number): string {
 	return roundFocalPointValue(value).toFixed(FOCAL_POINT_DECIMAL_PLACES);
 }
@@ -40,7 +58,12 @@ function formatFocalPointValue(value: number): string {
  * Users can click the preview to place the focal point and fine-tune it with
  * range inputs for keyboard-friendly editing.
  *
- * @param props - Picker props.
+ * @param altText - Accessible alt text for the image preview.
+ * @param imageName - Fallback image name used when alt text is empty.
+ * @param imageUrl - Optional image URL displayed in the preview.
+ * @param onChange - Callback invoked with updated focal point coordinates.
+ * @param focal_point_x - Current horizontal focal point percentage (0-100).
+ * @param focal_point_y - Current vertical focal point percentage (0-100).
  * @returns React element for focal point editing.
  */
 export default function ImageFocalPointPicker({
@@ -57,6 +80,12 @@ export default function ImageFocalPointPicker({
 			? "aspect-[9/16]"
 			: "aspect-video";
 
+	/**
+	 * Update the focal point and normalize values to the UI precision.
+	 *
+	 * @param nextFocalPoint - new focal point coordinates
+	 * @returns void
+	 */
 	function updateFocalPoint(nextFocalPoint: ImageFocalPoint): void {
 		onChange({
 			focal_point_x: roundFocalPointValue(nextFocalPoint.focal_point_x),
@@ -64,6 +93,12 @@ export default function ImageFocalPointPicker({
 		});
 	}
 
+	/**
+	 * Place the focal point based on a click inside the preview element.
+	 *
+	 * @param event - click event from the preview button
+	 * @returns void
+	 */
 	function handlePreviewClick(event: React.MouseEvent<HTMLButtonElement>): void {
 		const rect = event.currentTarget.getBoundingClientRect();
 		const relativeX = ((event.clientX - rect.left) / rect.width) * MAX_FOCAL_POINT;
@@ -75,6 +110,12 @@ export default function ImageFocalPointPicker({
 		});
 	}
 
+	/**
+	 * Handle horizontal range input changes.
+	 *
+	 * @param event - change event from the horizontal range input
+	 * @returns void
+	 */
 	function handleHorizontalChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		updateFocalPoint({
 			focal_point_x: Number(event.target.value),
@@ -82,6 +123,12 @@ export default function ImageFocalPointPicker({
 		});
 	}
 
+	/**
+	 * Handle vertical range input changes.
+	 *
+	 * @param event - change event from the vertical range input
+	 * @returns void
+	 */
 	function handleVerticalChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		updateFocalPoint({
 			focal_point_x,

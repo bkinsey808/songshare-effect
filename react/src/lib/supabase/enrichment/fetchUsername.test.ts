@@ -9,6 +9,11 @@ import fetchUsername from "./fetchUsername";
 
 vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 
+/**
+ * Create a minimal supabase-like client for use in fetchUsername tests.
+ *
+ * @returns A `SupabaseClientLike` stub with only the required members.
+ */
 function makeMockClient(): SupabaseClientLike {
 	return forceCast<SupabaseClientLike>({ from: vi.fn(), channel: vi.fn() });
 }

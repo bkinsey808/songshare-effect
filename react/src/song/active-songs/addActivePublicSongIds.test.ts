@@ -14,6 +14,12 @@ vi.mock("@/react/lib/supabase/auth-token/getSupabaseAuthToken");
 vi.mock("@/react/lib/supabase/client/getSupabaseClient");
 vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 
+/**
+ * Build a `{ set, get, state, setCalls }` test fixture for `addActivePublicSongIds` tests.
+ *
+ * @param subscribeUnsubscribe - Optional cleanup function returned by subscribe
+ * @returns Test fixture containing mocked set/get and captured set calls
+ */
 function makeSetGet(subscribeUnsubscribe?: () => void): {
 	set: ReturnType<typeof vi.fn>;
 	get: () => SongSubscribeSlice;

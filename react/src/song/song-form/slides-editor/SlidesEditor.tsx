@@ -23,6 +23,11 @@ type SlidesEditorProps = Readonly<
 	}>
 >;
 
+/**
+ * No-op fallback for optional `openChordPicker` prop.
+ *
+ * @returns Nothing
+ */
 function noopOpenChordPicker(): void {
 	return undefined;
 }
@@ -37,6 +42,7 @@ function noopOpenChordPicker(): void {
  * @param setSlideOrder - Setter to update the presentation order
  * @param slides - Map of slide id to slide data
  * @param setSlides - Setter to replace the slides map
+ * @param openChordPicker - Optional callback to open the chord picker UI
  * @returns React element rendering the Slide Editor UI
  */
 export default function SlidesEditor({

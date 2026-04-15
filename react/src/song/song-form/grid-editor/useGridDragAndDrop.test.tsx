@@ -15,6 +15,12 @@ describe("useGridDragAndDrop — Harness", () => {
 		cleanup();
 		const setSlidesOrder = vi.fn();
 
+		/**
+		 * Test harness that renders the hook consumer and exposes a button
+		 * which triggers `handleDragEnd` with a synthetic event.
+		 *
+		 * @returns React element for the harness
+		 */
 		function Harness(): ReactElement {
 			const { sensors, handleDragEnd, sortableItems } = useGridDragAndDrop({
 				slideIds: SLIDE_IDS,

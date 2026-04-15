@@ -6,6 +6,13 @@ import makePlaylistLibraryEntries from "@/react/playlist/test-utils/makePlaylist
 
 import usePlaylistSearchInput from "./usePlaylistSearchInput";
 
+/**
+ * Assert value is defined for test convenience.
+ *
+ * @param value - value that must not be undefined
+ * @param message - optional error message when undefined
+ * @returns the provided value narrowed to non-undefined
+ */
 function requireDefined<Item>(
 	value: Item | undefined,
 	message = "Expected value to be defined",

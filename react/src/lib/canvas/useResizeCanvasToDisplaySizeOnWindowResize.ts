@@ -13,6 +13,11 @@ export default function useResizeCanvasToDisplaySizeOnWindowResize(canvasRef: {
 }): void {
 	// Resize the canvas backing store any time the window resizes
 	useEffect(() => {
+		/**
+		 * Window resize handler that resizes the canvas backing store.
+		 *
+		 * @returns void
+		 */
 		function onResize(): void {
 			const canvas = canvasRef.current;
 			if (!canvas) {

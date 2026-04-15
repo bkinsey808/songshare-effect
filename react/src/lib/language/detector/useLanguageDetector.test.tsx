@@ -15,6 +15,12 @@ import useLanguageDetector from "./useLanguageDetector";
  * unsafe-call/member-access rules. This keeps the rest of the test file
  * free of any disabling comments.
  */
+/**
+ * Replace the runtime browser-language detector with a typed mock.
+ *
+ * @param lang - The language value the detector should return
+ * @returns void
+ */
 function mockDetectBrowserLanguage(lang: ReturnType<typeof detectBrowserLanguage>): void {
 	const mocked = vi.mocked(detectBrowserLanguage);
 	mocked.mockImplementation(() => lang);
@@ -27,6 +33,11 @@ vi.mock("../stored/getStoredLanguage");
 describe("useLanguageDetector", () => {
 	const mockNavigate = vi.fn();
 
+	/**
+	 * Prepare global stubs and return a cleanup function for the test.
+	 *
+	 * @returns Cleanup function that restores mocks and globals
+	 */
 	function setup(): () => void {
 		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
 		vi.stubGlobal("navigator", { language: "en-US" });

@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { clientWarn } from "@/react/lib/utils/clientLogger";
 import type {
-	AddPlaylistToLibraryRequest,
-	PlaylistLibraryEntry,
+    AddPlaylistToLibraryRequest,
+    PlaylistLibraryEntry,
 } from "@/react/playlist-library/slice/playlist-library-types";
 import type { PlaylistLibrarySlice } from "@/react/playlist-library/slice/PlaylistLibrarySlice.type";
 import acceptPendingSharesForItem from "@/react/share/effects/acceptPendingSharesForItem";
@@ -25,6 +25,14 @@ vi.mock("../guards/guardAsPlaylistLibraryEntry");
  * Temporarily replaces global fetch with a mock, runs the test, and restores fetch.
  * Ensures cleanup even when the test throws.
  */
+/**
+ * Temporarily replaces global fetch with a mock, runs the test, and restores fetch.
+ * Ensures cleanup even when the test throws.
+ *
+ * @param mockImpl - Factory that returns a `vi.fn` mock for `fetch`
+ * @param testFn - Async test function to execute while `fetch` is mocked
+ * @returns Promise that resolves when the test completes
+ */
 async function withFetchMock(
 	mockImpl: () => ReturnType<typeof vi.fn>,
 	testFn: () => Promise<void>,
@@ -42,6 +50,11 @@ async function withFetchMock(
 /**
  * Builds a get function that returns a playlist library slice with the given mock methods.
  * Used to isolate addPlaylistToLibrary from full store setup.
+ *
+ * @param setPlaylistLibraryError - Mock for setting an error on the slice
+ * @param isInPlaylistLibrary - Mock predicate for membership
+ * @param addPlaylistLibraryEntry - Mock for adding an entry
+ * @returns A `get` function that returns the mocked `PlaylistLibrarySlice`
  */
 function makeGet(
 	setPlaylistLibraryError: ReturnType<typeof vi.fn>,
@@ -57,6 +70,11 @@ function makeGet(
 	};
 }
 
+/**
+ * Install a simple `extractErrorMessage` mock for tests.
+ *
+ * @returns void
+ */
 function installExtractErrorMessageMock(): void {
 	vi.mocked(extractErrorMessage).mockImplementation((err: unknown, def: string): string =>
 		typeof err === "string" ? err : def,

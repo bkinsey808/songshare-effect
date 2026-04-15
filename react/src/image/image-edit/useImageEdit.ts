@@ -60,12 +60,20 @@ export default function useImageEdit(): UseImageEditReturn {
 		}
 	}, [isImageLoading, image, currentUserId, isOwner, navigate, lang]);
 
+	/**
+	 * Confirm deletion of the current image and navigate to the library on success.
+	 *
+	 * This performs a store-driven delete and awaits navigation on success.
+	 *
+	 * @returns void
+	 */
 	function handleDeleteConfirm(): void {
 		if (image === undefined || !isOwner) {
 			return;
 		}
 
 		const destinationPath = buildPathWithLang(`/${dashboardPath}/${imageLibraryPath}`, lang);
+
 		void (async (): Promise<void> => {
 			try {
 				await Effect.runPromise(deleteImage(image.image_id));

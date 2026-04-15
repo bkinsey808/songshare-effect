@@ -8,6 +8,11 @@ import useWakeLock from "@/react/lib/wake-lock/useWakeLock";
 const CALLED_ONCE = 1;
 const CALLED_TWICE = 2;
 
+/**
+ * Small test component used to exercise the `useWakeLock` hook in render tests.
+ *
+ * @returns A simple component exposing hook outputs for assertions
+ */
 function TestComponent(): ReactElement {
 	const { isWakeLockActive, toggleWakeLock, isSupported } = useWakeLock();
 	return (
@@ -24,6 +29,9 @@ function TestComponent(): ReactElement {
 /**
  * Temporarily set `navigator.wakeLock` presence for a test and return a cleanup
  * function that restores the original value.
+ *
+ * @param present - Whether the `wakeLock` property should be present on `navigator`
+ * @returns A cleanup function that restores the original `wakeLock` value
  */
 function setNavigatorWakeLockPresent(present: boolean): () => void {
 	const original = Reflect.get(navigator, "wakeLock");
@@ -40,6 +48,9 @@ function setNavigatorWakeLockPresent(present: boolean): () => void {
 /**
  * Temporarily override document.visibilityState for a test and return a cleanup
  * function that restores the original descriptor.
+ *
+ * @param value - Visibility value to expose from `document.visibilityState`
+ * @returns A cleanup function restoring the original descriptor
  */
 function overrideDocumentVisibilityState(value: "visible" | "hidden"): () => void {
 	const original = Object.getOwnPropertyDescriptor(Document.prototype, "visibilityState");

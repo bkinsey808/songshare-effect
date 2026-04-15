@@ -20,6 +20,7 @@ type UsePlaybackAutosaveFlushArgs = {
  *
  * @param flushSong - callback to run for song data
  * @param flushSlide - callback to run for slide data
+ * @returns void
  */
 export default function usePlaybackAutosaveFlush({
 	flushSong,
@@ -27,6 +28,11 @@ export default function usePlaybackAutosaveFlush({
 }: Readonly<UsePlaybackAutosaveFlushArgs>): void {
 	// run supplied flush callbacks when the page is unloading or component unmounts
 	useEffect(() => {
+		/**
+		 * Flush any pending autosave updates for song/slide.
+		 *
+		 * @returns void
+		 */
 		function flushPendingPlaybackAutosave(): void {
 			flushSong();
 			flushSlide();

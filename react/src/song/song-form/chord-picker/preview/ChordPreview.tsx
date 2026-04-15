@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
-import preferSharpIntervals from "@/react/music/intervals/preferSharpIntervals";
 import formatAccidentals from "@/react/music/intervals/formatAccidentals";
+import preferSharpIntervals from "@/react/music/intervals/preferSharpIntervals";
 
 type ChordPreviewProps = Readonly<{
 	previewToken: string;
@@ -23,6 +23,8 @@ type ChordPreviewProps = Readonly<{
  * @param selectedShapeName - Human-friendly chord-shape name
  * @param selectedShapeSpelling - Chord-shape spelling summary
  * @param selectedShapeAltNames - Alternate chord-shape names
+ * @param slashPreviewToken - Preview token for the slash-form (bass) display
+ * @param slashPreviewShapeName - Human-friendly name for the slash-form shape
  * @returns Preview card element for the chord picker
  */
 export default function ChordPreview({

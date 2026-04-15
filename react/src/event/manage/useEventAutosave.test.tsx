@@ -15,6 +15,12 @@ describe("useEventAutosave", () => {
 	type HookResult = ReturnType<typeof useEventAutosave>;
 	type SetupReturn = RenderHookResult<HookResult, unknown>;
 
+	/**
+	 * Test harness that installs the hook with mocked refs and returns
+	 * the renderHook result for assertions.
+	 *
+	 * @returns hook render result for the test
+	 */
 	function setup(): SetupReturn {
 		const event_slug = "e1";
 		const fetchEventBySlug = vi.fn().mockReturnValue(Effect.succeed(undefined as void));

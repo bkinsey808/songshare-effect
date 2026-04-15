@@ -43,6 +43,11 @@ describe("useCollapsibleSections — Harness", () => {
 	it("harness renders expansion state", () => {
 		cleanup();
 
+		/**
+		 * Harness for useCollapsibleSections used in tests.
+		 *
+		 * @returns A small DOM fragment used by the harness test
+		 */
 		function Harness(): ReactElement {
 			const { isFormFieldsExpanded, isSlidesExpanded, isGridExpanded } = useCollapsibleSections();
 			return (

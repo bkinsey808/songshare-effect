@@ -44,6 +44,11 @@ export default function useSharedItemSection(): UseSharedItemSectionReturn {
 	const subscribeToReceivedShares = useAppStore((state) => state.subscribeToReceivedShares);
 	const subscribeToSentShares = useAppStore((state) => state.subscribeToSentShares);
 
+	/**
+	 * Compute the list of shares filtered by active tab and status.
+	 *
+	 * @returns Array of SharedItem matching the current filters.
+	 */
 	function getFilteredShares(): SharedItem[] {
 		const shares =
 			activeTab === "received" ? Object.values(receivedShares) : Object.values(sentShares);
@@ -66,6 +71,11 @@ export default function useSharedItemSection(): UseSharedItemSectionReturn {
 			return;
 		}
 
+		/**
+		 * Load shares from the store for the active tab and status.
+		 *
+		 * @returns Promise that resolves when fetch completes.
+		 */
 		async function loadShares(): Promise<void> {
 			setIsLoading(true);
 
@@ -100,6 +110,11 @@ export default function useSharedItemSection(): UseSharedItemSectionReturn {
 		let receivedCleanup: (() => void) | undefined = undefined;
 		let sentCleanup: (() => void) | undefined = undefined;
 
+		/**
+		 * Set up realtime subscriptions for received and sent shares.
+		 *
+		 * @returns Promise that resolves when subscriptions are established.
+		 */
 		async function setupSubscriptions(): Promise<void> {
 			if (currentUserId === null || currentUserId === undefined) {
 				return;
@@ -121,6 +136,12 @@ export default function useSharedItemSection(): UseSharedItemSectionReturn {
 		};
 	}, [currentUserId, subscribeToReceivedShares, subscribeToSentShares]);
 
+	/**
+	 * Accept a pending share by calling the store effect.
+	 *
+	 * @param shareId - ID of the share to accept.
+	 * @returns Promise that resolves when accept completes.
+	 */
 	async function handleAcceptShare(shareId: string): Promise<void> {
 		try {
 			await Effect.runPromise(
@@ -134,6 +155,12 @@ export default function useSharedItemSection(): UseSharedItemSectionReturn {
 		}
 	}
 
+	/**
+	 * Reject a pending share by calling the store effect.
+	 *
+	 * @param shareId - ID of the share to reject.
+	 * @returns Promise that resolves when reject completes.
+	 */
 	async function handleRejectShare(shareId: string): Promise<void> {
 		try {
 			await Effect.runPromise(

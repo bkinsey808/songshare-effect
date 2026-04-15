@@ -38,6 +38,12 @@ const INITIAL_TOKEN_A_MINOR_SLASH_E = "[A -/E]";
 
 type HookParams = Readonly<Parameters<typeof useSciInversions>[number]>;
 
+/**
+ * Create default hook params for useSciInversions with optional overrides.
+ *
+ * @param overrides - Partial override of the default parameters
+ * @returns HookParams ready to be passed to the hook under test
+ */
 function makeParams(overrides: Partial<HookParams> = {}): HookParams {
 	return {
 		selectedRoot: ROOT_A,
@@ -72,6 +78,7 @@ type HarnessProps = Readonly<{
  * - `clearInversion` — resets to root position
  *
  * @param params - Full hook params forwarded from the test
+ * @returns void
  */
 function Harness({ params }: HarnessProps): ReactElement {
 	const {

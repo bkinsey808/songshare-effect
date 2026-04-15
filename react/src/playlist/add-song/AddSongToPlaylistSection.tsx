@@ -53,6 +53,7 @@ export default function AddSongToPlaylistSection({
 	/**
 	 * Handle adding a song to the playlist.
 	 * @param song - The song to add.
+	 * @returns void
 	 */
 	function handleAddSong(song: SongLibraryEntry): void {
 		onSongAdded(song.song_id);

@@ -95,7 +95,14 @@ export default function useEventForm(): UseEventFormReturn {
 		private_notes: "",
 	});
 
-	// Helper to update form values
+	/**
+	 * Update a single form field value and sync it to the underlying DOM input
+	 * when available.
+	 *
+	 * @param field - field key to update
+	 * @param value - new value for the field
+	 * @returns void
+	 */
 	function setFormValue(field: keyof EventFormValues, value: string | boolean | undefined): void {
 		setFormValuesState((prev) => ({ ...prev, [field]: value }));
 		if (formRef.current && typeof value === "string") {
@@ -130,6 +137,12 @@ export default function useEventForm(): UseEventFormReturn {
 	});
 
 	// Handle Name Change (auto-generate slug)
+	/**
+	 * Handle name input changes and auto-generate a slug for new events.
+	 *
+	 * @param value - new name value
+	 * @returns void
+	 */
 	function handleNameChange(value: string): void {
 		setFormValue("event_name", value);
 		if (!isEditing) {
@@ -139,6 +152,14 @@ export default function useEventForm(): UseEventFormReturn {
 
 	// Handle Form Submission
 	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
+	/**
+	 * Form submit handler that validates and persists the event via the
+	 * `saveEvent` action.
+	 *
+	 * @param event - optional form submit event
+	 * @returns Promise<void>
+	 */
+	// oxlint-disable-next-line typescript/no-deprecated
 	function handleFormSubmit(event?: React.FormEvent<HTMLFormElement>): Promise<void> {
 		if (event) {
 			event.preventDefault();
@@ -195,40 +216,92 @@ export default function useEventForm(): UseEventFormReturn {
 		);
 	}
 
+	/**
+	 * Update event description field.
+	 *
+	 * @param value - new description text
+	 * @returns void
+	 */
 	function handleDescriptionChange(value: string): void {
 		setFormValue("event_description", value);
 	}
 
+	/**
+	 * Update event date field (local timestamp string).
+	 *
+	 * @param value - date/time string
+	 * @returns void
+	 */
 	function handleDateChange(value: string): void {
 		// Accept YYYY/MM/DD HH:mm format directly
 		setFormValue("event_date", value);
 	}
 
+	/**
+	 * Toggle the event public flag.
+	 *
+	 * @param value - boolean indicating public visibility
+	 * @returns void
+	 */
 	function handleIsPublicChange(value: boolean): void {
 		setFormValue("is_public", value);
 	}
 
+	/**
+	 * Handle selection of an active playlist for the event.
+	 *
+	 * @param playlistId - selected playlist id (empty string clears)
+	 * @returns void
+	 */
 	function handlePlaylistSelect(playlistId: string): void {
 		const idOrUndefined = playlistId === "" ? undefined : playlistId;
 		setFormValue("active_playlist_id", idOrUndefined);
 	}
 
+	/**
+	 * Explicitly set the event slug value.
+	 *
+	 * @param value - slug string
+	 * @returns void
+	 */
 	function setEventSlug(value: string): void {
 		setFormValue("event_slug", value);
 	}
 
+	/**
+	 * Update the public notes field.
+	 *
+	 * @param value - public notes text
+	 * @returns void
+	 */
 	function setPublicNotes(value: string): void {
 		setFormValue("public_notes", value);
 	}
 
+	/**
+	 * Update the private notes field.
+	 *
+	 * @param value - private notes text
+	 * @returns void
+	 */
 	function setPrivateNotes(value: string): void {
 		setFormValue("private_notes", value);
 	}
 
+	/**
+	 * Cancel editing and navigate back.
+	 *
+	 * @returns void
+	 */
 	function handleCancel(): void {
 		void navigate(NAVIGATE_BACK);
 	}
 
+	/**
+	 * Reset the form to initial empty values and clear unsaved changes.
+	 *
+	 * @returns void
+	 */
 	function resetForm(): void {
 		setFormValuesState({
 			event_id: event_id,

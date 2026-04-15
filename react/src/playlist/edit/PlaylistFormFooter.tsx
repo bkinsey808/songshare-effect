@@ -39,6 +39,12 @@ export default function PlaylistFormFooter({
 	const { t } = useTranslation();
 	const [confirmingCancel, setConfirmingCancel] = useState(false);
 
+	/**
+	 * Handle the footer cancel click. If there are unsaved changes this will
+	 * trigger a confirmation UI instead of navigating immediately.
+	 *
+	 * @returns void
+	 */
 	function handleCancelClick(): void {
 		if (hasChanges) {
 			setConfirmingCancel(true);
@@ -47,11 +53,21 @@ export default function PlaylistFormFooter({
 		}
 	}
 
+	/**
+	 * Confirm leaving the form and invoke the provided cancel handler.
+	 *
+	 * @returns void
+	 */
 	function handleConfirmLeave(): void {
 		setConfirmingCancel(false);
 		onCancel();
 	}
 
+	/**
+	 * Cancel the leave confirmation and stay on the form.
+	 *
+	 * @returns void
+	 */
 	function handleStay(): void {
 		setConfirmingCancel(false);
 	}

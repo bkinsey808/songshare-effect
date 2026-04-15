@@ -27,6 +27,12 @@ const USERNAME = "hookuser";
  *
  * @param userSessionData - current session data exposed from the store
  */
+/**
+ * Install a mocked app store state for `useCurrentUser` tests.
+ *
+ * @param userSessionData - Optional session data to return from the store.
+ * @returns void
+ */
 function installStore(userSessionData: UserSessionData | undefined): void {
 	const mockState = {
 		userSessionData,

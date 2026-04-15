@@ -4,12 +4,23 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 
 import { createPlaylistSlice, type PlaylistSlice } from "./playlist-slice";
 
+/**
+ * Type guard that detects whether a value is a Zustand updater function.
+ *
+ * @param value - The value to test.
+ * @returns `true` when the value is an updater function, otherwise `false`.
+ */
 function isUpdater(
 	value: unknown,
 ): value is (prev: Record<string, unknown>) => Record<string, unknown> {
 	return typeof value === "function";
 }
 
+/**
+ * Create a `set`/`get` pair backed by an in-memory object for slice tests.
+ *
+ * @returns An object with `set` and `get` test doubles used to exercise slices.
+ */
 function makeSetGet(): {
 	set: (partial: unknown) => void;
 	get: () => PlaylistSlice;

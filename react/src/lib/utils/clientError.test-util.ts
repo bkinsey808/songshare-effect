@@ -16,6 +16,12 @@ type ClientErrorSpy = {
 	mockImplementation?: (...args: unknown[]) => void;
 };
 
+/**
+ * Create a spy for the client error logger by dynamically importing the module
+ * and returning the vitest spy. Useful in tests that assert on error logging.
+ *
+ * @returns Promise<ClientErrorSpy> - vitest spy that wraps `clientError`
+ */
 // oxlint-disable-next-line eslint/prefer-default-export -- single helper file keeps imports tidy
 export async function spyClientError(): Promise<ClientErrorSpy> {
 	const mod = await import("@/react/lib/utils/clientLogger");

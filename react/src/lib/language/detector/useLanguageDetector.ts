@@ -22,6 +22,11 @@ export default function useLanguageDetector(): void {
 	useEffect((): (() => void) => {
 		let mounted = true;
 
+		/**
+		 * Perform detection and navigate to the resolved language.
+		 *
+		 * @returns Promise that resolves when detection and navigation are complete
+		 */
 		async function run(): Promise<void> {
 			// Priority order for language selection:
 			// 1. Stored language preference (Cookie Store API -> localStorage/cookies)

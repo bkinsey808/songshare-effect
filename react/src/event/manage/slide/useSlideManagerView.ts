@@ -72,6 +72,12 @@ export type UseSlideManagerViewOpts = {
 	eventSlugOverride?: string;
 };
 
+/**
+ * Hook composing manage/view hooks to provide the slide manager UI state.
+ *
+ * @param opts - optional overrides for hook behavior
+ * @returns state, helpers, and constants used by SlideManagerView
+ */
 export default function useSlideManagerView(
 	opts?: UseSlideManagerViewOpts,
 ): UseSlideManagerViewResult {
@@ -121,6 +127,12 @@ export default function useSlideManagerView(
 	);
 
 	// helpers used by SlideManagerView
+	/**
+	 * Clamp a positive slide position into the valid range.
+	 *
+	 * @param pos - candidate 1-based slide position
+	 * @returns clamped slide position
+	 */
 	function clampSlide(pos: number): number {
 		if (noSlides) {
 			return pos;
@@ -128,6 +140,12 @@ export default function useSlideManagerView(
 		return Math.min(Math.max(pos, FIRST_SLIDE), maxSlide);
 	}
 
+	/**
+	 * Update active song index by looking up the corresponding id.
+	 *
+	 * @param idx - zero-based index into `availablePlaylistSongs`
+	 * @returns void
+	 */
 	function updateSongIndex(idx: number): void {
 		const song = availablePlaylistSongs.at(idx);
 		if (song) {
@@ -136,10 +154,20 @@ export default function useSlideManagerView(
 	}
 
 	// slide control handlers
+	/**
+	 * Navigate to the first slide.
+	 *
+	 * @returns void
+	 */
 	function goToFirstSlide(): void {
 		eventManage.updateActiveSlidePosition(FIRST_SLIDE);
 	}
 
+	/**
+	 * Navigate to the previous slide (clamped).
+	 *
+	 * @returns void
+	 */
 	function goToPrevSlide(): void {
 		eventManage.updateActiveSlidePosition(
 			eventView.activeSlidePosition === undefined
@@ -148,6 +176,11 @@ export default function useSlideManagerView(
 		);
 	}
 
+	/**
+	 * Navigate to the next slide (clamped).
+	 *
+	 * @returns void
+	 */
 	function goToNextSlide(): void {
 		eventManage.updateActiveSlidePosition(
 			eventView.activeSlidePosition === undefined
@@ -156,10 +189,21 @@ export default function useSlideManagerView(
 		);
 	}
 
+	/**
+	 * Navigate to the last slide.
+	 *
+	 * @returns void
+	 */
 	function goToLastSlide(): void {
 		eventManage.updateActiveSlidePosition(maxSlide);
 	}
 
+	/**
+	 * Handle slide dropdown change by forwarding numeric position.
+	 *
+	 * @param evt - change event from slide select element
+	 * @returns void
+	 */
 	function handleSlideSelectChange(evt: ChangeEvent<HTMLSelectElement>): void {
 		const parsed = Number.parseInt(evt.target.value, 10);
 		if (!Number.isNaN(parsed)) {
@@ -168,22 +212,48 @@ export default function useSlideManagerView(
 	}
 
 	// song control handlers
+	/**
+	 * Navigate to the first song in the playlist.
+	 *
+	 * @returns void
+	 */
 	function goToFirstSong(): void {
 		updateSongIndex(FIRST_SONG_INDEX);
 	}
 
+	/**
+	 * Navigate to the previous song.
+	 *
+	 * @returns void
+	 */
 	function goToPrevSong(): void {
 		updateSongIndex(currentSongIndex - ONE);
 	}
 
+	/**
+	 * Navigate to the next song.
+	 *
+	 * @returns void
+	 */
 	function goToNextSong(): void {
 		updateSongIndex(currentSongIndex + ONE);
 	}
 
+	/**
+	 * Navigate to the last song.
+	 *
+	 * @returns void
+	 */
 	function goToLastSong(): void {
 		updateSongIndex(lastSongIndex);
 	}
 
+	/**
+	 * Handle song dropdown change by forwarding the chosen index.
+	 *
+	 * @param evt - change event from song select element
+	 * @returns void
+	 */
 	function handleSongSelectChange(evt: ChangeEvent<HTMLSelectElement>): void {
 		updateSongIndex(Number(evt.target.value));
 	}

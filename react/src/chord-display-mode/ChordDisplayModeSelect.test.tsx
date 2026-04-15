@@ -18,6 +18,15 @@ vi.mock("@/react/lib/language/locale/useLocale");
 vi.mock("./useChordDisplayModePreference");
 vi.mock("./useSetChordDisplayPreferences");
 
+/**
+ * Test translation helper that returns a provided default string or the key.
+ *
+ * Used in tests to supply a minimal `t` implementation for `useLocale`.
+ *
+ * @param key - Translation key.
+ * @param defaultVal - Optional default string or record to return.
+ * @returns The resolved translation string.
+ */
 function translateOrDefault(key: string, defaultVal?: string | Record<string, unknown>): string {
 	return typeof defaultVal === "string" ? defaultVal : key;
 }

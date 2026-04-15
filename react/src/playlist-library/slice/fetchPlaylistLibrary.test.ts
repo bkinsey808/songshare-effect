@@ -18,6 +18,11 @@ vi.mock("@/react/lib/supabase/client/safe-query/callSelect");
 
 const mockedCallSelect = vi.mocked(callSelect);
 
+/**
+ * Build a `get` function returning a minimal mocked `PlaylistLibrarySlice` for fetch tests.
+ *
+ * @returns A function that provides the mocked slice
+ */
 function makePlaylistLibraryGet(): () => PlaylistLibrarySlice {
 	const setPlaylistLibraryEntries = vi.fn();
 	const setPlaylistLibraryLoading = vi.fn();

@@ -21,6 +21,8 @@ import usePlaylistLibraryManagement from "./usePlaylistLibraryManagement";
 
 /**
  * State & handlers for realtime event management (used by EventManageView).
+ *
+ * @returns UseEventManageStateResult containing state, handlers, and refs
  */
 export default function useEventManageView(): UseEventManageStateResult {
 	const { event_slug } = useParams<{ event_slug: string }>();
@@ -120,6 +122,11 @@ export default function useEventManageView(): UseEventManageStateResult {
 		return;
 	}, [activePlaylistIdForEffect, fetchPlaylistById]);
 
+	/**
+	 * Navigate back to the event view page using the current language.
+	 *
+	 * @returns void
+	 */
 	function onBackClick(): void {
 		if (eventPublic?.event_slug !== undefined) {
 			void navigate(buildPathWithLang(`/${eventViewPath}/${eventPublic.event_slug}`, lang));
@@ -161,6 +168,12 @@ export default function useEventManageView(): UseEventManageStateResult {
 
 	const currentEventIdRequired = currentEvent.event_id;
 
+	/**
+	 * Update the active playlist for the current event.
+	 *
+	 * @param playlistId - playlist id to set (empty string clears)
+	 * @returns void
+	 */
 	function updateActivePlaylist(playlistId: string): void {
 		void runAction({
 			actionKey: "playlist",
@@ -177,23 +190,40 @@ export default function useEventManageView(): UseEventManageStateResult {
 		});
 	}
 
-	function onPlaylistSelect(playlistId: string): void {
+/**
+ * Handler invoked when a playlist is selected from the UI.
+ *
+ * @param playlistId - id of the selected playlist
+ * @returns void
+ */
+function onPlaylistSelect(playlistId: string): void {
 		if (playlistId !== (activePlaylistIdForSelector ?? "")) {
 			updateActivePlaylist(playlistId);
 		}
 	}
-
-	function onSongSelect(songId: string): void {
+/**
+ * Handler invoked when a song is selected for playback.
+ *
+ * @param songId - id of the selected song
+ * @returns void
+ */
+function onSongSelect(songId: string): void {
 		if (songId !== (activeSongIdForSelector ?? "")) {
 			updateActiveSong(songId);
 		}
 	}
 
-	function onSlidePositionSelect(slidePosition: number | undefined): void {
-		if (slidePosition !== activeSlidePositionForSelector) {
-			updateActiveSlidePosition(slidePosition);
-		}
+/**
+ * Handler for selecting a slide position in the playlist.
+ *
+ * @param slidePosition - new slide position or undefined to clear
+ * @returns void
+ */
+function onSlidePositionSelect(slidePosition: number | undefined): void {
+	if (slidePosition !== activeSlidePositionForSelector) {
+		updateActiveSlidePosition(slidePosition);
 	}
+}
 
 	return {
 		currentEvent,

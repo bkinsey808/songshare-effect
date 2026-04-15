@@ -6,6 +6,11 @@ import { spyResizeCanvasToDisplaySize } from "../canvas/test-utils/spyCanvas";
 import useResizeCanvasToDisplaySizeOnWindowResize from "./useResizeCanvasToDisplaySizeOnWindowResize";
 
 describe("useResizeCanvasToDisplaySizeOnWindowResize", () => {
+	/**
+	 * Prepare test environment and return a cleanup function.
+	 *
+	 * @returns Cleanup function to restore mocks and DOM
+	 */
 	function setup(): () => void {
 		vi.resetAllMocks();
 		return () => {

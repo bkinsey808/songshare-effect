@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import randomId from "./randomId";
 import useSlideData from "./useSlideData";
 import {
-	expectSetSlidesAddSlideShape,
-	expectSetSlidesDuplicateSlideShape,
+    expectSetSlidesAddSlideShape,
+    expectSetSlidesDuplicateSlideShape,
 } from "./useSlideData.test-util";
 
 vi.mock("./randomId");
@@ -22,6 +22,11 @@ describe("useSlideData — Harness", () => {
 		const setSlideOrder = vi.fn();
 		const setSlides = vi.fn();
 
+		/**
+		 * Test harness for slide data hook.
+		 *
+		 * @returns DOM fragment used by tests
+		 */
 		function Harness(): ReactElement {
 			const { addSlide, deleteSlide, duplicateSlide } = useSlideData({
 				slideOrder: INITIAL_ORDER,

@@ -3,6 +3,12 @@ import isString from "@/shared/type-guards/isString";
 
 import type { Slide } from "../song-form-types";
 
+/**
+ * Validate and normalize the raw `field_data` value from the public slide payload.
+ *
+ * @param fieldDataRaw - Untrusted raw value for `field_data` from external payload
+ * @returns A record mapping field keys to string values (only valid string entries are preserved)
+ */
 function buildFieldData(fieldDataRaw: unknown): Record<string, string> {
 	const out: Record<string, string> = {};
 	if (!isRecord(fieldDataRaw)) {

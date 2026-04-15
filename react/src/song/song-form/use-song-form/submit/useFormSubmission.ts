@@ -8,8 +8,12 @@ import isRecord from "@/shared/type-guards/isRecord";
 const NAVIGATE_BACK = -1;
 
 /**
- * Parse response JSON and call onSaveSuccess with `data` when present.
+ * Parse response JSON and call `onSaveSuccess` with `data` when present.
  * Extracted to avoid React Compiler's "value blocks in try/catch" limitation.
+ *
+ * @param response - Fetch API Response object to parse
+ * @param onSaveSuccess - Optional callback invoked with parsed `data` when present
+ * @returns Promise<void>
  */
 async function parseSaveResponseAndNotify(
 	response: Response,
@@ -74,6 +78,12 @@ export default function useFormSubmission({
 }: UseFormSubmissionOptions): UseFormSubmissionReturn {
 	const navigate = useNavigate();
 
+	/**
+	 * Submit form data to the API and run the provided API response effect handler.
+	 *
+	 * @param rawData - Final form payload to POST to the API
+	 * @returns Promise<void>
+	 */
 	async function onSubmit(rawData: Readonly<SongFormData>): Promise<void> {
 		try {
 			const response = await fetch(apiSongsSavePath, {
@@ -99,7 +109,11 @@ export default function useFormSubmission({
 		}
 	}
 
-	// Handle cancel: just navigate. Footer shows confirmation when there are unsaved changes.
+	/**
+	 * Navigate back to the previous screen without saving.
+	 *
+	 * @returns void
+	 */
 	function handleCancel(): void {
 		void navigate(NAVIGATE_BACK);
 	}

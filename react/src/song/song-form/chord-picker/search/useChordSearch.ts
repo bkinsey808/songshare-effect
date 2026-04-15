@@ -2,8 +2,8 @@ import { useDeferredValue, useId, useState } from "react";
 
 import computeAllShapeInversions from "@/react/music/inversions/computeAllShapeInversions";
 import type {
-	DirectShapeOrdinal,
-	ShapeInversion,
+    DirectShapeOrdinal,
+    ShapeInversion,
 } from "@/react/music/inversions/shape-inversion.type";
 import computeNoteSearchEntries from "@/react/music/note-picker/computeNoteSearchEntries";
 import computeNoteSearchRoot from "@/react/music/note-picker/computeNoteSearchRoot";
@@ -67,6 +67,7 @@ type UseChordSearchResult = Readonly<{
  * @param songKey - Current song key used for note-search label generation
  * @param chordDisplayMode - Active chord display mode for inversion token rendering
  * @param rootPickerDisplayMode - Display mode used to derive the initial note-search root
+ * @param shapeHighlightActive - True when a shape result card should show a selected highlight
  * @returns Search state, setter callbacks, derived shape/inversion lists, and handlers
  */
 export default function useChordSearch({
@@ -144,10 +145,22 @@ export default function useChordSearch({
 		chordDisplayMode,
 	});
 
+	/**
+	 * Resolve a note-search root key for a given spelling label.
+	 *
+	 * @param spelling - The displayed spelling (e.g., "C#")
+	 * @returns The `SongKey` corresponding to the spelling when available
+	 */
 	function getNoteSearchRoot(spelling: string): SongKey | undefined {
 		return computeNoteSearchRoot(spelling, noteSearchState);
 	}
 
+	/**
+	 * Returns whether the given shape id should be rendered as selected.
+	 *
+	 * @param shapeId - The shape id to test
+	 * @returns `true` when the shape is selected and highlighting is active
+	 */
 	function isShapeSelected(shapeId: number): boolean {
 		return selectedShape?.id === shapeId && shapeHighlightActive;
 	}

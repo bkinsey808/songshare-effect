@@ -29,6 +29,7 @@ type CreateNoteToggleHandlerParams = Readonly<{
 /**
  * Returns a handler that toggles a non-root note interval in or out of the selected chord shape.
  *
+ * Behavior:
  * 1. Direct catalog match → select that shape.
  * 2. Inversion match → re-root to the catalog shape's root and set the original root as bass
  *    (produces a slash chord token).
@@ -38,6 +39,16 @@ type CreateNoteToggleHandlerParams = Readonly<{
  * When an inversion card is active the toggle works in the bass-note (display root) frame
  * so the note picker stays anchored — only the clicked note appears to change, not the
  * entire perspective.
+ *
+ * @param activeInversion - The currently active inversion card, if any
+ * @param notePickerShape - The currently selected catalog shape (may be undefined)
+ * @param notePickerRoot - The note that the picker is anchored to (display root)
+ * @param absoluteRoot - The current absolute root key for the song
+ * @param clearInversion - Callback to clear any active inversion state
+ * @param setSelectedRoot - Setter for the selected root state
+ * @param setSelectedShapeCode - Setter to update the selected shape code
+ * @param selectBassNote - Callback invoked when selecting a bass note for a slash chord
+ * @returns A handler that toggles the interval at the provided semitone offset
  */
 export default function createNoteToggleHandler({
 	activeInversion,

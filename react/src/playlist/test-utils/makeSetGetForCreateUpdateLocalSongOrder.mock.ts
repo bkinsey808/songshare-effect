@@ -50,6 +50,13 @@ export default function makeSetGetForCreateUpdateLocalSongOrder(): {
 		};
 	})();
 
+	/**
+	 * Mock `set` function used in tests to capture set calls and apply updaters.
+	 *
+	 * @param partial - Partial state or updater function applied to the mock store.
+	 * @param _replace - Ignored replace flag for compatibility with Zustand `set`.
+	 * @returns void
+	 */
 	function set(partial: SetParam, _replace?: boolean): void {
 		setCalls.push(partial);
 
@@ -65,6 +72,11 @@ export default function makeSetGetForCreateUpdateLocalSongOrder(): {
 		}
 	}
 
+	/**
+	 * Mock `get` function that returns the current internal mock state.
+	 *
+	 * @returns The current mock PlaylistSlice state.
+	 */
 	function get(): PlaylistSlice {
 		return internalState;
 	}

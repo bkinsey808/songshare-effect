@@ -21,6 +21,8 @@ vi.mock("./subscribe/subscribeToPlaylistPublic");
 /**
  * Returns a minimal mock store with vi.fn() stubs for set/get and a minimal api.
  * Get returns empty playlist library state so methods like getPlaylistLibraryIds work.
+ *
+ * @returns Mocked store `{ set, get, api }` for creating the slice
  */
 function makeMockStore(): {
 	set: Set<PlaylistLibrarySlice>;

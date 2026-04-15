@@ -37,6 +37,11 @@ describe("useSmoothedAudioLevel", () => {
 	let analyser: AudioAnalyser | undefined = undefined;
 	let buffer: Uint8Array<ArrayBuffer> | undefined = undefined;
 
+	/**
+	 * Prepare test fixtures and spies for `useSmoothedAudioLevel` tests.
+	 *
+	 * @returns Refs, options, and spy handles used by the tests
+	 */
 	async function setup(): Promise<{
 		refs: {
 			analyserRef: { current: AudioAnalyser | undefined };

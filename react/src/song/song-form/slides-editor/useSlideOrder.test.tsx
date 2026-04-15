@@ -4,6 +4,12 @@ import { describe, expect, it } from "vitest";
 
 import useSlideOrder from "./useSlideOrder";
 
+/**
+ * Local helper to create a controlled slide-order fixture for tests.
+ *
+ * @param initial - Initial slide id array used to seed the hook
+ * @returns Controlled state and setter used by the harness
+ */
 function useControlledSlideOrder(initial: readonly string[]): ReturnType<typeof useSlideOrder> & {
 	slideOrder: readonly string[];
 	setSlideOrder: (value: readonly string[]) => void;

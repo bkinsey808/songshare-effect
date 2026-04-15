@@ -28,6 +28,14 @@ type StoreOverrides = {
 	addActivePublicSongIds?: ReturnType<typeof vi.fn>;
 };
 
+/**
+ * Install mocked `useAppStore` selectors for tests.
+ *
+ * Provides a minimal store shape used by `usePlaylistView` and related helpers.
+ *
+ * @param overrides - Partial state and mocked callbacks to override defaults.
+ * @returns void
+ */
 function installStoreMocks(overrides: StoreOverrides = {}): void {
 	const fetchPlaylist = overrides.fetchPlaylist ?? vi.fn(() => Effect.succeed(undefined));
 	const clearCurrentPlaylist = overrides.clearCurrentPlaylist ?? vi.fn();
@@ -49,6 +57,14 @@ function installStoreMocks(overrides: StoreOverrides = {}): void {
 	);
 }
 
+/**
+ * Ensure a `PlaylistPublic` value is present for test assertions.
+ *
+ * Throws when the value is `undefined` to fail tests early with a clear message.
+ *
+ * @param value - Playlist public payload or undefined.
+ * @returns The provided `PlaylistPublic` when present.
+ */
 function getRequiredPlaylistPublic(value: PlaylistPublic | undefined): PlaylistPublic {
 	if (value === undefined) {
 		throw new Error("Expected playlist public data");
@@ -70,6 +86,11 @@ describe("usePlaylistView — Harness", () => {
 			}),
 		});
 
+		/**
+		 * Simple test harness component that reads `playlistPublic` from the hook.
+		 *
+		 * @returns A small element rendering the playlist name for assertions.
+		 */
 		function Harness(): ReactElement {
 			const playlistPublic = getRequiredPlaylistPublic(usePlaylistView().playlistPublic);
 			const playlistName = playlistPublic.playlist_name;

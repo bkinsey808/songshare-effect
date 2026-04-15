@@ -3,7 +3,10 @@ import isRecord from "@/shared/type-guards/isRecord";
 import type { SupabaseRealtimeClientLike } from "../SupabaseClientLike";
 
 /**
- * Runtime guard: returns true if value appears to have realtime capabilities.
+ * Runtime predicate: returns true if the value exposes the realtime API surface.
+ *
+ * @param value - Value to inspect for realtime methods
+ * @returns `true` when `value` looks like a `SupabaseRealtimeClientLike`
  */
 function hasRealtime(value: unknown): value is SupabaseRealtimeClientLike {
 	return (

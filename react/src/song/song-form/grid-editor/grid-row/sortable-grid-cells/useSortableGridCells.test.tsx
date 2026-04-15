@@ -32,6 +32,11 @@ const SLIDES: Readonly<Record<string, Slide>> = {
 	},
 };
 
+/**
+ * Create action mocks used by the hook tests.
+ *
+ * @returns HookActions with jest/vitest spies
+ */
 function makeActions(): HookActions {
 	return {
 		openChordPicker: vi.fn(),
@@ -40,6 +45,12 @@ function makeActions(): HookActions {
 	};
 }
 
+/**
+ * Create default hook params and action mocks for the hook under test.
+ *
+ * @param overrides - Partial overrides to the default hook params
+ * @returns An object containing `params` and `actions` for tests
+ */
 function makeParams(
 	overrides: Partial<HookParams> = {},
 ): Readonly<{ params: HookParams; actions: HookActions }> {
@@ -95,6 +106,7 @@ function getLyricsTextarea(container: HTMLElement): HTMLTextAreaElement {
  * - A button wired to onOpenChordPicker that opens the chord picker overlay
  *
  * @param params - Fully configured hook parameters
+ * @returns React element rendering the harness
  */
 function Harness({ params }: Readonly<{ params: HookParams }>): ReactElement {
 	const {

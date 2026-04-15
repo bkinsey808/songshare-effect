@@ -7,6 +7,13 @@
  */
 import { ONE } from "@/shared/constants/shared-constants";
 
+/**
+ * Manage slide order operations (duplicate, remove, move up/down).
+ *
+ * @param slideOrder - Current slide order array
+ * @param setSlideOrder - Setter to update the slide order
+ * @returns An object containing handlers: `duplicateSlideOrder`, `removeSlideOrder`, `moveSlideUp`, `moveSlideDown`
+ */
 export default function useSlideOrder({
 	slideOrder,
 	setSlideOrder,
@@ -29,10 +36,24 @@ export default function useSlideOrder({
 	const NONE = 0;
 
 	// Duplicate a slide in the order array (can appear multiple times)
+	/**
+	 * Duplicate a slide id by appending it to the order array.
+	 *
+	 * @param slideId - Slide id to duplicate in the order
+	 * @returns void
+	 */
 	function duplicateSlideOrder(slideId: string): void {
 		setSlideOrder([...slideOrder, slideId]);
 	}
 
+	/**
+	 * Remove a single occurrence of `slideId` from the order array.
+	 * If `index` is provided, removes that specific index; otherwise removes the first occurrence.
+	 *
+	 * @param slideId - The slide id to remove
+	 * @param index - Optional index to remove
+	 * @returns void
+	 */
 	// Remove only the clicked instance of slideId from the order array
 	function removeSlideOrder({
 		slideId,
@@ -59,6 +80,12 @@ export default function useSlideOrder({
 		}
 	}
 
+	/**
+	 * Move the slide at `index` up one position in the order array.
+	 *
+	 * @param index - Index of the slide to move up
+	 * @returns void
+	 */
 	function moveSlideUp(index: number): void {
 		if (index <= NONE || index >= slideOrder.length) {
 			return;
@@ -74,6 +101,12 @@ export default function useSlideOrder({
 		setSlideOrder(newOrder);
 	}
 
+	/**
+	 * Move the slide at `index` down one position in the order array.
+	 *
+	 * @param index - Index of the slide to move down
+	 * @returns void
+	 */
 	function moveSlideDown(index: number): void {
 		if (index < NONE || index >= slideOrder.length - ONE) {
 			return;

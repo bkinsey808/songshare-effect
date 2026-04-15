@@ -10,6 +10,7 @@
  * An optional `locationOverride` can be passed for testing or to avoid
  * accessing `globalThis.location` directly.
  *
+ * @param locationOverride - Optional location-like object to use instead of globalThis.location
  * @returns The port string to include in redirect URLs, or an empty string to omit
  */
 export default function computeRedirectPort(locationOverride?: {

@@ -30,6 +30,18 @@ type SlideFieldCellProps = Readonly<{
 	onSyncSelection: () => void;
 }>;
 
+/**
+ * Render a resizable field cell containing an auto-expanding textarea.
+ *
+ * @param field - The field key rendered in this cell
+ * @param slideId - Slide id for which this field is shown
+ * @param slides - Slides lookup used to read the field value
+ * @param safeGetField - Safe accessor to read the field value
+ * @param editFieldValue - Callback to update the field value
+ * @param textareaRef - Optional textarea ref for lyrics synchronization
+ * @param onSyncSelection - Handler that syncs selection state when user interacts
+ * @returns React element for the field cell
+ */
 export default function SlideFieldCell({
 	field,
 	slideId,

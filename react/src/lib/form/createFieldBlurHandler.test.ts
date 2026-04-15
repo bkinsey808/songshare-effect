@@ -12,7 +12,12 @@ vi.mock("@/react/lib/utils/clientLogger");
 const NEG_ONE = -1;
 const ZERO = 0;
 
-/** Extract errors from the last mock call. */
+/**
+ * Extract errors from the last mock call.
+ *
+ * @param calls - The mock call array recorded by a spy
+ * @returns The last call's validation errors
+ */
 function extractLastCall(calls: unknown[][]): ValidationError[] {
 	return forceCast<ValidationError[]>(calls.at(NEG_ONE)?.at(ZERO));
 }
@@ -25,6 +30,12 @@ describe("createFieldBlurHandler", () => {
 		age: Schema.Number,
 	});
 
+	/**
+	 * Initialize test modules for `createFieldBlurHandler` and return the
+	 * exported symbol under test.
+	 *
+	 * @returns Object with `createFieldBlurHandler` constructor
+	 */
 	async function init(): Promise<{
 		createFieldBlurHandler: typeof createFieldBlurHandlerType;
 	}> {

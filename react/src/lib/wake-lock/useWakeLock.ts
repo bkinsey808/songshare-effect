@@ -35,6 +35,11 @@ export default function useWakeLock(): {
 			return;
 		}
 
+		/**
+		 * Initialize the wake lock by attempting to request it and updating state.
+		 *
+		 * @returns void
+		 */
 		async function initWakeLock(): Promise<void> {
 			const success = await requestWakeLock();
 			setIsWakeLockActive(success);
@@ -44,6 +49,11 @@ export default function useWakeLock(): {
 
 		// Re-acquire wake lock when page becomes visible again (e.g., Chrome releases
 		// the lock when a page is hidden). Only attempt when we don't already have a sentinel.
+		/**
+		 * Re-request the wake lock when the document becomes visible again and no sentinel exists.
+		 *
+		 * @returns void
+		 */
 		function handleVisibilityChange(): void {
 			if (document.visibilityState === "visible" && getWakeLockSentinel() === undefined) {
 				void (async (): Promise<void> => {
@@ -64,7 +74,19 @@ export default function useWakeLock(): {
 
 	// Toggle the wake lock on or off.
 	// Uses an internal async function so the exported `toggleWakeLock` remains synchronous to callers.
+	/**
+	 * Toggle the wake lock state. When active, it releases the lock; otherwise it requests a lock.
+	 *
+	 * The exposed `toggleWakeLock` is synchronous; the actual work runs in an async helper.
+	 *
+	 * @returns void
+	 */
 	function toggleWakeLock(): void {
+		/**
+		 * Internal async toggle implementation.
+		 *
+		 * @returns Promise<void>
+		 */
 		async function toggle(): Promise<void> {
 			if (isWakeLockActive) {
 				await releaseWakeLock();

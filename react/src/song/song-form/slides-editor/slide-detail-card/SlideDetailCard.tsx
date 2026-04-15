@@ -48,6 +48,18 @@ type SlideDetailCardProps = Readonly<{
 	}>;
 }>;
 
+/**
+ * Slide detail card UI used inside the slides editor.
+ *
+ * @param slideId - Id of the slide to render
+ * @param idx - Index of the slide in the presentation order
+ * @param fields - Editable field keys shown in the card
+ * @param slideOrder - Current slide order array
+ * @param slides - Map of slide id to Slide objects
+ * @param uiState - Local UI state (confirm/delete/background picker)
+ * @param actions - Action handlers passed from the parent editor
+ * @returns A ReactElement representing the detailed slide card or undefined when slide missing
+ */
 export default function SlideDetailCard({
 	slideId,
 	idx,

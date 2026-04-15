@@ -37,6 +37,7 @@ type UseFocalPointCoverImageResult = Readonly<{
  * @param containerAspectRatio - Target container aspect ratio as width divided by height.
  * @param focalPoint - Stored image focal point percentages.
  * @param imageDimensions - Known source image dimensions when already available.
+ * @param slideOrientation - Slide orientation that decides which axis should stay centered (`landscape` or `portrait`).
  * @param src - Image URL being rendered.
  * @returns Exact-layout state, computed style, and an image-load handler for browser-measured dimensions.
  */
@@ -69,6 +70,15 @@ export default function useFocalPointCoverImage({
 				objectPosition: focalPoint === undefined ? "center" : getImageObjectPosition(focalPoint),
 			};
 
+	/**
+	 * Browser image `onLoad` handler that captures intrinsic image dimensions.
+	 *
+	 * When dimensions are valid, they are stored in state so exact layout
+	 * calculations can be performed.
+	 *
+	 * @param event - Image load synthetic event from React.
+	 * @returns void
+	 */
 	function handleImageLoad(event: React.SyntheticEvent<HTMLImageElement>): void {
 		const nextWidth = event.currentTarget.naturalWidth;
 		const nextHeight = event.currentTarget.naturalHeight;

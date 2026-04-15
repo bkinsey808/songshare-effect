@@ -9,7 +9,16 @@ type ErrorBoundaryProps = Readonly<{
 	children: ReactNode;
 }>;
 
+/**
+ * Error boundary that catches render-time errors and displays a friendly UI.
+ */
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+	/**
+	 * Update local state when an error is thrown in a child component.
+	 *
+	 * @param error - Error thrown by a child component
+	 * @returns Updated state indicating an error occurred
+	 */
 	static getDerivedStateFromError(error: Readonly<Error>): ErrorBoundaryState {
 		return { hasError: true, error };
 	}
@@ -19,12 +28,24 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 		this.state = { hasError: false };
 	}
 
-	// lifecycle method intentionally doesn't use `this` (handled via getDerivedStateFromError)
+	/**
+	 * Called when an error is caught; logs additional information.
+	 * lifecycle method intentionally doesn't use `this` (handled via getDerivedStateFromError)
+	 *
+	 * @param error - The caught error
+	 * @param errorInfo - Additional error info from React
+	 * @returns void
+	 */
 	// oxlint-disable-next-line class-methods-use-this
 	override componentDidCatch(error: Readonly<Error>, errorInfo: Readonly<ErrorInfo>): void {
 		console.error("Error Boundary caught an error:", error, errorInfo);
 	}
 
+	/**
+	 * Render the error UI when an error has been captured; otherwise render children.
+	 *
+	 * @returns ReactNode containing the error UI or children
+	 */
 	override render(): ReactNode {
 		if (this.state.hasError) {
 			return (

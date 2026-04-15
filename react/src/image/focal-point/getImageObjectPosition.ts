@@ -4,6 +4,15 @@ const MIN_FOCAL_POINT = 0;
 const MAX_FOCAL_POINT = 100;
 const DEFAULT_FOCAL_POINT = 50;
 
+/**
+ * Clamp and sanitize a stored focal point value to a valid percentage.
+ *
+ * Non-finite values fall back to the default focal point. Values are clamped
+ * to the inclusive range [0, 100].
+ *
+ * @param value - Raw focal point value to sanitize.
+ * @returns A safe focal point percentage between 0 and 100.
+ */
 function clampFocalPointValue(value: number): number {
 	if (!Number.isFinite(value)) {
 		return DEFAULT_FOCAL_POINT;

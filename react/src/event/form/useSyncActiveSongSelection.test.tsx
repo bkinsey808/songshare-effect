@@ -18,7 +18,12 @@ const INVALID_NINTH_POSITION = 9;
 
 type SetFormValuesState = React.Dispatch<React.SetStateAction<EventFormValues>>;
 
-/** Builds default EventFormValues with optional overrides for focused assertions. */
+/**
+ * Builds default EventFormValues with optional overrides for focused assertions.
+ *
+ * @param overrides - partial values to override defaults
+ * @returns defaulted EventFormValues object
+ */
 function makeFormValues(overrides: Partial<EventFormValues> = {}): EventFormValues {
 	return {
 		event_id: undefined,
@@ -36,7 +41,13 @@ function makeFormValues(overrides: Partial<EventFormValues> = {}): EventFormValu
 	};
 }
 
-/** Applies a React setState-style action (value or updater fn) to produce the next value. */
+/**
+ * Applies a React setState-style action (value or updater fn) to produce the next value.
+ *
+ * @param setStateAction - either a new value or an updater function
+ * @param previousValue - the previous state value
+ * @returns the next state value after applying the action
+ */
 function applySetStateAction(
 	setStateAction: React.SetStateAction<EventFormValues>,
 	previousValue: EventFormValues,

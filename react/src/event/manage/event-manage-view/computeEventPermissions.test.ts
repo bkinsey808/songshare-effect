@@ -10,6 +10,12 @@ const OWNER_ID = "owner-1";
 const ADMIN_ID = "admin-1";
 const OTHER_ID = "other-1";
 
+/**
+ * Create a test participant entry.
+ *
+ * @param opts - participant options used to construct the entry
+ * @returns EventParticipant test fixture
+ */
 function makeParticipant(opts: {
 	user_id: string;
 	role: string;

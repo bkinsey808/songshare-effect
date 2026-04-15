@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
-	cacheSupabaseClientToken,
-	cacheUserToken,
-	clearSupabaseClientToken,
-	clearUserToken,
-	getCachedSupabaseClientToken,
-	getCachedUserToken,
-	isUserSignedIn,
+    cacheSupabaseClientToken,
+    cacheUserToken,
+    clearSupabaseClientToken,
+    clearUserToken,
+    getCachedSupabaseClientToken,
+    getCachedUserToken,
+    isUserSignedIn,
 } from "./token-cache";
 
 const TOKEN_A = "token-a";
@@ -20,6 +20,13 @@ const NOW = 1_000_000;
 const ONE_MS = 1;
 const HALF_DIVISOR = 2;
 
+/**
+ * Run a synchronous function with Vitest's fake timers enabled and ensure
+ * timers are restored afterwards.
+ *
+ * @param fn - Function to execute under fake timers
+ * @returns void
+ */
 function withFakeTimers(fn: () => void): void {
 	vi.useFakeTimers();
 	try {

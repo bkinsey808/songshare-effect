@@ -54,6 +54,11 @@ function translateOrDefault(key: string, defaultVal?: string | Record<string, un
 	return typeof defaultVal === "string" ? defaultVal : key;
 }
 
+/**
+ * Install UI-level mocks for `SongView` integration tests.
+ *
+ * @returns void
+ */
 function installUiMocks(): void {
 	vi.mocked(SongViewLibraryAction).mockImplementation(() => undefined);
 	vi.mocked(SongViewSlides).mockImplementation(() => undefined);
@@ -79,6 +84,15 @@ type StoreMockOptions = {
 	isSignedIn?: boolean;
 };
 
+/**
+ * Install store selector mocks used by `SongView` tests.
+ *
+ * @param mockAdd - Value to expose as `addActivePublicSongSlugs`
+ * @param publicSongs - Map of `SongPublic` to expose via the selector
+ * @param mockUserId - Current user id to expose on `userSessionData`
+ * @param isSignedIn - Whether the user is signed in
+ * @returns void
+ */
 function installStoreMocks({
 	mockAdd,
 	publicSongs = {},

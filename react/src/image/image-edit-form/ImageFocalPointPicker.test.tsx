@@ -8,6 +8,12 @@ import ImageFocalPointPicker from "./ImageFocalPointPicker";
 
 vi.mock("@/react/slide-orientation/useSlideOrientationPreference");
 
+/**
+ * Create a mocked slide-orientation preference for tests.
+ *
+ * @param effectiveSlideOrientation - Desired effective orientation.
+ * @returns A stubbed preference object matching the hook shape.
+ */
 function makeOrientationPreference(
 	effectiveSlideOrientation: "landscape" | "portrait",
 ): ReturnType<typeof useSlideOrientationPreference> {
@@ -20,6 +26,13 @@ function makeOrientationPreference(
 				: SlideOrientationPreference.landscape,
 	};
 }
+
+/**
+ * Create a mocked slide-orientation preference for tests.
+ *
+ * @param effectiveSlideOrientation - Desired effective orientation.
+ * @returns A stubbed preference object matching the hook shape.
+ */
 
 describe("image focal point picker", () => {
 	it("renders a portrait preview frame for portrait orientation", () => {

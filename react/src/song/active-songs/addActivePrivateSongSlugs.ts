@@ -66,6 +66,12 @@ export default function addActivePrivateSongSlugs(
 			return;
 		}
 
+		/**
+		 * Runtime guard for song rows returned by Supabase.
+		 *
+		 * @param value - Unknown value to validate as a `Song` row
+		 * @returns True when the value contains minimal `Song` fields
+		 */
 		function isSongRow(value: unknown): value is Song {
 			if (!isRecord(value)) {
 				return false;

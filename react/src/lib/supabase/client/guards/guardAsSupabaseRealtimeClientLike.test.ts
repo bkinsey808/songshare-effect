@@ -6,17 +6,29 @@ import guardAsSupabaseRealtimeClientLike from "./guardAsSupabaseRealtimeClientLi
 
 const INVALID_PRIMITIVE = 42;
 
-/** Returns an empty object to satisfy the channel() return type in the guard. */
+/**
+ * Returns an empty object to satisfy the `channel()` return type in the guard.
+ *
+ * @returns A minimal placeholder object
+ */
 function mockChannel(): object {
 	return {};
 }
 
-/** Returns an empty object to satisfy the removeChannel() return type in the guard. */
+/**
+ * Returns an empty object to satisfy the `removeChannel()` return type in the guard.
+ *
+ * @returns A minimal placeholder object
+ */
 function mockRemoveChannel(): object {
 	return {};
 }
 
-/** Builds a minimal realtime client stub with channel and removeChannel for guard tests. */
+/**
+ * Build a minimal realtime client stub with `channel` and `removeChannel`.
+ *
+ * @returns An object that mimics the minimal required realtime API
+ */
 function makeMockRealtimeClient(): { channel: () => object; removeChannel: () => object } {
 	return {
 		channel: mockChannel,

@@ -10,11 +10,10 @@ type GetEventSubmitLabelArgs = {
 /**
  * Computes the submit button label for create/edit event form states.
  *
- * @param args - Label computation inputs
- * @param args.isSaving - Whether a save request is in progress
- * @param args.isSubmitting - Whether validation/submission is in progress
- * @param args.isEditing - Whether form is in edit mode
- * @param args.t - i18n translation function
+ * @param isSaving - Whether a save request is in progress
+ * @param isSubmitting - Whether validation/submission is in progress
+ * @param isEditing - Whether form is in edit mode
+ * @param t - i18n translation function
  * @returns Localized submit label text
  */
 export default function getEventSubmitLabel({

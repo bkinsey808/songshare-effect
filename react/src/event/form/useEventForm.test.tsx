@@ -19,10 +19,24 @@ const FIRST_POSITION = 1;
  Reuse the same auth fetch stub used in playlist tests to prevent background
  auth requests from interfering with tests (getSupabaseAuthToken calls).
 */
+/**
+ * Temporarily patches global `fetch` with an auth-aware stub while running
+ * the provided task, restoring the original fetch afterwards.
+ *
+ * @param task - async function executed while the stub is installed
+ * @returns the value returned by `task`
+ */
 async function withAuthFetchMock(task: () => unknown) {
 	const original =
 		typeof globalThis.fetch === "function" ? globalThis.fetch.bind(globalThis) : undefined;
 
+	/**
+	 * Mock implementation of `fetch` that returns canned auth responses.
+	 *
+	 * @param input - request input (URL or RequestInfo)
+	 * @param init - optional init options
+	 * @returns mocked `Response` suitable for auth endpoints
+	 */
 	async function authFetchMock(input: URL | RequestInfo, init?: RequestInit): Promise<Response> {
 		let url = "";
 		if (typeof input === "string") {

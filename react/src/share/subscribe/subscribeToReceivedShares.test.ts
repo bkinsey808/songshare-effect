@@ -20,6 +20,11 @@ vi.mock("@/react/lib/supabase/subscription/realtime/createRealtimeSubscription")
 vi.mock("./handleShareSubscribeEvent");
 
 describe("subscribeToReceivedShares", () => {
+	/**
+	 * Minimal get helper that returns a mock ShareSlice for testing.
+	 *
+	 * @returns A mocked `ShareSlice` object.
+	 */
 	function get(): ShareSlice {
 		return forceCast<ShareSlice>({});
 	}

@@ -23,6 +23,12 @@ export default function makeAppSlice(overrides: Partial<AppSlice> = {}): AppSlic
 	let _isSignedIn: boolean | undefined = undefined;
 	let _userSessionData: UserSessionData | undefined = undefined;
 
+	/**
+	 * Internal setter used by the test slice to update the `isSignedIn` flag.
+	 *
+	 * @param value - Optional boolean to set `isSignedIn` to; `undefined` clears it.
+	 * @returns void
+	 */
 	function setIsSignedInImpl(value?: boolean): void {
 		_isSignedIn = value;
 	}

@@ -4,6 +4,11 @@ import asNever from "@/react/lib/test-utils/asNever";
 
 import asGpuCanvasContext from "./asGpuCanvasContext.mock";
 
+/**
+ * Create a small HTMLCanvasElement for use in TypeGPU demos/tests.
+ *
+ * @returns HTMLCanvasElement sized 100x100
+ */
 function makeCanvas(): HTMLCanvasElement {
 	const canvasEl = document.createElement("canvas");
 	canvasEl.width = 100;
@@ -12,6 +17,11 @@ function makeCanvas(): HTMLCanvasElement {
 }
 
 describe("runTypeGpuDemo", () => {
+	/**
+	 * Reset module state for each test and provide a cleanup function.
+	 *
+	 * @returns Cleanup function that unstubs globals
+	 */
 	function setup(): () => void {
 		vi.resetModules();
 		return () => {
@@ -81,6 +91,11 @@ describe("runTypeGpuDemo", () => {
 		};
 
 		const mockModule = {
+			/**
+			 * Initialize the mocked TypeGPU module for tests.
+			 *
+			 * @returns Promise resolving to the mocked root object
+			 */
 			init(): Promise<typeof mockRoot> {
 				return Promise.resolve(mockRoot);
 			},

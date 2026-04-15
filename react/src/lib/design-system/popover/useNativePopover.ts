@@ -41,6 +41,9 @@ export type UseNativePopoverReturn = {
  * Custom hook that encapsulates all native popover logic
  * Handles state management, event handlers, and positioning
  *
+ * @param preferredPlacement - Preferred placement for the popover (top/bottom/left/right)
+ * @param trigger - Trigger mode for the popover (hover/click)
+ * @param closeOnTriggerClick - Whether clicks on the trigger should close an open popover
  * @returns The `UseNativePopoverReturn` object containing refs, state, handlers and event callbacks
  */
 export function useNativePopover({
@@ -50,6 +53,12 @@ export function useNativePopover({
 }: UseNativePopoverProps): UseNativePopoverReturn {
 	// Refs needed to access DOM elements for positioning calculations and native popover API
 	const triggerRef = useRef<HTMLElement | null>(null);
+	/**
+	 * Optional callback ref helper that sets the internal trigger ref.
+	 *
+	 * @param el - The trigger element or `null` when unmounting
+	 * @returns void
+	 */
 	function setTriggerRef(el: HTMLElement | null): void {
 		triggerRef.current = el;
 	}
@@ -57,6 +66,11 @@ export function useNativePopover({
 	const popoverId = useId();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 
+	/**
+	 * Hide the popover, preferring the native `hidePopover` if available.
+	 *
+	 * @returns void
+	 */
 	function hidePopover(): void {
 		const popover = popoverRef.current;
 		if (popover) {
@@ -89,6 +103,12 @@ export function useNativePopover({
 			return;
 		}
 
+		/**
+		 * Handle native `toggle` events emitted by the popover element.
+		 *
+		 * @param event - The native toggle event containing `newState`
+		 * @returns void
+		 */
 		function handleToggle(event: Event): void {
 			const newState: unknown = Reflect.get(event, "newState");
 			setIsOpen(newState === "open");
@@ -100,6 +120,11 @@ export function useNativePopover({
 		};
 	}, []);
 
+	/**
+	 * Show the popover, using the native `showPopover` API when present.
+	 *
+	 * @returns void
+	 */
 	function showPopover(): void {
 		const popover = popoverRef.current;
 		if (popover) {
@@ -115,6 +140,11 @@ export function useNativePopover({
 		requestAnimationFrame(updatePositionExternal as FrameRequestCallback);
 	}
 
+	/**
+	 * Toggle the popover open/closed based on current state.
+	 *
+	 * @returns void
+	 */
 	function togglePopover(): void {
 		if (isOpen) {
 			hidePopover();
@@ -123,18 +153,34 @@ export function useNativePopover({
 		}
 	}
 
+	/**
+	 * Open the popover when the trigger is hovered if configured.
+	 *
+	 * @returns void
+	 */
 	function handleMouseEnter(): void {
 		if (trigger === "hover") {
 			showPopover();
 		}
 	}
 
+	/**
+	 * Close the popover on mouse leave when in hover mode.
+	 *
+	 * @returns void
+	 */
 	function handleMouseLeave(): void {
 		if (trigger === "hover") {
 			hidePopover();
 		}
 	}
 
+	/**
+	 * Handle clicks on the trigger element according to `trigger` and
+	 * `closeOnTriggerClick` configuration.
+	 *
+	 * @returns void
+	 */
 	function handleTriggerClick(): void {
 		if (trigger === "click") {
 			togglePopover();
@@ -148,6 +194,12 @@ export function useNativePopover({
 		}
 	}
 
+	/**
+	 * Keyboard handler for accessibility: open/close on Enter/Space.
+	 *
+	 * @param ev - Keyboard event from the trigger element
+	 * @returns void
+	 */
 	function handleKeyDown(ev: React.KeyboardEvent): void {
 		if (ev.key === "Enter" || ev.key === " ") {
 			ev.preventDefault();

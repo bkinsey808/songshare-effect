@@ -22,6 +22,12 @@ const R2_KEY = "images/owner-1/img-1.jpg";
 const IMAGE_SLUG = "my-image";
 const CDN_URL = "https://cdn.example.com/img.jpg";
 
+/**
+ * Build a minimal `ImageLibraryEntry` fixture for tests.
+ *
+ * @param opts - Partial fields to override default values.
+ * @returns An image library entry fixture.
+ */
 function makeEntry(opts?: Partial<ImageLibraryEntry>): ImageLibraryEntry {
 	return {
 		user_id: OWNER_ID,
@@ -48,12 +54,23 @@ function makeEntry(opts?: Partial<ImageLibraryEntry>): ImageLibraryEntry {
 	};
 }
 
+/**
+ * Install a mocked locale for useLocale in tests.
+ *
+ * @returns void
+ */
 function installLocale(): void {
 	vi.mocked(useLocale).mockReturnValue(
 		forceCast<ReturnType<typeof useLocale>>({ lang: "en", t: (key: string) => key }),
 	);
 }
 
+/**
+ * Install a mocked image library slice for `useImageLibraryCard` tests.
+ *
+ * @param opts - Options to seed image entries and handlers.
+ * @returns void
+ */
 function installStore(opts: {
 	removeImageFromLibrary?: ReturnType<typeof vi.fn>;
 	deleteImage?: ReturnType<typeof vi.fn>;
@@ -75,12 +92,10 @@ function installStore(opts: {
 }
 
 /**
- * Harness for useImageLibraryCard — "Documentation by Harness".
+ * Test harness for `useImageLibraryCard` demonstrating DOM integration.
  *
- * Shows how useImageLibraryCard integrates into a library card:
- * - Image preview, view link
- * - Remove button
- * - Owner badge
+ * @param props - Harness props including `entry` and `currentUserId`.
+ * @returns A React element used by tests to assert UI output.
  */
 function Harness(props: {
 	entry: ImageLibraryEntry;
@@ -109,7 +124,10 @@ function Harness(props: {
 }
 
 /**
- * Harness for delete behavior in useImageLibraryCard.
+ * Harness for delete behavior in `useImageLibraryCard` tests.
+ *
+ * @param props - Harness props including `entry` and `currentUserId`.
+ * @returns A React element used to trigger delete behavior.
  */
 function DeleteHarness(props: {
 	entry: ImageLibraryEntry;

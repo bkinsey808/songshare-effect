@@ -5,6 +5,9 @@ import clamp01 from "../clamp01";
  *
  * Computes `previous + (next - previous) * alpha` with `alpha` clamped to [0, 1].
  *
+ * @param previous - Previous smoothed value
+ * @param next - Next raw value to incorporate
+ * @param alpha - Smoothing factor in [0,1]
  * @returns The smoothed numeric value between the provided bounds
  */
 export default function smoothValue(previous: number, next: number, alpha: number): number {

@@ -5,6 +5,10 @@ import { Effect as EffectRuntime } from "effect";
  *
  * This is extracted into its own module so other helpers (like runAction) can
  * depend on it without importing `useEventManageState` and creating a cycle.
+ *
+ * @param event_slug - slug of the event to refresh (may be undefined)
+ * @param fetchEventBySlug - effect-producing function that fetches the event
+ * @returns void
  */
 export default async function refreshEvent(
 	event_slug: string | undefined,

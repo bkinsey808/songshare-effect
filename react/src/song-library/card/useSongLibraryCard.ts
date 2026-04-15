@@ -30,10 +30,30 @@ export default function useSongLibraryCard({ entry }: UseSongLibraryCardParams):
 	const removeFromSongLibrary = useAppStore((state) => state.removeSongFromSongLibrary);
 	const viewPath = buildPathWithLang(`/${songViewPath}/${entry.song_slug}`, lang);
 
+	/**
+	 * Navigate to the song edit page for this entry.
+	 *
+	 * @returns void
+	 */
+	/**
+	 * Navigate to the song edit page for this entry.
+	 *
+	 * @returns void
+	 */
 	function handleEditSongClick(): void {
 		void navigate(`/${lang}/${dashboardPath}/${songEditPath}/${entry.song_id}`);
 	}
 
+	/**
+	 * Remove this song from the user's library via the app store effect.
+	 *
+	 * @returns void
+	 */
+	/**
+	 * Remove this song from the user's library via the app store effect.
+	 *
+	 * @returns void
+	 */
 	function handleRemoveSongClick(): void {
 		void Effect.runPromise(removeFromSongLibrary({ song_id: entry.song_id }));
 	}

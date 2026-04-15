@@ -10,6 +10,11 @@ import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import type { PlaylistLibrarySlice } from "../PlaylistLibrarySlice.type";
 import subscribeToPlaylistPublic from "./subscribeToPlaylistPublic";
 
+/**
+ * Build a `get` function returning a minimal mocked `PlaylistLibrarySlice` for playlist_public tests.
+ *
+ * @returns A function that provides the mocked slice
+ */
 function makePlaylistLibraryGet(): () => PlaylistLibrarySlice {
 	const setPlaylistLibraryEntries = vi.fn();
 	const stub = forceCast<PlaylistLibrarySlice>({

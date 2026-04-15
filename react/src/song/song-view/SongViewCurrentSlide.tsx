@@ -31,8 +31,12 @@ type SongViewCurrentSlideProps = Readonly<{
  * When there are no slides it renders a localized empty-state message. If the
  * slide payload is missing or not a plain record, nothing is rendered.
  *
+ * @param containerAspectRatioOverride - Optional numeric aspect ratio override for the image container
  * @param currentSlide - Raw slide payload that may still need validation.
+ * @param currentSlideIndex - Zero-based index of the current slide for display numbering
  * @param displayFields - Ordered field keys to render from `field_data`.
+ * @param isFullScreen - Whether the view is rendered full-screen
+ * @param songKey - Optional song key used for chord rendering
  * @param totalSlides - Total number of slides for this song.
  * @returns React element or `undefined` when no slide content should render.
  */

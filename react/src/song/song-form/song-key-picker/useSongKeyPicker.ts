@@ -17,6 +17,12 @@ export default function useSongKeyPicker(): UseSongKeyPickerReturn {
 
 	// Close the picker when the user clicks outside it or presses Escape.
 	useEffect(() => {
+		/**
+		 * Close the picker when a pointerdown occurs outside the container.
+		 *
+		 * @param event - PointerEvent from the document
+		 * @returns void
+		 */
 		function handlePointerDown(event: PointerEvent): void {
 			if (!(event.target instanceof Node)) {
 				return;
@@ -26,6 +32,12 @@ export default function useSongKeyPicker(): UseSongKeyPickerReturn {
 			}
 		}
 
+		/**
+		 * Close the picker when the user presses the Escape key.
+		 *
+		 * @param event - KeyboardEvent from the document
+		 * @returns void
+		 */
 		function handleEscape(event: KeyboardEvent): void {
 			if (event.key === "Escape") {
 				setIsOpen(false);

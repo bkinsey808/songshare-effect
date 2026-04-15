@@ -2,12 +2,12 @@
  * Custom hook for managing drag and drop functionality for playlist songs
  */
 import {
-	type DragEndEvent,
-	PointerSensor,
-	type SensorDescriptor,
-	type SensorOptions,
-	useSensor,
-	useSensors,
+    type DragEndEvent,
+    PointerSensor,
+    type SensorDescriptor,
+    type SensorOptions,
+    useSensor,
+    useSensors,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
@@ -50,6 +50,12 @@ export default function usePlaylistDragAndDrop({
 	);
 
 	// Handle drag end for song order
+	/**
+	 * Handle the dnd-kit drag end event and update the song order when needed.
+	 *
+	 * @param event - Drag end event provided by dnd-kit.
+	 * @returns void
+	 */
 	function handleDragEnd(event: DragEndEvent): void {
 		const { active, over } = event;
 		if (over && active.id !== over.id) {

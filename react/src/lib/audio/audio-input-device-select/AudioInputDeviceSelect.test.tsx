@@ -5,6 +5,13 @@ import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 
 import AudioInputDeviceSelect from "./AudioInputDeviceSelect";
 
+/**
+ * Replace the live `enumerateAudioInputDevices` import with a test spy that
+ * resolves to the supplied device list.
+ *
+ * @param devices - Array of `MediaDeviceInfo` values to return from the spy
+ * @returns The spy object with `mockResolvedValue` and optional `mockReset`
+ */
 async function applyMockEnumerate(
 	devices: MediaDeviceInfo[],
 ): Promise<{ mockResolvedValue: (value: MediaDeviceInfo[]) => void; mockReset?: () => void }> {

@@ -20,6 +20,11 @@ const LAST_CALL_INDEX = -1;
 const FIRST_ARG_INDEX = 0;
 const mockedImageEditForm = vi.mocked(ImageEditForm);
 
+/**
+ * Retrieve the props passed to the most recent `ImageEditForm` render call.
+ *
+ * @returns The last-call props for `ImageEditForm`.
+ */
 function getLatestImageEditFormProps(): React.ComponentProps<typeof ImageEditForm> {
 	const lastCall = mockedImageEditForm.mock.calls.at(LAST_CALL_INDEX);
 	if (lastCall === undefined) {
@@ -29,6 +34,11 @@ function getLatestImageEditFormProps(): React.ComponentProps<typeof ImageEditFor
 	return lastCall[FIRST_ARG_INDEX];
 }
 
+/**
+ * Create a minimal `ImagePublic` test fixture with predictable fields.
+ *
+ * @returns A test `ImagePublic` object.
+ */
 function makeImage(): ImagePublic {
 	return makeImagePublic({
 		user_id: "usr-owner",

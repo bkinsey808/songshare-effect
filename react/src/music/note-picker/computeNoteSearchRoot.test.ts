@@ -11,6 +11,12 @@ const MAJOR_SPELLING = "3,5";
 const C_SEMITONE = 0;
 const G_SEMITONE = 7;
 
+/**
+ * Build a readonly note-search map for tests.
+ *
+ * @param entries - Tuples of semitone index and toggle state.
+ * @returns A `ReadonlyMap` suitable for `computeNoteSearchRoot` tests.
+ */
 function state(
 	entries: [number, NoteSearchToggleState][],
 ): ReadonlyMap<number, NoteSearchToggleState> {

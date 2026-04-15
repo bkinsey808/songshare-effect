@@ -32,6 +32,7 @@ type SongViewDetailsProps = Readonly<{
 /**
  * Render the public song details section.
  *
+ * @param songPublic - Public song data to display in the details grid
  * @returns React element for the metadata grid.
  */
 export default function SongViewDetails({ songPublic }: SongViewDetailsProps): ReactElement {

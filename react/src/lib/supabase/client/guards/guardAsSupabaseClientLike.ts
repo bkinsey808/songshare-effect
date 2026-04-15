@@ -1,7 +1,10 @@
 import type { SupabaseClientLike } from "../SupabaseClientLike";
 
 /**
- * Runtime guard: returns true if value appears to have `auth.getUser` like Supabase client.
+ * Runtime predicate: checks whether `value` exposes an `auth.getUser` function.
+ *
+ * @param value - Candidate value to inspect
+ * @returns `true` when `value.auth.getUser` is a function
  */
 function hasAuth(value: unknown): value is { auth: { getUser: () => Promise<unknown> } } {
 	if (value === null || value === undefined) {
@@ -16,7 +19,10 @@ function hasAuth(value: unknown): value is { auth: { getUser: () => Promise<unkn
 }
 
 /**
- * Runtime guard: returns true if value appears to have a `from` method like Supabase client.
+ * Runtime predicate: checks whether `value` exposes a `from` function.
+ *
+ * @param value - Candidate value to inspect
+ * @returns `true` when `value.from` is a function
  */
 function hasFrom<DB = unknown>(value: unknown): value is SupabaseClientLike<DB> {
 	if (value === null || value === undefined) {

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
-import ImagePickerPopover from "@/react/image/image-picker/ImagePickerPopover";
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
+import ImagePickerPopover from "@/react/image/image-picker/ImagePickerPopover";
 import Button from "@/react/lib/design-system/Button";
 import { type Slide } from "@/react/song/song-form/song-form-types";
 
@@ -48,14 +48,31 @@ export default function SlideBackgroundImageCell({
 	const { t } = useTranslation();
 	const hasBackgroundImage = slide.background_image_url !== undefined;
 
+	/**
+	 * Toggle the inline background image picker for this slide.
+	 *
+	 * @returns void
+	 */
 	function handleToggleBackgroundPicker(): void {
 		toggleBackgroundPicker(slideId);
 	}
 
+	/**
+	 * Clear the selected background image for this slide.
+	 *
+	 * @returns void
+	 */
 	function handleClearBackgroundImage(): void {
 		clearSlideBackgroundImage(slideId);
 	}
 
+	/**
+	 * Apply the selected image to the current slide.
+	 *
+	 * @param imageId - Selected image id
+	 * @param imageUrl - Selected image URL
+	 * @returns void
+	 */
 	function handleSelectBackgroundImage({
 		imageId,
 		imageUrl,

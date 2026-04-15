@@ -1,10 +1,10 @@
 import {
-	type DragEndEvent,
-	PointerSensor,
-	type SensorDescriptor,
-	type SensorOptions,
-	useSensor,
-	useSensors,
+    type DragEndEvent,
+    PointerSensor,
+    type SensorDescriptor,
+    type SensorOptions,
+    useSensor,
+    useSensors,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
@@ -29,8 +29,8 @@ type UseGridDragAndDropReturn = {
  * - Provide a `handleDragEnd` function that computes and emits a new slide order
  * - Expose `sortableItems` representing current slide ids for sortable contexts
  *
- * @param params.slideIds - Ordered list of slide ids to be used as sortable items
- * @param params.setSlidesOrder - Callback invoked with the new order after reordering
+ * @param slideIds - Ordered list of slide ids to be used as sortable items
+ * @param setSlidesOrder - Callback invoked with the new order after reordering
  * @returns An object with `sensors`, `handleDragEnd`, and `sortableItems`
  */
 export default function useGridDragAndDrop({
@@ -54,6 +54,13 @@ export default function useGridDragAndDrop({
 	// Handle drag end for slide order in grid
 	const NOT_FOUND = -1;
 
+	/**
+	 * Handle `DragEndEvent` emitted by dnd-kit and update slide order when
+	 * the active item is dropped over a different target.
+	 *
+	 * @param event - The dnd-kit DragEndEvent payload
+	 * @returns void
+	 */
 	function handleDragEnd(event: DragEndEvent): void {
 		const { active, over } = event;
 		if (over && active.id !== over.id) {

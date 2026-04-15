@@ -50,6 +50,11 @@ describe("usePlaylistLibrary — Harness", () => {
 			}),
 		);
 
+		/**
+		 * Test harness that mounts `usePlaylistLibrary` and exposes basic values.
+		 *
+		 * @returns Small DOM fragment used by the harness test
+		 */
 		function Harness(): ReactElement {
 			const { playlistEntries, isLoading } = usePlaylistLibrary();
 			return (

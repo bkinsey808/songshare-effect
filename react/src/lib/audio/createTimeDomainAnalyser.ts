@@ -1,7 +1,7 @@
 import type {
-	MinimalAnalyserNode,
-	MinimalMediaStream,
-	MinimalMediaStreamAudioSourceNode,
+    MinimalAnalyserNode,
+    MinimalMediaStream,
+    MinimalMediaStreamAudioSourceNode,
 } from "./audio-types";
 import getAudioContextCtor from "./getAudioContextCtor";
 
@@ -14,6 +14,7 @@ import getAudioContextCtor from "./getAudioContextCtor";
  * reusable `Uint8Array` buffer sized to the analyser's FFT size. On failure it
  * returns an object containing an `errorMessage`.
  *
+ * @param args - Options for analyser creation
  * @param args.stream - The `MediaStream` to analyse.
  * @param args.fftSize - The analyser FFT size.
  * @param args.smoothingTimeConstant - The analyser smoothing constant.

@@ -1,10 +1,3 @@
-import formatChordRootForDisplay from "@/shared/music/chord-display/formatChordRootForDisplay";
-import rootSemitoneMap from "@/shared/music/chord-display/rootSemitoneMap";
-import songKeysBySemitone from "@/shared/music/chord-display/songKeysBySemitone";
-import type { ChordShape } from "@/shared/music/chord-shapes";
-import type { SongKey } from "@/shared/song/songKeyOptions";
-import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
-
 import {
     INTERVAL_SEMITONE_OFFSET,
     OCTAVE_SEMITONE_COUNT,
@@ -12,6 +5,12 @@ import {
 } from "@/react/music/intervals/interval-constants";
 import computeAbsoluteSelectedRoot from "@/react/music/root-picker/computeAbsoluteSelectedRoot";
 import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
+import formatChordRootForDisplay from "@/shared/music/chord-display/formatChordRootForDisplay";
+import rootSemitoneMap from "@/shared/music/chord-display/rootSemitoneMap";
+import songKeysBySemitone from "@/shared/music/chord-display/songKeysBySemitone";
+import type { ChordShape } from "@/shared/music/chord-shapes";
+import type { SongKey } from "@/shared/song/songKeyOptions";
+import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 
 type FlatNoteEntry = Readonly<{
 	sameNatural: string;
@@ -38,6 +37,7 @@ const FLAT_NOTE_MAP: Readonly<Record<string, FlatNoteEntry>> = {
  * @param selectedShape - The currently selected chord shape, or undefined when none is chosen
  * @param chordDisplayMode - Display mode used to format each note name
  * @param songKey - Song key for roman-numeral root resolution and display formatting
+ * @param bassNote - Optional bass note for slash-chord rotation in the display sequence
  * @returns A space-separated string of note names, or an empty string when the root cannot
  *   be resolved
  */

@@ -8,6 +8,8 @@ const PUBLIC_SUB_INITIAL_RUN = 0;
 /**
  * Hook to manage playlist library data: fetching, subscribing to updates,
  * and maintaining public metadata for all library entries.
+ *
+ * @returns void
  */
 export default function usePlaylistLibraryManagement(): void {
 	const fetchPlaylistLibrary = useAppStore((state) => state.fetchPlaylistLibrary);

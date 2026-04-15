@@ -116,6 +116,12 @@ describe("usePopulatePlaylistForm — Harness", () => {
 			return <div data-testid="harness-root" />;
 		}
 
+        /**
+         * Test harness that mounts the hook with a valid playlist.
+         *
+         * @returns ReactElement used for rendering assertions.
+         */
+
 		const { getByTestId } = render(<Harness />);
 
 		await waitFor(() => {

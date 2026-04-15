@@ -29,6 +29,14 @@ export type UseImageUploadFormReturn = {
 	uploadError: string | undefined;
 };
 
+/**
+ * Hook that manages the image upload form state and submission flow.
+ *
+ * Provides controlled fields, preview handling, tag management, and submit/cancel
+ * handlers used by the upload form UI.
+ *
+ * @returns An object containing form fields, refs, handlers, and state.
+ */
 export default function useImageUploadForm(): UseImageUploadFormReturn {
 	const MIN_TAGS = 1;
 	const { lang } = useLocale();
@@ -43,12 +51,24 @@ export default function useImageUploadForm(): UseImageUploadFormReturn {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [uploadError, setUploadError] = useState<string | undefined>(undefined);
 	const [tags, setTagsInternal] = useState<string[]>([]);
+	/**
+	 * Set the tag list for the upload form.
+	 *
+	 * @param nextTags - new tag array
+	 * @returns void
+	 */
 	function setTags(nextTags: readonly string[]): void {
 		setTagsInternal([...nextTags]);
 	}
 
 	const uploadImage = useAppStore((state) => state.uploadImage);
 
+	/**
+	 * Handle file input change by extracting the selected file and building a preview URL.
+	 *
+	 * @param event - change event from the file input
+	 * @returns void
+	 */
 	function handleFileChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		const [file] = event.target.files ?? [];
 		if (file === undefined) {
@@ -60,6 +80,14 @@ export default function useImageUploadForm(): UseImageUploadFormReturn {
 	}
 
 	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
+	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
+	/**
+	 * Upload the selected file and navigate to the image view on success.
+	 *
+	 * @param event - form submit event
+	 * @returns Promise<void>
+	 */
+	// oxlint-disable-next-line typescript/no-deprecated
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
 		event.preventDefault();
 		if (selectedFile === undefined) {
@@ -89,6 +117,11 @@ export default function useImageUploadForm(): UseImageUploadFormReturn {
 		}
 	}
 
+	/**
+	 * Cancel the upload and navigate back to the image library.
+	 *
+	 * @returns void
+	 */
 	function handleCancel(): void {
 		void navigate(buildPathWithLang(`/${dashboardPath}/${imageLibraryPath}`, lang));
 	}

@@ -4,7 +4,12 @@ import type { PlacementConfig, PopoverPosition } from "../popover-types";
 /**
  * Adjusts position for left/right placements to fit within viewport
  *
- * @param args - placement, position, popover and viewport sizes
+ * @param placement - Placement configuration used to choose left/right adjustments
+ * @param position - Initial computed popover position
+ * @param popoverWidth - Width of the popover in pixels
+ * @param popoverHeight - Height of the popover in pixels
+ * @param viewportWidth - Viewport width in pixels
+ * @param viewportHeight - Viewport height in pixels
  * @returns adjusted PopoverPosition
  */
 export default function adjustLeftRightPosition({

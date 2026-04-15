@@ -6,12 +6,12 @@
  * @returns Sensors, a drag end handler, and the computed sortable item ids
  */
 import {
-	type DragEndEvent,
-	PointerSensor,
-	type SensorDescriptor,
-	type SensorOptions,
-	useSensor,
-	useSensors,
+    type DragEndEvent,
+    PointerSensor,
+    type SensorDescriptor,
+    type SensorOptions,
+    useSensor,
+    useSensors,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
@@ -53,6 +53,14 @@ export default function useSlideDragAndDrop({
 	);
 
 	// Handle drag end for slide order
+
+	/**
+	 * Handle the dnd-kit `DragEndEvent` and update the slide order when an
+	 * item is dropped over a different target.
+	 *
+	 * @param event - The DragEndEvent from dnd-kit
+	 * @returns void
+	 */
 	function handleDragEnd(event: DragEndEvent): void {
 		const { active, over } = event;
 		if (over && active.id !== over.id) {

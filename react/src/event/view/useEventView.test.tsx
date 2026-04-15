@@ -4,8 +4,8 @@ import {
 	render,
 	renderHook,
 	screen,
-	type RenderHookResult,
 	waitFor,
+	type RenderHookResult,
 } from "@testing-library/react";
 import { Effect } from "effect";
 import { useLocation } from "react-router-dom";
@@ -129,6 +129,12 @@ function makeCurrentEvent(
  *
  * @param overrides - Partial store values to merge into the default mocked store.
  * @returns The exact mock store object used by selectors in this test.
+ */
+/**
+ * Install a mocked store for `useEventView` tests.
+ *
+ * @param overrides - Partial store values to override defaults.
+ * @returns The seeded store state.
  */
 function installStore(overrides: Partial<StoreState> = {}): StoreState {
 	const store: StoreState = {

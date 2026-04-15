@@ -29,6 +29,18 @@ const NAVIGATE_BACK = -1;
 
 // --- Helpers ---
 
+/**
+ * Install a mocked app store implementation for tests.
+ *
+ * @param overrides - Optional fake state overrides
+ * @returns void
+ */
+/**
+ * Install mocked store selectors and effects for `useSongForm` tests.
+ *
+ * @param overrides - Optional overrides for the default slice values.
+ * @returns void
+ */
 function installStore(overrides: Record<string, unknown> = {}): void {
 	const fakeState = {
 		addActivePrivateSongIds: vi.fn(() => Effect.void),
@@ -49,6 +61,12 @@ function installStore(overrides: Record<string, unknown> = {}): void {
 	);
 }
 
+/**
+ * Mock the `useItemTags` hook for tests.
+ *
+ * @param tags - Initial tag list to return from the mock
+ * @returns void
+ */
 function mockUseItemTags(tags: readonly string[] = []): void {
 	vi.mocked(useItemTags).mockReturnValue({
 		tags,
@@ -59,6 +77,11 @@ function mockUseItemTags(tags: readonly string[] = []): void {
 	});
 }
 
+/**
+ * Prepare environment for create-mode harness tests.
+ *
+ * @returns void
+ */
 function setupCreateMode(): void {
 	vi.resetAllMocks();
 	installStore();
@@ -68,6 +91,11 @@ function setupCreateMode(): void {
 	vi.mocked(useNavigate).mockReturnValue(vi.fn());
 }
 
+/**
+ * Prepare environment for edit-mode harness tests.
+ *
+ * @returns void
+ */
 function setupEditMode(): void {
 	vi.resetAllMocks();
 	installStore();
@@ -91,6 +119,7 @@ function setupEditMode(): void {
  * - Cancel button wired to handleCancel
  * - Toggle-chords-field button wired to toggleField
  * - Boolean state flags rendered as text for assertions
+ * @returns A small DOM fragment used by harness tests
  */
 function Harness(): ReactElement {
 	// Always destructure — React Compiler rejects property access on objects containing refs

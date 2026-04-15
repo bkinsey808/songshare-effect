@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
-import type { NotePickerEntry } from "@/react/music/note-picker/NotePickerEntry.type";
 import toUnicodeAccidentals from "@/react/music/intervals/toUnicodeAccidentals";
+import type { NotePickerEntry } from "@/react/music/note-picker/NotePickerEntry.type";
 
 type NotePickerProps = Readonly<{
 	entries: readonly NotePickerEntry[];
@@ -19,6 +19,13 @@ const ACTIVE_BUTTON_CLASSES = "border-blue-400 bg-blue-900/30 text-blue-200 hove
 const INACTIVE_BUTTON_CLASSES =
 	"border-gray-600 bg-gray-800/50 text-gray-400 hover:border-gray-500 hover:text-gray-300";
 
+/**
+ * Compute the css classes for a note button based on root/active state.
+ *
+ * @param isRoot - Whether the button represents the chord root (always active)
+ * @param isActive - Whether the button is currently active (selected)
+ * @returns A space-separated string of class names for the button
+ */
 function getNoteButtonClasses(isRoot: boolean, isActive: boolean): string {
 	if (isRoot) {
 		return `${BASE_BUTTON_CLASSES} ${ROOT_BUTTON_CLASSES}`;

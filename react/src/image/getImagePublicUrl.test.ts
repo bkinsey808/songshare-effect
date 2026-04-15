@@ -10,6 +10,11 @@ const R2_KEY_WITH_PREFIX = "images/user-1/img-1.jpg";
 const R2_KEY_WITHOUT_PREFIX = "user-1/img-1.jpg";
 const SUPABASE_BASE = "https://project.supabase.co";
 
+/**
+ * Prepare and return mocked environment accessors used by the tests.
+ *
+ * @returns Mocked `getEnvValue` and `getEnvValueSafe` functions
+ */
 async function init(): Promise<{
 	getEnvValue: ReturnType<typeof vi.fn>;
 	getEnvValueSafe: ReturnType<typeof vi.fn>;
