@@ -9,6 +9,9 @@ import useAppStore from "@/react/app-store/useAppStore";
  * Ensures the community is fetched when the edit page is visited directly
  * (e.g. via bookmark or from a list) so the form can populate and
  * hasUnsavedChanges tracking works correctly.
+ *
+ * @param communityId - community_id from route params or undefined
+ * @returns void
  */
 export default function useLoadCommunityById(communityId: string | undefined): void {
 	const currentCommunity = useAppStore((state) => state.currentCommunity);

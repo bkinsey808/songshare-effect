@@ -24,6 +24,11 @@ const ONCE = 1;
  *
  * The harness uses formRef so the real form submission path is exercised.
  */
+/**
+ * Harness for useEventForm — "Documentation by Harness".
+ *
+ * @returns ReactElement that renders a sample form wiring the hook for tests.
+ */
 function Harness(): ReactElement {
 	const {
 		formValues, // current form field values

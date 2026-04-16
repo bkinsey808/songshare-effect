@@ -6,6 +6,12 @@ import type { SlideOrientationPreferenceType } from "@/shared/user/slideOrientat
 
 import saveSlideOrientationPreference from "./saveSlideOrientationPreference";
 
+/**
+ * Hook that returns a function to persist and update the user's
+ * slide orientation preference.
+ *
+ * @returns Async function to set the slide orientation preference
+ */
 export default function useSetSlideOrientationPreference(): (
 	slideOrientationPreference: SlideOrientationPreferenceType,
 ) => Promise<void> {

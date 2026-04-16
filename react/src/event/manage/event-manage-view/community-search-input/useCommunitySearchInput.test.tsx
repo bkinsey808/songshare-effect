@@ -83,15 +83,11 @@ function installStore(communities: CommunityEntry[]): void {
  * readers (human or AI) can understand how the pieces fit together without
  * digging into the implementation.
  *
- * @param activeCommunityId - id of the pre‑selected community (undefined = none selected)
- * @param onSelect - called with the new community id when picked, or "" when
- *   the selection is cleared
- * @param excludeCommunityIds - optional list of community IDs that should be
- *   omitted from the filtered results. the harness accepts this prop so that it
- *   documents the full API, but it does not render any controls to change it;
- *   tests simply pass `undefined` when they don't care about exclusion.
- * @returns - JSX element rendering the hook's return values in a realistic way, with
- *  thorough comments explaining how the hook values connect to the UI and behavior
+ * @param props - harness props
+ * @param props.activeCommunityId - id of the pre-selected community (undefined = none selected)
+ * @param props.onSelect - called with the new community id when picked, or "" when the selection is cleared
+ * @param props.excludeCommunityIds - optional list of community IDs to omit from results
+ * @returns JSX element rendering the hook's return values for tests
  */
 function Harness(props: {
 	activeCommunityId: string | undefined;

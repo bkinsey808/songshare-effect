@@ -21,6 +21,7 @@ import useSlideOrder from "./useSlideOrder";
  * @param setSlideOrder - Setter for the presentation order
  * @param slides - Map of slide id to `Slide` object
  * @param setSlides - Setter to update `slides`
+ * @param enableBackgroundLibrary - Whether background library features should be enabled
  * @returns Handlers and state used by slide editor views (add/delete/duplicate, reorder handlers, sensors)
  */
 export default function useSlidesEditor({
@@ -151,14 +152,32 @@ export default function useSlidesEditor({
 		void Effect.runPromise(fetchImageLibrary());
 	}, [enableBackgroundLibrary, fetchImageLibrary]);
 
+	/**
+	 * Toggle the background picker open/closed for a given slide id.
+	 *
+	 * @param slideId - id of the slide to toggle the picker for
+	 * @returns void
+	 */
 	function toggleBackgroundPicker(slideId: string): void {
 		setBackgroundPickerSlideId((currentValue) => (currentValue === slideId ? undefined : slideId));
 	}
-
+	/**
+	 * Close the background picker if open.
+	 *
+	 * @returns void
+	 */
 	function closeBackgroundPicker(): void {
 		setBackgroundPickerSlideId(undefined);
 	}
 
+	/**
+	 * Select a background image for a slide and close the picker.
+	 *
+	 * @param slideId - id of the slide
+	 * @param backgroundImageId - id of the chosen background image
+	 * @param backgroundImageUrl - url of the chosen image
+	 * @returns void
+	 */
 	function selectSlideBackgroundImage({
 		slideId,
 		backgroundImageId,
@@ -181,6 +200,12 @@ export default function useSlidesEditor({
 		closeBackgroundPicker();
 	}
 
+	/**
+	 * Clear the selected background image for a slide.
+	 *
+	 * @param slideId - id of the slide to clear background for
+	 * @returns void
+	 */
 	function clearSlideBackgroundImage(slideId: string): void {
 		editSlideBackgroundImage({
 			slideId,

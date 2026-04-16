@@ -17,6 +17,11 @@ vi.mock("./useImageLibrary");
 
 const USER_ID = "usr-1";
 
+/**
+ * Install a mocked `useLocale` return value for tests.
+ *
+ * @returns void
+ */
 function installLocale(): void {
 	vi.mocked(useLocale).mockReturnValue(
 		forceCast<ReturnType<typeof useLocale>>({ lang: "en", t: (key: string) => key }),

@@ -8,6 +8,7 @@ import { useEffect } from "react";
  * @param userId - current user id, if signed in
  * @param fetchSongLibrary - store action for loading songs
  * @param fetchPlaylistLibrary - store action for loading playlists
+ * @returns void
  */
 export default function useLoadCommunityLibraries(
 	userId: string | undefined,

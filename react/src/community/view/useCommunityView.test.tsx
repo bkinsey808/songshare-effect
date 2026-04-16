@@ -14,6 +14,11 @@ import subscribeToCommunityEvent from "../subscribe/subscribeToCommunityEvent";
 import subscribeToCommunityPublic from "../subscribe/subscribeToCommunityPublic";
 import useCommunityView from "./useCommunityView";
 
+/**
+ * Test harness for `useCommunityView` showing derived flags and actions.
+ *
+ * @returns ReactElement rendering the harness UI
+ */
 function Harness(): ReactElement {
 	const view = useCommunityView();
 	const handleManageClick = view.onManageClick;
@@ -76,6 +81,12 @@ vi.mock("../subscribe/subscribeToCommunityPublic");
 const ONE_CALL = 1;
 const TWO_CALLS = 2;
 
+/**
+ * Create a sample CommunityEntry for tests.
+ *
+ * @param overrides - Partial fields to override default values
+ * @returns CommunityEntry populated with defaults and overrides
+ */
 function makeCommunity(overrides: Partial<CommunityEntry> = {}): CommunityEntry {
 	return {
 		community_id: "community-1",
@@ -91,10 +102,22 @@ function makeCommunity(overrides: Partial<CommunityEntry> = {}): CommunityEntry 
 	};
 }
 
+/**
+ * Create a minimal UserSessionData for the given user id.
+ *
+ * @param userId - The user id to include in the session
+ * @returns UserSessionData with the provided user id
+ */
 function makeUserSession(userId: string): UserSessionData {
 	return forceCast<UserSessionData>({ user: { user_id: userId, username: userId } });
 }
 
+/**
+ * Install common mocks used across `useCommunityView` tests.
+ *
+ * @param state - Mock state selector implementation to provide store values
+ * @returns void
+ */
 function installBaseMocks(state: MockState): void {
 	const navigateMock = vi.fn();
 
@@ -114,6 +137,11 @@ function installBaseMocks(state: MockState): void {
 	vi.mocked(subscribeToCommunityPublic).mockReturnValue(Effect.succeed(() => undefined));
 }
 
+/**
+ * Render the test harness and ensure a fresh DOM.
+ *
+ * @returns void
+ */
 function renderHarness(): void {
 	cleanup();
 	render(<Harness />);

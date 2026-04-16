@@ -9,6 +9,8 @@ import useAppStore from "@/react/app-store/useAppStore";
  * This ensures UserSearchInput components on public pages (song view, community
  * manage, event manage, etc.) have library entries available without requiring
  * a prior visit to UserLibraryPage.
+ *
+ * @returns void
  */
 export default function useInitUserLibrary(): void {
 	const fetchUserLibrary = useAppStore((state) => state.fetchUserLibrary);

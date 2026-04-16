@@ -31,9 +31,8 @@ describe("useEventPlaybackManagement", () => {
 	 * Documentation by Harness: shows how the hook is used in JSX and exposes
 	 * handlers/state via `data-testid` so tests can assert observable outcomes.
 	 *
-	 * Props:
-	 * - `eventPublic` — partial public event state to seed the hook
-	 * @returns React element used as a harness for tests
+	 * @param eventPublic - optional partial public event state to seed the hook
+	 * @returns ReactElement used as a harness for tests
 	 */
 	function Harness({ eventPublic }: { eventPublic?: Partial<EventEntry["public"]> }): ReactElement {
 		const fetchEventBySlug = vi.fn().mockReturnValue(Effect.succeed(undefined as void));

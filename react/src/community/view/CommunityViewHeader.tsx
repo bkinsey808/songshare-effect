@@ -26,6 +26,19 @@ type CommunityViewHeaderProps = Readonly<{
  *
  * Shows Share, Join/Leave, Edit, and Manage based on permissions.
  *
+ * @param currentCommunity - the community being viewed
+ * @param userSession - current user session data when signed in
+ * @param isMember - whether the current user is a member of the community
+ * @param isOwner - whether the current user is the owner of the community
+ * @param isJoinLoading - true when a join request is inflight
+ * @param isLeaveLoading - true when a leave request is inflight
+ * @param canManage - whether the current user has manage permissions
+ * @param canEdit - whether the current user has edit permissions
+ * @param onJoinClick - callback when user clicks Join
+ * @param onLeaveClick - callback when user clicks Leave
+ * @param onManageClick - callback when user clicks Manage
+ * @param onEditClick - callback when user clicks Edit
+ * @param onRefreshCommunity - callback to refresh community data
  * @returns React element for the community view header
  */
 export default function CommunityViewHeader({

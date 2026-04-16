@@ -44,6 +44,11 @@ export default function TypeGpuDemoPage(): ReactElement {
 	const TEXT_X = 12;
 	const TEXT_Y = 28;
 
+	/**
+	 * Run the simple canvas fallback demo animation.
+	 *
+	 * @returns void
+	 */
 	function runDemo(): void {
 		setStatus("loading");
 		setModuleInfo("Running fallback (no WebGPU / TypeGPU)...");
@@ -79,6 +84,11 @@ export default function TypeGpuDemoPage(): ReactElement {
 		}
 	}
 
+	/**
+	 * Attempt to run the TypeGPU/WebGPU demo path; falls back to canvas if unavailable.
+	 *
+	 * @returns Promise<void> resolved when the attempt completes
+	 */
 	async function forceRunTypeGpu(): Promise<void> {
 		setStatus("loading");
 		setModuleInfo("Starting WebGPU demo...");
@@ -115,6 +125,11 @@ export default function TypeGpuDemoPage(): ReactElement {
 
 	// Cleanup animation on unmount or when stop function changes
 	useEffect(() => {
+		/**
+		 * Cleanup animation loop on unmount.
+		 *
+		 * @returns void
+		 */
 		function cleanup(): void {
 			stop();
 		}

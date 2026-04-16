@@ -14,6 +14,11 @@ describe("removeEventFromCommunity", () => {
 
 	const setCommunityLoading = vi.fn();
 	const setCommunityError = vi.fn();
+	/**
+	 * Test getter returning a `CommunitySlice` with loading/error setters.
+	 *
+	 * @returns CommunitySlice for the test
+	 */
 	function get(): CommunitySlice {
 		return forceCast({ setCommunityLoading, setCommunityError } as unknown);
 	}

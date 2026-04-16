@@ -11,6 +11,7 @@ type LoadCommunityBySlug = (
  *
  * @param communitySlug - route slug for the current community
  * @param loadCommunityBySlug - store action that fetches the community
+ * @returns void
  */
 export default function useLoadCommunityBySlug(
 	communitySlug: string | undefined,

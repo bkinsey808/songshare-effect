@@ -22,6 +22,12 @@ const TEST_CREATED_AT = new Date().toISOString();
 const REMOVE_REQUEST = { song_id: TEST_SONG_ID };
 
 describe("useSongLibrary", () => {
+	/**
+	 * Router wrapper used in hook tests to provide routing context.
+	 *
+	 * @param children - optional React children to render inside MemoryRouter
+	 * @returns ReactElement or null
+	 */
 	function RouterWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
 		return React.createElement(MemoryRouter, undefined, children);
 	}
@@ -29,6 +35,11 @@ describe("useSongLibrary", () => {
 	it("calls fetchSongLibrary and subscribes/unsubscribes", async () => {
 		const fetchSongLibrary = vi.fn().mockReturnValue(Effect.sync(() => undefined));
 		const unsubscribe = vi.fn();
+		/**
+		 * Mock subscription function that returns a cleanup effect.
+		 *
+		 * @returns Effect resolving to a cleanup function used to unsubscribe
+		 */
 		const subscribeToSongLibrary = vi.fn(
 			(): Effect.Effect<() => void, Error> => Effect.sync((): (() => void) => unsubscribe),
 		);
@@ -139,6 +150,11 @@ describe("useSongLibrary", () => {
 		const fetchSongLibrary = vi.fn().mockReturnValue(Effect.sync(() => undefined));
 		const cleanup = vi.fn();
 		const mockSubscribe = vi.fn((): Effect.Effect<() => void, Error> => Effect.sync(() => cleanup));
+		/**
+		 * Test helper that subscribes to the song library (mock).
+		 *
+		 * @returns Effect resolving to a cleanup function used to unsubscribe
+		 */
 		function subscribeToSongLibrary(): Effect.Effect<() => void, Error> {
 			return mockSubscribe();
 		}
@@ -262,6 +278,12 @@ describe("useSongLibrary", () => {
 
 		store.setState(makeAppSlice({ fetchSongLibrary, subscribeToSongLibrary }));
 
+		/**
+		 * Wrapper that mounts children inside React.StrictMode for testing double-invoke behavior.
+		 *
+		 * @param children - optional React children
+		 * @returns ReactElement or null
+		 */
 		function StrictWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
 			return React.createElement(React.StrictMode, undefined, children);
 		}

@@ -46,7 +46,12 @@ const OTHER_TYPE_SHARE: SharedItem = {
 	shared_item_id: ITEM_ID,
 };
 
-/** Configures appStore mock with sentShares and isSharesLoading for useSharedUsersSection tests. */
+/**
+ * Configures appStore mock with sentShares and isSharesLoading for useSharedUsersSection tests.
+ *
+ * @param opts - options to override default mock implementations
+ * @returns void
+ */
 function installStore(opts: {
 	sentShares?: Record<string, SharedItem>;
 	isSharesLoading?: boolean;
@@ -81,6 +86,11 @@ function installStore(opts: {
  * - currentUserId for permission checks
  * - itemShares filtered by item type and id
  * - isSharesLoading for loading state
+ */
+/**
+ * Harness for useSharedUsersSection.
+ *
+ * @returns ReactElement exposing the hook state for tests
  */
 function Harness(): ReactElement {
 	const { currentUserId, itemShares, isSharesLoading } = useSharedUsersSection(ITEM_TYPE, ITEM_ID);

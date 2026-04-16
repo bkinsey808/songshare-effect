@@ -89,6 +89,12 @@ function makeMockStore(initialState: Partial<EventState> = {}): {
 	}
 
 	const api: Api<EventSlice> = {
+		/**
+		 * Update the mocked slice state using a patch or updater function.
+		 *
+		 * @param patchOrUpdater - Partial state or updater function applied to state
+		 * @returns void
+		 */
 		setState(patchOrUpdater) {
 			set(
 				patchOrUpdater as

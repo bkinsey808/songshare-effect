@@ -17,6 +17,7 @@ let globalInFlight: Promise<UserSessionData | undefined> | undefined = undefined
  * Ensure signed-in state by calling /api/me. Exported so non-hook code can
  * force a refresh when needed.
  *
+ * @param options - optional configuration (e.g. `{ force: true }` to bypass cache)
  * @returns Promise that resolves to `UserSessionData` when authenticated, otherwise `undefined`
  */
 export default function ensureSignedIn(options?: {

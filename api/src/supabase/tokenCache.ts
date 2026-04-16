@@ -48,6 +48,7 @@ export function getCachedClientToken(): {
  * @param token - The Supabase access token to cache.
  * @param expiry - Expiry time in epoch seconds for when the token becomes
  *   invalid.
+ * @param realtimeToken - Optional realtime token associated with the client
  * @returns - nothing.
  */
 export function setCachedClientToken(token: string, expiry: number, realtimeToken?: string): void {

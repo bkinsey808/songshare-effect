@@ -47,6 +47,7 @@ export function fetchLibraryItemIds(
  *
  * @param client - Supabase client configured with the current user's token
  * @param itemType - which item type's junction table to query (song, playlist, etc.)
+ * @param opts - Options object
  * @param opts.slugs - array of tag slugs to filter the junction table by
  * @param opts.libraryItemIds - item IDs from the user's library; empty means return []
  * @returns An Effect that resolves to an array of matching tag slugs (may be empty)

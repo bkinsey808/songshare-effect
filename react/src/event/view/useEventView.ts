@@ -125,54 +125,50 @@ export default function useEventView(): {
 	const eventUrl =
 		eventSlug === undefined ? undefined : buildPublicWebUrl(`/${eventViewPath}/${eventSlug}`, lang);
 
+	/**
+	 * Navigate to a named subpage for the current event slug.
+	 *
+	 * @param subpagePath - subpath under the event view to navigate to
+	 * @returns void
+	 */
 	function navigateToEventSubpage(subpagePath: string): void {
 		if (eventSlug !== undefined) {
 			void navigate(buildPathWithLang(`/${eventViewPath}/${eventSlug}/${subpagePath}`, lang));
 		}
 	}
 
-/**
- * Navigate to a named subpage for the current event slug.
- *
- * @param subpagePath - subpath under the event view to navigate to
- * @returns void
- */
 
-
+	/**
+	 * Navigate back to the main event view.
+	 *
+	 * @returns void
+	 */
 	function handleBackToEventClick(): void {
 		if (eventSlug !== undefined) {
 			void navigate(buildPathWithLang(`/${eventViewPath}/${eventSlug}`, lang));
 		}
 	}
 
-/**
- * Navigate back to the main event view.
- *
- * @returns void
- */
 
-
+	/**
+	 * Show or hide the top bar based on mouse vertical position.
+	 *
+	 * @param event - mouse move event from the slide show container
+	 * @returns void
+	 */
 	function handleSlideShowMouseMove(event: React.MouseEvent<HTMLDivElement>): void {
 		setIsTopBarVisible(event.clientY <= TOP_BAR_TRIGGER_Y);
 	}
 
-/**
- * Show or hide the top bar based on mouse vertical position.
- *
- * @param event - mouse move event from the slide show container
- * @returns void
- */
 
-
+	/**
+	 * Hide the top bar when the mouse leaves the slide show area.
+	 *
+	 * @returns void
+	 */
 	function handleSlideShowMouseLeave(): void {
 		setIsTopBarVisible(false);
 	}
-
-/**
- * Hide the top bar when the mouse leaves the slide show area.
- *
- * @returns void
- */
 
 	return {
 		event_slug,

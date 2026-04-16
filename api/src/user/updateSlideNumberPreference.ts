@@ -23,6 +23,12 @@ type UpdateSlideNumberPreferenceRequest = Schema.Schema.Type<
 	typeof UpdateSlideNumberPreferenceRequestSchema
 >;
 
+/**
+ * Update the signed-in user's slide number preference and refresh session cookie.
+ *
+ * @param ctx - Hono request context containing env and request data
+ * @returns Effect that yields the updated slideNumberPreference and may fail with validation or database errors
+ */
 export default function updateSlideNumberPreference(ctx: ReadonlyContext): Effect.Effect<
 	{
 		slideNumberPreference: UpdateSlideNumberPreferenceRequest["slideNumberPreference"];

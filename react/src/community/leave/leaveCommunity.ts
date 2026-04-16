@@ -13,6 +13,7 @@ import type { CommunitySlice } from "../slice/CommunitySlice.type";
  *
  * @param communityId - id of the community being left
  * @param get - accessor for the community slice helpers
+ * @param options - optional behavior flags (e.g., `{ silent: true }`)
  * @returns effect that completes when the leave API call finishes
  */
 export default function leaveCommunity(

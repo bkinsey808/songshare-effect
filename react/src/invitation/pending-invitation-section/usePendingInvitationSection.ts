@@ -59,6 +59,12 @@ export default function usePendingInvitationSection(): PendingInvitationSectionH
 		pendingCommunityInvitations.length > minInvitations ||
 		pendingEventInvitations.length > minInvitations;
 
+	/**
+	 * Accept a pending community invitation by id.
+	 *
+	 * @param communityId - id of the community to accept
+	 * @returns void
+	 */
 	function handleAcceptCommunity(communityId: string): void {
 		setAcceptingCommunityId(communityId);
 		void (async (): Promise<void> => {
@@ -73,23 +79,21 @@ export default function usePendingInvitationSection(): PendingInvitationSectionH
 	}
 
 	/**
-	 * Accept a pending community invitation by id.
-	 *
-	 * @param communityId - id of the community to accept
-	 * @returns void
-	 */
-
-	function handleDeclineCommunity(communityId: string): void {
-		void Effect.runPromise(declineCommunityInvitation(communityId));
-	}
-
-	/**
 	 * Decline a pending community invitation.
 	 *
 	 * @param communityId - id of the community to decline
 	 * @returns void
 	 */
+	function handleDeclineCommunity(communityId: string): void {
+		void Effect.runPromise(declineCommunityInvitation(communityId));
+	}
 
+	/**
+	 * Accept a pending event invitation by id.
+	 *
+	 * @param eventId - id of the event to accept
+	 * @returns void
+	 */
 	function handleAcceptEvent(eventId: string): void {
 		setAcceptingEventId(eventId);
 		void (async (): Promise<void> => {
@@ -104,25 +108,17 @@ export default function usePendingInvitationSection(): PendingInvitationSectionH
 	}
 
 	/**
-	 * Accept a pending event invitation by id.
+	 * Decline a pending event invitation.
 	 *
-	 * @param eventId - id of the event to accept
+	 * @param eventId - id of the event to decline
 	 * @returns void
 	 */
-
 	function handleDeclineEvent(eventId: string): void {
 		const currentUserId = userSessionData?.user.user_id;
 		if (currentUserId !== undefined) {
 			void Effect.runPromise(declineEventInvitation(eventId, currentUserId));
 		}
 	}
-
-    /**
-     * Decline a pending event invitation.
-     *
-     * @param eventId - id of the event to decline
-     * @returns void
-     */
 
 	return {
 		pendingCommunityInvitations,

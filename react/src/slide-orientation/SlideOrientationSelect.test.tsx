@@ -15,6 +15,14 @@ vi.mock("@/react/lib/language/locale/useLocale");
 vi.mock("./useSetSlideOrientationPreference");
 vi.mock("./useSlideOrientationPreference");
 
+/**
+ * Simple translator used in tests that returns the default text when provided
+ * or echoes the key otherwise.
+ *
+ * @param key - translation key
+ * @param defaultVal - optional default translation
+ * @returns resolved string for tests
+ */
 function translateOrDefault(key: string, defaultVal?: string | Record<string, unknown>): string {
 	return typeof defaultVal === "string" ? defaultVal : key;
 }

@@ -18,7 +18,12 @@ const SONG_ID = "song-1";
 const PLAYLIST_ID = "playlist-1";
 const ONE_CALL = 1;
 
-/** Builds a CommunityEntry fixture with defaults; overrides allow per-test customization. */
+/**
+ * Builds a CommunityEntry fixture with defaults; overrides allow per-test customization.
+ *
+ * @param overrides - partial fields to override the default community
+ * @returns a CommunityEntry test fixture
+ */
 function makeCommunity(overrides: Partial<CommunityEntry> = {}): CommunityEntry {
 	return forceCast<CommunityEntry>({
 		community_id: COMMUNITY_ID,
@@ -44,7 +49,12 @@ type TestParams = FirstParam<typeof createCommunityViewHandlers> & {
 	setIsLeaveLoading: ReturnType<typeof vi.fn>;
 };
 
-/** Builds handler params with vi.fn() stubs and buildPathWithLang mock; overrides can extend defaults. */
+/**
+ * Builds handler params with vi.fn() stubs and buildPathWithLang mock; overrides can extend defaults.
+ *
+ * @param overrides - optional overrides applied to the generated params
+ * @returns TestParams used by the handler factory
+ */
 function makeParams(overrides: Record<string, unknown> = {}): TestParams {
 	const navigate = vi.fn();
 	const fetchCommunityBySlug = vi.fn(() => Effect.succeed(undefined));

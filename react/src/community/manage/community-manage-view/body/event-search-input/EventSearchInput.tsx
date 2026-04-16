@@ -21,6 +21,7 @@ type EventSearchInputProps = {
  *   chooses an item or clears the field
  * @param disabled - optional flag to disable interactions
  * @param id - optional DOM id for the text input element
+ * @param excludeEventIds - optional list of event ids to exclude from results
  * @returns React element for the event search control
  */
 export default function EventSearchInput({

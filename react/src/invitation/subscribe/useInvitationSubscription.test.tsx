@@ -29,6 +29,11 @@ describe("useInvitationSubscription", () => {
 			),
 		);
 
+		/**
+		 * Minimal harness component used to exercise the subscription hook.
+		 *
+		 * @returns ReactElement
+		 */
 		function TestComponent(): ReactElement {
 			useInvitationSubscription();
 			return <div />;
@@ -70,6 +75,11 @@ describe("useInvitationSubscription", () => {
 		vi.spyOn(useAppStore, "getState").mockReturnValue(forceCast({}));
 		vi.mocked(subscribeToPendingInvitations).mockReturnValue(subscribeCleanupMock);
 
+		/**
+		 * Alternate harness variant used in error-path tests.
+		 *
+		 * @returns ReactElement
+		 */
 		function TestComponent(): ReactElement {
 			useInvitationSubscription();
 			return <div />;

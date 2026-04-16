@@ -9,6 +9,8 @@ import type { UserLibrarySlice } from "./UserLibrarySlice.type";
 /**
  * Returns a minimal mock store with vi.fn() stubs for set/get and a minimal api.
  * Get returns empty user library state so methods like getUserLibraryIds work.
+ *
+ * @returns An object containing `set`, `get`, and `api` for tests
  */
 function makeMockStore(): {
 	set: Set<UserLibrarySlice>;

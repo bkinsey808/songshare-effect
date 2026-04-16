@@ -48,7 +48,12 @@ vi.mocked(buildPathWithLang).mockImplementation(
 	(path: string, lang: string): string => `/${lang}${path}`,
 );
 
-/** Builds a UseCommunityViewReturn fixture with defaults; overrides allow per-test customization. */
+/**
+ * Builds a UseCommunityViewReturn fixture with defaults; overrides allow per-test customization.
+ *
+ * @param overrides - partial overrides applied to the returned fixture
+ * @returns the UseCommunityViewReturn test fixture
+ */
 function makeView(overrides: Partial<UseCommunityViewReturn> = {}): UseCommunityViewReturn {
 	return {
 		currentCommunity: {

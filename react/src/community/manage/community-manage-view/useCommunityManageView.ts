@@ -21,6 +21,8 @@ export type UseCommunityManageViewReturn = {
 /**
  * Hook for the community manage view shell (loading, error, permission gates).
  * Use useCommunityManageBody when rendering the body content.
+ *
+ * @returns The view state and action callbacks consumed by the manage page
  */
 export default function useCommunityManageView(): UseCommunityManageViewReturn {
 	const { community_slug, lang } = useParams<{ community_slug?: string; lang?: string }>();
@@ -42,6 +44,11 @@ export default function useCommunityManageView(): UseCommunityManageViewReturn {
 		userSessionData,
 	});
 
+	/**
+	 * Navigate back to the public community view when a slug is available.
+	 *
+	 * @returns void
+	 */
 	function onBackClick(): void {
 		if (community_slug !== undefined && community_slug !== "") {
 			void navigate(buildPathWithLang(`/${communityViewPath}/${community_slug}`, langForNav));

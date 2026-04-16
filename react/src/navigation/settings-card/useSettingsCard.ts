@@ -12,10 +12,20 @@ type UseSettingsCardReturn = {
 	readonly signOut: () => Promise<void>;
 };
 
+/**
+ * Hook for settings card behavior (sign out, delete account navigation).
+ *
+ * @returns Handlers and state for the settings card
+ */
 export default function useSettingsCard(): UseSettingsCardReturn {
 	const navigate = useNavigate();
 	const { signOut, currentLang, localIsSignedIn } = useDashboard();
 
+	/**
+	 * Navigate to the delete-account flow for the current language.
+	 *
+	 * @returns void
+	 */
 	function handleDeleteAccountNavigation(): void {
 		const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
 		void navigate(buildPathWithLang(`/${dashboardPath}/${deleteAccountPath}`, langForNav));

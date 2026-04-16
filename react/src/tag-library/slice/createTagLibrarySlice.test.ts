@@ -21,6 +21,8 @@ const SINGLE_ENTRY_COUNT = 1;
  * The fixture wires simple `set`/`get` helpers and seeds `state` with the
  * slice's initial exported values so tests can assert on the resulting
  * state after invoking slice methods.
+ *
+ * @returns An object with `slice`, `getState`, and `setRawState` for tests
  */
 function makeSlice(): {
 	slice: TagLibrarySlice;
@@ -29,6 +31,12 @@ function makeSlice(): {
 } {
 	let state: Record<string, unknown> = {};
 
+	/**
+	 * Apply a patch or updater function to the mocked slice state.
+	 *
+	 * @param patchOrUpdater - Partial state or updater function
+	 * @returns void
+	 */
 	function set(
 		patchOrUpdater:
 			| Record<string, unknown>
@@ -40,7 +48,11 @@ function makeSlice(): {
 			state = { ...state, ...patchOrUpdater };
 		}
 	}
-
+	/**
+	 * Returns the current mocked raw state used by the slice in tests.
+	 *
+	 * @returns The current raw state
+	 */
 	function get(): unknown {
 		return state;
 	}
@@ -51,6 +63,12 @@ function makeSlice(): {
 	// Seed state with initial slice values so get() returns them
 	state = { ...slice };
 
+	/**
+	 * Convenience to apply a raw state patch to the underlying mock store.
+	 *
+	 * @param patch - Partial raw state to apply
+	 * @returns void
+	 */
 	function setRawState(patch: Record<string, unknown>): void {
 		set(patch);
 	}

@@ -23,6 +23,11 @@ const TAG_SLUG = "test";
 const USER_ID = "usr-1";
 const IMAGE_ID = "img-1";
 
+/**
+ * Create a sample ImageLibraryEntry for tests.
+ *
+ * @returns An ImageLibraryEntry with preset ids and created_at
+ */
 function makeEntry(): ImageLibraryEntry {
 	return {
 		user_id: USER_ID,
@@ -31,6 +36,11 @@ function makeEntry(): ImageLibraryEntry {
 	};
 }
 
+/**
+ * Mock all tag-related fetches to return empty results.
+ *
+ * @returns void
+ */
 function mockAllFetchesEmpty(): void {
 	vi.mocked(fetchImagesByTagRequest).mockResolvedValue({ ok: true, entries: [] });
 	vi.mocked(fetchSongsByTagRequest).mockResolvedValue({ ok: true, entries: [] });
@@ -45,6 +55,8 @@ function mockAllFetchesEmpty(): void {
  * - Loading indicator while fetching
  * - Image entries list after successful fetch
  * - Error message on failure
+ *
+ * @returns ReactElement rendering the harness UI
  */
 function Harness(): ReactElement {
 	const { currentUserId, imageEntries, error, isLoading, tag_slug } = useTagView();

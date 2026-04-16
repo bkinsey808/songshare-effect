@@ -11,6 +11,14 @@ type ImageUpdateRequest = {
 const MIN_FOCAL_POINT = 0;
 const MAX_FOCAL_POINT = 100;
 
+/**
+ * Parse and validate a focal point numeric value from untyped input.
+ *
+ * @param value - Value to validate as a number between 0 and 100
+ * @param fieldName - Field name used in error messages
+ * @returns parsed numeric focal point
+ * @throws TypeError when the value is missing or out of range
+ */
 function parseFocalPoint(value: unknown, fieldName: string): number {
 	if (typeof value !== "number" || !Number.isFinite(value)) {
 		throw new TypeError(`${fieldName} must be a number between 0 and 100`);

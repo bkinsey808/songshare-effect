@@ -39,6 +39,12 @@ type StoreOverrides = {
 	fetchPlaylistLibrary?: unknown;
 };
 
+/**
+ * Install a mocked app store for `useCommunityManageBody` tests.
+ *
+ * @param overrides - selectors and effects to override in the mocked store
+ * @returns void
+ */
 function installStoreMocks(overrides: StoreOverrides = {}): void {
 	const {
 		members = [],

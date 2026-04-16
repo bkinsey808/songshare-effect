@@ -28,9 +28,12 @@ function installStore(opts: {
 }
 
 /**
- * Harness for useLoadCommunityById.
- * Mounts the hook; fetchCommunityById runs when communityId is set and
- * differs from currentCommunity.
+ * Harness for `useLoadCommunityById` used in tests.
+ * Mounts the hook; `fetchCommunityById` runs when `communityId` is set and
+ * differs from `currentCommunity`.
+ *
+ * @param props - harness props containing `communityId`
+ * @returns ReactElement used to mount the hook in tests
  */
 function Harness(props: { communityId: string | undefined }): ReactElement {
 	useLoadCommunityById(props.communityId);

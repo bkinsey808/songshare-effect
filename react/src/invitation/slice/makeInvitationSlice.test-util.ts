@@ -16,12 +16,23 @@ export default function makeInvitationSlice(overrides?: Partial<InvitationSlice>
 	const setInvitationLoading = overrides?.setInvitationLoading ?? vi.fn();
 	const setInvitationError = overrides?.setInvitationError ?? vi.fn();
 
+	/**
+	 * Fetch pending invitations (test double).
+	 *
+	 * @returns Effect that resolves to void in tests
+	 */
 	function fetchPendingInvitations(): ReturnType<InvitationSlice["fetchPendingInvitations"]> {
 		return Effect.succeed<void>(undefined) as ReturnType<
 			InvitationSlice["fetchPendingInvitations"]
 		>;
 	}
 
+	/**
+	 * Accept a community invitation (test double).
+	 *
+	 * @param _communityId - community id to accept
+	 * @returns Effect resolving to void
+	 */
 	function acceptCommunityInvitation(
 		_communityId: string,
 	): ReturnType<InvitationSlice["acceptCommunityInvitation"]> {
@@ -30,6 +41,12 @@ export default function makeInvitationSlice(overrides?: Partial<InvitationSlice>
 		>;
 	}
 
+	/**
+	 * Decline a community invitation (test double).
+	 *
+	 * @param _communityId - community id to decline
+	 * @returns Effect resolving to void
+	 */
 	function declineCommunityInvitation(
 		_communityId: string,
 	): ReturnType<InvitationSlice["declineCommunityInvitation"]> {
@@ -38,12 +55,25 @@ export default function makeInvitationSlice(overrides?: Partial<InvitationSlice>
 		>;
 	}
 
+	/**
+	 * Accept an event invitation (test double).
+	 *
+	 * @param _eventId - event id to accept
+	 * @returns Effect resolving to void
+	 */
 	function acceptEventInvitation(
 		_eventId: string,
 	): ReturnType<InvitationSlice["acceptEventInvitation"]> {
 		return Effect.succeed<void>(undefined) as ReturnType<InvitationSlice["acceptEventInvitation"]>;
 	}
 
+	/**
+	 * Decline an event invitation (test double).
+	 *
+	 * @param _eventId - event id to decline
+	 * @param _userId - user id performing the decline
+	 * @returns Effect resolving to void
+	 */
 	function declineEventInvitation(
 		_eventId: string,
 		_userId: string,

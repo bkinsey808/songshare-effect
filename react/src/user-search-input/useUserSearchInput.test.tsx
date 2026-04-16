@@ -10,6 +10,13 @@ import useUserSearchInput from "./useUserSearchInput";
 
 const SINGLE_FETCH_CALL = 1;
 
+/**
+ * Assert that a value is defined and return it; throws otherwise.
+ *
+ * @param value - value that must be defined
+ * @param message - optional failure message
+ * @returns the value when defined
+ */
 function requireDefined<Item>(
 	value: Item | undefined,
 	message = "Expected value to be defined",

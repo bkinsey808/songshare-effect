@@ -4,6 +4,12 @@ import type { ResolvedSlideOrientationType } from "@/shared/user/slideOrientatio
 
 import getSystemSlideOrientation from "./getSystemSlideOrientation";
 
+/**
+ * Hook that resolves the current system slide orientation based on the
+ * viewport orientation media query.
+ *
+ * @returns "portrait" or "landscape" indicating the resolved system orientation
+ */
 export default function useSystemSlideOrientation(): ResolvedSlideOrientationType {
 	const [systemSlideOrientation, setSystemSlideOrientation] = useState(getSystemSlideOrientation);
 
@@ -15,6 +21,11 @@ export default function useSystemSlideOrientation(): ResolvedSlideOrientationTyp
 
 		const mediaQuery = globalThis.matchMedia("(orientation: portrait)");
 
+		/**
+		 * Update the state with the current system slide orientation.
+		 *
+		 * @returns void
+		 */
 		function handleChange(): void {
 			setSystemSlideOrientation(getSystemSlideOrientation());
 		}

@@ -1,3 +1,4 @@
+/* oxlint-disable max-lines */
 import { type DragEndEvent, type SensorDescriptor, type SensorOptions } from "@dnd-kit/core";
 import { Effect } from "effect";
 import { type TFunction } from "i18next";
@@ -16,15 +17,15 @@ import useItemTags from "@/react/tag/useItemTags";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
 import {
-	type PlaylistFormValues,
-	type PlaylistFormValuesFromSchema,
-	playlistFormSchema,
+    type PlaylistFormValues,
+    type PlaylistFormValuesFromSchema,
+    playlistFormSchema,
 } from "../playlistSchema";
 import {
-	addSongToOrder,
-	moveSongDown as moveSongDownHelper,
-	moveSongUp as moveSongUpHelper,
-	removeSongFromOrder,
+    addSongToOrder,
+    moveSongDown as moveSongDownHelper,
+    moveSongUp as moveSongUpHelper,
+    removeSongFromOrder,
 } from "./helpers/songOrder";
 import submitPlaylist, { type SubmitPlaylistParams } from "./helpers/submitPlaylist";
 import usePlaylistDragAndDrop from "./helpers/usePlaylistDragAndDrop";
@@ -120,6 +121,13 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 	});
 
 	// Helper to update form values
+	/**
+	 * Update a single form field and reflect it into the DOM form if present.
+	 *
+	 * @param field - the form field key to update
+	 * @param value - new string value for the field
+	 * @returns void
+	 */
 	function setFormValue(field: keyof PlaylistFormValues, value: string): void {
 		setFormValuesState((prev) => ({ ...prev, [field]: value }));
 		if (formRef.current) {
@@ -173,6 +181,12 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 	});
 
 	// Handle Name Change (slug generation)
+	/**
+	 * Handle playlist name updates and generate slug when creating (not editing).
+	 *
+	 * @param value - new playlist name value
+	 * @returns void
+	 */
 	function handleNameChange(value: string): void {
 		setFormValue("playlist_name", value);
 		if (!isEditing) {
@@ -181,43 +195,97 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 	}
 
 	// Helper updates
+	/**
+	 * Add a song id into the current song order.
+	 *
+	 * @param songId - id of the song to add
+	 * @returns void
+	 */
 	function handleSongAdded(songId: string): void {
 		const newOrder = addSongToOrder(formValues.song_order, songId);
 		setFormValuesState((prev) => ({ ...prev, song_order: newOrder }));
 	}
 
+	/**
+	 * Remove a song id from the current song order.
+	 *
+	 * @param songId - id of the song to remove
+	 * @returns void
+	 */
 	function handleSongRemoved(songId: string): void {
 		const newOrder = removeSongFromOrder(formValues.song_order, songId);
 		setFormValuesState((prev) => ({ ...prev, song_order: newOrder }));
 	}
 
+	/**
+	 * Move a song up within the current song order by index.
+	 *
+	 * @param index - index of the song to move up
+	 * @returns void
+	 */
 	function handleMoveSongUp(index: number): void {
 		const newOrder = moveSongUpHelper(formValues.song_order, index);
 		setFormValuesState((prev) => ({ ...prev, song_order: newOrder }));
 	}
 
+	/**
+	 * Move a song down within the current song order by index.
+	 *
+	 * @param index - index of the song to move down
+	 * @returns void
+	 */
 	function handleMoveSongDown(index: number): void {
 		const newOrder = moveSongDownHelper(formValues.song_order, index);
 		setFormValuesState((prev) => ({ ...prev, song_order: newOrder }));
 	}
 
+	/**
+	 * Replace the current song order with a new order.
+	 *
+	 * @param newOrder - readonly array of song ids in desired order
+	 * @returns void
+	 */
 	function updateSongOrder(newOrder: readonly string[]): void {
 		setFormValuesState((prev) => ({ ...prev, song_order: [...newOrder] }));
 	}
 
+	/**
+	 * Set the playlist slug field on the form.
+	 *
+	 * @param value - new slug value
+	 * @returns void
+	 */
 	function setPlaylistSlug(value: string): void {
 		setFormValue("playlist_slug", value);
 	}
 
+	/**
+	 * Set the public notes field on the form.
+	 *
+	 * @param value - public notes string
+	 * @returns void
+	 */
 	function setPublicNotes(value: string): void {
 		setFormValue("public_notes", value);
 	}
 
+	/**
+	 * Set the private notes field on the form.
+	 *
+	 * @param value - private notes string
+	 * @returns void
+	 */
 	function setPrivateNotes(value: string): void {
 		setFormValue("private_notes", value);
 	}
 
 	// Submission
+	/**
+	 * Form submit handler that validates and submits playlist data.
+	 *
+	 * @param event - optional form event to prevent default behavior
+	 * @returns Promise resolving when submission completes
+	 */
 	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	function handleFormSubmit(event?: React.FormEvent<HTMLFormElement>): Promise<void> {
 		if (event) {
@@ -244,11 +312,21 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 		);
 	}
 
+	/**
+	 * Cancel handler that navigates back in history.
+	 *
+	 * @returns void
+	 */
 	function handleCancel(): void {
 		const NAVIGATE_BACK = -1;
 		void navigate(NAVIGATE_BACK);
 	}
 
+	/**
+	 * Reset the form values to their initial defaults.
+	 *
+	 * @returns void
+	 */
 	function resetForm(): void {
 		// Basic reset
 		setFormValuesState({

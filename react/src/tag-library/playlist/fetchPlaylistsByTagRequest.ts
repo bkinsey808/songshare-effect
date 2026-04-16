@@ -2,12 +2,18 @@ import getSupabaseAuthToken from "@/react/lib/supabase/auth-token/getSupabaseAut
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import callSelect from "@/react/lib/supabase/client/safe-query/callSelect";
 import type {
-	PlaylistLibrary,
-	PlaylistLibraryEntry,
+    PlaylistLibrary,
+    PlaylistLibraryEntry,
 } from "@/react/playlist-library/slice/playlist-library-types";
 import { ZERO } from "@/shared/constants/shared-constants";
 import isRecord from "@/shared/type-guards/isRecord";
 
+/**
+ * Type guard that verifies a value is a `PlaylistLibrary` row.
+ *
+ * @param value - Value to test
+ * @returns True when the value has `user_id` and `playlist_id` strings
+ */
 function isPlaylistLibrary(value: unknown): value is PlaylistLibrary {
 	return (
 		isRecord(value) &&

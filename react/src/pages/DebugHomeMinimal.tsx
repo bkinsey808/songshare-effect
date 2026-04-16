@@ -1,5 +1,10 @@
 import { traceHook } from "@/react/lib/hooks/hookTracer";
 
+/**
+ * Minimal debug page used to isolate hook-order issues in development.
+ *
+ * @returns ReactElement with minimal debug UI
+ */
 function DebugHomeMinimal(): ReactElement {
 	traceHook("DebugHomeMinimal:render");
 

@@ -1,8 +1,14 @@
 import {
-	ResolvedSlideOrientation,
-	type ResolvedSlideOrientationType,
+    ResolvedSlideOrientation,
+    type ResolvedSlideOrientationType,
 } from "@/shared/user/slideOrientationPreference";
 
+/**
+ * Return container class names sized for the current slide orientation.
+ *
+ * @param slideOrientation - current resolved slide orientation
+ * @returns Tailwind class string for container sizing
+ */
 export default function getSlideOrientationContainerClassName(
 	slideOrientation: ResolvedSlideOrientationType,
 ): string {

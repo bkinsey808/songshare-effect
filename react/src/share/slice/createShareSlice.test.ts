@@ -9,7 +9,6 @@ import { describe, expect, it, vi } from "vitest";
 import type { Api, Get, Set } from "@/react/app-store/app-store-types";
 import { sliceResetFns } from "@/react/app-store/slice-reset-fns";
 import forceCast from "@/react/lib/test-utils/forceCast";
-
 import createShareEffect from "../create/createShareEffect";
 import fetchSharesEffect from "../create/fetchSharesEffect";
 import updateShareStatusEffect from "../effects/updateShareStatusEffect";
@@ -78,10 +77,10 @@ function makeMockStore(initialState: Partial<ShareState> = {}): {
 	};
 
 	/**
-	 * Mock `set` implementation used by the test store to apply partials or updaters.
-	 *
-	 * @param patchOrUpdater - Partial state or updater function applied to the mock store.
-	 * @returns void
+	* Mock `set` implementation used by the test store to apply partials or updaters.
+	*
+	* @param patchOrUpdater - Partial state or updater function applied to the mock store.
+	* @returns void
 	 */
 	function setState(
 		patchOrUpdater:
@@ -112,6 +111,12 @@ function makeMockStore(initialState: Partial<ShareState> = {}): {
 	}
 
 	const api: Api<ShareSlice> = {
+		/**
+		 * Proxy `setState` that delegates to the test `setState` helper.
+		 *
+		 * @param patchOrUpdater - partial state or updater function
+		 * @returns void
+		 */
 		setState(patchOrUpdater) {
 			setState(
 				patchOrUpdater as

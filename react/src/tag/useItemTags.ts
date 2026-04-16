@@ -51,6 +51,12 @@ export default function useItemTags(
 	const currentTagsRef = useRef<string[]>([]);
 	const hasLocalTagEditsRef = useRef(false);
 
+	/**
+	 * Replace the current local tag list with `nextTags`.
+	 *
+	 * @param nextTags - New tag list to set locally
+	 * @returns void
+	 */
 	function setTags(nextTags: readonly string[]): void {
 		hasLocalTagEditsRef.current = true;
 		const next = [...nextTags];
@@ -58,6 +64,11 @@ export default function useItemTags(
 		setTagsInternal(next);
 	}
 
+	/**
+	 * Returns the current in-memory tag list.
+	 *
+	 * @returns Readonly array of current tags
+	 */
 	function getTags(): readonly string[] {
 		return currentTagsRef.current;
 	}
@@ -73,6 +84,12 @@ export default function useItemTags(
 		let isActive = true;
 		let retryTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
 
+		/**
+		 * Load tags for the stable item id and populate local state.
+		 *
+		 * @param allowRetry - Whether an empty result should trigger a retry
+		 * @returns void
+		 */
 		function loadTags(allowRetry: boolean): void {
 			void (async (): Promise<void> => {
 				const fetched = await Effect.runPromise(fetchItemTagsEffect(itemType, stableItemId));
@@ -109,6 +126,15 @@ export default function useItemTags(
 		};
 	}, [itemType, itemId]);
 
+	/**
+	 * Persist tag changes for the specified item id.
+	 *
+	 * The function sends the original tags (from mount) and the current local
+	 * `tags` so the server can compute and apply the minimal update.
+	 *
+	 * @param id - UUID of the item to save tags for.
+	 * @returns A `SaveTagsResult` indicating success or failure with an error message.
+	 */
 	async function saveTags(id: string): Promise<SaveTagsResult> {
 		try {
 			await Effect.runPromise(

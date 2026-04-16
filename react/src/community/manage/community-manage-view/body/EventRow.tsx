@@ -27,10 +27,20 @@ export default function EventRow({
 }: EventRowProps): ReactElement {
 	const isActive = activeEventId === event.event_id;
 
+	/**
+	 * Trigger removal of this event by invoking the parent `onRemove` callback.
+	 *
+	 * @returns void
+	 */
 	function handleRemoveClick(): void {
 		onRemove(event.event_id);
 	}
 
+	/**
+	 * Toggle the active state for this event via the `onSetActive` callback.
+	 *
+	 * @returns void
+	 */
 	function handleSetActiveClick(): void {
 		if (onSetActive !== undefined) {
 			onSetActive(isActive ? undefined : event.event_id);

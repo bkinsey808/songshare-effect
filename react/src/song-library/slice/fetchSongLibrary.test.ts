@@ -44,6 +44,11 @@ const mockOwnerRow = {
 /**
  * Builds a Supabase client mock with configurable song_library, song_public, and user_public responses.
  * Used to test fetchSongLibrary without hitting the real backend.
+ *
+ * @param songLibrary - Rows to return from the `song_library` table
+ * @param songPublic - Rows to return from the `song_public` table
+ * @param owners - Rows to return from the `user_public` table
+ * @returns a SupabaseClientLike configured with test responses
  */
 function createMockClient({
 	songLibrary = [mockSongLibraryRow],
@@ -56,6 +61,12 @@ function createMockClient({
 } = {}): SupabaseClientLike {
 	const base = createMinimalSupabaseClient();
 
+	/**
+	 * Mocked `from` implementation for the test Supabase client.
+	 *
+	 * @param table - table name to select from (song_library|song_public|user_public)
+	 * @returns Mocked query builder for the requested table
+	 */
 	function from(table: string): ReturnType<typeof base.from> {
 		if (table === "song_library") {
 			return { select: vi.fn().mockResolvedValue({ data: songLibrary, error: undefined }) };
@@ -90,6 +101,11 @@ describe("fetchSongLibrary", () => {
 	it("fetches and enriches entries when data is present", async () => {
 		const get = makeSongLibrarySlice();
 		const slice = get();
+		/**
+		 * Getter used by the tested effect to access the current slice instance.
+		 *
+		 * @returns SongLibrarySlice instance for the test
+		 */
 		function getMock(): SongLibrarySlice {
 			return slice;
 		}
@@ -129,6 +145,11 @@ describe("fetchSongLibrary", () => {
 	it("handles empty song_library gracefully", async () => {
 		const get = makeSongLibrarySlice();
 		const slice = get();
+		/**
+		 * Getter used by the tested effect to access the current slice instance.
+		 *
+		 * @returns SongLibrarySlice instance for the test
+		 */
 		function getMock(): SongLibrarySlice {
 			return slice;
 		}
@@ -152,6 +173,11 @@ describe("fetchSongLibrary", () => {
 	it("throws when no supabase client available and cleans up loading flag", async () => {
 		const get = makeSongLibrarySlice();
 		const slice = get();
+		/**
+		 * Getter used by the tested effect to access the current slice instance.
+		 *
+		 * @returns SongLibrarySlice instance for the test
+		 */
 		function getMock(): SongLibrarySlice {
 			return slice;
 		}

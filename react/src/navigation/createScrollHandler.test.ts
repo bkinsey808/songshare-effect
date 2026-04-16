@@ -8,10 +8,22 @@ const RAF_CALLBACK_TIME = 0;
 const FAKE_RAF_ID = 1;
 const OFFSET_ONE = 1;
 
+/**
+ * Create a simple RefObject for testing purposes.
+ *
+ * @param value - initial current value for the ref
+ * @returns RefObject with provided current value
+ */
 function makeRef(value: boolean): RefObject<boolean> {
 	return { current: value };
 }
 
+/**
+ * Replace global requestAnimationFrame with a synchronous fake and provide
+ * a restore helper that restores original functions and mocked spies.
+ *
+ * @returns An object with a `restore` method to undo the fake RAF
+ */
 function setupFakeRaf(): { restore: () => void } {
 	const oldRAF = globalThis.requestAnimationFrame;
 	const oldCancel = globalThis.cancelAnimationFrame;

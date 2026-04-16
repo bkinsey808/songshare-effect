@@ -14,6 +14,12 @@ vi.mock("react-router-dom");
 vi.mock("@/react/language/locale/useLocale");
 vi.mock("@/react/tag/useItemTags");
 
+/**
+ * Test helper that stubs `useItemTags` for community tag scenarios.
+ *
+ * @param tags - initial tag list for the mock
+ * @returns void
+ */
 function mockUseItemTags(tags: readonly string[] = []): void {
 	vi.mocked(useItemTags).mockReturnValue({
 		tags,
@@ -32,6 +38,11 @@ describe("useCommunityForm", () => {
 
 		vi.mocked(useParams).mockReturnValue({});
 
+		/**
+		 * Test component mounting the hook for name/slug auto-generation behavior.
+		 *
+		 * @returns ReactElement
+		 */
 		function TestComp(): ReactElement {
 			const hook = useCommunityForm();
 			return (
@@ -78,6 +89,11 @@ describe("useCommunityForm", () => {
 		const mockSave = vi.fn().mockReturnValue(Effect.succeed({ community_slug: "my-community" }));
 		store.setState((prev: Record<string, unknown>) => ({ ...prev, saveCommunity: mockSave }));
 
+		/**
+		 * Test component that submits the community form to exercise save flow.
+		 *
+		 * @returns ReactElement
+		 */
 		function TestCompSubmit(): ReactElement {
 			const hook = useCommunityForm();
 			return (
@@ -135,6 +151,11 @@ describe("useCommunityForm", () => {
 		const store: typeof useAppStore = useAppStore;
 		store.setState((prev: Record<string, unknown>) => ({ ...prev, communityError: "Some error" }));
 
+		/**
+		 * Test component that renders the form error state for assertions.
+		 *
+		 * @returns ReactElement
+		 */
 		function TestCompErr(): ReactElement {
 			const hook = useCommunityForm();
 			return <div data-testid="err">{hook.error}</div>;
@@ -179,6 +200,11 @@ describe("useCommunityForm", () => {
 			},
 		}));
 
+		/**
+		 * Test component used to verify unsaved changes when editing tags.
+		 *
+		 * @returns ReactElement
+		 */
 		function TestComp(): ReactElement {
 			const hook = useCommunityForm();
 			return (
@@ -258,6 +284,11 @@ describe("useCommunityForm", () => {
 			},
 		}));
 
+		/**
+		 * Test component that renders the hook's unsaved-changes indicator.
+		 *
+		 * @returns ReactElement
+		 */
 		function TestComp(): ReactElement {
 			const hook = useCommunityForm();
 			return <div data-testid="unsaved">{String(hook.hasUnsavedChanges)}</div>;

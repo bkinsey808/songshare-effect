@@ -34,6 +34,11 @@ describe("handleUserLibrarySubscribeEvent", () => {
 	it("does nothing when payload is not a realtime payload", async () => {
 		const addUserLibraryEntry = vi.fn();
 		const removeUserLibraryEntry = vi.fn();
+		/**
+		 * Test getter returning a `UserLibrarySlice` with add/remove helpers.
+		 *
+		 * @returns UserLibrarySlice for the test
+		 */
 		function get(): UserLibrarySlice {
 			return forceCast({
 				addUserLibraryEntry,
@@ -51,6 +56,11 @@ describe("handleUserLibrarySubscribeEvent", () => {
 
 	it("adds enriched entry on INSERT", async () => {
 		const addUserLibraryEntry = vi.fn();
+		/**
+		 * Test getter returning a `UserLibrarySlice` with add/remove helpers.
+		 *
+		 * @returns UserLibrarySlice for the test
+		 */
 		function get(): UserLibrarySlice {
 			return forceCast({
 				addUserLibraryEntry,
@@ -71,6 +81,11 @@ describe("handleUserLibrarySubscribeEvent", () => {
 
 	it("removes entry on DELETE when followed_user_id in old", async () => {
 		const removeUserLibraryEntry = vi.fn();
+		/**
+		 * Test getter returning a `UserLibrarySlice` with add/remove helpers.
+		 *
+		 * @returns UserLibrarySlice for the test
+		 */
 		function get(): UserLibrarySlice {
 			return forceCast({
 				addUserLibraryEntry: vi.fn(),
@@ -91,6 +106,11 @@ describe("handleUserLibrarySubscribeEvent", () => {
 
 	it("skips INSERT when new entry is malformed", async () => {
 		const addUserLibraryEntry = vi.fn();
+		/**
+		 * Test getter returning a `UserLibrarySlice` with add/remove helpers.
+		 *
+		 * @returns UserLibrarySlice for the test
+		 */
 		function get(): UserLibrarySlice {
 			return forceCast({
 				addUserLibraryEntry,

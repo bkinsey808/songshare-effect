@@ -12,6 +12,7 @@ import subscribeToCommunityPublic from "@/react/community/subscribe/subscribeToC
  *
  * @param communityId - id of the community to subscribe to; subscriptions
  *   are skipped when undefined
+ * @returns void
  */
 export default function useCommunityManageSubscriptions(communityId: string | undefined): void {
 	// Subscribe to realtime community_event changes filtered by community

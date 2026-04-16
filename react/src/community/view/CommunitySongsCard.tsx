@@ -22,6 +22,12 @@ type CommunitySongsCardProps = Readonly<{
  *
  * When the user is a member, shows a dropdown to share songs with the community.
  *
+ * @param communitySongs - list of songs associated with the community
+ * @param isMember - whether the current user is a community member
+ * @param selectedSongId - currently selected song id in the share dropdown
+ * @param setSelectedSongId - setter for the selected song id
+ * @param availableSongOptions - available songs the user may share
+ * @param onShareSongClick - callback invoked with a song id to share
  * @returns React element for the songs card
  */
 export default function CommunitySongsCard({

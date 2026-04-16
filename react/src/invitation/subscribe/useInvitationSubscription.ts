@@ -13,6 +13,7 @@ import subscribeToPendingInvitations from "./subscribeToPendingInvitations";
  * 2. Sets up a Supabase Realtime subscription for future invitation changes
  *
  * Automatically keeps the invitation slice state up-to-date.
+ * @returns void
  */
 export default function useInvitationSubscription(): void {
 	const userSessionData = useAppStore((state) => state.userSessionData);

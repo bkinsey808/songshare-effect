@@ -13,6 +13,7 @@ import type { CommunitySlice } from "../slice/CommunitySlice.type";
  *
  * @param communityId - id of the community to join
  * @param get - accessor for the community slice helpers
+ * @param options - optional settings; set `silent: true` to avoid toggling loading
  * @returns effect that completes when the join call finishes
  */
 export default function joinCommunity(

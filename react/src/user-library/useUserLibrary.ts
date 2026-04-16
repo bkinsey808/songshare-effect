@@ -5,21 +5,19 @@ import { useLocation } from "react-router-dom";
 import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentUserId from "@/react/auth/useCurrentUserId";
-/**
- * Initializes and exposes the current user's library. On mount this hook
- * fetches the library and subscribes to realtime updates; the subscription
- * is automatically torn down on unmount or when the location changes.
- *
- * @returns entries - array of followed user entries
- * @returns isLoading - true while the library is loading
- * @returns error - error message when loading fails, or undefined when ok
- * @returns removeFromUserLibrary - function to remove a user from the library
- */
 import type { PlaylistLibraryEntry } from "@/react/playlist-library/slice/playlist-library-types";
 import type { SongLibraryEntry } from "@/react/song-library/slice/song-library-types";
 
 import type { RemoveUserFromLibraryRequest, UserLibraryEntry } from "./slice/user-library-types";
 
+/**
+ * Initializes and exposes the current user's library. On mount this hook
+ * fetches the library and subscribes to realtime updates; the subscription
+ * is automatically torn down on unmount or when the location changes.
+ *
+ * @returns An object containing `entries`, `isLoading`, `error`, `currentUserId`,
+ * `songLibraryEntries`, `playlistLibraryEntries`, and `removeFromUserLibrary`.
+ */
 export default function useUserLibrary(): {
 	entries: UserLibraryEntry[];
 	isLoading: boolean;

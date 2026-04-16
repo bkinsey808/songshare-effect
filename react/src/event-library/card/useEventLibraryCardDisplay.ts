@@ -51,6 +51,8 @@ export default function useEventLibraryCardDisplay({
 
 	/**
 	 * Primary action for the card: delete if owned, otherwise remove.
+	 *
+	 * @returns void
 	 */
 	function onPrimaryClick(): void {
 		if (isOwned) {

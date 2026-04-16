@@ -4,8 +4,8 @@ import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseCl
 import guardAsPostgrestResponse from "@/react/lib/supabase/client/guards/guardAsPostgrestResponse";
 import guardAsRealtimeChannelLike from "@/react/lib/supabase/client/guards/guardAsRealtimeChannelLike";
 import {
-	type RealtimeChannelLike,
-	type SupabaseClientLike,
+    type RealtimeChannelLike,
+    type SupabaseClientLike,
 } from "@/react/lib/supabase/client/SupabaseClientLike";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import extractErrorStack from "@/shared/error-message/extractErrorStack";
@@ -41,7 +41,13 @@ export default function useUserPublicSubscriptionPage(): UserPublicSubscriptionP
 	useEffect(() => {
 		let channel: RealtimeChannelLike | undefined = undefined;
 
-		async function setupSubscription(): Promise<void> {
+				/**
+				 * Initialize Supabase client, fetch initial users list, and set up realtime
+				 * subscription handlers for user_public.
+				 *
+				 * @returns Promise<void> resolved when setup completes
+				 */
+				async function setupSubscription(): Promise<void> {
 			let supabase: SupabaseClientLike<Database> | undefined = undefined;
 
 			try {

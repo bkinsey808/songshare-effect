@@ -23,6 +23,12 @@ type UpdateSlideOrientationPreferenceRequest = Schema.Schema.Type<
 	typeof UpdateSlideOrientationPreferenceRequestSchema
 >;
 
+/**
+ * Update the signed-in user's slide orientation preference and refresh session cookie.
+ *
+ * @param ctx - Hono request context containing env and request data
+ * @returns Effect that yields the updated slideOrientationPreference and may fail with validation or database errors
+ */
 export default function updateSlideOrientationPreference(ctx: ReadonlyContext): Effect.Effect<
 	{
 		slideOrientationPreference: UpdateSlideOrientationPreferenceRequest["slideOrientationPreference"];

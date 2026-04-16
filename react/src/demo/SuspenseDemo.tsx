@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 
 import {
-	DEMO_POSTS_COUNT,
-	DEMO_POSTS_DELAY_MS,
-	DEMO_PROFILE_DELAY_MS,
+    DEMO_POSTS_COUNT,
+    DEMO_POSTS_DELAY_MS,
+    DEMO_PROFILE_DELAY_MS,
 } from "@/shared/constants/http";
 import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import delay from "@/shared/utils/delay";
@@ -54,7 +54,7 @@ type UserProfileParams = Readonly<{
 /**
  * Demo user profile component used by the Suspense demo.
  *
- * @param props.userId - id of the user to render
+ * @param userId - id of the user to render
  * @returns ReactElement showing user profile information
  */
 function UserProfile({ userId }: UserProfileParams): ReactElement {
@@ -88,7 +88,7 @@ type UserPostParams = Readonly<{
 /**
  * Demo user posts component used by the Suspense demo.
  *
- * @param props.userId - id of the user whose posts to render
+ * @param userId - id of the user whose posts to render
  * @returns ReactElement showing a list of posts
  */
 function UserPosts({ userId }: UserPostParams): ReactElement {
@@ -174,6 +174,11 @@ function PostsSkeleton(): ReactElement {
  * @returns React element rendering the Suspense demo
  */
 export default function SuspenseDemo(): ReactElement {
+	/**
+	 * Clear caches used by the demo and reload the page to re-fetch data.
+	 *
+	 * @returns void
+	 */
 	function clearCache(): void {
 		// clear both type-specific caches used in this demo
 		userCache.clear();

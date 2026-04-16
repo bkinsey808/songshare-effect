@@ -2,6 +2,11 @@ import { Activity, useState } from "react";
 
 import InteractiveComponent from "@/react/pages/demo/components/InteractiveComponent";
 
+/**
+ * Small navigation example demonstrating Activity-based pre-rendering.
+ *
+ * @returns ReactElement with interactive navigation examples
+ */
 function NavigationExample(): ReactElement {
 	const [currentPage, setCurrentPage] = useState<"home" | "profile" | "settings">("home");
 

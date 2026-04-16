@@ -78,6 +78,11 @@ describe("fetchCommunityById", () => {
 		const setCommunityLoading = vi.fn();
 		const setCommunityError = vi.fn();
 
+		/**
+		 * Test getter providing a `CommunitySlice` with setters used by the fetch.
+		 *
+		 * @returns CommunitySlice for the test
+		 */
 		function get(): CommunitySlice {
 			return forceCast({
 				setCurrentCommunity,
@@ -117,6 +122,11 @@ describe("fetchCommunityById", () => {
 		const setCommunityLoading = vi.fn();
 		const setCommunityError = vi.fn();
 
+		/**
+		 * Test getter providing a `CommunitySlice` with setters used by the fetch.
+		 *
+		 * @returns CommunitySlice for the test
+		 */
 		function get(): CommunitySlice {
 			return forceCast({
 				setCurrentCommunity,

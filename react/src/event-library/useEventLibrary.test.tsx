@@ -20,9 +20,16 @@ const TEST_CREATED_AT = new Date().toISOString();
 const REMOVE_REQUEST = { event_id: TEST_EVENT_ID } as const;
 
 describe("useEventLibrary", () => {
+	/**
+	 * Router wrapper used to provide routing context for hook renderers
+	 * in tests.
+	 *
+	 * @param children - optional React children to render inside the router
+	 * @returns a ReactElement or null
+	 */
 	function RouterWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
-		return React.createElement(MemoryRouter, undefined, children);
-	}
+			return React.createElement(MemoryRouter, undefined, children);
+		}
 
 	it("calls fetchEventLibrary and subscribes/unsubscribes", async () => {
 		const fetchEventLibrary = vi.fn().mockReturnValue(Effect.sync(() => undefined));
@@ -158,6 +165,12 @@ describe("useEventLibrary", () => {
 
 		store.setState(makeAppSlice({ fetchEventLibrary, subscribeToEventLibrary }));
 
+		/**
+		 * Strict-mode wrapper for testing cleanup behavior under React.StrictMode.
+		 *
+		 * @param children - optional children to render under StrictMode
+		 * @returns ReactElement or null
+		 */
 		function StrictWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
 			return React.createElement(React.StrictMode, undefined, children);
 		}

@@ -17,6 +17,12 @@ type StoreOverrides = {
 	userSessionData?: unknown;
 };
 
+/**
+ * Install mocked selectors for `useCommunityManageView` tests.
+ *
+ * @param overrides - optional selector overrides for the mock store
+ * @returns object containing a spy for `fetchCommunityBySlug`
+ */
 function installCommunityStoreMocks(overrides: StoreOverrides = {}): {
 	fetchSlugSpy: ReturnType<typeof vi.fn>;
 } {

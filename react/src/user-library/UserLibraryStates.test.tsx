@@ -22,6 +22,11 @@ function translateOrDefault(key: string, defaultValue?: string): string {
 }
 
 describe("user library states", () => {
+	/**
+	 * Install mocks for translation and child components used by state tests.
+	 *
+	 * @returns void
+	 */
 	function installMocks(): void {
 		vi.mocked(useTranslation).mockReturnValue(
 			forceCast<ReturnType<typeof useTranslation>>({

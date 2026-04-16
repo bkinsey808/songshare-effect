@@ -22,7 +22,6 @@ import {
 	suspenseUseDemoPath,
 	typegpuAudioVizDemoPath,
 	typegpuDemoPath,
-	uploadDemoPath,
 	userPublicSubscriptionPath,
 	userSubscriptionDemoPath,
 	userViewPath,
@@ -34,7 +33,6 @@ import HomePage from "../pages/home/HomePage";
 // Lazy-loaded route components for public routes
 const AboutPage = lazy(() => import("../pages/AboutPage"));
 const RegisterPage = lazy(() => import("../pages/RegisterPage"));
-const UploadPage = lazy(() => import("../pages/UploadPage"));
 const SongView = lazy(() => import("../song/song-view/SongView"));
 const UserView = lazy(() => import("../user/view/UserView"));
 const PlaylistPage = lazy(() => import("../pages/PlaylistPage"));
@@ -89,10 +87,6 @@ export const publicRoutesWithLayout: RouteObject[] = [
 	{
 		path: registerPath,
 		element: withSuspense(RegisterPage),
-	},
-	{
-		path: uploadDemoPath,
-		element: withSuspense(UploadPage),
 	},
 	{
 		path: suspenseUseDemoPath,

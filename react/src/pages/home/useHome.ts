@@ -2,7 +2,7 @@ import getAppName from "@/react/lib/branding/getAppName";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import normalizeTranslationParagraphs from "@/react/lib/language/normalizeTranslationParagraphs";
 import type { Paragraph } from "@/react/lib/language/paragraph";
-import { reactFeaturesPath, uploadDemoPath } from "@/shared/paths";
+import { reactFeaturesPath } from "@/shared/paths";
 
 export type UseHomeReturn = {
 	lang: ReturnType<typeof useLocale>["lang"];
@@ -10,7 +10,6 @@ export type UseHomeReturn = {
 	appName: string;
 	homeParagraphs: Paragraph[];
 	reactFeaturesPath: string;
-	uploadDemoPath: string;
 };
 
 /**
@@ -30,5 +29,5 @@ export default function useHome(): UseHomeReturn {
 	const homeParagraphsRaw: unknown = t("pages.home.paragraphs", translationConfig);
 	const homeParagraphs: Paragraph[] = normalizeTranslationParagraphs(homeParagraphsRaw);
 
-	return { lang, t, appName, homeParagraphs, reactFeaturesPath, uploadDemoPath };
+	return { lang, t, appName, homeParagraphs, reactFeaturesPath };
 }

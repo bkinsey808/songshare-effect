@@ -21,6 +21,11 @@ import normalizeCommunityEntry from "./normalizeCommunityEntry";
  * Used when editing a community from a route that has community_id (e.g.
  * /dashboard/community-edit/:community_id) so the form can load the community
  * even when currentCommunity was not preloaded by a slug-based view.
+ *
+ * @param communityId - ID of the community to fetch
+ * @param get - Getter that returns the `CommunitySlice` used to update state
+ * @param options - Optional settings; set `silent: true` to avoid toggling loading
+ * @returns The fetched `CommunityEntry` wrapped in an `Effect` or a failing `Effect` on error
  */
 export default function fetchCommunityById(
 	communityId: string,

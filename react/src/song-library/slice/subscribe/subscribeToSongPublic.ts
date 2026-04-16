@@ -23,10 +23,16 @@ const NO_SONG_IDS = 0;
 
 /**
  * Normalize realtime payload to our expected shape.
+ *
  * Supabase realtime-js may pass either:
  * - Normalized: { eventType, new?, old? }
  * - Wrapped: { ids?, data: { type, record?, old_record? } }
- * This returns the normalized form so handlers can assume eventType/new/old.
+ *
+ * This returns the normalized form so handlers can assume `eventType`, `new`,
+ * and `old` fields in the returned object when possible.
+ *
+ * @param payload - incoming realtime payload from Supabase
+ * @returns normalized payload or the original value when normalization is not possible
  */
 function normalizeSongPublicPayload(payload: unknown): unknown {
 	if (!isRecord(payload)) {
@@ -51,11 +57,10 @@ function normalizeSongPublicPayload(payload: unknown): unknown {
 /**
  * Update a song library entry with fields from a song_public row.
  *
- * @param params - Update parameters
- * @param params.get - Zustand slice getter
- * @param params.songId - ID of the song to update
- * @param params.songName - Optional song name to set (undefined clears)
- * @param params.songSlug - Optional song slug to set (undefined clears)
+ * @param get - Zustand slice getter
+ * @param songId - ID of the song to update
+ * @param songName - Optional song name to set (undefined clears)
+ * @param songSlug - Optional song slug to set (undefined clears)
  * @returns void
  */
 function updateEntryFromSongPublic({
@@ -159,6 +164,9 @@ const REALTIME_IN_FILTER_START = 0;
 /**
  * Build PostgREST-style in-filter for song_id. UUIDs must be double-quoted so
  * hyphens are not parsed as operators. Format: song_id=in.("id1","id2",...)
+ *
+ * @param uniqueIds - list of song ids to include in the filter (only first 100 used)
+ * @returns PostgREST `in` filter string for the provided ids
  */
 function buildSongIdInFilter(uniqueIds: readonly string[]): string {
 	const quoted = uniqueIds

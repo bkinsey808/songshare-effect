@@ -52,8 +52,12 @@ function makeSampleWithNonStringId(): UserSessionData {
 	};
 }
 
+
 /**
  * Configure the app store mock to return a test-controlled `userSessionData`.
+ *
+ * @param userSessionData - optional UserSessionData to return from the store
+ * @returns void
  */
 function setGetTypedStateUser(userSessionData?: UserSessionData): void {
 	const newState =

@@ -1,10 +1,10 @@
 import { createContext, use, useState } from "react";
 
 import {
-	DEMO_ALT_USER_ID,
-	DEMO_DEFAULT_USER_ID,
-	DEMO_FETCH_SONG_DELAY_MS,
-	DEMO_FETCH_USER_DELAY_MS,
+    DEMO_ALT_USER_ID,
+    DEMO_DEFAULT_USER_ID,
+    DEMO_FETCH_SONG_DELAY_MS,
+    DEMO_FETCH_USER_DELAY_MS,
 } from "@/shared/constants/http";
 import delay from "@/shared/utils/delay";
 import { createTypedCache } from "@/shared/utils/typedPromiseCache";
@@ -90,7 +90,7 @@ type UserProfileParams = Readonly<{
 /**
  * Demo user profile component that reads a cached promise via the `use` hook.
  *
- * @param props.userId - id of the user to render
+ * @param userId - id of the user to render
  * @returns ReactElement displaying demo user information
  */
 function UserProfile({ userId }: UserProfileParams): ReactElement {
@@ -138,7 +138,7 @@ type SongDetailsParams = Readonly<{
 /**
  * Demo song details component that reads a cached promise via the `use` hook.
  *
- * @param props.songName - name of the song to render
+ * @param songName - name of the song to render
  * @returns ReactElement displaying demo song details
  */
 function SongDetails({ songName }: SongDetailsParams): ReactElement {

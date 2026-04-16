@@ -22,6 +22,11 @@ describe("createShareEffect", () => {
 	const setLoadingShareId = vi.fn();
 	const addSentShare = vi.fn();
 
+	/**
+	 * Build a `get` function returning a minimal ShareSlice for tests.
+	 *
+	 * @returns A `Get<ShareSlice>` mock that provides the slice methods used in tests
+	 */
 	function makeGet(): Get<ShareSlice> {
 		return () =>
 			forceCast<ShareSlice>({

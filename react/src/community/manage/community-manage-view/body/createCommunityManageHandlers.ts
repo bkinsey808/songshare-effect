@@ -5,17 +5,17 @@ import postJson from "@/shared/fetch/postJson";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import {
-	apiCommunityEventAddPath,
-	apiCommunityEventRemovePath,
-	apiCommunityPlaylistAddPath,
-	apiCommunityPlaylistRemovePath,
-	apiCommunitySetActiveEventPath,
-	apiCommunityShareRequestUpdateStatusPath,
-	apiCommunitySongAddPath,
-	apiCommunitySongRemovePath,
-	apiCommunityUserAddPath,
-	apiCommunityUserKickPath,
-	communityViewPath,
+    apiCommunityEventAddPath,
+    apiCommunityEventRemovePath,
+    apiCommunityPlaylistAddPath,
+    apiCommunityPlaylistRemovePath,
+    apiCommunitySetActiveEventPath,
+    apiCommunityShareRequestUpdateStatusPath,
+    apiCommunitySongAddPath,
+    apiCommunitySongRemovePath,
+    apiCommunityUserAddPath,
+    apiCommunityUserKickPath,
+    communityViewPath,
 } from "@/shared/paths";
 
 import type { CommunityActionState } from "../CommunityActionState.type";
@@ -85,12 +85,22 @@ export default function createCommunityManageHandlers(
 		setAddPlaylistIdInput,
 	} = params;
 
+	/**
+	 * Refresh the community data by calling the provided loader.
+	 *
+	 * @returns Promise<void>
+	 */
 	async function refreshCommunity(): Promise<void> {
 		if (communitySlug !== undefined && communitySlug !== "") {
 			await Effect.runPromise(loadCommunityBySlug(communitySlug, { silent: true }));
 		}
 	}
 
+	/**
+	 * Invite a user to the current community using the `inviteUserIdInput`.
+	 *
+	 * @returns void
+	 */
 	function onInviteClick(): void {
 		if (
 			currentCommunity !== undefined &&
@@ -116,6 +126,11 @@ export default function createCommunityManageHandlers(
 		}
 	}
 
+	/**
+	 * Add an event to the community using `addEventIdInput`.
+	 *
+	 * @returns void
+	 */
 	function onAddEventClick(): void {
 		if (currentCommunity !== undefined && addEventIdInput !== undefined && addEventIdInput !== "") {
 			void (async (): Promise<void> => {
@@ -135,6 +150,12 @@ export default function createCommunityManageHandlers(
 		}
 	}
 
+	/**
+	 * Remove an event from the community.
+	 *
+	 * @param eventId - id of the event to remove
+	 * @returns void
+	 */
 	function onRemoveEventClick(eventId: string): void {
 		if (currentCommunity !== undefined) {
 			void runCommunityAction({
@@ -151,6 +172,11 @@ export default function createCommunityManageHandlers(
 		}
 	}
 
+	/**
+	 * Add a song to the community using `addSongIdInput`.
+	 *
+	 * @returns void
+	 */
 	function onAddSongClick(): void {
 		if (currentCommunity !== undefined && addSongIdInput !== undefined && addSongIdInput !== "") {
 			void (async (): Promise<void> => {
@@ -170,6 +196,12 @@ export default function createCommunityManageHandlers(
 		}
 	}
 
+	/**
+	 * Remove a song from the community.
+	 *
+	 * @param songId - id of the song to remove
+	 * @returns void
+	 */
 	function onRemoveSongClick(songId: string): void {
 		if (currentCommunity !== undefined) {
 			void runCommunityAction({
@@ -186,6 +218,11 @@ export default function createCommunityManageHandlers(
 		}
 	}
 
+	/**
+	 * Add a playlist to the community using `addPlaylistIdInput`.
+	 *
+	 * @returns void
+	 */
 	function onAddPlaylistClick(): void {
 		if (
 			currentCommunity !== undefined &&
@@ -209,6 +246,12 @@ export default function createCommunityManageHandlers(
 		}
 	}
 
+	/**
+	 * Remove a playlist from the community.
+	 *
+	 * @param playlistId - id of the playlist to remove
+	 * @returns void
+	 */
 	function onRemovePlaylistClick(playlistId: string): void {
 		if (currentCommunity !== undefined) {
 			void runCommunityAction({
@@ -225,6 +268,13 @@ export default function createCommunityManageHandlers(
 		}
 	}
 
+	/**
+	 * Review and update a share request's status.
+	 *
+	 * @param requestId - id of the share request
+	 * @param status - new status for the request
+	 * @returns void
+	 */
 	function onReviewShareRequestClick(requestId: string, status: "accepted" | "rejected"): void {
 		void runCommunityAction({
 			key: `review-share-request:${requestId}:${status}`,
@@ -240,6 +290,12 @@ export default function createCommunityManageHandlers(
 		});
 	}
 
+	/**
+	 * Set or clear the community's active event.
+	 *
+	 * @param eventId - id of the event to set as active, or `undefined` to clear
+	 * @returns void
+	 */
 	function onSetActiveEventClick(eventId: string | undefined): void {
 		if (currentCommunity !== undefined) {
 			void runCommunityAction({
@@ -257,6 +313,12 @@ export default function createCommunityManageHandlers(
 		}
 	}
 
+	/**
+	 * Kick or cancel an invitation for a user from the community.
+	 *
+	 * @param userId - id of the user to remove
+	 * @returns void
+	 */
 	function onKickClick(userId: string): void {
 		if (currentCommunity !== undefined) {
 			const isInvited = members.find((member) => member.user_id === userId)?.status === "invited";
@@ -274,6 +336,11 @@ export default function createCommunityManageHandlers(
 		}
 	}
 
+	/**
+	 * Navigate back to the community view page.
+	 *
+	 * @returns void
+	 */
 	function onBackClick(): void {
 		if (communitySlug !== undefined && communitySlug !== "") {
 			void navigate(buildPathWithLang(`/${communityViewPath}/${communitySlug}`, langForNav));

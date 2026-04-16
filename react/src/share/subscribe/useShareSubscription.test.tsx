@@ -18,7 +18,12 @@ vi.mock("@/react/app-store/useAppStore");
 
 const CURRENT_USER_ID = TEST_USER_ID;
 
-/** Configures useCurrentUserId and app store mocks for share subscription tests. */
+/**
+ * Configures useCurrentUserId and app store mocks for share subscription tests.
+ *
+ * @param opts - various override options for the mocked environment
+ * @returns void
+ */
 function installMocks(opts: {
 	/** When false, simulates no signed-in user (skips fetch/subscribe) */
 	signedIn?: boolean;
@@ -60,6 +65,11 @@ function installMocks(opts: {
  * updates when the user is signed in. The Harness mounts the hook and exposes
  * store state (isSharesLoading, sentShares) to document how the hook affects
  * the app store. Call from a page component before any conditional returns.
+ */
+/**
+ * Harness for useShareSubscription (Documentation by Harness).
+ *
+ * @returns ReactElement used to mount the hook and inspect store state
  */
 function Harness(): ReactElement {
 	useShareSubscription();

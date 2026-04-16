@@ -4,12 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import type {
-	CommunityEntry,
-	CommunityEvent,
-	CommunityPlaylist,
-	CommunityShareRequest,
-	CommunitySong,
-	CommunityUser,
+    CommunityEntry,
+    CommunityEvent,
+    CommunityPlaylist,
+    CommunityShareRequest,
+    CommunitySong,
+    CommunityUser,
 } from "@/react/community/community-types";
 import useLoadCommunityLibraries from "@/react/community/useLoadCommunityLibraries";
 import { defaultLanguage } from "@/shared/language/supported-languages";
@@ -53,7 +53,10 @@ export type UseCommunityManageBodyReturn = {
 
 /**
  * Hook for the community manage body content (members, events, songs, etc.).
- * Only call when currentCommunity is defined.
+ * Only call when `currentCommunity` is defined.
+ *
+ * @param currentCommunity - the current community entry the body should render for
+ * @returns API surface consumed by the community manage body component
  */
 export default function useCommunityManageBody(
 	currentCommunity: CommunityEntry,

@@ -16,7 +16,12 @@ const FIRST_CALL = 1;
 const FIRST_CALL_INDEX = 0;
 const FIRST_ARG_INDEX = 0;
 
-/** Normalizes URL or string to href string; returns empty string for non-URL values. */
+/**
+ * Normalize a URL or string to an href string.
+ *
+ * @param value - value that may be a string or URL
+ * @returns href string or empty string for non-URL values
+ */
 function toUrlString(value: unknown): string {
 	if (typeof value === "string") {
 		return value;
@@ -27,7 +32,13 @@ function toUrlString(value: unknown): string {
 	return "";
 }
 
-/** Wraps test body with fetch mock setup/teardown to satisfy jest/no-hooks. */
+/**
+ * Wrap test body with a temporary global fetch mock and ensure cleanup.
+ *
+ * @param mockImpl - function returning a fetch mock implementation
+ * @param testFn - async test body to execute while the mock is installed
+ * @returns Promise that resolves after the test body runs and cleanup completes
+ */
 async function withFetchMock(
 	mockImpl: () => ReturnType<typeof vi.fn>,
 	testFn: () => Promise<void>,
@@ -62,6 +73,12 @@ describe("fetchSharesEffect", () => {
 	const setReceivedShares = vi.fn();
 	const setSentShares = vi.fn();
 
+	/**
+	 * Create a minimal `get` function that returns a ShareSlice-like object
+	 * with the mocked setter spies used by the tests.
+	 *
+	 * @returns Get<ShareSlice> returning the stubbed slice methods
+	 */
 	function makeGet(): Get<ShareSlice> {
 		return () =>
 			forceCast<ShareSlice>({
@@ -72,6 +89,11 @@ describe("fetchSharesEffect", () => {
 			});
 	}
 
+	/**
+	 * Default fetch mock returning an empty JSON response.
+	 *
+	 * @returns A vi mock implementation that resolves to an empty JSON response
+	 */
 	function defaultFetchMock(): ReturnType<typeof vi.fn> {
 		return vi.fn().mockResolvedValue(Response.json({}));
 	}
@@ -148,6 +170,11 @@ describe("fetchSharesEffect", () => {
 
 	it("rejects when fetch fails (loading set to true; Effect failure bypasses finally)", async () => {
 		const errorMessage = "network fail";
+		/**
+		 * Fetch mock that rejects to simulate a network error.
+		 *
+		 * @returns A vi mock that rejects with an Error
+		 */
 		function failFetchMock(): ReturnType<typeof vi.fn> {
 			return vi.fn().mockRejectedValue(new Error(errorMessage));
 		}
@@ -166,6 +193,11 @@ describe("fetchSharesEffect", () => {
 	});
 
 	it("rejects when HTTP response is not ok (loading set to true; Effect failure bypasses finally)", async () => {
+		/**
+		 * Fetch mock that resolves to an HTTP 403 response.
+		 *
+		 * @returns A vi mock resolving to a 403 Response
+		 */
 		function forbiddenFetchMock(): ReturnType<typeof vi.fn> {
 			return vi
 				.fn()

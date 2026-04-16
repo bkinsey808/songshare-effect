@@ -26,6 +26,12 @@ type OnEventFn = (payload: unknown) => Effect.Effect<void, Error>;
 
 type OnEventCapture = { fn: OnEventFn | undefined };
 
+/**
+ * Prepare default mocks for useItemTagsDisplay tests.
+ *
+ * @param capture - Optional capture object to receive the realtime onEvent handler
+ * @returns void
+ */
 function setupDefaultMocks(capture?: OnEventCapture): void {
 	vi.clearAllMocks();
 	vi.mocked(fetchItemTagsEffect).mockReturnValue(Effect.succeed([]));

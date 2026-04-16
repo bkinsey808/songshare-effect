@@ -5,11 +5,18 @@ import guardAsSupabaseRealtimeClientLike from "@/react/lib/supabase/client/guard
 import isRecord from "@/shared/type-guards/isRecord";
 
 import type {
-	InvitationSlice,
-	PendingCommunityInvitation,
-	PendingEventInvitation,
+    InvitationSlice,
+    PendingCommunityInvitation,
+    PendingEventInvitation,
 } from "../slice/InvitationSlice.type";
 
+/**
+ * Inspect a payload and determine whether it represents the
+ * Supabase "realtime table not enabled" error message.
+ *
+ * @param payload - value to inspect for the realtime-not-enabled error shape
+ * @returns boolean true when the payload message matches the known realtime error
+ */
 function isRealtimeTableNotEnabledError(payload: unknown): boolean {
 	if (!isRecord(payload)) {
 		return false;

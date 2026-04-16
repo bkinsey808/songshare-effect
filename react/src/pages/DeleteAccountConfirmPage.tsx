@@ -9,9 +9,9 @@ import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
 import XIcon from "@/react/lib/design-system/icons/XIcon";
 import getCookie from "@/react/lib/utils/getCookie";
 import {
-	EMPTY_STRING,
-	JUST_DELETED_ACCOUNT_SIGNAL,
-	LANG_PATH_SEGMENT_INDEX,
+    EMPTY_STRING,
+    JUST_DELETED_ACCOUNT_SIGNAL,
+    LANG_PATH_SEGMENT_INDEX,
 } from "@/shared/constants/http";
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
@@ -37,11 +37,21 @@ export default function DeleteAccountConfirmPage(): ReactElement {
 	const maybeLang = pathname.split("/")[LANG_PATH_SEGMENT_INDEX] ?? EMPTY_STRING;
 	const currentLang = maybeLang || SupportedLanguage.en;
 
+	/**
+	 * Cancel deletion and navigate back to dashboard/home.
+	 *
+	 * @returns void
+	 */
 	function onCancel(): void {
 		const langForNav = isSupportedLanguage(currentLang) ? currentLang : defaultLanguage;
 		void navigate(buildPathWithLang(`/${dashboardPath}`, langForNav), { replace: true });
 	}
 
+	/**
+	 * Confirm account deletion: perform request, handle errors, and redirect.
+	 *
+	 * @returns Promise<void>
+	 */
 	async function onConfirm(): Promise<void> {
 		setError(undefined);
 		setLoading(true);

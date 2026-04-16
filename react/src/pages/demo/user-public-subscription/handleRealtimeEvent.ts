@@ -20,6 +20,12 @@ const EVENTS_MAX = 10;
 /**
  * Top-level helper so the main component function stays under the max-lines
  * limit enforced by the linter.
+ *
+ * @param payload - raw realtime payload from Supabase
+ * @param eventType - the event type (INSERT|UPDATE|DELETE)
+ * @param setEvents - setter for the events array
+ * @param setUsers - setter for the users array
+ * @returns void
  */
 function handleRealtimeEvent({
 	payload,

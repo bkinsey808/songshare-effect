@@ -51,6 +51,7 @@ function shouldSkipParticipantRefresh(
  *
  * @param eventSlug - Event slug used for event_public subscription filtering
  * @param eventId - Event id used for event_user subscription filtering
+ * @param currentUserId - id of the current user to avoid self-originated refreshes
  * @param fetchEventBySlug - Store action that refreshes event state by slug
  * @returns Nothing; this hook performs side effects only
  */

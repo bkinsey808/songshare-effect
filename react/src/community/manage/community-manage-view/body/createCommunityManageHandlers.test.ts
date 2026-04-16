@@ -28,7 +28,12 @@ const SAMPLE_COMMUNITY = forceCast<CreateParams["currentCommunity"]>({
 	updated_at: "2026-01-01T00:00:00Z",
 });
 
-/** Builds minimal params for createCommunityManageHandlers tests. */
+/**
+ * Builds minimal params for createCommunityManageHandlers tests.
+ *
+ * @param overrides - partial overrides to customize the returned params
+ * @returns the composed CreateParams fixture used by the tests
+ */
 function makeParams(overrides: Partial<CreateParams> = {}): CreateParams {
 	const navigate = vi.fn();
 	const fetchCommunityBySlug = vi.fn(() => Effect.succeed(undefined));

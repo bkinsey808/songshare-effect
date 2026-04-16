@@ -15,6 +15,16 @@ import fetchCommunityShareRequests from "./fetchCommunityShareRequests";
 import fetchCommunitySongs from "./fetchCommunitySongs";
 import normalizeCommunityEntry from "./normalizeCommunityEntry";
 
+/**
+ * Fetches a community by slug and populates the store with the resulting
+ * data (members, events, songs, playlists, and share requests).
+ *
+ * @param slug - community slug to look up
+ * @param get - function that returns the community slice for mutation
+ * @param options - optional settings (e.g. `{ silent: true }` to avoid
+ * showing loading UI)
+ * @returns Effect that resolves to the fetched CommunityEntry
+ */
 export default function fetchCommunityBySlug(
 	slug: string,
 	get: () => CommunitySlice,

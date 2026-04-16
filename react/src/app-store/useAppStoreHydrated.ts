@@ -26,6 +26,16 @@ export default function useAppStoreHydrated(): { isHydrated: boolean } {
 			return;
 		}
 
+		/**
+		 * Listener invoked when the global hydration state changes.
+		 * Schedules an update to local `isHydrated` to avoid updating during render.
+		 */
+ 		/**
+ 		 * Listener invoked when the global hydration state changes.
+ 		 * Schedules an update to local `isHydrated` to avoid updating during render.
+ 		 *
+ 		 * @returns void
+ 		 */
 		function listener(): void {
 			schedule(() => {
 				setIsHydrated(true);

@@ -69,6 +69,11 @@ export default function useTypegpuAudioViz(canvasRef: React.RefObject<HTMLCanvas
 
 	const stopTypeGpuRef = useRef<(() => void) | undefined>(undefined);
 
+	/**
+	 * Stop any running TypeGPU rendering function if present.
+	 *
+	 * @returns void
+	 */
 	function stopTypeGpuIfRunning(): void {
 		const stopFn = stopTypeGpuRef.current;
 		if (!stopFn) {

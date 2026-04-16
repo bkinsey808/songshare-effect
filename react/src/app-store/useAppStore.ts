@@ -110,6 +110,12 @@ const useAppStore = create<AppSlice>()(
 // once below using a small runtime check so callers get a fully-typed `AppSlice`
 // without repeating unsafe casts across the codebase.
 // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion -- runtime validation of untyped store
+/**
+ * Runtime assertion that narrows an unknown value to `AppSlice`.
+ *
+ * @param state - value to assert as an `AppSlice`
+ * @returns void
+ */
 function assertAppSlice(state: unknown): asserts state is AppSlice {
 	if (state === null || typeof state !== "object") {
 		throw new TypeError("App store is not yet initialized or has unexpected shape");
@@ -124,6 +130,11 @@ function assertAppSlice(state: unknown): asserts state is AppSlice {
 	}
 }
 
+/**
+ * Return a fully-typed `AppSlice` snapshot from the vanilla store API.
+ *
+ * @returns the fully-initialized `AppSlice` instance
+ */
 export function getTypedState(): AppSlice {
 	const state: unknown = useAppStore.getState();
 	assertAppSlice(state);

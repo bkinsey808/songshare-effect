@@ -13,6 +13,15 @@ import isSongLibraryEntry from "./guards/isSongLibraryEntry";
  * in isolation to avoid complex Supabase client mocking in the test
  * suite and to comply with repository linting rules.
  */
+/**
+ * Transform arrays of rows into a record keyed by `song_id` containing
+ * derived song and owner information.
+ *
+ * @param libraryRows - rows from `song_library` with optional `song_owner_id`
+ * @param songRows - rows from `song_public` with optional name/slug
+ * @param userRows - rows from `user_public` containing usernames
+ * @returns record keyed by `song_id` with optional `song_name`, `song_slug`, and `owner_username`
+ */
 function transformSongLibraryEntries(
 	libraryRows: { song_id: string; song_owner_id?: string }[],
 	songRows: { song_id: string; song_name?: string; song_slug?: string }[],

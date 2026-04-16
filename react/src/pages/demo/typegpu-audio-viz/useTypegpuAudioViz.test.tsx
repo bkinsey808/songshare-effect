@@ -32,20 +32,45 @@ const mockResize = vi.mocked(resizeCanvasToDisplaySize);
 const mockDrawFallback = vi.mocked(drawAudioVizFallbackFrame);
 const mockRunTypegpu = vi.mocked(runTypeGpuAudioVizDemo);
 
+/**
+ * Create a minimal, test-only MediaStream-like object with stubbed tracks.
+ *
+ * @returns MinimalMediaStream used in tests
+ */
 function makeMinimalStream(): MinimalMediaStream {
 	return {
+		/**
+		 * Return an array of mock `MediaStreamTrack`-like objects with a `stop` method.
+		 *
+		 * @returns Array of objects exposing `stop()`
+		 */
 		getTracks(): { stop: () => void }[] {
 			return [
 				{
+					/**
+					 * Stop the mocked track. No-op for tests.
+					 *
+					 * @returns void
+					 */
 					stop() {
 						/* noop */
 					},
 				},
 			];
 		},
+		/**
+		 * Return an array of mock audio tracks with a `stop` method.
+		 *
+		 * @returns Array of objects exposing `stop()`
+		 */
 		getAudioTracks(): { stop: () => void }[] {
 			return [
 				{
+					/**
+					 * Stop the mocked audio track. No-op for tests.
+					 *
+					 * @returns void
+					 */
 					stop() {
 						/* noop */
 					},
@@ -58,10 +83,32 @@ function makeMinimalStream(): MinimalMediaStream {
 // Test helpers: narrow runtime values without using non-null assertions or
 // inline eslint disables. These follow the project's existing test patterns
 // (see `useCanvasAnimation.test.tsx`).
+/**
+ * Assert that a value is a Canvas 2D rendering context for tests.
+ *
+ * @param value - runtime value to assert as CanvasRenderingContext2D
+ */
+/**
+ * Assert that a value is a Canvas 2D rendering context for tests.
+ *
+ * @param value - runtime value to assert as CanvasRenderingContext2D
+ * @returns void
+ */
 function assertIs2DContext(value: unknown): asserts value is CanvasRenderingContext2D {
 	expect(value).toBeDefined();
 }
 
+/**
+ * Assert that a value is a DrawFn for the canvas animation API.
+ *
+ * @param value - runtime value to assert as DrawFn
+ */
+/**
+ * Assert that a value is a DrawFn for the canvas animation API.
+ *
+ * @param value - runtime value to assert as DrawFn
+ * @returns void
+ */
 function assertIsDrawFn(value: unknown): asserts value is DrawFn {
 	expect(typeof value).toBe("function");
 }
@@ -74,6 +121,12 @@ describe("useTypegpuAudioViz (behavior)", () => {
 	const SAMPLE_BYTE_3 = 3;
 	const SAMPLE_BYTES = [SAMPLE_BYTE_1, SAMPLE_BYTE_2, SAMPLE_BYTE_3] as const;
 
+	/**
+	 * Test setup helper creating canvas, mocked animation spies, and hook defaults.
+	 *
+	 * @param overrides - partial overrides for the mocked `useAudioVizInput` return
+	 * @returns utilities used by tests (canvas, spies, captured draw function)
+	 */
 	function setup(overrides: Partial<Partial<ReturnType<typeof useAudioVizInput>>> = {}): {
 		canvas: HTMLCanvasElement;
 		startCanvasSpy: ReturnType<typeof vi.fn>;

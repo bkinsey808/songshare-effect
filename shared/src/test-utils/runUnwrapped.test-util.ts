@@ -14,6 +14,14 @@ import tryParseJsonFromString from "../utils/tryParseJsonFromString";
 export default async function runUnwrapped(
 	effect: Effect.Effect<unknown, unknown>,
 ): Promise<unknown> {
+	/**
+	 * Throw an Error constructed from a parsed payload, optionally copying
+	 * non-message properties onto the Error instance for better test assertions.
+	 *
+	 * @param parsed - Parsed payload (object or other) that should be rethrown
+	 * @param cause - Optional original cause value used when constructing the Error
+	 * @returns never
+	 */
 	function throwParsed(parsed: unknown, cause?: unknown): never {
 		const err = toError(parsed, cause);
 		if (isObject(parsed)) {

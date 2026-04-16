@@ -14,6 +14,11 @@ describe("addMember", () => {
 
 	const setCommunityLoading = vi.fn();
 	const setCommunityError = vi.fn();
+	/**
+	 * Test getter providing the minimal `CommunitySlice` used by addMember.
+	 *
+	 * @returns CommunitySlice for the test
+	 */
 	function get(): CommunitySlice {
 		return forceCast({ setCommunityLoading, setCommunityError } as unknown);
 	}

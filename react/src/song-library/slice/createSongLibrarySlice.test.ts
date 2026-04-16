@@ -8,6 +8,8 @@ import { createSongLibrarySlice, type SongLibrarySlice } from "./song-library-sl
 /**
  * Returns a minimal mock store with vi.fn() stubs for set/get and a minimal api.
  * Get returns empty song library state so methods like getSongLibrarySongIds work.
+ *
+ * @returns mock store utilities (`set`, `get`, `api`)
  */
 function makeMockStore(): {
 	set: Set<SongLibrarySlice>;

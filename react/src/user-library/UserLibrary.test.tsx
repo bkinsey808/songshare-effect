@@ -63,6 +63,11 @@ const MOCK_WITH_ENTRY = {
 	removeFromUserLibrary: (): Effect.Effect<void, Error> => Effect.sync(() => undefined),
 } satisfies ReturnType<typeof useUserLibrary>;
 
+/**
+ * Install UI component mocks used by the user library tests.
+ *
+ * @returns void
+ */
 function installUiMocks(): void {
 	vi.mocked(UserLibraryLoadingState).mockImplementation(() => <div data-testid="loading" />);
 	vi.mocked(UserLibraryErrorState).mockImplementation(({ error }) => (

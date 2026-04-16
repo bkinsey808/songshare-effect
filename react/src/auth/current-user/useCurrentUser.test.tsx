@@ -25,11 +25,6 @@ const USERNAME = "hookuser";
 /**
  * Configure the mocked app store selector for `useCurrentUser` tests.
  *
- * @param userSessionData - current session data exposed from the store
- */
-/**
- * Install a mocked app store state for `useCurrentUser` tests.
- *
  * @param userSessionData - Optional session data to return from the store.
  * @returns void
  */
@@ -48,6 +43,8 @@ function installStore(userSessionData: UserSessionData | undefined): void {
  *
  * Shows how a component consumes the hook by rendering each exposed field and
  * a signed-in flag for the undefined state.
+ *
+ * @returns ReactElement rendering observable hook outputs for tests
  */
 function Harness(): ReactElement {
 	const currentUser = useCurrentUser();

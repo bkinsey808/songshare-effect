@@ -19,10 +19,24 @@ type TokenResponse = Readonly<{
 }>;
 const NO_EXPIRY_SECONDS = 0;
 
+/**
+ * Type guard that checks whether a value is a plain record (object).
+ *
+ * @param value - Value to test
+ * @returns True when the value is a non-null object
+ */
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
 }
 
+/**
+ * Verifies that the Supabase `app_metadata` object matches the provided user id and username.
+ *
+ * @param appMetadata - Metadata to inspect
+ * @param userId - Expected user id
+ * @param username - Expected username
+ * @returns True when metadata contains matching `user` and `userPublic` fields
+ */
 function metadataMatchesUser(
 	appMetadata: unknown,
 	userId: string,

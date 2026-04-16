@@ -1,3 +1,8 @@
+/**
+ * Informational about page describing SongShare features and mission.
+ *
+ * @returns ReactElement with about content
+ */
 function AboutPage(): ReactElement {
 	return (
 		<div>

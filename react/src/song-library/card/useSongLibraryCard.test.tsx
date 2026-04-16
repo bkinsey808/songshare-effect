@@ -21,6 +21,12 @@ const TEST_USER_ID = "user-123";
 const TEST_VIEW_PATH = `/es/song/${TEST_SLUG}`;
 const TEST_EDIT_PATH = `/en/dashboard/song-edit/${TEST_SONG_ID}`;
 
+/**
+ * Install a mocked locale for tests.
+ *
+ * @param lang - language code to install (e.g. 'en', 'es')
+ * @returns void
+ */
 function installLocale(lang: UseLocaleResult["lang"]): void {
 	vi.mocked(useLocale).mockReturnValue(
 		forceCast<UseLocaleResult>({

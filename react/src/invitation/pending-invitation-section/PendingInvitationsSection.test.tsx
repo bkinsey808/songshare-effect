@@ -14,6 +14,8 @@ vi.mock("@/react/lib/language/locale/useLocale");
 
 /**
  * Mock LibraryIcon component.
+ *
+ * @returns simple div used as a placeholder for the icon
  */
 function LibraryIconMock(): ReactElement {
 	return <div data-testid="library-icon" />;
@@ -27,6 +29,12 @@ describe("pendingInvitationsSection", () => {
 	const handleAcceptEvent = vi.fn();
 	const handleDeclineEvent = vi.fn();
 
+	/**
+	 * Test setup helper that resets mocks and installs default locale and icon
+	 * implementations used by the suite.
+	 *
+	 * @returns void
+	 */
 	function setup(): void {
 		cleanup();
 		vi.clearAllMocks();

@@ -63,6 +63,11 @@ describe("useCommunityViewSubscriptions — Harness", () => {
 		vi.mocked(subscribeToCommunityEvent).mockReturnValue(Effect.succeed(() => undefined));
 		vi.mocked(subscribeToCommunityPublic).mockReturnValue(Effect.succeed(() => undefined));
 
+		/**
+		 * Simple harness component that mounts the hook for testing.
+		 *
+		 * @returns A tiny React element used as the test harness
+		 */
 		function Harness(): ReactElement {
 			useCommunityViewSubscriptions(COMMUNITY_ID);
 			return <div data-testid="harness-root" />;

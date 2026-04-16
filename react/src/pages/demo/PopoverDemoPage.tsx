@@ -3,6 +3,11 @@ import { useTranslation } from "react-i18next";
 import DemoNavigation from "@/react/demo/DemoNavigation";
 import { NativePopover } from "@/react/lib/design-system/popover/NativePopover";
 
+/**
+ * Demonstrates the native HTML Popover API examples.
+ *
+ * @returns ReactElement section showcasing native popover examples
+ */
 function NativePopoverSection(): ReactElement {
 	return (
 		<section className="rounded-lg border border-white/10 bg-white/5 p-6">
@@ -82,6 +87,11 @@ function NativePopoverSection(): ReactElement {
 	);
 }
 
+/**
+ * Grid displaying several popover usage examples.
+ *
+ * @returns ReactElement grid of demo popovers
+ */
 function PopoverDemoGrid(): ReactElement {
 	return (
 		<div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -151,6 +161,11 @@ function PopoverDemoGrid(): ReactElement {
 		</div>
 	);
 }
+/**
+ * Section showing custom/native popover combinations.
+ *
+ * @returns ReactElement section with custom popover examples
+ */
 function CustomPopoverSection(): ReactElement {
 	return (
 		<section className="rounded-lg border border-white/10 bg-white/5 p-6">
@@ -165,6 +180,11 @@ function CustomPopoverSection(): ReactElement {
 	);
 }
 
+/**
+ * Reality-check comparison between native and custom popovers.
+ *
+ * @returns ReactElement explanatory comparison section
+ */
 function RealityCheckSection(): ReactElement {
 	return (
 		<section className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-6">
@@ -211,6 +231,11 @@ function RealityCheckSection(): ReactElement {
 	);
 }
 
+/**
+ * Scroll behavior test section used to demonstrate popover scroll handling.
+ *
+ * @returns ReactElement section used for scroll tests
+ */
 function ScrollTestSection(): ReactElement {
 	return (
 		<section className="rounded-lg border border-orange-500/20 bg-orange-500/10 p-6">
@@ -268,6 +293,11 @@ function ScrollTestSection(): ReactElement {
 	);
 }
 
+/**
+ * Best-practices and implementation notes for popovers.
+ *
+ * @returns ReactElement recommendations and notes
+ */
 function BestPracticesSection(): ReactElement {
 	return (
 		<section className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-6">
@@ -308,6 +338,11 @@ function BestPracticesSection(): ReactElement {
 	);
 }
 
+/**
+ * Page that aggregates popover demos and explanatory sections.
+ *
+ * @returns ReactElement containing the popover demo page
+ */
 function PopoverDemoPage(): ReactElement {
 	const { t } = useTranslation();
 

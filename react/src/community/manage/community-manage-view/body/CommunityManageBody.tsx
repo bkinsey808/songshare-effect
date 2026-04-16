@@ -14,6 +14,9 @@ type CommunityManageBodyProps = Readonly<{
 
 /**
  * Main content sections for community manager (members, events, songs, playlists, share requests).
+ *
+ * @param currentCommunity - the community being managed
+ * @returns ReactElement
  */
 export default function CommunityManageBody({
 	currentCommunity,

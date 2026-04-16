@@ -8,6 +8,8 @@ import type { NavigationSlice } from "./NavigationSlice.type";
 /**
  * Returns a minimal mock store with vi.fn() stubs for set, get, and api.
  * Suitable for testing createNavigationSlice without a full Zustand store.
+ *
+ * @returns An object containing `set`, `get`, and `api` stubs for tests
  */
 function makeMockStore(): {
 	set: Set<NavigationSlice>;

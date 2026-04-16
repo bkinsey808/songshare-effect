@@ -4,6 +4,8 @@ import CommunityLibrary from "../community/library/CommunityLibrary";
 
 /**
  * Community library page.
+ *
+ * @returns ReactElement rendering the community library
  */
 export default function CommunityLibraryPage(): ReactElement {
 	const { t } = useTranslation();

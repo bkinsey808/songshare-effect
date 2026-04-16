@@ -19,6 +19,11 @@ const ENTRY: UserLibraryEntry = {
 describe("handleUserPublicSubscribeEvent", () => {
 	it("does nothing when payload is not a realtime payload", async () => {
 		const setUserLibraryEntries = vi.fn();
+		/**
+		 * Test getter returning a `UserLibrarySlice` with user entries and setter.
+		 *
+		 * @returns UserLibrarySlice for the test
+		 */
 		function get(): UserLibrarySlice {
 			return forceCast({
 				userLibraryEntries: {},
@@ -33,6 +38,11 @@ describe("handleUserPublicSubscribeEvent", () => {
 
 	it("does nothing when eventType is not UPDATE", async () => {
 		const setUserLibraryEntries = vi.fn();
+		/**
+		 * Test getter returning a `UserLibrarySlice` with user entries and setter.
+		 *
+		 * @returns UserLibrarySlice for the test
+		 */
 		function get(): UserLibrarySlice {
 			return forceCast({
 				userLibraryEntries: {},
@@ -50,6 +60,11 @@ describe("handleUserPublicSubscribeEvent", () => {
 	it("updates entry owner_username when user is in library", async () => {
 		const setUserLibraryEntries = vi.fn();
 		const entries = { [USER_ID]: ENTRY };
+		/**
+		 * Test getter returning a `UserLibrarySlice` with user entries and setter.
+		 *
+		 * @returns UserLibrarySlice for the test
+		 */
 		function get(): UserLibrarySlice {
 			return forceCast({
 				userLibraryEntries: entries,
@@ -75,6 +90,11 @@ describe("handleUserPublicSubscribeEvent", () => {
 
 	it("does not update when user is not in library", async () => {
 		const setUserLibraryEntries = vi.fn();
+		/**
+		 * Test getter returning a `UserLibrarySlice` with user entries and setter.
+		 *
+		 * @returns UserLibrarySlice for the test
+		 */
 		function get(): UserLibrarySlice {
 			return forceCast({
 				userLibraryEntries: {},
@@ -98,6 +118,11 @@ describe("handleUserPublicSubscribeEvent", () => {
 
 	it("does nothing when new record has no user_id or username", async () => {
 		const setUserLibraryEntries = vi.fn();
+		/**
+		 * Test getter returning a `UserLibrarySlice` with user entries and setter.
+		 *
+		 * @returns UserLibrarySlice for the test
+		 */
 		function get(): UserLibrarySlice {
 			return forceCast({
 				userLibraryEntries: { [USER_ID]: ENTRY },

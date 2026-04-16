@@ -16,9 +16,15 @@ export type MemberRowProps = {
  * @returns JSX element for the row
  */
 export default function MemberRow({ member, onKick }: MemberRowProps): ReactElement {
+	/**
+	 * Handle kick button click by invoking the `onKick` callback with the user id.
+	 *
+	 * @returns void
+	 */
 	function handleKickClick(): void {
 		onKick(member.user_id);
 	}
+
 
 	return (
 		<div className="flex justify-between items-center bg-gray-900 px-4 py-3 rounded border border-gray-700">

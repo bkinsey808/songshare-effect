@@ -17,6 +17,12 @@ const PAIR_COUNT = 2;
 type EventsUpdater = (prev: RealtimeEvent[]) => RealtimeEvent[];
 type UsersUpdater = (prev: UserPublic[]) => UserPublic[];
 
+/**
+ * Return the first argument from the first call in a mocked calls array.
+ *
+ * @param calls - array of call argument lists from a mocked function
+ * @returns the first call's first argument typed as `TArg`
+ */
 function getFirstCallArg<TArg>(calls: unknown[][]): TArg {
 	const first = calls[FIRST_CALL_INDEX];
 	expect(first).toBeDefined();

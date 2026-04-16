@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
 
+import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { ImageTagRow } from "@/react/tag-library/image/ImageTagRow.type";
-import makeImagePublic from "@/react/image/test-utils/makeImagePublic.test-util";
 
 import toImageLibraryEntry from "./toImageLibraryEntry";
 
+/**
+ * Test helper that returns an ImageTagRow with a null `image_public` payload.
+ *
+ * @param imageId - Image id to use in the row
+ * @returns An `ImageTagRow` with `image_public` set to null
+ */
 function nullImagePublicRow(imageId: string): ImageTagRow {
 	return forceCast<ImageTagRow>({ image_id: imageId, image_public: JSON.parse("null") as unknown });
 }

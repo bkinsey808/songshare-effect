@@ -16,6 +16,9 @@ vi.mock("../subscribe/subscribeToEventPublicForLibraryEffect");
 /**
  * Mimics a minimal zustand store for createEventLibrarySlice.
  * Uses makeEventLibrarySlice for base behavior; state is mutable for test control.
+ *
+ * @param initialState - Optional initial state overrides for the mock
+ * @returns Mock store utilities (`state`, `set`, `get`, `api`)
  */
 function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 	state: Partial<EventLibraryState>;
@@ -32,6 +35,12 @@ function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 		eventLibraryError: initialState.eventLibraryError,
 	};
 
+	/**
+	 * Mock `set` implementation for the test store that applies partials or updaters.
+	 *
+	 * @param patchOrUpdater - Partial state or updater function applied to the mock store.
+	 * @returns void
+	 */
 	function set(
 		patchOrUpdater:
 			| Partial<EventLibraryState>
@@ -49,6 +58,18 @@ function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 		}
 	}
 
+	/**
+	 * Update the mock state with a patch or updater function.
+	 *
+	 * @param patchOrUpdater - Partial state or updater function applied to state
+	 * @returns void
+	 */
+
+	/**
+	 * Test getter that composes the current mock state with slice helpers.
+	 *
+	 * @returns EventLibraryState merged with test slice methods
+	 */
 	function get(): EventLibraryState & EventLibrarySlice {
 		const base = getHelper();
 		return {
@@ -62,21 +83,55 @@ function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 			get eventLibraryError(): string | undefined {
 				return state.eventLibraryError;
 			},
+			/**
+			 * Set the event library entries in the mock state.
+			 *
+			 * @param entriesObj - record of EventLibraryEntry keyed by event id
+			 * @returns void
+			 */
 			setEventLibraryEntries(entriesObj) {
 				state.eventLibraryEntries = entriesObj as EventLibraryState["eventLibraryEntries"];
 			},
+
+			/**
+			 * Update loading flag for event library in mock state.
+			 *
+			 * @param loading - true when loading
+			 * @returns void
+			 */
 			setEventLibraryLoading(loading) {
 				state.isEventLibraryLoading = loading;
 			},
+
+			/**
+			 * Set an error message on the mock state.
+			 *
+			 * @param error - optional error string
+			 * @returns void
+			 */
 			setEventLibraryError(error) {
 				state.eventLibraryError = error;
 			},
+
+			/**
+			 * Add an event library entry to the mock state.
+			 *
+			 * @param entry - EventLibraryEntry to add
+			 * @returns void
+			 */
 			addEventLibraryEntry(entry) {
 				state.eventLibraryEntries = {
 					...state.eventLibraryEntries,
 					[entry.event_id]: entry,
 				};
 			},
+
+			/**
+			 * Remove an event library entry from mock state.
+			 *
+			 * @param eventId - id of event to remove
+			 * @returns void
+			 */
 			removeEventLibraryEntry(eventId) {
 				const entriesObj = state.eventLibraryEntries ?? {};
 				const { [eventId]: _removed, ...rest } = entriesObj;
@@ -86,6 +141,12 @@ function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 	}
 
 	const api: Api<EventLibrarySlice> = {
+		/**
+		 * Proxy `setState` on the test API to the local `set` helper.
+		 *
+		 * @param patchOrUpdater - partial state or updater function
+		 * @returns void
+		 */
 		setState(patchOrUpdater) {
 			set(
 				patchOrUpdater as
@@ -102,6 +163,11 @@ function makeMockStore(initialState: Partial<EventLibraryState> = {}): {
 }
 
 describe("createEventLibrarySlice", () => {
+	/**
+	 * Install a mocked subscription effect implementation for tests.
+	 *
+	 * @returns void
+	 */
 	function installSubscriptionMock(): void {
 		vi.mocked(subscribeToEventPublicForLibraryEffect).mockImplementation(() =>
 			Effect.succeed(() => undefined),

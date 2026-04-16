@@ -81,6 +81,10 @@ function getChordShapeByCode(code: string): ChordShape | undefined {
  * also filtered by the maximum number of notes, which defaults to tetrads.
  *
  * @param params - Search query and max-note filter
+ * @param params - Search query and max-note filter
+ * @param query - Search query text (also available as `params.query`)
+ * @param minNotes - Minimum number of notes to include (defaults to 2)
+ * @param maxNotes - Maximum number of notes to include (defaults to 4)
  * @returns Matching chord shapes sorted by preferred/common entries first
  */
 function searchChordShapes({
@@ -142,6 +146,13 @@ function compareChordShapes(left: ChordShape, right: ChordShape): number {
 	return left.name.localeCompare(right.name);
 }
 
+/**
+ * Inserts a chord shape into an already-sorted array preserving ordering.
+ *
+ * @param sortedShapes - Array of chord shapes already sorted by preference and complexity
+ * @param shape - New chord shape to insert
+ * @returns A new array with the shape inserted at the correct position
+ */
 function insertChordShape(sortedShapes: readonly ChordShape[], shape: ChordShape): ChordShape[] {
 	const insertionIndex = sortedShapes.findIndex(
 		(existingShape) => compareChordShapes(shape, existingShape) < ZERO_INDEX,
@@ -158,11 +169,10 @@ function insertChordShape(sortedShapes: readonly ChordShape[], shape: ChordShape
 }
 
 export {
-	DEFAULT_MIN_CHORD_NOTES,
-	DEFAULT_MAX_CHORD_NOTES,
-	getChordShapeByCode,
-	getChordShapes,
-	searchChordShapes,
+    DEFAULT_MAX_CHORD_NOTES, DEFAULT_MIN_CHORD_NOTES, getChordShapeByCode,
+    getChordShapes,
+    searchChordShapes
 };
 
-export type { ChordShape };
+    export type { ChordShape };
+

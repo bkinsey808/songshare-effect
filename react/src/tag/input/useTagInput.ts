@@ -51,7 +51,8 @@ export default function useTagInput(
 	 * Normalizes and adds a tag slug to the list, then resets input state.
 	 * No-ops if the slug is empty or already present.
 	 *
-	 * @param slug - The raw tag slug to add
+	* @param slug - The raw tag slug to add
+	* @returns void
 	 */
 	function addTag(slug: string): void {
 		const normalized = slug.trim().toLowerCase();
@@ -68,7 +69,8 @@ export default function useTagInput(
 	/**
 	 * Removes a tag slug from the list.
 	 *
-	 * @param slug - The tag slug to remove
+	* @param slug - The tag slug to remove
+	* @returns void
 	 */
 	function removeTag(slug: string): void {
 		onChange(value.filter((existing) => existing !== slug));
@@ -78,7 +80,8 @@ export default function useTagInput(
 	 * Updates input value and debounces an autocomplete search.
 	 * Clears suggestions immediately when the query is empty.
 	 *
-	 * @param event - The input change event
+	* @param event - The input change event
+	* @returns void
 	 */
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		const query = event.target.value;
@@ -104,7 +107,8 @@ export default function useTagInput(
 	/**
 	 * Adds the current input value on Enter; closes suggestions on Escape.
 	 *
-	 * @param event - The keyboard event
+	* @param event - The keyboard event
+	* @returns void
 	 */
 	function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
 		if (event.key === ENTER_KEY) {
@@ -117,7 +121,9 @@ export default function useTagInput(
 	}
 
 	/**
-	 * Adds the current input value when the input loses focus.
+	* Adds the current input value when the input loses focus.
+	*
+	* @returns void
 	 */
 	function handleBlur(): void {
 		addTag(inputValue);

@@ -33,6 +33,11 @@ describe("fetchCommunityLibrary", () => {
 		const setCommunityLoading = vi.fn();
 		const setCommunityError = vi.fn();
 
+		/**
+		 * Test getter providing a `CommunitySlice` with setters for the library fetch.
+		 *
+		 * @returns CommunitySlice for the test
+		 */
 		function get(): CommunitySlice {
 			return forceCast({ setCommunities, setCommunityLoading, setCommunityError });
 		}
@@ -53,6 +58,11 @@ describe("fetchCommunityLibrary", () => {
 		const setCommunityLoading = vi.fn();
 		const setCommunityError = vi.fn();
 
+		/**
+		 * Test getter providing a `CommunitySlice` with setters for the library fetch.
+		 *
+		 * @returns CommunitySlice for the test
+		 */
 		function get(): CommunitySlice {
 			return forceCast({ setCommunities, setCommunityLoading, setCommunityError });
 		}

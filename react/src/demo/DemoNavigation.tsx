@@ -12,7 +12,6 @@ import {
 	suspenseUseDemoPath,
 	typegpuAudioVizDemoPath,
 	typegpuDemoPath,
-	uploadDemoPath,
 	userPublicSubscriptionPath,
 	userSubscriptionDemoPath,
 } from "@/shared/paths";
@@ -32,7 +31,6 @@ function DemoNavigation(): ReactElement {
 			icon: "🚀",
 		},
 		{ path: songsDemoPath, labelKey: "navigation.songs", icon: "🎵" },
-		{ path: uploadDemoPath, labelKey: "navigation.upload", icon: "📤" },
 		{
 			path: optimizedCounterPath,
 			labelKey: "navigation.optimizedCounter",

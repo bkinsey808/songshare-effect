@@ -8,8 +8,14 @@ import useLoadCommunityLibraries from "./useLoadCommunityLibraries";
 
 /**
  * Harness for useLoadCommunityLibraries.
- * Mounts the hook with userId and fetch functions; both fetches run
- * when userId is defined.
+ * Mounts the hook with `userId`, `fetchSongLibrary`, and `fetchPlaylistLibrary`.
+ * Both fetch functions run when `userId` is defined.
+ *
+ * @param props - harness props
+ * @param props.userId - user id to pass to the hook
+ * @param props.fetchSongLibrary - effect to fetch the song library
+ * @param props.fetchPlaylistLibrary - effect to fetch the playlist library
+ * @returns ReactElement used in tests
  */
 function Harness(props: {
 	userId: string | undefined;

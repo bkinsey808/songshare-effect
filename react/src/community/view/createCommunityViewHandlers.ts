@@ -5,11 +5,11 @@ import postJson from "@/shared/fetch/postJson";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import {
-	apiCommunityShareRequestCreatePath,
-	communityEditPath,
-	communityManagePath,
-	communityViewPath,
-	dashboardPath,
+    apiCommunityShareRequestCreatePath,
+    communityEditPath,
+    communityManagePath,
+    communityViewPath,
+    dashboardPath,
 } from "@/shared/paths";
 
 type StateSetter<Value> = (value: Value | ((current: Value) => Value)) => void;
@@ -47,6 +47,13 @@ type CommunityViewHandlers = {
 	onRefreshCommunity: () => void;
 };
 
+/**
+ * Refreshes community data by calling `fetchCommunityBySlug` silently.
+ *
+ * @param communitySlug - slug of the community to refresh
+ * @param fetchCommunityBySlug - fetch helper from the view
+ * @returns void
+ */
 async function refreshCommunity(
 	communitySlug: string | undefined,
 	fetchCommunityBySlug: CreateCommunityViewHandlersParams["fetchCommunityBySlug"],
@@ -82,6 +89,11 @@ export default function createCommunityViewHandlers(
 		setIsLeaveLoading,
 	} = params;
 
+	/**
+	 * Trigger joining the current community and refresh view on success.
+	 *
+	 * @returns void
+	 */
 	function onJoinClick(): void {
 		if (currentCommunity === undefined) {
 			return;
@@ -102,6 +114,11 @@ export default function createCommunityViewHandlers(
 		})();
 	}
 
+	/**
+	 * Trigger leaving the current community and refresh view on success.
+	 *
+	 * @returns void
+	 */
 	function onLeaveClick(): void {
 		if (currentCommunity === undefined) {
 			return;
@@ -122,6 +139,11 @@ export default function createCommunityViewHandlers(
 		})();
 	}
 
+	/**
+	 * Navigate to the community manage page when a slug is available.
+	 *
+	 * @returns void
+	 */
 	function onManageClick(): void {
 		if (communitySlug !== undefined && communitySlug !== "") {
 			const managePath = buildPathWithLang(
@@ -132,6 +154,11 @@ export default function createCommunityViewHandlers(
 		}
 	}
 
+	/**
+	 * Navigate to the community edit page when `currentCommunity` is set.
+	 *
+	 * @returns void
+	 */
 	function onEditClick(): void {
 		if (currentCommunity !== undefined) {
 			const editPath = buildPathWithLang(
@@ -142,6 +169,12 @@ export default function createCommunityViewHandlers(
 		}
 	}
 
+	/**
+	 * Submit a share request for a song and refresh the community view on success.
+	 *
+	 * @param songId - ID of the song to share
+	 * @returns void
+	 */
 	function onShareSongClick(songId: string): void {
 		if (communityId === undefined) {
 			return;
@@ -164,6 +197,12 @@ export default function createCommunityViewHandlers(
 		})();
 	}
 
+	/**
+	 * Submit a share request for a playlist and refresh the community view on success.
+	 *
+	 * @param playlistId - ID of the playlist to share
+	 * @returns void
+	 */
 	function onSharePlaylistClick(playlistId: string): void {
 		if (communityId === undefined) {
 			return;
@@ -186,6 +225,11 @@ export default function createCommunityViewHandlers(
 		})();
 	}
 
+	/**
+	 * Refresh community data (members, events, etc.).
+	 *
+	 * @returns void
+	 */
 	function onRefreshCommunity(): void {
 		void refreshCommunity(communitySlug, fetchCommunityBySlug);
 	}

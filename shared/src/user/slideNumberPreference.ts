@@ -13,6 +13,12 @@ export const SlideNumberPreferenceSchema: Schema.Schema<SlideNumberPreferenceTyp
 	SlideNumberPreference.hide,
 );
 
+/**
+ * Coerces an input string into a valid SlideNumberPreferenceType.
+ *
+ * @param value - Candidate value (may be undefined)
+ * @returns A valid SlideNumberPreferenceType, defaulting to `hide`
+ */
 export function coerceSlideNumberPreference(
 	value: string | undefined,
 ): SlideNumberPreferenceType {

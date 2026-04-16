@@ -45,10 +45,19 @@ export default function RegisterPage(): ReactElement {
 		clientDebug("🔄 validationErrors changed:", validationErrors);
 	}, [validationErrors]);
 
+	/**
+	 * Handle blur for username field to trigger validation.
+	 *
+	 * @returns void
+	 */
 	function handleUsernameBlur(): void {
 		handleFieldBlur("username", usernameRef);
 	}
-
+	/**
+	 * Clear username validation errors when the user edits the field.
+	 *
+	 * @returns void
+	 */
 	function handleUsernameChange(): void {
 		// Clear validation errors for this field when user starts typing
 		setValidationErrors((currentErrors) =>
@@ -56,6 +65,12 @@ export default function RegisterPage(): ReactElement {
 		);
 	}
 
+	/**
+	 * Called when registration succeeds; sets a one-time signal and redirects
+	 * the user to the dashboard.
+	 *
+	 * @returns void
+	 */
 	function onSubmitSuccess(): void {
 		// Redirect to dashboard on success. Add `justSignedIn=1` so the
 		// RequireAuthBoundary knows to force-refresh `/api/me` and pick up the
@@ -77,6 +92,13 @@ export default function RegisterPage(): ReactElement {
 		globalThis.location.href = `${buildPathWithLang(`/${dashboardPath}`, lang)}?${justSignedInQueryParam}=${JUST_REGISTERED_SIGNAL}`;
 	}
 
+	/**
+	 * Submit handler called by the form; performs the network request and
+	 * handles API response via `handleApiResponse`.
+	 *
+	 * @param data - form data collected from the registration form
+	 * @returns Promise<void>
+	 */
 	async function onSubmit(data: RegisterForm): Promise<void> {
 		// Localized debug-only log
 		clientDebug("🔥 onSubmit called with data:", data);
@@ -120,6 +142,13 @@ export default function RegisterPage(): ReactElement {
 		}
 	}
 
+	/**
+	 * Form submit wrapper that prevents default and funnels to the async
+	 * `handleSubmit` helper with proper data extraction.
+	 *
+	 * @param event - native form submit event
+	 * @returns Promise<void>
+	 */
 	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	async function handleFormSubmit(event: React.FormEvent): Promise<void> {
 		// Localized debug-only log

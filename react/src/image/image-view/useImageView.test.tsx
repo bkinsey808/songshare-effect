@@ -1,11 +1,11 @@
 import {
-	act,
-	cleanup,
-	fireEvent,
-	render,
-	renderHook,
-	waitFor,
-	within,
+    act,
+    cleanup,
+    fireEvent,
+    render,
+    renderHook,
+    waitFor,
+    within,
 } from "@testing-library/react";
 import { Effect } from "effect";
 import { useNavigate, useParams } from "react-router-dom";
@@ -34,12 +34,23 @@ vi.mock("@/react/share/subscribe/useShareSubscription");
 
 const IMAGE_SLUG = "my-image";
 
+/**
+ * Install a mocked `useLocale` return value for tests.
+ *
+ * @returns void
+ */
 function installLocale(): void {
 	vi.mocked(useLocale).mockReturnValue(
 		forceCast<ReturnType<typeof useLocale>>({ lang: "en", t: (key: string) => key }),
 	);
 }
 
+/**
+ * Install a mocked store implementation for `useAppStore` selectors used by tests.
+ *
+ * @param opts - overrides for mocked store selectors and actions
+ * @returns void
+ */
 function installStore(opts: {
 	publicImages?: Record<string, ImagePublic>;
 	isImageLoading?: boolean;
@@ -75,6 +86,11 @@ function installStore(opts: {
  * - Displays image, loading state, error
  * - Edit button for owners
  * - QR code URL for sharing
+ */
+/**
+ * Harness for useImageView — "Documentation by Harness".
+ *
+ * @returns ReactElement that renders the hook's return values for tests.
  */
 function Harness(): ReactElement {
 	const { handleEditClick, image, imageError, imageUrl, isImageLoading, isOwner, qrCodeUrl } =

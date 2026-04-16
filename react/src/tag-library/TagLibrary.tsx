@@ -37,6 +37,12 @@ export default function TagLibrary(): ReactElement {
 	const [confirmingSlug, setConfirmingSlug] = useState<string | undefined>(undefined);
 	const [removingSlug, setRemovingSlug] = useState<string | undefined>(undefined);
 
+	/**
+	 * Confirm and perform removal of a tag from the user's library.
+	 *
+	 * @param slug - Tag slug to remove
+	 * @returns void
+	 */
 	function handleRemoveConfirm(slug: string): void {
 		setRemovingSlug(slug);
 		void (async (): Promise<void> => {

@@ -3,6 +3,11 @@ import { useTranslation } from "react-i18next";
 import DemoNavigation from "@/react/demo/DemoNavigation";
 import OptimizedCounter from "@/react/demo/OptimizedCounter";
 
+/**
+ * Demo page demonstrating an optimized counter component.
+ *
+ * @returns ReactElement rendering the demo and feature notes
+ */
 function OptimizedCounterPage(): ReactElement {
 	const { t } = useTranslation();
 

@@ -9,6 +9,12 @@ type SaveSlideNumberPreferenceResponse = Readonly<{
 	success?: boolean;
 }>;
 
+/**
+ * Persist the user's slide number preference to the server.
+ *
+ * @param slideNumberPreference - Preference to save (`show` or `hide`)
+ * @returns The persisted preference returned from server, or the input value on fallback
+ */
 export default async function saveSlideNumberPreference(
 	slideNumberPreference: SlideNumberPreferenceType,
 ): Promise<SlideNumberPreferenceType> {

@@ -55,6 +55,11 @@ describe("subscribeToCommunityEvent", () => {
 		const handleMock = vi.mocked(handleCommunityEventSubscribeEvent);
 		handleMock.mockReturnValue(Effect.void);
 
+		/**
+		 * Test getter returning a `CommunitySlice` used by the subscription helper.
+		 *
+		 * @returns CommunitySlice for the test
+		 */
 		function get(): CommunitySlice {
 			return forceCast({ currentCommunity: undefined, setCurrentCommunity: vi.fn() });
 		}

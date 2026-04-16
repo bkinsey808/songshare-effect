@@ -22,6 +22,12 @@ type CreateRealtimeConfig = {
 	onStatus: (status: string, err?: unknown) => void;
 };
 
+/**
+ * Type guard asserting the shape passed to createRealtimeSubscription in tests.
+ *
+ * @param value - value to inspect
+ * @returns true when value matches CreateRealtimeConfig
+ */
 function isCreateRealtimeConfig(value: unknown): value is CreateRealtimeConfig {
 	return (
 		isRecord(value) &&
@@ -36,6 +42,11 @@ const MOCK_ARG_INDEX = 0;
 
 // Use shared helper `makeSongLibrarySlice` directly in tests
 
+/**
+ * Create a minimal Supabase client suitable for unit tests.
+ *
+ * @returns a minimal SupabaseClientLike instance
+ */
 function createMockSupabaseClient(): SupabaseClientLike<Database> {
 	return createMinimalSupabaseClient<Database>();
 }
@@ -52,6 +63,11 @@ describe("subscribeToSongPublic", () => {
 			vi.fn<(entries: Readonly<Record<string, SongLibraryEntry>>) => void>();
 		const baseGet = makeSongLibrarySlice({ s1: existingEntry });
 		const slice = { ...baseGet(), setSongLibraryEntries };
+		/**
+		 * Getter used by the tested subscription to access the current slice.
+		 *
+		 * @returns the test `SongLibrarySlice` instance
+		 */
 		function get(): SongLibrarySlice {
 			return slice;
 		}

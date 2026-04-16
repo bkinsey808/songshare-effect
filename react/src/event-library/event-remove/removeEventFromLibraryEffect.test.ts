@@ -11,6 +11,11 @@ import removeEventFromLibraryEffect from "./removeEventFromLibraryEffect";
 vi.mock("@/shared/error-message/extractErrorMessage");
 vi.mock("@/react/lib/utils/clientLogger");
 
+/**
+ * Install predictable error-message behavior for tests.
+ *
+ * @returns void
+ */
 function installErrorMocks(): void {
 	vi.mocked(extractErrorMessage).mockImplementation(
 		(_err: unknown, fallback = "Unknown error") => fallback,

@@ -143,6 +143,12 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 		initialValues: formValues,
 	});
 
+	/**
+	 * Update the `name` field and auto-generate `slug` when not editing.
+	 *
+	 * @param event - input change event for name field
+	 * @returns void
+	 */
 	function onNameChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		const { value } = event.target;
 		setFormValues((prev) => ({
@@ -152,34 +158,75 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 		}));
 	}
 
+	/**
+	 * Update the `slug` field with lower-cased input.
+	 *
+	 * @param event - input change event for slug field
+	 * @returns void
+	 */
 	function onSlugChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		const { value } = event.target;
 		setFormValues((prev) => ({ ...prev, slug: value.toLowerCase() }));
 	}
 
+	/**
+	 * Update the `description` field on user input.
+	 *
+	 * @param event - textarea change event for description
+	 * @returns void
+	 */
 	function onDescriptionChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
 		const { value } = event.target;
 		setFormValues((prev) => ({ ...prev, description: value }));
 	}
 
+	/**
+	 * Toggle the `is_public` flag from a checkbox input.
+	 *
+	 * @param event - change event from the public checkbox
+	 * @returns void
+	 */
 	function onPublicChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		const { checked } = event.target;
 		setFormValues((prev) => ({ ...prev, is_public: checked }));
 	}
 
+	/**
+	 * Update the `public_notes` field from a textarea.
+	 *
+	 * @param event - textarea change event for public notes
+	 * @returns void
+	 */
 	function onPublicNotesChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
 		const { value } = event.target;
 		setFormValues((prev) => ({ ...prev, public_notes: value }));
 	}
 
+	/**
+	 * Update the `private_notes` field from a textarea.
+	 *
+	 * @param event - textarea change event for private notes
+	 * @returns void
+	 */
 	function onPrivateNotesChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
 		const { value } = event.target;
 		setFormValues((prev) => ({ ...prev, private_notes: value }));
 	}
 
+	/**
+	 * Form submit handler that validates and delegates to async submit logic.
+	 *
+	 * @param event - native form submit event
+	 * @returns void
+	 */
 	function onFormSubmit(event: React.SyntheticEvent<HTMLFormElement>): void {
 		event.preventDefault();
 
+		/**
+		 * Called when the form is valid and should be submitted to the store.
+		 *
+		 * @returns Promise<void>
+		 */
 		async function onSubmitValid(): Promise<void> {
 			try {
 				const savedCommunity = await Effect.runPromise(
@@ -197,6 +244,11 @@ export default function useCommunityForm(): UseCommunityFormReturn {
 		void Effect.runPromise(handleSubmit(formValues, onSubmitValid));
 	}
 
+	/**
+	 * Navigate back to the previous page when the user cancels the form.
+	 *
+	 * @returns void
+	 */
 	function onCancelClick(): void {
 		const PREVIOUS_PAGE = -1;
 		void navigate(PREVIOUS_PAGE);

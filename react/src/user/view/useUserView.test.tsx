@@ -23,10 +23,23 @@ type ClientLike = {
 	from: (table: string) => { select: (cols: string) => QueryBuilder };
 };
 
+/**
+ * Helper that resolves a fake query response as a promise.
+ *
+ * @param response - shape returned by the mocked query
+ * @returns A promise resolving to the supplied response
+ */
 function resolveResponse(response: QueryResponse): Promise<QueryResponse> {
 	return Promise.resolve(response);
 }
 
+/**
+ * Build a fake supabase-like client whose `from(...).select(...).eq(...).single()`
+ * resolves to the provided response. Used to simulate client queries.
+ *
+ * @param response - response value the mock client should yield
+ * @returns ClientLike implementing the query chain used in tests
+ */
 function makeClient(response: QueryResponse): ClientLike {
 	return {
 		from: (): { select: (cols: string) => QueryBuilder } => ({
@@ -39,6 +52,12 @@ function makeClient(response: QueryResponse): ClientLike {
 	};
 }
 
+/**
+ * Build a fake client whose query builder lacks `eq()` to simulate
+ * an unsupported query surface while testing error handling.
+ *
+ * @returns ClientLike missing the `eq` helper
+ */
 function makeClientWithMissingEq(): ClientLike {
 	return {
 		from: (): { select: (cols: string) => QueryBuilder } => ({
@@ -53,6 +72,8 @@ function makeClientWithMissingEq(): ClientLike {
  * Shows how useUserView is consumed in a UI context:
  * - Displays route username and derived userPublic
  * - Renders loading and error states
+ *
+ * @returns ReactElement rendering observable hook outputs for tests
  */
 function Harness(): ReactElement {
 	const { username, userPublic, isLoading, error } = useUserView();

@@ -16,19 +16,14 @@ type ImageDimensions = Readonly<{
 	height: number;
 }>;
 
-function formatPercent(value: number): string {
-	return `${Number(value.toFixed(DECIMAL_PLACES))}%`;
-}
-
 /**
  * Format a decimal value as a percentage string with limited decimal places.
  *
  * @param value - Numeric value to format.
  * @returns A percentage string suitable for CSS values (e.g. "50.00%").
  */
-
-function clamp(value: number, minimum: number, maximum: number): number {
-	return Math.min(maximum, Math.max(minimum, value));
+function formatPercent(value: number): string {
+	return `${Number(value.toFixed(DECIMAL_PLACES))}%`;
 }
 
 /**
@@ -39,7 +34,19 @@ function clamp(value: number, minimum: number, maximum: number): number {
  * @param maximum - Maximum allowed value.
  * @returns The clamped number.
  */
+function clamp(value: number, minimum: number, maximum: number): number {
+	return Math.min(maximum, Math.max(minimum, value));
+}
 
+/**
+ * Compute the virtual container dimensions used to scale the source image.
+ *
+ * The container is normalized so one axis has size 1 and the other is the
+ * container aspect ratio relative to that axis.
+ *
+ * @param containerAspectRatio - Target container aspect ratio as width divided by height.
+ * @returns Width/height representation for layout math.
+ */
 function getContainerDimensions(containerAspectRatio: number): ImageDimensions {
 	if (containerAspectRatio >= SQUARE_ASPECT_RATIO) {
 		return {
@@ -64,14 +71,6 @@ function getContainerDimensions(containerAspectRatio: number): ImageDimensions {
  * @returns Width/height representation for layout math.
  */
 
-function getCenteredOffset(
-	containerSize: number,
-	focalPointValue: number,
-	renderedSize: number,
-): number {
-	return containerSize / HALF - focalPointValue * renderedSize;
-}
-
 /**
  * Calculate an offset that centers the focal point along an axis.
  *
@@ -80,13 +79,12 @@ function getCenteredOffset(
  * @param renderedSize - Rendered size of the image along the axis after scaling.
  * @returns Raw pixel offset before clamping.
  */
-
-function getProportionalOffset(
+function getCenteredOffset(
 	containerSize: number,
 	focalPointValue: number,
 	renderedSize: number,
 ): number {
-	return DEFAULT_OFFSET - focalPointValue * (renderedSize - containerSize);
+	return containerSize / HALF - focalPointValue * renderedSize;
 }
 
 /**
@@ -100,6 +98,13 @@ function getProportionalOffset(
  * @param renderedSize - Rendered size of the image along the axis after scaling.
  * @returns Raw pixel offset before clamping.
  */
+function getProportionalOffset(
+	containerSize: number,
+	focalPointValue: number,
+	renderedSize: number,
+): number {
+	return DEFAULT_OFFSET - focalPointValue * (renderedSize - containerSize);
+}
 
 /**
  * Calculate CSS sizing and offsets for a cover image that prioritizes focal-point centering.

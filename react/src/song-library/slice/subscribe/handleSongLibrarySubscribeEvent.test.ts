@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import type getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import type {
-	PostgrestResponse,
-	RealtimeChannelLike,
+    PostgrestResponse,
+    RealtimeChannelLike,
 } from "@/react/lib/supabase/client/SupabaseClientLike";
 import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 import makeSongLibraryEntry from "@/react/song-library/test-utils/makeSongLibraryEntry.mock";
@@ -20,26 +20,63 @@ type SupabaseFromStub = {
 	};
 };
 
+/**
+ * Minimal mock of a realtime channel used in tests. Methods are no-ops and
+ * return the channel itself or resolved promises so tests can exercise
+ * subscription logic without a real realtime client.
+ */
 const realtimeChannel: RealtimeChannelLike = {
+	/**
+	 * Register an event handler on the mocked realtime channel.
+	 *
+	 * @param event - event name
+	 * @param opts - event options (ignored for test)
+	 * @param handler - handler to invoke with the event payload
+	 * @returns the channel instance for chaining
+	 */
 	on(event: string, opts: unknown, handler: (payload: unknown) => void): RealtimeChannelLike {
 		void event;
 		void opts;
 		void handler;
 		return realtimeChannel;
 	},
+
+	/**
+	 * Subscribe to the mocked realtime channel and receive status update.
+	 *
+	 * @param callback - status callback invoked with subscription status
+	 * @returns a subscription-like token (mocked as undefined)
+	 */
 	subscribe(callback: (status: string, err?: unknown) => void): unknown {
 		callback("SUBSCRIBED");
 		return undefined;
 	},
+
+	/**
+	 * Unsubscribe from the mocked realtime channel.
+	 *
+	 * @returns Promise that resolves when unsubscribe completes
+	 */
 	unsubscribe(): Promise<void> {
 		return Promise.resolve();
 	},
 };
 
 const supabaseClient: SupabaseClientResolved = {
+	/**
+	 * Mocked `from` implementation used by the test Supabase client.
+	 *
+	 * @param tableName - table name being queried
+	 * @returns a minimal stub implementing the subset of the query API used by tests
+	 */
 	from<TableName extends string>(tableName: TableName): SupabaseFromStub {
 		void tableName;
 		return {
+			/**
+			 * Minimal `select` stub used by tests to emulate Postgrest responses.
+			 *
+			 * @returns An object with optional `order` and `eq` helpers used by callers.
+			 */
 			select(): {
 				order?: (column: string) => Promise<PostgrestResponse>;
 				eq?: (column: string, value: string) => { single: () => Promise<unknown> };
@@ -59,6 +96,7 @@ const supabaseClient: SupabaseClientResolved = {
 			},
 		};
 	},
+	/** Return a mocked realtime channel instance */
 	channel: (): RealtimeChannelLike => realtimeChannel,
 	removeChannel: (): undefined => undefined,
 	auth: {

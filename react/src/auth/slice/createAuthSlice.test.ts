@@ -18,6 +18,9 @@ const SAMPLE_USER_SESSION: UserSessionData = makeUserSessionData({});
 /**
  * Mimics a minimal zustand store for createAuthSlice tests.
  * Uses makeAuthSlice for base behavior; state is mutable for test control.
+ *
+ * @param initialState - Optional initial state overrides for the mock
+ * @returns Mock store utilities (state, set, get, api)
  */
 function makeMockStore(initialState: Partial<AuthState> = {}): {
 	state: Partial<AuthState>;
@@ -29,6 +32,12 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 
 	let state: Partial<AuthState> = { ...initialState };
 
+	/**
+	 * Update the mock state with a patch or updater function.
+	 *
+	 * @param patchOrUpdater - Partial state or updater function applied to the mock
+	 * @returns void
+	 */
 	function set(
 		patchOrUpdater:
 			| Partial<AuthState>
@@ -43,6 +52,13 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 			Object.assign(state, patchOrUpdater);
 		}
 	}
+
+	/**
+	 * Update the mock auth state with a partial or updater.
+	 *
+	 * @param patchOrUpdater - Partial state or updater function applied to the mock
+	 * @returns void
+	 */
 
 	function get(): AuthState & AuthSlice {
 		const base = getHelper();
@@ -73,6 +89,12 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 	}
 
 	const api: Api<AuthSlice> = {
+		/**
+		 * Test API helper to apply a state patch or updater to the mock store.
+		 *
+		 * @param patchOrUpdater - Partial state or updater function applied to the mock
+		 * @returns void
+		 */
 		setState(patchOrUpdater) {
 			set(
 				patchOrUpdater as
@@ -84,6 +106,7 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 		getInitialState: get,
 		subscribe: () => () => undefined,
 	};
+
 
 	return { state, set: set as Set<AuthSlice>, get: get as Get<AuthSlice>, api };
 }

@@ -24,6 +24,12 @@ export const ResolvedSlideOrientation = {
 export type ResolvedSlideOrientationType =
 	(typeof ResolvedSlideOrientation)[keyof typeof ResolvedSlideOrientation];
 
+/**
+ * Ensures a given string value is a valid SlideOrientationPreferenceType.
+ *
+ * @param value - Candidate preference value (may be undefined)
+ * @returns A valid SlideOrientationPreferenceType, defaulting to `system`
+ */
 export function coerceSlideOrientationPreference(
 	value: string | undefined,
 ): SlideOrientationPreferenceType {

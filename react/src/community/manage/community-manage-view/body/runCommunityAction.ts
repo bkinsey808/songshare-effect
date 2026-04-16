@@ -23,6 +23,7 @@ type RunCommunityActionArgs = {
  * @param successMessage - message shown after a successful run
  * @param setActionState - setter for the action state slice
  * @param refreshFn - async refresh to run after a successful mutation
+ * @returns void
  */
 export default async function runCommunityAction({
 	key,

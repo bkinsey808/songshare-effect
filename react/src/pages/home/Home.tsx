@@ -14,7 +14,7 @@ import useHome from "./useHome";
  * @returns Localized home page content.
  */
 export default function Home(): ReactElement {
-	const { lang, t, homeParagraphs, reactFeaturesPath, uploadDemoPath } = useHome();
+	const { lang, t, homeParagraphs, reactFeaturesPath } = useHome();
 
 	return (
 		<>
@@ -53,20 +53,6 @@ export default function Home(): ReactElement {
 						</Link>
 					</div>
 
-					<div className="rounded-xl border border-white/10 bg-linear-to-br from-green-500/10 to-teal-500/10 p-8 text-center">
-						<div className="mb-6 text-6xl">📤</div>
-						<h3 className="mb-4 text-2xl font-bold">Upload Demo</h3>
-						<p className="mb-6 text-gray-300">
-							Experience file upload functionality with progress tracking, error handling, and
-							real-time feedback
-						</p>
-						<Link
-							to={`/${lang}/${uploadDemoPath}`}
-							className="inline-block cursor-pointer rounded-lg border-none bg-linear-to-r from-green-500 to-teal-500 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:from-green-600 hover:to-teal-600 hover:shadow-lg"
-						>
-							Try Upload Demo
-						</Link>
-					</div>
 				</div>
 
 				<div className="mt-12 rounded-lg border border-blue-500/20 bg-blue-500/10 p-6 text-center">

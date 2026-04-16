@@ -7,9 +7,12 @@ import useLoadCommunityBySlug from "./useLoadCommunityBySlug";
 const SLUG = "my-community";
 
 /**
- * Harness for useLoadCommunityBySlug.
+ * Harness for `useLoadCommunityBySlug` used in tests.
  * Mounts the hook with a slug and load function; the load function is called
  * when the slug is defined and the effect runs.
+ *
+ * @param props - harness props including `communitySlug` and `loadCommunityBySlug`
+ * @returns ReactElement used to mount the hook in tests
  */
 function Harness(props: {
 	communitySlug: string | undefined;

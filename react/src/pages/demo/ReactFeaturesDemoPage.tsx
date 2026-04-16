@@ -4,15 +4,19 @@ import { Link } from "react-router-dom";
 import DemoNavigation from "@/react/demo/DemoNavigation";
 import useLocale from "@/react/lib/language/locale/useLocale";
 import {
-	activityDemoPath,
-	hookDemoPath,
-	optimizedCounterPath,
-	popoverDemoPath,
-	suspenseDemoPath,
-	suspenseUseDemoPath,
-	uploadDemoPath,
+    activityDemoPath,
+    hookDemoPath,
+    optimizedCounterPath,
+    popoverDemoPath,
+    suspenseDemoPath,
+    suspenseUseDemoPath,
 } from "@/shared/paths";
 
+/**
+ * Page listing various interactive React feature demos.
+ *
+ * @returns ReactElement containing the features demo links
+ */
 function ReactFeaturesDemoPage(): ReactElement {
 	const { lang, t } = useLocale();
 
@@ -85,20 +89,6 @@ function ReactFeaturesDemoPage(): ReactElement {
 						<Link
 							to={`/${lang}/${suspenseUseDemoPath}`}
 							className="inline-block cursor-pointer rounded-lg border-none bg-green-500 px-6 py-3 text-white transition-colors hover:bg-green-600"
-						>
-							View Demo
-						</Link>
-					</div>
-
-					<div className="rounded-lg border border-white/10 bg-white/5 p-6 text-center">
-						<div className="mb-4 text-4xl">📁</div>
-						<h3 className="mb-3 text-xl font-semibold">Upload Demo</h3>
-						<p className="mb-4 text-gray-400">
-							File upload functionality with progress tracking and error handling
-						</p>
-						<Link
-							to={`/${lang}/${uploadDemoPath}`}
-							className="inline-block cursor-pointer rounded-lg border-none bg-indigo-500 px-6 py-3 text-white transition-colors hover:bg-indigo-600"
 						>
 							View Demo
 						</Link>

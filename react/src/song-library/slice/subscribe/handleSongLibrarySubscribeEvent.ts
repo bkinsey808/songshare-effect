@@ -11,6 +11,14 @@ import isRecord from "@/shared/type-guards/isRecord";
 import isSongLibraryEntry from "../guards/isSongLibraryEntry";
 import type { SongLibrarySlice } from "../song-library-slice";
 
+/**
+ * Extract a `user_id` (owner id) from a PostgREST-style result object used
+ * by `callSelect` (shape: { data: [...] }). Returns `undefined` when the
+ * expected shape is not present.
+ *
+ * @param result - result returned from a PostgREST `select` call
+ * @returns owner `user_id` string or `undefined` when not found
+ */
 function extractOwnerIdFromResult(result: unknown): string | undefined {
 	if (!isRecord(result) || !Array.isArray(result["data"])) {
 		return undefined;
@@ -23,6 +31,9 @@ function extractOwnerIdFromResult(result: unknown): string | undefined {
 /**
  * Handle a realtime subscription event payload for the song_library table.
  *
+ * @param payload - realtime payload object from Supabase
+ * @param supabaseClient - initialized Supabase client used for enrichment queries
+ * @param get - getter that returns the current `SongLibrarySlice`
  * @returns Effect that processes INSERT/UPDATE/DELETE events
  */
 export default function handleSongLibrarySubscribeEvent(

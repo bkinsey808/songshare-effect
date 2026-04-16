@@ -24,9 +24,16 @@ const songKeys: readonly SongKey[] = [
 
 const songKeySet = new Set<string>(songKeys);
 
+/**
+ * Type guard that verifies a value is a valid SongKey.
+ *
+ * @param value - Value to test
+ * @returns True when the value is a recognized song key
+ */
 function isSongKey(value: unknown): value is SongKey {
 	return typeof value === "string" && songKeySet.has(value);
 }
 
 export { isSongKey, songKeys };
 export type { SongKey };
+

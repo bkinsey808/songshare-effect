@@ -1,13 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
-	deleteConsoleTimeStamp,
-	getConsoleDebug,
-	getConsoleTimeStamp,
-	setConsoleDebug,
-	setConsoleTimeStamp,
+    deleteConsoleTimeStamp,
+    getConsoleDebug,
+    getConsoleTimeStamp,
+    setConsoleDebug,
+    setConsoleTimeStamp,
 } from "./quiet-client.test-util";
 
+/**
+ * Placeholder original console.timeStamp function used in tests.
+ *
+ * @returns void
+ */
 function originalTimeStamp(): void {
 	/* placeholder for original console.timeStamp in tests */
 }
@@ -18,6 +23,13 @@ const actualOriginalConsoleDebug = getConsoleDebug();
 const actualOriginalConsoleTimeStamp = getConsoleTimeStamp();
 
 // helpers that mirror the old beforeEach/afterEach behavior
+
+/**
+ * Import the quiet-client module in a fresh module context to exercise its
+ * side-effects for tests.
+ *
+ * @returns Promise<void> resolved after the module is imported
+ */
 async function importQuietClient(): Promise<void> {
 	// 1. Restore console to its *true original* state for a clean slate.
 	setConsoleDebug(actualOriginalConsoleDebug);
@@ -31,6 +43,12 @@ async function importQuietClient(): Promise<void> {
 	await import("./quiet-client");
 }
 
+/**
+ * Restore the global console methods to their original saved values and
+ * restore mocked state used during quiet-client tests.
+ *
+ * @returns void
+ */
 function restoreConsole(): void {
 	// mirror afterEach cleanup
 	setConsoleDebug(actualOriginalConsoleDebug);
@@ -39,6 +57,13 @@ function restoreConsole(): void {
 	vi.restoreAllMocks();
 }
 
+/**
+ * Helper that imports `quiet-client` in a fresh environment, runs `fn`, and
+ * then restores console state. Useful to isolate side-effecting module tests.
+ *
+ * @param fn - function to run while `quiet-client` is active
+ * @returns Promise<void>
+ */
 async function withFreshQuietClient(fn: () => void | Promise<void>): Promise<void> {
 	await importQuietClient();
 	try {

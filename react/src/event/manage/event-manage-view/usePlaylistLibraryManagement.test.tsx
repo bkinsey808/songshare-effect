@@ -49,6 +49,11 @@ function installStore(entries: Record<string, unknown> = {}): void {
  * Exposes the store selectors this void hook drives and documents the
  * subscription/fetch handlers via buttons so readers see how to use the hook.
  */
+/**
+ * Harness for `usePlaylistLibraryManagement` (Documentation by Harness).
+ *
+ * @returns ReactElement that exposes handlers and state for DOM-based tests.
+ */
 function Harness(): ReactElement {
 	usePlaylistLibraryManagement();
 

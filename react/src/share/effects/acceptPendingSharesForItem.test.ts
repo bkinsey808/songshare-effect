@@ -137,6 +137,12 @@ describe("acceptPendingSharesForItem", () => {
 		});
 		const updateShareStatus = vi.fn(() => Effect.fail(new Error("update failed")));
 		const getReceivedSharesByStatus = vi.fn(() => [matchingShare] as const);
+		/**
+		 * Return a slice-like object with both `getReceivedSharesByStatus` and
+		 * `updateShareStatus` for matching-share tests.
+		 *
+		 * @returns An object with both mocks.
+		 */
 		function get(): unknown {
 			return {
 				getReceivedSharesByStatus,

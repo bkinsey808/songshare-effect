@@ -3,6 +3,11 @@ import { useTranslation } from "react-i18next";
 import DemoNavigation from "@/react/demo/DemoNavigation";
 import SuspenseDemo from "@/react/demo/SuspenseDemo";
 
+/**
+ * Demo page showing React Suspense usage examples.
+ *
+ * @returns ReactElement rendering the suspense demo
+ */
 function SuspenseDemoPage(): ReactElement {
 	const { t } = useTranslation();
 

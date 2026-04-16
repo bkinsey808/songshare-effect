@@ -6,6 +6,12 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import errorToHttpResponse from "./errorToHttpResponse";
 
+/**
+ * Determines whether an AuthenticationError message should be logged.
+ *
+ * @param message - Error message from the authentication failure
+ * @returns True when the message should be logged
+ */
 function shouldLogAuthenticationError(message: string): boolean {
 	return message !== "Not authenticated";
 }

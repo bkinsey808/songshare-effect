@@ -6,6 +6,12 @@ import type { SlideNumberPreferenceType } from "@/shared/user/slideNumberPrefere
 
 import saveSlideNumberPreference from "./saveSlideNumberPreference";
 
+/**
+ * Hook returning a function that updates the user's slide number preference
+ * in local state and persists it to the server.
+ *
+ * @returns Function accepting a `SlideNumberPreferenceType` and returning a Promise<void>
+ */
 export default function useSetSlideNumberPreference(): (
 	slideNumberPreference: SlideNumberPreferenceType,
 ) => Promise<void> {

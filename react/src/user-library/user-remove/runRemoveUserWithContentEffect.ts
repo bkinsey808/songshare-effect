@@ -28,6 +28,9 @@ type Params = Readonly<{
  *
  * This wraps `createRemoveUserEffect` to provide consistent logging and
  * error shaping while keeping the operation fully declarative as an Effect.
+ *
+ * @param params - parameters controlling which user and content to remove
+ * @returns An `Effect` that completes when removal finishes or fails with an Error
  */
 export default function runRemoveUserWithContentEffect(params: Params): Effect.Effect<void, Error> {
 	return createRemoveUserEffect(params).pipe(

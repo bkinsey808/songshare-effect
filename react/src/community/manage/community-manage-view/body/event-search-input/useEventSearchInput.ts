@@ -36,11 +36,11 @@ export type UseEventSearchInputReturn = {
  * responsible for supplying the current selected event id and receiving
  * callback events via `onSelect`.
  *
- * @param args - hook arguments
- * @param args.activeEventId - id of the currently selected event (may be
+ * @param activeEventId - id of the currently selected event (may be
  *   undefined or empty when nothing is chosen)
- * @param args.onSelect - callback invoked with the new event id when user
+ * @param onSelect - callback invoked with the new event id when user
  *   picks an item or clears the selection
+ * @param excludeEventIds - optional list of event ids to exclude from results
  * @returns an object containing query state, refs, filtered list, and
  *   event handlers used by `EventSearchInput`
  */
@@ -56,6 +56,13 @@ export default function useEventSearchInput({
 
 	// Handle clicks outside to close dropdown
 	useEffect(() => {
+		/**
+		 * Document-level pointer handler that closes the dropdown when clicks
+		 * occur outside the component container.
+		 *
+		 * @param event - native MouseEvent or TouchEvent
+		 * @returns void
+		 */
 		function handleDocumentPointerDown(event: MouseEvent | TouchEvent): void {
 			const container = containerRef.current;
 			if (container === null || !(event.target instanceof Node)) {
@@ -103,21 +110,44 @@ export default function useEventSearchInput({
 					);
 				});
 
+	/**
+	 * Select an event from the filtered list and notify the parent.
+	 *
+	 * @param entry - chosen EventLibraryEntry
+	 * @returns void
+	 */
 	function handleSelectEvent(entry: EventLibraryEntry): void {
 		onSelect(entry.event_id);
 		setSearchQuery("");
 		setIsOpen(false);
 	}
 
+	/**
+	 * Open the dropdown when the input receives focus.
+	 *
+	 * @returns void
+	 */
 	function handleInputFocus(): void {
 		setIsOpen(true);
 	}
 
+	/**
+	 * Update the search query from input changes and ensure dropdown is open.
+	 *
+	 * @param event - input change event
+	 * @returns void
+	 */
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		setSearchQuery(event.target.value);
 		setIsOpen(true);
 	}
 
+	/**
+	 * Clear the current selection and reset the input/display.
+	 *
+	 * @param event - mouse event originating from the clear button
+	 * @returns void
+	 */
 	function handleClearSelection(event: React.MouseEvent<HTMLButtonElement>): void {
 		event.preventDefault();
 		event.stopPropagation();

@@ -9,6 +9,12 @@ type SaveSlideOrientationPreferenceResponse = Readonly<{
 	success?: boolean;
 }>;
 
+/**
+ * Persist the user's slide orientation preference to the server.
+ *
+ * @param slideOrientationPreference - Preference to save (`landscape`, `portrait`, or `system`)
+ * @returns The persisted preference returned from server, or the input value on fallback
+ */
 export default async function saveSlideOrientationPreference(
 	slideOrientationPreference: SlideOrientationPreferenceType,
 ): Promise<SlideOrientationPreferenceType> {

@@ -27,7 +27,11 @@ describe("songSave handler", () => {
 		},
 	});
 
-	// Helper to perform per-test reset and default session stub.
+	/**
+	 * Helper to perform per-test reset and install default session stub.
+	 *
+	 * @returns void
+	 */
 	function initDefaultMocks(): void {
 		vi.resetAllMocks();
 		vi.mocked(getVerifiedSession).mockReturnValue(Effect.succeed(SAMPLE_SESSION));

@@ -43,6 +43,13 @@ type StoreMocksOverrides = {
 	playlistLibraryEntries?: Record<string, { playlist_id: string }>;
 };
 
+/**
+ * Install a set of mocked selectors and spies for tests that use the
+ * `useEventManageView` hook.
+ *
+ * @param overrides - optional overrides for mocked slices
+ * @returns spies for playlist subscription selectors
+ */
 function installEventStoreMocks(overrides: StoreMocksOverrides = {}): {
 	playlistSubSpy: ReturnType<typeof vi.fn>;
 	playlistPublicSpy: ReturnType<typeof vi.fn>;

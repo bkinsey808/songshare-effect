@@ -7,6 +7,11 @@ import isObject from "./isObject";
 const NUM_PRIMITIVE = 42;
 const ONE = 1;
 
+/**
+ * Helper function used as a non-object value in tests.
+ *
+ * @returns A simple number used by test cases
+ */
 function fn(): number {
 	return ONE;
 }

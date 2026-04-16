@@ -66,6 +66,11 @@ export default function useEventParticipantManagement({
 		setInviteUserIdInput(userId);
 	}
 
+	/**
+	 * Click handler that sends an invite for the currently selected user id.
+	 *
+	 * @returns void
+	 */
 	function onInviteClick(): void {
 		if (currentEventId === undefined) {
 			return;

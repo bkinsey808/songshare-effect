@@ -106,6 +106,11 @@ describe("usePopulatePlaylistForm — Harness", () => {
 		const hasPopulatedRef = { current: false };
 		const isFetchingRef = { current: false };
 
+		/**
+		 * Test harness that mounts the hook with a valid playlist.
+		 *
+		 * @returns ReactElement used for rendering assertions.
+		 */
 		function Harness(): ReactElement {
 			usePopulatePlaylistForm(VALID_PLAYLIST, {
 				setFormValuesState,
@@ -115,12 +120,6 @@ describe("usePopulatePlaylistForm — Harness", () => {
 			});
 			return <div data-testid="harness-root" />;
 		}
-
-        /**
-         * Test harness that mounts the hook with a valid playlist.
-         *
-         * @returns ReactElement used for rendering assertions.
-         */
 
 		const { getByTestId } = render(<Harness />);
 

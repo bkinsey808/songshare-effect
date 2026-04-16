@@ -45,13 +45,7 @@ type SubscriptionConfig = Parameters<
 >[typeof FIRST_PARAMETER_INDEX];
 
 /**
- * Configures the mocked app-store selector implementation for this file.
- *
- * @param state - Store slice exposed to selectors used by the hook
- * @returns Nothing
- */
-/**
- * Install a mocked store state for `useCurrentUserRealtimeSync` tests.
+ * Configure the mocked app-store selector implementation for this file.
  *
  * @param state - Partial store state to seed into appStore.
  * @returns void
@@ -86,6 +80,11 @@ function findSubscriptionConfig(tableName: SubscriptionConfig["tableName"]): Sub
  * Harness for useCurrentUserRealtimeSync.
  *
  * Shows how app code mounts the void hook alongside current-user UI state.
+ */
+/**
+ * Harness for useCurrentUserRealtimeSync.
+ *
+ * @returns ReactElement rendering observable hook outputs for tests
  */
 function Harness(): ReactElement {
 	useCurrentUserRealtimeSync();

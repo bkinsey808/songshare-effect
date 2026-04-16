@@ -5,6 +5,11 @@ import { ONE, ZERO } from "@/shared/constants/shared-constants";
 // This component will benefit from React Compiler optimizations
 // React Compiler should automatically memoize expensive computations based on dependencies
 
+/**
+ * Demo component showing an optimized counter and expensive computation.
+ *
+ * @returns ReactElement rendering the optimized counter demo
+ */
 function OptimizedCounter(): ReactElement {
 	const [count, setCount] = useState<number>(ZERO);
 	const [name, setName] = useState("");
@@ -15,6 +20,12 @@ function OptimizedCounter(): ReactElement {
 
 	// This expensive computation should be automatically memoized by React Compiler
 	// and should only run when 'count' changes, not when 'name' changes
+	/**
+	 * Perform a CPU-intensive computation based on the provided value.
+	 *
+	 * @param value - numeric input used in the computation
+	 * @returns computed numeric result
+	 */
 	function expensiveComputation(value: number): number {
 		console.warn("Running expensive computation for count:", value);
 		let result = 0;

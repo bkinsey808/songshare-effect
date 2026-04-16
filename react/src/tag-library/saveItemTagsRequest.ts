@@ -30,7 +30,12 @@ export default function saveItemTagsEffect({
 	originalTags,
 	nextTags,
 }: SaveItemTagsParams): Effect.Effect<void, Error> {
-	/** Builds the request body for add/remove tag API calls. */
+	/**
+	 * Builds the request body for add/remove tag API calls.
+	 *
+	 * @param slug - Tag slug to include in the request body
+	 * @returns Request body for the tag API
+	 */
 	function makeBody(slug: string): { tag_slug: string; item_type: ItemType; item_id: string } {
 		return { tag_slug: slug, item_type: itemType, item_id: itemId };
 	}

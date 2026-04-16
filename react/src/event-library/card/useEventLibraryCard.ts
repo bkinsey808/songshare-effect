@@ -27,14 +27,29 @@ export default function useEventLibraryCard({ entry }: UseEventLibraryCardParams
 	const [isDeleting, setIsDeleting] = useState(false);
 	const removeFromEventLibrary = useAppStore((state) => state.removeEventFromLibrary);
 
+	/**
+	 * Begin confirmation flow for removing an event from the library.
+	 *
+	 * @returns void
+	 */
 	function startConfirming(): void {
 		setIsConfirming(true);
 	}
 
+	/**
+	 * Cancel an in-progress confirmation dialog.
+	 *
+	 * @returns void
+	 */
 	function cancelConfirming(): void {
 		setIsConfirming(false);
 	}
 
+	/**
+	 * Confirm removal and perform async deletion flow.
+	 *
+	 * @returns void
+	 */
 	function handleConfirm(): void {
 		setIsDeleting(true);
 		void (async (): Promise<void> => {

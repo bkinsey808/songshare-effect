@@ -4,6 +4,11 @@ import { useTranslation } from "react-i18next";
 import DemoNavigation from "@/react/demo/DemoNavigation";
 import UseHookDemo from "@/react/demo/UseHookDemo";
 
+/**
+ * Demo page showcasing `use` hook usage and suspense integration.
+ *
+ * @returns ReactElement rendering the demo
+ */
 function UseHookDemoPage(): ReactElement {
 	const { t } = useTranslation();
 

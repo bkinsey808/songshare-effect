@@ -14,6 +14,9 @@ const MIN_REGISTRATION = 0;
 /**
  * Creates a minimal store with set/get/api and a calls log for createInvitationSlice tests.
  * Tracks what partials are passed to set for assertions.
+ *
+ * @param initialState - optional overrides for the mock store state
+ * @returns mock store utilities used by tests
  */
 function makeStore(): {
 	set: Set<InvitationSlice>;
@@ -24,6 +27,12 @@ function makeStore(): {
 	const calls: Partial<InvitationSlice>[] = [];
 	const state = makeInvitationSlice();
 
+	/**
+	 * Record a partial state patch for assertions in tests.
+	 *
+	 * @param partialOrFn - partial state or updater function applied to the mock
+	 * @returns void
+	 */
 	function set(
 		partialOrFn:
 			| Partial<InvitationSlice>
@@ -37,6 +46,11 @@ function makeStore(): {
 		}
 	}
 
+	/**
+	 * Return the current mock InvitationSlice state used by tests.
+	 *
+	 * @returns InvitationSlice test double state
+	 */
 	function get(): InvitationSlice {
 		return state;
 	}
@@ -48,6 +62,11 @@ function makeStore(): {
 			(_listener?: unknown): (() => void) =>
 			() =>
 				undefined,
+		/**
+		 * Return the initial mock state for assertions that need it.
+		 *
+		 * @returns InvitationSlice initial state
+		 */
 		getInitialState(): InvitationSlice {
 			return state;
 		},

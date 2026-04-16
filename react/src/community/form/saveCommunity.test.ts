@@ -16,6 +16,11 @@ describe("saveCommunity", () => {
 	const setCommunitySaving = vi.fn();
 	const setCommunityError = vi.fn();
 
+	/**
+	 * Test getter returning a `CommunitySlice` with saving/error setters.
+	 *
+	 * @returns CommunitySlice for the test
+	 */
 	function get(): CommunitySlice {
 		return forceCast({ setCommunitySaving, setCommunityError } as unknown);
 	}

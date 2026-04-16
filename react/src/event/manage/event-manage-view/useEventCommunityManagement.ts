@@ -93,6 +93,12 @@ export default function useEventCommunityManagement({
 		};
 	}, [currentEventId]);
 
+	/**
+	 * Select a community id to add to the event.
+	 *
+	 * @param communityId - id of the community or empty string to clear
+	 * @returns void
+	 */
 	function onAddCommunityIdSelect(communityId: string): void {
 		setAddCommunityIdInput(communityId === "" ? undefined : communityId);
 	}

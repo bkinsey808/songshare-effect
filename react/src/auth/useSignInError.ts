@@ -20,6 +20,11 @@ export default function useSignInError(): UseSignInErrorReturn {
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	// capture initial params once on first render
+	/**
+	 * Read the signin error token from the current search params.
+	 *
+	 * @returns raw signin error token or undefined
+	 */
 	function computeInitialToken(): string | undefined {
 		return searchParams.get(signinErrorQueryParam) ?? undefined;
 	}
@@ -30,6 +35,12 @@ export default function useSignInError(): UseSignInErrorReturn {
 	);
 
 	// Map the incoming token (e.g. 'providerMismatch') to a translation key
+	/**
+	 * Map a signin error token (e.g. 'providerMismatch') to a translation key.
+	 *
+	 * @param token - raw token from query params
+	 * @returns translation key or undefined when token is not recognized
+	 */
 	function tokenToKey(token: string | undefined): string | undefined {
 		if (token === undefined) {
 			return undefined;
@@ -56,6 +67,14 @@ export default function useSignInError(): UseSignInErrorReturn {
 		}
 	}, [initialToken, setSearchParams]);
 
+	/**
+	 * Dismiss the current signin error and remove signin query params from the URL.
+	 */
+	/**
+	 * Dismiss the current signin error and remove signin query params from the URL.
+	 *
+	 * @returns void
+	 */
 	function dismissError(): void {
 		setSigninError(undefined);
 

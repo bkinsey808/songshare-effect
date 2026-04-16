@@ -8,10 +8,21 @@ describe("createCommunitySlice setters", () => {
 	it("internal collection setters update state via set", () => {
 		let state: Record<string, unknown> = {};
 
+		/**
+		 * Apply a partial patch to the mocked state for tests.
+		 *
+		 * @param patch - partial state properties to apply
+		 * @returns void
+		 */
 		function set(patch: Record<string, unknown>): void {
 			state = { ...state, ...patch };
 		}
 
+		/**
+		 * Return the current mocked state for the test slice.
+		 *
+		 * @returns The current test state
+		 */
 		function get(): unknown {
 			return state as unknown;
 		}
@@ -36,10 +47,21 @@ describe("createCommunitySlice setters", () => {
 	it("loading/saving setters and clearCurrentCommunity work", () => {
 		let state: Record<string, unknown> = {};
 
+		/**
+		 * Apply a partial patch to the mocked state for tests.
+		 *
+		 * @param patch - partial state properties to apply
+		 * @returns void
+		 */
 		function set(patch: Record<string, unknown>): void {
 			state = { ...state, ...patch };
 		}
 
+		/**
+		 * Return the current mocked state for the test slice.
+		 *
+		 * @returns The current test state
+		 */
 		function get(): unknown {
 			return state as unknown;
 		}

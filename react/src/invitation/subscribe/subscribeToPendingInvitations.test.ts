@@ -49,8 +49,13 @@ describe("subscribeToPendingInvitations", () => {
 			system: [],
 		};
 
+		/**
+		 * Minimal Channel-like mock used in tests to capture handlers.
+		 */
 		type ChannelLike = {
+			/** Register an event handler for the mock channel */
 			on(event: string, opts: unknown, handler: (payload: unknown) => void): ChannelLike;
+			/** Subscribe to the mock channel and receive a status callback */
 			subscribe(cb: (status: string, err: unknown) => void): void;
 		};
 
@@ -63,13 +68,34 @@ describe("subscribeToPendingInvitations", () => {
 			handlers.system,
 		] as const;
 
+		/**
+		 * Create a fresh mocked channel instance for tests. The implementation
+		 * pushes handlers into `handlers` arrays so the test can simulate events.
+		 *
+		 * @returns ChannelLike mock
+		 */
 		function createChannel(): ChannelLike {
 			const channel: ChannelLike = {
+				/**
+				 * Register an event handler for the mock channel.
+				 *
+				 * @param _event - event name (ignored in mock)
+				 * @param _opts - event options (ignored in mock)
+				 * @param handler - handler invoked with payload in tests
+				 * @returns ChannelLike the mock channel for chaining
+				 */
 				on(_event: string, _opts: unknown, handler: (payload: unknown) => void): ChannelLike {
 					onCallSlots[onCallIndex]?.push(handler);
 					onCallIndex += ONE_STEP;
 					return channel;
 				},
+
+				/**
+				 * Subscribe to the mock channel and receive a status callback.
+				 *
+				 * @param cb - callback invoked with subscription status and optional error
+				 * @returns void
+				 */
 				subscribe(cb: (status: string, err: unknown) => void): void {
 					cb("SUBSCRIBED", undefined);
 				},
@@ -79,6 +105,12 @@ describe("subscribeToPendingInvitations", () => {
 		}
 
 		const realtimeClient: SupabaseRealtimeClientLike = {
+			/**
+			 * Create or return a mock channel for the given name.
+			 *
+			 * @param _name - channel name (ignored in mock)
+			 * @returns ChannelLike mock instance
+			 */
 			channel(_name: string) {
 				return createChannel();
 			},
@@ -86,6 +118,12 @@ describe("subscribeToPendingInvitations", () => {
 		};
 
 		const fake = makeFakeClient();
+		/**
+		 * Create or return a mock channel for the given name (test client).
+		 *
+		 * @param _name - channel name (ignored for test)
+		 * @returns ChannelLike mock instance
+		 */
 		fake.channel = (_name: string): ChannelLike => createChannel();
 		fake.removeChannel = realtimeClient.removeChannel;
 

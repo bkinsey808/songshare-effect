@@ -3,19 +3,19 @@ import { Suspense, use, useState } from "react";
 
 import ErrorBoundary from "@/react/demo/ErrorBoundary";
 import {
-	DEMO_ALT_USER_ID,
-	DEMO_DEFAULT_USER_ID,
-	SUSPENSE_ALBUM_DELAY_MS,
-	SUSPENSE_ALBUM_TRACKS,
-	SUSPENSE_ALBUM_TRACKS_DISPLAY,
-	SUSPENSE_ARTIST_ALBUMS,
-	SUSPENSE_ARTIST_DELAY_MS,
-	SUSPENSE_ERROR_ID,
-	SUSPENSE_PLAYLIST_BASE_SONGS,
-	SUSPENSE_PLAYLIST_DELAY_MS,
-	SUSPENSE_PLAYLIST_DISPLAY,
-	SUSPENSE_PLAYLIST_INCREMENT,
-	SUSPENSE_PLAYLIST_SONGS,
+    DEMO_ALT_USER_ID,
+    DEMO_DEFAULT_USER_ID,
+    SUSPENSE_ALBUM_DELAY_MS,
+    SUSPENSE_ALBUM_TRACKS,
+    SUSPENSE_ALBUM_TRACKS_DISPLAY,
+    SUSPENSE_ARTIST_ALBUMS,
+    SUSPENSE_ARTIST_DELAY_MS,
+    SUSPENSE_ERROR_ID,
+    SUSPENSE_PLAYLIST_BASE_SONGS,
+    SUSPENSE_PLAYLIST_DELAY_MS,
+    SUSPENSE_PLAYLIST_DISPLAY,
+    SUSPENSE_PLAYLIST_INCREMENT,
+    SUSPENSE_PLAYLIST_SONGS,
 } from "@/shared/constants/http";
 import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import { createTypedCache } from "@/shared/utils/typedPromiseCache";
@@ -56,6 +56,14 @@ const GENRES: readonly string[] = ["Pop", "Rock", "Jazz", "Classical"];
 // it synchronous (returns Promise) and disable the rule that requires promise-returning
 // functions to be declared async — callers still get a fully typed Promise.
 // helper for readability - delegates to the typed per-resource caches
+/**
+ * Retrieve a cached promise for the given id or invoke the fetcher.
+ *
+ * @param cache - typed cache instance for the resource
+ * @param id - string key identifying the resource
+ * @param fetcher - function that fetches the resource when not cached
+ * @returns A Promise resolving to the requested resource value
+ */
 function getCachedPromise<TValue>(
 	cache: ReturnType<typeof createTypedCache<TValue>>,
 	id: string,
@@ -64,6 +72,12 @@ function getCachedPromise<TValue>(
 	return cache.get(id, fetcher);
 }
 
+/**
+ * Simulate fetching artist data with an artificial delay and occasional errors.
+ *
+ * @param artistId - numeric id of the artist to fetch
+ * @returns Promise resolving to artist details
+ */
 async function fetchArtistData(artistId: number): Promise<{
 	id: number;
 	name: string;
@@ -92,6 +106,12 @@ async function fetchArtistData(artistId: number): Promise<{
 	};
 }
 
+/**
+ * Simulate fetching playlist data with an artificial delay and occasional errors.
+ *
+ * @param playlistId - numeric id of the playlist to fetch
+ * @returns Promise resolving to playlist details
+ */
 async function fetchPlaylistData(playlistId: number): Promise<{
 	id: number;
 	name: string;
@@ -125,6 +145,12 @@ async function fetchPlaylistData(playlistId: number): Promise<{
 // (no local type aliases required; inference is sufficient)
 
 // Fetch album data (was previously accidentally duplicated elsewhere)
+/**
+ * Simulate fetching album data with an artificial delay and occasional errors.
+ *
+ * @param albumId - numeric id of the album to fetch
+ * @returns Promise resolving to album details
+ */
 async function fetchAlbumData(albumId: number): Promise<{
 	id: number;
 	title: string;
@@ -160,6 +186,12 @@ type LoadingSpinnerProps = Readonly<{
 }>;
 
 // Loading components for different sections
+/**
+ * Small loading spinner used as a Suspense fallback.
+ *
+ * @param message - message displayed below the spinner
+ * @returns ReactElement
+ */
 function LoadingSpinner({ message }: LoadingSpinnerProps): ReactElement {
 	return (
 		<div className="flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-8">
@@ -176,6 +208,12 @@ type AlbumCardParams = Readonly<{
 }>;
 
 // Component that uses 'use' hook to fetch album data
+/**
+ * Card component that displays album details fetched via `use`.
+ *
+ * @param albumId - id of the album to display
+ * @returns ReactElement
+ */
 function AlbumCard({ albumId }: AlbumCardParams): ReactElement {
 	const albumPromise = getCachedPromise(albumCache, String(albumId), () => fetchAlbumData(albumId));
 	const album = use(albumPromise);
@@ -213,6 +251,12 @@ type ArtistProfileParams = Readonly<{
 }>;
 
 // Component that uses 'use' hook to fetch artist data
+/**
+ * Profile component that displays artist details fetched via `use`.
+ *
+ * @param artistId - id of the artist to display
+ * @returns ReactElement
+ */
 function ArtistProfile({ artistId }: ArtistProfileParams): ReactElement {
 	const artistPromise = getCachedPromise(artistCache, String(artistId), () =>
 		fetchArtistData(artistId),
@@ -246,6 +290,12 @@ type PlaylistDetailsParams = Readonly<{
 }>;
 
 // Component that uses 'use' hook to fetch playlist data
+/**
+ * Details component that displays playlist information fetched via `use`.
+ *
+ * @param playlistId - id of the playlist to display
+ * @returns ReactElement
+ */
 function PlaylistDetails({ playlistId }: PlaylistDetailsParams): ReactElement {
 	const playlistPromise = getCachedPromise(playlistCache, String(playlistId), () =>
 		fetchPlaylistData(playlistId),
@@ -282,11 +332,21 @@ function PlaylistDetails({ playlistId }: PlaylistDetailsParams): ReactElement {
 }
 
 // Main page component
+/**
+ * Demo page showcasing Suspense and the `use` hook with cached promises.
+ *
+ * @returns ReactElement
+ */
 function SuspenseUsePage(): ReactElement {
 	const [activeAlbum, setActiveAlbum] = useState<number | undefined>(undefined);
 	const [activeArtist, setActiveArtist] = useState<number | undefined>(undefined);
 	const [activePlaylist, setActivePlaylist] = useState<number | undefined>(undefined);
 
+	/**
+	 * Clear all demo caches and reset active selections.
+	 *
+	 * @returns void
+	 */
 	function clearCache(): void {
 		albumCache.clear();
 		artistCache.clear();

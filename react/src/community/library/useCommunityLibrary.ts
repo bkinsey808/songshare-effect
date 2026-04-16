@@ -21,9 +21,7 @@ type UseCommunityLibraryReturn = {
  *
  * Automatically triggers a fetch on mount and exposes loading/error state.
  *
- * @returns communities - the user's communities from the store
- * @returns isCommunityLoading - true while community-related requests are active
- * @returns communityError - error message when fetching the community data fails
+ * @returns An object containing community list, loading state, error, and action callbacks
  */
 function useCommunityLibrary(): UseCommunityLibraryReturn {
 	const navigate = useNavigate();
@@ -40,6 +38,11 @@ function useCommunityLibrary(): UseCommunityLibraryReturn {
 		return;
 	}, [fetchCommunityLibrary]);
 
+	/**
+	 * Navigate to the community creation page.
+	 *
+	 * @returns void
+	 */
 	function onCreateCommunityClick(): void {
 		void navigate(buildPathWithLang(`/${dashboardPath}/${communityEditPath}`, lang));
 	}

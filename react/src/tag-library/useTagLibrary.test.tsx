@@ -14,6 +14,13 @@ import useTagLibrary from "./useTagLibrary";
 const TEST_USER_ID = "u1";
 
 describe("useTagLibrary", () => {
+	/**
+	 * Wrapper component providing a MemoryRouter for hook testing.
+	 *
+	* @param children - Optional children to render inside the router
+	* @param props.children - Optional children to render inside the router
+	 * @returns ReactElement or null
+	 */
 	function RouterWrapper({ children }: { children?: React.ReactNode }): ReactElement | null {
 		return React.createElement(MemoryRouter, undefined, children);
 	}
