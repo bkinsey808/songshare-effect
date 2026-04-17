@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
@@ -1105,10 +1105,10 @@ export type Database = {
           created_at: string | null
           key: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit: string | null
-          lyrics: string
+          lyrics: string[]
           public_notes: string | null
           scale: string | null
-          script: string | null
+          script: string[]
           short_credit: string | null
           slide_order: string[]
           slides: Json
@@ -1123,10 +1123,10 @@ export type Database = {
           created_at?: string | null
           key?: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit?: string | null
-          lyrics?: string
+          lyrics?: string[]
           public_notes?: string | null
           scale?: string | null
-          script?: string | null
+          script?: string[]
           short_credit?: string | null
           slide_order: string[]
           slides: Json
@@ -1141,10 +1141,10 @@ export type Database = {
           created_at?: string | null
           key?: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit?: string | null
-          lyrics?: string
+          lyrics?: string[]
           public_notes?: string | null
           scale?: string | null
-          script?: string | null
+          script?: string[]
           short_credit?: string | null
           slide_order?: string[]
           slides?: Json

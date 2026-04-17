@@ -16,8 +16,8 @@ const EMPTY_FORM_VALUES = {
 	long_credit: "",
 	public_notes: "",
 	private_notes: "",
-	lyrics: "en",
-	script: undefined,
+	lyrics: ["en"],
+	script: [],
 	translations: [],
 };
 

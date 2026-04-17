@@ -4,6 +4,9 @@ description: Deploy the application to production
 
 # Deploy to Production
 
+> [!CAUTION]
+> **NEVER run a production deployment without explicitly asking the user for permission first.**
+
 This workflow deploys both the frontend (Cloudflare Pages) and API (Cloudflare Workers) to production.
 
 ## Full Deployment with Cache Purge

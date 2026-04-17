@@ -50,7 +50,8 @@ describe("songSchema", () => {
 			const input = {
 				song_name: "My Song",
 				song_slug: "my-song",
-				lyrics: "en",
+				lyrics: ["en"],
+				script: [],
 				translations: ["es"],
 				key: "Bb",
 				slide_order: ["s1", "s2"],
@@ -61,8 +62,8 @@ describe("songSchema", () => {
 			const result = decodeUnknownSyncOrThrow(songFormSchema, input);
 
 			expect(result).toMatchObject({
-				song_name: "My Song",
-				song_slug: "my-song",
+				lyrics: ["en"],
+				script: [],
 				translations: ["es"],
 				key: "Bb",
 				slide_order: ["s1", "s2"],
@@ -76,10 +77,12 @@ describe("songSchema", () => {
 		});
 
 		it("throws when lyrics is not a valid language code", () => {
+			const INVALID_LANG = 123;
 			const input = {
 				song_name: "My Song",
 				song_slug: "my-song",
-				lyrics: "",
+				lyrics: [INVALID_LANG],
+				script: [],
 				translations: [],
 				slide_order: [],
 				slides: {},
@@ -92,7 +95,8 @@ describe("songSchema", () => {
 			const input = {
 				song_name: "My Song",
 				song_slug: "my-song",
-				lyrics: "en",
+				lyrics: ["en"],
+				script: [],
 				translations: [],
 				key: "H",
 				slide_order: [],
@@ -105,7 +109,8 @@ describe("songSchema", () => {
 		it("throws when song_name is missing", () => {
 			const input = {
 				song_slug: "slug",
-				lyrics: "en",
+				lyrics: ["en"],
+				script: [],
 				translations: [],
 				slide_order: [],
 				slides: {},

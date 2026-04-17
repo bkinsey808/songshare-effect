@@ -6,6 +6,8 @@ import toStringArray from "@/shared/utils/toStringArray";
 
 type CreateFormSubmitHandlerParams<FormData> = {
 	readonly songId: string | undefined;
+	readonly lyrics: readonly string[];
+	readonly script: readonly string[];
 	readonly translations: readonly string[];
 	readonly slideOrder: readonly string[];
 	readonly slides: Record<string, Slide>;
@@ -34,6 +36,8 @@ type CreateFormSubmitHandlerParams<FormData> = {
  */
 export default function createFormSubmitHandler<FormData>({
 	songId,
+	lyrics,
+	script,
 	translations,
 	slideOrder,
 	slides,
@@ -71,6 +75,8 @@ export default function createFormSubmitHandler<FormData>({
 		if (songId !== undefined && songId.trim() !== "") {
 			currentFormData["song_id"] = songId;
 		}
+		currentFormData["lyrics"] = [...lyrics];
+		currentFormData["script"] = [...script];
 		currentFormData["translations"] = [...translations];
 		currentFormData["slide_order"] = toStringArray(slideOrder);
 		currentFormData["slides"] = slides;

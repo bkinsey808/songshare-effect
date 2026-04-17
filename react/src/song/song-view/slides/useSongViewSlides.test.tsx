@@ -18,7 +18,6 @@ const UPDATED_VIEWPORT_WIDTH = 900;
 const UPDATED_VIEWPORT_HEIGHT = 1600;
 const LANDSCAPE_CONTAINER_CLASS_NAME = "mx-auto w-full max-w-5xl";
 const PORTRAIT_CONTAINER_CLASS_NAME = "mx-auto w-full max-w-xl";
-const LYRICS_LANGUAGE = "en";
 const SCRIPT_LANGUAGE = "es";
 const TRANSLATION_LANGUAGE = "fr";
 const FIRST_SLIDE_ID = "a";
@@ -183,7 +182,7 @@ describe("useSongViewSlides — Harness", () => {
 			canPortalFullScreen: "true",
 			clampedIndex: "0",
 			currentSlideName: FIRST_SLIDE_NAME,
-			displayFields: LYRICS_LANGUAGE,
+			displayFields: "lyrics",
 			effectiveSlideOrientation: ResolvedSlideOrientation.landscape,
 			isFullScreen: FULL_SCREEN_FALSE,
 			slideContainerClassName: LANDSCAPE_CONTAINER_CLASS_NAME,
@@ -199,7 +198,7 @@ describe("useSongViewSlides — Harness", () => {
 
 		// Arrange
 		const song = makeSongFromIds([FIRST_SLIDE_ID, SECOND_SLIDE_ID, THIRD_SLIDE_ID], {
-			script: SCRIPT_LANGUAGE,
+			script: [SCRIPT_LANGUAGE],
 		});
 		const { getByTestId } = render(<Harness songPublic={song} />);
 
@@ -239,7 +238,7 @@ describe("useSongViewSlides — Harness", () => {
 			slideContainerClassName: getByTestId("slide-container-class-name").textContent,
 			totalSlides: getByTestId("total-slides").textContent,
 		}).toStrictEqual({
-			displayFields: `${LYRICS_LANGUAGE},${SCRIPT_LANGUAGE}`,
+			displayFields: "lyrics,script",
 			effectiveSlideOrientation: ResolvedSlideOrientation.portrait,
 			isFullScreen: FULL_SCREEN_TRUE,
 			slideContainerClassName: PORTRAIT_CONTAINER_CLASS_NAME,
@@ -281,7 +280,7 @@ describe("useSongViewSlides — renderHook", () => {
 
 		// Assert
 		expect(result.current.currentSlide).toBeUndefined();
-		expect(result.current.displayFields).toStrictEqual([LYRICS_LANGUAGE]);
+		expect(result.current.displayFields).toStrictEqual(["lyrics"]);
 		expect(result.current.totalSlides).toBe(ZERO);
 	});
 
@@ -291,7 +290,7 @@ describe("useSongViewSlides — renderHook", () => {
 
 		// Arrange
 		const song = makeSongFromIds([FIRST_SLIDE_ID], {
-			script: SCRIPT_LANGUAGE,
+			script: [SCRIPT_LANGUAGE],
 			translations: [TRANSLATION_LANGUAGE],
 		});
 
@@ -301,8 +300,8 @@ describe("useSongViewSlides — renderHook", () => {
 		// Assert
 		expect(result.current.currentSlide).toStrictEqual(song.slides[FIRST_SLIDE_ID]);
 		expect(result.current.displayFields).toStrictEqual([
-			LYRICS_LANGUAGE,
-			SCRIPT_LANGUAGE,
+			"lyrics",
+			"script",
 			TRANSLATION_LANGUAGE,
 		]);
 		expect(result.current.totalSlides).toBe(ONE);

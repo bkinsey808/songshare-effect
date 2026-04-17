@@ -10,8 +10,8 @@ export default function createEmptySongFormValues(): SongFormValues {
 	return {
 		song_name: "",
 		song_slug: "",
-		lyrics: defaultLanguage,
-		script: undefined,
+		lyrics: [defaultLanguage],
+		script: [],
 		translations: [],
 		key: "",
 		short_credit: "",

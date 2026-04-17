@@ -17,13 +17,13 @@ const HORIZONTAL_SCROLL_THRESHOLD = 1000;
 type SlidesGridViewProps = Readonly<
 	ReadonlyDeep<{
 		readonly fields: readonly string[];
+		readonly lyricsLanguages: readonly string[];
+		readonly scriptLanguages: readonly string[];
 		readonly slideOrder: readonly string[];
 		readonly setSlideOrder: (newOrder: readonly string[]) => void;
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 		openChordPicker?: OpenChordPicker;
-		lyricsLanguage: string;
-		scriptLanguage: string | undefined;
 	}>
 >;
 
@@ -37,6 +37,8 @@ type SlidesGridViewProps = Readonly<
  * @param slides - Map of slide id to slide data
  * @param setSlides - Setter to update slides map
  * @param openChordPicker - Optional callback to open the chord picker
+ * @param lyricsLanguages - Selected lyrics language codes
+ * @param scriptLanguages - Selected script language codes
  * @returns React element rendering the slides grid view
  */
 function noopOpenChordPicker(): void {
@@ -49,24 +51,24 @@ function noopOpenChordPicker(): void {
  * Provides a table-like presentation of slides and quick edit affordances.
  *
  * @param fields - Dynamic fields to show in the grid
+ * @param lyricsLanguages - Selected lyrics language codes
+ * @param scriptLanguages - Selected script language codes
  * @param slideOrder - Order in which slides appear in presentation
  * @param setSlideOrder - Setter to update the presentation order
  * @param slides - Map of slide id to slide data
  * @param setSlides - Setter to update slides map
  * @param openChordPicker - Optional callback to open the chord picker
- * @param lyricsLanguage - BCP 47 language code for the lyrics field.
- * @param scriptLanguage - Optional BCP 47 language code for the script field.
  * @returns React element rendering the slides grid view
  */
 export default function SlidesGridView({
 	fields,
+	lyricsLanguages,
+	scriptLanguages,
 	slideOrder,
 	setSlideOrder,
 	slides,
 	setSlides,
 	openChordPicker = noopOpenChordPicker,
-	lyricsLanguage,
-	scriptLanguage,
 }: SlidesGridViewProps): ReactElement {
 	const { t } = useTranslation();
 	const {
@@ -109,6 +111,8 @@ export default function SlidesGridView({
 			{/* Horizontal scroll container */}
 			<SlidesGridTable
 				fields={fields}
+				lyricsLanguages={lyricsLanguages}
+				scriptLanguages={scriptLanguages}
 				slideOrder={gridSlideOrder}
 				slides={slides}
 				horizontalScrollThreshold={HORIZONTAL_SCROLL_THRESHOLD}
@@ -124,8 +128,8 @@ export default function SlidesGridView({
 				toggleBackgroundPicker={toggleBackgroundPicker}
 				selectSlideBackgroundImage={selectSlideBackgroundImage}
 				clearSlideBackgroundImage={clearSlideBackgroundImage}
-				openChordPicker={openChordPicker}			lyricsLanguage={lyricsLanguage}
-			scriptLanguage={scriptLanguage}			/>
+				openChordPicker={openChordPicker}
+			/>
 			{/* Add New Slide Button */}
 			<div className="mt-4 flex justify-start">
 				<Button

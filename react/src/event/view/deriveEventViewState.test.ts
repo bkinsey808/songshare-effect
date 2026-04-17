@@ -40,15 +40,20 @@ describe("deriveEventViewState", () => {
 			}),
 		});
 
-		const publicSongs = forceCast<Record<string, SongPublic>>({
-			"song-1": {
+		const song: Partial<SongPublic> = {
 				song_name: "Song Title",
+				lyrics: ["en"],
+				script: [],
+				translations: [],
 				slide_order: ["slide-1", "slide-2"],
 				slides: {
-					"slide-1": { slide_name: "Verse 1" },
-					"slide-2": { slide_name: "Chorus" },
+					"slide-1": { slide_name: "Verse 1", field_data: { lyrics: "" } },
+					"slide-2": { slide_name: "Chorus", field_data: { lyrics: "" } },
 				},
-			},
+			}
+
+		const publicSongs = forceCast<Record<string, SongPublic>>({
+			"song-1": song,
 		});
 
 		const result = deriveEventViewState({

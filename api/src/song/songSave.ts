@@ -23,8 +23,8 @@ const SongFormSchema = Schema.Struct({
 	song_id: Schema.optional(Schema.String),
 	song_name: Schema.String,
 	song_slug: Schema.String,
-	lyrics: Schema.optional(Schema.String),
-	script: Schema.optional(Schema.NonEmptyString),
+	lyrics: Schema.optional(Schema.Array(Schema.String)),
+	script: Schema.optional(Schema.Array(Schema.String)),
 	translations: Schema.Array(Schema.NonEmptyString),
 	key: SongPublicInsertSchema.fields.key,
 	short_credit: Schema.optional(Schema.String),
@@ -133,13 +133,16 @@ export default function songSave(
 			: [];
 		/* oxlint-disable-next-line unicorn/no-null */
 		const keyForDb = validated.key === undefined ? null : validated.key;
-		const effectiveLyrics: string = typeof validated.lyrics === "string" && validated.lyrics.trim() !== ""
-			? validated.lyrics
-			: "en";
+		const effectiveLyrics: string[] = Array.isArray(validated.lyrics) && validated.lyrics.length > ZERO
+			? validated.lyrics.map(String)
+			: ["en"];
+		const scriptForDb: string[] = Array.isArray(validated.script)
+			? validated.script.map(String)
+			: [];
 
 		const slidesForDb: Json = sanitizeSlidesForDb(validated.slides, {
 			lyrics: effectiveLyrics,
-			script: validated.script,
+			script: scriptForDb,
 			translations: translationsForDb,
 		});
 
@@ -240,8 +243,7 @@ export default function songSave(
 								song_name: validated.song_name,
 								song_slug: validated.song_slug,
 								lyrics: effectiveLyrics,
-								/* oxlint-disable-next-line unicorn/no-null */
-								script: validated.script ?? null,
+								script: scriptForDb,
 								translations: translationsForDb,
 								/* oxlint-disable-next-line unicorn/no-null */
 								key: keyForDb,
@@ -267,8 +269,7 @@ export default function songSave(
 								song_name: validated.song_name,
 								song_slug: validated.song_slug,
 								lyrics: effectiveLyrics,
-								/* oxlint-disable-next-line unicorn/no-null */
-								script: validated.script ?? null,
+								script: scriptForDb,
 								translations: translationsForDb,
 								key: keyForDb,
 								slide_order: slideOrderForDb,

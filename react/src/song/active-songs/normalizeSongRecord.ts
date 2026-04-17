@@ -30,8 +30,21 @@ export default function normalizeSongRecord(
 	songId: string,
 ): NormalizedSongRecord {
 	const rawSlides = isRecord(song["slides"]) ? song["slides"] : {};
-	const lyrics = typeof song["lyrics"] === "string" ? song["lyrics"] : defaultLanguage;
-	const script = typeof song["script"] === "string" ? song["script"] : undefined;
+	const lyrics: readonly string[] = (() => {
+		const raw = song["lyrics"];
+		if (Array.isArray(raw)) {
+			return (raw as unknown[]).filter((value): value is string => typeof value === "string");
+		}
+		return typeof raw === "string" ? [raw] : [defaultLanguage];
+	})();
+
+	const script: readonly string[] = (() => {
+		const raw = song["script"];
+		if (Array.isArray(raw)) {
+			return (raw as unknown[]).filter((value): value is string => typeof value === "string");
+		}
+		return typeof raw === "string" ? [raw] : [];
+	})();
 	const translations = getNormalizedTranslations({
 		song,
 		rawSlides,

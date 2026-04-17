@@ -71,11 +71,12 @@ describe("songPublicSchema", () => {
 		song_id: "s1",
 		song_name: "My Song",
 		song_slug: "my-song",
-		lyrics: "en",
+		lyrics: ["en"],
+		script: [],
 		translations: [] as const,
 		slide_order: ["s1"],
 		slides: {
-			s1: { slide_name: "Slide 1", field_data: { en: "verse 1" } },
+			s1: { slide_name: "Slide 1", field_data: { lyrics: "verse 1" } },
 		},
 		key: makeNull(),
 		scale: makeNull(),
@@ -101,11 +102,11 @@ describe("songPublicSchema", () => {
 		expect(() => Schema.decodeSync(songPublicSchema)(invalid)).toThrow(SCHEMA_ERROR);
 	});
 
-	it("rejects legacy slide field keys that do not match the song languages", () => {
+	it("rejects BCP47 slide field keys when static keys are required", () => {
 		const invalid = {
 			...VALID_BASE,
 			slides: {
-				s1: { slide_name: "Slide 1", field_data: { lyrics: "legacy value" } },
+				s1: { slide_name: "Slide 1", field_data: { en: "bcp47 value" } },
 			},
 		};
 		expect(() => Schema.decodeSync(songPublicSchema)(invalid)).toThrow(SCHEMA_ERROR);

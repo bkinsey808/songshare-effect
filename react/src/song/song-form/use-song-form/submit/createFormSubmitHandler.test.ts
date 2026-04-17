@@ -19,6 +19,8 @@ describe("createFormSubmitHandler", () => {
 
 		const handler = createFormSubmitHandler({
 			songId: SONG_ID,
+			lyrics: ["en"],
+			script: [],
 			translations: TRANSLATIONS,
 			slideOrder: SLIDE_ORDER,
 			slides: SLIDES,
@@ -52,6 +54,8 @@ describe("createFormSubmitHandler", () => {
 
 		const handler = createFormSubmitHandler({
 			songId: SONG_ID,
+			lyrics: ["en"],
+			script: [],
 			translations: TRANSLATIONS,
 			slideOrder: SLIDE_ORDER,
 			slides: SLIDES,
@@ -68,6 +72,8 @@ describe("createFormSubmitHandler", () => {
 			song_name: "My Song",
 			song_slug: "my-slug",
 			song_id: SONG_ID,
+			lyrics: ["en"],
+			script: [],
 			translations: [...TRANSLATIONS],
 			slide_order: [...SLIDE_ORDER],
 			slides: SLIDES,
@@ -91,6 +97,8 @@ describe("createFormSubmitHandler", () => {
 		const handler = createFormSubmitHandler({
 			songId: "",
 			translations: TRANSLATIONS,
+			lyrics: ["en"],
+			script: [],
 			slideOrder: SLIDE_ORDER,
 			slides: SLIDES,
 			getTags: () => undefined,
@@ -121,6 +129,8 @@ describe("createFormSubmitHandler", () => {
 
 		const handler = createFormSubmitHandler({
 			songId: SONG_ID,
+			lyrics: ["en"],
+			script: [],
 			translations: TRANSLATIONS,
 			slideOrder: SLIDE_ORDER,
 			slides: SLIDES,

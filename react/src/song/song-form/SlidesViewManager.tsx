@@ -14,8 +14,6 @@ type SlidesViewManagerProps = Readonly<
 		setSlideOrder: (newOrder: readonly string[]) => void;
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
-		lyricsLanguage: string;
-		scriptLanguage: string | undefined;
 	}>
 >;
 
@@ -27,8 +25,6 @@ type SlidesViewManagerProps = Readonly<
  * @param setSlideOrder - Setter used to update the slide order.
  * @param slides - Map of slide id to slide data.
  * @param setSlides - Setter used to update the slides map.
- * @param lyricsLanguage - BCP 47 language code for the lyrics field.
- * @param scriptLanguage - Optional BCP 47 language code for the script field.
  * @returns React element containing the editor and grid sections.
  */
 export default function SlidesViewManager({
@@ -37,8 +33,6 @@ export default function SlidesViewManager({
 	setSlideOrder,
 	slides,
 	setSlides,
-	lyricsLanguage,
-	scriptLanguage,
 }: SlidesViewManagerProps): ReactElement {
 	const { t } = useTranslation();
 	const [isSlidesExpanded, setIsSlidesExpanded] = useState(true);
@@ -76,12 +70,12 @@ export default function SlidesViewManager({
 					<div className="border-t border-gray-200 dark:border-gray-600 p-4">
 						<SlidesEditor
 							fields={fields}
+							lyricsLanguages={[]}
+							scriptLanguages={[]}
 							slideOrder={slideOrder}
 							setSlideOrder={setSlideOrder}
 							slides={slides}
 							setSlides={setSlides}
-							lyricsLanguage={lyricsLanguage}
-							scriptLanguage={scriptLanguage}
 						/>
 					</div>
 				)}
@@ -117,12 +111,12 @@ export default function SlidesViewManager({
 					<div className="border-t border-gray-200 dark:border-gray-600 p-4">
 						<SlidesGridView
 							fields={fields}
+							lyricsLanguages={[]}
+							scriptLanguages={[]}
 							slideOrder={slideOrder}
 							setSlideOrder={setSlideOrder}
 							slides={slides}
 							setSlides={setSlides}
-							lyricsLanguage={lyricsLanguage}
-							scriptLanguage={scriptLanguage}
 						/>
 					</div>
 				)}

@@ -16,8 +16,8 @@ export default function makeEmptyFieldData({
     script,
     translations,
 }: Readonly<{
-    lyrics: string;
-    script?: string | undefined;
+    lyrics: readonly string[];
+    script?: readonly string[] | undefined;
     translations: readonly string[];
 }>): Record<string, string> {
     return Object.fromEntries(

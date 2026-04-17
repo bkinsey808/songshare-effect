@@ -7,14 +7,16 @@ import LanguagePicker from "./LanguagePicker";
 
 const EMPTY_TRANSLATION_COUNT = 0;
 
-type TranslationLanguagePickerProps = Readonly<{
+type MultiLanguagePickerProps = Readonly<{
 	value: readonly string[];
 	onChange: (codes: string[]) => void;
 	excludedCodes?: readonly string[];
+	placeholder?: string;
+	emptyText?: string;
 }>;
 
 /**
- * Multi-select language picker for the song `translations` array.
+ * Multi-select language picker for the song language fields.
  *
  * Renders the current selections as removable pills and reuses the shared
  * language picker as an "add another language" control.
@@ -22,13 +24,17 @@ type TranslationLanguagePickerProps = Readonly<{
  * @param value - Selected translation language codes
  * @param onChange - Called with the next ordered translations array
  * @param excludedCodes - Additional language codes that cannot be selected
+ * @param placeholder - Custom placeholder text for the picker
+ * @param emptyText - Text to display when no languages are selected
  * @returns React element rendering selected languages plus an add picker
  */
-export default function TranslationLanguagePicker({
+export default function MultiLanguagePicker({
 	value,
 	onChange,
 	excludedCodes = [],
-}: TranslationLanguagePickerProps): ReactElement {
+	placeholder,
+	emptyText,
+}: MultiLanguagePickerProps): ReactElement {
 	const { t } = useTranslation();
 
 	/**
@@ -60,9 +66,9 @@ export default function TranslationLanguagePicker({
 		<div className="flex flex-col gap-3">
 			{value.length === EMPTY_TRANSLATION_COUNT ? (
 				<p className="text-sm text-gray-400">
-					{t(
-						"song.translationLanguagePicker.empty",
-						"No translation languages selected yet.",
+					{emptyText ?? t(
+						"song.languagePicker.empty",
+						"No languages selected yet.",
 					)}
 				</p>
 			) : (
@@ -107,9 +113,9 @@ export default function TranslationLanguagePicker({
 				value={undefined}
 				onChange={handleAddLanguage}
 				excludedCodes={pickerExcludedCodes}
-				placeholder={t(
-					"song.translationLanguagePicker.addPlaceholder",
-					"Add translation language...",
+				placeholder={placeholder ?? t(
+					"song.languagePicker.addPlaceholder",
+					"Add language...",
 				)}
 			/>
 		</div>

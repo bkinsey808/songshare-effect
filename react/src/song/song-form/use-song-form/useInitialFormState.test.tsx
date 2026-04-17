@@ -7,8 +7,8 @@ import useInitialFormState from "./useInitialFormState";
 const DEFAULT_FORM_VALUES: SongFormValues = {
 	song_name: "Test",
 	song_slug: "test",
-	lyrics: "en",
-	script: undefined,
+	lyrics: ["en"],
+	script: [],
 	translations: [],
 	key: "",
 	short_credit: "",

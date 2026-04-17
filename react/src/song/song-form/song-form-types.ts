@@ -17,8 +17,8 @@ export type Slide = Readonly<{
 export type SongFormValues = {
 	song_name: string;
 	song_slug: string;
-	lyrics: string;
-	script: string | undefined;
+	lyrics: readonly string[];
+	script: readonly string[];
 	translations: readonly string[];
 	key: SongKey | "";
 	short_credit: string;

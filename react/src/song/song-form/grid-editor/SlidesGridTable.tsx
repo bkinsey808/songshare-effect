@@ -22,11 +22,11 @@ const SINGLE_OCCURRENCE = 1;
 type SlidesGridTableProps = Readonly<
 	ReadonlyDeep<{
 		readonly fields: readonly string[];
+		readonly lyricsLanguages: readonly string[];
+		readonly scriptLanguages: readonly string[];
 		readonly slideOrder: readonly string[];
 		slides: Readonly<Record<string, Slide>>;
 		horizontalScrollThreshold: number;
-		lyricsLanguage: string;
-		scriptLanguage: string | undefined;
 
 		editSlideName: ({ slideId, newName }: { slideId: string; newName: string }) => void;
 		editFieldValue: ({
@@ -66,6 +66,13 @@ type SlidesGridTableProps = Readonly<
 	}>
 >;
 
+function formatLanguageList(codes: readonly string[]): string {
+	return codes.map((code) => {
+		const entry = findLanguageByTag(code);
+		return entry ? entry.name : code;
+	}).join(", ");
+}
+
 /**
  * Render the sortable slides grid table and drag-and-drop container.
  *
@@ -73,6 +80,8 @@ type SlidesGridTableProps = Readonly<
  * by the grid editor.
  *
  * @param fields - Dynamic field columns rendered as table columns.
+ * @param lyricsLanguages - Selected lyrics language codes
+ * @param scriptLanguages - Selected script language codes
  * @param slideOrder - Ordered list of slide ids to render.
  * @param slides - Lookup of slide objects by id.
  * @param horizontalScrollThreshold - Pixel threshold that forces horizontal scrolling.
@@ -89,12 +98,12 @@ type SlidesGridTableProps = Readonly<
  * @param selectSlideBackgroundImage - Applies a background image to the slide.
  * @param clearSlideBackgroundImage - Clears the current slide background image.
  * @param openChordPicker - Callback to open the chord picker for a slide row
- * @param lyricsLanguage - BCP 47 language code for the lyrics field.
- * @param scriptLanguage - Optional BCP 47 language code for the script field.
  * @returns React element for the slides grid table and DnD container.
  */
 export default function SlidesGridTable({
 	fields,
+	lyricsLanguages,
+	scriptLanguages,
 	slideOrder,
 	slides,
 	horizontalScrollThreshold,
@@ -111,8 +120,6 @@ export default function SlidesGridTable({
 	selectSlideBackgroundImage,
 	clearSlideBackgroundImage,
 	openChordPicker,
-	lyricsLanguage,
-	scriptLanguage,
 }: SlidesGridTableProps): ReactElement {
 	const { t } = useTranslation();
 	const {
@@ -200,18 +207,16 @@ export default function SlidesGridTable({
 									>
 										{(() => {
 											if (field === "lyrics") {
-												return t(`song.${field}`, field);
+												const baseLabel = t("song.lyrics", "Lyrics");
+												return lyricsLanguages.length > EMPTY_COUNT
+													? `${baseLabel}: ${formatLanguageList(lyricsLanguages)}`
+													: baseLabel;
 											}
 											if (field === "script") {
-												return `Script: ${t(`song.${field}`, field)}`;
-											}
-											if (field === scriptLanguage) {
-												const langEntry = findLanguageByTag(field);
-												return langEntry ? `Script: ${langEntry.name}` : t(`song.${field}`, field);
-											}
-											if (field === lyricsLanguage) {
-												const langEntry = findLanguageByTag(field);
-												return langEntry ? `Lyrics: ${langEntry.name}` : t(`song.${field}`, field);
+												const baseLabel = t("song.script", "Script");
+												return scriptLanguages.length > EMPTY_COUNT
+													? `${baseLabel}: ${formatLanguageList(scriptLanguages)}`
+													: baseLabel;
 											}
 											const langEntry = findLanguageByTag(field);
 											return langEntry ? langEntry.name : t(`song.${field}`, field);

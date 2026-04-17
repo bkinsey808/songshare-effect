@@ -25,8 +25,8 @@ export default function getNormalizedTranslations({
 }: Readonly<{
     song: Record<string, unknown>;
     rawSlides: Record<string, unknown>;
-    lyrics: string;
-    script?: string | undefined;
+    lyrics: readonly string[];
+    script?: readonly string[] | undefined;
 }>): readonly string[] {
     const rawTranslations = Array.isArray(song["translations"]) 
         ? song["translations"].filter((value): value is string => typeof value === "string")
@@ -36,8 +36,8 @@ export default function getNormalizedTranslations({
     }
     if (
         hasLegacyEnglishTranslation(rawSlides) &&
-        lyrics !== LEGACY_TRANSLATION_LANGUAGE &&
-        script !== LEGACY_TRANSLATION_LANGUAGE
+        !lyrics.includes(LEGACY_TRANSLATION_LANGUAGE) &&
+        (script === undefined || !script.includes(LEGACY_TRANSLATION_LANGUAGE))
     ) {
         return [LEGACY_TRANSLATION_LANGUAGE];
     }

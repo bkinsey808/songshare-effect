@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 
-import TranslationLanguagePicker from "./TranslationLanguagePicker";
+import MultiLanguagePicker from "./MultiLanguagePicker";
 
 vi.mock("react-i18next");
 
@@ -41,7 +41,7 @@ function translateOrDefault(
 	return defaultValue;
 }
 
-describe("translation language picker", () => {
+describe("multi language picker", () => {
 	it("adds a language from the picker", () => {
 		cleanup();
 		vi.mocked(useTranslation).mockReturnValue(
@@ -52,9 +52,9 @@ describe("translation language picker", () => {
 		);
 		const onChange = vi.fn();
 
-		render(<TranslationLanguagePicker value={["es"]} onChange={onChange} excludedCodes={["en"]} />);
+		render(<MultiLanguagePicker value={["es"]} onChange={onChange} excludedCodes={["en"]} />);
 
-		fireEvent.click(screen.getByRole("button", { name: /add translation language/i }));
+		fireEvent.click(screen.getByRole("button", { name: /add language/i }));
 		fireEvent.change(screen.getByPlaceholderText("Search languages..."), {
 			target: { value: "french" },
 		});
@@ -73,7 +73,7 @@ describe("translation language picker", () => {
 		);
 		const onChange = vi.fn();
 
-		render(<TranslationLanguagePicker value={["es", "fr"]} onChange={onChange} />);
+		render(<MultiLanguagePicker value={["es", "fr"]} onChange={onChange} />);
 
 		fireEvent.click(screen.getByRole("button", { name: /remove spanish/i }));
 
@@ -89,8 +89,8 @@ describe("translation language picker", () => {
 			}),
 		);
 
-		render(<TranslationLanguagePicker value={[]} onChange={vi.fn()} />);
+		render(<MultiLanguagePicker value={[]} onChange={vi.fn()} />);
 
-		expect(screen.getByText("No translation languages selected yet.")).toBeTruthy();
+		expect(screen.getByText("No languages selected yet.")).toBeTruthy();
 	});
 });

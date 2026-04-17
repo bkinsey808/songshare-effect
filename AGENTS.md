@@ -42,7 +42,8 @@ shared system.
 ## Safety
 
 - Prefer read-only git commands unless a human explicitly asks for repo-changing operations.
-- Use staging-first for migrations and deployments; require explicit confirmation for production.
+- Use staging-first for migrations and deployments.
+- **NEVER** run a production deployment or production database migration without explicitly asking the user for permission first.
 
 - Never ask the user whether to commit code changes or open a pull request. Do not prompt with messages like "Would you like me to commit these tests and open a PR?" or any variant. Only mention commits or PRs when the user explicitly requests creation or review of a PR; otherwise omit commit/PR prompts entirely.
 

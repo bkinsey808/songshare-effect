@@ -24,12 +24,12 @@ import isString from "@/shared/type-guards/isString";
 export default function sanitizeSlidesForDb(
 	slides: unknown,
 	{
-		lyrics = "",
-		script,
+		lyrics = ["en"],
+		script = [],
 		translations = [],
 	}: Readonly<{
-		lyrics?: string | undefined;
-		script?: string | undefined;
+		lyrics?: readonly string[] | undefined;
+		script?: readonly string[] | undefined;
 		translations?: readonly string[] | undefined;
 	}> = {},
 ): Json {

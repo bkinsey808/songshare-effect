@@ -24,8 +24,8 @@ export default function normalizeSlides({
     translations,
 }: Readonly<{
     rawSlides: Record<string, unknown>;
-    lyrics: string;
-    script?: string | undefined;
+    lyrics: readonly string[];
+    script?: readonly string[] | undefined;
     translations: readonly string[];
 }>): Record<string, NormalizedSlide> {
     const normalizedSlides: Record<string, NormalizedSlide> = {};

@@ -1,7 +1,7 @@
 # Gemini CLI Project-Specific Instructions
 
 This file is the Gemini-specific adapter for the shared AI system in this
-repository.
+repository. See the [official Gemini documentation](https://ai.google.dev/gemini-api/docs) for more information.
 
 ## Shared Entry Points
 
@@ -10,13 +10,16 @@ repository.
 - Read `docs/ai/ai-system.md` for the shared cross-tool AI-system layout.
 - Load task-specific guidance from `skills/*/SKILL.md` and `agents/*.agent.md`.
 
-## Skill Discovery
+## Skill Discovery & Optimization
 
-Before starting any task, run the QMD search engine to find the most relevant
-guidance files. This ensures you only load what is necessary for the task:
+Because Gemini does not trigger automatic background hooks, you must build context manually. The number one optimization for Gemini is the **reflexive use of the QMD search engine**.
+
+1. **Always Search First**: Before beginning any task, you MUST run QMD to pull the specific, relevant `skills/*/SKILL.md` files into your prompt. Never assume you have full context.
+2. **Use the Wrapper**: Always use the `npm run qmd --` wrapper rather than calling the binary directly. This suppresses the hundreds of lines of CMake build failure noise caused by the lack of GPU passthrough (WSL2 + Intel Arc) on this machine.
+3. **Master BM25 Keywords**: Do not use vector search (`vsearch`) or hybrid search (`query`) due to the CPU bottleneck. Rely on BM25 keyword matching (`search`). Use exact technical terminology (e.g., "hono endpoint", "zustand") rather than natural language. Use the `--all` flag if exact terminology isn't yielding results.
 
 ```bash
-npm run qmd -- search "<task description>"
+npm run qmd -- search "<exact technical keywords>"
 ```
 
 See [Skill Discovery via QMD](docs/ai/ai-system.md#skill-discovery-via-qmd) in the

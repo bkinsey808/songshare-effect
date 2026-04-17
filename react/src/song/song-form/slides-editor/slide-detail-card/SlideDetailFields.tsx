@@ -9,19 +9,27 @@ import { safeGet } from "@/shared/utils/safe";
 import type useSlideDetailCard from "./useSlideDetailCard";
 
 const TEXTAREA_MIN_ROWS = 3;
+const EMPTY_LENGTH = 0;
 
 type SlideDetailFieldsProps = Readonly<{
 	fields: readonly string[];
 	slide: NonNullable<ReturnType<typeof useSlideDetailCard>["slide"]>;
 	lyricsTextareaRef: ReturnType<typeof useSlideDetailCard>["lyricsTextareaRef"];
 	isEditingChord: boolean;
+	lyricsLanguages: readonly string[];
+	scriptLanguages: readonly string[];
 	onEditFieldValue: ReturnType<typeof useSlideDetailCard>["onEditFieldValue"];
 	onLyricsChange: ReturnType<typeof useSlideDetailCard>["onLyricsChange"];
 	onOpenChordPicker: ReturnType<typeof useSlideDetailCard>["onOpenChordPicker"];
 	onSyncLyricsSelection: ReturnType<typeof useSlideDetailCard>["onSyncLyricsSelection"];
-	lyricsLanguage: string;
-	scriptLanguage: string | undefined;
 }>;
+
+function formatLanguageList(codes: readonly string[]): string {
+	return codes.map((code) => {
+		const entry = findLanguageByTag(code);
+		return entry ? entry.name : code;
+	}).join(", ");
+}
 
 /**
  * Renders the editable slide field inputs, including the special lyrics editor UI.
@@ -30,12 +38,12 @@ type SlideDetailFieldsProps = Readonly<{
  * @param slide - Current slide data being edited
  * @param lyricsTextareaRef - Ref for the lyrics textarea used by chord insertion logic
  * @param isEditingChord - Whether the current lyrics selection is editing an existing chord token
+ * @param lyricsLanguages - Selected lyrics language codes
+ * @param scriptLanguages - Selected script language codes
  * @param onEditFieldValue - Updates non-lyrics field values
  * @param onLyricsChange - Updates the lyrics field and syncs selection state
  * @param onOpenChordPicker - Opens the chord picker for insert or edit mode
  * @param onSyncLyricsSelection - Syncs textarea selection into local hook state
- * @param lyricsLanguage - BCP 47 language code for the lyrics field.
- * @param scriptLanguage - Optional BCP 47 language code for the script field.
  * @returns Field editor list for the slide detail card
  */
 export default function SlideDetailFields({
@@ -43,15 +51,19 @@ export default function SlideDetailFields({
 	slide,
 	lyricsTextareaRef,
 	isEditingChord,
+	lyricsLanguages,
+	scriptLanguages,
 	onEditFieldValue,
 	onLyricsChange,
 	onOpenChordPicker,
 	onSyncLyricsSelection,
-	lyricsLanguage,
-	scriptLanguage,
 }: SlideDetailFieldsProps): ReactElement {
 	const { t } = useTranslation();
 	const lyricsValue = safeGet(slide.field_data, "lyrics") ?? "";
+
+	const lyricsLabel = lyricsLanguages.length > EMPTY_LENGTH
+		? `${t("song.lyrics", "Lyrics")}: ${formatLanguageList(lyricsLanguages)}`
+		: t("song.lyrics", "Lyrics");
 
 	return (
 		<>
@@ -61,7 +73,7 @@ export default function SlideDetailFields({
 						<div className="flex flex-col gap-2">
 							<div className="flex flex-wrap items-center justify-between gap-2">
 								<span className="text-sm font-bold text-gray-300">
-									{t("song.lyrics", "Lyrics")}
+									{lyricsLabel}
 								</span>
 								<InsertChordButton
 									isEditingChord={isEditingChord}
@@ -85,15 +97,9 @@ export default function SlideDetailFields({
 					) : (
 						<FormField label={((): string => {
 							if (field === "script") {
-								return `Script: ${t(`song.${field}`, field)}`;
-							}
-							if (field === scriptLanguage) {
-								const langEntry = findLanguageByTag(field);
-								return langEntry ? `Script: ${langEntry.name}` : t(`song.${field}`, field);
-							}
-							if (field === lyricsLanguage) {
-								const langEntry = findLanguageByTag(field);
-								return langEntry ? `Lyrics: ${langEntry.name}` : t(`song.${field}`, field);
+								return scriptLanguages.length > EMPTY_LENGTH
+									? `${t("song.script", "Script")}: ${formatLanguageList(scriptLanguages)}`
+									: t("song.script", "Script");
 							}
 							const langEntry = findLanguageByTag(field);
 							return langEntry ? langEntry.name : t(`song.${field}`, field);

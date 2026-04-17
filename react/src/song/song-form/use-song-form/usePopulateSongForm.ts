@@ -129,11 +129,31 @@ export default function usePopulateSongForm({
 
 		// Update controlled form values from song data, including language fields
 		if (isRecord(songPublic)) {
-			const lyrics = isString(songPublic["lyrics"]) ? songPublic["lyrics"] : defaultLanguage;
-			const script = isString(songPublic["script"]) ? songPublic["script"] : undefined;
+			const rawLyrics = songPublic["lyrics"];
+			const lyrics: readonly string[] = (() => {
+				if (Array.isArray(rawLyrics)) {
+					return (rawLyrics as unknown[]).filter((value) => isString(value));
+				}
+				if (isString(rawLyrics)) {
+					return [rawLyrics];
+				}
+				return [defaultLanguage];
+			})();
+
+			const rawScript = songPublic["script"];
+			const script: readonly string[] = (() => {
+				if (Array.isArray(rawScript)) {
+					return (rawScript as unknown[]).filter((value) => isString(value));
+				}
+				if (isString(rawScript)) {
+					return [rawScript];
+				}
+				return [];
+			})();
+
 			const rawTranslations = songPublic["translations"];
 			const translations: readonly string[] = Array.isArray(rawTranslations)
-				? rawTranslations.filter((value): value is string => isString(value))
+				? (rawTranslations as unknown[]).filter((value) => isString(value))
 				: [];
 
 			const newFormValues: SongFormValues = {

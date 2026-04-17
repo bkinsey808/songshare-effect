@@ -12,6 +12,7 @@ import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 import type { UserSessionData } from "@/shared/userSessionData";
 
+import type { SongPublic } from "@/shared/generated/supabaseSchemas";
 import songSave from "./songSave";
 
 vi.mock("@supabase/supabase-js");
@@ -26,11 +27,12 @@ const EMPTY_ROWS: [] = [];
  * @param overrides - Per-test field overrides
  * @returns Song form payload including required language fields
  */
-function makeSongBody(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+function makeSongBody(overrides: Record<string, unknown> = {}): Partial<SongPublic> {
 	return {
 		song_name: "n",
 		song_slug: "s",
-		lyrics: "en",
+		lyrics: ["en"],
+		script: [],
 		translations: [],
 		slide_order: [],
 		slides: {},

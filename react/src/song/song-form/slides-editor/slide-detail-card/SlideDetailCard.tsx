@@ -15,10 +15,10 @@ type SlideDetailCardProps = Readonly<{
 	slideId: string;
 	idx: number;
 	fields: readonly string[];
+	lyricsLanguages: readonly string[];
+	scriptLanguages: readonly string[];
 	slideOrder: readonly string[];
 	slides: Readonly<Record<string, Slide>>;
-	lyricsLanguage: string;
-	scriptLanguage: string | undefined;
 	uiState: Readonly<{
 		confirmingDeleteSlideId: string | undefined;
 		setConfirmingDeleteSlideId: (slideId: string | undefined) => void;
@@ -56,10 +56,10 @@ type SlideDetailCardProps = Readonly<{
  * @param slideId - Id of the slide to render
  * @param idx - Index of the slide in the presentation order
  * @param fields - Editable field keys shown in the card
+ * @param lyricsLanguages - Selected lyrics language codes
+ * @param scriptLanguages - Selected script language codes
  * @param slideOrder - Current slide order array
  * @param slides - Map of slide id to Slide objects
- * @param lyricsLanguage - BCP 47 language code for the lyrics field.
- * @param scriptLanguage - Optional BCP 47 language code for the script field.
  * @param uiState - Local UI state (confirm/delete/background picker)
  * @param actions - Action handlers passed from the parent editor
  * @returns A ReactElement representing the detailed slide card or undefined when slide missing
@@ -68,10 +68,10 @@ export default function SlideDetailCard({
 	slideId,
 	idx,
 	fields,
+	lyricsLanguages,
+	scriptLanguages,
 	slideOrder,
 	slides,
-	lyricsLanguage,
-	scriptLanguage,
 	uiState,
 	actions,
 }: SlideDetailCardProps): ReactElement | undefined {
@@ -148,15 +148,15 @@ export default function SlideDetailCard({
 				slide={slide}
 				lyricsTextareaRef={lyricsTextareaRef}
 				isEditingChord={selectedChordToken !== undefined}
+				lyricsLanguages={lyricsLanguages}
+				scriptLanguages={scriptLanguages}
 				onEditFieldValue={onEditFieldValue}
 				onLyricsChange={onLyricsChange}
 				onOpenChordPicker={onOpenChordPicker}
 				onSyncLyricsSelection={onSyncLyricsSelection}
-				lyricsLanguage={lyricsLanguage}
-				scriptLanguage={scriptLanguage}
 			/>
 			<div className="mb-6">
-				<FormField label={t("song.slideBackgroundImage", "Slide Background Image")}>
+				<FormField as="fieldset" label={t("song.slideBackgroundImage", "Slide Background Image")}>
 					<div className="mt-2 space-y-3">
 						{slide.background_image_url === undefined ? (
 							<div className="rounded border border-dashed border-gray-600 px-3 py-2 text-sm text-gray-400">

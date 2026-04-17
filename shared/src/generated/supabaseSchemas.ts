@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-04-17T00:48:18.627Z
+ * Last generated: 2026-04-17T04:44:54.218Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -1344,10 +1344,10 @@ export const SongPublicSchema: Schema.Struct<{
 	created_at: Schema.optional<typeof Schema.String>;
 	key: Schema.optional<Schema.Literal<["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"]>>;
 	long_credit: Schema.optional<typeof Schema.String>;
-	lyrics: typeof Schema.NonEmptyString;
+	lyrics: Schema.Array$<typeof Schema.String>;
 	public_notes: Schema.optional<typeof Schema.String>;
 	scale: Schema.optional<typeof Schema.String>;
-	script: Schema.optional<typeof Schema.String>;
+	script: Schema.Array$<typeof Schema.String>;
 	short_credit: Schema.optional<typeof Schema.String>;
 	slide_order: Schema.Array$<typeof Schema.String>;
 	slides: typeof Schema.Unknown;
@@ -1361,10 +1361,10 @@ export const SongPublicSchema: Schema.Struct<{
 	created_at: Schema.optional(Schema.String),
 	key: Schema.optional(Schema.Literal("C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B")),
 	long_credit: Schema.optional(Schema.String),
-	lyrics: Schema.NonEmptyString,
+	lyrics: Schema.Array(Schema.String),
 	public_notes: Schema.optional(Schema.String),
 	scale: Schema.optional(Schema.String),
-	script: Schema.optional(Schema.String),
+	script: Schema.Array(Schema.String),
 	short_credit: Schema.optional(Schema.String),
 	slide_order: Schema.Array(Schema.String),
 	slides: Schema.Unknown,
@@ -1381,10 +1381,10 @@ export type SongPublic = Schema.Schema.Type<typeof SongPublicSchema>;
 export const SongPublicInsertSchema: Schema.Struct<{
 	key: Schema.optional<Schema.Literal<["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"]>>;
 	long_credit: Schema.optional<typeof Schema.String>;
-	lyrics: Schema.optional<typeof Schema.NonEmptyString>;
+	lyrics: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	public_notes: Schema.optional<typeof Schema.String>;
 	scale: Schema.optional<typeof Schema.String>;
-	script: Schema.optional<typeof Schema.String>;
+	script: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	short_credit: Schema.optional<typeof Schema.String>;
 	slide_order: Schema.Array$<typeof Schema.String>;
 	slides: typeof Schema.Unknown;
@@ -1396,10 +1396,10 @@ export const SongPublicInsertSchema: Schema.Struct<{
 }> = Schema.Struct({
 	key: Schema.optional(Schema.Literal("C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B")),
 	long_credit: Schema.optional(Schema.String),
-	lyrics: Schema.optional(Schema.NonEmptyString),
+	lyrics: Schema.optional(Schema.Array(Schema.String)),
 	public_notes: Schema.optional(Schema.String),
 	scale: Schema.optional(Schema.String),
-	script: Schema.optional(Schema.String),
+	script: Schema.optional(Schema.Array(Schema.String)),
 	short_credit: Schema.optional(Schema.String),
 	slide_order: Schema.Array(Schema.String),
 	slides: Schema.Unknown,
@@ -1417,10 +1417,10 @@ export type SongPublicInsert = Schema.Schema.Type<
 export const SongPublicUpdateSchema: Schema.Struct<{
 	key: Schema.optional<Schema.Literal<["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"]>>;
 	long_credit: Schema.optional<typeof Schema.String>;
-	lyrics: Schema.optional<typeof Schema.NonEmptyString>;
+	lyrics: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	public_notes: Schema.optional<typeof Schema.String>;
 	scale: Schema.optional<typeof Schema.String>;
-	script: Schema.optional<typeof Schema.String>;
+	script: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	short_credit: Schema.optional<typeof Schema.String>;
 	slide_order: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	slides: Schema.optional<typeof Schema.Unknown>;
@@ -1432,10 +1432,10 @@ export const SongPublicUpdateSchema: Schema.Struct<{
 }> = Schema.Struct({
 	key: Schema.optional(Schema.Literal("C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B")),
 	long_credit: Schema.optional(Schema.String),
-	lyrics: Schema.optional(Schema.NonEmptyString),
+	lyrics: Schema.optional(Schema.Array(Schema.String)),
 	public_notes: Schema.optional(Schema.String),
 	scale: Schema.optional(Schema.String),
-	script: Schema.optional(Schema.String),
+	script: Schema.optional(Schema.Array(Schema.String)),
 	short_credit: Schema.optional(Schema.String),
 	slide_order: Schema.optional(Schema.Array(Schema.String)),
 	slides: Schema.optional(Schema.Unknown),

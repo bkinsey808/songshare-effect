@@ -42,6 +42,14 @@ export const languageCodeSchema: Schema.Schema<string> = Schema.String.pipe(
 export const translationsSchema: Schema.Array$<typeof languageCodeSchema> =
 	Schema.Array(languageCodeSchema);
 
+/** Schema for lyrics array — each element must be a valid BCP 47 code. */
+export const lyricsSchema: Schema.Array$<typeof languageCodeSchema> =
+	Schema.Array(languageCodeSchema);
+
+/** Schema for script array — each element must be a valid BCP 47 code. */
+export const scriptSchema: Schema.Array$<typeof languageCodeSchema> =
+	Schema.Array(languageCodeSchema);
+
 /**
  * Schema for song names:
  * - No leading/trailing spaces
@@ -158,8 +166,8 @@ const nullableSongKeySchema: Schema.Schema<SongKey | null> = Schema.Union(
  * Nullable DB columns are represented using `nullableStringSchema`.
  *
  * Language fields:
- *   - `lyrics`       — BCP 47 code for the song's original language (e.g. "sa", "en")
- *   - `script`       — optional BCP 47 code for presenter notes (e.g. "en")
+ *   - `lyrics`       — Array of BCP 47 codes for the song's original languages (e.g. ["sa", "en"])
+ *   - `script`       — Array of BCP 47 codes for presenter notes (e.g. ["en"])
  *   - `translations` — ordered array of additional BCP 47 codes (e.g. ["sa-Latn", "es"])
  *
  * The three language roles are mutually exclusive. Together
@@ -171,8 +179,8 @@ const baseSongPublicSchema: Schema.Struct<{
 	song_id: typeof Schema.String;
 	song_name: typeof songNameSchema;
 	song_slug: typeof songSlugSchema;
-	lyrics: typeof languageCodeSchema;
-	script: Schema.optional<typeof languageCodeSchema>;
+	lyrics: typeof lyricsSchema;
+	script: typeof scriptSchema;
 	translations: typeof translationsSchema;
 	slide_order: typeof slidesOrderSchema;
 	slides: typeof slidesSchema;
@@ -188,8 +196,8 @@ const baseSongPublicSchema: Schema.Struct<{
 	song_id: Schema.String,
 	song_name: songNameSchema,
 	song_slug: songSlugSchema,
-	lyrics: languageCodeSchema,
-	script: Schema.optional(languageCodeSchema),
+	lyrics: lyricsSchema,
+	script: scriptSchema,
 	translations: translationsSchema,
 	slide_order: slidesOrderSchema,
 	slides: slidesSchema,
@@ -230,11 +238,11 @@ export const songPublicSchema: Schema.Schema<Schema.Schema.Type<typeof baseSongP
 			[songMessageKey]: { key: "song.validation.slideKeysInOrder" },
 		}),
 
-		// Rule 2: lyrics code must not appear in translations
+		// Rule 2: lyrics codes must not appear in translations
 		// oxlint-disable-next-line unicorn/no-array-method-this-argument
 		Schema.filter(
 			(input: Schema.Schema.Type<typeof baseSongPublicSchema>) =>
-				!input.translations.includes(input.lyrics),
+				!input.lyrics.some((lyric) => input.translations.includes(lyric)),
 			{
 				message: () => "song.validation.lyricsNotInTranslations",
 			},
@@ -247,11 +255,9 @@ export const songPublicSchema: Schema.Schema<Schema.Schema.Type<typeof baseSongP
 		// oxlint-disable-next-line unicorn/no-array-method-this-argument
 		Schema.filter(
 			(input: Schema.Schema.Type<typeof baseSongPublicSchema>) => {
-				if (input.script === undefined) {
-					return true;
-				}
-
-				return input.script !== input.lyrics && !input.translations.includes(input.script);
+				const hasOverlapWithLyrics = input.script.some((sc) => input.lyrics.includes(sc));
+				const hasOverlapWithTranslations = input.script.some((sc) => input.translations.includes(sc));
+				return !hasOverlapWithLyrics && !hasOverlapWithTranslations;
 			},
 			{
 				message: () => "song.validation.scriptMustBeDisjoint",

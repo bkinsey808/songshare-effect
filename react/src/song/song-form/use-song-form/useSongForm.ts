@@ -9,6 +9,7 @@ import { type SongPublic, songPublicSchema } from "@/react/song/song-schema";
 import useItemTags from "@/react/tag/useItemTags";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { defaultLanguage } from "@/shared/language/supported-languages";
+import deriveSongFieldKeys from "@/shared/song/deriveSongFieldKeys";
 
 import { type FormState, type Slide, type UseSongFormReturn } from "../song-form-types";
 import { type SongFormValuesFromSchema as SongFormData, songFormSchema } from "../songSchema";
@@ -82,11 +83,11 @@ export default function useSongForm(): UseSongFormReturn {
 	} = useFormState();
 
 	// Derive active display fields from language pickers in formValues
-	const fields: readonly string[] = [
-		formValues.lyrics,
-		...(formValues.script === undefined ? [] : [formValues.script]),
-		...formValues.translations,
-	];
+	const fields: readonly string[] = deriveSongFieldKeys({
+		lyrics: formValues.lyrics,
+		script: formValues.script,
+		translations: formValues.translations,
+	});
 
 	const {
 		isFormFieldsExpanded,
@@ -119,8 +120,8 @@ export default function useSongForm(): UseSongFormReturn {
 		song_id: songId,
 		song_name: "",
 		song_slug: "",
-		lyrics: defaultLanguage,
-		script: undefined,
+		lyrics: [defaultLanguage],
+		script: [],
 		translations: [],
 		short_credit: "",
 		long_credit: "",
@@ -216,6 +217,8 @@ export default function useSongForm(): UseSongFormReturn {
 	// Handle form submission with data collection
 	const handleFormSubmit = createFormSubmitHandler<SongFormData>({
 		songId,
+		lyrics: formValues.lyrics,
+		script: formValues.script,
 		translations: formValues.translations,
 		slideOrder,
 		slides,

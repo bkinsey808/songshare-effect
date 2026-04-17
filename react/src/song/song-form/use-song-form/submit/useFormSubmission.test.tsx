@@ -69,7 +69,8 @@ describe("useFormSubmission — renderHook", () => {
 		const formData = {
 			song_name: "Test",
 			song_slug: "test",
-			lyrics: "en",
+			lyrics: ["en"],
+			script: [],
 			translations: [],
 			slide_order: ["s1"],
 			slides: { s1: { slide_name: "Slide 1", field_data: {} } },
@@ -163,7 +164,8 @@ describe("useFormSubmission — renderHook", () => {
 		const formData = {
 			song_name: "Test",
 			song_slug: "test",
-			lyrics: "en",
+			lyrics: ["en"],
+			script: [],
 			translations: [],
 			slide_order: ["s1"],
 			slides: { s1: { slide_name: "Slide 1", field_data: {} } },
@@ -201,7 +203,8 @@ describe("useFormSubmission — Harness", () => {
 		const MINIMAL_FORM_DATA = {
 			song_name: "",
 			song_slug: "",
-			lyrics: "en",
+			lyrics: ["en"],
+			script: [],
 			translations: [],
 			slide_order: ["s1"],
 			slides: { s1: { slide_name: "Slide 1", field_data: {} } },

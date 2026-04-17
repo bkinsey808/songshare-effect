@@ -4,6 +4,9 @@ description: Run database migrations and schema operations
 
 # Database Migrations and Schema
 
+> [!CAUTION]
+> **NEVER run a production database migration without explicitly asking the user for permission first.**
+
 This workflow covers Supabase database migrations and schema generation.
 
 ## Run All Migrations

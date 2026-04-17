@@ -1,0 +1,21 @@
+# Antigravity Configuration
+
+# Commands that the agent is allowed to execute automatically without waiting for user approval.
+# Using wildcards (*) allows arguments to be passed to the command.
+safeToAutoRunCommands:
+  # Linting and Formatting
+  - "npm run lint"
+  - "npm run format"
+  
+  # Unit Tests
+  - "npm run test:unit*"
+  
+  # E2E Tests
+  - "npm run test:e2e*"
+  - "npx playwright test*"
+  
+  # QMD Search operations (read-only)
+  - "npm run qmd -- search*"
+  - "npm run qmd -- get*"
+  - "npm run qmd -- ls*"
+  - "npm run qmd -- status"

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import getSlideOrientationContainerClassName from "@/react/slide-orientation/getSlideOrientationContainerClassName";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
 import { type SongPublic } from "@/react/song/song-schema";
+import deriveSongFieldKeys from "@/shared/song/deriveSongFieldKeys";
 import { ONE } from "@/shared/constants/shared-constants";
 import { safeGet } from "@/shared/utils/safe";
 
@@ -242,13 +243,11 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 	const displayFields: readonly string[] =
 		songPublic === undefined
 			? []
-			: [
-					songPublic.lyrics,
-					...(songPublic.script === undefined || songPublic.script === null
-						? []
-						: [songPublic.script]),
-					...songPublic.translations,
-				];
+			: deriveSongFieldKeys({
+					lyrics: songPublic.lyrics,
+					script: songPublic.script,
+					translations: songPublic.translations,
+				});
 
 	return {
 		canPortalFullScreen,

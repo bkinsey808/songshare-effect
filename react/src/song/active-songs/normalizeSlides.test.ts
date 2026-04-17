@@ -21,11 +21,11 @@ describe("normalizeSlides", () => {
             },
         } as Record<string, unknown>;
 
-        const out = normalizeSlides({ rawSlides, lyrics: "en", script: "script", translations: ["fr"] });
+        const out = normalizeSlides({ rawSlides, lyrics: ["en"], script: ["script"], translations: ["fr"] });
 
         const { s1 } = out;
         expect(s1?.slide_name).toBe("Title");
-        expect(s1?.field_data).toStrictEqual({ en: "line", script: "scr", fr: "fr text" });
+        expect(s1?.field_data).toStrictEqual({ lyrics: "line", script: "scr", fr: "fr text" });
 
         // Group background fields to reduce assertion count
         const expectedBg = {
@@ -64,13 +64,13 @@ describe("normalizeSlides", () => {
             },
         } as Record<string, unknown>;
 
-        const out = normalizeSlides({ rawSlides, lyrics: "en", script: "sr", translations: ["fr"] });
+        const out = normalizeSlides({ rawSlides, lyrics: ["en"], script: ["sr"], translations: ["fr"] });
 
         // slide_name non-string => empty
         const { slideA } = out;
         expect(slideA?.slide_name).toBe("");
 
         // field keys exist and use legacy fallbacks where appropriate
-        expect(slideA?.field_data).toStrictEqual({ en: "legacy lyrics", sr: "legacy script", fr: "legacy translate" });
+        expect(slideA?.field_data).toStrictEqual({ lyrics: "legacy lyrics", script: "legacy script", fr: "legacy translate" });
     });
 });

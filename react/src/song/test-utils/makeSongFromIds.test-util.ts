@@ -14,7 +14,7 @@ export default function makeSongFromIds(
 ): ReturnType<typeof makeSongPublic> {
 	const slides: Record<string, { slide_name: string; field_data: Record<string, string> }> = {};
 	for (const id of ids) {
-		slides[id] = { slide_name: `Slide ${id}`, field_data: { en: `value-${id}` } };
+		slides[id] = { slide_name: `Slide ${id}`, field_data: { lyrics: `value-${id}` } };
 	}
 
 	return makeSongPublic({ slide_order: ids, slides, ...overrides });

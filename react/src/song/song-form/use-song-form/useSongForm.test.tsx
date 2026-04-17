@@ -7,7 +7,6 @@ import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeMockLocation from "@/react/lib/test-utils/makeMockLocation.test-util";
 import useItemTags from "@/react/tag/useItemTags";
-import { defaultLanguage } from "@/shared/language/supported-languages";
 
 import type { SongFormChordPickerRequest } from "../song-form-types";
 import deleteSongEffect from "./submit/deleteSongRequest";
@@ -270,7 +269,7 @@ function Harness(): ReactElement {
 				type="button"
 				data-testid="enable-script-language"
 				onClick={() => {
-					setFormValue("script", "es");
+					setFormValue("script", ["es"]);
 				}}
 			>
 				enable script language
@@ -438,7 +437,7 @@ describe("useSongForm — Harness", () => {
 		const rendered = render(<Harness />);
 
 		await waitFor(() => {
-			expect(within(rendered.container).getByTestId("fields").textContent).toBe(defaultLanguage);
+			expect(within(rendered.container).getByTestId("fields").textContent).toBe("lyrics");
 		});
 
 		// Act
@@ -447,7 +446,7 @@ describe("useSongForm — Harness", () => {
 		// Assert
 		await waitFor(() => {
 			expect(within(rendered.container).getByTestId("fields").textContent).toBe(
-				`${defaultLanguage},es`,
+				"lyrics,script",
 			);
 		});
 	});

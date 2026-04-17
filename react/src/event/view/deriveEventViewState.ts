@@ -5,6 +5,7 @@ import {
     type ParticipantStatus,
 } from "@/react/event/participant-status/participantStatusMachine";
 import { type SongPublic } from "@/react/song/song-schema";
+import deriveSongFieldKeys from "@/shared/song/deriveSongFieldKeys";
 import { utcTimestampToClientLocalDate } from "@/shared/utils/date/formatEventDate";
 
 const ZERO = 0;
@@ -97,24 +98,11 @@ export default function deriveEventViewState(
 	const activeSlideDisplayFields: readonly string[] =
 		activeSong === undefined
 			? []
-			: (() => {
-				  const translations: string[] = [];
-				  if (Array.isArray(activeSong.translations)) {
-					  // Safely iterate and collect only string translations
-					  // to avoid spreading a possibly-unsafe any[] value.
-					  for (const t of activeSong.translations) {
-						  if (typeof t === "string") {
-							  translations.push(t);
-						  }
-					  }
-				  }
-
-				  return [
-					  activeSong.lyrics ?? "",
-					  ...(activeSong.script === undefined || activeSong.script === null ? [] : [activeSong.script]),
-					  ...translations,
-				  ];
-			  })();
+			: deriveSongFieldKeys({
+					lyrics: activeSong.lyrics,
+					script: activeSong.script,
+					translations: activeSong.translations,
+				});
 	const activeSongTotalSlides =
 		activeSong !== undefined && Array.isArray(activeSong.slide_order)
 			? activeSong.slide_order.length

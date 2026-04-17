@@ -85,13 +85,13 @@ describe("processSong", () => {
 			song_id: "s2",
 			song_name: "Raw Song",
 			song_slug: "raw-song",
-			lyrics: "sa",
-			script: "sa-Latn",
+			lyrics: ["sa"],
+			script: ["sa-Latn"],
 			translations: ["en"],
 		});
 		expect(out["s2"]?.slides["s1"]?.field_data).toStrictEqual({
-			sa: "a",
-			"sa-Latn": "b",
+			lyrics: "a",
+			script: "b",
 			en: "c",
 		});
 		spyWarn.mockRestore();
@@ -129,11 +129,11 @@ describe("processSong", () => {
 		expect(out["s3"]).toMatchObject({
 			song_id: "s3",
 			song_slug: "scriptless-song",
-			lyrics: "en",
+			lyrics: ["en"],
 		});
-		expect(out["s3"]?.script).toBeUndefined();
+		expect(out["s3"]?.script).toStrictEqual([]);
 		expect(out["s3"]?.slides["slide-1"]?.field_data).toStrictEqual({
-			en: "Hello",
+			lyrics: "Hello",
 		});
 		spyWarn.mockRestore();
 	});

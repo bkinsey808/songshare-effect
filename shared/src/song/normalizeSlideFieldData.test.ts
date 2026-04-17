@@ -3,40 +3,40 @@ import { describe, expect, it } from "vitest";
 import normalizeSlideFieldData from "./normalizeSlideFieldData";
 
 describe("normalizeSlideFieldData", () => {
-	it("keeps current language-code keys when already present", () => {
+	it("keeps current static keys when already present", () => {
 		const result = normalizeSlideFieldData({
 			fieldData: {
-				sa: "Om",
+				lyrics: "Om",
+				script: "Om-Latn",
 				en: "Aum",
-				"sa-Latn": "Om",
 			},
-			lyrics: "sa",
-			script: "sa-Latn",
+			lyrics: ["sa"],
+			script: ["sa-Latn"],
 			translations: ["en"],
 		});
 
 		expect(result).toStrictEqual({
-			sa: "Om",
-			"sa-Latn": "Om",
+			lyrics: "Om",
+			script: "Om-Latn",
 			en: "Aum",
 		});
 	});
 
-	it("falls back from legacy keys to language-code keys", () => {
+	it("falls back from legacy BCP47 keys to static keys", () => {
 		const result = normalizeSlideFieldData({
 			fieldData: {
-				lyrics: "Base lyrics",
-				script: "Base script",
+				sa: "Base lyrics",
+				"sa-Latn": "Base script",
 				enTranslation: "Base translation",
 			},
-			lyrics: "sa",
-			script: "sa-Latn",
+			lyrics: ["sa"],
+			script: ["sa-Latn"],
 			translations: ["en"],
 		});
 
 		expect(result).toStrictEqual({
-			sa: "Base lyrics",
-			"sa-Latn": "Base script",
+			lyrics: "Base lyrics",
+			script: "Base script",
 			en: "Base translation",
 		});
 	});
@@ -47,13 +47,13 @@ describe("normalizeSlideFieldData", () => {
 				lyrics: "Base lyrics",
 				enTranslation: "English translation",
 			},
-			lyrics: "sa",
-			script: undefined,
+			lyrics: ["sa"],
+			script: [],
 			translations: ["en", "es"],
 		});
 
 		expect(result).toStrictEqual({
-			sa: "Base lyrics",
+			lyrics: "Base lyrics",
 			en: "English translation",
 			es: "",
 		});

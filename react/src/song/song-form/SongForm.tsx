@@ -162,13 +162,13 @@ export default function SongForm(): ReactElement {
 									>
 										<SlidesEditor
 											fields={fields}
+											lyricsLanguages={formValues.lyrics}
+											scriptLanguages={formValues.script}
 											slideOrder={slideOrder}
 											setSlideOrder={setSlideOrder}
 											slides={slides}
 											setSlides={setSlides}
 											openChordPicker={openChordPicker}
-											lyricsLanguage={formValues.lyrics}
-											scriptLanguage={formValues.script}
 										/>
 									</CollapsibleSection>
 								</div>
@@ -186,13 +186,13 @@ export default function SongForm(): ReactElement {
 								>
 									<SlidesGridView
 										fields={fields}
+										lyricsLanguages={formValues.lyrics}
+										scriptLanguages={formValues.script}
 										slideOrder={slideOrder}
 										setSlideOrder={setSlideOrder}
 										slides={slides}
 										setSlides={setSlides}
 										openChordPicker={openChordPicker}
-										lyricsLanguage={formValues.lyrics}
-										scriptLanguage={formValues.script}
 									/>
 								</CollapsibleSection>
 							</div>

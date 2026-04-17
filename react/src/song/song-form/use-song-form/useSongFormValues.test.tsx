@@ -26,7 +26,7 @@ describe("useSongFormValues", () => {
 
 		await waitFor(() => {
 			expect(result.current.formValues).toStrictEqual(emptyFormValues);
-			expect(result.current.formValues.lyrics).toBe(defaultLanguage);
+			expect(result.current.formValues.lyrics).toStrictEqual([defaultLanguage]);
 			expect(result.current.formValues.translations).toStrictEqual([]);
 		});
 	});

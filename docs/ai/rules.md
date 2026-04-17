@@ -48,7 +48,7 @@ Never auto-run: git write operations, deployments, system-level package installs
 ## Environment Safety
 
 - **Staging first for migrations and deploys**: Always use the staging workflow before any production migration or deployment.
-- **Production requires explicit confirmation**: Do not run production-linked commands such as `npm run supabase:migrate`, `npm run deploy`, `npm run deploy:api`, or `npm run deploy:pages` unless a human explicitly asks for production.
+- **Production requires explicit confirmation**: **NEVER** run a production deployment or production database migration without explicitly asking the user for permission first. Do not run production-linked commands such as `npm run supabase:migrate`, `npm run deploy`, `npm run deploy:api`, or `npm run deploy:pages` unless a human explicitly asks for production.
 - **Prefer staging commands by default**: Use commands such as `npm run supabase:migrate:staging`, `npm run deploy:staging`, and other staging-targeted workflows for verification first.
 
 ## Git Usage

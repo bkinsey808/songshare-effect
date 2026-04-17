@@ -7,8 +7,7 @@ import FormTextarea from "@/react/lib/design-system/form/FormTextarea";
 import TagInput from "@/react/tag/input/TagInput";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
-import LanguagePicker from "./language-picker/LanguagePicker";
-import TranslationLanguagePicker from "./language-picker/TranslationLanguagePicker";
+import MultiLanguagePicker from "./language-picker/MultiLanguagePicker";
 import SongKeyFormField from "./SongKeyFormField";
 
 type SongFormFieldsProps = Readonly<{
@@ -16,8 +15,8 @@ type SongFormFieldsProps = Readonly<{
 		fieldName: keyof {
 			song_name: string;
 			song_slug: string;
-			lyrics: string;
-			script?: string;
+			lyrics: readonly string[];
+			script: readonly string[];
 			key?: SongKey;
 			short_credit?: string;
 			long_credit?: string;
@@ -30,8 +29,8 @@ type SongFormFieldsProps = Readonly<{
 	formValues: {
 		song_name: string;
 		song_slug: string;
-		lyrics: string;
-		script: string | undefined;
+		lyrics: readonly string[];
+		script: readonly string[];
 		translations: readonly string[];
 		key: SongKey | "";
 		short_credit: string;
@@ -173,6 +172,7 @@ export default function SongFormFields({
 
 			<FormField
 				label={t("song.lyricsLanguage", "Lyrics Language")}
+				as="fieldset"
 				error={(() => {
 					const lyricsError = getFieldError("lyrics");
 					return lyricsError
@@ -183,20 +183,20 @@ export default function SongFormFields({
 						: undefined;
 				})()}
 			>
-				<input type="hidden" name="lyrics" value={formValues.lyrics} />
-				<LanguagePicker
+				<MultiLanguagePicker
 					value={formValues.lyrics}
-					onChange={(code) => {
-						if (code !== undefined) {
-							setFormValue("lyrics", code);
-						}
+					onChange={(codes) => {
+						setFormValue("lyrics", codes);
 					}}
-					excludedCodes={formValues.script === undefined ? [] : [formValues.script]}
+					excludedCodes={formValues.script}
+					placeholder={t("song.languagePicker.addLyrics", "Add lyrics language...")}
+					emptyText={t("song.languagePicker.emptyLyrics", "No lyrics languages selected.")}
 				/>
 			</FormField>
 
 			<FormField
 				label={t("song.scriptLanguage", "Script Language")}
+				as="fieldset"
 				error={(() => {
 					const scriptError = getFieldError("script");
 					return scriptError
@@ -207,22 +207,20 @@ export default function SongFormFields({
 						: undefined;
 				})()}
 			>
-				{formValues.script === undefined ? undefined : (
-					<input type="hidden" name="script" value={formValues.script} />
-				)}
-				<LanguagePicker
+				<MultiLanguagePicker
 					value={formValues.script}
-					onChange={(code) => {
-						setFormValue("script", code);
+					onChange={(codes) => {
+						setFormValue("script", codes);
 					}}
-					excludedCodes={[formValues.lyrics]}
-					optional
-					placeholder={t("song.languagePicker.none", "None")}
+					excludedCodes={formValues.lyrics}
+					placeholder={t("song.languagePicker.addScript", "Add script language...")}
+					emptyText={t("song.languagePicker.emptyScript", "No script languages selected.")}
 				/>
 			</FormField>
 
 			<FormField
 				label={t("song.translationLanguages", "Translation Languages")}
+				as="fieldset"
 				error={(() => {
 					const translationsError = getFieldError("translations");
 					return translationsError
@@ -233,15 +231,17 @@ export default function SongFormFields({
 						: undefined;
 				})()}
 			>
-				<TranslationLanguagePicker
+				<MultiLanguagePicker
 					value={formValues.translations}
 					onChange={(codes) => {
 						setFormValue("translations", codes);
 					}}
 					excludedCodes={[
-						formValues.lyrics,
-						...(formValues.script === undefined ? [] : [formValues.script]),
+						...formValues.lyrics,
+						...formValues.script,
 					]}
+					placeholder={t("song.translationLanguagePicker.addPlaceholder", "Add translation language...")}
+					emptyText={t("song.translationLanguagePicker.empty", "No translation languages selected yet.")}
 				/>
 			</FormField>
 
@@ -302,7 +302,7 @@ export default function SongFormFields({
 				/>
 			</FormField>
 
-			<FormField label={t("song.tags", "Tags")}>
+			<FormField as="fieldset" label={t("song.tags", "Tags")}>
 				<TagInput value={tags} onChange={setTags} />
 			</FormField>
 		</FormSection>

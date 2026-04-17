@@ -21,8 +21,8 @@ function getKeys(json: unknown): string[] {
 // value used to verify non-string filtering
 const BAD_FIELD_VALUE = 123;
 const LANGUAGE_PARAMS = {
-	lyrics: "en",
-	script: undefined,
+	lyrics: ["en"],
+	script: [],
 	translations: ["es"],
 } as const;
 
@@ -42,8 +42,8 @@ describe("sanitizeSlidesForDb", () => {
 		};
 
 		const result = sanitizeSlidesForDb(input, {
-			lyrics: "alpha",
-			script: undefined,
+			lyrics: ["alpha"],
+			script: [],
 			translations: [],
 		});
 		const keys = getKeys(result);
@@ -54,7 +54,7 @@ describe("sanitizeSlidesForDb", () => {
 		const input = {
 			slideX: {
 				slide_name: true as unknown, // non-string value should be coerced
-				field_data: { foo: {} as unknown, bar: undefined as unknown },
+				field_data: { lyrics: {} as unknown, es: undefined as unknown },
 			},
 		};
 
@@ -63,7 +63,7 @@ describe("sanitizeSlidesForDb", () => {
 		expect(result).toStrictEqual({
 			slideX: {
 				slide_name: "",
-				field_data: { en: "", es: "" },
+				field_data: { lyrics: "", es: "" },
 			},
 		});
 	});
@@ -80,18 +80,18 @@ describe("sanitizeSlidesForDb", () => {
 		expect(result).toStrictEqual({
 			slideOne: {
 				slide_name: "s1",
-				field_data: { en: "x", es: "hola" },
+				field_data: { lyrics: "x", es: "hola" },
 			},
 		});
 	});
 
 	it("drops extra field_data keys that are not active languages", () => {
 		const input = {
-			slideOne: { slide_name: "", field_data: { en: "hello", chords: String(BAD_FIELD_VALUE) } },
+			slideOne: { slide_name: "", field_data: { lyrics: "hello", chords: String(BAD_FIELD_VALUE) } },
 		};
 		const result = sanitizeSlidesForDb(input, LANGUAGE_PARAMS);
 		expect(result).toStrictEqual({
-			slideOne: { slide_name: "", field_data: { en: "hello", es: "" } },
+			slideOne: { slide_name: "", field_data: { lyrics: "hello", es: "" } },
 		});
 	});
 
@@ -100,7 +100,7 @@ describe("sanitizeSlidesForDb", () => {
 		const input = { 0: { slide_name: "zero", field_data: {} } } as unknown;
 		const result = sanitizeSlidesForDb(input, LANGUAGE_PARAMS);
 		expect(result).toStrictEqual({
-			"0": { slide_name: "zero", field_data: { en: "", es: "" } },
+			"0": { slide_name: "zero", field_data: { lyrics: "", es: "" } },
 		});
 	});
 
@@ -122,7 +122,7 @@ describe("sanitizeSlidesForDb", () => {
 		expect(result).toStrictEqual({
 			slideOne: {
 				slide_name: "s1",
-				field_data: { en: "", es: "" },
+				field_data: { lyrics: "", es: "" },
 				background_image_id: "img-1",
 				background_image_url: "/api/images/serve/images/user-1/img-1.png",
 				background_image_width: 1200,
@@ -147,7 +147,7 @@ describe("sanitizeSlidesForDb", () => {
 		expect(result).toStrictEqual({
 			slideOne: {
 				slide_name: "s1",
-				field_data: { en: "", es: "" },
+				field_data: { lyrics: "", es: "" },
 			},
 		});
 	});

@@ -1,8 +1,10 @@
 // src/features/song-form/schema.ts
 import { Schema } from "effect";
 
-import { languageCodeSchema, translationsSchema } from "@/react/song/song-schema";
+import { translationsSchema } from "@/react/song/song-schema";
 import { SongPublicInsertSchema, type SongPublicInsert } from "@/shared/generated/supabaseSchemas";
+
+const EMPTY_LENGTH = 0;
 
 const SongFormField = {
 	song_id: "song_id",
@@ -92,8 +94,8 @@ export type SongFormValues = {
 	song_id?: string | undefined;
 	song_name: string;
 	song_slug: string;
-	lyrics: string;
-	script?: string | undefined;
+	lyrics: readonly string[];
+	script: readonly string[];
 	translations: readonly string[];
 	key?: SongPublicInsert["key"];
 	short_credit?: string | undefined;
@@ -109,8 +111,13 @@ export const songFormSchema: Schema.Schema<SongFormValues> = Schema.Struct({
 	[SongFormField.song_id]: Schema.optional(Schema.String),
 	[SongFormField.song_name]: Schema.String,
 	[SongFormField.song_slug]: Schema.String,
-	[SongFormField.lyrics]: languageCodeSchema,
-	[SongFormField.script]: Schema.optional(languageCodeSchema),
+	[SongFormField.lyrics]: translationsSchema.pipe(
+		// oxlint-disable-next-line unicorn/no-array-method-this-argument
+		Schema.filter((arr) => arr.length > EMPTY_LENGTH, {
+			message: () => "song.validation.lyricsRequired",
+		})
+	),
+	[SongFormField.script]: translationsSchema,
 	[SongFormField.translations]: translationsSchema,
 	[SongFormField.key]: SongPublicInsertSchema.fields.key,
 	[SongFormField.short_credit]: Schema.optional(Schema.String),

@@ -13,13 +13,13 @@ import useSlidesEditor from "./useSlidesEditor";
 type SlidesEditorProps = Readonly<
 	ReadonlyDeep<{
 		fields: readonly string[];
+		lyricsLanguages: readonly string[];
+		scriptLanguages: readonly string[];
 		slideOrder: readonly string[];
 		setSlideOrder: (newOrder: readonly string[]) => void;
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 		openChordPicker?: OpenChordPicker;
-		lyricsLanguage: string;
-		scriptLanguage: string | undefined;
 	}>
 >;
 
@@ -37,24 +37,24 @@ function noopOpenChordPicker(): void {
  * Also exposes controls to add, duplicate, and delete slides and to change their order.
  *
  * @param fields - Which dynamic fields are active for each slide (derived from lyrics/script/translations)
+ * @param lyricsLanguages - Selected lyrics language codes
+ * @param scriptLanguages - Selected script language codes
  * @param slideOrder - Ordered array of slide ids (presentation order)
  * @param setSlideOrder - Setter to update the presentation order
  * @param slides - Map of slide id to slide data
  * @param setSlides - Setter to replace the slides map
  * @param openChordPicker - Optional callback to open the chord picker UI
- * @param lyricsLanguage - BCP 47 language code for the lyrics field.
- * @param scriptLanguage - Optional BCP 47 language code for the script field.
  * @returns React element rendering the Slide Editor UI
  */
 export default function SlidesEditor({
 	fields,
+	lyricsLanguages,
+	scriptLanguages,
 	slideOrder,
 	setSlideOrder,
 	slides,
 	setSlides,
 	openChordPicker = noopOpenChordPicker,
-	lyricsLanguage,
-	scriptLanguage,
 }: SlidesEditorProps): ReactElement {
 	const { t } = useTranslation();
 
@@ -117,12 +117,12 @@ export default function SlidesEditor({
 							slideId={slideId}
 							idx={idx}
 							fields={fields}
+							lyricsLanguages={lyricsLanguages}
+							scriptLanguages={scriptLanguages}
 							slideOrder={slideOrder}
 							slides={slides}
 							uiState={slideDetailUiState}
 							actions={slideDetailActions}
-							lyricsLanguage={lyricsLanguage}
-							scriptLanguage={scriptLanguage}
 						/>
 					);
 				})

@@ -2,9 +2,9 @@
 -- PostgreSQL database dump
 --
 
-\restrict m2WTdgUZQLwcxW8J2bzMd9mnzPmFLMePYfjMEWUb3Ji3bWscXrLMl0uPSvypAEO
+\restrict 0O1REs8Fl4rcdAcn2e2PHnCGfMxCVCUqKpeo99rRX2ilJFtCQjuOu3yZiCB6qXS
 
--- Dumped from database version 17.4
+-- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
 
 SET statement_timeout = 0;
@@ -109,6 +109,39 @@ $$;
 CREATE FUNCTION public.is_valid_bcp47(code text) RETURNS boolean
     LANGUAGE sql IMMUTABLE STRICT
     AS $_$ SELECT code ~ '^[a-z]{2,3}(-[A-Za-z0-9]+)*$' $_$;
+
+
+--
+-- Name: rls_auto_enable(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.rls_auto_enable() RETURNS event_trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'pg_catalog'
+    AS $$
+DECLARE
+  cmd record;
+BEGIN
+  FOR cmd IN
+    SELECT *
+    FROM pg_event_trigger_ddl_commands()
+    WHERE command_tag IN ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
+      AND object_type IN ('table','partitioned table')
+  LOOP
+     IF cmd.schema_name IS NOT NULL AND cmd.schema_name IN ('public') AND cmd.schema_name NOT IN ('pg_catalog','information_schema') AND cmd.schema_name NOT LIKE 'pg_toast%' AND cmd.schema_name NOT LIKE 'pg_temp%' THEN
+      BEGIN
+        EXECUTE format('alter table if exists %s enable row level security', cmd.object_identity);
+        RAISE LOG 'rls_auto_enable: enabled RLS on %', cmd.object_identity;
+      EXCEPTION
+        WHEN OTHERS THEN
+          RAISE LOG 'rls_auto_enable: failed to enable RLS on %', cmd.object_identity;
+      END;
+     ELSE
+        RAISE LOG 'rls_auto_enable: skip % (either system schema or not in enforced list: %.)', cmd.object_identity, cmd.schema_name;
+     END IF;
+  END LOOP;
+END;
+$$;
 
 
 --
@@ -1194,16 +1227,19 @@ CREATE TABLE public.song_public (
     public_notes text,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
-    lyrics text DEFAULT 'en'::text NOT NULL,
+    lyrics text[] DEFAULT '{en}'::text[] NOT NULL,
     translations text[] DEFAULT '{}'::text[] NOT NULL,
-    script text,
+    script text[] DEFAULT '{}'::text[] NOT NULL,
     CONSTRAINT song_name_format CHECK (((length(song_name) >= 2) AND (length(song_name) <= 100) AND (song_name = btrim(song_name)) AND (POSITION(('  '::text) IN (song_name)) = 0))),
     CONSTRAINT song_public_key_allowed_values CHECK (((key IS NULL) OR (key = ANY (ARRAY['C'::text, 'C#'::text, 'Db'::text, 'D'::text, 'D#'::text, 'Eb'::text, 'E'::text, 'F'::text, 'F#'::text, 'Gb'::text, 'G'::text, 'G#'::text, 'Ab'::text, 'A'::text, 'A#'::text, 'Bb'::text, 'B'::text])))),
-    CONSTRAINT song_public_lyrics_not_in_translations CHECK ((NOT (lyrics = ANY (translations)))),
-    CONSTRAINT song_public_lyrics_valid_bcp47 CHECK (public.is_valid_bcp47(lyrics)),
-    CONSTRAINT song_public_script_not_in_translations CHECK (((script IS NULL) OR (NOT (script = ANY (translations))))),
-    CONSTRAINT song_public_script_not_lyrics CHECK (((script IS NULL) OR (script <> lyrics))),
-    CONSTRAINT song_public_script_valid_bcp47 CHECK (((script IS NULL) OR public.is_valid_bcp47(script))),
+    CONSTRAINT song_public_lyrics_no_duplicates CHECK (public.array_has_no_duplicates(lyrics)),
+    CONSTRAINT song_public_lyrics_not_empty CHECK ((COALESCE(array_length(lyrics, 1), 0) > 0)),
+    CONSTRAINT song_public_lyrics_not_in_translations CHECK ((NOT (lyrics && translations))),
+    CONSTRAINT song_public_lyrics_valid_bcp47 CHECK (public.are_all_valid_bcp47(lyrics)),
+    CONSTRAINT song_public_script_no_duplicates CHECK (public.array_has_no_duplicates(script)),
+    CONSTRAINT song_public_script_not_in_translations CHECK ((NOT (script && translations))),
+    CONSTRAINT song_public_script_not_lyrics CHECK ((NOT (script && lyrics))),
+    CONSTRAINT song_public_script_valid_bcp47 CHECK (public.are_all_valid_bcp47(script)),
     CONSTRAINT song_public_translations_no_duplicates CHECK (public.array_has_no_duplicates(translations)),
     CONSTRAINT song_public_translations_valid_bcp47 CHECK (public.are_all_valid_bcp47(translations)),
     CONSTRAINT song_slug_format CHECK (((song_slug ~ '^[a-z0-9-]+$'::text) AND (song_slug !~ '-%'::text) AND (song_slug !~ '%-'::text) AND (POSITION(('--'::text) IN (song_slug)) = 0)))
@@ -3653,5 +3689,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict m2WTdgUZQLwcxW8J2bzMd9mnzPmFLMePYfjMEWUb3Ji3bWscXrLMl0uPSvypAEO
+\unrestrict 0O1REs8Fl4rcdAcn2e2PHnCGfMxCVCUqKpeo99rRX2ilJFtCQjuOu3yZiCB6qXS
 
